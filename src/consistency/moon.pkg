@@ -1,4 +1,6 @@
 import {
+  "Luna-Flow/arithmetic" @arith,
+  "Luna-Flow/luna-generic" @lg,
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/ball_float",

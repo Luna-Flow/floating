@@ -69,6 +69,19 @@ pub fn Decimal::from_bigint(n : BigInt, precision? : Int = 34) -> Decimal {
   Decimal::make(n, 0, precision)
 }
 
+pub fn Decimal::from_double(x : Double, precision? : Int = 34) -> Decimal {
+  let precision = Int::max(1, precision)
+  match @bin_float.BinFloat::from_double(x, precision=53).classify() {
+    FpClass::NaN => Decimal::nan(precision=precision)
+    FpClass::Infinity => Decimal::inf(@bin_float.BinFloat::from_double(x, precision=53).sign(), precision=precision)
+    FpClass::Finite => Decimal::from_bin_float(@bin_float.BinFloat::from_double(x, precision=53), precision=precision)
+  }
+}
+
+pub fn Decimal::from_float(x : Float, precision? : Int = 34) -> Decimal {
+  Decimal::from_double(x.to_double(), precision=precision)
+}
+
 pub fn Decimal::from_string(src : String, precision? : Int = 34) -> Decimal? {
   match split_decimal_string(src) {
     Some((negative, digits, exponent10)) => {
@@ -147,6 +160,13 @@ fn zeros(n : Int) -> String {
     b.write_char('0')
   }
   b.to_string()
+}
+
+fn compare_finite(a : Decimal, b : Decimal) -> Int {
+  let target = Int::min(a.exponent10, b.exponent10)
+  let ca = a.coefficient * pow10(a.exponent10 - target)
+  let cb = b.coefficient * pow10(b.exponent10 - target)
+  ca.compare(cb)
 }
 
 fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
@@ -229,6 +249,59 @@ pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
   div_decimal_impl(self, other)
 }
 
+pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int {
+  guard self.class != FpClass::NaN && other.class != FpClass::NaN else {
+    abort("NaN is unordered")
+  }
+  match (self.class, other.class) {
+    (FpClass::Infinity, FpClass::Infinity) => self.coefficient.compare(other.coefficient)
+    (FpClass::Infinity, _) => if self.sign() == Sign::Negative { -1 } else { 1 }
+    (_, FpClass::Infinity) => if other.sign() == Sign::Negative { 1 } else { -1 }
+    (FpClass::Finite, FpClass::Finite) => compare_finite(self, other)
+    _ => 0
+  }
+}
+
+pub fn Decimal::min(self : Decimal, other : Decimal) -> Decimal {
+  if self.classify() == FpClass::NaN {
+    other
+  } else if other.classify() == FpClass::NaN {
+    self
+  } else if self.compare(other) <= 0 {
+    self
+  } else {
+    other
+  }
+}
+
+pub fn Decimal::max(self : Decimal, other : Decimal) -> Decimal {
+  if self.classify() == FpClass::NaN {
+    other
+  } else if other.classify() == FpClass::NaN {
+    self
+  } else if self.compare(other) >= 0 {
+    self
+  } else {
+    other
+  }
+}
+
+pub fn Decimal::clamp(self : Decimal, min~ : Decimal, max~ : Decimal) -> Decimal {
+  guard min.classify() != FpClass::NaN && max.classify() != FpClass::NaN else {
+    abort("clamp bounds must be ordered values")
+  }
+  guard min.compare(max) <= 0 else { abort("min must not exceed max") }
+  if self.classify() == FpClass::NaN {
+    self
+  } else if self.compare(min) < 0 {
+    min
+  } else if self.compare(max) > 0 {
+    max
+  } else {
+    self
+  }
+}
+
 pub fn Decimal::to_bin_float(
   self : Decimal,
   precision? : Int = self.precision_,
@@ -297,6 +370,199 @@ pub impl Div for Decimal with fn div(self, other) {
 
 pub impl Neg for Decimal with fn neg(self) {
   self.neg()
+}
+
+pub impl Compare for Decimal with fn compare(self, other) {
+  self.compare(other)
+}
+
+pub impl @lg.Zero for Decimal with fn zero() -> Decimal {
+  Decimal::zero(precision=1)
+}
+
+pub impl @lg.One for Decimal with fn one() -> Decimal {
+  Decimal::one(precision=1)
+}
+
+pub impl @lg.Inverse for Decimal with fn inv(self) -> Decimal {
+  guard !self.is_zero()
+  Decimal::one(precision=self.precision_) / self
+}
+
+pub impl @lg.AddMonoid for Decimal
+
+pub impl @lg.MulMonoid for Decimal
+
+pub impl @lg.AddGroup for Decimal
+
+pub impl @lg.MulGroup for Decimal
+
+pub impl @lg.Semiring for Decimal
+
+pub impl @lg.Ring for Decimal
+
+pub impl @lg.Field for Decimal
+
+pub impl @lg.Num for Decimal with fn abs(self) -> Decimal {
+  self.abs()
+}
+
+pub impl @lg.Num for Decimal with fn signum(self) -> Decimal {
+  match self.sign() {
+    Sign::Negative => Decimal::from_int(-1, precision=self.precision_)
+    Sign::Zero => Decimal::zero(precision=self.precision_)
+    Sign::Positive => Decimal::one(precision=self.precision_)
+  }
+}
+
+pub impl @arith.Sqrt for Decimal with fn sqrt(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.sqrt_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Cbrt for Decimal with fn cbrt(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.cbrt_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Radical for Decimal
+
+pub impl @arith.Exponential for Decimal with fn exp(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.exp_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Exponential for Decimal with fn exp2(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.exp2_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Logarithmic for Decimal with fn ln(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.ln_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Logarithmic for Decimal with fn log2(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.log2_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Logarithmic for Decimal with fn log10(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.log10_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Power for Decimal with fn pow(self, exponent) -> Decimal {
+  let precision = Int::max(self.precision_, exponent.precision_)
+  let work = Int::max(precision * 4 + 16, 96)
+  @bin_float.pow_for_precision(
+    self.to_bin_float(precision=work),
+    exponent.to_bin_float(precision=work),
+    work,
+  )
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(precision, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Trigonometric for Decimal with fn sin(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.sin_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Trigonometric for Decimal with fn cos(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.cos_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Trigonometric for Decimal with fn tan(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.tan_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseTrigonometric for Decimal with fn asin(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.asin_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseTrigonometric for Decimal with fn acos(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.acos_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseTrigonometric for Decimal with fn atan(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.atan_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseTrigonometric for Decimal with fn atan2(self, other) -> Decimal {
+  let precision = Int::max(self.precision_, other.precision_)
+  let work = Int::max(precision * 4 + 16, 96)
+  @bin_float.atan2_for_precision(
+    self.to_bin_float(precision=work),
+    other.to_bin_float(precision=work),
+    work,
+  )
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(precision, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Hyperbolic for Decimal with fn sinh(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.sinh_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Hyperbolic for Decimal with fn cosh(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.cosh_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Hyperbolic for Decimal with fn tanh(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.tanh_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseHyperbolic for Decimal with fn asinh(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.asinh_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseHyperbolic for Decimal with fn acosh(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.acosh_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.InverseHyperbolic for Decimal with fn atanh(self) -> Decimal {
+  let work = Int::max(self.precision_ * 4 + 16, 96)
+  @bin_float.atanh_for_precision(self.to_bin_float(precision=work), work)
+  |> fn(x) { Decimal::from_bin_float(x, precision=work).with_precision(self.precision_, RoundingMode::ToNearestEven) }
+}
+
+pub impl @arith.Constants for Decimal with fn pi() -> Decimal {
+  Decimal::from_bin_float(@bin_float.pi_for_precision(128), precision=128).with_precision(34, RoundingMode::ToNearestEven)
+}
+
+pub impl @arith.Constants for Decimal with fn tau() -> Decimal {
+  Decimal::from_bin_float(@bin_float.tau_for_precision(128), precision=128).with_precision(34, RoundingMode::ToNearestEven)
+}
+
+pub impl @arith.Constants for Decimal with fn e() -> Decimal {
+  Decimal::from_bin_float(@bin_float.e_for_precision(128), precision=128).with_precision(34, RoundingMode::ToNearestEven)
 }
 
 pub impl @def.Floating for Decimal with fn classify(self) {

@@ -18,10 +18,11 @@
 ### 当前版本特征
 
 - 提供最小但稳定的 `Floating` trait 基线。
-- `bin_float` 与 `decimal` 都支持构造、规范化、精度调整、基础四则与特殊值。
-- `ball_float` 支持精确嵌入、包含、重叠、分离判断与基础球算术。
+- `bin_float` 与 `decimal` 都支持构造、规范化、精度调整、四则、特殊值，以及共享 arithmetic trait 提供的常量与超越函数。
+- `ball_float` 支持精确嵌入、包含、重叠、分离判断、区间比较、`pow` 与球/区间超越函数。
 - `decimal` 与 `bin_float` 支持双向转换。
-- 仓库包含 correctness-first 的 whitebox 测试。
+- `atan2` 等分支切换处以 enclosure 正确性优先，必要时会返回更宽但安全的区间。
+- 仓库包含 correctness-first 的 whitebox 测试，覆盖转换、超越函数 smoke case 与区间边界。
 
 ### 快速开始
 

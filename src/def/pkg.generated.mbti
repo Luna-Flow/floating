@@ -1,0 +1,51 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/def"
+
+import {
+  "moonbitlang/core/bigint",
+}
+
+// Values
+pub fn[F : Floating] is_finite(F) -> Bool
+
+pub fn[F : Floating] is_infinite(F) -> Bool
+
+pub fn[F : Floating] is_nan(F) -> Bool
+
+pub fn[F : Floating] is_zero(F) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) enum FpClass {
+  Finite
+  Infinity
+  NaN
+} derive(Eq)
+
+pub(all) enum RoundingMode {
+  ToNearestEven
+  TowardZero
+  TowardPositive
+  TowardNegative
+  AwayFromZero
+} derive(Eq)
+
+pub(all) enum Sign {
+  Negative
+  Zero
+  Positive
+} derive(Eq)
+
+// Type aliases
+pub using @bigint {type BigInt}
+
+// Traits
+pub(open) trait Floating {
+  fn classify(Self) -> FpClass
+  fn sign(Self) -> Sign
+  fn precision(Self) -> Int
+  fn with_precision(Self, Int, RoundingMode) -> Self
+  fn normalized(Self) -> Self
+}
+

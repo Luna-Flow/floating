@@ -1,97 +1,123 @@
 # @ball_float.BallFloat
 
-This page tracks the current repository implementation and is written as the `0.1.0` API baseline.
+This page tracks the current repository implementation and is written as the
+`0.1.0` API baseline.
 
----
+## Semantics
 
-## `pub struct BallFloat`
+`BallFloat` represents the enclosure:
 
-```moonbit
-struct BallFloat {
-  center_ : @bin_float.BinFloat
-  radius_ : @bin_float.BinFloat
-  precision_ : Int
-} derive(Eq)
-```
+`center +/- radius`
 
-- **Description**
-  Represents a ball arithmetic value with the meaning `center +/- radius`.
-
-### Semantic Notes
-
-- `radius` is always required to be finite and non-negative.
-- `center` is required to be finite.
-- `BallFloat` uses enclosure semantics rather than exact-real value semantics.
-- The current implementation stores both center and radius as `BinFloat`.
+The implementation stores that enclosure as lower and upper `BinFloat` bounds
+and prefers correctness of containment over returning the narrowest possible
+interval.
 
 ## Construction
 
-- **`fn BallFloat::new(center : @bin_float.BinFloat, radius : @bin_float.BinFloat, precision? : Int = Int::max(center.precision(), radius.precision())) -> BallFloat`**
-  Validates and stores a ball value.
+- `BallFloat::new`
+- `BallFloat::exact`
+- `BallFloat::from_int`
+- `BallFloat::from_bigint`
+- `BallFloat::from_float`
+- `BallFloat::from_double`
+- `BallFloat::from_decimal`
 
-- **`fn BallFloat::exact(x : @bin_float.BinFloat, precision? : Int = x.precision()) -> BallFloat`**
-  Embeds a binary float as a zero-radius ball.
+Constraints:
 
-- **`fn BallFloat::from_decimal(x : @decimal.Decimal, precision? : Int = x.precision()) -> BallFloat`**
-  Converts a decimal value into an enclosure-oriented ball.
+- The center must be finite.
+- The radius must be finite and non-negative.
+- `exact`, `from_float`, `from_double`, and `from_decimal` abort on non-finite source values.
 
-### Notes
+Notes:
 
-- `new` aborts if the center is non-finite, or if the radius is negative or non-finite.
-- Center quantization widens the stored radius by the induced center displacement so the enclosure does not shrink during precision reduction.
-- Radius quantization is rounded outward.
-- `from_decimal` is not an "exact decimal object wrapper"; it builds a `BinFloat`-based enclosure around the decimal value.
+- Center retuning widens the stored radius by the induced center displacement so the enclosure never shrinks.
+- Radius quantization always rounds outward.
+- `from_decimal` constructs a `BinFloat`-based enclosure; it is not an exact decimal wrapper.
 
-## Accessors and Shared Floating Operations
+## Accessors and Interval Shape
 
-- **`fn center(self : BallFloat) -> @bin_float.BinFloat`**
-- **`fn radius(self : BallFloat) -> @bin_float.BinFloat`**
-- **`fn precision(self : BallFloat) -> Int`**
-- **`fn classify(self : BallFloat) -> FpClass`**
-- **`fn sign(self : BallFloat) -> Sign`**
-- **`fn normalized(self : BallFloat) -> BallFloat`**
-- **`fn with_precision(self : BallFloat, precision : Int, mode : RoundingMode) -> BallFloat`**
+- `lower_bound`
+- `upper_bound`
+- `center`
+- `radius`
+- `precision`
+- `classify`
+- `sign`
+- `is_bounded`
+- `is_entire`
+- `contains_zero`
+- `normalized`
+- `with_precision`
 
-### Sign Notes
+Notes:
 
-- If the radius is zero, `sign()` matches the center sign.
-- If the enclosure spans negative and positive values, the current implementation returns `Sign::Zero`.
-- `with_precision` preserves containment of the original stored enclosure by widening the radius when center retuning moves the center.
+- `center()` and `radius()` abort on unbounded intervals.
+- If the enclosure spans both negative and positive values, `sign()` returns `Sign::Zero`.
+- `classify()` reports `Infinity` for unbounded intervals.
 
-## Enclosure Relations
+## Relations and Comparison
 
-- **`fn contains(self : BallFloat, x : @bin_float.BinFloat) -> Bool`**
-- **`fn overlaps(self : BallFloat, other : BallFloat) -> Bool`**
-- **`fn separated_from(self : BallFloat, other : BallFloat) -> Bool`**
-- **`fn definitely_lt(self : BallFloat, other : BallFloat) -> Bool`**
-- **`fn definitely_gt(self : BallFloat, other : BallFloat) -> Bool`**
-- **`fn maybe_overlap(self : BallFloat, other : BallFloat) -> Bool`**
+- `contains`
+- `overlaps`
+- `maybe_overlap`
+- `separated_from`
+- `definitely_lt`
+- `definitely_gt`
+- `compare`
+- `min`
+- `max`
+- `clamp`
 
-## Arithmetic
+Notes:
 
-- **`fn add(self : BallFloat, other : BallFloat) -> BallFloat`**
-- **`fn sub(self : BallFloat, other : BallFloat) -> BallFloat`**
-- **`fn mul(self : BallFloat, other : BallFloat) -> BallFloat`**
-- **`fn div(self : BallFloat, other : BallFloat) -> BallFloat`**
+- `compare` aborts on overlapping or otherwise incomparable intervals.
+- `clamp` aborts if `min` and `max` are not themselves ordered.
 
-### Operator Support
+## Arithmetic and Transcendental Behavior
+
+- `add`
+- `sub`
+- `mul`
+- `div`
+- `pow`
+
+Supported operators:
 
 - `+`
 - `-`
 - `*`
 - `/`
+- unary `-`
 
-### Division Note
+Domain notes:
 
-- Division aborts if the denominator ball contains zero.
-- Arithmetic widens for both analytic error propagation and output-center rounding displacement.
+- Division aborts if the denominator enclosure contains zero.
+- `pow` aborts if the exponent enclosure is not exact.
+- `pow` with a non-integer exponent aborts unless the base interval is strictly positive.
+- `sqrt`, `ln`, `log2`, `log10`, `asin`, `acos`, `acosh`, and `atanh` abort outside their documented domains.
+- `atan2` now widens to the full principal-angle enclosure `[-pi, pi]` when the input rectangle crosses the negative-axis branch cut or contains the origin, because enclosure correctness takes priority over a narrower but unsound result.
 
-## Trait Implementations
+## Trait Surface
 
-- `Eq`
-- `Add`
-- `Sub`
-- `Mul`
-- `Div`
-- `Show`
+`BallFloat` currently implements:
+
 - `@def.Floating`
+- `@arithmetic.Constants`
+- `@arithmetic.Sqrt`
+- `@arithmetic.Cbrt`
+- `@arithmetic.Radical`
+- `@arithmetic.Exponential`
+- `@arithmetic.Logarithmic`
+- `@arithmetic.Power`
+- `@arithmetic.Trigonometric`
+- `@arithmetic.InverseTrigonometric`
+- `@arithmetic.Hyperbolic`
+- `@arithmetic.InverseHyperbolic`
+- `@luna-generic.Zero`
+- `@luna-generic.One`
+- `@luna-generic.Num`
+- `@luna-generic.Semiring`
+- `@luna-generic.Ring`
+- `@luna-generic.Field`
+- `Eq`, `Add`, `Sub`, `Mul`, `Div`, `Neg`, `Show`

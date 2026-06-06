@@ -4,71 +4,117 @@
 
 ## 语义
 
-`BallFloat` 表示：
+`BallFloat` 表示以下包络：
 
 `center +/- radius`
 
-也就是闭球/闭区间式包络。
+当前实现会把它存成 `BinFloat` 下界与上界，并优先保证“绝不漏包络”，而不是追求尽可能窄的结果。
 
 ## 构造
 
 - `BallFloat::new`
 - `BallFloat::exact`
+- `BallFloat::from_int`
+- `BallFloat::from_bigint`
+- `BallFloat::from_float`
+- `BallFloat::from_double`
 - `BallFloat::from_decimal`
 
 约束：
 
-- `center` 必须有限
-- `radius` 必须有限
-- `radius` 不能是 `NaN`
-- `radius` 必须非负
+- 中心值必须有限。
+- 半径必须有限且非负。
+- `exact`、`from_float`、`from_double`、`from_decimal` 遇到非有限源值会直接拒绝。
 
 说明：
 
-- `new` 在中心值降精度时，会把中心位移带来的误差并入半径，避免包络缩小。
-- 半径自身在量化时总是向外舍入。
-- `from_decimal` 生成的是基于 `BinFloat` 的包络，不是“把十进制对象原封不动包起来”。
+- 中心值重调精度时，中心位移会被并入半径，保证包络不会缩小。
+- 半径量化始终向外舍入。
+- `from_decimal` 生成的是基于 `BinFloat` 的包络，不是“原样包住十进制对象”的薄封装。
 
-## 访问与共享 floating 能力
+## 访问器与区间形态
 
+- `lower_bound`
+- `upper_bound`
 - `center`
 - `radius`
 - `precision`
 - `classify`
 - `sign`
+- `is_bounded`
+- `is_entire`
+- `contains_zero`
 - `normalized`
 - `with_precision`
 
-补充：
+说明：
 
-- 半径为零时，`sign()` 等于中心值的符号。
-- 如果包络同时覆盖负值和正值，当前实现返回 `Sign::Zero`。
-- `with_precision` 会在中心重调精度发生位移时自动放大半径，以保持原包络仍被包含。
+- `center()` 与 `radius()` 对无界区间会直接拒绝。
+- 如果包络同时覆盖负值和正值，`sign()` 返回 `Sign::Zero`。
+- `classify()` 对无界区间返回 `Infinity`。
 
-## 关系判断
+## 关系与比较
 
 - `contains`
 - `overlaps`
+- `maybe_overlap`
 - `separated_from`
 - `definitely_lt`
 - `definitely_gt`
-- `maybe_overlap`
+- `compare`
+- `min`
+- `max`
+- `clamp`
 
-## 算术
+说明：
+
+- `compare` 对重叠或不可比较的区间会直接拒绝。
+- `clamp` 在 `min` 与 `max` 自身无序时会直接拒绝。
+
+## 算术与超越函数行为
 
 - `add`
 - `sub`
 - `mul`
 - `div`
+- `pow`
 
-支持：
+支持的运算符：
 
 - `+`
 - `-`
 - `*`
 - `/`
+- 一元 `-`
 
-注意：
+定义域说明：
 
-- 除法时，如果分母球包含 0，会直接拒绝
-- 算术结果不仅会按包络公式传播误差，也会把输出中心量化造成的位移并回半径
+- 除法在分母包络包含 `0` 时会直接拒绝。
+- `pow` 在指数包络不是精确点值时会直接拒绝。
+- `pow` 在非整数指数且底数区间不严格为正时会直接拒绝。
+- `sqrt`、`ln`、`log2`、`log10`、`asin`、`acos`、`acosh`、`atanh` 在越出定义域时会直接拒绝。
+- `atan2` 在输入矩形跨过负实轴分支切换，或者直接覆盖原点时，会退化为完整主值角包络 `[-pi, pi]`；这是为了保证 enclosure 正确，而不是精度退化 bug。
+
+## Trait 面
+
+`BallFloat` 当前实现了：
+
+- `@def.Floating`
+- `@arithmetic.Constants`
+- `@arithmetic.Sqrt`
+- `@arithmetic.Cbrt`
+- `@arithmetic.Radical`
+- `@arithmetic.Exponential`
+- `@arithmetic.Logarithmic`
+- `@arithmetic.Power`
+- `@arithmetic.Trigonometric`
+- `@arithmetic.InverseTrigonometric`
+- `@arithmetic.Hyperbolic`
+- `@arithmetic.InverseHyperbolic`
+- `@luna-generic.Zero`
+- `@luna-generic.One`
+- `@luna-generic.Num`
+- `@luna-generic.Semiring`
+- `@luna-generic.Ring`
+- `@luna-generic.Field`
+- `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`

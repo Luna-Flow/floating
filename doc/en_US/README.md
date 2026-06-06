@@ -13,6 +13,9 @@ This directory contains the English documentation baseline for `floating` `0.1.0
 
 ## Numeric Packages
 
+- `bin_float`, `decimal`, and `ball_float` now all expose shared arithmetic trait surfaces for constants and transcendental operations.
+- `ball_float` documents enclosure-first behavior around branch cuts and ambiguous interval domains.
+
 - [@bin_float API](./bin_float/api.md)
 - [@bin_float Tutorial](./bin_float/tutorial.md)
 - [@bin_float Design](./bin_float/design.md)

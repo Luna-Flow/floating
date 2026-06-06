@@ -1,0 +1,142 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/bin_float"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/def",
+  "Luna-Flow/luna-generic",
+  "moonbitlang/core/bigint",
+}
+
+// Values
+pub fn acos_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn acosh_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn asin_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn asinh_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn atan2_for_precision(BinFloat, BinFloat, Int) -> BinFloat
+
+pub fn atan_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn atanh_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn bin_ceil_integer(BinFloat) -> @bigint.BigInt
+
+pub fn bin_floor_integer(BinFloat) -> @bigint.BigInt
+
+pub fn bin_nearest_integer(BinFloat) -> @bigint.BigInt
+
+pub fn cbrt_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn cos_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn cosh_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn e_for_precision(Int) -> BinFloat
+
+pub fn exp2_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn exp_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn half_pi_for_precision(Int) -> BinFloat
+
+pub fn ln2_for_precision(Int) -> BinFloat
+
+pub fn ln_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn log10_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn log2_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn pi_for_precision(Int) -> BinFloat
+
+pub fn pow_for_precision(BinFloat, BinFloat, Int) -> BinFloat
+
+pub fn quarter_pi_for_precision(Int) -> BinFloat
+
+pub fn sin_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn sinh_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn sqrt_bounds_for_precision(BinFloat, Int) -> (BinFloat, BinFloat)
+
+pub fn sqrt_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn tan_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn tanh_for_precision(BinFloat, Int) -> BinFloat
+
+pub fn tau_for_precision(Int) -> BinFloat
+
+// Errors
+
+// Types and methods
+pub struct BinFloat {
+  // private fields
+} derive(Eq)
+pub fn BinFloat::abs(Self) -> Self
+pub fn BinFloat::add(Self, Self) -> Self
+pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BinFloat::classify(Self) -> @def.FpClass
+pub fn BinFloat::compare(Self, Self) -> Int
+pub fn BinFloat::div(Self, Self) -> Self
+pub fn BinFloat::exponent2(Self) -> Int
+pub fn BinFloat::from_bigint(@bigint.BigInt, precision? : Int) -> Self
+pub fn BinFloat::from_double(Double, precision? : Int) -> Self
+pub fn BinFloat::from_float(Float, precision? : Int) -> Self
+pub fn BinFloat::from_int(Int, precision? : Int) -> Self
+pub fn BinFloat::inf(@def.Sign, precision? : Int) -> Self
+pub fn BinFloat::is_zero(Self) -> Bool
+pub fn BinFloat::make(@bigint.BigInt, Int, Int, mode? : @def.RoundingMode) -> Self
+pub fn BinFloat::max(Self, Self) -> Self
+pub fn BinFloat::min(Self, Self) -> Self
+pub fn BinFloat::mul(Self, Self) -> Self
+pub fn BinFloat::nan(precision? : Int) -> Self
+pub fn BinFloat::neg(Self) -> Self
+pub fn BinFloat::normalized(Self) -> Self
+pub fn BinFloat::one(precision? : Int) -> Self
+pub fn BinFloat::precision(Self) -> Int
+pub fn BinFloat::sign(Self) -> @def.Sign
+pub fn BinFloat::significand(Self) -> @bigint.BigInt
+pub fn BinFloat::sub(Self, Self) -> Self
+pub fn BinFloat::ulp(Self) -> Self
+pub fn BinFloat::with_precision(Self, Int, @def.RoundingMode) -> Self
+pub fn BinFloat::zero(precision? : Int) -> Self
+pub impl @arithmetic.Cbrt for BinFloat
+pub impl @arithmetic.Constants for BinFloat
+pub impl @arithmetic.Exponential for BinFloat
+pub impl @arithmetic.Hyperbolic for BinFloat
+pub impl @arithmetic.InverseHyperbolic for BinFloat
+pub impl @arithmetic.InverseTrigonometric for BinFloat
+pub impl @arithmetic.Logarithmic for BinFloat
+pub impl @arithmetic.Power for BinFloat
+pub impl @arithmetic.Radical for BinFloat
+pub impl @arithmetic.Sqrt for BinFloat
+pub impl @arithmetic.Trigonometric for BinFloat
+pub impl @def.Floating for BinFloat
+pub impl @luna-generic.AddGroup for BinFloat
+pub impl @luna-generic.AddMonoid for BinFloat
+pub impl @luna-generic.Field for BinFloat
+pub impl @luna-generic.Inverse for BinFloat
+pub impl @luna-generic.MulGroup for BinFloat
+pub impl @luna-generic.MulMonoid for BinFloat
+pub impl @luna-generic.Num for BinFloat
+pub impl @luna-generic.One for BinFloat
+pub impl @luna-generic.Ring for BinFloat
+pub impl @luna-generic.Semiring for BinFloat
+pub impl @luna-generic.Zero for BinFloat
+pub impl Add for BinFloat
+pub impl Compare for BinFloat
+pub impl Div for BinFloat
+pub impl Mul for BinFloat
+pub impl Neg for BinFloat
+pub impl Show for BinFloat
+pub impl Sub for BinFloat
+
+// Type aliases
+
+// Traits
+

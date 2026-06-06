@@ -4,11 +4,13 @@
 
 ## 表示
 
-有限值表示为：
+有限值按下式存储：
 
 `coefficient * 10^exponent10`
 
-## 构造与特殊值
+并附带工作精度 `precision`。
+
+## 构造与解析
 
 - `Decimal::make`
 - `Decimal::zero`
@@ -17,9 +19,18 @@
 - `Decimal::nan`
 - `Decimal::from_int`
 - `Decimal::from_bigint`
+- `Decimal::from_float`
+- `Decimal::from_double`
 - `Decimal::from_string`
+- `Decimal::from_bin_float`
 
-## 访问与分类
+说明：
+
+- 公开的有限构造函数会去除可剥离的 `10` 因子。
+- `from_string` 支持普通十进制与科学计数法。
+- 非法字符串返回 `None`。
+
+## 访问、规范化与比较
 
 - `classify`
 - `precision`
@@ -27,13 +38,19 @@
 - `coefficient`
 - `exponent10`
 - `is_zero`
-
-## 规范化与精度控制
-
 - `normalized`
 - `with_precision`
+- `compare`
+- `min`
+- `max`
+- `clamp`
 
-## 算术
+说明：
+
+- `compare` 遇到 `NaN` 会直接拒绝。
+- `clamp` 在边界无序或出现 `NaN` 时会直接拒绝。
+
+## 算术与转换
 
 - `neg`
 - `abs`
@@ -41,13 +58,45 @@
 - `sub`
 - `mul`
 - `div`
-
-## 转换
-
 - `to_bin_float`
-- `Decimal::from_bin_float`
 
-注意：
+支持的运算符：
 
-- 十进制转二进制时，非 dyadic 值可能只能近似表示
-- 二进制转十进制时，当前实现会精确保留已存储的有限二进制表示
+- `+`
+- `-`
+- `*`
+- `/`
+- 一元 `-`
+
+转换语义：
+
+- 十进制转二进制时，非 dyadic 值可能只能近似表示。
+- 二进制转十进制时，会精确保留当前 `BinFloat` 内部已经存储的有限值。
+
+## Trait 面
+
+`Decimal` 当前实现了：
+
+- `@def.Floating`
+- `@arithmetic.Constants`
+- `@arithmetic.Sqrt`
+- `@arithmetic.Cbrt`
+- `@arithmetic.Radical`
+- `@arithmetic.Exponential`
+- `@arithmetic.Logarithmic`
+- `@arithmetic.Power`
+- `@arithmetic.Trigonometric`
+- `@arithmetic.InverseTrigonometric`
+- `@arithmetic.Hyperbolic`
+- `@arithmetic.InverseHyperbolic`
+- `@luna-generic.Zero`
+- `@luna-generic.One`
+- `@luna-generic.Num`
+- `@luna-generic.Semiring`
+- `@luna-generic.Ring`
+- `@luna-generic.Field`
+- `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`
+
+补充：
+
+- 常量与超越函数能力是通过共享 arithmetic trait 暴露的；当前实现会经由精度感知的十进制/二进制桥接逻辑完成计算，而不是使用一套独立的十进制专用内核。

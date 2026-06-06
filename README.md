@@ -19,10 +19,11 @@ It describes the implementation that exists in this branch today.
 ### What Defines v0.1.0
 
 - **Shared trait baseline**: `def` provides `FpClass`, `Sign`, `RoundingMode`, and the repository-wide `Floating` trait.
-- **Two arbitrary-precision floating representations**: `bin_float` and `decimal` each expose constructors, normalization, precision control, basic arithmetic, and special values.
-- **Ball arithmetic baseline**: `ball_float` supports exact embedding, overlap tests, containment, and basic enclosure arithmetic.
+- **Two arbitrary-precision floating representations**: `bin_float` and `decimal` each expose constructors, normalization, precision control, arithmetic, special values, and shared arithmetic traits.
+- **Ball arithmetic baseline**: `ball_float` supports exact embedding, overlap tests, containment, interval comparison, and enclosure arithmetic.
 - **Cross-representation conversion**: `decimal` can convert to and from `bin_float`; `ball_float` can embed exact `bin_float` values and approximate `decimal` values.
-- **Correctness-first tests**: the repository includes whitebox tests for normalization, arithmetic, and conversion behavior.
+- **Transcendental baseline**: binary, decimal, and ball values expose constants, exponential/logarithmic functions, trigonometric functions, inverse trigonometric functions, hyperbolic functions, and inverse hyperbolic functions through the shared arithmetic interfaces.
+- **Correctness-first tests**: the repository includes whitebox tests for normalization, arithmetic, conversion behavior, and interval-enclosure edge cases.
 - **Modern Moon package metadata**: the repository uses `moon.mod` as the canonical module manifest.
 
 ### API Guidance
@@ -31,15 +32,16 @@ It describes the implementation that exists in this branch today.
 - **Normalization is part of the contract**: public constructors normalize finite values to canonical internal forms.
 - **Precision changes are explicit**: use `with_precision(..., mode)` to request a different working precision.
 - **Ball semantics are enclosure-oriented**: `ball_float` exposes overlap and containment style relations rather than pretending all values are totally ordered.
+- **Enclosure correctness beats narrowness**: interval results may widen around branch cuts or ambiguous domains rather than returning an unsound narrow band.
 - **Repository docs describe the current code**: if an API is not present in this branch, it is not part of this release baseline.
 
 ### Key Features
 
-- **Arbitrary-precision binary values**: normalized finite values, `nan`, `inf`, comparison, `ulp`, and basic arithmetic.
-- **Arbitrary-precision decimal values**: string parsing, normalized display, precision-aware arithmetic, and binary conversion.
-- **Ball arithmetic baseline**: exact balls, decimal embedding, `contains`, `overlaps`, `separated_from`, `definitely_lt`, and `definitely_gt`.
+- **Arbitrary-precision binary values**: normalized finite values, `nan`, `inf`, comparison, `ulp`, integer rounding helpers, constants, and transcendental functions.
+- **Arbitrary-precision decimal values**: string parsing, normalized display, precision-aware arithmetic, binary conversion, and shared arithmetic traits for constants and transcendental functions.
+- **Ball arithmetic baseline**: exact balls, decimal embedding, interval bounds, `contains`, `overlaps`, `separated_from`, `definitely_lt`, `definitely_gt`, `pow`, and interval transcendental functions.
 - **Shared rounding helpers**: internal support for factor stripping, decimal parsing, and rounding to requested precision.
-- **Consistency tests**: cross-package tests verify normalization, exact dyadic behavior, decimal parsing, binary-decimal conversion, and ball containment semantics.
+- **Consistency tests**: cross-package tests verify normalization, exact dyadic behavior, decimal parsing, binary-decimal conversion, transcendental smoke cases, and ball containment semantics near branch cuts and domain boundaries.
 
 ### Quick Start
 

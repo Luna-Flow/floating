@@ -1,69 +1,67 @@
 # @decimal.Decimal
 
-This page tracks the current repository implementation and is written as the `0.1.0` API baseline.
+This page tracks the current repository implementation and is written as the
+`0.1.0` API baseline.
 
----
+## Representation
 
-## `pub struct Decimal`
+Finite values are stored as:
 
-```moonbit
-struct Decimal {
-  class : FpClass
-  coefficient : BigInt
-  exponent10 : Int
-  precision_ : Int
-} derive(Eq)
-```
+`coefficient * 10^exponent10`
 
-- **Description**
-  Represents an arbitrary-precision decimal floating-point value.
+with an attached working `precision`.
 
-### Semantic Notes
+## Constructors and Parsing
 
-- Finite values are represented as `coefficient * 10^exponent10`.
-- Public constructors normalize finite values by stripping removable powers of `10`.
-- String parsing and string display are first-class package concerns.
+- `Decimal::make`
+- `Decimal::zero`
+- `Decimal::one`
+- `Decimal::inf`
+- `Decimal::nan`
+- `Decimal::from_int`
+- `Decimal::from_bigint`
+- `Decimal::from_float`
+- `Decimal::from_double`
+- `Decimal::from_string`
+- `Decimal::from_bin_float`
 
-## Constructors and Special Values
+Notes:
 
-- **`fn Decimal::make(coefficient : BigInt, exponent10 : Int, precision : Int, mode? : RoundingMode = ToNearestEven) -> Decimal`**
-- **`fn Decimal::zero(precision? : Int = 34) -> Decimal`**
-- **`fn Decimal::one(precision? : Int = 34) -> Decimal`**
-- **`fn Decimal::inf(sign : Sign, precision? : Int = 34) -> Decimal`**
-- **`fn Decimal::nan(precision? : Int = 34) -> Decimal`**
-- **`fn Decimal::from_int(n : Int, precision? : Int = 34) -> Decimal`**
-- **`fn Decimal::from_bigint(n : BigInt, precision? : Int = 34) -> Decimal`**
-- **`fn Decimal::from_string(src : String, precision? : Int = 34) -> Decimal?`**
-
-### Notes
-
-- `from_string` accepts plain decimal and scientific notation in the current implementation.
+- Finite public constructors normalize by removing removable powers of `10`.
+- `from_string` accepts plain decimal and scientific notation.
 - Invalid strings return `None`.
 
-## Classification and Accessors
+## Access, Normalization, and Comparison
 
-- **`fn classify(self : Decimal) -> FpClass`**
-- **`fn precision(self : Decimal) -> Int`**
-- **`fn sign(self : Decimal) -> Sign`**
-- **`fn coefficient(self : Decimal) -> BigInt`**
-- **`fn exponent10(self : Decimal) -> Int`**
-- **`fn is_zero(self : Decimal) -> Bool`**
+- `classify`
+- `precision`
+- `sign`
+- `coefficient`
+- `exponent10`
+- `is_zero`
+- `normalized`
+- `with_precision`
+- `compare`
+- `min`
+- `max`
+- `clamp`
 
-## Normalization and Precision Control
+Notes:
 
-- **`fn normalized(self : Decimal) -> Decimal`**
-- **`fn with_precision(self : Decimal, precision : Int, mode : RoundingMode) -> Decimal`**
+- `compare` aborts on `NaN`.
+- `clamp` aborts if the bounds are unordered or `NaN`.
 
-## Arithmetic and Unary Operations
+## Arithmetic and Conversion
 
-- **`fn neg(self : Decimal) -> Decimal`**
-- **`fn abs(self : Decimal) -> Decimal`**
-- **`fn add(self : Decimal, other : Decimal) -> Decimal`**
-- **`fn sub(self : Decimal, other : Decimal) -> Decimal`**
-- **`fn mul(self : Decimal, other : Decimal) -> Decimal`**
-- **`fn div(self : Decimal, other : Decimal) -> Decimal`**
+- `neg`
+- `abs`
+- `add`
+- `sub`
+- `mul`
+- `div`
+- `to_bin_float`
 
-### Operator Support
+Supported operators:
 
 - `+`
 - `-`
@@ -71,23 +69,35 @@ struct Decimal {
 - `/`
 - unary `-`
 
-## Conversion
+Conversion notes:
 
-- **`fn to_bin_float(self : Decimal, precision? : Int = self.precision_, mode? : RoundingMode = ToNearestEven) -> @bin_float.BinFloat`**
-- **`fn Decimal::from_bin_float(x : @bin_float.BinFloat, precision? : Int = x.precision()) -> Decimal`**
+- Decimal-to-binary conversion may be approximate for non-dyadic values.
+- Binary-to-decimal conversion is exact for the currently stored finite `BinFloat` value.
 
-### Notes
+## Trait Surface
 
-- Conversion from decimal to binary may be approximate when the decimal value is not dyadic.
-- Conversion from binary to decimal is exact for the finite representation currently stored in `BinFloat`.
+`Decimal` currently implements:
 
-## Trait Implementations
-
-- `Eq`
-- `Add`
-- `Sub`
-- `Mul`
-- `Div`
-- `Neg`
-- `Show`
 - `@def.Floating`
+- `@arithmetic.Constants`
+- `@arithmetic.Sqrt`
+- `@arithmetic.Cbrt`
+- `@arithmetic.Radical`
+- `@arithmetic.Exponential`
+- `@arithmetic.Logarithmic`
+- `@arithmetic.Power`
+- `@arithmetic.Trigonometric`
+- `@arithmetic.InverseTrigonometric`
+- `@arithmetic.Hyperbolic`
+- `@arithmetic.InverseHyperbolic`
+- `@luna-generic.Zero`
+- `@luna-generic.One`
+- `@luna-generic.Num`
+- `@luna-generic.Semiring`
+- `@luna-generic.Ring`
+- `@luna-generic.Field`
+- `Eq`, `Add`, `Sub`, `Mul`, `Div`, `Neg`, `Show`
+
+Behavior note:
+
+- The transcendental and constant traits are exposed through the shared arithmetic interfaces; their implementations route through the package's precision-aware decimal/binary bridge rather than through a separate decimal-only kernel.

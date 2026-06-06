@@ -1,0 +1,91 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/ball_float"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/def",
+  "Luna-Flow/luna-generic",
+  "moonbitlang/core/bigint",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct BallFloat {
+  // private fields
+} derive(Eq)
+pub fn BallFloat::abs(Self) -> Self
+pub fn BallFloat::add(Self, Self) -> Self
+pub fn BallFloat::center(Self) -> @bin_float.BinFloat
+pub fn BallFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BallFloat::classify(Self) -> @def.FpClass
+pub fn BallFloat::compare(Self, Self) -> Int
+pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
+pub fn BallFloat::contains_zero(Self) -> Bool
+pub fn BallFloat::definitely_gt(Self, Self) -> Bool
+pub fn BallFloat::definitely_lt(Self, Self) -> Bool
+pub fn BallFloat::div(Self, Self) -> Self
+pub fn BallFloat::exact(@bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloat::from_bigint(@bigint.BigInt, precision? : Int) -> Self
+pub fn BallFloat::from_decimal(@decimal.Decimal, precision? : Int) -> Self
+pub fn BallFloat::from_double(Double, precision? : Int) -> Self
+pub fn BallFloat::from_float(Float, precision? : Int) -> Self
+pub fn BallFloat::from_int(Int, precision? : Int) -> Self
+pub fn BallFloat::is_bounded(Self) -> Bool
+pub fn BallFloat::is_entire(Self) -> Bool
+pub fn BallFloat::lower_bound(Self) -> @bin_float.BinFloat
+pub fn BallFloat::max(Self, Self) -> Self
+pub fn BallFloat::maybe_overlap(Self, Self) -> Bool
+pub fn BallFloat::min(Self, Self) -> Self
+pub fn BallFloat::mul(Self, Self) -> Self
+pub fn BallFloat::neg(Self) -> Self
+pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloat::normalized(Self) -> Self
+pub fn BallFloat::overlaps(Self, Self) -> Bool
+pub fn BallFloat::pow(Self, Self) -> Self
+pub fn BallFloat::precision(Self) -> Int
+pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
+pub fn BallFloat::separated_from(Self, Self) -> Bool
+pub fn BallFloat::sign(Self) -> @def.Sign
+pub fn BallFloat::sub(Self, Self) -> Self
+pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
+pub fn BallFloat::with_precision(Self, Int, @def.RoundingMode) -> Self
+pub impl @arithmetic.Cbrt for BallFloat
+pub impl @arithmetic.Constants for BallFloat
+pub impl @arithmetic.Exponential for BallFloat
+pub impl @arithmetic.Hyperbolic for BallFloat
+pub impl @arithmetic.InverseHyperbolic for BallFloat
+pub impl @arithmetic.InverseTrigonometric for BallFloat
+pub impl @arithmetic.Logarithmic for BallFloat
+pub impl @arithmetic.Power for BallFloat
+pub impl @arithmetic.Radical for BallFloat
+pub impl @arithmetic.Sqrt for BallFloat
+pub impl @arithmetic.Trigonometric for BallFloat
+pub impl @def.Floating for BallFloat
+pub impl @luna-generic.AddGroup for BallFloat
+pub impl @luna-generic.AddMonoid for BallFloat
+pub impl @luna-generic.Field for BallFloat
+pub impl @luna-generic.Inverse for BallFloat
+pub impl @luna-generic.MulGroup for BallFloat
+pub impl @luna-generic.MulMonoid for BallFloat
+pub impl @luna-generic.Num for BallFloat
+pub impl @luna-generic.One for BallFloat
+pub impl @luna-generic.Ring for BallFloat
+pub impl @luna-generic.Semiring for BallFloat
+pub impl @luna-generic.Zero for BallFloat
+pub impl Add for BallFloat
+pub impl Compare for BallFloat
+pub impl Div for BallFloat
+pub impl Mul for BallFloat
+pub impl Neg for BallFloat
+pub impl Show for BallFloat
+pub impl Sub for BallFloat
+
+// Type aliases
+
+// Traits
+
