@@ -1,0 +1,7 @@
+import {
+  "moonbitlang/core/bigint" @bigint,
+  "Luna-Flow/floating/def",
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/internal",
+}

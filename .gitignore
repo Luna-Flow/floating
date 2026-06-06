@@ -1,0 +1,15 @@
+target
+_build
+.mooncakes/
+.DS_Store
+.vscode/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+_coverage/
+coverage_summary.txt
