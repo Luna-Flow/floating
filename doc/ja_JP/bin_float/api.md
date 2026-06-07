@@ -1,6 +1,6 @@
 # @bin_float.BinFloat
 
-このページは現在の `0.1.0` 基準における `@bin_float.BinFloat` を説明します。
+このページは現在の `0.2.0` 基準における `@bin_float.BinFloat` を説明します。
 
 ## 表現
 
@@ -72,72 +72,32 @@
 - 符号が反対の `inf - inf` は `NaN` になります。
 - ゼロ除算は分子のクラスに応じて `inf` または `NaN` になります。
 
-## 定数と超越関数 API
+## checked 算術 API
 
-現在直接公開されている helper:
+現在直接公開されている checked helper:
 
-- `pi_for_precision`
-- `tau_for_precision`
-- `half_pi_for_precision`
-- `quarter_pi_for_precision`
-- `ln2_for_precision`
-- `e_for_precision`
 - `sqrt_bounds_for_precision`
 - `sqrt_for_precision`
-- `cbrt_for_precision`
-- `exp_for_precision`
-- `exp2_for_precision`
-- `ln_for_precision`
-- `log2_for_precision`
-- `log10_for_precision`
-- `sin_for_precision`
-- `cos_for_precision`
-- `tan_for_precision`
-- `atan_for_precision`
-- `atan2_for_precision`
-- `asin_for_precision`
-- `acos_for_precision`
-- `sinh_for_precision`
-- `cosh_for_precision`
-- `tanh_for_precision`
-- `asinh_for_precision`
-- `acosh_for_precision`
-- `atanh_for_precision`
-- `pow_for_precision`
-- `bin_floor_integer`
-- `bin_ceil_integer`
-- `bin_nearest_integer`
+- `compare_checked`
+- `div_checked`
+- `sqrt`
+- `pow_int`
 
-定義域メモ:
+checked 挙動メモ:
 
 - `sqrt*` は非負の有限入力を必要とします。
-- `ln*` は正の有限入力を必要とします。
-- `asin` / `acos` は `[-1, 1]` の内部が必要です。
-- `atanh` は `(-1, 1)` の内部が必要です。
-- `acosh` は `>= 1` を必要とします。
-- `pow_for_precision` は非整数指数かつ非正の底で abort します。
-- `tan_for_precision` は計算上の余弦がゼロになると abort します。
+- `compare_checked` は `NaN` に対して unordered-comparison error を返します。
+- `div_checked` はゼロ除算で structured error を返します。
+- `pow_int` は負指数かつゼロの底で division-by-zero error を返します。
 
 ## Trait 面
 
 `BinFloat` は現在次を実装します。
 
 - `@def.Floating`
-- `@arithmetic.Constants`
-- `@arithmetic.Sqrt`
-- `@arithmetic.Cbrt`
-- `@arithmetic.Radical`
-- `@arithmetic.Exponential`
-- `@arithmetic.Logarithmic`
-- `@arithmetic.Power`
-- `@arithmetic.Trigonometric`
-- `@arithmetic.InverseTrigonometric`
-- `@arithmetic.Hyperbolic`
-- `@arithmetic.InverseHyperbolic`
-- `@luna-generic.Zero`
-- `@luna-generic.One`
-- `@luna-generic.Num`
-- `@luna-generic.Semiring`
-- `@luna-generic.Ring`
-- `@luna-generic.Field`
+- `@arithmetic.SqrtChecked`
+- `@arithmetic.DivChecked`
+- `@arithmetic.CompareChecked`
+- `@arithmetic.PowNatChecked`
+- `@arithmetic.PowIntChecked`
 - `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`

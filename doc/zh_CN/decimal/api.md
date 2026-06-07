@@ -1,6 +1,6 @@
 # @decimal.Decimal
 
-本文档描述当前 `0.1.0` 基线中的 `@decimal.Decimal`。
+本文档描述当前 `0.2.0` 基线中的 `@decimal.Decimal`。
 
 ## 表示
 
@@ -78,25 +78,15 @@
 `Decimal` 当前实现了：
 
 - `@def.Floating`
-- `@arithmetic.Constants`
-- `@arithmetic.Sqrt`
-- `@arithmetic.Cbrt`
-- `@arithmetic.Radical`
-- `@arithmetic.Exponential`
-- `@arithmetic.Logarithmic`
-- `@arithmetic.Power`
-- `@arithmetic.Trigonometric`
-- `@arithmetic.InverseTrigonometric`
-- `@arithmetic.Hyperbolic`
-- `@arithmetic.InverseHyperbolic`
-- `@luna-generic.Zero`
-- `@luna-generic.One`
-- `@luna-generic.Num`
-- `@luna-generic.Semiring`
-- `@luna-generic.Ring`
-- `@luna-generic.Field`
+- `@arithmetic.ParseChecked`
+- `@arithmetic.SqrtChecked`
+- `@arithmetic.DivChecked`
+- `@arithmetic.CompareChecked`
+- `@arithmetic.PowNatChecked`
+- `@arithmetic.PowIntChecked`
 - `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`
 
 补充：
 
-- 常量与超越函数能力是通过共享 arithmetic trait 暴露的；当前实现会经由精度感知的十进制/二进制桥接逻辑完成计算，而不是使用一套独立的十进制专用内核。
+- 这一轮不会从 `Decimal` 暴露常量 trait 或超越函数 trait。
+- 与 `Luna-Flow/arithmetic` 的集成面是 checked arithmetic traits。

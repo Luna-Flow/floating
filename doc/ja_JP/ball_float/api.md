@@ -1,6 +1,6 @@
 # @ball_float.BallFloat
 
-このページは現在の `0.1.0` 基準における `@ball_float.BallFloat` を説明します。
+このページは現在の `0.2.0` 基準における `@ball_float.BallFloat` を説明します。
 
 ## 意味
 
@@ -18,19 +18,17 @@
 - `BallFloat::from_bigint`
 - `BallFloat::from_float`
 - `BallFloat::from_double`
-- `BallFloat::from_decimal`
 
 制約:
 
 - 中心値は有限でなければなりません。
 - 半径は有限かつ非負でなければなりません。
-- `exact`、`from_float`、`from_double`、`from_decimal` は非有限入力で abort します。
+- `exact`、`from_float`、`from_double` は非有限入力で abort します。
 
 補足:
 
 - 中心値の再量子化で生じる変位は半径へ加えられ、包絡が縮まないようにします。
 - 半径の量子化は常に外向きに丸められます。
-- `from_decimal` は `BinFloat` ベースの包絡を構築するもので、10 進値の薄い正確ラッパではありません。
 
 ## アクセサと区間形状
 
@@ -57,27 +55,22 @@
 
 - `contains`
 - `overlaps`
-- `maybe_overlap`
 - `separated_from`
 - `definitely_lt`
+- `definitely_le`
 - `definitely_gt`
-- `compare`
-- `min`
-- `max`
-- `clamp`
+- `maybe_eq`
 
 補足:
 
-- `compare` は重なっている区間や比較不能な区間で abort します。
-- `clamp` は `min` と `max` が順序付けできないと abort します。
+- これらは enclosure relation であり、scalar の全順序を装いません。
 
-## 算術と超越関数の挙動
+## 算術と checked capability の挙動
 
 - `add`
 - `sub`
 - `mul`
 - `div`
-- `pow`
 
 対応演算子:
 
@@ -87,34 +80,24 @@
 - `/`
 - 単項 `-`
 
-定義域メモ:
+checked 挙動メモ:
 
-- 除算は分母包絡が `0` を含むと abort します。
-- `pow` は指数包絡が厳密な一点でないと abort します。
-- `pow` は非整数指数かつ底区間が厳密に正でないと abort します。
-- `sqrt`、`ln`、`log2`、`log10`、`asin`、`acos`、`acosh`、`atanh` は定義域外で abort します。
-- `atan2` は入力矩形が負の実軸の分岐切替をまたぐか、原点を含む場合、主値角全体の包絡 `[-pi, pi]` まで広がります。これは精度低下ではなく、包絡の正しさを優先した結果です。
+- checked division は分母包絡が `0` を含むと whole-real enclosure へ広がることがあります。
+- checked integer power は enclosure の正しさを保ち、零交差を含む逆冪でも同じ whole-real fallback を使います。
+- `BallFloat` は scalar `CompareChecked` を実装しません。
+- このパスでは非整数冪、超越関数、微積分、行列、複素 ball、特殊関数は公開しません。
 
 ## Trait 面
 
 `BallFloat` は現在次を実装します。
 
 - `@def.Floating`
-- `@arithmetic.Constants`
-- `@arithmetic.Sqrt`
-- `@arithmetic.Cbrt`
-- `@arithmetic.Radical`
-- `@arithmetic.Exponential`
-- `@arithmetic.Logarithmic`
-- `@arithmetic.Power`
-- `@arithmetic.Trigonometric`
-- `@arithmetic.InverseTrigonometric`
-- `@arithmetic.Hyperbolic`
-- `@arithmetic.InverseHyperbolic`
-- `@luna-generic.Zero`
-- `@luna-generic.One`
-- `@luna-generic.Num`
-- `@luna-generic.Semiring`
-- `@luna-generic.Ring`
-- `@luna-generic.Field`
+- `@arithmetic.Contains`
+- `@arithmetic.Overlaps`
+- `@arithmetic.DefinitelyLt`
+- `@arithmetic.DefinitelyLe`
+- `@arithmetic.MaybeEq`
+- `@arithmetic.DivChecked`
+- `@arithmetic.PowNatChecked`
+- `@arithmetic.PowIntChecked`
 - `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`

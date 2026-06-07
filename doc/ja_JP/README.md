@@ -2,27 +2,27 @@
 
 [![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/floating/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-## v0.1.0 - 初期パッケージ基準
+## v0.2.0 - arithmetic capability integration 基準
 
-このドキュメントは、現在のブランチにある **`v0.1.0`** の実装基準を説明します。
+このドキュメントは、現在のブランチにある **`v0.2.0`** の実装基準を説明します。
 
 ### パッケージの位置づけ
 
-- **`def`**: 共有の浮動小数点分類、丸めモード、コア `Floating` trait。
+- **`def`**: `Sign`、`PartialOrder`、狭い `Floating` trait、および arithmetic 境界型の互換 reexport を提供します。
 - **`bin_float`**: 仮数、2 進指数、作業精度で表現される任意精度 2 進浮動小数点。
 - **`decimal`**: 係数、10 進指数、作業精度で表現される任意精度 10 進浮動小数点。
-- **`ball_float`**: `center +/- radius` として表現される、`bin_float` ベースの ball arithmetic 値。
+- **`ball_float`**: 外向き丸めされた上下界で表現される、`bin_float` ベースの interval/ball 値。
 - **`internal`**: 正規化、因子除去、丸め、10 進文字列解析の共有補助ロジック。
 - **`consistency`**: 正規化、算術、変換、パッケージ間意味論を検証するリポジトリテスト。
 
 ### 現在の基準の特徴
 
-- 最小限で安定した `Floating` trait 基盤を提供します。
-- `bin_float` と `decimal` は構築、正規化、精度変更、四則、特殊値に加えて、共有 arithmetic trait による定数と超越関数を備えます。
-- `ball_float` は正確な埋め込み、包含、重なり判定、分離判定、区間比較、`pow`、ball/interval 向け超越関数を備えます。
+- `Luna-Flow/arithmetic` の checked capability boundary に依存します。
+- `bin_float` と `decimal` は checked scalar trait を実装します。
+- `ball_float` は enclosure relation と checked division / checked integer power を実装します。
 - `decimal` と `bin_float` の相互変換を提供します。
-- `atan2` など分岐切替をまたぐ箇所では、必要に応じてより広いが安全な enclosure を返します。
-- 正しさ優先の whitebox テストを含み、変換、超越関数の smoke case、区間境界を検証します。
+- 上位の超越関数レイヤー、微積分、行列、複素数、特殊関数はこのパスでは再導入しません。
+- 正しさ優先の whitebox テストを含み、checked error path と enclosure 境界を検証します。
 
 ### クイックスタート
 

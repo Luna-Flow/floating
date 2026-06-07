@@ -1,7 +1,7 @@
 # @ball_float.BallFloat
 
 This page tracks the current repository implementation and is written as the
-`0.1.0` API baseline.
+`0.2.0` API baseline.
 
 ## Semantics
 
@@ -21,19 +21,17 @@ interval.
 - `BallFloat::from_bigint`
 - `BallFloat::from_float`
 - `BallFloat::from_double`
-- `BallFloat::from_decimal`
 
 Constraints:
 
 - The center must be finite.
 - The radius must be finite and non-negative.
-- `exact`, `from_float`, `from_double`, and `from_decimal` abort on non-finite source values.
+- `exact`, `from_float`, and `from_double` abort on non-finite source values.
 
 Notes:
 
 - Center retuning widens the stored radius by the induced center displacement so the enclosure never shrinks.
 - Radius quantization always rounds outward.
-- `from_decimal` constructs a `BinFloat`-based enclosure; it is not an exact decimal wrapper.
 
 ## Accessors and Interval Shape
 
@@ -60,27 +58,22 @@ Notes:
 
 - `contains`
 - `overlaps`
-- `maybe_overlap`
 - `separated_from`
 - `definitely_lt`
+- `definitely_le`
 - `definitely_gt`
-- `compare`
-- `min`
-- `max`
-- `clamp`
+- `maybe_eq`
 
 Notes:
 
-- `compare` aborts on overlapping or otherwise incomparable intervals.
-- `clamp` aborts if `min` and `max` are not themselves ordered.
+- Relations are enclosure-oriented and intentionally do not pretend to be a scalar total order.
 
-## Arithmetic and Transcendental Behavior
+## Arithmetic and Checked Capability Behavior
 
 - `add`
 - `sub`
 - `mul`
 - `div`
-- `pow`
 
 Supported operators:
 
@@ -90,34 +83,24 @@ Supported operators:
 - `/`
 - unary `-`
 
-Domain notes:
+Checked-behavior notes:
 
-- Division aborts if the denominator enclosure contains zero.
-- `pow` aborts if the exponent enclosure is not exact.
-- `pow` with a non-integer exponent aborts unless the base interval is strictly positive.
-- `sqrt`, `ln`, `log2`, `log10`, `asin`, `acos`, `acosh`, and `atanh` abort outside their documented domains.
-- `atan2` now widens to the full principal-angle enclosure `[-pi, pi]` when the input rectangle crosses the negative-axis branch cut or contains the origin, because enclosure correctness takes priority over a narrower but unsound result.
+- Checked division may widen to the whole-real enclosure when the divisor contains zero.
+- Checked integer power preserves enclosure correctness and uses the same whole-real fallback for zero-containing inverse cases.
+- `BallFloat` does not implement scalar `CompareChecked`.
+- This pass does not expose non-integer power, transcendental functions, calculus, matrices, complex balls, or special functions.
 
 ## Trait Surface
 
 `BallFloat` currently implements:
 
 - `@def.Floating`
-- `@arithmetic.Constants`
-- `@arithmetic.Sqrt`
-- `@arithmetic.Cbrt`
-- `@arithmetic.Radical`
-- `@arithmetic.Exponential`
-- `@arithmetic.Logarithmic`
-- `@arithmetic.Power`
-- `@arithmetic.Trigonometric`
-- `@arithmetic.InverseTrigonometric`
-- `@arithmetic.Hyperbolic`
-- `@arithmetic.InverseHyperbolic`
-- `@luna-generic.Zero`
-- `@luna-generic.One`
-- `@luna-generic.Num`
-- `@luna-generic.Semiring`
-- `@luna-generic.Ring`
-- `@luna-generic.Field`
+- `@arithmetic.Contains`
+- `@arithmetic.Overlaps`
+- `@arithmetic.DefinitelyLt`
+- `@arithmetic.DefinitelyLe`
+- `@arithmetic.MaybeEq`
+- `@arithmetic.DivChecked`
+- `@arithmetic.PowNatChecked`
+- `@arithmetic.PowIntChecked`
 - `Eq`, `Add`, `Sub`, `Mul`, `Div`, `Neg`, `Show`

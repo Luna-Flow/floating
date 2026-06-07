@@ -1,15 +1,23 @@
+///|
 pub fn bigint_zero() -> BigInt {
   BigInt::from_int(0)
 }
 
+///|
 pub fn bigint_one() -> BigInt {
   BigInt::from_int(1)
 }
 
+///|
 pub fn abs_bigint(x : BigInt) -> BigInt {
-  if x < bigint_zero() { -x } else { x }
+  if x < bigint_zero() {
+    -x
+  } else {
+    x
+  }
 }
 
+///|
 pub fn sign_of_bigint(x : BigInt) -> Sign {
   if x < bigint_zero() {
     Sign::Negative
@@ -20,26 +28,31 @@ pub fn sign_of_bigint(x : BigInt) -> Sign {
   }
 }
 
+///|
 pub fn pow2(n : Int) -> BigInt {
   guard n >= 0 else { abort("pow2 exponent must be non-negative") }
   bigint_one() << n
 }
 
+///|
 pub fn pow10(n : Int) -> BigInt {
   guard n >= 0 else { abort("pow10 exponent must be non-negative") }
   BigInt::from_int(10).pow(BigInt::from_int(n))
 }
 
+///|
 pub fn pow5(n : Int) -> BigInt {
   guard n >= 0 else { abort("pow5 exponent must be non-negative") }
   BigInt::from_int(5).pow(BigInt::from_int(n))
 }
 
+///|
 pub fn digits10(x : BigInt) -> Int {
   let s = abs_bigint(x).to_string()
   s.length()
 }
 
+///|
 pub fn remove_factor2(sig : BigInt, exp : Int) -> (BigInt, Int) {
   if sig.is_zero() {
     (bigint_zero(), 0)
@@ -49,6 +62,7 @@ pub fn remove_factor2(sig : BigInt, exp : Int) -> (BigInt, Int) {
   }
 }
 
+///|
 pub fn remove_factor10(coeff : BigInt, exp : Int) -> (BigInt, Int) {
   if coeff.is_zero() {
     return (bigint_zero(), 0)
@@ -63,6 +77,7 @@ pub fn remove_factor10(coeff : BigInt, exp : Int) -> (BigInt, Int) {
   (coeff, exp)
 }
 
+///|
 fn should_increment(
   quotient : BigInt,
   remainder : BigInt,
@@ -91,6 +106,7 @@ fn should_increment(
   }
 }
 
+///|
 pub fn round_positive_div(
   numerator : BigInt,
   denominator : BigInt,
@@ -100,7 +116,9 @@ pub fn round_positive_div(
   guard numerator >= bigint_zero() else {
     abort("round_positive_div expects non-negative numerator")
   }
-  guard denominator > bigint_zero() else { abort("denominator must be positive") }
+  guard denominator > bigint_zero() else {
+    abort("denominator must be positive")
+  }
   let quotient = numerator / denominator
   let remainder = numerator % denominator
   if should_increment(quotient, remainder, denominator, negative, mode) {
@@ -110,6 +128,7 @@ pub fn round_positive_div(
   }
 }
 
+///|
 pub fn round_shift(
   magnitude : BigInt,
   shift : Int,
@@ -129,10 +148,12 @@ pub fn round_shift(
   }
 }
 
+///|
 pub fn compare_abs(a : BigInt, b : BigInt) -> Int {
   abs_bigint(a).compare(abs_bigint(b))
 }
 
+///|
 pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
   guard src.length() > 0 else { return None }
   let mut negative = false

@@ -1,6 +1,6 @@
 name = "Luna-Flow/floating"
 
-version = "0.1.1"
+version = "0.2.0"
 
 readme = "README.md"
 
@@ -12,11 +12,10 @@ keywords = [ "floating", "bigint", "numerics" ]
 
 description = "Arbitrary-precision floating-point types for MoonBit."
 
+import {
+  "Luna-Flow/arithmetic@0.2.0",
+}
+
 options(
   source: "src",
 )
-
-import {
-  "Luna-Flow/arithmetic@0.1.0",
-  "Luna-Flow/luna-generic@0.3.1",
-}

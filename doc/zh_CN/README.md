@@ -2,27 +2,27 @@
 
 [![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/floating/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-## v0.1.0 - 初始包基线
+## v0.2.0 - arithmetic capability integration 基线
 
-本文档描述当前分支上的 **`v0.1.0`** 基线实现。
+本文档描述当前分支上的 **`v0.2.0`** 基线实现。
 
 ### 包定位
 
-- **`def`**：共享的浮点分类、舍入模式与核心 `Floating` trait。
+- **`def`**：提供 `Sign`、`PartialOrder`、窄化后的 `Floating` trait，以及 arithmetic 边界类型的兼容 reexport。
 - **`bin_float`**：任意精度二进制浮点，采用 significand、二进制指数与工作精度表示。
 - **`decimal`**：任意精度十进制浮点，采用 coefficient、十进制指数与工作精度表示。
-- **`ball_float`**：基于 `bin_float` 的球浮点，语义是 `center +/- radius`。
+- **`ball_float`**：基于 `bin_float` 的区间/球浮点，采用向外舍入的上下界表示。
 - **`internal`**：共享的规范化、因子剥离、舍入与十进制解析辅助逻辑。
 - **`consistency`**：覆盖规范化、算术、转换与跨包语义对齐的仓库测试。
 
 ### 当前版本特征
 
-- 提供最小但稳定的 `Floating` trait 基线。
-- `bin_float` 与 `decimal` 都支持构造、规范化、精度调整、四则、特殊值，以及共享 arithmetic trait 提供的常量与超越函数。
-- `ball_float` 支持精确嵌入、包含、重叠、分离判断、区间比较、`pow` 与球/区间超越函数。
+- 依赖 `Luna-Flow/arithmetic` 提供 checked capability boundary。
+- `bin_float` 与 `decimal` 实现 checked scalar traits。
+- `ball_float` 实现 enclosure relations 与 checked division / checked integer power。
 - `decimal` 与 `bin_float` 支持双向转换。
-- `atan2` 等分支切换处以 enclosure 正确性优先，必要时会返回更宽但安全的区间。
-- 仓库包含 correctness-first 的 whitebox 测试，覆盖转换、超越函数 smoke case 与区间边界。
+- 本轮不会重新引入超越函数层、微积分、矩阵、复数或特殊函数。
+- 仓库包含 correctness-first 的 whitebox 测试，覆盖 checked error path 与 enclosure 边界。
 
 ### 快速开始
 

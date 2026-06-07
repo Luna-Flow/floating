@@ -1,6 +1,6 @@
 # `decimal` Design Notes
 
-This page tracks the current repository implementation and is written as the `0.1.0` design baseline.
+This page tracks the current repository implementation and is written as the `0.2.0` design baseline.
 
 ## Representation
 

@@ -1,6 +1,6 @@
 # `bin_float` Tutorial
 
-This page tracks the current repository implementation and is written as the `0.1.0` tutorial baseline.
+This page tracks the current repository implementation and is written as the `0.2.0` tutorial baseline.
 
 ## Creating Dyadic Values
 

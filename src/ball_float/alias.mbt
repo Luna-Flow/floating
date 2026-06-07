@@ -1,5 +1,5 @@
 ///|
-using @bigint { type BigInt }
+using @bigint {type BigInt}
 
 ///|
-using @def { type FpClass, type RoundingMode, type Sign }
+using @def {type FpClass, type RoundingMode, type Sign}

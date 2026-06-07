@@ -2,6 +2,7 @@
 package "Luna-Flow/floating/internal"
 
 import {
+  "Luna-Flow/arithmetic",
   "Luna-Flow/floating/def",
   "moonbitlang/core/bigint",
 }
@@ -27,9 +28,9 @@ pub fn remove_factor10(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
 
 pub fn remove_factor2(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
 
-pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @def.RoundingMode) -> @bigint.BigInt
+pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
-pub fn round_shift(@bigint.BigInt, Int, Bool, @def.RoundingMode) -> @bigint.BigInt
+pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
 pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 

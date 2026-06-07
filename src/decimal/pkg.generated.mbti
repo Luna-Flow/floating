@@ -5,7 +5,6 @@ import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/def",
-  "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
 }
 
@@ -20,10 +19,12 @@ pub struct Decimal {
 pub fn Decimal::abs(Self) -> Self
 pub fn Decimal::add(Self, Self) -> Self
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
-pub fn Decimal::classify(Self) -> @def.FpClass
+pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::compare(Self, Self) -> Int
+pub fn Decimal::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
 pub fn Decimal::div(Self, Self) -> Self
+pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::exponent10(Self) -> Int
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
 pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int) -> Self
@@ -33,7 +34,7 @@ pub fn Decimal::from_int(Int, precision? : Int) -> Self
 pub fn Decimal::from_string(String, precision? : Int) -> Self?
 pub fn Decimal::inf(@def.Sign, precision? : Int) -> Self
 pub fn Decimal::is_zero(Self) -> Bool
-pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : @def.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::mul(Self, Self) -> Self
@@ -41,35 +42,21 @@ pub fn Decimal::nan(precision? : Int) -> Self
 pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::one(precision? : Int) -> Self
+pub fn Decimal::parse(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::precision(Self) -> Int
 pub fn Decimal::sign(Self) -> @def.Sign
+pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sub(Self, Self) -> Self
-pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @def.RoundingMode) -> @bin_float.BinFloat
-pub fn Decimal::with_precision(Self, Int, @def.RoundingMode) -> Self
+pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int) -> Self
-pub impl @arithmetic.Cbrt for Decimal
-pub impl @arithmetic.Constants for Decimal
-pub impl @arithmetic.Exponential for Decimal
-pub impl @arithmetic.Hyperbolic for Decimal
-pub impl @arithmetic.InverseHyperbolic for Decimal
-pub impl @arithmetic.InverseTrigonometric for Decimal
-pub impl @arithmetic.Logarithmic for Decimal
-pub impl @arithmetic.Power for Decimal
-pub impl @arithmetic.Radical for Decimal
-pub impl @arithmetic.Sqrt for Decimal
-pub impl @arithmetic.Trigonometric for Decimal
+pub impl @arithmetic.CompareChecked for Decimal
+pub impl @arithmetic.DivChecked for Decimal
+pub impl @arithmetic.ParseChecked for Decimal
+pub impl @arithmetic.PowIntChecked for Decimal
+pub impl @arithmetic.PowNatChecked for Decimal
+pub impl @arithmetic.SqrtChecked for Decimal
 pub impl @def.Floating for Decimal
-pub impl @luna-generic.AddGroup for Decimal
-pub impl @luna-generic.AddMonoid for Decimal
-pub impl @luna-generic.Field for Decimal
-pub impl @luna-generic.Inverse for Decimal
-pub impl @luna-generic.MulGroup for Decimal
-pub impl @luna-generic.MulMonoid for Decimal
-pub impl @luna-generic.Num for Decimal
-pub impl @luna-generic.One for Decimal
-pub impl @luna-generic.Ring for Decimal
-pub impl @luna-generic.Semiring for Decimal
-pub impl @luna-generic.Zero for Decimal
 pub impl Add for Decimal
 pub impl Compare for Decimal
 pub impl Div for Decimal

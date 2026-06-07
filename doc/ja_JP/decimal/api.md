@@ -1,6 +1,6 @@
 # @decimal.Decimal
 
-このページは現在の `0.1.0` 基準における `@decimal.Decimal` を説明します。
+このページは現在の `0.2.0` 基準における `@decimal.Decimal` を説明します。
 
 ## 表現
 
@@ -78,25 +78,15 @@
 `Decimal` は現在次を実装します。
 
 - `@def.Floating`
-- `@arithmetic.Constants`
-- `@arithmetic.Sqrt`
-- `@arithmetic.Cbrt`
-- `@arithmetic.Radical`
-- `@arithmetic.Exponential`
-- `@arithmetic.Logarithmic`
-- `@arithmetic.Power`
-- `@arithmetic.Trigonometric`
-- `@arithmetic.InverseTrigonometric`
-- `@arithmetic.Hyperbolic`
-- `@arithmetic.InverseHyperbolic`
-- `@luna-generic.Zero`
-- `@luna-generic.One`
-- `@luna-generic.Num`
-- `@luna-generic.Semiring`
-- `@luna-generic.Ring`
-- `@luna-generic.Field`
+- `@arithmetic.ParseChecked`
+- `@arithmetic.SqrtChecked`
+- `@arithmetic.DivChecked`
+- `@arithmetic.CompareChecked`
+- `@arithmetic.PowNatChecked`
+- `@arithmetic.PowIntChecked`
 - `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`
 
 補足:
 
-- 定数と超越関数の trait は共有 arithmetic interface を通して公開され、現在の実装では精度付きの 10 進/2 進ブリッジを経由して計算されます。
+- このパスでは `Decimal` に定数 trait や超越関数 trait を公開しません。
+- `Luna-Flow/arithmetic` との統合面は checked arithmetic trait です。

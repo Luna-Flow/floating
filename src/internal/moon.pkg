@@ -1,5 +1,6 @@
 import {
-  "moonbitlang/core/bigint" @bigint,
+  "Luna-Flow/arithmetic",
+  "moonbitlang/core/bigint",
   "moonbitlang/core/debug",
   "Luna-Flow/floating/def",
 }

@@ -2,6 +2,7 @@
 package "Luna-Flow/floating/def"
 
 import {
+  "Luna-Flow/arithmetic",
   "moonbitlang/core/bigint",
 }
 
@@ -17,18 +18,11 @@ pub fn[F : Floating] is_zero(F) -> Bool
 // Errors
 
 // Types and methods
-pub(all) enum FpClass {
-  Finite
-  Infinity
-  NaN
-} derive(Eq)
-
-pub(all) enum RoundingMode {
-  ToNearestEven
-  TowardZero
-  TowardPositive
-  TowardNegative
-  AwayFromZero
+pub(all) enum PartialOrder {
+  Less
+  Equal
+  Greater
+  Unordered
 } derive(Eq)
 
 pub(all) enum Sign {
@@ -38,14 +32,24 @@ pub(all) enum Sign {
 } derive(Eq)
 
 // Type aliases
+pub using @arithmetic {type ArithmeticContext}
+
+pub using @arithmetic {type ArithmeticError}
+
+pub using @arithmetic {type ArithmeticErrorKind}
+
 pub using @bigint {type BigInt}
+
+pub using @arithmetic {type FpClass}
+
+pub using @arithmetic {type RoundingMode}
 
 // Traits
 pub(open) trait Floating {
-  fn classify(Self) -> FpClass
+  fn classify(Self) -> @arithmetic.FpClass
   fn sign(Self) -> Sign
   fn precision(Self) -> Int
-  fn with_precision(Self, Int, RoundingMode) -> Self
+  fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
   fn normalized(Self) -> Self
 }
 

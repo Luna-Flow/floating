@@ -1,6 +1,6 @@
 # FLOATING Documentation
 
-This directory contains the English documentation baseline for `floating` `0.1.0`.
+This directory contains the English documentation baseline for `floating` `0.2.0`.
 
 ## Core Documents
 
@@ -13,8 +13,9 @@ This directory contains the English documentation baseline for `floating` `0.1.0
 
 ## Numeric Packages
 
-- `bin_float`, `decimal`, and `ball_float` now all expose shared arithmetic trait surfaces for constants and transcendental operations.
-- `ball_float` documents enclosure-first behavior around branch cuts and ambiguous interval domains.
+- `bin_float` and `decimal` implement checked scalar capability traits from `Luna-Flow/arithmetic`.
+- `ball_float` implements enclosure relations plus checked division and checked integer power, without a fake total ordering.
+- This repository does not reintroduce transcendental layers, calculus, matrices, complex numbers, or special functions in this integration pass.
 
 - [@bin_float API](./bin_float/api.md)
 - [@bin_float Tutorial](./bin_float/tutorial.md)

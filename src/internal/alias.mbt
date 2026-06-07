@@ -1,5 +1,8 @@
 ///|
-using @def { type RoundingMode, type Sign }
+using @arithmetic {type RoundingMode}
 
 ///|
-using @bigint { type BigInt }
+using @def {type Sign}
+
+///|
+using @bigint {type BigInt}

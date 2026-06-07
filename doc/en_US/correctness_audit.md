@@ -1,6 +1,6 @@
 # Correctness Audit Ledger
 
-This ledger tracks the current `0.1.0` implementation against explicit semantic contracts.
+This ledger tracks the current `0.2.0` implementation against explicit semantic contracts.
 
 Status labels:
 
