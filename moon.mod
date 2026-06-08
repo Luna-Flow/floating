@@ -10,7 +10,7 @@ license = "Apache-2.0"
 
 keywords = [ "floating", "bigint", "numerics" ]
 
-description = "Arbitrary-precision floating-point types for MoonBit."
+description = "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 
 import {
   "Luna-Flow/arithmetic@0.2.0",
