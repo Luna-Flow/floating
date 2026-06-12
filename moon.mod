@@ -1,6 +1,6 @@
 name = "Luna-Flow/floating"
 
-version = "0.2.0"
+version = "0.3.0"
 
 readme = "README.md"
 
@@ -13,7 +13,8 @@ keywords = [ "floating", "bigint", "numerics" ]
 description = "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 
 import {
-  "Luna-Flow/arithmetic@0.2.0",
+  "Luna-Flow/arithmetic@0.2.1",
+  "Luna-Flow/luna-generic@0.3.3",
 }
 
 options(

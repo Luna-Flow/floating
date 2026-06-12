@@ -695,6 +695,24 @@ pub impl @arithmetic.PowIntChecked for BinFloat with fn pow_int_checked(
 }
 
 ///|
+pub impl NatHomomorphism for BinFloat
+
+///|
+pub impl IntegralHomomorphism for BinFloat
+
+///|
+pub impl NatHomomorphism for BinFloat with fn[S : @lg.Nat] from_nat(value : S) -> BinFloat {
+  BinFloat::from_bigint(@lg.Integral::normalize(value)).normalized()
+}
+
+///|
+pub impl IntegralHomomorphism for BinFloat with fn[S : @lg.Integral] from_integral(
+  value : S,
+) -> BinFloat {
+  BinFloat::from_bigint(@lg.Integral::normalize(value)).normalized()
+}
+
+///|
 pub impl Add for BinFloat with fn add(self, other) {
   add_bin_impl(self, other)
 }

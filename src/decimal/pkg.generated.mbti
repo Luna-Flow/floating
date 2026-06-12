@@ -5,6 +5,7 @@ import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/def",
+  "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
 }
 
@@ -57,6 +58,8 @@ pub impl @arithmetic.PowIntChecked for Decimal
 pub impl @arithmetic.PowNatChecked for Decimal
 pub impl @arithmetic.SqrtChecked for Decimal
 pub impl @def.Floating for Decimal
+pub impl @luna-generic.IntegralHomomorphism for Decimal
+pub impl @luna-generic.NatHomomorphism for Decimal
 pub impl Add for Decimal
 pub impl Compare for Decimal
 pub impl Div for Decimal

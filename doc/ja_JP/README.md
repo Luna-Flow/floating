@@ -2,9 +2,9 @@
 
 [![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-Apache%202.0-blue)](https://github.com/Luna-Flow/floating/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-## v0.2.0 - arithmetic capability integration 基準
+## v0.3.0 - Result wrapper と checked 合成の基準
 
-このドキュメントは、現在のブランチにある **`v0.2.0`** の実装基準を説明します。
+このドキュメントは、現在のブランチにある **`v0.3.0`** の実装基準を説明します。
 
 ### パッケージの位置づけ
 
@@ -12,6 +12,9 @@
 - **`bin_float`**: 仮数、2 進指数、作業精度で表現される任意精度 2 進浮動小数点。
 - **`decimal`**: 係数、10 進指数、作業精度で表現される任意精度 10 進浮動小数点。
 - **`ball_float`**: 外向き丸めされた上下界で表現される、`bin_float` ベースの interval/ball 値。
+- **`bin_float_result`**: `Result[BinFloat, ArithmeticError]` を閉じた数値合成オブジェクトとして包みます。
+- **`decimal_result`**: `Result[Decimal, ArithmeticError]` を閉じた数値合成オブジェクトとして包みます。
+- **`ball_float_result`**: `Result[BallFloat, ArithmeticError]` を閉じた区間合成オブジェクトとして包みます。
 - **`internal`**: 正規化、因子除去、丸め、10 進文字列解析の共有補助ロジック。
 - **`consistency`**: 正規化、算術、変換、パッケージ間意味論を検証するリポジトリテスト。
 
@@ -20,6 +23,9 @@
 - `Luna-Flow/arithmetic` の checked capability boundary に依存します。
 - `bin_float` と `decimal` は checked scalar trait を実装します。
 - `ball_float` は enclosure relation と checked division / checked integer power を実装します。
+- 3 つの `*_result` サブパッケージは checked 演算を `Self -> Self` と `(Self, Self) -> Self` の閉じた合成へ持ち上げます。
+- `compare_checked` のような observer API は非 `Self` を返す自然な形を保ち、閉包代数へ無理に押し込みません。
+- `ball_float_result` はゼロを含む除数に対する whole real enclosure を維持し、そのケースを `Err` には変換しません。
 - `decimal` と `bin_float` の相互変換を提供します。
 - 上位の超越関数レイヤー、微積分、行列、複素数、特殊関数はこのパスでは再導入しません。
 - 正しさ優先の whitebox テストを含み、checked error path と enclosure 境界を検証します。

@@ -142,3 +142,50 @@ test "checked trait helpers are usable through arithmetic boundary" {
     Err(_) => fail("expected checked decimal division to succeed")
   }
 }
+
+///|
+test "semantic scalar interpretation unifies binary and decimal rationals" {
+  let expected = @semantic.SemanticScalar::Rational(
+    @semantic.ExactRational::new(3N, 2N),
+  )
+  let binary = @semantic.SemanticScalar::from_bin_float(
+    @bin_float.BinFloat::make(3N, -1, 16),
+  )
+  let decimal = @semantic.SemanticScalar::from_decimal(
+    @decimal.Decimal::from_string("1.50", precision=16).unwrap(),
+  )
+  assert_true(binary == expected)
+  assert_true(decimal == expected)
+}
+
+///|
+test "semantic result interpretation totalizes checked failures" {
+  let checked = @bin_float.BinFloat::from_int(1, precision=16).div_checked(
+    @bin_float.BinFloat::zero(precision=16),
+  )
+  let semantic = @semantic.semantic_scalar_result(checked, value => {
+    @semantic.SemanticScalar::from_bin_float(value)
+  })
+  assert_true(
+    semantic ==
+    @semantic.SemanticResult::Error(@semantic.SemanticError::DivisionByZero),
+  )
+}
+
+///|
+test "semantic interval interpretation preserves ball bounds" {
+  let ball = @ball_float.BallFloat::from_bounds(
+    @bin_float.BinFloat::make(1N, -1, 16),
+    @bin_float.BinFloat::make(3N, -1, 16),
+    precision=16,
+  )
+  let interval = @semantic.SemanticInterval::from_ball_float(ball)
+  assert_true(
+    interval.lower ==
+    @semantic.SemanticScalar::Rational(@semantic.ExactRational::new(1N, 2N)),
+  )
+  assert_true(
+    interval.upper ==
+    @semantic.SemanticScalar::Rational(@semantic.ExactRational::new(3N, 2N)),
+  )
+}

@@ -17,6 +17,9 @@ using @arithmetic {
 }
 
 ///|
+using @lg {trait IntegralHomomorphism}
+
+///|
 fn[T : SqrtChecked] sqrt_checked_generic(
   x : T,
   ctx : ArithmeticContext,
@@ -39,6 +42,14 @@ fn[T : CompareChecked] compare_checked_generic(
   y : T,
 ) -> Result[Int, ArithmeticError] {
   CompareChecked::compare_checked(x, y)
+}
+
+///|
+fn[T : IntegralHomomorphism, S : @lg.Integral] from_integral_generic(
+  x : S,
+) -> T {
+  let _ = @lg.Integral::normalize(x)
+  IntegralHomomorphism::from_integral(x)
 }
 
 ///|
@@ -162,6 +173,14 @@ test "bin_float implements generic checked arithmetic traits" {
 }
 
 ///|
+test "bin_float integral homomorphism normalizes canonical dyadics" {
+  let value : @bin_float.BinFloat = from_integral_generic(12N)
+  assert_eq(value, @bin_float.BinFloat::from_bigint(12N).normalized())
+  assert_eq(value.significand(), 3N)
+  assert_eq(value.exponent2(), 2)
+}
+
+///|
 test "decimal parses and normalizes" {
   let x = @decimal.Decimal::parse("0012.3400", precision=20)
   match x {
@@ -243,6 +262,14 @@ test "decimal implements generic checked arithmetic traits" {
     Ok(_) => fail("expected negative power of decimal zero to fail")
     Err(err) => assert_true(err.is_division_by_zero())
   }
+}
+
+///|
+test "decimal integral homomorphism preserves canonical decimal form" {
+  let value : @decimal.Decimal = from_integral_generic(1200N)
+  assert_eq(value, @decimal.Decimal::from_bigint(1200N).normalized())
+  assert_eq(value.coefficient(), 12N)
+  assert_eq(value.exponent10(), 2)
 }
 
 ///|
@@ -348,6 +375,14 @@ test "ball_float division by a divisor containing zero returns whole real enclos
 }
 
 ///|
+test "ball_float integral homomorphism keeps exact bounded interval" {
+  let value : @ball_float.BallFloat = from_integral_generic(12N)
+  assert_eq(value, @ball_float.BallFloat::from_bigint(12N).normalized())
+  assert_true(value.is_bounded())
+  assert_eq(value.lower_bound(), value.upper_bound())
+}
+
+///|
 test "ball_float implements checked enclosure-preserving power and division" {
   let unit_ball = @ball_float.BallFloat::exact(
     @bin_float.BinFloat::make(3N, -1, 24),
@@ -370,5 +405,58 @@ test "ball_float implements checked enclosure-preserving power and division" {
   match div_checked_generic(unit_ball, zero_crossing, checked_ctx) {
     Ok(value) => assert_true(value.is_entire())
     Err(_) => fail("expected whole-real checked division fallback")
+  }
+}
+
+///|
+test "bin_float_result keeps arithmetic closed and propagates errors" {
+  let one = @bin_float_result.BinFloatResult::from_int(1, precision=16)
+  let two = @bin_float_result.BinFloatResult::from_int(2, precision=16)
+  match ((one + two).pow_nat(2U) * two).sqrt().result() {
+    Ok(value) =>
+      assert_true(value.compare(@bin_float.BinFloat::zero(precision=16)) > 0)
+    Err(_) => fail("expected closed bin float result pipeline to succeed")
+  }
+  let zero = @bin_float_result.BinFloatResult::from_int(0, precision=16)
+  match (one / zero).abs().result() {
+    Ok(_) => fail("expected division by zero to remain an error")
+    Err(err) => assert_true(err.is_division_by_zero())
+  }
+}
+
+///|
+test "decimal_result maps parse and checked operations inside the wrapper" {
+  let parsed = @decimal_result.DecimalResult::parse("9.0", precision=20)
+  let three = @decimal_result.DecimalResult::from_int(3, precision=20)
+  match (parsed.sqrt().pow_int(1) / three).normalized().result() {
+    Ok(value) => assert_eq(value, @decimal.Decimal::one(precision=20))
+    Err(_) => fail("expected decimal result pipeline to succeed")
+  }
+  match
+    @decimal_result.DecimalResult::parse("bad", precision=20).sqrt().result() {
+    Ok(_) => fail("expected parse error to short-circuit")
+    Err(err) => assert_true(err.is_parse_error())
+  }
+}
+
+///|
+test "ball_float_result keeps interval operations in one result category" {
+  let one = @ball_float_result.BallFloatResult::from_int(1, precision=12)
+  let zero_crossing = @ball_float_result.BallFloatResult::from_bounds(
+    @bin_float.BinFloat::make(-1N, 0, 16),
+    @bin_float.BinFloat::one(precision=16),
+    precision=12,
+  )
+  match (one.pow_nat(2U) / zero_crossing).pow_int(-1).result() {
+    Ok(value) => assert_true(value.is_entire())
+    Err(_) => fail("expected ball result whole-real fallback to succeed")
+  }
+  let invalid = @ball_float_result.BallFloatResult::from_double(
+    0.0 / 0.0,
+    precision=12,
+  )
+  match (invalid + one).result() {
+    Ok(_) => fail("expected invalid ball source to short-circuit")
+    Err(err) => assert_true(err.is_domain_error())
   }
 }

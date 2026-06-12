@@ -770,6 +770,24 @@ pub impl @arithmetic.PowIntChecked for BallFloat with fn pow_int_checked(
 }
 
 ///|
+pub impl NatHomomorphism for BallFloat
+
+///|
+pub impl IntegralHomomorphism for BallFloat
+
+///|
+pub impl NatHomomorphism for BallFloat with fn[S : @lg.Nat] from_nat(value : S) -> BallFloat {
+  BallFloat::from_bigint(@lg.Integral::normalize(value)).normalized()
+}
+
+///|
+pub impl IntegralHomomorphism for BallFloat with fn[S : @lg.Integral] from_integral(
+  value : S,
+) -> BallFloat {
+  BallFloat::from_bigint(@lg.Integral::normalize(value)).normalized()
+}
+
+///|
 pub impl Add for BallFloat with fn add(self, other) {
   add_ball_impl(self, other)
 }

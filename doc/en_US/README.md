@@ -1,6 +1,6 @@
 # FLOATING Documentation
 
-This directory contains the English documentation baseline for `floating` `0.2.0`.
+This directory contains the English documentation baseline for `floating` `0.3.0`.
 
 ## Core Documents
 
@@ -15,6 +15,9 @@ This directory contains the English documentation baseline for `floating` `0.2.0
 
 - `bin_float` and `decimal` implement checked scalar capability traits from `Luna-Flow/arithmetic`.
 - `ball_float` implements enclosure relations plus checked division and checked integer power, without a fake total ordering.
+- `bin_float_result`, `decimal_result`, and `ball_float_result` wrap checked arithmetic as closed `Result`-valued numeric composition.
+- The result wrappers model endomorphisms and Kleisli-style composition; observer APIs such as checked comparisons remain separate.
+- `ball_float_result` preserves whole-real enclosure fallback for division by zero-containing intervals instead of converting that case into `Err`.
 - This repository does not reintroduce transcendental layers, calculus, matrices, complex numbers, or special functions in this integration pass.
 
 - [@bin_float API](./bin_float/api.md)

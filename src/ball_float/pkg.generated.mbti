@@ -5,6 +5,7 @@ import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/def",
+  "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
 }
 
@@ -58,6 +59,8 @@ pub impl @arithmetic.Overlaps for BallFloat
 pub impl @arithmetic.PowIntChecked for BallFloat
 pub impl @arithmetic.PowNatChecked for BallFloat
 pub impl @def.Floating for BallFloat
+pub impl @luna-generic.IntegralHomomorphism for BallFloat
+pub impl @luna-generic.NatHomomorphism for BallFloat
 pub impl Add for BallFloat
 pub impl Div for BallFloat
 pub impl Mul for BallFloat

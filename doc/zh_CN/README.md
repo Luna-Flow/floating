@@ -2,9 +2,9 @@
 
 [![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-Apache%202.0-blue)](https://github.com/Luna-Flow/floating/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-## v0.2.0 - arithmetic capability integration 基线
+## v0.3.0 - Result wrapper 与 checked 组合基线
 
-本文档描述当前分支上的 **`v0.2.0`** 基线实现。
+本文档描述当前分支上的 **`v0.3.0`** 基线实现。
 
 ### 包定位
 
@@ -12,6 +12,9 @@
 - **`bin_float`**：任意精度二进制浮点，采用 significand、二进制指数与工作精度表示。
 - **`decimal`**：任意精度十进制浮点，采用 coefficient、十进制指数与工作精度表示。
 - **`ball_float`**：基于 `bin_float` 的区间/球浮点，采用向外舍入的上下界表示。
+- **`bin_float_result`**：把 `Result[BinFloat, ArithmeticError]` 包成可闭合组合的数值对象。
+- **`decimal_result`**：把 `Result[Decimal, ArithmeticError]` 包成可闭合组合的数值对象。
+- **`ball_float_result`**：把 `Result[BallFloat, ArithmeticError]` 包成可闭合组合的区间对象。
 - **`internal`**：共享的规范化、因子剥离、舍入与十进制解析辅助逻辑。
 - **`consistency`**：覆盖规范化、算术、转换与跨包语义对齐的仓库测试。
 
@@ -20,6 +23,9 @@
 - 依赖 `Luna-Flow/arithmetic` 提供 checked capability boundary。
 - `bin_float` 与 `decimal` 实现 checked scalar traits。
 - `ball_float` 实现 enclosure relations 与 checked division / checked integer power。
+- 三个 `*_result` 子包把 checked 运算提升为 `Self -> Self` 与 `(Self, Self) -> Self` 的闭包组合层。
+- `compare_checked` 这类 observer 仍然保持返回非 `Self` 的结果，不强行塞进闭包代数。
+- `ball_float_result` 保留 ball 除零时返回 whole real enclosure 的语义；只有非法构造才进入 `Err`。
 - `decimal` 与 `bin_float` 支持双向转换。
 - 本轮不会重新引入超越函数层、微积分、矩阵、复数或特殊函数。
 - 仓库包含 correctness-first 的 whitebox 测试，覆盖 checked error path 与 enclosure 边界。

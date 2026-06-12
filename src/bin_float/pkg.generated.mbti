@@ -4,6 +4,7 @@ package "Luna-Flow/floating/bin_float"
 import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/def",
+  "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
 }
 
@@ -56,6 +57,8 @@ pub impl @arithmetic.PowIntChecked for BinFloat
 pub impl @arithmetic.PowNatChecked for BinFloat
 pub impl @arithmetic.SqrtChecked for BinFloat
 pub impl @def.Floating for BinFloat
+pub impl @luna-generic.IntegralHomomorphism for BinFloat
+pub impl @luna-generic.NatHomomorphism for BinFloat
 pub impl Add for BinFloat
 pub impl Compare for BinFloat
 pub impl Div for BinFloat

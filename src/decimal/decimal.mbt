@@ -639,6 +639,24 @@ pub impl @arithmetic.PowIntChecked for Decimal with fn pow_int_checked(
 }
 
 ///|
+pub impl NatHomomorphism for Decimal
+
+///|
+pub impl IntegralHomomorphism for Decimal
+
+///|
+pub impl NatHomomorphism for Decimal with fn[S : @lg.Nat] from_nat(value : S) -> Decimal {
+  Decimal::from_bigint(@lg.Integral::normalize(value)).normalized()
+}
+
+///|
+pub impl IntegralHomomorphism for Decimal with fn[S : @lg.Integral] from_integral(
+  value : S,
+) -> Decimal {
+  Decimal::from_bigint(@lg.Integral::normalize(value)).normalized()
+}
+
+///|
 pub impl Add for Decimal with fn add(self, other) {
   add_decimal_impl(self, other)
 }
