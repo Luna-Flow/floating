@@ -1,45 +1,53 @@
 name: publish-package
 run-name: publish to mooncakes
+
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-package
+  cancel-in-progress: false
+
 jobs:
   publish:
+    name: publish
     runs-on: ubuntu-latest
+    environment: mooncakes
     steps:
-      - uses: actions/checkout@v4
-      - name: install
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install moonbit
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-      - name: moon version
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: version
         run: |
           moon version --all
           moonrun --version
-      - name: read release version
-        id: release
-        run: |
-          test -f moon.mod
-          test ! -f moon.mod.json
-          test -f README.md
-          PKG_VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' moon.mod)
-          echo "moon.mod version: $PKG_VERSION"
-          test -n "$PKG_VERSION"
-          echo "version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
-      - name: moon update
-        run: |
-          moon update
-      - name: moon check
-        run: |
-          moon install
-          moon check --target all
-      - name: repository tests
-        run: |
-          moon test
+
+      - name: update registry
+        run: sh tools/run_moon_clean_exec.sh update
+
+      - name: build
+        run: sh tools/run_moon_clean_exec.sh build --target all
+
+      - name: check
+        run: sh tools/run_moon_clean_exec.sh check --target all --frozen
+
+      - name: test
+        run: sh tools/run_moon_clean_exec.sh test --enable-coverage --frozen
+
       - name: publish
-        run: |
-          trap 'rm -f ~/.moon/credentials.json' EXIT
-          echo "publishing version ${{ steps.release.outputs.version }}"
-          printf '%s' "$SECRET" > ~/.moon/credentials.json
-          moon publish
         env:
           SECRET: ${{ secrets.LUNA_MOONCAKE }}
+        run: |
+          test -n "$SECRET"
+          mkdir -p "$HOME/.moon"
+          trap 'rm -f "$HOME/.moon/credentials.json"' EXIT
+          printf '%s' "$SECRET" > "$HOME/.moon/credentials.json"
+          sh tools/run_moon_clean_exec.sh publish --frozen

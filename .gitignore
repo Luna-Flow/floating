@@ -1,8 +1,31 @@
+# MoonBit build outputs and locks
 target
 _build
 .mooncakes/
-.DS_Store
-.vscode/
+.moon-lock
+test.moon_db
+test.moon_db-shm
+test.moon_db-wal
+
+# Generated decTest artifacts
+src/.generated_dectest/
+src/.generated_dectest_runtime/
+src/consistency/_generated_dectest_wbtest.mbt
+
+# Coverage artifacts
+_coverage/
+coverage_summary.txt
+
+# Local runtime scratch space
+.tmp/
+
+# Fetched decTest corpora and archives
+testdata/decimal/official/
+testdata/decimal/official0/
+testdata/decimal/dectest.zip
+testdata/decimal/dectest0.zip
+
+# Python/tooling caches
 .venv/
 __pycache__/
 *.pyc
@@ -11,5 +34,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-_coverage/
-coverage_summary.txt
+
+# Editor / OS clutter
+.DS_Store
+.vscode/
+.idea/
