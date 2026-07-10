@@ -2,7 +2,17 @@
 using @bigint {type BigInt}
 
 ///|
-using @lg {trait IntegralHomomorphism, trait NatHomomorphism}
+using @lf_alg {
+  trait AddGroup,
+  trait AddMonoid,
+  trait IntegralHomomorphism,
+  trait MulMonoid,
+  trait NatHomomorphism,
+  trait One,
+  trait Ring,
+  trait Semiring,
+  trait Zero,
+}
 
 ///|
 using @def {type FpClass, type RoundingMode, type Sign}
@@ -15,8 +25,6 @@ using @internal {
   digits10,
   pow5,
   pow10,
-  remove_factor10,
   round_positive_div,
-  sign_of_bigint,
   split_decimal_string,
 }

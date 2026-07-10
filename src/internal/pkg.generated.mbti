@@ -18,6 +18,8 @@ pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
 
 pub fn digits10(@bigint.BigInt) -> Int
 
+pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int) -> @bigint.BigInt?
+
 pub fn pow10(Int) -> @bigint.BigInt
 
 pub fn pow2(Int) -> @bigint.BigInt
@@ -35,6 +37,8 @@ pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigi
 pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 
 pub fn split_decimal_string(String) -> (Bool, String, Int)?
+
+pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bigint.BigInt, Int, Int)
 
 // Errors
 

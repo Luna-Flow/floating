@@ -146,7 +146,11 @@ pub fn SemanticScalar::from_decimal(x : @decimal.Decimal) -> SemanticScalar {
   match x.classify() {
     @arithmetic.FpClass::Finite =>
       Rational(
-        ExactRational::from_scaled_integer(x.coefficient(), 10, x.exponent10()),
+        ExactRational::from_scaled_integer(
+          x.coefficient().to_bigint(),
+          10,
+          x.exponent10(),
+        ),
       )
     @arithmetic.FpClass::Infinity => Infinity(x.sign())
     @arithmetic.FpClass::NaN => NaN
