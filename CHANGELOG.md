@@ -4,9 +4,18 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.4.1 - 2026-07-11
+
+### Fixed
+
+- Refreshed the published package README and current-baseline entry points so
+  Mooncakes displays the 0.4 release documentation and installation version.
+- Recorded verified full-corpus results for both the current and legacy GDA
+  suites: 81,110 executable cases passed with zero failures.
+
 ## 0.4.0 - 2026-07-11
 
-Current repository baseline.
+Feature baseline for Decimal contexts and GDA conformance.
 
 ### Added
 

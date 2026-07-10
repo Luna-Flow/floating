@@ -1,6 +1,6 @@
 # FLOATING Documentation
 
-This directory documents the current **`0.4.0`** implementation. Historical
+This directory documents the current **`0.4.1`** implementation. Historical
 release notes belong in [CHANGELOG.md](../../CHANGELOG.md).
 
 ## Reader Guide

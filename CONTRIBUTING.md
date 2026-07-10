@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.4.0`**.
+documentation baseline: **`0.4.1`**.
 
 ## To Contributors
 

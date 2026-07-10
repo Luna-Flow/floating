@@ -2,9 +2,9 @@
 
 [![Maintainer](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE) ![State](https://img.shields.io/badge/State-active-success)
 
-## v0.4.0 - Decimal Context And Conformance Baseline
+## v0.4.1 - Decimal Context And Conformance Baseline
 
-This README describes the implementation present in the **`v0.4.0`** branch.
+This README describes the implementation published in the **`v0.4.1`** release.
 Earlier release notes live in [CHANGELOG.md](./CHANGELOG.md).
 
 `floating` provides arbitrary-precision binary, decimal, and interval arithmetic
@@ -30,7 +30,7 @@ failure, and enclosure semantics explicit.
   command-line entry point.
 - **Verification**: `consistency` contains cross-package and API-audit tests.
 
-### What Defines v0.4.0
+### What Defines v0.4.1
 
 - `Decimal` preserves quantum when parsing and exposes explicit `normalized()` /
   `reduce_ctx()` operations when canonical cohort form is wanted.
@@ -48,6 +48,16 @@ failure, and enclosure semantics explicit.
   diagnostic, passed, and failed cases.
 - Binary and ball arithmetic continue to use the checked-capability model. Ball
   division by an interval containing zero returns a whole-real enclosure.
+
+### Verified GDA Conformance
+
+- Current `official` corpus: 144 files, **64,986 / 64,986 executable cases
+  passed**, 0 failed, and 141 skipped by the runner's classification rules.
+- Legacy `official0` corpus: 32 files, **16,124 / 16,124 executable cases
+  passed**, 0 failed, and 40 skipped by the runner's classification rules.
+
+Skipped diagnostic, unsupported, or legacy-condition rows are reported
+separately and are not counted as executable semantic failures.
 
 ### API Guidance
 
@@ -68,7 +78,7 @@ failure, and enclosure semantics explicit.
 ### Installation
 
 ```sh
-moon add Luna-Flow/floating@0.4.0
+moon add Luna-Flow/floating@0.4.1
 ```
 
 Import only the packages an application needs:
