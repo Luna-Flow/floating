@@ -1,0 +1,162 @@
+-- Luna-Flow decimal decTest parser smoke fixture.
+-- This is not a replacement for the official General Decimal Arithmetic corpus.
+
+version: 2.62
+precision: 3
+rounding: half_even
+maxExponent: 9
+minExponent: -9
+clamp: 0
+
+lfadd001 add 1.20 3.40 -> 4.60
+lfsub001 subtract 1.20 1.20 -> 0.00
+lfmul001 multiply 9.99 9.99 -> 99.8 Inexact Rounded
+lfdiv001 divide 1 3 -> 0.333 Inexact Rounded
+lfsqrt001 squareroot 4 -> 2
+lfsqrt002 squareroot 2 -> 1.41 Inexact Rounded
+lfsqrt003 squareroot -1 -> NaN Invalid_operation
+lfsqrt004 squareroot -0.00 -> -0.0
+lfdivint001 divideint 10 3 -> 3
+lfrem001 remainder 10 3 -> 1
+lfremnear001 remaindernear 10 6 -> -2
+lfremnear002 remaindernear 10 4 -> 2
+lfremnear003 remaindernear 9 6 -> -3
+lfremnear004 remaindernear -10 6 -> 2
+lfremnear005 remaindernear 12345 1 -> NaN Invalid_operation Division_impossible
+lffma001 fma 9.99 9.99 -99.7 -> 0.100 Inexact Rounded
+lfquant001 quantize 1.235 0.01 -> 1.24 Inexact Rounded
+lftoi001 tointegralx 2.500 -> 2 Inexact Rounded
+lfcmp001 compare 1.0 1 -> 0
+lfcs001 comparesig 1.0 1 -> 0
+lfcs002 comparesig NaN 1 -> NaN Invalid_operation
+lfcs003 compare-signal sNaN7 1 -> NaN7 Invalid_operation
+lfct001 comparetotal 1.0 1 -> -1
+lfctm001 comparetotalmag -2 1 -> 1
+lfnan001 add NaN 1 -> NaN
+lfsnan001 add sNaN7 1 -> NaN7 Invalid_operation
+lfinf001 add Infinity 1 -> Infinity
+lfinf002 add Infinity -Infinity -> NaN Invalid_operation
+lfquantnan001 quantize NaN 0.01 -> NaN
+lfsameq001 samequantum NaN sNaN1 -> 1
+lfct002 comparetotal sNaN1 NaN2 -> -1
+lfplus001 plus 1.234 -> 1.23 Inexact Rounded
+lfminus001 minus 1.20 -> -1.20
+lfabs001 abs -1.20 -> 1.20
+lfreduce001 reduce 1.2300 -> 1.23 Rounded
+lfreduce002 reduce -0.00 -> -0
+lfreduce003 reduce 1.234 -> 1.23 Inexact Rounded
+lfreducesnan001 reduce sNaN7 -> NaN7 Invalid_operation
+lfnormalize001 normalize 1.2300 -> 1.23 Rounded
+lfcopy001 copy 7.50 -> 7.50
+lfcopy002 copy sNaN10 -> sNaN10
+lftrim001 trim 1.200 -> 1.2
+lftrim002 trim -0.00 -> -0
+lftrim003 trim sNaN777 -> sNaN777
+lfnextp001 nextplus 1 -> 1.01
+lfnextp002 nextplus -1 -> -0.999
+lfnextm001 nextminus 1 -> 0.999
+lfnextm002 nextminus -1 -> -1.01
+lfnextsnan001 nextplus sNaN88 -> NaN88 Invalid_operation
+lfnextt001 nexttoward 1 10 -> 1.01
+lfnextt002 nexttoward 1 -10 -> 0.999
+lfnextt003 nexttoward 0 -10 -> -1E-11 Underflow Subnormal Inexact Rounded
+lfnextt004 nexttoward NaN16 sNaN19 -> NaN19 Invalid_operation
+lflogb001 logb -100E-2 -> 0
+lflogb002 logb 0 -> -Infinity Division_by_zero
+lflogb003 logb -Infinity -> Infinity
+lflogbsnan001 logb -sNaN1234567890 -> -NaN890 Invalid_operation
+lfscaleb001 scaleb 7.50 2 -> 750
+lfscaleb002 scaleb 7.50 -2 -> 0.0750
+lfscalebinvalid001 scaleb 1.23 1.00 -> NaN Invalid_operation
+lftosci001 toSci 1000000000 -> 1.00E+9 Rounded
+lftosci002 toSci 1E++1 -> NaN Conversion_syntax
+lftoeng001 toEng 10e1 -> 100
+lftoeng002 toEng 0e+10 -> 0E+9 Clamped
+
+precision: 9
+lfshift001 shift 123456789 -2 -> 1234567
+lfshift002 shift 123456789 2 -> 345678900
+lfshiftinvalid001 shift 1 1.0 -> NaN Invalid_operation
+lfrotate001 rotate 123456789 -2 -> 891234567
+lfrotate002 rotate 123456789 2 -> 345678912
+
+precision: 3
+lfrotatesnan001 rotate 11 -sNaN1234567890 -> -NaN890 Invalid_operation
+
+precision: 9
+lfpower001 power 2 10 -> 1024
+lfpower002 power 2 -8 -> 0.00390625
+lfpower003 power -0 -3 -> -Infinity
+lfpowersnan001 power sNaN7 2 -> NaN7 Invalid_operation
+lflog1001 log10 1000 -> 3
+
+precision: 2
+lflog1002 log10 1E+123 -> 1.2E+2 Inexact Rounded
+lflog1003 log10 -10 -> NaN Invalid_operation
+
+precision: 16
+lflog10snan001 log10 -sNaN321 -> -NaN321 Invalid_operation
+lfexp001 exp 0E+100 -> 1
+lfexp002 exp -Infinity -> 0
+lfexpsnan001 exp sNaN44 -> NaN44 Invalid_operation
+lfln001 ln 1.000 -> 0
+lfln002 ln -0 -> -Infinity
+lfln003 ln -Infinity -> NaN Invalid_operation
+lflnsnan001 ln -sNaN321 -> -NaN321 Invalid_operation
+
+precision: 3
+lfcopyabs001 copyabs -NaN7 -> NaN7
+lfcopyneg001 copynegate -0.00 -> 0.00
+lfcopysign001 copysign 1.20 -0 -> -1.20
+lfclass001 class 1.20 -> +Normal
+lfclass002 class -0.00 -> -Zero
+lfclass003 class 1E-10 -> +Subnormal
+lfclass004 class sNaN7 -> sNaN
+lfisfinite001 isfinite 1.20 -> 1
+lfisinfinite001 isinfinite Infinity -> 1
+lfisnan001 isnan NaN -> 1
+lfisqnan001 isqnan NaN -> 1
+lfissnan001 issnan sNaN7 -> 1
+lfisnegative001 isnegative -Infinity -> 1
+lfisnormal001 isnormal 1.20 -> 1
+lfissubnormal001 issubnormal 1E-10 -> 1
+lfissigned001 issigned -NaN7 -> 1
+lfiszero001 iszero -0.00 -> 1
+lfiscanonical001 iscanonical sNaN7 -> 1
+lfmin001 min 2 3 -> 2
+lfmax001 max 2 3 -> 3
+lfmin002 min 1.0 1 -> 1.0
+lfmax002 max 1.0 1 -> 1
+lfmin003 min -0.00 0.00 -> -0.00
+lfmax003 max -0.00 0.00 -> 0.00
+lfminnan001 min NaN 2 -> 2
+lfmaxsnan001 max sNaN7 2 -> NaN7 Invalid_operation
+lfminmag001 minmag -2 1 -> 1
+lfmaxmag001 maxmag -2 1 -> -2
+lfminmag002 minmag -2 2 -> -2
+lfmaxmag002 maxmag -2 2 -> 2
+lfmaxround001 max 1.234 1.2 -> 1.23 Inexact Rounded
+lfand001 and 1010 1100 -> 0
+lfor001 or 1010 1100 -> 110
+lfxor001 xor 1010 1100 -> 110
+lfinvert001 invert 0 -> 111
+lfloginvalid001 and 102 1 -> NaN Invalid_operation
+lfloginvalid002 invert -101 -> NaN Invalid_operation
+
+precision: 2
+rounding: half_even
+lflogbround001 logb 1E+999 -> 1.0E+3 Inexact Rounded
+lfscalebsub001 scaleb 1.00E-9 -1 -> 1E-10 Rounded Subnormal
+
+rounding: half_up
+lfroundhu001 plus 1.25 -> 1.3 Inexact Rounded
+
+rounding: half_down
+lfroundhd001 plus 1.25 -> 1.2 Inexact Rounded
+
+rounding: 05up
+lfround05001 plus 1.051 -> 1.1 Inexact Rounded
+lfround05002 plus 1.251 -> 1.2 Inexact Rounded
+
+precision: 3
+rounding: half_even

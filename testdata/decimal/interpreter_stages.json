@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "corpus": "official",
+  "phases": [
+    {
+      "name": "arithmetic",
+      "include": [
+        "*Add.decTest",
+        "*Subtract.decTest",
+        "*Multiply.decTest",
+        "*Divide.decTest",
+        "*DivideInt.decTest",
+        "*FMA.decTest",
+        "*Remainder.decTest",
+        "*RemainderNear.decTest",
+        "*Quantize.decTest",
+        "*Rescale.decTest",
+        "*add0.decTest",
+        "*subtract0.decTest",
+        "*multiply0.decTest",
+        "*divide0.decTest",
+        "*divideint0.decTest",
+        "*fma0.decTest",
+        "*remainder0.decTest",
+        "*remaindernear0.decTest",
+        "*quantize0.decTest",
+        "*rescale0.decTest"
+      ]
+    },
+    {
+      "name": "elementary",
+      "include": [
+        "*Exp.decTest",
+        "*Ln.decTest",
+        "*Log10.decTest",
+        "*Power.decTest",
+        "*SquareRoot.decTest",
+        "*exp0.decTest",
+        "*ln0.decTest",
+        "*log100.decTest",
+        "*power0.decTest",
+        "*squareroot0.decTest"
+      ]
+    },
+    {
+      "name": "interchange",
+      "include": [
+        "ds*.decTest",
+        "dd*.decTest",
+        "dq*.decTest"
+      ]
+    },
+    {
+      "name": "remaining",
+      "include": ["*.decTest"]
+    }
+  ]
+}

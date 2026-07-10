@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/string",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+  "Luna-Flow/floating/gda_expr",
+}
+
+options(
+  "is-main": true,
+)

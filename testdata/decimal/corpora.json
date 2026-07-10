@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "corpora": {
+    "official": {
+      "url": "https://speleotrove.com/decimal/dectest.zip",
+      "archive": "testdata/decimal/dectest.zip",
+      "destination": "testdata/decimal/official",
+      "sha256": "b70a224cd52e82b7a8150aedac5efa2d0cb3941696fd829bdbe674f9f65c3926",
+      "expectedDecTestFiles": 144
+    },
+    "official0": {
+      "url": "https://speleotrove.com/decimal/dectest0.zip",
+      "archive": "testdata/decimal/dectest0.zip",
+      "destination": "testdata/decimal/official0",
+      "sha256": "f74c6657ba2b934110ff4729c4394e5bd4c8848e7c82716f0f9016484a23a655",
+      "expectedDecTestFiles": 32
+    }
+  }
+}
