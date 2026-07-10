@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.1.0`**.
+documentation baseline: **`0.4.0`**.
 
 ## To Contributors
 
@@ -84,9 +84,8 @@ trait design, and test coverage are especially valuable.
 - Run the local verification commands before committing:
 
   ```bash
-  moon fmt
-  moon check
-  moon test
+  just fmt
+  just pr
   ```
 
 - Commit messages should be in **English**, concise, and use Conventional Commits prefixes such as `feat:`, `fix:`, `refactor:`, `docs:`, or `test:`.
@@ -100,7 +99,8 @@ trait design, and test coverage are especially valuable.
 
 - Before publishing to Mooncakes, make sure `moon.mod` has already been bumped to the intended release version.
 - Update `README.md` and localized docs if the package overview or release notes no longer match the implementation.
-- Run `moon check` and `moon test` locally before publishing.
+- Move superseded release notes to `CHANGELOG.md`; keep README files focused on the current baseline.
+- Run `just pr` locally before publishing.
 - The GitHub Actions publish workflow reads the release version directly from `moon.mod`.
 - If Mooncakes reports a duplicate version, bump the version before retrying.
 
