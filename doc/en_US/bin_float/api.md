@@ -1,7 +1,7 @@
 # @bin_float.BinFloat
 
 This page tracks the current repository implementation and is written as the
-`0.2.0` API baseline.
+`0.4.0` API baseline.
 
 ## Representation
 

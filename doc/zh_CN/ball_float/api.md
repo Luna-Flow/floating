@@ -1,6 +1,6 @@
 # @ball_float.BallFloat
 
-本文档描述当前 `0.2.0` 基线中的 `@ball_float.BallFloat`。
+本文档描述当前 `0.4.0` 基线中的 `@ball_float.BallFloat`。
 
 ## 语义
 
@@ -14,6 +14,7 @@
 
 - `BallFloat::new`
 - `BallFloat::exact`
+- `BallFloat::from_bounds`
 - `BallFloat::from_int`
 - `BallFloat::from_bigint`
 - `BallFloat::from_float`
@@ -71,6 +72,8 @@
 - `sub`
 - `mul`
 - `div`
+- `abs`
+- `neg`
 
 支持的运算符：
 
@@ -85,7 +88,7 @@ checked 行为说明：
 - checked division 在分母包络包含 `0` 时可能扩张到 whole-real enclosure。
 - checked integer power 会保持 enclosure 正确性，并在零交叉逆幂上采用相同的 whole-real fallback。
 - `BallFloat` 不实现标量 `CompareChecked`。
-- 这一轮不会公开非整数幂、超越函数、微积分、矩阵、复 ball 或特殊函数。
+- 该包不公开非整数幂、超越函数、微积分、矩阵、复 ball 或特殊函数。
 
 ## Trait 面
 

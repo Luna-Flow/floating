@@ -1,6 +1,6 @@
 # @internal
 
-This page tracks the current repository implementation and is written as the `0.2.0` API baseline.
+This page tracks the current repository implementation and is written as the `0.4.0` API baseline.
 
 `@internal` is an implementation-facing package. Its functions are documented here for maintainers and advanced contributors, not as a stable public API promise.
 
@@ -45,6 +45,12 @@ This page tracks the current repository implementation and is written as the `0.
 
 - **`fn remove_factor10(coeff : BigInt, exp : Int) -> (BigInt, Int)`**
   Removes all factors of `10` from `coeff` and compensates them into the returned exponent.
+
+- **`fn exact_divide_by_power_of_ten(value : BigInt, exponent : Int) -> BigInt?`**
+  Returns the exact quotient when `value` is divisible by `10^exponent`; otherwise returns `None`.
+
+- **`fn trim_trailing_decimal_zeros(value : BigInt, exponent : Int, max_drop? : Int) -> (BigInt, Int, Int)`**
+  Removes at most `max_drop` trailing decimal zeros, adjusts the exponent, and reports the number removed.
 
 ---
 

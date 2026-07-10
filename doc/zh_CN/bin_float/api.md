@@ -1,6 +1,6 @@
 # @bin_float.BinFloat
 
-本文档描述当前 `0.2.0` 基线中的 `@bin_float.BinFloat`。
+本文档描述当前 `0.4.0` 基线中的 `@bin_float.BinFloat`。
 
 ## 表示
 

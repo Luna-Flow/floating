@@ -1,6 +1,6 @@
 # `ball_float` Tutorial
 
-This page tracks the current repository implementation and is written as the `0.2.0` tutorial baseline.
+This page tracks the current repository implementation and is written as the `0.4.0` tutorial baseline.
 
 ## Exact Embedding
 
@@ -20,7 +20,7 @@ If you request a lower precision than the source value can represent exactly, `e
 
 ```moonbit
 let d = @decimal.Decimal::from_string("12.34", precision=32).unwrap()
-let ball = @ball_float.BallFloat::from_decimal(d, precision=32)
+let ball = @ball_float.BallFloat::exact(d.to_bin_float(precision=32))
 ```
 
 This path converts through `BinFloat` and preserves the decimal value as an enclosure rather than pretending the binary center is exact.

@@ -1,31 +1,39 @@
 # FLOATING Documentation
 
-This directory contains the English documentation baseline for `floating` `0.3.0`.
+This directory documents the current **`0.4.0`** implementation. Historical
+release notes belong in [CHANGELOG.md](../../CHANGELOG.md).
+
+## Reader Guide
+
+- Start with `bin_float`, `decimal`, or `ball_float` for concrete values.
+- Use the matching `*_result` package for closed checked-arithmetic pipelines.
+- Read `semantic` when values from several representations need a common exact
+  comparison or serialization boundary.
+- Read `numeric_expr` to build a numeric expression frontend; read `gda_expr`
+  for the General Decimal Arithmetic `.decTest` frontend and Decimal backend.
+- Treat `internal` and `consistency` as implementation and verification layers,
+  not as stable application APIs.
 
 ## Core Documents
 
 - [Documentation Standard](./doc_standard.md)
-- [Correctness Audit Ledger](./correctness_audit.md)
-- [@def API](./def/api.md)
-- [@def Design](./def/design.md)
-- [@internal API](./internal/api.md)
-- [@internal Design](./internal/design.md)
+- [Correctness Audit](./correctness_audit.md)
+- [Release History](../../CHANGELOG.md)
+- [Conformance Workflow](../../testdata/decimal/README.md)
 
-## Numeric Packages
+## Package Documentation
 
-- `bin_float` and `decimal` implement checked scalar capability traits from `Luna-Flow/arithmetic`.
-- `ball_float` implements enclosure relations plus checked division and checked integer power, without a fake total ordering.
-- `bin_float_result`, `decimal_result`, and `ball_float_result` wrap checked arithmetic as closed `Result`-valued numeric composition.
-- The result wrappers model endomorphisms and Kleisli-style composition; observer APIs such as checked comparisons remain separate.
-- `ball_float_result` preserves whole-real enclosure fallback for division by zero-containing intervals instead of converting that case into `Err`.
-- This repository does not reintroduce transcendental layers, calculus, matrices, complex numbers, or special functions in this integration pass.
+- [`def`](./def/api.md): [API](./def/api.md), [Tutorial](./def/tutorial.md), [Design](./def/design.md)
+- [`bin_float`](./bin_float/api.md): [API](./bin_float/api.md), [Tutorial](./bin_float/tutorial.md), [Design](./bin_float/design.md)
+- [`decimal`](./decimal/api.md): [API](./decimal/api.md), [Tutorial](./decimal/tutorial.md), [Design](./decimal/design.md), [Architecture Research](./decimal/architecture_research.md)
+- [`ball_float`](./ball_float/api.md): [API](./ball_float/api.md), [Tutorial](./ball_float/tutorial.md), [Design](./ball_float/design.md)
+- [`bin_float_result`](./bin_float_result/api.md): [API](./bin_float_result/api.md), [Tutorial](./bin_float_result/tutorial.md), [Design](./bin_float_result/design.md)
+- [`decimal_result`](./decimal_result/api.md): [API](./decimal_result/api.md), [Tutorial](./decimal_result/tutorial.md), [Design](./decimal_result/design.md)
+- [`ball_float_result`](./ball_float_result/api.md): [API](./ball_float_result/api.md), [Tutorial](./ball_float_result/tutorial.md), [Design](./ball_float_result/design.md)
+- [`semantic`](./semantic/api.md): [API](./semantic/api.md), [Tutorial](./semantic/tutorial.md), [Design](./semantic/design.md)
+- [`numeric_expr`](./numeric_expr/api.md): [API](./numeric_expr/api.md), [Tutorial](./numeric_expr/tutorial.md), [Design](./numeric_expr/design.md)
+- [`gda_expr`](./gda_expr/api.md): [API](./gda_expr/api.md), [Tutorial](./gda_expr/tutorial.md), [Design](./gda_expr/design.md)
+- [`internal`](./internal/api.md): [API](./internal/api.md), [Tutorial](./internal/tutorial.md), [Design](./internal/design.md)
 
-- [@bin_float API](./bin_float/api.md)
-- [@bin_float Tutorial](./bin_float/tutorial.md)
-- [@bin_float Design](./bin_float/design.md)
-- [@decimal API](./decimal/api.md)
-- [@decimal Tutorial](./decimal/tutorial.md)
-- [@decimal Design](./decimal/design.md)
-- [@ball_float API](./ball_float/api.md)
-- [@ball_float Tutorial](./ball_float/tutorial.md)
-- [@ball_float Design](./ball_float/design.md)
+The English tree is the structural source of truth. Chinese and Japanese docs
+keep the same Markdown file set and section responsibilities.

@@ -1,130 +1,145 @@
 # FLOATING
 
-[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-Apache%202.0-blue)](https://github.com/Luna-Flow/floating/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
+[![Maintainer](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE) ![State](https://img.shields.io/badge/State-active-success)
 
-## v0.3.0 - Result Wrapper and Checked Composition Baseline
+## v0.4.0 - Decimal Context And Conformance Baseline
 
-This documentation tracks the current repository baseline for **`v0.3.0`**.
-It describes the implementation that exists in this branch today.
+This README describes the implementation present in the **`v0.4.0`** branch.
+Earlier release notes live in [CHANGELOG.md](./CHANGELOG.md).
 
-### Package Positioning
+`floating` provides arbitrary-precision binary, decimal, and interval arithmetic
+for MoonBit. Its APIs make precision, rounding, exceptional values, checked
+failure, and enclosure semantics explicit.
 
-- **`def`**: `floating`-local support such as `Sign`, `PartialOrder`, and the narrow `Floating` trait, plus compatibility reexports for arithmetic-boundary types.
-- **`bin_float`**: Arbitrary-precision binary floating-point values represented by significand, base-2 exponent, and working precision.
-- **`decimal`**: Arbitrary-precision decimal floating-point values represented by coefficient, base-10 exponent, and working precision.
-- **`ball_float`**: Interval/ball arithmetic values represented by outward-rounded bounds, built on top of `bin_float`.
-- **`bin_float_result`**: `Result[BinFloat, ArithmeticError]` wrapped as a closed numeric object for checked composition.
-- **`decimal_result`**: `Result[Decimal, ArithmeticError]` wrapped as a closed numeric object for checked composition.
-- **`ball_float_result`**: `Result[BallFloat, ArithmeticError]` wrapped as a closed interval object for checked composition.
-- **`internal`**: Shared normalization, integer-factor removal, rounding, and decimal parsing helpers.
-- **`consistency`**: Repository tests covering normalization, conversion, arithmetic, and cross-package semantic alignment.
+### Package Map
 
-### What Defines v0.3.0
+- **Core vocabulary**: `def` defines the shared `Floating` contract and reexports
+  arithmetic boundary types. `internal` owns implementation helpers and is not a
+  stable application-facing contract.
+- **Numeric values**: `bin_float`, `decimal`, and `ball_float` provide binary,
+  decimal, and outward-rounded interval representations.
+- **Checked composition**: `bin_float_result`, `decimal_result`, and
+  `ball_float_result` keep arithmetic pipelines closed over wrapped
+  `Result[..., ArithmeticError]` values.
+- **Semantic projection**: `semantic` maps concrete values and arithmetic errors
+  into representation-independent exact rationals, infinities, NaN, intervals,
+  and semantic errors.
+- **Expression infrastructure**: `numeric_expr` supplies a private expression IR
+  with callback-driven evaluation. `gda_expr` parses and executes General Decimal
+  Arithmetic `.decTest` documents against `decimal`; `gda_expr_cli` is its native
+  command-line entry point.
+- **Verification**: `consistency` contains cross-package and API-audit tests.
 
-- **Capability-boundary integration**: `floating` now depends on `Luna-Flow/arithmetic` for shared arithmetic boundary types and checked capability traits.
-- **Shared floating support**: `def` keeps `Sign`, `PartialOrder`, and the repository-wide `Floating` trait while reexporting arithmetic-boundary types for compatibility.
-- **Two scalar arbitrary-precision representations**: `bin_float` and `decimal` expose constructors, normalization, precision control, formatting/parsing, comparison, and basic arithmetic.
-- **Ball arithmetic baseline**: `ball_float` supports exact embedding, overlap/containment predicates, outward-rounded interval arithmetic, checked integer power, and whole-real fallback for division by zero-containing divisors.
-- **Result-wrapped endomorphism layer**: `bin_float_result`, `decimal_result`, and `ball_float_result` lift checked arithmetic into `Self -> Self` and `(Self, Self) -> Self` composition over wrapped `Result` values.
-- **Cross-representation conversion**: `decimal` converts to and from `bin_float`; `ball_float` embeds exact `bin_float` values.
-- **Correctness-first tests**: the repository includes whitebox tests for normalization, arithmetic, conversion behavior, and interval-enclosure edge cases.
-- **Modern Moon package metadata**: the repository uses `moon.mod` as the canonical module manifest.
+### What Defines v0.4.0
+
+- `Decimal` preserves quantum when parsing and exposes explicit `normalized()` /
+  `reduce_ctx()` operations when canonical cohort form is wanted.
+- `DecimalContext` carries precision, rounding, exponent bounds, clamp, and
+  extended-mode settings. Context operations return `(Decimal, DecimalFlags)`.
+- Decimal operations cover arithmetic, FMA, integer division, remainder,
+  quantize/rescale, total comparison, logical digits, adjacent values,
+  elementary functions, integral conversion, and context-aware formatting.
+- `DecimalInterchange` supports decimal32, decimal64, and decimal128 hexadecimal
+  interchange encodings with explicit status flags.
+- Signed zero, quiet/signaling NaN, NaN payloads, infinity, normal/subnormal
+  classification, and GDA class names are observable parts of the Decimal API.
+- The native `gda_expr` pipeline parses `.decTest` files once, executes
+  deterministic shards, and reports executable, skipped, unsupported, legacy,
+  diagnostic, passed, and failed cases.
+- Binary and ball arithmetic continue to use the checked-capability model. Ball
+  division by an interval containing zero returns a whole-real enclosure.
 
 ### API Guidance
 
-- **`Floating` is intentionally small**: it covers classification, sign, precision, precision retuning, and normalization rather than every numeric operation.
-- **Checked operations come from `arithmetic`**: `BinFloat` and `Decimal` implement checked scalar traits such as `SqrtChecked`, `DivChecked`, `CompareChecked`, `PowNatChecked`, `PowIntChecked`, and `ParseChecked` where valid.
-- **`BallFloat` stays enclosure-first**: it implements enclosure relations plus checked division and checked integer power, but it does not pretend to be a totally ordered scalar.
-- **Result wrappers stay closed under composition**: each `*_result` package provides `ok`, `err`, `from_result`, `result`, `map`, `bind`, `flat_map`, and lifted numeric operations returning the same wrapper type.
-- **Observer APIs stay separate from endomorphisms**: operations such as checked comparison still naturally return non-`Self` values and are not forced into the closed wrapper algebra.
-- **Normalization is part of the contract**: public constructors normalize finite values to canonical internal forms.
-- **Precision changes are explicit**: use `with_precision(..., mode)` to request a different working precision.
-- **Ball semantics are enclosure-oriented**: `ball_float` exposes overlap and containment style relations rather than pretending all values are totally ordered.
-- **Enclosure correctness beats narrowness**: interval results may widen around branch cuts or ambiguous domains rather than returning an unsound narrow band.
-- **`BallFloatResult` preserves enclosure fallback semantics**: division by an interval containing zero remains a whole-real enclosure, while invalid wrapper construction is represented as `Err`.
-- **Repository docs describe the current code**: if an API is not present in this branch, it is not part of this release baseline.
+- Prefer `*_ctx` Decimal methods when flags and decimal-context behavior matter.
+  Convenience operators do not expose status flags.
+- Treat `DecimalFlags` as accumulated status: use `combine` when composing
+  operations and `has_error` when checking hard-error conditions.
+- Use checked scalar operations or the `*_result` packages for pipelines that
+  must preserve `ArithmeticError` instead of collapsing failures.
+- Do not use scalar total-order assumptions for `BallFloat`; use containment,
+  overlap, separation, and definite comparison predicates.
+- `numeric_expr` defines syntax only. Frontends own parsing and source policy;
+  backends own literal and operation semantics.
+- `gda_expr` is both a public parser/runner API and repository conformance
+  infrastructure. Unsupported or legacy cases are counted separately from
+  executable semantic failures.
 
-### Key Features
+### Installation
 
-- **Arbitrary-precision binary values**: normalized finite values, `nan`, `inf`, comparison, `ulp`, checked arithmetic helpers, `sqrt`, and `pow_int`.
-- **Arbitrary-precision decimal values**: string parsing, normalized display, precision-aware arithmetic, binary conversion, and checked arithmetic helpers.
-- **Ball arithmetic baseline**: exact balls, interval bounds, `contains`, `overlaps`, `separated_from`, `definitely_lt`, `definitely_le`, `maybe_eq`, and outward-rounded interval arithmetic.
-- **Checked composition wrappers**: closed `Result`-wrapped arithmetic for binary, decimal, and ball values with explicit short-circuiting error propagation.
-- **No upper-layer mathematics in this pass**: no transcendental layer, calculus, matrices, complex numbers, symbolic APIs, or special functions are reintroduced here.
-- **Shared rounding helpers**: internal support for factor stripping, decimal parsing, and rounding to requested precision.
-- **Consistency tests**: cross-package tests verify normalization, exact dyadic behavior, decimal parsing, binary-decimal conversion, checked error paths, and ball enclosure correctness.
+```sh
+moon add Luna-Flow/floating@0.4.0
+```
+
+Import only the packages an application needs:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/bin_float"
+  "Luna-Flow/floating/decimal"
+  "Luna-Flow/floating/ball_float"
+  "Luna-Flow/floating/decimal_result"
+}
+```
 
 ### Quick Start
 
-```moonbit
-let x = @bin_float.BinFloat::make(3N, -1, 32)
-let y = @bin_float.BinFloat::make(5N, -1, 32)
-let sum = x + y
+```moonbit check
+///|
+test "floating basic workflow" {
+  let x = @bin_float.BinFloat::make(3N, -1, 32)
+  let y = @bin_float.BinFloat::make(5N, -1, 32)
+  inspect((x + y).to_string(), content="1p2")
 
-let dec = @decimal.Decimal::from_string("12.34", precision=32).unwrap()
-let as_bin = dec.to_bin_float(precision=32)
+  let ctx = @decimal.DecimalContext::decimal64()
+  let (dec, parse_flags) = @decimal.Decimal::from_string_ctx("12.3400", ctx)
+  inspect(parse_flags.has_error(), content="false")
+  inspect(dec.same_quantum(@decimal.Decimal::from_string("0.0000").unwrap()), content="true")
 
-let exact_ball = @ball_float.BallFloat::exact(as_bin)
-let other_ball = @ball_float.BallFloat::from_bounds(
-  @bin_float.BinFloat::make(3N, 0, 32),
-  @bin_float.BinFloat::make(7N, 0, 32),
-  precision=32,
-)
+  let ball = @ball_float.BallFloat::exact(dec.to_bin_float(precision=32))
+  inspect(ball.contains(ball.center()), content="true")
 
-inspect(sum.to_string(), content="1p2")
-inspect(exact_ball.contains(as_bin).to_string(), content="true")
-inspect(other_ball.definitely_lt(@ball_float.BallFloat::from_int(10, precision=32)).to_string(), content="true")
-
-let checked =
-  @decimal_result.DecimalResult::parse("9.0", precision=32)
+  let checked =
+    @decimal_result.DecimalResult::parse("9", precision=32)
     .sqrt()
     .div(@decimal_result.DecimalResult::from_int(3, precision=32))
-
-inspect(checked.result().unwrap().to_string(), content="1")
+  inspect(checked.result().unwrap().to_string(), content="1")
+}
 ```
 
 ### Documentation
 
-We provide documentation in multiple languages:
-
-- 🇺🇸 **English** (`doc/en_US`)
-- 🇨🇳 **简体中文** (`doc/zh_CN`)
-- 🇯🇵 **日本語** (`doc/ja_JP`)
-
-Package documentation:
-
-- [English docs](./doc/en_US/README.md)
-- [简体中文文档](./doc/zh_CN)
-- [日本語ドキュメント](./doc/ja_JP)
-
-Localized README files:
-
-- 🇺🇸 [README.md](./README.md)
-- 🇨🇳 [README.md](./doc/zh_CN/README.md)
-- 🇯🇵 [README.md](./doc/ja_JP/README.md)
+- [English](./doc/en_US/README.md)
+- [简体中文](./doc/zh_CN/README.md)
+- [日本語](./doc/ja_JP/README.md)
+- [Documentation standard](./doc/en_US/doc_standard.md)
+- [Decimal conformance workflow](./testdata/decimal/README.md)
+- [Release history](./CHANGELOG.md)
 
 ## Development
 
-Useful local commands:
-
-```bash
-moon fmt
-moon check
-moon test
-moon test --enable-coverage
+```sh
+just fmt
+just smoke
+just fetch
+just plan jobs=8
+just pr jobs=8
+just ci
 ```
 
-The repository test baseline currently lives in `src/consistency` and is run by `moon test`.
+`just smoke` runs the checked-in conformance fixture without a download.
+`just pr` performs all-target checks, refreshes generated interfaces, builds the
+native interpreter, and runs the staged official corpus. `just ci` is a focused
+white-box gate and is not a substitute for full conformance validation. See
+[the conformance data guide](./testdata/decimal/README.md) for case filters,
+phases, sharding, strict mode, JSON output, and failure triage.
 
 ## Release Checklist
 
-Before triggering the publish workflow:
+1. Set the release version in `moon.mod`.
+2. Align the root and localized current-baseline documentation.
+3. Record the release in `CHANGELOG.md`.
+4. Run `just pr`.
+5. Trigger the `publish-package` workflow; it reads the version from `moon.mod`.
 
-1. Bump `moon.mod` to the intended release version.
-2. Update `README.md` and localized docs so they match the current repository state.
-3. Run `moon check` and `moon test`.
-4. Trigger `publish-package`; it reads the release version directly from `moon.mod`.
-
-If the workflow reports a duplicate version, the package manager already contains that version and a new version bump is required.
-
-Contribution guidance is available in [CONTRIBUTING.md](./CONTRIBUTING.md).
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidance.

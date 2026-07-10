@@ -1,7 +1,7 @@
 # @ball_float.BallFloat
 
 This page tracks the current repository implementation and is written as the
-`0.2.0` API baseline.
+`0.4.0` API baseline.
 
 ## Semantics
 
@@ -17,6 +17,7 @@ interval.
 
 - `BallFloat::new`
 - `BallFloat::exact`
+- `BallFloat::from_bounds`
 - `BallFloat::from_int`
 - `BallFloat::from_bigint`
 - `BallFloat::from_float`
@@ -74,6 +75,8 @@ Notes:
 - `sub`
 - `mul`
 - `div`
+- `abs`
+- `neg`
 
 Supported operators:
 
@@ -88,7 +91,7 @@ Checked-behavior notes:
 - Checked division may widen to the whole-real enclosure when the divisor contains zero.
 - Checked integer power preserves enclosure correctness and uses the same whole-real fallback for zero-containing inverse cases.
 - `BallFloat` does not implement scalar `CompareChecked`.
-- This pass does not expose non-integer power, transcendental functions, calculus, matrices, complex balls, or special functions.
+- The package does not expose non-integer power, transcendental functions, calculus, matrices, complex balls, or special functions.
 
 ## Trait Surface
 

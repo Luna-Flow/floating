@@ -1,6 +1,6 @@
 # `decimal` Tutorial
 
-This page tracks the current repository implementation and is written as the `0.2.0` tutorial baseline.
+This page tracks the current repository implementation and is written as the `0.4.0` tutorial baseline.
 
 ## Parsing Decimal Strings
 

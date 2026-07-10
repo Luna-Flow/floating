@@ -1,6 +1,7 @@
 # `internal` Design Notes
 
-This page tracks the current repository implementation and is written as the `0.2.0` design baseline.
+This page tracks the current repository implementation and is written as the
+`0.4.0` design baseline.
 
 ## Purpose
 
@@ -33,6 +34,12 @@ The package provides the building blocks for:
 - power generation for base conversion
 - precision trimming with explicit rounding modes
 - decimal parsing shared by `Decimal::from_string`
+
+For performance-sensitive decimal code, the internal helpers now special-case
+small powers of ten and five through tiny precomputed tables. This keeps common
+cohort adjustment, formatting, comparison, and decimal/binary conversion paths
+from repeatedly constructing the same low-exponent radix-power `BigInt` values
+while preserving exact semantics.
 
 ## Stability Boundary
 

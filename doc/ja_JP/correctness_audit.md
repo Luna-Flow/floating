@@ -1,59 +1,33 @@
-# 正しさ監査台帳
+# 正しさ監査
 
-この台帳は現在の `0.2.0` 実装を明示的な意味論契約に対して API ごとに対応付けます。
+この監査は **`0.4.0`** の公開面を現在の実装・検証境界へ対応付けます。
+生成 interface を API 一覧、source と test を挙動の根拠として扱います。
 
-状態ラベル:
+## 基本数値パッケージ
 
-- `Verified`
-- `Verified with approximation boundary`
-- `Known limitation`
+| 領域 | 契約 | 根拠 | 状態 |
+| --- | --- | --- | --- |
+| `def` | `Floating` は分類、符号、精度、精度変更、正規化だけを含み、算術 capability は分離する。 | 生成 interface、consistency tests | 検証済み |
+| `bin_float` | 有限値は正規化 dyadic 表現を使い、精度変更は明示的に丸め、checked 演算は `ArithmeticError` を返す。 | `src/bin_float`、consistency tests | 丸め境界付きで検証済み |
+| `decimal` 表現 | 符号、magnitude、exponent/quantum、precision、signed zero、qNaN/sNaN payload を保持する。 | `src/decimal`、white-box tests | 検証済み |
+| `decimal` context | `*_ctx` は precision、rounding、指数、clamp、extended 設定を適用し、累積 `DecimalFlags` を返す。 | context source、conformance cases | operation ごとの corpus 境界付きで検証済み |
+| `decimal` interchange | `DecimalInterchange` が decimal32/64/128 と canonicalization/status を公開する。 | interchange source、interchange phase | 適合性境界付きで検証済み |
+| `ball_float` | bound は外向き丸めされ、算術は実数結果を包絡し、0 を含む除算は whole-real enclosure を返す。 | `src/ball_float`、consistency tests | 包絡境界付きで検証済み |
 
-## `@def`
+## 合成・意味パッケージ
 
-| API | 契約 | 実装アンカー | 検証証拠 | 状態 |
-| --- | --- | --- | --- | --- |
-| `Sign` / `FpClass` / `RoundingMode` | 各数値パッケージで共有意味論列挙として一貫して使われる。 | `src/def/types.mbt` | `def predicates classify finite nan and enclosing zero consistently`; パッケージ単位のコード確認。 | Verified |
-| `Floating` | 共有能力面は分類、符号、精度、精度再調整、正規化のみに限定される。 | `src/def/types.mbt` | パッケージ横断のコンパイル利用と helper predicate テスト。 | Verified |
-| `is_finite` / `is_nan` / `is_infinite` / `is_zero` | class/sign に基づく述語であり、`is_zero` は NaN を拒否し、零をまたぐ包絡を受け入れる。 | `src/def/types.mbt` | `def predicates classify finite nan and enclosing zero consistently`; 既存 NaN 回帰テスト。 | Verified |
+| 領域 | 契約 | 根拠 | 状態 |
+| --- | --- | --- | --- |
+| `*_result` | 既存エラーは短絡し、値を返す checked 演算は `Self` 内で閉じる。 | 生成 interface と実装 | 検証済み |
+| `semantic` | 具体値と算術失敗を表現非依存 variant へ投影する。 | `src/semantic`、consistency tests | 検証済み |
+| `numeric_expr` | 式表現は非公開で、callback が literal/operation 意味論を所有する。 | package source/tests | 検証済み |
+| `gda_expr` | diagnostic、legacy、unsupported、実行可能な不一致を分離する。 | parser/execution tests、smoke fixture | 検証済み |
 
-## `@internal`
+## 検証ゲート
 
-| API | 契約 | 実装アンカー | 検証証拠 | 状態 |
-| --- | --- | --- | --- | --- |
-| `bigint_zero` / `bigint_one` / `abs_bigint` / `sign_of_bigint` | 標準的な整数補助関数。 | `src/internal/core.mbt` | 全数値パッケージから推移的に利用；符号挙動は predicate と正規化テストで間接確認。 | Verified |
-| `pow2` / `pow5` / `pow10` / `digits10` | 正確な冪関数と 10 進桁数計算。 | `src/internal/core.mbt` | `bin_float` / `decimal` の構築・変換テスト；解析・正規化テスト。 | Verified |
-| `remove_factor2` / `remove_factor10` | 取り除ける基数因子を剥がしつつ表現値を保存する。 | `src/internal/core.mbt` | `bin_float normalizes powers of two`; `decimal make and display normalize trailing zeros`。 | Verified |
-| `round_positive_div` / `round_shift` / `compare_abs` | 非負 magnitude に対する方向付き・tie-aware 丸め；`compare_abs` は絶対値比較のみ。 | `src/internal/core.mbt` | `internal rounding helpers honor tie and directed modes`。 | Verified |
-| `split_decimal_string` | 通常表記/科学表記の 10 進文字列を受理し、不正形式を拒否する。 | `src/internal/core.mbt` | `internal decimal parser accepts scientific notation and rejects malformed strings`; `decimal parses and normalizes`。 | Verified |
+- `just smoke`: 追跡済み end-to-end fixture。
+- `just ci`: 限定 white-box gate。
+- `just pr`: all-target check、interface 更新、native interpreter build、official corpus 実行。
 
-## `@bin_float`
-
-| API | 契約 | 実装アンカー | 検証証拠 | 状態 |
-| --- | --- | --- | --- | --- |
-| `make` / `zero` / `one` / `from_int` / `from_bigint` | 有限値構築は正規化された標準 2 進形式へ落ちる。 | `src/bin_float/bin_float.mbt` | `bin_float normalizes powers of two`; `bin_float arithmetic stays exact on small dyadics`。 | Verified |
-| `inf` / `nan` / `classify` / `sign` / `precision` | 特殊値は分類と格納精度の意味論を保つ。 | `src/bin_float/bin_float.mbt` | predicate テスト、compare テスト、特殊値算術のコード確認。 | Verified |
-| `significand` / `exponent2` / `normalized` / `is_zero` | 正規化された有限表現と零判定を公開する。 | `src/bin_float/bin_float.mbt` | 正規化テスト、predicate テスト、コード監査。 | Verified |
-| `with_precision` / `ulp` | 精度再調整は要求丸めに従い、`ulp` は表現局所の間隔を返す。 | `src/bin_float/bin_float.mbt` | `bin_float with_precision rounds and ulp tracks spacing`。 | Verified |
-| `add` / `sub` / `mul` / `div` | 表現可能な小さな dyadic では正確で、特殊値は現在の実装規則で伝播する。 | `src/bin_float/bin_float.mbt` | `bin_float arithmetic stays exact on small dyadics`; 既存の変換・特殊値テスト。 | Verified with approximation boundary |
-| `compare` | 順序付き値にのみ全順序を与え、NaN では拒否する。 | `src/bin_float/bin_float.mbt` | `bin_float compare orders finite and infinities`; NaN 分岐のコード確認。 | Verified |
-
-## `@decimal`
-
-| API | 契約 | 実装アンカー | 検証証拠 | 状態 |
-| --- | --- | --- | --- | --- |
-| `make` / `zero` / `one` / `from_int` / `from_bigint` / `from_string` | 10 進構築は末尾ゼロを正規化し、現在対応する文字列表現を受理する。 | `src/decimal/decimal.mbt` | `decimal parses and normalizes`; `decimal make and display normalize trailing zeros`; parser テスト。 | Verified |
-| `inf` / `nan` / `classify` / `sign` / `precision` | 特殊値と符号の意味論はパッケージ契約に従う。 | `src/decimal/decimal.mbt` | predicate テストと特殊値算術のコード確認。 | Verified |
-| `coefficient` / `exponent10` / `is_zero` / `normalized` / `with_precision` | 標準 10 進表現と精度再調整後の有限値を公開する。 | `src/decimal/decimal.mbt` | 正規化/表示テストとコード監査。 | Verified |
-| `neg` / `abs` / `add` / `sub` / `mul` / `div` | 表現可能なら 10 進で正確、それ以外はパッケージ規則で丸める。 | `src/decimal/decimal.mbt` | `decimal arithmetic and display`; 変換起点の回帰確認。 | Verified with approximation boundary |
-| `to_bin_float` / `from_bin_float` | 2 進変換は dyadic 互換方向では正確で、非 dyadic な 10 進→2 進では近似を含む。 | `src/decimal/decimal.mbt` | `decimal binary conversion preserves dyadics exactly`; `decimal to bin conversion handles non-dyadic values`; `bin to decimal conversion is exact for finite values`。 | Verified with approximation boundary |
-
-## `@ball_float`
-
-| API | 契約 | 実装アンカー | 検証証拠 | 状態 |
-| --- | --- | --- | --- | --- |
-| `new` | 中心量子化後も元の包絡を保持する。 | `src/ball_float/ball_float.mbt` | `ball_float new preserves an input endpoint after center rounding`。 | Verified |
-| `exact` | 有限 `BinFloat` を ball へ埋め込み、精度低下後も元値を含み続ける。 | `src/ball_float/ball_float.mbt` | `ball_float exact widens when lowering precision`。 | Verified |
-| `from_decimal` | 有限 10 進値から 2 進包絡を構築する。 | `src/ball_float/ball_float.mbt` | 既存の `ball_float from_decimal keeps low precision enclosure`。 | Verified with approximation boundary |
-| `center` / `radius` / `precision` / `classify` / `sign` / `normalized` / `with_precision` | 格納包絡、有限分類、包絡由来の符号、包含関係を保つ正規化/精度再調整を提供する。 | `src/ball_float/ball_float.mbt` | `def predicates classify finite nan and enclosing zero consistently`; `ball_float sign and overlap relations remain enclosure based`; exact-widen 回帰。 | Verified |
-| `contains` / `overlaps` / `separated_from` / `definitely_lt` / `definitely_gt` / `maybe_overlap` | 関係 API はスカラー全順序ではなく区間意味論に基づく。 | `src/ball_float/ball_float.mbt` | `ball_float overlap detects separated balls`; `ball_float sign and overlap relations remain enclosure based`; exact containment テスト。 | Verified |
-| `add` / `sub` / `mul` / `div` | 算術は真の結果を包む ball を返し、出力丸め変位も半径へ加える。除算は分母 ball が零を含む場合を拒否する。 | `src/ball_float/ball_float.mbt` | `ball_float multiplication keeps exact scalar result inside zero-radius inputs`; `ball_float division keeps exact scalar result inside zero-radius inputs`; 零分母分岐のコード確認。 | Verified with approximation boundary |
+official corpus は外部 pinned input です。unsupported と diagnostic は summary
+に残り、必要なら strict mode で失敗にします。詳細は[適合性手順](../../testdata/decimal/README.md)を参照してください。

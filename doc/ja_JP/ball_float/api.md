@@ -1,6 +1,6 @@
 # @ball_float.BallFloat
 
-このページは現在の `0.2.0` 基準における `@ball_float.BallFloat` を説明します。
+このページは現在の `0.4.0` 基準における `@ball_float.BallFloat` を説明します。
 
 ## 意味
 
@@ -14,6 +14,7 @@
 
 - `BallFloat::new`
 - `BallFloat::exact`
+- `BallFloat::from_bounds`
 - `BallFloat::from_int`
 - `BallFloat::from_bigint`
 - `BallFloat::from_float`
@@ -71,6 +72,8 @@
 - `sub`
 - `mul`
 - `div`
+- `abs`
+- `neg`
 
 対応演算子:
 
@@ -85,7 +88,7 @@ checked 挙動メモ:
 - checked division は分母包絡が `0` を含むと whole-real enclosure へ広がることがあります。
 - checked integer power は enclosure の正しさを保ち、零交差を含む逆冪でも同じ whole-real fallback を使います。
 - `BallFloat` は scalar `CompareChecked` を実装しません。
-- このパスでは非整数冪、超越関数、微積分、行列、複素 ball、特殊関数は公開しません。
+- このパッケージは非整数冪、超越関数、微積分、行列、複素 ball、特殊関数を公開しません。
 
 ## Trait 面
 

@@ -14,7 +14,7 @@ inspect(ball.to_string(), content="3p-1 +/- 0")
 
 ```moonbit
 let d = @decimal.Decimal::from_string("12.34", precision=32).unwrap()
-let ball = @ball_float.BallFloat::from_decimal(d, precision=32)
+let ball = @ball_float.BallFloat::exact(d.to_bin_float(precision=32))
 ```
 
 这里得到的是基于 `BinFloat` 中心值和误差半径的包络，不是假装十进制值被精确搬过去。

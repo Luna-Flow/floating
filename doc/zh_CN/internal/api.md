@@ -1,6 +1,6 @@
 # @internal
 
-本文档描述当前 `0.2.0` 基线中的 `@internal` 包。它是实现辅助层，不是稳定公开 API。
+本文档描述当前 `0.4.0` 基线中的 `@internal` 包。它是实现辅助层，不是稳定公开 API。
 
 ## BigInt 辅助
 
@@ -20,6 +20,8 @@
 
 - `remove_factor2`
 - `remove_factor10`
+- `exact_divide_by_power_of_ten`：仅在能被指定的 `10` 的幂整除时返回精确商。
+- `trim_trailing_decimal_zeros`：在可选上限内移除末尾十进制零，并返回新系数、指数和移除数量。
 
 ## 舍入辅助
 

@@ -1,83 +1,36 @@
-# FLOATING
+# FLOATING 文档
 
-[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-Apache%202.0-blue)](https://github.com/Luna-Flow/floating/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
+本目录描述当前 **`0.4.0`** 实现。历史版本说明统一收录在
+[CHANGELOG.md](../../CHANGELOG.md)，README 只说明当前基线。
 
-## v0.3.0 - Result wrapper 与 checked 组合基线
+## 阅读路径
 
-本文档描述当前分支上的 **`v0.3.0`** 基线实现。
+- 需要具体数值类型时，从 `bin_float`、`decimal` 或 `ball_float` 开始。
+- 需要让 checked 算术在链式调用中保持闭合时，使用对应的 `*_result` 包。
+- 需要跨表示的精确公共边界时，阅读 `semantic`。
+- 构建数值表达式前端时阅读 `numeric_expr`；处理 GDA `.decTest` 与 Decimal
+  一致性测试时阅读 `gda_expr`。
+- `internal` 与 `consistency` 属于实现和验证层，不是稳定的应用层接口。
 
-### 包定位
-
-- **`def`**：提供 `Sign`、`PartialOrder`、窄化后的 `Floating` trait，以及 arithmetic 边界类型的兼容 reexport。
-- **`bin_float`**：任意精度二进制浮点，采用 significand、二进制指数与工作精度表示。
-- **`decimal`**：任意精度十进制浮点，采用 coefficient、十进制指数与工作精度表示。
-- **`ball_float`**：基于 `bin_float` 的区间/球浮点，采用向外舍入的上下界表示。
-- **`bin_float_result`**：把 `Result[BinFloat, ArithmeticError]` 包成可闭合组合的数值对象。
-- **`decimal_result`**：把 `Result[Decimal, ArithmeticError]` 包成可闭合组合的数值对象。
-- **`ball_float_result`**：把 `Result[BallFloat, ArithmeticError]` 包成可闭合组合的区间对象。
-- **`internal`**：共享的规范化、因子剥离、舍入与十进制解析辅助逻辑。
-- **`consistency`**：覆盖规范化、算术、转换与跨包语义对齐的仓库测试。
-
-### 当前版本特征
-
-- 依赖 `Luna-Flow/arithmetic` 提供 checked capability boundary。
-- `bin_float` 与 `decimal` 实现 checked scalar traits。
-- `ball_float` 实现 enclosure relations 与 checked division / checked integer power。
-- 三个 `*_result` 子包把 checked 运算提升为 `Self -> Self` 与 `(Self, Self) -> Self` 的闭包组合层。
-- `compare_checked` 这类 observer 仍然保持返回非 `Self` 的结果，不强行塞进闭包代数。
-- `ball_float_result` 保留 ball 除零时返回 whole real enclosure 的语义；只有非法构造才进入 `Err`。
-- `decimal` 与 `bin_float` 支持双向转换。
-- 本轮不会重新引入超越函数层、微积分、矩阵、复数或特殊函数。
-- 仓库包含 correctness-first 的 whitebox 测试，覆盖 checked error path 与 enclosure 边界。
-
-### 快速开始
-
-```moonbit
-let x = @bin_float.BinFloat::make(3N, -1, 32)
-let y = @bin_float.BinFloat::make(5N, -1, 32)
-let sum = x + y
-
-let dec = @decimal.Decimal::from_string("12.34", precision=32).unwrap()
-let as_bin = dec.to_bin_float(precision=32)
-let ball = @ball_float.BallFloat::exact(as_bin)
-
-inspect(sum.to_string(), content="1p2")
-inspect(ball.contains(as_bin).to_string(), content="true")
-```
-
-### 文档
-
-多语言文档：
-
-- 🇺🇸 [README.md](../../README.md)
-- 🇨🇳 [README.md](./README.md)
-- 🇯🇵 [README.md](../ja_JP/README.md)
-
-包文档入口：
+## 核心文档
 
 - [文档标准](./doc_standard.md)
-- [正确性审计台账](./correctness_audit.md)
-- [@def API](./def/api.md)
-- [@bin_float API](./bin_float/api.md)
-- [@decimal API](./decimal/api.md)
-- [@ball_float API](./ball_float/api.md)
+- [正确性审计](./correctness_audit.md)
+- [版本历史](../../CHANGELOG.md)
+- [一致性测试流程](../../testdata/decimal/README.md)
 
-## 开发
+## 包文档
 
-常用命令：
+- [`def`](./def/api.md)：[API](./def/api.md)、[教程](./def/tutorial.md)、[设计](./def/design.md)
+- [`bin_float`](./bin_float/api.md)：[API](./bin_float/api.md)、[教程](./bin_float/tutorial.md)、[设计](./bin_float/design.md)
+- [`decimal`](./decimal/api.md)：[API](./decimal/api.md)、[教程](./decimal/tutorial.md)、[设计](./decimal/design.md)、[架构研究](../en_US/decimal/architecture_research.md)
+- [`ball_float`](./ball_float/api.md)：[API](./ball_float/api.md)、[教程](./ball_float/tutorial.md)、[设计](./ball_float/design.md)
+- [`bin_float_result`](./bin_float_result/api.md)：[API](./bin_float_result/api.md)、[教程](./bin_float_result/tutorial.md)、[设计](./bin_float_result/design.md)
+- [`decimal_result`](./decimal_result/api.md)：[API](./decimal_result/api.md)、[教程](./decimal_result/tutorial.md)、[设计](./decimal_result/design.md)
+- [`ball_float_result`](./ball_float_result/api.md)：[API](./ball_float_result/api.md)、[教程](./ball_float_result/tutorial.md)、[设计](./ball_float_result/design.md)
+- [`semantic`](./semantic/api.md)：[API](./semantic/api.md)、[教程](./semantic/tutorial.md)、[设计](./semantic/design.md)
+- [`numeric_expr`](./numeric_expr/api.md)：[API](./numeric_expr/api.md)、[教程](./numeric_expr/tutorial.md)、[设计](./numeric_expr/design.md)
+- [`gda_expr`](./gda_expr/api.md)：[API](./gda_expr/api.md)、[教程](./gda_expr/tutorial.md)、[设计](./gda_expr/design.md)
+- [`internal`](./internal/api.md)：[API](./internal/api.md)、[教程](./internal/tutorial.md)、[设计](./internal/design.md)
 
-```bash
-moon fmt
-moon check
-moon test
-moon test --enable-coverage
-```
-
-## 发布清单
-
-1. 先更新 `moon.mod` 中的目标版本号。
-2. 更新 `README.md` 与多语言文档，确保内容和当前实现一致。
-3. 运行 `moon check` 与 `moon test`。
-4. 触发 `publish-package` workflow。
-
-贡献说明见 [CONTRIBUTING.md](../../CONTRIBUTING.md)。
+英文目录是结构基准；中文和日文目录保持相同的 Markdown 文件集合与文体职责。

@@ -1,6 +1,6 @@
 # @bin_float.BinFloat
 
-このページは現在の `0.2.0` 基準における `@bin_float.BinFloat` を説明します。
+このページは現在の `0.4.0` 基準における `@bin_float.BinFloat` を説明します。
 
 ## 表現
 

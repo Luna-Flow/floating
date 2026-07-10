@@ -1,52 +1,53 @@
 # Documentation Standard
 
-This repository's documentation should describe the **current implementation on
-the branch**. As of `2026-06-12`, the active documentation baseline is
-**`0.3.0`**.
+Repository documentation describes the **implementation on the current branch**.
+As of `2026-07-11`, the active baseline is **`0.4.0`**.
 
-## Document Types and Organization
+## Document Types And Ownership
 
-### Main Document Types
+1. **API reference (`api.md`)** specifies public types, functions, methods,
+   errors, and observable semantics.
+2. **Tutorial (`tutorial.md`)** provides small executable workflows and usage
+   guidance.
+3. **Design (`design.md`)** explains representation, invariants, responsibility
+   boundaries, and implementation tradeoffs.
+4. **README** provides current-baseline positioning, package entry points, and a
+   reader path.
+5. **CHANGELOG** owns historical release notes and migration history.
 
-1. **API Reference Documentation (`api.md`)** - Public interface details for packages and types
-2. **User Guide (`tutorial.md`)** - User-oriented examples and usage guidance
-3. **Design Documentation (`design.md`)** - Representation, normalization, and algorithm notes for maintainers
+## Structure And Localization
 
-### Documentation Organization Principles
+- Organize prose by MoonBit package. File names do not create MoonBit modules;
+  `moon.pkg` boundaries do.
+- Keep the Markdown file set and top-level section responsibilities aligned
+  across `en_US`, `zh_CN`, and `ja_JP`.
+- Treat English as the structural source, then localize naturally. Do not
+  translate identifiers, package names, paths, commands, or version strings.
+- Keep README files focused on the current baseline. Move superseded release
+  narratives to `CHANGELOG.md`.
+- Do not document planned APIs as existing. Generated `pkg.generated.mbti` files
+  are the public-surface inventory; source and tests define behavior.
+- Mark `internal`, CLI, test, and conformance infrastructure boundaries clearly.
 
-- Organize docs by package and then by responsibility, for example:
+## Numeric Documentation Rules
 
-  ```txt
-  doc/
-    |- en_US
-    |- ja_JP
-    |- zh_CN
-        |- def
-        |- bin_float
-        |- decimal
-        |- ball_float
-  ```
+- Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `quantum`,
+  `context`, and `flags` consistently.
+- Separate stored representation, exact value, rounded result, status flags,
+  checked errors, and interval enclosure semantics.
+- State when parsing preserves quantum and when normalization changes a cohort
+  without changing its mathematical value.
+- Never imply total ordering for NaN-containing scalars or interval values.
+- For `*_ctx` APIs, document both the returned value and accumulated flags.
+- For `*_result` APIs, document short-circuiting and the distinction between
+  value-transforming composition and observer results.
+- Keep examples small and checkable. MoonBit import examples must use `@lf_alg`
+  for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`.
 
-- Keep documentation aligned with the code structure.
-- Do not document APIs or behaviors that are not already present in the repository implementation.
+## Review Checklist
 
-## Shared Rules Across Numeric Packages
-
-### API Alignment
-
-- `bin_float`, `decimal`, and `ball_float` should expose aligned names whenever the semantics are intentionally shared.
-- When package behavior differs, the docs must state the difference explicitly and describe the intended usage.
-- Every new public API should be considered for cross-package naming alignment by default.
-
-### Semantic Clarity
-
-- Separate exact representation semantics from rounded conversion semantics.
-- Document normalization rules, especially when constructors canonicalize internal state.
-- When a package uses enclosure semantics, describe containment and overlap behavior instead of implying exact-real semantics.
-
-### Documentation Requirements
-
-- Use consistent terminology for `precision`, `rounding`, `classify`, `sign`, and `normalized`.
-- Distinguish public contracts from implementation details.
-- Keep numeric examples small, checkable, and consistent with the current code.
-- Benchmark and performance-reporting docs are out of scope for this repository baseline.
+- Compare package docs with `pkg.generated.mbti` after `moon info`.
+- Verify links and cross-language file alignment.
+- Run `moon fmt`, `moon check --target all`, relevant tests, and documentation
+  examples or the repository `just pr` gate as appropriate.
+- Update the baseline date/version and changelog during a release bump.
