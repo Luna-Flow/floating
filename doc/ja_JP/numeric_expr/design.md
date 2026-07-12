@@ -1,9 +1,13 @@
 # `numeric_expr` 設計
 
-## 責務境界
+literal、operation、source span、呼び出し木だけを持つ private IR です。`evaluate` は深さ優先の後順走査を行い、意味論は callback、ノード失敗は元ノード付き、未対応形は `UnsupportedExpression` として返します。
 
-このパッケージは構文構築、位置情報、走査、一般的な評価順を所有します。ファイル読込、完全な形式解析、操作名解決、具体的数値型の選択は所有しません。
+tokenize、型選択、arity、丸め、IO、スケジューリングは担当せず、frontend が入力方針、backend が数値意味論を所有します。
 
-## 非公開表現
+## Pure traversal と計算量
 
-`Expr` は type-theory ベースの内部 term 表現を隠します。呼び出し側は `literal`、`invoke`、`evaluate` だけに依存し、将来の構文拡張から底層エンコーディングを隔離します。
+`evaluate` は post-order traversal で、`n` node の callback 呼出しは `O(n)`、stack は tree depth `O(h)` です。数値 operation の費用は callback 側が決めます。
+
+## Stability 境界
+
+construction と callback interface は provisional integration surface で、tree layout は private です。frontend の syntax 変更を backend 表現へ漏らしません。

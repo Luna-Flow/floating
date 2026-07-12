@@ -1,52 +1,36 @@
-# `decimal` 设计说明
+# `decimal` 设计
 
-`Decimal` 是当前仓库里的十进制优先表示。本页对齐当前 `0.4.0` 实现基线与第一
-阶段 GDA 表示迁移。
+## 职责与表示
 
-## 当前设计重点
+有限值保存独立符号、非负 `BigInt` 系数、十进制指数和工作精度；负零、无穷、qNaN/sNaN 与 payload 可观察。解析和量子敏感操作可以保留尾零/指数 cohort，`normalized()`/`reduce_ctx()` 只做数学值不变的 cohort 规范化。
 
-- 以 GDA / IEEE 754 decimal 语义为基准，而不是只追求“测试看起来能过”。
-- 区分“标量 decimal 值语义”和“interchange/raw bits 语义”。
-- 默认保留与 `Luna-Flow` 现有生态的兼容入口，但在 context、flags、special values、
-  canonicalization 等边界上逐步收敛到更明确的 GDA 行为。
+## 系数与舍入算法
 
-## 核心不变式
+包内 `DecCoeff` 是小端 base-1000 数组，提供位移、加减、schoolbook 乘法、长除、精确幂和舍入辅助，但不暴露该存储类型。公开系数仍是 `BigInt`，与二进制栈的 `BinCoeff` 迁移有意不同；当前没有 Karatsuba/Toom/FFT 分派。
 
-- 有限值保存为 `(-1)^negative * magnitude * 10^exponent10`
-- 存储层的 `magnitude` 是非负 coefficient，负号独立存放，这样才能表达 `-0`
-  与带符号 NaN payload
-- 数值构造路径会剥离所有可移除的 `10` 因子
-- 零值在 canonical 形式下使用 exponent `0`，但保留符号
-- 某些 GDA 风格操作会有意保留 exponent/quantum；需要 canonical cohort 时请显
-  式调用 `normalized()`
+## Context 与效果边界
 
-## 解析路径
+`*_ctx` 先处理特殊值和精确系数/指数，再按八种十进制 rounding 舍入，最后应用指数界限、subnormal、clamp 和 `DecimalFlags`。FMA 在最终加法后才舍入；quantize 固定目标指数，结果系数超 precision 时报告 `invalid_operation`。
 
-`Decimal::from_string` 会先调用 `@internal.split_decimal_string`：
+## 能力边界
 
-- 处理符号
-- 去掉小数点
-- 合并科学计数法指数
+公共能力包含算术、FMA、整除/余数、quantize/rescale、total compare、逻辑数字、邻接值、分类、格式化、decimal32/64/128 互换和初等函数。固定 official/official0 语料中的所有合法 executable 标量行均已通过，unsupported 和 legacy 为零；唯一排除的是 `#` 占位/非标量非法输入。
 
-当解析出的 coefficient 能装进请求精度时，解析路径会保留原始 exponent/quantum，
-而不是总是先去掉尾随零。`"-0"` 也会保留为负零。
+## 数学模型与 cohort
 
-## 与 `bin_float` 的关系
+有限值表示为 `(-1)^negative × coefficient × 10^exponent10`。`1.20` 与 `1.2`
+数学值相同但 quantum 不同；`normalized()`/`reduce_ctx()` 只改变 cohort，不改变
+数学值。因此普通 equality、`same_quantum` 和 total order 是不同的观察。
 
-- `bin_float -> decimal`：精确保留当前有限二进制表示
-- `decimal -> bin_float`：对非 dyadic 值可能产生近似
+## Context 与 flags
 
-## special values 与 cohort
+`*_ctx` 依次处理特殊值、精确系数/指数、precision 与八种 rounding、指数界限、
+clamp 和 `DecimalFlags`。`rounded` 不必然意味着 `inexact`，`subnormal` 不必然
+意味着 `underflow`；组合多个运算时必须显式 `DecimalFlags::combine`。
 
-- `-0` 是一等公民表示，不会在内部被静默折叠成 `+0`。
-- qNaN / sNaN 会保留 sign 与 payload；需要 quiet 化时，会尽量沿用源操作数的诊断信息。
-- 标量 `Decimal` 关注数值语义与可观察 cohort；若调用方需要保留非 canonical interchange
-  编码，应使用 `DecimalInterchange`，而不是期待标量值保留 raw-bit 差异。
+## 复杂度与取舍
 
-## context 与最终结果
-
-- 大多数运算要区分“中间数学结果”和“context 下的最终结果”。
-- flags、preferred exponent、subnormal / underflow / overflow、clamped 等判断，
-  都属于最终结果语义的一部分，不能只看数值是否接近。
-- 当前实现已经显式引入更多 GDA 风格 context 语义；subset arithmetic /
-  `extended: 0` 相关规则仍在持续收敛中。
+对 `n` 个 base-1000 limb，加减、比较、移位和规范化是 `O(n)`，schoolbook
+乘法与长除法是 `O(n²)`。base-1000 让解析、进位和 GDA 舍入容易审计；当前精度
+通常受 context 限制，因此暂不承担 Karatsuba/Toom/FFT 的实现与调参成本。未来
+可以替换内核而不改变 `Decimal`/`DecimalContext` 契约。

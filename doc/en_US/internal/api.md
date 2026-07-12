@@ -1,6 +1,7 @@
 # @internal
 
-This page tracks the current repository implementation and is written as the `0.4.0` API baseline.
+This page tracks the `0.5.0` implementation helper API, not a stable
+application contract.
 
 `@internal` is an implementation-facing package. Its functions are documented here for maintainers and advanced contributors, not as a stable public API promise.
 

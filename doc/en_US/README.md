@@ -1,39 +1,52 @@
 # FLOATING Documentation
 
-This directory documents the current **`0.4.1`** implementation. Historical
-release notes belong in [CHANGELOG.md](../../CHANGELOG.md).
+These pages describe the `0.5.0` release. Public names come from each package's
+`pkg.generated.mbti`.
 
-## Reader Guide
+## Packages
 
-- Start with `bin_float`, `decimal`, or `ball_float` for concrete values.
-- Use the matching `*_result` package for closed checked-arithmetic pipelines.
-- Read `semantic` when values from several representations need a common exact
-  comparison or serialization boundary.
-- Read `numeric_expr` to build a numeric expression frontend; read `gda_expr`
-  for the General Decimal Arithmetic `.decTest` frontend and Decimal backend.
-- Treat `internal` and `consistency` as implementation and verification layers,
-  not as stable application APIs.
+- Core: [`def`](./def), [`bin_float`](./bin_float), [`decimal`](./decimal), [`ball_float`](./ball_float)
+- Checked: [`bin_float_checked`](./bin_float_checked), [`decimal_checked`](./decimal_checked), [`ball_float_checked`](./ball_float_checked)
+- Semantic/IR: [`semantic`](./semantic), [`numeric_expr`](./numeric_expr)
+- Frontends: [`frontend/gda_expr`](./frontend/gda_expr), [`frontend/itl_expr`](./frontend/itl_expr), [`frontend/mpfr_expr`](./frontend/mpfr_expr), [`frontend/testfloat_expr`](./frontend/testfloat_expr)
+- Runtime/verification: [`internal`](./internal), [`internal/conformance`](./internal/conformance), [`internal/runner_cli`](./internal/runner_cli), [`consistency`](./consistency), [`bin_float_bench`](./bin_float_bench)
+- CLI: [`cli`](./cli), [`cli/gda_expr_cli`](./cli/gda_expr_cli), [`cli/itl_expr_cli`](./cli/itl_expr_cli), [`cli/mpfr_expr_cli`](./cli/mpfr_expr_cli), [`cli/testfloat_expr_cli`](./cli/testfloat_expr_cli)
 
-## Core Documents
+Each package has a `design.md`; library packages also expose API and tutorial
+pages. Implementation, CLI, and test packages document their boundaries even
+when they are not application APIs.
 
-- [Documentation Standard](./doc_standard.md)
-- [Correctness Audit](./correctness_audit.md)
-- [Release History](../../CHANGELOG.md)
-- [Conformance Workflow](../../testdata/decimal/README.md)
+## Public Surface And Stability
 
-## Package Documentation
+`0.5.0` is a pre-1.0 release. “Stable” below means an intentional application
+surface for this release, not an ABI promise across all future versions.
 
-- [`def`](./def/api.md): [API](./def/api.md), [Tutorial](./def/tutorial.md), [Design](./def/design.md)
-- [`bin_float`](./bin_float/api.md): [API](./bin_float/api.md), [Tutorial](./bin_float/tutorial.md), [Design](./bin_float/design.md)
-- [`decimal`](./decimal/api.md): [API](./decimal/api.md), [Tutorial](./decimal/tutorial.md), [Design](./decimal/design.md), [Architecture Research](./decimal/architecture_research.md)
-- [`ball_float`](./ball_float/api.md): [API](./ball_float/api.md), [Tutorial](./ball_float/tutorial.md), [Design](./ball_float/design.md)
-- [`bin_float_result`](./bin_float_result/api.md): [API](./bin_float_result/api.md), [Tutorial](./bin_float_result/tutorial.md), [Design](./bin_float_result/design.md)
-- [`decimal_result`](./decimal_result/api.md): [API](./decimal_result/api.md), [Tutorial](./decimal_result/tutorial.md), [Design](./decimal_result/design.md)
-- [`ball_float_result`](./ball_float_result/api.md): [API](./ball_float_result/api.md), [Tutorial](./ball_float_result/tutorial.md), [Design](./ball_float_result/design.md)
-- [`semantic`](./semantic/api.md): [API](./semantic/api.md), [Tutorial](./semantic/tutorial.md), [Design](./semantic/design.md)
-- [`numeric_expr`](./numeric_expr/api.md): [API](./numeric_expr/api.md), [Tutorial](./numeric_expr/tutorial.md), [Design](./numeric_expr/design.md)
-- [`gda_expr`](./gda_expr/api.md): [API](./gda_expr/api.md), [Tutorial](./gda_expr/tutorial.md), [Design](./gda_expr/design.md)
-- [`internal`](./internal/api.md): [API](./internal/api.md), [Tutorial](./internal/tutorial.md), [Design](./internal/design.md)
+| Package | Public surface | Stability | Not included |
+| --- | --- | --- | --- |
+| `bin_float` | `BinFloat`, `BinCoeff`, contexts, flags, interchange | Stable release surface | Complete IEEE 754 operation set |
+| `decimal` | `Decimal`, contexts/flags, GDA operations, interchange | Stable release surface | Only `#` placeholder/non-scalar invalid rows are excluded |
+| `ball_float` | bare/decorated intervals, relations, directed arithmetic | Stable release surface | Reverse interval operations; guaranteed tightness |
+| `*_checked` | short-circuit `Result[..., ArithmeticError]` pipelines | Stable composition surface | Context flags, decorations, recovery policy |
+| `semantic` | exact rational/infinity/NaN/interval projection | Provisional integration surface | Representation metadata and arithmetic |
+| `numeric_expr` | syntax nodes and callback evaluation | Provisional integration surface | Text parsing and concrete numeric semantics |
+| `frontend/*`, `cli/*` | conformance parsers, runners, and commands | Verification infrastructure | General-purpose file/format compatibility |
+| `internal/*`, `consistency`, `*_bench` | implementation and verification helpers | Not application API | Compatibility guarantees |
 
-The English tree is the structural source of truth. Chinese and Japanese docs
-keep the same Markdown file set and section responsibilities.
+Read `api.md` for callable names, `design.md` for invariants and algorithm
+choices, and `tutorial.md` for the shortest supported workflow. Generated
+`pkg.generated.mbti` files are the authority when prose and inventory differ.
+
+## GDA Result
+
+The official 144-file corpus passes **64,986/64,986 legal executable scalar
+rows**, with zero unsupported and zero legacy classifications. The remaining
+141 rows are all `#` placeholder/non-scalar invalid inputs and are excluded from
+the legal semantic denominator. The official0 corpus likewise passes all
+16,124 legal rows.
+
+## Verification
+
+Use `just smoke` and `just conformance smoke <backend>` for committed fixtures.
+Full corpus commands and exact supported-operation boundaries live in
+`testdata/*/README.md`. Passing a pinned corpus never implies complete IEEE
+754, GDA, or ITF1788 coverage.

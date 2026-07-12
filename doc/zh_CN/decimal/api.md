@@ -1,6 +1,12 @@
 # @decimal.Decimal
 
-本文档描述当前仓库实现，并以 `0.4.0` API 基线加上第一阶段 GDA 表示迁移为准。
+## 稳定性
+
+`Decimal`、`DecimalContext`、`DecimalFlags` 和 decimal interchange 是
+`0.5.0` 支持的应用 API。内部 `DecCoeff` 布局不属于公开面；固定合法 GDA 语料
+完全符合，唯一排除的是 `#` 占位/非标量非法输入。
+
+本文档描述 `0.5.0` API 与 GDA 表示。
 
 ## 使用前先记住
 
@@ -17,10 +23,10 @@
 
 并附带工作精度 `precision`。
 
-公开的 `coefficient()` observer 仍然返回带符号 coefficient，以保持和既有标量
-语义兼容。若需要把符号单独拿出来看，请使用 `magnitude()` 与 `is_negative()`。
-这一点对 `-0` 这类 GDA 风格值尤其重要，因为它的数学 coefficient 为零，但表
-示层仍然带有负号。
+公开的 `coefficient()` 与 `magnitude()` observer 返回非负 coefficient 的
+`BigInt` 表示；若需要单独查看符号，请使用 `is_negative()`。这一点对 `-0`
+这类 GDA 风格值尤其重要，因为它的数学 coefficient 为零，但表示层仍然带有
+负号。
 
 ## 构造与解析
 
@@ -101,6 +107,7 @@
 - `min_mag_ctx`
 - `max_mag_ctx`
 - `clamp`
+- `clamp_checked`
 
 说明：
 
@@ -109,7 +116,7 @@
   带 flags。quiet NaN 不会设置 `invalid_operation`；signaling NaN 会设置它。
 - `compare_signal_ctx(lhs, rhs, ctx)` 在数值结果形状上与 `compare_ctx` 相同，
   但只要任一操作数是 NaN 就会设置 `invalid_operation`。
-- `clamp` 在边界无序或出现 `NaN` 时会直接拒绝。
+- `clamp` 在边界无序或出现 `NaN` 时会直接拒绝；`clamp_checked` 将这些情况转换为结构化 domain error。
 - 共享的 `Sign` observer 对所有有限零都会返回 `Zero`，包括负零。若零的符号
   在语义上有意义，请使用 `is_negative_zero()`。
 - `class_name(ctx)` 返回该值在给定 exponent context 下的 GDA 风格分类字符串，
@@ -262,6 +269,7 @@
 ## Context 与 Flags
 
 - `DecimalContext::new`
+- `DecimalContext::try_new`
 - `DecimalContext::exact`
 - `DecimalContext::decimal32`
 - `DecimalContext::decimal64`
@@ -296,7 +304,7 @@ subset 语义时，可显式使用
 `lost_digits`、零与 cohort 处理以及 transcendental 的经典舍入行为都会遵循 GDA
 subset 路径。
 
-当前 exponent-bound 实现是 GDA baseline，而不是完整 conformance。高于 `e_max`
+当前 exponent-bound 实现遵循 GDA baseline 规则，并已由合法行 conformance 覆盖。高于 `e_max`
 的结果目前会产生无穷，并设置 `overflow`、`rounded`、`inexact`。精确但低于
 `e_min` 的结果会设置 `subnormal`；不精确的 subnormal 结果还会额外设置
 `underflow`。clamp 模式可以在保持数值不变的前提下给 coefficient 补尾零并降低
@@ -319,8 +327,8 @@ precision 时报告 `division_impossible`。`remainder` 使用该整数商，因
 数极限情形、有限正底数的非整数幂、有限非整数 power 的 operand-range invalid
 行，以及有限 10 的幂底数在大整数指数下必然 overflow 或 half-even underflow
 to zero 的情形。它也会上报官方 math-function `Invalid_context` restriction
-行。当前剩余的 conformance gap 是 diagnostic interchange/非标量覆盖，而不是
-某个非诊断标量 `power` 子集。
+行。唯一排除的是 diagnostic `#` interchange/非标量占位输入；不存在非诊断标量
+`power` 子集缺口。
 
 `log10_ctx` 是 context-aware 的 GDA 十进制对数入口。它使用 fixed-point
 logarithm baseline，保留 NaN 的符号/payload quiet 传播，把 signed zero 映射为
@@ -365,6 +373,6 @@ invalid-operation 情形、精确等于 1 的有限值（`ln(1) = 0`），以及
 
 ## 公开接口补充清单
 
-`DecCoeff` 提供 `from_bigint`、`to_bigint`、`digits10`、`is_zero`、`to_string`。
+`DecCoeff` 已收回为包内实现，公开表示边界统一使用 `BigInt`。
 生成接口还包含 `Decimal::{from_string_ctx,parse,apply_ctx,trim,div_checked,compare_checked,compare_total_ctx,compare_total_magnitude_ctx}`
 和 `DecimalInterchange::to_decimal_ctx`。

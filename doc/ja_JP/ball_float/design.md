@@ -1,51 +1,42 @@
-# `ball_float` 設計ノート
+# `ball_float` 設計
 
-`BallFloat` はこのリポジトリの包絡表現です。
+## 責務と表現
 
-## 表現
+実際の保存形式は外向き丸めを施した `lo_`、`hi_` と precision です。`new(center, radius)` は構築ビューであり、保存フィールドではありません。非空区間は `lo <= hi` で NaN 端点を持たず、Empty/Entire/装飾 NaI を区別します。
 
-- `center_ : BinFloat`
-- `radius_ : BinFloat`
-- `precision_ : Int`
+## Algorithm 選択
 
-意味は:
+加減算は単調な端点式、乗算は四つの端点積の min/max、除算は零を含まない分母なら逆数端点を使います。零を内包する分母は片側なら半無限、内部交差なら Entire にします。`BallContext` は下端を負方向、上端を正方向へ丸め、`inexact`/`overflow`/`underflow` を返します。
 
-`[center - radius, center + radius]`
+初等関数は `BinCoeff` 上の有向 dyadic 区間証明を使います。各演算を有限の作業精度で外向きに丸め、打ち切った級数は明示的な剰余界で包絡します。exp/ln は縮約と級数、sin/cos は共有した Machin の π 包絡、象限縮約、交代級数、臨界点検出、tan は極の検出、正底冪は `exp(exponent*ln(base))` です。証明できない場合は sin/cos が `[-1,1]`、tan が Entire に戻り、包絡を優先します。
 
-## 半径不変条件
+## Decoration と relation
 
-構築時に半径は次を満たすよう検証されます。
+装飾は最小 grade を伝播し、関係は集合関係であって全順序ではありません。ITF1788 の strict gate は `testdata/interval/README.md` の全 phase（general-power と trigonometric を含む）を対象にし、reverse 操作は範囲外です。
 
-- 有限
-- 非 NaN
-- 非負
+## 能力境界
 
-中心値をより低い精度へ量子化する場合、構築経路と精度変更経路は中心変位に対応する誤差を半径へ加え、表現区間が縮まらないようにします。
+固定 corpus は 4,113/4,113 を strict pass し unsupported はゼロです。安全な
+fallback は inclusion を保証しますが、常に representable な最小幅とは限りません。
 
-## `sign` の意味
+## 包含不変条件と certificate
 
-- 半径が 0 なら中心値の符号
-- 包絡全体が正なら `Positive`
-- 包絡全体が負なら `Negative`
-- 零をまたぐなら `Zero`
+入力 `X=[x_lo,x_hi]` に対し、加算の下端は負方向、上端は正方向へ丸めます。
+乗除算は全端点候補の極値を選び、tight bound を証明できなければ安全な enclosure
+へ広げます。Empty、Entire、decorated NaI は別の状態です。
 
-これは `Sign::Zero` がこのパッケージでは一部「零をまたぐ区間」という意味も担うことを示します。
+range reduction、series、明示的 remainder bound が初等関数の enclosure を証明し、
+極値や pole を跨ぐ場合は critical point を調べます。証明不足なら sin/cos は
+`[-1,1]`、tan は Entire に fallback します。strict baseline は general-power と
+trigonometric を含みますが reverse operation は未対応です。
 
-## 算術モデル
+## 計算量と trade-off
 
-この算術は包絡指向です。
+基本 interval は定数回の endpoint 演算なので precision `p` で `O(M(p))`、
+storage は二 endpoint です。初等関数は `O(k)` series 項と `O(p)` working
+precision を使います。Entire/`[-1,1]` fallback は tightness より inclusion を
+優先する選択です。
 
-- 加算と減算は半径を足し合わせて結果を広げます
-- 乗算は中心の絶対値と誤差項に基づく半径伝播式を使います
-- 除算は分母包絡が零を含む場合を拒否します
-- 出力中心を目標精度へ量子化したときの変位も半径へ戻し込みます
+## Inclusion invariant
 
-## 全順序を持たない理由
-
-この型は:
-
-- 重なり
-- 分離
-- 証明可能な `<` / `>`
-
-を提供しますが、通常の実数のような全順序は提供しません。
+すべての constructor と operation は必要なら外向きに広げ、tightness より set inclusion を先に保証します。

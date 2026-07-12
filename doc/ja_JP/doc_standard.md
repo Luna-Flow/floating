@@ -1,7 +1,7 @@
 # ドキュメント標準
 
 リポジトリ文書は**現在のブランチに存在する実装**だけを説明します。
-`2026-07-11` 時点の基準は **`0.4.0`** です。
+`2026-07-12` の release 基準は **`0.5.0`** です。
 
 ## 文書種別と責務
 
@@ -13,15 +13,16 @@
 
 ## 構造とローカライズ
 
-- MoonBit パッケージ単位で文書を整理します。ファイル名はモジュールを作らず、
+- 各 `moon.pkg` のパスを文書ツリーに反映します。ファイル名はモジュールを作らず、
   パッケージ境界は `moon.pkg` が決めます。
 - `en_US`、`zh_CN`、`ja_JP` で Markdown ファイル集合と主要節の責務を揃えます。
+- 詳細な research note は原言語のままでもよいですが、package API、tutorial、design、index、standard は揃えます。
 - 英語を構造上の基準とし、各言語で自然に記述します。識別子、パッケージ名、
   パス、コマンド、バージョン文字列は翻訳しません。
 - README は現在の基準に限定し、古いリリース説明は `CHANGELOG.md` に移します。
 - 未実装 API を現行機能として記述しません。`pkg.generated.mbti` を公開面の一覧、
   ソースとテストを挙動の根拠として扱います。
-- `internal`、CLI、テスト、適合性基盤と安定アプリ API の境界を明記します。
+- 全 package に `design.md` を置き、`internal`、CLI、test、conformance と安定 API の境界を明記します。
 
 ## 数値文書の規則
 
@@ -31,7 +32,7 @@
 - 解析が quantum を保持する場合と、正規化が数学的値を変えず cohort だけを変える場合を明記します。
 - NaN を含むスカラーや区間値に通常の全順序があるように記述しません。
 - `*_ctx` API では値と累積 flags の両方を説明します。
-- `*_result` API では短絡と、値変換・observer の違いを説明します。
+- `*_checked` API では短絡と、値変換・observer の違いを説明します。
 - 例は小さく検証可能にします。MoonBit import では `Luna-Flow/luna-generic` を
   `@lf_alg`、`Luna-Flow/arithmetic` を `@lf_arith` として扱います。
 

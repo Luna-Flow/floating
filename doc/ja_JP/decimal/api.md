@@ -1,9 +1,22 @@
 # @decimal.Decimal
 
-このページは現在のリポジトリ実装を追跡しており、`0.4.0` API 基準に、第一段
-階の GDA 表現移行を加えたものとして書かれています。
+## 安定性
+
+`Decimal`、`DecimalContext`、`DecimalFlags`、decimal interchange は
+`0.5.0` の application API です。内部 `DecCoeff` layout は公開面ではなく、固定
+合法 GDA corpus は完全適合です。除外は `#` placeholder/non-scalar の不正入力だけです。
+
+このページは `0.5.0` API と GDA 表現を説明します。
 
 ## 表現
+
+## 使用前の注意
+
+`Decimal` は decimal semantics を表しますが、すべての operation が exact だとは限りません。flags や exponent boundary が必要なら `DecimalContext` を明示します。
+
+## 意味論の注意
+
+数値 equality、quantum equality、total order は異なる観測です。
 
 有限値は次の形で保存されます。
 
@@ -11,11 +24,10 @@
 
 加えて作業精度 `precision` を持ちます。
 
-公開 observer の `coefficient()` は、既存のスカラー意味論との互換性のため、
-引き続き符号付き coefficient を返します。符号を独立に見たい場合は
-`magnitude()` と `is_negative()` を使ってください。これは `-0` のような GDA
-スタイル値で重要です。数学的な coefficient は 0 でも、表現には負符号が残る
-ためです。
+公開 observer の `coefficient()` と `magnitude()` は、非負の coefficient を
+`BigInt` として返します。符号を独立に見る場合は `is_negative()` を使って
+ください。これは `-0` のような GDA スタイル値で重要です。数学的な
+coefficient は 0 でも、表現には負符号が残るためです。
 
 ## コンストラクタと解析
 
@@ -81,6 +93,7 @@
 - `min_mag_ctx`
 - `max_mag_ctx`
 - `clamp`
+- `clamp_checked`
 
 補足:
 
@@ -90,7 +103,7 @@
   NaN はそれを立てます。
 - `compare_signal_ctx(lhs, rhs, ctx)` は数値結果の形としては `compare_ctx` と
   同じですが、NaN オペランドがあれば必ず `invalid_operation` を立てます。
-- `clamp` は境界が無順序、または `NaN` を含むと abort します。
+- `clamp` は境界が無順序、または `NaN` を含むと abort します。`clamp_checked` はその条件を構造化された domain error に変換します。
 - 共有 `Sign` observer は有限なゼロ値すべてに対して `Zero` を返し、負のゼロ
   も含みます。ゼロの符号が意味論的に重要なら `is_negative_zero()` を使ってく
   ださい。
@@ -105,6 +118,10 @@
   NaN observer を使ってください。
 
 ## 算術と変換
+
+## Context API を使う場合
+
+GDA workflow では `*_ctx` を使います。便利な operator は `DecimalFlags` を返しません。
 
 - `neg`
 - `abs`
@@ -194,6 +211,7 @@
 ## Context と Flags
 
 - `DecimalContext::new`
+- `DecimalContext::try_new`
 - `DecimalContext::exact`
 - `DecimalContext::decimal32`
 - `DecimalContext::decimal64`
@@ -230,7 +248,8 @@ classic decNumber subset の挙動が必要な場合は、
 operand reduction、`lost_digits`、ゼロと cohort の cleanup、および transcendental
 の classic rounding が GDA subset path に従います。
 
-現在の exponent-bound 実装は完全な conformance ではなく GDA baseline です。
+現在の exponent-bound 実装は GDA baseline 規則に従い、合法行の conformance で
+検証されています。
 `e_max` を超える結果は現在、無限大を生成し、`overflow`、`rounded`、
 `inexact` を設定します。`e_min` より小さい正確な結果は `subnormal` を設定し、
 不正確な subnormal 結果はさらに `underflow` も設定します。clamp モードでは、
@@ -257,8 +276,8 @@ context-aware GDA power 入口です。正確な有限整数指数、million-sca
 整数 power、有限非整数 power の operand-range invalid 行、そして有限な 10 の
 冪底数に大きな整数指数を与えたとき強制される overflow または half-even
 underflow to zero を扱います。公式 math-function `Invalid_context`
-restriction 行も報告します。残っている conformance gap は、非診断スカラー
-`power` subset ではなく diagnostic interchange/非スカラー coverage です。
+restriction 行も報告します。除外されるのは diagnostic `#` interchange/非スカラー
+placeholder だけで、非診断スカラー `power` subset の gap はありません。
 
 `log10_ctx` は context-aware GDA の 10 を底とする対数入口です。fixed-point
 logarithm baseline を使い、NaN の符号/payload quiet 化を保持し、signed zero
@@ -276,6 +295,10 @@ context を通じて丸められ、公式 math-function `Invalid_context` restri
 一般の正の有限値を扱います。
 
 ## Trait 面
+
+## 文書の境界
+
+公開 inventory は package interface から生成され、内部 kernel と benchmark threshold は private です。
 
 `Decimal` は現在次を実装します。
 
@@ -305,7 +328,11 @@ context を通じて丸められ、公式 math-function `Invalid_context` restri
 
 ## 公開面の補足一覧
 
-`DecCoeff` は `from_bigint`、`to_bigint`、`digits10`、`is_zero`、`to_string` を提供します。
+## GDA 検証
+
+合法な official/official0 scalar rows は完全適合し、除外は `#` placeholder/non-scalar の不正入力だけです。
+
+`DecCoeff` は package-private であり、公開表現境界には `BigInt` を使います。
 生成 interface には `Decimal::{from_string_ctx,parse,apply_ctx,trim,div_checked,compare_checked,compare_total_ctx,compare_total_magnitude_ctx,from_interchange_hex,to_interchange_hex}`
 も含まれます。`DecimalInterchange` は `from_decimal`、`from_hex`、`to_decimal`、
 `to_decimal_ctx`、`to_hex` と copy/canonicalization メソッドを提供します。

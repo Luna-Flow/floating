@@ -1,46 +1,17 @@
-# `internal` Design Notes
+# `internal` Design
 
-This page tracks the current repository implementation and is written as the
-`0.4.0` design baseline.
+## Responsibility And Algorithms
 
-## Purpose
+`internal` contains shared decimal/semantic implementation helpers: cached
+powers of 2/5/10, decimal-string splitting, factor removal, digit counting,
+rounding of positive quotients/shifts, `ExactRat`, and `Result` lifting.
+Rational construction normalizes the sign and gcd; rounding consumes explicit
+quotient/remainder facts and a caller-supplied mode.
 
-`@internal` exists to keep low-level numeric machinery out of the public representation packages.
+## Boundary
 
-It centralizes:
-
-- small `BigInt` utility constructors
-- sign extraction
-- base-2 and base-10 normalization helpers
-- precision-reduction rounding helpers
-- decimal string preprocessing
-
-## Why It Is a Separate Package
-
-Without `@internal`, the repository would duplicate the same logic in:
-
-- `bin_float`
-- `decimal`
-- `ball_float` support paths
-
-That would make it harder to keep rounding and normalization semantics aligned.
-
-## What It Guarantees Today
-
-The package provides the building blocks for:
-
-- unique zero normalization
-- factor stripping for canonical finite values
-- power generation for base conversion
-- precision trimming with explicit rounding modes
-- decimal parsing shared by `Decimal::from_string`
-
-For performance-sensitive decimal code, the internal helpers now special-case
-small powers of ten and five through tiny precomputed tables. This keeps common
-cohort adjustment, formatting, comparison, and decimal/binary conversion paths
-from repeatedly constructing the same low-exponent radix-power `BigInt` values
-while preserving exact semantics.
-
-## Stability Boundary
-
-`@internal` is documented, but it is not intended to be a long-term stable external package contract. It should be treated as implementation support for the repository’s current numeric packages.
+The functions are deterministic and effect-free apart from local allocation.
+They do not own numeric context, flags, parsing policy beyond lexical decimal
+splitting, or public scalar representations. The package is importable in this
+module but is not a stable application-facing contract: callers should use
+`bin_float`, `decimal`, `ball_float`, or `semantic`.

@@ -1,25 +1,13 @@
-# `def` 设计说明
+# `def` 设计
 
-`@def` 是当前仓库的协议层。
+`def` 只提供共享数值词汇：重导出 arithmetic 的 context/error/rounding/classification 与 `BigInt`，定义 `Sign`、`PartialOrder` 和小型开放 `Floating` trait。trait 只要求 classify、sign、precision、with_precision、normalized。
 
-## 为什么 trait 很小
+算术、排序、解析、flags 和区间关系不放入 trait，因为各表示的定律不同。实现 `Floating` 不代表 field、全序、IEEE 格式或 checked 错误行为；调用方必须声明所需的更窄能力。
 
-当前 `Floating` 没有把四则运算、总序比较、解析和格式化塞进去，原因是：
+## 设计职责
 
-- 四则运算已经由 MoonBit 的运算符 trait 表达
-- `ball_float` 不适合总序比较
-- 静态构造函数不适合直接放进这个 trait
+该包只保存跨表示都成立的观察和能力命名；具体数值算法与副作用边界由实现包负责。
 
-因此它只保留三个实现包真正共享且稳定的能力边界。
+## 能力选择
 
-## 作用
-
-`@def` 统一了：
-
-- `Sign`
-- `FpClass`
-- `RoundingMode`
-- `precision`
-- `normalized`
-
-这样 `bin_float`、`decimal`、`ball_float` 即使内部表示不同，也能共享同一套语义命名。
+泛型调用应按实际需要组合 arithmetic trait，而不是从 `Floating` 推断舍入、错误或区间语义。

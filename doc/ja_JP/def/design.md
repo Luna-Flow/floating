@@ -1,23 +1,13 @@
-# `def` 設計ノート
+# `def` 設計
 
-`@def` はこのリポジトリのプロトコル層です。
+共有語彙として arithmetic の context/error/rounding/classification と `BigInt` を再公開し、`Sign`、`PartialOrder`、小さな open `Floating` trait を定義します。trait は classify、sign、precision、with_precision、normalized のみを要求します。
 
-## なぜ trait が小さいのか
+算術、順序、解析、flags、区間関係は表示ごとに法則が違うため含めません。`Floating` 実装だけでは field、全順序、IEEE 形式、checked error を意味しません。
 
-現在の `Floating` には四則演算、全順序比較、解析、整形は入っていません。
+## 責務
 
-理由は次の通りです。
+この package は表現をまたいで成立する観測と capability 名だけを提供し、数値 algorithm は concrete package に残します。
 
-- 四則演算は既存の演算子 trait で表現できる
-- `ball_float` は自然な全順序を持たない
-- 静的コンストラクタはこの trait に入れにくい
+## Capability の選択
 
-## 役割
-
-`@def` はリポジトリ全体で共通の語彙を定義します。
-
-- `Sign`
-- `FpClass`
-- `RoundingMode`
-- `precision`
-- `normalized`
+generic code は実際に必要な arithmetic trait だけを要求し、`Floating` から rounding、error、interval semantics を推測しません。

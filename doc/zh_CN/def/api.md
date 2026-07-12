@@ -1,6 +1,6 @@
 # @def
 
-本文档描述当前 `0.4.0` 基线中的 `@def` 包。
+本文档描述 `0.5.0` 基线中的 `@def` 包。
 
 ## 组成
 
@@ -35,3 +35,14 @@ trait Floating {
 - `@bin_float.BinFloat`
 - `@decimal.Decimal`
 - `@ball_float.BallFloat`
+## `Sign`、`FpClass` 与 `RoundingMode`
+
+这些枚举是跨包共享的观察与舍入词汇；它们不暗示具体数值表示。
+
+## `Floating` 必需方法
+
+trait 只要求分类、符号、精度、精度调整和规范化；算术能力由更窄 trait 提供。
+
+## 当前实现与辅助谓词
+
+`BinFloat`、`Decimal` 和 `BallFloat` 实现该 trait，辅助函数是对 `classify` 的纯投影。

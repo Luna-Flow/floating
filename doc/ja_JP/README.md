@@ -1,37 +1,45 @@
 # FLOATING ドキュメント
 
-このディレクトリは現在の **`0.4.1`** 実装を説明します。過去のリリース
-情報は [CHANGELOG.md](../../CHANGELOG.md) に集約し、README は現在の基準だけを扱います。
+`0.5.0` release 基準を説明します。公開名の根拠は各 package の `pkg.generated.mbti` です。
 
-## 読み進め方
+## Package 入口
 
-- 具体的な数値型には `bin_float`、`decimal`、`ball_float` を使います。
-- checked 演算を閉じたパイプラインとして組み立てる場合は、対応する
-  `*_result` パッケージを使います。
-- 複数の表現に共通する厳密な境界が必要な場合は `semantic` を参照します。
-- 数値式フロントエンドには `numeric_expr`、GDA `.decTest` と Decimal
-  適合性処理には `gda_expr` を参照します。
-- `internal` と `consistency` は実装・検証層であり、安定したアプリ API ではありません。
+- Core: [`def`](./def)、[`bin_float`](./bin_float)、[`decimal`](./decimal)、[`ball_float`](./ball_float)
+- Checked: [`bin_float_checked`](./bin_float_checked)、[`decimal_checked`](./decimal_checked)、[`ball_float_checked`](./ball_float_checked)
+- Semantic/IR: [`semantic`](./semantic)、[`numeric_expr`](./numeric_expr)
+- Frontend: [`frontend/gda_expr`](./frontend/gda_expr)、[`frontend/itl_expr`](./frontend/itl_expr)、[`frontend/mpfr_expr`](./frontend/mpfr_expr)、[`frontend/testfloat_expr`](./frontend/testfloat_expr)
+- Runtime/verification: [`internal`](./internal)、[`internal/conformance`](./internal/conformance)、[`internal/runner_cli`](./internal/runner_cli)、[`consistency`](./consistency)、[`bin_float_bench`](./bin_float_bench)
+- CLI: [`cli`](./cli)、[`cli/gda_expr_cli`](./cli/gda_expr_cli)、[`cli/itl_expr_cli`](./cli/itl_expr_cli)、[`cli/mpfr_expr_cli`](./cli/mpfr_expr_cli)、[`cli/testfloat_expr_cli`](./cli/testfloat_expr_cli)
 
-## 基本文書
+各 package に `design.md` を置き、library には API/tutorial、internal・CLI・test には設計境界を記録します。
 
-- [ドキュメント標準](./doc_standard.md)
-- [正しさ監査](./correctness_audit.md)
-- [リリース履歴](../../CHANGELOG.md)
-- [適合性テスト手順](../../testdata/decimal/README.md)
+## 公開面と安定性
 
-## パッケージ文書
+`0.5.0` は 1.0 前の release です。「安定」は本 release で意図した application
+surface を指し、将来版の ABI 不変を約束しません。
 
-- [`def`](./def/api.md): [API](./def/api.md)、[チュートリアル](./def/tutorial.md)、[設計](./def/design.md)
-- [`bin_float`](./bin_float/api.md): [API](./bin_float/api.md)、[チュートリアル](./bin_float/tutorial.md)、[設計](./bin_float/design.md)
-- [`decimal`](./decimal/api.md): [API](./decimal/api.md)、[チュートリアル](./decimal/tutorial.md)、[設計](./decimal/design.md)、[アーキテクチャ調査](../en_US/decimal/architecture_research.md)
-- [`ball_float`](./ball_float/api.md): [API](./ball_float/api.md)、[チュートリアル](./ball_float/tutorial.md)、[設計](./ball_float/design.md)
-- [`bin_float_result`](./bin_float_result/api.md): [API](./bin_float_result/api.md)、[チュートリアル](./bin_float_result/tutorial.md)、[設計](./bin_float_result/design.md)
-- [`decimal_result`](./decimal_result/api.md): [API](./decimal_result/api.md)、[チュートリアル](./decimal_result/tutorial.md)、[設計](./decimal_result/design.md)
-- [`ball_float_result`](./ball_float_result/api.md): [API](./ball_float_result/api.md)、[チュートリアル](./ball_float_result/tutorial.md)、[設計](./ball_float_result/design.md)
-- [`semantic`](./semantic/api.md): [API](./semantic/api.md)、[チュートリアル](./semantic/tutorial.md)、[設計](./semantic/design.md)
-- [`numeric_expr`](./numeric_expr/api.md): [API](./numeric_expr/api.md)、[チュートリアル](./numeric_expr/tutorial.md)、[設計](./numeric_expr/design.md)
-- [`gda_expr`](./gda_expr/api.md): [API](./gda_expr/api.md)、[チュートリアル](./gda_expr/tutorial.md)、[設計](./gda_expr/design.md)
-- [`internal`](./internal/api.md): [API](./internal/api.md)、[チュートリアル](./internal/tutorial.md)、[設計](./internal/design.md)
+| Package | 利用できる公開面 | 状態 | 含まれないもの |
+| --- | --- | --- | --- |
+| `bin_float` | `BinFloat`、`BinCoeff`、context/flags、interchange | 安定 release 面 | IEEE 754 全 operation |
+| `decimal` | `Decimal`、context/flags、GDA operation、interchange | 安定 release 面 | `#` placeholder/non-scalar の不正入力だけ除外 |
+| `ball_float` | bare/decorated interval、relation、directed arithmetic | 安定 release 面 | reverse operation、tightness 保証 |
+| `*_checked` | `Result[..., ArithmeticError]` short-circuit pipeline | 安定 composition 面 | context flags、decoration、recovery policy |
+| `semantic` | exact rational/infinity/NaN/interval projection | provisional integration 面 | 表現 metadata と arithmetic |
+| `numeric_expr` | syntax node と callback evaluation | provisional integration 面 | text parser と concrete semantics |
+| `frontend/*`、`cli/*` | conformance parser、runner、command | 検証 infrastructure | 一般 file/format compatibility |
+| `internal/*`、`consistency`、`*_bench` | 実装・検証 helper | application API ではない | compatibility 保証 |
 
-英語ツリーを構造上の基準とし、中国語・日本語でも同じ Markdown ファイル集合と文書責務を保ちます。
+callable 名は `api.md`、不変条件と algorithm の選択は `design.md`、最短の利用例は
+`tutorial.md` を参照してください。prose と inventory が違う場合は
+`pkg.generated.mbti` を正とします。
+
+## GDA の結論
+
+公式 144 ファイル corpus は合法な executable scalar 64,986/64,986 を通過し、
+unsupported と legacy はゼロです。残る 141 行はすべて `#` placeholder/non-scalar
+の不正入力で、合法な意味論の分母から除外します。official0 の合法 16,124 行も
+全件通過します。
+
+## 検証
+
+`just smoke` または `just conformance smoke <backend>` は同梱 fixture を使います。full corpus と対応範囲は `testdata/*/README.md` を参照し、pass を IEEE 754、GDA、ITF1788 全体の保証とは解釈しません。

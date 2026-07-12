@@ -1,6 +1,6 @@
 # `decimal` Tutorial
 
-This page tracks the current repository implementation and is written as the `0.4.0` tutorial baseline.
+This page tracks the `0.5.0` behavior.
 
 ## Parsing Decimal Strings
 
@@ -14,6 +14,10 @@ inspect(amount.to_string(), content="12.34")
 The stored value is normalized, so trailing decimal zeros are removed from the canonical representation.
 
 ## Exact Decimal Arithmetic
+
+## Context And Flags
+
+Use `DecimalContext` and inspect the returned `DecimalFlags` when conformance or status is part of the result.
 
 ```moonbit
 let a = @decimal.Decimal::from_string("1.25", precision=20).unwrap()
@@ -46,8 +50,20 @@ This demonstrates an important current semantic point: non-dyadic decimals are o
 
 ## Converting from Binary
 
+## Interchange And Special Values
+
+Use the explicit interchange constructors for decimal32/64/128 and the classification observers for NaN, infinity, and signed zero.
+
+## Context Workflow
+
+For legal GDA rows, parse and operate with one explicit context, then inspect both the value and accumulated flags.
+
 ```moonbit
-let x = @bin_float.BinFloat::make(3N, -2, 32)
+let x = @bin_float.BinFloat::make(
+  @bin_float.BinCoeff::from_uint64(3UL),
+  -2,
+  32,
+)
 let d = @decimal.Decimal::from_bin_float(x, precision=20)
 inspect(d.to_string(), content="0.75")
 ```

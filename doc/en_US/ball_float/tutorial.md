@@ -1,13 +1,17 @@
 # `ball_float` Tutorial
 
-This page tracks the current repository implementation and is written as the `0.4.0` tutorial baseline.
+This page tracks the `0.5.0` behavior.
 
 ## Exact Embedding
 
 The simplest way to create a ball is to embed a `BinFloat` exactly.
 
 ```moonbit
-let x = @bin_float.BinFloat::make(3N, -1, 32)
+let x = @bin_float.BinFloat::make(
+  @bin_float.BinCoeff::from_uint64(3UL),
+  -1,
+  32,
+)
 let ball = @ball_float.BallFloat::exact(x)
 inspect(ball.to_string(), content="3p-1 +/- 0")
 ```

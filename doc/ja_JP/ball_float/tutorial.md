@@ -3,7 +3,11 @@
 ## 正確埋め込み
 
 ```moonbit
-let x = @bin_float.BinFloat::make(3N, -1, 32)
+let x = @bin_float.BinFloat::make(
+  @bin_float.BinCoeff::from_uint64(3UL),
+  -1,
+  32,
+)
 let ball = @ball_float.BallFloat::exact(x)
 inspect(ball.to_string(), content="3p-1 +/- 0")
 ```

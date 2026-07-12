@@ -65,3 +65,11 @@ inspect(flags)
 
 - 用 `Decimal::to_interchange_hex(format)` / `Decimal::from_interchange_hex(...)` 做值与编码之间的转换
 - 用 `DecimalInterchange` 保留 raw bits、做 `canonical()`、`copy_sign()` 等表示层操作
+
+## Context 工作流
+
+对于合法 GDA 行，使用同一个显式 context 完成解析与运算，并同时检查值和累计 flags。
+
+## Cohort 与精确语义
+
+解析可以保留尾零和 quantum；需要 canonical 表示时显式调用 `normalized()` 或 `reduce_ctx()`。

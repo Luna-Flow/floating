@@ -1,13 +1,17 @@
 # `numeric_expr` Design
 
-## Responsibility Boundary
+## Responsibility And Algorithm
 
-The package owns syntax construction, source locations, traversal, and generic
-evaluation order. It does not own parsing files, resolving operation names, or
-choosing a concrete numeric type.
+`numeric_expr` is a syntax-only expression IR containing literals, named
+operations, source spans, and invocation trees. `evaluate` performs a strict
+depth-first post-order traversal: literal and operation semantics are supplied
+as callbacks, child failures are wrapped with the originating syntax node, and
+unsupported internal forms produce `UnsupportedExpression`.
 
-## Private Representation
+## Boundary
 
-`Expr` hides its internal type-theory-backed term representation. Callers depend
-on `literal`, `invoke`, and `evaluate`, leaving room for future syntax forms
-without exposing the underlying term encoding.
+The representation of `Expr` is private so frontends cannot depend on tree
+layout. The package does not tokenize text, choose numeric types, define
+operation arity, round values, perform IO, or schedule parallel work. It is a
+pure orchestration layer; each frontend owns source policy and each backend
+owns numerical semantics.

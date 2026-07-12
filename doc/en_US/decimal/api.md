@@ -1,9 +1,23 @@
 # @decimal.Decimal
 
-This page tracks the current repository implementation and is written as the
-`0.4.0` API baseline plus the first GDA-representation migration.
+## Stability
+
+`Decimal`, `DecimalContext`, `DecimalFlags`, and decimal interchange are
+supported `0.5.0` application APIs. Internal `DecCoeff` layout is not public;
+the pinned legal GDA corpus is fully conformant, with only `#` placeholder/
+non-scalar invalid rows excluded.
+
+This page tracks the `0.5.0` API and GDA representation.
 
 ## Representation
+
+## Before You Start
+
+Use `Decimal` for decimal meaning, not for a promise that every operation is exact. Keep `DecimalContext` explicit whenever flags or exponent bounds matter.
+
+## Semantic Reminders
+
+Numeric equality, quantum equality, and total order observe different aspects of a Decimal value.
 
 Finite values are stored as:
 
@@ -11,11 +25,11 @@ Finite values are stored as:
 
 with an attached working `precision`.
 
-The public `coefficient()` observer returns the signed coefficient for
-compatibility with the existing scalar semantics. Use `magnitude()` and
-`is_negative()` when the sign must be inspected separately. This matters for
-GDA-style values such as `-0`, where the mathematical coefficient is zero but
-the representation still carries a negative sign.
+The public `coefficient()` and `magnitude()` observers return the non-negative
+coefficient as `BigInt`. Use `is_negative()` when the sign must be inspected
+separately. This matters for GDA-style values such as `-0`, where the
+mathematical coefficient is zero but the representation still carries a
+negative sign.
 
 ## Constructors and Parsing
 
@@ -92,6 +106,7 @@ Notes:
 - `min_mag_ctx`
 - `max_mag_ctx`
 - `clamp`
+- `clamp_checked`
 
 Notes:
 
@@ -102,6 +117,7 @@ Notes:
 - `compare_signal_ctx(lhs, rhs, ctx)` has the same numeric result shape as
   `compare_ctx`, but any NaN operand sets `invalid_operation`.
 - `clamp` aborts if the bounds are unordered or `NaN`.
+- `clamp_checked` returns a structured domain error for those invalid bounds.
 - The shared `Sign` observer still returns `Zero` for finite zero values,
   including negative zero. Use `is_negative_zero()` when the sign of zero is
   semantically relevant.
@@ -116,6 +132,10 @@ Notes:
   observers when representation-level distinction matters.
 
 ## Arithmetic and Conversion
+
+## When To Use Context APIs
+
+Prefer `*_ctx` for GDA workflows; convenience operators intentionally discard `DecimalFlags`.
 
 - `neg`
 - `abs`
@@ -255,6 +275,7 @@ Conversion notes:
 ## Context And Flags
 
 - `DecimalContext::new`
+- `DecimalContext::try_new`
 - `DecimalContext::exact`
 - `DecimalContext::decimal32`
 - `DecimalContext::decimal64`
@@ -291,8 +312,8 @@ arithmetic without extra configuration. Use
 subset behavior is required, including operand reduction, `lost_digits`, zero
 and cohort cleanup, and classic transcendental rounding.
 
-The exponent-bound implementation is a GDA baseline rather than full
-conformance. Results above `e_max` currently produce an infinity and set
+The exponent-bound implementation follows the GDA baseline rules and is
+covered by the legal-row conformance run. Results above `e_max` produce an infinity and set
 `overflow`, `rounded`, and `inexact`. Exact results below `e_min` set
 `subnormal`; inexact subnormal results also set `underflow`. Clamp mode can pad
 the coefficient with trailing zeros and lower the exponent while preserving the
@@ -320,9 +341,9 @@ propagation, infinite-base non-integer sign/domain cases, infinite-exponent
 limit cases, finite positive non-integer powers, finite non-integer
 operand-range invalid rows, and finite power-of-ten bases whose large integer
 exponents force overflow or half-even underflow to zero. It also reports the
-official math-function `Invalid_context` restriction rows. The remaining
-conformance gap is diagnostic interchange/non-scalar coverage rather than a
-non-diagnostic scalar `power` subset.
+official math-function `Invalid_context` restriction rows. The only excluded
+corpus rows are diagnostic `#` interchange/non-scalar placeholders; there is no
+non-diagnostic scalar `power` gap.
 
 `log10_ctx` is the context-aware GDA base-10 logarithm entry point. It uses the
 fixed-point logarithm baseline, preserves NaN sign/payload quieting, maps
@@ -386,6 +407,10 @@ informational flags.
 
 ## Trait Surface
 
+## Documentation Boundary
+
+The public inventory is generated from the package interface; implementation kernels and benchmark thresholds remain private.
+
 `Decimal` currently implements:
 
 - `@def.Floating`
@@ -414,7 +439,7 @@ Behavior note:
 
 ## Public Inventory Addendum
 
-`DecCoeff` provides `from_bigint`, `to_bigint`, `digits10`, `is_zero`, and
-`to_string`. Additional public entry points that must remain visible in the
-generated interface are `Decimal::{from_string_ctx,parse,apply_ctx,div_checked,compare_checked,compare_total_ctx,compare_total_magnitude_ctx}`
+`DecCoeff` is package-private; the public representation boundary is `BigInt`.
+Additional public entry points that must remain visible in the generated
+interface are `Decimal::{from_string_ctx,parse,apply_ctx,div_checked,compare_checked,compare_total_ctx,compare_total_magnitude_ctx}`
 and `DecimalInterchange::to_decimal_ctx`.

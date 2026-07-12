@@ -1,7 +1,8 @@
 # Decimal Architecture Research
 
-This note records the implemented boundary and remaining research questions for
-the **`0.4.0`** Decimal architecture. It is not a promise of future APIs. The
+This historical note records research around the Decimal architecture introduced
+in **`0.4.0`**. It is not the `0.5.0` capability contract or a promise of future
+APIs. The
 generated interface and [API reference](./api.md) define the public surface.
 
 ## Implemented Baseline
