@@ -39,7 +39,7 @@ jobs:
       - name: documentation
         run: |
           python3 tools/doc_quality.py
-          sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn --frozen
+          sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn
 
       - name: format
         run: sh tools/run_moon_clean_exec.sh fmt --check

@@ -26,7 +26,7 @@ build:
 
 docs:
     @python3 tools/doc_quality.py
-    @sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn --frozen
+    @sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn
 
 # Run the fast pull-request gate.
 pr jobs='':
