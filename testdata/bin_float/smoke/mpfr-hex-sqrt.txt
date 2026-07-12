@@ -1,0 +1,4 @@
+# Small exact hexadecimal sqrt witnesses in MPFR data_check syntax.
+53 53 n 0x0p0 0x0p0
+53 53 n 0x1p0 0x1p0
+53 53 n 0x1p2 0x1p1

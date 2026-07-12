@@ -170,13 +170,13 @@ pub fn Decimal::sign(self : Decimal) -> Sign {
 }
 
 ///|
-pub fn Decimal::coefficient(self : Decimal) -> DecCoeff {
-  self.coefficient
+pub fn Decimal::coefficient(self : Decimal) -> BigInt {
+  self.coefficient.to_bigint()
 }
 
 ///|
-pub fn Decimal::magnitude(self : Decimal) -> DecCoeff {
-  self.coefficient
+pub fn Decimal::magnitude(self : Decimal) -> BigInt {
+  self.coefficient.to_bigint()
 }
 
 ///|

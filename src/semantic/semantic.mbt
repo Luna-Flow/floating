@@ -1,7 +1,6 @@
 ///|
 pub struct ExactRational {
-  numerator : BigInt
-  denominator : BigInt
+  priv inner : @internal.ExactRat
 } derive(Eq)
 
 ///|
@@ -34,41 +33,6 @@ pub(all) enum SemanticResult[T] {
 } derive(Eq)
 
 ///|
-fn bigint_zero() -> BigInt {
-  BigInt::from_int(0)
-}
-
-///|
-fn bigint_one() -> BigInt {
-  BigInt::from_int(1)
-}
-
-///|
-fn bigint_abs(x : BigInt) -> BigInt {
-  if x < bigint_zero() {
-    -x
-  } else {
-    x
-  }
-}
-
-///|
-fn gcd(a : BigInt, b : BigInt) -> BigInt {
-  let mut x = bigint_abs(a)
-  let mut y = bigint_abs(b)
-  while !y.is_zero() {
-    let r = x % y
-    x = y
-    y = r
-  }
-  if x.is_zero() {
-    bigint_one()
-  } else {
-    x
-  }
-}
-
-///|
 fn pow_bigint(base : Int, exponent : Int) -> BigInt {
   guard exponent >= 0 else {
     abort("semantic scale exponent must be non-negative")
@@ -81,19 +45,17 @@ pub fn ExactRational::new(
   numerator : BigInt,
   denominator : BigInt,
 ) -> ExactRational {
-  guard !denominator.is_zero() else {
-    abort("exact rational denominator must be non-zero")
-  }
-  let (num0, den0) = if denominator < bigint_zero() {
-    (-numerator, -denominator)
-  } else {
-    (numerator, denominator)
-  }
-  if num0.is_zero() {
-    return { numerator: bigint_zero(), denominator: bigint_one() }
-  }
-  let factor = gcd(num0, den0)
-  { numerator: num0 / factor, denominator: den0 / factor }
+  { inner: @internal.ExactRat::new(numerator, denominator) }
+}
+
+///|
+pub fn ExactRational::numerator(self : ExactRational) -> BigInt {
+  self.inner.numerator()
+}
+
+///|
+pub fn ExactRational::denominator(self : ExactRational) -> BigInt {
+  self.inner.denominator()
 }
 
 ///|
@@ -104,7 +66,7 @@ pub fn ExactRational::from_scaled_integer(
 ) -> ExactRational {
   guard radix > 1 else { abort("semantic radix must be greater than one") }
   if exponent >= 0 {
-    ExactRational::new(significand * pow_bigint(radix, exponent), bigint_one())
+    ExactRational::new(significand * pow_bigint(radix, exponent), 1N)
   } else {
     ExactRational::new(significand, pow_bigint(radix, -exponent))
   }
@@ -132,28 +94,25 @@ pub fn SemanticScalar::from_bin_float(
   x : @bin_float.BinFloat,
 ) -> SemanticScalar {
   match x.classify() {
-    @arithmetic.FpClass::Finite =>
-      Rational(
-        ExactRational::from_scaled_integer(x.significand(), 2, x.exponent2()),
-      )
-    @arithmetic.FpClass::Infinity => Infinity(x.sign())
-    @arithmetic.FpClass::NaN => NaN
+    @lf_arith.FpClass::Finite => {
+      let magnitude = BigInt::from_octets(x.coefficient().to_bytes_be())
+      let signed = if x.is_negative() { -magnitude } else { magnitude }
+      Rational(ExactRational::from_scaled_integer(signed, 2, x.exponent2()))
+    }
+    @lf_arith.FpClass::Infinity => Infinity(x.sign())
+    @lf_arith.FpClass::NaN => NaN
   }
 }
 
 ///|
 pub fn SemanticScalar::from_decimal(x : @decimal.Decimal) -> SemanticScalar {
   match x.classify() {
-    @arithmetic.FpClass::Finite =>
+    @lf_arith.FpClass::Finite =>
       Rational(
-        ExactRational::from_scaled_integer(
-          x.coefficient().to_bigint(),
-          10,
-          x.exponent10(),
-        ),
+        ExactRational::from_scaled_integer(x.coefficient(), 10, x.exponent10()),
       )
-    @arithmetic.FpClass::Infinity => Infinity(x.sign())
-    @arithmetic.FpClass::NaN => NaN
+    @lf_arith.FpClass::Infinity => Infinity(x.sign())
+    @lf_arith.FpClass::NaN => NaN
   }
 }
 

@@ -342,3 +342,20 @@ pub fn Decimal::clamp(
     self
   }
 }
+
+///|
+pub fn Decimal::clamp_checked(
+  self : Decimal,
+  min~ : Decimal,
+  max~ : Decimal,
+) -> Result[Decimal, @def.ArithmeticError] {
+  guard min.classify() != FpClass::NaN && max.classify() != FpClass::NaN else {
+    return Err(
+      @def.ArithmeticError::domain_error("clamp bounds must be ordered values"),
+    )
+  }
+  guard min.compare(max) <= 0 else {
+    return Err(@def.ArithmeticError::domain_error("min must not exceed max"))
+  }
+  Ok(self.clamp(min~, max~))
+}

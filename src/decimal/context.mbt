@@ -38,13 +38,13 @@ pub struct DecimalInterchange {
 
 ///|
 pub struct DecimalContext {
-  precision : Int
-  rounding : RoundingMode
-  decimal_rounding : DecimalRoundingMode
-  e_min : Int
-  e_max : Int
-  clamp : Bool
-  extended : Bool
+  priv precision : Int
+  priv rounding : RoundingMode
+  priv decimal_rounding : DecimalRoundingMode
+  priv e_min : Int
+  priv e_max : Int
+  priv clamp : Bool
+  priv extended : Bool
 } derive(Eq)
 
 ///|
@@ -165,6 +165,74 @@ pub fn DecimalContext::new(
     None => DecimalRoundingMode::from_arithmetic(rounding)
   }
   { precision, rounding, decimal_rounding, e_min, e_max, clamp, extended }
+}
+
+///|
+pub fn DecimalContext::try_new(
+  precision? : Int = 34,
+  rounding? : RoundingMode = RoundingMode::ToNearestEven,
+  decimal_rounding? : DecimalRoundingMode,
+  e_min? : Int = -999_999_999,
+  e_max? : Int = 999_999_999,
+  clamp? : Bool = false,
+  extended? : Bool = true,
+) -> Result[DecimalContext, @def.ArithmeticError] {
+  guard precision >= 0 else {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "DecimalContext::try_new: precision must be non-negative",
+      ),
+    )
+  }
+  guard e_min <= e_max else {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "DecimalContext::try_new: e_min must not exceed e_max",
+      ),
+    )
+  }
+  let decimal_rounding = match decimal_rounding {
+    Some(mode) => mode
+    None => DecimalRoundingMode::from_arithmetic(rounding)
+  }
+  Ok({ precision, rounding, decimal_rounding, e_min, e_max, clamp, extended })
+}
+
+///|
+pub fn DecimalContext::precision(self : DecimalContext) -> Int {
+  self.precision
+}
+
+///|
+pub fn DecimalContext::rounding(self : DecimalContext) -> RoundingMode {
+  self.rounding
+}
+
+///|
+pub fn DecimalContext::decimal_rounding(
+  self : DecimalContext,
+) -> DecimalRoundingMode {
+  self.decimal_rounding
+}
+
+///|
+pub fn DecimalContext::e_min(self : DecimalContext) -> Int {
+  self.e_min
+}
+
+///|
+pub fn DecimalContext::e_max(self : DecimalContext) -> Int {
+  self.e_max
+}
+
+///|
+pub fn DecimalContext::clamp(self : DecimalContext) -> Bool {
+  self.clamp
+}
+
+///|
+pub fn DecimalContext::extended(self : DecimalContext) -> Bool {
+  self.extended
 }
 
 ///|

@@ -30,6 +30,10 @@ pub fn remove_factor10(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
 
 pub fn remove_factor2(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
 
+pub fn[A, B, E, C] result_lift2(Result[A, E], Result[B, E], (A, B) -> C) -> Result[C, E]
+
+pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Result[C, E]) -> Result[C, E]
+
 pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
 pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
@@ -43,6 +47,12 @@ pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bi
 // Errors
 
 // Types and methods
+pub struct ExactRat {
+  // private fields
+} derive(Eq)
+pub fn ExactRat::denominator(Self) -> @bigint.BigInt
+pub fn ExactRat::new(@bigint.BigInt, @bigint.BigInt) -> Self
+pub fn ExactRat::numerator(Self) -> @bigint.BigInt
 
 // Type aliases
 

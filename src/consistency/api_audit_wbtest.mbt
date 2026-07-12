@@ -1,7 +1,7 @@
 ///|
-let audit_ctx : @arithmetic.ArithmeticContext = @arithmetic.ArithmeticContext::new(
+let audit_ctx : @lf_arith.ArithmeticContext = @lf_arith.ArithmeticContext::new(
   12,
-  rounding=@arithmetic.RoundingMode::TowardPositive,
+  rounding=@lf_arith.RoundingMode::TowardPositive,
 )
 
 ///|
@@ -11,7 +11,7 @@ test "def predicates classify finite nan and enclosing zero consistently" {
   let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=8)
   let straddle = @ball_float.BallFloat::new(
     @bin_float.BinFloat::zero(precision=8),
-    @bin_float.BinFloat::make(1N, -2, 8),
+    binary_test_make(1N, -2, 8),
     precision=8,
   )
   assert_true(@def.is_finite(finite))
@@ -28,7 +28,7 @@ test "internal rounding helpers honor tie and directed modes" {
       5N,
       2N,
       false,
-      @arithmetic.RoundingMode::ToNearestEven,
+      @lf_arith.RoundingMode::ToNearestEven,
     ).to_string(),
     "2",
   )
@@ -37,7 +37,7 @@ test "internal rounding helpers honor tie and directed modes" {
       7N,
       2N,
       false,
-      @arithmetic.RoundingMode::ToNearestEven,
+      @lf_arith.RoundingMode::ToNearestEven,
     ).to_string(),
     "4",
   )
@@ -46,7 +46,7 @@ test "internal rounding helpers honor tie and directed modes" {
       3N,
       2N,
       false,
-      @arithmetic.RoundingMode::TowardZero,
+      @lf_arith.RoundingMode::TowardZero,
     ).to_string(),
     "1",
   )
@@ -55,12 +55,12 @@ test "internal rounding helpers honor tie and directed modes" {
       3N,
       2N,
       true,
-      @arithmetic.RoundingMode::TowardNegative,
+      @lf_arith.RoundingMode::TowardNegative,
     ).to_string(),
     "2",
   )
   assert_eq(
-    @internal.round_shift(7N, 1, false, @arithmetic.RoundingMode::AwayFromZero).to_string(),
+    @internal.round_shift(7N, 1, false, @lf_arith.RoundingMode::AwayFromZero).to_string(),
     "4",
   )
   assert_eq(@internal.compare_abs(-3N, 2N), 1)
@@ -98,12 +98,12 @@ test "internal decimal parser accepts scientific notation and rejects malformed 
 
 ///|
 test "context and parse error types are exposed" {
-  let ctx = @arithmetic.ArithmeticContext::new(
+  let ctx = @lf_arith.ArithmeticContext::new(
     7,
-    rounding=@arithmetic.RoundingMode::TowardPositive,
+    rounding=@lf_arith.RoundingMode::TowardPositive,
   )
   assert_eq(ctx.precision, 7)
-  assert_true(ctx.rounding == @arithmetic.RoundingMode::TowardPositive)
+  assert_true(ctx.rounding == @lf_arith.RoundingMode::TowardPositive)
   let result = @decimal.Decimal::parse("bad", precision=10)
   match result {
     Ok(_) => fail("expected parse error")
@@ -342,7 +342,7 @@ test "decimal interchange facade decodes specials through to_decimal" {
   let qnan = neg_qnan.to_decimal()
   let snan = neg_snan.to_decimal()
 
-  assert_true(inf.classify() == @arithmetic.FpClass::Infinity)
+  assert_true(inf.classify() == @lf_arith.FpClass::Infinity)
   assert_false(inf.is_negative())
   assert_true(qnan.is_qnan())
   assert_true(qnan.is_negative())
@@ -678,8 +678,8 @@ test "bin_float checked compare rejects nan" {
 
 ///|
 test "bin_float low precision rounding and ulp stay explicit" {
-  let x = @bin_float.BinFloat::make(13N, -3, 8)
-  let rounded = x.with_precision(2, @arithmetic.RoundingMode::ToNearestEven)
+  let x = binary_test_make(13N, -3, 8)
+  let rounded = x.with_precision(2, @lf_arith.RoundingMode::ToNearestEven)
   assert_eq(rounded.to_string(), "3p-1")
   assert_eq(rounded.ulp().to_string(), "1p-1")
   assert_eq(@bin_float.BinFloat::zero(precision=4).ulp().to_string(), "1p-3")
@@ -687,7 +687,7 @@ test "bin_float low precision rounding and ulp stay explicit" {
 
 ///|
 test "checked trait helpers are usable through arithmetic boundary" {
-  let parsed : Result[@decimal.Decimal, @arithmetic.ArithmeticError] = @arithmetic.ParseChecked::parse_checked(
+  let parsed : Result[@decimal.Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
     "12.5", audit_ctx,
   )
   match parsed {
@@ -695,7 +695,7 @@ test "checked trait helpers are usable through arithmetic boundary" {
     Err(_) => fail("expected checked parse to succeed")
   }
   match
-    @arithmetic.DivChecked::div_checked(
+    @lf_arith.DivChecked::div_checked(
       @decimal.Decimal::from_int(7, precision=6),
       @decimal.Decimal::from_int(2, precision=6),
       audit_ctx,
@@ -711,7 +711,7 @@ test "semantic scalar interpretation unifies binary and decimal rationals" {
     @semantic.ExactRational::new(3N, 2N),
   )
   let binary = @semantic.SemanticScalar::from_bin_float(
-    @bin_float.BinFloat::make(3N, -1, 16),
+    binary_test_make(3N, -1, 16),
   )
   let decimal = @semantic.SemanticScalar::from_decimal(
     @decimal.Decimal::from_string("1.50", precision=16).unwrap(),
@@ -737,8 +737,8 @@ test "semantic result interpretation totalizes checked failures" {
 ///|
 test "semantic interval interpretation preserves ball bounds" {
   let ball = @ball_float.BallFloat::from_bounds(
-    @bin_float.BinFloat::make(1N, -1, 16),
-    @bin_float.BinFloat::make(3N, -1, 16),
+    binary_test_make(1N, -1, 16),
+    binary_test_make(3N, -1, 16),
     precision=16,
   )
   let interval = @semantic.SemanticInterval::from_ball_float(ball)

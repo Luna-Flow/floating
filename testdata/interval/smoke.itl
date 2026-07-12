@@ -1,0 +1,19 @@
+/* Minimal committed IEEE 1788 smoke corpus. */
+testcase smoke_set_operations {
+    intersection [1.0,3.0] [2.0,4.0] = [2.0,3.0];
+    intersection [1.0,3.0] [empty] = [empty];
+    convexHull [1.0,3.0] [2.0,4.0] = [1.0,4.0];
+    convexHull [empty] [empty] = [empty];
+}
+
+testcase smoke_decorated_operations {
+    intersection [1.0,3.0]_com [2.0,4.0]_com = [2.0,3.0]_trv;
+    convexHull [1.0,3.0]_trv [entire]_def = [entire]_trv;
+}
+
+testcase smoke_arithmetic {
+    add [1.0,2.0] [3.0,4.0] = [4.0,6.0];
+    sub [1.0,2.0] [3.0,4.0] = [-3.0,-1.0];
+    mul [1.0,2.0] [3.0,4.0] = [3.0,8.0];
+    div [2.0,4.0] [2.0,2.0] = [1.0,2.0];
+}

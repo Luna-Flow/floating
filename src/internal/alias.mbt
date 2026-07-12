@@ -1,5 +1,5 @@
 ///|
-using @arithmetic {type RoundingMode}
+using @lf_arith {type RoundingMode}
 
 ///|
 using @def {type Sign}

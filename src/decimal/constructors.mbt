@@ -119,15 +119,12 @@ pub fn Decimal::to_bin_float(
         return @bin_float.BinFloat::zero(precision~)
       }
       if self.exponent10 >= 0 {
-        let sig = if self.negative {
-          -coeff_bigint(self.coefficient)
-        } else {
-          coeff_bigint(self.coefficient)
-        }
+        let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
         return @bin_float.BinFloat::make(
-          sig * pow5(self.exponent10),
+          @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
           self.exponent10,
           precision,
+          negative=self.negative,
           mode~,
         )
       }
@@ -141,8 +138,13 @@ pub fn Decimal::to_bin_float(
         self.sign() == Sign::Negative,
         mode,
       )
-      let sig = if self.sign() == Sign::Negative { -q } else { q }
-      @bin_float.BinFloat::make(sig, -binary_shift, precision, mode~)
+      @bin_float.BinFloat::make(
+        @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
+        -binary_shift,
+        precision,
+        negative=self.sign() == Sign::Negative,
+        mode~,
+      )
     }
   }
 }
@@ -158,11 +160,15 @@ pub fn Decimal::from_bin_float(
     FpClass::Finite =>
       if x.is_zero() {
         Decimal::zero(precision~)
-      } else if x.exponent2() >= 0 {
-        Decimal::make(x.significand() << x.exponent2(), 0, precision)
       } else {
-        let k = -x.exponent2()
-        Decimal::make(x.significand() * pow5(k), -k, precision)
+        let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
+        let signed = if x.is_negative() { -coefficient } else { coefficient }
+        if x.exponent2() >= 0 {
+          Decimal::make(signed << x.exponent2(), 0, precision)
+        } else {
+          let k = -x.exponent2()
+          Decimal::make(signed * pow5(k), -k, precision)
+        }
       }
   }
 }

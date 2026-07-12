@@ -1,0 +1,5 @@
+import {
+  "Luna-Flow/floating/bin_float",
+  "moonbitlang/core/bench",
+  "moonbitlang/core/bigint",
+} for "test"

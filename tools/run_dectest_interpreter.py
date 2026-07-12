@@ -10,14 +10,15 @@ import sys
 import time
 from pathlib import Path
 
+from conformance_cli import build_backend, executable_path
+from conformance_ui import Console, Progress, SummaryRow, print_summary
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = REPO_ROOT / "testdata/decimal/interpreter_stages.json"
 DEFAULT_MANIFEST = REPO_ROOT / "testdata/decimal/corpora.json"
 DEFAULT_OUTPUT = REPO_ROOT / ".tmp/dectest-interpreter"
-DEFAULT_EXECUTABLE = (
-    REPO_ROOT / "_build/native/release/build/gda_expr_cli/gda_expr_cli.exe"
-)
+DEFAULT_EXECUTABLE = executable_path("gda")
 
 
 def load_json(path: Path) -> dict:
@@ -84,19 +85,8 @@ def plan_phases(config: dict, corpus: Path, selected: set[str]) -> list[dict]:
 
 
 def build_interpreter(executable: Path) -> None:
-    command = [
-        "sh",
-        "tools/run_moon_clean_exec.sh",
-        "run",
-        "--release",
-        "--target",
-        "native",
-        "--build-only",
-        "src/gda_expr_cli",
-    ]
-    result = subprocess.run(command, cwd=REPO_ROOT)
-    if result.returncode != 0:
-        raise RuntimeError("failed to build GDA interpreter")
+    if executable == DEFAULT_EXECUTABLE:
+        build_backend("gda")
     if not executable.is_file():
         raise RuntimeError(f"interpreter executable was not produced: {executable}")
 
@@ -111,6 +101,8 @@ def worker_command(
 ) -> list[str]:
     command = [
         str(executable),
+        "--backend",
+        "gda",
         "--json",
         "--shard-count",
         str(shard_count),
@@ -223,27 +215,36 @@ def aggregate_run(
 
 
 def print_text(report: dict) -> None:
-    print("GDA interpreter staged execution")
-    for phase in report["phases"]:
-        print(
-            f"phase {phase['name']}: files {phase['files']}, "
-            f"passed {phase['passedCases']}/{phase['executableCases']}, "
-            f"failed {phase['failedCases']}, skipped {phase['skippedCases']}, "
-            f"shards {phase['shards']}, elapsed {phase['elapsedSeconds']:.1f}s"
+    strict = report.get("strictSupported", False)
+    rows = [
+        SummaryRow(
+            phase["name"],
+            phase["passedCases"],
+            phase["executableCases"],
+            phase["failedCases"]
+            + (phase["unsupportedCases"] + phase["legacyConditionCases"] if strict else 0),
+            f"{phase['files']} files · {phase['skippedCases']} skipped",
         )
+        for phase in report["phases"]
+    ]
     summary = report["summary"]
-    print(
-        f"total: files {summary['files']}, passed {summary['passedCases']}/"
-        f"{summary['executableCases']}, failed {summary['failedCases']}, "
-        f"skipped {summary['skippedCases']}, elapsed {summary['elapsedSeconds']:.1f}s"
+    print_summary(
+        "DECIMAL · GDA decTest",
+        f"official corpus={report['corpus']['name']}",
+        rows,
+        summary["passedCases"],
+        summary["executableCases"],
+        summary["failedCases"]
+        + (summary["unsupportedCases"] + summary["legacyConditionCases"] if strict else 0),
+        summary["elapsedSeconds"],
+        summary["failedIds"],
     )
-    if summary["failedIds"]:
-        print("failed ids: " + ", ".join(summary["failedIds"]))
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    arguments = sys.argv[1:] if argv is None else argv
     normalized_args = []
-    for argument in sys.argv[1:]:
+    for argument in arguments:
         if argument.startswith("jobs="):
             normalized_args.extend(["--jobs", argument.removeprefix("jobs=")])
         elif argument.startswith("corpus="):
@@ -263,6 +264,7 @@ def main() -> int:
     parser.add_argument("--cases", default="")
     parser.add_argument("--strict-supported", action="store_true")
     parser.add_argument("--fetch", action="store_true")
+    parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--plan", action="store_true")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
@@ -272,13 +274,39 @@ def main() -> int:
     try:
         if args.jobs <= 0:
             raise ValueError("--jobs must be positive")
+        if args.smoke:
+            if args.fetch:
+                raise ValueError("--fetch cannot be combined with --smoke")
+            executable = args.interpreter.resolve()
+            if not args.no_build:
+                build_interpreter(executable)
+            elif not executable.is_file():
+                raise FileNotFoundError(
+                    f"interpreter executable is missing: {executable}"
+                )
+            command = [str(executable), "--backend", "gda"]
+            if args.json:
+                command.append("--json")
+            if args.strict_supported:
+                command.append("--strict-supported")
+            if args.cases:
+                command.extend(("--cases", args.cases))
+            command.append(str(REPO_ROOT / "testdata/decimal/smoke.decTest"))
+            return subprocess.run(command, cwd=REPO_ROOT).returncode
         config = load_json(args.config.resolve())
         manifest = load_json(args.manifest.resolve())
         corpus_name, corpus = resolve_corpus(config, manifest, args.corpus)
         corpus_spec = manifest["corpora"][corpus_name]
         if args.fetch or not installed_corpus_ready(corpus, corpus_spec):
             result = subprocess.run(
-                [sys.executable, "tools/fetch_decimal_corpora.py", corpus_name],
+                [
+                    sys.executable,
+                    "tools/conformance.py",
+                    "fetch",
+                    "--backend",
+                    "decimal",
+                    corpus_name,
+                ],
                 cwd=REPO_ROOT,
             )
             if result.returncode != 0:
@@ -313,12 +341,11 @@ def main() -> int:
             if not files:
                 continue
             shard_count = args.jobs
-            print(
-                f"running phase {phase['name']}: {len(files)} files across {shard_count} processes",
-                file=sys.stderr,
+            phase_progress = Progress(
+                f"decimal/{phase['name']}", shard_count, Console()
             )
             with concurrent.futures.ThreadPoolExecutor(max_workers=shard_count) as pool:
-                futures = [
+                future_map = {
                     pool.submit(
                         run_worker,
                         phase["name"],
@@ -329,17 +356,23 @@ def main() -> int:
                         args.cases,
                         args.strict_supported,
                         output_dir,
-                    )
+                    ): shard_index
                     for shard_index in range(shard_count)
-                ]
-                shards = [future.result() for future in futures]
+                }
+                shards = [None] * shard_count
+                for future in concurrent.futures.as_completed(future_map):
+                    shard_index = future_map[future]
+                    shards[shard_index] = future.result()
+                    phase_progress.advance(f"shard {shard_index + 1}")
             phase_report = aggregate_phase(phase["name"], files, shards)
+            phase_failed = phase_report["failedCases"] != 0
+            if args.strict_supported:
+                phase_failed = phase_failed or (
+                    phase_report["unsupportedCases"] != 0
+                    or phase_report["legacyConditionCases"] != 0
+                )
+            phase_progress.finish(not phase_failed)
             phase_reports.append(phase_report)
-            print(
-                f"finished phase {phase['name']}: {phase_report['passedCases']}/"
-                f"{phase_report['executableCases']} passed",
-                file=sys.stderr,
-            )
         report = aggregate_run(
             phase_reports,
             time.monotonic() - started,
@@ -347,6 +380,7 @@ def main() -> int:
             corpus_spec,
             args.jobs,
         )
+        report["strictSupported"] = args.strict_supported
         report_path = output_dir / "summary.json"
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
         if args.json:

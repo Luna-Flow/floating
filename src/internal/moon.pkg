@@ -1,6 +1,10 @@
 import {
-  "Luna-Flow/arithmetic",
+  "Luna-Flow/arithmetic" @lf_arith,
   "moonbitlang/core/bigint",
   "moonbitlang/core/debug",
   "Luna-Flow/floating/def",
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "wbtest"

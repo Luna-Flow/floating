@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "artifacts": {
+    "softfloat-3e": {
+      "kind": "zip",
+      "url": "https://www.jhauser.us/arithmetic/SoftFloat-3e.zip",
+      "sha256": "21130ce885d35c1fe73fc1e1bf2244178167e05c6747cad5f450cc991714c746",
+      "archive": ".tmp/binfloat-conformance/downloads/SoftFloat-3e.zip",
+      "destination": ".tmp/binfloat-conformance/vendor/SoftFloat-3e",
+      "root": "SoftFloat-3e"
+    },
+    "testfloat-3e": {
+      "kind": "zip",
+      "url": "https://www.jhauser.us/arithmetic/TestFloat-3e.zip",
+      "sha256": "6d4bdf0096b48a653aa59fc203a9e5fe18b5a58d7a1b715107c7146776a0aad6",
+      "archive": ".tmp/binfloat-conformance/downloads/TestFloat-3e.zip",
+      "destination": ".tmp/binfloat-conformance/vendor/TestFloat-3e",
+      "root": "TestFloat-3e"
+    },
+    "mpfr-4.2.2-sqrt": {
+      "kind": "file",
+      "url": "https://gitlab.inria.fr/mpfr/mpfr/-/raw/eaa57b856d814af32f97d5e5eb129fb986235323/tests/data/sqrt",
+      "sha256": "c9baa569b7b5c91d07a528e722b92871d80deac05cb24b97359555801ab470be",
+      "destination": ".tmp/binfloat-conformance/mpfr-4.2.2/sqrt",
+      "expectedExecutableRows": 1055
+    }
+  }
+}

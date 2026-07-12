@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "corpora": {
+    "itf1788": {
+      "url": "https://github.com/nehmeier/ITF1788/archive/e0e0d7e7335e261e0dff547d15f2bfd3d1a612fa.zip",
+      "revision": "e0e0d7e7335e261e0dff547d15f2bfd3d1a612fa",
+      "license": "Apache-2.0",
+      "archive": "testdata/interval/itf1788.zip",
+      "destination": "testdata/interval/itf1788",
+      "sha256": "3d1ddd6277e7b0e53d85c60dd925862985037d8bbb2f0a89349c967797e74feb",
+      "expectedItlFiles": 12
+    }
+  }
+}

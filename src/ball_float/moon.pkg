@@ -1,9 +1,9 @@
 import {
-  "Luna-Flow/arithmetic",
-  "Luna-Flow/luna-generic" @lg,
-  "moonbitlang/core/bigint",
-  "moonbitlang/core/string",
+  "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/bin_float",
-  "Luna-Flow/floating/internal",
 }
+
+import {
+  "moonbitlang/core/bigint",
+} for "wbtest"

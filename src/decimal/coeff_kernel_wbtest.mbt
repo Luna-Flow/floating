@@ -345,6 +345,110 @@ test "decimal decNumber-style coefficient divide returns quotient and residue" {
 }
 
 ///|
+test "optimized decimal coefficient primitives match BigInt boundaries" {
+  let boundaries : Array[BigInt] = [
+    0N, 1N, 2N, 9N, 10N, 99N, 999N, 1000N, 1001N, 999999N, 1000000N, 1000001N, 999999999N,
+    1000000000N, 1000000001N, 999999999999999999N, 1000000000000000000N, 1000000000000000001N,
+    9999999999999999999999999999999999N, 10000000000000000000000000000000000N,
+  ]
+  for left_bigint in boundaries {
+    let left = dec_coeff_from_bigint_repr(left_bigint)
+    for right_bigint in boundaries {
+      let right = dec_coeff_from_bigint_repr(right_bigint)
+      let sum = dec_coeff_magnitude_add_repr(left, right)
+      assert_eq(sum.to_bigint(), left_bigint + right_bigint)
+      assert_eq(sum.units.length(), dec_coeff_unit_len(sum))
+      let product = dec_coeff_multiply_repr(left, right)
+      assert_eq(product.to_bigint(), left_bigint * right_bigint)
+      if left_bigint >= right_bigint {
+        let difference = dec_coeff_magnitude_sub_repr(left, right)
+        assert_eq(difference.to_bigint(), left_bigint - right_bigint)
+        assert_eq(difference.units.length(), dec_coeff_unit_len(difference))
+      }
+      if !right_bigint.is_zero() {
+        let (quotient, remainder) = dec_coeff_div_rem_repr(left, right)
+        assert_eq(quotient.to_bigint(), left_bigint / right_bigint)
+        assert_eq(remainder.to_bigint(), left_bigint % right_bigint)
+      }
+    }
+  }
+}
+
+///|
+test "optimized decimal coefficient primitives match deterministic BigInt matrix" {
+  let modulus = pow10(120) - 159N
+  let mut left_state = 123456789N
+  let mut right_state = 987654321N
+  for index in 1..<97 {
+    let index_bigint = BigInt::from_int(index)
+    left_state = (left_state * 1000003N + index_bigint * 97N + 17N) % modulus
+    right_state = (right_state * 1000033N + index_bigint * 193N + 29N) % modulus
+    let divisor_bigint = right_state + 1N
+    let decimal_shift = index % 37
+    let numerator_bigint = left_state * pow10(decimal_shift) + right_state
+    let left = dec_coeff_from_bigint_repr(left_state)
+    let right = dec_coeff_from_bigint_repr(right_state)
+    let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
+    let divisor = dec_coeff_from_bigint_repr(divisor_bigint)
+    assert_eq(
+      dec_coeff_magnitude_add_repr(left, right).to_bigint(),
+      left_state + right_state,
+    )
+    assert_eq(
+      dec_coeff_multiply_repr(left, right).to_bigint(),
+      left_state * right_state,
+    )
+    let (quotient, remainder) = dec_coeff_div_rem_repr(numerator, divisor)
+    assert_eq(quotient.to_bigint(), numerator_bigint / divisor_bigint)
+    assert_eq(remainder.to_bigint(), numerator_bigint % divisor_bigint)
+    assert_true(dec_coeff_compare_repr(remainder, divisor) < 0)
+  }
+}
+
+///|
+test "optimized decimal coefficient single-unit division matches BigInt" {
+  let numerator_bigint = pow10(180) - 123456789N
+  let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
+  for divisor in [1, 2, 3, 5, 7, 10, 97, 499, 998, 999] {
+    let divisor_bigint = BigInt::from_int(divisor)
+    let (quotient, remainder) = dec_coeff_div_rem_repr(
+      numerator,
+      dec_coeff_from_int(divisor),
+    )
+    assert_eq(quotient.to_bigint(), numerator_bigint / divisor_bigint)
+    assert_eq(remainder.to_bigint(), numerator_bigint % divisor_bigint)
+  }
+}
+
+///|
+test "optimized decimal coefficient quotient estimate matches constructed cases" {
+  let denominators : Array[BigInt] = [
+    1000N, 1001N, 1999N, 500999N, 999999N, 1000001N, 999999937N, 999999999N, 1000000000N,
+    1000000001N, 999999999999999999N, 1000000000000000000N, 1000000000000000001N,
+    100000000000000000000000000003N,
+  ]
+  let quotients : Array[BigInt] = [
+    1N, 2N, 499N, 998N, 999N, 1000N, 1001N, 499999N, 999999N, 1000000N, 999999999999999999N,
+  ]
+  for denominator_bigint in denominators {
+    let denominator = dec_coeff_from_bigint_repr(denominator_bigint)
+    let remainders = [0N, 1N, denominator_bigint / 2N, denominator_bigint - 1N]
+    for expected_quotient in quotients {
+      for expected_remainder in remainders {
+        let numerator_bigint = denominator_bigint * expected_quotient +
+          expected_remainder
+        let (quotient, remainder) = dec_coeff_div_rem_repr(
+          dec_coeff_from_bigint_repr(numerator_bigint),
+          denominator,
+        )
+        assert_eq(quotient.to_bigint(), expected_quotient)
+        assert_eq(remainder.to_bigint(), expected_remainder)
+      }
+    }
+  }
+}
+
+///|
 test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
   let numerator = dec_coeff_from_bigint_repr(125N)
   let denominator = dec_coeff_from_bigint_repr(10N)

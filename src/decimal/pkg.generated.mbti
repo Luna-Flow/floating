@@ -14,15 +14,6 @@ import {
 // Errors
 
 // Types and methods
-pub struct DecCoeff {
-  // private fields
-}
-pub fn DecCoeff::digits10(Self) -> Int
-pub fn DecCoeff::from_bigint(@bigint.BigInt) -> Self
-pub fn DecCoeff::is_zero(Self) -> Bool
-pub fn DecCoeff::to_bigint(Self) -> @bigint.BigInt
-pub fn DecCoeff::to_string(Self) -> String
-
 pub struct Decimal {
   // private fields
 }
@@ -32,9 +23,10 @@ pub fn Decimal::add(Self, Self) -> Self
 pub fn Decimal::add_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::class_name(Self, DecimalContext) -> String
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
-pub fn Decimal::coefficient(Self) -> DecCoeff
+pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::compare(Self, Self) -> Int
 pub fn Decimal::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
 pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -84,7 +76,7 @@ pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::magnitude(Self) -> DecCoeff
+pub fn Decimal::magnitude(Self) -> @bigint.BigInt
 pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -134,12 +126,20 @@ pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int) -> Self
+pub impl @arithmetic.AbsContextual for Decimal
+pub impl @arithmetic.AddContextual for Decimal
 pub impl @arithmetic.CompareChecked for Decimal
 pub impl @arithmetic.DivChecked for Decimal
+pub impl @arithmetic.DivContextual for Decimal
+pub impl @arithmetic.ExpContextual for Decimal
+pub impl @arithmetic.MulContextual for Decimal
+pub impl @arithmetic.NumericFormatContextual for Decimal
 pub impl @arithmetic.ParseChecked for Decimal
 pub impl @arithmetic.PowIntChecked for Decimal
 pub impl @arithmetic.PowNatChecked for Decimal
 pub impl @arithmetic.SqrtChecked for Decimal
+pub impl @arithmetic.SqrtContextual for Decimal
+pub impl @arithmetic.SubContextual for Decimal
 pub impl @def.Floating for Decimal
 pub impl @luna-generic.AddGroup for Decimal
 pub impl @luna-generic.AddMonoid for Decimal
@@ -160,20 +160,22 @@ pub impl Show for Decimal
 pub impl Sub for Decimal
 
 pub struct DecimalContext {
-  precision : Int
-  rounding : @arithmetic.RoundingMode
-  decimal_rounding : DecimalRoundingMode
-  e_min : Int
-  e_max : Int
-  clamp : Bool
-  extended : Bool
+  // private fields
 } derive(Eq)
+pub fn DecimalContext::clamp(Self) -> Bool
 pub fn DecimalContext::decimal128() -> Self
 pub fn DecimalContext::decimal32() -> Self
 pub fn DecimalContext::decimal64() -> Self
+pub fn DecimalContext::decimal_rounding(Self) -> DecimalRoundingMode
+pub fn DecimalContext::e_max(Self) -> Int
+pub fn DecimalContext::e_min(Self) -> Int
 pub fn DecimalContext::exact() -> Self
+pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
 pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Self
+pub fn DecimalContext::precision(Self) -> Int
+pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
+pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Result[Self, @arithmetic.ArithmeticError]
 
 pub struct DecimalFlags {
   inexact : Bool

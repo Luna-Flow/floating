@@ -19,23 +19,22 @@ just smoke
 just fetch
 just fetch official0
 just plan jobs=8
-just pr jobs=8
-just pr jobs=8 phase=arithmetic
-just pr jobs=8 --strict-supported --json
-just ci
+just decimal-ci 8
+just conformance run decimal jobs=8 phase=arithmetic
+just conformance run decimal jobs=8 --strict-supported --json
+just decimal-kernel-ci
 ```
 
 - `just smoke` runs the checked-in `smoke.decTest` fixture directly.
 - `just fetch` installs the current official corpus.
 - `just plan` prints the staged file assignment without executing cases.
-- `just pr` runs `moon check --target all`, refreshes interfaces with
-  `moon info`, then executes the selected corpus through the native interpreter.
-- `just ci` is intentionally separate and runs only a focused white-box test
-  file for pull-request automation.
+- `just decimal-ci` executes the selected corpus through the native interpreter.
+- `just pr` runs the complete repository gate; `just decimal-kernel-ci` runs the
+  focused Decimal white-box test file.
 
 Use `just smoke` while changing parser or interpreter wiring. Use a targeted
-`just pr` command while fixing Decimal semantics. Run plain `just pr` before
-opening or updating a pull request. Do not treat `just ci` as full validation;
+`just decimal-ci` command while fixing Decimal semantics. Run plain `just pr` before
+opening or updating a pull request. Do not treat `just decimal-kernel-ci` as full validation;
 it is deliberately a small and fast CI gate.
 
 ## Recommended Workflow
@@ -81,16 +80,16 @@ Case selectors are passed with `--cases`:
 
 ```sh
 # One exact case ID
-just pr phase=arithmetic --cases quax1010
+just conformance run decimal phase=arithmetic --cases quax1010
 
 # Several exact IDs, separated by commas
-just pr phase=arithmetic --cases quax1010,quax1013,quax1015
+just conformance run decimal phase=arithmetic --cases quax1010,quax1013,quax1015
 
 # Inclusive ID range
-just pr phase=arithmetic --cases quax1010..quax1015
+just conformance run decimal phase=arithmetic --cases quax1010..quax1015
 
 # Legacy corpus case
-just pr corpus=official0 phase=arithmetic --cases add011
+just conformance run decimal corpus=official0 phase=arithmetic --cases add011
 ```
 
 Selectors may be combined in one comma-separated expression, for example
@@ -105,10 +104,10 @@ unrelated phases and to make the intended operation family explicit.
 ### 4. Run one phase
 
 ```sh
-just pr phase=arithmetic jobs=8
-just pr phase=elementary jobs=4
-just pr phase=interchange jobs=4
-just pr phase=remaining jobs=8
+just conformance run decimal phase=arithmetic jobs=8
+just conformance run decimal phase=elementary jobs=4
+just conformance run decimal phase=interchange jobs=4
+just conformance run decimal phase=remaining jobs=8
 ```
 
 The configured phases are:
@@ -125,7 +124,7 @@ the short `phase=name` form is intended for one phase per `just` invocation.
 ### 5. Run the full pre-PR gate
 
 ```sh
-just pr jobs=8
+just decimal-ci 8
 ```
 
 The command stops at the first failed stage:
@@ -135,14 +134,17 @@ The command stops at the first failed stage:
 3. native interpreter build
 4. staged official-corpus execution
 
-Use `--strict-supported` when unsupported or legacy rows must also fail the run:
+Use `--strict-supported` as a guard against accidentally adding unsupported or
+legacy classifications; the pinned legal GDA corpus has none:
 
 ```sh
-just pr jobs=8 --strict-supported
+just conformance run decimal jobs=8 --strict-supported
 ```
 
-Without strict mode, semantic mismatches fail the run, while diagnostic,
-legacy-condition, and unsupported rows are counted and skipped.
+The only intentionally non-executable rows in the official corpus are `#`
+placeholder/non-scalar invalid inputs. They are classified as diagnostics and
+excluded from the legal GDA conformance denominator; every legal executable row
+must pass.
 
 ## Run One `.decTest` File Directly
 
@@ -150,11 +152,12 @@ Use the interpreter CLI when file isolation matters more than the standard
 pre-PR checks:
 
 ```sh
-sh tools/run_moon_clean_exec.sh run --release --target native src/gda_expr_cli -- \
+sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- \
+  --backend gda \
   testdata/decimal/official/quantize.decTest
 
-sh tools/run_moon_clean_exec.sh run --release --target native src/gda_expr_cli -- \
-  --cases quax1010..quax1015 --json \
+sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- \
+  --backend gda --cases quax1010..quax1015 --json \
   testdata/decimal/official/quantize.decTest
 ```
 
@@ -166,7 +169,7 @@ runs do not execute `moon check` or `moon info`; use `just pr` for the final gat
 CI intentionally runs only:
 
 ```sh
-just ci
+just decimal-kernel-ci
 ```
 
 That command executes `src/decimal/coeff_kernel_wbtest.mbt`. To reproduce one
@@ -206,12 +209,13 @@ The staged runner writes:
 - `.tmp/dectest-interpreter/<phase>/shard-NNN.json`: per-shard result and timing.
 - `failedIds`: case IDs that produced semantic mismatches.
 - counts for executable, passed, failed, skipped, diagnostic, legacy, and
-  unsupported cases.
+  unsupported cases. In the pinned corpus, diagnostic rows are only `#`
+  placeholders; legacy and unsupported counts are zero.
 
 Use JSON output when another tool needs to consume the result:
 
 ```sh
-just pr phase=arithmetic --cases quax1010..quax1015 --json
+just conformance run decimal phase=arithmetic --cases quax1010..quax1015 --json
 ```
 
 Interpret failures in this order:
@@ -220,11 +224,13 @@ Interpret failures in this order:
    no conformance case ran.
 2. Runner exit code `2` indicates setup, corpus, build, process, or JSON failure.
 3. Runner exit code `1` with `failedIds` indicates semantic case mismatches.
-4. Strict mode also returns `1` when legacy or unsupported cases remain.
+4. Strict mode returns `1` if a future change introduces legacy or unsupported
+   classifications; it does not turn invalid `#` placeholders into arithmetic
+   cases.
 5. Re-run failed IDs with `jobs=1`, one phase, and `--json` before changing code.
 
 Example focused rerun:
 
 ```sh
-just pr jobs=1 phase=arithmetic --cases quax1010,quax1013 --json
+just conformance run decimal jobs=1 phase=arithmetic --cases quax1010,quax1013 --json
 ```

@@ -1,0 +1,12 @@
+import {
+  "moonbitlang/core/string",
+  "moonbitlang/x/sys",
+  "Luna-Flow/floating/cli/gda_expr_cli",
+  "Luna-Flow/floating/cli/itl_expr_cli",
+  "Luna-Flow/floating/cli/mpfr_expr_cli",
+  "Luna-Flow/floating/cli/testfloat_expr_cli",
+}
+
+options(
+  "is-main": true,
+)

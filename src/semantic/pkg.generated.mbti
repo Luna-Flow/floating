@@ -19,11 +19,12 @@ pub fn[T] semantic_scalar_result(Result[T, @arithmetic.ArithmeticError], (T) -> 
 
 // Types and methods
 pub struct ExactRational {
-  numerator : @bigint.BigInt
-  denominator : @bigint.BigInt
+  // private fields
 } derive(Eq)
+pub fn ExactRational::denominator(Self) -> @bigint.BigInt
 pub fn ExactRational::from_scaled_integer(@bigint.BigInt, Int, Int) -> Self
 pub fn ExactRational::new(@bigint.BigInt, @bigint.BigInt) -> Self
+pub fn ExactRational::numerator(Self) -> @bigint.BigInt
 
 pub(all) enum SemanticError {
   DivisionByZero

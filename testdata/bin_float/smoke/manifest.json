@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "testfloat": [
+    {
+      "path": "testdata/bin_float/smoke/f16_add_rnear_even_after.testfloat",
+      "function": "f16_add",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_sub_rnear_even_after.testfloat",
+      "function": "f16_sub",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_mul_rnear_even_after.testfloat",
+      "function": "f16_mul",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_div_rnear_even_after.testfloat",
+      "function": "f16_div",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_sqrt_rnear_even_after.testfloat",
+      "function": "f16_sqrt",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    }
+  ],
+  "mpfr": [
+    {
+      "name": "mpfr-sqrt",
+      "path": "testdata/bin_float/smoke/mpfr-hex-sqrt.txt",
+      "expectedCases": 3
+    },
+    {
+      "name": "mpfr-pow-si",
+      "path": "testdata/bin_float/smoke/mpfr-pow-si.txt",
+      "expectedCases": 120
+    }
+  ]
+}

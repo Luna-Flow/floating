@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "corpus": "itf1788",
+  "phases": [
+    { "name": "sets", "include": ["libieeep1788_tests_set.itl"] },
+    { "name": "relations", "include": ["*bool.itl", "*overlap.itl"] },
+    {
+      "name": "observations",
+      "include": ["*num.itl"],
+      "operations": ["inf", "sup", "mid", "rad", "wid", "mag", "mig"]
+    },
+    {
+      "name": "cancellation",
+      "include": ["*cancel.itl"],
+      "operations": ["cancelPlus", "cancelMinus"]
+    },
+    {
+      "name": "arithmetic",
+      "include": ["*elem.itl"],
+      "operations": ["add", "sub", "mul", "div"]
+    },
+    {
+      "name": "elementary-core",
+      "include": ["*elem.itl"],
+      "operations": ["pos", "neg", "abs", "recip", "sqr", "sqrt"]
+    },
+    {
+      "name": "exponential-logarithmic",
+      "include": ["*elem.itl"],
+      "operations": ["exp", "exp2", "exp10", "log", "log2", "log10"]
+    },
+    {
+      "name": "general-power",
+      "include": ["*elem.itl"],
+      "operations": ["pow"]
+    },
+    {
+      "name": "trigonometric",
+      "include": ["*elem.itl"],
+      "operations": ["sin", "cos", "tan"]
+    },
+    {
+      "name": "fma",
+      "include": ["*elem.itl"],
+      "operations": ["fma"]
+    },
+    {
+      "name": "integer-power",
+      "include": ["*elem.itl"],
+      "operations": ["pown"]
+    },
+    {
+      "name": "extrema",
+      "include": ["*elem.itl"],
+      "operations": ["min", "max"]
+    },
+    {
+      "name": "atan2",
+      "include": ["atan2.itl"],
+      "operations": ["atan2"]
+    },
+    { "name": "reverse", "include": ["*rev.itl"] }
+  ]
+}

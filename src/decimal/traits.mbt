@@ -1,6 +1,172 @@
 ///|
 // Trait implementations for Decimal.
 
+fn contextual_diagnostics(
+  flags : DecimalFlags,
+) -> @lf_arith.ArithmeticDiagnostics {
+  @lf_arith.ArithmeticDiagnostics::new(
+    inexact=flags.inexact,
+    rounded=flags.rounded,
+    overflow=flags.overflow,
+    underflow=flags.underflow,
+    subnormal=flags.subnormal,
+    clamped=flags.clamped,
+  )
+}
+
+///|
+fn contextual_outcome(
+  value : Decimal,
+  flags : DecimalFlags,
+) -> Result[@lf_arith.ArithmeticOutcome[Decimal], @lf_arith.ArithmeticError] {
+  if flags.division_by_zero {
+    Err(@lf_arith.ArithmeticError::division_by_zero("division by zero"))
+  } else if flags.has_error() {
+    Err(@lf_arith.ArithmeticError::domain_error("invalid decimal operation"))
+  } else {
+    Ok(
+      @lf_arith.ArithmeticOutcome::with_diagnostics(
+        value,
+        contextual_diagnostics(flags),
+      ),
+    )
+  }
+}
+
+///|
+pub impl @lf_arith.AddContextual for Decimal with fn add_contextual(
+  self,
+  other,
+  context,
+) {
+  let (value, flags) = self.add_ctx(
+    other,
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.SubContextual for Decimal with fn sub_contextual(
+  self,
+  other,
+  context,
+) {
+  let (value, flags) = self.sub_ctx(
+    other,
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.MulContextual for Decimal with fn mul_contextual(
+  self,
+  other,
+  context,
+) {
+  let (value, flags) = self.mul_ctx(
+    other,
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.DivContextual for Decimal with fn div_contextual(
+  self,
+  other,
+  context,
+) {
+  let (value, flags) = self.div_ctx(
+    other,
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.AbsContextual for Decimal with fn abs_contextual(
+  self,
+  context,
+) {
+  let (value, flags) = self.abs_ctx(
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.SqrtContextual for Decimal with fn sqrt_contextual(
+  self,
+  context,
+) {
+  let (value, flags) = self.sqrt_ctx(
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.ExpContextual for Decimal with fn exp_contextual(
+  self,
+  context,
+) {
+  let (value, flags) = self.exp_ctx(
+    DecimalContext::from_arithmetic_context(context),
+  )
+  contextual_outcome(value, flags)
+}
+
+///|
+pub impl @lf_arith.NumericFormatContextual for Decimal with fn zero_contextual(
+  context,
+) {
+  Decimal::zero(precision=context.precision)
+}
+
+///|
+pub impl @lf_arith.NumericFormatContextual for Decimal with fn one_contextual(
+  context,
+) {
+  Decimal::one(precision=context.precision)
+}
+
+///|
+pub impl @lf_arith.NumericFormatContextual for Decimal with fn epsilon_contextual(
+  context,
+) {
+  let decimal_context = DecimalContext::from_arithmetic_context(context)
+  let one = Decimal::one(precision=context.precision)
+  one.next_plus(decimal_context).0.sub_ctx(one, decimal_context).0
+}
+
+///|
+pub impl @lf_arith.NumericFormatContextual for Decimal with fn min_normal_contextual(
+  context,
+) {
+  let exponent = context.e_min.unwrap_or(-999_999_999)
+  Decimal::from_string("1E" + exponent.to_string(), precision=context.precision).unwrap()
+}
+
+///|
+pub impl @lf_arith.NumericFormatContextual for Decimal with fn max_finite_contextual(
+  context,
+) {
+  let decimal_context = DecimalContext::from_arithmetic_context(context)
+  Decimal::inf(Sign::Positive, precision=context.precision).next_minus(
+    decimal_context,
+  ).0
+}
+
+///|
+pub impl @lf_arith.NumericFormatContextual for Decimal with fn classify_contextual(
+  self,
+) {
+  self.classify()
+}
+
+///|
 pub impl @lf_arith.ParseChecked for Decimal with fn parse_checked(src, ctx) {
   Decimal::parse(src, precision=ctx.precision)
 }
@@ -45,14 +211,21 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
   exponent,
   ctx,
 ) {
+  guard exponent <= 999_999_999U else {
+    return Err(
+      @def.ArithmeticError::unsupported(
+        "natural exponent exceeds Decimal power range",
+      ),
+    )
+  }
   let dctx = DecimalContext::new(
     precision=ctx.precision,
     rounding=ctx.rounding,
     e_min=-999_999,
     e_max=999_999,
   )
-  let exponent_decimal = Decimal::from_int(
-    exponent.reinterpret_as_int(),
+  let exponent_decimal = Decimal::from_bigint(
+    BigInt::from_uint(exponent),
     precision=ctx.precision,
   )
   let (value, flags) = self.power_ctx(exponent_decimal, dctx)

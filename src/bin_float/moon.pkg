@@ -1,8 +1,28 @@
 import {
-  "Luna-Flow/arithmetic",
-  "Luna-Flow/luna-generic" @lg,
-  "moonbitlang/core/bigint",
+  "Luna-Flow/arithmetic" @lf_arith,
   "moonbitlang/core/string",
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/internal",
 }
+
+import {
+  "moonbitlang/core/bench",
+  "moonbitlang/core/bigint",
+} for "wbtest"
+
+options(
+  targets: {
+    "bin_coeff_js.mbt": [ "js" ],
+    "bin_coeff_advanced_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_division_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_division_nonjs_wbtest.mbt": [ "not", "js" ],
+    "bin_coeff_ntt_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_ntt_nonjs_wbtest.mbt": [ "not", "js" ],
+    "bin_coeff_algorithm_bench_wbtest.mbt": [ "not", "js" ],
+    "bin_coeff_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_sqrt_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_thresholds_llvm.mbt": [ "llvm" ],
+    "bin_coeff_thresholds_native.mbt": [ "native" ],
+    "bin_coeff_thresholds_wasm.mbt": [ "wasm" ],
+    "bin_coeff_thresholds_wasm_gc.mbt": [ "wasm-gc" ],
+  },
+)
