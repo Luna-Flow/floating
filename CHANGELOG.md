@@ -4,6 +4,40 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.5.0 - 2026-07-12
+
+### Added
+
+- Added `BinCoeff`, the non-negative public coefficient boundary for binary
+  floating-point, IEEE interchange bits, and ball arithmetic. It provides
+  explicit integer/byte parsing, arithmetic, bit operations, division, and
+  conversion without exposing MoonBit `BigInt`.
+- Added a pure inline/limb coefficient kernel for non-JS targets and a hidden
+  host `bigint` adapter for JavaScript behind the same `BinCoeff` API.
+
+### Changed
+
+- Reworked contextual integer powers around a single approximation with a
+  conservative dyadic error enclosure and exact can-round checks, retaining
+  the exact coefficient-power implementation as the permanent fallback.
+- Added leading-bit coefficient exponentiation, small addition chains,
+  power-of-two and bounded exact-result dispatches, and 120 fixed MPFR 4.2.2
+  `pow_si` witnesses without changing the public rounding semantics.
+- Changed `BinFloat`, `BinFloatResult`, `BallFloat`, and `BallFloatResult`
+  constructors and accessors to use `BinCoeff` plus an independent sign.
+- Changed `BinaryInterchange::bits` and `from_bits` to use `BinCoeff`.
+- Renamed the checked-composition wrapper packages with the `_checked` suffix
+  to align package paths with the checked arithmetic trait naming.
+- Kept the existing Decimal and Semantic `BigInt` APIs unchanged; the migration
+  applies only to the binary and ball stacks.
+
+### Removed
+
+- Removed binary-stack `from_bigint` constructors, `BinFloat::significand`, and
+  the `NatHomomorphism` / `IntegralHomomorphism` implementations whose public
+  boundary depended on `BigInt`. Use `from_coefficient`, `coefficient`, and
+  explicit `negative?` arguments instead.
+
 ## 0.4.1 - 2026-07-11
 
 ### Fixed
@@ -12,6 +46,11 @@ notes live in this file.
   Mooncakes displays the 0.4 release documentation and installation version.
 - Recorded verified full-corpus results for both the current and legacy GDA
   suites: 81,110 executable cases passed with zero failures.
+
+### Changed
+
+- Moved `Decoration` and `BallFloatDecorated` into the `ball_float` package so
+  bare and decorated IEEE 1788 interval APIs share one package boundary.
 
 ## 0.4.0 - 2026-07-11
 

@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.4.1`**.
+documentation baseline: **`0.5.0`**.
 
 ## To Contributors
 
@@ -38,7 +38,7 @@ trait design, and test coverage are especially valuable.
 ### 2.1 Bindings
 
 - Use **lowercase letters with underscores** for bindings.
-- Names should reflect the mathematical role of the value when possible, for example `significand`, `exponent10`, `rounding_mode`.
+- Names should reflect the mathematical role of the value when possible, for example `coefficient`, `exponent10`, `rounding_mode`.
 
 ### 2.2 Functions
 
@@ -100,7 +100,8 @@ trait design, and test coverage are especially valuable.
 - Before publishing to Mooncakes, make sure `moon.mod` has already been bumped to the intended release version.
 - Update `README.md` and localized docs if the package overview or release notes no longer match the implementation.
 - Move superseded release notes to `CHANGELOG.md`; keep README files focused on the current baseline.
-- Run `just pr` locally before publishing.
+- Run the quick `just pr` gate for ordinary changes and the complete `just ci`
+  gate before publishing.
 - The GitHub Actions publish workflow reads the release version directly from `moon.mod`.
 - If Mooncakes reports a duplicate version, bump the version before retrying.
 
