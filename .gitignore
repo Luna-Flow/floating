@@ -24,6 +24,8 @@ testdata/decimal/official/
 testdata/decimal/official0/
 testdata/decimal/dectest.zip
 testdata/decimal/dectest0.zip
+testdata/interval/itf1788/
+testdata/interval/itf1788.zip
 
 # Python/tooling caches
 .venv/

@@ -36,11 +36,19 @@ jobs:
       - name: build
         run: sh tools/run_moon_clean_exec.sh build --target all
 
+      - name: documentation
+        run: |
+          python3 tools/doc_quality.py
+          sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn --frozen
+
+      - name: format
+        run: sh tools/run_moon_clean_exec.sh fmt --check
+
       - name: check
-        run: sh tools/run_moon_clean_exec.sh check --target all --frozen
+        run: sh tools/run_moon_clean_exec.sh check --target all --deny-warn --frozen
 
       - name: test
-        run: sh tools/run_moon_clean_exec.sh test --enable-coverage --frozen
+        run: sh tools/run_moon_clean_exec.sh test --enable-coverage --deny-warn --frozen
 
       - name: publish
         env:

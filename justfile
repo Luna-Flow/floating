@@ -24,22 +24,50 @@ update:
 build:
     @sh tools/run_moon_clean_exec.sh build
 
-pr *args:
-    sh tools/run_moon_clean_exec.sh check --target all
-    sh tools/run_moon_clean_exec.sh info
-    python3 tools/run_dectest_interpreter.py {{ args }}
+docs:
+    @python3 tools/doc_quality.py
+    @sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn --frozen
+
+# Run the fast pull-request gate.
+pr jobs='':
+    @python3 tools/run_ci.py quick {{ jobs }}
 
 smoke *args:
-    @sh tools/run_moon_clean_exec.sh run src/gda_expr_cli -- {{ args }} testdata/decimal/smoke.decTest
+    @python3 tools/conformance.py smoke --backend decimal {{ args }}
 
 plan *args:
-    @python3 tools/run_dectest_interpreter.py --plan {{ args }}
+    @python3 tools/conformance.py plan --backend decimal {{ args }}
 
 fetch corpus='official':
-    @python3 tools/fetch_decimal_corpora.py {{ corpus }}
+    @python3 tools/conformance.py fetch --backend decimal {{ corpus }}
 
-ci:
+conformance action backend='decimal' *args:
+    @python3 tools/conformance.py {{ action }} --backend {{ backend }} {{ args }}
+
+# Run the authoritative Decimal conformance suite.
+decimal-ci jobs='':
+    @python3 tools/run_ci.py decimal {{ jobs }}
+
+# Run the authoritative binary conformance suite.
+bin-ci jobs='':
+    @python3 tools/run_ci.py bin {{ jobs }}
+
+# Run the authoritative interval conformance suite.
+interval-ci jobs='':
+    @python3 tools/run_ci.py interval {{ jobs }}
+
+# Run all checks, tests, and authoritative suites.
+ci jobs='':
+    @python3 tools/run_ci.py all {{ jobs }}
+
+decimal-kernel-ci:
     @sh tools/run_moon_clean_exec.sh test src/decimal/coeff_kernel_wbtest.mbt --no-parallelize
+
+bin-kernel-ci:
+    @sh tools/run_moon_clean_exec.sh test src/bin_float --target all --no-parallelize
+
+bin-bench target='native':
+    @python3 tools/run_bin_coeff_bench.py --target {{ target }}
 
 tree:
     sh tools/run_moon_clean_exec.sh tree

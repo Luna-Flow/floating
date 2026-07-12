@@ -33,5 +33,5 @@ jobs:
       - name: update registry
         run: sh tools/run_moon_clean_exec.sh update
 
-      - name: partial white-box tests
-        run: just ci
+      - name: quick repository gate
+        run: just pr
