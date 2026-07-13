@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.5.0`**.
+documentation baseline: **`0.6.0`**.
 
 ## To Contributors
 
@@ -65,6 +65,18 @@ trait design, and test coverage are especially valuable.
 - Avoid redundant comments that restate obvious syntax.
 
 ## 4. File Standards
+
+### 4.0 Documentation Matrix
+
+- Every `src/**/moon.pkg` package has matching `api.md`, `tutorial.md`, and
+  `design.md` pages under `doc/en_US`, `doc/zh_CN`, and `doc/ja_JP`.
+- English is the structural source; translations preserve the same file set,
+  heading tree, generated API inventory, links, and executable example IDs.
+- Numerical conformance and performance evidence stays separate from API
+  promises. Promote durable research conclusions into synchronized pages and
+  keep historical release material in `CHANGELOG.md`.
+- Refresh `pkg.generated.mbti` with `moon info`, then run `just docs` before
+  submitting documentation changes.
 
 ### 4.1 Folder Naming
 

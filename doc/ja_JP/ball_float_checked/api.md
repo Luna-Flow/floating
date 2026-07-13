@@ -18,3 +18,63 @@
 
 `from_coefficient` は `@bin_float.BinCoeff` と独立した `negative?` 符号を受け取り、
 binary checked API は `BigInt` を受け取りません。
+
+## 完全な公開インターフェース
+
+次の snapshot は `0.6.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+
+<!-- generated-api-start -->
+```moonbit
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/ball_float_checked"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/floating/bin_float",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct BallFloatResult {
+  // private fields
+}
+pub fn BallFloatResult::abs(Self) -> Self
+pub fn BallFloatResult::add(Self, Self) -> Self
+pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
+pub fn BallFloatResult::div(Self, Self) -> Self
+pub fn BallFloatResult::err(@arithmetic.ArithmeticError) -> Self
+pub fn BallFloatResult::exact(@bin_float.BinFloat, precision? : Int) -> Self
+#deprecated
+pub fn BallFloatResult::flat_map(Self, (@ball_float.BallFloat) -> Self) -> Self
+pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn BallFloatResult::from_double(Double, precision? : Int) -> Self
+pub fn BallFloatResult::from_float(Float, precision? : Int) -> Self
+pub fn BallFloatResult::from_int(Int, precision? : Int) -> Self
+pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
+pub fn BallFloatResult::map(Self, (@ball_float.BallFloat) -> @ball_float.BallFloat) -> Self
+pub fn BallFloatResult::mul(Self, Self) -> Self
+pub fn BallFloatResult::neg(Self) -> Self
+pub fn BallFloatResult::normalized(Self) -> Self
+pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
+pub fn BallFloatResult::pow_int(Self, Int) -> Self
+pub fn BallFloatResult::pow_nat(Self, UInt) -> Self
+pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
+pub fn BallFloatResult::sub(Self, Self) -> Self
+pub fn BallFloatResult::whole(precision? : Int) -> Self
+pub fn BallFloatResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub impl Add for BallFloatResult
+pub impl Div for BallFloatResult
+pub impl Mul for BallFloatResult
+pub impl Neg for BallFloatResult
+pub impl Sub for BallFloatResult
+
+// Type aliases
+
+// Traits
+```
+<!-- generated-api-end -->

@@ -8,16 +8,20 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOC_ROOT = REPO_ROOT / "doc"
 LOCALES = ("en_US", "zh_CN", "ja_JP")
-LOCALE_ONLY = {
-    "zh_CN": {
-        "ball_float/binary_kernel_research.md",
-        "ball_float/ieee1788_research.md",
-        "bin_float/coefficient_kernel_baseline.md",
-    },
-}
 LINK_RE = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
 MOONBIT_RE = re.compile(r"```moonbit(?:\s+check)?\n(.*?)```", re.DOTALL)
-HEADING_RE = re.compile(r"^(#{1,2})\s+", re.MULTILINE)
+HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
+API_BLOCK_RE = re.compile(
+    r"<!-- generated-api-start -->\n```moonbit\n(.*?)\n```\n<!-- generated-api-end -->",
+    re.DOTALL,
+)
+
+
+def package_paths() -> set[str]:
+    return {
+        str(path.parent.relative_to(REPO_ROOT / "src"))
+        for path in (REPO_ROOT / "src").rglob("moon.pkg")
+    }
 
 
 def markdown_files(locale: str) -> set[str]:
@@ -29,7 +33,7 @@ def check_locale_parity() -> list[str]:
     baseline = markdown_files("en_US")
     errors: list[str] = []
     for locale in LOCALES[1:]:
-        actual = markdown_files(locale) - LOCALE_ONLY.get(locale, set())
+        actual = markdown_files(locale)
         missing = sorted(baseline - actual)
         extra = sorted(actual - baseline)
         if missing:
@@ -39,22 +43,41 @@ def check_locale_parity() -> list[str]:
     return errors
 
 
+def heading_levels(path: Path) -> tuple[int, ...]:
+    return tuple(len(marker) for marker, _ in HEADING_RE.findall(path.read_text(encoding="utf-8")))
+
+
 def heading_shape(path: Path) -> tuple[int, int]:
-    levels = [len(marker) for marker in HEADING_RE.findall(path.read_text(encoding="utf-8"))]
+    levels = heading_levels(path)
     return levels.count(1), levels.count(2)
 
 
 def check_heading_parity() -> list[str]:
     errors: list[str] = []
     for relative in sorted(markdown_files("en_US")):
-        expected = heading_shape(DOC_ROOT / "en_US" / relative)
+        expected = heading_levels(DOC_ROOT / "en_US" / relative)
         for locale in LOCALES[1:]:
-            actual = heading_shape(DOC_ROOT / locale / relative)
+            actual = heading_levels(DOC_ROOT / locale / relative)
             if actual != expected:
                 errors.append(
-                    f"{locale}/{relative}: heading shape {actual} differs from en_US {expected}"
+                    f"{locale}/{relative}: heading levels {actual} differ from en_US {expected}"
                 )
     return errors
+
+
+def github_anchor(text: str) -> str:
+    value = re.sub(r"<[^>]+>", "", text).lower()
+    value = re.sub(r"[^\w\- ]+", "", value, flags=re.UNICODE)
+    return re.sub(r"\s+", "-", value.strip())
+
+
+def local_target(path: Path, raw_target: str) -> tuple[Path, str | None] | None:
+    target = raw_target.strip()
+    if not target or "://" in target or target.startswith("mailto:"):
+        return None
+    target_path, _, fragment = target.partition("#")
+    resolved = (path.parent / target_path).resolve() if target_path else path.resolve()
+    return resolved, fragment or None
 
 
 def check_links() -> list[str]:
@@ -62,12 +85,27 @@ def check_links() -> list[str]:
     for path in DOC_ROOT.rglob("*.md"):
         text = path.read_text(encoding="utf-8")
         for raw_target in LINK_RE.findall(text):
-            target = raw_target.strip().split("#", 1)[0]
-            if not target or "://" in target or target.startswith("mailto:"):
+            resolved_info = local_target(path, raw_target)
+            if resolved_info is None:
                 continue
-            resolved = (path.parent / target).resolve()
+            resolved, fragment = resolved_info
             if not resolved.exists():
                 errors.append(f"{path.relative_to(REPO_ROOT)}: broken link {raw_target}")
+                continue
+            if resolved.is_file() and fragment:
+                anchors = {
+                    github_anchor(heading)
+                    for _, heading in HEADING_RE.findall(resolved.read_text(encoding="utf-8"))
+                }
+                if fragment.lower() not in anchors:
+                    errors.append(f"{path.relative_to(REPO_ROOT)}: broken anchor {raw_target}")
+            if resolved.is_relative_to(DOC_ROOT):
+                locale = resolved.relative_to(DOC_ROOT).parts[0]
+                source_locale = path.relative_to(DOC_ROOT).parts[0]
+                if locale != source_locale:
+                    errors.append(
+                        f"{path.relative_to(REPO_ROOT)}: cross-locale link {raw_target}"
+                    )
     return errors
 
 
@@ -77,11 +115,53 @@ def check_current_versions() -> list[str]:
     candidates.extend(DOC_ROOT.rglob("*.md"))
     candidates.extend(REPO_ROOT.glob("src/**/README.mbt.md"))
     for path in candidates:
-        if path.name == "architecture_research.md":
-            continue
         text = path.read_text(encoding="utf-8")
-        if re.search(r"(?:baseline|基线|基準|current).*0\.4\.[01]", text, re.IGNORECASE):
-            errors.append(f"{path.relative_to(REPO_ROOT)}: stale current baseline")
+        if "0.5.0" in text:
+            errors.append(f"{path.relative_to(REPO_ROOT)}: stale 0.5.0 baseline")
+    return errors
+
+
+def check_package_doc_coverage() -> list[str]:
+    errors: list[str] = []
+    required = ("api.md", "tutorial.md", "design.md")
+    for locale in LOCALES:
+        for package in sorted(package_paths()):
+            for filename in required:
+                path = DOC_ROOT / locale / package / filename
+                if not path.exists():
+                    errors.append(f"{locale}: missing {package}/{filename}")
+    return errors
+
+
+def check_package_readme_coverage() -> list[str]:
+    errors: list[str] = []
+    for package in sorted(package_paths()):
+        path = REPO_ROOT / "src" / package / "README.mbt.md"
+        if not path.exists():
+            errors.append(f"src/{package}: missing README.mbt.md")
+    return errors
+
+
+def generated_interface(package: str) -> str:
+    return (REPO_ROOT / "src" / package / "pkg.generated.mbti").read_text(
+        encoding="utf-8"
+    ).strip()
+
+
+def check_api_snapshots() -> list[str]:
+    errors: list[str] = []
+    for locale in LOCALES:
+        for package in sorted(package_paths()):
+            path = DOC_ROOT / locale / package / "api.md"
+            text = path.read_text(encoding="utf-8")
+            match = API_BLOCK_RE.search(text)
+            if match is None:
+                errors.append(f"{path.relative_to(REPO_ROOT)}: missing generated API snapshot")
+                continue
+            actual = match.group(1).strip()
+            expected = generated_interface(package)
+            if actual != expected:
+                errors.append(f"{path.relative_to(REPO_ROOT)}: generated API snapshot is stale")
     return errors
 
 
@@ -143,6 +223,9 @@ def run_checks() -> list[str]:
         *check_heading_parity(),
         *check_links(),
         *check_current_versions(),
+        *check_package_doc_coverage(),
+        *check_package_readme_coverage(),
+        *check_api_snapshots(),
         *check_gda_claims(),
         *check_tutorial_examples(),
     ]

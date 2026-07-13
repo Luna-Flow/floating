@@ -1,6 +1,6 @@
 # @internal
 
-This page tracks the `0.5.0` implementation helper API, not a stable
+This page tracks the `0.6.0` implementation helper API, not a stable
 application contract.
 
 `@internal` is an implementation-facing package. Its functions are documented here for maintainers and advanced contributors, not as a stable public API promise.
@@ -77,3 +77,71 @@ application contract.
   - base-10 exponent adjustment
 
 It accepts plain decimals and scientific notation in the currently implemented parser.
+
+## Complete Public Interface
+
+The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+
+<!-- generated-api-start -->
+```moonbit
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/internal"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/def",
+  "moonbitlang/core/bigint",
+}
+
+// Values
+pub fn abs_bigint(@bigint.BigInt) -> @bigint.BigInt
+
+pub fn bigint_one() -> @bigint.BigInt
+
+pub fn bigint_zero() -> @bigint.BigInt
+
+pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
+
+pub fn digits10(@bigint.BigInt) -> Int
+
+pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int) -> @bigint.BigInt?
+
+pub fn pow10(Int) -> @bigint.BigInt
+
+pub fn pow2(Int) -> @bigint.BigInt
+
+pub fn pow5(Int) -> @bigint.BigInt
+
+pub fn remove_factor10(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
+
+pub fn remove_factor2(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
+
+pub fn[A, B, E, C] result_lift2(Result[A, E], Result[B, E], (A, B) -> C) -> Result[C, E]
+
+pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Result[C, E]) -> Result[C, E]
+
+pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
+
+pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
+
+pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
+
+pub fn split_decimal_string(String) -> (Bool, String, Int)?
+
+pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bigint.BigInt, Int, Int)
+
+// Errors
+
+// Types and methods
+pub struct ExactRat {
+  // private fields
+} derive(Eq)
+pub fn ExactRat::denominator(Self) -> @bigint.BigInt
+pub fn ExactRat::new(@bigint.BigInt, @bigint.BigInt) -> Self
+pub fn ExactRat::numerator(Self) -> @bigint.BigInt
+
+// Type aliases
+
+// Traits
+```
+<!-- generated-api-end -->

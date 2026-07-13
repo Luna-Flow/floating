@@ -3,9 +3,9 @@
 ## 安定性
 
 bare/decorated interval 構築、relation、forward arithmetic、context、flags は
-`0.5.0` API です。reverse operation と tightness 保証は契約外です。
+`0.6.0` API です。reverse operation と tightness 保証は契約外です。
 
-このページは `0.5.0` 基準における `@ball_float.BallFloat`、
+このページは `0.6.0` 基準における `@ball_float.BallFloat`、
 `@ball_float.Decoration`、`@ball_float.BallFloatDecorated` を説明します。
 
 ## 意味
@@ -150,3 +150,241 @@ decorated 型は集合演算、relation、算術、cancellation、初等関数�
 - `@arithmetic.PowNatChecked`
 - `@arithmetic.PowIntChecked`
 - `Eq`、`Add`、`Sub`、`Mul`、`Div`、`Neg`、`Show`
+
+## 完全な公開インターフェース
+
+次の snapshot は `0.6.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+
+<!-- generated-api-start -->
+```moonbit
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/ball_float"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/def",
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct BallContext {
+  // private fields
+}
+pub fn BallContext::binary32() -> Self
+pub fn BallContext::binary64() -> Self
+pub fn BallContext::e_max(Self) -> Int
+pub fn BallContext::e_min(Self) -> Int
+pub fn BallContext::new(precision? : Int, e_min? : Int, e_max? : Int) -> Self
+pub fn BallContext::precision(Self) -> Int
+pub fn BallContext::try_new(precision? : Int, e_min? : Int, e_max? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+
+pub struct BallFlags {
+  inexact : Bool
+  overflow : Bool
+  underflow : Bool
+} derive(Eq)
+pub fn BallFlags::combine(Self, Self) -> Self
+pub fn BallFlags::inexact(Self) -> Bool
+pub fn BallFlags::new() -> Self
+pub fn BallFlags::overflow(Self) -> Bool
+pub fn BallFlags::underflow(Self) -> Bool
+
+pub struct BallFloat {
+  // private fields
+} derive(Eq)
+pub fn BallFloat::abs(Self) -> Self
+pub fn BallFloat::add(Self, Self) -> Self
+pub fn BallFloat::add_ctx(Self, Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::apply_ctx(Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::cancel_minus(Self, Self) -> Self
+pub fn BallFloat::cancel_plus(Self, Self) -> Self
+pub fn BallFloat::center(Self) -> @bin_float.BinFloat
+pub fn BallFloat::classify(Self) -> @arithmetic.FpClass
+pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
+pub fn BallFloat::contains_zero(Self) -> Bool
+pub fn BallFloat::convex_hull(Self, Self) -> Self
+pub fn BallFloat::cos_interval(Self) -> Self
+pub fn BallFloat::definitely_gt(Self, Self) -> Bool
+pub fn BallFloat::definitely_le(Self, Self) -> Bool
+pub fn BallFloat::definitely_lt(Self, Self) -> Bool
+pub fn BallFloat::disjoint(Self, Self) -> Bool
+pub fn BallFloat::div(Self, Self) -> Self
+pub fn BallFloat::div_ctx(Self, Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::empty(precision? : Int) -> Self
+pub fn BallFloat::exact(@bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloat::exp10_interval(Self) -> Self
+pub fn BallFloat::exp2_interval(Self) -> Self
+pub fn BallFloat::exp_ctx(Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::exp_interval(Self) -> Self
+pub fn BallFloat::fma(Self, Self, Self) -> Self
+pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn BallFloat::from_double(Double, precision? : Int) -> Self
+pub fn BallFloat::from_float(Float, precision? : Int) -> Self
+pub fn BallFloat::from_int(Int, precision? : Int) -> Self
+pub fn BallFloat::interior(Self, Self) -> Bool
+pub fn BallFloat::intersection(Self, Self) -> Self
+pub fn BallFloat::is_bounded(Self) -> Bool
+pub fn BallFloat::is_common_interval(Self) -> Bool
+pub fn BallFloat::is_empty(Self) -> Bool
+pub fn BallFloat::is_entire(Self) -> Bool
+pub fn BallFloat::is_singleton(Self) -> Bool
+pub fn BallFloat::less(Self, Self) -> Bool
+pub fn BallFloat::ln_ctx(Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::ln_interval(Self) -> Self
+pub fn BallFloat::log10_interval(Self) -> Self
+pub fn BallFloat::log2_interval(Self) -> Self
+pub fn BallFloat::lower_bound(Self) -> @bin_float.BinFloat
+pub fn BallFloat::magnitude(Self) -> @bin_float.BinFloat
+pub fn BallFloat::maximum(Self, Self) -> Self
+pub fn BallFloat::maybe_eq(Self, Self) -> Bool
+pub fn BallFloat::midpoint(Self) -> @bin_float.BinFloat
+pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallFlags)
+pub fn BallFloat::mignitude(Self) -> @bin_float.BinFloat
+pub fn BallFloat::minimum(Self, Self) -> Self
+pub fn BallFloat::mul(Self, Self) -> Self
+pub fn BallFloat::mul_ctx(Self, Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::neg(Self) -> Self
+pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloat::normalized(Self) -> Self
+pub fn BallFloat::overlap_state(Self, Self) -> OverlapState
+pub fn BallFloat::overlaps(Self, Self) -> Bool
+pub fn BallFloat::pow_interval(Self, Self) -> Self
+pub fn BallFloat::pown(Self, Int) -> Self
+pub fn BallFloat::precedes(Self, Self) -> Bool
+pub fn BallFloat::precision(Self) -> Int
+pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
+pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
+pub fn BallFloat::reciprocal(Self) -> Self
+pub fn BallFloat::separated_from(Self, Self) -> Bool
+pub fn BallFloat::set_equal(Self, Self) -> Bool
+pub fn BallFloat::sign(Self) -> @def.Sign
+pub fn BallFloat::sin_interval(Self) -> Self
+pub fn BallFloat::sqrt_interval(Self) -> Self
+pub fn BallFloat::square(Self) -> Self
+pub fn BallFloat::strictly_less(Self, Self) -> Bool
+pub fn BallFloat::strictly_precedes(Self, Self) -> Bool
+pub fn BallFloat::sub(Self, Self) -> Self
+pub fn BallFloat::sub_ctx(Self, Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::subset(Self, Self) -> Bool
+pub fn BallFloat::tan_interval(Self) -> Self
+pub fn BallFloat::try_exact(@bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_from_double(Double, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_from_float(Float, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
+pub fn BallFloat::whole(precision? : Int) -> Self
+pub fn BallFloat::width(Self) -> @bin_float.BinFloat
+pub fn BallFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub impl @arithmetic.Contains for BallFloat
+pub impl @arithmetic.DefinitelyLe for BallFloat
+pub impl @arithmetic.DefinitelyLt for BallFloat
+pub impl @arithmetic.DivChecked for BallFloat
+pub impl @arithmetic.MaybeEq for BallFloat
+pub impl @arithmetic.Overlaps for BallFloat
+pub impl @arithmetic.PowIntChecked for BallFloat
+pub impl @arithmetic.PowNatChecked for BallFloat
+pub impl @def.Floating for BallFloat
+pub impl Add for BallFloat
+pub impl Div for BallFloat
+pub impl Mul for BallFloat
+pub impl Neg for BallFloat
+pub impl Show for BallFloat
+pub impl Sub for BallFloat
+
+pub struct BallFloatDecorated {
+  // private fields
+} derive(Eq)
+pub fn BallFloatDecorated::abs(Self) -> Self
+pub fn BallFloatDecorated::add(Self, Self) -> Self
+pub fn BallFloatDecorated::apply_ctx(Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
+pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
+pub fn BallFloatDecorated::contains(Self, @bin_float.BinFloat) -> Bool
+pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
+pub fn BallFloatDecorated::cos_interval(Self) -> Self
+pub fn BallFloatDecorated::decoration(Self) -> Decoration
+pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
+pub fn BallFloatDecorated::div(Self, Self) -> Self
+pub fn BallFloatDecorated::exp10_interval(Self) -> Self
+pub fn BallFloatDecorated::exp2_interval(Self) -> Self
+pub fn BallFloatDecorated::exp_interval(Self) -> Self
+pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
+pub fn BallFloatDecorated::interior(Self, Self) -> Bool
+pub fn BallFloatDecorated::intersection(Self, Self) -> Self
+pub fn BallFloatDecorated::interval(Self) -> BallFloat
+pub fn BallFloatDecorated::is_common_interval(Self) -> Bool
+pub fn BallFloatDecorated::is_empty(Self) -> Bool
+pub fn BallFloatDecorated::is_entire(Self) -> Bool
+pub fn BallFloatDecorated::is_nai(Self) -> Bool
+pub fn BallFloatDecorated::is_singleton(Self) -> Bool
+pub fn BallFloatDecorated::less(Self, Self) -> Bool
+pub fn BallFloatDecorated::ln_interval(Self) -> Self
+pub fn BallFloatDecorated::log10_interval(Self) -> Self
+pub fn BallFloatDecorated::log2_interval(Self) -> Self
+pub fn BallFloatDecorated::maximum(Self, Self) -> Self
+pub fn BallFloatDecorated::minimum(Self, Self) -> Self
+pub fn BallFloatDecorated::mul(Self, Self) -> Self
+pub fn BallFloatDecorated::nai(precision? : Int) -> Self
+pub fn BallFloatDecorated::neg(Self) -> Self
+pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
+pub fn BallFloatDecorated::overlap_state(Self, Self) -> OverlapState
+pub fn BallFloatDecorated::pos(Self) -> Self
+pub fn BallFloatDecorated::pow_interval(Self, Self) -> Self
+pub fn BallFloatDecorated::pown(Self, Int) -> Self
+pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
+pub fn BallFloatDecorated::reciprocal(Self) -> Self
+pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
+pub fn BallFloatDecorated::sin_interval(Self) -> Self
+pub fn BallFloatDecorated::sqrt_interval(Self) -> Self
+pub fn BallFloatDecorated::square(Self) -> Self
+pub fn BallFloatDecorated::strictly_less(Self, Self) -> Bool
+pub fn BallFloatDecorated::strictly_precedes(Self, Self) -> Bool
+pub fn BallFloatDecorated::sub(Self, Self) -> Self
+pub fn BallFloatDecorated::subset(Self, Self) -> Bool
+pub fn BallFloatDecorated::tan_interval(Self) -> Self
+pub impl Add for BallFloatDecorated
+pub impl Div for BallFloatDecorated
+pub impl Mul for BallFloatDecorated
+pub impl Show for BallFloatDecorated
+pub impl Sub for BallFloatDecorated
+
+pub(all) enum Decoration {
+  Ill
+  Trv
+  Def
+  Dac
+  Com
+} derive(Eq, @debug.Debug)
+pub impl Show for Decoration
+
+pub(all) enum OverlapState {
+  Undefined
+  BothEmpty
+  FirstEmpty
+  SecondEmpty
+  Before
+  Meets
+  OverlapsState
+  Starts
+  ContainedBy
+  Finishes
+  EqualIntervals
+  After
+  MetBy
+  OverlappedBy
+  StartedBy
+  ContainsInterval
+  FinishedBy
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+```
+<!-- generated-api-end -->

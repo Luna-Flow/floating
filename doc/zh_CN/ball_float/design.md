@@ -37,3 +37,7 @@ trigonometric，reverse operations 仍不支持。
 基本区间运算只进行常数次端点运算，成本是底层精度 `p` 的 `O(M(p))`，存储为两
 个端点。初等函数使用 `O(k)` 个有界级数项和 `O(p)` 工作精度。临界点检查和
 Entire/`[-1,1]` 回退牺牲 tightness，换取不可妥协的包含性。
+
+## 证据映射
+
+本文记录耐久算法合同；固定有限声明与排除范围见[一致性说明](./conformance.md)。二进制系数 crossover 证据归入 [`bin_float` 性能](../bin_float/performance.md)，因为 `ball_float` 复用该内核而不维护第二套实现。

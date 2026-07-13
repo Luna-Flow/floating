@@ -3,10 +3,17 @@
 ## Responsibility And Representation
 
 `decimal` owns arbitrary-precision decimal values, General Decimal Arithmetic
-contexts and flags, and decimal32/64/128 interchange. Finite values store an
-independent sign, non-negative `BigInt` coefficient, base-10 exponent, and
-working precision. Signed zero, infinities, qNaN/sNaN, and payloads are part of
-the observable representation.
+contexts and flags, and decimal32/64/128 interchange. Finite values have an
+independent sign, coefficient, base-10 exponent, cohort, and working
+precision. Signed zero, infinities, qNaN/sNaN, and payloads remain observable.
+
+The coefficient kernel is private. It uses canonical little-endian base-1e9
+`UInt` limbs with `UInt64` intermediates. A one-limb coefficient is stored in
+an inline representation; larger values use a limb-backed array. Zero has one
+canonical form, limb arrays have no leading zero, and decimal digit counts are
+exact. Public APIs do not expose this layout. BigInt is retained only at public
+conversion/serialization boundaries and for tests oracles; Decimal hot paths
+operate directly on the private coefficient value.
 
 Parsing and quantum-sensitive operations may preserve trailing coefficient
 zeros and the exponent cohort. `normalized()`/`reduce_ctx()` remove removable
@@ -15,57 +22,80 @@ powers of ten without changing the mathematical value. Numeric equality and
 
 ## Coefficient And Rounding Algorithms
 
-The package-local `DecCoeff` is a little-endian base-1000 array. It implements
-digit shifts, add/subtract, schoolbook multiplication, long division, exact
-powers, and rounding helpers without exposing the storage type. Public
-coefficients remain `BigInt`; crossing that boundary is intentional and unlike
-the binary stack's `BinCoeff` migration.
+Small operations use inline arithmetic, checked add/subtract, Comba/schoolbook
+multiplication, a dedicated square path, single-limb division, exact powers,
+GCD, integer square root/remainder, and exponentiation by squaring. Sparse
+operands use compressed non-zero products; strongly unbalanced operands are
+split into balanced blocks once the short side is large enough, with a single
+normalized accumulator retained for smaller shapes.
 
-Context operations first classify special values, compute the finite
+Balanced multiplication is selected by operand length, density, balance ratio,
+square shape, and target-specific thresholds. The production ladder is
+schoolbook, Karatsuba, Toom-3, and dual-modulus NTT convolution. Karatsuba and
+Toom-3 use bounded recursion and scratch storage; Toom-3 keeps signed
+intermediates private and checks exact division during interpolation. NTT uses
+smaller decimal working digits, CRT reconstruction, and explicit length and
+coefficient bounds, falling back when its preconditions are not met.
+
+Division selects word division, normalized Knuth Algorithm D, Burnikel-Ziegler
+block recursion, or Newton reciprocal division. Every path checks quotient and
+remainder invariants and may fall back to a safer algorithm. Scratch arenas
+reuse temporary limb buffers without allowing a rewound buffer to escape.
+
+Context operations classify special values, compute the finite
 coefficient/exponent result, round according to one of the eight decimal modes,
 then finalize exponent, subnormal, clamp, and status behavior. FMA keeps the
-product exact until the addition. Square root and transcendental operations use
-guard digits and iterative/series refinement before a single context
-finalization. Quantize fixes the target exponent and fails with
+product exact until the addition. Square root and transcendental operations
+use coefficient-native guard digits and iterative/series refinement before one
+context finalization. Quantize fixes the target exponent and reports
 `invalid_operation` when the resulting coefficient cannot fit the context.
 
-## Context And Effect Boundary
+## Context And Interchange Boundary
 
 `DecimalContext` is immutable input; `*_ctx` functions are pure transformations
 returning `(Decimal, DecimalFlags)`. Flags are explicit accumulated data, not
-ambient mutable state. Convenience operators omit flags and therefore are not a
-replacement when GDA status is relevant. `DecimalInterchange` owns hexadecimal
-decimal32/64/128 encoding and reports conversion flags.
+ambient mutable state. `DecimalInterchange` provides a shared Decimal semantic
+layer for DPD and BID decimal32/64/128 encoding, including canonicalization,
+non-canonical finite encodings, NaN payloads, infinities, and signed zero.
+Encoding selection does not duplicate arithmetic or rounding semantics.
 
-## Capability Boundary
+## Capability And Conformance Boundary
 
 The public surface includes arithmetic, FMA, integer division/remainders,
 quantize/rescale, total comparison, logical digits, adjacent values,
 classification, formatting, interchange, and elementary functions. The GDA
-claim covers every legal executable scalar row in the pinned `official` and
-`official0` corpora: 0 failures, 0 unsupported, and 0 legacy-condition rows.
-The only excluded rows are `#` placeholder/non-scalar invalid inputs. This is a
-complete claim for the represented legal corpus, not for arbitrary resource
-sizes or directives outside that corpus. The base-1000 kernel is correctness-
-oriented and does not currently select Karatsuba/Toom/FFT multiplication.
+claim is tracked separately from the IEEE gate: pinned `official` and
+`official0` corpora cover legal scalar behavior, while independent IEEE
+decimal32/64/128 vectors cover operations, flags, special values, total order,
+format conversion, and DPD/BID bit patterns. Both gates require zero failed or
+unsupported cases on supported targets.
 
-## Complexity And Why This Kernel
+The oracle matrix is layered. Mandatory decimal operations use the DPD-to-BID
+conversion path around Intel RDFP when installed; nearest-even `exp`/`ln`/
+`log10` use libmpdec allcr=1 with Arb as a secondary check; square root uses
+RDFP with libmpdec fallback; integer powers use exact integer/rational
+arithmetic; and the remaining elementary families use adaptive Arb intervals
+with MPFR as a secondary implementation. Result values/bits and IEEE flags are
+separate records. A fixed-seed generator targets at least 100,000 cases per
+family and rotates format, rounding, tininess, boundary class, coefficient
+scale, and operand shape. Optional external tools are never silently replaced
+by a weaker oracle.
 
-With `n` base-1000 limbs, addition, comparison, shifts, and normalization are
-`O(n)`. Schoolbook multiplication and long division are `O(n²)`. Base-1000
-digits keep carry handling, decimal parsing, and GDA rounding easy to audit,
-while the public boundary remains `BigInt` and does not expose storage layout.
+## Complexity And References
 
-The implementation deliberately does not yet pay the complexity and tuning cost
-of Karatsuba, Toom, or FFT: current Decimal workloads are bounded by context
-precision and flag/cohort semantics. This is a performance trade-off, not a
-semantic limitation; a future kernel can add dispatch without changing the
-`Decimal` or `DecimalContext` contract.
+For `n` base-1e9 limbs, addition, comparison, shifts, normalization, and
+single-limb division are `O(n)`. Schoolbook and Knuth division are `O(n²)`;
+Karatsuba, Toom-3, NTT, Burnikel-Ziegler, and Newton are selected only where
+their measured crossover justifies the additional setup cost. Canonicalization
+and exact carry checks are part of every algorithm boundary, so optimization
+cannot change Decimal rounding or cohort semantics.
 
-## Responsibility And Representation
+Algorithm and semantic references are Knuth, *The Art of Computer
+Programming*, Vol. 2 (Algorithm D); Karatsuba multiplication; Bodrato's
+Toom-Cook interpolation; Burnikel-Ziegler, *Fast Recursive Division*;
+Brent-Zimmermann, *Modern Computer Arithmetic*; Cowlishaw's General Decimal
+Arithmetic specification and decNumber; and IEEE 754-2019 / ISO 60559.
 
-The value model, cohort rules, and special-value states are part of the concrete Decimal contract rather than the coefficient kernel.
+## Evidence Map
 
-## Context And Effect Boundary
-
-`DecimalContext` is explicit input and `DecimalFlags` is explicit output; no ambient rounding state is used.
+[IEEE conformance](./conformance.md), [`decimal_gda` conformance](../decimal_gda/conformance.md), and [performance](./performance.md) are separate evidence ledgers. This separation prevents GDA status, IEEE flags, and benchmark thresholds from being conflated.

@@ -36,3 +36,7 @@ flags の順で処理し、inexact は非零余りから決めます。
 ## API 境界
 
 通常演算、`*_ctx`、`BinaryInterchange` はそれぞれ任意精度、format/status、固定幅 bit encoding の契約です。
+
+## Evidence Map
+
+[Conformance](./conformance.md) は固定 TestFloat/MPFR claim、[Performance](./performance.md) は target-specific dispatch evidence を記録します。どちらも生成 interface 外の実装詳細を public API にしません。

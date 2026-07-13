@@ -1,6 +1,6 @@
 # `decimal` Tutorial
 
-This page tracks the `0.5.0` behavior.
+This page tracks the `0.6.0` behavior.
 
 ## Parsing Decimal Strings
 

@@ -77,3 +77,7 @@ stable API. See [Conformance](./conformance.md) for the exact evidence boundary.
 ## Mathematical Model
 
 All finite values reduce to a signed coefficient and a power of two; special values are dispatched before this model is used.
+
+## Evidence Map
+
+[Conformance](./conformance.md) records the pinned TestFloat/MPFR claim. [Performance](./performance.md) records target-specific dispatch evidence. Neither page expands the public API beyond the generated interface.

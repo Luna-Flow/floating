@@ -1,6 +1,6 @@
 # `bin_float`
 
-`bin_float` is the stable scalar binary surface for `0.5.0`. Public types are
+`bin_float` is the stable scalar binary surface for `0.6.0`. Public types are
 `BinFloat`, non-negative `BinCoeff`, `BinaryContext`/`BinaryFlags`, and
 `BinaryInterchange`. Use ordinary methods for arbitrary-precision values and
 `*_ctx` methods when IEEE rounding, exponent limits, tininess, or flags matter.

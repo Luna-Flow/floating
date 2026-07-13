@@ -4,5 +4,12 @@ import {
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/bin_float_checked",
   "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/decimal_gda",
   "Luna-Flow/floating/decimal_checked",
+  "Luna-Flow/floating/semantic",
+  "Luna-Flow/floating/numeric_expr",
+  "Luna-Flow/floating/frontend/gda_expr",
+  "Luna-Flow/floating/frontend/itl_expr",
+  "Luna-Flow/floating/frontend/mpfr_expr",
+  "Luna-Flow/floating/frontend/testfloat_expr",
 } for "test"

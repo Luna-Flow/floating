@@ -35,3 +35,7 @@ IEEE 格式，有限 TestFloat/MPFR 矩阵也不代表完整 IEEE 754。
 `O(n^1.585)`、`O(n^1.465)` 和 `O(n log n)`。小输入选择常数更低的路径，大而
 均衡的输入才承担变换和临时内存；大除法通过 Burnikel–Ziegler/Newton 趋近
 `M(n)`。所有快速路径都有精确回退，因此性能分派不改变结果。
+
+## 证据映射
+
+[一致性说明](./conformance.md)记录固定 TestFloat/MPFR 声明，[性能](./performance.md)记录 target-specific 调度证据；两者都不会把生成接口之外的实现细节提升为公开 API。

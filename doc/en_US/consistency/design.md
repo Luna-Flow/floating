@@ -1,7 +1,25 @@
 # `consistency` Design
 
-`consistency` is a white-box verification package, not a library API. Its tests
-audit generated surface expectations, cross-package aliases, shared trait laws,
-checked-wrapper behavior, semantic projection, and the binary coefficient
-migration. It favors small deterministic witnesses; full external standard
-matrices belong to the staged conformance runners.
+## Responsibility
+
+White-box package for cross-package laws and public-surface audits.
+
+## Data Flow
+
+Tests compare aliases, capability traits, checked wrappers, semantic projections, and migration invariants across numeric packages.
+
+## Algorithms And Invariants
+
+Every witness is small and deterministic; external corpus completeness belongs to conformance runners.
+
+## Failure And Effects
+
+The package has no runtime API or IO. Failures are test assertions identifying a contract mismatch.
+
+## Implementation Trade-offs
+
+Centralizing cross-package laws catches drift, while package-local algorithm details remain in their owning white-box tests.
+
+## Stability
+
+The package is maintained as repository infrastructure. Generated declarations may change with the runners and do not promise downstream compatibility.

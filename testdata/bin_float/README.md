@@ -1,5 +1,9 @@
 # BinFloat Conformance Data
 
+The user-facing semantic claim is summarized in
+[`doc/en_US/bin_float/conformance.md`](../../doc/en_US/bin_float/conformance.md);
+this page remains the operational source for corpus provenance and commands.
+
 This directory defines the reproducible, finite conformance gate for the
 supported `bin_float` IEEE 754 operations. It deliberately separates a pinned
 test contract from the unbounded stress modes offered by TestFloat.

@@ -1,6 +1,6 @@
 # @def
 
-This page tracks the `0.5.0` API.
+This page tracks the `0.6.0` API.
 
 ---
 
@@ -74,7 +74,7 @@ trait Floating {
 - **Description**
   The shared capability boundary for Luna Flow floating-like values.
 
-### Required Methods
+**Required Methods**
 
 - **`fn classify(Self) -> FpClass`**
   Returns the current classification: finite, infinity, or NaN.
@@ -91,7 +91,7 @@ trait Floating {
 - **`fn normalized(Self) -> Self`**
   Returns the canonical normalized form for the value.
 
-### Current Implementations
+**Current Implementations**
 
 - `@bin_float.BinFloat`
 - `@decimal.Decimal`
@@ -112,3 +112,66 @@ trait Floating {
 
 - **`fn[F : Floating] is_zero(x : F) -> Bool`**
   Returns `true` when `x` is finite and `sign(x) == Sign::Zero`.
+
+## Complete Public Interface
+
+The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+
+<!-- generated-api-start -->
+```moonbit
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/def"
+
+import {
+  "Luna-Flow/arithmetic",
+  "moonbitlang/core/bigint",
+}
+
+// Values
+pub fn[F : Floating] is_finite(F) -> Bool
+
+pub fn[F : Floating] is_infinite(F) -> Bool
+
+pub fn[F : Floating] is_nan(F) -> Bool
+
+pub fn[F : Floating] is_zero(F) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) enum PartialOrder {
+  Less
+  Equal
+  Greater
+  Unordered
+} derive(Eq)
+
+pub(all) enum Sign {
+  Negative
+  Zero
+  Positive
+} derive(Eq)
+
+// Type aliases
+pub using @arithmetic {type ArithmeticContext}
+
+pub using @arithmetic {type ArithmeticError}
+
+pub using @arithmetic {type ArithmeticErrorKind}
+
+pub using @bigint {type BigInt}
+
+pub using @arithmetic {type FpClass}
+
+pub using @arithmetic {type RoundingMode}
+
+// Traits
+pub(open) trait Floating {
+  fn classify(Self) -> @arithmetic.FpClass
+  fn sign(Self) -> Sign
+  fn precision(Self) -> Int
+  fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+  fn normalized(Self) -> Self
+}
+```
+<!-- generated-api-end -->

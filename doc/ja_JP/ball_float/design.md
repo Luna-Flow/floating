@@ -40,3 +40,7 @@ precision を使います。Entire/`[-1,1]` fallback は tightness より inclus
 ## Inclusion invariant
 
 すべての constructor と operation は必要なら外向きに広げ、tightness より set inclusion を先に保証します。
+
+## Evidence Map
+
+耐久的な algorithm contract は本書、固定された有限 claim と対象外は [Conformance](./conformance.md) に記録します。binary coefficient crossover evidence は [`bin_float` performance](../bin_float/performance.md) が所有し、`ball_float` は同 kernel を再実装せず利用します。

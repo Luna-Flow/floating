@@ -3,10 +3,10 @@
 ## 稳定性
 
 `BinFloat`、`BinCoeff`、二进制 context/flags 和 binary16/32/64/128
-interchange 是 `0.5.0` 支持的应用 API。limb 布局、算法阈值和完整 IEEE 754
+interchange 是 `0.6.0` 支持的应用 API。limb 布局、算法阈值和完整 IEEE 754
 覆盖不属于稳定承诺。
 
-本文档描述 `0.5.0` API；数学与测试边界见[一致性说明](./conformance.md)。
+本文档描述 `0.6.0` API；数学与测试边界见[一致性说明](./conformance.md)。
 
 ## Context、flags 与 interchange
 
@@ -35,7 +35,7 @@ interchange 是 `0.5.0` 支持的应用 API。limb 布局、算法阈值和完�
 按位运算。由于该类型只能表示非负值，可能产生负结果的减法与可能除零的除法使用
 checked API。
 
-### 从 0.4 二进制 API 迁移
+## 从 0.4 二进制 API 迁移
 
 | 旧 API | 当前 API |
 | --- | --- |
@@ -52,7 +52,7 @@ checked API。
 `is_zero`、`normalized`、`with_precision`、`ulp`、`compare`、`min`、`max`、`clamp`、`clamp_checked`
 提供访问和普通操作。NaN 不可参与有序比较。
 
-## 算术
+**算术操作族**
 
 普通 `+`、`-`、`*`、`/` 及 `add`、`sub`、`mul`、`div` 使用无界 nearest-even
 context，不返回标志。需要 IEEE 语义时使用 `round_ctx`、`add_ctx`、`sub_ctx`、
@@ -79,3 +79,207 @@ context，不返回标志。需要 IEEE 语义时使用 `round_ctx`、`add_ctx`�
 ## Trait 面
 
 `Floating`、算术 checked trait 和标准运算 trait 提供最小组合能力，详见生成接口。
+
+## 完整公开接口
+
+以下快照是 `0.6.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+
+<!-- generated-api-start -->
+```moonbit
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/bin_float"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/def",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn sqrt_bounds_for_precision(BinFloat, Int) -> Result[(BinFloat, BinFloat), @arithmetic.ArithmeticError]
+
+pub fn sqrt_for_precision(BinFloat, Int) -> Result[BinFloat, @arithmetic.ArithmeticError]
+
+// Errors
+
+// Types and methods
+pub struct BinCoeff {
+  // private fields
+}
+pub fn BinCoeff::add(Self, Self) -> Self
+pub fn BinCoeff::bit_and(Self, Self) -> Self
+pub fn BinCoeff::bit_length(Self) -> Int
+pub fn BinCoeff::bit_or(Self, Self) -> Self
+pub fn BinCoeff::bit_xor(Self, Self) -> Self
+pub fn BinCoeff::compare(Self, Self) -> Int
+pub fn BinCoeff::ctz(Self) -> Int
+pub fn BinCoeff::div_rem_checked(Self, Self) -> Result[(Self, Self), String]
+pub fn BinCoeff::from_bytes_be(BytesView) -> Self
+pub fn BinCoeff::from_uint64(UInt64) -> Self
+pub fn BinCoeff::gcd(Self, Self) -> Self
+pub fn BinCoeff::is_zero(Self) -> Bool
+pub fn BinCoeff::mul(Self, Self) -> Self
+pub fn BinCoeff::one() -> Self
+pub fn BinCoeff::parse(String, radix? : Int) -> Result[Self, String]
+pub fn BinCoeff::pow_nat(Self, UInt) -> Self
+pub fn BinCoeff::shift_left(Self, Int) -> Self
+pub fn BinCoeff::shift_right(Self, Int) -> Self
+pub fn BinCoeff::square(Self) -> Self
+pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
+pub fn BinCoeff::test_bit(Self, Int) -> Bool
+pub fn BinCoeff::to_bytes_be(Self) -> Bytes
+pub fn BinCoeff::to_string(Self, radix? : Int) -> String
+pub fn BinCoeff::to_uint64(Self) -> UInt64?
+pub fn BinCoeff::zero() -> Self
+pub impl Add for BinCoeff
+pub impl Compare for BinCoeff
+pub impl Eq for BinCoeff
+pub impl Mul for BinCoeff
+pub impl Shl for BinCoeff
+pub impl Show for BinCoeff
+pub impl Shr for BinCoeff
+
+pub struct BinFloat {
+  // private fields
+} derive(Eq)
+pub fn BinFloat::abs(Self) -> Self
+pub fn BinFloat::add(Self, Self) -> Self
+pub fn BinFloat::add_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::classify(Self) -> @arithmetic.FpClass
+pub fn BinFloat::coefficient(Self) -> BinCoeff
+pub fn BinFloat::compare(Self, Self) -> Int
+pub fn BinFloat::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
+pub fn BinFloat::div(Self, Self) -> Self
+pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::div_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exponent2(Self) -> Int
+pub fn BinFloat::from_coefficient(BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn BinFloat::from_double(Double, precision? : Int) -> Self
+pub fn BinFloat::from_float(Float, precision? : Int) -> Self
+pub fn BinFloat::from_hex(String, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::from_int(Int, precision? : Int) -> Self
+pub fn BinFloat::inf(@def.Sign, precision? : Int) -> Self
+pub fn BinFloat::is_negative(Self) -> Bool
+pub fn BinFloat::is_negative_zero(Self) -> Bool
+pub fn BinFloat::is_quiet_nan(Self) -> Bool
+pub fn BinFloat::is_signaling_nan(Self) -> Bool
+pub fn BinFloat::is_zero(Self) -> Bool
+pub fn BinFloat::make(BinCoeff, Int, Int, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
+pub fn BinFloat::max(Self, Self) -> Self
+pub fn BinFloat::min(Self, Self) -> Self
+pub fn BinFloat::mul(Self, Self) -> Self
+pub fn BinFloat::mul_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::nan(precision? : Int) -> Self
+pub fn BinFloat::nan_payload(Self) -> BinCoeff
+pub fn BinFloat::neg(Self) -> Self
+pub fn BinFloat::negative_zero(precision? : Int) -> Self
+pub fn BinFloat::normalized(Self) -> Self
+pub fn BinFloat::one(precision? : Int) -> Self
+pub fn BinFloat::pow_int(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::pow_int_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::precision(Self) -> Int
+pub fn BinFloat::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
+pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::sign(Self) -> @def.Sign
+pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
+pub fn BinFloat::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::sqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::sub(Self, Self) -> Self
+pub fn BinFloat::sub_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::to_hex(Self) -> String
+pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
+pub fn BinFloat::ulp(Self) -> Self
+pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn BinFloat::zero(precision? : Int) -> Self
+pub impl @arithmetic.CompareChecked for BinFloat
+pub impl @arithmetic.DivChecked for BinFloat
+pub impl @arithmetic.PowIntChecked for BinFloat
+pub impl @arithmetic.PowNatChecked for BinFloat
+pub impl @arithmetic.SqrtChecked for BinFloat
+pub impl @def.Floating for BinFloat
+pub impl Add for BinFloat
+pub impl Compare for BinFloat
+pub impl Div for BinFloat
+pub impl Mul for BinFloat
+pub impl Neg for BinFloat
+pub impl Show for BinFloat
+pub impl Sub for BinFloat
+
+pub struct BinaryContext {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn BinaryContext::binary128(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::binary16(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::binary32(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::binary64(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::e_max(Self) -> Int?
+pub fn BinaryContext::e_min(Self) -> Int?
+pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
+pub fn BinaryContext::new(Int, rounding? : BinaryRoundingMode, e_min? : Int, e_max? : Int, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::precision(Self) -> Int
+pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
+pub fn BinaryContext::tininess(Self) -> TininessDetection
+pub fn BinaryContext::try_new(Int, rounding? : BinaryRoundingMode, e_min? : Int, e_max? : Int, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinaryContext::unbounded(Int, rounding? : BinaryRoundingMode) -> Self
+
+pub struct BinaryFlags {
+  // private fields
+} derive(Eq, @debug.Debug)
+pub fn BinaryFlags::combine(Self, Self) -> Self
+pub fn BinaryFlags::division_by_zero(Self) -> Bool
+pub fn BinaryFlags::inexact(Self) -> Bool
+pub fn BinaryFlags::invalid_operation(Self) -> Bool
+pub fn BinaryFlags::new() -> Self
+pub fn BinaryFlags::overflow(Self) -> Bool
+pub fn BinaryFlags::to_testfloat_bits(Self) -> Int
+pub fn BinaryFlags::underflow(Self) -> Bool
+
+pub struct BinaryInterchange {
+  // private fields
+} derive(Eq)
+pub fn BinaryInterchange::bits(Self) -> BinCoeff
+pub fn BinaryInterchange::format(Self) -> BinaryInterchangeFormat
+pub fn BinaryInterchange::from_bin_float(BinFloat, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (Self, BinaryFlags)
+pub fn BinaryInterchange::from_bits(BinCoeff, BinaryInterchangeFormat) -> Self
+pub fn BinaryInterchange::from_hex(String, BinaryInterchangeFormat) -> Self?
+pub fn BinaryInterchange::to_bin_float(Self) -> BinFloat
+pub fn BinaryInterchange::to_hex(Self) -> String
+
+pub(all) enum BinaryInterchangeFormat {
+  Binary16
+  Binary32
+  Binary64
+  Binary128
+} derive(Eq, @debug.Debug)
+pub fn BinaryInterchangeFormat::bias(Self) -> Int
+pub fn BinaryInterchangeFormat::context(Self, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> BinaryContext
+pub fn BinaryInterchangeFormat::e_max(Self) -> Int
+pub fn BinaryInterchangeFormat::e_min(Self) -> Int
+pub fn BinaryInterchangeFormat::exponent_bits(Self) -> Int
+pub fn BinaryInterchangeFormat::fraction_bits(Self) -> Int
+pub fn BinaryInterchangeFormat::precision(Self) -> Int
+pub fn BinaryInterchangeFormat::total_bits(Self) -> Int
+
+pub(all) enum BinaryRoundingMode {
+  RoundTiesToEven
+  RoundTiesToAway
+  RoundTowardZero
+  RoundTowardPositive
+  RoundTowardNegative
+  RoundAwayFromZero
+} derive(Eq, @debug.Debug)
+pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn BinaryRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
+
+pub(all) enum TininessDetection {
+  BeforeRounding
+  AfterRounding
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+```
+<!-- generated-api-end -->

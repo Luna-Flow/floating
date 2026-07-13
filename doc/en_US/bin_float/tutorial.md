@@ -1,6 +1,6 @@
 # `bin_float` Tutorial
 
-This page tracks the `0.5.0` implementation. Read
+This page tracks the `0.6.0` implementation. Read
 [Conformance](./conformance.md) before treating a contextual result as an IEEE
 interchange operation.
 

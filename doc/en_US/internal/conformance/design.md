@@ -1,10 +1,25 @@
 # `internal/conformance` Design
 
-This package centralizes source locations, validated shard specifications, case
-dispositions, and summary folding. Sharding is deterministic modulo case index;
-summary merge adds disjoint counts and concatenates results. `success` means no
-executable failure, not that every selected case was supported.
+## Responsibility
 
-It is an internal data model with no parser, arithmetic, filesystem access, or
-parallel scheduler. Frontends may wrap its types to keep their public vocabulary
-domain-specific.
+Pure shared model for conformance locations, dispositions, shards, and summaries.
+
+## Data Flow
+
+Frontends construct immutable case results; summary folding counts categories, merge combines disjoint shards, and success depends on executable failures.
+
+## Algorithms And Invariants
+
+Shard selection is deterministic by case index, and unsupported or diagnostic rows never masquerade as passed executable rows.
+
+## Failure And Effects
+
+The package performs no parsing, arithmetic, IO, or scheduling effects.
+
+## Implementation Trade-offs
+
+One shared model prevents count drift across runners, while frontend wrappers retain domain-specific public names.
+
+## Stability
+
+The package is maintained as repository infrastructure. Generated declarations may change with the runners and do not promise downstream compatibility.

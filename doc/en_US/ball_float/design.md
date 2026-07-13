@@ -72,3 +72,7 @@ Every constructor and operation widens outward when necessary; correctness is de
 ## Elementary Certificates
 
 Range reduction, series bounds, and critical-point checks form the proof object for elementary enclosures.
+
+## Evidence Map
+
+The durable algorithm contract lives here; the pinned finite claim and exclusions live in [Conformance](./conformance.md). Binary coefficient crossover evidence belongs to [`bin_float` performance](../bin_float/performance.md), because `ball_float` consumes that kernel rather than owning a second implementation.
