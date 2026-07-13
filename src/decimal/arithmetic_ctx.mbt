@@ -19,6 +19,7 @@ fn add_finite_values_ctx(
   lhs_value : Decimal,
   rhs_value : Decimal,
   ctx : DecimalContext,
+  allow_shortcuts? : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   guard lhs_value.class == FpClass::Finite && rhs_value.class == FpClass::Finite else {
     abort("add_finite_ctx expects finite operands")
@@ -101,7 +102,7 @@ fn add_finite_values_ctx(
     }
     return (base, base_flags)
   }
-  if ctx.precision > 0 {
+  if ctx.precision > 0 && allow_shortcuts {
     let self_adjusted = adjusted_exponent(lhs_value)
     let other_adjusted = adjusted_exponent(rhs_value)
     let precision = finite_precision_for(bigint_one(), ctx)
@@ -583,7 +584,7 @@ pub fn Decimal::fma_ctx(
   if !ctx.extended {
     return (Decimal::nan(precision~), invalid_flags())
   }
-  if (
+  let invalid_product = (
       self.class == FpClass::Infinity &&
       multiplier.class == FpClass::Finite &&
       multiplier.is_zero()
@@ -592,12 +593,19 @@ pub fn Decimal::fma_ctx(
       multiplier.class == FpClass::Infinity &&
       self.class == FpClass::Finite &&
       self.is_zero()
-    ) {
-    return (Decimal::nan(precision~), invalid_flags())
+    )
+  if invalid_product && ctx.profile == DecimalSemanticProfile::GDA {
+    match quiet_nan_triplet(self, multiplier, addend, ctx) {
+      Some((value, flags)) => return (value, flags.combine(invalid_flags()))
+      None => return (Decimal::nan(precision~), invalid_flags())
+    }
   }
   match quiet_nan_triplet(self, multiplier, addend, ctx) {
     Some(result) => return result
     None => ()
+  }
+  if invalid_product {
+    return (Decimal::nan(precision~), invalid_flags())
   }
   match (self.class, multiplier.class, addend.class) {
     (FpClass::NaN, _, _) | (_, FpClass::NaN, _) | (_, _, FpClass::NaN) =>
@@ -662,10 +670,16 @@ pub fn Decimal::fma_ctx(
         self.negative != multiplier.negative,
         product_coeff,
         self.exponent10 + multiplier.exponent10,
-        finite_precision_for_coeff(product_coeff, DecimalContext::exact()),
+        finite_precision_for_coeff(product_coeff, decimal_exact_work_context()),
       )
       match addend.class {
-        FpClass::Finite => add_finite_values_ctx(exact_product, addend, ctx)
+        FpClass::Finite =>
+          add_finite_values_ctx(
+            exact_product,
+            addend,
+            ctx,
+            allow_shortcuts=false,
+          )
         FpClass::Infinity =>
           (addend.with_precision(precision, ctx.rounding), DecimalFlags::new())
         FpClass::NaN =>
@@ -707,6 +721,138 @@ pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
   } else {
     Ok(value)
   }
+}
+
+///|
+fn decimal_sqrt_should_increment(
+  quotient : DecCoeff,
+  midpoint_cmp : Int,
+  inexact : Bool,
+  mode : DecimalRoundingMode,
+) -> Bool {
+  guard inexact else { return false }
+  match mode {
+    Down | Floor => false
+    Up | Ceiling => true
+    HalfUp => midpoint_cmp >= 0
+    HalfDown => midpoint_cmp > 0
+    HalfEven =>
+      midpoint_cmp > 0 || (midpoint_cmp == 0 && dec_coeff_is_odd(quotient))
+    ZeroFiveUp =>
+      dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 0 ||
+      dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 5
+  }
+}
+
+///|
+fn decimal_sqrt_fixed_result(
+  operand : Decimal,
+  ctx : DecimalContext,
+  precision : Int,
+) -> (Decimal, DecimalFlags) {
+  let adjusted = adjusted_exponent(operand)
+  let root_adjusted = if adjusted >= 0 {
+    adjusted / 2
+  } else {
+    -((-adjusted + 1) / 2)
+  }
+  // Round directly at the representable subnormal precision.  Rounding first
+  // at the nominal context precision and then again in normalization can
+  // double-round a tiny square root (for example 1.2E-19 at p=2).
+  let root_exponent = Int::max(etiny(ctx), root_adjusted - precision + 1)
+  let scale = operand.exponent10 - root_exponent * 2
+  let (quotient0, inexact, midpoint_cmp) = if scale >= 0 {
+    let radicand = dec_coeff_shift_power10_repr(operand.coefficient, scale)
+    let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(radicand)
+    let inexact = !remainder.is_zero()
+    let midpoint = dec_coeff_magnitude_add_unit(
+      dec_coeff_multiply_by_unit_repr(root, 2),
+      1,
+    )
+    (
+      root,
+      inexact,
+      if inexact {
+        dec_coeff_compare_repr(
+          dec_coeff_multiply_by_unit_repr(radicand, 4),
+          dec_coeff_square_repr(midpoint),
+        )
+      } else {
+        0
+      },
+    )
+  } else {
+    let denominator_digits = -scale
+    let odd_scale = denominator_digits % 2 == 1
+    let normalized_radicand = if odd_scale {
+      dec_coeff_multiply_by_unit_repr(operand.coefficient, 10)
+    } else {
+      operand.coefficient
+    }
+    let (root, root_remainder) = dec_coeff_integer_sqrt_rem_repr(
+      normalized_radicand,
+    )
+    let parity_adjustment = if odd_scale { 1 } else { 0 }
+    let root_divisor = dec_coeff_power10_repr(
+      (denominator_digits + parity_adjustment) / 2,
+    )
+    let (quotient, discarded) = dec_coeff_div_rem_repr(root, root_divisor)
+    let denominator = dec_coeff_power10_repr(denominator_digits)
+    let inexact = !root_remainder.is_zero() || !discarded.is_zero()
+    let midpoint = dec_coeff_magnitude_add_unit(
+      dec_coeff_multiply_by_unit_repr(quotient, 2),
+      1,
+    )
+    (
+      quotient,
+      inexact,
+      if inexact {
+        dec_coeff_compare_repr(
+          dec_coeff_multiply_by_unit_repr(operand.coefficient, 4),
+          dec_coeff_multiply_repr(dec_coeff_square_repr(midpoint), denominator),
+        )
+      } else {
+        0
+      },
+    )
+  }
+  let quotient = if decimal_sqrt_should_increment(
+      quotient0,
+      midpoint_cmp,
+      inexact,
+      ctx.decimal_rounding,
+    ) {
+    dec_coeff_magnitude_add_unit(quotient0, 1)
+  } else {
+    quotient0
+  }
+  let (quotient, result_exponent) = if quotient.digits10() > precision {
+    match exact_divide_by_power_of_ten_repr(quotient, 1) {
+      Some(value) => (value, root_exponent + 1)
+      None => abort("decimal sqrt carry normalization was not exact")
+    }
+  } else {
+    (quotient, root_exponent)
+  }
+  let (value, normalized_flags) = normalize_decimal_parts_ctx_repr(
+    false, quotient, result_exponent, ctx,
+  )
+  let flags = {
+    ..normalized_flags,
+    rounded: normalized_flags.rounded || inexact,
+    inexact: normalized_flags.inexact || inexact,
+  }
+  let flags = if inexact && root_adjusted < ctx.e_min {
+    {
+      ..flags,
+      subnormal: true,
+      underflow: true,
+      clamped: flags.clamped || value.coefficient.is_zero(),
+    }
+  } else {
+    with_underflow_for_inexact_subnormal(value, flags, ctx)
+  }
+  (value, flags)
 }
 
 ///|
@@ -753,26 +899,7 @@ pub fn Decimal::sqrt_ctx(
               (value, flags)
             }
           }
-          None => {
-            let work = Int::max(precision * 4 + 16, 96)
-            match
-              @bin_float.sqrt_for_precision(
-                operand.to_bin_float(precision=work),
-                work,
-              ) {
-              Ok(root) => {
-                let approx = Decimal::from_bin_float(root, precision=work)
-                let (value, flags) = normalize_decimal_parts_ctx_repr(
-                  approx.negative,
-                  approx.coefficient,
-                  approx.exponent10,
-                  ctx,
-                )
-                (value, { ..flags, rounded: true, inexact: true })
-              }
-              Err(_) => (Decimal::nan(precision~), invalid_flags())
-            }
-          }
+          None => decimal_sqrt_fixed_result(operand, ctx, precision)
         }
       }
   }

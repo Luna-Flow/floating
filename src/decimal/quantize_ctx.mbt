@@ -210,7 +210,10 @@ pub fn Decimal::remainder_near(
     )
   }
   let (quotient, quotient_flags0) = decimal_nearest_integer_quotient(
-    lhs, rhs, ctx,
+    lhs,
+    rhs,
+    ctx,
+    ctx.profile == DecimalSemanticProfile::GDA,
   )
   let quotient_flags = operand_flags.combine(quotient_flags0)
   if quotient.class == FpClass::NaN || quotient_flags.has_error() {
@@ -254,6 +257,17 @@ pub fn Decimal::remainder_near(
         invalid_flags(),
       )
   }
+}
+
+///|
+// IEEE 754 remainder: the quotient is rounded to nearest, ties to even, and
+// the remainder is formed from the exact unrounded operands.
+pub fn Decimal::remainder_ctx(
+  self : Decimal,
+  other : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  self.remainder_near(other, ctx.ieee754())
 }
 
 ///|

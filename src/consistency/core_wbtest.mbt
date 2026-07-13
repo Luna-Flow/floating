@@ -789,7 +789,7 @@ test "decimal unary plus/minus official positive exponent cohort rows keep arith
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
     e_min=-999,
     e_max=999,
-  )
+  ).gda()
   let (plux067, plux067_flags) = @decimal.Decimal::from_string(
       "56267E+1",
       precision=64,
@@ -2057,7 +2057,7 @@ test "decimal division propagates nan payloads" {
 
 ///|
 test "decimal division follows official nan priority cases" {
-  let ctx = @decimal.DecimalContext::new(precision=9)
+  let ctx = @decimal.DecimalContext::new(precision=9).gda()
   run_decimal_binary_conformance_case(
     "divx861",
     DecimalConformanceOp::Divide,
@@ -2117,7 +2117,7 @@ test "decimal fma propagates highest-priority nan payloads" {
     precision=9,
     e_min=-999999,
     e_max=999999,
-  )
+  ).gda()
   let qnan = @decimal.Decimal::quiet_nan(payload=7N, precision=12)
   let qnan2 = @decimal.Decimal::quiet_nan(
     payload=5N,
@@ -2470,9 +2470,9 @@ test "decimal interchange formats expose the expected preset contexts" {
   let decimal32 = @decimal.DecimalInterchangeFormat::Decimal32.context()
   let decimal64 = @decimal.DecimalInterchangeFormat::Decimal64.context()
   let decimal128 = @decimal.DecimalInterchangeFormat::Decimal128.context()
-  assert_true(decimal32 == @decimal.DecimalContext::decimal32())
-  assert_true(decimal64 == @decimal.DecimalContext::decimal64())
-  assert_true(decimal128 == @decimal.DecimalContext::decimal128())
+  assert_true(decimal32 == @decimal.DecimalContext::decimal32().ieee754())
+  assert_true(decimal64 == @decimal.DecimalContext::decimal64().ieee754())
+  assert_true(decimal128 == @decimal.DecimalContext::decimal128().ieee754())
 }
 
 ///|
@@ -2953,19 +2953,19 @@ test "decimal canonical multiply quiets interchange nan operands with canonical 
   let one = @decimal.Decimal::one(precision=34)
   let (dd_quiet_product, dd_quiet_flags) = dd_qnan.mul_ctx(
     one,
-    @decimal.DecimalContext::exact(),
+    @decimal.DecimalContext::new(precision=34),
   )
   let (dd_signal_product, dd_signal_flags) = one.mul_ctx(
     dd_snan,
-    @decimal.DecimalContext::exact(),
+    @decimal.DecimalContext::new(precision=34),
   )
   let (dq_quiet_product, dq_quiet_flags) = dq_qnan.mul_ctx(
     one,
-    @decimal.DecimalContext::exact(),
+    @decimal.DecimalContext::new(precision=34),
   )
   let (dq_signal_product, dq_signal_flags) = one.mul_ctx(
     dq_snan,
-    @decimal.DecimalContext::exact(),
+    @decimal.DecimalContext::new(precision=34),
   )
   let (dd_quiet_bits, _dd_quiet_encode_flags) = dd_quiet_product.to_interchange_hex(
     @decimal.DecimalInterchangeFormat::Decimal64,
@@ -3625,7 +3625,7 @@ test "decimal unary plus/minus official subnormal rows keep finalize flags" {
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
     e_min=-999,
     e_max=999,
-  )
+  ).gda()
   let (plux213, plux213_flags) = @decimal.Decimal::from_string(
       "0.100E-999",
       precision=64,
@@ -4395,7 +4395,7 @@ test "decimal divide_integer matches official0 huge lost-digits representative" 
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  )
+  ).gda()
   let (huge_zero, huge_zero_flags) = @decimal.Decimal::from_string(
       "1.23456789012345E-0",
       precision=64,
@@ -4419,7 +4419,7 @@ test "decimal divide_integer matches official0 huge impossible representative" {
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  )
+  ).gda()
   let (too_wide, too_wide_flags) = @decimal.Decimal::from_string(
       "9E+999999999",
       precision=64,
@@ -4604,7 +4604,7 @@ test "decimal remainder matches official0 huge lost-digits representative" {
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  )
+  ).gda()
   let huge_divisor = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let (huge_remainder, huge_remainder_flags) = @decimal.Decimal::from_string(
       "1.23456789012345E-0",
@@ -4625,7 +4625,7 @@ test "decimal remainder_near matches official0 huge lost-digits representative" 
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  )
+  ).gda()
   let huge_divisor = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let (huge_near, huge_near_flags) = @decimal.Decimal::from_string(
       "1.23456789012345E-0",
@@ -4646,7 +4646,7 @@ test "decimal remainder huge impossible representatives match official0" {
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  )
+  ).gda()
   let huge = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let positive_small = @decimal.Decimal::from_string(
     "0.23456789012345",
@@ -5618,7 +5618,7 @@ test "decimal minmax preserves preferred nan diagnostics" {
 }
 
 ///|
-test "plain decimal minmax follows official nan propagation order" {
+test "plain decimal minmax follows IEEE operand-order nan propagation" {
   let finite = @decimal.Decimal::from_int(9, precision=8)
   let qnan_left = @decimal.Decimal::quiet_nan(
     payload=1N,
@@ -5633,8 +5633,8 @@ test "plain decimal minmax follows official nan propagation order" {
   assert_eq(qnan_right.min(qnan_left).nan_payload(), 11N)
   assert_eq(qnan_right.max(finite).to_string(), "9")
   assert_eq(finite.min(qnan_left).to_string(), "9")
-  assert_eq(qnan_right.max(snan).to_string(), "nan93")
-  assert_eq(qnan_right.max(snan).nan_payload(), 93N)
+  assert_eq(qnan_right.max(snan).to_string(), "nan11")
+  assert_eq(qnan_right.max(snan).nan_payload(), 11N)
   assert_eq(finite.min(snan).to_string(), "nan93")
   assert_eq(finite.min(snan).nan_payload(), 93N)
 }
@@ -7123,7 +7123,7 @@ test "decimal shift and rotate accept exact-context counts" {
   assert_true(fixed_shift_flags.invalid_operation)
   assert_true(fixed_rotate_flags.invalid_operation)
 
-  let exact_ctx = @decimal.DecimalContext::exact()
+  let exact_ctx = @decimal.DecimalContext::new(precision=34)
   let (exact_shift, exact_shift_flags) = value.shift_ctx(count, exact_ctx)
   let (exact_rotate, exact_rotate_flags) = value.rotate_ctx(count, exact_ctx)
   assert_false(exact_shift.to_string() == "nan")
@@ -7399,7 +7399,7 @@ test "decimal scaleb preserves zero sign and shifted zero cohort" {
 
 ///|
 test "decimal scaleb handles infinities and nan priority" {
-  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-9, e_max=9)
+  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-9, e_max=9).gda()
   let (inf_result, inf_flags) = @decimal.Decimal::inf(
     @def.Sign::Negative,
     precision=16,

@@ -51,19 +51,45 @@ fn quiet_nan_pair(
   rhs : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  if lhs.is_signaling_nan() {
-    return Some(quiet_nan_operand(lhs, ctx))
+  let selected = match ctx.profile {
+    DecimalSemanticProfile::GDA =>
+      if lhs.is_signaling_nan() {
+        Some(lhs)
+      } else if rhs.is_signaling_nan() {
+        Some(rhs)
+      } else if lhs.is_nan() {
+        Some(lhs)
+      } else if rhs.is_nan() {
+        Some(rhs)
+      } else {
+        None
+      }
+    DecimalSemanticProfile::IEEE754 =>
+      if lhs.is_nan() {
+        Some(lhs)
+      } else if rhs.is_nan() {
+        Some(rhs)
+      } else {
+        None
+      }
   }
-  if rhs.is_signaling_nan() {
-    return Some(quiet_nan_operand(rhs, ctx))
+  match selected {
+    Some(operand) => {
+      let (value, flags) = quiet_nan_operand(operand, ctx)
+      let has_signaling = lhs.is_signaling_nan() || rhs.is_signaling_nan()
+      return Some(
+        (
+          value,
+          if has_signaling {
+            { ..flags, invalid_operation: true }
+          } else {
+            flags
+          },
+        ),
+      )
+    }
+    None => return None
   }
-  if lhs.is_nan() {
-    return Some(quiet_nan_operand(lhs, ctx))
-  }
-  if rhs.is_nan() {
-    return Some(quiet_nan_operand(rhs, ctx))
-  }
-  None
 }
 
 ///|
@@ -73,52 +99,58 @@ fn quiet_nan_triplet(
   third : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  if first.is_signaling_nan() {
-    return Some(quiet_nan_operand(first, ctx))
+  let has_signaling = first.is_signaling_nan() ||
+    second.is_signaling_nan() ||
+    third.is_signaling_nan()
+  let selected = match ctx.profile {
+    DecimalSemanticProfile::GDA =>
+      if first.is_signaling_nan() {
+        Some(first)
+      } else if second.is_signaling_nan() {
+        Some(second)
+      } else if third.is_signaling_nan() {
+        Some(third)
+      } else if first.is_nan() {
+        Some(first)
+      } else if second.is_nan() {
+        Some(second)
+      } else if third.is_nan() {
+        Some(third)
+      } else {
+        None
+      }
+    DecimalSemanticProfile::IEEE754 =>
+      if first.is_nan() {
+        Some(first)
+      } else if second.is_nan() {
+        Some(second)
+      } else if third.is_nan() {
+        Some(third)
+      } else {
+        None
+      }
   }
-  if second.is_signaling_nan() {
-    return Some(quiet_nan_operand(second, ctx))
+  match selected {
+    Some(operand) => {
+      let (value, flags) = quiet_nan_operand(operand, ctx)
+      Some(
+        (
+          value,
+          if has_signaling {
+            { ..flags, invalid_operation: true }
+          } else {
+            flags
+          },
+        ),
+      )
+    }
+    None => None
   }
-  if third.is_signaling_nan() {
-    return Some(quiet_nan_operand(third, ctx))
-  }
-  if first.is_nan() {
-    return Some(quiet_nan_operand(first, ctx))
-  }
-  if second.is_nan() {
-    return Some(quiet_nan_operand(second, ctx))
-  }
-  if third.is_nan() {
-    return Some(quiet_nan_operand(third, ctx))
-  }
-  None
 }
 
 ///|
 fn quiet_nan_pair_plain(lhs : Decimal, rhs : Decimal) -> Decimal? {
   let precision = max_precision(lhs, rhs)
-  if lhs.is_signaling_nan() {
-    return Some(
-      make_special_repr(
-        FpClass::NaN,
-        lhs.negative,
-        lhs.coefficient,
-        precision,
-        false,
-      ),
-    )
-  }
-  if rhs.is_signaling_nan() {
-    return Some(
-      make_special_repr(
-        FpClass::NaN,
-        rhs.negative,
-        rhs.coefficient,
-        precision,
-        false,
-      ),
-    )
-  }
   if lhs.is_nan() {
     return Some(
       make_special_repr(
@@ -251,6 +283,49 @@ pub fn Decimal::nan_payload(self : Decimal) -> BigInt {
   } else {
     bigint_zero()
   }
+}
+
+///|
+pub fn Decimal::get_payload(self : Decimal) -> BigInt {
+  self.nan_payload()
+}
+
+///|
+pub fn Decimal::set_payload(self : Decimal, payload : BigInt) -> Decimal {
+  if self.class == FpClass::NaN {
+    make_special_repr(
+      FpClass::NaN,
+      self.negative,
+      coeff_from_bigint(payload),
+      self.precision_,
+      false,
+    )
+  } else {
+    self
+  }
+}
+
+///|
+pub fn Decimal::set_payload_signaling(
+  self : Decimal,
+  payload : BigInt,
+) -> Decimal {
+  if self.class == FpClass::NaN {
+    make_special_repr(
+      FpClass::NaN,
+      self.negative,
+      coeff_from_bigint(payload),
+      self.precision_,
+      true,
+    )
+  } else {
+    self
+  }
+}
+
+///|
+pub fn Decimal::quantum(self : Decimal) -> Int {
+  self.exponent10
 }
 
 ///|

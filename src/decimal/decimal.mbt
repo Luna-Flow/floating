@@ -72,8 +72,13 @@ fn make_special_repr(
 
 ///|
 fn dec_coeff_integer_sqrt_floor_repr(n : DecCoeff) -> DecCoeff {
+  dec_coeff_integer_sqrt_rem_repr(n).0
+}
+
+///|
+fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
   if dec_coeff_compare_repr(n, dec_coeff_from_int(1)) <= 0 {
-    return n
+    return (n, dec_coeff_zero())
   }
   // Exact-integer specialization of GDA SquareRoot's Newton step
   // a = 0.5 * (a + f/a), using the same decimal Unit primitives
@@ -84,11 +89,12 @@ fn dec_coeff_integer_sqrt_floor_repr(n : DecCoeff) -> DecCoeff {
     let sum = dec_coeff_magnitude_add_repr(approximation, quotient)
     let next = dec_coeff_div_rem_by_unit_repr(sum, 2).0
     if dec_coeff_compare_repr(next, approximation) >= 0 {
-      return approximation
+      let square = dec_coeff_square_repr(approximation)
+      return (approximation, dec_coeff_magnitude_sub_repr(n, square))
     }
     approximation = next
   } nobreak {
-    approximation
+    (approximation, dec_coeff_zero())
   }
 }
 
@@ -121,7 +127,7 @@ fn exact_finite_sqrt(value : Decimal, precision : Int) -> Decimal? {
     (dec_coeff_multiply_by_unit_repr(normalized_coeff0, 10), normalized_exp - 1)
   }
   let root = dec_coeff_integer_sqrt_floor_repr(radicand)
-  if dec_coeff_compare_repr(dec_coeff_multiply_repr(root, root), radicand) == 0 {
+  if dec_coeff_compare_repr(dec_coeff_square_repr(root), radicand) == 0 {
     let exact = finite_with_exponent_repr(
       false,
       root,
@@ -349,12 +355,10 @@ fn is_finite_decimal_negative_one(value : Decimal) -> Bool {
 
 ///|
 fn decimal_small_pow10(shift : Int) -> Int {
-  match shift {
-    0 => 1
-    1 => 10
-    2 => 100
-    _ => abort("decimal_small_pow10 expects shift in 0..2")
+  guard shift >= 0 && shift < dec_coeff_dpun else {
+    abort("decimal_small_pow10 shift exceeds one coefficient limb")
   }
+  dec_coeff_powers[shift]
 }
 
 ///|
@@ -372,22 +376,22 @@ fn decimal_exact_aligned_sum_result(
   } else {
     (rhs, lhs)
   }
-  let low_units = low.coefficient.units.copy()
+  let low_units = dec_coeff_copy_limbs(low.coefficient)
   let low_unit_len = dec_coeff_unit_len(low.coefficient)
 
-  let high_units = high.coefficient.units.copy()
+  let high_units = dec_coeff_copy_limbs(high.coefficient)
   let high_unit_len = dec_coeff_unit_len(high.coefficient)
   let padding = high.exponent10 - low.exponent10
   // GDA decAddOp splits decimal padding into a whole-unit shift and a
   // power-of-ten multiplier, then calls decUnitAddSub directly
   // (libdecnumber/decNumber.c lines 3978-4018 and 4055-4059).
-  let bshift = (padding + 1 + 2) / 3 - 1
-  let mult = decimal_small_pow10(padding - bshift * 3)
+  let bshift = (padding + dec_coeff_dpun) / dec_coeff_dpun - 1
+  let mult = decimal_small_pow10(padding - bshift * dec_coeff_dpun)
 
-  let acc : Array[Int] = []
+  let acc : Array[UInt] = []
   let mut pad = 0
   while pad < Int::max(low_unit_len, high_unit_len + bshift) + 2 {
-    acc.push(0)
+    acc.push(0U)
     pad += 1
   }
 
@@ -412,13 +416,13 @@ fn decimal_exact_aligned_sum_result(
     }
   }
 
-  let compact : Array[Int] = []
+  let compact : Array[UInt] = []
   let mut index = 0
   while index < len {
     compact.push(acc[index])
     index += 1
   }
-  let magnitude = { units: compact, digits: dec_coeff_get_digits(compact, len) }
+  let magnitude = dec_coeff_from_unit_accumulator(compact, len)
   let negative = if magnitude.is_zero() {
     false
   } else if low.negative == high.negative {
@@ -709,7 +713,8 @@ fn exact_base_small_addend_result(
   // the retained coefficient LSD. Both decisions are unit-native here.
   let step = exact_base_small_addend_step(
     dec_coeff_is_odd(base_units_repr),
-    base_units_repr.units[0] % 10 == 0 || base_units_repr.units[0] % 10 == 5,
+    dec_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 0 ||
+    dec_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 5,
     base.negative,
     low.negative,
     cmp_half,
@@ -756,7 +761,10 @@ fn absorbed_sum_result(
   let exact_negative = high.negative
   let zero_five_up_moves = base.class == FpClass::Finite &&
     !base.coefficient.is_zero() &&
-    (base.coefficient.units[0] % 10 == 0 || base.coefficient.units[0] % 10 == 5)
+    (
+      dec_coeff_limb_at(base.coefficient, 0).reinterpret_as_int() % 10 == 0 ||
+      dec_coeff_limb_at(base.coefficient, 0).reinterpret_as_int() % 10 == 5
+    )
   let move_toward_positive = match ctx.decimal_rounding {
     Ceiling =>
       if base.class == FpClass::Finite && base.coefficient.is_zero() {
@@ -1226,6 +1234,7 @@ fn decimal_nearest_integer_quotient(
   dividend : Decimal,
   other : Decimal,
   ctx : DecimalContext,
+  limit_precision : Bool,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for(bigint_one(), ctx)
   match (dividend.class, other.class) {
@@ -1260,7 +1269,8 @@ fn decimal_nearest_integer_quotient(
           (Decimal::zero(precision~), flags)
         }
       }
-      if ctx.precision > 0 &&
+      if limit_precision &&
+        ctx.precision > 0 &&
         integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {
         return (Decimal::nan(precision~), div_impossible_flags())
       }
@@ -1298,21 +1308,28 @@ fn decimal_nearest_integer_quotient(
           }
         }
       }
-      if ctx.precision > 0 &&
+      if limit_precision &&
+        ctx.precision > 0 &&
         !quotient.is_zero() &&
         quotient.digits10() > ctx.precision {
         return (Decimal::nan(precision~), div_impossible_flags())
       }
-      finalize_finite_ctx(
-        finite_with_exponent_repr(
-          dividend.negative != other.negative,
-          quotient,
-          0,
-          precision,
-        ),
-        DecimalFlags::new(),
-        ctx,
+      let quotient_precision = if limit_precision {
+        precision
+      } else {
+        Int::max(1, quotient.digits10())
+      }
+      let quotient_value = finite_with_exponent_repr(
+        dividend.negative != other.negative,
+        quotient,
+        0,
+        quotient_precision,
       )
+      if limit_precision {
+        finalize_finite_ctx(quotient_value, DecimalFlags::new(), ctx)
+      } else {
+        (quotient_value, DecimalFlags::new())
+      }
     }
   }
 }

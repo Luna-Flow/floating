@@ -12,6 +12,8 @@ pub struct Decimal {
 }
 
 ///|
+
+///|
 pub(all) enum DecimalRoundingMode {
   HalfEven
   HalfUp
@@ -24,6 +26,29 @@ pub(all) enum DecimalRoundingMode {
 } derive(Eq)
 
 ///|
+pub(all) enum DecimalTininessDetection {
+  BeforeRounding
+  AfterRounding
+} derive(Eq)
+
+///|
+pub(all) enum DecimalSignal {
+  ConversionSyntax
+  DivisionByZero
+  DivisionImpossible
+  DivisionUndefined
+  InvalidContext
+  InvalidOperation
+  Overflow
+  Underflow
+  Subnormal
+  Inexact
+  Rounded
+  Clamped
+  LostDigits
+} derive(Eq)
+
+///|
 pub(all) enum DecimalInterchangeFormat {
   Decimal32
   Decimal64
@@ -31,8 +56,21 @@ pub(all) enum DecimalInterchangeFormat {
 } derive(Eq)
 
 ///|
+pub(all) enum DecimalInterchangeEncoding {
+  DPD
+  BID
+} derive(Eq)
+
+///|
+priv enum DecimalSemanticProfile {
+  GDA
+  IEEE754
+} derive(Eq)
+
+///|
 pub struct DecimalInterchange {
   priv format : DecimalInterchangeFormat
+  priv encoding : DecimalInterchangeEncoding
   priv bits : BigInt
 }
 
@@ -45,6 +83,8 @@ pub struct DecimalContext {
   priv e_max : Int
   priv clamp : Bool
   priv extended : Bool
+  priv profile : DecimalSemanticProfile
+  priv tininess : DecimalTininessDetection
 } derive(Eq)
 
 ///|
@@ -67,9 +107,9 @@ pub struct DecimalFlags {
 ///|
 priv struct DecimalMathConstantCache {
   scale : Int
-  ln2 : BigInt
-  ln5 : BigInt
-  ln10 : BigInt
+  ln2 : DecCoeff
+  ln5 : DecCoeff
+  ln10 : DecCoeff
 }
 
 ///|
@@ -85,9 +125,9 @@ priv struct DecimalExpBoundaryCacheEntry {
 ///|
 let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.new({
     scale: 0,
-    ln2: bigint_zero(),
-    ln5: bigint_zero(),
-    ln10: bigint_zero(),
+    ln2: dec_coeff_zero(),
+    ln5: dec_coeff_zero(),
+    ln10: dec_coeff_zero(),
   },
 )
 
@@ -145,6 +185,28 @@ pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
 }
 
 ///|
+pub fn DecimalFlags::contains(
+  self : DecimalFlags,
+  signal : DecimalSignal,
+) -> Bool {
+  match signal {
+    ConversionSyntax => self.conversion_syntax
+    DivisionByZero => self.division_by_zero
+    DivisionImpossible => self.division_impossible
+    DivisionUndefined => self.division_undefined
+    InvalidContext => self.invalid_context
+    InvalidOperation => self.invalid_operation
+    Overflow => self.overflow
+    Underflow => self.underflow
+    Subnormal => self.subnormal
+    Inexact => self.inexact
+    Rounded => self.rounded
+    Clamped => self.clamped
+    LostDigits => self.lost_digits
+  }
+}
+
+///|
 pub fn DecimalContext::new(
   precision? : Int = 34,
   rounding? : RoundingMode = RoundingMode::ToNearestEven,
@@ -153,9 +215,10 @@ pub fn DecimalContext::new(
   e_max? : Int = 999_999_999,
   clamp? : Bool = false,
   extended? : Bool = true,
+  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
 ) -> DecimalContext {
-  guard precision >= 0 else {
-    abort("DecimalContext::new: precision must be non-negative")
+  guard precision > 0 else {
+    abort("DecimalContext::new: precision must be positive")
   }
   guard e_min <= e_max else {
     abort("DecimalContext::new: e_min must not exceed e_max")
@@ -164,7 +227,17 @@ pub fn DecimalContext::new(
     Some(mode) => mode
     None => DecimalRoundingMode::from_arithmetic(rounding)
   }
-  { precision, rounding, decimal_rounding, e_min, e_max, clamp, extended }
+  {
+    precision,
+    rounding,
+    decimal_rounding,
+    e_min,
+    e_max,
+    clamp,
+    extended,
+    profile: DecimalSemanticProfile::IEEE754,
+    tininess,
+  }
 }
 
 ///|
@@ -176,11 +249,12 @@ pub fn DecimalContext::try_new(
   e_max? : Int = 999_999_999,
   clamp? : Bool = false,
   extended? : Bool = true,
+  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
-  guard precision >= 0 else {
+  guard precision > 0 else {
     return Err(
       @def.ArithmeticError::domain_error(
-        "DecimalContext::try_new: precision must be non-negative",
+        "DecimalContext::try_new: precision must be positive",
       ),
     )
   }
@@ -195,7 +269,17 @@ pub fn DecimalContext::try_new(
     Some(mode) => mode
     None => DecimalRoundingMode::from_arithmetic(rounding)
   }
-  Ok({ precision, rounding, decimal_rounding, e_min, e_max, clamp, extended })
+  Ok({
+    precision,
+    rounding,
+    decimal_rounding,
+    e_min,
+    e_max,
+    clamp,
+    extended,
+    profile: DecimalSemanticProfile::IEEE754,
+    tininess,
+  })
 }
 
 ///|
@@ -206,6 +290,23 @@ pub fn DecimalContext::precision(self : DecimalContext) -> Int {
 ///|
 pub fn DecimalContext::rounding(self : DecimalContext) -> RoundingMode {
   self.rounding
+}
+
+///|
+pub fn DecimalContext::with_rounding(
+  self : DecimalContext,
+  rounding : RoundingMode,
+) -> DecimalContext {
+  {
+    ..self,
+    rounding,
+    decimal_rounding: DecimalRoundingMode::from_arithmetic(rounding),
+  }
+}
+
+///|
+pub fn DecimalContext::is754version2019(self : DecimalContext) -> Bool {
+  self.profile == DecimalSemanticProfile::IEEE754
 }
 
 ///|
@@ -236,8 +337,52 @@ pub fn DecimalContext::extended(self : DecimalContext) -> Bool {
 }
 
 ///|
+pub fn DecimalContext::tininess(
+  self : DecimalContext,
+) -> DecimalTininessDetection {
+  self.tininess
+}
+
+///|
+pub fn DecimalContext::with_tininess(
+  self : DecimalContext,
+  tininess : DecimalTininessDetection,
+) -> DecimalContext {
+  { ..self, tininess, }
+}
+
+///|
+pub fn DecimalContext::ieee754(self : DecimalContext) -> DecimalContext {
+  { ..self, profile: DecimalSemanticProfile::IEEE754 }
+}
+
+///|
+pub fn DecimalContext::gda(self : DecimalContext) -> DecimalContext {
+  {
+    ..self,
+    profile: DecimalSemanticProfile::GDA,
+    tininess: DecimalTininessDetection::BeforeRounding,
+  }
+}
+
+///|
+fn decimal_exact_work_context() -> DecimalContext {
+  {
+    precision: 0,
+    rounding: RoundingMode::ToNearestEven,
+    decimal_rounding: DecimalRoundingMode::HalfEven,
+    e_min: -999_999_999,
+    e_max: 999_999_999,
+    clamp: false,
+    extended: true,
+    profile: DecimalSemanticProfile::IEEE754,
+    tininess: DecimalTininessDetection::AfterRounding,
+  }
+}
+
+///|
 pub fn DecimalContext::exact() -> DecimalContext {
-  DecimalContext::new(precision=0)
+  decimal_exact_work_context()
 }
 
 ///|
@@ -285,9 +430,9 @@ pub fn DecimalInterchangeFormat::context(
   self : DecimalInterchangeFormat,
 ) -> DecimalContext {
   match self {
-    Decimal32 => DecimalContext::decimal32()
-    Decimal64 => DecimalContext::decimal64()
-    Decimal128 => DecimalContext::decimal128()
+    Decimal32 => DecimalContext::decimal32().ieee754()
+    Decimal64 => DecimalContext::decimal64().ieee754()
+    Decimal128 => DecimalContext::decimal128().ieee754()
   }
 }
 

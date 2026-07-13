@@ -21,7 +21,7 @@ fn dec_coeff_to_bounded_int(coeff : DecCoeff, limit : Int) -> Int? {
   let unit_count = dec_coeff_d2u(coeff.digits10())
   let mut value = 0
   for i = unit_count - 1; i >= 0; i = i - 1 {
-    let unit = coeff.units[i]
+    let unit = dec_coeff_limb_at(coeff, i).reinterpret_as_int()
     let remaining = limit - unit
     guard remaining >= 0 && value <= remaining / dec_coeff_base else {
       return None
@@ -105,7 +105,7 @@ fn decimal_power_finite_noninteger_operand_range_result(
     None =>
       if decimal_math_operand_out_of_range(base) ||
         decimal_math_operand_out_of_range(exponent) {
-        let precision = finite_precision_for(bigint_one(), ctx)
+        let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
         Some((Decimal::nan(precision~), invalid_flags()))
       } else {
         None
@@ -117,10 +117,15 @@ fn decimal_power_finite_noninteger_operand_range_result(
 fn decimal_power_one_limit_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let zeros = Int::max(0, precision - 1)
   (
-    finite_with_exponent(false, pow10(zeros), -zeros, precision),
+    finite_with_exponent_repr(
+      false,
+      dec_coeff_power10_repr(zeros),
+      -zeros,
+      precision,
+    ),
     { ..DecimalFlags::new(), inexact: true, rounded: true },
   )
 }
@@ -137,7 +142,7 @@ fn decimal_power_one_finite_exponent_result(
   match decimal_power_integer_is_odd(exponent) {
     Some(_) => None
     None => {
-      let precision = finite_precision_for(bigint_one(), ctx)
+      let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
       if adjusted_exponent(exponent) > 999_999 ||
         exponent.exponent10 + exponent.coefficient.digits10() < -1_999_996 {
         Some((Decimal::nan(precision~), invalid_flags()))
@@ -184,7 +189,7 @@ fn decimal_power_adjacent_one_directed_result(
     !exponent.coefficient.is_zero() else {
     return None
   }
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let one = Decimal::one(precision~)
   guard exponent.compare(one) < 0 else { return None }
   let flags = { ..DecimalFlags::new(), rounded: true, inexact: true }
@@ -298,7 +303,7 @@ fn decimal_power_finite_noninteger_domain_result(
     Some(_) => return None
     None => ()
   }
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if base.coefficient.is_zero() {
     if exponent.negative && !exponent.coefficient.is_zero() {
       return Some(
@@ -307,7 +312,7 @@ fn decimal_power_finite_noninteger_domain_result(
     }
     return Some(
       (
-        finite_with_exponent(false, bigint_zero(), 0, precision),
+        finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
         DecimalFlags::new(),
       ),
     )
@@ -321,21 +326,6 @@ fn decimal_power_finite_noninteger_domain_result(
 ///|
 fn decimal_math_result_ctx(ctx : DecimalContext) -> DecimalContext {
   { ..ctx, decimal_rounding: DecimalRoundingMode::HalfEven }
-}
-
-///|
-fn normalize_decimal_parts_math_ctx(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_ctx(
-    negative,
-    magnitude,
-    exponent10,
-    decimal_math_result_ctx(ctx),
-  )
 }
 
 ///|
@@ -390,8 +380,8 @@ fn decimal_power_integer_work_ctx(
   count : Int,
   ctx : DecimalContext,
 ) -> DecimalContext {
-  let precision = finite_precision_for(bigint_one(), ctx)
-  let extra_digits = digits10(BigInt::from_int(abs_int(count))) +
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
+  let extra_digits = dec_coeff_from_int_magnitude(count).digits10() +
     (if ctx.extended { 2 } else { 1 })
   {
     ..ctx,
@@ -412,17 +402,38 @@ fn decimal_power_large_integer_exponent_bound_result(
   guard count > 0 else { return None }
   let negative = base.negative && (count & 1) == 1
   let digits = base.coefficient.digits10()
-  let lower_adjusted = BigInt::from_int(base.exponent10 + digits - 1) *
-    BigInt::from_int(count)
-  if lower_adjusted > BigInt::from_int(ctx.e_max) {
+  let lower_base = base.exponent10 + digits - 1
+  let lower_product = signed_dec_coeff(
+    (count < 0) != (lower_base < 0),
+    dec_coeff_multiply_repr(
+      dec_coeff_from_int_magnitude(count),
+      dec_coeff_from_int_magnitude(lower_base),
+    ),
+  )
+  if dec_coeff_signed_compare_int_repr(
+      lower_product.negative,
+      lower_product.magnitude,
+      ctx.e_max,
+    ) >
+    0 {
     return Some(decimal_overflow_result(negative, ctx))
   }
   // For positive integer powers the exact adjusted exponent lies in
   // [n*(e+d-1), n*(e+d)-1]. Only the upper end is safe for a zero shortcut.
-  let upper_adjusted = BigInt::from_int(base.exponent10 + digits) *
-    BigInt::from_int(count) -
-    bigint_one()
-  if upper_adjusted < BigInt::from_int(etiny(ctx)) {
+  let upper_base = base.exponent10 + digits
+  let upper_product = signed_dec_coeff(
+    (count < 0) != (upper_base < 0),
+    dec_coeff_multiply_repr(
+      dec_coeff_from_int_magnitude(count),
+      dec_coeff_from_int_magnitude(upper_base),
+    ),
+  ).sub(signed_dec_coeff(false, dec_coeff_from_int(1)))
+  if dec_coeff_signed_compare_int_repr(
+      upper_product.negative,
+      upper_product.magnitude,
+      etiny(ctx),
+    ) <
+    0 {
     let (value, flags) = decimal_power_underflow_zero_result(negative, ctx)
     return Some(({ ..value, negative, }, flags))
   }
@@ -439,7 +450,7 @@ fn decimal_power_integer_exact_result(
     return None
   }
   guard count != 0 else { return None }
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let n = abs_int(count)
   let negative = base.negative && (n & 1) == 1
   let magnitude = if ctx.precision == 0 {
@@ -488,7 +499,9 @@ fn decimal_power_integer_bounded_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let work_ctx = decimal_power_integer_work_ctx(count, ctx)
-  let one = Decimal::one(precision=finite_precision_for(bigint_one(), work_ctx))
+  let one = Decimal::one(
+    precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
+  )
   let (factor0, initial_flags) = if count < 0 && ctx.extended {
     decimal_div_finite_work(one, base, work_ctx)
   } else {
@@ -574,8 +587,11 @@ fn decimal_power_integer_finite_result(
   count : Int,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let required_precision = finite_precision_for(bigint_one(), ctx) +
-    digits10(BigInt::from_int(abs_int(count))) +
+  let required_precision = finite_precision_for_coeff(
+      dec_coeff_from_int(1),
+      ctx,
+    ) +
+    dec_coeff_from_int_magnitude(count).digits10() +
     (if ctx.extended { 2 } else { 1 })
   if required_precision > 999_999_999 {
     let negative = base.negative && (abs_int(count) & 1) == 1
@@ -586,7 +602,7 @@ fn decimal_power_integer_finite_result(
         } else {
           Sign::Positive
         },
-        precision=finite_precision_for(bigint_one(), ctx),
+        precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
       ),
       { ..DecimalFlags::new(), overflow: true },
     )
@@ -619,9 +635,9 @@ fn decimal_exp_underflow_zero_result(
   ctx : DecimalContext,
   clamped : Bool,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = (
-    finite_with_exponent(false, bigint_zero(), etiny(ctx), precision),
+    finite_with_exponent_repr(false, dec_coeff_zero(), etiny(ctx), precision),
     {
       ..DecimalFlags::new(),
       underflow: true,
@@ -662,7 +678,12 @@ fn decimal_math_work_ctx(precision : Int) -> DecimalContext {
 
 ///|
 fn decimal_math_small_threshold(work_precision : Int) -> Decimal {
-  finite_with_exponent(false, bigint_one(), -(work_precision + 2), 1)
+  finite_with_exponent_repr(
+    false,
+    dec_coeff_from_int(1),
+    -(work_precision + 2),
+    1,
+  )
 }
 
 ///|
@@ -696,7 +717,7 @@ fn decimal_mul_finite_by_small_int_work(
     value.negative,
     dec_coeff_multiply_repr(
       value.coefficient,
-      DecCoeff::from_bigint(BigInt::from_int(factor)),
+      dec_coeff_from_nonnegative_int(factor),
     ),
     value.exponent10,
     work_ctx,
@@ -715,7 +736,7 @@ fn decimal_div_finite_by_small_int_work(
   guard divisor > 0 else {
     abort("decimal_div_finite_by_small_int_work expects a positive divisor")
   }
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
   let denominator = dec_coeff_from_nonnegative_int(divisor)
   let extra = precision + denominator.digits10() + 2
   let numerator = dec_coeff_shift_power10_repr(value.coefficient, extra)
@@ -819,12 +840,12 @@ fn decimal_div_finite_work(
   guard !rhs.coefficient.is_zero() else {
     abort("decimal_div_finite_work expects a non-zero divisor")
   }
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
   if lhs.coefficient.is_zero() {
     return finalize_finite_ctx(
-      finite_with_exponent(
+      finite_with_exponent_repr(
         lhs.negative != rhs.negative,
-        bigint_zero(),
+        dec_coeff_zero(),
         lhs.exponent10 - rhs.exponent10,
         precision,
       ),
@@ -957,21 +978,21 @@ fn decimal_mul_finite_work_power_fast(
     abort("decimal_mul_finite_work_power_fast expects finite operands")
   }
   if lhs.coefficient.is_zero() || rhs.coefficient.is_zero() {
-    return normalize_decimal_parts_math_ctx(
+    return normalize_decimal_parts_math_ctx_repr(
       lhs.negative != rhs.negative,
-      bigint_zero(),
+      dec_coeff_zero(),
       lhs.exponent10 + rhs.exponent10,
       work_ctx,
     )
   }
   let negative = lhs.negative != rhs.negative
-  let lower_adjusted = BigInt::from_int(adjusted_exponent(lhs)) +
-    BigInt::from_int(adjusted_exponent(rhs))
-  if lower_adjusted > BigInt::from_int(work_ctx.e_max) {
+  let lower_adjusted = adjusted_exponent(lhs).to_int64() +
+    adjusted_exponent(rhs).to_int64()
+  if lower_adjusted > work_ctx.e_max.to_int64() {
     return decimal_overflow_result(negative, work_ctx)
   }
-  let upper_adjusted = lower_adjusted + bigint_one()
-  if upper_adjusted < BigInt::from_int(etiny(work_ctx)) {
+  let upper_adjusted = lower_adjusted + 1L
+  if upper_adjusted < etiny(work_ctx).to_int64() {
     return decimal_underflow_zero_result(negative, work_ctx)
   }
   decimal_mul_finite_work(lhs, rhs, work_ctx)
@@ -1018,114 +1039,103 @@ fn decimal_add_finite_work(
 }
 
 ///|
-fn decimal_round_scaled_bigint(value : BigInt, shift : Int) -> BigInt {
-  if shift <= 0 {
-    value * pow10(-shift)
-  } else {
-    let magnitude = round_positive_decimal_div(
-      abs_bigint(value),
-      pow10(shift),
-      value < bigint_zero(),
-      DecimalRoundingMode::HalfEven,
-    )
-    if value < bigint_zero() {
-      -magnitude
-    } else {
-      magnitude
-    }
-  }
+fn decimal_round_scaled_coeff(
+  value : SignedDecCoeff,
+  shift : Int,
+) -> SignedDecCoeff {
+  value.round_power10_half_even(shift)
 }
 
 ///|
-fn decimal_ln_atanh_scaled(
-  numerator : BigInt,
-  denominator : BigInt,
+fn decimal_ln_atanh_scaled_coeff(
+  numerator : DecCoeff,
+  denominator : DecCoeff,
   scale : Int,
-) -> BigInt {
-  guard numerator > bigint_zero() && denominator > bigint_zero() else {
-    abort("decimal_ln_atanh_scaled expects positive rational input")
+) -> SignedDecCoeff {
+  guard !numerator.is_zero() && !denominator.is_zero() else {
+    abort("decimal_ln_atanh_scaled_coeff expects positive rational input")
   }
-  if numerator == denominator {
-    return bigint_zero()
+  let comparison = dec_coeff_compare_repr(numerator, denominator)
+  if comparison == 0 {
+    return signed_dec_coeff_zero()
   }
   let extra_digits = 8
   let work_scale = scale + extra_digits
-  let negative = numerator < denominator
+  let negative = comparison < 0
   let delta = if negative {
-    denominator - numerator
+    dec_coeff_magnitude_sub_repr(denominator, numerator)
   } else {
-    numerator - denominator
+    dec_coeff_magnitude_sub_repr(numerator, denominator)
   }
-  let sum = numerator + denominator
-  let scale_factor = pow10(work_scale)
-  let two = BigInt::from_int(2)
-  let one = bigint_one()
-  let delta2 = delta * delta
-  let sum2 = sum * sum
+  let sum = dec_coeff_magnitude_add_repr(numerator, denominator)
+  let scale_factor = dec_coeff_power10_repr(work_scale)
+  let delta2 = dec_coeff_square_repr(delta)
+  let sum2 = dec_coeff_square_repr(sum)
   let mut power_num = delta
   let mut power_den = sum
-  let mut divisor_index = one
-  let mut total = bigint_zero()
-  let stop_threshold = pow10(extra_digits)
+  let mut divisor_index = 1
+  let mut total = dec_coeff_zero()
+  let stop_threshold = dec_coeff_power10_repr(extra_digits)
   let mut active = true
   while active {
-    let divisor = power_den * divisor_index
-    let term = two * scale_factor * power_num / divisor
-    total = total + term
-    if term <= stop_threshold {
+    let divisor = dec_coeff_multiply_repr(
+      power_den,
+      dec_coeff_from_nonnegative_int(divisor_index),
+    )
+    let scaled_power = dec_coeff_multiply_repr(scale_factor, power_num)
+    let term_numerator = dec_coeff_multiply_by_unit_repr(scaled_power, 2)
+    let term = dec_coeff_div_rem_repr(term_numerator, divisor).0
+    total = dec_coeff_magnitude_add_repr(total, term)
+    if dec_coeff_compare_repr(term, stop_threshold) <= 0 {
       active = false
     } else {
-      power_num = power_num * delta2
-      power_den = power_den * sum2
-      divisor_index = divisor_index + two
+      power_num = dec_coeff_multiply_repr(power_num, delta2)
+      power_den = dec_coeff_multiply_repr(power_den, sum2)
+      divisor_index += 2
     }
   }
-  decimal_round_scaled_bigint(
-    if negative {
-      -total
-    } else {
-      total
-    },
-    extra_digits,
-  )
+  decimal_round_scaled_coeff(signed_dec_coeff(negative, total), extra_digits)
 }
 
 ///|
 fn decimal_transcendental_ln_constants(
   work_scale : Int,
-) -> (BigInt, BigInt, BigInt) {
+) -> (DecCoeff, DecCoeff, DecCoeff) {
   let cache = decimal_math_constant_cache.val
   if cache.scale >= work_scale && cache.scale > 0 {
     let shift = cache.scale - work_scale
     return (
-      decimal_round_scaled_bigint(cache.ln2, shift),
-      decimal_round_scaled_bigint(cache.ln5, shift),
-      decimal_round_scaled_bigint(cache.ln10, shift),
+      decimal_round_scaled_coeff(signed_dec_coeff(false, cache.ln2), shift).magnitude,
+      decimal_round_scaled_coeff(signed_dec_coeff(false, cache.ln5), shift).magnitude,
+      decimal_round_scaled_coeff(signed_dec_coeff(false, cache.ln10), shift).magnitude,
     )
   }
-  let ln2 = decimal_ln_atanh_scaled(
-    BigInt::from_int(2),
-    bigint_one(),
-    work_scale,
+  let ln2 = decimal_ln_atanh_scaled_coeff(
+      dec_coeff_from_int(2),
+      dec_coeff_from_int(1),
+      work_scale,
+    ).magnitude
+  let ln_five_quarters = decimal_ln_atanh_scaled_coeff(
+      dec_coeff_from_int(5),
+      dec_coeff_from_int(4),
+      work_scale,
+    ).magnitude
+  let ln10 = dec_coeff_magnitude_add_repr(
+    dec_coeff_multiply_by_unit_repr(ln2, 3),
+    ln_five_quarters,
   )
-  let ln_five_quarters = decimal_ln_atanh_scaled(
-    BigInt::from_int(5),
-    BigInt::from_int(4),
-    work_scale,
-  )
-  let ln10 = ln2 * BigInt::from_int(3) + ln_five_quarters
-  let ln5 = ln10 - ln2
+  let ln5 = dec_coeff_magnitude_sub_repr(ln10, ln2)
   decimal_math_constant_cache.val = { scale: work_scale, ln2, ln5, ln10 }
   (ln2, ln5, ln10)
 }
 
 ///|
 fn decimal_math_scaled_constant(
-  magnitude : BigInt,
+  magnitude : DecCoeff,
   scale : Int,
   work_ctx : DecimalContext,
 ) -> Decimal {
-  normalize_decimal_parts_math_ctx(false, magnitude, -scale, work_ctx).0
+  normalize_decimal_parts_math_ctx_repr(false, magnitude, -scale, work_ctx).0
 }
 
 ///|
@@ -1133,7 +1143,7 @@ fn decimal_ln_near_one_series(
   mantissa : Decimal,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
   let one = Decimal::one(precision~)
   let threshold = decimal_math_small_threshold(work_ctx.precision)
   let (delta, delta_flags) = decimal_sub_finite_work(mantissa, one, work_ctx)
@@ -1210,7 +1220,7 @@ fn decimal_ln_positive_finite_work_result(
 fn decimal_ln_positive_finite_work_result_with_ln10(
   value : Decimal,
   work_ctx : DecimalContext,
-  ln10_scaled : BigInt,
+  ln10_scaled : DecCoeff,
 ) -> (Decimal, DecimalFlags) {
   match
     decimal_ln_lookaside_work_result_with_ln10(value, work_ctx, ln10_scaled) {
@@ -1218,16 +1228,21 @@ fn decimal_ln_positive_finite_work_result_with_ln10(
     None => ()
   }
   let work_precision = work_ctx.precision
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
   let adjusted = adjusted_exponent(value)
   let one = Decimal::one(precision~)
-  let near_threshold = finite_with_exponent(false, bigint_one(), -1, 1)
+  let near_threshold = finite_with_exponent_repr(
+    false,
+    dec_coeff_from_int(1),
+    -1,
+    1,
+  )
   let mut flags = DecimalFlags::new()
   let mut mantissa = finite_with_exponent_repr(
     false,
     value.coefficient,
     value.exponent10 - adjusted,
-    finite_precision_for_coeff(value.coefficient, DecimalContext::exact()),
+    finite_precision_for_coeff(value.coefficient, decimal_exact_work_context()),
   )
   let (mantissa0, mantissa_flags) = decimal_normalize_finite_work(
     mantissa, work_ctx,
@@ -1265,15 +1280,14 @@ fn decimal_ln_positive_finite_work_result_with_ln10(
   if adjusted == 0 {
     return (scaled_series, flags)
   }
-  let exponent_term = decimal_math_scaled_constant(
-    abs_bigint(BigInt::from_int(adjusted) * ln10_scaled),
-    work_precision + 12,
-    work_ctx,
-  )
-  let exponent_term = if adjusted < 0 {
-    { ..exponent_term, negative: true }
-  } else {
-    exponent_term
+  let scaled_exponent = signed_dec_coeff_from_int_product(adjusted, ln10_scaled)
+  let exponent_term = {
+    ..decimal_math_scaled_constant(
+      scaled_exponent.magnitude,
+      work_precision + 12,
+      work_ctx,
+    ),
+    negative: scaled_exponent.negative,
   }
   let (result, add_flags) = decimal_add_finite_work(
     scaled_series, exponent_term, work_ctx,
@@ -1308,7 +1322,7 @@ fn decimal_same_quantum_adjacent(lhs : Decimal, rhs : Decimal) -> Bool {
 fn decimal_ln_lookaside_work_result_with_ln10(
   value : Decimal,
   work_ctx : DecimalContext,
-  ln10_scaled : BigInt,
+  ln10_scaled : DecCoeff,
 ) -> (Decimal, DecimalFlags)? {
   guard value.class == FpClass::Finite &&
     !value.negative &&
@@ -1321,26 +1335,34 @@ fn decimal_ln_lookaside_work_result_with_ln10(
   )
   let decade = value.exponent10 + power10s
   let constant_scale = work_ctx.precision + 12
-  let mut total_scaled = BigInt::from_int(decade) * ln10_scaled
+  let mut total_scaled = signed_dec_coeff_from_int_product(decade, ln10_scaled)
   if dec_coeff_matches_unit_repr(reduced0, 1) {
     guard decade != 0 else { return None }
   } else if dec_coeff_matches_unit_repr(reduced0, 2) {
-    total_scaled = total_scaled +
-      decimal_transcendental_ln_constants(constant_scale).0
+    total_scaled = total_scaled.add(
+      signed_dec_coeff(
+        false,
+        decimal_transcendental_ln_constants(constant_scale).0,
+      ),
+    )
   } else if dec_coeff_matches_unit_repr(reduced0, 5) {
-    total_scaled = total_scaled +
-      decimal_transcendental_ln_constants(constant_scale).1
+    total_scaled = total_scaled.add(
+      signed_dec_coeff(
+        false,
+        decimal_transcendental_ln_constants(constant_scale).1,
+      ),
+    )
   } else {
     return None
   }
   let result = decimal_math_scaled_constant(
-    abs_bigint(total_scaled),
+    total_scaled.magnitude,
     constant_scale,
     work_ctx,
   )
   Some(
     (
-      if total_scaled < bigint_zero() {
+      if total_scaled.negative {
         { ..result, negative: true }
       } else {
         result
@@ -1515,19 +1537,19 @@ fn decimal_ln_lookaside_result(
   let (ln2_scaled, ln5_scaled, ln10_scaled) = decimal_transcendental_ln_constants(
     constant_scale,
   )
-  let mut total_scaled = BigInt::from_int(decade) * ln10_scaled
+  let mut total_scaled = signed_dec_coeff_from_int_product(decade, ln10_scaled)
   if constant_kind == 2 {
-    total_scaled = total_scaled + ln2_scaled
+    total_scaled = total_scaled.add(signed_dec_coeff(false, ln2_scaled))
   } else if constant_kind == 5 {
-    total_scaled = total_scaled + ln5_scaled
+    total_scaled = total_scaled.add(signed_dec_coeff(false, ln5_scaled))
   }
   let work_ctx = decimal_math_work_ctx(work_precision)
   let candidate = decimal_math_scaled_constant(
-    abs_bigint(total_scaled),
+    total_scaled.magnitude,
     constant_scale,
     work_ctx,
   )
-  let candidate = if total_scaled < bigint_zero() {
+  let candidate = if total_scaled.negative {
     { ..candidate, negative: true }
   } else {
     candidate
@@ -1584,7 +1606,7 @@ fn decimal_exp_series_result(
   reduced : Decimal,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
   let one = Decimal::one(precision~)
   let threshold = decimal_math_small_threshold(work_ctx.precision)
   let mut flags = DecimalFlags::new()
@@ -1640,16 +1662,16 @@ fn decimal_exp_finite_work_result(
 fn decimal_exp_finite_work_result_with_ln10(
   value : Decimal,
   work_ctx : DecimalContext,
-  ln10_scaled : BigInt,
+  ln10_scaled : DecCoeff,
 ) -> (Decimal, DecimalFlags) {
   match decimal_exp_extreme_half_even_result(value, work_ctx) {
     Some(result) => return result
     None => ()
   }
   let work_precision = work_ctx.precision
-  let halving_threshold = finite_with_exponent(
+  let halving_threshold = finite_with_exponent_repr(
     false,
-    BigInt::from_int(125),
+    dec_coeff_from_int(125),
     -3,
     3,
   )
@@ -1657,11 +1679,7 @@ fn decimal_exp_finite_work_result_with_ln10(
   let (scaled_negative, scaled_input) = decimal_finite_to_scaled_repr(
     value, constant_scale,
   )
-  // GDA decExpOp keeps its normalized argument and all range-reduction
-  // arithmetic in decNumber buffers under the DEC_MAX_MATH contract
-  // (decNumber.c lines 5143-5221). Import the cached constant into that same
-  // decimal coefficient representation instead of exporting the operand.
-  let ln10_coefficient = coeff_from_bigint(ln10_scaled)
+  let ln10_coefficient = ln10_scaled
   let exponent10 = decimal_floor_div_scaled_repr(
     scaled_negative, scaled_input, ln10_coefficient,
   )
@@ -1739,22 +1757,27 @@ fn decimal_exp_boundary_entry(
   let (_, ln5_scaled, ln10_scaled) = decimal_transcendental_ln_constants(
     boundary_scale,
   )
-  let lower_scaled = ln5_scaled + BigInt::from_int(etiny(ctx) - 1) * ln10_scaled
-  let upper_scaled = BigInt::from_int(ctx.e_max + 1) * ln10_scaled
+  let lower_scaled = signed_dec_coeff(false, ln5_scaled).add(
+    signed_dec_coeff_from_int_product(etiny(ctx) - 1, ln10_scaled),
+  )
+  let upper_scaled = signed_dec_coeff_from_int_product(
+    ctx.e_max + 1,
+    ln10_scaled,
+  )
   let entry = {
     precision: ctx.precision,
     e_min: ctx.e_min,
     e_max: ctx.e_max,
     clamp: ctx.clamp,
-    lower: normalize_decimal_parts_math_ctx(
-      lower_scaled < bigint_zero(),
-      abs_bigint(lower_scaled),
+    lower: normalize_decimal_parts_math_ctx_repr(
+      lower_scaled.negative,
+      lower_scaled.magnitude,
       -boundary_scale,
       boundary_ctx,
     ).0,
-    upper: normalize_decimal_parts_math_ctx(
-      false,
-      upper_scaled,
+    upper: normalize_decimal_parts_math_ctx_repr(
+      upper_scaled.negative,
+      upper_scaled.magnitude,
       -boundary_scale,
       boundary_ctx,
     ).0,
@@ -1833,7 +1856,7 @@ fn decimal_exp_finite_result(
 fn decimal_power_compare_abs_one(value : Decimal, precision : Int) -> Int {
   compare_finite(
     { ..value, negative: false },
-    finite_with_exponent(false, bigint_one(), 0, precision),
+    finite_with_exponent_repr(false, dec_coeff_from_int(1), 0, precision),
   )
 }
 
@@ -1844,7 +1867,7 @@ fn decimal_power_infinite_exponent_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard exponent.class == FpClass::Infinity else { return None }
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   match base.class {
     FpClass::NaN => None
     FpClass::Infinity =>
@@ -1853,7 +1876,7 @@ fn decimal_power_infinite_exponent_result(
       } else if exponent.negative {
         Some(
           (
-            finite_with_exponent(false, bigint_zero(), 0, precision),
+            finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
             DecimalFlags::new(),
           ),
         )
@@ -1867,7 +1890,7 @@ fn decimal_power_infinite_exponent_result(
         } else {
           Some(
             (
-              finite_with_exponent(false, bigint_zero(), 0, precision),
+              finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
               DecimalFlags::new(),
             ),
           )
@@ -1882,7 +1905,7 @@ fn decimal_power_infinite_exponent_result(
           (cmp > 0 && exponent.negative) {
           Some(
             (
-              finite_with_exponent(false, bigint_zero(), 0, precision),
+              finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
               DecimalFlags::new(),
             ),
           )
@@ -1909,7 +1932,7 @@ fn decimal_power_infinite_base_noninteger_result(
       } else if exponent.negative {
         Some(
           (
-            finite_with_exponent(false, bigint_zero(), 0, precision),
+            finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
             DecimalFlags::new(),
           ),
         )
@@ -1955,9 +1978,9 @@ fn decimal_underflow_zero_result(
   negative : Bool,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   (
-    finite_with_exponent(negative, bigint_zero(), etiny(ctx), precision),
+    finite_with_exponent_repr(negative, dec_coeff_zero(), etiny(ctx), precision),
     {
       ..DecimalFlags::new(),
       underflow: true,
@@ -1997,14 +2020,14 @@ fn decimal_power_of_ten_extreme_result(
     None => return None
   }
   guard count != 0 && base_power != 0 else { return None }
-  let result_exponent = BigInt::from_int(base_power) * BigInt::from_int(count)
+  let result_exponent = base_power.to_int64() * count.to_int64()
   let negative = match decimal_power_integer_is_odd(exponent) {
     Some(odd) => base.negative && odd
     None => false
   }
-  if result_exponent > BigInt::from_int(ctx.e_max) {
+  if result_exponent > ctx.e_max.to_int64() {
     Some(decimal_overflow_result(negative, ctx))
-  } else if result_exponent < BigInt::from_int(etiny(ctx)) &&
+  } else if result_exponent < etiny(ctx).to_int64() &&
     ctx.decimal_rounding == DecimalRoundingMode::HalfEven {
     Some(decimal_power_underflow_zero_result(negative, ctx))
   } else {
@@ -2034,12 +2057,17 @@ fn decimal_power_simple_ten_result(
     Some(odd) => base.negative && odd
     None => false
   }
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   if dec_coeff_matches_unit_repr(base.coefficient, 10) && count > 0 {
     if count + 1 <= precision {
       Some(
         finalize_finite_ctx(
-          finite_with_exponent(negative, pow10(count), 0, precision),
+          finite_with_exponent_repr(
+            negative,
+            dec_coeff_power10_repr(count),
+            0,
+            precision,
+          ),
           DecimalFlags::new(),
           ctx,
         ),
@@ -2047,9 +2075,9 @@ fn decimal_power_simple_ten_result(
     } else {
       Some(
         finalize_finite_ctx(
-          finite_with_exponent(
+          finite_with_exponent_repr(
             negative,
-            pow10(precision - 1),
+            dec_coeff_power10_repr(precision - 1),
             result_exponent - precision + 1,
             precision,
           ),
@@ -2069,7 +2097,12 @@ fn decimal_power_simple_ten_result(
     }
     Some(
       finalize_finite_ctx(
-        finite_with_exponent(negative, bigint_one(), result_exponent, precision),
+        finite_with_exponent_repr(
+          negative,
+          dec_coeff_from_int(1),
+          result_exponent,
+          precision,
+        ),
         flags,
         ctx,
       ),
@@ -2104,7 +2137,9 @@ fn decimal_power_exact_ten_result(
   if count_magnitude.is_zero() {
     return Some(
       decimal_apply_finite_ctx(
-        Decimal::one(precision=finite_precision_for(bigint_one(), ctx)),
+        Decimal::one(
+          precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
+        ),
         ctx,
       ),
     )
@@ -2130,7 +2165,7 @@ fn decimal_power_exact_ten_result(
     0 {
     return Some(decimal_power_underflow_zero_result(negative, ctx))
   }
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let exponent_limit = Int::max(abs_int(ctx.e_max), abs_int(etiny(ctx)))
   let result_exponent_magnitude = match
     dec_coeff_to_bounded_int(result_exponent_magnitude, exponent_limit) {
@@ -2144,17 +2179,27 @@ fn decimal_power_exact_ten_result(
   }
   let result = if result_exponent >= 0 {
     if result_exponent + 1 <= precision {
-      finite_with_exponent(negative, pow10(result_exponent), 0, precision)
-    } else {
-      finite_with_exponent(
+      finite_with_exponent_repr(
         negative,
-        pow10(precision - 1),
+        dec_coeff_power10_repr(result_exponent),
+        0,
+        precision,
+      )
+    } else {
+      finite_with_exponent_repr(
+        negative,
+        dec_coeff_power10_repr(precision - 1),
         result_exponent - precision + 1,
         precision,
       )
     }
   } else {
-    finite_with_exponent(negative, bigint_one(), result_exponent, precision)
+    finite_with_exponent_repr(
+      negative,
+      dec_coeff_from_int(1),
+      result_exponent,
+      precision,
+    )
   }
   let flags = if result_exponent >= 0 && result_exponent + 1 > precision {
     { ..DecimalFlags::new(), rounded: true }

@@ -61,13 +61,14 @@ fn should_increment_decimal_repr(
     HalfUp => half_cmp >= 0
     HalfDown => half_cmp > 0
     ZeroFiveUp => {
-      let last = quotient.units[0] % 10
+      let last = dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10
       last == 0 || last == 5
     }
   }
 }
 
 ///|
+#warnings("-unused_value")
 fn round_positive_decimal_div(
   numerator : BigInt,
   denominator : BigInt,
@@ -341,81 +342,17 @@ fn etiny(ctx : DecimalContext) -> Int {
 }
 
 ///|
-let decimal_coeff_residue_map : Array[Int] = [0, 3, 3, 3, 3, 5, 7, 7, 7, 7]
-
-///|
-fn decimal_round_should_bump(
-  units : Array[Int],
-  residue : Int,
-  negative : Bool,
-  mode : DecimalRoundingMode,
+fn tiny_for_underflow(
+  ctx : DecimalContext,
+  before_adjusted : Int64,
+  after_adjusted : Int64,
 ) -> Bool {
-  if residue == 0 {
-    return false
+  match ctx.tininess {
+    DecimalTininessDetection::BeforeRounding =>
+      before_adjusted < ctx.e_min.to_int64()
+    DecimalTininessDetection::AfterRounding =>
+      after_adjusted < ctx.e_min.to_int64()
   }
-  match mode {
-    Down => false
-    Ceiling => !negative
-    Floor => negative
-    Up => true
-    HalfEven => residue > 5 || (residue == 5 && (units[0] & 0x01) == 1)
-    HalfUp => residue >= 5
-    HalfDown => residue > 5
-    ZeroFiveUp => units[0] % 5 == 0
-  }
-}
-
-///|
-fn decimal_coeff_all_nines(units : Array[Int], digits : Int) -> Bool {
-  let mut remaining = digits
-  let mut index = 0
-  while remaining > 0 {
-    let width = Int::min(3, remaining)
-    let nine_limit = if width == 3 { 999 } else if width == 2 { 99 } else { 9 }
-    if units[index] != nine_limit {
-      return false
-    }
-    remaining -= width
-    index += 1
-  }
-  true
-}
-
-///|
-fn decimal_coeff_make_one_followed_by_zeros(
-  units : Array[Int],
-  digits : Int,
-) -> Unit {
-  let unit_len = (digits + 2) / 3
-  let mut index = 0
-  while index < unit_len {
-    units[index] = 0
-    index += 1
-  }
-  let msu_index = unit_len - 1
-  let msu_digits = digits - (unit_len - 1) * 3
-  units[msu_index] = if msu_digits == 1 {
-    1
-  } else if msu_digits == 2 {
-    10
-  } else {
-    100
-  }
-}
-
-///|
-fn decimal_coeff_bump_positive(
-  units : Array[Int],
-  digits : Int,
-  exponent10 : Int,
-) -> (Int, Int) {
-  if decimal_coeff_all_nines(units, digits) {
-    decimal_coeff_make_one_followed_by_zeros(units, digits)
-    return (digits, exponent10 + 1)
-  }
-  let one = [1]
-  ignore(dec_coeff_unit_add_sub(units, (digits + 2) / 3, one, 1, 0, units, 1))
-  (digits, exponent10)
 }
 
 ///|
@@ -429,140 +366,14 @@ fn decimal_round_coeff_to_digits_repr(
   if magnitude.is_zero() {
     return (dec_coeff_zero(), 0, false, false)
   }
-  let source_units = magnitude.units
-  let source_digits = magnitude.digits
-  let discard = source_digits - target_digits
+  let discard = magnitude.digits10() - target_digits
   if discard <= 0 {
     return (magnitude, exponent10, false, false)
   }
-
-  let kept_digits = if target_digits > 0 { target_digits } else { 1 }
-  let kept_units = (kept_digits + 2) / 3
-  let units : Array[Int] = []
-  let mut pad = 0
-  while pad < kept_units + 1 {
-    units.push(0)
-    pad += 1
-  }
-
-  let mut next_exponent = exponent10 + discard
-  let mut residue = 0
-
-  if discard > source_digits {
-    let mut any_nonzero = false
-    let mut index = 0
-    while index < source_units.length() {
-      if source_units[index] != 0 {
-        any_nonzero = true
-        break
-      }
-      index += 1
-    }
-    if any_nonzero {
-      residue = 1
-    }
-    units[0] = 0
-  } else {
-    let mut count = 0
-    let mut up = 0
-    while true {
-      count += 3
-      if count >= discard {
-        break
-      }
-      if source_units[up] != 0 {
-        residue = 1
-      }
-      up += 1
-    }
-
-    let mut cut = discard - (count - 3) - 1
-    if cut == 2 {
-      let half = 500
-      if source_units[up] >= half {
-        if source_units[up] > half {
-          residue = 7
-        } else {
-          residue += 5
-        }
-      } else if source_units[up] != 0 {
-        residue = 3
-      }
-      if target_digits > 0 {
-        let mut remaining = target_digits
-        up += 1
-        let mut target = 0
-        while remaining > 0 {
-          units[target] = source_units[up]
-          target += 1
-          up += 1
-          remaining -= 3
-        }
-      }
-    } else {
-      let mut quot = if cut == 0 {
-        source_units[up]
-      } else {
-        let divisor = if cut == 1 { 10 } else { 100 }
-        let rem = source_units[up] % divisor
-        let high = source_units[up] / divisor
-        if rem != 0 {
-          residue = 1
-        }
-        high
-      }
-      let discard1 = quot % 10
-      quot = quot / 10
-      residue += decimal_coeff_residue_map[discard1]
-      cut += 1
-      if target_digits > 0 {
-        let mut remaining = target_digits
-        let mut target = 0
-        while true {
-          units[target] = quot
-          remaining -= 3 - cut
-          if remaining <= 0 {
-            break
-          }
-          up += 1
-          let current = source_units[up]
-          let divisor = if cut == 1 { 10 } else { 100 }
-          let rem = current % divisor
-          quot = current / divisor
-          let multiplier = if cut == 1 { 100 } else { 10 }
-          units[target] = units[target] + rem * multiplier
-          remaining -= cut
-          if remaining <= 0 {
-            break
-          }
-          target += 1
-        }
-      }
-    }
-  }
-
-  let rounded = true
-  let inexact = residue != 0
-  if decimal_round_should_bump(units, residue, negative, mode) {
-    let (digits_after_bump, exponent_after_bump) = decimal_coeff_bump_positive(
-      units, kept_digits, next_exponent,
-    )
-    next_exponent = exponent_after_bump
-    let unit_len = dec_coeff_d2u(digits_after_bump)
-    return (
-      { units, digits: dec_coeff_get_digits(units, unit_len) },
-      next_exponent,
-      rounded,
-      inexact,
-    )
-  }
-  let unit_len = dec_coeff_d2u(kept_digits)
-  (
-    { units, digits: dec_coeff_get_digits(units, unit_len) },
-    next_exponent,
-    rounded,
-    inexact,
+  let (rounded_magnitude, inexact) = round_positive_decimal_div_pow10_repr(
+    magnitude, discard, negative, mode,
   )
+  (rounded_magnitude, exponent10 + discard, true, inexact)
 }
 
 ///|
@@ -610,7 +421,8 @@ fn finalize_finite_ctx(
     }
     return (value, flags)
   }
-  let unrounded_adjusted = adjusted_exponent(value)
+  let unrounded_adjusted = value.exponent10.to_int64() +
+    (value.coefficient.digits10() - 1).to_int64()
   let adjusted = adjusted_exponent(value)
   if !ctx.extended && adjusted < ctx.e_min {
     return (
@@ -646,12 +458,18 @@ fn finalize_finite_ctx(
       ctx.decimal_rounding,
     )
     flags = { ..flags, rounded: true }
-    if unrounded_adjusted < ctx.e_min {
+    let rounded_adjusted = if magnitude.is_zero() {
+      ctx.e_min.to_int64() - 1L
+    } else {
+      next_exponent.to_int64() + (magnitude.digits10() - 1).to_int64()
+    }
+    let tiny = tiny_for_underflow(ctx, unrounded_adjusted, rounded_adjusted)
+    if tiny {
       flags = { ..flags, subnormal: true }
     }
     if inexact {
       flags = { ..flags, inexact: true }
-      if unrounded_adjusted < ctx.e_min {
+      if tiny {
         flags = { ..flags, underflow: true }
       }
     }
@@ -691,23 +509,6 @@ fn finalize_finite_ctx(
 }
 
 ///|
-fn normalize_decimal_parts_ctx(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int,
-  ctx : DecimalContext,
-  apply_etiny? : Bool = true,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_ctx_repr(
-    negative,
-    coeff_from_bigint(abs_bigint(magnitude)),
-    exponent10,
-    ctx,
-    apply_etiny~,
-  )
-}
-
-///|
 fn normalize_decimal_parts_ctx_repr(
   negative : Bool,
   magnitude : DecCoeff,
@@ -723,9 +524,10 @@ fn normalize_decimal_parts_ctx_repr(
     ctx.precision > 0 &&
     !magnitude.is_zero() &&
     exponent10 < etiny(ctx) {
-    let unrounded_adjusted = exponent10 + magnitude.digits10() - 1
-    let tiny = etiny(ctx)
-    let shift = tiny - exponent10
+    let unrounded_adjusted = exponent10.to_int64() +
+      (magnitude.digits10() - 1).to_int64()
+    let etiny_value = etiny(ctx)
+    let shift = etiny_value - exponent10
     let target_digits = magnitude.digits10() - shift
     let (rounded_magnitude0, next_exponent0, _, inexact) = decimal_round_coeff_to_digits_repr(
       magnitude,
@@ -735,13 +537,13 @@ fn normalize_decimal_parts_ctx_repr(
       ctx.decimal_rounding,
     )
     let (rounded_magnitude, next_exponent) = if !rounded_magnitude0.is_zero() &&
-      tiny < next_exponent0 {
-      let restore_shift = next_exponent0 - tiny
+      etiny_value < next_exponent0 {
+      let restore_shift = next_exponent0 - etiny_value
       let restored = dec_coeff_shift_power10_repr(
         rounded_magnitude0, restore_shift,
       )
       if restored.digits10() <= precision {
-        (restored, tiny)
+        (restored, etiny_value)
       } else {
         (rounded_magnitude0, next_exponent0)
       }
@@ -749,12 +551,20 @@ fn normalize_decimal_parts_ctx_repr(
       (rounded_magnitude0, next_exponent0)
     }
     flags = { ..flags, rounded: true }
-    if unrounded_adjusted < ctx.e_min {
+    let rounded_adjusted = if rounded_magnitude0.is_zero() {
+      ctx.e_min.to_int64() - 1L
+    } else {
+      next_exponent0.to_int64() + (rounded_magnitude0.digits10() - 1).to_int64()
+    }
+    let tiny_result = tiny_for_underflow(
+      ctx, unrounded_adjusted, rounded_adjusted,
+    )
+    if tiny_result {
       flags = { ..flags, subnormal: true }
     }
     if inexact {
       flags = { ..flags, inexact: true }
-      if unrounded_adjusted < ctx.e_min {
+      if tiny_result {
         flags = { ..flags, underflow: true }
       }
     }

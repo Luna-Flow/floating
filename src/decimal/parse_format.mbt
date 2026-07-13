@@ -183,8 +183,9 @@ fn strip_leading_zero_digits(src : String) -> String {
 fn decimal_conversion_syntax_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   (
-    Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+    make_special_repr(FpClass::NaN, false, dec_coeff_zero(), precision, false),
     { ..DecimalFlags::new(), conversion_syntax: true },
   )
 }
@@ -205,7 +206,7 @@ fn decimal_overflow_result(
   negative : Bool,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let flags = {
     ..DecimalFlags::new(),
     overflow: true,
@@ -226,9 +227,9 @@ fn decimal_overflow_result(
     )
   } else {
     (
-      finite_with_exponent(
+      finite_with_exponent_repr(
         negative,
-        pow10(precision) - bigint_one(),
+        dec_coeff_magnitude_sub_unit(dec_coeff_power10_repr(precision), 1),
         ctx.e_max - precision + 1,
         precision,
       ),
@@ -243,10 +244,10 @@ fn decimal_zero_conversion_result(
   exponent10 : Int,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if !ctx.extended {
     return (
-      finite_with_exponent(false, bigint_zero(), 0, precision),
+      finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
       DecimalFlags::new(),
     )
   }
@@ -264,7 +265,12 @@ fn decimal_zero_conversion_result(
     exponent10
   }
   (
-    finite_with_exponent(negative, bigint_zero(), clamped_exponent, precision),
+    finite_with_exponent_repr(
+      negative,
+      dec_coeff_zero(),
+      clamped_exponent,
+      precision,
+    ),
     if clamped_exponent == exponent10 {
       DecimalFlags::new()
     } else {
@@ -276,7 +282,7 @@ fn decimal_zero_conversion_result(
 ///|
 fn decimal_extreme_tiny_conversion_result(
   negative : Bool,
-  magnitude : BigInt,
+  magnitude : DecCoeff,
   original_digits : Int,
   exponent10 : Int,
   ctx : DecimalContext,
@@ -284,20 +290,19 @@ fn decimal_extreme_tiny_conversion_result(
   guard ctx.precision > 0 && !magnitude.is_zero() else { return None }
   let tiny = etiny(ctx)
   guard exponent10 < tiny else { return None }
-  let shift_big = BigInt::from_int(tiny) - BigInt::from_int(exponent10)
-  guard shift_big > BigInt::from_int(original_digits + 2) else { return None }
-  let precision = finite_precision_for(magnitude, ctx)
-  let rounded_magnitude = huge_shift_rounded_unit(
+  let shift = tiny.to_int64() - exponent10.to_int64()
+  guard shift > (original_digits + 2).to_int64() else { return None }
+  let precision = finite_precision_for_coeff(magnitude, ctx)
+  let rounded_magnitude = huge_shift_rounded_unit_repr(
     magnitude,
     negative,
     ctx.decimal_rounding,
   )
-  let adjusted = BigInt::from_int(exponent10) +
-    BigInt::from_int(original_digits - 1)
-  let subnormal = adjusted < BigInt::from_int(ctx.e_min)
+  let adjusted = exponent10.to_int64() + (original_digits - 1).to_int64()
+  let subnormal = adjusted < ctx.e_min.to_int64()
   Some(
     (
-      finite_with_exponent(negative, rounded_magnitude, tiny, precision),
+      finite_with_exponent_repr(negative, rounded_magnitude, tiny, precision),
       {
         ..DecimalFlags::new(),
         rounded: true,
@@ -327,7 +332,7 @@ fn parse_special_decimal_string_ctx(
   guard start < src.length() else { return None }
   let body = src[start:].to_owned()
   let lower = ascii_lower(body)
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if lower == "inf" || lower == "infinity" {
     if !ctx.extended {
       return Some(decimal_conversion_syntax_result(ctx))
@@ -376,13 +381,16 @@ fn parse_special_decimal_string_ctx(
     return Some(decimal_conversion_syntax_result(ctx))
   }
   let payload = if payload_digits.length() == 0 {
-    bigint_zero()
+    dec_coeff_zero()
   } else {
-    BigInt::from_string(payload_digits)
+    match dec_coeff_from_decimal_digits_repr(payload_digits) {
+      Some(value) => value
+      None => return Some(decimal_conversion_syntax_result(ctx))
+    }
   }
   Some(
     (
-      make_special(FpClass::NaN, negative, payload, precision, signaling),
+      make_special_repr(FpClass::NaN, negative, payload, precision, signaling),
       DecimalFlags::new(),
     ),
   )
@@ -406,7 +414,11 @@ fn parse_decimal_string_ctx(
           if exponent10 + original_digits - 1 > ctx.e_max {
             return decimal_overflow_result(negative, ctx)
           }
-          let magnitude = BigInt::from_string(significant_digits)
+          let magnitude = match
+            dec_coeff_from_decimal_digits_repr(significant_digits) {
+            Some(value) => value
+            None => return decimal_conversion_syntax_result(ctx)
+          }
           match
             decimal_extreme_tiny_conversion_result(
               negative, magnitude, original_digits, exponent10, ctx,
@@ -414,12 +426,12 @@ fn parse_decimal_string_ctx(
             Some(result) => return result
             None => ()
           }
-          let (value, flags) = normalize_decimal_parts_ctx(
+          let (value, flags) = normalize_decimal_parts_ctx_repr(
             negative, magnitude, exponent10, ctx,
           )
           if ctx.precision > 0 &&
             !magnitude.is_zero() &&
-            original_digits > finite_precision_for(magnitude, ctx) {
+            original_digits > finite_precision_for_coeff(magnitude, ctx) {
             (value, { ..flags, rounded: true })
           } else {
             (value, flags)
@@ -451,19 +463,35 @@ pub fn Decimal::parse(
     Some((negative, digits, exponent10)) => {
       let significant_digits = strip_leading_zero_digits(digits)
       if significant_digits.length() == 0 {
-        Ok(finite_with_exponent(negative, bigint_zero(), exponent10, precision))
+        Ok(
+          finite_with_exponent_repr(
+            negative,
+            dec_coeff_zero(),
+            exponent10,
+            precision,
+          ),
+        )
       } else {
-        let coeff = BigInt::from_string(significant_digits)
+        let coeff = match
+          dec_coeff_from_decimal_digits_repr(significant_digits) {
+          Some(value) => value
+          None =>
+            return Err(
+              @def.ArithmeticError::parse_error(
+                "invalid decimal literal: " + src,
+              ),
+            )
+        }
         if significant_digits.length() <= precision {
-          Ok(finite_with_exponent(negative, coeff, exponent10, precision))
+          Ok(finite_with_exponent_repr(negative, coeff, exponent10, precision))
         } else {
           Ok(
-            normalize_decimal_parts(
+            normalize_decimal_parts_gda_repr(
               negative,
               coeff,
               exponent10,
               precision,
-              RoundingMode::ToNearestEven,
+              DecimalRoundingMode::HalfEven,
             ),
           )
         }

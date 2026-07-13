@@ -40,7 +40,7 @@ fn decimal_coeff_bench_pair(
 #skip("performance benchmark")
 test "decimal coefficient primitive baseline" {
   let bencher = @bench.Bench()
-  for digits in [16, 34, 100, 300] {
+  for digits in [16, 34, 100, 300, 1000, 5000] {
     let power = decimal_coeff_bench_pow10(digits)
     let left_bigint = power - 1N
     let right_bigint = decimal_coeff_bench_pow10(digits - 1) +
@@ -75,6 +75,23 @@ test "decimal coefficient primitive baseline" {
         )
       },
     )
+    if digits >= 300 {
+      bencher.bench(
+        name=decimal_coeff_bench_name("deccoeff", "karatsuba", digits),
+        count=7,
+        fn() { bencher.keep(dec_coeff_mul_karatsuba(left, right)) },
+      )
+      bencher.bench(
+        name=decimal_coeff_bench_name("deccoeff", "toom3", digits),
+        count=7,
+        fn() { bencher.keep(dec_coeff_mul_toom3(left, right)) },
+      )
+      bencher.bench(
+        name=decimal_coeff_bench_name("deccoeff", "ntt", digits),
+        count=7,
+        fn() { bencher.keep(dec_coeff_mul_ntt(left, right)) },
+      )
+    }
   }
   println("DEC_COEFF_BENCH_JSON=" + bencher.dump_summaries())
 }

@@ -55,6 +55,24 @@ fn decimal_interchange_coefficient_bits(
 }
 
 ///|
+fn decimal_bid_exponent_bits(format : DecimalInterchangeFormat) -> Int {
+  match format {
+    Decimal32 => 8
+    Decimal64 => 10
+    Decimal128 => 14
+  }
+}
+
+///|
+fn decimal_bid_small_coefficient_bits(format : DecimalInterchangeFormat) -> Int {
+  match format {
+    Decimal32 => 23
+    Decimal64 => 53
+    Decimal128 => 113
+  }
+}
+
+///|
 fn decimal_interchange_payload_digits(format : DecimalInterchangeFormat) -> Int {
   decimal_interchange_precision(format) - 1
 }
@@ -120,11 +138,21 @@ pub fn DecimalInterchange::from_hex(
   src : String,
   format : DecimalInterchangeFormat,
 ) -> DecimalInterchange? {
+  DecimalInterchange::from_hex_with_encoding(src, format, DPD)
+}
+
+///|
+pub fn DecimalInterchange::from_hex_with_encoding(
+  src : String,
+  format : DecimalInterchangeFormat,
+  encoding : DecimalInterchangeEncoding,
+) -> DecimalInterchange? {
   let digits = decimal_interchange_hex_digits(format)
   match normalize_interchange_hex(src, digits) {
     Some(bits) =>
       Some({
         format,
+        encoding,
         bits: bits % (decimal_interchange_mask(format) + bigint_one()),
       })
     None => None
@@ -136,8 +164,19 @@ pub fn DecimalInterchange::from_decimal(
   value : Decimal,
   format : DecimalInterchangeFormat,
 ) -> (DecimalInterchange, DecimalFlags) {
-  let (bits, flags) = value.to_interchange_hex(format)
-  let interchange = DecimalInterchange::from_hex(bits, format).unwrap()
+  DecimalInterchange::from_decimal_with_encoding(value, format, DPD)
+}
+
+///|
+pub fn DecimalInterchange::from_decimal_with_encoding(
+  value : Decimal,
+  format : DecimalInterchangeFormat,
+  encoding : DecimalInterchangeEncoding,
+) -> (DecimalInterchange, DecimalFlags) {
+  let (bits, flags) = value.to_interchange_hex_with_encoding(format, encoding)
+  let interchange = DecimalInterchange::from_hex_with_encoding(
+    bits, format, encoding,
+  ).unwrap()
   (interchange, flags)
 }
 
@@ -149,13 +188,24 @@ pub fn DecimalInterchange::format(
 }
 
 ///|
+pub fn DecimalInterchange::encoding(
+  self : DecimalInterchange,
+) -> DecimalInterchangeEncoding {
+  self.encoding
+}
+
+///|
 pub fn DecimalInterchange::to_hex(self : DecimalInterchange) -> String {
   interchange_hex_string(self.bits, self.format)
 }
 
 ///|
 pub fn DecimalInterchange::to_decimal(self : DecimalInterchange) -> Decimal {
-  Decimal::from_interchange_hex(self.to_hex(), self.format).unwrap()
+  Decimal::from_interchange_hex_with_encoding(
+    self.to_hex(),
+    self.format,
+    self.encoding,
+  ).unwrap()
 }
 
 ///|
@@ -177,8 +227,12 @@ pub fn DecimalInterchange::canonical(
 ) -> DecimalInterchange {
   let (canonical_bits, _flags) = self
     .to_decimal()
-    .to_interchange_hex(self.format)
-  DecimalInterchange::from_hex(canonical_bits, self.format).unwrap()
+    .to_interchange_hex_with_encoding(self.format, self.encoding)
+  DecimalInterchange::from_hex_with_encoding(
+    canonical_bits,
+    self.format,
+    self.encoding,
+  ).unwrap()
 }
 
 ///|
@@ -199,6 +253,7 @@ pub fn DecimalInterchange::copy_abs(
 ) -> DecimalInterchange {
   {
     format: self.format,
+    encoding: self.encoding,
     bits: self.bits &
     (
       decimal_interchange_mask(self.format) -
@@ -213,6 +268,7 @@ pub fn DecimalInterchange::copy_negate(
 ) -> DecimalInterchange {
   {
     format: self.format,
+    encoding: self.encoding,
     bits: self.bits ^ decimal_interchange_sign_mask(self.format),
   }
 }
@@ -222,14 +278,14 @@ pub fn DecimalInterchange::copy_sign(
   self : DecimalInterchange,
   other : DecimalInterchange,
 ) -> DecimalInterchange {
-  guard self.format == other.format else {
+  guard self.format == other.format && self.encoding == other.encoding else {
     abort("DecimalInterchange::copy_sign requires matching formats")
   }
   let sign_mask = decimal_interchange_sign_mask(self.format)
   let magnitude = self.bits &
     (decimal_interchange_mask(self.format) - sign_mask)
   let sign = other.bits & sign_mask
-  { format: self.format, bits: magnitude | sign }
+  { format: self.format, encoding: self.encoding, bits: magnitude | sign }
 }
 
 ///|
@@ -255,7 +311,29 @@ fn decimal_interchange_coefficient_digits(
 }
 
 ///|
-fn decimal_nan_payload_digits(payload : BigInt, digits : Int) -> String {
+fn decimal_nan_payload_digits(
+  payload : BigInt,
+  source_digits : Int,
+  target_digits : Int,
+) -> String {
+  let raw = abs_bigint(payload).to_string()
+  let source_width = Int::max(source_digits, raw.length())
+  let source = if raw.length() < source_width {
+    zeros(source_width - raw.length()) + raw
+  } else {
+    raw
+  }
+  if source_width == target_digits {
+    source
+  } else if source_width < target_digits {
+    source + zeros(target_digits - source_width)
+  } else {
+    source[:target_digits].to_owned()
+  }
+}
+
+///|
+fn decimal_nan_payload_digits_low(payload : BigInt, digits : Int) -> String {
   let raw = abs_bigint(payload).to_string()
   let limited = if raw.length() > digits {
     raw[raw.length() - digits:].to_owned()
@@ -382,7 +460,7 @@ fn decimal_interchange_coefficient_bits_to_digits(
 ///|
 
 ///|
-pub fn Decimal::from_interchange_hex(
+fn Decimal::from_interchange_hex_dpd(
   src : String,
   format : DecimalInterchangeFormat,
 ) -> Decimal? {
@@ -450,7 +528,7 @@ pub fn Decimal::from_interchange_hex(
 }
 
 ///|
-pub fn Decimal::to_interchange_hex(
+fn Decimal::to_interchange_hex_dpd(
   self : Decimal,
   format : DecimalInterchangeFormat,
 ) -> (String, DecimalFlags) {
@@ -472,7 +550,7 @@ pub fn Decimal::to_interchange_hex(
       (sign_bit << sign_shift) +
       (BigInt::from_int(0b11110) << special_prefix_shift)
     FpClass::NaN => {
-      let payload_digits = decimal_nan_payload_digits(
+      let payload_digits = decimal_nan_payload_digits_low(
         applied.nan_payload(),
         decimal_interchange_payload_digits(format),
       )
@@ -508,6 +586,177 @@ pub fn Decimal::to_interchange_hex(
     }
   }
   (interchange_hex_string(bits, format), flags)
+}
+
+///|
+fn Decimal::from_interchange_hex_bid(
+  src : String,
+  format : DecimalInterchangeFormat,
+) -> Decimal? {
+  let total_bits = decimal_interchange_total_bits(format)
+  let exp_bits = decimal_interchange_exponent_continuation_bits(format)
+  let coeff_bits = decimal_interchange_coefficient_bits(format)
+  let precision = decimal_interchange_precision(format)
+  let bias = decimal_interchange_bias(format)
+  let bid_exp_bits = decimal_bid_exponent_bits(format)
+  let small_coeff_bits = decimal_bid_small_coefficient_bits(format)
+  let large_coeff_bits = small_coeff_bits - 2
+  let bits = match
+    normalize_interchange_hex(src, decimal_interchange_hex_digits(format)) {
+    Some(bits) => bits
+    None => return None
+  }
+  let sign = decimal_interchange_extract(bits, total_bits - 1, 1) == 1
+  let combination = decimal_interchange_extract(bits, coeff_bits + exp_bits, 5)
+  let coefficient_continuation = bits % (bigint_one() << coeff_bits)
+  if combination == 0b11110 {
+    return Some(
+      Decimal::inf(
+        if sign {
+          Sign::Negative
+        } else {
+          Sign::Positive
+        },
+        precision~,
+      ),
+    )
+  }
+  if combination == 0b11111 {
+    let payload_limit = pow10(decimal_interchange_payload_digits(format))
+    let payload = if coefficient_continuation < payload_limit {
+      coefficient_continuation
+    } else {
+      bigint_zero()
+    }
+    let signaling = decimal_interchange_extract(
+        bits,
+        coeff_bits + exp_bits - 1,
+        1,
+      ) ==
+      1
+    return Some(
+      if signaling {
+        Decimal::signaling_nan(payload~, negative=sign, precision~)
+      } else {
+        Decimal::quiet_nan(payload~, negative=sign, precision~)
+      },
+    )
+  }
+  let steering = decimal_interchange_extract(bits, total_bits - 3, 2)
+  let (encoded_exponent, coefficient) = if steering == 0b11 {
+    (
+      decimal_interchange_extract(bits, large_coeff_bits, bid_exp_bits),
+      bits % (bigint_one() << large_coeff_bits) +
+      (bigint_one() << small_coeff_bits),
+    )
+  } else {
+    (
+      decimal_interchange_extract(bits, small_coeff_bits, bid_exp_bits),
+      bits % (bigint_one() << small_coeff_bits),
+    )
+  }
+  let exponent = encoded_exponent - bias
+  let canonical_coefficient = if coefficient < pow10(precision) {
+    coefficient
+  } else {
+    bigint_zero()
+  }
+  Some(finite_with_exponent(sign, canonical_coefficient, exponent, precision))
+}
+
+///|
+fn Decimal::to_interchange_hex_bid(
+  self : Decimal,
+  format : DecimalInterchangeFormat,
+) -> (String, DecimalFlags) {
+  let ctx = format.context()
+  let total_bits = decimal_interchange_total_bits(format)
+  let exp_bits = decimal_interchange_exponent_continuation_bits(format)
+  let coeff_bits = decimal_interchange_coefficient_bits(format)
+  let bias = decimal_interchange_bias(format)
+  let small_coeff_bits = decimal_bid_small_coefficient_bits(format)
+  let large_coeff_bits = small_coeff_bits - 2
+  let sign_shift = total_bits - 1
+  let special_prefix_shift = coeff_bits + exp_bits
+  let (applied, flags) = match self.class {
+    FpClass::Finite => self.apply_ctx(ctx)
+    FpClass::Infinity | FpClass::NaN => (self, DecimalFlags::new())
+  }
+  let sign_bit = if applied.negative { bigint_one() } else { bigint_zero() }
+  let bits = match applied.class {
+    FpClass::Infinity =>
+      (sign_bit << sign_shift) +
+      (BigInt::from_int(0b11110) << special_prefix_shift)
+    FpClass::NaN => {
+      let payload_digits = decimal_nan_payload_digits(
+        applied.nan_payload(),
+        Int::max(0, applied.precision_ - 1),
+        decimal_interchange_payload_digits(format),
+      )
+      let payload = BigInt::from_string(payload_digits)
+      let signal_head = if applied.signaling_nan { 1 } else { 0 }
+      let exponent_head = BigInt::from_int(signal_head) << (exp_bits - 1)
+      (sign_bit << sign_shift) +
+      (BigInt::from_int(0b11111) << special_prefix_shift) +
+      (exponent_head << coeff_bits) +
+      payload
+    }
+    FpClass::Finite => {
+      let coefficient = applied.coefficient.to_bigint()
+      let exponent = applied.exponent10 + bias
+      if coefficient < bigint_one() << small_coeff_bits {
+        (sign_bit << sign_shift) +
+        (BigInt::from_int(exponent) << small_coeff_bits) +
+        coefficient
+      } else {
+        (sign_bit << sign_shift) +
+        (BigInt::from_int(0b11) << (total_bits - 3)) +
+        (BigInt::from_int(exponent) << large_coeff_bits) +
+        coefficient % (bigint_one() << large_coeff_bits)
+      }
+    }
+  }
+  (interchange_hex_string(bits, format), flags)
+}
+
+///|
+pub fn Decimal::from_interchange_hex(
+  src : String,
+  format : DecimalInterchangeFormat,
+) -> Decimal? {
+  Decimal::from_interchange_hex_dpd(src, format)
+}
+
+///|
+pub fn Decimal::from_interchange_hex_with_encoding(
+  src : String,
+  format : DecimalInterchangeFormat,
+  encoding : DecimalInterchangeEncoding,
+) -> Decimal? {
+  match encoding {
+    DPD => Decimal::from_interchange_hex_dpd(src, format)
+    BID => Decimal::from_interchange_hex_bid(src, format)
+  }
+}
+
+///|
+pub fn Decimal::to_interchange_hex(
+  self : Decimal,
+  format : DecimalInterchangeFormat,
+) -> (String, DecimalFlags) {
+  self.to_interchange_hex_dpd(format)
+}
+
+///|
+pub fn Decimal::to_interchange_hex_with_encoding(
+  self : Decimal,
+  format : DecimalInterchangeFormat,
+  encoding : DecimalInterchangeEncoding,
+) -> (String, DecimalFlags) {
+  match encoding {
+    DPD => self.to_interchange_hex_dpd(format)
+    BID => self.to_interchange_hex_bid(format)
+  }
 }
 
 ///|

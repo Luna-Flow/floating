@@ -19,3 +19,13 @@ test "Decimal contextual division preserves rounding diagnostics" {
   inspect(outcome.diagnostics.inexact, content="true")
   inspect(outcome.diagnostics.rounded, content="true")
 }
+
+///|
+test "IEEE context exposes 2019 profile and explicit rounding updates" {
+  let ctx = DecimalContext::decimal64()
+  assert_true(ctx.is754version2019())
+  let directed = ctx.with_rounding(@lf_arith.RoundingMode::TowardPositive)
+  assert_true(directed.rounding() == @lf_arith.RoundingMode::TowardPositive)
+  assert_true(directed.is754version2019())
+  assert_false(directed.gda().is754version2019())
+}

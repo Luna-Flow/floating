@@ -10,7 +10,7 @@ pub fn Decimal::log10_ctx(
     self.class == FpClass::Finite &&
     self.coefficient.is_zero() {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+      Decimal::nan(precision=finite_precision_for_coeff(dec_coeff_zero(), ctx)),
       invalid_flags(),
     )
   }
@@ -19,12 +19,12 @@ pub fn Decimal::log10_ctx(
   }
   if decimal_math_operand_out_of_range(self) {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+      Decimal::nan(precision=finite_precision_for_coeff(dec_coeff_zero(), ctx)),
       invalid_flags(),
     )
   }
   let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = match value.class {
     FpClass::NaN => quiet_nan_operand(value, ctx)
     FpClass::Infinity =>
@@ -65,12 +65,12 @@ pub fn Decimal::exp_ctx(
   }
   if decimal_math_operand_out_of_range(self) {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+      Decimal::nan(precision=finite_precision_for_coeff(dec_coeff_zero(), ctx)),
       invalid_flags(),
     )
   }
   let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = match value.class {
     FpClass::NaN => quiet_nan_operand(value, ctx)
     FpClass::Infinity =>
@@ -102,7 +102,7 @@ pub fn Decimal::ln_ctx(
     self.class == FpClass::Finite &&
     self.coefficient.is_zero() {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+      Decimal::nan(precision=finite_precision_for_coeff(dec_coeff_zero(), ctx)),
       invalid_flags(),
     )
   }
@@ -111,12 +111,12 @@ pub fn Decimal::ln_ctx(
   }
   if decimal_math_operand_out_of_range(self) {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+      Decimal::nan(precision=finite_precision_for_coeff(dec_coeff_zero(), ctx)),
       invalid_flags(),
     )
   }
   let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = match value.class {
     FpClass::NaN => quiet_nan_operand(value, ctx)
     FpClass::Infinity =>
@@ -181,7 +181,7 @@ fn Decimal::power_ctx_impl(
     Some(result) => return result
     None => ()
   }
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   match decimal_power_infinite_exponent_result(self, exponent, ctx) {
     Some(result) => return result
     None => ()
@@ -225,7 +225,7 @@ fn Decimal::power_ctx_impl(
         return Decimal::one(precision~).plus_ctx(ctx)
       } else if is_finite_decimal_negative_one(self) {
         return (
-          finite_with_exponent(odd, bigint_one(), 0, precision),
+          finite_with_exponent_repr(odd, dec_coeff_from_int(1), 0, precision),
           DecimalFlags::new(),
         )
       }
@@ -245,7 +245,7 @@ fn Decimal::power_ctx_impl(
       } else if count < 0 {
         let negative = self.negative && (-count & 1) == 1
         (
-          finite_with_exponent(negative, bigint_zero(), 0, precision),
+          finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision),
           DecimalFlags::new(),
         )
       } else if self.negative && (count & 1) == 1 {
@@ -279,7 +279,7 @@ fn Decimal::power_ctx_impl(
           )
         } else {
           (
-            finite_with_exponent(negative, bigint_zero(), 0, precision),
+            finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision),
             DecimalFlags::new(),
           )
         }

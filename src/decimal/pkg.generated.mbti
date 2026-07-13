@@ -52,8 +52,10 @@ pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
 pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
+pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
 pub fn Decimal::from_string(String, precision? : Int) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::get_payload(Self) -> @bigint.BigInt
 pub fn Decimal::inf(@def.Sign, precision? : Int) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
@@ -81,9 +83,21 @@ pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : @arithmetic.RoundingMode)
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -102,14 +116,18 @@ pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int
 pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::quantum(Self) -> Int
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
+pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
 pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
@@ -122,6 +140,7 @@ pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
+pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
@@ -172,10 +191,16 @@ pub fn DecimalContext::e_min(Self) -> Int
 pub fn DecimalContext::exact() -> Self
 pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
-pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Self
+pub fn DecimalContext::gda(Self) -> Self
+pub fn DecimalContext::ieee754(Self) -> Self
+pub fn DecimalContext::is754version2019(Self) -> Bool
+pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::precision(Self) -> Int
 pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
-pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
+pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
+pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 pub struct DecimalFlags {
   inexact : Bool
@@ -193,6 +218,7 @@ pub struct DecimalFlags {
   invalid_context : Bool
 } derive(Eq)
 pub fn DecimalFlags::combine(Self, Self) -> Self
+pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
 
@@ -204,13 +230,21 @@ pub fn DecimalInterchange::copy(Self) -> Self
 pub fn DecimalInterchange::copy_abs(Self) -> Self
 pub fn DecimalInterchange::copy_negate(Self) -> Self
 pub fn DecimalInterchange::copy_sign(Self, Self) -> Self
+pub fn DecimalInterchange::encoding(Self) -> DecimalInterchangeEncoding
 pub fn DecimalInterchange::format(Self) -> DecimalInterchangeFormat
 pub fn DecimalInterchange::from_decimal(Decimal, DecimalInterchangeFormat) -> (Self, DecimalFlags)
+pub fn DecimalInterchange::from_decimal_with_encoding(Decimal, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (Self, DecimalFlags)
 pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Self?
+pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
 pub fn DecimalInterchange::is_canonical(Self) -> Bool
 pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
 pub fn DecimalInterchange::to_hex(Self) -> String
+
+pub(all) enum DecimalInterchangeEncoding {
+  DPD
+  BID
+} derive(Eq)
 
 pub(all) enum DecimalInterchangeFormat {
   Decimal32
@@ -231,6 +265,27 @@ pub(all) enum DecimalRoundingMode {
 } derive(Eq)
 pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
+
+pub(all) enum DecimalSignal {
+  ConversionSyntax
+  DivisionByZero
+  DivisionImpossible
+  DivisionUndefined
+  InvalidContext
+  InvalidOperation
+  Overflow
+  Underflow
+  Subnormal
+  Inexact
+  Rounded
+  Clamped
+  LostDigits
+} derive(Eq)
+
+pub(all) enum DecimalTininessDetection {
+  BeforeRounding
+  AfterRounding
+} derive(Eq)
 
 // Type aliases
 

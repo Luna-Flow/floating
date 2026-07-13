@@ -82,7 +82,7 @@ fn decimal_context(context : GdaContext) -> @decimal.DecimalContext? {
       e_max=context.max_exponent(),
       clamp=context.clamp(),
       extended=context.extended(),
-    ),
+    ).gda(),
   )
 }
 
@@ -93,21 +93,21 @@ fn decode_decimal(token : String, context : GdaContext) -> @decimal.Decimal? {
     Some(
       @decimal.Decimal::from_string_ctx(
         normalized[3:].to_owned(),
-        @decimal.DecimalContext::decimal32(),
+        @decimal.DecimalContext::decimal32().gda(),
       ).0,
     )
   } else if normalized.has_prefix("64#") {
     Some(
       @decimal.Decimal::from_string_ctx(
         normalized[3:].to_owned(),
-        @decimal.DecimalContext::decimal64(),
+        @decimal.DecimalContext::decimal64().gda(),
       ).0,
     )
   } else if normalized.has_prefix("128#") {
     Some(
       @decimal.Decimal::from_string_ctx(
         normalized[4:].to_owned(),
-        @decimal.DecimalContext::decimal128(),
+        @decimal.DecimalContext::decimal128().gda(),
       ).0,
     )
   } else if normalized.has_prefix("#") {

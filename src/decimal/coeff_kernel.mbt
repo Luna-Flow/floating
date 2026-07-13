@@ -7,19 +7,21 @@
 // storage.
 
 ///|
-priv struct DecCoeff {
-  units : Array[Int]
-  digits : Int
+priv enum DecCoeff {
+  Inline(UInt)
+  Limbs(Array[UInt], Int)
 }
 
 ///|
-let dec_coeff_dpun = 3
+let dec_coeff_dpun = 9
 
 ///|
-let dec_coeff_base = 1000
+let dec_coeff_base = 1000000000
 
 ///|
-let dec_coeff_powers : Array[Int] = [1, 10, 100, 1000]
+let dec_coeff_powers : Array[Int] = [
+  1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
+]
 
 ///|
 let dec_coeff_wide_base = 1000000000UL
@@ -40,15 +42,15 @@ fn dec_coeff_msu_digits(digits : Int) -> Int {
 }
 
 ///|
-fn dec_coeff_ensure_length(units : Array[Int], needed : Int) -> Unit {
+fn dec_coeff_ensure_length(units : Array[UInt], needed : Int) -> Unit {
   while units.length() < needed {
-    units.push(0)
+    units.push(0U)
   }
 }
 
 ///|
 fn dec_coeff_zero() -> DecCoeff {
-  { units: [0], digits: 1 }
+  Inline(0U)
 }
 
 ///|
@@ -56,7 +58,7 @@ fn dec_coeff_from_int(value : Int) -> DecCoeff {
   guard value >= 0 && value < dec_coeff_base else {
     abort("dec_coeff_from_int expects one non-negative coefficient unit")
   }
-  { units: [value], digits: dec_coeff_get_digits([value], 1) }
+  dec_coeff_from_unit_accumulator([value.reinterpret_as_uint()], 1)
 }
 
 ///|
@@ -67,13 +69,36 @@ fn dec_coeff_from_nonnegative_int(value : Int) -> DecCoeff {
   if value == 0 {
     return dec_coeff_zero()
   }
-  let units : Array[Int] = []
+  let units : Array[UInt] = []
   let mut remaining = value
   while remaining > 0 {
-    units.push(remaining % dec_coeff_base)
+    units.push((remaining % dec_coeff_base).reinterpret_as_uint())
     remaining = remaining / dec_coeff_base
   }
-  { units, digits: dec_coeff_get_digits(units, units.length()) }
+  dec_coeff_from_unit_accumulator(units, units.length())
+}
+
+///|
+fn dec_coeff_from_decimal_digits_repr(src : String) -> DecCoeff? {
+  if src.length() == 0 {
+    return None
+  }
+  let units : Array[UInt] = []
+  let mut end = src.length()
+  while end > 0 {
+    let start = Int::max(0, end - dec_coeff_dpun)
+    let mut value = 0
+    for index in start..<end {
+      let digit = src[index].to_int() - '0'.to_int()
+      if digit < 0 || digit > 9 {
+        return None
+      }
+      value = value * 10 + digit
+    }
+    units.push(value.reinterpret_as_uint())
+    end = start
+  }
+  Some(dec_coeff_from_unit_accumulator(units, units.length()))
 }
 
 ///|
@@ -101,17 +126,47 @@ fn dec_coeff_power10_repr(shift : Int) -> DecCoeff {
 
 ///|
 fn dec_coeff_unit_len(coeff : DecCoeff) -> Int {
-  dec_coeff_d2u(coeff.digits)
+  match coeff {
+    Inline(_) => 1
+    Limbs(units, _) => units.length()
+  }
+}
+
+///|
+fn dec_coeff_limb_at(coeff : DecCoeff, index : Int) -> UInt {
+  match coeff {
+    Inline(value) => if index == 0 { value } else { 0U }
+    Limbs(units, _) => if index < units.length() { units[index] } else { 0U }
+  }
+}
+
+///|
+fn dec_coeff_copy_limbs(coeff : DecCoeff) -> Array[UInt] {
+  match coeff {
+    Inline(value) => [value]
+    Limbs(units, _) => units.copy()
+  }
+}
+
+///|
+fn dec_coeff_digits_cached(coeff : DecCoeff) -> Int {
+  match coeff {
+    Inline(value) => dec_coeff_get_digits([value], 1)
+    Limbs(_, digits) => digits
+  }
 }
 
 ///|
 fn dec_coeff_is_zero(coeff : DecCoeff) -> Bool {
-  coeff.digits == 1 && coeff.units[0] == 0
+  match coeff {
+    Inline(value) => value == 0U
+    Limbs(_, _) => false
+  }
 }
 
 ///|
 fn dec_coeff_is_odd(coeff : DecCoeff) -> Bool {
-  (coeff.units[0] & 0x01) == 1
+  (dec_coeff_limb_at(coeff, 0) & 0x01U) == 1U
 }
 
 ///|
@@ -119,7 +174,8 @@ fn dec_coeff_matches_unit_repr(coeff : DecCoeff, value : Int) -> Bool {
   guard value >= 0 && value < dec_coeff_base else {
     abort("dec_coeff_matches_unit_repr expects one coefficient unit")
   }
-  dec_coeff_unit_len(coeff) == 1 && coeff.units[0] == value
+  dec_coeff_unit_len(coeff) == 1 &&
+  dec_coeff_limb_at(coeff, 0) == value.reinterpret_as_uint()
 }
 
 ///|
@@ -134,49 +190,37 @@ fn DecCoeff::to_bigint(self : DecCoeff) -> BigInt {
 
 ///|
 fn DecCoeff::digits10(self : DecCoeff) -> Int {
-  self.digits
+  dec_coeff_digits_cached(self)
 }
 
 ///|
 fn DecCoeff::to_string(self : DecCoeff) -> String {
   let mut index = dec_coeff_unit_len(self) - 1
-  let mut result = self.units[index].to_string()
+  let mut result = dec_coeff_limb_at(self, index).to_string()
   while index > 0 {
     index -= 1
-    let unit = self.units[index]
+    let unit = dec_coeff_limb_at(self, index)
     let digits = unit.to_string()
-    result = result +
-      (if unit < 10 {
-        "00" + digits
-      } else if unit < 100 {
-        "0" + digits
-      } else {
-        digits
-      })
+    result = result + zeros(dec_coeff_dpun - digits.length()) + digits
   }
   result
 }
 
 ///|
-fn DecCoeff::from_bigint(magnitude : BigInt) -> DecCoeff {
-  dec_coeff_from_bigint_repr(magnitude)
-}
-
-///|
-fn dec_coeff_from_bigint(magnitude : BigInt) -> (Array[Int], Int) {
+fn dec_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt], Int) {
   guard magnitude >= 0N else {
     abort("dec_coeff_from_bigint expects a non-negative coefficient")
   }
   if magnitude.is_zero() {
-    return ([0], 1)
+    return ([0U], 1)
   }
   let base = BigInt::from_int(dec_coeff_base)
-  let units : Array[Int] = []
+  let units : Array[UInt] = []
   let mut remaining = magnitude
   while !remaining.is_zero() {
     let quotient = remaining / base
     let remainder = remaining - quotient * base
-    units.push(remainder.to_int())
+    units.push(remainder.to_int().reinterpret_as_uint())
     remaining = quotient
   }
   (units, dec_coeff_get_digits(units, units.length()))
@@ -184,7 +228,7 @@ fn dec_coeff_from_bigint(magnitude : BigInt) -> (Array[Int], Int) {
 
 ///|
 fn dec_coeff_to_bigint(
-  units : Array[Int],
+  units : Array[UInt],
   unit_len? : Int = units.length(),
 ) -> BigInt {
   guard unit_len >= 1 else {
@@ -194,7 +238,7 @@ fn dec_coeff_to_bigint(
   let base = BigInt::from_int(dec_coeff_base)
   let mut index = unit_len - 1
   while true {
-    acc = acc * base + BigInt::from_int(units[index])
+    acc = acc * base + BigInt::from_int(units[index].reinterpret_as_int())
     if index == 0 {
       break
     }
@@ -205,17 +249,20 @@ fn dec_coeff_to_bigint(
 
 ///|
 fn dec_coeff_from_bigint_repr(magnitude : BigInt) -> DecCoeff {
-  let (units, digits) = dec_coeff_from_bigint(magnitude)
-  { units, digits }
+  let (units, _) = dec_coeff_from_bigint(magnitude)
+  dec_coeff_from_unit_accumulator(units, units.length())
 }
 
 ///|
 fn dec_coeff_to_bigint_repr(coeff : DecCoeff) -> BigInt {
-  dec_coeff_to_bigint(coeff.units, unit_len=dec_coeff_unit_len(coeff))
+  dec_coeff_to_bigint(
+    dec_coeff_copy_limbs(coeff),
+    unit_len=dec_coeff_unit_len(coeff),
+  )
 }
 
 ///|
-fn dec_coeff_get_digits(units : Array[Int], unit_len : Int) -> Int {
+fn dec_coeff_get_digits(units : Array[UInt], unit_len : Int) -> Int {
   guard unit_len >= 1 else {
     abort("dec_coeff_get_digits expects unit_len >= 1")
   }
@@ -223,17 +270,19 @@ fn dec_coeff_get_digits(units : Array[Int], unit_len : Int) -> Int {
   let mut digits = (unit_len - 1) * dec_coeff_dpun + 1
   while true {
     let unit = units[index]
-    if unit == 0 {
+    if unit == 0U {
       if digits == 1 {
         break
       }
       digits -= dec_coeff_dpun
     } else {
-      if unit >= 10 {
+      let mut threshold = 10
+      while unit.reinterpret_as_int() >= threshold {
         digits += 1
-      }
-      if unit >= 100 {
-        digits += 1
+        if threshold == 100000000 {
+          break
+        }
+        threshold *= 10
       }
       break
     }
@@ -247,7 +296,7 @@ fn dec_coeff_get_digits(units : Array[Int], unit_len : Int) -> Int {
 
 ///|
 fn dec_coeff_shift_to_most(
-  units : Array[Int],
+  units : Array[UInt],
   digits : Int,
   shift : Int,
 ) -> Int {
@@ -259,7 +308,7 @@ fn dec_coeff_shift_to_most(
     return digits
   }
   if digits + shift <= dec_coeff_dpun {
-    units[0] = units[0] * dec_coeff_powers[shift]
+    units[0] = (units[0].reinterpret_as_int() * dec_coeff_powers[shift]).reinterpret_as_uint()
     return digits + shift
   }
 
@@ -288,11 +337,12 @@ fn dec_coeff_shift_to_most(
   } else {
     let first = target_units - 1
     while true {
-      let quot = units[source] / dec_coeff_powers[cut]
-      let rem = units[source] - quot * dec_coeff_powers[cut]
+      let quot = units[source].reinterpret_as_int() / dec_coeff_powers[cut]
+      let rem = units[source].reinterpret_as_int() -
+        quot * dec_coeff_powers[cut]
       next += quot
       if target <= first {
-        units[target] = next
+        units[target] = next.reinterpret_as_uint()
       }
       next = rem * dec_coeff_powers[dec_coeff_dpun - cut]
       if source == 0 {
@@ -305,7 +355,7 @@ fn dec_coeff_shift_to_most(
   }
 
   while target >= 0 {
-    units[target] = next
+    units[target] = next.reinterpret_as_uint()
     next = 0
     target -= 1
   }
@@ -314,7 +364,7 @@ fn dec_coeff_shift_to_most(
 
 ///|
 fn dec_coeff_shift_to_least(
-  units : Array[Int],
+  units : Array[UInt],
   unit_len : Int,
   shift : Int,
 ) -> Int {
@@ -326,7 +376,7 @@ fn dec_coeff_shift_to_least(
     return unit_len
   }
   if shift == unit_len * dec_coeff_dpun {
-    units[0] = 0
+    units[0] = 0U
     return 1
   }
 
@@ -344,18 +394,19 @@ fn dec_coeff_shift_to_least(
 
   let mut up = dec_coeff_d2u(shift - cut)
   let mut count = unit_len * dec_coeff_dpun - shift
-  let mut quot = units[up] / dec_coeff_powers[cut]
+  let mut quot = units[up].reinterpret_as_int() / dec_coeff_powers[cut]
   while true {
-    units[target] = quot
+    units[target] = quot.reinterpret_as_uint()
     count -= dec_coeff_dpun - cut
     if count <= 0 {
       break
     }
     up += 1
     let current = units[up]
-    let rem = current % dec_coeff_powers[cut]
-    quot = current / dec_coeff_powers[cut]
-    units[target] = units[target] + rem * dec_coeff_powers[dec_coeff_dpun - cut]
+    let rem = current.reinterpret_as_int() % dec_coeff_powers[cut]
+    quot = current.reinterpret_as_int() / dec_coeff_powers[cut]
+    units[target] = units[target] +
+      (rem * dec_coeff_powers[dec_coeff_dpun - cut]).reinterpret_as_uint()
     count -= cut
     if count <= 0 {
       break
@@ -367,17 +418,17 @@ fn dec_coeff_shift_to_least(
 
 ///|
 fn dec_coeff_trim(
-  units : Array[Int],
+  units : Array[UInt],
   digits : Int,
   exponent : Int,
   all? : Bool = true,
   max_drop? : Int = -1,
 ) -> (Int, Int, Int) {
   guard digits >= 1 else { abort("dec_coeff_trim expects digits >= 1") }
-  if (units[0] & 1) == 1 {
+  if (units[0] & 1U) == 1U {
     return (digits, exponent, 0)
   }
-  if digits == 1 && units[0] == 0 {
+  if digits == 1 && units[0] == 0U {
     return (1, 0, 0)
   }
 
@@ -386,8 +437,8 @@ fn dec_coeff_trim(
   let mut up = 0
   let mut dropped = 0
   while dropped < digits - 1 {
-    let quot = units[up] / dec_coeff_powers[cut]
-    if units[up] - quot * dec_coeff_powers[cut] != 0 {
+    let quot = units[up].reinterpret_as_int() / dec_coeff_powers[cut]
+    if units[up].reinterpret_as_int() - quot * dec_coeff_powers[cut] != 0 {
       break
     }
     if !all {
@@ -419,36 +470,24 @@ fn dec_coeff_trim(
 }
 
 ///|
-fn dec_coeff_split_carry_3(carry : Int) -> (Int, Int) {
-  if carry >= 0 {
-    let est = ((carry >> 3) * 16777) >> 21
-    let rem = carry - est * dec_coeff_base
-    if rem < dec_coeff_base {
-      (rem, est)
-    } else {
-      (rem - dec_coeff_base, est + 1)
-    }
+fn dec_coeff_split_carry_3(carry : Int64) -> (Int, Int64) {
+  let base = 1000000000L
+  if carry >= 0L {
+    ((carry % base).to_int(), carry / base)
   } else {
-    let adjusted = carry + dec_coeff_base * dec_coeff_base
-    let est = ((adjusted >> 3) * 16777) >> 21
-    let rem = adjusted - est * dec_coeff_base
-    let next = est - dec_coeff_base
-    if rem < dec_coeff_base {
-      (rem, next)
-    } else {
-      (rem - dec_coeff_base, next + 1)
-    }
+    let quotient = -((-carry + base - 1L) / base)
+    ((carry - quotient * base).to_int(), quotient)
   }
 }
 
 ///|
 fn dec_coeff_unit_add_sub(
-  a : Array[Int],
+  a : Array[UInt],
   alength : Int,
-  b : Array[Int],
+  b : Array[UInt],
   blength : Int,
   bshift : Int,
-  c : Array[Int],
+  c : Array[UInt],
   m : Int,
 ) -> Int {
   guard alength >= 1 else {
@@ -459,7 +498,7 @@ fn dec_coeff_unit_add_sub(
   }
   guard bshift >= 0 else { abort("dec_coeff_unit_add_sub expects bshift >= 0") }
 
-  let mut carry = 0
+  let mut carry = 0L
   let mut max_c = alength
   let mut min_c = blength
   let mut a_index = 0
@@ -470,7 +509,7 @@ fn dec_coeff_unit_add_sub(
     min_c += bshift
     dec_coeff_ensure_length(c, bshift)
     while c_index < bshift {
-      c[c_index] = if a_index < alength { a[a_index] } else { 0 }
+      c[c_index] = if a_index < alength { a[a_index] } else { 0U }
       a_index += 1
       c_index += 1
     }
@@ -483,16 +522,16 @@ fn dec_coeff_unit_add_sub(
   dec_coeff_ensure_length(c, max_c + 1)
 
   while c_index < min_c {
-    carry += a[a_index]
+    carry += a[a_index].to_int64()
     a_index += 1
-    carry += b[b_index] * m
+    carry += b[b_index].to_int64() * m.to_int64()
     b_index += 1
-    if carry >= 0 && carry <= dec_coeff_base - 1 {
-      c[c_index] = carry
-      carry = 0
+    if carry >= 0L && carry < 1000000000L {
+      c[c_index] = carry.to_int().reinterpret_as_uint()
+      carry = 0L
     } else {
       let (digit, next) = dec_coeff_split_carry_3(carry)
-      c[c_index] = digit
+      c[c_index] = digit.reinterpret_as_uint()
       carry = next
     }
     c_index += 1
@@ -500,47 +539,48 @@ fn dec_coeff_unit_add_sub(
 
   while c_index < max_c {
     if a_index < alength {
-      carry += a[a_index]
+      carry += a[a_index].to_int64()
       a_index += 1
     } else {
-      carry += b[b_index] * m
+      carry += b[b_index].to_int64() * m.to_int64()
       b_index += 1
     }
-    if carry >= 0 && carry <= dec_coeff_base - 1 {
-      c[c_index] = carry
-      carry = 0
+    if carry >= 0L && carry < 1000000000L {
+      c[c_index] = carry.to_int().reinterpret_as_uint()
+      carry = 0L
     } else {
       let (digit, next) = dec_coeff_split_carry_3(carry)
-      c[c_index] = digit
+      c[c_index] = digit.reinterpret_as_uint()
       carry = next
     }
     c_index += 1
   }
 
-  if carry == 0 {
+  if carry == 0L {
     return c_index
   }
-  if carry > 0 {
-    c[c_index] = carry
+  if carry > 0L {
+    c[c_index] = carry.to_int().reinterpret_as_uint()
     return c_index + 1
   }
 
   let mut add = 1
   let mut complement_index = 0
   while complement_index < max_c {
-    add = dec_coeff_base - 1 + add - c[complement_index]
+    add = dec_coeff_base - 1 + add - c[complement_index].reinterpret_as_int()
     if add <= dec_coeff_base - 1 {
-      c[complement_index] = add
+      c[complement_index] = add.reinterpret_as_uint()
       add = 0
     } else {
-      c[complement_index] = 0
+      c[complement_index] = 0U
       add = 1
     }
     complement_index += 1
   }
   let mut written = max_c
-  if add - carry - 1 != 0 {
-    c[written] = add - carry - 1
+  let upper = add.to_int64() - carry - 1L
+  if upper != 0L {
+    c[written] = upper.to_int().reinterpret_as_uint()
     written += 1
   }
   -written
@@ -554,39 +594,15 @@ fn dec_coeff_shift_power10_repr(coeff : DecCoeff, shift : Int) -> DecCoeff {
   if coeff.is_zero() || shift == 0 {
     return coeff
   }
-  let units = coeff.units.copy()
-  let shifted_digits = dec_coeff_shift_to_most(units, coeff.digits, shift)
-  { units, digits: shifted_digits }
+  let units = dec_coeff_copy_limbs(coeff)
+  let shifted_digits = dec_coeff_shift_to_most(units, coeff.digits10(), shift)
+  dec_coeff_from_unit_accumulator(units, dec_coeff_d2u(shifted_digits))
 }
 
 ///|
 fn dec_coeff_compare_repr(lhs : DecCoeff, rhs : DecCoeff) -> Int {
-  dec_coeff_compare_unit_arrays(
-    lhs.units,
-    dec_coeff_unit_len(lhs),
-    rhs.units,
-    dec_coeff_unit_len(rhs),
-  )
-}
-
-///|
-fn dec_coeff_trim_units(units : Array[Int], unit_len : Int) -> Int {
-  let mut len = unit_len
-  while len > 1 && units[len - 1] == 0 {
-    len -= 1
-  }
-  len
-}
-
-///|
-fn dec_coeff_compare_unit_arrays(
-  lhs : Array[Int],
-  lhs_len : Int,
-  rhs : Array[Int],
-  rhs_len : Int,
-) -> Int {
-  let lhs_len = dec_coeff_trim_units(lhs, lhs_len)
-  let rhs_len = dec_coeff_trim_units(rhs, rhs_len)
+  let lhs_len = dec_coeff_unit_len(lhs)
+  let rhs_len = dec_coeff_unit_len(rhs)
   if lhs_len > rhs_len {
     return 1
   }
@@ -595,10 +611,12 @@ fn dec_coeff_compare_unit_arrays(
   }
   let mut index = lhs_len - 1
   while true {
-    if lhs[index] > rhs[index] {
+    let lhs_limb = dec_coeff_limb_at(lhs, index)
+    let rhs_limb = dec_coeff_limb_at(rhs, index)
+    if lhs_limb > rhs_limb {
       return 1
     }
-    if lhs[index] < rhs[index] {
+    if lhs_limb < rhs_limb {
       return -1
     }
     if index == 0 {
@@ -610,86 +628,32 @@ fn dec_coeff_compare_unit_arrays(
 }
 
 ///|
-fn dec_coeff_compare_shifted(
-  lhs : Array[Int],
-  lhs_len : Int,
-  rhs : Array[Int],
-  rhs_len : Int,
-  rhs_shift : Int,
-) -> Int {
-  let lhs_len = dec_coeff_trim_units(lhs, lhs_len)
-  let rhs_len = dec_coeff_trim_units(rhs, rhs_len)
-  let rhs_total = if rhs_len == 1 && rhs[0] == 0 {
-    1
-  } else {
-    rhs_len + rhs_shift
+fn dec_coeff_trim_units(units : Array[UInt], unit_len : Int) -> Int {
+  let mut len = unit_len
+  while len > 1 && units[len - 1] == 0U {
+    len -= 1
   }
-  if lhs_len > rhs_total {
-    return 1
-  }
-  if lhs_len < rhs_total {
-    return -1
-  }
-  let mut index = lhs_len - 1
-  while true {
-    let rhs_unit = if index >= rhs_shift && index < rhs_shift + rhs_len {
-      rhs[index - rhs_shift]
-    } else {
-      0
-    }
-    if lhs[index] > rhs_unit {
-      return 1
-    }
-    if lhs[index] < rhs_unit {
-      return -1
-    }
-    if index == 0 {
-      break
-    }
-    index -= 1
-  }
-  0
-}
-
-///|
-fn dec_coeff_wide_unit_at(
-  units : Array[Int],
-  unit_len : Int,
-  wide_index : Int,
-) -> UInt64 {
-  let base_index = wide_index * 3
-  let mut value = 0UL
-  if base_index < unit_len {
-    value = units[base_index].to_uint64()
-  }
-  if base_index + 1 < unit_len {
-    value += units[base_index + 1].to_uint64() * 1000UL
-  }
-  if base_index + 2 < unit_len {
-    value += units[base_index + 2].to_uint64() * 1000000UL
-  }
-  value
+  len
 }
 
 ///|
 fn dec_coeff_write_wide_unit(
-  units : Array[Int],
+  units : Array[UInt],
   wide_index : Int,
   value : UInt64,
 ) -> Unit {
-  let base_index = wide_index * 3
-  units[base_index] = (value % 1000UL).to_int()
-  let upper = value / 1000UL
-  units[base_index + 1] = (upper % 1000UL).to_int()
-  units[base_index + 2] = (upper / 1000UL).to_int()
+  guard value < dec_coeff_wide_base else {
+    abort("decimal coefficient limb exceeds base")
+  }
+  units[wide_index] = value.to_uint()
 }
 
 ///|
-fn dec_coeff_pack_wide(units : Array[Int], unit_len : Int) -> Array[UInt64] {
-  let wide_len = (unit_len + 2) / 3
+fn dec_coeff_pack_wide(coeff : DecCoeff) -> Array[UInt64] {
+  let wide_len = dec_coeff_unit_len(coeff)
   let packed = Array::make(wide_len, 0UL)
   for wide_index in 0..<wide_len {
-    packed[wide_index] = dec_coeff_wide_unit_at(units, unit_len, wide_index)
+    packed[wide_index] = dec_coeff_limb_at(coeff, wide_index).to_uint64()
   }
   packed
 }
@@ -699,7 +663,7 @@ fn dec_coeff_from_wide_accumulator(
   wide_units : Array[UInt64],
   wide_len : Int,
 ) -> DecCoeff {
-  let units = Array::make(Int::max(1, wide_len * 3), 0)
+  let units = Array::make(Int::max(1, wide_len), 0U)
   for wide_index in 0..<wide_len {
     dec_coeff_write_wide_unit(units, wide_index, wide_units[wide_index])
   }
@@ -708,17 +672,17 @@ fn dec_coeff_from_wide_accumulator(
 
 ///|
 fn dec_coeff_multiply_units_by_unit(
-  units : Array[Int],
+  units : Array[UInt],
   unit_len : Int,
   multiplier : Int,
-) -> (Array[Int], Int) {
+) -> (Array[UInt], Int) {
   guard multiplier >= 0 && multiplier < dec_coeff_base else {
     abort("dec_coeff_multiply_units_by_unit expects one coefficient unit")
   }
   if multiplier == 0 {
-    return ([0], 1)
+    return ([0U], 1)
   }
-  let result = Array::make(unit_len + 1, 0)
+  let result = Array::make(unit_len + 1, 0U)
   let len = dec_coeff_multiply_units_by_unit_into(
     units, unit_len, multiplier, result,
   )
@@ -727,10 +691,10 @@ fn dec_coeff_multiply_units_by_unit(
 
 ///|
 fn dec_coeff_multiply_units_by_unit_into(
-  units : Array[Int],
+  units : Array[UInt],
   unit_len : Int,
   multiplier : Int,
-  result : Array[Int],
+  result : Array[UInt],
 ) -> Int {
   guard multiplier >= 0 && multiplier < dec_coeff_base else {
     abort("dec_coeff_multiply_units_by_unit_into expects one coefficient unit")
@@ -738,17 +702,16 @@ fn dec_coeff_multiply_units_by_unit_into(
   guard result.length() >= unit_len + 1 else {
     abort("dec_coeff_multiply_units_by_unit_into result is too short")
   }
-  let mut carry = 0
+  let mut carry = 0UL
   let mut index = 0
   while index < unit_len {
-    carry += units[index] * multiplier
-    let (digit, next) = dec_coeff_split_carry_3(carry)
-    result[index] = digit
-    carry = next
+    let current = units[index].to_uint64() * multiplier.to_uint64() + carry
+    result[index] = (current % dec_coeff_wide_base).to_uint()
+    carry = current / dec_coeff_wide_base
     index += 1
   }
-  result[index] = carry
-  if carry == 0 {
+  result[index] = carry.to_uint()
+  if carry == 0UL {
     unit_len
   } else {
     unit_len + 1
@@ -768,11 +731,11 @@ fn dec_coeff_multiply_by_unit_repr(
   }
   let unit_len = dec_coeff_unit_len(coeff)
   let (product, product_len) = dec_coeff_multiply_units_by_unit(
-    coeff.units,
+    dec_coeff_copy_limbs(coeff),
     unit_len,
     multiplier,
   )
-  { units: product, digits: dec_coeff_get_digits(product, product_len) }
+  dec_coeff_from_unit_accumulator(product, product_len)
 }
 
 ///|
@@ -783,13 +746,7 @@ fn dec_coeff_pow_unit_repr(base : Int, exponent : Int) -> DecCoeff {
   guard base >= 0 && base < dec_coeff_base else {
     abort("dec_coeff_pow_unit_repr expects one coefficient unit")
   }
-  let mut result = dec_coeff_from_int(1)
-  let mut index = 0
-  while index < exponent {
-    result = dec_coeff_multiply_by_unit_repr(result, base)
-    index += 1
-  }
-  result
+  dec_coeff_exact_power_repr(dec_coeff_from_int(base), exponent)
 }
 
 ///|
@@ -809,7 +766,7 @@ fn dec_coeff_exact_power_repr(base : DecCoeff, exponent : Int) -> DecCoeff {
     }
     remaining = remaining >> 1
     if remaining > 0 {
-      factor = dec_coeff_multiply_repr(factor, factor)
+      factor = dec_coeff_square_repr(factor)
     }
   }
   result
@@ -845,7 +802,7 @@ fn dec_coeff_exact_power_if_fits_repr(
     }
     remaining = remaining >> 1
     if remaining > 0 {
-      factor = dec_coeff_multiply_repr(factor, factor)
+      factor = dec_coeff_square_repr(factor)
       if factor.digits10() > max_digits {
         return None
       }
@@ -868,28 +825,22 @@ fn dec_coeff_div_rem_by_unit_repr(
     return (dec_coeff_zero(), 0)
   }
   let unit_len = dec_coeff_unit_len(coeff)
-  let result : Array[Int] = []
-  let mut pad = 0
-  while pad < unit_len {
-    result.push(0)
-    pad += 1
-  }
-  let mut remainder = 0
+  let result = Array::make(unit_len, 0U)
+  let mut remainder = 0UL
+  let wide_divisor = divisor.to_uint64()
   let mut index = unit_len - 1
   while true {
-    let current = remainder * dec_coeff_base + coeff.units[index]
-    result[index] = current / divisor
-    remainder = current % divisor
+    let current = remainder * dec_coeff_wide_base +
+      dec_coeff_limb_at(coeff, index).to_uint64()
+    result[index] = (current / wide_divisor).to_uint()
+    remainder = current % wide_divisor
     if index == 0 {
       break
     }
     index -= 1
   }
   let result_len = dec_coeff_trim_units(result, unit_len)
-  (
-    { units: result, digits: dec_coeff_get_digits(result, result_len) },
-    remainder,
-  )
+  (dec_coeff_from_unit_accumulator(result, result_len), remainder.to_int())
 }
 
 ///|
@@ -944,26 +895,34 @@ fn dec_coeff_gcd_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
     x = y
     y = remainder
   }
-  if x.is_zero() {
-    dec_coeff_from_int(1)
-  } else {
-    x
-  }
+  x
 }
 
 ///|
 fn dec_coeff_from_unit_accumulator(
-  units : Array[Int],
+  units : Array[UInt],
   unit_len : Int,
 ) -> DecCoeff {
   guard unit_len >= 1 else {
     abort("dec_coeff_from_unit_accumulator expects unit_len >= 1")
   }
+  guard unit_len <= units.length() else {
+    abort("dec_coeff_from_unit_accumulator unit_len exceeds buffer")
+  }
+  for index in 0..<unit_len {
+    guard units[index] < 1_000_000_000U else {
+      abort("dec_coeff_from_unit_accumulator limb exceeds base")
+    }
+  }
   let unit_len = dec_coeff_trim_units(units, unit_len)
   while units.length() > unit_len {
     ignore(units.pop())
   }
-  { units, digits: dec_coeff_get_digits(units, unit_len) }
+  if unit_len == 1 {
+    Inline(units[0])
+  } else {
+    Limbs(units, dec_coeff_get_digits(units, unit_len))
+  }
 }
 
 ///|
@@ -974,14 +933,28 @@ fn dec_coeff_magnitude_add_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
   if rhs.is_zero() {
     return lhs
   }
+  if dec_coeff_unit_len(lhs) == 1 && dec_coeff_unit_len(rhs) == 1 {
+    let sum = dec_coeff_limb_at(lhs, 0).to_uint64() +
+      dec_coeff_limb_at(rhs, 0).to_uint64()
+    if sum < dec_coeff_wide_base {
+      return dec_coeff_from_int(sum.to_int())
+    }
+    return dec_coeff_from_unit_accumulator(
+      [
+        (sum % dec_coeff_wide_base).to_uint(),
+        (sum / dec_coeff_wide_base).to_uint(),
+      ],
+      2,
+    )
+  }
   let lhs_len = dec_coeff_unit_len(lhs)
   let rhs_len = dec_coeff_unit_len(rhs)
-  let wide_len = (Int::max(lhs_len, rhs_len) + 2) / 3
-  let result = Array::make((wide_len + 1) * 3, 0)
+  let wide_len = Int::max(lhs_len, rhs_len)
+  let result = Array::make(wide_len + 1, 0U)
   let mut carry = 0UL
   for wide_index in 0..<wide_len {
-    let sum = dec_coeff_wide_unit_at(lhs.units, lhs_len, wide_index) +
-      dec_coeff_wide_unit_at(rhs.units, rhs_len, wide_index) +
+    let sum = dec_coeff_limb_at(lhs, wide_index).to_uint64() +
+      dec_coeff_limb_at(rhs, wide_index).to_uint64() +
       carry
     if sum >= dec_coeff_wide_base {
       dec_coeff_write_wide_unit(result, wide_index, sum - dec_coeff_wide_base)
@@ -1006,13 +979,12 @@ fn dec_coeff_magnitude_sub_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
     return lhs
   }
   let lhs_len = dec_coeff_unit_len(lhs)
-  let rhs_len = dec_coeff_unit_len(rhs)
-  let wide_len = (lhs_len + 2) / 3
-  let result = Array::make(wide_len * 3, 0)
+  let wide_len = lhs_len
+  let result = Array::make(wide_len, 0U)
   let mut borrow = 0UL
   for wide_index in 0..<wide_len {
-    let lhs_unit = dec_coeff_wide_unit_at(lhs.units, lhs_len, wide_index)
-    let rhs_unit = dec_coeff_wide_unit_at(rhs.units, rhs_len, wide_index)
+    let lhs_unit = dec_coeff_limb_at(lhs, wide_index).to_uint64()
+    let rhs_unit = dec_coeff_limb_at(rhs, wide_index).to_uint64()
     let subtrahend = rhs_unit + borrow
     if lhs_unit < subtrahend {
       dec_coeff_write_wide_unit(
@@ -1099,11 +1071,11 @@ fn dec_coeff_magnitude_add_unit(coeff : DecCoeff, addend : Int) -> DecCoeff {
   if addend == 0 {
     return coeff
   }
-  let result = coeff.units.copy()
+  let result = dec_coeff_copy_limbs(coeff)
   dec_coeff_ensure_length(result, dec_coeff_unit_len(coeff) + 1)
-  let addend_units = [addend]
+  let addend_units = [addend.reinterpret_as_uint()]
   let len = dec_coeff_unit_add_sub(
-    coeff.units,
+    dec_coeff_copy_limbs(coeff),
     dec_coeff_unit_len(coeff),
     addend_units,
     1,
@@ -1112,7 +1084,7 @@ fn dec_coeff_magnitude_add_unit(coeff : DecCoeff, addend : Int) -> DecCoeff {
     1,
   )
   guard len > 0 else { abort("dec_coeff_magnitude_add_unit underflowed") }
-  { units: result, digits: dec_coeff_get_digits(result, len) }
+  dec_coeff_from_unit_accumulator(result, len)
 }
 
 ///|
@@ -1123,10 +1095,10 @@ fn dec_coeff_magnitude_sub_unit(coeff : DecCoeff, subtrahend : Int) -> DecCoeff 
   if subtrahend == 0 {
     return coeff
   }
-  let result = coeff.units.copy()
-  let rhs_units = [subtrahend]
+  let result = dec_coeff_copy_limbs(coeff)
+  let rhs_units = [subtrahend.reinterpret_as_uint()]
   let len = dec_coeff_unit_add_sub(
-    coeff.units,
+    dec_coeff_copy_limbs(coeff),
     dec_coeff_unit_len(coeff),
     rhs_units,
     1,
@@ -1138,7 +1110,7 @@ fn dec_coeff_magnitude_sub_unit(coeff : DecCoeff, subtrahend : Int) -> DecCoeff 
   if len == 0 {
     dec_coeff_zero()
   } else {
-    { units: result, digits: dec_coeff_get_digits(result, len) }
+    dec_coeff_from_unit_accumulator(result, len)
   }
 }
 
@@ -1173,112 +1145,6 @@ fn dec_coeff_signed_step_unit_repr(
 }
 
 ///|
-fn dec_coeff_subtract_shifted_in_place(
-  lhs : Array[Int],
-  lhs_len : Int,
-  rhs : Array[Int],
-  rhs_len : Int,
-  rhs_shift : Int,
-) -> Int {
-  guard rhs_len + rhs_shift <= lhs_len else {
-    abort("dec_coeff_subtract_shifted_in_place rhs exceeds lhs")
-  }
-  let mut borrow = 0
-  let mut index = 0
-  while index < rhs_len {
-    let target = rhs_shift + index
-    let difference = lhs[target] - rhs[index] - borrow
-    if difference < 0 {
-      lhs[target] = difference + dec_coeff_base
-      borrow = 1
-    } else {
-      lhs[target] = difference
-      borrow = 0
-    }
-    index += 1
-  }
-  let mut target = rhs_shift + rhs_len
-  while borrow != 0 && target < lhs_len {
-    let difference = lhs[target] - borrow
-    if difference < 0 {
-      lhs[target] = difference + dec_coeff_base
-      borrow = 1
-    } else {
-      lhs[target] = difference
-      borrow = 0
-    }
-    target += 1
-  }
-  guard borrow == 0 else {
-    abort("dec_coeff_subtract_shifted_in_place underflowed")
-  }
-  dec_coeff_trim_units(lhs, lhs_len)
-}
-
-///|
-fn dec_coeff_trial_compare(
-  rhs : Array[Int],
-  rhs_len : Int,
-  multiplier : Int,
-  shift : Int,
-  remainder : Array[Int],
-  remainder_len : Int,
-  product : Array[Int],
-) -> Int {
-  let product_len = dec_coeff_multiply_units_by_unit_into(
-    rhs, rhs_len, multiplier, product,
-  )
-  dec_coeff_compare_shifted(
-    remainder, remainder_len, product, product_len, shift,
-  )
-}
-
-///|
-fn dec_coeff_best_unit_multiplier(
-  rhs : Array[Int],
-  rhs_len : Int,
-  shift : Int,
-  remainder : Array[Int],
-  remainder_len : Int,
-  product : Array[Int],
-) -> Int {
-  let upper_index = shift + rhs_len
-  let upper_unit = if upper_index < remainder_len {
-    remainder[upper_index]
-  } else {
-    0
-  }
-  let lower_unit = remainder[upper_index - 1]
-  let numerator_head = upper_unit * dec_coeff_base + lower_unit
-  let upper_bound = Int::min(
-    dec_coeff_base - 1,
-    numerator_head / rhs[rhs_len - 1],
-  )
-  if dec_coeff_trial_compare(
-      rhs, rhs_len, upper_bound, shift, remainder, remainder_len, product,
-    ) >=
-    0 {
-    return upper_bound
-  }
-  let mut lo = 0
-  let mut hi = upper_bound - 1
-  let mut best = 0
-  while lo <= hi {
-    let mid = (lo + hi) / 2
-    let cmp = dec_coeff_trial_compare(
-      rhs, rhs_len, mid, shift, remainder, remainder_len, product,
-    )
-    if cmp >= 0 {
-      best = mid
-      lo = mid + 1
-    } else {
-      hi = mid - 1
-    }
-  }
-  best
-}
-
-///|
 fn dec_coeff_wide_trim_units(units : Array[UInt64], unit_len : Int) -> Int {
   let mut len = unit_len
   while len > 1 && units[len - 1] == 0UL {
@@ -1288,84 +1154,16 @@ fn dec_coeff_wide_trim_units(units : Array[UInt64], unit_len : Int) -> Int {
 }
 
 ///|
-fn dec_coeff_wide_compare_unit_arrays(
-  lhs : Array[UInt64],
-  lhs_len : Int,
-  rhs : Array[UInt64],
-  rhs_len : Int,
-) -> Int {
-  let lhs_len = dec_coeff_wide_trim_units(lhs, lhs_len)
-  let rhs_len = dec_coeff_wide_trim_units(rhs, rhs_len)
-  if lhs_len > rhs_len {
-    return 1
-  }
-  if lhs_len < rhs_len {
-    return -1
-  }
-  let mut index = lhs_len - 1
-  while true {
-    if lhs[index] > rhs[index] {
-      return 1
-    }
-    if lhs[index] < rhs[index] {
-      return -1
-    }
-    if index == 0 {
-      break
-    }
-    index -= 1
-  }
-  0
-}
-
-///|
-fn dec_coeff_wide_compare_shifted(
-  lhs : Array[UInt64],
-  lhs_len : Int,
-  rhs : Array[UInt64],
-  rhs_len : Int,
-  rhs_shift : Int,
-) -> Int {
-  let lhs_len = dec_coeff_wide_trim_units(lhs, lhs_len)
-  let rhs_len = dec_coeff_wide_trim_units(rhs, rhs_len)
-  let rhs_total = rhs_len + rhs_shift
-  if lhs_len > rhs_total {
-    return 1
-  }
-  if lhs_len < rhs_total {
-    return -1
-  }
-  let mut index = lhs_len - 1
-  while true {
-    let rhs_unit = if index >= rhs_shift && index < rhs_shift + rhs_len {
-      rhs[index - rhs_shift]
-    } else {
-      0UL
-    }
-    if lhs[index] > rhs_unit {
-      return 1
-    }
-    if lhs[index] < rhs_unit {
-      return -1
-    }
-    if index == 0 {
-      break
-    }
-    index -= 1
-  }
-  0
-}
-
-///|
-fn dec_coeff_wide_multiply_by_unit_into(
-  units : Array[UInt64],
-  unit_len : Int,
+fn dec_coeff_wide_multiply_coeff_by_unit_into(
+  coeff : DecCoeff,
   multiplier : UInt64,
   result : Array[UInt64],
 ) -> Int {
+  let unit_len = dec_coeff_unit_len(coeff)
   let mut carry = 0UL
   for index in 0..<unit_len {
-    let current = units[index] * multiplier + carry
+    let current = dec_coeff_limb_at(coeff, index).to_uint64() * multiplier +
+      carry
     result[index] = current % dec_coeff_wide_base
     carry = current / dec_coeff_wide_base
   }
@@ -1378,189 +1176,171 @@ fn dec_coeff_wide_multiply_by_unit_into(
 }
 
 ///|
-fn dec_coeff_wide_subtract_shifted_in_place(
-  lhs : Array[UInt64],
-  lhs_len : Int,
-  rhs : Array[UInt64],
-  rhs_len : Int,
-  rhs_shift : Int,
-) -> Int {
-  guard rhs_len + rhs_shift <= lhs_len else {
-    abort("dec_coeff_wide_subtract_shifted_in_place rhs exceeds lhs")
-  }
-  let mut borrow = 0UL
-  for index in 0..<rhs_len {
-    let target = rhs_shift + index
-    let subtrahend = rhs[index] + borrow
-    if lhs[target] < subtrahend {
-      lhs[target] = lhs[target] + dec_coeff_wide_base - subtrahend
-      borrow = 1UL
-    } else {
-      lhs[target] = lhs[target] - subtrahend
-      borrow = 0UL
-    }
-  }
-  let mut target = rhs_shift + rhs_len
-  while borrow != 0UL && target < lhs_len {
-    if lhs[target] == 0UL {
-      lhs[target] = dec_coeff_wide_base - 1UL
-    } else {
-      lhs[target] = lhs[target] - 1UL
-      borrow = 0UL
-    }
-    target += 1
-  }
-  guard borrow == 0UL else {
-    abort("dec_coeff_wide_subtract_shifted_in_place underflowed")
-  }
-  dec_coeff_wide_trim_units(lhs, lhs_len)
-}
-
-///|
-fn dec_coeff_wide_trial_compare(
-  rhs : Array[UInt64],
-  rhs_len : Int,
-  multiplier : UInt64,
-  shift : Int,
-  remainder : Array[UInt64],
-  remainder_len : Int,
-  product : Array[UInt64],
-) -> Int {
-  let product_len = dec_coeff_wide_multiply_by_unit_into(
-    rhs, rhs_len, multiplier, product,
-  )
-  dec_coeff_wide_compare_shifted(
-    remainder, remainder_len, product, product_len, shift,
-  )
-}
-
-///|
-fn dec_coeff_wide_best_multiplier(
-  rhs : Array[UInt64],
-  rhs_len : Int,
-  shift : Int,
-  remainder : Array[UInt64],
-  remainder_len : Int,
-  product : Array[UInt64],
-) -> UInt64 {
-  let upper_index = shift + rhs_len
-  let upper_unit = if upper_index < remainder_len {
-    remainder[upper_index]
-  } else {
-    0UL
-  }
-  let lower_unit = remainder[upper_index - 1]
-  let numerator_head = upper_unit * dec_coeff_wide_base + lower_unit
-  let estimated = numerator_head / rhs[rhs_len - 1]
-  let upper_bound = if estimated < dec_coeff_wide_base {
-    estimated
-  } else {
-    dec_coeff_wide_base - 1UL
-  }
-  if dec_coeff_wide_trial_compare(
-      rhs, rhs_len, upper_bound, shift, remainder, remainder_len, product,
-    ) >=
-    0 {
-    return upper_bound
-  }
-  let mut lo = 0
-  let mut hi = upper_bound.to_int() - 1
-  let mut best = 0
-  while lo <= hi {
-    let mid = (lo + hi) / 2
-    let cmp = dec_coeff_wide_trial_compare(
-      rhs,
-      rhs_len,
-      mid.to_uint64(),
-      shift,
-      remainder,
-      remainder_len,
-      product,
-    )
-    if cmp >= 0 {
-      best = mid
-      lo = mid + 1
-    } else {
-      hi = mid - 1
-    }
-  }
-  best.to_uint64()
-}
-
-///|
-fn dec_coeff_div_rem_wide_repr(
+fn dec_coeff_div_rem_knuth_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
-  let numerator_units = dec_coeff_pack_wide(
-    numerator.units,
-    dec_coeff_unit_len(numerator),
-  )
-  let denominator_units = dec_coeff_pack_wide(
-    denominator.units,
-    dec_coeff_unit_len(denominator),
-  )
-  let mut remainder_len = numerator_units.length()
-  let denominator_len = denominator_units.length()
-  if dec_coeff_wide_compare_unit_arrays(
-      numerator_units, remainder_len, denominator_units, denominator_len,
-    ) <
-    0 {
+  let remainder_len = dec_coeff_unit_len(numerator)
+  let denominator_len = dec_coeff_unit_len(denominator)
+  if dec_coeff_compare_repr(numerator, denominator) < 0 {
     return (dec_coeff_zero(), numerator)
   }
   if denominator_len == 1 {
-    let quotient = Array::make(remainder_len, 0UL)
-    let divisor = denominator_units[0]
-    let mut residue = 0UL
-    let mut index = remainder_len - 1
-    while true {
-      let current = residue * dec_coeff_wide_base + numerator_units[index]
-      quotient[index] = current / divisor
-      residue = current % divisor
-      if index == 0 {
-        break
-      }
-      index -= 1
-    }
-    let quotient_len = dec_coeff_wide_trim_units(quotient, quotient.length())
-    return (
-      dec_coeff_from_wide_accumulator(quotient, quotient_len),
-      dec_coeff_from_wide_accumulator([residue], 1),
+    let (quotient, residue) = dec_coeff_div_rem_by_unit_repr(
+      numerator,
+      dec_coeff_limb_at(denominator, 0).reinterpret_as_int(),
     )
+    return (quotient, dec_coeff_from_int(residue))
   }
   let max_shift = remainder_len - denominator_len
   let quotient = Array::make(max_shift + 1, 0UL)
-  let product = Array::make(denominator_len + 1, 0UL)
+  let normalized_denominator = Array::make(denominator_len + 1, 0UL)
+  let normalized_numerator = Array::make(remainder_len + 1, 0UL)
+  let normalization = dec_coeff_wide_base /
+    (dec_coeff_limb_at(denominator, denominator_len - 1).to_uint64() + 1UL)
+  ignore(
+    dec_coeff_wide_multiply_coeff_by_unit_into(
+      denominator, normalization, normalized_denominator,
+    ),
+  )
+  ignore(
+    dec_coeff_wide_multiply_coeff_by_unit_into(
+      numerator, normalization, normalized_numerator,
+    ),
+  )
+  let top = normalized_denominator[denominator_len - 1]
+  let second_top = normalized_denominator[denominator_len - 2]
   let mut shift = max_shift
   while true {
-    if dec_coeff_wide_compare_shifted(
-        numerator_units, remainder_len, denominator_units, denominator_len, shift,
-      ) >=
-      0 {
-      let multiplier = dec_coeff_wide_best_multiplier(
-        denominator_units, denominator_len, shift, numerator_units, remainder_len,
-        product,
-      )
-      if multiplier != 0UL {
-        quotient[shift] = multiplier
-        let product_len = dec_coeff_wide_multiply_by_unit_into(
-          denominator_units, denominator_len, multiplier, product,
-        )
-        remainder_len = dec_coeff_wide_subtract_shifted_in_place(
-          numerator_units, remainder_len, product, product_len, shift,
-        )
+    let upper = normalized_numerator[shift + denominator_len]
+    let next = normalized_numerator[shift + denominator_len - 1]
+    let mut quotient_digit = (upper * dec_coeff_wide_base + next) / top
+    let mut remainder_digit = (upper * dec_coeff_wide_base + next) % top
+    if quotient_digit >= dec_coeff_wide_base {
+      let excess = quotient_digit - (dec_coeff_wide_base - 1UL)
+      quotient_digit = dec_coeff_wide_base - 1UL
+      remainder_digit += excess * top
+    }
+    while remainder_digit < dec_coeff_wide_base &&
+          quotient_digit * second_top >
+          dec_coeff_wide_base * remainder_digit +
+          normalized_numerator[shift + denominator_len - 2] {
+      quotient_digit -= 1UL
+      remainder_digit += top
+      if remainder_digit >= dec_coeff_wide_base {
+        break
       }
     }
+    let mut carry = 0UL
+    let mut borrow = 0UL
+    for index in 0..<denominator_len {
+      let product = normalized_denominator[index] * quotient_digit + carry
+      let product_digit = product % dec_coeff_wide_base
+      carry = product / dec_coeff_wide_base
+      let subtrahend = product_digit + borrow
+      let target = shift + index
+      if normalized_numerator[target] < subtrahend {
+        normalized_numerator[target] = normalized_numerator[target] +
+          dec_coeff_wide_base -
+          subtrahend
+        borrow = 1UL
+      } else {
+        normalized_numerator[target] = normalized_numerator[target] - subtrahend
+        borrow = 0UL
+      }
+    }
+    let top_target = shift + denominator_len
+    let top_subtrahend = carry + borrow
+    let mut negative = false
+    if normalized_numerator[top_target] < top_subtrahend {
+      normalized_numerator[top_target] = normalized_numerator[top_target] +
+        dec_coeff_wide_base -
+        top_subtrahend
+      negative = true
+    } else {
+      normalized_numerator[top_target] = normalized_numerator[top_target] -
+        top_subtrahend
+    }
+    if negative {
+      quotient_digit -= 1UL
+      let mut add_carry = 0UL
+      for index in 0..<denominator_len {
+        let target = shift + index
+        let sum = normalized_numerator[target] +
+          normalized_denominator[index] +
+          add_carry
+        if sum >= dec_coeff_wide_base {
+          normalized_numerator[target] = sum - dec_coeff_wide_base
+          add_carry = 1UL
+        } else {
+          normalized_numerator[target] = sum
+          add_carry = 0UL
+        }
+      }
+      normalized_numerator[top_target] = normalized_numerator[top_target] +
+        add_carry
+      if normalized_numerator[top_target] >= dec_coeff_wide_base {
+        normalized_numerator[top_target] -= dec_coeff_wide_base
+      }
+    }
+    quotient[shift] = quotient_digit
     if shift == 0 {
       break
     }
     shift -= 1
   }
+  let remainder_units = Array::make(denominator_len, 0UL)
+  let mut residue = 0UL
+  let mut index = denominator_len - 1
+  while true {
+    let current = residue * dec_coeff_wide_base + normalized_numerator[index]
+    remainder_units[index] = current / normalization
+    residue = current % normalization
+    if index == 0 {
+      break
+    }
+    index -= 1
+  }
   let quotient_len = dec_coeff_wide_trim_units(quotient, quotient.length())
-  let remainder_len = dec_coeff_wide_trim_units(numerator_units, remainder_len)
+  let remainder_len = dec_coeff_wide_trim_units(
+    remainder_units,
+    remainder_units.length(),
+  )
+  if residue != 0UL {
+    let mut corrected_quotient = dec_coeff_from_wide_accumulator(
+      quotient, quotient_len,
+    )
+    let mut product = dec_coeff_multiply_repr(corrected_quotient, denominator)
+    let mut corrections = 0
+    while dec_coeff_compare_repr(product, numerator) > 0 {
+      guard !corrected_quotient.is_zero() else {
+        abort("Knuth quotient correction underflowed")
+      }
+      corrected_quotient = dec_coeff_magnitude_sub_unit(corrected_quotient, 1)
+      product = dec_coeff_magnitude_sub_repr(product, denominator)
+      corrections += 1
+      guard corrections <= denominator_len * 2 + 8 else {
+        abort("Knuth quotient correction exceeded guard")
+      }
+    }
+    let mut corrected_remainder = dec_coeff_magnitude_sub_repr(
+      numerator, product,
+    )
+    while dec_coeff_compare_repr(corrected_remainder, denominator) >= 0 {
+      corrected_quotient = dec_coeff_magnitude_add_unit(corrected_quotient, 1)
+      corrected_remainder = dec_coeff_magnitude_sub_repr(
+        corrected_remainder, denominator,
+      )
+      corrections += 1
+      guard corrections <= denominator_len * 2 + 8 else {
+        abort("Knuth remainder correction exceeded guard")
+      }
+    }
+    return (corrected_quotient, corrected_remainder)
+  }
   (
     dec_coeff_from_wide_accumulator(quotient, quotient_len),
-    dec_coeff_from_wide_accumulator(numerator_units, remainder_len),
+    dec_coeff_from_wide_accumulator(remainder_units, remainder_len),
   )
 }
 
@@ -1575,70 +1355,37 @@ fn dec_coeff_div_rem_repr(
   if numerator.is_zero() {
     return (dec_coeff_zero(), dec_coeff_zero())
   }
-  let remainder = numerator.units.copy()
-  let denom = denominator.units
-  let mut remainder_len = dec_coeff_unit_len(numerator)
+  if dec_coeff_compare_repr(numerator, denominator) < 0 {
+    return (dec_coeff_zero(), numerator)
+  }
   let denom_len = dec_coeff_unit_len(denominator)
   if denom_len == 1 {
     let (quotient, residue) = dec_coeff_div_rem_by_unit_repr(
       numerator,
-      denom[0],
+      dec_coeff_limb_at(denominator, 0).reinterpret_as_int(),
     )
     return (quotient, dec_coeff_from_int(residue))
   }
-  if denom_len >= 4 {
-    return dec_coeff_div_rem_wide_repr(numerator, denominator)
+  match dec_coeff_division_algorithm(denominator) {
+    Word => abort("word division was handled before dispatch")
+    Newton => dec_coeff_div_rem_newton(numerator, denominator)
+    BurnikelZiegler =>
+      dec_coeff_div_rem_burnikel_ziegler(numerator, denominator)
+    Knuth => dec_coeff_div_rem_knuth_repr(numerator, denominator)
   }
-  if dec_coeff_compare_unit_arrays(remainder, remainder_len, denom, denom_len) <
-    0 {
-    return (dec_coeff_zero(), numerator)
-  }
-  let max_shift = remainder_len - denom_len
-  let quotient = Array::make(max_shift + 1, 0)
-  let product = Array::make(denom_len + 1, 0)
-  let mut shift = max_shift
-  while true {
-    if dec_coeff_compare_shifted(
-        remainder, remainder_len, denom, denom_len, shift,
-      ) >=
-      0 {
-      let multiplier = dec_coeff_best_unit_multiplier(
-        denom, denom_len, shift, remainder, remainder_len, product,
-      )
-      if multiplier > 0 {
-        quotient[shift] = multiplier
-        let product_len = dec_coeff_multiply_units_by_unit_into(
-          denom, denom_len, multiplier, product,
-        )
-        remainder_len = dec_coeff_subtract_shifted_in_place(
-          remainder, remainder_len, product, product_len, shift,
-        )
-      }
-    }
-    if shift == 0 {
-      break
-    }
-    shift -= 1
-  }
-  let quotient_len = dec_coeff_trim_units(quotient, quotient.length())
-  let remainder_len = dec_coeff_trim_units(remainder, remainder_len)
-  (
-    { units: quotient, digits: dec_coeff_get_digits(quotient, quotient_len) },
-    { units: remainder, digits: dec_coeff_get_digits(remainder, remainder_len) },
-  )
 }
 
 ///|
-fn dec_coeff_multiply_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_schoolbook(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
   if lhs.is_zero() || rhs.is_zero() {
     return dec_coeff_zero()
   }
   let lhs_len = dec_coeff_unit_len(lhs)
   let rhs_len = dec_coeff_unit_len(rhs)
-  let lhs_wide_len = (lhs_len + 2) / 3
-  let rhs_wide_len = (rhs_len + 2) / 3
-  if lhs_wide_len <= 4 && rhs_wide_len <= 4 {
-    let result = Array::make((lhs_wide_len + rhs_wide_len + 1) * 3, 0)
+  let lhs_wide_len = lhs_len
+  let rhs_wide_len = rhs_len
+  if Int::min(lhs_wide_len, rhs_wide_len) <= 18 {
+    let result = Array::make(lhs_wide_len + rhs_wide_len + 1, 0U)
     let columns = lhs_wide_len + rhs_wide_len - 1
     let mut carry = 0UL
     for column in 0..<columns {
@@ -1647,8 +1394,8 @@ fn dec_coeff_multiply_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
       let mut current = carry
       for lhs_index in lhs_start..<=lhs_end {
         let rhs_index = column - lhs_index
-        current += dec_coeff_wide_unit_at(lhs.units, lhs_len, lhs_index) *
-          dec_coeff_wide_unit_at(rhs.units, rhs_len, rhs_index)
+        current += dec_coeff_limb_at(lhs, lhs_index).to_uint64() *
+          dec_coeff_limb_at(rhs, rhs_index).to_uint64()
       }
       dec_coeff_write_wide_unit(result, column, current % dec_coeff_wide_base)
       carry = current / dec_coeff_wide_base
@@ -1661,8 +1408,8 @@ fn dec_coeff_multiply_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
     }
     return dec_coeff_from_unit_accumulator(result, result.length())
   }
-  let lhs_wide = dec_coeff_pack_wide(lhs.units, lhs_len)
-  let rhs_wide = dec_coeff_pack_wide(rhs.units, rhs_len)
+  let lhs_wide = dec_coeff_pack_wide(lhs)
+  let rhs_wide = dec_coeff_pack_wide(rhs)
   let acc = Array::make(lhs_wide_len + rhs_wide_len + 1, 0UL)
   for rhs_index in 0..<rhs_wide.length() {
     let multiplier = rhs_wide[rhs_index]
@@ -1712,19 +1459,19 @@ fn dec_coeff_compare_scaled_repr(
   }
 
   let need = Int::max(alength, blength + exp_units) + 2
-  let acc : Array[Int] = []
+  let acc : Array[UInt] = []
   let mut index = 0
   while index < need {
-    acc.push(0)
+    acc.push(0U)
     index += 1
   }
   let expunit_shift = exp / dec_coeff_dpun
   let exprem = exp % dec_coeff_dpun
   let multiplier = dec_coeff_powers[exprem]
   let accunits = dec_coeff_unit_add_sub(
-    lhs.units,
+    dec_coeff_copy_limbs(lhs),
     alength,
-    rhs.units,
+    dec_coeff_copy_limbs(rhs),
     blength,
     expunit_shift,
     acc,
@@ -1734,10 +1481,10 @@ fn dec_coeff_compare_scaled_repr(
     return -1
   }
   let mut first = 0
-  while first < accunits - 1 && acc[first] == 0 {
+  while first < accunits - 1 && acc[first] == 0U {
     first += 1
   }
-  if acc[first] == 0 {
+  if acc[first] == 0U {
     0
   } else {
     1
@@ -1749,14 +1496,17 @@ fn remove_factor10_repr(coeff : DecCoeff, exp : Int) -> (DecCoeff, Int) {
   if coeff.is_zero() {
     return (dec_coeff_zero(), 0)
   }
-  let units = coeff.units.copy()
+  let units = dec_coeff_copy_limbs(coeff)
   let (trimmed_digits, exponent, _) = dec_coeff_trim(
     units,
-    coeff.digits,
+    coeff.digits10(),
     exp,
     all=true,
   )
-  ({ units, digits: trimmed_digits }, exponent)
+  (
+    dec_coeff_from_unit_accumulator(units, dec_coeff_d2u(trimmed_digits)),
+    exponent,
+  )
 }
 
 ///|
@@ -1773,14 +1523,16 @@ fn exact_divide_by_power_of_ten_repr(
   if shift == 0 {
     return Some(coeff)
   }
-  guard shift < coeff.digits else { return None }
-  let units = coeff.units.copy()
+  guard shift < coeff.digits10() else { return None }
+  let units = dec_coeff_copy_limbs(coeff)
   let mut cut = 1
   let mut up = 0
   let mut checked = 0
   while checked < shift {
-    let quot = units[up] / dec_coeff_powers[cut]
-    guard units[up] - quot * dec_coeff_powers[cut] == 0 else { return None }
+    let quot = units[up].reinterpret_as_int() / dec_coeff_powers[cut]
+    guard units[up].reinterpret_as_int() - quot * dec_coeff_powers[cut] == 0 else {
+      return None
+    }
     cut += 1
     if cut > dec_coeff_dpun {
       up += 1
@@ -1793,7 +1545,7 @@ fn exact_divide_by_power_of_ten_repr(
     dec_coeff_unit_len(coeff),
     shift,
   )
-  Some({ units, digits: dec_coeff_get_digits(units, trimmed_units) })
+  Some(dec_coeff_from_unit_accumulator(units, trimmed_units))
 }
 
 ///|
@@ -1805,13 +1557,17 @@ fn trim_trailing_decimal_zeros_repr(
   if coeff.is_zero() {
     return (dec_coeff_zero(), 0, 0)
   }
-  let units = coeff.units.copy()
+  let units = dec_coeff_copy_limbs(coeff)
   let (trimmed_digits, exponent, dropped) = dec_coeff_trim(
     units,
-    coeff.digits,
+    coeff.digits10(),
     exp,
     all=true,
     max_drop~,
   )
-  ({ units, digits: trimmed_digits }, exponent, dropped)
+  (
+    dec_coeff_from_unit_accumulator(units, dec_coeff_d2u(trimmed_digits)),
+    exponent,
+    dropped,
+  )
 }
