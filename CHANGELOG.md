@@ -4,6 +4,23 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.6.0 - 2026-07-14
+
+### Changed
+
+- Rebuilt the package documentation matrix across English, Simplified Chinese,
+  and Japanese. Every package now has API, tutorial, design, and package README
+  coverage; numerical cores have explicit conformance and performance evidence
+  pages, and superseded research notes have been consolidated.
+- Split IEEE tininess policy from GDA status handling; IEEE contexts default to
+  after-rounding and expose an explicit before-rounding choice.
+- Reject non-positive public precision and reserve zero-precision arithmetic for
+  private exact work contexts.
+- Added GDA contexts with radix, sticky flags, trap sets, signal precedence, and
+  `GdaOutcome` defined results.
+- Removed implementation-specific IEEE oracle and full-vector download paths;
+  checked-in DPD/BID fixtures are validated from IEEE encoding formulas.
+
 ## 0.5.0 - 2026-07-12
 
 ### Added
