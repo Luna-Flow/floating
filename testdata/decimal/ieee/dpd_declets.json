@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "kind": "dpd-declet",
+  "codes": {"start": 0, "stop": 1024, "step": 1},
+  "expectedRedundantCodes": 24
+}

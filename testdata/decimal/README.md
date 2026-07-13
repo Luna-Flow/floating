@@ -1,5 +1,10 @@
 # Decimal Conformance Data
 
+The public evidence summaries are split between
+[`decimal` IEEE conformance](../../doc/en_US/decimal/conformance.md) and
+[`decimal_gda` conformance](../../doc/en_US/decimal_gda/conformance.md). This
+page owns corpus manifests, execution options, and failure triage.
+
 The repository uses the native MoonBit `gda_expr` interpreter for all General
 Decimal Arithmetic conformance execution. Generated MoonBit test packages and
 the former JavaScript executor are no longer supported.
@@ -12,6 +17,56 @@ The authoritative testcase sources are:
 The official corpora are not vendored. Their URLs, checksums, destinations,
 and expected file counts are pinned in `corpora.json`.
 
+## IEEE 754 decimal32/64/128 corpus
+
+The independent IEEE gate lives in `testdata/decimal/ieee`. It is separate
+from the GDA `decTest` corpus and contains fixed-width DPD and BID witnesses,
+arithmetic/flag rows, and a compact exhaustive 1,024-code DPD declet fixture.
+`manifest.json` records the IEEE encoding and exact-arithmetic fixture schema;
+no implementation-specific source archive is downloaded during a test run.
+
+IEEE permits either tininess policy. The public context defaults to
+after-rounding and exposes an explicit before-rounding option; GDA always uses
+before-rounding. NaN payload and sign selection follow the public API contract.
+
+The checked-in runner validates all 1,024 DPD declets and the fixed-width BID
+and DPD cases directly from the IEEE formulas, then executes the same public
+MoonBit API tests on every supported target.
+
+The runner also executes a 42-row excerpt from the pinned `dd*` and `dq*`
+concrete-format files in `dectest.zip`. Those rows are useful boundary and
+rounding witnesses, but decTest is a General Decimal Arithmetic corpus and its
+own notice says that it is beta, non-exhaustive, and not proof of IEEE
+compliance. They are never used to override the clause-derived oracle.
+
+`vector_plan.json` defines the next fixed-seed expansion: every oracle family
+targets at least 100,000 rows across decimal32/64/128, five IEEE rounding
+directions, both tininess policies, 14 boundary classes, nine coefficient-size
+classes, and balanced/sparse/dense/unbalanced shapes. Generate a stream without
+committing a multi-gigabyte artifact with:
+
+```sh
+python3 tools/generate_ieee_decimal_vectors.py --family mandatory-decimal --count 100000 --output .tmp/mandatory.jsonl
+```
+
+Rows with `libmpdec-allcr1` or exact rational routes can be checked locally;
+rows routed to RDFP, Arb, or MPFR remain static descriptors until the matching
+external oracle is installed. This keeps missing optional dependencies visible
+instead of silently reducing the required boundary matrix.
+
+Run the IEEE runner through the shared conformance entry point:
+
+```sh
+python3 tools/conformance.py plan --backend decimal
+python3 tools/conformance.py run --backend decimal --run-target native
+python3 tools/conformance.py run --backend decimal --run-target native --run-target wasm --run-target wasm-gc --run-target js --json
+```
+
+The legacy `tools/run_ieee_decimal.py` entry point remains available for local
+debugging. Run the implementation gate on native, Wasm, Wasm-GC, and JavaScript
+(LLVM is intentionally not part of this gate) with `just ieee-ci`. The
+`decimal_gda` backend and `just decimal-gda-ci` remain the separate GDA suite.
+
 ## Which Command To Use
 
 ```sh
@@ -19,7 +74,7 @@ just smoke
 just fetch
 just fetch official0
 just plan jobs=8
-just decimal-ci 8
+just decimal-gda-ci 8
 just conformance run decimal jobs=8 phase=arithmetic
 just conformance run decimal jobs=8 --strict-supported --json
 just decimal-kernel-ci
@@ -28,12 +83,12 @@ just decimal-kernel-ci
 - `just smoke` runs the checked-in `smoke.decTest` fixture directly.
 - `just fetch` installs the current official corpus.
 - `just plan` prints the staged file assignment without executing cases.
-- `just decimal-ci` executes the selected corpus through the native interpreter.
+- `just decimal-gda-ci` executes the selected GDA corpus through the native interpreter.
 - `just pr` runs the complete repository gate; `just decimal-kernel-ci` runs the
   focused Decimal white-box test file.
 
 Use `just smoke` while changing parser or interpreter wiring. Use a targeted
-`just decimal-ci` command while fixing Decimal semantics. Run plain `just pr` before
+`just decimal-gda-ci` command while fixing GDA semantics. Run plain `just pr` before
 opening or updating a pull request. Do not treat `just decimal-kernel-ci` as full validation;
 it is deliberately a small and fast CI gate.
 
@@ -124,7 +179,7 @@ the short `phase=name` form is intended for one phase per `just` invocation.
 ### 5. Run the full pre-PR gate
 
 ```sh
-just decimal-ci 8
+just decimal-gda-ci 8
 ```
 
 The command stops at the first failed stage:

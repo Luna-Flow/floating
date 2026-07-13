@@ -33,20 +33,32 @@ pr jobs='':
     @python3 tools/run_ci.py quick {{ jobs }}
 
 smoke *args:
-    @python3 tools/conformance.py smoke --backend decimal {{ args }}
+    @python3 tools/conformance.py smoke --backend decimal_gda {{ args }}
 
 plan *args:
-    @python3 tools/conformance.py plan --backend decimal {{ args }}
+    @python3 tools/conformance.py plan --backend decimal_gda {{ args }}
 
 fetch corpus='official':
-    @python3 tools/conformance.py fetch --backend decimal {{ corpus }}
+    @python3 tools/conformance.py fetch --backend decimal_gda {{ corpus }}
 
-conformance action backend='decimal' *args:
+conformance action backend='decimal_gda' *args:
     @python3 tools/conformance.py {{ action }} --backend {{ backend }} {{ args }}
 
-# Run the authoritative Decimal conformance suite.
+# Run only the IEEE 754 Decimal conformance suite.
 decimal-ci jobs='':
     @python3 tools/run_ci.py decimal {{ jobs }}
+
+# Run only the General Decimal Arithmetic compatibility suite.
+decimal-gda-ci jobs='':
+    @python3 tools/run_ci.py decimal_gda {{ jobs }}
+
+# Run the independent IEEE 754 decimal32/64/128 corpus on supported targets.
+ieee-ci:
+    @python3 tools/conformance.py run --backend decimal --run-target native --run-target wasm --run-target wasm-gc --run-target js
+
+ieee-vectors family='mandatory-decimal' count='100000' output='.tmp/ieee-{{ family }}.jsonl':
+    @mkdir -p .tmp
+    @python3 tools/generate_ieee_decimal_vectors.py --family {{ family }} --count {{ count }} --output {{ output }}
 
 # Run the authoritative binary conformance suite.
 bin-ci jobs='':
@@ -68,6 +80,9 @@ bin-kernel-ci:
 
 bin-bench target='native':
     @python3 tools/run_bin_coeff_bench.py --target {{ target }}
+
+decimal-threshold-bench *args:
+    @python3 tools/run_decimal_threshold_bench.py {{ args }}
 
 tree:
     sh tools/run_moon_clean_exec.sh tree

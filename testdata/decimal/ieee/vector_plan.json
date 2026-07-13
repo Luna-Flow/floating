@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "standard": "IEEE 754-2019",
+  "generator": "tools/generate_ieee_decimal_vectors.py",
+  "seed": 6060001,
+  "targetCasesPerFamily": 100000,
+  "formats": ["decimal32", "decimal64", "decimal128"],
+  "roundings": ["nearest-even", "toward-zero", "toward-positive", "toward-negative", "away-from-zero"],
+  "tininess": ["before-rounding", "after-rounding"],
+  "boundaryClasses": [
+    "zero",
+    "signed-zero",
+    "one",
+    "max-finite",
+    "min-normal",
+    "max-subnormal",
+    "min-subnormal",
+    "halfway",
+    "large-exponent",
+    "large-coefficient",
+    "qnan",
+    "snan",
+    "infinity",
+    "domain-boundary"
+  ],
+  "dataScales": [
+    "tiny",
+    "small",
+    "medium",
+    "format-precision",
+    "large",
+    "huge",
+    "sparse",
+    "unbalanced-short",
+    "unbalanced-long"
+  ],
+  "shapes": ["balanced", "sparse", "dense", "unbalanced"],
+  "families": [
+    "mandatory-decimal",
+    "exp-ln-log10",
+    "sqrt",
+    "integer-power",
+    "pow-powr",
+    "trigonometric",
+    "inverse-trigonometric",
+    "hyperbolic",
+    "inverse-hyperbolic",
+    "expm1-log1p-hypot-cbrt"
+  ]
+}

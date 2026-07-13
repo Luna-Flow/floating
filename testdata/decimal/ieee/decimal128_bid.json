@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "format": "decimal128",
+  "encoding": "BID",
+  "cases": [
+    {"id": "positive-zero", "bits": "30400000000000000000000000000000", "class": "finite", "coefficient": "0", "exponent": 0, "negative": false, "canonical": "30400000000000000000000000000000"},
+    {"id": "positive-infinity", "bits": "78000000000000000000000000000000", "class": "infinity", "negative": false, "canonical": "78000000000000000000000000000000"},
+    {"id": "quiet-nan-zero-payload", "bits": "7C000000000000000000000000000000", "class": "qnan", "negative": false, "payload": "0", "canonical": "7C000000000000000000000000000000"}
+  ],
+  "operations": [
+    {"id": "add-exact", "op": "add", "lhs": "1.5", "rhs": "2.25", "result": "3.75", "flags": []},
+    {"id": "divide-exact", "op": "divide", "lhs": "7.5", "rhs": "2.5", "result": "3", "flags": []},
+    {"id": "fma-exact", "op": "fma", "lhs": "1.5", "rhs": "2", "third": "0.5", "result": "3.5", "flags": []},
+    {"id": "sqrt-exact", "op": "sqrt", "lhs": "4", "result": "2", "flags": []},
+    {"id": "quantize-rounded", "op": "quantize", "lhs": "1.234", "rhs": "0.01", "result": "1.23", "flags": ["Inexact", "Rounded"]}
+  ]
+}

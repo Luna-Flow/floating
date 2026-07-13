@@ -229,7 +229,7 @@ def print_text(report: dict) -> None:
     ]
     summary = report["summary"]
     print_summary(
-        "DECIMAL · GDA decTest",
+        "DECIMAL_GDA · official decTest",
         f"official corpus={report['corpus']['name']}",
         rows,
         summary["passedCases"],
@@ -342,7 +342,7 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             shard_count = args.jobs
             phase_progress = Progress(
-                f"decimal/{phase['name']}", shard_count, Console()
+                f"decimal_gda/{phase['name']}", shard_count, Console()
             )
             with concurrent.futures.ThreadPoolExecutor(max_workers=shard_count) as pool:
                 future_map = {

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 2,
+  "standard": "IEEE 754-2019",
+  "tininessPolicy": {
+    "default": "after-rounding",
+    "allowed": ["before-rounding", "after-rounding"]
+  },
+  "description": "Interchange and arithmetic fixtures derived from IEEE encoding formulas and exact integer/rational checks.",
+  "fixtureSchema": "ieee-decimal-v2",
+  "oracleManifest": "oracle_manifest.json",
+  "staticOracleExamples": "oracle_static_examples.json",
+  "vectorPlan": "vector_plan.json",
+  "formats": {
+    "decimal32": {"bits": 32, "precision": 7, "exponentBias": 101},
+    "decimal64": {"bits": 64, "precision": 16, "exponentBias": 398},
+    "decimal128": {"bits": 128, "precision": 34, "exponentBias": 6176}
+  },
+  "fixtures": [
+    {"path": "decimal32_dpd.json", "format": "decimal32", "encoding": "DPD"},
+    {"path": "decimal32_bid.json", "format": "decimal32", "encoding": "BID"},
+    {"path": "decimal64_dpd.json", "format": "decimal64", "encoding": "DPD"},
+    {"path": "decimal64_bid.json", "format": "decimal64", "encoding": "BID"},
+    {"path": "decimal128_dpd.json", "format": "decimal128", "encoding": "DPD"},
+    {"path": "decimal128_bid.json", "format": "decimal128", "encoding": "BID"}
+  ],
+  "exhaustive": {
+    "path": "dpd_declets.json",
+    "kind": "dpd-declet",
+    "count": 1024
+  }
+}

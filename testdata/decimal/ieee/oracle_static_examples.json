@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "standard": "IEEE 754-2019",
+  "rounding": "nearest-even",
+  "tininess": "after-rounding",
+  "examples": [
+    {"id":"exp-zero","family":"exp-ln-log10","operation":"exp","operands":["0"],"format":"decimal64","result":"1","flags":[],"primary":"libmpdec-allcr1","secondary":"arb"},
+    {"id":"ln-one","family":"exp-ln-log10","operation":"ln","operands":["1"],"format":"decimal64","result":"0","flags":[],"primary":"libmpdec-allcr1","secondary":"arb"},
+    {"id":"log10-thousand","family":"exp-ln-log10","operation":"log10","operands":["1000"],"format":"decimal64","result":"3","flags":[],"primary":"libmpdec-allcr1","secondary":"arb"},
+    {"id":"sqrt-four","family":"sqrt","operation":"sqrt","operands":["4"],"format":"decimal64","result":"2","flags":[],"primary":"intel-rdfp","secondary":"libmpdec"},
+    {"id":"power-two-ten","family":"integer-power","operation":"pown","operands":["2","10"],"format":"decimal64","result":"1024","flags":[],"primary":"exact-gmp-rational","secondary":"libmpdec"},
+    {"id":"powr-negative-domain","family":"pow-powr","operation":"powr","operands":["-1","0.5"],"format":"decimal64","result":"NaN","flags":["InvalidOperation"],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"sin-zero","family":"trigonometric","operation":"sin","operands":["0"],"format":"decimal64","result":"0","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"asin-zero","family":"inverse-trigonometric","operation":"asin","operands":["0"],"format":"decimal64","result":"0","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"sinh-zero","family":"hyperbolic","operation":"sinh","operands":["0"],"format":"decimal64","result":"0","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"asinh-zero","family":"inverse-hyperbolic","operation":"asinh","operands":["0"],"format":"decimal64","result":"0","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"expm1-zero","family":"expm1-log1p-hypot-cbrt","operation":"expm1","operands":["0"],"format":"decimal64","result":"0","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"log1p-zero","family":"expm1-log1p-hypot-cbrt","operation":"log1p","operands":["0"],"format":"decimal64","result":"0","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"hypot-three-four","family":"expm1-log1p-hypot-cbrt","operation":"hypot","operands":["3","4"],"format":"decimal64","result":"5","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"cbrt-eight","family":"expm1-log1p-hypot-cbrt","operation":"cbrt","operands":["8"],"format":"decimal64","result":"2","flags":[],"primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"id":"divide-by-zero","family":"mandatory-decimal","operation":"divide","operands":["1","0"],"format":"decimal64","result":"Infinity","flags":["DivisionByZero"],"primary":"clause-derived-special-case","secondary":"libmpdec"},
+    {"id":"sqrt-invalid","family":"sqrt","operation":"sqrt","operands":["-1"],"format":"decimal64","result":"NaN","flags":["InvalidOperation"],"primary":"clause-derived-special-case","secondary":"libmpdec"},
+    {"id":"overflow-boundary","family":"mandatory-decimal","operation":"multiply","operands":["9.999999999999999E+384","10"],"format":"decimal64","result":"Infinity","flags":["Overflow","Inexact","Rounded"],"primary":"clause-derived-special-case","secondary":"libmpdec"},
+    {"id":"underflow-boundary","family":"mandatory-decimal","operation":"divide","operands":["1E-383","3"],"format":"decimal64","result":"3.333333333333333E-384","flags":["Underflow","Subnormal","Inexact","Rounded"],"primary":"clause-derived-special-case","secondary":"libmpdec"},
+    {"id":"inexact-third","family":"mandatory-decimal","operation":"divide","operands":["1","3"],"format":"decimal64","result":"0.3333333333333333","flags":["Inexact","Rounded"],"primary":"clause-derived-special-case","secondary":"libmpdec"}
+  ]
+}

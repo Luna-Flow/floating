@@ -8,6 +8,10 @@ import conformance
 
 
 class ConformanceEntryPointTests(unittest.TestCase):
+    def test_ieee_decimal_backend_is_registered(self) -> None:
+        self.assertIn("decimal", conformance.BACKENDS)
+        self.assertEqual(conformance.BACKENDS["decimal"].build_targets, ())
+
     def test_build_uses_named_cli_backends(self) -> None:
         with patch.object(conformance, "build_backend") as build:
             build.side_effect = lambda backend: Path(
@@ -47,9 +51,9 @@ class ConformanceEntryPointTests(unittest.TestCase):
             runner=lambda args: 0,
             fetcher=fetch,
         )
-        with patch.dict(conformance.BACKENDS, {"decimal": backend}):
+        with patch.dict(conformance.BACKENDS, {"decimal_gda": backend}):
             self.assertEqual(
-                conformance.main(["fetch", "--backend=decimal", "official"]),
+                conformance.main(["fetch", "--backend=decimal_gda", "official"]),
                 0,
             )
         self.assertEqual(received, ["official"])

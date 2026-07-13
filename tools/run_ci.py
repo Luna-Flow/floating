@@ -27,6 +27,7 @@ INTERVAL_PHASES = (
     "integer-power",
     "extrema",
 )
+SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 
 
 @dataclass(frozen=True)
@@ -37,32 +38,89 @@ class Stage:
 
 def conformance_command(backend: str, jobs: int) -> tuple[str, ...]:
     runner_backend = "binary" if backend == "bin" else backend
-    base = (
+    base = [
         sys.executable,
         "tools/conformance.py",
         "run",
         "--backend",
         runner_backend,
-        "--jobs",
-        str(jobs),
-    )
+    ]
+    if runner_backend != "decimal":
+        base.extend(("--jobs", str(jobs)))
     if backend == "binary":
-        return (*base, "--level", "1", "--tininess", "after", "--tininess", "before")
+        base.extend(("--level", "1", "--tininess", "after", "--tininess", "before"))
     if backend == "interval":
         phases = tuple(item for phase in INTERVAL_PHASES for item in ("--phase", phase))
-        return (*base, *phases, "--strict-supported")
-    return base
+        base.extend((*phases, "--strict-supported"))
+    if backend == "decimal":
+        base.extend(
+            (
+                "--run-target",
+                "native",
+                "--run-target",
+                "wasm",
+                "--run-target",
+                "wasm-gc",
+                "--run-target",
+                "js",
+            )
+        )
+    return tuple(base)
 
 
 def stages_for(scope: str, jobs: int) -> list[Stage]:
     suites = {
-        "decimal": Stage("DECIMAL · GDA decTest", conformance_command("decimal", jobs)),
+        "decimal": Stage(
+            "DECIMAL · IEEE 754",
+            conformance_command("decimal", 1),
+        ),
+        "decimal_gda": [
+            Stage(
+                "DECIMAL_GDA · package tests",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "test",
+                    "-p",
+                    "Luna-Flow/floating/decimal_gda",
+                    "--target",
+                    "native",
+                    "--deny-warn",
+                    "--frozen",
+                    "--no-parallelize",
+                ),
+            ),
+            Stage(
+                "DECIMAL_GDA · frontend tests",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "test",
+                    "-p",
+                    "Luna-Flow/floating/frontend/gda_expr",
+                    "--target",
+                    "native",
+                    "--deny-warn",
+                    "--frozen",
+                    "--no-parallelize",
+                ),
+            ),
+            Stage(
+                "DECIMAL_GDA · official decTest",
+                conformance_command("decimal_gda", jobs),
+            ),
+            Stage(
+                "DECIMAL_GDA · official0 decTest",
+                (*conformance_command("decimal_gda", jobs), "--corpus", "official0"),
+            ),
+        ],
         "bin": Stage("BINARY · TestFloat + MPFR", conformance_command("binary", jobs)),
         "interval": Stage("INTERVAL · IEEE 1788", conformance_command("interval", jobs)),
     }
     if scope not in {"all", "quick"}:
-        return [suites[scope]]
-    repository_stages = [
+        selected = suites[scope]
+        return selected if isinstance(selected, list) else [selected]
+    common_repository_stages = [
         Stage(
             "FORMAT · MoonBit sources",
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
@@ -71,20 +129,23 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             "DOCS · localized examples",
             ("just", "docs"),
         ),
-        Stage(
-            "CHECK · all targets",
-            (
-                "sh",
-                "tools/run_moon_clean_exec.sh",
-                "check",
-                "--target",
-                "all",
-                "--deny-warn",
-                "--frozen",
-            ),
-        ),
     ]
     if scope == "quick":
+        repository_stages = [
+            *common_repository_stages,
+            Stage(
+                "CHECK · native",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "check",
+                    "--target",
+                    "native",
+                    "--deny-warn",
+                    "--frozen",
+                ),
+            ),
+        ]
         return [
             *repository_stages,
             Stage(
@@ -102,6 +163,16 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
+                "SMOKE · IEEE 754",
+                (
+                    sys.executable,
+                    "tools/conformance.py",
+                    "smoke",
+                    "--backend",
+                    "decimal",
+                ),
+            ),
+            Stage(
                 "TEST · Python tooling",
                 (
                     sys.executable,
@@ -115,13 +186,13 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "SMOKE · Decimal",
+                "SMOKE · DecimalGDA",
                 (
                     sys.executable,
                     "tools/conformance.py",
                     "smoke",
                     "--backend",
-                    "decimal",
+                    "decimal_gda",
                 ),
             ),
             Stage(
@@ -146,24 +217,46 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
         ]
+    repository_stages = [
+        *common_repository_stages,
+        *[
+            Stage(
+                f"CHECK · {target}",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "check",
+                    "--target",
+                    target,
+                    "--deny-warn",
+                    "--frozen",
+                ),
+            )
+            for target in SUPPORTED_TARGETS
+        ],
+    ]
     return [
         *repository_stages,
         Stage("INFO · generated interfaces", ("sh", "tools/run_moon_clean_exec.sh", "info")),
-        Stage(
-            "TEST · all targets",
-            (
-                "sh",
-                "tools/run_moon_clean_exec.sh",
-                "test",
-                "--target",
-                "all",
-                "--deny-warn",
-                "--frozen",
-                "--jobs",
-                str(jobs),
-            ),
-        ),
+        *[
+            Stage(
+                f"TEST · {target}",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "test",
+                    "--target",
+                    target,
+                    "--deny-warn",
+                    "--frozen",
+                    "--jobs",
+                    str(jobs),
+                ),
+            )
+            for target in SUPPORTED_TARGETS
+        ],
         suites["decimal"],
+        *suites["decimal_gda"],
         suites["bin"],
         suites["interval"],
     ]
@@ -200,7 +293,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run LunaFlow repository CI gates")
     parser.add_argument(
         "scope",
-        choices=("all", "quick", "decimal", "bin", "interval"),
+        choices=("all", "quick", "decimal", "decimal_gda", "bin", "interval"),
     )
     parser.add_argument("jobs", nargs="?", type=int, default=DEFAULT_JOBS)
     parser.add_argument("--dry-run", action="store_true")

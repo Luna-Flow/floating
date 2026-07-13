@@ -9,6 +9,7 @@ import fetch_decimal_corpora
 import fetch_interval_corpora
 import run_binfloat_interpreter
 import run_dectest_interpreter
+import run_ieee_decimal
 import run_itl_interpreter
 from conformance_cli import build_backend
 
@@ -25,6 +26,11 @@ class Backend:
 
 BACKENDS = {
     "decimal": Backend(
+        build_targets=(),
+        runner=run_ieee_decimal.main,
+        fetcher=run_ieee_decimal.fetch_main,
+    ),
+    "decimal_gda": Backend(
         build_targets=("gda",),
         runner=run_dectest_interpreter.main,
         fetcher=fetch_decimal_corpora.main,
@@ -46,7 +52,7 @@ ACTIONS = {"build", "run", "smoke", "plan", "fetch"}
 def usage() -> str:
     return (
         "usage: conformance.py <build|run|smoke|plan|fetch> "
-        "--backend <decimal|binary|interval> [args ...]"
+        "--backend <decimal|decimal_gda|binary|interval> [args ...]"
     )
 
 

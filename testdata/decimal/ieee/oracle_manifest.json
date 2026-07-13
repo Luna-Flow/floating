@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "standard": "IEEE 754-2019",
+  "flagPolicy": "derive independently from IEEE special-case and exact-rounding rules",
+  "routes": [
+    {"family":"mandatory-decimal","primary":"intel-rdfp","secondary":"libmpdec","representation":"DPD→BID→oracle→BID→DPD"},
+    {"family":"exp-ln-log10","primary":"libmpdec-allcr1","secondary":"arb"},
+    {"family":"sqrt","primary":"intel-rdfp","secondary":"libmpdec"},
+    {"family":"integer-power","primary":"exact-gmp-rational","secondary":"libmpdec"},
+    {"family":"pow-powr","primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"family":"trigonometric","primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"family":"inverse-trigonometric","primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"family":"hyperbolic","primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"family":"inverse-hyperbolic","primary":"arb-adaptive-interval","secondary":"mpfr"},
+    {"family":"expm1-log1p-hypot-cbrt","primary":"arb-adaptive-interval","secondary":"mpfr"}
+  ],
+  "externalCommands": {
+    "intel-rdfp": "DECIMAL_RDFP_ORACLE",
+    "arb": "DECIMAL_ARB_ORACLE",
+    "mpfr": "DECIMAL_MPFR_ORACLE"
+  }
+}

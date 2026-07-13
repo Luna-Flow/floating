@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "format": "decimal32",
+  "encoding": "BID",
+  "cases": [
+    {"id": "positive-zero", "bits": "32800000", "class": "finite", "coefficient": "0", "exponent": 0, "negative": false, "canonical": "32800000"},
+    {"id": "max-finite", "bits": "6CB8967F", "class": "finite", "coefficient": "9999999", "exponent": 0, "negative": false, "canonical": "6CB8967F"},
+    {"id": "noncanonical-finite", "bits": "6CB89680", "class": "finite", "coefficient": "0", "exponent": 0, "negative": false, "canonical": "32800000"},
+    {"id": "positive-infinity", "bits": "78000000", "class": "infinity", "negative": false, "canonical": "78000000"},
+    {"id": "quiet-nan-zero-payload", "bits": "7C000000", "class": "qnan", "negative": false, "payload": "0", "canonical": "7C000000"}
+  ],
+  "operations": [
+    {"id": "add-exact", "op": "add", "lhs": "1.5", "rhs": "2.25", "result": "3.75", "flags": []},
+    {"id": "subtract-exact", "op": "subtract", "lhs": "5", "rhs": "2.25", "result": "2.75", "flags": []},
+    {"id": "multiply-exact", "op": "multiply", "lhs": "1.25", "rhs": "8", "result": "10.00", "flags": []},
+    {"id": "divide-exact", "op": "divide", "lhs": "7.5", "rhs": "2.5", "result": "3", "flags": []},
+    {"id": "fma-exact", "op": "fma", "lhs": "1.5", "rhs": "2", "third": "0.5", "result": "3.5", "flags": []},
+    {"id": "sqrt-exact", "op": "sqrt", "lhs": "4", "result": "2", "flags": []},
+    {"id": "quantize-rounded", "op": "quantize", "lhs": "1.234", "rhs": "0.01", "result": "1.23", "flags": ["Inexact", "Rounded"]},
+    {"id": "compare", "op": "compare", "lhs": "-0", "rhs": "0", "result": "0", "flags": []}
+  ]
+}

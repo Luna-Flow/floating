@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "baseline": {
+    "commit": "240a8f828abf4a50932b020a7a5aa8f380750f6b",
+    "tree": "b69b78a725f1e91887feb7083c1aa845a61af3bf"
+  },
+  "toolchain": {
+    "moon": "moon 0.1.20260703 (6fbf8c3 2026-07-03)",
+    "moonc": "moonc v0.10.3+16975d007 (2026-07-03)"
+  },
+  "targets": ["native", "wasm", "wasm-gc", "js"],
+  "benchmark": {
+    "marker": "DECIMAL_BENCH_JSON=",
+    "minimum_runs": 9,
+    "checksum": "725ab4b283617ee1624fbe9ae2157a83679508a4953312e1abf0baafbbc64fb2",
+    "shared_paths": [
+      {
+        "source": "tools/fixtures/decimal_performance_bench_wbtest.mbt",
+        "destination": "src/decimal/decimal_performance_bench_wbtest.mbt"
+      }
+    ],
+    "command": [
+      "sh",
+      "tools/run_moon_clean_exec.sh",
+      "test",
+      "src/decimal/decimal_performance_bench_wbtest.mbt",
+      "--release",
+      "--include-skipped",
+      "--no-parallelize",
+      "--target",
+      "{target}"
+    ]
+  },
+  "thresholds": {
+    "maximum_mad_pct": 5.0,
+    "maximum_regression_pct": 5.0,
+    "independent_processes": 3,
+    "order": "AB/BA/AB",
+    "llvm": "excluded"
+  }
+}
