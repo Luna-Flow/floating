@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import concurrent.futures
 import fnmatch
 import json
 import os
@@ -10,7 +9,9 @@ import sys
 import time
 from pathlib import Path
 
+import fetch_decimal_corpora
 from conformance_cli import build_backend, executable_path
+from conformance_runtime import ensure_available, ordered_parallel_map
 from conformance_ui import Console, Progress, SummaryRow, print_summary
 
 
@@ -242,17 +243,6 @@ def print_text(report: dict) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    arguments = sys.argv[1:] if argv is None else argv
-    normalized_args = []
-    for argument in arguments:
-        if argument.startswith("jobs="):
-            normalized_args.extend(["--jobs", argument.removeprefix("jobs=")])
-        elif argument.startswith("corpus="):
-            normalized_args.extend(["--corpus", argument.removeprefix("corpus=")])
-        elif argument.startswith("phase="):
-            normalized_args.extend(["--phase", argument.removeprefix("phase=")])
-        else:
-            normalized_args.append(argument)
     parser = argparse.ArgumentParser(
         description="Run GDA .decTest files through staged interpreter processes"
     )
@@ -270,7 +260,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--interpreter", type=Path, default=DEFAULT_EXECUTABLE)
     parser.add_argument("--no-build", action="store_true")
-    args = parser.parse_args(normalized_args)
+    args = parser.parse_args(argv)
     try:
         if args.jobs <= 0:
             raise ValueError("--jobs must be positive")
@@ -297,24 +287,15 @@ def main(argv: list[str] | None = None) -> int:
         manifest = load_json(args.manifest.resolve())
         corpus_name, corpus = resolve_corpus(config, manifest, args.corpus)
         corpus_spec = manifest["corpora"][corpus_name]
-        if args.fetch or not installed_corpus_ready(corpus, corpus_spec):
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "tools/conformance.py",
-                    "fetch",
-                    "--backend",
-                    "decimal",
-                    corpus_name,
-                ],
-                cwd=REPO_ROOT,
-            )
-            if result.returncode != 0:
-                return result.returncode
-        if not installed_corpus_ready(corpus, corpus_spec):
-            raise FileNotFoundError(
-                f"corpus installation is incomplete: {corpus}"
-            )
+        fetch_result = ensure_available(
+            is_ready=lambda: installed_corpus_ready(corpus, corpus_spec),
+            fetcher=fetch_decimal_corpora.main,
+            fetch_args=[corpus_name],
+            force=args.fetch,
+            missing_message=f"corpus installation is incomplete: {corpus}",
+        )
+        if fetch_result != 0:
+            return fetch_result
         phases = plan_phases(config, corpus, set(args.phase))
         if args.plan:
             payload = {
@@ -344,26 +325,23 @@ def main(argv: list[str] | None = None) -> int:
             phase_progress = Progress(
                 f"decimal_gda/{phase['name']}", shard_count, Console()
             )
-            with concurrent.futures.ThreadPoolExecutor(max_workers=shard_count) as pool:
-                future_map = {
-                    pool.submit(
-                        run_worker,
-                        phase["name"],
-                        executable,
-                        files,
-                        shard_count,
-                        shard_index,
-                        args.cases,
-                        args.strict_supported,
-                        output_dir,
-                    ): shard_index
-                    for shard_index in range(shard_count)
-                }
-                shards = [None] * shard_count
-                for future in concurrent.futures.as_completed(future_map):
-                    shard_index = future_map[future]
-                    shards[shard_index] = future.result()
-                    phase_progress.advance(f"shard {shard_index + 1}")
+            shard_indices = list(range(shard_count))
+            shards = ordered_parallel_map(
+                shard_indices,
+                shard_count,
+                lambda shard_index: run_worker(
+                    phase["name"],
+                    executable,
+                    files,
+                    shard_count,
+                    shard_index,
+                    args.cases,
+                    args.strict_supported,
+                    output_dir,
+                ),
+                phase_progress,
+                lambda shard_index: f"shard {shard_index + 1}",
+            )
             phase_report = aggregate_phase(phase["name"], files, shards)
             phase_failed = phase_report["failedCases"] != 0
             if args.strict_supported:

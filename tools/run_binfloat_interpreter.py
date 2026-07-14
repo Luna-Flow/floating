@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import concurrent.futures
 import hashlib
 import json
 import os
@@ -11,7 +10,9 @@ import tempfile
 import time
 from pathlib import Path
 
+import fetch_binfloat_corpora
 from conformance_cli import build_backend, executable_path
+from conformance_runtime import ensure_available, ordered_parallel_map
 from conformance_ui import Console, Progress, SummaryRow, print_summary
 
 
@@ -66,22 +67,15 @@ def artifacts_ready(manifest: dict) -> bool:
 
 
 def fetch_artifacts(manifest: dict, force: bool) -> None:
-    if artifacts_ready(manifest) and not force:
-        return
-    command = [
-        sys.executable,
-        "tools/conformance.py",
-        "fetch",
-        "--backend",
-        "binary",
-    ]
-    if force:
-        command.append("--force")
-    result = subprocess.run(command, cwd=REPO_ROOT)
-    if result.returncode != 0:
+    return_code = ensure_available(
+        is_ready=lambda: artifacts_ready(manifest),
+        fetcher=fetch_binfloat_corpora.main,
+        fetch_args=["--force"] if force else [],
+        force=force,
+        missing_message="binary conformance artifact installation is incomplete",
+    )
+    if return_code != 0:
         raise RuntimeError("failed to fetch binary conformance artifacts")
-    if not artifacts_ready(manifest):
-        raise RuntimeError("binary conformance artifact installation is incomplete")
 
 
 def build_reference_tools(manifest: dict, jobs: int) -> None:
@@ -476,28 +470,6 @@ def print_text(report: dict) -> None:
     )
 
 
-def normalized_arguments(arguments: list[str]) -> list[str]:
-    normalized = []
-    for argument in arguments:
-        if argument.startswith("jobs="):
-            normalized.extend(["--jobs", argument.removeprefix("jobs=")])
-        elif argument.startswith("level="):
-            normalized.extend(["--level", argument.removeprefix("level=")])
-        elif argument.startswith("format="):
-            normalized.extend(["--format", argument.removeprefix("format=")])
-        elif argument.startswith("operation="):
-            normalized.extend(
-                ["--operation", argument.removeprefix("operation=")]
-            )
-        elif argument.startswith("chunk_cases="):
-            normalized.extend(
-                ["--chunk-cases", argument.removeprefix("chunk_cases=")]
-            )
-        else:
-            normalized.append(argument)
-    return normalized
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Run BinFloat through Berkeley TestFloat and GNU MPFR data"
@@ -529,8 +501,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--plan", action="store_true")
     parser.add_argument("--json", action="store_true")
-    arguments = sys.argv[1:] if argv is None else argv
-    args = parser.parse_args(normalized_arguments(arguments))
+    args = parser.parse_args(argv)
     try:
         if args.jobs <= 0:
             raise ValueError("--jobs must be positive")
@@ -614,16 +585,13 @@ def main(argv: list[str] | None = None) -> int:
         output.mkdir(parents=True, exist_ok=True)
         started = time.monotonic()
         task_progress = Progress(f"binary/TestFloat level {args.level}", len(tasks), Console())
-        with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            future_map = {
-                pool.submit(run_testfloat_task, task, output, args.chunk_cases): index
-                for index, task in enumerate(tasks)
-            }
-            task_results = [None] * len(tasks)
-            for future in concurrent.futures.as_completed(future_map):
-                index = future_map[future]
-                task_results[index] = future.result()
-                task_progress.advance(tasks[index]["function"])
+        task_results = ordered_parallel_map(
+            tasks,
+            args.jobs,
+            lambda task: run_testfloat_task(task, output, args.chunk_cases),
+            task_progress,
+            lambda task: task["function"],
+        )
         task_progress.finish(
             not any(task["failedCases"] != 0 for task in task_results),
         )

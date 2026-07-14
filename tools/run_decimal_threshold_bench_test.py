@@ -10,6 +10,13 @@ import run_decimal_threshold_bench as threshold_bench
 
 
 class DecimalThresholdBenchTest(unittest.TestCase):
+    def test_parse_args_accepts_explicit_argv(self) -> None:
+        args = threshold_bench.parse_args(
+            ["--transition", threshold_bench.TRANSITIONS[0].name, "--target", "wasm"]
+        )
+        self.assertEqual(args.transition, threshold_bench.TRANSITIONS[0].name)
+        self.assertEqual(args.target, "wasm")
+
     def test_extract_records(self) -> None:
         payload = json.dumps(
             [

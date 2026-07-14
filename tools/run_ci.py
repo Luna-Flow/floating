@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from conformance_ui import Console, Progress, format_duration
+from conformance_runtime import BackendName
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -36,23 +37,22 @@ class Stage:
     command: tuple[str, ...]
 
 
-def conformance_command(backend: str, jobs: int) -> tuple[str, ...]:
-    runner_backend = "binary" if backend == "bin" else backend
+def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
     base = [
         sys.executable,
         "tools/conformance.py",
         "run",
         "--backend",
-        runner_backend,
+        backend.value,
     ]
-    if runner_backend != "decimal":
+    if backend != BackendName.DECIMAL:
         base.extend(("--jobs", str(jobs)))
-    if backend == "binary":
+    if backend == BackendName.BINARY:
         base.extend(("--level", "1", "--tininess", "after", "--tininess", "before"))
-    if backend == "interval":
+    if backend == BackendName.INTERVAL:
         phases = tuple(item for phase in INTERVAL_PHASES for item in ("--phase", phase))
         base.extend((*phases, "--strict-supported"))
-    if backend == "decimal":
+    if backend == BackendName.DECIMAL:
         base.extend(
             (
                 "--run-target",
@@ -72,7 +72,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
     suites = {
         "decimal": Stage(
             "DECIMAL · IEEE 754",
-            conformance_command("decimal", 1),
+            conformance_command(BackendName.DECIMAL, 1),
         ),
         "decimal_gda": [
             Stage(
@@ -107,15 +107,21 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             ),
             Stage(
                 "DECIMAL_GDA · official decTest",
-                conformance_command("decimal_gda", jobs),
+                conformance_command(BackendName.DECIMAL_GDA, jobs),
             ),
             Stage(
                 "DECIMAL_GDA · official0 decTest",
-                (*conformance_command("decimal_gda", jobs), "--corpus", "official0"),
+                (*conformance_command(BackendName.DECIMAL_GDA, jobs), "--corpus", "official0"),
             ),
         ],
-        "bin": Stage("BINARY · TestFloat + MPFR", conformance_command("binary", jobs)),
-        "interval": Stage("INTERVAL · IEEE 1788", conformance_command("interval", jobs)),
+        "binary": Stage(
+            "BINARY · TestFloat + MPFR",
+            conformance_command(BackendName.BINARY, jobs),
+        ),
+        "interval": Stage(
+            "INTERVAL · IEEE 1788",
+            conformance_command(BackendName.INTERVAL, jobs),
+        ),
     }
     if scope not in {"all", "quick"}:
         selected = suites[scope]
@@ -127,7 +133,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         ),
         Stage(
             "DOCS · localized examples",
-            ("just", "docs"),
+            (sys.executable, "tools/run_docs.py"),
         ),
     ]
     if scope == "quick":
@@ -257,7 +263,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         ],
         suites["decimal"],
         *suites["decimal_gda"],
-        suites["bin"],
+        suites["binary"],
         suites["interval"],
     ]
 
@@ -293,7 +299,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run LunaFlow repository CI gates")
     parser.add_argument(
         "scope",
-        choices=("all", "quick", "decimal", "decimal_gda", "bin", "interval"),
+        choices=("all", "quick", "decimal", "decimal_gda", "binary", "interval"),
     )
     parser.add_argument("jobs", nargs="?", type=int, default=DEFAULT_JOBS)
     parser.add_argument("--dry-run", action="store_true")

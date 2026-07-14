@@ -15,7 +15,6 @@ import hashlib
 import json
 import math
 import os
-import platform
 import shlex
 import shutil
 import statistics
@@ -23,9 +22,16 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
+
+from benchmark_common import (
+    capture_command,
+    platform_metadata,
+    utc_now_iso,
+    utc_stamp,
+    write_report_files,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -133,15 +139,8 @@ def _expand_command(template: list[str], target: str) -> list[str]:
 
 
 def _capture(command: list[str], cwd: Path = REPO_ROOT) -> tuple[int, str]:
-    completed = subprocess.run(
-        command,
-        cwd=cwd,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=False,
-    )
-    return completed.returncode, completed.stdout.strip()
+    completed = capture_command(command, cwd)
+    return completed.returncode, completed.output
 
 
 def _git_output(arguments: list[str]) -> str:
@@ -297,14 +296,14 @@ def collect_metadata(target: str, manifest: dict[str, Any], baseline_hash: str, 
     _, commit = _capture(["git", "rev-parse", "HEAD"])
     _, status = _capture(["git", "status", "--porcelain", "--untracked-files=normal"])
     return {
-        "captured_at_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "captured_at_utc": utc_now_iso(),
         "target": target,
         "baseline": manifest["baseline"],
         "candidate": {"commit": commit or None, "dirty": bool(status), "tree_hash": candidate_hash},
         "baseline_snapshot_hash": baseline_hash,
         "dependency_hash": hash_tree(REPO_ROOT / ".mooncakes"),
         "moon_version": moon_version,
-        "platform": {"system": platform.system(), "release": platform.release(), "machine": platform.machine()},
+        "platform": platform_metadata(),
         "minimum_runs": MINIMUM_RUNS,
         "independent_processes": PROCESS_COUNT,
         "schedule": "AB/BA/AB",
@@ -436,14 +435,14 @@ def render_markdown(metadata: dict[str, Any], result: dict[str, Any]) -> str:
 
 
 def write_artifacts(output_dir: Path, metadata: dict[str, Any], result: dict[str, Any]) -> tuple[Path, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    stamp = utc_stamp("%Y%m%dT%H%M%S%fZ")
     stem = f"decimal-bench-{stamp}-{metadata['target']}"
-    raw_path = output_dir / f"{stem}.json"
-    markdown_path = output_dir / f"{stem}.md"
-    raw_path.write_text(json.dumps({"schema_version": SCHEMA_VERSION, "metadata": metadata, "result": result}, indent=2) + "\n", encoding="utf-8")
-    markdown_path.write_text(render_markdown(metadata, result), encoding="utf-8")
-    return raw_path, markdown_path
+    return write_report_files(
+        output_dir,
+        stem,
+        {"schema_version": SCHEMA_VERSION, "metadata": metadata, "result": result},
+        render_markdown(metadata, result),
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

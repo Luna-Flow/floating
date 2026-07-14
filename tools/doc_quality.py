@@ -15,6 +15,8 @@ API_BLOCK_RE = re.compile(
     r"<!-- generated-api-start -->\n```moonbit\n(.*?)\n```\n<!-- generated-api-end -->",
     re.DOTALL,
 )
+MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
+CHANGELOG_VERSION_RE = re.compile(r"^## (\d+\.\d+\.\d+)\b", re.MULTILINE)
 
 
 def package_paths() -> set[str]:
@@ -109,15 +111,29 @@ def check_links() -> list[str]:
     return errors
 
 
+def module_version() -> str:
+    text = (REPO_ROOT / "moon.mod").read_text(encoding="utf-8")
+    match = MODULE_VERSION_RE.search(text)
+    if match is None:
+        raise ValueError("moon.mod does not declare a version")
+    return match.group(1)
+
+
 def check_current_versions() -> list[str]:
     errors: list[str] = []
+    current = module_version()
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    historical = sorted(set(CHANGELOG_VERSION_RE.findall(changelog)) - {current})
     candidates = [REPO_ROOT / "README.md", REPO_ROOT / "CONTRIBUTING.md"]
     candidates.extend(DOC_ROOT.rglob("*.md"))
     candidates.extend(REPO_ROOT.glob("src/**/README.mbt.md"))
     for path in candidates:
         text = path.read_text(encoding="utf-8")
-        if "0.5.0" in text:
-            errors.append(f"{path.relative_to(REPO_ROOT)}: stale 0.5.0 baseline")
+        for version in historical:
+            if version in text:
+                errors.append(
+                    f"{path.relative_to(REPO_ROOT)}: stale {version} baseline; current is {current}"
+                )
     return errors
 
 
@@ -231,9 +247,9 @@ def run_checks() -> list[str]:
     ]
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Validate localized documentation")
-    parser.parse_args()
+    parser.parse_args(argv)
     errors = run_checks()
     if errors:
         for error in errors:

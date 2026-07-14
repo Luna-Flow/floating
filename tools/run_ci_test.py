@@ -29,8 +29,8 @@ class RunCiTests(unittest.TestCase):
         self.assertEqual(stages[2].command[backend_index], "decimal_gda")
         self.assertIn("official0", stages[3].command)
 
-    def test_bin_scope_maps_to_binary_backend(self) -> None:
-        command = run_ci.stages_for("bin", 2)[0].command
+    def test_binary_scope_uses_binary_backend(self) -> None:
+        command = run_ci.stages_for("binary", 2)[0].command
         backend_index = command.index("--backend") + 1
         self.assertEqual(command[backend_index], "binary")
 
@@ -68,6 +68,8 @@ class RunCiTests(unittest.TestCase):
             ["FORMAT", "DOCS", "CHECK", "TEST", "SMOKE", "TEST", "SMOKE", "SMOKE", "SMOKE"],
         )
         commands = [stage.command for stage in stages]
+        self.assertEqual(commands[1][1], "tools/run_docs.py")
+        self.assertNotIn("just", commands[1])
         self.assertIn("native", commands[3])
         self.assertIn("--deny-warn", commands[2])
         self.assertIn("unittest", commands[5])
@@ -78,7 +80,7 @@ class RunCiTests(unittest.TestCase):
         self.assertIn("--strict-supported", commands[-1])
 
     def test_binary_gate_locks_level_and_both_tininess_modes(self) -> None:
-        command = run_ci.stages_for("bin", 2)[0].command
+        command = run_ci.stages_for("binary", 2)[0].command
         self.assertEqual(command[command.index("--level") + 1], "1")
         self.assertEqual(
             [command[index + 1] for index, value in enumerate(command) if value == "--tininess"],

@@ -6,14 +6,20 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import platform
 import shlex
 import statistics
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from benchmark_common import (
+    capture_command,
+    platform_metadata,
+    utc_now_iso,
+    utc_stamp,
+    write_report_files,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -399,41 +405,23 @@ def run_benchmarks(
     return results
 
 
-def _capture(command: list[str]) -> tuple[int, str]:
-    completed = subprocess.run(
-        command,
-        cwd=REPO_ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=False,
-    )
-    return completed.returncode, completed.stdout.strip()
-
-
 def collect_metadata(
     target: str, commands: dict[str, list[str]]
 ) -> dict[str, Any]:
-    git_code, git_commit = _capture(["git", "rev-parse", "--verify", "HEAD"])
-    status_code, git_status = _capture(
-        ["git", "status", "--porcelain", "--untracked-files=normal"]
+    git = capture_command(["git", "rev-parse", "--verify", "HEAD"], REPO_ROOT)
+    status = capture_command(
+        ["git", "status", "--porcelain", "--untracked-files=normal"], REPO_ROOT
     )
-    moon_code, moon_version = _capture(["moon", "--version"])
+    moon = capture_command(["moon", "--version"], REPO_ROOT)
     return {
-        "captured_at_utc": datetime.now(timezone.utc)
-        .isoformat()
-        .replace("+00:00", "Z"),
+        "captured_at_utc": utc_now_iso(),
         "target": target,
         "git": {
-            "commit": git_commit if git_code == 0 else None,
-            "dirty": bool(git_status) if status_code == 0 else None,
+            "commit": git.output if git.returncode == 0 else None,
+            "dirty": bool(status.output) if status.returncode == 0 else None,
         },
-        "moon_version": moon_version if moon_code == 0 else None,
-        "platform": {
-            "system": platform.system(),
-            "release": platform.release(),
-            "machine": platform.machine(),
-        },
+        "moon_version": moon.output if moon.returncode == 0 else None,
+        "platform": platform_metadata(),
         "minimum_runs": MINIMUM_RUNS,
         "independent_processes": REQUIRED_PROCESS_COUNT,
         "maximum_mad_pct": MAXIMUM_MAD_PCT,
@@ -626,22 +614,19 @@ def write_artifacts(
     metadata: dict[str, Any],
     results: dict[str, list[dict[str, Any]]],
 ) -> tuple[Path, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    stamp = utc_stamp("%Y%m%dT%H%M%S%fZ")
     stem = f"bin-coeff-bench-{stamp}-{metadata['target']}"
-    raw_path = output_dir / f"{stem}.json"
-    summary_path = output_dir / f"{stem}.md"
-    raw_path.write_text(
-        json.dumps(
-            {"schema_version": 2, "metadata": metadata, "results": results},
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
+    return write_report_files(
+        output_dir,
+        stem,
+        {
+            "schema_version": 2,
+            "metadata": metadata,
+            "results": results,
+        },
+        render_markdown(metadata, results),
+        ensure_ascii=False,
     )
-    summary_path.write_text(render_markdown(metadata, results), encoding="utf-8")
-    return raw_path, summary_path
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

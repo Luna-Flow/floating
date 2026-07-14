@@ -18,10 +18,10 @@ import statistics
 import subprocess
 import tempfile
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+from benchmark_common import capture_command, utc_now_iso, utc_stamp, write_json
 from decimal_dispatch_model import DispatchObservation, fit_dispatch_model
 
 
@@ -471,7 +471,7 @@ def bisect_transition(
     )
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--transition", choices=[item.name for item in TRANSITIONS])
     parser.add_argument("--margin", type=float, default=0.03)
@@ -489,19 +489,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target", choices=("native", "wasm", "wasm-gc", "js"), default="native")
     parser.add_argument("--shape", choices=SHAPES, default="dense")
     parser.add_argument("--output", type=Path)
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def _capture(command: list[str]) -> str:
-    completed = subprocess.run(
-        command,
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=False,
-    )
-    return completed.stdout.strip() if completed.returncode == 0 else "unavailable"
+    completed = capture_command(command, ROOT)
+    return completed.output if completed.returncode == 0 else "unavailable"
 
 
 def model_grid(transition: Transition, args: argparse.Namespace) -> list[int]:
@@ -605,9 +598,7 @@ def run_model(
     )
     return {
         "schema_version": 1,
-        "captured_at_utc": datetime.now(timezone.utc)
-        .isoformat()
-        .replace("+00:00", "Z"),
+        "captured_at_utc": utc_now_iso(),
         "transition": {
             "name": transition.name,
             "baseline": transition.baseline,
@@ -633,8 +624,8 @@ def run_model(
     }
 
 
-def main() -> int:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     if args.margin <= 0 or args.margin >= 1:
         raise SystemExit("margin must be in (0,1)")
     if args.processes is not None and args.processes < 1:
@@ -650,15 +641,14 @@ def main() -> int:
             except (OSError, RuntimeError, ValueError) as error:
                 print(f"[decimal-model] error: {error}")
                 return 1
-            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            stamp = utc_stamp("%Y%m%dT%H%M%SZ")
             output = args.output or (
                 ROOT
                 / ".tmp"
                 / "decimal-dispatch-model"
                 / f"{transitions[0].name}-{stamp}.json"
             )
-            output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+            write_json(output, report)
             threshold = report["model"]["threshold"]
             print(
                 json.dumps(

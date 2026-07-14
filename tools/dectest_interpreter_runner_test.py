@@ -3,7 +3,10 @@
 import importlib.util
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
+from unittest import mock
 
 
 MODULE_PATH = Path(__file__).with_name("run_dectest_interpreter.py")
@@ -13,6 +16,30 @@ SPEC.loader.exec_module(RUNNER)
 
 
 class DecTestInterpreterRunnerTests(unittest.TestCase):
+    def test_main_uses_decimal_gda_fetcher_directly(self):
+        config = {"corpus": "official", "phases": []}
+        manifest = {
+            "corpora": {
+                "official": {
+                    "destination": ".tmp/official",
+                    "url": "https://example.invalid/corpus.zip",
+                    "sha256": "0" * 64,
+                    "expectedDecTestFiles": 0,
+                }
+            }
+        }
+        with mock.patch.object(RUNNER, "load_json", side_effect=[config, manifest]):
+            with mock.patch.object(
+                RUNNER,
+                "resolve_corpus",
+                return_value=("official", RUNNER.REPO_ROOT / ".tmp/official"),
+            ):
+                with mock.patch.object(RUNNER, "ensure_available", return_value=0) as ensure:
+                    with redirect_stdout(StringIO()):
+                        self.assertEqual(RUNNER.main(["--plan"]), 0)
+        self.assertIs(ensure.call_args.kwargs["fetcher"], RUNNER.fetch_decimal_corpora.main)
+        self.assertEqual(ensure.call_args.kwargs["fetch_args"], ["official"])
+
     def test_phase_selection_preserves_prior_file_claims(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

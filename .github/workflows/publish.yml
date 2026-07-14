@@ -37,9 +37,7 @@ jobs:
         run: sh tools/run_moon_clean_exec.sh build --target all
 
       - name: documentation
-        run: |
-          python3 tools/doc_quality.py
-          sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn
+        run: python3 tools/run_docs.py
 
       - name: format
         run: sh tools/run_moon_clean_exec.sh fmt --check

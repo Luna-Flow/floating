@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import concurrent.futures
 import fnmatch
 import json
 import subprocess
@@ -9,7 +8,9 @@ import sys
 import time
 from pathlib import Path
 
+import fetch_interval_corpora
 from conformance_cli import build_backend, executable_path
+from conformance_runtime import ensure_available, ordered_parallel_map
 from conformance_ui import Console, Progress, SummaryRow, print_summary
 
 
@@ -126,20 +127,15 @@ def main(argv: list[str] | None = None) -> int:
             manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
             spec = manifest["corpora"][config["corpus"]]
             corpus = REPO_ROOT / spec["destination"]
-            if not corpus.is_dir():
-                fetch = subprocess.run(
-                    [
-                        sys.executable,
-                        "tools/conformance.py",
-                        "fetch",
-                        "--backend",
-                        "interval",
-                        config["corpus"],
-                    ],
-                    cwd=REPO_ROOT,
-                )
-                if fetch.returncode != 0 or not corpus.is_dir():
-                    raise FileNotFoundError("ITF1788 corpus installation failed")
+            fetch_result = ensure_available(
+                is_ready=corpus.is_dir,
+                fetcher=fetch_interval_corpora.main,
+                fetch_args=[config["corpus"]],
+                force=False,
+                missing_message="ITF1788 corpus installation failed",
+            )
+            if fetch_result != 0:
+                raise FileNotFoundError("ITF1788 corpus installation failed")
             phases = planned_phases(config, corpus, set(args.phase))
             revision = spec["revision"]
         if args.plan:
@@ -149,16 +145,13 @@ def main(argv: list[str] | None = None) -> int:
         executable = build()
         started = time.monotonic()
         phase_progress = Progress("interval/ITF1788 phases", len(phases), Console())
-        with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            future_map = {
-                pool.submit(run_phase, executable, phase, args.strict_supported): index
-                for index, phase in enumerate(phases)
-            }
-            reports = [None] * len(phases)
-            for future in concurrent.futures.as_completed(future_map):
-                index = future_map[future]
-                reports[index] = future.result()
-                phase_progress.advance(phases[index]["name"])
+        reports = ordered_parallel_map(
+            phases,
+            args.jobs,
+            lambda phase: run_phase(executable, phase, args.strict_supported),
+            phase_progress,
+            lambda phase: phase["name"],
+        )
         exit_code = 1 if any(report["exitCode"] != 0 for report in reports) else 0
         phase_progress.finish(exit_code == 0)
         report = {

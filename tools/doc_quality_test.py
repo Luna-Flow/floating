@@ -57,5 +57,25 @@ class DocumentationQualityTests(unittest.TestCase):
                     with patch.object(doc_quality, "REPO_ROOT", root):
                         self.assertTrue(doc_quality.check_package_doc_coverage())
 
+    def test_current_versions_follow_moon_mod_and_changelog(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "doc").mkdir()
+            (root / "moon.mod").write_text('version = "0.6.1"\n', encoding="utf-8")
+            (root / "CHANGELOG.md").write_text(
+                "## 0.6.1 - 2026-07-14\n\n## 0.6.0 - 2026-07-14\n",
+                encoding="utf-8",
+            )
+            (root / "README.md").write_text("Current 0.6.1\n", encoding="utf-8")
+            (root / "CONTRIBUTING.md").write_text("Stale 0.6.0\n", encoding="utf-8")
+            with patch.object(doc_quality, "DOC_ROOT", root / "doc"):
+                with patch.object(doc_quality, "REPO_ROOT", root):
+                    self.assertEqual(
+                        doc_quality.check_current_versions(),
+                        [
+                            "CONTRIBUTING.md: stale 0.6.0 baseline; current is 0.6.1"
+                        ],
+                    )
+
 if __name__ == "__main__":
     unittest.main()

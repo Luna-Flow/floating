@@ -4,6 +4,7 @@ import importlib.util
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 
 MODULE_PATH = Path(__file__).with_name("run_binfloat_interpreter.py")
@@ -82,11 +83,13 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
                 2,
             )
 
-    def test_normalized_arguments_support_chunk_cases(self):
-        self.assertEqual(
-            RUNNER.normalized_arguments(["chunk_cases=4096"]),
-            ["--chunk-cases", "4096"],
-        )
+    def test_fetch_artifacts_uses_binary_fetcher_directly(self):
+        with mock.patch.object(RUNNER, "artifacts_ready", side_effect=[False, True]):
+            with mock.patch.object(
+                RUNNER.fetch_binfloat_corpora, "main", return_value=0
+            ) as fetch:
+                RUNNER.fetch_artifacts({}, False)
+        fetch.assert_called_once_with([])
 
     def test_smoke_manifest_entry_becomes_a_concrete_task(self):
         task = RUNNER.smoke_task(

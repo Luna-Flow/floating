@@ -12,6 +12,7 @@ import run_dectest_interpreter
 import run_ieee_decimal
 import run_itl_interpreter
 from conformance_cli import build_backend
+from conformance_runtime import BackendName
 
 
 EntryPoint = Callable[[list[str] | None], int]
@@ -25,22 +26,22 @@ class Backend:
 
 
 BACKENDS = {
-    "decimal": Backend(
+    BackendName.DECIMAL: Backend(
         build_targets=(),
         runner=run_ieee_decimal.main,
         fetcher=run_ieee_decimal.fetch_main,
     ),
-    "decimal_gda": Backend(
+    BackendName.DECIMAL_GDA: Backend(
         build_targets=("gda",),
         runner=run_dectest_interpreter.main,
         fetcher=fetch_decimal_corpora.main,
     ),
-    "binary": Backend(
+    BackendName.BINARY: Backend(
         build_targets=("testfloat", "mpfr"),
         runner=run_binfloat_interpreter.main,
         fetcher=fetch_binfloat_corpora.main,
     ),
-    "interval": Backend(
+    BackendName.INTERVAL: Backend(
         build_targets=("itl",),
         runner=run_itl_interpreter.main,
         fetcher=fetch_interval_corpora.main,
@@ -56,7 +57,7 @@ def usage() -> str:
     )
 
 
-def parse_command(arguments: list[str]) -> tuple[str, str, list[str]]:
+def parse_command(arguments: list[str]) -> tuple[str, BackendName, list[str]]:
     if not arguments:
         raise ValueError(usage())
     action, *remaining = arguments
@@ -83,9 +84,11 @@ def parse_command(arguments: list[str]) -> tuple[str, str, list[str]]:
         index += 1
     if not backend:
         raise ValueError("--backend is required")
-    if backend not in BACKENDS:
+    try:
+        selected_backend = BackendName(backend)
+    except ValueError as error:
         raise ValueError(f"unknown conformance backend: {backend}")
-    return action, backend, forwarded
+    return action, selected_backend, forwarded
 
 
 def main(argv: list[str] | None = None) -> int:
