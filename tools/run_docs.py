@@ -25,7 +25,6 @@ def main(argv: list[str] | None = None) -> int:
             "--target",
             "native",
             "--deny-warn",
-            "--frozen",
         ],
         cwd=REPO_ROOT,
     ).returncode

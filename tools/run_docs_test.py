@@ -17,7 +17,7 @@ class RunDocsTests(unittest.TestCase):
                 run.return_value.returncode = 5
                 self.assertEqual(run_docs.main([]), 5)
         self.assertIn("src/doc_examples", run.call_args.args[0])
-        self.assertIn("--frozen", run.call_args.args[0])
+        self.assertNotIn("--frozen", run.call_args.args[0])
 
 
 if __name__ == "__main__":
