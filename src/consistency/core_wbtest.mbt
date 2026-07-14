@@ -8169,25 +8169,42 @@ test "bin_float_checked keeps arithmetic closed and propagates errors" {
 }
 
 ///|
-test "decimal_checked maps parse and checked operations inside the wrapper" {
-  let parsed = @decimal_checked.DecimalResult::parse("9.0", precision=20)
-  let three = @decimal_checked.DecimalResult::from_int(3, precision=20)
-  match (parsed.sqrt().pow_int(1) / three).normalized().result() {
-    Ok(value) => assert_eq(value, @decimal.Decimal::one(precision=20))
-    Err(_) => fail("expected decimal result pipeline to succeed")
-  }
-  match
-    @decimal_checked.DecimalResult::parse("bad", precision=20).sqrt().result() {
-    Ok(_) => fail("expected parse error to short-circuit")
-    Err(err) => assert_true(err.is_parse_error())
-  }
-  match @decimal_checked.DecimalResult::parse("sNaN7", precision=20).result() {
-    Ok(value) => {
-      assert_true(value.is_snan())
-      assert_eq(value.nan_payload(), 7N)
-    }
-    Err(_) => fail("expected decimal result special parse to succeed")
-  }
+test "decimal_checked preserves IEEE values and accumulated flags" {
+  let context = @decimal.DecimalContext::new(precision=20)
+  let result = @decimal_checked.DecimalChecked::parse("9.0", context)
+    .sqrt()
+    .div(@decimal.Decimal::from_int(3, precision=20))
+    .reduce()
+  assert_eq(result.value(), @decimal.Decimal::one(precision=20))
+  let invalid = @decimal_checked.DecimalChecked::parse("bad", context)
+  assert_true(invalid.value().is_nan())
+  assert_true(
+    invalid.flags().contains(@decimal.DecimalSignal::ConversionSyntax),
+  )
+  let divided_by_zero = @decimal_checked.DecimalChecked::from_int(1, context).div(
+    @decimal.Decimal::zero(precision=20),
+  )
+  assert_true(divided_by_zero.value().is_infinite())
+  assert_true(
+    divided_by_zero.flags().contains(@decimal.DecimalSignal::DivisionByZero),
+  )
+}
+
+///|
+test "decimal_gda_checked threads context and short-circuits traps" {
+  let context = @decimal_gda.GdaContext::decimal64().trap(
+    @decimal_gda.GdaSignal::DivisionByZero,
+  )
+  let trapped = @decimal_gda_checked.GdaDecimalChecked::from_decimal(
+    @decimal_gda.Decimal::one(),
+    context,
+  ).divide(@decimal_gda.Decimal::zero())
+  assert_true(trapped.is_trapped())
+  assert_true(trapped.value().is_infinite())
+  assert_true(trapped.add(@decimal_gda.Decimal::one()).is_trapped())
+  assert_false(
+    trapped.resume_defined().add(@decimal_gda.Decimal::one()).is_trapped(),
+  )
 }
 
 ///|
@@ -8522,7 +8539,7 @@ test "checked natural powers preserve unsigned exponent boundaries" {
 }
 
 ///|
-test "checked clamps reject external invalid bounds without aborting" {
+test "binary checked clamps reject external invalid bounds without aborting" {
   let binary_value = @bin_float_checked.BinFloatResult::from_int(2)
   let binary_reversed = binary_value
     .clamp(
@@ -8537,23 +8554,6 @@ test "checked clamps reject external invalid bounds without aborting" {
   assert_true(
     binary_value
     .clamp(min=binary_nan, max=@bin_float_checked.BinFloatResult::from_int(3))
-    .result()
-    is Err(_),
-  )
-  let decimal_value = @decimal_checked.DecimalResult::from_int(2)
-  assert_true(
-    decimal_value
-    .clamp(
-      min=@decimal_checked.DecimalResult::from_int(3),
-      max=@decimal_checked.DecimalResult::from_int(1),
-    )
-    .result()
-    is Err(_),
-  )
-  let decimal_nan = @decimal_checked.DecimalResult::ok(@decimal.Decimal::nan())
-  assert_true(
-    decimal_value
-    .clamp(min=decimal_nan, max=@decimal_checked.DecimalResult::from_int(3))
     .result()
     is Err(_),
   )

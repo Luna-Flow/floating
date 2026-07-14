@@ -71,11 +71,21 @@ test "interval and decorated semantics" {
 
 ```moonbit check
 ///|
-test "checked pipelines preserve the first error" {
+test "checked pipelines preserve their domain state" {
   let binary = @bin_float_checked.BinFloatResult::from_int(9).sqrt()
   inspect(binary.result().unwrap().to_string(), content="3p0")
-  let decimal = @decimal_checked.DecimalResult::parse("9").sqrt()
-  inspect(decimal.result().unwrap().to_string(), content="3")
+  let decimal = @decimal_checked.DecimalChecked::parse(
+    "9",
+    @decimal.DecimalContext::decimal64(),
+  ).sqrt()
+  inspect(decimal.value().to_string(), content="3")
+  inspect(decimal.flags().has_error(), content="false")
+  let gda = @decimal_gda_checked.GdaDecimalChecked::parse(
+    "9",
+    @decimal_gda.GdaContext::decimal64(),
+  ).sqrt()
+  inspect(gda.value().to_string(), content="3")
+  inspect(gda.is_trapped(), content="false")
   let interval = @ball_float_checked.BallFloatResult::from_int(4).pow_int(-1)
   inspect(interval.result() is Ok(_), content="true")
 }

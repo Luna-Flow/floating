@@ -1,7 +1,6 @@
 # `decimal_checked`
 
-`DecimalResult` is the stable short-circuit wrapper for parse and scalar Decimal
-pipelines. It preserves `ArithmeticError` without collapsing it into a special
-value. It does not carry `DecimalContext` or accumulate `DecimalFlags`; use
-`decimal` `*_ctx` methods whenever GDA status or cohort behavior is part of the
-contract.
+`DecimalChecked` is the IEEE decimal composition surface. It keeps one immutable
+`DecimalContext`, the current defined result, flags raised by the latest
+operation, and flags accumulated across the pipeline. IEEE exceptional results
+remain values; they are not collapsed into `ArithmeticError`.

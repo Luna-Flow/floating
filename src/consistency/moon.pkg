@@ -5,6 +5,8 @@ import {
   "Luna-Flow/floating/bin_float_checked",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/decimal_checked",
+  "Luna-Flow/floating/decimal_gda",
+  "Luna-Flow/floating/decimal_gda_checked",
   "Luna-Flow/floating/ball_float",
   "Luna-Flow/floating/ball_float_checked",
   "Luna-Flow/floating/def",

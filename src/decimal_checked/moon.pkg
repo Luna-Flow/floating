@@ -1,6 +1,4 @@
 import {
-  "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/decimal",
-  "Luna-Flow/floating/def",
-  "Luna-Flow/floating/internal",
+  "moonbitlang/core/bigint",
 }
