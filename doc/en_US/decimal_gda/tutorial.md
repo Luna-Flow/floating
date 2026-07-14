@@ -98,6 +98,5 @@ do not substitute it for ordinary numerical equality.
 - Do not combine `GdaFlags` manually and then assume a context status changed;
   thread `next_context()`.
 - Do not import `decimal` and `decimal_gda` values interchangeably.
-- Do not use the checked wrappers when the required contract is GDA signals and
-  traps; they preserve `ArithmeticError`, not GDA state.
-
+- Use `decimal_gda_checked`, not the IEEE `decimal_checked` package, when a
+  closed pipeline must retain GDA signals, sticky status, and traps.

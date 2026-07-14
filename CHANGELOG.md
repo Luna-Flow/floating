@@ -4,6 +4,16 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.6.1 - 2026-07-14
+
+### Changed
+
+- Reworked `decimal_checked` into an IEEE context-and-flags pipeline and added
+  `decimal_gda_checked` for sticky-context composition, trap short-circuiting,
+  defined results, and explicit recovery.
+- Consolidated public tooling under parameterized `just conformance`, `just
+  gate`, and `just bench` commands and removed the backend-specific aliases.
+
 ## 0.6.0 - 2026-07-14
 
 ### Changed

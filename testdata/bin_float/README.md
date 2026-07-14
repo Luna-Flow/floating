@@ -15,13 +15,13 @@ just conformance smoke binary
 just conformance fetch binary
 just conformance plan binary --level 1 --tininess after --tininess before
 just conformance run binary --level 1 --tininess after --tininess before
-just bin-ci 8
+just gate binary 8
 ```
 
 `just conformance smoke binary` runs the committed 60-row TestFloat subset, three hexadecimal
 sqrt witnesses, and 120 MPFR-generated integer-power witnesses without
 downloading anything. `just conformance fetch binary` verifies SHA-256 and
-installs the external artifacts under `.tmp/`. `bin-ci` builds the reference
+installs the external artifacts under `.tmp/`. `just gate binary` builds the reference
 generator and the native interpreters, then runs the declared full gate.
 
 ## Declared Full Gate

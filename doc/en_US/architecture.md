@@ -11,7 +11,7 @@ numeric transformations separate from filesystem, process, and corpus effects.
 | Shared vocabulary | `def` | Classification, sign, partial order, reexported arithmetic types, minimal `Floating` trait |
 | Scalar domains | `bin_float`, `decimal`, `decimal_gda` | Binary, IEEE decimal, and GDA decimal semantics |
 | Interval domain | `ball_float` | Bare and decorated outward-rounded enclosures |
-| Checked composition | `bin_float_checked`, `decimal_checked`, `ball_float_checked` | Closed short-circuit pipelines over `ArithmeticError` |
+| Checked composition | `bin_float_checked`, `ball_float_checked`, `decimal_checked`, `decimal_gda_checked` | Domain-specific closed pipelines over errors, IEEE flags, or GDA outcomes |
 | Semantic projection | `semantic` | Exact representation-independent observations |
 | Syntax | `numeric_expr` | Source spans, literals, primitive calls, callback evaluation |
 | Format frontends | `frontend/*` | Parse a corpus format and execute typed cases |
@@ -57,9 +57,12 @@ raised flags into the context's sticky status and selects the highest-priority
 enabled trap. The returned context must be passed to the next operation if the
 caller wants status accumulation.
 
-Checked wrappers form a different effect channel: they retain the first
-`ArithmeticError` and skip later operations. They do not accumulate IEEE flags,
-GDA status, decorations, or a recovery policy.
+Checked wrappers preserve the effect channel of their numerical domain.
+Binary and interval wrappers retain the first `ArithmeticError`.
+`decimal_checked` keeps one IEEE context and accumulates flags while preserving
+defined exceptional results. `decimal_gda_checked` threads the next sticky
+context, stops on `Trapped`, and requires explicit recovery before continuing
+from the defined result.
 
 ## Parsing And Execution
 
@@ -115,4 +118,3 @@ When extending a conformance surface, update the parser model, executor,
 support classification, CLI schema, corpus manifest, tests, and localized docs
 together. A newly parsed operation is not “supported” until strict execution
 has a defined result comparison and reproducible evidence.
-

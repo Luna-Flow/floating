@@ -10,10 +10,10 @@
 | 文档 | `just docs` | locale/file/heading/link 检查与可执行文档示例 |
 | 格式 | `just fmt` | MoonBit formatter |
 | PR | `just pr [jobs]` | 生成接口、全 target check、native test、Python test、smoke corpus |
-| IEEE decimal | `just decimal-ci [jobs]` 或 `just ieee-ci` | 支持 target 上的 decimal32/64/128 DPD/BID fixture |
-| GDA decimal | `just decimal-gda-ci [jobs]` | 固定 `official` 与 `official0` `.decTest` 合法标量行 |
-| Binary | `just bin-ci [jobs]` | 固定 TestFloat level-1 matrix 与 MPFR 数据 |
-| Interval | `just interval-ci [jobs]` | 固定 ITF1788 strict supported phases |
+| IEEE decimal | `just gate decimal [jobs]` | 支持 target 上的 decimal32/64/128 DPD/BID fixture |
+| GDA decimal | `just gate decimal_gda [jobs]` | 固定 `official` 与 `official0` `.decTest` 合法标量行 |
+| Binary | `just gate binary [jobs]` | 固定 TestFloat level-1 matrix 与 MPFR 数据 |
+| Interval | `just gate interval [jobs]` | 固定 ITF1788 strict supported phases |
 | 完整 | `just ci [jobs]` | 全部生成接口、target、单元与 conformance gate |
 
 先运行与改动最接近的窄检查，再在发布前逐步扩大范围。
@@ -23,8 +23,8 @@
 所有 suite 使用同一个 dispatcher：
 
 ```sh
-python3 tools/conformance.py <build|run|smoke|plan|fetch> \
-  --backend <decimal|decimal_gda|binary|interval> [options]
+just conformance <build|run|smoke|plan|fetch> \
+  <decimal|decimal_gda|binary|interval> [options]
 ```
 
 `decimal` 指独立 IEEE decimal corpus，`decimal_gda` 指 GDA `.decTest`；`binary`
@@ -87,4 +87,3 @@ toolchain、target、schedule、sample count 与 dispersion limit。性能阈值
 5. 通过仓库 GitHub Actions workflow 发布。
 
 Luna-Flow 不使用本地 `moon publish` 作为发布路径；组织凭据由 workflow 提供。
-

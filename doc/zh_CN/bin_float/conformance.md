@@ -1,6 +1,6 @@
 # `bin_float` 一致性说明
 
-本文记录 `0.6.0` 二进制浮点语义与验证边界。有限测试全部通过是
+本文记录 `0.6.1` 二进制浮点语义与验证边界。有限测试全部通过是
 声明范围内的证据，不是对所有实数输入的形式化证明。
 
 ## 标准、论文与参考实现
@@ -66,4 +66,4 @@ IEEE 754 操作的一致性。`pow_int_ctx` 的 MPFR 固定语料独立覆盖数
 nearest-away、before/after tininess 与完整 flags 由精确 dyadic/rational oracle
 差分覆盖，因为 MPFR 明确禁止把 `MPFR_RNDNA` 当作通用 `pow_si` 舍入参数。
 
-日常运行 `just conformance smoke binary`；完整固定门禁运行 `just bin-ci`。
+日常运行 `just conformance smoke binary`；完整固定门禁运行 `just gate binary`。

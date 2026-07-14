@@ -3,10 +3,10 @@
 ## Stability
 
 `BinFloat`, `BinCoeff`, binary contexts/flags, and binary16/32/64/128
-interchange are supported `0.6.0` application APIs. Limb layout, algorithm
+interchange are supported `0.6.1` application APIs. Limb layout, algorithm
 thresholds, and complete IEEE 754 coverage are not promised.
 
-This page tracks the `0.6.0` API baseline. The semantic and test scope
+This page tracks the `0.6.1` API baseline. The semantic and test scope
 is in [Conformance](./conformance.md).
 
 ## Representation
@@ -171,7 +171,7 @@ Checked-behavior notes:
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

@@ -3,11 +3,11 @@
 ## Stability
 
 `Decimal`, `DecimalContext`, `DecimalFlags`, and decimal interchange are
-supported `0.6.0` application APIs. Internal `DecCoeff` layout is not public;
+supported `0.6.1` application APIs. Internal `DecCoeff` layout is not public;
 the pinned legal GDA corpus is fully conformant, with only `#` placeholder/
 non-scalar invalid rows excluded.
 
-This page tracks the `0.6.0` IEEE API and separate GDA representation.
+This page tracks the `0.6.1` IEEE API and separate GDA representation.
 
 ## Representation
 
@@ -456,7 +456,7 @@ and `DecimalInterchange::to_decimal_ctx`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

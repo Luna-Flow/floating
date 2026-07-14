@@ -1,6 +1,6 @@
 # Numeric Semantics
 
-This page defines the vocabulary shared across the `0.6.0` documentation. It
+This page defines the vocabulary shared across the `0.6.1` documentation. It
 distinguishes mathematical value from stored representation, rounding status,
 checked failure, and interval enclosure.
 
@@ -57,8 +57,10 @@ signals are raised.
 
 `ArithmeticError` is different: it describes a checked operation that cannot
 produce the requested scalar result under the checked capability contract.
-Checked wrappers short-circuit that error. They do not model IEEE flags or GDA
-traps.
+Binary and interval result wrappers short-circuit that error. Decimal
+composition instead preserves its native state: `DecimalChecked` accumulates
+IEEE flags around defined results, while `GdaDecimalChecked` threads sticky
+status and short-circuits traps without erasing their defined results.
 
 ## Special Scalar Values
 
@@ -128,4 +130,3 @@ Before choosing an API, answer:
    required?
 6. Is conversion arbitrary precision or fixed interchange?
 7. Which finite conformance matrix supports the claimed behavior?
-

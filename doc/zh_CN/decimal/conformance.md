@@ -14,7 +14,7 @@ mandatory operation vector 使用精确整数/有理数构造和已记录的 DPD
 
 ## Targets
 
-`just ieee-ci` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM 因仓库不包含所需本地产物而排除。target-specific 系数调度不得改变值、编码或 flags。
+`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM 因仓库不包含所需本地产物而排除。target-specific 系数调度不得改变值、编码或 flags。
 
 ## 边界
 
@@ -24,7 +24,7 @@ mandatory operation vector 使用精确整数/有理数构造和已记录的 DPD
 
 ```sh
 just conformance smoke decimal
-just ieee-ci
+just gate decimal
 just decimal-kernel-ci
 ```
 

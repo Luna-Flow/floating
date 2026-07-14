@@ -2,8 +2,8 @@
 
 ## Repository Workflow
 
-Use `just smoke` for the checked-in fixture, `just conformance run decimal
---phase ... --cases ...` while fixing Decimal semantics, `just pr` for the fast
+Use `just conformance smoke decimal_gda` for the checked-in fixture, `just
+conformance run decimal_gda --phase ... --cases ...` while fixing Decimal semantics, `just pr` for the fast
 pre-PR gate, and `just ci` for the complete repository gate. The command reference is in
 [Decimal Conformance Data](../../../../testdata/decimal/README.md).
 

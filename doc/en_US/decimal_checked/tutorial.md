@@ -1,18 +1,34 @@
 # `decimal_checked` Tutorial
 
-## Parse And Calculate
+## Accumulate IEEE Flags
 
 ```moonbit check
 ///|
-test "checked decimal pipeline" {
-  let result =
-    @decimal_checked.DecimalResult::parse("2.25", precision=40)
-    .sqrt()
-    .mul(@decimal_checked.DecimalResult::from_int(2, precision=40))
-  inspect(result.result().unwrap().to_string(), content="3.0")
+test "IEEE checked decimal pipeline" {
+  let context = @decimal.DecimalContext::new(precision=3)
+  let checked = @decimal_checked.DecimalChecked::parse("1.2345", context)
+    .add(@decimal.Decimal::one())
+  inspect(checked.value().to_string(), content="2.23")
+  inspect(
+    checked.flags().contains(@decimal.DecimalSignal::Rounded),
+    content="true",
+  )
 }
 ```
 
-Use `DecimalResult` for scalar checked pipelines. Use `Decimal::*_ctx` directly
-when rounding flags, exponent bounds, clamp behavior, or GDA conditions are part
-of the required output.
+## Keep Defined Exceptional Results
+
+```moonbit check
+///|
+test "IEEE checked defined result" {
+  let checked = @decimal_checked.DecimalChecked::from_int(
+    1,
+    @decimal.DecimalContext::decimal64(),
+  ).div(@decimal.Decimal::zero())
+  inspect(checked.value().is_infinite(), content="true")
+  inspect(
+    checked.raised().contains(@decimal.DecimalSignal::DivisionByZero),
+    content="true",
+  )
+}
+```

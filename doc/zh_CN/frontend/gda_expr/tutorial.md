@@ -2,7 +2,7 @@
 
 ## 仓库流程
 
-仓库内 fixture 使用 `just smoke`；修复 Decimal 语义时使用定向的 `just conformance run decimal --phase ... --cases ...`；PR 前运行快速 `just pr`，发布前运行完整 `just ci`。完整参数见[一致性测试数据](../../../../testdata/decimal/README.md)。
+仓库内 fixture 使用 `just conformance smoke decimal_gda`；修复 Decimal 语义时使用定向的 `just conformance run decimal_gda --phase ... --cases ...`；PR 前运行快速 `just pr`，发布前运行完整 `just ci`。完整参数见[一致性测试数据](../../../../testdata/decimal/README.md)。
 
 ## 直接使用 CLI
 

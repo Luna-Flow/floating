@@ -10,7 +10,7 @@
 | 共有語彙 | `def` | classification、sign、partial order、arithmetic type の reexport、最小 `Floating` trait |
 | Scalar domain | `bin_float`、`decimal`、`decimal_gda` | binary、IEEE decimal、GDA decimal の意味論 |
 | Interval domain | `ball_float` | bare/decorated outward-rounded enclosure |
-| Checked composition | `bin_float_checked`、`decimal_checked`、`ball_float_checked` | `ArithmeticError` 上の closed short-circuit pipeline |
+| Checked composition | `bin_float_checked`、`ball_float_checked`、`decimal_checked`、`decimal_gda_checked` | error、IEEE flags、GDA outcome を保つ domain-specific pipeline |
 | Semantic projection | `semantic` | 表現に依存しない exact observation |
 | Syntax | `numeric_expr` | source span、literal、primitive call、callback evaluation |
 | Format frontend | `frontend/*` | corpus format を parse し typed case を実行 |
@@ -53,9 +53,11 @@ value(s) + immutable context
 raised flags を sticky status に combine し、固定 precedence で enabled trap を
 選びます。Status を蓄積するには返された context を次の operation に渡します。
 
-Checked wrapper は別の effect channel です。最初の `ArithmeticError` を保持して
-後続 operation を skip し、IEEE flags、GDA status、decoration、recovery policy は
-蓄積しません。
+Checked wrapper は各 numerical domain の effect channel を保ちます。Binary と
+interval wrapper は最初の `ArithmeticError` を保持します。`decimal_checked` は
+IEEE context を固定して flags を蓄積し、defined exceptional result を保持します。
+`decimal_gda_checked` は next sticky context を渡し、`Trapped` で停止し、defined
+result から続行するには explicit recovery を要求します。
 
 ## Parsing と execution
 
@@ -105,4 +107,3 @@ context と flags は explicit に保ち、stable interchange contract でない
 Conformance surface を拡張するときは parser model、executor、support classification、
 CLI schema、corpus manifest、test、localized docs を同時に更新します。Token を parse
 できるだけでは support ではなく、strict execution の定義済み比較と再現可能な証拠が必要です。
-

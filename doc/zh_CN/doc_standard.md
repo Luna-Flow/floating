@@ -1,7 +1,7 @@
 # 文档标准
 
 仓库文档只描述**当前分支中的真实实现**。截至 `2026-07-14`，发布基线为
-**`0.6.0`**。
+**`0.6.1`**。
 
 ## 文档类型与职责
 
@@ -35,7 +35,8 @@
 - 说明解析何时保留 quantum，以及规范化何时只改变 cohort 而不改变数学值。
 - 不要暗示带 NaN 的标量或区间值具有普通全序。
 - `*_ctx` API 必须同时说明返回值与累计 flags。
-- `*_checked` API 必须说明短路行为，以及值变换组合与 observer 结果之间的区别。
+- `*_checked` API 必须说明所属数值域的状态转移：result error、IEEE flags 累计，
+  或 GDA trap 短路与恢复。
 - 必须把 `decimal` 与 `decimal_gda` 写成两个独立合同：IEEE 运算返回逐 operation
   flags，GDA 运算通过 `GdaOutcome` 传递 sticky status 与 traps。
 - 示例应短小且可检查。MoonBit 导入示例中，`Luna-Flow/luna-generic` 固定使用

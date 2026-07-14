@@ -1,7 +1,7 @@
 # Documentation Standard
 
 Repository documentation describes the **implementation on the current branch**.
-As of `2026-07-14`, the release baseline is **`0.6.0`**.
+As of `2026-07-14`, the release baseline is **`0.6.1`**.
 
 ## Document Types And Ownership
 
@@ -53,8 +53,8 @@ conformance scope and reproducible commands.
   without changing its mathematical value.
 - Never imply total ordering for NaN-containing scalars or interval values.
 - For `*_ctx` APIs, document both the returned value and accumulated flags.
-- For `*_checked` APIs, document short-circuiting and the distinction between
-  value-transforming composition and observer results.
+- For `*_checked` APIs, document the domain-specific state transition: result
+  error, IEEE flag accumulation, or GDA trap short-circuit and recovery.
 - Document `decimal` and `decimal_gda` as separate contracts: IEEE operations
   return per-operation flags, while GDA operations thread sticky status and
   traps through `GdaOutcome`.

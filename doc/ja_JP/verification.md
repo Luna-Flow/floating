@@ -11,10 +11,10 @@ target、fixture revision だけです。
 | Documentation | `just docs` | locale/file/heading/link と executable documentation example |
 | Formatting | `just fmt` | MoonBit formatter |
 | Pull request | `just pr [jobs]` | generated interface、all-target check、native/Python test、smoke corpus |
-| IEEE decimal | `just decimal-ci [jobs]` または `just ieee-ci` | supported target の decimal32/64/128 DPD/BID fixture |
-| GDA decimal | `just decimal-gda-ci [jobs]` | pinned `official`/`official0` `.decTest` legal scalar row |
-| Binary | `just bin-ci [jobs]` | pinned TestFloat level-1 matrix と MPFR data |
-| Interval | `just interval-ci [jobs]` | pinned ITF1788 strict supported phase |
+| IEEE decimal | `just gate decimal [jobs]` | supported target の decimal32/64/128 DPD/BID fixture |
+| GDA decimal | `just gate decimal_gda [jobs]` | pinned `official`/`official0` `.decTest` legal scalar row |
+| Binary | `just gate binary [jobs]` | pinned TestFloat level-1 matrix と MPFR data |
+| Interval | `just gate interval [jobs]` | pinned ITF1788 strict supported phase |
 | Complete | `just ci [jobs]` | generated interface、target、unit、conformance gate 全体 |
 
 最も狭い関連 check から始め、release 前に範囲を広げます。
@@ -24,8 +24,8 @@ target、fixture revision だけです。
 全 suite は一つの dispatcher を使います。
 
 ```sh
-python3 tools/conformance.py <build|run|smoke|plan|fetch> \
-  --backend <decimal|decimal_gda|binary|interval> [options]
+just conformance <build|run|smoke|plan|fetch> \
+  <decimal|decimal_gda|binary|interval> [options]
 ```
 
 `decimal` は independent IEEE decimal corpus、`decimal_gda` は GDA `.decTest`、
@@ -90,4 +90,3 @@ Publish 前に次を行います。
 
 Organization credential は workflow が供給するため、local `moon publish` は Luna-Flow
 の release path ではありません。
-

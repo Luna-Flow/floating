@@ -1,7 +1,7 @@
 # ドキュメント標準
 
 リポジトリ文書は**現在のブランチに存在する実装**だけを説明します。
-`2026-07-14` の release 基準は **`0.6.0`** です。
+`2026-07-14` の release 基準は **`0.6.1`** です。
 
 ## 文書種別と責務
 
@@ -38,7 +38,8 @@
 - 解析が quantum を保持する場合と、正規化が数学的値を変えず cohort だけを変える場合を明記します。
 - NaN を含むスカラーや区間値に通常の全順序があるように記述しません。
 - `*_ctx` API では値と累積 flags の両方を説明します。
-- `*_checked` API では短絡と、値変換・observer の違いを説明します。
+- `*_checked` API では domain-specific state transition、すなわち result error、
+  IEEE flags の蓄積、または GDA trap の short-circuit/recovery を説明します。
 - `decimal` と `decimal_gda` は別 contract として説明します。IEEE operation は
   per-operation flags を返し、GDA operation は `GdaOutcome` で sticky status と
   trap を thread します。

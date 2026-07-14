@@ -1,6 +1,6 @@
 # `ball_float` Tutorial
 
-This page tracks the `0.6.0` behavior.
+This page tracks the `0.6.1` behavior.
 
 ## Exact Embedding
 

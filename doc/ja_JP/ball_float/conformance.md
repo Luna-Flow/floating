@@ -25,7 +25,7 @@ reverse interval operation、選択 phase 外の全 decoration rule、任意 end
 ```sh
 just conformance smoke interval
 just conformance fetch interval itf1788
-just interval-ci 8
+just gate interval 8
 ```
 
 provenance、phase count、strict mode、failure triage は[interval data guide](../../../testdata/interval/README.md)を参照してください。

@@ -2,7 +2,7 @@
 
 ## Baseline Gate
 
-`tools/run_decimal_bench.py` は current tree と `testdata/decimal/performance_baseline.json` の immutable manifest を比較します。paired AB/BA/AB process を実行し、cell ごとに九つ以上の accepted sample を要求し、不安定 MAD を拒否し、paired median regression が 5% を超えると失敗します。
+`just bench decimal` は current tree と `testdata/decimal/performance_baseline.json` の immutable manifest を比較します。paired AB/BA/AB process を実行し、cell ごとに九つ以上の accepted sample を要求し、不安定 MAD を拒否し、paired median regression が 5% を超えると失敗します。
 
 ## Operand Model
 
@@ -23,8 +23,8 @@ threshold experiment は ABBA/BAAB order、process 間の size rotation、不安
 ## 再現と解釈
 
 ```sh
-python3 tools/run_decimal_bench.py --target native
-python3 tools/run_decimal_threshold_bench.py --model --transition mul-toom3-ntt-32k \
+just bench decimal --target native
+just bench decimal-threshold --model --transition mul-toom3-ntt-32k \
   --model-low 4096 --model-high 5120 --model-step 128 \
   --processes 5 --samples 9 --bootstrap-samples 5000
 ```

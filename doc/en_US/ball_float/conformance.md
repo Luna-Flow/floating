@@ -25,7 +25,7 @@ Reverse interval operations, every decoration rule outside the selected phases, 
 ```sh
 just conformance smoke interval
 just conformance fetch interval itf1788
-just interval-ci 8
+just gate interval 8
 ```
 
 See [the interval data guide](../../../testdata/interval/README.md) for provenance, phase counts, strict-mode behavior, and failure triage.

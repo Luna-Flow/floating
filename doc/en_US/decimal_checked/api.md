@@ -1,27 +1,26 @@
 # `decimal_checked` API
 
-`DecimalResult` wraps `Result[Decimal, ArithmeticError]` for closed checked
-decimal composition.
+`DecimalChecked` is a closed IEEE decimal pipeline. It keeps one immutable
+`DecimalContext`, the current defined `Decimal`, flags raised by the latest
+operation, and flags accumulated across all operations.
 
 ## Construction And Observation
 
-- `ok`, `err`, `from_result`, and `result` bridge the raw result boundary.
-- `from_int`, `from_bigint`, `from_float`, `from_double`, and `parse` create values.
-- `parse` records invalid input as `Err` instead of returning `Option`.
+`parse` and the `from_*` constructors apply the supplied context after forcing
+its IEEE profile. `value`, `context`, `raised`, and `flags` expose each state
+component; `outcome` returns the value with accumulated flags. `clear_flags`
+starts a new observation window without changing the value or context.
 
-## Composition And Arithmetic
+## Contextual Operations
 
-`map`, `bind`, and `flat_map` preserve an existing error without invoking the
-callback. `abs`, `neg`, `add`, `sub`, `mul`, `div`, `sqrt`, `pow_nat`,
-`pow_int`, `normalized`, `with_precision`, `min`, `max`, and `clamp` return
-`DecimalResult`. Standard arithmetic operators delegate to these methods.
-
-Context-and-flags Decimal operations remain on `@decimal.Decimal`; this wrapper
-models `ArithmeticError`, not the full GDA status-flag state.
+Every arithmetic method delegates to the matching `decimal` contextual
+operation and combines its flags. Binary methods take a plain `Decimal`, so two
+independently accumulated contexts are never merged implicitly. IEEE NaN and
+infinity results remain values rather than becoming `ArithmeticError`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.6.1`.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -29,7 +28,6 @@ The following snapshot is the complete generated package interface for `0.6.0`. 
 package "Luna-Flow/floating/decimal_checked"
 
 import {
-  "Luna-Flow/arithmetic",
   "Luna-Flow/floating/decimal",
   "moonbitlang/core/bigint",
 }
@@ -39,41 +37,45 @@ import {
 // Errors
 
 // Types and methods
-pub struct DecimalResult {
+pub struct DecimalChecked {
   // private fields
 }
-pub fn DecimalResult::abs(Self) -> Self
-pub fn DecimalResult::add(Self, Self) -> Self
-pub fn DecimalResult::bind(Self, (@decimal.Decimal) -> Self) -> Self
-pub fn DecimalResult::clamp(Self, min~ : Self, max~ : Self) -> Self
-pub fn DecimalResult::div(Self, Self) -> Self
-pub fn DecimalResult::err(@arithmetic.ArithmeticError) -> Self
-#deprecated
-pub fn DecimalResult::flat_map(Self, (@decimal.Decimal) -> Self) -> Self
-pub fn DecimalResult::from_bigint(@bigint.BigInt, precision? : Int) -> Self
-pub fn DecimalResult::from_double(Double, precision? : Int) -> Self
-pub fn DecimalResult::from_float(Float, precision? : Int) -> Self
-pub fn DecimalResult::from_int(Int, precision? : Int) -> Self
-pub fn DecimalResult::from_result(Result[@decimal.Decimal, @arithmetic.ArithmeticError]) -> Self
-pub fn DecimalResult::map(Self, (@decimal.Decimal) -> @decimal.Decimal) -> Self
-pub fn DecimalResult::max(Self, Self) -> Self
-pub fn DecimalResult::min(Self, Self) -> Self
-pub fn DecimalResult::mul(Self, Self) -> Self
-pub fn DecimalResult::neg(Self) -> Self
-pub fn DecimalResult::normalized(Self) -> Self
-pub fn DecimalResult::ok(@decimal.Decimal) -> Self
-pub fn DecimalResult::parse(String, precision? : Int) -> Self
-pub fn DecimalResult::pow_int(Self, Int) -> Self
-pub fn DecimalResult::pow_nat(Self, UInt) -> Self
-pub fn DecimalResult::result(Self) -> Result[@decimal.Decimal, @arithmetic.ArithmeticError]
-pub fn DecimalResult::sqrt(Self) -> Self
-pub fn DecimalResult::sub(Self, Self) -> Self
-pub fn DecimalResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
-pub impl Add for DecimalResult
-pub impl Div for DecimalResult
-pub impl Mul for DecimalResult
-pub impl Neg for DecimalResult
-pub impl Sub for DecimalResult
+pub fn DecimalChecked::abs(Self) -> Self
+pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::apply(Self) -> Self
+pub fn DecimalChecked::clear_flags(Self) -> Self
+pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext
+pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::exp(Self) -> Self
+pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
+pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
+pub fn DecimalChecked::from_bigint(@bigint.BigInt, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_decimal(@decimal.Decimal, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_double(Double, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_float(Float, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_int(Int, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @decimal.DecimalFlags) -> Self
+pub fn DecimalChecked::ln(Self) -> Self
+pub fn DecimalChecked::log10(Self) -> Self
+pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::minus(Self) -> Self
+pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::next_minus(Self) -> Self
+pub fn DecimalChecked::next_plus(Self) -> Self
+pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
+pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::plus(Self) -> Self
+pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
+pub fn DecimalChecked::reduce(Self) -> Self
+pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::sqrt(Self) -> Self
+pub fn DecimalChecked::sub(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::value(Self) -> @decimal.Decimal
+pub fn DecimalChecked::with_context(Self, @decimal.DecimalContext) -> Self
 
 // Type aliases
 

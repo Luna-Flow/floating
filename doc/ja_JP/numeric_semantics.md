@@ -1,6 +1,6 @@
 # 数値意味論
 
-この文書は `0.6.0` 文書で共有する語彙を定義し、数学的値、保存表現、rounding
+この文書は `0.6.1` 文書で共有する語彙を定義し、数学的値、保存表現、rounding
 status、checked failure、interval enclosure を区別します。
 
 ## 値と表現
@@ -50,8 +50,10 @@ Trapped `GdaOutcome` も GDA-defined result、next context、raised flags を保
 複数 enabled signal が同時に raised された場合は固定 precedence で trap を選びます。
 
 `ArithmeticError` は異なり、checked capability が要求された scalar result を
-生成できないことを表します。Checked wrapper はこの error を short-circuit しますが、
-IEEE flags や GDA trap は表しません。
+生成できないことを表します。Binary/interval result wrapper はこの error を
+short-circuit します。Decimal composition は native state を保ち、`DecimalChecked`
+は defined result と IEEE flags を蓄積し、`GdaDecimalChecked` は defined result を
+失わず sticky status を thread して trap で short-circuit します。
 
 ## Scalar の特殊値
 
@@ -114,4 +116,3 @@ API を選ぶ前に次を確認します。
 5. partial comparison で十分か、total order/set relation が必要か。
 6. conversion は arbitrary precision か fixed interchange か。
 7. どの finite conformance matrix が behavior claim を裏付けるか。
-

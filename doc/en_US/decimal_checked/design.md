@@ -1,15 +1,22 @@
 # `decimal_checked` Design
 
-`DecimalResult` provides the same left-to-right closed checked pipeline for
-`Decimal`. Parsing and checked scalar operations can introduce
-`ArithmeticError`; subsequent transformations short-circuit. `bind` can return
-a new failure, while `map` only transforms an existing success.
+## State Model
 
-The wrapper does not carry `DecimalContext` or accumulate `DecimalFlags`, so it
-is not a GDA status pipeline. Use `decimal` `*_ctx` methods when cohort,
-rounding flags, clamp, or exponent limits matter. The wrapper deliberately
-exposes only its generated method set and delegates every numeric algorithm.
+`DecimalChecked` is an immutable product of value, IEEE context, latest flags,
+and accumulated flags. Construction forces `DecimalContext::ieee754()` so a
+GDA-profile context cannot leak into this package.
 
-Wrapper composition is `O(1)` beyond the Decimal operation. Keeping context and
-flags out avoids two competing accumulation models inside one type: callers
-choose either short-circuit errors here or explicit `(value, flags)` GDA flow.
+## Transitions
+
+Each method runs one contextual operation. The returned value becomes the next
+value, returned flags become `raised`, and `combine` adds them to `flags`.
+Exceptional IEEE results remain defined values. `with_context` explicitly
+reapplies the current value under a new IEEE context and records that step.
+
+## Composition Boundary
+
+Binary methods accept plain `Decimal` operands. Accepting another
+`DecimalChecked` would require an arbitrary rule for merging contexts and flag
+histories. Operators are intentionally not implemented for the same reason.
+The wrapper adds constant state-copy and flag-combine work around the delegated
+numeric operation.

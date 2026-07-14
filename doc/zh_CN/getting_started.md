@@ -1,6 +1,6 @@
 # 快速上手
 
-本文面向 `Luna-Flow/floating` **`0.6.0`**，说明如何选择包、安装模块、构造
+本文面向 `Luna-Flow/floating` **`0.6.1`**，说明如何选择包、安装模块、构造
 数值、选择错误模型，以及继续查阅对应参考文档。
 
 ## 选择数值域
@@ -13,7 +13,9 @@
 | IEEE 任意精度十进制与 decimal interchange | `decimal` | `Decimal` | 普通值，或 context 下的 `(value, DecimalFlags)` |
 | General Decimal Arithmetic 状态与 traps | `decimal_gda` | `Decimal` | 带 next context 与 raised flags 的 `GdaOutcome[Decimal]` |
 | 可证明的实数包络 | `ball_float` | `BallFloat` / `BallFloatDecorated` | 包络，或 context 下的 `(enclosure, BallFlags)` |
-| 短路的标量或区间流水线 | `*_checked` | `*Result` | 包装器内保留 `Result[..., ArithmeticError]` |
+| 累计 flags 的 IEEE 十进制流水线 | `decimal_checked` | `DecimalChecked` | 定义值、本步与累计 `DecimalFlags` |
+| 带 trap 控制的 GDA 流水线 | `decimal_gda_checked` | `GdaDecimalChecked` | sticky context 与 `GdaOutcome[Decimal]` |
+| 短路的二进制或区间流水线 | `bin_float_checked`、`ball_float_checked` | `*Result` | 包装器内保留 `Result[..., ArithmeticError]` |
 | 与具体表示无关的比较 | `semantic` | `SemanticScalar` / `SemanticInterval` | 精确投影，但有意丢弃表示元数据 |
 
 只有在构建 parser 或 conformance 工具时才应直接使用 `numeric_expr` 与
@@ -25,7 +27,7 @@
 安装当前版本：
 
 ```sh
-moon add Luna-Flow/floating@0.6.0
+moon add Luna-Flow/floating@0.6.1
 ```
 
 当前 MoonBit 包只导入实际需要的包边界：
@@ -35,6 +37,8 @@ import {
   "Luna-Flow/floating/bin_float"
   "Luna-Flow/floating/decimal"
   "Luna-Flow/floating/decimal_gda"
+  "Luna-Flow/floating/decimal_checked"
+  "Luna-Flow/floating/decimal_gda_checked"
   "Luna-Flow/floating/ball_float"
 }
 ```
@@ -90,6 +94,8 @@ flags。GDA 则在每个 `GdaOutcome` 中返回更新后的 sticky context。
 - `BinaryFlags`、`DecimalFlags` 与 `BallFlags` 报告产生一个已定义结果时出现的
   IEEE 或数值域条件；
 - `GdaOutcome[T]` 即使触发配置的 trap，也保留 GDA 定义的结果；
+- `DecimalChecked` 累计 IEEE flags，但不替换已定义的 NaN 或 infinity；
+  `GdaDecimalChecked` 对 trap 短路，同时保留完整 `GdaOutcome`；
 - `Entire`、`Empty` 与 `NaI` 是区间域中的值，不是通用错误。
 
 不要把这些通道全部改写成异常或一个万能 `Result`，否则会丢失可观察数值语义。

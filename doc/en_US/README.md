@@ -1,6 +1,6 @@
 # FLOATING Documentation
 
-These pages describe the `0.6.0` release. Public names come from each package's
+These pages describe the `0.6.1` release. Public names come from each package's
 `pkg.generated.mbti`.
 
 Start with [Getting Started](./getting_started.md), then read
@@ -10,7 +10,7 @@ and [Verification](./verification.md) before opening a package reference.
 ## Packages
 
 - Core: [`def`](./def/api.md), [`bin_float`](./bin_float/api.md), [`decimal`](./decimal/api.md), [`decimal_gda`](./decimal_gda/api.md), [`ball_float`](./ball_float/api.md)
-- Checked: [`bin_float_checked`](./bin_float_checked/api.md), [`decimal_checked`](./decimal_checked/api.md), [`ball_float_checked`](./ball_float_checked/api.md)
+- Checked: [`bin_float_checked`](./bin_float_checked/api.md), [`decimal_checked`](./decimal_checked/api.md), [`decimal_gda_checked`](./decimal_gda_checked/api.md), [`ball_float_checked`](./ball_float_checked/api.md)
 - Semantic/IR: [`semantic`](./semantic/api.md), [`numeric_expr`](./numeric_expr/api.md)
 - Frontends: [`frontend/gda_expr`](./frontend/gda_expr/api.md), [`frontend/itl_expr`](./frontend/itl_expr/api.md), [`frontend/mpfr_expr`](./frontend/mpfr_expr/api.md), [`frontend/testfloat_expr`](./frontend/testfloat_expr/api.md)
 - Runtime/verification: [`internal`](./internal/api.md), [`internal/conformance`](./internal/conformance/api.md), [`internal/runner_cli`](./internal/runner_cli/api.md), [`consistency`](./consistency/api.md), [`bin_float_bench`](./bin_float_bench/api.md)
@@ -22,7 +22,7 @@ points and explicitly state that they are not stable application APIs.
 
 ## Public Surface And Stability
 
-`0.6.0` is a pre-1.0 release. “Stable” below means an intentional application
+`0.6.1` is a pre-1.0 release. “Stable” below means an intentional application
 surface for this release, not an ABI promise across all future versions.
 
 | Package | Public surface | Stability | Not included |
@@ -31,7 +31,9 @@ surface for this release, not an ABI promise across all future versions.
 | `decimal` | `Decimal`, IEEE contexts/flags, interchange | Stable release surface | Complete IEEE 754 operation set |
 | `decimal_gda` | GDA `Decimal`, contexts, sticky flags, traps, outcomes | Stable GDA surface | Unbounded future directives and non-scalar placeholders |
 | `ball_float` | bare/decorated intervals, relations, directed arithmetic | Stable release surface | Reverse interval operations; guaranteed tightness |
-| `*_checked` | short-circuit `Result[..., ArithmeticError]` pipelines | Stable composition surface | Context flags, decorations, recovery policy |
+| `bin_float_checked`, `ball_float_checked` | short-circuit `Result[..., ArithmeticError]` pipelines | Stable composition surface | Context flags and decorations |
+| `decimal_checked` | IEEE context, defined result, latest and accumulated flags | Stable IEEE composition surface | GDA sticky status and traps |
+| `decimal_gda_checked` | sticky context, trap short-circuit, explicit defined-result recovery | Stable GDA composition surface | IEEE per-operation context model |
 | `semantic` | exact rational/infinity/NaN/interval projection | Provisional integration surface | Representation metadata and arithmetic |
 | `numeric_expr` | syntax nodes and callback evaluation | Provisional integration surface | Text parsing and concrete numeric semantics |
 | `frontend/*`, `cli/*` | conformance parsers, runners, and commands | Verification infrastructure | General-purpose file/format compatibility |
@@ -61,7 +63,7 @@ the legal semantic denominator. The official0 corpus likewise passes all
 
 ## Verification
 
-Use `just smoke` and `just conformance smoke <backend>` for committed fixtures.
+Use `just conformance smoke <backend>` for committed fixtures.
 Full corpus commands and exact supported-operation boundaries live in
 `testdata/*/README.md`. Passing a pinned corpus never implies complete IEEE
 754, GDA, or ITF1788 coverage.

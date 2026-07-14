@@ -23,8 +23,8 @@ The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar
 ## Reproduction
 
 ```sh
-just smoke
-just decimal-gda-ci 8
+just conformance smoke decimal_gda
+just gate decimal_gda 8
 just conformance run decimal_gda --corpus official0 --strict-supported
 ```
 

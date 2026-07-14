@@ -14,7 +14,7 @@ Mandatory operation vectors use exact integer/rational construction and the docu
 
 ## Targets
 
-`just ieee-ci` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags.
+`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags.
 
 ## Boundaries
 
@@ -24,7 +24,7 @@ The checked matrix is finite and does not claim every IEEE 754 operation, every 
 
 ```sh
 just conformance smoke decimal
-just ieee-ci
+just gate decimal
 just decimal-kernel-ci
 ```
 

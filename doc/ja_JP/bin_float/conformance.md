@@ -1,6 +1,6 @@
 # `bin_float` 適合性
 
-この文書は `0.6.0` における 2 進浮動小数点の意味論と検証境界を記録
+この文書は `0.6.1` における 2 進浮動小数点の意味論と検証境界を記録
 します。有限のテストが全通過しても、すべての実数入力に対する形式的証明を
 意味しません。
 
@@ -70,4 +70,4 @@ inexact は MPFR fixture、nearest-away、before/after tininess、全 flags は 
 dyadic/rational oracle で検証します。MPFR は `MPFR_RNDNA` を一般の `pow_si`
 rounding 引数として使うことを禁止しています。
 
-日常の確認は `just conformance smoke binary`、固定 full gate は `just bin-ci` を実行します。
+日常の確認は `just conformance smoke binary`、固定 full gate は `just gate binary` を実行します。

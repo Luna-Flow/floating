@@ -2,9 +2,9 @@
 
 [![Maintainer](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE) ![State](https://img.shields.io/badge/State-active-success)
 
-## v0.6.0 - IEEE/GDA Decimal Semantic Split
+## v0.6.1 - IEEE/GDA Decimal Semantic Split
 
-This README describes the **`v0.6.0`** release.
+This README describes the **`v0.6.1`** release.
 Earlier release notes live in [CHANGELOG.md](./CHANGELOG.md).
 
 `floating` provides arbitrary-precision binary, decimal, and interval arithmetic
@@ -27,9 +27,10 @@ failure, and enclosure semantics explicit.
   tight arithmetic, certified elementary enclosures, and
   `BallFloatDecorated` with decorations and NaI. The pinned ITF1788 runner
   gates its declared arithmetic and elementary phases strictly.
-- **Checked composition**: `bin_float_checked`, `decimal_checked`, and
-  `ball_float_checked` keep arithmetic pipelines closed over wrapped
-  `Result[..., ArithmeticError]` values.
+- **Checked composition**: `bin_float_checked` and `ball_float_checked` retain
+  `Result[..., ArithmeticError]`. `decimal_checked` keeps an IEEE context,
+  defined result, and accumulated flags; `decimal_gda_checked` threads sticky
+  GDA context and stops on traps until recovery is explicit.
 - **Semantic projection**: `semantic` maps concrete values and arithmetic errors
   into representation-independent exact rationals, infinities, NaN, intervals,
   and semantic errors.
@@ -39,7 +40,7 @@ failure, and enclosure semantics explicit.
   command-line entry point.
 - **Verification**: `consistency` contains cross-package and API-audit tests.
 
-### What Defines v0.6.0
+### What Defines v0.6.1
 
 - `Decimal` preserves quantum when parsing and exposes explicit `normalized()` /
   `reduce_ctx()` operations when canonical cohort form is wanted.
@@ -48,6 +49,8 @@ failure, and enclosure semantics explicit.
   `(Decimal, DecimalFlags)`.
 - `decimal_gda` exposes independent `GdaContext`, `GdaFlags`, trap sets, and
   `GdaOutcome`, including sticky status and defined results for traps.
+- `decimal_checked` and `decimal_gda_checked` preserve those distinct state
+  models in closed pipelines instead of flattening both into `ArithmeticError`.
 - Decimal operations cover arithmetic, FMA, integer division, remainder,
   quantize/rescale, total comparison, logical digits, adjacent values,
   elementary functions, integral conversion, and context-aware formatting.
@@ -103,7 +106,7 @@ interchange placeholders cannot be confused with implemented GDA behavior.
 The independent `testdata/decimal/ieee` corpus covers decimal32/64/128 DPD and
 BID fixed-width interchange, special values, flags, and core arithmetic rows.
 Its manifest records IEEE encoding and independent exact-arithmetic provenance;
-the exhaustive DPD fixture checks all 1,024 declets. `just ieee-ci` runs this
+the exhaustive DPD fixture checks all 1,024 declets. `just gate decimal` runs this
 gate on native, Wasm, Wasm-GC, and JavaScript; LLVM is intentionally excluded.
 The gate also executes a 42-row excerpt from the pinned `dd*`/`dq*` decTest
 concrete-format files as supplementary diagnostics. decTest is GDA, beta, and
@@ -126,8 +129,9 @@ it does not claim all IEEE 754 operations. See the
   Convenience operators do not expose status flags.
 - Treat `DecimalFlags` as accumulated status: use `combine` when composing
   operations and `has_error` when checking hard-error conditions.
-- Use checked scalar operations or the `*_checked` packages for pipelines that
-  must preserve `ArithmeticError` instead of collapsing failures.
+- Use `decimal_checked` to retain IEEE defined results and accumulate flags.
+  Use `decimal_gda_checked` to thread sticky status and short-circuit traps
+  without discarding their defined results.
 - Do not use scalar total-order assumptions for `BallFloat`; use containment,
   overlap, separation, and definite comparison predicates.
 - `numeric_expr` defines syntax only. Frontends own parsing and source policy;
@@ -140,7 +144,7 @@ it does not claim all IEEE 754 operations. See the
 ### Installation
 
 ```sh
-moon add Luna-Flow/floating@0.6.0
+moon add Luna-Flow/floating@0.6.1
 ```
 
 Import only the packages an application needs:
@@ -149,8 +153,10 @@ Import only the packages an application needs:
 import {
   "Luna-Flow/floating/bin_float"
   "Luna-Flow/floating/decimal"
+  "Luna-Flow/floating/decimal_gda"
   "Luna-Flow/floating/ball_float"
   "Luna-Flow/floating/decimal_checked"
+  "Luna-Flow/floating/decimal_gda_checked"
 }
 ```
 
@@ -179,11 +185,18 @@ test "floating basic workflow" {
   let ball = @ball_float.BallFloat::exact(dec.to_bin_float(precision=32))
   inspect(ball.contains(ball.center()), content="true")
 
-  let checked =
-    @decimal_checked.DecimalResult::parse("9", precision=32)
+  let checked = @decimal_checked.DecimalChecked::parse("9", ctx)
     .sqrt()
-    .div(@decimal_checked.DecimalResult::from_int(3, precision=32))
-  inspect(checked.result().unwrap().to_string(), content="1")
+    .div(@decimal.Decimal::from_int(3, precision=ctx.precision()))
+  inspect(checked.value().to_string(), content="1")
+  inspect(checked.flags().has_error(), content="false")
+
+  let gda_checked = @decimal_gda_checked.GdaDecimalChecked::parse(
+    "9",
+    @decimal_gda.GdaContext::decimal64(),
+  ).sqrt()
+  inspect(gda_checked.value().to_string(), content="3")
+  inspect(gda_checked.is_trapped(), content="false")
 }
 ```
 
@@ -207,36 +220,35 @@ test "floating basic workflow" {
 
 ## Development
 
-All conformance workflows use one entry point and select the suite explicitly:
+All user-facing conformance workflows use one parameterized `just` entry point:
 
 ```sh
-python3 tools/conformance.py smoke --backend decimal_gda
-python3 tools/conformance.py plan --backend decimal
-python3 tools/conformance.py run --backend decimal --run-target native --run-target wasm --run-target wasm-gc --run-target js
-python3 tools/conformance.py smoke --backend binary
-python3 tools/conformance.py smoke --backend interval --strict-supported
-python3 tools/conformance.py build --backend binary
+just conformance smoke decimal_gda
+just conformance plan decimal
+just conformance run decimal --run-target native --run-target wasm --run-target wasm-gc --run-target js
+just conformance smoke binary
+just conformance smoke interval --strict-supported
+just conformance build binary
 ```
 
 Parameterized builds use isolated target directories and backend-named outputs
 such as `testfloat-conformance.exe` and `mpfr-conformance.exe`, so different
 backend jobs can build concurrently without overwriting one another.
 
-The `just conformance` recipe forwards an action to the shared runner and takes
-the backend as its second argument. Use it for ordinary smoke, fetch, plan, and
-run operations. The standard gates are `decimal-ci`, `decimal-gda-ci`, `bin-ci`, and
-`interval-ci`; each accepts an optional worker count.
+`just conformance` selects an action and backend. `just gate` selects a complete
+repository or backend gate and accepts an optional worker count. `just bench`
+selects one of the independent performance workflows.
 
 ```sh
 just fmt
-just smoke
-just fetch
-just plan jobs=8
+just conformance smoke decimal_gda
+just conformance fetch decimal_gda official
+just conformance plan decimal_gda --jobs 8
 just pr 8
-just decimal-ci 8
-just decimal-gda-ci 8
-just bin-ci 8
-just interval-ci 8
+just gate decimal 8
+just gate decimal_gda 8
+just gate binary 8
+just gate interval 8
 just ci 8
 just conformance smoke binary
 just conformance fetch binary
@@ -244,12 +256,13 @@ just conformance run binary --level 1 --tininess after --tininess before
 just conformance smoke interval
 just conformance fetch interval itf1788
 just conformance run interval --phase sets --phase relations --strict-supported
+just bench decimal --target native
 ```
 
-`just smoke` runs the checked-in conformance fixture without a download.
-`just decimal-ci`, `just decimal-gda-ci`, `just bin-ci`, and `just interval-ci` run the corresponding
-authoritative conformance suites. The IEEE Decimal Oracle is registered as the
-`decimal` backend; `decimal_gda` remains the separate GDA decTest backend.
+The `smoke` action runs a checked-in fixture without a download. Gate scopes
+`decimal`, `decimal_gda`, `binary`, and `interval` run the corresponding
+authoritative suites. IEEE Decimal uses `decimal`; GDA decTest uses
+`decimal_gda`.
 `just pr` runs the fast pull-request gate:
 all-target checks, native MoonBit tests, Python tooling tests, and the four
 committed smoke suites. `just ci` is the complete long gate with generated

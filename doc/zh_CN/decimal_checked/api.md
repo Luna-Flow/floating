@@ -1,23 +1,23 @@
 # `decimal_checked` API
 
-`DecimalResult` 包装 `Result[Decimal, ArithmeticError]`，用于闭合的 checked 十进制组合。
+`DecimalChecked` 是封闭的 IEEE 十进制流水线，保存一个不可变
+`DecimalContext`、当前定义 `Decimal`、本步 flags 与全流程累计 flags。
 
 ## 构造与观察
 
-`ok`、`err`、`from_result`、`result` 连接原始结果边界；`from_int`、`from_bigint`、`from_float`、`from_double` 和 `parse` 构造值。`parse` 用 `Err` 表示非法输入。
+`parse` 和 `from_*` 构造器会先强制 context 使用 IEEE profile。
+`value`、`context`、`raised` 与 `flags` 分别观察状态；`outcome` 返回值与累计
+flags。`clear_flags` 开始新的观察窗口，但不改变值或 context。
 
-## 组合与算术
+## Contextual 运算
 
-`map`、`bind`、`flat_map` 会保留已有错误。`abs`、`neg`、四则运算、`sqrt`、幂、`normalized`、`with_precision`、`min`、`max` 和 `clamp` 均返回 `Self`，并实现标准运算符。
-
-带 context 和 flags 的 Decimal 运算仍属于 `@decimal.Decimal`；本包装只建模 `ArithmeticError`。
-
-完整数值方法名为 `abs`、`neg`、`add`、`sub`、`mul`、`div`、`sqrt`、
-`pow_nat`、`pow_int`、`normalized`、`with_precision`、`min`、`max`、`clamp`。
+每个算术方法委托给 `decimal` 对应 contextual 运算并组合 flags。二元方法接收普通
+`Decimal`，不会隐式合并两个独立的 context 与 flag 历史。IEEE NaN 与 infinity
+仍是定义结果，不会被改写成 `ArithmeticError`。
 
 ## 完整公开接口
 
-以下快照是 `0.6.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.6.1` 的完整生成包接口。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -25,7 +25,6 @@
 package "Luna-Flow/floating/decimal_checked"
 
 import {
-  "Luna-Flow/arithmetic",
   "Luna-Flow/floating/decimal",
   "moonbitlang/core/bigint",
 }
@@ -35,41 +34,45 @@ import {
 // Errors
 
 // Types and methods
-pub struct DecimalResult {
+pub struct DecimalChecked {
   // private fields
 }
-pub fn DecimalResult::abs(Self) -> Self
-pub fn DecimalResult::add(Self, Self) -> Self
-pub fn DecimalResult::bind(Self, (@decimal.Decimal) -> Self) -> Self
-pub fn DecimalResult::clamp(Self, min~ : Self, max~ : Self) -> Self
-pub fn DecimalResult::div(Self, Self) -> Self
-pub fn DecimalResult::err(@arithmetic.ArithmeticError) -> Self
-#deprecated
-pub fn DecimalResult::flat_map(Self, (@decimal.Decimal) -> Self) -> Self
-pub fn DecimalResult::from_bigint(@bigint.BigInt, precision? : Int) -> Self
-pub fn DecimalResult::from_double(Double, precision? : Int) -> Self
-pub fn DecimalResult::from_float(Float, precision? : Int) -> Self
-pub fn DecimalResult::from_int(Int, precision? : Int) -> Self
-pub fn DecimalResult::from_result(Result[@decimal.Decimal, @arithmetic.ArithmeticError]) -> Self
-pub fn DecimalResult::map(Self, (@decimal.Decimal) -> @decimal.Decimal) -> Self
-pub fn DecimalResult::max(Self, Self) -> Self
-pub fn DecimalResult::min(Self, Self) -> Self
-pub fn DecimalResult::mul(Self, Self) -> Self
-pub fn DecimalResult::neg(Self) -> Self
-pub fn DecimalResult::normalized(Self) -> Self
-pub fn DecimalResult::ok(@decimal.Decimal) -> Self
-pub fn DecimalResult::parse(String, precision? : Int) -> Self
-pub fn DecimalResult::pow_int(Self, Int) -> Self
-pub fn DecimalResult::pow_nat(Self, UInt) -> Self
-pub fn DecimalResult::result(Self) -> Result[@decimal.Decimal, @arithmetic.ArithmeticError]
-pub fn DecimalResult::sqrt(Self) -> Self
-pub fn DecimalResult::sub(Self, Self) -> Self
-pub fn DecimalResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
-pub impl Add for DecimalResult
-pub impl Div for DecimalResult
-pub impl Mul for DecimalResult
-pub impl Neg for DecimalResult
-pub impl Sub for DecimalResult
+pub fn DecimalChecked::abs(Self) -> Self
+pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::apply(Self) -> Self
+pub fn DecimalChecked::clear_flags(Self) -> Self
+pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext
+pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::exp(Self) -> Self
+pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
+pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
+pub fn DecimalChecked::from_bigint(@bigint.BigInt, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_decimal(@decimal.Decimal, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_double(Double, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_float(Float, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_int(Int, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @decimal.DecimalFlags) -> Self
+pub fn DecimalChecked::ln(Self) -> Self
+pub fn DecimalChecked::log10(Self) -> Self
+pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::minus(Self) -> Self
+pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::next_minus(Self) -> Self
+pub fn DecimalChecked::next_plus(Self) -> Self
+pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
+pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::plus(Self) -> Self
+pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
+pub fn DecimalChecked::reduce(Self) -> Self
+pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::sqrt(Self) -> Self
+pub fn DecimalChecked::sub(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::value(Self) -> @decimal.Decimal
+pub fn DecimalChecked::with_context(Self, @decimal.DecimalContext) -> Self
 
 // Type aliases
 

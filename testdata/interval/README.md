@@ -15,7 +15,7 @@ just conformance smoke interval
 just conformance fetch interval itf1788
 just conformance plan interval --phase sets --phase relations
 just conformance run interval --phase sets --phase relations --strict-supported
-just interval-ci 8
+just gate interval 8
 ```
 
 `smoke` never downloads data. `fetch` verifies the manifest before installing the
@@ -32,7 +32,7 @@ cancellation, elementary-core, exponentials/logarithms, FMA, integer powers,
 and extrema. General power and trigonometric functions are included as strict
 phases; reverse operations remain unsupported.
 
-`just interval-ci` is the strict baseline (and accepts an optional worker count): 20 set cases, 567 relation cases,
+`just gate interval` is the strict baseline (and accepts an optional worker count): 20 set cases, 567 relation cases,
 124 numeric observation cases, 242 cancellation cases, 539 add/sub/mul/div
 cases, 107 elementary-core cases, 131 exponential/logarithmic cases, 1,428
 general-power cases, 176 trigonometric cases, 567 FMA cases, and 174

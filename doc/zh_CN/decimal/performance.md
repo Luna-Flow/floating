@@ -2,7 +2,7 @@
 
 ## 基线门禁
 
-`tools/run_decimal_bench.py` 将当前树与 `testdata/decimal/performance_baseline.json` 中的不可变 manifest 比较。它运行成对 AB/BA/AB 进程，每个 cell 至少需要九个有效 sample，拒绝不稳定 MAD，并在 paired median 回退超过 5% 时失败。
+`just bench decimal` 将当前树与 `testdata/decimal/performance_baseline.json` 中的不可变 manifest 比较。它运行成对 AB/BA/AB 进程，每个 cell 至少需要九个有效 sample，拒绝不稳定 MAD，并在 paired median 回退超过 5% 时失败。
 
 ## 操作数模型
 
@@ -23,8 +23,8 @@ native 的 Burnikel–Ziegler 阈值随 block band 为 2,816、5,120 和 10,240 
 ## 复现与解释
 
 ```sh
-python3 tools/run_decimal_bench.py --target native
-python3 tools/run_decimal_threshold_bench.py --model --transition mul-toom3-ntt-32k \
+just bench decimal --target native
+just bench decimal-threshold --model --transition mul-toom3-ntt-32k \
   --model-low 4096 --model-high 5120 --model-step 128 \
   --processes 5 --samples 9 --bootstrap-samples 5000
 ```

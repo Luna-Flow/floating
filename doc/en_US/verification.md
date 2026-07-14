@@ -11,10 +11,10 @@ operations, rounding modes, targets, and fixture revisions.
 | Documentation | `just docs` | Locale/file/heading/link checks plus executable documentation examples |
 | Formatting | `just fmt` | MoonBit formatter |
 | Pull request | `just pr [jobs]` | Generated interfaces, all-target checks, native tests, Python tests, smoke corpora |
-| IEEE decimal | `just decimal-ci [jobs]` or `just ieee-ci` | Checked-in decimal32/64/128 DPD/BID vectors across supported targets |
-| GDA decimal | `just decimal-gda-ci [jobs]` | Pinned `official` and `official0` `.decTest` legal scalar rows |
-| Binary | `just bin-ci [jobs]` | Pinned TestFloat level-1 matrix and MPFR data |
-| Interval | `just interval-ci [jobs]` | Pinned ITF1788 strict supported phases |
+| IEEE decimal | `just gate decimal [jobs]` | Checked-in decimal32/64/128 DPD/BID vectors across supported targets |
+| GDA decimal | `just gate decimal_gda [jobs]` | Pinned `official` and `official0` `.decTest` legal scalar rows |
+| Binary | `just gate binary [jobs]` | Pinned TestFloat level-1 matrix and MPFR data |
+| Interval | `just gate interval [jobs]` | Pinned ITF1788 strict supported phases |
 | Complete | `just ci [jobs]` | All generated-interface, target, unit, and conformance gates |
 
 Run the narrowest relevant check first, then broaden before release.
@@ -24,8 +24,8 @@ Run the narrowest relevant check first, then broaden before release.
 All suites use one dispatcher:
 
 ```sh
-python3 tools/conformance.py <build|run|smoke|plan|fetch> \
-  --backend <decimal|decimal_gda|binary|interval> [options]
+just conformance <build|run|smoke|plan|fetch> \
+  <decimal|decimal_gda|binary|interval> [options]
 ```
 
 `decimal` means the independent IEEE decimal corpus; `decimal_gda` means GDA
@@ -102,4 +102,3 @@ Before publishing:
 
 Local `moon publish` is not the Luna-Flow release path because organization
 credentials are supplied by the workflow.
-

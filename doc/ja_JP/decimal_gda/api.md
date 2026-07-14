@@ -1,6 +1,6 @@
 # `decimal_gda` API
 
-`decimal_gda` は `0.6.0` の General Decimal Arithmetic surface です。Value、context、
+`decimal_gda` は `0.6.1` の General Decimal Arithmetic surface です。Value、context、
 flags、traps、signals、outcomes は `decimal` の IEEE-oriented type と別です。
 
 ## 値型
@@ -104,7 +104,7 @@ unbounded future directive/resource size を約束しません。
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.6.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.6.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit

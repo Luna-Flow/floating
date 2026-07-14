@@ -46,7 +46,7 @@ classes, and balanced/sparse/dense/unbalanced shapes. Generate a stream without
 committing a multi-gigabyte artifact with:
 
 ```sh
-python3 tools/generate_ieee_decimal_vectors.py --family mandatory-decimal --count 100000 --output .tmp/mandatory.jsonl
+just ieee-vectors mandatory-decimal 100000 .tmp/mandatory.jsonl
 ```
 
 Rows with `libmpdec-allcr1` or exact rational routes can be checked locally;
@@ -57,38 +57,38 @@ instead of silently reducing the required boundary matrix.
 Run the IEEE runner through the shared conformance entry point:
 
 ```sh
-python3 tools/conformance.py plan --backend decimal
-python3 tools/conformance.py run --backend decimal --run-target native
-python3 tools/conformance.py run --backend decimal --run-target native --run-target wasm --run-target wasm-gc --run-target js --json
+just conformance plan decimal
+just conformance run decimal --run-target native
+just conformance run decimal --run-target native --run-target wasm --run-target wasm-gc --run-target js --json
 ```
 
-The legacy `tools/run_ieee_decimal.py` entry point remains available for local
-debugging. Run the implementation gate on native, Wasm, Wasm-GC, and JavaScript
-(LLVM is intentionally not part of this gate) with `just ieee-ci`. The
-`decimal_gda` backend and `just decimal-gda-ci` remain the separate GDA suite.
+The Python runner remains available for internal debugging. Run the implementation
+gate on native, Wasm, Wasm-GC, and JavaScript (LLVM is intentionally not part
+of this gate) with `just gate decimal`. The `decimal_gda` backend and
+`just gate decimal_gda` remain the separate GDA suite.
 
 ## Which Command To Use
 
 ```sh
-just smoke
-just fetch
-just fetch official0
-just plan jobs=8
-just decimal-gda-ci 8
-just conformance run decimal jobs=8 phase=arithmetic
-just conformance run decimal jobs=8 --strict-supported --json
+just conformance smoke decimal_gda
+just conformance fetch decimal_gda official
+just conformance fetch decimal_gda official0
+just conformance plan decimal_gda --jobs 8
+just gate decimal_gda 8
+just conformance run decimal_gda --jobs 8 --phase arithmetic
+just conformance run decimal_gda --jobs 8 --strict-supported --json
 just decimal-kernel-ci
 ```
 
-- `just smoke` runs the checked-in `smoke.decTest` fixture directly.
-- `just fetch` installs the current official corpus.
-- `just plan` prints the staged file assignment without executing cases.
-- `just decimal-gda-ci` executes the selected GDA corpus through the native interpreter.
+- `just conformance smoke decimal_gda` runs the checked-in `smoke.decTest` fixture directly.
+- `just conformance fetch decimal_gda` installs the selected official corpus.
+- `just conformance plan decimal_gda` prints the staged file assignment without executing cases.
+- `just gate decimal_gda` executes both pinned GDA corpora through the native interpreter.
 - `just pr` runs the complete repository gate; `just decimal-kernel-ci` runs the
   focused Decimal white-box test file.
 
-Use `just smoke` while changing parser or interpreter wiring. Use a targeted
-`just decimal-gda-ci` command while fixing GDA semantics. Run plain `just pr` before
+Use `just conformance smoke decimal_gda` while changing parser or interpreter wiring. Use a targeted
+`just conformance run decimal_gda` command while fixing GDA semantics. Run plain `just pr` before
 opening or updating a pull request. Do not treat `just decimal-kernel-ci` as full validation;
 it is deliberately a small and fast CI gate.
 
@@ -97,7 +97,7 @@ it is deliberately a small and fast CI gate.
 ### 1. Run the checked-in smoke fixture
 
 ```sh
-just smoke
+just conformance smoke decimal_gda
 ```
 
 This does not download anything. It executes all cases in `smoke.decTest` in a
@@ -106,27 +106,27 @@ single interpreter process and is the fastest end-to-end parser/backend check.
 To run one smoke case or a small smoke range:
 
 ```sh
-just smoke --cases lfquant001
-just smoke --cases lfnextp001,lfnextm001
-just smoke --cases lfnextp001..lfnextp002 --json
+just conformance smoke decimal_gda --cases lfquant001
+just conformance smoke decimal_gda --cases lfnextp001,lfnextm001
+just conformance smoke decimal_gda --cases lfnextp001..lfnextp002 --json
 ```
 
 ### 2. Inspect or install the official corpus
 
 ```sh
-just fetch
-just plan jobs=8
+just conformance fetch decimal_gda official
+just conformance plan decimal_gda --jobs 8
 ```
 
-`just fetch` verifies the pinned SHA-256 digest and expected file count. The
+`just conformance fetch decimal_gda` verifies the pinned SHA-256 digest and expected file count. The
 runner also fetches a missing corpus automatically, but explicit fetching makes
 network and corpus failures easier to distinguish from semantic failures.
 
 Use the legacy corpus only when investigating old subset behavior:
 
 ```sh
-just fetch official0
-just plan corpus=official0 jobs=4
+just conformance fetch decimal_gda official0
+just conformance plan decimal_gda --corpus official0 --jobs 4
 ```
 
 ### 3. Run a focused official case
@@ -135,16 +135,16 @@ Case selectors are passed with `--cases`:
 
 ```sh
 # One exact case ID
-just conformance run decimal phase=arithmetic --cases quax1010
+just conformance run decimal_gda --phase arithmetic --cases quax1010
 
 # Several exact IDs, separated by commas
-just conformance run decimal phase=arithmetic --cases quax1010,quax1013,quax1015
+just conformance run decimal_gda --phase arithmetic --cases quax1010,quax1013,quax1015
 
 # Inclusive ID range
-just conformance run decimal phase=arithmetic --cases quax1010..quax1015
+just conformance run decimal_gda --phase arithmetic --cases quax1010..quax1015
 
 # Legacy corpus case
-just conformance run decimal corpus=official0 phase=arithmetic --cases add011
+just conformance run decimal_gda --corpus official0 --phase arithmetic --cases add011
 ```
 
 Selectors may be combined in one comma-separated expression, for example
@@ -153,16 +153,16 @@ selectors is ignored. A range is inclusive and only matches IDs whose length
 equals both endpoints. Matching is lexicographic, so keep the same ID prefix
 and zero-padding on both sides.
 
-Case IDs are normally unique in the corpus. Add `phase=...` to avoid scanning
+Case IDs are normally unique in the corpus. Add `--phase ...` to avoid scanning
 unrelated phases and to make the intended operation family explicit.
 
 ### 4. Run one phase
 
 ```sh
-just conformance run decimal phase=arithmetic jobs=8
-just conformance run decimal phase=elementary jobs=4
-just conformance run decimal phase=interchange jobs=4
-just conformance run decimal phase=remaining jobs=8
+just conformance run decimal_gda --phase arithmetic --jobs 8
+just conformance run decimal_gda --phase elementary --jobs 4
+just conformance run decimal_gda --phase interchange --jobs 4
+just conformance run decimal_gda --phase remaining --jobs 8
 ```
 
 The configured phases are:
@@ -173,27 +173,26 @@ The configured phases are:
 - `interchange`: decimal32, decimal64, and decimal128 `ds`/`dd`/`dq` files.
 - `remaining`: every file not claimed by an earlier phase.
 
-Pass `phase=...` more than once only when invoking the Python runner directly;
-the short `phase=name` form is intended for one phase per `just` invocation.
+Pass `--phase ...` more than once to select multiple phases explicitly.
 
 ### 5. Run the full pre-PR gate
 
 ```sh
-just decimal-gda-ci 8
+just gate decimal_gda 8
 ```
 
 The command stops at the first failed stage:
 
-1. `moon check --target all`
-2. `moon info`
-3. native interpreter build
-4. staged official-corpus execution
+1. `decimal_gda` package tests;
+2. GDA frontend tests;
+3. staged `official` corpus execution;
+4. staged `official0` corpus execution.
 
 Use `--strict-supported` as a guard against accidentally adding unsupported or
 legacy classifications; the pinned legal GDA corpus has none:
 
 ```sh
-just conformance run decimal jobs=8 --strict-supported
+just conformance run decimal_gda --jobs 8 --strict-supported
 ```
 
 The only intentionally non-executable rows in the official corpus are `#`
@@ -248,11 +247,10 @@ parallel. Per-shard JSON and the aggregate `summary.json` are written under
 `.tmp/dectest-interpreter/`.
 
 The runner accepts regular options such as `--jobs`, `--corpus`, `--phase`,
-`--cases`, `--strict-supported`, and `--json`. For short `just` invocations,
-`jobs=8`, `corpus=official0`, and `phase=arithmetic` are also accepted.
+`--cases`, `--strict-supported`, and `--json`.
 
 `--jobs` controls deterministic interpreter shards inside each phase. Start
-with `jobs=1` when reproducing a failure and increase it for full runs. Use
+with `--jobs 1` when reproducing a failure and increase it for full runs. Use
 `--no-build` only after the native interpreter has already been built and no
 relevant MoonBit source has changed.
 
@@ -270,7 +268,7 @@ The staged runner writes:
 Use JSON output when another tool needs to consume the result:
 
 ```sh
-just conformance run decimal phase=arithmetic --cases quax1010..quax1015 --json
+just conformance run decimal_gda --phase arithmetic --cases quax1010..quax1015 --json
 ```
 
 Interpret failures in this order:
@@ -282,10 +280,10 @@ Interpret failures in this order:
 4. Strict mode returns `1` if a future change introduces legacy or unsupported
    classifications; it does not turn invalid `#` placeholders into arithmetic
    cases.
-5. Re-run failed IDs with `jobs=1`, one phase, and `--json` before changing code.
+5. Re-run failed IDs with `--jobs 1`, one phase, and `--json` before changing code.
 
 Example focused rerun:
 
 ```sh
-just conformance run decimal jobs=1 phase=arithmetic --cases quax1010,quax1013 --json
+just conformance run decimal_gda --jobs 1 --phase arithmetic --cases quax1010,quax1013 --json
 ```

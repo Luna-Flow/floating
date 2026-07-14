@@ -2,10 +2,10 @@
 
 ## 稳定性
 
-bare/decorated 区间构造、关系、正向算术、context 和 flags 是 `0.6.0` 支持的
+bare/decorated 区间构造、关系、正向算术、context 和 flags 是 `0.6.1` 支持的
 API。reverse operations 与必然 tight 不属于当前契约。
 
-本文档描述 `0.6.0` 基线中的 `@ball_float.BallFloat`、
+本文档描述 `0.6.1` 基线中的 `@ball_float.BallFloat`、
 `@ball_float.Decoration` 与 `@ball_float.BallFloatDecorated`。
 
 ## 语义
@@ -203,7 +203,7 @@ interval、上下文和 IEEE 1788 集合语义共享同一包边界。
 
 ## 完整公开接口
 
-以下快照是 `0.6.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.6.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit

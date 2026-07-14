@@ -3,11 +3,11 @@
 ## Stability
 
 Bare/decorated interval construction, relations, forward arithmetic, contexts,
-and flags are supported `0.6.0` APIs. Reverse operations and guaranteed
+and flags are supported `0.6.1` APIs. Reverse operations and guaranteed
 tightness are outside the contract.
 
 This page tracks the current repository implementation and is written as the
-`0.6.0` API baseline. It covers `@ball_float.BallFloat`,
+`0.6.1` API baseline. It covers `@ball_float.BallFloat`,
 `@ball_float.Decoration`, and `@ball_float.BallFloatDecorated`.
 
 ## Semantics
@@ -164,7 +164,7 @@ operations and implements `+`, `-`, `*`, `/`, and `Show`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

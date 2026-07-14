@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide targets `Luna-Flow/floating` **`0.6.0`**. It shows how to select a
+This guide targets `Luna-Flow/floating` **`0.6.1`**. It shows how to select a
 package, install the module, construct values, choose an error model, and find
 the relevant reference material.
 
@@ -15,7 +15,9 @@ the spelling of its input.
 | IEEE arbitrary-precision decimal and decimal interchange | `decimal` | `Decimal` | Value, or `(value, DecimalFlags)` with a context |
 | General Decimal Arithmetic status and traps | `decimal_gda` | `Decimal` | `GdaOutcome[Decimal]` with next context and raised flags |
 | Certified real enclosure | `ball_float` | `BallFloat` / `BallFloatDecorated` | Enclosure, or `(enclosure, BallFlags)` with a context |
-| Short-circuit scalar or interval pipeline | `*_checked` | `*Result` | `Result[..., ArithmeticError]` retained inside a wrapper |
+| IEEE decimal pipeline with accumulated flags | `decimal_checked` | `DecimalChecked` | Defined value plus latest and accumulated `DecimalFlags` |
+| GDA pipeline with trap control | `decimal_gda_checked` | `GdaDecimalChecked` | Sticky context and `GdaOutcome[Decimal]` |
+| Short-circuit binary or interval pipeline | `bin_float_checked`, `ball_float_checked` | `*Result` | `Result[..., ArithmeticError]` retained inside a wrapper |
 | Representation-independent comparison | `semantic` | `SemanticScalar` / `SemanticInterval` | Exact projection, intentionally dropping metadata |
 
 Use `numeric_expr` and `frontend/*` only when building parsers or conformance
@@ -27,7 +29,7 @@ maintainer infrastructure rather than application dependencies.
 Add the current release:
 
 ```sh
-moon add Luna-Flow/floating@0.6.0
+moon add Luna-Flow/floating@0.6.1
 ```
 
 Import only the package boundaries used by the current MoonBit package:
@@ -37,6 +39,8 @@ import {
   "Luna-Flow/floating/bin_float"
   "Luna-Flow/floating/decimal"
   "Luna-Flow/floating/decimal_gda"
+  "Luna-Flow/floating/decimal_checked"
+  "Luna-Flow/floating/decimal_gda_checked"
   "Luna-Flow/floating/ball_float"
 }
 ```
@@ -97,6 +101,9 @@ The library intentionally exposes several non-equivalent failure channels:
   conditions without replacing the returned value.
 - `GdaOutcome[T]` always retains the GDA-defined result, even when a configured
   trap fires.
+- `DecimalChecked` accumulates IEEE flags without replacing defined NaN or
+  infinity results; `GdaDecimalChecked` short-circuits traps while retaining
+  their complete `GdaOutcome`.
 - `Entire`, `Empty`, and `NaI` are interval-domain values, not generic errors.
 
 Do not convert all of these to exceptions or one universal `Result`; doing so

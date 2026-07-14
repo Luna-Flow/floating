@@ -96,5 +96,5 @@ numeric equality の代わりにはしません。
 - `GdaFlags` を手で combine して context status が変わったと仮定せず、
   `next_context()` を thread する。
 - `decimal` と `decimal_gda` の値を交換可能と扱わない。
-- GDA signal/trap が contract の場合、`ArithmeticError` 用 checked wrapper を使わない。
-
+- Closed pipeline が GDA signal、sticky status、trap を保持する場合は IEEE
+  `decimal_checked` ではなく `decimal_gda_checked` を使います。

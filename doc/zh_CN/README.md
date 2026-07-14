@@ -1,6 +1,6 @@
 # FLOATING 文档
 
-本文档描述 `0.6.0` 发布基线；公开名称以各包的 `pkg.generated.mbti` 为准。
+本文档描述 `0.6.1` 发布基线；公开名称以各包的 `pkg.generated.mbti` 为准。
 
 建议先阅读[快速上手](./getting_started.md)、[数值语义](./numeric_semantics.md)、
 [架构](./architecture.md)和[验证](./verification.md)，再进入具体包的参考页。
@@ -8,7 +8,7 @@
 ## 包入口
 
 - 核心：[`def`](./def/api.md)、[`bin_float`](./bin_float/api.md)、[`decimal`](./decimal/api.md)、[`decimal_gda`](./decimal_gda/api.md)、[`ball_float`](./ball_float/api.md)
-- Checked：[`bin_float_checked`](./bin_float_checked/api.md)、[`decimal_checked`](./decimal_checked/api.md)、[`ball_float_checked`](./ball_float_checked/api.md)
+- Checked：[`bin_float_checked`](./bin_float_checked/api.md)、[`decimal_checked`](./decimal_checked/api.md)、[`decimal_gda_checked`](./decimal_gda_checked/api.md)、[`ball_float_checked`](./ball_float_checked/api.md)
 - 语义与 IR：[`semantic`](./semantic/api.md)、[`numeric_expr`](./numeric_expr/api.md)
 - 前端：[`frontend/gda_expr`](./frontend/gda_expr/api.md)、[`frontend/itl_expr`](./frontend/itl_expr/api.md)、[`frontend/mpfr_expr`](./frontend/mpfr_expr/api.md)、[`frontend/testfloat_expr`](./frontend/testfloat_expr/api.md)
 - 运行与验证：[`internal`](./internal/api.md)、[`internal/conformance`](./internal/conformance/api.md)、[`internal/runner_cli`](./internal/runner_cli/api.md)、[`consistency`](./consistency/api.md)、[`bin_float_bench`](./bin_float_bench/api.md)
@@ -19,7 +19,7 @@
 
 ## 公开面与稳定性
 
-`0.6.0` 仍是 1.0 之前的版本。“稳定”表示本版本明确支持的应用入口，不表示
+`0.6.1` 仍是 1.0 之前的版本。“稳定”表示本版本明确支持的应用入口，不表示
 未来版本的 ABI 永久不变。
 
 | 包 | 可用公开面 | 本版本状态 | 明确不包含 |
@@ -28,7 +28,9 @@
 | `decimal` | `Decimal`、IEEE context/flags、interchange | 稳定发布面 | 完整 IEEE 754 全部运算 |
 | `decimal_gda` | GDA `Decimal`、context、sticky flags、traps、outcome | 稳定 GDA 面 | 未固定的未来 directive 与非标量占位行 |
 | `ball_float` | bare/decorated 区间、关系、有向舍入算术 | 稳定发布面 | reverse interval operations、必然 tight |
-| `*_checked` | `Result[..., ArithmeticError]` 短路流水线 | 稳定组合面 | context flags、decoration、恢复策略 |
+| `bin_float_checked`、`ball_float_checked` | `Result[..., ArithmeticError]` 短路流水线 | 稳定组合面 | context flags 与 decoration |
+| `decimal_checked` | IEEE context、定义结果、本步与累计 flags | 稳定 IEEE 组合面 | GDA sticky status 与 traps |
+| `decimal_gda_checked` | sticky context、trap 短路、显式定义结果恢复 | 稳定 GDA 组合面 | IEEE 逐 operation context 模型 |
 | `semantic` | 精确有理数/无穷/NaN/区间投影 | 临时集成面 | 表示元数据与算术本身 |
 | `numeric_expr` | 语法节点和 callback evaluation | 临时集成面 | 文本解析与具体数值语义 |
 | `frontend/*`、`cli/*` | conformance parser、runner、命令 | 验证基础设施 | 通用文件/格式兼容承诺 |
@@ -54,4 +56,4 @@
 
 ## 验证
 
-`just smoke` 或 `just conformance smoke <backend>` 使用仓库内 fixture；完整语料和支持范围见 `testdata/*/README.md`。通过固定语料不等于完整支持 IEEE 754、GDA 或 ITF1788。
+`just conformance smoke <backend>` 使用仓库内 fixture；完整语料和支持范围见 `testdata/*/README.md`。通过固定语料不等于完整支持 IEEE 754、GDA 或 ITF1788。

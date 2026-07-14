@@ -2,7 +2,7 @@
 
 ## Baseline Gate
 
-`tools/run_decimal_bench.py` compares the current tree with the immutable manifest in `testdata/decimal/performance_baseline.json`. It runs paired AB/BA/AB processes, requires at least nine accepted samples per cell, rejects unstable MAD, and fails a paired median regression above 5%.
+`just bench decimal` compares the current tree with the immutable manifest in `testdata/decimal/performance_baseline.json`. It runs paired AB/BA/AB processes, requires at least nine accepted samples per cell, rejects unstable MAD, and fails a paired median regression above 5%.
 
 ## Operand Model
 
@@ -23,8 +23,8 @@ Threshold experiments use ABBA or BAAB order, rotate size order between processe
 ## Reproduction And Interpretation
 
 ```sh
-python3 tools/run_decimal_bench.py --target native
-python3 tools/run_decimal_threshold_bench.py --model --transition mul-toom3-ntt-32k \
+just bench decimal --target native
+just bench decimal-threshold --model --transition mul-toom3-ntt-32k \
   --model-low 4096 --model-high 5120 --model-step 128 \
   --processes 5 --samples 9 --bootstrap-samples 5000
 ```

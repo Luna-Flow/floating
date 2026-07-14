@@ -10,7 +10,7 @@
 | 共享词汇 | `def` | 分类、符号、偏序、重导出的算术类型、最小 `Floating` trait |
 | 标量数值域 | `bin_float`、`decimal`、`decimal_gda` | 二进制、IEEE 十进制与 GDA 十进制语义 |
 | 区间数值域 | `ball_float` | bare/decorated 外向舍入包络 |
-| Checked 组合 | `bin_float_checked`、`decimal_checked`、`ball_float_checked` | `ArithmeticError` 上的封闭短路流水线 |
+| Checked 组合 | `bin_float_checked`、`ball_float_checked`、`decimal_checked`、`decimal_gda_checked` | 分别保留 error、IEEE flags 或 GDA outcome 的封闭流水线 |
 | 语义投影 | `semantic` | 与表示无关的精确观察 |
 | 语法 | `numeric_expr` | source span、literal、primitive call 与 callback evaluation |
 | 格式前端 | `frontend/*` | 解析一种语料格式并执行类型化 case |
@@ -49,8 +49,10 @@ value(s) + immutable context
 sticky status，再按固定优先级选择已启用 trap。若要累计状态，调用方必须把返回的
 context 传入下一步。
 
-checked wrapper 是另一种 effect 通道：保留第一个 `ArithmeticError` 并跳过后续
-运算，不累计 IEEE flags、GDA status、decoration 或恢复策略。
+checked wrapper 保留所属数值域的 effect 通道。二进制与区间 wrapper 保留第一个
+`ArithmeticError`；`decimal_checked` 固定 IEEE context、累计 flags，并保留异常的
+定义结果；`decimal_gda_checked` 传递 next sticky context，遇到 `Trapped` 后停止，
+只有显式恢复才能从定义结果继续。
 
 ## 解析与执行
 
@@ -98,4 +100,3 @@ interchange 合同，否则格式解析应留在具体数值类型之外。
 扩展 conformance 面时，需要同时更新 parser model、executor、支持分类、CLI schema、
 corpus manifest、测试和三语文档。能够解析一个 operation 不等于已经支持；只有
 strict execution 具备已定义结果比较和可复现证据后，才能声明支持。
-

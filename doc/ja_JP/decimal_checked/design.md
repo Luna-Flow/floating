@@ -1,8 +1,20 @@
-# `decimal_checked` 設計
+# `decimal_checked` Design
 
-`DecimalResult` は左から短絡する checked pipeline です。parse/checked operation が error を導入し、その後は実行しません。`bind` は新しい error、`map` は成功値の変換だけです。
+## State Model
 
-`DecimalContext` と `DecimalFlags` を保持しないため GDA status pipeline ではありません。cohort、clamp、指数境界、flags が必要なら `decimal` の `*_ctx` を使います。
+`DecimalChecked` は value、IEEE context、latest flags、accumulated flags の immutable
+product です。Construction は `DecimalContext::ieee754()` を強制し、GDA profile が
+この package に入ることを防ぎます。
 
-composition 自体は底層演算以外 `O(1)` です。一つの型に short-circuit error と
-status accumulation の二つの data flow を混在させないため context/flags を持ちません。
+## Transitions
+
+各 method は一つの contextual operation を実行します。返された value が next value、
+flags が `raised` になり、`combine` で `flags` に蓄積されます。Exceptional IEEE
+result は defined value のままです。`with_context` は new IEEE context で current
+value を明示的に再適用し、その step を記録します。
+
+## Composition Boundary
+
+Binary method は plain `Decimal` を取ります。別の `DecimalChecked` を取ると context
+と flag history の merge rule が恣意的になるためです。同じ理由で operator は実装
+しません。Wrapper overhead は constant state copy と flag combine です。

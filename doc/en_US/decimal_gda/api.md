@@ -1,6 +1,6 @@
 # `decimal_gda` API
 
-`decimal_gda` is the General Decimal Arithmetic surface for `0.6.0`. Its value,
+`decimal_gda` is the General Decimal Arithmetic surface for `0.6.1`. Its value,
 context, flags, traps, signals, and outcomes are distinct from the IEEE-oriented
 types in `decimal`.
 
@@ -115,7 +115,7 @@ unbounded future directives or resource sizes.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

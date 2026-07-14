@@ -1,6 +1,6 @@
 # `bin_float` Conformance
 
-This page records the `0.6.0` binary floating-point semantic and test
+This page records the `0.6.1` binary floating-point semantic and test
 boundary. It is evidence for a stated, finite corpus; it is not a proof that
 any implementation can be correct for every real input.
 
@@ -96,5 +96,5 @@ inexact for `pow_int_ctx`; nearest-away, before/after tininess, and complete
 flags use the exact dyadic/rational oracle because MPFR explicitly forbids
 using `MPFR_RNDNA` as a general `pow_si` rounding argument.
 
-Run `just conformance smoke binary` for the checked-in gate and `just bin-ci` for the full
+Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full
 pinned gate.

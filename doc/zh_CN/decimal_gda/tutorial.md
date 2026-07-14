@@ -94,6 +94,5 @@ let context = @decimal_gda.GdaContext::try_new(
 - 不要把 `Trapped` 理解成“没有值”，应检查 defined result；
 - 不要手工组合 `GdaFlags` 后假设 context status 已改变，应传递 `next_context()`；
 - 不要把 `decimal` 与 `decimal_gda` 的值混用；
-- 合同要求 GDA signals/traps 时不要使用 checked wrapper；后者保留的是
-  `ArithmeticError`，不是 GDA 状态。
-
+- 封闭流水线要求 GDA signals、sticky status 与 traps 时使用
+  `decimal_gda_checked`，不要使用 IEEE `decimal_checked` 包。

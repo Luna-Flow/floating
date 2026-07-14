@@ -1,6 +1,6 @@
 # 数值语义
 
-本文定义 `0.6.0` 文档共享的术语，区分数学值、存储表示、舍入状态、checked 失败
+本文定义 `0.6.1` 文档共享的术语，区分数学值、存储表示、舍入状态、checked 失败
 与区间包络。
 
 ## 值与表示
@@ -48,7 +48,9 @@ GDA 区分三组相关数据：
 一次运算同时触发多个已启用 signal 时，按照固定优先级选择 trap。
 
 `ArithmeticError` 语义不同：它表示 checked capability 无法产生所请求的标量结果。
-checked wrapper 对它短路，但不表示 IEEE flags 或 GDA traps。
+二进制与区间 result wrapper 对它短路。十进制组合保留所属语义：
+`DecimalChecked` 围绕定义结果累计 IEEE flags，`GdaDecimalChecked` 传递 sticky
+status 并对 trap 短路，但不抹去 trap 的定义结果。
 
 ## 标量特殊值
 
@@ -105,4 +107,3 @@ Interchange 转换比任意精度转换更窄：binary16/32/64/128 与 decimal32
 5. 普通偏序是否足够，还是需要 total order/集合关系？
 6. 转换是任意精度还是固定 interchange？
 7. 哪个有限 conformance matrix 支撑该行为声明？
-
