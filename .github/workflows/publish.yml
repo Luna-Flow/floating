@@ -56,4 +56,4 @@ jobs:
           mkdir -p "$HOME/.moon"
           trap 'rm -f "$HOME/.moon/credentials.json"' EXIT
           printf '%s' "$SECRET" > "$HOME/.moon/credentials.json"
-          sh tools/run_moon_clean_exec.sh publish --frozen
+          sh tools/run_moon_clean_exec.sh publish
