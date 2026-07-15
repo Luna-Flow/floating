@@ -300,10 +300,24 @@ test "BinCoeff sqrtrem identity and thresholds" {
     let value_big = bin_coeff_test_limb_pattern(limbs, 14)
     let value = bin_coeff_test_from_bigint(value_big)
     let (root, remainder) = bin_coeff_sqrt_rem_kernel(value)
-    let root_big = legacy_integer_sqrt_floor(value_big)
+    let root_big = bin_coeff_test_integer_sqrt_floor(value_big)
     bin_coeff_test_assert_matches(root, root_big)
     bin_coeff_test_assert_matches(remainder, value_big - root_big * root_big)
     assert_eq(root.square().add(remainder), value)
     assert_true(remainder.compare(root.shift_left(1)) <= 0)
   }
+}
+
+///|
+fn bin_coeff_test_integer_sqrt_floor(value : BigInt) -> BigInt {
+  if value <= 1N {
+    return value
+  }
+  let mut root = 1N << ((value.bit_length() + 1) / 2)
+  let mut next = (root + value / root) / 2N
+  while next < root {
+    root = next
+    next = (root + value / root) / 2N
+  }
+  root
 }

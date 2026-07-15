@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import run_ci
 
@@ -92,8 +93,26 @@ class RunCiTests(unittest.TestCase):
         self.assertIn("--strict-supported", command)
         self.assertIn("elementary-core", command)
         self.assertIn("trigonometric", command)
+        self.assertIn("hyperbolic", command)
+        self.assertIn("inverse-trigonometric", command)
+        self.assertIn("atan2", command)
         self.assertIn("general-power", command)
         self.assertNotIn("reverse", command)
+
+    def test_elementary_gate_pairs_correctness_and_performance(self) -> None:
+        stages = run_ci.stages_for("elementary", 2)
+        self.assertEqual(len(stages), 3)
+        self.assertIn("Luna-Flow/floating/bench/bin_float", stages[0].command)
+        self.assertNotIn("--include-skipped", stages[0].command)
+        self.assertEqual(
+            stages[1].command[-1], "tools/run_elementary_performance_gate.py"
+        )
+        self.assertEqual(stages[2].command[-2:], ("tools/benchmark.py", "elementary"))
+
+    def test_elementary_scope_is_accepted_by_cli(self) -> None:
+        with patch.object(run_ci, "run", return_value=0) as run:
+            self.assertEqual(run_ci.main(["elementary", "2"]), 0)
+        run.assert_called_once_with("elementary", 2, False)
 
 
 if __name__ == "__main__":

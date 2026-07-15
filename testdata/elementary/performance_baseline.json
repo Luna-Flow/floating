@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "baseline": {
+    "release": "0.6.1",
+    "commit": "d0c25fe847e3ba778012f44e278c4badaa4e1f03",
+    "tree": "6b2548931b7f54a399240df0eb4e5b1d23369de0"
+  },
+  "candidateRelease": "0.7.0",
+  "target": "native",
+  "pairedSamples": 10,
+  "practicalRegressionPct": 3.0,
+  "confidencePct": 95.0,
+  "benchmark": {
+    "fixture": "tools/fixtures/elementary_performance_bench_wbtest.mbt",
+    "destination": "src/bin_float/elementary_performance_bench_wbtest.mbt",
+    "checksum": "elementary-baseline-v1",
+    "command": [
+      "sh",
+      "tools/run_moon_clean_exec.sh",
+      "test",
+      "src/bin_float/elementary_performance_bench_wbtest.mbt",
+      "--release",
+      "--include-skipped",
+      "--no-parallelize",
+      "--target",
+      "native"
+    ]
+  }
+}

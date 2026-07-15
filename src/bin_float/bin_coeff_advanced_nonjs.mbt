@@ -289,8 +289,10 @@ fn bin_coeff_square_large_dispatch(value : BinCoeff) -> BinCoeff {
   let len = bin_coeff_limb_len(value)
   if len >= bin_coeff_ntt_square_threshold && bin_coeff_ntt_fits(value, value) {
     bin_coeff_square_ntt(value)
-  } else if len < 768 {
+  } else if len < bin_coeff_square_recursive_threshold {
     bin_coeff_square_schoolbook(value)
+  } else if len < 768 {
+    bin_coeff_mul_large_dispatch(value, value)
   } else if len >= 96 {
     bin_coeff_mul_toom3(value, value)
   } else {

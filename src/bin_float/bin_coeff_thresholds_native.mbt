@@ -9,3 +9,6 @@ let bin_coeff_ntt_mul_threshold = 2048
 
 ///|
 let bin_coeff_ntt_square_threshold = 768
+
+///|
+let bin_coeff_square_recursive_threshold = 512

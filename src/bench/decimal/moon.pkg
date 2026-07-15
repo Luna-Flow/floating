@@ -1,0 +1,10 @@
+import {
+  "Luna-Flow/floating/bench" @benchkit,
+  "Luna-Flow/floating/decimal" @decimal_core,
+  "Luna-Flow/floating/decimal_checked" @checked,
+  "Luna-Flow/mare_mark/event",
+  "Luna-Flow/mare_mark/model",
+  "Luna-Flow/mare_mark/runner",
+  "moonbitlang/async",
+  "moonbitlang/core/bigint",
+} for "test"

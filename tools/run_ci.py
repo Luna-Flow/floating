@@ -24,6 +24,9 @@ INTERVAL_PHASES = (
     "exponential-logarithmic",
     "general-power",
     "trigonometric",
+    "hyperbolic",
+    "inverse-trigonometric",
+    "atan2",
     "fma",
     "integer-power",
     "extrema",
@@ -122,6 +125,31 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             "INTERVAL · IEEE 1788",
             conformance_command(BackendName.INTERVAL, jobs),
         ),
+        "elementary": [
+            Stage(
+                "ELEMENTARY · correctness and candidate workload",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "test",
+                    "-p",
+                    "Luna-Flow/floating/bench/bin_float",
+                    "--target",
+                    "native",
+                    "--deny-warn",
+                    "--frozen",
+                    "--no-parallelize",
+                ),
+            ),
+            Stage(
+                "ELEMENTARY · immutable baseline mare_mark gate",
+                (sys.executable, "tools/run_elementary_performance_gate.py"),
+            ),
+            Stage(
+                "ELEMENTARY · candidate mare_mark workload",
+                (sys.executable, "tools/benchmark.py", "elementary"),
+            ),
+        ],
     }
     if scope not in {"all", "quick"}:
         selected = suites[scope]
@@ -299,7 +327,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run LunaFlow repository CI gates")
     parser.add_argument(
         "scope",
-        choices=("all", "quick", "decimal", "decimal_gda", "binary", "interval"),
+        choices=(
+            "all",
+            "quick",
+            "decimal",
+            "decimal_gda",
+            "binary",
+            "interval",
+            "elementary",
+        ),
     )
     parser.add_argument("jobs", nargs="?", type=int, default=DEFAULT_JOBS)
     parser.add_argument("--dry-run", action="store_true")

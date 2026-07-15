@@ -1,0 +1,10 @@
+import {
+  "Luna-Flow/floating/ball_float" @ball,
+  "Luna-Flow/floating/ball_float_checked" @checked,
+  "Luna-Flow/floating/bench" @benchkit,
+  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/mare_mark/event",
+  "Luna-Flow/mare_mark/model",
+  "Luna-Flow/mare_mark/runner",
+  "moonbitlang/async",
+} for "test"

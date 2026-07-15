@@ -19,7 +19,6 @@ options(
     "bin_coeff_division_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_ntt_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_ntt_nonjs_wbtest.mbt": [ "not", "js" ],
-    "bin_coeff_algorithm_bench_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_thresholds_llvm.mbt": [ "llvm" ],

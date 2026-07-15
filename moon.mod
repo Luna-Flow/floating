@@ -23,6 +23,8 @@ import {
   "Luna-Flow/luna-generic@0.3.3",
   "moonbitlang/x@0.4.46",
   "Luna-Flow/type_theory@0.2.0",
+  "Luna-Flow/mare_mark@0.3.0",
+  "moonbitlang/async@0.20.1",
 }
 
 source = "src"

@@ -4,7 +4,3 @@ import {
   "moonbitlang/core/debug",
   "Luna-Flow/floating/def",
 }
-
-import {
-  "moonbitlang/core/bench",
-} for "wbtest"
