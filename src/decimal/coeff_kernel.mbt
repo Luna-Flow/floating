@@ -600,6 +600,39 @@ fn dec_coeff_shift_power10_repr(coeff : DecCoeff, shift : Int) -> DecCoeff {
 }
 
 ///|
+fn dec_coeff_shift_power10_mod_repr(
+  coeff : DecCoeff,
+  shift : Int,
+  modulus : DecCoeff,
+) -> DecCoeff {
+  guard shift >= 0 else {
+    abort("dec_coeff_shift_power10_mod_repr expects a non-negative shift")
+  }
+  guard !modulus.is_zero() else {
+    abort("dec_coeff_shift_power10_mod_repr expects a non-zero modulus")
+  }
+  let mut remainder = dec_coeff_div_rem_repr(coeff, modulus).1
+  let mut factor = dec_coeff_div_rem_repr(dec_coeff_from_int(10), modulus).1
+  let mut exponent = shift
+  while exponent > 0 {
+    if exponent % 2 == 1 {
+      remainder = dec_coeff_div_rem_repr(
+          dec_coeff_multiply_repr(remainder, factor),
+          modulus,
+        ).1
+    }
+    exponent /= 2
+    if exponent > 0 {
+      factor = dec_coeff_div_rem_repr(
+          dec_coeff_multiply_repr(factor, factor),
+          modulus,
+        ).1
+    }
+  }
+  remainder
+}
+
+///|
 fn dec_coeff_compare_repr(lhs : DecCoeff, rhs : DecCoeff) -> Int {
   let lhs_len = dec_coeff_unit_len(lhs)
   let rhs_len = dec_coeff_unit_len(rhs)

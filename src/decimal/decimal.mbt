@@ -1081,6 +1081,50 @@ fn decimal_division_common_magnitude_units(
 }
 
 ///|
+fn decimal_nearest_remainder_parts(
+  dividend : Decimal,
+  divisor : Decimal,
+) -> (Bool, DecCoeff, Int) {
+  let scale = dividend.exponent10 - divisor.exponent10
+  let (quotient_odd, remainder, denominator, target) = if scale >= 0 {
+    let denominator = divisor.coefficient
+    let doubled_denominator = dec_coeff_multiply_by_unit_repr(denominator, 2)
+    let residue = dec_coeff_shift_power10_mod_repr(
+      dividend.coefficient,
+      scale,
+      doubled_denominator,
+    )
+    if dec_coeff_compare_repr(residue, denominator) >= 0 {
+      (
+        true,
+        dec_coeff_magnitude_sub_repr(residue, denominator),
+        denominator,
+        divisor.exponent10,
+      )
+    } else {
+      (false, residue, denominator, divisor.exponent10)
+    }
+  } else {
+    let denominator = dec_coeff_shift_power10_repr(divisor.coefficient, -scale)
+    let (quotient, remainder) = dec_coeff_div_rem_repr(
+      dividend.coefficient,
+      denominator,
+    )
+    (dec_coeff_is_odd(quotient), remainder, denominator, dividend.exponent10)
+  }
+  let twice_remainder = dec_coeff_multiply_by_unit_repr(remainder, 2)
+  let half_compare = dec_coeff_compare_repr(twice_remainder, denominator)
+  let increment = half_compare > 0 || (half_compare == 0 && quotient_odd)
+  let magnitude = if increment {
+    dec_coeff_magnitude_sub_repr(denominator, remainder)
+  } else {
+    remainder
+  }
+  let negative = !magnitude.is_zero() && dividend.negative != increment
+  (negative, magnitude, target)
+}
+
+///|
 fn finite_integer_quotient_is_zero(
   dividend : Decimal,
   divisor : Decimal,
@@ -1224,111 +1268,6 @@ fn decimal_integer_quotient(
         (value, { ..flags, rounded: true, inexact: true })
       } else {
         (value, flags)
-      }
-    }
-  }
-}
-
-///|
-fn decimal_nearest_integer_quotient(
-  dividend : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-  limit_precision : Bool,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
-  match (dividend.class, other.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) =>
-      (Decimal::nan(precision~), nan_operand_flags(dividend, other))
-    (_, FpClass::Finite) if other.is_zero() =>
-      if dividend.is_zero() {
-        (Decimal::nan(precision~), div_zero_flags(true))
-      } else {
-        (Decimal::nan(precision~), div_zero_flags(false))
-      }
-    (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
-      if dividend.class == FpClass::Finite && other.class == FpClass::Infinity {
-        if !ctx.extended {
-          (Decimal::zero(precision~), DecimalFlags::new())
-        } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), DecimalFlags::new())
-        } else {
-          (Decimal::zero(precision~), DecimalFlags::new())
-        }
-      } else {
-        (Decimal::nan(precision~), invalid_flags())
-      }
-    (FpClass::Finite, FpClass::Finite) => {
-      if finite_nearest_integer_quotient_is_zero(dividend, other) {
-        let flags = divide_integer_zero_quotient_flags(dividend, other, ctx)
-        return if !ctx.extended {
-          (Decimal::zero(precision~), flags)
-        } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), flags)
-        } else {
-          (Decimal::zero(precision~), flags)
-        }
-      }
-      if limit_precision &&
-        ctx.precision > 0 &&
-        integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
-      }
-      let quotient = match
-        integer_quotient_by_power_of_ten_repr(dividend, other, true) {
-        Some(value) => value
-        None => {
-          let scale = dividend.exponent10 - other.exponent10
-          let numerator = if scale >= 0 {
-            dec_coeff_shift_power10_repr(dividend.coefficient, scale)
-          } else {
-            dividend.coefficient
-          }
-          let denominator = if scale >= 0 {
-            other.coefficient
-          } else {
-            dec_coeff_shift_power10_repr(other.coefficient, -scale)
-          }
-          let (quotient0, remainder) = dec_coeff_div_rem_repr(
-            numerator, denominator,
-          )
-          let twice = dec_coeff_multiply_by_unit_repr(remainder, 2)
-          let half_compare = dec_coeff_compare_scaled_repr(
-            twice, denominator, 0,
-          )
-          // GDA REMNEAR records `*accnext & 0x01`, compares 2*remainder with
-          // rhs, and adjusts only for greater-than-half or an odd tie
-          // (decNumber.c lines 4673-4723).
-          let increment = half_compare > 0 ||
-            (half_compare == 0 && dec_coeff_is_odd(quotient0))
-          if increment {
-            dec_coeff_magnitude_add_unit(quotient0, 1)
-          } else {
-            quotient0
-          }
-        }
-      }
-      if limit_precision &&
-        ctx.precision > 0 &&
-        !quotient.is_zero() &&
-        quotient.digits10() > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
-      }
-      let quotient_precision = if limit_precision {
-        precision
-      } else {
-        Int::max(1, quotient.digits10())
-      }
-      let quotient_value = finite_with_exponent_repr(
-        dividend.negative != other.negative,
-        quotient,
-        0,
-        quotient_precision,
-      )
-      if limit_precision {
-        finalize_finite_ctx(quotient_value, DecimalFlags::new(), ctx)
-      } else {
-        (quotient_value, DecimalFlags::new())
       }
     }
   }

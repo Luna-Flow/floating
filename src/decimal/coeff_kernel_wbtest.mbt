@@ -148,6 +148,16 @@ test "BigInt-free ln constants preserve the old scaled integers" {
 }
 
 ///|
+test "power-of-ten modular scaling handles huge exponent gaps" {
+  let residue = dec_coeff_shift_power10_mod_repr(
+    dec_coeff_from_int(9),
+    1_000_000_008,
+    dec_coeff_from_int(469_135_780),
+  )
+  assert_eq(residue.to_bigint(), 188_902_320N)
+}
+
+///|
 test "Knuth quotient clamp preserves the full normalized remainder" {
   let numerator = 81531386803002131355773364661909970000000000000000000000000000000000000000000000000000000000000000000N
   let denominator = 8153138680300213135577336466220607N

@@ -209,28 +209,17 @@ pub fn Decimal::remainder_near(
       operand_flags.combine(invalid_flags()),
     )
   }
-  let (quotient, quotient_flags0) = decimal_nearest_integer_quotient(
-    lhs, rhs, ctx, false,
+  let quotient_flags = operand_flags.combine(
+    divide_integer_zero_quotient_flags(lhs, rhs, ctx),
   )
-  let quotient_flags = operand_flags.combine(quotient_flags0)
-  if quotient.class == FpClass::NaN || quotient_flags.has_error() {
-    return (quotient, quotient_flags)
+  if finite_nearest_integer_quotient_is_zero(lhs, rhs) {
+    let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
+    return (value, quotient_flags.combine(flags))
   }
   match (lhs.class, rhs.class) {
     (FpClass::Finite, FpClass::Finite) => {
-      if quotient.is_zero() {
-        let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
-        return (value, quotient_flags.combine(flags))
-      }
-      let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
+      let (exact_negative, exact_magnitude, target) = decimal_nearest_remainder_parts(
         lhs, rhs,
-      )
-      let product = dec_coeff_multiply_repr(quotient.coefficient, rhs_units)
-      let (exact_negative, exact_magnitude) = dec_coeff_signed_add_repr(
-        lhs.negative,
-        lhs_units,
-        !(quotient.negative != rhs.negative),
-        product,
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
