@@ -7,6 +7,4 @@ import {
   "Luna-Flow/floating/cli/testfloat_expr_cli",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

@@ -310,7 +310,7 @@ pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
       exp_mode = true
     } else if ch >= '0' && ch <= '9' {
       has_digit = true
-      digits_builder.write_string(src[i:i + 1].to_owned())
+      digits_builder.write_char(Int::unsafe_to_char(ch.to_int()))
       if seen_point {
         frac_digits += 1
       }
