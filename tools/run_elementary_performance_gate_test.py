@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import run_elementary_performance_gate as gate
 
@@ -9,7 +10,18 @@ import run_elementary_performance_gate as gate
 class ElementaryPerformanceGateTests(unittest.TestCase):
     def test_manifest_pins_real_baseline_and_maremark_policy(self) -> None:
         manifest = gate.load_manifest(gate.DEFAULT_MANIFEST)
-        gate.verify_manifest(manifest)
+        baseline = manifest["baseline"]
+
+        def git_output(*arguments: str) -> str:
+            revision = arguments[-1]
+            if revision == baseline["commit"]:
+                return baseline["commit"]
+            if revision == f'{baseline["commit"]}^{{tree}}':
+                return baseline["tree"]
+            raise AssertionError(f"unexpected git revision: {revision}")
+
+        with patch.object(gate, "git_output", side_effect=git_output):
+            gate.verify_manifest(manifest)
         self.assertEqual(manifest["pairedSamples"], 10)
         self.assertEqual(manifest["practicalRegressionPct"], 3.0)
         self.assertEqual(manifest["confidencePct"], 95.0)

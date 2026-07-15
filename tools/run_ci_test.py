@@ -80,6 +80,18 @@ class RunCiTests(unittest.TestCase):
         )
         self.assertIn("--strict-supported", commands[-1])
 
+    def test_repository_scopes_exclude_performance_comparisons(self) -> None:
+        for scope in ("quick", "all"):
+            commands = [stage.command for stage in run_ci.stages_for(scope, 4)]
+            flattened = [item for command in commands for item in command]
+            self.assertNotIn("tools/run_elementary_performance_gate.py", flattened)
+            self.assertFalse(
+                any(
+                    command[-2:] == ("tools/benchmark.py", "elementary")
+                    for command in commands
+                )
+            )
+
     def test_binary_gate_locks_level_and_both_tininess_modes(self) -> None:
         command = run_ci.stages_for("binary", 2)[0].command
         self.assertEqual(command[command.index("--level") + 1], "1")
