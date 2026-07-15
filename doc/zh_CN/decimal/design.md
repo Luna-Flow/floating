@@ -1,71 +1,96 @@
 # `decimal` 设计
 
-## 职责与表示
+`decimal` 是 0.7.0 的 IEEE-oriented 任意精度十进制核心，组合 quantum-preserving
+value、显式 context/flags、decimal32/64/128 interchange 与认证初等函数。独立的
+[`decimal_gda`](../decimal_gda/design.md) 拥有 GDA sticky status 与 traps；两种
+Decimal 不是 alias。
 
-`decimal` 负责任意精度十进制值、General Decimal Arithmetic context/flags，
-以及 decimal32/64/128 interchange。有限值具有独立符号、系数、十进制指数、
-cohort 和工作精度；负零、无穷、qNaN/sNaN 与 payload 都是可观察语义。
+## 设计契约
 
-系数内核是私有实现：使用小端 base-1e9 `UInt` limb，并用 `UInt64` 做宽中间值。
-单 limb 系数使用 inline 表示，更大的系数使用 limb-backed 数组；零只有一种
-canonical 形式，数组无前导零，十进制位数精确。公开 API 不暴露这些布局。
-BigInt 仅保留在公开转换/序列化边界以及测试 oracle/debug 边界，Decimal 热路径
-直接消费私有系数。
+Coefficient kernel 只计算精确整数事实，共享 finalization 才决定 bounded decimal
+结果：operand/context → 特殊值分类 → 精确 sign/coefficient/preferred exponent →
+一次舍入 → exponent/subnormal/tininess/clamp → value + `DecimalFlags`。因此更快的
+mul/div 不能改变 rounding、quantum、signed zero、NaN payload 或 flags。
 
-解析和量子敏感操作可以保留尾零/指数 cohort；`normalized()`/`reduce_ctx()` 只
-移除不影响数学值的十次幂。普通数值 equality 与 `compare_total` 因而不同。
+## 表示与 Cohort
 
-## 系数与舍入算法
+有限值表示 `(-1)^negative × coefficient × 10^exponent10`。同一个数可有多个 cohort：
+`1.2300` 的 quantum 为 -4，而 `1.23` 为 -2。若 coefficient 能装入 precision，parse
+保留输入 exponent；只有显式 `normalized()`/`reduce_ctx()` 才移除十因子。
+Numeric comparison 与 `compare_total` 因而是不同关系。
 
-小规模操作使用 inline arithmetic、checked 加减、Comba/schoolbook 乘法、专用
-square、单 limb 除法、精确幂、GCD、整数 `sqrt_rem` 和平方求幂。稀疏操作数先压缩
-非零项；短边足够大时，强不平衡操作数按平衡 block 拆分，小尺寸形状则保留单一
-规范化 accumulator。
+私有 `DecCoeff` 对小值使用 inline storage，对大值使用 canonical little-endian
+base-`10^9` limbs，并保存精确 digit count。`BigInt` 只留在公开转换/序列化边界与
+test oracle；hot path 直接操作 `DecCoeff`。
 
-平衡乘法分派同时考虑长度、density、平衡比、是否 square 和 target-specific
-threshold。生产阶梯为 schoolbook、Karatsuba、Toom-3、双模数 NTT convolution。
-Karatsuba/Toom-3 使用有界递归和 scratch；Toom-3 的负中间值只存在内部 signed
-scratch，并检查插值中的 exact division。NTT 使用更小的十进制工作 digit、CRT
-重建和显式长度/系数上界，不满足条件时回退。
+## IEEE 754 对齐
 
-除法依次选择 word division、归一化 Knuth Algorithm D、Burnikel–Ziegler block
-递归或 Newton reciprocal。每条路径检查商/余数不变量，并可回退到更保守的算法。
-scratch arena 复用临时 limb buffer，但 rewind 后的 buffer 不会逃逸到结果。
+`DecimalContext::ieee754()` 与 decimal32/64/128 preset 显式给出 precision、rounding、
+exponent、clamp、tininess。`*_ctx` 返回 `(Decimal, DecimalFlags)`，不存在 ambient
+flag register。FMA 保持 exact product 到 aligned addition 后只舍入一次。
 
-Context 操作先处理特殊值，计算精确系数/指数，再按八种 rounding 舍入，最后应用
-指数界限、subnormal、clamp 和 `DecimalFlags`。FMA 保持乘积精确直到加法；sqrt
-和初等函数使用系数原生 guard digit 与迭代/级数 refinement，最后只做一次 context
-finalization。quantize 固定目标指数，结果系数无法适配 context 时报告
-`invalid_operation`。
+`DecimalInterchange` 同时实现 DPD/BID，并保留 signed zero、infinity、qNaN/sNaN 与
+payload。IEEE matrix 由 `testdata/decimal/ieee/conformance_matrix.json` 限定。
+需要 GDA sticky status、trap precedence 或 `.decTest` 行为时必须使用 `decimal_gda`。
 
-## Context 与 interchange 边界
+## Coefficient 算法选择
 
-`DecimalContext` 是不可变输入，`*_ctx` 返回 `(Decimal, DecimalFlags)`；flags 是
-显式累积数据，不依赖 ambient mutable state。`DecimalInterchange` 让 DPD 与 BID
-decimal32/64/128 共用同一 Decimal 语义层，统一处理 canonicalization、非 canonical
-有限编码、NaN payload、Infinity 和 signed zero。编码选择不会复制 arithmetic 或
-rounding 语义。
+选择器考虑 limb count、density、balance ratio、square shape、transform length 与
+target。Dense balanced 路径为 schoolbook/Comba → Karatsuba → Toom-3 → dual-modulus NTT；
+sparse 与 strongly unbalanced operand 使用专门路径。
 
-## 能力与合规边界
+| Target | Karatsuba mul/square | Toom-3 mul | 首个 NTT mul/square | BZ division | Newton |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| native | 96 / 48 | 1,152 | 1,728 / 640 | 2,816 起分段 | disabled |
+| LLVM | 96 / 96 | 2,048 | 4,096 / 2,048 | 2,048 | 4,096 |
+| Wasm / Wasm-GC / JS | 96 / 96 | 4,096 | 8,192 / 4,096 | 2,048 | 4,096 |
 
-公共能力包含算术、FMA、整除/余数、quantize/rescale、total compare、逻辑数字、
-邻接值、分类、格式化、interchange 和初等函数。GDA 与 IEEE gate 分开统计：固定
-`official`/`official0` 覆盖合法标量语义，独立 IEEE decimal32/64/128 vectors 覆盖
-操作、flags、特殊值、total order、格式转换以及 DPD/BID bit pattern。支持的 target
-要求两套 gate 都是零 failed/unsupported。
+Native NTT mul 阈值随 transform 依次为 1,728、2,816、4,608、7,680、8,192；
+square 为 640、1,040、1,824、3,648、7,296、8,192。BZ boundary 由 2,816 过渡到
+5,120/10,240。Native Newton 虽已实现并测试，但 0.7.0 测量不足以支持 production
+crossover，所以保持禁用；其他 target 自 4,096 启用。
 
-## 复杂度与权威参考
+Karatsuba/Toom 限制 recursion depth 并用 scratch arena；Toom 检查 interpolation
+exact division；NTT 检查 transform/coefficient bounds 与 CRT exact reconstruction；
+division 检查 quotient/remainder identity 并可退回 Knuth D。临时 buffer 不得逃逸。
 
-对 `n` 个 base-1e9 limb，加减、比较、移位、规范化和单 limb 除法为 `O(n)`；
-schoolbook 与 Knuth 除法为 `O(n²)`。Karatsuba、Toom-3、NTT、Burnikel–Ziegler、
-Newton 只在实测 crossover 值得 setup 成本时启用。所有算法出口都做 canonicalize
-和精确 carry 检查，优化不能改变 Decimal rounding 或 cohort 语义。
+## 舍入、指数与 Quantum
 
-算法与语义参考：Knuth《The Art of Computer Programming》Vol.2 Algorithm D、
-Karatsuba 乘法、Bodrato Toom-Cook 插值、Burnikel–Ziegler《Fast Recursive
-Division》、Brent–Zimmermann《Modern Computer Arithmetic》、Cowlishaw 的 GDA
-规范与 decNumber，以及 IEEE 754-2019 / ISO 60559。
+Finalization 从精确 signed coefficient 与 preferred exponent 计算 guard/sticky，
+然后决定 overflow、underflow、subnormal、rounded、inexact、clamped。`quantize`
+固定目标 exponent，装不下时报告 `invalid_operation`，不会偷偷选择另一 scale。
+
+`parse/from_string` 在 precision 允许时保留 quantum；更长 coefficient 只舍入一次。
+`from_string_ctx` 还施加 exponent policy 并返回 conversion/rounding flags。
+
+## 认证初等函数
+
+输入被分别向负无穷与正无穷转为 dyadic interval，经 `ball_float` 认证计算后，两端
+通过精确整数算术转回 Decimal；只有两端得到相同 target value 与 flags 才接受。
+初始工作精度至少 128 bits，共享 12-step refinement budget。`try_*_ctx` 在无法证明
+唯一 rounding cell 时返回结构化失败。
+
+固定 MPFR 4.2.2 oracle 用 768-bit directed bounds，覆盖 29 operations、三种格式与
+八种 rounding mode 的 2,784 rows；libmpdec `allcr=1` 独立检查 GDA-compatible
+`exp/ln/log10`。这属于有限证据，不是所有实数输入的证明。
+
+## 优化与边界调优
+
+Maremark 分离 dense、sparse、balanced、unbalanced、square、kernel 与 full context
+路径，并旋转 candidate/baseline 顺序。Production path 必须同时满足精确差分测试与
+实际性能收益。Precision/exponent/rounding/quantum 是公开 semantic boundary；
+1,152/1,728 等 limb 数是可重调的私有 dispatch boundary。
+
+## 复杂度与取舍
+
+Addition、comparison、normalization、shift、single-limb division 为 `O(n)`；schoolbook
+与 Knuth 为二次；Karatsuba、Toom-3、NTT、BZ、Newton 在大规模时降低渐近成本但增加
+setup、storage 与 precondition。实现直到实测 crossover 才选择更复杂算法。
 
 ## 证据映射
 
-[IEEE 一致性](./conformance.md)、[`decimal_gda` 一致性](../decimal_gda/conformance.md)与[性能](./performance.md)是三份独立证据账本，避免混淆 GDA status、IEEE flags 和 benchmark threshold。
+- [API](./api.md) 是公开面清单。
+- [Tutorial](./tutorial.md) 解释 quantum、context、interchange 与认证操作。
+- [IEEE conformance](./conformance.md) 定义有限 IEEE 声明。
+- [Performance](./performance.md) 记录 dispatch protocol。
+- [`decimal_gda` conformance](../decimal_gda/conformance.md) 保持 GDA 声明独立。

@@ -3,11 +3,11 @@
 ## Stability
 
 Bare/decorated interval construction, relations, forward arithmetic, contexts,
-and flags are supported `0.6.1` APIs. Reverse operations and guaranteed
+and flags are supported `0.7.0` APIs. Reverse operations and guaranteed
 tightness are outside the contract.
 
 This page tracks the current repository implementation and is written as the
-`0.6.1` API baseline. It covers `@ball_float.BallFloat`,
+`0.7.0` API baseline. It covers `@ball_float.BallFloat`,
 `@ball_float.Decoration`, and `@ball_float.BallFloatDecorated`.
 
 ## Semantics
@@ -164,7 +164,7 @@ operations and implements `+`, `-`, `*`, `/`, and `Show`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -207,11 +207,18 @@ pub fn BallFlags::underflow(Self) -> Bool
 
 pub struct BallFloat {
   // private fields
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn BallFloat::abs(Self) -> Self
+pub fn BallFloat::acos_interval(Self) -> Self
+pub fn BallFloat::acosh_interval(Self) -> Self
 pub fn BallFloat::add(Self, Self) -> Self
 pub fn BallFloat::add_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::apply_ctx(Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloat::asin_interval(Self) -> Self
+pub fn BallFloat::asinh_interval(Self) -> Self
+pub fn BallFloat::atan2_interval(Self, Self) -> Self
+pub fn BallFloat::atan_interval(Self) -> Self
+pub fn BallFloat::atanh_interval(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
 pub fn BallFloat::center(Self) -> @bin_float.BinFloat
@@ -220,6 +227,8 @@ pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
 pub fn BallFloat::contains_zero(Self) -> Bool
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos_interval(Self) -> Self
+pub fn BallFloat::cosh_interval(Self) -> Self
+pub fn BallFloat::cospi_interval(Self) -> Self
 pub fn BallFloat::definitely_gt(Self, Self) -> Bool
 pub fn BallFloat::definitely_le(Self, Self) -> Bool
 pub fn BallFloat::definitely_lt(Self, Self) -> Bool
@@ -232,12 +241,14 @@ pub fn BallFloat::exp10_interval(Self) -> Self
 pub fn BallFloat::exp2_interval(Self) -> Self
 pub fn BallFloat::exp_ctx(Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::exp_interval(Self) -> Self
+pub fn BallFloat::expm1_interval(Self) -> Self
 pub fn BallFloat::fma(Self, Self, Self) -> Self
 pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
 pub fn BallFloat::from_double(Double, precision? : Int) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int) -> Self
 pub fn BallFloat::from_int(Int, precision? : Int) -> Self
+pub fn BallFloat::hypot(Self, Self) -> Self
 pub fn BallFloat::interior(Self, Self) -> Bool
 pub fn BallFloat::intersection(Self, Self) -> Self
 pub fn BallFloat::is_bounded(Self) -> Bool
@@ -249,6 +260,7 @@ pub fn BallFloat::less(Self, Self) -> Bool
 pub fn BallFloat::ln_ctx(Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::ln_interval(Self) -> Self
 pub fn BallFloat::log10_interval(Self) -> Self
+pub fn BallFloat::log1p_interval(Self) -> Self
 pub fn BallFloat::log2_interval(Self) -> Self
 pub fn BallFloat::lower_bound(Self) -> @bin_float.BinFloat
 pub fn BallFloat::magnitude(Self) -> @bin_float.BinFloat
@@ -272,10 +284,13 @@ pub fn BallFloat::precision(Self) -> Int
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 pub fn BallFloat::reciprocal(Self) -> Self
+pub fn BallFloat::rootn(Self, Int) -> Self
 pub fn BallFloat::separated_from(Self, Self) -> Bool
 pub fn BallFloat::set_equal(Self, Self) -> Bool
 pub fn BallFloat::sign(Self) -> @def.Sign
 pub fn BallFloat::sin_interval(Self) -> Self
+pub fn BallFloat::sinh_interval(Self) -> Self
+pub fn BallFloat::sinpi_interval(Self) -> Self
 pub fn BallFloat::sqrt_interval(Self) -> Self
 pub fn BallFloat::square(Self) -> Self
 pub fn BallFloat::strictly_less(Self, Self) -> Bool
@@ -284,10 +299,39 @@ pub fn BallFloat::sub(Self, Self) -> Self
 pub fn BallFloat::sub_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
+pub fn BallFloat::tanh_interval(Self) -> Self
+pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_asinh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atan2_interval(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cospi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_exact(@bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp10_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp2_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_expm1_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_from_double(Double, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_from_float(Float, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_ln_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log10_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log1p_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log2_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_pow_interval(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_rootn(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_sin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_sinh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_sinpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tanpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
 pub fn BallFloat::whole(precision? : Int) -> Self
 pub fn BallFloat::width(Self) -> @bin_float.BinFloat
@@ -312,20 +356,31 @@ pub struct BallFloatDecorated {
   // private fields
 } derive(Eq)
 pub fn BallFloatDecorated::abs(Self) -> Self
+pub fn BallFloatDecorated::acos_interval(Self) -> Self
+pub fn BallFloatDecorated::acosh_interval(Self) -> Self
 pub fn BallFloatDecorated::add(Self, Self) -> Self
 pub fn BallFloatDecorated::apply_ctx(Self, BallContext) -> (Self, BallFlags)
+pub fn BallFloatDecorated::asin_interval(Self) -> Self
+pub fn BallFloatDecorated::asinh_interval(Self) -> Self
+pub fn BallFloatDecorated::atan2_interval(Self, Self) -> Self
+pub fn BallFloatDecorated::atan_interval(Self) -> Self
+pub fn BallFloatDecorated::atanh_interval(Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
 pub fn BallFloatDecorated::contains(Self, @bin_float.BinFloat) -> Bool
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos_interval(Self) -> Self
+pub fn BallFloatDecorated::cosh_interval(Self) -> Self
+pub fn BallFloatDecorated::cospi_interval(Self) -> Self
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
 pub fn BallFloatDecorated::div(Self, Self) -> Self
 pub fn BallFloatDecorated::exp10_interval(Self) -> Self
 pub fn BallFloatDecorated::exp2_interval(Self) -> Self
 pub fn BallFloatDecorated::exp_interval(Self) -> Self
+pub fn BallFloatDecorated::expm1_interval(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
+pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
 pub fn BallFloatDecorated::intersection(Self, Self) -> Self
 pub fn BallFloatDecorated::interval(Self) -> BallFloat
@@ -337,6 +392,7 @@ pub fn BallFloatDecorated::is_singleton(Self) -> Bool
 pub fn BallFloatDecorated::less(Self, Self) -> Bool
 pub fn BallFloatDecorated::ln_interval(Self) -> Self
 pub fn BallFloatDecorated::log10_interval(Self) -> Self
+pub fn BallFloatDecorated::log1p_interval(Self) -> Self
 pub fn BallFloatDecorated::log2_interval(Self) -> Self
 pub fn BallFloatDecorated::maximum(Self, Self) -> Self
 pub fn BallFloatDecorated::minimum(Self, Self) -> Self
@@ -350,8 +406,11 @@ pub fn BallFloatDecorated::pow_interval(Self, Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::reciprocal(Self) -> Self
+pub fn BallFloatDecorated::rootn(Self, Int) -> Self
 pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::sin_interval(Self) -> Self
+pub fn BallFloatDecorated::sinh_interval(Self) -> Self
+pub fn BallFloatDecorated::sinpi_interval(Self) -> Self
 pub fn BallFloatDecorated::sqrt_interval(Self) -> Self
 pub fn BallFloatDecorated::square(Self) -> Self
 pub fn BallFloatDecorated::strictly_less(Self, Self) -> Bool
@@ -359,6 +418,8 @@ pub fn BallFloatDecorated::strictly_precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::sub(Self, Self) -> Self
 pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan_interval(Self) -> Self
+pub fn BallFloatDecorated::tanh_interval(Self) -> Self
+pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Mul for BallFloatDecorated

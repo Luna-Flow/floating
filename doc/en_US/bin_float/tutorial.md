@@ -1,113 +1,199 @@
 # `bin_float` Tutorial
 
-This page tracks the `0.6.1` implementation. Read
-[Conformance](./conformance.md) before treating a contextual result as an IEEE
-interchange operation.
+Use `bin_float` when values are naturally dyadic, when precision must exceed a
+host `Float`/`Double`, or when binary16/32/64/128 rounding and status are part of
+the result. This tutorial targets `floating` 0.7.0; see [API](./api.md) for the
+complete inventory and [Conformance](./conformance.md) for the verified IEEE
+boundary.
 
-## Creating Dyadic Values
+## Choose The Right Entry Point
 
-`BinFloat` is the best fit when the value you want is naturally expressed in binary form.
+| Need | Recommended API |
+| --- | --- |
+| exact arbitrary-precision dyadic work | ordinary `BinFloat` constructors and methods |
+| fixed precision/exponent/rounding with flags | `*_ctx` + `BinaryContext` |
+| binary16/32/64/128 bits | `BinaryInterchange` |
+| observable elementary certification failure | `try_*_ctx` |
+| short-circuit checked composition | `bin_float_checked` |
 
-```moonbit
-let x = @bin_float.BinFloat::make(
-  @bin_float.BinCoeff::from_uint64(3UL),
-  -1,
-  32,
-) // 3 * 2^-1 = 1.5
-let y = @bin_float.BinFloat::make(
-  @bin_float.BinCoeff::from_uint64(5UL),
-  -1,
-  32,
-) // 2.5
-let sum = x + y
-inspect(sum.to_string(), content="1p2")
+## Construct Exact Dyadic Values
+
+`BinFloat::make` receives a non-negative coefficient, a power-of-two exponent,
+and a working precision. The sign is a separate argument.
+
+```moonbit check
+///|
+test "construct an exact dyadic" {
+  let x = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::from_uint64(3UL),
+    -1,
+    32,
+  )
+  inspect(x.to_string(), content="3p-1")
+  inspect(x.to_double(), content="1.5")
+}
 ```
 
-The displayed `1p2` form means `1 * 2^2`.
+Normalization removes powers of two from a nonzero coefficient:
 
-## Understanding Normalization
-
-Finite values are normalized automatically. For example:
-
-```moonbit
-let raw = @bin_float.BinFloat::make(
-  @bin_float.BinCoeff::from_uint64(12UL),
-  0,
-  32,
-)
-inspect(raw.coefficient().to_string(), content="3")
-inspect(raw.exponent2().to_string(), content="2")
+```moonbit check
+///|
+test "binary normalization" {
+  let x = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::from_uint64(12UL),
+    0,
+    32,
+  )
+  inspect(x.coefficient().to_string(), content="3")
+  inspect(x.exponent2(), content="2")
+}
 ```
 
-The stored value is canonicalized from `12 * 2^0` into `3 * 2^2`.
+Use `from_int`/`from_bigint` for integers. Use `from_double` only when the host
+binary64 value itself is the source of truth; it cannot recover a decimal value
+that was rounded before the call.
 
-## Contextual IEEE Arithmetic
+## Use A Binary Context
 
-Use a `BinaryContext` when format bounds and status flags matter. Decode
-interchange bits rather than routing binary16/32/64/128 through host floats.
+Ordinary operators use the values' working precision. Use a `BinaryContext`
+when a specific interchange-style format, rounding direction, exponent range,
+or tininess rule is required.
 
-```moonbit
-let format = @bin_float.BinaryInterchangeFormat::Binary16
-let context = @bin_float.BinaryContext::binary16(
-  rounding=@bin_float.BinaryRoundingMode::RoundTiesToEven,
-  tininess=@bin_float.TininessDetection::AfterRounding,
-)
-let x = @bin_float.BinaryInterchange::from_hex("3C00", format).unwrap().to_bin_float()
-let y = @bin_float.BinaryInterchange::from_hex("4000", format).unwrap().to_bin_float()
-let (sum, flags) = x.add_ctx(y, context)
-let (bits, encoding_flags) = sum.to_interchange(format)
-inspect(bits.to_hex(), content="4200")
-inspect(flags.combine(encoding_flags).to_testfloat_bits(), content="0")
+```moonbit check
+///|
+test "binary16 contextual addition" {
+  let format = @bin_float.BinaryInterchangeFormat::Binary16
+  let context = @bin_float.BinaryContext::binary16(
+    rounding=@bin_float.BinaryRoundingMode::RoundTiesToEven,
+    tininess=@bin_float.TininessDetection::AfterRounding,
+  )
+  let x = @bin_float.BinaryInterchange::from_hex("3C00", format)
+    .unwrap()
+    .to_bin_float()
+  let y = @bin_float.BinaryInterchange::from_hex("4000", format)
+    .unwrap()
+    .to_bin_float()
+  let (sum, arithmetic_flags) = x.add_ctx(y, context)
+  let (bits, encoding_flags) = sum.to_interchange(format)
+  inspect(bits.to_hex(), content="4200")
+  inspect(
+    arithmetic_flags.combine(encoding_flags).to_testfloat_bits(),
+    content="0",
+  )
+}
 ```
 
-`add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, and `sqrt_ctx` round the exact real
-operation once under the supplied context and return IEEE status flags.
+Keep the value and flags together until the application has applied its status
+policy. For a multi-step calculation, combine flags explicitly:
 
-## Retuning Precision
-
-Each value stores a working precision.
-
-```moonbit
-let x = @bin_float.BinFloat::make(
-  @bin_float.BinCoeff::from_uint64(7UL),
-  -2,
-  32,
-)
-let short = x.with_precision(4, @def.RoundingMode::ToNearestEven)
+```moonbit nocheck
+let (product, mul_flags) = x.mul_ctx(y, context)
+let (quotient, div_flags) = product.div_ctx(z, context)
+let all_flags = mul_flags.combine(div_flags)
 ```
 
-Use `with_precision` when you want an explicitly rounded representation.
+Do not assume that an infinity or NaN means there is no result. IEEE operations
+often return a defined special value and a flag such as division-by-zero or
+invalid-operation.
 
-## Measuring Spacing with `ulp`
+## Decode And Encode Interchange Bits
 
-`ulp()` gives a spacing-style value for the current finite representation.
+Use `BinaryInterchange` for protocol or file bits. Do not decode binary16,
+binary32, or binary128 through a host `Double`.
 
-```moonbit
-let x = @bin_float.BinFloat::from_int(8, precision=16)
-let step = x.ulp()
+```moonbit check
+///|
+test "binary32 round trip" {
+  let format = @bin_float.BinaryInterchangeFormat::Binary32
+  let encoded = @bin_float.BinaryInterchange::from_hex("3F800000", format)
+    .unwrap()
+  let value = encoded.to_bin_float()
+  let (round_trip, flags) = value.to_interchange(format)
+  inspect(round_trip.to_hex(), content="3F800000")
+  inspect(flags.to_testfloat_bits(), content="0")
+}
 ```
 
-This is useful when reasoning about representational granularity rather than exact-real error bounds.
+For NaNs, inspect class, signaling state, sign, and payload according to the
+application's protocol. Ordinary `compare` is not a total order over NaNs.
 
-## Signed Zero And NaNs
+## Call Certified Elementary Functions
 
-`negative_zero`, `quiet_nan`, and `signaling_nan` are explicit constructors.
-Use `is_negative_zero`, `is_quiet_nan`, `is_signaling_nan`, and `nan_payload`
-when the representation state is observable. Do not use ordinary comparison to
-order NaNs.
+The `try_*_ctx` family exposes certification failure instead of aborting. This
+is the recommended boundary when input size or range is untrusted.
 
-## Comparison and Special Values
-
-Finite values can be compared with `compare`. Do not call `compare` on `nan`.
-
-```moonbit
-let a = @bin_float.BinFloat::from_int(3, precision=16)
-let b = @bin_float.BinFloat::from_int(5, precision=16)
-inspect(a.compare(b).to_string(), content="-1")
+```moonbit check
+///|
+test "certified binary exponential" {
+  let context = @bin_float.BinaryContext::binary64()
+  let one = @bin_float.BinFloat::one(precision=53)
+  match one.try_exp_ctx(context) {
+    Ok((value, flags)) => {
+      inspect(value.is_finite(), content="true")
+      inspect(flags.invalid_operation(), content="false")
+    }
+    Err(error) => {
+      // A caller can inspect error.certification_failure_detail() here.
+      ignore(error)
+      abort("binary exp could not be certified")
+    }
+  }
+}
 ```
 
-Use `classify()` when special values may be present.
+Use `exp_ctx`, `sin_ctx`, and similar convenience methods only when a
+certification failure is considered unrecoverable. Both families execute the
+same certified enclosure/refinement algorithm; the difference is error policy.
 
-## Context Status
+## Retune Working Precision Deliberately
 
-When flags are part of the result, keep the `(value, BinaryFlags)` pair through the operation boundary.
+`with_precision` changes the represented value if discarded bits are nonzero.
+Always state the rounding direction at this boundary.
+
+```moonbit check
+///|
+test "retune binary precision" {
+  let x = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::from_uint64(7UL),
+    -2,
+    32,
+  )
+  let short = x.with_precision(2, @arithmetic.RoundingMode::ToNearestEven)
+  inspect(short.to_string(), content="7p-2")
+}
+```
+
+`ulp()` reports spacing for the current finite representation. It is useful for
+representation analysis, but it is not a certified error bound for a sequence
+of operations.
+
+## Handle Special Values Explicitly
+
+- Construct signed zero with `zero` / `negative_zero`.
+- Construct NaNs with `quiet_nan` / `signaling_nan` and inspect `nan_payload`.
+- Use `classify()` before an ordered comparison when NaN is possible.
+- Use contextual operations when invalid, overflow, underflow, or inexact status
+  affects control flow.
+- Preserve interchange bits when a protocol distinguishes NaN payloads or
+  signed zero.
+
+## Recommended Practice
+
+1. Pick one working precision at the algorithm boundary; avoid repeatedly
+   shrinking and expanding values.
+2. Decode fixed formats with `BinaryInterchange`, calculate with one explicit
+   `BinaryContext`, and encode once at the output boundary.
+3. Accumulate flags beside the value rather than discarding them after each
+   operation.
+4. Prefer `try_*_ctx` for elementary functions over untrusted or very large
+   inputs.
+5. Do not depend on coefficient limb layout, NTT thresholds, or target-specific
+   dispatch; those are intentionally private.
+
+## Next Reading
+
+- [Design](./design.md) explains exact kernels, certified rounding, and tuning
+  boundaries.
+- [Conformance](./conformance.md) lists the exact TestFloat/MPFR evidence.
+- [`bin_float_checked` tutorial](../bin_float_checked/tutorial.md) shows a
+  closed `Result` pipeline when first-error short-circuiting is desired.

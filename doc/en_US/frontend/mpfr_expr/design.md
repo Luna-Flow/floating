@@ -1,11 +1,11 @@
 # `frontend/mpfr_expr` Design
 
-The package parses two pinned MPFR text formats: upstream hexadecimal sqrt
-`data_check` rows and repository-generated integer-power witnesses. It converts
-hexadecimal coefficients to `BinCoeff`, executes `sqrt_ctx` or `pow_int_ctx`,
-and compares value plus inexact status using the rounding mode encoded by each
-row.
+The package parses three pinned MPFR text formats: upstream hexadecimal sqrt
+`data_check` rows, repository-generated integer-power witnesses, and the
+29-operation elementary matrix. It converts hexadecimal coefficients to
+`BinCoeff`, executes the matching contextual operation, and compares the value
+plus inexact/invalid/division-by-zero status under the row's rounding mode.
 
-It is an oracle adapter, not an MPFR binding. It supports only those two corpus
-grammars and operations, performs no C FFI or file IO, and makes no claim about
-other MPFR functions or rounding modes absent from the corpus.
+It is an oracle adapter, not an MPFR binding. It performs no runtime C FFI or
+file IO. The development-only generator uses MPFR 4.2.2 and its mandatory
+nearest-away wrapper; released packages do not link MPFR or GMP.

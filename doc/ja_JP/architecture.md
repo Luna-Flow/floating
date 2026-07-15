@@ -1,109 +1,119 @@
-# Architecture
+# アーキテクチャ
 
-`floating` は明示的な数値 domain と、薄い composition、parsing、verification layer
-で構成されます。純粋な数値変換を filesystem、process、corpus の effect から分離します。
+`floating` 0.7.0 は、明示的な数値 domain と薄い composition/parsing/verification layer
+で構成されます。数値意味論を pure かつ明示的に保ち、filesystem・process・corpus・
+benchmark effect を repository edge に置くことが中心原則です。
 
-## Layer map
+## Layer Map
 
 | Layer | Package | 責務 |
 | --- | --- | --- |
-| 共有語彙 | `def` | classification、sign、partial order、arithmetic type の reexport、最小 `Floating` trait |
-| Scalar domain | `bin_float`、`decimal`、`decimal_gda` | binary、IEEE decimal、GDA decimal の意味論 |
-| Interval domain | `ball_float` | bare/decorated outward-rounded enclosure |
-| Checked composition | `bin_float_checked`、`ball_float_checked`、`decimal_checked`、`decimal_gda_checked` | error、IEEE flags、GDA outcome を保つ domain-specific pipeline |
-| Semantic projection | `semantic` | 表現に依存しない exact observation |
-| Syntax | `numeric_expr` | source span、literal、primitive call、callback evaluation |
-| Format frontend | `frontend/*` | corpus format を parse し typed case を実行 |
-| Runtime adapter | `internal/conformance`、`internal/runner_cli`、`cli/*` | summary、sharding、file、JSON、exit code |
-| Verification | `consistency`、`doc_examples`、`*_bench`、`tools/`、`testdata/` | law、executable docs、performance、corpus orchestration |
+| 共通語彙 | `def` | classification、sign、partial order、arithmetic type reexport、最小 `Floating` trait |
+| scalar domain | `bin_float`、`decimal`、`decimal_gda` | binary、IEEE decimal、GDA decimal の value/context semantics |
+| interval domain | `ball_float` | bare/decorated outward-rounded real enclosure |
+| checked composition | `*_checked` | 各 domain の error/flag/trap state を closed pipeline に保持 |
+| semantic projection | `semantic` | 表現非依存の exact observation |
+| syntax | `numeric_expr` | source span、literal、primitive call、callback evaluation |
+| format frontend | `frontend/*` | 単一 corpus grammar の parse と typed case 実行 |
+| runtime adapter | `internal/conformance`、`internal/runner_cli`、`cli/*` | summary、shard、file、JSON/text、exit status |
+| evidence | `consistency`、`doc_examples`、`bench/*`、`tools/`、`testdata/` | law、docs、conformance、performance、orchestration |
 
-Package 境界は `moon.pkg` が決めます。Package 内 file 名は実装を整理するだけで、
-namespace を作りません。
+Package boundary は `moon.pkg` が定義し、同一 package 内の file 名は namespace を作りません。
 
-## 数値 core
+## 標準境界
 
-`BinFloat` は独立 sign、非負 `BinCoeff`、binary exponent、precision、特殊値 state
-を保持します。non-JS target は private inline/limb kernel、JS は同じ public
-contract を持つ hidden host-`bigint` adapter を使います。
+すべてを一つの「floating value」に平坦化せず、標準ごとの観測可能 state を保持します。
 
-`Decimal` は sign、private decimal coefficient、base-10 exponent、precision、
-cohort、特殊値 state を保持します。Coefficient kernel は target ごとに調整した
-multiplication/division dispatch を使いますが、public behavior は limb layout ではなく
-decimal value、quantum、context、flags で定義されます。
+| Domain | 0.7.0 が表現する規範モデル | Operation result |
+| --- | --- | --- |
+| `bin_float` | declared IEEE 754-2019 binary | value + `BinaryFlags` |
+| `decimal` | declared IEEE 754-2019 decimal/interchange | value + `DecimalFlags` |
+| `decimal_gda` | GDA 1.70 scalar operation model | raised、sticky next context、optional trap を持つ `GdaOutcome` |
+| `ball_float` | declared IEEE 1788-2015 bare/decorated interval | enclosure、decoration/NaI、optional `BallFlags` |
 
-`BallFloat` は binary lower/upper endpoint と Empty/Entire state を保持します。
-Directed rounding が enclosure を作り、`BallFloatDecorated` は bare representation
-を変えずに IEEE 1788 decoration と NaI を追加します。
+この分離により GDA trap を IEEE flag に、IEEE defined infinity を generic error に、
+Entire/Empty/NaI を同一 failure に変換しません。
 
-## Context と effect flow
+## Numeric Core Pipeline
 
-通常 arithmetic は pure value transformation です。Contextual arithmetic も pure
-であり、context は explicit input、result と flags は explicit output です。Ambient
-rounding state は使いません。
+各 scalar core は次の分解を共有します。
 
 ```text
-value(s) + immutable context
-          -> classify special states
-          -> exact or guarded finite computation
-          -> one bounded-format finalization
-          -> rounded value + operation flags
+public immutable value(s) + explicit context
+  -> special-state/domain classification
+  -> exact coefficient or certified interval computation
+  -> one domain-owned finalization
+  -> public value + explicit effect data
 ```
 
-`decimal_gda` は immutable state threading を追加します。各 operation は新しい
-raised flags を sticky status に combine し、固定 precedence で enabled trap を
-選びます。Status を蓄積するには返された context を次の operation に渡します。
+`BinFloat` は sign、non-negative binary coefficient、exponent、precision、special state、
+二つの Decimal は独立した package-owned base-`10^9` coefficient と quantum、
+`BallFloat` は outward endpoint と Empty/Entire を保持します。Finalization が semantic
+firewall であり、kernel は flags、cohort、trap、decoration、endpoint direction を決めません。
 
-Checked wrapper は各 numerical domain の effect channel を保ちます。Binary と
-interval wrapper は最初の `ArithmeticError` を保持します。`decimal_checked` は
-IEEE context を固定して flags を蓄積し、defined exceptional result を保持します。
-`decimal_gda_checked` は next sticky context を渡し、`Trapped` で停止し、defined
-result から続行するには explicit recovery を要求します。
+## Algorithm Selection Architecture
 
-## Parsing と execution
+Large integer kernel は size/shape/target/proof precondition から inline/schoolbook/Comba、
+Karatsuba、Toom-3、NTT+exact CRT を段階選択し、precondition failure では exact fallback
+へ戻ります。Division は word/Knuth D から Burnikel-Ziegler/Newton へ進み、sparse、square、
+unbalanced shape は専用経路を持ちます。
 
-`numeric_expr` は syntax data と post-order callback evaluation だけを持ち、IO も
-numeric backend の選択も行いません。
+Boundary は target-specific private policy です。Maremark が dense/sparse/square/balanced/
+unbalanced を測定し、cutoff の直前・点・直後で exact differential test を行います。
+Native/LLVM/Wasm/Wasm-GC/JS が異なる path を選んでも public result は同一です。
 
-各 `frontend/*` package は一つの外部 grammar を所有します。
+## Certified Elementary Architecture
 
-- `gda_expr` は `.decTest` directive/case を parse して GDA row を実行します。
-- `testfloat_expr` は TestFloat vector と function/rounding/tininess を扱います。
-- `mpfr_expr` は pinned MPFR sqrt と integer-power data を扱います。
-- `itl_expr` は interval test language row を parse して support を分類します。
+共通 proof contract は、directed lower/upper enclosure を作り、両 endpoint を target domain
+へ丸め、value と flags が一致した時だけ採用し、otherwise `max(32, work/2)` で精度を増し、
+12 refinement 後に structured detail を返します。
 
-Frontend は typed summary を返します。CLI は file、shard/filter、JSON/text、process
-status を扱います。Python tool は pinned data の fetch、task plan、複数 process/
-target、aggregation を担当し、MoonBit numerical implementation を置換しません。
+`bin_float` が scalar dyadic certificate、`ball_float` が endpoint/critical point/pole/domain、
+decimal 二包が exact decimal↔dyadic conversion を担当します。Total interval API は安全に
+`[-1,1]`/Entire へ広げられ、`try_*` は proof/resource failure を公開します。
 
-## Stable と internal の境界
+## Context / Effect Flow
 
-Application-facing release surface は `def`、concrete numeric package、checked wrapper
-です。`semantic` と `numeric_expr` は provisional integration surface です。Frontend
-は repository runner の composition のため public ですが、compatibility は宣言済み
-corpus と generated interface の範囲です。
+Ambient rounding state は使いません。Binary/IEEE decimal context は immutable input、flags
+は output、GDA は sticky next context と fixed-precedence trap、`BallContext` は endpoint
+limits を扱います。Binary/interval wrapper は first `ArithmeticError`、`DecimalChecked` は
+IEEE flags、`GdaDecimalChecked` は一つの outcome と trap short-circuit を保持します。
 
-`internal/*`、CLI、benchmark、`consistency`、`doc_examples` は implementation/
-verification infrastructure です。`pkg.generated.mbti` に symbol があっても stable
-application contract とは限らないため、package design を確認します。
+Wrapper は既存 semantics を合成するだけで、新しい arithmetic algorithm や不正な effect
+merge を導入しません。
 
-## 不変条件
+## Parsing / Execution
 
-- Coefficient sign と非負 magnitude は独立です。
-- Finite normalized form は表現上の冗長性だけを除き、数学的値を保ちます。
-- Decimal parser は explicit normalization まで cohort/quantum を保持できます。
-- Bounded precision、exponent、clamp、status policy は context finalization で適用します。
-- Interval lower bound は downward、upper bound は upward に round します。
-- Empty、Entire、NaI、NaN、infinity は explicit state のままです。
-- Summary count は selected case を分割し、sharding は deterministic です。
-- IO、process state、download、parallel scheduling は tooling edge に置きます。
+`numeric_expr` は syntax data と post-order callback evaluation のみです。各 frontend が
+GDA/TestFloat/MPFR/ITL grammar を所有し typed summary を返します。CLI は files/filter/
+shard/render/exit code、Python tooling は checksum-pinned data、isolated target/process、
+aggregation を担当し、MoonBit 数値実装を置き換えません。
 
-## 拡張規則
+## Stable / Internal Boundary
 
-Behavior は意味論を所有する package に追加します。新しい umbrella trait を作る前に
-既存 arithmetic capability trait を composition します。Numeric kernel は private、
-context と flags は explicit に保ち、stable interchange contract でない format parser
-は concrete value type の外に置きます。
+Application surface は `def`、concrete numeric package、checked wrapper です。`semantic` と
+`numeric_expr` は provisional、frontend compatibility は declared corpus/interface に限定。
+`internal/*`、CLI、`bench/*`、`consistency`、`doc_examples` は implementation/verification
+infrastructure です。`pkg.generated.mbti` への掲載だけで長期 application contract にはなりません。
 
-Conformance surface を拡張するときは parser model、executor、support classification、
-CLI schema、corpus manifest、test、localized docs を同時に更新します。Token を parse
-できるだけでは support ではなく、strict execution の定義済み比較と再現可能な証拠が必要です。
+## Invariant
+
+- sign と non-negative coefficient は分離する；
+- binary normalization は 2 の factor のみ除く；
+- decimal parse は explicit normalization/reduction まで quantum を保持する；
+- context finalization が唯一の bounded rounding/status decision point；
+- interval lower は downward、upper は upward；
+- Empty/Entire/NaI/NaN/signed zero/infinity は明示 state；
+- fast path/fallback は public value/effect data を変えない；
+- conformance count は selected case を partition し sharding は deterministic；
+- IO/download/process/parallel scheduling は tooling edge に置く。
+
+## Extension Rule
+
+Semantics を所有する package に機能を追加し、umbrella trait より既存 capability composition
+を優先します。Kernel は private、context/effect は explicit、external format parse は stable
+interchange contract でない限り numeric value 外に置きます。
+
+Conformance surface 拡張では parser、executor、support classification、CLI schema、manifest、
+test、generated interface、三言語文書を同時更新します。Parse できるだけでは support ではなく、
+strict execution に定義済み比較と再現可能 evidence が必要です。

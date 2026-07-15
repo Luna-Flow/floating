@@ -1,6 +1,6 @@
 # Numeric Semantics
 
-This page defines the vocabulary shared across the `0.6.1` documentation. It
+This page defines the vocabulary shared across the `0.7.0` documentation. It
 distinguishes mathematical value from stored representation, rounding status,
 checked failure, and interval enclosure.
 

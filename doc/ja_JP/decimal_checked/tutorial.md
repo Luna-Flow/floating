@@ -1,6 +1,9 @@
-# `decimal_checked` Tutorial
+# `decimal_checked` チュートリアル
 
-## Accumulate IEEE Flags
+`DecimalChecked` は current defined Decimal、IEEE context、latest flags、accumulated flags、optional
+certification error を保持します。
+
+## IEEE Flags の累積
 
 ```moonbit check
 ///|
@@ -10,13 +13,19 @@ test "IEEE checked decimal pipeline" {
     .add(@decimal.Decimal::one())
   inspect(checked.value().to_string(), content="2.23")
   inspect(
+    checked.raised().contains(@decimal.DecimalSignal::Inexact),
+    content="true",
+  )
+  inspect(
     checked.flags().contains(@decimal.DecimalSignal::Rounded),
     content="true",
   )
 }
 ```
 
-## Keep Defined Exceptional Results
+`raised()` は last operation、`flags()` は combined history、`outcome()` は value + combined flags。
+
+## Defined Exceptional Result の保持
 
 ```moonbit check
 ///|
@@ -30,5 +39,29 @@ test "IEEE checked defined result" {
     checked.raised().contains(@decimal.DecimalSignal::DivisionByZero),
     content="true",
   )
+  inspect(checked.is_ok(), content="true")
 }
 ```
+
+`is_ok()` は ArithmeticError がない意味で flags empty ではありません。Certification failure は
+`error()` へ入り short-circuit、IEEE conditions は value+flags を保持します。
+
+## Status Window の Reset
+
+`clear_flags()` は value/context を保持して flags を clear。`with_context` は new IEEE context で current
+value を再 apply し flags を記録する observable step です。
+
+## Independent Pipeline を Merge しない
+
+Binary method は plain `Decimal` を受け、二つの context/history を暗黙 merge しません。合流時は
+application が context と merge policy を決めます。
+
+## 推奨事項
+
+1. Step policy は `raised()`、end-to-end は `flags()`。
+2. `is_ok()` と `flags().has_error()` を区別。
+3. Status consumption 後に clear。
+4. Outer boundary で `result()`。
+5. GDA trap は `decimal_gda_checked`。
+
+[Design](./design.md) と [`decimal` Tutorial](../decimal/tutorial.md) を参照してください。

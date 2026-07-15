@@ -2,15 +2,16 @@
 
 `parse_sqrt_data`/`execute_sqrt_data` handle MPFR hexadecimal sqrt rows.
 `parse_pow_data`/`execute_pow_data` handle the pinned integer-power witness
-format. Documents expose source and case count; summaries expose total, passed,
-failed, individual results, and `success`.
+format. `parse_elementary_data`/`execute_elementary_data` handle the pinned
+29-operation matrix. Documents expose source and case count; summaries expose
+total, passed, failed, individual results, and `success`.
 
-Only these two repository-pinned grammars are accepted. Diagnostics preserve
+Only these three repository-pinned grammars are accepted. Diagnostics preserve
 source, line, and message.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -22,9 +23,13 @@ import {
 }
 
 // Values
+pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
+
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
 
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
+
+pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
 pub fn parse_pow_data(String, String) -> Result[MpfrPowDocument, Array[ParseDiagnostic]]
 
@@ -49,6 +54,12 @@ pub struct MpfrDocument {
 }
 pub fn MpfrDocument::case_count(Self) -> Int
 pub fn MpfrDocument::source(Self) -> String
+
+pub struct MpfrElementaryDocument {
+  // private fields
+}
+pub fn MpfrElementaryDocument::case_count(Self) -> Int
+pub fn MpfrElementaryDocument::source(Self) -> String
 
 pub struct MpfrPowCase {
   // private fields

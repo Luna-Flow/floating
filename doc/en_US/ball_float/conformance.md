@@ -2,7 +2,7 @@
 
 ## Claim
 
-The current strict ITF1788 gate executes 4,113/4,113 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
+The current strict ITF1788 gate executes 4,656/4,656 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
 
 ## Semantic Oracle
 
@@ -10,7 +10,7 @@ Expected results are compared by set meaning: endpoint containment, set relation
 
 ## Supported Phases
 
-The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice.
+The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions including `atan2`, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice.
 
 ## Decorations And Fallbacks
 

@@ -1,6 +1,6 @@
 # `bin_float` Conformance
 
-This page records the `0.6.1` binary floating-point semantic and test
+This page records the `0.7.0` binary floating-point semantic and test
 boundary. It is evidence for a stated, finite corpus; it is not a proof that
 any implementation can be correct for every real input.
 
@@ -71,7 +71,9 @@ The pinned full gate is documented in
 | TestFloat 3e level 1, seed 1 | 4 formats × 5 operations × 5 rounding directions × 2 tininess modes | 7,461,360 / 7,461,360 |
 | MPFR 4.2.2 `tests/data/sqrt` | all executable hexadecimal sqrt rows | 1,055 / 1,055 |
 | MPFR 4.2.2 `pow_si` fixture | 4 precisions × 5 supported roundings × 6 inputs | 120 / 120 |
-| Committed smoke | TestFloat, sqrt, and `pow_si` witnesses | 183 / 183 |
+| MPFR 4.2.2 elementary fixture | 29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs | 2,088 / 2,088 |
+| Optional MPFR elementary stress, seed 20260715 | at least 100,000 cases per three-operation-or-larger family | 966,744 / 966,744 |
+| Committed smoke | TestFloat, sqrt, `pow_si`, and elementary witnesses | 2,271 / 2,271 |
 | TestFloat 3e level 2 | binary16, all declared operations/directions/tininess modes | 50,205,600 / 50,205,600 |
 
 The level-2 binary16 result is additional streaming stress evidence, not a
@@ -80,6 +82,8 @@ and digests are pinned in
 [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json).
 The runner streams TestFloat level 2 in verified bounded chunks, but level 2
 is an optional stress suite and is not included in the result claim above.
+The 966,744-row MPFR run is likewise optional generated stress evidence; the
+2,088-row hash-pinned fixture remains the reproducible release boundary.
 
 ## Scope Of The Claim
 
@@ -88,13 +92,15 @@ is an optional stress suite and is not included in the result claim above.
 The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle.
 
 The results cover contextual add, subtract, multiply, divide, and square root
-for the four IEEE interchange formats and stated rounding/tininess modes.
+for the four IEEE interchange formats and stated rounding/tininess modes, plus
+the declared 29-function elementary surface at 24, 53, and 113 bits under all
+six project rounding modes.
 They do not claim TestFloat conformance for fused multiply-add, remainder,
 conversions, comparisons, min/max, total ordering, decimal formats, or every
-IEEE 754 operation. The MPFR `pow_si` fixture independently covers values and
-inexact for `pow_int_ctx`; nearest-away, before/after tininess, and complete
-flags use the exact dyadic/rational oracle because MPFR explicitly forbids
-using `MPFR_RNDNA` as a general `pow_si` rounding argument.
+IEEE 754 operation or every real input. The elementary generator implements
+nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end`
+protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a
+general elementary function.
 
 Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full
 pinned gate.

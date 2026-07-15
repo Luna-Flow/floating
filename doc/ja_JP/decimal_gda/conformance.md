@@ -1,5 +1,8 @@
 # `decimal_gda` Conformance
 
+実装対象は General Decimal Arithmetic Specification 1.70 で、固定 executable
+corpus は General Decimal Arithmetic testcase suite 2.62 です。
+
 ## 公開結果
 
 固定 official corpus の legal executable scalar row 64,986/64,986 がすべて通過し、failed、unsupported、legacy はゼロです。残り 141 row は `#` placeholder または non-scalar invalid input で、legal denominator 外の diagnostic として報告します。
@@ -14,11 +17,25 @@
 
 ## Runner Model
 
-document は一度だけ parse し、directive state を case ごとに snapshot し、deterministic shard が disjoint case position を実行します。executable、diagnostic、unsupported、legacy、passed、failed count は分離します。
+document は一度だけ parse し、directive state を case ごとに snapshot し、
+deterministic shard が public `GdaContext`/`GdaOutcome` operation surface を通じて
+disjoint case position を実行します。executable、diagnostic、unsupported、legacy、
+passed、failed count は分離します。
 
 ## 境界
 
 宣言は固定 corpus の legal scalar row だけを対象にします。placeholder/non-scalar invalid row、future directive、固定されていない revision、無限の decimal string 空間は対象外です。
+
+## Isolation と native benchmark
+
+Production dependency scan は `decimal_gda`、`decimal_gda_checked`、
+`frontend/gda_expr` に IEEE `decimal` import または GDA profile bridge がないことを
+要求します。IEEE test と independent conformance corpus は別に実行します。
+
+Quick benchmark は current engine だけを isolated snapshot で build し、cell ごとに
+3 native sample を実行します。Arithmetic、parser、context、elementary の timing を
+観測しますが、performance を conformance requirement にせず、historical adapter とも
+比較しません。
 
 ## 再現
 
@@ -26,6 +43,7 @@ document は一度だけ parse し、directive state を case ごとに snapshot
 just conformance smoke decimal_gda
 just gate decimal_gda 8
 just conformance run decimal_gda --corpus official0 --strict-supported
+python3 tools/run_gda_benchmark.py
 ```
 
 manifest、filter、phase、JSON output、failure triage は[decimal data guide](../../../testdata/decimal/README.md)を参照してください。

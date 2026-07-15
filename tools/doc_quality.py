@@ -17,6 +17,9 @@ API_BLOCK_RE = re.compile(
 )
 MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
 CHANGELOG_VERSION_RE = re.compile(r"^## (\d+\.\d+\.\d+)\b", re.MULTILINE)
+HISTORICAL_BASELINE_RE = re.compile(
+    r"<!-- historical-performance-baseline: (\d+\.\d+\.\d+) -->"
+)
 
 
 def package_paths() -> set[str]:
@@ -129,8 +132,9 @@ def check_current_versions() -> list[str]:
     candidates.extend(REPO_ROOT.glob("src/**/README.mbt.md"))
     for path in candidates:
         text = path.read_text(encoding="utf-8")
+        allowed_historical = set(HISTORICAL_BASELINE_RE.findall(text))
         for version in historical:
-            if version in text:
+            if version in text and version not in allowed_historical:
                 errors.append(
                     f"{path.relative_to(REPO_ROOT)}: stale {version} baseline; current is {current}"
                 )

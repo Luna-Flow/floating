@@ -1,6 +1,6 @@
 # 数値意味論
 
-この文書は `0.6.1` 文書で共有する語彙を定義し、数学的値、保存表現、rounding
+この文書は `0.7.0` 文書で共有する語彙を定義し、数学的値、保存表現、rounding
 status、checked failure、interval enclosure を区別します。
 
 ## 値と表現

@@ -1,102 +1,133 @@
 # 架构
 
-`floating` 由边界明确的数值域，以及薄的组合、解析和验证层组成。架构将纯数值
-变换与文件系统、进程和语料库等副作用分开。
+`floating` 0.7.0 由显式数值域及其外部的轻量组合、解析和验证层组成。核心原则是：
+数值语义保持纯函数与显式数据流，文件系统、进程、语料和 benchmark effect 留在仓库边缘。
 
-## 分层映射
+## 分层图
 
 | 层 | 包 | 职责 |
 | --- | --- | --- |
-| 共享词汇 | `def` | 分类、符号、偏序、重导出的算术类型、最小 `Floating` trait |
-| 标量数值域 | `bin_float`、`decimal`、`decimal_gda` | 二进制、IEEE 十进制与 GDA 十进制语义 |
-| 区间数值域 | `ball_float` | bare/decorated 外向舍入包络 |
-| Checked 组合 | `bin_float_checked`、`ball_float_checked`、`decimal_checked`、`decimal_gda_checked` | 分别保留 error、IEEE flags 或 GDA outcome 的封闭流水线 |
+| 共享词汇 | `def` | classification、sign、partial order、算术类型重导出、最小 `Floating` trait |
+| 标量域 | `bin_float`、`decimal`、`decimal_gda` | binary、IEEE decimal、GDA decimal 值与 context 语义 |
+| 区间域 | `ball_float` | bare/decorated 外向舍入实数包络 |
+| Checked 组合 | `*_checked` | 在闭合管线中保留各域的 error、flag 或 trap 状态 |
 | 语义投影 | `semantic` | 与表示无关的精确观察 |
-| 语法 | `numeric_expr` | source span、literal、primitive call 与 callback evaluation |
-| 格式前端 | `frontend/*` | 解析一种语料格式并执行类型化 case |
-| 运行适配 | `internal/conformance`、`internal/runner_cli`、`cli/*` | summary、sharding、文件、JSON、退出码 |
-| 验证 | `consistency`、`doc_examples`、`*_bench`、`tools/`、`testdata/` | 定律、可执行文档、性能与语料编排 |
+| 语法 | `numeric_expr` | source span、literal、primitive call、callback evaluation |
+| 格式前端 | `frontend/*` | 解析单一语料 grammar 并执行 typed case |
+| 运行适配 | `internal/conformance`、`internal/runner_cli`、`cli/*` | summary、shard、文件、JSON/text、exit status |
+| 证据 | `consistency`、`doc_examples`、`bench/*`、`tools/`、`testdata/` | law、文档、conformance、performance、orchestration |
 
-包边界由 `moon.pkg` 决定。包内文件名只组织实现职责，不创建命名空间。
+包边界由 `moon.pkg` 决定；同一包内的文件名只用于组织实现，不创建 namespace。
 
-## 数值核心
+## 标准边界
 
-`BinFloat` 保存独立符号、非负 `BinCoeff`、二进制指数、precision 和特殊值状态。
-非 JS target 使用私有 inline/limb 系数内核；JS 使用隐藏的 host `bigint` 适配器，
-公开合同保持一致。
+仓库不把所有语义压成一个“通用浮点值”。每个标准面保留自身可观察状态：
 
-`Decimal` 保存符号、私有十进制系数、十进制指数、precision、cohort 信息和特殊值
-状态。系数内核按 target 校准乘除法调度；公开行为由十进制值、quantum、context
-和 flags 定义，而不是由 limb 布局定义。
+| 数值域 | 0.7.0 表示的规范模型 | 操作结果 |
+| --- | --- | --- |
+| `bin_float` | 声明范围内的 IEEE 754-2019 binary | value + `BinaryFlags` |
+| `decimal` | 声明范围内的 IEEE 754-2019 decimal/interchange | value + `DecimalFlags` |
+| `decimal_gda` | GDA 1.70 标量操作模型 | 含 raised flags、sticky next context、可选 trap 的 `GdaOutcome` |
+| `ball_float` | 声明范围内的 IEEE 1788-2015 bare/decorated interval | enclosure、decoration/NaI、可选 `BallFlags` |
 
-`BallFloat` 保存二进制下界、上界以及 Empty/Entire 状态。有向舍入产生包络。
-`BallFloatDecorated` 增加 IEEE 1788 decoration 与 NaI，但不改变 bare interval 表示。
+因此 GDA trap 不会被压成 IEEE flag，IEEE 定义好的 infinity 不会被当作通用错误，
+Entire、Empty 与 NaI 也不会混为一种失败。
+
+## 数值核心流水线
+
+三个标量核心都采用相同的架构分解：
+
+```text
+public immutable value(s) + explicit context
+  -> special-state/domain classification
+  -> exact coefficient or certified interval computation
+  -> one domain-owned finalization
+  -> public value + explicit effect data
+```
+
+`BinFloat` 保存 sign、非负二进制 coefficient、exponent、precision 与特殊状态；
+IEEE/GDA 两个 Decimal 各自保存 package-owned base-`10^9` coefficient、
+exponent/quantum 与特殊状态；`BallFloat` 保存两个外向舍入 endpoint 以及
+Empty/Entire，decorated interval 再加入 decoration 与 NaI。
+
+Finalization 是语义防火墙：kernel 只产生精确整数事实，不决定标准 flag、cohort、
+trap、decoration 或 endpoint 方向。
+
+## 算法选择架构
+
+大整数 kernel 使用分阶段选择器：
+
+```text
+size + shape + target + proof preconditions
+  -> inline / schoolbook / Comba
+  -> Karatsuba -> Toom-3 -> NTT + exact CRT
+  -> exact fallback when a precondition fails
+```
+
+除法从 word/Knuth D 过渡到 Burnikel-Ziegler 与 reciprocal Newton；稀疏、平方和
+不平衡形状采用独立路径。切换阈值是 target-specific 私有策略，由 Maremark 在
+dense、sparse、square、balanced、unbalanced 数据集上测量，并在阈值前、阈值点、
+阈值后进行精确差分测试。Native、LLVM、Wasm、Wasm-GC、JS 可以选择不同算法，
+但必须返回相同公开结果。
+
+## 认证初等函数架构
+
+Binary、decimal 与 interval 栈共享同一 proof contract：
+
+1. 在工作精度上生成 directed lower/upper enclosure；
+2. 将两个 endpoint 舍入到目标数值域；
+3. 仅当目标 value 与可观察 flags 同时一致时接受；
+4. 否则按 `max(32, work / 2)` 增长精度；
+5. 12 次 refinement 后返回结构化 certification detail。
+
+`bin_float` 负责标量 dyadic certificate，`ball_float` 将其提升到 endpoint、
+critical point、pole 与 domain，decimal 两包通过精确整数转换在 decimal 与 dyadic
+enclosure 间往返。Total interval API 可安全放宽到 `[-1,1]` 或 Entire；`try_*`
+则暴露 proof/resource failure。
 
 ## Context 与 Effect 流
 
-普通算术是纯值变换。contextual 算术仍然是纯函数：context 是显式输入，结果与
-flags 是显式输出，不依赖环境中的全局舍入状态。
+数值包均不依赖环境舍入模式：Binary/IEEE decimal context 是不可变输入，flags
+是显式输出；GDA 返回含 sticky status 的新 context 并按固定 precedence 选择 trap；
+`BallContext` 控制 endpoint 界限。Binary/interval checked wrapper 保留首个
+`ArithmeticError`，`DecimalChecked` 累积 IEEE flags，`GdaDecimalChecked` 在线性
+管线中保留单一 outcome 并在 trap 后停止。
 
-```text
-value(s) + immutable context
-          -> classify special states
-          -> exact or guarded finite computation
-          -> one bounded-format finalization
-          -> rounded value + operation flags
-```
-
-`decimal_gda` 增加不可变状态传递。每次运算把新 raised flags 合并进 context 的
-sticky status，再按固定优先级选择已启用 trap。若要累计状态，调用方必须把返回的
-context 传入下一步。
-
-checked wrapper 保留所属数值域的 effect 通道。二进制与区间 wrapper 保留第一个
-`ArithmeticError`；`decimal_checked` 固定 IEEE context、累计 flags，并保留异常的
-定义结果；`decimal_gda_checked` 传递 next sticky context，遇到 `Trapped` 后停止，
-只有显式恢复才能从定义结果继续。
+这些 wrapper 只组合已有语义，不增加算法，也不合并不兼容的 effect channel。
 
 ## 解析与执行
 
-`numeric_expr` 只包含语法数据与后序 callback evaluation，不执行 IO，也不选择
-具体数值后端。
-
-每个 `frontend/*` 包拥有一种外部语法：
-
-- `gda_expr` 解析 `.decTest` directive/case 并执行 GDA 行；
-- `testfloat_expr` 解析 TestFloat vector，并绑定 function/rounding/tininess；
-- `mpfr_expr` 解析固定 MPFR sqrt 与整数幂数据；
-- `itl_expr` 解析 interval test language 并分类支持范围。
-
-前端返回类型化 summary。CLI 负责读文件、选择 shard/filter、序列化 JSON/文本，
-并把 summary 映射为进程状态。Python 工具负责下载固定数据、规划任务、运行多个
-进程/target 与汇总；它们不替代 MoonBit 数值实现。
+`numeric_expr` 只包含语法数据与 post-order callback evaluation，不做 IO、不选后端。
+`gda_expr`、`testfloat_expr`、`mpfr_expr`、`itl_expr` 分别拥有各自外部 grammar。
+Frontend 返回 typed summary；CLI 负责文件、filter、shard、render 与 exit code；
+Python 工具负责 checksum-pinned 数据、隔离 target/process 与汇总，不替代 MoonBit
+数值实现。
 
 ## 稳定与内部边界
 
-应用层发布面是 `def`、具体数值包和 checked wrapper。`semantic` 与
-`numeric_expr` 是临时集成面。前端公开是为了组合仓库 runner，但兼容承诺只覆盖
-声明的语料与生成接口。
-
-`internal/*`、CLI、benchmark、`consistency` 与 `doc_examples` 属于实现或验证
-基础设施。某个符号即使出现在 `pkg.generated.mbti`，也未必属于稳定应用合同；
-依赖前应阅读对应 design 文档。
+应用面是 `def`、具体数值包和 checked wrapper；`semantic`、`numeric_expr` 为
+provisional integration surface。Frontend 的兼容承诺仅限声明语料与生成接口。
+`internal/*`、CLI、`bench/*`、`consistency`、`doc_examples` 属于实现/验证基础设施。
+符号出现在 `pkg.generated.mbti` 不自动等于长期应用契约。
 
 ## 不变量
 
-- 系数符号与非负 magnitude 分离；
-- finite normalized form 只移除表示冗余，不改变数学值；
-- Decimal 解析可保留 cohort/quantum，直到显式规范化；
-- 只有 context finalization 应用 bounded precision、指数、clamp 与状态策略；
-- 区间下界向下舍入，上界向上舍入；
-- Empty、Entire、NaI、NaN 与 infinity 保持为显式状态；
-- summary count 对所选 case 构成分区，sharding 可确定复现；
-- IO、进程状态、下载和并行调度留在工具边界。
+- sign 与非负 coefficient 分离；
+- binary normalization 只移除二因子；
+- decimal parsing 保留 quantum，直到显式 normalization/reduction；
+- context finalization 是唯一 bounded rounding/status 决策点；
+- interval lower 向下、upper 向上舍入；
+- Empty、Entire、NaI、NaN、signed zero、infinity 均为显式状态；
+- fast path/fallback 不得改变公开 value 或 effect data；
+- conformance summary 完整分割所选 case，sharding 可重复；
+- IO、下载、进程与并行调度位于 tooling 边缘。
 
 ## 扩展规则
 
-行为应加入拥有其语义的包。新增 umbrella trait 前先组合现有算术能力 trait。
-数值内核保持私有，context 与 flags 保持显式；除非格式本身属于值类型的稳定
-interchange 合同，否则格式解析应留在具体数值类型之外。
+行为应加入拥有其语义的包；新增 umbrella trait 前先组合现有 arithmetic capability。
+保持 kernel 私有、context/effect 显式，外部格式解析应留在数值类型之外，除非该格式
+本身就是稳定 interchange contract。
 
-扩展 conformance 面时，需要同时更新 parser model、executor、支持分类、CLI schema、
-corpus manifest、测试和三语文档。能够解析一个 operation 不等于已经支持；只有
-strict execution 具备已定义结果比较和可复现证据后，才能声明支持。
+扩展 conformance 面时，parser、executor、support classification、CLI schema、manifest、
+test、generated interface 与三语文档必须共同更新。能解析新操作不等于已支持；strict
+execution 必须拥有定义好的比较与可复现证据。

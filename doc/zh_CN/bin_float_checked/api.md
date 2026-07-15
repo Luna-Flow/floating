@@ -18,7 +18,7 @@
 
 ## 完整公开接口
 
-以下快照是 `0.6.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.7.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -39,11 +39,43 @@ pub struct BinFloatResult {
   // private fields
 }
 pub fn BinFloatResult::abs(Self) -> Self
+pub fn BinFloatResult::acos(Self) -> Self
+pub fn BinFloatResult::acos_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::acosh(Self) -> Self
+pub fn BinFloatResult::acosh_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::add(Self, Self) -> Self
+pub fn BinFloatResult::add_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::asin(Self) -> Self
+pub fn BinFloatResult::asin_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::asinh(Self) -> Self
+pub fn BinFloatResult::asinh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atan(Self) -> Self
+pub fn BinFloatResult::atan2(Self, Self) -> Self
+pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atan_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atanh(Self) -> Self
+pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::bind(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BinFloatResult::cos(Self) -> Self
+pub fn BinFloatResult::cos_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::cosh(Self) -> Self
+pub fn BinFloatResult::cosh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::cospi(Self) -> Self
+pub fn BinFloatResult::cospi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::div(Self, Self) -> Self
+pub fn BinFloatResult::div_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::err(@arithmetic.ArithmeticError) -> Self
+pub fn BinFloatResult::exp(Self) -> Self
+pub fn BinFloatResult::exp10(Self) -> Self
+pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp2(Self) -> Self
+pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp_ln(Self) -> Self
+pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::expm1(Self) -> Self
+pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
 #deprecated
 pub fn BinFloatResult::flat_map(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
@@ -51,18 +83,52 @@ pub fn BinFloatResult::from_double(Double, precision? : Int) -> Self
 pub fn BinFloatResult::from_float(Float, precision? : Int) -> Self
 pub fn BinFloatResult::from_int(Int, precision? : Int) -> Self
 pub fn BinFloatResult::from_result(Result[@bin_float.BinFloat, @arithmetic.ArithmeticError]) -> Self
+pub fn BinFloatResult::hypot(Self, Self) -> Self
+pub fn BinFloatResult::hypot_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::is_err(Self) -> Bool
+pub fn BinFloatResult::is_ok(Self) -> Bool
+pub fn BinFloatResult::ln(Self) -> Self
+pub fn BinFloatResult::ln_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log10(Self) -> Self
+pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log1p(Self) -> Self
+pub fn BinFloatResult::log1p_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log2(Self) -> Self
+pub fn BinFloatResult::log2_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::map(Self, (@bin_float.BinFloat) -> @bin_float.BinFloat) -> Self
 pub fn BinFloatResult::max(Self, Self) -> Self
 pub fn BinFloatResult::min(Self, Self) -> Self
 pub fn BinFloatResult::mul(Self, Self) -> Self
+pub fn BinFloatResult::mul_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::neg(Self) -> Self
 pub fn BinFloatResult::normalized(Self) -> Self
 pub fn BinFloatResult::ok(@bin_float.BinFloat) -> Self
+pub fn BinFloatResult::pow(Self, Self) -> Self
+pub fn BinFloatResult::pow_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::pow_int(Self, Int) -> Self
+pub fn BinFloatResult::pow_int_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::pow_nat(Self, UInt) -> Self
+pub fn BinFloatResult::pown(Self, Int) -> Self
+pub fn BinFloatResult::pown_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::result(Self) -> Result[@bin_float.BinFloat, @arithmetic.ArithmeticError]
+pub fn BinFloatResult::rootn(Self, Int) -> Self
+pub fn BinFloatResult::rootn_ctx(Self, Int, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::sin(Self) -> Self
+pub fn BinFloatResult::sin_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::sinh(Self) -> Self
+pub fn BinFloatResult::sinh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::sinpi(Self) -> Self
+pub fn BinFloatResult::sinpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::sqrt(Self) -> Self
+pub fn BinFloatResult::sqrt_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::sub(Self, Self) -> Self
+pub fn BinFloatResult::sub_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::tan(Self) -> Self
+pub fn BinFloatResult::tan_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::tanh(Self) -> Self
+pub fn BinFloatResult::tanh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::tanpi(Self) -> Self
+pub fn BinFloatResult::tanpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::ulp(Self) -> Self
 pub fn BinFloatResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub impl Add for BinFloatResult

@@ -12,6 +12,12 @@
 
 mandatory operation vector 使用精确整数/有理数构造和已记录的 DPD/BID bridge。初等函数在可用时使用独立高精度或区间 oracle。结果值或编码 bits 与 IEEE flags 分开记录，避免“数值看似正确”掩盖 flag 错误。
 
+提交的 elementary 层包含 2,784 个证明行。MPFR 4.2.2 生成 768-bit 向下/向上
+dyadic 端点；精确整数转换把两端在全部 `DecimalRoundingMode` 下舍入到
+decimal32/64/128，只有结果与 flags 唯一时才保留该行。加入这些行后，native、
+Wasm、Wasm-GC、JavaScript 各为 2,949/2,949，完整 gate 为 15,735/15,735。
+RDFP 与 Arb 仍是可选 secondary route；不可用时不计入已执行证据。
+
 ## Targets
 
 `just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM 因仓库不包含所需本地产物而排除。target-specific 系数调度不得改变值、编码或 flags。

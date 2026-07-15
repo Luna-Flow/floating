@@ -12,6 +12,13 @@ repository に commit された IEEE corpus は decimal32/64/128 DPD/BID interch
 
 mandatory operation vector は exact integer/rational construction と記録済み DPD/BID bridge を使います。elementary family は利用可能な独立 high-precision または interval oracle を使います。result value/encoded bits と IEEE flags は別に記録し、もっともらしい値が flag error を隠せないようにします。
 
+commit 済み elementary layer は 2,784 の certified row を含みます。MPFR 4.2.2
+が 768-bit downward/upward dyadic endpoint を生成し、exact integer conversion が
+全 `DecimalRoundingMode` で decimal32/64/128 に丸めます。result と flags が一意
+な row だけを保持します。追加後は native、Wasm、Wasm-GC、JavaScript がそれぞれ
+2,949/2,949、full gate は 15,735/15,735 です。RDFP/Arb は optional secondary
+route のままで、利用不能なら実行済み evidence に数えません。
+
 ## Targets
 
 `just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行します。必要な local artifact が repository にないため LLVM は除外します。target-specific coefficient dispatch は value、encoding、flags を変更してはなりません。

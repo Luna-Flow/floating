@@ -3,10 +3,10 @@
 ## 稳定性
 
 `Decimal`、`DecimalContext`、`DecimalFlags` 和 decimal interchange 是
-`0.6.1` 支持的应用 API。内部 `DecCoeff` 布局不属于公开面；固定合法 GDA 语料
+`0.7.0` 支持的应用 API。内部 `DecCoeff` 布局不属于公开面；固定合法 GDA 语料
 完全符合，唯一排除的是 `#` 占位/非标量非法输入。
 
-本文档描述 `0.6.1` IEEE API 与独立的 GDA 表示。
+本文档描述 `0.7.0` IEEE API 与独立的 GDA 表示。
 
 ## 使用前先记住
 
@@ -142,6 +142,9 @@
 - 需要和官方 `.decTest` / GDA 规则逐项对齐：用 `*_ctx`
 - 只想做日常数值运算且不关心状态位：可先用非 `ctx` facade
 
+这里的 `*_ctx` 是 IEEE Decimal 的舍入与 flags 接口；需要 sticky GDA status
+或 traps 时应使用 `decimal_gda`。
+
 ## 算术与转换
 
 - `neg`
@@ -171,7 +174,15 @@
 - `next_minus`
 - `next_toward`
 - `exp_ctx`
+- `exp2_ctx`、`exp10_ctx`、`expm1_ctx`
 - `ln_ctx`
+- `log2_ctx`、`log10_ctx`、`log1p_ctx`
+- `power_ctx`、`pown_ctx`、`rootn_ctx`、`hypot_ctx`
+- `sin_ctx`、`cos_ctx`、`tan_ctx`
+- `sinpi_ctx`、`cospi_ctx`、`tanpi_ctx`
+- `asin_ctx`、`acos_ctx`、`atan_ctx`、`atan2_ctx`
+- `sinh_ctx`、`cosh_ctx`、`tanh_ctx`
+- `asinh_ctx`、`acosh_ctx`、`atanh_ctx`
 - `logb_ctx`
 - `scaleb_ctx`
 - `to_sci_string`
@@ -195,6 +206,11 @@
 - `logical_invert`
 - `to_interchange_hex`
 - `to_bin_float`
+
+每个 elementary `*_ctx` 都有 additive `try_*_ctx` mirror；当包络无法证明唯一
+目标值与 flags 时返回 `ArithmeticError::CertificationFailure`。GDA 标准表面仍
+只包含 `exp`、`ln`、`log10`、`power`、`sqrt`；上面的其他函数属于 IEEE
+Decimal 扩展，不会从 `decimal_gda` 导出。
 
 ## Interchange 编码
 
@@ -390,7 +406,7 @@ invalid-operation 情形、精确等于 1 的有限值（`ln(1) = 0`），以及
 
 ## 完整公开接口
 
-以下快照是 `0.6.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.7.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -403,6 +419,7 @@ import {
   "Luna-Flow/floating/def",
   "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -412,12 +429,19 @@ import {
 // Types and methods
 pub struct Decimal {
   // private fields
-}
+} derive(@debug.Debug)
 pub fn Decimal::abs(Self) -> Self
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::acos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::acosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::add(Self, Self) -> Self
 pub fn Decimal::add_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::asin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::asinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atan2_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::class_name(Self, DecimalContext) -> String
@@ -435,11 +459,17 @@ pub fn Decimal::copy(Self) -> Self
 pub fn Decimal::copy_abs(Self) -> Self
 pub fn Decimal::copy_negate(Self) -> Self
 pub fn Decimal::copy_sign(Self, Self) -> Self
+pub fn Decimal::cos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::cosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::cospi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::exp10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::exp2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::exp_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::expm1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::exponent10(Self) -> Int
 pub fn Decimal::fma_ctx(Self, Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
@@ -452,6 +482,7 @@ pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFor
 pub fn Decimal::from_string(String, precision? : Int) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
+pub fn Decimal::hypot_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::inf(@def.Sign, precision? : Int) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
@@ -469,6 +500,8 @@ pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::ln_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::log1p_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::log2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -510,6 +543,7 @@ pub fn Decimal::one(precision? : Int) -> Self
 pub fn Decimal::parse(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::pown_ctx(Self, Int, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int
 pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int
@@ -519,6 +553,7 @@ pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rootn_ctx(Self, Int, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -527,10 +562,16 @@ pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
 pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
+pub fn Decimal::sin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::sinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::sinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sub(Self, Self) -> Self
 pub fn Decimal::sub_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::tan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::tanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::tanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
 pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -539,6 +580,34 @@ pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, D
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::trim(Self) -> Self
+pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_asin_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_asinh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atan2_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_cos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_cosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_cospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_exp10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_exp2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_exp_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_expm1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_hypot_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_ln_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_pown_ctx(Self, Int, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_rootn_ctx(Self, Int, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_sin_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_sinh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_sinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_tan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_tanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_tanpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int) -> Self
 pub impl @arithmetic.AbsContextual for Decimal
@@ -587,7 +656,6 @@ pub fn DecimalContext::e_min(Self) -> Int
 pub fn DecimalContext::exact() -> Self
 pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
-pub fn DecimalContext::gda(Self) -> Self
 pub fn DecimalContext::ieee754(Self) -> Self
 pub fn DecimalContext::is754version2019(Self) -> Bool
 pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
@@ -686,5 +754,6 @@ pub(all) enum DecimalTininessDetection {
 // Type aliases
 
 // Traits
+
 ```
 <!-- generated-api-end -->

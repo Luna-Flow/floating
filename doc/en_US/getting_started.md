@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide targets `Luna-Flow/floating` **`0.6.1`**. It shows how to select a
+This guide targets `Luna-Flow/floating` **`0.7.0`**. It shows how to select a
 package, install the module, construct values, choose an error model, and find
 the relevant reference material.
 
@@ -29,13 +29,15 @@ maintainer infrastructure rather than application dependencies.
 Add the current release:
 
 ```sh
-moon add Luna-Flow/floating@0.6.1
+moon add Luna-Flow/floating@0.7.0
+moon add Luna-Flow/arithmetic
 ```
 
 Import only the package boundaries used by the current MoonBit package:
 
 ```moonbit nocheck
 import {
+  "Luna-Flow/arithmetic"
   "Luna-Flow/floating/bin_float"
   "Luna-Flow/floating/decimal"
   "Luna-Flow/floating/decimal_gda"
@@ -47,6 +49,10 @@ import {
 
 Imports name packages, not source files. Files inside one `moon.pkg` are one
 compilation unit and do not create submodules.
+
+`Luna-Flow/arithmetic` supplies the rounding-mode type used by explicit
+precision and conversion boundaries. It is unnecessary when every operation
+uses its default rounding mode, but importing it keeps those policies visible.
 
 ## Construct Values
 

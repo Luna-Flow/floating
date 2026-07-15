@@ -4,6 +4,51 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.7.0 - 2026-07-15
+
+### Added
+
+- Added a shared certified dyadic/interval kernel and bounded Ziv refinement
+  for `BinFloat`, `Decimal`, and `BallFloat`; acceptance requires both enclosure
+  endpoints to round to the same target value and flags.
+- Added the complete 0.7.0 elementary families, pi-scaled functions, contextual
+  and `try_*` entry points, and checked mirrors without extending the GDA
+  surface beyond `exp`, `ln`, `log10`, `power`, and `sqrt`.
+- Added structured certification-failure details and a unified `bench` package
+  hierarchy using Maremark 0.3.0 for kernel, core, checked full-path,
+  elementary, hotspot, and auto-tune measurements.
+
+### Changed
+
+- Exhausted certification budgets now fail explicitly instead of accepting
+  repeated-approximation results.
+- Decimal elementary evaluation now bridges MPFR-directed dyadic enclosures to
+  exact decimal endpoint rounding; GDA `sqrt`/`exp`/`ln`/`log10` retain fixed
+  HalfEven semantics while `power` follows the active GDA context.
+- Aligned the GDA public context surface with Arithmetic Specification 1.70:
+  the Basic context uses HalfUp and standard error traps, invalid subconditions
+  signal `InvalidOperation`, and decTest execution now traverses
+  `GdaContext`/`GdaOutcome` instead of bypassing the public state model.
+- BallFloat checked elementary functions now preserve proof failures, while
+  unchecked trigonometric functions retain only mathematically conservative
+  interval fallbacks. Pi-scaled range reduction operates directly in x-space.
+- Native `BinCoeff::square` now enters recursive multiplication at 512 limbs;
+  Maremark auto-tune confirms a stable square policy from 8 limbs upward.
+
+### Verified
+
+- Passed the fixed MPFR 4.2.2 binary elementary corpus at 2,088/2,088 and the
+  optional generated stress run at 966,744/966,744; only the fixed corpus is
+  part of the reproducible release aggregate.
+- Passed the Decimal elementary oracle at 2,784/2,784, the complete four-target
+  Decimal gate at 15,735/15,735, GDA `official` at 64,986/64,986, and
+  `official0` at 16,124/16,124.
+- Passed the pinned ITF1788 strict aggregate at 4,656/4,656 with zero
+  unsupported selected cases.
+- Passed all 12 shared 0.6.1/0.7.0 native performance cells using ten
+  alternating paired samples and the Maremark 95% bootstrap/3% release rule.
+  New 0.7.0 elementary APIs intentionally have no fabricated 0.6.1 baseline.
+
 ## 0.6.1 - 2026-07-14
 
 ### Changed

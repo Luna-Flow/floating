@@ -1,6 +1,6 @@
 # @def
 
-This page tracks the `0.6.1` API.
+This page tracks the `0.7.0` API.
 
 ---
 
@@ -115,7 +115,7 @@ trait Floating {
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -160,6 +160,12 @@ pub using @arithmetic {type ArithmeticError}
 pub using @arithmetic {type ArithmeticErrorKind}
 
 pub using @bigint {type BigInt}
+
+pub using @arithmetic {type CertificationFailureDetail}
+
+pub using @arithmetic {type CertificationFailureReason}
+
+pub using @arithmetic {type CertificationStage}
 
 pub using @arithmetic {type FpClass}
 

@@ -2,7 +2,7 @@
 
 ## 宣言
 
-現在の strict ITF1788 gate は選択した 4,113/4,113 case を実行し、failed、unsupported、diagnostic はすべてゼロです。この宣言は固定 corpus revision、選択 operation phase、runner precision だけを対象とし、IEEE 1788 全体の実装宣言ではありません。
+現在の strict ITF1788 gate は選択した 4,656/4,656 case を実行し、failed、unsupported、diagnostic はすべてゼロです。この宣言は固定 corpus revision、選択 operation phase、runner precision だけを対象とし、IEEE 1788 全体の実装宣言ではありません。
 
 ## 意味 Oracle
 
@@ -10,7 +10,7 @@
 
 ## 対応 Phase
 
-strict matrix は sets、relations、observations、cancellation、add/subtract/multiply/divide、elementary core、exponential/logarithmic、general power、trigonometric、FMA、integer power、extrema を含みます。phase の operation set は互いに disjoint で、同じ row を二重計上しません。
+strict matrix は sets、relations、observations、cancellation、add/subtract/multiply/divide、elementary core、exponential/logarithmic、general power、`atan2` を含む trigonometric、FMA、integer power、extrema を含みます。phase の operation set は互いに disjoint で、同じ row を二重計上しません。
 
 ## Decoration と Fallback
 

@@ -1,59 +1,59 @@
-# FLOATING 文档
+# FLOATING 0.7.0 文档
 
-本文档描述 `0.6.1` 发布基线；公开名称以各包的 `pkg.generated.mbti` 为准。
+本页是快速索引。公开名称以各包的 `pkg.generated.mbti` 为准；Tutorial
+说明推荐用法，Design 解释标准对齐、算法选择、优化与切换边界。
 
-建议先阅读[快速上手](./getting_started.md)、[数值语义](./numeric_semantics.md)、
-[架构](./architecture.md)和[验证](./verification.md)，再进入具体包的参考页。
+## 快速入口
 
-## 包入口
+- 初次使用：[入门指南](./getting_started.md)
+- 共享数值术语：[数值语义](./numeric_semantics.md)
+- 包与分层模型：[架构](./architecture.md)
+- 实际验证范围：[验证](./verification.md)
+- 文档规则：[文档标准](./doc_standard.md)
 
-- 核心：[`def`](./def/api.md)、[`bin_float`](./bin_float/api.md)、[`decimal`](./decimal/api.md)、[`decimal_gda`](./decimal_gda/api.md)、[`ball_float`](./ball_float/api.md)
-- Checked：[`bin_float_checked`](./bin_float_checked/api.md)、[`decimal_checked`](./decimal_checked/api.md)、[`decimal_gda_checked`](./decimal_gda_checked/api.md)、[`ball_float_checked`](./ball_float_checked/api.md)
-- 语义与 IR：[`semantic`](./semantic/api.md)、[`numeric_expr`](./numeric_expr/api.md)
-- 前端：[`frontend/gda_expr`](./frontend/gda_expr/api.md)、[`frontend/itl_expr`](./frontend/itl_expr/api.md)、[`frontend/mpfr_expr`](./frontend/mpfr_expr/api.md)、[`frontend/testfloat_expr`](./frontend/testfloat_expr/api.md)
-- 运行与验证：[`internal`](./internal/api.md)、[`internal/conformance`](./internal/conformance/api.md)、[`internal/runner_cli`](./internal/runner_cli/api.md)、[`consistency`](./consistency/api.md)、[`bin_float_bench`](./bin_float_bench/api.md)
-- CLI：[`cli`](./cli/api.md)、[`cli/gda_expr_cli`](./cli/gda_expr_cli/api.md)、[`cli/itl_expr_cli`](./cli/itl_expr_cli/api.md)、[`cli/mpfr_expr_cli`](./cli/mpfr_expr_cli/api.md)、[`cli/testfloat_expr_cli`](./cli/testfloat_expr_cli/api.md)
+## 应用包
 
-每个包都提供 `api.md`、`tutorial.md` 与 `design.md`。基础设施、CLI、benchmark
-和测试包用这些页面说明维护入口，并明确声明它们不是稳定应用 API。
-
-## 公开面与稳定性
-
-`0.6.1` 仍是 1.0 之前的版本。“稳定”表示本版本明确支持的应用入口，不表示
-未来版本的 ABI 永久不变。
-
-| 包 | 可用公开面 | 本版本状态 | 明确不包含 |
+| 需求 | 包 | 先读 | 深入资料 |
 | --- | --- | --- | --- |
-| `bin_float` | `BinFloat`、`BinCoeff`、context/flags、interchange | 稳定发布面 | 完整 IEEE 754 全部操作 |
-| `decimal` | `Decimal`、IEEE context/flags、interchange | 稳定发布面 | 完整 IEEE 754 全部运算 |
-| `decimal_gda` | GDA `Decimal`、context、sticky flags、traps、outcome | 稳定 GDA 面 | 未固定的未来 directive 与非标量占位行 |
-| `ball_float` | bare/decorated 区间、关系、有向舍入算术 | 稳定发布面 | reverse interval operations、必然 tight |
-| `bin_float_checked`、`ball_float_checked` | `Result[..., ArithmeticError]` 短路流水线 | 稳定组合面 | context flags 与 decoration |
-| `decimal_checked` | IEEE context、定义结果、本步与累计 flags | 稳定 IEEE 组合面 | GDA sticky status 与 traps |
-| `decimal_gda_checked` | sticky context、trap 短路、显式定义结果恢复 | 稳定 GDA 组合面 | IEEE 逐 operation context 模型 |
-| `semantic` | 精确有理数/无穷/NaN/区间投影 | 临时集成面 | 表示元数据与算术本身 |
-| `numeric_expr` | 语法节点和 callback evaluation | 临时集成面 | 文本解析与具体数值语义 |
-| `frontend/*`、`cli/*` | conformance parser、runner、命令 | 验证基础设施 | 通用文件/格式兼容承诺 |
-| `internal/*`、`consistency`、`*_bench` | 实现与验证辅助 | 非应用 API | 兼容性保证 |
+| 二进制有理数 / IEEE binary | `bin_float` | [Tutorial](./bin_float/tutorial.md) | [API](./bin_float/api.md) · [Design](./bin_float/design.md) · [Conformance](./bin_float/conformance.md) · [Performance](./bin_float/performance.md) |
+| IEEE decimal / DPD / BID | `decimal` | [Tutorial](./decimal/tutorial.md) | [API](./decimal/api.md) · [Design](./decimal/design.md) · [Conformance](./decimal/conformance.md) · [Performance](./decimal/performance.md) |
+| GDA sticky status 与 trap | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) |
+| 认证区间 / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) |
+| 首错即停的二进制组合 | `bin_float_checked` | [Tutorial](./bin_float_checked/tutorial.md) | [API](./bin_float_checked/api.md) · [Design](./bin_float_checked/design.md) |
+| 累积 IEEE decimal flags | `decimal_checked` | [Tutorial](./decimal_checked/tutorial.md) | [API](./decimal_checked/api.md) · [Design](./decimal_checked/design.md) |
+| sticky/trapping GDA 组合 | `decimal_gda_checked` | [Tutorial](./decimal_gda_checked/tutorial.md) | [API](./decimal_gda_checked/api.md) · [Design](./decimal_gda_checked/design.md) |
+| 首错即停的区间组合 | `ball_float_checked` | [Tutorial](./ball_float_checked/tutorial.md) | [API](./ball_float_checked/api.md) · [Design](./ball_float_checked/design.md) |
+| 共享词汇 | `def` | [Tutorial](./def/tutorial.md) | [API](./def/api.md) · [Design](./def/design.md) |
+| 与表示无关的观察 | `semantic` | [Tutorial](./semantic/tutorial.md) | [API](./semantic/api.md) · [Design](./semantic/design.md) |
 
-`api.md` 是可调用名称清单，`design.md` 解释不变量、算法和取舍，`tutorial.md`
-给出最短使用流程；若正文与清单冲突，以 `pkg.generated.mbti` 为准。
+## 集成与维护包
 
-## 数值证据
+- 表达式 IR：[`numeric_expr`](./numeric_expr/api.md)
+- 语料前端：[`frontend/gda_expr`](./frontend/gda_expr/api.md)、
+  [`frontend/itl_expr`](./frontend/itl_expr/api.md)、
+  [`frontend/mpfr_expr`](./frontend/mpfr_expr/api.md)、
+  [`frontend/testfloat_expr`](./frontend/testfloat_expr/api.md)
+- CLI 适配器：[`cli`](./cli/api.md) 及其后端子包
+- 运行与验证：[`internal`](./internal/api.md)、
+  [`internal/conformance`](./internal/conformance/api.md)、
+  [`internal/runner_cli`](./internal/runner_cli/api.md)、
+  [`consistency`](./consistency/api.md)、[`bench`](./bench/api.md)
 
-- [`bin_float` 一致性](./bin_float/conformance.md)与[性能](./bin_float/performance.md)
-- [`decimal` IEEE 一致性](./decimal/conformance.md)与[性能](./decimal/performance.md)
-- [`decimal_gda` 一致性](./decimal_gda/conformance.md)
-- [`ball_float` 一致性](./ball_float/conformance.md)
+这些包因仓库工具组合需要而发布接口，但其 Design 会声明比应用包更窄的稳定性边界。
 
-性能阈值是实现证据，不是公开保证；一致性页会列出有限声明及其排除范围。
+## 证据快照
 
-## GDA 结论
+- 固定 GDA `official` 语料的 **64,986/64,986 legal executable scalar
+  rows** 全部通过；`official0` 为 16,124/16,124。其余 141 条 `#`
+  placeholder/non-scalar 行是诊断性排除项。
+- 固定 strict ITF1788 汇总的 4,656/4,656 条选定区间用例全部通过。
+- Binary 与 IEEE decimal 的声明按 operation/format 矩阵限定，并包含固定
+  MPFR elementary-function 证据。
 
-官方 144 文件语料中，64,986/64,986 条合法 executable 标量行通过，unsupported
-和 legacy 为零；另外 141 条全部是 `#` placeholder/non-scalar 非法输入，故不进入
-合法语义分母。official0 的 16,124 条合法行同样全部通过。
+这些有限结果不表示支持所有未来 directive、标准操作或实数输入。对外宣称兼容前，
+必须阅读对应 conformance 页面。
 
-## 验证
+## 阅读规则
 
-`just conformance smoke <backend>` 使用仓库内 fixture；完整语料和支持范围见 `testdata/*/README.md`。通过固定语料不等于完整支持 IEEE 754、GDA 或 ITF1788。
+用 `api.md` 查找可调用名称，用 `tutorial.md` 选择安全工作流，用 `design.md`
+理解不变量与实现取舍。若文字与公开清单冲突，以 `pkg.generated.mbti` 为准。

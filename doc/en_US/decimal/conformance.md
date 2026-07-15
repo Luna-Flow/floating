@@ -12,6 +12,14 @@ The committed IEEE corpus covers decimal32/64/128 DPD and BID interchange, canon
 
 Mandatory operation vectors use exact integer/rational construction and the documented DPD/BID bridge. Elementary families use independent high-precision or interval oracles when available. Values or encoded bits and IEEE flags are recorded independently so a numerically plausible result cannot hide a flag error.
 
+The committed elementary layer contains 2,784 certified rows. MPFR 4.2.2
+produces directed 768-bit dyadic endpoints; exact integer conversion rounds
+both endpoints into decimal32/64/128 under every `DecimalRoundingMode`, and the
+generator rejects a row unless result and flags are unique. Native, Wasm,
+Wasm-GC, and JavaScript each pass 2,949/2,949 tests after these rows are
+materialized; the full gate is 15,735/15,735. RDFP and Arb remain optional
+secondary routes and are not counted when unavailable.
+
 ## Targets
 
 `just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags.

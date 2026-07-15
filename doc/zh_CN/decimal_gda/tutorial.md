@@ -1,55 +1,57 @@
 # `decimal_gda` 教程
 
-当计算必须遵循 General Decimal Arithmetic rounding、sticky status 与 trap 行为时，
-使用本包；如果需要 IEEE `(value, flags)` 模型，应使用 `decimal`。
+需要 General Decimal Arithmetic rounding、sticky status、defined trap result 与
+trap precedence 时使用本包；IEEE `(value, flags)` 模型使用 `decimal`。
 
-## 解析并计算
+## 唯一必须记住的规则
 
-创建 context，通过它解析，并传递返回的 context：
+每次操作都返回 `GdaOutcome`。需要累积 status 时，把 `next_context()` 传给下一步。
+`raised()` 只描述当前操作，`next_context().status()` 描述整条已 thread 管线。
+
+## Parse 与计算
 
 ```moonbit nocheck
 let initial = @decimal_gda.GdaContext::decimal64()
 let parsed = @decimal_gda.parse("12.3400", initial)
 let divisor = @decimal_gda.Decimal::from_string("2").unwrap()
-let result = @decimal_gda.divide(
+let divided = @decimal_gda.divide(
   parsed.value(),
   divisor,
   parsed.next_context(),
 )
-inspect(result.value().to_string(), content="6.1700")
+inspect(divided.value().to_string(), content="6.1700")
 ```
 
-`result.raised()` 只含除法产生的条件；`result.next_context().status()` 同时包含
-解析与除法的条件。
+Parse 保留 cohort；把 parse 后的 context 传给 divide，parse condition 才会留在 sticky status。
 
-## 观察 Raised 与 Sticky Status
-
-显式查询一个 condition：
+## 读取 Raised 与 Sticky Status
 
 ```moonbit nocheck
 let context = @decimal_gda.GdaContext::new(precision=3)
 let outcome = @decimal_gda.parse("1.2345", context)
-let rounded = outcome.raised().contains(@decimal_gda.GdaSignal::Rounded)
-let sticky = outcome.next_context().status().contains(
-  @decimal_gda.GdaSignal::Rounded,
+inspect(
+  outcome.raised().contains(@decimal_gda.GdaSignal::Rounded),
+  content="true",
 )
-inspect((rounded, sticky), content="(true, true)")
+inspect(
+  outcome.next_context().status().contains(@decimal_gda.GdaSignal::Rounded),
+  content="true",
+)
 ```
 
-`clear_status()` 在保留 traps 的同时开始新的状态窗口；只有 status 与 traps 都需要
-回到默认时才调用 `reset()`。
+`clear_status()` 开始新的观察窗口并保留 traps；`reset()` 同时重置 status 与 traps。
 
-## 配置 Trap
-
-Trap set 不可变。在 context 上启用一个 signal：
+## 配置并处理 Trap
 
 ```moonbit nocheck
-let trapped_context = @decimal_gda.GdaContext::decimal64().trap(
+let context = @decimal_gda.GdaContext::decimal64().trap(
   @decimal_gda.GdaSignal::DivisionByZero,
 )
-let one = @decimal_gda.Decimal::one()
-let zero = @decimal_gda.Decimal::zero()
-let outcome = @decimal_gda.divide(one, zero, trapped_context)
+let outcome = @decimal_gda.divide(
+  @decimal_gda.Decimal::one(),
+  @decimal_gda.Decimal::zero(),
+  context,
+)
 match outcome {
   @decimal_gda.Trapped(signal, value, next_context, raised) => {
     inspect(signal, content="DivisionByZero")
@@ -57,15 +59,15 @@ match outcome {
     inspect(next_context.status().contains(signal), content="true")
     inspect(raised.contains(signal), content="true")
   }
-  @decimal_gda.Completed(_, _, _) => abort("expected trap")
+  @decimal_gda.Completed(_, _, _) => abort("expected a trap")
 }
 ```
 
-定义结果 infinity 仍然可用。Trap 改变控制信息，不抹去数值结果。
+Defined infinity 仍然存在；trap 改变控制流，不把结果替换成通用 error。
 
-## 使用 Checked Context 构造
+## 验证动态 Context
 
-Context 参数来自配置或用户输入时使用 `try_new`：
+配置或用户输入应使用 `try_new`：
 
 ```moonbit nocheck
 let context = @decimal_gda.GdaContext::try_new(
@@ -76,23 +78,72 @@ let context = @decimal_gda.GdaContext::try_new(
 ).unwrap()
 ```
 
-这样可以避免非正 precision 或反向指数边界触发 abort。
+这样非法 precision 或反向 exponent bounds 进入正常 error channel。
 
-## 选择正确比较
+## Quantize 并保留 Cohort
 
-- `compare` 执行 quiet numeric comparison，返回 decimal comparison value；
-- `compare_signal` 使用 signaling comparison；
-- `compare_total` 排列完整表示，包括 NaN 与 cohort；
-- `compare_total_magnitude` 对 magnitude 应用 total order。
+```moonbit nocheck
+let context = @decimal_gda.GdaContext::decimal64()
+let value = @decimal_gda.Decimal::from_string("12.3456").unwrap()
+let cents = @decimal_gda.Decimal::from_string("0.00").unwrap()
+let outcome = @decimal_gda.quantize(value, cents, context)
+inspect(outcome.value().quantum(), content="-2")
+```
 
-确定性排序或 protocol canonicalization 使用 total comparison；不要用它替代普通
-数值相等。
+观察 Rounded/Inexact 或 invalid request 后继续 thread `next_context()`；只有需要 canonical
+cohort 时才 `reduce`。
 
-## 避免常见错误
+## 使用数学函数
 
-- 需要累计 sticky status 时不要重复使用原 context；
-- 不要把 `Trapped` 理解成“没有值”，应检查 defined result；
-- 不要手工组合 `GdaFlags` 后假设 context status 已改变，应传递 `next_context()`；
-- 不要把 `decimal` 与 `decimal_gda` 的值混用；
-- 封闭流水线要求 GDA signals、sticky status 与 traps 时使用
-  `decimal_gda_checked`，不要使用 IEEE `decimal_checked` 包。
+```moonbit nocheck
+let context = @decimal_gda.GdaContext::decimal64()
+let nine = @decimal_gda.Decimal::from_int(9)
+let root = @decimal_gda.sqrt(nine, context)
+inspect(root.value().to_string(), content="3")
+```
+
+GDA 面只包含 sqrt、power、exp、ln、log10；trigonometric/hyperbolic/inverse/atan2/
+hypot/pi-scaled 属于其他数值域。
+
+## 选择正确的 Comparison
+
+`compare` 是 quiet numeric comparison，`compare_signal` 为 signaling，`compare_total`
+对 NaN/cohort 等完整表示排序，`compare_total_magnitude` 按 magnitude total order，
+`same_quantum` 检查 exponent。Total comparison 用于协议排序，不替代 numerical equality。
+
+## 长链使用 Checked Pipeline
+
+```moonbit check
+///|
+test "GDA checked pipeline" {
+  let checked = @decimal_gda_checked.GdaDecimalChecked::parse(
+    "9",
+    @decimal_gda.GdaContext::decimal64(),
+  ).sqrt()
+  inspect(checked.value().to_string(), content="3")
+  inspect(checked.is_trapped(), content="false")
+}
+```
+
+只有应用明确接受 trapped operation 的 defined result 时才调用 `resume_defined()`。
+
+## 常见错误
+
+- 需要 sticky 累积却重复使用原 context；
+- 把 `Trapped` 当作没有 value；
+- 手工 combine flags 后误以为 context status 已改变；
+- 混用两个 Decimal 类型；
+- 用 IEEE `decimal_checked` 处理 GDA。
+
+## 推荐做法
+
+1. 在计算边界验证一个 context。
+2. 手工流程始终 thread `next_context()`。
+3. 控制边界同时检查 raised/status。
+4. 恢复前记录 trap 与 defined result。
+5. 线性组合用 checked wrapper，复杂分支用原始 outcome。
+
+## 继续阅读
+
+[Design](./design.md)、[API](./api.md)、[Conformance](./conformance.md) 与
+[`decimal_gda_checked`](../decimal_gda_checked/tutorial.md)。

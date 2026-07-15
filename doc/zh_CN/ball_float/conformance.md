@@ -2,7 +2,7 @@
 
 ## 声明
 
-当前 strict ITF1788 门禁执行 4,113/4,113 个选中 case，failed、unsupported 与 diagnostic 均为零。该声明只覆盖固定语料 revision、已选 operation phase 和 runner precision，不等于完整实现 IEEE 1788。
+当前 strict ITF1788 门禁执行 4,656/4,656 个选中 case，failed、unsupported 与 diagnostic 均为零。该声明只覆盖固定语料 revision、已选 operation phase 和 runner precision，不等于完整实现 IEEE 1788。
 
 ## 语义 Oracle
 
@@ -10,7 +10,7 @@
 
 ## 支持 Phase
 
-strict 矩阵覆盖 sets、relations、observations、cancellation、加减乘除、elementary core、指数/对数、general power、三角函数、FMA、整数幂与 extrema。各 phase 的 operation set 互不重叠，同一行不会重复计数。
+strict 矩阵覆盖 sets、relations、observations、cancellation、加减乘除、elementary core、指数/对数、general power、包含 `atan2` 的三角函数、FMA、整数幂与 extrema。各 phase 的 operation set 互不重叠，同一行不会重复计数。
 
 ## Decoration 与 Fallback
 

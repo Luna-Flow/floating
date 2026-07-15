@@ -3,10 +3,10 @@
 ## 安定性
 
 `BinFloat`、`BinCoeff`、binary context/flags、binary16/32/64/128
-interchange は `0.6.1` の application API です。limb layout、algorithm threshold、
+interchange は `0.7.0` の application API です。limb layout、algorithm threshold、
 IEEE 754 全体は安定契約ではありません。
 
-この文書は `0.6.1` API を説明します。数学・テスト境界は
+この文書は `0.7.0` API を説明します。数学・テスト境界は
 [適合性](./conformance.md) にあります。
 
 ## Context、flag、interchange
@@ -84,7 +84,7 @@ checked trait は `ArithmeticError` を明示的に返し、flags は `*_ctx` �
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.6.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.7.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -107,7 +107,7 @@ pub fn sqrt_for_precision(BinFloat, Int) -> Result[BinFloat, @arithmetic.Arithme
 // Types and methods
 pub struct BinCoeff {
   // private fields
-}
+} derive(@debug.Debug)
 pub fn BinCoeff::add(Self, Self) -> Self
 pub fn BinCoeff::bit_and(Self, Self) -> Self
 pub fn BinCoeff::bit_length(Self) -> Int
@@ -143,31 +143,71 @@ pub impl Shr for BinCoeff
 
 pub struct BinFloat {
   // private fields
-} derive(Eq)
+} derive(Eq, @debug.Debug)
 pub fn BinFloat::abs(Self) -> Self
+pub fn BinFloat::acos(Self) -> Self
+pub fn BinFloat::acos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::acosh(Self) -> Self
+pub fn BinFloat::acosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::add(Self, Self) -> Self
 pub fn BinFloat::add_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::asin(Self) -> Self
+pub fn BinFloat::asin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::asinh(Self) -> Self
+pub fn BinFloat::asinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::atan(Self) -> Self
+pub fn BinFloat::atan2(Self, Self) -> Self
+pub fn BinFloat::atan2_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::atan_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::atanh(Self) -> Self
+pub fn BinFloat::atanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::classify(Self) -> @arithmetic.FpClass
 pub fn BinFloat::coefficient(Self) -> BinCoeff
 pub fn BinFloat::compare(Self, Self) -> Int
 pub fn BinFloat::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
+pub fn BinFloat::cos(Self) -> Self
+pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::cosh(Self) -> Self
+pub fn BinFloat::cosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::cospi(Self) -> Self
+pub fn BinFloat::cospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::div(Self, Self) -> Self
 pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::div_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp(Self) -> Self
+pub fn BinFloat::exp10(Self) -> Self
+pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp2(Self) -> Self
+pub fn BinFloat::exp2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp_ln(Self) -> Self
+pub fn BinFloat::exp_ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::expm1(Self) -> Self
+pub fn BinFloat::expm1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exponent2(Self) -> Int
 pub fn BinFloat::from_coefficient(BinCoeff, precision? : Int, negative? : Bool) -> Self
 pub fn BinFloat::from_double(Double, precision? : Int) -> Self
 pub fn BinFloat::from_float(Float, precision? : Int) -> Self
 pub fn BinFloat::from_hex(String, Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::from_int(Int, precision? : Int) -> Self
+pub fn BinFloat::hypot(Self, Self) -> Self
+pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::inf(@def.Sign, precision? : Int) -> Self
 pub fn BinFloat::is_negative(Self) -> Bool
 pub fn BinFloat::is_negative_zero(Self) -> Bool
 pub fn BinFloat::is_quiet_nan(Self) -> Bool
 pub fn BinFloat::is_signaling_nan(Self) -> Bool
 pub fn BinFloat::is_zero(Self) -> Bool
+pub fn BinFloat::ln(Self) -> Self
+pub fn BinFloat::ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log10(Self) -> Self
+pub fn BinFloat::log10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log1p(Self) -> Self
+pub fn BinFloat::log1p_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log2(Self) -> Self
+pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::make(BinCoeff, Int, Int, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::max(Self, Self) -> Self
 pub fn BinFloat::min(Self, Self) -> Self
@@ -179,19 +219,65 @@ pub fn BinFloat::neg(Self) -> Self
 pub fn BinFloat::negative_zero(precision? : Int) -> Self
 pub fn BinFloat::normalized(Self) -> Self
 pub fn BinFloat::one(precision? : Int) -> Self
+pub fn BinFloat::pow(Self, Self) -> Self
+pub fn BinFloat::pow_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pow_int(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pow_int_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::pown_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::precision(Self) -> Int
 pub fn BinFloat::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
+pub fn BinFloat::rootn(Self, Int) -> Self
+pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sign(Self) -> @def.Sign
 pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
+pub fn BinFloat::sin(Self) -> Self
+pub fn BinFloat::sin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::sinh(Self) -> Self
+pub fn BinFloat::sinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::sinpi(Self) -> Self
+pub fn BinFloat::sinpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::sqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sub(Self, Self) -> Self
 pub fn BinFloat::sub_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::tan(Self) -> Self
+pub fn BinFloat::tan_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::tanh(Self) -> Self
+pub fn BinFloat::tanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::tanpi(Self) -> Self
+pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
+pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_asinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_atan2_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_atan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_atanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_cospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_expm1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_sinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_sinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_tan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_tanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::ulp(Self) -> Self
 pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int) -> Self

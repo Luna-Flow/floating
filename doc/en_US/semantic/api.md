@@ -24,7 +24,7 @@ representation-independent semantic model.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -63,6 +63,7 @@ pub(all) enum SemanticError {
   FormatError
   UnsupportedOperation
   UnorderedComparison
+  CertificationFailure
 } derive(Eq)
 pub fn SemanticError::from_arithmetic(@arithmetic.ArithmeticError) -> Self
 

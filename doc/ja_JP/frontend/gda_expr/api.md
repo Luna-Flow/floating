@@ -1,6 +1,7 @@
 # `frontend/gda_expr` API
 
-`gda_expr` は GDA `.decTest` テキストを解析し、リポジトリの Decimal backend で case を実行します。
+`gda_expr` は GDA `.decTest` テキストを解析し、独立した `decimal_gda` backend で
+case を実行します。Production package は IEEE `decimal` engine を import しません。
 
 ## 解析
 
@@ -19,7 +20,7 @@
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.6.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.7.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit

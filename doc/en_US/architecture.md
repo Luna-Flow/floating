@@ -1,120 +1,182 @@
 # Architecture
 
-`floating` is organized as explicit numerical domains surrounded by thin
-composition, parsing, and verification layers. The architecture keeps pure
-numeric transformations separate from filesystem, process, and corpus effects.
+`floating` 0.7.0 is organized as explicit numerical domains surrounded by thin
+composition, parsing, and verification layers. The central architectural rule
+is that numerical semantics remain pure and explicit, while filesystem,
+process, corpus, and benchmark effects stay at the repository edge.
 
 ## Layer Map
 
 | Layer | Packages | Responsibility |
 | --- | --- | --- |
-| Shared vocabulary | `def` | Classification, sign, partial order, reexported arithmetic types, minimal `Floating` trait |
-| Scalar domains | `bin_float`, `decimal`, `decimal_gda` | Binary, IEEE decimal, and GDA decimal semantics |
-| Interval domain | `ball_float` | Bare and decorated outward-rounded enclosures |
-| Checked composition | `bin_float_checked`, `ball_float_checked`, `decimal_checked`, `decimal_gda_checked` | Domain-specific closed pipelines over errors, IEEE flags, or GDA outcomes |
-| Semantic projection | `semantic` | Exact representation-independent observations |
-| Syntax | `numeric_expr` | Source spans, literals, primitive calls, callback evaluation |
-| Format frontends | `frontend/*` | Parse a corpus format and execute typed cases |
-| Runtime adapters | `internal/conformance`, `internal/runner_cli`, `cli/*` | Shared summaries, sharding, files, JSON, exit codes |
-| Verification | `consistency`, `doc_examples`, `*_bench`, `tools/`, `testdata/` | Laws, executable docs, performance, corpus orchestration |
+| Shared vocabulary | `def` | classification, sign, partial order, arithmetic type reexports, minimal `Floating` trait |
+| Scalar domains | `bin_float`, `decimal`, `decimal_gda` | binary, IEEE decimal, and GDA decimal values and context semantics |
+| Interval domain | `ball_float` | bare/decorated outward-rounded real enclosures |
+| Checked composition | `*_checked` | preserve each domain's error, flag, or trap state in a closed pipeline |
+| Semantic projection | `semantic` | exact representation-independent observations |
+| Syntax | `numeric_expr` | source spans, literals, primitive calls, callback evaluation |
+| Format frontends | `frontend/*` | parse one corpus grammar and execute typed cases |
+| Runtime adapters | `internal/conformance`, `internal/runner_cli`, `cli/*` | summaries, sharding, files, JSON/text, exit status |
+| Evidence | `consistency`, `doc_examples`, `bench/*`, `tools/`, `testdata/` | laws, docs, conformance, performance, orchestration |
 
-Package boundaries come from `moon.pkg`. File names inside a package organize
+Package boundaries come from `moon.pkg`. Files inside one package organize
 implementation concerns but do not create namespaces.
 
-## Numeric Cores
+## Standard Boundaries
 
-`BinFloat` stores an independent sign, a non-negative `BinCoeff`, a binary
-exponent, precision, and special-value state. Non-JS targets use a private
-inline/limb coefficient kernel; JS uses a hidden host-`bigint` adapter with the
-same public contract.
+The repository does not implement one universal “floating value.” Each standard
+surface retains its own observable state:
 
-`Decimal` stores sign, a private decimal coefficient, base-10 exponent,
-precision, cohort information, and special-value state. The coefficient kernel
-uses target-calibrated multiplication and division dispatch, while public
-behavior is defined by decimal value, quantum, context, and flags rather than
-by limb layout.
+| Domain | Normative model represented by 0.7.0 | Operation result |
+| --- | --- | --- |
+| `bin_float` | declared IEEE 754-2019 binary formats/operations | value + `BinaryFlags` |
+| `decimal` | declared IEEE 754-2019 decimal/interchange boundary | value + `DecimalFlags` |
+| `decimal_gda` | GDA Specification 1.70 scalar operation model | `GdaOutcome` with raised flags, sticky next context, optional trap |
+| `ball_float` | declared IEEE 1788-2015 bare/decorated interval boundary | enclosure, decoration/NaI, optional `BallFlags` |
 
-`BallFloat` stores lower and upper binary endpoints plus Empty/Entire state.
-Directed rounding produces an enclosure. `BallFloatDecorated` adds IEEE 1788
-decorations and NaI without changing the bare interval representation.
+This separation prevents lossy conversions such as treating a GDA trap as an
+IEEE flag, treating an IEEE defined infinity as a generic error, or treating
+Entire/Empty/NaI as interchangeable interval failures.
+
+## Numeric Core Pipeline
+
+All scalar cores use the same architectural decomposition even though their
+representations and standards differ:
+
+```text
+public immutable value(s) + explicit context
+  -> special-state/domain classification
+  -> exact coefficient or certified interval computation
+  -> one domain-owned finalization
+  -> public value + explicit effect data
+```
+
+`BinFloat` stores sign, non-negative binary coefficient, exponent, precision,
+and special state. `Decimal` and GDA `Decimal` independently store sign,
+package-owned base-`10^9` coefficient, exponent/quantum, precision, and special
+state. `BallFloat` stores two outward-rounded binary endpoints plus Empty/Entire
+state; decorated intervals add decoration and NaI without changing the bare
+representation.
+
+Finalization is the semantic firewall. Coefficient kernels may compute exact
+products, quotients, roots, or guards, but they do not decide standard flags,
+cohorts, traps, decorations, or endpoint direction.
+
+## Algorithm Selection Architecture
+
+Large integer kernels use a staged selector instead of committing to one
+algorithm:
+
+```text
+size + shape + target + proof preconditions
+  -> inline / schoolbook / Comba
+  -> Karatsuba
+  -> Toom-3
+  -> NTT + exact CRT reconstruction
+  -> exact fallback if an advanced precondition fails
+```
+
+Division likewise moves from word and Knuth D to Burnikel-Ziegler and reciprocal
+Newton where target measurements justify it. Sparse and unbalanced shapes have
+separate paths because an algorithm selected only by maximum length can waste
+more work on padding than it saves asymptotically.
+
+Switch boundaries are private, target-specific policy. They are measured with
+the Maremark hierarchy across dense, sparse, square, balanced, and unbalanced
+datasets; boundary tests compare exact results below, at, and above every
+cutoff. Native, LLVM, Wasm, Wasm-GC, and JavaScript therefore may select
+different algorithms while returning the same public result.
+
+## Certified Elementary Architecture
+
+Elementary functions share a proof contract across the binary, decimal, and
+interval stacks:
+
+1. produce directed lower and upper enclosures at a working precision;
+2. round both endpoints to the target domain;
+3. accept only if target values and observable flags agree;
+4. otherwise increase precision by `max(32, work / 2)`;
+5. stop after 12 refinements with structured certification detail.
+
+`bin_float` owns the scalar dyadic certificates. `ball_float` lifts these
+certificates over endpoints, critical points, poles, and domains. `decimal`
+and `decimal_gda` convert exact decimal inputs to directed dyadic bounds and
+convert certified endpoints back through exact integer arithmetic.
+
+Total interval APIs may widen to a mathematically safe range such as `[-1,1]`
+or Entire. `try_*` APIs expose the proof/resource failure instead. Scalar
+convenience APIs use the same certified path and never substitute a host
+transcendental approximation.
 
 ## Context And Effect Flow
 
-Ordinary arithmetic is a pure value transformation. Contextual arithmetic is
-also pure: a context is explicit input, and the result plus flags are explicit
-output. No package relies on ambient rounding state.
+No numerical package relies on an ambient rounding mode.
 
-```text
-value(s) + immutable context
-          -> classify special states
-          -> exact or guarded finite computation
-          -> one bounded-format finalization
-          -> rounded value + operation flags
-```
+- Binary and IEEE decimal contexts are immutable inputs; flags are explicit
+  outputs that callers combine.
+- `decimal_gda` returns a new context whose status includes current flags, then
+  chooses a trap in fixed precedence.
+- `BallContext` controls outward endpoint precision/exponent bounds and returns
+  interval flags.
+- Binary/interval checked wrappers retain the first `ArithmeticError`.
+- `DecimalChecked` preserves defined IEEE results and accumulates flags while
+  retaining certification errors separately.
+- `GdaDecimalChecked` threads one outcome, stops on `Trapped`, and resumes only
+  through an explicit defined-result transition.
 
-`decimal_gda` adds immutable state threading. Each operation combines newly
-raised flags into the context's sticky status and selects the highest-priority
-enabled trap. The returned context must be passed to the next operation if the
-caller wants status accumulation.
-
-Checked wrappers preserve the effect channel of their numerical domain.
-Binary and interval wrappers retain the first `ArithmeticError`.
-`decimal_checked` keeps one IEEE context and accumulates flags while preserving
-defined exceptional results. `decimal_gda_checked` threads the next sticky
-context, stops on `Trapped`, and requires explicit recovery before continuing
-from the defined result.
+These wrappers compose existing semantics; they do not invent another arithmetic
+algorithm or merge incompatible effect channels.
 
 ## Parsing And Execution
 
-`numeric_expr` contains only syntax data and post-order callback evaluation.
-It performs no IO and chooses no numeric backend.
+`numeric_expr` contains syntax data and post-order callback evaluation. It
+performs no IO and selects no numeric backend.
 
 Each `frontend/*` package owns one external grammar:
 
-- `gda_expr` parses `.decTest` directives and cases, then executes GDA rows;
-- `testfloat_expr` parses TestFloat vectors and binds function/rounding/tininess;
-- `mpfr_expr` parses pinned MPFR square-root and integer-power data;
-- `itl_expr` parses interval test language rows and classifies support.
+- `gda_expr` parses `.decTest` directives/cases and executes GDA outcomes;
+- `testfloat_expr` parses TestFloat vectors and binds format, rounding, tininess;
+- `mpfr_expr` parses pinned MPFR square-root, power, and elementary witnesses;
+- `itl_expr` parses interval test rows and classifies the declared support set.
 
-Frontends return typed summaries. CLI packages read files, select shards or
-filters, serialize JSON/text, and map summary state to process status. Python
-tools fetch pinned data, plan tasks, run multiple processes/targets, and
-aggregate results; they do not replace the MoonBit numerical implementation.
+Frontends return typed summaries. CLI packages own files, filters, shards,
+rendering, and exit codes. Python tools fetch checksum-pinned data, plan tasks,
+run isolated targets/processes, and aggregate results; they do not replace the
+MoonBit numerical implementation.
 
 ## Stable And Internal Boundaries
 
 The application-facing release surfaces are `def`, the concrete numeric
-packages, and the checked wrappers. `semantic` and `numeric_expr` are
-provisional integration surfaces. Frontends are public so repository runners
-can compose them, but their compatibility promise is limited to the declared
-corpora and generated interfaces.
+packages, and checked wrappers. `semantic` and `numeric_expr` are provisional
+integration surfaces. Frontends are public so repository runners can compose
+them, but compatibility is limited to declared corpora and generated interfaces.
 
-`internal/*`, CLI packages, benchmark packages, `consistency`, and
-`doc_examples` are implementation or verification infrastructure. A symbol can
-appear in `pkg.generated.mbti` and still be outside the stable application
-contract; consult the package design page before depending on it.
+`internal/*`, CLI packages, `bench/*`, `consistency`, and `doc_examples` are
+implementation/verification infrastructure. A symbol may appear in
+`pkg.generated.mbti` without becoming a long-term application contract; read
+the package design page before depending on it.
 
 ## Invariants
 
-- Coefficient signs are independent from non-negative magnitudes.
-- Finite normalized forms remove only representation redundancy and preserve
-  mathematical value.
-- Decimal parsing may preserve cohort/quantum until normalization is explicit.
-- Context finalization is the only point that applies bounded precision,
-  exponent, clamp, and status policy.
-- Interval lower bounds round downward and upper bounds round upward.
-- Empty, Entire, NaI, NaN, and infinities remain explicit states.
-- Summary counts partition selected corpus cases; sharding is deterministic.
-- IO, process state, downloads, and parallel scheduling stay at tooling edges.
+- coefficient signs are independent from non-negative magnitudes;
+- finite binary normalization removes only powers of two;
+- decimal parsing preserves quantum until normalization/reduction is explicit;
+- context finalization is the only bounded rounding/status decision point;
+- interval lower bounds round downward and upper bounds round upward;
+- Empty, Entire, NaI, NaN, signed zero, and infinities remain explicit states;
+- fast-path/fallback selection cannot change public values or effect data;
+- conformance summary counts partition selected cases and sharding is
+  deterministic;
+- IO, downloads, process state, and parallel scheduling stay at tooling edges.
 
-## Extension Rules
+## Extension Rule
 
 Add behavior to the package that owns its semantics. Reuse existing arithmetic
-capability traits before creating a new umbrella trait. Keep numeric kernels
-private, context and flags explicit, and format parsing outside concrete value
-types unless the format is part of that type's stable interchange contract.
+capability traits before creating an umbrella trait. Keep kernels private,
+contexts/effects explicit, and external-format parsing outside numeric values
+unless the format is a stable interchange contract.
 
-When extending a conformance surface, update the parser model, executor,
-support classification, CLI schema, corpus manifest, tests, and localized docs
-together. A newly parsed operation is not “supported” until strict execution
-has a defined result comparison and reproducible evidence.
+Extending a conformance surface requires coordinated parser, executor, support
+classification, CLI schema, manifest, test, generated-interface, and localized
+documentation changes. Parsing a new operation is not support until strict
+execution has a defined comparison and reproducible evidence.

@@ -18,7 +18,7 @@
 
 ## 完整公开接口
 
-以下快照是 `0.6.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.7.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -57,6 +57,7 @@ pub(all) enum SemanticError {
   FormatError
   UnsupportedOperation
   UnorderedComparison
+  CertificationFailure
 } derive(Eq)
 pub fn SemanticError::from_arithmetic(@arithmetic.ArithmeticError) -> Self
 

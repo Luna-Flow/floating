@@ -1,46 +1,70 @@
 # `ball_float` 設計
 
-## 責務と表現
+`ball_float` は 0.7.0 の certified real enclosure domain です。`BinFloat` endpoint 上に bare/decorated
+interval を構築し declared IEEE 1788-2015 boundary に整合します。Correctness は tightness より先に
+set inclusion で定義します。
 
-実際の保存形式は外向き丸めを施した `lo_`、`hi_` と precision です。`new(center, radius)` は構築ビューであり、保存フィールドではありません。非空区間は `lo <= hi` で NaN 端点を持たず、Empty/Entire/装飾 NaI を区別します。
+## Design Contract
 
-## Algorithm 選択
+Pipeline は input interval → Empty/Entire/domain classification → monotone/critical/full-product rule →
+lower downward / upper upward → `BallContext` → optional decoration。`bin_float` は endpoint rounding/
+certificate、`ball_float` は set image の endpoint combination/domain fallback を所有します。
 
-加減算は単調な端点式、乗算は四つの端点積の min/max、除算は零を含まない分母なら逆数端点を使います。零を内包する分母は片側なら半無限、内部交差なら Entire にします。`BallContext` は下端を負方向、上端を正方向へ丸め、`inexact`/`overflow`/`underflow` を返します。
+## Representation / Invariant
 
-初等関数は `BinCoeff` 上の有向 dyadic 区間証明を使います。各演算を有限の作業精度で外向きに丸め、打ち切った級数は明示的な剰余界で包絡します。exp/ln は縮約と級数、sin/cos は共有した Machin の π 包絡、象限縮約、交代級数、臨界点検出、tan は極の検出、正底冪は `exp(exponent*ln(base))` です。証明できない場合は sin/cos が `[-1,1]`、tan が Entire に戻り、包絡を優先します。
+Non-empty interval は NaN でない `lo_ <= hi_` と precision を保持し、Empty/Entire は explicit。
+`new(center,radius)` は constructor view に過ぎません。Precision conversion は outward のみ。
+`exact(x)` は supplied dyadic `BinFloat` を exact に埋め込み、以前の decimal approximation を元の
+decimal real に戻しません。Decorated value は decoration と distinct NaI を追加します。
 
-## Decoration と relation
+## IEEE 1788 Alignment
 
-装飾は最小 grade を伝播し、関係は集合関係であって全順序ではありません。ITF1788 の strict gate は `testdata/interval/README.md` の全 phase（general-power と trigonometric を含む）を対象にし、reverse 操作は範囲外です。
+Bare operation は set enclosure、decorated は operand/domain/continuity に応じ grade を下げ、NaI は
+Empty と分離します。Relations は set semantics、reverse operations は boundary 外。Pinned strict
+ITF1788 selected 4,656/4,656 を pass（general power、trig、hyperbolic、inverse、375 atan2）。
+Rootn/extensions は corpus coverage と分けて報告します。
 
-## 能力境界
+## Basic Arithmetic Selection
 
-固定 corpus は 4,113/4,113 を strict pass し unsupported はゼロです。安全な
-fallback は inclusion を保証しますが、常に representable な最小幅とは限りません。
+| Operation | Enclosure rule | Boundary |
+| --- | --- | --- |
+| add | `[a.lo+b.lo,a.hi+b.hi]` directed | Empty propagation |
+| sub | `[a.lo-b.hi,a.hi-b.lo]` | subtrahend order reversal |
+| mul | four endpoint products の min/max | sign shortcut は candidate を落とさない |
+| reciprocal/div | zero exclusion 時 endpoint reciprocal | interior zero→Entire、one-sided zero→half-infinite |
+| square/root | monotone pieces + domain | negative-only sqrt→Empty |
+| intersection/hull | endpoint max/min | disjoint intersection→Empty |
 
-## 包含不変条件と certificate
+`BallContext` は endpoint precision/exponent と flags を適用し、Entire は valid success です。
 
-入力 `X=[x_lo,x_hi]` に対し、加算の下端は負方向、上端は正方向へ丸めます。
-乗除算は全端点候補の極値を選び、tight bound を証明できなければ安全な enclosure
-へ広げます。Empty、Entire、decorated NaI は別の状態です。
+## Certified Elementary Functions
 
-range reduction、series、明示的 remainder bound が初等関数の enclosure を証明し、
-極値や pole を跨ぐ場合は critical point を調べます。証明不足なら sin/cos は
-`[-1,1]`、tan は Entire に fallback します。strict baseline は general-power と
-trigonometric を含みますが reverse operation は未対応です。
+Directed dyadic certificate と analytic remainder bound を使います。Exp range reduction、ln power-of-two
+reduction、certified log、Machin pi、quadrant reduction、alternating series、critical/pole detection、
+inverse/hyperbolic monotonic endpoints、guarded power を実装。最大 12 refinement、growth
+`max(32,work/2)`。`try_*` は failure detail、total API は contract が許す場合 sin/cos `[-1,1]`、
+tan Entire などの safe fallback を返します。
 
-## 計算量と trade-off
+## Critical Point、Pole、Switching Boundary
 
-基本 interval は定数回の endpoint 演算なので precision `p` で `O(M(p))`、
-storage は二 endpoint です。初等関数は `O(k)` series 項と `O(p)` working
-precision を使います。Entire/`[-1,1]` fallback は tightness より inclusion を
-優先する選択です。
+Periodic function は certified index range に extremum/pole が含まれるか判定し、heuristic epsilon を
+使いません。Unbounded または adjusted exponent が `max(65,536,4×precision)` を超える場合、total
+path は safe range、`try_*` は resource detail。これは proof-resource boundary です。
 
-## Inclusion invariant
+## Decoration / Relation
 
-すべての constructor と operation は必要なら外向きに広げ、tightness より set inclusion を先に保証します。
+Decoration は最弱 grade へ伝播。`contains`、`subset/interior/set_equal`、`overlap_state`、
+`definitely_lt/gt`、`maybe_eq` はそれぞれ set semantics を持ちます。Interval に scalar total order
+はなく、`Sign::Zero` は zero crossing の場合もあります。
+
+## Optimization / Trade-off
+
+Basic cost は constant endpoint operations で `O(M(p))`。Elementary は range reduction、bounded series、
+refinement を追加します。Constant/special case/monotonicity/shared trig reduction は最適化しますが、
+endpoint candidate を捨てたり nearest rounding に置換しません。Resource と tightness が衝突すれば
+total API は widen、checked API は理由を返します。
 
 ## Evidence Map
 
-耐久的な algorithm contract は本書、固定された有限 claim と対象外は [Conformance](./conformance.md) に記録します。binary coefficient crossover evidence は [`bin_float` performance](../bin_float/performance.md) が所有し、`ball_float` は同 kernel を再実装せず利用します。
+[API](./api.md)、[Tutorial](./tutorial.md)、[Conformance](./conformance.md)、endpoint kernel/crossover の
+[`bin_float` Design](../bin_float/design.md) / [Performance](../bin_float/performance.md) を参照してください。

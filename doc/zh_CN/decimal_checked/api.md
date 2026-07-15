@@ -17,7 +17,7 @@ flags。`clear_flags` 开始新的观察窗口，但不改变值或 context。
 
 ## 完整公开接口
 
-以下快照是 `0.6.1` 的完整生成包接口。
+以下快照是 `0.7.0` 的完整生成包接口。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -25,6 +25,7 @@ flags。`clear_flags` 开始新的观察窗口，但不改变值或 context。
 package "Luna-Flow/floating/decimal_checked"
 
 import {
+  "Luna-Flow/arithmetic",
   "Luna-Flow/floating/decimal",
   "moonbitlang/core/bigint",
 }
@@ -38,12 +39,26 @@ pub struct DecimalChecked {
   // private fields
 }
 pub fn DecimalChecked::abs(Self) -> Self
+pub fn DecimalChecked::acos(Self) -> Self
+pub fn DecimalChecked::acosh(Self) -> Self
 pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::apply(Self) -> Self
+pub fn DecimalChecked::asin(Self) -> Self
+pub fn DecimalChecked::asinh(Self) -> Self
+pub fn DecimalChecked::atan(Self) -> Self
+pub fn DecimalChecked::atan2(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::atanh(Self) -> Self
 pub fn DecimalChecked::clear_flags(Self) -> Self
 pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext
+pub fn DecimalChecked::cos(Self) -> Self
+pub fn DecimalChecked::cosh(Self) -> Self
+pub fn DecimalChecked::cospi(Self) -> Self
 pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::error(Self) -> @arithmetic.ArithmeticError?
 pub fn DecimalChecked::exp(Self) -> Self
+pub fn DecimalChecked::exp10(Self) -> Self
+pub fn DecimalChecked::exp2(Self) -> Self
+pub fn DecimalChecked::expm1(Self) -> Self
 pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
 pub fn DecimalChecked::from_bigint(@bigint.BigInt, @decimal.DecimalContext) -> Self
@@ -52,8 +67,13 @@ pub fn DecimalChecked::from_double(Double, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_float(Float, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_int(Int, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @decimal.DecimalFlags) -> Self
+pub fn DecimalChecked::hypot(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::is_err(Self) -> Bool
+pub fn DecimalChecked::is_ok(Self) -> Bool
 pub fn DecimalChecked::ln(Self) -> Self
 pub fn DecimalChecked::log10(Self) -> Self
+pub fn DecimalChecked::log1p(Self) -> Self
+pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self
@@ -65,12 +85,21 @@ pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::plus(Self) -> Self
 pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::pown(Self, Int) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
+pub fn DecimalChecked::rootn(Self, Int) -> Self
+pub fn DecimalChecked::sin(Self) -> Self
+pub fn DecimalChecked::sinh(Self) -> Self
+pub fn DecimalChecked::sinpi(Self) -> Self
 pub fn DecimalChecked::sqrt(Self) -> Self
 pub fn DecimalChecked::sub(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::tan(Self) -> Self
+pub fn DecimalChecked::tanh(Self) -> Self
+pub fn DecimalChecked::tanpi(Self) -> Self
 pub fn DecimalChecked::value(Self) -> @decimal.Decimal
 pub fn DecimalChecked::with_context(Self, @decimal.DecimalContext) -> Self
 

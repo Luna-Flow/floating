@@ -1,6 +1,6 @@
 # 快速上手
 
-本文面向 `Luna-Flow/floating` **`0.6.1`**，说明如何选择包、安装模块、构造
+本文面向 `Luna-Flow/floating` **`0.7.0`**，说明如何选择包、安装模块、构造
 数值、选择错误模型，以及继续查阅对应参考文档。
 
 ## 选择数值域
@@ -27,13 +27,15 @@
 安装当前版本：
 
 ```sh
-moon add Luna-Flow/floating@0.6.1
+moon add Luna-Flow/floating@0.7.0
+moon add Luna-Flow/arithmetic
 ```
 
 当前 MoonBit 包只导入实际需要的包边界：
 
 ```moonbit nocheck
 import {
+  "Luna-Flow/arithmetic"
   "Luna-Flow/floating/bin_float"
   "Luna-Flow/floating/decimal"
   "Luna-Flow/floating/decimal_gda"
@@ -45,6 +47,9 @@ import {
 
 导入路径指向 package，而不是源码文件。同一个 `moon.pkg` 内的文件属于同一
 编译单元，不会各自创建子模块。
+
+`Luna-Flow/arithmetic` 提供显式精度调整和格式转换所使用的舍入模式类型。如果
+所有操作都采用默认舍入模式，可以不导入它；显式导入则能让边界策略在代码中可见。
 
 ## 构造数值
 

@@ -1,55 +1,57 @@
 # `decimal_gda` チュートリアル
 
-General Decimal Arithmetic の rounding、sticky status、trap behavior が必要な計算で
-この package を使います。IEEE `(value, flags)` model には `decimal` を使います。
+GDA rounding、sticky status、defined trap result、trap precedence が必要な場合に使います。
+IEEE `(value,flags)` model は `decimal` です。
+
+## 覚えるべき一つの規則
+
+全 operation は `GdaOutcome` を返します。Status を累積する場合は `next_context()` を次へ渡します。
+`raised()` は current operation、`next_context().status()` は threaded history です。
 
 ## Parse と計算
-
-Context を作り、その context で parse し、返された context を thread します。
 
 ```moonbit nocheck
 let initial = @decimal_gda.GdaContext::decimal64()
 let parsed = @decimal_gda.parse("12.3400", initial)
 let divisor = @decimal_gda.Decimal::from_string("2").unwrap()
-let result = @decimal_gda.divide(
+let divided = @decimal_gda.divide(
   parsed.value(),
   divisor,
   parsed.next_context(),
 )
-inspect(result.value().to_string(), content="6.1700")
+inspect(divided.value().to_string(), content="6.1700")
 ```
 
-`result.raised()` は division の condition だけ、`result.next_context().status()` は
-parsing と division の condition を含みます。
+Parse は cohort を保持し、returned context を渡すことで parse condition も sticky status に残ります。
 
-## Raised と sticky status を観測
-
-Condition を explicit に query します。
+## Raised / Sticky Status の確認
 
 ```moonbit nocheck
 let context = @decimal_gda.GdaContext::new(precision=3)
 let outcome = @decimal_gda.parse("1.2345", context)
-let rounded = outcome.raised().contains(@decimal_gda.GdaSignal::Rounded)
-let sticky = outcome.next_context().status().contains(
-  @decimal_gda.GdaSignal::Rounded,
+inspect(
+  outcome.raised().contains(@decimal_gda.GdaSignal::Rounded),
+  content="true",
 )
-inspect((rounded, sticky), content="(true, true)")
+inspect(
+  outcome.next_context().status().contains(@decimal_gda.GdaSignal::Rounded),
+  content="true",
+)
 ```
 
-`clear_status()` は trap を保持したまま新 status window を始めます。Status と trap の
-両方を default に戻す場合だけ `reset()` を使います。
+`clear_status()` は traps を保持して observation window を開始、`reset()` は両方を default に戻します。
 
-## Trap を設定
-
-Trap set は immutable です。Context で一つの signal を有効化します。
+## Trap の設定と処理
 
 ```moonbit nocheck
-let trapped_context = @decimal_gda.GdaContext::decimal64().trap(
+let context = @decimal_gda.GdaContext::decimal64().trap(
   @decimal_gda.GdaSignal::DivisionByZero,
 )
-let one = @decimal_gda.Decimal::one()
-let zero = @decimal_gda.Decimal::zero()
-let outcome = @decimal_gda.divide(one, zero, trapped_context)
+let outcome = @decimal_gda.divide(
+  @decimal_gda.Decimal::one(),
+  @decimal_gda.Decimal::zero(),
+  context,
+)
 match outcome {
   @decimal_gda.Trapped(signal, value, next_context, raised) => {
     inspect(signal, content="DivisionByZero")
@@ -57,16 +59,13 @@ match outcome {
     inspect(next_context.status().contains(signal), content="true")
     inspect(raised.contains(signal), content="true")
   }
-  @decimal_gda.Completed(_, _, _) => abort("expected trap")
+  @decimal_gda.Completed(_, _, _) => abort("expected a trap")
 }
 ```
 
-Defined infinity は利用可能なままです。Trap は control information を変えますが、
-numeric result を消しません。
+Defined infinity は残り、trap は control flow を変えるだけです。
 
-## Checked context construction
-
-Context parameter が configuration/user input から来る場合は `try_new` を使います。
+## Dynamic Context の検証
 
 ```moonbit nocheck
 let context = @decimal_gda.GdaContext::try_new(
@@ -77,24 +76,70 @@ let context = @decimal_gda.GdaContext::try_new(
 ).unwrap()
 ```
 
-非正 precision や逆転 exponent bound で abort することを避けられます。
+Configuration/user input は `try_new` で validation error を通常 channel にします。
 
-## 正しい comparison を選ぶ
+## Quantize と Cohort
 
-- `compare` は quiet numeric comparison で decimal comparison value を返します。
-- `compare_signal` は signaling comparison behavior を使います。
-- `compare_total` は NaN/cohort を含む完全な representation を順序付けます。
-- `compare_total_magnitude` は magnitude に total order を適用します。
+```moonbit nocheck
+let context = @decimal_gda.GdaContext::decimal64()
+let value = @decimal_gda.Decimal::from_string("12.3456").unwrap()
+let cents = @decimal_gda.Decimal::from_string("0.00").unwrap()
+let outcome = @decimal_gda.quantize(value, cents, context)
+inspect(outcome.value().quantum(), content="-2")
+```
 
-Deterministic sorting/protocol canonicalization には total comparison を使い、通常の
-numeric equality の代わりにはしません。
+Rounded/Inexact/invalid を確認し next context を thread。Canonical cohort が必要な場合だけ `reduce`。
 
-## よくある誤りを避ける
+## Mathematical Function
 
-- Sticky status を蓄積する場合に original context を再利用しない。
-- `Trapped` を「値なし」とせず defined result を確認する。
-- `GdaFlags` を手で combine して context status が変わったと仮定せず、
-  `next_context()` を thread する。
-- `decimal` と `decimal_gda` の値を交換可能と扱わない。
-- Closed pipeline が GDA signal、sticky status、trap を保持する場合は IEEE
-  `decimal_checked` ではなく `decimal_gda_checked` を使います。
+```moonbit nocheck
+let context = @decimal_gda.GdaContext::decimal64()
+let nine = @decimal_gda.Decimal::from_int(9)
+let root = @decimal_gda.sqrt(nine, context)
+inspect(root.value().to_string(), content="3")
+```
+
+GDA surface は sqrt/power/exp/ln/log10。Trig/hyperbolic/inverse/atan2/hypot/pi-scaled は別 domain です。
+
+## Comparison の選択
+
+`compare` は quiet numeric、`compare_signal` は signaling、`compare_total` は NaN/cohort を含む
+representation order、`compare_total_magnitude` は magnitude total order、`same_quantum` は exponent。
+Total comparison を numerical equality の代わりにしないでください。
+
+## 長い Chain は Checked Pipeline
+
+```moonbit check
+///|
+test "GDA checked pipeline" {
+  let checked = @decimal_gda_checked.GdaDecimalChecked::parse(
+    "9",
+    @decimal_gda.GdaContext::decimal64(),
+  ).sqrt()
+  inspect(checked.value().to_string(), content="3")
+  inspect(checked.is_trapped(), content="false")
+}
+```
+
+Application が defined result からの継続を明示的に認めた場合のみ `resume_defined()` を使います。
+
+## よくある誤り
+
+- Sticky accumulation が必要なのに original context を再利用；
+- `Trapped` を no value と扱う；
+- flags combine だけで context status が変わったと考える；
+- 二つの Decimal type を混ぜる；
+- GDA に IEEE `decimal_checked` を使う。
+
+## 推奨事項
+
+1. Calculation boundary で context を検証。
+2. Manual workflow は常に next context を thread。
+3. Control boundary で raised/status の両方を確認。
+4. Recovery 前に trap/defined result を記録。
+5. Linear chain は wrapper、branching policy は raw outcome。
+
+## 次に読む
+
+[Design](./design.md)、[API](./api.md)、[Conformance](./conformance.md)、
+[`decimal_gda_checked`](../decimal_gda_checked/tutorial.md) を参照してください。

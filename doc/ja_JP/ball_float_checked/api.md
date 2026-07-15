@@ -21,7 +21,7 @@ binary checked API は `BigInt` を受け取りません。
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.6.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.7.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -43,11 +43,26 @@ pub struct BallFloatResult {
   // private fields
 }
 pub fn BallFloatResult::abs(Self) -> Self
+pub fn BallFloatResult::acos(Self) -> Self
+pub fn BallFloatResult::acosh(Self) -> Self
 pub fn BallFloatResult::add(Self, Self) -> Self
+pub fn BallFloatResult::asin(Self) -> Self
+pub fn BallFloatResult::asinh(Self) -> Self
+pub fn BallFloatResult::atan(Self) -> Self
+pub fn BallFloatResult::atan2(Self, Self) -> Self
+pub fn BallFloatResult::atanh(Self) -> Self
 pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
+pub fn BallFloatResult::cos(Self) -> Self
+pub fn BallFloatResult::cosh(Self) -> Self
+pub fn BallFloatResult::cospi(Self) -> Self
 pub fn BallFloatResult::div(Self, Self) -> Self
 pub fn BallFloatResult::err(@arithmetic.ArithmeticError) -> Self
+pub fn BallFloatResult::error(Self) -> @arithmetic.ArithmeticError?
 pub fn BallFloatResult::exact(@bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloatResult::exp(Self) -> Self
+pub fn BallFloatResult::exp10(Self) -> Self
+pub fn BallFloatResult::exp2(Self) -> Self
+pub fn BallFloatResult::expm1(Self) -> Self
 #deprecated
 pub fn BallFloatResult::flat_map(Self, (@ball_float.BallFloat) -> Self) -> Self
 pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
@@ -56,15 +71,30 @@ pub fn BallFloatResult::from_double(Double, precision? : Int) -> Self
 pub fn BallFloatResult::from_float(Float, precision? : Int) -> Self
 pub fn BallFloatResult::from_int(Int, precision? : Int) -> Self
 pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
+pub fn BallFloatResult::hypot(Self, Self) -> Self
+pub fn BallFloatResult::is_err(Self) -> Bool
+pub fn BallFloatResult::is_ok(Self) -> Bool
+pub fn BallFloatResult::ln(Self) -> Self
+pub fn BallFloatResult::log10(Self) -> Self
+pub fn BallFloatResult::log1p(Self) -> Self
+pub fn BallFloatResult::log2(Self) -> Self
 pub fn BallFloatResult::map(Self, (@ball_float.BallFloat) -> @ball_float.BallFloat) -> Self
 pub fn BallFloatResult::mul(Self, Self) -> Self
 pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
+pub fn BallFloatResult::pow(Self, Self) -> Self
 pub fn BallFloatResult::pow_int(Self, Int) -> Self
 pub fn BallFloatResult::pow_nat(Self, UInt) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
+pub fn BallFloatResult::rootn(Self, Int) -> Self
+pub fn BallFloatResult::sin(Self) -> Self
+pub fn BallFloatResult::sinh(Self) -> Self
+pub fn BallFloatResult::sinpi(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
+pub fn BallFloatResult::tan(Self) -> Self
+pub fn BallFloatResult::tanh(Self) -> Self
+pub fn BallFloatResult::tanpi(Self) -> Self
 pub fn BallFloatResult::whole(precision? : Int) -> Self
 pub fn BallFloatResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub impl Add for BallFloatResult

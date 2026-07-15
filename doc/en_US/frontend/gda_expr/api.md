@@ -1,7 +1,8 @@
 # `frontend/gda_expr` API
 
 `gda_expr` parses General Decimal Arithmetic `.decTest` text and executes the
-resulting cases against the repository Decimal backend.
+resulting cases against the independent `decimal_gda` backend. The production
+package does not import the IEEE `decimal` engine.
 
 ## Parsing
 
@@ -33,7 +34,7 @@ and `CaseResult::{id,passed,disposition,message}`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

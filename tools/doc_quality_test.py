@@ -77,5 +77,11 @@ class DocumentationQualityTests(unittest.TestCase):
                         ],
                     )
 
+    def test_explicit_historical_performance_baseline_is_allowed(self) -> None:
+        text = "<!-- historical-performance-baseline: 0.6.1 -->\n0.6.1"
+        self.assertEqual(
+            set(doc_quality.HISTORICAL_BASELINE_RE.findall(text)), {"0.6.1"}
+        )
+
 if __name__ == "__main__":
     unittest.main()

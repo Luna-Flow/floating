@@ -1,75 +1,77 @@
 # `decimal` 設計
 
-## 責務と表現
+`decimal` は 0.7.0 の IEEE-oriented arbitrary-precision decimal core です。Quantum-preserving
+value、explicit context/flags、decimal32/64/128 interchange、certified elementary を提供します。
+[`decimal_gda`](../decimal_gda/design.md) は独立 GDA sticky/trap model で、型は alias ではありません。
 
-`decimal` は任意精度 10 進値、General Decimal Arithmetic の context/flags、
-decimal32/64/128 interchange を担当します。有限値は独立した符号、係数、10 進
-指数、cohort、精度を持ち、負の零、無限大、qNaN/sNaN、payload も観測可能です。
+## Design Contract
 
-係数 kernel は非公開実装です。little-endian base-1e9 の `UInt` limb と、広い中間
-値用の `UInt64` を使います。1 limb の係数は inline 表現、大きな値は limb 配列に
-格納し、零は一つの canonical 表現、配列には先頭零がなく、10 進桁数は正確です。
-公開 API はこの layout を公開しません。BigInt は公開変換/serialization と test
-oracle/debug 境界だけに残し、Decimal の hot path は係数を直接処理します。
+Coefficient kernel は exact integer facts のみを計算し、shared finalization が bounded decimal
+result を決定します：classification → exact sign/coefficient/preferred exponent → one rounding →
+exponent/subnormal/tininess/clamp → value + flags。Kernel optimization は quantum/signed zero/NaN/
+flags を変えません。
 
-解析と quantum-sensitive 操作は末尾零/cohort を保持できます。`normalized()`/
-`reduce_ctx()` は数学値を変えずに除去可能な 10 の冪だけを取り除くため、数値の
-equality と `compare_total` は異なる関係です。
+## Representation / Cohort
 
-## 係数と丸め algorithm
+Finite value は `(-1)^negative × coefficient × 10^exponent10`。`1.2300` (quantum -4) と
+`1.23` (-2) は同じ数値でも別 cohort です。Precision に収まる parse は input exponent を保持し、
+`normalized/reduce_ctx` の明示呼出だけが 10 の factor を除きます。
 
-小さな処理は inline arithmetic、checked 加減算、Comba/schoolbook 乗算、専用 square、
-single-limb 除算、正確な冪、GCD、整数 `sqrt_rem`、平方による冪乗を使います。疎な
-operand は非零項を圧縮し、短辺が十分に大きい強い不均衡 shape は balanced block
-に分割し、小さい shape では単一の正規化 accumulator を使います。
+Private `DecCoeff` は small inline または canonical little-endian base-`10^9` limbs + exact digit
+count。`BigInt` は public conversion/serialization と oracle boundary に限定します。
 
-平衡乗算の分岐は長さ、density、比率、square 形状、target-specific threshold を
-同時に考慮します。production の順序は schoolbook、Karatsuba、Toom-3、二つの法を
-使う NTT convolution です。Karatsuba/Toom-3 は深さを制限した scratch を使い、Toom-3
-の負の中間値は内部 signed scratch にだけ存在し、補間の exact division を検査します。
-NTT は小さな 10 進 working digit、CRT reconstruction、長さ/係数上限の検査を持ち、
-条件を満たさない場合は fallback します。
+## IEEE 754 Alignment
 
-除算は word division、正規化した Knuth Algorithm D、Burnikel–Ziegler の block 再帰、
-Newton reciprocal の順に選択します。各経路は quotient/remainder の不変条件を検証し、
-安全な algorithm へ fallback できます。scratch arena は一時 limb buffer を再利用しますが、
-rewind 後の buffer が結果へ逃げることはありません。
+IEEE context/preset は precision、rounding、exponent、clamp、tininess を明示し、`*_ctx` は tuple
+を返します。FMA は exact product を aligned addition まで保持し一回 rounding。
+`DecimalInterchange` は DPD/BID と signed zero/infinity/qNaN/sNaN/payload を扱います。
+GDA sticky/trap behavior は `decimal_gda` の責務です。
 
-Context 操作は特殊値、正確な係数/指数、8 種の decimal rounding、指数境界/subnormal/
-clamp、`DecimalFlags` の順に処理します。FMA は加算まで積を正確に保ち、sqrt と初等
-関数は係数 native の guard digit と反復/級数 refinement の後に一度だけ context finalize
-します。quantize は目標指数を固定し、係数が context に収まらなければ `invalid_operation`
-を報告します。
+## Coefficient Algorithm Selection
 
-## Context と interchange 境界
+Selector は limb count、density、balance、square、transform length、target を使用し、dense balanced
+は schoolbook/Comba→Karatsuba→Toom-3→dual-modulus NTT、sparse/unbalanced は専用 path です。
 
-`DecimalContext` は明示的な input、`*_ctx` は `(Decimal, DecimalFlags)` を返します。
-flags は明示的に蓄積され、ambient mutable state は使いません。`DecimalInterchange`
-は DPD と BID の decimal32/64/128 に同じ Decimal semantic layer を使い、canonicalization、
-non-canonical finite encoding、NaN payload、Infinity、signed zero を共通に処理します。
-encoding の違いで arithmetic や rounding を複製しません。
+| Target | Karatsuba mul/square | Toom-3 | first NTT mul/square | BZ | Newton |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| native | 96 / 48 | 1,152 | 1,728 / 640 | adaptive 2,816+ | disabled |
+| LLVM | 96 / 96 | 2,048 | 4,096 / 2,048 | 2,048 | 4,096 |
+| Wasm / Wasm-GC / JS | 96 / 96 | 4,096 | 8,192 / 4,096 | 2,048 | 4,096 |
 
-## 能力と適合性の境界
+Native NTT mul は 1,728/2,816/4,608/7,680/8,192、square は
+640/1,040/1,824/3,648/7,296/8,192 の piecewise boundary。BZ は 2,816→5,120→10,240。
+Native Newton は実装・test 済みでも measurement が production crossover を支持しないため disabled。
 
-算術、FMA、整数除算/余り、quantize/rescale、total comparison、logical digit、隣接値、
-分類、formatting、interchange、初等関数を提供します。GDA と IEEE gate は別々に計測し、
-固定 `official`/`official0` corpus は合法な scalar semantics、独立した IEEE decimal32/64/128
-vectors は操作、flags、特殊値、total order、format conversion、DPD/BID bit pattern を
-検証します。対応する target では双方とも failed/unsupported をゼロにします。
+Toom exact division、NTT bounds/CRT、division identity を検査し、失敗は exact fallback。Scratch
+buffer は返却 value に escape しません。
 
-## 計算量と権威参考
+## Rounding、Exponent、Quantum
 
-`n` 個の base-1e9 limb では加減算、比較、shift、正規化、single-limb 除算は `O(n)`、
-schoolbook と Knuth 除算は `O(n²)` です。Karatsuba、Toom-3、NTT、Burnikel–Ziegler、
-Newton は実測 crossover が setup cost を正当化する場合だけ選択します。各 algorithm の
-出口で canonicalize と正確な carry 検査を行い、最適化が Decimal rounding や cohort の
-意味を変えないようにします。
+Finalization は guard/sticky から overflow/underflow/subnormal/rounded/inexact/clamped を決めます。
+`quantize` は target exponent を固定し、fit 不可なら invalid-operation。Parse は quantum を保持し、
+`from_string_ctx` はさらに exponent policy と flags を返します。
 
-参考文献は Knuth, *The Art of Computer Programming*, Vol. 2 (Algorithm D)、Karatsuba
-乗算、Bodrato の Toom-Cook 補間、Burnikel–Ziegler, *Fast Recursive Division*、
-Brent–Zimmermann, *Modern Computer Arithmetic*、Cowlishaw の GDA specification と
-decNumber、IEEE 754-2019 / ISO 60559 です。
+## Certified Elementary Functions
+
+Decimal input を downward/upward dyadic interval に変換し `ball_float` で評価、endpoint を exact
+integer arithmetic で Decimal へ戻し、value/flags が一致した場合のみ採用します。Initial work は
+最低 128 bits、12-step budget。MPFR 4.2.2 768-bit oracle は 29 operations、3 formats、8 rounding
+modes の 2,784 rows、libmpdec `allcr=1` は GDA-compatible subset を独立検査します。
+
+## Optimization / Boundary Tuning
+
+Maremark は dense/sparse/balanced/unbalanced/square/kernel/full context を分離し order を回転します。
+Production path は exact differential test と practical benefit の両方が必要。Precision/exponent/
+rounding/quantum は semantic boundary、limb cutoff は private dispatch boundary です。
+
+## Complexity / Trade-off
+
+Add/compare/normalize/shift/word-div は `O(n)`、schoolbook/Knuth は quadratic。Karatsuba/Toom/NTT/
+BZ/Newton は setup/storage/precondition と引換えに large cost を削減し、measured crossover まで
+simple algorithm を維持します。
 
 ## Evidence Map
 
-[IEEE conformance](./conformance.md)、[`decimal_gda` conformance](../decimal_gda/conformance.md)、[performance](./performance.md) は別々の evidence ledger です。GDA status、IEEE flags、benchmark threshold を混同しません。
+[API](./api.md)、[Tutorial](./tutorial.md)、[IEEE Conformance](./conformance.md)、
+[Performance](./performance.md)、独立した [`decimal_gda` Conformance](../decimal_gda/conformance.md)
+を参照してください。

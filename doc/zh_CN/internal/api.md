@@ -1,6 +1,6 @@
 # @internal
 
-本文档描述 `0.6.1` 基线中的 `@internal` 包。它是实现辅助层，不是稳定公开 API。
+本文档描述 `0.7.0` 基线中的 `@internal` 包。它是实现辅助层，不是稳定公开 API。
 
 ## BigInt 辅助
 
@@ -41,7 +41,7 @@
 
 ## 完整公开接口
 
-以下快照是 `0.6.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.7.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -60,6 +60,12 @@ pub fn abs_bigint(@bigint.BigInt) -> @bigint.BigInt
 pub fn bigint_one() -> @bigint.BigInt
 
 pub fn bigint_zero() -> @bigint.BigInt
+
+pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+
+pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+
+pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
 
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
 
@@ -94,6 +100,41 @@ pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bi
 // Errors
 
 // Types and methods
+pub struct CertifiedDyadic {
+  numerator_ : @bigint.BigInt
+  scale_ : Int
+}
+pub fn CertifiedDyadic::add(Self, Self) -> Self
+pub fn CertifiedDyadic::compare(Self, Self) -> Int
+pub fn CertifiedDyadic::from_int(Int) -> Self
+pub fn CertifiedDyadic::mul(Self, Self) -> Self
+pub fn CertifiedDyadic::neg(Self) -> Self
+pub fn CertifiedDyadic::new(@bigint.BigInt, Int) -> Self
+pub fn CertifiedDyadic::numerator(Self) -> @bigint.BigInt
+pub fn CertifiedDyadic::round_down(Self, Int) -> Self
+pub fn CertifiedDyadic::round_up(Self, Int) -> Self
+pub fn CertifiedDyadic::scale(Self) -> Int
+pub fn CertifiedDyadic::sub(Self, Self) -> Self
+
+pub struct CertifiedInterval[T] {
+  lower_ : T
+  upper_ : T
+}
+pub fn[T] CertifiedInterval::lower(Self[T]) -> T
+pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int) -> Result[Self[T], @arithmetic.ArithmeticError]
+pub fn[T] CertifiedInterval::upper(Self[T]) -> T
+
+pub struct CertifiedRefinementBudget {
+  work_precision : Int
+  refinements_ : Int
+  limit_ : Int
+}
+pub fn CertifiedRefinementBudget::available(Self) -> Bool
+pub fn CertifiedRefinementBudget::new(Int, limit? : Int) -> Self
+pub fn CertifiedRefinementBudget::next(Self) -> Self
+pub fn CertifiedRefinementBudget::precision(Self) -> Int
+pub fn CertifiedRefinementBudget::refinements(Self) -> Int
+
 pub struct ExactRat {
   // private fields
 } derive(Eq)

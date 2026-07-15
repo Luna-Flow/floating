@@ -18,7 +18,7 @@ Operation は `Completed` からだけ続行します。`Trapped` pipeline は
 
 ## Complete Public Interface
 
-次の snapshot は `0.6.1` の完全な generated package interface です。
+次の snapshot は `0.7.0` の完全な generated package interface です。
 
 <!-- generated-api-start -->
 ```moonbit

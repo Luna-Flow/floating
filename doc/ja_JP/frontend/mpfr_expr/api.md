@@ -1,12 +1,16 @@
 # `frontend/mpfr_expr` API
 
-`parse_sqrt_data`/`execute_sqrt_data` は MPFR hex sqrt、`parse_pow_data`/`execute_pow_data` は固定 integer-power witness を扱います。document は source/case count、summary は total/passed/failed/results/success を公開します。
+`parse_sqrt_data`/`execute_sqrt_data` は MPFR hex sqrt、
+`parse_pow_data`/`execute_pow_data` は固定 integer-power witness、
+`parse_elementary_data`/`execute_elementary_data` は固定 29-operation matrix を
+扱います。document は source/case count、summary は
+total/passed/failed/results/success を公開します。
 
-repository 固定の二つの文法だけを受け入れ、diagnostic は source、line、message を保持します。
+repository 固定の三つの文法だけを受け入れ、diagnostic は source、line、message を保持します。
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.6.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.7.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -18,9 +22,13 @@ import {
 }
 
 // Values
+pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
+
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
 
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
+
+pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
 pub fn parse_pow_data(String, String) -> Result[MpfrPowDocument, Array[ParseDiagnostic]]
 
@@ -45,6 +53,12 @@ pub struct MpfrDocument {
 }
 pub fn MpfrDocument::case_count(Self) -> Int
 pub fn MpfrDocument::source(Self) -> String
+
+pub struct MpfrElementaryDocument {
+  // private fields
+}
+pub fn MpfrElementaryDocument::case_count(Self) -> Int
+pub fn MpfrElementaryDocument::source(Self) -> String
 
 pub struct MpfrPowCase {
   // private fields

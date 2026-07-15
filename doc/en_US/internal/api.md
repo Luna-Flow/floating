@@ -1,6 +1,6 @@
 # @internal
 
-This page tracks the `0.6.1` implementation helper API, not a stable
+This page tracks the `0.7.0` implementation helper API, not a stable
 application contract.
 
 `@internal` is an implementation-facing package. Its functions are documented here for maintainers and advanced contributors, not as a stable public API promise.
@@ -80,7 +80,7 @@ It accepts plain decimals and scientific notation in the currently implemented p
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.6.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -99,6 +99,12 @@ pub fn abs_bigint(@bigint.BigInt) -> @bigint.BigInt
 pub fn bigint_one() -> @bigint.BigInt
 
 pub fn bigint_zero() -> @bigint.BigInt
+
+pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+
+pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+
+pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
 
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
 
@@ -133,6 +139,41 @@ pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bi
 // Errors
 
 // Types and methods
+pub struct CertifiedDyadic {
+  numerator_ : @bigint.BigInt
+  scale_ : Int
+}
+pub fn CertifiedDyadic::add(Self, Self) -> Self
+pub fn CertifiedDyadic::compare(Self, Self) -> Int
+pub fn CertifiedDyadic::from_int(Int) -> Self
+pub fn CertifiedDyadic::mul(Self, Self) -> Self
+pub fn CertifiedDyadic::neg(Self) -> Self
+pub fn CertifiedDyadic::new(@bigint.BigInt, Int) -> Self
+pub fn CertifiedDyadic::numerator(Self) -> @bigint.BigInt
+pub fn CertifiedDyadic::round_down(Self, Int) -> Self
+pub fn CertifiedDyadic::round_up(Self, Int) -> Self
+pub fn CertifiedDyadic::scale(Self) -> Int
+pub fn CertifiedDyadic::sub(Self, Self) -> Self
+
+pub struct CertifiedInterval[T] {
+  lower_ : T
+  upper_ : T
+}
+pub fn[T] CertifiedInterval::lower(Self[T]) -> T
+pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int) -> Result[Self[T], @arithmetic.ArithmeticError]
+pub fn[T] CertifiedInterval::upper(Self[T]) -> T
+
+pub struct CertifiedRefinementBudget {
+  work_precision : Int
+  refinements_ : Int
+  limit_ : Int
+}
+pub fn CertifiedRefinementBudget::available(Self) -> Bool
+pub fn CertifiedRefinementBudget::new(Int, limit? : Int) -> Self
+pub fn CertifiedRefinementBudget::next(Self) -> Self
+pub fn CertifiedRefinementBudget::precision(Self) -> Int
+pub fn CertifiedRefinementBudget::refinements(Self) -> Int
+
 pub struct ExactRat {
   // private fields
 } derive(Eq)

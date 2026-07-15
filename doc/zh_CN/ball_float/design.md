@@ -1,43 +1,84 @@
 # `ball_float` 设计
 
-## 职责与表示
+`ball_float` 是 0.7.0 的认证实数包络域，基于 `BinFloat` endpoint 构建 bare/decorated
+interval，并对齐声明范围内的 IEEE 1788-2015。正确性首先由集合包含定义：更宽可能
+不够有用，但漏掉精确结果一定错误。
 
-`ball_float` 的实际存储是外向舍入的 `lo_`、`hi_` 端点和 precision，不是中心/半径字段。`new(center, radius)` 只是构造器视图。非空区间满足 `lo <= hi` 且端点不含 NaN；Empty、Entire、装饰的 NaI 分别建模。
+## 设计契约
 
-## 算法选择
+流水线为：输入 interval → Empty/Entire/domain 分类 → monotone endpoint、critical-point
+或全 endpoint-product 规则 → lower 向负无穷、upper 向正无穷计算 → `BallContext` →
+可选 decoration。`bin_float` 拥有 dyadic rounding/certificate；`ball_float` 拥有集合像
+所需的 endpoint 组合与 domain fallback。
 
-加减使用单调端点公式，乘法取四个端点积的最小/最大；除法在分母不含零时使用倒数端点，单侧零产生半无限区间，内部穿零保守返回 Entire。`BallContext` 以负向/正向有向舍入，并返回 `inexact`、`overflow`、`underflow`。
+## 表示与不变量
 
-初等函数基于 `BinCoeff` 上的有向 dyadic 区间证书：每步在有限工作精度下外向舍入，并以显式余项界覆盖截断级数。exp 用区间缩减+级数，ln 用 2 次幂缩减+单位区间级数，sin/cos 共享 Machin π 包络并执行象限缩减、交错级数和临界点检测，tan 额外检测极点，正底幂按 `exp(exponent*ln(base))` 加 guard precision 计算。证明失败时 sin/cos 回退 `[-1,1]`，tan 回退 Entire；这保证包络而不猜测标量。
+非空 bare interval 保存 `lo_ <= hi_` 的两个非 NaN endpoint 与 precision；Empty、
+Entire 显式表示。`new(center,radius)` 只是构造视图，storage 仍为 bounds。Precision
+变化时 lower 向下、upper 向上，因此只会扩宽。`exact(x)` 只保证嵌入给定 dyadic
+`BinFloat`，不会把先前十进制到二进制的近似重新变成原十进制实数。
 
-## 装饰与关系
+`BallFloatDecorated` 加入 decoration 与独立 NaI。Empty 是合法空集，NaI 表示无效的
+decorated operation，二者不能合并。
 
-装饰按最小等级传播；关系操作是区间关系而非全序。ITF1788 严格门禁覆盖 `testdata/interval/README.md` 列出的全部阶段，包括通用幂与三角；反向操作不支持。
+## IEEE 1788 对齐
 
-## 能力边界
+Bare operation 计算集合包络；decorated operation 按 operand/continuity/domain 降级；
+NaI 独立；subset/interior/overlap/precedes 是集合关系；reverse operation 不在 0.7.0
+边界。固定 strict ITF1788 的 4,656/4,656 条 selected case 全部通过，含 general power、
+trigonometric、hyperbolic、inverse 与 375 条 `atan2`。`rootn` 和 extension 单独报告。
 
-当前固定语料 4,113/4,113 严格通过且零 unsupported。安全回退保证包含性，
-但不承诺每个结果都是可表示的最紧区间。
+## 基本算术选择
 
-## 包含性不变量
+| 操作 | 包络规则 | 关键边界 |
+| --- | --- | --- |
+| add | `[a.lo+b.lo,a.hi+b.hi]` directed | Empty 传播 |
+| sub | `[a.lo-b.hi,a.hi-b.lo]` | subtrahend endpoint 反向 |
+| mul | 四个 endpoint product 的 min/max | sign shortcut 不得漏 candidate |
+| reciprocal/div | 分母排除零时倒置 endpoint | 内部跨零得 Entire；单侧零可得 half-infinite |
+| square/root | monotone piece + zero/domain | 全负 sqrt domain 得 Empty |
+| intersection/hull | endpoint max/min | disjoint intersection 得 Empty |
 
-若输入是 `X=[x_lo,x_hi]`，加法下端向负无穷、上端向正无穷舍入；乘除选择全部
-端点候选极值。无法证明紧界时扩大到安全包络，不能返回遗漏精确结果的假精度。
-Empty、Entire 和装饰 NaI 是三个不同状态。
+`BallContext` 再施加 precision/exponent，并返回 inexact/overflow/underflow flags。
+Entire 是成功 enclosure，不是通用错误。
 
-## 初等函数证书
+## 认证初等函数
 
-区间缩减、级数和显式余项界共同提供 enclosure certificate；跨越极值或极点时
-执行临界点检查。证明不足时 sin/cos 回退 `[-1,1]`、tan 回退 Entire，牺牲
-tightness 但保持 inclusion。当前 strict baseline 已包含 general-power 和
-trigonometric，reverse operations 仍不支持。
+初等函数使用 `BinCoeff` 上的 directed dyadic certificate，每一步外向舍入，并以解析
+remainder bound 包住截断尾项。实现包含 exp range reduction/series、ln power-of-two
+reduction、certified log、Machin pi bounds、quadrant reduction、alternating series、
+critical-point/pole detection、inverse/hyperbolic monotonic endpoint 与 guarded power。
 
-## 复杂度与取舍
+共享预算最多 12 次 refinement，按 `max(32, work/2)` 增长。`try_*` 暴露 range、
+resource、rounding failure；total API 在契约允许时使用安全 fallback：sin/cos 为
+`[-1,1]`，tan pole 或 uncertified reduction 为 Entire。
 
-基本区间运算只进行常数次端点运算，成本是底层精度 `p` 的 `O(M(p))`，存储为两
-个端点。初等函数使用 `O(k)` 个有界级数项和 `O(p)` 工作精度。临界点检查和
-Entire/`[-1,1]` 回退牺牲 tightness，换取不可妥协的包含性。
+## Critical Point、Pole 与切换边界
+
+周期函数在认证 index space 中计算 quadrant/critical range；包含 extremum 就加入 ±1，
+包含 tan pole 就返回 Entire，而不是以近似 remainder 与 epsilon 比较。无界输入或 adjusted
+binary exponent 超过 `max(65,536, 4 × precision)` 时，total path 直接安全放宽，
+`try_*` 返回 resource detail；这是 proof-resource boundary，不是函数定义域声明。
+
+## Decoration 与关系
+
+Decoration 取 operand/operation 允许的最弱 grade。`contains` 检查点包含，
+`subset/interior/set_equal` 比较集合，`overlap_state` 描述几何，`definitely_lt/gt`
+只在所有点均满足时证明顺序，`maybe_eq` 表示相容性。区间没有 scalar total order；
+`Sign::Zero` 也可能表示跨零而非 singleton zero。
+
+## 优化与取舍
+
+基本操作做常数次 endpoint arithmetic，成本约 `O(M(p))`；初等函数再增加 range
+reduction、bounded series 与最多 12 次 refinement。实现优先复用 constant、exact
+special case、monotonicity 与共享 trig reduction，但绝不删除 endpoint candidate 或用
+nearest 替代 outward rounding。资源与 tightness 冲突时，total API 放宽，checked API
+说明原因。
 
 ## 证据映射
 
-本文记录耐久算法合同；固定有限声明与排除范围见[一致性说明](./conformance.md)。二进制系数 crossover 证据归入 [`bin_float` 性能](../bin_float/performance.md)，因为 `ball_float` 复用该内核而不维护第二套实现。
+- [API](./api.md) 列出 bare/decorated/context/`try_*`。
+- [Tutorial](./tutorial.md) 演示安全构造、关系、初等函数与失败策略。
+- [Conformance](./conformance.md) 定义 ITF1788 声明。
+- [`bin_float` Design](../bin_float/design.md) 与 [Performance](../bin_float/performance.md)
+  拥有 endpoint kernel 与 crossover 证据。
