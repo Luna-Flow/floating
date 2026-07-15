@@ -486,7 +486,16 @@ pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
     case.operation_ == "log10" ||
     case.operation_ == "sin" ||
     case.operation_ == "cos" ||
-    case.operation_ == "tan" {
+    case.operation_ == "tan" ||
+    case.operation_ == "atan" ||
+    case.operation_ == "asin" ||
+    case.operation_ == "acos" ||
+    case.operation_ == "sinh" ||
+    case.operation_ == "cosh" ||
+    case.operation_ == "tanh" ||
+    case.operation_ == "asinh" ||
+    case.operation_ == "acosh" ||
+    case.operation_ == "atanh" {
     return execute_interval_unary_case(case, precision)
   }
   if case.operation_ == "fma" {
@@ -535,6 +544,7 @@ pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
     "mul" => (operands[0] * operands[1]).apply_ctx(binary64).0
     "div" => (operands[0] / operands[1]).apply_ctx(binary64).0
     "pow" => operands[0].pow_interval(operands[1])
+    "atan2" => operands[0].atan2_interval(operands[1])
     "min" => operands[0].minimum(operands[1]).apply_ctx(binary64).0
     "max" => operands[0].maximum(operands[1]).apply_ctx(binary64).0
     _ =>
@@ -678,6 +688,15 @@ fn execute_interval_unary_case(case : ItlCase, precision : Int) -> ItlResult {
     "sin" => operand.sin_interval()
     "cos" => operand.cos_interval()
     "tan" => operand.tan_interval()
+    "atan" => operand.atan_interval()
+    "asin" => operand.asin_interval()
+    "acos" => operand.acos_interval()
+    "sinh" => operand.sinh_interval()
+    "cosh" => operand.cosh_interval()
+    "tanh" => operand.tanh_interval()
+    "asinh" => operand.asinh_interval()
+    "acosh" => operand.acosh_interval()
+    "atanh" => operand.atanh_interval()
     _ => abort("unreachable unary interval operation")
   }
   let actual = unbounded.apply_ctx(@ball_float.BallContext::binary64()).0

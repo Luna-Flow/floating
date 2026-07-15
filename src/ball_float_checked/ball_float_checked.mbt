@@ -102,6 +102,27 @@ pub fn BallFloatResult::result(
 }
 
 ///|
+pub fn BallFloatResult::is_ok(self : BallFloatResult) -> Bool {
+  match self.inner {
+    Ok(_) => true
+    Err(_) => false
+  }
+}
+
+///|
+pub fn BallFloatResult::is_err(self : BallFloatResult) -> Bool {
+  !self.is_ok()
+}
+
+///|
+pub fn BallFloatResult::error(self : BallFloatResult) -> @def.ArithmeticError? {
+  match self.inner {
+    Ok(_) => None
+    Err(error) => Some(error)
+  }
+}
+
+///|
 pub fn BallFloatResult::map(
   self : BallFloatResult,
   f : (@ball_float.BallFloat) -> @ball_float.BallFloat,
@@ -214,6 +235,203 @@ pub fn BallFloatResult::pow_int(
       @lf_arith.PowIntChecked::pow_int_checked(value, exponent, ctx),
     )
   })
+}
+
+///|
+pub fn BallFloatResult::rootn(
+  self : BallFloatResult,
+  degree : Int,
+) -> BallFloatResult {
+  self.bind(fn(value) { BallFloatResult::from_result(value.try_rootn(degree)) })
+}
+
+///|
+pub fn BallFloatResult::exp(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) { BallFloatResult::from_result(value.try_exp_interval()) })
+}
+
+///|
+pub fn BallFloatResult::exp2(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_exp2_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::exp10(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_exp10_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::expm1(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_expm1_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::ln(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) { BallFloatResult::from_result(value.try_ln_interval()) })
+}
+
+///|
+pub fn BallFloatResult::log2(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_log2_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::log10(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_log10_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::log1p(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_log1p_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::sin(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) { BallFloatResult::from_result(value.try_sin_interval()) })
+}
+
+///|
+pub fn BallFloatResult::cos(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) { BallFloatResult::from_result(value.try_cos_interval()) })
+}
+
+///|
+pub fn BallFloatResult::tan(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) { BallFloatResult::from_result(value.try_tan_interval()) })
+}
+
+///|
+pub fn BallFloatResult::sinpi(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_sinpi_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::cospi(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_cospi_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::tanpi(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_tanpi_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::asin(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_asin_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::acos(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_acos_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::atan(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_atan_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::sinh(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_sinh_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::cosh(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_cosh_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::tanh(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_tanh_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::asinh(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_asinh_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::acosh(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_acosh_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::atanh(self : BallFloatResult) -> BallFloatResult {
+  self.bind(fn(value) {
+    BallFloatResult::from_result(value.try_atanh_interval())
+  })
+}
+
+///|
+pub fn BallFloatResult::hypot(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    self.inner.bind(fn(left) {
+      other.inner.bind(fn(right) { left.try_hypot(right) })
+    }),
+  )
+}
+
+///|
+pub fn BallFloatResult::pow(
+  self : BallFloatResult,
+  exponent : BallFloatResult,
+) -> BallFloatResult {
+  self.bind(fn(base) {
+    exponent.bind(fn(power) {
+      BallFloatResult::from_result(base.try_pow_interval(power))
+    })
+  })
+}
+
+///|
+pub fn BallFloatResult::atan2(
+  self : BallFloatResult,
+  abscissa : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    self.inner.bind(fn(ordinate) {
+      abscissa.inner.bind(fn(horizontal) {
+        ordinate.try_atan2_interval(horizontal)
+      })
+    }),
+  )
 }
 
 ///|

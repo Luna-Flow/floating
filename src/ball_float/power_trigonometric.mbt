@@ -587,11 +587,14 @@ fn certified_sin_cos_interval_bounds(
   SignedBinCoeff,
   SignedBinCoeff,
 )? {
-  let mut work = Int::max(
-    trig_initial_work(value.lo_, value.precision_),
-    trig_initial_work(value.hi_, value.precision_),
+  let mut budget = certified_refinement_budget(
+    Int::max(
+      trig_initial_work(value.lo_, value.precision_),
+      trig_initial_work(value.hi_, value.precision_),
+    ),
   )
-  for _ in 0..<8 {
+  while budget.available() {
+    let work = budget.precision()
     let (pi_lower, pi_upper) = certified_pi_rational(work + 16)
     match
       (
@@ -628,7 +631,7 @@ fn certified_sin_cos_interval_bounds(
         )
       _ => ()
     }
-    work *= 2
+    budget = budget.next()
   }
   None
 }
@@ -780,46 +783,57 @@ fn certified_tan_endpoint_bounds(
 }
 
 ///|
+priv enum CertifiedTanIntervalBounds {
+  Bounds(@bin_float.BinFloat, @bin_float.BinFloat)
+  Pole
+  Failure
+}
+
+///|
 fn certified_tan_interval_bounds(
   value : BallFloat,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
-  let mut work = Int::max(
-    trig_initial_work(value.lo_, value.precision_),
-    trig_initial_work(value.hi_, value.precision_),
+) -> CertifiedTanIntervalBounds {
+  let mut budget = certified_refinement_budget(
+    Int::max(
+      trig_initial_work(value.lo_, value.precision_),
+      trig_initial_work(value.hi_, value.precision_),
+    ),
   )
-  for _ in 0..<8 {
+  while budget.available() {
+    let work = budget.precision()
     let (pi_lower, pi_upper) = certified_pi_rational(work + 16)
-    guard critical_index_range_at_work(value, pi_lower, pi_upper)
-      is Some(indices) else {
-      return None
+    match critical_index_range_at_work(value, pi_lower, pi_upper) {
+      Some(indices) => {
+        if index_range_contains_residue(indices.0, indices.1, 1) ||
+          index_range_contains_residue(indices.0, indices.1, 3) {
+          return Pole
+        }
+        match
+          (
+            certified_tan_endpoint_bounds(
+              value.lo_,
+              value.precision_,
+              work,
+              pi_lower,
+              pi_upper,
+            ),
+            certified_tan_endpoint_bounds(
+              value.hi_,
+              value.precision_,
+              work,
+              pi_lower,
+              pi_upper,
+            ),
+          ) {
+          (Some(lower), Some(upper)) => return Bounds(lower.0, upper.1)
+          _ => ()
+        }
+      }
+      None => ()
     }
-    if index_range_contains_residue(indices.0, indices.1, 1) ||
-      index_range_contains_residue(indices.0, indices.1, 3) {
-      return None
-    }
-    match
-      (
-        certified_tan_endpoint_bounds(
-          value.lo_,
-          value.precision_,
-          work,
-          pi_lower,
-          pi_upper,
-        ),
-        certified_tan_endpoint_bounds(
-          value.hi_,
-          value.precision_,
-          work,
-          pi_lower,
-          pi_upper,
-        ),
-      ) {
-      (Some(lower), Some(upper)) => return Some((lower.0, upper.1))
-      _ => ()
-    }
-    work *= 2
+    budget = budget.next()
   }
-  None
+  Failure
 }
 
 ///|
@@ -830,10 +844,10 @@ pub fn BallFloat::tan_interval(self : BallFloat) -> BallFloat {
   if !self.is_bounded() || trig_cutoff_exceeded(self) {
     return whole_real(self.precision_)
   }
-  guard certified_tan_interval_bounds(self) is Some(bounds) else {
-    return whole_real(self.precision_)
+  match certified_tan_interval_bounds(self) {
+    Bounds(lower, upper) => store_interval(lower, upper, self.precision_)
+    Pole | Failure => whole_real(self.precision_)
   }
-  store_interval(bounds.0, bounds.1, self.precision_)
 }
 
 ///|
@@ -973,5 +987,8 @@ pub fn BallFloat::pow_interval(
   exponent : BallFloat,
 ) -> BallFloat {
   let precision = Int::max(self.precision_, exponent.precision_)
-  pow_interval_at_precision(self, exponent, precision)
+  match self.try_pow_interval(exponent) {
+    Ok(result) => result
+    Err(_) => pow_interval_at_precision(self, exponent, precision)
+  }
 }

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Validate the checked-in IEEE decimal corpus and static oracle examples.
 
-The authoritative corpus is derived from IEEE encoding formulas and an
-independent integer/rational arithmetic oracle. A small pinned decTest excerpt
-is supplementary diagnostics only; no external implementation archive is
-required to run the gate.
+The authoritative corpus combines IEEE encoding formulas, exact
+integer/rational arithmetic, and committed MPFR-directed elementary
+enclosures. A small pinned decTest excerpt is supplementary diagnostics only;
+no external implementation archive is required to run the gate.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import decimal_oracles
+import generate_decimal_elementary_oracle
 import generate_ieee_decimal_vectors
 from conformance_ui import SummaryRow, print_summary
 
@@ -28,6 +29,8 @@ FIXTURE_ROOT = ROOT / "testdata/decimal/ieee"
 MANIFEST_PATH = FIXTURE_ROOT / "manifest.json"
 MATRIX_PATH = FIXTURE_ROOT / "conformance_matrix.json"
 STANDARD_EXCERPT_PATH = FIXTURE_ROOT / "dectest_ieee_excerpt.json"
+ELEMENTARY_ORACLE_PATH = FIXTURE_ROOT / "elementary_mpfr_oracle.json"
+ELEMENTARY_INTERVAL_PATH = FIXTURE_ROOT / "mpfr-4.2.2-elementary-interval.txt"
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 DEFAULT_OUTPUT = ROOT / ".tmp/decimal-ieee-conformance"
 MOON_TEST_SUMMARY = re.compile(
@@ -359,7 +362,105 @@ def render_moon_fixture_test() -> str:
             "}",
             "",
         ])
+    rounding_variants = {
+        "half_even": "HalfEven",
+        "half_up": "HalfUp",
+        "half_down": "HalfDown",
+        "down": "Down",
+        "ceiling": "Ceiling",
+        "floor": "Floor",
+        "up": "Up",
+        "zero_five_up": "ZeroFiveUp",
+    }
+    format_parameters = {
+        "decimal32": (7, -95, 96),
+        "decimal64": (16, -383, 384),
+        "decimal128": (34, -6143, 6144),
+    }
+    for row in load_json(ELEMENTARY_ORACLE_PATH)["rows"]:
+        operation = row["operation"]
+        precision, e_min, e_max = format_parameters[row["format"]]
+        ctx = (
+            "DecimalContext::new("
+            f"precision={precision}, e_min={e_min}, e_max={e_max}, clamp=true, "
+            f"decimal_rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]})"
+        )
+        rhs = (
+            f"Decimal::from_string({_moon_string(row['right'])}).unwrap()"
+            if "right" in row
+            else None
+        )
+        unary = {
+            "exp": "try_exp_ctx",
+            "exp2": "try_exp2_ctx",
+            "exp10": "try_exp10_ctx",
+            "expm1": "try_expm1_ctx",
+            "ln": "try_ln_ctx",
+            "log2": "try_log2_ctx",
+            "log10": "try_log10_ctx",
+            "log1p": "try_log1p_ctx",
+            "sin": "try_sin_ctx",
+            "cos": "try_cos_ctx",
+            "tan": "try_tan_ctx",
+            "sinpi": "try_sinpi_ctx",
+            "cospi": "try_cospi_ctx",
+            "tanpi": "try_tanpi_ctx",
+            "asin": "try_asin_ctx",
+            "acos": "try_acos_ctx",
+            "atan": "try_atan_ctx",
+            "sinh": "try_sinh_ctx",
+            "cosh": "try_cosh_ctx",
+            "tanh": "try_tanh_ctx",
+            "asinh": "try_asinh_ctx",
+            "acosh": "try_acosh_ctx",
+            "atanh": "try_atanh_ctx",
+        }
+        if operation == "sqrt":
+            call = "lhs.sqrt_ctx(ctx)"
+        elif operation == "rootn":
+            call = f"lhs.try_rootn_ctx({row['integer']}, ctx).unwrap()"
+        elif operation == "pown":
+            call = f"lhs.try_pown_ctx({row['integer']}, ctx).unwrap()"
+        elif operation == "pow":
+            call = f"lhs.try_power_ctx({rhs}, ctx).unwrap()"
+        elif operation == "hypot":
+            call = f"lhs.try_hypot_ctx({rhs}, ctx).unwrap()"
+        elif operation == "atan2":
+            call = f"lhs.try_atan2_ctx({rhs}, ctx).unwrap()"
+        elif operation in unary:
+            call = f"lhs.{unary[operation]}(ctx).unwrap()"
+        else:
+            raise CorpusError(f"unsupported Decimal elementary oracle operation: {operation}")
+        expected_flags = ", ".join(
+            f"DecimalSignal::{SIGNAL_VARIANTS[item]}" for item in row["flags"]
+        )
+        source.extend(
+            [
+                f"test {_moon_string('IEEE elementary oracle ' + row['id'])} {{",
+                f"  let ctx = {ctx}",
+                f"  let lhs = Decimal::from_string({_moon_string(row['left'])}).unwrap()",
+                f"  let (actual, flags) = {call}",
+                f"  let expected = Decimal::from_string({_moon_string(row['result'])}).unwrap()",
+                f"  assert_eq(actual.compare(expected), 0, msg={_moon_string(row['id'])})",
+                f"  assert_ieee_fixture_flags({_moon_string(row['id'])}, flags, [{expected_flags}])",
+                "}",
+                "",
+            ]
+        )
     return "\n".join(source)
+
+
+def check_elementary_oracle() -> int:
+    fixture = load_json(ELEMENTARY_ORACLE_PATH)
+    if fixture.get("schemaVersion") != 1:
+        raise CorpusError("unsupported Decimal elementary oracle schema")
+    intervals = generate_decimal_elementary_oracle.parse_intervals(
+        ELEMENTARY_INTERVAL_PATH
+    )
+    expected_rows = generate_decimal_elementary_oracle.generate_rows(intervals)
+    if fixture.get("rows") != expected_rows:
+        raise CorpusError("Decimal elementary oracle does not match certified endpoints")
+    return len(expected_rows)
 
 
 def check_declets(path: Path) -> int:
@@ -533,6 +634,8 @@ def collect_corpus_checks() -> dict[str, Any]:
     for key, expected in (
         ("oracleManifest", "oracle_manifest.json"),
         ("staticOracleExamples", "oracle_static_examples.json"),
+        ("elementaryOracle", "elementary_mpfr_oracle.json"),
+        ("elementaryOracleIntervals", "mpfr-4.2.2-elementary-interval.txt"),
         ("vectorPlan", "vector_plan.json"),
     ):
         if manifest.get(key) != expected or not (FIXTURE_ROOT / expected).is_file():
@@ -547,6 +650,7 @@ def collect_corpus_checks() -> dict[str, Any]:
         operations += checked_operations
     declets = check_declets(FIXTURE_ROOT / manifest["exhaustive"]["path"])
     bridge = check_encoding_bridge()
+    elementary = check_elementary_oracle()
     return {
         "requiredOperations": required,
         "recommendedOperations": recommended,
@@ -557,6 +661,7 @@ def collect_corpus_checks() -> dict[str, Any]:
         "operations": operations,
         "declets": declets,
         "encodingBridge": bridge,
+        "elementaryOracle": elementary,
     }
 
 
@@ -642,6 +747,7 @@ def _plan(targets: list[str]) -> dict[str, Any]:
             "decTestExcerptRows": len(excerpt.get("cases", [])),
             "dpdDeclets": 1024,
             "staticOracleExamples": len(load_json(decimal_oracles.STATIC_EXAMPLES).get("examples", [])),
+            "certifiedElementaryOracle": len(load_json(ELEMENTARY_ORACLE_PATH).get("rows", [])),
         },
         "vectorPlan": {
             "families": len(vector_plan["families"]),
@@ -667,6 +773,7 @@ def _report(
         {"name": "DPD declets", "passedCases": checks["declets"], "totalCases": checks["declets"], "failedCases": 0},
         {"name": "DPD/BID bridge", "passedCases": checks["encodingBridge"], "totalCases": checks["encodingBridge"], "failedCases": 0},
         {"name": "static Oracle examples", "passedCases": checks["staticExamples"], "totalCases": checks["staticExamples"], "failedCases": 0},
+        {"name": "certified elementary Oracle", "passedCases": checks["elementaryOracle"], "totalCases": checks["elementaryOracle"], "failedCases": 0},
     ]
     rows.extend(
         {
@@ -739,6 +846,12 @@ def _print_report(report: dict[str, Any]) -> None:
                 "name": "static Oracle examples",
                 "passedCases": report["checks"]["staticExamples"],
                 "totalCases": report["checks"]["staticExamples"],
+                "failedCases": 0,
+            },
+            {
+                "name": "certified elementary Oracle",
+                "passedCases": report["checks"]["elementaryOracle"],
+                "totalCases": report["checks"]["elementaryOracle"],
                 "failedCases": 0,
             },
         ]

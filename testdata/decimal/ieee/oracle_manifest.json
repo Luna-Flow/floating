@@ -7,12 +7,12 @@
     {"family":"exp-ln-log10","primary":"libmpdec-allcr1","secondary":"arb"},
     {"family":"sqrt","primary":"intel-rdfp","secondary":"libmpdec"},
     {"family":"integer-power","primary":"exact-gmp-rational","secondary":"libmpdec"},
-    {"family":"pow-powr","primary":"arb-adaptive-interval","secondary":"mpfr"},
-    {"family":"trigonometric","primary":"arb-adaptive-interval","secondary":"mpfr"},
-    {"family":"inverse-trigonometric","primary":"arb-adaptive-interval","secondary":"mpfr"},
-    {"family":"hyperbolic","primary":"arb-adaptive-interval","secondary":"mpfr"},
-    {"family":"inverse-hyperbolic","primary":"arb-adaptive-interval","secondary":"mpfr"},
-    {"family":"expm1-log1p-hypot-cbrt","primary":"arb-adaptive-interval","secondary":"mpfr"}
+    {"family":"pow-powr","primary":"mpfr-directed-dyadic-interval","secondary":"arb"},
+    {"family":"trigonometric","primary":"mpfr-directed-dyadic-interval","secondary":"arb"},
+    {"family":"inverse-trigonometric","primary":"mpfr-directed-dyadic-interval","secondary":"arb"},
+    {"family":"hyperbolic","primary":"mpfr-directed-dyadic-interval","secondary":"arb"},
+    {"family":"inverse-hyperbolic","primary":"mpfr-directed-dyadic-interval","secondary":"arb"},
+    {"family":"expm1-log1p-hypot-cbrt","primary":"mpfr-directed-dyadic-interval","secondary":"arb"}
   ],
   "externalCommands": {
     "intel-rdfp": "DECIMAL_RDFP_ORACLE",

@@ -9,6 +9,8 @@
   "fixtureSchema": "ieee-decimal-v2",
   "oracleManifest": "oracle_manifest.json",
   "staticOracleExamples": "oracle_static_examples.json",
+  "elementaryOracle": "elementary_mpfr_oracle.json",
+  "elementaryOracleIntervals": "mpfr-4.2.2-elementary-interval.txt",
   "vectorPlan": "vector_plan.json",
   "formats": {
     "decimal32": {"bits": 32, "precision": 7, "exponentBias": 101},

@@ -49,3 +49,20 @@ test "MPFR pow parser executes all supported rounding modes" {
   assert_eq(summary.passed_cases(), 4)
   assert_eq(summary.failed_cases(), 0)
 }
+
+///|
+test "MPFR elementary parser executes certified exact identities" {
+  let source =
+    #|# mpfr-elementary-v1
+    #|exp 24 n 0x0p0 - 0 0x1p0 0 0 0
+    #|tanpi 24 na 0x1p-2 - 0 0x1p0 0 0 0
+    #|hypot 53 d 0x3p0 0x4p0 0 0x5p0 0 0 0
+  let document = parse_elementary_data("inline.elementary", source).unwrap()
+  assert_eq(document.source(), "inline.elementary")
+  assert_eq(document.case_count(), 3)
+  let summary = execute_elementary_data(document)
+  for result in summary.results() {
+    assert_true(result.passed(), msg=result.message())
+  }
+  assert_eq(summary.passed_cases(), 3)
+}

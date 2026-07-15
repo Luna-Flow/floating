@@ -351,14 +351,29 @@ def run_mpfr_path(
     return payload
 
 
-def run_mpfr(manifest: dict, output: Path) -> dict:
+def run_mpfr(manifest: dict, output: Path) -> list[dict]:
     spec = manifest["artifacts"]["mpfr-4.2.2-sqrt"]
-    return run_mpfr_path(
-        repo_path(spec["destination"]),
-        spec["expectedExecutableRows"],
-        output,
-        "mpfr-4.2.2-sqrt.json",
-    )
+    results = [
+        run_mpfr_path(
+            repo_path(spec["destination"]),
+            spec["expectedExecutableRows"],
+            output,
+            "mpfr-4.2.2-sqrt.json",
+        )
+    ]
+    for name, local_spec in manifest.get("mpfrCorpora", {}).items():
+        path = repo_path(local_spec["path"])
+        if not path.is_file() or sha256(path) != local_spec["sha256"]:
+            raise RuntimeError(f"local MPFR corpus hash mismatch: {name}")
+        results.append(
+            run_mpfr_path(
+                path,
+                local_spec["expectedCases"],
+                output,
+                f"{name}.json",
+            )
+        )
+    return results
 
 
 def smoke_task(spec: dict) -> dict:
@@ -595,7 +610,7 @@ def main(argv: list[str] | None = None) -> int:
         task_progress.finish(
             not any(task["failedCases"] != 0 for task in task_results),
         )
-        mpfr_results = [] if args.skip_mpfr else [run_mpfr(manifest, output)]
+        mpfr_results = [] if args.skip_mpfr else run_mpfr(manifest, output)
         report = aggregate(task_results, mpfr_results, time.monotonic() - started)
         report_path = output / "summary.json"
         report_path.write_text(

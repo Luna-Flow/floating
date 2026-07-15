@@ -3,6 +3,11 @@
 pub type BinCoeff
 
 ///|
+pub impl Debug for BinCoeff with fn to_repr(self) {
+  @debug.Repr::integer(self.to_string())
+}
+
+///|
 #external
 priv type BinCoeffOutcome
 

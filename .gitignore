@@ -19,13 +19,19 @@ coverage_summary.txt
 # Local runtime scratch space
 .tmp/
 
-# Fetched decTest corpora and archives
+# Fetched conformance corpora and archives
+# Keep their manifests, smoke fixtures, and pinned oracle data tracked.
 testdata/decimal/official/
 testdata/decimal/official0/
 testdata/decimal/dectest.zip
 testdata/decimal/dectest0.zip
 testdata/interval/itf1788/
 testdata/interval/itf1788.zip
+
+# Locally generated large stress corpora
+# Reproducible release fixtures belong in JSON manifests or pinned oracle files.
+testdata/**/stress/
+testdata/**/*.jsonl
 
 # Python/tooling caches
 .venv/

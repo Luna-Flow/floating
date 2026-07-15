@@ -7,7 +7,7 @@ pub struct BinFloat {
   priv precision_ : Int
   priv signaling_nan : Bool
   priv nan_payload : BinCoeff
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 fn bin_coeff_round_shift_for_make(

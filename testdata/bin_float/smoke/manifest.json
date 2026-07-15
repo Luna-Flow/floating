@@ -47,6 +47,11 @@
       "name": "mpfr-pow-si",
       "path": "testdata/bin_float/smoke/mpfr-pow-si.txt",
       "expectedCases": 120
+    },
+    {
+      "name": "mpfr-elementary",
+      "path": "testdata/bin_float/mpfr-4.2.2-elementary.txt",
+      "expectedCases": 2088
     }
   ]
 }

@@ -180,7 +180,7 @@ pub fn json_strings(values : Array[String]) -> Json {
 
 ///|
 pub fn json_object(fields : Array[(String, Json)]) -> Json {
-  let object : Map[String, Json] = {}
+  let object : Map[String, Json] = Map([])
   for field in fields {
     let (key, value) = field
     object[key] = value

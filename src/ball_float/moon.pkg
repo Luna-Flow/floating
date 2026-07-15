@@ -2,6 +2,7 @@ import {
   "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/internal",
 }
 
 import {

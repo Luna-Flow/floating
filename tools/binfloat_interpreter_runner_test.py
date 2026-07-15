@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import importlib.util
+import hashlib
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -105,6 +106,14 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
         self.assertEqual(task["tininess"], "after")
         self.assertEqual(task["level"], 1)
         self.assertEqual(task["seed"], 1)
+
+    def test_elementary_mpfr_corpus_is_hash_pinned(self):
+        manifest = RUNNER.load_json(RUNNER.DEFAULT_MANIFEST)
+        spec = manifest["mpfrCorpora"]["mpfr-4.2.2-elementary"]
+        path = RUNNER.repo_path(spec["path"])
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        self.assertEqual(digest, spec["sha256"])
+        self.assertEqual(spec["expectedCases"], 2088)
 
 
 if __name__ == "__main__":

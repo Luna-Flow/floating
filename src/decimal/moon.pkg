@@ -8,6 +8,7 @@ import {
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/internal",
   "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/ball_float",
 }
 
 options(

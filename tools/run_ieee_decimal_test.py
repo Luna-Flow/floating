@@ -19,6 +19,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         self.assertEqual(plan["runner"], "ieee-decimal-oracles")
         self.assertEqual(plan["targets"], ["wasm"])
         self.assertEqual(plan["checks"]["dpdDeclets"], 1024)
+        self.assertEqual(plan["checks"]["certifiedElementaryOracle"], 2784)
 
     def test_json_report_uses_unified_summary_shape(self) -> None:
         checks = {
@@ -27,6 +28,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
             "declets": 1024,
             "encodingBridge": 11,
             "staticExamples": 19,
+            "elementaryOracle": 2784,
         }
         targets = [{"target": "native", "totalCases": 2, "passedCases": 2, "failedCases": 0, "exitCode": 0}]
         with tempfile.TemporaryDirectory() as directory, patch.object(

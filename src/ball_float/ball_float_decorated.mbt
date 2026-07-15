@@ -380,6 +380,13 @@ pub fn BallFloatDecorated::exp10_interval(
 }
 
 ///|
+pub fn BallFloatDecorated::expm1_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.expm1_interval(), Com)
+}
+
+///|
 fn BallFloatDecorated::logarithm_result(
   self : BallFloatDecorated,
   interval : BallFloat,
@@ -411,6 +418,222 @@ pub fn BallFloatDecorated::log10_interval(
   self : BallFloatDecorated,
 ) -> BallFloatDecorated {
   self.logarithm_result(self.interval_.log10_interval())
+}
+
+///|
+pub fn BallFloatDecorated::log1p_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  let minus_one = @bin_float.BinFloat::from_int(
+    -1,
+    precision=self.interval_.precision(),
+  )
+  let partial_domain = !self.interval_.is_empty() &&
+    self.interval_.lower_bound().compare(minus_one) <= 0
+  unary_result(
+    self,
+    self.interval_.log1p_interval(),
+    if partial_domain {
+      Trv
+    } else {
+      Com
+    },
+  )
+}
+
+///|
+pub fn BallFloatDecorated::rootn(
+  self : BallFloatDecorated,
+  degree : Int,
+) -> BallFloatDecorated {
+  let partial_domain = degree == 0 ||
+    (
+      degree % 2 == 0 &&
+      self.interval_.lower_bound().sign() == @def.Sign::Negative
+    )
+  unary_result(
+    self,
+    self.interval_.rootn(degree),
+    if partial_domain {
+      Trv
+    } else {
+      Com
+    },
+  )
+}
+
+///|
+pub fn BallFloatDecorated::hypot(
+  self : BallFloatDecorated,
+  other : BallFloatDecorated,
+) -> BallFloatDecorated {
+  binary_result(self, other, self.interval_.hypot(other.interval_), Com)
+}
+
+///|
+pub fn BallFloatDecorated::sinpi_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.sinpi_interval(), Com)
+}
+
+///|
+pub fn BallFloatDecorated::cospi_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.cospi_interval(), Com)
+}
+
+///|
+pub fn BallFloatDecorated::tanpi_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  let result = self.interval_.tanpi_interval()
+  unary_result(
+    self,
+    result,
+    if result.is_entire() && !self.interval_.is_empty() {
+      Trv
+    } else {
+      Com
+    },
+  )
+}
+
+///|
+pub fn BallFloatDecorated::sinh_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.sinh_interval(), Com)
+}
+
+///|
+pub fn BallFloatDecorated::cosh_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.cosh_interval(), Com)
+}
+
+///|
+pub fn BallFloatDecorated::tanh_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.tanh_interval(), Com)
+}
+
+///|
+pub fn BallFloatDecorated::asinh_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.asinh_interval(), Com)
+}
+
+///|
+pub fn BallFloatDecorated::acosh_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
+  let partial_domain = !self.interval_.is_empty() &&
+    self.interval_.lower_bound().compare(one) < 0
+  unary_result(
+    self,
+    self.interval_.acosh_interval(),
+    if partial_domain {
+      Trv
+    } else {
+      Com
+    },
+  )
+}
+
+///|
+pub fn BallFloatDecorated::atanh_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
+  let minus_one = one.neg()
+  let partial_domain = !self.interval_.is_empty() &&
+    (
+      self.interval_.lower_bound().compare(minus_one) <= 0 ||
+      self.interval_.upper_bound().compare(one) >= 0
+    )
+  unary_result(
+    self,
+    self.interval_.atanh_interval(),
+    if partial_domain {
+      Trv
+    } else {
+      Com
+    },
+  )
+}
+
+///|
+pub fn BallFloatDecorated::atan_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  unary_result(self, self.interval_.atan_interval(), Com)
+}
+
+///|
+fn BallFloatDecorated::inverse_unit_result(
+  self : BallFloatDecorated,
+  interval : BallFloat,
+) -> BallFloatDecorated {
+  let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
+  let partial_domain = !self.interval_.is_empty() &&
+    (
+      self.interval_.lower_bound().compare(one.neg()) < 0 ||
+      self.interval_.upper_bound().compare(one) > 0
+    )
+  unary_result(self, interval, if partial_domain { Trv } else { Com })
+}
+
+///|
+pub fn BallFloatDecorated::asin_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  self.inverse_unit_result(self.interval_.asin_interval())
+}
+
+///|
+pub fn BallFloatDecorated::acos_interval(
+  self : BallFloatDecorated,
+) -> BallFloatDecorated {
+  self.inverse_unit_result(self.interval_.acos_interval())
+}
+
+///|
+pub fn BallFloatDecorated::atan2_interval(
+  self : BallFloatDecorated,
+  abscissa : BallFloatDecorated,
+) -> BallFloatDecorated {
+  let interval = self.interval_.atan2_interval(abscissa.interval_)
+  let contains_origin = self.interval_.contains_zero() &&
+    abscissa.interval_.contains_zero()
+  let crosses_cut = abscissa.interval_.lower_bound().sign() ==
+    @def.Sign::Negative &&
+    self.interval_.lower_bound().sign() == @def.Sign::Negative &&
+    self.interval_.contains_zero()
+  let touches_cut_from_above = abscissa.interval_
+    .upper_bound()
+    .compare(@bin_float.BinFloat::zero(precision=interval.precision())) <
+    0 &&
+    self.interval_.lower_bound().is_zero()
+  binary_result(
+    self,
+    abscissa,
+    interval,
+    if contains_origin {
+      Trv
+    } else if crosses_cut {
+      Def
+    } else if touches_cut_from_above {
+      Dac
+    } else {
+      Com
+    },
+  )
 }
 
 ///|

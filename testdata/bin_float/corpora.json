@@ -24,5 +24,15 @@
       "destination": ".tmp/binfloat-conformance/mpfr-4.2.2/sqrt",
       "expectedExecutableRows": 1055
     }
+  },
+  "mpfrCorpora": {
+    "mpfr-4.2.2-elementary": {
+      "path": "testdata/bin_float/mpfr-4.2.2-elementary.txt",
+      "sha256": "477a081f566d81c5d42cf083b706ac3610befc91063c1a5547423407494d4be5",
+      "expectedCases": 2088,
+      "generator": "tools/generate_mpfr_elementary_oracle.c",
+      "seed": 20260715,
+      "casesPerCell": 4
+    }
   }
 }

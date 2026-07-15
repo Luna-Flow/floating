@@ -29,7 +29,8 @@ operations, so an unfiltered run evaluates every ITL instruction exactly once;
 the runner rejects any overlapping configuration. The strict baseline also includes
 arithmetic, numeric observations,
 cancellation, elementary-core, exponentials/logarithms, FMA, integer powers,
-and extrema. General power and trigonometric functions are included as strict
+and extrema. General power, trigonometric functions, and both pinned upstream
+`atan2` sources are included as strict
 phases; reverse operations remain unsupported.
 
 `just gate interval` is the strict baseline (and accepts an optional worker count): 20 set cases, 567 relation cases,
@@ -37,7 +38,9 @@ phases; reverse operations remain unsupported.
 cases, 107 elementary-core cases, 131 exponential/logarithmic cases, 1,428
 general-power cases, 176 trigonometric cases, 567 FMA cases, and 174
 integer-power cases.
-The extrema phase adds 38 min/max cases. Every selected case must be executable;
+The hyperbolic and inverse-trigonometric phases add 107 and 61 cases,
+respectively. The `atan2` phase adds 375 cases and the extrema phase adds 38
+min/max cases, for an official aggregate of 4,656 cases. Every selected case must be executable;
 unsupported and diagnostic classifications fail the gate.
 
 The phase planner is part of the contract. A phase declares its operation set,
@@ -47,7 +50,8 @@ makes sharded summaries comparable with an unfiltered run.
 
 The `general-power` phase contains 1,428 `pow` cases and passes all cases on
 the native strict run. The `trigonometric` phase contains 176 `sin`, `cos`, and
-`tan` cases; it also passes the strict baseline. Reverse operations remain
+`tan` cases; the disjoint `atan2` phase contains 375 cases from the same pinned
+archive. Both pass the strict baseline. Reverse operations remain
 unsupported.
 
 ## Interpreting Results

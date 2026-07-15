@@ -49,10 +49,13 @@ committing a multi-gigabyte artifact with:
 just ieee-vectors mandatory-decimal 100000 .tmp/mandatory.jsonl
 ```
 
-Rows with `libmpdec-allcr1` or exact rational routes can be checked locally;
-rows routed to RDFP, Arb, or MPFR remain static descriptors until the matching
-external oracle is installed. This keeps missing optional dependencies visible
-instead of silently reducing the required boundary matrix.
+The committed elementary oracle adds 2,784 executable rows. MPFR 4.2.2
+computes 768-bit directed dyadic enclosures; exact integer conversion rounds
+both endpoints to decimal32/64/128 under all eight Decimal rounding modes and
+rejects non-unique value/flag witnesses. RDFP and Arb routes remain optional
+secondary evidence and are never counted when unavailable. The larger
+100,000-per-family plan remains an optional generated stress matrix rather
+than a multi-gigabyte committed artifact.
 
 Run the IEEE runner through the shared conformance entry point:
 

@@ -101,6 +101,35 @@ def run_phase(executable: Path, phase: dict, strict_supported: bool) -> dict:
     return payload
 
 
+def validate_official_aggregate(
+    aggregate: dict | None, reports: list[dict]
+) -> int | None:
+    if aggregate is None:
+        return None
+    phases = aggregate.get("phases")
+    expected_cases = aggregate.get("expectedCases")
+    if (
+        not isinstance(phases, list)
+        or not phases
+        or not all(isinstance(name, str) and name for name in phases)
+        or len(set(phases)) != len(phases)
+        or isinstance(expected_cases, bool)
+        or not isinstance(expected_cases, int)
+        or expected_cases <= 0
+    ):
+        raise ValueError("invalid officialAggregate configuration")
+    selected = {report["phase"] for report in reports}
+    if selected != set(phases):
+        return None
+    actual_cases = sum(report["totalCases"] for report in reports)
+    if actual_cases != expected_cases:
+        raise ValueError(
+            "official ITF1788 aggregate mismatch: "
+            f"expected {expected_cases}, got {actual_cases}"
+        )
+    return expected_cases
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run staged ITF1788 conformance tests")
     parser.add_argument("--phase", action="append", default=[])
@@ -122,6 +151,7 @@ def main(argv: list[str] | None = None) -> int:
                 }
             ]
             revision = "committed-smoke"
+            official_aggregate = None
         else:
             config = json.loads(CONFIG.read_text(encoding="utf-8"))
             manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -138,6 +168,7 @@ def main(argv: list[str] | None = None) -> int:
                 raise FileNotFoundError("ITF1788 corpus installation failed")
             phases = planned_phases(config, corpus, set(args.phase))
             revision = spec["revision"]
+            official_aggregate = config.get("officialAggregate")
         if args.plan:
             for phase in phases:
                 print(f"{phase['name']}: {len(phase['files'])} files")
@@ -152,12 +183,16 @@ def main(argv: list[str] | None = None) -> int:
             phase_progress,
             lambda phase: phase["name"],
         )
+        expected_official_cases = validate_official_aggregate(
+            official_aggregate, reports
+        )
         exit_code = 1 if any(report["exitCode"] != 0 for report in reports) else 0
         phase_progress.finish(exit_code == 0)
         report = {
             "schemaVersion": 1,
             "runner": "staged-itf1788",
             "revision": revision,
+            "expectedOfficialCases": expected_official_cases,
             "phases": reports,
             "summary": {
                 key: sum(phase[key] for phase in reports)

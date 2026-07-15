@@ -40,6 +40,12 @@ pub using @arithmetic {type ArithmeticErrorKind}
 
 pub using @bigint {type BigInt}
 
+pub using @arithmetic {type CertificationFailureDetail}
+
+pub using @arithmetic {type CertificationFailureReason}
+
+pub using @arithmetic {type CertificationStage}
+
 pub using @arithmetic {type FpClass}
 
 pub using @arithmetic {type RoundingMode}

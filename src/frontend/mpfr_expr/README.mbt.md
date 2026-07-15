@@ -1,6 +1,7 @@
 # `frontend/mpfr_expr`
 
-Oracle adapter for pinned MPFR hexadecimal sqrt and integer-power witnesses.
+Oracle adapter for pinned MPFR hexadecimal sqrt, integer-power, and
+full-family elementary witnesses.
 
 ## Contract
 

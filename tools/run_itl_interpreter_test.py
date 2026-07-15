@@ -72,6 +72,28 @@ class ItlInterpreterPlanTest(unittest.TestCase):
             )
         self.assertEqual(payload["exitCode"], 1)
 
+    def test_official_aggregate_requires_exact_case_count(self) -> None:
+        aggregate = {"phases": ["sets", "elementary"], "expectedCases": 3}
+        reports = [
+            {"phase": "sets", "totalCases": 1},
+            {"phase": "elementary", "totalCases": 2},
+        ]
+        self.assertEqual(
+            run_itl_interpreter.validate_official_aggregate(aggregate, reports),
+            3,
+        )
+        reports[1]["totalCases"] = 3
+        with self.assertRaisesRegex(ValueError, "expected 3, got 4"):
+            run_itl_interpreter.validate_official_aggregate(aggregate, reports)
+
+    def test_official_aggregate_ignores_partial_phase_selection(self) -> None:
+        aggregate = {"phases": ["sets", "elementary"], "expectedCases": 3}
+        self.assertIsNone(
+            run_itl_interpreter.validate_official_aggregate(
+                aggregate, [{"phase": "sets", "totalCases": 1}]
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

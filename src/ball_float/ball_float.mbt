@@ -4,7 +4,7 @@ pub struct BallFloat {
   priv hi_ : @bin_float.BinFloat
   priv precision_ : Int
   priv empty_ : Bool
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum OverlapState {

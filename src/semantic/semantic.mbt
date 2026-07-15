@@ -24,6 +24,7 @@ pub(all) enum SemanticError {
   FormatError
   UnsupportedOperation
   UnorderedComparison
+  CertificationFailure
 } derive(Eq)
 
 ///|
@@ -84,6 +85,8 @@ pub fn SemanticError::from_arithmetic(err : ArithmeticError) -> SemanticError {
     FormatError
   } else if err.is_unordered_comparison() {
     UnorderedComparison
+  } else if err.is_certification_failure() {
+    CertificationFailure
   } else {
     UnsupportedOperation
   }

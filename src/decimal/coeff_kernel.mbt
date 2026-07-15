@@ -10,7 +10,7 @@
 priv enum DecCoeff {
   Inline(UInt)
   Limbs(Array[UInt], Int)
-}
+} derive(Debug)
 
 ///|
 let dec_coeff_dpun = 9

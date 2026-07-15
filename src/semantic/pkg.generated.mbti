@@ -33,6 +33,7 @@ pub(all) enum SemanticError {
   FormatError
   UnsupportedOperation
   UnorderedComparison
+  CertificationFailure
 } derive(Eq)
 pub fn SemanticError::from_arithmetic(@arithmetic.ArithmeticError) -> Self
 

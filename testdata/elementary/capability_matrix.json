@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "release": "0.7.0",
+  "standards": {
+    "bin_float": "IEEE 754-2019",
+    "decimal": "IEEE 754-2019",
+    "decimal_gda": "General Decimal Arithmetic",
+    "ball_float": "IEEE 1788-2015"
+  },
+  "families": [
+    {
+      "family": "exponential-logarithmic",
+      "bin_float": "required-0.7.0",
+      "decimal": "required-0.7.0",
+      "decimal_gda": "exp-ln-log10-only",
+      "ball_float": "standard",
+      "oracle": "MPFR/libmpdec-allcr1/Arb",
+      "performanceCell": "elementary/exp-log"
+    },
+    {
+      "family": "power-root-hypot",
+      "bin_float": "required-0.7.0",
+      "decimal": "required-0.7.0",
+      "decimal_gda": "power-sqrt-only",
+      "ball_float": "rootn-standard-hypot-extension",
+      "oracle": "exact-rational/MPFR/Arb/ITF1788",
+      "performanceCell": "elementary/power-root"
+    },
+    {
+      "family": "trigonometric-inverse-atan2",
+      "bin_float": "required-0.7.0",
+      "decimal": "required-0.7.0",
+      "decimal_gda": "unavailable",
+      "ball_float": "standard",
+      "oracle": "MPFR/Arb/ITF1788",
+      "performanceCell": "elementary/trigonometric"
+    },
+    {
+      "family": "hyperbolic-inverse",
+      "bin_float": "required-0.7.0",
+      "decimal": "required-0.7.0",
+      "decimal_gda": "unavailable",
+      "ball_float": "standard",
+      "oracle": "MPFR/Arb/ITF1788",
+      "performanceCell": "elementary/hyperbolic"
+    },
+    {
+      "family": "expm1-log1p-pi-scaled",
+      "bin_float": "required-0.7.0",
+      "decimal": "required-0.7.0",
+      "decimal_gda": "unavailable",
+      "ball_float": "extension",
+      "oracle": "MPFR/Arb",
+      "performanceCell": "elementary/extensions"
+    }
+  ],
+  "operationStatus": [
+    {
+      "surface": "ball_float",
+      "standard": "IEEE 1788-2015",
+      "operations": ["exp", "exp2", "exp10", "log", "log2", "log10", "pow", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh"],
+      "status": "verified-strict-itf-4656",
+      "evidence": "Pinned ITF1788 official aggregate passed 4656/4656, including 107 hyperbolic, 61 inverse-trigonometric, and 375 upstream atan2 cases"
+    },
+    {
+      "surface": "ball_float",
+      "standard": "IEEE 1788-2015",
+      "operations": ["rootn"],
+      "status": "implemented-unverified-by-pinned-itf",
+      "evidence": "white-box exact identity and domain tests"
+    },
+    {
+      "surface": "ball_float",
+      "standard": "extension",
+      "operations": ["expm1", "log1p", "hypot", "sinpi", "cospi", "tanpi"],
+      "status": "implemented-extension",
+      "evidence": "certified scalar endpoint witnesses plus exact x-space critical-point and pole tests; excluded from IEEE 1788 totals"
+    },
+    {
+      "surface": "bin_float",
+      "standard": "IEEE 754-2019 recommended operations",
+      "operations": ["exp", "exp2", "exp10", "expm1", "ln", "log2", "log10", "log1p", "rootn", "pow", "hypot", "sin", "cos", "tan", "sinpi", "cospi", "tanpi", "asin", "acos", "atan", "atan2", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh"],
+      "status": "verified-certified-kernel-mpfr-4.2.2",
+      "evidence": "directed enclosures and equal value-and-flags witnesses; hash-pinned MPFR corpus passes 2088/2088 across 29 operations, 3 precisions, and 6 rounding modes"
+    },
+    {
+      "surface": "decimal",
+      "standard": "IEEE 754-2019 decimal required and recommended operations",
+      "operations": ["exp", "ln", "log10", "power", "sqrt"],
+      "status": "verified-certified-bridge-decimal-oracle",
+      "evidence": "repeated-rounded-result heuristic removed; MPFR directed dyadic enclosures plus exact decimal endpoint rounding pass decimal32/64/128 oracle rows"
+    },
+    {
+      "surface": "decimal",
+      "standard": "IEEE 754-2019 recommended operations",
+      "operations": ["trigonometric", "inverse-trigonometric", "atan2", "hyperbolic", "inverse-hyperbolic", "hypot", "rootn", "expm1", "log1p", "pi-scaled"],
+      "status": "verified-certified-bridge-decimal-oracle",
+      "evidence": "2784/2784 certified rows cover 29 operations, decimal32/64/128, and all 8 Decimal rounding modes; native/wasm/wasm-gc/js public API gates each pass 2949/2949"
+    },
+    {
+      "surface": "decimal_gda",
+      "standard": "General Decimal Arithmetic",
+      "operations": ["exp", "ln", "log10", "power", "sqrt"],
+      "status": "verified-strict-gda-gate",
+      "evidence": "official 64986/64986 and official0 16124/16124 pass; exp/ln/log10 retain fixed HalfEven mathematical-function semantics while power follows GdaContext rounding"
+    },
+    {
+      "surface": "decimal_gda",
+      "standard": "General Decimal Arithmetic",
+      "operations": ["trigonometric", "inverse-trigonometric", "atan2", "hyperbolic", "inverse-hyperbolic", "hypot", "pi-scaled"],
+      "status": "unavailable-by-standard-boundary",
+      "evidence": "not exposed by the GDA operation adapter"
+    }
+  ],
+  "proofContract": {
+    "acceptance": "both certified enclosure endpoints round to the same target value and flags",
+    "maximumRefinements": 12,
+    "growth": "work + max(32, work / 2)",
+    "failure": "ArithmeticError::CertificationFailure with stage, reason, target/work precision, and refinement count"
+  },
+  "performanceContract": {
+    "sharedBaseline": "0.6.1 commit d0c25fe847e3ba778012f44e278c4badaa4e1f03",
+    "sharedOperations": ["add", "mul", "div", "sqrt"],
+    "pairedSamples": 10,
+    "schedule": "alternating AB/BA",
+    "practicalRegressionPct": 3.0,
+    "confidencePct": 95.0,
+    "analysis": "Maremark paired bootstrap; significant only when decision is Slower and the interval lower bound is positive",
+    "newOperations": "candidate workload only because 0.6.1 has no BinFloat elementary API; 0.7.0 establishes their first immutable baseline"
+  }
+}

@@ -3,12 +3,12 @@ priv enum BinCoeffRepr {
   Inline64(UInt64)
   Inline128(UInt64, UInt64)
   Heap(FixedArray[UInt], Int)
-}
+} derive(Debug)
 
 ///|
 pub struct BinCoeff {
   priv repr : BinCoeffRepr
-}
+} derive(Debug)
 
 ///|
 let bin_coeff_limb_bits = 32

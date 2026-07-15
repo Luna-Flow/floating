@@ -109,4 +109,18 @@ test "trigonometric unbounded and extreme arguments degrade conservatively" {
   assert_true(
     extreme.cos_interval().set_equal(elementary_test_interval(-1.0, 1.0)),
   )
+  match extreme.try_cos_interval() {
+    Err(error) => {
+      let detail = error.certification_failure_detail().unwrap()
+      assert_eq(detail.operation(), "cos")
+      assert_true(detail.stage() == @def.CertificationStage::RangeReduction)
+      assert_true(
+        detail.reason() == @def.CertificationFailureReason::ResourceLimit,
+      )
+      assert_eq(detail.target_precision(), 53)
+      assert_true(detail.work_precision() > detail.target_precision())
+      assert_eq(detail.refinements(), 0)
+    }
+    Ok(_) => fail("checked cosine must report the range-reduction limit")
+  }
 }

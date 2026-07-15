@@ -10,7 +10,7 @@ pub fn run(arguments : Array[String]) -> Int {
   }
   let arguments = common.remaining()
   guard arguments.length() == 1 else {
-    println("usage: mpfr-expr [--json] <MPFR sqrt or pow corpus>")
+    println("usage: mpfr-expr [--json] <MPFR sqrt, pow, or elementary corpus>")
     return 2
   }
   let path = arguments[0]
@@ -21,8 +21,24 @@ pub fn run(arguments : Array[String]) -> Int {
       return 2
     }
   }
-  let is_pow = text.contains("input_coefficient_hex")
-  let summary = if is_pow {
+  let is_elementary = text.contains("mpfr-elementary-v1")
+  let is_pow = !is_elementary && text.contains("input_coefficient_hex")
+  let summary = if is_elementary {
+    match @mpfr_expr.parse_elementary_data(path, text) {
+      Ok(document) => @mpfr_expr.execute_elementary_data(document)
+      Err(diagnostics) => {
+        let first = diagnostics[0]
+        println(
+          @runner_cli.format_diagnostic_at(
+            first.source(),
+            first.line(),
+            first.message(),
+          ),
+        )
+        return 2
+      }
+    }
+  } else if is_pow {
     match @mpfr_expr.parse_pow_data(path, text) {
       Ok(document) => @mpfr_expr.execute_pow_data(document)
       Err(diagnostics) => {
@@ -66,7 +82,9 @@ pub fn run(arguments : Array[String]) -> Int {
           (
             "corpus",
             @runner_cli.json_string(
-              if is_pow {
+              if is_elementary {
+                "mpfr-4.2.2-elementary"
+              } else if is_pow {
                 "mpfr-4.2.2-pow-si"
               } else {
                 "mpfr-4.2.2-sqrt"
@@ -84,6 +102,8 @@ pub fn run(arguments : Array[String]) -> Int {
     println(
       if is_pow {
         "MPFR pow_si summary"
+      } else if is_elementary {
+        "MPFR elementary summary"
       } else {
         "MPFR sqrt data_check summary"
       },

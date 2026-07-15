@@ -9,7 +9,7 @@ pub struct Decimal {
   priv exponent10 : Int
   priv precision_ : Int
   priv signaling_nan : Bool
-}
+} derive(Debug)
 
 ///|
 

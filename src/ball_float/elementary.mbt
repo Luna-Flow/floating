@@ -6,6 +6,13 @@ priv struct CertifiedRat {
 }
 
 ///|
+fn certified_refinement_budget(
+  initial_work_bits : Int,
+) -> CertifiedRefinementBudget {
+  @internal.CertifiedRefinementBudget::new(initial_work_bits)
+}
+
+///|
 fn certified_rat_coeff(
   num : SignedBinCoeff,
   den : @bin_float.BinCoeff,
@@ -824,6 +831,20 @@ pub fn BallFloat::exp10_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
+/// Certified interval for exp(x) - 1.
+pub fn BallFloat::expm1_interval(self : BallFloat) -> BallFloat {
+  match self.try_expm1_interval() {
+    Ok(result) => result
+    Err(_) =>
+      store_interval(
+        @bin_float.BinFloat::from_int(-1, precision=self.precision_),
+        pos_inf(self.precision_),
+        self.precision_,
+      )
+  }
+}
+
+///|
 pub fn BallFloat::ln_interval(self : BallFloat) -> BallFloat {
   ln_interval_at_precision(self, self.precision_)
 }
@@ -836,6 +857,15 @@ pub fn BallFloat::log2_interval(self : BallFloat) -> BallFloat {
 ///|
 pub fn BallFloat::log10_interval(self : BallFloat) -> BallFloat {
   log_with_base_constant(self, 10, self.precision_)
+}
+
+///|
+/// Certified interval for ln(1 + x).
+pub fn BallFloat::log1p_interval(self : BallFloat) -> BallFloat {
+  match self.try_log1p_interval() {
+    Ok(result) => result
+    Err(_) => whole_real(self.precision_)
+  }
 }
 
 ///|
@@ -852,6 +882,257 @@ pub fn BallFloat::ln_ctx(
   ctx : BallContext,
 ) -> (BallFloat, BallFlags) {
   ln_interval_at_precision(self, ctx.precision + 32).apply_ctx(ctx)
+}
+
+///|
+fn ball_certification_failure(
+  operation : String,
+  precision : Int,
+  initial_work_precision : Int,
+) -> @def.ArithmeticError {
+  let mut budget = certified_refinement_budget(initial_work_precision)
+  while budget.available() {
+    budget = budget.next()
+  }
+  @internal.certified_failure(
+    operation,
+    @def.CertificationStage::TargetRounding,
+    @def.CertificationFailureReason::RefinementBudgetExhausted,
+    precision,
+    budget,
+  )
+}
+
+///|
+fn ball_range_resource_failure(
+  operation : String,
+  precision : Int,
+  required_work_precision : Int,
+) -> @def.ArithmeticError {
+  @def.ArithmeticError::certification_failure(
+    @def.CertificationFailureDetail::new(
+      operation,
+      @def.CertificationStage::RangeReduction,
+      @def.CertificationFailureReason::ResourceLimit,
+      precision,
+      required_work_precision,
+      0,
+    ),
+  )
+}
+
+///|
+pub fn BallFloat::try_exp_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  self.try_certified_monotone(true, fn(value, context) {
+    value.try_exp_ctx(context)
+  })
+}
+
+///|
+pub fn BallFloat::try_expm1_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  if self.is_empty() {
+    return Ok(self)
+  }
+  let downward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  let lower = if is_neg_inf(self.lo_) {
+    Ok(@bin_float.BinFloat::from_int(-1, precision=self.precision_))
+  } else {
+    self.lo_.try_expm1_ctx(downward).map(fn(result) { result.0 })
+  }
+  let upper = if is_pos_inf(self.hi_) {
+    Ok(pos_inf(self.precision_))
+  } else {
+    self.hi_.try_expm1_ctx(upward).map(fn(result) { result.0 })
+  }
+  lower.bind(fn(lower_bound) {
+    upper.map(fn(upper_bound) {
+      store_interval(lower_bound, upper_bound, self.precision_)
+    })
+  })
+}
+
+///|
+pub fn BallFloat::try_ln_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  if self.is_empty() {
+    return Ok(self)
+  }
+  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
+  if self.hi_.compare(zero) <= 0 {
+    return Ok(empty_interval(self.precision_))
+  }
+  let upward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  let upper = self.hi_.try_ln_ctx(upward)
+  if self.lo_.compare(zero) <= 0 {
+    return upper.map(fn(result) {
+      store_interval(neg_inf(self.precision_), result.0, self.precision_)
+    })
+  }
+  let downward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  self.lo_
+  .try_ln_ctx(downward)
+  .bind(fn(lower) {
+    upper.map(fn(upper_result) {
+      store_interval(lower.0, upper_result.0, self.precision_)
+    })
+  })
+}
+
+///|
+pub fn BallFloat::try_log1p_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  if self.is_empty() {
+    return Ok(self)
+  }
+  let minus_one = @bin_float.BinFloat::from_int(-1, precision=self.precision_)
+  if self.hi_.compare(minus_one) < 0 {
+    return Ok(empty_interval(self.precision_))
+  }
+  let downward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  let lower = if self.lo_.compare(minus_one) <= 0 {
+    Ok(neg_inf(self.precision_))
+  } else {
+    self.lo_.try_log1p_ctx(downward).map(fn(result) { result.0 })
+  }
+  let upper = if is_pos_inf(self.hi_) {
+    Ok(pos_inf(self.precision_))
+  } else {
+    self.hi_.try_log1p_ctx(upward).map(fn(result) { result.0 })
+  }
+  lower.bind(fn(lower_bound) {
+    upper.map(fn(upper_bound) {
+      store_interval(lower_bound, upper_bound, self.precision_)
+    })
+  })
+}
+
+///|
+pub fn BallFloat::try_sin_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  if self.is_empty() {
+    return Ok(self)
+  }
+  if !self.is_bounded() {
+    return Ok(unit_interval(self.precision_))
+  }
+  let initial_work = Int::max(
+    trig_initial_work(self.lo_, self.precision_),
+    trig_initial_work(self.hi_, self.precision_),
+  )
+  guard !trig_cutoff_exceeded(self) else {
+    return Err(
+      ball_range_resource_failure("sin", self.precision_, initial_work),
+    )
+  }
+  match certified_sin_cos_interval_bounds(self) {
+    Some(bounds) => {
+      let lower = if index_range_contains_residue(bounds.8, bounds.9, 3) {
+        @bin_float.BinFloat::from_int(-1, precision=self.precision_)
+      } else {
+        bin_min(bounds.0, bounds.4)
+      }
+      let upper = if index_range_contains_residue(bounds.8, bounds.9, 1) {
+        @bin_float.BinFloat::one(precision=self.precision_)
+      } else {
+        bin_max(bounds.1, bounds.5)
+      }
+      Ok(store_interval(lower, upper, self.precision_))
+    }
+    None =>
+      Err(ball_certification_failure("sin", self.precision_, initial_work))
+  }
+}
+
+///|
+pub fn BallFloat::try_cos_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  if self.is_empty() {
+    return Ok(self)
+  }
+  if !self.is_bounded() {
+    return Ok(unit_interval(self.precision_))
+  }
+  let initial_work = Int::max(
+    trig_initial_work(self.lo_, self.precision_),
+    trig_initial_work(self.hi_, self.precision_),
+  )
+  guard !trig_cutoff_exceeded(self) else {
+    return Err(
+      ball_range_resource_failure("cos", self.precision_, initial_work),
+    )
+  }
+  match certified_sin_cos_interval_bounds(self) {
+    Some(bounds) => {
+      let lower = if index_range_contains_residue(bounds.8, bounds.9, 2) {
+        @bin_float.BinFloat::from_int(-1, precision=self.precision_)
+      } else {
+        bin_min(bounds.2, bounds.6)
+      }
+      let upper = if index_range_contains_residue(bounds.8, bounds.9, 0) {
+        @bin_float.BinFloat::one(precision=self.precision_)
+      } else {
+        bin_max(bounds.3, bounds.7)
+      }
+      Ok(store_interval(lower, upper, self.precision_))
+    }
+    None =>
+      Err(ball_certification_failure("cos", self.precision_, initial_work))
+  }
+}
+
+///|
+pub fn BallFloat::try_tan_interval(
+  self : BallFloat,
+) -> Result[BallFloat, @def.ArithmeticError] {
+  if self.is_empty() {
+    return Ok(self)
+  }
+  if !self.is_bounded() {
+    return Ok(whole_real(self.precision_))
+  }
+  let initial_work = Int::max(
+    trig_initial_work(self.lo_, self.precision_),
+    trig_initial_work(self.hi_, self.precision_),
+  )
+  guard !trig_cutoff_exceeded(self) else {
+    return Err(
+      ball_range_resource_failure("tan", self.precision_, initial_work),
+    )
+  }
+  match certified_tan_interval_bounds(self) {
+    Bounds(lower, upper) => Ok(store_interval(lower, upper, self.precision_))
+    Pole => Ok(whole_real(self.precision_))
+    Failure =>
+      Err(ball_certification_failure("tan", self.precision_, initial_work))
+  }
 }
 
 ///|

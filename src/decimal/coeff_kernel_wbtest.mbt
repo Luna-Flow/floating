@@ -102,6 +102,13 @@ fn reference_ln_atanh_scaled(
 
 ///|
 test "BigInt-free ln constants preserve the old scaled integers" {
+  let saved_cache = decimal_math_constant_cache.val
+  decimal_math_constant_cache.val = {
+    scale: 0,
+    ln2: dec_coeff_zero(),
+    ln5: dec_coeff_zero(),
+    ln10: dec_coeff_zero(),
+  }
   for scale in [1, 2, 8, 9, 10, 34, 40, 64, 128, 257] {
     let expected_ln2 = reference_ln_atanh_scaled(2N, 1N, scale)
     let expected_lnfq = reference_ln_atanh_scaled(5N, 4N, scale)
@@ -137,6 +144,7 @@ test "BigInt-free ln constants preserve the old scaled integers" {
       DecimalRoundingMode::HalfEven,
     ),
   )
+  decimal_math_constant_cache.val = saved_cache
 }
 
 ///|

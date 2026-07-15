@@ -223,70 +223,14 @@ fn decimal_power_adjacent_one_directed_result(
 }
 
 ///|
-fn decimal_power_positive_noninteger_single_work_result(
-  base : Decimal,
-  exponent : Decimal,
-  work_precision : Int,
-) -> (Decimal, DecimalFlags) {
-  let work_ctx = decimal_math_work_ctx(work_precision)
-  let constant_scale = work_precision + 12
-  let ln10_scaled = decimal_transcendental_ln_constants(constant_scale).2
-  let (log_base, log_flags) = decimal_ln_positive_finite_work_result_with_ln10(
-    base, work_ctx, ln10_scaled,
-  )
-  guard log_base.class == FpClass::Finite else { return (log_base, log_flags) }
-  let (scaled, scale_flags) = decimal_mul_finite_work(
-    log_base, exponent, work_ctx,
-  )
-  let combined = log_flags.combine(scale_flags)
-  guard scaled.class == FpClass::Finite else { return (scaled, combined) }
-  let (result, result_flags) = decimal_exp_finite_work_result_with_ln10(
-    scaled, work_ctx, ln10_scaled,
-  )
-  (result, combined.combine(result_flags))
-}
-
-///|
 fn decimal_power_positive_noninteger_work_result(
   base : Decimal,
   exponent : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let target_ctx = ctx
-  let target_precision = decimal_math_target_precision(ctx)
-  let mut work_precision = Int::max(
-    Int::max(base.coefficient.digits10(), target_precision) + 10,
-    40,
-  )
-  let mut attempts = 0
-  let mut last_result : Decimal? = None
-  let mut last_flags = DecimalFlags::new()
-  while attempts < 6 {
-    let (candidate, work_flags) = decimal_power_positive_noninteger_single_work_result(
-      base, exponent, work_precision,
-    )
-    guard candidate.class == FpClass::Finite else {
-      return (candidate, work_flags)
-    }
-    let (rounded, finalize_flags) = decimal_apply_finite_ctx(
-      candidate, target_ctx,
-    )
-    let combined = work_flags.combine(finalize_flags)
-    match last_result {
-      Some(previous) =>
-        if previous.compare_total(rounded) == 0 {
-          return (rounded, combined)
-        }
-      None => ()
-    }
-    last_result = Some(rounded)
-    last_flags = combined
-    work_precision += Int::max(12, work_precision / 2)
-    attempts += 1
-  }
-  match last_result {
-    Some(result) => (result, last_flags)
-    None => (Decimal::nan(precision=target_precision), invalid_flags())
+  match decimal_certified_power_result(base, exponent, ctx) {
+    Ok(result) => result
+    Err(_) => abort("certified decimal power evaluation failed")
   }
 }
 
@@ -325,7 +269,7 @@ fn decimal_power_finite_noninteger_domain_result(
 
 ///|
 fn decimal_math_result_ctx(ctx : DecimalContext) -> DecimalContext {
-  { ..ctx, decimal_rounding: DecimalRoundingMode::HalfEven }
+  ctx
 }
 
 ///|
@@ -1207,17 +1151,7 @@ fn decimal_ln_near_one_series(
 }
 
 ///|
-fn decimal_ln_positive_finite_work_result(
-  value : Decimal,
-  work_precision : Int,
-) -> (Decimal, DecimalFlags) {
-  let ln10_scaled = decimal_transcendental_ln_constants(work_precision + 12).2
-  let work_ctx = decimal_math_work_ctx(work_precision)
-  decimal_ln_positive_finite_work_result_with_ln10(value, work_ctx, ln10_scaled)
-}
-
-///|
-fn decimal_ln_positive_finite_work_result_with_ln10(
+fn _decimal_ln_positive_finite_work_result_with_ln10(
   value : Decimal,
   work_ctx : DecimalContext,
   ln10_scaled : DecCoeff,
@@ -1296,29 +1230,6 @@ fn decimal_ln_positive_finite_work_result_with_ln10(
 }
 
 ///|
-fn decimal_same_quantum_adjacent(lhs : Decimal, rhs : Decimal) -> Bool {
-  guard lhs.class == FpClass::Finite &&
-    rhs.class == FpClass::Finite &&
-    lhs.negative == rhs.negative &&
-    lhs.exponent10 == rhs.exponent10 else {
-    return false
-  }
-  match dec_coeff_compare_repr(lhs.coefficient, rhs.coefficient) {
-    0 => false
-    1 =>
-      dec_coeff_matches_unit_repr(
-        dec_coeff_magnitude_sub_repr(lhs.coefficient, rhs.coefficient),
-        1,
-      )
-    _ =>
-      dec_coeff_matches_unit_repr(
-        dec_coeff_magnitude_sub_repr(rhs.coefficient, lhs.coefficient),
-        1,
-      )
-  }
-}
-
-///|
 fn decimal_ln_lookaside_work_result_with_ln10(
   value : Decimal,
   work_ctx : DecimalContext,
@@ -1370,194 +1281,6 @@ fn decimal_ln_lookaside_work_result_with_ln10(
       { ..DecimalFlags::new(), rounded: true, inexact: true },
     ),
   )
-}
-
-///|
-fn decimal_log10_positive_finite_result(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let target_ctx = decimal_math_result_ctx(ctx)
-  let target_precision = decimal_math_target_precision(ctx)
-  let mut work_precision = Int::max(target_precision + 12, 40)
-  let mut attempts = 0
-  let mut last_result : Decimal? = None
-  let mut last_flags = DecimalFlags::new()
-  while attempts < 6 {
-    let work_precision_now = work_precision + 8
-    let work_ctx = decimal_math_work_ctx(work_precision_now)
-    let ln10_scaled = decimal_transcendental_ln_constants(
-        work_precision_now + 12,
-      ).2
-    let (ln_value, ln_flags) = decimal_ln_positive_finite_work_result_with_ln10(
-      value, work_ctx, ln10_scaled,
-    )
-    guard ln_value.class == FpClass::Finite else { return (ln_value, ln_flags) }
-    let ln10 = decimal_math_scaled_constant(
-      ln10_scaled,
-      work_precision_now + 12,
-      work_ctx,
-    )
-    let (scaled, div_flags) = decimal_div_finite_work(ln_value, ln10, work_ctx)
-    let combined0 = ln_flags.combine(div_flags)
-    guard scaled.class == FpClass::Finite else { return (scaled, combined0) }
-    let (rounded, finalize_flags) = decimal_apply_finite_ctx(scaled, target_ctx)
-    let combined = combined0.combine(finalize_flags)
-    match last_result {
-      Some(previous) =>
-        if previous.compare_total(rounded) == 0 {
-          return (rounded, { ..combined, rounded: true, inexact: true })
-        }
-      None => ()
-    }
-    last_result = Some(rounded)
-    last_flags = combined
-    work_precision += Int::max(12, work_precision / 2)
-    attempts += 1
-  }
-  match last_result {
-    Some(result) => (result, { ..last_flags, rounded: true, inexact: true })
-    None => (Decimal::nan(precision=target_precision), invalid_flags())
-  }
-}
-
-///|
-fn decimal_ln_positive_finite_result(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  match decimal_ln_lookaside_result(value, ctx) {
-    Some(result) => return result
-    None => ()
-  }
-  let target_ctx = decimal_math_result_ctx(ctx)
-  let target_precision = decimal_math_target_precision(ctx)
-  let subset_candidate = if !ctx.extended {
-    let classic_precision = Int::max(
-        value.coefficient.digits10(),
-        Int::max(target_precision, 7),
-      ) +
-      8
-    let (candidate, _) = decimal_ln_positive_finite_work_result(
-      value, classic_precision,
-    )
-    let (check, _) = decimal_ln_positive_finite_work_result(
-      value,
-      classic_precision + 2,
-    )
-    if candidate.class == FpClass::Finite && check.class == FpClass::Finite {
-      let rounded = decimal_apply_finite_ctx(candidate, target_ctx).0
-      let checked = decimal_apply_finite_ctx(check, target_ctx).0
-      if rounded.compare_total(checked) == 0 {
-        Some(rounded)
-      } else {
-        None
-      }
-    } else {
-      None
-    }
-  } else {
-    None
-  }
-  let mut work_precision = Int::max(target_precision + 12, 40)
-  let mut attempts = 0
-  let mut last_result : Decimal? = None
-  let mut last_flags = DecimalFlags::new()
-  while attempts < 6 {
-    let (candidate, work_flags) = decimal_ln_positive_finite_work_result(
-      value, work_precision,
-    )
-    guard candidate.class == FpClass::Finite else {
-      return (candidate, work_flags)
-    }
-    let (rounded, finalize_flags) = decimal_apply_finite_ctx(
-      candidate, target_ctx,
-    )
-    let combined = work_flags.combine(finalize_flags)
-    match last_result {
-      Some(previous) =>
-        if previous.compare_total(rounded) == 0 {
-          let stable_flags = { ..combined, rounded: true, inexact: true }
-          return match subset_candidate {
-            Some(classic) =>
-              if decimal_same_quantum_adjacent(classic, rounded) &&
-                dec_coeff_compare_repr(classic.coefficient, rounded.coefficient) >
-                0 {
-                (classic, stable_flags)
-              } else {
-                (rounded, stable_flags)
-              }
-            None => (rounded, stable_flags)
-          }
-        }
-      None => ()
-    }
-    last_result = Some(rounded)
-    last_flags = combined
-    work_precision += Int::max(12, work_precision / 2)
-    attempts += 1
-  }
-  match last_result {
-    Some(result) => (result, { ..last_flags, rounded: true, inexact: true })
-    None => (Decimal::nan(precision=target_precision), invalid_flags())
-  }
-}
-
-///|
-fn decimal_ln_lookaside_result(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags)? {
-  guard value.class == FpClass::Finite &&
-    !value.negative &&
-    !value.coefficient.is_zero() else {
-    return None
-  }
-  let (reduced0, _, power10s) = trim_trailing_decimal_zeros_repr(
-    value.coefficient,
-    0,
-  )
-  let decade = value.exponent10 + power10s
-  let constant_kind = if dec_coeff_matches_unit_repr(reduced0, 1) {
-    if decade == 0 {
-      return None
-    }
-    0
-  } else if dec_coeff_matches_unit_repr(reduced0, 2) {
-    2
-  } else if dec_coeff_matches_unit_repr(reduced0, 5) {
-    5
-  } else {
-    return None
-  }
-  let target_ctx = decimal_math_result_ctx(ctx)
-  let target_precision = decimal_math_target_precision(ctx)
-  let work_precision = Int::max(target_precision + 12, 40)
-  let constant_scale = work_precision + 12
-  let (ln2_scaled, ln5_scaled, ln10_scaled) = decimal_transcendental_ln_constants(
-    constant_scale,
-  )
-  let mut total_scaled = signed_dec_coeff_from_int_product(decade, ln10_scaled)
-  if constant_kind == 2 {
-    total_scaled = total_scaled.add(signed_dec_coeff(false, ln2_scaled))
-  } else if constant_kind == 5 {
-    total_scaled = total_scaled.add(signed_dec_coeff(false, ln5_scaled))
-  }
-  let work_ctx = decimal_math_work_ctx(work_precision)
-  let candidate = decimal_math_scaled_constant(
-    total_scaled.magnitude,
-    constant_scale,
-    work_ctx,
-  )
-  let candidate = if total_scaled.negative {
-    { ..candidate, negative: true }
-  } else {
-    candidate
-  }
-  let (rounded, finalize_flags) = decimal_apply_finite_ctx(
-    candidate, target_ctx,
-  )
-  Some((rounded, { ..finalize_flags, rounded: true, inexact: true }))
 }
 
 ///|
@@ -1648,18 +1371,7 @@ fn decimal_exp_series_result(
 }
 
 ///|
-fn decimal_exp_finite_work_result(
-  value : Decimal,
-  work_precision : Int,
-) -> (Decimal, DecimalFlags) {
-  let constant_scale = work_precision + 12
-  let ln10_scaled = decimal_transcendental_ln_constants(constant_scale).2
-  let work_ctx = decimal_math_work_ctx(work_precision)
-  decimal_exp_finite_work_result_with_ln10(value, work_ctx, ln10_scaled)
-}
-
-///|
-fn decimal_exp_finite_work_result_with_ln10(
+fn _decimal_exp_finite_work_result_with_ln10(
   value : Decimal,
   work_ctx : DecimalContext,
   ln10_scaled : DecCoeff,
@@ -1809,46 +1521,6 @@ fn decimal_exp_extreme_half_even_result(
     Some(decimal_overflow_result(false, ctx))
   } else {
     None
-  }
-}
-
-///|
-fn decimal_exp_finite_result(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let target_ctx = decimal_math_result_ctx(ctx)
-  let target_precision = decimal_math_target_precision(ctx)
-  let mut work_precision = Int::max(target_precision + 12, 40)
-  let mut attempts = 0
-  let mut last_result : Decimal? = None
-  let mut last_flags = DecimalFlags::new()
-  while attempts < 6 {
-    let (candidate, work_flags) = decimal_exp_finite_work_result(
-      value, work_precision,
-    )
-    guard candidate.class == FpClass::Finite else {
-      return (candidate, work_flags)
-    }
-    let (rounded, finalize_flags) = decimal_apply_finite_ctx(
-      candidate, target_ctx,
-    )
-    let combined = work_flags.combine(finalize_flags)
-    match last_result {
-      Some(previous) =>
-        if previous.compare_total(rounded) == 0 {
-          return (rounded, { ..combined, rounded: true, inexact: true })
-        }
-      None => ()
-    }
-    last_result = Some(rounded)
-    last_flags = combined
-    work_precision += Int::max(12, work_precision / 2)
-    attempts += 1
-  }
-  match last_result {
-    Some(result) => (result, { ..last_flags, rounded: true, inexact: true })
-    None => (Decimal::nan(precision=target_precision), invalid_flags())
   }
 }
 

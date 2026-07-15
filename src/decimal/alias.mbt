@@ -19,6 +19,7 @@ using @def {type FpClass, type RoundingMode, type Sign}
 
 ///|
 using @internal {
+  type CertifiedRefinementBudget,
   abs_bigint,
   bigint_one,
   bigint_zero,
