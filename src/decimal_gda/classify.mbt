@@ -10,7 +10,7 @@ fn quiet_nan_operand(
   let payload = if value.coefficient.is_zero() {
     value.coefficient
   } else if value.coefficient.digits10() > precision {
-    dec_coeff_div_rem_repr(value.coefficient, dec_coeff_power10_repr(precision)).1
+    gda_coeff_div_rem_repr(value.coefficient, gda_coeff_power10_repr(precision)).1
   } else {
     value.coefficient
   }
@@ -51,7 +51,11 @@ fn quiet_nan_pair(
   rhs : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  let selected = if lhs.is_nan() {
+  let selected = if lhs.is_signaling_nan() {
+    Some(lhs)
+  } else if rhs.is_signaling_nan() {
+    Some(rhs)
+  } else if lhs.is_nan() {
     Some(lhs)
   } else if rhs.is_nan() {
     Some(rhs)
@@ -87,7 +91,13 @@ fn quiet_nan_triplet(
   let has_signaling = first.is_signaling_nan() ||
     second.is_signaling_nan() ||
     third.is_signaling_nan()
-  let selected = if first.is_nan() {
+  let selected = if first.is_signaling_nan() {
+    Some(first)
+  } else if second.is_signaling_nan() {
+    Some(second)
+  } else if third.is_signaling_nan() {
+    Some(third)
+  } else if first.is_nan() {
     Some(first)
   } else if second.is_nan() {
     Some(second)

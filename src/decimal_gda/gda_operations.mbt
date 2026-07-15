@@ -1,24 +1,24 @@
 ///|
 pub fn apply(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.apply_ctx(ctx.inner)
+  let (result, flags) = value.apply_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn plus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.plus_ctx(ctx.inner)
+  let (result, flags) = value.plus_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn minus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.minus_ctx(ctx.inner)
+  let (result, flags) = value.minus_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn abs(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.abs_ctx(ctx.inner)
+  let (result, flags) = value.abs_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -29,13 +29,17 @@ pub fn fma(
   addend : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.fma_ctx(rhs.inner, addend.inner, ctx.inner)
+  match gda_exact_small_fma(lhs, rhs, addend, ctx) {
+    Some(value) => return gda_completed_exact(value, ctx)
+    None => ()
+  }
+  let (result, flags) = lhs.fma_ctx(rhs, addend, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn sqrt(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.sqrt_ctx(ctx.inner)
+  let (result, flags) = value.sqrt_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -45,7 +49,7 @@ pub fn divide_integer(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.divide_integer(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.divide_integer(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -55,7 +59,7 @@ pub fn remainder(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.remainder(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.remainder(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -65,7 +69,7 @@ pub fn remainder_near(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.remainder_near(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.remainder_near(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -75,7 +79,7 @@ pub fn quantize(
   quantum : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.quantize(quantum.inner, ctx.inner)
+  let (result, flags) = value.quantize(quantum, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -85,7 +89,7 @@ pub fn rescale(
   scale : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.rescale(scale.inner, ctx.inner)
+  let (result, flags) = value.rescale(scale, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -94,7 +98,7 @@ pub fn to_integral_exact(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.to_integral_exact(ctx.inner)
+  let (result, flags) = value.to_integral_exact(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -103,25 +107,25 @@ pub fn to_integral_value(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.to_integral_value(ctx.inner)
+  let (result, flags) = value.to_integral_value(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn exp(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.exp_ctx(ctx.inner)
+  let (result, flags) = value.exp_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn ln(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.ln_ctx(ctx.inner)
+  let (result, flags) = value.ln_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn log10(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.log10_ctx(ctx.inner)
+  let (result, flags) = value.log10_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -131,25 +135,25 @@ pub fn power(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.power_ctx(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.power_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn reduce(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.reduce_ctx(ctx.inner)
+  let (result, flags) = value.reduce_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_plus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.next_plus(ctx.inner)
+  let (result, flags) = value.next_plus(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_minus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.next_minus(ctx.inner)
+  let (result, flags) = value.next_minus(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -159,7 +163,7 @@ pub fn next_toward(
   target : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.next_toward(target.inner, ctx.inner)
+  let (result, flags) = value.next_toward(target, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -169,7 +173,7 @@ pub fn scaleb(
   scale : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.scaleb_ctx(scale.inner, ctx.inner)
+  let (result, flags) = value.scaleb_ctx(scale, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -179,7 +183,7 @@ pub fn shift(
   count : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.shift_ctx(count.inner, ctx.inner)
+  let (result, flags) = value.shift_ctx(count, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -189,7 +193,7 @@ pub fn rotate(
   count : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.rotate_ctx(count.inner, ctx.inner)
+  let (result, flags) = value.rotate_ctx(count, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -199,7 +203,7 @@ pub fn logical_and(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.logical_and(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.logical_and(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -209,7 +213,7 @@ pub fn logical_or(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.logical_or(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.logical_or(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -219,13 +223,13 @@ pub fn logical_xor(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.logical_xor(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.logical_xor(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn logical_invert(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.inner.logical_invert(ctx.inner)
+  let (result, flags) = value.logical_invert(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -235,7 +239,7 @@ pub fn compare(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.compare_ctx(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.compare_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -245,7 +249,7 @@ pub fn compare_signal(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.inner.compare_signal_ctx(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.compare_signal_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -255,7 +259,7 @@ pub fn compare_total(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Int] {
-  let (result, flags) = lhs.inner.compare_total_ctx(rhs.inner, ctx.inner)
+  let (result, flags) = lhs.compare_total_ctx(rhs, ctx.decimal_context())
   complete_gda(result, ctx, flags)
 }
 
@@ -265,9 +269,87 @@ pub fn compare_total_magnitude(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Int] {
-  let (result, flags) = lhs.inner.compare_total_magnitude_ctx(
-    rhs.inner,
-    ctx.inner,
+  let (result, flags) = lhs.compare_total_magnitude_ctx(
+    rhs,
+    ctx.decimal_context(),
   )
   complete_gda(result, ctx, flags)
+}
+
+///|
+pub fn logb(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (result, flags) = value.logb_ctx(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+pub fn min(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (result, flags) = lhs.min_ctx(rhs, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+pub fn max(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (result, flags) = lhs.max_ctx(rhs, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+pub fn min_mag(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (result, flags) = lhs.min_mag_ctx(rhs, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+pub fn max_mag(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (result, flags) = lhs.max_mag_ctx(rhs, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+pub fn same_quantum(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Bool] {
+  complete_gda(lhs.same_quantum(rhs), ctx, DecimalFlags::new())
+}
+
+///|
+pub fn class_name(value : Decimal, ctx : GdaContext) -> GdaOutcome[String] {
+  complete_gda(
+    value.class_name(ctx.decimal_context()),
+    ctx,
+    DecimalFlags::new(),
+  )
+}
+
+///|
+pub fn is_normal(value : Decimal, ctx : GdaContext) -> GdaOutcome[Bool] {
+  complete_gda(value.is_normal(ctx.decimal_context()), ctx, DecimalFlags::new())
+}
+
+///|
+pub fn is_subnormal(value : Decimal, ctx : GdaContext) -> GdaOutcome[Bool] {
+  complete_gda(
+    value.is_subnormal(ctx.decimal_context()),
+    ctx,
+    DecimalFlags::new(),
+  )
 }

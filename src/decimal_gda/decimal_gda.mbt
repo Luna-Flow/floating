@@ -1,106 +1,137 @@
 ///|
-/// General Decimal Arithmetic value boundary.
-pub struct Decimal {
-  priv inner : @decimal.Decimal
-} derive(Eq)
-
-///|
-fn decimal_from_kernel(inner : @decimal.Decimal) -> Decimal {
-  { inner, }
-}
-
-///|
 fn complete_decimal_gda(
-  value : @decimal.Decimal,
+  value : Decimal,
   context : GdaContext,
-  flags : @decimal.DecimalFlags,
+  flags : DecimalFlags,
 ) -> GdaOutcome[Decimal] {
-  complete_gda(decimal_from_kernel(value), context, flags)
+  complete_gda(value, context, flags)
 }
 
 ///|
-pub fn Decimal::from_string(source : String, precision? : Int = 34) -> Decimal? {
-  match @decimal.Decimal::from_string(source, precision~) {
-    Some(value) => Some(decimal_from_kernel(value))
-    None => None
+fn gda_exact_small_result(
+  negative : Bool,
+  coefficient : UInt64,
+  ctx : GdaContext,
+) -> Decimal? {
+  guard ctx.extended_ &&
+    coefficient > 0UL &&
+    coefficient < gda_coeff_small_limit else {
+    return None
+  }
+  let magnitude = GdaCoeff::Small(coefficient)
+  let adjusted = magnitude.digits10() - 1
+  guard magnitude.digits10() <= ctx.precision_ &&
+    adjusted >= ctx.e_min_ &&
+    adjusted <= ctx.e_max_ &&
+    (!ctx.clamp_ || 0 <= ctx.e_max_ - ctx.precision_ + 1) else {
+    return None
+  }
+  Some(finite_with_exponent_repr(negative, magnitude, 0, ctx.precision_))
+}
+
+///|
+fn gda_exact_small_sum(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+  subtract_rhs : Bool,
+) -> Decimal? {
+  guard lhs.class == FpClass::Finite &&
+    rhs.class == FpClass::Finite &&
+    lhs.exponent10 == 0 &&
+    rhs.exponent10 == 0 &&
+    gda_coeff_small_value(lhs.coefficient) is Some(left) &&
+    gda_coeff_small_value(rhs.coefficient) is Some(right) else {
+    return None
+  }
+  let rhs_negative = rhs.negative != subtract_rhs
+  if lhs.negative == rhs_negative {
+    let sum = left + right
+    guard sum >= left else { return None }
+    gda_exact_small_result(lhs.negative, sum, ctx)
+  } else if left > right {
+    gda_exact_small_result(lhs.negative, left - right, ctx)
+  } else if right > left {
+    gda_exact_small_result(rhs_negative, right - left, ctx)
+  } else {
+    None
   }
 }
 
 ///|
-pub fn Decimal::zero(precision? : Int = 34) -> Decimal {
-  decimal_from_kernel(@decimal.Decimal::zero(precision~))
+fn gda_exact_small_product(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> Decimal? {
+  guard lhs.class == FpClass::Finite &&
+    rhs.class == FpClass::Finite &&
+    lhs.exponent10 == 0 &&
+    rhs.exponent10 == 0 &&
+    gda_coeff_small_value(lhs.coefficient) is Some(left) &&
+    gda_coeff_small_value(rhs.coefficient) is Some(right) &&
+    left > 0UL &&
+    right > 0UL &&
+    left <= (gda_coeff_small_limit - 1UL) / right else {
+    return None
+  }
+  gda_exact_small_result(lhs.negative != rhs.negative, left * right, ctx)
 }
 
 ///|
-pub fn Decimal::one(precision? : Int = 34) -> Decimal {
-  decimal_from_kernel(@decimal.Decimal::one(precision~))
+fn gda_exact_small_fma(
+  lhs : Decimal,
+  rhs : Decimal,
+  addend : Decimal,
+  ctx : GdaContext,
+) -> Decimal? {
+  guard lhs.class == FpClass::Finite &&
+    rhs.class == FpClass::Finite &&
+    addend.class == FpClass::Finite &&
+    lhs.exponent10 == 0 &&
+    rhs.exponent10 == 0 &&
+    addend.exponent10 == 0 &&
+    gda_coeff_small_value(lhs.coefficient) is Some(left) &&
+    gda_coeff_small_value(rhs.coefficient) is Some(right) &&
+    gda_coeff_small_value(addend.coefficient) is Some(extra) &&
+    left > 0UL &&
+    right > 0UL &&
+    left <= (gda_coeff_small_limit - 1UL) / right else {
+    return None
+  }
+  let product = left * right
+  let product_negative = lhs.negative != rhs.negative
+  if product_negative == addend.negative {
+    let sum = product + extra
+    guard sum >= product else { return None }
+    gda_exact_small_result(product_negative, sum, ctx)
+  } else if product > extra {
+    gda_exact_small_result(product_negative, product - extra, ctx)
+  } else if extra > product {
+    gda_exact_small_result(addend.negative, extra - product, ctx)
+  } else {
+    None
+  }
 }
 
 ///|
-pub fn Decimal::quiet_nan(
-  payload? : @bigint.BigInt = 0N,
-  negative? : Bool = false,
-  precision? : Int = 34,
-) -> Decimal {
-  decimal_from_kernel(
-    @decimal.Decimal::quiet_nan(payload~, negative~, precision~),
-  )
+fn gda_exact_small_integer_parse(source : String, ctx : GdaContext) -> Decimal? {
+  guard source.length() > 0 && source.length() <= 18 && source[0] != '0' else {
+    return None
+  }
+  let magnitude = match gda_coeff_from_decimal_digits_repr(source) {
+    Some(GdaCoeff::Small(value)) => value
+    _ => return None
+  }
+  gda_exact_small_result(false, magnitude, ctx)
 }
 
 ///|
-pub fn Decimal::signaling_nan(
-  payload? : @bigint.BigInt = 0N,
-  negative? : Bool = false,
-  precision? : Int = 34,
-) -> Decimal {
-  decimal_from_kernel(
-    @decimal.Decimal::signaling_nan(payload~, negative~, precision~),
-  )
-}
-
-///|
-pub fn Decimal::is_finite(self : Decimal) -> Bool {
-  self.inner.is_finite()
-}
-
-///|
-pub fn Decimal::is_infinite(self : Decimal) -> Bool {
-  self.inner.is_infinite()
-}
-
-///|
-pub fn Decimal::is_nan(self : Decimal) -> Bool {
-  self.inner.is_nan()
-}
-
-///|
-pub fn Decimal::is_qnan(self : Decimal) -> Bool {
-  self.inner.is_qnan()
-}
-
-///|
-pub fn Decimal::is_snan(self : Decimal) -> Bool {
-  self.inner.is_snan()
-}
-
-///|
-pub fn Decimal::is_zero(self : Decimal) -> Bool {
-  self.inner.is_zero()
-}
-
-///|
-pub fn Decimal::is_negative(self : Decimal) -> Bool {
-  self.inner.is_negative()
-}
-
-///|
-pub fn Decimal::nan_payload(self : Decimal) -> @bigint.BigInt {
-  self.inner.nan_payload()
-}
-
-///|
-pub impl Show for Decimal with fn to_string(self) {
-  self.inner.to_string()
+fn gda_completed_exact(
+  value : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  Completed(value, ctx, GdaFlags::none())
 }
 
 ///|
@@ -132,7 +163,11 @@ pub fn decimal128_context() -> GdaContext {
 
 ///|
 pub fn parse(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (value, flags) = @decimal.Decimal::from_string_ctx(source, ctx.inner)
+  match gda_exact_small_integer_parse(source, ctx) {
+    Some(value) => return gda_completed_exact(value, ctx)
+    None => ()
+  }
+  let (value, flags) = Decimal::from_string_ctx(source, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
 
@@ -142,7 +177,11 @@ pub fn add(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, flags) = lhs.inner.add_ctx(rhs.inner, ctx.inner)
+  match gda_exact_small_sum(lhs, rhs, ctx, false) {
+    Some(value) => return gda_completed_exact(value, ctx)
+    None => ()
+  }
+  let (value, flags) = lhs.add_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
 
@@ -152,7 +191,11 @@ pub fn subtract(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, flags) = lhs.inner.sub_ctx(rhs.inner, ctx.inner)
+  match gda_exact_small_sum(lhs, rhs, ctx, true) {
+    Some(value) => return gda_completed_exact(value, ctx)
+    None => ()
+  }
+  let (value, flags) = lhs.sub_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
 
@@ -162,7 +205,11 @@ pub fn multiply(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, flags) = lhs.inner.mul_ctx(rhs.inner, ctx.inner)
+  match gda_exact_small_product(lhs, rhs, ctx) {
+    Some(value) => return gda_completed_exact(value, ctx)
+    None => ()
+  }
+  let (value, flags) = lhs.mul_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
 
@@ -172,6 +219,6 @@ pub fn divide(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, flags) = lhs.inner.div_ctx(rhs.inner, ctx.inner)
+  let (value, flags) = lhs.div_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }

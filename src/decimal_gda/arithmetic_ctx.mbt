@@ -75,7 +75,7 @@ fn add_finite_values_ctx(
       if digits + wanted_shift <= ctx.precision {
         let shifted = finite_with_exponent_repr(
           base.negative,
-          dec_coeff_shift_power10_repr(base.coefficient, wanted_shift),
+          gda_coeff_shift_power10_repr(base.coefficient, wanted_shift),
           preferred_exponent,
           base.precision_,
         )
@@ -86,7 +86,7 @@ fn add_finite_values_ctx(
         let shifted = if available_shift > 0 {
           finite_with_exponent_repr(
             base.negative,
-            dec_coeff_shift_power10_repr(base.coefficient, available_shift),
+            gda_coeff_shift_power10_repr(base.coefficient, available_shift),
             base.exponent10 - available_shift,
             base.precision_,
           )
@@ -123,9 +123,9 @@ fn add_finite_values_ctx(
         base.class == FpClass::Finite &&
         !base.coefficient.is_zero() &&
         !(low.negative != base.negative &&
-        dec_coeff_compare_repr(
+        gda_coeff_compare_repr(
           remove_factor10_repr(base.coefficient, 0).0,
-          dec_coeff_from_int(1),
+          gda_coeff_from_int(1),
         ) ==
         0) {
         return exact_base_small_addend_result(base, target_exponent, low, ctx)
@@ -134,7 +134,7 @@ fn add_finite_values_ctx(
     let can_absorb = low_adjusted < target_exponent - precision
     if can_absorb {
       let preferred_exponent = Int::min(high.exponent10, target_exponent)
-      let magnitude = dec_coeff_shift_power10_repr(
+      let magnitude = gda_coeff_shift_power10_repr(
         high.coefficient,
         high.exponent10 - preferred_exponent,
       )
@@ -185,14 +185,14 @@ fn add_finite_values_ctx(
       )
       let (magnitude, exponent10) = if virtual_digits > exact_digits &&
         inexact &&
-        dec_coeff_compare_repr(
+        gda_coeff_compare_repr(
           remove_factor10_repr(magnitude, 0).0,
-          dec_coeff_from_int(1),
+          gda_coeff_from_int(1),
         ) ==
         0 &&
         magnitude.digits10() < ctx.precision {
         let shift = ctx.precision - magnitude.digits10()
-        (dec_coeff_shift_power10_repr(magnitude, shift), exponent10 - shift)
+        (gda_coeff_shift_power10_repr(magnitude, shift), exponent10 - shift)
       } else {
         (magnitude, exponent10)
       }
@@ -372,7 +372,7 @@ fn Decimal::decimal_mul_ctx_impl(
         ctx,
       )
     (FpClass::Finite, FpClass::Finite) => {
-      let exact = dec_coeff_multiply_repr(self.coefficient, other.coefficient)
+      let exact = gda_coeff_multiply_repr(self.coefficient, other.coefficient)
       normalize_decimal_parts_ctx_repr(
         self.negative != other.negative,
         exact,
@@ -395,6 +395,59 @@ pub fn Decimal::div_ctx(
   let result = lhs.decimal_div_ctx_impl(rhs, ctx)
   let flags = operand_flags.combine(result.1)
   finish_context_result(result.0, flags, ctx, true)
+}
+
+///|
+fn gda_exact_small_division_result(
+  dividend : Decimal,
+  divisor : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard gda_coeff_small_value(dividend.coefficient) is Some(numerator) &&
+    gda_coeff_small_value(divisor.coefficient) is Some(denominator) &&
+    denominator != 0UL &&
+    numerator % denominator == 0UL else {
+    return None
+  }
+  let quotient = GdaCoeff::Small(numerator / denominator)
+  let precision = finite_precision_for(bigint_one(), ctx)
+  let negative = dividend.negative != divisor.negative
+  let preferred_exponent = dividend.exponent10 - divisor.exponent10
+  let exact_unrounded = normalize_decimal_parts_gda_repr(
+    negative,
+    quotient,
+    preferred_exponent,
+    quotient.digits10(),
+    ctx.decimal_rounding,
+  )
+  let exact_rounding = exact_result_rounding_flags(
+    exact_unrounded, preferred_exponent, ctx,
+  )
+  let rounded_value = normalize_decimal_parts_gda_repr(
+    negative,
+    quotient,
+    preferred_exponent,
+    precision,
+    ctx.decimal_rounding,
+  )
+  if exact_rounding.rounded {
+    let prefinal = if exact_unrounded.exponent10 < etiny(ctx) {
+      exact_unrounded
+    } else if !exact_rounding.inexact {
+      expand_rounded_exact_cohort_toward_preferred_exponent(
+        rounded_value, preferred_exponent, ctx,
+      )
+    } else {
+      expand_inexact_division_cohort(rounded_value, ctx, pad_precision=true)
+    }
+    let (value, flags) = finalize_finite_ctx(prefinal, exact_rounding, ctx)
+    Some((value, with_underflow_for_inexact_subnormal(value, flags, ctx)))
+  } else {
+    let exact_value = expand_exact_cohort_toward_preferred_exponent(
+      rounded_value, preferred_exponent, ctx,
+    )
+    Some(finalize_finite_ctx(exact_value, DecimalFlags::new(), ctx))
+  }
 }
 
 ///|
@@ -475,13 +528,17 @@ fn Decimal::decimal_div_ctx_impl(
         ctx,
       )
     (FpClass::Finite, FpClass::Finite) => {
+      match gda_exact_small_division_result(self, other, ctx) {
+        Some(result) => return result
+        None => ()
+      }
       match exact_division_by_power_of_ten_result(self, other, ctx) {
         Some(result) => return result
         None => ()
       }
       let denominator = other.coefficient
       let extra = precision + denominator.digits10() + 2
-      let numerator = dec_coeff_shift_power10_repr(self.coefficient, extra)
+      let numerator = gda_coeff_shift_power10_repr(self.coefficient, extra)
       let exact = has_finite_decimal_expansion_repr(
         self.coefficient,
         other.coefficient,
@@ -604,6 +661,12 @@ fn Decimal::decimal_fma_ctx_impl(
       self.class == FpClass::Finite &&
       self.is_zero()
     )
+  if invalid_product {
+    match quiet_nan_triplet(self, multiplier, addend, ctx) {
+      Some((value, flags)) => return (value, flags.combine(invalid_flags()))
+      None => return (Decimal::nan(precision~), invalid_flags())
+    }
+  }
   match quiet_nan_triplet(self, multiplier, addend, ctx) {
     Some(result) => return result
     None => ()
@@ -666,7 +729,7 @@ fn Decimal::decimal_fma_ctx_impl(
       }
     }
     (FpClass::Finite, FpClass::Finite, _) => {
-      let product_coeff = dec_coeff_multiply_repr(
+      let product_coeff = gda_coeff_multiply_repr(
         self.coefficient,
         multiplier.coefficient,
       )
@@ -729,7 +792,7 @@ pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
 
 ///|
 fn decimal_sqrt_should_increment(
-  quotient : DecCoeff,
+  quotient : GdaCoeff,
   midpoint_cmp : Int,
   inexact : Bool,
   mode : DecimalRoundingMode,
@@ -741,10 +804,10 @@ fn decimal_sqrt_should_increment(
     HalfUp => midpoint_cmp >= 0
     HalfDown => midpoint_cmp > 0
     HalfEven =>
-      midpoint_cmp > 0 || (midpoint_cmp == 0 && dec_coeff_is_odd(quotient))
+      midpoint_cmp > 0 || (midpoint_cmp == 0 && gda_coeff_is_odd(quotient))
     ZeroFiveUp =>
-      dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 0 ||
-      dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 5
+      gda_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 0 ||
+      gda_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 5
   }
 }
 
@@ -766,20 +829,20 @@ fn decimal_sqrt_fixed_result(
   let root_exponent = Int::max(etiny(ctx), root_adjusted - precision + 1)
   let scale = operand.exponent10 - root_exponent * 2
   let (quotient0, inexact, midpoint_cmp) = if scale >= 0 {
-    let radicand = dec_coeff_shift_power10_repr(operand.coefficient, scale)
-    let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(radicand)
+    let radicand = gda_coeff_shift_power10_repr(operand.coefficient, scale)
+    let (root, remainder) = gda_coeff_integer_sqrt_rem_repr(radicand)
     let inexact = !remainder.is_zero()
-    let midpoint = dec_coeff_magnitude_add_unit(
-      dec_coeff_multiply_by_unit_repr(root, 2),
+    let midpoint = gda_coeff_magnitude_add_unit(
+      gda_coeff_multiply_by_unit_repr(root, 2),
       1,
     )
     (
       root,
       inexact,
       if inexact {
-        dec_coeff_compare_repr(
-          dec_coeff_multiply_by_unit_repr(radicand, 4),
-          dec_coeff_square_repr(midpoint),
+        gda_coeff_compare_repr(
+          gda_coeff_multiply_by_unit_repr(radicand, 4),
+          gda_coeff_square_repr(midpoint),
         )
       } else {
         0
@@ -789,31 +852,31 @@ fn decimal_sqrt_fixed_result(
     let denominator_digits = -scale
     let odd_scale = denominator_digits % 2 == 1
     let normalized_radicand = if odd_scale {
-      dec_coeff_multiply_by_unit_repr(operand.coefficient, 10)
+      gda_coeff_multiply_by_unit_repr(operand.coefficient, 10)
     } else {
       operand.coefficient
     }
-    let (root, root_remainder) = dec_coeff_integer_sqrt_rem_repr(
+    let (root, root_remainder) = gda_coeff_integer_sqrt_rem_repr(
       normalized_radicand,
     )
     let parity_adjustment = if odd_scale { 1 } else { 0 }
-    let root_divisor = dec_coeff_power10_repr(
+    let root_divisor = gda_coeff_power10_repr(
       (denominator_digits + parity_adjustment) / 2,
     )
-    let (quotient, discarded) = dec_coeff_div_rem_repr(root, root_divisor)
-    let denominator = dec_coeff_power10_repr(denominator_digits)
+    let (quotient, discarded) = gda_coeff_div_rem_repr(root, root_divisor)
+    let denominator = gda_coeff_power10_repr(denominator_digits)
     let inexact = !root_remainder.is_zero() || !discarded.is_zero()
-    let midpoint = dec_coeff_magnitude_add_unit(
-      dec_coeff_multiply_by_unit_repr(quotient, 2),
+    let midpoint = gda_coeff_magnitude_add_unit(
+      gda_coeff_multiply_by_unit_repr(quotient, 2),
       1,
     )
     (
       quotient,
       inexact,
       if inexact {
-        dec_coeff_compare_repr(
-          dec_coeff_multiply_by_unit_repr(operand.coefficient, 4),
-          dec_coeff_multiply_repr(dec_coeff_square_repr(midpoint), denominator),
+        gda_coeff_compare_repr(
+          gda_coeff_multiply_by_unit_repr(operand.coefficient, 4),
+          gda_coeff_multiply_repr(gda_coeff_square_repr(midpoint), denominator),
         )
       } else {
         0
@@ -826,7 +889,7 @@ fn decimal_sqrt_fixed_result(
       inexact,
       ctx.decimal_rounding,
     ) {
-    dec_coeff_magnitude_add_unit(quotient0, 1)
+    gda_coeff_magnitude_add_unit(quotient0, 1)
   } else {
     quotient0
   }

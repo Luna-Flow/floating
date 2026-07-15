@@ -11,3 +11,13 @@ test "GDA sqrt rounds directly at subnormal precision" {
   assert_true(flags.contains(GdaSignal::Inexact))
   assert_true(flags.contains(GdaSignal::Rounded))
 }
+
+///|
+test "GDA inexact sqrt always uses half-even" {
+  let ctx = GdaContext::new(precision=1, rounding=GdaRoundingMode::HalfUp)
+  let operand = Decimal::from_string("6.25", precision=3).unwrap()
+  let outcome = sqrt(operand, ctx)
+  assert_eq(outcome.value().to_string(), "2")
+  assert_true(outcome.raised().contains(GdaSignal::Inexact))
+  assert_true(outcome.raised().contains(GdaSignal::Rounded))
+}

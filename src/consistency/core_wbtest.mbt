@@ -789,7 +789,7 @@ test "decimal unary plus/minus official positive exponent cohort rows keep arith
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
     e_min=-999,
     e_max=999,
-  ).gda()
+  )
   let (plux067, plux067_flags) = @decimal.Decimal::from_string(
       "56267E+1",
       precision=64,
@@ -2056,8 +2056,8 @@ test "decimal division propagates nan payloads" {
 }
 
 ///|
-test "decimal division follows official nan priority cases" {
-  let ctx = @decimal.DecimalContext::new(precision=9).gda()
+test "IEEE decimal division preserves first nan payload and signals snans" {
+  let ctx = @decimal.DecimalContext::new(precision=9)
   run_decimal_binary_conformance_case(
     "divx861",
     DecimalConformanceOp::Divide,
@@ -2071,7 +2071,7 @@ test "decimal division follows official nan priority cases" {
     DecimalConformanceOp::Divide,
     "NaN95",
     "sNaN93",
-    "NaN93",
+    "NaN95",
     ctx,
     invalid_operation=true,
   )
@@ -2080,7 +2080,7 @@ test "decimal division follows official nan priority cases" {
     DecimalConformanceOp::Divide,
     "-NaN",
     "-sNaN89",
-    "-NaN89",
+    "-NaN",
     ctx,
     invalid_operation=true,
   )
@@ -2112,12 +2112,12 @@ test "plain decimal arithmetic preserves nan payloads and quiets snans" {
 }
 
 ///|
-test "decimal fma propagates highest-priority nan payloads" {
+test "IEEE decimal fma preserves first nan payload and signals snans" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
     e_min=-999999,
     e_max=999999,
-  ).gda()
+  )
   let qnan = @decimal.Decimal::quiet_nan(payload=7N, precision=12)
   let qnan2 = @decimal.Decimal::quiet_nan(
     payload=5N,
@@ -2144,8 +2144,8 @@ test "decimal fma propagates highest-priority nan payloads" {
   assert_eq(quiet_result.to_string(), "nan7")
   assert_eq(quiet_result.nan_payload(), 7N)
   assert_false(quiet_flags.invalid_operation)
-  assert_eq(signal_result.to_string(), "nan19")
-  assert_eq(signal_result.nan_payload(), 19N)
+  assert_eq(signal_result.to_string(), "nan7")
+  assert_eq(signal_result.nan_payload(), 7N)
   assert_true(signal_flags.invalid_operation)
   assert_eq(negative_signal_result.to_string(), "-nan23")
   assert_true(negative_signal_result.is_negative())
@@ -3619,13 +3619,14 @@ test "decimal subtract official0 subnormal underflow rows set full gda flags" {
 }
 
 ///|
-test "decimal unary plus/minus official subnormal rows keep finalize flags" {
+test "IEEE decimal unary plus/minus support before-rounding tininess" {
   let ctx = @decimal.DecimalContext::new(
     precision=3,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
     e_min=-999,
     e_max=999,
-  ).gda()
+    tininess=@decimal.DecimalTininessDetection::BeforeRounding,
+  )
   let (plux213, plux213_flags) = @decimal.Decimal::from_string(
       "0.100E-999",
       precision=64,
@@ -4395,7 +4396,7 @@ test "decimal divide_integer matches official0 huge lost-digits representative" 
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  ).gda()
+  )
   let (huge_zero, huge_zero_flags) = @decimal.Decimal::from_string(
       "1.23456789012345E-0",
       precision=64,
@@ -4419,7 +4420,7 @@ test "decimal divide_integer matches official0 huge impossible representative" {
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  ).gda()
+  )
   let (too_wide, too_wide_flags) = @decimal.Decimal::from_string(
       "9E+999999999",
       precision=64,
@@ -4604,7 +4605,7 @@ test "decimal remainder matches official0 huge lost-digits representative" {
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  ).gda()
+  )
   let huge_divisor = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let (huge_remainder, huge_remainder_flags) = @decimal.Decimal::from_string(
       "1.23456789012345E-0",
@@ -4625,7 +4626,7 @@ test "decimal remainder_near matches official0 huge lost-digits representative" 
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  ).gda()
+  )
   let huge_divisor = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let (huge_near, huge_near_flags) = @decimal.Decimal::from_string(
       "1.23456789012345E-0",
@@ -4639,14 +4640,14 @@ test "decimal remainder_near matches official0 huge lost-digits representative" 
 }
 
 ///|
-test "decimal remainder huge impossible representatives match official0" {
+test "Decimal huge remainder separates GDA quotient limits from IEEE remainderNear" {
   let huge_ctx = @decimal.DecimalContext::new(
     precision=9,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
     e_min=-999999999,
     e_max=999999999,
     extended=false,
-  ).gda()
+  )
   let huge = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let positive_small = @decimal.Decimal::from_string(
     "0.23456789012345",
@@ -4674,12 +4675,24 @@ test "decimal remainder huge impossible representatives match official0" {
   assert_true(remainder_negative.is_qnan())
   assert_true(remainder_negative_flags.invalid_operation)
   assert_true(remainder_negative_flags.division_impossible)
-  assert_true(near_positive.is_qnan())
-  assert_true(near_positive_flags.invalid_operation)
-  assert_true(near_positive_flags.division_impossible)
-  assert_true(near_negative.is_qnan())
-  assert_true(near_negative_flags.invalid_operation)
-  assert_true(near_negative_flags.division_impossible)
+  assert_decimal_total_eq(
+    near_positive,
+    decimal_test_operand("-0.045665570"),
+    "IEEE remainderNear positive-divisor result",
+  )
+  assert_true(near_positive_flags.rounded)
+  assert_true(near_positive_flags.inexact)
+  assert_false(near_positive_flags.invalid_operation)
+  assert_false(near_positive_flags.division_impossible)
+  assert_decimal_total_eq(
+    near_negative,
+    decimal_test_operand("0.013061590"),
+    "IEEE remainderNear negative-divisor result",
+  )
+  assert_true(near_negative_flags.rounded)
+  assert_true(near_negative_flags.inexact)
+  assert_false(near_negative_flags.invalid_operation)
+  assert_false(near_negative_flags.division_impossible)
 }
 
 ///|
@@ -7398,8 +7411,8 @@ test "decimal scaleb preserves zero sign and shifted zero cohort" {
 }
 
 ///|
-test "decimal scaleb handles infinities and nan priority" {
-  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-9, e_max=9).gda()
+test "IEEE decimal scaleb preserves first nan payload" {
+  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-9, e_max=9)
   let (inf_result, inf_flags) = @decimal.Decimal::inf(
     @def.Sign::Negative,
     precision=16,
@@ -7410,7 +7423,7 @@ test "decimal scaleb handles infinities and nan priority" {
   let lhs_qnan = @decimal.Decimal::quiet_nan(payload=16N, precision=16)
   let rhs_snan = @decimal.Decimal::signaling_nan(payload=123456N, precision=16)
   let (nan_result, nan_flags) = lhs_qnan.scaleb_ctx(rhs_snan, ctx)
-  assert_eq(nan_result.to_string(), "nan23456")
+  assert_eq(nan_result.to_string(), "nan16")
   assert_true(nan_flags.invalid_operation)
 }
 
@@ -7636,28 +7649,6 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
     "remainder_near 10^k fast path",
   )
   assert_false(near_flags.has_error())
-}
-
-///|
-test "decimal noninteger power matches powersqrt representative" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    decimal_rounding=@decimal.DecimalRoundingMode::HalfEven,
-    e_min=-999_999,
-    e_max=999_999,
-  )
-  let (value, flags) = @decimal.Decimal::from_string("4", precision=32)
-    .unwrap()
-    .power_ctx(@decimal.Decimal::from_string("0.5", precision=32).unwrap(), ctx)
-  assert_decimal_total_eq(
-    value,
-    decimal_test_operand("2.00000000"),
-    "pwsx081 result",
-  )
-  assert_true(flags.rounded)
-  assert_true(flags.inexact)
-  assert_false(flags.invalid_operation)
-  assert_false(flags.invalid_context)
 }
 
 ///|
@@ -8246,92 +8237,6 @@ fn assert_decimal_total_eq(
   if actual.compare_total(expected) != 0 {
     abort(label)
   }
-}
-
-///|
-test "decimal transcendental results finalize with half-even regardless of context rounding" {
-  let half_even_ctx = @decimal.DecimalContext::new(
-    precision=3,
-    decimal_rounding=@decimal.DecimalRoundingMode::HalfEven,
-    e_min=-999_999,
-    e_max=999_999,
-  )
-  let upward_ctx = @decimal.DecimalContext::new(
-    precision=3,
-    decimal_rounding=@decimal.DecimalRoundingMode::Up,
-    e_min=-999_999,
-    e_max=999_999,
-  )
-
-  let (exp_even, exp_even_flags) = decimal_test_operand("0.01").exp_ctx(
-    half_even_ctx,
-  )
-  let (exp_upward, exp_upward_flags) = decimal_test_operand("0.01").exp_ctx(
-    upward_ctx,
-  )
-  assert_decimal_total_eq(
-    exp_even,
-    decimal_test_operand("1.01"),
-    "exp half-even",
-  )
-  assert_decimal_total_eq(exp_upward, exp_even, "exp ignores ctx rounding")
-  assert_true(exp_even_flags.rounded && exp_even_flags.inexact)
-  assert_true(exp_upward_flags.rounded && exp_upward_flags.inexact)
-
-  let (ln_even, _) = decimal_test_operand("2").ln_ctx(half_even_ctx)
-  let (ln_upward, _) = decimal_test_operand("2").ln_ctx(upward_ctx)
-  assert_decimal_total_eq(
-    ln_even,
-    decimal_test_operand("0.693"),
-    "ln half-even",
-  )
-  assert_decimal_total_eq(ln_upward, ln_even, "ln ignores ctx rounding")
-
-  let (log10_even, _) = decimal_test_operand("2").log10_ctx(half_even_ctx)
-  let (log10_upward, _) = decimal_test_operand("2").log10_ctx(upward_ctx)
-  assert_decimal_total_eq(
-    log10_even,
-    decimal_test_operand("0.301"),
-    "log10 half-even",
-  )
-  assert_decimal_total_eq(
-    log10_upward, log10_even, "log10 ignores ctx rounding",
-  )
-}
-
-///|
-test "decimal context enables extended GDA arithmetic by default" {
-  let default_ctx = @decimal.DecimalContext::new(
-    precision=17,
-    e_min=-999_999,
-    e_max=999_999,
-  )
-  let extended_ctx = @decimal.DecimalContext::new(
-    precision=17,
-    e_min=-999_999,
-    e_max=999_999,
-    extended=true,
-  )
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=17,
-    e_min=-999_999,
-    e_max=999_999,
-    extended=false,
-  )
-  assert_true(default_ctx.extended())
-
-  let value = decimal_test_operand("0.99999991000000405")
-  let (default_result, default_flags) = value.ln_ctx(default_ctx)
-  let (extended_result, extended_flags) = value.ln_ctx(extended_ctx)
-  let (subset_result, subset_flags) = value.ln_ctx(subset_ctx)
-  assert_eq(default_result.to_string(), "-8.9999999999999878E-8")
-  assert_decimal_total_eq(
-    extended_result, default_result, "explicit extended ln",
-  )
-  assert_eq(subset_result.to_string(), "-8.9999999999999879E-8")
-  assert_true(default_flags.rounded && default_flags.inexact)
-  assert_true(extended_flags.rounded && extended_flags.inexact)
-  assert_true(subset_flags.rounded && subset_flags.inexact)
 }
 
 ///|

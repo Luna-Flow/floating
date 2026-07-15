@@ -141,8 +141,8 @@ pub fn Decimal::remainder(
       let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
         lhs, rhs,
       )
-      let product = dec_coeff_multiply_repr(quotient.coefficient, rhs_units)
-      let (exact_negative, exact_magnitude) = dec_coeff_signed_add_repr(
+      let product = gda_coeff_multiply_repr(quotient.coefficient, rhs_units)
+      let (exact_negative, exact_magnitude) = gda_coeff_signed_add_repr(
         lhs.negative,
         lhs_units,
         !(quotient.negative != rhs.negative),
@@ -210,7 +210,7 @@ pub fn Decimal::remainder_near(
     )
   }
   let (quotient, quotient_flags0) = decimal_nearest_integer_quotient(
-    lhs, rhs, ctx, false,
+    lhs, rhs, ctx, true,
   )
   let quotient_flags = operand_flags.combine(quotient_flags0)
   if quotient.class == FpClass::NaN || quotient_flags.has_error() {
@@ -225,8 +225,8 @@ pub fn Decimal::remainder_near(
       let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
         lhs, rhs,
       )
-      let product = dec_coeff_multiply_repr(quotient.coefficient, rhs_units)
-      let (exact_negative, exact_magnitude) = dec_coeff_signed_add_repr(
+      let product = gda_coeff_multiply_repr(quotient.coefficient, rhs_units)
+      let (exact_negative, exact_magnitude) = gda_coeff_signed_add_repr(
         lhs.negative,
         lhs_units,
         !(quotient.negative != rhs.negative),
@@ -264,7 +264,7 @@ pub fn Decimal::remainder_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  self.remainder_near(other, ctx.ieee754())
+  self.remainder_near(other, ctx)
 }
 
 ///|
@@ -332,7 +332,7 @@ fn quantize_finite_to_exponent(
     return (
       finite_with_exponent_repr(
         negative && ctx.extended,
-        dec_coeff_zero(),
+        gda_coeff_zero(),
         target,
         precision,
       ),
@@ -355,7 +355,7 @@ fn quantize_finite_to_exponent(
     if ctx.precision > 0 && shift > ctx.precision - value.coefficient.digits10() {
       return (Decimal::nan(precision~), invalid_flags())
     }
-    dec_coeff_shift_power10_repr(value.coefficient, shift)
+    gda_coeff_shift_power10_repr(value.coefficient, shift)
   } else {
     value.coefficient
   }
@@ -373,7 +373,7 @@ fn quantize_finite_to_exponent(
   let final_flags = { ..final_flags, underflow: false }
   if !ctx.extended && result.coefficient.is_zero() {
     (
-      finite_with_exponent_repr(false, dec_coeff_zero(), target, precision),
+      finite_with_exponent_repr(false, gda_coeff_zero(), target, precision),
       final_flags,
     )
   } else {

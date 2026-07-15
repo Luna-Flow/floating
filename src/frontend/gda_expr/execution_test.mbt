@@ -67,3 +67,35 @@ test "gda interpreter rejects impossible extreme quantize before allocation" {
   assert_eq(summary.passed_cases(), 1)
   assert_eq(summary.failed_cases(), 0)
 }
+
+///|
+test "gda interpreter invalidates the context cache on directives" {
+  let source =
+    #|precision: 3
+    #|rounding: half_even
+    #|c1 add 1.23 2.34 -> 3.57
+    #|precision: 5
+    #|c2 add 1.2345 2.3456 -> 3.5801
+    #|rounding: floor
+    #|c3 divide 1 3 -> 0.33333 Inexact Rounded
+    #|
+  let document = @gda_expr.parse_dectest("contexts.decTest", source).unwrap()
+  let summary = @gda_expr.execute_documents([document])
+  assert_eq(summary.executable_cases(), 3)
+  assert_eq(summary.passed_cases(), 3)
+  assert_eq(summary.failed_cases(), 0)
+}
+
+///|
+test "gda interpreter applies the 1.70 sqrt rounding rule" {
+  let source =
+    #|precision: 1
+    #|rounding: half_up
+    #|s1 squareroot 6.25 -> 2 Inexact Rounded
+    #|
+  let document = @gda_expr.parse_dectest("sqrt-1.70.decTest", source).unwrap()
+  let summary = @gda_expr.execute_documents([document])
+  assert_eq(summary.executable_cases(), 1)
+  assert_eq(summary.passed_cases(), 1)
+  assert_eq(summary.failed_cases(), 0)
+}

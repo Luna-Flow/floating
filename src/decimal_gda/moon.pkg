@@ -1,6 +1,21 @@
 import {
-  "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/decimal",
+  "Luna-Flow/arithmetic" @lf_arith,
+  "Luna-Flow/luna-generic" @lf_alg,
+  "moonbitlang/core/ref",
+  "moonbitlang/core/string",
   "Luna-Flow/floating/def",
+  "Luna-Flow/floating/internal",
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/ball_float",
   "moonbitlang/core/bigint",
 }
+
+options(
+  targets: {
+    "coeff_thresholds_native.mbt": [ "native" ],
+    "coeff_thresholds_llvm.mbt": [ "llvm" ],
+    "coeff_thresholds_wasm.mbt": [ "wasm" ],
+    "coeff_thresholds_wasm_gc.mbt": [ "wasm-gc" ],
+    "coeff_thresholds_js.mbt": [ "js" ],
+  },
+)

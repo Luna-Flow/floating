@@ -5,7 +5,7 @@
 pub struct Decimal {
   priv class : FpClass
   priv negative : Bool
-  priv coefficient : DecCoeff
+  priv coefficient : GdaCoeff
   priv exponent10 : Int
   priv precision_ : Int
   priv signaling_nan : Bool
@@ -49,22 +49,15 @@ pub(all) enum DecimalSignal {
 } derive(Eq)
 
 ///|
-pub(all) enum DecimalInterchangeFormat {
+pub(all) enum GdaInterchangeFormat {
   Decimal32
   Decimal64
   Decimal128
 } derive(Eq)
 
 ///|
-pub(all) enum DecimalInterchangeEncoding {
-  DPD
-  BID
-} derive(Eq)
-
-///|
-pub struct DecimalInterchange {
-  priv format : DecimalInterchangeFormat
-  priv encoding : DecimalInterchangeEncoding
+pub struct GdaInterchange {
+  priv format : GdaInterchangeFormat
   priv bits : BigInt
 }
 
@@ -100,9 +93,9 @@ pub struct DecimalFlags {
 ///|
 priv struct DecimalMathConstantCache {
   scale : Int
-  ln2 : DecCoeff
-  ln5 : DecCoeff
-  ln10 : DecCoeff
+  ln2 : GdaCoeff
+  ln5 : GdaCoeff
+  ln10 : GdaCoeff
 }
 
 ///|
@@ -118,14 +111,20 @@ priv struct DecimalExpBoundaryCacheEntry {
 ///|
 let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.new({
     scale: 0,
-    ln2: dec_coeff_zero(),
-    ln5: dec_coeff_zero(),
-    ln10: dec_coeff_zero(),
+    ln2: gda_coeff_zero(),
+    ln5: gda_coeff_zero(),
+    ln10: gda_coeff_zero(),
   },
 )
 
 ///|
 let decimal_exp_boundary_cache : Array[DecimalExpBoundaryCacheEntry] = []
+
+///|
+let decimal_exp_boundary_cache_capacity = 8
+
+///|
+let decimal_exp_boundary_cache_next : @ref.Ref[Int] = @ref.new(0)
 
 ///|
 pub fn DecimalFlags::new() -> DecimalFlags {
@@ -208,7 +207,7 @@ pub fn DecimalContext::new(
   e_max? : Int = 999_999_999,
   clamp? : Bool = false,
   extended? : Bool = true,
-  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+  tininess? : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> DecimalContext {
   guard precision > 0 else {
     abort("DecimalContext::new: precision must be positive")
@@ -241,7 +240,7 @@ pub fn DecimalContext::try_new(
   e_max? : Int = 999_999_999,
   clamp? : Bool = false,
   extended? : Bool = true,
-  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+  tininess? : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   guard precision > 0 else {
     return Err(
@@ -296,11 +295,6 @@ pub fn DecimalContext::with_rounding(
 }
 
 ///|
-pub fn DecimalContext::is754version2019(_self : DecimalContext) -> Bool {
-  true
-}
-
-///|
 pub fn DecimalContext::decimal_rounding(
   self : DecimalContext,
 ) -> DecimalRoundingMode {
@@ -343,11 +337,6 @@ pub fn DecimalContext::with_tininess(
 }
 
 ///|
-pub fn DecimalContext::ieee754(self : DecimalContext) -> DecimalContext {
-  self
-}
-
-///|
 fn decimal_exact_work_context() -> DecimalContext {
   {
     precision: 0,
@@ -357,7 +346,7 @@ fn decimal_exact_work_context() -> DecimalContext {
     e_max: 999_999_999,
     clamp: false,
     extended: true,
-    tininess: DecimalTininessDetection::AfterRounding,
+    tininess: DecimalTininessDetection::BeforeRounding,
   }
 }
 
@@ -407,13 +396,13 @@ pub fn DecimalContext::from_arithmetic_context(
 }
 
 ///|
-pub fn DecimalInterchangeFormat::context(
-  self : DecimalInterchangeFormat,
+pub fn GdaInterchangeFormat::context(
+  self : GdaInterchangeFormat,
 ) -> DecimalContext {
   match self {
-    Decimal32 => DecimalContext::decimal32().ieee754()
-    Decimal64 => DecimalContext::decimal64().ieee754()
-    Decimal128 => DecimalContext::decimal128().ieee754()
+    Decimal32 => DecimalContext::decimal32()
+    Decimal64 => DecimalContext::decimal64()
+    Decimal128 => DecimalContext::decimal128()
   }
 }
 
