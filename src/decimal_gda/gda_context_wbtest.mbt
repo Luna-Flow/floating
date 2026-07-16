@@ -42,6 +42,28 @@ test "GDA context exposes radix ten" {
 }
 
 ///|
+test "GDA try_new preserves validated context fields" {
+  let traps = GdaTrapSet::none().with_signal(GdaSignal::Inexact)
+  let context = GdaContext::try_new(
+    precision=17,
+    rounding=GdaRoundingMode::Floor,
+    e_min=-21,
+    e_max=34,
+    clamp=true,
+    extended=false,
+    traps~,
+  ).unwrap()
+  assert_eq(context.precision(), 17)
+  assert_true(context.rounding() == GdaRoundingMode::Floor)
+  assert_eq(context.e_min(), -21)
+  assert_eq(context.e_max(), 34)
+  assert_true(context.clamp())
+  assert_false(context.extended())
+  assert_true(context.status() == GdaFlags::none())
+  assert_true(context.traps() == traps)
+}
+
+///|
 test "GDA exact outcomes preserve sticky status without raising flags" {
   let sticky = divide(
     Decimal::one(precision=9),

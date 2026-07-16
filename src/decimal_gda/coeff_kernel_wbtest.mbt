@@ -397,6 +397,39 @@ test "decimal plain add normalizes the GDA unit accumulator directly" {
 }
 
 ///|
+test "decimal plain add avoids expanding absorbed extreme exponents" {
+  let high = Decimal::from_string("1E+1000000000", precision=7).unwrap()
+  let tiny = Decimal::from_string("1E-1000000000", precision=7).unwrap()
+  let sum = high.add(tiny)
+  assert_eq(sum.coefficient.to_bigint(), 1N)
+  assert_eq(sum.exponent10, 1000000000)
+  assert_eq(sum.precision_, 7)
+
+  let zero = Decimal::from_string("0E-1000000000", precision=7).unwrap()
+  let zero_sum = high.add(zero)
+  assert_eq(zero_sum.coefficient.to_bigint(), 1N)
+  assert_eq(zero_sum.exponent10, 1000000000)
+}
+
+///|
+test "decimal plain add preserves half-even absorption boundaries" {
+  let even_tie = Decimal::from_string("1", precision=3)
+    .unwrap()
+    .add(Decimal::from_string("0.005", precision=3).unwrap())
+  assert_eq(even_tie.to_string(), "1")
+
+  let odd_tie = Decimal::from_string("1.01", precision=3)
+    .unwrap()
+    .add(Decimal::from_string("0.005", precision=3).unwrap())
+  assert_eq(odd_tie.to_string(), "1.02")
+
+  let cancellation_boundary = Decimal::from_string("1.00", precision=3)
+    .unwrap()
+    .add(Decimal::from_string("-0.005", precision=3).unwrap())
+  assert_eq(cancellation_boundary.to_string(), "0.995")
+}
+
+///|
 test "decimal signed Int magnitude layout matches GDA from-int32 decomposition" {
   let min_int = -2147483647 - 1
   assert_eq(gda_coeff_from_int_magnitude(0).to_bigint(), 0N)
@@ -1269,11 +1302,11 @@ test "decimal coefficient-native precision helper matches bigint precision helpe
   let fixed_ctx = DecimalContext::new(precision=9)
   assert_eq(
     finite_precision_for_coeff(coeff, exact_ctx),
-    finite_precision_for(coeff.to_bigint(), exact_ctx),
+    finite_precision_for_digits(digits10(coeff.to_bigint()), exact_ctx),
   )
   assert_eq(
     finite_precision_for_coeff(coeff, fixed_ctx),
-    finite_precision_for(coeff.to_bigint(), fixed_ctx),
+    finite_precision_for_digits(digits10(coeff.to_bigint()), fixed_ctx),
   )
 }
 
@@ -1599,7 +1632,7 @@ fn decimal_div_finite_by_small_int_work_bigint_expected(
   divisor : Int,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_default(work_ctx)
   let denominator = BigInt::from_int(divisor)
   let extra = precision + digits10(denominator) + 2
   let numerator = gda_coeff_shift_power10_repr(value.coefficient, extra).to_bigint()
@@ -1700,7 +1733,7 @@ fn decimal_div_finite_work_bigint_expected(
   rhs : Decimal,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), work_ctx)
+  let precision = finite_precision_for_default(work_ctx)
   let denominator = coeff_bigint(rhs.coefficient)
   let extra = precision + digits10(denominator) + 2
   let numerator = gda_coeff_shift_power10_repr(lhs.coefficient, extra).to_bigint()

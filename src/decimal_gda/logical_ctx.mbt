@@ -21,7 +21,7 @@ fn is_logical_operand(x : Decimal) -> Bool {
 ///|
 fn logical_invalid_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
   (
-    Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+    Decimal::nan(precision=finite_precision_for_default(ctx)),
     invalid_flags(),
   )
 }
@@ -189,13 +189,13 @@ fn decimal_shift_rotate(
             FpClass::Infinity =>
               (
                 lhs.with_precision(
-                  finite_precision_for(bigint_zero(), ctx),
+                  finite_precision_for_default(ctx),
                   ctx.rounding,
                 ),
                 DecimalFlags::new(),
               )
             FpClass::Finite => {
-              let precision = finite_precision_for(bigint_one(), ctx)
+              let precision = finite_precision_for_default(ctx)
               let shifted = if rotate {
                 coefficient_rotate_digits_repr(
                   lhs.coefficient,
@@ -230,7 +230,7 @@ pub fn Decimal::logical_and(
   guard is_logical_operand(self) && is_logical_operand(other) else {
     return logical_invalid_result(ctx)
   }
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_default(ctx)
   (
     finite_with_exponent_repr(
       false,
@@ -256,7 +256,7 @@ pub fn Decimal::logical_or(
   guard is_logical_operand(self) && is_logical_operand(other) else {
     return logical_invalid_result(ctx)
   }
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_default(ctx)
   (
     finite_with_exponent_repr(
       false,
@@ -282,7 +282,7 @@ pub fn Decimal::logical_xor(
   guard is_logical_operand(self) && is_logical_operand(other) else {
     return logical_invalid_result(ctx)
   }
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_default(ctx)
   (
     finite_with_exponent_repr(
       false,
@@ -310,7 +310,7 @@ pub fn Decimal::logical_invert(
       false,
       logical_invert_digits_repr(self.coefficient, ctx),
       0,
-      finite_precision_for(bigint_zero(), ctx),
+      finite_precision_for_default(ctx),
     ),
     DecimalFlags::new(),
   )

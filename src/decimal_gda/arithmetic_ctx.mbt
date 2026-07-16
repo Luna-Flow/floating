@@ -25,7 +25,7 @@ fn add_finite_values_ctx(
     abort("add_finite_ctx expects finite operands")
   }
   if lhs_value.is_zero() && rhs_value.is_zero() {
-    let precision = finite_precision_for(bigint_zero(), ctx)
+    let precision = finite_precision_for_default(ctx)
     let negative = if ctx.decimal_rounding == DecimalRoundingMode::Floor {
       lhs_value.negative || rhs_value.negative
     } else {
@@ -105,7 +105,7 @@ fn add_finite_values_ctx(
   if ctx.precision > 0 && allow_shortcuts {
     let self_adjusted = adjusted_exponent(lhs_value)
     let other_adjusted = adjusted_exponent(rhs_value)
-    let precision = finite_precision_for(bigint_one(), ctx)
+    let precision = finite_precision_for_default(ctx)
     let (high, high_adjusted, low_adjusted) = if self_adjusted >= other_adjusted {
       (lhs_value, self_adjusted, other_adjusted)
     } else {
@@ -254,13 +254,13 @@ pub fn Decimal::add_ctx(
   let result = match (lhs.class, rhs.class) {
     (FpClass::Infinity, FpClass::Infinity) if lhs.negative != rhs.negative =>
       (
-        Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
     (FpClass::Infinity, _) =>
       (
         lhs.with_precision(
-          finite_precision_for(bigint_zero(), ctx),
+          finite_precision_for_default(ctx),
           ctx.rounding,
         ),
         DecimalFlags::new(),
@@ -268,7 +268,7 @@ pub fn Decimal::add_ctx(
     (_, FpClass::Infinity) =>
       (
         rhs.with_precision(
-          finite_precision_for(bigint_zero(), ctx),
+          finite_precision_for_default(ctx),
           ctx.rounding,
         ),
         DecimalFlags::new(),
@@ -277,7 +277,7 @@ pub fn Decimal::add_ctx(
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       // Covered by quiet_nan_pair; keep the match total if the enum grows.
       (
-        Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -325,14 +325,14 @@ fn Decimal::decimal_mul_ctx_impl(
   match (self.class, other.class) {
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       (
-        Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         nan_operand_flags(self, other),
       )
     (FpClass::Infinity, FpClass::Finite)
     | (FpClass::Finite, FpClass::Infinity) =>
       if self.is_zero() || other.is_zero() {
         (
-          Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+          Decimal::nan(precision=finite_precision_for_default(ctx)),
           invalid_flags(),
         )
       } else {
@@ -343,7 +343,7 @@ fn Decimal::decimal_mul_ctx_impl(
             } else {
               Sign::Negative
             },
-            precision=finite_precision_for(bigint_zero(), ctx),
+            precision=finite_precision_for_default(ctx),
           ),
           DecimalFlags::new(),
         )
@@ -353,20 +353,20 @@ fn Decimal::decimal_mul_ctx_impl(
         Decimal::inf(
           if self.negative == other.negative {
             Sign::Positive
-          } else {
-            Sign::Negative
-          },
-          precision=finite_precision_for(bigint_zero(), ctx),
+            } else {
+              Sign::Negative
+            },
+          precision=finite_precision_for_default(ctx),
         ),
         DecimalFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) if self.is_zero() || other.is_zero() =>
       finalize_finite_ctx(
-        finite_with_exponent(
+        finite_with_exponent_repr(
           self.negative != other.negative,
-          bigint_zero(),
+          gda_coeff_zero(),
           self.exponent10 + other.exponent10,
-          finite_precision_for(bigint_zero(), ctx),
+          finite_precision_for_default(ctx),
         ),
         DecimalFlags::new(),
         ctx,
@@ -410,7 +410,7 @@ fn gda_exact_small_division_result(
     return None
   }
   let quotient = GdaCoeff::Small(numerator / denominator)
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   let negative = dividend.negative != divisor.negative
   let preferred_exponent = dividend.exponent10 - divisor.exponent10
   let exact_unrounded = normalize_decimal_parts_gda_repr(
@@ -456,7 +456,7 @@ fn Decimal::decimal_div_ctx_impl(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   match quiet_nan_pair(self, other, ctx) {
     Some(result) => return result
     None => ()
@@ -647,7 +647,7 @@ fn Decimal::decimal_fma_ctx_impl(
   addend : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   if !ctx.extended {
     return (Decimal::nan(precision~), invalid_flags())
   }
@@ -927,7 +927,7 @@ pub fn Decimal::sqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
   let result = match operand.class {
     FpClass::NaN => quiet_nan_operand(operand, ctx)

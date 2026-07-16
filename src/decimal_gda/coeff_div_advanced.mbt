@@ -185,7 +185,7 @@ fn gda_coeff_div_rem_bz_repr(
   let normalized_numerator = gda_coeff_shift_limbs(numerator, padding)
   let numerator_len = gda_coeff_unit_len(normalized_numerator)
   let block_count = (numerator_len + block_len - 1) / block_len
-  let arena = gda_coeff_scratch_arena_new(192)
+  let arena = gda_coeff_scratch_arena_new()
   let mut quotient = gda_coeff_zero()
   let mut remainder = gda_coeff_zero()
   let mut block_index = block_count

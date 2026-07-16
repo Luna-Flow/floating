@@ -125,10 +125,10 @@ fn finite_next_candidate_repr(
 
 ///|
 fn max_finite_for(ctx : DecimalContext, negative : Bool) -> Decimal {
-  let precision = finite_precision_for(bigint_one(), ctx)
-  finite_with_exponent(
+  let precision = finite_precision_for_default(ctx)
+  finite_with_exponent_repr(
     negative,
-    pow10(precision) - bigint_one(),
+    gda_coeff_magnitude_sub_unit(gda_coeff_power10_repr(precision), 1),
     ctx.e_max - precision + 1,
     precision,
   )
@@ -140,7 +140,7 @@ fn decimal_next(
   ctx : DecimalContext,
   toward_positive : Bool,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   match value.class {
     FpClass::NaN => quiet_nan_operand(value, ctx)
     FpClass::Infinity =>
@@ -163,9 +163,9 @@ fn decimal_next(
           etiny(ctx)
         }
         (
-          finite_with_exponent(
+          finite_with_exponent_repr(
             !toward_positive,
-            bigint_one(),
+            gda_coeff_from_int(1),
             zero_quantum,
             precision,
           ),
@@ -309,7 +309,7 @@ pub fn Decimal::logb_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_zero(), ctx)
+  let precision = finite_precision_for_default(ctx)
   match self.class {
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>

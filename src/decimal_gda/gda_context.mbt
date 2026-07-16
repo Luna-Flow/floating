@@ -340,17 +340,16 @@ pub fn GdaContext::try_new(
       ),
     )
   }
-  Ok(
-    GdaContext::new(
-      precision~,
-      rounding~,
-      e_min~,
-      e_max~,
-      clamp~,
-      extended~,
-      traps~,
-    ),
-  )
+  Ok({
+    precision_: precision,
+    rounding_: rounding,
+    e_min_: e_min,
+    e_max_: e_max,
+    clamp_: clamp,
+    extended_: extended,
+    status_: GdaFlags::none(),
+    traps_: traps,
+  })
 }
 
 ///|

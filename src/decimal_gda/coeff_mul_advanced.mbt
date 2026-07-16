@@ -96,16 +96,11 @@ priv struct GdaCoeffScratchArena {
 }
 
 ///|
-fn gda_coeff_scratch_arena_new(capacity : Int) -> GdaCoeffScratchArena {
-  let capacity = Int::max(1, capacity)
-  let limb_buffers : Array[Array[UInt]] = []
-  for _ in 0..<capacity {
-    limb_buffers.push([])
-  }
+fn gda_coeff_scratch_arena_new() -> GdaCoeffScratchArena {
   {
-    slots: Array::make(capacity, gda_coeff_zero()),
+    slots: [],
     used: 0,
-    limb_buffers,
+    limb_buffers: [],
     limb_used: 0,
   }
 }
@@ -123,8 +118,8 @@ fn GdaCoeffScratchArena::alloc_limbs(
   guard length > 0 else { return [0U] }
   let slot = self.limb_used
   self.limb_used += 1
-  guard slot < self.limb_buffers.length() else {
-    return Array::make(length, 0U)
+  if slot >= self.limb_buffers.length() {
+    self.limb_buffers.push([])
   }
   let buffer = self.limb_buffers[slot]
   gda_coeff_ensure_length(buffer, length)
@@ -138,8 +133,10 @@ fn GdaCoeffScratchArena::save(
 ) -> GdaCoeff {
   if self.used < self.slots.length() {
     self.slots[self.used] = value
-    self.used += 1
+  } else {
+    self.slots.push(value)
   }
+  self.used += 1
   value
 }
 
@@ -410,7 +407,7 @@ fn gda_coeff_mul_karatsuba_inner(
 
 ///|
 fn gda_coeff_mul_karatsuba(left : GdaCoeff, right : GdaCoeff) -> GdaCoeff {
-  let arena = gda_coeff_scratch_arena_new(64)
+  let arena = gda_coeff_scratch_arena_new()
   gda_coeff_mul_karatsuba_inner(
     left, right, arena, gda_coeff_karatsuba_threshold, false, 0,
   )
@@ -418,7 +415,7 @@ fn gda_coeff_mul_karatsuba(left : GdaCoeff, right : GdaCoeff) -> GdaCoeff {
 
 ///|
 fn gda_coeff_square_karatsuba(value : GdaCoeff) -> GdaCoeff {
-  let arena = gda_coeff_scratch_arena_new(64)
+  let arena = gda_coeff_scratch_arena_new()
   gda_coeff_mul_karatsuba_inner(
     value, value, arena, gda_coeff_karatsuba_square_threshold, true, 0,
   )
@@ -426,7 +423,7 @@ fn gda_coeff_square_karatsuba(value : GdaCoeff) -> GdaCoeff {
 
 ///|
 fn gda_coeff_mul_toom3(left : GdaCoeff, right : GdaCoeff) -> GdaCoeff {
-  let arena = gda_coeff_scratch_arena_new(16)
+  let arena = gda_coeff_scratch_arena_new()
   let mark = arena.mark()
   let maximum_len = Int::max(
     gda_coeff_unit_len(left),
@@ -525,7 +522,7 @@ fn gda_coeff_mul_unbalanced(shorter : GdaCoeff, longer : GdaCoeff) -> GdaCoeff {
   let shorter_len = gda_coeff_unit_len(shorter)
   let longer_len = gda_coeff_unit_len(longer)
   if shorter_len >= gda_coeff_karatsuba_threshold {
-    let arena = gda_coeff_scratch_arena_new(4)
+    let arena = gda_coeff_scratch_arena_new()
     let accumulator = Array::make(shorter_len + longer_len + 1, 0UL)
     let mut start = 0
     while start < longer_len {

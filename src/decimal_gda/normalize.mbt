@@ -300,17 +300,22 @@ fn finite_with_exponent_repr(
 }
 
 ///|
-fn finite_precision_for(magnitude : BigInt, ctx : DecimalContext) -> Int {
+fn finite_precision_for_digits(digits : Int, ctx : DecimalContext) -> Int {
   if ctx.precision == 0 {
-    Int::max(1, digits10(magnitude))
+    Int::max(1, digits)
   } else {
     Int::max(1, ctx.precision)
   }
 }
 
 ///|
+fn finite_precision_for_default(ctx : DecimalContext) -> Int {
+  finite_precision_for_digits(1, ctx)
+}
+
+///|
 fn etiny(ctx : DecimalContext) -> Int {
-  ctx.e_min - finite_precision_for(bigint_one(), ctx) + 1
+  ctx.e_min - finite_precision_for_default(ctx) + 1
 }
 
 ///|
@@ -841,7 +846,7 @@ fn reduce_finite_cohort_ctx(value : Decimal, ctx : DecimalContext) -> Decimal {
   guard value.class == FpClass::Finite else { return value }
   guard !value.coefficient.is_zero() else { return value.normalized() }
   let upper = if ctx.clamp && ctx.precision > 0 {
-    ctx.e_max - finite_precision_for(bigint_zero(), ctx) + 1
+    ctx.e_max - finite_precision_for_default(ctx) + 1
   } else {
     ctx.e_max
   }

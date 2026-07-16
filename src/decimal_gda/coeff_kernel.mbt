@@ -314,10 +314,10 @@ fn gda_coeff_from_bigint_repr(magnitude : BigInt) -> GdaCoeff {
 
 ///|
 fn gda_coeff_to_bigint_repr(coeff : GdaCoeff) -> BigInt {
-  gda_coeff_to_bigint(
-    gda_coeff_copy_limbs(coeff),
-    unit_len=gda_coeff_unit_len(coeff),
-  )
+  match coeff {
+    Small(value) => BigInt::from_uint64(value)
+    Limbs(units, _) => gda_coeff_to_bigint(units)
+  }
 }
 
 ///|
@@ -1240,12 +1240,13 @@ fn gda_coeff_magnitude_add_unit(coeff : GdaCoeff, addend : Int) -> GdaCoeff {
       return GdaCoeff::Small(sum)
     }
   }
+  let coeff_len = gda_coeff_unit_len(coeff)
   let result = gda_coeff_copy_limbs(coeff)
-  gda_coeff_ensure_length(result, gda_coeff_unit_len(coeff) + 1)
+  gda_coeff_ensure_length(result, coeff_len + 1)
   let addend_units = [addend.reinterpret_as_uint()]
   let len = gda_coeff_unit_add_sub(
-    gda_coeff_copy_limbs(coeff),
-    gda_coeff_unit_len(coeff),
+    result,
+    coeff_len,
     addend_units,
     1,
     0,
@@ -1267,11 +1268,12 @@ fn gda_coeff_magnitude_sub_unit(coeff : GdaCoeff, subtrahend : Int) -> GdaCoeff 
   if gda_coeff_small_value(coeff) is Some(value) {
     return GdaCoeff::Small(value - subtrahend.to_uint64())
   }
+  let coeff_len = gda_coeff_unit_len(coeff)
   let result = gda_coeff_copy_limbs(coeff)
   let rhs_units = [subtrahend.reinterpret_as_uint()]
   let len = gda_coeff_unit_add_sub(
-    gda_coeff_copy_limbs(coeff),
-    gda_coeff_unit_len(coeff),
+    result,
+    coeff_len,
     rhs_units,
     1,
     0,
@@ -1677,6 +1679,9 @@ fn remove_factor10_repr(coeff : GdaCoeff, exp : Int) -> (GdaCoeff, Int) {
   if coeff.is_zero() {
     return (gda_coeff_zero(), 0)
   }
+  if gda_coeff_limb_at(coeff, 0).reinterpret_as_int() % 10 != 0 {
+    return (coeff, exp)
+  }
   let units = gda_coeff_copy_limbs(coeff)
   let (trimmed_digits, exponent, _) = gda_coeff_trim(
     units,
@@ -1737,6 +1742,9 @@ fn trim_trailing_decimal_zeros_repr(
 ) -> (GdaCoeff, Int, Int) {
   if coeff.is_zero() {
     return (gda_coeff_zero(), 0, 0)
+  }
+  if max_drop == 0 || gda_coeff_limb_at(coeff, 0).reinterpret_as_int() % 10 != 0 {
+    return (coeff, exp, 0)
   }
   let units = gda_coeff_copy_limbs(coeff)
   let (trimmed_digits, exponent, dropped) = gda_coeff_trim(

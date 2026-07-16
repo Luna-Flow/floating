@@ -11,7 +11,7 @@ pub fn Decimal::plus_ctx(
     FpClass::Infinity =>
       (
         operand.with_precision(
-          finite_precision_for(bigint_zero(), ctx),
+          finite_precision_for_default(ctx),
           ctx.rounding,
         ),
         DecimalFlags::new(),
@@ -20,7 +20,7 @@ pub fn Decimal::plus_ctx(
       if operand.coefficient.is_zero() {
         if !ctx.extended {
           (
-            Decimal::zero(precision=finite_precision_for(bigint_zero(), ctx)),
+            Decimal::zero(precision=finite_precision_for_default(ctx)),
             DecimalFlags::new(),
           )
         } else {
@@ -54,7 +54,7 @@ pub fn Decimal::apply_ctx(
     FpClass::Infinity =>
       (
         self.with_precision(
-          finite_precision_for(bigint_zero(), ctx),
+          finite_precision_for_default(ctx),
           ctx.rounding,
         ),
         DecimalFlags::new(),
@@ -63,7 +63,7 @@ pub fn Decimal::apply_ctx(
       if self.coefficient.is_zero() {
         if !ctx.extended {
           return (
-            Decimal::zero(precision=finite_precision_for(bigint_zero(), ctx)),
+            Decimal::zero(precision=finite_precision_for_default(ctx)),
             DecimalFlags::new(),
           )
         }
@@ -96,7 +96,7 @@ pub fn Decimal::minus_ctx(
     FpClass::Finite if operand.coefficient.is_zero() =>
       if !ctx.extended {
         (
-          Decimal::zero(precision=finite_precision_for(bigint_zero(), ctx)),
+          Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else {

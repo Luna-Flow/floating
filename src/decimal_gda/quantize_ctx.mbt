@@ -29,7 +29,7 @@ fn Decimal::divide_integer_impl(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   match quiet_nan_pair(self, other, ctx) {
     Some(result) => result
     None =>
@@ -106,7 +106,7 @@ pub fn Decimal::remainder(
   if lhs.class == FpClass::Finite &&
     rhs.class == FpClass::Finite &&
     rhs.is_zero() {
-    let precision = finite_precision_for(bigint_one(), ctx)
+    let precision = finite_precision_for_default(ctx)
     return if lhs.is_zero() {
       (Decimal::nan(precision~), operand_flags.combine(div_zero_flags(true)))
     } else {
@@ -123,7 +123,7 @@ pub fn Decimal::remainder(
   }
   if lhs.class == FpClass::Infinity {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
+      Decimal::nan(precision=finite_precision_for_default(ctx)),
       operand_flags.combine(invalid_flags()),
     )
   }
@@ -150,7 +150,7 @@ pub fn Decimal::remainder(
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
+          Decimal::zero(precision=finite_precision_for_default(ctx)),
           quotient_flags,
         )
       }
@@ -166,7 +166,7 @@ pub fn Decimal::remainder(
     }
     _ =>
       (
-        Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -188,7 +188,7 @@ pub fn Decimal::remainder_near(
   if lhs.class == FpClass::Finite &&
     rhs.class == FpClass::Finite &&
     rhs.is_zero() {
-    let precision = finite_precision_for(bigint_one(), ctx)
+    let precision = finite_precision_for_default(ctx)
     return if lhs.is_zero() {
       (Decimal::nan(precision~), operand_flags.combine(div_zero_flags(true)))
     } else {
@@ -205,7 +205,7 @@ pub fn Decimal::remainder_near(
   }
   if lhs.class == FpClass::Infinity {
     return (
-      Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
+      Decimal::nan(precision=finite_precision_for_default(ctx)),
       operand_flags.combine(invalid_flags()),
     )
   }
@@ -234,7 +234,7 @@ pub fn Decimal::remainder_near(
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
+          Decimal::zero(precision=finite_precision_for_default(ctx)),
           quotient_flags,
         )
       }
@@ -250,7 +250,7 @@ pub fn Decimal::remainder_near(
     }
     _ =>
       (
-        Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -432,7 +432,7 @@ pub fn Decimal::to_integral_exact(
     FpClass::Infinity =>
       (
         self.with_precision(
-          finite_precision_for(bigint_one(), ctx),
+          finite_precision_for_default(ctx),
           ctx.rounding,
         ),
         DecimalFlags::new(),
@@ -440,14 +440,14 @@ pub fn Decimal::to_integral_exact(
     FpClass::Finite =>
       if !ctx.extended && self.coefficient.is_zero() {
         (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
+      Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else if self.exponent10 >= 0 {
         self.apply_ctx(ctx)
       } else {
         self.quantize(
-          Decimal::one(precision=finite_precision_for(bigint_one(), ctx)),
+      Decimal::one(precision=finite_precision_for_default(ctx)),
           ctx,
         )
       }
@@ -464,7 +464,7 @@ pub fn Decimal::to_integral_value(
     FpClass::Infinity =>
       (
         self.with_precision(
-          finite_precision_for(bigint_one(), ctx),
+          finite_precision_for_default(ctx),
           ctx.rounding,
         ),
         DecimalFlags::new(),
@@ -472,7 +472,7 @@ pub fn Decimal::to_integral_value(
     FpClass::Finite =>
       if !ctx.extended && self.coefficient.is_zero() {
         (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
+      Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else if self.exponent10 >= 0 {

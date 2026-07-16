@@ -12,31 +12,30 @@ pub fn Decimal::make(
 
 ///|
 pub fn Decimal::zero(precision? : Int = 34) -> Decimal {
-  Decimal::make(bigint_zero(), 0, precision)
+  finite_with_exponent_repr(false, gda_coeff_zero(), 0, Int::max(1, precision))
 }
 
 ///|
 pub fn Decimal::negative_zero(precision? : Int = 34) -> Decimal {
-  normalize_decimal_parts(
-    true,
-    bigint_zero(),
-    0,
-    precision,
-    RoundingMode::ToNearestEven,
-  )
+  finite_with_exponent_repr(true, gda_coeff_zero(), 0, Int::max(1, precision))
 }
 
 ///|
 pub fn Decimal::one(precision? : Int = 34) -> Decimal {
-  Decimal::make(bigint_one(), 0, precision)
+  finite_with_exponent_repr(
+    false,
+    gda_coeff_from_int(1),
+    0,
+    Int::max(1, precision),
+  )
 }
 
 ///|
 pub fn Decimal::inf(sign : Sign, precision? : Int = 34) -> Decimal {
-  make_special(
+  make_special_repr(
     FpClass::Infinity,
     sign == Sign::Negative,
-    bigint_zero(),
+    gda_coeff_zero(),
     precision,
     false,
   )
@@ -44,7 +43,7 @@ pub fn Decimal::inf(sign : Sign, precision? : Int = 34) -> Decimal {
 
 ///|
 pub fn Decimal::nan(precision? : Int = 34) -> Decimal {
-  make_special(FpClass::NaN, false, bigint_zero(), precision, false)
+  make_special_repr(FpClass::NaN, false, gda_coeff_zero(), precision, false)
 }
 
 ///|
@@ -67,7 +66,13 @@ pub fn Decimal::signaling_nan(
 
 ///|
 pub fn Decimal::from_int(n : Int, precision? : Int = 34) -> Decimal {
-  Decimal::make(BigInt::from_int(n), 0, precision)
+  normalize_decimal_parts_gda_repr(
+    n < 0,
+    gda_coeff_from_int_magnitude(n),
+    0,
+    precision,
+    DecimalRoundingMode::HalfEven,
+  )
 }
 
 ///|
