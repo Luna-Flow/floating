@@ -69,8 +69,19 @@ predicate、large selector は performance policy です。
 Acceptance は property/all-target/dependency/IEEE isolation と corpus を組合せ、`official` 64,986/64,986、
 `official0` 16,124/16,124 legal rows を pass。141 `#` placeholder/non-scalar は diagnostic exclusion です。
 
+## 0.7.1 Semantic Preservation Proof
+
+GDA coefficient remainder path は quotient/remainder division と同じ Euclidean remainder
+`r = a - floor(a / d) * d`、`0 <= r < d` を計算します。従って GCD、exact division、half-power comparison が見る
+canonical coefficient fact は不変です。Half-power predicate は leading decimal digit と残りの non-zero limb で
+`5 * 10^(digits - 1)` と比較し、binary approximation には変換しません。
+
+Small-value arithmetic path は finite、`Small`、context bounds、flag-free predicate がすべて成立した場合だけ許可し、
+同じ GDA finalizer と trap precedence を使います。Semantic acceptance tuple は value/cohort、raised flags、next sticky context、
+defined result、selected trap です。Package/frontend/boundary differential test と二つの decTest corpus が declared surface を検証し、
+coefficient threshold は GDA rule ではなく performance policy です。
+
 ## Evidence Map
 
 [API](./api.md)、[Tutorial](./tutorial.md)、[Conformance](./conformance.md)、および独立 IEEE model の
 [`decimal` Design](../decimal/design.md) を参照してください。
-

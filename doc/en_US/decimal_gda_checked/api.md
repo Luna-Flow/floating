@@ -19,7 +19,7 @@ next context back into a completed state.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.7.0`.
+The following snapshot is the complete generated package interface for `0.7.1`.
 
 <!-- generated-api-start -->
 ```moonbit

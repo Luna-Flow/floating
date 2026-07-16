@@ -1,7 +1,7 @@
 # `decimal_gda` API
 
 `decimal_gda` is the General Decimal Arithmetic Specification 1.70 surface for
-`0.7.0`. Its value, context, flags, traps, signals, and outcomes are distinct
+`0.7.1`. Its value, context, flags, traps, signals, and outcomes are distinct
 from the IEEE-oriented types in `decimal`.
 
 The implementation is also independent: `Decimal` owns a persistent
@@ -135,7 +135,7 @@ unbounded future directives or resource sizes.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.1`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

@@ -25,7 +25,7 @@
 elementary 发布门禁会分别归档不可变的 `0.6.1` commit 与当前 dirty candidate，
 向两者注入完全相同的 add/mul/div/sqrt workload，并在 53、128、512 bit 收集十组
 交替 AB/BA native 配对样本。只有 candidate 至少慢 3%，且 Maremark 95% bootstrap
-区间下界为正时才阻断发布。`0.7.0` 首次新增的函数只运行 candidate workload；
+区间下界为正时才阻断发布。`0.7.1` 首次新增的函数只运行 candidate workload；
 本版本将成为它们的首个合法 baseline，不能为 `0.6.1` 中不存在的 API 伪造耗时。
 
 ## 取舍

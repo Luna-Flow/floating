@@ -135,13 +135,13 @@ fn gda_spec(
     context => gda_input(context.dataset_key.scale),
     input => name + ":" + input.digits.to_string(),
     [
-      @runner.Implementation::stateless("core/gda", "0.7.0", input => {
+      @runner.Implementation::stateless("core/gda", "0.7.1", input => {
         @model.OperationResult::completed(
           GdaOutput::Core(gda_core(operation, input)),
           (),
         )
       }),
-      @runner.Implementation::stateless("full/checked", "0.7.0", input => {
+      @runner.Implementation::stateless("full/checked", "0.7.1", input => {
         @model.OperationResult::completed(
           GdaOutput::Checked(gda_checked(operation, input)),
           (),

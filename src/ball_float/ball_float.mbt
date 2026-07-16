@@ -1047,14 +1047,34 @@ fn pown_positive(
     return quantize_interval(lo_power, hi_power, precision)
   }
   if value.contains_zero() {
+    let lo_power_upper = pown_endpoint(
+      value.lo_,
+      exponent,
+      precision,
+      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    )
     return quantize_interval(
       @bin_float.BinFloat::zero(precision~),
-      bin_max(lo_power, hi_power),
+      bin_max(lo_power_upper, hi_power),
       precision,
     )
   }
   if value.hi_.sign() == Sign::Negative {
-    quantize_interval(hi_power, lo_power, precision)
+    quantize_interval(
+      pown_endpoint(
+        value.hi_,
+        exponent,
+        precision,
+        @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      ),
+      pown_endpoint(
+        value.lo_,
+        exponent,
+        precision,
+        @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      ),
+      precision,
+    )
   } else {
     quantize_interval(lo_power, hi_power, precision)
   }
@@ -1072,6 +1092,23 @@ fn pown_negative(
     return empty_interval(precision)
   }
   if !value.contains_zero() {
+    if value.hi_.sign() == Sign::Negative && !pown_exponent_is_odd(exponent) {
+      return quantize_interval(
+        pown_endpoint(
+          value.lo_,
+          exponent,
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardNegative,
+        ),
+        pown_endpoint(
+          value.hi_,
+          exponent,
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardPositive,
+        ),
+        precision,
+      )
+    }
     return quantize_interval(
       pown_endpoint(
         value.hi_,

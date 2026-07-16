@@ -1,6 +1,6 @@
 # `bin_float` Conformance
 
-This page records the `0.7.0` binary floating-point semantic and test
+This page records the `0.7.1` binary floating-point semantic and test
 boundary. It is evidence for a stated, finite corpus; it is not a proof that
 any implementation can be correct for every real input.
 

@@ -259,18 +259,12 @@ pub fn Decimal::add_ctx(
       )
     (FpClass::Infinity, _) =>
       (
-        lhs.with_precision(
-          finite_precision_for_default(ctx),
-          ctx.rounding,
-        ),
+        lhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     (_, FpClass::Infinity) =>
       (
-        rhs.with_precision(
-          finite_precision_for_default(ctx),
-          ctx.rounding,
-        ),
+        rhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => add_finite_values_ctx(lhs, rhs, ctx)
@@ -353,9 +347,9 @@ fn Decimal::decimal_mul_ctx_impl(
         Decimal::inf(
           if self.negative == other.negative {
             Sign::Positive
-            } else {
-              Sign::Negative
-            },
+          } else {
+            Sign::Negative
+          },
           precision=finite_precision_for_default(ctx),
         ),
         DecimalFlags::new(),

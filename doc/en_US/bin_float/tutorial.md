@@ -2,7 +2,7 @@
 
 Use `bin_float` when values are naturally dyadic, when precision must exceed a
 host `Float`/`Double`, or when binary16/32/64/128 rounding and status are part of
-the result. This tutorial targets `floating` 0.7.0; see [API](./api.md) for the
+the result. This tutorial targets `floating` 0.7.1; see [API](./api.md) for the
 complete inventory and [Conformance](./conformance.md) for the verified IEEE
 boundary.
 

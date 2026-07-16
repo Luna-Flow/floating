@@ -1,32 +1,42 @@
 # `decimal` Performance
 
-## Baseline Gate
+## Measurement Boundary
 
-`just bench decimal` compares the current tree with the immutable manifest in `testdata/decimal/performance_baseline.json`. It runs paired AB/BA/AB processes, requires at least nine accepted samples per cell, rejects unstable MAD, and fails a paired median regression above 5%.
+`just bench decimal --target native` runs the current Maremark suite in
+`src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis
+file. This is a reproducible measurement artifact, not an immutable release
+gate. There is no checked-in decimal performance manifest or threshold workflow
+in 0.7.1; current instructions use the Maremark suite below.
 
-## Operand Model
+## Workload
 
-Measurements separate limb count from dense, sparse, square, and unbalanced shapes. The kernel stores canonical little-endian base-1e9 limbs, while NTT converts to smaller working digits. One global digit threshold cannot describe padding or shape crossovers.
+The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal
+digits. Each cell compares the coefficient kernel, the core `Decimal` path,
+and the full checked path against an exact `BigInt` reference. Input creation
+and expected-value construction stay outside the timed payload.
 
-## Native Multiplication Calibration
+## Reading Results
 
-Native uses schoolbook→Karatsuba at 96 limbs for multiply and 48 for square, Karatsuba→Toom-3 at 1,152, and transform-band NTT thresholds. Multiply bands begin at 1,728/2,816/4,608/7,680 limbs; square bands begin at 640/1,040/1,824/3,648/7,296. Other targets retain conservative independent values.
+`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is
+the paired layer-overhead analysis. Results describe this tree, toolchain, and
+target. They are useful for finding a hotspot, but they do not establish a
+universal crossover or a release-wide latency bound.
 
-## Division Calibration
-
-Native Burnikel–Ziegler thresholds are 2,816, 5,120, and 10,240 limbs for increasing block bands. Newton reciprocal division remains implemented for differential tests but is not automatically selected on native because the measured path is slower than Burnikel–Ziegler.
-
-## Statistical Method
-
-Threshold experiments use ABBA or BAAB order, rotate size order between processes, reject unstable processes, fit weighted non-increasing isotonic regression, and bootstrap complete process columns. Production boundaries require a 95% upper confidence threshold, a one-sided sign test at `p <= 0.05`, and at least 3% median improvement.
-
-## Reproduction And Interpretation
+## Reproduction
 
 ```sh
 just bench decimal --target native
-just bench decimal-threshold --model --transition mul-toom3-ntt-32k \
-  --model-low 4096 --model-high 5120 --model-step 128 \
-  --processes 5 --samples 9 --bootstrap-samples 5000
+just bench all --target native
 ```
 
-Thresholds are target-specific evidence, not API promises. Correctness is always established by coefficient differential tests and IEEE/GDA conformance before a faster path is accepted.
+The all-suite run also covers binary, GDA, and interval kernels. It is safe to
+compare artifacts only when the target, toolchain, workload, and benchmark
+protocol are held constant.
+
+## Semantic Gate
+
+Benchmark equivalence checks are necessary but not sufficient. Optimized
+decimal routes must also pass coefficient differential tests and the pinned
+IEEE decimal and GDA conformance gates before they are accepted. See
+[Conformance](./conformance.md), [Design](./design.md), and the [0.7.1
+performance and semantic audit](../performance_audit.md).

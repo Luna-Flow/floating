@@ -1,32 +1,36 @@
 # `decimal` 性能
 
-## 基线门禁
+## 测量边界
 
-`just bench decimal` 将当前树与 `testdata/decimal/performance_baseline.json` 中的不可变 manifest 比较。它运行成对 AB/BA/AB 进程，每个 cell 至少需要九个有效 sample，拒绝不稳定 MAD，并在 paired median 回退超过 5% 时失败。
+`just bench decimal --target native` 运行 `src/bench/decimal` 中当前的
+Maremark suite，并写入 `.tmp/bench/decimal.jsonl` 及其 analysis 文件。这是可复现的
+测量 artifact，不是不可变的 release gate。0.7.1 没有 checked-in 的 decimal 性能
+manifest 或 threshold 流程；当前指令使用下面的 Maremark suite。
 
-## 操作数模型
+## 工作负载
 
-测量把 limb 数量与 dense、sparse、square、unbalanced shape 分开。内核存储 canonical little-endian base-1e9 limbs，而 NTT 转换为更小工作 digit。单一全局 digit 阈值无法描述 padding 和 shape crossover。
+suite 在 9、34、128、512 位十进制数字上测量 add、multiply、divide。每个 cell 将
+coefficient kernel、核心 `Decimal` 路径和完整 checked 路径与精确 `BigInt` reference
+比较。输入构造和期望值构造不计入 timed payload。
 
-## Native 乘法校准
+## 读取结果
 
-native 的 multiply 在 96 limbs 从 schoolbook 切到 Karatsuba，square 在 48 切换；Karatsuba→Toom-3 为 1,152。transform-band NTT multiply 从 1,728/2,816/4,608/7,680 limbs 起，square 从 640/1,040/1,824/3,648/7,296 起。其他 target 保留独立的保守值。
+`MAREMARK_JSONL` 是带版本的原始事件流，`MAREMARK_HOTSPOT` 是成对的分层开销分析。
+结果只描述当前 tree、toolchain 和 target，可用于定位 hotspot，但不能证明通用
+crossover 或 release-wide latency bound。
 
-## 除法校准
-
-native 的 Burnikel–Ziegler 阈值随 block band 为 2,816、5,120 和 10,240 limbs。Newton reciprocal division 仍用于 differential test，但因测量慢于 Burnikel–Ziegler，不在 native 自动选择。
-
-## 统计方法
-
-阈值实验使用 ABBA/BAAB 顺序，在进程间旋转 size 顺序，拒绝不稳定进程，拟合加权非增 isotonic regression，并按完整 process column bootstrap。生产边界必须同时满足 95% upper confidence threshold、`p <= 0.05` 的单侧 sign test 和至少 3% median 改善。
-
-## 复现与解释
+## 复现
 
 ```sh
 just bench decimal --target native
-just bench decimal-threshold --model --transition mul-toom3-ntt-32k \
-  --model-low 4096 --model-high 5120 --model-step 128 \
-  --processes 5 --samples 9 --bootstrap-samples 5000
+just bench all --target native
 ```
 
-阈值是 target-specific 证据，不是 API 承诺。更快路径必须先通过系数 differential test 与 IEEE/GDA conformance。
+all-suite 运行也覆盖 binary、GDA 和 interval kernel。只有在 target、toolchain、workload
+和 benchmark protocol 相同的情况下，artifact 才适合比较。
+
+## 语义门禁
+
+benchmark equivalence check 是必要条件，但不是充分条件。优化后的 decimal 路径还必须
+通过 coefficient differential test 以及固定的 IEEE decimal、GDA conformance gate，才能
+被接受。参见[一致性说明](./conformance.md)、[设计](./design.md)和[0.7.1 性能与语义审计](../performance_audit.md)。

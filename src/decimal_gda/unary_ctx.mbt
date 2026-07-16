@@ -10,10 +10,7 @@ pub fn Decimal::plus_ctx(
     FpClass::NaN => quiet_nan_operand(operand, ctx)
     FpClass::Infinity =>
       (
-        operand.with_precision(
-          finite_precision_for_default(ctx),
-          ctx.rounding,
-        ),
+        operand.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
@@ -53,10 +50,7 @@ pub fn Decimal::apply_ctx(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(
-          finite_precision_for_default(ctx),
-          ctx.rounding,
-        ),
+        self.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite => {

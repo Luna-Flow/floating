@@ -20,7 +20,7 @@ infinity results remain values rather than becoming `ArithmeticError`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.7.0`.
+The following snapshot is the complete generated package interface for `0.7.1`.
 
 <!-- generated-api-start -->
 ```moonbit

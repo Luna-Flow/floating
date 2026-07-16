@@ -1,4 +1,4 @@
-# FLOATING 0.7.0 文档
+# FLOATING 0.7.1 文档
 
 本页是快速索引。公开名称以各包的 `pkg.generated.mbti` 为准；Tutorial
 说明推荐用法，Design 解释标准对齐、算法选择、优化与切换边界。
@@ -10,6 +10,7 @@
 - 包与分层模型：[架构](./architecture.md)
 - 实际验证范围：[验证](./verification.md)
 - 文档规则：[文档标准](./doc_standard.md)
+- 优化证据：[0.7.1 性能与语义审计](./performance_audit.md)
 
 ## 应用包
 
@@ -17,8 +18,8 @@
 | --- | --- | --- | --- |
 | 二进制有理数 / IEEE binary | `bin_float` | [Tutorial](./bin_float/tutorial.md) | [API](./bin_float/api.md) · [Design](./bin_float/design.md) · [Conformance](./bin_float/conformance.md) · [Performance](./bin_float/performance.md) |
 | IEEE decimal / DPD / BID | `decimal` | [Tutorial](./decimal/tutorial.md) | [API](./decimal/api.md) · [Design](./decimal/design.md) · [Conformance](./decimal/conformance.md) · [Performance](./decimal/performance.md) |
-| GDA sticky status 与 trap | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) |
-| 认证区间 / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) |
+| GDA sticky status 与 trap | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) · [Performance](./decimal_gda/performance.md) |
+| 认证区间 / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) · [Performance](./ball_float/performance.md) |
 | 首错即停的二进制组合 | `bin_float_checked` | [Tutorial](./bin_float_checked/tutorial.md) | [API](./bin_float_checked/api.md) · [Design](./bin_float_checked/design.md) |
 | 累积 IEEE decimal flags | `decimal_checked` | [Tutorial](./decimal_checked/tutorial.md) | [API](./decimal_checked/api.md) · [Design](./decimal_checked/design.md) |
 | sticky/trapping GDA 组合 | `decimal_gda_checked` | [Tutorial](./decimal_gda_checked/tutorial.md) | [API](./decimal_gda_checked/api.md) · [Design](./decimal_gda_checked/design.md) |

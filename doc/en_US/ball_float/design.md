@@ -1,6 +1,6 @@
 # `ball_float` Design
 
-`ball_float` is the certified real-enclosure domain of `floating` 0.7.0. It
+`ball_float` is the certified real-enclosure domain of `floating` 0.7.1. It
 builds bare and decorated intervals on `BinFloat` endpoints and aligns its
 declared operation boundary with IEEE 1788-2015. Correctness is defined first by
 set inclusion: a wider interval may be less useful, but an interval that omits a
@@ -52,7 +52,7 @@ The standard-facing model keeps set values, decorations, and status separate:
 - NaI remains distinct from all bare intervals;
 - relations such as subset, interior, overlap, and precedes are set relations,
   not scalar comparison;
-- reverse operations remain outside the 0.7.0 support boundary.
+- reverse operations remain outside the 0.7.1 support boundary.
 
 The strict pinned ITF1788 run passes 4,656/4,656 selected cases, including
 general power, trigonometric, hyperbolic, inverse-trigonometric, and 375
@@ -152,6 +152,23 @@ monotonicity, and shared trigonometric reduction before increasing precision.
 It does not optimize by dropping an endpoint candidate or replacing outward
 rounding with nearest rounding. When tightness and resource bounds conflict,
 the total API widens and the checked API reports why.
+
+## 0.7.1 Semantic Preservation Proof
+
+For each finite endpoint candidate `y`, downward rounding is a lower
+certificate and upward rounding is an upper certificate. The interval code
+first selects the mathematical extremum from monotonicity and sign structure,
+then applies the matching direction; `quantize_interval` preserves the same
+outward relation at the stored precision.
+
+The integer-power proof obligations are explicit: positive odd powers increase,
+positive even powers decrease on the negative half-axis, negative odd powers
+decrease away from zero, and negative even powers increase on the negative
+half-axis. Zero-containing negative powers use the pole/whole-real branches.
+The negative-half-axis regression, directed endpoint tests, and strict ITF1788
+aggregate verify ordered set inclusion for the declared forward interval
+surface. A wider fallback is valid; a reversed or inward-rounded endpoint is
+not.
 
 ## Evidence Map
 

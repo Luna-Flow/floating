@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 ![State](https://img.shields.io/badge/State-active-success)
 
-`Luna-Flow/floating` 0.7.0 provides arbitrary-precision binary, decimal, GDA
+`Luna-Flow/floating` 0.7.1 provides arbitrary-precision binary, decimal, GDA
 decimal, and certified interval arithmetic for MoonBit. Precision, rounding,
 special values, status flags, traps, and enclosure semantics are explicit
 rather than hidden in process-global state.
@@ -16,14 +16,15 @@ rather than hidden in process-global state.
 - Copy a minimal example: [Quick Start](#quick-start)
 - Understand algorithms and boundaries: [Architecture](./doc/en_US/architecture.md)
 - Check numerical claims: [Verification](./doc/en_US/verification.md)
-- See 0.7.0 changes: [CHANGELOG](./CHANGELOG.md)
+- See 0.7.1 changes: [CHANGELOG](./CHANGELOG.md)
+- Read the optimization evidence: [0.7.1 audit](./doc/en_US/performance_audit.md)
 - Other languages: [简体中文](./doc/zh_CN/README.md) ·
   [日本語](./doc/ja_JP/README.md)
 
 ## Install
 
 ```sh
-moon add Luna-Flow/floating@0.7.0
+moon add Luna-Flow/floating@0.7.1
 ```
 
 Import only the packages used by the current MoonBit package:
@@ -41,7 +42,7 @@ import {
 
 ```moonbit check
 ///|
-test "floating 0.7.0 quick start" {
+test "floating 0.7.1 quick start" {
   let binary = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::from_uint64(3UL),
     -1,
@@ -72,8 +73,8 @@ The three values have different contracts: `binary` is one exact dyadic point,
 | --- | --- | --- | --- |
 | arbitrary-precision dyadic and IEEE binary interchange | `bin_float` | value or `(value, BinaryFlags)` | [API](./doc/en_US/bin_float/api.md) · [Tutorial](./doc/en_US/bin_float/tutorial.md) · [Design](./doc/en_US/bin_float/design.md) |
 | IEEE decimal and DPD/BID interchange | `decimal` | value or `(value, DecimalFlags)` | [API](./doc/en_US/decimal/api.md) · [Tutorial](./doc/en_US/decimal/tutorial.md) · [Design](./doc/en_US/decimal/design.md) |
-| General Decimal Arithmetic status and traps | `decimal_gda` | `GdaOutcome` with defined result and next context | [API](./doc/en_US/decimal_gda/api.md) · [Tutorial](./doc/en_US/decimal_gda/tutorial.md) · [Design](./doc/en_US/decimal_gda/design.md) |
-| certified real enclosure and IEEE 1788 decorations | `ball_float` | bare/decorated interval, optionally with `BallFlags` | [API](./doc/en_US/ball_float/api.md) · [Tutorial](./doc/en_US/ball_float/tutorial.md) · [Design](./doc/en_US/ball_float/design.md) |
+| General Decimal Arithmetic status and traps | `decimal_gda` | `GdaOutcome` with defined result and next context | [API](./doc/en_US/decimal_gda/api.md) · [Tutorial](./doc/en_US/decimal_gda/tutorial.md) · [Design](./doc/en_US/decimal_gda/design.md) · [Performance](./doc/en_US/decimal_gda/performance.md) |
+| certified real enclosure and IEEE 1788 decorations | `ball_float` | bare/decorated interval, optionally with `BallFlags` | [API](./doc/en_US/ball_float/api.md) · [Tutorial](./doc/en_US/ball_float/tutorial.md) · [Design](./doc/en_US/ball_float/design.md) · [Performance](./doc/en_US/ball_float/performance.md) |
 | first-error binary pipeline | `bin_float_checked` | `Result[BinFloat, ArithmeticError]` wrapper | [Tutorial](./doc/en_US/bin_float_checked/tutorial.md) |
 | accumulated IEEE decimal pipeline | `decimal_checked` | value + latest/combined flags + optional certification error | [Tutorial](./doc/en_US/decimal_checked/tutorial.md) |
 | sticky/trapping GDA pipeline | `decimal_gda_checked` | one threaded `GdaOutcome` | [Tutorial](./doc/en_US/decimal_gda_checked/tutorial.md) |
@@ -84,7 +85,7 @@ Parser, CLI, benchmark, consistency, and `internal/*` packages are repository
 infrastructure. See the [full documentation index](./doc/en_US/README.md) before
 depending on them as application APIs.
 
-## 0.7.0 At A Glance
+## 0.7.1 At A Glance
 
 - `BinFloat`, `Decimal`, and `BallFloat` expose certified elementary-function
   paths with bounded refinement and structured certification failure.
@@ -97,6 +98,10 @@ depending on them as application APIs.
   intervals, critical-point/pole handling, and conservative total fallbacks.
 - Benchmarks moved into the unified `bench/*` Maremark hierarchy with explicit
   crossover and regression analysis.
+- The 0.7.1 optimization audit records exact-kernel, directed-rounding, and
+  interval-monotonicity proofs for the optimized paths.
+- The native benchmark artifact covers all four core suites; non-monotonic
+  auto-tune observations remain evidence only until independently replicated.
 
 Detailed claims and exclusions live in package-local evidence pages:
 
@@ -104,8 +109,10 @@ Detailed claims and exclusions live in package-local evidence pages:
   [performance](./doc/en_US/bin_float/performance.md)
 - [IEEE decimal conformance](./doc/en_US/decimal/conformance.md) ·
   [performance](./doc/en_US/decimal/performance.md)
-- [GDA decimal conformance](./doc/en_US/decimal_gda/conformance.md)
-- [Interval conformance](./doc/en_US/ball_float/conformance.md)
+- [GDA decimal conformance](./doc/en_US/decimal_gda/conformance.md) ·
+  [performance](./doc/en_US/decimal_gda/performance.md)
+- [Interval conformance](./doc/en_US/ball_float/conformance.md) ·
+  [performance](./doc/en_US/ball_float/performance.md)
 - [Elementary capability matrix](./testdata/elementary/capability_matrix.json)
 
 Performance thresholds are implementation evidence, not API promises. Passing

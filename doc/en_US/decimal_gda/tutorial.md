@@ -3,7 +3,7 @@
 Use `decimal_gda` when a calculation must follow General Decimal Arithmetic
 rounding, sticky status, defined trap results, and trap precedence. Use
 [`decimal`](../decimal/tutorial.md) instead for the IEEE `(value, flags)` model,
-DPD/BID interchange, or the broader 0.7.0 elementary-function surface.
+DPD/BID interchange, or the broader 0.7.1 elementary-function surface.
 
 ## The One Rule To Remember
 

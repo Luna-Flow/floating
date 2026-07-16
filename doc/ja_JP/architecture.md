@@ -1,6 +1,6 @@
 # アーキテクチャ
 
-`floating` 0.7.0 は、明示的な数値 domain と薄い composition/parsing/verification layer
+`floating` 0.7.1 は、明示的な数値 domain と薄い composition/parsing/verification layer
 で構成されます。数値意味論を pure かつ明示的に保ち、filesystem・process・corpus・
 benchmark effect を repository edge に置くことが中心原則です。
 
@@ -24,7 +24,7 @@ Package boundary は `moon.pkg` が定義し、同一 package 内の file 名は
 
 すべてを一つの「floating value」に平坦化せず、標準ごとの観測可能 state を保持します。
 
-| Domain | 0.7.0 が表現する規範モデル | Operation result |
+| Domain | 0.7.1 が表現する規範モデル | Operation result |
 | --- | --- | --- |
 | `bin_float` | declared IEEE 754-2019 binary | value + `BinaryFlags` |
 | `decimal` | declared IEEE 754-2019 decimal/interchange | value + `DecimalFlags` |

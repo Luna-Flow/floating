@@ -30,10 +30,10 @@ fn square_tune_spec() -> @runner.BenchSpec[
     context => square_tune_pattern(context.dataset_key.scale),
     value => value.bit_length().to_string(),
     [
-      @runner.Implementation::stateless("mul-self", "0.7.0", value => {
+      @runner.Implementation::stateless("mul-self", "0.7.1", value => {
         @model.OperationResult::completed(value.mul(value), ())
       }),
-      @runner.Implementation::stateless("square", "0.7.0", value => {
+      @runner.Implementation::stateless("square", "0.7.1", value => {
         @model.OperationResult::completed(value.square(), ())
       }),
     ],

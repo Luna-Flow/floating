@@ -97,12 +97,7 @@ priv struct GdaCoeffScratchArena {
 
 ///|
 fn gda_coeff_scratch_arena_new() -> GdaCoeffScratchArena {
-  {
-    slots: [],
-    used: 0,
-    limb_buffers: [],
-    limb_used: 0,
-  }
+  { slots: [], used: 0, limb_buffers: [], limb_used: 0 }
 }
 
 ///|

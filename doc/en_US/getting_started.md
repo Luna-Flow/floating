@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide targets `Luna-Flow/floating` **`0.7.0`**. It shows how to select a
+This guide targets `Luna-Flow/floating` **`0.7.1`**. It shows how to select a
 package, install the module, construct values, choose an error model, and find
 the relevant reference material.
 
@@ -29,7 +29,7 @@ maintainer infrastructure rather than application dependencies.
 Add the current release:
 
 ```sh
-moon add Luna-Flow/floating@0.7.0
+moon add Luna-Flow/floating@0.7.1
 moon add Luna-Flow/arithmetic
 ```
 

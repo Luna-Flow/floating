@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "release": "0.7.0",
+  "release": "0.7.1",
   "standards": {
     "bin_float": "IEEE 754-2019",
     "decimal": "IEEE 754-2019",
@@ -10,8 +10,8 @@
   "families": [
     {
       "family": "exponential-logarithmic",
-      "bin_float": "required-0.7.0",
-      "decimal": "required-0.7.0",
+      "bin_float": "required-0.7.1",
+      "decimal": "required-0.7.1",
       "decimal_gda": "exp-ln-log10-only",
       "ball_float": "standard",
       "oracle": "MPFR/libmpdec-allcr1/Arb",
@@ -19,8 +19,8 @@
     },
     {
       "family": "power-root-hypot",
-      "bin_float": "required-0.7.0",
-      "decimal": "required-0.7.0",
+      "bin_float": "required-0.7.1",
+      "decimal": "required-0.7.1",
       "decimal_gda": "power-sqrt-only",
       "ball_float": "rootn-standard-hypot-extension",
       "oracle": "exact-rational/MPFR/Arb/ITF1788",
@@ -28,8 +28,8 @@
     },
     {
       "family": "trigonometric-inverse-atan2",
-      "bin_float": "required-0.7.0",
-      "decimal": "required-0.7.0",
+      "bin_float": "required-0.7.1",
+      "decimal": "required-0.7.1",
       "decimal_gda": "unavailable",
       "ball_float": "standard",
       "oracle": "MPFR/Arb/ITF1788",
@@ -37,8 +37,8 @@
     },
     {
       "family": "hyperbolic-inverse",
-      "bin_float": "required-0.7.0",
-      "decimal": "required-0.7.0",
+      "bin_float": "required-0.7.1",
+      "decimal": "required-0.7.1",
       "decimal_gda": "unavailable",
       "ball_float": "standard",
       "oracle": "MPFR/Arb/ITF1788",
@@ -46,8 +46,8 @@
     },
     {
       "family": "expm1-log1p-pi-scaled",
-      "bin_float": "required-0.7.0",
-      "decimal": "required-0.7.0",
+      "bin_float": "required-0.7.1",
+      "decimal": "required-0.7.1",
       "decimal_gda": "unavailable",
       "ball_float": "extension",
       "oracle": "MPFR/Arb",
@@ -126,6 +126,6 @@
     "practicalRegressionPct": 3.0,
     "confidencePct": 95.0,
     "analysis": "Maremark paired bootstrap; significant only when decision is Slower and the interval lower bound is positive",
-    "newOperations": "candidate workload only because 0.6.1 has no BinFloat elementary API; 0.7.0 establishes their first immutable baseline"
+    "newOperations": "candidate workload only because 0.6.1 has no BinFloat elementary API; 0.7.1 establishes their first immutable baseline"
   }
 }

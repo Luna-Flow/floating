@@ -1,6 +1,6 @@
 # `decimal` 設計
 
-`decimal` は 0.7.0 の IEEE-oriented arbitrary-precision decimal core です。Quantum-preserving
+`decimal` は 0.7.1 の IEEE-oriented arbitrary-precision decimal core です。Quantum-preserving
 value、explicit context/flags、decimal32/64/128 interchange、certified elementary を提供します。
 [`decimal_gda`](../decimal_gda/design.md) は独立 GDA sticky/trap model で、型は alias ではありません。
 
@@ -69,6 +69,17 @@ rounding/quantum は semantic boundary、limb cutoff は private dispatch bounda
 Add/compare/normalize/shift/word-div は `O(n)`、schoolbook/Knuth は quadratic。Karatsuba/Toom/NTT/
 BZ/Newton は setup/storage/precondition と引換えに large cost を削減し、measured crossover まで
 simple algorithm を維持します。
+
+## 0.7.1 Semantic Preservation Proof
+
+Exact decimal division path は coefficient GCD を除去し、reduced denominator が `2^i * 5^j` のときだけ採用します。
+Exact coefficient と preferred exponent を作った後、generic route と同じ finalizer を呼びます。Bounded inexact path も
+bound が unique result を証明できない場合は fallback します。したがって allocation と division work は減っても、
+quantum、rounding、overflow/underflow、flags は変わりません。
+
+受入条件は IEEE observation tuple（class、sign、coefficient、exponent、precision、flags、interchange value）の一致です。
+固定 IEEE corpus、four-target public API matrix、division/remainder regression、exact-path differential test が release evidence を構成し、
+threshold は private performance policy のままです。
 
 ## Evidence Map
 

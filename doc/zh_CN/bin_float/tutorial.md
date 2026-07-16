@@ -1,7 +1,7 @@
 # `bin_float` 教程
 
 适用于天然 dyadic、超出 host Float/Double 精度，或 binary16/32/64/128 rounding/status
-属于结果契约的场景。本页基于 0.7.0。
+属于结果契约的场景。本页基于 0.7.1。
 
 ## 选择入口
 

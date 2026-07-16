@@ -124,7 +124,7 @@ fn binary_implementations(
   operation : BinaryOperation,
 ) -> Array[@runner.Implementation[BinaryInput, BinaryOutput, Unit]] {
   [
-    @runner.Implementation::stateless("kernel/coefficient", "0.7.0", input => {
+    @runner.Implementation::stateless("kernel/coefficient", "0.7.1", input => {
       let output = match operation {
         Add => input.left_coeff.add(input.right_coeff)
         Mul => input.left_coeff.mul(input.right_coeff)
@@ -132,7 +132,7 @@ fn binary_implementations(
       }
       @model.OperationResult::completed(BinaryOutput::Coefficient(output), ())
     }),
-    @runner.Implementation::stateless("core/bin-float", "0.7.0", input => {
+    @runner.Implementation::stateless("core/bin-float", "0.7.1", input => {
       let output = match operation {
         Add => input.left.add(input.right)
         Mul => input.left.mul(input.right)
@@ -140,7 +140,7 @@ fn binary_implementations(
       }
       @model.OperationResult::completed(BinaryOutput::Core(output), ())
     }),
-    @runner.Implementation::stateless("full/checked", "0.7.0", input => {
+    @runner.Implementation::stateless("full/checked", "0.7.1", input => {
       let output = match operation {
         Add => input.left_checked.add(input.right_checked)
         Mul => input.left_checked.mul(input.right_checked)

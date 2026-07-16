@@ -1,6 +1,6 @@
 # `decimal` 设计
 
-`decimal` 是 0.7.0 的 IEEE-oriented 任意精度十进制核心，组合 quantum-preserving
+`decimal` 是 0.7.1 的 IEEE-oriented 任意精度十进制核心，组合 quantum-preserving
 value、显式 context/flags、decimal32/64/128 interchange 与认证初等函数。独立的
 [`decimal_gda`](../decimal_gda/design.md) 拥有 GDA sticky status 与 traps；两种
 Decimal 不是 alias。
@@ -47,7 +47,7 @@ sparse 与 strongly unbalanced operand 使用专门路径。
 
 Native NTT mul 阈值随 transform 依次为 1,728、2,816、4,608、7,680、8,192；
 square 为 640、1,040、1,824、3,648、7,296、8,192。BZ boundary 由 2,816 过渡到
-5,120/10,240。Native Newton 虽已实现并测试，但 0.7.0 测量不足以支持 production
+5,120/10,240。Native Newton 虽已实现并测试，但 0.7.1 测量不足以支持 production
 crossover，所以保持禁用；其他 target 自 4,096 启用。
 
 Karatsuba/Toom 限制 recursion depth 并用 scratch arena；Toom 检查 interpolation
@@ -86,6 +86,17 @@ Maremark 分离 dense、sparse、balanced、unbalanced、square、kernel 与 ful
 Addition、comparison、normalization、shift、single-limb division 为 `O(n)`；schoolbook
 与 Knuth 为二次；Karatsuba、Toom-3、NTT、BZ、Newton 在大规模时降低渐近成本但增加
 setup、storage 与 precondition。实现直到实测 crossover 才选择更复杂算法。
+
+## 0.7.1 语义保持证明
+
+精确十进制除法路径先用系数 GCD 约分。约分分母只有形如 `2^i * 5^j` 时才存在有限十进制展开；
+实现先检查该因子条件，再进入快路径。随后构造精确系数和 preferred exponent，并调用通用路径使用的
+同一个 finalizer。bounded inexact 路径也受边界证明保护，无法证明唯一结果时回退。因此优化可以减少
+分配和除法工作，但不会改变 quantum、舍入、overflow/underflow 或 flags。
+
+完整 IEEE 观察元组必须相等：class、sign、coefficient、exponent、precision、flags 和 interchange value。
+固定 IEEE 语料、四目标 public API 矩阵、division/remainder 回归和 exact-path differential test 提供发布证据；
+阈值仍是私有性能策略。
 
 ## 证据映射
 

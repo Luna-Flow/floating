@@ -27,7 +27,7 @@ and the dirty candidate tree, injects one identical add/mul/div/sqrt workload,
 and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits.
 Maremark blocks release only when the candidate is at least 3% slower and the
 95% bootstrap interval has a positive lower bound. Functions first introduced
-in `0.7.0` run as a candidate workload; this release becomes their first valid
+in `0.7.1` run as a candidate workload; this release becomes their first valid
 baseline, because inventing `0.6.1` timings for APIs that did not exist would
 be meaningless.
 

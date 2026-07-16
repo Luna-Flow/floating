@@ -4,6 +4,46 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.7.1 - 2026-07-16
+
+### Changed
+
+- Audited and retained the decimal GDA coefficient fast paths, IEEE decimal
+  exact/bounded division paths, binary exact-top arithmetic paths, and interval
+  endpoint dispatch introduced after the 0.7.0 release.
+- Added a directed-rounding and monotonicity proof boundary to the interval
+  design: every endpoint candidate is rounded outward, and negative-half-axis
+  integer powers use the correct reversed endpoint order.
+- Kept target-specific crossover tuning as implementation evidence only; noisy
+  or non-monotonic observations are not promoted into public performance claims.
+- Added package-level GDA and interval performance entry points and aligned the
+  decimal performance instructions with the current Maremark runner.
+
+### Fixed
+
+- Removed stale decimal baseline and threshold commands from the published
+  performance documentation and corrected the localized release-date record.
+- Corrected `BallFloat::pown` for even powers on negative intervals and for even
+  negative powers on the negative half-axis. The previous optimization could
+  construct an interval with a lower bound above its upper bound or lose one
+  outward-rounded ulp across zero.
+- Completed the GDA half-power-of-ten coefficient comparison used by the
+  optimized rounding path and covered its exact, below-half, and above-half
+  boundaries.
+
+### Verified
+
+- Passed the native IEEE 1788 strict aggregate at 4,656/4,656 after the
+  interval regression fix, including 174/174 integer-power cases.
+- Passed the pinned binary, IEEE decimal, and GDA suites: 7,464,503 binary
+  cases, 15,763 IEEE decimal cases, 64,986 current GDA cases, and 16,124
+  legacy GDA cases.
+- Completed native Maremark `all` and `auto-tune` artifacts; auto-tune output
+  is retained as calibration evidence and is not treated as a universal
+  crossover guarantee.
+- Added a localized performance audit and semantic-proof matrix for the
+  `en_US`, `zh_CN`, and `ja_JP` documentation trees.
+
 ## 0.7.0 - 2026-07-15
 
 ### Added

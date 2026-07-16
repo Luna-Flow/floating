@@ -112,7 +112,7 @@ fn ball_implementations(
   operation : BallOperation,
 ) -> Array[@runner.Implementation[BallInput, BallOutput, Unit]] {
   [
-    @runner.Implementation::stateless("kernel/bin-float", "0.7.0", input => {
+    @runner.Implementation::stateless("kernel/bin-float", "0.7.1", input => {
       let output = match operation {
         Add => input.left_binary.add(input.right_binary)
         Mul => input.left_binary.mul(input.right_binary)
@@ -120,7 +120,7 @@ fn ball_implementations(
       }
       @model.OperationResult::completed(BallOutput::BinaryKernel(output), ())
     }),
-    @runner.Implementation::stateless("core/ball-float", "0.7.0", input => {
+    @runner.Implementation::stateless("core/ball-float", "0.7.1", input => {
       let output = match operation {
         Add => input.left.add(input.right)
         Mul => input.left.mul(input.right)
@@ -128,7 +128,7 @@ fn ball_implementations(
       }
       @model.OperationResult::completed(BallOutput::Core(output), ())
     }),
-    @runner.Implementation::stateless("full/checked", "0.7.0", input => {
+    @runner.Implementation::stateless("full/checked", "0.7.1", input => {
       let output = match operation {
         Add => input.left_checked.add(input.right_checked)
         Mul => input.left_checked.mul(input.right_checked)

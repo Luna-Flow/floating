@@ -1,6 +1,6 @@
 # 快速上手
 
-本文面向 `Luna-Flow/floating` **`0.7.0`**，说明如何选择包、安装模块、构造
+本文面向 `Luna-Flow/floating` **`0.7.1`**，说明如何选择包、安装模块、构造
 数值、选择错误模型，以及继续查阅对应参考文档。
 
 ## 选择数值域
@@ -27,7 +27,7 @@
 安装当前版本：
 
 ```sh
-moon add Luna-Flow/floating@0.7.0
+moon add Luna-Flow/floating@0.7.1
 moon add Luna-Flow/arithmetic
 ```
 

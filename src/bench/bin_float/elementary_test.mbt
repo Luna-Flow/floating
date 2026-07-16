@@ -254,13 +254,13 @@ fn elementary_spec(
     context => elementary_input(context.dataset_key.scale),
     input => name + ":" + input.precision.to_string(),
     [
-      @runner.Implementation::stateless("core/bin-float", "0.7.0", input => {
+      @runner.Implementation::stateless("core/bin-float", "0.7.1", input => {
         @model.OperationResult::completed(
           ElementaryOutput::Core(elementary_core(operation, input)),
           (),
         )
       }),
-      @runner.Implementation::stateless("full/checked", "0.7.0", input => {
+      @runner.Implementation::stateless("full/checked", "0.7.1", input => {
         @model.OperationResult::completed(
           ElementaryOutput::Checked(elementary_checked(operation, input)),
           (),

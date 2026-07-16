@@ -2,7 +2,7 @@
 
 Use `decimal` when decimal quantum, IEEE-style context/flags, or
 decimal32/64/128 DPD/BID interchange is part of the application contract. This
-page targets `floating` 0.7.0. Use [`decimal_gda`](../decimal_gda/tutorial.md)
+page targets `floating` 0.7.1. Use [`decimal_gda`](../decimal_gda/tutorial.md)
 instead when sticky GDA status and traps must be threaded through every step.
 
 ## Choose The Right Entry Point

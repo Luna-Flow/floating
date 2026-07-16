@@ -1,7 +1,7 @@
 # `decimal` Design
 
 `decimal` is the IEEE-oriented arbitrary-precision decimal core of `floating`
-0.7.0. It combines a quantum-preserving decimal value, explicit contextual
+0.7.1. It combines a quantum-preserving decimal value, explicit contextual
 rounding and flags, decimal32/64/128 interchange, and certified elementary
 functions. The separate [`decimal_gda`](../decimal_gda/design.md) package owns
 sticky General Decimal Arithmetic status and traps; the two value types are
@@ -102,7 +102,7 @@ Algorithm-specific preconditions remain mandatory:
 - Scratch buffers are rewound only after all returned values have detached from
   temporary storage.
 
-The native Newton selector is intentionally disabled in 0.7.0 even though the
+The native Newton selector is intentionally disabled in 0.7.1 even though the
 algorithm is implemented and tested: current native measurements do not justify
 its production crossover. LLVM, Wasm-family, and JS retain it from 4,096 limbs,
 where the target cost model differs.
@@ -171,7 +171,24 @@ The algorithmic basis follows Knuth Algorithm D, Karatsuba multiplication,
 Bodrato-style Toom-Cook interpolation, Burnikel-Ziegler division,
 Brent-Zimmermann multiple-precision methods, Cowlishaw's decimal arithmetic
 model, and IEEE 754-2019 / ISO 60559 semantics. Repository conformance data and
-current code determine the exact 0.7.0 claim.
+current code determine the exact 0.7.1 claim.
+
+## 0.7.1 Semantic Preservation Proof
+
+The exact decimal division path reduces the coefficient fraction by its GCD.
+A finite decimal expansion exists exactly when the reduced denominator is
+`2^i * 5^j`; the implementation checks this factor condition before entering
+the path. It then constructs an exact coefficient and preferred exponent and
+passes that value to the same finalizer used by the generic route. The bounded
+inexact path is similarly guarded and falls back when its bound cannot prove a
+unique result. The optimization can therefore change allocation and division
+work, but not quantum, rounding, overflow/underflow, or flags.
+
+The acceptance condition is equality of the complete IEEE observation tuple:
+class, sign, coefficient, exponent, precision, flags, and interchange value.
+The fixed IEEE corpus, four-target public API matrix, division/remainder
+regressions, and exact-path differential tests provide the release evidence;
+the selected threshold remains a private performance policy.
 
 ## Evidence Map
 

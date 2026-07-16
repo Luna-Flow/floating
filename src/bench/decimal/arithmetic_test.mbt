@@ -114,7 +114,7 @@ fn decimal_implementations(
   operation : DecimalOperation,
 ) -> Array[@runner.Implementation[DecimalInput, DecimalOutput, Unit]] {
   [
-    @runner.Implementation::stateless("kernel/coefficient", "0.7.0", input => {
+    @runner.Implementation::stateless("kernel/coefficient", "0.7.1", input => {
       let output = match operation {
         Add => input.left_coeff + input.right_coeff
         Mul => input.left_coeff * input.right_coeff
@@ -122,7 +122,7 @@ fn decimal_implementations(
       }
       @model.OperationResult::completed(DecimalOutput::Coefficient(output), ())
     }),
-    @runner.Implementation::stateless("core/decimal", "0.7.0", input => {
+    @runner.Implementation::stateless("core/decimal", "0.7.1", input => {
       let output = match operation {
         Add => input.left.add_ctx(input.right, input.context).0
         Mul => input.left.mul_ctx(input.right, input.context).0
@@ -130,7 +130,7 @@ fn decimal_implementations(
       }
       @model.OperationResult::completed(DecimalOutput::Core(output), ())
     }),
-    @runner.Implementation::stateless("full/checked", "0.7.0", input => {
+    @runner.Implementation::stateless("full/checked", "0.7.1", input => {
       let output = match operation {
         Add => input.left_checked.add(input.right)
         Mul => input.left_checked.mul(input.right)

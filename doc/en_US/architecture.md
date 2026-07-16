@@ -1,6 +1,6 @@
 # Architecture
 
-`floating` 0.7.0 is organized as explicit numerical domains surrounded by thin
+`floating` 0.7.1 is organized as explicit numerical domains surrounded by thin
 composition, parsing, and verification layers. The central architectural rule
 is that numerical semantics remain pure and explicit, while filesystem,
 process, corpus, and benchmark effects stay at the repository edge.
@@ -27,7 +27,7 @@ implementation concerns but do not create namespaces.
 The repository does not implement one universal “floating value.” Each standard
 surface retains its own observable state:
 
-| Domain | Normative model represented by 0.7.0 | Operation result |
+| Domain | Normative model represented by 0.7.1 | Operation result |
 | --- | --- | --- |
 | `bin_float` | declared IEEE 754-2019 binary formats/operations | value + `BinaryFlags` |
 | `decimal` | declared IEEE 754-2019 decimal/interchange boundary | value + `DecimalFlags` |

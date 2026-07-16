@@ -185,6 +185,21 @@ test "IEEE 1788 pown uses directed endpoints across zero and poles" {
 }
 
 ///|
+test "IEEE 1788 pown preserves negative-half-axis monotonicity" {
+  let negative = arithmetic_interval(-3, -2)
+  assert_true(negative.pown(2).set_equal(arithmetic_interval(4, 9)))
+  let reciprocal = negative.pown(-2)
+  assert_true(reciprocal.lower_bound().compare(reciprocal.upper_bound()) <= 0)
+  assert_true(reciprocal.lower_bound().sign() == Sign::Positive)
+  assert_true(
+    reciprocal
+    .upper_bound()
+    .compare(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)) >=
+    0,
+  )
+}
+
+///|
 test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
   let signed_zero = BallFloat::from_bounds(

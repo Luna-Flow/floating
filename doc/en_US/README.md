@@ -1,4 +1,4 @@
-# FLOATING 0.7.0 Documentation
+# FLOATING 0.7.1 Documentation
 
 Use this page as an index. Public names come from each package's
 `pkg.generated.mbti`; package tutorials explain recommended use, and design
@@ -11,6 +11,7 @@ pages explain standards, algorithms, optimization, and switching boundaries.
 - Package/layer model: [Architecture](./architecture.md)
 - What is actually verified: [Verification](./verification.md)
 - Documentation rules: [Documentation Standard](./doc_standard.md)
+- Optimization evidence: [0.7.1 Performance And Semantic Audit](./performance_audit.md)
 
 ## Application Packages
 
@@ -18,8 +19,8 @@ pages explain standards, algorithms, optimization, and switching boundaries.
 | --- | --- | --- | --- |
 | dyadic / IEEE binary | `bin_float` | [Tutorial](./bin_float/tutorial.md) | [API](./bin_float/api.md) · [Design](./bin_float/design.md) · [Conformance](./bin_float/conformance.md) · [Performance](./bin_float/performance.md) |
 | IEEE decimal / DPD / BID | `decimal` | [Tutorial](./decimal/tutorial.md) | [API](./decimal/api.md) · [Design](./decimal/design.md) · [Conformance](./decimal/conformance.md) · [Performance](./decimal/performance.md) |
-| GDA sticky status and traps | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) |
-| certified interval / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) |
+| GDA sticky status and traps | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) · [Performance](./decimal_gda/performance.md) |
+| certified interval / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) · [Performance](./ball_float/performance.md) |
 | first-error binary composition | `bin_float_checked` | [Tutorial](./bin_float_checked/tutorial.md) | [API](./bin_float_checked/api.md) · [Design](./bin_float_checked/design.md) |
 | accumulated IEEE decimal flags | `decimal_checked` | [Tutorial](./decimal_checked/tutorial.md) | [API](./decimal_checked/api.md) · [Design](./decimal_checked/design.md) |
 | sticky/trapping GDA composition | `decimal_gda_checked` | [Tutorial](./decimal_gda_checked/tutorial.md) | [API](./decimal_gda_checked/api.md) · [Design](./decimal_gda_checked/design.md) |

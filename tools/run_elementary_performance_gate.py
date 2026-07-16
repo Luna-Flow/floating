@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare shared 0.6.1/0.7.0 kernels with paired native measurements."""
+"""Compare shared 0.6.1/0.7.1 kernels with paired native measurements."""
 
 from __future__ import annotations
 

@@ -431,23 +431,20 @@ pub fn Decimal::to_integral_exact(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(
-          finite_precision_for_default(ctx),
-          ctx.rounding,
-        ),
+        self.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
       if !ctx.extended && self.coefficient.is_zero() {
         (
-      Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else if self.exponent10 >= 0 {
         self.apply_ctx(ctx)
       } else {
         self.quantize(
-      Decimal::one(precision=finite_precision_for_default(ctx)),
+          Decimal::one(precision=finite_precision_for_default(ctx)),
           ctx,
         )
       }
@@ -463,16 +460,13 @@ pub fn Decimal::to_integral_value(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(
-          finite_precision_for_default(ctx),
-          ctx.rounding,
-        ),
+        self.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
       if !ctx.extended && self.coefficient.is_zero() {
         (
-      Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else if self.exponent10 >= 0 {

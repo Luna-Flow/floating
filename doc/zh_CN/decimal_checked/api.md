@@ -17,7 +17,7 @@ flags。`clear_flags` 开始新的观察窗口，但不改变值或 context。
 
 ## 完整公开接口
 
-以下快照是 `0.7.0` 的完整生成包接口。
+以下快照是 `0.7.1` 的完整生成包接口。
 
 <!-- generated-api-start -->
 ```moonbit

@@ -1,7 +1,7 @@
 # `bin_float` チュートリアル
 
 自然な dyadic、host Float/Double を超える precision、または binary16/32/64/128 の
-rounding/status が contract の場合に使用します。0.7.0 対応です。
+rounding/status が contract の場合に使用します。0.7.1 対応です。
 
 ## Entry Point の選択
 

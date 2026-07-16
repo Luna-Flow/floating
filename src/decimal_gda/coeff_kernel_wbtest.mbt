@@ -277,10 +277,7 @@ test "decimal coefficient exact power-of-ten division uses unit shifts" {
 test "decimal small coefficient helpers preserve direct representations" {
   assert_eq(gda_coeff_from_int(123).to_bigint(), 123N)
   assert_eq(gda_coeff_from_nonnegative_int(999999999).to_bigint(), 999999999N)
-  assert_eq(
-    gda_coeff_from_nonnegative_int(1000000000).to_bigint(),
-    1000000000N,
-  )
+  assert_eq(gda_coeff_from_nonnegative_int(1000000000).to_bigint(), 1000000000N)
   assert_eq(
     gda_coeff_div_rem_by_unit_repr(gda_coeff_from_int(987654321), 97).0.to_bigint(),
     10182003N,
@@ -293,11 +290,22 @@ test "decimal small coefficient helpers preserve direct representations" {
 
 ///|
 test "decimal half-power comparison uses decimal leading digits" {
-  assert_eq(gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(4999N)), -1)
-  assert_eq(gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5000N)), 0)
-  assert_eq(gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5001N)), 1)
   assert_eq(
-    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(500000000000000000001N)),
+    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(4999N)),
+    -1,
+  )
+  assert_eq(
+    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5000N)),
+    0,
+  )
+  assert_eq(
+    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5001N)),
+    1,
+  )
+  assert_eq(
+    gda_coeff_compare_half_power10(
+      gda_coeff_from_bigint_repr(500000000000000000001N),
+    ),
     1,
   )
 }

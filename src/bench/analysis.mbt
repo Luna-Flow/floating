@@ -92,7 +92,7 @@ pub fn confirmatory_regression(
 ) -> Result[@stats.Comparison, @stats.BootstrapError] {
   @stats.compare_paired_with_bootstrap(
     "0.6.1-baseline",
-    "0.7.0-candidate",
+    "0.7.1-candidate",
     baseline,
     candidate,
     3.0,

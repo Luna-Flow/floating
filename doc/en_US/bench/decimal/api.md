@@ -8,7 +8,7 @@ This is repository performance infrastructure. Only `bench` exposes reusable hel
 
 ## Complete Public Interface
 
-The snapshot below is the complete generated interface for version `0.7.0`.
+The snapshot below is the complete generated interface for version `0.7.1`.
 
 <!-- generated-api-start -->
 ```moonbit

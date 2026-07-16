@@ -1,6 +1,6 @@
 # `ball_float` 設計
 
-`ball_float` は 0.7.0 の certified real enclosure domain です。`BinFloat` endpoint 上に bare/decorated
+`ball_float` は 0.7.1 の certified real enclosure domain です。`BinFloat` endpoint 上に bare/decorated
 interval を構築し declared IEEE 1788-2015 boundary に整合します。Correctness は tightness より先に
 set inclusion で定義します。
 
@@ -63,6 +63,17 @@ Basic cost は constant endpoint operations で `O(M(p))`。Elementary は range
 refinement を追加します。Constant/special case/monotonicity/shared trig reduction は最適化しますが、
 endpoint candidate を捨てたり nearest rounding に置換しません。Resource と tightness が衝突すれば
 total API は widen、checked API は理由を返します。
+
+## 0.7.1 Semantic Preservation Proof
+
+各 finite endpoint candidate `y` について、downward rounding は lower certificate、upward rounding は upper certificate です。
+実装はまず monotonicity と sign structure から mathematical extremum を選び、その役割に合う direction を適用します。
+`quantize_interval` は stored precision でも outward relation を保ちます。
+
+Integer-power の obligation は明示的です。Positive odd は increasing、positive even は negative half-axis で decreasing、
+negative odd は zero から離れると decreasing、negative even は negative half-axis で increasing です。Zero-containing negative
+power は pole/whole-real branch を使います。Negative-half-axis regression、directed endpoint test、strict ITF1788 aggregate が
+declared forward interval surface の ordered set inclusion を検証します。Wider fallback は有効ですが、reversed または inward-rounded endpoint は無効です。
 
 ## Evidence Map
 

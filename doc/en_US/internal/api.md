@@ -1,6 +1,6 @@
 # @internal
 
-This page tracks the `0.7.0` implementation helper API, not a stable
+This page tracks the `0.7.1` implementation helper API, not a stable
 application contract.
 
 `@internal` is an implementation-facing package. Its functions are documented here for maintainers and advanced contributors, not as a stable public API promise.
@@ -80,7 +80,7 @@ It accepts plain decimals and scientific notation in the currently implemented p
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.7.0`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.7.1`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit

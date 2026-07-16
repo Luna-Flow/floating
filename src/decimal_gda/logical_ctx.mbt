@@ -20,10 +20,7 @@ fn is_logical_operand(x : Decimal) -> Bool {
 
 ///|
 fn logical_invalid_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
-  (
-    Decimal::nan(precision=finite_precision_for_default(ctx)),
-    invalid_flags(),
-  )
+  (Decimal::nan(precision=finite_precision_for_default(ctx)), invalid_flags())
 }
 
 ///|

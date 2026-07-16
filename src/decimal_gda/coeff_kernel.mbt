@@ -767,6 +767,36 @@ fn gda_coeff_compare_repr(lhs : GdaCoeff, rhs : GdaCoeff) -> Int {
 }
 
 ///|
+fn gda_coeff_compare_half_power10(coeff : GdaCoeff) -> Int {
+  if coeff.is_zero() {
+    return -1
+  }
+  let digits = coeff.digits10()
+  let most_significant_index = gda_coeff_unit_len(coeff) - 1
+  let most_significant_limb = gda_coeff_limb_at(coeff, most_significant_index)
+  let most_significant_digits = gda_coeff_msu_digits(digits)
+  let leading_digit = most_significant_limb /
+    gda_coeff_powers[most_significant_digits - 1].reinterpret_as_uint()
+  if leading_digit < 5U {
+    return -1
+  }
+  if leading_digit > 5U {
+    return 1
+  }
+  if most_significant_limb %
+    gda_coeff_powers[most_significant_digits - 1].reinterpret_as_uint() !=
+    0U {
+    return 1
+  }
+  for index in 0..<most_significant_index {
+    if gda_coeff_limb_at(coeff, index) != 0U {
+      return 1
+    }
+  }
+  0
+}
+
+///|
 fn gda_coeff_trim_units(units : Array[UInt], unit_len : Int) -> Int {
   let mut len = unit_len
   while len > 1 && units[len - 1] == 0U {
@@ -1265,13 +1295,7 @@ fn gda_coeff_magnitude_add_unit(coeff : GdaCoeff, addend : Int) -> GdaCoeff {
   gda_coeff_ensure_length(result, coeff_len + 1)
   let addend_units = [addend.reinterpret_as_uint()]
   let len = gda_coeff_unit_add_sub(
-    result,
-    coeff_len,
-    addend_units,
-    1,
-    0,
-    result,
-    1,
+    result, coeff_len, addend_units, 1, 0, result, 1,
   )
   guard len > 0 else { abort("gda_coeff_magnitude_add_unit underflowed") }
   gda_coeff_from_unit_accumulator(result, len)
@@ -1292,13 +1316,7 @@ fn gda_coeff_magnitude_sub_unit(coeff : GdaCoeff, subtrahend : Int) -> GdaCoeff 
   let result = gda_coeff_copy_limbs(coeff)
   let rhs_units = [subtrahend.reinterpret_as_uint()]
   let len = gda_coeff_unit_add_sub(
-    result,
-    coeff_len,
-    rhs_units,
-    1,
-    0,
-    result,
-    -1,
+    result, coeff_len, rhs_units, 1, 0, result, -1,
   )
   guard len >= 0 else { abort("gda_coeff_magnitude_sub_unit underflowed") }
   if len == 0 {

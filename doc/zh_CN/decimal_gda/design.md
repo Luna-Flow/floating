@@ -1,6 +1,6 @@
 # `decimal_gda` 设计
 
-`decimal_gda` 是 0.7.0 的独立 General Decimal Arithmetic 1.70 引擎，以固定
+`decimal_gda` 是 0.7.1 的独立 General Decimal Arithmetic 1.70 引擎，以固定
 testcase suite 2.62 验证。它不依赖 IEEE-oriented `decimal`；value、coefficient、
 context、flags、interchange 与 finalization 均由本包拥有。
 
@@ -82,9 +82,20 @@ Small fast path 是 semantic predicate；large kernel selector 是 performance p
 
 `.decTest` parsing、directive snapshot、sharding、JSON、filesystem 与 process status
 位于 frontend/CLI/Python tooling；本包是 deterministic value/context transformation。
-0.7.0 验收组合 package/property tests、all-target、dependency scan、IEEE isolation 与
+0.7.1 验收组合 package/property tests、all-target、dependency scan、IEEE isolation 与
 两套固定语料：`official` 64,986/64,986 legal rows，`official0` 16,124/16,124；141 条
 `#` placeholder/non-scalar 为分母外 diagnostic。
+
+## 0.7.1 语义保持证明
+
+GDA 系数余数路径计算的仍是相同的欧几里得余数 `r = a - floor(a / d) * d`，并满足 `0 <= r < d`。
+因此 GCD、exact division 和 half-power comparison 看到的规范化系数事实不变。半幂谓词通过最高位十进制
+数字和剩余非零 limb 与 `5 * 10^(digits - 1)` 比较，绝不把系数转换成二进制近似。
+
+小值算术路径只有在有限结果适合 `Small`、context 边界且满足无 flag 条件时才进入；随后仍使用同一 GDA
+finalizer 和 trap precedence。语义验收元组是 value/cohort、raised flags、next sticky context、defined result
+和 selected trap。包测试、前端测试、边界 differential test 及两套 decTest 语料覆盖声明面；系数阈值仍是性能策略，
+不是 GDA 规则。
 
 ## 证据映射
 
@@ -92,4 +103,3 @@ Small fast path 是 semantic predicate；large kernel selector 是 performance p
 - [Tutorial](./tutorial.md) 演示 context threading、trap 与恢复。
 - [Conformance](./conformance.md) 定义固定语料与隔离检查。
 - [`decimal` Design](../decimal/design.md) 说明独立 IEEE 模型。
-

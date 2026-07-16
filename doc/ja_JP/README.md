@@ -1,4 +1,4 @@
-# FLOATING 0.7.0 ドキュメント
+# FLOATING 0.7.1 ドキュメント
 
 このページはクイックインデックスです。公開名は各 package の `pkg.generated.mbti`
 を正とし、Tutorial は推奨利用法、Design は標準整合・アルゴリズム・最適化・切替境界を説明します。
@@ -10,6 +10,7 @@
 - package/layer モデル：[Architecture](./architecture.md)
 - 実際の検証範囲：[Verification](./verification.md)
 - 文書規則：[Documentation Standard](./doc_standard.md)
+- 最適化の証拠：[0.7.1 Performance And Semantic Audit](./performance_audit.md)
 
 ## アプリケーション Package
 
@@ -17,8 +18,8 @@
 | --- | --- | --- | --- |
 | dyadic / IEEE binary | `bin_float` | [Tutorial](./bin_float/tutorial.md) | [API](./bin_float/api.md) · [Design](./bin_float/design.md) · [Conformance](./bin_float/conformance.md) · [Performance](./bin_float/performance.md) |
 | IEEE decimal / DPD / BID | `decimal` | [Tutorial](./decimal/tutorial.md) | [API](./decimal/api.md) · [Design](./decimal/design.md) · [Conformance](./decimal/conformance.md) · [Performance](./decimal/performance.md) |
-| GDA sticky status / trap | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) |
-| certified interval / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) |
+| GDA sticky status / trap | `decimal_gda` | [Tutorial](./decimal_gda/tutorial.md) | [API](./decimal_gda/api.md) · [Design](./decimal_gda/design.md) · [Conformance](./decimal_gda/conformance.md) · [Performance](./decimal_gda/performance.md) |
+| certified interval / IEEE 1788 | `ball_float` | [Tutorial](./ball_float/tutorial.md) | [API](./ball_float/api.md) · [Design](./ball_float/design.md) · [Conformance](./ball_float/conformance.md) · [Performance](./ball_float/performance.md) |
 | first-error binary composition | `bin_float_checked` | [Tutorial](./bin_float_checked/tutorial.md) | [API](./bin_float_checked/api.md) · [Design](./bin_float_checked/design.md) |
 | accumulated IEEE decimal flags | `decimal_checked` | [Tutorial](./decimal_checked/tutorial.md) | [API](./decimal_checked/api.md) · [Design](./decimal_checked/design.md) |
 | sticky/trapping GDA composition | `decimal_gda_checked` | [Tutorial](./decimal_gda_checked/tutorial.md) | [API](./decimal_gda_checked/api.md) · [Design](./decimal_gda_checked/design.md) |

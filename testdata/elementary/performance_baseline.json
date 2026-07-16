@@ -5,7 +5,7 @@
     "commit": "d0c25fe847e3ba778012f44e278c4badaa4e1f03",
     "tree": "6b2548931b7f54a399240df0eb4e5b1d23369de0"
   },
-  "candidateRelease": "0.7.0",
+  "candidateRelease": "0.7.1",
   "target": "native",
   "pairedSamples": 10,
   "practicalRegressionPct": 3.0,

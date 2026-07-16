@@ -1,6 +1,6 @@
 # `ball_float` 设计
 
-`ball_float` 是 0.7.0 的认证实数包络域，基于 `BinFloat` endpoint 构建 bare/decorated
+`ball_float` 是 0.7.1 的认证实数包络域，基于 `BinFloat` endpoint 构建 bare/decorated
 interval，并对齐声明范围内的 IEEE 1788-2015。正确性首先由集合包含定义：更宽可能
 不够有用，但漏掉精确结果一定错误。
 
@@ -24,7 +24,7 @@ decorated operation，二者不能合并。
 ## IEEE 1788 对齐
 
 Bare operation 计算集合包络；decorated operation 按 operand/continuity/domain 降级；
-NaI 独立；subset/interior/overlap/precedes 是集合关系；reverse operation 不在 0.7.0
+NaI 独立；subset/interior/overlap/precedes 是集合关系；reverse operation 不在 0.7.1
 边界。固定 strict ITF1788 的 4,656/4,656 条 selected case 全部通过，含 general power、
 trigonometric、hyperbolic、inverse 与 375 条 `atan2`。`rootn` 和 extension 单独报告。
 
@@ -74,6 +74,15 @@ reduction、bounded series 与最多 12 次 refinement。实现优先复用 cons
 special case、monotonicity 与共享 trig reduction，但绝不删除 endpoint candidate 或用
 nearest 替代 outward rounding。资源与 tightness 冲突时，total API 放宽，checked API
 说明原因。
+
+## 0.7.1 语义保持证明
+
+对每个精确端点候选 `y`，向负无穷舍入是下界证书，向正无穷舍入是上界证书。区间代码先依据单调性和
+符号结构选择数学极值，再使用对应方向；`quantize_interval` 在存储精度上继续保持向外关系。
+
+整数幂的证明义务是明确的：正奇次幂递增；正偶次幂在负半轴递减；负奇次幂远离零时递减；负偶次幂在
+负半轴递增。含零的负幂走 pole/whole-real 分支。负半轴回归、有向端点测试和 strict ITF1788 汇总共同验证
+声明正向区间面的有序集合包含。更宽的 fallback 有效；反向或向内舍入的端点无效。
 
 ## 证据映射
 

@@ -1,6 +1,6 @@
 # `bin_float` 设计
 
-`bin_float` 是 0.7.0 的二进制数值核心，同时追求任意精度 dyadic 精确语义与
+`bin_float` 是 0.7.1 的二进制数值核心，同时追求任意精度 dyadic 精确语义与
 `BinaryContext` 下声明范围内的 IEEE 754-2019 行为。公开名称由
 `src/bin_float/pkg.generated.mbti` 确定；limb 布局、阈值与 scratch storage
 属于私有实现。
@@ -78,9 +78,21 @@ Schoolbook 为 `O(n^2)`，Karatsuba 为 `O(n^log2(3))`，Toom-3 为
 Burnikel-Ziegler/Newton division 逐步接近 multiplication cost。实现是在 exactness
 约束下优化期望成本，而不是为了速度降低 exactness。
 
+## 0.7.1 语义保持证明
+
+优化边界只涉及精确系数或精确丢弃位的计算，不越过 contextual finalizer。对于远指数加法，
+`binary_exact_top(c, e)` 在对齐前比较精确幅值；split 操作保留首个丢弃位以及后续所有位的
+sticky OR。这正是现有 rounding rule 的输入，因此快路径与完整对齐路径产生相同的值和 flags。
+系数乘法、除法、平方根和幂分派也遵循同一 exact-fallback 规则：前置条件不满足时不会产生
+公开结果。
+
+验收条件是 `BinFloat` 边界上的可观察等价：class、sign、coefficient/exponent、precision、
+舍入结果、flags 和 interchange bits 全部相同。TestFloat、MPFR、边界测试和 differential test
+覆盖声明矩阵；Maremark 只决定私有路径是否值得其 setup 成本。
+
 ## 证据映射
 
-- [API](./api.md) 给出 0.7.0 公开面。
+- [API](./api.md) 给出 0.7.1 公开面。
 - [Tutorial](./tutorial.md) 给出推荐构造与 context 流程。
 - [Conformance](./conformance.md) 限定 TestFloat/MPFR 声明。
 - [Performance](./performance.md) 记录 target-specific dispatch 与固定发布对比基线。

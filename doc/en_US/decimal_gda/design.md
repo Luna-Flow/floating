@@ -1,7 +1,7 @@
 # `decimal_gda` Design
 
 `decimal_gda` is the standalone General Decimal Arithmetic (GDA)
-Specification 1.70 engine in `floating` 0.7.0. It is validated against the
+Specification 1.70 engine in `floating` 0.7.1. It is validated against the
 pinned General Decimal Arithmetic testcase suite 2.62 and intentionally does
 not depend on the IEEE-oriented `decimal` package. Its `Decimal`, coefficient,
 context, flags, interchange, and finalization code are package-owned so an IEEE
@@ -159,12 +159,29 @@ tooling. `decimal_gda` itself is a deterministic value/context transformation.
 The frontend invokes its public `GdaContext`/`GdaOutcome` API directly and may
 memoize only immutable parsed contexts.
 
-The 0.7.0 acceptance boundary combines package/property tests, all-target
+The 0.7.1 acceptance boundary combines package/property tests, all-target
 checks, dependency scans, IEEE-isolation tests, and both pinned corpora. The
 `official` corpus passes 64,986/64,986 legal executable scalar rows and
 `official0` passes 16,124/16,124; the remaining 141 `#` placeholder/non-scalar
 rows are diagnostics outside the legal denominator. This finite result does not
 claim future directives, invalid placeholders, or unbounded input strings.
+
+## 0.7.1 Semantic Preservation Proof
+
+The GDA coefficient remainder path computes the same Euclidean remainder as
+quotient/remainder division, `r = a - floor(a / d) * d`, with `0 <= r < d`.
+GCD, exact division, and half-power comparison therefore observe the same
+canonical coefficient facts. The half-power predicate is exact because it
+compares the leading decimal digit and the remaining non-zero limbs with
+`5 * 10^(digits - 1)`; it never converts the coefficient to a binary estimate.
+
+The small-value arithmetic path is admitted only when its finite result fits
+`Small`, the context bounds, and the flag-free predicate. It then uses the same
+GDA finalizer and trap precedence as the generic path. The semantic acceptance
+tuple is value/cohort, raised flags, next sticky context, defined result, and
+selected trap. Package tests, frontend tests, boundary differential tests, and
+both pinned decTest corpora establish that tuple for the declared surface;
+coefficient thresholds remain performance policy, not GDA rules.
 
 ## Evidence Map
 
@@ -175,4 +192,3 @@ claim future directives, invalid placeholders, or unbounded input strings.
   isolation checks.
 - [`decimal` design](../decimal/design.md) explains the separate IEEE state
   model and interchange boundary.
-

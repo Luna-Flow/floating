@@ -1,6 +1,6 @@
 # `bin_float` Design
 
-`bin_float` is the binary numerical core of `floating` 0.7.0. Its design has
+`bin_float` is the binary numerical core of `floating` 0.7.1. Its design has
 two simultaneous goals: preserve exact integer/dyadic semantics at arbitrary
 precision, and reproduce the declared IEEE 754-2019 behavior when a bounded
 `BinaryContext` is supplied. Public names are fixed by
@@ -153,9 +153,26 @@ not exactness subject to speed. Thresholds, NTT primes, limb layout, and arena
 capacity may change in a patch release; normalized values, contextual rounding,
 flags, and interchange behavior may not change without an API/semantic change.
 
+## 0.7.1 Semantic Preservation Proof
+
+The optimization boundary is the exact coefficient or exact discarded-bit
+calculation. It does not cross the contextual finalizer. For far-exponent
+addition, `binary_exact_top(c, e)` orders exact magnitudes before alignment,
+and the split operation preserves the first discarded bit plus the sticky OR of
+all later bits. Those are precisely the inputs consumed by the existing
+rounding rule, so the fast path has the same rounded value and flags as the
+fully aligned path. Every advanced coefficient path retains an exact fallback
+when its proof precondition fails.
+
+The semantic acceptance condition is observational equivalence at the
+`BinFloat` boundary: equal class, sign, coefficient/exponent, precision,
+rounding result, flags, and interchange bits. TestFloat, MPFR, boundary tests,
+and differential tests establish this condition for the declared matrices;
+Maremark only decides whether the private route is worth its setup cost.
+
 ## Evidence Map
 
-- [API reference](./api.md) defines the callable 0.7.0 surface.
+- [API reference](./api.md) defines the callable 0.7.1 surface.
 - [Tutorial](./tutorial.md) gives recommended construction and context flows.
 - [Conformance](./conformance.md) states the pinned TestFloat/MPFR claim and its
   exclusions.
