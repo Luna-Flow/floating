@@ -101,25 +101,7 @@ fn checked_exact(
   guard value.classify() == FpClass::Finite else {
     return Err("ball exact source must be finite")
   }
-  Ok(
-    zero_radius_interval(
-      value.with_precision(exact_precision(value), RoundingMode::ToNearestEven),
-      precision,
-    ),
-  )
-}
-
-///|
-fn exact_precision(x : @bin_float.BinFloat) -> Int {
-  match x.classify() {
-    FpClass::Finite =>
-      if x.is_zero() {
-        1
-      } else {
-        x.coefficient().bit_length()
-      }
-    _ => Int::max(1, x.precision())
-  }
+  Ok(zero_radius_interval(value, precision))
 }
 
 ///|
@@ -242,9 +224,20 @@ fn lower_round_bound(
   x : @bin_float.BinFloat,
   precision : Int,
 ) -> @bin_float.BinFloat {
+  let precision = Int::max(1, precision)
   match x.classify() {
-    FpClass::Finite => x.with_precision(precision, RoundingMode::TowardNegative)
-    FpClass::Infinity => @bin_float.BinFloat::inf(x.sign(), precision~)
+    FpClass::Finite =>
+      if x.precision() == precision {
+        x
+      } else {
+        x.with_precision(precision, RoundingMode::TowardNegative)
+      }
+    FpClass::Infinity =>
+      if x.precision() == precision {
+        x
+      } else {
+        @bin_float.BinFloat::inf(x.sign(), precision~)
+      }
     FpClass::NaN => abort("ball bounds must not be NaN")
   }
 }
@@ -254,9 +247,20 @@ fn upper_round_bound(
   x : @bin_float.BinFloat,
   precision : Int,
 ) -> @bin_float.BinFloat {
+  let precision = Int::max(1, precision)
   match x.classify() {
-    FpClass::Finite => x.with_precision(precision, RoundingMode::TowardPositive)
-    FpClass::Infinity => @bin_float.BinFloat::inf(x.sign(), precision~)
+    FpClass::Finite =>
+      if x.precision() == precision {
+        x
+      } else {
+        x.with_precision(precision, RoundingMode::TowardPositive)
+      }
+    FpClass::Infinity =>
+      if x.precision() == precision {
+        x
+      } else {
+        @bin_float.BinFloat::inf(x.sign(), precision~)
+      }
     FpClass::NaN => abort("ball bounds must not be NaN")
   }
 }
@@ -334,15 +338,18 @@ fn division_bounds(
   denominator : @bin_float.BinFloat,
   precision : Int,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let work = Int::max(precision * 2 + 8, precision + 16)
-  let q = numerator.with_precision(work, RoundingMode::ToNearestEven) /
-    denominator.with_precision(work, RoundingMode::ToNearestEven)
-  if exact_mul(q, denominator).compare(numerator) == 0 {
-    (q, q)
-  } else {
-    let error = q.ulp()
-    (exact_sub(q, error), exact_add(q, error))
-  }
+  let downward = @bin_float.BinaryContext::unbounded(
+    precision,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = @bin_float.BinaryContext::unbounded(
+    precision,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  (
+    numerator.div_ctx(denominator, downward).0,
+    numerator.div_ctx(denominator, upward).0,
+  )
 }
 
 ///|
@@ -373,31 +380,48 @@ fn quotient_interval_nonzero_denominator(
   denominator : BallFloat,
   precision : Int,
 ) -> BallFloat {
-  let (q1_lo, q1_hi) = extended_division_bounds(
-    numerator.lo_,
-    denominator.lo_,
-    precision,
-  )
-  let (q2_lo, q2_hi) = extended_division_bounds(
-    numerator.lo_,
-    denominator.hi_,
-    precision,
-  )
-  let (q3_lo, q3_hi) = extended_division_bounds(
-    numerator.hi_,
-    denominator.lo_,
-    precision,
-  )
-  let (q4_lo, q4_hi) = extended_division_bounds(
-    numerator.hi_,
-    denominator.hi_,
-    precision,
-  )
-  quantize_interval(
-    bin_min(bin_min(q1_lo, q2_lo), bin_min(q3_lo, q4_lo)),
-    bin_max(bin_max(q1_hi, q2_hi), bin_max(q3_hi, q4_hi)),
-    precision,
-  )
+  let numerator_nonnegative = numerator.lo_.is_zero() ||
+    numerator.lo_.sign() == Sign::Positive
+  let numerator_nonpositive = numerator.hi_.is_zero() ||
+    numerator.hi_.sign() == Sign::Negative
+  let denominator_positive = denominator.lo_.sign() == Sign::Positive
+  let lower = if denominator_positive {
+    if numerator_nonnegative || numerator_nonpositive {
+      extended_division_bounds(
+        numerator.lo_,
+        if numerator_nonnegative {
+          denominator.hi_
+        } else {
+          denominator.lo_
+        },
+        precision,
+      ).0
+    } else {
+      extended_division_bounds(numerator.lo_, denominator.lo_, precision).0
+    }
+  } else if numerator_nonnegative {
+    extended_division_bounds(numerator.hi_, denominator.hi_, precision).0
+  } else if numerator_nonpositive {
+    extended_division_bounds(numerator.hi_, denominator.lo_, precision).0
+  } else {
+    extended_division_bounds(numerator.hi_, denominator.hi_, precision).0
+  }
+  let upper = if denominator_positive {
+    if numerator_nonnegative {
+      extended_division_bounds(numerator.hi_, denominator.lo_, precision).1
+    } else if numerator_nonpositive {
+      extended_division_bounds(numerator.hi_, denominator.hi_, precision).1
+    } else {
+      extended_division_bounds(numerator.hi_, denominator.lo_, precision).1
+    }
+  } else if numerator_nonnegative {
+    extended_division_bounds(numerator.lo_, denominator.lo_, precision).1
+  } else if numerator_nonpositive {
+    extended_division_bounds(numerator.lo_, denominator.hi_, precision).1
+  } else {
+    extended_division_bounds(numerator.lo_, denominator.hi_, precision).1
+  }
+  quantize_interval(lower, upper, precision)
 }
 
 ///|
@@ -514,17 +538,63 @@ fn extended_add(
 }
 
 ///|
-fn mul_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
-  let precision = Int::max(a.precision_, b.precision_)
-  if a.is_empty() || b.is_empty() {
-    return empty_interval(precision)
+fn multiplication_bounds(
+  a : BallFloat,
+  b : BallFloat,
+  precision : Int,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  if a.is_bounded() && b.is_bounded() {
+    let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
+    let a_nonpositive = a.hi_.is_zero() || a.hi_.sign() == Sign::Negative
+    let b_nonnegative = b.lo_.is_zero() || b.lo_.sign() == Sign::Positive
+    let b_nonpositive = b.hi_.is_zero() || b.hi_.sign() == Sign::Negative
+    if a_nonnegative && b_nonnegative {
+      return (
+        extended_mul(a.lo_, b.lo_, precision),
+        extended_mul(a.hi_, b.hi_, precision),
+      )
+    }
+    if a_nonpositive && b_nonpositive {
+      return (
+        extended_mul(a.hi_, b.hi_, precision),
+        extended_mul(a.lo_, b.lo_, precision),
+      )
+    }
+    if a_nonnegative && b_nonpositive {
+      return (
+        extended_mul(a.hi_, b.lo_, precision),
+        extended_mul(a.lo_, b.hi_, precision),
+      )
+    }
+    if a_nonpositive && b_nonnegative {
+      return (
+        extended_mul(a.lo_, b.hi_, precision),
+        extended_mul(a.hi_, b.lo_, precision),
+      )
+    }
+    let lower_left = extended_mul(a.lo_, b.hi_, precision)
+    let lower_right = extended_mul(a.hi_, b.lo_, precision)
+    let upper_left = extended_mul(a.lo_, b.lo_, precision)
+    let upper_right = extended_mul(a.hi_, b.hi_, precision)
+    return (bin_min(lower_left, lower_right), bin_max(upper_left, upper_right))
   }
   let p1 = extended_mul(a.lo_, b.lo_, precision)
   let p2 = extended_mul(a.lo_, b.hi_, precision)
   let p3 = extended_mul(a.hi_, b.lo_, precision)
   let p4 = extended_mul(a.hi_, b.hi_, precision)
-  let lo = bin_min(bin_min(p1, p2), bin_min(p3, p4))
-  let hi = bin_max(bin_max(p1, p2), bin_max(p3, p4))
+  (
+    bin_min(bin_min(p1, p2), bin_min(p3, p4)),
+    bin_max(bin_max(p1, p2), bin_max(p3, p4)),
+  )
+}
+
+///|
+fn mul_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
+  let precision = Int::max(a.precision_, b.precision_)
+  if a.is_empty() || b.is_empty() {
+    return empty_interval(precision)
+  }
+  let (lo, hi) = multiplication_bounds(a, b, precision)
   quantize_interval(lo, hi, precision)
 }
 
@@ -933,66 +1003,149 @@ pub fn BallFloat::square(self : BallFloat) -> BallFloat {
 }
 
 ///|
-fn pown_endpoint_exponent(value : Int, exponent : UInt) -> Int {
-  let product = value.to_int64() * exponent.to_uint64().reinterpret_as_int64()
-  if product > 2147483647L {
-    2147483647
-  } else if product < -2147483648L {
-    -2147483647 - 1
+fn pown_exponent_is_odd(exponent : Int) -> Bool {
+  let magnitude = if exponent < 0 {
+    (-(exponent + 1)).reinterpret_as_uint() + 1U
   } else {
-    product.to_int()
+    exponent.reinterpret_as_uint()
   }
+  (magnitude & 1U) == 1U
 }
 
 ///|
-fn exact_pow_nat_endpoint(
+fn pown_endpoint(
   value : @bin_float.BinFloat,
-  exponent : UInt,
+  exponent : Int,
+  precision : Int,
+  rounding : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  if value.classify() == FpClass::Infinity {
-    let sign = if value.sign() == Sign::Negative && (exponent & 1U) == 1U {
-      Sign::Negative
-    } else {
-      Sign::Positive
-    }
-    return @bin_float.BinFloat::inf(sign, precision=value.precision())
-  }
-  if value.is_zero() {
-    return @bin_float.BinFloat::zero(precision=value.precision())
-  }
-  exact_make(
-    value.coefficient().pow_nat(exponent),
-    pown_endpoint_exponent(value.exponent2(), exponent),
-    negative=value.is_negative() && (exponent & 1U) == 1U,
-  )
+  value.pow_int_ctx(
+    exponent,
+    @bin_float.BinaryContext::unbounded(precision, rounding~),
+  ).0
 }
 
 ///|
 fn pown_positive(
   value : BallFloat,
-  exponent : UInt,
+  exponent : Int,
   precision : Int,
 ) -> BallFloat {
-  if (exponent & 1U) == 1U {
-    return quantize_interval(
-      exact_pow_nat_endpoint(value.lo_, exponent),
-      exact_pow_nat_endpoint(value.hi_, exponent),
-      precision,
-    )
+  let lo_power = pown_endpoint(
+    value.lo_,
+    exponent,
+    precision,
+    @bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let hi_power = pown_endpoint(
+    value.hi_,
+    exponent,
+    precision,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  if pown_exponent_is_odd(exponent) {
+    return quantize_interval(lo_power, hi_power, precision)
   }
-  let lo_power = exact_pow_nat_endpoint(value.lo_, exponent)
-  let hi_power = exact_pow_nat_endpoint(value.hi_, exponent)
   if value.contains_zero() {
-    quantize_interval(
+    return quantize_interval(
       @bin_float.BinFloat::zero(precision~),
       bin_max(lo_power, hi_power),
       precision,
     )
-  } else if value.hi_.sign() == Sign::Negative {
+  }
+  if value.hi_.sign() == Sign::Negative {
     quantize_interval(hi_power, lo_power, precision)
   } else {
     quantize_interval(lo_power, hi_power, precision)
   }
+}
+
+///|
+fn pown_negative(
+  value : BallFloat,
+  exponent : Int,
+  precision : Int,
+) -> BallFloat {
+  let lo_is_zero = value.lo_.is_zero()
+  let hi_is_zero = value.hi_.is_zero()
+  if lo_is_zero && hi_is_zero {
+    return empty_interval(precision)
+  }
+  if !value.contains_zero() {
+    return quantize_interval(
+      pown_endpoint(
+        value.hi_,
+        exponent,
+        precision,
+        @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      ),
+      pown_endpoint(
+        value.lo_,
+        exponent,
+        precision,
+        @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      ),
+      precision,
+    )
+  }
+  if pown_exponent_is_odd(exponent) {
+    if lo_is_zero {
+      return quantize_interval(
+        pown_endpoint(
+          value.hi_,
+          exponent,
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardNegative,
+        ),
+        pos_inf(precision),
+        precision,
+      )
+    }
+    if hi_is_zero {
+      return quantize_interval(
+        neg_inf(precision),
+        pown_endpoint(
+          value.lo_,
+          exponent,
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardPositive,
+        ),
+        precision,
+      )
+    }
+    return whole_real(precision)
+  }
+  let lower = if lo_is_zero {
+    pown_endpoint(
+      value.hi_,
+      exponent,
+      precision,
+      @bin_float.BinaryRoundingMode::RoundTowardNegative,
+    )
+  } else if hi_is_zero {
+    pown_endpoint(
+      value.lo_,
+      exponent,
+      precision,
+      @bin_float.BinaryRoundingMode::RoundTowardNegative,
+    )
+  } else {
+    bin_min(
+      pown_endpoint(
+        value.lo_,
+        exponent,
+        precision,
+        @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      ),
+      pown_endpoint(
+        value.hi_,
+        exponent,
+        precision,
+        @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      ),
+    )
+  }
+  quantize_interval(lower, pos_inf(precision), precision)
 }
 
 ///|
@@ -1008,22 +1161,17 @@ pub fn BallFloat::pown(self : BallFloat, exponent : Int) -> BallFloat {
   } else {
     exponent.reinterpret_as_uint()
   }
-  if magnitude <= 4096U {
-    if exponent > 0 {
-      return pown_positive(self, magnitude, self.precision_)
-    }
-    let work = self.precision_ * magnitude.reinterpret_as_int() + 8
-    return pown_positive(
-      self.with_precision(work, RoundingMode::ToNearestEven),
-      magnitude,
-      work,
-    ).reciprocal()
+  if exponent < 0 &&
+    magnitude > 4096U &&
+    self.contains_zero() &&
+    !self.lo_.is_zero() &&
+    !self.hi_.is_zero() {
+    return whole_real(self.precision_)
   }
-  let positive = pow_nat(self, magnitude, self.precision_)
-  if exponent < 0 {
-    positive.reciprocal()
+  if exponent > 0 {
+    pown_positive(self, exponent, self.precision_)
   } else {
-    positive
+    pown_negative(self, exponent, self.precision_)
   }
 }
 
@@ -1373,12 +1521,9 @@ pub fn BallFloat::fma(
   if self.is_empty() || multiplier.is_empty() || addend.is_empty() {
     return empty_interval(precision)
   }
-  let p1 = extended_mul(self.lo_, multiplier.lo_, precision)
-  let p2 = extended_mul(self.lo_, multiplier.hi_, precision)
-  let p3 = extended_mul(self.hi_, multiplier.lo_, precision)
-  let p4 = extended_mul(self.hi_, multiplier.hi_, precision)
-  let product_lo = bin_min(bin_min(p1, p2), bin_min(p3, p4))
-  let product_hi = bin_max(bin_max(p1, p2), bin_max(p3, p4))
+  let (product_lo, product_hi) = multiplication_bounds(
+    self, multiplier, precision,
+  )
   quantize_interval(
     extended_add(product_lo, addend.lo_),
     extended_add(product_hi, addend.hi_),

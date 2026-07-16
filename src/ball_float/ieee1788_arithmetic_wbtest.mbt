@@ -48,6 +48,31 @@ test "IEEE 1788 division handles zero numerator and zero denominator" {
 }
 
 ///|
+test "IEEE 1788 division reduces sign-definite quotients to two corners" {
+  let quarter = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)
+  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
+  let positive = arithmetic_interval(1, 1) / arithmetic_interval(2, 4)
+  assert_eq(positive.lower_bound().compare(quarter), 0)
+  assert_eq(positive.upper_bound().compare(half), 0)
+  let negative = arithmetic_interval(1, 1) / arithmetic_interval(-4, -2)
+  assert_eq(negative.lower_bound().compare(half.neg()), 0)
+  assert_eq(negative.upper_bound().compare(quarter.neg()), 0)
+  let crossing = arithmetic_interval(-2, 4) / arithmetic_interval(2, 4)
+  assert_true(crossing.set_equal(arithmetic_interval(-1, 2)))
+  let one_sided = BallFloat::from_bounds(
+    @bin_float.BinFloat::one(precision=53),
+    @bin_float.BinFloat::inf(Sign::Positive, precision=53),
+    precision=53,
+  )
+  let unbounded = arithmetic_interval(1, 1) / one_sided
+  assert_true(unbounded.lower_bound().is_zero())
+  assert_eq(
+    unbounded.upper_bound().compare(@bin_float.BinFloat::one(precision=53)),
+    0,
+  )
+}
+
+///|
 test "binary64 context applies directed overflow bounds" {
   let ctx = BallContext::binary64()
   let max_finite = @bin_float.BinFloat::make(
@@ -119,6 +144,82 @@ test "IEEE 1788 fused multiply-add rounds only the final enclosure" {
     left.fma(multiplier, addend).set_equal(arithmetic_interval(-9, 17)),
   )
   assert_true(left.fma(multiplier, BallFloat::empty(precision=53)).is_empty())
+}
+
+///|
+test "IEEE 1788 finite multiplication keeps sign-partition bounds" {
+  let nonnegative = arithmetic_interval(0, 3)
+  let nonpositive = arithmetic_interval(-2, 0)
+  assert_true(
+    nonnegative.mul(nonpositive).set_equal(arithmetic_interval(-6, 0)),
+  )
+  assert_true(
+    arithmetic_interval(-3, -1)
+    .mul(arithmetic_interval(2, 4))
+    .set_equal(arithmetic_interval(-12, -2)),
+  )
+}
+
+///|
+test "IEEE 1788 pown uses directed endpoints across zero and poles" {
+  assert_true(
+    arithmetic_interval(-2, 3).pown(3).set_equal(arithmetic_interval(-8, 27)),
+  )
+  assert_true(
+    arithmetic_interval(-2, 3).pown(2).set_equal(arithmetic_interval(0, 9)),
+  )
+  let zero = arithmetic_interval(0, 0)
+  assert_true(zero.pown(-2).is_empty())
+  let nonnegative = arithmetic_interval(0, 4).pown(-2)
+  let one_sixteenth = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::one(),
+    -4,
+    53,
+  )
+  assert_eq(nonnegative.lower_bound().compare(one_sixteenth), 0)
+  assert_true(nonnegative.upper_bound().classify() == FpClass::Infinity)
+  let crossing = arithmetic_interval(-4, 4).pown(-2)
+  assert_eq(crossing.lower_bound().compare(one_sixteenth), 0)
+  assert_true(crossing.upper_bound().classify() == FpClass::Infinity)
+  assert_true(arithmetic_interval(-2, 3).pown(-3).is_entire())
+}
+
+///|
+test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
+  let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
+  let signed_zero = BallFloat::from_bounds(
+    negative_zero,
+    negative_zero,
+    precision=53,
+  )
+  assert_true(signed_zero.pown(3).lower_bound().is_negative_zero())
+  let negative_unbounded = BallFloat::from_bounds(
+    @bin_float.BinFloat::inf(Sign::Negative, precision=53),
+    @bin_float.BinFloat::from_int(-1, precision=53),
+    precision=53,
+  ).pown(-1)
+  assert_true(
+    negative_unbounded
+    .lower_bound()
+    .compare(@bin_float.BinFloat::from_int(-1, precision=53)) ==
+    0,
+  )
+  assert_true(negative_unbounded.upper_bound().is_negative_zero())
+  let minimum_exponent = -2147483647 - 1
+  assert_true(
+    BallFloat::from_int(1, precision=53)
+    .pown(minimum_exponent)
+    .set_equal(BallFloat::from_int(1, precision=53)),
+  )
+  assert_true(
+    BallFloat::from_int(-1, precision=53)
+    .pown(minimum_exponent)
+    .set_equal(BallFloat::from_int(1, precision=53)),
+  )
+  let exact_tiny = BallFloat::from_int(2, precision=53).pown(minimum_exponent)
+  assert_true(exact_tiny.lower_bound().is_zero() == false)
+  assert_eq(exact_tiny.lower_bound().exponent2(), -2147483648)
+  assert_eq(exact_tiny.upper_bound().exponent2(), -2147483648)
 }
 
 ///|
