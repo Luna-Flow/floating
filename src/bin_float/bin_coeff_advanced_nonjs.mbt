@@ -110,6 +110,44 @@ fn bin_coeff_slice(value : BinCoeff, start : Int, length : Int) -> BinCoeff {
 }
 
 ///|
+fn bin_coeff_add_shifted_into(
+  destination : FixedArray[UInt],
+  destination_len : Int,
+  value : BinCoeff,
+  offset : Int,
+) -> Unit {
+  let value_len = bin_coeff_limb_len(value)
+  let mut carry = 0UL
+  for value_index in 0..<value_len {
+    let destination_index = offset + value_index
+    guard destination_index < destination_len else {
+      abort("BinCoeff shifted accumulation exceeded its output")
+    }
+    let sum = destination.unsafe_get(destination_index).to_uint64() +
+      bin_coeff_limb(value, value_index).to_uint64() +
+      carry
+    destination.unsafe_set(
+      destination_index,
+      (sum & bin_coeff_limb_mask).to_uint(),
+    )
+    carry = sum >> bin_coeff_limb_bits
+  }
+  let mut destination_index = offset + value_len
+  while carry != 0UL && destination_index < destination_len {
+    let sum = destination.unsafe_get(destination_index).to_uint64() + carry
+    destination.unsafe_set(
+      destination_index,
+      (sum & bin_coeff_limb_mask).to_uint(),
+    )
+    carry = sum >> bin_coeff_limb_bits
+    destination_index += 1
+  }
+  guard carry == 0UL else {
+    abort("BinCoeff shifted accumulation exceeded its output")
+  }
+}
+
+///|
 priv struct BinCoeffScratchArena {
   slots : FixedArray[BinCoeff]
   mut used : Int
@@ -237,15 +275,16 @@ fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 fn bin_coeff_mul_unbalanced(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff {
   let block_len = bin_coeff_limb_len(shorter)
   let longer_len = bin_coeff_limb_len(longer)
-  let mut result = BinCoeff::zero()
+  let output_len = block_len + longer_len
+  let result = FixedArray::make(output_len, 0U)
   let mut start = 0
   while start < longer_len {
     let block = bin_coeff_slice(longer, start, block_len)
     let product = shorter.mul(block)
-    result = result.add(product.shift_left(start * bin_coeff_limb_bits))
+    bin_coeff_add_shifted_into(result, output_len, product, start)
     start += block_len
   }
-  result
+  bin_coeff_from_limbs(result, output_len)
 }
 
 ///|

@@ -249,6 +249,15 @@ test "BinCoeff multiplication algorithm thresholds" {
 }
 
 ///|
+test "BinCoeff unbalanced multiplication accumulates exact limbs" {
+  let short_big = bin_coeff_test_limb_pattern(96, 2)
+  let long_big = bin_coeff_test_limb_pattern(193, 11)
+  let short = bin_coeff_test_from_bigint(short_big)
+  let long = bin_coeff_test_from_bigint(long_big)
+  bin_coeff_test_assert_matches(short.mul(long), short_big * long_big)
+}
+
+///|
 test "BinCoeff inline Comba multiplication boundaries" {
   let values = [
     (1N << 63) - 1N,

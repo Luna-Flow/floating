@@ -10,6 +10,37 @@ pub struct BinFloat {
 } derive(Eq, Debug)
 
 ///|
+fn finite_zero(negative : Bool, precision : Int) -> BinFloat {
+  {
+    class: FpClass::Finite,
+    negative,
+    coefficient_: BinCoeff::zero(),
+    exponent2: 0,
+    precision_: Int::max(1, precision),
+    signaling_nan: false,
+    nan_payload: BinCoeff::zero(),
+  }
+}
+
+///|
+fn finite_normalized(
+  negative : Bool,
+  coefficient : BinCoeff,
+  exponent2 : Int,
+  precision : Int,
+) -> BinFloat {
+  {
+    class: FpClass::Finite,
+    negative,
+    coefficient_: coefficient,
+    exponent2,
+    precision_: Int::max(1, precision),
+    signaling_nan: false,
+    nan_payload: BinCoeff::zero(),
+  }
+}
+
+///|
 fn bin_coeff_round_shift_for_make(
   magnitude : BinCoeff,
   shift : Int,
@@ -41,6 +72,37 @@ fn bin_coeff_round_shift_for_make(
 }
 
 ///|
+fn normalize_finite_odd(
+  coefficient : BinCoeff,
+  exponent2 : Int,
+  precision : Int,
+  negative : Bool,
+  mode : RoundingMode,
+  bits : Int,
+) -> BinFloat {
+  let (coefficient1, exponent1) = if bits > precision {
+    let shift = bits - precision
+    (
+      bin_coeff_round_shift_for_make(coefficient, shift, negative, mode),
+      binary_add_sat(exponent2, shift),
+    )
+  } else {
+    (coefficient, exponent2)
+  }
+  let final_shift = if coefficient1.is_odd() { 0 } else { coefficient1.ctz() }
+  finite_normalized(
+    negative,
+    if final_shift == 0 {
+      coefficient1
+    } else {
+      coefficient1.shift_right(final_shift)
+    },
+    binary_add_sat(exponent1, final_shift),
+    precision,
+  )
+}
+
+///|
 fn normalize_finite(
   coefficient : BinCoeff,
   exponent2 : Int,
@@ -50,39 +112,23 @@ fn normalize_finite(
 ) -> BinFloat {
   let precision = Int::max(1, precision)
   if coefficient.is_zero() {
-    return {
-      class: FpClass::Finite,
-      negative,
-      coefficient_: coefficient,
-      exponent2: 0,
-      precision_: precision,
-      signaling_nan: false,
-      nan_payload: BinCoeff::zero(),
-    }
+    return finite_zero(negative, precision)
   }
-  let initial_shift = coefficient.ctz()
-  let coefficient0 = coefficient.shift_right(initial_shift)
-  let exponent0 = binary_add_sat(exponent2, initial_shift)
-  let bits = coefficient0.bit_length()
-  let (coefficient1, exponent1) = if bits > precision {
-    let shift = bits - precision
-    (
-      bin_coeff_round_shift_for_make(coefficient0, shift, negative, mode),
-      binary_add_sat(exponent0, shift),
-    )
+  let initial_shift = if coefficient.is_odd() { 0 } else { coefficient.ctz() }
+  let coefficient0 = if initial_shift == 0 {
+    coefficient
   } else {
-    (coefficient0, exponent0)
+    coefficient.shift_right(initial_shift)
   }
-  let final_shift = coefficient1.ctz()
-  {
-    class: FpClass::Finite,
+  let exponent0 = binary_add_sat(exponent2, initial_shift)
+  normalize_finite_odd(
+    coefficient0,
+    exponent0,
+    precision,
     negative,
-    coefficient_: coefficient1.shift_right(final_shift),
-    exponent2: binary_add_sat(exponent1, final_shift),
-    precision_: precision,
-    signaling_nan: false,
-    nan_payload: BinCoeff::zero(),
-  }
+    mode,
+    coefficient0.bit_length(),
+  )
 }
 
 ///|
@@ -92,6 +138,9 @@ fn finite_from_parts(
   exponent2 : Int,
   precision : Int,
 ) -> BinFloat {
+  if magnitude.is_zero() {
+    return finite_zero(negative, precision)
+  }
   let value = normalize_finite(
     magnitude,
     exponent2,
@@ -99,11 +148,43 @@ fn finite_from_parts(
     negative,
     RoundingMode::ToNearestEven,
   )
-  if magnitude.is_zero() {
-    { ..value, negative, }
-  } else {
-    value
+  value
+}
+
+///|
+fn finite_from_uint64(
+  negative : Bool,
+  magnitude : UInt64,
+  precision : Int,
+) -> BinFloat {
+  let precision = Int::max(1, precision)
+  let coefficient = BinCoeff::from_uint64(magnitude)
+  if coefficient.is_zero() {
+    return finite_zero(negative, precision)
   }
+  let normalization_shift = if coefficient.is_odd() {
+    0
+  } else {
+    coefficient.ctz()
+  }
+  let coefficient0 = if normalization_shift == 0 {
+    coefficient
+  } else {
+    coefficient.shift_right(normalization_shift)
+  }
+  let exponent0 = normalization_shift
+  let bits = coefficient0.bit_length()
+  if bits <= precision {
+    return finite_normalized(negative, coefficient0, exponent0, precision)
+  }
+  normalize_finite_odd(
+    coefficient0,
+    exponent0,
+    precision,
+    negative,
+    RoundingMode::ToNearestEven,
+    bits,
+  )
 }
 
 ///|
@@ -124,10 +205,7 @@ fn compare_finite(a : BinFloat, b : BinFloat) -> Int {
   let magnitude_comparison = if ea == eb {
     a.coefficient_.compare(b.coefficient_)
   } else {
-    let target = Int::min(ea, eb)
-    let left = a.coefficient_.shift_left(ea - target)
-    let right = b.coefficient_.shift_left(eb - target)
-    left.compare(right)
+    binary_compare_shifted(a.coefficient_, ea, b.coefficient_, eb)
   }
   if a.negative {
     -magnitude_comparison
@@ -215,17 +293,17 @@ pub fn BinFloat::make(
 
 ///|
 pub fn BinFloat::zero(precision? : Int = 53) -> BinFloat {
-  BinFloat::make(BinCoeff::zero(), 0, precision)
+  finite_zero(false, precision)
 }
 
 ///|
 pub fn BinFloat::negative_zero(precision? : Int = 53) -> BinFloat {
-  finite_from_parts(true, BinCoeff::zero(), 0, precision)
+  finite_zero(true, precision)
 }
 
 ///|
 pub fn BinFloat::one(precision? : Int = 53) -> BinFloat {
-  BinFloat::make(BinCoeff::one(), 0, precision)
+  finite_normalized(false, BinCoeff::one(), 0, precision)
 }
 
 ///|
@@ -293,7 +371,7 @@ pub fn BinFloat::from_int(n : Int, precision? : Int = 53) -> BinFloat {
   } else {
     n.to_uint64()
   }
-  BinFloat::make(BinCoeff::from_uint64(magnitude), 0, precision, negative~)
+  finite_from_uint64(negative, magnitude, precision)
 }
 
 ///|

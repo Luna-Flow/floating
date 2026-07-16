@@ -183,6 +183,33 @@ test "pow_int_ctx handles Int min without overflow" {
 }
 
 ///|
+test "from_int preserves exact and rounded construction semantics" {
+  let values = [0, 1, -1, 2, -2, 3, -3, 127, -128, 1024, 10000]
+  for precision in [1, 2, 3, 8, 53] {
+    for value in values {
+      let negative = value < 0
+      let magnitude = if negative {
+        (-(value + 1)).to_uint64() + 1UL
+      } else {
+        value.to_uint64()
+      }
+      let expected = BinFloat::make(
+        BinCoeff::from_uint64(magnitude),
+        0,
+        precision,
+        negative~,
+      )
+      assert_eq(BinFloat::from_int(value, precision~), expected)
+    }
+  }
+  let minimum_int = -2147483647 - 1
+  assert_eq(
+    BinFloat::from_int(minimum_int, precision=64),
+    BinFloat::make(BinCoeff::from_uint64(2147483648UL), 0, 64, negative=true),
+  )
+}
+
+///|
 test "context arithmetic keeps extreme exponents classified" {
   let context = BinaryContext::binary16()
   let minimum = BinFloat::make(BinCoeff::one(), -2147483648, 53)

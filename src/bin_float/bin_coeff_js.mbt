@@ -100,6 +100,10 @@ pub extern "js" fn BinCoeff::is_zero(self : BinCoeff) -> Bool =
   #|(value) => value === 0n
 
 ///|
+extern "js" fn BinCoeff::is_odd(self : BinCoeff) -> Bool =
+  #|(value) => (value & 1n) !== 0n
+
+///|
 pub extern "js" fn BinCoeff::bit_length(self : BinCoeff) -> Int =
   #|(value) => {
   #|  if (value === 0n) return 0;

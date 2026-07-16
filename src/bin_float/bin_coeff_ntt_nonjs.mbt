@@ -610,13 +610,14 @@ fn bin_coeff_mul_ntt_overlap(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff 
   let block_digits = bin_coeff_ntt_max_length - shorter_digits + 1
   let block_limbs = Int::max(1, block_digits / 2)
   let longer_limbs = bin_coeff_limb_len(longer)
-  let mut result = BinCoeff::zero()
+  let output_len = bin_coeff_limb_len(shorter) + longer_limbs
+  let result = FixedArray::make(output_len, 0U)
   let mut start = 0
   while start < longer_limbs {
     let block = bin_coeff_slice(longer, start, block_limbs)
     let product = bin_coeff_ntt_product(shorter, block, false)
-    result = result.add(product.shift_left(start * bin_coeff_limb_bits))
+    bin_coeff_add_shifted_into(result, output_len, product, start)
     start += block_limbs
   }
-  result
+  bin_coeff_from_limbs(result, output_len)
 }

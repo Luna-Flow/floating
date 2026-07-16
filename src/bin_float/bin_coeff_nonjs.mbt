@@ -127,6 +127,11 @@ pub fn BinCoeff::is_zero(self : BinCoeff) -> Bool {
 }
 
 ///|
+fn BinCoeff::is_odd(self : BinCoeff) -> Bool {
+  (bin_coeff_limb(self, 0) & 1U) != 0U
+}
+
+///|
 pub fn BinCoeff::bit_length(self : BinCoeff) -> Int {
   match self.repr {
     Inline64(value) => bin_coeff_u64_bits(value)

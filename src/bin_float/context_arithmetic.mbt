@@ -602,7 +602,9 @@ fn binary_add_far_exponents(
   right : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let (high, low) = if left.exponent2 > right.exponent2 {
+  let left_top = binary_exact_top(left.coefficient_, left.exponent2)
+  let right_top = binary_exact_top(right.coefficient_, right.exponent2)
+  let (high, low) = if left_top >= right_top {
     (left, right)
   } else {
     (right, left)
@@ -625,15 +627,19 @@ fn binary_add_far_exponents(
   }
   let compression_shift = binary_add_sat(context.precision, 3)
   let high_magnitude = high.coefficient_.shift_left(compression_shift)
-  let cutoff = high.exponent2.to_int64() -
-    low.exponent2.to_int64() -
+  let relative_shift = low.exponent2.to_int64() -
+    high.exponent2.to_int64() +
     compression_shift.to_int64()
-  let (low_prefix, low_discarded) = if cutoff > 2147483647L {
+  let (low_prefix, low_discarded) = if relative_shift > 2147483647L {
+    (BinCoeff::zero(), true)
+  } else if relative_shift >= 0L {
+    (low.coefficient_.shift_left(relative_shift.to_int()), false)
+  } else if relative_shift < -2147483647L {
     (BinCoeff::zero(), true)
   } else {
     let (prefix, round_bit, sticky) = binary_split_shift(
       low.coefficient_,
-      cutoff.to_int(),
+      (-relative_shift).to_int(),
     )
     (prefix, round_bit || sticky)
   }
@@ -759,8 +765,11 @@ pub fn BinFloat::add_ctx(
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => {
-      let exponent_gap = self.exponent2.to_int64() - other.exponent2.to_int64()
-      if exponent_gap > 2147483647L || exponent_gap < -2147483647L {
+      let self_top = binary_exact_top(self.coefficient_, self.exponent2)
+      let other_top = binary_exact_top(other.coefficient_, other.exponent2)
+      let top_gap = self_top.to_int64() - other_top.to_int64()
+      let far_threshold = binary_add_sat(context.precision, 3).to_int64()
+      if top_gap > far_threshold || top_gap < -far_threshold {
         return binary_add_far_exponents(self, other, context)
       }
       let target = Int::min(self.exponent2, other.exponent2)

@@ -115,6 +115,64 @@ fn binary_round_rational_legacy_for_test(
 }
 
 ///|
+fn binary_add_aligned_legacy_for_test(
+  left : BinFloat,
+  right : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  let target = Int::min(left.exponent2(), right.exponent2())
+  let left_coefficient = left
+    .coefficient()
+    .shift_left(left.exponent2() - target)
+  let right_coefficient = right
+    .coefficient()
+    .shift_left(right.exponent2() - target)
+  if left.is_negative() == right.is_negative() {
+    let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
+      left_coefficient, right_coefficient,
+    )
+    return binary_round_dyadic(
+      left.is_negative(),
+      sum,
+      binary_add_sat(target, normalization_shift),
+      context,
+    )
+  }
+  let comparison = left_coefficient.compare(right_coefficient)
+  if comparison == 0 {
+    return (
+      finite_from_parts(
+        binary_exact_sum_zero_sign(left, right, context.rounding()),
+        BinCoeff::zero(),
+        0,
+        context.precision(),
+      ),
+      BinaryFlags::new(),
+    )
+  }
+  if comparison > 0 {
+    let (difference, normalization_shift) = bin_coeff_sub_normalized_odd(
+      left_coefficient, right_coefficient,
+    )
+    return binary_round_dyadic(
+      left.is_negative(),
+      difference,
+      binary_add_sat(target, normalization_shift),
+      context,
+    )
+  }
+  let (difference, normalization_shift) = bin_coeff_sub_normalized_odd(
+    right_coefficient, left_coefficient,
+  )
+  binary_round_dyadic(
+    right.is_negative(),
+    difference,
+    binary_add_sat(target, normalization_shift),
+    context,
+  )
+}
+
+///|
 test "optimized binary split shift matches remainder oracle" {
   for raw_value in 0..<1024 {
     let value = BinCoeff::from_uint64(raw_value.to_uint64())
@@ -146,6 +204,86 @@ test "optimized binary split shift matches remainder oracle" {
       assert_true(actual.2 == expected.2)
     }
   }
+}
+
+///|
+test "far exponent addition matches exact alignment around cutoff" {
+  let modes = [
+    BinaryRoundingMode::RoundTiesToEven,
+    BinaryRoundingMode::RoundTiesToAway,
+    BinaryRoundingMode::RoundTowardZero,
+    BinaryRoundingMode::RoundTowardPositive,
+    BinaryRoundingMode::RoundTowardNegative,
+    BinaryRoundingMode::RoundAwayFromZero,
+  ]
+  let gaps = [1, 4, 6, 7, 8, 10, 14, 15, 31]
+  let coefficient_pairs = [
+    (1UL, 1UL),
+    (3UL, 5UL),
+    (7UL, 3UL),
+    (1UL, 0x100001UL),
+  ]
+  for mode in modes {
+    let contexts = [
+      BinaryContext::unbounded(3, rounding=mode),
+      BinaryContext::unbounded(7, rounding=mode),
+      BinaryContext::binary16(rounding=mode),
+      BinaryContext::binary16(
+        rounding=mode,
+        tininess=TininessDetection::BeforeRounding,
+      ),
+    ]
+    for context in contexts {
+      for gap in gaps {
+        for pair in coefficient_pairs {
+          for left_negative in [false, true] {
+            for right_negative in [false, true] {
+              let left = BinFloat::make(
+                BinCoeff::from_uint64(pair.0),
+                0,
+                64,
+                negative=left_negative,
+              )
+              let right = BinFloat::make(
+                BinCoeff::from_uint64(pair.1),
+                -gap,
+                64,
+                negative=right_negative,
+              )
+              let actual = left.add_ctx(right, context)
+              let expected = binary_add_aligned_legacy_for_test(
+                left, right, context,
+              )
+              assert_true(actual.0 == expected.0)
+              assert_true(actual.1 == expected.1)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+test "wide exponent gaps stay on bounded coefficient paths" {
+  let precision = 3
+  let one = BinFloat::one(precision=53)
+  let tiny = BinFloat::make(BinCoeff::one(), -1000000, 53)
+  assert_true(one.compare(tiny) > 0)
+  assert_true(tiny.compare(one) < 0)
+  let nearest = one.add_ctx(tiny, BinaryContext::unbounded(precision))
+  assert_eq(nearest.0, BinFloat::one(precision~))
+  assert_true(nearest.1.inexact())
+  let upward = one.add_ctx(
+    tiny,
+    BinaryContext::unbounded(
+      precision,
+      rounding=BinaryRoundingMode::RoundTowardPositive,
+    ),
+  )
+  assert_eq(upward.0.coefficient(), BinCoeff::from_uint64(5UL))
+  assert_eq(upward.0.exponent2(), -2)
+  assert_true(upward.1.inexact())
 }
 
 ///|
