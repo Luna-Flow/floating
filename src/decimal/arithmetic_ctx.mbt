@@ -479,69 +479,24 @@ fn Decimal::decimal_div_ctx_impl(
         Some(result) => return result
         None => ()
       }
+      match exact_decimal_division_result(self, other, ctx) {
+        Some(result) => return result
+        None => ()
+      }
+      match bounded_inexact_decimal_division_result(self, other, ctx) {
+        Some(result) => return result
+        None => ()
+      }
       let denominator = other.coefficient
       let extra = precision + denominator.digits10() + 2
       let numerator = dec_coeff_shift_power10_repr(self.coefficient, extra)
-      let exact = has_finite_decimal_expansion_repr(
-        self.coefficient,
-        other.coefficient,
-      )
       let q = round_positive_decimal_div_repr(
         numerator,
         denominator,
         self.negative != other.negative,
         ctx.decimal_rounding,
       )
-      let (value, round_flags) = if exact {
-        let exact_unrounded = normalize_decimal_parts_gda_repr(
-          self.negative != other.negative,
-          q,
-          self.exponent10 - other.exponent10 - extra,
-          q.digits10(),
-          ctx.decimal_rounding,
-        )
-        let exact_rounding = exact_result_rounding_flags(
-          exact_unrounded,
-          self.exponent10 - other.exponent10,
-          ctx,
-        )
-        let rounded_value = normalize_decimal_parts_gda_repr(
-          self.negative != other.negative,
-          q,
-          self.exponent10 - other.exponent10 - extra,
-          precision,
-          ctx.decimal_rounding,
-        )
-        if exact_rounding.rounded {
-          let prefinal = if exact_unrounded.exponent10 < etiny(ctx) {
-            exact_unrounded
-          } else if !exact_rounding.inexact {
-            expand_rounded_exact_cohort_toward_preferred_exponent(
-              rounded_value,
-              self.exponent10 - other.exponent10,
-              ctx,
-            )
-          } else {
-            expand_inexact_division_cohort(
-              rounded_value,
-              ctx,
-              pad_precision=true,
-            )
-          }
-          let (value, flags) = finalize_finite_ctx(
-            prefinal, exact_rounding, ctx,
-          )
-          (value, with_underflow_for_inexact_subnormal(value, flags, ctx))
-        } else {
-          let exact_value = expand_exact_cohort_toward_preferred_exponent(
-            rounded_value,
-            self.exponent10 - other.exponent10,
-            ctx,
-          )
-          finalize_finite_ctx(exact_value, DecimalFlags::new(), ctx)
-        }
-      } else {
-        finalize_finite_ctx(
+      let value = finalize_finite_ctx(
           normalize_decimal_parts_gda_repr(
             self.negative != other.negative,
             q,
@@ -551,24 +506,16 @@ fn Decimal::decimal_div_ctx_impl(
           ),
           DecimalFlags::new(),
           ctx,
-        )
-      }
-      let result = if exact {
-        (value, round_flags)
-      } else {
-        let value = expand_inexact_division_cohort(
+        ).0
+      let value = expand_inexact_division_cohort(value, ctx, pad_precision=true)
+      (
+        value,
+        with_underflow_for_inexact_subnormal(
           value,
+          { ..DecimalFlags::new(), rounded: true, inexact: true },
           ctx,
-          pad_precision=true,
-        )
-        let flags = with_underflow_for_inexact_subnormal(
-          value,
-          { ..round_flags, rounded: true, inexact: true },
-          ctx,
-        )
-        (value, flags)
-      }
-      result
+        ),
+      )
     }
   }
 }

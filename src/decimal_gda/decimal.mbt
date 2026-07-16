@@ -382,10 +382,16 @@ fn decimal_exact_aligned_sum_result(
   } else {
     (rhs, lhs)
   }
-  let low_units = gda_coeff_copy_limbs(low.coefficient)
+  let low_units = match low.coefficient {
+    GdaCoeff::Small(_) => gda_coeff_copy_limbs(low.coefficient)
+    GdaCoeff::Limbs(units, _) => units
+  }
   let low_unit_len = gda_coeff_unit_len(low.coefficient)
 
-  let high_units = gda_coeff_copy_limbs(high.coefficient)
+  let high_units = match high.coefficient {
+    GdaCoeff::Small(_) => gda_coeff_copy_limbs(high.coefficient)
+    GdaCoeff::Limbs(units, _) => units
+  }
   let high_unit_len = gda_coeff_unit_len(high.coefficient)
   let padding = high.exponent10 - low.exponent10
   // GDA decAddOp splits decimal padding into a whole-unit shift and a
@@ -394,19 +400,13 @@ fn decimal_exact_aligned_sum_result(
   let bshift = (padding + gda_coeff_dpun) / gda_coeff_dpun - 1
   let mult = decimal_small_pow10(padding - bshift * gda_coeff_dpun)
 
-  let acc : Array[UInt] = []
-  let mut pad = 0
-  while pad < Int::max(low_unit_len, high_unit_len + bshift) + 2 {
-    acc.push(0U)
-    pad += 1
-  }
-
-  let len = if low.negative == high.negative {
+  let acc = Array::make(Int::max(low_unit_len, high_unit_len + bshift) + 2, 0U)
+  let signed_len = if low.negative == high.negative {
     gda_coeff_unit_add_sub(
       low_units, low_unit_len, high_units, high_unit_len, bshift, acc, mult,
     )
   } else {
-    let calc = gda_coeff_unit_add_sub(
+    gda_coeff_unit_add_sub(
       low_units,
       low_unit_len,
       high_units,
@@ -415,45 +415,18 @@ fn decimal_exact_aligned_sum_result(
       acc,
       -mult,
     )
-    if calc < 0 {
-      -calc
-    } else {
-      calc
-    }
   }
+  let len = if signed_len < 0 { -signed_len } else { signed_len }
 
-  let compact : Array[UInt] = []
-  let mut index = 0
-  while index < len {
-    compact.push(acc[index])
-    index += 1
-  }
-  let magnitude = gda_coeff_from_unit_accumulator(compact, len)
+  let magnitude = gda_coeff_from_unit_accumulator(acc, len)
   let negative = if magnitude.is_zero() {
     false
   } else if low.negative == high.negative {
     low.negative
+  } else if signed_len < 0 {
+    high.negative
   } else {
-    (
-      compare_finite_magnitude_repr(
-        low.coefficient,
-        low.exponent10,
-        high.coefficient,
-        high.exponent10,
-      ) >
-      0 &&
-      low.negative
-    ) ||
-    (
-      compare_finite_magnitude_repr(
-        high.coefficient,
-        high.exponent10,
-        low.coefficient,
-        low.exponent10,
-      ) >
-      0 &&
-      high.negative
-    )
+    low.negative
   }
   (negative, magnitude)
 }
@@ -647,11 +620,7 @@ fn compare_magnitude_to_half_ulp(value : Decimal, ulp_exponent : Int) -> Int {
   if adjusted > ulp_exponent - 1 {
     return 1
   }
-  let digits = value.coefficient.digits10()
-  gda_coeff_compare_repr(
-    value.coefficient,
-    gda_coeff_multiply_by_unit_repr(gda_coeff_power10_repr(digits - 1), 5),
-  )
+  gda_coeff_compare_half_power10(value.coefficient)
 }
 
 ///|

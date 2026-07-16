@@ -58,7 +58,7 @@ fn dec_coeff_from_int(value : Int) -> DecCoeff {
   guard value >= 0 && value < dec_coeff_base else {
     abort("dec_coeff_from_int expects one non-negative coefficient unit")
   }
-  dec_coeff_from_unit_accumulator([value.reinterpret_as_uint()], 1)
+  Inline(value.reinterpret_as_uint())
 }
 
 ///|
@@ -120,6 +120,9 @@ fn dec_coeff_from_int_magnitude(value : Int) -> DecCoeff {
 fn dec_coeff_power10_repr(shift : Int) -> DecCoeff {
   guard shift >= 0 else {
     abort("dec_coeff_power10_repr expects a non-negative shift")
+  }
+  if shift < dec_coeff_dpun {
+    return dec_coeff_from_int(dec_coeff_powers[shift])
   }
   dec_coeff_shift_power10_repr(dec_coeff_from_int(1), shift)
 }
@@ -196,14 +199,16 @@ fn DecCoeff::digits10(self : DecCoeff) -> Int {
 ///|
 fn DecCoeff::to_string(self : DecCoeff) -> String {
   let mut index = dec_coeff_unit_len(self) - 1
-  let mut result = dec_coeff_limb_at(self, index).to_string()
+  let builder = StringBuilder::new()
+  builder.write_string(dec_coeff_limb_at(self, index).to_string())
   while index > 0 {
     index -= 1
     let unit = dec_coeff_limb_at(self, index)
     let digits = unit.to_string()
-    result = result + zeros(dec_coeff_dpun - digits.length()) + digits
+    builder.write_string(zeros(dec_coeff_dpun - digits.length()))
+    builder.write_string(digits)
   }
-  result
+  builder.to_string()
 }
 
 ///|
@@ -417,6 +422,20 @@ fn dec_coeff_shift_to_least(
 }
 
 ///|
+fn dec_coeff_unit_trailing_zeros(value : UInt) -> Int {
+  guard value != 0U else {
+    abort("dec_coeff_unit_trailing_zeros expects a non-zero unit")
+  }
+  let magnitude = value.reinterpret_as_int()
+  let mut zeros = 0
+  while zeros < dec_coeff_dpun - 1 &&
+        magnitude % dec_coeff_powers[zeros + 1] == 0 {
+    zeros += 1
+  }
+  zeros
+}
+
+///|
 fn dec_coeff_trim(
   units : Array[UInt],
   digits : Int,
@@ -433,6 +452,32 @@ fn dec_coeff_trim(
   }
 
   let mut exp = exponent
+  if all {
+    let mut up = 0
+    let mut dropped = 0
+    let mut remaining = digits - 1
+    while remaining > 0 {
+      if units[up] == 0U {
+        let take = Int::min(dec_coeff_dpun, remaining)
+        dropped += take
+        remaining -= take
+        up += 1
+      } else {
+        let take = Int::min(dec_coeff_unit_trailing_zeros(units[up]), remaining)
+        dropped += take
+        break
+      }
+    }
+    if max_drop >= 0 && dropped > max_drop {
+      dropped = max_drop
+    }
+    if dropped == 0 {
+      return (digits, exponent, 0)
+    }
+    let unit_len = dec_coeff_d2u(digits)
+    ignore(dec_coeff_shift_to_least(units, unit_len, dropped))
+    return (digits - dropped, exponent + dropped, dropped)
+  }
   let mut cut = 1
   let mut up = 0
   let mut dropped = 0
@@ -611,22 +656,22 @@ fn dec_coeff_shift_power10_mod_repr(
   guard !modulus.is_zero() else {
     abort("dec_coeff_shift_power10_mod_repr expects a non-zero modulus")
   }
-  let mut remainder = dec_coeff_div_rem_repr(coeff, modulus).1
-  let mut factor = dec_coeff_div_rem_repr(dec_coeff_from_int(10), modulus).1
+  let mut remainder = dec_coeff_mod_repr(coeff, modulus)
+  let mut factor = dec_coeff_mod_repr(dec_coeff_from_int(10), modulus)
   let mut exponent = shift
   while exponent > 0 {
     if exponent % 2 == 1 {
-      remainder = dec_coeff_div_rem_repr(
-          dec_coeff_multiply_repr(remainder, factor),
-          modulus,
-        ).1
+      remainder = dec_coeff_mod_repr(
+        dec_coeff_multiply_repr(remainder, factor),
+        modulus,
+      )
     }
     exponent /= 2
     if exponent > 0 {
-      factor = dec_coeff_div_rem_repr(
-          dec_coeff_multiply_repr(factor, factor),
-          modulus,
-        ).1
+      factor = dec_coeff_mod_repr(
+        dec_coeff_multiply_repr(factor, factor),
+        modulus,
+      )
     }
   }
   remainder
@@ -877,6 +922,29 @@ fn dec_coeff_div_rem_by_unit_repr(
 }
 
 ///|
+fn dec_coeff_mod_by_unit_repr(coeff : DecCoeff, divisor : Int) -> Int {
+  guard divisor > 0 && divisor < dec_coeff_base else {
+    abort("dec_coeff_mod_by_unit_repr expects one positive coefficient unit")
+  }
+  if coeff.is_zero() {
+    return 0
+  }
+  let mut remainder = 0UL
+  let wide_divisor = divisor.to_uint64()
+  let mut index = dec_coeff_unit_len(coeff) - 1
+  while true {
+    let current = remainder * dec_coeff_wide_base +
+      dec_coeff_limb_at(coeff, index).to_uint64()
+    remainder = current % wide_divisor
+    if index == 0 {
+      break
+    }
+    index -= 1
+  }
+  remainder.to_int()
+}
+
+///|
 fn dec_coeff_exact_divide_by_unit_repr(
   coeff : DecCoeff,
   divisor : Int,
@@ -924,7 +992,7 @@ fn dec_coeff_gcd_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
   let mut x = lhs
   let mut y = rhs
   while !y.is_zero() {
-    let (_, remainder) = dec_coeff_div_rem_repr(x, y)
+    let remainder = dec_coeff_mod_repr(x, y)
     x = y
     y = remainder
   }
@@ -1241,81 +1309,11 @@ fn dec_coeff_div_rem_knuth_repr(
       numerator, normalization, normalized_numerator,
     ),
   )
-  let top = normalized_denominator[denominator_len - 1]
-  let second_top = normalized_denominator[denominator_len - 2]
   let mut shift = max_shift
   while true {
-    let upper = normalized_numerator[shift + denominator_len]
-    let next = normalized_numerator[shift + denominator_len - 1]
-    let mut quotient_digit = (upper * dec_coeff_wide_base + next) / top
-    let mut remainder_digit = (upper * dec_coeff_wide_base + next) % top
-    if quotient_digit >= dec_coeff_wide_base {
-      let excess = quotient_digit - (dec_coeff_wide_base - 1UL)
-      quotient_digit = dec_coeff_wide_base - 1UL
-      remainder_digit += excess * top
-    }
-    while remainder_digit < dec_coeff_wide_base &&
-          quotient_digit * second_top >
-          dec_coeff_wide_base * remainder_digit +
-          normalized_numerator[shift + denominator_len - 2] {
-      quotient_digit -= 1UL
-      remainder_digit += top
-      if remainder_digit >= dec_coeff_wide_base {
-        break
-      }
-    }
-    let mut carry = 0UL
-    let mut borrow = 0UL
-    for index in 0..<denominator_len {
-      let product = normalized_denominator[index] * quotient_digit + carry
-      let product_digit = product % dec_coeff_wide_base
-      carry = product / dec_coeff_wide_base
-      let subtrahend = product_digit + borrow
-      let target = shift + index
-      if normalized_numerator[target] < subtrahend {
-        normalized_numerator[target] = normalized_numerator[target] +
-          dec_coeff_wide_base -
-          subtrahend
-        borrow = 1UL
-      } else {
-        normalized_numerator[target] = normalized_numerator[target] - subtrahend
-        borrow = 0UL
-      }
-    }
-    let top_target = shift + denominator_len
-    let top_subtrahend = carry + borrow
-    let mut negative = false
-    if normalized_numerator[top_target] < top_subtrahend {
-      normalized_numerator[top_target] = normalized_numerator[top_target] +
-        dec_coeff_wide_base -
-        top_subtrahend
-      negative = true
-    } else {
-      normalized_numerator[top_target] = normalized_numerator[top_target] -
-        top_subtrahend
-    }
-    if negative {
-      quotient_digit -= 1UL
-      let mut add_carry = 0UL
-      for index in 0..<denominator_len {
-        let target = shift + index
-        let sum = normalized_numerator[target] +
-          normalized_denominator[index] +
-          add_carry
-        if sum >= dec_coeff_wide_base {
-          normalized_numerator[target] = sum - dec_coeff_wide_base
-          add_carry = 1UL
-        } else {
-          normalized_numerator[target] = sum
-          add_carry = 0UL
-        }
-      }
-      normalized_numerator[top_target] = normalized_numerator[top_target] +
-        add_carry
-      if normalized_numerator[top_target] >= dec_coeff_wide_base {
-        normalized_numerator[top_target] -= dec_coeff_wide_base
-      }
-    }
+    let quotient_digit = dec_coeff_knuth_subtract_quotient_digit(
+      normalized_numerator, normalized_denominator, denominator_len, shift,
+    )
     quotient[shift] = quotient_digit
     if shift == 0 {
       break
@@ -1378,6 +1376,164 @@ fn dec_coeff_div_rem_knuth_repr(
 }
 
 ///|
+fn dec_coeff_knuth_subtract_quotient_digit(
+  normalized_numerator : Array[UInt64],
+  normalized_denominator : Array[UInt64],
+  denominator_len : Int,
+  shift : Int,
+) -> UInt64 {
+  let top = normalized_denominator[denominator_len - 1]
+  let second_top = normalized_denominator[denominator_len - 2]
+  let upper = normalized_numerator[shift + denominator_len]
+  let next = normalized_numerator[shift + denominator_len - 1]
+  let mut quotient_digit = (upper * dec_coeff_wide_base + next) / top
+  let mut remainder_digit = (upper * dec_coeff_wide_base + next) % top
+  if quotient_digit >= dec_coeff_wide_base {
+    let excess = quotient_digit - (dec_coeff_wide_base - 1UL)
+    quotient_digit = dec_coeff_wide_base - 1UL
+    remainder_digit += excess * top
+  }
+  while remainder_digit < dec_coeff_wide_base &&
+        quotient_digit * second_top >
+        dec_coeff_wide_base * remainder_digit +
+        normalized_numerator[shift + denominator_len - 2] {
+    quotient_digit -= 1UL
+    remainder_digit += top
+    if remainder_digit >= dec_coeff_wide_base {
+      break
+    }
+  }
+  let mut carry = 0UL
+  let mut borrow = 0UL
+  for index in 0..<denominator_len {
+    let product = normalized_denominator[index] * quotient_digit + carry
+    let product_digit = product % dec_coeff_wide_base
+    carry = product / dec_coeff_wide_base
+    let subtrahend = product_digit + borrow
+    let target = shift + index
+    if normalized_numerator[target] < subtrahend {
+      normalized_numerator[target] = normalized_numerator[target] +
+        dec_coeff_wide_base -
+        subtrahend
+      borrow = 1UL
+    } else {
+      normalized_numerator[target] = normalized_numerator[target] - subtrahend
+      borrow = 0UL
+    }
+  }
+  let top_target = shift + denominator_len
+  let top_subtrahend = carry + borrow
+  let mut negative = false
+  if normalized_numerator[top_target] < top_subtrahend {
+    normalized_numerator[top_target] = normalized_numerator[top_target] +
+      dec_coeff_wide_base -
+      top_subtrahend
+    negative = true
+  } else {
+    normalized_numerator[top_target] = normalized_numerator[top_target] -
+      top_subtrahend
+  }
+  if negative {
+    quotient_digit -= 1UL
+    let mut add_carry = 0UL
+    for index in 0..<denominator_len {
+      let target = shift + index
+      let sum = normalized_numerator[target] +
+        normalized_denominator[index] +
+        add_carry
+      if sum >= dec_coeff_wide_base {
+        normalized_numerator[target] = sum - dec_coeff_wide_base
+        add_carry = 1UL
+      } else {
+        normalized_numerator[target] = sum
+        add_carry = 0UL
+      }
+    }
+    normalized_numerator[top_target] = normalized_numerator[top_target] +
+      add_carry
+    if normalized_numerator[top_target] >= dec_coeff_wide_base {
+      normalized_numerator[top_target] -= dec_coeff_wide_base
+    }
+  }
+  quotient_digit
+}
+
+///|
+fn dec_coeff_mod_knuth_repr(
+  numerator : DecCoeff,
+  denominator : DecCoeff,
+) -> DecCoeff {
+  guard !denominator.is_zero() else {
+    abort("Knuth remainder expects denominator > 0")
+  }
+  if dec_coeff_compare_repr(numerator, denominator) < 0 {
+    return numerator
+  }
+  let denominator_len = dec_coeff_unit_len(denominator)
+  if denominator_len == 1 {
+    let residue = dec_coeff_mod_by_unit_repr(
+      numerator,
+      dec_coeff_limb_at(denominator, 0).reinterpret_as_int(),
+    )
+    return dec_coeff_from_int(residue)
+  }
+  let remainder_len = dec_coeff_unit_len(numerator)
+  let max_shift = remainder_len - denominator_len
+  let normalized_denominator = Array::make(denominator_len + 1, 0UL)
+  let normalized_numerator = Array::make(remainder_len + 1, 0UL)
+  let normalization = dec_coeff_wide_base /
+    (dec_coeff_limb_at(denominator, denominator_len - 1).to_uint64() + 1UL)
+  ignore(
+    dec_coeff_wide_multiply_coeff_by_unit_into(
+      denominator, normalization, normalized_denominator,
+    ),
+  )
+  ignore(
+    dec_coeff_wide_multiply_coeff_by_unit_into(
+      numerator, normalization, normalized_numerator,
+    ),
+  )
+  let mut shift = max_shift
+  while true {
+    ignore(
+      dec_coeff_knuth_subtract_quotient_digit(
+        normalized_numerator, normalized_denominator, denominator_len, shift,
+      ),
+    )
+    if shift == 0 {
+      break
+    }
+    shift -= 1
+  }
+  let remainder_units = Array::make(denominator_len, 0UL)
+  let mut residue = 0UL
+  let mut index = denominator_len - 1
+  while true {
+    let current = residue * dec_coeff_wide_base + normalized_numerator[index]
+    remainder_units[index] = current / normalization
+    residue = current % normalization
+    if index == 0 {
+      break
+    }
+    index -= 1
+  }
+  if residue != 0UL {
+    return dec_coeff_div_rem_knuth_repr(numerator, denominator).1
+  }
+  let remainder_len = dec_coeff_wide_trim_units(
+    remainder_units,
+    remainder_units.length(),
+  )
+  let remainder = dec_coeff_from_wide_accumulator(
+    remainder_units, remainder_len,
+  )
+  if dec_coeff_compare_repr(remainder, denominator) >= 0 {
+    return dec_coeff_div_rem_knuth_repr(numerator, denominator).1
+  }
+  remainder
+}
+
+///|
 fn dec_coeff_div_rem_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
@@ -1405,6 +1561,35 @@ fn dec_coeff_div_rem_repr(
     BurnikelZiegler =>
       dec_coeff_div_rem_burnikel_ziegler(numerator, denominator)
     Knuth => dec_coeff_div_rem_knuth_repr(numerator, denominator)
+  }
+}
+
+///|
+fn dec_coeff_mod_repr(numerator : DecCoeff, denominator : DecCoeff) -> DecCoeff {
+  guard !denominator.is_zero() else {
+    abort("dec_coeff_mod_repr expects denominator > 0")
+  }
+  if numerator.is_zero() {
+    return dec_coeff_zero()
+  }
+  if dec_coeff_compare_repr(numerator, denominator) < 0 {
+    return numerator
+  }
+  let denominator_len = dec_coeff_unit_len(denominator)
+  if denominator_len == 1 {
+    return dec_coeff_from_int(
+      dec_coeff_mod_by_unit_repr(
+        numerator,
+        dec_coeff_limb_at(denominator, 0).reinterpret_as_int(),
+      ),
+    )
+  }
+  match dec_coeff_division_algorithm(denominator) {
+    Word => abort("word remainder was handled before dispatch")
+    Newton => dec_coeff_div_rem_newton(numerator, denominator).1
+    BurnikelZiegler =>
+      dec_coeff_div_rem_burnikel_ziegler(numerator, denominator).1
+    Knuth => dec_coeff_mod_knuth_repr(numerator, denominator)
   }
 }
 

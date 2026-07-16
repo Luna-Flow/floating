@@ -79,7 +79,7 @@ fn gda_coeff_from_int(value : Int) -> GdaCoeff {
   guard value >= 0 && value < gda_coeff_base else {
     abort("gda_coeff_from_int expects one non-negative coefficient unit")
   }
-  gda_coeff_from_unit_accumulator([value.reinterpret_as_uint()], 1)
+  GdaCoeff::Small(value.to_uint64())
 }
 
 ///|
@@ -89,6 +89,10 @@ fn gda_coeff_from_nonnegative_int(value : Int) -> GdaCoeff {
   }
   if value == 0 {
     return gda_coeff_zero()
+  }
+  let value64 = value.to_uint64()
+  if value64 < gda_coeff_small_limit {
+    return GdaCoeff::Small(value64)
   }
   let units : Array[UInt] = []
   let mut remaining = value
@@ -115,8 +119,10 @@ fn gda_coeff_from_decimal_digits_repr(src : String) -> GdaCoeff? {
     }
     return Some(GdaCoeff::Small(value))
   }
-  let units : Array[UInt] = []
+  let unit_len = gda_coeff_d2u(src.length())
+  let units = Array::make(unit_len, 0U)
   let mut end = src.length()
+  let mut unit_index = 0
   while end > 0 {
     let start = Int::max(0, end - gda_coeff_dpun)
     let mut value = 0
@@ -127,10 +133,11 @@ fn gda_coeff_from_decimal_digits_repr(src : String) -> GdaCoeff? {
       }
       value = value * 10 + digit
     }
-    units.push(value.reinterpret_as_uint())
+    units[unit_index] = value.reinterpret_as_uint()
+    unit_index += 1
     end = start
   }
-  Some(gda_coeff_from_unit_accumulator(units, units.length()))
+  Some(gda_coeff_from_unit_accumulator(units, unit_len))
 }
 
 ///|
@@ -962,10 +969,23 @@ fn gda_coeff_div_rem_by_unit_repr(
   if coeff.is_zero() {
     return (gda_coeff_zero(), 0)
   }
+  let wide_divisor = divisor.to_uint64()
+  if gda_coeff_small_value(coeff) is Some(value) {
+    return (
+      GdaCoeff::Small(value / wide_divisor),
+      (value % wide_divisor).to_int(),
+    )
+  }
   let unit_len = gda_coeff_unit_len(coeff)
+  if unit_len == 1 {
+    let value = gda_coeff_limb_at(coeff, 0).to_uint64()
+    return (
+      gda_coeff_from_int((value / wide_divisor).to_int()),
+      (value % wide_divisor).to_int(),
+    )
+  }
   let result = Array::make(unit_len, 0U)
   let mut remainder = 0UL
-  let wide_divisor = divisor.to_uint64()
   let mut index = unit_len - 1
   while true {
     let current = remainder * gda_coeff_wide_base +

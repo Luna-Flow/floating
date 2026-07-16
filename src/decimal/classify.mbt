@@ -10,7 +10,7 @@ fn quiet_nan_operand(
   let payload = if value.coefficient.is_zero() {
     value.coefficient
   } else if value.coefficient.digits10() > precision {
-    dec_coeff_div_rem_repr(value.coefficient, dec_coeff_power10_repr(precision)).1
+    dec_coeff_mod_repr(value.coefficient, dec_coeff_power10_repr(precision))
   } else {
     value.coefficient
   }

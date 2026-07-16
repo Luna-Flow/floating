@@ -232,6 +232,144 @@ fn exact_decimal_reciprocal(
 }
 
 ///|
+fn exact_decimal_division_result(
+  dividend : Decimal,
+  divisor : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard dividend.class == FpClass::Finite &&
+    divisor.class == FpClass::Finite &&
+    !dividend.coefficient.is_zero() &&
+    !divisor.coefficient.is_zero() else {
+    return None
+  }
+  let gcd = dec_coeff_gcd_repr(dividend.coefficient, divisor.coefficient)
+  let (reduced_denominator, denominator_remainder) = dec_coeff_div_rem_repr(
+    divisor.coefficient,
+    gcd,
+  )
+  guard denominator_remainder.is_zero() else {
+    abort(
+      "exact_decimal_division_result expected an exact denominator gcd division",
+    )
+  }
+  let (without_twos, twos) = dec_coeff_count_factor_unit_repr(
+    reduced_denominator, 2,
+  )
+  let (without_fives, fives) = dec_coeff_count_factor_unit_repr(without_twos, 5)
+  guard dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 else {
+    return None
+  }
+  let (reduced_numerator, numerator_remainder) = dec_coeff_div_rem_repr(
+    dividend.coefficient,
+    gcd,
+  )
+  guard numerator_remainder.is_zero() else {
+    abort(
+      "exact_decimal_division_result expected an exact numerator gcd division",
+    )
+  }
+  let scale = Int::max(twos, fives)
+  let magnitude = dec_coeff_multiply_repr(
+    reduced_numerator,
+    dec_coeff_pow_unit_repr(2, scale - twos),
+  )
+  let magnitude = dec_coeff_multiply_repr(
+    magnitude,
+    dec_coeff_pow_unit_repr(5, scale - fives),
+  )
+  Some(
+    normalize_decimal_parts_ctx_repr(
+      dividend.negative != divisor.negative,
+      magnitude,
+      dividend.exponent10 - divisor.exponent10 - scale,
+      ctx,
+    ),
+  )
+}
+
+///|
+fn decimal_division_adjusted_coefficient(
+  numerator : DecCoeff,
+  denominator : DecCoeff,
+) -> Int {
+  let exponent = numerator.digits10() - denominator.digits10()
+  let comparison = if exponent >= 0 {
+    dec_coeff_compare_scaled_repr(numerator, denominator, exponent)
+  } else {
+    -dec_coeff_compare_scaled_repr(denominator, numerator, -exponent)
+  }
+  if comparison >= 0 {
+    exponent
+  } else {
+    exponent - 1
+  }
+}
+
+///|
+fn bounded_inexact_decimal_division_result(
+  dividend : Decimal,
+  divisor : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.extended && ctx.precision > 0 else { return None }
+  guard dividend.class == FpClass::Finite &&
+    divisor.class == FpClass::Finite &&
+    !dividend.coefficient.is_zero() &&
+    !divisor.coefficient.is_zero() else {
+    return None
+  }
+  let adjusted_coefficient = decimal_division_adjusted_coefficient(
+    dividend.coefficient,
+    divisor.coefficient,
+  )
+  let adjusted = dividend.exponent10 - divisor.exponent10 + adjusted_coefficient
+  // Keep the existing path for subnormal results: it carries enough extra
+  // quotient digits for the configured before/after tininess policy.
+  guard adjusted >= ctx.e_min else { return None }
+  let precision = finite_precision_for(bigint_one(), ctx)
+  let scale = precision - 1 - adjusted_coefficient
+  let (numerator, denominator, result_exponent) = if scale >= 0 {
+    (
+      dec_coeff_shift_power10_repr(dividend.coefficient, scale),
+      divisor.coefficient,
+      dividend.exponent10 - divisor.exponent10 - scale,
+    )
+  } else {
+    (
+      dividend.coefficient,
+      dec_coeff_shift_power10_repr(divisor.coefficient, -scale),
+      dividend.exponent10 - divisor.exponent10 - scale,
+    )
+  }
+  let (quotient, remainder) = dec_coeff_div_rem_repr(numerator, denominator)
+  let quotient = if should_increment_decimal_repr(
+      quotient,
+      remainder,
+      denominator,
+      dividend.negative != divisor.negative,
+      ctx.decimal_rounding,
+    ) {
+    dec_coeff_magnitude_add_unit(quotient, 1)
+  } else {
+    quotient
+  }
+  let (value, normalize_flags) = normalize_decimal_parts_ctx_repr(
+    dividend.negative != divisor.negative,
+    quotient,
+    result_exponent,
+    ctx,
+  )
+  let value = expand_inexact_division_cohort(value, ctx, pad_precision=true)
+  let flags = with_underflow_for_inexact_subnormal(
+    value,
+    { ..normalize_flags, rounded: true, inexact: true },
+    ctx,
+  )
+  Some((value, flags))
+}
+
+///|
 fn exact_division_by_power_of_ten_result(
   dividend : Decimal,
   divisor : Decimal,
@@ -944,6 +1082,32 @@ fn integer_quotient_digit_lower_bound(
   let numerator_digits = dividend.coefficient.digits10() + numerator_extra
   let denominator_digits = divisor.coefficient.digits10() + denominator_extra
   numerator_digits - denominator_digits
+}
+
+///|
+fn integer_quotient_digit_count(dividend : Decimal, divisor : Decimal) -> Int {
+  let lower = integer_quotient_digit_lower_bound(dividend, divisor)
+  let scale = dividend.exponent10 - divisor.exponent10
+  let boundary_cmp = if scale >= 0 {
+    compare_finite_magnitude_repr(
+      dividend.coefficient,
+      scale,
+      divisor.coefficient,
+      lower,
+    )
+  } else {
+    compare_finite_magnitude_repr(
+      dividend.coefficient,
+      0,
+      divisor.coefficient,
+      -scale + lower,
+    )
+  }
+  if boundary_cmp >= 0 {
+    lower + 1
+  } else {
+    lower
+  }
 }
 
 ///|

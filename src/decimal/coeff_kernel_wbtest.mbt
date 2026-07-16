@@ -523,6 +523,27 @@ test "decimal decNumber-style coefficient divide returns quotient and residue" {
 }
 
 ///|
+test "decimal remainder-only division matches BigInt" {
+  let cases : Array[(BigInt, BigInt)] = [
+    (12345N, 7N),
+    (pow10(18) + 123456789N, pow10(9) + 7N),
+    (pow10(36) - 1N, pow10(18) - 987654321N),
+    (pow10(72) + 555555555555N, pow10(27) + 999999999N),
+    (123N, 1000N),
+    (1234567890123456789012345N, 999999937N),
+  ]
+  for pair in cases {
+    let numerator_bigint = pair.0
+    let denominator_bigint = pair.1
+    let remainder = dec_coeff_mod_repr(
+      dec_coeff_from_bigint_repr(numerator_bigint),
+      dec_coeff_from_bigint_repr(denominator_bigint),
+    )
+    assert_eq(remainder.to_bigint(), numerator_bigint % denominator_bigint)
+  }
+}
+
+///|
 test "optimized decimal coefficient primitives match BigInt boundaries" {
   let boundaries : Array[BigInt] = [
     0N, 1N, 2N, 9N, 10N, 99N, 999N, 1000N, 1001N, 999999N, 1000000N, 1000001N, 999999999N,
@@ -1346,6 +1367,27 @@ test "decimal coefficient factor counting matches bigint factor counting" {
   )
   assert_eq(without_fives_repr.to_bigint(), without_fives_big)
   assert_eq(fives_repr, fives_big)
+}
+
+///|
+test "decimal coefficient trailing-zero trim batches whole limbs" {
+  let whole_limb_zeros = dec_coeff_from_bigint_repr(
+    1_000_000_000_000_000_000_000N,
+  )
+  let (trimmed, exponent, dropped) = trim_trailing_decimal_zeros_repr(
+    whole_limb_zeros, -7,
+  )
+  assert_eq(trimmed.to_bigint(), 1N)
+  assert_eq(exponent, 14)
+  assert_eq(dropped, 21)
+
+  let partial_limb_zeros = dec_coeff_from_bigint_repr(123_450_000_000_000_000N)
+  let (trimmed, exponent, dropped) = trim_trailing_decimal_zeros_repr(
+    partial_limb_zeros, 3,
+  )
+  assert_eq(trimmed.to_bigint(), 12345N)
+  assert_eq(exponent, 16)
+  assert_eq(dropped, 13)
 }
 
 ///|

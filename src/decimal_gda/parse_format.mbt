@@ -336,19 +336,18 @@ fn decimal_zero_conversion_result(
 ///|
 fn decimal_extreme_tiny_conversion_result(
   negative : Bool,
-  magnitude : GdaCoeff,
   original_digits : Int,
   exponent10 : Int,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  guard ctx.precision > 0 && !magnitude.is_zero() else { return None }
+  guard ctx.precision > 0 else { return None }
   let tiny = etiny(ctx)
   guard exponent10 < tiny else { return None }
   let shift = tiny.to_int64() - exponent10.to_int64()
   guard shift > (original_digits + 2).to_int64() else { return None }
-  let precision = finite_precision_for_coeff(magnitude, ctx)
+  let precision = finite_precision_for_default(ctx)
   let rounded_magnitude = huge_shift_rounded_unit_repr(
-    magnitude,
+    gda_coeff_from_int(1),
     negative,
     ctx.decimal_rounding,
   )
@@ -477,17 +476,17 @@ fn parse_decimal_string_ctx(
           if exponent10 + original_digits - 1 > ctx.e_max {
             return decimal_overflow_result(negative, ctx)
           }
+          match
+            decimal_extreme_tiny_conversion_result(
+              negative, original_digits, exponent10, ctx,
+            ) {
+            Some(result) => return result
+            None => ()
+          }
           let magnitude = match
             gda_coeff_from_decimal_digits_repr(significant_digits) {
             Some(value) => value
             None => return decimal_conversion_syntax_result(ctx)
-          }
-          match
-            decimal_extreme_tiny_conversion_result(
-              negative, magnitude, original_digits, exponent10, ctx,
-            ) {
-            Some(result) => return result
-            None => ()
           }
           let (value, flags) = normalize_decimal_parts_ctx_repr(
             negative, magnitude, exponent10, ctx,

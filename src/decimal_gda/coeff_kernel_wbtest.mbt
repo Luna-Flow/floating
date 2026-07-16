@@ -274,6 +274,35 @@ test "decimal coefficient exact power-of-ten division uses unit shifts" {
 }
 
 ///|
+test "decimal small coefficient helpers preserve direct representations" {
+  assert_eq(gda_coeff_from_int(123).to_bigint(), 123N)
+  assert_eq(gda_coeff_from_nonnegative_int(999999999).to_bigint(), 999999999N)
+  assert_eq(
+    gda_coeff_from_nonnegative_int(1000000000).to_bigint(),
+    1000000000N,
+  )
+  assert_eq(
+    gda_coeff_div_rem_by_unit_repr(gda_coeff_from_int(987654321), 97).0.to_bigint(),
+    10182003N,
+  )
+  assert_eq(
+    gda_coeff_div_rem_by_unit_repr(gda_coeff_from_int(987654321), 97).1,
+    30,
+  )
+}
+
+///|
+test "decimal half-power comparison uses decimal leading digits" {
+  assert_eq(gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(4999N)), -1)
+  assert_eq(gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5000N)), 0)
+  assert_eq(gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5001N)), 1)
+  assert_eq(
+    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(500000000000000000001N)),
+    1,
+  )
+}
+
+///|
 test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
   let acc1 : Array[UInt] = [0U, 0U, 0U, 0U]
   let lhs1 : Array[UInt] = [
@@ -1434,6 +1463,20 @@ test "decimal exact integer helpers match normalized finite values" {
 }
 
 ///|
+test "decimal bounded power helpers avoid expanding huge positive exponents" {
+  let huge = Decimal::from_string("1E+999999999", precision=16).unwrap()
+  assert_true(decimal_power_integer_count(huge, 999_999_999) is None)
+  assert_true(decimal_power_gda_integer_count(huge) is None)
+  assert_true(decimal_power_integer_is_odd(huge) == Some(false))
+
+  let boundary = Decimal::from_string("1E+9", precision=16).unwrap()
+  assert_true(decimal_power_integer_count(boundary, 999_999_999) is None)
+  assert_true(
+    decimal_power_integer_count(boundary, 1_000_000_000) == Some(1_000_000_000),
+  )
+}
+
+///|
 test "decimal integer parity helper rejects fractional values and tracks signless oddness" {
   let even = Decimal::from_string("-8.000", precision=16).unwrap()
   let odd = Decimal::from_string("-7", precision=16).unwrap()
@@ -1444,6 +1487,39 @@ test "decimal integer parity helper rejects fractional values and tracks signles
   assert_true(decimal_power_integer_is_odd(odd) == Some(true))
   assert_true(decimal_power_integer_is_odd(zero) == Some(false))
   assert_true(decimal_power_integer_is_odd(fractional) is None)
+}
+
+///|
+test "decimal extreme tiny parsing preserves directed rounding flags" {
+  let half_even_ctx = DecimalContext::new(
+    precision=9,
+    decimal_rounding=DecimalRoundingMode::HalfEven,
+    e_min=-999,
+    e_max=999,
+  )
+  let (half_even, half_even_flags) = Decimal::from_string_ctx(
+    "1E-1000000008", half_even_ctx,
+  )
+  assert_true(half_even.coefficient.is_zero())
+  assert_eq(half_even.exponent10, -1007)
+  assert_true(half_even_flags.underflow)
+  assert_true(half_even_flags.subnormal)
+  assert_true(half_even_flags.clamped)
+
+  let upward_ctx = DecimalContext::new(
+    precision=9,
+    decimal_rounding=DecimalRoundingMode::Up,
+    e_min=-999,
+    e_max=999,
+  )
+  let (upward, upward_flags) = Decimal::from_string_ctx(
+    "-1E-1000000008", upward_ctx,
+  )
+  assert_eq(upward.coefficient.to_bigint(), 1N)
+  assert_true(upward.negative)
+  assert_eq(upward.exponent10, -1007)
+  assert_true(upward_flags.underflow)
+  assert_true(upward_flags.subnormal)
 }
 
 ///|

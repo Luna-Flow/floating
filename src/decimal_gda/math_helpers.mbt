@@ -32,34 +32,80 @@ fn gda_coeff_to_bounded_int(coeff : GdaCoeff, limit : Int) -> Int? {
 }
 
 ///|
-fn decimal_power_integer_count(rhs : Decimal, limit : Int) -> Int? {
-  guard limit >= 0 else { return None }
-  match decimal_exact_integer_coeff(rhs) {
-    Some((negative, magnitude)) =>
-      match gda_coeff_to_bounded_int(magnitude, limit) {
-        Some(value) => Some(if negative { -value } else { value })
-        None => None
-      }
-    None => None
+fn gda_bounded_int_digits(value : Int) -> Int {
+  guard value >= 0 else {
+    abort("gda_bounded_int_digits expects a non-negative value")
   }
+  let mut remaining = value
+  let mut digits = 1
+  while remaining >= 10 {
+    remaining /= 10
+    digits += 1
+  }
+  digits
+}
+
+///|
+fn gda_power10_bounded_int(exponent : Int, limit : Int) -> Int? {
+  guard exponent >= 0 && limit >= 0 else { return None }
+  guard exponent < gda_bounded_int_digits(limit) else { return None }
+  let mut factor = 1
+  for _ in 0..<exponent {
+    factor *= 10
+  }
+  Some(factor)
+}
+
+///|
+fn decimal_exact_integer_count_bounded(rhs : Decimal, limit : Int) -> Int? {
+  guard rhs.class == FpClass::Finite && limit >= 0 else { return None }
+  if rhs.coefficient.is_zero() {
+    return Some(0)
+  }
+  let magnitude = if rhs.exponent10 >= 0 {
+    let factor = match gda_power10_bounded_int(rhs.exponent10, limit) {
+      Some(value) => value
+      None => return None
+    }
+    let coefficient_limit = limit / factor
+    match gda_coeff_to_bounded_int(rhs.coefficient, coefficient_limit) {
+      Some(value) => value * factor
+      None => return None
+    }
+  } else {
+    let exact = match
+      exact_divide_by_power_of_ten_repr(rhs.coefficient, -rhs.exponent10) {
+      Some(value) => value
+      None => return None
+    }
+    match gda_coeff_to_bounded_int(exact, limit) {
+      Some(value) => value
+      None => return None
+    }
+  }
+  Some(if rhs.negative { -magnitude } else { magnitude })
+}
+
+///|
+fn decimal_power_integer_count(rhs : Decimal, limit : Int) -> Int? {
+  decimal_exact_integer_count_bounded(rhs, limit)
 }
 
 ///|
 fn decimal_power_gda_integer_count(rhs : Decimal) -> Int? {
-  match decimal_exact_integer_coeff(rhs) {
-    Some((negative, magnitude)) => {
-      let limit = if negative { 1_999_999_997 } else { 999_999_999 }
-      match gda_coeff_to_bounded_int(magnitude, limit) {
-        Some(value) => Some(if negative { -value } else { value })
-        None => None
-      }
-    }
-    None => None
-  }
+  let limit = if rhs.negative { 1_999_999_997 } else { 999_999_999 }
+  decimal_exact_integer_count_bounded(rhs, limit)
 }
 
 ///|
 fn decimal_power_integer_is_odd(rhs : Decimal) -> Bool? {
+  guard rhs.class == FpClass::Finite else { return None }
+  if rhs.coefficient.is_zero() {
+    return Some(false)
+  }
+  if rhs.exponent10 > 0 {
+    return Some(false)
+  }
   match decimal_exact_integer_coeff(rhs) {
     Some((_, magnitude)) => Some(gda_coeff_is_odd(magnitude))
     None => None

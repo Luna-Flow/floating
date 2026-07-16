@@ -91,6 +91,62 @@ fn Decimal::divide_integer_impl(
 }
 
 ///|
+fn decimal_remainder_extended_fast_result(
+  dividend : Decimal,
+  divisor : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.extended else { return None }
+  guard dividend.class == FpClass::Finite &&
+    divisor.class == FpClass::Finite &&
+    !dividend.coefficient.is_zero() &&
+    !divisor.coefficient.is_zero() else {
+    return None
+  }
+  guard !finite_integer_quotient_is_zero(dividend, divisor) else { return None }
+  let quotient_digits = integer_quotient_digit_count(dividend, divisor)
+  if ctx.precision > 0 && quotient_digits > ctx.precision {
+    return Some(
+      (
+        Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
+        div_impossible_flags(),
+      ),
+    )
+  }
+  let quotient_flags = if quotient_digits - 1 > ctx.e_max {
+    decimal_overflow_result(dividend.negative != divisor.negative, ctx).1
+  } else if ctx.clamp && ctx.precision > 0 && 0 > ctx.e_max - ctx.precision + 1 {
+    { ..DecimalFlags::new(), clamped: true }
+  } else {
+    DecimalFlags::new()
+  }
+  let scale = dividend.exponent10 - divisor.exponent10
+  let (magnitude, target) = if scale >= 0 {
+    (
+      dec_coeff_shift_power10_mod_repr(
+        dividend.coefficient,
+        scale,
+        divisor.coefficient,
+      ),
+      divisor.exponent10,
+    )
+  } else {
+    let denominator = dec_coeff_shift_power10_repr(divisor.coefficient, -scale)
+    (
+      dec_coeff_div_rem_repr(dividend.coefficient, denominator).1,
+      dividend.exponent10,
+    )
+  }
+  let (value, flags) = normalize_decimal_parts_ctx_repr(
+    dividend.negative,
+    magnitude,
+    target,
+    ctx,
+  )
+  Some((value, quotient_flags.combine(flags)))
+}
+
+///|
 pub fn Decimal::remainder(
   self : Decimal,
   other : Decimal,
@@ -126,6 +182,12 @@ pub fn Decimal::remainder(
       Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
       operand_flags.combine(invalid_flags()),
     )
+  }
+  if lhs.class == FpClass::Finite && rhs.class == FpClass::Finite {
+    match decimal_remainder_extended_fast_result(lhs, rhs, ctx) {
+      Some((value, flags)) => return (value, operand_flags.combine(flags))
+      None => ()
+    }
   }
   let (quotient, quotient_flags0) = decimal_integer_quotient(lhs, rhs, ctx)
   let quotient_flags = operand_flags.combine(quotient_flags0)
