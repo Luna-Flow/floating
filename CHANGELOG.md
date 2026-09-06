@@ -40,6 +40,9 @@ notes live in this file.
   implicit promotion of `impl Show` methods, which the MoonBit 0.10.4 toolchain
   deprecated. The repository now checks clean under `moon check --deny-warn` on
   all five backends.
+- Replaced `StringBuilder::new()` with the `StringBuilder()` custom
+  constructor, which MoonBit 0.10.11 requires; the previous spelling fails the
+  `--deny-warn` publish gate.
 
 ### Fixed
 

@@ -2,7 +2,7 @@
 // Decimal string parsing and formatting APIs.
 
 fn zeros(n : Int) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for _ in 0..<n {
     b.write_char('0')
   }
@@ -152,7 +152,7 @@ fn format_eng_gda(value : Decimal) -> String {
 
 ///|
 fn ascii_lower(src : String) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for i in 0..<src.length() {
     let ch = src[i]
     if ch >= 'A' && ch <= 'Z' {

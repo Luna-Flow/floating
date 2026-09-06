@@ -146,7 +146,7 @@ fn find_char(src : String, target : UInt16) -> Int? {
 ///|
 fn split_words_preserving_intervals(src : String) -> Array[String] {
   let words : Array[String] = []
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut bracket_depth = 0
   for index in 0..<src.length() {
     let ch = src[index]
@@ -205,7 +205,7 @@ pub fn parse_itl(source : String) -> Result[Array[ItlCase], Array[String]] {
   let mut testcase = "anonymous"
   let mut case_index = 0
   let mut in_comment = false
-  let statement = StringBuilder::new()
+  let statement = StringBuilder()
   for raw_line in source.split("\n") {
     let line = raw_line.trim().to_owned()
     if in_comment {
@@ -352,7 +352,7 @@ fn parse_hex_bound(
   let mantissa = unsigned[2:exponent_index].to_owned()
   let exponent_src = unsigned[exponent_index + 1:].to_owned()
   guard parse_int_option(exponent_src) is Some(exponent) else { return None }
-  let digits = StringBuilder::new()
+  let digits = StringBuilder()
   let mut fractional_digits = 0
   let mut after_point = false
   for index in 0..<mantissa.length() {

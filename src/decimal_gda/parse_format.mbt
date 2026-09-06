@@ -2,7 +2,7 @@
 // Decimal string parsing and formatting APIs.
 
 fn zeros(n : Int) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for _ in 0..<n {
     b.write_char('0')
   }
@@ -56,7 +56,7 @@ fn format_special_gda(value : Decimal) -> String {
 
 ///|
 fn format_plain_finite(value : Decimal) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   if value.negative {
     builder.write_char('-')
   }
@@ -95,7 +95,7 @@ fn format_sci_finite(value : Decimal) -> String {
     if value.exponent10 <= 0 && value.exponent10 >= -6 {
       return format_plain_finite(value)
     }
-    let builder = StringBuilder::new()
+    let builder = StringBuilder()
     if value.negative {
       builder.write_char('-')
     }
@@ -108,7 +108,7 @@ fn format_sci_finite(value : Decimal) -> String {
     return format_plain_finite(value)
   }
   let digits = value.coefficient.to_string()
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   if value.negative {
     builder.write_char('-')
   }
@@ -148,7 +148,7 @@ fn format_eng_finite(value : Decimal) -> String {
     }
     let eng_exp = ceil_multiple3(value.exponent10)
     let zero_count = eng_exp - value.exponent10
-    let builder = StringBuilder::new()
+    let builder = StringBuilder()
     if value.negative {
       builder.write_char('-')
     }
@@ -167,7 +167,7 @@ fn format_eng_finite(value : Decimal) -> String {
     }
     let int_digits = adjusted - eng_exp + 1
     let digits = value.coefficient.to_string()
-    let builder = StringBuilder::new()
+    let builder = StringBuilder()
     if value.negative {
       builder.write_char('-')
     }
@@ -206,7 +206,7 @@ fn format_eng_gda(value : Decimal) -> String {
 
 ///|
 fn ascii_lower(src : String) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for i in 0..<src.length() {
     let ch = src[i]
     if ch >= 'A' && ch <= 'Z' {

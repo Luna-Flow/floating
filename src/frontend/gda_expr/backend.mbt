@@ -146,7 +146,7 @@ fn normalize_token(src : String) -> String {
 
 ///|
 fn uppercase_ascii(src : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for index in 0..<src.length() {
     let ch = src[index]
     if ch >= 'a' && ch <= 'z' {

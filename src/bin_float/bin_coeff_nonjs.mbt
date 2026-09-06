@@ -1478,7 +1478,7 @@ fn bin_coeff_to_string_power_of_two(
 ) -> String {
   let digit_count = (value.bit_length() + digit_bits - 1) / digit_bits
   let mask = (1U << digit_bits) - 1U
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut digit_index = digit_count - 1
   while true {
     let bit_offset = digit_index * digit_bits
@@ -1556,7 +1556,7 @@ fn bin_coeff_small_chunk_string(
       value /= radix.to_uint64()
     }
   }
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for _ in digits.length()..<minimum_width {
     builder.write_char('0')
   }
@@ -1600,7 +1600,7 @@ pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int) -> String {
       false,
       chunks,
     )
-    let builder = StringBuilder::new()
+    let builder = StringBuilder()
     for index in 0..<chunks.length() {
       builder.write_string(
         bin_coeff_small_chunk_string(
@@ -1623,7 +1623,7 @@ pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int) -> String {
     chunks.push(remainder.to_uint64().unwrap())
     remaining = quotient
   }
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut index = chunks.length() - 1
   while true {
     builder.write_string(

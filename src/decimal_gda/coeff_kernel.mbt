@@ -258,7 +258,7 @@ fn GdaCoeff::digits10(self : GdaCoeff) -> Int {
 ///|
 fn GdaCoeff::to_string(self : GdaCoeff) -> String {
   let mut index = gda_coeff_unit_len(self) - 1
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   result.write_string(gda_coeff_limb_at(self, index).to_string())
   while index > 0 {
     index -= 1

@@ -199,7 +199,7 @@ fn DecCoeff::digits10(self : DecCoeff) -> Int {
 ///|
 fn DecCoeff::to_string(self : DecCoeff) -> String {
   let mut index = dec_coeff_unit_len(self) - 1
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   builder.write_string(dec_coeff_limb_at(self, index).to_string())
   while index > 0 {
     index -= 1

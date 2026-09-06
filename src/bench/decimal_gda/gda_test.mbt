@@ -39,7 +39,7 @@ enum GdaOutput {
 
 ///|
 fn gda_source(digits : Int) -> String {
-  let text = StringBuilder::new()
+  let text = StringBuilder()
   for index in 0..<digits {
     let digit = if index == 0 { 7 } else { (index * 7 + 3) % 10 }
     text.write_char((digit + 48).to_char().unwrap())

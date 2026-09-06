@@ -273,7 +273,7 @@ pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
     start = 1
   }
   guard start < src.length() else { return None }
-  let digits_builder = StringBuilder::new()
+  let digits_builder = StringBuilder()
   let mut seen_point = false
   let mut frac_digits = 0
   let mut exp_mode = false

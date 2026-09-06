@@ -34,7 +34,7 @@ enum DecimalOutput {
 
 ///|
 fn decimal_pattern(digits : Int, phase : Int) -> BigInt {
-  let text = StringBuilder::new()
+  let text = StringBuilder()
   for index in 0..<digits {
     let digit = if index == 0 { 7 } else { (index * 7 + phase * 3) % 10 }
     text.write_char((digit + 48).to_char().unwrap())

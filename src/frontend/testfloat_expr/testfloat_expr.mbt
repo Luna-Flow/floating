@@ -55,7 +55,7 @@ pub struct RunSummary {
 
 ///|
 fn normalized_word(source : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for character in source {
     if character >= 'A' && character <= 'Z' {
       builder.write_char(
@@ -71,7 +71,7 @@ fn normalized_word(source : String) -> String {
 ///|
 fn tokenize_line(source : String) -> Array[String] {
   let tokens : Array[String] = []
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut has_content = false
   for character in source {
     if character == ' ' ||

@@ -49,7 +49,7 @@ pub struct RunSummary {
 ///|
 fn tokenize(source : String) -> Array[String] {
   let tokens : Array[String] = []
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut has_content = false
   for character in source {
     if character == ' ' || character == '\t' || character == '\r' {

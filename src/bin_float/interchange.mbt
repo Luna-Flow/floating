@@ -71,7 +71,7 @@ fn binary_sign_mask(format : BinaryInterchangeFormat) -> BinCoeff {
 
 ///|
 fn binary_uppercase_ascii(source : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for character in source {
     if character >= 'a' && character <= 'f' {
       builder.write_char(
@@ -86,7 +86,7 @@ fn binary_uppercase_ascii(source : String) -> String {
 
 ///|
 fn binary_zero_digits(count : Int) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for _ in 0..<count {
     builder.write_char('0')
   }

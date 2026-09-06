@@ -1,6 +1,6 @@
 ///|
 fn ascii_lower(src : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for index in 0..<src.length() {
     let ch = src[index]
     if ch >= 'A' && ch <= 'Z' {
@@ -14,7 +14,7 @@ fn ascii_lower(src : String) -> String {
 
 ///|
 fn normalized_word(src : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let lower = ascii_lower(src)
   for index in 0..<lower.length() {
     let ch = lower[index]
@@ -86,7 +86,7 @@ fn find_arrow(src : String) -> Int {
 ///|
 fn tokenize(src : String) -> Result[Array[String], String] {
   let tokens : Array[String] = []
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut quote : UInt16? = None
   let mut has_content = false
   for index in 0..<src.length() {

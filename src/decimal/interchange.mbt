@@ -89,7 +89,7 @@ fn decimal_interchange_sign_mask(format : DecimalInterchangeFormat) -> BigInt {
 
 ///|
 fn uppercase_ascii(src : String) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for ch in src {
     if ch >= 'a' && ch <= 'f' {
       b.write_char(
@@ -445,7 +445,7 @@ fn decimal_interchange_coefficient_bits_to_digits(
   bits : BigInt,
   groups : Int,
 ) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for index in 0..<groups {
     let shift = (groups - index - 1) * 10
     let code = decimal_interchange_extract(bits, shift, 10)

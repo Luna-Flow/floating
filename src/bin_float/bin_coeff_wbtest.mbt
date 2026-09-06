@@ -183,7 +183,7 @@ test "BinCoeff inline binary gcd boundaries" {
 
 ///|
 test "BinCoeff divide-and-conquer radix conversion" {
-  let decimal_builder = StringBuilder::new()
+  let decimal_builder = StringBuilder()
   decimal_builder.write_char('9')
   for index in 1..<2200 {
     decimal_builder.write_char(
@@ -193,7 +193,7 @@ test "BinCoeff divide-and-conquer radix conversion" {
   let decimal = decimal_builder.to_string()
   let decimal_value = BinCoeff::parse(decimal).unwrap()
   assert_eq(decimal_value.to_string(), decimal)
-  let ternary_builder = StringBuilder::new()
+  let ternary_builder = StringBuilder()
   ternary_builder.write_char('2')
   for index in 1..<6000 {
     ternary_builder.write_char(
