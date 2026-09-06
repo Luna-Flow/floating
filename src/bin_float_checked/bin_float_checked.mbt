@@ -30,12 +30,12 @@ pub fn BinFloatResult::from_result(
 
 ///|
 pub fn BinFloatResult::ok(value : @bin_float.BinFloat) -> BinFloatResult {
-  { inner: Ok(value) }
+  { inner: Ok(value), }
 }
 
 ///|
 pub fn BinFloatResult::err(err : @def.ArithmeticError) -> BinFloatResult {
-  { inner: Err(err) }
+  { inner: Err(err), }
 }
 
 ///|

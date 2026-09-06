@@ -907,7 +907,7 @@ pub fn signed_coeff_from_parts(
   negative : Bool,
   magnitude : Coeff,
 ) -> SignedCoeff {
-  { negative: negative && !coeff_is_zero(magnitude), magnitude }
+  { negative: negative && !coeff_is_zero(magnitude), magnitude, }
 }
 
 ///|

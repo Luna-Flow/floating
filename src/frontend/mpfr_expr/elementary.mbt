@@ -167,7 +167,7 @@ pub fn parse_elementary_data(
     }
   }
   if diagnostics.length() == 0 {
-    Ok({ source, cases })
+    Ok({ source, cases, })
   } else {
     Err(diagnostics)
   }

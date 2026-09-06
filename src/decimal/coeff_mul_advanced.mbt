@@ -21,7 +21,7 @@ fn dec_coeff_signed_scratch(
   negative : Bool,
   magnitude : DecCoeff,
 ) -> DecCoeffSignedScratch {
-  { negative: negative && !magnitude.is_zero(), magnitude }
+  { negative: negative && !magnitude.is_zero(), magnitude, }
 }
 
 ///|

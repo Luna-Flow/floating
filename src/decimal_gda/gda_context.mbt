@@ -203,19 +203,19 @@ pub fn GdaTrapSet::with_signal(
   enabled? : Bool = true,
 ) -> GdaTrapSet {
   match signal {
-    ConversionSyntax => { ..self, conversion_syntax: enabled }
-    DivisionByZero => { ..self, division_by_zero: enabled }
-    DivisionImpossible => { ..self, division_impossible: enabled }
-    DivisionUndefined => { ..self, division_undefined: enabled }
-    InvalidContext => { ..self, invalid_context: enabled }
-    InvalidOperation => { ..self, invalid_operation: enabled }
-    Overflow => { ..self, overflow: enabled }
-    Underflow => { ..self, underflow: enabled }
-    Subnormal => { ..self, subnormal: enabled }
-    Inexact => { ..self, inexact: enabled }
-    Rounded => { ..self, rounded: enabled }
-    Clamped => { ..self, clamped: enabled }
-    LostDigits => { ..self, lost_digits: enabled }
+    ConversionSyntax => { ..self, conversion_syntax: enabled, }
+    DivisionByZero => { ..self, division_by_zero: enabled, }
+    DivisionImpossible => { ..self, division_impossible: enabled, }
+    DivisionUndefined => { ..self, division_undefined: enabled, }
+    InvalidContext => { ..self, invalid_context: enabled, }
+    InvalidOperation => { ..self, invalid_operation: enabled, }
+    Overflow => { ..self, overflow: enabled, }
+    Underflow => { ..self, underflow: enabled, }
+    Subnormal => { ..self, subnormal: enabled, }
+    Inexact => { ..self, inexact: enabled, }
+    Rounded => { ..self, rounded: enabled, }
+    Clamped => { ..self, clamped: enabled, }
+    LostDigits => { ..self, lost_digits: enabled, }
   }
 }
 
@@ -466,7 +466,7 @@ pub fn GdaContext::with_traps(
   self : GdaContext,
   traps : GdaTrapSet,
 ) -> GdaContext {
-  { ..self, traps_: traps }
+  { ..self, traps_: traps, }
 }
 
 ///|
@@ -475,17 +475,17 @@ pub fn GdaContext::trap(
   signal : GdaSignal,
   enabled? : Bool = true,
 ) -> GdaContext {
-  { ..self, traps_: self.traps_.with_signal(signal, enabled~) }
+  { ..self, traps_: self.traps_.with_signal(signal, enabled~), }
 }
 
 ///|
 pub fn GdaContext::clear_status(self : GdaContext) -> GdaContext {
-  { ..self, status_: GdaFlags::none() }
+  { ..self, status_: GdaFlags::none(), }
 }
 
 ///|
 pub fn GdaContext::reset(self : GdaContext) -> GdaContext {
-  { ..self, status_: GdaFlags::none(), traps_: GdaTrapSet::none() }
+  { ..self, status_: GdaFlags::none(), traps_: GdaTrapSet::none(), }
 }
 
 ///|
@@ -532,7 +532,7 @@ fn[T] complete_gda(
   }
   let raised = gda_flags_from_decimal(decimal_flags)
   let status_delta = if raised.contains(GdaSignal::InvalidOperation) {
-    { ..raised, invalid_operation: true }
+    { ..raised, invalid_operation: true, }
   } else {
     raised
   }

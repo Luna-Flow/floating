@@ -64,7 +64,7 @@ pub fn BallFloatDecorated::new(
 
 ///|
 pub fn BallFloatDecorated::nai(precision? : Int = 53) -> BallFloatDecorated {
-  { interval_: BallFloat::empty(precision~), decoration_: Ill, nai_: true }
+  { interval_: BallFloat::empty(precision~), decoration_: Ill, nai_: true, }
 }
 
 ///|

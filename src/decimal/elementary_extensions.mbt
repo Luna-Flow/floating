@@ -98,7 +98,7 @@ fn decimal_elementary_division_by_zero(
       sign,
       precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
     ),
-    { ..DecimalFlags::new(), division_by_zero: true },
+    { ..DecimalFlags::new(), division_by_zero: true, },
   )
 }
 
@@ -199,7 +199,7 @@ fn decimal_pi_scaled_exact(
         (
           result,
           if operation == TanPi {
-            { ..DecimalFlags::new(), division_by_zero: true }
+            { ..DecimalFlags::new(), division_by_zero: true, }
           } else {
             DecimalFlags::new()
           },

@@ -116,7 +116,7 @@ fn decimal_remainder_extended_fast_result(
   let quotient_flags = if quotient_digits - 1 > ctx.e_max {
     decimal_overflow_result(dividend.negative != divisor.negative, ctx).1
   } else if ctx.clamp && ctx.precision > 0 && 0 > ctx.e_max - ctx.precision + 1 {
-    { ..DecimalFlags::new(), clamped: true }
+    { ..DecimalFlags::new(), clamped: true, }
   } else {
     DecimalFlags::new()
   }
@@ -399,7 +399,7 @@ fn quantize_finite_to_exponent(
       negative,
       ctx.decimal_rounding,
     )
-    flags = { ..flags, rounded: true, inexact }
+    flags = { ..flags, rounded: true, inexact, }
     rounded
   } else if value.exponent10 > target {
     let shift = value.exponent10 - target
@@ -421,7 +421,7 @@ fn quantize_finite_to_exponent(
     flags,
     ctx,
   )
-  let final_flags = { ..final_flags, underflow: false }
+  let final_flags = { ..final_flags, underflow: false, }
   if !ctx.extended && result.coefficient.is_zero() {
     (
       finite_with_exponent_repr(false, dec_coeff_zero(), target, precision),
@@ -530,7 +530,7 @@ pub fn Decimal::to_integral_value(
         self.apply_ctx(ctx)
       } else {
         let (value, flags) = self.to_integral_exact(ctx)
-        (value, { ..flags, rounded: false, inexact: false })
+        (value, { ..flags, rounded: false, inexact: false, })
       }
   }
 }

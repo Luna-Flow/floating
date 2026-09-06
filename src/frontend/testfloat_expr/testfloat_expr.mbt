@@ -167,7 +167,7 @@ pub fn TestFloatSpec::parse(
   guard parse_tininess(tininess) is Some(tininess) else {
     return Err("unsupported TestFloat tininess mode " + tininess)
   }
-  Ok({ function_name, format, operation, rounding, tininess })
+  Ok({ function_name, format, operation, rounding, tininess, })
 }
 
 ///|
@@ -313,7 +313,7 @@ pub fn parse_testfloat(
     }
   }
   if diagnostics.length() == 0 {
-    Ok({ source, spec, cases })
+    Ok({ source, spec, cases, })
   } else {
     Err(diagnostics)
   }
@@ -324,7 +324,7 @@ pub fn RunOptions::new(
   shard_count? : Int = 1,
   shard_index? : Int = 0,
 ) -> RunOptions {
-  { shard: @conformance.ShardSpec::new(shard_count, shard_index) }
+  { shard: @conformance.ShardSpec::new(shard_count, shard_index), }
 }
 
 ///|
@@ -358,7 +358,7 @@ fn executable_result(
   passed : Bool,
   message? : String = "",
 ) -> CaseResult {
-  { inner: @conformance.CaseResult::executable(id, passed, message~) }
+  { inner: @conformance.CaseResult::executable(id, passed, message~), }
 }
 
 ///|

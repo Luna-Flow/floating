@@ -242,9 +242,9 @@ fn logb_finite_result_ctx(
       negative,
       ctx.decimal_rounding,
     )
-    flags = { ..flags, rounded: true }
+    flags = { ..flags, rounded: true, }
     if inexact {
-      flags = { ..flags, inexact: true }
+      flags = { ..flags, inexact: true, }
     }
     exponent10 += shift
     magnitude = rounded
@@ -291,7 +291,7 @@ pub fn Decimal::next_toward(
           other.class == FpClass::Finite &&
           self.coefficient.is_zero() &&
           other.coefficient.is_zero() {
-          ({ ..self, negative: other.negative }, DecimalFlags::new())
+          ({ ..self, negative: other.negative, }, DecimalFlags::new())
         } else {
           (self, DecimalFlags::new())
         }
@@ -318,7 +318,7 @@ pub fn Decimal::logb_ctx(
       if self.coefficient.is_zero() {
         (
           Decimal::inf(Sign::Negative, precision~),
-          { ..DecimalFlags::new(), division_by_zero: true },
+          { ..DecimalFlags::new(), division_by_zero: true, },
         )
       } else {
         let adjusted = adjusted_exponent(self)

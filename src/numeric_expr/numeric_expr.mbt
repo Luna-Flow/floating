@@ -11,7 +11,7 @@ pub fn SourceSpan::new(
   line? : Int = 0,
   column? : Int = 0,
 ) -> SourceSpan {
-  { source, line, column }
+  { source, line, column, }
 }
 
 ///|
@@ -40,7 +40,7 @@ pub fn Literal::new(
   raw : String,
   span? : SourceSpan = SourceSpan::new(""),
 ) -> Literal {
-  { raw, span }
+  { raw, span, }
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn Operation::new(
   name : String,
   span? : SourceSpan = SourceSpan::new(""),
 ) -> Operation {
-  { name, span }
+  { name, span, }
 }
 
 ///|
@@ -90,7 +90,7 @@ pub struct Expr {
 
 ///|
 pub fn Expr::literal(value : Literal) -> Expr {
-  { term: @tt_syntax.Value(LiteralAtom(value)) }
+  { term: @tt_syntax.Value(LiteralAtom(value)), }
 }
 
 ///|

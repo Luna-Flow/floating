@@ -253,7 +253,7 @@ fn decimal_certified_half_even_candidate(
     interval.upper_bound().compare(upper_boundary.0) < 0 else {
     return None
   }
-  Some((rounded, { ..rounded_flags0, rounded: true, inexact: true }))
+  Some((rounded, { ..rounded_flags0, rounded: true, inexact: true, }))
 }
 
 ///|
@@ -310,7 +310,7 @@ fn decimal_certified_ln10_interval(
   input
   .try_ln_interval()
   .map(fn(interval) {
-    decimal_certified_ln10_cache.val = { precision, interval: Some(interval) }
+    decimal_certified_ln10_cache.val = { precision, interval: Some(interval), }
     interval
   })
 }
@@ -638,7 +638,7 @@ fn decimal_certified_power_log_candidate(
     log_power.upper_bound().compare(log_upper.lower_bound()) < 0 else {
     return Ok(None)
   }
-  Ok(Some((rounded, { ..rounded_flags0, rounded: true, inexact: true })))
+  Ok(Some((rounded, { ..rounded_flags0, rounded: true, inexact: true, })))
 }
 
 ///|

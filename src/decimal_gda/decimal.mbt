@@ -736,7 +736,7 @@ fn exact_base_small_addend_result(
   if low.negative != base.negative &&
     adjusted_exponent(base) == ctx.e_min &&
     is_power_of_ten_coeff(base_units_repr) {
-    flags = { ..flags, subnormal: true, underflow: true }
+    flags = { ..flags, subnormal: true, underflow: true, }
   }
   (value, flags)
 }
@@ -894,7 +894,7 @@ fn absorbed_sum_result(
   } else {
     (base, flags)
   }
-  let flags = { ..flags, rounded: true, inexact: true }
+  let flags = { ..flags, rounded: true, inexact: true, }
   if value.class == FpClass::Finite &&
     (value.coefficient.is_zero() || adjusted_exponent(value) < ctx.e_min) {
     (
@@ -915,7 +915,7 @@ fn absorbed_sum_result(
 ///|
 fn nan_operand_flags(a : Decimal, b : Decimal) -> DecimalFlags {
   if a.is_signaling_nan() || b.is_signaling_nan() {
-    { ..DecimalFlags::new(), invalid_operation: true }
+    { ..DecimalFlags::new(), invalid_operation: true, }
   } else {
     DecimalFlags::new()
   }
@@ -923,12 +923,12 @@ fn nan_operand_flags(a : Decimal, b : Decimal) -> DecimalFlags {
 
 ///|
 fn invalid_flags() -> DecimalFlags {
-  { ..DecimalFlags::new(), invalid_operation: true }
+  { ..DecimalFlags::new(), invalid_operation: true, }
 }
 
 ///|
 fn invalid_context_flags() -> DecimalFlags {
-  { ..DecimalFlags::new(), invalid_context: true }
+  { ..DecimalFlags::new(), invalid_context: true, }
 }
 
 ///|
@@ -959,15 +959,19 @@ fn decimal_compare_result(value : Int, ctx : DecimalContext) -> Decimal {
 ///|
 fn div_zero_flags(division_undefined : Bool) -> DecimalFlags {
   if division_undefined {
-    { ..DecimalFlags::new(), invalid_operation: true, division_undefined: true }
+    {
+      ..DecimalFlags::new(),
+      invalid_operation: true,
+      division_undefined: true,
+    }
   } else {
-    { ..DecimalFlags::new(), division_by_zero: true }
+    { ..DecimalFlags::new(), division_by_zero: true, }
   }
 }
 
 ///|
 fn div_impossible_flags() -> DecimalFlags {
-  { ..DecimalFlags::new(), invalid_operation: true, division_impossible: true }
+  { ..DecimalFlags::new(), invalid_operation: true, division_impossible: true, }
 }
 
 ///|
@@ -1040,7 +1044,7 @@ fn round_operand_for_subset(
   )
   let magnitude = if dropped > 0 {
     exponent10 = trimmed_exp
-    flags = { ..flags, rounded: true }
+    flags = { ..flags, rounded: true, }
     trimmed
   } else {
     trimmed
@@ -1054,9 +1058,9 @@ fn round_operand_for_subset(
       ctx.decimal_rounding,
     )
     exponent10 = next_exponent
-    flags = { ..flags, rounded: true }
+    flags = { ..flags, rounded: true, }
     if inexact {
-      flags = { ..flags, inexact: true, lost_digits: true }
+      flags = { ..flags, inexact: true, lost_digits: true, }
     }
     rounded_magnitude
   } else {
@@ -1119,7 +1123,7 @@ fn divide_integer_zero_quotient_flags(
   if !dividend_flags.inexact &&
     divisor_flags.inexact &&
     coeff_trailing_decimal_zeros(divisor.coefficient) > 0 {
-    { ..combined, inexact: false }
+    { ..combined, inexact: false, }
   } else {
     combined
   }
@@ -1287,7 +1291,7 @@ fn decimal_integer_quotient(
         ctx.extended &&
         !dividend.coefficient.is_zero() &&
         dividend.exponent10 >= 0 {
-        (value, { ..flags, rounded: true, inexact: true })
+        (value, { ..flags, rounded: true, inexact: true, })
       } else {
         (value, flags)
       }
@@ -1449,14 +1453,14 @@ fn zero_quotient_remainder_result(
         base.precision_,
       )
       let shifted_flags = if actual_shift < wanted_shift {
-        { ..base_flags, rounded: true }
+        { ..base_flags, rounded: true, }
       } else {
         base_flags
       }
       return finalize_finite_ctx(shifted, shifted_flags, ctx)
     }
     if wanted_shift > 0 {
-      return (base, { ..base_flags, rounded: true })
+      return (base, { ..base_flags, rounded: true, })
     }
   }
   (base, base_flags)

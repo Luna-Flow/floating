@@ -187,7 +187,7 @@ pub fn parse_pow_data(
     }
   }
   if diagnostics.length() == 0 {
-    Ok({ source, cases })
+    Ok({ source, cases, })
   } else {
     Err(diagnostics)
   }
@@ -248,7 +248,7 @@ pub fn parse_sqrt_data(
     }
   }
   if diagnostics.length() == 0 {
-    Ok({ source, cases })
+    Ok({ source, cases, })
   } else {
     Err(diagnostics)
   }

@@ -134,7 +134,7 @@ fn decimal_ieee_extrema_ctx(
         value,
         operand_flags.combine(
           if has_signaling {
-            { ..flags, invalid_operation: true }
+            { ..flags, invalid_operation: true, }
           } else {
             flags
           },
@@ -147,7 +147,7 @@ fn decimal_ieee_extrema_ctx(
       value,
       operand_flags.combine(
         if has_signaling {
-          { ..flags, invalid_operation: true }
+          { ..flags, invalid_operation: true, }
         } else {
           flags
         },

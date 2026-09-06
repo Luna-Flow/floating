@@ -433,7 +433,7 @@ fn finalize_finite_ctx(
             clamped_exponent,
             value.precision_,
           ),
-          { ..flags, clamped: true },
+          { ..flags, clamped: true, },
         )
       }
     }
@@ -475,7 +475,7 @@ fn finalize_finite_ctx(
       value.negative,
       ctx.decimal_rounding,
     )
-    flags = { ..flags, rounded: true }
+    flags = { ..flags, rounded: true, }
     let rounded_adjusted = if magnitude.is_zero() {
       ctx.e_min.to_int64() - 1L
     } else {
@@ -483,12 +483,12 @@ fn finalize_finite_ctx(
     }
     let tiny = tiny_for_underflow(ctx, unrounded_adjusted, rounded_adjusted)
     if tiny {
-      flags = { ..flags, subnormal: true }
+      flags = { ..flags, subnormal: true, }
     }
     if inexact {
-      flags = { ..flags, inexact: true }
+      flags = { ..flags, inexact: true, }
       if tiny {
-        flags = { ..flags, underflow: true }
+        flags = { ..flags, underflow: true, }
       }
     }
     value = finite_with_exponent_repr(
@@ -498,16 +498,16 @@ fn finalize_finite_ctx(
       value.precision_,
     )
     if value.coefficient.is_zero() {
-      return (value, { ..flags, clamped: true, rounded: true })
+      return (value, { ..flags, clamped: true, rounded: true, })
     }
   }
   let adjusted2 = adjusted_exponent(value)
   if adjusted2 < ctx.e_min {
-    flags = { ..flags, subnormal: true }
+    flags = { ..flags, subnormal: true, }
     if flags.inexact {
-      flags = { ..flags, underflow: true }
+      flags = { ..flags, underflow: true, }
     } else if !ctx.extended {
-      flags = { ..flags, rounded: true, inexact: true, underflow: true }
+      flags = { ..flags, rounded: true, inexact: true, underflow: true, }
     }
   }
   if ctx.clamp && ctx.precision > 0 {
@@ -520,7 +520,7 @@ fn finalize_finite_ctx(
         e_top,
         value.precision_,
       )
-      flags = { ..flags, clamped: true }
+      flags = { ..flags, clamped: true, }
     }
   }
   (value, flags)
@@ -568,7 +568,7 @@ fn normalize_decimal_parts_ctx_repr(
     } else {
       (rounded_magnitude0, next_exponent0)
     }
-    flags = { ..flags, rounded: true }
+    flags = { ..flags, rounded: true, }
     let rounded_adjusted = if rounded_magnitude0.is_zero() {
       ctx.e_min.to_int64() - 1L
     } else {
@@ -578,17 +578,17 @@ fn normalize_decimal_parts_ctx_repr(
       ctx, unrounded_adjusted, rounded_adjusted,
     )
     if tiny_result {
-      flags = { ..flags, subnormal: true }
+      flags = { ..flags, subnormal: true, }
     }
     if inexact {
-      flags = { ..flags, inexact: true }
+      flags = { ..flags, inexact: true, }
       if tiny_result {
-        flags = { ..flags, underflow: true }
+        flags = { ..flags, underflow: true, }
       }
     }
     magnitude = rounded_magnitude
     if magnitude.is_zero() {
-      flags = { ..flags, clamped: true }
+      flags = { ..flags, clamped: true, }
     }
     exponent10 = next_exponent
   }
@@ -603,7 +603,7 @@ fn normalize_decimal_parts_ctx_repr(
       )
       if dropped > 0 {
         exponent10 = trimmed_exp
-        flags = { ..flags, rounded: true }
+        flags = { ..flags, rounded: true, }
       }
       trimmed
     } else {
@@ -623,9 +623,9 @@ fn normalize_decimal_parts_ctx_repr(
         ctx.decimal_rounding,
       )
       exponent10 = next_exponent
-      flags = { ..flags, rounded: true }
+      flags = { ..flags, rounded: true, }
       if inexact {
-        flags = { ..flags, inexact: true }
+        flags = { ..flags, inexact: true, }
       }
       rounded_magnitude
     } else {
@@ -664,7 +664,7 @@ fn with_underflow_for_inexact_subnormal(
   if flags.inexact &&
     value.class == FpClass::Finite &&
     adjusted_exponent(value) < ctx.e_min {
-    { ..flags, subnormal: true, underflow: true }
+    { ..flags, subnormal: true, underflow: true, }
   } else {
     flags
   }
@@ -875,7 +875,7 @@ fn finish_context_result(
 ) -> (Decimal, DecimalFlags) {
   let value = finish_subset_finite_result(value, ctx, trim_fractional)
   let flags = if !ctx.extended && value.is_zero() && flags.underflow {
-    { ..flags, clamped: false }
+    { ..flags, clamped: false, }
   } else {
     flags
   }
@@ -956,7 +956,7 @@ pub fn Decimal::with_precision(
         precision,
         DecimalRoundingMode::from_arithmetic(mode),
       )
-    FpClass::Infinity => { ..self, precision_: Int::max(1, precision) }
-    FpClass::NaN => { ..self, precision_: Int::max(1, precision) }
+    FpClass::Infinity => { ..self, precision_: Int::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int::max(1, precision), }
   }
 }

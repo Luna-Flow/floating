@@ -21,12 +21,12 @@ pub fn BallFloatResult::from_result(
 
 ///|
 pub fn BallFloatResult::ok(value : @ball_float.BallFloat) -> BallFloatResult {
-  { inner: Ok(value) }
+  { inner: Ok(value), }
 }
 
 ///|
 pub fn BallFloatResult::err(err : @def.ArithmeticError) -> BallFloatResult {
-  { inner: Err(err) }
+  { inner: Err(err), }
 }
 
 ///|

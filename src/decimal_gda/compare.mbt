@@ -217,7 +217,7 @@ pub fn Decimal::compare_signal_ctx(
     Some((value, flags)) =>
       return (
         value,
-        operand_flags.combine({ ..flags, invalid_operation: true }),
+        operand_flags.combine({ ..flags, invalid_operation: true, }),
       )
     None => ()
   }
@@ -303,7 +303,7 @@ pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int {
 
 ///|
 pub fn Decimal::compare_total_magnitude(self : Decimal, other : Decimal) -> Int {
-  { ..self, negative: false }.compare_total({ ..other, negative: false })
+  { ..self, negative: false, }.compare_total({ ..other, negative: false, })
 }
 
 ///|

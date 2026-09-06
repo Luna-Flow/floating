@@ -14,7 +14,7 @@ pub struct BallFlags {
 
 ///|
 pub fn BallFlags::new() -> BallFlags {
-  { inexact: false, overflow: false, underflow: false }
+  { inexact: false, overflow: false, underflow: false, }
 }
 
 ///|
@@ -61,7 +61,7 @@ pub fn BallContext::try_new(
       ),
     )
   }
-  Ok({ precision, e_min, e_max })
+  Ok({ precision, e_min, e_max, })
 }
 
 ///|
@@ -76,7 +76,7 @@ pub fn BallContext::new(
   guard e_min <= e_max else {
     abort("BallContext::new: e_min must not exceed e_max")
   }
-  { precision, e_min, e_max }
+  { precision, e_min, e_max, }
 }
 
 ///|
@@ -271,7 +271,7 @@ pub fn BallFloat::apply_ctx(
   let underflow = lo_underflow || hi_underflow
   (
     store_interval(lo, hi, ctx.precision),
-    { inexact: lo_inexact || hi_inexact, overflow, underflow },
+    { inexact: lo_inexact || hi_inexact, overflow, underflow, },
   )
 }
 

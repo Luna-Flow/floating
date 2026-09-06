@@ -34,7 +34,7 @@ fn DecimalChecked::record_result(
   guard self.error_ is None else { return self }
   match outcome {
     Ok(value) => self.record(value)
-    Err(error) => { ..self, error_: Some(error) }
+    Err(error) => { ..self, error_: Some(error), }
   }
 }
 
@@ -168,7 +168,7 @@ pub fn DecimalChecked::result(
 ///|
 pub fn DecimalChecked::clear_flags(self : DecimalChecked) -> DecimalChecked {
   let empty = @decimal.DecimalFlags::new()
-  { ..self, raised_: empty, flags_: empty }
+  { ..self, raised_: empty, flags_: empty, }
 }
 
 ///|

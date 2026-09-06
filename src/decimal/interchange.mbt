@@ -214,7 +214,7 @@ pub fn DecimalInterchange::to_decimal_ctx(
 ) -> (Decimal, DecimalFlags) {
   let value = self.to_decimal()
   let flags = if value.is_subnormal(self.format.context()) {
-    { ..DecimalFlags::new(), subnormal: true }
+    { ..DecimalFlags::new(), subnormal: true, }
   } else {
     DecimalFlags::new()
   }
@@ -285,7 +285,7 @@ pub fn DecimalInterchange::copy_sign(
   let magnitude = self.bits &
     (decimal_interchange_mask(self.format) - sign_mask)
   let sign = other.bits & sign_mask
-  { format: self.format, encoding: self.encoding, bits: magnitude | sign }
+  { format: self.format, encoding: self.encoding, bits: magnitude | sign, }
 }
 
 ///|

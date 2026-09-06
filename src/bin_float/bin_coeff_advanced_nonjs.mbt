@@ -9,7 +9,7 @@ fn bin_coeff_signed_scratch(
   negative : Bool,
   magnitude : BinCoeff,
 ) -> BinCoeffSignedScratch {
-  { negative: negative && !magnitude.is_zero(), magnitude }
+  { negative: negative && !magnitude.is_zero(), magnitude, }
 }
 
 ///|
@@ -155,7 +155,7 @@ priv struct BinCoeffScratchArena {
 
 ///|
 fn bin_coeff_scratch_arena_new(capacity : Int) -> BinCoeffScratchArena {
-  { slots: FixedArray::make(Int::max(1, capacity), BinCoeff::zero()), used: 0 }
+  { slots: FixedArray::make(Int::max(1, capacity), BinCoeff::zero()), used: 0, }
 }
 
 ///|

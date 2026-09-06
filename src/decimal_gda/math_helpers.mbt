@@ -172,7 +172,7 @@ fn decimal_power_one_limit_result(
       -zeros,
       precision,
     ),
-    { ..DecimalFlags::new(), inexact: true, rounded: true },
+    { ..DecimalFlags::new(), inexact: true, rounded: true, },
   )
 }
 
@@ -238,7 +238,7 @@ fn decimal_power_adjacent_one_directed_result(
   let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
   let one = Decimal::one(precision~)
   guard exponent.compare(one) < 0 else { return None }
-  let flags = { ..DecimalFlags::new(), rounded: true, inexact: true }
+  let flags = { ..DecimalFlags::new(), rounded: true, inexact: true, }
   if base.compare(one) > 0 {
     guard ctx.decimal_rounding == DecimalRoundingMode::Ceiling ||
       ctx.decimal_rounding == DecimalRoundingMode::Floor else {
@@ -336,7 +336,7 @@ fn decimal_power_finite_noninteger_domain_result(
 
 ///|
 fn decimal_math_result_ctx(ctx : DecimalContext) -> DecimalContext {
-  { ..ctx, decimal_rounding: DecimalRoundingMode::HalfEven }
+  { ..ctx, decimal_rounding: DecimalRoundingMode::HalfEven, }
 }
 
 ///|
@@ -615,7 +615,7 @@ fn decimal_power_integer_finite_result(
         },
         precision=finite_precision_for_coeff(gda_coeff_from_int(1), ctx),
       ),
-      { ..DecimalFlags::new(), overflow: true },
+      { ..DecimalFlags::new(), overflow: true, },
     )
   }
   match decimal_power_large_integer_exponent_bound_result(base, count, ctx) {
@@ -663,7 +663,7 @@ fn decimal_exp_underflow_zero_result(
   } else {
     (
       finish_subset_finite_result(result.0, ctx, false),
-      { ..result.1, clamped: false },
+      { ..result.1, clamped: false, },
     )
   }
 }
@@ -700,7 +700,7 @@ fn decimal_math_small_threshold(work_precision : Int) -> Decimal {
 ///|
 fn decimal_math_abs(value : Decimal) -> Decimal {
   if value.class == FpClass::Finite {
-    { ..value, negative: false }
+    { ..value, negative: false, }
   } else {
     value
   }
@@ -832,7 +832,7 @@ fn decimal_div_finite_by_small_int_work(
       result,
       with_underflow_for_inexact_subnormal(
         result,
-        { ..flags, rounded: true, inexact: true },
+        { ..flags, rounded: true, inexact: true, },
         work_ctx,
       ),
     )
@@ -955,7 +955,7 @@ fn decimal_div_finite_work(
       value,
       with_underflow_for_inexact_subnormal(
         value,
-        { ..round_flags, rounded: true, inexact: true },
+        { ..round_flags, rounded: true, inexact: true, },
         work_ctx,
       ),
     )
@@ -1032,7 +1032,7 @@ fn decimal_sub_finite_work(
   guard lhs.class == FpClass::Finite && rhs.class == FpClass::Finite else {
     abort("decimal_sub_finite_work expects finite operands")
   }
-  decimal_add_finite_work(lhs, { ..rhs, negative: !rhs.negative }, work_ctx)
+  decimal_add_finite_work(lhs, { ..rhs, negative: !rhs.negative, }, work_ctx)
 }
 
 ///|
@@ -1136,7 +1136,7 @@ fn decimal_transcendental_ln_constants(
     ln_five_quarters,
   )
   let ln5 = gda_coeff_magnitude_sub_repr(ln10, ln2)
-  decimal_math_constant_cache.val = { scale: work_scale, ln2, ln5, ln10 }
+  decimal_math_constant_cache.val = { scale: work_scale, ln2, ln5, ln10, }
   (ln2, ln5, ln10)
 }
 
@@ -1341,11 +1341,11 @@ fn decimal_ln_lookaside_work_result_with_ln10(
   Some(
     (
       if total_scaled.negative {
-        { ..result, negative: true }
+        { ..result, negative: true, }
       } else {
         result
       },
-      { ..DecimalFlags::new(), rounded: true, inexact: true },
+      { ..DecimalFlags::new(), rounded: true, inexact: true, },
     ),
   )
 }
@@ -1508,7 +1508,7 @@ fn _decimal_exp_finite_work_result_with_ln10(
     remaining -= 1
   }
   if exponent10 != 0 {
-    result = { ..result, exponent10: result.exponent10 + exponent10 }
+    result = { ..result, exponent10: result.exponent10 + exponent10, }
     let (normalized, normalize_flags) = decimal_normalize_finite_work(
       result, work_ctx,
     )
@@ -1601,7 +1601,7 @@ fn decimal_exp_extreme_half_even_result(
 ///|
 fn decimal_power_compare_abs_one(value : Decimal, precision : Int) -> Int {
   compare_finite(
-    { ..value, negative: false },
+    { ..value, negative: false, },
     finite_with_exponent_repr(false, gda_coeff_from_int(1), 0, precision),
   )
 }
@@ -1747,7 +1747,7 @@ fn decimal_power_underflow_zero_result(
   if ctx.extended {
     (value, flags)
   } else {
-    (value, { ..flags, clamped: false })
+    (value, { ..flags, clamped: false, })
   }
 }
 
@@ -1827,7 +1827,7 @@ fn decimal_power_simple_ten_result(
             result_exponent - precision + 1,
             precision,
           ),
-          { ..DecimalFlags::new(), rounded: true },
+          { ..DecimalFlags::new(), rounded: true, },
           ctx,
         ),
       )
@@ -1837,7 +1837,7 @@ fn decimal_power_simple_ten_result(
       gda_coeff_matches_unit_repr(base.coefficient, 10) &&
       count < 0 &&
       abs_int(count) + 1 > precision {
-      { ..DecimalFlags::new(), rounded: true }
+      { ..DecimalFlags::new(), rounded: true, }
     } else {
       DecimalFlags::new()
     }
@@ -1948,9 +1948,9 @@ fn decimal_power_exact_ten_result(
     )
   }
   let flags = if result_exponent >= 0 && result_exponent + 1 > precision {
-    { ..DecimalFlags::new(), rounded: true }
+    { ..DecimalFlags::new(), rounded: true, }
   } else if result_exponent < ctx.e_min {
-    { ..DecimalFlags::new(), subnormal: true }
+    { ..DecimalFlags::new(), subnormal: true, }
   } else {
     DecimalFlags::new()
   }

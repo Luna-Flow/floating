@@ -1605,7 +1605,7 @@ fn decimal_div_finite_by_small_int_work_bigint_expected(
       result,
       with_underflow_for_inexact_subnormal(
         result,
-        { ..flags, rounded: true, inexact: true },
+        { ..flags, rounded: true, inexact: true, },
         work_ctx,
       ),
     )
@@ -1706,7 +1706,7 @@ fn decimal_div_finite_work_bigint_expected(
       value,
       with_underflow_for_inexact_subnormal(
         value,
-        { ..round_flags, rounded: true, inexact: true },
+        { ..round_flags, rounded: true, inexact: true, },
         work_ctx,
       ),
     )
@@ -1743,7 +1743,7 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
         },
         precision=value.precision_,
       ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true },
+      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
     )
   }
   let tiny = etiny(ctx)
@@ -1755,15 +1755,15 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
       value.negative,
       ctx.decimal_rounding,
     )
-    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true }
+    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true, }
     if inexact {
-      flags = { ..flags, inexact: true, underflow: true }
+      flags = { ..flags, inexact: true, underflow: true, }
     }
     let magnitude = magnitude_repr.to_bigint()
     if magnitude_repr.is_zero() {
       return (
         finite_with_exponent(value.negative, magnitude, tiny, precision),
-        { ..flags, clamped: true },
+        { ..flags, clamped: true, },
       )
     }
     if magnitude_repr.digits10() > precision {
@@ -1812,7 +1812,7 @@ fn scaleb_finite_result_ctx_bigint_expected(
         },
         precision=value.precision_,
       ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true },
+      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
     )
   }
   let tiny = etiny(ctx)

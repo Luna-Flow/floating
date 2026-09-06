@@ -348,7 +348,7 @@ fn quantize_finite_to_exponent(
       negative,
       ctx.decimal_rounding,
     )
-    flags = { ..flags, rounded: true, inexact }
+    flags = { ..flags, rounded: true, inexact, }
     rounded
   } else if value.exponent10 > target {
     let shift = value.exponent10 - target
@@ -370,7 +370,7 @@ fn quantize_finite_to_exponent(
     flags,
     ctx,
   )
-  let final_flags = { ..final_flags, underflow: false }
+  let final_flags = { ..final_flags, underflow: false, }
   if !ctx.extended && result.coefficient.is_zero() {
     (
       finite_with_exponent_repr(false, gda_coeff_zero(), target, precision),
@@ -473,7 +473,7 @@ pub fn Decimal::to_integral_value(
         self.apply_ctx(ctx)
       } else {
         let (value, flags) = self.to_integral_exact(ctx)
-        (value, { ..flags, rounded: false, inexact: false })
+        (value, { ..flags, rounded: false, inexact: false, })
       }
   }
 }

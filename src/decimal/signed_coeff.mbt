@@ -10,7 +10,7 @@ priv struct SignedDecCoeff {
 
 ///|
 fn signed_dec_coeff(negative : Bool, magnitude : DecCoeff) -> SignedDecCoeff {
-  { negative: negative && !magnitude.is_zero(), magnitude }
+  { negative: negative && !magnitude.is_zero(), magnitude, }
 }
 
 ///|

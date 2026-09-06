@@ -46,7 +46,7 @@ pub fn ExactRational::new(
   numerator : BigInt,
   denominator : BigInt,
 ) -> ExactRational {
-  { inner: @internal.ExactRat::new(numerator, denominator) }
+  { inner: @internal.ExactRat::new(numerator, denominator), }
 }
 
 ///|

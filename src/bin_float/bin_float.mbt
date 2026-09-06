@@ -535,14 +535,14 @@ pub fn BinFloat::with_precision(
           mode~,
         )
       }
-    FpClass::Infinity => { ..self, precision_: Int::max(1, precision) }
-    FpClass::NaN => { ..self, precision_: Int::max(1, precision) }
+    FpClass::Infinity => { ..self, precision_: Int::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int::max(1, precision), }
   }
 }
 
 ///|
 pub fn BinFloat::neg(self : BinFloat) -> BinFloat {
-  { ..self, negative: !self.negative }
+  { ..self, negative: !self.negative, }
 }
 
 ///|

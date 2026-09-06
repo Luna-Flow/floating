@@ -49,7 +49,7 @@ fn add_finite_values_ctx(
     )
     let zero_flags = if ctx.precision > 0 &&
       preferred_zero_exponent < etiny(ctx) {
-      { ..DecimalFlags::new(), clamped: true }
+      { ..DecimalFlags::new(), clamped: true, }
     } else {
       DecimalFlags::new()
     }
@@ -95,7 +95,7 @@ fn add_finite_values_ctx(
         }
         return finalize_finite_ctx(
           shifted,
-          { ..base_flags, rounded: true },
+          { ..base_flags, rounded: true, },
           ctx,
         )
       }
@@ -203,7 +203,7 @@ fn add_finite_values_ctx(
           exponent10,
           finite_precision_for_coeff(magnitude, ctx),
         ),
-        { ..DecimalFlags::new(), rounded, inexact },
+        { ..DecimalFlags::new(), rounded, inexact, },
         ctx,
       )
       return (value, flags)
@@ -222,12 +222,12 @@ fn add_finite_values_ctx(
   let flags = if exact_magnitude.is_zero() &&
     ctx.precision > 0 &&
     target < etiny(ctx) {
-    { ..flags, clamped: true }
+    { ..flags, clamped: true, }
   } else {
     flags
   }
   if exact_adjusted < ctx.e_min && flags.inexact {
-    (value, { ..flags, subnormal: true, underflow: true })
+    (value, { ..flags, subnormal: true, underflow: true, })
   } else {
     (value, flags)
   }
@@ -508,7 +508,7 @@ fn Decimal::decimal_div_ctx_impl(
           etiny(ctx),
           precision,
         ),
-        { ..DecimalFlags::new(), clamped: true },
+        { ..DecimalFlags::new(), clamped: true, },
       )
     (FpClass::Finite, FpClass::Finite) if self.is_zero() =>
       finalize_finite_ctx(
@@ -614,7 +614,7 @@ fn Decimal::decimal_div_ctx_impl(
         )
         let flags = with_underflow_for_inexact_subnormal(
           value,
-          { ..round_flags, rounded: true, inexact: true },
+          { ..round_flags, rounded: true, inexact: true, },
           ctx,
         )
         (value, flags)
@@ -955,7 +955,7 @@ pub fn Decimal::sqrt_ctx(
             if value.class == FpClass::Finite &&
               !value.coefficient.is_zero() &&
               value.exponent10 > ideal_exponent {
-              (value, { ..flags, rounded: true })
+              (value, { ..flags, rounded: true, })
             } else {
               (value, flags)
             }

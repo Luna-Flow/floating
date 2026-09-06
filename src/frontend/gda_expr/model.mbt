@@ -324,5 +324,5 @@ pub fn RunSummary::success(self : RunSummary) -> Bool {
 
 ///|
 pub fn RunSummary::merge(parts : Array[RunSummary]) -> RunSummary {
-  { inner: @conformance.RunSummary::merge(parts.map(fn(part) { part.inner })) }
+  { inner: @conformance.RunSummary::merge(parts.map(fn(part) { part.inner })), }
 }

@@ -43,7 +43,7 @@ fn finalize_scaleb_finite_ctx(
         },
         precision=value.precision_,
       ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true },
+      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
     )
   }
   let tiny = etiny(ctx)
@@ -55,9 +55,9 @@ fn finalize_scaleb_finite_ctx(
       value.negative,
       ctx.decimal_rounding,
     )
-    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true }
+    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true, }
     if inexact {
-      flags = { ..flags, inexact: true, underflow: true }
+      flags = { ..flags, inexact: true, underflow: true, }
     }
     if magnitude_repr.is_zero() {
       return (
@@ -67,7 +67,7 @@ fn finalize_scaleb_finite_ctx(
           tiny,
           precision,
         ),
-        { ..flags, clamped: true },
+        { ..flags, clamped: true, },
       )
     }
     if magnitude_repr.digits10() > precision {
@@ -146,7 +146,7 @@ fn scaleb_finite_result_ctx(
         },
         precision=value.precision_,
       ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true },
+      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
     )
   }
   let tiny = etiny(ctx)

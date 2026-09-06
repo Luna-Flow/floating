@@ -306,8 +306,8 @@ fn LegacyBigIntBinFloat::with_precision(
         negative_zero=self.negative_zero_,
         mode~,
       )
-    FpClass::Infinity => { ..self, precision_: Int::max(1, precision) }
-    FpClass::NaN => { ..self, precision_: Int::max(1, precision) }
+    FpClass::Infinity => { ..self, precision_: Int::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int::max(1, precision), }
   }
 }
 
@@ -316,10 +316,10 @@ fn LegacyBigIntBinFloat::neg(
   self : LegacyBigIntBinFloat,
 ) -> LegacyBigIntBinFloat {
   match self.class_ {
-    FpClass::NaN => { ..self, nan_negative_: !self.nan_negative_ }
+    FpClass::NaN => { ..self, nan_negative_: !self.nan_negative_, }
     FpClass::Finite if self.significand_.is_zero() =>
-      { ..self, negative_zero_: !self.negative_zero_ }
-    _ => { ..self, significand_: -self.significand_ }
+      { ..self, negative_zero_: !self.negative_zero_, }
+    _ => { ..self, significand_: -self.significand_, }
   }
 }
 

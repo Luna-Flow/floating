@@ -101,22 +101,22 @@ pub fn BinaryFlags::to_testfloat_bits(self : BinaryFlags) -> Int {
 
 ///|
 fn binary_inexact_flags(underflow : Bool) -> BinaryFlags {
-  { ..BinaryFlags::new(), inexact: true, underflow }
+  { ..BinaryFlags::new(), inexact: true, underflow, }
 }
 
 ///|
 fn binary_overflow_flags() -> BinaryFlags {
-  { ..BinaryFlags::new(), inexact: true, overflow: true }
+  { ..BinaryFlags::new(), inexact: true, overflow: true, }
 }
 
 ///|
 fn binary_division_by_zero_flags() -> BinaryFlags {
-  { ..BinaryFlags::new(), division_by_zero: true }
+  { ..BinaryFlags::new(), division_by_zero: true, }
 }
 
 ///|
 fn binary_invalid_flags() -> BinaryFlags {
-  { ..BinaryFlags::new(), invalid_operation: true }
+  { ..BinaryFlags::new(), invalid_operation: true, }
 }
 
 ///|
@@ -165,7 +165,7 @@ pub fn BinaryContext::new(
     }
     _ => ()
   }
-  { precision, rounding, e_min, e_max, tininess }
+  { precision, rounding, e_min, e_max, tininess, }
 }
 
 ///|
@@ -193,7 +193,7 @@ pub fn BinaryContext::try_new(
         ),
       )
   }
-  Ok({ precision, rounding, e_min, e_max, tininess })
+  Ok({ precision, rounding, e_min, e_max, tininess, })
 }
 
 ///|

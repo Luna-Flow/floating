@@ -103,7 +103,7 @@ fn signed_coeff_from_parts(
   negative : Bool,
   magnitude : @bin_float.BinCoeff,
 ) -> SignedBinCoeff {
-  { negative: negative && !magnitude.is_zero(), magnitude }
+  { negative: negative && !magnitude.is_zero(), magnitude, }
 }
 
 ///|

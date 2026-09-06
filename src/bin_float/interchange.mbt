@@ -134,7 +134,7 @@ pub fn BinaryInterchange::from_hex(
 ) -> BinaryInterchange? {
   match binary_normalize_hex(source, format.total_bits() / 4) {
     Some(bits) =>
-      Some({ format, bits: bits.bit_and(binary_interchange_mask(format)) })
+      Some({ format, bits: bits.bit_and(binary_interchange_mask(format)), })
     None => None
   }
 }
@@ -156,7 +156,7 @@ pub fn BinaryInterchange::from_bits(
   bits : BinCoeff,
   format : BinaryInterchangeFormat,
 ) -> BinaryInterchange {
-  { format, bits: bits.bit_and(binary_interchange_mask(format)) }
+  { format, bits: bits.bit_and(binary_interchange_mask(format)), }
 }
 
 ///|
@@ -282,7 +282,7 @@ pub fn BinaryInterchange::from_bin_float(
   tininess? : TininessDetection = TininessDetection::AfterRounding,
 ) -> (BinaryInterchange, BinaryFlags) {
   let (rounded, flags) = value.round_ctx(format.context(rounding~, tininess~))
-  ({ format, bits: binary_encode_rounded(rounded, format) }, flags)
+  ({ format, bits: binary_encode_rounded(rounded, format), }, flags)
 }
 
 ///|

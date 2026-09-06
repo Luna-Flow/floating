@@ -64,7 +64,7 @@ pub fn parse_common_options(
     index += 1
   }
   match @conformance.ShardSpec::try_new(shard_count, shard_index) {
-    Ok(shard) => Ok({ json, shard, remaining })
+    Ok(shard) => Ok({ json, shard, remaining, })
     Err(message) => Err(message)
   }
 }

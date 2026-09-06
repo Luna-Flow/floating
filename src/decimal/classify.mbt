@@ -66,7 +66,7 @@ fn quiet_nan_pair(
         (
           value,
           if has_signaling {
-            { ..flags, invalid_operation: true }
+            { ..flags, invalid_operation: true, }
           } else {
             flags
           },
@@ -103,7 +103,7 @@ fn quiet_nan_triplet(
         (
           value,
           if has_signaling {
-            { ..flags, invalid_operation: true }
+            { ..flags, invalid_operation: true, }
           } else {
             flags
           },
@@ -336,7 +336,7 @@ pub fn Decimal::class_name(self : Decimal, ctx : DecimalContext) -> String {
 
 ///|
 pub fn Decimal::neg(self : Decimal) -> Decimal {
-  { ..self, negative: !self.negative }
+  { ..self, negative: !self.negative, }
 }
 
 ///|
@@ -355,15 +355,15 @@ pub fn Decimal::copy(self : Decimal) -> Decimal {
 
 ///|
 pub fn Decimal::copy_abs(self : Decimal) -> Decimal {
-  { ..self, negative: false }
+  { ..self, negative: false, }
 }
 
 ///|
 pub fn Decimal::copy_negate(self : Decimal) -> Decimal {
-  { ..self, negative: !self.negative }
+  { ..self, negative: !self.negative, }
 }
 
 ///|
 pub fn Decimal::copy_sign(self : Decimal, other : Decimal) -> Decimal {
-  { ..self, negative: other.negative }
+  { ..self, negative: other.negative, }
 }

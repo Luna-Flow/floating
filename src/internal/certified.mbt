@@ -31,7 +31,7 @@ pub fn[T] CertifiedInterval::new(
       ),
     )
   }
-  Ok({ lower_: lower, upper_: upper })
+  Ok({ lower_: lower, upper_: upper, })
 }
 
 ///|

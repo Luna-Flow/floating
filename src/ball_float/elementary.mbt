@@ -21,7 +21,7 @@ fn certified_rat_coeff(
     abort("certified rational denominator must be non-zero")
   }
   if signed_coeff_is_zero(num) {
-    return { num, den: coeff_one() }
+    return { num, den: coeff_one(), }
   }
   let divisor = coeff_gcd(signed_coeff_magnitude(num), den)
   {
@@ -43,7 +43,7 @@ fn rat_from_fraction_int(numerator : Int, denominator : Int) -> CertifiedRat {
 
 ///|
 fn rat_from_int(value : Int) -> CertifiedRat {
-  { num: signed_coeff_from_int(value), den: coeff_one() }
+  { num: signed_coeff_from_int(value), den: coeff_one(), }
 }
 
 ///|
@@ -58,12 +58,12 @@ fn rat_is_zero(value : CertifiedRat) -> Bool {
 
 ///|
 fn rat_neg(value : CertifiedRat) -> CertifiedRat {
-  { num: signed_coeff_neg(value.num), den: value.den }
+  { num: signed_coeff_neg(value.num), den: value.den, }
 }
 
 ///|
 fn rat_abs(value : CertifiedRat) -> CertifiedRat {
-  { num: signed_coeff_abs(value.num), den: value.den }
+  { num: signed_coeff_abs(value.num), den: value.den, }
 }
 
 ///|

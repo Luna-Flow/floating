@@ -239,8 +239,8 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
 
 ///|
 test "BallFlags getters and combine accumulate endpoint status" {
-  let left : BallFlags = { inexact: true, overflow: false, underflow: true }
-  let right : BallFlags = { inexact: false, overflow: true, underflow: false }
+  let left : BallFlags = { inexact: true, overflow: false, underflow: true, }
+  let right : BallFlags = { inexact: false, overflow: true, underflow: false, }
   let combined = left.combine(right)
   assert_true(combined.inexact())
   assert_true(combined.overflow())

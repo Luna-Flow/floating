@@ -10,7 +10,7 @@ priv struct SignedGdaCoeff {
 
 ///|
 fn signed_gda_coeff(negative : Bool, magnitude : GdaCoeff) -> SignedGdaCoeff {
-  { negative: negative && !magnitude.is_zero(), magnitude }
+  { negative: negative && !magnitude.is_zero(), magnitude, }
 }
 
 ///|

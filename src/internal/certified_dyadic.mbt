@@ -7,7 +7,7 @@ pub struct CertifiedDyadic {
 ///|
 pub fn CertifiedDyadic::new(numerator : BigInt, scale : Int) -> CertifiedDyadic {
   guard scale >= 0 else { abort("certified dyadic scale must be non-negative") }
-  { numerator_: numerator, scale_: scale }
+  { numerator_: numerator, scale_: scale, }
 }
 
 ///|

@@ -150,23 +150,23 @@ fn update_context(
   match normalized_word(name) {
     "precision" =>
       match parse_int_value(value) {
-        Some(number) => Ok({ ..context, precision: number })
+        Some(number) => Ok({ ..context, precision: number, })
         None => Err("invalid precision directive")
       }
-    "rounding" => Ok({ ..context, rounding: value })
+    "rounding" => Ok({ ..context, rounding: value, })
     "minexponent" =>
       match parse_int_value(value) {
-        Some(number) => Ok({ ..context, min_exponent: number })
+        Some(number) => Ok({ ..context, min_exponent: number, })
         None => Err("invalid minexponent directive")
       }
     "maxexponent" =>
       match parse_int_value(value) {
-        Some(number) => Ok({ ..context, max_exponent: number })
+        Some(number) => Ok({ ..context, max_exponent: number, })
         None => Err("invalid maxexponent directive")
       }
-    "clamp" => Ok({ ..context, clamp: value.trim().to_owned() == "1" })
-    "extended" => Ok({ ..context, extended: value.trim().to_owned() != "0" })
-    "dectest" => Ok({ ..context, dectest: value })
+    "clamp" => Ok({ ..context, clamp: value.trim().to_owned() == "1", })
+    "extended" => Ok({ ..context, extended: value.trim().to_owned() != "0", })
+    "dectest" => Ok({ ..context, dectest: value, })
     "version" => Ok(context)
     _ => Ok(context)
   }
@@ -196,10 +196,13 @@ pub fn parse_dectest(
         let value = line[colon + 1:].to_owned().trim().to_owned()
         match update_context(context, name, value) {
           Ok(next) => context = next
-          Err(message) => diagnostics.push({ span, message })
+          Err(message) => diagnostics.push({ span, message, })
         }
       } else {
-        diagnostics.push({ span, message: "expected directive or testcase row" })
+        diagnostics.push({
+          span,
+          message: "expected directive or testcase row",
+        })
       }
       continue
     }
@@ -232,12 +235,12 @@ pub fn parse_dectest(
         })
       }
       (Err(message), _) | (_, Err(message)) =>
-        diagnostics.push({ span, message })
-      _ => diagnostics.push({ span, message: "malformed testcase row" })
+        diagnostics.push({ span, message, })
+      _ => diagnostics.push({ span, message: "malformed testcase row", })
     }
   }
   if diagnostics.length() == 0 {
-    Ok({ source, cases })
+    Ok({ source, cases, })
   } else {
     Err(diagnostics)
   }

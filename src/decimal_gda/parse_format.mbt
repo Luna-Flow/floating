@@ -240,7 +240,7 @@ fn decimal_conversion_syntax_result(
   let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
   (
     make_special_repr(FpClass::NaN, false, gda_coeff_zero(), precision, false),
-    { ..DecimalFlags::new(), conversion_syntax: true },
+    { ..DecimalFlags::new(), conversion_syntax: true, },
   )
 }
 
@@ -328,7 +328,7 @@ fn decimal_zero_conversion_result(
     if clamped_exponent == exponent10 {
       DecimalFlags::new()
     } else {
-      { ..DecimalFlags::new(), clamped: true }
+      { ..DecimalFlags::new(), clamped: true, }
     },
   )
 }
@@ -494,7 +494,7 @@ fn parse_decimal_string_ctx(
           if ctx.precision > 0 &&
             !magnitude.is_zero() &&
             original_digits > finite_precision_for_coeff(magnitude, ctx) {
-            (value, { ..flags, rounded: true })
+            (value, { ..flags, rounded: true, })
           } else {
             (value, flags)
           }

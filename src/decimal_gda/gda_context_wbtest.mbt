@@ -127,7 +127,7 @@ test "GDA trap selection preserves signal precedence" {
     trapped_signal(raised, traps) == Some(GdaSignal::InvalidOperation),
   )
   assert_true(
-    trapped_signal({ ..raised, invalid_operation: false }, traps) ==
+    trapped_signal({ ..raised, invalid_operation: false, }, traps) ==
     Some(GdaSignal::DivisionByZero),
   )
 }

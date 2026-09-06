@@ -7,7 +7,7 @@ pub struct GdaDecimalChecked {
 pub fn GdaDecimalChecked::from_outcome(
   outcome : @decimal_gda.GdaOutcome[@decimal_gda.Decimal],
 ) -> GdaDecimalChecked {
-  { outcome_: outcome }
+  { outcome_: outcome, }
 }
 
 ///|

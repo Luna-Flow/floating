@@ -272,7 +272,7 @@ fn store_interval(
   precision : Int,
 ) -> BallFloat {
   validate_interval(lo, hi)
-  { lo_: lo, hi_: hi, precision_: Int::max(1, precision), empty_: false }
+  { lo_: lo, hi_: hi, precision_: Int::max(1, precision), empty_: false, }
 }
 
 ///|

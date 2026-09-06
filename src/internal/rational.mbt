@@ -31,10 +31,10 @@ pub fn ExactRat::new(numerator : BigInt, denominator : BigInt) -> ExactRat {
     (numerator, denominator)
   }
   if numerator.is_zero() {
-    return { numerator: 0N, denominator: 1N }
+    return { numerator: 0N, denominator: 1N, }
   }
   let divisor = exact_rat_gcd(numerator, denominator)
-  { numerator: numerator / divisor, denominator: denominator / divisor }
+  { numerator: numerator / divisor, denominator: denominator / divisor, }
 }
 
 ///|

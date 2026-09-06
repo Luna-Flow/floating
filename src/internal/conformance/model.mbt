@@ -11,7 +11,7 @@ pub fn SourceLocation::new(
   line : Int,
   column? : Int = 1,
 ) -> SourceLocation {
-  { source, line: Int::max(1, line), column: Int::max(1, column) }
+  { source, line: Int::max(1, line), column: Int::max(1, column), }
 }
 
 ///|
@@ -52,7 +52,7 @@ pub fn CaseResult::new(
   passed : Bool,
   message? : String = "",
 ) -> CaseResult {
-  { id, disposition, passed, message }
+  { id, disposition, passed, message, }
 }
 
 ///|
@@ -99,7 +99,7 @@ pub fn ShardSpec::try_new(
   guard index >= 0 && index < count else {
     return Err("shard index must be within shard count")
   }
-  Ok({ count, index })
+  Ok({ count, index, })
 }
 
 ///|

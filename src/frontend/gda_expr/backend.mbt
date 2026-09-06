@@ -40,7 +40,7 @@ fn evaluated_decimal(
   value : @decimal_gda.Decimal,
   flags? : @decimal_gda.DecimalFlags = @decimal_gda.DecimalFlags::new(),
 ) -> EvaluatedValue {
-  { value: DecimalValue(value), flags: runtime_flags_from_decimal(flags) }
+  { value: DecimalValue(value), flags: runtime_flags_from_decimal(flags), }
 }
 
 ///|
@@ -594,7 +594,7 @@ fn invoke_decimal_operation(
       guard encoded is Some(encoded) else {
         return Err("invalid interchange apply operand")
       }
-      return Ok({ value: TextValue(encoded.0), flags: encoded.1 })
+      return Ok({ value: TextValue(encoded.0), flags: encoded.1, })
     }
     if raw.has_prefix("#") {
       guard interchange_format(case.context()) is Some(format) &&
@@ -618,7 +618,10 @@ fn invoke_decimal_operation(
       "copyabs" => raw.copy_abs()
       _ => raw.copy_negate()
     }
-    return Ok({ value: TextValue(copied.to_hex()), flags: RuntimeFlags::none() })
+    return Ok({
+      value: TextValue(copied.to_hex()),
+      flags: RuntimeFlags::none(),
+    })
   }
   if op == "copysign" &&
     raws.length() >= 2 &&
@@ -889,7 +892,7 @@ fn invoke_decimal_operation(
         "issigned" => value.is_signed()
         _ => value.is_zero()
       }
-      Ok({ value: BoolValue(result), flags: RuntimeFlags::none() })
+      Ok({ value: BoolValue(result), flags: RuntimeFlags::none(), })
     }
     "tosci" | "toeng" => {
       guard raws is [raw, ..] else {
@@ -900,7 +903,7 @@ fn invoke_decimal_operation(
       } else {
         @decimal_gda.Decimal::to_eng_string(raw, context.decimal)
       }
-      Ok({ value: TextValue(text), flags: runtime_flags_from_decimal(flags) })
+      Ok({ value: TextValue(text), flags: runtime_flags_from_decimal(flags), })
     }
     "canonical" => {
       guard raws is [raw, ..] &&

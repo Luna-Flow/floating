@@ -31,9 +31,9 @@ fn bin_coeff_u64_bits(value : UInt64) -> Int {
 ///|
 fn bin_coeff_inline(high : UInt64, low : UInt64) -> BinCoeff {
   if high == 0UL {
-    { repr: Inline64(low) }
+    { repr: Inline64(low), }
   } else {
-    { repr: Inline128(high, low) }
+    { repr: Inline128(high, low), }
   }
 }
 
@@ -91,7 +91,7 @@ fn bin_coeff_from_limbs(
     } else {
       0UL
     }
-    return { repr: Inline64(high | low) }
+    return { repr: Inline64(high | low), }
   }
   if len <= 4 {
     let low = limbs.unsafe_get(0).to_uint64() |
@@ -100,22 +100,22 @@ fn bin_coeff_from_limbs(
       (if len == 4 { limbs.unsafe_get(3).to_uint64() << 32 } else { 0UL })
     return bin_coeff_inline(high, low)
   }
-  { repr: Heap(limbs, len) }
+  { repr: Heap(limbs, len), }
 }
 
 ///|
 pub fn BinCoeff::zero() -> BinCoeff {
-  { repr: Inline64(0UL) }
+  { repr: Inline64(0UL), }
 }
 
 ///|
 pub fn BinCoeff::one() -> BinCoeff {
-  { repr: Inline64(1UL) }
+  { repr: Inline64(1UL), }
 }
 
 ///|
 pub fn BinCoeff::from_uint64(value : UInt64) -> BinCoeff {
-  { repr: Inline64(value) }
+  { repr: Inline64(value), }
 }
 
 ///|
@@ -259,9 +259,9 @@ pub fn BinCoeff::add(self : BinCoeff, other : BinCoeff) -> BinCoeff {
     (Inline64(left), Inline64(right)) => {
       let low = left + right
       if low >= left {
-        { repr: Inline64(low) }
+        { repr: Inline64(low), }
       } else {
-        { repr: Inline128(1UL, low) }
+        { repr: Inline128(1UL, low), }
       }
     }
     (Inline128(high, low), Inline64(value))
@@ -350,7 +350,8 @@ fn bin_coeff_add_normalized_odd(
 ///|
 fn bin_coeff_sub_unchecked(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   match (left.repr, right.repr) {
-    (Inline64(left), Inline64(right)) => return { repr: Inline64(left - right) }
+    (Inline64(left), Inline64(right)) =>
+      return { repr: Inline64(left - right), }
     (Inline128(high, low), Inline64(value)) => {
       let borrow = if low < value { 1UL } else { 0UL }
       return bin_coeff_inline(high - borrow, low - value)
@@ -864,13 +865,13 @@ pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int) -> BinCoeff {
   }
   match self.repr {
     Inline64(value) =>
-      return { repr: Inline64(if shift >= 64 { 0UL } else { value >> shift }) }
+      return { repr: Inline64(if shift >= 64 { 0UL } else { value >> shift }), }
     Inline128(high, low) => {
       if shift >= 128 {
         return BinCoeff::zero()
       }
       if shift >= 64 {
-        return { repr: Inline64(high >> (shift - 64)) }
+        return { repr: Inline64(high >> (shift - 64)), }
       }
       return bin_coeff_inline(
         high >> shift,
@@ -1344,7 +1345,7 @@ fn bin_coeff_parse_chunks_divide_and_conquer(
       )
       power = bin_coeff_mul_small(power, chunk_power)
     }
-    return { value, power }
+    return { value, power, }
   }
   let left_len = len / 2
   let right_len = len - left_len
