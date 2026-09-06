@@ -1,6 +1,6 @@
 # はじめに
 
-このガイドは `Luna-Flow/floating` **`0.7.1`** を対象とし、package の選択、
+このガイドは `Luna-Flow/floating` **`0.8.0`** を対象とし、package の選択、
 module の追加、値の構築、失敗モデルの選択、参照先を説明します。
 
 ## 数値領域を選ぶ
@@ -27,7 +27,7 @@ maintainer infrastructure であり、application dependency ではありませ�
 現在の release を追加します。
 
 ```sh
-moon add Luna-Flow/floating@0.7.1
+moon add Luna-Flow/floating@0.8.0
 moon add Luna-Flow/arithmetic
 ```
 

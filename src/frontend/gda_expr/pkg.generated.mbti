@@ -95,4 +95,3 @@ pub fn RunSummary::unsupported_cases(Self) -> Int
 // Type aliases
 
 // Traits
-

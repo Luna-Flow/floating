@@ -3,9 +3,9 @@
 ## 安定性
 
 bare/decorated interval 構築、relation、forward arithmetic、context、flags は
-`0.7.1` API です。reverse operation と tightness 保証は契約外です。
+`0.8.0` API です。reverse operation と tightness 保証は契約外です。
 
-このページは `0.7.1` 基準における `@ball_float.BallFloat`、
+このページは `0.8.0` 基準における `@ball_float.BallFloat`、
 `@ball_float.Decoration`、`@ball_float.BallFloatDecorated` を説明します。
 
 ## 意味
@@ -153,7 +153,7 @@ decorated 型は集合演算、relation、算術、cancellation、初等関数�
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.7.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.8.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -290,6 +290,7 @@ pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
 pub fn BallFloat::tanh_interval(Self) -> Self
 pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -409,6 +410,7 @@ pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan_interval(Self) -> Self
 pub fn BallFloatDecorated::tanh_interval(Self) -> Self
 pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
+pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Mul for BallFloatDecorated
@@ -422,6 +424,7 @@ pub(all) enum Decoration {
   Dac
   Com
 } derive(Eq, @debug.Debug)
+pub fn Decoration::to_string(Self) -> String
 pub impl Show for Decoration
 
 pub(all) enum OverlapState {

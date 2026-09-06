@@ -48,4 +48,3 @@ pub fn GdaDecimalChecked::value(Self) -> @decimal_gda.Decimal
 // Type aliases
 
 // Traits
-

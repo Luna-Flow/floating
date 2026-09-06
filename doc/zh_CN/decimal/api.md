@@ -3,10 +3,10 @@
 ## 稳定性
 
 `Decimal`、`DecimalContext`、`DecimalFlags` 和 decimal interchange 是
-`0.7.1` 支持的应用 API。内部 `DecCoeff` 布局不属于公开面；固定合法 GDA 语料
+`0.8.0` 支持的应用 API。内部 `DecCoeff` 布局不属于公开面；固定合法 GDA 语料
 完全符合，唯一排除的是 `#` 占位/非标量非法输入。
 
-本文档描述 `0.7.1` IEEE API 与独立的 GDA 表示。
+本文档描述 `0.8.0` IEEE API 与独立的 GDA 表示。
 
 ## 使用前先记住
 
@@ -406,7 +406,7 @@ invalid-operation 情形、精确等于 1 的有限值（`ln(1) = 0`），以及
 
 ## 完整公开接口
 
-以下快照是 `0.7.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.8.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -579,6 +579,7 @@ pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -754,6 +755,5 @@ pub(all) enum DecimalTininessDetection {
 // Type aliases
 
 // Traits
-
 ```
 <!-- generated-api-end -->

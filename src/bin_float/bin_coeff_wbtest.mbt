@@ -152,7 +152,7 @@ test "BinCoeff shifts bits gcd powers and radices" {
     BigInt::from_int(37).pow(BigInt::from_int(19)),
   )
   for radix in [2, 3, 8, 10, 16, 31, 36] {
-    let text = source.to_string(radix~)
+    let text = source.to_radix_string(radix)
     assert_eq(BinCoeff::parse(text, radix~).unwrap(), source)
   }
 }
@@ -202,7 +202,7 @@ test "BinCoeff divide-and-conquer radix conversion" {
   }
   let ternary = ternary_builder.to_string()
   let ternary_value = BinCoeff::parse(ternary, radix=3).unwrap()
-  assert_eq(ternary_value.to_string(radix=3), ternary)
+  assert_eq(ternary_value.to_radix_string(3), ternary)
 }
 
 ///|

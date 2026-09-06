@@ -3,10 +3,10 @@
 ## 稳定性
 
 `BinFloat`、`BinCoeff`、二进制 context/flags 和 binary16/32/64/128
-interchange 是 `0.7.1` 支持的应用 API。limb 布局、算法阈值和完整 IEEE 754
+interchange 是 `0.8.0` 支持的应用 API。limb 布局、算法阈值和完整 IEEE 754
 覆盖不属于稳定承诺。
 
-本文档描述 `0.7.1` API；数学与测试边界见[一致性说明](./conformance.md)。
+本文档描述 `0.8.0` API；数学与测试边界见[一致性说明](./conformance.md)。
 
 ## Context、flags 与 interchange
 
@@ -78,11 +78,14 @@ context，不返回标志。需要 IEEE 语义时使用 `round_ctx`、`add_ctx`�
 
 ## Trait 面
 
-`Floating`、算术 checked trait 和标准运算 trait 提供最小组合能力，详见生成接口。
+`Floating`、算术 checked trait、`Abs/Add/Sub/Mul/Div/Sqrt/ExpContextual`
+及标准运算 trait 提供可组合能力。contextual trait 保留 `ArithmeticContext`
+的精度、舍入与单侧或双侧指数边界；成功状态映射为 `ArithmeticDiagnostics`，
+无效运算和除零仍返回结构化错误。
 
 ## 完整公开接口
 
-以下快照是 `0.7.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.8.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -128,7 +131,8 @@ pub fn BinCoeff::square(Self) -> Self
 pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
 pub fn BinCoeff::test_bit(Self, Int) -> Bool
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
-pub fn BinCoeff::to_string(Self, radix? : Int) -> String
+pub fn BinCoeff::to_radix_string(Self, Int) -> String
+pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 pub fn BinCoeff::zero() -> Self
 pub impl Add for BinCoeff
@@ -248,6 +252,7 @@ pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
+pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -279,11 +284,18 @@ pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::ulp(Self) -> Self
 pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int) -> Self
+pub impl @arithmetic.AbsContextual for BinFloat
+pub impl @arithmetic.AddContextual for BinFloat
 pub impl @arithmetic.CompareChecked for BinFloat
 pub impl @arithmetic.DivChecked for BinFloat
+pub impl @arithmetic.DivContextual for BinFloat
+pub impl @arithmetic.ExpContextual for BinFloat
+pub impl @arithmetic.MulContextual for BinFloat
 pub impl @arithmetic.PowIntChecked for BinFloat
 pub impl @arithmetic.PowNatChecked for BinFloat
 pub impl @arithmetic.SqrtChecked for BinFloat
+pub impl @arithmetic.SqrtContextual for BinFloat
+pub impl @arithmetic.SubContextual for BinFloat
 pub impl @def.Floating for BinFloat
 pub impl Add for BinFloat
 pub impl Compare for BinFloat

@@ -1,6 +1,6 @@
 # `decimal` 設計
 
-`decimal` は 0.7.1 の IEEE-oriented arbitrary-precision decimal core です。Quantum-preserving
+`decimal` は 0.8.0 の IEEE-oriented arbitrary-precision decimal core です。Quantum-preserving
 value、explicit context/flags、decimal32/64/128 interchange、certified elementary を提供します。
 [`decimal_gda`](../decimal_gda/design.md) は独立 GDA sticky/trap model で、型は alias ではありません。
 
@@ -70,7 +70,7 @@ Add/compare/normalize/shift/word-div は `O(n)`、schoolbook/Knuth は quadratic
 BZ/Newton は setup/storage/precondition と引換えに large cost を削減し、measured crossover まで
 simple algorithm を維持します。
 
-## 0.7.1 Semantic Preservation Proof
+## 0.8.0 Semantic Preservation Proof
 
 Exact decimal division path は coefficient GCD を除去し、reduced denominator が `2^i * 5^j` のときだけ採用します。
 Exact coefficient と preferred exponent を作った後、generic route と同じ finalizer を呼びます。Bounded inexact path も

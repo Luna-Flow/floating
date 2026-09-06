@@ -59,4 +59,3 @@ pub fn SemanticScalar::from_decimal(@decimal.Decimal) -> Self
 // Type aliases
 
 // Traits
-

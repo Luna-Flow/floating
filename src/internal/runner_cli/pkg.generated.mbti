@@ -44,4 +44,3 @@ pub fn CommonOptions::shard_index(Self) -> Int
 // Type aliases
 
 // Traits
-

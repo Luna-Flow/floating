@@ -80,4 +80,3 @@ pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
 // Type aliases
 
 // Traits
-

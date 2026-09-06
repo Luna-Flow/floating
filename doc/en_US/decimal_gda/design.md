@@ -1,7 +1,7 @@
 # `decimal_gda` Design
 
 `decimal_gda` is the standalone General Decimal Arithmetic (GDA)
-Specification 1.70 engine in `floating` 0.7.1. It is validated against the
+Specification 1.70 engine in `floating` 0.8.0. It is validated against the
 pinned General Decimal Arithmetic testcase suite 2.62 and intentionally does
 not depend on the IEEE-oriented `decimal` package. Its `Decimal`, coefficient,
 context, flags, interchange, and finalization code are package-owned so an IEEE
@@ -159,14 +159,14 @@ tooling. `decimal_gda` itself is a deterministic value/context transformation.
 The frontend invokes its public `GdaContext`/`GdaOutcome` API directly and may
 memoize only immutable parsed contexts.
 
-The 0.7.1 acceptance boundary combines package/property tests, all-target
+The 0.8.0 acceptance boundary combines package/property tests, all-target
 checks, dependency scans, IEEE-isolation tests, and both pinned corpora. The
 `official` corpus passes 64,986/64,986 legal executable scalar rows and
 `official0` passes 16,124/16,124; the remaining 141 `#` placeholder/non-scalar
 rows are diagnostics outside the legal denominator. This finite result does not
 claim future directives, invalid placeholders, or unbounded input strings.
 
-## 0.7.1 Semantic Preservation Proof
+## 0.8.0 Semantic Preservation Proof
 
 The GDA coefficient remainder path computes the same Euclidean remainder as
 quotient/remainder division, `r = a - floor(a / d) * d`, with `0 <= r < d`.

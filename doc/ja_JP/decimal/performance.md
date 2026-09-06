@@ -1,5 +1,7 @@
 # `decimal` Performance
 
+<!-- historical-performance-baseline: 0.7.1 -->
+
 ## Measurement Boundary
 
 `just bench decimal --target native` は `src/bench/decimal` の current Maremark suite を

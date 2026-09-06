@@ -73,4 +73,3 @@ pub fn RunSummary::total_cases(Self) -> Int
 // Type aliases
 
 // Traits
-

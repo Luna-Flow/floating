@@ -40,7 +40,8 @@ pub fn BinCoeff::square(Self) -> Self
 pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
 pub fn BinCoeff::test_bit(Self, Int) -> Bool
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
-pub fn BinCoeff::to_string(Self, radix? : Int) -> String
+pub fn BinCoeff::to_radix_string(Self, Int) -> String
+pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 pub fn BinCoeff::zero() -> Self
 pub impl Add for BinCoeff
@@ -160,6 +161,7 @@ pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
+pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -191,11 +193,18 @@ pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::ulp(Self) -> Self
 pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int) -> Self
+pub impl @arithmetic.AbsContextual for BinFloat
+pub impl @arithmetic.AddContextual for BinFloat
 pub impl @arithmetic.CompareChecked for BinFloat
 pub impl @arithmetic.DivChecked for BinFloat
+pub impl @arithmetic.DivContextual for BinFloat
+pub impl @arithmetic.ExpContextual for BinFloat
+pub impl @arithmetic.MulContextual for BinFloat
 pub impl @arithmetic.PowIntChecked for BinFloat
 pub impl @arithmetic.PowNatChecked for BinFloat
 pub impl @arithmetic.SqrtChecked for BinFloat
+pub impl @arithmetic.SqrtContextual for BinFloat
+pub impl @arithmetic.SubContextual for BinFloat
 pub impl @def.Floating for BinFloat
 pub impl Add for BinFloat
 pub impl Compare for BinFloat
@@ -279,4 +288,3 @@ pub(all) enum TininessDetection {
 // Type aliases
 
 // Traits
-

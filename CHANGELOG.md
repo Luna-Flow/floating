@@ -4,6 +4,61 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## 0.8.0 - 2026-09-06
+
+### Added
+
+- Added `AddContextual`, `SubContextual`, `MulContextual`, `DivContextual`,
+  `AbsContextual`, `SqrtContextual`, and `ExpContextual` implementations for
+  `BinFloat`, so the binary stack participates in the contextual trait surface
+  already provided by the decimal stacks.
+- Exposed `to_string` as an explicit public method on `BinFloat`, `BinCoeff`,
+  `Decimal` (IEEE and GDA), `BallFloat`, `BallFloatDecorated`, and `Decoration`
+  through `extend` declarations.
+
+### Changed
+
+- Raised the `Luna-Flow/arithmetic` dependency to `0.5.0`, whose
+  `ArithmeticContext` carries exponent bounds and clamping.
+- Changed `BinaryContext::from_arithmetic_context`, and the IEEE and GDA
+  `DecimalContext::from_arithmetic_context`, to propagate `e_min`, `e_max`, and
+  `clamp` from the arithmetic context instead of discarding them. Contextual and
+  checked operations that previously ran unbounded now honour the caller's
+  exponent range.
+- Changed `BinaryContext::new` and `BinaryContext::try_new` to accept a
+  one-sided exponent bound. `try_new` now fails only when `e_min` exceeds
+  `e_max`; passing `e_min` or `e_max` alone previously aborted or returned an
+  error.
+- Changed the decimal `PowNatChecked` and `PowIntChecked` implementations to
+  derive their context from the supplied arithmetic context instead of fixed
+  `+/-999_999` exponent bounds.
+- Renamed `BinCoeff::to_string(radix~)` to `BinCoeff::to_radix_string(Int)` so
+  that `BinCoeff::to_string` denotes the `Show` implementation, consistent with
+  the other numeric types. Callers that passed a radix must use the new name;
+  radix-10 callers are unaffected.
+- Declared `Show::to_string` explicitly with `extend` instead of relying on the
+  implicit promotion of `impl Show` methods, which the MoonBit 0.10.4 toolchain
+  deprecated. The repository now checks clean under `moon check --deny-warn` on
+  all five backends.
+
+### Fixed
+
+- Fixed the native link failure of the `cli` conformance dispatcher by reading
+  process arguments through `moonbitlang/core/env` instead of
+  `moonbitlang/x/sys`. The `x` intrinsic still lowers to the pre-rename runtime
+  symbol `moonbit_get_cli_args`, which the current split `libruntime.a` no
+  longer exports; `@env.args` uses the current `moonbit_rt_get_cli_args`.
+
+### Verified
+
+- Passed the complete `just pr` gate: format, localized documentation, native
+  check and test, IEEE 754 smoke 6,897/6,897, binary smoke 2,271/2,271, GDA
+  TestFloat 3e 60/60, and interval smoke 10/10.
+- Passed `moon check --deny-warn --target all` and `moon test src/bin_float
+  --target all` across wasm, wasm-gc, js, and native.
+- Retained the 0.7.1 performance and semantic audit unchanged; this release
+  contains no new numerical measurements.
+
 ## 0.7.1 - 2026-07-16
 
 ### Changed

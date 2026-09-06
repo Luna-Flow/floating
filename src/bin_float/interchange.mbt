@@ -119,7 +119,7 @@ fn binary_interchange_hex(
   format : BinaryInterchangeFormat,
 ) -> String {
   let digits = format.total_bits() / 4
-  let body = binary_uppercase_ascii(bits.to_string(radix=16))
+  let body = binary_uppercase_ascii(bits.to_radix_string(16))
   if body.length() < digits {
     binary_zero_digits(digits - body.length()) + body
   } else {

@@ -95,7 +95,7 @@ pub fn BinFloat::to_hex(self : BinFloat) -> String {
     FpClass::Finite =>
       (if self.negative { "-" } else { "" }) +
       "0x" +
-      self.coefficient_.to_string(radix=16) +
+      self.coefficient_.to_radix_string(16) +
       "p" +
       self.exponent2.to_string()
   }

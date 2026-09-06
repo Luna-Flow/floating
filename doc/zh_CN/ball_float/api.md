@@ -2,10 +2,10 @@
 
 ## 稳定性
 
-bare/decorated 区间构造、关系、正向算术、context 和 flags 是 `0.7.1` 支持的
+bare/decorated 区间构造、关系、正向算术、context 和 flags 是 `0.8.0` 支持的
 API。reverse operations 与必然 tight 不属于当前契约。
 
-本文档描述 `0.7.1` 基线中的 `@ball_float.BallFloat`、
+本文档描述 `0.8.0` 基线中的 `@ball_float.BallFloat`、
 `@ball_float.Decoration` 与 `@ball_float.BallFloatDecorated`。
 
 ## 语义
@@ -203,7 +203,7 @@ interval、上下文和 IEEE 1788 集合语义共享同一包边界。
 
 ## 完整公开接口
 
-以下快照是 `0.7.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.8.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -340,6 +340,7 @@ pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
 pub fn BallFloat::tanh_interval(Self) -> Self
 pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -459,6 +460,7 @@ pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan_interval(Self) -> Self
 pub fn BallFloatDecorated::tanh_interval(Self) -> Self
 pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
+pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Mul for BallFloatDecorated
@@ -472,6 +474,7 @@ pub(all) enum Decoration {
   Dac
   Com
 } derive(Eq, @debug.Debug)
+pub fn Decoration::to_string(Self) -> String
 pub impl Show for Decoration
 
 pub(all) enum OverlapState {

@@ -3,10 +3,10 @@
 ## 安定性
 
 `Decimal`、`DecimalContext`、`DecimalFlags`、decimal interchange は
-`0.7.1` の application API です。内部 `DecCoeff` layout は公開面ではなく、固定
+`0.8.0` の application API です。内部 `DecCoeff` layout は公開面ではなく、固定
 合法 GDA corpus は完全適合です。除外は `#` placeholder/non-scalar の不正入力だけです。
 
-このページは `0.7.1` IEEE API と分離された GDA 表現を説明します。
+このページは `0.8.0` IEEE API と分離された GDA 表現を説明します。
 
 ## 表現
 
@@ -367,7 +367,7 @@ context を通じて丸められ、公式 math-function `Invalid_context` restri
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.7.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.8.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -540,6 +540,7 @@ pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -715,6 +716,5 @@ pub(all) enum DecimalTininessDetection {
 // Type aliases
 
 // Traits
-
 ```
 <!-- generated-api-end -->

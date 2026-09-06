@@ -218,12 +218,7 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
       ),
     )
   }
-  let dctx = DecimalContext::new(
-    precision=ctx.precision,
-    rounding=ctx.rounding,
-    e_min=-999_999,
-    e_max=999_999,
-  )
+  let dctx = DecimalContext::from_arithmetic_context(ctx)
   let exponent_decimal = Decimal::from_bigint(
     BigInt::from_uint(exponent),
     precision=ctx.precision,
@@ -255,12 +250,7 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
       ),
     )
   }
-  let dctx = DecimalContext::new(
-    precision=ctx.precision,
-    rounding=ctx.rounding,
-    e_min=-999_999,
-    e_max=999_999,
-  )
+  let dctx = DecimalContext::from_arithmetic_context(ctx)
   let exponent_decimal = Decimal::from_int(exponent, precision=ctx.precision)
   let (value, flags) = self.power_ctx(exponent_decimal, dctx)
   if flags.division_by_zero {

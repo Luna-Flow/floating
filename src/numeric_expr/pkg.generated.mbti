@@ -48,4 +48,3 @@ pub fn SourceSpan::source(Self) -> String
 // Type aliases
 
 // Traits
-

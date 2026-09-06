@@ -1,4 +1,6 @@
-# FLOATING 0.7.1 Documentation
+# FLOATING 0.8.0 Documentation
+
+<!-- historical-performance-baseline: 0.7.1 -->
 
 Use this page as an index. Public names come from each package's
 `pkg.generated.mbti`; package tutorials explain recommended use, and design

@@ -1,4 +1,6 @@
-# FLOATING 0.7.1 ドキュメント
+# FLOATING 0.8.0 ドキュメント
+
+<!-- historical-performance-baseline: 0.7.1 -->
 
 このページはクイックインデックスです。公開名は各 package の `pkg.generated.mbti`
 を正とし、Tutorial は推奨利用法、Design は標準整合・アルゴリズム・最適化・切替境界を説明します。

@@ -1,4 +1,6 @@
-# FLOATING 0.7.1 文档
+# FLOATING 0.8.0 文档
+
+<!-- historical-performance-baseline: 0.7.1 -->
 
 本页是快速索引。公开名称以各包的 `pkg.generated.mbti` 为准；Tutorial
 说明推荐用法，Design 解释标准对齐、算法选择、优化与切换边界。

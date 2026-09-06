@@ -3,10 +3,10 @@
 ## 安定性
 
 `BinFloat`、`BinCoeff`、binary context/flags、binary16/32/64/128
-interchange は `0.7.1` の application API です。limb layout、algorithm threshold、
+interchange は `0.8.0` の application API です。limb layout、algorithm threshold、
 IEEE 754 全体は安定契約ではありません。
 
-この文書は `0.7.1` API を説明します。数学・テスト境界は
+この文書は `0.8.0` API を説明します。数学・テスト境界は
 [適合性](./conformance.md) にあります。
 
 ## Context、flag、interchange
@@ -80,11 +80,15 @@ checked trait は `ArithmeticError` を明示的に返し、flags は `*_ctx` �
 
 ## Trait 面
 
-`Floating`、checked capability、標準 operator trait を最小の組合せとして公開します。
+`Floating`、checked capability、`Abs/Add/Sub/Mul/Div/Sqrt/ExpContextual`、
+標準 operator trait を組合せ可能な能力として公開します。contextual trait は
+`ArithmeticContext` の精度、丸め、片側または両側の指数境界を保持します。
+成功した状態は `ArithmeticDiagnostics` に写像され、無効演算とゼロ除算は
+構造化エラーとして返されます。
 
 ## 完全な公開インターフェース
 
-次の snapshot は `0.7.1` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
+次の snapshot は `0.8.0` の完全な生成 package interface です。公開宣言が名前と signature の基準で、前の説明は挙動別に整理しています。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -130,7 +134,8 @@ pub fn BinCoeff::square(Self) -> Self
 pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
 pub fn BinCoeff::test_bit(Self, Int) -> Bool
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
-pub fn BinCoeff::to_string(Self, radix? : Int) -> String
+pub fn BinCoeff::to_radix_string(Self, Int) -> String
+pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 pub fn BinCoeff::zero() -> Self
 pub impl Add for BinCoeff
@@ -250,6 +255,7 @@ pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
+pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -281,11 +287,18 @@ pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::ulp(Self) -> Self
 pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int) -> Self
+pub impl @arithmetic.AbsContextual for BinFloat
+pub impl @arithmetic.AddContextual for BinFloat
 pub impl @arithmetic.CompareChecked for BinFloat
 pub impl @arithmetic.DivChecked for BinFloat
+pub impl @arithmetic.DivContextual for BinFloat
+pub impl @arithmetic.ExpContextual for BinFloat
+pub impl @arithmetic.MulContextual for BinFloat
 pub impl @arithmetic.PowIntChecked for BinFloat
 pub impl @arithmetic.PowNatChecked for BinFloat
 pub impl @arithmetic.SqrtChecked for BinFloat
+pub impl @arithmetic.SqrtContextual for BinFloat
+pub impl @arithmetic.SubContextual for BinFloat
 pub impl @def.Floating for BinFloat
 pub impl Add for BinFloat
 pub impl Compare for BinFloat

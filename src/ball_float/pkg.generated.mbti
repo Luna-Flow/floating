@@ -131,6 +131,7 @@ pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
 pub fn BallFloat::tanh_interval(Self) -> Self
 pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -250,6 +251,7 @@ pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan_interval(Self) -> Self
 pub fn BallFloatDecorated::tanh_interval(Self) -> Self
 pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
+pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Mul for BallFloatDecorated
@@ -263,6 +265,7 @@ pub(all) enum Decoration {
   Dac
   Com
 } derive(Eq, @debug.Debug)
+pub fn Decoration::to_string(Self) -> String
 pub impl Show for Decoration
 
 pub(all) enum OverlapState {
@@ -288,4 +291,3 @@ pub(all) enum OverlapState {
 // Type aliases
 
 // Traits
-

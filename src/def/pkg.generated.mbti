@@ -58,4 +58,3 @@ pub(open) trait Floating {
   fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
   fn normalized(Self) -> Self
 }
-

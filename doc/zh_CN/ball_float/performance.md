@@ -1,5 +1,7 @@
 # `ball_float` 性能
 
+<!-- historical-performance-baseline: 0.7.1 -->
+
 ## 测量边界
 
 `just bench ball-float --target native` 运行 `src/bench/ball_float` 中当前的 Maremark

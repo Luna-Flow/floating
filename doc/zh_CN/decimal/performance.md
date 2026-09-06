@@ -1,5 +1,7 @@
 # `decimal` 性能
 
+<!-- historical-performance-baseline: 0.7.1 -->
+
 ## 测量边界
 
 `just bench decimal --target native` 运行 `src/bench/decimal` 中当前的

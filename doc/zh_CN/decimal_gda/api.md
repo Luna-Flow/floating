@@ -1,6 +1,6 @@
 # `decimal_gda` API
 
-`decimal_gda` 是 `0.7.1` 的 General Decimal Arithmetic Specification 1.70 入口。
+`decimal_gda` 是 `0.8.0` 的 General Decimal Arithmetic Specification 1.70 入口。
 它的 value、context、flags、traps、signals 与 outcomes 都区别于 `decimal` 中面向
 IEEE 的类型。
 
@@ -120,7 +120,7 @@ non-scalar 行变成数值，也不承诺无限资源或未来 directive 的兼�
 
 ## 完整公开接口
 
-以下快照是 `0.7.1` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
+以下快照是 `0.8.0` 的完整生成包接口。公开声明是名称与签名的权威清单；前文按行为解释这些能力。
 
 <!-- generated-api-start -->
 ```moonbit
@@ -366,6 +366,7 @@ pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, GdaInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_exp_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_ln_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

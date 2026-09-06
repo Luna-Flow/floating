@@ -392,7 +392,13 @@ pub fn DecimalContext::decimal128() -> DecimalContext {
 pub fn DecimalContext::from_arithmetic_context(
   ctx : @lf_arith.ArithmeticContext,
 ) -> DecimalContext {
-  DecimalContext::new(precision=ctx.precision, rounding=ctx.rounding)
+  DecimalContext::new(
+    precision=ctx.precision,
+    rounding=ctx.rounding,
+    e_min=ctx.e_min.unwrap_or(-999_999_999),
+    e_max=ctx.e_max.unwrap_or(999_999_999),
+    clamp=ctx.clamp,
+  )
 }
 
 ///|

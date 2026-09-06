@@ -1,5 +1,7 @@
 # `decimal` Performance
 
+<!-- historical-performance-baseline: 0.7.1 -->
+
 ## Measurement Boundary
 
 `just bench decimal --target native` runs the current Maremark suite in

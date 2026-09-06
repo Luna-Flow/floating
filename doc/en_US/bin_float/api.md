@@ -3,10 +3,10 @@
 ## Stability
 
 `BinFloat`, `BinCoeff`, binary contexts/flags, and binary16/32/64/128
-interchange are supported `0.7.1` application APIs. Limb layout, algorithm
+interchange are supported `0.8.0` application APIs. Limb layout, algorithm
 thresholds, and complete IEEE 754 coverage are not promised.
 
-This page tracks the `0.7.1` API baseline. The semantic and test scope
+This page tracks the `0.8.0` API baseline. The semantic and test scope
 is in [Conformance](./conformance.md).
 
 ## Representation
@@ -167,11 +167,23 @@ Checked-behavior notes:
 - `@arithmetic.CompareChecked`
 - `@arithmetic.PowNatChecked`
 - `@arithmetic.PowIntChecked`
+- `@arithmetic.AbsContextual`
+- `@arithmetic.AddContextual`
+- `@arithmetic.SubContextual`
+- `@arithmetic.MulContextual`
+- `@arithmetic.DivContextual`
+- `@arithmetic.SqrtContextual`
+- `@arithmetic.ExpContextual`
 - `Eq`, `Add`, `Sub`, `Mul`, `Div`, `Neg`, `Show`
+
+The contextual traits preserve precision, rounding, and one- or two-sided
+exponent bounds from `ArithmeticContext`. Successful binary flags are mapped to
+`ArithmeticDiagnostics`; invalid operations and division by zero remain
+structured errors.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.7.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.8.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -217,7 +229,8 @@ pub fn BinCoeff::square(Self) -> Self
 pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
 pub fn BinCoeff::test_bit(Self, Int) -> Bool
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
-pub fn BinCoeff::to_string(Self, radix? : Int) -> String
+pub fn BinCoeff::to_radix_string(Self, Int) -> String
+pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 pub fn BinCoeff::zero() -> Self
 pub impl Add for BinCoeff
@@ -337,6 +350,7 @@ pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
+pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -368,11 +382,18 @@ pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::ulp(Self) -> Self
 pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int) -> Self
+pub impl @arithmetic.AbsContextual for BinFloat
+pub impl @arithmetic.AddContextual for BinFloat
 pub impl @arithmetic.CompareChecked for BinFloat
 pub impl @arithmetic.DivChecked for BinFloat
+pub impl @arithmetic.DivContextual for BinFloat
+pub impl @arithmetic.ExpContextual for BinFloat
+pub impl @arithmetic.MulContextual for BinFloat
 pub impl @arithmetic.PowIntChecked for BinFloat
 pub impl @arithmetic.PowNatChecked for BinFloat
 pub impl @arithmetic.SqrtChecked for BinFloat
+pub impl @arithmetic.SqrtContextual for BinFloat
+pub impl @arithmetic.SubContextual for BinFloat
 pub impl @def.Floating for BinFloat
 pub impl Add for BinFloat
 pub impl Compare for BinFloat

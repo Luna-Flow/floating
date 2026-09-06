@@ -2,6 +2,7 @@
 
 <!-- historical-performance-baseline: 0.6.1 -->
 <!-- historical-performance-baseline: 0.7.0 -->
+<!-- historical-performance-baseline: 0.7.1 -->
 
 This page is the English structural source for the 0.7.1 optimization audit.
 It records the four optimization commits after 0.7.0, the working-tree
@@ -129,6 +130,7 @@ latency bound.
 
 The semantic claims are bounded by the pinned corpora, the public operation
 surface, target-specific precision rules, and the explicit fallback contracts.
-The `0.6.1` elementary manifest remains a historical comparison baseline;
-`0.7.1` is its current candidate release. No public API, rounding rule, error
-signal, or enclosure contract is changed merely to improve a benchmark.
+The `0.6.1` elementary manifest remains a historical comparison baseline and
+`0.7.1` is its candidate release; `0.8.0` adds no new measurement and does not
+supersede this audit. No public API, rounding rule, error signal, or enclosure
+contract is changed merely to improve a benchmark.

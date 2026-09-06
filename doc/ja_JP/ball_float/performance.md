@@ -1,5 +1,7 @@
 # `ball_float` Performance
 
+<!-- historical-performance-baseline: 0.7.1 -->
+
 ## Measurement Boundary
 
 `just bench ball-float --target native` は `src/bench/ball_float` の current Maremark suite

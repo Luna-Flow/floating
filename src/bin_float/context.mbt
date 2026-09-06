@@ -163,8 +163,7 @@ pub fn BinaryContext::new(
         abort("BinaryContext::new: e_min must not exceed e_max")
       }
     }
-    (None, None) => ()
-    _ => abort("BinaryContext::new: exponent bounds must be paired")
+    _ => ()
   }
   { precision, rounding, e_min, e_max, tininess }
 }
@@ -186,11 +185,11 @@ pub fn BinaryContext::try_new(
   }
   match (e_min, e_max) {
     (Some(lower), Some(upper)) if lower <= upper => ()
-    (None, None) => ()
-    _ =>
+    (Some(_), None) | (None, Some(_)) | (None, None) => ()
+    (Some(_), Some(_)) =>
       return Err(
         @def.ArithmeticError::domain_error(
-          "BinaryContext::try_new: exponent bounds must be paired and ordered",
+          "BinaryContext::try_new: e_min must not exceed e_max",
         ),
       )
   }
@@ -209,10 +208,16 @@ pub fn BinaryContext::unbounded(
 pub fn BinaryContext::from_arithmetic_context(
   context : @lf_arith.ArithmeticContext,
 ) -> BinaryContext {
-  BinaryContext::unbounded(
-    context.precision,
-    rounding=BinaryRoundingMode::from_arithmetic(context.rounding),
-  )
+  let rounding = BinaryRoundingMode::from_arithmetic(context.rounding)
+  match (context.e_min, context.e_max) {
+    (Some(e_min), Some(e_max)) =>
+      BinaryContext::new(context.precision, rounding~, e_min~, e_max~)
+    (Some(e_min), None) =>
+      BinaryContext::new(context.precision, rounding~, e_min~)
+    (None, Some(e_max)) =>
+      BinaryContext::new(context.precision, rounding~, e_max~)
+    (None, None) => BinaryContext::unbounded(context.precision, rounding~)
+  }
 }
 
 ///|

@@ -1,6 +1,6 @@
 # `bin_float` Design
 
-`bin_float` is the binary numerical core of `floating` 0.7.1. Its design has
+`bin_float` is the binary numerical core of `floating` 0.8.0. Its design has
 two simultaneous goals: preserve exact integer/dyadic semantics at arbitrary
 precision, and reproduce the declared IEEE 754-2019 behavior when a bounded
 `BinaryContext` is supplied. Public names are fixed by
@@ -153,7 +153,7 @@ not exactness subject to speed. Thresholds, NTT primes, limb layout, and arena
 capacity may change in a patch release; normalized values, contextual rounding,
 flags, and interchange behavior may not change without an API/semantic change.
 
-## 0.7.1 Semantic Preservation Proof
+## 0.8.0 Semantic Preservation Proof
 
 The optimization boundary is the exact coefficient or exact discarded-bit
 calculation. It does not cross the contextual finalizer. For far-exponent
@@ -172,7 +172,7 @@ Maremark only decides whether the private route is worth its setup cost.
 
 ## Evidence Map
 
-- [API reference](./api.md) defines the callable 0.7.1 surface.
+- [API reference](./api.md) defines the callable 0.8.0 surface.
 - [Tutorial](./tutorial.md) gives recommended construction and context flows.
 - [Conformance](./conformance.md) states the pinned TestFloat/MPFR claim and its
   exclusions.

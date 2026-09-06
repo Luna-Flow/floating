@@ -1,6 +1,7 @@
 # `bin_float` 性能
 
 <!-- historical-performance-baseline: 0.6.1 -->
+<!-- historical-performance-baseline: 0.7.1 -->
 
 ## 合同
 

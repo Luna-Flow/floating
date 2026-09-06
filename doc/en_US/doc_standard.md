@@ -1,7 +1,7 @@
 # Documentation Standard
 
 Repository documentation describes the **implementation on the current branch**.
-As of `2026-07-16`, the release baseline is **`0.7.1`**.
+As of `2026-09-06`, the release baseline is **`0.8.0`**.
 
 ## Document Types And Ownership
 

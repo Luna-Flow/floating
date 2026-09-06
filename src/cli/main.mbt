@@ -56,5 +56,5 @@ fn dispatch(arguments : Array[String]) -> Int {
 
 ///|
 fn main {
-  @sys.exit(dispatch(@sys.get_cli_args()))
+  @sys.exit(dispatch(@env.args()))
 }

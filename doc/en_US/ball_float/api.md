@@ -3,11 +3,11 @@
 ## Stability
 
 Bare/decorated interval construction, relations, forward arithmetic, contexts,
-and flags are supported `0.7.1` APIs. Reverse operations and guaranteed
+and flags are supported `0.8.0` APIs. Reverse operations and guaranteed
 tightness are outside the contract.
 
 This page tracks the current repository implementation and is written as the
-`0.7.1` API baseline. It covers `@ball_float.BallFloat`,
+`0.8.0` API baseline. It covers `@ball_float.BallFloat`,
 `@ball_float.Decoration`, and `@ball_float.BallFloatDecorated`.
 
 ## Semantics
@@ -164,7 +164,7 @@ operations and implements `+`, `-`, `*`, `/`, and `Show`.
 
 ## Complete Public Interface
 
-The following snapshot is the complete generated package interface for `0.7.1`. Public declarations are authoritative; prose above groups them by behavior.
+The following snapshot is the complete generated package interface for `0.8.0`. Public declarations are authoritative; prose above groups them by behavior.
 
 <!-- generated-api-start -->
 ```moonbit
@@ -301,6 +301,7 @@ pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
 pub fn BallFloat::tanh_interval(Self) -> Self
 pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -420,6 +421,7 @@ pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan_interval(Self) -> Self
 pub fn BallFloatDecorated::tanh_interval(Self) -> Self
 pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
+pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Mul for BallFloatDecorated
@@ -433,6 +435,7 @@ pub(all) enum Decoration {
   Dac
   Com
 } derive(Eq, @debug.Debug)
+pub fn Decoration::to_string(Self) -> String
 pub impl Show for Decoration
 
 pub(all) enum OverlapState {

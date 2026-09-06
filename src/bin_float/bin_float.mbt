@@ -891,3 +891,6 @@ pub impl Show for BinFloat with fn to_string(self) {
       }
   }
 }
+
+///|
+pub extend BinFloat with Show::{to_string}

@@ -240,6 +240,7 @@ pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, GdaInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_exp_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_ln_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -478,4 +479,3 @@ pub fn GdaTrapSet::with_signal(Self, GdaSignal, enabled? : Bool) -> Self
 // Type aliases
 
 // Traits
-

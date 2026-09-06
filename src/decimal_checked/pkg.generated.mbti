@@ -83,4 +83,3 @@ pub fn DecimalChecked::with_context(Self, @decimal.DecimalContext) -> Self
 // Type aliases
 
 // Traits
-

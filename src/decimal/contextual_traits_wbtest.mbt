@@ -28,3 +28,29 @@ test "IEEE context exposes 2019 semantics and explicit rounding updates" {
   assert_true(directed.rounding() == @lf_arith.RoundingMode::TowardPositive)
   assert_true(directed.is754version2019())
 }
+
+///|
+test "Decimal contextual conversion preserves exponent bounds and clamp" {
+  let arithmetic = @lf_arith.ArithmeticContext::new(
+    7,
+    e_min=-95,
+    e_max=96,
+    clamp=true,
+  )
+  let context = DecimalContext::from_arithmetic_context(arithmetic)
+  assert_eq(context.precision(), 7)
+  assert_eq(context.e_min(), -95)
+  assert_eq(context.e_max(), 96)
+  assert_true(context.clamp())
+}
+
+///|
+test "Decimal checked powers preserve arithmetic exponent bounds" {
+  let context = @lf_arith.ArithmeticContext::new(7, e_min=-95, e_max=2)
+  let result = @lf_arith.PowNatChecked::pow_nat_checked(
+    Decimal::from_int(2, precision=7),
+    10U,
+    context,
+  ).unwrap()
+  assert_true(result.classify() == @lf_arith.FpClass::Infinity)
+}

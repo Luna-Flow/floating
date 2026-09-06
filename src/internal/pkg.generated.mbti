@@ -98,4 +98,3 @@ pub fn ExactRat::numerator(Self) -> @bigint.BigInt
 // Type aliases
 
 // Traits
-

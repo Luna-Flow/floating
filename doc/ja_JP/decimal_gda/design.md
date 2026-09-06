@@ -69,7 +69,7 @@ predicate、large selector は performance policy です。
 Acceptance は property/all-target/dependency/IEEE isolation と corpus を組合せ、`official` 64,986/64,986、
 `official0` 16,124/16,124 legal rows を pass。141 `#` placeholder/non-scalar は diagnostic exclusion です。
 
-## 0.7.1 Semantic Preservation Proof
+## 0.8.0 Semantic Preservation Proof
 
 GDA coefficient remainder path は quotient/remainder division と同じ Euclidean remainder
 `r = a - floor(a / d) * d`、`0 <= r < d` を計算します。従って GCD、exact division、half-power comparison が見る

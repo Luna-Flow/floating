@@ -2,6 +2,7 @@
 
 <!-- historical-performance-baseline: 0.6.1 -->
 <!-- historical-performance-baseline: 0.7.0 -->
+<!-- historical-performance-baseline: 0.7.1 -->
 
 このページは 0.7.1 最適化監査の日本語版です。0.7.0 後の四つの最適化 commit、
 release review で発見・修正した意味論上の問題、および performance claim の証拠範囲を記録します。
@@ -105,5 +106,5 @@ benchmark workload は current tree の測定証拠であり、release 全体の
 ## Limits
 
 Semantic claim は pinned corpus、public operation surface、target-specific precision rule、明示的 fallback contract に限定されます。
-`0.6.1` elementary manifest は historical comparison baseline のままで、`0.7.1` が current candidate release です。benchmark 改善だけを理由に
+`0.6.1` elementary manifest は historical comparison baseline のままで、`0.7.1` がその candidate release です。`0.8.0` は新しい測定を追加せず、この監査を置き換えません。benchmark 改善だけを理由に
 public API、rounding rule、error signal、interval contract を変更しません。

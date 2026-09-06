@@ -64,6 +64,32 @@ test "GDA try_new preserves validated context fields" {
 }
 
 ///|
+test "GDA Decimal contextual conversion preserves exponent bounds and clamp" {
+  let arithmetic = @lf_arith.ArithmeticContext::new(
+    16,
+    e_min=-383,
+    e_max=384,
+    clamp=true,
+  )
+  let context = DecimalContext::from_arithmetic_context(arithmetic)
+  assert_eq(context.precision(), 16)
+  assert_eq(context.e_min(), -383)
+  assert_eq(context.e_max(), 384)
+  assert_true(context.clamp())
+}
+
+///|
+test "GDA Decimal checked powers preserve arithmetic exponent bounds" {
+  let context = @lf_arith.ArithmeticContext::new(7, e_min=-95, e_max=2)
+  let result = @lf_arith.PowNatChecked::pow_nat_checked(
+    Decimal::from_int(2, precision=7),
+    10U,
+    context,
+  ).unwrap()
+  assert_true(result.classify() == @lf_arith.FpClass::Infinity)
+}
+
+///|
 test "GDA exact outcomes preserve sticky status without raising flags" {
   let sticky = divide(
     Decimal::one(precision=9),

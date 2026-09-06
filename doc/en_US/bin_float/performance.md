@@ -1,6 +1,7 @@
 # `bin_float` Performance
 
 <!-- historical-performance-baseline: 0.6.1 -->
+<!-- historical-performance-baseline: 0.7.1 -->
 
 ## Contract
 

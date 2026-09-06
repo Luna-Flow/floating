@@ -1691,3 +1691,6 @@ pub impl Show for BallFloat with fn to_string(self) {
     "[" + self.lo_.to_string() + ", " + self.hi_.to_string() + "]"
   }
 }
+
+///|
+pub extend BallFloat with Show::{to_string}

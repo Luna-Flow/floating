@@ -1572,7 +1572,7 @@ fn bin_coeff_small_chunk_string(
 }
 
 ///|
-pub fn BinCoeff::to_string(self : BinCoeff, radix? : Int = 10) -> String {
+pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int) -> String {
   if radix < 2 || radix > 36 {
     abort("BinCoeff radix must be between 2 and 36")
   }
@@ -1657,8 +1657,11 @@ pub impl Compare for BinCoeff with fn compare(self, other) {
 
 ///|
 pub impl Show for BinCoeff with fn to_string(self) {
-  self.to_string()
+  self.to_radix_string(10)
 }
+
+///|
+pub extend BinCoeff with Show::{to_string}
 
 ///|
 pub impl Add for BinCoeff with fn add(self, other) {

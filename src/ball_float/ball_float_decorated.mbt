@@ -793,3 +793,9 @@ pub impl Show for BallFloatDecorated with fn to_string(self) {
     self.interval_.to_string() + "_" + self.decoration_.to_string()
   }
 }
+
+///|
+pub extend Decoration with Show::{to_string}
+
+///|
+pub extend BallFloatDecorated with Show::{to_string}

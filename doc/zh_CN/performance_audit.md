@@ -2,6 +2,7 @@
 
 <!-- historical-performance-baseline: 0.6.1 -->
 <!-- historical-performance-baseline: 0.7.0 -->
+<!-- historical-performance-baseline: 0.7.1 -->
 
 本文是 0.7.1 优化审计的中文结构源。它记录 0.7.0 之后的四个优化提交、
 发布复核中发现并修复的语义问题，以及性能声明的证据边界。
@@ -110,5 +111,6 @@ IEEE decimal 的 exact-division 路径先消去系数 GCD；只有约分后的�
 ## 限制
 
 语义声明受固定语料、公开操作面、目标相关精度规则和显式 fallback 契约限制。
-`0.6.1` elementary manifest 仍是历史比较基线，`0.7.1` 是当前 candidate release。
+`0.6.1` elementary manifest 仍是历史比较基线，`0.7.1` 是其 candidate release；
+`0.8.0` 未新增测量，不取代本审计。
 任何 API、舍入规则、错误信号或区间契约都不会仅为改善 benchmark 而改变。

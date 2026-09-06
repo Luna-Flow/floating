@@ -1,10 +1,12 @@
 # FLOATING
 
+<!-- historical-performance-baseline: 0.7.1 -->
+
 [![Maintainer](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 ![State](https://img.shields.io/badge/State-active-success)
 
-`Luna-Flow/floating` 0.7.1 provides arbitrary-precision binary, decimal, GDA
+`Luna-Flow/floating` 0.8.0 provides arbitrary-precision binary, decimal, GDA
 decimal, and certified interval arithmetic for MoonBit. Precision, rounding,
 special values, status flags, traps, and enclosure semantics are explicit
 rather than hidden in process-global state.
@@ -16,7 +18,7 @@ rather than hidden in process-global state.
 - Copy a minimal example: [Quick Start](#quick-start)
 - Understand algorithms and boundaries: [Architecture](./doc/en_US/architecture.md)
 - Check numerical claims: [Verification](./doc/en_US/verification.md)
-- See 0.7.1 changes: [CHANGELOG](./CHANGELOG.md)
+- See 0.8.0 changes: [CHANGELOG](./CHANGELOG.md)
 - Read the optimization evidence: [0.7.1 audit](./doc/en_US/performance_audit.md)
 - Other languages: [简体中文](./doc/zh_CN/README.md) ·
   [日本語](./doc/ja_JP/README.md)
@@ -24,7 +26,7 @@ rather than hidden in process-global state.
 ## Install
 
 ```sh
-moon add Luna-Flow/floating@0.7.1
+moon add Luna-Flow/floating@0.8.0
 ```
 
 Import only the packages used by the current MoonBit package:
@@ -42,7 +44,7 @@ import {
 
 ```moonbit check
 ///|
-test "floating 0.7.1 quick start" {
+test "floating 0.8.0 quick start" {
   let binary = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::from_uint64(3UL),
     -1,
@@ -85,7 +87,7 @@ Parser, CLI, benchmark, consistency, and `internal/*` packages are repository
 infrastructure. See the [full documentation index](./doc/en_US/README.md) before
 depending on them as application APIs.
 
-## 0.7.1 At A Glance
+## 0.8.0 At A Glance
 
 - `BinFloat`, `Decimal`, and `BallFloat` expose certified elementary-function
   paths with bounded refinement and structured certification failure.
@@ -94,6 +96,11 @@ depending on them as application APIs.
   reciprocal algorithms.
 - `decimal` and `decimal_gda` are independent state models: IEEE per-operation
   flags are not GDA sticky status/traps.
+- `BinFloat` implements the contextual arithmetic traits, so binary, IEEE
+  decimal, and GDA decimal all compose through the same `ArithmeticContext`.
+- Converting an `ArithmeticContext` into a binary or decimal context now carries
+  `e_min`, `e_max`, and `clamp`; contextual operations honour the caller's
+  exponent range instead of running unbounded.
 - `ball_float` covers the declared strict IEEE 1788 phases with bare/decorated
   intervals, critical-point/pole handling, and conservative total fallbacks.
 - Benchmarks moved into the unified `bench/*` Maremark hierarchy with explicit

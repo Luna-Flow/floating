@@ -1,6 +1,6 @@
 # `bin_float` 設計
 
-`bin_float` は 0.7.1 の binary core で、arbitrary-precision dyadic exact semantics と
+`bin_float` は 0.8.0 の binary core で、arbitrary-precision dyadic exact semantics と
 `BinaryContext` 下の declared IEEE 754-2019 behavior を両立します。Public name は
 `src/bin_float/pkg.generated.mbti`、limb layout/threshold/scratch は private detail です。
 
@@ -71,7 +71,7 @@ Schoolbook `O(n^2)`、Karatsuba `O(n^log2(3))`、Toom-3 `O(n^log3(5))`、NTT 約
 `O(n log n)`。Large BZ/Newton division は multiplication cost に近づきます。実装は exactness
 制約下で expected cost を最適化し、speed のため exactness を弱めません。
 
-## 0.7.1 Semantic Preservation Proof
+## 0.8.0 Semantic Preservation Proof
 
 最適化の境界は exact coefficient または exact discarded bit の計算です。contextual finalizer は変更しません。
 遠い exponent の加算では `binary_exact_top(c, e)` が alignment 前の exact magnitude を比較し、split operation は
@@ -85,7 +85,7 @@ Maremark は private route の setup cost が見合うかだけを決めます�
 
 ## Evidence Map
 
-- [API](./api.md)：0.7.1 public surface
+- [API](./api.md)：0.8.0 public surface
 - [Tutorial](./tutorial.md)：construction/context workflow
 - [Conformance](./conformance.md)：TestFloat/MPFR claim
 - [Performance](./performance.md)：target dispatch と immutable release comparison baseline
