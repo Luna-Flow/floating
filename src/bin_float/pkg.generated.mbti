@@ -119,6 +119,8 @@ pub fn BinFloat::exp_ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::expm1(Self) -> Self
 pub fn BinFloat::expm1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exponent2(Self) -> Int
+pub fn BinFloat::fma(Self, Self, Self) -> Self
+pub fn BinFloat::fma_ctx(Self, Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::from_coefficient(BinCoeff, precision? : Int, negative? : Bool) -> Self
 pub fn BinFloat::from_double(Double, precision? : Int) -> Self
 pub fn BinFloat::from_float(Float, precision? : Int) -> Self
