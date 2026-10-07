@@ -7,7 +7,7 @@ pub fn Decimal::log10_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_log10_ctx(ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal log10 evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 
@@ -71,7 +71,7 @@ pub fn Decimal::exp_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_exp_ctx(ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal exp evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 
@@ -109,7 +109,7 @@ pub fn Decimal::ln_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_ln_ctx(ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal ln evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 
@@ -171,7 +171,7 @@ pub fn Decimal::power_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_power_ctx(exponent, ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal power evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 

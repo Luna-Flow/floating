@@ -704,14 +704,34 @@ def selected_targets(targets: list[str]) -> list[str]:
     return requested
 
 
+GENERATED_FIXTURE_GLOB = "ieee_corpus_generated_*_wbtest.mbt"
+# moonc 0.10.14 reports spurious labelled-argument syntax errors in a single
+# ~25k-line test file; files of a few thousand lines compile normally.
+GENERATED_TESTS_PER_FILE = 400
+
+
+def split_fixture_test(source: str, per_file: int = GENERATED_TESTS_PER_FILE) -> list[str]:
+    prelude, *tests = source.split("\n\ntest ")
+    tests = ["test " + test for test in tests]
+    chunks = []
+    for start in range(0, len(tests), per_file):
+        body = "\n\n".join(tests[start : start + per_file])
+        chunks.append((prelude + "\n\n" if start == 0 else "") + body.rstrip("\n") + "\n")
+    return chunks or [prelude + "\n"]
+
+
 def run_targets(targets: list[str], fixture: str = "") -> list[dict[str, Any]]:
     requested = selected_targets(targets)
-    generated_path = ROOT / "src/decimal/ieee_corpus_generated_wbtest.mbt"
-    if generated_path.exists():
-        raise CorpusError(f"generated IEEE fixture already exists: {generated_path}")
+    existing = sorted((ROOT / "src/decimal").glob(GENERATED_FIXTURE_GLOB))
+    if existing:
+        raise CorpusError(f"generated IEEE fixture already exists: {existing[0]}")
     results: list[dict[str, Any]] = []
+    generated_paths: list[Path] = []
     try:
-        generated_path.write_text(render_moon_fixture_test(), encoding="utf-8")
+        for index, chunk in enumerate(split_fixture_test(render_moon_fixture_test())):
+            path = ROOT / "src/decimal" / f"ieee_corpus_generated_{index:02d}_wbtest.mbt"
+            path.write_text(chunk, encoding="utf-8")
+            generated_paths.append(path)
         for target in requested:
             result = subprocess.run(
                 ["moon", "test", "src/decimal", "--target", target, "--no-parallelize"],
@@ -722,7 +742,8 @@ def run_targets(targets: list[str], fixture: str = "") -> list[dict[str, Any]]:
             )
             results.append(_target_result(target, result))
     finally:
-        generated_path.unlink(missing_ok=True)
+        for path in generated_paths:
+            path.unlink(missing_ok=True)
     return results
 
 

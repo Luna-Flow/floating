@@ -326,3 +326,21 @@ pub fn RunSummary::success(self : RunSummary) -> Bool {
 pub fn RunSummary::merge(parts : Array[RunSummary]) -> RunSummary {
   { inner: @conformance.RunSummary::merge(parts.map(fn(part) { part.inner })), }
 }
+
+///|
+pub extend GdaContext with Eq::{not_equal, equal}
+
+///|
+pub extend GdaContext with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ParseDiagnostic with Eq::{not_equal, equal}
+
+///|
+pub extend ParseDiagnostic with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunOptions with Eq::{not_equal, equal}
+
+///|
+pub extend RunOptions with @moonbitlang/core/debug.Debug::{to_repr}

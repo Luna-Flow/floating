@@ -250,7 +250,7 @@ msgstr "`BallFloat` 当前实现了："
 #: manual/api/frontend/gda_expr.md:35
 #: manual/api/frontend/itl_expr.md:12
 #: manual/api/frontend/mpfr_expr.md:12
-#: manual/api/frontend/testfloat_expr.md:12
+#: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:81
 #: manual/api/internal/conformance.md:9
 #: manual/api/internal/runner_cli.md:9
@@ -276,7 +276,7 @@ msgstr "完整公开接口"
 #: manual/api/frontend/gda_expr.md:37
 #: manual/api/frontend/itl_expr.md:14
 #: manual/api/frontend/mpfr_expr.md:14
-#: manual/api/frontend/testfloat_expr.md:14
+#: manual/api/frontend/testfloat_expr.md:17
 #: manual/api/internal.md:83
 #: manual/api/internal/conformance.md:11
 #: manual/api/internal/runner_cli.md:11
@@ -1443,8 +1443,8 @@ msgid "`TestFloatSpec::parse(function, rounding, tininess?)` validates format, o
 msgstr "`TestFloatSpec::parse(function, rounding, tininess?)` 校验格式、operation、rounding 和 tininess；`parse_testfloat` 返回 typed document；`execute_document` 执行稳定 shard 并返回逐行结果与计数。"
 
 #: manual/api/frontend/testfloat_expr.md:8
-msgid "Supported operations are `Add`, `Subtract`, `Multiply`, `Divide`, and `SquareRoot` over binary16/32/64/128. A successful summary means selected rows matched values and flags; it does not expand the supported matrix."
-msgstr "操作限于 binary16/32/64/128 上的 Add/Subtract/Multiply/Divide/SquareRoot。summary success 只代表所选行的值和 flags 匹配。"
+msgid "Supported operations over binary16/32/64/128 are `Add`, `Subtract`, `Multiply`, `Divide`, `SquareRoot`, `MulAdd`, `Remainder`, `RoundToInt`, the integer conversions `ToInt32`/`ToInt64`/`ToUInt32`/`ToUInt64`, and the comparisons `Equal`, `LessEqual`, `Less`, `EqualSignaling`, `LessEqualQuiet`, and `LessQuiet`; `exact` selects TestFloat's `-exact` variants. A successful summary means selected rows matched values and flags; it does not expand the supported matrix."
+msgstr "binary16/32/64/128 上支持的操作为 `Add`、`Subtract`、`Multiply`、`Divide`、`SquareRoot`、`MulAdd`、`Remainder`、`RoundToInt`，整数转换 `ToInt32`/`ToInt64`/`ToUInt32`/`ToUInt64`，以及比较 `Equal`、`LessEqual`、`Less`、`EqualSignaling`、`LessEqualQuiet` 与 `LessQuiet`；`exact` 选择 TestFloat 的 `-exact` 变体。summary success 只代表所选行的值和 flags 匹配，并不扩展支持矩阵。"
 
 #: manual/api/internal.md:1
 msgid "@internal"
@@ -2218,82 +2218,87 @@ msgid "Result"
 msgstr "结果"
 
 #: manual/conformance/bin_float.md:71
+#: manual/conformance/bin_float.md:72
 msgid "TestFloat 3e level 1, seed 1"
 msgstr "TestFloat 3e level 1、seed 1"
 
 #: manual/conformance/bin_float.md:71
-msgid "4 formats × 5 operations × 5 rounding directions × 2 tininess modes"
-msgstr "4 格式 × 5 运算 × 5 舍入 × 2 tininess"
+msgid "4 formats × 5 arithmetic operations × 5 rounding directions × 2 tininess modes"
+msgstr "4 格式 × 5 个算术运算 × 5 舍入 × 2 tininess"
 
 #: manual/conformance/bin_float.md:72
+msgid "4 formats × mulAdd (5 directions × 2 tininess modes), rem, roundToInt and four integer conversions (5 directions × exact/inexact variants), six comparison predicates"
+msgstr "4 格式 × mulAdd（5 舍入 × 2 tininess）、rem、roundToInt 与四种整数转换（5 舍入 × exact/非 exact）、六个比较谓词"
+
+#: manual/conformance/bin_float.md:73
 msgid "MPFR 4.2.2 `tests/data/sqrt`"
 msgstr ""
 
-#: manual/conformance/bin_float.md:72
+#: manual/conformance/bin_float.md:73
 msgid "all executable hexadecimal sqrt rows"
 msgstr "全部可执行十六进制 sqrt 行"
 
-#: manual/conformance/bin_float.md:73
+#: manual/conformance/bin_float.md:74
 msgid "MPFR 4.2.2 `pow_si` fixture"
 msgstr "MPFR 4.2.2 `pow_si` 固定语料"
 
-#: manual/conformance/bin_float.md:73
+#: manual/conformance/bin_float.md:74
 msgid "4 precisions × 5 supported roundings × 6 inputs"
 msgstr "4 种精度 × 5 种受支持舍入 × 6 组输入"
 
-#: manual/conformance/bin_float.md:74
+#: manual/conformance/bin_float.md:75
 msgid "MPFR 4.2.2 elementary fixture"
 msgstr "MPFR 4.2.2 elementary 固定语料"
 
-#: manual/conformance/bin_float.md:74
+#: manual/conformance/bin_float.md:75
 msgid "29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs"
 msgstr "29 运算 × 3 精度 × 6 舍入 × 4 组固定 seed 输入"
 
-#: manual/conformance/bin_float.md:75
+#: manual/conformance/bin_float.md:76
 msgid "Optional MPFR elementary stress, seed 20260715"
 msgstr "可选 MPFR elementary 压力、seed 20260715"
 
-#: manual/conformance/bin_float.md:75
+#: manual/conformance/bin_float.md:76
 msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr "每个不少于三运算的 family 至少 100,000 例"
 
-#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:77
 msgid "Committed smoke"
 msgstr "提交的 smoke"
 
-#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:77
 msgid "TestFloat, sqrt, `pow_si`, and elementary witnesses"
 msgstr "TestFloat、sqrt、`pow_si` 与 elementary 见证"
 
-#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:78
 msgid "TestFloat 3e level 2"
 msgstr ""
 
-#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:78
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr "binary16 的全部已声明运算/方向/tininess"
 
-#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:80
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr "binary16 level-2 结果是额外的流式压力证据，不将更大的 binary32/64/128 level-2 语料误写为已完成声明。对非 NaN，解释器严格比较编码位和异常位。期望结果为 NaN 时，只比较 quiet-NaN 类别和异常位：IEEE 754 允许新生成 NaN 的 payload 选择；实现本身仍保留选中的输入 NaN 的符号/payload，并 quiet sNaN。`--level 2` 使用有界分块而不丢行，但属于巨大的可选压力语料，未计入上述已通过的有限门禁声明。同样，966,744 行 MPFR 结果是可选生成压力证据；可复现的发布边界仍是哈希固定的 2,088 行语料。"
 
-#: manual/conformance/bin_float.md:88
+#: manual/conformance/bin_float.md:89
 msgid "Scope Of The Claim"
 msgstr "声明边界"
 
-#: manual/conformance/bin_float.md:90
+#: manual/conformance/bin_float.md:91
 msgid "Stability Of The Evidence"
 msgstr "证据稳定性"
 
-#: manual/conformance/bin_float.md:92
+#: manual/conformance/bin_float.md:93
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle."
 msgstr "固定矩阵是本版本的证据边界；新增操作必须单独定义语料合同和 oracle，不能从现有通过结果外推。"
 
-#: manual/conformance/bin_float.md:94
-msgid "The results cover contextual add, subtract, multiply, divide, and square root for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. They do not claim TestFloat conformance for fused multiply-add, remainder, conversions, comparisons, min/max, total ordering, decimal formats, or every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
-msgstr "上述结果覆盖四个 interchange format 上的 contextual 加、减、乘、除和平方根，以及 24、53、113 bit、全部六种项目舍入模式下声明的 29 个 elementary 运算。不宣称 FMA、remainder、转换、比较、min/max、total order、十进制格式或全部 IEEE 754 操作或全部实数输入的一致性。elementary 生成器通过 MPFR 要求的 `mpfr_round_nearest_away_begin/end` 协议实现 nearest-away，绝不把明确禁止的 `MPFR_RNDNA` 值直接传给通用 elementary 函数。"
+#: manual/conformance/bin_float.md:95
+msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
+msgstr "上述结果覆盖四个 interchange format 在所列舍入/tininess 模式下的 contextual 加、减、乘、除、平方根、融合乘加、remainder、roundToIntegral（普通与 exact）、到有/无符号 32/64 位整数的 convertToInteger（普通与 exact），以及 quiet/signaling 的相等、小于、小于等于谓词；另含 24、53、113 bit、全部六种项目舍入模式下声明的 29 个 elementary 运算。非法整数转换只比较标志：SoftFloat 返回平台相关的哨兵值，而 API 返回 `None`。不宣称格式间转换、min/max、total order、nextUp/nextDown、scaleB/logB 或十进制字符转换（由包内测试覆盖）的 TestFloat 一致性，也不宣称全部 IEEE 754 操作或全部实数输入的一致性。elementary 生成器通过 MPFR 要求的 `mpfr_round_nearest_away_begin/end` 协议实现 nearest-away，绝不把明确禁止的 `MPFR_RNDNA` 值直接传给通用 elementary 函数。"
 
-#: manual/conformance/bin_float.md:105
+#: manual/conformance/bin_float.md:111
 msgid "Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr "日常运行 `just conformance smoke binary`；完整固定门禁运行 `just gate binary`。"
 
@@ -4025,10 +4030,10 @@ msgid "`frontend/testfloat_expr` Design"
 msgstr "`frontend/testfloat_expr` 设计"
 
 #: manual/design/frontend/testfloat_expr.md:3
-msgid "The package parses TestFloat function metadata and fixed-width hexadecimal vectors, decodes operands through `BinaryInterchange`, constructs a `BinaryContext`, executes add/sub/mul/div/sqrt, and compares encoded result and all five IEEE flags. Sharding is stable by row index."
-msgstr "解析 TestFloat 元数据和定宽十六进制向量，通过 `BinaryInterchange` 解码、构造 `BinaryContext`，执行 add/sub/mul/div/sqrt，并比较编码结果和五个 IEEE flags；shard 按行号稳定选择。"
+msgid "The package parses TestFloat function metadata and fixed-width hexadecimal vectors, decodes operands through `BinaryInterchange`, constructs a `BinaryContext`, executes the arithmetic, mulAdd, rem, roundToInt, integer conversion, or comparison function, and compares the encoded, integer, or 0/1 result and all five IEEE flags. Invalid integer conversions compare flags only, because SoftFloat's sentinel values are platform-specific. Sharding is stable by row index."
+msgstr "解析 TestFloat 元数据和定宽十六进制向量，通过 `BinaryInterchange` 解码、构造 `BinaryContext`，执行算术、mulAdd、rem、roundToInt、整数转换或比较函数，并比较编码结果、整数或 0/1 结果以及五个 IEEE flags；非法整数转换只比较 flags，因为 SoftFloat 的哨兵值与平台相关；shard 按行号稳定选择。"
 
-#: manual/design/frontend/testfloat_expr.md:8
+#: manual/design/frontend/testfloat_expr.md:10
 msgid "Accepted formats are binary16/32/64/128 and accepted operation, rounding, and tininess modes are exactly those parsed by `TestFloatSpec`. The package does not generate vectors, invoke SoftFloat, read files, or extend coverage beyond that matrix."
 msgstr "支持格式、操作、rounding、tininess 以 `TestFloatSpec` parser 为准，不生成向量、不调用 SoftFloat、不读文件，也不扩展该矩阵。"
 
@@ -6874,94 +6879,94 @@ msgid "**GDA:** all 64,986 legal executable scalar rows in the 144-file `officia
 msgstr "**GDA：** 144 文件 `official` corpus 的 64,986 条合法 executable scalar row 全部通过，`official0` 的 16,124 条合法行全部通过；141 条 `#` placeholder/ non-scalar 非法行是 diagnostic exclusion，不是未支持的合法行为。"
 
 #: manual/verification.md:46
-msgid "**Binary:** 7,461,360 TestFloat vectors cover binary16/32/64/128 add, subtract, multiply, divide, and square root, five rounding directions, and both tininess modes. The pinned MPFR square-root dataset adds 1,055 rows."
-msgstr "**Binary：** 7,461,360 条 TestFloat vector 覆盖 binary16/32/64/128 的 add、 subtract、multiply、divide、sqrt，五种 rounding direction 与两种 tininess；固定 MPFR sqrt 数据另有 1,055 行。"
+msgid "**Binary:** 254,227,872 TestFloat vectors cover binary16/32/64/128 add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral, convertToInteger, and the six comparison predicates under five rounding directions, both tininess modes, and exact variants where they apply. The pinned MPFR square-root dataset adds 1,055 rows."
+msgstr "**Binary：** 254,227,872 条 TestFloat vector 覆盖 binary16/32/64/128 的 add、subtract、multiply、divide、sqrt、融合乘加、remainder、roundToIntegral、convertToInteger 与六个比较谓词，涵盖五种 rounding direction、两种 tininess 以及适用的 exact 变体；固定 MPFR sqrt 数据另有 1,055 行。"
 
-#: manual/verification.md:49
+#: manual/verification.md:51
 msgid "**IEEE decimal:** committed decimal32/64/128 DPD and BID fixtures cover encoding, special values, flags, core arithmetic, and all 1,024 DPD declets on native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded from this gate."
 msgstr "**IEEE decimal：** 已提交 decimal32/64/128 DPD/BID fixture 覆盖 encoding、 special value、flags、核心算术与全部 1,024 个 DPD declet；运行于 native、Wasm、 Wasm-GC、JavaScript，LLVM 不属于该 gate。"
 
-#: manual/verification.md:52
+#: manual/verification.md:54
 msgid "**Interval:** the strict ITF1788 phases cover declared set, relation, observation, arithmetic, cancellation, elementary, power, trigonometric, FMA, integer-power, and extrema operations. Reverse operations remain unsupported."
 msgstr "**Interval：** strict ITF1788 phases 覆盖声明的 set、relation、observation、 arithmetic、cancellation、elementary、power、trigonometric、FMA、integer-power 与 extrema；reverse operations 仍未支持。"
 
-#: manual/verification.md:57
+#: manual/verification.md:59
 msgid "These are finite claims. They do not imply every IEEE 754 or IEEE 1788 operation, arbitrary resource sizes, every NaN payload policy, or unpinned future corpus revisions."
 msgstr "这些都是有限声明，不代表 IEEE 754/1788 的所有 operation、任意资源规模、所有 NaN payload policy 或未来未固定的 corpus revision。"
 
-#: manual/verification.md:61
+#: manual/verification.md:63
 msgid "Reproducibility"
 msgstr "可复现性"
 
-#: manual/verification.md:63
+#: manual/verification.md:65
 msgid "External artifacts are revision- and SHA-256-pinned in corpus manifests. Builds use backend-named outputs and isolated target directories so parallel jobs do not overwrite one another. Shards select deterministic case indices, and merged summaries retain exact totals and failed IDs."
 msgstr "外部 artifact 的 revision 与 SHA-256 固定在 corpus manifest 中。构建使用按 backend 命名的输出和隔离 target 目录，并行 job 不会互相覆盖。Shard 按确定性 case index 选择，合并 summary 保留精确 total 与 failed ID。"
 
-#: manual/verification.md:68
+#: manual/verification.md:70
 msgid "The MoonBit frontend parses and executes numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection, and aggregation. An optional oracle is never silently replaced by a weaker implementation; missing requirements must be reported explicitly."
 msgstr "MoonBit frontend 解析并执行数值行；Python 负责编排下载、task planning、subprocess、 target selection 和 aggregation。可选 oracle 缺失时不得静默换成较弱实现，必须明确报告缺失条件。"
 
-#: manual/verification.md:73
+#: manual/verification.md:75
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin baseline source, dependencies, toolchain, target, schedule, sample count, and dispersion limits. A performance threshold never changes correctness."
 msgstr "性能证据与语义 conformance 分离。Benchmark manifest 固定 baseline source、依赖、 toolchain、target、schedule、sample count 与 dispersion limit。性能阈值不定义正确性。"
 
-#: manual/verification.md:77
+#: manual/verification.md:79
 msgid "Failure Triage"
 msgstr "失败排查"
 
-#: manual/verification.md:79
+#: manual/verification.md:81
 msgid "Re-run the failing backend with the smallest case, ID filter, phase, or shard that reproduces it."
 msgstr "用最小 case、ID filter、phase 或 shard 复现对应 backend；"
 
-#: manual/verification.md:81
+#: manual/verification.md:83
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches, and infrastructure failures."
 msgstr "区分 parse diagnostic、unsupported、legacy、executable mismatch 与基础设施失败；"
 
-#: manual/verification.md:83
+#: manual/verification.md:85
 msgid "Record expected value, actual value, flags, context, target, corpus revision, and command."
 msgstr "记录 expected/actual value、flags、context、target、corpus revision 与命令；"
 
-#: manual/verification.md:85
+#: manual/verification.md:87
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange, or aggregation."
 msgstr "运行对应 white-box 包测试，定位 parser、arithmetic、interchange 或 aggregation；"
 
-#: manual/verification.md:87
+#: manual/verification.md:89
 msgid "After a fix, run the focused case, committed smoke fixture, backend gate, and finally `just pr` or `just ci` as appropriate."
 msgstr "修复后依次运行 focused case、smoke fixture、backend gate，最后运行 `just pr` 或 `just ci`。"
 
-#: manual/verification.md:90
+#: manual/verification.md:92
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr "不得通过降低 strict support、丢弃 flags 或改写分母让失败 gate 变绿。"
 
-#: manual/verification.md:93
+#: manual/verification.md:95
 msgid "Release Gate"
 msgstr "发布 Gate"
 
-#: manual/verification.md:95
+#: manual/verification.md:97
 msgid "Before publishing:"
 msgstr "发布前："
 
-#: manual/verification.md:97
+#: manual/verification.md:99
 msgid "align `moon.mod`, root README, localized indexes, standards, and changelog;"
 msgstr "对齐 `moon.mod`、根 README、三语索引、文档标准与 changelog；"
 
-#: manual/verification.md:98
+#: manual/verification.md:100
 msgid "run `just docs` and inspect generated interface differences;"
 msgstr "运行 `just docs` 并检查生成接口差异；"
 
-#: manual/verification.md:99
+#: manual/verification.md:101
 msgid "run `just pr` during iteration;"
 msgstr "迭代期间运行 `just pr`；"
 
-#: manual/verification.md:100
+#: manual/verification.md:102
 msgid "run `just ci` for the release candidate;"
 msgstr "对 release candidate 运行 `just ci`；"
 
-#: manual/verification.md:101
+#: manual/verification.md:103
 msgid "publish through the repository GitHub Actions workflow."
 msgstr "通过仓库 GitHub Actions workflow 发布。"
 
-#: manual/verification.md:103
+#: manual/verification.md:105
 msgid "Local `moon publish` is not the Luna-Flow release path because organization credentials are supplied by the workflow."
 msgstr "Luna-Flow 不使用本地 `moon publish` 作为发布路径；组织凭据由 workflow 提供。"
 

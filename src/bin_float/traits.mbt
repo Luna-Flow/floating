@@ -113,3 +113,24 @@ pub impl @lf_arith.ExpContextual for BinFloat with fn exp_contextual(
     Err(error) => Err(error)
   }
 }
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.AddContextual::{add_contextual}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.SubContextual::{sub_contextual}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.MulContextual::{mul_contextual}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.DivContextual::{div_contextual}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.AbsContextual::{abs_contextual}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.SqrtContextual::{sqrt_contextual}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.ExpContextual::{exp_contextual}

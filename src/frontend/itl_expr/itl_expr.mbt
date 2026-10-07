@@ -907,3 +907,9 @@ fn execute_boolean_case(case : ItlCase, precision : Int) -> ItlResult {
   }
   boolean_result(case, actual)
 }
+
+///|
+pub extend ItlCase with Eq::{not_equal, equal}
+
+///|
+pub extend ItlCase with @moonbitlang/core/debug.Debug::{to_repr}

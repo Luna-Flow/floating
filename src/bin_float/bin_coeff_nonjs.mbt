@@ -1683,3 +1683,21 @@ pub impl Shl for BinCoeff with fn shl(self, shift) {
 pub impl Shr for BinCoeff with fn shr(self, shift) {
   self.shift_right(shift)
 }
+
+///|
+pub extend BinCoeff with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BinCoeff with Eq::{not_equal, equal}
+
+///|
+pub extend BinCoeff with Compare::{op_lt, op_le, op_ge, op_gt}
+
+///|
+pub extend BinCoeff with Show::{output}
+
+///|
+pub extend BinCoeff with Shl::{shl}
+
+///|
+pub extend BinCoeff with Shr::{shr}

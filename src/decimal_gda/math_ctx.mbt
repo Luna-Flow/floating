@@ -1,4 +1,14 @@
 ///|
+/// Total form of a certified evaluation that could not be completed: a quiet
+/// NaN with `invalid_operation`, so GDA status and traps apply as for any other
+/// invalid result. The `try_*` operations expose the failure detail.
+fn decimal_certification_invalid(
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  (Decimal::nan(precision=finite_precision_for_default(ctx)), invalid_flags())
+}
+
+///|
 // Public context-aware mathematical operations.
 
 pub fn Decimal::log10_ctx(
@@ -7,7 +17,7 @@ pub fn Decimal::log10_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_log10_ctx(ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal log10 evaluation failed")
+    Err(_) => decimal_certification_invalid(ctx)
   }
 }
 
@@ -71,7 +81,7 @@ pub fn Decimal::exp_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_exp_ctx(ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal exp evaluation failed")
+    Err(_) => decimal_certification_invalid(ctx)
   }
 }
 
@@ -109,7 +119,7 @@ pub fn Decimal::ln_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_ln_ctx(ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal ln evaluation failed")
+    Err(_) => decimal_certification_invalid(ctx)
   }
 }
 
@@ -171,7 +181,7 @@ pub fn Decimal::power_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_power_ctx(exponent, ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal power evaluation failed")
+    Err(_) => decimal_certification_invalid(ctx)
   }
 }
 

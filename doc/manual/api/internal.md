@@ -178,7 +178,9 @@ pub struct ExactRat {
   // private fields
 } derive(Eq)
 pub fn ExactRat::denominator(Self) -> @bigint.BigInt
+pub fn ExactRat::equal(Self, Self) -> Bool
 pub fn ExactRat::new(@bigint.BigInt, @bigint.BigInt) -> Self
+pub fn ExactRat::not_equal(Self, Self) -> Bool
 pub fn ExactRat::numerator(Self) -> @bigint.BigInt
 
 // Type aliases

@@ -5,8 +5,11 @@ operation, rounding, and tininess. `parse_testfloat(source, text, spec)` returns
 a typed document; `execute_document(document, options?)` executes stable shards
 and returns result/count accessors.
 
-Supported operations are `Add`, `Subtract`, `Multiply`, `Divide`, and
-`SquareRoot` over binary16/32/64/128. A successful summary means selected rows
+Supported operations over binary16/32/64/128 are `Add`, `Subtract`,
+`Multiply`, `Divide`, `SquareRoot`, `MulAdd`, `Remainder`, `RoundToInt`, the
+integer conversions `ToInt32`/`ToInt64`/`ToUInt32`/`ToUInt64`, and the
+comparisons `Equal`, `LessEqual`, `Less`, `EqualSignaling`, `LessEqualQuiet`,
+and `LessQuiet`; `exact` selects TestFloat's `-exact` variants. A successful summary means selected rows
 matched values and flags; it does not expand the supported matrix.
 
 ## Complete Public Interface
@@ -41,9 +44,12 @@ pub fn CaseResult::passed(Self) -> Bool
 pub struct ParseDiagnostic {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::line(Self) -> Int
 pub fn ParseDiagnostic::message(Self) -> String
+pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::source(Self) -> String
+pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 
 pub struct RunOptions {
   // private fields
@@ -82,17 +88,37 @@ pub(all) enum TestFloatOperation {
   Multiply
   Divide
   SquareRoot
+  MulAdd
+  Remainder
+  RoundToInt
+  ToInt32
+  ToInt64
+  ToUInt32
+  ToUInt64
+  Equal
+  LessEqual
+  Less
+  EqualSignaling
+  LessEqualQuiet
+  LessQuiet
 } derive(Eq, @debug.Debug)
+pub fn TestFloatOperation::equal(Self, Self) -> Bool
+pub fn TestFloatOperation::not_equal(Self, Self) -> Bool
+pub fn TestFloatOperation::to_repr(Self) -> @debug.Repr
 
 pub struct TestFloatSpec {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn TestFloatSpec::equal(Self, Self) -> Bool
+pub fn TestFloatSpec::exact(Self) -> Bool
 pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
 pub fn TestFloatSpec::function_name(Self) -> String
+pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
-pub fn TestFloatSpec::parse(String, String, tininess? : String) -> Result[Self, String]
+pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -> Result[Self, String]
 pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
 pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
+pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

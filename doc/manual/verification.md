@@ -43,9 +43,11 @@ under `testdata/*/README.md`.
   corpus pass; all 16,124 legal rows in `official0` pass. The 141 `#`
   placeholder/non-scalar invalid rows are diagnostic exclusions, not
   unsupported legal behavior.
-- **Binary:** 7,461,360 TestFloat vectors cover binary16/32/64/128 add,
-  subtract, multiply, divide, and square root, five rounding directions, and
-  both tininess modes. The pinned MPFR square-root dataset adds 1,055 rows.
+- **Binary:** 254,227,872 TestFloat vectors cover binary16/32/64/128 add,
+  subtract, multiply, divide, square root, fused multiply-add, remainder,
+  roundToIntegral, convertToInteger, and the six comparison predicates under
+  five rounding directions, both tininess modes, and exact variants where they
+  apply. The pinned MPFR square-root dataset adds 1,055 rows.
 - **IEEE decimal:** committed decimal32/64/128 DPD and BID fixtures cover
   encoding, special values, flags, core arithmetic, and all 1,024 DPD declets on
   native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded from this gate.

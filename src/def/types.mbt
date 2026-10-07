@@ -44,3 +44,9 @@ pub fn[F : Floating] is_zero(x : F) -> Bool {
   Floating::classify(x) == @arithmetic.FpClass::Finite &&
   Floating::sign(x) == Zero
 }
+
+///|
+pub extend Sign with Eq::{not_equal, equal}
+
+///|
+pub extend PartialOrder with Eq::{not_equal, equal}

@@ -281,3 +281,33 @@ pub fn RunSummary::results(self : RunSummary) -> Array[CaseResult] {
 pub fn RunSummary::success(self : RunSummary) -> Bool {
   self.failed_cases == 0
 }
+
+///|
+pub extend SourceLocation with Eq::{not_equal, equal}
+
+///|
+pub extend SourceLocation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CaseDisposition with Eq::{not_equal, equal}
+
+///|
+pub extend CaseDisposition with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend CaseResult with Eq::{not_equal, equal}
+
+///|
+pub extend CaseResult with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ShardSpec with Eq::{not_equal, equal}
+
+///|
+pub extend ShardSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend RunSummary with Eq::{not_equal, equal}
+
+///|
+pub extend RunSummary with @moonbitlang/core/debug.Debug::{to_repr}

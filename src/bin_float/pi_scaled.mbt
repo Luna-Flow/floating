@@ -348,7 +348,7 @@ pub fn BinFloat::sinpi_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_sinpi_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_sinpi_ctx(context), context)
 }
 
 ///|
@@ -369,7 +369,7 @@ pub fn BinFloat::cospi_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_cospi_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_cospi_ctx(context), context)
 }
 
 ///|
@@ -390,7 +390,7 @@ pub fn BinFloat::tanpi_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_tanpi_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_tanpi_ctx(context), context)
 }
 
 ///|

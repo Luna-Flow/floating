@@ -6,10 +6,10 @@ test "MPFR sqrt parser and executor retain hexadecimal precision semantics" {
     #|53 53 n 0x10000000000000p-1074 0x10000000000000p-563
     #|53 53 n 0x10BC83C8308CB2p-1074 0x105D327678185Dp-563
     #|
-  let document = parse_sqrt_data("inline.sqrt", source).unwrap()
+  let document = @mpfr_expr.parse_sqrt_data("inline.sqrt", source).unwrap()
   assert_eq(document.source(), "inline.sqrt")
   assert_eq(document.case_count(), 3)
-  let summary = execute_sqrt_data(document)
+  let summary = @mpfr_expr.execute_sqrt_data(document)
   assert_eq(summary.total_cases(), 3)
   assert_eq(summary.passed_cases(), 3)
   assert_eq(summary.failed_cases(), 0)
@@ -17,7 +17,7 @@ test "MPFR sqrt parser and executor retain hexadecimal precision semantics" {
 
 ///|
 test "MPFR sqrt parser rejects incomplete data_check rows" {
-  match parse_sqrt_data("bad.sqrt", "53 53 n 0x0p0\n") {
+  match @mpfr_expr.parse_sqrt_data("bad.sqrt", "53 53 n 0x0p0\n") {
     Err([diagnostic]) => {
       assert_eq(diagnostic.source(), "bad.sqrt")
       assert_eq(diagnostic.line(), 1)
@@ -38,10 +38,10 @@ test "MPFR pow parser executes all supported rounding modes" {
     #|24 z 7ff -10 0 -3 80300c -26 0 1
     #|53 d 1fffffffffffff -52 1 15 1ffffffffffff2 -38 1 1
     #|113 a 10000000000000000000000000001 -112 0 -7 1fffffffffffffffffffffffffff3 -113 0 1
-  let document = parse_pow_data("inline.pow", source).unwrap()
+  let document = @mpfr_expr.parse_pow_data("inline.pow", source).unwrap()
   assert_eq(document.source(), "inline.pow")
   assert_eq(document.case_count(), 4)
-  let summary = execute_pow_data(document)
+  let summary = @mpfr_expr.execute_pow_data(document)
   for result in summary.results() {
     assert_true(result.passed(), msg=result.message())
   }
@@ -57,10 +57,10 @@ test "MPFR elementary parser executes certified exact identities" {
     #|exp 24 n 0x0p0 - 0 0x1p0 0 0 0
     #|tanpi 24 na 0x1p-2 - 0 0x1p0 0 0 0
     #|hypot 53 d 0x3p0 0x4p0 0 0x5p0 0 0 0
-  let document = parse_elementary_data("inline.elementary", source).unwrap()
+  let document = @mpfr_expr.parse_elementary_data("inline.elementary", source).unwrap()
   assert_eq(document.source(), "inline.elementary")
   assert_eq(document.case_count(), 3)
-  let summary = execute_elementary_data(document)
+  let summary = @mpfr_expr.execute_elementary_data(document)
   for result in summary.results() {
     assert_true(result.passed(), msg=result.message())
   }

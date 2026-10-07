@@ -7,7 +7,6 @@ import {
 }
 
 import {
-  "moonbitlang/core/bench",
   "moonbitlang/core/bigint",
 } for "wbtest"
 

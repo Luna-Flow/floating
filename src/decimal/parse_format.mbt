@@ -567,3 +567,6 @@ pub impl Show for Decimal with fn to_string(self) {
 
 ///|
 pub extend Decimal with Show::{to_string}
+
+///|
+pub extend Decimal with Show::{output}

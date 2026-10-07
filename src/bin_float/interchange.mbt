@@ -294,3 +294,6 @@ pub fn BinFloat::to_interchange(
 ) -> (BinaryInterchange, BinaryFlags) {
   BinaryInterchange::from_bin_float(self, format, rounding~, tininess~)
 }
+
+///|
+pub extend BinaryInterchange with Eq::{not_equal, equal}

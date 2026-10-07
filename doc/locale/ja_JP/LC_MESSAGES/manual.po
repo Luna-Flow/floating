@@ -248,7 +248,7 @@ msgstr "`BallFloat` は現在次を実装します。"
 #: manual/api/frontend/gda_expr.md:35
 #: manual/api/frontend/itl_expr.md:12
 #: manual/api/frontend/mpfr_expr.md:12
-#: manual/api/frontend/testfloat_expr.md:12
+#: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:81
 #: manual/api/internal/conformance.md:9
 #: manual/api/internal/runner_cli.md:9
@@ -274,7 +274,7 @@ msgstr "完全な公開インターフェース"
 #: manual/api/frontend/gda_expr.md:37
 #: manual/api/frontend/itl_expr.md:14
 #: manual/api/frontend/mpfr_expr.md:14
-#: manual/api/frontend/testfloat_expr.md:14
+#: manual/api/frontend/testfloat_expr.md:17
 #: manual/api/internal.md:83
 #: manual/api/internal/conformance.md:11
 #: manual/api/internal/runner_cli.md:11
@@ -1439,8 +1439,8 @@ msgid "`TestFloatSpec::parse(function, rounding, tininess?)` validates format, o
 msgstr "`TestFloatSpec::parse(function, rounding, tininess?)` が format/operation/rounding/tininess を検証し、`parse_testfloat` が typed document、`execute_document` が stable shard の結果と件数を返します。"
 
 #: manual/api/frontend/testfloat_expr.md:8
-msgid "Supported operations are `Add`, `Subtract`, `Multiply`, `Divide`, and `SquareRoot` over binary16/32/64/128. A successful summary means selected rows matched values and flags; it does not expand the supported matrix."
-msgstr "対象は binary16/32/64/128 の Add/Subtract/Multiply/Divide/SquareRoot だけです。summary success は選択行の値と flags が一致したことだけを意味します。"
+msgid "Supported operations over binary16/32/64/128 are `Add`, `Subtract`, `Multiply`, `Divide`, `SquareRoot`, `MulAdd`, `Remainder`, `RoundToInt`, the integer conversions `ToInt32`/`ToInt64`/`ToUInt32`/`ToUInt64`, and the comparisons `Equal`, `LessEqual`, `Less`, `EqualSignaling`, `LessEqualQuiet`, and `LessQuiet`; `exact` selects TestFloat's `-exact` variants. A successful summary means selected rows matched values and flags; it does not expand the supported matrix."
+msgstr "binary16/32/64/128 で対応する操作は `Add`、`Subtract`、`Multiply`、`Divide`、`SquareRoot`、`MulAdd`、`Remainder`、`RoundToInt`、整数変換 `ToInt32`/`ToInt64`/`ToUInt32`/`ToUInt64`、比較 `Equal`、`LessEqual`、`Less`、`EqualSignaling`、`LessEqualQuiet`、`LessQuiet` です。`exact` は TestFloat の `-exact` variant を選びます。summary success は選択行の値と flags が一致したことだけを意味し、サポート対象の matrix を広げるものではありません。"
 
 #: manual/api/internal.md:1
 msgid "@internal"
@@ -2215,83 +2215,88 @@ msgid "Result"
 msgstr "結果"
 
 #: manual/conformance/bin_float.md:71
+#: manual/conformance/bin_float.md:72
 msgid "TestFloat 3e level 1, seed 1"
 msgstr "TestFloat 3e level 1、seed 1"
 
 #: manual/conformance/bin_float.md:71
-msgid "4 formats × 5 operations × 5 rounding directions × 2 tininess modes"
-msgstr "4 format × 5 operation × 5 rounding × 2 tininess"
+msgid "4 formats × 5 arithmetic operations × 5 rounding directions × 2 tininess modes"
+msgstr "4 format × 5 arithmetic operation × 5 rounding × 2 tininess"
 
 #: manual/conformance/bin_float.md:72
+msgid "4 formats × mulAdd (5 directions × 2 tininess modes), rem, roundToInt and four integer conversions (5 directions × exact/inexact variants), six comparison predicates"
+msgstr "4 format × mulAdd（5 rounding × 2 tininess）、rem、roundToInt と四つの integer conversion（5 rounding × exact/非 exact）、六つの comparison predicate"
+
+#: manual/conformance/bin_float.md:73
 msgid "MPFR 4.2.2 `tests/data/sqrt`"
 msgstr ""
 
-#: manual/conformance/bin_float.md:72
+#: manual/conformance/bin_float.md:73
 #, fuzzy
 msgid "all executable hexadecimal sqrt rows"
 msgstr "実行可能な 16 進 sqrt 行すべて"
 
-#: manual/conformance/bin_float.md:73
+#: manual/conformance/bin_float.md:74
 msgid "MPFR 4.2.2 `pow_si` fixture"
 msgstr ""
 
-#: manual/conformance/bin_float.md:73
+#: manual/conformance/bin_float.md:74
 msgid "4 precisions × 5 supported roundings × 6 inputs"
 msgstr "4 precision × 5 supported rounding × 6 input"
 
-#: manual/conformance/bin_float.md:74
+#: manual/conformance/bin_float.md:75
 msgid "MPFR 4.2.2 elementary fixture"
 msgstr ""
 
-#: manual/conformance/bin_float.md:74
+#: manual/conformance/bin_float.md:75
 msgid "29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs"
 msgstr "29 operation × 3 precision × 6 rounding × 4 fixed-seed input"
 
-#: manual/conformance/bin_float.md:75
+#: manual/conformance/bin_float.md:76
 msgid "Optional MPFR elementary stress, seed 20260715"
 msgstr "optional MPFR elementary stress、seed 20260715"
 
-#: manual/conformance/bin_float.md:75
+#: manual/conformance/bin_float.md:76
 msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr "three-operation 以上の各 family で 100,000 case 以上"
 
-#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:77
 msgid "Committed smoke"
 msgstr "コミット済み smoke"
 
-#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:77
 msgid "TestFloat, sqrt, `pow_si`, and elementary witnesses"
 msgstr "TestFloat、sqrt、`pow_si`、elementary witness"
 
-#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:78
 msgid "TestFloat 3e level 2"
 msgstr ""
 
-#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:78
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr "binary16 の全 declared operation/direction/tininess"
 
-#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:80
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr "binary16 level-2 の結果は追加の streaming stress evidence であり、より大きい binary32/64/128 level-2 corpus を完了済みと主張するものではありません。NaN 以外では encoding bit と exception bit を厳密に比較します。期待値が NaN の場合だけ quiet-NaN class と exception bit を比較します。IEEE 754 では新規に生成される NaN payload の選択が許されるためです。実装は選択した入力 NaN の符号/payload を保持し、sNaN を quiet にします。`--level 2` は行を捨てない有界 chunk で実行できますが、巨大な任意 stress corpus であり、上記の有限ゲート結果には含めません。同様に 966,744-row MPFR run は optional generated stress evidence です。再現可能な release boundary は hash-pinned 2,088-row fixture のままです。"
 
-#: manual/conformance/bin_float.md:88
+#: manual/conformance/bin_float.md:89
 msgid "Scope Of The Claim"
 msgstr "主張の境界"
 
-#: manual/conformance/bin_float.md:90
+#: manual/conformance/bin_float.md:91
 msgid "Stability Of The Evidence"
 msgstr "Evidence の安定性"
 
-#: manual/conformance/bin_float.md:92
+#: manual/conformance/bin_float.md:93
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle."
 msgstr "固定 matrix が release evidence の境界です。新しい operation には新しい corpus contract と oracle が必要です。"
 
-#: manual/conformance/bin_float.md:94
-msgid "The results cover contextual add, subtract, multiply, divide, and square root for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. They do not claim TestFloat conformance for fused multiply-add, remainder, conversions, comparisons, min/max, total ordering, decimal formats, or every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
-msgstr "four interchange format の contextual add/sub/mul/div/sqrt に加え、24、53、 113 bit と六つの project rounding mode における 29 elementary operation を検証します。全 IEEE 754 operation または全実数入力の適合性は主張しません。 nearest-away は MPFR が要求する `mpfr_round_nearest_away_begin/end` protocol で生成し、禁止されている `MPFR_RNDNA` を general elementary function に直接渡しません。"
+#: manual/conformance/bin_float.md:95
+msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
+msgstr "four interchange format の contextual add/sub/mul/div/sqrt、fused multiply-add、remainder、roundToIntegral（通常と exact）、符号付き/符号なし 32/64 bit 整数への convertToInteger（通常と exact）、quiet/signaling の equal/less/less-or-equal predicate に加え、24、53、113 bit と六つの project rounding mode における 29 elementary operation を検証します。invalid な整数変換は flag のみ比較します（SoftFloat は platform 依存の sentinel を返し、API は `None` を返すため）。format 間変換、min/max、total order、nextUp/nextDown、scaleB/logB、decimal character 変換（package test で検証）の TestFloat 適合性、および全 IEEE 754 operation または全実数入力の適合性は主張しません。nearest-away は MPFR が要求する `mpfr_round_nearest_away_begin/end` protocol で生成し、禁止されている `MPFR_RNDNA` を general elementary function に直接渡しません。"
 
-#: manual/conformance/bin_float.md:105
+#: manual/conformance/bin_float.md:111
 msgid "Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr "日常の確認は `just conformance smoke binary`、固定 full gate は `just gate binary` を実行します。"
 
@@ -4030,12 +4035,12 @@ msgid "`frontend/testfloat_expr` Design"
 msgstr "`frontend/testfloat_expr` 設計"
 
 #: manual/design/frontend/testfloat_expr.md:3
-msgid "The package parses TestFloat function metadata and fixed-width hexadecimal vectors, decodes operands through `BinaryInterchange`, constructs a `BinaryContext`, executes add/sub/mul/div/sqrt, and compares encoded result and all five IEEE flags. Sharding is stable by row index."
-msgstr "TestFloat metadata と固定幅 hex vector を解析し、`BinaryInterchange` で decode、`BinaryContext` で add/sub/mul/div/sqrt を実行し、符号化結果と五つの IEEE flags を比較します。format/operation/rounding/tininess は `TestFloatSpec` parser の範囲だけです。"
+msgid "The package parses TestFloat function metadata and fixed-width hexadecimal vectors, decodes operands through `BinaryInterchange`, constructs a `BinaryContext`, executes the arithmetic, mulAdd, rem, roundToInt, integer conversion, or comparison function, and compares the encoded, integer, or 0/1 result and all five IEEE flags. Invalid integer conversions compare flags only, because SoftFloat's sentinel values are platform-specific. Sharding is stable by row index."
+msgstr "TestFloat metadata と固定幅 hex vector を解析し、`BinaryInterchange` で operand を decode し、`BinaryContext` を構築して arithmetic、mulAdd、rem、roundToInt、整数変換、比較 function を実行し、符号化結果・整数・0/1 結果と五つの IEEE flags を比較します。invalid な整数変換は SoftFloat の sentinel が platform 依存のため flags だけを比較します。shard は行番号によって安定に選択されます。"
 
-#: manual/design/frontend/testfloat_expr.md:8
+#: manual/design/frontend/testfloat_expr.md:10
 msgid "Accepted formats are binary16/32/64/128 and accepted operation, rounding, and tininess modes are exactly those parsed by `TestFloatSpec`. The package does not generate vectors, invoke SoftFloat, read files, or extend coverage beyond that matrix."
-msgstr ""
+msgstr "受け付ける format は binary16/32/64/128 で、operation、rounding、tininess mode は `TestFloatSpec` が解析するものに限られます。この package は vector の生成、SoftFloat の呼び出し、ファイルの読み込みを行わず、その matrix を超えて coverage を広げることもありません。"
 
 #: manual/design/internal.md:1
 msgid "`internal` Design"
@@ -6881,94 +6886,94 @@ msgid "**GDA:** all 64,986 legal executable scalar rows in the 144-file `officia
 msgstr "**GDA:** 144-file `official` corpus の legal executable scalar 64,986 行と `official0` の legal 16,124 行を全件 pass します。141 の `#` placeholder/ non-scalar invalid row は diagnostic exclusion で、unsupported legal behavior ではありません。"
 
 #: manual/verification.md:46
-msgid "**Binary:** 7,461,360 TestFloat vectors cover binary16/32/64/128 add, subtract, multiply, divide, and square root, five rounding directions, and both tininess modes. The pinned MPFR square-root dataset adds 1,055 rows."
-msgstr "**Binary:** 7,461,360 TestFloat vector が binary16/32/64/128 の add/subtract/ multiply/divide/sqrt、五 rounding direction、両 tininess mode を覆い、pinned MPFR sqrt data が 1,055 行を追加します。"
+msgid "**Binary:** 254,227,872 TestFloat vectors cover binary16/32/64/128 add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral, convertToInteger, and the six comparison predicates under five rounding directions, both tininess modes, and exact variants where they apply. The pinned MPFR square-root dataset adds 1,055 rows."
+msgstr "**Binary:** 254,227,872 TestFloat vector が binary16/32/64/128 の add/subtract/multiply/divide/sqrt、fused multiply-add、remainder、roundToIntegral、convertToInteger、六つの comparison predicate を、五 rounding direction、両 tininess mode、該当する exact variant で覆い、pinned MPFR sqrt data が 1,055 行を追加します。"
 
-#: manual/verification.md:49
+#: manual/verification.md:51
 msgid "**IEEE decimal:** committed decimal32/64/128 DPD and BID fixtures cover encoding, special values, flags, core arithmetic, and all 1,024 DPD declets on native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded from this gate."
 msgstr "**IEEE decimal:** committed decimal32/64/128 DPD/BID fixture が encoding、special value、flags、core arithmetic、全 1,024 DPD declet を native、Wasm、Wasm-GC、 JavaScript で検証します。LLVM は gate 外です。"
 
-#: manual/verification.md:52
+#: manual/verification.md:54
 msgid "**Interval:** the strict ITF1788 phases cover declared set, relation, observation, arithmetic, cancellation, elementary, power, trigonometric, FMA, integer-power, and extrema operations. Reverse operations remain unsupported."
 msgstr "**Interval:** strict ITF1788 phase が宣言済み set、relation、observation、arithmetic、 cancellation、elementary、power、trigonometric、FMA、integer-power、extrema を覆います。Reverse operation は未対応です。"
 
-#: manual/verification.md:57
+#: manual/verification.md:59
 msgid "These are finite claims. They do not imply every IEEE 754 or IEEE 1788 operation, arbitrary resource sizes, every NaN payload policy, or unpinned future corpus revisions."
 msgstr "これは有限 claim であり、IEEE 754/1788 の全 operation、任意 resource size、全 NaN payload policy、unpinned future corpus revision を意味しません。"
 
-#: manual/verification.md:61
+#: manual/verification.md:63
 msgid "Reproducibility"
 msgstr "再現性"
 
-#: manual/verification.md:63
+#: manual/verification.md:65
 msgid "External artifacts are revision- and SHA-256-pinned in corpus manifests. Builds use backend-named outputs and isolated target directories so parallel jobs do not overwrite one another. Shards select deterministic case indices, and merged summaries retain exact totals and failed IDs."
 msgstr "External artifact の revision と SHA-256 は corpus manifest に固定します。Build は backend 名の output と isolated target directory を使い、parallel job が上書きしません。 Shard は deterministic case index を選び、merged summary は exact total/failed ID を保持します。"
 
-#: manual/verification.md:68
+#: manual/verification.md:70
 msgid "The MoonBit frontend parses and executes numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection, and aggregation. An optional oracle is never silently replaced by a weaker implementation; missing requirements must be reported explicitly."
 msgstr "MoonBit frontend が numeric row を parse/execute し、Python は download、task plan、 subprocess、target selection、aggregation を行います。Optional oracle がない場合に弱い実装へ silent fallback せず、requirement 不足を明示します。"
 
-#: manual/verification.md:73
+#: manual/verification.md:75
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin baseline source, dependencies, toolchain, target, schedule, sample count, and dispersion limits. A performance threshold never changes correctness."
 msgstr "Performance evidence は semantic conformance と別です。Benchmark manifest は baseline source、dependency、toolchain、target、schedule、sample count、dispersion limit を固定し、 performance threshold は correctness を定義しません。"
 
-#: manual/verification.md:77
+#: manual/verification.md:79
 msgid "Failure Triage"
 msgstr "Failure triage"
 
-#: manual/verification.md:79
+#: manual/verification.md:81
 msgid "Re-run the failing backend with the smallest case, ID filter, phase, or shard that reproduces it."
 msgstr "最小 case、ID filter、phase、shard で該当 backend を再現します。"
 
-#: manual/verification.md:81
+#: manual/verification.md:83
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches, and infrastructure failures."
 msgstr "parse diagnostic、unsupported、legacy、executable mismatch、infrastructure failure を区別します。"
 
-#: manual/verification.md:83
+#: manual/verification.md:85
 msgid "Record expected value, actual value, flags, context, target, corpus revision, and command."
 msgstr "expected/actual value、flags、context、target、corpus revision、command を記録します。"
 
-#: manual/verification.md:85
+#: manual/verification.md:87
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange, or aggregation."
 msgstr "対応 white-box package test で parser、arithmetic、interchange、aggregation を切り分けます。"
 
-#: manual/verification.md:87
+#: manual/verification.md:89
 msgid "After a fix, run the focused case, committed smoke fixture, backend gate, and finally `just pr` or `just ci` as appropriate."
 msgstr "修正後に focused case、smoke fixture、backend gate、最後に `just pr`/`just ci` を実行します。"
 
-#: manual/verification.md:90
+#: manual/verification.md:92
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr "Strict support を弱める、flags を捨てる、denominator を変えることで gate を通してはいけません。"
 
-#: manual/verification.md:93
+#: manual/verification.md:95
 msgid "Release Gate"
 msgstr "Release gate"
 
-#: manual/verification.md:95
+#: manual/verification.md:97
 msgid "Before publishing:"
 msgstr "Publish 前に次を行います。"
 
-#: manual/verification.md:97
+#: manual/verification.md:99
 msgid "align `moon.mod`, root README, localized indexes, standards, and changelog;"
 msgstr "`moon.mod`、root README、localized index、standard、changelog を揃える。"
 
-#: manual/verification.md:98
+#: manual/verification.md:100
 msgid "run `just docs` and inspect generated interface differences;"
 msgstr "`just docs` を実行し generated interface 差分を確認する。"
 
-#: manual/verification.md:99
+#: manual/verification.md:101
 msgid "run `just pr` during iteration;"
 msgstr "Iteration 中は `just pr` を実行する。"
 
-#: manual/verification.md:100
+#: manual/verification.md:102
 msgid "run `just ci` for the release candidate;"
 msgstr "Release candidate では `just ci` を実行する。"
 
-#: manual/verification.md:101
+#: manual/verification.md:103
 msgid "publish through the repository GitHub Actions workflow."
 msgstr "Repository GitHub Actions workflow から publish する。"
 
-#: manual/verification.md:103
+#: manual/verification.md:105
 msgid "Local `moon publish` is not the Luna-Flow release path because organization credentials are supplied by the workflow."
 msgstr "Organization credential は workflow が供給するため、local `moon publish` は Luna-Flow の release path ではありません。"
 

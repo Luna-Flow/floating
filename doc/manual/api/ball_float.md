@@ -200,8 +200,10 @@ pub struct BallFlags {
   underflow : Bool
 } derive(Eq)
 pub fn BallFlags::combine(Self, Self) -> Self
+pub fn BallFlags::equal(Self, Self) -> Bool
 pub fn BallFlags::inexact(Self) -> Bool
 pub fn BallFlags::new() -> Self
+pub fn BallFlags::not_equal(Self, Self) -> Bool
 pub fn BallFlags::overflow(Self) -> Bool
 pub fn BallFlags::underflow(Self) -> Bool
 
@@ -234,8 +236,10 @@ pub fn BallFloat::definitely_le(Self, Self) -> Bool
 pub fn BallFloat::definitely_lt(Self, Self) -> Bool
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 pub fn BallFloat::div(Self, Self) -> Self
+pub fn BallFloat::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::div_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::empty(precision? : Int) -> Self
+pub fn BallFloat::equal(Self, Self) -> Bool
 pub fn BallFloat::exact(@bin_float.BinFloat, precision? : Int) -> Self
 pub fn BallFloat::exp10_interval(Self) -> Self
 pub fn BallFloat::exp2_interval(Self) -> Self
@@ -275,9 +279,13 @@ pub fn BallFloat::mul_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::neg(Self) -> Self
 pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
 pub fn BallFloat::normalized(Self) -> Self
+pub fn BallFloat::not_equal(Self, Self) -> Bool
+pub fn BallFloat::output(Self, &Logger) -> Unit
 pub fn BallFloat::overlap_state(Self, Self) -> OverlapState
 pub fn BallFloat::overlaps(Self, Self) -> Bool
+pub fn BallFloat::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_interval(Self, Self) -> Self
+pub fn BallFloat::pow_nat_checked(Self, UInt, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pown(Self, Int) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
 pub fn BallFloat::precision(Self) -> Int
@@ -301,6 +309,7 @@ pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
 pub fn BallFloat::tanh_interval(Self) -> Self
 pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::to_repr(Self) -> @debug.Repr
 pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -376,6 +385,7 @@ pub fn BallFloatDecorated::cospi_interval(Self) -> Self
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
 pub fn BallFloatDecorated::div(Self, Self) -> Self
+pub fn BallFloatDecorated::equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::exp10_interval(Self) -> Self
 pub fn BallFloatDecorated::exp2_interval(Self) -> Self
 pub fn BallFloatDecorated::exp_interval(Self) -> Self
@@ -401,6 +411,8 @@ pub fn BallFloatDecorated::mul(Self, Self) -> Self
 pub fn BallFloatDecorated::nai(precision? : Int) -> Self
 pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
+pub fn BallFloatDecorated::not_equal(Self, Self) -> Bool
+pub fn BallFloatDecorated::output(Self, &Logger) -> Unit
 pub fn BallFloatDecorated::overlap_state(Self, Self) -> OverlapState
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow_interval(Self, Self) -> Self
@@ -435,6 +447,10 @@ pub(all) enum Decoration {
   Dac
   Com
 } derive(Eq, @debug.Debug)
+pub fn Decoration::equal(Self, Self) -> Bool
+pub fn Decoration::not_equal(Self, Self) -> Bool
+pub fn Decoration::output(Self, &Logger) -> Unit
+pub fn Decoration::to_repr(Self) -> @debug.Repr
 pub fn Decoration::to_string(Self) -> String
 pub impl Show for Decoration
 
@@ -457,6 +473,9 @@ pub(all) enum OverlapState {
   ContainsInterval
   FinishedBy
 } derive(Eq, @debug.Debug)
+pub fn OverlapState::equal(Self, Self) -> Bool
+pub fn OverlapState::not_equal(Self, Self) -> Bool
+pub fn OverlapState::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

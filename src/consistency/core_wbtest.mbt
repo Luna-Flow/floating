@@ -8488,3 +8488,6 @@ test "BallFloat signed powers handle Int minimum" {
   ).pown(minimum)
   assert_true(crossing.is_entire())
 }
+
+///|
+pub extend DecimalConformanceOp with Eq::{not_equal, equal}
