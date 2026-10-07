@@ -41,9 +41,11 @@ JSON は `testdata/*/README.md` を参照します。
 - **GDA:** 144-file `official` corpus の legal executable scalar 64,986 行と
   `official0` の legal 16,124 行を全件 pass します。141 の `#` placeholder/
   non-scalar invalid row は diagnostic exclusion で、unsupported legal behavior ではありません。
-- **Binary:** 7,461,360 TestFloat vector が binary16/32/64/128 の add/subtract/
-  multiply/divide/sqrt、五 rounding direction、両 tininess mode を覆い、pinned MPFR
-  sqrt data が 1,055 行を追加します。
+- **Binary:** 254,227,872 TestFloat vector が binary16/32/64/128 の add/subtract/
+  multiply/divide/sqrt、fused multiply-add、remainder、roundToIntegral、
+  convertToInteger、六つの comparison predicate を、五 rounding direction、両
+  tininess mode、該当する exact variant で覆い、pinned MPFR sqrt data が 1,055 行を
+  追加します。
 - **IEEE decimal:** committed decimal32/64/128 DPD/BID fixture が encoding、special
   value、flags、core arithmetic、全 1,024 DPD declet を native、Wasm、Wasm-GC、
   JavaScript で検証します。LLVM は gate 外です。

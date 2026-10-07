@@ -35,6 +35,113 @@
       "rounding": "rnear_even",
       "tininess": "after",
       "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f32_mulAdd_rnear_even_after.testfloat",
+      "function": "f32_mulAdd",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_mulAdd_rminMag_before.testfloat",
+      "function": "f64_mulAdd",
+      "rounding": "rminMag",
+      "tininess": "before",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f32_rem_rnear_even_after.testfloat",
+      "function": "f32_rem",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_roundToInt_rnear_maxMag_after.testfloat",
+      "function": "f64_roundToInt",
+      "rounding": "rnear_maxMag",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_roundToInt_rmin_after_exact.testfloat",
+      "function": "f64_roundToInt",
+      "rounding": "rmin",
+      "tininess": "after",
+      "expectedCases": 12,
+      "exact": true
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_to_i32_rnear_even_after.testfloat",
+      "function": "f64_to_i32",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f32_to_ui64_rmax_after_exact.testfloat",
+      "function": "f32_to_ui64",
+      "rounding": "rmax",
+      "tininess": "after",
+      "expectedCases": 12,
+      "exact": true
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_to_i64_rminMag_after.testfloat",
+      "function": "f16_to_i64",
+      "rounding": "rminMag",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f128_to_ui32_rnear_even_after.testfloat",
+      "function": "f128_to_ui32",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_eq_rnear_even_after.testfloat",
+      "function": "f64_eq",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_le_rnear_even_after.testfloat",
+      "function": "f64_le",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f32_lt_quiet_rnear_even_after.testfloat",
+      "function": "f32_lt_quiet",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_eq_signaling_rnear_even_after.testfloat",
+      "function": "f16_eq_signaling",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f128_le_quiet_rnear_even_after.testfloat",
+      "function": "f128_le_quiet",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_lt_rnear_even_after.testfloat",
+      "function": "f64_lt",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
     }
   ],
   "mpfr": [

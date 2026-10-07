@@ -29,7 +29,31 @@ TESTFLOAT_INTERPRETER = executable_path("testfloat")
 MPFR_INTERPRETER = executable_path("mpfr")
 DEFAULT_CHUNK_CASES = 100_000
 FORMATS = ("f16", "f32", "f64", "f128")
-OPERATIONS = ("add", "sub", "mul", "div", "sqrt")
+CORE_OPERATIONS = ("add", "sub", "mul", "div", "sqrt")
+IEEE_OPERATIONS = (
+    "mulAdd",
+    "rem",
+    "roundToInt",
+    "to_i32",
+    "to_i64",
+    "to_ui32",
+    "to_ui64",
+    "eq",
+    "le",
+    "lt",
+    "eq_signaling",
+    "le_quiet",
+    "lt_quiet",
+)
+OPERATIONS = CORE_OPERATIONS + IEEE_OPERATIONS
+# Exact results never round, so these ignore the rounding attribute.
+ROUNDING_INSENSITIVE = frozenset(
+    ("rem", "eq", "le", "lt", "eq_signaling", "le_quiet", "lt_quiet")
+)
+# Only operations that can produce a tiny inexact result observe tininess.
+TININESS_SENSITIVE = frozenset(("add", "sub", "mul", "div", "sqrt", "mulAdd"))
+# roundToInt and the integer conversions have -exact/-notexact variants.
+EXACT_SENSITIVE = frozenset(("roundToInt", "to_i32", "to_i64", "to_ui32", "to_ui64"))
 ROUNDINGS = ("rnear_even", "rnear_maxMag", "rminMag", "rmin", "rmax")
 TININESS_MODES = ("after", "before")
 
@@ -127,27 +151,39 @@ def task_matrix(args: argparse.Namespace) -> list[dict]:
     operations = args.operations or list(OPERATIONS)
     roundings = args.roundings or list(ROUNDINGS)
     tininess_modes = args.tininess_modes or ["after"]
-    return [
-        {
-            "format": format_name,
-            "operation": operation,
-            "function": f"{format_name}_{operation}",
-            "rounding": rounding,
-            "tininess": tininess,
-            "level": args.level,
-            "seed": args.seed,
-        }
-        for format_name in formats
-        for operation in operations
-        for rounding in roundings
-        for tininess in tininess_modes
-    ]
+    tasks = []
+    for format_name in formats:
+        for operation in operations:
+            selected_roundings = (
+                roundings[:1] if operation in ROUNDING_INSENSITIVE else roundings
+            )
+            selected_tininess = (
+                tininess_modes if operation in TININESS_SENSITIVE else tininess_modes[:1]
+            )
+            exact_modes = (False, True) if operation in EXACT_SENSITIVE else (False,)
+            for rounding in selected_roundings:
+                for tininess in selected_tininess:
+                    for exact in exact_modes:
+                        tasks.append(
+                            {
+                                "format": format_name,
+                                "operation": operation,
+                                "function": f"{format_name}_{operation}",
+                                "rounding": rounding,
+                                "tininess": tininess,
+                                "exact": exact,
+                                "level": args.level,
+                                "seed": args.seed,
+                            }
+                        )
+    return tasks
 
 
 def task_name(task: dict) -> str:
+    exact = "-exact" if task.get("exact") else ""
     return (
         f"{task['function']}-{task['rounding']}-"
-        f"tininess-{task['tininess']}-level-{task['level']}"
+        f"tininess-{task['tininess']}{exact}-level-{task['level']}"
     )
 
 
@@ -160,6 +196,11 @@ def testfloat_generator_command(task: dict) -> list[str]:
         str(task["seed"]),
         f"-{task['rounding']}",
         f"-tininess{task['tininess']}",
+        *(
+            ["-exact" if task.get("exact") else "-notexact"]
+            if task["operation"] in EXACT_SENSITIVE
+            else []
+        ),
         task["function"],
     ]
 
@@ -175,6 +216,7 @@ def testfloat_interpreter_command(task: dict, vector_path: Path) -> list[str]:
         task["rounding"],
         "--tininess",
         task["tininess"],
+        *(["--exact"] if task.get("exact") else []),
         "--json",
         str(vector_path),
     ]
@@ -381,6 +423,7 @@ def smoke_task(spec: dict) -> dict:
         "function": spec["function"],
         "rounding": spec["rounding"],
         "tininess": spec["tininess"],
+        "exact": spec.get("exact", False),
         "level": 1,
         "seed": 1,
     }

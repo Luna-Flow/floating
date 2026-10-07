@@ -3,6 +3,7 @@ priv struct CliOptions {
   function_name : String
   rounding : String
   tininess : String
+  exact : Bool
   path : String
   json : Bool
   shard_count : Int
@@ -19,6 +20,7 @@ fn parse_cli(arguments : Array[String]) -> Result[CliOptions, String] {
   let mut function_name = ""
   let mut rounding = "rnear_even"
   let mut tininess = "after"
+  let mut exact = false
   let mut path = ""
   let mut index = 0
   while index < arguments.length() {
@@ -36,6 +38,8 @@ fn parse_cli(arguments : Array[String]) -> Result[CliOptions, String] {
         "--rounding" => rounding = value
         _ => tininess = value
       }
+    } else if argument == "--exact" {
+      exact = true
     } else if argument.has_prefix("-") {
       return Err("unknown option: " + argument)
     } else if path.length() == 0 {
@@ -53,6 +57,7 @@ fn parse_cli(arguments : Array[String]) -> Result[CliOptions, String] {
     function_name,
     rounding,
     tininess,
+    exact,
     path,
     json: common.json(),
     shard_count: common.shard_count(),
@@ -76,6 +81,7 @@ fn summary_json(
       ("function", @runner_cli.json_string(options.function_name)),
       ("rounding", @runner_cli.json_string(options.rounding)),
       ("tininess", @runner_cli.json_string(options.tininess)),
+      ("exact", @runner_cli.json_bool(options.exact)),
       ("totalCases", @runner_cli.json_int(summary.total_cases())),
       ("selectedCases", @runner_cli.json_int(summary.selected_cases())),
       ("passedCases", @runner_cli.json_int(summary.passed_cases())),
@@ -99,6 +105,7 @@ pub fn run(arguments : Array[String]) -> Int {
       options.function_name,
       options.rounding,
       tininess=options.tininess,
+      exact=options.exact,
     ) {
     Ok(value) => value
     Err(message) => {

@@ -2,7 +2,7 @@
 
 `TestFloatSpec::parse(function, rounding, tininess?)` が format/operation/rounding/tininess を検証し、`parse_testfloat` が typed document、`execute_document` が stable shard の結果と件数を返します。
 
-対象は binary16/32/64/128 の Add/Subtract/Multiply/Divide/SquareRoot だけです。summary success は選択行の値と flags が一致したことだけを意味します。
+対象は binary16/32/64/128 の Add/Subtract/Multiply/Divide/SquareRoot、MulAdd、Remainder、RoundToInt、整数変換 ToInt32/ToInt64/ToUInt32/ToUInt64、比較 Equal/LessEqual/Less/EqualSignaling/LessEqualQuiet/LessQuiet です。`exact` は TestFloat の `-exact` variant を選びます。summary success は選択行の値と flags が一致したことだけを意味します。
 
 ## 完全な公開インターフェース
 
@@ -80,6 +80,19 @@ pub(all) enum TestFloatOperation {
   Multiply
   Divide
   SquareRoot
+  MulAdd
+  Remainder
+  RoundToInt
+  ToInt32
+  ToInt64
+  ToUInt32
+  ToUInt64
+  Equal
+  LessEqual
+  Less
+  EqualSignaling
+  LessEqualQuiet
+  LessQuiet
 } derive(Eq, @debug.Debug)
 pub fn TestFloatOperation::equal(Self, Self) -> Bool
 pub fn TestFloatOperation::not_equal(Self, Self) -> Bool
@@ -89,11 +102,12 @@ pub struct TestFloatSpec {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn TestFloatSpec::equal(Self, Self) -> Bool
+pub fn TestFloatSpec::exact(Self) -> Bool
 pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
 pub fn TestFloatSpec::function_name(Self) -> String
 pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
-pub fn TestFloatSpec::parse(String, String, tininess? : String) -> Result[Self, String]
+pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -> Result[Self, String]
 pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
 pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
 pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr

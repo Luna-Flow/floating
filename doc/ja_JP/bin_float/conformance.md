@@ -39,12 +39,13 @@ binary16 の `0x0400 * 0x3BFF` は `0x0400` になりますが、
 
 | ソース | 範囲 | 結果 |
 | --- | --- | --- |
-| TestFloat 3e level 1、seed 1 | 4 format × 5 operation × 5 rounding × 2 tininess | 7,461,360 / 7,461,360 |
+| TestFloat 3e level 1、seed 1 | 4 format × 5 arithmetic operation × 5 rounding × 2 tininess | 7,461,360 / 7,461,360 |
+| TestFloat 3e level 1、seed 1 | 4 format × mulAdd（5 rounding × 2 tininess）、rem、roundToInt と四つの integer conversion（5 rounding × exact/非 exact）、六つの comparison predicate | 246,766,512 / 246,766,512 |
 | MPFR 4.2.2 `tests/data/sqrt` | 実行可能な 16 進 sqrt 行すべて | 1,055 / 1,055 |
 | MPFR 4.2.2 `pow_si` fixture | 4 precision × 5 supported rounding × 6 input | 120 / 120 |
 | MPFR 4.2.2 elementary fixture | 29 operation × 3 precision × 6 rounding × 4 fixed-seed input | 2,088 / 2,088 |
 | optional MPFR elementary stress、seed 20260715 | three-operation 以上の各 family で 100,000 case 以上 | 966,744 / 966,744 |
-| コミット済み smoke | TestFloat、sqrt、`pow_si`、elementary witness | 2,271 / 2,271 |
+| コミット済み smoke | TestFloat、sqrt、`pow_si`、elementary witness | 2,451 / 2,451 |
 | TestFloat 3e level 2 | binary16 の全 declared operation/direction/tininess | 50,205,600 / 50,205,600 |
 
 binary16 level-2 の結果は追加の streaming stress evidence であり、より大きい
@@ -67,9 +68,15 @@ release boundary は hash-pinned 2,088-row fixture のままです。
 
 各 gate は format、rounding、tininess、encoded result、exception bits を summary に残し、再検証できます。
 
-four interchange format の contextual add/sub/mul/div/sqrt に加え、24、53、
-113 bit と六つの project rounding mode における 29 elementary operation を
-検証します。全 IEEE 754 operation または全実数入力の適合性は主張しません。
+four interchange format の contextual add/sub/mul/div/sqrt、fused multiply-add、
+remainder、roundToIntegral（通常と exact）、符号付き/符号なし 32/64 bit 整数への
+convertToInteger（通常と exact）、quiet/signaling の equal/less/less-or-equal
+predicate に加え、24、53、113 bit と六つの project rounding mode における
+29 elementary operation を検証します。invalid な整数変換は flag のみ比較します
+（SoftFloat は platform 依存の sentinel を返し、API は `None` を返すため）。
+format 間変換、min/max、total order、nextUp/nextDown、scaleB/logB、decimal
+character 変換（package test で検証）の TestFloat 適合性、および全 IEEE 754
+operation または全実数入力の適合性は主張しません。
 nearest-away は MPFR が要求する `mpfr_round_nearest_away_begin/end` protocol で
 生成し、禁止されている `MPFR_RNDNA` を general elementary function に直接
 渡しません。
