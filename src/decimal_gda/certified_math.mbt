@@ -77,8 +77,73 @@ fn decimal_certified_failure(
 }
 
 ///|
-fn decimal_exact_dyadic_endpoint(value : @bin_float.BinFloat) -> Decimal? {
+/// 3.3220 > log2(10): bounds a binary exponent against a decimal one.
+let decimal_log2_10_upper_ppm : Int64 = 3322000L
+
+///|
+/// A binary endpoint far outside the decimal range would expand to an exact
+/// decimal with up to hundreds of millions of digits. Every value beyond
+/// `10^(e_max + 2)` overflows, and every nonzero value below `10^(etiny - 2)`
+/// is under half the smallest subnormal, so such endpoints are replaced by a
+/// representative of the same sign that rounds to the same result and flags.
+fn decimal_out_of_range_endpoint(
+  value : @bin_float.BinFloat,
+  ctx : DecimalContext,
+) -> Decimal? {
+  if value.is_zero() {
+    return None
+  }
+  // |value| lies in [2^top, 2^(top + 1)).
+  let top = value.exponent2().to_int64() +
+    (value.coefficient().bit_length() - 1).to_int64()
+  let huge = ctx.e_max.to_int64() + 2L
+  if top * 1000000L >= huge * decimal_log2_10_upper_ppm {
+    return Some(
+      finite_with_exponent(
+        value.is_negative(),
+        BigInt::from_int(1),
+        huge.to_int(),
+        1,
+      ),
+    )
+  }
+  let tiny = etiny(ctx).to_int64() - 2L
+  if (top + 1L) * 1000000L <= tiny * decimal_log2_10_upper_ppm {
+    return Some(
+      finite_with_exponent(
+        value.is_negative(),
+        BigInt::from_int(1),
+        tiny.to_int(),
+        1,
+      ),
+    )
+  }
+  None
+}
+
+///|
+fn decimal_exact_dyadic_endpoint(
+  value : @bin_float.BinFloat,
+  ctx : DecimalContext,
+) -> Decimal? {
+  // Rounding is monotone, so an infinite endpoint can stand for any value
+  // beyond the range: the enclosure certifies only if the finite endpoint
+  // overflows in the same direction.
+  if value.classify() == FpClass::Infinity {
+    return Some(
+      finite_with_exponent(
+        value.is_negative(),
+        BigInt::from_int(1),
+        ctx.e_max + 2,
+        1,
+      ),
+    )
+  }
   guard value.classify() == FpClass::Finite else { return None }
+  match decimal_out_of_range_endpoint(value, ctx) {
+    Some(representative) => return Some(representative)
+    None => ()
+  }
   if value.is_zero() {
     return Some(
       if value.is_negative_zero() {
@@ -112,8 +177,8 @@ fn decimal_certified_target(
 ) -> (Decimal, DecimalFlags)? {
   guard !interval.is_empty() else { return None }
   let target_ctx = ctx
-  let lower = decimal_exact_dyadic_endpoint(interval.lower_bound())
-  let upper = decimal_exact_dyadic_endpoint(interval.upper_bound())
+  let lower = decimal_exact_dyadic_endpoint(interval.lower_bound(), target_ctx)
+  let upper = decimal_exact_dyadic_endpoint(interval.upper_bound(), target_ctx)
   guard lower is Some(lower) && upper is Some(upper) else { return None }
   let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
   let upper_result = decimal_apply_finite_ctx(upper, target_ctx)

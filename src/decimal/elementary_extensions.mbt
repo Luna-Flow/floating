@@ -414,7 +414,7 @@ fn Decimal::unary_elementary_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_unary_elementary_ctx(operation, ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal elementary evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 
@@ -822,7 +822,7 @@ pub fn Decimal::hypot_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_hypot_ctx(other, ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal hypot evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 
@@ -873,6 +873,6 @@ pub fn Decimal::atan2_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_atan2_ctx(abscissa, ctx) {
     Ok(result) => result
-    Err(_) => abort("certified decimal atan2 evaluation failed")
+    Err(_) => decimal_elementary_invalid(ctx)
   }
 }

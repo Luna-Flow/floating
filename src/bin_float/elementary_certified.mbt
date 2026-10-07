@@ -15,6 +15,21 @@ fn binary_certification_failure(
 }
 
 ///|
+/// Total form of a `try_*_ctx` result used by the non-`try` elementary APIs.
+/// Domain errors and certification failures both become a quiet NaN with
+/// `invalid_operation`; callers that need the reason use the `try_*` API.
+fn binary_defined_or_nan(
+  result : Result[(BinFloat, BinaryFlags), @def.ArithmeticError],
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  match result {
+    Ok(value) => value
+    Err(_) =>
+      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+  }
+}
+
+///|
 fn binary_refinement_failure_for(
   operation : String,
   context : BinaryContext,
@@ -274,6 +289,168 @@ fn binary_ln_unit_bounds(
     }
   }
   None
+}
+
+///|
+let binary_range_check_precision : Int = 128
+
+///|
+/// Certified bounds on `log2(e) = 1 / ln 2`.
+fn binary_log2_e_bounds() -> (BinFloat, BinFloat)? {
+  let work = binary_range_check_precision
+  let two = BinFloat::from_int(2, precision=work)
+  guard binary_ln_unit_bounds(two, work) is Some((ln2_low, ln2_high)) else {
+    return None
+  }
+  let one = BinFloat::one(precision=work)
+  Some(
+    (
+      one.div_ctx(
+        ln2_high,
+        BinaryContext::unbounded(work, rounding=RoundTowardNegative),
+      ).0,
+      one.div_ctx(
+        ln2_low,
+        BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+      ).0,
+    ),
+  )
+}
+
+///|
+/// Certified bounds on `log2(10) = ln 10 / ln 2`.
+fn binary_log2_10_bounds() -> (BinFloat, BinFloat)? {
+  let work = binary_range_check_precision
+  let two = BinFloat::from_int(2, precision=work)
+  guard binary_ln_unit_bounds(two, work) is Some((ln2_low, ln2_high)) &&
+    binary_ln10_bounds(work) is Some((ln10_low, ln10_high)) else {
+    return None
+  }
+  Some(
+    (
+      ln10_low.div_ctx(
+        ln2_high,
+        BinaryContext::unbounded(work, rounding=RoundTowardNegative),
+      ).0,
+      ln10_high.div_ctx(
+        ln2_low,
+        BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+      ).0,
+    ),
+  )
+}
+
+///|
+/// Decides overflow or underflow before a Ziv loop for results whose base-2
+/// logarithm lies in `[scale * x + offset, scale * x]`, with `scale > 0`
+/// bracketed by `scale_bounds`. The loops evaluate in unbounded working
+/// contexts and cannot certify a result that their own enclosures overflow, so
+/// results certainly outside the context range are returned here.
+fn binary_log2_linear_out_of_range(
+  value : BinFloat,
+  scale_bounds : () -> (BinFloat, BinFloat)?,
+  scale_bits : Int,
+  offset : Int,
+  check_tiny : Bool,
+  negative : Bool,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  let overflow_limit = context.range_e_max().to_int64() + 1L
+  let tiny_limit = context.range_e_min().to_int64() -
+    context.precision.to_int64()
+  // |value| < 2^(top + 1) and scale < 2^scale_bits, so small arguments skip
+  // the certified constants entirely.
+  let top = binary_exact_top(value.coefficient_, value.exponent2)
+  if top + 1 + scale_bits < 62 {
+    let reach = 1L << (top + 1 + scale_bits)
+    if reach < overflow_limit && -reach > tiny_limit {
+      return None
+    }
+  }
+  guard scale_bounds() is Some((scale_low, scale_high)) else { return None }
+  let work = binary_range_check_precision
+  let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
+  let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
+  let value_low = value.with_precision(work, RoundingMode::TowardNegative)
+  let value_high = value.with_precision(work, RoundingMode::TowardPositive)
+  let log_low = value_low.mul_ctx(
+      if value_low.is_negative() {
+        scale_high
+      } else {
+        scale_low
+      },
+      down,
+    ).0
+  let log_high = value_high.mul_ctx(
+      if value_high.is_negative() {
+        scale_low
+      } else {
+        scale_high
+      },
+      up,
+    ).0
+  let log_low = log_low.add_ctx(
+      BinFloat::from_int(offset, precision=work),
+      down,
+    ).0
+  let overflow_log = BinFloat::from_int(overflow_limit.to_int(), precision=work)
+  if log_low.compare(overflow_log) >= 0 {
+    return Some(binary_overflow_result(negative, context))
+  }
+  let tiny_log = BinFloat::from_int(tiny_limit.to_int(), precision=work)
+  if check_tiny && log_high.compare(tiny_log) < 0 {
+    return Some(binary_tiny_nonzero_result(negative, context))
+  }
+  None
+}
+
+///|
+/// For `x <= -(p + 3) ln 2`, `expm1(x) = -1 + d` with `0 < d < 2^-(p + 3)`, so
+/// the rounded result follows from the rounding direction alone. The general
+/// enclosure divides by `1 + expm1(-x)`, which overflows for such `x`.
+fn binary_expm1_negative_saturation(
+  value : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  let work = binary_range_check_precision
+  let limit = BinFloat::from_int(context.precision + 3, precision=work)
+  // ln 2 > 1/2, so arguments above -(p + 3) / 2 cannot reach the threshold.
+  let half = BinFloat::make(BinCoeff::one(), -1, work)
+  if value.neg().compare(limit.mul(half)) < 0 {
+    return None
+  }
+  let two = BinFloat::from_int(2, precision=work)
+  guard binary_ln_unit_bounds(two, work) is Some((_, ln2_high)) else {
+    return None
+  }
+  let threshold = limit.mul_ctx(
+    ln2_high,
+    BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+  ).0.neg()
+  if value.compare(threshold) > 0 {
+    return None
+  }
+  let toward_zero = match context.rounding {
+    RoundTowardZero | RoundTowardPositive => true
+    RoundTiesToEven
+    | RoundTiesToAway
+    | RoundTowardNegative
+    | RoundAwayFromZero => false
+  }
+  let result = if toward_zero {
+    finite_from_parts(
+      true,
+      BinCoeff::one()
+      .shift_left(context.precision)
+      .sub_checked(BinCoeff::one())
+      .unwrap(),
+      -context.precision,
+      context.precision,
+    )
+  } else {
+    BinFloat::one(precision=context.precision).neg()
+  }
+  Some((result, binary_inexact_flags(false)))
 }
 
 ///|
@@ -777,6 +954,12 @@ pub fn BinFloat::try_exp_ctx(
     FpClass::Finite if self.is_zero() =>
       Ok((BinFloat::one(precision=context.precision), BinaryFlags::new()))
     FpClass::Finite => {
+      if binary_log2_linear_out_of_range(
+          self, binary_log2_e_bounds, 2, 0, true, false, context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut work = context.precision + 64
       let mut attempt = 0
       while attempt < 12 {
@@ -816,7 +999,7 @@ pub fn BinFloat::exp_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_exp_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_exp_ctx(context), context)
 }
 
 ///|
@@ -854,6 +1037,18 @@ pub fn BinFloat::try_expm1_ctx(
       )
     FpClass::Finite if self.is_zero() => Ok(self.round_ctx(context))
     FpClass::Finite => {
+      if self.is_negative() &&
+        binary_expm1_negative_saturation(self, context) is Some(result) {
+        return Ok(result)
+      }
+      // expm1(x) >= exp(x) / 2 once it can overflow; it never underflows below -1.
+      if !self.is_negative() &&
+        binary_log2_linear_out_of_range(
+          self, binary_log2_e_bounds, 2, -1, false, false, context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
       while budget.available() {
         match binary_expm1_bounds(self, budget.precision()) {
@@ -881,7 +1076,7 @@ pub fn BinFloat::expm1_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_expm1_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_expm1_ctx(context), context)
 }
 
 ///|
@@ -958,12 +1153,7 @@ pub fn BinFloat::log1p_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_log1p_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified log1p evaluation failed")
-  }
+  binary_defined_or_nan(self.try_log1p_ctx(context), context)
 }
 
 ///|
@@ -1002,6 +1192,19 @@ pub fn BinFloat::try_exp2_ctx(
     FpClass::Finite if self.is_zero() =>
       Ok((BinFloat::one(precision=context.precision), BinaryFlags::new()))
     FpClass::Finite => {
+      let unit = BinFloat::one(precision=binary_range_check_precision)
+      if binary_log2_linear_out_of_range(
+          self,
+          fn() { Some((unit, unit)) },
+          1,
+          0,
+          true,
+          false,
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       match binary_exact_bounded_int(self) {
         Some(exponent) => {
           let exact = BinFloat::make(BinCoeff::one(), exponent, 1)
@@ -1036,7 +1239,7 @@ pub fn BinFloat::exp2_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_exp2_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_exp2_ctx(context), context)
 }
 
 ///|
@@ -1113,12 +1316,7 @@ pub fn BinFloat::log2_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_log2_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified log2 evaluation failed")
-  }
+  binary_defined_or_nan(self.try_log2_ctx(context), context)
 }
 
 ///|
@@ -1157,6 +1355,12 @@ pub fn BinFloat::try_exp10_ctx(
     FpClass::Finite if self.is_zero() =>
       Ok((BinFloat::one(precision=context.precision), BinaryFlags::new()))
     FpClass::Finite => {
+      if binary_log2_linear_out_of_range(
+          self, binary_log2_10_bounds, 2, 0, true, false, context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       match binary_exact_bounded_int(self) {
         Some(exponent) if exponent >= 0 && exponent <= 4096 => {
           let coefficient = BinCoeff::from_uint64(5UL).pow_nat(
@@ -1244,7 +1448,7 @@ pub fn BinFloat::exp10_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_exp10_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_exp10_ctx(context), context)
 }
 
 ///|
@@ -1362,12 +1566,7 @@ pub fn BinFloat::log10_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_log10_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified log10 evaluation failed")
-  }
+  binary_defined_or_nan(self.try_log10_ctx(context), context)
 }
 
 ///|
@@ -1435,7 +1634,7 @@ pub fn BinFloat::exp_ln_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_exp_ln_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_exp_ln_ctx(context), context)
 }
 
 ///|
@@ -1520,12 +1719,7 @@ pub fn BinFloat::ln_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_ln_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified ln evaluation failed")
-  }
+  binary_defined_or_nan(self.try_ln_ctx(context), context)
 }
 
 ///|
@@ -1609,7 +1803,7 @@ pub fn BinFloat::hypot_ctx(
   other : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_hypot_ctx(other, context).unwrap()
+  binary_defined_or_nan(self.try_hypot_ctx(other, context), context)
 }
 
 ///|
@@ -1904,12 +2098,7 @@ pub fn BinFloat::rootn_ctx(
   degree : Int,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_rootn_ctx(degree, context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified rootn evaluation failed")
-  }
+  binary_defined_or_nan(self.try_rootn_ctx(degree, context), context)
 }
 
 ///|
@@ -1947,6 +2136,25 @@ fn binary_exact_unit_fraction_degree(value : BinFloat) -> Int? {
   }
   let degree = 1 << -value.exponent2()
   Some(if value.is_negative() { -degree } else { degree })
+}
+
+///|
+/// Cheap filter for `pow`: |log2(base)| < |top(base)| + 1 and
+/// |exponent| < 2^(top(exponent) + 1), so most calls cannot reach the limits.
+fn binary_pow_may_leave_range(
+  base : BinFloat,
+  exponent : BinFloat,
+  context : BinaryContext,
+) -> Bool {
+  let base_top = binary_exact_top(base.coefficient_, base.exponent2).to_int64()
+  let exponent_top = binary_exact_top(exponent.coefficient_, exponent.exponent2)
+  if exponent_top >= 30 {
+    return true
+  }
+  let log_bound = (if base_top < 0L { -base_top } else { base_top }) + 1L
+  let reach = log_bound * (1L << (exponent_top + 1))
+  reach >= context.range_e_max().to_int64() + 1L ||
+  -reach <= context.range_e_min().to_int64() - context.precision.to_int64()
 }
 
 ///|
@@ -2023,6 +2231,42 @@ pub fn BinFloat::try_pow_ctx(
         BinaryFlags::new(),
       ),
     )
+  }
+  // log2(result) = exponent * log2(base). The Ziv loop below cannot certify a
+  // result whose own enclosure overflows, so certain overflow and underflow
+  // are decided first from directed log2 bounds of the base.
+  let range_down = BinaryContext::unbounded(
+    binary_range_check_precision,
+    rounding=RoundTowardNegative,
+  )
+  let range_up = BinaryContext::unbounded(
+    binary_range_check_precision,
+    rounding=RoundTowardPositive,
+  )
+  if binary_pow_may_leave_range(self, exponent, context) &&
+    self.try_log2_ctx(range_down) is Ok((log_low, _)) &&
+    self.try_log2_ctx(range_up) is Ok((log_high, _)) &&
+    !log_low.is_zero() &&
+    !log_high.is_zero() &&
+    log_low.is_negative() == log_high.is_negative() {
+    let (value, scale) = if log_low.is_negative() {
+      (exponent.neg(), (log_high.neg(), log_low.neg()))
+    } else {
+      (exponent, (log_low, log_high))
+    }
+    let scale_top = binary_exact_top(scale.1.coefficient_, scale.1.exponent2)
+    if binary_log2_linear_out_of_range(
+        value,
+        fn() { Some(scale) },
+        Int::max(0, scale_top + 1),
+        0,
+        true,
+        false,
+        context,
+      )
+      is Some(result) {
+      return Ok(result)
+    }
   }
   let mut work = Int::max(
     context.precision + 64,
@@ -2104,12 +2348,7 @@ pub fn BinFloat::pow_ctx(
   exponent : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_pow_ctx(exponent, context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified pow evaluation failed")
-  }
+  binary_defined_or_nan(self.try_pow_ctx(exponent, context), context)
 }
 
 ///|
@@ -2258,6 +2497,20 @@ fn BinFloat::try_hyperbolic_ctx(
         ),
       )
     FpClass::Finite => {
+      // |sinh x| and cosh x are at least exp(|x|) / 4 once they can overflow.
+      if !(operation is BinaryHyperbolicOperation::Tanh) &&
+        binary_log2_linear_out_of_range(
+          self.abs(),
+          binary_log2_e_bounds,
+          2,
+          -2,
+          false,
+          operation is BinaryHyperbolicOperation::Sinh && self.is_negative(),
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut work = Int::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
@@ -2310,7 +2563,7 @@ pub fn BinFloat::sinh_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_sinh_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_sinh_ctx(context), context)
 }
 
 ///|
@@ -2331,7 +2584,7 @@ pub fn BinFloat::cosh_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_cosh_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_cosh_ctx(context), context)
 }
 
 ///|
@@ -2352,7 +2605,7 @@ pub fn BinFloat::tanh_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_tanh_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_tanh_ctx(context), context)
 }
 
 ///|
@@ -2677,7 +2930,7 @@ pub fn BinFloat::asinh_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_asinh_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_asinh_ctx(context), context)
 }
 
 ///|
@@ -2701,12 +2954,7 @@ pub fn BinFloat::acosh_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_acosh_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified acosh evaluation failed")
-  }
+  binary_defined_or_nan(self.try_acosh_ctx(context), context)
 }
 
 ///|
@@ -2730,12 +2978,7 @@ pub fn BinFloat::atanh_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_atanh_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified atanh evaluation failed")
-  }
+  binary_defined_or_nan(self.try_atanh_ctx(context), context)
 }
 
 ///|
@@ -3022,7 +3265,7 @@ pub fn BinFloat::atan_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_atan_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_atan_ctx(context), context)
 }
 
 ///|
@@ -3218,12 +3461,7 @@ pub fn BinFloat::asin_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_asin_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified asin evaluation failed")
-  }
+  binary_defined_or_nan(self.try_asin_ctx(context), context)
 }
 
 ///|
@@ -3319,12 +3557,7 @@ pub fn BinFloat::acos_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.try_acos_ctx(context) {
-    Ok(result) => result
-    Err(error) if error.is_domain_error() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
-    Err(_) => abort("certified acos evaluation failed")
-  }
+  binary_defined_or_nan(self.try_acos_ctx(context), context)
 }
 
 ///|
@@ -3564,7 +3797,7 @@ pub fn BinFloat::atan2_ctx(
   abscissa : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_atan2_ctx(abscissa, context).unwrap()
+  binary_defined_or_nan(self.try_atan2_ctx(abscissa, context), context)
 }
 
 ///|
@@ -4037,7 +4270,7 @@ pub fn BinFloat::sin_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_sin_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_sin_ctx(context), context)
 }
 
 ///|
@@ -4058,7 +4291,7 @@ pub fn BinFloat::cos_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_cos_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_cos_ctx(context), context)
 }
 
 ///|
@@ -4079,7 +4312,7 @@ pub fn BinFloat::tan_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.try_tan_ctx(context).unwrap()
+  binary_defined_or_nan(self.try_tan_ctx(context), context)
 }
 
 ///|

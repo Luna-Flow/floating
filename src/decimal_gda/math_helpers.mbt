@@ -276,7 +276,7 @@ fn decimal_power_positive_noninteger_work_result(
 ) -> (Decimal, DecimalFlags) {
   match decimal_certified_power_result(base, exponent, ctx) {
     Ok(result) => decimal_power_noninteger_gda_result(result, ctx)
-    Err(_) => abort("certified decimal power evaluation failed")
+    Err(_) => decimal_certification_invalid(ctx)
   }
 }
 

@@ -622,15 +622,28 @@ fn certified_exp_rational(value : CertifiedRat, precision : Int) -> BallFloat {
   let magnitude = rat_abs(value)
   let adjusted = rat_floor_log2(magnitude)
   if adjusted > 29 {
+    // |x| >= 2^30 > (e_max + 1) ln 2 for the binary exponent range, so exp(x)
+    // lies beyond the largest finite value or below the smallest positive one.
+    let one = @bin_float.BinCoeff::one()
     if negative {
       return store_interval(
         @bin_float.BinFloat::zero(precision~),
-        @bin_float.BinFloat::one(precision~),
+        @bin_float.BinFloat::make(
+          one,
+          -2147483647 - 1,
+          precision,
+          mode=RoundingMode::TowardPositive,
+        ),
         precision,
       )
     }
     return store_interval(
-      @bin_float.BinFloat::zero(precision~),
+      @bin_float.BinFloat::make(
+        one,
+        2147483647,
+        precision,
+        mode=RoundingMode::TowardNegative,
+      ),
       pos_inf(precision),
       precision,
     )
