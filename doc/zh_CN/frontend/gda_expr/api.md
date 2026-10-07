@@ -74,11 +74,14 @@ pub struct GdaContext {
 pub fn GdaContext::clamp(Self) -> Bool
 pub fn GdaContext::dectest(Self) -> String
 pub fn GdaContext::default() -> Self
+pub fn GdaContext::equal(Self, Self) -> Bool
 pub fn GdaContext::extended(Self) -> Bool
 pub fn GdaContext::max_exponent(Self) -> Int
 pub fn GdaContext::min_exponent(Self) -> Int
+pub fn GdaContext::not_equal(Self, Self) -> Bool
 pub fn GdaContext::precision(Self) -> Int
 pub fn GdaContext::rounding(Self) -> String
+pub fn GdaContext::to_repr(Self) -> @debug.Repr
 
 pub struct GdaDocument {
   // private fields
@@ -90,17 +93,23 @@ pub fn GdaDocument::source(Self) -> String
 pub struct ParseDiagnostic {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::message(Self) -> String
+pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::span(Self) -> @numeric_expr.SourceSpan
+pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 
 pub struct RunOptions {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn RunOptions::case_filter(Self) -> String
+pub fn RunOptions::equal(Self, Self) -> Bool
 pub fn RunOptions::new(shard_count? : Int, shard_index? : Int, strict_supported? : Bool, case_filter? : String) -> Self
+pub fn RunOptions::not_equal(Self, Self) -> Bool
 pub fn RunOptions::shard_count(Self) -> Int
 pub fn RunOptions::shard_index(Self) -> Int
 pub fn RunOptions::strict_supported(Self) -> Bool
+pub fn RunOptions::to_repr(Self) -> @debug.Repr
 
 pub struct RunSummary {
   // private fields

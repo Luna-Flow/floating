@@ -73,12 +73,16 @@ pub(all) enum PartialOrder {
   Greater
   Unordered
 } derive(Eq)
+pub fn PartialOrder::equal(Self, Self) -> Bool
+pub fn PartialOrder::not_equal(Self, Self) -> Bool
 
 pub(all) enum Sign {
   Negative
   Zero
   Positive
 } derive(Eq)
+pub fn Sign::equal(Self, Self) -> Bool
+pub fn Sign::not_equal(Self, Self) -> Bool
 
 // Type aliases
 pub using @arithmetic {type ArithmeticContext}
