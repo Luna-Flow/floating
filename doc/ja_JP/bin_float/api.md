@@ -278,6 +278,8 @@ pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::precision(Self) -> Int
 pub fn BinFloat::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
+pub fn BinFloat::remainder(Self, Self) -> Self
+pub fn BinFloat::remainder_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::rootn(Self, Int) -> Self
 pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round(Self) -> Self
