@@ -68,10 +68,11 @@ trait design, and test coverage are especially valuable.
 
 ### 4.0 Documentation Matrix
 
-- Every `src/**/moon.pkg` package has matching `api.md`, `tutorial.md`, and
-  `design.md` pages under `doc/en_US`, `doc/zh_CN`, and `doc/ja_JP`.
-- English is the structural source; translations preserve the same file set,
-  heading tree, generated API inventory, links, and executable example IDs.
+- Every `src/<path>/moon.pkg` package has matching `doc/manual/api/<path>.md`,
+  `doc/manual/tutorial/<path>.md`, and `doc/manual/design/<path>.md` pages.
+- English pages in `doc/manual` are the only source. Translations live in the
+  gettext catalogs under `doc/locale`; run `lunadoc update` after editing
+  English pages and `lunadoc check` before submitting.
 - Numerical conformance and performance evidence stays separate from API
   promises. Promote durable research conclusions into synchronized pages and
   keep historical release material in `CHANGELOG.md`.

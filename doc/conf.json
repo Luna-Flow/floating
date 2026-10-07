@@ -1,0 +1,5 @@
+{
+  "title": "floating",
+  "summary": "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics.",
+  "locales": ["zh_CN", "ja_JP"]
+}

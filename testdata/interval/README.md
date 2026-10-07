@@ -1,7 +1,7 @@
 # IEEE 1788 test data
 
 The user-facing finite claim is summarized in
-[`doc/en_US/ball_float/conformance.md`](../../doc/en_US/ball_float/conformance.md);
+[`doc/manual/conformance/ball_float.md`](../../doc/manual/conformance/ball_float.md);
 this page owns the pinned corpus, phase planner, and operational workflow.
 
 `smoke.itl` is the committed minimal suite. The complete corpus is fetched from

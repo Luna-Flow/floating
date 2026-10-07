@@ -1,8 +1,8 @@
 # Decimal Conformance Data
 
 The public evidence summaries are split between
-[`decimal` IEEE conformance](../../doc/en_US/decimal/conformance.md) and
-[`decimal_gda` conformance](../../doc/en_US/decimal_gda/conformance.md). This
+[`decimal` IEEE conformance](../../doc/manual/conformance/decimal.md) and
+[`decimal_gda` conformance](../../doc/manual/conformance/decimal_gda.md). This
 page owns corpus manifests, execution options, and failure triage.
 
 The repository uses the native MoonBit `gda_expr` interpreter for all General
