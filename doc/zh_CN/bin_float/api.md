@@ -181,6 +181,7 @@ pub fn BinFloat::atan2_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::atan_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::atanh(Self) -> Self
 pub fn BinFloat::atanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::ceil(Self) -> Self
 pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::classify(Self) -> @arithmetic.FpClass
@@ -210,6 +211,7 @@ pub fn BinFloat::exp_ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::expm1(Self) -> Self
 pub fn BinFloat::expm1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exponent2(Self) -> Int
+pub fn BinFloat::floor(Self) -> Self
 pub fn BinFloat::fma(Self, Self, Self) -> Self
 pub fn BinFloat::fma_ctx(Self, Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::from_coefficient(BinCoeff, precision? : Int, negative? : Bool) -> Self
@@ -263,7 +265,9 @@ pub fn BinFloat::precision(Self) -> Int
 pub fn BinFloat::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
 pub fn BinFloat::rootn(Self, Int) -> Self
 pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::round(Self) -> Self
 pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::round_ties_even(Self) -> Self
 pub fn BinFloat::sign(Self) -> @def.Sign
 pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
 pub fn BinFloat::sin(Self) -> Self
@@ -286,9 +290,12 @@ pub fn BinFloat::tanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
+pub fn BinFloat::to_integral_exact_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::to_integral_value_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
 pub fn BinFloat::to_repr(Self) -> @debug.Repr
 pub fn BinFloat::to_string(Self) -> String
+pub fn BinFloat::trunc(Self) -> Self
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
