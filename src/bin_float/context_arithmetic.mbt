@@ -194,7 +194,7 @@ fn binary_overflow_to_infinity(
 
 ///|
 fn binary_max_finite(negative : Bool, context : BinaryContext) -> BinFloat {
-  let e_max = context.e_max.unwrap()
+  let e_max = context.range_e_max()
   let magnitude = BinCoeff::one()
     .shift_left(context.precision)
     .sub_checked(BinCoeff::one())
@@ -239,15 +239,12 @@ fn binary_tiny_nonzero_result(
     RoundTiesToEven | RoundTiesToAway | RoundTowardZero => false
   }
   let value = if rounds_away {
-    let exponent2 = match context.e_min {
-      Some(e_min) => binary_sub_sat(e_min, context.precision - 1)
-      None => binary_int_min
-    }
+    let exponent2 = binary_sub_sat(context.range_e_min(), context.precision - 1)
     finite_from_parts(negative, BinCoeff::one(), exponent2, context.precision)
   } else {
     finite_from_parts(negative, BinCoeff::zero(), 0, context.precision)
   }
-  (value, binary_inexact_flags(context.e_min is Some(_)))
+  (value, binary_inexact_flags(true))
 }
 
 ///|
@@ -265,10 +262,8 @@ fn binary_finalize_rounded(
   } else {
     binary_exact_top(magnitude, exponent2)
   }
-  match context.e_max {
-    Some(e_max) if !magnitude.is_zero() && rounded_top > e_max =>
-      return binary_overflow_result(negative, context)
-    _ => ()
+  if !magnitude.is_zero() && rounded_top > context.range_e_max() {
+    return binary_overflow_result(negative, context)
   }
   let value = finite_from_parts(
     negative,
@@ -279,13 +274,10 @@ fn binary_finalize_rounded(
   if !inexact {
     return (value, BinaryFlags::new())
   }
-  let tiny = match context.e_min {
-    None => false
-    Some(e_min) =>
-      match context.tininess {
-        BeforeRounding => exact_top < e_min
-        AfterRounding => unbounded_rounded_top < e_min
-      }
+  let e_min = context.range_e_min()
+  let tiny = match context.tininess {
+    BeforeRounding => exact_top < e_min
+    AfterRounding => unbounded_rounded_top < e_min
   }
   (value, binary_inexact_flags(tiny))
 }
@@ -332,7 +324,12 @@ fn binary_round_dyadic(
     )
   }
   let bits = magnitude.bit_length()
-  if bits <= context.precision && context.e_min is None && context.e_max is None {
+  let exact_top = binary_exact_top(magnitude, exponent2)
+  if bits <= context.precision &&
+    context.e_min is None &&
+    context.e_max is None &&
+    exact_top >= binary_implementation_e_min &&
+    exact_top <= binary_implementation_e_max {
     return (
       finite_from_parts(negative, magnitude, exponent2, context.precision),
       BinaryFlags::new(),
@@ -353,14 +350,13 @@ fn binary_round_dyadic(
     precision_rounded,
     binary_add_sat(exponent2, precision_shift),
   )
-  let range_shift = match context.e_min {
-    Some(e_min) =>
-      Int::max(
-        0,
-        binary_sub_sat(binary_sub_sat(e_min, context.precision - 1), exponent2),
-      )
-    None => 0
-  }
+  let range_shift = Int::max(
+    0,
+    binary_sub_sat(
+      binary_sub_sat(context.range_e_min(), context.precision - 1),
+      exponent2,
+    ),
+  )
   let shift = Int::max(precision_shift, range_shift)
   let (retained, round_bit, sticky) = if shift == precision_shift {
     (precision_retained, precision_guard, precision_sticky)
@@ -373,7 +369,7 @@ fn binary_round_dyadic(
     round_bit,
     sticky,
     binary_add_sat(exponent2, shift),
-    binary_exact_top(magnitude, exponent2),
+    exact_top,
     unbounded_rounded_top,
     context,
   )
@@ -398,11 +394,7 @@ fn binary_floor_log2_ratio(numerator : BinCoeff, denominator : BinCoeff) -> Int 
 ///|
 fn binary_target_exponent(exact_top : Int, context : BinaryContext) -> Int {
   let normal = binary_sub_sat(exact_top, context.precision - 1)
-  match context.e_min {
-    Some(e_min) =>
-      Int::max(normal, binary_sub_sat(e_min, context.precision - 1))
-    None => normal
-  }
+  Int::max(normal, binary_sub_sat(context.range_e_min(), context.precision - 1))
 }
 
 ///|
@@ -506,10 +498,8 @@ fn binary_round_sqrt(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let exact_top = binary_floor_div2(binary_exact_top(magnitude, exponent2))
-  match context.e_max {
-    Some(e_max) if exact_top > e_max =>
-      return binary_overflow_result(false, context)
-    _ => ()
+  if exact_top > context.range_e_max() {
+    return binary_overflow_result(false, context)
   }
   let target_exponent = binary_target_exponent(exact_top, context)
   let scale = binary_sub_sat(exponent2, binary_mul_sat(2, target_exponent))
@@ -1304,6 +1294,64 @@ fn binary_pow_is_power_of_two(base : BinFloat) -> Bool {
 }
 
 ///|
+/// Returns the overflow or tiny result when `|base|^(±exponent)` is certainly
+/// outside the context range. The Ziv loop below works in unbounded contexts
+/// and cannot certify a result that its own approximations overflow.
+fn binary_pow_out_of_range(
+  base : BinFloat,
+  exponent : UInt,
+  reciprocal : Bool,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  let negative = base.negative && (exponent & 1U) != 0U
+  let overflow_log = context.range_e_max().to_int64() + 1L
+  let tiny_log = context.range_e_min().to_int64() - context.precision.to_int64()
+  // |base| lies in [2^top, 2^(top + 1)), which gives a cheap first bound.
+  let top = binary_exact_top(base.coefficient_, base.exponent2).to_int64()
+  let n = exponent.to_uint64().reinterpret_as_int64()
+  let (low, high) = if reciprocal {
+    (-(top + 1L) * n, -top * n)
+  } else {
+    (top * n, (top + 1L) * n)
+  }
+  if low >= overflow_log {
+    return Some(binary_overflow_result(negative, context))
+  }
+  if high < tiny_log {
+    return Some(binary_tiny_nonzero_result(negative, context))
+  }
+  if low >= tiny_log && high < overflow_log {
+    return None
+  }
+  // The cheap bound straddles a limit; refine it with certified log2 bounds.
+  let down = BinaryContext::unbounded(64, rounding=RoundTowardNegative)
+  let up = BinaryContext::unbounded(64, rounding=RoundTowardPositive)
+  let magnitude = base.abs()
+  guard magnitude.try_log2_ctx(down) is Ok((log_low, _)) &&
+    magnitude.try_log2_ctx(up) is Ok((log_high, _)) else {
+    return None
+  }
+  let count = BinFloat::from_coefficient(
+    BinCoeff::from_uint64(exponent.to_uint64()),
+    precision=64,
+  )
+  let (result_low, result_high) = if reciprocal {
+    (log_high.mul_ctx(count, up).0.neg(), log_low.mul_ctx(count, down).0.neg())
+  } else {
+    (log_low.mul_ctx(count, down).0, log_high.mul_ctx(count, up).0)
+  }
+  let overflow_bound = BinFloat::from_int(overflow_log.to_int(), precision=64)
+  if result_low.compare(overflow_bound) >= 0 {
+    return Some(binary_overflow_result(negative, context))
+  }
+  let tiny_bound = BinFloat::from_int(tiny_log.to_int(), precision=64)
+  if result_high.compare(tiny_bound) < 0 {
+    return Some(binary_tiny_nonzero_result(negative, context))
+  }
+  None
+}
+
+///|
 fn binary_pow_finite(
   base : BinFloat,
   exponent : UInt,
@@ -1323,6 +1371,10 @@ fn binary_pow_finite(
       binary_pow_exact_magnitude(base, exponent, reciprocal, context),
       stats,
     )
+  }
+  match binary_pow_out_of_range(base, exponent, reciprocal, context) {
+    Some(result) => return (result, stats)
+    None => ()
   }
   if !reciprocal {
     match binary_pow_exact_positive_if_small(base, exponent, context) {

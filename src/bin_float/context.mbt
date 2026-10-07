@@ -23,6 +23,21 @@ pub(all) enum BinaryInterchangeFormat {
 } derive(Eq, Debug)
 
 ///|
+/// Largest exponent of the leading bit that a finite `BinFloat` may carry.
+/// Unbounded contexts use this as their effective `e_max`.
+pub let binary_implementation_e_max : Int = 1073741823
+
+///|
+/// Smallest normal leading-bit exponent. Unbounded contexts use this as their
+/// effective `e_min`, with gradual underflow below it.
+pub let binary_implementation_e_min : Int = -1073741823
+
+///|
+/// Largest context precision. Together with the exponent range above it keeps
+/// every coefficient exponent inside the 32-bit `Int` range.
+pub let binary_precision_max : Int = 268435456
+
+///|
 pub struct BinaryContext {
   priv precision : Int
   priv rounding : BinaryRoundingMode
@@ -157,6 +172,9 @@ pub fn BinaryContext::new(
   guard precision > 0 else {
     abort("BinaryContext::new: precision must be positive")
   }
+  guard precision <= binary_precision_max else {
+    abort("BinaryContext::new: precision exceeds binary_precision_max")
+  }
   match (e_min, e_max) {
     (Some(lower), Some(upper)) => {
       guard lower <= upper else {
@@ -180,6 +198,13 @@ pub fn BinaryContext::try_new(
     return Err(
       @def.ArithmeticError::domain_error(
         "BinaryContext::try_new: precision must be positive",
+      ),
+    )
+  }
+  guard precision <= binary_precision_max else {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "BinaryContext::try_new: precision exceeds binary_precision_max",
       ),
     )
   }
@@ -243,6 +268,22 @@ pub fn BinaryContext::e_max(self : BinaryContext) -> Int? {
 ///|
 pub fn BinaryContext::tininess(self : BinaryContext) -> TininessDetection {
   self.tininess
+}
+
+///|
+fn BinaryContext::range_e_max(self : BinaryContext) -> Int {
+  match self.e_max {
+    Some(e_max) => Int::min(e_max, binary_implementation_e_max)
+    None => binary_implementation_e_max
+  }
+}
+
+///|
+fn BinaryContext::range_e_min(self : BinaryContext) -> Int {
+  match self.e_min {
+    Some(e_min) => Int::max(e_min, binary_implementation_e_min)
+    None => binary_implementation_e_min
+  }
 }
 
 ///|
