@@ -11,6 +11,16 @@ import run_ieee_decimal
 
 
 class IeeeDecimalCorpusTests(unittest.TestCase):
+    def test_split_fixture_test_keeps_every_test_and_the_prelude_once(self) -> None:
+        source = "fn helper() -> Unit {\n}\n\ntest \"a\" {\n}\n\ntest \"b\" {\n}\n\ntest \"c\" {\n}\n"
+        chunks = run_ieee_decimal.split_fixture_test(source, per_file=2)
+        self.assertEqual(len(chunks), 2)
+        self.assertTrue(chunks[0].startswith("fn helper()"))
+        self.assertNotIn("fn helper()", chunks[1])
+        joined = "".join(chunks)
+        for name in ('"a"', '"b"', '"c"'):
+            self.assertEqual(joined.count(name), 1)
+
     def test_plan_uses_unified_runner_shape(self) -> None:
         output = StringIO()
         with redirect_stdout(output):
