@@ -290,11 +290,15 @@ pub fn BinFloat::tanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
+pub fn BinFloat::to_int64_ctx(Self, BinaryContext, exact? : Bool) -> (Int64?, BinaryFlags)
+pub fn BinFloat::to_int_ctx(Self, BinaryContext, exact? : Bool) -> (Int?, BinaryFlags)
 pub fn BinFloat::to_integral_exact_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_integral_value_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
 pub fn BinFloat::to_repr(Self) -> @debug.Repr
 pub fn BinFloat::to_string(Self) -> String
+pub fn BinFloat::to_uint64_ctx(Self, BinaryContext, exact? : Bool) -> (UInt64?, BinaryFlags)
+pub fn BinFloat::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt?, BinaryFlags)
 pub fn BinFloat::trunc(Self) -> Self
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
