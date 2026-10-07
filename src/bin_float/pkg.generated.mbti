@@ -133,6 +133,8 @@ pub fn BinFloat::from_double(Double, precision? : Int) -> Self
 pub fn BinFloat::from_float(Float, precision? : Int) -> Self
 pub fn BinFloat::from_hex(String, Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::from_int(Int, precision? : Int) -> Self
+pub fn BinFloat::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::inf(@def.Sign, precision? : Int) -> Self
