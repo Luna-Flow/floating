@@ -73,9 +73,12 @@ pub fn MpfrPowDocument::source(Self) -> String
 pub struct ParseDiagnostic {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::line(Self) -> Int
 pub fn ParseDiagnostic::message(Self) -> String
+pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::source(Self) -> String
+pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 
 pub struct RunSummary {
   // private fields

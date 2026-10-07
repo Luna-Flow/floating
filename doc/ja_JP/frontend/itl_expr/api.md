@@ -30,10 +30,13 @@ pub fn summarize_results(Array[ItlResult]) -> RunSummary
 pub struct ItlCase {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn ItlCase::equal(Self, Self) -> Bool
 pub fn ItlCase::expected(Self) -> String
 pub fn ItlCase::id(Self) -> String
+pub fn ItlCase::not_equal(Self, Self) -> Bool
 pub fn ItlCase::operands(Self) -> Array[String]
 pub fn ItlCase::operation(Self) -> String
+pub fn ItlCase::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ItlDisposition {
   Executable

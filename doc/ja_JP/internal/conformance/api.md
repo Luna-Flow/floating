@@ -30,31 +30,40 @@ pub(all) enum CaseDisposition {
   Legacy(String)
   Unsupported(String)
 } derive(Eq, @debug.Debug)
+pub fn CaseDisposition::equal(Self, Self) -> Bool
+pub fn CaseDisposition::not_equal(Self, Self) -> Bool
+pub fn CaseDisposition::to_repr(Self) -> @debug.Repr
 
 pub struct CaseResult {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn CaseResult::disposition(Self) -> CaseDisposition
+pub fn CaseResult::equal(Self, Self) -> Bool
 pub fn CaseResult::executable(String, Bool, message? : String) -> Self
 pub fn CaseResult::id(Self) -> String
 pub fn CaseResult::message(Self) -> String
 pub fn CaseResult::new(String, CaseDisposition, Bool, message? : String) -> Self
+pub fn CaseResult::not_equal(Self, Self) -> Bool
 pub fn CaseResult::passed(Self) -> Bool
+pub fn CaseResult::to_repr(Self) -> @debug.Repr
 
 pub struct RunSummary {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn RunSummary::diagnostic_cases(Self) -> Int
+pub fn RunSummary::equal(Self, Self) -> Bool
 pub fn RunSummary::executable_cases(Self) -> Int
 pub fn RunSummary::failed_cases(Self) -> Int
 pub fn RunSummary::from_results(Int, Array[CaseResult]) -> Self
 pub fn RunSummary::legacy_cases(Self) -> Int
 pub fn RunSummary::merge(Array[Self]) -> Self
+pub fn RunSummary::not_equal(Self, Self) -> Bool
 pub fn RunSummary::passed_cases(Self) -> Int
 pub fn RunSummary::results(Self) -> Array[CaseResult]
 pub fn RunSummary::selected_cases(Self) -> Int
 pub fn RunSummary::skipped_cases(Self) -> Int
 pub fn RunSummary::success(Self) -> Bool
+pub fn RunSummary::to_repr(Self) -> @debug.Repr
 pub fn RunSummary::total_cases(Self) -> Int
 pub fn RunSummary::unsupported_cases(Self) -> Int
 
@@ -62,18 +71,24 @@ pub struct ShardSpec {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn ShardSpec::count(Self) -> Int
+pub fn ShardSpec::equal(Self, Self) -> Bool
 pub fn ShardSpec::index(Self) -> Int
 pub fn ShardSpec::new(Int, Int) -> Self
+pub fn ShardSpec::not_equal(Self, Self) -> Bool
 pub fn ShardSpec::selects(Self, Int) -> Bool
+pub fn ShardSpec::to_repr(Self) -> @debug.Repr
 pub fn ShardSpec::try_new(Int, Int) -> Result[Self, String]
 
 pub struct SourceLocation {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn SourceLocation::column(Self) -> Int
+pub fn SourceLocation::equal(Self, Self) -> Bool
 pub fn SourceLocation::line(Self) -> Int
 pub fn SourceLocation::new(String, Int, column? : Int) -> Self
+pub fn SourceLocation::not_equal(Self, Self) -> Bool
 pub fn SourceLocation::source(Self) -> String
+pub fn SourceLocation::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 

@@ -36,9 +36,12 @@ pub fn CaseResult::passed(Self) -> Bool
 pub struct ParseDiagnostic {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::line(Self) -> Int
 pub fn ParseDiagnostic::message(Self) -> String
+pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::source(Self) -> String
+pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 
 pub struct RunOptions {
   // private fields
@@ -78,16 +81,22 @@ pub(all) enum TestFloatOperation {
   Divide
   SquareRoot
 } derive(Eq, @debug.Debug)
+pub fn TestFloatOperation::equal(Self, Self) -> Bool
+pub fn TestFloatOperation::not_equal(Self, Self) -> Bool
+pub fn TestFloatOperation::to_repr(Self) -> @debug.Repr
 
 pub struct TestFloatSpec {
   // private fields
 } derive(Eq, @debug.Debug)
+pub fn TestFloatSpec::equal(Self, Self) -> Bool
 pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
 pub fn TestFloatSpec::function_name(Self) -> String
+pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
 pub fn TestFloatSpec::parse(String, String, tininess? : String) -> Result[Self, String]
 pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
 pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
+pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
