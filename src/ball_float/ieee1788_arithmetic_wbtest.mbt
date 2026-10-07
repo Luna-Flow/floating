@@ -231,10 +231,16 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
     .pown(minimum_exponent)
     .set_equal(BallFloat::from_int(1, precision=53)),
   )
-  let exact_tiny = BallFloat::from_int(2, precision=53).pown(minimum_exponent)
-  assert_true(exact_tiny.lower_bound().is_zero() == false)
-  assert_eq(exact_tiny.lower_bound().exponent2(), -2147483648)
-  assert_eq(exact_tiny.upper_bound().exponent2(), -2147483648)
+  // 2^(Int min) is below the binary implementation range, so the enclosure
+  // widens outward to [0, smallest positive] instead of wrapping the exponent.
+  let tiny = BallFloat::from_int(2, precision=53).pown(minimum_exponent)
+  assert_true(tiny.lower_bound().is_zero())
+  assert_false(tiny.lower_bound().is_negative())
+  assert_eq(tiny.upper_bound().coefficient(), @bin_float.BinCoeff::one())
+  assert_eq(
+    tiny.upper_bound().exponent2(),
+    @bin_float.binary_implementation_e_min - 52,
+  )
 }
 
 ///|

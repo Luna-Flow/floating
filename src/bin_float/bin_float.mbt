@@ -80,6 +80,19 @@ fn normalize_finite_odd(
   mode : RoundingMode,
   bits : Int,
 ) -> BinFloat {
+  // Underflow is decided on the exact value so that precision rounding cannot
+  // move a magnitude onto the halfway point of the smallest subnormal.
+  let exact_top = exponent2.to_int64() + (bits - 1).to_int64()
+  let tiny_top = binary_implementation_e_min.to_int64() -
+    (precision - 1).to_int64()
+  if exact_top < tiny_top {
+    return implementation_underflow(
+      negative,
+      precision,
+      mode,
+      exact_top == tiny_top - 1L && bits > 1,
+    )
+  }
   let (coefficient1, exponent1) = if bits > precision {
     let shift = bits - precision
     (
@@ -90,16 +103,82 @@ fn normalize_finite_odd(
     (coefficient, exponent2)
   }
   let final_shift = if coefficient1.is_odd() { 0 } else { coefficient1.ctz() }
-  finite_normalized(
-    negative,
-    if final_shift == 0 {
-      coefficient1
-    } else {
-      coefficient1.shift_right(final_shift)
-    },
-    binary_add_sat(exponent1, final_shift),
-    precision,
-  )
+  let coefficient2 = if final_shift == 0 {
+    coefficient1
+  } else {
+    coefficient1.shift_right(final_shift)
+  }
+  let exponent3 = binary_add_sat(exponent1, final_shift)
+  // A saturated exponent can only come from a value outside the implementation
+  // range, so it is classified here instead of being stored as a wrong finite.
+  // Overflow is decided after rounding, as in IEEE 754.
+  let top = exponent3.to_int64() + (coefficient2.bit_length() - 1).to_int64()
+  if top > binary_implementation_e_max.to_int64() {
+    return implementation_overflow(negative, precision, mode)
+  }
+  finite_normalized(negative, coefficient2, exponent3, precision)
+}
+
+///|
+fn implementation_overflow(
+  negative : Bool,
+  precision : Int,
+  mode : RoundingMode,
+) -> BinFloat {
+  let to_infinity = match mode {
+    RoundingMode::ToNearestEven | RoundingMode::AwayFromZero => true
+    RoundingMode::TowardZero => false
+    RoundingMode::TowardPositive => !negative
+    RoundingMode::TowardNegative => negative
+  }
+  if to_infinity {
+    BinFloat::inf(
+      if negative {
+        Sign::Negative
+      } else {
+        Sign::Positive
+      },
+      precision~,
+    )
+  } else {
+    finite_normalized(
+      negative,
+      BinCoeff::one()
+      .shift_left(precision)
+      .sub_checked(BinCoeff::one())
+      .unwrap(),
+      binary_implementation_e_max - (precision - 1),
+      precision,
+    )
+  }
+}
+
+///|
+/// `above_half` is true when the magnitude lies strictly between half of the
+/// smallest subnormal and the smallest subnormal.
+fn implementation_underflow(
+  negative : Bool,
+  precision : Int,
+  mode : RoundingMode,
+  above_half : Bool,
+) -> BinFloat {
+  let to_smallest = match mode {
+    RoundingMode::ToNearestEven => above_half
+    RoundingMode::AwayFromZero => true
+    RoundingMode::TowardZero => false
+    RoundingMode::TowardPositive => !negative
+    RoundingMode::TowardNegative => negative
+  }
+  if to_smallest {
+    finite_normalized(
+      negative,
+      BinCoeff::one(),
+      binary_implementation_e_min - (precision - 1),
+      precision,
+    )
+  } else {
+    finite_zero(negative, precision)
+  }
 }
 
 ///|
