@@ -333,6 +333,7 @@ pub fn BinFloat::log1p(Self) -> Self
 pub fn BinFloat::log1p_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log2(Self) -> Self
 pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::make(BinCoeff, Int, Int, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::max(Self, Self) -> Self
 pub fn BinFloat::min(Self, Self) -> Self
@@ -368,6 +369,7 @@ pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round(Self) -> Self
 pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ties_even(Self) -> Self
+pub fn BinFloat::scaleb_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sign(Self) -> @def.Sign
 pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
 pub fn BinFloat::sin(Self) -> Self
