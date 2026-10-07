@@ -105,16 +105,21 @@ fn checked_exact(
 }
 
 ///|
+/// Builds `coefficient * 2^exponent2` exactly. When the value lies outside the
+/// binary exponent range it cannot be stored exactly, and `mode` decides the
+/// side it is clamped to; endpoint computations pass the outward direction.
 fn exact_make(
   coefficient : @bin_float.BinCoeff,
   exponent2 : Int,
   negative? : Bool = false,
+  mode? : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   @bin_float.BinFloat::make(
     coefficient,
     exponent2,
     Int::max(1, coefficient.bit_length()),
     negative~,
+    mode~,
   )
 }
 
@@ -122,12 +127,13 @@ fn exact_make(
 fn exact_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
+  mode? : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   let target = Int::min(a.exponent2(), b.exponent2())
   let left = a.coefficient().shift_left(a.exponent2() - target)
   let right = b.coefficient().shift_left(b.exponent2() - target)
   if a.is_negative() == b.is_negative() {
-    exact_make(left.add(right), target, negative=a.is_negative())
+    exact_make(left.add(right), target, negative=a.is_negative(), mode~)
   } else {
     let comparison = left.compare(right)
     if comparison == 0 {
@@ -137,12 +143,14 @@ fn exact_add(
         left.sub_checked(right).unwrap(),
         target,
         negative=a.is_negative(),
+        mode~,
       )
     } else {
       exact_make(
         right.sub_checked(left).unwrap(),
         target,
         negative=b.is_negative(),
+        mode~,
       )
     }
   }
@@ -152,25 +160,46 @@ fn exact_add(
 fn exact_sub(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
+  mode? : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
-  exact_add(a, b.neg())
+  exact_add(a, b.neg(), mode~)
 }
 
 ///|
 fn exact_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
+  mode? : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
+  // Saturating keeps the direction of an out-of-range exponent sum; the
+  // binary layer then clamps it according to `mode`.
+  let exponent = a.exponent2().to_int64() + b.exponent2().to_int64()
+  let exponent = if exponent > 2147483647L {
+    2147483647
+  } else if exponent < -2147483648L {
+    -2147483648
+  } else {
+    exponent.to_int()
+  }
   exact_make(
     a.coefficient().mul(b.coefficient()),
-    a.exponent2() + b.exponent2(),
+    exponent,
     negative=a.is_negative() != b.is_negative(),
+    mode~,
   )
 }
 
 ///|
-fn exact_half(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
-  exact_make(x.coefficient(), x.exponent2() - 1, negative=x.is_negative())
+fn exact_half(
+  x : @bin_float.BinFloat,
+  mode? : RoundingMode = RoundingMode::ToNearestEven,
+) -> @bin_float.BinFloat {
+  exact_make(
+    x.coefficient(),
+    x.exponent2() - 1,
+    negative=x.is_negative(),
+    mode~,
+  )
 }
 
 ///|
@@ -187,7 +216,7 @@ fn outward_sum(
   b : @bin_float.BinFloat,
   precision : Int,
 ) -> @bin_float.BinFloat {
-  outward_round(exact_add(a, b), precision)
+  outward_round(exact_add(a, b, mode=RoundingMode::AwayFromZero), precision)
 }
 
 ///|
@@ -214,8 +243,16 @@ fn quantize_center_radius(
   )
   let rounded_radius = outward_round(radius, precision)
   let total_radius = outward_sum(rounded_radius, center_error, precision)
-  let lo = exact_sub(rounded_center, total_radius)
-  let hi = exact_add(rounded_center, total_radius)
+  let lo = exact_sub(
+    rounded_center,
+    total_radius,
+    mode=RoundingMode::TowardNegative,
+  )
+  let hi = exact_add(
+    rounded_center,
+    total_radius,
+    mode=RoundingMode::TowardPositive,
+  )
   store_interval(lo, hi, precision)
 }
 
@@ -319,7 +356,11 @@ fn interval_radius(x : BallFloat) -> @bin_float.BinFloat {
   guard x.is_bounded() else {
     abort("ball radius is undefined for unbounded intervals")
   }
-  exact_half(exact_sub(x.hi_, x.lo_)).abs()
+  // A radius must not understate the half-width, even when it underflows.
+  exact_half(
+    exact_sub(x.hi_, x.lo_, mode=RoundingMode::TowardPositive),
+    mode=RoundingMode::TowardPositive,
+  ).abs()
 }
 
 ///|
@@ -455,12 +496,18 @@ fn add_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
   }
   if a.is_bounded() && b.is_bounded() {
     return quantize_interval(
-      exact_add(a.lo_, b.lo_),
-      exact_add(a.hi_, b.hi_),
+      exact_add(a.lo_, b.lo_, mode=RoundingMode::TowardNegative),
+      exact_add(a.hi_, b.hi_, mode=RoundingMode::TowardPositive),
       precision,
     )
   }
-  quantize_interval(a.lo_ + b.lo_, a.hi_ + b.hi_, precision)
+  // Lower endpoints are finite or -inf and upper ones finite or +inf, so the
+  // extended sums never meet opposite infinities.
+  quantize_interval(
+    extended_add(a.lo_, b.lo_, RoundingMode::TowardNegative),
+    extended_add(a.hi_, b.hi_, RoundingMode::TowardPositive),
+    precision,
+  )
 }
 
 ///|
@@ -471,12 +518,16 @@ fn sub_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
   }
   if a.is_bounded() && b.is_bounded() {
     return quantize_interval(
-      exact_sub(a.lo_, b.hi_),
-      exact_sub(a.hi_, b.lo_),
+      exact_sub(a.lo_, b.hi_, mode=RoundingMode::TowardNegative),
+      exact_sub(a.hi_, b.lo_, mode=RoundingMode::TowardPositive),
       precision,
     )
   }
-  quantize_interval(a.lo_ - b.hi_, a.hi_ - b.lo_, precision)
+  quantize_interval(
+    extended_add(a.lo_, b.hi_.neg(), RoundingMode::TowardNegative),
+    extended_add(a.hi_, b.lo_.neg(), RoundingMode::TowardPositive),
+    precision,
+  )
 }
 
 ///|
@@ -508,6 +559,7 @@ fn extended_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int,
+  mode : RoundingMode,
 ) -> @bin_float.BinFloat {
   if a.is_zero() || b.is_zero() {
     return @bin_float.BinFloat::zero(precision~)
@@ -520,13 +572,14 @@ fn extended_mul(
     }
     return @bin_float.BinFloat::inf(sign, precision~)
   }
-  exact_mul(a, b)
+  exact_mul(a, b, mode~)
 }
 
 ///|
 fn extended_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
+  mode : RoundingMode,
 ) -> @bin_float.BinFloat {
   if a.classify() == FpClass::Infinity {
     return a
@@ -534,7 +587,7 @@ fn extended_add(
   if b.classify() == FpClass::Infinity {
     return b
   }
-  exact_add(a, b)
+  exact_add(a, b, mode~)
 }
 
 ///|
@@ -550,41 +603,67 @@ fn multiplication_bounds(
     let b_nonpositive = b.hi_.is_zero() || b.hi_.sign() == Sign::Negative
     if a_nonnegative && b_nonnegative {
       return (
-        extended_mul(a.lo_, b.lo_, precision),
-        extended_mul(a.hi_, b.hi_, precision),
+        extended_mul(a.lo_, b.lo_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.hi_, b.hi_, precision, RoundingMode::TowardPositive),
       )
     }
     if a_nonpositive && b_nonpositive {
       return (
-        extended_mul(a.hi_, b.hi_, precision),
-        extended_mul(a.lo_, b.lo_, precision),
+        extended_mul(a.hi_, b.hi_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.lo_, b.lo_, precision, RoundingMode::TowardPositive),
       )
     }
     if a_nonnegative && b_nonpositive {
       return (
-        extended_mul(a.hi_, b.lo_, precision),
-        extended_mul(a.lo_, b.hi_, precision),
+        extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.lo_, b.hi_, precision, RoundingMode::TowardPositive),
       )
     }
     if a_nonpositive && b_nonnegative {
       return (
-        extended_mul(a.lo_, b.hi_, precision),
-        extended_mul(a.hi_, b.lo_, precision),
+        extended_mul(a.lo_, b.hi_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardPositive),
       )
     }
-    let lower_left = extended_mul(a.lo_, b.hi_, precision)
-    let lower_right = extended_mul(a.hi_, b.lo_, precision)
-    let upper_left = extended_mul(a.lo_, b.lo_, precision)
-    let upper_right = extended_mul(a.hi_, b.hi_, precision)
+    let lower_left = extended_mul(
+      a.lo_,
+      b.hi_,
+      precision,
+      RoundingMode::TowardNegative,
+    )
+    let lower_right = extended_mul(
+      a.hi_,
+      b.lo_,
+      precision,
+      RoundingMode::TowardNegative,
+    )
+    let upper_left = extended_mul(
+      a.lo_,
+      b.lo_,
+      precision,
+      RoundingMode::TowardPositive,
+    )
+    let upper_right = extended_mul(
+      a.hi_,
+      b.hi_,
+      precision,
+      RoundingMode::TowardPositive,
+    )
     return (bin_min(lower_left, lower_right), bin_max(upper_left, upper_right))
   }
-  let p1 = extended_mul(a.lo_, b.lo_, precision)
-  let p2 = extended_mul(a.lo_, b.hi_, precision)
-  let p3 = extended_mul(a.hi_, b.lo_, precision)
-  let p4 = extended_mul(a.hi_, b.hi_, precision)
+  let products = fn(mode) {
+    (
+      extended_mul(a.lo_, b.lo_, precision, mode),
+      extended_mul(a.lo_, b.hi_, precision, mode),
+      extended_mul(a.hi_, b.lo_, precision, mode),
+      extended_mul(a.hi_, b.hi_, precision, mode),
+    )
+  }
+  let (d1, d2, d3, d4) = products(RoundingMode::TowardNegative)
+  let (u1, u2, u3, u4) = products(RoundingMode::TowardPositive)
   (
-    bin_min(bin_min(p1, p2), bin_min(p3, p4)),
-    bin_max(bin_max(p1, p2), bin_max(p3, p4)),
+    bin_min(bin_min(d1, d2), bin_min(d3, d4)),
+    bin_max(bin_max(u1, u2), bin_max(u3, u4)),
   )
 }
 
@@ -841,7 +920,10 @@ pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
   if !self.is_bounded() {
     return pos_inf(self.precision_)
   }
-  upper_round_bound(exact_sub(self.hi_, self.lo_), self.precision_)
+  upper_round_bound(
+    exact_sub(self.hi_, self.lo_, mode=RoundingMode::TowardPositive),
+    self.precision_,
+  )
 }
 
 ///|
@@ -992,12 +1074,22 @@ pub fn BallFloat::square(self : BallFloat) -> BallFloat {
   let lo_abs = self.lo_.abs()
   let hi_abs = self.hi_.abs()
   let upper_abs = bin_max(lo_abs, hi_abs)
-  let upper = extended_mul(upper_abs, upper_abs, self.precision_)
+  let upper = extended_mul(
+    upper_abs,
+    upper_abs,
+    self.precision_,
+    RoundingMode::TowardPositive,
+  )
   let lower = if self.contains_zero() {
     @bin_float.BinFloat::zero(precision=self.precision_)
   } else {
     let lower_abs = bin_min(lo_abs, hi_abs)
-    extended_mul(lower_abs, lower_abs, self.precision_)
+    extended_mul(
+      lower_abs,
+      lower_abs,
+      self.precision_,
+      RoundingMode::TowardNegative,
+    )
   }
   quantize_interval(lower, upper, self.precision_)
 }
@@ -1447,8 +1539,8 @@ pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat 
   if other.is_empty() || !self.is_bounded() || !other.is_bounded() {
     return whole_real(precision)
   }
-  let lo = exact_add(self.lo_, other.hi_)
-  let hi = exact_add(self.hi_, other.lo_)
+  let lo = exact_add(self.lo_, other.hi_, mode=RoundingMode::TowardNegative)
+  let hi = exact_add(self.hi_, other.lo_, mode=RoundingMode::TowardPositive)
   if lo.compare(hi) > 0 {
     whole_real(precision)
   } else {
@@ -1472,8 +1564,8 @@ pub fn BallFloat::cancel_minus(
   if other.is_empty() || !self.is_bounded() || !other.is_bounded() {
     return whole_real(precision)
   }
-  let lo = exact_sub(self.lo_, other.lo_)
-  let hi = exact_sub(self.hi_, other.hi_)
+  let lo = exact_sub(self.lo_, other.lo_, mode=RoundingMode::TowardNegative)
+  let hi = exact_sub(self.hi_, other.hi_, mode=RoundingMode::TowardPositive)
   if lo.compare(hi) > 0 {
     whole_real(precision)
   } else {
@@ -1562,8 +1654,8 @@ pub fn BallFloat::fma(
     self, multiplier, precision,
   )
   quantize_interval(
-    extended_add(product_lo, addend.lo_),
-    extended_add(product_hi, addend.hi_),
+    extended_add(product_lo, addend.lo_, RoundingMode::TowardNegative),
+    extended_add(product_hi, addend.hi_, RoundingMode::TowardPositive),
     precision,
   )
 }
