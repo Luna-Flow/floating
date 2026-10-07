@@ -286,6 +286,9 @@ pub fn BinFloat::classify(Self) -> @arithmetic.FpClass
 pub fn BinFloat::coefficient(Self) -> BinCoeff
 pub fn BinFloat::compare(Self, Self) -> Int
 pub fn BinFloat::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
+pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
+pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
+pub fn BinFloat::copy_sign(Self, Self) -> Self
 pub fn BinFloat::cos(Self) -> Self
 pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::cosh(Self) -> Self
@@ -297,6 +300,8 @@ pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticE
 pub fn BinFloat::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::div_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::equal(Self, Self) -> Bool
+pub fn BinFloat::equal_quiet(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::equal_signaling(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::exp(Self) -> Self
 pub fn BinFloat::exp10(Self) -> Self
 pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
@@ -325,6 +330,10 @@ pub fn BinFloat::is_negative_zero(Self) -> Bool
 pub fn BinFloat::is_quiet_nan(Self) -> Bool
 pub fn BinFloat::is_signaling_nan(Self) -> Bool
 pub fn BinFloat::is_zero(Self) -> Bool
+pub fn BinFloat::less_equal_quiet(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::less_equal_signaling(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::less_quiet(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::less_signaling(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::ln(Self) -> Self
 pub fn BinFloat::ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log10(Self) -> Self
@@ -401,6 +410,9 @@ pub fn BinFloat::to_repr(Self) -> @debug.Repr
 pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::to_uint64_ctx(Self, BinaryContext, exact? : Bool) -> (UInt64?, BinaryFlags)
 pub fn BinFloat::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt?, BinaryFlags)
+pub fn BinFloat::total_order(Self, Self) -> Bool
+pub fn BinFloat::total_order_compare(Self, Self) -> Int
+pub fn BinFloat::total_order_mag(Self, Self) -> Bool
 pub fn BinFloat::trunc(Self) -> Self
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -431,6 +443,7 @@ pub fn BinFloat::try_tan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 pub fn BinFloat::try_tanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::ulp(Self) -> Self
+pub fn BinFloat::unordered_quiet(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int) -> Self
 pub impl @arithmetic.AbsContextual for BinFloat
