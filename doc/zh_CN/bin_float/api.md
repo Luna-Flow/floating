@@ -306,6 +306,7 @@ pub fn BinFloat::tanh(Self) -> Self
 pub fn BinFloat::tanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::to_decimal_string_ctx(Self, Int, BinaryContext) -> (String, BinaryFlags)
 pub fn BinFloat::to_hex(Self) -> String
 pub fn BinFloat::to_int64_ctx(Self, BinaryContext, exact? : Bool) -> (Int64?, BinaryFlags)
 pub fn BinFloat::to_int_ctx(Self, BinaryContext, exact? : Bool) -> (Int?, BinaryFlags)
@@ -313,6 +314,8 @@ pub fn BinFloat::to_integral_exact_ctx(Self, BinaryContext) -> (Self, BinaryFlag
 pub fn BinFloat::to_integral_value_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
 pub fn BinFloat::to_repr(Self) -> @debug.Repr
+pub fn BinFloat::to_shortest_string(Self) -> String
+pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> String
 pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::to_uint64_ctx(Self, BinaryContext, exact? : Bool) -> (UInt64?, BinaryFlags)
 pub fn BinFloat::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt?, BinaryFlags)
