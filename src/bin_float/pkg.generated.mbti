@@ -154,6 +154,8 @@ pub fn BinFloat::nan(precision? : Int) -> Self
 pub fn BinFloat::nan_payload(Self) -> BinCoeff
 pub fn BinFloat::neg(Self) -> Self
 pub fn BinFloat::negative_zero(precision? : Int) -> Self
+pub fn BinFloat::next_down_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::next_up_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::normalized(Self) -> Self
 pub fn BinFloat::not_equal(Self, Self) -> Bool
 pub fn BinFloat::one(precision? : Int) -> Self
