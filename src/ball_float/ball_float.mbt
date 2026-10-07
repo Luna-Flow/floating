@@ -124,11 +124,87 @@ fn exact_make(
 }
 
 ///|
+/// Bits below the larger addend's leading bit that an endpoint sum keeps
+/// exactly; deeper addends become sticky surrogates.
+let far_addend_margin : Int = 65536
+
+///|
+fn exponent_top(x : @bin_float.BinFloat) -> Int64 {
+  x.exponent2().to_int64() + (x.coefficient().bit_length() - 1).to_int64()
+}
+
+///|
+/// Aligning two nonzero addends shifts by their exponent gap, which can be
+/// billions of bits. Below `cut`, at least `far_addend_margin` bits (and the
+/// operands' precision) under the larger addend's leading bit, the smaller
+/// addend is under one ulp at any working precision used here, so only its
+/// sign matters: it is replaced by 0 or `±2^(cut - 2)` on the side that keeps
+/// a directed sum on the requested side of the exact value. Nearest-rounded
+/// callers get the same sticky surrogate, which rounds like the exact sum.
+fn far_addend_surrogate(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  mode : RoundingMode,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  let a_is_large = exponent_top(a) >= exponent_top(b)
+  let (large, small) = if a_is_large { (a, b) } else { (b, a) }
+  let margin = Int::max(
+    far_addend_margin,
+    Int::max(large.precision(), small.precision()),
+  ).to_int64()
+  let cut = Int64::min(
+    large.exponent2().to_int64(),
+    exponent_top(large) - margin,
+  )
+  if exponent_top(small) >= cut - 2L {
+    return (a, b)
+  }
+  // The surrogate pushes the sum up when true, down otherwise; sums that
+  // must not move in the small addend's direction drop it.
+  let keep = match mode {
+    RoundingMode::TowardPositive => !small.is_negative()
+    RoundingMode::TowardNegative => small.is_negative()
+    RoundingMode::AwayFromZero => small.is_negative() == large.is_negative()
+    RoundingMode::TowardZero => small.is_negative() != large.is_negative()
+    RoundingMode::ToNearestEven => true
+  }
+  let surrogate = if keep {
+    // Rounding away keeps the surrogate nonzero even at the range floor.
+    exact_make(
+      @bin_float.BinCoeff::one(),
+      (cut - 2L).to_int(),
+      negative=small.is_negative(),
+      mode=RoundingMode::AwayFromZero,
+    )
+  } else {
+    @bin_float.BinFloat::zero(precision=1)
+  }
+  if a_is_large {
+    (large, surrogate)
+  } else {
+    (surrogate, large)
+  }
+}
+
+///|
 fn exact_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode? : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
+  if a.is_zero() {
+    return b
+  }
+  if b.is_zero() {
+    return a
+  }
+  let (a, b) = far_addend_surrogate(a, b, mode)
+  if a.is_zero() {
+    return b
+  }
+  if b.is_zero() {
+    return a
+  }
   let target = Int::min(a.exponent2(), b.exponent2())
   let left = a.coefficient().shift_left(a.exponent2() - target)
   let right = b.coefficient().shift_left(b.exponent2() - target)
