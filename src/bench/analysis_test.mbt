@@ -31,8 +31,20 @@ test "auto tune selects the fastest valid candidate" {
     observation("kernel", 1, 0, 30.0),
     observation("full", 1, 0, 15.0),
   ]
-  let first = tune_dataset(observations, "mul", 0, ["kernel", "full"], 3.0)
-  let second = tune_dataset(observations, "mul", 1, ["kernel", "full"], 3.0)
+  let first = @bench.tune_dataset(
+    observations,
+    "mul",
+    0,
+    ["kernel", "full"],
+    3.0,
+  )
+  let second = @bench.tune_dataset(
+    observations,
+    "mul",
+    1,
+    ["kernel", "full"],
+    3.0,
+  )
   assert_eq(first.unwrap().candidate_id, "kernel")
   assert_eq(first.unwrap().valid_samples, 2)
   assert_eq(second.unwrap().candidate_id, "full")
@@ -48,7 +60,7 @@ test "paired hotspot analysis preserves balanced block pairing" {
     observation("kernel", 0, 2, 9.0),
     observation("full", 0, 2, 19.0),
   ]
-  let comparison = paired_hotspot(
+  let comparison = @bench.paired_hotspot(
     observations, "mul", 0, "kernel", "full", 3.0, 42UL,
   ).unwrap()
   assert_true(comparison.relative_delta_pct > 90.0)
@@ -56,10 +68,10 @@ test "paired hotspot analysis preserves balanced block pairing" {
 
 ///|
 test "immutable baseline comparison rejects a significant regression" {
-  let comparison = confirmatory_regression(
+  let comparison = @bench.confirmatory_regression(
     [100.0, 101.0, 99.0, 100.5, 99.5, 100.0, 101.0, 99.0, 100.0, 100.5],
     [110.0, 111.0, 109.0, 110.5, 109.5, 110.0, 111.0, 109.0, 110.0, 110.5],
     0x070UL,
   ).unwrap()
-  assert_true(is_significant_regression(comparison))
+  assert_true(@bench.is_significant_regression(comparison))
 }

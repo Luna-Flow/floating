@@ -150,3 +150,18 @@ pub fn[T] semantic_interval_result(
     Err(err) => Error(SemanticError::from_arithmetic(err))
   }
 }
+
+///|
+pub extend ExactRational with Eq::{not_equal, equal}
+
+///|
+pub extend SemanticScalar with Eq::{not_equal, equal}
+
+///|
+pub extend SemanticInterval with Eq::{not_equal, equal}
+
+///|
+pub extend SemanticError with Eq::{not_equal, equal}
+
+///|
+pub extend SemanticResult with Eq::{not_equal, equal}

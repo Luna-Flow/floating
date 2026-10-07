@@ -323,3 +323,33 @@ pub fn BinaryContext::binary128(
 ) -> BinaryContext {
   BinaryInterchangeFormat::Binary128.context(rounding~, tininess~)
 }
+
+///|
+pub extend BinaryRoundingMode with Eq::{not_equal, equal}
+
+///|
+pub extend BinaryRoundingMode with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TininessDetection with Eq::{not_equal, equal}
+
+///|
+pub extend TininessDetection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BinaryInterchangeFormat with Eq::{not_equal, equal}
+
+///|
+pub extend BinaryInterchangeFormat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BinaryContext with Eq::{not_equal, equal}
+
+///|
+pub extend BinaryContext with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BinaryFlags with Eq::{not_equal, equal}
+
+///|
+pub extend BinaryFlags with @moonbitlang/core/debug.Debug::{to_repr}

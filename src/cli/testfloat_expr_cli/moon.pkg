@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/core/string",
   "Luna-Flow/floating/internal/runner_cli",
   "Luna-Flow/floating/frontend/testfloat_expr",
 }

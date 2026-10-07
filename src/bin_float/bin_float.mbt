@@ -894,3 +894,24 @@ pub impl Show for BinFloat with fn to_string(self) {
 
 ///|
 pub extend BinFloat with Show::{to_string}
+
+///|
+pub extend BinFloat with Eq::{not_equal, equal}
+
+///|
+pub extend BinFloat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.SqrtChecked::{sqrt_checked}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.PowNatChecked::{pow_nat_checked}
+
+///|
+pub extend BinFloat with @Luna-Flow/arithmetic.PowIntChecked::{pow_int_checked}
+
+///|
+pub extend BinFloat with Compare::{op_lt, op_le, op_ge, op_gt}
+
+///|
+pub extend BinFloat with Show::{output}

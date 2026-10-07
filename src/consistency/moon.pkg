@@ -12,5 +12,4 @@ import {
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/internal",
   "Luna-Flow/floating/semantic",
-  "moonbitlang/core/bigint",
 } for "wbtest"

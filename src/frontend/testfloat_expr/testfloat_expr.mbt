@@ -464,3 +464,21 @@ pub fn RunSummary::results(self : RunSummary) -> Array[CaseResult] {
 pub fn RunSummary::success(self : RunSummary) -> Bool {
   self.inner.success()
 }
+
+///|
+pub extend TestFloatOperation with Eq::{not_equal, equal}
+
+///|
+pub extend TestFloatOperation with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend TestFloatSpec with Eq::{not_equal, equal}
+
+///|
+pub extend TestFloatSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ParseDiagnostic with Eq::{not_equal, equal}
+
+///|
+pub extend ParseDiagnostic with @moonbitlang/core/debug.Debug::{to_repr}
