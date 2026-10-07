@@ -799,3 +799,18 @@ pub extend Decoration with Show::{to_string}
 
 ///|
 pub extend BallFloatDecorated with Show::{to_string}
+
+///|
+pub extend Decoration with Eq::{not_equal, equal}
+
+///|
+pub extend Decoration with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BallFloatDecorated with Eq::{not_equal, equal}
+
+///|
+pub extend Decoration with Show::{output}
+
+///|
+pub extend BallFloatDecorated with Show::{output}

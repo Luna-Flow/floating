@@ -46,3 +46,6 @@ pub fn ExactRat::numerator(self : ExactRat) -> BigInt {
 pub fn ExactRat::denominator(self : ExactRat) -> BigInt {
   self.denominator
 }
+
+///|
+pub extend ExactRat with Eq::{not_equal, equal}

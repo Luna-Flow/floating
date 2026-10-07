@@ -566,3 +566,15 @@ pub fn[T] GdaOutcome::raised(self : GdaOutcome[T]) -> GdaFlags {
     Completed(_, _, raised) | Trapped(_, _, _, raised) => raised
   }
 }
+
+///|
+pub extend GdaRoundingMode with Eq::{not_equal, equal}
+
+///|
+pub extend GdaSignal with Eq::{not_equal, equal}
+
+///|
+pub extend GdaFlags with Eq::{not_equal, equal}
+
+///|
+pub extend GdaTrapSet with Eq::{not_equal, equal}

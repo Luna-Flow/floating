@@ -438,3 +438,24 @@ pub fn DecimalRoundingMode::to_arithmetic(
     HalfUp | HalfDown | ZeroFiveUp => None
   }
 }
+
+///|
+pub extend Decimal with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DecimalRoundingMode with Eq::{not_equal, equal}
+
+///|
+pub extend DecimalTininessDetection with Eq::{not_equal, equal}
+
+///|
+pub extend DecimalSignal with Eq::{not_equal, equal}
+
+///|
+pub extend GdaInterchangeFormat with Eq::{not_equal, equal}
+
+///|
+pub extend DecimalContext with Eq::{not_equal, equal}
+
+///|
+pub extend DecimalFlags with Eq::{not_equal, equal}

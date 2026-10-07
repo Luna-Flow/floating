@@ -338,3 +338,6 @@ pub fn BallFloat::div_ctx(
 ) -> (BallFloat, BallFlags) {
   (self / other).apply_ctx(ctx)
 }
+
+///|
+pub extend BallFlags with Eq::{not_equal, equal}

@@ -1694,3 +1694,27 @@ pub impl Show for BallFloat with fn to_string(self) {
 
 ///|
 pub extend BallFloat with Show::{to_string}
+
+///|
+pub extend BallFloat with Eq::{not_equal, equal}
+
+///|
+pub extend BallFloat with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend OverlapState with Eq::{not_equal, equal}
+
+///|
+pub extend OverlapState with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend BallFloat with @Luna-Flow/arithmetic.DivChecked::{div_checked}
+
+///|
+pub extend BallFloat with @Luna-Flow/arithmetic.PowNatChecked::{pow_nat_checked}
+
+///|
+pub extend BallFloat with @Luna-Flow/arithmetic.PowIntChecked::{pow_int_checked}
+
+///|
+pub extend BallFloat with Show::{output}

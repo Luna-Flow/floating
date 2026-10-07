@@ -407,3 +407,9 @@ pub fn RunSummary::results(self : RunSummary) -> Array[CaseResult] {
 pub fn RunSummary::success(self : RunSummary) -> Bool {
   self.inner.success()
 }
+
+///|
+pub extend ParseDiagnostic with Eq::{not_equal, equal}
+
+///|
+pub extend ParseDiagnostic with @moonbitlang/core/debug.Debug::{to_repr}

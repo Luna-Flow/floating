@@ -1050,3 +1050,9 @@ pub fn signed_coeff_div_exact(
     coeff_div_exact(value.magnitude, divisor),
   )
 }
+
+///|
+pub extend Coeff with Eq::{not_equal, equal}
+
+///|
+pub extend SignedCoeff with Eq::{not_equal, equal}

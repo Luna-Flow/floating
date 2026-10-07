@@ -150,3 +150,21 @@ pub fn[V, E] evaluate(
 ) -> Result[V, EvalError[E]] {
   evaluate_term(expression.term, decode, invoke)
 }
+
+///|
+pub extend SourceSpan with Eq::{not_equal, equal}
+
+///|
+pub extend SourceSpan with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Literal with Eq::{not_equal, equal}
+
+///|
+pub extend Literal with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend Operation with Eq::{not_equal, equal}
+
+///|
+pub extend Operation with @moonbitlang/core/debug.Debug::{to_repr}

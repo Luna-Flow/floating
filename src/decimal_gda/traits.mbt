@@ -378,3 +378,60 @@ pub impl @def.Floating for Decimal with fn normalized(self) {
 }
 
 ///|
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.AddContextual::{add_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.SubContextual::{sub_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.MulContextual::{mul_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.DivContextual::{div_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.AbsContextual::{abs_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.SqrtContextual::{sqrt_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.ExpContextual::{exp_contextual}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.NumericFormatContextual::{
+  classify_contextual,
+  min_normal_contextual,
+  one_contextual,
+  epsilon_contextual,
+  zero_contextual,
+  max_finite_contextual,
+}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.ParseChecked::{parse_checked}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.SqrtChecked::{sqrt_checked}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.PowNatChecked::{pow_nat_checked}
+
+///|
+pub extend Decimal with @Luna-Flow/arithmetic.PowIntChecked::{pow_int_checked}
+
+///|
+pub extend Decimal with @Luna-Flow/luna-generic.NatHomomorphism::{from_nat}
+
+///|
+pub extend Decimal with @Luna-Flow/luna-generic.IntegralHomomorphism::{
+  from_integral,
+}
+
+///|
+pub extend Decimal with Eq::{not_equal, equal}
+
+///|
+pub extend Decimal with Compare::{op_lt, op_le, op_ge, op_gt}
