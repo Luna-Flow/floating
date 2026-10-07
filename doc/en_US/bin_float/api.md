@@ -197,6 +197,12 @@ import {
 }
 
 // Values
+pub let binary_implementation_e_max : Int
+
+pub let binary_implementation_e_min : Int
+
+pub let binary_precision_max : Int
+
 pub fn sqrt_bounds_for_precision(BinFloat, Int) -> Result[(BinFloat, BinFloat), @arithmetic.ArithmeticError]
 
 pub fn sqrt_for_precision(BinFloat, Int) -> Result[BinFloat, @arithmetic.ArithmeticError]
