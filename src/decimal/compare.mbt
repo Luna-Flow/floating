@@ -225,9 +225,16 @@ pub fn Decimal::compare_signal_ctx(
 }
 
 ///|
+/// Numeric three-way comparison with `-0 == +0`. NaN has no numeric order;
+/// so that `Compare` stays a total preorder (and sorting never aborts), every
+/// NaN compares equal to every other NaN and greater than every non-NaN.
+/// Use the quiet/signaling predicates or `compare_checked` for IEEE semantics.
 pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int {
-  guard self.class != FpClass::NaN && other.class != FpClass::NaN else {
-    abort("NaN is unordered")
+  match (self.class == FpClass::NaN, other.class == FpClass::NaN) {
+    (true, true) => return 0
+    (true, false) => return 1
+    (false, true) => return -1
+    (false, false) => ()
   }
   match (self.class, other.class) {
     (FpClass::Infinity, FpClass::Infinity) =>
