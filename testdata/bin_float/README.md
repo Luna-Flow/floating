@@ -96,5 +96,6 @@ optional stress corpus and is not committed. The declared command executed
 shards, and aggregates; it does not implement or alter floating-point
 arithmetic.
 
-See the localized design and conformance documents under `doc/*/bin_float/`
-for standards, algorithms, results, and explicit non-claims.
+See the [design](../../doc/manual/design/bin_float.md) and
+[conformance](../../doc/manual/conformance/bin_float.md) pages for standards,
+algorithms, results, and explicit non-claims.

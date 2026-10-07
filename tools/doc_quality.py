@@ -1,15 +1,32 @@
 #!/usr/bin/env python3
 
 import argparse
+import json
 import re
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOC_ROOT = REPO_ROOT / "doc"
-LOCALES = ("en_US", "zh_CN", "ja_JP")
+MANUAL_ROOT = DOC_ROOT / "manual"
+LOCALE_ROOT = DOC_ROOT / "locale"
+ATTACHMENT_ROOT = DOC_ROOT / "attachments"
+RETIRED_LOCALE_DIRS = ("en_US", "zh_CN", "ja_JP")
+PACKAGE_CHAPTERS = ("api", "tutorial", "design")
+EVIDENCE_CHAPTERS = ("conformance", "performance")
+NUMERICAL_CORES = ("bin_float", "decimal", "decimal_gda", "ball_float")
+GUIDES = (
+    "index.md",
+    "conventions.md",
+    "getting_started.md",
+    "numeric_semantics.md",
+    "architecture.md",
+    "verification.md",
+    "performance_audit.md",
+)
+GDA_RESULT = "64,986/64,986"
+STALE_GDA_CLAIMS = ("conformance gap", "not full conformance", "完全な conformance ではなく")
 LINK_RE = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
-MOONBIT_RE = re.compile(r"```moonbit(?:\s+check)?\n(.*?)```", re.DOTALL)
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
 API_BLOCK_RE = re.compile(
     r"<!-- generated-api-start -->\n```moonbit\n(.*?)\n```\n<!-- generated-api-end -->",
@@ -20,6 +37,8 @@ CHANGELOG_VERSION_RE = re.compile(r"^## (\d+\.\d+\.\d+)\b", re.MULTILINE)
 HISTORICAL_BASELINE_RE = re.compile(
     r"<!-- historical-performance-baseline: (\d+\.\d+\.\d+) -->"
 )
+PO_STRING_RE = re.compile(r'"((?:[^"\\]|\\.)*)"')
+PO_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}
 
 
 def package_paths() -> set[str]:
@@ -29,44 +48,75 @@ def package_paths() -> set[str]:
     }
 
 
-def markdown_files(locale: str) -> set[str]:
-    root = DOC_ROOT / locale
-    return {str(path.relative_to(root)) for path in root.rglob("*.md")}
+def manual_pages() -> set[str]:
+    return {str(path.relative_to(MANUAL_ROOT)) for path in MANUAL_ROOT.rglob("*.md")}
 
 
-def check_locale_parity() -> list[str]:
-    baseline = markdown_files("en_US")
+def chapter_page(chapter: str, package: str) -> Path:
+    return MANUAL_ROOT / chapter / f"{package}.md"
+
+
+def translation_locales() -> list[str]:
+    conf = json.loads((DOC_ROOT / "conf.json").read_text(encoding="utf-8"))
+    return list(conf.get("locales", []))
+
+
+def catalog_path(locale: str) -> Path:
+    return LOCALE_ROOT / locale / "LC_MESSAGES" / "manual.po"
+
+
+def po_unescape(value: str) -> str:
+    return re.sub(r"\\(.)", lambda match: PO_ESCAPES.get(match.group(1), match.group(1)), value)
+
+
+def read_catalog(path: Path) -> list[tuple[list[str], str, str]]:
+    """Return (references, msgid, msgstr) for every active catalog entry."""
+    entries: list[tuple[list[str], str, str]] = []
+    references: list[str] = []
+    fields: dict[str, str] = {}
+    field = None
+
+    def flush() -> None:
+        if fields.get("msgid"):
+            entries.append((references.copy(), fields["msgid"], fields.get("msgstr", "")))
+        references.clear()
+        fields.clear()
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            flush()
+            field = None
+        elif line.startswith("#:"):
+            references.extend(line[2:].split())
+        elif line.startswith("#"):
+            continue
+        elif line.startswith('"') and field is not None:
+            fields[field] += "".join(po_unescape(part) for part in PO_STRING_RE.findall(line))
+        else:
+            keyword, _, rest = line.partition(" ")
+            field = keyword
+            fields[field] = "".join(po_unescape(part) for part in PO_STRING_RE.findall(rest))
+    flush()
+    return entries
+
+
+def check_retired_layout() -> list[str]:
     errors: list[str] = []
-    for locale in LOCALES[1:]:
-        actual = markdown_files(locale)
-        missing = sorted(baseline - actual)
-        extra = sorted(actual - baseline)
-        if missing:
-            errors.append(f"{locale}: missing files: {', '.join(missing)}")
-        if extra:
-            errors.append(f"{locale}: extra files: {', '.join(extra)}")
+    for locale in RETIRED_LOCALE_DIRS:
+        if (DOC_ROOT / locale).exists():
+            errors.append(
+                f"doc/{locale}: retired per-locale tree; English sources live in doc/manual "
+                "and translations in doc/locale"
+            )
     return errors
 
 
-def heading_levels(path: Path) -> tuple[int, ...]:
-    return tuple(len(marker) for marker, _ in HEADING_RE.findall(path.read_text(encoding="utf-8")))
-
-
-def heading_shape(path: Path) -> tuple[int, int]:
-    levels = heading_levels(path)
-    return levels.count(1), levels.count(2)
-
-
-def check_heading_parity() -> list[str]:
+def check_catalogs_present() -> list[str]:
     errors: list[str] = []
-    for relative in sorted(markdown_files("en_US")):
-        expected = heading_levels(DOC_ROOT / "en_US" / relative)
-        for locale in LOCALES[1:]:
-            actual = heading_levels(DOC_ROOT / locale / relative)
-            if actual != expected:
-                errors.append(
-                    f"{locale}/{relative}: heading levels {actual} differ from en_US {expected}"
-                )
+    for locale in translation_locales():
+        path = catalog_path(locale)
+        if not path.exists():
+            errors.append(f"{path.relative_to(REPO_ROOT)}: missing translation catalog")
     return errors
 
 
@@ -87,13 +137,21 @@ def local_target(path: Path, raw_target: str) -> tuple[Path, str | None] | None:
 
 def check_links() -> list[str]:
     errors: list[str] = []
-    for path in DOC_ROOT.rglob("*.md"):
+    paths = [REPO_ROOT / "README.md", REPO_ROOT / "CONTRIBUTING.md"]
+    paths.extend(sorted(MANUAL_ROOT.rglob("*.md")))
+    for path in paths:
         text = path.read_text(encoding="utf-8")
         for raw_target in LINK_RE.findall(text):
             resolved_info = local_target(path, raw_target)
             if resolved_info is None:
                 continue
             resolved, fragment = resolved_info
+            if not resolved.is_relative_to(REPO_ROOT):
+                errors.append(f"{path.relative_to(REPO_ROOT)}: link leaves the repository {raw_target}")
+                continue
+            if resolved.is_relative_to(ATTACHMENT_ROOT):
+                # Attachments resolve per locale; `lunadoc check` owns them.
+                continue
             if not resolved.exists():
                 errors.append(f"{path.relative_to(REPO_ROOT)}: broken link {raw_target}")
                 continue
@@ -104,13 +162,6 @@ def check_links() -> list[str]:
                 }
                 if fragment.lower() not in anchors:
                     errors.append(f"{path.relative_to(REPO_ROOT)}: broken anchor {raw_target}")
-            if resolved.is_relative_to(DOC_ROOT):
-                locale = resolved.relative_to(DOC_ROOT).parts[0]
-                source_locale = path.relative_to(DOC_ROOT).parts[0]
-                if locale != source_locale:
-                    errors.append(
-                        f"{path.relative_to(REPO_ROOT)}: cross-locale link {raw_target}"
-                    )
     return errors
 
 
@@ -122,13 +173,18 @@ def module_version() -> str:
     return match.group(1)
 
 
+def historical_versions() -> list[str]:
+    current = module_version()
+    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    return sorted(set(CHANGELOG_VERSION_RE.findall(changelog)) - {current})
+
+
 def check_current_versions() -> list[str]:
     errors: list[str] = []
     current = module_version()
-    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    historical = sorted(set(CHANGELOG_VERSION_RE.findall(changelog)) - {current})
+    historical = historical_versions()
     candidates = [REPO_ROOT / "README.md", REPO_ROOT / "CONTRIBUTING.md"]
-    candidates.extend(DOC_ROOT.rglob("*.md"))
+    candidates.extend(MANUAL_ROOT.rglob("*.md"))
     candidates.extend(REPO_ROOT.glob("src/**/README.mbt.md"))
     for path in candidates:
         text = path.read_text(encoding="utf-8")
@@ -141,15 +197,55 @@ def check_current_versions() -> list[str]:
     return errors
 
 
+def check_translated_versions() -> list[str]:
+    errors: list[str] = []
+    historical = historical_versions()
+    for locale in translation_locales():
+        path = catalog_path(locale)
+        if not path.exists():
+            continue
+        for references, msgid, msgstr in read_catalog(path):
+            for version in historical:
+                if version in msgstr and version not in msgid:
+                    errors.append(
+                        f"{path.relative_to(REPO_ROOT)}: {', '.join(references)}: "
+                        f"translation adds stale {version} baseline"
+                    )
+    return errors
+
+
 def check_package_doc_coverage() -> list[str]:
     errors: list[str] = []
-    required = ("api.md", "tutorial.md", "design.md")
-    for locale in LOCALES:
-        for package in sorted(package_paths()):
-            for filename in required:
-                path = DOC_ROOT / locale / package / filename
-                if not path.exists():
-                    errors.append(f"{locale}: missing {package}/{filename}")
+    for package in sorted(package_paths()):
+        for chapter in PACKAGE_CHAPTERS:
+            if not chapter_page(chapter, package).exists():
+                errors.append(f"doc/manual: missing {chapter}/{package}.md")
+    for chapter in EVIDENCE_CHAPTERS:
+        for package in NUMERICAL_CORES:
+            if not chapter_page(chapter, package).exists():
+                errors.append(f"doc/manual: missing {chapter}/{package}.md")
+    for guide in GUIDES:
+        if not (MANUAL_ROOT / guide).exists():
+            errors.append(f"doc/manual: missing {guide}")
+    return errors
+
+
+def check_orphan_pages() -> list[str]:
+    errors: list[str] = []
+    packages = package_paths()
+    chapters = (*PACKAGE_CHAPTERS, *EVIDENCE_CHAPTERS)
+    for relative in sorted(manual_pages()):
+        chapter, _, page = relative.partition("/")
+        if not page:
+            if relative not in GUIDES:
+                errors.append(f"doc/manual/{relative}: unlisted guide")
+            continue
+        if chapter not in chapters:
+            errors.append(f"doc/manual/{relative}: {chapter}/ is not a chapter")
+            continue
+        package = page.removesuffix(".md")
+        if package not in packages:
+            errors.append(f"doc/manual/{relative}: no src/{package}/moon.pkg package")
     return errors
 
 
@@ -170,89 +266,71 @@ def generated_interface(package: str) -> str:
 
 def check_api_snapshots() -> list[str]:
     errors: list[str] = []
-    for locale in LOCALES:
-        for package in sorted(package_paths()):
-            path = DOC_ROOT / locale / package / "api.md"
-            text = path.read_text(encoding="utf-8")
-            match = API_BLOCK_RE.search(text)
-            if match is None:
-                errors.append(f"{path.relative_to(REPO_ROOT)}: missing generated API snapshot")
-                continue
-            actual = match.group(1).strip()
-            expected = generated_interface(package)
-            if actual != expected:
-                errors.append(f"{path.relative_to(REPO_ROOT)}: generated API snapshot is stale")
+    for package in sorted(package_paths()):
+        path = chapter_page("api", package)
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        match = API_BLOCK_RE.search(text)
+        if match is None:
+            errors.append(f"{path.relative_to(REPO_ROOT)}: missing generated API snapshot")
+            continue
+        actual = match.group(1).strip()
+        expected = generated_interface(package)
+        if actual != expected:
+            errors.append(f"{path.relative_to(REPO_ROOT)}: generated API snapshot is stale")
     return errors
+
+
+def has_stale_gda_claim(text: str) -> bool:
+    lowered = text.lower()
+    return any(claim in lowered for claim in STALE_GDA_CLAIMS)
 
 
 def check_gda_claims() -> list[str]:
     errors: list[str] = []
-    required = {
-        "en_US": "64,986/64,986 legal executable",
-        "zh_CN": "64,986/64,986",
-        "ja_JP": "64,986/64,986",
-    }
-    for locale, marker in required.items():
-        text = (DOC_ROOT / locale / "README.md").read_text(encoding="utf-8")
-        if marker not in text:
-            errors.append(f"{locale}/README.md: missing complete GDA result")
-    for path in (
-        DOC_ROOT / "en_US" / "decimal" / "api.md",
-        DOC_ROOT / "zh_CN" / "decimal" / "api.md",
-        DOC_ROOT / "ja_JP" / "decimal" / "api.md",
-        DOC_ROOT / "en_US" / "decimal" / "design.md",
-        DOC_ROOT / "zh_CN" / "decimal" / "design.md",
-        DOC_ROOT / "ja_JP" / "decimal" / "design.md",
-    ):
-        text = path.read_text(encoding="utf-8").lower()
-        if "conformance gap" in text or "not full conformance" in text or "完全な conformance ではなく" in text:
+    overview = MANUAL_ROOT / "index.md"
+    if f"{GDA_RESULT} legal executable" not in overview.read_text(encoding="utf-8"):
+        errors.append("doc/manual/index.md: missing complete GDA result")
+    decimal_pages = ("api/decimal.md", "design/decimal.md")
+    for relative in decimal_pages:
+        path = MANUAL_ROOT / relative
+        if has_stale_gda_claim(path.read_text(encoding="utf-8")):
             errors.append(f"{path.relative_to(REPO_ROOT)}: stale incomplete GDA claim")
-    return errors
-
-
-def normalized_examples(path: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8")
-    return ["\n".join(line.rstrip() for line in block.strip().splitlines()) for block in MOONBIT_RE.findall(text)]
-
-
-def example_shapes(path: Path) -> list[str]:
-    shapes: list[str] = []
-    for block in normalized_examples(path):
-        match = re.search(r'test\s+"([^"]+)"', block)
-        if match:
-            shapes.append(match.group(1))
-    return shapes
-
-
-def check_tutorial_examples() -> list[str]:
-    errors: list[str] = []
-    for relative in sorted(markdown_files("en_US")):
-        if not relative.endswith("tutorial.md"):
+    for locale in translation_locales():
+        path = catalog_path(locale)
+        if not path.exists():
             continue
-        expected = example_shapes(DOC_ROOT / "en_US" / relative)
-        for locale in LOCALES[1:]:
-            actual = example_shapes(DOC_ROOT / locale / relative)
-            if actual != expected:
-                errors.append(f"{locale}/{relative}: MoonBit example structure differs from en_US")
+        for references, msgid, msgstr in read_catalog(path):
+            if not msgstr:
+                continue
+            pages = {reference.rpartition(":")[0] for reference in references}
+            if "manual/index.md" in pages and GDA_RESULT in msgid and GDA_RESULT not in msgstr:
+                errors.append(f"{path.relative_to(REPO_ROOT)}: index.md translation drops complete GDA result")
+            if pages & {f"manual/{page}" for page in decimal_pages} and has_stale_gda_claim(msgstr):
+                errors.append(
+                    f"{path.relative_to(REPO_ROOT)}: {', '.join(references)}: stale incomplete GDA claim"
+                )
     return errors
 
 
 def run_checks() -> list[str]:
     return [
-        *check_locale_parity(),
-        *check_heading_parity(),
+        *check_retired_layout(),
+        *check_catalogs_present(),
         *check_links(),
         *check_current_versions(),
+        *check_translated_versions(),
         *check_package_doc_coverage(),
+        *check_orphan_pages(),
         *check_package_readme_coverage(),
         *check_api_snapshots(),
         *check_gda_claims(),
-        *check_tutorial_examples(),
     ]
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Validate localized documentation")
+    parser = argparse.ArgumentParser(description="Validate the documentation manual")
     parser.parse_args(argv)
     errors = run_checks()
     if errors:

@@ -77,7 +77,11 @@ trait design, and test coverage are especially valuable.
   promises. Promote durable research conclusions into synchronized pages and
   keep historical release material in `CHANGELOG.md`.
 - Refresh `pkg.generated.mbti` with `moon info`, then run `just docs` before
-  submitting documentation changes.
+  submitting documentation changes. It runs `tools/doc_quality.py` (page
+  coverage, generated API snapshots, links and anchors, current-version and
+  GDA claims, package `README.mbt.md` coverage, and a guard against the retired
+  `doc/<locale>` trees) and then the `src/doc_examples` tests. Catalog
+  freshness is checked separately by `lunadoc check` and the `Docs` workflow.
 
 ### 4.1 Folder Naming
 
@@ -111,7 +115,7 @@ trait design, and test coverage are especially valuable.
 ## 6. Release Checklist
 
 - Before publishing to Mooncakes, make sure `moon.mod` has already been bumped to the intended release version.
-- Update `README.md` and localized docs if the package overview or release notes no longer match the implementation.
+- Update `README.md`, the `doc/manual` pages, and (with `lunadoc update`) the translation catalogs if the package overview or release notes no longer match the implementation.
 - Move superseded release notes to `CHANGELOG.md`; keep README files focused on the current baseline.
 - Run the quick `just pr` gate for ordinary changes and the complete `just ci`
   gate before publishing.

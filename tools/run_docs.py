@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Run localized documentation gates")
+    parser = argparse.ArgumentParser(description="Run documentation manual gates")
     parser.parse_args(argv)
     quality_result = doc_quality.main([])
     if quality_result != 0:

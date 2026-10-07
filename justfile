@@ -24,6 +24,7 @@ update:
 build:
     @sh tools/run_moon_clean_exec.sh build
 
+# Check doc/manual (tools/doc_quality.py) and run the documentation examples.
 docs:
     @python3 tools/run_docs.py
 

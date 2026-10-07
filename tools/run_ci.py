@@ -160,7 +160,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
         ),
         Stage(
-            "DOCS · localized examples",
+            "DOCS · manual quality and examples",
             (sys.executable, "tools/run_docs.py"),
         ),
     ]
