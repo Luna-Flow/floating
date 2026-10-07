@@ -4,7 +4,7 @@ Parser and executor for the verified Berkeley TestFloat matrix.
 
 ## Contract
 
-It covers binary16/32/64/128 add, subtract, multiply, divide, and sqrt under explicit rounding and tininess policies.
+It covers binary16/32/64/128 add, subtract, multiply, divide, sqrt, mulAdd, rem, roundToInt (plain and exact), conversions to signed/unsigned 32/64-bit integers (plain and exact), and the six comparison predicates under explicit rounding and tininess policies.
 
 ## Maintainer Quick Start
 

@@ -2,7 +2,7 @@
 
 `TestFloatSpec::parse(function, rounding, tininess?)` 校验格式、operation、rounding 和 tininess；`parse_testfloat` 返回 typed document；`execute_document` 执行稳定 shard 并返回逐行结果与计数。
 
-操作限于 binary16/32/64/128 上的 Add/Subtract/Multiply/Divide/SquareRoot。summary success 只代表所选行的值和 flags 匹配。
+操作为 binary16/32/64/128 上的 Add/Subtract/Multiply/Divide/SquareRoot、MulAdd、Remainder、RoundToInt、整数转换 ToInt32/ToInt64/ToUInt32/ToUInt64，以及比较 Equal/LessEqual/Less/EqualSignaling/LessEqualQuiet/LessQuiet；`exact` 选择 TestFloat 的 `-exact` 变体。summary success 只代表所选行的值和 flags 匹配。
 
 ## 完整公开接口
 
@@ -80,6 +80,19 @@ pub(all) enum TestFloatOperation {
   Multiply
   Divide
   SquareRoot
+  MulAdd
+  Remainder
+  RoundToInt
+  ToInt32
+  ToInt64
+  ToUInt32
+  ToUInt64
+  Equal
+  LessEqual
+  Less
+  EqualSignaling
+  LessEqualQuiet
+  LessQuiet
 } derive(Eq, @debug.Debug)
 pub fn TestFloatOperation::equal(Self, Self) -> Bool
 pub fn TestFloatOperation::not_equal(Self, Self) -> Bool
@@ -89,11 +102,12 @@ pub struct TestFloatSpec {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn TestFloatSpec::equal(Self, Self) -> Bool
+pub fn TestFloatSpec::exact(Self) -> Bool
 pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
 pub fn TestFloatSpec::function_name(Self) -> String
 pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
-pub fn TestFloatSpec::parse(String, String, tininess? : String) -> Result[Self, String]
+pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -> Result[Self, String]
 pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
 pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
 pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr

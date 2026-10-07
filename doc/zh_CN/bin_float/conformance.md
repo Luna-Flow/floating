@@ -38,12 +38,13 @@ sNaN、NaN 符号及 payload 都是显式状态。
 
 | 来源 | 范围 | 结果 |
 | --- | --- | --- |
-| TestFloat 3e level 1、seed 1 | 4 格式 × 5 运算 × 5 舍入 × 2 tininess | 7,461,360 / 7,461,360 |
+| TestFloat 3e level 1、seed 1 | 4 格式 × 5 个算术运算 × 5 舍入 × 2 tininess | 7,461,360 / 7,461,360 |
+| TestFloat 3e level 1、seed 1 | 4 格式 × mulAdd（5 舍入 × 2 tininess）、rem、roundToInt 与四种整数转换（5 舍入 × exact/非 exact）、六个比较谓词 | 246,766,512 / 246,766,512 |
 | MPFR 4.2.2 `tests/data/sqrt` | 全部可执行十六进制 sqrt 行 | 1,055 / 1,055 |
 | MPFR 4.2.2 `pow_si` 固定语料 | 4 种精度 × 5 种受支持舍入 × 6 组输入 | 120 / 120 |
 | MPFR 4.2.2 elementary 固定语料 | 29 运算 × 3 精度 × 6 舍入 × 4 组固定 seed 输入 | 2,088 / 2,088 |
 | 可选 MPFR elementary 压力、seed 20260715 | 每个不少于三运算的 family 至少 100,000 例 | 966,744 / 966,744 |
-| 提交的 smoke | TestFloat、sqrt、`pow_si` 与 elementary 见证 | 2,271 / 2,271 |
+| 提交的 smoke | TestFloat、sqrt、`pow_si` 与 elementary 见证 | 2,451 / 2,451 |
 | TestFloat 3e level 2 | binary16 的全部已声明运算/方向/tininess | 50,205,600 / 50,205,600 |
 
 binary16 level-2 结果是额外的流式压力证据，不将更大的 binary32/64/128 level-2
@@ -64,10 +65,14 @@ binary16 level-2 结果是额外的流式压力证据，不将更大的 binary32
 
 每次门禁同时记录格式、舍入、tininess、编码结果和异常位；summary 文件是可复核的机器证据。
 
-上述结果覆盖四个 interchange format 上的 contextual 加、减、乘、除和平方根，
-以及 24、53、113 bit、全部六种项目舍入模式下声明的 29 个 elementary 运算。
-不宣称 FMA、remainder、转换、比较、min/max、total order、十进制格式或全部
-IEEE 754 操作或全部实数输入的一致性。elementary 生成器通过 MPFR 要求的
+上述结果覆盖四个 interchange format 在所列舍入/tininess 模式下的 contextual
+加、减、乘、除、平方根、融合乘加、remainder、roundToIntegral（普通与 exact）、
+到有/无符号 32/64 位整数的 convertToInteger（普通与 exact），以及 quiet/signaling
+的相等、小于、小于等于谓词；另含 24、53、113 bit、全部六种项目舍入模式下声明的
+29 个 elementary 运算。非法整数转换只比较标志：SoftFloat 返回平台相关的哨兵值，
+而 API 返回 `None`。不宣称格式间转换、min/max、total order、nextUp/nextDown、
+scaleB/logB 或十进制字符转换（由包内测试覆盖）的 TestFloat 一致性，也不宣称
+全部 IEEE 754 操作或全部实数输入的一致性。elementary 生成器通过 MPFR 要求的
 `mpfr_round_nearest_away_begin/end` 协议实现 nearest-away，绝不把明确禁止的
 `MPFR_RNDNA` 值直接传给通用 elementary 函数。
 

@@ -30,6 +30,46 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
             [task["tininess"] for task in tasks], ["after", "before"]
         )
 
+    def test_task_matrix_skips_irrelevant_rounding_tininess_and_exact_axes(self):
+        arguments = SimpleNamespace(
+            formats=["f64"],
+            operations=["mulAdd", "rem", "roundToInt", "to_i32", "le_quiet"],
+            roundings=["rnear_even", "rmin"],
+            tininess_modes=["after", "before"],
+            level=1,
+            seed=1,
+        )
+        counts = {}
+        for task in RUNNER.task_matrix(arguments):
+            counts[task["operation"]] = counts.get(task["operation"], 0) + 1
+        # mulAdd: 2 roundings x 2 tininess; rem/le_quiet: one task;
+        # roundToInt/to_i32: 2 roundings x {notexact, exact}.
+        self.assertEqual(
+            counts,
+            {"mulAdd": 4, "rem": 1, "roundToInt": 4, "to_i32": 4, "le_quiet": 1},
+        )
+
+    def test_exact_tasks_pass_exact_to_generator_and_interpreter(self):
+        task = {
+            "function": "f32_to_i64",
+            "operation": "to_i64",
+            "rounding": "rminMag",
+            "tininess": "after",
+            "exact": True,
+            "level": 1,
+            "seed": 1,
+        }
+        self.assertIn("-exact", RUNNER.testfloat_generator_command(task))
+        self.assertIn(
+            "--exact", RUNNER.testfloat_interpreter_command(task, Path("v"))
+        )
+        self.assertIn("-exact-", RUNNER.task_name(task))
+        task["exact"] = False
+        self.assertIn("-notexact", RUNNER.testfloat_generator_command(task))
+        self.assertNotIn(
+            "--exact", RUNNER.testfloat_interpreter_command(task, Path("v"))
+        )
+
     def test_chunk_merge_preserves_global_failure_line_numbers(self):
         task = {"function": "f16_mul"}
         aggregate = {

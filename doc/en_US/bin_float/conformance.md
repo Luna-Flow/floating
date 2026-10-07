@@ -68,12 +68,13 @@ The pinned full gate is documented in
 
 | Source | Scope | Result |
 | --- | --- | --- |
-| TestFloat 3e level 1, seed 1 | 4 formats × 5 operations × 5 rounding directions × 2 tininess modes | 7,461,360 / 7,461,360 |
+| TestFloat 3e level 1, seed 1 | 4 formats × 5 arithmetic operations × 5 rounding directions × 2 tininess modes | 7,461,360 / 7,461,360 |
+| TestFloat 3e level 1, seed 1 | 4 formats × mulAdd (5 directions × 2 tininess modes), rem, roundToInt and four integer conversions (5 directions × exact/inexact variants), six comparison predicates | 246,766,512 / 246,766,512 |
 | MPFR 4.2.2 `tests/data/sqrt` | all executable hexadecimal sqrt rows | 1,055 / 1,055 |
 | MPFR 4.2.2 `pow_si` fixture | 4 precisions × 5 supported roundings × 6 inputs | 120 / 120 |
 | MPFR 4.2.2 elementary fixture | 29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs | 2,088 / 2,088 |
 | Optional MPFR elementary stress, seed 20260715 | at least 100,000 cases per three-operation-or-larger family | 966,744 / 966,744 |
-| Committed smoke | TestFloat, sqrt, `pow_si`, and elementary witnesses | 2,271 / 2,271 |
+| Committed smoke | TestFloat, sqrt, `pow_si`, and elementary witnesses | 2,451 / 2,451 |
 | TestFloat 3e level 2 | binary16, all declared operations/directions/tininess modes | 50,205,600 / 50,205,600 |
 
 The level-2 binary16 result is additional streaming stress evidence, not a
@@ -91,13 +92,18 @@ The 966,744-row MPFR run is likewise optional generated stress evidence; the
 
 The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle.
 
-The results cover contextual add, subtract, multiply, divide, and square root
-for the four IEEE interchange formats and stated rounding/tininess modes, plus
-the declared 29-function elementary surface at 24, 53, and 113 bits under all
-six project rounding modes.
-They do not claim TestFloat conformance for fused multiply-add, remainder,
-conversions, comparisons, min/max, total ordering, decimal formats, or every
-IEEE 754 operation or every real input. The elementary generator implements
+The results cover contextual add, subtract, multiply, divide, square root,
+fused multiply-add, remainder, roundToIntegral (plain and exact),
+convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and
+the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE
+interchange formats and stated rounding/tininess modes, plus the declared
+29-function elementary surface at 24, 53, and 113 bits under all six project
+rounding modes. Invalid integer conversions are compared by flags only:
+SoftFloat returns platform-specific sentinels where the API returns `None`.
+They do not claim TestFloat conformance for format-to-format conversions,
+min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character
+conversion (covered by package tests), nor for every IEEE 754 operation or
+every real input. The elementary generator implements
 nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end`
 protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a
 general elementary function.

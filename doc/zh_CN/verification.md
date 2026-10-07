@@ -39,9 +39,10 @@ filter、phase、target、strict mode、sharding 与 JSON 输出见 `testdata/*/
 - **GDA：** 144 文件 `official` corpus 的 64,986 条合法 executable scalar row
   全部通过，`official0` 的 16,124 条合法行全部通过；141 条 `#` placeholder/
   non-scalar 非法行是 diagnostic exclusion，不是未支持的合法行为。
-- **Binary：** 7,461,360 条 TestFloat vector 覆盖 binary16/32/64/128 的 add、
-  subtract、multiply、divide、sqrt，五种 rounding direction 与两种 tininess；
-  固定 MPFR sqrt 数据另有 1,055 行。
+- **Binary：** 254,227,872 条 TestFloat vector 覆盖 binary16/32/64/128 的 add、
+  subtract、multiply、divide、sqrt、融合乘加、remainder、roundToIntegral、
+  convertToInteger 与六个比较谓词，涵盖五种 rounding direction、两种 tininess
+  以及适用的 exact 变体；固定 MPFR sqrt 数据另有 1,055 行。
 - **IEEE decimal：** 已提交 decimal32/64/128 DPD/BID fixture 覆盖 encoding、
   special value、flags、核心算术与全部 1,024 个 DPD declet；运行于 native、Wasm、
   Wasm-GC、JavaScript，LLVM 不属于该 gate。
