@@ -1,0 +1,72 @@
+name: nightly
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    name: ${{ matrix.scope }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        scope:
+          - quick
+          - decimal
+          - decimal_gda
+          - binary
+          - interval
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install moonbit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: install just
+        uses: extractions/setup-just@v3
+
+      - name: toolchain
+        run: moon version --all
+
+      # Pinned upstream corpora are verified by SHA-256 after download, so the
+      # cache only saves bandwidth; the key changes whenever a pin changes.
+      - name: cache pinned corpora
+        uses: actions/cache@v4
+        with:
+          path: |
+            .tmp/binfloat-conformance/downloads
+            .tmp/binfloat-conformance/vendor
+            testdata/decimal/dectest.zip
+            testdata/decimal/dectest0.zip
+            testdata/decimal/official
+            testdata/decimal/official0
+            testdata/interval/*.zip
+          key: corpora-${{ hashFiles('testdata/*/corpora.json') }}
+
+      - name: update registry
+        run: sh tools/run_moon_clean_exec.sh update
+
+      - name: gate
+        run: just gate ${{ matrix.scope }} 4
+
+      - name: upload summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: summaries-${{ matrix.scope }}
+          path: .tmp/**/summary.json
+          if-no-files-found: ignore
+          retention-days: 30
