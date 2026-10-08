@@ -26,10 +26,10 @@ pub fn run(Array[String]) -> Int
 | `--strict-supported` | also fail when a selected row is unsupported or legacy |
 | `--cases SPEC`, `--cases=SPEC` | row filter: comma-separated ids or `first..last` ranges (see `RunOptions::new`) |
 | `--help`, `-h` | print the usage line and return `2` |
-| `PATH …` | `.decTest` files or directories (direct entries ending in `.decTest`); default `testdata/decimal/smoke.decTest` |
+| `PATH …` | `.decTest` files or directories (direct file entries ending in `.decTest`); a named file without that suffix is the error `not a .decTest file: PATH`; default `testdata/decimal/smoke.decTest` |
 
 Any other argument starting with `-` is an error `unknown option: …`. Files
-are sorted, parsed in order (the first parse diagnostic of a file is printed as
+are sorted, each file is run once even if named twice, parsed in order (the first parse diagnostic of a file is printed as
 `source:line:1: message` and ends the run), and executed together, so row
 ordinals and shards span all files.
 

@@ -47,7 +47,8 @@ pub fn parse_common_options(Array[String], allow_shard? : Bool) -> Result[Common
   they are left in `remaining()`.
 
 Every other argument is kept, in order, in `remaining()`. Errors:
-`"--shard-count requires a value"` (or `--shard-index`), `"invalid shard
+`"--shard-count requires a value"` (or `--shard-index`) when the value is
+missing or is another option starting with `--`, `"invalid shard
 count: X"` for a non-integer, and the `ShardSpec::try_new` messages when the
 pair is not valid (count positive, index in `0 ..< count`). Defaults are one
 shard, index 0, JSON off.
@@ -107,12 +108,13 @@ the sorted list of files whose names end in `suffix`.
 pub fn collect_files(Array[String], String) -> Result[Array[String], String]
 ```
 
-A directory contributes its direct entries ending in `suffix` (as
-`dir + "/" + entry`; subdirectories are not searched). A file contributes
-itself if it ends in `suffix` and is otherwise ignored. The result is sorted
-in string order, so runs are reproducible across file systems. Errors:
-`"path does not exist: P"`, `"cannot inspect path: P"`,
-`"cannot read directory: P"`.
+A directory contributes its direct entries that are files ending in `suffix`
+(as `dir + "/" + entry`; subdirectories are not searched, even when their
+names end in `suffix`). A file contributes itself if it ends in `suffix`. The
+result is sorted in string order, so runs are reproducible across file
+systems, and each path appears once. Errors: `"path does not exist: P"`,
+`"not a SUFFIX file: P"` for a named file without the suffix,
+`"cannot inspect path: P"`, `"cannot read directory: P"`.
 
 ## Diagnostics
 
