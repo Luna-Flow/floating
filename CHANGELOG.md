@@ -305,6 +305,9 @@ notes live in this file.
   option as the value of `--shard-count` or `--shard-index`
   (`--shard-count --json` reported `invalid shard count: --json`); it now
   reports `--shard-count requires a value`.
+- Fixed the `cli` dispatcher, where an empty `--backend=` slipped past the
+  at-most-once check, so `--backend= --backend gda` was accepted. An empty
+  value is now the error `--backend requires a value`.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
