@@ -194,14 +194,11 @@ finite value, or underflows, as in IEEE 754. Zeros keep their sign.
 Infinities and NaNs keep their class, sign and payload and only change the
 stored precision.
 
-For `BallFloat` the result is an enclosure of the input: the centre is rounded
-with `mode` and the rounding error is added to the radius, so every member of
-`x` remains a member of the result whatever `mode` is (except for endpoints
-more than about $2^{16}$ binary orders of magnitude apart at a new precision
-above about 65536 bits, tracked in [#44](https://github.com/Luna-Flow/floating/issues/44) with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)). The result
-can be wider
-than `x` even when `p` equals the current precision, because the exact centre
-of $[\ell, u]$ may need one bit more than the endpoints.
+For `BallFloat` the endpoints are rounded outward (the lower one toward
+$-\infty$, the upper one toward $+\infty$), so the result is the tightest
+enclosure of `x` at the new precision whatever `mode` is; `mode` is not used.
+An interval whose endpoints are already representable at `p` bits is returned
+unchanged.
 
 ### `Floating::normalized`
 
@@ -217,12 +214,9 @@ for both `Decimal` types it removes trailing zeros of the coefficient, so
 becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types
 `normalized` keeps the value and is idempotent.
 
-> [!WARNING]
-> `BallFloat::normalized` rebuilds the interval from its centre and radius at
-> the stored precision, like `with_precision`. It returns an enclosure of the
-> input, which can be strictly wider: at 53 bits, $[1, 1 + 2^{-52}]$ becomes
-> $[1 - 2^{-52}, 1 + 2^{-52}]$. Do not use it where the interval must stay
-> unchanged. Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
+`BallFloat::normalized` normalizes the two endpoints and keeps them at the
+stored precision, so the interval denotes the same set: at 53 bits,
+$[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$.
 
 ```moonbit
 ///|
@@ -278,13 +272,13 @@ test "Floating re-precision and normalization" {
 }
 
 ///|
-test "BallFloat normalization encloses but may widen" {
+test "BallFloat normalization keeps the set" {
   let x = @ball_float.BallFloat::from_bounds(
     @bin_float.BinFloat::from_int(1),
     @bin_float.BinFloat::from_hex("0x10000000000001p-52", 53).unwrap(),
   )
   let n = @def.Floating::normalized(x)
-  inspect(n.lower_bound().to_hex(), content="0xfffffffffffffp-52")
+  inspect(n.lower_bound().to_hex(), content="0x1p0")
   inspect(n.upper_bound().to_hex(), content="0x10000000000001p-52")
 }
 ```

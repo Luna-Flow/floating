@@ -409,7 +409,10 @@ numbers.
 **Unbounded intervals have no center.** `center()`, `radius()` and
 `midpoint()` abort on the empty set and on half-bounded intervals
 (`midpoint()` returns 0 for the whole line). Check `is_bounded()` first, or
-use `radius_extended()`, which returns $+\infty$ instead.
+use `radius_extended()`, which returns $+\infty$ instead. `midpoint_ctx`
+follows the IEEE 1788 `mid` operation instead: NaN for the empty set and the
+largest finite value of the context, with the sign of the unbounded side, for
+a half-bounded interval.
 
 **Integers wider than the precision.** `from_int(n, precision=p)` and
 `from_coefficient` enclose `n` exactly, but when `n` needs more than $p$ bits
@@ -417,14 +420,6 @@ the result is the two-point interval of its $p$-bit neighbours, not a point.
 The default of 16 bits gives a singleton only for $|n| \le 2^{16}$ (and
 larger integers with enough trailing zero bits); pass a precision at least as
 large as the bit length of the integer.
-
-**Re-rounding can widen.** `with_precision` and `normalized` rebuild an
-interval from its center and radius. When the center needs more bits than
-the precision, the result is one ulp wider on each side, even at the same
-precision: $[1, 1 + 2^{-52}]$ at 53 bits becomes
-$[1 - 2^{-52}, 1 + 2^{-52}]$. To change precision without that loss, use
-`from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. This widening
-is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 **Tiny arguments to hyperbolic functions.** The total `sinh_interval`,
 `tanh_interval`, `asinh_interval` and `atanh_interval` lose all relative

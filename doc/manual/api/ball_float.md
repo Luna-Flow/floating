@@ -215,11 +215,10 @@ pub struct BallFlags {
 } derive(Eq)
 ```
 
-`inexact` is set when an endpoint changed; `overflow` when an endpoint was
-beyond $e_{\max}$; `underflow` when an endpoint had to be rounded on the
-subnormal grid and that last step was inexact (see
-[`BallFloat::apply_ctx`](#ballfloatapply_ctx) for how this differs from
-IEEE 754). The fields are readable; the accessor methods are listed under
+`inexact` is set when an endpoint (or, for `midpoint_ctx`, the midpoint)
+changed; `overflow` when it was beyond $e_{\max}$; `underflow` when it is tiny
+and inexact, as IEEE 754 defines it (see
+[`BallFloat::apply_ctx`](#ballfloatapply_ctx)). The fields are readable; the accessor methods are listed under
 [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow).
 
 ## Construction
@@ -501,12 +500,8 @@ result an enclosure. Empty stays Empty with the new precision.
 > center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$.
 > `normalized`, `convex_hull` with an Empty operand, the checked capabilities
 > (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the
-> `pow_nat`/`pow_int` methods of `ball_float_checked` still go through that
-> rebuild and can widen by up to one ulp per side; it is tracked in
-> [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed
-> in [#91](https://github.com/Luna-Flow/floating/pull/91). To re-round one of
-> those results without widening, use
-> `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`.
+> `pow_nat`/`pow_int` methods of `ball_float_checked` round endpoints the same
+> way and do not widen a representable interval either.
 
 ```moonbit
 ///|
@@ -522,26 +517,24 @@ test "with_precision keeps the endpoints" {
   inspect(y.lower_bound().to_string(), content="1p0")
   inspect(y.upper_bound().to_string(), content="4503599627370497p-52")
   inspect(y.set_equal(x), content="true")
-  // The center-radius rebuild that `normalized` still uses does widen.
-  inspect(x.normalized().lower_bound().to_string(), content="4503599627370495p-52")
+  // `normalized` keeps the endpoints too.
+  inspect(x.normalized().set_equal(x), content="true")
 }
 ```
 
 ### `BallFloat::normalized`
 
-`normalized` rebuilds a bounded interval from its normalized center and radius
-(`BinFloat::normalized` removes trailing zero bits), and re-rounds the finite
-endpoints of an unbounded interval outward.
+`normalized` normalizes the two endpoints (`BinFloat::normalized` removes
+trailing zero bits) and stores them at the interval's precision.
 
 ```mbti
 pub fn BallFloat::normalized(Self) -> Self
 ```
 
-The result contains the input but, for the reason given under
-`with_precision`, can be strictly wider: `normalized` of
-$[1, 1 + 2^{-52}]$ at 53 bits is $[1 - 2^{-52}, 1 + 2^{-52}]$. It therefore
-satisfies only the enclosure form of the `@def.Floating` law "normalizing
-keeps the value". Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
+The stored endpoints are already representable at that precision, so the
+result is the same set as the input: `normalized` of $[1, 1 + 2^{-52}]$ at
+53 bits is $[1, 1 + 2^{-52}]$, and the `@def.Floating` law "normalizing keeps
+the value" holds. Empty stays Empty.
 
 ## Set operations
 
@@ -1272,12 +1265,13 @@ rounding once onto the coarser grid, so the endpoints are the directed
 roundings of the stored ones. Zeros and infinities are kept. Empty gives
 Empty with no flags. The result has the context precision.
 
-`underflow` is raised only when the second, subnormal-grid step is inexact.
-IEEE 754 raises it for every tiny inexact result, so a tiny endpoint whose
-precision rounding is inexact but lands on the subnormal grid raises
-`inexact` without `underflow`: with $p = 4$ and $e_{\min} = -2$, the lower
-endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$ and only `inexact` is set.
-Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
+`underflow` follows IEEE 754 with tininess detected after rounding: it is
+raised when an endpoint is inexact and its rounding to $p$ bits with an
+unbounded exponent range lies below $2^{e_{\min}}$, whichever of the two steps
+lost the bits. With $p = 4$ and $e_{\min} = -2$, the lower endpoint
+$2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$, which is already on the subnormal grid,
+and raises both `inexact` and `underflow`. An exact tiny endpoint raises
+nothing.
 
 ### `BallFloat::add_ctx`, `BallFloat::sub_ctx`, `BallFloat::mul_ctx`, `BallFloat::div_ctx`
 
@@ -1307,23 +1301,26 @@ pub fn BallFloat::ln_ctx(Self, BallContext) -> (Self, BallFlags)
 
 ### `BallFloat::midpoint_ctx`
 
-`midpoint_ctx` returns the center rounded to nearest at the context precision.
+`midpoint_ctx` is the IEEE 1788 `mid` operation with the context as the result
+format.
 
 ```mbti
 pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallFlags)
 ```
 
-Subnormal results are rounded on the subnormal grid and raise `underflow`
-when inexact; `inexact` is set when the center changed. The exponent upper
-limit is not applied, so `overflow` is never raised ([#46](https://github.com/Luna-Flow/floating/issues/46)). Entire gives
-0; Empty and half-bounded intervals abort.
-
-The center is rounded to nearest twice, first to $p$ bits and then onto the
-subnormal grid, and double rounding to nearest is not single rounding: with
-$p = 4$, $e_{\min} = -2$ (grid $2^{-5}$) the center $2^{-6} + 2^{-20}$ is
-first rounded to the tie $2^{-6}$ and then to the even neighbour 0, whereas
-the nearest grid point is $2^{-5}$. Normal results are correctly rounded.
-Tracked in [#70](https://github.com/Luna-Flow/floating/issues/70); a fix for both defects is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
+Following IEEE 1788-2015 §12.12.8, Empty gives NaN, Entire gives $+0$, an
+interval unbounded only above gives the largest finite value of the context,
+$(2 - 2^{1-p})\,2^{e_{\max}}$, and one unbounded only below gives its
+negative; none of these raises a flag. A bounded interval gives its exact
+center rounded once to nearest (ties to even) onto the context's grid,
+including the subnormal grid $2^{e_{\min} - p + 1}\mathbb{Z}$, so with
+$p = 4$, $e_{\min} = -2$ the center $2^{-6} + 2^{-20}$ gives $2^{-5}$. A zero
+center gives $+0$. `inexact` is set when the result differs from the center
+and `underflow` when it is also tiny, as for `apply_ctx`. A center that rounds
+beyond $e_{\max}$ overflows to an infinity of its sign with `overflow` and
+`inexact`: rounding to nearest maps it to $\pm\infty$ in IEEE 754, and
+IEEE 1788 uses that rounding for the bounded case. Only an interval whose
+endpoints are themselves outside the context's range can do this.
 
 ```moonbit
 ///|
@@ -1696,17 +1693,16 @@ pub fn BallFloat::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> R
 ```
 
 Only `ctx.precision` is used: the operands are re-rounded to it with
-`with_precision`, the operation is applied, and the result is re-rounded, so
-the result can be wider than the plain operation even when the precision is
-unchanged (see [`BallFloat::with_precision`](#ballfloatwith_precision)). They
+`with_precision`, the operation is applied, and the result is re-rounded
+outward (see [`BallFloat::with_precision`](#ballfloatwith_precision)). At the
+operands' own precision the result is that of the plain operation; at a lower
+precision it can be wider. They
 always return `Ok`. `div_checked` follows the division rules above (a divisor
 containing 0 gives an unbounded result, not an error). `pow_int_checked` uses
 `pown`. `pow_nat_checked` uses binary powering by repeated interval
 multiplication, which treats the factors as independent: for an argument
-containing 0 its result is wider than `pown`. Its loop starts from $\{1\}$,
-so `pow_nat_checked(Empty, 0)` returns $\{1\}$ where `pown(Empty, 0)` returns
-Empty. The widening is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the Empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a
-fix for both is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
+containing 0 its result is wider than `pown`. An Empty base gives Empty for
+every exponent, including 0, as `pown` does.
 
 ```moonbit
 ///|

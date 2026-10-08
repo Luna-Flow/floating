@@ -718,17 +718,12 @@ endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints
 are correctly directed roundings when certified; the other elementary
 functions are usually within a few ulps. Not tight: fallbacks; `pown` with
 $n < -4096$ and 0 inside (Entire); the total hyperbolic functions for
-$|\xi| \lesssim 2^{-190}$ (cancellation, see above); and everything that
-goes through the center–radius rebuild of `normalized`, which can widen by one
-ulp per side even at an unchanged precision. At 53 bits,
-$[1, 1 + 2^{-52}]$ has center $1 + 2^{-53}$, which needs 54 bits; rounding it
-to 1 and adding the displacement $2^{-53}$ to the radius gives
-$[1 - 2^{-52}, 1 + 2^{-52}]$. This affects `normalized`,
-`convex_hull` with an Empty operand and the checked capabilities; it is
-tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91). The
-`Floating` law "normalizing keeps the value" therefore holds for `BallFloat`
-only as an enclosure: $\boldsymbol{x} \subseteq
-\operatorname{normalized}(\boldsymbol{x})$.
+$|\xi| \lesssim 2^{-190}$ (cancellation, see above). `with_precision` and
+`normalized` round the endpoints outward, which is the tightest enclosure and
+the identity on an interval already representable at the target precision, so
+`convex_hull` with an Empty operand and the checked capabilities do not widen
+either, and the `Floating` law "normalizing keeps the value" holds for
+`BallFloat` as set equality.
 
 **Decorations.** The decoration of a result is a true statement about the
 function evaluated, by the induction argument above.
@@ -753,17 +748,6 @@ documented here so that callers can avoid them.
 
 - Decorated `rootn` with a negative degree does not lower the decoration to
   `trv` when 0 is in the argument.
-- `midpoint_ctx` does not apply the context's $e_{\max}$ and never raises
-  `overflow`. It also rounds to nearest twice (to $p$ bits, then onto the
-  subnormal grid), so a subnormal midpoint can be the wrong neighbour: with
-  $p = 4$, $e_{\min} = -2$, the center $2^{-6} + 2^{-20}$ gives 0 instead of
-  $2^{-5}$. Tracked in [#46](https://github.com/Luna-Flow/floating/issues/46) and [#70](https://github.com/Luna-Flow/floating/issues/70); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
-- `apply_ctx` raises `underflow` only when the subnormal-grid step is
-  inexact, not for every tiny inexact endpoint as IEEE 754 does. Tracked in
-  [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
-- `pow_nat_checked(Empty, 0)` returns $\{1\}$ (the power loop starts from
-  $\{1\}$ without checking the base), whereas `pown(Empty, 0)` is Empty.
-  Tracked in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ## Alternatives rejected
 
