@@ -782,13 +782,6 @@ with `DivisionByZero`; $0 / 0$ is NaN with `DivisionUndefined`;
 $x / \infty$ is a zero with exponent $E_{\mathrm{tiny}}$ and `Clamped`. `fma`
 is invalid in a subset context.
 
-> [!WARNING]
-> On the current branch `divide` can misround in the half modes when the
-> quotient has a non-terminating expansion whose discarded part lies within a
-> very small distance of one half unit: at precision 1, `divide(1, 2222)`
-> returns `0.0004` where GDA requires `0.0005`. See the
-> [design page](../design/decimal_gda.md#division) for the cause.
-
 ### `divide_integer`, `remainder`, `remainder_near`
 
 These divide to an integer quotient.
@@ -1880,7 +1873,7 @@ returns `Err(domain_error)` for negative operands. `pow_int_checked` and
 divides under the given context with the same errors as
 [`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt).
 
-### `Decimal::from_nat`, `Decimal::from_integral` and the `luna-generic` algebra traits
+### `Decimal::from_natural`, `Decimal::from_integer` and the `luna-generic` algebra traits
 
 These let generic algebra code use `Decimal`.
 

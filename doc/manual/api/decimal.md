@@ -688,9 +688,9 @@ The result precision is $\max(p_a, p_b)$ of the operand precision fields.
   rounded**: `1.25 * 2.50` is `3.1250`, and the coefficient may be longer
   than the precision field.
 - `div` rounds the quotient half-even to that precision and reduces it. The
-  quotient is computed with a few guard digits and then rounded again, so in
-  rare cases it differs from the correctly rounded result by one unit in the
-  last place; `div_ctx` rounds once.
+  quotient is computed with a few guard digits and rounded with `ZeroFiveUp`
+  first, which makes the second rounding equal to one correct rounding:
+  `15 / 83294` at five digits is `0.00018009`.
 - `neg` flips the sign bit of every value, including zeros and NaNs.
 
 Special values: a NaN operand gives a quiet NaN with the first NaN's sign and
@@ -795,8 +795,8 @@ signaling NaN operand raises `invalid_operation`.
 >   including `mul_ctx`, `fma_ctx`, `apply_ctx`, `plus_ctx`, a sum with a zero
 >   operand, and the elementary functions (`exp_ctx(-215.35)` in decimal32
 >   gives `2.983206E-94`; the exact value is $2.98320653\ldots\cdot 10^{-94}$).
-> - `div_ctx` with a **subnormal** quotient rounds a guarded quotient in the
->   context mode and then rounds it again to the subnormal grid: in decimal32,
+> - `div_ctx` with a **subnormal** quotient goes through the same
+>   finalization, after its guarded quotient: in decimal32,
 >   `1 / 1.9999999999998E+101` (exact $5.0000000000005\cdot 10^{-102}$) gives
 >   `0E-101` instead of `1E-101`.
 >

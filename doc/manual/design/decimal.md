@@ -356,17 +356,19 @@ routes, in this order.
 The third route is used for normal results in extended contexts. For subnormal
 results and subset contexts the code forms the integer quotient of
 $c_a\,10^{k}$ by $c_b$ with $k = p + \operatorname{digits}(c_b) + 2$ (about
-$\operatorname{digits}(c_a) + p + 2$ digits), rounds it in the context mode,
-and rounds again to the precision and to $E_{\text{tiny}}$. The context-free
-operator `/` uses that same guarded scheme with `HalfEven`. Rounding twice to
-nearest is not always correct, for the reason given above. The scheme is
-therefore exact in every case except those near-midpoints; the operator `/`
-shows it, for example, for $15/83294$ at five digits (`0.00018008` instead of
-`0.00018009`), and `div_ctx` shows it for subnormal quotients: in decimal32,
-$1 / 1.9999999999998\cdot 10^{101} = 5.0000000000005\cdot 10^{-102}$ is
-guarded to $5.000000000\cdot 10^{-102}$, the midpoint between $0$ and
-$10^{-101}$, and `HalfEven` returns `0E-101` instead of `1E-101`. `div_ctx` on
-normal results does not have this weakness.
+$\operatorname{digits}(c_a) + p + 2$ digits), rounds it with `ZeroFiveUp`,
+and rounds again in the context mode to the precision. The context-free
+operator `/` uses the same guarded scheme. By the `ZeroFiveUp` lemma below the
+two roundings equal one rounding of the exact quotient, so $15/83294$ at five
+digits is `0.00018009`.[^div-05up] A subnormal quotient still passes through
+the finalizer, which rounds to the subnormal grid before it rounds to $p$
+digits (see [Round once, in one place](#round-once-in-one-place)): in
+decimal32, $1 / 1.9999999999998\cdot 10^{101} = 5.0000000000005\cdot
+10^{-102}$ gives `0E-101` instead of `1E-101`.
+
+[^div-05up]: Until upstream commit `fabf8d9` the guarded quotient was rounded
+    in the context mode, which could manufacture a tie: $15/83294$ at five
+    digits gave `0.00018008`.
 
 `ZeroFiveUp` exists precisely to make such two-step schemes safe. If $x$ is
 first rounded with `ZeroFiveUp` to $p + k$ digits ($k \ge 1$) and then with
@@ -374,10 +376,9 @@ any mode $\circ$ to $p$ digits, the result equals $\circ(x)$: an inexact
 `ZeroFiveUp` result ends in a digit other than 0 and 5, so it is never a
 $p$-digit number nor a $p$-digit midpoint, and it lies on the same side of
 every $p$-digit number and midpoint as $x$. The proof is in the
-attachment.[^attachment] The guarded division above does not use it: its first
-rounding is in the context mode. Rounding the guarded quotient with
-`ZeroFiveUp` would make it exact; for the finalizer the simpler repair is to
-round once at the target exponent $t$ derived above.
+attachment.[^attachment] The guarded division above relies on it. The
+finalizer's pre-rounding to the subnormal grid does not; there the simpler
+repair is to round once at the target exponent $t$ derived above.
 
 #### Square root
 
@@ -855,7 +856,7 @@ reproduced in the [API reference](../api/decimal.md) next to the operation.
 | Area | Behaviour | Cause |
 | --- | --- | --- |
 | finalization | a normal result whose exact exponent is below $E_{\text{tiny}}$ is rounded twice (half modes) | pre-rounding to the subnormal grid, [above](#round-once-in-one-place) |
-| `div_ctx` | a subnormal quotient is rounded twice (half modes) | guarded quotient rounded in the context mode |
+| `div_ctx` | a subnormal quotient is rounded twice (half modes) | the finalization above, applied after the guarded quotient |
 | elementary functions | undetected exact results carry `inexact` (half modes) or fail certification (directed modes) | the agreement test assumes $f(x)$ is not representable |
 | integer powers | not always correctly rounded when the power needs more than $p$ digits | GDA square-and-multiply with rounded products |
 | `atan2_ctx` | aborts on an infinite operand; $\operatorname{atan2}(\pm 0, -0)$ is an invalid NaN | missing special cases before the enclosure |

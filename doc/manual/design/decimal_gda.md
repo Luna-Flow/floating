@@ -491,19 +491,19 @@ which selects the ideal-exponent cohort for exact quotients and forces
 The two successive roundings are equivalent to one for the directed modes,
 because truncations compose:
 $\lfloor \lfloor y/10^j \rfloor / 10^m \rfloor = \lfloor y/10^{j+m} \rfloor$.
-For the half modes they are equivalent except when the first rounding
-*manufactures a tie*: the discarded digits of $q$ are exactly $50\cdots0$
-while $Q \ne q$.
+For the half modes a first rounding in the context mode could *manufacture a
+tie*: the discarded digits of $q$ are exactly $50\cdots0$ while $Q \ne q$. At
+precision 1, $1/2222 = 0.00045004\ldots$ would give $q = 4500$ (unit
+$10^{-7}$), and the second rounding would see a tie and return `0.0004`. The
+first rounding therefore uses `ZeroFiveUp`: when $Q \ne q$ it leaves a last
+digit other than 0 and 5, so $q$ is neither a $p$-digit number nor a $p$-digit
+midpoint and lies strictly on the same side of every such point as $Q$. The
+second rounding then returns $\circ_p(Q)$ for every mode $\circ$, and
+`divide(1, 2222)` at precision 1 is `0.0005`.[^gda-div-05up]
 
-> [!WARNING]
-> That case occurs on the current branch. At precision 1, $1/2222 =
-> 0.00045004\ldots$: the first rounding gives $q = 4500$ (unit $10^{-7}$), the
-> second sees a tie and half-even rounds down to `0.0004`, while GDA requires
-> `0.0005`. A sweep of $c_1 < 20$, $c_2 < 3000$, $p \le 3$ found 12 such
-> quotients. The pinned test suite does not contain one. Keeping a sticky bit
-> ($Q \notin \mathbb Z$) with $q$ for the second rounding, as the finalizer
-> does elsewhere, removes the defect; the proof that this is the only failure
-> mode is in the attachment.
+[^gda-div-05up]: This is decNumber's `DEC_ROUND_05UP` device. Before upstream
+    commit `fabf8d9` the first rounding used the context mode, and a sweep of
+    $c_1 < 20$, $c_2 < 3000$, $p \le 3$ found 12 misrounded quotients.
 
 ### Square root
 

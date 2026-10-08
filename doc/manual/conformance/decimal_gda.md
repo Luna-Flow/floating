@@ -32,9 +32,6 @@ The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar
 A passing corpus is a finite claim. Review of the implementation found these
 behaviours, none of which has a pinned row:
 
-- `divide` can misround in the half modes when its first, scaled rounding
-  manufactures a tie; at precision 1, `1/2222` gives `0.0004` instead of
-  `0.0005` ([design](../design/decimal_gda.md#division)).
 - `to_integral_exact` and `to_integral_value` round an integer longer than
   the precision (`12345` at precision 3 becomes `1.23E+4`) and return NaN with
   `InvalidOperation` when the integral part of a fractional operand is longer
