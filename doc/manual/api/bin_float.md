@@ -1431,7 +1431,10 @@ every rounding mode.
 Every result that reaches the loop is not a rounding breakpoint, so an
 enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for
 $\sin x$ at a tiny $x$) cannot be the result. The functions other than `pow`
-and `rootn` move such an end just inside the enclosure before rounding it.
+and `rootn` move such an end just inside the enclosure before rounding it;
+`pow` does not yet, so a tiny exponent can fail certification
+([#128](https://github.com/Luna-Flow/floating/issues/128), fix proposed in
+[#130](https://github.com/Luna-Flow/floating/pull/130)).
 In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide
 an argument with $|x|^3$ below the target spacing at $x$ directly from
 $|f(x) - x| \le |x|^3$, and `cos`, `cosh`, `expm1` and `log1p` do the same with
@@ -1622,6 +1625,7 @@ nonzero $y$ is integral when `exponent2()` $\ge 0$ and odd when it is $0$.
 Step 11 rounds its enclosure without moving a representable end inward, so an
 exponent so small that $x^y$ lies closer to $1$ than the target spacing is a
 `certification_failure`, for example $2^{2^{-16000}}$ in `binary128()`.
+Tracked in [#128](https://github.com/Luna-Flow/floating/issues/128); a fix is proposed in [#130](https://github.com/Luna-Flow/floating/pull/130).
 
 ### `BinFloat::rootn`, `BinFloat::rootn_ctx`, `BinFloat::try_rootn_ctx`
 
@@ -1653,7 +1657,8 @@ correctly rounded reciprocal of it. So $\operatorname{rootn}(8, -3) = 1/2$
 without `inexact` in every rounding mode. A coefficient of more than 4096 bits
 is not tested, so an exact root of one (possible only above 4096 bits of
 precision) comes back with a spurious `inexact` under nearest rounding and as
-a `certification_failure` under a directed one.
+a `certification_failure` under a directed one. Tracked in [#129](https://github.com/Luna-Flow/floating/issues/129); a
+fix is proposed in [#130](https://github.com/Luna-Flow/floating/pull/130).
 
 ### `BinFloat::hypot`, `BinFloat::hypot_ctx`, `BinFloat::try_hypot_ctx`
 

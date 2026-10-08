@@ -785,6 +785,21 @@ with `DivisionByZero`; $0 / 0$ is NaN with `DivisionUndefined`;
 $x / \infty$ is a zero with exponent $E_{\mathrm{tiny}}$ and `Clamped`. `fma`
 is invalid in a subset context.
 
+> [!WARNING]
+> Two rounding defects that the `decimal` package no longer has remain here.
+> A sum with a far smaller addend is decided without the addend's position
+> relative to the rounding boundaries: at precision 7, `subtract(1598618,
+> 9.9E-11)` under `ZeroFiveUp` gives `1598618` instead of `1598617`, and
+> `add(1598618.5, 1E-20)` under `HalfEven` gives `1598618` instead of
+> `1598619` ([#120](https://github.com/Luna-Flow/floating/issues/120)). A normal result whose exact exponent lies below
+> $E_{\mathrm{tiny}}$ is rounded first to the subnormal grid and then to $p$
+> digits, and the exact-quotient shortcut of `divide` rounds only to the
+> subnormal grid: in decimal32, `multiply(3.000001E-45, 1.500001E-45)` gives
+> `4.500004E-90` instead of `4.500005E-90`, `divide(1, 1.9999999999998E+101)`
+> gives `0E-101` instead of `1E-101`, and at precision 5 `divide(77223,
+> 16E+21)` gives the six-digit `4.82644E-18` ([#121](https://github.com/Luna-Flow/floating/issues/121)). A fix for both
+> is proposed in [#124](https://github.com/Luna-Flow/floating/pull/124).
+
 ### `divide_integer`, `remainder`, `remainder_near`
 
 These divide to an integer quotient.
@@ -939,9 +954,20 @@ pub fn logb(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 `scaleb(x, n)` returns $x \cdot 10^n$ by adding $n$ to the exponent; $n$ must
 be an integer with exponent 0 and $|n| \le 2(e_{\max} + p)$, otherwise the
-result is invalid. The result is then checked for overflow, subnormality and
-clamping. `logb(x)` returns $\hat e$ as an integer; `logb(0)` is $-\infty$
-with `DivisionByZero` and `logb(±∞)` is $+\infty$.
+result is invalid. The result then goes through its own overflow and
+subnormal checks, not the shared finalization. `logb(x)` returns $\hat e$ as
+an integer; `logb(0)` is $-\infty$ with `DivisionByZero` and `logb(±∞)` is
+$+\infty$.
+
+> [!WARNING]
+> The `scaleb` finalization departs from the specification in three ways: an
+> overflow gives $\pm\infty$ in every rounding mode (in decimal32 under
+> `Down`, `scaleb(9E+96, 1)` is `Infinity` instead of `9.999999E+96`); a zero
+> result keeps its exponent (`scaleb(0E+300, 400)` in decimal64 stays
+> `0E+700` instead of being clamped); and a coefficient longer than $p$
+> digits is not rounded (`scaleb` of a 20-digit integer by 0 in decimal64
+> returns all 20 digits). Tracked in [#122](https://github.com/Luna-Flow/floating/issues/122); a fix is proposed in
+> [#124](https://github.com/Luna-Flow/floating/pull/124).
 
 ### `next_plus`, `next_minus`, `next_toward`
 
@@ -1895,7 +1921,10 @@ pub impl @arithmetic.DivChecked for Decimal
 `parse_checked` is `Decimal::parse` at the context precision; it rounds half
 to even and ignores the context's rounding mode and exponent bounds. `sqrt_checked`
 returns `Err(domain_error)` for negative operands. `pow_int_checked` and
-`pow_nat_checked` call `power_ctx` with an integer exponent; they return
+`pow_nat_checked` call `power_ctx` with the integer exponent converted at the
+context precision, so an exponent with more than $p$ digits is rounded first
+and can change parity (at precision 7, `(-1).pow_int_checked(12345679, ctx)`
+is `1`; tracked in [#123](https://github.com/Luna-Flow/floating/issues/123), a fix is proposed in [#125](https://github.com/Luna-Flow/floating/pull/125)); they return
 `Err(division_by_zero)` for a zero base with a negative exponent,
 `Err(domain_error)` for invalid results, and `pow_nat_checked` returns
 `Err(unsupported)` for exponents above 999,999,999. `DivChecked::div_checked`

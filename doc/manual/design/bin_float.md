@@ -695,7 +695,8 @@ the right `inexact` flag although it need not be dyadic. The perfect-power
 test is a bisection on the root and runs only for coefficients of at most
 4096 bits; an exact root of a wider coefficient, which needs a precision above
 4096 bits, still reaches the loop and gets the spurious `inexact` or the
-budget failure that the flag argument predicts.
+budget failure that the flag argument predicts ([#129](https://github.com/Luna-Flow/floating/issues/129); a fix is
+proposed in [#130](https://github.com/Luna-Flow/floating/pull/130)).
 
 A negative base with an integral exponent beyond the `pown` range is
 evaluated as $\pm|x|^y$. Negation is an exact symmetry of $\circ$ that swaps
@@ -723,7 +724,11 @@ $f(x) \ne E$, either $f(x)$ lies beyond $E'$ or between $E$ and $E'$, and in the
 second case it shares the open cell between breakpoints with $E'$ and rounds
 like it. So $\circ(E') = \circ(U')$ with equal flags still forces
 $\circ(f(x))$ and its flags, and the test passes as soon as the enclosure is
-narrower than the spacing, independently of $|x|$.
+narrower than the spacing, independently of $|x|$. `pow` does not use inner
+endpoints yet, so an exponent tiny enough that $x^y$ lies closer to $1$ than
+the target spacing exhausts the budget
+([#128](https://github.com/Luna-Flow/floating/issues/128); a fix is proposed in
+[#130](https://github.com/Luna-Flow/floating/pull/130)).
 
 *Tiny-argument bounds.* Some enclosures (for $\sinh$, $\tanh$ via
 $e^x - e^{-x}$, and for $\operatorname{asinh}$, $\operatorname{atanh}$,

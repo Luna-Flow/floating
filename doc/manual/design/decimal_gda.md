@@ -221,7 +221,7 @@ If the exact result has $\hat e < e_{\min}$ it is *tiny*. A tiny result may
 still need the unit $10^{E_{\mathrm{tiny}}}$ at most, so the rounding position
 is not "keep $p$ digits" but "keep the digits at or above
 $10^{E_{\mathrm{tiny}}}$": with the exact exponent $e < E_{\mathrm{tiny}}$, the
-finalizer removes $k = E_{\mathrm{tiny}} - e$ digits, possibly all of them. The
+finalizer removes $k = E_{\mathrm{tiny}} - e$ digits, possibly all of them.[^gda-etiny] The
 absolute error is then bounded by the subnormal unit,
 
 $$
@@ -247,6 +247,12 @@ the extra rounding is done only there.
 The grid matters: $0.9951$ rounds to $0.995$ at $p$ digits and is tiny,
 although its rounding at $E_{\mathrm{tiny}} = -2$ is the normal `1.00`;
 $0.99951$ rounds to $1.00$ at $p$ digits and is not tiny.
+
+[^gda-etiny]: The finalizer applies this removal whenever $e < E_{\mathrm{tiny}}$,
+    also for a result whose magnitude is normal, and then rounds again to
+    $p$ digits; for such a result the two roundings can differ from one
+    ([#121](https://github.com/Luna-Flow/floating/issues/121), fix proposed in
+    [#124](https://github.com/Luna-Flow/floating/pull/124)).
 
 ### Clamping
 
@@ -479,6 +485,15 @@ evaluates exactly that, with `compare_magnitude_to_half_ulp` comparing $x_2$
 with $u/2$ exactly. The special case where $x_1$ is a power of ten and $x_2$
 has the opposite sign (the unit below $x_1$ is ten times smaller) is excluded
 and takes the general path.
+
+The argument assumes that $x_1$ itself ends at or above the last retained
+position. When $x_1$ has digits below it, or is exactly a midpoint, $x_2$ can
+still move the sum across a boundary that the comparison with $u/2$ does not
+see, and the shortcut misrounds: at precision 7, `add(1598618.5, 1E-20)` under
+`HalfEven` gives `1598618`. The `decimal` package avoids this by replacing
+$x_2$ with a sticky unit placed just below every rounding boundary of the sum;
+porting that is tracked in [#120](https://github.com/Luna-Flow/floating/issues/120),
+with a fix proposed in [#124](https://github.com/Luna-Flow/floating/pull/124).
 
 ### Division
 

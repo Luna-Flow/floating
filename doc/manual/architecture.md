@@ -139,7 +139,7 @@ precision. The functions therefore decide their exact cases before the loop:
 $e^0 = 1$, $\log_2 2^k = k$, $2^n$ and $10^n$ for integers $n$, powers and
 roots that are exact, $\operatorname{sinpi}$ and $\operatorname{cospi}$ at
 multiples of $\tfrac12$, $\operatorname{tanpi}$ at multiples of
-$\tfrac14$, and so on. Elsewhere the exact value is not a dyadic number. For
+$\tfrac14$, and so on.[^open-exact] Elsewhere the exact value is not a dyadic number. For
 example, by the Lindemann–Weierstrass theorem $e^x$ is transcendental for
 every nonzero algebraic $x$, so $\exp$ and $\ln$ never return a breakpoint at
 a dyadic argument other than $0$ and $1$; by Niven's theorem
@@ -153,6 +153,13 @@ $1.5^{12} \approx 130$ times the starting precision. For binary64 the
 hardest known cases of $\exp$ and $\ln$ need a little more than $2p$ bits,
 far below that, but no such bound is known for every precision, so a failure
 remains possible in principle and is reported rather than hidden.
+
+[^open-exact]: Some exact cases are not yet decided first: non-integral
+    decimal powers such as $4^{1.5}$
+    ([#53](https://github.com/Luna-Flow/floating/issues/53) and
+    [#112](https://github.com/Luna-Flow/floating/issues/112)) and binary roots
+    of coefficients wider than 4096 bits
+    ([#129](https://github.com/Luna-Flow/floating/issues/129)).
 
 `bin_float` owns the scalar dyadic certificates. `ball_float` lifts them over
 endpoints, critical points, poles and domain boundaries. `decimal` and
