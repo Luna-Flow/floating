@@ -191,6 +191,10 @@ notes live in this file.
   is short enough to form, and otherwise directed-rounding bounds are refined
   until they round alike (#104). `pown_ctx` also built its exponent at the
   context precision, so `(-1)^12345679` at seven digits was `1` (#51).
+- Fixed `pow_int_checked` and `pow_nat_checked` for `Decimal` in `decimal` and
+  `decimal_gda`, which still built the integer exponent at the context
+  precision: an exponent longer than the precision was rounded first, so
+  `(-1)^12345679` at seven digits was `1`. The exponent is now exact (#123).
 - Fixed `Decimal::hypot_ctx` and `rootn_ctx`, which returned exactly
   representable results such as `hypot(0.3, 0.4)` and `rootn(0.008, 3)` padded
   to full precision with `inexact`, or failed certification in the directed
