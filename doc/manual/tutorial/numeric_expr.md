@@ -1,17 +1,30 @@
 # numeric_expr tutorial
 
-This tutorial shows how to describe a computation once as a `numeric_expr`
-tree and run it against any number type by supplying two callbacks: one that
-reads a literal and one that executes an operation. By the end you can evaluate
-expressions over `Int`, over `BinFloat` with IEEE flags, and report failures at
-their source line. This is the mechanism the conformance frontends
-(`frontend/gda_expr` and others) use to run test corpora.
+The goal of this tutorial is to describe a computation once as a
+`numeric_expr` tree and run it against any number type by supplying two
+callbacks: one that reads a literal and one that executes an operation. By the
+end you can evaluate expressions over `Int`, over `BinFloat` with IEEE flags,
+and report failures at their source line. This is the mechanism the GDA
+conformance frontend `frontend/gda_expr` uses to run `.decTest` corpora.
+
+| I want to | Use |
+| --- | --- |
+| build an expression tree | [`Expr::literal`, `Expr::invoke`](#quick-start) |
+| give operations a meaning | [the `invoke` callback](#write-a-small-interpreter) |
+| evaluate over a floating-point type with flags | [a pair value type](#evaluate-over-binfloat-and-collect-ieee-flags) |
+| report a failure at its source line | [`SourceSpan`, `EvalError`](#report-errors-at-their-source) |
+| know which callbacks run, and in which order | [post-order evaluation](#see-the-evaluation-order) |
+| keep domain errors as values | [checked value types](#going-further) |
 
 ## Quick start
 
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
 Add the package to `moon.pkg`:
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/floating/numeric_expr",
 }

@@ -1,17 +1,34 @@
 # internal/conformance tutorial
 
-This page is for maintainers who add or change a conformance frontend. It shows
-how a frontend records per-case results, summarizes a run, splits it into
-shards and merges the shards back, using the shared model of
+The goal of this page is to help maintainers who add or change a conformance
+frontend: it shows how a frontend records per-case results, summarizes a run,
+splits it into shards and merges the shards back, using the shared model of
 `internal/conformance`. The package is internal to `Luna-Flow/floating`, so
-the examples are not compiled against the published module; they are written
-for code inside it.
+the examples are written for code inside the module and are not compiled by
+the manual checker.
+
+| I want to | Use |
+| --- | --- |
+| record the outcome of one case | [`CaseResult::executable`, `CaseResult::new`](#quick-start) |
+| say why a case was not run | [`CaseDisposition`](#pick-a-disposition) |
+| count a run | [`RunSummary::from_results`](#quick-start) |
+| run one shard of a corpus | [`ShardSpec::selects`](#shard-a-run) |
+| combine shard summaries | [`RunSummary::merge`](#shard-a-run) |
+| turn user shard options into a usage error | [`ShardSpec::try_new`](#validate-user-input) |
+| keep the frontend API stable | [wrapper types](#wrap-the-model-in-a-frontend-type) |
 
 ## Quick start
 
-Inside the module, import the package in the frontend's `moon.pkg`:
+There is nothing to install: the package ships inside `Luna-Flow/floating`.
+Run its tests from the repository:
 
-```text
+```bash
+sh tools/run_moon_clean_exec.sh test src/internal/conformance --target native
+```
+
+In a frontend package of the module, import it in `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/internal/conformance",
 }
@@ -102,7 +119,8 @@ pattern so the internal model can change without breaking the frontend API.
   *before* sharding, the same number in every shard; `merge` keeps the
   maximum.
 - **Negative ordinals.** `selects` uses `%`, which keeps the sign of the
-  ordinal; always count from 0.
+  ordinal: a negative multiple of the count goes to shard 0 and every other
+  negative ordinal to no shard. Always count from 0.
 - **`passed` on skipped results.** It is ignored by the counters; set it to
   `false` for clarity.
 

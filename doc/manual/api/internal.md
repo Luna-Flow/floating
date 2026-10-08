@@ -1,26 +1,45 @@
 # internal API
 
-`internal` holds exact integer and rational helpers shared by the numeric
-cores: powers of 2, 5 and 10, digit counting, removal of trailing factors,
-integer division with an explicit rounding mode, a decimal string splitter,
-reduced rationals, dyadic enclosures and the refinement budget of the
-certified elementary functions. `bin_float`, `decimal`, `decimal_gda`,
-`ball_float`, `semantic` and the `consistency` tests use it. It is an internal
-package: it cannot be imported from outside `Luna-Flow/floating` and its
-interface may change. Examples are therefore not compiled. The
+## Purpose
+
+`internal` holds exact integer and rational helpers for the numeric cores:
+powers of 2, 5 and 10, digit counting, removal of trailing factors, integer
+division with an explicit rounding mode, a decimal string splitter, reduced
+rationals, dyadic enclosures and the refinement budget of the certified
+elementary functions. It is an internal package: it cannot be imported from
+outside `Luna-Flow/floating`, and its interface may change without notice. The
 [design page](../design/internal.md) proves the rounding and enclosure
-invariants; the [tutorial](../tutorial/internal.md) shows how the cores use the
-helpers.
+invariants; the [tutorial](../tutorial/internal.md) shows how the helpers
+combine.
 
-Import (inside the module only):
+Not every helper is used by every core. On the current branch the library
+code uses:
 
-```text
+| Package | Helpers it uses |
+| --- | --- |
+| `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `CertifiedRefinementBudget`, `certified_failure` |
+| `bin_float`, `ball_float` | `CertifiedRefinementBudget`, `certified_failure` |
+| `semantic` | `ExactRat` |
+
+The binary and decimal cores round their own coefficients with their own
+kernels. The remaining helpers (`round_shift`, `remove_factor2`,
+`remove_factor10`, `trim_trailing_decimal_zeros`,
+`exact_divide_by_power_of_ten`, `compare_abs`, `sign_of_bigint`, `pow2`, the
+`CertifiedDyadic` family and the `result_lift2` combinators) are exercised by
+the `consistency` and package tests only.
+
+## Importing
+
+Inside the module, add the package to `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/internal",
 }
 ```
 
-`@bigint.BigInt` is `moonbitlang/core/bigint`; the interface prints
+The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as
+`@lf_arith.`; `BigInt` literals are written `12N`. The interface prints
 `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`,
 `CertificationStage`, `CertificationFailureReason`) and uses `@def.Sign`.
 
@@ -38,13 +57,24 @@ pub fn bigint_one() -> @bigint.BigInt
 ### `abs_bigint`, `sign_of_bigint`, `compare_abs`
 
 `abs_bigint(x)` is $|x|$, `sign_of_bigint(x)` is `Negative`, `Zero` or
-`Positive`, and `compare_abs(a, b)` compares $|a|$ with $|b|$ (returning a
-negative, zero or positive `Int`).
+`Positive`, and `compare_abs(a, b)` compares $|a|$ with $|b|$.
 
 ```mbti
 pub fn abs_bigint(@bigint.BigInt) -> @bigint.BigInt
 pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
+```
+
+`compare_abs` returns a negative, zero or positive `Int` (the result of
+`BigInt::compare` on the magnitudes).
+
+```moonbit
+///|
+test "integer basics" {
+  inspect(@internal.abs_bigint(-7N), content="7")
+  inspect(@internal.sign_of_bigint(0N) == @def.Sign::Zero, content="true")
+  inspect(@internal.compare_abs(-3N, 2N) > 0, content="true")
+}
 ```
 
 ## Powers
@@ -76,6 +106,16 @@ For $x \ne 0$ it returns the unique $d$ with $10^{d-1} \le |x| < 10^{d}$,
 starting from an estimate based on the bit length and correcting it with
 comparisons against powers of ten (no decimal string is built).
 
+```moonbit
+///|
+test "powers and digit counts" {
+  inspect(@internal.pow5(3), content="125")
+  inspect(@internal.digits10(0N), content="1")
+  inspect(@internal.digits10(-999N), content="3")
+  inspect(@internal.digits10(@internal.pow10(5000)), content="5001")
+}
+```
+
 ## Trailing factors
 
 ### `remove_factor2`
@@ -89,8 +129,9 @@ pub fn remove_factor2(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
 
 For $\mathit{sig} \ne 0$ it returns $(\mathit{sig}/2^t, \mathit{exp} + t)$ with
 $t$ the number of trailing zero bits of $|\mathit{sig}|$, so
-$\mathit{sig} \cdot 2^{\mathit{exp}}$ is unchanged and the new significand is
-odd. For $\mathit{sig} = 0$ it returns $(0, 0)$.
+$\mathit{sig} \cdot 2^{\mathit{exp}}$ is unchanged, the sign is kept and the
+new significand is odd. For $\mathit{sig} = 0$ it returns $(0, 0)$: the
+exponent of a zero is not kept.
 
 ### `remove_factor10`
 
@@ -101,8 +142,8 @@ the decimal exponent.
 pub fn remove_factor10(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
 ```
 
-The value $\mathit{coeff} \cdot 10^{\mathit{exp}}$ is preserved and the new
-coefficient is not divisible by 10. Zero gives $(0, 0)$.
+The value $\mathit{coeff} \cdot 10^{\mathit{exp}}$ and the sign are preserved
+and the new coefficient is not divisible by 10. Zero gives $(0, 0)$.
 
 ### `trim_trailing_decimal_zeros`
 
@@ -115,8 +156,11 @@ pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bi
 
 It returns $(c', e', k)$ with $c = c' \cdot 10^{k}$, $e' = e + k$, and $k$
 maximal subject to $k \le$ `max_drop`. A negative `max_drop` (the default
-$-1$) means no limit. Zero gives $(0, 0, 0)$. A limit lets a caller stop at
-a target exponent, as decNumber-style trimming to an ideal exponent does.
+$-1$) sets the limit to `digits10(c) - 1`, which never binds because a
+non-zero integer with $k$ trailing zeros has at least $k + 1$ digits; so the
+default removes every trailing zero. Zero gives $(0, 0, 0)$. A limit lets a
+caller stop at a target exponent, as decNumber-style trimming to an ideal
+exponent does.
 
 ### `exact_divide_by_power_of_ten`
 
@@ -129,6 +173,19 @@ pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int) -> @bigint.BigInt?
 
 The sign is kept. Zero gives `Some(0)` for every `shift`; for a non-zero
 coefficient a negative `shift` aborts.
+
+```moonbit
+///|
+test "trailing factors" {
+  debug_inspect(@internal.remove_factor2(-12N, 0), content="(-3, 2)")
+  debug_inspect(@internal.remove_factor10(-1200N, 3), content="(-12, 5)")
+  debug_inspect(
+    @internal.trim_trailing_decimal_zeros(1000N, 0, max_drop=2),
+    content="(10, 2, 2)",
+  )
+  debug_inspect(@internal.exact_divide_by_power_of_ten(1201N, 2), content="None")
+}
+```
 
 ## Rounding integer quotients
 
@@ -156,6 +213,23 @@ an integer:
 
 The result is exact (equal to $n/d$) exactly when $r = 0$.
 
+```moonbit
+///|
+test "rounding -5/2 and -7/2" {
+  let modes = [
+    @lf_arith.RoundingMode::ToNearestEven,
+    @lf_arith.RoundingMode::TowardZero,
+    @lf_arith.RoundingMode::TowardPositive,
+    @lf_arith.RoundingMode::TowardNegative,
+    @lf_arith.RoundingMode::AwayFromZero,
+  ]
+  let five = modes.map(m => @internal.round_positive_div(5N, 2N, true, m).to_string())
+  let seven = modes.map(m => @internal.round_positive_div(7N, 2N, true, m).to_string())
+  inspect(five.join(" "), content="2 2 2 3 3")
+  inspect(seven.join(" "), content="4 3 3 4 4")
+}
+```
+
 ### `round_shift`
 
 `round_shift(m, s, negative, mode)` is `round_positive_div(m, 2^s, negative,
@@ -165,8 +239,11 @@ mode)` computed with shifts.
 pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 ```
 
-$m$ should be non-negative (not checked). For $s \le 0$ it returns $m$
-unchanged.
+For $s \le 0$ it returns $m$ unchanged (it never shifts left). $m$ should be
+non-negative; this is not checked. For a negative $m$ the quotient is the
+floor $\lfloor m / 2^{s} \rfloor$ of an arithmetic shift and the remainder is
+non-negative, so the table above no longer describes the rounding of $|m|$:
+`round_shift(-5N, 1, false, TowardZero)` is $-3$, not $-2$.
 
 ## Decimal strings
 
@@ -188,16 +265,31 @@ The accepted grammar is
 The result $(\mathit{neg}, D, q)$ satisfies
 $\text{value} = (-1)^{\mathit{neg}} \cdot D \cdot 10^{q}$, where $D$ is the
 string of all mantissa digits (leading zeros kept) and $q$ is the written
-exponent minus the number of fraction digits. The written exponent saturates
-at $\pm 1\,500\,000\,000$ before the subtraction, so huge exponents cannot
-overflow `Int`. Anything else, including `inf` and `nan`, gives `None`.
+exponent minus the number of fraction digits. Anything else, including
+whitespace, `_`, `inf` and `nan`, gives `None`.
 
-```moonbit nocheck
+> [!WARNING]
+> The magnitude of the written exponent saturates at $1\,500\,000\,000$ before
+> the fraction digits are subtracted, so `1e1600000000` and `1e1500000000`
+> split to the same exponent. `@decimal.Decimal::from_string` and
+> `@decimal_gda.Decimal::from_string` (which keep any exponent when no context
+> is given), and `from_string_ctx` with a context whose `e_max` exceeds
+> $1.5 \cdot 10^{9}$, therefore return `1E+1500000000` for `1e1600000000`
+> instead of overflowing or keeping its value.
+
+```moonbit
 ///|
 test "split decimal string" {
-  debug_inspect(@internal.split_decimal_string("-12.50e3"), content="Some((true, \"1250\", 1))")
+  debug_inspect(
+    @internal.split_decimal_string("-12.50e3"),
+    content="Some((true, \"1250\", 1))",
+  )
   debug_inspect(@internal.split_decimal_string(".5"), content="Some((false, \"5\", -1))")
   debug_inspect(@internal.split_decimal_string("1e"), content="None")
+  debug_inspect(
+    @internal.split_decimal_string("1e99999999999"),
+    content="Some((false, \"1\", 1500000000))",
+  )
 }
 ```
 
@@ -214,7 +306,17 @@ pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Re
 
 `result_lift2(Ok(a), Ok(b), f)` is `Ok(f(a, b))`; `result_lift2_checked`
 returns `f(a, b)` itself. If `left` is `Err`, that error is returned; otherwise
-an `Err` in `right` is returned.
+an `Err` in `right` is returned. `f` runs only when both are `Ok`.
+
+```moonbit
+///|
+test "lift two results" {
+  let ok : Result[Int, String] = Ok(2)
+  let bad : Result[Int, String] = Err("left")
+  debug_inspect(@internal.result_lift2(ok, Ok(3), (a, b) => a * b), content="Ok(6)")
+  debug_inspect(@internal.result_lift2(bad, Err("right"), (a, b) => a * b), content="Err(\"left\")")
+}
+```
 
 ## Exact rationals
 
@@ -251,13 +353,14 @@ pub fn ExactRat::equal(Self, Self) -> Bool
 pub fn ExactRat::not_equal(Self, Self) -> Bool
 ```
 
-```moonbit nocheck
+```moonbit
 ///|
 test "exact rational" {
   let r = @internal.ExactRat::new(-6N, -8N)
   inspect(r.numerator(), content="3")
   inspect(r.denominator(), content="4")
   inspect(r == @internal.ExactRat::new(9N, 12N), content="true")
+  inspect(@internal.ExactRat::new(0N, -5N).denominator(), content="1")
 }
 ```
 
@@ -275,9 +378,10 @@ pub struct CertifiedDyadic {
 }
 ```
 
-The fields are readable; build values with `new` or `from_int`.
+The fields are readable but the struct cannot be built literally outside the
+package; build values with `new` or `from_int`.
 
-### `CertifiedDyadic::new`, `from_int`, `numerator`, `scale`
+### `CertifiedDyadic::new`, `CertifiedDyadic::from_int`, `CertifiedDyadic::numerator`, `CertifiedDyadic::scale`
 
 `new(n, s)` is $n \cdot 2^{-s}$ (aborts if $s < 0$); `from_int(k)` is
 $k \cdot 2^{0}$; the accessors return the fields.
@@ -292,7 +396,7 @@ pub fn CertifiedDyadic::scale(Self) -> Int
 The representation is not normalized: $2 \cdot 2^{-1}$ and $1 \cdot 2^{0}$
 are different values of the struct with the same number.
 
-### `CertifiedDyadic::add`, `sub`, `mul`, `neg`, `compare`
+### `CertifiedDyadic::add`, `CertifiedDyadic::sub`, `CertifiedDyadic::mul`, `CertifiedDyadic::neg`, `CertifiedDyadic::compare`
 
 These methods are exact arithmetic and comparison of dyadic numbers.
 
@@ -305,7 +409,8 @@ pub fn CertifiedDyadic::compare(Self, Self) -> Int
 ```
 
 `add` and `sub` align to the larger scale; `mul` adds the scales; `compare`
-compares the numbers (not the representations).
+compares the numbers (not the representations), so
+`new(2N, 1).compare(from_int(1))` is `0`.
 
 ### `CertifiedDyadic::round_down`, `CertifiedDyadic::round_up`
 
@@ -320,7 +425,9 @@ pub fn CertifiedDyadic::round_up(Self, Int) -> Self
 ```
 
 Abort if $s < 0$. When $s$ is at least the current scale the value is
-re-expressed exactly.
+re-expressed exactly (the numerator is shifted left). Both directions are
+true floor and ceiling for negative numbers too: $-5/4$ rounds down to $-2$
+and up to $-1$ at scale $0$.
 
 ### `CertifiedInterval`
 
@@ -332,14 +439,22 @@ pub struct CertifiedInterval[T] {
   lower_ : T
   upper_ : T
 }
+```
+
+### `CertifiedInterval::new`, `CertifiedInterval::lower`, `CertifiedInterval::upper`
+
+`new(lower, upper, compare)` checks the order with the given comparison and
+builds the pair; `lower` and `upper` return the endpoints.
+
+```mbti
 pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int) -> Result[Self[T], @arithmetic.ArithmeticError]
 pub fn[T] CertifiedInterval::lower(Self[T]) -> T
 pub fn[T] CertifiedInterval::upper(Self[T]) -> T
 ```
 
-`new(lower, upper, compare)` returns a certification-failure error with stage
-`EnclosurePropagation` and reason `InvalidEnclosure` when
-`compare(lower, upper) > 0`.
+When `compare(lower, upper) > 0`, `new` returns a certification-failure error
+for the operation `"interval"` with stage `EnclosurePropagation`, reason
+`InvalidEnclosure`, target and working precision 1 and 0 refinements.
 
 ### `certified_dyadic_fraction`
 
@@ -351,9 +466,9 @@ pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int) -> Result[
 ```
 
 The result is
-$[\lfloor n 2^{s}/d \rfloor 2^{-s},\ \lceil n 2^{s}/d \rceil 2^{-s}]$: it
-contains $n/d$, has width $0$ or $2^{-s}$, and is a point exactly when
-$d \mid n 2^{s}$. A non-positive $d$ gives a domain error.
+$[\lfloor n 2^{s}/d \rfloor 2^{-s},\ \lceil n 2^{s}/d \rceil 2^{-s}]$ for
+either sign of $n$: it contains $n/d$, has width $0$ or $2^{-s}$, and is a
+point exactly when $d \mid n 2^{s}$. A non-positive $d$ gives a domain error.
 
 ### `certified_dyadic_div`
 
@@ -368,7 +483,7 @@ $b = 0$ gives a division-by-zero error. Otherwise the result is
 `certified_dyadic_fraction` applied to $a/b$ written with a positive
 denominator.
 
-```moonbit nocheck
+```moonbit
 ///|
 test "one third at scale 8" {
   let third = @internal.certified_dyadic_div(
@@ -378,6 +493,9 @@ test "one third at scale 8" {
   ).unwrap()
   inspect(third.lower().numerator(), content="85") // 85/256 <= 1/3
   inspect(third.upper().numerator(), content="86") // 86/256 >= 1/3
+  let negative = @internal.certified_dyadic_fraction(-1N, 3N, 2).unwrap()
+  inspect(negative.lower().numerator(), content="-2") // -2/4 <= -1/3
+  inspect(negative.upper().numerator(), content="-1") // -1/4 >= -1/3
 }
 ```
 
@@ -396,7 +514,7 @@ pub struct CertifiedRefinementBudget {
 }
 ```
 
-### `CertifiedRefinementBudget::new`, `next`, `available`, `precision`, `refinements`
+### `CertifiedRefinementBudget::new`, `CertifiedRefinementBudget::next`, `CertifiedRefinementBudget::available`, `CertifiedRefinementBudget::precision`, `CertifiedRefinementBudget::refinements`
 
 `new(p, limit?)` starts at working precision $\max(1, p)$ with zero
 refinements and a limit of $\max(1, \mathit{limit})$ refinements (default
@@ -412,7 +530,22 @@ pub fn CertifiedRefinementBudget::precision(Self) -> Int
 pub fn CertifiedRefinementBudget::refinements(Self) -> Int
 ```
 
-For example $64 \to 96 \to 144 \to 216$.
+`next` does not check `available`; a loop must test `available()` itself.
+
+```moonbit
+///|
+test "budget schedule" {
+  let mut budget = @internal.CertifiedRefinementBudget::new(64, limit=3)
+  let seen = []
+  while budget.available() {
+    seen.push(budget.precision().to_string())
+    budget = budget.next()
+  }
+  inspect(seen.join(" -> "), content="64 -> 96 -> 144")
+  inspect(budget.precision(), content="216")
+  inspect(budget.refinements(), content="3")
+}
+```
 
 ### `certified_failure`
 

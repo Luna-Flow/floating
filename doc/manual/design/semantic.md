@@ -1,4 +1,4 @@
-# `semantic` design
+# semantic design
 
 ## Design goal
 
@@ -85,8 +85,8 @@ The canonical denominators also explain which decimals have a binary
 representation. A reduced binary value has denominator $2^{j}$; a reduced
 decimal value $a/10^{j}$ reduces to a denominator $2^{u} 5^{v}$. By uniqueness
 of the reduced form, a decimal value equals some finite binary float (of
-sufficient precision) if and only if its reduced denominator has no factor
-$5$. One tenth reduces to $1/(2 \cdot 5)$, so no binary float equals it, and the
+sufficient precision, and inside the `BinFloat` exponent range of about
+$2^{\pm 2^{30}}$) if and only if its reduced denominator has no factor $5$. One tenth reduces to $1/(2 \cdot 5)$, so no binary float equals it, and the
 projection of binary64 `0.1` is $3602879701896397/2^{55}$, a different
 number.[^goldberg]
 
@@ -153,7 +153,8 @@ size: $r^{|k|}$ has about $|k| \log_2 r$ bits.
 
 The projection keeps only the denoted value. It drops precision, decimal
 quantum (cohort), the sign of zero, NaN payload, sign and signalling state,
-interval decorations, and all flags and context state. These are properties of
+and all flags and context state. Interval decorations never reach it:
+`from_ball_float` accepts only an undecorated `BallFloat`. These are properties of
 representations and of computations, and the concrete packages expose them.
 Keeping any of them would make two equal numbers from different packages
 compare unequal, which defeats the purpose of the package.
@@ -231,7 +232,11 @@ projection for every pipeline.
   tightening.
 - No ordering of semantic values; equality only.
 - Representation details (precision, quantum, signed zero, NaN payload and
-  signalling, decorations, flags, context) are deliberately not preserved.
+  signalling, flags, context) are deliberately not preserved, and decorated
+  intervals are not accepted.
 - Only `BinFloat`, `@decimal.Decimal` and `BallFloat` have projections.
 - Projections of values with very large exponents are exact and therefore
-  large; the package does not guard against that cost.
+  large; the package does not guard against that cost. A `BinFloat` exponent
+  near its implementation limit $\pm(2^{30} - 1)$ gives a `BigInt` of about
+  $2^{30}$ bits, and a decimal exponent near $10^{9}$ one of about
+  $3.3 \cdot 10^{9}$ bits.

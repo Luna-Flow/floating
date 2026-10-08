@@ -4,11 +4,21 @@
 
 The binary, decimal and interval cores all reduce their hard steps to exact
 integer arithmetic: aligning exponents, removing trailing zeros, dividing with
-a rounding mode, enclosing a ratio between two dyadics. `internal` implements
-these steps once, as small functions with stated invariants, so that every
-core rounds by the same rule and the `consistency` tests can check each helper
-against a `BigInt` oracle. It is internal so the cores can change the helpers
-together without a public compatibility promise.
+a rounding mode, enclosing a ratio between two dyadics. `internal` states
+these steps as small `BigInt` functions with proved invariants, so that the
+`consistency` tests can check each one against an oracle and the cores can
+share what they have in common. It is internal so the cores can change the
+helpers together without a public compatibility promise.
+
+On the current branch the sharing is partial. The decimal cores use the
+string splitter, `round_positive_div`, the power caches and `digits10`; every
+core uses the refinement budget and `certified_failure`; `semantic` uses
+`ExactRat`. The hot paths of `bin_float` and `decimal` round with their own
+limb kernels (`BinCoeff` and `DecCoeff`), which implement the same rounding
+table as `round_positive_div` but are not built on it, and several helpers
+(`round_shift`, the factor removers, the `CertifiedDyadic` family, the
+`result_lift2` combinators) are exercised only by tests. The table on the
+[API page](../api/internal.md#purpose) lists the users of each helper.
 
 ## Mathematical background
 
@@ -56,8 +66,8 @@ remainders, whose convention differs between languages.
 
 Decimal scaling uses $10^{k}$ and the binary-decimal conversions use $5^{k}$
 (because $10^{k} = 5^{k} 2^{k}$ and the factor $2^{k}$ is a shift). The
-caches start with the 19 powers that fit in 64 bits and are extended on
-demand up to $k = 4096$; larger powers are computed directly on each call,
+caches start with the 19 powers $k \le 18$ ($10^{18}$ is the largest power of
+ten below $2^{63}$) and are extended on demand up to $k = 4096$; larger powers are computed directly on each call,
 so that an extreme exponent cannot make the cache grow without bound.
 
 ### Digit count without strings
@@ -78,11 +88,28 @@ floating-point error in the estimate), and the cost is a constant number of
 
 ### Saturating exponent parsing
 
-`split_decimal_string` caps the written exponent at
-$\pm 1\,500\,000\,000$ while reading digits. Any exponent beyond that is far
-outside every supported exponent range, so the value already overflows or
-underflows; capping keeps the arithmetic in `Int` without changing any
-observable result.
+`split_decimal_string` caps the magnitude of the written exponent at
+$C = 1\,500\,000\,000$ while reading digits, then subtracts the number $f$ of
+fraction digits. The cap keeps the arithmetic in `Int`: the result
+$q \in [-C - f, C]$ cannot overflow while $f < 2^{31} - 1 - C \approx 6.5 \cdot 10^{8}$,
+that is, for any literal shorter than about 650 million characters.
+
+The cap is invisible only when every exponent at or beyond $C$ already
+overflows or underflows in the caller's context. That holds for the standard
+interchange contexts ($e_{\max} \le 6144$) and for the default
+`DecimalContext` ($e_{\max} = 999\,999\,999$), but not everywhere:
+
+- `Decimal::from_string` without a context keeps any exponent, so
+  `1e1600000000` becomes `1E+1500000000`, a different number, without an
+  error;
+- `DecimalContext::new` accepts an `e_max` above $C$, and `from_string_ctx`
+  under such a context makes the same substitution without raising
+  `overflow`.
+
+A faithful fix keeps a saturated flag next to the exponent and lets the caller
+turn it into overflow, underflow or a parse error; the current code does not.
+The substitution is recorded as a known defect on the
+[API page](../api/internal.md#split_decimal_string).
 
 ### Canonical rationals
 
@@ -103,8 +130,11 @@ p_{k+1} = p_k + \max\bigl(32, \lfloor p_k / 2 \rfloor\bigr), \qquad k < L ,
 $$
 
 with $L = 12$ refinements by default. For $p_k \ge 64$ this is
-$p_{k+1} = \lfloor 3 p_k / 2 \rfloor$, geometric growth with ratio $3/2$, so
-$p_L \approx p_0 (3/2)^{L}$ (about $130\,p_0$ for $L = 12$). If one attempt at
+$p_k + \lfloor p_k/2 \rfloor = \lfloor 3 p_k / 2 \rfloor$, geometric growth
+with ratio $3/2$ up to the floor, so $p_L \approx p_0 (3/2)^{L}$ (about
+$130\,p_0$ for $L = 12$ and $p_0 \ge 64$). For $p_k < 64$ the step is $32$
+and $p_{k+1}/p_k = 1 + 32/p_k > 3/2$, so the ratio is at least $3/2$ (up to
+the floor) at every step. If one attempt at
 precision $p$ costs $C(p) \ge c\,p$ (at least linear), the total cost of
 all attempts is dominated by the last one:
 
@@ -146,7 +176,11 @@ is nearer iff $2r > d$, and $2r = d$ is the tie, broken toward the even one of
 $q, q+1$, which is $q + 1$ iff $q$ is odd. $\square$
 
 `round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \gg s$ and
-$r = m - (q \ll s)$, so the same table applies. The `consistency` tests check
+$r = m - (q \ll s)$, so the same table applies for $m \ge 0$. For $m < 0$ the
+arithmetic shift gives $q = \lfloor m/2^{s} \rfloor < 0$ and $0 \le r < 2^{s}$,
+and the "magnitude" table is then applied to a negative $q$; the result is
+not $\pm|\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$).
+The function does not check the sign, so callers must pass magnitudes. The `consistency` tests check
 both functions against these formulas on ties and directed cases.
 
 **Factor removal.** `remove_factor2(sig, e)` returns $(sig / 2^{t}, e + t)$ with
@@ -175,8 +209,11 @@ loop that checks `available()` terminates.
 
 **Abort contract.** `pow2`, `pow5`, `pow10` with a negative exponent,
 `round_positive_div` with $n < 0$ or $d \le 0$, `ExactRat::new` with $d = 0$,
-and dyadic constructors with a negative scale abort: these are programmer
-errors inside the cores, never reachable from user input.
+`exact_divide_by_power_of_ten` with a negative shift and a non-zero
+coefficient, and dyadic constructors and roundings with a negative scale
+abort: these are programmer errors inside the cores, never reachable from user
+input. `round_shift` with a negative magnitude does not abort; it returns the
+value described above.
 
 ## Alternatives rejected
 
