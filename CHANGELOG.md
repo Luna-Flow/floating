@@ -104,6 +104,11 @@ notes live in this file.
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
   now match `asin`: a quiet NaN for a NaN input and a domain error otherwise.
+- Fixed `BallFloat::from_int` and `BallFloat::from_coefficient`, which rounded
+  the value to the requested precision and wrapped the rounded result as a
+  singleton, so the interval could exclude its own input
+  (`BallFloat::from_int(100001)` at the default 16 bits returned exactly
+  100000). They now build the value exactly and let the interval round outward.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
