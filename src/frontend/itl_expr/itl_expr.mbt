@@ -432,6 +432,10 @@ fn parse_interval(
   guard find_char(content, ',') is Some(comma) else { return None }
   let lower_src = content[0:comma].trim().to_owned()
   let upper_src = content[comma + 1:].trim().to_owned()
+  // ITF1788 writes `[l,u]` as an inf-sup constructor over two floating
+  // constants of the target type (C99 6.4.4.2), not as an IEEE 1788 interval
+  // literal for textToInterval: each bound is read as the nearest number of
+  // the format, so `[17.1,17.1]` is a singleton in the corpus.
   guard parse_bound(lower_src, precision, @lf_arith.RoundingMode::ToNearestEven)
     is Some(lo) &&
     parse_bound(upper_src, precision, @lf_arith.RoundingMode::ToNearestEven)
@@ -444,6 +448,14 @@ fn parse_interval(
       decoration~,
     ),
   )
+}
+
+///|
+/// The interval format of a run: `precision` significand bits with the
+/// binary64 exponent range, the range the ITF1788 data is written for.
+/// `precision = 53` is exactly `BallContext::binary64()`.
+fn result_context(precision : Int) -> @ball_float.BallContext {
+  @ball_float.BallContext::new(precision~)
 }
 
 ///|
@@ -597,20 +609,20 @@ pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
       message_: case.operation_,
     }
   }
-  let binary64 = @ball_float.BallContext::binary64()
+  let ctx = result_context(precision)
   let actual = match case.operation_ {
     "intersection" => operands[0].intersection(operands[1])
     "convexHull" => operands[0].convex_hull(operands[1])
-    "cancelPlus" => operands[0].cancel_plus(operands[1]).apply_ctx(binary64).0
-    "cancelMinus" => operands[0].cancel_minus(operands[1]).apply_ctx(binary64).0
-    "add" => (operands[0] + operands[1]).apply_ctx(binary64).0
-    "sub" => (operands[0] - operands[1]).apply_ctx(binary64).0
-    "mul" => (operands[0] * operands[1]).apply_ctx(binary64).0
-    "div" => (operands[0] / operands[1]).apply_ctx(binary64).0
+    "cancelPlus" => operands[0].cancel_plus(operands[1]).apply_ctx(ctx).0
+    "cancelMinus" => operands[0].cancel_minus(operands[1]).apply_ctx(ctx).0
+    "add" => (operands[0] + operands[1]).apply_ctx(ctx).0
+    "sub" => (operands[0] - operands[1]).apply_ctx(ctx).0
+    "mul" => (operands[0] * operands[1]).apply_ctx(ctx).0
+    "div" => (operands[0] / operands[1]).apply_ctx(ctx).0
     "pow" => operands[0].pow_interval(operands[1])
     "atan2" => operands[0].atan2_interval(operands[1])
-    "min" => operands[0].minimum(operands[1]).apply_ctx(binary64).0
-    "max" => operands[0].maximum(operands[1]).apply_ctx(binary64).0
+    "min" => operands[0].minimum(operands[1]).apply_ctx(ctx).0
+    "max" => operands[0].maximum(operands[1]).apply_ctx(ctx).0
     _ =>
       return {
         id_: case.id_,
@@ -656,9 +668,7 @@ fn execute_pown_case(case : ItlCase, precision : Int) -> ItlResult {
       message_: case.expected_,
     }
   }
-  let actual = base
-    .pown(exponent)
-    .apply_ctx(@ball_float.BallContext::binary64()).0
+  let actual = base.pown(exponent).apply_ctx(result_context(precision)).0
   let passed = intervals_equal(
     actual,
     expected,
@@ -697,9 +707,7 @@ fn execute_fma_case(case : ItlCase, precision : Int) -> ItlResult {
       message_: case.expected_,
     }
   }
-  let actual = left
-    .fma(multiplier, addend)
-    .apply_ctx(@ball_float.BallContext::binary64()).0
+  let actual = left.fma(multiplier, addend).apply_ctx(result_context(precision)).0
   let passed = intervals_equal(
     actual,
     expected,
@@ -763,7 +771,7 @@ fn execute_interval_unary_case(case : ItlCase, precision : Int) -> ItlResult {
     "atanh" => operand.atanh_interval()
     _ => abort("unreachable unary interval operation")
   }
-  let actual = unbounded.apply_ctx(@ball_float.BallContext::binary64()).0
+  let actual = unbounded.apply_ctx(result_context(precision)).0
   let passed = intervals_equal(
     actual,
     expected,
@@ -809,7 +817,7 @@ fn execute_numeric_case(case : ItlCase, precision : Int) -> ItlResult {
   let actual = match case.operation_ {
     "inf" => interval.lower_bound()
     "sup" => interval.upper_bound()
-    "mid" => interval.midpoint_ctx(@ball_float.BallContext::binary64()).0
+    "mid" => interval.midpoint_ctx(result_context(precision)).0
     "rad" => interval.radius_extended()
     "wid" => interval.width()
     "mag" => interval.magnitude()

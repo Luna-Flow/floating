@@ -998,7 +998,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/decimal_gda.md:1797
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:456
-#: manual/api/frontend/itl_expr.md:258
+#: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:311
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
@@ -1085,7 +1085,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/def.md:435
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:507
-#: manual/api/frontend/itl_expr.md:271
+#: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:324
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:563
@@ -1100,7 +1100,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/decimal.md:1914
 #: manual/api/decimal_gda.md:1977
 #: manual/api/frontend/gda_expr.md:509
-#: manual/api/frontend/itl_expr.md:273
+#: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:326
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:565
@@ -1451,7 +1451,7 @@ msgstr "ベンチマークケース"
 #: manual/api/bench/bin_float.md:32
 #: manual/api/bench/decimal.md:31
 #: manual/api/bench/decimal_gda.md:31
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 #: manual/design/bench/ball_float.md:33
 #: manual/design/bench/bin_float.md:33
 #: manual/design/bench/decimal.md:33
@@ -5521,7 +5521,7 @@ msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value,
 msgstr "`Trapped(signal, value, context, raised)` に対しては `Completed(value, context, GdaFlags::none())` を返します。値とコンテキスト（トラップされたシグナルをすでに含むステータスを伴う）は保持され、トラップの印と直近ステップのフラグは破棄されます。完了状態のパイプラインに対しては何もしません。トラップはコンテキスト内で有効なままなので、同じ条件が再び起きれば再度トラップされます。"
 
 #: manual/api/decimal_gda_checked.md:183
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 msgid "Operations"
 msgstr "演算"
 
@@ -5929,7 +5929,7 @@ msgid "These accessors return the option values."
 msgstr "これらのアクセサはオプションの値を返します。"
 
 #: manual/api/frontend/gda_expr.md:305
-#: manual/api/frontend/itl_expr.md:155
+#: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:296
 #: manual/getting_started.md:13
 msgid "Results"
@@ -6065,167 +6065,167 @@ msgid "`execute_case(case, precision?)` executes one case and returns its result
 msgstr "`execute_case(case, precision?)` は 1 つのケースを実行し、その結果を返します。"
 
 #: manual/api/frontend/itl_expr.md:92
-msgid "`precision` (default `53`) is the bit precision used to read bounds. Interval results are rounded with `@ball_float.BallContext::binary64()` regardless of `precision`, so the default is the meaningful value for ITF1788 data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet)."
-msgstr "`precision`（デフォルト `53`）は端点を読み取る際に使うビット精度です。区間の結果は `precision` に関係なく `@ball_float.BallContext::binary64()` で丸められるため、ITF1788 のデータに対して意味のある値はデフォルト値です（[#62](https://github.com/Luna-Flow/floating/issues/62) で追跡しています。修正はまだありません）。"
+msgid "`precision` (default `53`, must be positive) is the significand precision of the interval format the case runs in: bounds are read at `precision` bits and interval and number results are rounded with `@ball_float.BallContext::new(precision=precision)`, which has the binary64 exponent range. The default `53` is `BallContext::binary64()`, the format of the ITF1788 data."
+msgstr "`precision`（既定値 `53`、正の値でなければなりません）は、ケースを実行する区間形式の仮数部精度です。端点は `precision` ビットで読み取られ、区間の結果と数値の結果は `@ball_float.BallContext::new(precision=precision)` で丸められます。この文脈の指数範囲は binary64 と同じです。既定値 `53` は `BallContext::binary64()` であり、ITF1788 データの形式です。"
 
-#: manual/api/frontend/itl_expr.md:97
-msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one, so an inexact decimal literal does not give an enclosing interval (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet). A decimal bound is first read as a decimal of $2p + 16$ significant digits; a literal with more digits is rounded twice."
-msgstr "オペランドと期待値は次のように読み取られます。区間リテラルは `[lo,hi]`、`[empty]`、`[entire]`、`[nai]` のいずれかで、その後に `_dec` を続けることができます。`dec` は `com`、`dac`、`def`、`trv`、`ill` のいずれかです（デフォルトは `com`）。端点は、省略可能な符号付きの `inf`/`infinity`、16 進浮動小数点数 `0x…p…`、または 10 進テキストです。10 進および 16 進の端点は、上端だけでなく下端も `precision` ビットで最近接偶数丸めされるため、不正確な 10 進リテラルからはそれを包含する区間が得られません（[#62](https://github.com/Luna-Flow/floating/issues/62) で追跡しています。修正はまだありません）。10 進の端点はまず有効桁数 $2p + 16$ の 10 進数として読み取られ、それより桁数の多いリテラルは二重に丸められます。"
+#: manual/api/frontend/itl_expr.md:99
+msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is first read as a decimal of $2p + 16$ significant digits; a literal with more digits is rounded twice."
+msgstr "オペランドと期待値は次のように読み取られます。区間リテラルは `[lo,hi]`、`[empty]`、`[entire]`、`[nai]` のいずれかで、その後に `_dec` を続けることができます。`dec` は `com`、`dac`、`def`、`trv`、`ill` のいずれかです（デフォルトは `com`）。端点は、省略可能な符号付きの `inf`/`infinity`、16 進浮動小数点数 `0x…p…`、または 10 進テキストです。10 進および 16 進の端点は、上端だけでなく下端も `precision` ビットで最近接偶数丸めされます。これは ITF1788 の規約です。ITF1788 の生成器は `[lo,hi]` を対象型の 2 つの浮動小数点定数として inf-sup コンストラクタに渡すため、端点はその形式で最も近い数になり、IEEE 1788 の `textToInterval` が区間リテラル文字列に適用する外向き丸めにはなりません。コーパスはこれを前提にしています（`isSingleton [17.1, 17.1] = true`）。10 進の端点はまず有効桁数 $2p + 16$ の 10 進数として読み取られ、それより桁数の多いリテラルは二重に丸められます。"
 
-#: manual/api/frontend/itl_expr.md:108
+#: manual/api/frontend/itl_expr.md:113
 msgid "The case is dispatched on its operation and expected value:"
 msgstr "ケースは演算と期待値に基づいてディスパッチされます。"
 
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 #: manual/performance_audit.md:25
 msgid "Expected"
 msgstr "期待値"
 
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 #: manual/numeric_semantics.md:574
 msgid "Comparison"
 msgstr "比較"
 
-#: manual/api/frontend/itl_expr.md:112
+#: manual/api/frontend/itl_expr.md:117
 #: manual/design/frontend/gda_expr.md:95
 msgid "boolean"
 msgstr "真偽値"
 
-#: manual/api/frontend/itl_expr.md:112
+#: manual/api/frontend/itl_expr.md:117
 msgid "`true` or `false`"
 msgstr "`true` または `false`"
 
-#: manual/api/frontend/itl_expr.md:112
+#: manual/api/frontend/itl_expr.md:117
 msgid "equal booleans"
 msgstr "真偽値が等しい"
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:118
 msgid "overlap"
 msgstr "重なり"
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:118
 msgid "an overlap state name (`before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains`, `finishedBy`, `bothEmpty`, `firstEmpty`, `secondEmpty`, `undefined`)"
 msgstr "重なり状態の名前（`before`、`meets`、`overlaps`、`starts`、`containedBy`、`finishes`、`equals`、`after`、`metBy`、`overlappedBy`、`startedBy`、`contains`、`finishedBy`、`bothEmpty`、`firstEmpty`、`secondEmpty`、`undefined`）"
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:118
 msgid "equal names"
 msgstr "名前が等しい"
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:119
 msgid "numeric"
 msgstr "数値"
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:119
 msgid "a bound"
 msgstr "端点"
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:119
 msgid "equal numbers"
 msgstr "数が等しい"
 
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:120
 msgid "unary"
 msgstr "単項"
 
-#: manual/api/frontend/itl_expr.md:115
-#: manual/api/frontend/itl_expr.md:116
-#: manual/api/frontend/itl_expr.md:117
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:121
+#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:123
 msgid "interval"
 msgstr "区間"
 
-#: manual/api/frontend/itl_expr.md:115
-#: manual/api/frontend/itl_expr.md:116
-#: manual/api/frontend/itl_expr.md:117
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:121
+#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:123
 msgid "equal sets"
 msgstr "集合として等しい"
 
-#: manual/api/frontend/itl_expr.md:116
+#: manual/api/frontend/itl_expr.md:121
 msgid "ternary"
 msgstr "三項"
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:122
 msgid "integer power"
 msgstr "整数べき"
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:122
 msgid "`pown` (second operand an integer)"
 msgstr "`pown`（第 2 オペランドは整数）"
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:123
 msgid "binary"
 msgstr "二項"
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:125
 msgid "\"Equal sets\" means: both NaI, or both empty, or equal lower bounds and equal upper bounds (compared numerically, so $-0 = +0$). When the expected text contains `_`, the decorations must also be equal. The boolean dispatch is chosen whenever the expected text is `true` or `false`."
 msgstr "「集合として等しい」とは、両方が NaI であるか、両方が空であるか、下端どうし・上端どうしが等しい（数値として比較するので $-0 = +0$）ことを意味します。期待テキストが `_` を含む場合は、装飾も等しくなければなりません。期待テキストが `true` または `false` のときは常に真偽値のディスパッチが選ばれます。"
 
-#: manual/api/frontend/itl_expr.md:125
+#: manual/api/frontend/itl_expr.md:130
 msgid "Dispositions:"
 msgstr "処置区分："
 
-#: manual/api/frontend/itl_expr.md:127
+#: manual/api/frontend/itl_expr.md:132
 msgid "`Executable` when the case was run; `passed()` tells the outcome;"
 msgstr "ケースが実行された場合は `Executable`。結果は `passed()` で分かります。"
 
-#: manual/api/frontend/itl_expr.md:128
+#: manual/api/frontend/itl_expr.md:133
 msgid "`Unsupported(reason)` for an unknown operation, whatever its operands and expected value, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a boolean predicate other than the five unary ones whose second operand is missing or unreadable;"
 msgstr "未知の演算（オペランドと期待値にかかわらず）、期待値が区間でない二項ディスパッチのケース（例えば `signal` 注釈が後に続くもの）、オペランドが 2 つでない二項ディスパッチのケース、または 5 つの単項述語以外の真偽値述語で第 2 オペランドが欠けているか読み取れないものの場合は `Unsupported(reason)`。"
 
-#: manual/api/frontend/itl_expr.md:134
+#: manual/api/frontend/itl_expr.md:139
 msgid "`Diagnostic(reason)` when the first operand of a boolean case, an operand of `isMember`, or an operand or the expected value of the overlap, numeric, unary, ternary or integer-power dispatch, cannot be read, or an operand of the binary dispatch is not an interval literal."
 msgstr "真偽値ケースの第 1 オペランド、`isMember` のオペランド、または重なり・数値・単項・三項・整数べきのディスパッチのオペランドか期待値が読み取れない場合、あるいは二項ディスパッチのオペランドが区間リテラルでない場合は `Diagnostic(reason)`。"
 
-#: manual/api/frontend/itl_expr.md:139
+#: manual/api/frontend/itl_expr.md:144
 msgid "Support is decided from the operation name before any operand is read, so `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `sqrRev [0.0,1.0]` are unsupported and do not count against `RunSummary::success`."
 msgstr "サポートの有無はオペランドを読み取る前に演算名から決まるため、`nums2interval 1.0 2.0`、`rootn [1.0,8.0] 3`、`sqrRev [0.0,1.0]` はサポート対象外であり、`RunSummary::success` に不利に数えられることはありません。"
 
-#: manual/api/frontend/itl_expr.md:143
+#: manual/api/frontend/itl_expr.md:148
 msgid "`execute_case` does not abort on case content."
 msgstr "`execute_case` はケースの内容によって異常終了しません。"
 
-#: manual/api/frontend/itl_expr.md:147
+#: manual/api/frontend/itl_expr.md:152
 msgid "`summarize_results(results)` counts a list of results."
 msgstr "`summarize_results(results)` は結果のリストを集計します。"
 
-#: manual/api/frontend/itl_expr.md:153
+#: manual/api/frontend/itl_expr.md:158
 msgid "`total_cases` is the length of the list."
 msgstr "`total_cases` はリストの長さです。"
 
-#: manual/api/frontend/itl_expr.md:159
+#: manual/api/frontend/itl_expr.md:164
 msgid "`ItlDisposition` says whether a case was executed."
 msgstr "`ItlDisposition` はケースが実行されたかどうかを示します。"
 
-#: manual/api/frontend/itl_expr.md:171
+#: manual/api/frontend/itl_expr.md:176
 msgid "`ItlResult` is the outcome of one case."
 msgstr "`ItlResult` は 1 つのケースの結果です。"
 
-#: manual/api/frontend/itl_expr.md:181
+#: manual/api/frontend/itl_expr.md:186
 msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `BallFloatDecorated::to_string`), and a short reason or the offending text otherwise."
 msgstr "これらのメソッドはケース id、処置区分、合格したかどうか、およびメッセージを返します。メッセージは、成功なら空、不一致なら `\"expected E, got A\"`（区間は `BallFloatDecorated::to_string` で出力）、それ以外は短い理由または問題のテキストです。"
 
-#: manual/api/frontend/itl_expr.md:195
+#: manual/api/frontend/itl_expr.md:200
 msgid "`RunSummary` aggregates a list of results."
 msgstr "`RunSummary` は結果のリストを集計します。"
 
-#: manual/api/frontend/itl_expr.md:205
+#: manual/api/frontend/itl_expr.md:210
 msgid "These methods return the number of results, the number of executed cases, and how many of those passed and failed."
 msgstr "これらのメソッドは、結果の数、実行されたケースの数、およびそのうち合格した数と失敗した数を返します。"
 
-#: manual/api/frontend/itl_expr.md:217
+#: manual/api/frontend/itl_expr.md:222
 msgid "These methods return the number of cases that were not executed, by disposition."
 msgstr "これらのメソッドは、実行されなかったケースの数を処置区分ごとに返します。"
 
-#: manual/api/frontend/itl_expr.md:227
+#: manual/api/frontend/itl_expr.md:232
 msgid "`results` returns a copy of the results in the order they were given; `success` is the overall verdict."
 msgstr "`results` は与えられた順序で結果のコピーを返し、`success` は全体の判定です。"
 
-#: manual/api/frontend/itl_expr.md:235
+#: manual/api/frontend/itl_expr.md:240
 msgid "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$. `success()` is true when no executable case failed **and** there is no diagnostic case; unsupported cases do not affect it."
 msgstr "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ および $\\text{executable} = \\text{passed} + \\text{failed}$ が成り立ちます。`success()` は、実行対象のケースが 1 つも失敗せず、**かつ**診断ケースが 1 つもないとき真です。サポートされないケースは影響しません。"
 
-#: manual/api/frontend/itl_expr.md:262
+#: manual/api/frontend/itl_expr.md:267
 msgid "These methods compare all fields of two cases and render a case for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは 2 つのケースのすべてのフィールドを比較し、ケースを `Debug` 用に描画します。新しいコードでは `==`、`!=`、`debug_inspect` を使ってください。"
 
@@ -8113,7 +8113,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/def.md:337
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
-#: manual/design/frontend/itl_expr.md:161
+#: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:140
 #: manual/design/internal.md:231
@@ -8987,7 +8987,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/def.md:159
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
-#: manual/design/frontend/itl_expr.md:128
+#: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:155
@@ -9062,7 +9062,7 @@ msgstr "負の次数の `rootn` は、引数に 0 が含まれていても装飾
 #: manual/design/def.md:324
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
-#: manual/design/frontend/itl_expr.md:151
+#: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:130
 #: manual/design/internal.md:219
@@ -13448,78 +13448,78 @@ msgid "Execute against the public `ball_float` API"
 msgstr "公開されている `ball_float` API に対して実行する"
 
 #: manual/design/frontend/itl_expr.md:80
-msgid "Each ITL operation maps to one public method of `@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to `sqrt_interval`, `pown` to `pown`, `overlap` to `overlap_state`), and results are rounded with `BallContext::binary64()`. Testing through the public API means the corpus checks exactly what users call, including the decoration logic."
-msgstr "各 ITL 演算は `@ball_float.BallFloatDecorated` の 1 つの公開メソッドに対応し（たとえば `add` は `+` に、`sqrt` は `sqrt_interval` に、`pown` は `pown` に、`overlap` は `overlap_state` に）、結果は `BallContext::binary64()` で丸められます。公開 API を通してテストすることで、コーパスは装飾のロジックを含め、ユーザーが実際に呼び出すものをそのまま検査します。"
+msgid "Each ITL operation maps to one public method of `@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to `sqrt_interval`, `pown` to `pown`, `overlap` to `overlap_state`), and results are rounded with `BallContext::new(precision=p)`, the format the bounds were read in (binary64 for the default $p = 53$). Testing through the public API means the corpus checks exactly what users call, including the decoration logic."
+msgstr "各 ITL 演算は `@ball_float.BallFloatDecorated` の 1 つの公開メソッドに対応し（たとえば `add` は `+` に、`sqrt` は `sqrt_interval` に、`pown` は `pown` に、`overlap` は `overlap_state` に）、結果は `BallContext::new(precision=p)`、すなわち端点を読み取ったのと同じ形式で丸められます（既定の $p = 53$ では binary64）。公開 API を通してテストすることで、コーパスは装飾のロジックを含め、ユーザーが実際に呼び出すものをそのまま検査します。"
 
-#: manual/design/frontend/itl_expr.md:87
+#: manual/design/frontend/itl_expr.md:88
 msgid "Reading bounds"
 msgstr "端点の読み取り"
 
-#: manual/design/frontend/itl_expr.md:89
-msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are parsed as a decimal with $2p + 16$ digits and converted to binary with one rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$ significant digits the decimal parse is exact, so the bound is rounded once. A longer literal is rounded twice, and the second rounding can then land on the wrong side of a binary midpoint; the decimal expansion of a binary64 midpoint can have hundreds of digits, so this needs a literal with more than $2p + 16 = 122$ significant digits, which ITF1788 data does not use. Rounding to nearest rather than outward is a simplification: it is exact for bounds that are binary64 numbers, but a decimal bound such as `0.1` is read as the nearest binary64 number, which may lie inside or outside the interval the literal denotes. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet."
-msgstr "16 進数の端点 `0x…p…` は、整数の仮数部と 2 進指数として正確に解析され、その後作業精度に丸められます。10 進数の端点は $2p + 16$ 桁の 10 進数として解析され、$p$ ビットへの 1 回の最近接偶数丸めで 2 進数に変換されます。有効数字が高々 $2p + 16$ 桁のリテラルでは 10 進数の解析は正確なので、端点は 1 回だけ丸められます。より長いリテラルは 2 回丸められ、2 回目の丸めが 2 進の中点の誤った側に落ちることがあります。binary64 の中点の 10 進展開は数百桁になりうるので、これには有効数字が $2p + 16 = 122$ 桁を超えるリテラルが必要であり、ITF1788 のデータはそのようなリテラルを使いません。外向きではなく最近接に丸めるのは簡略化です。binary64 の数である端点では正確ですが、`0.1` のような 10 進数の端点は最も近い binary64 の数として読まれ、それはリテラルが表す区間の内側にも外側にもなり得ます。[#62](https://github.com/Luna-Flow/floating/issues/62) で追跡しています。修正はまだありません。"
+#: manual/design/frontend/itl_expr.md:90
+msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are parsed as a decimal with $2p + 16$ digits and converted to binary with one rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$ significant digits the decimal parse is exact, so the bound is rounded once. A longer literal is rounded twice, and the second rounding can then land on the wrong side of a binary midpoint; the decimal expansion of a binary64 midpoint can have hundreds of digits, so this needs a literal with more than $2p + 16 = 122$ significant digits, which ITF1788 data does not use. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
+msgstr "16 進数の端点 `0x…p…` は、整数の仮数部と 2 進指数として正確に解析され、その後作業精度に丸められます。10 進数の端点は $2p + 16$ 桁の 10 進数として解析され、$p$ ビットへの 1 回の最近接偶数丸めで 2 進数に変換されます。有効数字が高々 $2p + 16$ 桁のリテラルでは 10 進数の解析は正確なので、端点は 1 回だけ丸められます。より長いリテラルは 2 回丸められ、2 回目の丸めが 2 進の中点の誤った側に落ちることがあります。binary64 の中点の 10 進展開は数百桁になりうるので、これには有効数字が $2p + 16 = 122$ 桁を超えるリテラルが必要であり、ITF1788 のデータはそのようなリテラルを使いません。外向きではなく最近接に丸めるのは ITF1788 の規約であり、`[l,u]` は IEEE 1788 の区間リテラルではありません。ITF1788 の生成器は `[l,u]` を、対象型の 2 つの浮動小数点定数に対象型の inf-sup コンストラクタを適用する式として出力するため、10 進の端点はその形式で最も近い数を表します。コーパスはこれを前提にしています（`isSingleton [17.1, 17.1] = true`。また端点 `5.1` を含む `cancelPlus` のケースは、最も近い binary64 の数から計算した端点を期待しています）。`textToInterval` のようにこれらの端点を外向きに読むと、cancellation、power、atan2、integer-power の各フェーズで厳格なケースが失敗します。"
 
-#: manual/design/frontend/itl_expr.md:103
+#: manual/design/frontend/itl_expr.md:108
 msgid "Decorations only when the case states one"
 msgstr "装飾はケースが明示する場合にのみ比較する"
 
-#: manual/design/frontend/itl_expr.md:105
+#: manual/design/frontend/itl_expr.md:110
 msgid "ITL writes undecorated expectations (`[4.0,6.0]`) for the set-based tests and decorated ones (`[4.0,6.0]_com`) for the decoration tests. The executor parses an undecorated literal as $\\mathsf{com}$ but compares decorations only when the expected text contains `_`, so set-based cases are not failed by the decoration the implementation attaches."
 msgstr "ITL は、集合ベースのテストには装飾なしの期待値（`[4.0,6.0]`）を、装飾のテストには装飾付きの期待値（`[4.0,6.0]_com`）を書きます。実行器は装飾なしのリテラルを $\\mathsf{com}$ として解析しますが、装飾を比較するのは期待値のテキストに `_` が含まれる場合のみです。そのため、集合ベースのケースが実装の付与する装飾によって不合格になることはありません。"
 
-#: manual/design/frontend/itl_expr.md:111
+#: manual/design/frontend/itl_expr.md:116
 msgid "Three dispositions and a strict summary"
 msgstr "3 種類の処理区分と厳格なサマリー"
 
-#: manual/design/frontend/itl_expr.md:113
+#: manual/design/frontend/itl_expr.md:118
 msgid "`Unsupported` marks cases the library does not implement (unknown operations such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an expectation with a `signal` annotation). `Diagnostic` marks cases whose data cannot be read. Support is decided from the operation name before any operand is read, so an unknown operation is `Unsupported` whatever its operands (`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`). For a known operation the classification is made by the dispatch path: a `signal` annotation on a unary, ternary, numeric or integer-power case makes its expected value unreadable and therefore a `Diagnostic`. `RunSummary::success` fails on any failed case *and* on any diagnostic, because unreadable data in a pinned corpus is a defect of the parser or the corpus, not an excluded feature. Unsupported cases do not fail `success`; the CLI's `--strict-supported` turns them into a failing exit code for the phases that claim full support."
 msgstr "`Unsupported` は、ライブラリが実装していないケース（逆演算 `mulRevToPair` などの未知の演算や、2 項のディスパッチにおける `signal` 注釈付きの期待値）を表します。`Diagnostic` は、データを読み取れないケースを表します。サポートの有無はオペランドを読む前に演算名から決まるので、未知の演算はオペランドが何であっても `Unsupported` になります（`nums2interval 1.0 2.0`、`rootn [1.0,8.0] 3`）。既知の演算については、分類はディスパッチの経路によって決まります。単項・3 項・数値・整数べきのケースに付いた `signal` 注釈はその期待値を読み取れなくするため、`Diagnostic` になります。`RunSummary::success` は、不合格のケースがある場合*および*診断がある場合に失敗します。固定されたコーパス中の読み取れないデータは、除外された機能ではなく、パーサーまたはコーパスの欠陥だからです。Unsupported のケースは `success` を失敗させません。CLI の `--strict-supported` は、完全なサポートを主張するフェーズについて、それらを失敗の終了コードに変えます。"
 
-#: manual/design/frontend/itl_expr.md:130
+#: manual/design/frontend/itl_expr.md:135
 msgid "**Counter identities.** Every result has exactly one disposition, so $\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$."
 msgstr "**カウンタの恒等式。** すべての結果はちょうど 1 つの処理区分を持つため、$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ かつ $\\text{executable} = \\text{passed} + \\text{failed}$ が成り立ちます。"
 
-#: manual/design/frontend/itl_expr.md:134
+#: manual/design/frontend/itl_expr.md:139
 msgid "**Soundness of a pass.** If an interval-valued case passes, the actual bounds equal the expected bounds. When the expected value is the tightest binary64 enclosure, the actual result is then both an enclosure of the range and tightest; when the corpus only promises an enclosure (accurate rather than tightest operations), a pass shows that the implementation reached the same bounds."
 msgstr "**合格の健全性。** 区間値のケースが合格すれば、実際の端点は期待される端点と等しくなります。期待値が最狭の binary64 包含区間であれば、実際の結果は値域の包含区間であり、かつ最狭でもあります。コーパスが包含のみを約束する場合（最狭ではなく accurate な演算）、合格は実装が同じ端点に到達したことを示します。"
 
-#: manual/design/frontend/itl_expr.md:141
+#: manual/design/frontend/itl_expr.md:146
 msgid "**Determinism.** Parsing and execution depend only on the text and `precision`; results do not depend on the order in which cases are executed, so a caller may filter or reorder cases freely."
 msgstr "**決定性。** 解析と実行はテキストと `precision` のみに依存します。結果はケースを実行する順序に依存しないため、呼び出し側はケースを自由にフィルタリングしたり並べ替えたりできます。"
 
-#: manual/design/frontend/itl_expr.md:145
+#: manual/design/frontend/itl_expr.md:150
 msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` never aborts on case content: every unreadable input is reported through a disposition. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
 msgstr "**全域性。** 完結したすべての文はケースまたは解析診断になり、`execute_case` はケースの内容によって中断（abort）することはありません。読み取れない入力はすべて処理区分を通じて報告されます。文の境界は、`//` コメントを取り除いた後に `;` で終わる行によって決まるので、`;` の後に続く `// …` があっても、その文が次の文と結合されることはありません。"
 
-#: manual/design/frontend/itl_expr.md:153
+#: manual/design/frontend/itl_expr.md:158
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
 msgstr "**包含のみの検査**（$E \\subseteq A$）。何 ulp も広すぎる結果を受け入れてしまい、精度の退行を隠してしまいます。"
 
-#: manual/design/frontend/itl_expr.md:155
+#: manual/design/frontend/itl_expr.md:160
 msgid "**Always comparing decorations.** It would fail set-based cases on the default decoration, although those cases make no decoration claim."
 msgstr "**常に装飾を比較すること。** 集合ベースのケースは装飾について何も主張していないにもかかわらず、既定の装飾によってそれらを不合格にしてしまいます。"
 
-#: manual/design/frontend/itl_expr.md:157
+#: manual/design/frontend/itl_expr.md:162
 msgid "**Treating signals as passes.** IEEE 1788 signals (for example `UndefinedOperation`) are not observable through the current API, so such cases are reported as not executed rather than silently passed."
 msgstr "**シグナルを合格として扱うこと。** IEEE 1788 のシグナル（たとえば `UndefinedOperation`）は現在の API では観測できないため、そのようなケースは黙って合格とするのではなく、未実行として報告されます。"
 
-#: manual/design/frontend/itl_expr.md:163
+#: manual/design/frontend/itl_expr.md:168
 msgid "Reverse operations, `mulRevToPair`, string conversions and exception signals are not executed."
 msgstr "逆演算、`mulRevToPair`、文字列変換、例外シグナルは実行されません。"
 
-#: manual/design/frontend/itl_expr.md:165
-msgid "Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet)."
-msgstr "10 進数の端点は外向きではなく最近接に丸められます（[#62](https://github.com/Luna-Flow/floating/issues/62)。修正はまだありません）。"
+#: manual/design/frontend/itl_expr.md:170
+msgid "Decimal bounds are rounded to nearest, as ITF1788 floating constants; an `[l,u]` in ITL is not an IEEE 1788 interval literal."
+msgstr "10 進の端点は ITF1788 の浮動小数点定数として最近接に丸められます。ITL の `[l,u]` は IEEE 1788 の区間リテラルではありません。"
 
-#: manual/design/frontend/itl_expr.md:166
-msgid "Interval results are always rounded to binary64; `precision` only affects how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62))."
-msgstr "区間の結果は常に binary64 に丸められます。`precision` は端点の読み取り方にのみ影響します（[#62](https://github.com/Luna-Flow/floating/issues/62)）。"
+#: manual/design/frontend/itl_expr.md:172
+msgid "The result format for `precision = p` has the binary64 exponent range for every $p$, so `precision = 24` is not binary32."
+msgstr "`precision = p` の結果形式は、どの $p$ でも binary64 の指数範囲を持つため、`precision = 24` は binary32 ではありません。"
 
-#: manual/design/frontend/itl_expr.md:168
+#: manual/design/frontend/itl_expr.md:174
 msgid "`/*` opens a block comment only at the start of a line."
 msgstr "`/*` は行頭にある場合にだけブロックコメントを開始します。"
 
-#: manual/design/frontend/itl_expr.md:169
+#: manual/design/frontend/itl_expr.md:175
 msgid "No file IO and no operation filtering; both are in [`cli/itl_expr_cli`](../cli/itl_expr_cli.md)."
 msgstr "ファイル IO や演算のフィルタリングは行いません。どちらも [`cli/itl_expr_cli`](../cli/itl_expr_cli.md) にあります。"
 
@@ -17100,7 +17100,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/def.md:270
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
-#: manual/tutorial/frontend/itl_expr.md:178
+#: manual/tutorial/frontend/itl_expr.md:180
 #: manual/tutorial/frontend/mpfr_expr.md:176
 #: manual/tutorial/frontend/testfloat_expr.md:220
 #: manual/tutorial/internal.md:195
@@ -19955,34 +19955,34 @@ msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps onl
 msgstr "**演算による絞り込み。** CLI の `--operation NAME` オプションはその演算のケースだけを残します。コードでは、実行前に `cases` を `operation()` で絞り込みます。"
 
 #: manual/tutorial/frontend/itl_expr.md:162
-msgid "**Precision.** `execute_case(case, precision=p)` parses bounds at `p` bits; the interval operations themselves are rounded to binary64, so keep the default `53` for ITF1788 data."
-msgstr "**精度。** `execute_case(case, precision=p)` は端点を `p` ビットで解析します。区間演算自体は binary64 に丸められるため、ITF1788 のデータには既定値の `53` を使ってください。"
+msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
+msgstr "**精度。** `execute_case(case, precision=p)` は端点の読み取りと結果の丸めを `p` ビットで行い、指数範囲は binary64 と同じです。ITF1788 のデータは binary64 向けに書かれているため、コーパスを実行するときは既定値の `53` を使ってください。"
 
 #: manual/tutorial/frontend/itl_expr.md:168
-msgid "**Decimal bounds are rounded to nearest.** A bound such as `0.1` is read as the nearest binary64 number, not rounded outward, so `[0.1,0.1]` is the singleton of that binary64 number. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet."
-msgstr "**10 進の端点は最近接に丸められます。** `0.1` のような端点は外向きに丸められるのではなく最も近い binary64 の数として読まれるため、`[0.1,0.1]` はその binary64 の数の単集合になります。 [#62](https://github.com/Luna-Flow/floating/issues/62) で追跡しています。修正はまだありません。"
+msgid "**Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as `0.1` is a floating constant of the format, read as the nearest binary64 number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of one tenth. To test an enclosure of a decimal value, write its bounds in hexadecimal."
+msgstr "**10 進の端点は最近接に丸められます。** ITF1788 と同様に、`0.1` のような端点はその形式の浮動小数点定数であり、最も近い binary64 の数として読まれます。そのため `[0.1,0.1]` はその数の単集合であり、10 分の 1 を包含する区間ではありません。10 進の値を包含する区間をテストするには、端点を 16 進で書いてください。"
 
-#: manual/tutorial/frontend/itl_expr.md:171
+#: manual/tutorial/frontend/itl_expr.md:173
 msgid "**Signals are not checked.** ITL annotations such as `signal …` after the expected value make the expected value unreadable; such cases become unsupported or diagnostic rather than passing."
 msgstr "**シグナルは検査されません。** 期待値の後に置かれた `signal …` のような ITL の注釈があると期待値を読み取れなくなり、そのようなケースは合格ではなくサポート外または診断になります。"
 
-#: manual/tutorial/frontend/itl_expr.md:174
+#: manual/tutorial/frontend/itl_expr.md:176
 msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, or if the text ends inside a statement."
 msgstr "**構文解析エラーは入力を拒否します。** いずれかの文に `=` や演算がない場合、またはテキストが文の途中で終わっている場合、`parse_itl` は診断だけを返します。"
 
-#: manual/tutorial/frontend/itl_expr.md:180
+#: manual/tutorial/frontend/itl_expr.md:182
 msgid "[frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and the list of executed operations."
 msgstr "すべての項目と実行される演算の一覧については [frontend/itl_expr API](../../api/frontend/itl_expr.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/itl_expr.md:184
 msgid "[frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass rule."
 msgstr "合格規則については [frontend/itl_expr 設計](../../design/frontend/itl_expr.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:184
+#: manual/tutorial/frontend/itl_expr.md:186
 msgid "[cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from the command line."
 msgstr "コマンドラインからファイルを実行するには [cli/itl_expr_cli チュートリアル](../cli/itl_expr_cli.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:186
+#: manual/tutorial/frontend/itl_expr.md:188
 msgid "[ball_float tutorial](../ball_float.md) for the interval arithmetic being tested."
 msgstr "テスト対象の区間演算については [ball_float チュートリアル](../ball_float.md)。"
 
@@ -21146,6 +21146,15 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
+
+#~ msgid "`precision` (default `53`) is the bit precision used to read bounds. Interval results are rounded with `@ball_float.BallContext::binary64()` regardless of `precision`, so the default is the meaningful value for ITF1788 data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet)."
+#~ msgstr "`precision`（デフォルト `53`）は端点を読み取る際に使うビット精度です。区間の結果は `precision` に関係なく `@ball_float.BallContext::binary64()` で丸められるため、ITF1788 のデータに対して意味のある値はデフォルト値です（[#62](https://github.com/Luna-Flow/floating/issues/62) で追跡しています。修正はまだありません）。"
+
+#~ msgid "Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet)."
+#~ msgstr "10 進数の端点は外向きではなく最近接に丸められます（[#62](https://github.com/Luna-Flow/floating/issues/62)。修正はまだありません）。"
+
+#~ msgid "Interval results are always rounded to binary64; `precision` only affects how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62))."
+#~ msgstr "区間の結果は常に binary64 に丸められます。`precision` は端点の読み取り方にのみ影響します（[#62](https://github.com/Luna-Flow/floating/issues/62)）。"
 
 #~ msgid "[!WARNING] A non-integer power whose exact value is representable, such as $4^{1.5} = 8$, is a boundary of the rounding cell in the directed modes (`Down`, `Up`, `Ceiling`, `Floor`), so certification cannot succeed and the refinement loop runs to the end of its budget. On a native debug build `power(4, 1.5)` at precision 5 under `Down` did not return within fifteen minutes, while `HalfEven` returns `8.0000` at once. Some such powers, for example $16^{0.25}$, are recognized early and are fast in every mode. Tracked in [#112](https://github.com/Luna-Flow/floating/issues/112); a fix is proposed in [#116](https://github.com/Luna-Flow/floating/pull/116)."
 #~ msgstr "[!WARNING] 正確な値が表現可能な非整数乗（例えば $4^{1.5} = 8$）は、方向付き丸めのモード（`Down`、`Up`、`Ceiling`、`Floor`）では丸めセルの境界にあたるため、認証は成功せず、精緻化のループは予算の終わりまで回り続けます。ネイティブのデバッグビルドでは、`Down` のもとで精度 5 の `power(4, 1.5)` は 15 分以内に返りませんでしたが、`HalfEven` では直ちに `8.0000` を返します。$16^{0.25}$ などの一部の冪は早い段階で認識され、どのモードでも高速です。[#112](https://github.com/Luna-Flow/floating/issues/112) で追跡しています。修正は [#116](https://github.com/Luna-Flow/floating/pull/116) で提案されています。"

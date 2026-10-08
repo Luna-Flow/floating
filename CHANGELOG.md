@@ -126,6 +126,12 @@ notes live in this file.
   `add('0', x)` and `minus(x)` as `subtract('0', x)`, and a zero sum of
   operands with opposite signs is `-0` under round-floor, so `plus(-0)` and
   `minus(0)` are now `-0` under `Floor` (#58).
+- Fixed `frontend/itl_expr::execute_case` with a `precision` other than 53:
+  operands and expected values were read at `precision` bits but interval and
+  `mid` results were rounded to binary64. Results are now rounded with
+  `BallContext::new(precision=precision)` (binary64 exponent range), so the
+  default 53 is unchanged. Decimal bounds stay rounded to nearest, which is
+  the ITF1788 convention for `[l,u]` (#62).
 - Fixed two decorations that claimed `dac` for an argument reaching outside
   the domain. Decorated `rootn` with a negative degree now gives `trv` when the
   argument contains 0, where `x^(-1/n)` has a pole (#45), and decorated
