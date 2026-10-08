@@ -256,6 +256,16 @@ notes live in this file.
   an Empty operand and the checked capabilities (`pow_int_checked`,
   `pow_nat_checked`, `div_checked`) no longer widen representable intervals
   either (#69).
+- Fixed `BallFloat::midpoint_ctx`, which rounded a subnormal center to nearest
+  twice (first to the context precision, then to the subnormal grid) and
+  returned 0 instead of `2^-5` for `2^-6 + 2^-20` at 4 bits with
+  `e_min = -2` (#70), and which ignored `e_max`. It now rounds once onto the
+  grid the result lives on and overflows to an infinity with `overflow` and
+  `inexact`, as round to nearest does in IEEE 754 (#46).
+- Fixed `BallFloat::apply_ctx` and the `*_ctx` operations, which raised
+  `underflow` only when the step onto the subnormal grid was inexact. An
+  endpoint that is tiny after rounding and inexact in either step now raises
+  it, as IEEE 754 defines (#71).
 - Fixed `BallFloat::pow_nat_checked` and `BallFloatResult::pow_nat`, which
   returned `{1}` for an Empty base and exponent 0; they now return Empty, like
   `pown` (#72).

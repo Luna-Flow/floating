@@ -196,6 +196,16 @@ fn context_round_subnormal(
 }
 
 ///|
+/// IEEE 754 tininess after rounding: `rounded` is the value rounded to the
+/// context precision with an unbounded exponent range. Underflow is raised
+/// when the result is tiny and inexact, whichever rounding step lost the bits.
+fn context_is_tiny(rounded : @bin_float.BinFloat, ctx : BallContext) -> Bool {
+  rounded.classify() == FpClass::Finite &&
+  !rounded.is_zero() &&
+  finite_adjusted_exponent(rounded) < ctx.e_min
+}
+
+///|
 fn context_round_lower(
   value : @bin_float.BinFloat,
   ctx : BallContext,
@@ -215,12 +225,13 @@ fn context_round_lower(
     }
     return (overflowed, true, false, true)
   }
-  let (result, underflow, tiny_inexact) = context_round_subnormal(
+  let (result, _, tiny_inexact) = context_round_subnormal(
     rounded,
     ctx,
     RoundingMode::TowardNegative,
   )
-  (result, false, underflow, tiny_inexact || rounded.compare(value) != 0)
+  let inexact = tiny_inexact || rounded.compare(value) != 0
+  (result, false, inexact && context_is_tiny(rounded, ctx), inexact)
 }
 
 ///|
@@ -243,12 +254,13 @@ fn context_round_upper(
     }
     return (overflowed, true, false, true)
   }
-  let (result, underflow, tiny_inexact) = context_round_subnormal(
+  let (result, _, tiny_inexact) = context_round_subnormal(
     rounded,
     ctx,
     RoundingMode::TowardPositive,
   )
-  (result, false, underflow, tiny_inexact || rounded.compare(value) != 0)
+  let inexact = tiny_inexact || rounded.compare(value) != 0
+  (result, false, inexact && context_is_tiny(rounded, ctx), inexact)
 }
 
 ///|
@@ -287,20 +299,39 @@ pub fn BallFloat::midpoint_ctx(
     )
   }
   let exact = interval_center(self)
-  let rounded = exact.with_precision(ctx.precision, RoundingMode::ToNearestEven)
-  let (result, underflow, tiny_inexact) = context_round_subnormal(
-    rounded,
-    ctx,
+  if exact.is_zero() {
+    return (
+      exact.with_precision(ctx.precision, RoundingMode::ToNearestEven),
+      BallFlags::new(),
+    )
+  }
+  // Round once, straight to the grid the result lives on. Rounding a tiny
+  // center to the context precision first and then to the subnormal grid
+  // rounds twice to nearest and can pick the wrong grid point.
+  let normal_rounding = exact.with_precision(
+    ctx.precision,
     RoundingMode::ToNearestEven,
   )
-  (
-    result,
-    {
-      inexact: tiny_inexact || rounded.compare(exact) != 0,
-      overflow: false,
-      underflow,
-    },
-  )
+  let rounded = if finite_adjusted_exponent(exact) < ctx.e_min {
+    // A tiny center has fewer than `precision` bits above the grid, so the
+    // final `with_precision` only sets the precision tag.
+    context_round_subnormal(exact, ctx, RoundingMode::ToNearestEven).0.with_precision(
+      ctx.precision,
+      RoundingMode::ToNearestEven,
+    )
+  } else {
+    normal_rounding
+  }
+  let inexact = rounded.compare(exact) != 0
+  if !rounded.is_zero() && finite_adjusted_exponent(rounded) > ctx.e_max {
+    // Round to nearest overflows to an infinity of the center's sign.
+    return (
+      @bin_float.BinFloat::inf(exact.sign(), precision=ctx.precision),
+      { inexact: true, overflow: true, underflow: false, },
+    )
+  }
+  let underflow = inexact && context_is_tiny(normal_rounding, ctx)
+  (rounded, { inexact, overflow: false, underflow, })
 }
 
 ///|
