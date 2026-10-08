@@ -112,6 +112,19 @@ notes live in this file.
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
   now match `asin`: a quiet NaN for a NaN input and a domain error otherwise.
+- Fixed `Decimal` integer powers (`power_ctx` with an integer exponent,
+  `pown_ctx`, and `exp2_ctx`/`exp10_ctx` at integers), which used decNumber's
+  repeated rounding at `p + digits(n) + 2` digits and could round to the wrong
+  side of a midpoint: `3.339434^3` in decimal32 gave `37.24076` instead of
+  `37.24077`. In extended contexts the exact power is now rounded once when it
+  is short enough to form, and otherwise directed-rounding bounds are refined
+  until they round alike (#104). `pown_ctx` also built its exponent at the
+  context precision, so `(-1)^12345679` at seven digits was `1` (#51).
+- Fixed `Decimal::hypot_ctx` and `rootn_ctx`, which returned exactly
+  representable results such as `hypot(0.3, 0.4)` and `rootn(0.008, 3)` padded
+  to full precision with `inexact`, or failed certification in the directed
+  modes. Exact norms and roots are now detected first and returned exactly
+  (#105).
 - Fixed `BallFloat::from_int` and `BallFloat::from_coefficient`, which rounded
   the value to the requested precision and wrapped the rounded result as a
   singleton, so the interval could exclude its own input
