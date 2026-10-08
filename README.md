@@ -1,27 +1,15 @@
-# FLOATING
-
-<!-- historical-performance-baseline: 0.7.1 -->
+# floating
 
 [![Maintainer](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 ![State](https://img.shields.io/badge/State-active-success)
 
-`Luna-Flow/floating` 0.8.0 provides arbitrary-precision binary, decimal, GDA
-decimal, and certified interval arithmetic for MoonBit. Precision, rounding,
-special values, status flags, traps, and enclosure semantics are explicit
-rather than hidden in process-global state.
-
-## Start Here
-
-- New user: [Getting Started](./doc/manual/getting_started.md)
-- Choose a package: [Package Guide](#package-guide)
-- Copy a minimal example: [Quick Start](#quick-start)
-- Understand algorithms and boundaries: [Architecture](./doc/manual/architecture.md)
-- Check numerical claims: [Verification](./doc/manual/verification.md)
-- See 0.8.0 changes: [CHANGELOG](./CHANGELOG.md)
-- Read the optimization evidence: [0.7.1 audit](./doc/manual/performance_audit.md)
-- Read the documentation: [luna-flow.github.io/en/floating](https://luna-flow.github.io/en/floating/)
-  (English, 简体中文, 日本語); the English sources live in [`doc/manual`](./doc/manual/index.md)
+`Luna-Flow/floating` provides arbitrary-precision binary, IEEE decimal, General
+Decimal Arithmetic, and certified interval arithmetic for MoonBit. Binary
+values follow IEEE 754 at any precision, decimals keep their quantum, and
+intervals are rounded outward so that they always contain the exact result.
+Precision, rounding, exponent range, special values, status flags, traps and
+enclosures are explicit values in every API rather than hidden global state.
 
 ## Install
 
@@ -29,126 +17,106 @@ rather than hidden in process-global state.
 moon add Luna-Flow/floating@0.8.0
 ```
 
-Import only the packages used by the current MoonBit package:
+The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Import
+only the packages you use in your `moon.pkg`:
 
-```moonbit nocheck
+```text
 import {
-  "Luna-Flow/floating/bin_float"
-  "Luna-Flow/floating/decimal"
-  "Luna-Flow/floating/decimal_gda"
-  "Luna-Flow/floating/ball_float"
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/ball_float",
 }
 ```
 
-## Quick Start
+## Quick start
 
-```moonbit check
+```moonbit
 ///|
-test "floating 0.8.0 quick start" {
-  let binary = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
-    -1,
-    53,
+test "floating quick start" {
+  // One third, correctly rounded to binary64, with its IEEE status.
+  let ctx = @bin_float.BinaryContext::binary64()
+  let (third, flags) = @bin_float.BinFloat::from_int(1).div_ctx(
+    @bin_float.BinFloat::from_int(3),
+    ctx,
   )
-  inspect(binary.to_double(), content="1.5")
+  inspect(third.to_shortest_string(), content="0.3333333333333333")
+  inspect(flags.inexact(), content="true")
 
-  let context = @decimal.DecimalContext::decimal64()
-  let (decimal, flags) = @decimal.Decimal::from_string_ctx("12.3400", context)
-  inspect(decimal.quantum(), content="-4")
-  inspect(flags.has_error(), content="false")
-
-  let interval = @ball_float.BallFloat::from_bounds(
-    @bin_float.BinFloat::from_int(1, precision=53),
-    @bin_float.BinFloat::from_int(2, precision=53),
+  // A decimal keeps the quantum of its literal.
+  let (price, _) = @decimal.Decimal::from_string_ctx(
+    "12.3400",
+    @decimal.DecimalContext::decimal64(),
   )
-  inspect(interval.contains(binary), content="true")
+  inspect(price.quantum(), content="-4")
+
+  // An interval contains every exact result.
+  let one = @ball_float.BallFloat::from_int(1, precision=53)
+  let enclosure = one.div(@ball_float.BallFloat::from_int(3, precision=53))
+  inspect(enclosure.contains(third), content="true")
 }
 ```
 
-The three values have different contracts: `binary` is one exact dyadic point,
-`decimal` retains the input quantum, and `interval` denotes every real value in
-`[1, 2]`.
+The three results have different contracts: `third` is one rounded point with
+the flags its rounding raised, `price` retains the quantum `-4` of `12.3400`,
+and `enclosure` is a set of reals guaranteed to contain $1/3$.
 
-## Package Guide
+## Packages
 
-| Requirement | Package | Result model | Documentation |
-| --- | --- | --- | --- |
-| arbitrary-precision dyadic and IEEE binary interchange | `bin_float` | value or `(value, BinaryFlags)` | [API](./doc/manual/api/bin_float.md) · [Tutorial](./doc/manual/tutorial/bin_float.md) · [Design](./doc/manual/design/bin_float.md) |
-| IEEE decimal and DPD/BID interchange | `decimal` | value or `(value, DecimalFlags)` | [API](./doc/manual/api/decimal.md) · [Tutorial](./doc/manual/tutorial/decimal.md) · [Design](./doc/manual/design/decimal.md) |
-| General Decimal Arithmetic status and traps | `decimal_gda` | `GdaOutcome` with defined result and next context | [API](./doc/manual/api/decimal_gda.md) · [Tutorial](./doc/manual/tutorial/decimal_gda.md) · [Design](./doc/manual/design/decimal_gda.md) · [Performance](./doc/manual/performance/decimal_gda.md) |
-| certified real enclosure and IEEE 1788 decorations | `ball_float` | bare/decorated interval, optionally with `BallFlags` | [API](./doc/manual/api/ball_float.md) · [Tutorial](./doc/manual/tutorial/ball_float.md) · [Design](./doc/manual/design/ball_float.md) · [Performance](./doc/manual/performance/ball_float.md) |
-| first-error binary pipeline | `bin_float_checked` | `Result[BinFloat, ArithmeticError]` wrapper | [Tutorial](./doc/manual/tutorial/bin_float_checked.md) |
-| accumulated IEEE decimal pipeline | `decimal_checked` | value + latest/combined flags + optional certification error | [Tutorial](./doc/manual/tutorial/decimal_checked.md) |
-| sticky/trapping GDA pipeline | `decimal_gda_checked` | one threaded `GdaOutcome` | [Tutorial](./doc/manual/tutorial/decimal_gda_checked.md) |
-| first-error interval pipeline | `ball_float_checked` | `Result[BallFloat, ArithmeticError]` wrapper | [Tutorial](./doc/manual/tutorial/ball_float_checked.md) |
-| representation-independent observation | `semantic` | exact scalar/interval projection | [API](./doc/manual/api/semantic.md) |
+| Package | Purpose | Result model |
+| --- | --- | --- |
+| [`bin_float`](./doc/manual/api/bin_float.md) | arbitrary-precision binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | value, or `(value, BinaryFlags)` under a `BinaryContext` |
+| [`decimal`](./doc/manual/api/decimal.md) | IEEE 754 decimal arithmetic, decimal32/64/128 DPD and BID interchange | value, or `(value, DecimalFlags)` under a `DecimalContext` |
+| [`decimal_gda`](./doc/manual/api/decimal_gda.md) | General Decimal Arithmetic with sticky status and traps | `GdaOutcome` with the defined result and the next context |
+| [`ball_float`](./doc/manual/api/ball_float.md) | outward-rounded bare and decorated intervals (IEEE 1788) | interval, or `(interval, BallFlags)` under a `BallContext` |
+| [`bin_float_checked`](./doc/manual/api/bin_float_checked.md) | binary pipeline that stops at the first error | `Result[BinFloat, ArithmeticError]` in a wrapper |
+| [`decimal_checked`](./doc/manual/api/decimal_checked.md) | IEEE decimal pipeline that accumulates flags | value with latest and accumulated flags |
+| [`decimal_gda_checked`](./doc/manual/api/decimal_gda_checked.md) | GDA pipeline that stops at a trap | one threaded `GdaOutcome` |
+| [`ball_float_checked`](./doc/manual/api/ball_float_checked.md) | interval pipeline that stops at the first error | `Result[BallFloat, ArithmeticError]` in a wrapper |
+| [`def`](./doc/manual/api/def.md) | shared vocabulary: `Sign`, `PartialOrder`, the `Floating` trait | — |
+| [`semantic`](./doc/manual/api/semantic.md) | exact projection for comparing values across packages | exact rational, signed infinity or NaN |
 
-Parser, CLI, benchmark, consistency, and `internal/*` packages are repository
-infrastructure. See the [full documentation index](./doc/manual/index.md) before
-depending on them as application APIs.
+Expression, corpus-frontend, CLI, benchmark, consistency and `internal/*`
+packages are repository infrastructure. The
+[package map](./doc/manual/index.md) lists all of them with their tutorial,
+API and design pages.
 
-## 0.8.0 At A Glance
+## Documentation
 
-- `BinFloat`, `Decimal`, and `BallFloat` expose certified elementary-function
-  paths with bounded refinement and structured certification failure.
-- Binary and decimal coefficient kernels use target-specific, exact-fallback
-  dispatch across schoolbook, Karatsuba, Toom-3, NTT, block division, and
-  reciprocal algorithms.
-- `decimal` and `decimal_gda` are independent state models: IEEE per-operation
-  flags are not GDA sticky status/traps.
-- `BinFloat` implements the contextual arithmetic traits, so binary, IEEE
-  decimal, and GDA decimal all compose through the same `ArithmeticContext`.
-- Converting an `ArithmeticContext` into a binary or decimal context now carries
-  `e_min`, `e_max`, and `clamp`; contextual operations honour the caller's
-  exponent range instead of running unbounded.
-- `ball_float` covers the declared strict IEEE 1788 phases with bare/decorated
-  intervals, critical-point/pole handling, and conservative total fallbacks.
-- Benchmarks moved into the unified `bench/*` Maremark hierarchy with explicit
-  crossover and regression analysis.
-- The 0.7.1 optimization audit records exact-kernel, directed-rounding, and
-  interval-monotonicity proofs for the optimized paths.
-- The native benchmark artifact covers all four core suites; non-monotonic
-  auto-tune observations remain evidence only until independently replicated.
+The manual is published at <https://lunaflow.cn/en/floating/> in English,
+Chinese and Japanese; its English source is in
+[`doc/manual`](./doc/manual/index.md). Good starting points:
 
-Detailed claims and exclusions live in package-local evidence pages:
+- [Getting started](./doc/manual/getting_started.md): choosing a package and
+  first programs.
+- [Numeric semantics](./doc/manual/numeric_semantics.md): rounding, ulp,
+  flags, quantum, signed zero, NaN and enclosures.
+- [Architecture](./doc/manual/architecture.md): layers, the numeric core
+  pipeline and certified elementary functions.
+- [Verification](./doc/manual/verification.md): gates and the scope of every
+  conformance claim.
 
-- [Binary conformance](./doc/manual/conformance/bin_float.md) ·
-  [performance](./doc/manual/performance/bin_float.md)
-- [IEEE decimal conformance](./doc/manual/conformance/decimal.md) ·
-  [performance](./doc/manual/performance/decimal.md)
-- [GDA decimal conformance](./doc/manual/conformance/decimal_gda.md) ·
-  [performance](./doc/manual/performance/decimal_gda.md)
-- [Interval conformance](./doc/manual/conformance/ball_float.md) ·
-  [performance](./doc/manual/performance/ball_float.md)
-- [Elementary capability matrix](./testdata/elementary/capability_matrix.json)
-
-Performance thresholds are implementation evidence, not API promises. Passing
-a pinned finite corpus does not imply support for every operation or every real
-input.
+Conformance evidence is finite and pinned: the GDA `official` corpus passes
+64,986/64,986 legal executable rows, the binary TestFloat level-1 matrix
+254,227,872 vectors, and the strict ITF1788 aggregate 4,656/4,656 cases. Read
+the conformance pages before turning a result into a compatibility claim.
 
 ## Development
 
-Run the fast pull-request gate:
+The repository uses [`just`](https://github.com/casey/just) as its task runner.
 
 ```sh
-just pr 8
+just pr 8                    # pull-request gate
+just fmt                     # format MoonBit sources
+just docs                    # manual checks and documentation examples
+just gate binary 8           # TestFloat and MPFR
+just gate decimal 8          # IEEE decimal vectors
+just gate decimal_gda 8      # GDA decTest corpora
+just gate interval 8         # strict ITF1788
+just ci 8                    # everything, before a release
 ```
 
-Useful focused commands:
-
-```sh
-just fmt
-just docs
-just gate binary 8
-just gate decimal 8
-just gate decimal_gda 8
-just gate interval 8
-just bench bin-float --target native
-just bench auto-tune --target native
-```
-
-Use the parameterized conformance entry point for smoke fixtures, plans, pinned
-corpora, targets, and phases:
+Smoke fixtures, plans, pinned corpora, targets and phases go through one entry
+point:
 
 ```sh
 just conformance smoke binary
@@ -156,20 +124,17 @@ just conformance run decimal --run-target native --run-target wasm
 just conformance run interval --phase trigonometric --strict-supported
 ```
 
-Operational corpus details live under
+Corpus provenance and options are described in
 [`testdata/bin_float`](./testdata/bin_float/README.md),
-[`testdata/decimal`](./testdata/decimal/README.md), and
+[`testdata/decimal`](./testdata/decimal/README.md) and
 [`testdata/interval`](./testdata/interval/README.md).
 
-Before release, run the complete gate:
+## Contributing
 
-```sh
-just ci 8
-```
-
-See [CONTRIBUTING](./CONTRIBUTING.md) for contribution rules and
-[Repository conventions](./doc/manual/conventions.md) for documentation and
-API snapshot requirements.
+Contributions to correctness, documentation and test coverage are welcome.
+Read [CONTRIBUTING](./CONTRIBUTING.md) for the workflow and the
+[repository conventions](./doc/manual/conventions.md) for documentation and
+API snapshot rules. Release history is in [CHANGELOG](./CHANGELOG.md).
 
 ## License
 

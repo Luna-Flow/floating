@@ -4,6 +4,111 @@ All notable repository-release changes are tracked here. The main
 [README.md](./README.md) describes the current baseline; historical release
 notes live in this file.
 
+## Unreleased
+
+### Added
+
+- Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each
+  correctly rounded under a `BinaryContext` and returning `BinaryFlags`:
+  - `fma` and `fma_ctx` (fusedMultiplyAdd), which round `x * y + z` once;
+    NaN handling follows SoftFloat 3e.
+  - `remainder` and `remainder_ctx` (IEEE remainder, quotient rounded to
+    nearest-even), without materializing huge scaled dividends.
+  - `to_integral_value_ctx`, `to_integral_exact_ctx`, `floor`, `ceil`,
+    `trunc`, `round` (ties away) and `round_ties_even` (roundToIntegral).
+  - `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx`
+    (convertToInteger, with `exact=true` for convertToIntegerExact); invalid
+    conversions return `None` with *invalid*.
+  - `next_up_ctx` and `next_down_ctx` (nextUp, nextDown).
+  - `scaleb_ctx` and `logb_ctx` (scaleB, logB).
+  - `copy_sign`, `total_order`, `total_order_compare` and `total_order_mag`
+    (copySign, totalOrder, totalOrderMag), and the comparison predicates
+    `compare_quiet`, `compare_signaling`, `equal_quiet`, `equal_signaling`,
+    `less_quiet`, `less_signaling`, `less_equal_quiet`,
+    `less_equal_signaling` and `unordered_quiet`.
+  - `from_string` and `from_string_ctx` (convertFromDecimalCharacter),
+    correctly rounded for any precision and exponent, including huge
+    exponents decided without expansion.
+  - `to_decimal_string_ctx` (convertToDecimalCharacter with a fixed digit
+    count) and `to_shortest_string` / `to_shortest_string_ctx` (the fewest
+    digits that read back to the same value).
+- Added the binary implementation exponent range `binary_implementation_e_min`
+  and `binary_implementation_e_max` ($[1 - 2^{30}, 2^{30} - 1]$ for the leading
+  bit, as in MPFR) and the precision cap `binary_precision_max` ($2^{28}$
+  bits).
+- Extended the TestFloat frontend (`TestFloatOperation`, `TestFloatSpec::exact`,
+  `TestFloatSpec::parse(..., exact?)`) and the binary gate to mulAdd, rem,
+  roundToInt, the four integer conversions and the six comparison predicates:
+  `just gate binary` now covers 254,227,872 TestFloat vectors, and the binary
+  smoke fixture has 2,451 rows.
+- Added a nightly workflow that runs the `quick`, `decimal`, `decimal_gda`,
+  `binary` and `interval` gates in parallel with cached, hash-verified corpora
+  and uploads each summary.
+
+### Changed
+
+- `BinFloat::compare` and the IEEE and GDA `Decimal::compare` no longer abort
+  on NaN. They keep the numeric order for other operands (`-0 == +0`) and
+  order every NaN equal to every other NaN and above every number, so
+  `Compare`, `<`, `<=` and sorting form a total preorder. IEEE semantics remain
+  available through `compare_checked`, the quiet and signaling predicates and
+  the total-order functions.
+- Results outside the binary implementation exponent range are classified as
+  overflow or underflow according to the rounding mode instead of being stored
+  with a saturated exponent, and context precision is capped at
+  `binary_precision_max`.
+- The non-`try` elementary functions of `bin_float`, `decimal` and
+  `decimal_gda` return defined results instead of aborting when certification
+  fails: binary returns a quiet NaN with *invalid operation*, decimal and GDA
+  return their invalid result so that flags and traps apply. `try_*` functions
+  still report the failure detail.
+- Migrated to the MoonBit 0.10 toolchain. Trait-implementation methods are no
+  longer promoted implicitly, so every promoted method is declared with
+  `pub extend` and the generated interfaces now list them (`equal`,
+  `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`, `output`, `to_repr`, the
+  `*_contextual` and `*_checked` methods of `BinFloat`, `Decimal` and
+  `BallFloat`, and `Decimal::from_integral` / `from_nat`). Call sites that
+  relied on implicit promotion keep working; the public API is otherwise
+  unchanged. The tree builds cleanly
+  with `--deny-warn` under moonc 0.10.14 (core packages imported explicitly,
+  black-box test names qualified) and is formatted with the moonc 0.10.11
+  formatter.
+- Split the generated IEEE decimal public-API fixture into files of 400 tests,
+  which moonc 0.10.14 requires.
+- Raised `moonbitlang/x` from 0.4.46 to 0.5.5 and `moonbitlang/async` from
+  0.20.1 to 0.22.4.
+- Moved the documentation to the gettext layout: English pages in
+  `doc/manual` with one `api/`, `tutorial/` and `design/` page per package,
+  translations as catalogs in `doc/locale`, and Typst attachments in
+  `doc/attachments`. A `Docs` workflow runs `lunadoc check`, and
+  `tools/doc_quality.py` checks the new layout.
+- Rewrote the documentation (API, tutorial and design pages for every package,
+  the overview and the guides) with Chinese and Japanese translations. API
+  snapshots use the `mbti` fence, which `tools/doc_quality.py` accepts.
+- Ignored local AI-agent state (`.claude/`, `.codex/`, `.cursor/` and similar)
+  in `.gitignore`.
+
+### Fixed
+
+- Fixed exponent arithmetic that saturated at the 32-bit limits:
+  `2^2e9 * 2^2e9` returned a finite value with no flag, and interval endpoints
+  could stop enclosing the exact value.
+- Fixed `exp`, `expm1`, `exp2`, `exp10`, `sinh`, `cosh` and `pow`, which could
+  fail to certify results whose enclosures overflowed; they now decide
+  overflow and underflow from certified bounds on $\log_2$ of the result.
+- Fixed `ball_float` endpoint helpers that built exact values beyond the
+  exponent range: `exp([1e9, 1e9])` aborted and `exp([-1e9, -1e9])` returned
+  `[0, 0]`. Lower endpoints now clamp toward $-\infty$, upper endpoints toward
+  $+\infty$, and `exp` of very large arguments returns
+  `[max finite, +inf]` or `[0, smallest positive]`.
+- Fixed interval addition of operands with a huge exponent gap, which built a
+  two-billion-bit coefficient; an addend far below one ulp is replaced by a
+  directed sticky term.
+- Fixed the decimal certified bridge, which expanded binary endpoints near
+  $2^{2^{30}}$ into hundreds of millions of digits (`sinh(1e300)` used several
+  GB), and decimal power results far outside the exponent range, which are now
+  decided before certification.
+
 ## 0.8.0 - 2026-09-06
 
 ### Added

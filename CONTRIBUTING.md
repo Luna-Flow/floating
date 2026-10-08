@@ -29,6 +29,9 @@ trait design, and test coverage are especially valuable.
   ```
 
 - Run `moon fmt` before committing to keep the repository consistent.
+- The repository targets the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10)
+  and builds with `--deny-warn`. Promote a trait-implementation method to
+  dot syntax explicitly with `pub extend`; implicit promotion is deprecated.
 - Prefer `using`-imported names over repeated fully-qualified package references when the imported names are used repeatedly in a file.
 - Keep public APIs explicit about numeric semantics. If a function normalizes, rounds, or widens an enclosure, document that behavior.
 - Prefer small helper functions for normalization and rounding logic over repeating low-level integer manipulation inline.
@@ -82,6 +85,11 @@ trait design, and test coverage are especially valuable.
   GDA claims, package `README.mbt.md` coverage, and a guard against the retired
   `doc/<locale>` trees) and then the `src/doc_examples` tests. Catalog
   freshness is checked separately by `lunadoc check` and the `Docs` workflow.
+- API pages end with a `## Complete public interface` snapshot of
+  `pkg.generated.mbti`, fenced as `mbti`. Runnable `moonbit` examples must
+  compile against the current branch; see
+  [Repository conventions](./doc/manual/conventions.md) for the full review
+  checklist.
 
 ### 4.1 Folder Naming
 
