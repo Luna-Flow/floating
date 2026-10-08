@@ -120,6 +120,17 @@ notes live in this file.
 - Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
   `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
   that flag, a failed parse did not count as an error.
+- Fixed double rounding in every guarded decimal division path. The guarded
+  quotient was rounded with the target mode, which can manufacture an exact tie
+  the exact quotient had already decided; the final rounding then applied the
+  tie rule to it. `15 / 83294` at five digits returned `0.00018008` instead of
+  `0.00018009`, and GDA `divide(1, 2222)` at one digit returned `0.0004`
+  instead of `0.0005`. The guarded quotient is now rounded with `ZeroFiveUp`,
+  which keeps the retained low digit off 0 and 5 whenever the remainder is
+  nonzero, as decNumber's `DEC_ROUND_05UP` does. This covers the context-free
+  `/` operator and the contextual divide of both decimal packages, including
+  their subnormal and non-extended paths, and the two division helpers behind
+  the GDA elementary functions.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

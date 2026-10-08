@@ -752,11 +752,16 @@ fn decimal_div_finite_by_small_int_work(
   let extra = precision + denominator.digits10() + 2
   let numerator = gda_coeff_shift_power10_repr(value.coefficient, extra)
   let exact = has_finite_decimal_expansion_repr(value.coefficient, denominator)
+  // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
+  // remainder always leaves the retained low digit off 0 and 5. Rounding it
+  // with the target mode here could manufacture an exact tie that the exact
+  // quotient had already decided, and the final rounding would then apply
+  // the tie rule to it (decNumber uses DEC_ROUND_05UP for the same reason).
   let q = round_positive_decimal_div_repr(
     numerator,
     denominator,
     value.negative,
-    work_ctx.decimal_rounding,
+    DecimalRoundingMode::ZeroFiveUp,
   )
   let (result, flags) = if exact {
     let exact_unrounded = normalize_decimal_parts_gda_repr(
@@ -875,11 +880,16 @@ fn decimal_div_finite_work(
     lhs.coefficient,
     rhs.coefficient,
   )
+  // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
+  // remainder always leaves the retained low digit off 0 and 5. Rounding it
+  // with the target mode here could manufacture an exact tie that the exact
+  // quotient had already decided, and the final rounding would then apply
+  // the tie rule to it (decNumber uses DEC_ROUND_05UP for the same reason).
   let q = round_positive_decimal_div_repr(
     numerator,
     denominator,
     lhs.negative != rhs.negative,
-    work_ctx.decimal_rounding,
+    DecimalRoundingMode::ZeroFiveUp,
   )
   let (value, round_flags) = if exact {
     let exact_unrounded = normalize_decimal_parts_gda_repr(
