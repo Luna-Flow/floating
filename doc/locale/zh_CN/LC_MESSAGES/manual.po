@@ -1014,7 +1014,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/frontend/testfloat_expr.md:293
 #: manual/api/internal.md:429
 #: manual/api/internal/conformance.md:286
-#: manual/api/internal/runner_cli.md:182
+#: manual/api/internal/runner_cli.md:184
 #: manual/api/numeric_expr.md:330
 #: manual/api/semantic.md:340
 msgid "Complete public interface"
@@ -1029,7 +1029,7 @@ msgstr "完整公共接口"
 #: manual/api/frontend/testfloat_expr.md:295
 #: manual/api/internal.md:431
 #: manual/api/internal/conformance.md:288
-#: manual/api/internal/runner_cli.md:184
+#: manual/api/internal/runner_cli.md:186
 #: manual/api/numeric_expr.md:332
 msgid "This snapshot is the generated `pkg.generated.mbti` of the package. It is the authority when prose and interface disagree."
 msgstr "此快照是该包生成的 `pkg.generated.mbti`。当正文与接口不一致时，以接口为准。"
@@ -2588,8 +2588,8 @@ msgid "Command line"
 msgstr "命令行"
 
 #: manual/api/cli.md:19
-msgid "selects the runner; required, at most once"
-msgstr "选择运行器；必需，至多出现一次"
+msgid "selects the runner; required, non-empty, at most once (an empty `--backend=` is an error)"
+msgstr "选择运行器；必需、非空，至多出现一次（空的 `--backend=` 是错误）"
 
 #: manual/api/cli.md:20
 msgid "prints the usage line and exits with 0 when reached, even after `--backend` (the runners' own `--help` is therefore not reachable through the dispatcher)"
@@ -2698,12 +2698,12 @@ msgid "print the usage line and return `2`"
 msgstr "打印用法行并返回 `2`"
 
 #: manual/api/cli/gda_expr_cli.md:29
-msgid "`.decTest` files or directories (direct entries ending in `.decTest`); default `testdata/decimal/smoke.decTest`"
-msgstr "`.decTest` 文件或目录（目录中直接以 `.decTest` 结尾的条目）；默认为 `testdata/decimal/smoke.decTest`"
+msgid "`.decTest` files or directories (direct file entries ending in `.decTest`); a named file without that suffix is the error `not a .decTest file: PATH`; default `testdata/decimal/smoke.decTest`"
+msgstr "`.decTest` 文件或目录（目录中直接以 `.decTest` 结尾的文件条目）；未带该后缀的具名文件是错误 `not a .decTest file: PATH`；默认为 `testdata/decimal/smoke.decTest`"
 
 #: manual/api/cli/gda_expr_cli.md:31
-msgid "Any other argument starting with `-` is an error `unknown option: …`. Files are sorted, parsed in order (the first parse diagnostic of a file is printed as `source:line:1: message` and ends the run), and executed together, so row ordinals and shards span all files."
-msgstr "其他任何以 `-` 开头的参数都会产生错误 `unknown option: …`。文件经过排序后依次解析（文件的第一条解析诊断以 `source:line:1: message` 的形式打印，并结束本次运行），然后一并执行，因此行序号和分片跨越所有文件。"
+msgid "Any other argument starting with `-` is an error `unknown option: …`. Files are sorted, each file is run once even if named twice, parsed in order (the first parse diagnostic of a file is printed as `source:line:1: message` and ends the run), and executed together, so row ordinals and shards span all files."
+msgstr "其他任何以 `-` 开头的参数都会产生错误 `unknown option: …`。文件经过排序，即使被指定两次也只运行一次，依次解析（文件的第一条解析诊断以 `source:line:1: message` 的形式打印，并结束本次运行），然后一并执行，因此行序号和分片跨越所有文件。"
 
 #: manual/api/cli/gda_expr_cli.md:36
 msgid "Text output lists the counts (`cases`, `selected cases`, `executable cases`, `passed cases`, `failed cases`, `skipped cases`), the shard, and one `failed ID: MESSAGE` line per failing row. JSON output has the keys `totalCases`, `supportedCases` (executable rows), `diagnosticCases`, `legacyConditionCases`, `unsupportedCases` and an `execution` object with `executableCases`, `passedCases`, `failedCases`, `skippedCases`, `failedIds`, `shardCount`, `shardIndex`."
@@ -6025,66 +6025,66 @@ msgid "`--shard-count N`, `--shard-count=N`, `--shard-index I`, `--shard-index=I
 msgstr "`--shard-count N`、`--shard-count=N`、`--shard-index I`、`--shard-index=I`：仅当 `allow_shard` 为真（默认）时识别；否则保留在 `remaining()` 中。"
 
 #: manual/api/internal/runner_cli.md:49
-msgid "Every other argument is kept, in order, in `remaining()`. Errors: `\"--shard-count requires a value\"` (or `--shard-index`), `\"invalid shard count: X\"` for a non-integer, and the `ShardSpec::try_new` messages when the pair is not valid (count positive, index in `0 ..< count`). Defaults are one shard, index 0, JSON off."
-msgstr "其他所有参数按原顺序保留在 `remaining()` 中。错误：`\"--shard-count requires a value\"`（或 `--shard-index`）；非整数时为 `\"invalid shard count: X\"`；二元组无效时（分片数须为正，索引须在 `0 ..< count` 内）为 `ShardSpec::try_new` 的消息。默认值为一个分片、索引 0、关闭 JSON。"
+msgid "Every other argument is kept, in order, in `remaining()`. Errors: `\"--shard-count requires a value\"` (or `--shard-index`) when the value is missing or is another option starting with `--`, `\"invalid shard count: X\"` for a non-integer, and the `ShardSpec::try_new` messages when the pair is not valid (count positive, index in `0 ..< count`). Defaults are one shard, index 0, JSON off."
+msgstr "其他所有参数按原顺序保留在 `remaining()` 中。错误：值缺失或为另一个以 `--` 开头的选项时为 `\"--shard-count requires a value\"`（或 `--shard-index`）；非整数时为 `\"invalid shard count: X\"`；二元组无效时（分片数须为正，索引须在 `0 ..< count` 内）为 `ShardSpec::try_new` 的消息。默认值为一个分片、索引 0、关闭 JSON。"
 
-#: manual/api/internal/runner_cli.md:57
+#: manual/api/internal/runner_cli.md:58
 msgid "These accessors return the parsed values and a copy of the unconsumed arguments."
 msgstr "这些访问器返回解析得到的值以及未消耗参数的副本。"
 
-#: manual/api/internal/runner_cli.md:81
+#: manual/api/internal/runner_cli.md:82
 msgid "`parse_int(name, text)` parses a decimal integer for the option `name`."
 msgstr "`parse_int(name, text)` 为选项 `name` 解析一个十进制整数。"
 
-#: manual/api/internal/runner_cli.md:87
+#: manual/api/internal/runner_cli.md:88
 msgid "The error is `\"invalid NAME: TEXT\"`."
 msgstr "错误为 `\"invalid NAME: TEXT\"`。"
 
-#: manual/api/internal/runner_cli.md:89
+#: manual/api/internal/runner_cli.md:90
 msgid "Files"
 msgstr "文件"
 
-#: manual/api/internal/runner_cli.md:93
+#: manual/api/internal/runner_cli.md:94
 msgid "`read_source(path, label?)` reads a whole UTF-8 file."
 msgstr "`read_source(path, label?)` 读取整个 UTF-8 文件。"
 
-#: manual/api/internal/runner_cli.md:99
+#: manual/api/internal/runner_cli.md:100
 msgid "The error is `\"cannot read LABEL: PATH\"`; `label` defaults to `\"file\"`."
 msgstr "错误为 `\"cannot read LABEL: PATH\"`；`label` 默认为 `\"file\"`。"
 
-#: manual/api/internal/runner_cli.md:103
+#: manual/api/internal/runner_cli.md:104
 msgid "`collect_files(paths, suffix)` expands a list of files and directories into the sorted list of files whose names end in `suffix`."
 msgstr "`collect_files(paths, suffix)` 将文件和目录列表展开为名称以 `suffix` 结尾的文件的有序列表。"
 
-#: manual/api/internal/runner_cli.md:110
-msgid "A directory contributes its direct entries ending in `suffix` (as `dir + \"/\" + entry`; subdirectories are not searched). A file contributes itself if it ends in `suffix` and is otherwise ignored. The result is sorted in string order, so runs are reproducible across file systems. Errors: `\"path does not exist: P\"`, `\"cannot inspect path: P\"`, `\"cannot read directory: P\"`."
-msgstr "目录贡献其直接子项中以 `suffix` 结尾者（形式为 `dir + \"/\" + entry`；不搜索子目录）。文件若以 `suffix` 结尾则贡献其自身，否则被忽略。结果按字符串顺序排序，因此运行在不同文件系统之间可复现。错误：`\"path does not exist: P\"`、`\"cannot inspect path: P\"`、`\"cannot read directory: P\"`。"
+#: manual/api/internal/runner_cli.md:111
+msgid "A directory contributes its direct entries that are files ending in `suffix` (as `dir + \"/\" + entry`; subdirectories are not searched, even when their names end in `suffix`). A file contributes itself if it ends in `suffix`. The result is sorted in string order, so runs are reproducible across file systems, and each path appears once. Errors: `\"path does not exist: P\"`, `\"not a SUFFIX file: P\"` for a named file without the suffix, `\"cannot inspect path: P\"`, `\"cannot read directory: P\"`."
+msgstr "目录贡献其直接子项中以 `suffix` 结尾的文件（形式为 `dir + \"/\" + entry`；不搜索子目录，即使其名称以 `suffix` 结尾）。文件若以 `suffix` 结尾则贡献其自身。结果按字符串顺序排序，因此运行在不同文件系统之间可复现，且每个路径只出现一次。错误：`\"path does not exist: P\"`、未带后缀的具名文件为 `\"not a SUFFIX file: P\"`、`\"cannot inspect path: P\"`、`\"cannot read directory: P\"`。"
 
-#: manual/api/internal/runner_cli.md:117
+#: manual/api/internal/runner_cli.md:119
 msgid "Diagnostics"
 msgstr "诊断"
 
-#: manual/api/internal/runner_cli.md:121
+#: manual/api/internal/runner_cli.md:123
 msgid "These functions format a message as `source:line:column: message`."
 msgstr "这些函数将消息格式化为 `source:line:column: message`。"
 
-#: manual/api/internal/runner_cli.md:128
+#: manual/api/internal/runner_cli.md:130
 msgid "`format_diagnostic_at(source, line, message, column?)` builds the location with `SourceLocation::new` (column defaults to 1; line and column are clamped to at least 1)."
 msgstr "`format_diagnostic_at(source, line, message, column?)` 使用 `SourceLocation::new` 构造位置（列号默认为 1；行号和列号被钳制为至少 1）。"
 
-#: manual/api/internal/runner_cli.md:142
+#: manual/api/internal/runner_cli.md:144
 msgid "JSON output"
 msgstr "JSON 输出"
 
-#: manual/api/internal/runner_cli.md:146
+#: manual/api/internal/runner_cli.md:148
 msgid "These functions build `Json` values for runner reports."
 msgstr "这些函数为运行器报告构造 `Json` 值。"
 
-#: manual/api/internal/runner_cli.md:156
+#: manual/api/internal/runner_cli.md:158
 msgid "`json_int` stores the integer with its exact decimal representation, so it prints without a fractional part. `json_object` keeps the order of the fields; a repeated key keeps its first position and its last value."
 msgstr "`json_int` 以精确的十进制表示存储整数，因此打印时不带小数部分。`json_object` 保持字段顺序；重复的键保留其首次出现的位置和最后一次的值。"
 
-#: manual/api/internal/runner_cli.md:162
+#: manual/api/internal/runner_cli.md:164
 msgid "`json_stringify(value)` prints a value as compact JSON with escaped strings."
 msgstr "`json_stringify(value)` 将值打印为紧凑 JSON，字符串会被转义。"
 
@@ -7081,7 +7081,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/frontend/testfloat_expr.md:140
 #: manual/design/internal.md:193
 #: manual/design/internal/conformance.md:119
-#: manual/design/internal/runner_cli.md:79
+#: manual/design/internal/runner_cli.md:80
 #: manual/design/numeric_expr.md:192
 #: manual/design/semantic.md:228
 msgid "Boundaries"
@@ -8002,7 +8002,7 @@ msgstr "`midpoint_ctx` 不应用上下文的 $e_{\\max}$，且从不引发 `over
 #: manual/design/frontend/testfloat_expr.md:130
 #: manual/design/internal.md:181
 #: manual/design/internal/conformance.md:109
-#: manual/design/internal/runner_cli.md:70
+#: manual/design/internal/runner_cli.md:71
 #: manual/design/numeric_expr.md:177
 #: manual/design/semantic.md:215
 msgid "Alternatives rejected"
@@ -12784,7 +12784,7 @@ msgid "No check that a result's `passed` bit agrees with its disposition."
 msgstr "不检查结果的 `passed` 位是否与其处置结果一致。"
 
 #: manual/design/internal/conformance.md:125
-#: manual/design/internal/runner_cli.md:84
+#: manual/design/internal/runner_cli.md:85
 msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
 msgstr "内部包：不能在 `Luna-Flow/floating` 之外导入，不提供稳定性承诺。"
 
@@ -12849,34 +12849,34 @@ msgid "**Shard validity.** A successful `parse_common_options` always returns `s
 msgstr "**分片有效性。** 成功的 `parse_common_options` 总是返回 `shard_count() > 0` 且 `0 <= shard_index() < shard_count()`。"
 
 #: manual/design/internal/runner_cli.md:64
-msgid "**Deterministic file list.** `collect_files(paths, s)` is sorted and contains exactly the existing files named in `paths` that end in `s`, plus the direct entries of named directories that end in `s`."
-msgstr "**确定的文件列表。** `collect_files(paths, s)` 是有序的，且恰好包含 `paths` 中所列出的、以 `s` 结尾的现有文件，以及所列目录中以 `s` 结尾的直接条目。"
+msgid "**Deterministic file list.** `collect_files(paths, s)` is sorted, free of duplicates, and contains exactly the files named in `paths` plus the direct file entries of named directories that end in `s`; a named file that does not end in `s` is an error, never dropped."
+msgstr "**确定的文件列表。** `collect_files(paths, s)` 是有序且无重复的，恰好包含 `paths` 中列出的文件，以及所列目录中以 `s` 结尾的直接文件条目；未以 `s` 结尾的具名文件是错误，而不会被丢弃。"
 
-#: manual/design/internal/runner_cli.md:67
+#: manual/design/internal/runner_cli.md:68
 msgid "**Diagnostic positions.** `format_diagnostic_at` never prints a line or column below 1."
 msgstr "**诊断位置。** `format_diagnostic_at` 绝不会打印小于 1 的行号或列号。"
 
-#: manual/design/internal/runner_cli.md:72
+#: manual/design/internal/runner_cli.md:73
 msgid "**A generic argument-parsing library.** The runners need four options; a dependency would add more surface than it removes."
 msgstr "**通用参数解析库。** 运行器只需要四个选项；引入依赖带来的接口面会多于它所省去的。"
 
-#: manual/design/internal/runner_cli.md:74
+#: manual/design/internal/runner_cli.md:75
 msgid "**Recursive directory walks.** They would pull in unrelated files placed in subdirectories and make the selected corpus implicit."
 msgstr "**递归遍历目录。** 这会把放在子目录中的无关文件也拉进来，并使所选语料变得隐式。"
 
-#: manual/design/internal/runner_cli.md:76
+#: manual/design/internal/runner_cli.md:77
 msgid "**Free-form text output for tools.** Scripts would have to parse prose; the JSON objects are the stable interface, text output is for humans."
 msgstr "**为工具提供自由格式的文本输出。** 脚本将不得不解析散文；JSON 对象才是稳定的接口，文本输出是给人看的。"
 
-#: manual/design/internal/runner_cli.md:81
+#: manual/design/internal/runner_cli.md:82
 msgid "No corpus parsing or numeric semantics: frontends own them."
 msgstr "不做语料解析，也不涉及数值语义：这些由前端负责。"
 
-#: manual/design/internal/runner_cli.md:82
+#: manual/design/internal/runner_cli.md:83
 msgid "No process exit: runners return an exit code; only `cli` calls `exit`."
 msgstr "不退出进程：运行器返回退出码；只有 `cli` 调用 `exit`。"
 
-#: manual/design/internal/runner_cli.md:83
+#: manual/design/internal/runner_cli.md:84
 msgid "No recursive file search, globbing or encoding detection."
 msgstr "不支持递归文件搜索、通配符展开或编码检测。"
 
@@ -15254,7 +15254,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/frontend/testfloat_expr.md:203
 #: manual/tutorial/internal.md:174
 #: manual/tutorial/internal/conformance.md:109
-#: manual/tutorial/internal/runner_cli.md:132
+#: manual/tutorial/internal/runner_cli.md:133
 #: manual/tutorial/numeric_expr.md:260
 #: manual/tutorial/semantic.md:229
 msgid "Next steps"
@@ -17790,22 +17790,22 @@ msgid "**Directories are not searched recursively.** `collect_files` lists only 
 msgstr "**不递归搜索目录。** `collect_files` 只列出目录的直接条目。"
 
 #: manual/tutorial/internal/runner_cli.md:127
-msgid "**Non-matching files are dropped silently.** A file argument without the suffix is ignored, not reported."
-msgstr "**不匹配的文件会被静默丢弃。** 没有该后缀的文件参数会被忽略，不会报告。"
+msgid "**Named files must have the suffix.** A file argument without the suffix is an error (`not a SUFFIX file: P`), so a mistyped name cannot pass as an empty run."
+msgstr "**具名文件必须带有后缀。** 未带后缀的文件参数是错误（`not a SUFFIX file: P`），因此拼错的名字不会被当作一次空运行而通过。"
 
-#: manual/tutorial/internal/runner_cli.md:129
+#: manual/tutorial/internal/runner_cli.md:130
 msgid "**Native only in practice.** File access goes through `moonbitlang/x/fs`; the runners are built and run on the native target."
 msgstr "**实际上仅支持 native。** 文件访问经由 `moonbitlang/x/fs`；运行器在 native 目标上构建和运行。"
 
-#: manual/tutorial/internal/runner_cli.md:134
+#: manual/tutorial/internal/runner_cli.md:135
 msgid "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 msgstr "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 
-#: manual/tutorial/internal/runner_cli.md:135
+#: manual/tutorial/internal/runner_cli.md:136
 msgid "[internal/runner_cli design](../../design/internal/runner_cli.md)"
 msgstr "[internal/runner_cli 设计](../../design/internal/runner_cli.md)"
 
-#: manual/tutorial/internal/runner_cli.md:136
+#: manual/tutorial/internal/runner_cli.md:137
 msgid "[cli tutorial](../cli.md) for the dispatcher that calls the runners."
 msgstr "[cli 教程](../cli.md)：调用各运行器的分发器。"
 
@@ -18248,6 +18248,9 @@ msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
+
+#~ msgid "**Non-matching files are dropped silently.** A file argument without the suffix is ignored, not reported."
+#~ msgstr "**不匹配的文件会被静默丢弃。** 没有该后缀的文件参数会被忽略，不会报告。"
 
 #~ msgid "The parser does not check that `y` is present for the two-operand functions `pow`, `hypot` and `atan2`; executing such a row with `y = -` aborts."
 #~ msgstr "解析器不检查双操作数函数 `pow`、`hypot` 和 `atan2` 是否提供了 `y`；执行 `y = -` 的此类行会中止。"
