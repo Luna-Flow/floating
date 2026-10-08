@@ -161,6 +161,24 @@ notes live in this file.
 - Fixed `BinFloat::rootn(-inf, n)` for even `n` (#90), which returned
   $+\infty$ (or $+0$ for negative `n`); like a finite negative argument it is
   now a domain error (*invalid* in `rootn_ctx`).
+- Fixed certification failures of the `BinFloat` elementary functions for tiny
+  arguments (#102): `sin`/`atan` of $2^{-6000}$ at 53 bits, `sin` of
+  $2^{-8000}$ in binary128 and `exp`/`expm1`/`exp2` of $2^{-20000}$ returned
+  `certification_failure` (NaN from the non-`try` APIs), as did `cos`, `tan`,
+  `asin`, `sinh`, `cosh`, `tanh`, `asinh`, `atanh`, `log1p` and `cospi` in
+  some rounding modes. An enclosure endpoint that is itself a rounding
+  breakpoint now moves just inside the enclosure when the result is known to
+  be irrational, and `sin`, `cos`, `tan`, `asin`, `sinh`, `cosh`, `tanh`,
+  `asinh`, `atanh`, `expm1` and `log1p` decide arguments far below the target
+  spacing from rigorous $O(x^2)$ and $O(x^3)$ bounds before the Ziv loop.
+- Fixed `exp10` and `log10` exact results past $10^{4096}$: `exp10(n)` for an
+  integer $n \ge 0$ and `log10(10^k)` are now computed exactly whenever the
+  precision can hold them, instead of going through the Ziv loop.
+- Fixed `BinFloat::hypot` for operands whose exponents differ by more than
+  about 500,000 (#103), which returned `certification_failure`:
+  `hypot(1, 2^-600000)` is now 1 (*inexact*). An operand too small to reach a
+  rounding breakpoint is replaced by a power of two of the same effect before
+  the exact sum of squares is formed.
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
