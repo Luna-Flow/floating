@@ -1,5 +1,7 @@
 # frontend/gda_expr API
 
+## Purpose
+
 `frontend/gda_expr` reads General Decimal Arithmetic test files (the
 `.decTest` format of Cowlishaw's decimal specification) and executes their rows
 against `decimal_gda`. Parsing turns every row into a `GdaCase` with its
@@ -11,13 +13,19 @@ row. The package does no file or process IO; the command-line runner is
 [design page](../../design/frontend/gda_expr.md) specifies the row mapping and
 the pass rule.
 
-Import the package in `moon.pkg`:
+## Importing
 
-```text
+Add the package to the `import` block of your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/gda_expr",
 }
 ```
+
+The examples call it through the alias `@gda_expr`. They need no other
+package: rows are written as text and the results are read through the
+accessors below.
 
 ## Parsing
 
@@ -47,7 +55,9 @@ handled as follows:
    `id operation operand…` (at least two tokens), the right side into
    `expected condition…` (at least one token). Tokens are separated by spaces,
    tabs or line breaks; a token enclosed in `'…'` or `"…"` may contain spaces
-   and loses its quotes. An unterminated quote after `->` is the diagnostic
+   and loses its quotes. A quote also ends the token before it, so `ab'cd'`
+   is the two tokens `ab` and `cd`, and the decTest escape `''` inside a
+   quoted token is read as the end of one token and the start of another. An unterminated quote after `->` is the diagnostic
    `unterminated quoted token`; a quote opened before `->` hides the arrow,
    so the line is reported as `expected directive or testcase row`. Fewer
    tokens than required give `malformed testcase row`.
@@ -150,7 +160,7 @@ pub fn GdaContext::default() -> Self
 Precision 34, rounding `"half_even"`, `min_exponent` $-999999999$,
 `max_exponent` $999999999$, `clamp` off, `extended` on, `dectest` empty.
 
-### `GdaContext::precision`, `rounding`, `min_exponent`, `max_exponent`, `clamp`, `extended`, `dectest`
+### `GdaContext::precision`, `GdaContext::rounding`, `GdaContext::min_exponent`, `GdaContext::max_exponent`, `GdaContext::clamp`, `GdaContext::extended`, `GdaContext::dectest`
 
 These accessors return the directive values.
 
@@ -165,7 +175,10 @@ pub fn GdaContext::dectest(Self) -> String
 ```
 
 `rounding` is the directive text as written (for example `"half_up"` or
-`"05up"`); it is only interpreted at execution time.
+`"05up"`); it is only interpreted at execution time. `precision`,
+`min_exponent` and `max_exponent` are not range-checked when parsed: a
+`precision: 0` directive is accepted here and aborts `execute_documents`
+(see below).
 
 ### `ParseDiagnostic`
 
@@ -237,12 +250,28 @@ first gets a disposition:
   recognized;
 - `Executable` otherwise.
 
-Only `Executable` rows are evaluated. The row passes when the result matches
-the expected token and the raised conditions are exactly the listed ones; the
+Only `Executable` rows are evaluated. Operands are decoded as described on
+the [design page](../../design/frontend/gda_expr.md#rows-as-operations); plain
+decimal operands are read at precision $\max(64, p)$ for the row precision
+$p$. The row passes when the result matches the expected token and the raised
+conditions are exactly the listed ones; the
 [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full
 rule. Non-executable rows get `passed() == false` and the message
-`"skipped"`, and are counted as skipped, not failed. The function never
-aborts on row content.
+`"skipped"`, and are counted as skipped, not failed. Unreadable operands and
+operations that reject their operands give a failed row, not an abort.
+
+> [!WARNING]
+> Two inputs are not handled as the GDA specification requires. A row whose
+> directive context has a non-positive precision (for example
+> `precision: 0`) aborts the whole call, because building the
+> `decimal_gda` context aborts. A plain decimal operand with more than
+> $\max(64, p)$ significant digits is rounded half-even when it is decoded,
+> so the operation sees a rounded operand and its result can be rounded
+> twice. At precision 9 under `half_even`, `add` of `0` and the 67-digit
+> operand made of `1000000014`, 56 nines and a final `5` gives
+> `1.00000002E+66` instead of `1.00000001E+66`: reading the operand at 64
+> digits turns the tail `4999…95` into exactly one half, and the second
+> rounding then breaks the tie to even.
 
 ### `RunOptions`
 
@@ -274,7 +303,7 @@ order, so `add001..add099` selects a numbered block.
 `strict_supported` is stored for callers; `execute_documents` itself does not
 read it. The CLI uses it to turn unsupported rows into a failing exit code.
 
-### `RunOptions::shard_count`, `shard_index`, `strict_supported`, `case_filter`
+### `RunOptions::shard_count`, `RunOptions::shard_index`, `RunOptions::strict_supported`, `RunOptions::case_filter`
 
 These accessors return the option values.
 
@@ -315,7 +344,7 @@ pub struct CaseResult {
 }
 ```
 
-### `CaseResult::id`, `disposition`, `passed`, `message`
+### `CaseResult::id`, `CaseResult::disposition`, `CaseResult::passed`, `CaseResult::message`
 
 These methods return the row id, its disposition, whether it passed, and a
 message: empty for a pass, `"skipped"` for a non-executable row,
@@ -341,24 +370,45 @@ pub struct RunSummary {
 }
 ```
 
-### `RunSummary` counters
+### `RunSummary::total_cases`, `RunSummary::selected_cases`
 
-These methods return the counts of a run.
+`total_cases` returns the number of rows that match the filter, counted over
+all shards; `selected_cases` returns the number of rows this shard executed
+or skipped.
 
 ```mbti
 pub fn RunSummary::total_cases(Self) -> Int
 pub fn RunSummary::selected_cases(Self) -> Int
+```
+
+Every shard of one run reports the same `total_cases`. Rows removed by the
+filter are counted nowhere.
+
+### `RunSummary::executable_cases`, `RunSummary::passed_cases`, `RunSummary::failed_cases`
+
+These methods return the number of selected rows that were evaluated, and how
+many of them passed and failed.
+
+```mbti
 pub fn RunSummary::executable_cases(Self) -> Int
 pub fn RunSummary::passed_cases(Self) -> Int
 pub fn RunSummary::failed_cases(Self) -> Int
+```
+
+### `RunSummary::skipped_cases`, `RunSummary::diagnostic_cases`, `RunSummary::legacy_cases`, `RunSummary::unsupported_cases`
+
+These methods return the number of selected rows that were not evaluated, in
+total and by disposition.
+
+```mbti
 pub fn RunSummary::skipped_cases(Self) -> Int
 pub fn RunSummary::diagnostic_cases(Self) -> Int
 pub fn RunSummary::legacy_cases(Self) -> Int
 pub fn RunSummary::unsupported_cases(Self) -> Int
 ```
 
-`total_cases` counts the rows that match the filter (in all shards);
-`selected_cases` the rows executed by this shard. They satisfy
+`legacy_cases` is always 0 with the current executor. The counters of one
+summary satisfy
 
 $$
 \begin{aligned}
@@ -417,21 +467,53 @@ test "merge shards" {
 
 ## Trait implementations
 
-### `GdaContext`, `ParseDiagnostic` and `RunOptions` equality and `Debug`
+These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and
+`debug_inspect` in new code.
 
-These methods compare all fields and render the value for `Debug`. Use `==`,
-`!=` and `debug_inspect` in new code.
+### `GdaContext::equal`, `GdaContext::not_equal`, `GdaContext::to_repr`
+
+`equal` compares all seven directive fields, `not_equal` is its negation and
+`to_repr` renders the record for `Debug`.
 
 ```mbti
 pub fn GdaContext::equal(Self, Self) -> Bool
 pub fn GdaContext::not_equal(Self, Self) -> Bool
 pub fn GdaContext::to_repr(Self) -> @debug.Repr
+```
+
+`execute_documents` uses this equality to reuse the converted context of the
+previous row.
+
+### `ParseDiagnostic::equal`, `ParseDiagnostic::not_equal`, `ParseDiagnostic::to_repr`
+
+`equal` compares span and message; `to_repr` renders both.
+
+```mbti
 pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
+```
+
+### `RunOptions::equal`, `RunOptions::not_equal`, `RunOptions::to_repr`
+
+`equal` compares the shard, the strict flag and the filter text; `to_repr`
+renders them.
+
+```mbti
 pub fn RunOptions::equal(Self, Self) -> Bool
 pub fn RunOptions::not_equal(Self, Self) -> Bool
 pub fn RunOptions::to_repr(Self) -> @debug.Repr
+```
+
+```moonbit
+///|
+test "options equality" {
+  let a = @gda_expr.RunOptions::new(case_filter="add001..add099")
+  let b = @gda_expr.RunOptions::new(case_filter="add001..add099")
+  inspect(a == b, content="true")
+  inspect(a == @gda_expr.RunOptions::new(), content="false")
+  inspect(@gda_expr.GdaContext::default().precision(), content="34")
+}
 ```
 
 ## Complete public interface

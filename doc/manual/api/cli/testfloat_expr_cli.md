@@ -1,5 +1,7 @@
 # cli/testfloat_expr_cli API
 
+## Purpose
+
 `cli/testfloat_expr_cli` is the command-line runner for Berkeley TestFloat
 vector files. It builds a `TestFloatSpec` from its options, parses one vector
 file with [`frontend/testfloat_expr`](../frontend/testfloat_expr.md),
@@ -7,6 +9,21 @@ executes it against `bin_float` and prints a summary. It is normally reached as
 `floating-conformance --backend testfloat …`. See the
 [tutorial](../../tutorial/cli/testfloat_expr_cli.md) and the
 [design page](../../design/cli/testfloat_expr_cli.md).
+
+## Importing
+
+The runner is a library, so it can be called from MoonBit code as well as
+through the dispatcher. Add it to the `import` block of your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/cli/testfloat_expr_cli",
+}
+```
+
+The examples use the alias `@testfloat_expr_cli`. `run` reads files through
+`moonbitlang/x/fs`; the repository builds and tests the runners on the native
+target.
 
 ## `run`
 
@@ -28,7 +45,9 @@ pub fn run(Array[String]) -> Int
 | `--shard-count N`, `--shard-index I` (also `=` forms) | run shard `I` of `N` |
 | `PATH` | exactly one vector file (required) |
 
-The names are interpreted by `TestFloatSpec::parse`. Errors such as
+The names are interpreted by `TestFloatSpec::parse`. A value option given
+twice keeps the last value. `--help` is not an option of this runner and is
+reported as `unknown option: --help`. Errors such as
 `--function is required`, `a TestFloat vector path is required`,
 `only one TestFloat vector file is accepted per invocation`, `unknown option:
 …` or an unsupported name are printed and return `2`; so is the first parse

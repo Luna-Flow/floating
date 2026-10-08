@@ -1,16 +1,30 @@
-# testfloat_expr_cli tutorial
+# cli/testfloat_expr_cli tutorial
 
 This tutorial shows how to execute a Berkeley TestFloat vector file with the
 binary runner. The runner is reached as
 `floating-conformance --backend testfloat`; below, `testfloat` abbreviates that
 command.
 
+| I want to | Use |
+| --- | --- |
+| run one generated vector file | [`testfloat --function … FILE`](#quick-start) |
+| match `testfloat_gen` options | [`--rounding`, `--tininess`, `--exact`](#match-the-generator-options) |
+| split a large file over processes | [`--shard-count`, `--shard-index`](#shard-a-large-file) |
+| get machine-readable output | [`--json`](#json-for-scripts) |
+| call the runner from MoonBit | [`@testfloat_expr_cli.run`](#from-moonbit-code) |
+| run the whole TestFloat matrix | [`just conformance run binary`](#going-further) |
+
 ## Quick start
 
-Generate vectors with TestFloat's `testfloat_gen` (installed by
-`just conformance fetch binary`) and run them:
+The executable is built from a checkout of the repository with
+`just conformance build binary`.
 
-```sh
+Generate vectors with TestFloat's `testfloat_gen` and run them.
+`just conformance fetch binary` downloads the pinned SoftFloat and TestFloat
+sources; `just conformance run binary` builds `testfloat_gen` from them into
+`.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/`.
+
+```bash
 testfloat_gen -level 1 -rnear_even -tininessafter f64_mul > f64_mul.tv
 testfloat --function f64_mul --rounding rnear_even --tininess after f64_mul.tv
 ```
@@ -26,6 +40,18 @@ passed cases: …
 failed cases: 0
 ```
 
+### From MoonBit code
+
+After `moon add Luna-Flow/floating@0.8.0`, import
+`"Luna-Flow/floating/cli/testfloat_expr_cli"` in `moon.pkg` and call `run`
+with the same arguments:
+
+```moonbit nocheck
+let status = @testfloat_expr_cli.run([
+  "testfloat", "--function", "f64_mul", "--rounding", "rnear_even", "f64_mul.tv",
+])
+```
+
 ## Everyday tasks
 
 ### Match the generator options
@@ -33,14 +59,14 @@ failed cases: 0
 Pass the same function, rounding and tininess as the generator, and `--exact`
 when the vectors were generated with `-exact`:
 
-```sh
+```bash
 testfloat_gen -rminMag -exact f32_roundToInt > r.tv
 testfloat --function f32_roundToInt --rounding rminMag --exact r.tv
 ```
 
 ### Shard a large file
 
-```sh
+```bash
 testfloat --function f128_mulAdd --shard-count 8 --shard-index 3 --json big.tv
 ```
 
@@ -70,5 +96,7 @@ Shard `i` runs the vectors whose index is `i` modulo the shard count.
 
 ## Next steps
 
-- [testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)
-- [testfloat_expr_cli design](../../design/cli/testfloat_expr_cli.md)
+- [cli/testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)
+- [cli/testfloat_expr_cli design](../../design/cli/testfloat_expr_cli.md)
+- [frontend/testfloat_expr tutorial](../frontend/testfloat_expr.md) for the
+  pass rule.

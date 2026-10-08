@@ -1,5 +1,7 @@
 # bench API
 
+## Purpose
+
 `bench` is the shared benchmark toolkit of `floating`, built on the Maremark
 framework (`Luna-Flow/mare_mark`). It builds immutable benchmark
 specifications, describes the measurement environment, runs a specification
@@ -12,10 +14,13 @@ per-dataset auto-tuning decisions. The per-core suites
 [tutorial](../tutorial/bench.md) shows how to run the suites and the
 [design page](../design/bench.md) derives the statistics.
 
-Import the package in `moon.pkg` (Maremark packages are needed to build
-specifications and observations):
+## Importing
 
-```text
+Import the package in `moon.pkg`. The Maremark packages are needed only to
+build specifications and observations; the reduction functions take plain
+arrays and observations:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bench",
   "Luna-Flow/mare_mark/model",
@@ -24,7 +29,9 @@ import {
 }
 ```
 
-Types prefixed `@model`, `@runner`, `@event` and `@stats` belong to
+The examples on this page use the alias `@bench`. The benchmark suites import
+the same package under the alias `@benchkit`
+(`"Luna-Flow/floating/bench" @benchkit`). Types prefixed `@model`, `@runner`, `@event` and `@stats` belong to
 `Luna-Flow/mare_mark`. An `@model.Observation` records one timed batch: case,
 implementation, dataset, repetition and block ids, phase (exploratory or
 confirmatory), `raw_elapsed_us` (batch time divided by the batch's iteration
@@ -49,7 +56,7 @@ pub fn[Scale, Input, Expected, Output] immutable_bench(String, String, Array[Sca
 | `scales`, `scale_text` | the datasets (for example bit or digit sizes) and their labels; dataset $k$ is `scales[k]` |
 | `generate`, `fingerprint` | build the input for a scale; identify it in reports |
 | `implementations` | stateless implementations compared on the same input |
-| `reference`, `comparator` | an independent expected value and the check of every output against it |
+| `reference`, `comparator` | the expected value for an input and the check of every output against it; nothing forces `reference` to be independent of the implementations |
 | `input_text`, `output_text` | text forms for reports and replay |
 
 The specification keeps the last output of each batch as a sink (so the work
@@ -79,10 +86,14 @@ executes it, streaming observations to `sink`.
 pub async fn[Scale, Input, Prepared, Expected, Output, Context, State, SinkValue] run(@runner.BenchSpec[Scale, Input, Prepared, Expected, Output, Context, State, SinkValue], @model.EnvironmentSnapshot, @event.ObservationSink, UInt64, @runner.ValidatedProtocol) -> @model.RunSummary
 ```
 
-`seed` fixes the measurement order of the implementations; `protocol` is
-normally a preset such as `@runner.ProtocolPreset::Development.validated()`.
-The function aborts if the specification does not compile. The returned
-summary counts observations and oracle failures.
+`seed` is passed to the input generators through
+`@model.GenerationContext` and, under a `BalancedBlocks(s)` order policy,
+fixes the rotation offset $(s \oplus \mathit{seed}) \bmod K$ of the $K$
+implementations in every block; `protocol` is normally a preset such as
+`@runner.ProtocolPreset::Development.validated()`. The function aborts if the
+specification does not compile. The returned summary counts observations,
+calibrations, validations and oracle outcomes (`passed_count`,
+`failed_count`, …).
 
 ## Reducing observations
 
@@ -96,14 +107,32 @@ pub fn paired_hotspot(Array[@model.Observation], String, Int, String, String, Do
 ```
 
 It selects the valid confirmatory observations of each implementation for the
-case and dataset, orders them by block id, pairs them by position and calls
+case and dataset, orders them by block id, pairs them by position (the $j$-th
+remaining baseline sample with the $j$-th remaining candidate sample, not by
+equal block id) and calls
 `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's
-`relative_delta_pct` is $100 \cdot \operatorname{med}(c - b) / \operatorname{med}(b)$
-and its `decision` is `Faster`, `Slower` or `Equivalent` relative to
-`practical_delta_pct`; its `interval` is the 95 % percentile-bootstrap
-interval of the median paired difference. Errors:
-`MismatchedPairs` when the two implementations have different numbers of
-samples, `EmptySamples` when there are none, `NonFiniteSample`.
+`relative_delta_pct` is
+$\Delta_{\%} = 100 \cdot \operatorname{med}(c - b) / \operatorname{med}(b)$
+(0 when $\operatorname{med}(b) = 0$), and its `decision` is `Faster` when
+$\Delta_{\%} \le -\delta$, `Slower` when $\Delta_{\%} \ge \delta$ and
+`Equivalent` otherwise, for $\delta$ = `practical_delta_pct`. Errors: `MismatchedPairs` when the two
+implementations have different numbers of samples, `EmptySamples` when there
+are none, `NonFiniteSample` when a time is NaN or infinite.
+
+> [!WARNING]
+> `paired_hotspot` passes the confidence level as `0.95`, but Maremark reads
+> it as a percentage. The reported `interval` is therefore the central
+> 0.95 % of the bootstrap distribution, between its quantiles 0.49525 and
+> 0.50475: a near-point at the bootstrap median, not a 95 % interval. For the five
+> paired differences $10, 11, 10, 15, 6$ µs it reports $[10, 10]$, where
+> `confirmatory_regression` reports the 95 % interval $[6, 15]$.
+> Use `relative_delta_pct` and `decision`, or `confirmatory_regression`, when
+> an interval matters.
+
+Pairing is by position after the filter: if one implementation has an invalid
+observation in some block and the other does not, the counts differ and the
+call returns `MismatchedPairs`; if both lose one observation in different
+blocks, the counts agree and later samples are paired across blocks.
 
 ### `confirmatory_regression`
 
@@ -159,9 +188,10 @@ pub struct TuneDecision {
 }
 ```
 
-`median_us` is the median per-call time of the chosen candidate and
-`valid_samples` the number of finite, non-negative confirmatory samples it
-was computed from.
+`median_us` is the median per-call time of the chosen candidate.
+`valid_samples` is the number of valid confirmatory observations selected for
+it, counted before `@tune.score_samples` drops negative or non-finite times,
+so it can exceed the number of samples the median was computed from.
 
 ### `tune_dataset`
 

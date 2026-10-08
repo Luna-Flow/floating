@@ -43,9 +43,9 @@ tools always invoke an executable whose name says what it runs.
 ### Dispatcher help wins
 
 `--help` is handled while scanning arguments, before the backend is known, so
-it always prints the dispatcher usage and exits with `0`. This keeps
-`--help` safe to call in any combination; runner options are documented on
-their pages instead.
+it prints the dispatcher usage and exits with `0` whatever backend is named.
+The scan stops at the first error, so a malformed `--backend` before `--help`
+still exits with `2`. Runner options are documented on their pages instead.
 
 ## Correctness / invariants
 
@@ -54,6 +54,8 @@ their pages instead.
 - The exit status equals the runner's return value: `0`, `1` or `2`.
 - Arguments other than `--backend`, its value and `--help`/`-h` reach the
   runner unchanged and in order.
+- "At most once" is checked on the stored value: an empty `--backend=` leaves
+  it empty, so a later `--backend NAME` is still accepted.
 
 ## Alternatives rejected
 

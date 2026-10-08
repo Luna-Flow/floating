@@ -91,6 +91,10 @@ binary exponent, then rounded to the working precision. Decimal bounds are
 parsed as a decimal with $2p + 16$ digits and converted to binary with one
 rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$
 significant digits the decimal parse is exact, so the bound is rounded once.
+A longer literal is rounded twice, and the second rounding can then land on
+the wrong side of a binary midpoint; the decimal expansion of a binary64
+midpoint can have hundreds of digits, so this needs a literal with more than
+$2p + 16 = 122$ significant digits, which ITF1788 data does not use.
 Rounding to nearest rather than outward is a simplification: it is exact for
 bounds that are binary64 numbers, but a decimal bound such as `0.1` is read as
 the nearest binary64 number, which may lie inside or outside the interval the
@@ -107,8 +111,14 @@ the implementation attaches.
 ### Three dispositions and a strict summary
 
 `Unsupported` marks cases the library does not implement (unknown operations
-such as the reverse operations `mulRevToPair`, or an expectation with a
-`signal` annotation). `Diagnostic` marks cases whose data cannot be read.
+such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an
+expectation with a `signal` annotation). `Diagnostic` marks cases whose data
+cannot be read. The classification is made by the dispatch path, not by the
+operation alone: the generic binary path reads the operands before it looks
+the operation up, so an unknown operation with a non-interval operand
+(`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`) becomes a `Diagnostic`, and a
+`signal` annotation on a unary, ternary, numeric or integer-power case makes
+its expected value unreadable and therefore a `Diagnostic` as well.
 `RunSummary::success` fails on any failed case *and* on any diagnostic,
 because unreadable data in a pinned corpus is a defect of the parser or the
 corpus, not an excluded feature. Unsupported cases do not fail `success`; the
@@ -134,7 +144,10 @@ so a caller may filter or reorder cases freely.
 
 **Totality.** Every completed statement becomes a case or a parse diagnostic,
 and `execute_case` never aborts on case content: every unreadable input is
-reported through a disposition.
+reported through a disposition. Statement boundaries come only from a line
+ending in `;`, so a line with a trailing `//` comment is not a boundary and
+merges with the next statement into one case with an unreadable expected
+value; the number of cases is then lower than the number of statements.
 
 ## Alternatives rejected
 
@@ -153,6 +166,10 @@ reported through a disposition.
 - Decimal bounds are rounded to nearest, not outward.
 - Interval results are always rounded to binary64; `precision` only affects
   how bounds are read.
-- Block comments are recognized only when `/*` starts a line.
+- Comments are recognized only at the start of a line: `/*` opens a block
+  comment only there, and a trailing `// …` after `;` merges the statement
+  with the next one.
+- Unknown operations with non-interval operands are diagnostics, not
+  unsupported cases, and therefore fail `RunSummary::success`.
 - No file IO and no operation filtering; both are in
   [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).

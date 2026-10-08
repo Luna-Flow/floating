@@ -1,4 +1,4 @@
-# mpfr_expr_cli design
+# cli/mpfr_expr_cli design
 
 ## Design goal
 
@@ -38,6 +38,9 @@ data was produced with, so aggregated reports state their evidence source.
 - Exactly one parser runs per invocation, determined by the file content.
 - Exit `0` iff every row passed; `totalCases = passedCases + failedCases`.
 - Parse errors exit with `2` before any row is executed.
+- The one exception to "every outcome is an exit code" is the frontend's
+  abort on an elementary `pow`, `hypot` or `atan2` row without a second
+  operand.
 
 ## Alternatives rejected
 

@@ -1,4 +1,4 @@
-# testfloat_expr tutorial
+# frontend/testfloat_expr tutorial
 
 This tutorial shows how to run Berkeley TestFloat vectors against `bin_float`.
 A TestFloat vector file is produced by `testfloat_gen` for one function, such
@@ -6,13 +6,27 @@ as `f64_mulAdd`, under one rounding mode; every line holds the operands, the
 expected result and the expected exception flags in hexadecimal. You describe
 the function with a `TestFloatSpec`, parse the lines, execute them, and read
 the summary. The command-line runner is
-[`testfloat_expr_cli`](../cli/testfloat_expr_cli.md).
+[`cli/testfloat_expr_cli`](../cli/testfloat_expr_cli.md).
+
+| I want to | Use |
+| --- | --- |
+| describe how a vector file was generated | [`TestFloatSpec::parse`](#quick-start) |
+| run vectors from a string | [`parse_testfloat`, `execute_document`](#quick-start) |
+| see why a vector failed | [`CaseResult::message`](#values-and-flags-are-both-checked) |
+| check operations that return NaN | [any quiet NaN matches](#nan-results) |
+| check integer conversions and `-exact` runs | [`TestFloatSpec::parse(…, exact=true)`](#conversions-to-integers-and-the-exact-variants) |
+| check the comparison predicates | [`f64_le`, `f64_le_quiet`, …](#comparisons) |
+| split a file over processes | [`RunOptions::new`](#shards) |
 
 ## Quick start
 
-Add the package to `moon.pkg`:
+Add the library to your module and import the package in `moon.pkg`:
 
-```text
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/testfloat_expr",
 }
@@ -178,10 +192,13 @@ test "shards" {
 
 ## Going further
 
-- **Generating vectors.** `just conformance fetch binary` installs the pinned
-  SoftFloat and TestFloat sources, and `just conformance run binary --level 1`
-  generates and executes the full matrix (all formats, operations, rounding
-  modes, both tininess modes); see [verification](../../verification.md).
+- **Generating vectors.** `just conformance fetch binary` downloads the
+  pinned SoftFloat and TestFloat sources, and `just conformance run binary
+  --level 1` builds `testfloat_gen`, then generates and executes the matrix of
+  all formats, operations and rounding modes. Tininess defaults to after
+  rounding; add `--tininess after --tininess before` to run both modes for
+  the operations that can underflow. See
+  [verification](../../verification.md).
 - **Tininess.** Pass `tininess="before"` to `TestFloatSpec::parse` to match
   vectors generated with `-tininessbefore`; the default is after rounding.
 - **Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_`
@@ -202,8 +219,11 @@ test "shards" {
 
 ## Next steps
 
-- [testfloat_expr API](../../api/frontend/testfloat_expr.md) for every item.
-- [testfloat_expr design](../../design/frontend/testfloat_expr.md) for the
-  exact pass rule.
+- [frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md) for
+  every item.
+- [frontend/testfloat_expr design](../../design/frontend/testfloat_expr.md)
+  for the exact pass rule.
+- [cli/testfloat_expr_cli tutorial](../cli/testfloat_expr_cli.md) for
+  running vector files from the command line.
 - [bin_float conformance](../../conformance/bin_float.md) for the published
   TestFloat claim.

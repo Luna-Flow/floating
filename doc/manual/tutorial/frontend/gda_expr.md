@@ -1,16 +1,31 @@
-# gda_expr tutorial
+# frontend/gda_expr tutorial
 
 This tutorial shows how to run General Decimal Arithmetic test rows
 (`.decTest` files) against `decimal_gda` from MoonBit code: parse a document,
 execute it, read the summary, and find out why a row failed. It also shows how
 to select rows and split a run into shards. To run whole corpora from the
-command line, use the [`gda_expr_cli`](../cli/gda_expr_cli.md) runner instead.
+command line, use the [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) runner
+instead.
+
+| I want to | Use |
+| --- | --- |
+| run a few rows from a string | [`parse_dectest`, `execute_documents`](#quick-start) |
+| see why a row failed | [`CaseResult::message`](#read-why-a-row-failed) |
+| know why a row was not run | [`CaseResult::disposition`](#skipped-rows-and-dispositions) |
+| run only some row ids | [`RunOptions::new(case_filter=…)`](#select-rows-and-split-work-into-shards) |
+| split a run over processes | [`RunOptions::new(shard_count=…, shard_index=…)`, `RunSummary::merge`](#select-rows-and-split-work-into-shards) |
+| inspect rows without running them | [`GdaDocument::cases`, `GdaCase`](#look-at-the-parsed-rows) |
+| evaluate rows with my own library | [`GdaCase::expression`](#going-further) |
 
 ## Quick start
 
-Add the package to `moon.pkg`:
+Add the library to your module and import the package in `moon.pkg`:
 
-```text
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/gda_expr",
 }
@@ -235,10 +250,17 @@ test "parsed rows" {
   the CLI's `--strict-supported`) if unsupported rows must fail the run.
 - **Doubled quotes.** The tokenizer ends a quoted token at the next matching
   quote; the `''` escape of the decTest format is read as two tokens.
+- **Very long operands.** Operands with more than $\max(64, p)$ significant
+  digits are rounded when they are read, which can change the result of the
+  row (see the [API warning](../../api/frontend/gda_expr.md#execute_documents)).
+- **`precision: 0` aborts.** A non-positive precision directive is accepted by
+  the parser but aborts `execute_documents`; remove such rows first.
 
 ## Next steps
 
-- [gda_expr API](../../api/frontend/gda_expr.md) for every item.
-- [gda_expr design](../../design/frontend/gda_expr.md) for the exact pass
-  rule and the row-to-operation mapping.
+- [frontend/gda_expr API](../../api/frontend/gda_expr.md) for every item.
+- [frontend/gda_expr design](../../design/frontend/gda_expr.md) for the exact
+  pass rule and the row-to-operation mapping.
+- [cli/gda_expr_cli tutorial](../cli/gda_expr_cli.md) for running corpora from
+  the command line.
 - [decimal_gda tutorial](../decimal_gda.md) for the arithmetic being tested.

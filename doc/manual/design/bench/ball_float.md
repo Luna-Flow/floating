@@ -19,6 +19,10 @@ $$
 $$
 
 the relative median paired overheads of one layer over the layer below. The
+median of the differences is not the difference of the medians in general
+($\operatorname{med}(c - k) \ne \operatorname{med}(c) - \operatorname{med}(k)$),
+so `core_pct` is not $100\,(\operatorname{med} c / \operatorname{med} k - 1)$;
+it is the quantity whose uncertainty the paired bootstrap describes. The
 estimators, the pairing and the bootstrap interval are derived in the
 [bench design](../bench.md).
 
@@ -34,7 +38,7 @@ Inputs are exact singleton intervals built from fixed bit patterns; the precisio
 
 ### Correctness oracle
 
-Kernel outputs must equal the exact `BinFloat` result; interval outputs must be singletons whose center equals it. An output that disagrees with the oracle is counted as a
+The reference is the `BinFloat` kernel result itself, which is exact for these inputs; kernel outputs must equal it, and interval outputs must be singletons whose center equals it. An output that disagrees with the oracle is counted as a
 failure and the performance test asserts that there is none, so a comparison
 is never between paths that compute different things.
 

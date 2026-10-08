@@ -55,9 +55,16 @@ evaluated with two callbacks. The literal callback decodes each $a_j$ to a
   ($(7, -95, 96)$, $(16, -383, 384)$ or $(34, -6143, 6144)$); in any other
   context the operand is invalid;
 - `32#…`, `64#…`, `128#…`: decimal text rounded into that interchange format;
-- otherwise decimal text (a leading `+` is dropped), parsed with a precision
-  of at least the token length, so every digit is kept: GDA operations take
-  their operands exactly and round only the result.
+- otherwise decimal text (a leading `+` is dropped), parsed with precision
+  $\max(64, p)$, which keeps every operand of up to that many significant
+  digits exact. A longer operand is rounded half-even on input, so the
+  operation then rounds a second time. Double rounding differs from one
+  rounding exactly when the first rounding moves the exact value onto, or
+  across, a rounding boundary of precision $p$: at $p = 9$ the operand
+  $1000000014\,\underbrace{9\cdots9}_{56}\,5$ (67 digits) becomes
+  $1000000015 \cdot 10^{57}$ at 64 digits, a tie at 9 digits, and
+  `half_even` then gives $100000002 \cdot 10^{58}$ instead of the correct
+  $100000001 \cdot 10^{58}$.
 
 The operation callback maps the normalized name to one `decimal_gda`
 function (for example `add` to `@decimal_gda.add`, `squareroot` to
@@ -125,9 +132,7 @@ rounding modes it does not know. Counting them as failures hides real
 failures; dropping them silently overstates coverage.
 
 **Choice.** Every selected row gets a disposition. `Diagnostic` marks rows
-that are not executable by construction (`#` or `?` operands, `#` result, or
-a context with precision $p \le 0$ or $E_{\min} > E_{\max}$, which no
-`decimal_gda` context can represent).
+that are not executable by construction (`#` or `?` operands, `#` result).
 `Unsupported` marks legal rows the library cannot run (unknown operation,
 condition or rounding). Only `Executable` rows can pass or fail, and the
 summary reports every class, so a claim such as "all executable rows pass"
@@ -203,10 +208,12 @@ they hold because each result is counted in exactly one class by
 `internal/conformance`.
 
 **Totality.** Parsing assigns every line to exactly one of: skipped (empty or
-comment), directive, row, diagnostic. Execution never aborts on row content:
-an invalid context makes its rows `Diagnostic` before any context is built,
-and decoding and dispatch failures become a failed result with the message
-`"evaluation failed"`.
+comment), directive, row, diagnostic. Execution does not abort on the tokens
+of a row: decoding and dispatch failures become a failed result with the
+message `"evaluation failed"`. It does abort on a directive context with a
+non-positive precision, because the context conversion calls
+`@decimal_gda.DecimalContext::new`, which aborts on it; parsing accepts any
+integer for `precision`.
 
 **Complexity.** Parsing is linear in the text length. Execution is linear in
 the number of rows plus the cost of the decimal operations themselves.
@@ -227,6 +234,10 @@ the number of rows plus the cost of the decimal operations themselves.
 - No file system access, globbing or process exit codes: those belong to
   [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`.
 - No traps: rows are executed with every trap disabled.
+- Operands with more than $\max(64, p)$ significant digits are rounded
+  half-even when decoded, so such rows can be rounded twice.
+- A `precision` directive of 0 or less aborts execution instead of producing
+  a diagnostic or an `Invalid_context` row.
 - The `''` escape of quoted decTest strings is not recognized.
 - `Legacy` is part of the shared result model but is never assigned by the
   current executor.

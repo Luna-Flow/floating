@@ -5,11 +5,21 @@ suite compares implementation paths on identical inputs with paired
 measurements; see the [bench tutorial](../bench.md) for the toolkit and the
 artifact format.
 
+| I want to | Use |
+| --- | --- |
+| run the suite | [`just bench decimal-gda`](#quick-start) |
+| read the reported percentages | [`MAREMARK_HOTSPOT` lines](#read-the-analysis-lines) |
+| check that the specifications still compile | [the plan tests](#check-the-plans-without-measuring) |
+| change workloads or paths | [the `*_test.mbt` files](#going-further) |
+| understand the statistics | [bench design](../../design/bench.md) |
+
 ## Quick start
 
-From the repository root:
+The suite runs from a checkout of the repository; it is not part of the
+published package, so there is nothing to `moon add`. From the repository
+root:
 
-```sh
+```bash
 just bench decimal-gda
 ```
 
@@ -22,14 +32,16 @@ observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where
 
 ### Read the analysis lines
 
-The analysis file contains `MAREMARK_HOTSPOT=decimal-gda/OP/DATASET full_pct=…`. A `core_pct` value is the median
-paired difference between the core path and the kernel, in percent of the
-kernel's median time; `full_pct` is the same for the checked path against the
-core path. Positive values mean the higher layer is slower.
+The analysis file contains `MAREMARK_HOTSPOT=decimal-gda/OP/DATASET full_pct=…`,
+where `DATASET` is the index 0 to 4 of the digit counts 1, 9, 18, 34 and 128.
+This suite has no kernel path, so there is no `core_pct`: `full_pct` is the
+median paired difference between the checked path and the core path, in
+percent of the core path's median per-call time. Positive values mean the
+checked path is slower.
 
 ### Check the plans without measuring
 
-```sh
+```bash
 sh tools/run_moon_clean_exec.sh test src/bench/decimal_gda --target native
 ```
 

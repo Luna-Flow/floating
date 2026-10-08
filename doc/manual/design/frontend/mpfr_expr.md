@@ -72,7 +72,10 @@ a failure: it can only come from a defect.
 
 Inputs are written in hexadecimal and are exact binary numbers. Reading
 elementary and power inputs at 512 bits keeps every input of up to 512
-significant bits exact, so the check concerns $f$, not the parsing of $x$. The
+significant bits exact, so the check concerns $f$, not the parsing of $x$. A
+longer input significand would be rounded to nearest-even at 512 bits and the
+row would then test $f$ at a different point. Every input of the committed
+elementary matrix has far fewer significant bits than 512. The
 square-root format carries its own input precision and is read at it.
 
 ### Numeric comparison for elementary rows

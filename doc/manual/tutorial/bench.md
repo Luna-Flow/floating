@@ -6,11 +6,52 @@ with the `bench` toolkit. The suites measure kernel, core and checked paths of
 each numeric package with the Maremark framework and report paired
 comparisons with bootstrap confidence intervals.
 
+| I want to | Use |
+| --- | --- |
+| run the benchmarks of one package | [`just bench SUITE`](#choose-a-suite) |
+| read the hotspot lines | [`MAREMARK_HOTSPOT`](#quick-start) |
+| read the square auto-tune result | [`MAREMARK_TUNE`, `MAREMARK_CROSSOVER`](#read-an-auto-tune-result) |
+| decide whether a change is a regression | [`confirmatory_regression`, `is_significant_regression`](#check-a-regression-in-code) |
+| add a benchmark | [`immutable_bench`, `run`, `paired_hotspot`](#write-a-new-benchmark) |
+| understand the statistics | [bench design](../design/bench.md) |
+
 ## Quick start
 
-Run one suite from the repository root:
+To use the reduction functions in your own module, add the library and import
+the package in `moon.pkg`:
 
-```sh
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/bench",
+}
+```
+
+The smallest useful program compares two paired sample arrays, for example
+per-call times measured before and after a change in the same ten blocks:
+
+```moonbit
+///|
+test "quick start" {
+  let before = [10.0, 10.2, 9.9, 10.1, 10.0, 10.3, 9.8, 10.0, 10.1, 10.0]
+  let after = before.map(x => x * 1.08)
+  let comparison = @bench.confirmatory_regression(before, after, 42UL).unwrap()
+  inspect(comparison.relative_delta_pct > 7.9, content="true")
+  inspect(@bench.is_significant_regression(comparison), content="true")
+}
+```
+
+An 8 % slowdown is above the 3 % practical threshold, and every paired
+difference is positive, so the 95 % interval of the median difference lies
+above zero.
+
+The `floating` suites themselves run from a checkout of the repository. Run
+one suite from the repository root:
+
+```bash
 just bench bin-float
 ```
 
@@ -30,9 +71,10 @@ holds the reduced results, one line per comparison, for example
 MAREMARK_HOTSPOT=bin-float/mul/2 core_pct=… full_pct=…
 ```
 
-meaning: for dataset 2 of `bin-float/mul`, the median per-call time of the
-`core/bin-float` path is `core_pct` percent above (or below, if negative) the
-coefficient kernel, and the checked path is `full_pct` percent above the core.
+meaning: for dataset 2 of `bin-float/mul`, the median paired difference
+between the `core/bin-float` path and the coefficient kernel is `core_pct`
+percent of the kernel's median per-call time (negative when the core is
+faster), and `full_pct` is the same for the checked path against the core.
 
 ## Everyday tasks
 
@@ -62,8 +104,13 @@ MAREMARK_POLICY=piecewise case=bin-float/autotune/square lookup=4:…,8:…
 ```
 
 `candidate` is the implementation with the smallest median per-call time on
-that dataset; the crossover is the first scale from which the other candidate
-wins; the policy line is a lookup table a kernel can embed.
+that dataset, and `samples` the number of valid confirmatory observations
+behind it. When the winner changes exactly once along the scales, the
+crossover line gives the last scale `below` the change and the first scale
+`at_or_above` it, and the policy line is the per-scale lookup table a kernel
+can embed. When it changes more than once the suite prints
+`MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when
+it never changes, `MAREMARK_CROSSOVER=none` and no policy line.
 
 ### Check a regression in code
 
@@ -169,6 +216,12 @@ collects its output.
 - **Pairing needs equal sample counts.** Both implementations of a
   comparison must have the same number of valid confirmatory observations;
   otherwise `paired_hotspot` returns `MismatchedPairs`.
+- **The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a
+  confidence of `0.95` percent; rely on its relative delta and decision.
+- **The tuning threshold does nothing.** `tune_dataset` always returns the
+  candidate with the smallest median; its `practical_delta_pct` argument does
+  not create ties, so two nearly equal candidates can alternate between
+  datasets and make the crossover non-monotonic.
 
 ## Next steps
 

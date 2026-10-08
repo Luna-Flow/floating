@@ -1,16 +1,29 @@
-# mpfr_expr tutorial
+# frontend/mpfr_expr tutorial
 
 This tutorial shows how to check `bin_float` against reference results
 computed with GNU MPFR. Three line-oriented formats are supported: MPFR's own
 square-root test data, integer powers, and an elementary-function matrix. You
 parse a file into a document, execute it, and read the summary. The
-command-line runner is [`mpfr_expr_cli`](../cli/mpfr_expr_cli.md).
+command-line runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md).
+
+| I want to | Use |
+| --- | --- |
+| check square roots from MPFR's `tests/data/sqrt` | [`parse_sqrt_data`, `execute_sqrt_data`](#quick-start) |
+| check elementary functions and their flags | [`parse_elementary_data`, `execute_elementary_data`](#elementary-functions-with-flags) |
+| check integer powers | [`parse_pow_data`, `execute_pow_data`](#integer-powers) |
+| see why a row failed | [`CaseResult::message`](#read-a-failure) |
+| find malformed lines | [`ParseDiagnostic::line`, `ParseDiagnostic::message`](#parse-errors) |
+| run the pinned corpora | [`just conformance run binary`](#going-further) |
 
 ## Quick start
 
-Add the package to `moon.pkg`:
+Add the library to your module and import the package in `moon.pkg`:
 
-```text
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/mpfr_expr",
 }
@@ -146,20 +159,26 @@ test "parse errors" {
 
 ## Common pitfalls
 
-- **Elementary rows compare numbers, not encodings.** Any NaN matches an
-  expected `nan`, and a zero must have the expected sign. Square-root and
-  power rows compare the whole `BinFloat`.
+- **Elementary rows compare numbers, not encodings.** `+0` and `-0` compare
+  equal there, and any NaN matches an expected `nan`. Square-root and power
+  rows compare the whole `BinFloat`, including the sign of zero.
 - **Square-root flags are not checked.** `sqrt` data rows compare only the
   value.
 - **No exponent range.** Rows are executed in an unbounded context: there is
   no overflow, underflow or subnormal range, and an elementary or power row
   that reports overflow or underflow fails.
 - **Binary operations need a second operand.** An elementary `pow`, `hypot`
-  or `atan2` row with `-` as second operand is a parse diagnostic.
+  or `atan2` row with `-` as second operand is accepted by the parser but
+  aborts the whole run when executed.
+- **Inputs are read at 512 bits.** Elementary and power operands with longer
+  significands are rounded before the function is evaluated.
 
 ## Next steps
 
-- [mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the
-  exact field layouts.
-- [mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules.
+- [frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item
+  and the exact field layouts.
+- [frontend/mpfr_expr design](../../design/frontend/mpfr_expr.md) for the
+  pass rules.
+- [cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file
+  from the command line.
 - [bin_float tutorial](../bin_float.md) for the functions being tested.

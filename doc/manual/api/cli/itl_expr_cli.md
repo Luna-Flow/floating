@@ -1,11 +1,28 @@
 # cli/itl_expr_cli API
 
+## Purpose
+
 `cli/itl_expr_cli` is the command-line runner for ITF1788 `.itl` interval
 test files. It parses them with [`frontend/itl_expr`](../frontend/itl_expr.md),
 executes every case against `ball_float` and prints a JSON report. It is
 normally reached as `floating-conformance --backend itl …`. See the
 [tutorial](../../tutorial/cli/itl_expr_cli.md) and the
 [design page](../../design/cli/itl_expr_cli.md).
+
+## Importing
+
+The runner is a library, so it can be called from MoonBit code as well as
+through the dispatcher. Add it to the `import` block of your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/cli/itl_expr_cli",
+}
+```
+
+The examples use the alias `@itl_expr_cli`. `run` reads files through
+`moonbitlang/x/fs`; the repository builds and tests the runners on the native
+target.
 
 ## `run`
 
@@ -23,10 +40,14 @@ pub fn run(Array[String]) -> Int
 | `--operation NAME` | keep only cases of this operation; repeatable (cases of any listed operation are kept) |
 | `PATH …` | `.itl` files, read in the given order; default `testdata/interval/smoke.itl` |
 
-Any other argument starting with `-` (including `--json` and the shard
-options, which this runner does not have) is an error `unknown option: …`.
-Paths are files; directories are not expanded. If a file does not parse, every
-diagnostic is printed as `PATH: MESSAGE` and the run ends.
+Any other argument starting with `-` (including `--json`, `--help` and the
+shard options, which this runner does not have) is an error
+`unknown option: …`; `--operation` without a value prints
+`missing value for --operation`. Paths are files; directories are not
+expanded, and an unreadable path prints `cannot read ITL file: PATH`. Every
+file is parsed completely before the operation filter is applied, so a parse
+error in a statement of an unselected operation still ends the run: every
+diagnostic of that file is printed as `PATH: MESSAGE`.
 
 The output is always one JSON object with the keys `schemaVersion` (`1`),
 `runner` (`"itl-expression-interpreter"`), `totalCases`, `executableCases`,
@@ -43,6 +64,7 @@ case was a diagnostic, or with `--strict-supported` a case was unsupported;
 test "itl runner usage errors" {
   inspect(@itl_expr_cli.run(["itl", "--json"]), content="2")
   inspect(@itl_expr_cli.run(["itl", "--operation"]), content="2")
+  inspect(@itl_expr_cli.run(["itl", "--help"]), content="2")
 }
 ```
 

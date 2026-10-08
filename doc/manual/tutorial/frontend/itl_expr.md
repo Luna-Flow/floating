@@ -1,15 +1,28 @@
-# itl_expr tutorial
+# frontend/itl_expr tutorial
 
 This tutorial shows how to run IEEE 1788 interval test cases written in the
 ITL format of the ITF1788 suite against `ball_float`. You parse ITL text into
 cases, execute each case, and summarize the results. The command-line runner
-for whole files is [`itl_expr_cli`](../cli/itl_expr_cli.md).
+for whole files is [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).
+
+| I want to | Use |
+| --- | --- |
+| run ITL statements from a string | [`parse_itl`, `execute_case`, `summarize_results`](#quick-start) |
+| see how a statement was split | [`ItlCase::operation`, `ItlCase::operands`](#inspect-parsed-cases) |
+| test decorations too | [a `_dec` suffix on the expected value](#check-decorations) |
+| check numbers, booleans or overlap states | [the numeric, boolean and overlap dispatch](#numbers-booleans-and-overlap-states) |
+| find out why a case was not run | [`ItlResult::disposition`](#unsupported-and-malformed-cases) |
+| run only some operations | [filter on `ItlCase::operation`](#going-further) |
 
 ## Quick start
 
-Add the package to `moon.pkg`:
+Add the library to your module and import the package in `moon.pkg`:
 
-```text
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/itl_expr",
 }
@@ -115,7 +128,9 @@ test "other result kinds" {
 
 A case the executor does not implement is `Unsupported`; a case whose operands
 cannot be read is a `Diagnostic`. Neither counts as a failure, but a
-diagnostic makes `success()` false:
+diagnostic makes `success()` false. An unknown operation whose operands are
+not all interval literals, such as `nums2interval 1.0 2.0`, is also a
+diagnostic, so filter such operations out before executing a whole file:
 
 ```moonbit
 ///|
@@ -124,13 +139,14 @@ test "dispositions" {
     #|testcase odd {
     #|  mulRevToPair [1.0,2.0] [3.0,4.0] = [1.0,2.0];
     #|  sqrt [one,two] = [1.0,2.0];
+    #|  nums2interval 1.0 2.0 = [1.0,2.0];
     #|}
   let results = @itl_expr.parse_itl(source)
     .unwrap()
     .map(c => @itl_expr.execute_case(c))
   let summary = @itl_expr.summarize_results(results)
   inspect(summary.unsupported_cases(), content="1")
-  inspect(summary.diagnostic_cases(), content="1")
+  inspect(summary.diagnostic_cases(), content="2")
   inspect(summary.success(), content="false")
 }
 ```
@@ -159,11 +175,17 @@ test "dispositions" {
 - **Parse errors reject the input.** `parse_itl` returns only diagnostics if
   any statement lacks `=` or an operation, or if the text ends inside a
   statement.
+- **No comments after `;`.** A trailing `// …` keeps the line from ending in
+  `;`, so the statement swallows the next one without an error. Put comments
+  on their own lines.
 
 ## Next steps
 
-- [itl_expr API](../../api/frontend/itl_expr.md) for every item and the list
-  of executed operations.
-- [itl_expr design](../../design/frontend/itl_expr.md) for the pass rule.
+- [frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and
+  the list of executed operations.
+- [frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass
+  rule.
+- [cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from
+  the command line.
 - [ball_float tutorial](../ball_float.md) for the interval arithmetic being
   tested.

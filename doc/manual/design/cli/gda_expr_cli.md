@@ -1,4 +1,4 @@
-# gda_expr_cli design
+# cli/gda_expr_cli design
 
 ## Design goal
 
@@ -31,7 +31,8 @@ get balanced shards even when one file dominates the corpus.
 `--strict-supported` is evaluated here: the exit status is `1` when the
 summary has failed rows, or, in strict mode, any legacy or unsupported row.
 The frontend summary itself stays neutral, so in-process callers can apply
-their own policy.
+their own policy. Diagnostic rows are excluded even in strict mode: they are
+placeholders without a scalar meaning, not features the library lacks.
 
 ### Stable JSON keys
 
@@ -52,7 +53,9 @@ result.
   unsupported row.
 - For a fixed argument vector and file contents the output is deterministic.
 - `totalCases` is the same in every shard of one run, so the aggregate total
-  is the common value, not the sum.
+  is the common value, not the sum. Every other counter is a sum over the
+  shards, because each counts only the rows its shard selected and the shards
+  partition the filtered rows.
 
 ## Alternatives rejected
 
@@ -64,6 +67,7 @@ result.
 ## Boundaries
 
 - No corpus download or phase planning (Python tooling).
-- No recursion into subdirectories.
+- No recursion into subdirectories, and files without the `.decTest` suffix
+  are ignored without a message.
 - Only GDA `.decTest` semantics through `decimal_gda`; IEEE decimal vectors use
   a different runner.
