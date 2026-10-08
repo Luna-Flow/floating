@@ -340,15 +340,6 @@ fn bin_coeff_square_large_dispatch(value : BinCoeff) -> BinCoeff {
 }
 
 ///|
-fn bin_coeff_top_u64(value : BinCoeff) -> UInt64 {
-  let len = bin_coeff_limb_len(value)
-  if len == 0 {
-    return 0UL
-  }
-  bin_coeff_limb(value, len - 1).to_uint64()
-}
-
-///|
 fn bin_coeff_mul_signed_small(
   value : BinCoeff,
   factor : Int64,
@@ -369,15 +360,36 @@ fn bin_coeff_mul_signed_small(
 }
 
 ///|
+/// Lehmer's gcd. Each round runs Euclid on the leading 63 bits of `a` and the
+/// bits of `b` at the same positions, then applies the accumulated cofactors
+/// to the full operands. Both leading digits must be taken from the same bit
+/// window: digits taken from each operand's own top limb have unrelated
+/// scales, and the cofactors they produce subtract only a small multiple of
+/// `b` per round, so an operand pair like a 301-bit odd number and `2^543`
+/// needed about `2^220` rounds.
 fn bin_coeff_gcd_lehmer(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let mut a = left
   let mut b = right
   while !b.is_zero() {
-    if bin_coeff_limb_len(a) < 8 || bin_coeff_limb_len(b) < 8 {
+    if a.compare(b) < 0 {
+      let smaller = a
+      a = b
+      b = smaller
+    }
+    if bin_coeff_limb_len(b) < 8 {
       return bin_coeff_gcd_euclid(a, b)
     }
-    let mut x = bin_coeff_top_u64(a).reinterpret_as_int64()
-    let mut y = bin_coeff_top_u64(b).reinterpret_as_int64()
+    let shift = a.bit_length() - 63
+    if b.bit_length() <= shift {
+      // `b` has no bits in the leading window, so `a / b >= 2^62`: one
+      // division step makes all the progress a Lehmer round could.
+      let remainder = a.div_rem_checked(b).unwrap().1
+      a = b
+      b = remainder
+      continue
+    }
+    let mut x = a.shift_right(shift).to_uint64().unwrap().reinterpret_as_int64()
+    let mut y = b.shift_right(shift).to_uint64().unwrap().reinterpret_as_int64()
     let mut aa : Int64 = 1L
     let mut ab : Int64 = 0L
     let mut ba : Int64 = 0L
