@@ -91,3 +91,32 @@ test "apply_ctx does not raise underflow for exact tiny endpoints" {
   assert_true(normal_flags.inexact())
   assert_false(normal_flags.underflow())
 }
+
+///|
+test "midpoint_ctx follows the IEEE 1788 mid cases" {
+  // IEEE 1788-2015 12.12.8: NaN for Empty, 0 for Entire, the finite number
+  // of largest magnitude for a half-bounded interval, +0 for a zero midpoint.
+  let ctx = BallContext::new(precision=4, e_min=-2, e_max=10)
+  let max = context_max_finite(ctx)
+  let (e, empty_flags) = BallFloat::empty(precision=53).midpoint_ctx(ctx)
+  assert_eq(e.classify(), FpClass::NaN)
+  assert_true(empty_flags == BallFlags::new())
+  let one = @bin_float.BinFloat::one(precision=53)
+  let (up, up_flags) = BallFloat::from_bounds(one, pos_inf(53)).midpoint_ctx(
+    ctx,
+  )
+  assert_eq(up.compare(max), 0)
+  assert_true(up_flags == BallFlags::new())
+  let (down, down_flags) = BallFloat::from_bounds(neg_inf(53), one).midpoint_ctx(
+    ctx,
+  )
+  assert_eq(down.compare(max.neg()), 0)
+  assert_true(down_flags == BallFlags::new())
+  let (z, zero_flags) = BallFloat::from_bounds(
+    @bin_float.BinFloat::zero(precision=53).neg(),
+    @bin_float.BinFloat::zero(precision=53).neg(),
+  ).midpoint_ctx(ctx)
+  assert_true(z.is_zero())
+  assert_false(z.is_negative_zero())
+  assert_true(zero_flags == BallFlags::new())
+}
