@@ -543,6 +543,9 @@ fn quotient_interval_nonzero_denominator(
 
 ///|
 fn pow_nat(base : BallFloat, exponent : UInt, precision : Int) -> BallFloat {
+  if base.is_empty() {
+    return empty_interval(precision)
+  }
   let mut n = exponent
   let mut result = BallFloat::from_int(1, precision~)
   let mut factor = base.with_precision(precision, RoundingMode::ToNearestEven)
@@ -1062,14 +1065,14 @@ pub fn BallFloat::sign(self : BallFloat) -> Sign {
 pub fn BallFloat::normalized(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     self
-  } else if self.is_bounded() {
-    BallFloat::new(
-      self.center().normalized(),
-      self.radius().normalized(),
-      precision=self.precision_,
-    )
   } else {
-    quantize_interval(self.lo_, self.hi_, self.precision_)
+    // Normalize the endpoints themselves; rebuilding the interval from its
+    // center and radius would round outward a second time and widen it.
+    quantize_interval(
+      self.lo_.normalized(),
+      self.hi_.normalized(),
+      self.precision_,
+    )
   }
 }
 
