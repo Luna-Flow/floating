@@ -277,6 +277,54 @@ fn decode_decimal(
   token : String,
   context : GdaContext,
 ) -> @decimal_gda.Decimal? {
+  match decode_decimal_literal(token, context) {
+    Some(value) => Some(value)
+    None => decode_extreme_exponent_decimal(token, context)
+  }
+}
+
+///|
+/// A literal whose exponent does not fit `Int` (`1e3000000000`) is not a
+/// `Decimal`, but decTest rows use such operands to check that an operation
+/// rejects them. Like the reference implementation's string conversion,
+/// saturate the written exponent (at 2,000,000,000, beyond every test
+/// context's range) and keep the digits.
+fn decode_extreme_exponent_decimal(
+  token : String,
+  context : GdaContext,
+) -> @decimal_gda.Decimal? {
+  let normalized = normalize_token(token)
+  let mut marker = -1
+  for index in 0..<normalized.length() {
+    if normalized[index] == 'e' || normalized[index] == 'E' {
+      marker = index
+    }
+  }
+  guard marker > 0 else { return None }
+  let mut start = marker + 1
+  let negative = start < normalized.length() && normalized[start] == '-'
+  if start < normalized.length() &&
+    (normalized[start] == '-' || normalized[start] == '+') {
+    start += 1
+  }
+  guard normalized.length() - start > 10 ||
+    (
+      normalized.length() - start == 10 &&
+      normalized[start:].to_owned() > "2000000000"
+    ) else {
+    return None
+  }
+  let saturated = normalized[:marker].to_owned() +
+    (if negative { "E-" } else { "E+" }) +
+    "2000000000"
+  decode_decimal_literal(saturated, context)
+}
+
+///|
+fn decode_decimal_literal(
+  token : String,
+  context : GdaContext,
+) -> @decimal_gda.Decimal? {
   let normalized = normalize_token(token)
   if normalized.has_prefix("32#") {
     Some(

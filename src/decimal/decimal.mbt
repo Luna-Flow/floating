@@ -689,14 +689,17 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         Decimal::zero(precision~)
       }
     (FpClass::Finite, FpClass::Finite) =>
-      {
-        class: FpClass::Finite,
-        negative: a.negative != b.negative,
-        coefficient: dec_coeff_multiply_repr(a.coefficient, b.coefficient),
-        exponent10: a.exponent10 + b.exponent10,
-        precision_: precision,
-        signaling_nan: false,
-      }
+      with_exponent10_offset_or_saturate(
+        {
+          class: FpClass::Finite,
+          negative: a.negative != b.negative,
+          coefficient: dec_coeff_multiply_repr(a.coefficient, b.coefficient),
+          exponent10: 0,
+          precision_: precision,
+          signaling_nan: false,
+        },
+        a.exponent10.to_int64() + b.exponent10.to_int64(),
+      )
   }
 }
 
@@ -756,14 +759,62 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         a.sign() != b.sign(),
         DecimalRoundingMode::ZeroFiveUp,
       )
-      normalize_decimal_parts_gda_repr(
-        a.sign() != b.sign(),
-        q,
-        a.exponent10 - b.exponent10 - extra,
-        precision,
-        DecimalRoundingMode::HalfEven,
+      with_exponent10_offset_or_saturate(
+        normalize_decimal_parts_gda_repr(
+          a.sign() != b.sign(),
+          q,
+          -extra,
+          precision,
+          DecimalRoundingMode::HalfEven,
+        ),
+        a.exponent10.to_int64() - b.exponent10.to_int64(),
       )
     }
+  }
+}
+
+///|
+// Adds `offset` to the exponent of a finite context-free result. The result
+// is representable only when its exponent and its adjusted exponent fit
+// `Int`; a zero keeps its value when its exponent is clamped.
+fn with_exponent10_offset(value : Decimal, offset : Int64) -> Decimal? {
+  let exponent10 = value.exponent10.to_int64() + offset
+  if value.coefficient.is_zero() {
+    return Some({ ..value, exponent10: scaleb_int64_to_int(exponent10), })
+  }
+  let adjusted = exponent10 + (value.coefficient.digits10() - 1).to_int64()
+  if exponent10 < -2147483648L || adjusted > 2147483647L {
+    None
+  } else {
+    Some({ ..value, exponent10: exponent10.to_int(), })
+  }
+}
+
+///|
+// `with_exponent10_offset` for the context-free operators: a result that is
+// not representable becomes a signed infinity when too large and a signed zero
+// when too small, instead of wrapping around.
+fn with_exponent10_offset_or_saturate(
+  value : Decimal,
+  offset : Int64,
+) -> Decimal {
+  match with_exponent10_offset(value, offset) {
+    Some(result) => result
+    None if value.exponent10.to_int64() + offset > 0L =>
+      Decimal::inf(
+        if value.negative {
+          Sign::Negative
+        } else {
+          Sign::Positive
+        },
+        precision=value.precision_,
+      )
+    None =>
+      if value.negative {
+        Decimal::negative_zero(precision=value.precision_)
+      } else {
+        Decimal::zero(precision=value.precision_)
+      }
   }
 }
 

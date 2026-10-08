@@ -152,10 +152,11 @@ pub fn Decimal::from_string(String, precision? : Int) -> Self?
 Accepted syntax is the GDA numeric-string grammar: an optional sign, digits
 with an optional decimal point, an optional exponent `E±n`, or
 `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN
-payload. The exponent is kept exactly within the limits below, so
-`from_string("2.50")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is
-rounded half to even and its trailing zeros are removed. A malformed literal
-gives `Err(parse_error)` or `None`. Use the package function
+payload. The exponent is kept exactly, so `from_string("2.50")` has exponent
+$-2$. A literal with more than `precision` (default 34) significant digits is
+rounded half to even and its trailing zeros are removed. A malformed literal,
+or one whose stored exponent or adjusted exponent would not fit `Int`
+(`1e3000000000`), gives `Err(parse_error)` or `None`. Use the package function
 [`parse`](#parse) when the exponent limits, flags, status or traps of a context
 must apply.
 
@@ -1177,7 +1178,9 @@ pub impl Neg for Decimal
 
 Let $P$ be the larger precision attribute of the operands. `+`, `-` and `/`
 round half to even to $P$ digits and then remove trailing zeros; `*` returns
-the exact product (it is never rounded) with attribute $P$. Special values
+the exact product (it is never rounded) with attribute $P$. A result whose
+exponent or adjusted exponent would leave `Int` is a signed infinity when too
+large and a signed zero when too small. Special values
 follow IEEE rules without signals: NaN operands give a quiet NaN,
 $\infty - \infty$, $0 \times \infty$, $0/0$ and $\infty/\infty$ give NaN,
 $x/0$ gives a signed infinity and $x/\infty$ gives $+0$. `neg` is

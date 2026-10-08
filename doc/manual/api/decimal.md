@@ -301,8 +301,9 @@ decimal payload digits. If the significant digits fit `precision` (default 34)
 the exponent of the text is kept exactly: `"1.2300"` has coefficient 12300 and
 exponent $-4$, and `"0.00"` is $+0$ with exponent $-2$. A longer coefficient is
 rounded half-even to `precision` digits and reduced. No exponent range is
-applied. Invalid text returns `Err(parse_error)` from `parse` and `None` from
-`from_string`.
+applied, but the stored exponent and the adjusted exponent must fit `Int`:
+`1e3000000000` is rejected like invalid text. Invalid text returns
+`Err(parse_error)` from `parse` and `None` from `from_string`.
 
 > [!WARNING]
 > The exponent of the text is clamped to $\pm 1\,500\,000\,000$ without any
@@ -696,7 +697,9 @@ The result precision is $\max(p_a, p_b)$ of the operand precision fields.
   return the reduced cohort member: `1.20 + 3.40` is `4.6`.
 - `mul` returns the exact product with exponent $q_a+q_b$ and is **not
   rounded**: `1.25 * 2.50` is `3.1250`, and the coefficient may be longer
-  than the precision field.
+  than the precision field. A product (or quotient) whose exponent or
+  adjusted exponent would leave `Int` is a signed infinity when too large and
+  a signed zero when too small.
 - `div` rounds the quotient half-even to that precision and reduces it. The
   quotient is computed with a few guard digits and rounded with `ZeroFiveUp`
   first, which makes the second rounding equal to one correct rounding:

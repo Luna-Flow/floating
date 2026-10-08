@@ -48,6 +48,8 @@ pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 
 pub fn split_decimal_string(String) -> (Bool, String, Int)?
 
+pub fn split_decimal_string_wide(String) -> (Bool, String, Int64)?
+
 pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bigint.BigInt, Int, Int)
 
 // Errors

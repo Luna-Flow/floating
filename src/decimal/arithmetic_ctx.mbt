@@ -397,7 +397,9 @@ fn Decimal::decimal_mul_ctx_impl(
         finite_with_exponent(
           self.negative != other.negative,
           bigint_zero(),
-          self.exponent10 + other.exponent10,
+          scaleb_int64_to_int(
+            self.exponent10.to_int64() + other.exponent10.to_int64(),
+          ),
           finite_precision_for(bigint_zero(), ctx),
         ),
         DecimalFlags::new(),
@@ -405,10 +407,10 @@ fn Decimal::decimal_mul_ctx_impl(
       )
     (FpClass::Finite, FpClass::Finite) => {
       let exact = dec_coeff_multiply_repr(self.coefficient, other.coefficient)
-      normalize_decimal_parts_ctx_repr(
+      normalize_decimal_parts_ctx_wide_repr(
         self.negative != other.negative,
         exact,
-        self.exponent10 + other.exponent10,
+        self.exponent10.to_int64() + other.exponent10.to_int64(),
         ctx,
       )
     }
@@ -427,6 +429,43 @@ pub fn Decimal::div_ctx(
   let result = lhs.decimal_div_ctx_impl(rhs, ctx)
   let flags = operand_flags.combine(result.1)
   finish_context_result(result.0, flags, ctx, true)
+}
+
+///|
+// Quotients whose exponent arithmetic would leave `Int`. The adjusted exponent
+// of a / b is adj(a) - adj(b) or one less, so a quotient above e_max always
+// overflows, and one below 10^(etiny - 1) rounds like 10^(etiny - 2).
+fn division_beyond_exponent_range(
+  dividend : Decimal,
+  divisor : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  let difference = dividend.exponent10.to_int64() -
+    divisor.exponent10.to_int64()
+  let guard_digits = (finite_precision_for(bigint_one(), ctx) +
+  divisor.coefficient.digits10() +
+  2).to_int64()
+  guard difference > 2147483647L || difference - guard_digits < -2147483648L else {
+    return None
+  }
+  let negative = dividend.negative != divisor.negative
+  let adjusted = difference +
+    (dividend.coefficient.digits10() - divisor.coefficient.digits10()).to_int64()
+  if adjusted - 1L > ctx.e_max.to_int64() {
+    return Some(decimal_overflow_result(negative, ctx))
+  }
+  let tiny = etiny(ctx).to_int64()
+  if adjusted <= tiny - 2L {
+    return Some(
+      normalize_decimal_parts_ctx_wide_repr(
+        negative,
+        dec_coeff_from_int(1),
+        tiny - 2L,
+        ctx,
+      ),
+    )
+  }
+  None
 }
 
 ///|
@@ -500,13 +539,19 @@ fn Decimal::decimal_div_ctx_impl(
         finite_with_exponent(
           self.negative != other.negative,
           bigint_zero(),
-          self.exponent10 - other.exponent10,
+          scaleb_int64_to_int(
+            self.exponent10.to_int64() - other.exponent10.to_int64(),
+          ),
           precision,
         ),
         DecimalFlags::new(),
         ctx,
       )
     (FpClass::Finite, FpClass::Finite) => {
+      match division_beyond_exponent_range(self, other, ctx) {
+        Some(result) => return result
+        None => ()
+      }
       match exact_division_by_power_of_ten_result(self, other, ctx) {
         Some(result) => return result
         None => ()
@@ -667,10 +712,71 @@ fn Decimal::decimal_fma_ctx_impl(
         self.coefficient,
         multiplier.coefficient,
       )
+      let product_negative = self.negative != multiplier.negative
+      let product_exponent = self.exponent10.to_int64() +
+        multiplier.exponent10.to_int64()
+      if addend.class == FpClass::Finite &&
+        !product_coeff.is_zero() &&
+        product_exponent > 2147483647L {
+        return decimal_overflow_result(product_negative, ctx)
+      }
+      if addend.class == FpClass::Finite &&
+        !product_coeff.is_zero() &&
+        product_exponent < -2147483648L {
+        if addend.is_zero() {
+          return normalize_decimal_parts_ctx_wide_repr(
+            product_negative, product_coeff, product_exponent, ctx,
+          )
+        }
+        // The sum is rounded at a position R >= etiny, and, since a product
+        // this small moves the adjusted exponent by at most one, R >=
+        // adj(addend) - p. Every rounding boundary is then a multiple of
+        // 10^m with m = min(addend exponent, max(etiny, adj(addend) - p) - 1),
+        // and so is the addend. A product of magnitude below 10^m therefore
+        // rounds like any other value strictly between 0 and 10^m with its
+        // sign; 10^(m-1) keeps the alignment with the addend short.
+        let addend_adjusted = addend.exponent10.to_int64() +
+          (addend.coefficient.digits10() - 1).to_int64()
+        let lowest_rounding = if ctx.precision > 0 {
+          Int64::max(
+            etiny(ctx).to_int64(),
+            addend_adjusted - ctx.precision.to_int64(),
+          )
+        } else {
+          etiny(ctx).to_int64()
+        }
+        let m = Int64::min(addend.exponent10.to_int64(), lowest_rounding - 1L)
+        let product_adjusted = product_exponent +
+          (product_coeff.digits10() - 1).to_int64()
+        if product_adjusted < m && m - 1L >= -2147483648L {
+          return add_finite_values_ctx(
+            finite_with_exponent_repr(
+              product_negative,
+              dec_coeff_from_int(1),
+              (m - 1L).to_int(),
+              1,
+            ),
+            addend,
+            ctx,
+            allow_shortcuts=false,
+          )
+        }
+      }
+      // An exact zero product only contributes its exponent, which is
+      // clamped to etiny anyway; keep it there instead of below `Int`.
+      let product_exponent = if product_coeff.is_zero() &&
+        product_exponent < -2147483648L {
+        Int64::max(product_exponent, etiny(ctx).to_int64() - 1L)
+      } else {
+        product_exponent
+      }
+      let (product_coeff, product_exponent, _) = fold_exponent10_into_int_repr(
+        product_negative, product_coeff, product_exponent,
+      )
       let exact_product = finite_with_exponent_repr(
-        self.negative != multiplier.negative,
+        product_negative,
         product_coeff,
-        self.exponent10 + multiplier.exponent10,
+        product_exponent,
         finite_precision_for_coeff(product_coeff, decimal_exact_work_context()),
       )
       match addend.class {

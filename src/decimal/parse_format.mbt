@@ -241,7 +241,7 @@ fn decimal_overflow_result(
 ///|
 fn decimal_zero_conversion_result(
   negative : Bool,
-  exponent10 : Int,
+  exponent10 : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
@@ -257,12 +257,12 @@ fn decimal_zero_conversion_result(
     ctx.e_max
   }
   let lower = etiny(ctx)
-  let clamped_exponent = if exponent10 > upper {
+  let clamped_exponent = if exponent10 > upper.to_int64() {
     upper
-  } else if exponent10 < lower {
+  } else if exponent10 < lower.to_int64() {
     lower
   } else {
-    exponent10
+    exponent10.to_int()
   }
   (
     finite_with_exponent_repr(
@@ -271,7 +271,7 @@ fn decimal_zero_conversion_result(
       clamped_exponent,
       precision,
     ),
-    if clamped_exponent == exponent10 {
+    if clamped_exponent.to_int64() == exponent10 {
       DecimalFlags::new()
     } else {
       { ..DecimalFlags::new(), clamped: true, }
@@ -284,13 +284,13 @@ fn decimal_extreme_tiny_conversion_result(
   negative : Bool,
   magnitude : DecCoeff,
   original_digits : Int,
-  exponent10 : Int,
+  exponent10 : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard ctx.precision > 0 && !magnitude.is_zero() else { return None }
   let tiny = etiny(ctx)
-  guard exponent10 < tiny else { return None }
-  let shift = tiny.to_int64() - exponent10.to_int64()
+  guard exponent10 < tiny.to_int64() else { return None }
+  let shift = tiny.to_int64() - exponent10
   guard shift > (original_digits + 2).to_int64() else { return None }
   let precision = finite_precision_for_coeff(magnitude, ctx)
   let rounded_magnitude = huge_shift_rounded_unit_repr(
@@ -298,7 +298,7 @@ fn decimal_extreme_tiny_conversion_result(
     negative,
     ctx.decimal_rounding,
   )
-  let adjusted = exponent10.to_int64() + (original_digits - 1).to_int64()
+  let adjusted = exponent10 + (original_digits - 1).to_int64()
   let subnormal = adjusted < ctx.e_min.to_int64()
   Some(
     (
@@ -404,14 +404,15 @@ fn parse_decimal_string_ctx(
   match parse_special_decimal_string_ctx(src, ctx) {
     Some(result) => result
     None =>
-      match split_decimal_string(src) {
+      match split_decimal_string_wide(src) {
         Some((negative, digits, exponent10)) => {
           let significant_digits = strip_leading_zero_digits(digits)
           if significant_digits.length() == 0 {
             return decimal_zero_conversion_result(negative, exponent10, ctx)
           }
           let original_digits = significant_digits.length()
-          if exponent10 + original_digits - 1 > ctx.e_max {
+          if exponent10 + (original_digits - 1).to_int64() >
+            ctx.e_max.to_int64() {
             return decimal_overflow_result(negative, ctx)
           }
           let magnitude = match
@@ -426,7 +427,7 @@ fn parse_decimal_string_ctx(
             Some(result) => return result
             None => ()
           }
-          let (value, flags) = normalize_decimal_parts_ctx_repr(
+          let (value, flags) = normalize_decimal_parts_ctx_wide_repr(
             negative, magnitude, exponent10, ctx,
           )
           if ctx.precision > 0 &&
@@ -459,15 +460,16 @@ pub fn Decimal::parse(
     }
     None => ()
   }
-  match split_decimal_string(src) {
+  match split_decimal_string_wide(src) {
     Some((negative, digits, exponent10)) => {
       let significant_digits = strip_leading_zero_digits(digits)
       if significant_digits.length() == 0 {
+        // A zero keeps its value when its exponent is clamped to `Int`.
         Ok(
           finite_with_exponent_repr(
             negative,
             dec_coeff_zero(),
-            exponent10,
+            scaleb_int64_to_int(exponent10),
             precision,
           ),
         )
@@ -482,18 +484,27 @@ pub fn Decimal::parse(
               ),
             )
         }
-        if significant_digits.length() <= precision {
-          Ok(finite_with_exponent_repr(negative, coeff, exponent10, precision))
+        // Rounding and reduction do not depend on the exponent: build the
+        // value at exponent 0 and check that the final exponent fits.
+        let value = if significant_digits.length() <= precision {
+          finite_with_exponent_repr(negative, coeff, 0, precision)
         } else {
-          Ok(
-            normalize_decimal_parts_gda_repr(
-              negative,
-              coeff,
-              exponent10,
-              precision,
-              DecimalRoundingMode::HalfEven,
-            ),
+          normalize_decimal_parts_gda_repr(
+            negative,
+            coeff,
+            0,
+            precision,
+            DecimalRoundingMode::HalfEven,
           )
+        }
+        match with_exponent10_offset(value, exponent10) {
+          Some(value) => Ok(value)
+          None =>
+            Err(
+              @def.ArithmeticError::parse_error(
+                "decimal literal exponent out of range: " + src,
+              ),
+            )
         }
       }
     }

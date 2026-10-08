@@ -261,8 +261,32 @@ pub fn compare_abs(a : BigInt, b : BigInt) -> Int {
 }
 
 ///|
+/// Splits a finite decimal literal into sign, mantissa digits and exponent.
+///
+/// The exponent is exact when it fits `Int`; otherwise the result is `None`,
+/// so an out-of-range exponent is never replaced by a different value. Use
+/// `split_decimal_string_wide` when such literals must be told apart from
+/// malformed text.
 pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
-  let exponent_cap = 1_500_000_000
+  guard split_decimal_string_wide(src) is Some((negative, digits, exponent)) &&
+    exponent >= -2147483648L &&
+    exponent <= 2147483647L else {
+    return None
+  }
+  Some((negative, digits, exponent.to_int()))
+}
+
+///|
+/// Splits a finite decimal literal into sign, mantissa digits and an `Int64`
+/// exponent (the written exponent minus the number of fraction digits).
+///
+/// The written exponent is exact up to $10^{18}$ in magnitude and saturates
+/// there. A saturated exponent is outside `Int`, and therefore outside every
+/// exponent range a decimal value or context can have, so callers that check
+/// the exponent against `Int` and their context still see the correct
+/// overflow or underflow.
+pub fn split_decimal_string_wide(src : String) -> (Bool, String, Int64)? {
+  let exponent_cap = 1_000_000_000_000_000_000L
   guard src.length() > 0 else { return None }
   let mut negative = false
   let mut start = 0
@@ -279,7 +303,7 @@ pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
   let mut exp_mode = false
   let mut exp_negative = false
   let mut exp_seen_sign = false
-  let mut exp_value = 0
+  let mut exp_value = 0L
   let mut exp_has_digit = false
   let mut has_digit = false
   let mut i = start
@@ -291,14 +315,11 @@ pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
         exp_seen_sign = true
       } else if ch >= '0' && ch <= '9' {
         exp_has_digit = true
-        let digit = ch.to_int() - '0'.to_int()
-        if exp_value < exponent_cap {
-          if exp_value > exponent_cap / 10 {
-            exp_value = exponent_cap
-          } else {
-            let next = exp_value * 10 + digit
-            exp_value = if next > exponent_cap { exponent_cap } else { next }
-          }
+        let digit = (ch.to_int() - '0'.to_int()).to_int64()
+        exp_value = if exp_value >= exponent_cap / 10L {
+          exponent_cap
+        } else {
+          Int64::min(exp_value * 10L + digit, exponent_cap)
         }
       } else {
         return None
@@ -324,5 +345,5 @@ pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
   let digits = digits_builder.to_string()
   guard digits.length() > 0 else { return None }
   let extra_exp = if exp_negative { -exp_value } else { exp_value }
-  Some((negative, digits, extra_exp - frac_digits))
+  Some((negative, digits, extra_exp - frac_digits.to_int64()))
 }
