@@ -3729,8 +3729,16 @@ pub fn BinFloat::try_atan2_ctx(
   }
   let self_infinite = self.classify() == FpClass::Infinity
   let abscissa_infinite = abscissa.classify() == FpClass::Infinity
+  // A zero ordinate keeps its sign: atan2(±0, x) is ±0 when x is +0 or
+  // positive and ±π when x is -0 or negative (IEEE 754-2019 §9.2.1).
   let fraction = if self_infinite && abscissa_infinite {
     Some((if abscissa.is_negative() { 3 } else { 1 }, 2, self.is_negative()))
+  } else if self.is_zero() {
+    if abscissa.is_negative() {
+      Some((1, 0, self.is_negative()))
+    } else {
+      None
+    }
   } else if self_infinite || abscissa.is_zero() {
     Some((1, 1, self.is_negative()))
   } else if abscissa_infinite && abscissa.is_negative() {
@@ -3780,7 +3788,7 @@ pub fn BinFloat::try_atan2_ctx(
       ),
     )
   }
-  if self.is_zero() && abscissa.sign() == Sign::Positive {
+  if self.is_zero() {
     return Ok(
       (
         if self.is_negative_zero() {

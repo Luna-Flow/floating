@@ -957,7 +957,7 @@ test "trigonometric functions" {
   let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
   let x = @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53))
   inspect(fmt(x.sinpi_interval()), content="[0.00000e+0, 1.00000e+0]")
-  inspect(fmt(x.tanpi_interval()), content="[-inf, 0.00000e+0]")
+  inspect(fmt(x.tanpi_interval()), content="[-inf, -0.00000e+0]")
 }
 ```
 

@@ -128,6 +128,18 @@ notes live in this file.
   `exp2([-1073742000, -1073742000])` returned `{0}`, which excludes the true
   value, and `n >= 2^30` aborted with an infinite lower bound. Such endpoints
   now keep the series enclosure (#84).
+- Fixed the signed-zero special cases of `BinFloat::atan2`, `atan2_ctx` and
+  `try_atan2_ctx` (#48). `atan2(±0, +0)` returned $\pm\pi/2$ instead of $\pm 0$,
+  `atan2(±0, -0)` returned $\pm\pi/2$ instead of $\pm\pi$, and
+  `atan2(-0, x < 0)` returned $+\pi$ instead of $-\pi$; a zero ordinate now
+  keeps its sign and the sign of the abscissa picks $\pm 0$ or $\pm\pi$, as
+  IEEE 754-2019 §9.2.1 requires.
+- Fixed the sign of `BinFloat::tanpi` at odd integers (#81): `tanpi(1)` returned
+  $+0$ and `tanpi(-1)` returned $-0$. Zeros now take the sign of
+  $\operatorname{sinPi}(n) / \operatorname{cosPi}(n)$ (IEEE 754-2019 §9.2.1, C23
+  Annex F): $-0$ for positive odd and negative even $n$, $+0$ otherwise.
+  `BallFloat::tanpi_interval` inherits the sign at such an endpoint, so
+  $[1/2, 1]$ now prints as `[-inf, -0.00000e+0]`.
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
