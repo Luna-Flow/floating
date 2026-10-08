@@ -47,3 +47,14 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# AI agent / assistant local state (never track)
+.claude/
+.codex/
+.codex-tmp/
+.cursor/
+.gemini/
+.kiro/
+.windsurf/
+.aider*
+CLAUDE.local.md
