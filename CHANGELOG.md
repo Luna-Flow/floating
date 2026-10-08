@@ -92,6 +92,11 @@ notes live in this file.
   snapshots use the `mbti` fence, which `tools/doc_quality.py` accepts.
 - Ignored local AI-agent state (`.claude/`, `.codex/`, `.cursor/` and similar)
   in `.gitignore`.
+- Moved every workflow to the `ubuntu-26.04` runner ahead of the `ubuntu-latest`
+  migration that GitHub rolls out between 2026-10-19 and 2026-11-19, and raised
+  the actions that still targeted the deprecated Node 20 runtime:
+  `actions/checkout` to v7, `actions/cache` to v6, `actions/upload-artifact` to
+  v7 and `extractions/setup-just` to v4.
 
 ### Fixed
 
