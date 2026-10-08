@@ -57,7 +57,8 @@ handled as follows:
    tabs or line breaks; a token enclosed in `'…'` or `"…"` may contain spaces
    and loses its quotes. A quote also ends the token before it, so `ab'cd'`
    is the two tokens `ab` and `cd`, and the decTest escape `''` inside a
-   quoted token is read as the end of one token and the start of another. An unterminated quote after `->` is the diagnostic
+   quoted token is read as the end of one token and the start of another
+   (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet). An unterminated quote after `->` is the diagnostic
    `unterminated quoted token`; a quote opened before `->` hides the arrow,
    so the line is reported as `expected directive or testcase row`. Fewer
    tokens than required give `malformed testcase row`.
@@ -271,7 +272,8 @@ operations that reject their operands give a failed row, not an abort.
 > operand made of `1000000014`, 56 nines and a final `5` gives
 > `1.00000002E+66` instead of `1.00000001E+66`: reading the operand at 64
 > digits turns the tail `4999…95` into exactly one half, and the second
-> rounding then breaks the tie to even.
+> rounding then breaks the tie to even. Tracked in [#73](https://github.com/Luna-Flow/floating/issues/73) (precision) and
+> [#74](https://github.com/Luna-Flow/floating/issues/74) (long operands); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ### `RunOptions`
 

@@ -64,7 +64,8 @@ evaluated with two callbacks. The literal callback decodes each $a_j$ to a
   $1000000014\,\underbrace{9\cdots9}_{56}\,5$ (67 digits) becomes
   $1000000015 \cdot 10^{57}$ at 64 digits, a tie at 9 digits, and
   `half_even` then gives $100000002 \cdot 10^{58}$ instead of the correct
-  $100000001 \cdot 10^{58}$.
+  $100000001 \cdot 10^{58}$. Tracked in [#74](https://github.com/Luna-Flow/floating/issues/74); a fix is proposed in
+  [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 The operation callback maps the normalized name to one `decimal_gda`
 function (for example `add` to `@decimal_gda.add`, `squareroot` to
@@ -213,7 +214,7 @@ of a row: decoding and dispatch failures become a failed result with the
 message `"evaluation failed"`. It does abort on a directive context with a
 non-positive precision, because the context conversion calls
 `@decimal_gda.DecimalContext::new`, which aborts on it; parsing accepts any
-integer for `precision`.
+integer for `precision` (tracked in [#73](https://github.com/Luna-Flow/floating/issues/73); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 
 **Complexity.** Parsing is linear in the text length. Execution is linear in
 the number of rows plus the cost of the decimal operations themselves.
@@ -235,10 +236,13 @@ the number of rows plus the cost of the decimal operations themselves.
   [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`.
 - No traps: rows are executed with every trap disabled.
 - Operands with more than $\max(64, p)$ significant digits are rounded
-  half-even when decoded, so such rows can be rounded twice.
+  half-even when decoded, so such rows can be rounded twice ([#74](https://github.com/Luna-Flow/floating/issues/74), fix
+  proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 - A `precision` directive of 0 or less aborts execution instead of producing
-  a diagnostic or an `Invalid_context` row.
-- The `''` escape of quoted decTest strings is not recognized.
+  a diagnostic or an `Invalid_context` row ([#73](https://github.com/Luna-Flow/floating/issues/73), fix proposed in
+  [#82](https://github.com/Luna-Flow/floating/pull/82)).
+- The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no
+  fix yet).
 - `Legacy` is part of the shared result model but is never assigned by the
   current executor.
 - The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own

@@ -218,10 +218,12 @@ collects its output.
   otherwise `paired_hotspot` returns `MismatchedPairs`.
 - **The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a
   confidence of `0.95` percent; rely on its relative delta and decision.
+  Tracked in [#60](https://github.com/Luna-Flow/floating/issues/60); a fix is proposed in [#80](https://github.com/Luna-Flow/floating/pull/80).
 - **The tuning threshold does nothing.** `tune_dataset` always returns the
   candidate with the smallest median; its `practical_delta_pct` argument does
   not create ties, so two nearly equal candidates can alternate between
-  datasets and make the crossover non-monotonic.
+  datasets and make the crossover non-monotonic. Which secondary criterion
+  is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60).
 
 ## Next steps
 

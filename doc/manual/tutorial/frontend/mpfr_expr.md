@@ -161,7 +161,8 @@ test "parse errors" {
 
 - **Elementary rows compare numbers, not encodings.** `+0` and `-0` compare
   equal there, and any NaN matches an expected `nan`. Square-root and power
-  rows compare the whole `BinFloat`, including the sign of zero.
+  rows compare the whole `BinFloat`, including the sign of zero. The ignored
+  sign of zero is tracked in [#61](https://github.com/Luna-Flow/floating/issues/61); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 - **Square-root flags are not checked.** `sqrt` data rows compare only the
   value.
 - **No exponent range.** Rows are executed in an unbounded context: there is
@@ -169,7 +170,7 @@ test "parse errors" {
   that reports overflow or underflow fails.
 - **Binary operations need a second operand.** An elementary `pow`, `hypot`
   or `atan2` row with `-` as second operand is accepted by the parser but
-  aborts the whole run when executed.
+  aborts the whole run when executed. Tracked in [#61](https://github.com/Luna-Flow/floating/issues/61); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 - **Inputs are read at 512 bits.** Elementary and power operands with longer
   significands are rounded before the function is evaluated.
 

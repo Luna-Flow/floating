@@ -47,7 +47,7 @@ Arguments are scanned from left to right and the first error ends the scan:
 later `--help` is seen. The value after `--backend` is taken as is, so
 `--backend --help` asks for a backend named `--help` (exit 2). An empty
 `--backend=` counts as not given: `--backend= --backend gda` is accepted and
-runs `gda`.
+runs `gda` (tracked in [#78](https://github.com/Luna-Flow/floating/issues/78); a fix is proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)).
 
 The runner receives the program name followed by the forwarded arguments and
 interprets them as documented in

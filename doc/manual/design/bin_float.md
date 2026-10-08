@@ -666,7 +666,8 @@ corpus never exhausts it.
   the theorems above), `rootn` with a negative degree ($8^{-1/3} = 1/2$), and
   $10^n$, $\log_{10} 10^n$ for $n > 4096$ at a precision that holds $10^n$.
   By the flag argument above these return a spurious `inexact` under nearest
-  rounding and fail under directed rounding.
+  rounding and fail under directed rounding. Tracked in [#49](https://github.com/Luna-Flow/floating/issues/49), [#90](https://github.com/Luna-Flow/floating/issues/90) and
+  [#102](https://github.com/Luna-Flow/floating/issues/102); fixes are proposed in [#106](https://github.com/Luna-Flow/floating/pull/106) and [#107](https://github.com/Luna-Flow/floating/pull/107).
 - *Tiny arguments.* For $|x|$ so small that the first omitted term is below
   the absolute threshold, the series stops after its first term and one end
   of the enclosure is exactly representable: $U = x$ for $\sin$ and
@@ -678,7 +679,8 @@ corpus never exhausts it.
   `sin` of $2^{-8000}$ in binary128, and `exp`, `expm1`, `exp2` of
   $2^{-20000}$ at 53 bits all fail. A fix would use the first term with a
   strict inequality ($x - x^3/6 < \sin x < x$ gives $U = x^-$ after one step
-  toward zero), as MPFR does.
+  toward zero), as MPFR does. Tracked in [#102](https://github.com/Luna-Flow/floating/issues/102); a fix is proposed in
+  [#107](https://github.com/Luna-Flow/floating/pull/107).
 
 [^niven]: I. Niven, *Irrational Numbers*, 1956, Corollary 3.12: if $r$ is
     rational and $\sin(\pi r)$ is rational, then

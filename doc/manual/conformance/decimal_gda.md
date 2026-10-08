@@ -37,10 +37,12 @@ behaviours, none of which has a pinned row:
   `InvalidOperation` when the integral part of a fractional operand is longer
   than the precision (`12345.6` at precision 3), where the reference
   implementation returns `12345` and `12346`
-  ([API](../api/decimal_gda.md#to_integral_exact-to_integral_value)).
+  ([API](../api/decimal_gda.md#to_integral_exact-to_integral_value); tracked
+  in [#59](https://github.com/Luna-Flow/floating/issues/59) and [#109](https://github.com/Luna-Flow/floating/issues/109), fix proposed in [#114](https://github.com/Luna-Flow/floating/pull/114)).
 - A non-integer `power` with an exactly representable value, such as
   $4^{1.5}$, does not finish in reasonable time in the directed rounding
-  modes ([API](../api/decimal_gda.md#power)).
+  modes ([API](../api/decimal_gda.md#power); tracked in [#112](https://github.com/Luna-Flow/floating/issues/112), fix
+  proposed in [#116](https://github.com/Luna-Flow/floating/pull/116)).
 - Integer `power` is accurate to about 0.55 units in the last place (0.6 for
   negative exponents), not correctly rounded, as the specification allows.
 

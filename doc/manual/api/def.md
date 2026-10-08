@@ -219,7 +219,7 @@ becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types
 > the stored precision, like `with_precision`. It returns an enclosure of the
 > input, which can be strictly wider: at 53 bits, $[1, 1 + 2^{-52}]$ becomes
 > $[1 - 2^{-52}, 1 + 2^{-52}]$. Do not use it where the interval must stay
-> unchanged.
+> unchanged. Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|

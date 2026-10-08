@@ -50,7 +50,8 @@ statement's `;` keeps the line from ending in `;`, so the statement silently
 absorbs the following lines up to the next line that ends in `;`: the text
 `add [1.0,2.0] [3.0,4.0] = [4.0,6.0]; // c` followed by a `sub` statement
 yields one case whose expected text is
-`[4.0,6.0]; // c sub [1.0,2.0] [3.0,4.0] = [-3.0,-1.0]`.
+`[4.0,6.0]; // c sub [1.0,2.0] [3.0,4.0] = [-3.0,-1.0]`. Tracked in
+[#76](https://github.com/Luna-Flow/floating/issues/76); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 A completed statement `left = expected` is split at the first `=`. The left
 side is split into words at spaces and tabs outside square brackets; the
@@ -98,7 +99,7 @@ pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 `precision` (default `53`) is the bit precision used to read bounds.
 Interval results are rounded with `@ball_float.BallContext::binary64()`
 regardless of `precision`, so the default is the meaningful value for ITF1788
-data.
+data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet).
 
 Operands and expected values are read as follows. An interval literal is
 `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by
@@ -106,7 +107,8 @@ Operands and expected values are read as follows. An interval literal is
 A bound is `inf`/`infinity` with an optional sign, a hexadecimal float
 `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to
 nearest-even at `precision` bits, the lower bound as well as the upper one, so
-an inexact decimal literal does not give an enclosing interval. A decimal
+an inexact decimal literal does not give an enclosing interval (tracked in
+[#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet). A decimal
 bound is first read as a decimal of $2p + 16$ significant digits; a literal
 with more digits is rounded twice.
 
@@ -146,7 +148,8 @@ an operation the executor does not know is a `Diagnostic`, not `Unsupported`,
 when one of its operands is not an interval literal: `nums2interval 1.0 2.0`
 and `rootn [1.0,8.0] 3` are diagnostics, while `sqrRev [0.0,1.0] [-1.0,1.0]`
 is unsupported. Because a diagnostic makes `RunSummary::success` false, run
-such operations only through an operation filter.
+such operations only through an operation filter. Tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix
+is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 `execute_case` does not abort on case content.
 

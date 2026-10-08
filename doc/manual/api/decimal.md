@@ -27,7 +27,8 @@ accumulates the flags of a pipeline of `Decimal` operations.
 > wrong special values of some
 > [elementary functions](#elementary-functions), the rounding-mode-independent
 > overflow of [`scaleb_ctx`](#decimalscaleb_ctx-logb_ctx), and the exponent
-> cap of the [parsers](#decimalparse-from_string).
+> cap of the [parsers](#decimalparse-from_string). Each warning links the
+> GitHub issue that tracks it and, where one exists, the proposed fix.
 
 ## Importing
 
@@ -259,8 +260,8 @@ pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @arithmetic.Roundin
 
 `from_bin_float(x, precision~)` is exact whenever the decimal expansion of
 `x` fits in `precision` decimal digits (default: the precision of `x`) and is
-otherwise rounded half-even; a binary zero becomes $+0$ and a NaN a quiet NaN
-with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value
+otherwise rounded half-even; a binary zero becomes $+0$, so $-0$ loses its
+sign (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet), and a NaN a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value
 to a `BinFloat` of `precision` bits (default: the decimal's precision field)
 with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic,
 so this direction is usually inexact; converting with `TowardNegative` and
@@ -311,6 +312,7 @@ applied. Invalid text returns `Err(parse_error)` from `parse` and `None` from
 > conversion reports no flag at all instead of `overflow` or `underflow`.
 > Contexts with the default range ($\pm 999\,999\,999$) still overflow or
 > underflow correctly, because the capped exponent is itself out of range.
+> Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
 
 ### `Decimal::from_string_ctx`
 
@@ -551,6 +553,15 @@ result is below $e_{\min}$; `AfterRounding` uses the result rounded to $p$
 digits with unbounded exponent. A tiny result raises `subnormal`, and also
 `underflow` when it is inexact.
 
+> [!WARNING]
+> `AfterRounding` does not implement that rule yet: it tests the result
+> rounded on the subnormal grid (at $E_{\mathrm{tiny}}$), which keeps fewer
+> digits. The two differ for results just below $10^{e_{\min}}$ that round
+> up to $10^{e_{\min}}$ at $E_{\mathrm{tiny}}$ but not at $p$ digits: with
+> $p = 3$ and $e_{\min} = 0$, `plus_ctx` of `0.9951` gives `1.00` without
+> `underflow` or `subnormal`, while IEEE 754 rounds it to `0.995` and calls it
+> tiny. Tracked in [#110](https://github.com/Luna-Flow/floating/issues/110); a fix is proposed in [#115](https://github.com/Luna-Flow/floating/pull/115).
+
 ## Status flags
 
 ### `DecimalFlags`
@@ -581,7 +592,7 @@ pub struct DecimalFlags {
 | `rounded` | digits were discarded, even if they were all zero |
 | `lost_digits` | a subset-mode operand longer than $p$ lost non-zero digits |
 | `invalid_operation` | the operation is invalid (signaling NaN, $\infty-\infty$, $0\times\infty$, bad quantize, domain error) |
-| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\log 0$) |
+| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\log_2 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$; not $\ln 0$ or $\log_{10} 0$, see [#94](https://github.com/Luna-Flow/floating/issues/94)) |
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `underflow` | the result is tiny and inexact |
 | `subnormal` | the result is tiny |
@@ -803,7 +814,8 @@ signaling NaN operand raises `invalid_operation`.
 > Results whose exact exponent is at least $E_{\text{tiny}}$, which covers
 > almost all computations away from the underflow threshold, are correctly
 > rounded. The directed modes are not affected, because rounding twice in the
-> same direction equals rounding once.
+> same direction equals rounding once. Tracked in [#87](https://github.com/Luna-Flow/floating/issues/87); a fix is proposed
+> in [#100](https://github.com/Luna-Flow/floating/pull/100).
 
 ### `Decimal::add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`
 
@@ -828,6 +840,16 @@ with `invalid_operation`; $0/0$ gives NaN with `invalid_operation` and
 `division_undefined`; $x/0$ for finite non-zero $x$ gives a signed infinity
 with `division_by_zero`; finite$/\infty$ gives a signed zero with exponent
 $E_{\text{tiny}}$ and `clamped`.
+
+> [!WARNING]
+> `add_ctx` and `sub_ctx` take a shortcut when one operand lies far below the
+> other's rounding position, and the shortcut can misround: with precision 7,
+> `1598617.000000000001 - 0.000000000002` under `Down` gives `1598617`
+> instead of `1598616`, and the sum `6.0000005E-73 + 1E-101` under `HalfEven`
+> gives `6.000000E-73` instead of `6.000001E-73`. The larger operand having
+> digits below the rounding position, an exact midpoint, and `ZeroFiveUp` are
+> affected. Tracked in [#88](https://github.com/Luna-Flow/floating/issues/88);
+> a fix is proposed in [#100](https://github.com/Luna-Flow/floating/pull/100).
 
 ```moonbit
 ///|
@@ -1016,6 +1038,18 @@ context. `to_integral_exact` reports `rounded`/`inexact`;
 `to_integral_value` returns the same value with those two flags cleared.
 Infinities are returned unchanged; NaNs are quieted.
 
+> [!WARNING]
+> Operands longer than the context precision are mishandled. An integer with
+> more than $p$ digits is rounded to $p$ digits: at precision 3, `12345`
+> becomes `1.23E+4` with `inexact` and `rounded`, from `to_integral_value`
+> too (IEEE 754 §5.9 returns `12345` unchanged). An operand with a fraction
+> whose integral part is longer than $p$ digits gives NaN with
+> `invalid_operation`, because the quantize to exponent 0 needs too many
+> digits: `12345.6` at precision 3 and `-99.9` at precision 2 are NaN
+> instead of `12346` and `-100`. Keep the precision at least as large as the
+> number of integer digits. Tracked in [#118](https://github.com/Luna-Flow/floating/issues/118); a fix is proposed in
+> [#119](https://github.com/Luna-Flow/floating/pull/119).
+
 ### `Decimal::scaleb_ctx`, `logb_ctx`
 
 These functions scale by a power of ten and extract the adjusted exponent.
@@ -1039,7 +1073,8 @@ rounding mode.
 > the largest finite number that IEEE 754 §7.4 and General Decimal Arithmetic
 > prescribe. A zero result keeps the unclamped exponent (`0` scaled by 700 in
 > decimal64 is `0E+700`, outside the format), and a finite result keeps a
-> coefficient longer than $p$ digits.
+> coefficient longer than $p$ digits. Tracked in [#52](https://github.com/Luna-Flow/floating/issues/52) (overflow) and
+> [#95](https://github.com/Luna-Flow/floating/issues/95) (zero exponent, long coefficient); a fix is proposed in [#100](https://github.com/Luna-Flow/floating/pull/100).
 
 `logb_ctx(x)` returns the adjusted exponent $\lfloor\log_{10}|x|\rfloor$ as an
 integer `Decimal`; $\operatorname{logb}(\pm 0) = -\infty$ with
@@ -1292,7 +1327,9 @@ returned without `inexact`.
 >   `power_ctx(0.0016, 0.25)` are `0.2000000000000000`, all flagged inexact.
 >   In the directed modes the endpoints round to neighbours, the refinement
 >   budget runs out and the result is a certification failure. `power_ctx(4,
->   1.5)` (exactly 8) exhausts the budget even in `HalfEven`.
+>   1.5)` (exactly 8) exhausts the budget even in `HalfEven`. Tracked in
+>   [#105](https://github.com/Luna-Flow/floating/issues/105) (`hypot_ctx`, `rootn_ctx`) and [#53](https://github.com/Luna-Flow/floating/issues/53) (`power_ctx`); fixes are
+>   proposed in [#113](https://github.com/Luna-Flow/floating/pull/113) and [#99](https://github.com/Luna-Flow/floating/pull/99).
 > - **Integer powers that do not fit in $p$ digits** (`power_ctx` with an
 >   integral exponent, `pown_ctx`, `pow_int_checked`, `pow_nat_checked`, and
 >   `exp2_ctx`/`exp10_ctx` of an integer) use the General Decimal Arithmetic
@@ -1300,9 +1337,11 @@ returned without `inexact`.
 >   and round the product again; the error is below one unit in the last place
 >   but the result is not always the correctly rounded one. In decimal32,
 >   `power_ctx(3.339434, 3)` returns `37.24076`; the exact cube is
->   $37.240765000\ldots$, so `37.24077` is correct.
+>   $37.240765000\ldots$, so `37.24077` is correct. Tracked in [#104](https://github.com/Luna-Flow/floating/issues/104); a
+>   fix is proposed in [#113](https://github.com/Luna-Flow/floating/pull/113).
 > - **Results near the underflow threshold** inherit the double rounding of the
->   [context finalization](#context-arithmetic).
+>   [context finalization](#context-arithmetic) ([#87](https://github.com/Luna-Flow/floating/issues/87), fix proposed in
+>   [#100](https://github.com/Luna-Flow/floating/pull/100)).
 
 All of them except `power_ctx`/`pown_ctx` with an integral exponent or the
 exponent $0.5$ return NaN with `invalid_context` when $p > 999\,999$,
@@ -1329,7 +1368,8 @@ pub fn Decimal::try_log10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 $e^{\pm 0} = 1$, $e^{+\infty}=+\infty$, $e^{-\infty} = +0$. $\ln$ and
 $\log_{10}$ of $\pm 0$ are $-\infty$ with **no** flag in an extended context,
 as in General Decimal Arithmetic (IEEE 754-2019 §9.2.1 asks for
-`division_by_zero`, and `log2_ctx` and `log1p_ctx` do raise it); of
+`division_by_zero`, and `log2_ctx`, `log1p_ctx` and `logb_ctx` do raise it;
+whether to follow IEEE here is open in [#94](https://github.com/Luna-Flow/floating/issues/94)); of
 $+\infty$ are $+\infty$, of a negative value or $-\infty$ are NaN with
 `invalid_operation`; $\ln 1 = 0$, and $\log_{10}$ of a power of ten is the
 exact integer exponent. Arguments so large or small that $e^x$ certainly
@@ -1356,7 +1396,9 @@ otherwise the square-and-multiply result described in the warning above; $x^{0.5
 a non-integer exponent is certified; a negative base with a non-integer
 exponent is invalid; $0^0$ is invalid in an extended context; $0^{-n}$ is
 $\pm\infty$. `pown_ctx(x, n)` is `power_ctx` with the integer `n` converted to
-a `Decimal` of the context precision. `rootn_ctx(x, n)` is
+a `Decimal` of the context precision, so an exponent with more than $p$
+digits is rounded before the power is taken (tracked in [#51](https://github.com/Luna-Flow/floating/issues/51); a fix is
+proposed in [#113](https://github.com/Luna-Flow/floating/pull/113)). `rootn_ctx(x, n)` is
 $x^{1/n}$ for integer $n \ne 0$; an even root of a negative value and $n=0$
 are invalid, and $\operatorname{rootn}(\pm 0, n<0)$ is an infinity with
 `division_by_zero`. `hypot_ctx(x, y)` is $\sqrt{x^2+y^2}$; it is $+\infty$ if
@@ -1443,7 +1485,7 @@ Domain and special values of the functions in these four groups:
 | `exp2`, `exp10` | none | none | integer argument (via `power_ctx`), $\pm 0 \mapsto 1$, $-\infty \mapsto 0$, $+\infty \mapsto +\infty$ |
 | `expm1` | none | none | $\pm0 \mapsto \pm0$, $-\infty\mapsto -1$, $+\infty \mapsto +\infty$ |
 | `log2` | $x<0$, $\pm\infty$ (see warning) | $\pm 0 \mapsto -\infty$ | $1 \mapsto 0$, exact binary powers ($0.125 \mapsto -3$) |
-| `log1p` | $x<-1$, $\pm\infty$ | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$ |
+| `log1p` | $x<-1$, $\pm\infty$ (see warning) | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$ |
 | `sin`, `cos`, `tan` | $\pm\infty$ | none | $\sin(\pm 0)=\pm 0$, $\tan(\pm 0)=\pm 0$, $\cos 0 = 1$ |
 | `sinpi`, `cospi`, `tanpi` | $\pm\infty$ | `tanpi` at odd half-integers | integers, half-integers, `tanpi` at odd quarter-integers ($\pm 1$) |
 | `asin`, `acos` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asin}(\pm0)=\pm0$, $\operatorname{acos}(1) = 0$ |
@@ -1464,6 +1506,10 @@ Domain and special values of the functions in these four groups:
 > - `atan2_ctx(±0, -0)` is NaN with `invalid_operation` instead of $\pm\pi$.
 > - `cosh_ctx(-∞)` is NaN with `invalid_operation` instead of $+\infty$.
 > - `log2_ctx(+∞)` is NaN with `invalid_operation` instead of $+\infty$.
+> - `log1p_ctx(+∞)` is NaN with `invalid_operation` instead of $+\infty$.
+>
+> The `atan2_ctx` cases are tracked in [#92](https://github.com/Luna-Flow/floating/issues/92) and the others in [#93](https://github.com/Luna-Flow/floating/issues/93); a
+> fix is proposed in [#98](https://github.com/Luna-Flow/floating/pull/98).
 
 ```moonbit
 ///|
@@ -1544,7 +1590,8 @@ sign and kind; DPD keeps the low $p-1$ payload digits.
 > as `#7C00000000000000` (payload 0) while DPD gives `#7C00000000000007`, and
 > a NaN with payload 7 and precision 7 encodes to BID payload 7000000000.
 > Build NaNs with `Decimal::quiet_nan(payload=..., precision=p)` using the
-> format precision before encoding them in BID.
+> format precision before encoding them in BID. Tracked in [#54](https://github.com/Luna-Flow/floating/issues/54); no fix
+> yet.
 
 ### `Decimal::from_interchange_hex`, `from_interchange_hex_with_encoding`
 
@@ -1767,7 +1814,8 @@ with `Err(division_by_zero)` and `Err(domain_error)` as in
 [`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under
 the converted context and fails for negative operands. `pow_nat_checked` and
 `pow_int_checked` are `power_ctx` with the integer exponent converted to a
-`Decimal` of the context precision; they return `Err(division_by_zero)` for a
+`Decimal` of the context precision (so a long exponent is rounded first, see
+[#51](https://github.com/Luna-Flow/floating/issues/51)); they return `Err(division_by_zero)` for a
 zero base with a negative exponent, `Err(domain_error)` for an invalid power,
 and `pow_nat_checked` returns `Err(unsupported)` for exponents above
 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked).

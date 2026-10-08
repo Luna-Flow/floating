@@ -40,7 +40,7 @@ data was produced with, so aggregated reports state their evidence source.
 - Parse errors exit with `2` before any row is executed.
 - The one exception to "every outcome is an exit code" is the frontend's
   abort on an elementary `pow`, `hypot` or `atan2` row without a second
-  operand.
+  operand ([#61](https://github.com/Luna-Flow/floating/issues/61), fix proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 
 ## Alternatives rejected
 

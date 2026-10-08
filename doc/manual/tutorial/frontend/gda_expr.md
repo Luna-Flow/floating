@@ -249,12 +249,15 @@ test "parsed rows" {
 - **`success()` ignores skipped rows.** Check `unsupported_cases()` (or use
   the CLI's `--strict-supported`) if unsupported rows must fail the run.
 - **Doubled quotes.** The tokenizer ends a quoted token at the next matching
-  quote; the `''` escape of the decTest format is read as two tokens.
+  quote; the `''` escape of the decTest format is read as two tokens
+  (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet).
 - **Very long operands.** Operands with more than $\max(64, p)$ significant
   digits are rounded when they are read, which can change the result of the
-  row (see the [API warning](../../api/frontend/gda_expr.md#execute_documents)).
+  row (see the [API warning](../../api/frontend/gda_expr.md#execute_documents);
+  tracked in [#74](https://github.com/Luna-Flow/floating/issues/74), with a fix proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 - **`precision: 0` aborts.** A non-positive precision directive is accepted by
-  the parser but aborts `execute_documents`; remove such rows first.
+  the parser but aborts `execute_documents`; remove such rows first. Tracked
+  in [#73](https://github.com/Luna-Flow/floating/issues/73); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ## Next steps
 

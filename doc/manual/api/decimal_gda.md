@@ -168,7 +168,8 @@ must apply.
 > with `Underflow` instead of overflowing. The GDA `parse` under a context with
 > $e_{\max} \le 999\,999\,999$ is safe (it overflows to infinity), but a
 > context with a larger $e_{\max}$ accepts the saturated value silently. Keep
-> literal exponents within $\pm 999\,999\,999$, the GDA limit.
+> literal exponents within $\pm 999\,999\,999$, the GDA limit. Tracked in
+> [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
 
 ### `Decimal::to_string`, `Decimal::output`
 
@@ -755,7 +756,9 @@ pub fn abs(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 Ideal exponent: that of the operand. `plus`, `minus` and `abs` return a zero
 result as $+0$; `apply` keeps the sign of a zero and does not round subset
-operands first.
+operands first. Under `Floor` this differs from GDA, which defines `plus` as
+$0 + x$ and `minus` as $0 - x$ and so gives $-0$ for `plus(-0)` and
+`minus(0)`; tracked in [#58](https://github.com/Luna-Flow/floating/issues/58), no fix yet.
 
 ### `add`, `subtract`, `multiply`, `divide`, `fma`
 
@@ -845,7 +848,8 @@ than $p$ digits.
 > `InvalidOperation`, because the quantize step refuses a 5-digit coefficient
 > (GDA: `12346`, with `Inexact` and `Rounded` for `to_integral_exact`). The
 > pinned test suite has no such row. Keep the precision at least as large as
-> the number of integer digits.
+> the number of integer digits. Tracked in [#59](https://github.com/Luna-Flow/floating/issues/59) and [#109](https://github.com/Luna-Flow/floating/issues/109); a fix is
+> proposed in [#114](https://github.com/Luna-Flow/floating/pull/114).
 
 ### `sqrt`, `exp`, `ln`, `log10`
 
@@ -904,6 +908,7 @@ $\infty$.
 > `power(4, 1.5)` at precision 5 under `Down` did not return within fifteen
 > minutes, while `HalfEven` returns `8.0000` at once. Some such powers, for
 > example $16^{0.25}$, are recognized early and are fast in every mode.
+> Tracked in [#112](https://github.com/Luna-Flow/floating/issues/112); a fix is proposed in [#116](https://github.com/Luna-Flow/floating/pull/116).
 
 ### `reduce`
 
@@ -1348,8 +1353,9 @@ result after it has been rounded at $E_{\mathrm{tiny}}$.
 > results just below $10^{e_{\min}}$ that round up to $10^{e_{\min}}$ at
 > $E_{\mathrm{tiny}}$ but not at $p$ digits: with $p = 3$ and $e_{\min} = 0$,
 > `0.9951` rounds to `1.00` at $E_{\mathrm{tiny}} = -2$ and is not tiny here,
-> while IEEE rounds it to `0.995` and calls it tiny. Use the
-> [`decimal`](decimal.md) package when IEEE tininess matters.
+> while IEEE rounds it to `0.995` and calls it tiny. The `AfterRounding`
+> rule of the [`decimal`](decimal.md) package currently behaves the same way.
+> Tracked in [#110](https://github.com/Luna-Flow/floating/issues/110); a fix is proposed in [#115](https://github.com/Luna-Flow/floating/pull/115).
 
 ### `DecimalSignal`
 
@@ -1825,7 +1831,8 @@ round with it (not half-even as the GDA functions do).
 > $\pm 999\,999\,999$, so `exp_contextual` then always returns
 > `Err(domain_error)`; `ArithmeticContext::new(16)` fails while
 > `ArithmeticContext::decimal64()` works. Pass `e_min` and `e_max` within
-> $\pm 999\,999$.
+> $\pm 999\,999$. Whether this should change is discussed in [#111](https://github.com/Luna-Flow/floating/issues/111); no fix
+> yet.
 
 ### `Decimal::zero_contextual`, `Decimal::one_contextual`, `Decimal::epsilon_contextual`, `Decimal::min_normal_contextual`, `Decimal::max_finite_contextual`, `Decimal::classify_contextual`
 

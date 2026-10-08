@@ -112,7 +112,9 @@ package is known to deviate: very tiny arguments of `exp`, `expm1`, `exp2`,
 `sin` and `atan`, exact results that the elementary functions do not filter
 (such as $16^{3/4}$ or $\operatorname{rootn}(8, -3)$), the signed-zero cases
 of `atan2`, and the IEEE `pow` special cases that `pow` rejects. They are
-listed in the [API reference](../api/bin_float.md#elementary-functions).
+listed in the [API reference](../api/bin_float.md#elementary-functions) and
+tracked in [#102](https://github.com/Luna-Flow/floating/issues/102), [#49](https://github.com/Luna-Flow/floating/issues/49), [#90](https://github.com/Luna-Flow/floating/issues/90), [#48](https://github.com/Luna-Flow/floating/issues/48) and [#89](https://github.com/Luna-Flow/floating/issues/89); fixes are
+proposed in [#107](https://github.com/Luna-Flow/floating/pull/107), [#106](https://github.com/Luna-Flow/floating/pull/106) and [#101](https://github.com/Luna-Flow/floating/pull/101).
 
 ## Stability of the evidence
 

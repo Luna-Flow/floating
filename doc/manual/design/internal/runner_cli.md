@@ -66,7 +66,8 @@ order so reports are stable and diff-friendly.
   in `s`, plus the direct entries of named directories whose names end in `s`
   (entries are not checked to be files). Duplicates are kept, so the list is a
   function of the argument vector and the directory contents, not of the
-  listing order.
+  listing order. Keeping duplicates and directory entries is tracked in
+  [#79](https://github.com/Luna-Flow/floating/issues/79); a fix is proposed in [#83](https://github.com/Luna-Flow/floating/pull/83).
 - **Diagnostic positions.** `format_diagnostic_at` never prints a line or
   column below 1.
 

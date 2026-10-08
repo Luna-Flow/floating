@@ -41,7 +41,7 @@ operation with a non-interval operand as a diagnostic, so a phase that runs a
 whole file without `--operation` (`sets`, `relations` and `reverse` in
 `interpreter_stages.json`) would fail on a file containing such an
 operation; the reverse operations take interval operands and are reported as
-unsupported.
+unsupported. Tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ## Correctness and invariants
 

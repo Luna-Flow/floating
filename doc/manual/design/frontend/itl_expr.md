@@ -98,7 +98,7 @@ $2p + 16 = 122$ significant digits, which ITF1788 data does not use.
 Rounding to nearest rather than outward is a simplification: it is exact for
 bounds that are binary64 numbers, but a decimal bound such as `0.1` is read as
 the nearest binary64 number, which may lie inside or outside the interval the
-literal denotes.
+literal denotes. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet.
 
 ### Decorations only when the case states one
 
@@ -147,7 +147,8 @@ and `execute_case` never aborts on case content: every unreadable input is
 reported through a disposition. Statement boundaries come only from a line
 ending in `;`, so a line with a trailing `//` comment is not a boundary and
 merges with the next statement into one case with an unreadable expected
-value; the number of cases is then lower than the number of statements.
+value; the number of cases is then lower than the number of statements
+(tracked in [#76](https://github.com/Luna-Flow/floating/issues/76); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 
 ## Alternatives rejected
 
@@ -163,13 +164,14 @@ value; the number of cases is then lower than the number of statements.
 
 - Reverse operations, `mulRevToPair`, string conversions and exception
   signals are not executed.
-- Decimal bounds are rounded to nearest, not outward.
+- Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet).
 - Interval results are always rounded to binary64; `precision` only affects
-  how bounds are read.
+  how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62)).
 - Comments are recognized only at the start of a line: `/*` opens a block
   comment only there, and a trailing `// …` after `;` merges the statement
-  with the next one.
+  with the next one ([#76](https://github.com/Luna-Flow/floating/issues/76), fix proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 - Unknown operations with non-interval operands are diagnostics, not
-  unsupported cases, and therefore fail `RunSummary::success`.
+  unsupported cases, and therefore fail `RunSummary::success` ([#75](https://github.com/Luna-Flow/floating/issues/75), fix
+  proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
 - No file IO and no operation filtering; both are in
   [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).

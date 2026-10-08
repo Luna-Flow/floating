@@ -504,7 +504,9 @@ ignored. Empty stays Empty with the new precision.
 > (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the
 > `pow_nat`/`pow_int` methods of `ball_float_checked` all go through this
 > rebuild. To re-round without widening, use
-> `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`.
+> `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. The widening
+> is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the far-endpoint case in [#44](https://github.com/Luna-Flow/floating/issues/44); fixes are
+> proposed in [#68](https://github.com/Luna-Flow/floating/pull/68) and in [#91](https://github.com/Luna-Flow/floating/pull/91), which builds on it.
 
 ```moonbit
 ///|
@@ -540,7 +542,7 @@ The result contains the input but, for the reason given under
 `with_precision`, can be strictly wider: `normalized` of
 $[1, 1 + 2^{-52}]$ at 53 bits is $[1 - 2^{-52}, 1 + 2^{-52}]$. It therefore
 satisfies only the enclosure form of the `@def.Floating` law "normalizing
-keeps the value".
+keeps the value". Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ## Set operations
 
@@ -945,7 +947,7 @@ $[-1, +\infty)$.
 > interval precision) makes $2^n$ underflow to 0, so the result misses the
 > positive value $2^n$: at 53 bits, `exp2_interval` of
 > $\{-1073742000\}$ is $\{0\}$. `try_exp2_interval` does not use the
-> shortcut.
+> shortcut. Tracked in [#84](https://github.com/Luna-Flow/floating/issues/84); a fix is proposed in [#97](https://github.com/Luna-Flow/floating/pull/97).
 
 ### `BallFloat::ln_interval`, `BallFloat::log2_interval`, `BallFloat::log10_interval`, `BallFloat::log1p_interval`, `BallFloat::try_ln_interval`, `BallFloat::try_log2_interval`, `BallFloat::try_log10_interval`, `BallFloat::try_log1p_interval`
 
@@ -969,6 +971,17 @@ lies entirely outside the domain ($\overline{x} \le 0$, or
 $\overline{x} < -1$ for `log1p`) the result is Empty. `log10_interval`
 returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The total
 `log1p_interval` falls back to Entire.
+
+> [!WARNING]
+> On every target except JavaScript, `ln_interval` does not return for some
+> arguments just above 1 at high precision, for example $\{1 + 2^{-243}\}$
+> at 245 or 300 bits, and neither do `asinh_interval` and `atanh_interval`
+> (which evaluate `ln_interval`) for tiny arguments such as $\{2^{-300}\}$
+> at 53 bits. Their certified kernels convert series bounds to rationals with
+> `BinCoeff::gcd`, which barely progresses for operands of very different
+> lengths (see the warning under
+> [`BinCoeff::gcd`](bin_float.md#bincoeffgcd)). The `try_` forms are not
+> affected. Tracked in [#85](https://github.com/Luna-Flow/floating/issues/85); a fix is proposed in [#97](https://github.com/Luna-Flow/floating/pull/97).
 
 ```moonbit
 ///|
@@ -1171,7 +1184,8 @@ $2^{-190}$ the total forms are valid but far from tight. At 53 bits,
 `sinh_interval` of $\{2^{-300}\}$ is $[0, 3 \cdot 2^{-246}]$ while
 `try_sinh_interval` returns the two-ulp interval
 $[2^{-300}, (1 + 2^{-52})\,2^{-300}]$. Use the `try_` forms for tiny
-arguments.
+arguments; for some of them the total `asinh_interval` and `atanh_interval`
+do not return at all (see the warning under `ln_interval`).
 
 ```moonbit
 ///|
@@ -1258,6 +1272,7 @@ IEEE 754 raises it for every tiny inexact result, so a tiny endpoint whose
 precision rounding is inexact but lands on the subnormal grid raises
 `inexact` without `underflow`: with $p = 4$ and $e_{\min} = -2$, the lower
 endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$ and only `inexact` is set.
+Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ### `BallFloat::add_ctx`, `BallFloat::sub_ctx`, `BallFloat::mul_ctx`, `BallFloat::div_ctx`
 
@@ -1295,14 +1310,15 @@ pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallF
 
 Subnormal results are rounded on the subnormal grid and raise `underflow`
 when inexact; `inexact` is set when the center changed. The exponent upper
-limit is not applied, so `overflow` is never raised. Entire gives 0; Empty and
-half-bounded intervals abort.
+limit is not applied, so `overflow` is never raised ([#46](https://github.com/Luna-Flow/floating/issues/46)). Entire gives
+0; Empty and half-bounded intervals abort.
 
 The center is rounded to nearest twice, first to $p$ bits and then onto the
 subnormal grid, and double rounding to nearest is not single rounding: with
 $p = 4$, $e_{\min} = -2$ (grid $2^{-5}$) the center $2^{-6} + 2^{-20}$ is
 first rounded to the tie $2^{-6}$ and then to the even neighbour 0, whereas
 the nearest grid point is $2^{-5}$. Normal results are correctly rounded.
+Tracked in [#70](https://github.com/Luna-Flow/floating/issues/70); a fix for both defects is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|
@@ -1522,6 +1538,9 @@ jumps from $-\pi$ to $\pi$) and `Dac` when it touches the cut from above
 >   endpoint, the bare result is half-unbounded and the decoration becomes
 >   `dac`, although $\tan \pi\xi$ is undefined at the pole: `tanpi([1/2, 1])`
 >   is `[-inf, 0]_dac` instead of `trv`.
+>
+> Tracked in [#45](https://github.com/Luna-Flow/floating/issues/45) (`rootn`) and [#86](https://github.com/Luna-Flow/floating/issues/86) (`tanpi`); a fix is proposed in
+> [#96](https://github.com/Luna-Flow/floating/pull/96).
 
 ### `BallFloatDecorated::apply_ctx`
 
@@ -1689,7 +1708,8 @@ containing 0 gives an unbounded result, not an error). `pow_int_checked` uses
 multiplication, which treats the factors as independent: for an argument
 containing 0 its result is wider than `pown`. Its loop starts from $\{1\}$,
 so `pow_nat_checked(Empty, 0)` returns $\{1\}$ where `pown(Empty, 0)` returns
-Empty.
+Empty. The widening is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the Empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a
+fix for both is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|

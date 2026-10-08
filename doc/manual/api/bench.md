@@ -127,7 +127,7 @@ are none, `NonFiniteSample` when a time is NaN or infinite.
 > paired differences $10, 11, 10, 15, 6$ µs it reports $[10, 10]$, where
 > `confirmatory_regression` reports the 95 % interval $[6, 15]$.
 > Use `relative_delta_pct` and `decision`, or `confirmatory_regression`, when
-> an interval matters.
+> an interval matters. Tracked in [#60](https://github.com/Luna-Flow/floating/issues/60); a fix is proposed in [#80](https://github.com/Luna-Flow/floating/pull/80).
 
 Pairing is by position after the filter: if one implementation has an invalid
 observation in some block and the other does not, the counts differ and the
@@ -208,7 +208,8 @@ non-negative samples. Candidates without such samples are invalid. The result
 is the valid candidate with the smallest median, ties broken by the smaller
 candidate id; `None` when no candidate is valid. Because the score is used as
 both the primary and the secondary criterion of `@tune.select_best`,
-`practical_delta_pct` does not change the choice.
+`practical_delta_pct` does not change the choice. Which secondary criterion
+is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60); no fix yet.
 
 ```moonbit
 ///|

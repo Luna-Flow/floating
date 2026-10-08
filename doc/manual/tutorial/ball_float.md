@@ -423,12 +423,15 @@ interval from its center and radius. When the center needs more bits than
 the precision, the result is one ulp wider on each side, even at the same
 precision: $[1, 1 + 2^{-52}]$ at 53 bits becomes
 $[1 - 2^{-52}, 1 + 2^{-52}]$. To change precision without that loss, use
-`from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`.
+`from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. This widening
+is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 **Tiny arguments to hyperbolic functions.** The total `sinh_interval`,
 `tanh_interval`, `asinh_interval` and `atanh_interval` lose all relative
 accuracy for $|\xi|$ below about $2^{-190}$ (and `asinh`/`atanh` can hang
-there); use the `try_` forms for such arguments.
+there, because `BinCoeff::gcd` barely progresses on operands of very
+different lengths; tracked in [#85](https://github.com/Luna-Flow/floating/issues/85), with a fix proposed in [#97](https://github.com/Luna-Flow/floating/pull/97)); use
+the `try_` forms for such arguments.
 
 **Inputs from `Double`.** `from_double(x)` encloses the binary value of `x`
 exactly; it cannot know which decimal number `x` approximated. Enclose decimal

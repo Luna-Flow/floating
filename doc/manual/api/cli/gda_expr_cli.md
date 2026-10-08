@@ -49,7 +49,7 @@ Any other argument starting with `-` is an error `unknown option: …`. A
 directory contributes its direct entries whose names end in `.decTest`; a
 file path is kept only if it ends in `.decTest`, and other files are dropped
 without a message, so a run can select no file at all and report zero cases
-with exit status 0. A path that does not exist is an error. Files
+with exit status 0 (tracked in [#77](https://github.com/Luna-Flow/floating/issues/77); a fix is proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)). A path that does not exist is an error. Files
 are sorted, parsed in order (the first parse diagnostic of a file is printed as
 `source:line:1: message` and ends the run), and executed together, so row
 ordinals and shards span all files.

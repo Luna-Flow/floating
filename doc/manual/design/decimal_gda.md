@@ -242,7 +242,7 @@ tests the result after rounding at $E_{\mathrm{tiny}}$; it changes only which
 results count as tiny, never the value. It is not the IEEE 754
 after-rounding rule, which rounds to $p$ digits with an unbounded exponent
 range first: $0.9951$ is tiny for IEEE ($0.995$) but not for `AfterRounding`
-($1.00$).
+($1.00$). Tracked in [#110](https://github.com/Luna-Flow/floating/issues/110); a fix is proposed in [#115](https://github.com/Luna-Flow/floating/pull/115).
 
 ### Clamping
 
@@ -701,8 +701,9 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 - **Evidence.** The pinned `official` test suite passes 64,986/64,986 legal
   executable scalar rows and the legacy `official0` suite 16,124/16,124
   ([conformance](../conformance/decimal_gda.md)). These are finite claims: the
-  division defect above and to-integral operands longer than the precision
-  are not covered by any pinned row.
+  division defect above and the to-integral difference noted on the
+  [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value)
+  ([#59](https://github.com/Luna-Flow/floating/issues/59), [#109](https://github.com/Luna-Flow/floating/issues/109)) are not covered by any pinned row.
 
 ## Alternatives rejected
 
@@ -736,6 +737,7 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 - It does not support exponents beyond the 32-bit range. Literal exponents
   saturate at $\pm 1\,500\,000\,000$ and exponent sums of such operands can
   wrap around (see the warning under `Decimal::parse` on the
-  [API page](../api/decimal_gda.md#decimalparse-decimalfrom_string)); with
+  [API page](../api/decimal_gda.md#decimalparse-decimalfrom_string); tracked
+  in [#108](https://github.com/Luna-Flow/floating/issues/108), with a fix proposed in [#117](https://github.com/Luna-Flow/floating/pull/117)); with
   operand exponents within the GDA limit of $\pm 999\,999\,999$ the sum or
   difference of two exponents stays below $2^{31}$.

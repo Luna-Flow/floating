@@ -230,7 +230,9 @@ to $2^{-52}$, and the result is $[1 - 2^{-52}, 1 + 2^{-52}] \supsetneq [\ell, u]
 For the same reason `with_precision(x, precision(x), m)` is not the identity
 on intervals, and repeated normalization is not guaranteed to be stable
 (each step can only widen, and it stops widening once the centre is
-representable at $q$ bits and the endpoints are exact).
+representable at $q$ bits and the endpoints are exact). The widening of
+representable intervals is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in
+[#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|

@@ -113,7 +113,8 @@ unsupported or legacy, even when all executed rows pass.
 - **Non-recursive directories.** Subdirectories are not searched.
 - **Other suffixes are dropped silently.** A path such as `add.dectest` or
   `add.txt` is skipped without a message; if nothing is left the run reports
-  zero cases and exits with `0`.
+  zero cases and exits with `0`. Tracked in [#77](https://github.com/Luna-Flow/floating/issues/77); a fix is proposed in
+  [#83](https://github.com/Luna-Flow/floating/pull/83).
 
 ## Next steps
 

@@ -174,7 +174,7 @@ $\alpha = (100 - 0.95)/200 = 0.49525$ and the interval it reports is
 $[Q^{*}(0.49525), Q^{*}(0.50475)]$, the central 0.95 % of the bootstrap
 distribution and almost a point at the bootstrap median. This is a defect of
 the call, not a design choice; the suites only print $\Delta_{\%}$ from it,
-which is unaffected.
+which is unaffected. Tracked in [#60](https://github.com/Luna-Flow/floating/issues/60); a fix is proposed in [#80](https://github.com/Luna-Flow/floating/pull/80).
 
 ### Auto-tuning by minimum median
 
@@ -187,7 +187,7 @@ $\mu_c = 0$ when $\mu_{\min} = 0$), which always contains every candidate with
 $\mu_c = \mu_{\min}$, and returns the finalist with the smallest secondary
 score, ties broken by the smaller id. With secondary $= \mu_c$ that is a
 candidate with $\mu_c = \mu_{\min}$, so the practical threshold has no effect
-on the choice.
+on the choice. Which secondary criterion is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60).
 
 The auto-tune suite turns the per-dataset winners $\ell_1, \dots, \ell_S$
 (ordered by scale) into a crossover with

@@ -283,7 +283,7 @@ constant-size state copy.
   changes.
 - Only certification failures of elementary functions become errors. A
   delegated operation that aborts (on the current branch `atan2` with an
-  infinite operand) aborts the pipeline too; the state model cannot turn an
+  infinite operand, tracked in [#92](https://github.com/Luna-Flow/floating/issues/92)) aborts the pipeline too; the state model cannot turn an
   abort into an error.
 - No accuracy of its own: the flags describe exactly what `decimal` reported,
   including its documented deviations (for example `inexact` on an exact

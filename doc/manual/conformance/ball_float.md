@@ -14,7 +14,7 @@ The strict matrix covers sets, relations, observations, cancellation, add/subtra
 
 ## Decorations and fallbacks
 
-Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the known inclusion, decoration and termination defects listed under [Known limitations](../design/ball_float.md#known-limitations) (extreme integer endpoints of `exp2`, decorated `tanpi` and negative-degree `rootn`, `ln` near 1 at high precision) are not caught by the selected cases.
+Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the known inclusion, decoration and termination defects listed under [Known limitations](../design/ball_float.md#known-limitations) (extreme integer endpoints of `exp2`, decorated `tanpi` and negative-degree `rootn`, `ln` near 1 at high precision) are not caught by the selected cases. They are tracked in [#84](https://github.com/Luna-Flow/floating/issues/84), [#86](https://github.com/Luna-Flow/floating/issues/86), [#45](https://github.com/Luna-Flow/floating/issues/45) and [#85](https://github.com/Luna-Flow/floating/issues/85); fixes are proposed in [#97](https://github.com/Luna-Flow/floating/pull/97) and [#96](https://github.com/Luna-Flow/floating/pull/96).
 
 ## Exclusions
 

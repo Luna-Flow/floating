@@ -33,7 +33,8 @@ deviations listed in
 [decimal design: known deviations](../design/decimal.md#known-deviations)
 (double rounding near the underflow threshold, undetected exact elementary
 results, integer powers that are not correctly rounded, and wrong special
-values of `atan2`, `cosh` and `log2`). Those cases are therefore not covered
+values of `atan2`, `cosh` and `log2`; tracked in [#87](https://github.com/Luna-Flow/floating/issues/87), [#105](https://github.com/Luna-Flow/floating/issues/105),
+[#53](https://github.com/Luna-Flow/floating/issues/53), [#104](https://github.com/Luna-Flow/floating/issues/104), [#92](https://github.com/Luna-Flow/floating/issues/92) and [#93](https://github.com/Luna-Flow/floating/issues/93)). Those cases are therefore not covered
 by its rows, and passing the gate is evidence for the covered rows only.
 
 ## Reproduction

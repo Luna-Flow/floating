@@ -61,6 +61,7 @@ otherwise.
 > An elementary file with a `pow`, `hypot` or `atan2` row whose second
 > operand is `-` parses, and then aborts the process during execution instead
 > of returning `1` (see [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)).
+> Tracked in [#61](https://github.com/Luna-Flow/floating/issues/61); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ```moonbit
 ///|

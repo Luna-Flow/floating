@@ -341,7 +341,8 @@ given context. Both report a `DomainError` for degree $0$ and for an even root
 of a negative finite number, and can report a `CertificationFailure`. Odd
 roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. An even root
 of $-\infty$ is a successful $+\infty$ on the current branch, not an error
-(see [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)).
+(see [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx);
+tracked in [#90](https://github.com/Luna-Flow/floating/issues/90), with a fix proposed in [#106](https://github.com/Luna-Flow/floating/pull/106)).
 
 ### `BinFloatResult::pow`, `BinFloatResult::pow_ctx`
 
@@ -360,6 +361,7 @@ it also reports a `DomainError` for some inputs IEEE 754 defines (a base of
 $-0$, a negative base with an infinite exponent or an integral exponent of
 magnitude at least $2^{31}$); the list is in
 [`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx).
+Tracked in [#49](https://github.com/Luna-Flow/floating/issues/49) and [#89](https://github.com/Luna-Flow/floating/issues/89); a fix is proposed in [#106](https://github.com/Luna-Flow/floating/pull/106).
 
 ### `BinFloatResult::hypot`, `BinFloatResult::hypot_ctx`
 
@@ -398,7 +400,8 @@ domain errors listed below, every function can report a
 `CertificationFailure` when `bin_float` cannot certify the rounding within its
 refinement budget, which on the current branch happens for some tiny
 arguments of `exp`, `expm1`, `exp2`, `sin` and `atan` (see
-[`bin_float` elementary functions](bin_float.md#elementary-functions)). Poles
+[`bin_float` elementary functions](bin_float.md#elementary-functions); tracked
+in [#102](https://github.com/Luna-Flow/floating/issues/102), with a fix proposed in [#107](https://github.com/Luna-Flow/floating/pull/107)). Poles
 are values, not errors: $\ln 0 = -\infty$. A NaN operand gives a successful
 NaN.
 
@@ -660,7 +663,8 @@ pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 
 Errors are taken in the order ordinate, abscissa, operation. `atan2` uses
 `BinaryContext::unbounded` at the larger operand precision. The signed-zero
-defects of `BinFloat::atan2` carry over.
+defects of `BinFloat::atan2` carry over (tracked in [#48](https://github.com/Luna-Flow/floating/issues/48); a fix is
+proposed in [#101](https://github.com/Luna-Flow/floating/pull/101)).
 
 ```moonbit
 ///|

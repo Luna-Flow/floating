@@ -289,7 +289,8 @@ value lies above the midpoint and rounds to $4.500005\cdot 10^{-90}$. The
 directed modes are unaffected: truncating (or rounding up) to a finer grid and
 then to a coarser one is the same as truncating (rounding up) once, because
 $\lfloor\lfloor y\,10^{-s_1}\rfloor 10^{-s_2}\rfloor = \lfloor y\,
-10^{-s_1-s_2}\rfloor$ for every real $y \ge 0$.
+10^{-s_1-s_2}\rfloor$ for every real $y \ge 0$. The double rounding is
+tracked in [#87](https://github.com/Luna-Flow/floating/issues/87); a fix is proposed in [#100](https://github.com/Luna-Flow/floating/pull/100).
 
 #### How the rounding digit and sticky information are obtained
 
@@ -489,7 +490,9 @@ rounding rule above applies with fewer than $p$ digits kept. The result is
 **tiny** when its adjusted exponent is below $e_{\min}$, measured on the exact
 value (`BeforeRounding`) or on the value rounded to $p$ digits with
 unbounded exponent (`AfterRounding`, the default). The two rules differ only
-for values just below $10^{e_{\min}}$ that round up to it. A tiny result raises
+for values just below $10^{e_{\min}}$ that round up to it. On the current
+branch `AfterRounding` tests the value rounded at $E_{\text{tiny}}$ instead,
+which is not the IEEE rule (see [known deviations](#known-deviations)). A tiny result raises
 `subnormal`; a tiny **and** inexact result also raises `underflow`, as IEEE 754
 §7.5 requires for default exception handling. A result that rounds to zero
 gets exponent $E_{\text{tiny}}$ and `clamped`.
@@ -851,20 +854,26 @@ measurements do not show a crossover.
 ### Known deviations
 
 These behaviours of the current branch contradict the goals above. Each is
-reproduced in the [API reference](../api/decimal.md) next to the operation.
+reproduced in the [API reference](../api/decimal.md) next to the operation
+and tracked in the GitHub issue named in the last column; the proposed fixes
+are not merged yet.
 
-| Area | Behaviour | Cause |
-| --- | --- | --- |
-| finalization | a normal result whose exact exponent is below $E_{\text{tiny}}$ is rounded twice (half modes) | pre-rounding to the subnormal grid, [above](#round-once-in-one-place) |
-| `div_ctx` | a subnormal quotient is rounded twice (half modes) | the finalization above, applied after the guarded quotient |
-| elementary functions | undetected exact results carry `inexact` (half modes) or fail certification (directed modes) | the agreement test assumes $f(x)$ is not representable |
-| integer powers | not always correctly rounded when the power needs more than $p$ digits | GDA square-and-multiply with rounded products |
-| `atan2_ctx` | aborts on an infinite operand; $\operatorname{atan2}(\pm 0, -0)$ is an invalid NaN | missing special cases before the enclosure |
-| `cosh_ctx`, `log2_ctx` | $\cosh(-\infty)$ and $\log_2(+\infty)$ are invalid NaNs | missing special cases |
-| `ln_ctx`, `log10_ctx` | $\log(\pm 0) = -\infty$ without `division_by_zero` | follows General Decimal Arithmetic, not IEEE 754 §9.2.1 |
-| `scaleb_ctx` | overflow is $\pm\infty$ in every rounding mode; zero results are not clamped | own finalizer instead of the shared one |
-| parsing | exponents beyond $\pm 1.5\cdot 10^{9}$ are clamped silently | the shared decimal-string splitter caps the exponent |
-| BID NaN | payloads are kept by leading digits of the value's precision | payload written at the value's precision |
+| Area | Behaviour | Cause | Issue |
+| --- | --- | --- | --- |
+| finalization | a normal result whose exact exponent is below $E_{\text{tiny}}$ is rounded twice (half modes) | pre-rounding to the subnormal grid, [above](#round-once-in-one-place) | [#87](https://github.com/Luna-Flow/floating/issues/87), fix in [#100](https://github.com/Luna-Flow/floating/pull/100) |
+| `div_ctx` | a subnormal quotient is rounded twice (half modes) | the finalization above, applied after the guarded quotient | [#87](https://github.com/Luna-Flow/floating/issues/87), fix in [#100](https://github.com/Luna-Flow/floating/pull/100) |
+| tininess | `AfterRounding` tests the result rounded at $E_{\text{tiny}}$, not at $p$ digits | tininess is decided after the subnormal-grid rounding | [#110](https://github.com/Luna-Flow/floating/issues/110), fix in [#115](https://github.com/Luna-Flow/floating/pull/115) |
+| elementary functions | undetected exact results carry `inexact` (half modes) or fail certification (directed modes) | the agreement test assumes $f(x)$ is not representable | [#105](https://github.com/Luna-Flow/floating/issues/105), [#53](https://github.com/Luna-Flow/floating/issues/53); fixes in [#113](https://github.com/Luna-Flow/floating/pull/113), [#99](https://github.com/Luna-Flow/floating/pull/99) |
+| integer powers | not always correctly rounded when the power needs more than $p$ digits | GDA square-and-multiply with rounded products | [#104](https://github.com/Luna-Flow/floating/issues/104), fix in [#113](https://github.com/Luna-Flow/floating/pull/113) |
+| `pown_ctx` | an integer exponent with more than $p$ digits is rounded | the exponent is converted at the context precision | [#51](https://github.com/Luna-Flow/floating/issues/51), fix in [#113](https://github.com/Luna-Flow/floating/pull/113) |
+| `atan2_ctx` | aborts on an infinite operand; $\operatorname{atan2}(\pm 0, -0)$ is an invalid NaN | missing special cases before the enclosure | [#92](https://github.com/Luna-Flow/floating/issues/92), fix in [#98](https://github.com/Luna-Flow/floating/pull/98) |
+| `cosh_ctx`, `log2_ctx`, `log1p_ctx` | $\cosh(-\infty)$, $\log_2(+\infty)$ and $\operatorname{log1p}(+\infty)$ are invalid NaNs | missing special cases | [#93](https://github.com/Luna-Flow/floating/issues/93), fix in [#98](https://github.com/Luna-Flow/floating/pull/98) |
+| `ln_ctx`, `log10_ctx` | $\log(\pm 0) = -\infty$ without `division_by_zero` | follows General Decimal Arithmetic, not IEEE 754 §9.2.1 | [#94](https://github.com/Luna-Flow/floating/issues/94), decision pending |
+| `scaleb_ctx` | overflow is $\pm\infty$ in every rounding mode; zero results are not clamped | own finalizer instead of the shared one | [#52](https://github.com/Luna-Flow/floating/issues/52), [#95](https://github.com/Luna-Flow/floating/issues/95); fix in [#100](https://github.com/Luna-Flow/floating/pull/100) |
+| parsing | exponents beyond $\pm 1.5\cdot 10^{9}$ are clamped silently | the shared decimal-string splitter caps the exponent | [#108](https://github.com/Luna-Flow/floating/issues/108), fix in [#117](https://github.com/Luna-Flow/floating/pull/117) |
+| `to_integral_exact`, `to_integral_value` | integers longer than $p$ digits are rounded; a fraction with a longer integral part gives an invalid NaN | the operand is rounded or quantized at the context precision | [#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119) |
+| BID NaN | payloads are kept by leading digits of the value's precision | payload written at the value's precision | [#54](https://github.com/Luna-Flow/floating/issues/54), no fix yet |
+| `from_bin_float` | a binary $-0$ becomes $+0$ | every binary zero is mapped to `Decimal::zero` | [#55](https://github.com/Luna-Flow/floating/issues/55), no fix yet |
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel

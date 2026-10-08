@@ -130,7 +130,7 @@ A case the executor does not implement is `Unsupported`; a case whose operands
 cannot be read is a `Diagnostic`. Neither counts as a failure, but a
 diagnostic makes `success()` false. An unknown operation whose operands are
 not all interval literals, such as `nums2interval 1.0 2.0`, is also a
-diagnostic, so filter such operations out before executing a whole file:
+diagnostic (tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)), so filter such operations out before executing a whole file:
 
 ```moonbit
 ///|
@@ -168,7 +168,7 @@ test "dispositions" {
 
 - **Decimal bounds are rounded to nearest.** A bound such as `0.1` is read as
   the nearest binary64 number, not rounded outward, so `[0.1,0.1]` is the
-  singleton of that binary64 number.
+  singleton of that binary64 number. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet.
 - **Signals are not checked.** ITL annotations such as `signal …` after the
   expected value make the expected value unreadable; such cases become
   unsupported or diagnostic rather than passing.
@@ -177,7 +177,7 @@ test "dispositions" {
   statement.
 - **No comments after `;`.** A trailing `// …` keeps the line from ending in
   `;`, so the statement swallows the next one without an error. Put comments
-  on their own lines.
+  on their own lines. Tracked in [#76](https://github.com/Luna-Flow/floating/issues/76); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ## Next steps
 

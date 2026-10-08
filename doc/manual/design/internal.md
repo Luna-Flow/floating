@@ -108,6 +108,7 @@ interchange contexts ($e_{\max} \le 6144$) and for the default
 
 A faithful fix keeps a saturated flag next to the exponent and lets the caller
 turn it into overflow, underflow or a parse error; the current code does not.
+Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
 The substitution is recorded as a known defect on the
 [API page](../api/internal.md#split_decimal_string).
 

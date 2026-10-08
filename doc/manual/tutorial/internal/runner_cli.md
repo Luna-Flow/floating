@@ -143,9 +143,10 @@ with `json_object` so the key order is the order you list, and use
 - **Directories are not searched recursively.** `collect_files` lists only the
   direct entries of a directory.
 - **Non-matching files are dropped silently.** A file argument without the
-  suffix is ignored, not reported. A path named twice is collected twice.
+  suffix is ignored, not reported. A path named twice is collected twice
+  ([#79](https://github.com/Luna-Flow/floating/issues/79)).
 - **Option values are taken verbatim.** `--shard-count --json` reads `--json`
-  as the count and fails. Values use MoonBit integer syntax, so `0x10` and
+  as the count and fails ([#79](https://github.com/Luna-Flow/floating/issues/79); a fix for both is proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)). Values use MoonBit integer syntax, so `0x10` and
   `1_000` are accepted as 16 and 1000.
 - **Native only in practice.** File access goes through `moonbitlang/x/fs`;
   the runners are built and run on the native target.

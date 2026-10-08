@@ -369,7 +369,8 @@ $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 > [!WARNING]
 > `atan2` aborts the program, instead of recording an error, when the current
 > value or the abscissa is an infinity, because `Decimal::try_atan2_ctx` does.
-> Check `value().is_infinite()` and the operand first.
+> Check `value().is_infinite()` and the operand first. Tracked in [#92](https://github.com/Luna-Flow/floating/issues/92);
+> a fix is proposed in [#98](https://github.com/Luna-Flow/floating/pull/98).
 
 > [!IMPORTANT]
 > Following the General Decimal Arithmetic rules for the mathematical

@@ -722,7 +722,8 @@ by one ulp per side even at an unchanged precision. At 53 bits,
 $[1, 1 + 2^{-52}]$ has center $1 + 2^{-53}$, which needs 54 bits; rounding it
 to 1 and adding the displacement $2^{-53}$ to the radius gives
 $[1 - 2^{-52}, 1 + 2^{-52}]$. This affects `with_precision`, `normalized`,
-`convex_hull` with an Empty operand and the checked capabilities. The
+`convex_hull` with an Empty operand and the checked capabilities; it is
+tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91). The
 `Floating` law "normalizing keeps the value" therefore holds for `BallFloat`
 only as an enclosure: $\boldsymbol{x} \subseteq
 \operatorname{normalized}(\boldsymbol{x})$.
@@ -744,15 +745,17 @@ runs 4,656 cases in strict mode (see [conformance](../conformance/ball_float.md)
 ### Known limitations
 
 The following inputs currently break the inclusion property, abort, hang
-or break the decoration rule; they are reported for fixing and documented
-here so that callers can avoid them.
+or break the decoration rule. Each is tracked in an issue, most with a
+proposed fix that is not merged yet; they are documented here so that callers
+can avoid them.
 
 - `exp2_interval` replaces an integer endpoint $n$ by the exact power
   $2^n$, built without regard to the exponent range: an integer lower
   endpoint $n \ge 2^{30}$ overflows to $+\infty$ and the call aborts, and an
   integer upper endpoint $n < -2^{30} - p - 94$ underflows to 0, so the result
   misses $2^n > 0$ (at 53 bits, `exp2_interval` of $\{-1073742000\}$ is
-  $\{0\}$). `try_exp2_interval` is not affected.
+  $\{0\}$). `try_exp2_interval` is not affected. Tracked in [#84](https://github.com/Luna-Flow/floating/issues/84); a fix
+  is proposed in [#97](https://github.com/Luna-Flow/floating/pull/97).
 - `ln_interval` does not return (more than five minutes in a release build)
   for some arguments just above 1 at high precision, for example
   $\{1 + 2^{-243}\}$ or $\{1 + 2^{-238}\}$ at 245 bits and $\{1 + 2^{-243}\}$
@@ -760,28 +763,38 @@ here so that callers can avoid them.
   return at once. Because the total `asinh_interval` and `atanh_interval`
   evaluate `ln_interval` at $p + 192$ bits, they hang the same way for tiny
   arguments: neither returned within minutes for $\{2^{-300}\}$ at 53 bits. The `try_`
-  forms are not affected.
+  forms are not affected. The cause is `BinCoeff::gcd`, which the certified
+  kernels call when they convert series bounds to rationals: its Lehmer loop
+  takes each operand's own top limb as its leading digit, so for operands of
+  very different lengths it barely progresses (a 301-bit odd number and
+  $2^{543}$ need about $2^{220}$ rounds). The JavaScript target computes the
+  gcd with the host `BigInt` and is not affected. Tracked in [#85](https://github.com/Luna-Flow/floating/issues/85); a fix is
+  proposed in [#97](https://github.com/Luna-Flow/floating/pull/97).
 - `with_precision` (and therefore `normalized`) rebuilds a bounded interval
   from `center()`, which uses the far-addend surrogate with
   round-to-nearest. For endpoints more than about $2^{16}$ binary orders of
   magnitude apart and a new precision large enough to store the surrogate
   exactly (more than about 65536 bits), the result can lose the smaller
-  endpoint.
+  endpoint. Tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68).
 - Decorated `rootn` with a negative degree does not lower the decoration to
-  `trv` when 0 is in the argument.
+  `trv` when 0 is in the argument. Tracked in [#45](https://github.com/Luna-Flow/floating/issues/45); a fix is proposed in
+  [#96](https://github.com/Luna-Flow/floating/pull/96).
 - Decorated `tanpi_interval` lowers the decoration only when the result is
   Entire. When a pole is an endpoint (for example $[1/2, 1]$), the
   half-unbounded result is decorated `dac`, although the pole is outside the
-  domain and the decoration must be `trv`.
+  domain and the decoration must be `trv`. Tracked in [#86](https://github.com/Luna-Flow/floating/issues/86); a fix is
+  proposed in [#96](https://github.com/Luna-Flow/floating/pull/96).
 - `midpoint_ctx` does not apply the context's $e_{\max}$ and never raises
   `overflow`. It also rounds to nearest twice (to $p$ bits, then onto the
   subnormal grid), so a subnormal midpoint can be the wrong neighbour: with
   $p = 4$, $e_{\min} = -2$, the center $2^{-6} + 2^{-20}$ gives 0 instead of
-  $2^{-5}$.
+  $2^{-5}$. Tracked in [#46](https://github.com/Luna-Flow/floating/issues/46) and [#70](https://github.com/Luna-Flow/floating/issues/70); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 - `apply_ctx` raises `underflow` only when the subnormal-grid step is
-  inexact, not for every tiny inexact endpoint as IEEE 754 does.
+  inexact, not for every tiny inexact endpoint as IEEE 754 does. Tracked in
+  [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 - `pow_nat_checked(Empty, 0)` returns $\{1\}$ (the power loop starts from
   $\{1\}$ without checking the base), whereas `pown(Empty, 0)` is Empty.
+  Tracked in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ## Alternatives rejected
 

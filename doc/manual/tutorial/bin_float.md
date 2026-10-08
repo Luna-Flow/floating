@@ -391,7 +391,9 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
   rounding and fail under directed rounding, and very tiny arguments (such as
   $2^{-6000}$) make `exp`, `expm1`, `exp2`, `sin` and `atan` fail
   certification. The [API reference](../api/bin_float.md#elementary-functions)
-  lists the details.
+  lists the details. These defects are tracked in [#48](https://github.com/Luna-Flow/floating/issues/48) (`atan2`),
+  [#49](https://github.com/Luna-Flow/floating/issues/49) and [#89](https://github.com/Luna-Flow/floating/issues/89) (`pow`), [#90](https://github.com/Luna-Flow/floating/issues/90) (`rootn`) and [#102](https://github.com/Luna-Flow/floating/issues/102) (tiny
+  arguments); fixes are proposed in [#101](https://github.com/Luna-Flow/floating/pull/101), [#106](https://github.com/Luna-Flow/floating/pull/106) and [#107](https://github.com/Luna-Flow/floating/pull/107).
 
 ## Next steps
 

@@ -275,7 +275,8 @@ whitespace, `_`, `inf` and `nan`, gives `None`.
 > `@decimal_gda.Decimal::from_string` (which keep any exponent when no context
 > is given), and `from_string_ctx` with a context whose `e_max` exceeds
 > $1.5 \cdot 10^{9}$, therefore return `1E+1500000000` for `1e1600000000`
-> instead of overflowing or keeping its value.
+> instead of overflowing or keeping its value. Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is
+> proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
 
 ```moonbit
 ///|

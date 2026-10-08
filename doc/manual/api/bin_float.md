@@ -216,6 +216,20 @@ pub fn BinCoeff::gcd(Self, Self) -> Self
 
 $\gcd(a, 0) = a$ and $\gcd(0, 0) = 0$.
 
+> [!WARNING]
+> On every target except JavaScript, `gcd` can run practically forever when
+> the operands have very different lengths. Unless both operands fit in four
+> 32-bit limbs it uses Lehmer batches, and the batch loop takes each operand's
+> own top limb as its leading digit. For operands of different lengths these digits have
+> unrelated scales, so each round removes only a small multiple of the smaller
+> operand: a 301-bit odd number and $2^{543}$ need about $2^{220}$ rounds. The
+> certified kernels of `ball_float` call `gcd` when they convert series bounds
+> to rationals, which is why `ln_interval`, `asinh_interval` and
+> `atanh_interval` hang for some arguments. The JavaScript target uses the
+> host `BigInt` and is not affected. Tracked in
+> [#85](https://github.com/Luna-Flow/floating/issues/85); a fix is proposed in
+> [#97](https://github.com/Luna-Flow/floating/pull/97).
+
 ### `BinCoeff::shift_left`, `BinCoeff::shift_right`, `BinCoeff::shl`, `BinCoeff::shr`
 
 Multiply by $2^k$ or divide by $2^k$ rounding toward zero.
@@ -1428,7 +1442,9 @@ $\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below.
 >   at 53 bits all return a `certification_failure`, and the plain forms
 >   return NaN. Arguments of binary64 size are not affected. For such tiny
 >   $x$ use the first terms of the series yourself ($\sin x \approx x$,
->   $e^x \approx 1 + x$) with a directed rounding.
+>   $e^x \approx 1 + x$) with a directed rounding. Tracked in
+>   [#102](https://github.com/Luna-Flow/floating/issues/102); a fix is
+>   proposed in [#107](https://github.com/Luna-Flow/floating/pull/107).
 > - **Exact results that are not filtered.** A result that is exactly
 >   representable but not recognised before the loop is returned with a
 >   spurious `inexact` under nearest rounding and is a `certification_failure`
@@ -1436,7 +1452,11 @@ $\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below.
 >   exponent such as $16^{3/4} = 8$, for `rootn` with a negative degree such
 >   as $8^{-1/3} = 1/2$ (and `pow(4, -0.5)`), and for $10^n$ and
 >   $\log_{10} 10^n$ with $n > 4096$ at a precision large enough to hold
->   $10^n$.
+>   $10^n$. Tracked in [#49](https://github.com/Luna-Flow/floating/issues/49)
+>   (`pow`), [#90](https://github.com/Luna-Flow/floating/issues/90) (`rootn`)
+>   and [#102](https://github.com/Luna-Flow/floating/issues/102) ($10^n$);
+>   fixes are proposed in [#106](https://github.com/Luna-Flow/floating/pull/106)
+>   and [#107](https://github.com/Luna-Flow/floating/pull/107).
 
 ### `BinFloat::exp`, `BinFloat::exp_ctx`, `BinFloat::try_exp_ctx`
 
@@ -1603,7 +1623,10 @@ The cases are tried in this order:
 > $|y| \ge 2^{31}$ has the wrong sign; and $(+0)^{-\infty} = +\infty$ raises
 > `division_by_zero`, which IEEE does not. Dyadic results of non-integral
 > exponents, such as $16^{3/4} = 8$, carry a spurious `inexact` or fail under
-> directed rounding (see the warning above).
+> directed rounding (see the warning above). Tracked in
+> [#49](https://github.com/Luna-Flow/floating/issues/49) and
+> [#89](https://github.com/Luna-Flow/floating/issues/89); a fix is proposed in
+> [#106](https://github.com/Luna-Flow/floating/pull/106).
 
 ### `BinFloat::rootn`, `BinFloat::rootn_ctx`, `BinFloat::try_rootn_ctx`
 
@@ -1628,7 +1651,9 @@ detected and returned without `inexact`.
 > $\operatorname{rootn}(-\infty, n)$ with even $n$ returns $+\infty$ (and
 > $+0$ for even negative $n$) instead of a `domain_error`, unlike a finite
 > negative argument. Exact roots with a negative degree are not detected (see
-> the warning at the start of this section).
+> the warning at the start of this section). Tracked in
+> [#90](https://github.com/Luna-Flow/floating/issues/90); a fix is proposed in
+> [#106](https://github.com/Luna-Flow/floating/pull/106).
 
 ### `BinFloat::hypot`, `BinFloat::hypot_ctx`, `BinFloat::try_hypot_ctx`
 
@@ -1646,6 +1671,8 @@ $\operatorname{hypot}(\pm\infty, y) = +\infty$ even when $y$ is a NaN
 (`invalid_operation` is raised only for a signaling NaN). Because the exact
 sum is built, operands whose stored exponents differ by more than $500\,000$
 (possible only in wide or unbounded contexts) give a `certification_failure`.
+Tracked in [#103](https://github.com/Luna-Flow/floating/issues/103); a fix is
+proposed in [#107](https://github.com/Luna-Flow/floating/pull/107).
 
 ### `BinFloat::sin`, `BinFloat::sin_ctx`, `BinFloat::try_sin_ctx`
 
@@ -1736,6 +1763,13 @@ $\operatorname{tanpi}(n + \frac12)$ is $+\infty$ for even $n$ and $-\infty$
 for odd $n$, with `division_by_zero`; $\operatorname{tanpi}(n \pm \frac14) =
 \pm 1$ exactly. Reduction and domain as for `sinpi`.
 
+> [!WARNING]
+> For odd $n$ the sign of the zero differs from IEEE 754, which gives
+> $\operatorname{tanpi}(n) = -0$ for positive odd and $+0$ for negative odd
+> $n$: `tanpi(1)` is $+0$ here. Tracked in
+> [#81](https://github.com/Luna-Flow/floating/issues/81); a fix is proposed in
+> [#101](https://github.com/Luna-Flow/floating/pull/101).
+
 ### `BinFloat::asin`, `BinFloat::asin_ctx`, `BinFloat::try_asin_ctx`
 
 The arcsine, with values in $[-\pi/2, \pi/2]$.
@@ -1802,6 +1836,8 @@ $\operatorname{atan2}(y \ne 0, \pm 0) = \pm\pi/2$.
 > $\operatorname{atan2}(\pm 0, \pm 0)$ returns $\pm\pi/2$ (sign of $y$) instead
 > of $\pm 0$ for $x = +0$ and $\pm\pi$ for $x = -0$, and
 > $\operatorname{atan2}(-0, x < 0)$ returns $+\pi$ instead of $-\pi$.
+> Tracked in [#48](https://github.com/Luna-Flow/floating/issues/48); a fix is
+> proposed in [#101](https://github.com/Luna-Flow/floating/pull/101).
 
 ### `BinFloat::sinh`, `BinFloat::sinh_ctx`, `BinFloat::try_sinh_ctx`
 
