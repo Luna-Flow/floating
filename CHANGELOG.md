@@ -90,6 +90,11 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `just gate <scope>` on a clean checkout: every scope now installs the
+  module dependencies first. `moon update` only refreshes the registry index, so
+  the first `--frozen` command failed with "`frozen` is set, so the build system
+  cannot change the modules directory". This broke the nightly `decimal_gda`
+  job, the only nightly scope whose first command is `--frozen`.
 - Fixed exponent arithmetic that saturated at the 32-bit limits:
   `2^2e9 * 2^2e9` returned a finite value with no flag, and interval endpoints
   could stop enclosing the exact value.
