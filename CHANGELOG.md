@@ -283,6 +283,14 @@ notes live in this file.
   operation rounded again: at precision 9 the 67-digit operand
   `1000000014` followed by 56 nines and a 5 gave `add … 0 -> 1.00000002E+66`
   instead of `1.00000001E+66`. Operands are now read exactly, as GDA requires.
+- Fixed `frontend/itl_expr::execute_case`, which read the operands of the
+  generic binary dispatch before checking the operation, so an unknown
+  operation with a non-interval operand (`nums2interval 1.0 2.0`,
+  `rootn [1.0,8.0] 3`) was a `Diagnostic` and made `success()` false. Unknown
+  operations, including unknown boolean predicates, are now `Unsupported`.
+- Fixed `frontend/itl_expr::parse_itl`, which recognized `//` comments only at
+  the start of a line, so a statement followed by `; // note` did not end and
+  silently swallowed the next statement. A `//` comment now ends the line.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

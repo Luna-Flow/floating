@@ -27,7 +27,8 @@ pub fn parse_itl(String) -> Result[Array[ItlCase], Array[String]]
 
 The text is read line by line, each line trimmed:
 
-- lines starting with `//` and empty lines are skipped; a line starting with
+- `//` starts a comment that runs to the end of the line, so a statement may
+  end in `; // note`; empty lines are skipped; a line starting with
   `/*` starts a block comment that ends on the first later line containing
   `*/` (or on the same line);
 - `testcase NAME …` starts a new block; `NAME` is the word after `testcase`
@@ -113,10 +114,11 @@ chosen whenever the expected text is `true` or `false`.
 Dispositions:
 
 - `Executable` when the case was run; `passed()` tells the outcome;
-- `Unsupported(reason)` for an unknown operation, a binary-dispatch case whose
-  expected value is not an interval (for example one followed by a `signal`
-  annotation), a binary-dispatch case with other than two operands, or a
-  binary boolean predicate whose second operand is missing or unreadable;
+- `Unsupported(reason)` for an unknown operation, whatever its operands, a
+  binary-dispatch case whose expected value is not an interval (for example
+  one followed by a `signal` annotation), a binary-dispatch case with other
+  than two operands, or a binary boolean predicate whose second operand is
+  missing or unreadable;
 - `Diagnostic(reason)` when the first operand of a boolean case, or an
   operand or the expected value of the overlap, numeric, unary, ternary or
   integer-power dispatch, cannot be read, or an operand of the binary dispatch
