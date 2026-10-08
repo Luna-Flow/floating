@@ -268,6 +268,11 @@ notes live in this file.
   without `underflow`. Tininess after rounding now uses the value rounded to
   $p$ digits with an unbounded exponent range, as IEEE 754 §7.5 and the
   package documentation define it.
+- Fixed `bench::paired_hotspot`, which passed the bootstrap confidence as
+  `0.95` where Maremark expects a percentage, so its `interval` was a 0.95 %
+  interval (a single point) instead of a 95 % one.
+- Fixed `bench::TuneDecision::valid_samples`, which counted the negative and
+  non-finite samples the median discards.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
