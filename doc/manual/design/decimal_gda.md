@@ -658,9 +658,8 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 - **Evidence.** The pinned `official` test suite passes 64,986/64,986 legal
   executable scalar rows and the legacy `official0` suite 16,124/16,124
   ([conformance](../conformance/decimal_gda.md)). These are finite claims: the
-  division defect above and the to-integral difference noted on the
-  [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value) are not
-  covered by any pinned row.
+  division defect above and to-integral operands longer than the precision
+  are not covered by any pinned row.
 
 ## Alternatives rejected
 

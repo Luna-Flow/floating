@@ -4312,12 +4312,8 @@ msgid "These round to an integer with the context rounding mode."
 msgstr "これらはコンテキストの丸めモードで整数に丸めます。"
 
 #: manual/api/decimal_gda.md:786
-msgid "A value with negative exponent is quantized to exponent 0; `to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `to_integral_value` never does. A value with exponent $\\ge 0$ is passed through `apply`, so it is rounded to the context precision if it is longer than $p$ digits.[^integral]"
-msgstr "指数が負の値は指数 0 に quantize されます。`to_integral_exact` は桁が捨てられたとき `Inexact` と `Rounded` を発生させ、`to_integral_value` は決して発生させません。指数が $\\ge 0$ の値は `apply` を通されるため、$p$ 桁より長ければコンテキストの精度に丸められます。[^integral]"
-
-#: manual/api/decimal_gda.md:792
-msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
-msgstr "GDA のリファレンス実装はこのようなオペランドをそのまま返します。たとえば精度 3 では `12345` を `12345` に写しますが、このパッケージは `Inexact` 付きで `1.23E+4` を返します。固定されたテストスイートにはそのような行はありません。"
+msgid "A value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 at a working precision of $\\max(p, \\text{its digit count})$, as decNumber does, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `to_integral_value` never does. In a subset context the operand is first rounded to $p$ digits, with `LostDigits`, like every other operand."
+msgstr "指数が $\\ge 0$ の値はすでに整数であり、$p$ 桁より長い場合でもそのまま返されます（`clamp` コンテキストでは指数は引き続き折り下げられます）。指数が負の値は、decNumber と同様に $\\max(p, \\text{その桁数})$ の作業精度で指数 0 に量子化されるため、整数部が $p$ 桁に丸められることはありません。精度 3 では `12345.6` は `12346` になります。桁が捨てられたとき `to_integral_exact` は `Inexact` と `Rounded` を発生させ、`to_integral_value` は発生させません。サブセットコンテキストでは、他のすべてのオペランドと同様に、オペランドはまず $p$ 桁に丸められ `LostDigits` が発生します。"
 
 #: manual/api/decimal_gda.md:798
 msgid "These are the correctly rounded square root, exponential, natural logarithm and base-10 logarithm."
@@ -7075,7 +7071,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/consistency.md:69
 #: manual/design/decimal.md:783
 #: manual/design/decimal_checked.md:273
-#: manual/design/decimal_gda.md:681
+#: manual/design/decimal_gda.md:680
 #: manual/design/decimal_gda_checked.md:242
 #: manual/design/def.md:294
 #: manual/design/doc_examples.md:36
@@ -7996,7 +7992,7 @@ msgstr "`midpoint_ctx` はコンテキストの $e_{\\max}$ を適用せず、`o
 #: manual/design/consistency.md:62
 #: manual/design/decimal.md:762
 #: manual/design/decimal_checked.md:262
-#: manual/design/decimal_gda.md:665
+#: manual/design/decimal_gda.md:664
 #: manual/design/decimal_gda_checked.md:233
 #: manual/design/def.md:281
 #: manual/design/doc_examples.md:30
@@ -11331,46 +11327,46 @@ msgid "**Total order.** `compare_total` is a total order on triples (sign, then 
 msgstr "**全順序。** `compare_total` は三つ組上の全順序（符号、次にクラス、次に値、次に指数、次にペイロード）であり、`Decimal::compare` は NaN がすべての数より上の 1 つのクラスをなす全前順序です。"
 
 #: manual/design/decimal_gda.md:658
-msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the division defect above and the to-integral difference noted on the [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value) are not covered by any pinned row."
-msgstr "**証拠。** 固定された `official` テストスイートでは、正当な実行可能スカラー行 64,986/64,986 が、従来の `official0` スイートでは 16,124/16,124 が合格しています（[適合性](../conformance/decimal_gda.md)）。これらは有限の主張です。上記の除算の欠陥と、[API ページ](../api/decimal_gda.md#to_integral_exact-to_integral_value)に記載されている to-integral の相違は、固定されたどの行でもカバーされていません。"
+msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the division defect above and to-integral operands longer than the precision are not covered by any pinned row."
+msgstr "**証拠。** 固定された `official` テストスイートでは、正当な実行可能スカラー行 64,986/64,986 が、従来の `official0` スイートでは 16,124/16,124 が合格しています（[適合性](../conformance/decimal_gda.md)）。これらは有限の主張です。上記の除算の欠陥と、精度より長い to-integral のオペランドは、固定されたどの行でもカバーされていません。"
 
-#: manual/design/decimal_gda.md:667
+#: manual/design/decimal_gda.md:666
 msgid "**A mutable or global current context.** Rejected because it makes results and flags depend on evaluation order and hidden state (see the first design decision)."
 msgstr "**可変またはグローバルなカレントコンテキスト。** 結果とフラグが評価順序と隠れた状態に依存してしまうため不採用としました（最初の設計判断を参照）。"
 
-#: manual/design/decimal_gda.md:670
+#: manual/design/decimal_gda.md:669
 msgid "**Traps as errors.** Rejected because the GDA-defined result would be lost."
 msgstr "**エラーとしてのトラップ。** GDA で定義された結果が失われるため不採用としました。"
 
-#: manual/design/decimal_gda.md:671
+#: manual/design/decimal_gda.md:670
 msgid "**Sharing the engine with `decimal`.** Rejected because one standard's change could alter the other's results; a measured duplication is cheaper than an accidental semantic coupling."
 msgstr "**`decimal` とエンジンを共有すること。** 一方の標準の変更がもう一方の結果を変えうるため不採用としました。計測された重複は、偶発的な意味論上の結合よりも安上がりです。"
 
-#: manual/design/decimal_gda.md:674
+#: manual/design/decimal_gda.md:673
 msgid "**Binary floating point for elementary functions with a fixed number of guard digits.** Rejected because no fixed number of guard digits guarantees correct rounding (the table-maker's dilemma); certification with refinement does, and fails visibly when it cannot."
 msgstr "**固定数のガード桁を持つ 2 進浮動小数点による初等関数。** 固定数のガード桁では正しい丸めを保証できないため不採用としました（table-maker's dilemma）。精緻化を伴う認証は正しい丸めを保証し、できない場合は目に見える形で失敗します。"
 
-#: manual/design/decimal_gda.md:678
+#: manual/design/decimal_gda.md:677
 msgid "**Normalizing every result.** Rejected because the quantum is part of a GDA number; normalization is available explicitly as `reduce`."
 msgstr "**すべての結果を正規化すること。** 量子は GDA の数の一部なので不採用としました。正規化は `reduce` として明示的に利用できます。"
 
-#: manual/design/decimal_gda.md:683
+#: manual/design/decimal_gda.md:682
 msgid "The package implements the GDA operations and nothing else: no trigonometric, hyperbolic or other functions outside the specification, and no IEEE 754 operations other than the few extras of the status-free layer."
 msgstr "パッケージは GDA の演算だけを実装し、それ以外は何も実装しません。仕様外の三角関数、双曲線関数、その他の関数はなく、ステータスを持たない層のわずかな追加機能を除いて IEEE 754 の演算もありません。"
 
-#: manual/design/decimal_gda.md:686
+#: manual/design/decimal_gda.md:685
 msgid "It does not parse `.decTest` files, run test suites or read files; that is [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools."
 msgstr "`.decTest` ファイルの解析、テストスイートの実行、ファイルの読み込みは行いません。それらは [`frontend/gda_expr`](../api/frontend/gda_expr.md) とリポジトリのツールの役割です。"
 
-#: manual/design/decimal_gda.md:688
+#: manual/design/decimal_gda.md:687
 msgid "It does not provide BID interchange; only DPD."
 msgstr "BID の交換形式は提供しません。DPD のみです。"
 
-#: manual/design/decimal_gda.md:689
+#: manual/design/decimal_gda.md:688
 msgid "It does not give correct rounding for integer powers beyond the GDA requirement, and on the current branch not for the half-mode division case described above."
 msgstr "整数べきについて GDA の要求を超える正しい丸めは提供しません。また現在のブランチでは、上記の half 系モードでの除算のケースについても正しい丸めを提供しません。"
 
-#: manual/design/decimal_gda.md:692
+#: manual/design/decimal_gda.md:691
 msgid "It does not provide a mutable or global context, and contexts carry no identity: two contexts with the same fields are interchangeable."
 msgstr "可変またはグローバルなコンテキストは提供せず、コンテキストは同一性を持ちません。同じフィールドを持つ 2 つのコンテキストは交換可能です。"
 
@@ -18260,6 +18256,9 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
+
+#~ msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
+#~ msgstr "GDA のリファレンス実装はこのようなオペランドをそのまま返します。たとえば精度 3 では `12345` を `12345` に写しますが、このパッケージは `Inexact` 付きで `1.23E+4` を返します。固定されたテストスイートにはそのような行はありません。"
 
 #~ msgid "These functions convert any Luna-Flow integer type."
 #~ msgstr "これらの関数は Luna-Flow の任意の整数型を変換します。"

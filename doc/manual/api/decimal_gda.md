@@ -783,15 +783,15 @@ pub fn to_integral_exact(Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn to_integral_value(Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
-A value with negative exponent is quantized to exponent 0; `to_integral_exact`
-raises `Inexact` and `Rounded` when digits are dropped and
-`to_integral_value` never does. A value with exponent $\ge 0$ is passed
-through `apply`, so it is rounded to the context precision if it is longer
-than $p$ digits.[^integral]
-
-[^integral]: The GDA reference implementation returns such operands unchanged;
-    for example, at precision 3 it maps `12345` to `12345`, while this package
-    returns `1.23E+4` with `Inexact`. The pinned test suite has no such row.
+A value with exponent $\ge 0$ is already an integer and is returned
+unchanged, even when it is longer than $p$ digits (a `clamp` context still
+folds its exponent down). A value with negative
+exponent is quantized to exponent 0 at a working precision of
+$\max(p, \text{its digit count})$, as decNumber does, so the integral part is
+never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`.
+`to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and
+`to_integral_value` never does. In a subset context the operand is first
+rounded to $p$ digits, with `LostDigits`, like every other operand.
 
 ### `sqrt`, `exp`, `ln`, `log10`
 
