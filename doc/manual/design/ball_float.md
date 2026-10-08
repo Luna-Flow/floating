@@ -226,9 +226,10 @@ $$
 $$
 
 The endpoints $\tilde c \pm R$ are then formed exactly (they may have more
-than $p$ bits). `with_precision` uses the same construction with the current
-center and radius, and a caller-chosen rounding mode for the center. The
-converse view is exact: `center` returns $(\underline{x} + \overline{x})/2$
+than $p$ bits). `with_precision` does not use this construction: it rounds the
+endpoints outward directly, which encloses the input at every precision and is
+the tightest representable enclosure, so its rounding-mode argument cannot
+narrow the result. The converse view is exact: `center` returns $(\underline{x} + \overline{x})/2$
 and `radius` returns $(\overline{x} - \underline{x})/2$, which are dyadic and
 need no rounding (the radius is rounded up only if it underflows the
 exponent range), so $[\text{center} - \text{radius}, \text{center} +
@@ -669,15 +670,6 @@ The following inputs currently break the inclusion property or the decoration
 rule; they are reported for fixing and documented here so that callers can
 avoid them.
 
-- `from_int(n, precision=p)` and `from_coefficient` round the integer to
-  nearest at $\max(p, 8)$ bits before building the singleton, so
-  `from_int(257, precision=8)` is $\{256\}$.
-- `with_precision` (and therefore `normalized`) rebuilds a bounded interval
-  from `center()`, which uses the far-addend surrogate with
-  round-to-nearest. For endpoints more than about $2^{16}$ binary orders of
-  magnitude apart and a new precision large enough to store the surrogate
-  exactly (more than about 65536 bits), the result can lose the smaller
-  endpoint.
 - Decorated `rootn` with a negative degree does not lower the decoration to
   `trv` when 0 is in the argument.
 - `midpoint_ctx` does not apply the context's $e_{\max}$ and never raises
