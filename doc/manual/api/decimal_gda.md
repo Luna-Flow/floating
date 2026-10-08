@@ -1605,10 +1605,10 @@ divides under the given context with the same errors as
 These let generic algebra code use `Decimal`.
 
 ```mbti
-pub fn[S : @luna-generic.Nat] Decimal::from_nat(S) -> Self
-pub fn[S : @luna-generic.Integral] Decimal::from_integral(S) -> Self
-pub impl @luna-generic.NatHomomorphism for Decimal
-pub impl @luna-generic.IntegralHomomorphism for Decimal
+pub fn Decimal::from_natural(@bigint.BigInt) -> Self
+pub fn Decimal::from_integer(@bigint.BigInt) -> Self
+pub impl @luna-generic.FromNat for Decimal
+pub impl @luna-generic.FromInteger for Decimal
 pub impl @luna-generic.Zero for Decimal
 pub impl @luna-generic.One for Decimal
 pub impl @luna-generic.AddMonoid for Decimal
@@ -1618,9 +1618,11 @@ pub impl @luna-generic.Semiring for Decimal
 pub impl @luna-generic.Ring for Decimal
 ```
 
-`from_nat` and `from_integral` convert through `BigInt` with
-`Decimal::from_bigint` (34 digits, trailing zeros removed), so they are exact
-only for integers of at most 34 significant digits. `Zero::zero` and
+`from_natural` and `from_integer` are the canonical maps out of the naturals
+and the integers. They convert with `Decimal::from_bigint` (34 digits, trailing
+zeros removed), so they are exact only for integers of at most 34 significant
+digits. To convert another Luna-Flow integer type, pick its representative with
+`Integral::normalize` first, or use `lift_to`. `Zero::zero` and
 `One::one` are `Decimal::zero()` and `Decimal::one()`. The ring structure uses
 the context-free operators; because `+` rounds to the operand precision, the
 ring laws hold exactly only while sums stay within that precision.
@@ -1650,7 +1652,7 @@ test "trait adapters" {
   inspect(d("1").div_contextual(d("0"), actx) is Err(_), content="true")
   inspect(@decimal_gda.Decimal::epsilon_contextual(actx), content="0.001")
   inspect(d("1.5").pow_int_checked(3, actx).unwrap(), content="3.375")
-  inspect(@decimal_gda.Decimal::from_integral(1200), content="1.2E+3")
+  inspect(@decimal_gda.Decimal::from_integer(1200N), content="1.2E+3")
 }
 ```
 
@@ -1820,9 +1822,9 @@ pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int) -> Self
 pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
-pub fn[S : @luna-generic.Integral] Decimal::from_integral(S) -> Self
+pub fn Decimal::from_integer(@bigint.BigInt) -> Self
 pub fn Decimal::from_interchange_hex(String, GdaInterchangeFormat) -> Self?
-pub fn[S : @luna-generic.Nat] Decimal::from_nat(S) -> Self
+pub fn Decimal::from_natural(@bigint.BigInt) -> Self
 pub fn Decimal::from_string(String, precision? : Int) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -1954,9 +1956,9 @@ pub impl @arithmetic.SubContextual for Decimal
 pub impl @def.Floating for Decimal
 pub impl @luna-generic.AddGroup for Decimal
 pub impl @luna-generic.AddMonoid for Decimal
-pub impl @luna-generic.IntegralHomomorphism for Decimal
+pub impl @luna-generic.FromInteger for Decimal
+pub impl @luna-generic.FromNat for Decimal
 pub impl @luna-generic.MulMonoid for Decimal
-pub impl @luna-generic.NatHomomorphism for Decimal
 pub impl @luna-generic.One for Decimal
 pub impl @luna-generic.Ring for Decimal
 pub impl @luna-generic.Semiring for Decimal

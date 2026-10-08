@@ -267,23 +267,17 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
 }
 
 ///|
-pub impl NatHomomorphism for Decimal
-
-///|
-pub impl IntegralHomomorphism for Decimal
-
-///|
-pub impl NatHomomorphism for Decimal with fn[S : @lf_alg.Nat] from_nat(
-  value : S,
-) -> Decimal {
-  Decimal::from_bigint(@lf_alg.Integral::normalize(value)).normalized()
+/// The unique homomorphism out of the naturals. `luna-generic` 0.4.0 replaced
+/// `NatHomomorphism` with `FromNat`, which takes the `BigInt` representative
+/// directly instead of a generic source plus `normalize`.
+pub impl FromNat for Decimal with fn from_natural(value : BigInt) -> Decimal {
+  Decimal::from_bigint(value).normalized()
 }
 
 ///|
-pub impl IntegralHomomorphism for Decimal with fn[S : @lf_alg.Integral] from_integral(
-  value : S,
-) -> Decimal {
-  Decimal::from_bigint(@lf_alg.Integral::normalize(value)).normalized()
+/// The unique homomorphism out of the integers; see `FromNat` above.
+pub impl FromInteger for Decimal with fn from_integer(value : BigInt) -> Decimal {
+  Decimal::from_bigint(value).normalized()
 }
 
 ///|
@@ -423,12 +417,10 @@ pub extend Decimal with @Luna-Flow/arithmetic.PowNatChecked::{pow_nat_checked}
 pub extend Decimal with @Luna-Flow/arithmetic.PowIntChecked::{pow_int_checked}
 
 ///|
-pub extend Decimal with @Luna-Flow/luna-generic.NatHomomorphism::{from_nat}
+pub extend Decimal with @Luna-Flow/luna-generic.FromNat::{from_natural}
 
 ///|
-pub extend Decimal with @Luna-Flow/luna-generic.IntegralHomomorphism::{
-  from_integral,
-}
+pub extend Decimal with @Luna-Flow/luna-generic.FromInteger::{from_integer}
 
 ///|
 pub extend Decimal with Eq::{not_equal, equal}

@@ -72,10 +72,10 @@ pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int) -> Self
 pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
-pub fn[S : @luna-generic.Integral] Decimal::from_integral(S) -> Self
+pub fn Decimal::from_integer(@bigint.BigInt) -> Self
 pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
 pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
-pub fn[S : @luna-generic.Nat] Decimal::from_nat(S) -> Self
+pub fn Decimal::from_natural(@bigint.BigInt) -> Self
 pub fn Decimal::from_string(String, precision? : Int) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -243,9 +243,9 @@ pub impl @arithmetic.SubContextual for Decimal
 pub impl @def.Floating for Decimal
 pub impl @luna-generic.AddGroup for Decimal
 pub impl @luna-generic.AddMonoid for Decimal
-pub impl @luna-generic.IntegralHomomorphism for Decimal
+pub impl @luna-generic.FromInteger for Decimal
+pub impl @luna-generic.FromNat for Decimal
 pub impl @luna-generic.MulMonoid for Decimal
-pub impl @luna-generic.NatHomomorphism for Decimal
 pub impl @luna-generic.One for Decimal
 pub impl @luna-generic.Ring for Decimal
 pub impl @luna-generic.Semiring for Decimal

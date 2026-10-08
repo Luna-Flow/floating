@@ -82,6 +82,14 @@ notes live in this file.
   which moonc 0.10.14 requires.
 - Raised `moonbitlang/x` from 0.4.46 to 0.5.5 and `moonbitlang/async` from
   0.20.1 to 0.22.4.
+- **Breaking:** raised `Luna-Flow/luna-generic` from 0.3.3 to 0.4.0, which
+  deprecates the `NatHomomorphism` and `IntegralHomomorphism` traits because
+  they compose a lift with a canonical map, which is not a homomorphism for
+  fixed-width types. `Decimal::from_nat` and `Decimal::from_integral`, in the
+  IEEE and GDA packages, are replaced by `Decimal::from_natural` and
+  `Decimal::from_integer`, which take the `BigInt` representative directly.
+  Callers that passed another Luna-Flow integer type pick its representative
+  with `Integral::normalize` first, or use `lift_to`.
 - Moved the documentation to the gettext layout: English pages in
   `doc/manual` with one `api/`, `tutorial/` and `design/` page per package,
   translations as catalogs in `doc/locale`, and Typst attachments in

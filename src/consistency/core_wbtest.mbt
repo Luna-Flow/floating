@@ -17,12 +17,7 @@ using @lf_arith {
 }
 
 ///|
-using @lf_alg {
-  trait IntegralHomomorphism,
-  trait One,
-  trait Semiring,
-  trait Zero,
-}
+using @lf_alg {trait FromInteger, trait One, trait Semiring, trait Zero}
 
 ///|
 fn[T : SqrtChecked] sqrt_checked_generic(
@@ -50,11 +45,10 @@ fn[T : CompareChecked] compare_checked_generic(
 }
 
 ///|
-fn[T : IntegralHomomorphism, S : @lf_alg.Integral] from_integral_generic(
-  x : S,
-) -> T {
-  let _ = @lf_alg.Integral::normalize(x)
-  IntegralHomomorphism::from_integral(x)
+// `luna-generic` 0.4.0 splits this into `normalize`, which picks the integer
+// representative, and `FromInteger::from_integer`, the canonical map out of it.
+fn[T : FromInteger, S : @lf_alg.Integral] from_integral_generic(x : S) -> T {
+  FromInteger::from_integer(@lf_alg.Integral::normalize(x))
 }
 
 ///|
