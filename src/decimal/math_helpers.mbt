@@ -884,7 +884,9 @@ fn decimal_div_finite_by_small_int_work(
       work_ctx.decimal_rounding,
     )
     if exact_rounding.rounded {
-      let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
+      let prefinal = if exact_result_is_subnormal(
+          exact_unrounded, precision, work_ctx,
+        ) {
         exact_unrounded
       } else if !exact_rounding.inexact {
         expand_rounded_exact_cohort_toward_preferred_exponent(
@@ -1007,7 +1009,9 @@ fn decimal_div_finite_work(
       work_ctx.decimal_rounding,
     )
     if exact_rounding.rounded {
-      let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
+      let prefinal = if exact_result_is_subnormal(
+          exact_unrounded, precision, work_ctx,
+        ) {
         exact_unrounded
       } else if !exact_rounding.inexact {
         expand_rounded_exact_cohort_toward_preferred_exponent(

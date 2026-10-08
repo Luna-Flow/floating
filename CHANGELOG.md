@@ -272,6 +272,12 @@ notes live in this file.
   (`0E+300 scaleb 400` in decimal64 gives `0E+369` with `Clamped`), and a
   coefficient longer than the precision is rounded once to the precision
   (#122).
+- Fixed `Decimal::div_ctx` by a power of ten when the exact quotient's
+  exponent is below Etiny but its magnitude is normal. The quotient was
+  rounded to Etiny only and kept more digits than the precision
+  (`4826437 / 1E+24` at precision 5 with `Up` gave `4.82644E-18`, not
+  `4.8265E-18`); it is now rounded once to the precision. The division
+  helpers behind the elementary functions had the same shortcut (#126).
 - Fixed `to_integral_exact` and `to_integral_value` in `decimal_gda` (the GDA
   functions and the `Decimal` methods) for operands longer than the context
   precision. An operand with a non-negative exponent was rounded to the
