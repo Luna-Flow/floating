@@ -209,12 +209,11 @@ pub fn BallFloatResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> S
 ```
 
 `neg` and `abs` are the exact interval images $\{-t\}$ and $\{|t|\}$;
-`with_precision` returns an enclosure of the input at the new precision for
-every rounding mode (the mode only steers the center). `with_precision` and
-`normalized` rebuild the interval from its center and radius and can widen it
-by one ulp per side even at an unchanged precision (see
-[`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision); tracked
-in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)).
+`with_precision` rounds the endpoints outward to the new precision for every
+rounding mode (the mode is ignored), which is the tightest enclosure of the
+input. Neither it nor `normalized` changes an interval that is already
+representable at the target precision (see
+[`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision)).
 
 ## Arithmetic
 
@@ -246,17 +245,15 @@ pub fn BallFloatResult::pow_int(Self, Int) -> Self
 ```
 
 The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only
-its precision, and re-rounds the base and the result with `with_precision`,
-which can add one ulp per side. `pow_int` encloses $\{t^{n}\}$ with
+its precision, and re-rounds the base and the result outward with
+`with_precision`, which adds nothing when they are already representable. `pow_int` encloses $\{t^{n}\}$ with
 `BallFloat::pown`, which treats the base as one point (so `pow_int(2)` of
 $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base
 with a negative exponent gives the empty set. `pow_nat` instead uses binary
 powering by repeated interval multiplication, which treats the factors as
 independent: `pow_nat(2)` of $[-1, 1]$ is $[-1, 1]$, like `x * x`. For even
-powers of an interval containing 0, prefer `pow_int`. `pow_nat(0)` of an empty
-interval is $\{1\}$ (whereas `pow_int(0)` keeps it empty). The extra ulp is
-tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix for both is proposed
-in [#91](https://github.com/Luna-Flow/floating/pull/91).
+powers of an interval containing 0, prefer `pow_int`. An empty base stays
+empty for every exponent, including `pow_nat(0)` and `pow_int(0)`.
 
 ### `BallFloatResult::rootn`
 

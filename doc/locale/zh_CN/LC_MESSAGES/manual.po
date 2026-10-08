@@ -214,10 +214,10 @@ msgid "`BallFlags` records the conditions raised while rounding an interval into
 msgstr "`BallFlags` 记录将区间舍入到某个 `BallContext` 时触发的条件。"
 
 #: manual/api/ball_float.md:218
-msgid "`inexact` is set when an endpoint changed; `overflow` when an endpoint was beyond $e_{\\max}$; `underflow` when an endpoint had to be rounded on the subnormal grid and that last step was inexact (see [`BallFloat::apply_ctx`](#ballfloatapply_ctx) for how this differs from IEEE 754). The fields are readable; the accessor methods are listed under [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow)."
-msgstr "当端点发生改变时设置 `inexact`；当端点超出 $e_{\\max}$ 时设置 `overflow`；当端点必须在次正规网格上舍入且这最后一步不精确时设置 `underflow`（它与 IEEE 754 的区别参见 [`BallFloat::apply_ctx`](#ballfloatapply_ctx)）。这些字段可读；访问器方法列于 [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow) 之下。"
+msgid "`inexact` is set when an endpoint (or, for `midpoint_ctx`, the midpoint) changed; `overflow` when it was beyond $e_{\\max}$; `underflow` when it is tiny and inexact, as IEEE 754 defines it (see [`BallFloat::apply_ctx`](#ballfloatapply_ctx)). The fields are readable; the accessor methods are listed under [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow)."
+msgstr "当端点（对 `midpoint_ctx` 而言是中点）发生改变时设置 `inexact`；当其超出 $e_{\\max}$ 时设置 `overflow`；当其为微小值且不精确时设置 `underflow`，与 IEEE 754 的定义一致（参见 [`BallFloat::apply_ctx`](#ballfloatapply_ctx)）。这些字段可读；访问器方法列于 [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow) 之下。"
 
-#: manual/api/ball_float.md:225
+#: manual/api/ball_float.md:224
 #: manual/api/ball_float_checked.md:59
 #: manual/api/bin_float_checked.md:61
 #: manual/api/decimal_checked.md:67
@@ -225,252 +225,252 @@ msgstr "当端点发生改变时设置 `inexact`；当端点超出 $e_{\\max}$ �
 msgid "Construction"
 msgstr "构造"
 
-#: manual/api/ball_float.md:229
+#: manual/api/ball_float.md:228
 msgid "`BallFloat::new` builds the interval $[c - r, c + r]$ from a center and a radius, enlarged so that it is exact at the requested precision."
 msgstr "`BallFloat::new` 由中心和半径构建区间 $[c - r, c + r]$，并适当扩大以使其在所请求的精度下可精确表示。"
 
-#: manual/api/ball_float.md:236
+#: manual/api/ball_float.md:235
 msgid "The default precision is the larger of the precisions of `center` and `radius`. With $p$ that precision, the stored interval is"
 msgstr "默认精度是 `center` 与 `radius` 精度中的较大者。记该精度为 $p$，则存储的区间为"
 
-#: manual/api/ball_float.md:245
+#: manual/api/ball_float.md:244
 msgid "which contains $[c - r, c + r]$ (proof in the [design page](../design/ball_float.md#from-midpointradius-to-endpoints)). The endpoints $\\tilde c \\pm R$ are formed exactly, so they may carry more than $p$ bits. Aborts when `center` or `radius` is not finite or when `radius` is negative. A precision below 1 is treated as 1."
 msgstr "它包含 $[c - r, c + r]$（证明见[设计文档](../design/ball_float.md#from-midpointradius-to-endpoints)）。端点 $\\tilde c \\pm R$ 是精确构成的，因此其位数可能多于 $p$。当 `center` 或 `radius` 非有限，或 `radius` 为负时中止。小于 1 的精度按 1 处理。"
 
-#: manual/api/ball_float.md:251
+#: manual/api/ball_float.md:250
 msgid "When $c$ already has at most $p$ bits and $r = 0$, the result is the singleton $\\{c\\}$. When $c$ needs more than $p$ bits, the rounding error of the center is added to the radius on *both* sides, so the interval is wider than $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$; use `from_bounds` for the tightest enclosure of known bounds."
 msgstr "当 $c$ 已至多有 $p$ 位且 $r = 0$ 时，结果为单点集 $\\{c\\}$。当 $c$ 需要多于 $p$ 位时，中心的舍入误差会在*两侧*都加到半径上，因此区间比 $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$ 更宽；若要得到已知界的最紧包络，请使用 `from_bounds`。"
 
-#: manual/api/ball_float.md:257
+#: manual/api/ball_float.md:256
 msgid "`BallFloat::from_bounds` and `BallFloat::try_from_bounds`"
 msgstr "`BallFloat::from_bounds` 与 `BallFloat::try_from_bounds`"
 
-#: manual/api/ball_float.md:259
+#: manual/api/ball_float.md:258
 msgid "`BallFloat::from_bounds` builds the interval $[\\underline{x}, \\overline{x}]$ from its endpoints, rounded outward to the requested precision."
 msgstr "`BallFloat::from_bounds` 由端点构建区间 $[\\underline{x}, \\overline{x}]$，并向外舍入到所请求的精度。"
 
-#: manual/api/ball_float.md:267
+#: manual/api/ball_float.md:266
 msgid "The default precision is the larger of the endpoint precisions. Infinite endpoints build unbounded intervals: `from_bounds(-inf, +inf)` is Entire. The inputs are invalid when an endpoint is NaN, the lower endpoint is $+\\infty$, the upper endpoint is $-\\infty$, or $\\underline{x} > \\overline{x}$; `from_bounds` aborts and `try_from_bounds` returns a domain error. There is no way to build Empty from bounds; use `BallFloat::empty`."
 msgstr "默认精度是两个端点精度中的较大者。无穷端点构建无界区间：`from_bounds(-inf, +inf)` 即 Entire。当某个端点为 NaN、下端点为 $+\\infty$、上端点为 $-\\infty$ 或 $\\underline{x} > \\overline{x}$ 时，输入无效；此时 `from_bounds` 中止，`try_from_bounds` 返回定义域错误。无法由端点构建 Empty；请使用 `BallFloat::empty`。"
 
-#: manual/api/ball_float.md:284
+#: manual/api/ball_float.md:283
 msgid "`BallFloat::exact` and `BallFloat::try_exact`"
 msgstr "`BallFloat::exact` 与 `BallFloat::try_exact`"
 
-#: manual/api/ball_float.md:286
+#: manual/api/ball_float.md:285
 msgid "`BallFloat::exact` builds the singleton $\\{x\\}$ of a finite `BinFloat`."
 msgstr "`BallFloat::exact` 构建有限 `BinFloat` 的单点集 $\\{x\\}$。"
 
-#: manual/api/ball_float.md:293
+#: manual/api/ball_float.md:292
 msgid "The default precision is that of `x`. When `x` has more significant bits than the requested precision, the singleton is rounded outward to the two-point interval $[\\operatorname{RD}_p(x), \\operatorname{RU}_p(x)]$. A non-finite `x` aborts `exact` and makes `try_exact` return a domain error."
 msgstr "默认精度为 `x` 的精度。当 `x` 的有效位数多于所请求的精度时，单点集会向外舍入为两点区间 $[\\operatorname{RD}_p(x), \\operatorname{RU}_p(x)]$。非有限的 `x` 会使 `exact` 中止，并使 `try_exact` 返回定义域错误。"
 
-#: manual/api/ball_float.md:298
+#: manual/api/ball_float.md:297
 msgid "`BallFloat::from_int` and `BallFloat::from_coefficient`"
 msgstr "`BallFloat::from_int` 与 `BallFloat::from_coefficient`"
 
-#: manual/api/ball_float.md:300
+#: manual/api/ball_float.md:299
 msgid "`BallFloat::from_int` and `BallFloat::from_coefficient` build an enclosure of an integer."
 msgstr "`BallFloat::from_int` 和 `BallFloat::from_coefficient` 构建整数的包络。"
 
-#: manual/api/ball_float.md:308
+#: manual/api/ball_float.md:307
 msgid "The default precision is 16. `from_coefficient` takes a non-negative `BinCoeff` magnitude and a separate sign. The integer is converted to a `BinFloat` exactly and then passed to `exact`, so the result is the singleton $\\{n\\}$ when $n$ fits in $p$ bits and the two-point interval $[\\operatorname{RD}_p(n), \\operatorname{RU}_p(n)]$ otherwise. Either way it contains $n$. Pass a precision at least as large as the bit length of the integer to get a singleton."
 msgstr "默认精度为 16。`from_coefficient` 接受一个非负的 `BinCoeff` 绝对值和一个单独的符号。整数先被精确转换为 `BinFloat`，再传给 `exact`，因此当 $n$ 能用 $p$ 位表示时结果为单点集 $\\{n\\}$，否则为两点区间 $[\\operatorname{RD}_p(n), \\operatorname{RU}_p(n)]$。无论哪种情况结果都包含 $n$。要得到单点集，请传入不小于该整数位长的精度。"
 
-#: manual/api/ball_float.md:316
+#: manual/api/ball_float.md:315
 msgid "`BallFloat::from_double`, `BallFloat::try_from_double`, `BallFloat::from_float` and `BallFloat::try_from_float`"
 msgstr "`BallFloat::from_double`、`BallFloat::try_from_double`、`BallFloat::from_float` 和 `BallFloat::try_from_float`"
 
-#: manual/api/ball_float.md:318
+#: manual/api/ball_float.md:317
 msgid "These functions build the singleton of the exact binary value of a `Double` or `Float`."
 msgstr "这些函数构建 `Double` 或 `Float` 的精确二进制值的单点集。"
 
-#: manual/api/ball_float.md:328
+#: manual/api/ball_float.md:327
 msgid "Default precisions are 53 and 24. The conversion to `BinFloat` is exact; a smaller requested precision rounds the singleton outward. NaN and infinities abort the plain forms and are domain errors for the `try_` forms. The result encloses the binary value, not the decimal literal it was written as: `from_double(0.1)` does not contain $1/10$."
 msgstr "默认精度分别为 53 和 24。到 `BinFloat` 的转换是精确的；若请求的精度更小，则单点集会向外舍入。NaN 和无穷会使普通形式中止，对 `try_` 形式则是定义域错误。结果包络的是二进制值，而不是书写时的十进制字面量：`from_double(0.1)` 不包含 $1/10$。"
 
-#: manual/api/ball_float.md:334
+#: manual/api/ball_float.md:333
 msgid "`BallFloat::whole` and `BallFloat::empty`"
 msgstr "`BallFloat::whole` 与 `BallFloat::empty`"
 
-#: manual/api/ball_float.md:336
+#: manual/api/ball_float.md:335
 msgid "`BallFloat::whole` returns Entire and `BallFloat::empty` returns Empty."
 msgstr "`BallFloat::whole` 返回 Entire，`BallFloat::empty` 返回 Empty。"
 
-#: manual/api/ball_float.md:343
+#: manual/api/ball_float.md:342
 msgid "The default precision is 53."
 msgstr "默认精度为 53。"
 
-#: manual/api/ball_float.md:345
+#: manual/api/ball_float.md:344
 msgid "Observers"
 msgstr "观察函数"
 
-#: manual/api/ball_float.md:347
+#: manual/api/ball_float.md:346
 msgid "`BallFloat::lower_bound` and `BallFloat::upper_bound`"
 msgstr "`BallFloat::lower_bound` 与 `BallFloat::upper_bound`"
 
-#: manual/api/ball_float.md:349
+#: manual/api/ball_float.md:348
 msgid "`lower_bound` and `upper_bound` return the stored endpoints."
 msgstr "`lower_bound` 和 `upper_bound` 返回存储的端点。"
 
-#: manual/api/ball_float.md:356
+#: manual/api/ball_float.md:355
 msgid "For an unbounded side the endpoint is an infinity. For Empty they return $+\\infty$ and $-\\infty$ respectively, so test `is_empty` first."
 msgstr "在无界的一侧，端点是无穷。对于 Empty，二者分别返回 $+\\infty$ 和 $-\\infty$，因此请先检查 `is_empty`。"
 
-#: manual/api/ball_float.md:359
+#: manual/api/ball_float.md:358
 msgid "`BallFloat::center` and `BallFloat::radius`"
 msgstr "`BallFloat::center` 与 `BallFloat::radius`"
 
-#: manual/api/ball_float.md:361
+#: manual/api/ball_float.md:360
 msgid "`center` and `radius` return the midpoint–radius view of a bounded interval."
 msgstr "`center` 和 `radius` 返回有界区间的中点–半径视图。"
 
-#: manual/api/ball_float.md:368
+#: manual/api/ball_float.md:367
 msgid "`center` is $(\\underline{x} + \\overline{x})/2$ and `radius` is $(\\overline{x} - \\underline{x})/2$. Both are dyadic, so they are computed exactly (the radius is rounded up only if it underflows the exponent range), and $[\\text{center} - \\text{radius}, \\text{center} + \\text{radius}]$ is the stored interval. Both abort on Empty and on unbounded intervals."
 msgstr "`center` 为 $(\\underline{x} + \\overline{x})/2$，`radius` 为 $(\\overline{x} - \\underline{x})/2$。二者都是二进有理数，因此均精确计算（仅当半径低于指数范围下溢时才向上舍入），并且 $[\\text{center} - \\text{radius}, \\text{center} + \\text{radius}]$ 就是存储的区间。二者在 Empty 和无界区间上均会中止。"
 
-#: manual/api/ball_float.md:374
+#: manual/api/ball_float.md:373
 msgid "[!NOTE] For bounded intervals whose endpoints are more than about $2^{16}$ binary orders of magnitude apart, neither value is exact: the smaller endpoint is replaced by a sticky surrogate below the last bit of the larger one (see the [design page](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)), rounded to nearest for `center` and upward for `radius`. The pair then describes the stored set only approximately."
 msgstr "[!NOTE] 对于端点在二进制数量级上相差超过约 $2^{16}$ 的有界区间，两个值都不是精确的：较小的端点会被替换为一个低于较大端点最末位的粘滞替代值（参见[设计文档](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)），对 `center` 就近舍入，对 `radius` 向上舍入。此时这对值只能近似地描述所存储的集合。"
 
-#: manual/api/ball_float.md:384
+#: manual/api/ball_float.md:383
 msgid "`midpoint` returns the center rounded to nearest at the interval's precision."
 msgstr "`midpoint` 返回以区间精度就近舍入后的中心。"
 
-#: manual/api/ball_float.md:390
+#: manual/api/ball_float.md:389
 msgid "Entire has midpoint 0. Empty and half-bounded intervals abort."
 msgstr "Entire 的中点为 0。Empty 和半无界区间会中止。"
 
-#: manual/api/ball_float.md:392
+#: manual/api/ball_float.md:391
 msgid "`BallFloat::width` and `BallFloat::radius_extended`"
 msgstr "`BallFloat::width` 与 `BallFloat::radius_extended`"
 
-#: manual/api/ball_float.md:394
+#: manual/api/ball_float.md:393
 msgid "`width` returns $\\operatorname{RU}_p(\\overline{x} - \\underline{x})$ and `radius_extended` returns the radius rounded up to the interval's precision."
 msgstr "`width` 返回 $\\operatorname{RU}_p(\\overline{x} - \\underline{x})$，`radius_extended` 返回向上舍入到区间精度的半径。"
 
-#: manual/api/ball_float.md:402
+#: manual/api/ball_float.md:401
 msgid "Both return 0 for Empty and $+\\infty$ for unbounded intervals instead of aborting. Both are upper bounds of the exact value."
 msgstr "二者对 Empty 返回 0，对无界区间返回 $+\\infty$，而不会中止。二者都是精确值的上界。"
 
-#: manual/api/ball_float.md:405
+#: manual/api/ball_float.md:404
 msgid "`BallFloat::magnitude` and `BallFloat::mignitude`"
 msgstr "`BallFloat::magnitude` 与 `BallFloat::mignitude`"
 
-#: manual/api/ball_float.md:407
+#: manual/api/ball_float.md:406
 msgid "`magnitude` returns $\\sup\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$ and `mignitude` returns $\\inf\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$."
 msgstr "`magnitude` 返回 $\\sup\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$，`mignitude` 返回 $\\inf\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$。"
 
-#: manual/api/ball_float.md:415
+#: manual/api/ball_float.md:414
 msgid "For a non-empty interval,"
 msgstr "对于非空区间，"
 
-#: manual/api/ball_float.md:427
+#: manual/api/ball_float.md:426
 msgid "because $|\\xi|$ is convex, so its maximum over an interval is at an endpoint, and it is monotone on each side of 0. Both are exact. Empty gives 0 for both (IEEE 1788 leaves them undefined there); `magnitude` of an unbounded interval is $+\\infty$."
 msgstr "这是因为 $|\\xi|$ 是凸函数，其在区间上的最大值位于端点处，并且它在 0 的两侧各自单调。二者都是精确的。Empty 对二者都给出 0（IEEE 1788 在此处未作定义）；无界区间的 `magnitude` 为 $+\\infty$。"
 
-#: manual/api/ball_float.md:445
+#: manual/api/ball_float.md:444
 msgid "`BallFloat::precision`, `BallFloat::classify` and `BallFloat::sign`"
 msgstr "`BallFloat::precision`、`BallFloat::classify` 与 `BallFloat::sign`"
 
-#: manual/api/ball_float.md:447
+#: manual/api/ball_float.md:446
 msgid "`precision` returns the precision tag; `classify` and `sign` describe the interval in the vocabulary of scalar floating-point types."
 msgstr "`precision` 返回精度标记；`classify` 和 `sign` 用标量浮点类型的术语描述区间。"
 
-#: manual/api/ball_float.md:456
+#: manual/api/ball_float.md:455
 msgid "`classify` returns `NaN` for Empty, `Finite` for a bounded interval and `Infinity` for an unbounded one. `sign` returns `Positive` when $\\underline{x} > 0$, `Negative` when $\\overline{x} < 0$, and `Zero` otherwise: `Zero` means \"the interval contains 0\", not \"the interval is $\\{0\\}$\". `sign` aborts on Empty."
 msgstr "`classify` 对 Empty 返回 `NaN`，对有界区间返回 `Finite`，对无界区间返回 `Infinity`。`sign` 在 $\\underline{x} > 0$ 时返回 `Positive`，在 $\\overline{x} < 0$ 时返回 `Negative`，否则返回 `Zero`：`Zero` 表示“区间包含 0”，而不是“区间为 $\\{0\\}$”。`sign` 在 Empty 上中止。"
 
-#: manual/api/ball_float.md:464
+#: manual/api/ball_float.md:463
 msgid "These predicates test the shape of the set."
 msgstr "这些谓词检测集合的形状。"
 
-#: manual/api/ball_float.md:475
+#: manual/api/ball_float.md:474
 msgid "`is_bounded` and `is_common_interval` (the IEEE 1788 name) are the same: the interval is non-empty with two finite endpoints. `is_singleton` holds when $\\underline{x} = \\overline{x}$. `contains_zero` is false for Empty."
 msgstr "`is_bounded` 与 `is_common_interval`（IEEE 1788 中的名称）相同：区间非空且两个端点均有限。当 $\\underline{x} = \\overline{x}$ 时 `is_singleton` 成立。对 Empty，`contains_zero` 为假。"
 
-#: manual/api/ball_float.md:479
+#: manual/api/ball_float.md:478
 #: manual/design/decimal_gda.md:437
 msgid "Precision"
 msgstr "精度"
 
-#: manual/api/ball_float.md:483
+#: manual/api/ball_float.md:482
 msgid "`with_precision` re-rounds an interval to a new precision without shrinking it."
 msgstr "`with_precision` 将区间重新舍入到新的精度，且不会使其缩小。"
 
-#: manual/api/ball_float.md:490
+#: manual/api/ball_float.md:489
 msgid "The endpoints are rounded outward: the lower bound toward $-\\infty$ and the upper bound toward $+\\infty$. `mode` is accepted for signature compatibility and is ignored, because outward rounding is the only direction that keeps the result an enclosure. Empty stays Empty with the new precision."
 msgstr "端点向外取整：下界朝 $-\\infty$，上界朝 $+\\infty$。`mode` 仅为签名兼容而保留并被忽略，因为向外取整是唯一能让结果保持为包络的方向。Empty 仍为 Empty，并带上新精度。"
 
-#: manual/api/ball_float.md:495
-msgid "[!NOTE] The result is the tightest representable enclosure of the input, so widening the precision is exact and re-rounding at an unchanged precision is an identity. The center–radius rebuild this function used to perform is not an identity: if the exact center $(\\underline{x} + \\overline{x})/2$ needs more than $p$ bits, both endpoints move outward by the rounding error of the center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$. `normalized`, `convex_hull` with an Empty operand, the checked capabilities (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the `pow_nat`/`pow_int` methods of `ball_float_checked` still go through that rebuild and can widen by up to one ulp per side; it is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91). To re-round one of those results without widening, use `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`."
-msgstr "[!NOTE] 结果是输入的可表示最紧包络，因此加宽精度是精确的，在精度不变时重新取整是恒等操作。本函数过去采用的中心–半径重建并非恒等：若精确中心 $(\\underline{x} + \\overline{x})/2$ 需要多于 $p$ 位，两个端点都会按中心的舍入误差向外移动，因此在 53 位下 $[1, 1 + 2^{-52}]$ 曾变成 $[1 - 2^{-52}, 1 + 2^{-52}]$。`normalized`、带 Empty 操作数的 `convex_hull`、checked 能力（`div_checked`、`pow_nat_checked`、`pow_int_checked`）以及 `ball_float_checked` 的 `pow_nat`/`pow_int` 方法仍会经过该重建，可能每侧加宽至多一个 ulp；该问题由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪，修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。要在不加宽的前提下对这类结果重新取整，请使用 `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`。"
+#: manual/api/ball_float.md:494
+msgid "[!NOTE] The result is the tightest representable enclosure of the input, so widening the precision is exact and re-rounding at an unchanged precision is an identity. The center–radius rebuild this function used to perform is not an identity: if the exact center $(\\underline{x} + \\overline{x})/2$ needs more than $p$ bits, both endpoints move outward by the rounding error of the center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$. `normalized`, `convex_hull` with an Empty operand, the checked capabilities (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the `pow_nat`/`pow_int` methods of `ball_float_checked` round endpoints the same way and do not widen a representable interval either."
+msgstr "[!NOTE] 结果是输入的可表示最紧包络，因此加宽精度是精确的，在精度不变时重新取整是恒等操作。本函数过去采用的中心–半径重建并非恒等：若精确中心 $(\\underline{x} + \\overline{x})/2$ 需要多于 $p$ 位，两个端点都会按中心的舍入误差向外移动，因此在 53 位下 $[1, 1 + 2^{-52}]$ 曾变成 $[1 - 2^{-52}, 1 + 2^{-52}]$。`normalized`、带 Empty 操作数的 `convex_hull`、checked 能力（`div_checked`、`pow_nat_checked`、`pow_int_checked`）以及 `ball_float_checked` 的 `pow_nat`/`pow_int` 方法以同样的方式舍入端点，同样不会加宽可表示的区间。"
 
-#: manual/api/ball_float.md:532
-msgid "`normalized` rebuilds a bounded interval from its normalized center and radius (`BinFloat::normalized` removes trailing zero bits), and re-rounds the finite endpoints of an unbounded interval outward."
-msgstr "`normalized` 由规范化后的中心和半径重建有界区间（`BinFloat::normalized` 会去除末尾的零位），并将无界区间的有限端点向外重新舍入。"
+#: manual/api/ball_float.md:527
+msgid "`normalized` normalizes the two endpoints (`BinFloat::normalized` removes trailing zero bits) and stores them at the interval's precision."
+msgstr "`normalized` 规范化两个端点（`BinFloat::normalized` 去掉末尾的零位），并以区间的精度存储它们。"
 
-#: manual/api/ball_float.md:540
-msgid "The result contains the input but, for the reason given under `with_precision`, can be strictly wider: `normalized` of $[1, 1 + 2^{-52}]$ at 53 bits is $[1 - 2^{-52}, 1 + 2^{-52}]$. It therefore satisfies only the enclosure form of the `@def.Floating` law \"normalizing keeps the value\". Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "结果包含输入，但出于 `with_precision` 中所述的原因，可能严格更宽：在 53 位下，$[1, 1 + 2^{-52}]$ 的 `normalized` 为 $[1 - 2^{-52}, 1 + 2^{-52}]$。因此它只满足 `@def.Floating` 定律“规范化保持值不变”的包络形式。由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+#: manual/api/ball_float.md:534
+msgid "The stored endpoints are already representable at that precision, so the result is the same set as the input: `normalized` of $[1, 1 + 2^{-52}]$ at 53 bits is $[1, 1 + 2^{-52}]$, and the `@def.Floating` law \"normalizing keeps the value\" holds. Empty stays Empty."
+msgstr "存储的端点在该精度下本就可表示，因此结果与输入是同一个集合：53 位下 $[1, 1 + 2^{-52}]$ 的 `normalized` 就是 $[1, 1 + 2^{-52}]$，`@def.Floating` 定律“规范化保持值不变”成立。Empty 仍为 Empty。"
 
-#: manual/api/ball_float.md:546
+#: manual/api/ball_float.md:539
 msgid "Set operations"
 msgstr "集合运算"
 
-#: manual/api/ball_float.md:548
+#: manual/api/ball_float.md:541
 msgid "`BallFloat::intersection` and `BallFloat::convex_hull`"
 msgstr "`BallFloat::intersection` 与 `BallFloat::convex_hull`"
 
-#: manual/api/ball_float.md:550
+#: manual/api/ball_float.md:543
 msgid "`intersection` returns $\\boldsymbol{x} \\cap \\boldsymbol{y}$ and `convex_hull` returns the smallest interval containing $\\boldsymbol{x} \\cup \\boldsymbol{y}$."
 msgstr "`intersection` 返回 $\\boldsymbol{x} \\cap \\boldsymbol{y}$，`convex_hull` 返回包含 $\\boldsymbol{x} \\cup \\boldsymbol{y}$ 的最小区间。"
 
-#: manual/api/ball_float.md:558
+#: manual/api/ball_float.md:551
 msgid "For non-empty operands both are computed by endpoint `max`/`min` ($[\\max(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ and $[\\min(\\underline{x}, \\underline{y}), \\max(\\overline{x}, \\overline{y})]$), exact apart from the final outward rounding to the larger precision. Disjoint intervals intersect to Empty, and an Empty operand makes the intersection Empty. When one operand of `convex_hull` is Empty, the result is the other operand passed through `with_precision`, so it can be one ulp wider per side than that operand (see the warning under [`BallFloat::with_precision`](#ballfloatwith_precision))."
 msgstr "对于非空操作数，二者都通过端点的 `max`/`min` 计算（$[\\max(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ 和 $[\\min(\\underline{x}, \\underline{y}), \\max(\\overline{x}, \\overline{y})]$），除最后向外舍入到较大精度外都是精确的。不相交的区间求交得到 Empty，有 Empty 操作数时交集为 Empty。当 `convex_hull` 的一个操作数为 Empty 时，结果是另一个操作数经过 `with_precision` 的结果，因此每侧可能比该操作数宽一个 ulp（参见 [`BallFloat::with_precision`](#ballfloatwith_precision) 下的警告）。"
 
-#: manual/api/ball_float.md:568
+#: manual/api/ball_float.md:561
 msgid "`BallFloat::cancel_plus` and `BallFloat::cancel_minus`"
 msgstr "`BallFloat::cancel_plus` 与 `BallFloat::cancel_minus`"
 
-#: manual/api/ball_float.md:570
+#: manual/api/ball_float.md:563
 msgid "`cancel_minus(x, y)` is the IEEE 1788 cancellative subtraction: in exact arithmetic it returns the interval $\\boldsymbol{z}$ with $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$, which undoes a previous sum; `cancel_plus(x, y)` is `cancel_minus(x, -y)`."
 msgstr "`cancel_minus(x, y)` 是 IEEE 1788 的消去减法：在精确算术下，它返回满足 $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$ 的区间 $\\boldsymbol{z}$，从而撤销先前的求和；`cancel_plus(x, y)` 即 `cancel_minus(x, -y)`。"
 
-#: manual/api/ball_float.md:580
+#: manual/api/ball_float.md:573
 msgid "For bounded operands `cancel_minus` is $[\\operatorname{RD}(\\underline{x} - \\underline{y}), \\operatorname{RU}(\\overline{x} - \\overline{y})]$. Indeed $\\boldsymbol{y} + \\boldsymbol{z} = [\\underline{y} + \\underline{z}, \\overline{y} + \\overline{z}]$, so $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$ forces $\\underline{z} = \\underline{x} - \\underline{y}$ and $\\overline{z} = \\overline{x} - \\overline{y}$, and this is an interval exactly when $w(\\boldsymbol{x}) \\ge w(\\boldsymbol{y})$. Because of the outward rounding, the computed $\\boldsymbol{z}$ satisfies $\\boldsymbol{y} + \\boldsymbol{z} \\supseteq \\boldsymbol{x}$. When $w(\\boldsymbol{y}) > w(\\boldsymbol{x})$, when an operand is unbounded, or when only $\\boldsymbol{y}$ is empty, the result is Entire. Empty $\\boldsymbol{x}$ with bounded or empty $\\boldsymbol{y}$ gives Empty."
 msgstr "对于有界操作数，`cancel_minus` 为 $[\\operatorname{RD}(\\underline{x} - \\underline{y}), \\operatorname{RU}(\\overline{x} - \\overline{y})]$。事实上 $\\boldsymbol{y} + \\boldsymbol{z} = [\\underline{y} + \\underline{z}, \\overline{y} + \\overline{z}]$，因此 $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$ 迫使 $\\underline{z} = \\underline{x} - \\underline{y}$ 且 $\\overline{z} = \\overline{x} - \\overline{y}$，而它恰在 $w(\\boldsymbol{x}) \\ge w(\\boldsymbol{y})$ 时是一个区间。由于向外舍入，计算所得的 $\\boldsymbol{z}$ 满足 $\\boldsymbol{y} + \\boldsymbol{z} \\supseteq \\boldsymbol{x}$。当 $w(\\boldsymbol{y}) > w(\\boldsymbol{x})$、有操作数无界或仅 $\\boldsymbol{y}$ 为空时，结果为 Entire。$\\boldsymbol{x}$ 为空且 $\\boldsymbol{y}$ 有界或为空时，结果为 Empty。"
 
-#: manual/api/ball_float.md:607
+#: manual/api/ball_float.md:600
 msgid "Relations"
 msgstr "关系"
 
-#: manual/api/ball_float.md:609
+#: manual/api/ball_float.md:602
 msgid "All relations are set relations of IEEE 1788; none of them is a total order. They never abort."
 msgstr "所有关系都是 IEEE 1788 的集合关系；它们都不是全序。它们从不中止。"
 
-#: manual/api/ball_float.md:614
+#: manual/api/ball_float.md:607
 msgid "`contains` tests whether a point belongs to the interval."
 msgstr "`contains` 检测一个点是否属于该区间。"
 
-#: manual/api/ball_float.md:620
+#: manual/api/ball_float.md:613
 msgid "It returns false for Empty and for a non-finite point (an unbounded interval contains all sufficiently large reals, but not $\\pm\\infty$ or NaN). The trait method `@lf_arith.Contains::contains` instead takes two intervals and tests inclusion; see [Enclosure relations](#arithmeticcontains-arithmeticoverlaps-arithmeticdefinitelylt-arithmeticdefinitelyle-arithmeticmaybeeq)."
 msgstr "对 Empty 和非有限的点，它返回假（无界区间包含所有足够大的实数，但不包含 $\\pm\\infty$ 或 NaN）。trait 方法 `@lf_arith.Contains::contains` 则接受两个区间并检测包含关系；参见[包络关系](#arithmeticcontains-arithmeticoverlaps-arithmeticdefinitelylt-arithmeticdefinitelyle-arithmeticmaybeeq)。"
 
-#: manual/api/ball_float.md:628
+#: manual/api/ball_float.md:621
 msgid "These test inclusion, inclusion in the interior, equality and disjointness of sets."
 msgstr "这些函数检测集合的包含、内部包含、相等与不相交。"
 
-#: manual/api/ball_float.md:638
+#: manual/api/ball_float.md:631
 msgid "`x.subset(y)` is $\\boldsymbol{x} \\subseteq \\boldsymbol{y}$, that is $\\underline{y} \\le \\underline{x}$ and $\\overline{x} \\le \\overline{y}$. `x.interior(y)` is $\\boldsymbol{x} \\subseteq \\operatorname{int} \\boldsymbol{y}$: each endpoint comparison is strict, except that two equal infinite endpoints count as interior (the interior of $[a, +\\infty)$ is $(a, +\\infty)$, so Entire is interior to itself). Empty is a subset of, interior to and disjoint from every interval. `set_equal` ignores the precision tag and the representation of the endpoints."
 msgstr "`x.subset(y)` 即 $\\boldsymbol{x} \\subseteq \\boldsymbol{y}$，也就是 $\\underline{y} \\le \\underline{x}$ 且 $\\overline{x} \\le \\overline{y}$。`x.interior(y)` 即 $\\boldsymbol{x} \\subseteq \\operatorname{int} \\boldsymbol{y}$：每个端点比较都是严格的，但两个相等的无穷端点视为位于内部（$[a, +\\infty)$ 的内部为 $(a, +\\infty)$，因此 Entire 在其自身内部）。Empty 是任何区间的子集、位于任何区间内部，并且与任何区间不相交。`set_equal` 忽略精度标记和端点的表示方式。"
 
-#: manual/api/ball_float.md:649
+#: manual/api/ball_float.md:642
 msgid "`overlaps` tests whether two intervals share a point; `maybe_eq` is the same relation read as \"the two unknown points may be equal\"; `separated_from` is its negation."
 msgstr "`overlaps` 检测两个区间是否有公共点；`maybe_eq` 是同一关系，但解读为“两个未知点可能相等”；`separated_from` 是其否定。"
 
-#: manual/api/ball_float.md:659
+#: manual/api/ball_float.md:652
 msgid ""
 "For non-empty operands `overlaps` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, which is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$. `overlaps` is false and `separated_from` is true when an operand is Empty."
@@ -478,81 +478,81 @@ msgstr ""
 "对于非空操作数，`overlaps` 为 $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$，即 $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$。当有操作数为 Empty 时，`overlaps` 为假，`separated_from` 为真。"
 
-#: manual/api/ball_float.md:666
+#: manual/api/ball_float.md:659
 msgid "These hold when the order holds for every pair of points."
 msgstr "当所有点对都满足该序关系时，这些关系才成立。"
 
-#: manual/api/ball_float.md:674
+#: manual/api/ball_float.md:667
 msgid "`x.definitely_lt(y)` is $\\overline{x} < \\underline{y}$, `definitely_le` is $\\overline{x} \\le \\underline{y}$ and `definitely_gt` is $\\underline{x} > \\overline{y}$. All three are false when an operand is Empty (unlike `precedes`, which is vacuously true), so a `true` answer is always backed by at least one pair of points."
 msgstr "`x.definitely_lt(y)` 即 $\\overline{x} < \\underline{y}$，`definitely_le` 即 $\\overline{x} \\le \\underline{y}$，`definitely_gt` 即 $\\underline{x} > \\overline{y}$。当有操作数为 Empty 时三者均为假（与 `precedes` 不同，后者此时空真），因此 `true` 的回答总有至少一对点作为依据。"
 
-#: manual/api/ball_float.md:682
+#: manual/api/ball_float.md:675
 msgid "These are the order relations of IEEE 1788."
 msgstr "这些是 IEEE 1788 的序关系。"
 
-#: manual/api/ball_float.md:691
+#: manual/api/ball_float.md:684
 msgid "For non-empty operands:"
 msgstr "对于非空操作数："
 
-#: manual/api/ball_float.md:693
+#: manual/api/ball_float.md:686
 msgid "Relation"
 msgstr "关系"
 
-#: manual/api/ball_float.md:693
+#: manual/api/ball_float.md:686
 msgid "Set definition"
 msgstr "集合定义"
 
-#: manual/api/ball_float.md:693
+#: manual/api/ball_float.md:686
 msgid "Condition"
 msgstr "条件"
 
-#: manual/api/ball_float.md:695
+#: manual/api/ball_float.md:688
 msgid "$\\forall\\xi\\,\\exists\\eta: \\xi \\le \\eta$ and $\\forall\\eta\\,\\exists\\xi: \\xi \\le \\eta$"
 msgstr "$\\forall\\xi\\,\\exists\\eta: \\xi \\le \\eta$ 且 $\\forall\\eta\\,\\exists\\xi: \\xi \\le \\eta$"
 
-#: manual/api/ball_float.md:695
+#: manual/api/ball_float.md:688
 msgid "$\\underline{x} \\le \\underline{y}$ and $\\overline{x} \\le \\overline{y}$"
 msgstr "$\\underline{x} \\le \\underline{y}$ 且 $\\overline{x} \\le \\overline{y}$"
 
-#: manual/api/ball_float.md:696
+#: manual/api/ball_float.md:689
 msgid "the same with $<$"
 msgstr "同上，改用 $<$"
 
-#: manual/api/ball_float.md:696
+#: manual/api/ball_float.md:689
 msgid "$\\underline{x} < \\underline{y}$ (or both $-\\infty$) and $\\overline{x} < \\overline{y}$ (or both $+\\infty$)"
 msgstr "$\\underline{x} < \\underline{y}$（或二者均为 $-\\infty$）且 $\\overline{x} < \\overline{y}$（或二者均为 $+\\infty$）"
 
-#: manual/api/ball_float.md:700
+#: manual/api/ball_float.md:693
 msgid "With Empty: `less` and `strictly_less` hold only when both are Empty; `precedes` and `strictly_precedes` hold when either is Empty."
 msgstr "涉及 Empty 时：`less` 和 `strictly_less` 仅当两者均为 Empty 时成立；`precedes` 和 `strictly_precedes` 在任一者为 Empty 时成立。"
 
-#: manual/api/ball_float.md:705
+#: manual/api/ball_float.md:698
 msgid "`overlap_state` classifies the relative position of two intervals."
 msgstr "`overlap_state` 对两个区间的相对位置进行分类。"
 
-#: manual/api/ball_float.md:711
+#: manual/api/ball_float.md:704
 msgid "The result is one of the sixteen states of [`OverlapState`](#overlapstate) other than `Undefined`; it is computed from the comparisons of the four endpoints, testing equal endpoints first, so a singleton that coincides with an endpoint of the other interval gives `Starts`, `Finishes`, `StartedBy` or `FinishedBy` rather than `Meets` or `MetBy`, as IEEE 1788 requires."
 msgstr "结果是 [`OverlapState`](#overlapstate) 中除 `Undefined` 以外的十六种状态之一；它由四个端点之间的比较计算得出，并先检测相等的端点，因此与另一区间某个端点重合的单点集会按 IEEE 1788 的要求给出 `Starts`、`Finishes`、`StartedBy` 或 `FinishedBy`，而不是 `Meets` 或 `MetBy`。"
 
-#: manual/api/ball_float.md:733
-#: manual/api/ball_float_checked.md:219
+#: manual/api/ball_float.md:726
+#: manual/api/ball_float_checked.md:218
 #: manual/api/bin_float_checked.md:183
 msgid "Arithmetic"
 msgstr "算术"
 
-#: manual/api/ball_float.md:737
+#: manual/api/ball_float.md:730
 msgid "The four basic operations return the outward-rounded hull of $\\{\\xi \\circ \\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$; they are also available as the operators `+`, `-`, `*`, `/`."
 msgstr "四则基本运算返回 $\\{\\xi \\circ \\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ 向外舍入后的包；它们也可以通过运算符 `+`、`-`、`*`、`/` 使用。"
 
-#: manual/api/ball_float.md:748
+#: manual/api/ball_float.md:741
 msgid "The result precision is the larger operand precision; an Empty operand gives Empty. Endpoint formulas:"
 msgstr "结果精度为操作数中较大的精度；有 Empty 操作数时结果为 Empty。端点公式如下："
 
-#: manual/api/ball_float.md:759
+#: manual/api/ball_float.md:752
 msgid "with $0 \\cdot \\infty$ taken as 0 in $S$ (a zero endpoint times an unbounded side contributes 0). The sums and products are formed exactly and rounded once. For bounded operands the signs select the products that can be extremal: two when both operands have constant sign, four (the minimum of $\\underline{x}\\,\\overline{y}$ and $\\overline{x}\\,\\underline{y}$, the maximum of $\\underline{x}\\,\\underline{y}$ and $\\overline{x}\\,\\overline{y}$) when either operand has 0 in its interior. The design page proves the [sign-case table](../design/ball_float.md#endpoint-formulas)."
 msgstr "其中在 $S$ 中将 $0 \\cdot \\infty$ 取为 0（零端点乘以无界的一侧贡献 0）。各和与积都精确构造，并只舍入一次。对于有界操作数，由符号选出可能取极值的乘积：两个操作数符号都不变时取两个，任一操作数在内部含 0 时取四个（$\\underline{x}\\,\\overline{y}$ 与 $\\overline{x}\\,\\underline{y}$ 的最小值，$\\underline{x}\\,\\underline{y}$ 与 $\\overline{x}\\,\\overline{y}$ 的最大值）。设计文档证明了[符号情形表](../design/ball_float.md#endpoint-formulas)。"
 
-#: manual/api/ball_float.md:768
+#: manual/api/ball_float.md:761
 msgid ""
 "Division follows IEEE 1788: $\\boldsymbol{x} / \\boldsymbol{y}$ is the hull of $\\{\\xi/\\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}, \\eta \\n"
 "e 0\\}$."
@@ -560,11 +560,11 @@ msgstr ""
 "除法遵循 IEEE 1788：$\\boldsymbol{x} / \\boldsymbol{y}$ 是 $\\{\\xi/\\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}, \\eta \\n"
 "e 0\\}$ 的包。"
 
-#: manual/api/ball_float.md:771
+#: manual/api/ball_float.md:764
 msgid "Divisor $\\boldsymbol{y}$"
 msgstr "除数 $\\boldsymbol{y}$"
 
-#: manual/api/ball_float.md:771
+#: manual/api/ball_float.md:764
 #: manual/api/bin_float.md:46
 #: manual/api/decimal_checked.md:281
 #: manual/conformance/bin_float.md:72
@@ -572,80 +572,80 @@ msgstr "除数 $\\boldsymbol{y}$"
 msgid "Result"
 msgstr "结果"
 
-#: manual/api/ball_float.md:773
+#: manual/api/ball_float.md:766
 msgid "$[\\operatorname{RD}\\min Q, \\operatorname{RU}\\max Q]$ over the endpoint quotients $Q$"
 msgstr "$[\\operatorname{RD}\\min Q, \\operatorname{RU}\\max Q]$，其中 $Q$ 取遍端点之商"
 
-#: manual/api/ball_float.md:774
+#: manual/api/ball_float.md:767
 msgid "Empty"
 msgstr "Empty"
 
-#: manual/api/ball_float.md:775
+#: manual/api/ball_float.md:768
 msgid "Entire, unless $\\boldsymbol{x} = \\{0\\}$"
 msgstr "Entire，除非 $\\boldsymbol{x} = \\{0\\}$"
 
-#: manual/api/ball_float.md:776
+#: manual/api/ball_float.md:769
 msgid "$[0, \\overline{y}]$ or $[\\underline{y}, 0]$"
 msgstr "$[0, \\overline{y}]$ 或 $[\\underline{y}, 0]$"
 
-#: manual/api/ball_float.md:776
+#: manual/api/ball_float.md:769
 msgid "half-unbounded (see below), or Entire when $\\underline{x} < 0 < \\overline{x}$"
 msgstr "半无界（见下文），当 $\\underline{x} < 0 < \\overline{x}$ 时为 Entire"
 
-#: manual/api/ball_float.md:778
+#: manual/api/ball_float.md:771
 msgid "When the divisor touches 0 at one end, the quotient is unbounded on one side: for example $[1, 2]/[0, 4] = [1/4, +\\infty)$ and $[-2, -1]/[0, 4] = (-\\infty, -1/4]$. A dividend equal to $\\{0\\}$ gives $\\{0\\}$ for any divisor other than $\\{0\\}$. Each selected quotient is computed by one directed division at the result precision."
 msgstr "当除数在一端触及 0 时，商在一侧无界：例如 $[1, 2]/[0, 4] = [1/4, +\\infty)$，$[-2, -1]/[0, 4] = (-\\infty, -1/4]$。被除数等于 $\\{0\\}$ 时，对除 $\\{0\\}$ 以外的任何除数都得到 $\\{0\\}$。每个选出的商都在结果精度下通过一次定向除法计算。"
 
-#: manual/api/ball_float.md:798
+#: manual/api/ball_float.md:791
 msgid "`BallFloat::neg` and `BallFloat::abs`"
 msgstr "`BallFloat::neg` 与 `BallFloat::abs`"
 
-#: manual/api/ball_float.md:800
+#: manual/api/ball_float.md:793
 msgid "`neg` returns $[-\\overline{x}, -\\underline{x}]$ and `abs` returns $\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$."
 msgstr "`neg` 返回 $[-\\overline{x}, -\\underline{x}]$，`abs` 返回 $\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$。"
 
-#: manual/api/ball_float.md:808
+#: manual/api/ball_float.md:801
 msgid "`abs` is $\\boldsymbol{x}$ when $\\underline{x} \\ge 0$, $-\\boldsymbol{x}$ when $\\overline{x} \\le 0$, and $[0, \\operatorname{mag}\\boldsymbol{x}]$ otherwise. Both are exact. `neg` is also the unary operator `-`."
 msgstr "当 $\\underline{x} \\ge 0$ 时 `abs` 为 $\\boldsymbol{x}$，当 $\\overline{x} \\le 0$ 时为 $-\\boldsymbol{x}$，否则为 $[0, \\operatorname{mag}\\boldsymbol{x}]$。二者都是精确的。`neg` 也是一元运算符 `-`。"
 
-#: manual/api/ball_float.md:814
+#: manual/api/ball_float.md:807
 msgid "`reciprocal` returns $1/\\boldsymbol{x}$ with the division rules above."
 msgstr "`reciprocal` 按上述除法规则返回 $1/\\boldsymbol{x}$。"
 
-#: manual/api/ball_float.md:820
+#: manual/api/ball_float.md:813
 msgid "`BallFloat::square` and `BallFloat::pown`"
 msgstr "`BallFloat::square` 与 `BallFloat::pown`"
 
-#: manual/api/ball_float.md:822
+#: manual/api/ball_float.md:815
 msgid "`square` returns $\\{\\xi^2\\}$ and `pown` returns $\\{\\xi^n\\}$ for an integer exponent $n$."
 msgstr "`square` 返回 $\\{\\xi^2\\}$，`pown` 对整数指数 $n$ 返回 $\\{\\xi^n\\}$。"
 
-#: manual/api/ball_float.md:830
+#: manual/api/ball_float.md:823
 msgid "Unlike `x * x`, these use the same point twice, so `[-1, 2].square()` is $[0, 4]$ (while `x * x` is $[-2, 4]$): `square` is $[\\operatorname{mig}(\\boldsymbol{x})^2, \\operatorname{mag}(\\boldsymbol{x})^2]$. `pown` evaluates the monotone pieces of $\\xi^n$ at the endpoints with directed rounding: odd positive powers are increasing; even positive powers decrease then increase, with minimum 0 when $0 \\in \\boldsymbol{x}$; negative powers have a pole at 0. `pown(x, 0)` is $\\{1\\}$ for every non-empty `x`; Empty stays Empty. `pown(x, n)` with $n < 0$ returns Empty for $\\boldsymbol{x} = \\{0\\}$, a half-unbounded interval when 0 is an endpoint, and for 0 in the interior Entire (odd $n$) or $[\\min(\\underline{x}^n, \\overline{x}^n), +\\infty)$ (even $n$). As a shortcut, $n < -4096$ with 0 in the interior returns Entire even for even $n$; this is a valid but not tight enclosure."
 msgstr "与 `x * x` 不同，这些函数两次使用的是同一个点，因此 `[-1, 2].square()` 为 $[0, 4]$（而 `x * x` 为 $[-2, 4]$）：`square` 为 $[\\operatorname{mig}(\\boldsymbol{x})^2, \\operatorname{mag}(\\boldsymbol{x})^2]$。`pown` 以定向舍入在端点处计算 $\\xi^n$ 的各单调分段：奇数正次幂递增；偶数正次幂先减后增，当 $0 \\in \\boldsymbol{x}$ 时最小值为 0；负次幂在 0 处有极点。对每个非空的 `x`，`pown(x, 0)` 为 $\\{1\\}$；Empty 仍为 Empty。当 $n < 0$ 时，`pown(x, n)` 对 $\\boldsymbol{x} = \\{0\\}$ 返回 Empty，当 0 为端点时返回半无界区间，当 0 位于内部时返回 Entire（$n$ 为奇数）或 $[\\min(\\underline{x}^n, \\overline{x}^n), +\\infty)$（$n$ 为偶数）。作为捷径，当 $n < -4096$ 且 0 位于内部时，即使 $n$ 为偶数也返回 Entire；这是一个有效但不紧的包络。"
 
-#: manual/api/ball_float.md:857
+#: manual/api/ball_float.md:850
 msgid "`fma(x, y, z)` returns an enclosure of $\\{\\xi\\eta + \\zeta\\}$ with a single outward rounding."
 msgstr "`fma(x, y, z)` 以单次向外舍入返回 $\\{\\xi\\eta + \\zeta\\}$ 的一个包络。"
 
-#: manual/api/ball_float.md:864
+#: manual/api/ball_float.md:857
 msgid "The exact product bounds are computed as for `mul` and added to the endpoints of $\\boldsymbol{z}$ before the final rounding, so the result is never wider than `x * y + z`."
 msgstr "精确的乘积界按 `mul` 的方式计算，并在最终舍入之前加到 $\\boldsymbol{z}$ 的端点上，因此结果绝不会比 `x * y + z` 更宽。"
 
-#: manual/api/ball_float.md:868
+#: manual/api/ball_float.md:861
 msgid "`BallFloat::minimum` and `BallFloat::maximum`"
 msgstr "`BallFloat::minimum` 与 `BallFloat::maximum`"
 
-#: manual/api/ball_float.md:870
+#: manual/api/ball_float.md:863
 msgid "`minimum` and `maximum` return $\\{\\min(\\xi, \\eta)\\}$ and $\\{\\max(\\xi, \\eta)\\}$."
 msgstr "`minimum` 和 `maximum` 分别返回 $\\{\\min(\\xi, \\eta)\\}$ 和 $\\{\\max(\\xi, \\eta)\\}$。"
 
-#: manual/api/ball_float.md:878
+#: manual/api/ball_float.md:871
 msgid "`minimum` is $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ and `maximum` is the analogue with `max`: $\\min$ is increasing in each argument. An Empty operand gives Empty."
 msgstr "`minimum` 为 $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$，`maximum` 则是将其中的 min 换成 `max` 的类似形式：$\\min$ 关于每个参数都是递增的。有 Empty 操作数时结果为 Empty。"
 
-#: manual/api/ball_float.md:882
-#: manual/api/ball_float_checked.md:316
+#: manual/api/ball_float.md:875
+#: manual/api/ball_float_checked.md:313
 #: manual/api/bin_float.md:1392
 #: manual/api/bin_float_checked.md:390
 #: manual/api/decimal.md:1306
@@ -654,103 +654,103 @@ msgstr "`minimum` 为 $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 msgid "Elementary functions"
 msgstr "初等函数"
 
-#: manual/api/ball_float.md:884
+#: manual/api/ball_float.md:877
 msgid "Each function $f$ returns an interval containing $f(\\boldsymbol{x} \\cap D_f)$, where $D_f$ is the domain of $f$; points of $\\boldsymbol{x}$ outside $D_f$ are ignored and the result is Empty when $\\boldsymbol{x} \\cap D_f$ is empty. The result precision is the argument's precision."
 msgstr "每个函数 $f$ 返回一个包含 $f(\\boldsymbol{x} \\cap D_f)$ 的区间，其中 $D_f$ 是 $f$ 的定义域；$\\boldsymbol{x}$ 中位于 $D_f$ 之外的点被忽略，当 $\\boldsymbol{x} \\cap D_f$ 为空时结果为 Empty。结果精度为参数的精度。"
 
-#: manual/api/ball_float.md:890
+#: manual/api/ball_float.md:883
 msgid "Functions come in two forms. The total form (`exp_interval`, `sin_interval`, …) always returns a valid enclosure; when the certified evaluation exhausts its refinement budget it returns a wider, still valid, interval. The `try_` form (`try_exp_interval`, …) returns `Err(ArithmeticError)` in that case, with a certification-failure detail naming the operation, stage and reason. Except where noted, the `try_` forms evaluate each endpoint with the corresponding `bin_float` `try_*_ctx` function rounded toward $-\\infty$ or $+\\infty$; the total forms either call them or use the certified series of this package. Both forms return the same set on ordinary inputs; their bounds may differ by an ulp."
 msgstr "函数有两种形式。全函数形式（`exp_interval`、`sin_interval` 等）总是返回有效的包络；当认证求值耗尽其细化预算时，它返回一个更宽但仍然有效的区间。`try_` 形式（`try_exp_interval` 等）在这种情况下返回 `Err(ArithmeticError)`，并附带指明运算、阶段和原因的认证失败详情。除另有说明外，`try_` 形式使用对应的 `bin_float` `try_*_ctx` 函数，以向 $-\\infty$ 或 $+\\infty$ 舍入的方式对每个端点求值；全函数形式则要么调用这些函数，要么使用本包中的认证级数。在普通输入上两种形式返回相同的集合；它们的界可能相差一个 ulp。"
 
-#: manual/api/ball_float.md:903
+#: manual/api/ball_float.md:896
 msgid "`sqrt_interval` returns $\\sqrt{\\boldsymbol{x} \\cap [0, +\\infty)}$."
 msgstr "`sqrt_interval` 返回 $\\sqrt{\\boldsymbol{x} \\cap [0, +\\infty)}$。"
 
-#: manual/api/ball_float.md:909
+#: manual/api/ball_float.md:902
 msgid "The endpoints are the downward and upward square roots at the interval's precision. Empty when $\\overline{x} < 0$. There is no `try_` form: square root never fails."
 msgstr "端点是区间精度下向下和向上舍入的平方根。当 $\\overline{x} < 0$ 时为 Empty。没有 `try_` 形式：平方根从不失败。"
 
-#: manual/api/ball_float.md:915
+#: manual/api/ball_float.md:908
 msgid "These return enclosures of $e^{\\xi}$, $2^{\\xi}$, $10^{\\xi}$ and $e^{\\xi} - 1$."
 msgstr "这些函数分别返回 $e^{\\xi}$、$2^{\\xi}$、$10^{\\xi}$ 和 $e^{\\xi} - 1$ 的包络。"
 
-#: manual/api/ball_float.md:929
+#: manual/api/ball_float.md:922
 msgid "All four are increasing, so the result is $[\\operatorname{RD} f(\\underline{x}), \\operatorname{RU} f(\\overline{x})]$. `exp_interval` uses a certified Taylor series with argument halving and never needs a fallback; for $|\\xi| \\ge 2^{30}$ it returns $[\\text{largest finite}, +\\infty)$ or $[0, \\text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds $2^{e_{\\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `BinFloat` at every precision. `exp2_interval` and `exp10_interval` evaluate $e^{\\xi \\ln b}$ at 96 extra bits and return exact powers for integer endpoints (for `exp2_interval`, exponents $e_{\\min} \\le n \\le e_{\\max}$, where $2^n$ is a normal `BinFloat`; for `exp10_interval`, exponents $0 \\le n \\le 100000$). An integer endpoint outside the exponent range keeps the outward-rounded series enclosure, so `exp2_interval` of $\\{-1073742000\\}$ is $[0, \\text{smallest positive}]$ and of $\\{2^{30}\\}$ is $[\\text{largest finite}, +\\infty)$. The total `expm1_interval` falls back to $[-1, +\\infty)$."
 msgstr "四者都是递增的，因此结果为 $[\\operatorname{RD} f(\\underline{x}), \\operatorname{RU} f(\\overline{x})]$。`exp_interval` 使用带参数折半的认证 Taylor 级数，从不需要回退；当 $|\\xi| \\ge 2^{30}$ 时，它返回 $[\\text{largest finite}, +\\infty)$ 或 $[0, \\text{smallest positive}]$，这是有效的，因为在任何精度下 $e^{2^{30}}$ 都超过 $2^{e_{\\max}+1}$，而 $e^{-2^{30}}$ 都低于最小的正 `BinFloat`。`exp2_interval` 和 `exp10_interval` 以多 96 位的精度计算 $e^{\\xi \\ln b}$，并对整数端点返回精确的幂（对 `exp2_interval`，指数需满足 $e_{\\min} \\le n \\le e_{\\max}$，此时 $2^n$ 是正规的 `BinFloat`；对 `exp10_interval`，指数需满足 $0 \\le n \\le 100000$）。超出指数范围的整数端点保留向外舍入的级数包络，因此 `exp2_interval` 作用于 $\\{-1073742000\\}$ 的结果为 $[0, \\text{smallest positive}]$，作用于 $\\{2^{30}\\}$ 的结果为 $[\\text{largest finite}, +\\infty)$。全函数形式的 `expm1_interval` 回退为 $[-1, +\\infty)$。"
 
-#: manual/api/ball_float.md:947
+#: manual/api/ball_float.md:940
 msgid "These return enclosures of $\\ln \\xi$, $\\log_2 \\xi$, $\\log_{10} \\xi$ and $\\ln(1 + \\xi)$ over their domains $(0, \\infty)$ and $(-1, \\infty)$."
 msgstr "这些函数分别在其定义域 $(0, \\infty)$ 和 $(-1, \\infty)$ 上返回 $\\ln \\xi$、$\\log_2 \\xi$、$\\log_{10} \\xi$ 和 $\\ln(1 + \\xi)$ 的包络。"
 
-#: manual/api/ball_float.md:961
+#: manual/api/ball_float.md:954
 msgid "When the interval reaches the domain boundary ($\\underline{x} \\le 0$, or $\\underline{x} \\le -1$ for `log1p`) the lower endpoint is $-\\infty$; when it lies entirely outside the domain ($\\overline{x} \\le 0$, or $\\overline{x} < -1$ for `log1p`) the result is Empty. `log10_interval` returns exact integers at endpoints $10^k$, $0 \\le k \\le 9$. The total `log1p_interval` falls back to Entire."
 msgstr "当区间到达定义域边界（$\\underline{x} \\le 0$，对 `log1p` 为 $\\underline{x} \\le -1$）时，下端点为 $-\\infty$；当区间完全位于定义域之外（$\\overline{x} \\le 0$，对 `log1p` 为 $\\overline{x} < -1$）时，结果为 Empty。`log10_interval` 在端点 $10^k$（$0 \\le k \\le 9$）处返回精确整数。全函数形式的 `log1p_interval` 回退为 Entire。"
 
-#: manual/api/ball_float.md:986
+#: manual/api/ball_float.md:979
 msgid "`BallFloat::pow_interval` and `BallFloat::try_pow_interval`"
 msgstr "`BallFloat::pow_interval` 与 `BallFloat::try_pow_interval`"
 
-#: manual/api/ball_float.md:988
+#: manual/api/ball_float.md:981
 msgid "`pow_interval(x, y)` returns an enclosure of $\\{\\xi^{\\eta} : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ over the IEEE 1788 domain of `pow`: $\\xi > 0$, or $\\xi = 0$ and $\\eta > 0$."
 msgstr "`pow_interval(x, y)` 在 IEEE 1788 中 `pow` 的定义域（$\\xi > 0$，或 $\\xi = 0$ 且 $\\eta > 0$）上返回 $\\{\\xi^{\\eta} : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ 的包络。"
 
-#: manual/api/ball_float.md:997
+#: manual/api/ball_float.md:990
 msgid "Negative parts of the base are ignored (use `pown` or `rootn` for negative bases). Since $\\xi^\\eta = e^{\\eta \\ln \\xi}$ and $\\eta \\ln \\xi$ is bilinear in $(\\ln \\xi, \\eta)$, the extrema over a box with $\\underline{x} > 0$ are at the four corners. When the base reaches 0, $\\xi^\\eta \\to 0$ for $\\eta > 0$ and $\\to +\\infty$ for $\\eta < 0$, so the result is extended by 0 or $+\\infty$ accordingly. The code also adds the value 1 when the base interval contains 1 or the exponent interval contains 0; it already lies between the corner values, so this changes nothing but is harmless. $0^{\\eta}$ for $\\eta \\le 0$ is excluded, so `pow_interval([0, 0], y)` is Empty when $\\overline{y} \\le 0$. The result precision is the larger operand precision. A corner whose power is representable at the result precision, such as $16^{3/4} = 8$, gives that power exactly. The total form falls back to an evaluation of $e^{\\eta \\ln \\xi}$ at 192 extra bits."
 msgstr "底数的负值部分被忽略（负底数请使用 `pown` 或 `rootn`）。由于 $\\xi^\\eta = e^{\\eta \\ln \\xi}$，且 $\\eta \\ln \\xi$ 关于 $(\\ln \\xi, \\eta)$ 是双线性的，在 $\\underline{x} > 0$ 的矩形上极值位于四个角点。当底数到达 0 时，对 $\\eta > 0$ 有 $\\xi^\\eta \\to 0$，对 $\\eta < 0$ 则 $\\to +\\infty$，因此结果相应地扩展到 0 或 $+\\infty$。当底数区间包含 1 或指数区间包含 0 时，代码还会加入值 1；该值本已位于角点值之间，因此这不会改变任何东西，但也无害。$\\eta \\le 0$ 时的 $0^{\\eta}$ 被排除，因此当 $\\overline{y} \\le 0$ 时 `pow_interval([0, 0], y)` 为 Empty。结果精度为操作数中较大的精度。若某个角点的幂在结果精度下可表示（例如 $16^{3/4} = 8$），则精确给出该幂。全函数形式回退为以多 192 位的精度计算 $e^{\\eta \\ln \\xi}$。"
 
-#: manual/api/ball_float.md:1011
+#: manual/api/ball_float.md:1004
 msgid "`BallFloat::rootn` and `BallFloat::try_rootn`"
 msgstr "`BallFloat::rootn` 与 `BallFloat::try_rootn`"
 
-#: manual/api/ball_float.md:1013
+#: manual/api/ball_float.md:1006
 msgid "`rootn(x, n)` returns an enclosure of the real $n$-th roots $\\{\\xi^{1/n}\\}$: for even $n$ over $\\xi \\ge 0$, for odd $n$ over all reals, and for negative $n$ the reciprocal of the root."
 msgstr "`rootn(x, n)` 返回实 $n$ 次方根 $\\{\\xi^{1/n}\\}$ 的包络：$n$ 为偶数时在 $\\xi \\ge 0$ 上，$n$ 为奇数时在全体实数上，$n$ 为负时取方根的倒数。"
 
-#: manual/api/ball_float.md:1022
+#: manual/api/ball_float.md:1015
 msgid "`rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt_interval`. The total form evaluates other degrees through `pow_interval` with an enclosure of $1/n$, so it may be slightly wider than `try_rootn`; negative degrees are `rootn(x, -n).reciprocal()`. For negative $n$, `try_rootn` returns Entire when an odd root's argument contains 0 (wider than the total form when 0 is an endpoint). Exact roots are returned exactly for every degree, so `try_rootn({8}, -3)` is $\\{1/2\\}$."
 msgstr "`rootn(x, 0)` 和 `rootn(x, Int min)` 为 Empty；`try_rootn(x, 0)` 为定义域错误。`rootn(x, 1)` 即 `x`，`rootn(x, 2)` 即 `sqrt_interval`。全函数形式通过 `pow_interval` 并结合 $1/n$ 的包络来计算其他次数，因此可能比 `try_rootn` 稍宽；负次数即 `rootn(x, -n).reciprocal()`。当 $n$ 为负且奇次方根的参数包含 0 时，`try_rootn` 返回 Entire（当 0 为端点时比全函数形式更宽）。对任何次数，精确根都会被精确返回，因此 `try_rootn({8}, -3)` 为 $\\{1/2\\}$。"
 
-#: manual/api/ball_float.md:1044
+#: manual/api/ball_float.md:1037
 msgid "`BallFloat::hypot` and `BallFloat::try_hypot`"
 msgstr "`BallFloat::hypot` 与 `BallFloat::try_hypot`"
 
-#: manual/api/ball_float.md:1046
+#: manual/api/ball_float.md:1039
 msgid "`hypot` returns an enclosure of $\\{\\sqrt{\\xi^2 + \\eta^2}\\}$."
 msgstr "`hypot` 返回 $\\{\\sqrt{\\xi^2 + \\eta^2}\\}$ 的包络。"
 
-#: manual/api/ball_float.md:1053
+#: manual/api/ball_float.md:1046
 msgid "The function is increasing in $|\\xi|$ and $|\\eta|$, so the result is $[\\operatorname{RD}\\operatorname{hypot}(\\operatorname{mig}\\boldsymbol{x}, \\operatorname{mig}\\boldsymbol{y}), \\operatorname{RU}\\operatorname{hypot}(\\operatorname{mag}\\boldsymbol{x}, \\operatorname{mag}\\boldsymbol{y})]$, evaluated on the endpoints of `abs(x)` and `abs(y)`. The total form falls back to `sqrt_interval(square(x) + square(y))`."
 msgstr "该函数关于 $|\\xi|$ 和 $|\\eta|$ 递增，因此结果为 $[\\operatorname{RD}\\operatorname{hypot}(\\operatorname{mig}\\boldsymbol{x}, \\operatorname{mig}\\boldsymbol{y}), \\operatorname{RU}\\operatorname{hypot}(\\operatorname{mag}\\boldsymbol{x}, \\operatorname{mag}\\boldsymbol{y})]$，在 `abs(x)` 与 `abs(y)` 的端点处求值。全函数形式回退为 `sqrt_interval(square(x) + square(y))`。"
 
-#: manual/api/ball_float.md:1061
+#: manual/api/ball_float.md:1054
 msgid "These return enclosures of $\\sin$, $\\cos$ and $\\tan$ over the interval (in radians)."
 msgstr "这些函数返回 $\\sin$、$\\cos$ 和 $\\tan$ 在区间上（以弧度计）的包络。"
 
-#: manual/api/ball_float.md:1073
+#: manual/api/ball_float.md:1066
 msgid "Both forms reduce each endpoint by a certified enclosure of $\\pi/2$ and evaluate certified Taylor series. A critical point $k\\pi/2$ inside the interval contributes the extremum $\\pm 1$ of `sin`/`cos` (`sin` reaches $+1$ at $k \\equiv 1$ and $-1$ at $k \\equiv 3 \\pmod 4$, `cos` reaches $+1$ at $k \\equiv 0$ and $-1$ at $k \\equiv 2$); for `tan` an odd multiple of $\\pi/2$ inside the interval (a pole) makes the result Entire. The set of candidate indices $k$ is computed from the enclosure of $\\pi$ and can only be too large, which widens but never invalidates the result. Unbounded arguments give $[-1, 1]$ (Entire for `tan`). When the larger endpoint magnitude is at least $2^{\\max(65536,\\, 4p) + 1}$, the total forms return $[-1, 1]$ (Entire) without evaluating and the `try_` forms return a resource-limit error; the total forms use the same fallback when the certification budget (12 work precisions) is exhausted."
 msgstr "两种形式都用 $\\pi/2$ 的认证包络对每个端点进行约简，并计算认证 Taylor 级数。区间内的临界点 $k\\pi/2$ 贡献 `sin`/`cos` 的极值 $\\pm 1$（`sin` 在 $k \\equiv 1$ 处取 $+1$，在 $k \\equiv 3 \\pmod 4$ 处取 $-1$；`cos` 在 $k \\equiv 0$ 处取 $+1$，在 $k \\equiv 2$ 处取 $-1$）；对于 `tan`，区间内若有 $\\pi/2$ 的奇数倍（极点），结果为 Entire。候选下标 $k$ 的集合由 $\\pi$ 的包络计算得出，只可能偏大，这只会使结果变宽而绝不会使其失效。无界参数给出 $[-1, 1]$（对 `tan` 为 Entire）。当较大端点的绝对值至少为 $2^{\\max(65536,\\, 4p) + 1}$ 时，全函数形式不经求值直接返回 $[-1, 1]$（Entire），`try_` 形式返回资源限制错误；当认证预算（12 个工作精度）耗尽时，全函数形式也使用同样的回退。"
 
-#: manual/api/ball_float.md:1089
+#: manual/api/ball_float.md:1082
 msgid "These return enclosures of $\\sin \\pi\\xi$, $\\cos \\pi\\xi$ and $\\tan \\pi\\xi$."
 msgstr "这些函数返回 $\\sin \\pi\\xi$、$\\cos \\pi\\xi$ 和 $\\tan \\pi\\xi$ 的包络。"
 
-#: manual/api/ball_float.md:1100
+#: manual/api/ball_float.md:1093
 msgid "Here the critical points are the exact half-integers $k/2$, located from the dyadic endpoints without approximating $\\pi$. `tanpi_interval` returns a half-unbounded interval when a pole is exactly an endpoint and no other pole lies in the interval (for example $[1/2, 1]$ gives $(-\\infty, 0]$, whose upper endpoint is $\\tan \\pi = -0$), Empty for the singleton of a pole, and Entire when a pole lies inside. Unbounded arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`)."
 msgstr "此处临界点是精确的半整数 $k/2$，由二进有理数端点直接定位，无需近似 $\\pi$。当极点恰好是端点且区间内没有其他极点时，`tanpi_interval` 返回半无界区间（例如 $[1/2, 1]$ 给出 $(-\\infty, 0]$，其上端点为 $\\tan \\pi = -0$）；对极点的单点集返回 Empty；当极点位于区间内部时返回 Entire。无界参数和回退给出 $[-1, 1]$（对 `tanpi` 为 Entire）。"
 
-#: manual/api/ball_float.md:1123
+#: manual/api/ball_float.md:1116
 msgid "These return enclosures of $\\arcsin$, $\\arccos$ (over $[-1, 1]$) and $\\arctan$."
 msgstr "这些函数返回 $\\arcsin$、$\\arccos$（在 $[-1, 1]$ 上）和 $\\arctan$ 的包络。"
 
-#: manual/api/ball_float.md:1135
+#: manual/api/ball_float.md:1128
 msgid "`asin` and `atan` are increasing and `acos` is decreasing, so only endpoints are evaluated. The total `atan_interval` uses a certified series with a Machin-formula enclosure of $\\pi$ and falls back to $[0, \\pi/2]$ or $[-\\pi/2, 0]$ for an endpoint whose budget runs out; `asin` is computed as $\\arctan(\\xi/\\sqrt{1 - \\xi^2})$ and `acos` as $\\pi/2 - \\arcsin \\xi$, at 64 extra bits. `atan` of an infinite endpoint is $\\pm\\pi/2$."
 msgstr "`asin` 和 `atan` 递增，`acos` 递减，因此只需对端点求值。全函数形式的 `atan_interval` 使用认证级数，并以 Machin 公式得到 $\\pi$ 的包络；对于预算耗尽的端点，它回退为 $[0, \\pi/2]$ 或 $[-\\pi/2, 0]$。`asin` 按 $\\arctan(\\xi/\\sqrt{1 - \\xi^2})$ 计算，`acos` 按 $\\pi/2 - \\arcsin \\xi$ 计算，均多用 64 位精度。无穷端点的 `atan` 为 $\\pm\\pi/2$。"
 
-#: manual/api/ball_float.md:1142
+#: manual/api/ball_float.md:1135
 msgid "`BallFloat::atan2_interval` and `BallFloat::try_atan2_interval`"
 msgstr "`BallFloat::atan2_interval` 与 `BallFloat::try_atan2_interval`"
 
-#: manual/api/ball_float.md:1144
+#: manual/api/ball_float.md:1137
 msgid ""
 "`y.atan2_interval(x)` returns an enclosure of the angles $\\operatorname{atan2}(\\eta, \\xi) \\in (-\\pi, \\pi]$ of the points $(\\xi, \\eta) \\n"
 "e (0, 0)$ of the box $\\boldsymbol{x} \\times \\boldsymbol{y}$."
@@ -758,249 +758,245 @@ msgstr ""
 "`y.atan2_interval(x)` 返回矩形 $\\boldsymbol{x} \\times \\boldsymbol{y}$ 中各点 $(\\xi, \\eta) \\n"
 "e (0, 0)$ 的辐角 $\\operatorname{atan2}(\\eta, \\xi) \\in (-\\pi, \\pi]$ 的包络。"
 
-#: manual/api/ball_float.md:1153
+#: manual/api/ball_float.md:1146
 msgid "The receiver is the ordinate. The result is the hull of the angles at the four corners and at the points where the box meets the axes. When the box crosses the branch cut ($\\underline{x} < 0$ and $\\underline{y} < 0 \\le \\overline{y}$) the result is $[-\\pi, \\pi]$. The box $\\{(0, 0)\\}$ gives Empty. The total form falls back to $[-\\pi, \\pi]$."
 msgstr "接收者是纵坐标。结果是四个角点以及矩形与坐标轴交点处的辐角的包。当矩形跨越分支切割线（$\\underline{x} < 0$ 且 $\\underline{y} < 0 \\le \\overline{y}$）时，结果为 $[-\\pi, \\pi]$。矩形 $\\{(0, 0)\\}$ 给出 Empty。全函数形式回退为 $[-\\pi, \\pi]$。"
 
-#: manual/api/ball_float.md:1161
+#: manual/api/ball_float.md:1154
 msgid "These return enclosures of the hyperbolic functions and their inverses over their domains ($[1, \\infty)$ for `acosh`, $(-1, 1)$ for `atanh`)."
 msgstr "这些函数在各自定义域上（`acosh` 为 $[1, \\infty)$，`atanh` 为 $(-1, 1)$）返回双曲函数及其反函数的包络。"
 
-#: manual/api/ball_float.md:1179
+#: manual/api/ball_float.md:1172
 msgid "`cosh` has its minimum 1 at 0; the others are monotone. The total forms evaluate the defining formulas ($(e^\\xi - e^{-\\xi})/2$, $\\ln(\\xi + \\sqrt{\\xi^2 + 1})$, $\\tfrac12 \\ln\\frac{1+\\xi}{1-\\xi}$, …) in interval arithmetic at $w = p + 192$ bits at each endpoint, so they never fail; `tanh_interval` is clipped to $[-1, 1]$. `atanh` of an interval reaching $\\pm 1$ is unbounded on that side. The `try_` forms use the certified `bin_float` kernels instead."
 msgstr "`cosh` 在 0 处取最小值 1；其余函数都是单调的。全函数形式在每个端点处以 $w = p + 192$ 位的精度用区间算术计算定义公式（$(e^\\xi - e^{-\\xi})/2$、$\\ln(\\xi + \\sqrt{\\xi^2 + 1})$、$\\tfrac12 \\ln\\frac{1+\\xi}{1-\\xi}$ 等），因此从不失败；`tanh_interval` 被截断到 $[-1, 1]$。若区间到达 $\\pm 1$，其 `atanh` 在该侧无界。`try_` 形式则使用经认证的 `bin_float` 内核。"
 
-#: manual/api/ball_float.md:1187
+#: manual/api/ball_float.md:1180
 msgid "The defining formulas of `sinh`, `tanh`, `asinh` and `atanh` cancel near 0: their absolute error is about $2^{-w}$, so for $|\\xi|$ below roughly $2^{-190}$ the total forms are valid but far from tight. At 53 bits, `sinh_interval` of $\\{2^{-300}\\}$ is $[0, 3 \\cdot 2^{-246}]$ while `try_sinh_interval` returns the two-ulp interval $[2^{-300}, (1 + 2^{-52})\\,2^{-300}]$. Use the `try_` forms for tiny arguments."
 msgstr "`sinh`、`tanh`、`asinh` 和 `atanh` 的定义公式在 0 附近会发生抵消：其绝对误差约为 $2^{-w}$，因此当 $|\\xi|$ 低于大约 $2^{-190}$ 时，全函数形式虽然有效但远不紧。在 53 位下，$\\{2^{-300}\\}$ 的 `sinh_interval` 为 $[0, 3 \\cdot 2^{-246}]$，而 `try_sinh_interval` 返回两个 ulp 宽的区间 $[2^{-300}, (1 + 2^{-52})\\,2^{-300}]$。对于极小的参数，请使用 `try_` 形式。"
 
-#: manual/api/ball_float.md:1207
+#: manual/api/ball_float.md:1200
 msgid "Contexts and flags"
 msgstr "上下文与标志"
 
-#: manual/api/ball_float.md:1209
+#: manual/api/ball_float.md:1202
 msgid "`BallContext::new` and `BallContext::try_new`"
 msgstr "`BallContext::new` 与 `BallContext::try_new`"
 
-#: manual/api/ball_float.md:1211
+#: manual/api/ball_float.md:1204
 msgid "`BallContext::new` builds a context from a precision and an exponent range."
 msgstr "`BallContext::new` 由精度和指数范围构建上下文。"
 
-#: manual/api/ball_float.md:1218
+#: manual/api/ball_float.md:1211
 msgid "The defaults are those of binary64: precision 53, $e_{\\min} = -1022$, $e_{\\max} = 1023$. A precision below 1 or $e_{\\min} > e_{\\max}$ aborts `new` and is a domain error for `try_new`."
 msgstr "默认值为 binary64 的参数：精度 53，$e_{\\min} = -1022$，$e_{\\max} = 1023$。精度小于 1 或 $e_{\\min} > e_{\\max}$ 会使 `new` 中止，对 `try_new` 则是定义域错误。"
 
-#: manual/api/ball_float.md:1222
+#: manual/api/ball_float.md:1215
 msgid "`BallContext::binary32` and `BallContext::binary64`"
 msgstr "`BallContext::binary32` 与 `BallContext::binary64`"
 
-#: manual/api/ball_float.md:1224
+#: manual/api/ball_float.md:1217
 msgid "These return the contexts of the IEEE 754 binary32 ($p = 24$, $[-126, 127]$) and binary64 ($p = 53$, $[-1022, 1023]$) formats."
 msgstr "它们返回 IEEE 754 binary32（$p = 24$，$[-126, 127]$）与 binary64（$p = 53$，$[-1022, 1023]$）格式的上下文。"
 
-#: manual/api/ball_float.md:1234
+#: manual/api/ball_float.md:1227
 msgid "These return the parameters of a context."
 msgstr "它们返回上下文的参数。"
 
-#: manual/api/ball_float.md:1244
+#: manual/api/ball_float.md:1237
 msgid "`BallFlags::new` returns the flags with nothing raised; `combine` is their union; the accessors read the fields."
 msgstr "`BallFlags::new` 返回未触发任何条件的标志；`combine` 求二者的并；访问器读取各字段。"
 
-#: manual/api/ball_float.md:1257
+#: manual/api/ball_float.md:1250
 msgid "`apply_ctx` rounds an interval outward into a context and reports the flags."
 msgstr "`apply_ctx` 将区间向外舍入到上下文中并报告标志。"
 
-#: manual/api/ball_float.md:1263
+#: manual/api/ball_float.md:1256
 msgid "Each finite nonzero endpoint is rounded outward to the context precision. An endpoint whose rounded exponent exceeds $e_{\\max}$ overflows: it becomes $\\mp\\infty$ if it is a negative lower or a positive upper endpoint, and the largest finite value of the right sign otherwise (a positive lower endpoint becomes the largest finite value, which is still below it). An endpoint below the normal range is then rounded outward on the subnormal grid $2^{e_{\\min} - p + 1}\\mathbb{Z}$, so a tiny positive upper endpoint becomes the smallest subnormal rather than 0. Rounding twice in the same direction equals rounding once onto the coarser grid, so the endpoints are the directed roundings of the stored ones. Zeros and infinities are kept. Empty gives Empty with no flags. The result has the context precision."
 msgstr "每个有限非零端点都向外舍入到上下文精度。舍入后指数超过 $e_{\\max}$ 的端点发生上溢：若它是负的下端点或正的上端点，则变为 $\\mp\\infty$；否则变为相应符号的最大有限值（正的下端点变为最大有限值，仍低于原值）。随后，低于正规范围的端点在次正规网格 $2^{e_{\\min} - p + 1}\\mathbb{Z}$ 上向外舍入，因此极小的正上端点会变为最小次正规数而不是 0。同一方向的两次舍入等于一次舍入到较粗的网格上，因此所得端点就是所存储端点的定向舍入。零和无穷保持不变。Empty 给出 Empty 且不设任何标志。结果具有上下文精度。"
 
-#: manual/api/ball_float.md:1275
-msgid "`underflow` is raised only when the second, subnormal-grid step is inexact. IEEE 754 raises it for every tiny inexact result, so a tiny endpoint whose precision rounding is inexact but lands on the subnormal grid raises `inexact` without `underflow`: with $p = 4$ and $e_{\\min} = -2$, the lower endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$ and only `inexact` is set. Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "只有当第二步（次正规网格上的舍入）不精确时才会引发 `underflow`。IEEE 754 对每个不精确的极小结果都会引发它，因此若某个极小端点的精度舍入不精确、但落在次正规网格上，则只引发 `inexact` 而不引发 `underflow`：取 $p = 4$、$e_{\\min} = -2$，下端点 $2^{-3}(1 + 2^{-10})$ 变为 $2^{-3}$，只设置 `inexact`。由 [#71](https://github.com/Luna-Flow/floating/issues/71) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+#: manual/api/ball_float.md:1268
+msgid "`underflow` follows IEEE 754 with tininess detected after rounding: it is raised when an endpoint is inexact and its rounding to $p$ bits with an unbounded exponent range lies below $2^{e_{\\min}}$, whichever of the two steps lost the bits. With $p = 4$ and $e_{\\min} = -2$, the lower endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$, which is already on the subnormal grid, and raises both `inexact` and `underflow`. An exact tiny endpoint raises nothing."
+msgstr "`underflow` 遵循 IEEE 754，并在舍入之后检测微小性：当端点不精确，且其在指数范围无界时舍入到 $p$ 位的结果低于 $2^{e_{\\min}}$ 时引发，无论丢失位数的是两步中的哪一步。在 $p = 4$、$e_{\\min} = -2$ 时，下端点 $2^{-3}(1 + 2^{-10})$ 变为 $2^{-3}$，它已在次正规网格上，并同时引发 `inexact` 和 `underflow`。精确的微小端点不引发任何标志。"
 
-#: manual/api/ball_float.md:1284
+#: manual/api/ball_float.md:1278
 msgid "These compute the operation and then apply the context."
 msgstr "它们先计算运算，再应用上下文。"
 
-#: manual/api/ball_float.md:1293
+#: manual/api/ball_float.md:1287
 msgid "`x.add_ctx(y, ctx)` is `(x + y).apply_ctx(ctx)`. When the operands' precision is at least the context precision, the double rounding gives the same endpoints as a single outward rounding into the context (see the [design page](../design/ball_float.md#contexts-and-double-rounding))."
 msgstr "`x.add_ctx(y, ctx)` 即 `(x + y).apply_ctx(ctx)`。当操作数的精度不低于上下文精度时，这种两次舍入得到的端点与一次向外舍入到上下文所得的端点相同（参见[设计文档](../design/ball_float.md#contexts-and-double-rounding)）。"
 
-#: manual/api/ball_float.md:1298
+#: manual/api/ball_float.md:1292
 msgid "`BallFloat::exp_ctx` and `BallFloat::ln_ctx`"
 msgstr "`BallFloat::exp_ctx` 与 `BallFloat::ln_ctx`"
 
-#: manual/api/ball_float.md:1300
+#: manual/api/ball_float.md:1294
 msgid "`exp_ctx` and `ln_ctx` evaluate `exp_interval` and `ln_interval` at 32 bits more than the context precision and then apply the context."
 msgstr "`exp_ctx` 和 `ln_ctx` 以比上下文精度多 32 位的精度计算 `exp_interval` 和 `ln_interval`，然后应用上下文。"
 
-#: manual/api/ball_float.md:1310
-msgid "`midpoint_ctx` returns the center rounded to nearest at the context precision."
-msgstr "`midpoint_ctx` 返回以上下文精度就近舍入后的中心。"
+#: manual/api/ball_float.md:1304
+msgid "`midpoint_ctx` is the IEEE 1788 `mid` operation with the context as the result format."
+msgstr "`midpoint_ctx` 是以上下文为结果格式的 IEEE 1788 `mid` 运算。"
 
-#: manual/api/ball_float.md:1316
-msgid "Subnormal results are rounded on the subnormal grid and raise `underflow` when inexact; `inexact` is set when the center changed. The exponent upper limit is not applied, so `overflow` is never raised ([#46](https://github.com/Luna-Flow/floating/issues/46)). Entire gives 0; Empty and half-bounded intervals abort."
-msgstr "次正规结果在次正规网格上舍入，不精确时触发 `underflow`；中心发生改变时设置 `inexact`。指数上限不被施加，因此从不触发 `overflow`（[#46](https://github.com/Luna-Flow/floating/issues/46)）。Entire 给出 0；Empty 和半无界区间会中止。"
+#: manual/api/ball_float.md:1311
+msgid "Following IEEE 1788-2015 §12.12.8, Empty gives NaN, Entire gives $+0$, an interval unbounded only above gives the largest finite value of the context, $(2 - 2^{1-p})\\,2^{e_{\\max}}$, and one unbounded only below gives its negative; none of these raises a flag. A bounded interval gives its exact center rounded once to nearest (ties to even) onto the context's grid, including the subnormal grid $2^{e_{\\min} - p + 1}\\mathbb{Z}$, so with $p = 4$, $e_{\\min} = -2$ the center $2^{-6} + 2^{-20}$ gives $2^{-5}$. A zero center gives $+0$. `inexact` is set when the result differs from the center and `underflow` when it is also tiny, as for `apply_ctx`. A center that rounds beyond $e_{\\max}$ overflows to an infinity of its sign with `overflow` and `inexact`: rounding to nearest maps it to $\\pm\\infty$ in IEEE 754, and IEEE 1788 uses that rounding for the bounded case. Only an interval whose endpoints are themselves outside the context's range can do this."
+msgstr "按照 IEEE 1788-2015 §12.12.8，Empty 给出 NaN，Entire 给出 $+0$，仅上方无界的区间给出上下文的最大有限值 $(2 - 2^{1-p})\\,2^{e_{\\max}}$，仅下方无界的区间给出其相反数；这些情形都不引发标志。有界区间给出其精确中心一次性按就近舍入（平局取偶）到上下文网格（包括次正规网格 $2^{e_{\\min} - p + 1}\\mathbb{Z}$）上的值，因此在 $p = 4$、$e_{\\min} = -2$ 时，中心 $2^{-6} + 2^{-20}$ 给出 $2^{-5}$。零中心给出 $+0$。结果与中心不同时设置 `inexact`，若同时为微小值则设置 `underflow`，与 `apply_ctx` 相同。舍入后超出 $e_{\\max}$ 的中心溢出为同号的无穷，并设置 `overflow` 和 `inexact`：在 IEEE 754 中就近舍入将其映射为 $\\pm\\infty$，而 IEEE 1788 在有界情形下使用的正是这种舍入。只有端点本身就超出上下文范围的区间才会出现这种情况。"
 
-#: manual/api/ball_float.md:1321
-msgid "The center is rounded to nearest twice, first to $p$ bits and then onto the subnormal grid, and double rounding to nearest is not single rounding: with $p = 4$, $e_{\\min} = -2$ (grid $2^{-5}$) the center $2^{-6} + 2^{-20}$ is first rounded to the tie $2^{-6}$ and then to the even neighbour 0, whereas the nearest grid point is $2^{-5}$. Normal results are correctly rounded. Tracked in [#70](https://github.com/Luna-Flow/floating/issues/70); a fix for both defects is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "中心会被两次就近舍入，先舍入到 $p$ 位，再舍入到次正规网格上，而两次就近舍入不等于一次舍入：取 $p = 4$、$e_{\\min} = -2$（网格为 $2^{-5}$），中心 $2^{-6} + 2^{-20}$ 先被舍入为中点 $2^{-6}$，再舍入为偶数邻居 0，而最近的网格点是 $2^{-5}$。正规结果都是正确舍入的。由 [#70](https://github.com/Luna-Flow/floating/issues/70) 跟踪；针对这两个缺陷的修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
-
-#: manual/api/ball_float.md:1344
+#: manual/api/ball_float.md:1341
 msgid "Decorated intervals"
 msgstr "装饰区间"
 
-#: manual/api/ball_float.md:1346
+#: manual/api/ball_float.md:1343
 msgid "A decorated operation computes the bare result and the decoration $d = \\min(d_1, \\dots, d_k, d_f)$, where $d_i$ are the operand decorations and $d_f$ is the decoration of the operation on these operands (`Com` when the function is defined and continuous on the whole input box, `Trv` when the input leaves the domain, as listed below). The minimum is then made canonical (Empty → `Trv`, unbounded with `Com` → `Dac`). Any NaI operand gives NaI."
 msgstr "装饰运算计算裸结果以及装饰 $d = \\min(d_1, \\dots, d_k, d_f)$，其中 $d_i$ 是操作数的装饰，$d_f$ 是该运算在这些操作数上的装饰（当函数在整个输入矩形上有定义且连续时为 `Com`，当输入超出定义域时为 `Trv`，如下文所列）。随后将该最小值规范化（Empty → `Trv`，无界且为 `Com` → `Dac`）。任何 NaI 操作数都给出 NaI。"
 
-#: manual/api/ball_float.md:1355
+#: manual/api/ball_float.md:1352
 msgid "`BallFloatDecorated::new` decorates a bare interval."
 msgstr "`BallFloatDecorated::new` 为裸区间添加装饰。"
 
-#: manual/api/ball_float.md:1361
+#: manual/api/ball_float.md:1358
 msgid "The default decoration is `Com`. The decoration is made canonical, and `Ill` is replaced by `Trv`: `new` never builds NaI. `new(whole())` is therefore decorated `Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788 `newDec`."
 msgstr "默认装饰为 `Com`。装饰会被规范化，且 `Ill` 会被替换为 `Trv`：`new` 从不构建 NaI。因此，与 IEEE 1788 的 `newDec` 一样，`new(whole())` 的装饰为 `Dac`，`new(empty())` 的装饰为 `Trv`。"
 
-#: manual/api/ball_float.md:1366
+#: manual/api/ball_float.md:1363
 msgid "`BallFloatDecorated::nai` and `BallFloatDecorated::is_nai`"
 msgstr "`BallFloatDecorated::nai` 与 `BallFloatDecorated::is_nai`"
 
-#: manual/api/ball_float.md:1368
+#: manual/api/ball_float.md:1365
 msgid "`nai` returns NaI, the result of an invalid decorated construction; `is_nai` tests for it."
 msgstr "`nai` 返回 NaI，即无效装饰构造的结果；`is_nai` 检测它。"
 
-#: manual/api/ball_float.md:1376
+#: manual/api/ball_float.md:1373
 msgid "NaI has decoration `Ill` and an Empty interval (default precision 53), but it is not Empty: `is_empty` is false for NaI."
 msgstr "NaI 的装饰为 `Ill`，区间为 Empty（默认精度 53），但它不是 Empty：对 NaI，`is_empty` 为假。"
 
-#: manual/api/ball_float.md:1379
+#: manual/api/ball_float.md:1376
 msgid "`BallFloatDecorated::interval` and `BallFloatDecorated::decoration`"
 msgstr "`BallFloatDecorated::interval` 与 `BallFloatDecorated::decoration`"
 
-#: manual/api/ball_float.md:1381
+#: manual/api/ball_float.md:1378
 msgid "These return the bare interval and the decoration."
 msgstr "它们返回裸区间和装饰。"
 
-#: manual/api/ball_float.md:1390
+#: manual/api/ball_float.md:1387
 msgid "These predicates apply the bare predicate to the interval and return false for NaI."
 msgstr "这些谓词将相应的裸谓词作用于区间，对 NaI 返回假。"
 
-#: manual/api/ball_float.md:1403
+#: manual/api/ball_float.md:1400
 msgid "These relations apply the bare relation to the intervals and return false when an operand is NaI."
 msgstr "这些关系将相应的裸关系作用于区间，当有操作数为 NaI 时返回假。"
 
-#: manual/api/ball_float.md:1418
+#: manual/api/ball_float.md:1415
 msgid "`overlap_state` returns `Undefined` when an operand is NaI."
 msgstr "当有操作数为 NaI 时，`overlap_state` 返回 `Undefined`。"
 
-#: manual/api/ball_float.md:1422
+#: manual/api/ball_float.md:1419
 msgid "These apply the bare operation and always lower the decoration to `Trv` (set operations are not point functions, so no property of a function can be claimed for their results)."
 msgstr "这些函数应用裸运算，并总是将装饰降为 `Trv`（集合运算不是逐点函数，因此无法对其结果断言函数的任何性质）。"
 
-#: manual/api/ball_float.md:1435
+#: manual/api/ball_float.md:1432
 msgid "The arithmetic operations apply the bare operation; their operation decoration is `Com` except where the table says otherwise."
 msgstr "算术运算应用裸运算；除表中另有说明外，其运算装饰为 `Com`。"
 
-#: manual/api/ball_float.md:1454
+#: manual/api/ball_float.md:1451
 #: manual/design/bin_float_checked.md:122
 #: manual/design/decimal_gda.md:119
 msgid "Operation"
 msgstr "操作"
 
-#: manual/api/ball_float.md:1454
+#: manual/api/ball_float.md:1451
 msgid "Operation decoration"
 msgstr "运算装饰"
 
-#: manual/api/ball_float.md:1456
+#: manual/api/ball_float.md:1453
 msgid "`Trv` when the divisor contains 0"
 msgstr "除数包含 0 时为 `Trv`"
 
-#: manual/api/ball_float.md:1457
+#: manual/api/ball_float.md:1454
 msgid "`Trv` when $n < 0$ and $0 \\in \\boldsymbol{x}$"
 msgstr "当 $n < 0$ 且 $0 \\in \\boldsymbol{x}$ 时为 `Trv`"
 
-#: manual/api/ball_float.md:1458
+#: manual/api/ball_float.md:1455
 msgid "identity (IEEE 1788 `pos`)"
 msgstr "恒等（IEEE 1788 `pos`）"
 
-#: manual/api/ball_float.md:1459
+#: manual/api/ball_float.md:1456
 msgid "others"
 msgstr "其他"
 
-#: manual/api/ball_float.md:1463
+#: manual/api/ball_float.md:1460
 msgid "The decorated elementary functions apply the bare total form (there are no decorated `try_` forms) and lower the decoration when the input leaves the domain of the function, as listed in the table at the end of this group."
 msgstr "装饰初等函数应用裸的全函数形式（没有装饰版的 `try_` 形式），并在输入超出函数定义域时降低装饰，具体见本组末尾的表格。"
 
-#: manual/api/ball_float.md:1467
+#: manual/api/ball_float.md:1464
 msgid "These are the decorated square root, exponentials, logarithms, powers and `hypot`."
 msgstr "这些是装饰版的平方根、指数函数、对数函数、幂函数以及 `hypot`。"
 
-#: manual/api/ball_float.md:1487
+#: manual/api/ball_float.md:1484
 msgid "These are the decorated trigonometric functions and their inverses."
 msgstr "这些是装饰版的三角函数及其反函数。"
 
-#: manual/api/ball_float.md:1504
+#: manual/api/ball_float.md:1501
 msgid "These are the decorated hyperbolic functions and their inverses."
 msgstr "这些是装饰版的双曲函数及其反函数。"
 
-#: manual/api/ball_float.md:1515
+#: manual/api/ball_float.md:1512
 #: manual/api/decimal.md:1486
 #: manual/numeric_semantics.md:136
 msgid "Function"
 msgstr "函数"
 
-#: manual/api/ball_float.md:1515
+#: manual/api/ball_float.md:1512
 msgid "Operation decoration `Trv` when"
 msgstr "运算装饰为 `Trv` 的条件"
 
-#: manual/api/ball_float.md:1517
+#: manual/api/ball_float.md:1514
 msgid "$\\underline{x} < 0$ (or the input is Empty)"
 msgstr "$\\underline{x} < 0$（或输入为 Empty）"
 
-#: manual/api/ball_float.md:1522
+#: manual/api/ball_float.md:1519
 msgid "$\\underline{x} \\le -1$ or $\\overline{x} \\ge 1$"
 msgstr "$\\underline{x} \\le -1$ 或 $\\overline{x} \\ge 1$"
 
-#: manual/api/ball_float.md:1523
+#: manual/api/ball_float.md:1520
 msgid "$n = 0$, or $n$ even and $\\underline{x} < 0$, or $n < 0$ and $0 \\in \\boldsymbol{x}$"
 msgstr "$n = 0$，或 $n$ 为偶数且 $\\underline{x} < 0$，或 $n < 0$ 且 $0 \\in \\boldsymbol{x}$"
 
-#: manual/api/ball_float.md:1524
+#: manual/api/ball_float.md:1521
 msgid "$\\underline{x} < 0$, or $0 \\in \\boldsymbol{x}$ and $\\underline{y} \\le 0$, or the result is Empty"
 msgstr "$\\underline{x} < 0$，或 $0 \\in \\boldsymbol{x}$ 且 $\\underline{y} \\le 0$，或结果为 Empty"
 
-#: manual/api/ball_float.md:1525
+#: manual/api/ball_float.md:1522
 msgid "the result is Entire (a pole may lie inside)"
 msgstr "结果为 Entire（内部可能有极点）"
 
-#: manual/api/ball_float.md:1526
+#: manual/api/ball_float.md:1523
 msgid "the result is unbounded (a pole lies in the argument, possibly at an endpoint)"
 msgstr "结果无界（参数中含有极点，可能位于端点）"
 
-#: manual/api/ball_float.md:1527
+#: manual/api/ball_float.md:1524
 msgid "both operands contain 0"
 msgstr "两个操作数都包含 0"
 
-#: manual/api/ball_float.md:1529
+#: manual/api/ball_float.md:1526
 msgid "All other functions have operation decoration `Com`. For `y.atan2_interval(x)` the decoration is `Def` when the box crosses the branch cut ($\\underline{x} < 0$, $\\underline{y} < 0 \\le \\overline{y}$: the restriction jumps from $-\\pi$ to $\\pi$) and `Dac` when it touches the cut from above ($\\overline{x} < 0$, $\\underline{y} = 0$: the restriction is continuous, but `atan2` itself is not continuous at those points)."
 msgstr "其他所有函数的运算装饰均为 `Com`。对于 `y.atan2_interval(x)`，当矩形跨越分支切割线（$\\underline{x} < 0$，$\\underline{y} < 0 \\le \\overline{y}$：限制函数从 $-\\pi$ 跳到 $\\pi$）时装饰为 `Def`，当它从上方触及切割线（$\\overline{x} < 0$，$\\underline{y} = 0$：限制函数连续，但 `atan2` 本身在这些点不连续）时装饰为 `Dac`。"
 
-#: manual/api/ball_float.md:1538
+#: manual/api/ball_float.md:1535
 msgid "`apply_ctx` applies `BallFloat::apply_ctx` to the interval and keeps the decoration (made canonical again, so an overflowed `Com` becomes `Dac`)."
 msgstr "`apply_ctx` 将 `BallFloat::apply_ctx` 应用于区间并保留装饰（会再次规范化，因此发生上溢的 `Com` 变为 `Dac`）。"
 
-#: manual/api/ball_float.md:1545
+#: manual/api/ball_float.md:1542
 msgid "NaI stays NaI, with the context precision."
 msgstr "NaI 仍为 NaI，并带上上下文精度。"
 
-#: manual/api/ball_float.md:1568
-#: manual/api/ball_float_checked.md:401
+#: manual/api/ball_float.md:1565
+#: manual/api/ball_float_checked.md:398
 #: manual/api/bin_float.md:1967
 #: manual/api/bin_float_checked.md:681
 #: manual/api/decimal.md:1718
 #: manual/api/decimal_gda.md:1796
-#: manual/api/def.md:427
+#: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:456
 #: manual/api/frontend/itl_expr.md:258
 #: manual/api/frontend/mpfr_expr.md:311
@@ -1011,64 +1007,64 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 msgid "Trait implementations"
 msgstr "trait 实现"
 
-#: manual/api/ball_float.md:1570
+#: manual/api/ball_float.md:1567
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BallFloat` and `BallFloatDecorated`"
 msgstr "`BallFloat` 和 `BallFloatDecorated` 的 `Add`、`Sub`、`Mul`、`Div` 和 `Neg`"
 
-#: manual/api/ball_float.md:1572
+#: manual/api/ball_float.md:1569
 msgid "`BallFloat` implements `Add`, `Sub`, `Mul`, `Div` and `Neg`; `BallFloatDecorated` implements `Add`, `Sub`, `Mul` and `Div`. The operators call the methods of the same name."
 msgstr "`BallFloat` 实现了 `Add`、`Sub`、`Mul`、`Div` 和 `Neg`；`BallFloatDecorated` 实现了 `Add`、`Sub`、`Mul` 和 `Div`。这些运算符调用同名方法。"
 
-#: manual/api/ball_float.md:1590
+#: manual/api/ball_float.md:1587
 msgid "`Show` writes an interval in an exact text form."
 msgstr "`Show` 以精确的文本形式输出区间。"
 
-#: manual/api/ball_float.md:1604
+#: manual/api/ball_float.md:1601
 msgid "A bounded `BallFloat` prints as `center +/- radius` with both numbers in the exact `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$), so the text denotes exactly the stored set (up to the far-endpoint case noted under [`BallFloat::center`](#ballfloatcenter-and-ballfloatradius)); an unbounded one prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and the decoration; NaI prints as `[nai]`."
 msgstr "有界的 `BallFloat` 输出为 `center +/- radius`，两个数都使用精确的 `BinFloat` 记法（`3p-1` 表示 $3 \\cdot 2^{-1}$），因此文本恰好表示所存储的集合（[`BallFloat::center`](#ballfloatcenter-and-ballfloatradius) 中提到的远端点情形除外）；无界的输出为 `[lo, hi]`，Empty 输出为 `[empty]`。装饰区间会附加 `_` 及装饰；NaI 输出为 `[nai]`。"
 
-#: manual/api/ball_float.md:1622
+#: manual/api/ball_float.md:1619
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr "这些是各结构体派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/ball_float.md:1636
+#: manual/api/ball_float.md:1633
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr "这些是各枚举派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/ball_float.md:1647
+#: manual/api/ball_float.md:1644
 msgid "The `Eq` implementations compare representations. For `BallFloat` and `BallFloatDecorated` this distinguishes equal sets stored with different precision tags or endpoint precisions; use `set_equal` for sets. `to_repr` gives the structural `Debug` form."
 msgstr "`Eq` 的实现比较的是表示。对于 `BallFloat` 和 `BallFloatDecorated`，这会区分以不同精度标记或端点精度存储的相等集合；比较集合请使用 `set_equal`。`to_repr` 给出结构化的 `Debug` 形式。"
 
-#: manual/api/ball_float.md:1652
+#: manual/api/ball_float.md:1649
 msgid "`@def.Floating` for `BallFloat`"
 msgstr "`BallFloat` 的 `@def.Floating`"
 
-#: manual/api/ball_float.md:1654
+#: manual/api/ball_float.md:1651
 msgid "`BallFloat` implements the `Floating` trait of [`def`](def.md) with `classify`, `sign`, `precision`, `with_precision` and `normalized` as described above, so the generic predicates `@def.is_finite` (bounded), `@def.is_infinite` (unbounded), `@def.is_nan` (Empty) and `@def.is_zero` (sign `Zero`, that is, contains 0) apply to intervals."
 msgstr "`BallFloat` 实现了 [`def`](def.md) 的 `Floating` trait，其中 `classify`、`sign`、`precision`、`with_precision` 和 `normalized` 如上文所述，因此通用谓词 `@def.is_finite`（有界）、`@def.is_infinite`（无界）、`@def.is_nan`（Empty）和 `@def.is_zero`（符号为 `Zero`，即包含 0）也适用于区间。"
 
-#: manual/api/ball_float.md:1664
+#: manual/api/ball_float.md:1661
 msgid "The laws of `Floating` that speak of keeping a value hold only as enclosures: `with_precision` and `normalized` return supersets of the input (see the warning under [`BallFloat::with_precision`](#ballfloatwith_precision))."
 msgstr "`Floating` 中关于保持值不变的定律只在包络意义下成立：`with_precision` 和 `normalized` 返回输入的超集（参见 [`BallFloat::with_precision`](#ballfloatwith_precision) 下的警告）。"
 
-#: manual/api/ball_float.md:1671
+#: manual/api/ball_float.md:1668
 msgid "`BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr "`BallFloat` 实现了 `Luna-Flow/arithmetic` 的包络关系 trait。"
 
-#: manual/api/ball_float.md:1681
+#: manual/api/ball_float.md:1678
 msgid "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method); the others call the methods of the same name."
 msgstr "`Contains::contains(x, y)` 即 `y.subset(x)`（集合包含，而不是接受点的那个方法）；其他方法调用同名方法。"
 
-#: manual/api/ball_float.md:1686
+#: manual/api/ball_float.md:1683
 msgid "`BallFloat` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr "`BallFloat` 实现了 `DivChecked`、`PowNatChecked` 和 `PowIntChecked`；它们的方法被提升为该类型的方法。"
 
-#: manual/api/ball_float.md:1698
-msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded, so the result can be wider than the plain operation even when the precision is unchanged (see [`BallFloat::with_precision`](#ballfloatwith_precision)). They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. Its loop starts from $\\{1\\}$, so `pow_nat_checked(Empty, 0)` returns $\\{1\\}$ where `pown(Empty, 0)` returns Empty. The widening is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the Empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix for both is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍入到该精度，再应用运算，然后重新舍入结果，因此即使精度不变，结果也可能比普通运算更宽（参见 [`BallFloat::with_precision`](#ballfloatwith_precision)）。它们总是返回 `Ok`。`div_checked` 遵循上述除法规则（除数包含 0 时给出无界结果，而不是错误）。`pow_int_checked` 使用 `pown`。`pow_nat_checked` 通过重复的区间乘法进行二进制求幂，这会把各因子视为相互独立：对于包含 0 的参数，其结果比 `pown` 更宽。其循环从 $\\{1\\}$ 开始，因此 `pow_nat_checked(Empty, 0)` 返回 $\\{1\\}$，而 `pown(Empty, 0)` 返回 Empty。该变宽由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪，Empty 情形由 [#72](https://github.com/Luna-Flow/floating/issues/72) 跟踪；针对两者的修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+#: manual/api/ball_float.md:1695
+msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`BallFloat::with_precision`](#ballfloatwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
+msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍入到该精度，再应用运算，然后将结果向外重新舍入（参见 [`BallFloat::with_precision`](#ballfloatwith_precision)）。在操作数自身的精度下，结果与普通运算相同；在更低的精度下结果可能更宽。它们总是返回 `Ok`。`div_checked` 遵循上述除法规则（除数包含 0 时给出无界结果，而不是错误）。`pow_int_checked` 使用 `pown`。`pow_nat_checked` 通过重复的区间乘法进行二进制求幂，这会把各因子视为相互独立：对于包含 0 的参数，其结果比 `pown` 更宽。与 `pown` 一样，Empty 底数对任何指数（包括 0）都给出 Empty。"
 
-#: manual/api/ball_float.md:1723
-#: manual/api/ball_float_checked.md:428
+#: manual/api/ball_float.md:1719
+#: manual/api/ball_float_checked.md:425
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
 #: manual/api/bench/bin_float.md:45
@@ -1086,7 +1082,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/decimal_checked.md:398
 #: manual/api/decimal_gda.md:1974
 #: manual/api/decimal_gda_checked.md:281
-#: manual/api/def.md:441
+#: manual/api/def.md:435
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:507
 #: manual/api/frontend/itl_expr.md:271
@@ -1100,7 +1096,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 msgid "Complete public interface"
 msgstr "完整公共接口"
 
-#: manual/api/ball_float.md:1725
+#: manual/api/ball_float.md:1721
 #: manual/api/decimal.md:1914
 #: manual/api/decimal_gda.md:1976
 #: manual/api/frontend/gda_expr.md:509
@@ -1221,81 +1217,81 @@ msgid "These methods are `map` of the `BallFloat` method of the same name."
 msgstr "这些方法是对同名 `BallFloat` 方法的 `map`。"
 
 #: manual/api/ball_float_checked.md:211
-msgid "`neg` and `abs` are the exact interval images $\\{-t\\}$ and $\\{|t|\\}$; `with_precision` returns an enclosure of the input at the new precision for every rounding mode (the mode only steers the center). `with_precision` and `normalized` rebuild the interval from its center and radius and can widen it by one ulp per side even at an unchanged precision (see [`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision); tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91))."
-msgstr "`neg` 和 `abs` 是精确的区间像 $\\{-t\\}$ 和 $\\{|t|\\}$；`with_precision` 对每种舍入模式都返回输入在新精度下的包络（模式只影响中心）。`with_precision` 和 `normalized` 由中心和半径重建区间，即使精度不变，每侧也可能变宽一个 ulp（参见 [`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision)；由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪，修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出）。"
+msgid "`neg` and `abs` are the exact interval images $\\{-t\\}$ and $\\{|t|\\}$; `with_precision` rounds the endpoints outward to the new precision for every rounding mode (the mode is ignored), which is the tightest enclosure of the input. Neither it nor `normalized` changes an interval that is already representable at the target precision (see [`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision))."
+msgstr "`neg` 和 `abs` 是精确的区间像 $\\{-t\\}$ 和 $\\{|t|\\}$；`with_precision` 对任何舍入模式都把端点向外舍入到新精度（模式被忽略），这就是输入的最紧包络。它和 `normalized` 都不会改变在目标精度下已可表示的区间（参见 [`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision)）。"
 
-#: manual/api/ball_float_checked.md:223
+#: manual/api/ball_float_checked.md:222
 msgid "These methods combine two wrappers with the `BallFloat` operators."
 msgstr "这些方法用 `BallFloat` 运算符组合两个包装值。"
 
-#: manual/api/ball_float_checked.md:232
+#: manual/api/ball_float_checked.md:231
 msgid "The left operand's error comes first, then the right one's. Interval arithmetic itself never fails: the result encloses $\\{\\, s \\circ t : s \\in X, t \\in Y \\,\\}$. Division by an interval that is exactly $\\{0\\}$ gives the empty set, and division by an interval that contains zero in its interior gives the whole line."
 msgstr "左操作数的错误优先，其次是右操作数的。区间算术本身从不失败：结果包络 $\\{\\, s \\circ t : s \\in X, t \\in Y \\,\\}$。除以恰为 $\\{0\\}$ 的区间得到空集，除以内部包含零的区间得到整条实轴。"
 
-#: manual/api/ball_float_checked.md:240
+#: manual/api/ball_float_checked.md:239
 msgid "These methods raise an interval to an integer power through the Luna-Flow/arithmetic traits `PowNatChecked` and `PowIntChecked`."
 msgstr "这些方法通过 Luna-Flow/arithmetic 的 trait `PowNatChecked` 和 `PowIntChecked` 计算区间的整数次幂。"
 
-#: manual/api/ball_float_checked.md:248
-msgid "The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only its precision, and re-rounds the base and the result with `with_precision`, which can add one ulp per side. `pow_int` encloses $\\{t^{n}\\}$ with `BallFloat::pown`, which treats the base as one point (so `pow_int(2)` of $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base with a negative exponent gives the empty set. `pow_nat` instead uses binary powering by repeated interval multiplication, which treats the factors as independent: `pow_nat(2)` of $[-1, 1]$ is $[-1, 1]$, like `x * x`. For even powers of an interval containing 0, prefer `pow_int`. `pow_nat(0)` of an empty interval is $\\{1\\}$ (whereas `pow_int(0)` keeps it empty). The extra ulp is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix for both is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "上下文为 `ArithmeticContext::new(x.precision())`；`ball_float` 只使用其精度，并用 `with_precision` 重新舍入底数和结果，这可能使每侧增加一个 ulp。`pow_int` 用 `BallFloat::pown` 包络 $\\{t^{n}\\}$，它把底数视为同一个点（因此 $[-1, 1]$ 的 `pow_int(2)` 为 $[0, 1]$，比 `x * x` 的 $[-1, 1]$ 更紧）。零底数配负指数得到空集。`pow_nat` 则通过重复的区间乘法进行二进制求幂，把各因子视为相互独立：$[-1, 1]$ 的 `pow_nat(2)` 为 $[-1, 1]$，与 `x * x` 相同。对于包含 0 的区间的偶次幂，请优先使用 `pow_int`。空区间的 `pow_nat(0)` 为 $\\{1\\}$（而 `pow_int(0)` 保持为空）。额外的 ulp 由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪，空区间的情形由 [#72](https://github.com/Luna-Flow/floating/issues/72) 跟踪；两者的修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+#: manual/api/ball_float_checked.md:247
+msgid "The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only its precision, and re-rounds the base and the result outward with `with_precision`, which adds nothing when they are already representable. `pow_int` encloses $\\{t^{n}\\}$ with `BallFloat::pown`, which treats the base as one point (so `pow_int(2)` of $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base with a negative exponent gives the empty set. `pow_nat` instead uses binary powering by repeated interval multiplication, which treats the factors as independent: `pow_nat(2)` of $[-1, 1]$ is $[-1, 1]$, like `x * x`. For even powers of an interval containing 0, prefer `pow_int`. An empty base stays empty for every exponent, including `pow_nat(0)` and `pow_int(0)`."
+msgstr "上下文为 `ArithmeticContext::new(x.precision())`；`ball_float` 只使用其精度，并用 `with_precision` 将底数和结果向外重新舍入，当它们已可表示时不会增加任何宽度。`pow_int` 用 `BallFloat::pown` 包络 $\\{t^{n}\\}$，它把底数视为同一个点（因此 $[-1, 1]$ 的 `pow_int(2)` 为 $[0, 1]$，比 `x * x` 的 $[-1, 1]$ 更紧）。零底数配负指数得到空集。`pow_nat` 则通过重复的区间乘法进行二进制求幂，把各因子视为相互独立：$[-1, 1]$ 的 `pow_nat(2)` 为 $[-1, 1]$，与 `x * x` 相同。对于包含 0 的区间的偶次幂，请优先使用 `pow_int`。空底数对任何指数都保持为空，包括 `pow_nat(0)` 和 `pow_int(0)`。"
 
-#: manual/api/ball_float_checked.md:263
+#: manual/api/ball_float_checked.md:260
 msgid "`rootn(n)` encloses the real $n$-th root with `BallFloat::try_rootn`."
 msgstr "`rootn(n)` 用 `BallFloat::try_rootn` 包络实 $n$ 次方根。"
 
-#: manual/api/ball_float_checked.md:269
+#: manual/api/ball_float_checked.md:266
 msgid "Degree $0$ gives a `DomainError`. Even roots ignore the negative part of the interval (set semantics): the root of $[-1, 1]$ is $[0, 1]$."
 msgstr "次数 $0$ 给出 `DomainError`。偶次方根忽略区间的负值部分（集合语义）：$[-1, 1]$ 的方根为 $[0, 1]$。"
 
-#: manual/api/ball_float_checked.md:274
+#: manual/api/ball_float_checked.md:271
 msgid "These binary functions enclose $x^{y}$, $\\sqrt{x^2+y^2}$ and the angle of $(\\text{abscissa}, \\text{self})$."
 msgstr "这些二元函数包络 $x^{y}$、$\\sqrt{x^2+y^2}$ 以及 $(\\text{abscissa}, \\text{self})$ 的辐角。"
 
-#: manual/api/ball_float_checked.md:283
+#: manual/api/ball_float_checked.md:280
 msgid "They call `try_pow_interval`, `try_hypot` and `try_atan2_interval`. Operand errors are taken left first; the operation can fail with a `CertificationFailure`. Points outside the real domain are dropped from the result set, so $(-2)^{0.5}$ is the empty interval."
 msgstr "它们调用 `try_pow_interval`、`try_hypot` 和 `try_atan2_interval`。操作数错误先取左侧；运算本身可能以 `CertificationFailure` 失败。实定义域之外的点会从结果集合中去除，因此 $(-2)^{0.5}$ 是空区间。"
 
-#: manual/api/ball_float_checked.md:320
+#: manual/api/ball_float_checked.md:317
 msgid "These methods enclose the image of the interval under the exponentials and logarithms."
 msgstr "这些方法包络区间在指数函数和对数函数下的像。"
 
-#: manual/api/ball_float_checked.md:336
+#: manual/api/ball_float_checked.md:333
 msgid "These methods enclose the image of the interval under the trigonometric functions and their inverses."
 msgstr "这些方法包络区间在三角函数及其反函数下的像。"
 
-#: manual/api/ball_float_checked.md:353
+#: manual/api/ball_float_checked.md:350
 msgid "These methods enclose the image of the interval under the hyperbolic functions and their inverses."
 msgstr "这些方法包络区间在双曲函数及其反函数下的像。"
 
-#: manual/api/ball_float_checked.md:365
+#: manual/api/ball_float_checked.md:362
 msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{70000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
 msgstr "每个方法都是以区间精度对 `BallFloat::try_<name>_interval` 进行 `bind`。结果 $Y$ 满足 $f(X \\cap \\operatorname{dom} f) \\subseteq Y$；$X$ 中位于定义域之外的部分被忽略，因此 $\\ln([-1, 1]) = [-\\infty, 0]$，而 $\\ln([-2, -2])$ 为空。唯一的错误是无法认证包络时的 `CertificationFailure`，例如 $2^{70000}$ 的余弦（原因为 `ResourceLimit`）。没有上下文变体；精度通过 `with_precision` 设置。"
 
-#: manual/api/ball_float_checked.md:403
+#: manual/api/ball_float_checked.md:400
 msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr "`BallFloatResult` 的 `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
-#: manual/api/ball_float_checked.md:405
+#: manual/api/ball_float_checked.md:402
 #: manual/api/bin_float_checked.md:685
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr "运算符 `+`、`-`、`*`、`/` 和一元 `-` 调用 `add`、`sub`、`mul`、`div` 和 `neg`。"
 
-#: manual/api/ball_float_checked.md:416
+#: manual/api/ball_float_checked.md:413
 #: manual/api/bin_float_checked.md:699
 msgid "Deprecated"
 msgstr "已弃用"
 
-#: manual/api/ball_float_checked.md:420
+#: manual/api/ball_float_checked.md:417
 #: manual/api/bin_float_checked.md:703
 msgid "`flat_map` is the former name of `bind`. Replace `r.flat_map(f)` with `r.bind(f)`."
 msgstr "`flat_map` 是 `bind` 的旧名称。请将 `r.flat_map(f)` 替换为 `r.bind(f)`。"
 
-#: manual/api/ball_float_checked.md:430
+#: manual/api/ball_float_checked.md:427
 #: manual/api/bin_float_checked.md:713
 #: manual/api/decimal_checked.md:400
 #: manual/api/decimal_gda_checked.md:283
-#: manual/api/def.md:443
+#: manual/api/def.md:437
 #: manual/api/semantic.md:375
 msgid "The following snapshot is the complete generated interface of the package."
 msgstr "以下快照是该包完整的生成接口。"
@@ -5662,78 +5658,78 @@ msgid "For a finite scalar the value is rounded to $q$ significant digits of its
 msgstr "对于有限标量，其值按 `mode` 方向舍入到其基数下的 $q$ 位有效数字。不应用上下文的指数界限，也不报告标志（两者都需要时请使用具体包的 `*_ctx` API）。十进制类型没有其他指数限制。`BinFloat` 保留其实现范围：指数超出 $\\pm(2^{30} - 1)$（`binary_implementation_e_max`、`binary_implementation_e_min`）的结果会像 IEEE 754 中那样上溢为无穷或最大有限值，或者下溢。零保留其符号。无穷和 NaN 保留其类别、符号和载荷，只改变存储的精度。"
 
 #: manual/api/def.md:197
-msgid "For `BallFloat` the result is an enclosure of the input: the centre is rounded with `mode` and the rounding error is added to the radius, so every member of `x` remains a member of the result whatever `mode` is (except for endpoints more than about $2^{16}$ binary orders of magnitude apart at a new precision above about 65536 bits, tracked in [#44](https://github.com/Luna-Flow/floating/issues/44) with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)). The result can be wider than `x` even when `p` equals the current precision, because the exact centre of $[\\ell, u]$ may need one bit more than the endpoints."
-msgstr "对于 `BallFloat`，结果是输入的包络：中心按 `mode` 舍入，舍入误差加到半径上，因此无论 `mode` 为何，`x` 的每个成员仍是结果的成员（端点在二进制数量级上相差超过约 $2^{16}$ 且新精度高于约 65536 位的情形除外，由 [#44](https://github.com/Luna-Flow/floating/issues/44) 跟踪，修复已在 [#68](https://github.com/Luna-Flow/floating/pull/68) 中提出）。即使 `p` 等于当前精度，结果也可能比 `x` 更宽，因为 $[\\ell, u]$ 的精确中心可能比端点多需要一位。"
+msgid "For `BallFloat` the endpoints are rounded outward (the lower one toward $-\\infty$, the upper one toward $+\\infty$), so the result is the tightest enclosure of `x` at the new precision whatever `mode` is; `mode` is not used. An interval whose endpoints are already representable at `p` bits is returned unchanged."
+msgstr "对 `BallFloat`，端点向外舍入（下端点朝 $-\\infty$，上端点朝 $+\\infty$），因此无论 `mode` 为何，结果都是 `x` 在新精度下的最紧包络；`mode` 不被使用。端点在 `p` 位下已可表示的区间原样返回。"
 
-#: manual/api/def.md:208
+#: manual/api/def.md:205
 msgid "`normalized` returns the canonical representative of a value."
 msgstr "`normalized` 返回值的规范代表。"
 
-#: manual/api/def.md:214
+#: manual/api/def.md:211
 msgid "For `BinFloat` this is the representation with an odd coefficient (or zero); for both `Decimal` types it removes trailing zeros of the coefficient, so `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000` becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types `normalized` keeps the value and is idempotent."
 msgstr "对于 `BinFloat`，这是系数为奇数（或为零）的表示；对于两种 `Decimal` 类型，它去除系数末尾的零，因此 `1.500` 变为 `1.5`（同值类改变，值不变），`-0.000` 变为 `-0`。非有限标量原样返回。在标量类型上，`normalized` 保持值不变，并且是幂等的。"
 
-#: manual/api/def.md:220
-msgid "[!WARNING] `BallFloat::normalized` rebuilds the interval from its centre and radius at the stored precision, like `with_precision`. It returns an enclosure of the input, which can be strictly wider: at 53 bits, $[1, 1 + 2^{-52}]$ becomes $[1 - 2^{-52}, 1 + 2^{-52}]$. Do not use it where the interval must stay unchanged. Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "[!WARNING] `BallFloat::normalized` 与 `with_precision` 一样，以存储的精度从中心和半径重建区间。它返回输入的一个包络，该包络可能严格更宽：在 53 位下，$[1, 1 + 2^{-52}]$ 变为 $[1 - 2^{-52}, 1 + 2^{-52}]$。在区间必须保持不变的地方不要使用它。由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+#: manual/api/def.md:217
+msgid "`BallFloat::normalized` normalizes the two endpoints and keeps them at the stored precision, so the interval denotes the same set: at 53 bits, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$."
+msgstr "`BallFloat::normalized` 规范化两个端点并将其保持在存储精度上，因此区间表示的集合不变：在 53 位下，$[1, 1 + 2^{-52}]$ 仍为 $[1, 1 + 2^{-52}]$。"
 
-#: manual/api/def.md:292
+#: manual/api/def.md:286
 msgid "Generic predicates"
 msgstr "泛型谓词"
 
-#: manual/api/def.md:296
+#: manual/api/def.md:290
 msgid "These functions test the class of any `Floating` value."
 msgstr "这些函数检测任意 `Floating` 值的类别。"
 
-#: manual/api/def.md:314
+#: manual/api/def.md:308
 msgid "Exactly one of the first three is true for every value. For scalars `is_zero` is true for both signed zeros. For a `BallFloat`, `is_zero` is true for every bounded interval that *contains* zero (for example $[-1, 1]$), not only for $[0, 0]$; use `BallFloat::contains_zero` or compare the bounds when you mean something else. `is_zero` never calls `sign` on an empty interval, because the conjunction stops at `classify`."
 msgstr "对每个值，前三者中恰有一个为真。对于标量，`is_zero` 对两种带符号零都为真。对于 `BallFloat`，`is_zero` 对每个*包含*零的有界区间（例如 $[-1, 1]$）都为真，而不仅限于 $[0, 0]$；若你指的是其他含义，请使用 `BallFloat::contains_zero` 或比较区间端点。`is_zero` 从不在空区间上调用 `sign`，因为合取在 `classify` 处即短路停止。"
 
-#: manual/api/def.md:338
+#: manual/api/def.md:332
 msgid "Re-exported types"
 msgstr "重新导出的类型"
 
-#: manual/api/def.md:340
+#: manual/api/def.md:334
 msgid "`def` re-exports these types with `pub using`, so `@def.RoundingMode` and `@lf_arith.RoundingMode` name the same type and no conversion is needed. Their definitions and full semantics are documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/)."
 msgstr "`def` 以 `pub using` 重新导出这些类型，因此 `@def.RoundingMode` 与 `@lf_arith.RoundingMode` 指同一类型，无需任何转换。它们的定义和完整语义由 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 文档说明。"
 
-#: manual/api/def.md:347
+#: manual/api/def.md:341
 msgid "`ArithmeticContext` is the precision, rounding direction and optional exponent bounds passed to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`ArithmeticContext` 是传递给 Luna-Flow/arithmetic 上下文 trait 的精度、舍入方向及可选指数界限。"
 
-#: manual/api/def.md:354
+#: manual/api/def.md:348
 msgid "`BinaryContext` and `DecimalContext` are built from it by their `from_arithmetic_context` constructors."
 msgstr "`BinaryContext` 和 `DecimalContext` 由各自的 `from_arithmetic_context` 构造函数从它构建。"
 
-#: manual/api/def.md:359
+#: manual/api/def.md:353
 msgid "`ArithmeticError` is the structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages; `ArithmeticErrorKind` is its kind."
 msgstr "`ArithmeticError` 是所有返回 `Result` 的 API（`*_checked`、`try_*`）以及各 checked 包装包的结构化错误；`ArithmeticErrorKind` 是其种类。"
 
-#: manual/api/def.md:368
+#: manual/api/def.md:362
 msgid "The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` and `CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per kind and a `message`."
 msgstr "种类有 `DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison` 和 `CertificationFailure(detail)`；`ArithmeticError` 为每个种类提供一个 `is_*` 谓词，并提供 `message`。"
 
-#: manual/api/def.md:375
+#: manual/api/def.md:369
 msgid "These types are the payload of an `ArithmeticError` of kind `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its refinement budget."
 msgstr "这些类型是种类为 `CertificationFailure` 的 `ArithmeticError` 的载荷：表示某个初等函数的正确舍入结果未能在其细化预算内完成认证。"
 
-#: manual/api/def.md:385
+#: manual/api/def.md:379
 msgid "The detail records the operation, the stage and reason, the target precision, and the final working precision and refinement count (see `certified_failure` in the [internal API](internal.md))."
 msgstr "详情记录运算、阶段和原因、目标精度，以及最终的工作精度和细化次数（参见[内部 API](internal.md) 中的 `certified_failure`）。"
 
-#: manual/api/def.md:391
+#: manual/api/def.md:385
 msgid "`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or `NaN`."
 msgstr "`FpClass` 是 `Floating::classify` 的结果：`Finite`、`Infinity` 或 `NaN`。"
 
-#: manual/api/def.md:400
+#: manual/api/def.md:394
 msgid "`RoundingMode` lists the five rounding directions accepted by `with_precision` and by the concrete constructors: `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`."
 msgstr "`RoundingMode` 列出 `with_precision` 及各具体构造函数接受的五种舍入方向：`ToNearestEven`、`TowardZero`、`TowardPositive`、`TowardNegative` 和 `AwayFromZero`。"
 
-#: manual/api/def.md:410
+#: manual/api/def.md:404
 msgid "`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients and exact values."
 msgstr "`BigInt` 是 `moonbitlang/core/bigint` 的任意精度整数，用于表示系数和精确值。"
 
-#: manual/api/def.md:431
+#: manual/api/def.md:425
 msgid "These methods are the derived `Eq` instance, promoted explicitly so that `a.equal(b)` remains available; prefer `==` and `!=`."
 msgstr "这些方法是派生的 `Eq` 实例，经显式提升以使 `a.equal(b)` 仍然可用；请优先使用 `==` 和 `!=`。"
 
@@ -7846,8 +7842,8 @@ msgid "Decorations and fallbacks"
 msgstr "装饰与回退"
 
 #: manual/conformance/ball_float.md:17
-msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (re-rounding of intervals with very far-apart endpoints at more than about 65536 bits, the context flags and rounding of `apply_ctx` and `midpoint_ctx`, and `pow_nat_checked` of Empty) are not exercised by the selected cases."
-msgstr "Empty、Entire 和装饰后的 NaI 是彼此独立的状态。初等函数内核使用定向二进有理数证书。当范围约简无法认证时，`sin`/`cos` 返回 `[-1,1]`，`tan` 返回 Entire；这保持了包含性，但不保证紧致性。门禁通过并不覆盖语料之外的输入：[已知局限](../design/ball_float.md#known-limitations)中列出的其余缺陷（端点相距极远的区间在超过约 65536 位时的重新舍入、`apply_ctx` 和 `midpoint_ctx` 的上下文标志与舍入，以及 Empty 的 `pow_nat_checked`）未被所选用例覆盖。"
+msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
+msgstr "Empty、Entire 和装饰后的 NaI 是彼此独立的状态。初等函数内核使用定向二进有理数证书。当范围约简无法认证时，`sin`/`cos` 返回 `[-1,1]`，`tan` 返回 Entire；这保持了包含性，但不保证紧致性。门禁通过并不覆盖语料之外的输入：[已知局限](../design/ball_float.md#known-limitations)中列出的其余缺陷（负次数 `rootn` 的装饰）未被所选用例覆盖。"
 
 #: manual/conformance/ball_float.md:19
 msgid "Exclusions"
@@ -8095,7 +8091,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 
 #: manual/conformance/decimal.md:27
 #: manual/conformance/decimal_gda.md:26
-#: manual/design/ball_float.md:787
+#: manual/design/ball_float.md:771
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:241
 #: manual/design/bench/ball_float.md:67
@@ -8114,7 +8110,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:755
 #: manual/design/decimal_gda_checked.md:247
-#: manual/design/def.md:355
+#: manual/design/def.md:337
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:161
@@ -9021,46 +9017,34 @@ msgid "**Inclusion.** Each public operation $F$ of `BallFloat` satisfies $f(\\bo
 msgstr "**包含性。** `BallFloat` 的每个公开运算 $F$ 都满足 $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$：对算术运算依据端点公式和推论 2，对初等函数依据临界点分析和经认证的端点包络，对未认证的情形依据后备值（例外列于已知局限中）。由基本定理，每个复合运算也满足这一点。"
 
 #: manual/design/ball_float.md:714
-msgid "**Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`, `maximum`, `intersection`, `convex_hull` of non-empty operands and `sqrt_interval` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire); the total hyperbolic functions for $|\\xi| \\lesssim 2^{-190}$ (cancellation, see above); and everything that goes through the center–radius rebuild of `normalized`, which can widen by one ulp per side even at an unchanged precision. At 53 bits, $[1, 1 + 2^{-52}]$ has center $1 + 2^{-53}$, which needs 54 bits; rounding it to 1 and adding the displacement $2^{-53}$ to the radius gives $[1 - 2^{-52}, 1 + 2^{-52}]$. This affects `normalized`, `convex_hull` with an Empty operand and the checked capabilities; it is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91). The `Floating` law \"normalizing keeps the value\" therefore holds for `BallFloat` only as an enclosure: $\\boldsymbol{x} \\subseteq \\operatorname{normalized}(\\boldsymbol{x})$."
-msgstr "**紧致性。** 基本算术、`square`、`pown`、`fma`、`abs`、`minimum`、`maximum`、非空操作数的 `intersection` 和 `convex_hull`，以及 `sqrt_interval` 返回精确凸包的向外舍入，因此每个端点与最优值相差不超过一个 ulp。三角函数和反正切的端点在经过认证时是正确的定向舍入；其他初等函数通常在几个 ulp 之内。不紧致的情形有：回退；$n < -4096$ 且 0 位于内部时的 `pown`（Entire）；$|\\xi| \\lesssim 2^{-190}$ 时全函数形式的双曲函数（抵消，见上文）；以及所有经过 `normalized` 的中心–半径重建的运算，即使精度不变，它也可能使每侧变宽一个 ulp。在 53 位下，$[1, 1 + 2^{-52}]$ 的中心为 $1 + 2^{-53}$，需要 54 位；将其舍入为 1 并把位移 $2^{-53}$ 加到半径上，得到 $[1 - 2^{-52}, 1 + 2^{-52}]$。这影响 `normalized`、带 Empty 操作数的 `convex_hull` 以及 checked 能力；该问题由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪，修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。因此 `Floating` 定律“规范化保持值不变”对 `BallFloat` 仅以包络的形式成立：$\\boldsymbol{x} \\subseteq \\operatorname{normalized}(\\boldsymbol{x})$。"
+msgid "**Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`, `maximum`, `intersection`, `convex_hull` of non-empty operands and `sqrt_interval` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire); the total hyperbolic functions for $|\\xi| \\lesssim 2^{-190}$ (cancellation, see above). `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either, and the `Floating` law \"normalizing keeps the value\" holds for `BallFloat` as set equality."
+msgstr "**紧致性。** 基本算术、`square`、`pown`、`fma`、`abs`、`minimum`、`maximum`、非空操作数的 `intersection` 和 `convex_hull`，以及 `sqrt_interval` 返回精确凸包的向外舍入，因此每个端点与最优值相差不超过一个 ulp。三角函数和反正切的端点在经过认证时是正确的定向舍入；其他初等函数通常在几个 ulp 之内。不紧致的情形有：回退；$n < -4096$ 且 0 位于内部时的 `pown`（Entire）；$|\\xi| \\lesssim 2^{-190}$ 时全函数形式的双曲函数（抵消，见上文）。`with_precision` 和 `normalized` 将端点向外舍入，这是最紧包络，并且对在目标精度下已可表示的区间是恒等的，因此带 Empty 操作数的 `convex_hull` 和 checked 能力同样不会加宽，`Floating` 定律“规范化保持值不变”对 `BallFloat` 以集合相等的形式成立。"
 
-#: manual/design/ball_float.md:733
+#: manual/design/ball_float.md:728
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr "**装饰。** 由上文的归纳论证，结果的装饰是关于所求值函数的一个真命题。"
 
-#: manual/design/ball_float.md:736
+#: manual/design/ball_float.md:731
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions sum series of $O(w)$ terms at work precision $w = p + O(1)$ (plus the integer bits of the argument for trigonometric reduction), with up to 12 refinements growing $w$ geometrically."
 msgstr "**复杂度。** 算术运算至多执行四次端点乘积或两次求和，对于 $p$ 位端点、乘法代价为 $M(p)$ 时为 $O(M(p))$，求和另需对齐至多约 $65536 + p$ 位。初等函数在工作精度 $w = p + O(1)$ 下对 $O(w)$ 项级数求和（三角函数约简还需加上参数的整数位数），并最多进行 12 次细化，使 $w$ 按几何级数增长。"
 
-#: manual/design/ball_float.md:743
+#: manual/design/ball_float.md:738
 msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 4,656 cases in strict mode (see [conformance](../conformance/ball_float.md))."
 msgstr "**证据。** 包测试检查定向端点、相距很远的加数与指数范围的情形、装饰和关系；固定版本的 ITF1788 语料在 strict 模式下运行 4,656 个用例（参见[符合性](../conformance/ball_float.md)）。"
 
-#: manual/design/ball_float.md:747
+#: manual/design/ball_float.md:742
 msgid "Known limitations"
 msgstr "已知局限"
 
-#: manual/design/ball_float.md:749
+#: manual/design/ball_float.md:744
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr "以下输入目前会丢失输入集合的一部分、对结果做出错误的舍入或设置错误的标志，或返回与规定不同的集合。每一项都有对应的 issue 跟踪，并附有尚未合并的修复提案；它们记录于此，以便调用者避开。"
 
-#: manual/design/ball_float.md:754
+#: manual/design/ball_float.md:749
 msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
 msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当 $n < 0$ 时 $\\xi^{1/n}$ 在 0 处无定义：`rootn([0, 4], -2)` 的装饰为 `dac` 而非 `trv`。"
 
-#: manual/design/ball_float.md:756
-msgid "`midpoint_ctx` does not apply the context's $e_{\\max}$ and never raises `overflow`. It also rounds to nearest twice (to $p$ bits, then onto the subnormal grid), so a subnormal midpoint can be the wrong neighbour: with $p = 4$, $e_{\\min} = -2$, the center $2^{-6} + 2^{-20}$ gives 0 instead of $2^{-5}$. Tracked in [#46](https://github.com/Luna-Flow/floating/issues/46) and [#70](https://github.com/Luna-Flow/floating/issues/70); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "`midpoint_ctx` 不施加上下文的 $e_{\\max}$，也从不引发 `overflow`。它还会就近舍入两次（先到 $p$ 位，再到次正规网格上），因此次正规的中点可能是错误的相邻值：在 $p = 4$、$e_{\\min} = -2$ 时，中心 $2^{-6} + 2^{-20}$ 给出 0 而不是 $2^{-5}$。由 [#46](https://github.com/Luna-Flow/floating/issues/46) 和 [#70](https://github.com/Luna-Flow/floating/issues/70) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
-
-#: manual/design/ball_float.md:761
-msgid "`apply_ctx` raises `underflow` only when the subnormal-grid step is inexact, not for every tiny inexact endpoint as IEEE 754 does. Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "`apply_ctx` 仅在次正规网格这一步不精确时才引发 `underflow`，而不像 IEEE 754 那样对每个微小且不精确的端点都引发。由 [#71](https://github.com/Luna-Flow/floating/issues/71) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
-
-#: manual/design/ball_float.md:764
-msgid "`pow_nat_checked(Empty, 0)` returns $\\{1\\}$ (the power loop starts from $\\{1\\}$ without checking the base), whereas `pown(Empty, 0)` is Empty. Tracked in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "`pow_nat_checked(Empty, 0)` 返回 $\\{1\\}$（幂循环从 $\\{1\\}$ 开始而不检查底数），而 `pown(Empty, 0)` 为 Empty。由 [#72](https://github.com/Luna-Flow/floating/issues/72) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
-
-#: manual/design/ball_float.md:768
+#: manual/design/ball_float.md:752
 #: manual/design/ball_float_checked.md:157
 #: manual/design/bench.md:232
 #: manual/design/bench/ball_float.md:60
@@ -9079,7 +9063,7 @@ msgstr "`pow_nat_checked(Empty, 0)` 返回 $\\{1\\}$（幂循环从 $\\{1\\}$ �
 #: manual/design/decimal_checked.md:265
 #: manual/design/decimal_gda.md:739
 #: manual/design/decimal_gda_checked.md:238
-#: manual/design/def.md:342
+#: manual/design/def.md:324
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
 #: manual/design/frontend/itl_expr.md:151
@@ -9093,51 +9077,51 @@ msgstr "`pow_nat_checked(Empty, 0)` 返回 $\\{1\\}$（幂循环从 $\\{1\\}$ �
 msgid "Alternatives rejected"
 msgstr "被否决的替代方案"
 
-#: manual/design/ball_float.md:770
+#: manual/design/ball_float.md:754
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr "**中点–半径存储**（Arb 风格）：半径更廉价，但会高估乘积，且无法表示半无界集合；参见[上文](#endpoints-not-midpoint-and-radius)。"
 
-#: manual/design/ball_float.md:773
+#: manual/design/ball_float.md:757
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr "**使用硬件 `Double` 端点并切换舍入模式：** 精度固定、依赖进程全局状态，且并非每个 MoonBit 目标都支持舍入模式控制。"
 
-#: manual/design/ball_float.md:776
+#: manual/design/ball_float.md:760
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr "**就近舍入后膨胀一个 ulp**（\"epsilon 膨胀\"）：更简单，但每个端点比定向舍入宽约一个 ulp，且只对就近舍入结果已知误差在一个 ulp 以内的运算有效，这排除了大多数初等函数内核。"
 
-#: manual/design/ball_float.md:780
+#: manual/design/ball_float.md:764
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr "**对未认证的初等函数中止：** 单个困难参数就会使整个计算停止；需要获知失败的调用者可使用 `try_` 形式。"
 
-#: manual/design/ball_float.md:783
+#: manual/design/ball_float.md:767
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr "**将除以含零区间视为错误：** IEEE 1788 将这些结果定义为集合（Entire、半无界或空集），而扩展除法正是区间 Newton 方法得以奏效的关键。"
 
-#: manual/design/ball_float.md:789
+#: manual/design/ball_float.md:773
 msgid "The package deliberately does not:"
 msgstr "本包有意不做以下事情："
 
-#: manual/design/ball_float.md:791
+#: manual/design/ball_float.md:775
 msgid "provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or two-output division;"
 msgstr "提供 IEEE 1788 逆运算（`sqrRev`、`mulRevToPair`、…）或双输出除法；"
 
-#: manual/design/ball_float.md:793
+#: manual/design/ball_float.md:777
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr "承诺紧致的结果：后备值和依赖问题可能使包络任意变宽；"
 
-#: manual/design/ball_float.md:795
+#: manual/design/ball_float.md:779
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr "在区间上定义全序，或将 `Eq` 视为集合相等；"
 
-#: manual/design/ball_float.md:796
+#: manual/design/ball_float.md:780
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr "自行将十进制数据向外转换：`from_double` 和 `exact` 包络的是二进制值，包络十进制字面量是调用者的职责（参见[教程](../tutorial/ball_float.md#enclose-a-decimal-constant)）；"
 
-#: manual/design/ball_float.md:799
+#: manual/design/ball_float.md:783
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr "实现以十进制数为端点的区间、复球、区间向量或矩阵，或 Taylor 模型；"
 
-#: manual/design/ball_float.md:801
+#: manual/design/ball_float.md:785
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr "通过全局标志报告状态：标志由 `*_ctx` 调用返回，装饰随值一起传递。"
 
@@ -11565,7 +11549,7 @@ msgstr "算法"
 #: manual/design/decimal.md:794
 #: manual/design/decimal_checked.md:260
 #: manual/design/decimal_gda_checked.md:233
-#: manual/design/def.md:335
+#: manual/design/def.md:317
 msgid "Cost"
 msgstr "开销"
 
@@ -13019,8 +13003,8 @@ msgid "The `Floating` laws"
 msgstr "`Floating` 定律"
 
 #: manual/design/def.md:163
-msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and only the weaker (F7′). A downstream implementation is expected to satisfy the laws of its kind."
-msgstr "下面的定律就是该 trait 的契约。它们针对值 $x$、精度 $p$ 和方向 $m$ 陈述；$q = \\max(1, p)$。三个标量实现满足 (F1)–(F5) 和 (F7)，其中 `BinFloat` 有下文 (F5) 所述的指数范围例外。`BallFloat` 满足 (F1)–(F4)、(F6)，且只满足较弱的 (F7′)。下游实现应当满足其所属类别的定律。"
+msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and (F7′). A downstream implementation is expected to satisfy the laws of its kind."
+msgstr "下面的定律就是该 trait 的契约。它们针对值 $x$、精度 $p$ 和方向 $m$ 陈述；$q = \\max(1, p)$。三个标量实现满足 (F1)–(F5) 和 (F7)，其中 `BinFloat` 有下文 (F5) 所述的指数范围例外。`BallFloat` 满足 (F1)–(F4)、(F6) 和 (F7′)。下游实现应当满足其所属类别的定律。"
 
 #: manual/design/def.md:183
 msgid "**The exponent range of `BinFloat`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types store the exponent as an `Int` and add no other limit, so for them (F5) holds as stated. `BinFloat` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is `binary_implementation_e_min`). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value whose leading bit lies below $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `BinFloat` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes $+\\infty$ instead of $2^{E+1}$."
@@ -13032,45 +13016,35 @@ msgstr "对于非有限标量，`with_precision` 保持类别和符号，只改�
 
 #: manual/design/def.md:203
 msgid ""
-"**Why (F6) holds for `BallFloat`.** A bounded `BallFloat` stores its endpoints $\\ell \\le u$. Its centre $c = (\\ell + u)/2$ is computed exactly, and its radius $r$ is the half-width $(u - \\ell)/2$ rounded upward, so every member $t$ satisfies $|t - c| \\le (u - \\ell)/2 \\le r$. `with_precision` computes $\\tilde c = \\circ_{m,q}(c)$, rounds the error $|c - \\tilde c|$ and the radius upward to $\\tilde e \\ge |c-\\tilde c|$ and $\\tilde r \\ge r$, adds them with upward rounding to $R \\ge \\tilde r + \\tilde e$, and stores $[\\n"
-"abla(\\tilde c - R), \\Delta(\\tilde c + R)]$. For any member $t$ with $|t - c| \\le r$,"
+"**Why (F6) holds for `BallFloat`.** A `BallFloat` stores its endpoints $\\ell \\le u$. `with_precision` rounds the lower endpoint toward $-\\infty$ and the upper one toward $+\\infty$ at $q$ bits, so $\\n"
+"abla_q(\\ell) \\le \\ell \\le t \\le u \\le \\Delta_q(u)$ for every member $t$, whatever $m$ is; the direction $m$ is not used. Infinite endpoints stay infinite, an endpoint that leaves the `BinFloat` range is rounded in its own direction as in IEEE 754, which still encloses, and the empty interval maps to the empty interval. $[\\n"
+"abla_q(\\ell), \\Delta_q(u)]$ is also the smallest interval with $q$-bit endpoints that contains $[\\ell, u]$, so the result is the tightest enclosure, and by the consequences of (F5) below it is the identity when $\\ell$ and $u$ are already $q$-bit numbers."
 msgstr ""
-"**为什么 (F6) 对 `BallFloat` 成立。** 有界的 `BallFloat` 存储其端点 $\\ell \\le u$。其中心 $c = (\\ell + u)/2$ 是精确计算的，半径 $r$ 是向上舍入的半宽 $(u - \\ell)/2$，因此每个成员 $t$ 都满足 $|t - c| \\le (u - \\ell)/2 \\le r$。`with_precision` 计算 $\\tilde c = \\circ_{m,q}(c)$，把误差 $|c - \\tilde c|$ 和半径向上舍入为 $\\tilde e \\ge |c-\\tilde c|$ 和 $\\tilde r \\ge r$，以向上舍入把它们相加得到 $R \\ge \\tilde r + \\tilde e$，并存储 $[\\n"
-"abla(\\tilde c - R), \\Delta(\\tilde c + R)]$。对任意满足 $|t - c| \\le r$ 的成员 $t$，"
+"**为什么 (F6) 对 `BallFloat` 成立。** `BallFloat` 存储端点 $\\ell \\le u$。`with_precision` 在 $q$ 位下将下端点朝 $-\\infty$、上端点朝 $+\\infty$ 舍入，因此对每个成员 $t$ 都有 $\\n"
+"abla_q(\\ell) \\le \\ell \\le t \\le u \\le \\Delta_q(u)$，与 $m$ 无关；方向 $m$ 不被使用。无穷端点保持无穷，超出 `BinFloat` 范围的端点按 IEEE 754 沿其自身方向舍入，仍然构成包络，空区间映射为空区间。$[\\n"
+"abla_q(\\ell), \\Delta_q(u)]$ 也是包含 $[\\ell, u]$ 的、端点为 $q$ 位数的最小区间，因此结果是最紧包络；并且由下文 (F5) 的推论，当 $\\ell$ 和 $u$ 已是 $q$ 位数时它是恒等的。"
 
-#: manual/design/def.md:216
-msgid ""
-"so $\\n"
-"abla(\\tilde c - R) \\le \\tilde c - R \\le t \\le \\tilde c + R \\le \\Delta(\\tilde c + R)$. The direction $m$ only moves the centre; the enclosure holds for every $m$. If $\\tilde c \\pm R$ leaves the `BinFloat` range, the directed roundings go to $\\mp\\infty$, which still encloses. Unbounded intervals round the lower endpoint down and the upper endpoint up, which encloses trivially. The empty interval maps to the empty interval."
-msgstr ""
-"因此 $\\n"
-"abla(\\tilde c - R) \\le \\tilde c - R \\le t \\le \\tilde c + R \\le \\Delta(\\tilde c + R)$。方向 $m$ 只移动中心；对每个 $m$ 包络都成立。若 $\\tilde c \\pm R$ 超出 `BinFloat` 的范围，定向舍入会得到 $\\mp\\infty$，仍然构成包络。无界区间把下端点向下舍入、上端点向上舍入，包络关系平凡成立。空区间映射为空区间。"
+#: manual/design/def.md:214
+msgid "**Why (F7′) holds for `BallFloat`.** `normalized` normalizes the two stored endpoints, which changes their representation but not their values, and stores them at the interval's own precision $q$ by rounding the lower one down and the upper one up. Both are already in $\\mathbb{F}_{2,q}$, and rounding is the identity on its target set (see the consequences of (F5) below), so the result denotes the same set: with $q = 53$, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$. Rebuilding the interval from its centre and radius would not keep it: the centre $1 + 2^{-53}$ needs 54 bits, and rounding it to 1 and adding the error to the radius gives $[1 - 2^{-52}, 1 + 2^{-52}]$. The endpoint form also makes `normalized` idempotent on the set."
+msgstr "**为什么 (F7′) 对 `BallFloat` 成立。** `normalized` 规范化两个存储的端点，这只改变其表示而不改变其值，并以区间自身的精度 $q$ 存储它们，下端点向下舍入、上端点向上舍入。两者都已属于 $\\mathbb{F}_{2,q}$，而舍入在其目标集合上是恒等的（参见下文 (F5) 的推论），因此结果表示同一个集合：在 $q = 53$ 时，$[1, 1 + 2^{-52}]$ 仍为 $[1, 1 + 2^{-52}]$。若从中心和半径重建区间则无法保持：中心 $1 + 2^{-53}$ 需要 54 位，将其舍入为 1 并把误差加到半径上，得到 $[1 - 2^{-52}, 1 + 2^{-52}]$。端点形式也使 `normalized` 在集合意义上是幂等的。"
 
-#: manual/design/def.md:223
-msgid "The argument needs the exact centre. For endpoints more than about $2^{16}$ binary orders of magnitude apart, `center` replaces the smaller endpoint by a sticky surrogate (see the [`ball_float` design](ball_float.md#far-addends-bound-endpoint-sums-by-precision)), and at a new precision above about 65536 bits the rebuilt interval can miss the smaller endpoint. This is tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)."
-msgstr "该论证需要精确的中心。对于端点在二进制数量级上相差超过约 $2^{16}$ 的情形，`center` 会将较小的端点替换为一个粘滞替代值（参见 [`ball_float` 设计](ball_float.md#far-addends-bound-endpoint-sums-by-precision)），而在高于约 65536 位的新精度下，重建的区间可能遗漏较小的端点。这由 [#44](https://github.com/Luna-Flow/floating/issues/44) 跟踪；修复已在 [#68](https://github.com/Luna-Flow/floating/pull/68) 中提出。"
-
-#: manual/design/def.md:230
-msgid "**Why `BallFloat` has only (F7′).** `normalized` on a bounded interval calls the same centre–radius quantization at the stored precision $q$, so the argument above gives (F7′). Equality fails in general: the exact centre of two $q$-bit endpoints may need $q + 1$ bits, and then rounding it adds an error term to the radius. With $q = 53$, $\\ell = 1$ and $u = 1 + 2^{-52}$, the centre $1 + 2^{-53}$ rounds to $1$, the radius $2^{-53}$ grows by the error $2^{-53}$ to $2^{-52}$, and the result is $[1 - 2^{-52}, 1 + 2^{-52}] \\supsetneq [\\ell, u]$. For the same reason `with_precision(x, precision(x), m)` is not the identity on intervals, and repeated normalization is not guaranteed to be stable (each step can only widen, and it stops widening once the centre is representable at $q$ bits and the endpoints are exact). The widening of representable intervals is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "**为什么 `BallFloat` 只有 (F7′)。** 有界区间上的 `normalized` 以存储的精度 $q$ 调用同样的中心–半径量化，因此上述论证给出 (F7′)。等式一般不成立：两个 $q$ 位端点的精确中心可能需要 $q + 1$ 位，此时对它舍入会给半径加上一个误差项。取 $q = 53$、$\\ell = 1$、$u = 1 + 2^{-52}$，中心 $1 + 2^{-53}$ 舍入为 $1$，半径 $2^{-53}$ 加上误差 $2^{-53}$ 增大为 $2^{-52}$，结果为 $[1 - 2^{-52}, 1 + 2^{-52}] \\supsetneq [\\ell, u]$。出于同样的原因，`with_precision(x, precision(x), m)` 在区间上不是恒等映射，重复规范化也不保证稳定（每一步只可能变宽；一旦中心可用 $q$ 位表示且端点精确，就不再变宽）。可表示区间的变宽由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
-
-#: manual/design/def.md:259
+#: manual/design/def.md:241
 msgid "Consequences of (F5)"
 msgstr "(F5) 的推论"
 
-#: manual/design/def.md:261
+#: manual/design/def.md:243
 msgid "Rounding is the identity on its target set: if $t \\in \\mathbb{F}_{\\beta,q}$ then $\\circ_{m,q}(t) = t$ for every direction, because $t$ is its own neighbour. Hence"
 msgstr "舍入在其目标集合上是恒等映射：若 $t \\in \\mathbb{F}_{\\beta,q}$，则对每个方向都有 $\\circ_{m,q}(t) = t$，因为 $t$ 就是它自己的相邻元素。因此"
 
-#: manual/design/def.md:269
+#: manual/design/def.md:251
 msgid "and in particular raising the precision never changes a value, since $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$ for $p \\le p'$."
 msgstr "特别地，提高精度从不改变值，因为当 $p \\le p'$ 时 $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$。"
 
-#: manual/design/def.md:272
+#: manual/design/def.md:254
 msgid "Lowering the precision in two steps is *not* the same as lowering it once in general. For the directed modes it is. Take $q \\le p$ and $m =$ `TowardZero`, write $\\circ_k$ for $\\circ_{m,k}$, and let $a = \\circ_q(t)$, the element of $\\mathbb{F}_{\\beta,q}$ with the sign of $t$ and the largest magnitude not exceeding $|t|$. Then"
 msgstr "一般而言，分两步降低精度与一次降低*并不*相同。对定向模式则相同。取 $q \\le p$ 和 $m =$ `TowardZero`，把 $\\circ_{m,k}$ 记作 $\\circ_k$，并令 $a = \\circ_q(t)$，即 $\\mathbb{F}_{\\beta,q}$ 中与 $t$ 同号且绝对值不超过 $|t|$ 的最大元素。则"
 
-#: manual/design/def.md:288
+#: manual/design/def.md:270
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
 "abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
@@ -13078,59 +13052,59 @@ msgstr ""
 "用“$\\le t$ 的最大元素”进行同样的论证适用于 $\\n"
 "abla$，用“$\\ge t$ 的最小元素”适用于 $\\Delta$，用“绝对值 $\\ge |t|$ 的最小元素”适用于 `AwayFromZero`：每个到 $\\mathbb{F}_{\\beta,q}$ 的定向舍入，都可以经由任何包含 $\\mathbb{F}_{\\beta,q}$ 的更细集合 $\\mathbb{F}_{\\beta,p}$ 分解。对 `ToNearestEven`，该恒等式不成立（双重舍入）。[^double-rounding] 取二进制下的 $t = 1.0100001_2 = 161/128$。当 $p = 3$ 时，相邻元素为 $1.25$ 和 $1.5$，$t$ 舍入为 $1.25$，而它恰好位于 $q = 2$ 时的相邻元素 $1$ 和 $1.5$ 的正中间；平局取偶数系数，即 $1$。而把 $t$ 直接舍入到两位得到 $1.5$，因为 $t > 1.25$："
 
-#: manual/design/def.md:323
+#: manual/design/def.md:305
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
 msgstr "Muller 等，*Handbook of Floating-Point Arithmetic*，第 2 版，2018，第 3.2 节（双重舍入）；Goldberg，\"What every computer scientist should know about floating-point arithmetic\"，1991。"
 
-#: manual/design/def.md:327
+#: manual/design/def.md:309
 msgid "The predicates"
 msgstr "谓词"
 
-#: manual/design/def.md:329
+#: manual/design/def.md:311
 msgid "The four predicates are projections of `classify` and `sign`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value, which keeps it total on empty intervals although `BallFloat::sign` aborts there."
 msgstr "四个谓词都是 `classify` 和 `sign` 的投影，因此其正确性归结为 (F1) 和 (F2)。`is_zero` 先求值 `classify`，并使用短路的 `&&`；因此它从不对 NaN 类的值调用 `sign`，从而在空区间上仍是全函数，尽管 `BallFloat::sign` 在那里会中止。"
 
-#: manual/design/def.md:337
+#: manual/design/def.md:319
 msgid "Every item of `def` is constant time apart from the delegated implementation. `with_precision` and `normalized` cost what the concrete package's rounding or trailing-zero removal costs: linear in the coefficient length for decimals, and linear in the coefficient bit length for binary."
 msgstr "除委托的实现外，`def` 的每个条目都是常数时间。`with_precision` 和 `normalized` 的代价等于具体包中舍入或去除尾随零的代价：对十进制与系数长度成线性，对二进制与系数的位长成线性。"
 
-#: manual/design/def.md:344
+#: manual/design/def.md:326
 msgid "**A `Real` super-trait with arithmetic.** It would claim laws (associativity, total order) that rounded and interval arithmetic do not satisfy, and would hide the difference between exact, rounded and enclosing operations."
 msgstr "**带算术的 `Real` 超 trait。** 它会声称舍入算术和区间算术并不满足的定律（结合律、全序），并会掩盖精确运算、舍入运算与包络运算之间的区别。"
 
-#: manual/design/def.md:347
+#: manual/design/def.md:329
 msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unordered*; see the derivation above."
 msgstr "**用 `Compare` 表示 IEEE 比较。** `Int` 结果无法表达*无序*；见上文的推导。"
 
-#: manual/design/def.md:349
+#: manual/design/def.md:331
 msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign` depend on the representation rather than the value, and the interval sign has no analogue."
 msgstr "**分别设立 `NegativeZero` / `PositiveZero` 符号。** 这会使 `sign` 依赖于表示而非值，而且区间符号没有对应物。"
 
-#: manual/design/def.md:352
+#: manual/design/def.md:334
 msgid "**Defining local copies of `RoundingMode` and `ArithmeticContext`.** They would need conversions at every boundary with Luna-Flow/arithmetic."
 msgstr "**在本地定义 `RoundingMode` 和 `ArithmeticContext` 的副本。** 这样在与 Luna-Flow/arithmetic 的每个边界上都需要转换。"
 
-#: manual/design/def.md:357
+#: manual/design/def.md:339
 msgid "No arithmetic, parsing, formatting or comparison is implemented here; `def` only names results (`Sign`, `PartialOrder`) and states contracts."
 msgstr "这里不实现任何算术、解析、格式化或比较；`def` 只为结果命名（`Sign`、`PartialOrder`）并陈述契约。"
 
-#: manual/design/def.md:359
+#: manual/design/def.md:341
 msgid "`Floating` does not imply a field, a total order, an IEEE format, exact arithmetic or any error behaviour. Generic code must request the additional capability traits it uses."
 msgstr "`Floating` 并不蕴含域、全序、IEEE 格式、精确算术或任何错误行为。泛型代码必须显式要求它所用到的额外能力 trait。"
 
-#: manual/design/def.md:362
+#: manual/design/def.md:344
 msgid "`with_precision` neither honours context exponent bounds nor reports flags (only the `BinFloat` implementation range applies); contexts and flags belong to the `*_ctx` APIs of the concrete packages and to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`with_precision` 既不遵守上下文的指数界，也不报告标志（只适用 `BinFloat` 的实现范围）；上下文和标志属于具体包的 `*_ctx` API 以及 Luna-Flow/arithmetic 的 contextual trait。"
 
-#: manual/design/def.md:366
-msgid "`normalized` keeps the value only on scalars; on intervals it is an enclosure (F7′)."
-msgstr "`normalized` 只在标量上保持值不变；在区间上它是一个包络 (F7′)。"
+#: manual/design/def.md:348
+msgid "`normalized` keeps the representation-independent value: the number on scalars (F7) and the set on intervals (F7′)."
+msgstr "`normalized` 保持与表示无关的值：对标量是数值 (F7)，对区间是集合 (F7′)。"
 
-#: manual/design/def.md:368
+#: manual/design/def.md:350
 msgid "`Sign` does not expose the sign bit of zeros or NaNs."
 msgstr "`Sign` 不暴露零或 NaN 的符号位。"
 
-#: manual/design/def.md:369
+#: manual/design/def.md:351
 msgid "The laws are documented and tested by the implementations; the trait does not enforce them for downstream implementations."
 msgstr "这些定律由各实现记录并测试；对于下游实现，trait 本身并不强制执行它们。"
 
@@ -17093,26 +17067,22 @@ msgid "**Intervals are not ordered.** There is no total order on intervals; neve
 msgstr "**区间之间没有序。** 区间上不存在全序；切勿用 `less`（一种 IEEE 1788 集合关系）对区间排序，把它当作数的比较。"
 
 #: manual/tutorial/ball_float.md:409
-msgid "**Unbounded intervals have no center.** `center()`, `radius()` and `midpoint()` abort on the empty set and on half-bounded intervals (`midpoint()` returns 0 for the whole line). Check `is_bounded()` first, or use `radius_extended()`, which returns $+\\infty$ instead."
-msgstr "**无界区间没有中心。** `center()`、`radius()` 和 `midpoint()` 在空集和半无界区间上会中止（`midpoint()` 对整条实轴返回 0）。请先检查 `is_bounded()`，或使用 `radius_extended()`，它在这些情形下返回 $+\\infty$。"
+msgid "**Unbounded intervals have no center.** `center()`, `radius()` and `midpoint()` abort on the empty set and on half-bounded intervals (`midpoint()` returns 0 for the whole line). Check `is_bounded()` first, or use `radius_extended()`, which returns $+\\infty$ instead. `midpoint_ctx` follows the IEEE 1788 `mid` operation instead: NaN for the empty set and the largest finite value of the context, with the sign of the unbounded side, for a half-bounded interval."
+msgstr "**无界区间没有中心。** `center()`、`radius()` 和 `midpoint()` 在空集和半无界区间上会中止（`midpoint()` 对整条实轴返回 0）。请先检查 `is_bounded()`，或使用 `radius_extended()`，它在这些情形下返回 $+\\infty$。`midpoint_ctx` 则遵循 IEEE 1788 的 `mid` 运算：空集给出 NaN，半无界区间给出上下文的最大有限值，其符号与无界的一侧相同。"
 
-#: manual/tutorial/ball_float.md:414
+#: manual/tutorial/ball_float.md:417
 msgid "**Integers wider than the precision.** `from_int(n, precision=p)` and `from_coefficient` enclose `n` exactly, but when `n` needs more than $p$ bits the result is the two-point interval of its $p$-bit neighbours, not a point. The default of 16 bits gives a singleton only for $|n| \\le 2^{16}$ (and larger integers with enough trailing zero bits); pass a precision at least as large as the bit length of the integer."
 msgstr "**比精度更宽的整数。** `from_int(n, precision=p)` 和 `from_coefficient` 能精确地包络 `n`，但当 `n` 需要多于 $p$ 位时，结果是由它的两个 $p$ 位相邻值构成的区间，而不是一个点。默认的 16 位只对 $|n| \\le 2^{16}$（以及末尾有足够多零位的更大整数）给出单点区间；请传入不小于该整数位长的精度。"
 
-#: manual/tutorial/ball_float.md:421
-msgid "**Re-rounding can widen.** `with_precision` and `normalized` rebuild an interval from its center and radius. When the center needs more bits than the precision, the result is one ulp wider on each side, even at the same precision: $[1, 1 + 2^{-52}]$ at 53 bits becomes $[1 - 2^{-52}, 1 + 2^{-52}]$. To change precision without that loss, use `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. This widening is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
-msgstr "**重新舍入可能使区间变宽。** `with_precision` 和 `normalized` 根据区间的中心和半径重建区间。当中心所需的位数多于精度时，即使精度不变，结果的每一侧也会变宽一个 ulp：53 位下的 $[1, 1 + 2^{-52}]$ 会变成 $[1 - 2^{-52}, 1 + 2^{-52}]$。若要改变精度而不受这种损失，请使用 `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`。这种变宽由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
-
-#: manual/tutorial/ball_float.md:429
+#: manual/tutorial/ball_float.md:424
 msgid "**Tiny arguments to hyperbolic functions.** The total `sinh_interval`, `tanh_interval`, `asinh_interval` and `atanh_interval` lose all relative accuracy for $|\\xi|$ below about $2^{-190}$; use the `try_` forms for such arguments."
 msgstr "**双曲函数的微小参数。** 全函数形式 `sinh_interval`、`tanh_interval`、`asinh_interval` 和 `atanh_interval` 在 $|\\xi|$ 低于约 $2^{-190}$ 时会完全丧失相对精度；对于这样的参数，请使用 `try_` 形式。"
 
-#: manual/tutorial/ball_float.md:434
+#: manual/tutorial/ball_float.md:429
 msgid "**Inputs from `Double`.** `from_double(x)` encloses the binary value of `x` exactly; it cannot know which decimal number `x` approximated. Enclose decimal data as in [Enclose a decimal constant](#enclose-a-decimal-constant)."
 msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的二进制值；它无从知道 `x` 近似的是哪个十进制数。请按[包络十进制常数](#enclose-a-decimal-constant)中的方法包络十进制数据。"
 
-#: manual/tutorial/ball_float.md:438
+#: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
 #: manual/tutorial/bench.md:225
 #: manual/tutorial/bench/ball_float.md:62
@@ -17131,7 +17101,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/decimal_checked.md:266
 #: manual/tutorial/decimal_gda.md:381
 #: manual/tutorial/decimal_gda_checked.md:247
-#: manual/tutorial/def.md:272
+#: manual/tutorial/def.md:270
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
 #: manual/tutorial/frontend/itl_expr.md:178
@@ -17145,19 +17115,19 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 msgid "Next steps"
 msgstr "后续步骤"
 
-#: manual/tutorial/ball_float.md:440
+#: manual/tutorial/ball_float.md:435
 msgid "The [design page](../design/ball_float.md) proves why these results are enclosures, derives the endpoint formulas, and explains decorations and certified elementary functions."
 msgstr "[设计页面](../design/ball_float.md)证明了这些结果为何是包络，推导了端点公式，并解释了装饰和认证初等函数。"
 
-#: manual/tutorial/ball_float.md:443
+#: manual/tutorial/ball_float.md:438
 msgid "The [API reference](../api/ball_float.md) documents every item with its special cases."
 msgstr "[API 参考](../api/ball_float.md)记录了每个条目及其特殊情形。"
 
-#: manual/tutorial/ball_float.md:445
+#: manual/tutorial/ball_float.md:440
 msgid "[`ball_float_checked`](ball_float_checked.md) composes fallible interval operations; [`bin_float`](bin_float.md) is the endpoint arithmetic."
 msgstr "[`ball_float_checked`](ball_float_checked.md) 用于组合可能失败的区间运算；[`bin_float`](bin_float.md) 提供端点算术。"
 
-#: manual/tutorial/ball_float.md:447
+#: manual/tutorial/ball_float.md:442
 msgid "[Conformance](../conformance/ball_float.md) states what the IEEE 1788 test corpus covers."
 msgstr "[符合性](../conformance/ball_float.md)说明了 IEEE 1788 测试语料覆盖的范围。"
 
@@ -19649,26 +19619,26 @@ msgid "`with_precision` reports no flags and ignores context exponent limits (a 
 msgstr "`with_precision` 不报告标志，也忽略上下文的指数界限（`BinFloat` 仍会在其约为 $2^{\\pm 2^{30}}$ 的实现范围处上溢）。当舍入必须可观测时，请使用具体包的 `*_ctx` 运算。"
 
 #: manual/tutorial/def.md:264
-msgid "On a `BallFloat`, `normalized` and `with_precision` return an enclosure that can be wider than the input, even at the same precision. Apart from endpoints more than about $2^{16}$ binary orders of magnitude apart at a precision above about 65536 bits ([#44](https://github.com/Luna-Flow/floating/issues/44), with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)) they never lose a member, but do not expect the bounds to stay the same (tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91))."
-msgstr "对于 `BallFloat`，`normalized` 和 `with_precision` 返回的包络可能比输入更宽，即使精度相同也是如此。除了端点在二进制数量级上相差超过约 $2^{16}$ 且精度高于约 65536 位的情形（[#44](https://github.com/Luna-Flow/floating/issues/44)，修复已在 [#68](https://github.com/Luna-Flow/floating/pull/68) 中提出）之外，它们绝不会丢失成员，但不要指望上下界保持不变（由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出）。"
+msgid "On a `BallFloat`, `with_precision` returns the tightest enclosure of the input at the new precision (the endpoints rounded outward), and `normalized` returns the same set. Neither changes an interval that is already representable at the target precision."
+msgstr "对 `BallFloat`，`with_precision` 返回输入在新精度下的最紧包络（端点向外舍入），`normalized` 返回同一个集合。两者都不会改变在目标精度下已可表示的区间。"
 
-#: manual/tutorial/def.md:270
+#: manual/tutorial/def.md:268
 msgid "`with_precision(x, 0, mode)` is not an error: the precision is clamped to 1."
 msgstr "`with_precision(x, 0, mode)` 不是错误：精度会被钳制为 1。"
 
-#: manual/tutorial/def.md:274
+#: manual/tutorial/def.md:272
 msgid "[`def` design](../design/def.md): the trait laws and the order theory of `PartialOrder`."
 msgstr "[`def` 设计](../design/def.md)：trait 定律以及 `PartialOrder` 的序理论。"
 
-#: manual/tutorial/def.md:276
+#: manual/tutorial/def.md:274
 msgid "[`def` API](../api/def.md): every item with its signature."
 msgstr "[`def` API](../api/def.md)：每个条目及其签名。"
 
-#: manual/tutorial/def.md:277
+#: manual/tutorial/def.md:275
 msgid "[`semantic` tutorial](semantic.md): compare values of different representations exactly."
 msgstr "[`semantic` 教程](semantic.md)：精确比较不同表示的值。"
 
-#: manual/tutorial/def.md:279
+#: manual/tutorial/def.md:277
 msgid "[Numeric semantics guide](../numeric_semantics.md) for the shared vocabulary of the repository."
 msgstr "本仓库的共享词汇见[数值语义指南](../numeric_semantics.md)。"
 
@@ -21180,6 +21150,71 @@ msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
+
+#~ msgid "`normalized` rebuilds a bounded interval from its normalized center and radius (`BinFloat::normalized` removes trailing zero bits), and re-rounds the finite endpoints of an unbounded interval outward."
+#~ msgstr "`normalized` 由规范化后的中心和半径重建有界区间（`BinFloat::normalized` 会去除末尾的零位），并将无界区间的有限端点向外重新舍入。"
+
+#~ msgid "The result contains the input but, for the reason given under `with_precision`, can be strictly wider: `normalized` of $[1, 1 + 2^{-52}]$ at 53 bits is $[1 - 2^{-52}, 1 + 2^{-52}]$. It therefore satisfies only the enclosure form of the `@def.Floating` law \"normalizing keeps the value\". Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "结果包含输入，但出于 `with_precision` 中所述的原因，可能严格更宽：在 53 位下，$[1, 1 + 2^{-52}]$ 的 `normalized` 为 $[1 - 2^{-52}, 1 + 2^{-52}]$。因此它只满足 `@def.Floating` 定律“规范化保持值不变”的包络形式。由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`underflow` is raised only when the second, subnormal-grid step is inexact. IEEE 754 raises it for every tiny inexact result, so a tiny endpoint whose precision rounding is inexact but lands on the subnormal grid raises `inexact` without `underflow`: with $p = 4$ and $e_{\\min} = -2$, the lower endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$ and only `inexact` is set. Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "只有当第二步（次正规网格上的舍入）不精确时才会引发 `underflow`。IEEE 754 对每个不精确的极小结果都会引发它，因此若某个极小端点的精度舍入不精确、但落在次正规网格上，则只引发 `inexact` 而不引发 `underflow`：取 $p = 4$、$e_{\\min} = -2$，下端点 $2^{-3}(1 + 2^{-10})$ 变为 $2^{-3}$，只设置 `inexact`。由 [#71](https://github.com/Luna-Flow/floating/issues/71) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`midpoint_ctx` returns the center rounded to nearest at the context precision."
+#~ msgstr "`midpoint_ctx` 返回以上下文精度就近舍入后的中心。"
+
+#~ msgid "Subnormal results are rounded on the subnormal grid and raise `underflow` when inexact; `inexact` is set when the center changed. The exponent upper limit is not applied, so `overflow` is never raised ([#46](https://github.com/Luna-Flow/floating/issues/46)). Entire gives 0; Empty and half-bounded intervals abort."
+#~ msgstr "次正规结果在次正规网格上舍入，不精确时触发 `underflow`；中心发生改变时设置 `inexact`。指数上限不被施加，因此从不触发 `overflow`（[#46](https://github.com/Luna-Flow/floating/issues/46)）。Entire 给出 0；Empty 和半无界区间会中止。"
+
+#~ msgid "The center is rounded to nearest twice, first to $p$ bits and then onto the subnormal grid, and double rounding to nearest is not single rounding: with $p = 4$, $e_{\\min} = -2$ (grid $2^{-5}$) the center $2^{-6} + 2^{-20}$ is first rounded to the tie $2^{-6}$ and then to the even neighbour 0, whereas the nearest grid point is $2^{-5}$. Normal results are correctly rounded. Tracked in [#70](https://github.com/Luna-Flow/floating/issues/70); a fix for both defects is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "中心会被两次就近舍入，先舍入到 $p$ 位，再舍入到次正规网格上，而两次就近舍入不等于一次舍入：取 $p = 4$、$e_{\\min} = -2$（网格为 $2^{-5}$），中心 $2^{-6} + 2^{-20}$ 先被舍入为中点 $2^{-6}$，再舍入为偶数邻居 0，而最近的网格点是 $2^{-5}$。正规结果都是正确舍入的。由 [#70](https://github.com/Luna-Flow/floating/issues/70) 跟踪；针对这两个缺陷的修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`neg` and `abs` are the exact interval images $\\{-t\\}$ and $\\{|t|\\}$; `with_precision` returns an enclosure of the input at the new precision for every rounding mode (the mode only steers the center). `with_precision` and `normalized` rebuild the interval from its center and radius and can widen it by one ulp per side even at an unchanged precision (see [`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision); tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91))."
+#~ msgstr "`neg` 和 `abs` 是精确的区间像 $\\{-t\\}$ 和 $\\{|t|\\}$；`with_precision` 对每种舍入模式都返回输入在新精度下的包络（模式只影响中心）。`with_precision` 和 `normalized` 由中心和半径重建区间，即使精度不变，每侧也可能变宽一个 ulp（参见 [`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision)；由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪，修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出）。"
+
+#~ msgid "For `BallFloat` the result is an enclosure of the input: the centre is rounded with `mode` and the rounding error is added to the radius, so every member of `x` remains a member of the result whatever `mode` is (except for endpoints more than about $2^{16}$ binary orders of magnitude apart at a new precision above about 65536 bits, tracked in [#44](https://github.com/Luna-Flow/floating/issues/44) with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)). The result can be wider than `x` even when `p` equals the current precision, because the exact centre of $[\\ell, u]$ may need one bit more than the endpoints."
+#~ msgstr "对于 `BallFloat`，结果是输入的包络：中心按 `mode` 舍入，舍入误差加到半径上，因此无论 `mode` 为何，`x` 的每个成员仍是结果的成员（端点在二进制数量级上相差超过约 $2^{16}$ 且新精度高于约 65536 位的情形除外，由 [#44](https://github.com/Luna-Flow/floating/issues/44) 跟踪，修复已在 [#68](https://github.com/Luna-Flow/floating/pull/68) 中提出）。即使 `p` 等于当前精度，结果也可能比 `x` 更宽，因为 $[\\ell, u]$ 的精确中心可能比端点多需要一位。"
+
+#~ msgid "[!WARNING] `BallFloat::normalized` rebuilds the interval from its centre and radius at the stored precision, like `with_precision`. It returns an enclosure of the input, which can be strictly wider: at 53 bits, $[1, 1 + 2^{-52}]$ becomes $[1 - 2^{-52}, 1 + 2^{-52}]$. Do not use it where the interval must stay unchanged. Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "[!WARNING] `BallFloat::normalized` 与 `with_precision` 一样，以存储的精度从中心和半径重建区间。它返回输入的一个包络，该包络可能严格更宽：在 53 位下，$[1, 1 + 2^{-52}]$ 变为 $[1 - 2^{-52}, 1 + 2^{-52}]$。在区间必须保持不变的地方不要使用它。由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`midpoint_ctx` does not apply the context's $e_{\\max}$ and never raises `overflow`. It also rounds to nearest twice (to $p$ bits, then onto the subnormal grid), so a subnormal midpoint can be the wrong neighbour: with $p = 4$, $e_{\\min} = -2$, the center $2^{-6} + 2^{-20}$ gives 0 instead of $2^{-5}$. Tracked in [#46](https://github.com/Luna-Flow/floating/issues/46) and [#70](https://github.com/Luna-Flow/floating/issues/70); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "`midpoint_ctx` 不施加上下文的 $e_{\\max}$，也从不引发 `overflow`。它还会就近舍入两次（先到 $p$ 位，再到次正规网格上），因此次正规的中点可能是错误的相邻值：在 $p = 4$、$e_{\\min} = -2$ 时，中心 $2^{-6} + 2^{-20}$ 给出 0 而不是 $2^{-5}$。由 [#46](https://github.com/Luna-Flow/floating/issues/46) 和 [#70](https://github.com/Luna-Flow/floating/issues/70) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`apply_ctx` raises `underflow` only when the subnormal-grid step is inexact, not for every tiny inexact endpoint as IEEE 754 does. Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "`apply_ctx` 仅在次正规网格这一步不精确时才引发 `underflow`，而不像 IEEE 754 那样对每个微小且不精确的端点都引发。由 [#71](https://github.com/Luna-Flow/floating/issues/71) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`pow_nat_checked(Empty, 0)` returns $\\{1\\}$ (the power loop starts from $\\{1\\}$ without checking the base), whereas `pown(Empty, 0)` is Empty. Tracked in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "`pow_nat_checked(Empty, 0)` 返回 $\\{1\\}$（幂循环从 $\\{1\\}$ 开始而不检查底数），而 `pown(Empty, 0)` 为 Empty。由 [#72](https://github.com/Luna-Flow/floating/issues/72) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid ""
+#~ "**Why (F6) holds for `BallFloat`.** A bounded `BallFloat` stores its endpoints $\\ell \\le u$. Its centre $c = (\\ell + u)/2$ is computed exactly, and its radius $r$ is the half-width $(u - \\ell)/2$ rounded upward, so every member $t$ satisfies $|t - c| \\le (u - \\ell)/2 \\le r$. `with_precision` computes $\\tilde c = \\circ_{m,q}(c)$, rounds the error $|c - \\tilde c|$ and the radius upward to $\\tilde e \\ge |c-\\tilde c|$ and $\\tilde r \\ge r$, adds them with upward rounding to $R \\ge \\tilde r + \\tilde e$, and stores $[\\n"
+#~ "abla(\\tilde c - R), \\Delta(\\tilde c + R)]$. For any member $t$ with $|t - c| \\le r$,"
+#~ msgstr ""
+#~ "**为什么 (F6) 对 `BallFloat` 成立。** 有界的 `BallFloat` 存储其端点 $\\ell \\le u$。其中心 $c = (\\ell + u)/2$ 是精确计算的，半径 $r$ 是向上舍入的半宽 $(u - \\ell)/2$，因此每个成员 $t$ 都满足 $|t - c| \\le (u - \\ell)/2 \\le r$。`with_precision` 计算 $\\tilde c = \\circ_{m,q}(c)$，把误差 $|c - \\tilde c|$ 和半径向上舍入为 $\\tilde e \\ge |c-\\tilde c|$ 和 $\\tilde r \\ge r$，以向上舍入把它们相加得到 $R \\ge \\tilde r + \\tilde e$，并存储 $[\\n"
+#~ "abla(\\tilde c - R), \\Delta(\\tilde c + R)]$。对任意满足 $|t - c| \\le r$ 的成员 $t$，"
+
+#~ msgid ""
+#~ "so $\\n"
+#~ "abla(\\tilde c - R) \\le \\tilde c - R \\le t \\le \\tilde c + R \\le \\Delta(\\tilde c + R)$. The direction $m$ only moves the centre; the enclosure holds for every $m$. If $\\tilde c \\pm R$ leaves the `BinFloat` range, the directed roundings go to $\\mp\\infty$, which still encloses. Unbounded intervals round the lower endpoint down and the upper endpoint up, which encloses trivially. The empty interval maps to the empty interval."
+#~ msgstr ""
+#~ "因此 $\\n"
+#~ "abla(\\tilde c - R) \\le \\tilde c - R \\le t \\le \\tilde c + R \\le \\Delta(\\tilde c + R)$。方向 $m$ 只移动中心；对每个 $m$ 包络都成立。若 $\\tilde c \\pm R$ 超出 `BinFloat` 的范围，定向舍入会得到 $\\mp\\infty$，仍然构成包络。无界区间把下端点向下舍入、上端点向上舍入，包络关系平凡成立。空区间映射为空区间。"
+
+#~ msgid "The argument needs the exact centre. For endpoints more than about $2^{16}$ binary orders of magnitude apart, `center` replaces the smaller endpoint by a sticky surrogate (see the [`ball_float` design](ball_float.md#far-addends-bound-endpoint-sums-by-precision)), and at a new precision above about 65536 bits the rebuilt interval can miss the smaller endpoint. This is tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)."
+#~ msgstr "该论证需要精确的中心。对于端点在二进制数量级上相差超过约 $2^{16}$ 的情形，`center` 会将较小的端点替换为一个粘滞替代值（参见 [`ball_float` 设计](ball_float.md#far-addends-bound-endpoint-sums-by-precision)），而在高于约 65536 位的新精度下，重建的区间可能遗漏较小的端点。这由 [#44](https://github.com/Luna-Flow/floating/issues/44) 跟踪；修复已在 [#68](https://github.com/Luna-Flow/floating/pull/68) 中提出。"
+
+#~ msgid "**Why `BallFloat` has only (F7′).** `normalized` on a bounded interval calls the same centre–radius quantization at the stored precision $q$, so the argument above gives (F7′). Equality fails in general: the exact centre of two $q$-bit endpoints may need $q + 1$ bits, and then rounding it adds an error term to the radius. With $q = 53$, $\\ell = 1$ and $u = 1 + 2^{-52}$, the centre $1 + 2^{-53}$ rounds to $1$, the radius $2^{-53}$ grows by the error $2^{-53}$ to $2^{-52}$, and the result is $[1 - 2^{-52}, 1 + 2^{-52}] \\supsetneq [\\ell, u]$. For the same reason `with_precision(x, precision(x), m)` is not the identity on intervals, and repeated normalization is not guaranteed to be stable (each step can only widen, and it stops widening once the centre is representable at $q$ bits and the endpoints are exact). The widening of representable intervals is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "**为什么 `BallFloat` 只有 (F7′)。** 有界区间上的 `normalized` 以存储的精度 $q$ 调用同样的中心–半径量化，因此上述论证给出 (F7′)。等式一般不成立：两个 $q$ 位端点的精确中心可能需要 $q + 1$ 位，此时对它舍入会给半径加上一个误差项。取 $q = 53$、$\\ell = 1$、$u = 1 + 2^{-52}$，中心 $1 + 2^{-53}$ 舍入为 $1$，半径 $2^{-53}$ 加上误差 $2^{-53}$ 增大为 $2^{-52}$，结果为 $[1 - 2^{-52}, 1 + 2^{-52}] \\supsetneq [\\ell, u]$。出于同样的原因，`with_precision(x, precision(x), m)` 在区间上不是恒等映射，重复规范化也不保证稳定（每一步只可能变宽；一旦中心可用 $q$ 位表示且端点精确，就不再变宽）。可表示区间的变宽由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "`normalized` keeps the value only on scalars; on intervals it is an enclosure (F7′)."
+#~ msgstr "`normalized` 只在标量上保持值不变；在区间上它是一个包络 (F7′)。"
+
+#~ msgid "**Re-rounding can widen.** `with_precision` and `normalized` rebuild an interval from its center and radius. When the center needs more bits than the precision, the result is one ulp wider on each side, even at the same precision: $[1, 1 + 2^{-52}]$ at 53 bits becomes $[1 - 2^{-52}, 1 + 2^{-52}]$. To change precision without that loss, use `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. This widening is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)."
+#~ msgstr "**重新舍入可能使区间变宽。** `with_precision` 和 `normalized` 根据区间的中心和半径重建区间。当中心所需的位数多于精度时，即使精度不变，结果的每一侧也会变宽一个 ulp：53 位下的 $[1, 1 + 2^{-52}]$ 会变成 $[1 - 2^{-52}, 1 + 2^{-52}]$。若要改变精度而不受这种损失，请使用 `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`。这种变宽由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出。"
+
+#~ msgid "On a `BallFloat`, `normalized` and `with_precision` return an enclosure that can be wider than the input, even at the same precision. Apart from endpoints more than about $2^{16}$ binary orders of magnitude apart at a precision above about 65536 bits ([#44](https://github.com/Luna-Flow/floating/issues/44), with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)) they never lose a member, but do not expect the bounds to stay the same (tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91))."
+#~ msgstr "对于 `BallFloat`，`normalized` 和 `with_precision` 返回的包络可能比输入更宽，即使精度相同也是如此。除了端点在二进制数量级上相差超过约 $2^{16}$ 且精度高于约 65536 位的情形（[#44](https://github.com/Luna-Flow/floating/issues/44)，修复已在 [#68](https://github.com/Luna-Flow/floating/pull/68) 中提出）之外，它们绝不会丢失成员，但不要指望上下界保持不变（由 [#69](https://github.com/Luna-Flow/floating/issues/69) 跟踪；修复已在 [#91](https://github.com/Luna-Flow/floating/pull/91) 中提出）。"
 
 #~ msgid "For a bounded interval the center is rounded with `mode`, the displacement is added to the radius, and the result is rebuilt as in `BallFloat::new`. For an unbounded interval the finite endpoint is rounded outward and `mode` is ignored. Empty stays Empty with the new precision."
 #~ msgstr "对于有界区间，中心按 `mode` 舍入，所产生的偏移加到半径上，然后像 `BallFloat::new` 那样重建结果。对于无界区间，有限端点向外舍入，`mode` 被忽略。Empty 仍为 Empty，但带上新的精度。"

@@ -14,7 +14,7 @@ The strict matrix covers sets, relations, observations, cancellation, add/subtra
 
 ## Decorations and fallbacks
 
-Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (re-rounding of intervals with very far-apart endpoints at more than about 65536 bits, the context flags and rounding of `apply_ctx` and `midpoint_ctx`, and `pow_nat_checked` of Empty) are not exercised by the selected cases.
+Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases.
 
 ## Exclusions
 

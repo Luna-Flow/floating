@@ -163,9 +163,9 @@ layer exists between the two repositories.
 The laws below are the contract of the trait. They are stated for a value $x$,
 a precision $p$ and a direction $m$; $q = \max(1, p)$. The three scalar
 implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception
-of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and only
-the weaker (F7′). A downstream implementation is expected to satisfy the laws
-of its kind.
+of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and
+(F7′). A downstream implementation is expected to satisfy the laws of its
+kind.
 
 $$
 \begin{aligned}
@@ -176,7 +176,7 @@ $$
 &\textbf{(F5) rounding} && x \text{ a finite scalar} \implies [\![\texttt{with\_precision}(x,p,m)]\!] = \circ_{m,q}([\![x]\!]);\\
 &\textbf{(F6) enclosure} && x \text{ an interval} \implies [\![x]\!] \subseteq [\![\texttt{with\_precision}(x,p,m)]\!];\\
 &\textbf{(F7) normal form} && x \text{ a scalar} \implies [\![\texttt{normalized}(x)]\!] = [\![x]\!],\quad \texttt{normalized}(\texttt{normalized}(x)) = \texttt{normalized}(x);\\
-&\textbf{(F7′) interval normal form} && x \text{ an interval} \implies [\![x]\!] \subseteq [\![\texttt{normalized}(x)]\!].
+&\textbf{(F7′) interval normal form} && x \text{ an interval} \implies [\![\texttt{normalized}(x)]\!] = [\![x]\!].
 \end{aligned}
 $$
 
@@ -200,59 +200,41 @@ changes the stored precision, so (F4) still holds. (F2) for intervals is the
 three-case rule derived above; for scalars "the side of $0$" is `Zero` for
 $[\![x]\!] = 0$.
 
-**Why (F6) holds for `BallFloat`.** A bounded `BallFloat` stores its endpoints
-$\ell \le u$. Its centre $c = (\ell + u)/2$ is computed exactly, and its radius
-$r$ is the half-width $(u - \ell)/2$ rounded upward, so every member $t$
-satisfies $|t - c| \le (u - \ell)/2 \le r$. `with_precision` computes $\tilde c = \circ_{m,q}(c)$, rounds the
-error $|c - \tilde c|$ and the radius upward to $\tilde e \ge |c-\tilde c|$
-and $\tilde r \ge r$, adds them with upward rounding to $R \ge \tilde r +
-\tilde e$, and stores $[\nabla(\tilde c - R), \Delta(\tilde c + R)]$. For any
-member $t$ with $|t - c| \le r$,
+**Why (F6) holds for `BallFloat`.** A `BallFloat` stores its endpoints
+$\ell \le u$. `with_precision` rounds the lower endpoint toward $-\infty$ and
+the upper one toward $+\infty$ at $q$ bits, so $\nabla_q(\ell) \le \ell \le t
+\le u \le \Delta_q(u)$ for every member $t$, whatever $m$ is; the direction
+$m$ is not used. Infinite endpoints stay infinite, an endpoint that leaves the
+`BinFloat` range is rounded in its own direction as in IEEE 754, which still
+encloses, and the empty interval maps to the empty interval. $[\nabla_q(\ell), \Delta_q(u)]$ is also the smallest
+interval with $q$-bit endpoints that contains $[\ell, u]$, so the result is the
+tightest enclosure, and by the consequences of (F5) below it is the identity
+when $\ell$ and $u$ are already $q$-bit numbers.
 
-$$
-|t - \tilde c| \le |t - c| + |c - \tilde c| \le r + |c - \tilde c| \le \tilde r + \tilde e \le R,
-$$
-
-so $\nabla(\tilde c - R) \le \tilde c - R \le t \le \tilde c + R \le
-\Delta(\tilde c + R)$. The direction $m$ only moves the centre; the enclosure
-holds for every $m$. If $\tilde c \pm R$ leaves the `BinFloat` range, the
-directed roundings go to $\mp\infty$, which still encloses. Unbounded
-intervals round the lower endpoint down and the upper endpoint up, which
-encloses trivially. The empty interval maps to the empty interval.
-
-The argument needs the exact centre. For endpoints more than about $2^{16}$
-binary orders of magnitude apart, `center` replaces the smaller endpoint by a
-sticky surrogate (see the
-[`ball_float` design](ball_float.md#far-addends-bound-endpoint-sums-by-precision)),
-and at a new precision above about 65536 bits the rebuilt interval can miss
-the smaller endpoint. This is tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68).
-
-**Why `BallFloat` has only (F7′).** `normalized` on a bounded interval calls
-the same centre–radius quantization at the stored precision $q$, so the
-argument above gives (F7′). Equality fails in general: the exact centre of two
-$q$-bit endpoints may need $q + 1$ bits, and then rounding it adds an error
-term to the radius. With $q = 53$, $\ell = 1$ and $u = 1 + 2^{-52}$, the centre
-$1 + 2^{-53}$ rounds to $1$, the radius $2^{-53}$ grows by the error $2^{-53}$
-to $2^{-52}$, and the result is $[1 - 2^{-52}, 1 + 2^{-52}] \supsetneq [\ell, u]$.
-For the same reason `with_precision(x, precision(x), m)` is not the identity
-on intervals, and repeated normalization is not guaranteed to be stable
-(each step can only widen, and it stops widening once the centre is
-representable at $q$ bits and the endpoints are exact). The widening of
-representable intervals is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in
-[#91](https://github.com/Luna-Flow/floating/pull/91).
+**Why (F7′) holds for `BallFloat`.** `normalized` normalizes the two stored
+endpoints, which changes their representation but not their values, and
+stores them at the interval's own precision $q$ by rounding the lower one down
+and the upper one up. Both are already in $\mathbb{F}_{2,q}$, and rounding is
+the identity on its target set (see the consequences of (F5) below), so the
+result denotes the same set: with $q = 53$, $[1, 1 + 2^{-52}]$ stays
+$[1, 1 + 2^{-52}]$. Rebuilding the interval from its centre and radius would
+not keep it: the centre $1 + 2^{-53}$ needs 54 bits, and rounding it to 1 and
+adding the error to the radius gives $[1 - 2^{-52}, 1 + 2^{-52}]$. The
+endpoint form also makes `normalized` idempotent on the set.
 
 ```moonbit
 ///|
-test "interval normalization encloses but widens" {
+test "interval normalization keeps the set" {
   let x = @ball_float.BallFloat::from_bounds(
     @bin_float.BinFloat::from_int(1),
     @bin_float.BinFloat::from_hex("0x10000000000001p-52", 53).unwrap(),
   )
   let n = @def.Floating::normalized(x)
-  inspect(n.lower_bound().to_hex(), content="0xfffffffffffffp-52")
+  inspect(n.lower_bound().to_hex(), content="0x1p0")
   inspect(n.upper_bound().to_hex(), content="0x10000000000001p-52")
+  inspect(n.set_equal(x), content="true")
   let again = @def.Floating::normalized(n)
-  inspect(again.lower_bound().to_hex(), content="0xfffffffffffffp-52")
+  inspect(again.set_equal(n), content="true")
 }
 ```
 
@@ -363,8 +345,8 @@ length for decimals, and linear in the coefficient bit length for binary.
   (only the `BinFloat` implementation range applies); contexts and flags belong
   to the `*_ctx` APIs of the concrete packages and to the contextual traits of
   Luna-Flow/arithmetic.
-- `normalized` keeps the value only on scalars; on intervals it is an
-  enclosure (F7′).
+- `normalized` keeps the representation-independent value: the number on
+  scalars (F7) and the set on intervals (F7′).
 - `Sign` does not expose the sign bit of zeros or NaNs.
 - The laws are documented and tested by the implementations; the trait does not
   enforce them for downstream implementations.
