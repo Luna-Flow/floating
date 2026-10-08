@@ -123,6 +123,11 @@ notes live in this file.
   `BallFloat::ln_interval` hang for values just above 1 at high precision
   (`1 + 2^-243` at 245 bits) and `asinh_interval` and `atanh_interval` hang for
   tiny arguments at 53 bits (#85).
+- Fixed `BallFloat::exp2_interval` for integer endpoints outside the binary
+  exponent range. The exact power `2^n` was built rounded to nearest, so
+  `exp2([-1073742000, -1073742000])` returned `{0}`, which excludes the true
+  value, and `n >= 2^30` aborted with an infinite lower bound. Such endpoints
+  now keep the series enclosure (#84).
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They

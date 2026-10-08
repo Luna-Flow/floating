@@ -315,11 +315,18 @@ fn finite_bin_exact_int(value : @bin_float.BinFloat) -> Int? {
 }
 
 ///|
+/// `2^n` for an integer endpoint `n`, when it is a normal `BinFloat`. Outside
+/// the exponent range the power cannot be stored exactly (building it would
+/// round to nearest, to 0 or infinity), so the enclosure of the series is used.
 fn exact_exp2_endpoint(
   value : @bin_float.BinFloat,
   precision : Int,
 ) -> BallFloat? {
-  guard finite_bin_exact_int(value) is Some(exponent) else { return None }
+  guard finite_bin_exact_int(value) is Some(exponent) &&
+    exponent >= @bin_float.binary_implementation_e_min &&
+    exponent <= @bin_float.binary_implementation_e_max else {
+    return None
+  }
   Some(
     zero_radius_interval(
       @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, precision),
