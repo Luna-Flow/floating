@@ -273,6 +273,16 @@ notes live in this file.
   interval (a single point) instead of a 95 % one.
 - Fixed `bench::TuneDecision::valid_samples`, which counted the negative and
   non-finite samples the median discards.
+- Fixed `frontend/gda_expr::execute_documents`, which aborted on a context
+  with `precision: 0` (or a negative precision, or `minexponent` above
+  `maxexponent`) because it built a `DecimalContext` before classifying the
+  row. Such rows are now `Diagnostic` with the reason
+  `diagnostic invalid context: …`.
+- Fixed `frontend/gda_expr` operand decoding, which read plain decimal
+  operands at $\max(64, p)$ digits and so rounded longer operands before the
+  operation rounded again: at precision 9 the 67-digit operand
+  `1000000014` followed by 56 nines and a 5 gave `add … 0 -> 1.00000002E+66`
+  instead of `1.00000001E+66`. Operands are now read exactly, as GDA requires.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

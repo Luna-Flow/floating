@@ -99,3 +99,36 @@ test "gda interpreter applies the 1.70 sqrt rounding rule" {
   assert_eq(summary.passed_cases(), 1)
   assert_eq(summary.failed_cases(), 0)
 }
+
+///|
+test "gda interpreter reports an invalid context as a diagnostic row" {
+  let source =
+    #|precision: 0
+    #|z1 add 1 1 -> 2
+    #|precision: 9
+    #|maxexponent: -5
+    #|minexponent: 5
+    #|z2 add 1 1 -> 2
+    #|
+  let document = @gda_expr.parse_dectest("context.decTest", source).unwrap()
+  let summary = @gda_expr.execute_documents([document])
+  assert_eq(summary.diagnostic_cases(), 2)
+  assert_eq(summary.executable_cases(), 0)
+  let results = summary.results()
+  assert_true(results[0].disposition() is Diagnostic(_))
+  assert_true(results[1].disposition() is Diagnostic(_))
+}
+
+///|
+test "gda interpreter reads long operands without rounding them" {
+  let source =
+    #|precision: 9
+    #|rounding: half_even
+    #|d1 add 1000000014999999999999999999999999999999999999999999999999999999995 0 -> 1.00000001E+66 Inexact Rounded
+    #|d2 plus 1000000014999999999999999999999999999999999999999999999999999999995 -> 1.00000001E+66 Inexact Rounded
+    #|
+  let document = @gda_expr.parse_dectest("operands.decTest", source).unwrap()
+  let summary = @gda_expr.execute_documents([document])
+  assert_eq(summary.executable_cases(), 2)
+  assert_eq(summary.passed_cases(), 2)
+}
