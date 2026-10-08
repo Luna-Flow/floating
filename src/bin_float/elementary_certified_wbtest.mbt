@@ -267,6 +267,38 @@ test "BinFloat atan2 preserves axes and quadrants" {
 }
 
 ///|
+test "BinFloat atan2 follows the IEEE signed-zero special cases" {
+  let context = BinaryContext::unbounded(53)
+  let pz = BinFloat::zero()
+  let nz = BinFloat::negative_zero()
+  let m1 = BinFloat::from_int(-1)
+  let pinf = BinFloat::inf(Sign::Positive)
+  let ninf = BinFloat::inf(Sign::Negative)
+  let (pi, _) = m1.acos_ctx(context)
+  // atan2(±0, +0) and atan2(±0, x > 0) are ±0, exact.
+  for abscissa in [pz, BinFloat::one(), pinf] {
+    let (positive, positive_flags) = pz.atan2_ctx(abscissa, context)
+    assert_true(positive.is_zero() && !positive.is_negative())
+    assert_eq(positive_flags, BinaryFlags::new())
+    let (negative, negative_flags) = nz.atan2_ctx(abscissa, context)
+    assert_true(negative.is_negative_zero())
+    assert_eq(negative_flags, BinaryFlags::new())
+  }
+  // atan2(±0, -0) and atan2(±0, x < 0) are ±π.
+  for abscissa in [nz, m1, ninf] {
+    let (positive, positive_flags) = pz.atan2_ctx(abscissa, context)
+    assert_eq(positive, pi)
+    assert_true(positive_flags.inexact())
+    let (negative, _) = nz.atan2_ctx(abscissa, context)
+    assert_eq(negative, pi.neg())
+  }
+  // A nonzero ordinate over a zero abscissa is still ±π/2.
+  let (half_pi, _) = pinf.atan_ctx(context)
+  assert_eq(BinFloat::one().atan2_ctx(nz, context).0, half_pi)
+  assert_eq(m1.atan2_ctx(pz, context).0, half_pi.neg())
+}
+
+///|
 test "BinFloat trigonometric functions preserve axis identities" {
   let zero = BinFloat::zero()
   assert_eq(zero.sin(), zero)
@@ -286,7 +318,7 @@ test "BinFloat pi-scaled functions preserve exact integer and half-integer ident
   let half = BinFloat::make(BinCoeff::one(), -1, 53)
   assert_eq(one.sinpi(), BinFloat::zero())
   assert_eq(one.cospi(), one.neg())
-  assert_eq(one.tanpi(), BinFloat::zero())
+  assert_true(one.tanpi().is_negative_zero())
   assert_eq(half.sinpi(), one)
   assert_eq(half.cospi(), BinFloat::zero())
   let negative_half = half.neg()
@@ -297,6 +329,37 @@ test "BinFloat pi-scaled functions preserve exact integer and half-integer ident
   assert_true(huge_integer.sinpi().is_zero())
   assert_eq(huge_integer.cospi(), BinFloat::one())
   assert_true(huge_integer.tanpi().is_zero())
+}
+
+///|
+test "BinFloat tanpi at integers takes the sign of sinpi over cospi" {
+  let context = BinaryContext::binary64()
+  // IEEE 754-2019 §9.2.1 and C23 Annex F: tanPi(n) is +0 for positive even
+  // and negative odd n, and -0 for positive odd and negative even n.
+  for n in [1, 3, -2, -4] {
+    let (tangent, flags) = BinFloat::from_int(n).tanpi_ctx(context)
+    assert_true(tangent.is_negative_zero(), msg="tanpi(" + n.to_string() + ")")
+    assert_eq(flags, BinaryFlags::new())
+  }
+  for n in [2, 4, -1, -3] {
+    let (tangent, flags) = BinFloat::from_int(n).tanpi_ctx(context)
+    assert_true(
+      tangent.is_zero() && !tangent.is_negative(),
+      msg="tanpi(" + n.to_string() + ")",
+    )
+    assert_eq(flags, BinaryFlags::new())
+  }
+  assert_true(BinFloat::zero().tanpi().is_zero())
+  assert_true(!BinFloat::zero().tanpi().is_negative())
+  assert_true(BinFloat::negative_zero().tanpi().is_negative_zero())
+  // Every binary64 value with |x| >= 2^53 is an even integer.
+  let huge = BinFloat::make(BinCoeff::one(), 60, 53)
+  assert_true(!huge.tanpi().is_negative())
+  assert_true(huge.neg().tanpi().is_negative_zero())
+  // tanPi(n + 1/2) alternates: +inf for even n, -inf for odd n.
+  let half = BinFloat::make(BinCoeff::one(), -1, 53)
+  assert_eq(half.tanpi(), BinFloat::inf(Sign::Positive))
+  assert_eq(half.add(BinFloat::one()).tanpi(), BinFloat::inf(Sign::Negative))
 }
 
 ///|
