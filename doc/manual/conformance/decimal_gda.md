@@ -32,10 +32,6 @@ The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar
 A passing corpus is a finite claim. Review of the implementation found these
 behaviours, none of which has a pinned row:
 
-- A non-integer `power` with an exactly representable value, such as
-  $4^{1.5}$, does not finish in reasonable time in the directed rounding
-  modes ([API](../api/decimal_gda.md#power); tracked in [#112](https://github.com/Luna-Flow/floating/issues/112), fix
-  proposed in [#116](https://github.com/Luna-Flow/floating/pull/116)).
 - Integer `power` is accurate to about 0.55 units in the last place (0.6 for
   negative exponents), not correctly rounded, as the specification allows.
 

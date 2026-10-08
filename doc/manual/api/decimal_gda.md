@@ -915,15 +915,15 @@ $\pm 0$ take their sign from the parity of an integer exponent, and $1^y = 1$.
 In a subset context $0^0$ is `1` and $0^{-n}$ is invalid instead of
 $\infty$.
 
-> [!WARNING]
-> A non-integer power whose exact value is representable, such as
-> $4^{1.5} = 8$, is a boundary of the rounding cell in the directed modes
-> (`Down`, `Up`, `Ceiling`, `Floor`), so certification cannot succeed and the
-> refinement loop runs to the end of its budget. On a native debug build
-> `power(4, 1.5)` at precision 5 under `Down` did not return within fifteen
-> minutes, while `HalfEven` returns `8.0000` at once. Some such powers, for
-> example $16^{0.25}$, are recognized early and are fast in every mode.
-> Tracked in [#112](https://github.com/Luna-Flow/floating/issues/112); a fix is proposed in [#116](https://github.com/Luna-Flow/floating/pull/116).
+GDA treats every non-integer power as inexact, even when its exact value is
+representable: `power(4, 1.5)` at precision 5 is `8.0000` with `Inexact` and
+`Rounded` in every rounding mode. Such exact values (an exponent $a/q$ with a
+small denominator $q$ and $x^a$ a perfect $q$-th power) are decided before the
+certified loop, because they lie on the boundary of a directed rounding cell
+or on a midpoint, which the loop cannot certify. The specification allows an
+inexact power to be up to one unit in the last place in error; this package
+always returns the correctly rounded value, so `Down`, `Floor` and
+`ZeroFiveUp` give `8.0000` where libmpdec gives `7.9999`.
 
 ### `reduce`
 
