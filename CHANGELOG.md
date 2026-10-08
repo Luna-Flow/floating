@@ -188,6 +188,14 @@ notes live in this file.
   and integer Newton steps from the root of the leading bits for the odd part,
   so there is no width limit and wide coefficients no longer cost one power per
   root bit.
+- Fixed `BinFloat::pow`, `pow_ctx` and `try_pow_ctx` for tiny non-integer
+  exponents (#128): `pow(2, 2^-16000)` in binary128 and `pow(3, 3 * 2^-20000)`
+  at 53 bits returned `certification_failure` (NaN from the non-`try` APIs),
+  because the lower end of the enclosure stayed exactly 1 and never rounded
+  like the upper end. When the exact-result check shows that `x^y` is not a
+  rounding breakpoint (irrational, not dyadic, or wider than the precision),
+  the Ziv loop now moves a breakpoint endpoint inside the enclosure, as the
+  other elementary functions do since #102.
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They

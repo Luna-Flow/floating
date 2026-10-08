@@ -2413,6 +2413,19 @@ fn binary_pow_may_leave_range(
 }
 
 ///|
+/// What `binary_pow_exactness` knows about `x^y` for a positive finite base
+/// and a finite nonzero exponent that `pown` does not take.
+priv enum BinaryPowExactness {
+  /// The exact result, correctly rounded.
+  Exact((BinFloat, BinaryFlags))
+  /// The result is irrational, not dyadic, or has more than `precision + 1`
+  /// significant bits, so it is never a rounding breakpoint of the context.
+  NotBreakpoint
+  /// Neither was shown; the loop must not assume the result is inexact.
+  Undecided
+}
+
+///|
 /// Exact `pow` results the Ziv loop cannot certify. For a positive finite base
 /// `c * 2^e` (c odd) and a non-integer exponent `m / 2^k` (m odd), `x^y` is
 /// dyadic exactly when `2^k` divides `e` and `c` is a perfect `2^k`-th power `r`,
@@ -2420,37 +2433,54 @@ fn binary_pow_may_leave_range(
 /// other result is irrational or not dyadic, and so is never a rounding
 /// breakpoint. A dyadic result whose odd part is too large to compute has more
 /// than `precision + 1` significant bits and is not a breakpoint either.
-fn binary_pow_exact_dyadic(
+fn binary_pow_exactness(
   base : BinFloat,
   exponent : BinFloat,
   context : BinaryContext,
-) -> (BinFloat, BinaryFlags)? {
+) -> BinaryPowExactness {
   guard base.classify() == FpClass::Finite &&
     !base.is_zero() &&
     !base.is_negative() &&
     exponent.classify() == FpClass::Finite &&
     !exponent.is_zero() else {
-    return None
+    return Undecided
   }
+  let unit_base = base.coefficient().compare(BinCoeff::one()) == 0
   let shift = -exponent.exponent2()
-  guard shift > 0 && shift < 31 else { return None }
+  if shift <= 0 {
+    // An integer exponent outside the `pown` range has |y| >= 2^31. For c > 1,
+    // c^y has more than 2^31 > precision + 1 bits, and c^-y is not dyadic.
+    return if unit_base { Undecided } else { NotBreakpoint }
+  }
+  if shift >= 31 {
+    // 2^k with k >= 31 divides e only for e = 0 or e = -2^31, and an odd c > 1
+    // has fewer than 2^31 bits, below the 3^(2^k) of a perfect 2^k-th power.
+    let exponent2 = base.exponent2()
+    return if unit_base && (exponent2 == 0 || exponent2.ctz() >= shift) {
+      Undecided
+    } else {
+      NotBreakpoint
+    }
+  }
   let degree = 1 << shift
-  guard base.exponent2() % degree == 0 else { return None }
+  guard base.exponent2() % degree == 0 else { return NotBreakpoint }
   let root = match
     binary_exact_nth_root_coefficient(base.coefficient(), degree) {
     Some(root) => root
-    None => return None
-  }
-  let numerator = match exponent.coefficient().to_uint64() {
-    Some(value) if value < 1UL << 31 => value.reinterpret_as_int64()
-    _ => return None
+    None => return NotBreakpoint
   }
   let unit_root = root.compare(BinCoeff::one()) == 0
-  guard unit_root || !exponent.is_negative() else { return None }
+  guard unit_root || !exponent.is_negative() else { return NotBreakpoint }
+  let numerator = match exponent.coefficient().to_uint64() {
+    Some(value) if value < 1UL << 31 => value.reinterpret_as_int64()
+    // r^m with r >= 3 and m >= 2^31 has more than precision + 1 bits.
+    _ => return if unit_root { Undecided } else { NotBreakpoint }
+  }
+  // r^m has at least m * (bits(r) - 1) + 1 >= m * bits(r) / 2 bits.
   guard unit_root ||
     numerator * root.bit_length().to_int64() <=
     2L * context.precision.to_int64() + 64L else {
-    return None
+    return NotBreakpoint
   }
   let power = if unit_root {
     BinCoeff::one()
@@ -2459,13 +2489,13 @@ fn binary_pow_exact_dyadic(
   }
   let scale = (base.exponent2() / degree).to_int64() *
     (if exponent.is_negative() { -numerator } else { numerator })
-  guard scale >= -2147483648L && scale <= 2147483647L else { return None }
+  guard scale >= -2147483648L && scale <= 2147483647L else { return Undecided }
   let exact = BinFloat::make(
     power,
     scale.to_int(),
     Int::max(1, power.bit_length()),
   )
-  Some(exact.round_ctx(context))
+  Exact(exact.round_ctx(context))
 }
 
 ///|
@@ -2636,9 +2666,14 @@ pub fn BinFloat::try_pow_ctx(
       return Ok(result)
     }
   }
-  match binary_pow_exact_dyadic(self, exponent, context) {
-    Some(result) => return Ok(result)
-    None => ()
+  // A result that is not a rounding breakpoint lets the loop move an exact
+  // enclosure end inside the enclosure: x^y with a tiny y lies within
+  // |y ln x| of 1, and the end at 1 would otherwise never round like the
+  // other one (#102 for the other elementary functions).
+  let inexact_result = match binary_pow_exactness(self, exponent, context) {
+    Exact(result) => return Ok(result)
+    NotBreakpoint => true
+    Undecided => false
   }
   let mut work = Int::max(
     context.precision + 64,
@@ -2690,11 +2725,19 @@ pub fn BinFloat::try_pow_ctx(
         }
         match (binary_exp_bounds(lower, work), binary_exp_bounds(upper, work)) {
           (Some(lower_exp), Some(upper_exp)) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
-              lower_exp.0,
-              upper_exp.1,
-              context,
-            )
+            let (result, unique, flags) = if inexact_result {
+              binary_certified_inexact_target_rounding(
+                lower_exp.0,
+                upper_exp.1,
+                context,
+              )
+            } else {
+              binary_certified_target_rounding(
+                lower_exp.0,
+                upper_exp.1,
+                context,
+              )
+            }
             if unique {
               return Ok((result, flags))
             }
