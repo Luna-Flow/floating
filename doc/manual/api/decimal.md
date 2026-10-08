@@ -236,18 +236,19 @@ so this direction is usually inexact; converting with `TowardNegative` and
 `TowardPositive` gives a binary enclosure of the decimal value. Zeros map to
 $+0$ and NaN payloads are not kept.
 
-### `Decimal::from_nat`, `from_integral`
+### `Decimal::from_natural`, `from_integer`
 
-These functions convert any Luna-Flow integer type.
+These functions are the canonical maps out of the naturals and the integers.
 
 ```mbti
-pub fn[S : @luna-generic.Nat] Decimal::from_nat(S) -> Self
-pub fn[S : @luna-generic.Integral] Decimal::from_integral(S) -> Self
+pub fn Decimal::from_natural(@bigint.BigInt) -> Self
+pub fn Decimal::from_integer(@bigint.BigInt) -> Self
 ```
 
-They normalize the argument to a `BigInt` through `Integral::normalize` and
-return `from_bigint(n).normalized()` with precision 34. They are the
-`NatHomomorphism` and `IntegralHomomorphism` implementations.
+They return `from_bigint(n).normalized()` with precision 34. They are the
+`FromNat` and `FromInteger` implementations. To convert another Luna-Flow
+integer type, pick its representative with `Integral::normalize` first, or use
+`lift_to`.
 
 ## Parsing and formatting
 
@@ -1534,8 +1535,8 @@ pub impl @luna-generic.MulMonoid for Decimal
 pub impl @luna-generic.AddGroup for Decimal
 pub impl @luna-generic.Semiring for Decimal
 pub impl @luna-generic.Ring for Decimal
-pub impl @luna-generic.NatHomomorphism for Decimal
-pub impl @luna-generic.IntegralHomomorphism for Decimal
+pub impl @luna-generic.FromNat for Decimal
+pub impl @luna-generic.FromInteger for Decimal
 pub impl Add for Decimal
 pub impl Sub for Decimal
 pub impl Mul for Decimal
@@ -1549,8 +1550,8 @@ pub impl Compare for Decimal
 The ring laws hold exactly for `+`, `-` and `*` as long as no sum is rounded
 (sums whose exact coefficient fits the operand precision, and every
 product, since `*` is exact); a rounded sum is only approximately associative.
-`from_nat` and `from_integral` are documented under
-[construction](#decimalfrom_nat-from_integral).
+`from_natural` and `from_integer` are documented under
+[construction](#decimalfrom_natural-from_integer).
 
 ### `@def.Floating`
 
@@ -1729,10 +1730,10 @@ pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int) -> Self
 pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
-pub fn[S : @luna-generic.Integral] Decimal::from_integral(S) -> Self
+pub fn Decimal::from_integer(@bigint.BigInt) -> Self
 pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
 pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
-pub fn[S : @luna-generic.Nat] Decimal::from_nat(S) -> Self
+pub fn Decimal::from_natural(@bigint.BigInt) -> Self
 pub fn Decimal::from_string(String, precision? : Int) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -1900,9 +1901,9 @@ pub impl @arithmetic.SubContextual for Decimal
 pub impl @def.Floating for Decimal
 pub impl @luna-generic.AddGroup for Decimal
 pub impl @luna-generic.AddMonoid for Decimal
-pub impl @luna-generic.IntegralHomomorphism for Decimal
+pub impl @luna-generic.FromInteger for Decimal
+pub impl @luna-generic.FromNat for Decimal
 pub impl @luna-generic.MulMonoid for Decimal
-pub impl @luna-generic.NatHomomorphism for Decimal
 pub impl @luna-generic.One for Decimal
 pub impl @luna-generic.Ring for Decimal
 pub impl @luna-generic.Semiring for Decimal

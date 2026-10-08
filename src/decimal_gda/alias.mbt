@@ -5,9 +5,9 @@ using @bigint {type BigInt}
 using @lf_alg {
   trait AddGroup,
   trait AddMonoid,
-  trait IntegralHomomorphism,
+  trait FromInteger,
+  trait FromNat,
   trait MulMonoid,
-  trait NatHomomorphism,
   trait One,
   trait Ring,
   trait Semiring,
