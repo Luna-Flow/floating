@@ -120,6 +120,12 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed the sign of a zero result of `decimal_gda` `plus` and `minus`
+  (`Decimal::plus_ctx`, `Decimal::minus_ctx`, `GdaDecimalChecked::plus` and
+  `GdaDecimalChecked::minus`), which was always `+0`. GDA defines `plus(x)` as
+  `add('0', x)` and `minus(x)` as `subtract('0', x)`, and a zero sum of
+  operands with opposite signs is `-0` under round-floor, so `plus(-0)` and
+  `minus(0)` are now `-0` under `Floor` (#58).
 - Fixed two decorations that claimed `dac` for an argument reaching outside
   the domain. Decorated `rootn` with a negative degree now gives `trv` when the
   argument contains 0, where `x^(-1/n)` has a pole (#45), and decorated
