@@ -237,8 +237,8 @@ rounding. For binary64 ($p = 53$) $u = 2^{-53}$; for decimal64 ($p = 16$)
 $u = \tfrac{1}{2}\cdot 10^{-15}$.
 
 [^higham]: N. J. Higham, *Accuracy and Stability of Numerical Algorithms*,
-    2nd ed., SIAM 2002, §2.2. The underflow form with $\eta$ is Theorem 2.3
-    there; Goldberg, "What every computer scientist should know about
+    2nd ed., SIAM 2002, §2.1–2.2, which also gives the form with $\eta$ for
+    gradual underflow; Goldberg, "What every computer scientist should know about
     floating-point arithmetic", ACM Computing Surveys 23(1), 1991, gives the
     same derivation for the binary case.
 
@@ -458,19 +458,25 @@ test "an enclosure contains every exact result" {
 ## Quantum and cohorts
 
 For decimal values the cohort member an operation returns is part of its
-contract. When the exact result fits in the precision, IEEE 754 and GDA choose
-the member with the **ideal exponent**:[^ideal]
+contract. Each operation names an **ideal exponent**:[^ideal]
 
 $$
 \begin{aligned}
 q(x + y) = q(x - y) &= \min(q_x, q_y), \\
 q(x \cdot y) &= q_x + q_y, \\
-q(x / y) &= q_x - q_y \quad (\text{when the quotient is exact}),
+q(x / y) &= q_x - q_y .
 \end{aligned}
 $$
 
-and when the result must be rounded, the member with the largest coefficient
-that fits. Parsing preserves the quantum of the literal. `quantize(x, y)`
+When the exact result is representable, the operation returns the member of
+its cohort whose exponent is closest to the ideal one. For a sum or a product
+whose coefficient fits in $p$ digits that member has exactly the ideal
+exponent, since the exact coefficient is an integer at that exponent. A
+quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$,
+but $0.25$ needs exponent $-2$, so that is the result. When the result must be
+rounded, the operation returns the member with $p$ digits, the smallest
+exponent that holds the rounded value (fewer digits only for a subnormal
+result). Parsing preserves the quantum of the literal. `quantize(x, y)`
 rounds $x$ to the quantum of $y$; `reduce_ctx` (GDA `reduce`) and
 `normalized()` strip trailing zeros. Numeric comparison sees only the value;
 `same_quantum` and the total orders `compare_total` (IEEE) and
@@ -490,6 +496,9 @@ test "decimal results keep the ideal exponent" {
   let c = @decimal.Decimal::from_string("2.400").unwrap()
   let d = @decimal.Decimal::from_string("1.2").unwrap()
   inspect(c.div_ctx(d, ctx).0, content="2.00")
+  let one = @decimal.Decimal::from_string("1").unwrap()
+  let four = @decimal.Decimal::from_string("4").unwrap()
+  inspect(one.div_ctx(four, ctx).0, content="0.25")
   let (cents, flags) = @decimal.Decimal::from_string("2.345")
     .unwrap()
     .quantize(@decimal.Decimal::from_string("0.01").unwrap(), ctx)
@@ -520,9 +529,16 @@ direction of an underflow. The rules follow IEEE 754-2019 clause 6.3:
 
 A **quiet NaN** propagates through arithmetic silently; a **signaling NaN**
 raises *invalid operation* when an operation consumes it and is quieted in
-the result. A NaN carries a sign and an integer payload (`nan_payload`); an
-operation with NaN operands returns a quiet NaN derived from the first of
-them.
+the result. A NaN carries a sign and an integer payload (`nan_payload`). In
+`bin_float` and `decimal` an operation with NaN operands returns a quiet NaN
+with the sign and payload of the first NaN operand, signaling or not, which
+IEEE 754 allows.[^nan-payload] `decimal_gda` follows the General Decimal
+Arithmetic rule instead: a signaling NaN operand takes precedence over a quiet
+one, so `add(NaN3, sNaN7)` is `NaN7` there and `NaN3` in `decimal`.
+
+[^nan-payload]: IEEE 754-2019, clause 6.2.3, only recommends that the result
+    carry the payload of one of the input NaNs.
+
 
 ```moonbit
 ///|
@@ -536,6 +552,18 @@ test "zero and NaN rules" {
   let (quieted, flags) = @bin_float.BinFloat::signaling_nan().add_ctx(one, ctx)
   inspect(quieted.is_quiet_nan(), content="true")
   inspect(flags.invalid_operation(), content="true")
+  let quiet3 = @decimal.Decimal::from_string("NaN3").unwrap()
+  let signaling7 = @decimal.Decimal::from_string("sNaN7").unwrap()
+  inspect(
+    quiet3.add_ctx(signaling7, @decimal.DecimalContext::decimal64()).0,
+    content="nan3",
+  )
+  let gda = @decimal_gda.add(
+    @decimal_gda.Decimal::from_string("NaN3").unwrap(),
+    @decimal_gda.Decimal::from_string("sNaN7").unwrap(),
+    @decimal_gda.GdaContext::decimal64(),
+  )
+  inspect(gda.value(), content="nan7")
 }
 ```
 

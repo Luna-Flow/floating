@@ -35,7 +35,7 @@ You need the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Add the module,
 and `Luna-Flow/arithmetic` if you name its rounding modes or contexts
 yourself:
 
-```sh
+```bash
 moon add Luna-Flow/floating@0.8.0
 moon add Luna-Flow/arithmetic
 ```
@@ -48,7 +48,7 @@ moon add Luna-Flow/arithmetic
 
 Import only the packages you use in your `moon.pkg`:
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/bin_float",
