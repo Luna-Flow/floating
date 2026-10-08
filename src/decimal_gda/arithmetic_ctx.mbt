@@ -537,11 +537,16 @@ fn Decimal::decimal_div_ctx_impl(
         self.coefficient,
         other.coefficient,
       )
+      // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
+      // remainder always leaves the retained low digit off 0 and 5. Rounding it
+      // with the target mode here could manufacture an exact tie that the exact
+      // quotient had already decided, and the final rounding would then apply
+      // the tie rule to it (decNumber uses DEC_ROUND_05UP for the same reason).
       let q = round_positive_decimal_div_repr(
         numerator,
         denominator,
         self.negative != other.negative,
-        ctx.decimal_rounding,
+        DecimalRoundingMode::ZeroFiveUp,
       )
       let (value, round_flags) = if exact {
         let exact_unrounded = normalize_decimal_parts_gda_repr(
