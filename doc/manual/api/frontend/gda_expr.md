@@ -229,8 +229,9 @@ numbered $0, 1, 2, \dots$ and row $k$ is executed when
 $k \bmod n = i$ for shard count $n$ and shard index $i$. Each executed row
 first gets a disposition:
 
-- `Diagnostic` if an operand is exactly `#` or `?`, or the expected result is
-  exactly `#`;
+- `Diagnostic` if the context is invalid (precision not positive, or
+  `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the
+  expected result is exactly `#`;
 - `Unsupported` if a condition is not one of the thirteen GDA conditions,
   the operation is not implemented, or the rounding directive is not
   recognized;
