@@ -120,6 +120,15 @@ notes live in this file.
 - Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
   `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
   that flag, a failed parse did not count as an error.
+- Fixed `Decimal::atan2_ctx`, `try_atan2_ctx` and `DecimalChecked::atan2`
+  for zero and infinite operands. An infinite operand aborted the process
+  inside the certified ball evaluation, `atan2(+-0, -0)` returned NaN with
+  `invalid_operation`, and `atan2(-0, x < 0)` returned `+pi`. They now follow
+  IEEE 754-2019 §9.2.1: an exact signed zero or a correctly rounded multiple
+  of pi/4 with the ordinate's sign (#92).
+- Fixed `Decimal::cosh_ctx(-inf)`, `log2_ctx(+inf)` and `log1p_ctx(+inf)`
+  (and their `try_` forms), which returned NaN with `invalid_operation`
+  instead of `+inf` (#93).
 - Fixed double rounding in every guarded decimal division path. The guarded
   quotient was rounded with the target mode, which can manufacture an exact tie
   the exact quotient had already decided; the final rounding then applied the

@@ -215,12 +215,25 @@ fn decimal_certified_atan_infinity(
   negative : Bool,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  decimal_certified_quarter_pi_multiple(2, negative, ctx, "atan")
+}
+
+///|
+/// Correctly rounds `quarters * pi / 4`, negated when `negative` is set.
+fn decimal_certified_quarter_pi_multiple(
+  quarters : Int,
+  negative : Bool,
+  ctx : DecimalContext,
+  operation : String,
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let zero = Decimal::zero(precision=decimal_math_target_precision(ctx))
-  decimal_certified_unary_result(zero, ctx, "atan", fn(input) {
+  decimal_certified_unary_result(zero, ctx, operation, fn(input) {
     let precision = input.precision()
     let quarter = @ball_float.BallFloat::from_int(1, precision~).atan_interval()
-    let half = quarter.mul(@ball_float.BallFloat::from_int(2, precision~))
-    Ok(if negative { half.neg() } else { half })
+    let multiple = quarter.mul(
+      @ball_float.BallFloat::from_int(quarters, precision~),
+    )
+    Ok(if negative { multiple.neg() } else { multiple })
   })
 }
 
@@ -265,21 +278,22 @@ fn Decimal::try_unary_elementary_ctx(
             DecimalFlags::new(),
           ),
         )
-      Log2
-      | Log1p
-      | Asin
-      | Acos
-      | Atanh
-      | Sin
-      | Cos
-      | Tan
-      | SinPi
-      | CosPi
-      | TanPi => Ok(decimal_elementary_invalid(ctx))
+      Log2 | Log1p =>
+        Ok(
+          if value.negative {
+            decimal_elementary_invalid(ctx)
+          } else {
+            (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          },
+        )
+      Asin | Acos | Atanh | Sin | Cos | Tan | SinPi | CosPi | TanPi =>
+        Ok(decimal_elementary_invalid(ctx))
       Atan => decimal_certified_atan_infinity(value.negative, ctx)
       Sinh | Asinh =>
         Ok((Decimal::inf(value.sign(), precision~), DecimalFlags::new()))
-      Cosh | Acosh =>
+      Cosh =>
+        Ok((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+      Acosh =>
         Ok(
           if value.negative {
             decimal_elementary_invalid(ctx)
@@ -844,14 +858,39 @@ pub fn Decimal::try_atan2_ctx(
     Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
     None => ()
   }
-  if ordinate.class == FpClass::Finite &&
-    ordinate.coefficient.is_zero() &&
-    x.class == FpClass::Finite &&
-    x.coefficient.is_zero() &&
-    !x.negative {
-    return Ok(
-      (decimal_elementary_zero(ordinate.negative, ctx).0, operand_flags),
-    )
+  // IEEE 754-2019 9.2.1: a zero or infinite operand selects an exact zero
+  // or a multiple of pi/4 whose sign is that of the ordinate.
+  let ordinate_zero = ordinate.class == FpClass::Finite &&
+    ordinate.coefficient.is_zero()
+  let x_zero = x.class == FpClass::Finite && x.coefficient.is_zero()
+  let quarters = if ordinate.class == FpClass::Infinity {
+    if x.class == FpClass::Infinity {
+      Some(if x.negative { 3 } else { 1 })
+    } else {
+      Some(2)
+    }
+  } else if ordinate_zero || x.class == FpClass::Infinity {
+    // atan2(+-0, x) and atan2(y, +-inf) for finite y: the ordinate is
+    // negligible against the abscissa, so only the abscissa's sign matters.
+    Some(if x.negative { 4 } else { 0 })
+  } else if x_zero {
+    Some(2)
+  } else {
+    None
+  }
+  match quarters {
+    Some(0) =>
+      return Ok(
+        (decimal_elementary_zero(ordinate.negative, ctx).0, operand_flags),
+      )
+    Some(count) =>
+      return decimal_certified_quarter_pi_multiple(
+        count,
+        ordinate.negative,
+        ctx,
+        "atan2",
+      ).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
+    None => ()
   }
   decimal_certified_binary_result(ordinate, x, ctx, "atan2", fn(y, x_interval) {
     y.try_atan2_interval(x_interval)

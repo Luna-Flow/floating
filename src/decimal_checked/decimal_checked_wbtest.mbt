@@ -60,3 +60,14 @@ test "decimal checked pi-scaled and binary mirrors are additive" {
   )
   assert_eq(hypot.value().compare(@decimal.Decimal::from_int(5)), 0)
 }
+
+///|
+test "decimal checked atan2 accepts infinite operands" {
+  let context = @decimal.DecimalContext::decimal64()
+  let result = DecimalChecked::from_decimal(
+    @decimal.Decimal::from_string("Inf").unwrap(),
+    context,
+  ).atan2(@decimal.Decimal::from_string("-Inf").unwrap())
+  inspect(result.value(), content="2.356194490192345")
+  assert_false(result.flags().has_error())
+}
