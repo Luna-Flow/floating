@@ -108,6 +108,12 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed two decorations that claimed `dac` for an argument reaching outside
+  the domain. Decorated `rootn` with a negative degree now gives `trv` when the
+  argument contains 0, where `x^(-1/n)` has a pole (#45), and decorated
+  `tanpi_interval` gives `trv` whenever its result is unbounded, which
+  includes a pole at an endpoint such as `tanpi([1/2, 1]) = [-inf, 0]`, not only
+  an Entire result (#86).
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They

@@ -181,3 +181,66 @@ test "decorated context rounding preserves grade and accumulates flags" {
   assert_eq(nai.decoration(), Ill)
   assert_true(nai_flags == BallFlags::new())
 }
+
+///|
+fn decorated_test_interval(
+  lower : @bin_float.BinFloat,
+  upper : @bin_float.BinFloat,
+) -> BallFloatDecorated {
+  BallFloatDecorated::new(BallFloat::from_bounds(lower, upper, precision=53))
+}
+
+///|
+/// rootn(x, n) with n < 0 is x^(-1/n), which is undefined at 0, so an argument
+/// containing 0 is not inside the domain and the decoration is trv.
+test "decorated rootn with a negative degree over 0 is trv" {
+  let zero = @bin_float.BinFloat::zero(precision=53)
+  let one = @bin_float.BinFloat::one(precision=53)
+  let x = decorated_test_interval(zero, one)
+  for degree in [-1, -2, -3] {
+    assert_eq(x.rootn(degree).decoration(), Trv)
+  }
+  assert_eq(decorated_test_interval(one.neg(), one).rootn(-3).decoration(), Trv)
+  // Away from 0 the negative degrees stay common.
+  let positive = decorated_test_interval(one, @bin_float.BinFloat::from_int(4))
+  assert_eq(positive.rootn(-2).decoration(), Com)
+  assert_eq(positive.rootn(-1).decoration(), Com)
+  assert_eq(
+    decorated_test_interval(@bin_float.BinFloat::from_int(-8), one.neg())
+    .rootn(-3)
+    .decoration(),
+    Com,
+  )
+  // Positive degrees are defined at 0.
+  assert_eq(x.rootn(2).decoration(), Com)
+  assert_eq(x.rootn(3).decoration(), Com)
+}
+
+///|
+/// A pole of tanpi at an endpoint gives a half-unbounded image; the argument
+/// is not inside the domain, so the decoration is trv, not dac.
+test "decorated tanpi with a pole at an endpoint is trv" {
+  let zero = @bin_float.BinFloat::zero(precision=53)
+  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
+  let one = @bin_float.BinFloat::one(precision=53)
+  let lower_pole = decorated_test_interval(half, one).tanpi_interval()
+  assert_true(
+    lower_pole.interval().lower_bound().classify() == FpClass::Infinity,
+  )
+  assert_eq(lower_pole.decoration(), Trv)
+  let upper_pole = decorated_test_interval(zero, half).tanpi_interval()
+  assert_true(
+    upper_pole.interval().upper_bound().classify() == FpClass::Infinity,
+  )
+  assert_eq(upper_pole.decoration(), Trv)
+  let interior_pole = decorated_test_interval(zero, one).tanpi_interval()
+  assert_eq(interior_pole.decoration(), Trv)
+  // Without a pole the result is bounded and common.
+  let quarter = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)
+  assert_eq(
+    decorated_test_interval(quarter.neg(), quarter)
+    .tanpi_interval()
+    .decoration(),
+    Com,
+  )
+}
