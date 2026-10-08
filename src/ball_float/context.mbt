@@ -292,16 +292,34 @@ pub fn BallFloat::midpoint_ctx(
   self : BallFloat,
   ctx : BallContext,
 ) -> (@bin_float.BinFloat, BallFlags) {
+  // IEEE 1788-2015 12.12.8: mid is NaN for Empty, 0 for Entire, the finite
+  // number of largest magnitude of the result format (the context) for a
+  // half-bounded interval, and the exact midpoint rounded to nearest
+  // otherwise. A Level 1 value of 0 is returned as +0.
+  if self.is_empty() {
+    return (@bin_float.BinFloat::nan(precision=ctx.precision), BallFlags::new())
+  }
   if self.is_entire() {
     return (
       @bin_float.BinFloat::zero(precision=ctx.precision),
       BallFlags::new(),
     )
   }
+  if !self.is_bounded() {
+    let max = context_max_finite(ctx)
+    return (
+      if is_neg_inf(self.lo_) {
+        max.neg()
+      } else {
+        max
+      },
+      BallFlags::new(),
+    )
+  }
   let exact = interval_center(self)
   if exact.is_zero() {
     return (
-      exact.with_precision(ctx.precision, RoundingMode::ToNearestEven),
+      @bin_float.BinFloat::zero(precision=ctx.precision),
       BallFlags::new(),
     )
   }

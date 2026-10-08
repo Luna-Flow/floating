@@ -261,7 +261,10 @@ notes live in this file.
   returned 0 instead of `2^-5` for `2^-6 + 2^-20` at 4 bits with
   `e_min = -2` (#70), and which ignored `e_max`. It now rounds once onto the
   grid the result lives on and overflows to an infinity with `overflow` and
-  `inexact`, as round to nearest does in IEEE 754 (#46).
+  `inexact`, as round to nearest does in IEEE 754 (#46). It also follows the
+  remaining cases of the IEEE 1788-2015 `mid` operation (12.12.8) instead of
+  aborting: NaN for Empty, the context's largest finite value with the sign of
+  the unbounded side for a half-bounded interval, and +0 for a zero center.
 - Fixed `BallFloat::apply_ctx` and the `*_ctx` operations, which raised
   `underflow` only when the step onto the subnormal grid was inexact. An
   endpoint that is tiny after rounding and inexact in either step now raises
