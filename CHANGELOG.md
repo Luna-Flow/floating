@@ -109,6 +109,9 @@ notes live in this file.
   singleton, so the interval could exclude its own input
   (`BallFloat::from_int(100001)` at the default 16 bits returned exactly
   100000). They now build the value exactly and let the interval round outward.
+- Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
+  `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
+  that flag, a failed parse did not count as an error.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
