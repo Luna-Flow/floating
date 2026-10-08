@@ -15,7 +15,7 @@ every public name is on the [API page](../api/decimal_gda.md).
 Add the module and import the package:
 
 ```sh
-moon add Luna-Flow/floating
+moon add Luna-Flow/floating@0.8.0
 ```
 
 ```text
