@@ -45,10 +45,15 @@ def package_paths() -> set[str]:
     # `tools/check_doc_examples.py` writes throwaway packages under an
     # underscore-prefixed directory and removes them again; they are not part of
     # the documented package set even if an interrupted run leaves them behind.
+    # Only the parts below `src` count: the checkout itself may live under an
+    # underscore-prefixed directory.
+    source_root = REPO_ROOT / "src"
     return {
-        str(path.parent.relative_to(REPO_ROOT / "src"))
-        for path in (REPO_ROOT / "src").rglob("moon.pkg")
-        if not any(part.startswith("_") for part in path.parent.parts)
+        str(path.parent.relative_to(source_root))
+        for path in source_root.rglob("moon.pkg")
+        if not any(
+            part.startswith("_") for part in path.parent.relative_to(source_root).parts
+        )
     }
 
 
