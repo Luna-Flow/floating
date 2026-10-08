@@ -997,7 +997,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/decimal.md:1718
 #: manual/api/decimal_gda.md:1797
 #: manual/api/def.md:421
-#: manual/api/frontend/gda_expr.md:456
+#: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:311
 #: manual/api/frontend/testfloat_expr.md:358
@@ -1084,7 +1084,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/decimal_gda_checked.md:281
 #: manual/api/def.md:435
 #: manual/api/doc_examples.md:46
-#: manual/api/frontend/gda_expr.md:507
+#: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:324
 #: manual/api/frontend/testfloat_expr.md:404
@@ -1099,7 +1099,7 @@ msgstr "完整公共接口"
 #: manual/api/ball_float.md:1721
 #: manual/api/decimal.md:1914
 #: manual/api/decimal_gda.md:1977
-#: manual/api/frontend/gda_expr.md:509
+#: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:326
 #: manual/api/frontend/testfloat_expr.md:406
@@ -5799,216 +5799,216 @@ msgid "A line without `->` outside quotes is a directive `name: value`. The name
 msgstr "引号之外不含 `->` 的行是指令 `name: value`。名称在去除 `-`、`_`、空格和制表符后按不区分大小写的方式比较：`precision`、`rounding`、`minexponent`、`maxexponent`、`clamp`、`extended` 和 `dectest` 会更新上下文；`version` 和未知名称被忽略。`precision`、`minExponent` 和 `maxExponent` 必须是整数，否则该行成为一条诊断。`clamp` 只有在值为 `1` 时才开启；`extended` 只有在值为 `0` 时才关闭。不含 `:` 的行是一条诊断。"
 
 #: manual/api/frontend/gda_expr.md:54
-msgid "A line with `->` is a test row. The left side is tokenized into `id operation operand…` (at least two tokens), the right side into `expected condition…` (at least one token). Tokens are separated by spaces, tabs or line breaks; a token enclosed in `'…'` or `\"…\"` may contain spaces and loses its quotes. A quote also ends the token before it, so `ab'cd'` is the two tokens `ab` and `cd`, and the decTest escape `''` inside a quoted token is read as the end of one token and the start of another (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet). An unterminated quote after `->` is the diagnostic `unterminated quoted token`; a quote opened before `->` hides the arrow, so the line is reported as `expected directive or testcase row`. Fewer tokens than required give `malformed testcase row`."
-msgstr "含有 `->` 的行是测试行。左侧被切分为记号 `id operation operand…`（至少两个记号），右侧被切分为 `expected condition…`（至少一个记号）。记号以空格、制表符或换行分隔；用 `'…'` 或 `\"…\"` 括起来的记号可以包含空格，并会去掉引号。引号也会结束它之前的记号，因此 `ab'cd'` 是两个记号 `ab` 和 `cd`，而带引号记号内部的 decTest 转义 `''` 会被读作一个记号的结束和另一个记号的开始（由 [#63](https://github.com/Luna-Flow/floating/issues/63) 跟踪；尚无修复）。`->` 之后未闭合的引号产生诊断 `unterminated quoted token`；在 `->` 之前打开的引号会遮蔽箭头，因此该行被报告为 `expected directive or testcase row`。记号数少于要求时产生 `malformed testcase row`。"
+msgid "A line with `->` is a test row. The left side is tokenized into `id operation operand…` (at least two tokens), the right side into `expected condition…` (at least one token). Tokens are separated by spaces, tabs or line breaks; a token enclosed in `'…'` or `\"…\"` may contain spaces and loses its quotes. A quote also ends the token before it, so `ab'cd'` is the two tokens `ab` and `cd`. Inside a quoted token the delimiting quote written twice is one literal quote and does not end the token, as the decTest format specifies: `'1E''1'` is the operand `1E'1` and `\"1E\"\"\"\"\"` is `1E\"\"`. An unterminated quote after `->` is the diagnostic `unterminated quoted token`; a quote opened before `->` hides the arrow, so the line is reported as `expected directive or testcase row`. Fewer tokens than required give `malformed testcase row`."
+msgstr "含有 `->` 的行是测试行。左侧被切分为记号 `id operation operand…`（至少两个记号），右侧被切分为 `expected condition…`（至少一个记号）。记号以空格、制表符或换行分隔；用 `'…'` 或 `\"…\"` 括起来的记号可以包含空格，并会去掉引号。引号也会结束它之前的记号，因此 `ab'cd'` 是两个记号 `ab` 和 `cd`。按照 decTest 格式的规定，在带引号的记号内部，连写两次的定界引号表示一个字面引号，不会结束该记号：`'1E''1'` 是操作数 `1E'1`，`\"1E\"\"\"\"\"` 是 `1E\"\"`。`->` 之后未闭合的引号产生诊断 `unterminated quoted token`；在 `->` 之前打开的引号会遮蔽箭头，因此该行被报告为 `expected directive or testcase row`。记号数少于要求时产生 `malformed testcase row`。"
 
-#: manual/api/frontend/gda_expr.md:66
+#: manual/api/frontend/gda_expr.md:67
 msgid "The result is `Ok(document)` when no diagnostic was produced, and otherwise `Err` with every diagnostic of the document in line order."
 msgstr "没有产生诊断时结果为 `Ok(document)`，否则为 `Err`，其中按行序包含该文档的所有诊断。"
 
-#: manual/api/frontend/gda_expr.md:69
+#: manual/api/frontend/gda_expr.md:70
 msgid "Documents and rows"
 msgstr "文档与行"
 
-#: manual/api/frontend/gda_expr.md:73
+#: manual/api/frontend/gda_expr.md:74
 msgid "`GdaDocument` is a parsed file: its source name and its rows in file order."
 msgstr "`GdaDocument` 是一个已解析的文件：包含其源名称和按文件顺序排列的行。"
 
-#: manual/api/frontend/gda_expr.md:83
+#: manual/api/frontend/gda_expr.md:84
 msgid "These methods return the source name, a copy of the rows and the number of rows."
 msgstr "这些方法返回源名称、行的副本以及行数。"
 
-#: manual/api/frontend/gda_expr.md:94
+#: manual/api/frontend/gda_expr.md:95
 msgid "`GdaCase` is one test row together with the context in force on its line."
 msgstr "`GdaCase` 是一个测试行，连同其所在行生效的上下文。"
 
-#: manual/api/frontend/gda_expr.md:104
+#: manual/api/frontend/gda_expr.md:105
 msgid "These methods return the row id, the operation as written, and the operation name used for dispatch: lower case, with `-`, `_`, spaces and tabs removed."
 msgstr "这些方法返回行 id、按原样书写的运算，以及用于分派的运算名：小写，并去除 `-`、`_`、空格和制表符。"
 
-#: manual/api/frontend/gda_expr.md:115
+#: manual/api/frontend/gda_expr.md:116
 msgid "These methods return the operand tokens, the expected-result token and the condition tokens, unquoted and otherwise exactly as written."
 msgstr "这些方法返回操作数记号、期望结果记号和条件记号，均已去掉引号，其余与原文完全一致。"
 
-#: manual/api/frontend/gda_expr.md:124
+#: manual/api/frontend/gda_expr.md:125
 msgid "The arrays are copies."
 msgstr "这些数组都是副本。"
 
-#: manual/api/frontend/gda_expr.md:128
+#: manual/api/frontend/gda_expr.md:129
 msgid "These methods return the directive context of the row, its span (source, line, column 1), and the row as an expression."
 msgstr "这些方法返回该行的指令上下文、其跨度（源、行、第 1 列），以及该行对应的表达式。"
 
-#: manual/api/frontend/gda_expr.md:137
+#: manual/api/frontend/gda_expr.md:138
 msgid "The expression is `Expr::invoke(Operation::new(normalized_operation), …)` applied to one `Expr::literal` per operand, all carrying the row's span."
 msgstr "该表达式为 `Expr::invoke(Operation::new(normalized_operation), …)`，作用于每个操作数各一个 `Expr::literal`，它们都带有该行的跨度。"
 
-#: manual/api/frontend/gda_expr.md:142
+#: manual/api/frontend/gda_expr.md:143
 msgid "`GdaContext` is the directive state of a document at a given row."
 msgstr "`GdaContext` 是文档在某一行处的指令状态。"
 
-#: manual/api/frontend/gda_expr.md:150
+#: manual/api/frontend/gda_expr.md:151
 msgid "It is a record of the directive values as written, not a `@decimal_gda.GdaContext`; execution converts it."
 msgstr "它是按原样书写的指令值的记录，而不是 `@decimal_gda.GdaContext`；执行时会对其进行转换。"
 
-#: manual/api/frontend/gda_expr.md:155
+#: manual/api/frontend/gda_expr.md:156
 msgid "`GdaContext::default()` is the context before the first directive."
 msgstr "`GdaContext::default()` 是第一条指令之前的上下文。"
 
-#: manual/api/frontend/gda_expr.md:161
+#: manual/api/frontend/gda_expr.md:162
 msgid "Precision 34, rounding `\"half_even\"`, `min_exponent` $-999999999$, `max_exponent` $999999999$, `clamp` off, `extended` on, `dectest` empty."
 msgstr "精度 34，舍入 `\"half_even\"`，`min_exponent` 为 $-999999999$，`max_exponent` 为 $999999999$，`clamp` 关闭，`extended` 开启，`dectest` 为空。"
 
-#: manual/api/frontend/gda_expr.md:166
+#: manual/api/frontend/gda_expr.md:167
 msgid "These accessors return the directive values."
 msgstr "这些访问器返回指令值。"
 
-#: manual/api/frontend/gda_expr.md:178
+#: manual/api/frontend/gda_expr.md:179
 msgid "`rounding` is the directive text as written (for example `\"half_up\"` or `\"05up\"`); it is only interpreted at execution time. `precision`, `min_exponent` and `max_exponent` are not range-checked when parsed: a `precision: 0` directive is accepted here, and `execute_documents` makes the rows under it `Diagnostic` (see below)."
 msgstr "`rounding` 是按原样书写的指令文本（例如 `\"half_up\"` 或 `\"05up\"`）；它只在执行时才被解释。解析时不对 `precision`、`min_exponent` 和 `max_exponent` 做范围检查：`precision: 0` 指令在这里会被接受，而 `execute_documents` 会把其下的行设为 `Diagnostic`（见下文）。"
 
-#: manual/api/frontend/gda_expr.md:186
+#: manual/api/frontend/gda_expr.md:187
 msgid "`ParseDiagnostic` is one parse error with its location."
 msgstr "`ParseDiagnostic` 是一条带位置的解析错误。"
 
-#: manual/api/frontend/gda_expr.md:196
+#: manual/api/frontend/gda_expr.md:197
 msgid "These methods return the location (source, line, column 1) and the message, for example `\"unterminated quoted token\"`, `\"malformed testcase row\"`, `\"expected directive or testcase row\"` or `\"invalid precision directive\"`."
 msgstr "这些方法返回位置（源、行、第 1 列）和消息，例如 `\"unterminated quoted token\"`、`\"malformed testcase row\"`、`\"expected directive or testcase row\"` 或 `\"invalid precision directive\"`。"
 
-#: manual/api/frontend/gda_expr.md:229
+#: manual/api/frontend/gda_expr.md:230
 #: manual/api/frontend/itl_expr.md:82
 #: manual/api/frontend/testfloat_expr.md:237
 msgid "Execution"
 msgstr "执行"
 
-#: manual/api/frontend/gda_expr.md:233
+#: manual/api/frontend/gda_expr.md:234
 msgid "`execute_documents(documents, options?)` executes the selected rows of the documents, in order, and summarizes the results."
 msgstr "`execute_documents(documents, options?)` 按顺序执行各文档中被选中的行，并汇总结果。"
 
-#: manual/api/frontend/gda_expr.md:240
+#: manual/api/frontend/gda_expr.md:241
 msgid "Rows are visited document by document in file order. A row whose id does not match `options.case_filter()` is ignored entirely; the remaining rows are numbered $0, 1, 2, \\dots$ and row $k$ is executed when $k \\bmod n = i$ for shard count $n$ and shard index $i$. Each executed row first gets a disposition:"
 msgstr "行按文档逐个、按文件顺序访问。id 与 `options.case_filter()` 不匹配的行被完全忽略；其余的行编号为 $0, 1, 2, \\dots$，对于分片数 $n$ 和分片索引 $i$，当 $k \\bmod n = i$ 时执行第 $k$ 行。每个被执行的行首先获得一个处置结果："
 
-#: manual/api/frontend/gda_expr.md:246
+#: manual/api/frontend/gda_expr.md:247
 msgid "`Diagnostic` if the context is invalid (precision not positive, or `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
 msgstr "若上下文无效（精度不为正，或 `minexponent` 大于 `maxexponent`）、某个操作数恰为 `#` 或 `?`，或期望结果恰为 `#`，则为 `Diagnostic`；"
 
-#: manual/api/frontend/gda_expr.md:249
+#: manual/api/frontend/gda_expr.md:250
 msgid "`Unsupported` if a condition is not one of the thirteen GDA conditions, the operation is not implemented, or the rounding directive is not recognized;"
 msgstr "若某个条件不属于十三种 GDA 条件之一、运算尚未实现，或舍入指令无法识别，则为 `Unsupported`；"
 
-#: manual/api/frontend/gda_expr.md:252
+#: manual/api/frontend/gda_expr.md:253
 msgid "`Executable` otherwise."
 msgstr "否则为 `Executable`。"
 
-#: manual/api/frontend/gda_expr.md:254
+#: manual/api/frontend/gda_expr.md:255
 msgid "Only `Executable` rows are evaluated. Operands are decoded as described on the [design page](../../design/frontend/gda_expr.md#rows-as-operations); plain decimal operands are read with every digit, so only the result is rounded. The row passes when the result matches the expected token and the raised conditions are exactly the listed ones; the [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full rule. Non-executable rows get `passed() == false` and the message `\"skipped\"`, and are counted as skipped, not failed. Unreadable operands and operations that reject their operands give a failed row, not an abort."
 msgstr "只有 `Executable` 行会被求值。操作数按[设计页面](../../design/frontend/gda_expr.md#rows-as-operations)所述解码；普通十进制操作数会保留每一位数字读取，因此只有结果被舍入。当结果与期望记号匹配，且引发的条件恰好是所列的条件时，该行通过；完整规则见[设计页面](../../design/frontend/gda_expr.md#the-pass-rule)。不可执行的行得到 `passed() == false` 和消息 `\"skipped\"`，并计为跳过而非失败。无法读取的操作数以及拒绝其操作数的运算会使该行失败，而不会导致中止。"
 
-#: manual/api/frontend/gda_expr.md:266
+#: manual/api/frontend/gda_expr.md:267
 msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr "`RunOptions` 选择 `execute_documents` 运行哪些行。"
 
-#: manual/api/frontend/gda_expr.md:276
+#: manual/api/frontend/gda_expr.md:277
 msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` builds the options."
 msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` 构建选项。"
 
-#: manual/api/frontend/gda_expr.md:283
+#: manual/api/frontend/gda_expr.md:284
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr "默认值：一个分片，索引 0，`strict_supported` 关闭，过滤器为空（所有行）。除非 `shard_count > 0` 且 `0 <= shard_index < shard_count`，否则中止。"
 
-#: manual/api/frontend/gda_expr.md:286
+#: manual/api/frontend/gda_expr.md:287
 msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A selector `id` matches that id exactly. A selector `first..last` matches every id that has the same length as `first` and `last` and lies between them in string order, so `add001..add099` selects a numbered block."
 msgstr "`case_filter` 是逗号分隔的选择器列表，每个选择器都会被修剪。选择器 `id` 精确匹配该 id。选择器 `first..last` 匹配所有与 `first` 和 `last` 长度相同、且按字符串顺序位于两者之间的 id，因此 `add001..add099` 选择一个编号区段。"
 
-#: manual/api/frontend/gda_expr.md:291
+#: manual/api/frontend/gda_expr.md:292
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr "`strict_supported` 仅为调用方保存；`execute_documents` 本身并不读取它。CLI 用它将不受支持的行转换为失败的退出码。"
 
-#: manual/api/frontend/gda_expr.md:296
+#: manual/api/frontend/gda_expr.md:297
 msgid "These accessors return the option values."
 msgstr "这些访问器返回选项值。"
 
-#: manual/api/frontend/gda_expr.md:305
+#: manual/api/frontend/gda_expr.md:306
 #: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:296
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr "结果"
 
-#: manual/api/frontend/gda_expr.md:309
+#: manual/api/frontend/gda_expr.md:310
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr "`CaseDisposition` 说明一行是否被执行，若未执行则说明原因。"
 
-#: manual/api/frontend/gda_expr.md:320
+#: manual/api/frontend/gda_expr.md:321
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr "字符串是一个简短的原因，例如 `\"diagnostic interchange/non-scalar row\"` 或 `\"unsupported operation frobnicate\"`。`Legacy` 是为共享的结果模型而存在的；当前的执行器从不赋予它。"
 
-#: manual/api/frontend/gda_expr.md:327
+#: manual/api/frontend/gda_expr.md:328
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr "`CaseResult` 是一个被选中行的结果。"
 
-#: manual/api/frontend/gda_expr.md:337
+#: manual/api/frontend/gda_expr.md:338
 msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
 msgstr "这些方法返回行 id、其处置结果、是否通过，以及一条消息：通过时为空，不可执行的行为 `\"skipped\"`，操作数无法解码或运算拒绝其操作数时为 `\"evaluation failed\"`，否则为 `\"result mismatch: expected …, actual …\"` 或 `\"status flags mismatch: expected …, actual …\"` 文本。"
 
-#: manual/api/frontend/gda_expr.md:353
+#: manual/api/frontend/gda_expr.md:354
 msgid "`RunSummary` aggregates the results of a run."
 msgstr "`RunSummary` 汇总一次运行的结果。"
 
-#: manual/api/frontend/gda_expr.md:363
+#: manual/api/frontend/gda_expr.md:364
 msgid "`total_cases` returns the number of rows that match the filter, counted over all shards; `selected_cases` returns the number of rows this shard executed or skipped."
 msgstr "`total_cases` 返回与过滤器匹配的行数（所有分片合计）；`selected_cases` 返回本分片执行或跳过的行数。"
 
-#: manual/api/frontend/gda_expr.md:372
+#: manual/api/frontend/gda_expr.md:373
 msgid "Every shard of one run reports the same `total_cases`. Rows removed by the filter are counted nowhere."
 msgstr "同一次运行的每个分片都报告相同的 `total_cases`。被过滤器移除的行不计入任何计数。"
 
-#: manual/api/frontend/gda_expr.md:377
+#: manual/api/frontend/gda_expr.md:378
 msgid "These methods return the number of selected rows that were evaluated, and how many of them passed and failed."
 msgstr "这些方法返回被求值的选中行数，以及其中通过和失败的行数。"
 
-#: manual/api/frontend/gda_expr.md:388
+#: manual/api/frontend/gda_expr.md:389
 msgid "These methods return the number of selected rows that were not evaluated, in total and by disposition."
 msgstr "这些方法返回未被求值的选中行数，包括总数和按处置类别划分的数目。"
 
-#: manual/api/frontend/gda_expr.md:398
+#: manual/api/frontend/gda_expr.md:399
 msgid "`legacy_cases` is always 0 with the current executor. The counters of one summary satisfy"
 msgstr "在当前执行器下，`legacy_cases` 始终为 0。同一个汇总的各计数器满足"
 
-#: manual/api/frontend/gda_expr.md:411
+#: manual/api/frontend/gda_expr.md:412
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr "`results` 返回按执行顺序排列的每行结果的副本；当没有可执行行失败时，`success` 为真。"
 
-#: manual/api/frontend/gda_expr.md:419
+#: manual/api/frontend/gda_expr.md:420
 msgid "Skipped rows do not affect `success`."
 msgstr "跳过的行不影响 `success`。"
 
-#: manual/api/frontend/gda_expr.md:423
+#: manual/api/frontend/gda_expr.md:424
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr "`RunSummary::merge(parts)` 合并一次运行中各分片的摘要。"
 
-#: manual/api/frontend/gda_expr.md:429
+#: manual/api/frontend/gda_expr.md:430
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr "除 `total_cases` 之外的所有计数器都相加；`total_cases` 取各部分的最大值（每个分片报告的总数相同）。结果按 `parts` 的顺序拼接。合并一次运行的 $n$ 个分片，得到的计数器与不分片运行相同。"
 
-#: manual/api/frontend/gda_expr.md:458
+#: manual/api/frontend/gda_expr.md:459
 #: manual/api/frontend/testfloat_expr.md:360
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法来自 `derive(Eq, @debug.Debug)`。新代码请使用 `==`、`!=` 和 `debug_inspect`。"
 
-#: manual/api/frontend/gda_expr.md:463
+#: manual/api/frontend/gda_expr.md:464
 msgid "`equal` compares all seven directive fields, `not_equal` is its negation and `to_repr` renders the record for `Debug`."
 msgstr "`equal` 比较全部七个指令字段，`not_equal` 是其否定，`to_repr` 为 `Debug` 渲染该记录。"
 
-#: manual/api/frontend/gda_expr.md:472
+#: manual/api/frontend/gda_expr.md:473
 msgid "`execute_documents` uses this equality to reuse the converted context of the previous row."
 msgstr "`execute_documents` 利用这种相等性来复用上一行已转换的上下文。"
 
-#: manual/api/frontend/gda_expr.md:477
+#: manual/api/frontend/gda_expr.md:478
 msgid "`equal` compares span and message; `to_repr` renders both."
 msgstr "`equal` 比较源范围和消息；`to_repr` 渲染两者。"
 
-#: manual/api/frontend/gda_expr.md:487
+#: manual/api/frontend/gda_expr.md:488
 msgid "`equal` compares the shard, the strict flag and the filter text; `to_repr` renders them."
 msgstr "`equal` 比较分片、严格标志和过滤器文本；`to_repr` 渲染它们。"
 
@@ -13383,14 +13383,10 @@ msgid "No traps: rows are executed with every trap disabled."
 msgstr "不使用陷阱：执行各行时禁用所有陷阱。"
 
 #: manual/design/frontend/gda_expr.md:230
-msgid "The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no fix yet)."
-msgstr "带引号的 decTest 字符串中的 `''` 转义未被识别（[#63](https://github.com/Luna-Flow/floating/issues/63)，尚无修复）。"
-
-#: manual/design/frontend/gda_expr.md:232
 msgid "`Legacy` is part of the shared result model but is never assigned by the current executor."
 msgstr "`Legacy` 是共享结果模型的一部分，但当前的执行器从不分配它。"
 
-#: manual/design/frontend/gda_expr.md:234
+#: manual/design/frontend/gda_expr.md:232
 msgid "The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own corpus runner in `tools/`."
 msgstr "该执行器只测试 `decimal_gda`；IEEE 十进制（`decimal`）在 `tools/` 中有自己的语料运行器。"
 
@@ -19843,8 +19839,8 @@ msgid "**`success()` ignores skipped rows.** Check `unsupported_cases()` (or use
 msgstr "**`success()` 忽略被跳过的行。** 如果不支持的行必须导致运行失败，请检查 `unsupported_cases()`（或使用 CLI 的 `--strict-supported`）。"
 
 #: manual/tutorial/frontend/gda_expr.md:251
-msgid "**Doubled quotes.** The tokenizer ends a quoted token at the next matching quote; the `''` escape of the decTest format is read as two tokens (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet)."
-msgstr "**双写引号。** 词法分析器在下一个匹配的引号处结束一个带引号的记号；decTest 格式中的 `''` 转义会被读作两个记号（由 [#63](https://github.com/Luna-Flow/floating/issues/63) 跟踪；尚无修复）。"
+msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted token ends only at a single matching quote."
+msgstr "**连写的引号。** 在带引号的记号内部，连写两次的定界引号表示一个字面引号（`'1''2'` 是操作数 `1'2`），因此带引号的记号只在单个匹配引号处结束。"
 
 #: manual/tutorial/frontend/gda_expr.md:254
 msgid "**Invalid contexts are skipped.** A non-positive precision directive (or `minexponent` above `maxexponent`) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
@@ -21146,6 +21142,12 @@ msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
+
+#~ msgid "The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no fix yet)."
+#~ msgstr "带引号的 decTest 字符串中的 `''` 转义未被识别（[#63](https://github.com/Luna-Flow/floating/issues/63)，尚无修复）。"
+
+#~ msgid "**Doubled quotes.** The tokenizer ends a quoted token at the next matching quote; the `''` escape of the decTest format is read as two tokens (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet)."
+#~ msgstr "**双写引号。** 词法分析器在下一个匹配的引号处结束一个带引号的记号；decTest 格式中的 `''` 转义会被读作两个记号（由 [#63](https://github.com/Luna-Flow/floating/issues/63) 跟踪；尚无修复）。"
 
 #~ msgid "`precision` (default `53`) is the bit precision used to read bounds. Interval results are rounded with `@ball_float.BallContext::binary64()` regardless of `precision`, so the default is the meaningful value for ITF1788 data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet)."
 #~ msgstr "`precision`（默认 `53`）是读取端点时使用的二进制位精度。无论 `precision` 为何，区间结果都用 `@ball_float.BallContext::binary64()` 舍入，因此对于 ITF1788 数据，默认值才是有意义的取值（由 [#62](https://github.com/Luna-Flow/floating/issues/62) 跟踪；尚无修复）。"

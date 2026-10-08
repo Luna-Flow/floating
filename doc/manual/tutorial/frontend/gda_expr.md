@@ -248,9 +248,9 @@ test "parsed rows" {
   `extended: 1`, `clamp: 0`. Real files set their own directives.
 - **`success()` ignores skipped rows.** Check `unsupported_cases()` (or use
   the CLI's `--strict-supported`) if unsupported rows must fail the run.
-- **Doubled quotes.** The tokenizer ends a quoted token at the next matching
-  quote; the `''` escape of the decTest format is read as two tokens
-  (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet).
+- **Doubled quotes.** Inside a quoted token, the delimiting quote written
+  twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted
+  token ends only at a single matching quote.
 - **Invalid contexts are skipped.** A non-positive precision directive (or
   `minexponent` above `maxexponent`) is accepted by the parser, and the rows
   under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not

@@ -132,6 +132,10 @@ notes live in this file.
   `BallContext::new(precision=precision)` (binary64 exponent range), so the
   default 53 is unchanged. Decimal bounds stay rounded to nearest, which is
   the ITF1788 convention for `[l,u]` (#62).
+- Fixed the decTest tokenizer of `frontend/gda_expr`, which ended a quoted
+  token at the next matching quote. A doubled delimiter inside a quoted token
+  (`'1E''1'`, `"1E"""""`) is now one literal quote character, as the decTest
+  format specifies, so such an operand is no longer split into several (#63).
 - Fixed two decorations that claimed `dac` for an argument reaching outside
   the domain. Decorated `rootn` with a negative degree now gives `trv` when the
   argument contains 0, where `x^(-1/n)` has a pole (#45), and decorated

@@ -56,9 +56,10 @@ handled as follows:
    `expected condition…` (at least one token). Tokens are separated by spaces,
    tabs or line breaks; a token enclosed in `'…'` or `"…"` may contain spaces
    and loses its quotes. A quote also ends the token before it, so `ab'cd'`
-   is the two tokens `ab` and `cd`, and the decTest escape `''` inside a
-   quoted token is read as the end of one token and the start of another
-   (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet). An unterminated quote after `->` is the diagnostic
+   is the two tokens `ab` and `cd`. Inside a quoted token the delimiting quote
+   written twice is one literal quote and does not end the token, as the
+   decTest format specifies: `'1E''1'` is the operand `1E'1` and `"1E"""""`
+   is `1E""`. An unterminated quote after `->` is the diagnostic
    `unterminated quoted token`; a quote opened before `->` hides the arrow,
    so the line is reported as `expected directive or testcase row`. Fewer
    tokens than required give `malformed testcase row`.

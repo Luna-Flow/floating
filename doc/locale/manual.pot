@@ -991,7 +991,7 @@ msgstr ""
 #: manual/api/decimal.md:1718
 #: manual/api/decimal_gda.md:1797
 #: manual/api/def.md:421
-#: manual/api/frontend/gda_expr.md:456
+#: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:311
 #: manual/api/frontend/testfloat_expr.md:358
@@ -1078,7 +1078,7 @@ msgstr ""
 #: manual/api/decimal_gda_checked.md:281
 #: manual/api/def.md:435
 #: manual/api/doc_examples.md:46
-#: manual/api/frontend/gda_expr.md:507
+#: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:324
 #: manual/api/frontend/testfloat_expr.md:404
@@ -1093,7 +1093,7 @@ msgstr ""
 #: manual/api/ball_float.md:1721
 #: manual/api/decimal.md:1914
 #: manual/api/decimal_gda.md:1977
-#: manual/api/frontend/gda_expr.md:509
+#: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:326
 #: manual/api/frontend/testfloat_expr.md:406
@@ -5779,216 +5779,216 @@ msgid "A line without `->` outside quotes is a directive `name: value`. The name
 msgstr ""
 
 #: manual/api/frontend/gda_expr.md:54
-msgid "A line with `->` is a test row. The left side is tokenized into `id operation operand…` (at least two tokens), the right side into `expected condition…` (at least one token). Tokens are separated by spaces, tabs or line breaks; a token enclosed in `'…'` or `\"…\"` may contain spaces and loses its quotes. A quote also ends the token before it, so `ab'cd'` is the two tokens `ab` and `cd`, and the decTest escape `''` inside a quoted token is read as the end of one token and the start of another (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet). An unterminated quote after `->` is the diagnostic `unterminated quoted token`; a quote opened before `->` hides the arrow, so the line is reported as `expected directive or testcase row`. Fewer tokens than required give `malformed testcase row`."
+msgid "A line with `->` is a test row. The left side is tokenized into `id operation operand…` (at least two tokens), the right side into `expected condition…` (at least one token). Tokens are separated by spaces, tabs or line breaks; a token enclosed in `'…'` or `\"…\"` may contain spaces and loses its quotes. A quote also ends the token before it, so `ab'cd'` is the two tokens `ab` and `cd`. Inside a quoted token the delimiting quote written twice is one literal quote and does not end the token, as the decTest format specifies: `'1E''1'` is the operand `1E'1` and `\"1E\"\"\"\"\"` is `1E\"\"`. An unterminated quote after `->` is the diagnostic `unterminated quoted token`; a quote opened before `->` hides the arrow, so the line is reported as `expected directive or testcase row`. Fewer tokens than required give `malformed testcase row`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:66
+#: manual/api/frontend/gda_expr.md:67
 msgid "The result is `Ok(document)` when no diagnostic was produced, and otherwise `Err` with every diagnostic of the document in line order."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:69
+#: manual/api/frontend/gda_expr.md:70
 msgid "Documents and rows"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:73
+#: manual/api/frontend/gda_expr.md:74
 msgid "`GdaDocument` is a parsed file: its source name and its rows in file order."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:83
+#: manual/api/frontend/gda_expr.md:84
 msgid "These methods return the source name, a copy of the rows and the number of rows."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:94
+#: manual/api/frontend/gda_expr.md:95
 msgid "`GdaCase` is one test row together with the context in force on its line."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:104
+#: manual/api/frontend/gda_expr.md:105
 msgid "These methods return the row id, the operation as written, and the operation name used for dispatch: lower case, with `-`, `_`, spaces and tabs removed."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:115
+#: manual/api/frontend/gda_expr.md:116
 msgid "These methods return the operand tokens, the expected-result token and the condition tokens, unquoted and otherwise exactly as written."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:124
+#: manual/api/frontend/gda_expr.md:125
 msgid "The arrays are copies."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:128
+#: manual/api/frontend/gda_expr.md:129
 msgid "These methods return the directive context of the row, its span (source, line, column 1), and the row as an expression."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:137
+#: manual/api/frontend/gda_expr.md:138
 msgid "The expression is `Expr::invoke(Operation::new(normalized_operation), …)` applied to one `Expr::literal` per operand, all carrying the row's span."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:142
+#: manual/api/frontend/gda_expr.md:143
 msgid "`GdaContext` is the directive state of a document at a given row."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:150
+#: manual/api/frontend/gda_expr.md:151
 msgid "It is a record of the directive values as written, not a `@decimal_gda.GdaContext`; execution converts it."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:155
+#: manual/api/frontend/gda_expr.md:156
 msgid "`GdaContext::default()` is the context before the first directive."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:161
+#: manual/api/frontend/gda_expr.md:162
 msgid "Precision 34, rounding `\"half_even\"`, `min_exponent` $-999999999$, `max_exponent` $999999999$, `clamp` off, `extended` on, `dectest` empty."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:166
+#: manual/api/frontend/gda_expr.md:167
 msgid "These accessors return the directive values."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:178
+#: manual/api/frontend/gda_expr.md:179
 msgid "`rounding` is the directive text as written (for example `\"half_up\"` or `\"05up\"`); it is only interpreted at execution time. `precision`, `min_exponent` and `max_exponent` are not range-checked when parsed: a `precision: 0` directive is accepted here, and `execute_documents` makes the rows under it `Diagnostic` (see below)."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:186
+#: manual/api/frontend/gda_expr.md:187
 msgid "`ParseDiagnostic` is one parse error with its location."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:196
+#: manual/api/frontend/gda_expr.md:197
 msgid "These methods return the location (source, line, column 1) and the message, for example `\"unterminated quoted token\"`, `\"malformed testcase row\"`, `\"expected directive or testcase row\"` or `\"invalid precision directive\"`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:229
+#: manual/api/frontend/gda_expr.md:230
 #: manual/api/frontend/itl_expr.md:82
 #: manual/api/frontend/testfloat_expr.md:237
 msgid "Execution"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:233
+#: manual/api/frontend/gda_expr.md:234
 msgid "`execute_documents(documents, options?)` executes the selected rows of the documents, in order, and summarizes the results."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:240
+#: manual/api/frontend/gda_expr.md:241
 msgid "Rows are visited document by document in file order. A row whose id does not match `options.case_filter()` is ignored entirely; the remaining rows are numbered $0, 1, 2, \\dots$ and row $k$ is executed when $k \\bmod n = i$ for shard count $n$ and shard index $i$. Each executed row first gets a disposition:"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:246
+#: manual/api/frontend/gda_expr.md:247
 msgid "`Diagnostic` if the context is invalid (precision not positive, or `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:249
+#: manual/api/frontend/gda_expr.md:250
 msgid "`Unsupported` if a condition is not one of the thirteen GDA conditions, the operation is not implemented, or the rounding directive is not recognized;"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:252
+#: manual/api/frontend/gda_expr.md:253
 msgid "`Executable` otherwise."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:254
+#: manual/api/frontend/gda_expr.md:255
 msgid "Only `Executable` rows are evaluated. Operands are decoded as described on the [design page](../../design/frontend/gda_expr.md#rows-as-operations); plain decimal operands are read with every digit, so only the result is rounded. The row passes when the result matches the expected token and the raised conditions are exactly the listed ones; the [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full rule. Non-executable rows get `passed() == false` and the message `\"skipped\"`, and are counted as skipped, not failed. Unreadable operands and operations that reject their operands give a failed row, not an abort."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:266
+#: manual/api/frontend/gda_expr.md:267
 msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:276
+#: manual/api/frontend/gda_expr.md:277
 msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` builds the options."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:283
+#: manual/api/frontend/gda_expr.md:284
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:286
+#: manual/api/frontend/gda_expr.md:287
 msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A selector `id` matches that id exactly. A selector `first..last` matches every id that has the same length as `first` and `last` and lies between them in string order, so `add001..add099` selects a numbered block."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:291
+#: manual/api/frontend/gda_expr.md:292
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:296
+#: manual/api/frontend/gda_expr.md:297
 msgid "These accessors return the option values."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:305
+#: manual/api/frontend/gda_expr.md:306
 #: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:296
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:309
+#: manual/api/frontend/gda_expr.md:310
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:320
+#: manual/api/frontend/gda_expr.md:321
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:327
+#: manual/api/frontend/gda_expr.md:328
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:337
+#: manual/api/frontend/gda_expr.md:338
 msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:353
+#: manual/api/frontend/gda_expr.md:354
 msgid "`RunSummary` aggregates the results of a run."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:363
+#: manual/api/frontend/gda_expr.md:364
 msgid "`total_cases` returns the number of rows that match the filter, counted over all shards; `selected_cases` returns the number of rows this shard executed or skipped."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:372
+#: manual/api/frontend/gda_expr.md:373
 msgid "Every shard of one run reports the same `total_cases`. Rows removed by the filter are counted nowhere."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:377
+#: manual/api/frontend/gda_expr.md:378
 msgid "These methods return the number of selected rows that were evaluated, and how many of them passed and failed."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:388
+#: manual/api/frontend/gda_expr.md:389
 msgid "These methods return the number of selected rows that were not evaluated, in total and by disposition."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:398
+#: manual/api/frontend/gda_expr.md:399
 msgid "`legacy_cases` is always 0 with the current executor. The counters of one summary satisfy"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:411
+#: manual/api/frontend/gda_expr.md:412
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:419
+#: manual/api/frontend/gda_expr.md:420
 msgid "Skipped rows do not affect `success`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:423
+#: manual/api/frontend/gda_expr.md:424
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:429
+#: manual/api/frontend/gda_expr.md:430
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:458
+#: manual/api/frontend/gda_expr.md:459
 #: manual/api/frontend/testfloat_expr.md:360
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:463
+#: manual/api/frontend/gda_expr.md:464
 msgid "`equal` compares all seven directive fields, `not_equal` is its negation and `to_repr` renders the record for `Debug`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:472
+#: manual/api/frontend/gda_expr.md:473
 msgid "`execute_documents` uses this equality to reuse the converted context of the previous row."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:477
+#: manual/api/frontend/gda_expr.md:478
 msgid "`equal` compares span and message; `to_repr` renders both."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:487
+#: manual/api/frontend/gda_expr.md:488
 msgid "`equal` compares the shard, the strict flag and the filter text; `to_repr` renders them."
 msgstr ""
 
@@ -13279,14 +13279,10 @@ msgid "No traps: rows are executed with every trap disabled."
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:230
-msgid "The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no fix yet)."
-msgstr ""
-
-#: manual/design/frontend/gda_expr.md:232
 msgid "`Legacy` is part of the shared result model but is never assigned by the current executor."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:234
+#: manual/design/frontend/gda_expr.md:232
 msgid "The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own corpus runner in `tools/`."
 msgstr ""
 
@@ -19733,7 +19729,7 @@ msgid "**`success()` ignores skipped rows.** Check `unsupported_cases()` (or use
 msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:251
-msgid "**Doubled quotes.** The tokenizer ends a quoted token at the next matching quote; the `''` escape of the decTest format is read as two tokens (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet)."
+msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted token ends only at a single matching quote."
 msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:254

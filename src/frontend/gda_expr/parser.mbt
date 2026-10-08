@@ -89,11 +89,19 @@ fn tokenize(src : String) -> Result[Array[String], String] {
   let builder = StringBuilder()
   let mut quote : UInt16? = None
   let mut has_content = false
-  for index in 0..<src.length() {
+  let mut index = 0
+  while index < src.length() {
     let ch = src[index]
+    index += 1
     match quote {
       Some(active) =>
-        if ch == active {
+        if ch == active && index < src.length() && src[index] == active {
+          // decTest: a doubled delimiter inside a quoted token is one literal
+          // delimiter character and does not end the token.
+          builder.write_char(Int::unsafe_to_char(ch.to_int()))
+          has_content = true
+          index += 1
+        } else if ch == active {
           tokens.push(builder.to_string())
           builder.reset()
           has_content = false
