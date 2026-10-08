@@ -997,7 +997,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/decimal.md:1718
 #: manual/api/decimal_gda.md:1797
 #: manual/api/def.md:421
-#: manual/api/frontend/gda_expr.md:456
+#: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:311
 #: manual/api/frontend/testfloat_expr.md:358
@@ -1084,7 +1084,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/decimal_gda_checked.md:281
 #: manual/api/def.md:435
 #: manual/api/doc_examples.md:46
-#: manual/api/frontend/gda_expr.md:507
+#: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:324
 #: manual/api/frontend/testfloat_expr.md:404
@@ -1099,7 +1099,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/ball_float.md:1721
 #: manual/api/decimal.md:1914
 #: manual/api/decimal_gda.md:1977
-#: manual/api/frontend/gda_expr.md:509
+#: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:326
 #: manual/api/frontend/testfloat_expr.md:406
@@ -5799,216 +5799,216 @@ msgid "A line without `->` outside quotes is a directive `name: value`. The name
 msgstr "引用符の外に `->` を含まない行はディレクティブ `name: value` です。名前は `-`、`_`、空白、タブを除去したうえで大文字小文字を区別せずに比較されます。`precision`、`rounding`、`minexponent`、`maxexponent`、`clamp`、`extended`、`dectest` はコンテキストを更新し、`version` と未知の名前は無視されます。`precision`、`minExponent`、`maxExponent` は整数でなければならず、そうでなければその行は診断になります。`clamp` は値 `1` のときだけ有効になり、`extended` は値 `0` のときだけ無効になります。`:` を含まない行は診断になります。"
 
 #: manual/api/frontend/gda_expr.md:54
-msgid "A line with `->` is a test row. The left side is tokenized into `id operation operand…` (at least two tokens), the right side into `expected condition…` (at least one token). Tokens are separated by spaces, tabs or line breaks; a token enclosed in `'…'` or `\"…\"` may contain spaces and loses its quotes. A quote also ends the token before it, so `ab'cd'` is the two tokens `ab` and `cd`, and the decTest escape `''` inside a quoted token is read as the end of one token and the start of another (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet). An unterminated quote after `->` is the diagnostic `unterminated quoted token`; a quote opened before `->` hides the arrow, so the line is reported as `expected directive or testcase row`. Fewer tokens than required give `malformed testcase row`."
-msgstr "`->` を含む行はテスト行です。左辺は `id operation operand…`（2 トークン以上）に、右辺は `expected condition…`（1 トークン以上）にトークン化されます。トークンは空白、タブ、改行で区切られます。`'…'` または `\"…\"` で囲まれたトークンは空白を含むことができ、引用符は取り除かれます。引用符はその前のトークンも終わらせるため、`ab'cd'` は 2 つのトークン `ab` と `cd` になり、引用符付きトークン内の decTest のエスケープ `''` は、あるトークンの終わりと別のトークンの始まりとして読まれます（[#63](https://github.com/Luna-Flow/floating/issues/63) で追跡しています。修正はまだありません）。`->` の後の閉じられていない引用符は診断 `unterminated quoted token` になります。`->` の前で開かれた引用符は矢印を隠すため、その行は `expected directive or testcase row` として報告されます。トークンが必要数に満たない場合は `malformed testcase row` になります。"
+msgid "A line with `->` is a test row. The left side is tokenized into `id operation operand…` (at least two tokens), the right side into `expected condition…` (at least one token). Tokens are separated by spaces, tabs or line breaks; a token enclosed in `'…'` or `\"…\"` may contain spaces and loses its quotes. A quote also ends the token before it, so `ab'cd'` is the two tokens `ab` and `cd`. Inside a quoted token the delimiting quote written twice is one literal quote and does not end the token, as the decTest format specifies: `'1E''1'` is the operand `1E'1` and `\"1E\"\"\"\"\"` is `1E\"\"`. An unterminated quote after `->` is the diagnostic `unterminated quoted token`; a quote opened before `->` hides the arrow, so the line is reported as `expected directive or testcase row`. Fewer tokens than required give `malformed testcase row`."
+msgstr "`->` を含む行はテスト行です。左辺は `id operation operand…`（2 トークン以上）に、右辺は `expected condition…`（1 トークン以上）にトークン化されます。トークンは空白、タブ、改行で区切られます。`'…'` または `\"…\"` で囲まれたトークンは空白を含むことができ、引用符は取り除かれます。引用符はその前のトークンも終わらせるため、`ab'cd'` は 2 つのトークン `ab` と `cd` になります。decTest 形式の規定どおり、引用符付きトークンの中で区切りの引用符を 2 つ続けて書くと 1 つのリテラルの引用符になり、トークンは終わりません。`'1E''1'` はオペランド `1E'1` に、`\"1E\"\"\"\"\"` は `1E\"\"` になります。`->` の後の閉じられていない引用符は診断 `unterminated quoted token` になります。`->` の前で開かれた引用符は矢印を隠すため、その行は `expected directive or testcase row` として報告されます。トークンが必要数に満たない場合は `malformed testcase row` になります。"
 
-#: manual/api/frontend/gda_expr.md:66
+#: manual/api/frontend/gda_expr.md:67
 msgid "The result is `Ok(document)` when no diagnostic was produced, and otherwise `Err` with every diagnostic of the document in line order."
 msgstr "診断が生成されなかった場合、結果は `Ok(document)` です。そうでなければ、文書のすべての診断を行順に含む `Err` です。"
 
-#: manual/api/frontend/gda_expr.md:69
+#: manual/api/frontend/gda_expr.md:70
 msgid "Documents and rows"
 msgstr "文書と行"
 
-#: manual/api/frontend/gda_expr.md:73
+#: manual/api/frontend/gda_expr.md:74
 msgid "`GdaDocument` is a parsed file: its source name and its rows in file order."
 msgstr "`GdaDocument` は構文解析済みのファイルで、ソース名とファイル順の行を持ちます。"
 
-#: manual/api/frontend/gda_expr.md:83
+#: manual/api/frontend/gda_expr.md:84
 msgid "These methods return the source name, a copy of the rows and the number of rows."
 msgstr "これらのメソッドはソース名、行のコピー、行数を返します。"
 
-#: manual/api/frontend/gda_expr.md:94
+#: manual/api/frontend/gda_expr.md:95
 msgid "`GdaCase` is one test row together with the context in force on its line."
 msgstr "`GdaCase` は 1 つのテスト行と、その行の時点で有効なコンテキストの組です。"
 
-#: manual/api/frontend/gda_expr.md:104
+#: manual/api/frontend/gda_expr.md:105
 msgid "These methods return the row id, the operation as written, and the operation name used for dispatch: lower case, with `-`, `_`, spaces and tabs removed."
 msgstr "これらのメソッドは行 id、記述どおりの演算、およびディスパッチに使われる演算名（小文字にし、`-`、`_`、空白、タブを除去したもの）を返します。"
 
-#: manual/api/frontend/gda_expr.md:115
+#: manual/api/frontend/gda_expr.md:116
 msgid "These methods return the operand tokens, the expected-result token and the condition tokens, unquoted and otherwise exactly as written."
 msgstr "これらのメソッドはオペランドのトークン、期待結果のトークン、条件のトークンを返します。引用符は外されますが、それ以外は記述どおりです。"
 
-#: manual/api/frontend/gda_expr.md:124
+#: manual/api/frontend/gda_expr.md:125
 msgid "The arrays are copies."
 msgstr "配列はコピーです。"
 
-#: manual/api/frontend/gda_expr.md:128
+#: manual/api/frontend/gda_expr.md:129
 msgid "These methods return the directive context of the row, its span (source, line, column 1), and the row as an expression."
 msgstr "これらのメソッドは行のディレクティブコンテキスト、そのスパン（ソース、行、列 1）、および式としての行を返します。"
 
-#: manual/api/frontend/gda_expr.md:137
+#: manual/api/frontend/gda_expr.md:138
 msgid "The expression is `Expr::invoke(Operation::new(normalized_operation), …)` applied to one `Expr::literal` per operand, all carrying the row's span."
 msgstr "式は、オペランドごとに 1 つの `Expr::literal` に適用された `Expr::invoke(Operation::new(normalized_operation), …)` で、すべて行のスパンを持ちます。"
 
-#: manual/api/frontend/gda_expr.md:142
+#: manual/api/frontend/gda_expr.md:143
 msgid "`GdaContext` is the directive state of a document at a given row."
 msgstr "`GdaContext` は、ある行における文書のディレクティブ状態です。"
 
-#: manual/api/frontend/gda_expr.md:150
+#: manual/api/frontend/gda_expr.md:151
 msgid "It is a record of the directive values as written, not a `@decimal_gda.GdaContext`; execution converts it."
 msgstr "これは記述どおりのディレクティブ値のレコードであり、`@decimal_gda.GdaContext` ではありません。実行時に変換されます。"
 
-#: manual/api/frontend/gda_expr.md:155
+#: manual/api/frontend/gda_expr.md:156
 msgid "`GdaContext::default()` is the context before the first directive."
 msgstr "`GdaContext::default()` は最初のディレクティブより前のコンテキストです。"
 
-#: manual/api/frontend/gda_expr.md:161
+#: manual/api/frontend/gda_expr.md:162
 msgid "Precision 34, rounding `\"half_even\"`, `min_exponent` $-999999999$, `max_exponent` $999999999$, `clamp` off, `extended` on, `dectest` empty."
 msgstr "精度 34、丸め `\"half_even\"`、`min_exponent` $-999999999$、`max_exponent` $999999999$、`clamp` 無効、`extended` 有効、`dectest` は空。"
 
-#: manual/api/frontend/gda_expr.md:166
+#: manual/api/frontend/gda_expr.md:167
 msgid "These accessors return the directive values."
 msgstr "これらのアクセサはディレクティブの値を返します。"
 
-#: manual/api/frontend/gda_expr.md:178
+#: manual/api/frontend/gda_expr.md:179
 msgid "`rounding` is the directive text as written (for example `\"half_up\"` or `\"05up\"`); it is only interpreted at execution time. `precision`, `min_exponent` and `max_exponent` are not range-checked when parsed: a `precision: 0` directive is accepted here, and `execute_documents` makes the rows under it `Diagnostic` (see below)."
 msgstr "`rounding` は記述どおりのディレクティブのテキスト（例えば `\"half_up\"` や `\"05up\"`）であり、実行時にのみ解釈されます。`precision`、`min_exponent`、`max_exponent` は構文解析時に範囲検査されません。`precision: 0` ディレクティブはここでは受け付けられ、`execute_documents` はその下の行を `Diagnostic` にします（後述）。"
 
-#: manual/api/frontend/gda_expr.md:186
+#: manual/api/frontend/gda_expr.md:187
 msgid "`ParseDiagnostic` is one parse error with its location."
 msgstr "`ParseDiagnostic` は位置情報付きの 1 つの構文解析エラーです。"
 
-#: manual/api/frontend/gda_expr.md:196
+#: manual/api/frontend/gda_expr.md:197
 msgid "These methods return the location (source, line, column 1) and the message, for example `\"unterminated quoted token\"`, `\"malformed testcase row\"`, `\"expected directive or testcase row\"` or `\"invalid precision directive\"`."
 msgstr "これらのメソッドは位置（ソース、行、列 1）とメッセージを返します。メッセージは例えば `\"unterminated quoted token\"`、`\"malformed testcase row\"`、`\"expected directive or testcase row\"`、`\"invalid precision directive\"` です。"
 
-#: manual/api/frontend/gda_expr.md:229
+#: manual/api/frontend/gda_expr.md:230
 #: manual/api/frontend/itl_expr.md:82
 #: manual/api/frontend/testfloat_expr.md:237
 msgid "Execution"
 msgstr "実行"
 
-#: manual/api/frontend/gda_expr.md:233
+#: manual/api/frontend/gda_expr.md:234
 msgid "`execute_documents(documents, options?)` executes the selected rows of the documents, in order, and summarizes the results."
 msgstr "`execute_documents(documents, options?)` は文書の選択された行を順に実行し、結果を要約します。"
 
-#: manual/api/frontend/gda_expr.md:240
+#: manual/api/frontend/gda_expr.md:241
 msgid "Rows are visited document by document in file order. A row whose id does not match `options.case_filter()` is ignored entirely; the remaining rows are numbered $0, 1, 2, \\dots$ and row $k$ is executed when $k \\bmod n = i$ for shard count $n$ and shard index $i$. Each executed row first gets a disposition:"
 msgstr "行は文書ごとにファイル順に処理されます。id が `options.case_filter()` に一致しない行は完全に無視されます。残りの行には $0, 1, 2, \\dots$ と番号が付けられ、シャード数 $n$、シャードインデックス $i$ に対して $k \\bmod n = i$ のとき行 $k$ が実行されます。実行される各行には、まず処置区分が与えられます。"
 
-#: manual/api/frontend/gda_expr.md:246
+#: manual/api/frontend/gda_expr.md:247
 msgid "`Diagnostic` if the context is invalid (precision not positive, or `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
 msgstr "コンテキストが無効である場合（精度が正でない、または `minexponent` が `maxexponent` より大きい）、オペランドがちょうど `#` か `?` である場合、または期待結果がちょうど `#` である場合は `Diagnostic`。"
 
-#: manual/api/frontend/gda_expr.md:249
+#: manual/api/frontend/gda_expr.md:250
 msgid "`Unsupported` if a condition is not one of the thirteen GDA conditions, the operation is not implemented, or the rounding directive is not recognized;"
 msgstr "条件が 13 個の GDA 条件のいずれでもない場合、演算が実装されていない場合、または丸めディレクティブが認識されない場合は `Unsupported`。"
 
-#: manual/api/frontend/gda_expr.md:252
+#: manual/api/frontend/gda_expr.md:253
 msgid "`Executable` otherwise."
 msgstr "それ以外は `Executable`。"
 
-#: manual/api/frontend/gda_expr.md:254
+#: manual/api/frontend/gda_expr.md:255
 msgid "Only `Executable` rows are evaluated. Operands are decoded as described on the [design page](../../design/frontend/gda_expr.md#rows-as-operations); plain decimal operands are read with every digit, so only the result is rounded. The row passes when the result matches the expected token and the raised conditions are exactly the listed ones; the [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full rule. Non-executable rows get `passed() == false` and the message `\"skipped\"`, and are counted as skipped, not failed. Unreadable operands and operations that reject their operands give a failed row, not an abort."
 msgstr "評価されるのは `Executable` の行だけです。オペランドは[設計ページ](../../design/frontend/gda_expr.md#rows-as-operations)で説明するとおりにデコードされます。通常の 10 進オペランドはすべての桁を保って読み取られるため、丸められるのは結果だけです。結果が期待トークンに一致し、発生した条件が列挙されたものとちょうど一致するとき、その行は合格です。完全な規則は[設計ページ](../../design/frontend/gda_expr.md#the-pass-rule)にあります。実行対象でない行は `passed() == false` とメッセージ `\"skipped\"` を受け取り、失敗ではなくスキップとして数えられます。読み取れないオペランドや、オペランドを拒否する演算は、異常終了ではなく失敗した行になります。"
 
-#: manual/api/frontend/gda_expr.md:266
+#: manual/api/frontend/gda_expr.md:267
 msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr "`RunOptions` は `execute_documents` が実行する行を選択します。"
 
-#: manual/api/frontend/gda_expr.md:276
+#: manual/api/frontend/gda_expr.md:277
 msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` builds the options."
 msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` はオプションを構築します。"
 
-#: manual/api/frontend/gda_expr.md:283
+#: manual/api/frontend/gda_expr.md:284
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr "デフォルト：シャード 1 つ、インデックス 0、`strict_supported` 無効、空のフィルタ（全行）。`shard_count > 0` かつ `0 <= shard_index < shard_count` でなければ異常終了します。"
 
-#: manual/api/frontend/gda_expr.md:286
+#: manual/api/frontend/gda_expr.md:287
 msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A selector `id` matches that id exactly. A selector `first..last` matches every id that has the same length as `first` and `last` and lies between them in string order, so `add001..add099` selects a numbered block."
 msgstr "`case_filter` はカンマ区切りのセレクタのリストで、各セレクタは前後の空白が除去されます。セレクタ `id` はその id にちょうど一致します。セレクタ `first..last` は、`first` および `last` と同じ長さを持ち、文字列順でその間にあるすべての id に一致します。そのため、`add001..add099` は番号付きのブロックを選択します。"
 
-#: manual/api/frontend/gda_expr.md:291
+#: manual/api/frontend/gda_expr.md:292
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr "`strict_supported` は呼び出し側のために保持されるもので、`execute_documents` 自体はこれを読みません。CLI はこれを使って、サポートされない行を失敗の終了コードに変えます。"
 
-#: manual/api/frontend/gda_expr.md:296
+#: manual/api/frontend/gda_expr.md:297
 msgid "These accessors return the option values."
 msgstr "これらのアクセサはオプションの値を返します。"
 
-#: manual/api/frontend/gda_expr.md:305
+#: manual/api/frontend/gda_expr.md:306
 #: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:296
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr "結果"
 
-#: manual/api/frontend/gda_expr.md:309
+#: manual/api/frontend/gda_expr.md:310
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr "`CaseDisposition` は行が実行されたかどうか、また実行されなかった場合はその理由を示します。"
 
-#: manual/api/frontend/gda_expr.md:320
+#: manual/api/frontend/gda_expr.md:321
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr "文字列は `\"diagnostic interchange/non-scalar row\"` や `\"unsupported operation frobnicate\"` のような短い理由です。`Legacy` は共通の結果モデルのために存在しますが、現在のエグゼキュータがこれを割り当てることはありません。"
 
-#: manual/api/frontend/gda_expr.md:327
+#: manual/api/frontend/gda_expr.md:328
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr "`CaseResult` は選択された 1 つの行の結果です。"
 
-#: manual/api/frontend/gda_expr.md:337
+#: manual/api/frontend/gda_expr.md:338
 msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
 msgstr "これらのメソッドは行 id、その処置区分、合格したかどうか、およびメッセージを返します。メッセージは、合格なら空、実行対象でない行なら `\"skipped\"`、オペランドをデコードできなかったか演算がオペランドを拒否した場合は `\"evaluation failed\"`、それ以外は `\"result mismatch: expected …, actual …\"` または `\"status flags mismatch: expected …, actual …\"` というテキストです。"
 
-#: manual/api/frontend/gda_expr.md:353
+#: manual/api/frontend/gda_expr.md:354
 msgid "`RunSummary` aggregates the results of a run."
 msgstr "`RunSummary` は 1 回の実行の結果を集計します。"
 
-#: manual/api/frontend/gda_expr.md:363
+#: manual/api/frontend/gda_expr.md:364
 msgid "`total_cases` returns the number of rows that match the filter, counted over all shards; `selected_cases` returns the number of rows this shard executed or skipped."
 msgstr "`total_cases` はフィルタに一致する行の数（全シャード合計）を返し、`selected_cases` はこのシャードで実行またはスキップされた行の数を返します。"
 
-#: manual/api/frontend/gda_expr.md:372
+#: manual/api/frontend/gda_expr.md:373
 msgid "Every shard of one run reports the same `total_cases`. Rows removed by the filter are counted nowhere."
 msgstr "1 回の実行のすべてのシャードは同じ `total_cases` を報告します。フィルタで除かれた行はどこにも数えられません。"
 
-#: manual/api/frontend/gda_expr.md:377
+#: manual/api/frontend/gda_expr.md:378
 msgid "These methods return the number of selected rows that were evaluated, and how many of them passed and failed."
 msgstr "これらのメソッドは、評価された選択行の数と、そのうち合格した数および失敗した数を返します。"
 
-#: manual/api/frontend/gda_expr.md:388
+#: manual/api/frontend/gda_expr.md:389
 msgid "These methods return the number of selected rows that were not evaluated, in total and by disposition."
 msgstr "これらのメソッドは、評価されなかった選択行の数を、合計と処置区分ごとに返します。"
 
-#: manual/api/frontend/gda_expr.md:398
+#: manual/api/frontend/gda_expr.md:399
 msgid "`legacy_cases` is always 0 with the current executor. The counters of one summary satisfy"
 msgstr "現在の実行器では `legacy_cases` は常に 0 です。1 つのサマリのカウンタは次を満たします。"
 
-#: manual/api/frontend/gda_expr.md:411
+#: manual/api/frontend/gda_expr.md:412
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr "`results` は行ごとの結果のコピーを実行順に返します。`success` は実行対象の行が 1 つも失敗しなかったとき真です。"
 
-#: manual/api/frontend/gda_expr.md:419
+#: manual/api/frontend/gda_expr.md:420
 msgid "Skipped rows do not affect `success`."
 msgstr "スキップされた行は `success` に影響しません。"
 
-#: manual/api/frontend/gda_expr.md:423
+#: manual/api/frontend/gda_expr.md:424
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr "`RunSummary::merge(parts)` は 1 回の実行の各シャードの要約を結合します。"
 
-#: manual/api/frontend/gda_expr.md:429
+#: manual/api/frontend/gda_expr.md:430
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr "`total_cases` 以外のすべてのカウンタは加算されます。`total_cases` は各部分の最大値です（どのシャードも同じ合計を報告します）。結果は `parts` の順に連結されます。1 回の実行の $n$ 個のシャードをマージすると、シャード分割しない実行と同じカウンタが得られます。"
 
-#: manual/api/frontend/gda_expr.md:458
+#: manual/api/frontend/gda_expr.md:459
 #: manual/api/frontend/testfloat_expr.md:360
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは `derive(Eq, @debug.Debug)` に由来します。新しいコードでは `==`、`!=`、`debug_inspect` を使用してください。"
 
-#: manual/api/frontend/gda_expr.md:463
+#: manual/api/frontend/gda_expr.md:464
 msgid "`equal` compares all seven directive fields, `not_equal` is its negation and `to_repr` renders the record for `Debug`."
 msgstr "`equal` は 7 つのディレクティブのフィールドをすべて比較し、`not_equal` はその否定、`to_repr` は `Debug` 用にレコードを表示します。"
 
-#: manual/api/frontend/gda_expr.md:472
+#: manual/api/frontend/gda_expr.md:473
 msgid "`execute_documents` uses this equality to reuse the converted context of the previous row."
 msgstr "`execute_documents` はこの等価性を使って、前の行で変換済みのコンテキストを再利用します。"
 
-#: manual/api/frontend/gda_expr.md:477
+#: manual/api/frontend/gda_expr.md:478
 msgid "`equal` compares span and message; `to_repr` renders both."
 msgstr "`equal` はソース範囲とメッセージを比較し、`to_repr` はその両方を表示します。"
 
-#: manual/api/frontend/gda_expr.md:487
+#: manual/api/frontend/gda_expr.md:488
 msgid "`equal` compares the shard, the strict flag and the filter text; `to_repr` renders them."
 msgstr "`equal` はシャード、厳格フラグ、フィルタのテキストを比較し、`to_repr` はそれらを表示します。"
 
@@ -13383,14 +13383,10 @@ msgid "No traps: rows are executed with every trap disabled."
 msgstr "トラップはありません。行はすべてのトラップを無効にして実行されます。"
 
 #: manual/design/frontend/gda_expr.md:230
-msgid "The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no fix yet)."
-msgstr "引用符で囲まれた decTest 文字列の `''` エスケープは認識されません（[#63](https://github.com/Luna-Flow/floating/issues/63)、修正はまだありません）。"
-
-#: manual/design/frontend/gda_expr.md:232
 msgid "`Legacy` is part of the shared result model but is never assigned by the current executor."
 msgstr "`Legacy` は共有の結果モデルの一部ですが、現在の実行器によって割り当てられることはありません。"
 
-#: manual/design/frontend/gda_expr.md:234
+#: manual/design/frontend/gda_expr.md:232
 msgid "The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own corpus runner in `tools/`."
 msgstr "この実行器は `decimal_gda` のみをテストします。IEEE 10 進（`decimal`）は `tools/` に独自のコーパスランナーを持ちます。"
 
@@ -19843,8 +19839,8 @@ msgid "**`success()` ignores skipped rows.** Check `unsupported_cases()` (or use
 msgstr "**`success()` はスキップされた行を無視します。** サポートされない行で実行を失敗させる必要がある場合は、`unsupported_cases()` を確認してください（または CLI の `--strict-supported` を使います）。"
 
 #: manual/tutorial/frontend/gda_expr.md:251
-msgid "**Doubled quotes.** The tokenizer ends a quoted token at the next matching quote; the `''` escape of the decTest format is read as two tokens (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet)."
-msgstr "**二重の引用符。** トークナイザは引用されたトークンを次の対応する引用符で終了させます。decTest 形式の `''` エスケープは 2 つのトークンとして読まれます（[#63](https://github.com/Luna-Flow/floating/issues/63) で追跡しています。修正はまだありません）。"
+msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted token ends only at a single matching quote."
+msgstr "**二重の引用符。** 引用符付きトークンの中では、区切りの引用符を 2 つ続けて書くと 1 つのリテラルの引用符になります（`'1''2'` はオペランド `1'2`）。そのため、引用符付きトークンは単独の対応する引用符でのみ終わります。"
 
 #: manual/tutorial/frontend/gda_expr.md:254
 msgid "**Invalid contexts are skipped.** A non-positive precision directive (or `minexponent` above `maxexponent`) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
@@ -21146,6 +21142,12 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
+
+#~ msgid "The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no fix yet)."
+#~ msgstr "引用符で囲まれた decTest 文字列の `''` エスケープは認識されません（[#63](https://github.com/Luna-Flow/floating/issues/63)、修正はまだありません）。"
+
+#~ msgid "**Doubled quotes.** The tokenizer ends a quoted token at the next matching quote; the `''` escape of the decTest format is read as two tokens (tracked in [#63](https://github.com/Luna-Flow/floating/issues/63); no fix yet)."
+#~ msgstr "**二重の引用符。** トークナイザは引用されたトークンを次の対応する引用符で終了させます。decTest 形式の `''` エスケープは 2 つのトークンとして読まれます（[#63](https://github.com/Luna-Flow/floating/issues/63) で追跡しています。修正はまだありません）。"
 
 #~ msgid "`precision` (default `53`) is the bit precision used to read bounds. Interval results are rounded with `@ball_float.BallContext::binary64()` regardless of `precision`, so the default is the meaningful value for ITF1788 data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet)."
 #~ msgstr "`precision`（デフォルト `53`）は端点を読み取る際に使うビット精度です。区間の結果は `precision` に関係なく `@ball_float.BallContext::binary64()` で丸められるため、ITF1788 のデータに対して意味のある値はデフォルト値です（[#62](https://github.com/Luna-Flow/floating/issues/62) で追跡しています。修正はまだありません）。"

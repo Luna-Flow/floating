@@ -227,8 +227,6 @@ the number of rows plus the cost of the decimal operations themselves.
 - No file system access, globbing or process exit codes: those belong to
   [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`.
 - No traps: rows are executed with every trap disabled.
-- The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no
-  fix yet).
 - `Legacy` is part of the shared result model but is never assigned by the
   current executor.
 - The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own
