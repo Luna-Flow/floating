@@ -13,14 +13,14 @@ enclosures are explicit values in every API rather than hidden global state.
 
 ## Install
 
-```sh
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
 The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Import
 only the packages you use in your `moon.pkg`:
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
@@ -104,7 +104,7 @@ the conformance pages before turning a result into a compatibility claim.
 
 The repository uses [`just`](https://github.com/casey/just) as its task runner.
 
-```sh
+```bash
 just pr 8                    # pull-request gate
 just fmt                     # format MoonBit sources
 just docs                    # manual checks and documentation examples
@@ -118,7 +118,7 @@ just ci 8                    # everything, before a release
 Smoke fixtures, plans, pinned corpora, targets and phases go through one entry
 point:
 
-```sh
+```bash
 just conformance smoke binary
 just conformance run decimal --run-target native --run-target wasm
 just conformance run interval --phase trigonometric --strict-supported
