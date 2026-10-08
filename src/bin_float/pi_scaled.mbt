@@ -322,7 +322,7 @@ fn BinFloat::try_pi_scaled_ctx(
       while budget.available() {
         match binary_pi_scaled_bounds(self, operation, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,

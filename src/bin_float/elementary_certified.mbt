@@ -98,6 +98,125 @@ fn binary_certified_target_rounding(
 }
 
 ///|
+/// Moves an enclosure endpoint that may be a rounding breakpoint of `context`
+/// (a representable value or a midpoint, so at most `precision + 1` significant
+/// bits) strictly inside the enclosure, by less than half the distance to the
+/// next breakpoint. Only valid when the exact result is known to differ from
+/// the endpoint.
+fn binary_inexact_inner_endpoint(
+  endpoint : BinFloat,
+  toward_positive : Bool,
+  context : BinaryContext,
+) -> BinFloat {
+  guard endpoint.classify() == FpClass::Finite && !endpoint.is_zero() else {
+    return endpoint
+  }
+  // Coefficients are odd, so bit_length counts the significant bits.
+  let coefficient = endpoint.coefficient()
+  guard coefficient.bit_length() <= context.precision + 1 else {
+    return endpoint
+  }
+  // |endpoint| = c * 2^e has its leading bit at t = e + bits(c) - 1, and the
+  // breakpoints next to it are at least 2^(t - precision - 1) apart. The offset
+  // 2^(e - shift) with shift >= precision + 3 - bits(c) is at most
+  // 2^(t - precision - 2), so no breakpoint lies between the endpoint and the
+  // new point.
+  let shift = Int::max(1, context.precision + 3 - coefficient.bit_length())
+  let scaled = coefficient.shift_left(shift)
+  let grows = toward_positive != endpoint.is_negative()
+  let moved = if grows {
+    scaled.add(BinCoeff::one())
+  } else {
+    scaled.sub_checked(BinCoeff::one()).unwrap()
+  }
+  BinFloat::make(
+    moved,
+    endpoint.exponent2() - shift,
+    Int::max(1, moved.bit_length()),
+    negative=endpoint.is_negative(),
+  )
+}
+
+///|
+/// Decides a result that lies within `2^scale` of `anchor`, above it or below
+/// it, and differs from it, when that distance is below the target spacing at
+/// the anchor. This is the tiny-argument case of the elementary functions
+/// (f(x) = x + O(x^3), or 1 + O(x^2)), where the Ziv loop would need a working
+/// precision near |log2 x| to separate the result from the anchor. Returns
+/// `None` when the enclosure does not decide the rounding.
+fn binary_tiny_argument_result(
+  anchor : BinFloat,
+  above : Bool,
+  scale : Int64,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  let anchor_top = anchor.exponent2().to_int64() +
+    (anchor.coefficient().bit_length() - 1).to_int64()
+  let precision = context.precision.to_int64()
+  guard scale < anchor_top - precision - 3L else { return None }
+  let offset = BinFloat::make(
+    BinCoeff::one(),
+    Int64::max(scale, anchor_top - precision - 8L).to_int(),
+    1,
+  )
+  let work = Int::max(context.precision, anchor.precision()) + 8
+  let (lower, upper) = if above {
+    (
+      anchor,
+      anchor.add_ctx(
+        offset,
+        BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+      ).0,
+    )
+  } else {
+    (
+      anchor.sub_ctx(
+        offset,
+        BinaryContext::unbounded(work, rounding=RoundTowardNegative),
+      ).0,
+      anchor,
+    )
+  }
+  let (result, unique, flags) = binary_certified_inexact_target_rounding(
+    lower, upper, context,
+  )
+  if unique {
+    Some((result, flags))
+  } else {
+    None
+  }
+}
+
+///|
+/// Exponent bound of a finite nonzero value: |x| < 2^(binary_top_bound(x)).
+fn binary_top_bound(value : BinFloat) -> Int64 {
+  value.exponent2().to_int64() + value.coefficient().bit_length().to_int64()
+}
+
+///|
+/// Target rounding of an enclosure of a result that is known not to be
+/// representable in `context`, such as a transcendental value at an input other
+/// than its exact special cases. An endpoint that is itself representable then
+/// cannot be the result; it is moved inside the enclosure first, so a result
+/// within a tiny distance of a representable number (exp(2^-20000) next to 1,
+/// sin(2^-6000) next to 2^-6000) is certified as soon as the enclosure is
+/// narrower than the target spacing, instead of never.
+fn binary_certified_inexact_target_rounding(
+  lower : BinFloat,
+  upper : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, Bool, BinaryFlags) {
+  if lower.compare(upper) >= 0 {
+    return binary_certified_target_rounding(lower, upper, context)
+  }
+  binary_certified_target_rounding(
+    binary_inexact_inner_endpoint(lower, true, context),
+    binary_inexact_inner_endpoint(upper, false, context),
+    context,
+  )
+}
+
+///|
 fn binary_exp_small_bounds(
   value : BinFloat,
   work_precision : Int,
@@ -965,7 +1084,7 @@ pub fn BinFloat::try_exp_ctx(
       while attempt < 12 {
         match binary_exp_bounds(self, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -1049,11 +1168,20 @@ pub fn BinFloat::try_expm1_ctx(
         is Some(result) {
         return Ok(result)
       }
+      if binary_tiny_argument_result(
+          self,
+          true,
+          2L * binary_top_bound(self),
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
       while budget.available() {
         match binary_expm1_bounds(self, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -1126,11 +1254,20 @@ pub fn BinFloat::try_log1p_ctx(
       if self.is_zero() {
         return Ok(self.round_ctx(context))
       }
+      if binary_tiny_argument_result(
+          self,
+          false,
+          2L * binary_top_bound(self),
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
       while budget.available() {
         match binary_log1p_bounds(self, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -1216,7 +1353,7 @@ pub fn BinFloat::try_exp2_ctx(
       while budget.available() {
         match binary_exp2_bounds(self, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -1293,7 +1430,7 @@ pub fn BinFloat::try_log2_ctx(
       while budget.available() {
         match binary_log2_bounds(self, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -1361,8 +1498,12 @@ pub fn BinFloat::try_exp10_ctx(
         is Some(result) {
         return Ok(result)
       }
+      // 10^n = 5^n * 2^n is exact for an integer n >= 0. Past
+      // max(4096, precision) the odd part 5^n has more than precision + 1 bits,
+      // so the result is neither representable nor a rounding breakpoint.
       match binary_exact_bounded_int(self) {
-        Some(exponent) if exponent >= 0 && exponent <= 4096 => {
+        Some(exponent) if exponent >= 0 &&
+          exponent <= Int::max(4096, context.precision) => {
           let coefficient = BinCoeff::from_uint64(5UL).pow_nat(
             exponent.reinterpret_as_uint(),
           )
@@ -1415,7 +1556,7 @@ pub fn BinFloat::try_exp10_ctx(
             match
               (binary_exp_bounds(lower, work), binary_exp_bounds(upper, work)) {
               (Some(lower_bounds), Some(upper_bounds)) => {
-                let (result, unique, flags) = binary_certified_target_rounding(
+                let (result, unique, flags) = binary_certified_inexact_target_rounding(
                   lower_bounds.0,
                   upper_bounds.1,
                   context,
@@ -1494,8 +1635,10 @@ pub fn BinFloat::try_log10_ctx(
     FpClass::Finite if self.compare(BinFloat::one(precision=self.precision())) ==
       0 => Ok((BinFloat::zero(precision=context.precision), BinaryFlags::new()))
     FpClass::Finite => {
+      // x = 10^k = 5^k * 2^k needs an odd coefficient of more than k bits.
       let decimal_exponent = self.exponent2()
-      if decimal_exponent > 0 && decimal_exponent <= 4096 {
+      if decimal_exponent > 0 &&
+        decimal_exponent < self.coefficient().bit_length() {
         let expected_coefficient = BinCoeff::from_uint64(5UL).pow_nat(
           decimal_exponent.reinterpret_as_uint(),
         )
@@ -1541,7 +1684,7 @@ pub fn BinFloat::try_log10_ctx(
                 upper = candidate
               }
             }
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               lower, upper, context,
             )
             if unique {
@@ -1685,7 +1828,7 @@ pub fn BinFloat::try_ln_ctx(
       while attempt < 12 {
         match binary_ln_bounds(self, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -1728,6 +1871,44 @@ pub fn BinFloat::ln(self : BinFloat) -> BinFloat {
 }
 
 ///|
+/// For finite nonzero `a` and `b` with `|b|` far below `|a|`, hypot(a, b) lies
+/// in `(|a|, |a| + b^2 / (2|a|)]`. With `|a| = c * 2^e`, every rounding breakpoint
+/// of the target precision is a multiple of `g = 2^min(e, top(a) - precision - 1)`,
+/// and so is `|a|`; as long as `b^2 < 2 |a| g` no breakpoint lies in that range and
+/// every such `b` rounds alike. `|b| < 2^(min(e, top(a) - precision - 1) - 3)`
+/// is enough, and the smaller operand is then replaced by that power of two, so
+/// the exact sum of squares stays small however far apart the exponents are.
+fn binary_hypot_negligible_operand(
+  left : BinFloat,
+  right : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinFloat)? {
+  guard left.classify() == FpClass::Finite &&
+    right.classify() == FpClass::Finite &&
+    !left.is_zero() &&
+    !right.is_zero() else {
+    return None
+  }
+  let left_top = left.exponent2().to_int64() +
+    (left.coefficient().bit_length() - 1).to_int64()
+  let right_top = right.exponent2().to_int64() +
+    (right.coefficient().bit_length() - 1).to_int64()
+  let (large, large_top, small_top) = if left_top >= right_top {
+    (left, left_top, right_top)
+  } else {
+    (right, right_top, left_top)
+  }
+  let bound = Int64::min(
+      large.exponent2().to_int64(),
+      large_top - context.precision.to_int64() - 1L,
+    ) -
+    2L
+  guard small_top < bound - 1L && bound >= -2147483648L else { return None }
+  let replacement = BinFloat::make(BinCoeff::one(), (bound - 1L).to_int(), 1)
+  Some((large.abs(), replacement))
+}
+
+///|
 pub fn BinFloat::try_hypot_ctx(
   self : BinFloat,
   other : BinFloat,
@@ -1747,6 +1928,10 @@ pub fn BinFloat::try_hypot_ctx(
   }
   match binary_nan_pair(self, other, context.precision) {
     Some(result) => return Ok(result)
+    None => ()
+  }
+  match binary_hypot_negligible_operand(self, other, context) {
+    Some(operands) => return operands.0.try_hypot_ctx(operands.1, context)
     None => ()
   }
   let left_exponent = self.exponent2().to_int64() * 2L
@@ -2644,12 +2829,40 @@ fn BinFloat::try_hyperbolic_ctx(
         is Some(result) {
         return Ok(result)
       }
+      // |x| <= 1/2: 0 < sinh x - x <= |x|^3 (sign of x), 0 < x - tanh x <= |x|^3
+      // (sign of x) and 0 < cosh x - 1 <= x^2.
+      let tiny = match operation {
+        BinaryHyperbolicOperation::Sinh =>
+          binary_tiny_argument_result(
+            self,
+            !self.is_negative(),
+            3L * binary_top_bound(self),
+            context,
+          )
+        BinaryHyperbolicOperation::Tanh =>
+          binary_tiny_argument_result(
+            self,
+            self.is_negative(),
+            3L * binary_top_bound(self),
+            context,
+          )
+        BinaryHyperbolicOperation::Cosh =>
+          binary_tiny_argument_result(
+            BinFloat::one(precision=context.precision),
+            true,
+            2L * binary_top_bound(self),
+            context,
+          )
+      }
+      if tiny is Some(result) {
+        return Ok(result)
+      }
       let mut work = Int::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
         match binary_hyperbolic_bounds(self, operation, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -2990,6 +3203,19 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
           (BinFloat::zero(precision=context.precision), BinaryFlags::new()),
         )
       }
+      // |x| <= 1/2: 0 < x - asinh x <= |x|^3 and 0 < atanh x - x <= |x|^3 (sign
+      // of x).
+      if operation != BinaryInverseHyperbolicOperation::Acosh &&
+        binary_tiny_argument_result(
+          self,
+          (operation == BinaryInverseHyperbolicOperation::Atanh) !=
+          self.is_negative(),
+          3L * binary_top_bound(self),
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut work = Int::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
@@ -3013,7 +3239,7 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
         }
         match bounds {
           Some(interval) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               interval.0,
               interval.1,
               context,
@@ -3345,7 +3571,7 @@ pub fn BinFloat::try_atan_ctx(
             } else {
               (pi.0.mul_ctx(half, downward).0, pi.1.mul_ctx(half, upward).0)
             }
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -3371,7 +3597,7 @@ pub fn BinFloat::try_atan_ctx(
       while attempt < 12 {
         match binary_atan_finite_bounds(self, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -3541,7 +3767,7 @@ pub fn BinFloat::try_asin_ctx(
               } else {
                 (pi.0.mul_ctx(half, downward).0, pi.1.mul_ctx(half, upward).0)
               }
-              let (result, unique, flags) = binary_certified_target_rounding(
+              let (result, unique, flags) = binary_certified_inexact_target_rounding(
                 bounds.0,
                 bounds.1,
                 context,
@@ -3562,12 +3788,22 @@ pub fn BinFloat::try_asin_ctx(
           binary_refinement_failure_state("asin", context, work, attempt),
         )
       }
+      // |x| <= 1/2: 0 < asin x - x <= |x|^3 (sign of x).
+      if binary_tiny_argument_result(
+          self,
+          !self.is_negative(),
+          3L * binary_top_bound(self),
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       let mut work = Int::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
         match binary_asin_bounds(self, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -3655,7 +3891,7 @@ pub fn BinFloat::try_acos_ctx(
               work,
               rounding=RoundTowardPositive,
             )
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               pi.0.round_ctx(downward).0,
               pi.1.round_ctx(upward).0,
               context,
@@ -3696,7 +3932,7 @@ pub fn BinFloat::try_acos_ctx(
             downward,
           ).0
         let upper = pi.1.mul_ctx(half, upward).0.sub_ctx(asin_bounds.0, upward).0
-        let (result, unique, flags) = binary_certified_target_rounding(
+        let (result, unique, flags) = binary_certified_inexact_target_rounding(
           lower, upper, context,
         )
         if unique {
@@ -3886,7 +4122,7 @@ pub fn BinFloat::try_atan2_ctx(
       while attempt < 12 {
         match binary_pi_fraction_bounds(numerator, shift, negative, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
@@ -3941,7 +4177,7 @@ pub fn BinFloat::try_atan2_ctx(
   while attempt < 12 {
     match binary_atan2_finite_bounds(self, abscissa, work) {
       Some(bounds) => {
-        let (result, unique, flags) = binary_certified_target_rounding(
+        let (result, unique, flags) = binary_certified_inexact_target_rounding(
           bounds.0,
           bounds.1,
           context,
@@ -4383,6 +4619,34 @@ fn BinFloat::try_trigonometric_ctx(
           ),
         )
       }
+      // |x| <= 1/2: 0 < x - sin x <= |x|^3 and 0 < tan x - x <= |x|^3 (sign of
+      // x), and 0 < 1 - cos x <= x^2.
+      let tiny = match operation {
+        BinaryTrigonometricOperation::Sin =>
+          binary_tiny_argument_result(
+            self,
+            self.is_negative(),
+            3L * binary_top_bound(self),
+            context,
+          )
+        BinaryTrigonometricOperation::Tan =>
+          binary_tiny_argument_result(
+            self,
+            !self.is_negative(),
+            3L * binary_top_bound(self),
+            context,
+          )
+        BinaryTrigonometricOperation::Cos =>
+          binary_tiny_argument_result(
+            BinFloat::one(precision=context.precision),
+            false,
+            2L * binary_top_bound(self),
+            context,
+          )
+      }
+      if tiny is Some(result) {
+        return Ok(result)
+      }
       let mut budget = CertifiedRefinementBudget::new(
         Int::max(required.to_int(), self.precision() + 16),
       )
@@ -4391,7 +4655,7 @@ fn BinFloat::try_trigonometric_ctx(
         match binary_trigonometric_bounds(self, operation, budget.precision()) {
           Some(bounds) => {
             certified_range = true
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,
