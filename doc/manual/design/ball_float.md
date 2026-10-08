@@ -1,4 +1,4 @@
-# `ball_float` design
+# ball_float design
 
 `ball_float` computes with sets of real numbers instead of single
 approximations. This page states the mathematical contract, derives the
@@ -55,8 +55,10 @@ $D_f$ are ignored rather than reported as errors: $\sqrt{[-1, 4]} = [0, 2]$
 and $\sqrt{[-2, -1]} = \emptyset$. Whether a domain violation occurred is
 reported separately, by decorations.
 
-Every public operation of `BallFloat` is an interval extension. Composition
-then gives the result that justifies the package:
+Every public operation of `BallFloat` is meant to be an interval extension;
+the few inputs where the current code is not are listed under
+[Known limitations](#known-limitations). Composition then gives the result
+that justifies the package:
 
 > **Fundamental theorem of interval arithmetic.**[^moore] If an expression is
 > evaluated with an interval extension for each operation, the result contains
@@ -120,7 +122,11 @@ it does not matter whether candidates are rounded before or after taking the
 minimum; the code rounds the extremal candidate once (`quantize_interval`).
 
 The width added by rounding is at most one unit in the last place per
-endpoint. For a sum with exact range $[S_\ell, S_u]$:
+endpoint. For $2^{e} \le |a| < 2^{e+1}$ the $p$-bit numbers near $a$ are
+spaced $\operatorname{ulp}_p(a) = 2^{e-p+1}$ apart, so
+$\operatorname{RU}_p(a) - a < \operatorname{ulp}_p(a) \le 2^{1-p}|a|$, and
+likewise for $\operatorname{RD}_p$. For a sum with exact range
+$[S_\ell, S_u]$:
 
 $$
 \begin{aligned}
@@ -130,9 +136,14 @@ $$
 \end{aligned}
 $$
 
-using $S_u - S_\ell = w(\boldsymbol{x}) + w(\boldsymbol{y})$ and
-$\operatorname{ulp}_p(a) \le 2^{1-p}|a|$. Widths therefore grow additively
-through a computation, plus a relative $2^{1-p}$ per rounding.
+using $S_u - S_\ell = w(\boldsymbol{x}) + w(\boldsymbol{y})$. Widths
+therefore grow additively through a computation, plus a relative $2^{1-p}$
+per rounding. The relative bound needs $a$ inside the normal range of
+`BinFloat`, $2^{e_{\min}} \le |a| < 2^{e_{\max}+1}$ with
+$e_{\min} = -(2^{30} - 1)$ and $e_{\max} = 2^{30} - 1$. Below $2^{e_{\min}}$
+the directed kernels round on a subnormal grid, and the error is only bounded
+absolutely, by $2^{e_{\min} - p + 1}$; above the range an upper endpoint
+becomes $+\infty$. Both happen only for magnitudes near $2^{\pm 2^{30}}$.
 
 ### Endpoint formulas
 
@@ -174,14 +185,32 @@ $\xi\eta = (-\xi)(-\eta) = -((-\xi)\eta)$, which gives the table used by
 | $\le 0$ | $\le 0$ | $\overline{x}\,\overline{y}$ | $\underline{x}\,\underline{y}$ |
 | $\ge 0$ | $\le 0$ | $\overline{x}\,\underline{y}$ | $\underline{x}\,\overline{y}$ |
 | $\le 0$ | $\ge 0$ | $\underline{x}\,\overline{y}$ | $\overline{x}\,\underline{y}$ |
-| $\ni 0$ | $\ni 0$ | $\min(\underline{x}\,\overline{y}, \overline{x}\,\underline{y})$ | $\max(\underline{x}\,\underline{y}, \overline{x}\,\overline{y})$ |
+| other (one of them has $0$ in its interior) | | $\min(\underline{x}\,\overline{y}, \overline{x}\,\underline{y})$ | $\max(\underline{x}\,\underline{y}, \overline{x}\,\overline{y})$ |
 
-In the last row both intervals straddle 0, so $\underline{x}\,\overline{y}$
-and $\overline{x}\,\underline{y}$ are $\le 0$ and the other two are $\ge 0$;
-the minimum is among the former and the maximum among the latter. For
-unbounded intervals all four products are formed with $0 \cdot \infty := 0$:
-real points near a zero endpoint give products near 0, whatever the other
-factor.
+The first four rows cover the cases where both operands have constant sign
+(an operand with a zero endpoint, such as $[0, 2]$, has constant sign; when
+two rows apply they give the same products). The last row covers the five remaining cases,
+in which at least one operand straddles 0. Say
+$\underline{x} < 0 < \overline{x}$. The minimum of $S$ is $\le 0$, because
+$\underline{x}\,\eta$ and $\overline{x}\,\eta$ have opposite signs for any
+$\eta$. If it were attained at $\underline{x}\,\underline{y} < 0$, then
+$\underline{y} > 0$, hence $\overline{y} \ge \underline{y}$ gives
+$\underline{x}\,\overline{y} \le \underline{x}\,\underline{y}$; if at
+$\overline{x}\,\overline{y} < 0$, then $\overline{y} < 0$ and
+$\overline{x}\,\underline{y} \le \overline{x}\,\overline{y}$. Either way the
+minimum is also attained at $\underline{x}\,\overline{y}$ or
+$\overline{x}\,\underline{y}$ (and a minimum of 0 at
+$\underline{x}\,\underline{y}$ means $\underline{y} = 0$, so
+$\underline{x}\,\overline{y} \le 0$ as well). The maximum and the case where
+$\boldsymbol{y}$ straddles 0 are symmetric. So two products suffice for the
+four single-sign rows and four for the rest.
+
+For unbounded intervals all four products are formed with
+$0 \cdot \infty := 0$. This is the right limit for the set-based model: if
+$\underline{x} = 0$ and $\overline{y} = +\infty$, the products
+$\xi\eta$ with $\xi \downarrow 0$ and $\eta$ fixed tend to 0, while the
+unbounded growth is already represented by the other corners
+($\overline{x}\,\overline{y} = \pm\infty$ when $\overline{x} \ne 0$).
 
 **Division.** IEEE 1788 defines $\boldsymbol{x}/\boldsymbol{y} =
 \operatorname{hull}\{\xi/\eta : \xi \in \boldsymbol{x}, \eta \in
@@ -197,12 +226,16 @@ When $0 \in \boldsymbol{y}$:
   approaches 0 from both sides, so $\xi/\eta$ is unbounded in both directions:
   Entire.
 - $\boldsymbol{y} = [0, \overline{y}]$ with $\overline{y} > 0$ and
-  $\underline{x} > 0$: as $\eta \downarrow 0$, $\xi/\eta \to +\infty$, and the
-  smallest quotient is $\underline{x}/\overline{y}$, so the result is
-  $[\underline{x}/\overline{y}, +\infty)$; the other sign cases are mirror
-  images. If $\boldsymbol{x}$ straddles 0, both signs are unbounded: Entire.
+  $\underline{x} \ge 0$, $\boldsymbol{x} \ne \{0\}$: as $\eta \downarrow 0$
+  with $\xi = \overline{x} > 0$, $\xi/\eta \to +\infty$, and the smallest
+  quotient is $\underline{x}/\overline{y}$ (0 when $\overline{y} = +\infty$),
+  so the result is $[\underline{x}/\overline{y}, +\infty)$. The cases
+  $\overline{x} \le 0$ and $\boldsymbol{y} = [\underline{y}, 0]$ are mirror
+  images, obtained from $\xi/\eta = (-\xi)/(-\eta) = -((-\xi)/\eta)$. If
+  $\boldsymbol{x}$ straddles 0, both signs are unbounded: Entire.
 - $\boldsymbol{x} = \{0\}$ and $\boldsymbol{y} \ne \{0\}$: every admissible
   quotient is 0.
+- An Empty operand gives Empty.
 
 ### From midpoint–radius to endpoints
 
@@ -228,6 +261,10 @@ $$
 The endpoints $\tilde c \pm R$ are then formed exactly (they may have more
 than $p$ bits). `with_precision` uses the same construction with the current
 center and radius, and a caller-chosen rounding mode for the center. The
+construction is sound but not idempotent: whenever $\tilde c \ne c$, the
+displacement $|c - \tilde c|$ is added on both sides, so rebuilding an
+interval whose center needs more than $p$ bits widens it (see
+[Tightness](#correctness-and-invariants)). The
 converse view is exact: `center` returns $(\underline{x} + \overline{x})/2$
 and `radius` returns $(\overline{x} - \underline{x})/2$, which are dyadic and
 need no rounding (the radius is rounded up only if it underflows the
@@ -246,9 +283,11 @@ $$
 The result is correct (it contains 0) but not tight: interval subtraction is
 the extension of $(\xi, \eta) \mapsto \xi - \eta$, and the box
 $\boldsymbol{x} \times \boldsymbol{x}$ contains $(1, 2)$ and $(2, 1)$. In
-general $f(\boldsymbol{x}) \subseteq F(\boldsymbol{x})$ with equality only
-when each variable occurs once in the expression (a second theorem of
-Moore's). The same effect explains $\boldsymbol{x}\boldsymbol{x} \supsetneq
+general only $f(\boldsymbol{x}) \subseteq F(\boldsymbol{x})$ holds. A second
+theorem of Moore's gives equality, in exact arithmetic and for continuous
+operations, when each variable occurs at most once in the expression; the
+condition is sufficient, not necessary ($\boldsymbol{x} \cdot \boldsymbol{x}$
+is exact for $\boldsymbol{x} = [1, 2]$). The same effect explains $\boldsymbol{x}\boldsymbol{x} \supsetneq
 \boldsymbol{x}^2$ for $0 \in \operatorname{int}\boldsymbol{x}$
 ($[-1, 2]\cdot[-1, 2] = [-2, 4]$ but $[-1, 2]^2 = [0, 4]$) and
 *subdistributivity*, $\boldsymbol{x}(\boldsymbol{y} + \boldsymbol{z})
@@ -304,12 +343,16 @@ points inside it. The package uses three patterns.
   at an endpoint gives a half-unbounded result instead. Negative powers and
   division handle the pole at 0 by the rules of the previous sections.
 
-`pow_interval(x, y)` on the domain $\xi > 0$ (and $\xi = 0$, $\eta > 0$) uses
-the fact that $\xi^\eta$ is monotone in each argument for a fixed sign of
-$\ln \xi$ and of $\eta$, so its extrema over a box are among the four corners,
-plus the value 1 when the box crosses $\xi = 1$ or $\eta = 0$ (where the
-monotonicity direction changes), and the limits 0 and $+\infty$ when
-$\xi \to 0$. `atan2` is handled the same way with the axis crossings as
+`pow_interval(x, y)` on the domain $\xi > 0$ (and $\xi = 0$, $\eta > 0$) writes
+$\xi^\eta = \exp(\eta u)$ with $u = \ln \xi$. The map $(u, \eta) \mapsto \eta u$
+is bilinear, so by the corner argument used for products its extrema over the
+box $[\ln \underline{x}, \ln \overline{x}] \times \boldsymbol{y}$ are at the
+corners, and $\exp$ is increasing: the extrema of $\xi^\eta$ are among the four
+corner values. When $\underline{x} = 0$, $u \to -\infty$ and the corner values
+become the limits $0$ (for $\eta > 0$) and $+\infty$ (for $\eta < 0$). The
+code also adds the value 1 when the box crosses $\xi = 1$ or $\eta = 0$; such
+a box contains a point where $\eta u = 0$, so $e^0 = 1$ already lies between
+the extreme corner values and the extra candidate is redundant but harmless. `atan2` is handled the same way with the axis crossings as
 additional candidates, and with the result $[-\pi, \pi]$ when the box crosses
 the branch cut on the negative $\xi$ axis.
 
@@ -321,25 +364,37 @@ $\operatorname{RD}_p(L)$ is a valid lower endpoint by property (i). The
 kernels of this package build $L$ and $U$ with exact rational arithmetic and
 directed `BinFloat` operations at a work precision $w > p$:
 
-- **exp.** For $|a| < 2^{e+1}$ the argument is halved $k = e + 4$ times so
-  that $0 \le |a|/2^k \le 1/8$, the Taylor series is summed with directed
-  rounding, and the result is squared $k$ times in interval arithmetic,
-  $e^{a} = (e^{a/2^k})^{2^k}$. Each squaring doubles the relative width, so
-  the work precision is $w = p + 64 + 2k$. The series tail after the term
-  $t_n$ is bounded using $t_{j+1}/t_j = a'/(j+1) \le 1/16$:
+- **exp.** For $2^{e} \le |a| < 2^{e+1}$ the argument is halved
+  $k = \max(0, e + 4)$ times so that $a' = |a|/2^k < 2^{-3}$, the Taylor
+  series $\sum_j t_j$, $t_j = a'^j/j!$, is summed with directed rounding, and
+  the result is squared $k$ times in interval arithmetic,
+  $e^{a} = (e^{a/2^k})^{2^k}$. If the enclosure of $e^{a'}$ has relative width
+  $\varepsilon$, its square has relative width
+  $(1+\varepsilon)^2 - 1 \approx 2\varepsilon$, so the $k$ squarings cost
+  about $k$ bits; the code reserves $w = p + 64 + 2k$. The series is cut
+  after a term $t_n$ with $n \ge 1$; every later ratio is
+  $t_{j+1}/t_j = a'/(j+1) \le \tfrac18 \cdot \tfrac12 = \tfrac1{16}$, so
   $$
-  \sum_{j > n} t_j \le t_{n+1}\sum_{i \ge 0} 16^{-i} = \tfrac{16}{15} t_{n+1} \le 2 t_{n+1}.
+  \sum_{j > n} t_j \le t_{n+1}\sum_{i \ge 0} 16^{-i} = \tfrac{16}{15} t_{n+1} \le 2 t_{n+1},
   $$
-  Negative arguments use $e^{-a} = 1/e^{a}$. For $|a| \ge 2^{30}$,
-  $|a| > (e_{\max}+1)\ln 2$ for the whole `BinFloat` exponent range, and the
-  result is $[\text{largest finite}, +\infty)$ or $[0, \text{smallest
-  positive}]$ directly.
+  and $2t_{n+1}$ is added to the upper sum. Negative arguments use
+  $e^{-a} = 1/e^{a}$. Arguments with $|a| < 2^{-(p+16)}$ give
+  $[1, 1 + 2^{-p}]$ or $[1 - 2^{-p}, 1]$ before rounding, since
+  $0 < e^{|a|} - 1 < 2|a|$ and $0 < 1 - e^{-|a|} < |a|$. For $|a| \ge 2^{30}$
+  the result is $[\text{largest finite}, +\infty)$ or
+  $[0, \text{smallest positive}]$ directly: the largest finite `BinFloat` is
+  below $2^{e_{\max}+1} = 2^{2^{30}}$, and $e^{2^{30}} = 2^{2^{30}/\ln 2}
+  \approx 2^{1.44 \cdot 2^{30}}$ exceeds it; the smallest positive value at
+  precision $p \le 2^{28}$ is at least $2^{-(2^{30} + 2^{28})}$, which exceeds
+  $e^{-2^{30}}$.
 - **ln.** For $a = m \cdot 2^{e}$ with $m \in [1, 2)$,
   $\ln a = \ln m + e \ln 2$, and $\ln m = 2\operatorname{artanh} z =
   2\sum_k z^{2k+1}/(2k+1)$ with $z = (m-1)/(m+1) \in [0, 1/3]$; $\ln 2$ is the
-  same series at $m = 2$. Successive terms shrink by at least $z^2 \le 1/9$, so
-  the omitted tail after doubling is at most $\tfrac{9}{4} t' \le 3t'$ for the
-  first omitted term $t'$.
+  same series at $m = 2$. The ratio of consecutive terms is
+  $z^2 (2k+1)/(2k+3) \le z^2 \le 1/9$, so the omitted tail is at most
+  $t' \sum_{i \ge 0} 9^{-i} = \tfrac98 t'$ for the first omitted term $t'$,
+  and after doubling at most $\tfrac94 t' \le 3t'$, which is what the code
+  adds.
 - **π.** Machin's formula $\pi = 16\arctan\tfrac15 - 4\arctan\tfrac1{239}$ with
   alternating series, whose truncation error is bounded by the first omitted
   term.
@@ -366,16 +421,21 @@ $$
 
 so when both $\operatorname{RD}$ and $\operatorname{RU}$ of $L$ and $U$ agree,
 the endpoints are the correctly directed roundings of $f(a)$. Otherwise the
-work precision $w$ grows to $w + \max(32, w/2)$, at most 12 times
-(`CertifiedRefinementBudget`). The exp and log kernels skip the test and keep
+work precision $w$ grows to $w + \max(32, w/2)$; at most 12 work precisions
+are tried (`CertifiedRefinementBudget`). The exp and log kernels skip the test and keep
 $\operatorname{RD}_p(L)$, $\operatorname{RU}_p(U)$, which are always valid
-and, with 64 guard bits, almost always tight. The `try_` forms, and the total
+and, with their guard bits ($p + 64 + 2k$ for `exp`, $p + 24$ for `ln`,
+$p + 32$ for `log2`), almost always tight. The `try_` forms, and the total
 forms of `expm1`, `log1p`, `sinpi`, `cospi`, `tanpi`, `pow_interval`,
 `hypot` and `atan2` (which try them first), delegate the endpoints to the certified `try_*_ctx` functions of
 [`bin_float`](bin_float.md), evaluated in unbounded contexts rounded toward
 $-\infty$ and $+\infty$. The total hyperbolic functions and `asin`/`acos`
 evaluate their defining formulas in interval arithmetic at 64 to 192 extra
-bits, which is valid by the fundamental theorem.
+bits, which is valid by the fundamental theorem. Validity is not tightness:
+$(e^{\xi} - e^{-\xi})/2$ subtracts two enclosures of numbers near 1, each
+about $2^{-w}$ wide, so for $|\xi| \ll 2^{-w+p}$ the relative width of the
+result is about $2^{-w}/|\xi|$, far above $2^{-p}$. The same cancellation
+affects `tanh`, `asinh` and `atanh` near 0.
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
     correctly rounded last bit", *ACM TOMS* 17(3), 1991; J.-M. Muller et al.,
@@ -389,15 +449,18 @@ a box $\boldsymbol{x}$:
 
 | Decoration | Property $p_d(f, \boldsymbol{x})$ |
 | --- | --- |
-| `com` | $\boldsymbol{x} \subseteq D_f$, $f$ continuous on $\boldsymbol{x}$, and the result is bounded |
-| `dac` | $\boldsymbol{x} \subseteq D_f$ and $f \vert_{\boldsymbol{x}}$ is continuous |
-| `def` | $\boldsymbol{x} \subseteq D_f$ |
+| `com` | $\boldsymbol{x}$ is non-empty and bounded, $\boldsymbol{x} \subseteq D_f$, $f$ is continuous at each point of $\boldsymbol{x}$, and the result is bounded |
+| `dac` | $\boldsymbol{x}$ is non-empty, $\boldsymbol{x} \subseteq D_f$ and $f \vert_{\boldsymbol{x}}$ is continuous |
+| `def` | $\boldsymbol{x}$ is non-empty and $\boldsymbol{x} \subseteq D_f$ |
 | `trv` | always true |
 | `ill` | the value is NaI, not an interval |
 
 The decorations are totally ordered by strength, $\text{com} > \text{dac} >
 \text{def} > \text{trv} > \text{ill}$, because each property implies the
-next. A decorated operation $g$ applied to decorated inputs
+next (continuity of $f$ at each point of $\boldsymbol{x}$ implies continuity
+of the restriction, but not conversely: `atan2` restricted to a box lying on
+its branch cut from above is continuous, while `atan2` is not). A decorated
+operation $g$ applied to decorated inputs
 $(\boldsymbol{y}_j, d_j)$ returns
 
 $$
@@ -414,20 +477,23 @@ because a composition of continuous functions is continuous. Boundedness for
 `com` is a property of the final result and is checked on it. By induction
 the decoration of a whole expression is a true statement about the expression
 on the input box. This is what interval existence proofs need: for example,
-if $F(\boldsymbol{x}) \subseteq \boldsymbol{x}$ with decoration at least
-`dac`, the function is continuous on $\boldsymbol{x}$ and maps it into itself,
-so Brouwer's theorem gives a fixed point in $\boldsymbol{x}$. Without the
+if $\boldsymbol{x}$ is bounded and $F(\boldsymbol{x}) \subseteq \boldsymbol{x}$
+with decoration at least `dac`, the function is continuous on the compact
+non-empty interval $\boldsymbol{x}$ and maps it into itself, so Brouwer's
+theorem gives a fixed point in $\boldsymbol{x}$. Boundedness matters:
+$\xi \mapsto \xi + 1$ maps Entire into itself, continuously, without a fixed
+point. Without the
 decoration, $\sqrt{[-1, 4]} = [0, 2]$ would wrongly suggest that $\sqrt{\cdot}$
 is defined on $[-1, 4]$.
 
 The package computes $d_g$ from the operands by the domain tests listed in the
-[API reference](../api/ball_float.md#decorated-elementary-functions): division
+[API reference](../api/ball_float.md#decorated-intervals): division
 by an interval containing 0, a logarithm reaching $\xi \le 0$, `sqrt` below 0
 and so on give `trv`; `atan2` across its branch cut gives `def` (defined but
 discontinuous) and touching the cut from above gives `dac`. Set operations
 (`intersection`, `convex_hull`, `cancel_*`) are not point functions and always
 give `trv`. The result is made canonical: an empty result is always `trv`
-(nothing can be claimed about $f$ on an empty set's preimage), and `com` on
+(the properties above require a non-empty box), and `com` on
 an unbounded result becomes `dac` (this is how overflow is reported). NaI,
 the result of an invalid decorated construction, absorbs every operation, and
 is distinct from $\emptyset$, which is a valid set.
@@ -628,7 +694,7 @@ input without a context argument, which is what a set-valued type needs to
 compose with operators (`x + y`). A `BallContext` is used when a specific
 format must be imposed.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Representation invariant.** A non-empty `BallFloat` has non-NaN endpoints,
 $\underline{x} \le \overline{x}$, $\underline{x} \ne +\infty$,
@@ -644,10 +710,22 @@ uncertified cases (the exceptions are listed under known limitations). By the
 fundamental theorem, so does every composition.
 
 **Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`,
-`maximum`, set operations and `sqrt_interval` return the outward rounding of
-the exact hull, so each endpoint is within one ulp of optimal. Trigonometric
-and arctangent endpoints are correctly directed roundings when certified;
-other elementary functions are within a few ulps; fallbacks are not tight.
+`maximum`, `intersection`, `convex_hull` of non-empty operands and
+`sqrt_interval` return the outward rounding of the exact hull, so each
+endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints
+are correctly directed roundings when certified; the other elementary
+functions are usually within a few ulps. Not tight: fallbacks; `pown` with
+$n < -4096$ and 0 inside (Entire); the total hyperbolic functions for
+$|\xi| \lesssim 2^{-190}$ (cancellation, see above); and everything that
+goes through the center–radius rebuild of `with_precision`, which can widen
+by one ulp per side even at an unchanged precision. At 53 bits,
+$[1, 1 + 2^{-52}]$ has center $1 + 2^{-53}$, which needs 54 bits; rounding it
+to 1 and adding the displacement $2^{-53}$ to the radius gives
+$[1 - 2^{-52}, 1 + 2^{-52}]$. This affects `with_precision`, `normalized`,
+`convex_hull` with an Empty operand and the checked capabilities. The
+`Floating` law "normalizing keeps the value" therefore holds for `BallFloat`
+only as an enclosure: $\boldsymbol{x} \subseteq
+\operatorname{normalized}(\boldsymbol{x})$.
 
 **Decorations.** The decoration of a result is a true statement about the
 function evaluated, by the induction argument above.
@@ -665,13 +743,24 @@ runs 4,656 cases in strict mode (see [conformance](../conformance/ball_float.md)
 
 ### Known limitations
 
-The following inputs currently break the inclusion property or the decoration
-rule; they are reported for fixing and documented here so that callers can
-avoid them.
+The following inputs currently break the inclusion property, abort, hang
+or break the decoration rule; they are reported for fixing and documented
+here so that callers can avoid them.
 
-- `from_int(n, precision=p)` and `from_coefficient` round the integer to
-  nearest at $\max(p, 8)$ bits before building the singleton, so
-  `from_int(257, precision=8)` is $\{256\}$.
+- `exp2_interval` replaces an integer endpoint $n$ by the exact power
+  $2^n$, built without regard to the exponent range: an integer lower
+  endpoint $n \ge 2^{30}$ overflows to $+\infty$ and the call aborts, and an
+  integer upper endpoint $n < -2^{30} - p - 94$ underflows to 0, so the result
+  misses $2^n > 0$ (at 53 bits, `exp2_interval` of $\{-1073742000\}$ is
+  $\{0\}$). `try_exp2_interval` is not affected.
+- `ln_interval` does not return (more than five minutes in a release build)
+  for some arguments just above 1 at high precision, for example
+  $\{1 + 2^{-243}\}$ or $\{1 + 2^{-238}\}$ at 245 bits and $\{1 + 2^{-243}\}$
+  at 300 bits, while $\{1 + 2^{-230}\}$ and $\{1 + 2^{-244}\}$ at 245 bits
+  return at once. Because the total `asinh_interval` and `atanh_interval`
+  evaluate `ln_interval` at $p + 192$ bits, they hang the same way for tiny
+  arguments: neither returned within minutes for $\{2^{-300}\}$ at 53 bits. The `try_`
+  forms are not affected.
 - `with_precision` (and therefore `normalized`) rebuilds a bounded interval
   from `center()`, which uses the far-addend surrogate with
   round-to-nearest. For endpoints more than about $2^{16}$ binary orders of
@@ -680,8 +769,19 @@ avoid them.
   endpoint.
 - Decorated `rootn` with a negative degree does not lower the decoration to
   `trv` when 0 is in the argument.
+- Decorated `tanpi_interval` lowers the decoration only when the result is
+  Entire. When a pole is an endpoint (for example $[1/2, 1]$), the
+  half-unbounded result is decorated `dac`, although the pole is outside the
+  domain and the decoration must be `trv`.
 - `midpoint_ctx` does not apply the context's $e_{\max}$ and never raises
-  `overflow`.
+  `overflow`. It also rounds to nearest twice (to $p$ bits, then onto the
+  subnormal grid), so a subnormal midpoint can be the wrong neighbour: with
+  $p = 4$, $e_{\min} = -2$, the center $2^{-6} + 2^{-20}$ gives 0 instead of
+  $2^{-5}$.
+- `apply_ctx` raises `underflow` only when the subnormal-grid step is
+  inexact, not for every tiny inexact endpoint as IEEE 754 does.
+- `pow_nat_checked(Empty, 0)` returns $\{1\}$ (the power loop starts from
+  $\{1\}$ without checking the base), whereas `pown(Empty, 0)` is Empty.
 
 ## Alternatives rejected
 

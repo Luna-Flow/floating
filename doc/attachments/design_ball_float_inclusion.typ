@@ -103,11 +103,18 @@ $S = {underline(x) underline(y), underline(x) overline(y), overline(x) underline
 The sign cases used by the code select from $S$: if $underline(x), underline(y) >= 0$
 then $xi eta$ is increasing in both arguments on the box, so the minimum is
 $underline(x) underline(y)$ and the maximum $overline(x) overline(y)$; the other
-three single-sign cases follow by $xi eta = (-xi)(-eta) = -((-xi) eta)$; when
-both intervals contain $0$ in their interior, the products
-$underline(x) underline(y)$ and $overline(x) overline(y)$ are $>= 0$ and the
-other two $<= 0$, so the minimum is among the latter and the maximum among
-the former. For unbounded intervals the corner lemma holds in the limit, with
+three single-sign cases follow by $xi eta = (-xi)(-eta) = -((-xi) eta)$. In
+the remaining cases at least one interval, say $bold(x)$, has $0$ in its
+interior. Then $min S <= 0 <= max S$, because $underline(x) eta$ and
+$overline(x) eta$ have opposite signs. If the minimum is attained at
+$underline(x) underline(y) < 0$, then $underline(y) > 0$ and
+$underline(x) overline(y) <= underline(x) underline(y)$; if at
+$overline(x) overline(y) < 0$, then $overline(y) < 0$ and
+$overline(x) underline(y) <= overline(x) overline(y)$. So the minimum is
+always attained at $underline(x) overline(y)$ or $overline(x) underline(y)$,
+and symmetrically the maximum at $underline(x) underline(y)$ or
+$overline(x) overline(y)$; the code evaluates these four products whenever
+an operand has $0$ in its interior. For unbounded intervals the corner lemma holds in the limit, with
 $0 dot (plus.minus oo)$ contributing $0$: a zero endpoint multiplies an
 unbounded side to $0$ because the real points near that endpoint give
 products near $0$.
@@ -171,16 +178,18 @@ By Lemma 1(ii), $"RD"_p (L) <= "RD"_p (y) <= "RD"_p (U) = "RD"_p (L)$.
 
 The trigonometric and arctangent kernels accept a work precision only when
 both tests pass, so their endpoints are the correctly directed roundings of the
-exact values; otherwise the work precision $w$ grows to $w + max(32, w/2)$, at
-most 12 times. The exponential and logarithm kernels skip the test and return
+exact values; otherwise the work precision $w$ grows to $w + max(32, w/2)$, and
+at most 12 work precisions are tried. The exponential and logarithm kernels skip the test and return
 $"RD"_p (L)$ and $"RU"_p (U)$, which are enclosures by Corollary 2 and, with
 $64$ guard bits, almost always the correct directed roundings.
 
 *Series tails.* For $0 <= x <= 1/8$ the terms $t_k = x^k / k!$ satisfy
-$t_(k+1) / t_k = x/(k+1) <= 1/16$, so the tail after $t_n$ is at most
+$t_(k+1) / t_k = x/(k+1) <= 1/16$ for $k >= 1$ (for $k = 0$ the ratio is $x$,
+up to $1/8$). The code stops after a term $t_n$ with $n >= 1$, so every ratio
+in the tail is at most $1/16$ and the tail after $t_n$ is at most
 $t_(n+1) sum_(j >= 0) 16^(-j) = 16/15 dot t_(n+1) <= 2 t_(n+1)$, the bound
 the code adds. For $ln y = 2 sum_(k>=0) z^(2k+1)/(2k+1)$ with
 $z = (y-1)/(y+1) in [0, 1/3]$ ($1 <= y <= 2$), let $t'$ be the first omitted
-term. Consecutive terms have ratio at most $z^2 <= 1/9$, so the omitted tail
+term. Consecutive terms have ratio $z^2 (2k+1)/(2k+3) <= z^2 <= 1/9$, so the omitted tail
 is at most $t' sum_(j>=0) 9^(-j) = 9/8 t'$; after doubling it is at most
 $9/4 t' <= 3 t'$, the bound the code adds.
