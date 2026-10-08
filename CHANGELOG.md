@@ -251,6 +251,27 @@ notes live in this file.
   left unrounded or, below Etiny, rounded to the subnormal grid and flagged
   `subnormal` although its magnitude was normal. The scaled value is now
   rounded once like any other context result (#95).
+- Fixed `decimal_gda` `add` and `subtract` when one operand lies far below
+  the other's rounding position, as for `Decimal` in #88. The shortcut rounded
+  the larger operand alone and moved the result by one unit at most, so
+  `1598618 - 9.9E-11` at seven digits with `ZeroFiveUp` returned `1598618` and
+  `1598618.5 + 1E-20` with `HalfEven` returned `1598618`. Extended contexts now
+  replace the small operand with a sticky unit and round the sum once (#120).
+- Fixed double rounding in `decimal_gda` of results whose exact exponent is
+  below Etiny but whose magnitude is normal, as for `Decimal` in #87.
+  `3.000001E-45 * 1.500001E-45` in decimal32 returned `4.500004E-90` instead
+  of `4.500005E-90` (also `fma`, `plus` and `exp`). The inexact path of
+  `divide` rounded a subnormal quotient to the precision before rounding it to
+  Etiny (`1 / 1.9999999999998E+101` in decimal32 gave `0E-101`, not
+  `1E-101`), and its exact-quotient shortcuts rounded a normal quotient below
+  Etiny to Etiny only, leaving more digits than the precision (`77223 /
+  16E+21` at precision 5 gave `4.82644E-18`). Each is now rounded once (#121).
+- Fixed `decimal_gda` `scaleb` finalization, as for `Decimal` in #52 and #95.
+  Overflow now follows the rounding direction instead of always returning an
+  infinity, a zero result has its exponent clamped into the context range
+  (`0E+300 scaleb 400` in decimal64 gives `0E+369` with `Clamped`), and a
+  coefficient longer than the precision is rounded once to the precision
+  (#122).
 - Fixed `to_integral_exact` and `to_integral_value` in `decimal_gda` (the GDA
   functions and the `Decimal` methods) for operands longer than the context
   precision. An operand with a non-negative exponent was rounded to the
