@@ -925,9 +925,9 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/decimal.md:1523
 #: manual/api/decimal_gda.md:1531
 #: manual/api/def.md:317
-#: manual/api/frontend/gda_expr.md:417
-#: manual/api/frontend/itl_expr.md:224
-#: manual/api/frontend/mpfr_expr.md:252
+#: manual/api/frontend/gda_expr.md:418
+#: manual/api/frontend/itl_expr.md:226
+#: manual/api/frontend/mpfr_expr.md:253
 #: manual/api/frontend/testfloat_expr.md:274
 #: manual/api/internal/conformance.md:261
 #: manual/api/numeric_expr.md:289
@@ -1008,9 +1008,9 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/decimal_gda_checked.md:230
 #: manual/api/def.md:331
 #: manual/api/doc_examples.md:12
-#: manual/api/frontend/gda_expr.md:436
-#: manual/api/frontend/itl_expr.md:237
-#: manual/api/frontend/mpfr_expr.md:265
+#: manual/api/frontend/gda_expr.md:437
+#: manual/api/frontend/itl_expr.md:239
+#: manual/api/frontend/mpfr_expr.md:266
 #: manual/api/frontend/testfloat_expr.md:293
 #: manual/api/internal.md:429
 #: manual/api/internal/conformance.md:286
@@ -1023,9 +1023,9 @@ msgstr "公開インターフェース全体"
 #: manual/api/ball_float.md:1493
 #: manual/api/decimal.md:1655
 #: manual/api/decimal_gda.md:1661
-#: manual/api/frontend/gda_expr.md:438
-#: manual/api/frontend/itl_expr.md:239
-#: manual/api/frontend/mpfr_expr.md:267
+#: manual/api/frontend/gda_expr.md:439
+#: manual/api/frontend/itl_expr.md:241
+#: manual/api/frontend/mpfr_expr.md:268
 #: manual/api/frontend/testfloat_expr.md:295
 #: manual/api/internal.md:431
 #: manual/api/internal/conformance.md:288
@@ -1356,7 +1356,7 @@ msgstr "ベンチマークケース"
 #: manual/api/bench/bin_float.md:11
 #: manual/api/bench/decimal.md:11
 #: manual/api/bench/decimal_gda.md:11
-#: manual/api/frontend/itl_expr.md:98
+#: manual/api/frontend/itl_expr.md:99
 #: manual/design/bench/ball_float.md:29
 #: manual/design/bench/bin_float.md:29
 #: manual/design/bench/decimal.md:29
@@ -4712,7 +4712,7 @@ msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value,
 msgstr "`Trapped(signal, value, context, raised)` に対しては `Completed(value, context, GdaFlags::none())` を返します。値とコンテキスト（トラップされたシグナルをすでに含むステータスを伴う）は保持され、トラップの印と直近ステップのフラグは破棄されます。完了状態のパイプラインに対しては何もしません。トラップはコンテキスト内で有効なままなので、同じ条件が再び起きれば再度トラップされます。"
 
 #: manual/api/decimal_gda_checked.md:168
-#: manual/api/frontend/itl_expr.md:98
+#: manual/api/frontend/itl_expr.md:99
 msgid "Operations"
 msgstr "演算"
 
@@ -4999,7 +4999,7 @@ msgid "These methods return the location (source, line, column 1) and the messag
 msgstr "これらのメソッドは位置（ソース、行、列 1）とメッセージを返します。メッセージは例えば `\"unterminated quoted token\"`、`\"malformed testcase row\"`、`\"expected directive or testcase row\"`、`\"invalid precision directive\"` です。"
 
 #: manual/api/frontend/gda_expr.md:215
-#: manual/api/frontend/itl_expr.md:74
+#: manual/api/frontend/itl_expr.md:75
 #: manual/api/frontend/testfloat_expr.md:190
 msgid "Execution"
 msgstr "実行"
@@ -5013,105 +5013,105 @@ msgid "Rows are visited document by document in file order. A row whose id does 
 msgstr "行は文書ごとにファイル順に処理されます。id が `options.case_filter()` に一致しない行は完全に無視されます。残りの行には $0, 1, 2, \\dots$ と番号が付けられ、シャード数 $n$、シャードインデックス $i$ に対して $k \\bmod n = i$ のとき行 $k$ が実行されます。実行される各行には、まず処置区分が与えられます。"
 
 #: manual/api/frontend/gda_expr.md:232
-msgid "`Diagnostic` if an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
-msgstr "オペランドがちょうど `#` か `?` である場合、または期待結果がちょうど `#` である場合は `Diagnostic`。"
+msgid "`Diagnostic` if the context is invalid (precision not positive, or `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
+msgstr "コンテキストが無効な場合（精度が正でない、または `minexponent` が `maxexponent` より大きい）、オペランドがちょうど `#` か `?` である場合、または期待結果がちょうど `#` である場合は `Diagnostic`。"
 
-#: manual/api/frontend/gda_expr.md:234
+#: manual/api/frontend/gda_expr.md:235
 msgid "`Unsupported` if a condition is not one of the thirteen GDA conditions, the operation is not implemented, or the rounding directive is not recognized;"
 msgstr "条件が 13 個の GDA 条件のいずれでもない場合、演算が実装されていない場合、または丸めディレクティブが認識されない場合は `Unsupported`。"
 
-#: manual/api/frontend/gda_expr.md:237
+#: manual/api/frontend/gda_expr.md:238
 msgid "`Executable` otherwise."
 msgstr "それ以外は `Executable`。"
 
-#: manual/api/frontend/gda_expr.md:239
+#: manual/api/frontend/gda_expr.md:240
 msgid "Only `Executable` rows are evaluated. The row passes when the result matches the expected token and the raised conditions are exactly the listed ones; the [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full rule. Non-executable rows get `passed() == false` and the message `\"skipped\"`, and are counted as skipped, not failed. The function never aborts on row content."
 msgstr "評価されるのは `Executable` の行だけです。結果が期待トークンに一致し、発生した条件が列挙されたものとちょうど一致するとき、その行は合格です。完全な規則は[設計ページ](../../design/frontend/gda_expr.md#the-pass-rule)にあります。実行対象でない行は `passed() == false` とメッセージ `\"skipped\"` を受け取り、失敗ではなくスキップとして数えられます。この関数は行の内容によって異常終了することはありません。"
 
-#: manual/api/frontend/gda_expr.md:248
+#: manual/api/frontend/gda_expr.md:249
 msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr "`RunOptions` は `execute_documents` が実行する行を選択します。"
 
-#: manual/api/frontend/gda_expr.md:258
+#: manual/api/frontend/gda_expr.md:259
 msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` builds the options."
 msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` はオプションを構築します。"
 
-#: manual/api/frontend/gda_expr.md:265
+#: manual/api/frontend/gda_expr.md:266
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr "デフォルト：シャード 1 つ、インデックス 0、`strict_supported` 無効、空のフィルタ（全行）。`shard_count > 0` かつ `0 <= shard_index < shard_count` でなければ異常終了します。"
 
-#: manual/api/frontend/gda_expr.md:268
+#: manual/api/frontend/gda_expr.md:269
 msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A selector `id` matches that id exactly. A selector `first..last` matches every id that has the same length as `first` and `last` and lies between them in string order, so `add001..add099` selects a numbered block."
 msgstr "`case_filter` はカンマ区切りのセレクタのリストで、各セレクタは前後の空白が除去されます。セレクタ `id` はその id にちょうど一致します。セレクタ `first..last` は、`first` および `last` と同じ長さを持ち、文字列順でその間にあるすべての id に一致します。そのため、`add001..add099` は番号付きのブロックを選択します。"
 
-#: manual/api/frontend/gda_expr.md:273
+#: manual/api/frontend/gda_expr.md:274
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr "`strict_supported` は呼び出し側のために保持されるもので、`execute_documents` 自体はこれを読みません。CLI はこれを使って、サポートされない行を失敗の終了コードに変えます。"
 
-#: manual/api/frontend/gda_expr.md:278
+#: manual/api/frontend/gda_expr.md:279
 msgid "These accessors return the option values."
 msgstr "これらのアクセサはオプションの値を返します。"
 
-#: manual/api/frontend/gda_expr.md:287
-#: manual/api/frontend/itl_expr.md:137
+#: manual/api/frontend/gda_expr.md:288
+#: manual/api/frontend/itl_expr.md:139
 #: manual/api/frontend/testfloat_expr.md:235
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr "結果"
 
-#: manual/api/frontend/gda_expr.md:291
+#: manual/api/frontend/gda_expr.md:292
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr "`CaseDisposition` は行が実行されたかどうか、また実行されなかった場合はその理由を示します。"
 
-#: manual/api/frontend/gda_expr.md:302
+#: manual/api/frontend/gda_expr.md:303
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr "文字列は `\"diagnostic interchange/non-scalar row\"` や `\"unsupported operation frobnicate\"` のような短い理由です。`Legacy` は共通の結果モデルのために存在しますが、現在のエグゼキュータがこれを割り当てることはありません。"
 
-#: manual/api/frontend/gda_expr.md:309
+#: manual/api/frontend/gda_expr.md:310
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr "`CaseResult` は選択された 1 つの行の結果です。"
 
-#: manual/api/frontend/gda_expr.md:319
+#: manual/api/frontend/gda_expr.md:320
 msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
 msgstr "これらのメソッドは行 id、その処置区分、合格したかどうか、およびメッセージを返します。メッセージは、合格なら空、実行対象でない行なら `\"skipped\"`、オペランドをデコードできなかったか演算がオペランドを拒否した場合は `\"evaluation failed\"`、それ以外は `\"result mismatch: expected …, actual …\"` または `\"status flags mismatch: expected …, actual …\"` というテキストです。"
 
-#: manual/api/frontend/gda_expr.md:335
+#: manual/api/frontend/gda_expr.md:336
 msgid "`RunSummary` aggregates the results of a run."
 msgstr "`RunSummary` は 1 回の実行の結果を集計します。"
 
-#: manual/api/frontend/gda_expr.md:343
+#: manual/api/frontend/gda_expr.md:344
 msgid "`RunSummary` counters"
 msgstr "`RunSummary` のカウンタ"
 
-#: manual/api/frontend/gda_expr.md:345
+#: manual/api/frontend/gda_expr.md:346
 msgid "These methods return the counts of a run."
 msgstr "これらのメソッドは 1 回の実行の件数を返します。"
 
-#: manual/api/frontend/gda_expr.md:359
+#: manual/api/frontend/gda_expr.md:360
 msgid "`total_cases` counts the rows that match the filter (in all shards); `selected_cases` the rows executed by this shard. They satisfy"
 msgstr "`total_cases` はフィルタに一致する行（全シャード）を数え、`selected_cases` はこのシャードで実行された行を数えます。これらは次を満たします。"
 
-#: manual/api/frontend/gda_expr.md:372
+#: manual/api/frontend/gda_expr.md:373
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr "`results` は行ごとの結果のコピーを実行順に返します。`success` は実行対象の行が 1 つも失敗しなかったとき真です。"
 
-#: manual/api/frontend/gda_expr.md:380
+#: manual/api/frontend/gda_expr.md:381
 msgid "Skipped rows do not affect `success`."
 msgstr "スキップされた行は `success` に影響しません。"
 
-#: manual/api/frontend/gda_expr.md:384
+#: manual/api/frontend/gda_expr.md:385
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr "`RunSummary::merge(parts)` は 1 回の実行の各シャードの要約を結合します。"
 
-#: manual/api/frontend/gda_expr.md:390
+#: manual/api/frontend/gda_expr.md:391
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr "`total_cases` 以外のすべてのカウンタは加算されます。`total_cases` は各部分の最大値です（どのシャードも同じ合計を報告します）。結果は `parts` の順に連結されます。1 回の実行の $n$ 個のシャードをマージすると、シャード分割しない実行と同じカウンタが得られます。"
 
-#: manual/api/frontend/gda_expr.md:419
+#: manual/api/frontend/gda_expr.md:420
 msgid "`GdaContext`, `ParseDiagnostic` and `RunOptions` equality and `Debug`"
 msgstr "`GdaContext`、`ParseDiagnostic`、`RunOptions` の等価性と `Debug`"
 
-#: manual/api/frontend/gda_expr.md:421
+#: manual/api/frontend/gda_expr.md:422
 msgid "These methods compare all fields and render the value for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドはすべてのフィールドを比較し、値を `Debug` 用に描画します。新しいコードでは `==`、`!=`、`debug_inspect` を使ってください。"
 
@@ -5132,191 +5132,191 @@ msgid "The text is read line by line, each line trimmed:"
 msgstr "テキストは 1 行ずつ読まれ、各行は前後の空白が除去されます。"
 
 #: manual/api/frontend/itl_expr.md:30
-msgid "lines starting with `//` and empty lines are skipped; a line starting with `/*` starts a block comment that ends on the first later line containing `*/` (or on the same line);"
-msgstr "`//` で始まる行と空行はスキップされます。`/*` で始まる行はブロックコメントを開始し、そのコメントは以降で最初に `*/` を含む行（または同じ行）で終わります。"
+msgid "`//` starts a comment that runs to the end of the line, so a statement may end in `; // note`; empty lines are skipped; a line starting with `/*` starts a block comment that ends on the first later line containing `*/` (or on the same line);"
+msgstr "`//` は行末までのコメントを開始するため、文は `; // note` で終えることができます。空行はスキップされます。`/*` で始まる行はブロックコメントを開始し、そのコメントは以降で最初に `*/` を含む行（または同じ行）で終わります。"
 
-#: manual/api/frontend/itl_expr.md:33
+#: manual/api/frontend/itl_expr.md:34
 msgid "`testcase NAME …` starts a new block; `NAME` is the word after `testcase` and must be followed by a space, otherwise the diagnostic `\"invalid testcase declaration\"` is recorded; the statement counter restarts at 0;"
 msgstr "`testcase NAME …` は新しいブロックを開始します。`NAME` は `testcase` の後の語で、後ろに空白が続かなければならず、そうでなければ診断 `\"invalid testcase declaration\"` が記録されます。文のカウンタは 0 から再開します。"
 
-#: manual/api/frontend/itl_expr.md:37
+#: manual/api/frontend/itl_expr.md:38
 msgid "a line equal to `}` is skipped;"
 msgstr "`}` に等しい行はスキップされます。"
 
-#: manual/api/frontend/itl_expr.md:38
+#: manual/api/frontend/itl_expr.md:39
 msgid "every other line is appended (with a space) to the current statement, and a line ending in `;` completes it."
 msgstr "それ以外のすべての行は（空白を挟んで）現在の文に追加され、`;` で終わる行が文を完結させます。"
 
-#: manual/api/frontend/itl_expr.md:41
+#: manual/api/frontend/itl_expr.md:42
 msgid "A completed statement `left = expected` is split at the first `=`. The left side is split into words at spaces and tabs outside square brackets; the first word is the operation and the rest are operands. The case id is `NAME:k`, where `k` counts statements in the block from 1 (statements before the first `testcase` use the name `anonymous`). A statement without `=` or without an operation is a diagnostic `\"NAME:k: missing '='\"` or `\"NAME:k: missing operation\"`; text left after the last `;` gives `\"unterminated ITL statement\"`. The result is `Ok(cases)` when there is no diagnostic and `Err(diagnostics)` otherwise."
 msgstr "完結した文 `left = expected` は最初の `=` で分割されます。左辺は角括弧の外の空白とタブで語に分割され、最初の語が演算、残りがオペランドです。ケース id は `NAME:k` で、`k` はブロック内の文を 1 から数えたものです（最初の `testcase` より前の文は名前 `anonymous` を使います）。`=` を含まない文や演算のない文は診断 `\"NAME:k: missing '='\"` または `\"NAME:k: missing operation\"` になり、最後の `;` の後に残ったテキストは `\"unterminated ITL statement\"` になります。診断がなければ結果は `Ok(cases)`、そうでなければ `Err(diagnostics)` です。"
 
-#: manual/api/frontend/itl_expr.md:53
+#: manual/api/frontend/itl_expr.md:54
 msgid "`ItlCase` is one parsed statement."
 msgstr "`ItlCase` は構文解析済みの 1 つの文です。"
 
-#: manual/api/frontend/itl_expr.md:63
+#: manual/api/frontend/itl_expr.md:64
 msgid "These methods return the id `NAME:k`, the operation word, a copy of the operand words and the expected text (trimmed, including any decoration suffix)."
 msgstr "これらのメソッドは id `NAME:k`、演算の語、オペランドの語のコピー、および期待テキスト（前後の空白を除去し、装飾の接尾辞があればそれも含む）を返します。"
 
-#: manual/api/frontend/itl_expr.md:78
+#: manual/api/frontend/itl_expr.md:79
 msgid "`execute_case(case, precision?)` executes one case and returns its result."
 msgstr "`execute_case(case, precision?)` は 1 つのケースを実行し、その結果を返します。"
 
-#: manual/api/frontend/itl_expr.md:84
+#: manual/api/frontend/itl_expr.md:85
 msgid "`precision` (default `53`) is the bit precision used to read bounds. Interval results are rounded with `@ball_float.BallContext::binary64()` regardless of `precision`, so the default is the meaningful value for ITF1788 data."
 msgstr "`precision`（デフォルト `53`）は端点を読み取る際に使うビット精度です。区間の結果は `precision` に関係なく `@ball_float.BallContext::binary64()` で丸められるため、ITF1788 のデータに対して意味のある値はデフォルト値です。"
 
-#: manual/api/frontend/itl_expr.md:89
+#: manual/api/frontend/itl_expr.md:90
 msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits."
 msgstr "オペランドと期待値は次のように読み取られます。区間リテラルは `[lo,hi]`、`[empty]`、`[entire]`、`[nai]` のいずれかで、その後に `_dec` を続けることができます。`dec` は `com`、`dac`、`def`、`trv`、`ill` のいずれかです（デフォルトは `com`）。端点は、省略可能な符号付きの `inf`/`infinity`、16 進浮動小数点数 `0x…p…`、または 10 進テキストです。10 進および 16 進の端点は `precision` ビットで最近接偶数丸めされます。"
 
-#: manual/api/frontend/itl_expr.md:96
+#: manual/api/frontend/itl_expr.md:97
 msgid "The case is dispatched on its operation and expected value:"
 msgstr "ケースは演算と期待値に基づいてディスパッチされます。"
 
-#: manual/api/frontend/itl_expr.md:98
+#: manual/api/frontend/itl_expr.md:99
 #: manual/performance_audit.md:25
 msgid "Expected"
 msgstr "期待値"
 
-#: manual/api/frontend/itl_expr.md:98
+#: manual/api/frontend/itl_expr.md:99
 #: manual/numeric_semantics.md:542
 msgid "Comparison"
 msgstr "比較"
 
-#: manual/api/frontend/itl_expr.md:100
-#: manual/design/frontend/gda_expr.md:94
+#: manual/api/frontend/itl_expr.md:101
+#: manual/design/frontend/gda_expr.md:95
 msgid "boolean"
 msgstr "真偽値"
 
-#: manual/api/frontend/itl_expr.md:100
+#: manual/api/frontend/itl_expr.md:101
 msgid "`true` or `false`"
 msgstr "`true` または `false`"
 
-#: manual/api/frontend/itl_expr.md:100
+#: manual/api/frontend/itl_expr.md:101
 msgid "equal booleans"
 msgstr "真偽値が等しい"
 
-#: manual/api/frontend/itl_expr.md:101
+#: manual/api/frontend/itl_expr.md:102
 msgid "overlap"
 msgstr "重なり"
 
-#: manual/api/frontend/itl_expr.md:101
+#: manual/api/frontend/itl_expr.md:102
 msgid "an overlap state name (`before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains`, `finishedBy`, `bothEmpty`, `firstEmpty`, `secondEmpty`, `undefined`)"
 msgstr "重なり状態の名前（`before`、`meets`、`overlaps`、`starts`、`containedBy`、`finishes`、`equals`、`after`、`metBy`、`overlappedBy`、`startedBy`、`contains`、`finishedBy`、`bothEmpty`、`firstEmpty`、`secondEmpty`、`undefined`）"
 
-#: manual/api/frontend/itl_expr.md:101
+#: manual/api/frontend/itl_expr.md:102
 msgid "equal names"
 msgstr "名前が等しい"
 
-#: manual/api/frontend/itl_expr.md:102
+#: manual/api/frontend/itl_expr.md:103
 msgid "numeric"
 msgstr "数値"
 
-#: manual/api/frontend/itl_expr.md:102
+#: manual/api/frontend/itl_expr.md:103
 msgid "a bound"
 msgstr "端点"
 
-#: manual/api/frontend/itl_expr.md:102
+#: manual/api/frontend/itl_expr.md:103
 msgid "equal numbers"
 msgstr "数が等しい"
 
-#: manual/api/frontend/itl_expr.md:103
+#: manual/api/frontend/itl_expr.md:104
 msgid "unary"
 msgstr "単項"
 
-#: manual/api/frontend/itl_expr.md:103
 #: manual/api/frontend/itl_expr.md:104
 #: manual/api/frontend/itl_expr.md:105
 #: manual/api/frontend/itl_expr.md:106
+#: manual/api/frontend/itl_expr.md:107
 msgid "interval"
 msgstr "区間"
 
-#: manual/api/frontend/itl_expr.md:103
 #: manual/api/frontend/itl_expr.md:104
 #: manual/api/frontend/itl_expr.md:105
 #: manual/api/frontend/itl_expr.md:106
+#: manual/api/frontend/itl_expr.md:107
 msgid "equal sets"
 msgstr "集合として等しい"
 
-#: manual/api/frontend/itl_expr.md:104
+#: manual/api/frontend/itl_expr.md:105
 msgid "ternary"
 msgstr "三項"
 
-#: manual/api/frontend/itl_expr.md:105
+#: manual/api/frontend/itl_expr.md:106
 msgid "integer power"
 msgstr "整数べき"
 
-#: manual/api/frontend/itl_expr.md:105
+#: manual/api/frontend/itl_expr.md:106
 msgid "`pown` (second operand an integer)"
 msgstr "`pown`（第 2 オペランドは整数）"
 
-#: manual/api/frontend/itl_expr.md:106
+#: manual/api/frontend/itl_expr.md:107
 msgid "binary"
 msgstr "二項"
 
-#: manual/api/frontend/itl_expr.md:108
+#: manual/api/frontend/itl_expr.md:109
 msgid "\"Equal sets\" means: both NaI, or both empty, or equal lower bounds and equal upper bounds (compared numerically, so $-0 = +0$). When the expected text contains `_`, the decorations must also be equal. The boolean dispatch is chosen whenever the expected text is `true` or `false`."
 msgstr "「集合として等しい」とは、両方が NaI であるか、両方が空であるか、下端どうし・上端どうしが等しい（数値として比較するので $-0 = +0$）ことを意味します。期待テキストが `_` を含む場合は、装飾も等しくなければなりません。期待テキストが `true` または `false` のときは常に真偽値のディスパッチが選ばれます。"
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:114
 msgid "Dispositions:"
 msgstr "処置区分："
 
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:116
 msgid "`Executable` when the case was run; `passed()` tells the outcome;"
 msgstr "ケースが実行された場合は `Executable`。結果は `passed()` で分かります。"
 
-#: manual/api/frontend/itl_expr.md:116
-msgid "`Unsupported(reason)` for an unknown operation, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a binary boolean predicate whose second operand is missing or unreadable;"
-msgstr "未知の演算、期待値が区間でない二項ディスパッチのケース（例えば `signal` 注釈が後に続くもの）、オペランドが 2 つでない二項ディスパッチのケース、または第 2 オペランドが欠けているか読み取れない二項の真偽値述語の場合は `Unsupported(reason)`。"
+#: manual/api/frontend/itl_expr.md:117
+msgid "`Unsupported(reason)` for an unknown operation, whatever its operands, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a binary boolean predicate whose second operand is missing or unreadable;"
+msgstr "未知の演算（オペランドが何であっても）、期待値が区間でない二項ディスパッチのケース（例えば `signal` 注釈が後に続くもの）、オペランドが 2 つでない二項ディスパッチのケース、または第 2 オペランドが欠けているか読み取れない二項の真偽値述語の場合は `Unsupported(reason)`。"
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:122
 msgid "`Diagnostic(reason)` when the first operand of a boolean case, or an operand or the expected value of the overlap, numeric, unary, ternary or integer-power dispatch, cannot be read, or an operand of the binary dispatch is not an interval literal."
 msgstr "真偽値ケースの第 1 オペランド、または重なり・数値・単項・三項・整数べきのディスパッチのオペランドか期待値が読み取れない場合、あるいは二項ディスパッチのオペランドが区間リテラルでない場合は `Diagnostic(reason)`。"
 
-#: manual/api/frontend/itl_expr.md:125
+#: manual/api/frontend/itl_expr.md:127
 msgid "`execute_case` does not abort on case content."
 msgstr "`execute_case` はケースの内容によって異常終了しません。"
 
-#: manual/api/frontend/itl_expr.md:129
+#: manual/api/frontend/itl_expr.md:131
 msgid "`summarize_results(results)` counts a list of results."
 msgstr "`summarize_results(results)` は結果のリストを集計します。"
 
-#: manual/api/frontend/itl_expr.md:135
+#: manual/api/frontend/itl_expr.md:137
 msgid "`total_cases` is the length of the list."
 msgstr "`total_cases` はリストの長さです。"
 
-#: manual/api/frontend/itl_expr.md:141
+#: manual/api/frontend/itl_expr.md:143
 msgid "`ItlDisposition` says whether a case was executed."
 msgstr "`ItlDisposition` はケースが実行されたかどうかを示します。"
 
-#: manual/api/frontend/itl_expr.md:153
+#: manual/api/frontend/itl_expr.md:155
 msgid "`ItlResult` is the outcome of one case."
 msgstr "`ItlResult` は 1 つのケースの結果です。"
 
-#: manual/api/frontend/itl_expr.md:163
+#: manual/api/frontend/itl_expr.md:165
 msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `BallFloatDecorated::to_string`), and a short reason or the offending text otherwise."
 msgstr "これらのメソッドはケース id、処置区分、合格したかどうか、およびメッセージを返します。メッセージは、成功なら空、不一致なら `\"expected E, got A\"`（区間は `BallFloatDecorated::to_string` で出力）、それ以外は短い理由または問題のテキストです。"
 
-#: manual/api/frontend/itl_expr.md:177
+#: manual/api/frontend/itl_expr.md:179
 msgid "`RunSummary` aggregates a list of results."
 msgstr "`RunSummary` は結果のリストを集計します。"
 
-#: manual/api/frontend/itl_expr.md:185
+#: manual/api/frontend/itl_expr.md:187
 msgid "`RunSummary` counters and results"
 msgstr "`RunSummary` のカウンタと結果"
 
-#: manual/api/frontend/itl_expr.md:187
+#: manual/api/frontend/itl_expr.md:189
 msgid "These methods return the counts, a copy of the results, and the overall verdict."
 msgstr "これらのメソッドは件数、結果のコピー、全体の判定を返します。"
 
-#: manual/api/frontend/itl_expr.md:201
+#: manual/api/frontend/itl_expr.md:203
 msgid "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$. `success()` is true when no executable case failed **and** there is no diagnostic case; unsupported cases do not affect it."
 msgstr "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ および $\\text{executable} = \\text{passed} + \\text{failed}$ が成り立ちます。`success()` は、実行対象のケースが 1 つも失敗せず、**かつ**診断ケースが 1 つもないとき真です。サポートされないケースは影響しません。"
 
-#: manual/api/frontend/itl_expr.md:228
+#: manual/api/frontend/itl_expr.md:230
 msgid "These methods compare all fields of two cases and render a case for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは 2 つのケースのすべてのフィールドを比較し、ケースを `Debug` 用に描画します。新しいコードでは `==`、`!=`、`debug_inspect` を使ってください。"
 
@@ -5407,51 +5407,51 @@ msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `l
 msgstr "`op` は `exp`、`exp2`、`exp10`、`expm1`、`ln`、`log2`、`log10`、`log1p`、`sqrt`、`rootn`、`pown`、`pow`、`hypot`、`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`、`asin`、`acos`、`atan`、`atan2`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh` のいずれかです。`x` と `y` は 512 ビットで読み取られるオペランド（`y` は使わない場合 `-`）、`n` は `rootn` と `pown` の整数引数、`expected` は `precision` ビットで読み取られ、最後の 3 つのフィールドは `0` または `1` です。行 id は `op:LINE` です。"
 
 #: manual/api/frontend/mpfr_expr.md:151
-msgid "The parser does not check that `y` is present for the two-operand functions `pow`, `hypot` and `atan2`; executing such a row with `y = -` aborts."
-msgstr "パーサは、2 オペランドの関数 `pow`、`hypot`、`atan2` について `y` があることを検査しません。そのような行を `y = -` のまま実行すると異常終了します。"
+msgid "A row of the two-operand functions `pow`, `hypot` and `atan2` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
+msgstr "2 オペランド関数 `pow`、`hypot`、`atan2` の行で `y` が `-` のものは、診断 `\"invalid MPFR elementary field\"` になります。"
 
 #: manual/api/frontend/mpfr_expr.md:156
 msgid "`execute_elementary_data(document)` evaluates every row with the checked `try_*_ctx` method of `BinFloat` for its operation (`sqrt_ctx` and `pown_ctx` for `sqrt` and `pown`) in `BinaryContext::unbounded(precision, rounding~)`."
 msgstr "`execute_elementary_data(document)` は各行を、その演算に対応する `BinFloat` の checked な `try_*_ctx` メソッド（`sqrt` と `pown` については `sqrt_ctx` と `pown_ctx`）で `BinaryContext::unbounded(precision, rounding~)` のもとで評価します。"
 
 #: manual/api/frontend/mpfr_expr.md:164
-msgid "A row passes when the result compares equal to the expected value (`compare == 0`: $+0 = -0$ and every NaN equals every NaN), the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
-msgstr "結果が期待値と等しいと比較され（`compare == 0`。$+0 = -0$ であり、すべての NaN はすべての NaN と等しい）、inexact・invalid・ゼロ除算の各フラグが行のフラグと等しく、アンダーフローもオーバーフローも発生しないとき、その行は合格です。`try_*_ctx` メソッドが `Err` を返した場合（例えば認証の失敗）、その行はメッセージ `\"certification failure for MPFR differential case\"` で失敗します。"
+msgid "A row passes when the result compares equal to the expected value (`compare == 0`, so every NaN equals every NaN) with the same sign when it is zero, the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
+msgstr "結果が期待値と等しいと比較され（`compare == 0`。したがってすべての NaN はすべての NaN と等しい）、ゼロの場合は符号も一致し、inexact・invalid・ゼロ除算の各フラグが行のフラグと等しく、アンダーフローもオーバーフローも発生しないとき、その行は合格です。`try_*_ctx` メソッドが `Err` を返した場合（例えば認証の失敗）、その行はメッセージ `\"certification failure for MPFR differential case\"` で失敗します。"
 
-#: manual/api/frontend/mpfr_expr.md:173
+#: manual/api/frontend/mpfr_expr.md:174
 msgid "`MpfrElementaryDocument` is a parsed elementary file."
 msgstr "`MpfrElementaryDocument` は構文解析済みの初等関数ファイルです。"
 
-#: manual/api/frontend/mpfr_expr.md:183
+#: manual/api/frontend/mpfr_expr.md:184
 msgid "Diagnostics and results"
 msgstr "診断と結果"
 
-#: manual/api/frontend/mpfr_expr.md:187
+#: manual/api/frontend/mpfr_expr.md:188
 #: manual/api/frontend/testfloat_expr.md:179
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr "`ParseDiagnostic` は 1 つの無効な行です。"
 
-#: manual/api/frontend/mpfr_expr.md:198
+#: manual/api/frontend/mpfr_expr.md:199
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr "メッセージは問題を示します。例えば `\"MPFR pow row must contain ten fields\"`、`\"invalid MPFR pow field\"`、`\"invalid MPFR elementary expected value\"` などです。"
 
-#: manual/api/frontend/mpfr_expr.md:204
+#: manual/api/frontend/mpfr_expr.md:205
 msgid "`CaseResult` is the outcome of one row."
 msgstr "`CaseResult` は 1 行の結果です。"
 
-#: manual/api/frontend/mpfr_expr.md:215
+#: manual/api/frontend/mpfr_expr.md:216
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr "メッセージは合格なら空で、そうでなければ期待値と実際の値を 16 進で示します（べき乗と初等関数の行では比較したフラグも示します）。"
 
-#: manual/api/frontend/mpfr_expr.md:220
+#: manual/api/frontend/mpfr_expr.md:221
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr "`RunSummary` は 1 つの文書の行を集計します。"
 
-#: manual/api/frontend/mpfr_expr.md:233
+#: manual/api/frontend/mpfr_expr.md:234
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr "すべての行が実行されるため $\\text{total} = \\text{passed} + \\text{failed}$ です。`success` はどの行も失敗しなかったとき真です。`results` は結果を行順に返します。"
 
-#: manual/api/frontend/mpfr_expr.md:256
+#: manual/api/frontend/mpfr_expr.md:257
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは位置とメッセージを比較し、診断を `Debug` 用に描画します。新しいコードでは `==`、`!=`、`debug_inspect` を使ってください。"
 
@@ -7075,9 +7075,9 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/decimal_gda_checked.md:242
 #: manual/design/def.md:294
 #: manual/design/doc_examples.md:36
-#: manual/design/frontend/gda_expr.md:221
+#: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:149
-#: manual/design/frontend/mpfr_expr.md:132
+#: manual/design/frontend/mpfr_expr.md:130
 #: manual/design/frontend/testfloat_expr.md:140
 #: manual/design/internal.md:193
 #: manual/design/internal/conformance.md:119
@@ -7752,7 +7752,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/decimal_gda_checked.md:108
 #: manual/design/def.md:68
 #: manual/design/doc_examples.md:14
-#: manual/design/frontend/gda_expr.md:116
+#: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
 #: manual/design/frontend/mpfr_expr.md:59
 #: manual/design/frontend/testfloat_expr.md:74
@@ -7909,9 +7909,9 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/decimal_gda_checked.md:185
 #: manual/design/def.md:159
 #: manual/design/doc_examples.md:25
-#: manual/design/frontend/gda_expr.md:171
+#: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:118
-#: manual/design/frontend/mpfr_expr.md:101
+#: manual/design/frontend/mpfr_expr.md:102
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:124
 #: manual/design/internal/conformance.md:70
@@ -7996,9 +7996,9 @@ msgstr "`midpoint_ctx` はコンテキストの $e_{\\max}$ を適用せず、`o
 #: manual/design/decimal_gda_checked.md:233
 #: manual/design/def.md:281
 #: manual/design/doc_examples.md:30
-#: manual/design/frontend/gda_expr.md:210
+#: manual/design/frontend/gda_expr.md:214
 #: manual/design/frontend/itl_expr.md:139
-#: manual/design/frontend/mpfr_expr.md:122
+#: manual/design/frontend/mpfr_expr.md:120
 #: manual/design/frontend/testfloat_expr.md:130
 #: manual/design/internal.md:181
 #: manual/design/internal/conformance.md:109
@@ -11871,208 +11871,204 @@ msgid "`32#…`, `64#…`, `128#…`: decimal text rounded into that interchange
 msgstr "`32#…`、`64#…`、`128#…`：その交換形式に丸められる 10 進テキスト。"
 
 #: manual/design/frontend/gda_expr.md:58
-msgid "otherwise decimal text (a leading `+` is dropped), parsed with precision $\\max(64, p)$, which keeps every operand of up to that many digits exact."
-msgstr "それ以外は 10 進テキスト（先頭の `+` は取り除かれる）で、精度 $\\max(64, p)$ で解析される。これにより、その桁数までのオペランドはすべて厳密に保たれる。"
+msgid "otherwise decimal text (a leading `+` is dropped), parsed with a precision of at least the token length, so every digit is kept: GDA operations take their operands exactly and round only the result."
+msgstr "それ以外は 10 進テキストであり（先頭の `+` は取り除かれます）、トークン長以上の精度で解析されるため、すべての桁が保持されます。GDA の演算はオペランドを正確に受け取り、結果だけを丸めます。"
 
-#: manual/design/frontend/gda_expr.md:61
+#: manual/design/frontend/gda_expr.md:62
 msgid "The operation callback maps the normalized name to one `decimal_gda` function (for example `add` to `@decimal_gda.add`, `squareroot` to `@decimal_gda.sqrt`, `comparetotal` to `@decimal_gda.compare_total`) and calls it with a `@decimal_gda.GdaContext` built from $\\kappa$ *with every trap disabled*. The result is a value of one of four kinds (decimal, integer, boolean, text) together with the set $F$ of raised conditions. Conversions `tosci` and `toeng` read the raw operand text, because the conversion from text is itself under test. Interchange-only operations (`canonical`, and `apply`, `copy*` on `#` operands with a `#` result) work on the encoding and return text."
 msgstr "演算のコールバックは正規化された名前を 1 つの `decimal_gda` 関数に対応させ（例えば `add` を `@decimal_gda.add` に、`squareroot` を `@decimal_gda.sqrt` に、`comparetotal` を `@decimal_gda.compare_total` に）、$\\kappa$ から*すべてのトラップを無効にして*構築した `@decimal_gda.GdaContext` でそれを呼び出します。結果は 4 種類（10 進数、整数、真偽値、テキスト）のいずれかの値と、発生した条件の集合 $F$ です。変換 `tosci` と `toeng` は生のオペランドテキストを読みます。テキストからの変換自体がテスト対象だからです。交換形式専用の演算（`canonical`、および `#` オペランドと `#` 結果に対する `apply`、`copy*`）は符号化に対して作用し、テキストを返します。"
 
-#: manual/design/frontend/gda_expr.md:72
+#: manual/design/frontend/gda_expr.md:73
 #: manual/design/frontend/itl_expr.md:58
 #: manual/design/frontend/testfloat_expr.md:54
 msgid "The pass rule"
 msgstr "合格規則"
 
-#: manual/design/frontend/gda_expr.md:74
+#: manual/design/frontend/gda_expr.md:75
 msgid "Let $v$ be the actual result, $F$ the actual condition set and $C$ the set of listed conditions. Define $\\widehat{C}$ by adding `Invalid_operation` whenever $C$ contains `Division_impossible` or `Division_undefined` (both are reported through the invalid-operation signal). The row passes if and only if"
 msgstr "$v$ を実際の結果、$F$ を実際の条件集合、$C$ を列挙された条件の集合とします。$C$ が `Division_impossible` または `Division_undefined` を含むときに `Invalid_operation` を加えたものを $\\widehat{C}$ と定義します（どちらも無効演算のシグナルを通じて報告されます）。行が成功するのは次が成り立つとき、かつそのときに限ります"
 
-#: manual/design/frontend/gda_expr.md:83
+#: manual/design/frontend/gda_expr.md:84
 msgid "where equality of flag sets is checked in both directions: a missing or an extra condition fails the row. $\\operatorname{match}$ depends on the expected token $x$ and the kind of $v$:"
 msgstr "ここでフラグ集合の等価性は双方向に検査されます。条件の欠落も余分な条件も行を失敗させます。$\\operatorname{match}$ は期待されるトークン $x$ と $v$ の種類に依存します："
 
-#: manual/design/frontend/gda_expr.md:87
+#: manual/design/frontend/gda_expr.md:88
 msgid "expected $x$"
 msgstr "期待値 $x$"
 
-#: manual/design/frontend/gda_expr.md:87
+#: manual/design/frontend/gda_expr.md:88
 msgid "actual $v$"
 msgstr "実際の値 $v$"
 
-#: manual/design/frontend/gda_expr.md:89
+#: manual/design/frontend/gda_expr.md:90
 msgid "any"
 msgstr "任意"
 
-#: manual/design/frontend/gda_expr.md:89
+#: manual/design/frontend/gda_expr.md:90
 msgid "true (only the conditions are checked)"
 msgstr "真（条件のみを検査）"
 
-#: manual/design/frontend/gda_expr.md:90
 #: manual/design/frontend/gda_expr.md:91
 #: manual/design/frontend/gda_expr.md:92
+#: manual/design/frontend/gda_expr.md:93
 msgid "decimal"
 msgstr "10 進数"
 
-#: manual/design/frontend/gda_expr.md:90
+#: manual/design/frontend/gda_expr.md:91
 msgid "the interchange encoding of $v$ in the context's format equals $x$, ignoring letter case"
 msgstr "コンテキストの形式での $v$ の交換形式の符号化が、大文字小文字を区別せずに $x$ と等しい"
 
-#: manual/design/frontend/gda_expr.md:91
+#: manual/design/frontend/gda_expr.md:92
 msgid "$v$ equals the value of $x$ in that format numerically (`compare == 0`); the conditions raised by encoding $v$ in that format are added to $F$"
 msgstr "$v$ がその形式での $x$ の値と数値的に等しい（`compare == 0`）。その形式で $v$ を符号化する際に発生した条件は $F$ に加えられる"
 
-#: manual/design/frontend/gda_expr.md:92
 #: manual/design/frontend/gda_expr.md:93
 #: manual/design/frontend/gda_expr.md:94
+#: manual/design/frontend/gda_expr.md:95
 msgid "other text"
 msgstr "その他のテキスト"
 
-#: manual/design/frontend/gda_expr.md:92
+#: manual/design/frontend/gda_expr.md:93
 msgid "$v$ prints exactly as $x$, or $\\operatorname{compareTotal}(v, \\operatorname{dec}(x)) = 0$"
 msgstr "$v$ が $x$ とまったく同じに表示される、または $\\operatorname{compareTotal}(v, \\operatorname{dec}(x)) = 0$"
 
-#: manual/design/frontend/gda_expr.md:93
+#: manual/design/frontend/gda_expr.md:94
 msgid "integer"
 msgstr "整数"
 
-#: manual/design/frontend/gda_expr.md:93
+#: manual/design/frontend/gda_expr.md:94
 msgid "the decimal text of $v$ equals $x$"
 msgstr "$v$ の 10 進テキストが $x$ と等しい"
 
-#: manual/design/frontend/gda_expr.md:94
+#: manual/design/frontend/gda_expr.md:95
 msgid "$x$ is `true`/`1` for true or `false`/`0` for false, ignoring case"
 msgstr "真に対しては $x$ が `true`/`1`、偽に対しては `false`/`0`（大文字小文字を区別しない）"
 
-#: manual/design/frontend/gda_expr.md:95
+#: manual/design/frontend/gda_expr.md:96
 msgid "text"
 msgstr "テキスト"
 
-#: manual/design/frontend/gda_expr.md:95
+#: manual/design/frontend/gda_expr.md:96
 msgid "equal strings (ignoring case for `#hex`)"
 msgstr "文字列が等しい（`#hex` では大文字小文字を区別しない）"
 
-#: manual/design/frontend/gda_expr.md:97
+#: manual/design/frontend/gda_expr.md:98
 msgid "The decimal case is exact on representations. IEEE 754 `totalOrder`[^total] compares signs first, then classes, then numeric values, then exponents, and orders NaNs by signaling bit and payload. Hence"
 msgstr "10 進数の場合は表現について厳密です。IEEE 754 の `totalOrder`[^total] はまず符号、次にクラス、次に数値、次に指数を比較し、NaN は signaling ビットとペイロードで順序付けます。したがって"
 
-#: manual/design/frontend/gda_expr.md:110
+#: manual/design/frontend/gda_expr.md:111
 msgid "so `2.0` does not match `2.00`, `-0` does not match `0`, and `NaN12` does not match `NaN`."
 msgstr "よって `2.0` は `2.00` に、`-0` は `0` に、`NaN12` は `NaN` に一致しません。"
 
-#: manual/design/frontend/gda_expr.md:113
+#: manual/design/frontend/gda_expr.md:114
 msgid "IEEE 754-2019, clause 5.10, `totalOrder`. `Decimal::compare_total` implements it for `decimal_gda`."
 msgstr "IEEE 754-2019, 5.10 節, `totalOrder`。`Decimal::compare_total` が `decimal_gda` 向けにこれを実装しています。"
 
-#: manual/design/frontend/gda_expr.md:118
+#: manual/design/frontend/gda_expr.md:119
 msgid "Dispositions instead of failures for rows that are not tests"
 msgstr "テストでない行には失敗ではなく処置を与える"
 
-#: manual/design/frontend/gda_expr.md:120
+#: manual/design/frontend/gda_expr.md:121
 msgid "**Problem.** The official corpus contains rows that do not describe a scalar computation: `#` placeholders for invalid or non-scalar encodings, `?` operands from older versions, operations the library does not provide, and rounding modes it does not know. Counting them as failures hides real failures; dropping them silently overstates coverage."
 msgstr "**問題。** 公式コーパスにはスカラー計算を記述しない行が含まれます。無効または非スカラーの符号化を表す `#` プレースホルダ、旧バージョン由来の `?` オペランド、ライブラリが提供しない演算、ライブラリが知らない丸めモードです。これらを失敗として数えると本当の失敗が埋もれ、黙って除外するとカバレッジを過大に見せてしまいます。"
 
-#: manual/design/frontend/gda_expr.md:126
-msgid "**Choice.** Every selected row gets a disposition. `Diagnostic` marks rows that are not executable by construction (`#` or `?` operands, `#` result). `Unsupported` marks legal rows the library cannot run (unknown operation, condition or rounding). Only `Executable` rows can pass or fail, and the summary reports every class, so a claim such as \"all executable rows pass\" comes with the number of rows it excludes. Strictness (failing when anything is unsupported) is a policy of the caller: `RunOptions` records it, and the CLI applies it to the exit code."
-msgstr "**選択。** 選択されたすべての行に処置が与えられます。`Diagnostic` は構造上実行できない行（`#` または `?` のオペランド、`#` の結果）を示します。`Unsupported` はライブラリが実行できない正当な行（未知の演算、条件、丸め）を示します。成功または失敗しうるのは `Executable` の行だけであり、サマリはすべてのクラスを報告するため、「実行可能な行はすべて成功する」といった主張には、除外された行の数が伴います。厳格さ（何かが未対応なら失敗とすること）は呼び出し側のポリシーです。`RunOptions` がそれを記録し、CLI が終了コードに適用します。"
+#: manual/design/frontend/gda_expr.md:127
+msgid "**Choice.** Every selected row gets a disposition. `Diagnostic` marks rows that are not executable by construction (`#` or `?` operands, `#` result, or a context with precision $p \\le 0$ or $E_{\\min} > E_{\\max}$, which no `decimal_gda` context can represent). `Unsupported` marks legal rows the library cannot run (unknown operation, condition or rounding). Only `Executable` rows can pass or fail, and the summary reports every class, so a claim such as \"all executable rows pass\" comes with the number of rows it excludes. Strictness (failing when anything is unsupported) is a policy of the caller: `RunOptions` records it, and the CLI applies it to the exit code."
+msgstr "**選択。** 選択されたすべての行に処置が与えられます。`Diagnostic` は構造上実行できない行（`#` または `?` のオペランド、`#` の結果、あるいはどの `decimal_gda` コンテキストでも表せない、精度 $p \\le 0$ または $E_{\\min} > E_{\\max}$ のコンテキスト）を示します。`Unsupported` はライブラリが実行できない正当な行（未知の演算、条件、丸め）を示します。成功または失敗しうるのは `Executable` の行だけであり、サマリはすべてのクラスを報告するため、「実行可能な行はすべて成功する」といった主張には、除外された行の数が伴います。厳格さ（何かが未対応なら失敗とすること）は呼び出し側のポリシーです。`RunOptions` がそれを記録し、CLI が終了コードに適用します。"
 
-#: manual/design/frontend/gda_expr.md:135
+#: manual/design/frontend/gda_expr.md:138
 msgid "Traps disabled, conditions compared"
 msgstr "トラップは無効化し、条件を比較する"
 
-#: manual/design/frontend/gda_expr.md:137
+#: manual/design/frontend/gda_expr.md:140
 msgid "A `.decTest` row lists conditions, not traps. Running every operation with an empty trap set makes `decimal_gda` return the specified default result (for example a quiet NaN for an invalid operation) and report all raised conditions, which is exactly what the row states. Comparing the whole set in both directions catches both missing and spurious `Inexact`, `Rounded`, `Clamped` and similar conditions."
 msgstr "`.decTest` の行はトラップではなく条件を列挙します。すべての演算を空のトラップ集合で実行すると、`decimal_gda` は仕様で定められた既定の結果（例えば無効演算に対する quiet NaN）を返し、発生したすべての条件を報告します。これはまさに行が述べている内容です。集合全体を双方向に比較することで、`Inexact`、`Rounded`、`Clamped` などの条件の欠落と余分な発生の両方を検出できます。"
 
-#: manual/design/frontend/gda_expr.md:144
+#: manual/design/frontend/gda_expr.md:147
 msgid "Representation-exact comparison"
 msgstr "表現について厳密な比較"
 
-#: manual/design/frontend/gda_expr.md:146
+#: manual/design/frontend/gda_expr.md:149
 msgid "GDA specifies the exponent of every result, so a library that returns the right value with the wrong exponent is wrong. Comparing with `compare_total`, or by exact string, makes the cohort, the sign of zero and the NaN payload part of the test. The only value-level comparison is for `32#`/`64#`/`128#` results, where the encoding conditions are what the row tests."
 msgstr "GDA はすべての結果の指数を規定しているため、正しい値を誤った指数で返すライブラリは誤りです。`compare_total` または完全な文字列一致で比較することで、コホート、ゼロの符号、NaN のペイロードがテストの対象になります。値レベルの比較は `32#`/`64#`/`128#` の結果に対してのみであり、その場合に行がテストするのは符号化の条件です。"
 
-#: manual/design/frontend/gda_expr.md:153
+#: manual/design/frontend/gda_expr.md:156
 msgid "Directive context resolved once per change"
 msgstr "ディレクティブのコンテキストは変更ごとに一度だけ解決"
 
-#: manual/design/frontend/gda_expr.md:155
+#: manual/design/frontend/gda_expr.md:158
 msgid "Each row stores the directive record in force on its line. `execute_documents` converts it to `decimal_gda` contexts only when it differs from the previous row's record. Conversion is a pure function of the record, so the cache never changes a result; it removes repeated work in files with thousands of rows under one context."
 msgstr "各行は、その行で有効なディレクティブのレコードを保持します。`execute_documents` は、それが前の行のレコードと異なる場合にのみ `decimal_gda` のコンテキストに変換します。変換はレコードの純粋関数であるため、キャッシュが結果を変えることはありません。1 つのコンテキストのもとに数千行あるファイルで、繰り返しの作業を省きます。"
 
-#: manual/design/frontend/gda_expr.md:161
+#: manual/design/frontend/gda_expr.md:164
 msgid "Deterministic sharding"
 msgstr "決定的なシャーディング"
 
-#: manual/design/frontend/gda_expr.md:163
+#: manual/design/frontend/gda_expr.md:166
 msgid "**Problem.** The corpus is large and runs in parallel processes, whose results must add up to the serial run."
 msgstr "**問題。** コーパスは大きく並列プロセスで実行されますが、その結果を合算したものは逐次実行の結果と一致しなければなりません。"
 
-#: manual/design/frontend/gda_expr.md:166
+#: manual/design/frontend/gda_expr.md:169
 msgid "**Choice.** After filtering, rows are numbered $k = 0, 1, \\dots, N-1$ in document order and shard $i$ of $n$ takes $S_i = \\{k : k \\bmod n = i\\}$. Round-robin assignment spreads files with slow operations (`power`, `ln`) across shards instead of giving one shard a whole slow file."
 msgstr "**選択。** フィルタリング後、行には文書順に $k = 0, 1, \\dots, N-1$ と番号が付けられ、$n$ 個中のシャード $i$ は $S_i = \\{k : k \\bmod n = i\\}$ を受け持ちます。ラウンドロビン割り当てにより、遅い演算（`power`、`ln`）を含むファイルが、1 つのシャードにまとめて割り当てられることなく複数のシャードに分散されます。"
 
-#: manual/design/frontend/gda_expr.md:173
+#: manual/design/frontend/gda_expr.md:176
 msgid "**Partition.** For $n \\ge 1$ the sets $S_0, \\dots, S_{n-1}$ are pairwise disjoint and cover $\\{0, \\dots, N-1\\}$, because every $k$ has exactly one residue modulo $n$. Their sizes are balanced:"
 msgstr "**分割。** $n \\ge 1$ に対して、集合 $S_0, \\dots, S_{n-1}$ は互いに素であり $\\{0, \\dots, N-1\\}$ を被覆します。各 $k$ は $n$ を法としてちょうど 1 つの剰余を持つからです。それらのサイズは均衡しています："
 
-#: manual/design/frontend/gda_expr.md:183
+#: manual/design/frontend/gda_expr.md:186
 msgid "**Shard independence.** The disposition and result of a row depend only on the row (its tokens and its directive record): parsing fixes the record per row, and the context cache memoizes a pure function. Hence the result of row $k$ is the same in every shard that contains it and in the serial run, and"
 msgstr "**シャードの独立性。** 行の処置と結果は、その行（トークンとディレクティブのレコード）にのみ依存します。解析は行ごとにレコードを確定し、コンテキストのキャッシュは純粋関数をメモ化します。したがって行 $k$ の結果は、それを含むどのシャードでも逐次実行でも同じであり、"
 
-#: manual/design/frontend/gda_expr.md:192
+#: manual/design/frontend/gda_expr.md:195
 msgid "since `merge` adds every counter and the shards partition the rows (`total_cases` is the same $N$ in every shard and `merge` keeps it)."
 msgstr "となります。`merge` はすべてのカウンタを加算し、シャードは行を分割するからです（`total_cases` はどのシャードでも同じ $N$ であり、`merge` はそれを保持します）。"
 
-#: manual/design/frontend/gda_expr.md:195
+#: manual/design/frontend/gda_expr.md:198
 msgid "**Counter identities.** For every summary, $\\text{selected} = \\text{executable} + \\text{skipped}$, $\\text{executable} = \\text{passed} + \\text{failed}$ and $\\text{skipped} = \\text{diagnostic} + \\text{legacy} + \\text{unsupported}$; they hold because each result is counted in exactly one class by `internal/conformance`."
 msgstr "**カウンタの恒等式。** すべてのサマリについて $\\text{selected} = \\text{executable} + \\text{skipped}$、$\\text{executable} = \\text{passed} + \\text{failed}$、$\\text{skipped} = \\text{diagnostic} + \\text{legacy} + \\text{unsupported}$ が成り立ちます。`internal/conformance` によって各結果がちょうど 1 つのクラスに数えられるからです。"
 
-#: manual/design/frontend/gda_expr.md:202
-msgid "**Totality.** Parsing assigns every line to exactly one of: skipped (empty or comment), directive, row, diagnostic. Execution never aborts on row content: decoding and dispatch failures become a failed result with the message `\"evaluation failed\"`."
-msgstr "**全域性。** 解析はすべての行を、スキップ（空行またはコメント）、ディレクティブ、行、診断のちょうど 1 つに割り当てます。実行が行の内容によって中断することはありません。復号やディスパッチの失敗は、メッセージ `\"evaluation failed\"` を持つ失敗の結果になります。"
+#: manual/design/frontend/gda_expr.md:205
+msgid "**Totality.** Parsing assigns every line to exactly one of: skipped (empty or comment), directive, row, diagnostic. Execution never aborts on row content: an invalid context makes its rows `Diagnostic` before any context is built, and decoding and dispatch failures become a failed result with the message `\"evaluation failed\"`."
+msgstr "**全域性。** 解析はすべての行を、スキップ（空行またはコメント）、ディレクティブ、行、診断のちょうど 1 つに割り当てます。実行が行の内容によって中断することはありません。無効なコンテキストは、どのコンテキストも構築される前にその行を `Diagnostic` にし、復号やディスパッチの失敗は、メッセージ `\"evaluation failed\"` を持つ失敗の結果になります。"
 
-#: manual/design/frontend/gda_expr.md:207
+#: manual/design/frontend/gda_expr.md:211
 msgid "**Complexity.** Parsing is linear in the text length. Execution is linear in the number of rows plus the cost of the decimal operations themselves."
 msgstr "**計算量。** 解析はテキスト長に対して線形です。実行は行数に対して線形であり、それに 10 進演算自体のコストが加わります。"
 
-#: manual/design/frontend/gda_expr.md:212
+#: manual/design/frontend/gda_expr.md:216
 msgid "**Value-only comparison.** Simpler, but it would accept wrong exponents and signs of zero, which the specification and the corpus test deliberately."
 msgstr "**値のみの比較。** より単純ですが、仕様とコーパスが意図的にテストしている誤った指数やゼロの符号を受け入れてしまいます。"
 
-#: manual/design/frontend/gda_expr.md:214
+#: manual/design/frontend/gda_expr.md:218
 msgid "**Subset comparison of conditions** (only listed conditions must be raised). It would accept spurious `Inexact` or `Clamped`, a common class of bugs."
 msgstr "**条件の部分集合比較**（列挙された条件が発生すればよい）。余分な `Inexact` や `Clamped` を受け入れてしまいます。これはよくあるバグの類型です。"
 
-#: manual/design/frontend/gda_expr.md:216
+#: manual/design/frontend/gda_expr.md:220
 msgid "**Executing `#` and `?` rows with ad-hoc meanings.** These rows have no scalar meaning; inventing one would make the pass count meaningless."
 msgstr "**`#` と `?` の行をその場しのぎの意味で実行する。** これらの行にはスカラーとしての意味がありません。意味をでっち上げると成功数が無意味になります。"
 
-#: manual/design/frontend/gda_expr.md:218
+#: manual/design/frontend/gda_expr.md:222
 msgid "**Contiguous shards.** Splitting the row list into blocks is equally deterministic but puts whole slow files into one shard."
 msgstr "**連続したシャード。** 行リストをブロックに分割するのも同様に決定的ですが、遅いファイル全体が 1 つのシャードに入ってしまいます。"
 
-#: manual/design/frontend/gda_expr.md:223
+#: manual/design/frontend/gda_expr.md:227
 msgid "No file system access, globbing or process exit codes: those belong to [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`."
 msgstr "ファイルシステムへのアクセス、グロブ展開、プロセスの終了コードは扱いません。それらは [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) と `tools/` に属します。"
 
-#: manual/design/frontend/gda_expr.md:225
+#: manual/design/frontend/gda_expr.md:229
 msgid "No traps: rows are executed with every trap disabled."
 msgstr "トラップはありません。行はすべてのトラップを無効にして実行されます。"
 
-#: manual/design/frontend/gda_expr.md:226
-msgid "Operands with more than $\\max(64, p)$ significant digits are rounded half-even when decoded."
-msgstr "有効桁数が $\\max(64, p)$ を超えるオペランドは、復号時に最近接偶数丸めで丸められます。"
-
-#: manual/design/frontend/gda_expr.md:228
+#: manual/design/frontend/gda_expr.md:230
 msgid "The `''` escape of quoted decTest strings is not recognized."
 msgstr "引用符付き decTest 文字列の `''` エスケープは認識されません。"
 
-#: manual/design/frontend/gda_expr.md:229
+#: manual/design/frontend/gda_expr.md:231
 msgid "`Legacy` is part of the shared result model but is never assigned by the current executor."
 msgstr "`Legacy` は共有の結果モデルの一部ですが、現在の実行器によって割り当てられることはありません。"
 
-#: manual/design/frontend/gda_expr.md:231
+#: manual/design/frontend/gda_expr.md:233
 msgid "The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own corpus runner in `tools/`."
 msgstr "この実行器は `decimal_gda` のみをテストします。IEEE 10 進（`decimal`）は `tools/` に独自のコーパスランナーを持ちます。"
 
@@ -12270,6 +12266,10 @@ msgid "elementary"
 msgstr "初等関数"
 
 #: manual/design/frontend/mpfr_expr.md:52
+msgid "$\\hat y \\simeq y$ (`compare == 0`, zeros with their sign)"
+msgstr "$\\hat y \\simeq y$（`compare == 0`、ゼロは符号も含めて）"
+
+#: manual/design/frontend/mpfr_expr.md:52
 msgid "inexact, invalid, division by zero equal; no underflow, overflow"
 msgstr "inexact、invalid、division by zero が等しい。underflow、overflow はなし"
 
@@ -12298,28 +12298,28 @@ msgid "Numeric comparison for elementary rows"
 msgstr "初等関数の行は数値的に比較する"
 
 #: manual/design/frontend/mpfr_expr.md:80
-msgid "The elementary matrix is generated for 29 functions across binary32/64/128 precisions and all six rounding modes. Its expected NaNs carry no payload information, and IEEE 754 leaves the payload of a generated NaN to the implementation, so the comparison treats all NaNs as equal. The same numeric comparison identifies $+0$ and $-0$; the sign of an exact zero result is therefore not checked by these rows."
-msgstr "初等関数のマトリクスは、29 個の関数について binary32/64/128 の精度と 6 つの丸めモードすべてにわたって生成されます。期待される NaN はペイロード情報を持たず、IEEE 754 は生成される NaN のペイロードを実装に委ねているため、比較ではすべての NaN を等しいものとして扱います。同じ数値比較では $+0$ と $-0$ も同一視されるため、正確なゼロの結果の符号はこれらの行では検査されません。"
+msgid "The elementary matrix is generated for 29 functions across binary32/64/128 precisions and all six rounding modes. Its expected NaNs carry no payload information, and IEEE 754 leaves the payload of a generated NaN to the implementation, so the comparison treats all NaNs as equal. `compare` also identifies $+0$ and $-0$, but the sign of a zero result is specified (for example $\\sin(-0) = -0$ and $\\operatorname{atan2}(-0, 1) = -0$), so a zero result must in addition have the expected sign."
+msgstr "初等関数のマトリクスは、29 個の関数について binary32/64/128 の精度と 6 つの丸めモードすべてにわたって生成されます。期待される NaN はペイロード情報を持たず、IEEE 754 は生成される NaN のペイロードを実装に委ねているため、比較ではすべての NaN を等しいものとして扱います。`compare` は $+0$ と $-0$ も同一視しますが、ゼロの結果の符号は規定されている（例えば $\\sin(-0) = -0$、$\\operatorname{atan2}(-0, 1) = -0$）ため、ゼロの結果はさらに期待どおりの符号を持たなければなりません。"
 
-#: manual/design/frontend/mpfr_expr.md:87
+#: manual/design/frontend/mpfr_expr.md:88
 msgid "Certification failures are failures"
 msgstr "認証の失敗は不合格とする"
 
-#: manual/design/frontend/mpfr_expr.md:89
+#: manual/design/frontend/mpfr_expr.md:90
 msgid "`bin_float` evaluates elementary functions with certified error bounds and a bounded refinement loop; when it cannot certify the rounding it returns an error instead of a possibly wrong value. The executor counts such an error as a failed row with its own message, so a corpus run also proves that certification succeeded on every row."
 msgstr "`bin_float` は、認証された誤差限界と有界な精密化ループを用いて初等関数を評価します。丸めを認証できない場合は、誤っているかもしれない値ではなくエラーを返します。実行器はそのようなエラーを専用のメッセージ付きの不合格行として数えるため、コーパスの実行はすべての行で認証が成功したことの証明にもなります。"
 
-#: manual/design/frontend/mpfr_expr.md:95
+#: manual/design/frontend/mpfr_expr.md:96
 msgid "Line numbers as ids"
 msgstr "行番号を ID とする"
 
-#: manual/design/frontend/mpfr_expr.md:97
+#: manual/design/frontend/mpfr_expr.md:98
 msgid "Rows have no names in these formats, so ids are `op:LINE` (or `sqrt:LINE`, `pow:LINE`). They are stable as long as the pinned file is unchanged, which the SHA-256 pins in `testdata/bin_float/corpora.json` guarantee."
 msgstr "これらの形式では行に名前がないため、ID は `op:LINE`（または `sqrt:LINE`、`pow:LINE`）です。固定されたファイルが変わらない限り ID は安定しており、それは `testdata/bin_float/corpora.json` の SHA-256 による固定が保証します。"
 
-#: manual/design/frontend/mpfr_expr.md:103
-msgid "**Soundness of a pass.** If MPFR's $y$ is the correctly rounded value of $f(x)$ (which MPFR guarantees), a passing square-root or power row shows $\\hat y = \\circ_{p,\\rho}(f(x))$ exactly, and a passing elementary row shows the same up to the sign of zero and the NaN payload, together with the stated flags."
-msgstr "**合格の健全性。** MPFR の $y$ が $f(x)$ の正しく丸められた値であれば（MPFR はこれを保証します）、平方根またはべき乗の行が合格することは $\\hat y = \\circ_{p,\\rho}(f(x))$ が正確に成り立つことを示し、初等関数の行が合格することは、ゼロの符号と NaN のペイロードを除いて同じことを、記載されたフラグとともに示します。"
+#: manual/design/frontend/mpfr_expr.md:104
+msgid "**Soundness of a pass.** If MPFR's $y$ is the correctly rounded value of $f(x)$ (which MPFR guarantees), a passing square-root or power row shows $\\hat y = \\circ_{p,\\rho}(f(x))$ exactly, and a passing elementary row shows the same up to the NaN payload, together with the stated flags."
+msgstr "**合格の健全性。** MPFR の $y$ が $f(x)$ の正しく丸められた値であれば（MPFR はこれを保証します）、平方根またはべき乗の行が合格することは $\\hat y = \\circ_{p,\\rho}(f(x))$ が正確に成り立つことを示し、初等関数の行が合格することは、NaN のペイロードを除いて同じことを、記載されたフラグとともに示します。"
 
 #: manual/design/frontend/mpfr_expr.md:109
 msgid "**Counter identity.** Every parsed row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$ and the parsed row count equals `total_cases`."
@@ -12330,42 +12330,38 @@ msgid "**Determinism.** Each row's result depends only on the row."
 msgstr "**決定性。** 各行の結果はその行のみに依存します。"
 
 #: manual/design/frontend/mpfr_expr.md:115
-msgid "**Totality of parsing.** Every non-comment line becomes a row or a diagnostic, and a document is returned only when there is no diagnostic."
-msgstr "**解析の全域性。** コメント以外のすべての行は行データまたは診断になり、ドキュメントが返されるのは診断が 1 つもない場合に限られます。"
+msgid "**Totality of parsing.** Every non-comment line becomes a row or a diagnostic, and a document is returned only when there is no diagnostic. An elementary row for `pow`, `hypot` or `atan2` without a second operand is a diagnostic, so execution never meets a missing operand."
+msgstr "**解析の全域性。** コメント以外のすべての行は行データまたは診断になり、ドキュメントが返されるのは診断が 1 つもない場合に限られます。第 2 オペランドのない `pow`、`hypot`、`atan2` の初等関数の行は診断になるため、実行時に欠けたオペランドに出会うことはありません。"
 
-#: manual/design/frontend/mpfr_expr.md:118
-msgid "**Known abort.** An elementary row for `pow`, `hypot` or `atan2` whose second operand is `-` passes the parser and aborts at execution (the executor calls `unwrap` on the missing operand)."
-msgstr "**既知の中断。** `pow`、`hypot`、`atan2` の初等関数の行で第 2 オペランドが `-` であるものは、パーサーを通過し、実行時に中断（abort）します（実行器が欠けたオペランドに対して `unwrap` を呼び出すため）。"
-
-#: manual/design/frontend/mpfr_expr.md:124
+#: manual/design/frontend/mpfr_expr.md:122
 msgid "**Comparing decimal strings.** Decimal output would need its own correctly rounded conversion; hexadecimal significands compare exactly."
 msgstr "**10 進文字列の比較。** 10 進出力には独自の正しく丸められた変換が必要になります。16 進数の仮数部であれば正確に比較できます。"
 
-#: manual/design/frontend/mpfr_expr.md:126
+#: manual/design/frontend/mpfr_expr.md:124
 msgid "**Running in IEEE formats.** That would mix range and rounding effects and make most high-precision rows (precision 113 and above) impossible."
 msgstr "**IEEE 形式での実行。** 範囲の効果と丸めの効果が混ざり、高精度の行（精度 113 以上）の大半が実行不可能になります。"
 
-#: manual/design/frontend/mpfr_expr.md:128
+#: manual/design/frontend/mpfr_expr.md:126
 msgid "**Linking MPFR at test time.** The data is generated once by small C programs and pinned, so the MoonBit test run needs no C dependency and works on every target."
 msgstr "**テスト時に MPFR をリンクすること。** データは小さな C プログラムによって一度だけ生成されて固定されるため、MoonBit のテスト実行には C への依存が不要で、すべてのターゲットで動作します。"
 
-#: manual/design/frontend/mpfr_expr.md:134
+#: manual/design/frontend/mpfr_expr.md:132
 msgid "Square-root rows check values only, not flags."
 msgstr "平方根の行は値のみを検査し、フラグは検査しません。"
 
-#: manual/design/frontend/mpfr_expr.md:135
-msgid "Elementary rows do not check the sign of a zero result or NaN payloads."
-msgstr "初等関数の行は、ゼロの結果の符号や NaN のペイロードを検査しません。"
+#: manual/design/frontend/mpfr_expr.md:133
+msgid "Elementary rows do not check NaN payloads."
+msgstr "初等関数の行は NaN のペイロードを検査しません。"
 
-#: manual/design/frontend/mpfr_expr.md:136
+#: manual/design/frontend/mpfr_expr.md:134
 msgid "No exponent range, subnormals or overflow handling are exercised."
 msgstr "指数範囲、非正規化数、オーバーフロー処理は検証されません。"
 
-#: manual/design/frontend/mpfr_expr.md:137
+#: manual/design/frontend/mpfr_expr.md:135
 msgid "Only the three formats above are understood; there is no general MPFR test file reader."
 msgstr "上記の 3 つの形式のみを理解します。汎用の MPFR テストファイルリーダーはありません。"
 
-#: manual/design/frontend/mpfr_expr.md:139
+#: manual/design/frontend/mpfr_expr.md:137
 msgid "File reading, format detection and exit codes are in [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)."
 msgstr "ファイルの読み取り、形式の検出、終了コードは [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md) にあります。"
 
@@ -15254,7 +15250,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/doc_examples.md:54
 #: manual/tutorial/frontend/gda_expr.md:239
 #: manual/tutorial/frontend/itl_expr.md:163
-#: manual/tutorial/frontend/mpfr_expr.md:161
+#: manual/tutorial/frontend/mpfr_expr.md:160
 #: manual/tutorial/frontend/testfloat_expr.md:203
 #: manual/tutorial/internal.md:174
 #: manual/tutorial/internal/conformance.md:109
@@ -17406,8 +17402,8 @@ msgid "**Which parser?** The CLI chooses the elementary format when the file con
 msgstr "**どのパーサが使われるか。** CLI は、ファイルが `mpfr-elementary-v1` を含めば初等関数形式、`input_coefficient_hex` を含めばべき乗形式、それ以外は平方根形式を選びます。マーカーはコメント行に置いてください。"
 
 #: manual/tutorial/frontend/mpfr_expr.md:149
-msgid "**Elementary rows compare numbers, not encodings.** `+0` and `-0` compare equal there, and any NaN matches an expected `nan`. Square-root and power rows compare the whole `BinFloat`, including the sign of zero."
-msgstr "**初等関数の行はエンコーディングではなく数値を比較します。** そこでは `+0` と `-0` は等しいとみなされ、任意の NaN が期待値 `nan` にマッチします。平方根とべき乗の行は、ゼロの符号を含めて `BinFloat` 全体を比較します。"
+msgid "**Elementary rows compare numbers, not encodings.** Any NaN matches an expected `nan`, and a zero must have the expected sign. Square-root and power rows compare the whole `BinFloat`."
+msgstr "**初等関数の行はエンコーディングではなく数値を比較します。** 任意の NaN が期待値 `nan` にマッチし、ゼロは期待どおりの符号を持たなければなりません。平方根とべき乗の行は `BinFloat` 全体を比較します。"
 
 #: manual/tutorial/frontend/mpfr_expr.md:152
 msgid "**Square-root flags are not checked.** `sqrt` data rows compare only the value."
@@ -17418,18 +17414,18 @@ msgid "**No exponent range.** Rows are executed in an unbounded context: there i
 msgstr "**指数範囲はありません。** 行は有界でないコンテキストで実行されます。オーバーフロー、アンダーフロー、非正規化数の範囲は存在せず、オーバーフローやアンダーフローを報告する初等関数やべき乗の行は失敗します。"
 
 #: manual/tutorial/frontend/mpfr_expr.md:157
-msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is accepted by the parser but aborts when executed."
-msgstr "**2 項演算には第 2 オペランドが必要です。** 第 2 オペランドが `-` である初等関数の `pow`、`hypot`、`atan2` の行はパーサには受理されますが、実行時に中断します。"
+msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is a parse diagnostic."
+msgstr "**2 項演算には第 2 オペランドが必要です。** 第 2 オペランドが `-` である初等関数の `pow`、`hypot`、`atan2` の行は解析時の診断になります。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:163
+#: manual/tutorial/frontend/mpfr_expr.md:162
 msgid "[mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the exact field layouts."
 msgstr "すべての項目と正確なフィールド配置については [mpfr_expr API](../../api/frontend/mpfr_expr.md)。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:165
+#: manual/tutorial/frontend/mpfr_expr.md:164
 msgid "[mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr "合格規則については [mpfr_expr 設計](../../design/frontend/mpfr_expr.md)。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:166
+#: manual/tutorial/frontend/mpfr_expr.md:165
 msgid "[bin_float tutorial](../bin_float.md) for the functions being tested."
 msgstr "テスト対象の関数については [bin_float チュートリアル](../bin_float.md)。"
 
@@ -18252,6 +18248,18 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
+
+#~ msgid "The parser does not check that `y` is present for the two-operand functions `pow`, `hypot` and `atan2`; executing such a row with `y = -` aborts."
+#~ msgstr "パーサは、2 オペランドの関数 `pow`、`hypot`、`atan2` について `y` があることを検査しません。そのような行を `y = -` のまま実行すると異常終了します。"
+
+#~ msgid "otherwise decimal text (a leading `+` is dropped), parsed with precision $\\max(64, p)$, which keeps every operand of up to that many digits exact."
+#~ msgstr "それ以外は 10 進テキスト（先頭の `+` は取り除かれる）で、精度 $\\max(64, p)$ で解析される。これにより、その桁数までのオペランドはすべて厳密に保たれる。"
+
+#~ msgid "Operands with more than $\\max(64, p)$ significant digits are rounded half-even when decoded."
+#~ msgstr "有効桁数が $\\max(64, p)$ を超えるオペランドは、復号時に最近接偶数丸めで丸められます。"
+
+#~ msgid "**Known abort.** An elementary row for `pow`, `hypot` or `atan2` whose second operand is `-` passes the parser and aborts at execution (the executor calls `unwrap` on the missing operand)."
+#~ msgstr "**既知の中断。** `pow`、`hypot`、`atan2` の初等関数の行で第 2 オペランドが `-` であるものは、パーサーを通過し、実行時に中断（abort）します（実行器が欠けたオペランドに対して `unwrap` を呼び出すため）。"
 
 #~ msgid "**The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a confidence of `0.95` percent; rely on its relative delta and decision."
 #~ msgstr "**ホットスポットの区間は 95 % 区間ではありません。** `paired_hotspot` は信頼度として `0.95` パーセントを渡しています。その相対差と判定に依拠してください。"
