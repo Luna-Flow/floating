@@ -245,6 +245,20 @@ pub fn Decimal::try_power_ctx(
         let invalid = invalid_context_result(ctx)
         return Ok((invalid.0, operand_flags.combine(invalid.1)))
       }
+      // An exactly representable power (4^1.5 = 8) lies on the boundary of
+      // its rounding cell in the directed modes, and an exact midpoint does in
+      // the half modes, so the certified loop below can never accept it.
+      // Decide it exactly first; GDA still reports it as rounded and inexact.
+      match decimal_power_exact_rational_result(base, rounded_exponent, ctx) {
+        Some(result) => {
+          let finalized = decimal_power_finalize_result(
+            decimal_power_noninteger_gda_result(result, ctx),
+            ctx,
+          )
+          return Ok((finalized.0, operand_flags.combine(finalized.1)))
+        }
+        None => ()
+      }
       match
         decimal_power_adjacent_one_directed_result(base, rounded_exponent, ctx) {
         Some(result) => {

@@ -412,6 +412,15 @@ notes live in this file.
 - Fixed the `cli` dispatcher, where an empty `--backend=` slipped past the
   at-most-once check, so `--backend= --backend gda` was accepted. An empty
   value is now the error `--backend requires a value`.
+- Fixed `decimal_gda` `power` and `Decimal::power_ctx` for a non-integral
+  exponent whose exact result is representable, in the directed rounding
+  modes. `power(4, 1.5)` returned `8.0000` at once under `HalfEven` but did not
+  return under `Down`, `Up`, `Ceiling` or `Floor`: the exact value 8 is an
+  endpoint of the directed rounding cell, so the certified loop could never
+  accept it. An exponent `a/q` with a small reduced denominator is now tested
+  for an exact power (`x^a` a perfect `q`-th power) before the loop; the exact
+  value is rounded once in the context mode and, as GDA requires for
+  non-integral powers, reported as Inexact and Rounded.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

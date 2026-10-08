@@ -1979,3 +1979,184 @@ fn decimal_power_positive_integer_restricted(rhs : Decimal) -> Bool {
     None => false
   }
 }
+
+///|
+/// Digits an exact non-integral power may take before the search gives up and
+/// leaves the value to the certified refinement loop. The bisection below costs
+/// about one squaring per root bit, so this keeps the detection cheap.
+let decimal_power_exact_digit_limit : Int = 1024
+
+///|
+/// Exact integer `degree`-th root of `value`, or `None` when `value` is not a
+/// perfect `degree`-th power. Mirrors the binary `rootn` helper: a bisection
+/// over the root's digit count, stopped as soon as the root would need more
+/// than `max_root_digits` digits.
+fn gda_coeff_exact_nth_root_repr(
+  value : GdaCoeff,
+  degree : Int,
+  max_root_digits : Int,
+) -> GdaCoeff? {
+  guard degree > 1 && !value.is_zero() && max_root_digits >= 1 else {
+    return None
+  }
+  let one = gda_coeff_from_int(1)
+  if gda_coeff_compare_repr(value, one) == 0 {
+    return Some(one)
+  }
+  let digits = value.digits10()
+  let root_digits = (digits + degree - 1) / degree
+  guard root_digits <= max_root_digits else { return None }
+  // A root of `root_digits` digits is below `10^root_digits`, so the interval
+  // `[0, 10^root_digits)` brackets it and a power that overflows `digits`
+  // digits is certainly above `value`.
+  let mut lower = gda_coeff_zero()
+  let mut upper = gda_coeff_power10_repr(root_digits)
+  while gda_coeff_compare_repr(gda_coeff_magnitude_sub_repr(upper, lower), one) >
+        0 {
+    let midpoint = gda_coeff_div_rem_by_unit_repr(
+        gda_coeff_magnitude_add_repr(lower, upper),
+        2,
+      ).0
+    match gda_coeff_exact_power_if_fits_repr(midpoint, degree, digits) {
+      Some(power) =>
+        if gda_coeff_compare_repr(power, value) <= 0 {
+          lower = midpoint
+        } else {
+          upper = midpoint
+        }
+      None => upper = midpoint
+    }
+  }
+  match gda_coeff_exact_power_if_fits_repr(lower, degree, digits) {
+    Some(power) if gda_coeff_compare_repr(power, value) == 0 => Some(lower)
+    _ => None
+  }
+}
+
+///|
+/// Reduces a non-integral exponent to `p / q` in lowest terms. A decimal
+/// exponent is `coefficient * 10^-scale`, so `q` only ever keeps the powers of
+/// two and five the coefficient cannot cancel. Both parts are bounded: an
+/// exponent whose reduced denominator is large has no exactly representable
+/// power for any base a context can hold.
+fn decimal_power_exponent_fraction(exponent : Decimal) -> (GdaCoeff, Int)? {
+  guard exponent.class == FpClass::Finite && !exponent.coefficient.is_zero() else {
+    return None
+  }
+  let scale = -exponent.exponent10
+  guard scale > 0 && scale <= 32 else { return None }
+  let (without_twos, twos) = gda_coeff_count_factor_unit_repr(
+    exponent.coefficient,
+    2,
+  )
+  let (without_fives, fives) = gda_coeff_count_factor_unit_repr(without_twos, 5)
+  let cancelled_twos = Int::min(scale, twos)
+  let cancelled_fives = Int::min(scale, fives)
+  let remaining_twos = scale - cancelled_twos
+  let remaining_fives = scale - cancelled_fives
+  guard remaining_twos + remaining_fives > 0 else { return None }
+  guard remaining_twos <= 10 && remaining_fives <= 4 else { return None }
+  let denominator = (1 << remaining_twos) *
+    decimal_small_power_of_five(remaining_fives)
+  guard denominator > 1 && denominator <= 1000 else { return None }
+  let numerator = gda_coeff_multiply_repr(
+    gda_coeff_multiply_repr(
+      without_fives,
+      gda_coeff_pow_unit_repr(2, twos - cancelled_twos),
+    ),
+    gda_coeff_pow_unit_repr(5, fives - cancelled_fives),
+  )
+  Some((numerator, denominator))
+}
+
+///|
+/// `5^exponent` for the few exponents a reduced power denominator can keep.
+fn decimal_small_power_of_five(exponent : Int) -> Int {
+  let mut result = 1
+  for _ in 0..<exponent {
+    result = result * 5
+  }
+  result
+}
+
+///|
+/// Decides `base^exponent` for a positive base and a non-integral exponent
+/// whose value is exactly representable. With the exponent reduced to `p / q`,
+/// the power is exact precisely when `base^p` is a perfect `q`-th power, the
+/// same reasoning the `x^0.5` and integer-exponent paths already use. The
+/// certified refinement loop cannot decide such a result: its enclosure
+/// straddles the exact value, so no refinement ever makes the two endpoints
+/// round alike.
+fn decimal_power_exact_rational_result(
+  base : Decimal,
+  exponent : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard base.class == FpClass::Finite && exponent.class == FpClass::Finite else {
+    return None
+  }
+  guard !base.negative &&
+    !base.coefficient.is_zero() &&
+    !exponent.coefficient.is_zero() else {
+    return None
+  }
+  let (numerator, denominator) = match
+    decimal_power_exponent_fraction(exponent) {
+    Some(value) => value
+    None => return None
+  }
+  let count = match gda_coeff_to_bounded_int(numerator, 4096) {
+    Some(value) => value
+    None => return None
+  }
+  guard count >= 1 else { return None }
+  // The search is bounded by digit count, not by the context: an exact result
+  // longer than the context precision still has to be found here, because the
+  // binary evaluation underneath cannot round an exactly representable value
+  // either, however coarse the decimal target is.
+  let root_limit = Int::min(
+    Int::max(
+      decimal_math_target_precision(ctx) + 1,
+      decimal_power_exact_digit_limit / 2,
+    ),
+    decimal_power_exact_digit_limit,
+  )
+  let scaled_limit = denominator.to_int64() * root_limit.to_int64()
+  let digit_limit = if scaled_limit > decimal_power_exact_digit_limit.to_int64() {
+    decimal_power_exact_digit_limit
+  } else {
+    Int::max(1, scaled_limit.to_int())
+  }
+  let powered = match
+    gda_coeff_exact_power_if_fits_repr(base.coefficient, count, digit_limit) {
+    Some(value) => value
+    None => return None
+  }
+  // base^count = powered * 10^total; lift the exponent to a non-negative
+  // residue so the root is taken of an integer.
+  let total = base.exponent10.to_int64() * count.to_int64()
+  let quotient = denominator.to_int64()
+  let lift = if total >= 0L { 0L } else { (-total + quotient - 1L) / quotient }
+  let residue = total + lift * quotient
+  guard residue >= 0L && residue <= digit_limit.to_int64() else { return None }
+  guard powered.digits10().to_int64() + residue <= digit_limit.to_int64() else {
+    return None
+  }
+  guard lift <= 1_000_000_000L else { return None }
+  let scaled = gda_coeff_shift_power10_repr(powered, residue.to_int())
+  let root = match
+    gda_coeff_exact_nth_root_repr(scaled, denominator, root_limit) {
+    Some(value) => value
+    None => return None
+  }
+  let result_exponent = -lift.to_int()
+  if exponent.negative {
+    let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
+    exact_decimal_reciprocal(
+      finite_with_exponent_repr(false, root, result_exponent, precision),
+      ctx,
+    )
+  } else {
+    Some(normalize_decimal_parts_ctx_repr(false, root, result_exponent, ctx))
+  }
+}
