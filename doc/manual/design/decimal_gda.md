@@ -618,7 +618,11 @@ refinement loop.[^ziv] For $f(x)$:
 1. **Exact cases first.** $\exp 0 = 1$, $\ln 1 = 0$, $\log_{10} 10^k = k$,
    special operands, domain errors, and the cases `power` can decide exactly
    ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or
-   underflow) never reach the loop.
+   underflow, and exact rational powers: $y = a/q$ in lowest terms with a
+   small $q$ and $x^a$ a perfect $q$-th power, such as $4^{1.5} = 8$) never
+   reach the loop. An exact result is a boundary of its rounding cell in the
+   directed modes (and an exact midpoint is one in the half modes), which the
+   loop could never certify.
 2. **Enclose the input.** $x$ is converted to a binary ball $[x^-, x^+]$ at
    $w$ bits with directed rounding (`to_bin_float` towards $-\infty$ and
    $+\infty$), so $x \in [x^-, x^+]$ exactly.
