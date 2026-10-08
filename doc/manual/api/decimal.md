@@ -1031,11 +1031,16 @@ pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-A finite value with negative exponent is quantized to exponent 0 with the
-context's rounding mode; a value with exponent $\ge 0$ is only rounded to the
-context. `to_integral_exact` reports `rounded`/`inexact`;
-`to_integral_value` returns the same value with those two flags cleared.
-Infinities are returned unchanged; NaNs are quieted.
+A finite value with exponent $\ge 0$ is already an integer and is returned
+unchanged, even when it is longer than $p$ digits (a `clamp` context still
+folds its exponent down). A value with negative exponent is quantized to
+exponent 0 with the context's rounding mode, at a working precision of
+$\max(p, \text{its digit count})$, so the integral part is never rounded to
+$p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact`
+reports `rounded`/`inexact` when digits are dropped; `to_integral_value`
+returns the same value with those two flags cleared. In a subset context the
+operand is first rounded to $p$ digits, with `lost_digits`. Infinities are
+returned unchanged; NaNs are quieted.
 
 > [!WARNING]
 > Operands longer than the context precision are mishandled. An integer with

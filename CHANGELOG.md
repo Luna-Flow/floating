@@ -457,6 +457,14 @@ notes live in this file.
   implementation's maximum precision, so rows such as
   `quantize 0 1e3000000000` and the subset `qua531` keep their expected
   results.
+- Fixed `Decimal::to_integral_exact` and `to_integral_value` in `decimal` for
+  operands longer than the context precision. An operand with a non-negative
+  exponent was rounded to the precision (`12345` at precision 3 gave `1.23E+4`
+  with `inexact`, even from `to_integral_value`), and one with a negative
+  exponent was quantized at the context precision, so `12345.6` gave NaN with
+  `invalid_operation`. As IEEE 754-2019 section 5.9 requires, an integral
+  operand is now returned unchanged, and the quantization to exponent 0 uses a
+  working precision of at least the operand's length (`12345.6` gives `12346`).
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
