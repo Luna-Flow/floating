@@ -33,7 +33,11 @@ computes exactly $c(R)$ and $|R|$ and stores the caller's total $T$.
 ### Shards
 
 For $n \ge 1$ and $0 \le i < n$, shard $(n, i)$ selects the ordinals
-$S_i = \{ k \in \mathbb{N} : k \bmod n = i \}$.
+$S_i = \{ k \in \mathbb{N} : k \bmod n = i \}$. The implementation computes
+`k % n == i` with MoonBit's truncating remainder, which agrees with
+$k \bmod n$ for $k \ge 0$. For $k < 0$ the remainder lies in $(-n, 0]$, so
+negative ordinals are outside every $S_i$ except that multiples of $n$ land in
+$S_0$; callers number cases from $0$.
 
 ## Design decisions
 
@@ -67,7 +71,7 @@ count it $n$ times.
 diagnostics (`file:line:column: message`) are always valid editor positions,
 even for callers that pass 0 for "unknown".
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Counter identities.** For every summary,
 $\text{selected} = \text{executable} + \text{skipped}$,
@@ -77,15 +81,21 @@ Each summand of $c(R)$ adds 1 to exactly one side of each identity, so they
 hold for `from_results`; `merge` adds counters componentwise, which preserves
 linear identities.
 
-**Shards partition the ordinals.** Every $k$ has exactly one residue modulo
-$n$, so the $S_i$ are disjoint and cover $\mathbb{N}$. Among the first $N$
-ordinals, shard $i$ receives
+**Shards partition the ordinals.** Every $k \in \mathbb{N}$ has exactly one
+residue modulo $n$, so the $S_i$ are disjoint and cover $\mathbb{N}$. Among
+the first $N$ ordinals, shard $i$ receives $i, i + n, \dots$ up to $N - 1$,
+that is
 
 $$
-|S_i \cap \{0, \dots, N-1\}| = \left\lceil \frac{N - i}{n} \right\rceil ,
+|S_i \cap \{0, \dots, N-1\}|
+= \max\Bigl(0,\ \Bigl\lfloor \frac{N - 1 - i}{n} \Bigr\rfloor + 1\Bigr)
+= \left\lceil \frac{N - i}{n} \right\rceil
 $$
 
-so shard sizes differ by at most one.
+(the ceiling is $0$ when $N \le i$, because then $-n < N - i \le 0$). The
+counts are non-increasing in $i$ and the first and last differ by
+$\lceil N/n \rceil - \lceil (N - n + 1)/n \rceil \le 1$, so shard sizes differ by
+at most one.
 
 **Merging shards gives the serial counters.** $c$ is a monoid homomorphism
 from lists under concatenation to $(\mathbb{N}^7, +)$:

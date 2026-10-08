@@ -66,6 +66,15 @@ class DocumentationQualityTests(unittest.TestCase):
         self.assertIn("doc/manual: missing conformance/decimal_gda.md", errors)
         self.assertIn("doc/manual: missing index.md", errors)
 
+    def test_package_paths_ignore_only_underscored_source_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory) / "_checkout"
+            for relative in ("core", "nested/leaf", "_generated_doc_examples/page"):
+                (root / "src" / relative).mkdir(parents=True)
+                (root / "src" / relative / "moon.pkg").write_text("", encoding="utf-8")
+            use_repo(stack, root)
+            self.assertEqual(doc_quality.package_paths(), {"core", "nested/leaf"})
+
     def test_orphan_pages_need_a_moon_package(self) -> None:
         with patch.object(doc_quality, "package_paths", return_value={"example"}):
             with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:

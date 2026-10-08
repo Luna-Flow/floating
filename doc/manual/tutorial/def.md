@@ -1,7 +1,7 @@
-# `def` tutorial
+# def tutorial
 
-This tutorial shows how to write code that works with every number type of
-`floating` at once: you inspect values through the `Floating` trait, test
+The goal of this tutorial is to write code that works with every number type
+of `floating` at once: you inspect values through the `Floating` trait, test
 their class with the generic predicates, read IEEE comparison results as
 `PartialOrder`, and reuse the arithmetic context and error types that `def`
 re-exports. `def` itself does no arithmetic; the concrete packages
@@ -9,15 +9,25 @@ re-exports. `def` itself does no arithmetic; the concrete packages
 [`decimal_gda`](decimal_gda.md), [`ball_float`](ball_float.md)) do. The laws
 behind the trait are in the [design page](../design/def.md).
 
+| I want to | Use |
+| --- | --- |
+| ask any value for its class, sign or precision | [`Floating`](#write-one-function-for-every-representation) |
+| test for NaN, infinity or zero generically | [`is_nan`, `is_infinite`, `is_finite`, `is_zero`](#quick-start) |
+| round a value to fewer digits of its own radix | [`Floating::with_precision`](#change-precision-generically) |
+| read the result of an IEEE comparison | [`PartialOrder`](#read-an-ieee-comparison) |
+| compare decimal cohorts by their printed form | [`Floating::normalized`](#normalize-before-comparing-representations) |
+| handle checked errors without importing `arithmetic` | [`ArithmeticError`](#use-the-re-exported-arithmetic-types) |
+| make my own type usable by generic code | [`impl @def.Floating`](#implement-floating-for-your-own-type) |
+
 ## Quick start
 
 Add the module and import `def` next to the representation you use:
 
-```sh
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/bin_float",
@@ -246,9 +256,17 @@ test "a user type joins the generic code" {
   matters.
 - `PartialOrder` is not an ordering you can sort with: `Unordered` breaks
   trichotomy. Use the total orders of the concrete packages
-  (`BinFloat::total_order`, `Decimal::compare_total`) for sorting.
-- `with_precision` reports no flags and ignores exponent limits. When rounding
-  must be observed, use the `*_ctx` operations of the concrete package.
+  (`BinFloat::total_order_compare`, `Decimal::compare_total`) for sorting.
+- `with_precision` reports no flags and ignores context exponent limits (a
+  `BinFloat` still overflows at its implementation range of about
+  $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations
+  of the concrete package.
+- On a `BallFloat`, `normalized` and `with_precision` return an enclosure that
+  can be wider than the input, even at the same precision. Apart from
+  endpoints more than about $2^{16}$ binary orders of magnitude apart at a
+  precision above about 65536 bits ([#44](https://github.com/Luna-Flow/floating/issues/44), with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)) they never
+  lose a member, but do not expect the bounds to stay the same (tracked in
+  [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)).
 - `with_precision(x, 0, mode)` is not an error: the precision is clamped to 1.
 
 ## Next steps

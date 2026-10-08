@@ -43,17 +43,19 @@ tools always invoke an executable whose name says what it runs.
 ### Dispatcher help wins
 
 `--help` is handled while scanning arguments, before the backend is known, so
-it always prints the dispatcher usage and exits with `0`. This keeps
-`--help` safe to call in any combination; runner options are documented on
-their pages instead.
+it prints the dispatcher usage and exits with `0` whatever backend is named.
+The scan stops at the first error, so a malformed `--backend` before `--help`
+still exits with `2`. Runner options are documented on their pages instead.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exactly one runner is called per invocation, or none when the arguments are
   invalid (exit `2`) or `--help` is given (exit `0`).
 - The exit status equals the runner's return value: `0`, `1` or `2`.
 - Arguments other than `--backend`, its value and `--help`/`-h` reach the
   runner unchanged and in order.
+- "At most once" is checked on whether `--backend` was given, not on its
+  value, and an empty `--backend=` is itself an error (exit `2`).
 
 ## Alternatives rejected
 

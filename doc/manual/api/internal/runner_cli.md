@@ -1,21 +1,29 @@
 # internal/runner_cli API
 
+## Purpose
+
 `internal/runner_cli` holds the command-line plumbing shared by the
 conformance runners in `cli/`: parsing of the common options, reading files,
 collecting corpus files from directories, formatting diagnostics and building
 JSON output. It depends on `moonbitlang/x/fs`, so file access works on the
 targets that package supports (the runners are built for native). It is an
-internal package; examples are not compiled. See the
+internal package: code outside `Luna-Flow/floating` cannot import it. See the
 [tutorial](../../tutorial/internal/runner_cli.md) and the
 [design page](../../design/internal/runner_cli.md).
 
-Import (inside the module only):
+## Importing
 
-```text
+Inside the module, add the package to `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/internal/runner_cli",
 }
 ```
+
+The examples call the package as `@runner_cli.`. The manual's example checker
+has no alias for internal subpackages, so they are marked `nocheck`; their
+outputs were checked against the current source.
 
 ## Command-line options
 
@@ -46,13 +54,17 @@ pub fn parse_common_options(Array[String], allow_shard? : Bool) -> Result[Common
   `--shard-index=I`: only when `allow_shard` is true (the default); otherwise
   they are left in `remaining()`.
 
-Every other argument is kept, in order, in `remaining()`. Errors:
-`"--shard-count requires a value"` (or `--shard-index`), `"invalid shard
-count: X"` for a non-integer, and the `ShardSpec::try_new` messages when the
-pair is not valid (count positive, index in `0 ..< count`). Defaults are one
-shard, index 0, JSON off.
+Every other argument is kept, in order, in `remaining()`. The separated form
+never takes another option as its value, so `--shard-count --json` fails with
+`"--shard-count requires a value"`. A repeated option keeps its last value.
+Errors: `"--shard-count requires a value"` (or `--shard-index`) when the
+option is the last argument or the next argument starts with `--`, `"invalid shard
+count: X"` or `"invalid shard index: X"` for a value `parse_int` rejects, and
+the `ShardSpec::try_new` messages when the final pair is not valid (count
+positive, index in `0 ..< count`). Defaults are one shard, index 0, JSON
+off.
 
-### `CommonOptions::json`, `shard_count`, `shard_index`, `remaining`
+### `CommonOptions::json`, `CommonOptions::shard_count`, `CommonOptions::shard_index`, `CommonOptions::remaining`
 
 These accessors return the parsed values and a copy of the unconsumed
 arguments.
@@ -78,13 +90,25 @@ test "common options" {
 
 ### `parse_int`
 
-`parse_int(name, text)` parses a decimal integer for the option `name`.
+`parse_int(name, text)` parses an `Int` for the option `name`.
 
 ```mbti
 pub fn parse_int(String, String) -> Result[Int, String]
 ```
 
-The error is `"invalid NAME: TEXT"`.
+It delegates to `@string.parse_int` from `moonbitlang/core/string`, so it
+accepts MoonBit integer syntax, not only plain decimals: a leading `+` or `-`,
+the prefixes `0x`, `0o` and `0b`, and `_` separators (`"0x10"` and `"1_000"`
+parse as 16 and 1000). Whitespace and values outside the `Int` range are
+rejected. The error is `"invalid NAME: TEXT"`.
+
+```moonbit nocheck
+///|
+test "parse_int syntax" {
+  debug_inspect(@runner_cli.parse_int("n", "0x10"), content="Ok(16)")
+  debug_inspect(@runner_cli.parse_int("n", " 3"), content="Err(\"invalid n:  3\")")
+}
+```
 
 ## Files
 
@@ -107,11 +131,14 @@ the sorted list of files whose names end in `suffix`.
 pub fn collect_files(Array[String], String) -> Result[Array[String], String]
 ```
 
-A directory contributes its direct entries ending in `suffix` (as
-`dir + "/" + entry`; subdirectories are not searched). A file contributes
-itself if it ends in `suffix` and is otherwise ignored. The result is sorted
-in string order, so runs are reproducible across file systems. Errors:
-`"path does not exist: P"`, `"cannot inspect path: P"`,
+A directory contributes its direct entries that are files ending in `suffix`
+(as `dir + "/" + entry`; subdirectories are not searched, even when their
+names end in `suffix`). A file contributes itself if it ends in `suffix`. The
+result is sorted in string order, so runs are reproducible across file
+systems, and each path appears once: a file named twice, or named as
+`dir/entry` and also found through `dir`, is listed once. Errors:
+`"path does not exist: P"`, `"not a SUFFIX file: P"` for a named file
+without the suffix, `"cannot inspect path: P"`,
 `"cannot read directory: P"`.
 
 ## Diagnostics

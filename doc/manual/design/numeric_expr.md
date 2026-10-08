@@ -4,10 +4,12 @@
 
 The conformance frontends of `floating` read four very different corpus
 formats (GDA `.decTest`, IEEE 1788 `.itl`, MPFR data files, Berkeley TestFloat
-vectors) and run them against four number types. `numeric_expr` gives them one
-shared, typed intermediate form for "apply this operation to these operands"
-and one evaluator, so that parsing, number semantics and error reporting are
-separated:
+vectors) and run them against four number types. `numeric_expr` offers one
+typed intermediate form for "apply this operation to these operands" and one
+evaluator, so that parsing, number semantics and error reporting are
+separated. On the current branch only `frontend/gda_expr` lowers its rows to
+it; the ITL, MPFR and TestFloat frontends execute their parsed rows
+directly. Where it is used, the roles split as follows:
 
 - a frontend turns text into an `Expr` and keeps source positions;
 - a backend, given as two callbacks, says what literals and operations mean;
@@ -124,7 +126,7 @@ itself rather than only a message. The node has the raw text or name and the
 span, which is what a corpus runner prints. The callback's error `E` is kept
 unchanged, so a typed error survives evaluation.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Proposition 1 (closed shape).** Every `Expr` built with the public API is
 either `Value(LiteralAtom(ℓ))` or `Apply(Value(PrimitiveAtom(o)), args)` with

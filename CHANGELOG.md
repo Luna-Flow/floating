@@ -105,13 +105,132 @@ notes live in this file.
   the actions that still targeted the deprecated Node 20 runtime:
   `actions/checkout` to v7, `actions/cache` to v6, `actions/upload-artifact` to
   v7 and `extractions/setup-just` to v4.
+- Brought the manual to the Luna-Flow documentation standard: the overview
+  has one Pages table per package group and a Validation section; every API
+  page has Purpose and Importing sections and a heading for every public item
+  of `pkg.generated.mbti`; every tutorial maps tasks to items in an
+  "I want to / Use" table; every design page ends with its boundaries. The
+  derivations were reviewed against the code: wrong steps were corrected (for
+  example the decimal ideal exponent of an exact quotient, the interval
+  product sign cases, Moore's single-occurrence theorem and the integer-power
+  error bounds), missing arguments were added (termination of the certified
+  refinement loop, the `ZeroFiveUp` division lemma, the shortest-digits
+  bisection), and known deviations of the implementation are documented next
+  to the affected operations. The Chinese and Japanese catalogs follow.
 
 ### Fixed
 
+- Fixed two decorations that claimed `dac` for an argument reaching outside
+  the domain. Decorated `rootn` with a negative degree now gives `trv` when the
+  argument contains 0, where `x^(-1/n)` has a pole (#45), and decorated
+  `tanpi_interval` gives `trv` whenever its result is unbounded, which
+  includes a pole at an endpoint such as `tanpi([1/2, 1]) = [-inf, 0]`, not only
+  an Entire result (#86).
+- Fixed `BinCoeff::gcd` on the non-JS targets, which did not finish for some
+  operands of different lengths: the Lehmer loop took each operand's own top
+  limb as its leading digit, so the quotient estimate ignored the length
+  difference and each round removed only a small multiple of the smaller
+  operand. The leading digits now come from the same bit window, with a
+  division step when the smaller operand has no bits in it. This made
+  `BallFloat::ln_interval` hang for values just above 1 at high precision
+  (`1 + 2^-243` at 245 bits) and `asinh_interval` and `atanh_interval` hang for
+  tiny arguments at 53 bits (#85).
+- Fixed `BallFloat::exp2_interval` for integer endpoints outside the binary
+  exponent range. The exact power `2^n` was built rounded to nearest, so
+  `exp2([-1073742000, -1073742000])` returned `{0}`, which excludes the true
+  value, and `n >= 2^30` aborted with an infinite lower bound. Such endpoints
+  now keep the series enclosure (#84).
+- Fixed the signed-zero special cases of `BinFloat::atan2`, `atan2_ctx` and
+  `try_atan2_ctx` (#48). `atan2(±0, +0)` returned $\pm\pi/2$ instead of $\pm 0$,
+  `atan2(±0, -0)` returned $\pm\pi/2$ instead of $\pm\pi$, and
+  `atan2(-0, x < 0)` returned $+\pi$ instead of $-\pi$; a zero ordinate now
+  keeps its sign and the sign of the abscissa picks $\pm 0$ or $\pm\pi$, as
+  IEEE 754-2019 §9.2.1 requires.
+- Fixed the sign of `BinFloat::tanpi` at odd integers (#81): `tanpi(1)` returned
+  $+0$ and `tanpi(-1)` returned $-0$. Zeros now take the sign of
+  $\operatorname{sinPi}(n) / \operatorname{cosPi}(n)$ (IEEE 754-2019 §9.2.1, C23
+  Annex F): $-0$ for positive odd and negative even $n$, $+0$ otherwise.
+  `BallFloat::tanpi_interval` inherits the sign at such an endpoint, so
+  $[1/2, 1]$ now prints as `[-inf, -0.00000e+0]`.
+- Fixed `BinFloat::pow`, `pow_ctx` and `try_pow_ctx` on IEEE 754-2019 §9.2.1
+  inputs they rejected or got wrong (#49, #89). A negative base with an integer
+  exponent of magnitude at least $2^{31}$ was a domain error, and so was a
+  negative base with an infinite exponent (`(-1)^inf` is now 1,
+  `(-0.5)^inf` is $+0$); `(-0)^0.75` was a domain error instead of $+0$;
+  `(-inf)^(2^31 + 1)` returned $+\infty$ instead of $-\infty$; and
+  `pow(±0, -inf)` raised *division_by_zero*. Integrality and parity of the
+  exponent are now read from its representation, and a negative base with an
+  integer exponent is evaluated as $\pm|x|^y$ with mirrored directed rounding.
+- Fixed exact `pow` results with a non-integer exponent (#49): `16^0.75`
+  returned 8 with *inexact* under round-to-nearest and a certification failure
+  under a directed mode. For $x = c \cdot 2^e$ and $y = m / 2^k$, a dyadic
+  result exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th
+  power; it is now computed and rounded once before the Ziv loop.
+- Fixed `BinFloat::rootn` for exact roots with a negative degree or a degree
+  above 64 (#90): `rootn(8, -3)` returned $1/2$ with *inexact*, and in a directed
+  mode `rootn(8, -3)`, `rootn(2^130, 65)` and `pow(4, -0.5)` failed to certify.
+  An exact root $r$ is now returned as $r$, or as the correctly rounded $1/r$.
+- Fixed `BinFloat::rootn(-inf, n)` for even `n` (#90), which returned
+  $+\infty$ (or $+0$ for negative `n`); like a finite negative argument it is
+  now a domain error (*invalid* in `rootn_ctx`).
+- Fixed certification failures of the `BinFloat` elementary functions for tiny
+  arguments (#102): `sin`/`atan` of $2^{-6000}$ at 53 bits, `sin` of
+  $2^{-8000}$ in binary128 and `exp`/`expm1`/`exp2` of $2^{-20000}$ returned
+  `certification_failure` (NaN from the non-`try` APIs), as did `cos`, `tan`,
+  `asin`, `sinh`, `cosh`, `tanh`, `asinh`, `atanh`, `log1p` and `cospi` in
+  some rounding modes. An enclosure endpoint that is itself a rounding
+  breakpoint now moves just inside the enclosure when the result is known to
+  be irrational, and `sin`, `cos`, `tan`, `asin`, `sinh`, `cosh`, `tanh`,
+  `asinh`, `atanh`, `expm1` and `log1p` decide arguments far below the target
+  spacing from rigorous $O(x^2)$ and $O(x^3)$ bounds before the Ziv loop.
+- Fixed `exp10` and `log10` exact results past $10^{4096}$: `exp10(n)` for an
+  integer $n \ge 0$ and `log10(10^k)` are now computed exactly whenever the
+  precision can hold them, instead of going through the Ziv loop.
+- Fixed `BinFloat::hypot` for operands whose exponents differ by more than
+  about 500,000 (#103), which returned `certification_failure`:
+  `hypot(1, 2^-600000)` is now 1 (*inexact*). An operand too small to reach a
+  rounding breakpoint is replaced by a power of two of the same effect before
+  the exact sum of squares is formed.
+- Fixed `BinFloat::rootn` and `pow` for exact roots of coefficients wider than
+  4096 bits (#129). The exact-root check gave up above that width, so at 3001
+  bits `rootn((2^3000 + 1)^2, 2)`, `pow((2^3000 + 1)^2, 0.5)` and
+  `rootn((2^3000 + 1)^3, 3)` returned the root with *inexact* under
+  round-to-nearest and `certification_failure` under the directed modes. The
+  integer root now takes exact square roots for the even part of the degree
+  and integer Newton steps from the root of the leading bits for the odd part,
+  so there is no width limit and wide coefficients no longer cost one power per
+  root bit.
+- Fixed `BinFloat::pow`, `pow_ctx` and `try_pow_ctx` for tiny non-integer
+  exponents (#128): `pow(2, 2^-16000)` in binary128 and `pow(3, 3 * 2^-20000)`
+  at 53 bits returned `certification_failure` (NaN from the non-`try` APIs),
+  because the lower end of the enclosure stayed exactly 1 and never rounded
+  like the upper end. When the exact-result check shows that `x^y` is not a
+  rounding breakpoint (irrational, not dyadic, or wider than the precision),
+  the Ziv loop now moves a breakpoint endpoint inside the enclosure, as the
+  other elementary functions do since #102.
+- Fixed `tools/doc_quality.py`, which treated every package as generated when
+  the checkout itself lived under an underscore-prefixed directory.
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
   now match `asin`: a quiet NaN for a NaN input and a domain error otherwise.
+- Fixed `Decimal` integer powers (`power_ctx` with an integer exponent,
+  `pown_ctx`, and `exp2_ctx`/`exp10_ctx` at integers), which used decNumber's
+  repeated rounding at `p + digits(n) + 2` digits and could round to the wrong
+  side of a midpoint: `3.339434^3` in decimal32 gave `37.24076` instead of
+  `37.24077`. In extended contexts the exact power is now rounded once when it
+  is short enough to form, and otherwise directed-rounding bounds are refined
+  until they round alike (#104). `pown_ctx` also built its exponent at the
+  context precision, so `(-1)^12345679` at seven digits was `1` (#51).
+- Fixed `pow_int_checked` and `pow_nat_checked` for `Decimal` in `decimal` and
+  `decimal_gda`, which still built the integer exponent at the context
+  precision: an exponent longer than the precision was rounded first, so
+  `(-1)^12345679` at seven digits was `1`. The exponent is now exact (#123).
+- Fixed `Decimal::hypot_ctx` and `rootn_ctx`, which returned exactly
+  representable results such as `hypot(0.3, 0.4)` and `rootn(0.008, 3)` padded
+  to full precision with `inexact`, or failed certification in the directed
+  modes. Exact norms and roots are now detected first and returned exactly
+  (#105).
 - Fixed `BallFloat::from_int` and `BallFloat::from_coefficient`, which rounded
   the value to the requested precision and wrapped the rounded result as a
   singleton, so the interval could exclude its own input
@@ -132,6 +251,15 @@ notes live in this file.
 - Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
   `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
   that flag, a failed parse did not count as an error.
+- Fixed `Decimal::atan2_ctx`, `try_atan2_ctx` and `DecimalChecked::atan2`
+  for zero and infinite operands. An infinite operand aborted the process
+  inside the certified ball evaluation, `atan2(+-0, -0)` returned NaN with
+  `invalid_operation`, and `atan2(-0, x < 0)` returned `+pi`. They now follow
+  IEEE 754-2019 §9.2.1: an exact signed zero or a correctly rounded multiple
+  of pi/4 with the ordinate's sign (#92).
+- Fixed `Decimal::cosh_ctx(-inf)`, `log2_ctx(+inf)` and `log1p_ctx(+inf)`
+  (and their `try_` forms), which returned NaN with `invalid_operation`
+  instead of `+inf` (#93).
 - Fixed double rounding in every guarded decimal division path. The guarded
   quotient was rounded with the target mode, which can manufacture an exact tie
   the exact quotient had already decided; the final rounding then applied the
@@ -143,6 +271,117 @@ notes live in this file.
   `/` operator and the contextual divide of both decimal packages, including
   their subnormal and non-extended paths, and the two division helpers behind
   the GDA elementary functions.
+- Fixed double rounding of `Decimal` context results whose exact exponent is
+  below Etiny but whose magnitude is normal. Finalization rounded them to the
+  subnormal grid first and then to the context precision, so
+  `3.000001E-45 * 1.500001E-45` in decimal32 returned `4.500004E-90` instead
+  of `4.500005E-90`. The same path served `mul_ctx`, `fma_ctx`, `apply_ctx`,
+  `plus_ctx` and the elementary functions (`exp_ctx(-215.35)` in decimal32).
+  The subnormal rounding now applies only to results that are subnormal. The
+  fallback path of `div_ctx` also rounded a subnormal quotient to the context
+  precision before rounding it to Etiny (`1 / 1.9999999999998E+101` in
+  decimal32 gave `0E-101`, not `1E-101`); it now rounds the guarded quotient
+  once (#87).
+- Fixed `Decimal::add_ctx` when one operand lies far below the other's
+  rounding position. The shortcut rounded the larger operand alone and moved
+  the result by one unit at most, deciding the direction from that operand
+  only. This was wrong when the larger operand had digits below the rounding
+  position, when it was a midpoint, and for `ZeroFiveUp` with an addend that
+  lowers the magnitude (`1598618 - 9.9E-11` at seven digits returned
+  `1598618`). Extended contexts now replace the small operand with a sticky
+  unit below every rounding boundary and round the sum once (#88).
+- Fixed `Decimal::scaleb_ctx` finalization. Overflow returned an infinity in
+  every rounding mode; it now follows the rounding direction, so toward zero
+  gives the largest finite number (#52). A zero result kept an exponent outside
+  the context range (`0 scaleb 700` in decimal64 gave `0E+700`; now
+  `0E+369` with `clamped`), and a coefficient longer than the precision was
+  left unrounded or, below Etiny, rounded to the subnormal grid and flagged
+  `subnormal` although its magnitude was normal. The scaled value is now
+  rounded once like any other context result (#95).
+- Fixed `decimal_gda` `add` and `subtract` when one operand lies far below
+  the other's rounding position, as for `Decimal` in #88. The shortcut rounded
+  the larger operand alone and moved the result by one unit at most, so
+  `1598618 - 9.9E-11` at seven digits with `ZeroFiveUp` returned `1598618` and
+  `1598618.5 + 1E-20` with `HalfEven` returned `1598618`. Extended contexts now
+  replace the small operand with a sticky unit and round the sum once (#120).
+- Fixed double rounding in `decimal_gda` of results whose exact exponent is
+  below Etiny but whose magnitude is normal, as for `Decimal` in #87.
+  `3.000001E-45 * 1.500001E-45` in decimal32 returned `4.500004E-90` instead
+  of `4.500005E-90` (also `fma`, `plus` and `exp`). The inexact path of
+  `divide` rounded a subnormal quotient to the precision before rounding it to
+  Etiny (`1 / 1.9999999999998E+101` in decimal32 gave `0E-101`, not
+  `1E-101`), and its exact-quotient shortcuts rounded a normal quotient below
+  Etiny to Etiny only, leaving more digits than the precision (`77223 /
+  16E+21` at precision 5 gave `4.82644E-18`). Each is now rounded once (#121).
+- Fixed `decimal_gda` `scaleb` finalization, as for `Decimal` in #52 and #95.
+  Overflow now follows the rounding direction instead of always returning an
+  infinity, a zero result has its exponent clamped into the context range
+  (`0E+300 scaleb 400` in decimal64 gives `0E+369` with `Clamped`), and a
+  coefficient longer than the precision is rounded once to the precision
+  (#122).
+- Fixed `Decimal::div_ctx` by a power of ten when the exact quotient's
+  exponent is below Etiny but its magnitude is normal. The quotient was
+  rounded to Etiny only and kept more digits than the precision
+  (`4826437 / 1E+24` at precision 5 with `Up` gave `4.82644E-18`, not
+  `4.8265E-18`); it is now rounded once to the precision. The division
+  helpers behind the elementary functions had the same shortcut (#126).
+- Fixed `to_integral_exact` and `to_integral_value` in `decimal_gda` (the GDA
+  functions and the `Decimal` methods) for operands longer than the context
+  precision. An operand with a non-negative exponent was rounded to the
+  precision (`12345` at precision 3 gave `1.23E+4` with `Inexact`), and one
+  with a negative exponent was quantized at the context precision, so
+  `12345.6` gave NaN with `InvalidOperation`. As in decNumber, an operand with
+  a non-negative exponent is now returned unchanged and the quantization to
+  exponent 0 uses a working precision of at least the operand's length
+  (`12345.6` gives `12346`, with `Inexact` and `Rounded` for the exact form).
+- Fixed `DecimalTininessDetection::AfterRounding` in the IEEE and GDA decimal
+  packages. It decided tininess from the result rounded on the subnormal grid
+  (at `Etiny`), which keeps fewer digits than the precision, so a value just
+  below $10^{e_{\min}}$ whose rounding to $p$ digits stays below it counted as
+  not tiny: `0.9951` at precision 3 and $e_{\min} = 0$ rounded to `1.00`
+  without `underflow`. Tininess after rounding now uses the value rounded to
+  $p$ digits with an unbounded exponent range, as IEEE 754 §7.5 and the
+  package documentation define it.
+- Fixed `bench::paired_hotspot`, which passed the bootstrap confidence as
+  `0.95` where Maremark expects a percentage, so its `interval` was a 0.95 %
+  interval (a single point) instead of a 95 % one.
+- Fixed `bench::TuneDecision::valid_samples`, which counted the negative and
+  non-finite samples the median discards.
+- Fixed `frontend/gda_expr::execute_documents`, which aborted on a context
+  with `precision: 0` (or a negative precision, or `minexponent` above
+  `maxexponent`) because it built a `DecimalContext` before classifying the
+  row. Such rows are now `Diagnostic` with the reason
+  `diagnostic invalid context: …`.
+- Fixed `frontend/gda_expr` operand decoding, which read plain decimal
+  operands at $\max(64, p)$ digits and so rounded longer operands before the
+  operation rounded again: at precision 9 the 67-digit operand
+  `1000000014` followed by 56 nines and a 5 gave `add … 0 -> 1.00000002E+66`
+  instead of `1.00000001E+66`. Operands are now read exactly, as GDA requires.
+- Fixed `frontend/itl_expr::execute_case`, which read the operands of the
+  generic binary dispatch before checking the operation, so an unknown
+  operation with a non-interval operand (`nums2interval 1.0 2.0`,
+  `rootn [1.0,8.0] 3`) was a `Diagnostic` and made `success()` false. Unknown
+  operations, including unknown boolean predicates, are now `Unsupported`.
+- Fixed `frontend/itl_expr::parse_itl`, which recognized `//` comments only at
+  the start of a line, so a statement followed by `; // note` did not end and
+  silently swallowed the next statement. A `//` comment now ends the line.
+- Fixed `frontend/mpfr_expr` elementary rows: a `pow`, `hypot` or `atan2` row
+  whose second operand is `-` is now the parse diagnostic
+  `invalid MPFR elementary field` instead of aborting the run, and a zero
+  result must have the expected sign (`compare` identifies `-0` and `+0`).
+- Fixed `cli/gda_expr_cli`, which silently skipped a named file that does not
+  end in `.decTest`, so a mistyped path ran zero cases and exited with 0. The
+  shared `internal/runner_cli::collect_files` now reports
+  `not a .decTest file: PATH` for such a file, lists a file named twice (or
+  named and inside a named directory) once, and no longer lists
+  subdirectories whose names end in the suffix.
+- Fixed `internal/runner_cli::parse_common_options`, which took the next
+  option as the value of `--shard-count` or `--shard-index`
+  (`--shard-count --json` reported `invalid shard count: --json`); it now
+  reports `--shard-count requires a value`.
+- Fixed the `cli` dispatcher, where an empty `--backend=` slipped past the
+  at-most-once check, so `--backend= --backend gda` was accepted. An empty
+  value is now the error `--backend requires a value`.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

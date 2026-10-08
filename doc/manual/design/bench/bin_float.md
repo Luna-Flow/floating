@@ -19,6 +19,10 @@ $$
 $$
 
 the relative median paired overheads of one layer over the layer below. The
+median of the differences is not the difference of the medians in general
+($\operatorname{med}(c - k) \ne \operatorname{med}(c) - \operatorname{med}(k)$),
+so `core_pct` is not $100\,(\operatorname{med} c / \operatorname{med} k - 1)$;
+it is the quantity whose uncertainty the paired bootstrap describes. The
 estimators, the pairing and the bootstrap interval are derived in the
 [bench design](../bench.md).
 
@@ -46,7 +50,7 @@ Exact results make the arithmetic work identical across paths: no path can
 win by rounding earlier, and the measured difference is the cost of
 representation, context handling and checking.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Plan tests compile every specification in ordinary test runs, so the
   benchmarks cannot rot unnoticed.

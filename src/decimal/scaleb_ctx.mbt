@@ -26,70 +26,6 @@ fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int? {
 }
 
 ///|
-fn finalize_scaleb_finite_ctx(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(value.coefficient, ctx)
-  let adjusted64 = value.exponent10.to_int64() +
-    (value.coefficient.digits10() - 1).to_int64()
-  if !value.coefficient.is_zero() && adjusted64 > ctx.e_max.to_int64() {
-    return (
-      Decimal::inf(
-        if value.negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision=value.precision_,
-      ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
-    )
-  }
-  let tiny = etiny(ctx)
-  if value.exponent10 < tiny {
-    let shift = tiny - value.exponent10
-    let (magnitude_repr, inexact) = round_positive_decimal_div_pow10_repr(
-      value.coefficient,
-      shift,
-      value.negative,
-      ctx.decimal_rounding,
-    )
-    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true, }
-    if inexact {
-      flags = { ..flags, inexact: true, underflow: true, }
-    }
-    if magnitude_repr.is_zero() {
-      return (
-        finite_with_exponent_repr(
-          value.negative,
-          magnitude_repr,
-          tiny,
-          precision,
-        ),
-        { ..flags, clamped: true, },
-      )
-    }
-    if magnitude_repr.digits10() > precision {
-      return finalize_scaleb_finite_ctx(
-        finite_with_exponent_repr(
-          value.negative,
-          magnitude_repr,
-          tiny,
-          precision,
-        ),
-        ctx,
-      )
-    }
-    return (
-      finite_with_exponent_repr(value.negative, magnitude_repr, tiny, precision),
-      flags,
-    )
-  }
-  finalize_finite_ctx(value, DecimalFlags::new(), ctx)
-}
-
-///|
 fn huge_shift_rounded_unit_repr(
   coefficient : DecCoeff,
   negative : Bool,
@@ -124,30 +60,41 @@ fn scaleb_finite_result_ctx(
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
   let target_exponent64 = value.exponent10.to_int64() + count.to_int64()
   if value.coefficient.is_zero() {
+    // A zero keeps its sign; its exponent is clamped into the range the
+    // context can represent, as for every other finalized zero.
+    let (lower64, upper64) = if ctx.precision > 0 {
+      (
+        etiny(ctx).to_int64(),
+        (if ctx.clamp { ctx.e_max - precision + 1 } else { ctx.e_max }).to_int64(),
+      )
+    } else {
+      (-2147483648L, 2147483647L)
+    }
+    let exponent64 = if target_exponent64 < lower64 {
+      lower64
+    } else if target_exponent64 > upper64 {
+      upper64
+    } else {
+      target_exponent64
+    }
     return (
       finite_with_exponent_repr(
         value.negative,
         dec_coeff_zero(),
-        scaleb_int64_to_int(target_exponent64),
+        scaleb_int64_to_int(exponent64),
         precision,
       ),
-      DecimalFlags::new(),
+      {
+        ..DecimalFlags::new(),
+        clamped: ctx.precision > 0 && exponent64 != target_exponent64,
+      },
     )
   }
   let adjusted64 = target_exponent64 +
     (value.coefficient.digits10() - 1).to_int64()
   if adjusted64 > ctx.e_max.to_int64() {
-    return (
-      Decimal::inf(
-        if value.negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision=value.precision_,
-      ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
-    )
+    // Overflow honours the rounding direction (IEEE 754-2019 7.4).
+    return decimal_overflow_result(value.negative, ctx)
   }
   let tiny = etiny(ctx)
   let tiny64 = tiny.to_int64()
@@ -173,13 +120,13 @@ fn scaleb_finite_result_ctx(
       )
     }
   }
-  finalize_scaleb_finite_ctx(
-    finite_with_exponent_repr(
-      value.negative,
-      value.coefficient,
-      scaleb_int64_to_int(target_exponent64),
-      precision,
-    ),
+  // The exponent now lies between Etiny - digits - 2 and e_max, so it fits in
+  // an Int. Round the scaled value once like any other context result: to the
+  // context precision, or to Etiny when it is subnormal.
+  normalize_decimal_parts_ctx_repr(
+    value.negative,
+    value.coefficient,
+    target_exponent64.to_int(),
     ctx,
   )
 }

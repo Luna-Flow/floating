@@ -8,13 +8,23 @@ The current release is **`0.8.0`**, the version in `moon.mod`.
 
 Every package has one page per chapter, named after its package path:
 
-1. **API reference (`api/<package>.md`)** lists every public type, function,
-   method, error and value with its signature and observable semantics.
-2. **Tutorial (`tutorial/<package>.md`)** works through tasks with small
-   examples that compile.
-3. **Design (`design/<package>.md`)** explains the representation, the
-   mathematics, the invariants and the decisions taken, and ends with the
-   package's boundaries.
+1. **API reference (`api/<package>.md`)**, titled `# <package> API`, starts
+   with `## Purpose` and `## Importing` (the `moon.pkg` import and the aliases
+   the examples use), then lists every public item of `pkg.generated.mbti`
+   under a heading that names it in code, grouped by purpose: the first
+   sentence says what the item does, an `mbti` block gives the signature,
+   and the text states its laws and edge behaviour (errors, flags, NaN,
+   signed zero, overflow), with a small `test` example for the important
+   items. Closely related items may share one heading.
+2. **Tutorial (`tutorial/<package>.md`)**, titled `# <package> tutorial`,
+   states its goal in the first paragraph, maps tasks to items in an
+   `| I want to | Use |` table, and continues with `## Quick start`,
+   `## Everyday tasks`, `## Going further`, `## Common pitfalls` and
+   `## Next steps`. Its examples are complete and compile.
+3. **Design (`design/<package>.md`)**, titled `# <package> design`, explains
+   the goal, the representation, the mathematics with its derivations, the
+   invariants and the decisions taken, lists the alternatives rejected, and
+   ends with `## Boundaries`.
 
 The four numerical cores, `bin_float`, `decimal`, `decimal_gda` and
 `ball_float`, have two more chapters, as the standard allows:
@@ -96,8 +106,10 @@ changes the interface.
   fenced `moonbit`, and they show their output with `inspect`. They must
   compile and pass against the current branch.
 - Partial snippets, signatures in prose, executable-package code and
-  `internal/*` code that cannot be imported from outside the module are fenced
-  `moonbit nocheck`; `moon.pkg` snippets are fenced `text`.
+  `internal/*` code that cannot be imported from outside the module, and
+  `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced
+  `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs
+  every other `moonbit` block of the manual.
 - Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for
   `Luna-Flow/arithmetic`; floating packages use their default aliases
   (`@bin_float`, `@decimal`, …).
@@ -121,8 +133,8 @@ Typst attachments live in `doc/attachments/` and are shared by all locales.
    pages (and the evidence pages of the four cores).
 3. Compile and run every changed example (`moonbit` blocks) against the
    current branch.
-4. Run `python3 tools/doc_quality.py` (or `just docs`, which also runs the
-   `src/doc_examples` tests).
+4. Run `just docs`: `tools/doc_quality.py`, the manual examples and the
+   `src/doc_examples` tests.
 5. Run `lunadoc update` to refresh `doc/locale/manual.pot` and merge the
    catalogs, translate new and fuzzy entries, then check `lunadoc status`
    (coverage per locale) and `lunadoc check --compile` (layout, catalogs,

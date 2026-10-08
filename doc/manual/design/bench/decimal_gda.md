@@ -8,19 +8,20 @@ layer shows up as a change in one reported percentage.
 
 ## Mathematical background
 
-For one dataset let $k_j$, $c_j$ and $f_j$ be the per-call times of the
-kernel, core and checked paths in block $j$ (a case without a kernel path
-reports only the second quantity). The reported quantities are
+For one dataset let $c_j$ and $f_j$ be the per-call times of the core and
+checked paths in block $j$. This suite has no kernel path, so it reports one
+quantity,
 
 $$
-\text{core\_pct} = 100\,\frac{\operatorname{med}_j (c_j - k_j)}{\operatorname{med}_j k_j},
-\qquad
 \text{full\_pct} = 100\,\frac{\operatorname{med}_j (f_j - c_j)}{\operatorname{med}_j c_j},
 $$
 
-the relative median paired overheads of one layer over the layer below. The
-estimators, the pairing and the bootstrap interval are derived in the
-[bench design](../bench.md).
+the relative median paired overhead of the checked wrapper over the core
+functions. The median of the differences is not the difference of the
+medians in general, so `full_pct` is not
+$100\,(\operatorname{med} f / \operatorname{med} c - 1)$; it is the quantity
+whose uncertainty the paired bootstrap describes. The estimators, the pairing
+and the bootstrap interval are derived in the [bench design](../bench.md).
 
 ## Design decisions
 
@@ -44,7 +45,7 @@ Exact results make the arithmetic work identical across paths: no path can
 win by rounding earlier, and the measured difference is the cost of
 representation, context handling and checking.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Plan tests compile every specification in ordinary test runs, so the
   benchmarks cannot rot unnoticed.

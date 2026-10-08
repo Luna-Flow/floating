@@ -1,4 +1,6 @@
-# `decimal_gda_checked` API
+# decimal_gda_checked API
+
+## Purpose
 
 `decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General
 Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds
@@ -13,7 +15,20 @@ recovery; the [design page](../design/decimal_gda_checked.md) models the
 pipeline as a state monad with an absorbing trap and proves the sticky-status
 laws.
 
-The examples list GDA flags with this helper:
+## Importing
+
+Add both packages to your `moon.pkg`; the pipeline takes `decimal_gda`
+values and contexts:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/decimal_gda",
+  "Luna-Flow/floating/decimal_gda_checked",
+}
+```
+
+The examples call the packages through the aliases `@decimal_gda.` and
+`@decimal_gda_checked.`, and list GDA flags with this helper:
 
 ```moonbit
 ///|
@@ -86,7 +101,7 @@ conversion syntax as an invalid-operation condition, a context that traps
 
 ## Observation
 
-### `outcome`, `value`, `context`, `raised`, `status`
+### `GdaDecimalChecked::outcome`, `GdaDecimalChecked::value`, `GdaDecimalChecked::context`, `GdaDecimalChecked::raised`, `GdaDecimalChecked::status`
 
 These methods return the wrapped outcome and its components.
 
@@ -106,7 +121,7 @@ whenever any invalid-operation condition (`conversion_syntax`,
 `division_impossible`, `division_undefined`, `invalid_context`) is raised, the
 status also gets `invalid_operation`.
 
-### `is_trapped`, `trapped_signal`
+### `GdaDecimalChecked::is_trapped`, `GdaDecimalChecked::trapped_signal`
 
 These methods report whether a trap fired and which signal it was.
 
@@ -167,33 +182,9 @@ test "a trap stops the pipeline until it is resumed" {
 
 ## Operations
 
-### `apply`, `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `fma`, `sqrt`, `exp`, `ln`, `log10`, `power`, `quantize`, `remainder`, `reduce`, `next_minus`, `next_plus`, `next_toward`
-
-These methods apply the `decimal_gda` operation of the same name to the current
-value under the stored context.
-
-```mbti
-pub fn GdaDecimalChecked::apply(Self) -> Self
-pub fn GdaDecimalChecked::plus(Self) -> Self
-pub fn GdaDecimalChecked::minus(Self) -> Self
-pub fn GdaDecimalChecked::abs(Self) -> Self
-pub fn GdaDecimalChecked::add(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::subtract(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::multiply(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::divide(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::fma(Self, @decimal_gda.Decimal, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::sqrt(Self) -> Self
-pub fn GdaDecimalChecked::exp(Self) -> Self
-pub fn GdaDecimalChecked::ln(Self) -> Self
-pub fn GdaDecimalChecked::log10(Self) -> Self
-pub fn GdaDecimalChecked::power(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::quantize(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::remainder(Self, @decimal_gda.Decimal) -> Self
-pub fn GdaDecimalChecked::reduce(Self) -> Self
-pub fn GdaDecimalChecked::next_minus(Self) -> Self
-pub fn GdaDecimalChecked::next_plus(Self) -> Self
-pub fn GdaDecimalChecked::next_toward(Self, @decimal_gda.Decimal) -> Self
-```
+Every operation method applies the `decimal_gda` function of the same name to
+the current value under the stored context; `remainder` is the GDA
+`remainder` (truncating), not `remainder_near`.
 
 On `Completed(v, c, _)` the method returns the outcome of
 `@decimal_gda.op(v, …, c)`; on `Trapped` it returns the state unchanged. The
@@ -203,9 +194,10 @@ result under `c`'s precision, rounding, exponent limits, clamping and extended
 mode; if it raises no signal the context is passed on unchanged with empty
 `raised`; otherwise the raised signals are merged into the status of the next
 context and, if one of them is enabled in `c.traps()`, the outcome is
-`Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` need
-precision and exponent limits within $\pm 999\,999$; otherwise they return NaN
-with `invalid_context`.
+`Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a
+non-integer exponent need precision and exponent limits within
+$\pm 999\,999$; otherwise they return NaN with `invalid_context`, which an
+`InvalidOperation` trap catches.
 
 ```moonbit
 ///|
@@ -225,6 +217,65 @@ test "sticky status across operations" {
   let q = parsed.quantize(@decimal_gda.Decimal::from_string("0.01").unwrap())
   inspect(q.value().to_string(), content="1.23")
 }
+```
+
+### `GdaDecimalChecked::apply`, `GdaDecimalChecked::plus`, `GdaDecimalChecked::minus`, `GdaDecimalChecked::abs`
+
+These round or change the sign of the current value: `apply` is the GDA
+conversion to the context, `plus` is $0 + x$, `minus` is $0 - x$ and `abs` is
+$|x|$.
+
+```mbti
+pub fn GdaDecimalChecked::apply(Self) -> Self
+pub fn GdaDecimalChecked::plus(Self) -> Self
+pub fn GdaDecimalChecked::minus(Self) -> Self
+pub fn GdaDecimalChecked::abs(Self) -> Self
+```
+
+### `GdaDecimalChecked::add`, `GdaDecimalChecked::subtract`, `GdaDecimalChecked::multiply`, `GdaDecimalChecked::divide`, `GdaDecimalChecked::fma`
+
+These combine the current value with plain `Decimal` operands; `fma(b, c)` is
+$v \times b + c$ with one rounding.
+
+```mbti
+pub fn GdaDecimalChecked::add(Self, @decimal_gda.Decimal) -> Self
+pub fn GdaDecimalChecked::subtract(Self, @decimal_gda.Decimal) -> Self
+pub fn GdaDecimalChecked::multiply(Self, @decimal_gda.Decimal) -> Self
+pub fn GdaDecimalChecked::divide(Self, @decimal_gda.Decimal) -> Self
+pub fn GdaDecimalChecked::fma(Self, @decimal_gda.Decimal, @decimal_gda.Decimal) -> Self
+```
+
+### `GdaDecimalChecked::sqrt`, `GdaDecimalChecked::exp`, `GdaDecimalChecked::ln`, `GdaDecimalChecked::log10`, `GdaDecimalChecked::power`
+
+These are the GDA elementary functions of the current value; `power(y)` is
+$v^y$.
+
+```mbti
+pub fn GdaDecimalChecked::sqrt(Self) -> Self
+pub fn GdaDecimalChecked::exp(Self) -> Self
+pub fn GdaDecimalChecked::ln(Self) -> Self
+pub fn GdaDecimalChecked::log10(Self) -> Self
+pub fn GdaDecimalChecked::power(Self, @decimal_gda.Decimal) -> Self
+```
+
+### `GdaDecimalChecked::quantize`, `GdaDecimalChecked::remainder`, `GdaDecimalChecked::reduce`
+
+These set the exponent, take a remainder or remove trailing zeros.
+
+```mbti
+pub fn GdaDecimalChecked::quantize(Self, @decimal_gda.Decimal) -> Self
+pub fn GdaDecimalChecked::remainder(Self, @decimal_gda.Decimal) -> Self
+pub fn GdaDecimalChecked::reduce(Self) -> Self
+```
+
+### `GdaDecimalChecked::next_minus`, `GdaDecimalChecked::next_plus`, `GdaDecimalChecked::next_toward`
+
+These step to an adjacent representable value.
+
+```mbti
+pub fn GdaDecimalChecked::next_minus(Self) -> Self
+pub fn GdaDecimalChecked::next_plus(Self) -> Self
+pub fn GdaDecimalChecked::next_toward(Self, @decimal_gda.Decimal) -> Self
 ```
 
 ## Complete public interface

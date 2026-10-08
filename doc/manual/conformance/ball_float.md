@@ -1,20 +1,20 @@
-# `ball_float` Conformance
+# ball_float conformance
 
 ## Claim
 
 The current strict ITF1788 gate executes 4,656/4,656 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
 
-## Semantic Oracle
+## Semantic oracle
 
 Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid.
 
-## Supported Phases
+## Supported phases
 
 The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice.
 
-## Decorations And Fallbacks
+## Decorations and fallbacks
 
-Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness.
+Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (re-rounding of intervals with very far-apart endpoints at more than about 65536 bits, the context flags and rounding of `apply_ctx` and `midpoint_ctx`, and `pow_nat_checked` of Empty) are not exercised by the selected cases.
 
 ## Exclusions
 

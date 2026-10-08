@@ -1,26 +1,42 @@
 # internal tutorial
 
-This page is for maintainers of the numeric cores. It shows how the helpers of
-`internal` are combined: rounding a decimal coefficient to a precision,
+The goal of this page is to show maintainers of the numeric cores how the
+helpers of `internal` combine: rounding a decimal coefficient to a precision,
 parsing a decimal literal into exact parts, and writing a refinement loop that
-certifies a rounded result. The package is internal to `Luna-Flow/floating`;
-the examples are written for code inside the module and are not compiled
-against the published package.
+certifies a rounded result. The package is internal to `Luna-Flow/floating`,
+so only code inside the module can use it; the examples on this page compile
+inside the module.
+
+| I want to | Use |
+| --- | --- |
+| round a quotient of integers with a rounding mode | [`round_positive_div`](#quick-start) |
+| round a decimal coefficient to `p` digits | [`digits10`, `pow10`, `round_positive_div`](#round-a-decimal-coefficient-to-p-digits) |
+| split a decimal literal into sign, digits and exponent | [`split_decimal_string`](#parse-a-literal-into-exact-parts) |
+| drop trailing zeros while keeping the value | [`trim_trailing_decimal_zeros`](#parse-a-literal-into-exact-parts) |
+| enclose a ratio between two dyadics | [`certified_dyadic_fraction`](#certify-a-rounding-with-a-refinement-loop) |
+| bound a Ziv refinement loop | [`CertifiedRefinementBudget`](#certify-a-rounding-with-a-refinement-loop) |
+| report that certification gave up | [`certified_failure`](#certify-a-rounding-with-a-refinement-loop) |
 
 ## Quick start
 
-Inside the module, import the package (and `bigint` for literals):
+There is nothing to install: the package ships inside `Luna-Flow/floating`
+and is visible only to its packages. Run its tests from the repository:
 
-```text
+```bash
+sh tools/run_moon_clean_exec.sh test src/internal --target native
+```
+
+In a package of the module, import it in `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/internal",
-  "moonbitlang/core/bigint",
 }
 ```
 
 Round $2/3$ to an integer in two modes:
 
-```moonbit nocheck
+```moonbit
 ///|
 test "rounded quotient" {
   let mode_even = @lf_arith.RoundingMode::ToNearestEven
@@ -42,7 +58,7 @@ A decimal $c \cdot 10^{q}$ with more than $p$ digits is rounded by dividing
 the coefficient by $10^{k}$, $k = \text{digits}(c) - p$, and adding $k$ to the
 exponent:
 
-```moonbit nocheck
+```moonbit
 ///|
 fn round_coefficient(
   coefficient : BigInt,
@@ -81,7 +97,7 @@ renormalize that case, which this sketch omits.
 `split_decimal_string` does the lexical work for decimal parsers; trimming
 the result gives a canonical coefficient:
 
-```moonbit nocheck
+```moonbit
 ///|
 test "parse then trim" {
   guard @internal.split_decimal_string("-0.012500e2") is Some((negative, digits, exponent)) else {
@@ -106,7 +122,7 @@ both ends of the enclosure round to the same number; otherwise raise the
 precision. The budget bounds the loop. Here the "function" is the exact ratio
 $n/d$, rounded down to `target` fractional bits:
 
-```moonbit nocheck
+```moonbit
 ///|
 fn floor_ratio_certified(
   n : BigInt,
@@ -158,13 +174,18 @@ test "certified floor of 1/3" {
 - The `consistency` package tests these helpers against `BigInt` oracles.
 - Run the package tests from a workspace containing the module:
   `moon test -p Luna-Flow/floating/internal`.
+- The decimal cores parse literals with `split_decimal_string`; its exponent
+  saturation is a known defect described on the
+  [API page](../api/internal.md#split_decimal_string).
 
 ## Common pitfalls
 
 - **Signed inputs.** `round_positive_div` aborts on a negative numerator;
   pass the magnitude and the sign separately.
 - **`round_shift` with $s \le 0$** returns the input unchanged; it never
-  shifts left.
+  shifts left. With a negative magnitude it floors instead of rounding the
+  magnitude, so pass $|m|$ and the sign separately, as for
+  `round_positive_div`.
 - **Zero loses its exponent.** `remove_factor2`, `remove_factor10` and
   `trim_trailing_decimal_zeros` return exponent 0 for a zero coefficient.
   Keep the original exponent yourself if the cohort of zero matters.

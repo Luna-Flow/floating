@@ -5,19 +5,33 @@ people write them: `0.1 + 0.2` is exactly `0.3`, `12.30` remembers that it
 has two decimal places, and every rounding is chosen by you and reported back
 to you. You will parse and format values, compute under a context and read
 its flags, round money with `quantize`, exchange decimal64 bits, and call
-correctly rounded elementary functions. The mathematics behind each step is in
+certified elementary functions. The mathematics behind each step is in
 the [decimal design](../design/decimal.md); every function is specified in the
 [decimal API](../api/decimal.md).
 
+| I want to | Use |
+| --- | --- |
+| parse an amount and keep its decimal places | [`Decimal::from_string`](#parse-amounts-and-keep-their-scale) |
+| compute with a fixed precision and see what was rounded | [`*_ctx` operations and `DecimalFlags`](#compute-under-a-context-and-keep-the-flags) |
+| round money to cents, half-even or half-up | [`quantize`](#round-money-with-quantize) |
+| get a guaranteed lower and upper bound | [directed rounding](#bound-a-result-from-both-sides) |
+| read or write decimal64 bits (DPD or BID) | [`DecimalInterchange`](#exchange-decimal64-bits) |
+| take a logarithm or an exponential | [`ln_ctx`, `try_ln_ctx`](#call-an-elementary-function) |
+| run generic `Ring` code on decimals | [the algebra traits](#generic-code-over-the-algebra-traits) |
+| sort stored values deterministically | [`compare_total`](#a-deterministic-order-for-storage) |
+| accumulate flags over a long pipeline | [`decimal_checked`](decimal_checked.md) |
+
 ## Quick start
 
-Add `floating` to your module and import the package:
+Add `floating` to your module:
 
-```text
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+and import the package in your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/decimal",
 }
@@ -90,7 +104,8 @@ test "decimal64 pipeline with flags" {
 
 `inexact` tells you that $100/3 \cdot 3$ was not computed exactly; it is not
 an error, so `has_error()` stays false. `has_error()` reports invalid
-operations, division by zero, impossible divisions and invalid contexts.
+operations, unparsable text, division by zero, impossible divisions and
+invalid contexts.
 Check the individual flags (`overflow`, `underflow`, `inexact`) when your
 application cares about them.
 
@@ -173,9 +188,10 @@ places. Bits you did not produce yourself may be non-canonical; keep them in a
 
 ### Call an elementary function
 
-Logarithms, exponentials, powers and trigonometric functions are correctly
-rounded in every rounding mode. They need a context with a bounded exponent
-range, such as a format preset:
+Logarithms, exponentials, powers and trigonometric functions are certified:
+the result is the correctly rounded value in every rounding mode, or an
+explicit failure. They need a context with a bounded exponent range, such as a
+format preset:
 
 ```moonbit
 ///|
@@ -287,25 +303,37 @@ test "decimal total order separates cohorts" {
   `decimal32()`/`decimal64()`/`decimal128()` or pass `e_min`/`e_max` within
   $\pm 999\,999$.
 - **Operators are not context operations.** `*` never rounds, so repeated
-  products grow without bound; `/` rounds to the operand precision and can,
-  rarely, be off by one unit in the last place. Use `mul_ctx` and `div_ctx`
-  when the result must be bounded or correctly rounded.
+  products grow without bound; `/` rounds half-even to the operand precision
+  and applies no exponent range. Use `mul_ctx` and `div_ctx` when the result
+  must be bounded, rounded in another mode, or reported through flags.
 - **`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal
   to every NaN and greater than every number, so sorting works. Use
   `compare_checked` or `is_nan` when a NaN must be unordered.
-- **`has_error()` is narrow.** It ignores `inexact`, `overflow`, `underflow`
-  and `conversion_syntax`. After `from_string_ctx`, check `conversion_syntax`
-  or `is_nan()` to detect bad text.
-- **Integer exponents are converted at context precision.** `pown_ctx`,
+- **`has_error()` is narrow.** It ignores `inexact`, `overflow` and
+  `underflow`. Check those flags yourself when they matter, for example
+  `overflow` after a long product.
+- **Huge exponents in text are capped.** The parsers clamp exponents beyond
+  $\pm 1.5\cdot 10^{9}$ silently (`"1e1600000000"` becomes `1E+1500000000`).
+  Reject such text before parsing if it can reach you. Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108);
+  a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
+- **Exact non-integral powers may look inexact.** An exact decimal power
+  with a non-integral exponent, such as `power_ctx(0.0016, 0.25) = 0.2`,
+  comes back as `0.2000000000000000` with `inexact` in the half modes and
+  fails certification in the directed modes. See the
+  [API warning](../api/decimal.md#elementary-functions); tracked in
+  [#53](https://github.com/Luna-Flow/floating/issues/53), with a fix proposed in
+  [#99](https://github.com/Luna-Flow/floating/pull/99).
+- **The checked powers convert the exponent at context precision.**
   `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a
   `Decimal` with the context precision, so an exponent with more digits than
-  the precision is rounded before the power is taken. Keep
-  $|n| < 10^{p}$ or call `power_ctx` with an exact `Decimal` exponent.
+  the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or
+  call `pown_ctx`, which converts the exponent exactly.
 - **`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.**
   Build the context with `DecimalContext::new(decimal_rounding=...)`.
 - **Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact
   binary value `0.1000000000000000055511151231257827` (rounded to 34 digits),
-  not `0.1`; parse text instead. `from_bin_float` turns $-0$ into $+0$.
+  not `0.1`; parse text instead. `from_bin_float` turns $-0$ into $+0$
+  (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet).
 
 ## Next steps
 

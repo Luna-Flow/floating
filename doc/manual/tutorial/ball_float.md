@@ -1,4 +1,4 @@
-# `ball_float` tutorial
+# ball_float tutorial
 
 This tutorial teaches you to compute with guaranteed enclosures: you build an
 interval that is known to contain an uncertain real number, push it through
@@ -8,19 +8,34 @@ output. The mathematics behind the guarantees is in the
 [design page](../design/ball_float.md); every item is listed in the
 [API reference](../api/ball_float.md).
 
+| I want to | Use |
+| --- | --- |
+| enclose a known point, known bounds or a measurement $c \pm r$ | `exact`, `from_bounds`, `new` ([Build intervals](#build-intervals)) |
+| enclose a decimal constant such as 0.1 | directed `from_string_ctx` + `from_bounds` ([Enclose a decimal constant](#enclose-a-decimal-constant)) |
+| compute with `+ - * /` and read the bounds | operators, `lower_bound`, `upper_bound`, `width` ([Compute and read the result](#compute-and-read-the-result)) |
+| ask whether one uncertain value is certainly below another | `definitely_lt`, `maybe_eq`, `subset` ([Compare intervals](#compare-intervals)) |
+| evaluate `sin`, `exp`, `ln`, … rigorously | `*_interval` and `try_*_interval` ([Evaluate elementary functions](#evaluate-elementary-functions)) |
+| round a result into binary32 or binary64 | `BallContext`, `apply_ctx`, `*_ctx` ([Round to a target format](#round-to-a-target-format)) |
+| know whether a function was defined and continuous on the input | `BallFloatDecorated` ([Decorations](#decorations)) |
+| write code for any enclosure type | `@lf_arith.DefinitelyLt` and friends ([Generic code](#generic-code-over-the-enclosure-traits)) |
+| report the first failure of a multi-step computation | [`ball_float_checked`](ball_float_checked.md) |
+
 ## Quick start
 
-Add the module and import the package (plus `bin_float`, which supplies the
-endpoint type):
+Add the module:
 
-```sh
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+Import the package, plus `bin_float`, which supplies the endpoint type (the
+generic example below also uses `Luna-Flow/arithmetic` as `@lf_arith`):
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/ball_float",
+  "Luna-Flow/arithmetic" @lf_arith,
 }
 ```
 
@@ -352,8 +367,8 @@ chain of operations so that you test for failure once at the end.
 Each interval carries a working `precision` in bits; results of binary
 operations use the larger precision of the two operands. Arithmetic costs a
 few endpoint operations at that precision. Elementary functions evaluate
-certified series at about $p + 64$ to $p + 192$ bits and may refine up to 12
-times on hard inputs, so they cost several times more than one multiplication.
+certified series at about $p + 24$ to $p + 192$ bits and may try up to 12
+work precisions on hard inputs, so they cost several times more than one multiplication.
 Raising the precision narrows the rounding part of the width, but not the part
 that comes from the width of the inputs.
 
@@ -397,15 +412,24 @@ numbers.
 use `radius_extended()`, which returns $+\infty$ instead.
 
 **Integers wider than the precision.** `from_int(n, precision=p)` and
-`from_coefficient` currently round `n` to the nearest value with
-$\max(p, 8)$ bits before building the interval, so for an integer wider than
-that the result can miss `n`. Use a precision at least as large as the bit
-length of the integer (the default of 16 bits only covers $|n| < 2^{16}$).
+`from_coefficient` enclose `n` exactly, but when `n` needs more than $p$ bits
+the result is the two-point interval of its $p$-bit neighbours, not a point.
+The default of 16 bits gives a singleton only for $|n| \le 2^{16}$ (and
+larger integers with enough trailing zero bits); pass a precision at least as
+large as the bit length of the integer.
 
-> [!WARNING]
-> `BallFloat::from_int(257, precision=8)` is the singleton $\{256\}$ on the
-> current branch. Build such values with `from_bounds` on directed roundings,
-> or use enough precision.
+**Re-rounding can widen.** `with_precision` and `normalized` rebuild an
+interval from its center and radius. When the center needs more bits than
+the precision, the result is one ulp wider on each side, even at the same
+precision: $[1, 1 + 2^{-52}]$ at 53 bits becomes
+$[1 - 2^{-52}, 1 + 2^{-52}]$. To change precision without that loss, use
+`from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. This widening
+is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
+
+**Tiny arguments to hyperbolic functions.** The total `sinh_interval`,
+`tanh_interval`, `asinh_interval` and `atanh_interval` lose all relative
+accuracy for $|\xi|$ below about $2^{-190}$; use the `try_` forms for such
+arguments.
 
 **Inputs from `Double`.** `from_double(x)` encloses the binary value of `x`
 exactly; it cannot know which decimal number `x` approximated. Enclose decimal

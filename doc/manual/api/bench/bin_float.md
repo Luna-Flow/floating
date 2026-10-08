@@ -1,10 +1,31 @@
 # bench/bin_float API
 
+## Purpose
+
 `bench/bin_float` holds the binary arithmetic and elementary-function benchmarks and the square auto-tune experiment of `floating`. It is a test-only package: all
 content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit,
 and it exports no MoonBit items. This page records the benchmark cases it
 defines; the [tutorial](../../tutorial/bench/bin_float.md) shows how to run them and the
 [design page](../../design/bench/bin_float.md) explains the workloads.
+
+## Importing
+
+The package is test-only and exports no items, so there is nothing to import
+from it. Its tests import the toolkit as `@benchkit`, the packages under test
+and Maremark:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/bench" @benchkit,
+  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/floating/bin_float_checked" @checked,
+  "Luna-Flow/mare_mark/event",
+  "Luna-Flow/mare_mark/experiment",
+  "Luna-Flow/mare_mark/model",
+  "Luna-Flow/mare_mark/runner",
+  "moonbitlang/async",
+} for "test"
+```
 
 ## Benchmark cases
 
@@ -16,7 +37,8 @@ defines; the [tutorial](../../tutorial/bench/bin_float.md) shows how to run them
 
 Every specification has a plan test that runs in normal test runs and checks
 that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked
-`#skip("performance benchmark")` that only `tools/benchmark.py` runs. The
+`#skip("performance benchmark")` that only `tools/benchmark.py` runs. In the
+reported lines `DATASET` is the 0-based index into the datasets column. The
 performance tests stream every observation as a `MAREMARK_JSONL=` line and
 print the reduced results as `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment.
 

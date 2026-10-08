@@ -1,4 +1,4 @@
-# mpfr_expr_cli design
+# cli/mpfr_expr_cli design
 
 ## Design goal
 
@@ -33,11 +33,13 @@ silently ignored.
 The JSON `corpus` field names the detected format and the MPFR release the
 data was produced with, so aggregated reports state their evidence source.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exactly one parser runs per invocation, determined by the file content.
 - Exit `0` iff every row passed; `totalCases = passedCases + failedCases`.
-- Parse errors exit with `2` before any row is executed.
+- Parse errors exit with `2` before any row is executed; an elementary
+  `pow`, `hypot` or `atan2` row without a second operand is such an error, so
+  every outcome is an exit code.
 
 ## Alternatives rejected
 

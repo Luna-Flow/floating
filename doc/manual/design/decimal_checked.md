@@ -1,4 +1,4 @@
-# `decimal_checked` design
+# decimal_checked design
 
 ## Design goal
 
@@ -154,7 +154,10 @@ Arithmetic specification does for `exp`, `ln`, `log10` and `power`: precision
 and both exponent limits must lie within $999\,999$ in magnitude, otherwise the
 result is NaN with `invalid_context` (private check `math_context_is_restricted`
 in `src/decimal`).[^gda] The default unbounded exponent range therefore
-disables them, which the API page and tutorial point out.
+disables them, which the API page and tutorial point out. `power` and `pown`
+with an integral exponent, and `power` with the exponent $0.5$ (a square
+root), are the exceptions: like the arithmetic operations they accept
+contexts up to $\pm 999\,999\,999$.
 
 [^gda]: M. Cowlishaw, *General Decimal Arithmetic Specification*, version
     1.70, "Arithmetic operations: exp, ln, log10, power" (restrictions on
@@ -187,7 +190,7 @@ trait implementation turns into an `ArithmeticError` (division by zero and the
 invalid-operation family tested by `DecimalFlags::has_error`) are not among the
 coordinates kept by $\pi$; the pipeline keeps them as flags instead.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### Accumulated flags are the union of per-step flags
 
@@ -278,6 +281,11 @@ constant-size state copy.
   contract.
 - No operators, no pipeline-to-pipeline operations, no implicit context
   changes.
-- Only certification failures of elementary functions become errors.
+- Only certification failures of elementary functions become errors. A
+  delegated operation that aborted would abort the pipeline too; the state
+  model cannot turn an abort into an error.
+- No accuracy of its own: the flags describe exactly what `decimal` reported,
+  including its documented deviations (for example `inexact` on the exact
+  power $0.0016^{0.25} = 0.2$).
 - The context is the IEEE decimal context of `decimal`; GDA contexts with
   sticky status belong to `decimal_gda`.

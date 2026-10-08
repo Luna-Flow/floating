@@ -171,7 +171,24 @@ fn interchange_format(
 }
 
 ///|
+/// Reports a context the decimal packages cannot represent: GDA requires a
+/// positive precision and `minexponent <= maxexponent`. Such rows are
+/// diagnostics, so the context constructors are never called with them.
+fn invalid_context_reason(context : GdaContext) -> String? {
+  if context.precision() <= 0 {
+    Some(
+      "diagnostic invalid context: precision " + context.precision().to_string(),
+    )
+  } else if context.min_exponent() > context.max_exponent() {
+    Some("diagnostic invalid context: minexponent exceeds maxexponent")
+  } else {
+    None
+  }
+}
+
+///|
 fn resolve_context(context : GdaContext) -> ResolvedContext? {
+  guard invalid_context_reason(context) is None else { return None }
   let normalized = normalized_word(context.rounding())
   let (rounding, decimal_rounding, gda_rounding) = match normalized {
     "halfeven" =>
@@ -289,9 +306,11 @@ fn decode_decimal(
       None => None
     }
   } else {
+    // GDA operations take their operands exactly, so read every digit: the
+    // token length bounds the number of significant digits.
     @decimal_gda.Decimal::from_string(
       normalized,
-      precision=Int::max(64, context.precision()),
+      precision=Int::max(64, Int::max(context.precision(), normalized.length())),
     )
   }
 }
@@ -419,6 +438,9 @@ fn case_disposition(
   case : GdaCase,
   context : ResolvedContext?,
 ) -> CaseDisposition {
+  if invalid_context_reason(case.context()) is Some(reason) {
+    return Diagnostic(reason)
+  }
   for token in case.operands() {
     if token == "#" {
       return Diagnostic("diagnostic interchange/non-scalar row")

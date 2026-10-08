@@ -1,4 +1,6 @@
-# `ball_float` API
+# ball_float API
+
+## Purpose
 
 `ball_float` is interval arithmetic over `BinFloat` endpoints. A `BallFloat`
 is a closed real interval $[\underline{x}, \overline{x}]$, possibly unbounded,
@@ -12,7 +14,8 @@ midpoint and a radius: `BallFloat::new(center, radius)`, `center()` and
 `radius()` convert to and from the midpoint–radius view. The
 [tutorial](../tutorial/ball_float.md) shows typical use; the
 [design page](../design/ball_float.md) derives the formulas and proves the
-inclusion property.
+inclusion property. The fallible pipeline wrapper is
+[`ball_float_checked`](ball_float_checked.md).
 
 Conventions used on this page:
 
@@ -23,14 +26,37 @@ Conventions used on this page:
 - The *precision* of an interval is a tag in bits. Operations round their
   result outward to the larger precision of their operands; elementary
   functions use the precision of their argument.
-- The exponent range of `BinFloat` endpoints is the binary implementation
-  range of `bin_float`, far wider than any interchange format. Use a
-  `BallContext` to impose a narrower range.
+- The exponent range of `BinFloat` endpoints is the implementation range of
+  `bin_float`: leading-bit exponents up to $e_{\max} = 2^{30} - 1$, and
+  nonzero magnitudes down to $2^{e_{\min} - p + 1}$ with
+  $e_{\min} = -(2^{30} - 1)$. Use a `BallContext` to impose a narrower range.
 - *Empty* is the empty set, *Entire* is $(-\infty, +\infty)$. An unbounded
   interval stores $-\infty$ and/or $+\infty$ as endpoints; these mean that the
   set is unbounded on that side, never that it contains an infinite value.
+- The few inputs for which the code currently loses part of the input set,
+  widens without need, or rounds or flags a context result incorrectly are
+  noted where they occur, with their tracking issue, and collected under
+  [Known limitations](../design/ball_float.md#known-limitations) on the
+  design page.
 
-The examples on this page use these helpers:
+## Importing
+
+Add the package and the endpoint package to your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/arithmetic" @lf_arith,
+}
+```
+
+The examples refer to the packages as `@ball_float.`, `@bin_float.` and
+`@lf_arith.` (for `Luna-Flow/arithmetic`, which defines `ArithmeticError`,
+`RoundingMode` and the enclosure traits). They use two helpers: `iv(lo, hi)`
+builds the 53-bit interval with integer endpoints, and `fmt(x)` prints the
+endpoints as six-digit decimals, the lower one rounded down and the upper one
+rounded up, so the text still encloses the stored set.
 
 ```moonbit
 ///|
@@ -113,17 +139,19 @@ pub(all) enum Decoration {
 ```
 
 For a decorated result $(\boldsymbol{y}, d)$ of a function $f$ evaluated on
-$\boldsymbol{x}$:
+a box $\boldsymbol{x}$:
 
 | Constructor | Meaning |
 | --- | --- |
-| `Com` | $f$ is defined and continuous on $\boldsymbol{x}$, and $\boldsymbol{y}$ is bounded |
-| `Dac` | $f$ is defined and continuous on $\boldsymbol{x}$ |
-| `Def` | $f$ is defined on $\boldsymbol{x}$ |
+| `Com` | $\boldsymbol{x}$ is non-empty and bounded, $f$ is defined and continuous on $\boldsymbol{x}$, and $\boldsymbol{y}$ is bounded |
+| `Dac` | $\boldsymbol{x}$ is non-empty, $f$ is defined on $\boldsymbol{x}$ and its restriction to $\boldsymbol{x}$ is continuous |
+| `Def` | $\boldsymbol{x}$ is non-empty and $f$ is defined on $\boldsymbol{x}$ |
 | `Trv` | nothing is known |
 | `Ill` | the value is NaI |
 
-`Show` prints the lower-case IEEE 1788 names `com`, `dac`, `def`, `trv`, `ill`.
+Each property implies the ones below it, which is why the decorations are
+totally ordered. `Show` prints the lower-case IEEE 1788 names `com`, `dac`,
+`def`, `trv`, `ill`.
 
 ### `OverlapState`
 
@@ -188,9 +216,11 @@ pub struct BallFlags {
 ```
 
 `inexact` is set when an endpoint changed; `overflow` when an endpoint was
-beyond $e_{\max}$; `underflow` when an endpoint was below the normal range and
-its subnormal rounding was inexact. The fields are readable; the accessor
-methods are listed under [`BallFlags`](#ballflagsnew-ballflagscombine-and-accessors).
+beyond $e_{\max}$; `underflow` when an endpoint had to be rounded on the
+subnormal grid and that last step was inexact (see
+[`BallFloat::apply_ctx`](#ballfloatapply_ctx) for how this differs from
+IEEE 754). The fields are readable; the accessor methods are listed under
+[`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow).
 
 ## Construction
 
@@ -217,6 +247,12 @@ which contains $[c - r, c + r]$ (proof in the
 endpoints $\tilde c \pm R$ are formed exactly, so they may carry more than
 $p$ bits. Aborts when `center` or `radius` is not finite or when `radius` is
 negative. A precision below 1 is treated as 1.
+
+When $c$ already has at most $p$ bits and $r = 0$, the result is the
+singleton $\{c\}$. When $c$ needs more than $p$ bits, the rounding error of
+the center is added to the radius on *both* sides, so the interval is wider
+than $[\operatorname{RD}_p(c - r), \operatorname{RU}_p(c + r)]$; use
+`from_bounds` for the tightest enclosure of known bounds.
 
 ### `BallFloat::from_bounds` and `BallFloat::try_from_bounds`
 
@@ -255,13 +291,13 @@ pub fn BallFloat::try_exact(@bin_float.BinFloat, precision? : Int) -> Result[Sel
 ```
 
 The default precision is that of `x`. When `x` has more significant bits than
-the requested precision, the singleton is rounded outward to a two-point
-interval around `x`. A non-finite `x` aborts `exact` and makes `try_exact`
-return a domain error.
+the requested precision, the singleton is rounded outward to the two-point
+interval $[\operatorname{RD}_p(x), \operatorname{RU}_p(x)]$. A non-finite `x`
+aborts `exact` and makes `try_exact` return a domain error.
 
 ### `BallFloat::from_int` and `BallFloat::from_coefficient`
 
-`BallFloat::from_int` and `BallFloat::from_coefficient` build the singleton of
+`BallFloat::from_int` and `BallFloat::from_coefficient` build an enclosure of
 an integer.
 
 ```mbti
@@ -270,17 +306,14 @@ pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int, negati
 ```
 
 The default precision is 16. `from_coefficient` takes a non-negative
-`BinCoeff` magnitude and a separate sign. The integer is first converted to a
-`BinFloat` of $\max(p, 8)$ bits with round-to-nearest, then embedded with
-`exact`.
+`BinCoeff` magnitude and a separate sign. The integer is converted to a
+`BinFloat` exactly and then passed to `exact`, so the result is the singleton
+$\{n\}$ when $n$ fits in $p$ bits and the two-point interval
+$[\operatorname{RD}_p(n), \operatorname{RU}_p(n)]$ otherwise. Either way it
+contains $n$. Pass a precision at least as large as the bit length of the
+integer to get a singleton.
 
-> [!WARNING]
-> The first conversion rounds to nearest, so when the integer needs more than
-> $\max(p, 8)$ bits the interval may not contain it:
-> `from_int(257, precision=8)` is $\{256\}$. Pass a precision at least as
-> large as the bit length of the integer.
-
-### `BallFloat::from_double`, `BallFloat::from_float` and their `try_` forms
+### `BallFloat::from_double`, `BallFloat::try_from_double`, `BallFloat::from_float` and `BallFloat::try_from_float`
 
 These functions build the singleton of the exact binary value of a `Double`
 or `Float`.
@@ -333,16 +366,18 @@ pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 ```
 
 `center` is $(\underline{x} + \overline{x})/2$ and `radius` is
-$(\overline{x} - \underline{x})/2$, both computed exactly (the radius is
-rounded up only if it underflows the exponent range), so
-$[\text{center} - \text{radius}, \text{center} + \text{radius}]$ is the stored
-interval. Both abort on Empty and on unbounded intervals.
+$(\overline{x} - \underline{x})/2$. Both are dyadic, so they are computed
+exactly (the radius is rounded up only if it underflows the exponent range),
+and $[\text{center} - \text{radius}, \text{center} + \text{radius}]$ is the
+stored interval. Both abort on Empty and on unbounded intervals.
 
 > [!NOTE]
 > For bounded intervals whose endpoints are more than about $2^{16}$ binary
-> orders of magnitude apart, `center` is not exact: the smaller endpoint is
-> replaced by a surrogate below the last bit of the larger one (see the
-> [design page](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)).
+> orders of magnitude apart, neither value is exact: the smaller endpoint is
+> replaced by a sticky surrogate below the last bit of the larger one (see the
+> [design page](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)),
+> rounded to nearest for `center` and upward for `radius`. The pair then
+> describes the stored set only approximately.
 
 ### `BallFloat::midpoint`
 
@@ -365,20 +400,34 @@ pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 ```
 
 Both return 0 for Empty and $+\infty$ for unbounded intervals instead of
-aborting.
+aborting. Both are upper bounds of the exact value.
 
 ### `BallFloat::magnitude` and `BallFloat::mignitude`
 
-`magnitude` returns $\max\{|\xi| : \xi \in \boldsymbol{x}\}$ and `mignitude`
-returns $\min\{|\xi| : \xi \in \boldsymbol{x}\}$.
+`magnitude` returns $\sup\{|\xi| : \xi \in \boldsymbol{x}\}$ and `mignitude`
+returns $\inf\{|\xi| : \xi \in \boldsymbol{x}\}$.
 
 ```mbti
 pub fn BallFloat::magnitude(Self) -> @bin_float.BinFloat
 pub fn BallFloat::mignitude(Self) -> @bin_float.BinFloat
 ```
 
-Both are exact. Empty gives 0; `mignitude` is 0 when the interval contains 0;
-`magnitude` of an unbounded interval is $+\infty$.
+For a non-empty interval,
+
+$$
+\operatorname{mag}\boldsymbol{x} = \max(|\underline{x}|, |\overline{x}|),
+\qquad
+\operatorname{mig}\boldsymbol{x} =
+\begin{cases}
+0 & 0 \in \boldsymbol{x}, \\
+\min(|\underline{x}|, |\overline{x}|) & \text{otherwise,}
+\end{cases}
+$$
+
+because $|\xi|$ is convex, so its maximum over an interval is at an endpoint,
+and it is monotone on each side of 0. Both are exact. Empty gives 0 for both
+(IEEE 1788 leaves them undefined there); `magnitude` of an unbounded interval
+is $+\infty$.
 
 ```moonbit
 ///|
@@ -410,10 +459,9 @@ $\underline{x} > 0$, `Negative` when $\overline{x} < 0$, and `Zero` otherwise:
 `Zero` means "the interval contains 0", not "the interval is $\{0\}$".
 `sign` aborts on Empty.
 
-### Shape predicates
+### `BallFloat::is_empty`, `BallFloat::is_entire`, `BallFloat::is_bounded`, `BallFloat::is_common_interval`, `BallFloat::is_singleton`, `BallFloat::contains_zero`
 
-`is_empty`, `is_entire`, `is_bounded`, `is_common_interval`, `is_singleton`
-and `contains_zero` test the shape of the set.
+These predicates test the shape of the set.
 
 ```mbti
 pub fn BallFloat::is_empty(Self) -> Bool
@@ -439,12 +487,45 @@ it.
 pub fn BallFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 ```
 
-For a bounded interval the center is rounded with `mode`, the displacement
-is added to the radius, and the result is rebuilt as in `BallFloat::new`. For
-an unbounded interval the finite endpoint is rounded outward and `mode` is
-ignored. Empty stays Empty with the new precision. The result always contains
-the input, except in the extreme case noted under `center` when the new
-precision exceeds about $2^{16}$ bits.
+The endpoints are rounded outward: the lower bound toward $-\infty$ and the
+upper bound toward $+\infty$. `mode` is accepted for signature compatibility
+and is ignored, because outward rounding is the only direction that keeps the
+result an enclosure. Empty stays Empty with the new precision.
+
+> [!NOTE]
+> The result is the tightest representable enclosure of the input, so widening
+> the precision is exact and re-rounding at an unchanged precision is an
+> identity. The center–radius rebuild this function used to perform is not an
+> identity: if the exact center $(\underline{x} + \overline{x})/2$ needs more
+> than $p$ bits, both endpoints move outward by the rounding error of the
+> center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$.
+> `normalized`, `convex_hull` with an Empty operand, the checked capabilities
+> (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the
+> `pow_nat`/`pow_int` methods of `ball_float_checked` still go through that
+> rebuild and can widen by up to one ulp per side; it is tracked in
+> [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed
+> in [#91](https://github.com/Luna-Flow/floating/pull/91). To re-round one of
+> those results without widening, use
+> `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`.
+
+```moonbit
+///|
+test "with_precision keeps the endpoints" {
+  let one = @bin_float.BinFloat::one(precision=53)
+  let next = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::from_uint64((1UL << 52) + 1UL),
+    -52,
+    53,
+  )
+  let x = @ball_float.BallFloat::from_bounds(one, next)
+  let y = x.with_precision(53, @lf_arith.RoundingMode::ToNearestEven)
+  inspect(y.lower_bound().to_string(), content="1p0")
+  inspect(y.upper_bound().to_string(), content="4503599627370497p-52")
+  inspect(y.set_equal(x), content="true")
+  // The center-radius rebuild that `normalized` still uses does widen.
+  inspect(x.normalized().lower_bound().to_string(), content="4503599627370495p-52")
+}
+```
 
 ### `BallFloat::normalized`
 
@@ -456,7 +537,11 @@ endpoints of an unbounded interval outward.
 pub fn BallFloat::normalized(Self) -> Self
 ```
 
-The result contains the input.
+The result contains the input but, for the reason given under
+`with_precision`, can be strictly wider: `normalized` of
+$[1, 1 + 2^{-52}]$ at 53 bits is $[1 - 2^{-52}, 1 + 2^{-52}]$. It therefore
+satisfies only the enclosure form of the `@def.Floating` law "normalizing
+keeps the value". Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ## Set operations
 
@@ -470,15 +555,22 @@ pub fn BallFloat::intersection(Self, Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 ```
 
-Both are computed by endpoint `max`/`min` and are exact apart from the final
-outward rounding to the larger precision. Disjoint intervals intersect to
-Empty; Empty is the identity of `convex_hull`.
+For non-empty operands both are computed by endpoint `max`/`min`
+($[\max(\underline{x}, \underline{y}), \min(\overline{x}, \overline{y})]$ and
+$[\min(\underline{x}, \underline{y}), \max(\overline{x}, \overline{y})]$),
+exact apart from the final outward rounding to the larger precision. Disjoint
+intervals intersect to Empty, and an Empty operand makes the intersection
+Empty. When one operand of `convex_hull` is Empty, the result is the other
+operand passed through `with_precision`, so it can be one ulp wider per side
+than that operand (see the warning under
+[`BallFloat::with_precision`](#ballfloatwith_precision)).
 
 ### `BallFloat::cancel_plus` and `BallFloat::cancel_minus`
 
-`cancel_minus(x, y)` returns the interval $\boldsymbol{z}$ with
-$\boldsymbol{y} + \boldsymbol{z} = \boldsymbol{x}$, the inverse of addition
-used to undo a previous sum; `cancel_plus(x, y)` is `cancel_minus(x, -y)`.
+`cancel_minus(x, y)` is the IEEE 1788 cancellative subtraction: in exact
+arithmetic it returns the interval $\boldsymbol{z}$ with
+$\boldsymbol{y} + \boldsymbol{z} = \boldsymbol{x}$, which undoes a previous
+sum; `cancel_plus(x, y)` is `cancel_minus(x, -y)`.
 
 ```mbti
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
@@ -486,11 +578,17 @@ pub fn BallFloat::cancel_minus(Self, Self) -> Self
 ```
 
 For bounded operands `cancel_minus` is
-$[\underline{x} - \underline{y}, \overline{x} - \overline{y}]$, rounded
-outward. When that is not an interval (the width of $\boldsymbol{y}$ exceeds
-the width of $\boldsymbol{x}$), when an operand is unbounded, or when only
-$\boldsymbol{y}$ is empty, the result is Entire. Empty $\boldsymbol{x}$ with
-bounded or empty $\boldsymbol{y}$ gives Empty.
+$[\operatorname{RD}(\underline{x} - \underline{y}), \operatorname{RU}(\overline{x} - \overline{y})]$.
+Indeed $\boldsymbol{y} + \boldsymbol{z} = [\underline{y} + \underline{z},
+\overline{y} + \overline{z}]$, so $\boldsymbol{y} + \boldsymbol{z} = \boldsymbol{x}$
+forces $\underline{z} = \underline{x} - \underline{y}$ and
+$\overline{z} = \overline{x} - \overline{y}$, and this is an interval exactly
+when $w(\boldsymbol{x}) \ge w(\boldsymbol{y})$. Because of the outward
+rounding, the computed $\boldsymbol{z}$ satisfies
+$\boldsymbol{y} + \boldsymbol{z} \supseteq \boldsymbol{x}$. When
+$w(\boldsymbol{y}) > w(\boldsymbol{x})$, when an operand is unbounded, or when
+only $\boldsymbol{y}$ is empty, the result is Entire. Empty $\boldsymbol{x}$
+with bounded or empty $\boldsymbol{y}$ gives Empty.
 
 ```moonbit
 ///|
@@ -522,7 +620,8 @@ pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
 It returns false for Empty and for a non-finite point (an unbounded interval
 contains all sufficiently large reals, but not $\pm\infty$ or NaN). The trait
 method `@lf_arith.Contains::contains` instead takes two intervals and tests
-inclusion; see [Trait implementations](#trait-implementations).
+inclusion; see
+[Enclosure relations](#arithmeticcontains-arithmeticoverlaps-arithmeticdefinitelylt-arithmeticdefinitelyle-arithmeticmaybeeq).
 
 ### `BallFloat::subset`, `BallFloat::interior`, `BallFloat::set_equal`, `BallFloat::disjoint`
 
@@ -536,12 +635,14 @@ pub fn BallFloat::set_equal(Self, Self) -> Bool
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 ```
 
-`x.subset(y)` is $\boldsymbol{x} \subseteq \boldsymbol{y}$ and
+`x.subset(y)` is $\boldsymbol{x} \subseteq \boldsymbol{y}$, that is
+$\underline{y} \le \underline{x}$ and $\overline{x} \le \overline{y}$.
 `x.interior(y)` is $\boldsymbol{x} \subseteq \operatorname{int}
-\boldsymbol{y}$, where an infinite endpoint counts as interior (so
-Entire is interior to itself). Empty is a subset of, interior to and disjoint
-from every interval. `set_equal` ignores the precision tag and the
-representation of the endpoints.
+\boldsymbol{y}$: each endpoint comparison is strict, except that two equal
+infinite endpoints count as interior (the interior of $[a, +\infty)$ is
+$(a, +\infty)$, so Entire is interior to itself). Empty is a subset of,
+interior to and disjoint from every interval. `set_equal` ignores the
+precision tag and the representation of the endpoints.
 
 ### `BallFloat::overlaps`, `BallFloat::maybe_eq`, `BallFloat::separated_from`
 
@@ -555,7 +656,10 @@ pub fn BallFloat::maybe_eq(Self, Self) -> Bool
 pub fn BallFloat::separated_from(Self, Self) -> Bool
 ```
 
-`overlaps` is false and `separated_from` is true when an operand is Empty.
+For non-empty operands `overlaps` is
+$\underline{x} \le \overline{y} \wedge \underline{y} \le \overline{x}$, which
+is $\boldsymbol{x} \cap \boldsymbol{y} \ne \emptyset$. `overlaps` is false and
+`separated_from` is true when an operand is Empty.
 
 ### `BallFloat::definitely_lt`, `BallFloat::definitely_le`, `BallFloat::definitely_gt`
 
@@ -570,7 +674,8 @@ pub fn BallFloat::definitely_gt(Self, Self) -> Bool
 `x.definitely_lt(y)` is $\overline{x} < \underline{y}$,
 `definitely_le` is $\overline{x} \le \underline{y}$ and `definitely_gt` is
 $\underline{x} > \overline{y}$. All three are false when an operand is Empty
-(unlike `precedes`, which is vacuously true).
+(unlike `precedes`, which is vacuously true), so a `true` answer is always
+backed by at least one pair of points.
 
 ### `BallFloat::less`, `BallFloat::strictly_less`, `BallFloat::precedes`, `BallFloat::strictly_precedes`
 
@@ -585,12 +690,12 @@ pub fn BallFloat::strictly_precedes(Self, Self) -> Bool
 
 For non-empty operands:
 
-| Relation | Condition |
-| --- | --- |
-| `less` | $\underline{x} \le \underline{y}$ and $\overline{x} \le \overline{y}$ |
-| `strictly_less` | $\underline{x} < \underline{y}$ (or both $-\infty$) and $\overline{x} < \overline{y}$ (or both $+\infty$) |
-| `precedes` | $\overline{x} \le \underline{y}$ |
-| `strictly_precedes` | $\overline{x} < \underline{y}$ |
+| Relation | Set definition | Condition |
+| --- | --- | --- |
+| `less` | $\forall\xi\,\exists\eta: \xi \le \eta$ and $\forall\eta\,\exists\xi: \xi \le \eta$ | $\underline{x} \le \underline{y}$ and $\overline{x} \le \overline{y}$ |
+| `strictly_less` | the same with $<$ | $\underline{x} < \underline{y}$ (or both $-\infty$) and $\overline{x} < \overline{y}$ (or both $+\infty$) |
+| `precedes` | $\forall\xi\,\forall\eta: \xi \le \eta$ | $\overline{x} \le \underline{y}$ |
+| `strictly_precedes` | $\forall\xi\,\forall\eta: \xi < \eta$ | $\overline{x} < \underline{y}$ |
 
 With Empty: `less` and `strictly_less` hold only when both are Empty;
 `precedes` and `strictly_precedes` hold when either is Empty.
@@ -605,7 +710,9 @@ pub fn BallFloat::overlap_state(Self, Self) -> OverlapState
 
 The result is one of the sixteen states of [`OverlapState`](#overlapstate)
 other than `Undefined`; it is computed from the comparisons of the four
-endpoints.
+endpoints, testing equal endpoints first, so a singleton that coincides with
+an endpoint of the other interval gives `Starts`, `Finishes`, `StartedBy` or
+`FinishedBy` rather than `Meets` or `MetBy`, as IEEE 1788 requires.
 
 ```moonbit
 ///|
@@ -650,24 +757,29 @@ $$
 $$
 
 with $0 \cdot \infty$ taken as 0 in $S$ (a zero endpoint times an unbounded
-side contributes 0). For bounded operands the sign of the operands selects the
-two products that can be extremal, so at most two (four when both operands
-contain 0) products are evaluated.
+side contributes 0). The sums and products are formed exactly and rounded
+once. For bounded operands the signs select the products that can be
+extremal: two when both operands have constant sign, four (the minimum of
+$\underline{x}\,\overline{y}$ and $\overline{x}\,\underline{y}$, the maximum
+of $\underline{x}\,\underline{y}$ and $\overline{x}\,\overline{y}$) when either
+operand has 0 in its interior. The design page proves the
+[sign-case table](../design/ball_float.md#endpoint-formulas).
 
 Division follows IEEE 1788: $\boldsymbol{x} / \boldsymbol{y}$ is the hull of
-$\{\xi/\eta : \eta \ne 0\}$.
+$\{\xi/\eta : \xi \in \boldsymbol{x}, \eta \in \boldsymbol{y}, \eta \ne 0\}$.
 
 | Divisor $\boldsymbol{y}$ | Result |
 | --- | --- |
 | $0 \notin \boldsymbol{y}$ | $[\operatorname{RD}\min Q, \operatorname{RU}\max Q]$ over the endpoint quotients $Q$ |
 | $\{0\}$ | Empty |
-| $\underline{y} < 0 < \overline{y}$ | Entire |
+| $\underline{y} < 0 < \overline{y}$ | Entire, unless $\boldsymbol{x} = \{0\}$ |
 | $[0, \overline{y}]$ or $[\underline{y}, 0]$ | half-unbounded (see below), or Entire when $\underline{x} < 0 < \overline{x}$ |
 
 When the divisor touches 0 at one end, the quotient is unbounded on one side:
 for example $[1, 2]/[0, 4] = [1/4, +\infty)$ and $[-2, -1]/[0, 4] =
 (-\infty, -1/4]$. A dividend equal to $\{0\}$ gives $\{0\}$ for any divisor
-other than $\{0\}$.
+other than $\{0\}$. Each selected quotient is computed by one directed
+division at the result precision.
 
 ```moonbit
 ///|
@@ -693,6 +805,8 @@ pub fn BallFloat::neg(Self) -> Self
 pub fn BallFloat::abs(Self) -> Self
 ```
 
+`abs` is $\boldsymbol{x}$ when $\underline{x} \ge 0$, $-\boldsymbol{x}$ when
+$\overline{x} \le 0$, and $[0, \operatorname{mag}\boldsymbol{x}]$ otherwise.
 Both are exact. `neg` is also the unary operator `-`.
 
 ### `BallFloat::reciprocal`
@@ -714,14 +828,17 @@ pub fn BallFloat::pown(Self, Int) -> Self
 ```
 
 Unlike `x * x`, these use the same point twice, so `[-1, 2].square()` is
-$[0, 4]$ (while `x * x` is $[-2, 4]$). `pown` evaluates the monotone pieces of
-$\xi^n$ at the endpoints with directed rounding: odd positive powers are
-increasing; even positive powers decrease then increase, with minimum 0 when
-$0 \in \boldsymbol{x}$; negative powers have a pole at 0. `pown(x, 0)` is
-$\{1\}$ for every non-empty `x`; Empty stays Empty. `pown(x, n)` with $n < 0$
-returns Empty for $\boldsymbol{x} = \{0\}$, a half-unbounded interval when 0
-is an endpoint, and for 0 in the interior Entire (odd $n$) or
-$[\min(\underline{x}^n, \overline{x}^n), +\infty)$ (even $n$).
+$[0, 4]$ (while `x * x` is $[-2, 4]$): `square` is
+$[\operatorname{mig}(\boldsymbol{x})^2, \operatorname{mag}(\boldsymbol{x})^2]$.
+`pown` evaluates the monotone pieces of $\xi^n$ at the endpoints with directed
+rounding: odd positive powers are increasing; even positive powers decrease
+then increase, with minimum 0 when $0 \in \boldsymbol{x}$; negative powers
+have a pole at 0. `pown(x, 0)` is $\{1\}$ for every non-empty `x`; Empty stays
+Empty. `pown(x, n)` with $n < 0$ returns Empty for $\boldsymbol{x} = \{0\}$, a
+half-unbounded interval when 0 is an endpoint, and for 0 in the interior
+Entire (odd $n$) or $[\min(\underline{x}^n, \overline{x}^n), +\infty)$ (even
+$n$). As a shortcut, $n < -4096$ with 0 in the interior returns Entire even
+for even $n$; this is a valid but not tight enclosure.
 
 ```moonbit
 ///|
@@ -744,9 +861,9 @@ outward rounding.
 pub fn BallFloat::fma(Self, Self, Self) -> Self
 ```
 
-The product bounds are computed as for `mul` and added to the endpoints of
-$\boldsymbol{z}$ before the final rounding, so the result is never wider than
-`x * y + z`.
+The exact product bounds are computed as for `mul` and added to the endpoints
+of $\boldsymbol{z}$ before the final rounding, so the result is never wider
+than `x * y + z`.
 
 ### `BallFloat::minimum` and `BallFloat::maximum`
 
@@ -759,8 +876,8 @@ pub fn BallFloat::maximum(Self, Self) -> Self
 ```
 
 `minimum` is $[\min(\underline{x}, \underline{y}), \min(\overline{x},
-\overline{y})]$ and `maximum` is the analogue with `max`. An Empty operand
-gives Empty.
+\overline{y})]$ and `maximum` is the analogue with `max`: $\min$ is
+increasing in each argument. An Empty operand gives Empty.
 
 ## Elementary functions
 
@@ -793,10 +910,10 @@ The endpoints are the downward and upward square roots at the interval's
 precision. Empty when $\overline{x} < 0$. There is no `try_` form: square
 root never fails.
 
-### Exponentials
+### `BallFloat::exp_interval`, `BallFloat::exp2_interval`, `BallFloat::exp10_interval`, `BallFloat::expm1_interval`, `BallFloat::try_exp_interval`, `BallFloat::try_exp2_interval`, `BallFloat::try_exp10_interval`, `BallFloat::try_expm1_interval`
 
-`exp_interval`, `exp2_interval`, `exp10_interval` and `expm1_interval` return
-enclosures of $e^{\xi}$, $2^{\xi}$, $10^{\xi}$ and $e^{\xi} - 1$.
+These return enclosures of $e^{\xi}$, $2^{\xi}$, $10^{\xi}$ and
+$e^{\xi} - 1$.
 
 ```mbti
 pub fn BallFloat::exp_interval(Self) -> Self
@@ -813,17 +930,22 @@ All four are increasing, so the result is
 $[\operatorname{RD} f(\underline{x}), \operatorname{RU} f(\overline{x})]$.
 `exp_interval` uses a certified Taylor series with argument halving and never
 needs a fallback; for $|\xi| \ge 2^{30}$ it returns
-$[\text{largest finite}, +\infty)$ or $[0, \text{smallest positive}]$.
+$[\text{largest finite}, +\infty)$ or $[0, \text{smallest positive}]$, which
+is valid because $e^{2^{30}}$ exceeds $2^{e_{\max}+1}$ and $e^{-2^{30}}$ is
+below the smallest positive `BinFloat` at every precision.
 `exp2_interval` and `exp10_interval` evaluate $e^{\xi \ln b}$ at 96 extra bits
-and return exact powers for integer endpoints (for `exp10_interval`,
-exponents $0 \le n \le 100000$). The total `expm1_interval` falls back to
-$[-1, +\infty)$.
+and return exact powers for integer endpoints (for `exp2_interval`, exponents
+$e_{\min} \le n \le e_{\max}$, where $2^n$ is a normal `BinFloat`; for
+`exp10_interval`, exponents $0 \le n \le 100000$). An integer endpoint outside
+the exponent range keeps the outward-rounded series enclosure, so
+`exp2_interval` of $\{-1073742000\}$ is $[0, \text{smallest positive}]$ and of
+$\{2^{30}\}$ is $[\text{largest finite}, +\infty)$. The total
+`expm1_interval` falls back to $[-1, +\infty)$.
 
-### Logarithms
+### `BallFloat::ln_interval`, `BallFloat::log2_interval`, `BallFloat::log10_interval`, `BallFloat::log1p_interval`, `BallFloat::try_ln_interval`, `BallFloat::try_log2_interval`, `BallFloat::try_log10_interval`, `BallFloat::try_log1p_interval`
 
-`ln_interval`, `log2_interval`, `log10_interval` and `log1p_interval` return
-enclosures of $\ln \xi$, $\log_2 \xi$, $\log_{10} \xi$ and $\ln(1 + \xi)$ over
-their domains $(0, \infty)$ and $(-1, \infty)$.
+These return enclosures of $\ln \xi$, $\log_2 \xi$, $\log_{10} \xi$ and
+$\ln(1 + \xi)$ over their domains $(0, \infty)$ and $(-1, \infty)$.
 
 ```mbti
 pub fn BallFloat::ln_interval(Self) -> Self
@@ -838,7 +960,8 @@ pub fn BallFloat::try_log1p_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 
 When the interval reaches the domain boundary ($\underline{x} \le 0$, or
 $\underline{x} \le -1$ for `log1p`) the lower endpoint is $-\infty$; when it
-lies entirely outside the domain the result is Empty. `log10_interval`
+lies entirely outside the domain ($\overline{x} \le 0$, or
+$\overline{x} < -1$ for `log1p`) the result is Empty. `log10_interval`
 returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The total
 `log1p_interval` falls back to Entire.
 
@@ -850,6 +973,13 @@ test "exponentials and logarithms" {
   inspect(fmt(iv(0, 4).ln_interval()), content="[-inf, 1.38630e+0]")
   inspect(fmt(iv(1, 1000).log10_interval()), content="[0.00000e+0, 3.00000e+0]")
   inspect(iv(-2, -1).ln_interval().is_empty(), content="true")
+  // Integer endpoints outside the exponent range keep the series enclosure.
+  let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2_interval()
+  inspect(below.lower_bound().to_string(), content="0")
+  inspect(below.upper_bound().to_string(), content="1p-1073741875")
+  let above = @ball_float.BallFloat::from_int(1 << 30, precision=53).exp2_interval()
+  inspect(above.lower_bound().to_string(), content="9007199254740991p1073741771")
+  inspect(above.upper_bound().to_string(), content="inf")
 }
 ```
 
@@ -865,13 +995,18 @@ pub fn BallFloat::try_pow_interval(Self, Self) -> Result[Self, @arithmetic.Arith
 ```
 
 Negative parts of the base are ignored (use `pown` or `rootn` for negative
-bases). The result is the hull of the four corner values, extended by 1 when
-the base interval contains 1 or the exponent interval contains 0, by 0 when
-the base reaches 0 with positive exponents, and by $+\infty$ when the base
-reaches 0 with negative exponents. $0^{\eta}$ for $\eta \le 0$ is excluded, so
-`pow_interval([0, 0], y)` is Empty when $\overline{y} \le 0$. The result
-precision is the larger operand precision. The total form falls back to an
-evaluation of $e^{\eta \ln \xi}$ at 192 extra bits.
+bases). Since $\xi^\eta = e^{\eta \ln \xi}$ and $\eta \ln \xi$ is bilinear in
+$(\ln \xi, \eta)$, the extrema over a box with $\underline{x} > 0$ are at the
+four corners. When the base reaches 0, $\xi^\eta \to 0$ for $\eta > 0$ and
+$\to +\infty$ for $\eta < 0$, so the result is extended by 0 or $+\infty$
+accordingly. The code also adds the value 1 when the base interval contains
+1 or the exponent interval contains 0; it already lies between the corner
+values, so this changes nothing but is harmless. $0^{\eta}$ for $\eta \le 0$
+is excluded, so `pow_interval([0, 0], y)` is Empty when $\overline{y} \le 0$.
+The result precision is the larger operand precision. A corner whose power is
+representable at the result precision, such as $16^{3/4} = 8$, gives that
+power exactly. The total
+form falls back to an evaluation of $e^{\eta \ln \xi}$ at 192 extra bits.
 
 ### `BallFloat::rootn` and `BallFloat::try_rootn`
 
@@ -887,8 +1022,24 @@ pub fn BallFloat::try_rootn(Self, Int) -> Result[Self, @arithmetic.ArithmeticErr
 `rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain
 error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt_interval`. The total
 form evaluates other degrees through `pow_interval` with an enclosure of
-$1/n$, so it may be slightly wider than `try_rootn`. For negative $n$,
-`try_rootn` returns Entire when an odd root's argument contains 0.
+$1/n$, so it may be slightly wider than `try_rootn`; negative degrees are
+`rootn(x, -n).reciprocal()`. For negative $n$, `try_rootn` returns Entire
+when an odd root's argument contains 0 (wider than the total form when 0 is an
+endpoint). Exact roots are returned exactly for every degree, so
+`try_rootn({8}, -3)` is $\{1/2\}$.
+
+```moonbit
+///|
+test "exact powers and roots" {
+  let three_quarters = @ball_float.BallFloat::exact(
+    @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), -2, 53),
+  )
+  let p = iv(16, 16).pow_interval(three_quarters)
+  inspect(p.lower_bound().to_string() + " " + p.upper_bound().to_string(), content="1p3 1p3")
+  let r = iv(8, 8).try_rootn(-3).unwrap()
+  inspect(r.lower_bound().to_string() + " " + r.upper_bound().to_string(), content="1p-1 1p-1")
+}
+```
 
 ### `BallFloat::hypot` and `BallFloat::try_hypot`
 
@@ -900,13 +1051,15 @@ pub fn BallFloat::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticEr
 ```
 
 The function is increasing in $|\xi|$ and $|\eta|$, so the result is
-evaluated at the endpoints of `abs(x)` and `abs(y)`. The total form falls back
+$[\operatorname{RD}\operatorname{hypot}(\operatorname{mig}\boldsymbol{x}, \operatorname{mig}\boldsymbol{y}),
+\operatorname{RU}\operatorname{hypot}(\operatorname{mag}\boldsymbol{x}, \operatorname{mag}\boldsymbol{y})]$,
+evaluated on the endpoints of `abs(x)` and `abs(y)`. The total form falls back
 to `sqrt_interval(square(x) + square(y))`.
 
-### Trigonometric functions
+### `BallFloat::sin_interval`, `BallFloat::cos_interval`, `BallFloat::tan_interval`, `BallFloat::try_sin_interval`, `BallFloat::try_cos_interval`, `BallFloat::try_tan_interval`
 
-`sin_interval`, `cos_interval` and `tan_interval` return enclosures of
-$\sin$, $\cos$ and $\tan$ over the interval (in radians).
+These return enclosures of $\sin$, $\cos$ and $\tan$ over the interval (in
+radians).
 
 ```mbti
 pub fn BallFloat::sin_interval(Self) -> Self
@@ -919,18 +1072,21 @@ pub fn BallFloat::try_tan_interval(Self) -> Result[Self, @arithmetic.ArithmeticE
 
 Both forms reduce each endpoint by a certified enclosure of $\pi/2$ and
 evaluate certified Taylor series. A critical point $k\pi/2$ inside the
-interval contributes the extremum $\pm 1$ of `sin`/`cos`; for `tan` an odd
-multiple of $\pi/2$ inside the interval (a pole) makes the result Entire.
-Unbounded arguments give $[-1, 1]$ (Entire for `tan`). When the larger
-endpoint magnitude is at least $2^{\max(65536,\, 4p) + 1}$, the total forms return
-$[-1, 1]$ (Entire) without evaluating and the `try_` forms return a
-resource-limit error; the total forms use the same fallback when the 12
-refinement steps are exhausted.
+interval contributes the extremum $\pm 1$ of `sin`/`cos` (`sin` reaches $+1$
+at $k \equiv 1$ and $-1$ at $k \equiv 3 \pmod 4$, `cos` reaches $+1$ at
+$k \equiv 0$ and $-1$ at $k \equiv 2$); for `tan` an odd multiple of $\pi/2$
+inside the interval (a pole) makes the result Entire. The set of candidate
+indices $k$ is computed from the enclosure of $\pi$ and can only be too large,
+which widens but never invalidates the result. Unbounded arguments give
+$[-1, 1]$ (Entire for `tan`). When the larger endpoint magnitude is at least
+$2^{\max(65536,\, 4p) + 1}$, the total forms return $[-1, 1]$ (Entire)
+without evaluating and the `try_` forms return a resource-limit error; the
+total forms use the same fallback when the certification budget (12 work
+precisions) is exhausted.
 
-### Trigonometric functions of $\pi x$
+### `BallFloat::sinpi_interval`, `BallFloat::cospi_interval`, `BallFloat::tanpi_interval`, `BallFloat::try_sinpi_interval`, `BallFloat::try_cospi_interval`, `BallFloat::try_tanpi_interval`
 
-`sinpi_interval`, `cospi_interval` and `tanpi_interval` return enclosures of
-$\sin \pi\xi$, $\cos \pi\xi$ and $\tan \pi\xi$.
+These return enclosures of $\sin \pi\xi$, $\cos \pi\xi$ and $\tan \pi\xi$.
 
 ```mbti
 pub fn BallFloat::sinpi_interval(Self) -> Self
@@ -941,12 +1097,13 @@ pub fn BallFloat::try_cospi_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 pub fn BallFloat::try_tanpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Here the critical points are the exact half-integers $k/2$, located without
-approximating $\pi$. `tanpi_interval` returns a half-unbounded interval when a
-pole is exactly an endpoint (for example $[1/2, 1]$ gives
-$(-\infty, 0]$), Empty for the singleton of a pole, and Entire when a pole
-lies inside. Unbounded arguments and fallbacks give $[-1, 1]$ (Entire for
-`tanpi`).
+Here the critical points are the exact half-integers $k/2$, located from the
+dyadic endpoints without approximating $\pi$. `tanpi_interval` returns a
+half-unbounded interval when a pole is exactly an endpoint and no other pole
+lies in the interval (for example $[1/2, 1]$ gives $(-\infty, 0]$, whose upper
+endpoint is $\tan \pi = -0$), Empty for
+the singleton of a pole, and Entire when a pole lies inside. Unbounded
+arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`).
 
 ```moonbit
 ///|
@@ -957,14 +1114,14 @@ test "trigonometric functions" {
   let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
   let x = @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53))
   inspect(fmt(x.sinpi_interval()), content="[0.00000e+0, 1.00000e+0]")
-  inspect(fmt(x.tanpi_interval()), content="[-inf, 0.00000e+0]")
+  inspect(fmt(x.tanpi_interval()), content="[-inf, -0.00000e+0]")
 }
 ```
 
-### Inverse trigonometric functions
+### `BallFloat::asin_interval`, `BallFloat::acos_interval`, `BallFloat::atan_interval`, `BallFloat::try_asin_interval`, `BallFloat::try_acos_interval`, `BallFloat::try_atan_interval`
 
-`asin_interval`, `acos_interval` and `atan_interval` return enclosures of
-$\arcsin$, $\arccos$ (over $[-1, 1]$) and $\arctan$.
+These return enclosures of $\arcsin$, $\arccos$ (over $[-1, 1]$) and
+$\arctan$.
 
 ```mbti
 pub fn BallFloat::asin_interval(Self) -> Self
@@ -977,7 +1134,8 @@ pub fn BallFloat::try_atan_interval(Self) -> Result[Self, @arithmetic.Arithmetic
 
 `asin` and `atan` are increasing and `acos` is decreasing, so only endpoints
 are evaluated. The total `atan_interval` uses a certified series with a
-Machin-formula enclosure of $\pi$; `asin` is computed as
+Machin-formula enclosure of $\pi$ and falls back to $[0, \pi/2]$ or
+$[-\pi/2, 0]$ for an endpoint whose budget runs out; `asin` is computed as
 $\arctan(\xi/\sqrt{1 - \xi^2})$ and `acos` as $\pi/2 - \arcsin \xi$, at 64
 extra bits. `atan` of an infinite endpoint is $\pm\pi/2$.
 
@@ -994,16 +1152,14 @@ pub fn BallFloat::try_atan2_interval(Self, Self) -> Result[Self, @arithmetic.Ari
 
 The receiver is the ordinate. The result is the hull of the angles at the
 four corners and at the points where the box meets the axes. When the box
-crosses the branch cut (negative $\xi$, and $\eta$ ranging over negative
-values and 0) the result is $[-\pi, \pi]$. The box $\{(0, 0)\}$ gives Empty.
-The total form falls back to $[-\pi, \pi]$.
+crosses the branch cut ($\underline{x} < 0$ and
+$\underline{y} < 0 \le \overline{y}$) the result is $[-\pi, \pi]$. The box
+$\{(0, 0)\}$ gives Empty. The total form falls back to $[-\pi, \pi]$.
 
-### Hyperbolic functions
+### `BallFloat::sinh_interval`, `BallFloat::cosh_interval`, `BallFloat::tanh_interval`, `BallFloat::asinh_interval`, `BallFloat::acosh_interval`, `BallFloat::atanh_interval`, `BallFloat::try_sinh_interval`, `BallFloat::try_cosh_interval`, `BallFloat::try_tanh_interval`, `BallFloat::try_asinh_interval`, `BallFloat::try_acosh_interval`, `BallFloat::try_atanh_interval`
 
-`sinh_interval`, `cosh_interval`, `tanh_interval`, `asinh_interval`,
-`acosh_interval` and `atanh_interval` return enclosures of the hyperbolic
-functions and their inverses over their domains ($[1, \infty)$ for `acosh`,
-$(-1, 1)$ for `atanh`).
+These return enclosures of the hyperbolic functions and their inverses over
+their domains ($[1, \infty)$ for `acosh`, $(-1, 1)$ for `atanh`).
 
 ```mbti
 pub fn BallFloat::sinh_interval(Self) -> Self
@@ -1023,9 +1179,18 @@ pub fn BallFloat::try_atanh_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 `cosh` has its minimum 1 at 0; the others are monotone. The total forms
 evaluate the defining formulas ($(e^\xi - e^{-\xi})/2$,
 $\ln(\xi + \sqrt{\xi^2 + 1})$, $\tfrac12 \ln\frac{1+\xi}{1-\xi}$, …) in
-interval arithmetic at 192 extra bits at each endpoint, so they never fail;
-`tanh_interval` is clipped to $[-1, 1]$. `atanh` of an interval reaching
-$\pm 1$ is unbounded on that side.
+interval arithmetic at $w = p + 192$ bits at each endpoint, so they never
+fail; `tanh_interval` is clipped to $[-1, 1]$. `atanh` of an interval reaching
+$\pm 1$ is unbounded on that side. The `try_` forms use the certified
+`bin_float` kernels instead.
+
+The defining formulas of `sinh`, `tanh`, `asinh` and `atanh` cancel near 0:
+their absolute error is about $2^{-w}$, so for $|\xi|$ below roughly
+$2^{-190}$ the total forms are valid but far from tight. At 53 bits,
+`sinh_interval` of $\{2^{-300}\}$ is $[0, 3 \cdot 2^{-246}]$ while
+`try_sinh_interval` returns the two-ulp interval
+$[2^{-300}, (1 + 2^{-52})\,2^{-300}]$. Use the `try_` forms for tiny
+arguments.
 
 ```moonbit
 ///|
@@ -1074,7 +1239,7 @@ pub fn BallContext::e_min(Self) -> Int
 pub fn BallContext::e_max(Self) -> Int
 ```
 
-### `BallFlags::new`, `BallFlags::combine` and accessors
+### `BallFlags::new`, `BallFlags::combine`, `BallFlags::inexact`, `BallFlags::overflow`, `BallFlags::underflow`
 
 `BallFlags::new` returns the flags with nothing raised; `combine` is their
 union; the accessors read the fields.
@@ -1100,10 +1265,19 @@ An endpoint whose rounded exponent exceeds $e_{\max}$ overflows: it becomes
 $\mp\infty$ if it is a negative lower or a positive upper endpoint, and the
 largest finite value of the right sign otherwise (a positive lower endpoint
 becomes the largest finite value, which is still below it). An endpoint below
-the normal range is rounded outward on the subnormal grid
+the normal range is then rounded outward on the subnormal grid
 $2^{e_{\min} - p + 1}\mathbb{Z}$, so a tiny positive upper endpoint becomes the
-smallest subnormal rather than 0. Zeros and infinities are kept. Empty gives
+smallest subnormal rather than 0. Rounding twice in the same direction equals
+rounding once onto the coarser grid, so the endpoints are the directed
+roundings of the stored ones. Zeros and infinities are kept. Empty gives
 Empty with no flags. The result has the context precision.
+
+`underflow` is raised only when the second, subnormal-grid step is inexact.
+IEEE 754 raises it for every tiny inexact result, so a tiny endpoint whose
+precision rounding is inexact but lands on the subnormal grid raises
+`inexact` without `underflow`: with $p = 4$ and $e_{\min} = -2$, the lower
+endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$ and only `inexact` is set.
+Tracked in [#71](https://github.com/Luna-Flow/floating/issues/71); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ### `BallFloat::add_ctx`, `BallFloat::sub_ctx`, `BallFloat::mul_ctx`, `BallFloat::div_ctx`
 
@@ -1141,8 +1315,15 @@ pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallF
 
 Subnormal results are rounded on the subnormal grid and raise `underflow`
 when inexact; `inexact` is set when the center changed. The exponent upper
-limit is not applied, so `overflow` is never raised. Entire gives 0; Empty and
-half-bounded intervals abort.
+limit is not applied, so `overflow` is never raised ([#46](https://github.com/Luna-Flow/floating/issues/46)). Entire gives
+0; Empty and half-bounded intervals abort.
+
+The center is rounded to nearest twice, first to $p$ bits and then onto the
+subnormal grid, and double rounding to nearest is not single rounding: with
+$p = 4$, $e_{\min} = -2$ (grid $2^{-5}$) the center $2^{-6} + 2^{-20}$ is
+first rounded to the tie $2^{-6}$ and then to the even neighbour 0, whereas
+the nearest grid point is $2^{-5}$. Normal results are correctly rounded.
+Tracked in [#70](https://github.com/Luna-Flow/floating/issues/70); a fix for both defects is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|
@@ -1178,7 +1359,9 @@ pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
 ```
 
 The default decoration is `Com`. The decoration is made canonical, and `Ill`
-is replaced by `Trv`: `new` never builds NaI.
+is replaced by `Trv`: `new` never builds NaI. `new(whole())` is therefore
+decorated `Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788
+`newDec`.
 
 ### `BallFloatDecorated::nai` and `BallFloatDecorated::is_nai`
 
@@ -1202,10 +1385,10 @@ pub fn BallFloatDecorated::interval(Self) -> BallFloat
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 ```
 
-### Decorated predicates and relations
+### `BallFloatDecorated::is_empty`, `BallFloatDecorated::is_entire`, `BallFloatDecorated::is_common_interval`, `BallFloatDecorated::is_singleton`, `BallFloatDecorated::contains`
 
-The predicates and relations of `BallFloatDecorated` apply the bare relation
-to the intervals and return false when an operand is NaI.
+These predicates apply the bare predicate to the interval and return false for
+NaI.
 
 ```mbti
 pub fn BallFloatDecorated::is_empty(Self) -> Bool
@@ -1213,6 +1396,14 @@ pub fn BallFloatDecorated::is_entire(Self) -> Bool
 pub fn BallFloatDecorated::is_common_interval(Self) -> Bool
 pub fn BallFloatDecorated::is_singleton(Self) -> Bool
 pub fn BallFloatDecorated::contains(Self, @bin_float.BinFloat) -> Bool
+```
+
+### `BallFloatDecorated::set_equal`, `BallFloatDecorated::subset`, `BallFloatDecorated::interior`, `BallFloatDecorated::disjoint`, `BallFloatDecorated::less`, `BallFloatDecorated::strictly_less`, `BallFloatDecorated::precedes`, `BallFloatDecorated::strictly_precedes`, `BallFloatDecorated::overlap_state`
+
+These relations apply the bare relation to the intervals and return false
+when an operand is NaI.
+
+```mbti
 pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
@@ -1226,11 +1417,11 @@ pub fn BallFloatDecorated::overlap_state(Self, Self) -> OverlapState
 
 `overlap_state` returns `Undefined` when an operand is NaI.
 
-### Decorated set operations
+### `BallFloatDecorated::intersection`, `BallFloatDecorated::convex_hull`, `BallFloatDecorated::cancel_plus`, `BallFloatDecorated::cancel_minus`
 
-`intersection`, `convex_hull`, `cancel_plus` and `cancel_minus` apply the bare
-operation and always lower the decoration to `Trv` (set operations are not
-point functions).
+These apply the bare operation and always lower the decoration to `Trv`
+(set operations are not point functions, so no property of a function can be
+claimed for their results).
 
 ```mbti
 pub fn BallFloatDecorated::intersection(Self, Self) -> Self
@@ -1239,7 +1430,7 @@ pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 ```
 
-### Decorated arithmetic
+### `BallFloatDecorated::add`, `BallFloatDecorated::sub`, `BallFloatDecorated::mul`, `BallFloatDecorated::div`, `BallFloatDecorated::pos`, `BallFloatDecorated::neg`, `BallFloatDecorated::abs`, `BallFloatDecorated::reciprocal`, `BallFloatDecorated::square`, `BallFloatDecorated::pown`, `BallFloatDecorated::fma`, `BallFloatDecorated::minimum`, `BallFloatDecorated::maximum`
 
 The arithmetic operations apply the bare operation; their operation
 decoration is `Com` except where the table says otherwise.
@@ -1267,11 +1458,14 @@ pub fn BallFloatDecorated::maximum(Self, Self) -> Self
 | `pos` | identity (IEEE 1788 `pos`) |
 | others | `Com` |
 
-### Decorated elementary functions
+### `BallFloatDecorated::sqrt_interval`, `BallFloatDecorated::exp_interval`, `BallFloatDecorated::exp2_interval`, `BallFloatDecorated::exp10_interval`, `BallFloatDecorated::expm1_interval`, `BallFloatDecorated::ln_interval`, `BallFloatDecorated::log2_interval`, `BallFloatDecorated::log10_interval`, `BallFloatDecorated::log1p_interval`, `BallFloatDecorated::pow_interval`, `BallFloatDecorated::rootn`, `BallFloatDecorated::hypot`
 
 The decorated elementary functions apply the bare total form (there are no
 decorated `try_` forms) and lower the decoration when the input leaves the
-domain of the function.
+domain of the function, as listed in the table at the end of this group.
+
+These are the decorated square root, exponentials, logarithms, powers and
+`hypot`.
 
 ```mbti
 pub fn BallFloatDecorated::sqrt_interval(Self) -> Self
@@ -1286,6 +1480,13 @@ pub fn BallFloatDecorated::log1p_interval(Self) -> Self
 pub fn BallFloatDecorated::pow_interval(Self, Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
+```
+
+### `BallFloatDecorated::sin_interval`, `BallFloatDecorated::cos_interval`, `BallFloatDecorated::tan_interval`, `BallFloatDecorated::sinpi_interval`, `BallFloatDecorated::cospi_interval`, `BallFloatDecorated::tanpi_interval`, `BallFloatDecorated::asin_interval`, `BallFloatDecorated::acos_interval`, `BallFloatDecorated::atan_interval`, `BallFloatDecorated::atan2_interval`
+
+These are the decorated trigonometric functions and their inverses.
+
+```mbti
 pub fn BallFloatDecorated::sin_interval(Self) -> Self
 pub fn BallFloatDecorated::cos_interval(Self) -> Self
 pub fn BallFloatDecorated::tan_interval(Self) -> Self
@@ -1296,6 +1497,13 @@ pub fn BallFloatDecorated::asin_interval(Self) -> Self
 pub fn BallFloatDecorated::acos_interval(Self) -> Self
 pub fn BallFloatDecorated::atan_interval(Self) -> Self
 pub fn BallFloatDecorated::atan2_interval(Self, Self) -> Self
+```
+
+### `BallFloatDecorated::sinh_interval`, `BallFloatDecorated::cosh_interval`, `BallFloatDecorated::tanh_interval`, `BallFloatDecorated::asinh_interval`, `BallFloatDecorated::acosh_interval`, `BallFloatDecorated::atanh_interval`
+
+These are the decorated hyperbolic functions and their inverses.
+
+```mbti
 pub fn BallFloatDecorated::sinh_interval(Self) -> Self
 pub fn BallFloatDecorated::cosh_interval(Self) -> Self
 pub fn BallFloatDecorated::tanh_interval(Self) -> Self
@@ -1312,20 +1520,18 @@ pub fn BallFloatDecorated::atanh_interval(Self) -> Self
 | `asin_interval`, `acos_interval` | $\boldsymbol{x} \not\subseteq [-1, 1]$ |
 | `acosh_interval` | $\underline{x} < 1$ |
 | `atanh_interval` | $\underline{x} \le -1$ or $\overline{x} \ge 1$ |
-| `rootn(x, n)` | $n = 0$, or $n$ even and $\underline{x} < 0$ |
+| `rootn(x, n)` | $n = 0$, or $n$ even and $\underline{x} < 0$, or $n < 0$ and $0 \in \boldsymbol{x}$ |
 | `pow_interval(x, y)` | $\underline{x} < 0$, or $0 \in \boldsymbol{x}$ and $\underline{y} \le 0$, or the result is Empty |
-| `tan_interval`, `tanpi_interval` | the result is Entire (a pole may lie inside) |
+| `tan_interval` | the result is Entire (a pole may lie inside) |
+| `tanpi_interval` | the result is unbounded (a pole lies in the argument, possibly at an endpoint) |
 | `atan2_interval` | both operands contain 0 |
 
 All other functions have operation decoration `Com`. For `y.atan2_interval(x)`
 the decoration is `Def` when the box crosses the branch cut
-($\underline{x} < 0$, $\underline{y} < 0 \le \overline{y}$) and `Dac` when it
-touches the cut from above ($\overline{x} < 0$, $\underline{y} = 0$).
-
-> [!WARNING]
-> `rootn` with a negative degree does not lower the decoration when 0 is in
-> the argument, although $\xi^{1/n}$ is undefined at 0 for $n < 0$:
-> `rootn([0, 4], -2)` is decorated `dac` instead of `trv`.
+($\underline{x} < 0$, $\underline{y} < 0 \le \overline{y}$: the restriction
+jumps from $-\pi$ to $\pi$) and `Dac` when it touches the cut from above
+($\overline{x} < 0$, $\underline{y} = 0$: the restriction is continuous, but
+`atan2` itself is not continuous at those points).
 
 ### `BallFloatDecorated::apply_ctx`
 
@@ -1345,6 +1551,12 @@ test "decorated intervals" {
   inspect(x.sqrt_interval().decoration(), content="trv")
   inspect(x.exp_interval().decoration(), content="com")
   inspect((x / x).decoration(), content="trv")
+  inspect(@ball_float.BallFloatDecorated::new(iv(0, 4)).rootn(-2).decoration(), content="trv")
+  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
+  let pole = @ball_float.BallFloatDecorated::new(
+    @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53)),
+  )
+  inspect(pole.tanpi_interval().decoration(), content="trv")
   let unbounded = @ball_float.BallFloatDecorated::new(@ball_float.BallFloat::whole())
   inspect(unbounded.decoration(), content="dac")
   let nai = @ball_float.BallFloatDecorated::nai()
@@ -1355,7 +1567,7 @@ test "decorated intervals" {
 
 ## Trait implementations
 
-### Operators
+### `Add`, `Sub`, `Mul`, `Div` and `Neg` for `BallFloat` and `BallFloatDecorated`
 
 `BallFloat` implements `Add`, `Sub`, `Mul`, `Div` and `Neg`;
 `BallFloatDecorated` implements `Add`, `Sub`, `Mul` and `Div`. The operators
@@ -1373,7 +1585,7 @@ pub impl Mul for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 ```
 
-### `Show`
+### `BallFloat::to_string`, `BallFloat::output`, `BallFloatDecorated::to_string`, `BallFloatDecorated::output`, `Decoration::to_string`, `Decoration::output`
 
 `Show` writes an interval in an exact text form.
 
@@ -1391,9 +1603,10 @@ pub fn Decoration::output(Self, &Logger) -> Unit
 
 A bounded `BallFloat` prints as `center +/- radius` with both numbers in the
 exact `BinFloat` notation (`3p-1` is $3 \cdot 2^{-1}$), so the text denotes
-exactly the stored set; an unbounded one prints as `[lo, hi]`, Empty as
-`[empty]`. A decorated interval appends `_` and the decoration; NaI prints as
-`[nai]`.
+exactly the stored set (up to the far-endpoint case noted under
+[`BallFloat::center`](#ballfloatcenter-and-ballfloatradius)); an unbounded one
+prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and
+the decoration; NaI prints as `[nai]`.
 
 ```moonbit
 ///|
@@ -1404,7 +1617,9 @@ test "show" {
 }
 ```
 
-### `Eq` and `Debug`
+### `BallFloat::equal`, `BallFloat::not_equal`, `BallFloat::to_repr`, `BallFloatDecorated::equal`, `BallFloatDecorated::not_equal`, `BallFlags::equal`, `BallFlags::not_equal`
+
+These are the derived `Eq` and `Debug` methods of the structures.
 
 ```mbti
 pub fn BallFloat::equal(Self, Self) -> Bool
@@ -1414,6 +1629,13 @@ pub fn BallFloatDecorated::equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::not_equal(Self, Self) -> Bool
 pub fn BallFlags::equal(Self, Self) -> Bool
 pub fn BallFlags::not_equal(Self, Self) -> Bool
+```
+
+### `Decoration::equal`, `Decoration::not_equal`, `Decoration::to_repr`, `OverlapState::equal`, `OverlapState::not_equal`, `OverlapState::to_repr`
+
+These are the derived `Eq` and `Debug` methods of the enums.
+
+```mbti
 pub fn Decoration::equal(Self, Self) -> Bool
 pub fn Decoration::not_equal(Self, Self) -> Bool
 pub fn Decoration::to_repr(Self) -> @debug.Repr
@@ -1422,12 +1644,12 @@ pub fn OverlapState::not_equal(Self, Self) -> Bool
 pub fn OverlapState::to_repr(Self) -> @debug.Repr
 ```
 
-The `Eq` implementations are derived and compare representations. For
-`BallFloat` and `BallFloatDecorated` this distinguishes equal sets stored with
-different precision tags or endpoint precisions; use `set_equal` for sets.
-`to_repr` gives the structural `Debug` form.
+The `Eq` implementations compare representations. For `BallFloat` and
+`BallFloatDecorated` this distinguishes equal sets stored with different
+precision tags or endpoint precisions; use `set_equal` for sets. `to_repr`
+gives the structural `Debug` form.
 
-### `@def.Floating`
+### `@def.Floating` for `BallFloat`
 
 `BallFloat` implements the `Floating` trait of [`def`](def.md) with
 `classify`, `sign`, `precision`, `with_precision` and `normalized` as
@@ -1439,7 +1661,12 @@ described above, so the generic predicates `@def.is_finite` (bounded),
 pub impl @def.Floating for BallFloat
 ```
 
-### Enclosure relations of `arithmetic`
+The laws of `Floating` that speak of keeping a value hold only as
+enclosures: `with_precision` and `normalized` return supersets of the input
+(see the warning under
+[`BallFloat::with_precision`](#ballfloatwith_precision)).
+
+### `@arithmetic.Contains`, `@arithmetic.Overlaps`, `@arithmetic.DefinitelyLt`, `@arithmetic.DefinitelyLe`, `@arithmetic.MaybeEq`
 
 `BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`.
 
@@ -1454,7 +1681,7 @@ pub impl @arithmetic.MaybeEq for BallFloat
 `Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the
 point-taking method); the others call the methods of the same name.
 
-### Checked capabilities of `arithmetic`
+### `BallFloat::div_checked`, `BallFloat::pow_nat_checked`, `BallFloat::pow_int_checked`
 
 `BallFloat` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their
 methods are promoted.
@@ -1469,12 +1696,17 @@ pub fn BallFloat::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> R
 ```
 
 Only `ctx.precision` is used: the operands are re-rounded to it with
-`with_precision`, the operation is applied, and the result is re-rounded. They
+`with_precision`, the operation is applied, and the result is re-rounded, so
+the result can be wider than the plain operation even when the precision is
+unchanged (see [`BallFloat::with_precision`](#ballfloatwith_precision)). They
 always return `Ok`. `div_checked` follows the division rules above (a divisor
 containing 0 gives an unbounded result, not an error). `pow_int_checked` uses
 `pown`. `pow_nat_checked` uses binary powering by repeated interval
 multiplication, which treats the factors as independent: for an argument
-containing 0 its result is wider than `pown`.
+containing 0 its result is wider than `pown`. Its loop starts from $\{1\}$,
+so `pow_nat_checked(Empty, 0)` returns $\{1\}$ where `pown(Empty, 0)` returns
+Empty. The widening is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the Empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a
+fix for both is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|

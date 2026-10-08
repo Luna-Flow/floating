@@ -1,15 +1,33 @@
-# `bin_float_checked` API
+# bin_float_checked API
+
+## Purpose
 
 `bin_float_checked` provides `BinFloatResult`, a closed wrapper around
 `Result[BinFloat, ArithmeticError]`. Every operation takes and returns a
 `BinFloatResult`, applies the corresponding [`bin_float`](bin_float.md)
 operation when all operands are successes, and otherwise passes on the first
-error. The wrapper keeps no IEEE flags. The [tutorial](../tutorial/bin_float_checked.md)
-builds pipelines step by step; the [design page](../design/bin_float_checked.md)
-models the wrapper as the error monad and proves the composition laws it relies
-on.
+error without running the operation. The wrapper keeps no IEEE flags. The
+[tutorial](../tutorial/bin_float_checked.md) builds pipelines step by step; the
+[design page](../design/bin_float_checked.md) models the wrapper as the error
+monad and proves the composition laws it relies on.
 
-The examples print a result with this helper:
+## Importing
+
+Add the wrapper and the packages whose types appear in its signatures to your
+`moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/bin_float_checked",
+  "Luna-Flow/floating/def",
+  "Luna-Flow/arithmetic" @lf_arith,
+}
+```
+
+The examples call the packages as `@bin_float_checked.`, `@bin_float.`,
+`@def.` and `@lf_arith.` (`Luna-Flow/arithmetic`, printed as `@arithmetic` in
+the interface). They print a result with this helper:
 
 ```moonbit
 ///|
@@ -55,7 +73,7 @@ pub fn BinFloatResult::from_result(Result[@bin_float.BinFloat, @arithmetic.Arith
 `from_result(r).result() == r` for every `r`, and `ok(x)` is the unit of the
 monad described in the design page.
 
-### `BinFloatResult::from_int`, `from_coefficient`, `from_double`, `from_float`
+### `BinFloatResult::from_int`, `BinFloatResult::from_coefficient`, `BinFloatResult::from_double`, `BinFloatResult::from_float`
 
 These constructors build a successful wrapper from a MoonBit number through the
 matching `BinFloat` constructor.
@@ -76,11 +94,13 @@ pub fn BinFloatResult::from_float(Float, precision? : Int) -> Self
 
 They never produce an error: NaN and infinity inputs become successful NaN or
 infinite values, and a value that does not fit `precision` is rounded to
-nearest-even as by the delegated constructor.
+nearest-even as by the delegated constructor. `from_float` widens through a
+host `Double`, so a signaling `Float` NaN may arrive quiet (see
+[`BinFloat::from_float`](bin_float.md#binfloatfrom_double-binfloatfrom_float)).
 
 ## Observation
 
-### `BinFloatResult::result`, `is_ok`, `is_err`
+### `BinFloatResult::result`, `BinFloatResult::is_ok`, `BinFloatResult::is_err`
 
 These methods expose the wrapped `Result` and test its branch.
 
@@ -143,7 +163,7 @@ test "map and bind" {
 
 ## Unary value maps
 
-### `neg`, `abs`, `ulp`, `normalized`, `with_precision`
+### `BinFloatResult::neg`, `BinFloatResult::abs`, `BinFloatResult::ulp`, `BinFloatResult::normalized`, `BinFloatResult::with_precision`
 
 These methods are `map` of the `BinFloat` method of the same name; they never
 introduce an error.
@@ -162,7 +182,7 @@ precision (NaN for non-finite values).
 
 ## Arithmetic
 
-### `add`, `sub`, `mul`
+### `BinFloatResult::add`, `BinFloatResult::sub`, `BinFloatResult::mul`
 
 These methods combine two wrappers with the `BinFloat` operator.
 
@@ -177,7 +197,7 @@ error is returned; otherwise the result is `Ok(lhs op rhs)`. The `BinFloat`
 operators round to nearest-even at the larger of the two operand precisions and
 never fail: invalid cases such as $\infty - \infty$ produce a successful NaN.
 
-### `div`
+### `BinFloatResult::div`
 
 `div` divides two wrappers and reports division by a zero.
 
@@ -190,17 +210,19 @@ After the operand errors (left first), the result is
 a finite zero ($\pm 0$), whatever the dividend (including $0/0$ and NaN$/0$),
 and the rounded quotient otherwise.
 
-### `min`, `max`
+### `BinFloatResult::min`, `BinFloatResult::max`
 
 These methods take the smaller or larger operand with `BinFloat::min` /
-`BinFloat::max`, which ignore a NaN operand in favour of the other one.
+`BinFloat::max`, which ignore a NaN operand in favour of the other one and
+return the receiver when the operands compare equal (so `min(-0, +0)` is
+$-0$ and `min(+0, -0)` is $+0$).
 
 ```mbti
 pub fn BinFloatResult::min(Self, Self) -> Self
 pub fn BinFloatResult::max(Self, Self) -> Self
 ```
 
-### `clamp`
+### `BinFloatResult::clamp`
 
 `clamp(min~, max~)` restricts a value to an interval.
 
@@ -236,7 +258,7 @@ test "arithmetic keeps the first error" {
 
 ## Contextual arithmetic
 
-### `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`
+### `BinFloatResult::add_ctx`, `BinFloatResult::sub_ctx`, `BinFloatResult::mul_ctx`, `BinFloatResult::div_ctx`
 
 These methods apply the `BinFloat::*_ctx` operation under an explicit
 `BinaryContext` and keep only its value.
@@ -269,7 +291,7 @@ test "context arithmetic rounds to the context and drops flags" {
 
 ## Powers and roots
 
-### `sqrt`, `sqrt_ctx`
+### `BinFloatResult::sqrt`, `BinFloatResult::sqrt_ctx`
 
 `sqrt` takes the square root at the operand's precision; `sqrt_ctx` under a
 context.
@@ -280,11 +302,12 @@ pub fn BinFloatResult::sqrt_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
 `sqrt` is `BinFloat::sqrt`, which returns a `DomainError` for a negative
-non-zero argument (including $-\infty$); $\sqrt{-0} = -0$ and NaN gives NaN.
-`sqrt_ctx` never fails: a negative argument gives a successful NaN (the
-invalid flag is dropped).
+non-zero argument, including $-\infty$ and a NaN whose sign bit is set;
+$\sqrt{-0} = -0$ and a positive NaN gives a successful NaN. `sqrt_ctx` never
+fails: a negative argument gives a successful NaN (the invalid flag is
+dropped).
 
-### `pow_nat`, `pow_int`, `pow_int_ctx`, `pown`, `pown_ctx`
+### `BinFloatResult::pow_nat`, `BinFloatResult::pow_int`, `BinFloatResult::pow_int_ctx`, `BinFloatResult::pown`, `BinFloatResult::pown_ctx`
 
 These methods raise a value to an integer power.
 
@@ -304,7 +327,7 @@ return a `DivisionByZero` error for a zero base with a negative exponent and
 the rounded power otherwise, at the operand's precision. The `_ctx` forms
 never fail and return $\pm\infty$ for a zero base with a negative exponent.
 
-### `rootn`, `rootn_ctx`
+### `BinFloatResult::rootn`, `BinFloatResult::rootn_ctx`
 
 `rootn(n)` computes the real $n$-th root with `BinFloat::try_rootn_ctx`.
 
@@ -315,10 +338,12 @@ pub fn BinFloatResult::rootn_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 
 `rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the
 given context. Both report a `DomainError` for degree $0$ and for an even root
-of a negative number, and can report a `CertificationFailure`. Odd roots of
-negative numbers are negative: `rootn(-8, 3)` is $-2$.
+of a negative number, $-\infty$ included, and can report a
+`CertificationFailure`. Odd roots of negative numbers are negative:
+`rootn(-8, 3)` is $-2$. The full table of special values is in
+[`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx).
 
-### `pow`, `pow_ctx`
+### `BinFloatResult::pow`, `BinFloatResult::pow_ctx`
 
 `pow(y)` computes $x^{y}$ for a binary exponent with `BinFloat::try_pow_ctx`.
 
@@ -329,10 +354,14 @@ pub fn BinFloatResult::pow_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 
 `pow` uses an unbounded context at the larger operand precision. Errors of the
 operands come first (base, then exponent); the operation itself reports a
-`DomainError` for a negative base with a non-integer exponent (for example
-$(-2)^{0.5}$) and can report a `CertificationFailure`.
+`DomainError` only for a negative finite base with a non-integer exponent (for
+example $(-2)^{0.5}$) and can report a `CertificationFailure`. A base of $-0$,
+a negative base with an integral exponent of any size and an infinite
+exponent all give the IEEE 754 values listed in
+[`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx),
+for example $(-1)^{\infty} = 1$ and $(-0)^{0.75} = +0$.
 
-### `hypot`, `hypot_ctx`
+### `BinFloatResult::hypot`, `BinFloatResult::hypot_ctx`
 
 `hypot(y)` computes $\sqrt{x^2 + y^2}$ without intermediate overflow, with
 `BinFloat::try_hypot_ctx`.
@@ -360,98 +389,277 @@ test "powers and roots" {
 
 ## Elementary functions
 
-### Exponentials and logarithms
+Each unary elementary function `name` has two wrapper methods. `name()` is
+`bind` of `BinFloat::try_name_ctx` under `BinaryContext::unbounded(x.precision())`,
+that is nearest-even rounding to the operand's precision with no exponent
+limit; `name_ctx(ctx)` uses the given context instead. A success is the
+correctly rounded value of `bin_float`; the flags are dropped. Besides the
+domain errors listed below, every function can report a
+`CertificationFailure` when `bin_float` cannot certify the rounding within its
+refinement budget (see
+[`bin_float` elementary functions](bin_float.md#elementary-functions)). Poles
+are values, not errors: $\ln 0 = -\infty$. A NaN operand gives a successful
+NaN.
 
-`exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p` and `exp_ln`
-apply the certified elementary functions of `bin_float`.
+### `BinFloatResult::exp`, `BinFloatResult::exp_ctx`
+
+$e^x$, delegated to [`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx).
 
 ```mbti
 pub fn BinFloatResult::exp(Self) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::exp2(Self) -> Self
-pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::exp10(Self) -> Self
-pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::expm1`, `BinFloatResult::expm1_ctx`
+
+$e^x - 1$, delegated to [`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx).
+
+```mbti
 pub fn BinFloatResult::expm1(Self) -> Self
 pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::exp2`, `BinFloatResult::exp2_ctx`
+
+$2^x$, delegated to [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx).
+
+```mbti
+pub fn BinFloatResult::exp2(Self) -> Self
+pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::exp10`, `BinFloatResult::exp10_ctx`
+
+$10^x$, delegated to [`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx).
+
+```mbti
+pub fn BinFloatResult::exp10(Self) -> Self
+pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::ln`, `BinFloatResult::ln_ctx`
+
+$\ln x$, delegated to [`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx).
+
+```mbti
 pub fn BinFloatResult::ln(Self) -> Self
 pub fn BinFloatResult::ln_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::log2(Self) -> Self
-pub fn BinFloatResult::log2_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::log10(Self) -> Self
-pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for a negative finite argument; $\ln 0 = -\infty$ and $\ln(-\infty)$ is a successful NaN.
+
+### `BinFloatResult::log1p`, `BinFloatResult::log1p_ctx`
+
+$\ln(1 + x)$, delegated to [`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx).
+
+```mbti
 pub fn BinFloatResult::log1p(Self) -> Self
 pub fn BinFloatResult::log1p_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` below $-1$; $\operatorname{log1p}(-1) = -\infty$.
+
+### `BinFloatResult::log2`, `BinFloatResult::log2_ctx`
+
+$\log_2 x$, delegated to [`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx).
+
+```mbti
+pub fn BinFloatResult::log2(Self) -> Self
+pub fn BinFloatResult::log2_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for a negative finite argument; $\log_2 0 = -\infty$.
+
+### `BinFloatResult::log10`, `BinFloatResult::log10_ctx`
+
+$\log_{10} x$, delegated to [`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx).
+
+```mbti
+pub fn BinFloatResult::log10(Self) -> Self
+pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for a negative finite argument; $\log_{10} 0 = -\infty$.
+
+### `BinFloatResult::exp_ln`, `BinFloatResult::exp_ln_ctx`
+
+$\ln(e^x)$ as one fused operation, delegated to [`BinFloat::try_exp_ln_ctx`](bin_float.md#binfloatexp_ln-binfloatexp_ln_ctx-binfloattry_exp_ln_ctx).
+
+```mbti
 pub fn BinFloatResult::exp_ln(Self) -> Self
 pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Each `name` method is `bind` of `BinFloat::try_name_ctx` under
-`BinaryContext::unbounded(x.precision())`, that is nearest-even rounding to the
-operand's precision with no exponent limit; each `name_ctx` method uses the
-given context instead. The result is correctly rounded. The errors are those of
-the `try_*` function: a `DomainError` for logarithms of negative numbers and
-`log1p` below $-1$, and a `CertificationFailure` when the rounding cannot be
-certified within the refinement budget. Poles are values, not errors:
-$\ln 0 = -\infty$. `exp_ln` evaluates $\ln(\exp(x))$ as one fused operation; it
-is certified only for $|x| \le 1/8$ and returns a `CertificationFailure`
-(stage `RangeReduction`, reason `RangeNotCertified`) for larger finite
-arguments.
+Errors: a `CertificationFailure` (stage `RangeReduction`, reason `RangeNotCertified`) for a finite $|x| > 1/8$.
 
-### Trigonometric functions
+### `BinFloatResult::sin`, `BinFloatResult::sin_ctx`
 
-`sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan` and
-`atan2` follow the same pattern.
+$\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx).
 
 ```mbti
 pub fn BinFloatResult::sin(Self) -> Self
 pub fn BinFloatResult::sin_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::cos(Self) -> Self
-pub fn BinFloatResult::cos_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::tan(Self) -> Self
-pub fn BinFloatResult::tan_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::sinpi(Self) -> Self
-pub fn BinFloatResult::sinpi_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::cospi(Self) -> Self
-pub fn BinFloatResult::cospi_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::tanpi(Self) -> Self
-pub fn BinFloatResult::tanpi_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::asin(Self) -> Self
-pub fn BinFloatResult::asin_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::acos(Self) -> Self
-pub fn BinFloatResult::acos_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::atan(Self) -> Self
-pub fn BinFloatResult::atan_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::atan2(Self, Self) -> Self
-pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 ```
 
-`sinpi(x)` is $\sin(\pi x)$, and so on. `asin` and `acos` report a
-`DomainError` outside $[-1, 1]$; `tanpi` at half-integers returns $\pm\infty$.
-`atan2(self, abscissa)` is the angle of the point $(\text{abscissa},
-\text{self})$; its errors are taken in the order ordinate, abscissa, operation,
-and the context of `atan2` uses the larger operand precision.
+Errors: a `DomainError` for an infinite argument.
 
-### Hyperbolic functions
+### `BinFloatResult::cos`, `BinFloatResult::cos_ctx`
 
-`sinh`, `cosh`, `tanh`, `asinh`, `acosh` and `atanh` follow the same pattern.
+$\cos x$, delegated to [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx).
+
+```mbti
+pub fn BinFloatResult::cos(Self) -> Self
+pub fn BinFloatResult::cos_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for an infinite argument.
+
+### `BinFloatResult::tan`, `BinFloatResult::tan_ctx`
+
+$\tan x$, delegated to [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx).
+
+```mbti
+pub fn BinFloatResult::tan(Self) -> Self
+pub fn BinFloatResult::tan_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for an infinite argument.
+
+### `BinFloatResult::sinpi`, `BinFloatResult::sinpi_ctx`
+
+$\sin(\pi x)$, delegated to [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx).
+
+```mbti
+pub fn BinFloatResult::sinpi(Self) -> Self
+pub fn BinFloatResult::sinpi_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for an infinite argument.
+
+### `BinFloatResult::cospi`, `BinFloatResult::cospi_ctx`
+
+$\cos(\pi x)$, delegated to [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx).
+
+```mbti
+pub fn BinFloatResult::cospi(Self) -> Self
+pub fn BinFloatResult::cospi_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for an infinite argument.
+
+### `BinFloatResult::tanpi`, `BinFloatResult::tanpi_ctx`
+
+$\tan(\pi x)$, delegated to [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx).
+
+```mbti
+pub fn BinFloatResult::tanpi(Self) -> Self
+pub fn BinFloatResult::tanpi_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for an infinite argument; at half-integers the result is a successful $\pm\infty$.
+
+### `BinFloatResult::asin`, `BinFloatResult::asin_ctx`
+
+$\arcsin x$, delegated to [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx).
+
+```mbti
+pub fn BinFloatResult::asin(Self) -> Self
+pub fn BinFloatResult::asin_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` outside $[-1, 1]$, infinities included.
+
+### `BinFloatResult::acos`, `BinFloatResult::acos_ctx`
+
+$\arccos x$, delegated to [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx).
+
+```mbti
+pub fn BinFloatResult::acos(Self) -> Self
+pub fn BinFloatResult::acos_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` outside $[-1, 1]$, infinities included.
+
+### `BinFloatResult::atan`, `BinFloatResult::atan_ctx`
+
+$\arctan x$, delegated to [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx).
+
+```mbti
+pub fn BinFloatResult::atan(Self) -> Self
+pub fn BinFloatResult::atan_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::sinh`, `BinFloatResult::sinh_ctx`
+
+$\sinh x$, delegated to [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx).
 
 ```mbti
 pub fn BinFloatResult::sinh(Self) -> Self
 pub fn BinFloatResult::sinh_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::cosh`, `BinFloatResult::cosh_ctx`
+
+$\cosh x$, delegated to [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx).
+
+```mbti
 pub fn BinFloatResult::cosh(Self) -> Self
 pub fn BinFloatResult::cosh_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::tanh`, `BinFloatResult::tanh_ctx`
+
+$\tanh x$, delegated to [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx).
+
+```mbti
 pub fn BinFloatResult::tanh(Self) -> Self
 pub fn BinFloatResult::tanh_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::asinh`, `BinFloatResult::asinh_ctx`
+
+$\operatorname{asinh} x$, delegated to [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx).
+
+```mbti
 pub fn BinFloatResult::asinh(Self) -> Self
 pub fn BinFloatResult::asinh_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+### `BinFloatResult::acosh`, `BinFloatResult::acosh_ctx`
+
+$\operatorname{acosh} x$, delegated to [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx).
+
+```mbti
 pub fn BinFloatResult::acosh(Self) -> Self
 pub fn BinFloatResult::acosh_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` below $1$.
+
+### `BinFloatResult::atanh`, `BinFloatResult::atanh_ctx`
+
+$\operatorname{atanh} x$, delegated to [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx).
+
+```mbti
 pub fn BinFloatResult::atanh(Self) -> Self
 pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-`acosh` reports a `DomainError` below $1$, `atanh` for $|x| > 1$; $\operatorname{atanh}(\pm 1) = \pm\infty$.
+Errors: a `DomainError` for $|x| > 1$; $\operatorname{atanh}(\pm 1) = \pm\infty$.
+
+### `BinFloatResult::atan2`, `BinFloatResult::atan2_ctx`
+
+The angle of the point $(\text{abscissa}, \text{self})$, delegated to
+[`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx).
+
+```mbti
+pub fn BinFloatResult::atan2(Self, Self) -> Self
+pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors are taken in the order ordinate, abscissa, operation. `atan2` uses
+`BinaryContext::unbounded` at the larger operand precision. Signed zeros
+follow IEEE 754: `atan2` of $(-0, -0)$ is $-\pi$ and of $(-0, +0)$ is $-0$.
 
 ```moonbit
 ///|
@@ -472,7 +680,7 @@ test "elementary functions" {
 
 ## Trait implementations
 
-### `Add`, `Sub`, `Mul`, `Div`, `Neg`
+### `Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinFloatResult`
 
 The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div`
 and `neg`.

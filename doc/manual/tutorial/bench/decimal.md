@@ -5,11 +5,21 @@ suite compares implementation paths on identical inputs with paired
 measurements; see the [bench tutorial](../bench.md) for the toolkit and the
 artifact format.
 
+| I want to | Use |
+| --- | --- |
+| run the suite | [`just bench decimal`](#quick-start) |
+| read the reported percentages | [`MAREMARK_HOTSPOT` lines](#read-the-analysis-lines) |
+| check that the specifications still compile | [the plan tests](#check-the-plans-without-measuring) |
+| change workloads or paths | [the `*_test.mbt` files](#going-further) |
+| understand the statistics | [bench design](../../design/bench.md) |
+
 ## Quick start
 
-From the repository root:
+The suite runs from a checkout of the repository; it is not part of the
+published package, so there is nothing to `moon add`. From the repository
+root:
 
-```sh
+```bash
 just bench decimal
 ```
 
@@ -29,7 +39,7 @@ core path. Positive values mean the higher layer is slower.
 
 ### Check the plans without measuring
 
-```sh
+```bash
 sh tools/run_moon_clean_exec.sh test src/bench/decimal --target native
 ```
 

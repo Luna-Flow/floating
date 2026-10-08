@@ -94,7 +94,7 @@ $x \mapsto x^{n}$:
 | --- | --- | --- | --- | --- |
 | negative half-axis | increasing | decreasing | decreasing | increasing |
 | positive half-axis | increasing | increasing | decreasing | decreasing |
-| interval containing zero | endpoint order | $0$ up to the outward-rounded maximum | pole: split or Entire | pole: split or Entire |
+| interval containing zero | endpoint order | $0$ up to the outward-rounded maximum | pole: Entire if $0$ is interior, a half-line if $0$ is an endpoint | pole: $[\min(\underline{x}^{n}, \overline{x}^{n}), +\infty)$ with $0^{n} = +\infty$, lower bound rounded down |
 
 The implementation selects the mathematical endpoint first and then applies
 the direction its role requires. For an interval across zero with even

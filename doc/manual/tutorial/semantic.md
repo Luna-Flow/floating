@@ -1,6 +1,6 @@
-# `semantic` tutorial
+# semantic tutorial
 
-This tutorial shows how to compare values across representations without
+The goal of this tutorial is to compare values across representations without
 rounding: you project a binary float, an IEEE decimal or an interval onto exact
 rationals, test equality, order rationals with integer arithmetic, check
 whether an interval contains a decimal, and turn checked results into a common
@@ -9,13 +9,23 @@ diagnostics and protocol boundaries; arithmetic stays in the concrete packages.
 The mathematics is in the [design page](../design/semantic.md); every item is
 listed in the [API reference](../api/semantic.md).
 
+| I want to | Use |
+| --- | --- |
+| test whether a binary and a decimal value are the same number | [`SemanticScalar::from_bin_float`, `from_decimal`](#quick-start) |
+| see the exact rational behind a float | [`ExactRational::numerator`, `denominator`](#see-the-exact-value-of-a-float) |
+| ignore cohorts, precision and signed zeros | [the projection](#ignore-cohorts-precision-and-signed-zeros) |
+| order two values exactly | [cross-multiplication](#order-two-values-exactly) |
+| check that an interval encloses a decimal | [`SemanticInterval::from_ball_float`](#check-that-an-interval-encloses-a-decimal) |
+| compare errors of different packages | [`semantic_scalar_result`](#compare-checked-results-across-packages) |
+| cross-check two implementations | [`SemanticResult`](#cross-check-two-implementations) |
+
 ## Quick start
 
-```sh
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/floating/semantic",
   "Luna-Flow/floating/bin_float",
@@ -215,13 +225,14 @@ test "binary and decimal agree on exact square roots" {
 - `NaN == NaN` is `true` for `SemanticScalar`. The projection is a value model,
   not IEEE comparison; use the concrete packages for IEEE predicates.
 - The projection drops the sign of zero, NaN payloads and signalling state,
-  decimal cohorts, precision, interval decorations and flags. Do not use it to
-  test those.
+  decimal cohorts, precision and flags. Do not use it to test those. Decorated
+  intervals are not accepted at all.
 - There is no ordering in the package. Write the cross-multiplication yourself
   as above; never convert to `Double` to compare.
-- Projecting a decimal with a huge exponent (for example `1E+999999`) builds a
-  `BigInt` with as many digits as the exponent. Keep projections to values of
-  moderate exponent.
+- Projecting a value with a huge exponent (for example decimal `1E+999999`, or
+  a `BinFloat` near its exponent limit $2^{30}$) builds a `BigInt` with as many
+  digits or bits as the exponent. Keep projections to values of moderate
+  exponent.
 - Only `@decimal.Decimal` has a projection; convert a `@decimal_gda.Decimal`
   through its string form if you need one.
 - `ExactRational::new` aborts on a zero denominator.

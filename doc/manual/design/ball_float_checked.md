@@ -1,4 +1,4 @@
-# `ball_float_checked` design
+# ball_float_checked design
 
 ## Design goal
 
@@ -101,10 +101,19 @@ only errors in an arithmetic expression are those of its leaves.
 `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with
 `ArithmeticContext::new(x.precision())`. `BallFloat` reads only the precision
 from the context (rounding direction and exponent bounds have no meaning for an
-outward-rounded enclosure), re-precisions the base, and computes the power of
-the whole interval. Using the power instead of repeated multiplication avoids
-the *dependency problem*: $X \cdot X$ treats the two factors as independent,
-so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\{t^2 : t \in X\} = [0, 1]$.
+outward-rounded enclosure) and re-rounds the base and the result with
+`with_precision`, which is sound but can add one ulp per side. The two traits
+are implemented differently, and only one of them avoids the *dependency
+problem*. $X \cdot X$ treats the two factors as independent, so for
+$X = [-1, 1]$ it gives $[-1, 1]$, whereas $\{t^2 : t \in X\} = [0, 1]$.
+`pow_int` uses `BallFloat::pown`, which evaluates $t \mapsto t^n$ on the
+monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat` uses binary
+powering, $X^{n} = X^{\lfloor n/2 \rfloor} \cdot X^{\lfloor n/2 \rfloor}
+\cdot X^{n \bmod 2}$ evaluated with interval products, so it encloses the
+larger set $\{t_1 t_2 \cdots t_n : t_i \in X\}$ and returns $[-1, 1]$; both
+are enclosures of $\{t^n\}$, but only `pow_int` is tight. `pow_nat(0)` starts
+from $\{1\}$ without inspecting the base, so it maps an empty interval to
+$\{1\}$.
 
 ### No decorations and no flags
 
@@ -120,20 +129,23 @@ propagation. The same holds for `BallFlags`. Applications that need either use
 
 The constructors use the defaults of `ball_float` (16 bits for integers, 53 for
 `Double`, 24 for `Float`, the source precision for `exact`, the larger bound
-precision for `from_bounds`). `from_bounds`, `exact`, `from_double` and
-`from_float` round outward, so the source value is always enclosed.
-`from_int` and `from_coefficient` first build a `BinFloat` with nearest
-rounding at $\max(\textit{precision}, 8)$ bits and then enclose that value; on
-the current branch this loses the integer when it needs more bits than the
-precision (see the warning in the API page).
+precision for `from_bounds`). All constructors round outward, so the source value is always enclosed:
+`from_int` and `from_coefficient` convert the integer exactly and then round
+the singleton outward, which gives a two-point interval when the integer
+needs more bits than the precision.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Soundness.** If every leaf of an expression is a success enclosing the
   intended real input, and the expression evaluates to $\mathrm{Ok}(Y)$, then
   $Y$ encloses the range of the real formula over the inputs. This is the
   composition argument above together with the fact that the wrapper applies
-  exactly the `ball_float` operations on successes.
+  exactly the `ball_float` operations on successes; it inherits the one
+  inclusion exception listed under
+  [Known limitations](ball_float.md#known-limitations): `with_precision`
+  (also used by `normalized`, `pow_nat` and `pow_int`) can lose the smaller
+  endpoint of an interval whose endpoints are more than about $2^{16}$ binary
+  orders of magnitude apart when the new precision exceeds about 65536 bits.
 - **Error determinism.** If the expression evaluates to $\mathrm{Err}(e)$,
   then $e$ is the error of the first originating node in post-order.
 - **No hidden recovery.** No method turns an error into a value, and `map`
@@ -150,7 +162,8 @@ precision (see the warning in the API page).
   of `ball_float` with a second propagation rule.
 - **Context variants (`exp_ctx`, …).** Enclosures are outward-rounded at the
   interval's precision; changing precision is done explicitly with
-  `with_precision`, which encloses for every rounding mode.
+  `with_precision`, which encloses for every rounding mode (but may widen by
+  one ulp per side).
 - **Accumulating errors.** As for the binary wrapper, there is no combining
   operation on `ArithmeticError`.
 

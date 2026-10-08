@@ -10,7 +10,7 @@ result.
 
 | Layer | Command | Purpose |
 | --- | --- | --- |
-| Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then the `src/doc_examples` tests |
+| Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `src/doc_examples` tests |
 | Formatting | `just fmt` | the MoonBit formatter |
 | Pull request | `just pr [jobs]` | format check, docs, native check and tests with `--deny-warn`, Python tool tests, and the four committed smoke corpora |
 | IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript |
@@ -40,7 +40,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 
 All suites use one dispatcher:
 
-```sh
+```bash
 just conformance <build|run|smoke|plan|fetch> \
   <decimal|decimal_gda|binary|interval> [options]
 ```

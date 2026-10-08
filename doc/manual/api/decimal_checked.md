@@ -1,4 +1,6 @@
-# `decimal_checked` API
+# decimal_checked API
+
+## Purpose
 
 `decimal_checked` provides `DecimalChecked`, an immutable pipeline state for
 IEEE 754 decimal arithmetic with [`decimal`](decimal.md). The state holds the
@@ -13,7 +15,19 @@ function cannot certify its result, and it stops the pipeline. The
 over the flag monoid and proves that the accumulated flags are the union of the
 per-step flags.
 
-The examples list flags with this helper:
+## Importing
+
+Add both packages to your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/decimal_checked",
+}
+```
+
+The examples use the aliases `@decimal_checked.` and `@decimal.`, and list
+flags with this helper:
 
 ```moonbit
 ///|
@@ -109,6 +123,16 @@ digits (enough to identify the binary value), then rounds into the context with
 `from_decimal`. So `from_double(0.1, decimal64)` is `0.1000000000000000` with
 `inexact` and `rounded` raised.
 
+This is a conversion in two roundings, not the correctly rounded value of the
+binary number. With a context precision above 17 (decimal128) the result keeps
+only 17 digits: `from_double(0.1, decimal128)` is `0.10000000000000001`, not
+the exact `0.1000000000000000055511151231257827`, and its flags describe only
+the second rounding. With a precision below 17 the half modes can round twice
+(a 17-digit midpoint created by the first rounding). For the exact binary
+value use `from_decimal(Decimal::from_double(x, precision=p), context)` with
+`p` at least the context precision plus one, or with `p = 767`, which holds
+every `Double` exactly.
+
 ```moonbit
 ///|
 test "construction records conversion flags" {
@@ -133,7 +157,7 @@ test "construction records conversion flags" {
 
 ## Observation
 
-### `value`, `context`, `raised`, `flags`
+### `DecimalChecked::value`, `context`, `raised`, `flags`
 
 These accessors return the components of the state.
 
@@ -149,7 +173,7 @@ $F$, the bitwise OR of the flags of every successful step since construction
 or the last `clear_flags`. After an error, `value`, `raised` and `flags` keep
 the state reached before the failing step.
 
-### `outcome`, `result`
+### `DecimalChecked::outcome`, `result`
 
 These methods return the value with the accumulated flags.
 
@@ -162,7 +186,7 @@ pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.Decima
 $\mathrm{Err}(\varepsilon)$ when an error is recorded and
 $\mathrm{Ok}((v, F))$ otherwise.
 
-### `is_ok`, `is_err`, `error`
+### `DecimalChecked::is_ok`, `is_err`, `error`
 
 These methods test for and return the recorded error.
 
@@ -229,7 +253,7 @@ test "raised versus accumulated flags" {
 
 ## Operations that cannot fail
 
-### `plus`, `minus`, `abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `reduce`, `min`, `max`, `next_minus`, `next_plus`, `next_toward`
+### `DecimalChecked::plus`, `minus`, `abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `reduce`, `min`, `max`, `next_minus`, `next_plus`, `next_toward`
 
 These methods apply the IEEE decimal operation of the same meaning to the
 current value and a plain `Decimal` operand under the stored context.
@@ -261,9 +285,9 @@ pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 | `fma(m, a)` | `fma_ctx` | $v \cdot m + a$ with one rounding |
 | `sqrt` | `sqrt_ctx` | $\sqrt{v}$ correctly rounded |
 | `quantize(q)` | `quantize` | $v$ rounded to the exponent of `q` |
-| `remainder(d)` | `remainder_ctx` | $v - d \cdot \operatorname{trunc}(v/d)$ |
+| `remainder(d)` | `remainder_ctx` | IEEE remainder $v - d \cdot n$, $n$ = $v/d$ rounded to nearest, ties to even |
 | `reduce` | `reduce_ctx` | $v$ with trailing zeros removed |
-| `min`, `max` | `min_ctx`, `max_ctx` | IEEE minimum / maximum |
+| `min`, `max` | `min_ctx`, `max_ctx` | General Decimal Arithmetic `min`/`max`: a quiet NaN loses to a number (IEEE 754-2008 minNum/maxNum, not the 2019 `minimum`) |
 | `next_minus`, `next_plus`, `next_toward(t)` | same names | adjacent representable value |
 
 If an error is recorded, each method returns the state unchanged. Otherwise
@@ -295,12 +319,10 @@ test "exceptional results are values" {
 
 ## Operations that can record an error
 
-### Elementary functions
+### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
 
-`exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `power`,
-`pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`,
-`asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh` and
-`atanh` apply the certified `Decimal::try_*_ctx` functions.
+These methods apply the certified `Decimal::try_*_ctx` functions of the same
+name.
 
 ```mbti
 pub fn DecimalChecked::exp(Self) -> Self
@@ -333,9 +355,13 @@ pub fn DecimalChecked::acosh(Self) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
 ```
 
-The results are correctly rounded into the context. Domain violations are IEEE
-values with flags (`ln` of a negative number is NaN with `invalid_operation`,
-`tanpi(0.5)` is an infinity with `division_by_zero`). An error is recorded only
+The results are those of `decimal`, including its documented exception to
+correct rounding (exact decimal results of non-integral powers, such as
+$0.0016^{0.25} = 0.2$; see the [decimal API](decimal.md#elementary-functions)).
+Zero and infinite operands of `atan2` give the IEEE 754 values (`atan2` of
+$+\infty$ and 1 is $\pi/2$, inexact). Domain violations are IEEE values with
+flags (`ln` of a negative number is NaN with `invalid_operation`, `tanpi(0.5)`
+is an infinity with `division_by_zero`). An error is recorded only
 when `try_*_ctx` returns `Err`, which these functions do for a
 `CertificationFailure` (the correctly rounded result could not be certified
 within the refinement budget). On error the new state is
@@ -348,7 +374,8 @@ $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 > ($\pm 999\,999\,999$), and any context built by `from_arithmetic_context`
 > from an `ArithmeticContext` without exponent bounds, makes them return NaN
 > with `invalid_context`. Use `decimal32()`, `decimal64()`, `decimal128()` or
-> explicit `e_min` / `e_max`.
+> explicit `e_min` / `e_max`. `power` and `pown` with an integral exponent,
+> and `power` with the exponent `0.5`, are not restricted.
 
 ```moonbit
 ///|

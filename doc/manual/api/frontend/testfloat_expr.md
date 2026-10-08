@@ -1,5 +1,7 @@
 # frontend/testfloat_expr API
 
+## Purpose
+
 `frontend/testfloat_expr` parses Berkeley TestFloat test vectors and executes
 them against `bin_float` in the binary16, binary32, binary64 and binary128
 interchange formats. A `TestFloatSpec` describes the function, rounding mode,
@@ -10,13 +12,19 @@ the runner is [`cli/testfloat_expr_cli`](../cli/testfloat_expr_cli.md). The
 the [design page](../../design/frontend/testfloat_expr.md) specifies the pass
 rule.
 
-Import the package in `moon.pkg`:
+## Importing
 
-```text
+Add the package to the `import` block of your `moon.pkg`; import `bin_float`
+as well when you compare the format or rounding mode of a specification:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/testfloat_expr",
+  "Luna-Flow/floating/bin_float",
 }
 ```
+
+The examples use the aliases `@testfloat_expr` and `@bin_float`.
 
 ## Function specification
 
@@ -80,7 +88,9 @@ pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -
 `function_name` is `FORMAT_OPERATION`: the part before the first `_` is the
 format (`f16`, `f32`, `f64`, `f128`) and the rest is the operation
 (`add`, `mulAdd`, `to_ui64`, `le_quiet`, …). Names are matched
-case-insensitively with `-`, `_` and spaces removed. `rounding` is one of
+case-insensitively with `-`, `_` and spaces removed. TestFloat functions
+outside the eighteen operations, such as `f64_to_f32`, `i32_to_f64` or
+`f64_to_i32_r_minMag`, are rejected. `rounding` is one of
 `rnear_even`, `rnear_maxMag`, `rminMag`, `rmin`, `rmax` (also accepted without
 the leading `r`, or as the IEEE names `roundTiesToEven`, `roundTiesToAway`,
 `roundTowardZero`, `roundTowardNegative`, `roundTowardPositive`).
@@ -108,7 +118,7 @@ test "spec parse" {
 }
 ```
 
-### `TestFloatSpec::function_name`, `format`, `operation`, `rounding`, `tininess`, `exact`
+### `TestFloatSpec::function_name`, `TestFloatSpec::format`, `TestFloatSpec::operation`, `TestFloatSpec::rounding`, `TestFloatSpec::tininess`, `TestFloatSpec::exact`
 
 These accessors return the parsed configuration.
 
@@ -121,7 +131,9 @@ pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
 pub fn TestFloatSpec::exact(Self) -> Bool
 ```
 
-`function_name` is the name as given.
+`function_name` is the name as given. `exact` is stored for every operation
+but only changes the result of `roundToInt` and the four integer
+conversions.
 
 ## Parsing
 
@@ -152,13 +164,19 @@ is invalid.
 pub struct TestFloatDocument {
   // private fields
 }
+```
+
+### `TestFloatDocument::source`, `TestFloatDocument::spec`, `TestFloatDocument::cases`, `TestFloatDocument::case_count`
+
+These methods return the name given to the parser, the specification, a copy
+of the vectors in file order, and their number.
+
+```mbti
 pub fn TestFloatDocument::source(Self) -> String
 pub fn TestFloatDocument::spec(Self) -> TestFloatSpec
 pub fn TestFloatDocument::cases(Self) -> Array[TestFloatCase]
 pub fn TestFloatDocument::case_count(Self) -> Int
 ```
-
-`cases` returns a copy of the vectors in file order.
 
 ### `TestFloatCase`
 
@@ -168,11 +186,32 @@ pub fn TestFloatDocument::case_count(Self) -> Int
 pub struct TestFloatCase {
   // private fields
 }
+```
+
+### `TestFloatCase::id`, `TestFloatCase::line`
+
+These methods return the id `FUNCTION:LINE`, for example `f64_mulAdd:17`, and
+the 1-based line number of the vector in the parsed text.
+
+```mbti
 pub fn TestFloatCase::id(Self) -> String
 pub fn TestFloatCase::line(Self) -> Int
 ```
 
-The id is `FUNCTION:LINE`, for example `f64_mulAdd:17`.
+```moonbit
+///|
+test "vector ids" {
+  let spec = @testfloat_expr.TestFloatSpec::parse("f16_mul", "rnear_even").unwrap()
+  let text =
+    #|# a comment line
+    #|3C00 4000 4000 00
+    #|
+  let document = @testfloat_expr.parse_testfloat("mul.tv", text, spec).unwrap()
+  inspect(document.case_count(), content="1")
+  inspect(document.cases()[0].id(), content="f16_mul:2")
+  inspect(document.spec().function_name(), content="f16_mul")
+}
+```
 
 ### `ParseDiagnostic`
 
@@ -182,6 +221,14 @@ The id is `FUNCTION:LINE`, for example `f64_mulAdd:17`.
 pub struct ParseDiagnostic {
   // private fields
 } derive(Eq, @debug.Debug)
+```
+
+### `ParseDiagnostic::source`, `ParseDiagnostic::line`, `ParseDiagnostic::message`
+
+These methods return the name given to the parser, the 1-based line number
+and the message.
+
+```mbti
 pub fn ParseDiagnostic::source(Self) -> String
 pub fn ParseDiagnostic::line(Self) -> Int
 pub fn ParseDiagnostic::message(Self) -> String
@@ -224,13 +271,27 @@ Every selected vector is executable; there are no skipped vectors.
 pub struct RunOptions {
   // private fields
 }
+```
+
+### `RunOptions::new`
+
+`RunOptions::new(shard_count?, shard_index?)` builds the options.
+
+```mbti
 pub fn RunOptions::new(shard_count? : Int, shard_index? : Int) -> Self
-pub fn RunOptions::shard_count(Self) -> Int
-pub fn RunOptions::shard_index(Self) -> Int
 ```
 
 Defaults: one shard, index 0. `RunOptions::new` aborts unless
 `shard_count > 0` and `0 <= shard_index < shard_count`.
+
+### `RunOptions::shard_count`, `RunOptions::shard_index`
+
+These accessors return the shard count and index.
+
+```mbti
+pub fn RunOptions::shard_count(Self) -> Int
+pub fn RunOptions::shard_index(Self) -> Int
+```
 
 ## Results
 
@@ -242,6 +303,13 @@ Defaults: one shard, index 0. `RunOptions::new` aborts unless
 pub struct CaseResult {
   // private fields
 }
+```
+
+### `CaseResult::id`, `CaseResult::passed`, `CaseResult::message`
+
+These methods return the vector id, whether it passed, and a message.
+
+```mbti
 pub fn CaseResult::id(Self) -> String
 pub fn CaseResult::passed(Self) -> Bool
 pub fn CaseResult::message(Self) -> String
@@ -259,10 +327,26 @@ Messages: empty for a pass; `"value mismatch: expected HEX, actual HEX"`,
 pub struct RunSummary {
   // private fields
 }
+```
+
+### `RunSummary::total_cases`, `RunSummary::selected_cases`, `RunSummary::passed_cases`, `RunSummary::failed_cases`
+
+These methods return the number of vectors in the document, the number this
+shard executed, and how many of those passed and failed.
+
+```mbti
 pub fn RunSummary::total_cases(Self) -> Int
 pub fn RunSummary::selected_cases(Self) -> Int
 pub fn RunSummary::passed_cases(Self) -> Int
 pub fn RunSummary::failed_cases(Self) -> Int
+```
+
+### `RunSummary::results`, `RunSummary::success`
+
+`results` returns a copy of the results in vector order; `success` is the
+verdict.
+
+```mbti
 pub fn RunSummary::results(Self) -> Array[CaseResult]
 pub fn RunSummary::success(Self) -> Bool
 ```
@@ -273,21 +357,48 @@ shard, and `success` is true when none failed.
 
 ## Trait implementations
 
-### Equality and `Debug` of `TestFloatOperation`, `TestFloatSpec` and `ParseDiagnostic`
+These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and
+`debug_inspect` in new code.
 
-These methods compare all fields and render values for `Debug`. Use `==`,
-`!=` and `debug_inspect` in new code.
+### `TestFloatOperation::equal`, `TestFloatOperation::not_equal`, `TestFloatOperation::to_repr`
+
+`equal` compares constructors; `to_repr` renders the constructor name.
 
 ```mbti
 pub fn TestFloatOperation::equal(Self, Self) -> Bool
 pub fn TestFloatOperation::not_equal(Self, Self) -> Bool
 pub fn TestFloatOperation::to_repr(Self) -> @debug.Repr
+```
+
+### `TestFloatSpec::equal`, `TestFloatSpec::not_equal`, `TestFloatSpec::to_repr`
+
+`equal` compares all six fields, including `function_name` as written, so
+`f64_mul` and `F64_MUL` give unequal specifications with the same behaviour.
+
+```mbti
 pub fn TestFloatSpec::equal(Self, Self) -> Bool
 pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr
+```
+
+### `ParseDiagnostic::equal`, `ParseDiagnostic::not_equal`, `ParseDiagnostic::to_repr`
+
+`equal` compares location and message; `to_repr` renders both.
+
+```mbti
 pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
+```
+
+```moonbit
+///|
+test "spec equality" {
+  let a = @testfloat_expr.TestFloatSpec::parse("f64_mul", "rnear_even").unwrap()
+  let b = @testfloat_expr.TestFloatSpec::parse("F64_MUL", "rnear_even").unwrap()
+  inspect(a.operation() == b.operation(), content="true")
+  inspect(a == b, content="false")
+}
 ```
 
 ## Complete public interface

@@ -172,8 +172,11 @@ $$
 $$
 
 `ZeroFiveUp` reads "round towards zero, unless the retained last digit is 0 or
-5"; its purpose is that a later rounding to fewer digits by any mode is not
-affected by the first one. The comparison $2r$ versus $10^k$ is done exactly on
+5". After it, a last digit of 0 or 5 means the rounding was exact, and any
+other last digit after an inexact rounding is never 0 or 5. Rounding the
+result again to at least one digit fewer, in any mode, therefore gives the
+same value as rounding the exact result once in that mode: the retained digit
+acts as a sticky digit, as round-to-odd does in binary. The comparison $2r$ versus $10^k$ is done exactly on
 the decimal limbs (`gda_coeff_div_pow10_round_info_repr` returns the quotient,
 whether $r > 0$, and the sign of $2r - 10^k$). If $q + \delta = 10^p$ the result
 is renormalized to $10^{p-1} \cdot 10^{e+k+1}$. Before rounding, the finalizer
@@ -217,8 +220,15 @@ in the attachment:
 If the exact result has $\hat e < e_{\min}$ it is *tiny*. A tiny result may
 still need the unit $10^{E_{\mathrm{tiny}}}$ at most, so the rounding position
 is not "keep $p$ digits" but "keep the digits at or above
-$10^{E_{\mathrm{tiny}}}$": with the exact exponent $e < E_{\mathrm{tiny}}$, the
-finalizer removes $k = E_{\mathrm{tiny}} - e$ digits, possibly all of them. The
+$10^{E_{\mathrm{tiny}}}$". With an exact coefficient of $D$ digits and
+exponent $e$, rounding to $p$ digits would give the exponent
+$e + \max(0, D - p)$; when that is below $E_{\mathrm{tiny}}$ the finalizer
+instead removes $k = E_{\mathrm{tiny}} - e$ digits, possibly all of them, in
+one rounding. A longer coefficient whose exponent is below
+$E_{\mathrm{tiny}}$ but whose magnitude is normal is rounded once to $p$
+digits; rounding it to the subnormal grid first would round twice (in
+decimal32, $3.000001\cdot 10^{-45} \times 1.500001\cdot 10^{-45}$ is
+`4.500005E-90`). The
 absolute error is then bounded by the subnormal unit,
 
 $$
@@ -231,9 +241,19 @@ $10^{E_{\mathrm{tiny}}}$. The conditions record this: `Subnormal` is raised for
 every tiny result (GDA, and this package's GDA functions, detect tininess
 *before* rounding, from the exact $\hat e$), `Underflow` when a tiny result is
 also inexact, and `Clamped` when it rounds to zero (the zero then takes the
-exponent $E_{\mathrm{tiny}}$). The status-free layer additionally offers
-after-rounding detection (`DecimalTininessDetection::AfterRounding`) for
-IEEE-style use; it changes only which results count as tiny, never the value.
+exponent $E_{\mathrm{tiny}}$). Because tininess is decided before rounding,
+a result such as $0.9951$ at $p = 3$, $e_{\min} = 0$ raises `Subnormal` and
+`Underflow` even though it rounds to the normal number `1.00`. The status-free
+layer additionally offers `DecimalTininessDetection::AfterRounding`, the
+IEEE 754 after-rounding rule: a result is tiny when its exact value rounded to
+$p$ digits with an unbounded exponent range has $\hat e < e_{\min}$. It
+changes only which results count as tiny, never the value. Only an exact
+value with $\hat e = e_{\min} - 1$ can be judged differently from
+`BeforeRounding` (rounding to $p$ digits can carry it into $10^{e_{\min}}$), so
+the extra rounding is done only there.
+The grid matters: $0.9951$ rounds to $0.995$ at $p$ digits and is tiny,
+although its rounding at $E_{\mathrm{tiny}} = -2$ is the normal `1.00`;
+$0.99951$ rounds to $1.00$ at $p$ digits and is not tiny.
 
 ### Clamping
 
@@ -467,34 +487,55 @@ with $u/2$ exactly. The special case where $x_1$ is a power of ten and $x_2$
 has the opposite sign (the unit below $x_1$ is ten times smaller) is excluded
 and takes the general path.
 
+The argument needs $x_1$ itself to end at or above the last retained
+position, so this shortcut is taken only when $x_1$ fits the context exactly
+(and not under `ZeroFiveUp`, whose rounding depends on the last kept digit).
+When $x_1$ has digits below that position, or is exactly a midpoint, $x_2$ can
+still move the sum across a boundary that the comparison with $u/2$ does not
+see. An extended context then replaces $x_2$ by a *sticky unit*, as the
+`decimal` package does. Let $t$ be the target exponent of $x_1$ alone and
+$g = \min(e_1, t - 2)$. Every digit of $x_1$ and every rounding boundary of
+the sum (the grid $10^{t}$, its midpoints, and the grid $10^{t-1}$ with its
+midpoints, which a cancellation can reach) lies on the grid $10^{g}$. If
+$0 < |x_2| < 10^{g}$, the sum lies strictly between the same two neighbours on
+that grid as $x_1 \pm 10^{g-1}$, with the sign of $x_2$, so rounding that short
+value once gives the result and the flags of the exact sum in every mode:
+at precision 7, `add(1598618.5, 1E-20)` under `HalfEven` is `1598619`, and
+`subtract(1598618, 9.9E-11)` under `ZeroFiveUp` is `1598617`.
+
 ### Division
 
 `divide` handles $0$, $\infty$ and exact divisions by powers of ten and by
 small exact divisors separately. Otherwise it scales the dividend by
 $10^{t}$ with $t = p + d(c_2) + 2$, so that $Q = c_1 10^{t} / c_2 \ge
 10^{p+2}$ has at least $p + 3$ integer digits, rounds $Q$ to an integer $q$
-with the context mode, and then rounds $q$ to $p$ digits. Whether the quotient
+with `ZeroFiveUp` (explained below), and then rounds $q$ to $p$ digits in the
+context mode. Whether the quotient
 terminates is decided exactly (`has_finite_decimal_expansion_repr`: $c_1/c_2$
 terminates iff $c_2 / \gcd(c_1, c_2)$ has no prime factors other than 2 and 5),
 which selects the ideal-exponent cohort for exact quotients and forces
-`Inexact` with a $p$-digit coefficient for the others.
+`Inexact` with a $p$-digit coefficient for the others. An exact quotient that
+needs rounding, from any of these paths, goes to the subnormal grid only when
+its value is below $10^{e_{\min}}$ and is otherwise rounded once to $p$
+digits, as in the finalizer: at precision 5, `divide(77223, 16E+21)` is
+`4.8264E-18`.
 
 The two successive roundings are equivalent to one for the directed modes,
 because truncations compose:
 $\lfloor \lfloor y/10^j \rfloor / 10^m \rfloor = \lfloor y/10^{j+m} \rfloor$.
-For the half modes they are equivalent except when the first rounding
-*manufactures a tie*: the discarded digits of $q$ are exactly $50\cdots0$
-while $Q \ne q$.
+For the half modes a first rounding in the context mode could *manufacture a
+tie*: the discarded digits of $q$ are exactly $50\cdots0$ while $Q \ne q$. At
+precision 1, $1/2222 = 0.00045004\ldots$ would give $q = 4500$ (unit
+$10^{-7}$), and the second rounding would see a tie and return `0.0004`. The
+first rounding therefore uses `ZeroFiveUp`: when $Q \ne q$ it leaves a last
+digit other than 0 and 5, so $q$ is neither a $p$-digit number nor a $p$-digit
+midpoint and lies strictly on the same side of every such point as $Q$. The
+second rounding then returns $\circ_p(Q)$ for every mode $\circ$, and
+`divide(1, 2222)` at precision 1 is `0.0005`.[^gda-div-05up]
 
-> [!WARNING]
-> That case occurs on the current branch. At precision 1, $1/2222 =
-> 0.00045004\ldots$: the first rounding gives $q = 4500$ (unit $10^{-7}$), the
-> second sees a tie and half-even rounds down to `0.0004`, while GDA requires
-> `0.0005`. A sweep of $c_1 < 20$, $c_2 < 3000$, $p \le 3$ found 12 such
-> quotients. The pinned test suite does not contain one. Keeping a sticky bit
-> ($Q \notin \mathbb Z$) with $q$ for the second rounding, as the finalizer
-> does elsewhere, removes the defect; the proof that this is the only failure
-> mode is in the attachment.
+[^gda-div-05up]: This is decNumber's `DEC_ROUND_05UP` device. With the
+    context mode in the first rounding, a sweep of $c_1 < 20$, $c_2 < 3000$,
+    $p \le 3$ finds 12 misrounded quotients.
 
 ### Square root
 
@@ -502,8 +543,11 @@ while $Q \ne q$.
 exponent even, takes the integer square root $(s, \rho)$ with $s^2 + \rho = c$
 by Newton's iteration $a \leftarrow \lfloor (a + \lfloor c/a \rfloor)/2
 \rfloor$, and accepts $\rho = 0$, then pads towards the ideal exponent
-$\lfloor e/2 \rfloor$ within $p$ digits. Otherwise it rounds directly at the
-final position. With root exponent $f = \max(E_{\mathrm{tiny}}, \lfloor \hat
+$\lfloor e/2 \rfloor$ within $p$ digits. An exact root longer than $p$
+digits is an exact value like any other, so the finalizer rounds it once,
+ties included: at $p = 1$, $\sqrt{2.25} = 1.5$ is a tie and gives `2` in
+half-even and `1` in half-down. Otherwise the root is irrational and the
+package rounds it directly at the final position. With root exponent $f = \max(E_{\mathrm{tiny}}, \lfloor \hat
 e/2 \rfloor - p + 1)$ it computes $s = \lfloor \sqrt{c\,10^{e - 2f}} \rfloor$
 and decides the increment by comparing the radicand with the square of the
 midpoint, which is exact in integers:
@@ -516,8 +560,10 @@ $$
 Rounding once at $f$ (not first at $p$ digits and then again at
 $E_{\mathrm{tiny}}$) avoids double rounding of tiny roots. Because exact
 roots were handled first, the comparison only ever decides an irrational
-root, which cannot equal a midpoint. The GDA function always rounds half to
-even.
+root, which cannot equal a midpoint, so the strict comparison decides every
+mode. When $e - 2f < 0$ the radicand $N$ is not an integer; the comparison is
+then made as $4c \gtrless (2s+1)^2\,10^{2f - e}$, still in integers, so no
+digit of $c$ is truncated. The GDA function always rounds half to even.
 
 ### Integer powers
 
@@ -525,21 +571,42 @@ For an integer exponent $n$ the result is computed as the GDA specification
 prescribes: if the exact power fits in $p$ digits it is returned exactly with
 exponent $n e$; otherwise binary powering runs at working precision
 $w = p + d(|n|) + 2$ (one digit fewer in subset contexts) with half-even
-rounding after every product, a negative $n$ starting from $1/x$, and the
-final product is rounded to the context. Every one of the $|n|$ factors
-passes through at most $|n| - 1$ roundings, so the working result is
-$x^n(1 + \theta)$ with[^higham]
+rounding after every product, and the final product is rounded to the
+context. A negative $n$ starts from a rounded $1/x$ in extended contexts and
+takes the reciprocal at the end in subset contexts.
+
+Write $\mathbf u_w = \frac12 10^{1-w}$ and let the accumulator hold
+$x^k(1 + \theta_k)$. A squaring gives
+$x^{2k}(1+\theta_k)^2(1+\delta)$ and a multiplication by $x$ gives
+$x^{k+1}(1+\theta_k)(1+\delta)$ with $|\delta| \le \mathbf u_w$, so
+$1 + |\theta_{2k}| \le (1+|\theta_k|)^2(1+\mathbf u_w)$ and
+$1 + |\theta_{k+1}| \le (1+|\theta_k|)(1+\mathbf u_w)$. By induction on
+the binary expansion, $1 + |\theta_m| \le (1+\mathbf u_w)^{m-1}$ for every
+$m \ge 1$: the error of binary powering is that of $m - 1$ successive
+roundings, although only about $2\log_2 m$ products are formed.[^higham]
+Starting from a rounded reciprocal adds the factor
+$(1+\mathbf u_w)^{|n|}$, because its error is raised to the power $|n|$.
+With $m$ the total exponent count ($|n| - 1$ for $n > 0$, $2|n| - 1$ for
+$n < 0$) and $m \mathbf u_w \le 10^{-p}$,
 
 $$
-|\theta| \le (1 + \mathbf u_w)^{|n|-1} - 1 \approx |n|\,\mathbf u_w
-< 10^{d(|n|)} \cdot \tfrac12\,10^{1 - p - d(|n|) - 2}
-= \tfrac12\,10^{-1-p},
+|\theta| \le (1 + \mathbf u_w)^{m} - 1 \le m\,\mathbf u_w\,(1 + m\,\mathbf u_w),
+\qquad
+|n|\,\mathbf u_w < 10^{d(|n|)} \cdot \tfrac12\,10^{1 - p - d(|n|) - 2}
+= \tfrac12\,10^{-1-p}.
 $$
 
-which is at most $0.05$ units in the last place of the result. Adding the final
-rounding, an inexact integer power is within $0.55$ units in the last place in
-the half modes. That is close to, but not, correct rounding, and the
-specification does not require more for integer powers. Exponents so large
+Since the exact result $y$ satisfies $|y| < 10^{p}\,u$ for the unit $u$ in
+the last place of the rounded result, a relative error $\theta$ is at most
+$|\theta|\,10^p$ units. This gives at most $0.05$ units in the last place
+for $n > 0$ and $0.1$ units for $n < 0$; adding the final rounding, an inexact
+integer power is within $0.55$ or $0.6$ units in the last place in the half
+modes and within $1.05$ or $1.1$ units in the directed modes. In subset
+contexts $w$ is one digit smaller, so the working error grows tenfold and the
+half-mode bound becomes about $1$ unit. None of this is correct rounding: a
+result whose exact value lies within $0.1$ units of a rounding boundary can
+round the wrong way. The specification does not require more for integer
+powers. Exponents so large
 that the result must overflow or underflow are detected beforehand from the
 bounds $n(\hat e + 1) - 1$ and $n \hat e$ on the result's adjusted exponent.
 
@@ -562,8 +629,10 @@ refinement loop.[^ziv] For $f(x)$:
    midpoint, or a decimal series evaluation) is rounded to $r$. Let $(a, b)$
    be the open interval of reals around $r$ that round to $r$: the two
    midpoints with the neighbours for the half modes, $(r, r^+)$ or $(r^-, r)$
-   for the directed ones. Its endpoints are exact decimals; each is enclosed
-   in binary, and the result is accepted when
+   for the directed ones (the real rounding cell of a directed mode is
+   half-open, $[r, r^+)$ or $(r^-, r]$; the test uses the open interior, which
+   is sufficient). Its endpoints are exact decimals; each is enclosed in
+   binary, and the result is accepted when
    $$
    a \le a^+ < L \le f(x) \le U < b^- \le b ,
    $$
@@ -572,7 +641,9 @@ refinement loop.[^ziv] For $f(x)$:
    monotone, $\mathrm{round}(L) = \mathrm{round}(U) = r$ also proves
    $\mathrm{round}(f(x)) = r$.
 5. **Refine.** Otherwise the working precision grows,
-   $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$, at most twelve times.
+   $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$; at most twelve
+   evaluations are made, so the last one runs at roughly $1.5^{11} \approx 86$
+   times the starting precision.
 
 The starting precision is $w_0 = \max(128, 4D + 64)$ bits with
 $D = \max(d(c), p)$: four bits per decimal digit exceed
@@ -581,8 +652,11 @@ information and 64 guard bits remain. For arguments with $\hat e = 0$ in a
 wide, unclamped context with $p \le 64$, a cheaper first attempt uses about
 $\frac{10}{3} D + 12$ bits and falls back to $w_0$ if it cannot certify.
 
-The loop terminates whenever $f(x)$ is not itself a representable number or a
-midpoint, because the enclosure shrinks to a point. For `exp`, `ln` and
+The loop always stops, after at most twelve evaluations. It certifies a
+result whenever $f(x)$ is neither a representable number nor a midpoint (for
+the half modes) and the budget is large enough, because the enclosure shrinks
+to a point while $f(x)$ stays at a positive distance from every rounding
+boundary. For `exp`, `ln` and
 `log10` this always holds after step 1: by the Lindemann–Weierstrass theorem
 $e^x$ is transcendental for rational $x \ne 0$, hence $\ln x$ is irrational
 for rational $x \ne 1$, and $\log_{10} x$ is rational only for integral
@@ -633,10 +707,11 @@ The thresholds are measured performance policy, not semantics: every kernel
 returns the exact product or quotient, so the choice cannot change a result or
 a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 
-## Correctness / invariants
+## Correctness and invariants
 
-- **Single rounding.** Every finite result other than integer `power` and the
-  division case above is the exact result rounded once, so
+- **Single rounding.** Every finite result other than integer `power`, the
+  division case above and the to-integral operations on integers longer than
+  $p$ digits is the exact result rounded once, so
   $|\hat x - x| \le \frac12 u$ in the half modes and $< u$ otherwise, and
   $|\hat x - x|/|x| \le \frac12 10^{1-p}$ outside the subnormal range.
 - **Ideal cohort.** An exact result is returned at the representable exponent
@@ -658,9 +733,8 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 - **Evidence.** The pinned `official` test suite passes 64,986/64,986 legal
   executable scalar rows and the legacy `official0` suite 16,124/16,124
   ([conformance](../conformance/decimal_gda.md)). These are finite claims: the
-  division defect above and the to-integral difference noted on the
-  [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value) are not
-  covered by any pinned row.
+  half-mode division tie above and to-integral operands longer than the
+  precision are not covered by any pinned row.
 
 ## Alternatives rejected
 
@@ -687,7 +761,13 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
   [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools.
 - It does not provide BID interchange; only DPD.
 - It does not give correct rounding for integer powers beyond the GDA
-  requirement, and on the current branch not for the half-mode division case
-  described above.
+  requirement.
 - It does not provide a mutable or global context, and contexts carry no
   identity: two contexts with the same fields are interchangeable.
+- It does not support exponents beyond the 32-bit range. Literal exponents
+  saturate at $\pm 1\,500\,000\,000$ and exponent sums of such operands can
+  wrap around (see the warning under `Decimal::parse` on the
+  [API page](../api/decimal_gda.md#decimalparse-decimalfrom_string); tracked
+  in [#108](https://github.com/Luna-Flow/floating/issues/108), with a fix proposed in [#117](https://github.com/Luna-Flow/floating/pull/117)); with
+  operand exponents within the GDA limit of $\pm 999\,999\,999$ the sum or
+  difference of two exponents stays below $2^{31}$.

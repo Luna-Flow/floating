@@ -1,13 +1,39 @@
 # consistency API
 
+## Purpose
+
 `consistency` is a white-box test package. It exports no MoonBit items; its
-content is a suite of about 250 deterministic tests that check laws *across*
+content is a suite of about 250 deterministic tests (28 in
+`api_audit_wbtest.mbt` and 228 in `core_wbtest.mbt` on the current branch) that check laws *across*
 the packages of `floating`: that the binary, decimal, GDA and interval cores,
 their checked wrappers, `semantic`, and the shared `internal` helpers agree
 with each other and with exact `BigInt` and rational oracles. This page
 records the package's role and its (empty) interface; the
 [tutorial](../tutorial/consistency.md) shows how to run and extend it and the
 [design page](../design/consistency.md) explains what is checked.
+
+## Importing
+
+Nothing can be imported from `consistency`. Its `moon.pkg` imports the cores
+for white-box tests only:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/arithmetic" @lf_arith,
+  "Luna-Flow/luna-generic" @lf_alg,
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/bin_float_checked",
+  "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/decimal_checked",
+  "Luna-Flow/floating/decimal_gda",
+  "Luna-Flow/floating/decimal_gda_checked",
+  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/floating/ball_float_checked",
+  "Luna-Flow/floating/def",
+  "Luna-Flow/floating/internal",
+  "Luna-Flow/floating/semantic",
+} for "wbtest"
+```
 
 ## Test files
 

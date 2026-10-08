@@ -557,9 +557,181 @@ fn decimal_power_integer_finite_result(
   }
   let result = match decimal_power_integer_exact_result(base, count, ctx) {
     Some(result) => result
-    None => decimal_power_integer_bounded_result(base, count, ctx)
+    None => {
+      // The repeated-rounding scheme reports `inexact` exactly when the true
+      // power is inexact (it only ever discards zero digits of an exact
+      // power), and keeps the GDA cohort and flags for exact powers. An
+      // inexact result is then replaced by the correctly rounded one.
+      let bounded = decimal_power_integer_bounded_result(base, count, ctx)
+      if bounded.1.inexact {
+        match decimal_power_integer_correctly_rounded_result(base, count, ctx) {
+          Some(result) => result
+          None => bounded
+        }
+      } else {
+        bounded
+      }
+    }
   }
   decimal_power_finalize_result(result, ctx)
+}
+
+///|
+fn decimal_same_representation(left : Decimal, right : Decimal) -> Bool {
+  left.class == right.class &&
+  left.negative == right.negative &&
+  (
+    left.class != FpClass::Finite ||
+    (
+      left.exponent10 == right.exponent10 &&
+      dec_coeff_compare_repr(left.coefficient, right.coefficient) == 0
+    )
+  )
+}
+
+///|
+/// Correctly rounded `base^count`, for an extended context with a bounded
+/// precision, when the exact power is known to be inexact. With the stripped
+/// coefficient `c`, if `|count| * digits(c) <= max(4p, 64)` the exact power is
+/// formed and rounded once. Otherwise `c^|count|` has more than `p + 1`
+/// significant digits and no trailing zero, so it is never a rounding
+/// boundary. Lower and upper bounds are then computed with directed rounding
+/// at a growing working precision until both round to the same result.
+/// Returns `None` when the bounds leave the working exponent range, so the
+/// caller keeps its own result.
+fn decimal_power_integer_correctly_rounded_result(
+  base : Decimal,
+  count : Int,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.extended && ctx.precision > 0 && count != 0 else { return None }
+  guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
+    return None
+  }
+  let precision = ctx.precision
+  let n = abs_int(count)
+  let negative = base.negative && (n & 1) == 1
+  let (coefficient, exponent) = remove_factor10_repr(
+    base.coefficient,
+    base.exponent10,
+  )
+  let exponent64 = exponent.to_int64() * n.to_int64()
+  let exact_limit = Int::max(4 * precision, 64)
+  if n.to_int64() * coefficient.digits10().to_int64() <= exact_limit.to_int64() {
+    guard exponent64 >= -2_000_000_000L && exponent64 <= 2_000_000_000L else {
+      return None
+    }
+    let power = dec_coeff_exact_power_repr(coefficient, n)
+    if count > 0 {
+      return Some(
+        normalize_decimal_parts_ctx_repr(
+          negative,
+          power,
+          exponent64.to_int(),
+          ctx,
+        ),
+      )
+    }
+    let divisor = finite_with_exponent_repr(
+      negative,
+      power,
+      exponent64.to_int(),
+      power.digits10(),
+    )
+    return Some(Decimal::one(precision~).div_ctx(divisor, ctx))
+  }
+  let magnitude = finite_with_exponent_repr(
+    false,
+    coefficient,
+    exponent,
+    coefficient.digits10(),
+  )
+  let mut work_precision = precision +
+    dec_coeff_from_int_magnitude(n).digits10() +
+    8
+  for _attempt in 0..<24 {
+    let work = fn(mode : DecimalRoundingMode) {
+      DecimalContext::{
+        ..ctx,
+        precision: work_precision,
+        decimal_rounding: mode,
+        e_min: -1_999_999_000,
+        e_max: 1_999_999_000,
+        clamp: false,
+      }
+    }
+    let lower_ctx = work(DecimalRoundingMode::Down)
+    let upper_ctx = work(DecimalRoundingMode::Up)
+    let mut lower = Decimal::one(precision=work_precision)
+    let mut upper = Decimal::one(precision=work_precision)
+    let mut work_flags = DecimalFlags::new()
+    let mut bit_mask = 1
+    while bit_mask <= n / 2 {
+      bit_mask = bit_mask << 1
+    }
+    let mut seen_bit = false
+    while bit_mask > 0 {
+      if seen_bit {
+        let (next_lower, lower_flags) = lower.mul_ctx(lower, lower_ctx)
+        let (next_upper, upper_flags) = upper.mul_ctx(upper, upper_ctx)
+        lower = next_lower
+        upper = next_upper
+        work_flags = work_flags.combine(lower_flags).combine(upper_flags)
+      }
+      if (n & bit_mask) != 0 {
+        seen_bit = true
+        let (next_lower, lower_flags) = lower.mul_ctx(magnitude, lower_ctx)
+        let (next_upper, upper_flags) = upper.mul_ctx(magnitude, upper_ctx)
+        lower = next_lower
+        upper = next_upper
+        work_flags = work_flags.combine(lower_flags).combine(upper_flags)
+      }
+      bit_mask = bit_mask >> 1
+    }
+    if count < 0 {
+      let one = Decimal::one(precision=work_precision)
+      let (next_lower, lower_flags) = one.div_ctx(upper, lower_ctx)
+      let (next_upper, upper_flags) = one.div_ctx(lower, upper_ctx)
+      lower = next_lower
+      upper = next_upper
+      work_flags = work_flags.combine(lower_flags).combine(upper_flags)
+    }
+    guard !work_flags.overflow &&
+      !work_flags.underflow &&
+      !work_flags.subnormal &&
+      lower.class == FpClass::Finite &&
+      upper.class == FpClass::Finite &&
+      !lower.coefficient.is_zero() else {
+      return None
+    }
+    let (rounded_lower, _) = normalize_decimal_parts_ctx_repr(
+      negative,
+      lower.coefficient,
+      lower.exponent10,
+      ctx,
+    )
+    let (rounded_upper, upper_flags) = normalize_decimal_parts_ctx_repr(
+      negative,
+      upper.coefficient,
+      upper.exponent10,
+      ctx,
+    )
+    if decimal_same_representation(rounded_lower, rounded_upper) {
+      return Some(
+        (
+          rounded_upper,
+          {
+            ..upper_flags,
+            inexact: true,
+            rounded: true,
+            underflow: upper_flags.underflow || upper_flags.subnormal,
+          },
+        ),
+      )
+    }
+    work_precision = work_precision * 2
+  }
+  None
 }
 
 ///|
@@ -712,7 +884,9 @@ fn decimal_div_finite_by_small_int_work(
       work_ctx.decimal_rounding,
     )
     if exact_rounding.rounded {
-      let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
+      let prefinal = if exact_result_is_subnormal(
+          exact_unrounded, precision, work_ctx,
+        ) {
         exact_unrounded
       } else if !exact_rounding.inexact {
         expand_rounded_exact_cohort_toward_preferred_exponent(
@@ -835,7 +1009,9 @@ fn decimal_div_finite_work(
       work_ctx.decimal_rounding,
     )
     if exact_rounding.rounded {
-      let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
+      let prefinal = if exact_result_is_subnormal(
+          exact_unrounded, precision, work_ctx,
+        ) {
         exact_unrounded
       } else if !exact_rounding.inexact {
         expand_rounded_exact_cohort_toward_preferred_exponent(

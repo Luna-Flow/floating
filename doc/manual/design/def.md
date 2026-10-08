@@ -1,4 +1,4 @@
-# `def` design
+# def design
 
 ## Design goal
 
@@ -156,14 +156,16 @@ with `pub using` rather than defining look-alikes, so a value of
 `@def.RoundingMode` *is* a value of `@lf_arith.RoundingMode` and no conversion
 layer exists between the two repositories.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### The `Floating` laws
 
 The laws below are the contract of the trait. They are stated for a value $x$,
-a precision $p$ and a direction $m$; $q = \max(1, p)$. The four
-implementations of this repository satisfy them, and a downstream
-implementation is expected to.
+a precision $p$ and a direction $m$; $q = \max(1, p)$. The three scalar
+implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception
+of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and only
+the weaker (F7′). A downstream implementation is expected to satisfy the laws
+of its kind.
 
 $$
 \begin{aligned}
@@ -173,17 +175,35 @@ $$
 &\textbf{(F4) re-precision} && \texttt{precision}(\texttt{with\_precision}(x, p, m)) = q;\\
 &\textbf{(F5) rounding} && x \text{ a finite scalar} \implies [\![\texttt{with\_precision}(x,p,m)]\!] = \circ_{m,q}([\![x]\!]);\\
 &\textbf{(F6) enclosure} && x \text{ an interval} \implies [\![x]\!] \subseteq [\![\texttt{with\_precision}(x,p,m)]\!];\\
-&\textbf{(F7) normal form} && [\![\texttt{normalized}(x)]\!] = [\![x]\!],\quad \texttt{normalized}(\texttt{normalized}(x)) = \texttt{normalized}(x).
+&\textbf{(F7) normal form} && x \text{ a scalar} \implies [\![\texttt{normalized}(x)]\!] = [\![x]\!],\quad \texttt{normalized}(\texttt{normalized}(x)) = \texttt{normalized}(x);\\
+&\textbf{(F7′) interval normal form} && x \text{ an interval} \implies [\![x]\!] \subseteq [\![\texttt{normalized}(x)]\!].
 \end{aligned}
 $$
+
+**The exponent range of `BinFloat`.** (F5) is stated over
+$\mathbb{F}_{\beta,q}$, whose exponent is unbounded. The decimal types store the
+exponent as an `Int` and add no other limit, so for them (F5) holds as stated.
+`BinFloat` keeps its implementation range even in `with_precision`: let
+$E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is
+`binary_implementation_e_min`). A rounded result whose leading bit would lie
+above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero`
+and the directed mode that points away from zero on that side, otherwise to
+the largest finite value with $q$ bits. A value whose leading bit lies below
+$2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to
+$0$ or to that value. So for `BinFloat` (F5) holds whenever
+$\circ_{m,q}([\![x]\!])$ lies in that range. For example
+$3 \cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes
+$+\infty$ instead of $2^{E+1}$.
 
 For non-finite scalars, `with_precision` keeps the class and the sign and only
 changes the stored precision, so (F4) still holds. (F2) for intervals is the
 three-case rule derived above; for scalars "the side of $0$" is `Zero` for
 $[\![x]\!] = 0$.
 
-**Why (F6) holds for `BallFloat`.** For a bounded ball with centre $c$ and
-radius $r$, `with_precision` computes $\tilde c = \circ_{m,q}(c)$, rounds the
+**Why (F6) holds for `BallFloat`.** A bounded `BallFloat` stores its endpoints
+$\ell \le u$. Its centre $c = (\ell + u)/2$ is computed exactly, and its radius
+$r$ is the half-width $(u - \ell)/2$ rounded upward, so every member $t$
+satisfies $|t - c| \le (u - \ell)/2 \le r$. `with_precision` computes $\tilde c = \circ_{m,q}(c)$, rounds the
 error $|c - \tilde c|$ and the radius upward to $\tilde e \ge |c-\tilde c|$
 and $\tilde r \ge r$, adds them with upward rounding to $R \ge \tilde r +
 \tilde e$, and stores $[\nabla(\tilde c - R), \Delta(\tilde c + R)]$. For any
@@ -195,8 +215,46 @@ $$
 
 so $\nabla(\tilde c - R) \le \tilde c - R \le t \le \tilde c + R \le
 \Delta(\tilde c + R)$. The direction $m$ only moves the centre; the enclosure
-holds for every $m$. Unbounded intervals round the lower endpoint down and the
-upper endpoint up, which encloses trivially.
+holds for every $m$. If $\tilde c \pm R$ leaves the `BinFloat` range, the
+directed roundings go to $\mp\infty$, which still encloses. Unbounded
+intervals round the lower endpoint down and the upper endpoint up, which
+encloses trivially. The empty interval maps to the empty interval.
+
+The argument needs the exact centre. For endpoints more than about $2^{16}$
+binary orders of magnitude apart, `center` replaces the smaller endpoint by a
+sticky surrogate (see the
+[`ball_float` design](ball_float.md#far-addends-bound-endpoint-sums-by-precision)),
+and at a new precision above about 65536 bits the rebuilt interval can miss
+the smaller endpoint. This is tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68).
+
+**Why `BallFloat` has only (F7′).** `normalized` on a bounded interval calls
+the same centre–radius quantization at the stored precision $q$, so the
+argument above gives (F7′). Equality fails in general: the exact centre of two
+$q$-bit endpoints may need $q + 1$ bits, and then rounding it adds an error
+term to the radius. With $q = 53$, $\ell = 1$ and $u = 1 + 2^{-52}$, the centre
+$1 + 2^{-53}$ rounds to $1$, the radius $2^{-53}$ grows by the error $2^{-53}$
+to $2^{-52}$, and the result is $[1 - 2^{-52}, 1 + 2^{-52}] \supsetneq [\ell, u]$.
+For the same reason `with_precision(x, precision(x), m)` is not the identity
+on intervals, and repeated normalization is not guaranteed to be stable
+(each step can only widen, and it stops widening once the centre is
+representable at $q$ bits and the endpoints are exact). The widening of
+representable intervals is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in
+[#91](https://github.com/Luna-Flow/floating/pull/91).
+
+```moonbit
+///|
+test "interval normalization encloses but widens" {
+  let x = @ball_float.BallFloat::from_bounds(
+    @bin_float.BinFloat::from_int(1),
+    @bin_float.BinFloat::from_hex("0x10000000000001p-52", 53).unwrap(),
+  )
+  let n = @def.Floating::normalized(x)
+  inspect(n.lower_bound().to_hex(), content="0xfffffffffffffp-52")
+  inspect(n.upper_bound().to_hex(), content="0x10000000000001p-52")
+  let again = @def.Floating::normalized(n)
+  inspect(again.lower_bound().to_hex(), content="0xfffffffffffffp-52")
+}
+```
 
 ### Consequences of (F5)
 
@@ -227,8 +285,11 @@ b \in \mathbb{F}_{\beta,q},\ |b| \le |\circ_p(t)|
 \end{aligned}
 $$
 
-The same argument with "largest element $\le t$" works for $\nabla$ and
-$\Delta$. For
+The same argument with "largest element $\le t$" works for $\nabla$, with
+"smallest element $\ge t$" for $\Delta$, and with "smallest magnitude
+$\ge |t|$" for `AwayFromZero`: every directed rounding to $\mathbb{F}_{\beta,q}$
+factors through any finer set $\mathbb{F}_{\beta,p}$ that contains
+$\mathbb{F}_{\beta,q}$. For
 `ToNearestEven` the identity fails (double rounding).[^double-rounding] Take
 $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$
 and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the
@@ -298,9 +359,12 @@ length for decimals, and linear in the coefficient bit length for binary.
 - `Floating` does not imply a field, a total order, an IEEE format, exact
   arithmetic or any error behaviour. Generic code must request the additional
   capability traits it uses.
-- `with_precision` neither honours exponent bounds nor reports flags; contexts
-  and flags belong to the `*_ctx` APIs of the concrete packages and to the
-  contextual traits of Luna-Flow/arithmetic.
+- `with_precision` neither honours context exponent bounds nor reports flags
+  (only the `BinFloat` implementation range applies); contexts and flags belong
+  to the `*_ctx` APIs of the concrete packages and to the contextual traits of
+  Luna-Flow/arithmetic.
+- `normalized` keeps the value only on scalars; on intervals it is an
+  enclosure (F7′).
 - `Sign` does not expose the sign bit of zeros or NaNs.
 - The laws are documented and tested by the implementations; the trait does not
   enforce them for downstream implementations.

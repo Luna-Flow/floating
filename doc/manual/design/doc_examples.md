@@ -22,7 +22,7 @@ the packages they use.
 - **Warnings are errors.** The gate runs with `--deny-warn`, so examples never
   show deprecated APIs.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Every block is a test with a unique name and passes on the native target.
 - The package has no runtime code and no public items.

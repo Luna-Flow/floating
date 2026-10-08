@@ -1,4 +1,6 @@
-# `ball_float_checked` API
+# ball_float_checked API
+
+## Purpose
 
 `ball_float_checked` provides `BallFloatResult`, a closed wrapper around
 `Result[BallFloat, ArithmeticError]` for interval computations. Construction
@@ -10,9 +12,24 @@ no `BallFlags`. The [tutorial](../tutorial/ball_float_checked.md) builds
 pipelines; the [design page](../design/ball_float_checked.md) explains which
 outcomes are errors and why.
 
-The examples print a result with this helper (`to_string` of a bounded ball is
-`centre +/- radius` in exact binary notation, `mpe` meaning
-$m \cdot 2^{e}$):
+## Importing
+
+Add the wrapper and the endpoint package to your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/floating/ball_float_checked",
+  "Luna-Flow/arithmetic" @lf_arith,
+}
+```
+
+The examples refer to the packages as `@ball_float_checked.`,
+`@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and
+`@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this
+helper (`to_string` of a bounded ball is `center +/- radius` in exact binary
+notation, `mpe` meaning $m \cdot 2^{e}$):
 
 ```moonbit
 ///|
@@ -53,23 +70,20 @@ pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.Ar
 
 ### `BallFloatResult::from_int`, `BallFloatResult::from_coefficient`
 
-These constructors build a point interval from an integer through
-`BallFloat::from_int` / `BallFloat::from_coefficient`; they never fail.
+These constructors enclose an integer through `BallFloat::from_int` /
+`BallFloat::from_coefficient`; they never fail.
 
 ```mbti
 pub fn BallFloatResult::from_int(Int, precision? : Int) -> Self
 pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
 ```
 
-The default precision is **16 bits**. The integer is first converted to a
-`BinFloat` at $\max(\textit{precision}, 8)$ bits with nearest rounding and then
-enclosed.
-
-> [!WARNING]
-> On the current branch the first conversion rounds, so an integer that needs
-> more bits than the precision is not enclosed: `from_int(100001)` (17 bits)
-> is the point $100000$. Pass a precision large enough for the integer, or use
-> `from_bounds`, which rounds outward.
+The default precision is **16 bits**. The integer is converted exactly and
+then rounded outward to the precision, so the result always contains it: a
+singleton when the integer fits in the precision, otherwise the two-point
+interval of its neighbours (for example `from_int(100001)`, a 17-bit odd
+integer, gives an interval of width 2). Pass a precision large enough for the
+integer to get a point.
 
 ### `BallFloatResult::from_double`, `BallFloatResult::from_float`
 
@@ -151,7 +165,7 @@ test "construction validates its inputs" {
 
 ## Observation
 
-### `BallFloatResult::result`, `is_ok`, `is_err`, `error`
+### `BallFloatResult::result`, `BallFloatResult::is_ok`, `BallFloatResult::is_err`, `BallFloatResult::error`
 
 These methods expose the wrapped `Result`, test its branch, or return the
 error as an option.
@@ -183,7 +197,7 @@ the proof does not depend on the value type.
 
 ## Unary value maps
 
-### `neg`, `abs`, `normalized`, `with_precision`
+### `BallFloatResult::neg`, `BallFloatResult::abs`, `BallFloatResult::normalized`, `BallFloatResult::with_precision`
 
 These methods are `map` of the `BallFloat` method of the same name.
 
@@ -196,11 +210,15 @@ pub fn BallFloatResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> S
 
 `neg` and `abs` are the exact interval images $\{-t\}$ and $\{|t|\}$;
 `with_precision` returns an enclosure of the input at the new precision for
-every rounding mode (the mode only steers the centre).
+every rounding mode (the mode only steers the center). `with_precision` and
+`normalized` rebuild the interval from its center and radius and can widen it
+by one ulp per side even at an unchanged precision (see
+[`BallFloat::with_precision`](ball_float.md#ballfloatwith_precision); tracked
+in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)).
 
 ## Arithmetic
 
-### `add`, `sub`, `mul`, `div`
+### `BallFloatResult::add`, `BallFloatResult::sub`, `BallFloatResult::mul`, `BallFloatResult::div`
 
 These methods combine two wrappers with the `BallFloat` operators.
 
@@ -217,7 +235,7 @@ $\{\, s \circ t : s \in X, t \in Y \,\}$. Division by an interval that is
 exactly $\{0\}$ gives the empty set, and division by an interval that contains
 zero in its interior gives the whole line.
 
-### `pow_nat`, `pow_int`
+### `BallFloatResult::pow_nat`, `BallFloatResult::pow_int`
 
 These methods raise an interval to an integer power through the
 Luna-Flow/arithmetic traits `PowNatChecked` and `PowIntChecked`.
@@ -228,12 +246,19 @@ pub fn BallFloatResult::pow_int(Self, Int) -> Self
 ```
 
 The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only
-its precision. The result is the enclosure of $\{t^{n}\}$, computed as a power
-(so `pow_int(2)` of $[1, 3]$ is $[1, 9]$, tighter than `x * x` would be for an
-interval containing zero). A zero base with a negative exponent gives the empty
-set.
+its precision, and re-rounds the base and the result with `with_precision`,
+which can add one ulp per side. `pow_int` encloses $\{t^{n}\}$ with
+`BallFloat::pown`, which treats the base as one point (so `pow_int(2)` of
+$[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base
+with a negative exponent gives the empty set. `pow_nat` instead uses binary
+powering by repeated interval multiplication, which treats the factors as
+independent: `pow_nat(2)` of $[-1, 1]$ is $[-1, 1]$, like `x * x`. For even
+powers of an interval containing 0, prefer `pow_int`. `pow_nat(0)` of an empty
+interval is $\{1\}$ (whereas `pow_int(0)` keeps it empty). The extra ulp is
+tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the empty case in [#72](https://github.com/Luna-Flow/floating/issues/72); a fix for both is proposed
+in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
-### `rootn`
+### `BallFloatResult::rootn`
 
 `rootn(n)` encloses the real $n$-th root with `BallFloat::try_rootn`.
 
@@ -244,7 +269,7 @@ pub fn BallFloatResult::rootn(Self, Int) -> Self
 Degree $0$ gives a `DomainError`. Even roots ignore the negative part of the
 interval (set semantics): the root of $[-1, 1]$ is $[0, 1]$.
 
-### `pow`, `hypot`, `atan2`
+### `BallFloatResult::pow`, `BallFloatResult::hypot`, `BallFloatResult::atan2`
 
 These binary functions enclose $x^{y}$, $\sqrt{x^2+y^2}$ and the angle of
 $(\text{abscissa}, \text{self})$.
@@ -269,6 +294,12 @@ test "interval arithmetic in the wrapper" {
   )
   inspect(show(x * x - x), content="3p0 +/- 5p0")
   inspect(show(x.pow_int(2)), content="5p0 +/- 1p2")
+  let unit = @ball_float_checked.BallFloatResult::from_bounds(
+    @bin_float.BinFloat::from_int(-1),
+    @bin_float.BinFloat::from_int(1),
+  )
+  inspect(show(unit.pow_int(2)), content="1p-1 +/- 1p-1")
+  inspect(show(unit.pow_nat(2U)), content="0 +/- 1p0")
   let one = @ball_float_checked.BallFloatResult::from_int(1)
   let zero = @ball_float_checked.BallFloatResult::from_int(0)
   inspect(show(one / zero), content="[empty]")
@@ -284,12 +315,10 @@ test "interval arithmetic in the wrapper" {
 
 ## Elementary functions
 
-### Exponentials, logarithms, trigonometric and hyperbolic functions
+### `BallFloatResult::exp`, `BallFloatResult::exp2`, `BallFloatResult::exp10`, `BallFloatResult::expm1`, `BallFloatResult::ln`, `BallFloatResult::log2`, `BallFloatResult::log10`, `BallFloatResult::log1p`
 
-`exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`,
-`tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `sinh`, `cosh`,
-`tanh`, `asinh`, `acosh` and `atanh` enclose the image of the interval under
-the function.
+These methods enclose the image of the interval under the exponentials and
+logarithms.
 
 ```mbti
 pub fn BallFloatResult::exp(Self) -> Self
@@ -300,6 +329,14 @@ pub fn BallFloatResult::ln(Self) -> Self
 pub fn BallFloatResult::log2(Self) -> Self
 pub fn BallFloatResult::log10(Self) -> Self
 pub fn BallFloatResult::log1p(Self) -> Self
+```
+
+### `BallFloatResult::sin`, `BallFloatResult::cos`, `BallFloatResult::tan`, `BallFloatResult::sinpi`, `BallFloatResult::cospi`, `BallFloatResult::tanpi`, `BallFloatResult::asin`, `BallFloatResult::acos`, `BallFloatResult::atan`
+
+These methods enclose the image of the interval under the trigonometric
+functions and their inverses.
+
+```mbti
 pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
@@ -309,6 +346,14 @@ pub fn BallFloatResult::tanpi(Self) -> Self
 pub fn BallFloatResult::asin(Self) -> Self
 pub fn BallFloatResult::acos(Self) -> Self
 pub fn BallFloatResult::atan(Self) -> Self
+```
+
+### `BallFloatResult::sinh`, `BallFloatResult::cosh`, `BallFloatResult::tanh`, `BallFloatResult::asinh`, `BallFloatResult::acosh`, `BallFloatResult::atanh`
+
+These methods enclose the image of the interval under the hyperbolic
+functions and their inverses.
+
+```mbti
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self
@@ -355,7 +400,7 @@ test "elementary enclosures" {
 
 ## Trait implementations
 
-### `Add`, `Sub`, `Mul`, `Div`, `Neg`
+### `Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`
 
 The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div`
 and `neg`.

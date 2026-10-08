@@ -215,12 +215,25 @@ fn decimal_certified_atan_infinity(
   negative : Bool,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  decimal_certified_quarter_pi_multiple(2, negative, ctx, "atan")
+}
+
+///|
+/// Correctly rounds `quarters * pi / 4`, negated when `negative` is set.
+fn decimal_certified_quarter_pi_multiple(
+  quarters : Int,
+  negative : Bool,
+  ctx : DecimalContext,
+  operation : String,
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let zero = Decimal::zero(precision=decimal_math_target_precision(ctx))
-  decimal_certified_unary_result(zero, ctx, "atan", fn(input) {
+  decimal_certified_unary_result(zero, ctx, operation, fn(input) {
     let precision = input.precision()
     let quarter = @ball_float.BallFloat::from_int(1, precision~).atan_interval()
-    let half = quarter.mul(@ball_float.BallFloat::from_int(2, precision~))
-    Ok(if negative { half.neg() } else { half })
+    let multiple = quarter.mul(
+      @ball_float.BallFloat::from_int(quarters, precision~),
+    )
+    Ok(if negative { multiple.neg() } else { multiple })
   })
 }
 
@@ -265,21 +278,22 @@ fn Decimal::try_unary_elementary_ctx(
             DecimalFlags::new(),
           ),
         )
-      Log2
-      | Log1p
-      | Asin
-      | Acos
-      | Atanh
-      | Sin
-      | Cos
-      | Tan
-      | SinPi
-      | CosPi
-      | TanPi => Ok(decimal_elementary_invalid(ctx))
+      Log2 | Log1p =>
+        Ok(
+          if value.negative {
+            decimal_elementary_invalid(ctx)
+          } else {
+            (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          },
+        )
+      Asin | Acos | Atanh | Sin | Cos | Tan | SinPi | CosPi | TanPi =>
+        Ok(decimal_elementary_invalid(ctx))
       Atan => decimal_certified_atan_infinity(value.negative, ctx)
       Sinh | Asinh =>
         Ok((Decimal::inf(value.sign(), precision~), DecimalFlags::new()))
-      Cosh | Acosh =>
+      Cosh =>
+        Ok((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+      Acosh =>
         Ok(
           if value.negative {
             decimal_elementary_invalid(ctx)
@@ -401,6 +415,14 @@ fn Decimal::try_unary_elementary_ctx(
     (operation == Acosh && value.compare(one) == 0) {
     return Ok(finish(decimal_elementary_zero(false, ctx)))
   }
+  match operation {
+    Rootn(degree) =>
+      match decimal_rootn_exact_result(value, degree, ctx) {
+        Some(result) => return Ok(finish(result))
+        None => ()
+      }
+    _ => ()
+  }
   decimal_certified_unary_result(value, ctx, operation.name(), fn(input) {
     operation.evaluate(input)
   }).map(finish)
@@ -517,12 +539,20 @@ pub fn Decimal::rootn_ctx(
 }
 
 ///|
+/// The integer exponent of `pown_ctx` as an exact `Decimal`. Building it at
+/// the context precision rounded exponents longer than the precision, which
+/// could change their value and parity.
+fn decimal_pown_exponent(exponent : Int, ctx : DecimalContext) -> Decimal {
+  Decimal::from_int(exponent, precision=Int::max(ctx.precision, 10))
+}
+
+///|
 pub fn Decimal::try_pown_ctx(
   self : Decimal,
   exponent : Int,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  self.try_power_ctx(Decimal::from_int(exponent, precision=ctx.precision), ctx)
+  self.try_power_ctx(decimal_pown_exponent(exponent, ctx), ctx)
 }
 
 ///|
@@ -531,7 +561,7 @@ pub fn Decimal::pown_ctx(
   exponent : Int,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  self.power_ctx(Decimal::from_int(exponent, precision=ctx.precision), ctx)
+  self.power_ctx(decimal_pown_exponent(exponent, ctx), ctx)
 }
 
 ///|
@@ -775,6 +805,131 @@ pub fn Decimal::atanh_ctx(
 }
 
 ///|
+/// The integer `degree`-th root of `value` if `value` is a perfect power.
+fn dec_coeff_exact_root_repr(value : DecCoeff, degree : Int) -> DecCoeff? {
+  guard degree >= 2 && !value.is_zero() else { return None }
+  let radicand = coeff_bigint(value)
+  let n = BigInt::from_int(degree)
+  let n_minus_one = BigInt::from_int(degree - 1)
+  // Newton's iteration from above converges monotonically to floor(root).
+  let mut root = coeff_bigint(
+    dec_coeff_shift_power10_repr(
+      dec_coeff_from_int(1),
+      (value.digits10() + degree - 1) / degree,
+    ),
+  )
+  while true {
+    let below = coeff_bigint(
+      dec_coeff_exact_power_repr(coeff_from_bigint(root), degree - 1),
+    )
+    let next = (n_minus_one * root + radicand / below) / n
+    if next >= root {
+      break
+    }
+    root = next
+  }
+  let candidate = coeff_from_bigint(root)
+  if dec_coeff_compare_repr(
+      dec_coeff_exact_power_repr(candidate, degree),
+      value,
+    ) ==
+    0 {
+    Some(candidate)
+  } else {
+    None
+  }
+}
+
+///|
+/// rootn(x, n) when the root is exactly representable at the target
+/// precision. The certified evaluation cannot decide such a value: every
+/// enclosure straddles it, so half modes returned it with `inexact` and the
+/// directed modes failed certification.
+fn decimal_rootn_exact_result(
+  value : Decimal,
+  degree : Int,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
+    return None
+  }
+  guard degree != 0 && (degree >= 2 || degree <= -2) else { return None }
+  guard !value.negative || degree % 2 != 0 else { return None }
+  let n = abs_int(degree)
+  let target_precision = decimal_math_target_precision(ctx)
+  let (coefficient, exponent) = remove_factor10_repr(
+    value.coefficient,
+    value.exponent10,
+  )
+  // Write |x| = radicand * 10^(n * root_exponent) with 0 <= shift < n.
+  let shift = (exponent % n + n) % n
+  let root_exponent = (exponent - shift) / n
+  guard coefficient.digits10().to_int64() + shift.to_int64() <=
+    n.to_int64() * target_precision.to_int64() else {
+    return None
+  }
+  let radicand = dec_coeff_shift_power10_repr(coefficient, shift)
+  let root = match dec_coeff_exact_root_repr(radicand, n) {
+    Some(root) => root
+    None => return None
+  }
+  guard root.digits10() <= target_precision else { return None }
+  let exact = finite_with_exponent_repr(
+    value.negative,
+    root,
+    root_exponent,
+    target_precision,
+  )
+  if degree > 0 {
+    Some(apply_finite_ctx(exact, ctx))
+  } else {
+    exact_decimal_reciprocal(exact, ctx)
+  }
+}
+
+///|
+/// hypot(x, y) when it is exactly representable at the target precision, for
+/// the same reason as `decimal_rootn_exact_result`.
+fn decimal_hypot_exact_result(
+  left : Decimal,
+  right : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard left.class == FpClass::Finite && right.class == FpClass::Finite else {
+    return None
+  }
+  let target_precision = decimal_math_target_precision(ctx)
+  if left.coefficient.is_zero() || right.coefficient.is_zero() {
+    let other = if left.coefficient.is_zero() { right } else { left }
+    return Some(apply_finite_ctx({ ..other, negative: false, }, ctx))
+  }
+  // A representable root z = sqrt(x^2 + y^2) with y << x satisfies
+  // z - x ~ y^2 / (2x); with more than p + 2 orders of magnitude between the
+  // operands that difference lies below the last digit z could have.
+  let gap = adjusted_exponent(left) - adjusted_exponent(right)
+  guard abs_int(gap) <= target_precision + 2 else { return None }
+  let left_square_exponent = 2 * left.exponent10
+  let right_square_exponent = 2 * right.exponent10
+  let exponent = Int::min(left_square_exponent, right_square_exponent)
+  let sum = dec_coeff_magnitude_add_repr(
+    dec_coeff_shift_power10_repr(
+      dec_coeff_square_repr(left.coefficient),
+      left_square_exponent - exponent,
+    ),
+    dec_coeff_shift_power10_repr(
+      dec_coeff_square_repr(right.coefficient),
+      right_square_exponent - exponent,
+    ),
+  )
+  let square = finite_with_exponent_repr(false, sum, exponent, sum.digits10())
+  match exact_finite_sqrt(square, target_precision) {
+    Some(root) if root.coefficient.digits10() <= target_precision =>
+      Some(apply_finite_ctx(root, ctx))
+    _ => None
+  }
+}
+
+///|
 pub fn Decimal::try_hypot_ctx(
   self : Decimal,
   other : Decimal,
@@ -808,6 +963,10 @@ pub fn Decimal::try_hypot_ctx(
   }
   if left.coefficient.is_zero() && right.coefficient.is_zero() {
     return Ok((Decimal::zero(precision~), operand_flags))
+  }
+  match decimal_hypot_exact_result(left, right, ctx) {
+    Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+    None => ()
   }
   decimal_certified_binary_result(left, right, ctx, "hypot", fn(lhs, rhs) {
     lhs.try_hypot(rhs)
@@ -844,14 +1003,39 @@ pub fn Decimal::try_atan2_ctx(
     Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
     None => ()
   }
-  if ordinate.class == FpClass::Finite &&
-    ordinate.coefficient.is_zero() &&
-    x.class == FpClass::Finite &&
-    x.coefficient.is_zero() &&
-    !x.negative {
-    return Ok(
-      (decimal_elementary_zero(ordinate.negative, ctx).0, operand_flags),
-    )
+  // IEEE 754-2019 9.2.1: a zero or infinite operand selects an exact zero
+  // or a multiple of pi/4 whose sign is that of the ordinate.
+  let ordinate_zero = ordinate.class == FpClass::Finite &&
+    ordinate.coefficient.is_zero()
+  let x_zero = x.class == FpClass::Finite && x.coefficient.is_zero()
+  let quarters = if ordinate.class == FpClass::Infinity {
+    if x.class == FpClass::Infinity {
+      Some(if x.negative { 3 } else { 1 })
+    } else {
+      Some(2)
+    }
+  } else if ordinate_zero || x.class == FpClass::Infinity {
+    // atan2(+-0, x) and atan2(y, +-inf) for finite y: the ordinate is
+    // negligible against the abscissa, so only the abscissa's sign matters.
+    Some(if x.negative { 4 } else { 0 })
+  } else if x_zero {
+    Some(2)
+  } else {
+    None
+  }
+  match quarters {
+    Some(0) =>
+      return Ok(
+        (decimal_elementary_zero(ordinate.negative, ctx).0, operand_flags),
+      )
+    Some(count) =>
+      return decimal_certified_quarter_pi_multiple(
+        count,
+        ordinate.negative,
+        ctx,
+        "atan2",
+      ).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
+    None => ()
   }
   decimal_certified_binary_result(ordinate, x, ctx, "atan2", fn(y, x_interval) {
     y.try_atan2_interval(x_interval)

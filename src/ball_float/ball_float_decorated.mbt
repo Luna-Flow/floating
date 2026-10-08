@@ -446,11 +446,14 @@ pub fn BallFloatDecorated::rootn(
   self : BallFloatDecorated,
   degree : Int,
 ) -> BallFloatDecorated {
+  // rootn(x, n) is undefined for n = 0, for x < 0 when n is even and at
+  // x = 0 when n is negative (x^(-1/n) has a pole there).
   let partial_domain = degree == 0 ||
     (
       degree % 2 == 0 &&
       self.interval_.lower_bound().sign() == @def.Sign::Negative
-    )
+    ) ||
+    (degree < 0 && self.interval_.contains_zero())
   unary_result(
     self,
     self.interval_.rootn(degree),
@@ -489,10 +492,13 @@ pub fn BallFloatDecorated::tanpi_interval(
   self : BallFloatDecorated,
 ) -> BallFloatDecorated {
   let result = self.interval_.tanpi_interval()
+  // tanpi is continuous wherever it is defined, so a bounded argument has a
+  // bounded image unless it contains a pole k + 1/2, possibly at an endpoint
+  // (tanpi([1/2, 1]) = [-inf, 0]); any unbounded result marks a pole.
   unary_result(
     self,
     result,
-    if result.is_entire() && !self.interval_.is_empty() {
+    if !result.is_bounded() && !self.interval_.is_empty() {
       Trv
     } else {
       Com

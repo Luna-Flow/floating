@@ -206,6 +206,15 @@ pub impl @lf_arith.SqrtChecked for Decimal with fn sqrt_checked(self, ctx) {
 }
 
 ///|
+/// The precision at which the checked powers build their integer exponent.
+/// Ten digits hold every `Int` and every accepted `UInt` exponent, so the
+/// exponent is never rounded to the context precision, which could change its
+/// value and parity (#123).
+fn checked_power_exponent_precision(ctx : @lf_arith.ArithmeticContext) -> Int {
+  Int::max(ctx.precision, 10)
+}
+
+///|
 pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
   self,
   exponent,
@@ -221,7 +230,7 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
   let dctx = DecimalContext::from_arithmetic_context(ctx)
   let exponent_decimal = Decimal::from_bigint(
     BigInt::from_uint(exponent),
-    precision=ctx.precision,
+    precision=checked_power_exponent_precision(ctx),
   )
   let (value, flags) = self.power_ctx(exponent_decimal, dctx)
   if flags.division_by_zero {
@@ -251,7 +260,10 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
     )
   }
   let dctx = DecimalContext::from_arithmetic_context(ctx)
-  let exponent_decimal = Decimal::from_int(exponent, precision=ctx.precision)
+  let exponent_decimal = Decimal::from_int(
+    exponent,
+    precision=checked_power_exponent_precision(ctx),
+  )
   let (value, flags) = self.power_ctx(exponent_decimal, dctx)
   if flags.division_by_zero {
     Err(

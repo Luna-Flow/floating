@@ -1,7 +1,10 @@
 # numeric_expr API
 
+## Purpose
+
 `numeric_expr` is a small expression language for numeric test corpora and
-tools. An `Expr` is a tree whose leaves are literals (raw source text) and whose
+tools. On the current branch the GDA frontend `frontend/gda_expr` lowers its
+`.decTest` rows to it; the other frontends execute their rows directly. An `Expr` is a tree whose leaves are literals (raw source text) and whose
 inner nodes apply a named operation to argument expressions. The package does
 not know any number type: `evaluate` folds the tree with two callbacks supplied
 by the caller, one that decodes a literal and one that executes an operation.
@@ -10,14 +13,18 @@ source line. The [tutorial](../tutorial/numeric_expr.md) builds and evaluates
 expressions step by step, and the [design page](../design/numeric_expr.md)
 states the evaluation semantics and proves its invariants.
 
-Import the package in `moon.pkg`:
+## Importing
 
-```text
+Add the package to your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/numeric_expr",
 }
 ```
 
+The examples call the package as `@numeric_expr.`; they evaluate over `Int`
+with `String` errors, so no number package is needed.
 ## Source locations
 
 ### `SourceSpan`
@@ -229,7 +236,9 @@ invocation node. The package performs no other effect. The recursion depth
 equals the height of the tree. The [design page](../design/numeric_expr.md)
 proves these properties.
 
-`evaluate` never aborts on its own; any abort comes from the callbacks.
+`evaluate` never aborts on its own; any abort comes from the callbacks, or
+from stack exhaustion on a very deep tree, since the evaluation is
+recursive.
 
 ### `EvalError`
 
@@ -288,7 +297,7 @@ test "evaluation reports the failing node" {
 
 ## Trait implementations
 
-### `Literal::equal`, `Operation::equal`, `SourceSpan::equal` and `not_equal`
+### `Literal::equal`, `Literal::not_equal`, `Operation::equal`, `Operation::not_equal`, `SourceSpan::equal`, `SourceSpan::not_equal`
 
 These methods compare all stored components (text or name and span). Use `==`
 and `!=` in new code.

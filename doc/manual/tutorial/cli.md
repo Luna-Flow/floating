@@ -4,12 +4,21 @@ This tutorial shows how to build the `floating-conformance` executable and
 run the four conformance runners through it, either directly or through the
 `just conformance` tooling that downloads and plans whole corpora.
 
+| I want to | Use |
+| --- | --- |
+| build the executable and see its usage | [`run … src/cli -- --help`](#quick-start) |
+| run decTest, ITL, MPFR or TestFloat data | [`--backend gda`, `itl`, `mpfr`, `testfloat`](#choose-a-backend) |
+| run whole pinned corpora in parallel | [`just conformance …`](#use-the-tooling-instead-of-raw-invocations) |
+| use the result in a script | [the exit code and `--json`](#read-the-exit-code) |
+| see the options of one runner | [the runner tutorials](#going-further) |
+
 ## Quick start
 
-The executable is native-only. From the repository root, build it and print
-the usage line:
+The executable is native-only and is built from a checkout of the
+repository, not installed with `moon add`. From the repository root, build it
+and print the usage line:
 
-```sh
+```bash
 sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help
 ```
 
@@ -19,7 +28,7 @@ usage: floating-conformance --backend <gda|testfloat|mpfr|itl> [backend options]
 
 Run the committed GDA smoke file (the default path of the `gda` runner):
 
-```sh
+```bash
 sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --backend gda
 ```
 
@@ -32,7 +41,7 @@ executable row passed.
 
 Everything after the dispatcher's own options goes to the runner:
 
-```sh
+```bash
 floating-conformance --backend gda --json testdata/decimal/smoke.decTest
 floating-conformance --backend itl testdata/interval/smoke.itl
 floating-conformance --backend mpfr --json testdata/bin_float/mpfr-4.2.2-elementary.txt
@@ -47,7 +56,7 @@ floating-conformance --backend testfloat --function f64_mul --rounding rnear_eve
 For full corpora, let `tools/conformance.py` build the executable, fetch the
 pinned data, plan the phases and run the shards in parallel:
 
-```sh
+```bash
 just conformance build decimal_gda
 just conformance smoke binary
 just conformance run interval
@@ -56,8 +65,9 @@ just gate decimal_gda 8
 
 ### Read the exit code
 
-`0` means success, `1` means failing cases (or unsupported cases in strict
-mode), `2` means a usage, file or parse error. Scripts should check the code
+`0` means success, `1` means failing cases (for `itl` also diagnostic cases;
+in strict mode also unsupported cases), `2` means a usage, file or parse
+error. Scripts should check the code
 and, with `--json`, parse the single JSON object on standard output.
 
 ## Going further
@@ -76,9 +86,15 @@ and, with `--json`, parse the single JSON object on standard output.
 - **Relative default paths.** Runners default to files under `testdata/`;
   run them from the repository root.
 - **One backend per invocation.** `--backend` may be given only once.
+- **An empty directory is not an error.** The `gda` runner rejects a named
+  file without the `.decTest` suffix (`not a .decTest file: PATH`, exit `2`),
+  but a directory contributes only its direct `.decTest` files, so a
+  directory without any gives an empty run that exits with `0`.
 
 ## Next steps
 
 - [cli API](../api/cli.md) for the exact options and exit codes.
+- [internal/runner_cli](internal/runner_cli.md) for the shared option
+  parser.
 - [cli design](../design/cli.md) for the layering.
 - [verification](../verification.md) for the published corpus claims.

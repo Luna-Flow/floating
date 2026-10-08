@@ -91,10 +91,14 @@ binary exponent, then rounded to the working precision. Decimal bounds are
 parsed as a decimal with $2p + 16$ digits and converted to binary with one
 rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$
 significant digits the decimal parse is exact, so the bound is rounded once.
+A longer literal is rounded twice, and the second rounding can then land on
+the wrong side of a binary midpoint; the decimal expansion of a binary64
+midpoint can have hundreds of digits, so this needs a literal with more than
+$2p + 16 = 122$ significant digits, which ITF1788 data does not use.
 Rounding to nearest rather than outward is a simplification: it is exact for
 bounds that are binary64 numbers, but a decimal bound such as `0.1` is read as
 the nearest binary64 number, which may lie inside or outside the interval the
-literal denotes.
+literal denotes. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet.
 
 ### Decorations only when the case states one
 
@@ -107,15 +111,21 @@ the implementation attaches.
 ### Three dispositions and a strict summary
 
 `Unsupported` marks cases the library does not implement (unknown operations
-such as the reverse operations `mulRevToPair`, or an expectation with a
-`signal` annotation). `Diagnostic` marks cases whose data cannot be read.
+such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an
+expectation with a `signal` annotation). `Diagnostic` marks cases whose data
+cannot be read. Support is decided from the operation name before any operand
+is read, so an unknown operation is `Unsupported` whatever its operands
+(`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`). For a known operation the
+classification is made by the dispatch path: a `signal` annotation on a unary,
+ternary, numeric or integer-power case makes its expected value unreadable and
+therefore a `Diagnostic`.
 `RunSummary::success` fails on any failed case *and* on any diagnostic,
 because unreadable data in a pinned corpus is a defect of the parser or the
 corpus, not an excluded feature. Unsupported cases do not fail `success`; the
 CLI's `--strict-supported` turns them into a failing exit code for the phases
 that claim full support.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Counter identities.** Every result has exactly one disposition, so
 $\text{total} = \text{executable} + \text{unsupported} + \text{diagnostic}$
@@ -134,7 +144,9 @@ so a caller may filter or reorder cases freely.
 
 **Totality.** Every completed statement becomes a case or a parse diagnostic,
 and `execute_case` never aborts on case content: every unreadable input is
-reported through a disposition.
+reported through a disposition. Statement boundaries come from a line ending
+in `;` once its `//` comment is removed, so a trailing `// …` after `;` does
+not merge the statement with the next one.
 
 ## Alternatives rejected
 
@@ -150,9 +162,9 @@ reported through a disposition.
 
 - Reverse operations, `mulRevToPair`, string conversions and exception
   signals are not executed.
-- Decimal bounds are rounded to nearest, not outward.
+- Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet).
 - Interval results are always rounded to binary64; `precision` only affects
-  how bounds are read.
-- Block comments are recognized only when `/*` starts a line.
+  how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62)).
+- `/*` opens a block comment only at the start of a line.
 - No file IO and no operation filtering; both are in
   [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).

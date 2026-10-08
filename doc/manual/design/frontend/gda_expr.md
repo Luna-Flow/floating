@@ -55,8 +55,9 @@ evaluated with two callbacks. The literal callback decodes each $a_j$ to a
   ($(7, -95, 96)$, $(16, -383, 384)$ or $(34, -6143, 6144)$); in any other
   context the operand is invalid;
 - `32#…`, `64#…`, `128#…`: decimal text rounded into that interchange format;
-- otherwise decimal text (a leading `+` is dropped), parsed with precision
-  $\max(64, p)$, which keeps every operand of up to that many digits exact.
+- otherwise decimal text (a leading `+` is dropped), parsed with a precision
+  of at least the token length, so every digit is kept: GDA operations take
+  their operands exactly and round only the result.
 
 The operation callback maps the normalized name to one `decimal_gda`
 function (for example `add` to `@decimal_gda.add`, `squareroot` to
@@ -124,7 +125,9 @@ rounding modes it does not know. Counting them as failures hides real
 failures; dropping them silently overstates coverage.
 
 **Choice.** Every selected row gets a disposition. `Diagnostic` marks rows
-that are not executable by construction (`#` or `?` operands, `#` result).
+that are not executable by construction (`#` or `?` operands, `#` result, or
+a context with precision $p \le 0$ or $E_{\min} > E_{\max}$, which no
+`decimal_gda` context can represent).
 `Unsupported` marks legal rows the library cannot run (unknown operation,
 condition or rounding). Only `Executable` rows can pass or fail, and the
 summary reports every class, so a claim such as "all executable rows pass"
@@ -168,7 +171,7 @@ document order and shard $i$ of $n$ takes $S_i = \{k : k \bmod n = i\}$.
 Round-robin assignment spreads files with slow operations (`power`, `ln`)
 across shards instead of giving one shard a whole slow file.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Partition.** For $n \ge 1$ the sets $S_0, \dots, S_{n-1}$ are pairwise
 disjoint and cover $\{0, \dots, N-1\}$, because every $k$ has exactly one
@@ -201,7 +204,8 @@ they hold because each result is counted in exactly one class by
 
 **Totality.** Parsing assigns every line to exactly one of: skipped (empty or
 comment), directive, row, diagnostic. Execution never aborts on row content:
-decoding and dispatch failures become a failed result with the message
+an invalid context makes its rows `Diagnostic` before any context is built,
+and decoding and dispatch failures become a failed result with the message
 `"evaluation failed"`.
 
 **Complexity.** Parsing is linear in the text length. Execution is linear in
@@ -223,9 +227,8 @@ the number of rows plus the cost of the decimal operations themselves.
 - No file system access, globbing or process exit codes: those belong to
   [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`.
 - No traps: rows are executed with every trap disabled.
-- Operands with more than $\max(64, p)$ significant digits are rounded
-  half-even when decoded.
-- The `''` escape of quoted decTest strings is not recognized.
+- The `''` escape of quoted decTest strings is not recognized ([#63](https://github.com/Luna-Flow/floating/issues/63), no
+  fix yet).
 - `Legacy` is part of the shared result model but is never assigned by the
   current executor.
 - The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own

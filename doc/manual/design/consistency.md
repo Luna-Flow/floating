@@ -5,9 +5,10 @@
 `floating` has four numeric cores with overlapping claims: a binary value
 converted to a decimal and back must denote the same rational number; the
 checked wrappers must give the same values as the cores; an interval must
-enclose the exact result of the scalar operation; all cores must round
-through the same `internal` rules. Each package's own tests cannot see the
-others. `consistency` is the one place where these cross-package laws are
+enclose the exact result of the scalar operation; the `internal` helpers must
+agree with exact `BigInt` arithmetic. A package's own tests see one package;
+cross-package tests placed there would add test-only dependencies between the
+cores. `consistency` is the one place where these cross-package laws are
 written down and executed.
 
 ## Mathematical background
@@ -52,7 +53,7 @@ Where possible a test computes the expected result independently (with
 `BigInt`, `ExactRat` or `semantic`) instead of hard-coding output strings, so
 a law stays meaningful when formatting changes.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - A passing run shows that each stated law holds on its witnesses; it is
   finite evidence, not a proof for all inputs.

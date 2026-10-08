@@ -47,7 +47,9 @@ usage error (exit code 2) instead of an abort in a frontend.
 `collect_files` sorts the expanded list and does not descend into
 subdirectories. Sorting makes case ordinals, and thus shards, reproducible.
 Not recursing keeps the selected corpus explicit: the Python tooling passes
-the exact files of each corpus phase.
+the exact files of each corpus phase. Duplicates are removed, so a file named
+twice is not executed twice, and a named file without the suffix is an error,
+so a mistyped path cannot pass as an empty run.
 
 ### Small JSON layer
 
@@ -55,15 +57,17 @@ The helpers wrap the core `Json` type: `json_int` stores the exact decimal
 representation so counts print as integers, and `json_object` keeps insertion
 order so reports are stable and diff-friendly.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Option round trip.** For an argument vector without common options,
   `remaining()` equals `arguments[1:]`.
 - **Shard validity.** A successful `parse_common_options` always returns
   `shard_count() > 0` and `0 <= shard_index() < shard_count()`.
-- **Deterministic file list.** `collect_files(paths, s)` is sorted and
-  contains exactly the existing files named in `paths` that end in `s`, plus
-  the direct entries of named directories that end in `s`.
+- **Deterministic file list.** `collect_files(paths, s)` is sorted, free of
+  duplicates, and contains exactly the files named in `paths` plus the direct
+  file entries of named directories that end in `s`; a named file that does
+  not end in `s` is an error, never dropped. The list is a function of the
+  argument vector and the directory contents, not of the listing order.
 - **Diagnostic positions.** `format_diagnostic_at` never prints a line or
   column below 1.
 

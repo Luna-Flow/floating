@@ -1,4 +1,4 @@
-# `ball_float_checked` tutorial
+# ball_float_checked tutorial
 
 This tutorial shows how to run an interval computation in which invalid input
 and uncertifiable steps are reported as errors while every valid result stays a
@@ -9,16 +9,32 @@ own checks with `bind`, and read the outcome once. The arithmetic comes from
 explains which outcomes are errors; the [API reference](../api/ball_float_checked.md)
 lists every method.
 
+| I want to | Use |
+| --- | --- |
+| build an enclosure from untrusted bounds or a `Double` | `from_bounds`, `from_double`, `exact` ([Validate measurements](#validate-measurements-at-the-boundary)) |
+| push uncertain inputs through a formula | `+ - * /` on `BallFloatResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula)) |
+| treat an empty or unbounded result as a success or as a failure | `is_ok`, `bind` ([No information is not an error](#know-that-no-information-is-not-an-error), [Application rules](#turn-an-application-rule-into-an-error)) |
+| find out why an elementary function failed | `error()`, `certification_failure_detail()` ([Certification failures](#certification-failures)) |
+| square an interval that contains 0 tightly | `pow_int`, not `pow_nat` or `x * x` ([Powers](#powers-through-the-arithmetic-traits)) |
+| decide a comparison at the end of a pipeline | `result()` and the enclosure traits ([Generic code](#generic-code-with-the-enclosure-relations)) |
+
 ## Quick start
 
-```sh
+Add the module:
+
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+Import the wrapper and the endpoint package (the later examples also use
+`Luna-Flow/floating/ball_float` and `Luna-Flow/arithmetic` as `@lf_arith`):
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/ball_float",
   "Luna-Flow/floating/ball_float_checked",
+  "Luna-Flow/arithmetic" @lf_arith,
 }
 ```
 
@@ -177,9 +193,11 @@ test "certification failure carries a detail record" {
 ### Powers through the arithmetic traits
 
 `pow_nat` and `pow_int` go through the `PowNatChecked` and `PowIntChecked`
-traits of Luna-Flow/arithmetic, which `BallFloat` implements by computing the
-power of the whole interval. For an interval containing zero this is tighter
-than repeated multiplication, which treats the two factors as independent:
+traits of Luna-Flow/arithmetic. `pow_int` computes the power of one point of
+the interval (`BallFloat::pown`); for an interval containing zero this is
+tighter than repeated multiplication, which treats the two factors as
+independent. `pow_nat` *is* repeated multiplication, so it is as wide as the
+product:
 
 ```moonbit
 ///|
@@ -190,6 +208,10 @@ test "a power is tighter than a product" {
       inspect(square.lower_bound().to_string(), content="0")
       inspect(product.lower_bound().to_string(), content="-1p0")
     }
+    _ => fail("unexpected error")
+  }
+  match x.pow_nat(2U).result() {
+    Ok(power) => inspect(power.lower_bound().to_string(), content="-1p0")
     _ => fail("unexpected error")
   }
 }
@@ -217,9 +239,11 @@ test "decide with an enclosure" {
 ## Common pitfalls
 
 - **Small default precision.** `from_int` and `from_coefficient` default to 16
-  bits. On the current branch an integer that needs more bits is rounded to
-  nearest *before* it is enclosed, so `from_int(100001)` does not contain
-  $100001$. Pass `precision=53` (or more) for large integers.
+  bits. An integer that needs more bits is still enclosed, but by a two-point
+  interval rather than a point. Pass `precision=53` (or more) for large
+  integers.
+- **`pow_nat` is not tighter than a product.** Use `pow_int` for even powers
+  of an interval that contains 0.
 - **Empty and whole are successes.** Test `is_empty` / `is_entire` on the
   final interval, or add a `bind` check.
 - **No decorations or flags.** The wrapper keeps neither IEEE 1788

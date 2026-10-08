@@ -49,7 +49,7 @@ and checks:
 | --- | --- | --- |
 | square root | $\hat y = y$ as `BinFloat` values (`==`) | none |
 | integer power $x^n$ | $\hat y = y$ (`==`) | inexact equal; no underflow, overflow, division by zero, invalid |
-| elementary | $\hat y \simeq y$ (`compare == 0`) | inexact, invalid, division by zero equal; no underflow, overflow |
+| elementary | $\hat y \simeq y$ (`compare == 0`, zeros with their sign) | inexact, invalid, division by zero equal; no underflow, overflow |
 
 `==` on `BinFloat` compares the stored representation, which is canonical for
 a given value and precision, so it distinguishes $+0$ from $-0$ and NaN
@@ -72,7 +72,10 @@ a failure: it can only come from a defect.
 
 Inputs are written in hexadecimal and are exact binary numbers. Reading
 elementary and power inputs at 512 bits keeps every input of up to 512
-significant bits exact, so the check concerns $f$, not the parsing of $x$. The
+significant bits exact, so the check concerns $f$, not the parsing of $x$. A
+longer input significand would be rounded to nearest-even at 512 bits and the
+row would then test $f$ at a different point. Every input of the committed
+elementary matrix has far fewer significant bits than 512. The
 square-root format carries its own input precision and is read at it.
 
 ### Numeric comparison for elementary rows
@@ -80,9 +83,10 @@ square-root format carries its own input precision and is read at it.
 The elementary matrix is generated for 29 functions across binary32/64/128
 precisions and all six rounding modes. Its expected NaNs carry no payload
 information, and IEEE 754 leaves the payload of a generated NaN to the
-implementation, so the comparison treats all NaNs as equal. The same numeric
-comparison identifies $+0$ and $-0$; the sign of an exact zero result is
-therefore not checked by these rows.
+implementation, so the comparison treats all NaNs as equal. `compare` also
+identifies $+0$ and $-0$, but the sign of a zero result is specified (for
+example $\sin(-0) = -0$ and $\operatorname{atan2}(-0, 1) = -0$), so a zero
+result must in addition have the expected sign.
 
 ### Certification failures are failures
 
@@ -98,13 +102,12 @@ Rows have no names in these formats, so ids are `op:LINE` (or `sqrt:LINE`,
 `pow:LINE`). They are stable as long as the pinned file is unchanged, which
 the SHA-256 pins in `testdata/bin_float/corpora.json` guarantee.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Soundness of a pass.** If MPFR's $y$ is the correctly rounded value of
 $f(x)$ (which MPFR guarantees), a passing square-root or power row shows
 $\hat y = \circ_{p,\rho}(f(x))$ exactly, and a passing elementary row shows the
-same up to the sign of zero and the NaN payload, together with the stated
-flags.
+same up to the NaN payload, together with the stated flags.
 
 **Counter identity.** Every parsed row is executed, so
 $\text{total} = \text{passed} + \text{failed}$ and the parsed row count equals
@@ -113,11 +116,9 @@ $\text{total} = \text{passed} + \text{failed}$ and the parsed row count equals
 **Determinism.** Each row's result depends only on the row.
 
 **Totality of parsing.** Every non-comment line becomes a row or a diagnostic,
-and a document is returned only when there is no diagnostic.
-
-**Known abort.** An elementary row for `pow`, `hypot` or `atan2` whose second
-operand is `-` passes the parser and aborts at execution (the executor calls
-`unwrap` on the missing operand).
+and a document is returned only when there is no diagnostic. An elementary row
+for `pow`, `hypot` or `atan2` without a second operand is a diagnostic, so
+execution never meets a missing operand.
 
 ## Alternatives rejected
 
@@ -132,7 +133,7 @@ operand is `-` passes the parser and aborts at execution (the executor calls
 ## Boundaries
 
 - Square-root rows check values only, not flags.
-- Elementary rows do not check the sign of a zero result or NaN payloads.
+- Elementary rows do not check NaN payloads.
 - No exponent range, subnormals or overflow handling are exercised.
 - Only the three formats above are understood; there is no general MPFR test
   file reader.

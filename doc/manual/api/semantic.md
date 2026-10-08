@@ -1,4 +1,6 @@
-# `semantic` API
+# semantic API
+
+## Purpose
 
 `semantic` projects concrete values of `floating` onto a small
 representation-independent model: an exact reduced rational, a signed
@@ -10,8 +12,22 @@ rounding. The [tutorial](../tutorial/semantic.md) shows typical comparisons;
 the [design page](../design/semantic.md) derives why the projection is exact
 and what it forgets.
 
-The examples assume this helper, which prints a semantic scalar as
-`numerator/denominator`:
+## Importing
+
+Add the package and the representations you project to your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/semantic",
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/decimal",
+  "Luna-Flow/floating/ball_float",
+}
+```
+
+The examples call the package as `@semantic.`, the representations as
+`@bin_float.`, `@decimal.` and `@ball_float.`, and `Sign` as `@def.Sign`. They
+assume this helper, which prints a semantic scalar as `numerator/denominator`:
 
 ```moonbit
 ///|
@@ -130,7 +146,10 @@ pub fn SemanticScalar::from_bin_float(@bin_float.BinFloat) -> Self
 
 A finite $x = (-1)^{s} c\, 2^{e}$ maps to `Rational` of
 `from_scaled_integer(±c, 2, e)`; an infinity maps to `Infinity(x.sign())`; a
-NaN maps to `NaN`. Precision is dropped. Never aborts.
+NaN maps to `NaN`. Precision is dropped. Never aborts, but the result is exact:
+a `BinFloat` exponent can reach about $\pm 2^{30}$, and the projection then
+builds a numerator or denominator of about $|e|$ bits (over 100 MB at the
+extremes).
 
 ### `SemanticScalar::from_decimal`
 
@@ -205,8 +224,9 @@ pub fn SemanticInterval::from_ball_float(@ball_float.BallFloat) -> Self
 `from_bin_float(x.upper_bound())`. A bounded interval gives two `Rational`
 endpoints, an unbounded side gives `Infinity`, the entire line gives
 $(-\infty, +\infty)$, and the empty interval gives
-$(\texttt{Infinity(Positive)}, \texttt{Infinity(Negative)})$. Decorations,
-precision and flags are dropped.
+$(\texttt{Infinity(Positive)}, \texttt{Infinity(Negative)})$. Precision is
+dropped. The function takes an undecorated `BallFloat`; for a
+`BallFloatDecorated`, project its interval and keep the decoration yourself.
 
 ```moonbit
 ///|
@@ -315,10 +335,12 @@ test "checked results become semantic results" {
 
 ## Trait implementations
 
-### Equality
+Every type of the package derives `Eq`; the `equal` and `not_equal` methods
+below are promoted explicitly. Prefer `==` and `!=`.
 
-Every type of the package derives `Eq`; the `equal` and `not_equal` methods are
-promoted explicitly. Prefer `==` and `!=`.
+### `ExactRational::equal`, `ExactRational::not_equal`, `SemanticScalar::equal`, `SemanticScalar::not_equal`, `SemanticInterval::equal`, `SemanticInterval::not_equal`
+
+These methods compare the values of the value types.
 
 ```mbti
 pub fn ExactRational::equal(Self, Self) -> Bool
@@ -327,15 +349,26 @@ pub fn SemanticScalar::equal(Self, Self) -> Bool
 pub fn SemanticScalar::not_equal(Self, Self) -> Bool
 pub fn SemanticInterval::equal(Self, Self) -> Bool
 pub fn SemanticInterval::not_equal(Self, Self) -> Bool
+```
+
+Equality of `ExactRational` is numeric equality because of the reduced form;
+equality of `SemanticScalar` adds `NaN == NaN` and distinguishes the two
+infinities; `SemanticInterval` compares both endpoints. No ordering is
+provided.
+
+### `SemanticError::equal`, `SemanticError::not_equal`, `SemanticResult::equal`, `SemanticResult::not_equal`
+
+These methods compare error kinds and checked results.
+
+```mbti
 pub fn SemanticError::equal(Self, Self) -> Bool
 pub fn SemanticError::not_equal(Self, Self) -> Bool
 pub fn[T : Eq] SemanticResult::equal(Self[T], Self[T]) -> Bool
 pub fn[T : Eq] SemanticResult::not_equal(Self[T], Self[T]) -> Bool
 ```
 
-Equality of `ExactRational` is numeric equality because of the reduced form;
-equality of `SemanticScalar` adds `NaN == NaN` and distinguishes the two
-infinities. No ordering is provided.
+Two `SemanticResult` values are equal when both are `Value`s with equal
+payloads or both are `Error`s of the same kind.
 
 ## Complete public interface
 

@@ -21,7 +21,11 @@ dyadic values far beyond `Double`, and bit-exact emulation of binary16,
 binary32, binary64 and binary128 including subnormals, the five rounding
 directions and both tininess rules. There is no hidden state: precision,
 rounding and range travel in an immutable `BinaryContext`, and flags travel
-back as a value.
+back as a value. The basic operations, conversions and `pow_int` meet this
+goal unconditionally; the certified elementary functions meet it for every
+value they return, with the budget failures and the one undetected family of
+exact results described under
+[Certified elementary functions](#certified-elementary-functions).
 
 ## Mathematical background
 
@@ -129,8 +133,11 @@ $x^-$ to $x^+$ as $x$ increases through a cell $[x^-, x^+]$.
 ### The standard error model
 
 Let $u = 2^{-p}$ be the unit roundoff. Take $x$ with
-$2^{t} \le |x| < 2^{t+1}$ and $t \ge e_{\min}$ (the normal range). The
-points of $F$ in that binade are spaced $2^{t-p+1}$ apart, so
+$2^{t} \le |x| < 2^{t+1}$, $t \ge e_{\min}$ (the normal range) and $|x|$
+below the overflow threshold of the rounding direction (otherwise the result
+is an infinity and no relative bound holds). The points of $F$ in that binade
+are spaced $2^{t-p+1}$ apart, and $2^{t+1}$ belongs to $F$ or is the overflow
+point, so
 
 $$
 \begin{aligned}
@@ -171,8 +178,8 @@ gradual underflow keeps $a - b = 0 \iff a = b$.[^kahan]
     ed., Birkhäuser 2018, §2.1 and §4.3.
 
 Correct rounding is a stronger property than the model: the result is the
-one point $\circ(f(x))$, not merely some point within $u$. All of
-`bin_float` is built to return that point, so the model above holds for every
+one point $\circ(f(x))$, not merely some point within $u$. Every value
+`bin_float` returns is that point, so the model above holds for every
 operation, including the elementary functions.
 
 ## Design decisions
@@ -386,25 +393,41 @@ bitwise OR, so the flags of a computation form a commutative idempotent
 monoid and can be accumulated in any order, which a global sticky register
 cannot offer to concurrent code.
 
+The elementary functions take the signs of their special values from
+IEEE 754-2019 §9.2.1, which reads the sign of a zero operand: for example
+$\operatorname{atan2}(\pm 0, -0) = \pm\pi$ but $\operatorname{atan2}(\pm 0, +0) = \pm 0$,
+$\operatorname{tanpi}(n)$ has the sign of
+$\operatorname{sinpi}(n)/\operatorname{cospi}(n)$, and $(-0)^y$ and
+$(-\infty)^y$ are negative exactly for an odd integral $y$.
+
 ### Far-apart operands in addition
 
 **Problem.** $2^{10^9} + 2^{-10^9}$ is exact as a dyadic number, but forming
 it needs a two-billion-bit coefficient.
 
-**Choice.** When the leading exponents differ by more than $p + 3$, the
-smaller operand is truncated at position
-$\operatorname{exp}(\text{high}) - p - 3$ and everything below is replaced by one sticky bit: the integer part
-$L$ of the truncated low operand enters exactly, and if anything was
-discarded the magnitude becomes $2(H \pm L) + 1$ (for subtraction
-$2(H - L - 1) + 1$) at half the unit.
+**Choice.** When the leading exponents differ by more than $p + 3$, the sum
+is formed on the grid with unit $\upsilon = 2^{e(\text{high}) - p - 3}$, where
+$e(\text{high})$ is the exponent of the last bit of the larger operand, so
+$\upsilon \le 2^{\operatorname{top}(\text{high}) - p - 3}$. The larger operand
+$H\upsilon$ is exact on that grid; of the smaller operand only the integer
+part $L$ of its value in units $\upsilon$ enters, and if anything below
+$\upsilon$ was discarded the magnitude becomes $2(H \pm L) + 1$ (for
+subtraction $2(H - L - 1) + 1$) in units of $\upsilon/2$, that is, one sticky
+bit at the half unit.
 
 **Why it is exact for rounding.** The result has
-$\operatorname{top} \ge \operatorname{top}(\text{high}) - 1$, so the rounding
-position is at least $\operatorname{top}(\text{high}) - p$ and the round bit
-at least one below it, while every discarded bit lies at or below
-$\operatorname{top}(\text{high}) - p - 3$. The discarded part therefore
-changes neither $q$ nor $g$, only whether $t$ is set, and the substitute bit
-sets $t$ exactly when something nonzero was discarded. For subtraction,
+$\operatorname{top} \ge \operatorname{top}(\text{high}) - 1$, because the
+smaller operand is below $2^{\operatorname{top}(\text{high}) - p - 2}$. The
+last retained bit of the rounded result therefore has position at least
+$\operatorname{top}(\text{high}) - p$ (more on the subnormal grid), and its
+round bit at least $\operatorname{top}(\text{high}) - p - 1$. The true sum
+and the substitute both lie strictly inside the same open interval
+$\bigl((H \pm L)\upsilon, (H \pm L + 1)\upsilon\bigr)$ (or are equal when
+nothing was discarded), and that interval lies between two consecutive
+multiples of $\upsilon \le 2^{\operatorname{top}(\text{high}) - p - 3}$, at
+least two bit positions below the round bit. So $q$ and $g$ agree, and $t$ is
+set in both cases exactly when something nonzero was discarded. The argument
+does not need the larger operand to have at most $p$ bits. For subtraction,
 $H - (L + \varepsilon) = (H - L - 1) + (1 - \varepsilon)$ with
 $0 < 1 - \varepsilon < 1$, so the same substitution applies to the borrowed
 form. The complete argument, including the subnormal shift, is in the
@@ -416,15 +439,19 @@ attachment below.
 precision equals its own bit length, and passes it to the addition finalizer,
 so $x y + z$ is rounded once (clause 5.4.1). The difference from two
 roundings is the point of the operation: for $a = \operatorname{RN}(0.1)$ in
-binary64, $\operatorname{RN}(a \cdot a) - a \cdot a$ is lost by
-`mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers)
-but `fma_ctx(a, a, -RN(a·a))` returns it exactly, $-8.33\ldots \cdot 10^{-19}$.
-That the result is exact is Dekker's theorem: the error of a rounded product
-is itself in $F$ when no underflow occurs.[^dekker] If the product exponent
-leaves the `Int` range, the product either certainly overflows, or it is so
-small that it acts as a sticky bit next to a nonzero addend; the code places a
-single bit $p + 8$ positions below the addend's last bit, which by the
-far-operand argument above rounds identically.
+binary64, the rounding error $a \cdot a - \operatorname{RN}(a \cdot a)$ is
+lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal
+numbers) but `fma_ctx(a, a, -RN(a·a))` returns it exactly,
+$-8.33\ldots \cdot 10^{-19}$. That the result is exact is Dekker's theorem:
+the error of a rounded-to-nearest product is itself in $F$ when no underflow
+occurs (precisely, when $e_a + e_b \ge e_{\min} - p + 1$ for the exponents of
+the last bits of $a$ and $b$, so the exact product lies on the grid of
+$F$).[^dekker] If the product exponent leaves the `Int` range, the product
+either certainly overflows, or it is so small that it acts as a sticky bit
+next to a nonzero addend; the code places a single bit $p + 9$ positions
+below the addend's last bit, which by the far-operand argument above rounds
+identically. With a zero addend such a product is the tiny result of the
+underflow rule.
 
 [^dekker]: T. J. Dekker, "A floating-point technique for extending the
     available precision", *Numerische Mathematik* 18, 1971; Muller et al.,
@@ -498,10 +525,15 @@ breakpoints of a direction are the points of $F$ (directed modes) or the
 midpoints between them (nearest modes); both are dyadic with at most $p + 1$
 significant bits. For $k \ge 0$ the odd part of $D 10^{k}$ is a multiple of
 $5^{k}$, and $5^{k} > 2^{2.32 k} > 2^{p+2}$ beyond the bound, so the value
-is no breakpoint. For $k < 0$, $5^{|k|} > 10^{n} > D$ beyond the bound, so
-$5^{|k|} \nmid D$ and $D/10^{|k|}$ is not even dyadic. A value that is no
-breakpoint has a positive distance to every breakpoint, and the enclosure
-width tends to zero as $w$ grows, so some $w$ certifies it. Values whose
+is no breakpoint: $k > \lfloor (3n+p)/2 \rfloor + 64 > (p+2)/2.32$. For
+$k < 0$, $|k| > 1.5n$ gives $5^{|k|} > 10^{n} > D$, so $5^{|k|} \nmid D$ and
+$D/10^{|k|}$ is not even dyadic. The points where a flag changes (the
+overflow threshold, $2^{e_{\min}}$ for tininess, the points of $F$ for
+inexactness) are dyadic with at most $p + 1$ significant bits as well. A
+value that is none of these has a positive distance to all of them, and the
+enclosure, whose relative width is $O(2^{-w})$, eventually lies strictly
+between two of them, so some $w$ certifies it; the loop has no attempt
+limit. Values whose
 binary logarithm is certainly beyond the range, estimated with
 $\log_2 10$ and a safety margin, overflow or underflow without any
 arithmetic, so `1e100000000` costs nothing.
@@ -555,12 +587,22 @@ $$
 \circ(L) = \circ(U) \quad\text{and}\quad \operatorname{flags}(L) = \operatorname{flags}(U),
 $$
 
-the common value is returned, otherwise $w$ grows. **This is sound by
+the common value is returned, otherwise $w$ grows. **The value is sound by
 (R2):** $L \le f(x) \le U$ implies $\circ(L) \le \circ(f(x)) \le \circ(U)$,
-so equal ends force $\circ(f(x)) = \circ(L)$. The flags agree as well,
-because overflow, tininess and inexactness are monotone in the same way on
-one side of zero; the test compares them explicitly instead of relying on
-this.
+so equal ends force $\circ(f(x)) = \circ(L)$.
+
+The flags need a separate argument. Overflow and tininess (under either rule)
+depend only on $|r|$ through a threshold, so on one side of zero they are
+monotone: if $L$ and $U$ (which have the same sign once they round to the
+same nonzero value) agree, every $r \in [L, U]$ agrees with them.
+Inexactness is not monotone: it is false exactly on $F$. If $L < U$ round to
+the same value $v$ with `inexact`, then $f(x)$ is inexact *unless*
+$f(x) = v \in F$. The loop cannot tell these apart, so the flags are right
+only if every input whose exact result lies in $F$ is caught before the
+loop. That is why the exact cases below are filtered, and why an exact case
+that is missed shows up as a spurious `inexact` (nearest rounding) or as a
+budget failure (directed rounding, where $L$ and $U$ round to different
+neighbours of $v$).
 
 The enclosures come from series with rigorous tails and from monotone
 reductions. For $\exp$ on $[0, 1/8]$, the terms $t_k = x^k/k!$ satisfy
@@ -592,31 +634,139 @@ is the Payne–Hanek idea realised by brute precision instead of a stored table
 of $2/\pi$; its cost grows with $\log_2|x|$, so inputs needing more than
 $10^6$ bits are refused with `ResourceLimit` rather than run for minutes.
 
-**Budget.** The loop starts at $w_0 = p + 64$ and steps
+**Budget.** The loop starts at $w_0 = p + 64$ (for some functions at the
+operand precision plus 16 when that is larger) and steps
 $w_{i+1} = w_i + \max(32, \lfloor w_i/2 \rfloor)$, at most 12 attempts. For
-binary64 the sequence is $117, 175, 262, \ldots, 10053$ bits. Ziv's argument
-for termination is that $f(x)$ is not a breakpoint of $\circ$: by
-Lindemann–Weierstrass, $e^{x}$, $\ln x$, $\sin x$, $\cos x$, $\tan x$ and
-their inverses are transcendental at every nonzero algebraic (in particular
-dyadic) argument other than the trivial exceptions, while breakpoints are
-dyadic. The exceptions are filtered before the loop: $e^0 = 1$,
-$\ln 1 = 0$, $\log_2 2^k = k$, $2^n$ for integral $n$, $\sin(\pm 0)$,
-integral and half-integral arguments of `sinpi` and `cospi`,
-$\operatorname{tanpi}(\pm 1/4) = \pm 1$, $10^n$ for integral $n$, $\log_{10}
-10^n = n$, and so on. For the $\pi$-scaled functions Niven's theorem shows
-that these are the only dyadic results.[^niven] A
-non-breakpoint has a positive distance to every breakpoint, so a large
-enough $w$ certifies it. How large $w$ must be is the table maker's dilemma:
-no useful a priori bound is known for arbitrary $p$, so the budget is a
-resource limit, not a correctness condition. When it runs out the `try_*`
-form reports a `CertificationFailure` with the stage, the reason and the last
-$w$, and the total forms return a quiet NaN with `invalid_operation`; neither
-returns an uncertified value. The pinned MPFR corpus never exhausts it.
-One family of exceptions is not filtered on the current branch: `pow` with a
-non-integral exponent other than $1/2^k$ whose result is nevertheless dyadic,
-such as $16^{3/4} = 8$. Under nearest rounding the enclosure still certifies
-the right value but `inexact` is raised; under a directed rounding the
-loop cannot certify and returns a `CertificationFailure`.
+binary64 the sequence is $117, 175, 262, \ldots, 10053$ bits.
+
+**Termination.** Ziv's argument has two parts. First, $f(x)$ must not be a
+breakpoint of $\circ$ (a point of $F$, a midpoint, or a flag threshold), all
+of which are dyadic. For a nonzero dyadic $x$, $e^{x}$, $\sin x$, $\cos x$,
+$\tan x$, the hyperbolic functions, their inverses and $\ln x$ ($x \ne 1$)
+are transcendental by Lindemann–Weierstrass. For $2^x$, $10^x$, $\log_2 x$
+and $\log_{10} x$ irrationality is enough and elementary: $2^{a/b}$ with
+$b \nmid a$ is irrational, so $2^x$ is dyadic only for integral $x$, and
+$\log_2 x = a/b$ forces $x = 2^{a/b}$, a power of two; likewise $10^x$ and
+$\log_{10} x$ are dyadic only at integral $x \ge 0$ and at $x = 10^k$. For
+the $\pi$-scaled functions Niven's theorem shows that integral, half-integral
+and (for `tanpi`) quarter-integral arguments are the only dyadic
+exceptions.[^niven] For `pow` and `rootn` the exceptions are characterised
+under *Exact powers and roots* below. The exceptions are filtered before the
+loop: $e^0 = 1$, $\ln 1 = 0$, $\log_2 2^k = k$, $2^n$ for integral
+$|n| < 2^{31}$, $\sin(\pm 0)$, the $\pi$-scaled cases, $10^n$ for
+integral $0 \le n \le \max(4096, p)$ (beyond that the odd part $5^n$ has more
+than $p + 1$ bits, so $10^n$ is not a breakpoint), $\log_{10} 10^n$ for every
+$n \ge 1$, dyadic powers and exact roots, and so on.
+
+Second, the enclosure must shrink onto $f(x)$ fast enough. The series stop
+when the next term is below $2^{-(w+8)}$ or $2^{-(w+12)}$ in *absolute*
+value, which is fine for arguments of moderate size; the width then is
+$O(2^{-w})$ relative to $f(x)$, a non-breakpoint has a positive distance to
+every breakpoint, and some $w$ certifies it. Tiny arguments need the two
+measures under *Tiny arguments* below. How large $w$ must be is the
+table maker's dilemma: no useful a priori bound is known for arbitrary $p$,
+so the budget is a resource limit, not a correctness condition. When it runs
+out the `try_*` form reports a `CertificationFailure` with the stage, the
+reason and the last $w$, and the total forms return a quiet NaN with
+`invalid_operation`; neither returns an uncertified value. The pinned MPFR
+corpus never exhausts it.
+
+**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to
+`pown`. A larger integral $y$ needs no filter: for $x = c \cdot 2^e$ with
+$c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two
+$2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every
+other exponent is $y = m / 2^k$ with $m$ odd and $k \ge 1$. If $x^y$ is
+rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the
+exponents of $2$ and of each odd prime gives $q = a \cdot 2^f$ with $a$ odd,
+$e|m| = f \cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd,
+$2^k \mid e$ and every prime exponent of $c$ is divisible by $2^k$, so
+$c = r^{2^k}$ and $q = r^{|m|} \cdot 2^{e|m|/2^k}$. Conversely these values are
+exact. So a rational `pow` result exists exactly under these two divisibility
+conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$,
+which is dyadic only when $r = 1$. Every other `pow` result is irrational.
+`binary_pow_exact_dyadic` computes the dyadic results and rounds them once,
+unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has
+more than $p + 1$ significant bits and is not a breakpoint). The same argument
+with $1/|n|$ in place of $|y|$ shows that $\operatorname{rootn}(x, n)$ is
+rational exactly when $|n| \mid e$ and $c = r^{|n|}$; `rootn` returns
+$\pm r \cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly
+rounded quotient $1 / (\pm r \cdot 2^{e/|n|})$, which division decides with
+the right `inexact` flag although it need not be dyadic. The perfect-power
+test has no size limit. It first takes square roots with remainder for every
+factor $2$ of the degree, stopping at the first nonzero remainder, and then
+the floor of the remaining odd root: by bisection while the root has at most
+64 bits, otherwise by integer Newton steps $r \leftarrow \lfloor ((d-1) r +
+\lfloor c / r^{d-1} \rfloor) / d \rfloor$ started just above the root, which
+decrease monotonically to $\lfloor c^{1/d} \rfloor$; one power $r^d$ then
+decides exactness. A coefficient with at most $d$ bits other than $1$ is
+rejected at once, because $r \ge 2$ gives $r^d \ge 2^d$.
+
+A negative base with an integral exponent beyond the `pown` range is
+evaluated as $\pm|x|^y$. Negation is an exact symmetry of $\circ$ that swaps
+the two directed modes, $\circ_{\mathrm{RD}}(-v) = -\circ_{\mathrm{RU}}(v)$, so
+for an odd $y$ the code rounds $|x|^y$ with RD and RU exchanged and negates.
+
+**Tiny arguments.** For small enough $|x|$ (about $2^{-p/2}$ for the odd
+functions, $2^{-p}$ for $e^x$) the result lies closer to a representable
+number $a$ than the target spacing: $a = x$ for the odd functions, $a = 1$ for
+$e^x$, $\cos$, $\cosh$. An enclosure whose series stops after its first term then
+has $a$ itself as one end ($U = x$ for $\sin$, $L = 1$ for $e^x$), and that
+end rounds without `inexact` while the other end rounds with it, so the
+acceptance test alone would only pass once $w$ separates $f(x)$ from $a$, at
+$w \approx \log_2(1/|x|)$ or more. Two measures remove the dependence on $|x|$.
+
+*Inner endpoints.* Every result that reaches the loop is known not to be a
+breakpoint. For every function other than `pow` and `rootn`,
+`binary_certified_inexact_target_rounding` replaces an end $E$ that could be a
+breakpoint (an odd coefficient of at most $p + 1$ bits) by
+$E' = E \pm 2^{e_E - s}$ toward the inside of the enclosure, with
+$s = \max(1, p + 3 - \operatorname{bits}(c_E))$. If the leading bit of $E$ is
+$2^t$, breakpoints near $E$ are at least $2^{t - p - 1}$ apart and the offset is
+at most $2^{t - p - 2}$, so no breakpoint lies in $(E, E']$. Since
+$f(x) \ne E$, either $f(x)$ lies beyond $E'$ or between $E$ and $E'$, and in the
+second case it shares the open cell between breakpoints with $E'$ and rounds
+like it. So $\circ(E') = \circ(U')$ with equal flags still forces
+$\circ(f(x))$ and its flags, and the test passes as soon as the enclosure is
+narrower than the spacing, independently of $|x|$. `pow` uses inner
+endpoints whenever its exactness test (above) has shown that the result is
+irrational, not dyadic, or wider than $p + 1$ bits, so a tiny exponent with
+$x^y$ closer to $1$ than the target spacing is certified too
+($2^{2^{-16000}}$ in binary128 is $1$ with `inexact`). The test leaves a few
+cases with a power-of-two base undecided (an exponent of magnitude at least
+$2^{31}$, or a scale outside the 32-bit range); those keep the plain
+acceptance test.
+
+*Tiny-argument bounds.* Some enclosures (for $\sinh$, $\tanh$ via
+$e^x - e^{-x}$, and for $\operatorname{asinh}$, $\operatorname{atanh}$,
+$\operatorname{asin}$, $\tan$, `expm1`, `log1p`) straddle the neighbour of
+$a$ until $w \approx 3\log_2(1/|x|)$. For $|x| \le 1/2$ the series give
+one-sided bounds with a known side: $0 < x - \sin x$, $0 < \tan x - x$,
+$0 < \operatorname{asin} x - x$, $0 < \sinh x - x$, $0 < x - \tanh x$,
+$0 < x - \operatorname{asinh} x$, $0 < \operatorname{atanh} x - x$, each at
+most $|x|^3$ (for $x > 0$, mirrored for $x < 0$), and $0 < 1 - \cos x$,
+$0 < \cosh x - 1$, $0 < \operatorname{expm1}(x) - x$,
+$0 < x - \operatorname{log1p}(x)$, each at most $x^2$. With $|x| < 2^T$,
+`binary_tiny_argument_result` uses the enclosure $[a, a + 2^{\sigma}]$ or
+$[a - 2^{\sigma}, a]$ with $\sigma = 3T$ (respectively $2T$), raised to at
+least $t_a - p - 8$, when $\sigma < t_a - p - 3$ ($2^{t_a}$ the leading bit of
+$a$), and rounds it with inner endpoints. The condition implies
+$|x| < 2^{-(p+3)/2} \le 1/2$, so the bounds apply, and the enclosure is
+at most a quarter of the breakpoint spacing at $a$ wide. When $a$ is a
+breakpoint, both ends lie in the cell next to $a$ and the result is decided
+before the loop; otherwise (an argument wider than $p + 1$ bits) the loop runs
+as usual. With both measures `sin` and `atan` of $2^{-6000}$ at 53 bits and
+$e^{2^{-20000}}$ are certified in every rounding mode.
+
+`rootn` keeps the plain test, and `pow` uses it only for the few results its
+exactness test cannot classify. For `rootn` it suffices: its enclosure
+is $e^{\ln(x)/n}$ at a working precision above the operand precision $q$, and
+$|\ln x| / |n| > 2^{-(q + 31)}$ for $x \ne 1$ and $|n| \le 10^9$, so an end at
+$1$ disappears after an attempt or two. `pow` evaluates $e^{y \ln x}$, where
+$y$ can be arbitrarily small: an exponent so small that $x^y$ lies closer to
+$1$ than the target spacing gives an enclosure with $L = 1$ at every
+affordable $w$. That is why `pow` moves such an end inward once its exactness
+test has excluded a breakpoint, as described under inner endpoints; for
+example $2^{2^{-16000}}$ in binary128 is then $1$ with `inexact`.
 
 [^niven]: I. Niven, *Irrational Numbers*, 1956, Corollary 3.12: if $r$ is
     rational and $\sin(\pi r)$ is rational, then
@@ -642,11 +792,29 @@ last place of the $w$-bit result. The code uses the radius
 $2^{\operatorname{bits}(n) + 2}$ units (one more factor of two for a negative
 power, whose reciprocal adds $n$ further factors), builds the interval, and
 accepts when both ends round alike, by the same (R2) argument. When 12
-doublings do not certify, the exact power $c^n 2^{ne}$ is formed and rounded,
-so the result is correctly rounded in every case. A power certainly outside
-the range is decided first from certified $\log_2$ bounds, and powers whose
-exact value fits in $p$ bits are computed exactly, which also guarantees that
-the Ziv path only sees inexact results.
+attempts (with $w$ doubled between them) do not certify, the exact power
+$c^n 2^{ne}$ is formed and rounded, so the result is correctly rounded in
+every case. A power certainly outside the range is decided first from
+certified $\log_2$ bounds; powers of two and powers whose exact value fits
+in $p$ bits are computed exactly. The Ziv path therefore only sees $c^n$ with
+$c > 1$ odd and more than $p$ bits, or $1/c^n$, which is not dyadic: neither
+is in $F$, so the `inexact` it reports is right (the flag argument above). A
+$c^n$ with exactly $p + 1$ bits is a midpoint; the enclosure then never
+certifies under nearest rounding and the exact fallback decides it.
+
+**hypot.** `hypot` forms $a^2 + b^2$ exactly from the coefficients and takes
+one correctly rounded square root, so it needs no loop; the cost is the
+alignment shift between the two squares. For $|a| \ge |b| > 0$,
+$|a| < \sqrt{a^2 + b^2} \le |a| + b^2 / (2|a|)$. Write $|a| = c \cdot 2^e$ with
+leading bit $2^t$ and $g = 2^{\min(e,\, t - p - 1)}$: $|a|$ and every rounding
+breakpoint near it are multiples of $g$, so when $b^2 < 2|a|g$ no breakpoint
+lies in $(|a|, |a| + b^2/(2|a|)]$ and every such $b$ gives the same rounded
+result and flags. $|b| < g/8$ is enough, and `binary_hypot_negligible_operand`
+then replaces $b$ by $g/8$, which keeps the shift at about twice the operand
+and target precisions however far apart the exponents are
+($\operatorname{hypot}(1, 2^{-600000}) = 1$ with `inexact`). A shift above
+$10^6$ bits is still refused as a `certification_failure`; after the
+replacement it needs a precision near $500\,000$ bits.
 
 ### The coefficient kernel
 
@@ -672,6 +840,18 @@ Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from
 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to
 Lehmer batches above four limbs. The thresholds are measured, per target, by
 the benchmark suite; they are policy, not semantics.
+
+A Lehmer round is valid only when its single-word digits come from the same
+bit window of both operands: digits taken from each operand's own top limb
+have unrelated scales, and the cofactors they produce subtract only a small
+multiple of the smaller operand per round. Each round therefore keeps
+$a \ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the
+same window, and takes one division step $a \bmod b$ instead when $b$ has no
+bits in that window (then $a / b \ge 2^{62}$) or when the cofactor matrix would
+make an operand negative or shrink neither. Every matrix applied has
+determinant $\pm 1$, so the gcd is unchanged, and a long $a$ is reduced
+modulo a short $b$ in one step however different their lengths are; below
+eight limbs of $b$ the loop finishes with plain Euclid.
 
 **Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate
 integer polynomial identities, for example
@@ -729,7 +909,7 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
 `Eq`, because it is the only equality that is a congruence for every method
 (precision and payload included).
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Canonical form.** Every finite value produced by the API has $c$ odd or
   $c = 0, e = 0$, and $\operatorname{bits}(c) \le$ its precision; stored
@@ -740,11 +920,15 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
   $\circ(r)$ for the exact real result $r$, with the range rules above. By
   (R1), $\circ(r) = r$ and no flag is raised whenever $r \in F$; `round_ctx`
   is idempotent.
-- **Flags.** `inexact` iff $\circ(r) \ne r$; `overflow` implies `inexact`;
-  `underflow` iff tiny (per the context rule) and inexact; `division_by_zero`
-  only for an exact infinite result of finite operands; `invalid_operation`
-  iff a quiet NaN was produced from non-NaN operands or a signaling NaN was
-  consumed. `combine` is associative, commutative and idempotent.
+- **Flags.** `inexact` iff $\circ(r) \ne r$;
+  `overflow` implies `inexact`; `underflow` iff tiny (per the context rule)
+  and inexact; `division_by_zero` only for an exact infinite result of finite
+  operands;
+  `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a
+  signaling NaN was consumed. Exceptions to the last rule: `min`, `max`,
+  $\operatorname{pow}(x, \pm 0)$, $\operatorname{pown}(x, 0)$ and
+  $\operatorname{pow}(1, y)$ accept a signaling NaN without the flag.
+  `combine` is associative, commutative and idempotent.
 - **Error model.** Consequently, in the normal range,
   $|\circ(r) - r| \le u|r|$ for nearest and $< 2u|r|$ for directed rounding,
   with the absolute term $\eta/2$ (respectively $\eta$) below
@@ -754,8 +938,9 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
   particular RD and RU results bracket the exact value, which `ball_float`
   and `sqrt_bounds_for_precision` rely on.
 - **Exactness theorems.** `remainder`, `scaleb` in the normal range,
-  `copy_sign`, `neg`, `abs`, `logb`, `to_integral_*` and decoding are exact;
-  `fma(a, b, -RN(ab))` is exact without underflow.
+  `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral
+  roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact
+  without underflow.
 - **Complexity.** Addition is linear in the operand length (and independent
   of the exponent gap, by the far-operand rule); multiplication follows the
   kernel table, $O(n^2)$ to $O(n \log n)$; division and square root cost a

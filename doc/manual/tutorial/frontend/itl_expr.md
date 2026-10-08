@@ -1,15 +1,28 @@
-# itl_expr tutorial
+# frontend/itl_expr tutorial
 
 This tutorial shows how to run IEEE 1788 interval test cases written in the
 ITL format of the ITF1788 suite against `ball_float`. You parse ITL text into
 cases, execute each case, and summarize the results. The command-line runner
-for whole files is [`itl_expr_cli`](../cli/itl_expr_cli.md).
+for whole files is [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).
+
+| I want to | Use |
+| --- | --- |
+| run ITL statements from a string | [`parse_itl`, `execute_case`, `summarize_results`](#quick-start) |
+| see how a statement was split | [`ItlCase::operation`, `ItlCase::operands`](#inspect-parsed-cases) |
+| test decorations too | [a `_dec` suffix on the expected value](#check-decorations) |
+| check numbers, booleans or overlap states | [the numeric, boolean and overlap dispatch](#numbers-booleans-and-overlap-states) |
+| find out why a case was not run | [`ItlResult::disposition`](#unsupported-and-malformed-cases) |
+| run only some operations | [filter on `ItlCase::operation`](#going-further) |
 
 ## Quick start
 
-Add the package to `moon.pkg`:
+Add the library to your module and import the package in `moon.pkg`:
 
-```text
+```bash
+moon add Luna-Flow/floating@0.8.0
+```
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/itl_expr",
 }
@@ -113,8 +126,9 @@ test "other result kinds" {
 
 ### Unsupported and malformed cases
 
-A case the executor does not implement is `Unsupported`; a case whose operands
-cannot be read is a `Diagnostic`. Neither counts as a failure, but a
+A case the executor does not implement is `Unsupported`, whatever its
+operands (`nums2interval 1.0 2.0` included); a case of a known operation whose
+operands cannot be read is a `Diagnostic`. Neither counts as a failure, but a
 diagnostic makes `success()` false:
 
 ```moonbit
@@ -124,12 +138,13 @@ test "dispositions" {
     #|testcase odd {
     #|  mulRevToPair [1.0,2.0] [3.0,4.0] = [1.0,2.0];
     #|  sqrt [one,two] = [1.0,2.0];
+    #|  nums2interval 1.0 2.0 = [1.0,2.0];
     #|}
   let results = @itl_expr.parse_itl(source)
     .unwrap()
     .map(c => @itl_expr.execute_case(c))
   let summary = @itl_expr.summarize_results(results)
-  inspect(summary.unsupported_cases(), content="1")
+  inspect(summary.unsupported_cases(), content="2")
   inspect(summary.diagnostic_cases(), content="1")
   inspect(summary.success(), content="false")
 }
@@ -152,7 +167,7 @@ test "dispositions" {
 
 - **Decimal bounds are rounded to nearest.** A bound such as `0.1` is read as
   the nearest binary64 number, not rounded outward, so `[0.1,0.1]` is the
-  singleton of that binary64 number.
+  singleton of that binary64 number. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet.
 - **Signals are not checked.** ITL annotations such as `signal …` after the
   expected value make the expected value unreadable; such cases become
   unsupported or diagnostic rather than passing.
@@ -162,8 +177,11 @@ test "dispositions" {
 
 ## Next steps
 
-- [itl_expr API](../../api/frontend/itl_expr.md) for every item and the list
-  of executed operations.
-- [itl_expr design](../../design/frontend/itl_expr.md) for the pass rule.
+- [frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and
+  the list of executed operations.
+- [frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass
+  rule.
+- [cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from
+  the command line.
 - [ball_float tutorial](../ball_float.md) for the interval arithmetic being
   tested.

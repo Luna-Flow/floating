@@ -10,15 +10,29 @@ underflow, call the elementary functions and pick the right comparison. The
 mathematics behind each rule is on the [design page](../design/decimal_gda.md);
 every public name is on the [API page](../api/decimal_gda.md).
 
+| I want to | Use |
+| --- | --- |
+| Read a number under a context | [`parse`](#quick-start) |
+| Carry status from one operation to the next | [`next_context()`](#thread-the-context-through-a-calculation) |
+| Round an amount to cents | [`quantize`](#keep-and-set-the-quantum) |
+| Stop on a condition but keep the result | [`GdaContext::trap`](#handle-a-trap-without-losing-the-result) |
+| Control overflow and underflow | [exponent limits and rounding modes](#respect-the-exponent-range) |
+| Compute `exp`, `ln`, `log10`, `sqrt` or `power` | [elementary functions](#call-the-elementary-functions) |
+| Compare numbers or representations | [`compare`, `compare_total`](#compare-and-print) |
+| Chain many operations without manual threading | [`decimal_gda_checked`](#long-chains-with-decimal_gda_checked) |
+| Encode decimal32/64/128 bit patterns | [`GdaInterchange`](#interchange-encodings) |
+
 ## Quick start
 
-Add the module and import the package:
+Add the module:
 
-```sh
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+Import the package in your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/decimal_gda",
 }

@@ -1,5 +1,7 @@
 # frontend/itl_expr API
 
+## Purpose
+
 `frontend/itl_expr` parses interval test cases in the ITL format of the
 ITF1788 suite (test data for the IEEE 1788-2015 interval standard) and executes
 them against `ball_float`. It is a pure library: the command-line runner is
@@ -7,13 +9,18 @@ them against `ball_float`. It is a pure library: the command-line runner is
 [tutorial](../../tutorial/frontend/itl_expr.md) walks through the workflow and
 the [design page](../../design/frontend/itl_expr.md) gives the pass rule.
 
-Import the package in `moon.pkg`:
+## Importing
 
-```text
+Add the package to the `import` block of your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/frontend/itl_expr",
 }
 ```
+
+The examples call it through the alias `@itl_expr`; cases are written as ITL
+text, so no interval package needs to be imported.
 
 ## Parsing
 
@@ -27,8 +34,9 @@ pub fn parse_itl(String) -> Result[Array[ItlCase], Array[String]]
 
 The text is read line by line, each line trimmed:
 
-- lines starting with `//` and empty lines are skipped; a line starting with
-  `/*` starts a block comment that ends on the first later line containing
+- `//` starts a comment that runs to the end of the line, so a statement may
+  end in `; // note`; empty lines (also after removing the comment) are
+  skipped; a line starting with `/*` starts a block comment that ends on the first later line containing
   `*/` (or on the same line);
 - `testcase NAME …` starts a new block; `NAME` is the word after `testcase`
   and must be followed by a space, otherwise the diagnostic
@@ -58,7 +66,7 @@ pub struct ItlCase {
 } derive(Eq, @debug.Debug)
 ```
 
-### `ItlCase::id`, `operation`, `operands`, `expected`
+### `ItlCase::id`, `ItlCase::operation`, `ItlCase::operands`, `ItlCase::expected`
 
 These methods return the id `NAME:k`, the operation word, a copy of the
 operand words and the expected text (trimmed, including any decoration
@@ -84,14 +92,18 @@ pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 `precision` (default `53`) is the bit precision used to read bounds.
 Interval results are rounded with `@ball_float.BallContext::binary64()`
 regardless of `precision`, so the default is the meaningful value for ITF1788
-data.
+data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet).
 
 Operands and expected values are read as follows. An interval literal is
 `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by
 `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`).
 A bound is `inf`/`infinity` with an optional sign, a hexadecimal float
 `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to
-nearest-even at `precision` bits.
+nearest-even at `precision` bits, the lower bound as well as the upper one, so
+an inexact decimal literal does not give an enclosing interval (tracked in
+[#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet). A decimal
+bound is first read as a decimal of $2p + 16$ significant digits; a literal
+with more digits is rounded twice.
 
 The case is dispatched on its operation and expected value:
 
@@ -113,14 +125,20 @@ chosen whenever the expected text is `true` or `false`.
 Dispositions:
 
 - `Executable` when the case was run; `passed()` tells the outcome;
-- `Unsupported(reason)` for an unknown operation, a binary-dispatch case whose
-  expected value is not an interval (for example one followed by a `signal`
-  annotation), a binary-dispatch case with other than two operands, or a
-  binary boolean predicate whose second operand is missing or unreadable;
-- `Diagnostic(reason)` when the first operand of a boolean case, or an
-  operand or the expected value of the overlap, numeric, unary, ternary or
-  integer-power dispatch, cannot be read, or an operand of the binary dispatch
-  is not an interval literal.
+- `Unsupported(reason)` for an unknown operation, whatever its operands and
+  expected value, a binary-dispatch case whose expected value is not an
+  interval (for example one followed by a `signal` annotation), a
+  binary-dispatch case with other than two operands, or a boolean predicate
+  other than the five unary ones whose second operand is missing or
+  unreadable;
+- `Diagnostic(reason)` when the first operand of a boolean case, an operand of
+  `isMember`, or an operand or the expected value of the overlap, numeric,
+  unary, ternary or integer-power dispatch, cannot be read, or an operand of
+  the binary dispatch is not an interval literal.
+
+Support is decided from the operation name before any operand is read, so
+`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `sqrRev [0.0,1.0]` are
+unsupported and do not count against `RunSummary::success`.
 
 `execute_case` does not abort on case content.
 
@@ -158,7 +176,7 @@ pub struct ItlResult {
 }
 ```
 
-### `ItlResult::id`, `disposition`, `passed`, `message`
+### `ItlResult::id`, `ItlResult::disposition`, `ItlResult::passed`, `ItlResult::message`
 
 These methods return the case id, the disposition, whether the case passed,
 and a message: empty on success, `"expected E, got A"` on a mismatch (intervals
@@ -182,18 +200,34 @@ pub struct RunSummary {
 }
 ```
 
-### `RunSummary` counters and results
+### `RunSummary::total_cases`, `RunSummary::executable_cases`, `RunSummary::passed_cases`, `RunSummary::failed_cases`
 
-These methods return the counts, a copy of the results, and the overall
-verdict.
+These methods return the number of results, the number of executed cases, and
+how many of those passed and failed.
 
 ```mbti
 pub fn RunSummary::total_cases(Self) -> Int
 pub fn RunSummary::executable_cases(Self) -> Int
 pub fn RunSummary::passed_cases(Self) -> Int
 pub fn RunSummary::failed_cases(Self) -> Int
+```
+
+### `RunSummary::unsupported_cases`, `RunSummary::diagnostic_cases`
+
+These methods return the number of cases that were not executed, by
+disposition.
+
+```mbti
 pub fn RunSummary::unsupported_cases(Self) -> Int
 pub fn RunSummary::diagnostic_cases(Self) -> Int
+```
+
+### `RunSummary::results`, `RunSummary::success`
+
+`results` returns a copy of the results in the order they were given;
+`success` is the overall verdict.
+
+```mbti
 pub fn RunSummary::results(Self) -> Array[ItlResult]
 pub fn RunSummary::success(Self) -> Bool
 ```

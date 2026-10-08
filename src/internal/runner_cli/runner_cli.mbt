@@ -30,7 +30,9 @@ pub fn parse_common_options(
       json = true
     } else if allow_shard &&
       (argument == "--shard-count" || argument == "--shard-index") {
-      guard index + 1 < arguments.length() else {
+      // An option is never a value: `--shard-count --json` lacks the count.
+      guard index + 1 < arguments.length() &&
+        !arguments[index + 1].has_prefix("--") else {
         return Err(argument + " requires a value")
       }
       index += 1
@@ -120,15 +122,31 @@ pub fn collect_files(
       }
       for entry in entries {
         if entry.has_suffix(suffix) {
-          files.push(path + "/" + entry)
+          let file = path + "/" + entry
+          let entry_is_directory = @fs.is_dir(file) catch {
+            _ => return Err("cannot inspect path: " + file)
+          }
+          if !entry_is_directory {
+            files.push(file)
+          }
         }
       }
     } else if path.has_suffix(suffix) {
       files.push(path)
+    } else {
+      // A file named explicitly is never dropped silently.
+      return Err("not a " + suffix + " file: " + path)
     }
   }
   files.sort()
-  Ok(files)
+  // A file named twice, or named and inside a named directory, runs once.
+  let unique : Array[String] = []
+  for file in files {
+    if unique.last() != Some(file) {
+      unique.push(file)
+    }
+  }
+  Ok(unique)
 }
 
 ///|

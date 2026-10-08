@@ -189,3 +189,29 @@ test "GDA invalid conditions signal InvalidOperation" {
       fail("ConversionSyntax must trigger the InvalidOperation trap")
   }
 }
+
+///|
+test "GDA Decimal checked integer powers use the exact exponent" {
+  // An exponent longer than the context precision must not be rounded
+  // before use: rounding 12345679 to seven digits makes it even (#51).
+  let context = @lf_arith.ArithmeticContext::new(7)
+  let minus_one = Decimal::from_int(-1, precision=7)
+  let int_power = fn(exponent : Int) {
+    @lf_arith.PowIntChecked::pow_int_checked(minus_one, exponent, context)
+    .unwrap()
+    .to_string()
+  }
+  let nat_power = fn(exponent : UInt) {
+    @lf_arith.PowNatChecked::pow_nat_checked(minus_one, exponent, context)
+    .unwrap()
+    .to_string()
+  }
+  assert_eq(int_power(12345679), "-1")
+  assert_eq(int_power(-12345679), "-1")
+  assert_eq(int_power(12345678), "1")
+  assert_eq(int_power(2147483647), "-1")
+  assert_eq(int_power(-2147483648), "1")
+  assert_eq(nat_power(12345679U), "-1")
+  assert_eq(nat_power(999999999U), "-1")
+  assert_eq(nat_power(999999998U), "1")
+}

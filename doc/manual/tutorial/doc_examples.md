@@ -1,17 +1,26 @@
 # doc_examples tutorial
 
-This page shows maintainers how to run and extend the executable examples in
-`src/doc_examples/README.mbt.md`.
+The goal of this page is to show maintainers how to run and extend the
+executable examples in `src/doc_examples/README.mbt.md`.
+
+| I want to | Use |
+| --- | --- |
+| run the whole documentation gate | [`just docs`](#quick-start) |
+| run only these examples | [`moon test`](#run-only-this-package) |
+| add a workflow example | [a `moonbit check` block](#add-an-example) |
+| decide between this package and a manual page | [Going further](#going-further) |
 
 ## Quick start
 
-```sh
+```bash
 just docs
 ```
 
-runs `tools/doc_quality.py` (links, snapshots, versions) and then
-`moon test src/doc_examples --target native --deny-warn`, which compiles and
-runs every `moonbit check` block of the README as a test.
+runs `tools/run_docs.py`, which performs three steps and stops at the first
+failure: `tools/doc_quality.py` (links, snapshots, versions),
+`tools/check_doc_examples.py` (the runnable examples of every manual page),
+and `moon test src/doc_examples --target native --deny-warn`, which compiles
+and runs every `moonbit check` block of the README as a test.
 
 ## Everyday tasks
 
@@ -34,10 +43,10 @@ needed), give the test a unique name, and show results with `inspect`.
 
 ### Run only this package
 
-From a workspace that resolves the Luna-Flow dependencies:
+From the repository root:
 
-```sh
-moon test -p Luna-Flow/floating/doc_examples
+```bash
+sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn
 ```
 
 ## Going further

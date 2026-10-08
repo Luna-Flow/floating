@@ -128,6 +128,37 @@ decimal and interval stacks, in the style of Ziv's strategy:[^ziv]
    non-`try` functions return a defined invalid result (a quiet NaN with
    *invalid operation* in binary) and never abort.
 
+Step 3 needs only monotonicity: $\ell \le x \le h$ gives
+$\operatorname{rnd}(\ell) \le \operatorname{rnd}(x) \le \operatorname{rnd}(h)$,
+so equal outer values force the middle one. The loop can only succeed if the
+exact value $x$ is not a *breakpoint* of the rounding function: a
+representable number under directed rounding, or a midpoint between two
+neighbours under rounding to nearest. At a breakpoint every enclosure
+$\ell < x < h$ straddles a jump of $\operatorname{rnd}$, at every working
+precision. The functions therefore decide their exact cases before the loop:
+$e^0 = 1$, $\log_2 2^k = k$, $2^n$ and $10^n$ for integers $n$, powers and
+roots that are exact, $\operatorname{sinpi}$ and $\operatorname{cospi}$ at
+multiples of $\tfrac12$, $\operatorname{tanpi}$ at multiples of
+$\tfrac14$, and so on.[^open-exact] Elsewhere the exact value is not a dyadic number. For
+example, by the Lindemann–Weierstrass theorem $e^x$ is transcendental for
+every nonzero algebraic $x$, so $\exp$ and $\ln$ never return a breakpoint at
+a dyadic argument other than $0$ and $1$; by Niven's theorem
+$\sin \pi x$ at a rational $x$ is rational only when it is $0$,
+$\pm\tfrac12$ or $\pm 1$, and at a dyadic $x$ only $0$ and $\pm 1$ occur.
+A non-dyadic value has a positive distance $\delta$ to the nearest
+breakpoint, so the loop succeeds as soon as the enclosure is narrower than
+$\delta$. The budget is still finite: once $w \ge 64$ each refinement
+multiplies $w$ by $1.5$, so twelve refinements reach about
+$1.5^{12} \approx 130$ times the starting precision. For binary64 the
+hardest known cases of $\exp$ and $\ln$ need a little more than $2p$ bits,
+far below that, but no such bound is known for every precision, so a failure
+remains possible in principle and is reported rather than hidden.
+
+[^open-exact]: The decimal packages do not yet decide exact non-integral
+    powers such as $4^{1.5}$ first
+    ([#53](https://github.com/Luna-Flow/floating/issues/53) and
+    [#112](https://github.com/Luna-Flow/floating/issues/112)).
+
 `bin_float` owns the scalar dyadic certificates. `ball_float` lifts them over
 endpoints, critical points, poles and domain boundaries. `decimal` and
 `decimal_gda` convert exact decimal inputs to directed dyadic bounds, run the
@@ -153,8 +184,13 @@ for large ones it encloses $D \cdot 10^{k}$ with directed powers of ten and
 widens the working precision until both ends round alike, which terminates
 because no tie is possible there. Formatting finds the leading decimal exponent
 from a binary estimate corrected by directed powers of ten, and
-`to_shortest_string_ctx` bisects on the digit count, which is valid because
-reading back is monotone in the number of digits.
+`to_shortest_string_ctx` bisects on the digit count. Bisection is valid
+because the test it bisects on is monotone in the number of digits $n$. The
+test asks whether one of the two $n$-digit decimals that bracket $x$ reads
+back to $x$. The values that read back to $x$ form an interval $I(x)$ around
+$x$. If some $n$-digit decimal $d$ lies in $I(x)$, then $d$ is also an
+$(n+1)$-digit decimal, and the $(n+1)$-digit neighbour of $x$ on the side of
+$d$ lies between $x$ and $d$, hence in $I(x)$ as well.
 
 ## Context and status flow
 

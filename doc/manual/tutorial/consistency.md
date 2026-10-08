@@ -1,25 +1,34 @@
 # consistency tutorial
 
-This page shows maintainers how to run the cross-package consistency tests and
-how to add a new law when a change touches more than one numeric package.
+The goal of this page is to show maintainers how to run the cross-package
+consistency tests and how to add a new law when a change touches more than one
+numeric package.
+
+| I want to | Use |
+| --- | --- |
+| run the whole suite | [the quick start command](#quick-start) |
+| run one test | [`--filter`](#run-one-test) |
+| add a law that spans packages | [a white-box test](#add-a-cross-package-law) |
+| decide whether a test belongs here | [the placement rule](#decide-where-a-test-belongs) |
 
 ## Quick start
 
-Run the suite from a workspace that contains the module (the repository
-wrapper keeps the build directory clean):
+There is nothing to install or import: the package is part of the
+repository's test suite. Run it from the repository root (the wrapper keeps
+the build directory clean):
 
-```sh
+```bash
 sh tools/run_moon_clean_exec.sh test -p Luna-Flow/floating/consistency --target native
 ```
 
 A passing run ends with `passed: N, failed: 0`. The suite is also part of
-`just pr`.
+`just pr`, which runs every native test of the module.
 
 ## Everyday tasks
 
 ### Run one test
 
-```sh
+```bash
 sh tools/run_moon_clean_exec.sh test -p Luna-Flow/floating/consistency \
   --filter "decimal quantize*"
 ```

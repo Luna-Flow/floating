@@ -190,6 +190,23 @@ fn exact_result_rounding_flags(
 }
 
 ///|
+/// Whether an exact result lies below the normal range, so that its single
+/// rounding is to Etiny. A result whose exponent is below Etiny but whose
+/// coefficient is longer than `precision` can still be normal; it must be
+/// rounded once to `precision` digits, not to Etiny (which would leave more
+/// than `precision` digits or round it twice).
+fn exact_result_is_subnormal(
+  value : Decimal,
+  precision : Int,
+  ctx : DecimalContext,
+) -> Bool {
+  ctx.precision > 0 &&
+  !value.coefficient.is_zero() &&
+  value.exponent10 + Int::max(0, value.coefficient.digits10() - precision) <
+  etiny(ctx)
+}
+
+///|
 fn has_finite_decimal_expansion_repr(
   numerator : GdaCoeff,
   denominator : GdaCoeff,
@@ -274,7 +291,7 @@ fn exact_division_by_power_of_ten_result(
     ctx.decimal_rounding,
   )
   if exact_rounding.rounded {
-    let prefinal = if exact_unrounded.exponent10 < etiny(ctx) {
+    let prefinal = if exact_result_is_subnormal(exact_unrounded, precision, ctx) {
       exact_unrounded
     } else if !exact_rounding.inexact {
       expand_rounded_exact_cohort_toward_preferred_exponent(

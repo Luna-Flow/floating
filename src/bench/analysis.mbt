@@ -45,7 +45,10 @@ pub fn tune_dataset(
         score.valid,
       ),
     )
-    sample_counts[candidate_id] = samples.length()
+    // Count only the samples `score_samples` keeps for the median.
+    sample_counts[candidate_id] = samples
+      .filter(sample => !sample.is_nan() && !sample.is_inf() && sample >= 0.0)
+      .length()
   }
   match @tune.select_best(scores, practical_delta_pct, true) {
     Some(best) =>
@@ -80,7 +83,7 @@ pub fn paired_hotspot(
     @model.confirmatory_interval(),
     seed,
     2000,
-    0.95,
+    95.0,
   )
 }
 

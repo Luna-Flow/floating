@@ -1,4 +1,4 @@
-# `bin_float_checked` design
+# bin_float_checked design
 
 ## Design goal
 
@@ -129,7 +129,8 @@ some precision stays at that precision:
 | every `*_ctx` method | the given `BinaryContext` |
 
 `unbounded(p)` means precision $p$, round to nearest-even, and no exponent
-limits, so these operations never overflow or underflow. For `pow_nat` the
+limits beyond the implementation range of `bin_float`, so these operations
+overflow or underflow only near $2^{\pm 2^{30}}$. For `pow_nat` the
 wrapper goes through the Luna-Flow/arithmetic trait, and `bin_float` maps the
 `ArithmeticContext` to a `BinaryContext` with
 `BinaryContext::from_arithmetic_context`: the precision is copied, the
@@ -158,7 +159,7 @@ exceptional cases of the `_ctx` methods are successes: `div_ctx` by zero
 yields $\pm\infty$, while `div` (which calls `div_checked`) fails. The two
 names make the two contracts visible at the call site.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### The monad laws
 
@@ -234,9 +235,13 @@ test "monad laws on checked arrows" {
 
 Consider an expression tree whose leaves are `BinFloatResult` values and whose
 inner nodes are wrapper operations. MoonBit evaluates arguments eagerly, so
-every node is evaluated. Say that a node *originates* an error when all its
-children are successes and the operation itself fails (a leaf originates its
-error if it is an `Err`).
+every node is evaluated; the short circuit is inside a node: the `bin_float`
+operation of a node runs only when all its children are successes, and
+otherwise the node just passes an error on. (A leaf that is itself an
+expensive MoonBit expression, such as `f(b)` in `a + f(b)`, is still
+computed; only `bind` defers work.) Say that a node *originates* an error
+when all its children are successes and the operation itself fails (a leaf
+originates its error if it is an `Err`).
 
 **Theorem.** If any node originates an error, the expression evaluates to the
 error originated by the first originating node in post-order (children left to

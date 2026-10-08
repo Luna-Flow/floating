@@ -1,4 +1,4 @@
-# itl_expr_cli design
+# cli/itl_expr_cli design
 
 ## Design goal
 
@@ -36,9 +36,13 @@ self-contained.
 
 The frontend's `success()` already fails on diagnostic cases; the runner adds
 only the strict check on unsupported cases. Unreadable data in a pinned corpus
-is never an acceptable exclusion.
+is never an acceptable exclusion. The frontend classifies every unknown
+operation as unsupported whatever its operands, so a phase that runs a whole
+file without `--operation` (`sets`, `relations` and `reverse` in
+`interpreter_stages.json`) fails only on cases of operations it executes, and
+the unknown ones count against it only under `--strict-supported`.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exit `0` implies no failed and no diagnostic case, and in strict mode no
   unsupported case.

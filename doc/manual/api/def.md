@@ -1,4 +1,6 @@
-# `def` API
+# def API
+
+## Purpose
 
 `def` is the shared vocabulary of the `floating` packages. It defines the sign
 classification `Sign`, the four-way comparison result `PartialOrder`, the open
@@ -11,9 +13,20 @@ only one import. It contains no arithmetic. The
 [design page](../design/def.md) states the trait laws and explains why
 `PartialOrder` is not a total order.
 
-Every example on this page is a complete test that compiles against the current
-branch. The package is imported as `@def`; `@lf_arith` is
-`Luna-Flow/arithmetic`.
+## Importing
+
+Add the package to your `moon.pkg`, next to the representation you use:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/def",
+  "Luna-Flow/floating/bin_float",
+}
+```
+
+The examples on this page are complete tests. They call the package as
+`@def.`, the representations as `@bin_float.`, `@decimal.`, `@decimal_gda.`
+and `@ball_float.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
 
 ## Sign and comparison results
 
@@ -31,8 +44,8 @@ pub(all) enum Sign {
 
 `Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$
 from $+0$; use the concrete package (for example `BinFloat::is_negative_zero`)
-when the sign bit of a zero matters. The concrete implementations also return
-`Zero` for NaN, and an interval returns `Zero` when it contains $0$ (see
+when the sign bit of a zero matters. The scalar implementations also return
+`Zero` for every NaN, and an interval returns `Zero` when it contains $0$ (see
 [`Floating::sign`](#floatingsign)). `Sign` is also the payload of
 `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the
 argument of constructors such as `BinFloat::inf`.
@@ -89,6 +102,8 @@ test "PartialOrder from an IEEE comparison" {
 
 ## The `Floating` trait
 
+### `Floating`
+
 `Floating` is the observation and re-precision interface shared by every
 representation in this repository.
 
@@ -108,7 +123,8 @@ repository it is implemented by `@bin_float.BinFloat`, `@decimal.Decimal`,
 migration trait methods are not promoted automatically, so generic code calls
 them in the qualified form `@def.Floating::classify(x)`; the concrete types also
 provide inherent methods with the same names (`x.classify()`). The laws every
-implementation is expected to satisfy are listed in the
+implementation is expected to satisfy, and the places where `BallFloat` only
+satisfies a weaker form, are listed in the
 [design page](../design/def.md#the-floating-laws).
 
 ### `Floating::classify`
@@ -137,36 +153,59 @@ fn sign(Self) -> Sign
 | `BinFloat`, both `Decimal`s | value $< 0$, including $-\infty$ | $\pm 0$ and every NaN | value $> 0$, including $+\infty$ |
 | `BallFloat` $[\ell, u]$ | $u < 0$ | $\ell \le 0 \le u$ | $\ell > 0$ |
 
-`BallFloat::sign` aborts on the empty interval, which has no sign; test
-`@def.is_nan(x)` (true exactly for the empty interval) first.
+The interval rule also applies to unbounded intervals: $[-\infty, -1]$ is
+`Negative`.
+
+> [!WARNING]
+> `BallFloat::sign` aborts on the empty interval, which has no sign. Test
+> `@def.is_nan(x)` (true exactly for the empty interval) before calling `sign`
+> on an interval.
 
 ### `Floating::precision`
 
-`precision` returns the working precision stored on the value: significant bits
-for `BinFloat` and `BallFloat` endpoints, significant decimal digits for both
-`Decimal` types. The result is always at least $1$.
+`precision` returns the working precision stored on the value.
+
+```mbti
+fn precision(Self) -> Int
+```
+
+It counts significant bits for `BinFloat` and for the endpoints of a
+`BallFloat`, and significant decimal digits for both `Decimal` types. Every
+constructor clamps the stored precision to at least $1$, so the result is
+always at least $1$.
 
 ### `Floating::with_precision`
 
-`with_precision(x, p, mode)` returns `x` re-expressed at precision $\max(1, p)$.
+`with_precision(x, p, mode)` returns `x` re-expressed at precision
+$q = \max(1, p)$.
 
 ```mbti
 fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 ```
 
-For a finite scalar the value is rounded to $\max(1,p)$ significant digits of
-its radix in the given direction, with an unbounded exponent range, so it never
-overflows or underflows; no flags are reported (use the `*_ctx` APIs of the
-concrete package for flags). Infinities and NaNs keep their class and only
-change the stored precision. For `BallFloat` the result is an enclosure of the
-input: the centre is rounded with `mode` and the rounding error is added to the
-radius, so every member of `x` remains a member of the result whatever `mode`
-is.
+For a finite scalar the value is rounded to $q$ significant digits of its
+radix in the direction `mode`. No context exponent bounds apply and no flags
+are reported (use the `*_ctx` APIs of the concrete package for both). The
+decimal types have no other exponent limit. `BinFloat` keeps its
+implementation range: a result whose exponent leaves
+$\pm(2^{30} - 1)$ (`binary_implementation_e_max`,
+`binary_implementation_e_min`) overflows to an infinity or to the largest
+finite value, or underflows, as in IEEE 754. Zeros keep their sign.
+Infinities and NaNs keep their class, sign and payload and only change the
+stored precision.
+
+For `BallFloat` the result is an enclosure of the input: the centre is rounded
+with `mode` and the rounding error is added to the radius, so every member of
+`x` remains a member of the result whatever `mode` is (except for endpoints
+more than about $2^{16}$ binary orders of magnitude apart at a new precision
+above about 65536 bits, tracked in [#44](https://github.com/Luna-Flow/floating/issues/44) with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)). The result
+can be wider
+than `x` even when `p` equals the current precision, because the exact centre
+of $[\ell, u]$ may need one bit more than the endpoints.
 
 ### `Floating::normalized`
 
-`normalized` returns the canonical representative of a value without changing
-its mathematical value.
+`normalized` returns the canonical representative of a value.
 
 ```mbti
 fn normalized(Self) -> Self
@@ -174,8 +213,16 @@ fn normalized(Self) -> Self
 
 For `BinFloat` this is the representation with an odd coefficient (or zero);
 for both `Decimal` types it removes trailing zeros of the coefficient, so
-`1.500` becomes `1.5` (the cohort changes, the value does not). Non-finite
-values are returned unchanged. `normalized` is idempotent.
+`1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000`
+becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types
+`normalized` keeps the value and is idempotent.
+
+> [!WARNING]
+> `BallFloat::normalized` rebuilds the interval from its centre and radius at
+> the stored precision, like `with_precision`. It returns an enclosure of the
+> input, which can be strictly wider: at 53 bits, $[1, 1 + 2^{-52}]$ becomes
+> $[1 - 2^{-52}, 1 + 2^{-52}]$. Do not use it where the interval must stay
+> unchanged. Tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91).
 
 ```moonbit
 ///|
@@ -229,6 +276,17 @@ test "Floating re-precision and normalization" {
   let cohort = @decimal.Decimal::from_string("1.500").unwrap()
   inspect(@def.Floating::normalized(cohort).to_string(), content="1.5")
 }
+
+///|
+test "BallFloat normalization encloses but may widen" {
+  let x = @ball_float.BallFloat::from_bounds(
+    @bin_float.BinFloat::from_int(1),
+    @bin_float.BinFloat::from_hex("0x10000000000001p-52", 53).unwrap(),
+  )
+  let n = @def.Floating::normalized(x)
+  inspect(n.lower_bound().to_hex(), content="0xfffffffffffffp-52")
+  inspect(n.upper_bound().to_hex(), content="0x10000000000001p-52")
+}
 ```
 
 ## Generic predicates
@@ -280,29 +338,81 @@ test "generic predicates" {
 ## Re-exported types
 
 `def` re-exports these types with `pub using`, so `@def.RoundingMode` and
-`@lf_arith.RoundingMode` name the same type. Their definitions and semantics are
-documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/).
+`@lf_arith.RoundingMode` name the same type and no conversion is needed. Their
+definitions and full semantics are documented by
+[Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/).
+
+### `ArithmeticContext`
+
+`ArithmeticContext` is the precision, rounding direction and optional exponent
+bounds passed to the contextual traits of Luna-Flow/arithmetic.
 
 ```mbti
 pub using @arithmetic {type ArithmeticContext}
+```
+
+`BinaryContext` and `DecimalContext` are built from it by their
+`from_arithmetic_context` constructors.
+
+### `ArithmeticError`, `ArithmeticErrorKind`
+
+`ArithmeticError` is the structured error of every `Result`-returning
+(`*_checked`, `try_*`) API and of the checked wrapper packages;
+`ArithmeticErrorKind` is its kind.
+
+```mbti
 pub using @arithmetic {type ArithmeticError}
 pub using @arithmetic {type ArithmeticErrorKind}
-pub using @bigint {type BigInt}
+```
+
+The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`,
+`UnsupportedOperation`, `UnorderedComparison` and
+`CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per
+kind and a `message`.
+
+### `CertificationFailureDetail`, `CertificationFailureReason`, `CertificationStage`
+
+These types are the payload of an `ArithmeticError` of kind
+`CertificationFailure`: an elementary function whose correctly rounded result
+could not be certified within its refinement budget.
+
+```mbti
 pub using @arithmetic {type CertificationFailureDetail}
 pub using @arithmetic {type CertificationFailureReason}
 pub using @arithmetic {type CertificationStage}
+```
+
+The detail records the operation, the stage and reason, the target precision,
+and the final working precision and refinement count (see
+`certified_failure` in the [internal API](internal.md)).
+
+### `FpClass`
+
+`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or
+`NaN`.
+
+```mbti
 pub using @arithmetic {type FpClass}
+```
+
+### `RoundingMode`
+
+`RoundingMode` lists the five rounding directions accepted by
+`with_precision` and by the concrete constructors: `ToNearestEven`,
+`TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`.
+
+```mbti
 pub using @arithmetic {type RoundingMode}
 ```
 
-| Alias | Role in `floating` |
-| --- | --- |
-| `ArithmeticContext` | Precision, rounding and optional exponent bounds passed to the arithmetic contextual traits; mapped to `BinaryContext` / `DecimalContext` by their `from_arithmetic_context` constructors. |
-| `ArithmeticError`, `ArithmeticErrorKind` | Structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages. |
-| `CertificationFailureDetail`, `CertificationFailureReason`, `CertificationStage` | Payload of an `ArithmeticError` whose kind is `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its budget. |
-| `FpClass` | Result of `Floating::classify`. |
-| `RoundingMode` | The five rounding directions accepted by `with_precision` and by the concrete constructors. |
-| `BigInt` | Arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients. |
+### `BigInt`
+
+`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used
+for coefficients and exact values.
+
+```mbti
+pub using @bigint {type BigInt}
+```
 
 ```moonbit
 ///|

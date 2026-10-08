@@ -45,10 +45,17 @@ fn binary_pi_scaled_exact(
       } else {
         BinFloat::one(precision=context.precision).neg()
       }
+      // tanPi takes the sign of sinPi(n) / cosPi(n) (IEEE 754-2019 §9.2.1,
+      // C23 Annex F): -0 for positive odd and +0 for negative odd n.
+      let tangent = if value.is_negative() != (n % 2 != 0) {
+        BinFloat::negative_zero(precision=context.precision)
+      } else {
+        BinFloat::zero(precision=context.precision)
+      }
       let result = match operation {
         BinaryTrigonometricOperation::Sin => sine
         BinaryTrigonometricOperation::Cos => cosine
-        BinaryTrigonometricOperation::Tan => sine
+        BinaryTrigonometricOperation::Tan => tangent
       }
       Some((result, BinaryFlags::new()))
     }
@@ -315,7 +322,7 @@ fn BinFloat::try_pi_scaled_ctx(
       while budget.available() {
         match binary_pi_scaled_bounds(self, operation, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_target_rounding(
+            let (result, unique, flags) = binary_certified_inexact_target_rounding(
               bounds.0,
               bounds.1,
               context,

@@ -199,6 +199,17 @@ fn parse_statement(
 }
 
 ///|
+/// Removes a `//` line comment, which may follow a statement on the same line.
+fn strip_line_comment(line : String) -> String {
+  for index in 0..<(line.length() - 1) {
+    if line[index] == '/' && line[index + 1] == '/' {
+      return line[0:index].trim().to_owned()
+    }
+  }
+  line
+}
+
+///|
 pub fn parse_itl(source : String) -> Result[Array[ItlCase], Array[String]] {
   let cases : Array[ItlCase] = []
   let diagnostics : Array[String] = []
@@ -220,7 +231,8 @@ pub fn parse_itl(source : String) -> Result[Array[ItlCase], Array[String]] {
       }
       continue
     }
-    if line.length() == 0 || line.has_prefix("//") {
+    let line = strip_line_comment(line)
+    if line.length() == 0 {
       continue
     }
     if line.has_prefix("testcase ") {
@@ -456,6 +468,48 @@ fn intervals_equal(
 }
 
 ///|
+/// The operations of the generic two-interval path of `execute_case`.
+fn binary_interval_operation(name : String) -> Bool {
+  match name {
+    "intersection"
+    | "convexHull"
+    | "cancelPlus"
+    | "cancelMinus"
+    | "add"
+    | "sub"
+    | "mul"
+    | "div"
+    | "pow"
+    | "atan2"
+    | "min"
+    | "max" => true
+    _ => false
+  }
+}
+
+///|
+/// The operations `execute_boolean_case` evaluates.
+fn boolean_operation(name : String) -> Bool {
+  match name {
+    "isMember"
+    | "isEmpty"
+    | "isEntire"
+    | "isNaI"
+    | "isCommonInterval"
+    | "isSingleton"
+    | "equal"
+    | "subset"
+    | "interior"
+    | "disjoint"
+    | "precedes"
+    | "strictPrecedes"
+    | "less"
+    | "strictLess" => true
+    _ => false
+  }
+}
+
+///|
 pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
   if case.expected_ == "true" || case.expected_ == "false" {
     return execute_boolean_case(case, precision)
@@ -503,6 +557,16 @@ pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
   }
   if case.operation_ == "pown" {
     return execute_pown_case(case, precision)
+  }
+  // Decide support before reading operands, so an unknown operation with
+  // operands this harness cannot parse is unsupported, not a diagnostic.
+  guard binary_interval_operation(case.operation_) else {
+    return {
+      id_: case.id_,
+      disposition_: Unsupported(case.operation_),
+      passed_: false,
+      message_: "unsupported operation",
+    }
   }
   let operands : Array[@ball_float.BallFloatDecorated] = []
   for src in case.operands_ {
@@ -840,6 +904,14 @@ fn boolean_result(case : ItlCase, actual : Bool) -> ItlResult {
 
 ///|
 fn execute_boolean_case(case : ItlCase, precision : Int) -> ItlResult {
+  guard boolean_operation(case.operation_) else {
+    return {
+      id_: case.id_,
+      disposition_: Unsupported(case.operation_),
+      passed_: false,
+      message_: "unsupported boolean operation",
+    }
+  }
   if case.operation_ == "isMember" {
     guard case.operands_.length() == 2 &&
       parse_bound(
