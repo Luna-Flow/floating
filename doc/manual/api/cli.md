@@ -16,7 +16,7 @@ floating-conformance --help
 
 | Argument | Meaning |
 | --- | --- |
-| `--backend NAME`, `--backend=NAME` | selects the runner; required, at most once |
+| `--backend NAME`, `--backend=NAME` | selects the runner; required, non-empty, at most once (an empty `--backend=` is an error) |
 | `--help`, `-h` | prints the usage line and exits with 0 when reached, even after `--backend` (the runners' own `--help` is therefore not reachable through the dispatcher) |
 | anything else | forwarded, in order, to the runner |
 

@@ -7,6 +7,8 @@ fn usage() -> String {
 fn dispatch(arguments : Array[String]) -> Int {
   let forwarded : Array[String] = [arguments[0]]
   let mut backend = ""
+  // Tracked separately: an empty `--backend=` must still count as given.
+  let mut backend_given = false
   let mut index = 1
   while index < arguments.length() {
     let argument = arguments[index]
@@ -16,18 +18,25 @@ fn dispatch(arguments : Array[String]) -> Int {
         println(usage())
         return 2
       }
-      guard backend.length() == 0 else {
+      guard !backend_given else {
         println("--backend may only be specified once")
         return 2
       }
       index += 1
       backend = arguments[index]
+      backend_given = true
     } else if argument.has_prefix("--backend=") {
-      guard backend.length() == 0 else {
+      guard !backend_given else {
         println("--backend may only be specified once")
         return 2
       }
       backend = argument[10:].to_owned()
+      backend_given = true
+      guard backend.length() > 0 else {
+        println("--backend requires a value")
+        println(usage())
+        return 2
+      }
     } else if argument == "--help" || argument == "-h" {
       println(usage())
       return 0
