@@ -55,7 +55,7 @@ The helpers wrap the core `Json` type: `json_int` stores the exact decimal
 representation so counts print as integers, and `json_object` keeps insertion
 order so reports are stable and diff-friendly.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Option round trip.** For an argument vector without common options,
   `remaining()` equals `arguments[1:]`.

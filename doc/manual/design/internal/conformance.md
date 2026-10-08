@@ -71,7 +71,7 @@ count it $n$ times.
 diagnostics (`file:line:column: message`) are always valid editor positions,
 even for callers that pass 0 for "unknown".
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Counter identities.** For every summary,
 $\text{selected} = \text{executable} + \text{skipped}$,

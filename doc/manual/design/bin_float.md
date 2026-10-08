@@ -795,7 +795,7 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
 `Eq`, because it is the only equality that is a congruence for every method
 (precision and payload included).
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Canonical form.** Every finite value produced by the API has $c$ odd or
   $c = 0, e = 0$, and $\operatorname{bits}(c) \le$ its precision; stored

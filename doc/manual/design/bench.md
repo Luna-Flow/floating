@@ -218,7 +218,7 @@ commit) as `external-metadata`. A reader of two artifacts can then tell
 whether their numbers are comparable; the package itself does not compare
 runs across environments.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Determinism of the reduction.** For fixed observations and seed,
   `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the

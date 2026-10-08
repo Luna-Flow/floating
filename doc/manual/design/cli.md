@@ -47,7 +47,7 @@ it prints the dispatcher usage and exits with `0` whatever backend is named.
 The scan stops at the first error, so a malformed `--backend` before `--help`
 still exits with `2`. Runner options are documented on their pages instead.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exactly one runner is called per invocation, or none when the arguments are
   invalid (exit `2`) or `--help` is given (exit `0`).

@@ -50,7 +50,7 @@ Exact results make the arithmetic work identical across paths: no path can
 win by rounding earlier, and the measured difference is the cost of
 representation, context handling and checking.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Plan tests compile every specification in ordinary test runs, so the
   benchmarks cannot rot unnoticed.

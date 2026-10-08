@@ -47,7 +47,7 @@ Corpora are pinned and expected to parse completely; a parse error is an
 infrastructure failure (exit `2`), reported with its location, not a test
 result.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exit `0` implies `failed_cases() == 0`, and in strict mode also no legacy or
   unsupported row.

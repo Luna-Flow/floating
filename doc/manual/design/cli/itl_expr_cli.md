@@ -43,7 +43,7 @@ whole file without `--operation` (`sets`, `relations` and `reverse` in
 operation; the reverse operations take interval operands and are reported as
 unsupported.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exit `0` implies no failed and no diagnostic case, and in strict mode no
   unsupported case.

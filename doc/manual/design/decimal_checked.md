@@ -190,7 +190,7 @@ trait implementation turns into an `ArithmeticError` (division by zero and the
 invalid-operation family tested by `DecimalFlags::has_error`) are not among the
 coordinates kept by $\pi$; the pipeline keeps them as flags instead.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### Accumulated flags are the union of per-step flags
 

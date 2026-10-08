@@ -53,7 +53,7 @@ Where possible a test computes the expected result independently (with
 `BigInt`, `ExactRat` or `semantic`) instead of hard-coding output strings, so
 a law stays meaningful when formatting changes.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - A passing run shows that each stated law holds on its witnesses; it is
   finite evidence, not a proof for all inputs.

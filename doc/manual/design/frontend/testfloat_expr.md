@@ -110,7 +110,7 @@ Vector $k$ belongs to shard $k \bmod n$. As in the
 cover the file, have sizes $\lceil (N-i)/n \rceil$, and each vector's result is
 independent of the others, so merged shard counts equal the serial counts.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Soundness of a pass.** If the expected vector is correct, a passing arithmetic vector shows that
 `bin_float` returned the correctly rounded, correctly encoded result and

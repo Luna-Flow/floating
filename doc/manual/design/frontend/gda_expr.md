@@ -176,7 +176,7 @@ document order and shard $i$ of $n$ takes $S_i = \{k : k \bmod n = i\}$.
 Round-robin assignment spreads files with slow operations (`power`, `ln`)
 across shards instead of giving one shard a whole slow file.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Partition.** For $n \ge 1$ the sets $S_0, \dots, S_{n-1}$ are pairwise
 disjoint and cover $\{0, \dots, N-1\}$, because every $k$ has exactly one

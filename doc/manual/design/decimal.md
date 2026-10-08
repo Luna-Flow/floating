@@ -817,7 +817,7 @@ block lengths. These are dispatch boundaries: they change cost, never results.
 The native Newton path is implemented and tested but disabled, because native
 measurements do not show a crossover.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Representation.** A finite `Decimal` has $c \ge 0$; `DecCoeff` limbs are
   canonical (no leading zero limb, exact digit count). A zero's sign is kept

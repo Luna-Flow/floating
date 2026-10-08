@@ -33,7 +33,7 @@ silently ignored.
 The JSON `corpus` field names the detected format and the MPFR release the
 data was produced with, so aggregated reports state their evidence source.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exactly one parser runs per invocation, determined by the file content.
 - Exit `0` iff every row passed; `totalCases = passedCases + failedCases`.

@@ -151,7 +151,7 @@ final working precision, instead of returning a value that is not certified.
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
     correctly rounded last bit", *ACM TOMS* 17(3), 1991.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Rounding table.** Let $n = qd + r$ with $0 \le r < d$ and
 $x = (-1)^{\sigma} n/d$. Then $|\circ(x)| \in \{q, q+1\}$, with $q + 1$ only if

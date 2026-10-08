@@ -675,7 +675,7 @@ The thresholds are measured performance policy, not semantics: every kernel
 returns the exact product or quotient, so the choice cannot change a result or
 a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Single rounding.** Every finite result other than integer `power`, the
   division case above and the to-integral operations on integers longer than

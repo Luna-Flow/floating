@@ -102,7 +102,7 @@ Rows have no names in these formats, so ids are `op:LINE` (or `sqrt:LINE`,
 `pow:LINE`). They are stable as long as the pinned file is unchanged, which
 the SHA-256 pins in `testdata/bin_float/corpora.json` guarantee.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Soundness of a pass.** If MPFR's $y$ is the correctly rounded value of
 $f(x)$ (which MPFR guarantees), a passing square-root or power row shows

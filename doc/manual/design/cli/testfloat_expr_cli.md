@@ -38,7 +38,7 @@ files, runs the runner on each, and adds the chunk offset to the reported
 [internal/runner_cli](../internal/runner_cli.md), so they behave exactly as in
 the GDA runner.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - Exit `0` iff no selected vector failed;
   `selectedCases = passedCases + failedCases`.

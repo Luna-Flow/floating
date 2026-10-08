@@ -125,7 +125,7 @@ corpus, not an excluded feature. Unsupported cases do not fail `success`; the
 CLI's `--strict-supported` turns them into a failing exit code for the phases
 that claim full support.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Counter identities.** Every result has exactly one disposition, so
 $\text{total} = \text{executable} + \text{unsupported} + \text{diagnostic}$

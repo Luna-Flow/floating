@@ -193,7 +193,7 @@ $\texttt{semantic\_scalar\_result}(r.\texttt{map}(g), f) =
 \texttt{semantic\_scalar\_result}(r, f \circ g)$, which lets callers reuse one
 projection for every pipeline.
 
-## Correctness / invariants
+## Correctness and invariants
 
 - **Reduced form.** Every `ExactRational` satisfies $d > 0$,
   $\gcd(|n|, d) = 1$ and $n = 0 \Rightarrow d = 1$; `new` aborts on $d = 0$.

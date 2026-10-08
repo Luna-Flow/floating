@@ -156,7 +156,7 @@ with `pub using` rather than defining look-alikes, so a value of
 `@def.RoundingMode` *is* a value of `@lf_arith.RoundingMode` and no conversion
 layer exists between the two repositories.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### The `Floating` laws
 

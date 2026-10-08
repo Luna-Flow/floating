@@ -187,7 +187,7 @@ package's IEEE-style `DecimalContext::from_arithmetic_context` and report
 apart: a generic algorithm cannot observe a trap, and a GDA pipeline does not
 lose its status to a diagnostics record.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### The status is sticky
 

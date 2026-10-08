@@ -126,7 +126,7 @@ itself rather than only a message. The node has the raw text or name and the
 span, which is what a corpus runner prints. The callback's error `E` is kept
 unchanged, so a typed error survives evaluation.
 
-## Correctness / invariants
+## Correctness and invariants
 
 **Proposition 1 (closed shape).** Every `Expr` built with the public API is
 either `Value(LiteralAtom(ℓ))` or `Apply(Value(PrimitiveAtom(o)), args)` with

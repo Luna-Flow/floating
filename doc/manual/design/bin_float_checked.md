@@ -159,7 +159,7 @@ exceptional cases of the `_ctx` methods are successes: `div_ctx` by zero
 yields $\pm\infty$, while `div` (which calls `div_checked`) fails. The two
 names make the two contracts visible at the call site.
 
-## Correctness / invariants
+## Correctness and invariants
 
 ### The monad laws
 
