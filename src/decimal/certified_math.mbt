@@ -458,6 +458,13 @@ fn decimal_certified_power_result(
     Some(result) => return Ok(result)
     None => ()
   }
+  // The enclosure decides an exact power only when the value is representable
+  // in binary, so `4^1.5` is returned exactly but `32^0.2` is not. Deciding it
+  // in decimal first covers the rest.
+  match decimal_power_exact_rational_result(base, exponent, ctx) {
+    Some(result) => return Ok(result)
+    None => ()
+  }
   decimal_certified_binary_result(base, exponent, ctx, "power", fn(
     left,
     right,
