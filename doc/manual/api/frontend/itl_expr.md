@@ -89,21 +89,26 @@ pub fn ItlCase::expected(Self) -> String
 pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 ```
 
-`precision` (default `53`) is the bit precision used to read bounds.
-Interval results are rounded with `@ball_float.BallContext::binary64()`
-regardless of `precision`, so the default is the meaningful value for ITF1788
-data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet).
+`precision` (default `53`, must be positive) is the significand precision of
+the interval format the case runs in: bounds are read at `precision` bits and
+interval and number results are rounded with
+`@ball_float.BallContext::new(precision=precision)`, which has the binary64
+exponent range. The default `53` is `BallContext::binary64()`, the format of the
+ITF1788 data.
 
 Operands and expected values are read as follows. An interval literal is
 `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by
 `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`).
 A bound is `inf`/`infinity` with an optional sign, a hexadecimal float
 `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to
-nearest-even at `precision` bits, the lower bound as well as the upper one, so
-an inexact decimal literal does not give an enclosing interval (tracked in
-[#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet). A decimal
-bound is first read as a decimal of $2p + 16$ significant digits; a literal
-with more digits is rounded twice.
+nearest-even at `precision` bits, the lower bound as well as the upper one.
+This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup
+constructor of the target type as two floating constants, so a bound is the
+nearest number of the format, not the outward rounding that IEEE 1788
+`textToInterval` applies to an interval literal string; the corpus relies on
+it (`isSingleton [17.1, 17.1] = true`). A decimal bound is first read as a
+decimal of $2p + 16$ significant digits; a literal with more digits is rounded
+twice.
 
 The case is dispatched on its operation and expected value:
 

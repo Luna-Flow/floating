@@ -80,7 +80,8 @@ are equal; an overlap case when the state names are equal.
 Each ITL operation maps to one public method of
 `@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to
 `sqrt_interval`, `pown` to `pown`, `overlap` to `overlap_state`), and
-results are rounded with `BallContext::binary64()`. Testing through the
+results are rounded with `BallContext::new(precision=p)`, the format the bounds
+were read in (binary64 for the default $p = 53$). Testing through the
 public API means the corpus checks exactly what users call, including the
 decoration logic.
 
@@ -95,10 +96,14 @@ A longer literal is rounded twice, and the second rounding can then land on
 the wrong side of a binary midpoint; the decimal expansion of a binary64
 midpoint can have hundreds of digits, so this needs a literal with more than
 $2p + 16 = 122$ significant digits, which ITF1788 data does not use.
-Rounding to nearest rather than outward is a simplification: it is exact for
-bounds that are binary64 numbers, but a decimal bound such as `0.1` is read as
-the nearest binary64 number, which may lie inside or outside the interval the
-literal denotes. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet.
+Rounding to nearest rather than outward is the ITF1788 convention, not an
+IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup
+constructor of the target type applied to two floating constants of that type,
+so a decimal bound denotes the nearest number of the format. The corpus relies
+on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with
+bound `5.1` expect the bounds computed from the nearest binary64 number).
+Reading such bounds outward, as `textToInterval` would, fails strict cases in
+the cancellation, power, atan2 and integer-power phases.
 
 ### Decorations only when the case states one
 
@@ -162,9 +167,10 @@ not merge the statement with the next one.
 
 - Reverse operations, `mulRevToPair`, string conversions and exception
   signals are not executed.
-- Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet).
-- Interval results are always rounded to binary64; `precision` only affects
-  how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62)).
+- Decimal bounds are rounded to nearest, as ITF1788 floating constants; an
+  `[l,u]` in ITL is not an IEEE 1788 interval literal.
+- The result format for `precision = p` has the binary64 exponent range for
+  every $p$, so `precision = 24` is not binary32.
 - `/*` opens a block comment only at the start of a line.
 - No file IO and no operation filtering; both are in
   [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).

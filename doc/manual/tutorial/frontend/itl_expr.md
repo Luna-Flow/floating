@@ -159,15 +159,17 @@ test "dispositions" {
 - **Filtering by operation.** The CLI's `--operation NAME` option keeps only
   cases of that operation; in code, filter `cases` by `operation()` before
   executing.
-- **Precision.** `execute_case(case, precision=p)` parses bounds at `p` bits;
-  the interval operations themselves are rounded to binary64, so keep the
-  default `53` for ITF1788 data.
+- **Precision.** `execute_case(case, precision=p)` reads bounds and rounds
+  results at `p` bits, with the binary64 exponent range. The ITF1788 data is
+  written for binary64, so keep the default `53` for corpus runs.
 
 ## Common pitfalls
 
-- **Decimal bounds are rounded to nearest.** A bound such as `0.1` is read as
-  the nearest binary64 number, not rounded outward, so `[0.1,0.1]` is the
-  singleton of that binary64 number. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet.
+- **Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as
+  `0.1` is a floating constant of the format, read as the nearest binary64
+  number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of
+  one tenth. To test an enclosure of a decimal value, write its bounds in
+  hexadecimal.
 - **Signals are not checked.** ITL annotations such as `signal …` after the
   expected value make the expected value unreadable; such cases become
   unsupported or diagnostic rather than passing.

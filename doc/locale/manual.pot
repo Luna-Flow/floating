@@ -992,7 +992,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:1797
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:456
-#: manual/api/frontend/itl_expr.md:258
+#: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:311
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
@@ -1079,7 +1079,7 @@ msgstr ""
 #: manual/api/def.md:435
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:507
-#: manual/api/frontend/itl_expr.md:271
+#: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:324
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:563
@@ -1094,7 +1094,7 @@ msgstr ""
 #: manual/api/decimal.md:1914
 #: manual/api/decimal_gda.md:1977
 #: manual/api/frontend/gda_expr.md:509
-#: manual/api/frontend/itl_expr.md:273
+#: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:326
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:565
@@ -1445,7 +1445,7 @@ msgstr ""
 #: manual/api/bench/bin_float.md:32
 #: manual/api/bench/decimal.md:31
 #: manual/api/bench/decimal_gda.md:31
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 #: manual/design/bench/ball_float.md:33
 #: manual/design/bench/bin_float.md:33
 #: manual/design/bench/decimal.md:33
@@ -5503,7 +5503,7 @@ msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value,
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:183
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 msgid "Operations"
 msgstr ""
 
@@ -5909,7 +5909,7 @@ msgid "These accessors return the option values."
 msgstr ""
 
 #: manual/api/frontend/gda_expr.md:305
-#: manual/api/frontend/itl_expr.md:155
+#: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:296
 #: manual/getting_started.md:13
 msgid "Results"
@@ -6045,167 +6045,167 @@ msgid "`execute_case(case, precision?)` executes one case and returns its result
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:92
-msgid "`precision` (default `53`) is the bit precision used to read bounds. Interval results are rounded with `@ball_float.BallContext::binary64()` regardless of `precision`, so the default is the meaningful value for ITF1788 data (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet)."
+msgid "`precision` (default `53`, must be positive) is the significand precision of the interval format the case runs in: bounds are read at `precision` bits and interval and number results are rounded with `@ball_float.BallContext::new(precision=precision)`, which has the binary64 exponent range. The default `53` is `BallContext::binary64()`, the format of the ITF1788 data."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:97
-msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one, so an inexact decimal literal does not give an enclosing interval (tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet). A decimal bound is first read as a decimal of $2p + 16$ significant digits; a literal with more digits is rounded twice."
+#: manual/api/frontend/itl_expr.md:99
+msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is first read as a decimal of $2p + 16$ significant digits; a literal with more digits is rounded twice."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:108
+#: manual/api/frontend/itl_expr.md:113
 msgid "The case is dispatched on its operation and expected value:"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 #: manual/performance_audit.md:25
 msgid "Expected"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:110
+#: manual/api/frontend/itl_expr.md:115
 #: manual/numeric_semantics.md:574
 msgid "Comparison"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:112
+#: manual/api/frontend/itl_expr.md:117
 #: manual/design/frontend/gda_expr.md:95
 msgid "boolean"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:112
+#: manual/api/frontend/itl_expr.md:117
 msgid "`true` or `false`"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:112
+#: manual/api/frontend/itl_expr.md:117
 msgid "equal booleans"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:118
 msgid "overlap"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:118
 msgid "an overlap state name (`before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains`, `finishedBy`, `bothEmpty`, `firstEmpty`, `secondEmpty`, `undefined`)"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:118
 msgid "equal names"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:119
 msgid "numeric"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:119
 msgid "a bound"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:119
 msgid "equal numbers"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:120
 msgid "unary"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:115
-#: manual/api/frontend/itl_expr.md:116
-#: manual/api/frontend/itl_expr.md:117
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:121
+#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:123
 msgid "interval"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:115
-#: manual/api/frontend/itl_expr.md:116
-#: manual/api/frontend/itl_expr.md:117
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:121
+#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:123
 msgid "equal sets"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:116
+#: manual/api/frontend/itl_expr.md:121
 msgid "ternary"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:122
 msgid "integer power"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:122
 msgid "`pown` (second operand an integer)"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:123
 msgid "binary"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:125
 msgid "\"Equal sets\" means: both NaI, or both empty, or equal lower bounds and equal upper bounds (compared numerically, so $-0 = +0$). When the expected text contains `_`, the decorations must also be equal. The boolean dispatch is chosen whenever the expected text is `true` or `false`."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:125
+#: manual/api/frontend/itl_expr.md:130
 msgid "Dispositions:"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:127
+#: manual/api/frontend/itl_expr.md:132
 msgid "`Executable` when the case was run; `passed()` tells the outcome;"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:128
+#: manual/api/frontend/itl_expr.md:133
 msgid "`Unsupported(reason)` for an unknown operation, whatever its operands and expected value, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a boolean predicate other than the five unary ones whose second operand is missing or unreadable;"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:134
+#: manual/api/frontend/itl_expr.md:139
 msgid "`Diagnostic(reason)` when the first operand of a boolean case, an operand of `isMember`, or an operand or the expected value of the overlap, numeric, unary, ternary or integer-power dispatch, cannot be read, or an operand of the binary dispatch is not an interval literal."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:139
+#: manual/api/frontend/itl_expr.md:144
 msgid "Support is decided from the operation name before any operand is read, so `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `sqrRev [0.0,1.0]` are unsupported and do not count against `RunSummary::success`."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:143
+#: manual/api/frontend/itl_expr.md:148
 msgid "`execute_case` does not abort on case content."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:147
+#: manual/api/frontend/itl_expr.md:152
 msgid "`summarize_results(results)` counts a list of results."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:153
+#: manual/api/frontend/itl_expr.md:158
 msgid "`total_cases` is the length of the list."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:159
+#: manual/api/frontend/itl_expr.md:164
 msgid "`ItlDisposition` says whether a case was executed."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:171
+#: manual/api/frontend/itl_expr.md:176
 msgid "`ItlResult` is the outcome of one case."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:181
+#: manual/api/frontend/itl_expr.md:186
 msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `BallFloatDecorated::to_string`), and a short reason or the offending text otherwise."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:195
+#: manual/api/frontend/itl_expr.md:200
 msgid "`RunSummary` aggregates a list of results."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:205
+#: manual/api/frontend/itl_expr.md:210
 msgid "These methods return the number of results, the number of executed cases, and how many of those passed and failed."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:217
+#: manual/api/frontend/itl_expr.md:222
 msgid "These methods return the number of cases that were not executed, by disposition."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:227
+#: manual/api/frontend/itl_expr.md:232
 msgid "`results` returns a copy of the results in the order they were given; `success` is the overall verdict."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:235
+#: manual/api/frontend/itl_expr.md:240
 msgid "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$. `success()` is true when no executable case failed **and** there is no diagnostic case; unsupported cases do not affect it."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:262
+#: manual/api/frontend/itl_expr.md:267
 msgid "These methods compare all fields of two cases and render a case for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
@@ -8087,7 +8087,7 @@ msgstr ""
 #: manual/design/def.md:337
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
-#: manual/design/frontend/itl_expr.md:161
+#: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:140
 #: manual/design/internal.md:231
@@ -8944,7 +8944,7 @@ msgstr ""
 #: manual/design/def.md:159
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
-#: manual/design/frontend/itl_expr.md:128
+#: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:155
@@ -9016,7 +9016,7 @@ msgstr ""
 #: manual/design/def.md:324
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
-#: manual/design/frontend/itl_expr.md:151
+#: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:130
 #: manual/design/internal.md:219
@@ -13344,78 +13344,78 @@ msgid "Execute against the public `ball_float` API"
 msgstr ""
 
 #: manual/design/frontend/itl_expr.md:80
-msgid "Each ITL operation maps to one public method of `@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to `sqrt_interval`, `pown` to `pown`, `overlap` to `overlap_state`), and results are rounded with `BallContext::binary64()`. Testing through the public API means the corpus checks exactly what users call, including the decoration logic."
+msgid "Each ITL operation maps to one public method of `@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to `sqrt_interval`, `pown` to `pown`, `overlap` to `overlap_state`), and results are rounded with `BallContext::new(precision=p)`, the format the bounds were read in (binary64 for the default $p = 53$). Testing through the public API means the corpus checks exactly what users call, including the decoration logic."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:87
+#: manual/design/frontend/itl_expr.md:88
 msgid "Reading bounds"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:89
-msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are parsed as a decimal with $2p + 16$ digits and converted to binary with one rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$ significant digits the decimal parse is exact, so the bound is rounded once. A longer literal is rounded twice, and the second rounding can then land on the wrong side of a binary midpoint; the decimal expansion of a binary64 midpoint can have hundreds of digits, so this needs a literal with more than $2p + 16 = 122$ significant digits, which ITF1788 data does not use. Rounding to nearest rather than outward is a simplification: it is exact for bounds that are binary64 numbers, but a decimal bound such as `0.1` is read as the nearest binary64 number, which may lie inside or outside the interval the literal denotes. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet."
+#: manual/design/frontend/itl_expr.md:90
+msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are parsed as a decimal with $2p + 16$ digits and converted to binary with one rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$ significant digits the decimal parse is exact, so the bound is rounded once. A longer literal is rounded twice, and the second rounding can then land on the wrong side of a binary midpoint; the decimal expansion of a binary64 midpoint can have hundreds of digits, so this needs a literal with more than $2p + 16 = 122$ significant digits, which ITF1788 data does not use. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:103
+#: manual/design/frontend/itl_expr.md:108
 msgid "Decorations only when the case states one"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:105
+#: manual/design/frontend/itl_expr.md:110
 msgid "ITL writes undecorated expectations (`[4.0,6.0]`) for the set-based tests and decorated ones (`[4.0,6.0]_com`) for the decoration tests. The executor parses an undecorated literal as $\\mathsf{com}$ but compares decorations only when the expected text contains `_`, so set-based cases are not failed by the decoration the implementation attaches."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:111
+#: manual/design/frontend/itl_expr.md:116
 msgid "Three dispositions and a strict summary"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:113
+#: manual/design/frontend/itl_expr.md:118
 msgid "`Unsupported` marks cases the library does not implement (unknown operations such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an expectation with a `signal` annotation). `Diagnostic` marks cases whose data cannot be read. Support is decided from the operation name before any operand is read, so an unknown operation is `Unsupported` whatever its operands (`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`). For a known operation the classification is made by the dispatch path: a `signal` annotation on a unary, ternary, numeric or integer-power case makes its expected value unreadable and therefore a `Diagnostic`. `RunSummary::success` fails on any failed case *and* on any diagnostic, because unreadable data in a pinned corpus is a defect of the parser or the corpus, not an excluded feature. Unsupported cases do not fail `success`; the CLI's `--strict-supported` turns them into a failing exit code for the phases that claim full support."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:130
+#: manual/design/frontend/itl_expr.md:135
 msgid "**Counter identities.** Every result has exactly one disposition, so $\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:134
+#: manual/design/frontend/itl_expr.md:139
 msgid "**Soundness of a pass.** If an interval-valued case passes, the actual bounds equal the expected bounds. When the expected value is the tightest binary64 enclosure, the actual result is then both an enclosure of the range and tightest; when the corpus only promises an enclosure (accurate rather than tightest operations), a pass shows that the implementation reached the same bounds."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:141
+#: manual/design/frontend/itl_expr.md:146
 msgid "**Determinism.** Parsing and execution depend only on the text and `precision`; results do not depend on the order in which cases are executed, so a caller may filter or reorder cases freely."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:145
+#: manual/design/frontend/itl_expr.md:150
 msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` never aborts on case content: every unreadable input is reported through a disposition. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:153
+#: manual/design/frontend/itl_expr.md:158
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:155
+#: manual/design/frontend/itl_expr.md:160
 msgid "**Always comparing decorations.** It would fail set-based cases on the default decoration, although those cases make no decoration claim."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:157
+#: manual/design/frontend/itl_expr.md:162
 msgid "**Treating signals as passes.** IEEE 1788 signals (for example `UndefinedOperation`) are not observable through the current API, so such cases are reported as not executed rather than silently passed."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:163
+#: manual/design/frontend/itl_expr.md:168
 msgid "Reverse operations, `mulRevToPair`, string conversions and exception signals are not executed."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:165
-msgid "Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet)."
+#: manual/design/frontend/itl_expr.md:170
+msgid "Decimal bounds are rounded to nearest, as ITF1788 floating constants; an `[l,u]` in ITL is not an IEEE 1788 interval literal."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:166
-msgid "Interval results are always rounded to binary64; `precision` only affects how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62))."
+#: manual/design/frontend/itl_expr.md:172
+msgid "The result format for `precision = p` has the binary64 exponent range for every $p$, so `precision = 24` is not binary32."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:168
+#: manual/design/frontend/itl_expr.md:174
 msgid "`/*` opens a block comment only at the start of a line."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:169
+#: manual/design/frontend/itl_expr.md:175
 msgid "No file IO and no operation filtering; both are in [`cli/itl_expr_cli`](../cli/itl_expr_cli.md)."
 msgstr ""
 
@@ -16992,7 +16992,7 @@ msgstr ""
 #: manual/tutorial/def.md:270
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
-#: manual/tutorial/frontend/itl_expr.md:178
+#: manual/tutorial/frontend/itl_expr.md:180
 #: manual/tutorial/frontend/mpfr_expr.md:176
 #: manual/tutorial/frontend/testfloat_expr.md:220
 #: manual/tutorial/internal.md:195
@@ -19845,34 +19845,34 @@ msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps onl
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:162
-msgid "**Precision.** `execute_case(case, precision=p)` parses bounds at `p` bits; the interval operations themselves are rounded to binary64, so keep the default `53` for ITF1788 data."
+msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:168
-msgid "**Decimal bounds are rounded to nearest.** A bound such as `0.1` is read as the nearest binary64 number, not rounded outward, so `[0.1,0.1]` is the singleton of that binary64 number. Tracked in [#62](https://github.com/Luna-Flow/floating/issues/62); no fix yet."
+msgid "**Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as `0.1` is a floating constant of the format, read as the nearest binary64 number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of one tenth. To test an enclosure of a decimal value, write its bounds in hexadecimal."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:171
+#: manual/tutorial/frontend/itl_expr.md:173
 msgid "**Signals are not checked.** ITL annotations such as `signal …` after the expected value make the expected value unreadable; such cases become unsupported or diagnostic rather than passing."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:174
+#: manual/tutorial/frontend/itl_expr.md:176
 msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, or if the text ends inside a statement."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:180
+#: manual/tutorial/frontend/itl_expr.md:182
 msgid "[frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and the list of executed operations."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/itl_expr.md:184
 msgid "[frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass rule."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:184
+#: manual/tutorial/frontend/itl_expr.md:186
 msgid "[cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:186
+#: manual/tutorial/frontend/itl_expr.md:188
 msgid "[ball_float tutorial](../ball_float.md) for the interval arithmetic being tested."
 msgstr ""
 
