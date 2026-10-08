@@ -71,6 +71,12 @@ def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
     return tuple(base)
 
 
+DEPENDENCY_STAGE = Stage(
+    "DEPENDENCIES · install",
+    ("sh", "tools/run_moon_clean_exec.sh", "install"),
+)
+
+
 def stages_for(scope: str, jobs: int) -> list[Stage]:
     suites = {
         "decimal": Stage(
@@ -153,8 +159,10 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
     }
     if scope not in {"all", "quick"}:
         selected = suites[scope]
-        return selected if isinstance(selected, list) else [selected]
+        stages = selected if isinstance(selected, list) else [selected]
+        return [DEPENDENCY_STAGE, *stages]
     common_repository_stages = [
+        DEPENDENCY_STAGE,
         Stage(
             "FORMAT · MoonBit sources",
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
