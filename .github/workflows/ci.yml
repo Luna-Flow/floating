@@ -17,10 +17,10 @@ concurrency:
 jobs:
   moonbit:
     name: moonbit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: install moonbit
         run: |
@@ -28,7 +28,7 @@ jobs:
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
       - name: install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: update registry
         run: sh tools/run_moon_clean_exec.sh update

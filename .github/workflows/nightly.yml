@@ -15,7 +15,7 @@ concurrency:
 jobs:
   conformance:
     name: ${{ matrix.scope }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -28,7 +28,7 @@ jobs:
           - interval
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: install moonbit
         run: |
@@ -36,7 +36,7 @@ jobs:
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
 
       - name: install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: toolchain
         run: moon version --all
@@ -44,7 +44,7 @@ jobs:
       # Pinned upstream corpora are verified by SHA-256 after download, so the
       # cache only saves bandwidth; the key changes whenever a pin changes.
       - name: cache pinned corpora
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             .tmp/binfloat-conformance/downloads
@@ -64,7 +64,7 @@ jobs:
 
       - name: upload summaries
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: summaries-${{ matrix.scope }}
           path: .tmp/**/summary.json
