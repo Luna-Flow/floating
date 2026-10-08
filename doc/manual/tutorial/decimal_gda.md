@@ -1,192 +1,379 @@
-# `decimal_gda` Tutorial
+# decimal_gda tutorial
 
-Use `decimal_gda` when a calculation must follow General Decimal Arithmetic
-rounding, sticky status, defined trap results, and trap precedence. Use
-[`decimal`](decimal.md) instead for the IEEE `(value, flags)` model,
-DPD/BID interchange, or the broader 0.8.0 elementary-function surface.
+This tutorial teaches you to compute with `decimal_gda`, the package that
+implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that
+keep their trailing zeros, a context that fixes precision, rounding and
+exponent limits, sticky status that records what happened, and traps that stop
+a calculation while still handing you the defined result. By the end you can
+thread a context through a calculation, round money, handle traps, overflow and
+underflow, call the elementary functions and pick the right comparison. The
+mathematics behind each rule is on the [design page](../design/decimal_gda.md);
+every public name is on the [API page](../api/decimal_gda.md).
 
-## The One Rule To Remember
+## Quick start
 
-Every operation returns a `GdaOutcome`. Thread `next_context()` into the next
-operation when status must accumulate.
+Add the module and import the package:
+
+```sh
+moon add Luna-Flow/floating
+```
 
 ```text
-old context -> operation -> value + raised flags + next context (+ optional trap)
-```
-
-`raised()` describes the current operation. `next_context().status()` is sticky
-and describes the full threaded calculation so far.
-
-## Parse And Calculate
-
-```moonbit nocheck
-let initial = @decimal_gda.GdaContext::decimal64()
-let parsed = @decimal_gda.parse("12.3400", initial)
-let divisor = @decimal_gda.Decimal::from_string("2").unwrap()
-let divided = @decimal_gda.divide(
-  parsed.value(),
-  divisor,
-  parsed.next_context(),
-)
-inspect(divided.value().to_string(), content="6.1700")
-```
-
-The parse result preserves the input cohort. Division receives the context
-returned by parsing, so any parse condition remains in the sticky status.
-
-## Read Raised And Sticky Status
-
-```moonbit nocheck
-let context = @decimal_gda.GdaContext::new(precision=3)
-let outcome = @decimal_gda.parse("1.2345", context)
-inspect(
-  outcome.raised().contains(@decimal_gda.GdaSignal::Rounded),
-  content="true",
-)
-inspect(
-  outcome.next_context().status().contains(@decimal_gda.GdaSignal::Rounded),
-  content="true",
-)
-```
-
-Use `clear_status()` to start a new observation window while retaining traps.
-Use `reset()` only when both status and trap configuration should return to
-defaults.
-
-## Configure And Handle A Trap
-
-Trap sets are immutable. Enabling a trap creates a new context.
-
-```moonbit nocheck
-let context = @decimal_gda.GdaContext::decimal64().trap(
-  @decimal_gda.GdaSignal::DivisionByZero,
-)
-let outcome = @decimal_gda.divide(
-  @decimal_gda.Decimal::one(),
-  @decimal_gda.Decimal::zero(),
-  context,
-)
-match outcome {
-  @decimal_gda.Trapped(signal, value, next_context, raised) => {
-    inspect(signal, content="DivisionByZero")
-    inspect(value.is_infinite(), content="true")
-    inspect(next_context.status().contains(signal), content="true")
-    inspect(raised.contains(signal), content="true")
-  }
-  @decimal_gda.Completed(_, _, _) => abort("expected a trap")
+import {
+  "Luna-Flow/floating/decimal_gda",
 }
 ```
 
-The defined infinity remains available. The trap changes control flow; it does
-not replace the GDA result with a generic error. When several enabled signals
-are raised, inspect `trapped_signal()`/the `Trapped` case rather than inventing
-an application-side precedence order.
+Every GDA operation takes its operands and a `GdaContext` and returns a
+`GdaOutcome`: the result, the context to use next, and the conditions this
+operation raised.
 
-## Validate Dynamic Contexts
-
-Use `try_new` for configuration or user input:
-
-```moonbit nocheck
-let context = @decimal_gda.GdaContext::try_new(
-  precision=34,
-  e_min=-6143,
-  e_max=6144,
-  clamp=true,
-).unwrap()
-```
-
-This keeps invalid precision or reversed exponent bounds in the normal error
-channel instead of aborting.
-
-## Quantize And Preserve Cohorts
-
-Use GDA `quantize` when the result exponent is prescribed:
-
-```moonbit nocheck
-let context = @decimal_gda.GdaContext::decimal64()
-let value = @decimal_gda.Decimal::from_string("12.3456").unwrap()
-let cents = @decimal_gda.Decimal::from_string("0.00").unwrap()
-let outcome = @decimal_gda.quantize(value, cents, context)
-inspect(outcome.value().quantum(), content="-2")
-```
-
-Thread `outcome.next_context()` after observing Rounded/Inexact or an invalid
-quantize request. Call `reduce` only when canonical cohort form is intended.
-
-## Use Mathematical Functions
-
-The GDA surface intentionally exposes only the standard-facing mathematical
-family implemented by the package: square root, power, `exp`, `ln`, and
-`log10`.
-
-```moonbit nocheck
-let context = @decimal_gda.GdaContext::decimal64()
-let nine = @decimal_gda.Decimal::from_int(9)
-let root = @decimal_gda.sqrt(nine, context)
-inspect(root.value().to_string(), content="3")
-```
-
-Trigonometric, hyperbolic, inverse, `atan2`, `hypot`, and pi-scaled operations
-belong to the IEEE decimal/binary and interval surfaces, not to this GDA adapter.
-
-## Choose The Right Comparison
-
-- `compare` performs quiet numerical comparison and returns a decimal
-  comparison value.
-- `compare_signal` applies signaling comparison behavior.
-- `compare_total` orders complete representations, including NaNs and cohorts.
-- `compare_total_magnitude` applies total order to magnitudes.
-- `same_quantum` tests cohort exponent compatibility.
-
-Use total comparison for deterministic sorting or protocol canonicalization;
-do not substitute it for ordinary numerical equality.
-
-## Use The Checked Pipeline For Long Chains
-
-Manual context threading is clearest at integration boundaries. For a long
-linear pipeline, `decimal_gda_checked` retains one `GdaOutcome`, threads sticky
-status, and stops automatically after a trap:
-
-```moonbit check
+```moonbit
 ///|
-test "GDA checked pipeline" {
-  let checked = @decimal_gda_checked.GdaDecimalChecked::parse(
-    "9",
-    @decimal_gda.GdaContext::decimal64(),
-  ).sqrt()
-  inspect(checked.value().to_string(), content="3")
-  inspect(checked.is_trapped(), content="false")
+test "quick start: one third in nine digits" {
+  let ctx = @decimal_gda.context(precision=9)
+  let one = @decimal_gda.parse("1", ctx)
+  let three = @decimal_gda.Decimal::from_string("3").unwrap()
+  let third = @decimal_gda.divide(one.value(), three, one.next_context())
+  inspect(third.value(), content="0.333333333")
+  inspect(third.raised().contains(Inexact), content="true")
+  inspect(third.next_context().status().contains(Rounded), content="true")
 }
 ```
 
-Use `resume_defined()` only after the application has explicitly decided that
-continuing from a trapped operation's defined result is valid.
+`raised()` describes this one operation. `next_context().status()` is sticky:
+it collects every condition since the context was created or cleared.
 
-## Common Mistakes
+## Everyday tasks
 
-- Reusing the original context when sticky status should accumulate.
-- Treating `Trapped` as “no value.”
-- Combining `GdaFlags` manually and assuming a context status changed.
-- Mixing `decimal.Decimal` and `decimal_gda.Decimal` as if they were aliases.
-- Using `decimal_checked` for a GDA pipeline; it deliberately implements the
-  different IEEE flag model.
-- Depending on coefficient thresholds or cache behavior; neither is public API.
+### Thread the context through a calculation
 
-## Recommended Practice
+Status accumulates only when you pass each outcome's `next_context()` to the
+next operation. The context you started with never changes, because a context
+is a value, not a mutable object.
 
-1. Construct or validate one context at the calculation boundary.
-2. Thread every returned `next_context()` in manual workflows.
-3. Inspect both current `raised` flags and sticky `status` at control boundaries.
-4. Match `Trapped` explicitly and record the defined result before deciding to
-   resume or stop.
-5. Use `decimal_gda_checked` for linear composition, but return to raw outcomes
-   where branching trap policy is application-specific.
+```moonbit
+///|
+test "sticky status follows the threaded context" {
+  let start = @decimal_gda.context(precision=5)
+  let two = @decimal_gda.Decimal::from_string("2").unwrap()
+  let three = @decimal_gda.Decimal::from_string("3").unwrap()
+  let q = @decimal_gda.divide(two, three, start) // inexact
+  let tiny = @decimal_gda.Decimal::from_string("0.00001").unwrap()
+  let s = @decimal_gda.add(q.value(), tiny, q.next_context()) // exact
+  inspect(s.value(), content="0.66668")
+  inspect(s.raised().contains(Inexact), content="false")
+  inspect(s.next_context().status().contains(Inexact), content="true")
+  inspect(start.status().contains(Inexact), content="false")
+  // Start a new observation window and keep the trap settings.
+  let fresh = s.next_context().clear_status()
+  inspect(fresh.status() == @decimal_gda.GdaFlags::none(), content="true")
+}
+```
 
-## Next Reading
+### Keep and set the quantum
 
-- [Design](../design/decimal_gda.md) explains the state transition, kernel isolation, and
-  switching boundaries.
-- [API reference](../api/decimal_gda.md) lists the complete legal scalar surface.
-- [Conformance](../conformance/decimal_gda.md) defines the pinned GDA corpus claim.
-- [`decimal_gda_checked` tutorial](decimal_gda_checked.md) covers
-  trap short-circuit and recovery in detail.
+A GDA number is a coefficient and an exponent, so `2.50` and `2.5` are equal
+numbers with different exponents (different *quanta*). Arithmetic keeps the
+exponent that the exact result calls for, and `quantize` sets it explicitly.
+That is how you round an amount to cents:
+
+```moonbit
+///|
+test "round to cents with quantize" {
+  let even = @decimal_gda.GdaContext::decimal64() // HalfEven
+  let half_up = @decimal_gda.context(precision=16, rounding=HalfUp)
+  let price = @decimal_gda.Decimal::from_string("2.50").unwrap()
+  let qty = @decimal_gda.Decimal::from_string("3").unwrap()
+  inspect(@decimal_gda.multiply(price, qty, even).value(), content="7.50")
+  let cents = @decimal_gda.Decimal::from_string("0.01").unwrap()
+  let x = @decimal_gda.Decimal::from_string("2.345").unwrap()
+  let banker = @decimal_gda.quantize(x, cents, even)
+  let school = @decimal_gda.quantize(x, cents, half_up)
+  inspect(banker.value(), content="2.34")
+  inspect(school.value(), content="2.35")
+  inspect(banker.raised().contains(Inexact), content="true")
+  // A quantum that needs more digits than the precision is invalid.
+  let tiny = @decimal_gda.Decimal::from_string("1E-20").unwrap()
+  let bad = @decimal_gda.quantize(x, tiny, even)
+  inspect(bad.value(), content="nan")
+  inspect(bad.raised().contains(InvalidOperation), content="true")
+}
+```
+
+`reduce` goes the other way: it removes trailing zeros, so `reduce(7.50)` is
+`7.5`. Use it only when you really want the shortest cohort member.
+
+### Handle a trap without losing the result
+
+Enable a trap by deriving a new context with `trap`. A trapped operation
+returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result
+is still there, and the sticky status is still updated.
+
+```moonbit
+///|
+test "a trapped division keeps its defined result" {
+  let ctx = @decimal_gda.GdaContext::decimal64().trap(DivisionByZero)
+  let one = @decimal_gda.Decimal::one()
+  let zero = @decimal_gda.Decimal::zero()
+  match @decimal_gda.divide(one, zero, ctx) {
+    @decimal_gda.GdaOutcome::Trapped(signal, value, next, raised) => {
+      inspect(signal == DivisionByZero, content="true")
+      inspect(value, content="inf")
+      inspect(raised.contains(DivisionByZero), content="true")
+      inspect(next.status().contains(DivisionByZero), content="true")
+    }
+    @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
+  }
+}
+```
+
+An `InvalidOperation` trap also catches the four detailed invalid conditions
+(`ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined`,
+`InvalidContext`). The basic context enables it, so a malformed literal traps:
+
+```moonbit
+///|
+test "the InvalidOperation trap covers conversion syntax" {
+  let basic = @decimal_gda.GdaContext::basic()
+  let out = @decimal_gda.parse("1.2.3", basic)
+  match out {
+    @decimal_gda.GdaOutcome::Trapped(signal, value, _, raised) => {
+      inspect(signal == InvalidOperation, content="true")
+      inspect(value, content="nan")
+      inspect(raised.conversion_syntax, content="true")
+    }
+    @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
+  }
+}
+```
+
+When one operation raises several trapped conditions, the package reports one
+of them by a fixed precedence (listed in the [API page](../api/decimal_gda.md#trap-selection)),
+so you never have to invent your own order.
+
+### Respect the exponent range
+
+A context bounds the adjusted exponent to `[e_min, e_max]`. Beyond `e_max` the
+result overflows; what it overflows *to* depends on the rounding mode. Below
+`e_min` the result becomes subnormal and loses digits:
+
+```moonbit
+///|
+test "overflow and underflow in decimal32" {
+  let d32 = @decimal_gda.GdaContext::decimal32() // p=7, e_max=96, HalfEven
+  let down = @decimal_gda.context(
+    precision=7,
+    rounding=Down,
+    e_min=-95,
+    e_max=96,
+    clamp=true,
+  )
+  let big = @decimal_gda.Decimal::from_string("9E+96").unwrap()
+  let ten = @decimal_gda.Decimal::from_string("10").unwrap()
+  inspect(@decimal_gda.multiply(big, ten, d32).value(), content="inf")
+  inspect(@decimal_gda.multiply(big, ten, down).value(), content="9.999999E+96")
+  let small = @decimal_gda.Decimal::from_string("1.234567E-95").unwrap()
+  let thousand = @decimal_gda.Decimal::from_string("1000").unwrap()
+  let sub = @decimal_gda.divide(small, thousand, d32)
+  inspect(sub.value(), content="1.235E-98")
+  inspect(sub.raised().contains(Subnormal), content="true")
+  inspect(sub.raised().contains(Underflow), content="true")
+}
+```
+
+### Call the elementary functions
+
+`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to
+even, whatever the context's rounding mode says. `power` with a non-integer
+exponent is also correctly rounded, but under the context's own rounding mode.
+As the GDA specification requires, `exp`, `ln`, `log10` and non-integer `power`
+only accept contexts with precision, `e_max` and `-e_min` at most 999,999; the
+decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
+`context` (exponent range ±999,999,999) do not:
+
+```moonbit
+///|
+test "elementary functions" {
+  let ctx = @decimal_gda.GdaContext::decimal64()
+  let one = @decimal_gda.Decimal::one()
+  let two = @decimal_gda.Decimal::from_string("2").unwrap()
+  let ten = @decimal_gda.Decimal::from_string("10").unwrap()
+  inspect(@decimal_gda.exp(one, ctx).value(), content="2.718281828459045")
+  inspect(@decimal_gda.ln(ten, ctx).value(), content="2.302585092994046")
+  inspect(@decimal_gda.log10(two, ctx).value(), content="0.3010299956639812")
+  inspect(@decimal_gda.sqrt(two, ctx).value(), content="1.414213562373095")
+  // exp, ln, log10 and non-integer power need |e_min|, e_max <= 999999.
+  let floor3 = @decimal_gda.context(
+    precision=3,
+    rounding=Floor,
+    e_min=-999_999,
+    e_max=999_999,
+  )
+  let three_halves = @decimal_gda.Decimal::from_string("1.5").unwrap()
+  inspect(@decimal_gda.exp(one, floor3).value(), content="2.72") // still half-even
+  inspect(@decimal_gda.power(two, three_halves, floor3).value(), content="2.82") // floor
+}
+```
+
+### Compare and print
+
+`compare` is numeric and returns a decimal (`-1`, `0`, `1`, or NaN when an
+operand is NaN). `compare_total` orders representations, so it tells `2.50`
+from `2.5`. Printing a value gives its scientific string; `class_name` names
+its class:
+
+```moonbit
+///|
+test "comparisons and text" {
+  let ctx = @decimal_gda.GdaContext::decimal64()
+  let a = @decimal_gda.Decimal::from_string("2.50").unwrap()
+  let b = @decimal_gda.Decimal::from_string("2.5").unwrap()
+  inspect(@decimal_gda.compare(a, b, ctx).value(), content="0")
+  inspect(@decimal_gda.compare_total(a, b, ctx).value(), content="-1")
+  let nan = @decimal_gda.Decimal::nan()
+  inspect(@decimal_gda.compare(a, nan, ctx).value(), content="nan")
+  inspect(
+    @decimal_gda.compare_signal(a, nan, ctx).raised().contains(InvalidOperation),
+    content="true",
+  )
+  let big = @decimal_gda.Decimal::from_string("123E+5").unwrap()
+  inspect(big, content="1.23E+7")
+  inspect(@decimal_gda.class_name(big, ctx).value(), content="+Normal")
+  let (eng, _) = @decimal_gda.Decimal::to_eng_string(
+    "123E+5",
+    @decimal_gda.DecimalContext::new(),
+  )
+  inspect(eng, content="12.3E+6")
+}
+```
+
+## Going further
+
+### Long chains with `decimal_gda_checked`
+
+Manual threading is clearest at boundaries. For a long linear pipeline,
+[`decimal_gda_checked`](decimal_gda_checked.md) keeps one outcome, threads the
+sticky context for you and stops after the first trap:
+
+```moonbit
+///|
+test "a checked GDA pipeline" {
+  let ctx = @decimal_gda.GdaContext::decimal64()
+  let checked = @decimal_gda_checked.GdaDecimalChecked::parse("2", ctx)
+    .sqrt()
+    .multiply(@decimal_gda.Decimal::from_string("10").unwrap())
+  inspect(checked.value(), content="14.14213562373095")
+  inspect(checked.is_trapped(), content="false")
+  inspect(checked.status().contains(Inexact), content="true")
+}
+```
+
+### Generic code through `Luna-Flow/arithmetic`
+
+`Decimal` implements the contextual traits of
+[`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written
+against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on
+it. These adapters use the five IEEE-style rounding modes of
+`ArithmeticContext`, report errors as `Err`, and know nothing about traps:
+
+```moonbit
+///|
+fn[T : @lf_arith.AddContextual] sum3(
+  a : T,
+  b : T,
+  c : T,
+  ctx : @lf_arith.ArithmeticContext,
+) -> Result[T, @lf_arith.ArithmeticError] {
+  match @lf_arith.AddContextual::add_contextual(a, b, ctx) {
+    Ok(ab) =>
+      @lf_arith.AddContextual::add_contextual(ab.value, c, ctx).map(o => o.value)
+    Err(error) => Err(error)
+  }
+}
+
+///|
+test "generic contextual addition" {
+  let ctx = @lf_arith.ArithmeticContext::new(3)
+  let x = @decimal_gda.Decimal::from_string("1.25").unwrap()
+  inspect(sum3(x, x, x, ctx).unwrap(), content="3.75")
+}
+```
+
+### Subset arithmetic and lost digits
+
+`GdaContext::basic()` is the GDA *basic default context*: precision 9,
+`HalfUp`, `extended=false`, with the `DivisionByZero`, `InvalidOperation`,
+`Overflow`, `Underflow` and `Clamped` traps enabled. A non-extended context
+rounds operands that are longer than the precision before using them and
+reports `LostDigits` when that loses information:
+
+```moonbit
+///|
+test "subset arithmetic rounds long operands" {
+  let basic = @decimal_gda.GdaContext::basic()
+  let long = @decimal_gda.Decimal::from_string("1234567891").unwrap()
+  let zero = @decimal_gda.Decimal::zero()
+  let out = @decimal_gda.add(long, zero, basic)
+  inspect(out.value(), content="1.23456789E+9")
+  inspect(out.raised().contains(LostDigits), content="true")
+}
+```
+
+### Interchange encodings
+
+`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern in the
+densely packed decimal (DPD) encoding, written as `#` and hexadecimal digits:
+
+```moonbit
+///|
+test "decimal64 interchange round trip" {
+  let x = @decimal_gda.Decimal::from_string("-7.50").unwrap()
+  let (bits, _) = @decimal_gda.GdaInterchange::from_decimal(x, Decimal64)
+  inspect(bits.to_hex(), content="#A2300000000003D0")
+  inspect(bits.to_decimal(), content="-7.50")
+}
+```
+
+## Common pitfalls
+
+- **Reusing the original context.** Status only accumulates if you pass
+  `next_context()` on. A trap set or status you put on a context also travels
+  with every context derived from it.
+- **Treating `Trapped` as "no value".** A trap changes the variant, not the
+  result; read the value with `value()` before you decide to stop.
+- **Expecting constructors to keep zeros.** `Decimal::from_int(100)` and
+  `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use
+  `Decimal::from_string("100")` or `parse` when the quantum matters.
+- **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context:
+  they round half-even to the larger operand precision (`*` is exact), never
+  signal, and `+` and `/` return the shortest cohort member. Use the package
+  functions whenever GDA results, flags or traps matter.
+- **Equality and NaN.** `==` and `compare` put every NaN equal to every other
+  NaN and above every number (a total preorder, so sorting never aborts). Use
+  `compare` (the package function), `compare_signal`, or
+  `Decimal::compare_checked` when NaN must stay unordered.
+- **Mixing the two decimal packages.** `@decimal_gda.Decimal` and
+  `@decimal.Decimal` are different types with different contracts; cross
+  between them through strings or interchange bits.
+- **Expecting `exp`, `ln`, `log10` or `sqrt` to follow the context rounding.**
+  They always round half to even; only `power` follows the context.
+- **Calling `exp`, `ln`, `log10` or non-integer `power` with a default
+  context.** `GdaContext::new()` and `context()` allow exponents up to
+  ±999,999,999, which is outside the range these functions are defined for, so
+  they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a
+  preset or pass `e_min=-999_999, e_max=999_999`.
+
+## Next steps
+
+- [Design](../design/decimal_gda.md): the arithmetic model, ideal exponents,
+  rounding functions, the signal and trap state machine, and how the
+  elementary functions are certified.
+- [API reference](../api/decimal_gda.md): every type, function and method.
+- [Conformance](../conformance/decimal_gda.md) and
+  [performance](../performance/decimal_gda.md): the pinned test-suite result and
+  how to measure speed.
+- [`decimal_gda_checked` tutorial](decimal_gda_checked.md): trap
+  short-circuiting and recovery in pipelines.
+- [`decimal` tutorial](decimal.md): the IEEE 754 decimal model with
+  per-operation flags.
