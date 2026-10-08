@@ -291,6 +291,10 @@ notes live in this file.
 - Fixed `frontend/itl_expr::parse_itl`, which recognized `//` comments only at
   the start of a line, so a statement followed by `; // note` did not end and
   silently swallowed the next statement. A `//` comment now ends the line.
+- Fixed `frontend/mpfr_expr` elementary rows: a `pow`, `hypot` or `atan2` row
+  whose second operand is `-` is now the parse diagnostic
+  `invalid MPFR elementary field` instead of aborting the run, and a zero
+  result must have the expected sign (`compare` identifies `-0` and `+0`).
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
