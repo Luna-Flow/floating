@@ -65,3 +65,33 @@ test "decimal addition rounds sums with a far smaller addend correctly" {
     content="6.000001E-73",
   )
 }
+
+///|
+/// An exact quotient by a power of ten whose exponent is below Etiny but whose
+/// magnitude is normal was rounded to Etiny only, which left six digits at
+/// precision five: 4826437 / 1E+24 = 4.826437E-18 gave 4.82644E-18.
+test "decimal exact division by a power of ten below Etiny rounds to precision" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  for
+    row in [
+      (DecimalRoundingMode::Up, "4.8265E-18"),
+      (DecimalRoundingMode::HalfEven, "4.8264E-18"),
+      (DecimalRoundingMode::Down, "4.8264E-18"),
+    ] {
+    let ctx = DecimalContext::new(
+      precision=5,
+      decimal_rounding=row.0,
+      e_min=-19,
+      e_max=20,
+    )
+    let (value, flags) = d("4826437").div_ctx(d("1E+24"), ctx)
+    assert_eq(value.to_string(), row.1)
+    assert_true(flags.inexact && flags.rounded && !flags.subnormal)
+    assert_eq(d("482643751").div_ctx(d("1E+26"), ctx).0.to_string(), row.1)
+  }
+  // A quotient that is subnormal is still rounded to Etiny.
+  let ctx = DecimalContext::new(precision=5, e_min=-19, e_max=20)
+  let (value, flags) = d("4826437").div_ctx(d("1E+29"), ctx)
+  inspect(value, content="5E-23")
+  assert_true(flags.subnormal && flags.underflow && flags.inexact)
+}
