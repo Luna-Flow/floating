@@ -989,7 +989,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 
 #: manual/api/ball_float.md:1491
 #: manual/api/ball_float_checked.md:383
-#: manual/api/bench.md:195
+#: manual/api/bench.md:194
 #: manual/api/bench/ball_float.md:21
 #: manual/api/bench/bin_float.md:23
 #: manual/api/bench/decimal.md:21
@@ -1298,42 +1298,42 @@ msgid "`paired_hotspot(observations, case_id, dataset_id, baseline_id, candidate
 msgstr "`paired_hotspot(observations, case_id, dataset_id, baseline_id, candidate_id, practical_delta_pct, seed)` 在一个数据集上比较两个实现。"
 
 #: manual/api/bench.md:98
-msgid "It selects the valid confirmatory observations of each implementation for the case and dataset, orders them by block id, pairs them by position and calls `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's `relative_delta_pct` is $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ and its `decision` is `Faster`, `Slower` or `Equivalent` relative to `practical_delta_pct`. The confidence argument passed is `0.95`, which Maremark reads as a percentage, so the reported `interval` is a 0.95 % bootstrap interval, not a 95 % one; use `relative_delta_pct` and `decision`, or `confirmatory_regression`, when an interval matters. Errors: `MismatchedPairs` when the two implementations have different numbers of samples, `EmptySamples` when there are none, `NonFiniteSample`."
-msgstr "它为该用例和数据集选出每个实现的有效确认性观测，按区块编号排序，按位置配对，然后以 2000 次重采样调用 `@stats.compare_paired_with_bootstrap`。比较结果的 `relative_delta_pct` 为 $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$，其 `decision` 相对于 `practical_delta_pct` 为 `Faster`、`Slower` 或 `Equivalent`。传入的置信度参数是 `0.95`，而 Maremark 将其解读为百分数，因此报告的 `interval` 是 0.95 % 的 bootstrap 区间，而不是 95 % 的区间；当区间很重要时，请使用 `relative_delta_pct` 和 `decision`，或使用 `confirmatory_regression`。错误：两个实现的样本数不同时为 `MismatchedPairs`，没有样本时为 `EmptySamples`，以及 `NonFiniteSample`。"
+msgid "It selects the valid confirmatory observations of each implementation for the case and dataset, orders them by block id, pairs them by position and calls `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's `relative_delta_pct` is $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ and its `decision` is `Faster`, `Slower` or `Equivalent` relative to `practical_delta_pct`; its `interval` is the 95 % percentile-bootstrap interval of the median paired difference. Errors: `MismatchedPairs` when the two implementations have different numbers of samples, `EmptySamples` when there are none, `NonFiniteSample`."
+msgstr "它为该用例和数据集选出每个实现的有效确认性观测，按区块编号排序，按位置配对，然后以 2000 次重采样调用 `@stats.compare_paired_with_bootstrap`。比较结果的 `relative_delta_pct` 为 $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$，其 `decision` 相对于 `practical_delta_pct` 为 `Faster`、`Slower` 或 `Equivalent`；其 `interval` 是成对差中位数的 95 % 百分位 bootstrap 区间。错误：两个实现的样本数不同时为 `MismatchedPairs`，没有样本时为 `EmptySamples`，以及 `NonFiniteSample`。"
 
-#: manual/api/bench.md:112
+#: manual/api/bench.md:110
 msgid "`confirmatory_regression(baseline, candidate, seed)` compares two paired sample arrays with a 95 % percentile-bootstrap interval."
 msgstr "`confirmatory_regression(baseline, candidate, seed)` 用 95 % 百分位 bootstrap 区间比较两个配对的样本数组。"
 
-#: manual/api/bench.md:119
+#: manual/api/bench.md:117
 msgid "The practical threshold is 3 %, the bootstrap uses 10 000 resamples, and the interval is on the median paired difference `candidate[j] - baseline[j]` in the samples' unit. The labels identify the baseline and the current candidate."
 msgstr "实用阈值为 3 %，bootstrap 使用 10 000 次重采样，区间针对的是配对差值 `candidate[j] - baseline[j]` 的中位数，单位与样本相同。标签分别标识基线和当前候选。"
 
-#: manual/api/bench.md:126
+#: manual/api/bench.md:124
 msgid "`is_significant_regression(comparison)` is true when the candidate is practically slower and the interval of the median difference lies entirely above zero."
 msgstr "当候选在实用意义上更慢，且中位数差值的区间完全位于零之上时，`is_significant_regression(comparison)` 为真。"
 
-#: manual/api/bench.md:134
+#: manual/api/bench.md:132
 msgid "That is, `decision` is `Slower` and `interval.low > 0`."
 msgstr "即 `decision` 为 `Slower` 且 `interval.low > 0`。"
 
-#: manual/api/bench.md:149
+#: manual/api/bench.md:147
 msgid "Auto-tuning"
 msgstr "自动调优"
 
-#: manual/api/bench.md:153
+#: manual/api/bench.md:151
 msgid "`TuneDecision` is the implementation chosen for one dataset."
 msgstr "`TuneDecision` 是为一个数据集选定的实现。"
 
-#: manual/api/bench.md:164
-msgid "`median_us` is the median per-call time of the chosen candidate and `valid_samples` the number of confirmatory observations it was computed from."
-msgstr "`median_us` 是所选候选的单次调用耗时中位数，`valid_samples` 是计算它所用的确认性观测数。"
+#: manual/api/bench.md:162
+msgid "`median_us` is the median per-call time of the chosen candidate and `valid_samples` the number of finite, non-negative confirmatory samples it was computed from."
+msgstr "`median_us` 是所选候选的单次调用耗时中位数，`valid_samples` 是计算它所用的有限且非负的确认性样本数。"
 
-#: manual/api/bench.md:169
+#: manual/api/bench.md:168
 msgid "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical_delta_pct)` picks the fastest candidate for one dataset."
 msgstr "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical_delta_pct)` 为一个数据集挑选最快的候选。"
 
-#: manual/api/bench.md:176
+#: manual/api/bench.md:175
 msgid "For every candidate it takes the valid confirmatory observations of the case and dataset, and scores the candidate by the median of the finite, non-negative samples. Candidates without such samples are invalid. The result is the valid candidate with the smallest median, ties broken by the smaller candidate id; `None` when no candidate is valid. Because the score is used as both the primary and the secondary criterion of `@tune.select_best`, `practical_delta_pct` does not change the choice."
 msgstr "对每个候选，它取该用例和数据集的有效确认性观测，并以其中有限且非负样本的中位数为候选打分。没有此类样本的候选无效。结果是中位数最小的有效候选，平局时取候选 id 较小者；没有有效候选时为 `None`。由于该分数同时用作 `@tune.select_best` 的主要和次要判据，`practical_delta_pct` 不会改变选择结果。"
 
@@ -7056,7 +7056,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/conformance/decimal_gda.md:26
 #: manual/design/ball_float.md:705
 #: manual/design/ball_float_checked.md:157
-#: manual/design/bench.md:208
+#: manual/design/bench.md:204
 #: manual/design/bench/ball_float.md:63
 #: manual/design/bench/bin_float.md:65
 #: manual/design/bench/decimal.md:63
@@ -7890,7 +7890,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 
 #: manual/design/ball_float.md:631
 #: manual/design/ball_float_checked.md:130
-#: manual/design/bench.md:184
+#: manual/design/bench.md:180
 #: manual/design/bench/ball_float.md:47
 #: manual/design/bench/bin_float.md:49
 #: manual/design/bench/decimal.md:47
@@ -7977,7 +7977,7 @@ msgstr "`midpoint_ctx` 不应用上下文的 $e_{\\max}$，且从不引发 `over
 
 #: manual/design/ball_float.md:686
 #: manual/design/ball_float_checked.md:145
-#: manual/design/bench.md:199
+#: manual/design/bench.md:195
 #: manual/design/bench/ball_float.md:56
 #: manual/design/bench/bin_float.md:58
 #: manual/design/bench/decimal.md:56
@@ -8367,70 +8367,70 @@ msgid "Fixed parameters per use"
 msgstr "每种用途固定参数"
 
 #: manual/design/bench.md:151
-msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $c = 95\\,\\%$, so a regression gate cannot be weakened by a caller. `paired_hotspot` takes $\\delta$ and the seed from the caller and uses $R = 2000$ for exploratory hotspot reports. It passes the confidence as `0.95`; Maremark interprets the value as a percentage, so the interval it reports is the central 0.95 % of the bootstrap distribution, almost a point at the bootstrap median. The suites only print $\\Delta_{\\%}$ from it, which is unaffected."
-msgstr "`confirmatory_regression` 固定 $\\delta = 3\\,\\%$、$R = 10\\,000$ 和 $c = 95\\,\\%$，因此调用者无法削弱回归门槛。`paired_hotspot` 从调用者获取 $\\delta$ 和种子，并使用 $R = 2000$ 生成探索性的热点报告。它以 `0.95` 传入置信水平；Maremark 将该值解释为百分数，因此它报告的区间是 bootstrap 分布中央的 0.95 %，几乎就是 bootstrap 中位数处的一个点。测试套件只打印由此得到的 $\\Delta_{\\%}$，不受影响。"
+msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $c = 95\\,\\%$, so a regression gate cannot be weakened by a caller. `paired_hotspot` takes $\\delta$ and the seed from the caller and uses $R = 2000$ and $c = 95\\,\\%$ for exploratory hotspot reports."
+msgstr "`confirmatory_regression` 固定 $\\delta = 3\\,\\%$、$R = 10\\,000$ 和 $c = 95\\,\\%$，因此调用者无法削弱回归门槛。`paired_hotspot` 从调用者获取 $\\delta$ 和种子，并使用 $R = 2000$ 和 $c = 95\\,\\%$ 生成探索性的热点报告。"
 
-#: manual/design/bench.md:160
+#: manual/design/bench.md:156
 msgid "Auto-tuning by minimum median"
 msgstr "按最小中位数自动调优"
 
-#: manual/design/bench.md:162
+#: manual/design/bench.md:158
 msgid "`tune_dataset` scores each candidate by the median of its valid confirmatory samples and returns the one with the smallest median, breaking exact ties by candidate id. The score is passed to `@tune.select_best` as both primary and secondary criterion, so among the candidates within $\\delta$ of the fastest the smallest secondary, which is again the fastest, wins; the practical threshold therefore has no effect on the choice. The crossover between two candidates across scales is computed by Maremark from the per-dataset labels."
 msgstr "`tune_dataset` 以每个候选的有效确认样本的中位数为其评分，返回中位数最小的候选，完全相等时按候选 id 决定。该评分同时作为主准则和次准则传给 `@tune.select_best`，因此在与最快者相差不超过 $\\delta$ 的候选中，次准则最小者胜出，而它仍是最快者；所以实际阈值对选择没有影响。两个候选在不同规模间的交叉点由 Maremark 根据各数据集的标签计算。"
 
-#: manual/design/bench.md:170
+#: manual/design/bench.md:166
 msgid "Immutable fixtures with an oracle"
 msgstr "带预言的不可变夹具"
 
-#: manual/design/bench.md:172
+#: manual/design/bench.md:168
 msgid "`immutable_bench` generates each input once per scale and checks every output against an independent reference. A faster implementation that computes the wrong result fails the run instead of winning a comparison."
 msgstr "`immutable_bench` 对每个规模只生成一次输入，并将每个输出与独立的参考结果核对。计算出错误结果的更快实现会使运行失败，而不是在比较中胜出。"
 
-#: manual/design/bench.md:176
+#: manual/design/bench.md:172
 msgid "Environment as data"
 msgstr "环境即数据"
 
-#: manual/design/bench.md:178
+#: manual/design/bench.md:174
 msgid "`environment` records the target, profile and a data-type label with every run, and marks what only the outer tool knows (machine, frequency policy, commit) as `external-metadata`. A reader of two artifacts can then tell whether their numbers are comparable; the package itself does not compare runs across environments."
 msgstr "`environment` 在每次运行中记录目标、配置文件和数据类型标签，并将只有外部工具才知道的信息（机器、频率策略、提交）标记为 `external-metadata`。这样，阅读两份产物的人就能判断它们的数据是否可比；本包自身不会跨环境比较运行。"
 
-#: manual/design/bench.md:186
+#: manual/design/bench.md:182
 msgid "**Determinism of the reduction.** For fixed observations and seed, `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the same values on every run (sorting by block id, seeded generator, deterministic tie-breaking)."
 msgstr "**归约的确定性。** 对于固定的观测和种子，`paired_hotspot`、`confirmatory_regression` 和 `tune_dataset` 每次运行都返回相同的值（按区块 id 排序、带种子的生成器、确定性的平局决胜）。"
 
-#: manual/design/bench.md:190
+#: manual/design/bench.md:186
 msgid "**Pairing.** Samples are paired by block order. Unequal sample counts are an error (`MismatchedPairs`), never a silent truncation."
 msgstr "**配对。** 样本按区块顺序配对。样本数不等是错误（`MismatchedPairs`），绝不会被静默截断。"
 
-#: manual/design/bench.md:192
+#: manual/design/bench.md:188
 msgid "**Interval ordering.** $L \\le U$, because $Q^{*}$ is monotone in its argument and $\\alpha < 1 - \\alpha$ for $c > 0$."
 msgstr "**区间有序性。** $L \\le U$，因为 $Q^{*}$ 关于其参数单调，且当 $c > 0$ 时 $\\alpha < 1 - \\alpha$。"
 
-#: manual/design/bench.md:194
+#: manual/design/bench.md:190
 msgid "**Scale invariance.** Multiplying all samples by a constant $\\lambda > 0$ multiplies $\\operatorname{med}(d)$, $L$ and $U$ by $\\lambda$ and leaves $\\Delta_{\\%}$, the decision and the verdict unchanged, so the unit of time does not matter."
 msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使 $\\operatorname{med}(d)$、$L$ 和 $U$ 都乘以 $\\lambda$，而 $\\Delta_{\\%}$、判定和结论保持不变，因此时间单位无关紧要。"
 
-#: manual/design/bench.md:201
+#: manual/design/bench.md:197
 msgid "**Discarding outliers before averaging.** Any fence needs a tuning constant and silently changes the sample; the median makes it unnecessary."
 msgstr "**取平均前丢弃离群值。** 任何栅栏都需要一个调节常数，并且会静默改变样本；中位数使其变得不必要。"
 
-#: manual/design/bench.md:203
+#: manual/design/bench.md:199
 msgid "**Unpaired comparison of two sample sets.** Drift between the measurement of $B$ and $C$ would enter the difference directly."
 msgstr "**两组样本的非配对比较。** 测量 $B$ 与 $C$ 之间的漂移会直接进入差值。"
 
-#: manual/design/bench.md:205
+#: manual/design/bench.md:201
 msgid "**Normal-theory intervals.** They assume symmetric errors that timing data does not have."
 msgstr "**基于正态理论的区间。** 它们假设误差对称，而计时数据并不具备这一性质。"
 
-#: manual/design/bench.md:210
+#: manual/design/bench.md:206
 msgid "No timing, process control or file output: Maremark's runner and `tools/benchmark.py` do that."
 msgstr "不负责计时、进程控制或文件输出：这些由 Maremark 的运行器和 `tools/benchmark.py` 完成。"
 
-#: manual/design/bench.md:212
+#: manual/design/bench.md:208
 msgid "No absolute performance targets; thresholds apply to relative differences."
 msgstr "没有绝对性能目标；阈值适用于相对差异。"
 
-#: manual/design/bench.md:213
+#: manual/design/bench.md:209
 msgid "Performance results never change correctness claims, and the benchmarks run only on the native target."
 msgstr "性能结果从不改变正确性结论，且基准只在 native 目标上运行。"
 
@@ -15233,7 +15233,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 
 #: manual/tutorial/ball_float.md:414
 #: manual/tutorial/ball_float_checked.md:233
-#: manual/tutorial/bench.md:175
+#: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:52
 #: manual/tutorial/bench/bin_float.md:54
 #: manual/tutorial/bench/decimal.md:52
@@ -15517,19 +15517,15 @@ msgstr "**仅限 native。** `tools/benchmark.py` 只接受 native 目标。"
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr "**配对需要相等的样本数。** 一次比较中的两个实现必须具有相同数量的有效确认性观测；否则 `paired_hotspot` 返回 `MismatchedPairs`。"
 
-#: manual/tutorial/bench.md:172
-msgid "**The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a confidence of `0.95` percent; rely on its relative delta and decision."
-msgstr "**热点区间并不是 95 % 区间。** `paired_hotspot` 传入的置信度是 `0.95` 个百分点；请依据其相对差值和判定结果。"
-
-#: manual/tutorial/bench.md:177
+#: manual/tutorial/bench.md:175
 msgid "[bench API](../api/bench.md)"
 msgstr "[bench API](../api/bench.md)"
 
-#: manual/tutorial/bench.md:178
+#: manual/tutorial/bench.md:176
 msgid "[bench design](../design/bench.md)"
 msgstr "[bench 设计](../design/bench.md)"
 
-#: manual/tutorial/bench.md:179
+#: manual/tutorial/bench.md:177
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr "各核心的套件：[bin_float](bench/bin_float.md)、[decimal](bench/decimal.md)、[decimal_gda](bench/decimal_gda.md)、[ball_float](bench/ball_float.md)。"
 
@@ -18256,6 +18252,9 @@ msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
+
+#~ msgid "**The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a confidence of `0.95` percent; rely on its relative delta and decision."
+#~ msgstr "**热点区间并不是 95 % 区间。** `paired_hotspot` 传入的置信度是 `0.95` 个百分点；请依据其相对差值和判定结果。"
 
 #~ msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
 #~ msgstr "GDA 参考实现会原样返回此类操作数；例如在精度 3 下，它将 `12345` 映射为 `12345`，而本包返回带 `Inexact` 的 `1.23E+4`。所固定的测试套件中没有这样的用例。"

@@ -985,7 +985,7 @@ msgstr ""
 
 #: manual/api/ball_float.md:1491
 #: manual/api/ball_float_checked.md:383
-#: manual/api/bench.md:195
+#: manual/api/bench.md:194
 #: manual/api/bench/ball_float.md:21
 #: manual/api/bench/bin_float.md:23
 #: manual/api/bench/decimal.md:21
@@ -1294,42 +1294,42 @@ msgid "`paired_hotspot(observations, case_id, dataset_id, baseline_id, candidate
 msgstr ""
 
 #: manual/api/bench.md:98
-msgid "It selects the valid confirmatory observations of each implementation for the case and dataset, orders them by block id, pairs them by position and calls `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's `relative_delta_pct` is $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ and its `decision` is `Faster`, `Slower` or `Equivalent` relative to `practical_delta_pct`. The confidence argument passed is `0.95`, which Maremark reads as a percentage, so the reported `interval` is a 0.95 % bootstrap interval, not a 95 % one; use `relative_delta_pct` and `decision`, or `confirmatory_regression`, when an interval matters. Errors: `MismatchedPairs` when the two implementations have different numbers of samples, `EmptySamples` when there are none, `NonFiniteSample`."
+msgid "It selects the valid confirmatory observations of each implementation for the case and dataset, orders them by block id, pairs them by position and calls `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's `relative_delta_pct` is $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ and its `decision` is `Faster`, `Slower` or `Equivalent` relative to `practical_delta_pct`; its `interval` is the 95 % percentile-bootstrap interval of the median paired difference. Errors: `MismatchedPairs` when the two implementations have different numbers of samples, `EmptySamples` when there are none, `NonFiniteSample`."
 msgstr ""
 
-#: manual/api/bench.md:112
+#: manual/api/bench.md:110
 msgid "`confirmatory_regression(baseline, candidate, seed)` compares two paired sample arrays with a 95 % percentile-bootstrap interval."
 msgstr ""
 
-#: manual/api/bench.md:119
+#: manual/api/bench.md:117
 msgid "The practical threshold is 3 %, the bootstrap uses 10 000 resamples, and the interval is on the median paired difference `candidate[j] - baseline[j]` in the samples' unit. The labels identify the baseline and the current candidate."
 msgstr ""
 
-#: manual/api/bench.md:126
+#: manual/api/bench.md:124
 msgid "`is_significant_regression(comparison)` is true when the candidate is practically slower and the interval of the median difference lies entirely above zero."
 msgstr ""
 
-#: manual/api/bench.md:134
+#: manual/api/bench.md:132
 msgid "That is, `decision` is `Slower` and `interval.low > 0`."
 msgstr ""
 
-#: manual/api/bench.md:149
+#: manual/api/bench.md:147
 msgid "Auto-tuning"
 msgstr ""
 
-#: manual/api/bench.md:153
+#: manual/api/bench.md:151
 msgid "`TuneDecision` is the implementation chosen for one dataset."
 msgstr ""
 
-#: manual/api/bench.md:164
-msgid "`median_us` is the median per-call time of the chosen candidate and `valid_samples` the number of confirmatory observations it was computed from."
+#: manual/api/bench.md:162
+msgid "`median_us` is the median per-call time of the chosen candidate and `valid_samples` the number of finite, non-negative confirmatory samples it was computed from."
 msgstr ""
 
-#: manual/api/bench.md:169
+#: manual/api/bench.md:168
 msgid "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical_delta_pct)` picks the fastest candidate for one dataset."
 msgstr ""
 
-#: manual/api/bench.md:176
+#: manual/api/bench.md:175
 msgid "For every candidate it takes the valid confirmatory observations of the case and dataset, and scores the candidate by the median of the finite, non-negative samples. Candidates without such samples are invalid. The result is the valid candidate with the smallest median, ties broken by the smaller candidate id; `None` when no candidate is valid. Because the score is used as both the primary and the secondary criterion of `@tune.select_best`, `practical_delta_pct` does not change the choice."
 msgstr ""
 
@@ -7038,7 +7038,7 @@ msgstr ""
 #: manual/conformance/decimal_gda.md:26
 #: manual/design/ball_float.md:705
 #: manual/design/ball_float_checked.md:157
-#: manual/design/bench.md:208
+#: manual/design/bench.md:204
 #: manual/design/bench/ball_float.md:63
 #: manual/design/bench/bin_float.md:65
 #: manual/design/bench/decimal.md:63
@@ -7861,7 +7861,7 @@ msgstr ""
 
 #: manual/design/ball_float.md:631
 #: manual/design/ball_float_checked.md:130
-#: manual/design/bench.md:184
+#: manual/design/bench.md:180
 #: manual/design/bench/ball_float.md:47
 #: manual/design/bench/bin_float.md:49
 #: manual/design/bench/decimal.md:47
@@ -7945,7 +7945,7 @@ msgstr ""
 
 #: manual/design/ball_float.md:686
 #: manual/design/ball_float_checked.md:145
-#: manual/design/bench.md:199
+#: manual/design/bench.md:195
 #: manual/design/bench/ball_float.md:56
 #: manual/design/bench/bin_float.md:58
 #: manual/design/bench/decimal.md:56
@@ -8335,70 +8335,70 @@ msgid "Fixed parameters per use"
 msgstr ""
 
 #: manual/design/bench.md:151
-msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $c = 95\\,\\%$, so a regression gate cannot be weakened by a caller. `paired_hotspot` takes $\\delta$ and the seed from the caller and uses $R = 2000$ for exploratory hotspot reports. It passes the confidence as `0.95`; Maremark interprets the value as a percentage, so the interval it reports is the central 0.95 % of the bootstrap distribution, almost a point at the bootstrap median. The suites only print $\\Delta_{\\%}$ from it, which is unaffected."
+msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $c = 95\\,\\%$, so a regression gate cannot be weakened by a caller. `paired_hotspot` takes $\\delta$ and the seed from the caller and uses $R = 2000$ and $c = 95\\,\\%$ for exploratory hotspot reports."
 msgstr ""
 
-#: manual/design/bench.md:160
+#: manual/design/bench.md:156
 msgid "Auto-tuning by minimum median"
 msgstr ""
 
-#: manual/design/bench.md:162
+#: manual/design/bench.md:158
 msgid "`tune_dataset` scores each candidate by the median of its valid confirmatory samples and returns the one with the smallest median, breaking exact ties by candidate id. The score is passed to `@tune.select_best` as both primary and secondary criterion, so among the candidates within $\\delta$ of the fastest the smallest secondary, which is again the fastest, wins; the practical threshold therefore has no effect on the choice. The crossover between two candidates across scales is computed by Maremark from the per-dataset labels."
 msgstr ""
 
-#: manual/design/bench.md:170
+#: manual/design/bench.md:166
 msgid "Immutable fixtures with an oracle"
 msgstr ""
 
-#: manual/design/bench.md:172
+#: manual/design/bench.md:168
 msgid "`immutable_bench` generates each input once per scale and checks every output against an independent reference. A faster implementation that computes the wrong result fails the run instead of winning a comparison."
 msgstr ""
 
-#: manual/design/bench.md:176
+#: manual/design/bench.md:172
 msgid "Environment as data"
 msgstr ""
 
-#: manual/design/bench.md:178
+#: manual/design/bench.md:174
 msgid "`environment` records the target, profile and a data-type label with every run, and marks what only the outer tool knows (machine, frequency policy, commit) as `external-metadata`. A reader of two artifacts can then tell whether their numbers are comparable; the package itself does not compare runs across environments."
 msgstr ""
 
-#: manual/design/bench.md:186
+#: manual/design/bench.md:182
 msgid "**Determinism of the reduction.** For fixed observations and seed, `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the same values on every run (sorting by block id, seeded generator, deterministic tie-breaking)."
 msgstr ""
 
-#: manual/design/bench.md:190
+#: manual/design/bench.md:186
 msgid "**Pairing.** Samples are paired by block order. Unequal sample counts are an error (`MismatchedPairs`), never a silent truncation."
 msgstr ""
 
-#: manual/design/bench.md:192
+#: manual/design/bench.md:188
 msgid "**Interval ordering.** $L \\le U$, because $Q^{*}$ is monotone in its argument and $\\alpha < 1 - \\alpha$ for $c > 0$."
 msgstr ""
 
-#: manual/design/bench.md:194
+#: manual/design/bench.md:190
 msgid "**Scale invariance.** Multiplying all samples by a constant $\\lambda > 0$ multiplies $\\operatorname{med}(d)$, $L$ and $U$ by $\\lambda$ and leaves $\\Delta_{\\%}$, the decision and the verdict unchanged, so the unit of time does not matter."
 msgstr ""
 
-#: manual/design/bench.md:201
+#: manual/design/bench.md:197
 msgid "**Discarding outliers before averaging.** Any fence needs a tuning constant and silently changes the sample; the median makes it unnecessary."
 msgstr ""
 
-#: manual/design/bench.md:203
+#: manual/design/bench.md:199
 msgid "**Unpaired comparison of two sample sets.** Drift between the measurement of $B$ and $C$ would enter the difference directly."
 msgstr ""
 
-#: manual/design/bench.md:205
+#: manual/design/bench.md:201
 msgid "**Normal-theory intervals.** They assume symmetric errors that timing data does not have."
 msgstr ""
 
-#: manual/design/bench.md:210
+#: manual/design/bench.md:206
 msgid "No timing, process control or file output: Maremark's runner and `tools/benchmark.py` do that."
 msgstr ""
 
-#: manual/design/bench.md:212
+#: manual/design/bench.md:208
 msgid "No absolute performance targets; thresholds apply to relative differences."
 msgstr ""
 
-#: manual/design/bench.md:213
+#: manual/design/bench.md:209
 msgid "Performance results never change correctness claims, and the benchmarks run only on the native target."
 msgstr ""
 
@@ -15150,7 +15150,7 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:414
 #: manual/tutorial/ball_float_checked.md:233
-#: manual/tutorial/bench.md:175
+#: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:52
 #: manual/tutorial/bench/bin_float.md:54
 #: manual/tutorial/bench/decimal.md:52
@@ -15434,19 +15434,15 @@ msgstr ""
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr ""
 
-#: manual/tutorial/bench.md:172
-msgid "**The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a confidence of `0.95` percent; rely on its relative delta and decision."
-msgstr ""
-
-#: manual/tutorial/bench.md:177
+#: manual/tutorial/bench.md:175
 msgid "[bench API](../api/bench.md)"
 msgstr ""
 
-#: manual/tutorial/bench.md:178
+#: manual/tutorial/bench.md:176
 msgid "[bench design](../design/bench.md)"
 msgstr ""
 
-#: manual/tutorial/bench.md:179
+#: manual/tutorial/bench.md:177
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr ""
 
