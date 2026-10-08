@@ -131,6 +131,33 @@ notes live in this file.
   `/` operator and the contextual divide of both decimal packages, including
   their subnormal and non-extended paths, and the two division helpers behind
   the GDA elementary functions.
+- Fixed double rounding of `Decimal` context results whose exact exponent is
+  below Etiny but whose magnitude is normal. Finalization rounded them to the
+  subnormal grid first and then to the context precision, so
+  `3.000001E-45 * 1.500001E-45` in decimal32 returned `4.500004E-90` instead
+  of `4.500005E-90`. The same path served `mul_ctx`, `fma_ctx`, `apply_ctx`,
+  `plus_ctx` and the elementary functions (`exp_ctx(-215.35)` in decimal32).
+  The subnormal rounding now applies only to results that are subnormal. The
+  fallback path of `div_ctx` also rounded a subnormal quotient to the context
+  precision before rounding it to Etiny (`1 / 1.9999999999998E+101` in
+  decimal32 gave `0E-101`, not `1E-101`); it now rounds the guarded quotient
+  once (#87).
+- Fixed `Decimal::add_ctx` when one operand lies far below the other's
+  rounding position. The shortcut rounded the larger operand alone and moved
+  the result by one unit at most, deciding the direction from that operand
+  only. This was wrong when the larger operand had digits below the rounding
+  position, when it was a midpoint, and for `ZeroFiveUp` with an addend that
+  lowers the magnitude (`1598618 - 9.9E-11` at seven digits returned
+  `1598618`). Extended contexts now replace the small operand with a sticky
+  unit below every rounding boundary and round the sum once (#88).
+- Fixed `Decimal::scaleb_ctx` finalization. Overflow returned an infinity in
+  every rounding mode; it now follows the rounding direction, so toward zero
+  gives the largest finite number (#52). A zero result kept an exponent outside
+  the context range (`0 scaleb 700` in decimal64 gave `0E+700`; now
+  `0E+369` with `clamped`), and a coefficient longer than the precision was
+  left unrounded or, below Etiny, rounded to the subnormal grid and flagged
+  `subnormal` although its magnitude was normal. The scaled value is now
+  rounded once like any other context result (#95).
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

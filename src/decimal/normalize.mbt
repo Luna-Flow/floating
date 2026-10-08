@@ -538,10 +538,14 @@ fn normalize_decimal_parts_ctx_repr(
   let mut flags = DecimalFlags::new()
   let mut magnitude = magnitude
   let mut exponent10 = exponent10
+  // Round to the subnormal grid only when the exact value is itself below the
+  // normal range. A longer coefficient whose exponent is below Etiny but whose
+  // magnitude is normal is rounded once, to `precision` digits, below; rounding
+  // it to Etiny first and then to `precision` digits would round twice.
   if apply_etiny &&
     ctx.precision > 0 &&
     !magnitude.is_zero() &&
-    exponent10 < etiny(ctx) {
+    exponent10 + Int::max(0, magnitude.digits10() - precision) < etiny(ctx) {
     let unrounded_adjusted = exponent10.to_int64() +
       (magnitude.digits10() - 1).to_int64()
     let etiny_value = etiny(ctx)
