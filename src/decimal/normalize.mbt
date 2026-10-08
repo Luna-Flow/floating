@@ -689,6 +689,79 @@ fn normalize_decimal_parts_ctx_repr(
 }
 
 ///|
+// Exponents are stored as `Int`, but the exponent of an exact product or of a
+// literal can lie outside it. Exponent arithmetic on such values is done in
+// `Int64` and brought back here.
+fn exponent10_from_int64(value : Int64) -> Int? {
+  if value < -2147483648L || value > 2147483647L {
+    None
+  } else {
+    Some(value.to_int())
+  }
+}
+
+///|
+// Represents `magnitude * 10^exponent10` with an `Int` exponent. Digits below
+// 10^(Int::min_value + 1) are folded into the last kept digit with ZeroFiveUp
+// rounding (the last digit is 0 or 5 only when the fold is exact), so any
+// later rounding at a higher position gives the same result as rounding the
+// exact value once. The flag reports whether non-zero digits were folded.
+// Exponents above `Int` are saturated; callers reject them first.
+fn fold_exponent10_into_int_repr(
+  negative : Bool,
+  magnitude : DecCoeff,
+  exponent10 : Int64,
+) -> (DecCoeff, Int, Bool) {
+  if exponent10_from_int64(exponent10) is Some(exponent) {
+    return (magnitude, exponent, false)
+  }
+  if exponent10 > 0L || magnitude.is_zero() {
+    return (magnitude, scaleb_int64_to_int(exponent10), false)
+  }
+  let floor_exponent = -2147483647
+  let shift = floor_exponent.to_int64() - exponent10
+  if shift >= magnitude.digits10().to_int64() {
+    return (dec_coeff_from_int(1), floor_exponent, true)
+  }
+  let (folded, inexact) = round_positive_decimal_div_pow10_repr(
+    magnitude,
+    shift.to_int(),
+    negative,
+    DecimalRoundingMode::ZeroFiveUp,
+  )
+  (folded, floor_exponent, inexact)
+}
+
+///|
+// `normalize_decimal_parts_ctx_repr` for an exact result whose exponent may
+// lie outside `Int`. A result whose unrounded adjusted exponent reaches the
+// top of `Int` overflows every context; a result below `Int` is folded first.
+fn normalize_decimal_parts_ctx_wide_repr(
+  negative : Bool,
+  magnitude : DecCoeff,
+  exponent10 : Int64,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  if !magnitude.is_zero() {
+    let adjusted = exponent10 + (magnitude.digits10() - 1).to_int64()
+    if adjusted >= 2147483647L && adjusted > ctx.e_max.to_int64() {
+      return decimal_overflow_result(negative, ctx)
+    }
+  }
+  let (folded, exponent, inexact) = fold_exponent10_into_int_repr(
+    negative, magnitude, exponent10,
+  )
+  let (value, flags) = normalize_decimal_parts_ctx_repr(
+    negative, folded, exponent, ctx,
+  )
+  if inexact {
+    (value, { ..flags, rounded: true, inexact: true, })
+  } else {
+    (value, flags)
+  }
+}
+
+///|
 fn with_underflow_for_inexact_subnormal(
   value : Decimal,
   flags : DecimalFlags,

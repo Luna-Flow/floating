@@ -247,13 +247,15 @@ non-negative, so the table above no longer describes the rounding of $|m|$:
 
 ## Decimal strings
 
-### `split_decimal_string`
+### `split_decimal_string`, `split_decimal_string_wide`
 
 `split_decimal_string(text)` splits a finite decimal literal into sign,
-digits and exponent.
+digits and exponent; `split_decimal_string_wide` returns the exponent as an
+`Int64`.
 
 ```mbti
 pub fn split_decimal_string(String) -> (Bool, String, Int)?
+pub fn split_decimal_string_wide(String) -> (Bool, String, Int64)?
 ```
 
 The accepted grammar is
@@ -265,8 +267,11 @@ The accepted grammar is
 The result $(\mathit{neg}, D, q)$ satisfies
 $\text{value} = (-1)^{\mathit{neg}} \cdot D \cdot 10^{q}$, where $D$ is the
 string of all mantissa digits (leading zeros kept) and $q$ is the written
-exponent minus the number of fraction digits. Anything else, including
-whitespace, `_`, `inf` and `nan`, gives `None`.
+exponent minus the number of fraction digits. In the wide form the written
+exponent is exact up to $10^{18}$ in magnitude and saturates there, which is
+far outside every exponent range. `split_decimal_string` returns `None` when
+$q$ does not fit `Int`. Anything else, including `inf` and `nan`, gives
+`None`.
 
 > [!WARNING]
 > The magnitude of the written exponent saturates at $1\,500\,000\,000$ before
@@ -287,10 +292,8 @@ test "split decimal string" {
   )
   debug_inspect(@internal.split_decimal_string(".5"), content="Some((false, \"5\", -1))")
   debug_inspect(@internal.split_decimal_string("1e"), content="None")
-  debug_inspect(
-    @internal.split_decimal_string("1e99999999999"),
-    content="Some((false, \"1\", 1500000000))",
-  )
+  debug_inspect(@internal.split_decimal_string("1e3000000000"), content="None")
+  debug_inspect(@internal.split_decimal_string_wide("1e3000000000"), content="Some((false, \"1\", 3000000000))")
 }
 ```
 
@@ -615,6 +618,8 @@ pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigi
 pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 
 pub fn split_decimal_string(String) -> (Bool, String, Int)?
+
+pub fn split_decimal_string_wide(String) -> (Bool, String, Int64)?
 
 pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bigint.BigInt, Int, Int)
 

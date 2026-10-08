@@ -27,5 +27,5 @@ using @internal {
   pow5,
   pow10,
   round_positive_div,
-  split_decimal_string,
+  split_decimal_string_wide,
 }

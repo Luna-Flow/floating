@@ -431,6 +431,23 @@ notes live in this file.
   for an exact power (`x^a` a perfect `q`-th power) before the loop; the exact
   value is rounded once in the context mode and, as GDA requires for
   non-integral powers, reported as Inexact and Rounded.
+- Fixed decimal literals with exponents beyond $\pm 1.5 \cdot 10^9$ and
+  products and quotients of operands with extreme exponents in the IEEE and
+  GDA decimal packages. The literal splitter saturated the written exponent at
+  $\pm 1\,500\,000\,000$, so `Decimal::from_string("1e1600000000")` returned
+  `1E+1500000000` and a context with `e_max = 2e9` raised no overflow; the
+  `Int` exponent sums of `*`, `mul_ctx`, `fma_ctx` and `div_ctx` wrapped, so
+  `1E+1500000000 * 1E+1500000000` gave `1E-1294967296` and GDA `multiply`
+  underflowed instead of overflowing. Exponents are now read and combined in
+  `Int64`: context conversions and operations overflow or underflow as the
+  exponent range requires, `parse`/`from_string` reject a literal whose
+  exponent cannot be stored, and the context-free `*` and `/` give a signed
+  infinity or zero for an unrepresentable result. `internal` gains
+  `split_decimal_string_wide`; `split_decimal_string` now returns `None` for an
+  exponent outside `Int` instead of a saturated one. The `gda_expr` decTest
+  frontend saturates such operand exponents at $2 \cdot 10^9$ itself, as the
+  reference implementation's conversion does, so rows like
+  `quantize 0 1e3000000000` keep their expected result.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

@@ -86,31 +86,20 @@ one downward correction is ever needed (the upward loop guards against
 floating-point error in the estimate), and the cost is a constant number of
 `BigInt` comparisons plus one power of ten.
 
-### Saturating exponent parsing
+### Wide exponent parsing
 
-`split_decimal_string` caps the magnitude of the written exponent at
-$C = 1\,500\,000\,000$ while reading digits, then subtracts the number $f$ of
-fraction digits. The cap keeps the arithmetic in `Int`: the result
-$q \in [-C - f, C]$ cannot overflow while $f < 2^{31} - 1 - C \approx 6.5 \cdot 10^{8}$,
-that is, for any literal shorter than about 650 million characters.
-
-The cap is invisible only when every exponent at or beyond $C$ already
-overflows or underflows in the caller's context. That holds for the standard
-interchange contexts ($e_{\max} \le 6144$) and for the default
-`DecimalContext` ($e_{\max} = 999\,999\,999$), but not everywhere:
-
-- `Decimal::from_string` without a context keeps any exponent, so
-  `1e1600000000` becomes `1E+1500000000`, a different number, without an
-  error;
-- `DecimalContext::new` accepts an `e_max` above $C$, and `from_string_ctx`
-  under such a context makes the same substitution without raising
-  `overflow`.
-
-A faithful fix keeps a saturated flag next to the exponent and lets the caller
-turn it into overflow, underflow or a parse error; the current code does not.
-Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
-The substitution is recorded as a known defect on the
-[API page](../api/internal.md#split_decimal_string).
+A decimal context may set $e_{\max}$ anywhere in `Int`, and the context-free
+`parse` applies no exponent range at all, so no cap inside `Int` is safe: a
+literal exponent that is clamped to a smaller value can still be in range and
+silently changes the number. `split_decimal_string_wide` therefore returns the
+exponent $q$ as an `Int64`. The written exponent is read exactly up to
+$10^{18}$ and saturates there; with at most $2^{31}$ fraction digits,
+$|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A
+saturated $q$ lies far outside `Int` and so outside every exponent a value or
+context can hold, which means a caller that compares $q$ (plus the digit
+count) with `Int` and its context sees the same overflow or underflow as for
+the exact exponent. `split_decimal_string` keeps its `Int` signature and
+returns `None` when $q$ does not fit `Int`, rather than a different exponent.
 
 ### Canonical rationals
 
