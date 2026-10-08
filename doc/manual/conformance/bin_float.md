@@ -33,7 +33,9 @@ For `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, and `pow_int_ctx`:
 1. IEEE special cases are resolved before finite arithmetic.
 2. Finite addition, subtraction, and multiplication use their exact dyadic
    result; division uses an exact integer quotient/remainder decision; square
-   root brackets the exact real root with integer-square-root bounds.
+   root uses an exact integer square root and an exact comparison with the
+   rounding midpoint; integer powers certify a directed enclosure (Ziv loop)
+   and fall back to the exact power when certification does not succeed.
 3. The exact result is rounded once to the requested precision and rounding
    direction, then exponent-range/subnormal quantization is applied.
 4. The returned `BinaryFlags` is derived from that mathematical result:
