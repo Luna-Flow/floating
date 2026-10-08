@@ -1,25 +1,39 @@
-# `doc_examples` Design
+# doc_examples design
 
-## Responsibility
+## Design goal
 
-Executable home for examples shared by localized documentation.
+Keep one small, always-compiled set of examples for the main workflows of the
+library, so that an API change that breaks a documented workflow fails the
+documentation gate (`just docs`) immediately.
 
-## Data Flow
+## Mathematical background
 
-MoonBit `check` blocks exercise supported binary, decimal, GDA, interval, checked, semantic, expression, and frontend workflows.
+None; the examples restate behaviour specified on the API and design pages of
+the packages they use.
 
-## Algorithms And Invariants
+## Design decisions
 
-Examples are compact contract witnesses; large matrices and performance measurements do not belong here.
+- **A literate test package.** MoonBit compiles `moonbit check` blocks of a
+  package's `README.mbt.md` as tests, so the examples are readable Markdown
+  and real tests at once, without a separate test file.
+- **Few examples, many packages.** Each block exercises one workflow end to
+  end; exhaustive behaviour belongs in each package's tests and in
+  `consistency`.
+- **Warnings are errors.** The gate runs with `--deny-warn`, so examples never
+  show deprecated APIs.
 
-## Failure And Effects
+## Correctness / invariants
 
-The package runs only under tests and performs no filesystem or process effects.
+- Every block is a test with a unique name and passes on the native target.
+- The package has no runtime code and no public items.
 
-## Implementation Trade-offs
+## Alternatives rejected
 
-Central examples prevent translation drift, while localized prose remains free to explain the same behavior naturally.
+- **Examples only inside the manual pages.** A package inside the module keeps
+  a minimal set compiling with the ordinary test command, independent of any
+  documentation tooling.
 
-## Stability
+## Boundaries
 
-The package is maintained as repository infrastructure. Generated declarations may change with the runners and do not promise downstream compatibility.
+- Not an API; nothing may import it.
+- No performance or conformance evidence.

@@ -1,17 +1,20 @@
-# `doc_examples` API Reference
+# doc_examples API
 
-Executable home for examples shared by localized documentation.
+`doc_examples` is a test-only package. Its only source is
+`src/doc_examples/README.mbt.md`, whose `moonbit check` blocks are compiled
+and run as tests; it exports no MoonBit items. The blocks are short,
+executable versions of the main workflows of the public packages (binary
+contexts and interchange, GDA sticky status, IEEE decimal flags, intervals and
+decorations, checked pipelines, semantic comparison, `numeric_expr`, and the
+four conformance frontends). See the [tutorial](../tutorial/doc_examples.md)
+and the [design page](../design/doc_examples.md).
 
-## Status
+## Complete public interface
 
-This is repository infrastructure, not a stable application API. Its generated declarations are documented for maintainers and integrations inside this module.
-
-## Complete Public Interface
-
-The following snapshot is the complete generated package interface for `0.8.0`. Public declarations are authoritative; prose above groups them by behavior.
+The package exports no MoonBit items.
 
 <!-- generated-api-start -->
-```moonbit
+```mbti
 // Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/floating/doc_examples"
 
