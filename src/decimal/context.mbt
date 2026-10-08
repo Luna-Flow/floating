@@ -170,7 +170,11 @@ pub fn DecimalFlags::combine(
 
 ///|
 pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
+  // `conversion_syntax` is a condition of the Invalid operation signal, like
+  // `division_impossible` and `division_undefined`. Leaving it out made a
+  // failed parse, which raises only this flag, look like a successful result.
   self.invalid_operation ||
+  self.conversion_syntax ||
   self.division_by_zero ||
   self.division_undefined ||
   self.division_impossible ||
