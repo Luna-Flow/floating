@@ -42,9 +42,13 @@ PO_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}
 
 
 def package_paths() -> set[str]:
+    # `tools/check_doc_examples.py` writes throwaway packages under an
+    # underscore-prefixed directory and removes them again; they are not part of
+    # the documented package set even if an interrupted run leaves them behind.
     return {
         str(path.parent.relative_to(REPO_ROOT / "src"))
         for path in (REPO_ROOT / "src").rglob("moon.pkg")
+        if not any(part.startswith("_") for part in path.parent.parts)
     }
 
 

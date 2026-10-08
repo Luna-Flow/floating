@@ -83,11 +83,17 @@ trait design, and test coverage are especially valuable.
   submitting documentation changes. It runs `tools/doc_quality.py` (page
   coverage, generated API snapshots, links and anchors, current-version and
   GDA claims, package `README.mbt.md` coverage, and a guard against the retired
-  `doc/<locale>` trees) and then the `src/doc_examples` tests. Catalog
+  `doc/<locale>` trees), then `tools/check_doc_examples.py`, and then the
+  `src/doc_examples` tests. Catalog
   freshness is checked separately by `lunadoc check` and the `Docs` workflow.
 - API pages end with a `## Complete public interface` snapshot of
   `pkg.generated.mbti`, fenced as `mbti`. Runnable `moonbit` examples must
-  compile against the current branch; see
+  compile against the current branch, which `tools/check_doc_examples.py`
+  enforces: it generates one throwaway package per manual page under
+  `src/_generated_doc_examples`, re-fences the examples so `moon` compiles them,
+  runs them and removes the tree. Mark an example that cannot run with
+  `moonbit nocheck`, and if a page introduces a new package alias, add it to
+  `alias_map()` in that tool. See
   [Repository conventions](./doc/manual/conventions.md) for the full review
   checklist.
 
