@@ -105,6 +105,18 @@ notes live in this file.
   the actions that still targeted the deprecated Node 20 runtime:
   `actions/checkout` to v7, `actions/cache` to v6, `actions/upload-artifact` to
   v7 and `extractions/setup-just` to v4.
+- Brought the manual to the Luna-Flow documentation standard: the overview
+  has one Pages table per package group and a Validation section; every API
+  page has Purpose and Importing sections and a heading for every public item
+  of `pkg.generated.mbti`; every tutorial maps tasks to items in an
+  "I want to / Use" table; every design page ends with its boundaries. The
+  derivations were reviewed against the code: wrong steps were corrected (for
+  example the decimal ideal exponent of an exact quotient, the interval
+  product sign cases, Moore's single-occurrence theorem and the integer-power
+  error bounds), missing arguments were added (termination of the certified
+  refinement loop, the `ZeroFiveUp` division lemma, the shortest-digits
+  bisection), and known deviations of the implementation are documented next
+  to the affected operations. The Chinese and Japanese catalogs follow.
 
 ### Fixed
 
@@ -196,6 +208,8 @@ notes live in this file.
   rounding breakpoint (irrational, not dyadic, or wider than the precision),
   the Ziv loop now moves a breakpoint endpoint inside the enclosure, as the
   other elementary functions do since #102.
+- Fixed `tools/doc_quality.py`, which treated every package as generated when
+  the checkout itself lived under an underscore-prefixed directory.
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
