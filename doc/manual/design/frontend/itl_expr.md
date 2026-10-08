@@ -113,12 +113,12 @@ the implementation attaches.
 `Unsupported` marks cases the library does not implement (unknown operations
 such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an
 expectation with a `signal` annotation). `Diagnostic` marks cases whose data
-cannot be read. The classification is made by the dispatch path, not by the
-operation alone: the generic binary path reads the operands before it looks
-the operation up, so an unknown operation with a non-interval operand
-(`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`) becomes a `Diagnostic`, and a
-`signal` annotation on a unary, ternary, numeric or integer-power case makes
-its expected value unreadable and therefore a `Diagnostic` as well.
+cannot be read. Support is decided from the operation name before any operand
+is read, so an unknown operation is `Unsupported` whatever its operands
+(`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`). For a known operation the
+classification is made by the dispatch path: a `signal` annotation on a unary,
+ternary, numeric or integer-power case makes its expected value unreadable and
+therefore a `Diagnostic`.
 `RunSummary::success` fails on any failed case *and* on any diagnostic,
 because unreadable data in a pinned corpus is a defect of the parser or the
 corpus, not an excluded feature. Unsupported cases do not fail `success`; the
@@ -144,11 +144,9 @@ so a caller may filter or reorder cases freely.
 
 **Totality.** Every completed statement becomes a case or a parse diagnostic,
 and `execute_case` never aborts on case content: every unreadable input is
-reported through a disposition. Statement boundaries come only from a line
-ending in `;`, so a line with a trailing `//` comment is not a boundary and
-merges with the next statement into one case with an unreadable expected
-value; the number of cases is then lower than the number of statements
-(tracked in [#76](https://github.com/Luna-Flow/floating/issues/76); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
+reported through a disposition. Statement boundaries come from a line ending
+in `;` once its `//` comment is removed, so a trailing `// …` after `;` does
+not merge the statement with the next one.
 
 ## Alternatives rejected
 
@@ -167,11 +165,6 @@ value; the number of cases is then lower than the number of statements
 - Decimal bounds are rounded to nearest, not outward ([#62](https://github.com/Luna-Flow/floating/issues/62), no fix yet).
 - Interval results are always rounded to binary64; `precision` only affects
   how bounds are read ([#62](https://github.com/Luna-Flow/floating/issues/62)).
-- Comments are recognized only at the start of a line: `/*` opens a block
-  comment only there, and a trailing `// …` after `;` merges the statement
-  with the next one ([#76](https://github.com/Luna-Flow/floating/issues/76), fix proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
-- Unknown operations with non-interval operands are diagnostics, not
-  unsupported cases, and therefore fail `RunSummary::success` ([#75](https://github.com/Luna-Flow/floating/issues/75), fix
-  proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
+- `/*` opens a block comment only at the start of a line.
 - No file IO and no operation filtering; both are in
   [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).

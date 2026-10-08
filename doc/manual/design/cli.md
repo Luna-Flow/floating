@@ -54,9 +54,8 @@ still exits with `2`. Runner options are documented on their pages instead.
 - The exit status equals the runner's return value: `0`, `1` or `2`.
 - Arguments other than `--backend`, its value and `--help`/`-h` reach the
   runner unchanged and in order.
-- "At most once" is checked on the stored value: an empty `--backend=` leaves
-  it empty, so a later `--backend NAME` is still accepted ([#78](https://github.com/Luna-Flow/floating/issues/78), fix
-  proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)).
+- "At most once" is checked on whether `--backend` was given, not on its
+  value, and an empty `--backend=` is itself an error (exit `2`).
 
 ## Alternatives rejected
 

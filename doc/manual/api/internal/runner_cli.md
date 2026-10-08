@@ -55,11 +55,10 @@ pub fn parse_common_options(Array[String], allow_shard? : Bool) -> Result[Common
   they are left in `remaining()`.
 
 Every other argument is kept, in order, in `remaining()`. The separated form
-takes the next argument as the value whatever it looks like, so
-`--shard-count --json` fails with `"invalid shard count: --json"` ([#79](https://github.com/Luna-Flow/floating/issues/79),
-fix proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)). A repeated
-option keeps its last value. Errors: `"--shard-count requires a value"` (or
-`--shard-index`) when the option is the last argument, `"invalid shard
+never takes another option as its value, so `--shard-count --json` fails with
+`"--shard-count requires a value"`. A repeated option keeps its last value.
+Errors: `"--shard-count requires a value"` (or `--shard-index`) when the
+option is the last argument or the next argument starts with `--`, `"invalid shard
 count: X"` or `"invalid shard index: X"` for a value `parse_int` rejects, and
 the `ShardSpec::try_new` messages when the final pair is not valid (count
 positive, index in `0 ..< count`). Defaults are one shard, index 0, JSON
@@ -132,15 +131,14 @@ the sorted list of files whose names end in `suffix`.
 pub fn collect_files(Array[String], String) -> Result[Array[String], String]
 ```
 
-A directory contributes its direct entries ending in `suffix` (as
-`dir + "/" + entry`; subdirectories are not searched). A file contributes
-itself if it ends in `suffix` and is otherwise ignored. The result is sorted
-in string order, so runs are reproducible across file systems. Entries are
-not checked to be regular files (a subdirectory named `x.decTest` is listed and
-then fails in `read_source`), and duplicates are kept: a file named twice, or
-named and also found through its directory, appears twice ([#79](https://github.com/Luna-Flow/floating/issues/79), fix
-proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)). Errors:
-`"path does not exist: P"`, `"cannot inspect path: P"`,
+A directory contributes its direct entries that are files ending in `suffix`
+(as `dir + "/" + entry`; subdirectories are not searched, even when their
+names end in `suffix`). A file contributes itself if it ends in `suffix`. The
+result is sorted in string order, so runs are reproducible across file
+systems, and each path appears once: a file named twice, or named as
+`dir/entry` and also found through `dir`, is listed once. Errors:
+`"path does not exist: P"`, `"not a SUFFIX file: P"` for a named file
+without the suffix, `"cannot inspect path: P"`,
 `"cannot read directory: P"`.
 
 ## Diagnostics

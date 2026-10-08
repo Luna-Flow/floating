@@ -834,22 +834,29 @@ pub fn to_integral_exact(Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn to_integral_value(Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
-A value with negative exponent is quantized to exponent 0; `to_integral_exact`
-raises `Inexact` and `Rounded` when digits are dropped and
-`to_integral_value` never does. A value with exponent $\ge 0$ is passed
-through `apply`, so it is rounded to the context precision if it is longer
-than $p$ digits.
+A value with exponent $\ge 0$ is already an integer and is returned
+unchanged, even when it is longer than $p$ digits (a `clamp` context still
+folds its exponent down). A value with negative
+exponent is quantized to exponent 0 at a working precision of
+$\max(p, \text{its digit count})$, as decNumber does, so the integral part is
+never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`.
+`to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and
+`to_integral_value` never does. In a subset context the operand is first
+rounded to $p$ digits, with `LostDigits`, like every other operand.
 
-> [!WARNING]
-> Both functions treat an integral part longer than $p$ digits differently
-> from the GDA reference implementation, which never rounds to the precision
-> here. At precision 3, `12345` becomes `1.23E+4` with `Inexact` and
-> `Rounded` (GDA: `12345` unchanged, no flags), and `12345.6` becomes NaN with
-> `InvalidOperation`, because the quantize step refuses a 5-digit coefficient
-> (GDA: `12346`, with `Inexact` and `Rounded` for `to_integral_exact`). The
-> pinned test suite has no such row. Keep the precision at least as large as
-> the number of integer digits. Tracked in [#59](https://github.com/Luna-Flow/floating/issues/59) and [#109](https://github.com/Luna-Flow/floating/issues/109); a fix is
-> proposed in [#114](https://github.com/Luna-Flow/floating/pull/114).
+```moonbit
+///|
+test "to_integral keeps long integral parts" {
+  let d = (s : String) => @decimal_gda.Decimal::from_string(s).unwrap()
+  let p3 = @decimal_gda.GdaContext::new(precision=3)
+  let exact = @decimal_gda.to_integral_exact(d("12345.6"), p3)
+  inspect(exact.value(), content="12346")
+  inspect(exact.raised().inexact, content="true")
+  let value = @decimal_gda.to_integral_value(d("12345.6"), p3)
+  inspect(value.raised().inexact, content="false")
+  inspect(@decimal_gda.to_integral_exact(d("12345"), p3).value(), content="12345")
+}
+```
 
 ### `sqrt`, `exp`, `ln`, `log10`
 
@@ -1344,18 +1351,34 @@ pub(all) enum DecimalTininessDetection {
 ```
 
 `BeforeRounding` tests the adjusted exponent of the exact result against
-$e_{\min}$, as GDA does. `AfterRounding` tests the adjusted exponent of the
-result after it has been rounded at $E_{\mathrm{tiny}}$.
+$e_{\min}$, as GDA does. `AfterRounding` is the IEEE 754 after-rounding rule:
+it tests the adjusted exponent of the exact result rounded to $p$ digits with
+the context rounding mode and an unbounded exponent range. The choice changes
+only which inexact results count as tiny, never the value, and the two rules
+differ only for results just below $10^{e_{\min}}$. With $p = 3$ and
+$e_{\min} = 0$, `0.9951` rounds to `0.995` at three digits, so it is tiny and
+the result `1.00` (rounded at $E_{\mathrm{tiny}} = -2$) raises `Underflow` and
+`Subnormal`; `0.99951` rounds to `1.00` at three digits and raises only
+`Inexact` and `Rounded`.
 
-> [!WARNING]
-> `AfterRounding` is not the IEEE 754 after-rounding rule, which rounds to $p$
-> digits with an unbounded exponent range before the test. The two differ for
-> results just below $10^{e_{\min}}$ that round up to $10^{e_{\min}}$ at
-> $E_{\mathrm{tiny}}$ but not at $p$ digits: with $p = 3$ and $e_{\min} = 0$,
-> `0.9951` rounds to `1.00` at $E_{\mathrm{tiny}} = -2$ and is not tiny here,
-> while IEEE rounds it to `0.995` and calls it tiny. The `AfterRounding`
-> rule of the [`decimal`](decimal.md) package currently behaves the same way.
-> Tracked in [#110](https://github.com/Luna-Flow/floating/issues/110); a fix is proposed in [#115](https://github.com/Luna-Flow/floating/pull/115).
+```moonbit
+///|
+test "after-rounding tininess" {
+  let d = (s : String) => @decimal_gda.Decimal::from_string(s).unwrap()
+  let ctx = @decimal_gda.DecimalContext::new(
+    precision=3,
+    e_min=0,
+    e_max=10,
+    tininess=AfterRounding,
+  )
+  let (v, flags) = d("0.9951").plus_ctx(ctx)
+  inspect(v, content="1.00")
+  inspect(flags.underflow, content="true")
+  let (w, flags2) = d("0.99951").plus_ctx(ctx)
+  inspect(w, content="1.00")
+  inspect(flags2.underflow, content="false")
+}
+```
 
 ### `DecimalSignal`
 
@@ -1439,8 +1462,7 @@ pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ### `Decimal::add_ctx`, `Decimal::sub_ctx`, `Decimal::mul_ctx`, `Decimal::div_ctx`, `Decimal::fma_ctx`
 
 These are the forms of
-[`add`, `subtract`, `multiply`, `divide`, `fma`](#add-subtract-multiply-divide-fma),
-including the division defect described there.
+[`add`, `subtract`, `multiply`, `divide`, `fma`](#add-subtract-multiply-divide-fma).
 
 ```mbti
 pub fn Decimal::add_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)

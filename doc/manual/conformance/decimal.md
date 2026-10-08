@@ -16,8 +16,8 @@ The committed elementary layer contains 2,784 certified rows. MPFR 4.2.2
 produces directed 768-bit dyadic endpoints; exact integer conversion rounds
 both endpoints into decimal32/64/128 under every `DecimalRoundingMode`, and the
 generator rejects a row unless result and flags are unique. Native, Wasm,
-Wasm-GC, and JavaScript each pass 2,949/2,949 tests after these rows are
-materialized; the full gate is 15,735/15,735. RDFP and Arb remain optional
+Wasm-GC, and JavaScript each pass 2,975/2,975 tests after these rows are
+materialized; the full gate is 15,839/15,839. RDFP and Arb remain optional
 secondary routes and are not counted when unavailable.
 
 ## Targets
@@ -31,11 +31,18 @@ The checked matrix is finite and does not claim every IEEE 754 operation, every 
 The matrix passes on the current branch although the branch has the
 deviations listed in
 [decimal design: known deviations](../design/decimal.md#known-deviations)
-(double rounding near the underflow threshold, undetected exact elementary
-results, integer powers that are not correctly rounded, and wrong special
-values of `atan2`, `cosh` and `log2`; tracked in [#87](https://github.com/Luna-Flow/floating/issues/87), [#105](https://github.com/Luna-Flow/floating/issues/105),
-[#53](https://github.com/Luna-Flow/floating/issues/53), [#104](https://github.com/Luna-Flow/floating/issues/104), [#92](https://github.com/Luna-Flow/floating/issues/92) and [#93](https://github.com/Luna-Flow/floating/issues/93)). Those cases are therefore not covered
-by its rows, and passing the gate is evidence for the covered rows only.
+(`inexact` or a certification failure for exact decimal results of
+non-integral powers, no `division_by_zero` from $\ln 0$ and $\log_{10} 0$,
+silently capped exponents in text, integral rounding of operands longer than
+$p$ digits, BID NaN payloads, and the sign of a binary $-0$ in
+`from_bin_float`; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53),
+[#94](https://github.com/Luna-Flow/floating/issues/94),
+[#108](https://github.com/Luna-Flow/floating/issues/108),
+[#118](https://github.com/Luna-Flow/floating/issues/118),
+[#54](https://github.com/Luna-Flow/floating/issues/54) and
+[#55](https://github.com/Luna-Flow/floating/issues/55)). Those cases are
+therefore not covered by its rows, and passing the gate is evidence for the
+covered rows only.
 
 ## Reproduction
 

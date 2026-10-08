@@ -303,9 +303,9 @@ test "decimal total order separates cohorts" {
   `decimal32()`/`decimal64()`/`decimal128()` or pass `e_min`/`e_max` within
   $\pm 999\,999$.
 - **Operators are not context operations.** `*` never rounds, so repeated
-  products grow without bound; `/` rounds to the operand precision and can,
-  rarely, be off by one unit in the last place. Use `mul_ctx` and `div_ctx`
-  when the result must be bounded or correctly rounded.
+  products grow without bound; `/` rounds half-even to the operand precision
+  and applies no exponent range. Use `mul_ctx` and `div_ctx` when the result
+  must be bounded, rounded in another mode, or reported through flags.
 - **`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal
   to every NaN and greater than every number, so sorting works. Use
   `compare_checked` or `is_nan` when a NaN must be unordered.
@@ -316,27 +316,18 @@ test "decimal total order separates cohorts" {
   $\pm 1.5\cdot 10^{9}$ silently (`"1e1600000000"` becomes `1E+1500000000`).
   Reject such text before parsing if it can reach you. Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108);
   a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
-- **Exact elementary results may look inexact.** Exact results that the
-  library does not recognise, such as `hypot_ctx(0.3, 0.4) = 0.5`, come back
-  as `0.5000000000000000` with `inexact` in the half modes and fail
-  certification in the directed modes. Integer powers longer than the
-  precision can be one unit in the last place off. See the
-  [API warnings](../api/decimal.md#elementary-functions); tracked in
-  [#105](https://github.com/Luna-Flow/floating/issues/105), [#53](https://github.com/Luna-Flow/floating/issues/53) and [#104](https://github.com/Luna-Flow/floating/issues/104), with fixes proposed in [#113](https://github.com/Luna-Flow/floating/pull/113) and
+- **Exact non-integral powers may look inexact.** An exact decimal power
+  with a non-integral exponent, such as `power_ctx(0.0016, 0.25) = 0.2`,
+  comes back as `0.2000000000000000` with `inexact` in the half modes and
+  fails certification in the directed modes. See the
+  [API warning](../api/decimal.md#elementary-functions); tracked in
+  [#53](https://github.com/Luna-Flow/floating/issues/53), with a fix proposed in
   [#99](https://github.com/Luna-Flow/floating/pull/99).
-- **`atan2_ctx` aborts on infinities.** Check `is_infinite()` on both
-  operands first. Tracked in [#92](https://github.com/Luna-Flow/floating/issues/92); a fix is proposed in [#98](https://github.com/Luna-Flow/floating/pull/98).
-- **Results at the edge of underflow.** In the half rounding modes, a few
-  results just above the smallest normal number, and subnormal quotients, can
-  be one unit in the last place off; see the
-  [context arithmetic warning](../api/decimal.md#context-arithmetic).
-  Tracked in [#87](https://github.com/Luna-Flow/floating/issues/87); a fix is proposed in [#100](https://github.com/Luna-Flow/floating/pull/100).
-- **Integer exponents are converted at context precision.** `pown_ctx`,
+- **The checked powers convert the exponent at context precision.**
   `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a
   `Decimal` with the context precision, so an exponent with more digits than
-  the precision is rounded before the power is taken. Keep
-  $|n| < 10^{p}$ or call `power_ctx` with an exact `Decimal` exponent.
-  Tracked in [#51](https://github.com/Luna-Flow/floating/issues/51); a fix is proposed in [#113](https://github.com/Luna-Flow/floating/pull/113).
+  the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or
+  call `pown_ctx`, which converts the exponent exactly.
 - **`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.**
   Build the context with `DecimalContext::new(decimal_rounding=...)`.
 - **Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact

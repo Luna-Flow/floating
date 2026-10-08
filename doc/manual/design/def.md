@@ -220,6 +220,13 @@ directed roundings go to $\mp\infty$, which still encloses. Unbounded
 intervals round the lower endpoint down and the upper endpoint up, which
 encloses trivially. The empty interval maps to the empty interval.
 
+The argument needs the exact centre. For endpoints more than about $2^{16}$
+binary orders of magnitude apart, `center` replaces the smaller endpoint by a
+sticky surrogate (see the
+[`ball_float` design](ball_float.md#far-addends-bound-endpoint-sums-by-precision)),
+and at a new precision above about 65536 bits the rebuilt interval can miss
+the smaller endpoint. This is tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68).
+
 **Why `BallFloat` has only (F7′).** `normalized` on a bounded interval calls
 the same centre–radius quantization at the stored precision $q$, so the
 argument above gives (F7′). Equality fails in general: the exact centre of two

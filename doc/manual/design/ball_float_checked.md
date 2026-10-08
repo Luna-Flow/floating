@@ -140,10 +140,12 @@ needs more bits than the precision.
   intended real input, and the expression evaluates to $\mathrm{Ok}(Y)$, then
   $Y$ encloses the range of the real formula over the inputs. This is the
   composition argument above together with the fact that the wrapper applies
-  exactly the `ball_float` operations on successes; it inherits the few
-  exceptions listed under
-  [Known limitations](ball_float.md#known-limitations) (the elementary methods
-  use the `try_` forms, which those exceptions mostly do not affect).
+  exactly the `ball_float` operations on successes; it inherits the one
+  inclusion exception listed under
+  [Known limitations](ball_float.md#known-limitations): `with_precision`
+  (also used by `normalized`, `pow_nat` and `pow_int`) can lose the smaller
+  endpoint of an interval whose endpoints are more than about $2^{16}$ binary
+  orders of magnitude apart when the new precision exceeds about 65536 bits.
 - **Error determinism.** If the expression evaluates to $\mathrm{Err}(e)$,
   then $e$ is the error of the first originating node in post-order.
 - **No hidden recovery.** No method turns an error into a value, and `map`

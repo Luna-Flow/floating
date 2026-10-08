@@ -126,11 +126,10 @@ test "other result kinds" {
 
 ### Unsupported and malformed cases
 
-A case the executor does not implement is `Unsupported`; a case whose operands
-cannot be read is a `Diagnostic`. Neither counts as a failure, but a
-diagnostic makes `success()` false. An unknown operation whose operands are
-not all interval literals, such as `nums2interval 1.0 2.0`, is also a
-diagnostic (tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)), so filter such operations out before executing a whole file:
+A case the executor does not implement is `Unsupported`, whatever its
+operands (`nums2interval 1.0 2.0` included); a case of a known operation whose
+operands cannot be read is a `Diagnostic`. Neither counts as a failure, but a
+diagnostic makes `success()` false:
 
 ```moonbit
 ///|
@@ -145,8 +144,8 @@ test "dispositions" {
     .unwrap()
     .map(c => @itl_expr.execute_case(c))
   let summary = @itl_expr.summarize_results(results)
-  inspect(summary.unsupported_cases(), content="1")
-  inspect(summary.diagnostic_cases(), content="2")
+  inspect(summary.unsupported_cases(), content="2")
+  inspect(summary.diagnostic_cases(), content="1")
   inspect(summary.success(), content="false")
 }
 ```
@@ -175,9 +174,6 @@ test "dispositions" {
 - **Parse errors reject the input.** `parse_itl` returns only diagnostics if
   any statement lacks `=` or an operation, or if the text ends inside a
   statement.
-- **No comments after `;`.** A trailing `// …` keeps the line from ending in
-  `;`, so the statement swallows the next one without an error. Put comments
-  on their own lines. Tracked in [#76](https://github.com/Luna-Flow/floating/issues/76); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ## Next steps
 

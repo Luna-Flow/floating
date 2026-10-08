@@ -372,12 +372,6 @@ test "decimal64 interchange round trip" {
   between them through strings or interchange bits.
 - **Expecting `exp`, `ln`, `log10` or `sqrt` to follow the context rounding.**
   They always round half to even; only `power` follows the context.
-- **Rounding integers with `to_integral_exact` in a short context.** If the
-  integral part has more digits than the precision, the result is rounded to
-  the precision or, for an operand with a fraction, is NaN with
-  `InvalidOperation`; the GDA reference keeps all digits. Use a precision at
-  least as large as the integer digits. Tracked in [#59](https://github.com/Luna-Flow/floating/issues/59) and [#109](https://github.com/Luna-Flow/floating/issues/109); a
-  fix is proposed in [#114](https://github.com/Luna-Flow/floating/pull/114).
 - **Calling `exp`, `ln`, `log10` or non-integer `power` with a default
   context.** `GdaContext::new()` and `context()` allow exponents up to
   ±999,999,999, which is outside the range these functions are defined for, so

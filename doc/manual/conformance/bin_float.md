@@ -107,14 +107,17 @@ nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end`
 protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a
 general elementary function.
 
-The fixed-seed elementary inputs do not include the inputs on which the
-package is known to deviate: very tiny arguments of `exp`, `expm1`, `exp2`,
-`sin` and `atan`, exact results that the elementary functions do not filter
-(such as $16^{3/4}$ or $\operatorname{rootn}(8, -3)$), the signed-zero cases
-of `atan2`, and the IEEE `pow` special cases that `pow` rejects. They are
-listed in the [API reference](../api/bin_float.md#elementary-functions) and
-tracked in [#102](https://github.com/Luna-Flow/floating/issues/102), [#49](https://github.com/Luna-Flow/floating/issues/49), [#90](https://github.com/Luna-Flow/floating/issues/90), [#48](https://github.com/Luna-Flow/floating/issues/48) and [#89](https://github.com/Luna-Flow/floating/issues/89); fixes are
-proposed in [#107](https://github.com/Luna-Flow/floating/pull/107), [#106](https://github.com/Luna-Flow/floating/pull/106) and [#101](https://github.com/Luna-Flow/floating/pull/101).
+The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of
+magnitude at most 16, inside each function's domain: `pow` takes a positive
+base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2`
+never two zeros, and `tanpi` no integral or half-integral argument. A zero
+input is $+0$. The matrix therefore does not exercise tiny or huge
+arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees
+of `rootn`, or the poles and signed zeros of the IEEE special-case tables;
+exact results such as $16^{3/4}$ occur only by chance. Those cases are
+covered by the package's unit tests against the special-value tables in the
+[API reference](../api/bin_float.md#elementary-functions), not by this
+claim.
 
 ## Stability of the evidence
 

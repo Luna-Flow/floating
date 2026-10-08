@@ -282,11 +282,10 @@ constant-size state copy.
 - No operators, no pipeline-to-pipeline operations, no implicit context
   changes.
 - Only certification failures of elementary functions become errors. A
-  delegated operation that aborts (on the current branch `atan2` with an
-  infinite operand, tracked in [#92](https://github.com/Luna-Flow/floating/issues/92)) aborts the pipeline too; the state model cannot turn an
-  abort into an error.
+  delegated operation that aborted would abort the pipeline too; the state
+  model cannot turn an abort into an error.
 - No accuracy of its own: the flags describe exactly what `decimal` reported,
-  including its documented deviations (for example `inexact` on an exact
-  `hypot(0.3, 0.4)`).
+  including its documented deviations (for example `inexact` on the exact
+  power $0.0016^{0.25} = 0.2$).
 - The context is the IEEE decimal context of `decimal`; GDA contexts with
   sticky status belong to `decimal_gda`.

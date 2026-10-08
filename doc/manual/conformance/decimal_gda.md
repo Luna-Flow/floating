@@ -32,13 +32,6 @@ The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar
 A passing corpus is a finite claim. Review of the implementation found these
 behaviours, none of which has a pinned row:
 
-- `to_integral_exact` and `to_integral_value` round an integer longer than
-  the precision (`12345` at precision 3 becomes `1.23E+4`) and return NaN with
-  `InvalidOperation` when the integral part of a fractional operand is longer
-  than the precision (`12345.6` at precision 3), where the reference
-  implementation returns `12345` and `12346`
-  ([API](../api/decimal_gda.md#to_integral_exact-to_integral_value); tracked
-  in [#59](https://github.com/Luna-Flow/floating/issues/59) and [#109](https://github.com/Luna-Flow/floating/issues/109), fix proposed in [#114](https://github.com/Luna-Flow/floating/pull/114)).
 - A non-integer `power` with an exactly representable value, such as
   $4^{1.5}$, does not finish in reasonable time in the directed rounding
   modes ([API](../api/decimal_gda.md#power); tracked in [#112](https://github.com/Luna-Flow/floating/issues/112), fix

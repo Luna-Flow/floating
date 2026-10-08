@@ -17,7 +17,7 @@ Balanced multiplication uses schoolbook below 96 limbs, then Karatsuba, Toom-3, 
 
 ## Division, square root and GCD
 
-Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Ziegler from 48, and Newton reciprocal division from 1,024. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that. Large GCD uses Lehmer batching.
+Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Ziegler from 48, and Newton reciprocal division from 1,024. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once.
 
 ## Measurement
 

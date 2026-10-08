@@ -54,14 +54,10 @@ Text output prints a title, `cases`, `passed cases`, `failed cases` and one
 `failed ID: MESSAGE` line per failure. JSON output has the keys `corpus`,
 `totalCases`, `passedCases`, `failedCases` and `failedIds`.
 
-Return value: `2` for usage, file or parse errors; `1` when a row failed; `0`
-otherwise.
-
-> [!WARNING]
-> An elementary file with a `pow`, `hypot` or `atan2` row whose second
-> operand is `-` parses, and then aborts the process during execution instead
-> of returning `1` (see [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)).
-> Tracked in [#61](https://github.com/Luna-Flow/floating/issues/61); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
+Return value: `2` for usage, file or parse errors (including an elementary
+`pow`, `hypot` or `atan2` row whose second operand is `-`, see
+[`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)); `1`
+when a row failed; `0` otherwise.
 
 ```moonbit
 ///|

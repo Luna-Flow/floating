@@ -237,12 +237,16 @@ also inexact, and `Clamped` when it rounds to zero (the zero then takes the
 exponent $E_{\mathrm{tiny}}$). Because tininess is decided before rounding,
 a result such as $0.9951$ at $p = 3$, $e_{\min} = 0$ raises `Subnormal` and
 `Underflow` even though it rounds to the normal number `1.00`. The status-free
-layer additionally offers `DecimalTininessDetection::AfterRounding`, which
-tests the result after rounding at $E_{\mathrm{tiny}}$; it changes only which
-results count as tiny, never the value. It is not the IEEE 754
-after-rounding rule, which rounds to $p$ digits with an unbounded exponent
-range first: $0.9951$ is tiny for IEEE ($0.995$) but not for `AfterRounding`
-($1.00$). Tracked in [#110](https://github.com/Luna-Flow/floating/issues/110); a fix is proposed in [#115](https://github.com/Luna-Flow/floating/pull/115).
+layer additionally offers `DecimalTininessDetection::AfterRounding`, the
+IEEE 754 after-rounding rule: a result is tiny when its exact value rounded to
+$p$ digits with an unbounded exponent range has $\hat e < e_{\min}$. It
+changes only which results count as tiny, never the value. Only an exact
+value with $\hat e = e_{\min} - 1$ can be judged differently from
+`BeforeRounding` (rounding to $p$ digits can carry it into $10^{e_{\min}}$), so
+the extra rounding is done only there.
+The grid matters: $0.9951$ rounds to $0.995$ at $p$ digits and is tiny,
+although its rounding at $E_{\mathrm{tiny}} = -2$ is the normal `1.00`;
+$0.99951$ rounds to $1.00$ at $p$ digits and is not tiny.
 
 ### Clamping
 
@@ -501,9 +505,9 @@ midpoint and lies strictly on the same side of every such point as $Q$. The
 second rounding then returns $\circ_p(Q)$ for every mode $\circ$, and
 `divide(1, 2222)` at precision 1 is `0.0005`.[^gda-div-05up]
 
-[^gda-div-05up]: This is decNumber's `DEC_ROUND_05UP` device. Before upstream
-    commit `fabf8d9` the first rounding used the context mode, and a sweep of
-    $c_1 < 20$, $c_2 < 3000$, $p \le 3$ found 12 misrounded quotients.
+[^gda-div-05up]: This is decNumber's `DEC_ROUND_05UP` device. With the
+    context mode in the first rounding, a sweep of $c_1 < 20$, $c_2 < 3000$,
+    $p \le 3$ finds 12 misrounded quotients.
 
 ### Square root
 
@@ -701,9 +705,8 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 - **Evidence.** The pinned `official` test suite passes 64,986/64,986 legal
   executable scalar rows and the legacy `official0` suite 16,124/16,124
   ([conformance](../conformance/decimal_gda.md)). These are finite claims: the
-  division defect above and the to-integral difference noted on the
-  [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value)
-  ([#59](https://github.com/Luna-Flow/floating/issues/59), [#109](https://github.com/Luna-Flow/floating/issues/109)) are not covered by any pinned row.
+  half-mode division tie above and to-integral operands longer than the
+  precision are not covered by any pinned row.
 
 ## Alternatives rejected
 
@@ -730,8 +733,7 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
   [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools.
 - It does not provide BID interchange; only DPD.
 - It does not give correct rounding for integer powers beyond the GDA
-  requirement, and on the current branch not for the half-mode division case
-  described above.
+  requirement.
 - It does not provide a mutable or global context, and contexts carry no
   identity: two contexts with the same fields are interchangeable.
 - It does not support exponents beyond the 32-bit range. Literal exponents

@@ -170,11 +170,8 @@ pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, A
 `expected` is read at `precision` bits, and the last three fields are `0` or
 `1`. Row ids are `op:LINE`.
 
-> [!WARNING]
-> The parser does not check that `y` is present for the two-operand functions
-> `pow`, `hypot` and `atan2`, and the executor unwraps it: executing such a
-> row with `y = -` aborts the whole run instead of failing the row.
-> Tracked in [#61](https://github.com/Luna-Flow/floating/issues/61); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
+A row of the two-operand functions `pow`, `hypot` and `atan2` whose `y` is
+`-` is the diagnostic `"invalid MPFR elementary field"`.
 
 ### `execute_elementary_data`
 
@@ -187,8 +184,8 @@ pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 ```
 
 A row passes when the result compares equal to the expected value
-(`compare == 0`: $+0 = -0$ and every NaN equals every NaN; the ignored sign
-of zero is tracked in [#61](https://github.com/Luna-Flow/floating/issues/61)), the inexact,
+(`compare == 0`, so every NaN equals every NaN) with the same sign when it is
+zero, the inexact,
 invalid and division-by-zero flags equal the row's flags, and neither
 underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for
 example a certification failure) the row fails with the message

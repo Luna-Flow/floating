@@ -34,8 +34,9 @@ pub fn parse_itl(String) -> Result[Array[ItlCase], Array[String]]
 
 The text is read line by line, each line trimmed:
 
-- lines starting with `//` and empty lines are skipped; a line starting with
-  `/*` starts a block comment that ends on the first later line containing
+- `//` starts a comment that runs to the end of the line, so a statement may
+  end in `; // note`; empty lines (also after removing the comment) are
+  skipped; a line starting with `/*` starts a block comment that ends on the first later line containing
   `*/` (or on the same line);
 - `testcase NAME …` starts a new block; `NAME` is the word after `testcase`
   and must be followed by a space, otherwise the diagnostic
@@ -44,14 +45,6 @@ The text is read line by line, each line trimmed:
 - a line equal to `}` is skipped;
 - every other line is appended (with a space) to the current statement, and a
   line ending in `;` completes it.
-
-Comments are recognized only at the start of a line. A `//` comment after a
-statement's `;` keeps the line from ending in `;`, so the statement silently
-absorbs the following lines up to the next line that ends in `;`: the text
-`add [1.0,2.0] [3.0,4.0] = [4.0,6.0]; // c` followed by a `sub` statement
-yields one case whose expected text is
-`[4.0,6.0]; // c sub [1.0,2.0] [3.0,4.0] = [-3.0,-1.0]`. Tracked in
-[#76](https://github.com/Luna-Flow/floating/issues/76); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 A completed statement `left = expected` is split at the first `=`. The left
 side is split into words at spaces and tabs outside square brackets; the
@@ -132,8 +125,8 @@ chosen whenever the expected text is `true` or `false`.
 Dispositions:
 
 - `Executable` when the case was run; `passed()` tells the outcome;
-- `Unsupported(reason)` for an unknown operation whose operands are all
-  interval literals, a binary-dispatch case whose expected value is not an
+- `Unsupported(reason)` for an unknown operation, whatever its operands and
+  expected value, a binary-dispatch case whose expected value is not an
   interval (for example one followed by a `signal` annotation), a
   binary-dispatch case with other than two operands, or a boolean predicate
   other than the five unary ones whose second operand is missing or
@@ -143,13 +136,9 @@ Dispositions:
   unary, ternary or integer-power dispatch, cannot be read, or an operand of
   the binary dispatch is not an interval literal.
 
-The binary dispatch reads the operands before it looks at the operation, so
-an operation the executor does not know is a `Diagnostic`, not `Unsupported`,
-when one of its operands is not an interval literal: `nums2interval 1.0 2.0`
-and `rootn [1.0,8.0] 3` are diagnostics, while `sqrRev [0.0,1.0] [-1.0,1.0]`
-is unsupported. Because a diagnostic makes `RunSummary::success` false, run
-such operations only through an operation filter. Tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix
-is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
+Support is decided from the operation name before any operand is read, so
+`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `sqrRev [0.0,1.0]` are
+unsupported and do not count against `RunSummary::success`.
 
 `execute_case` does not abort on case content.
 

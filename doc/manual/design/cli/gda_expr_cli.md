@@ -67,7 +67,7 @@ result.
 ## Boundaries
 
 - No corpus download or phase planning (Python tooling).
-- No recursion into subdirectories, and files without the `.decTest` suffix
-  are ignored without a message ([#77](https://github.com/Luna-Flow/floating/issues/77), fix proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)).
+- No recursion into subdirectories; directory entries without the `.decTest`
+  suffix are skipped, while a named file without it is an error.
 - Only GDA `.decTest` semantics through `decimal_gda`; IEEE decimal vectors use
   a different runner.

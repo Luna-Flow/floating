@@ -115,19 +115,11 @@ equal block id) and calls
 $\Delta_{\%} = 100 \cdot \operatorname{med}(c - b) / \operatorname{med}(b)$
 (0 when $\operatorname{med}(b) = 0$), and its `decision` is `Faster` when
 $\Delta_{\%} \le -\delta$, `Slower` when $\Delta_{\%} \ge \delta$ and
-`Equivalent` otherwise, for $\delta$ = `practical_delta_pct`. Errors: `MismatchedPairs` when the two
+`Equivalent` otherwise, for $\delta$ = `practical_delta_pct`. Its `interval`
+is the 95 % percentile-bootstrap interval of the median paired difference
+$\operatorname{med}(c - b)$, in microseconds. Errors: `MismatchedPairs` when the two
 implementations have different numbers of samples, `EmptySamples` when there
 are none, `NonFiniteSample` when a time is NaN or infinite.
-
-> [!WARNING]
-> `paired_hotspot` passes the confidence level as `0.95`, but Maremark reads
-> it as a percentage. The reported `interval` is therefore the central
-> 0.95 % of the bootstrap distribution, between its quantiles 0.49525 and
-> 0.50475: a near-point at the bootstrap median, not a 95 % interval. For the five
-> paired differences $10, 11, 10, 15, 6$ µs it reports $[10, 10]$, where
-> `confirmatory_regression` reports the 95 % interval $[6, 15]$.
-> Use `relative_delta_pct` and `decision`, or `confirmatory_regression`, when
-> an interval matters. Tracked in [#60](https://github.com/Luna-Flow/floating/issues/60); a fix is proposed in [#80](https://github.com/Luna-Flow/floating/pull/80).
 
 Pairing is by position after the filter: if one implementation has an invalid
 observation in some block and the other does not, the counts differ and the
@@ -188,10 +180,9 @@ pub struct TuneDecision {
 }
 ```
 
-`median_us` is the median per-call time of the chosen candidate.
-`valid_samples` is the number of valid confirmatory observations selected for
-it, counted before `@tune.score_samples` drops negative or non-finite times,
-so it can exceed the number of samples the median was computed from.
+`median_us` is the median per-call time of the chosen candidate and
+`valid_samples` the number of finite, non-negative confirmatory samples it
+was computed from.
 
 ### `tune_dataset`
 
@@ -209,7 +200,7 @@ is the valid candidate with the smallest median, ties broken by the smaller
 candidate id; `None` when no candidate is valid. Because the score is used as
 both the primary and the secondary criterion of `@tune.select_best`,
 `practical_delta_pct` does not change the choice. Which secondary criterion
-is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60); no fix yet.
+is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60).
 
 ```moonbit
 ///|

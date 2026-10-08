@@ -43,14 +43,14 @@ pub fn run(Array[String]) -> Int
 | `--strict-supported` | also fail when a selected row is unsupported or legacy |
 | `--cases SPEC`, `--cases=SPEC` | row filter: comma-separated ids or `first..last` ranges (see `RunOptions::new`) |
 | `--help`, `-h` | print the usage line and return `2` |
-| `PATH …` | `.decTest` files or directories (direct entries ending in `.decTest`); default `testdata/decimal/smoke.decTest` |
+| `PATH …` | `.decTest` files or directories (direct file entries ending in `.decTest`); default `testdata/decimal/smoke.decTest` |
 
 Any other argument starting with `-` is an error `unknown option: …`. A
-directory contributes its direct entries whose names end in `.decTest`; a
-file path is kept only if it ends in `.decTest`, and other files are dropped
-without a message, so a run can select no file at all and report zero cases
-with exit status 0 (tracked in [#77](https://github.com/Luna-Flow/floating/issues/77); a fix is proposed in [#83](https://github.com/Luna-Flow/floating/pull/83)). A path that does not exist is an error. Files
-are sorted, parsed in order (the first parse diagnostic of a file is printed as
+directory contributes its direct file entries whose names end in `.decTest`
+(a directory without any adds no file); a named file without that suffix is
+the error `not a .decTest file: PATH`, and a path that does not exist is the
+error `path does not exist: PATH`, both with exit status 2. Files are sorted,
+each file is run once even if named twice, parsed in order (the first parse diagnostic of a file is printed as
 `source:line:1: message` and ends the run), and executed together, so row
 ordinals and shards span all files.
 

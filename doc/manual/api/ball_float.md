@@ -33,9 +33,10 @@ Conventions used on this page:
 - *Empty* is the empty set, *Entire* is $(-\infty, +\infty)$. An unbounded
   interval stores $-\infty$ and/or $+\infty$ as endpoints; these mean that the
   set is unbounded on that side, never that it contains an infinite value.
-- The few inputs for which the code currently breaks the inclusion property,
-  aborts, or misreports a decoration are marked with a WARNING and collected
-  under [Known limitations](../design/ball_float.md#known-limitations) on the
+- The few inputs for which the code currently loses part of the input set,
+  widens without need, or rounds or flags a context result incorrectly are
+  noted where they occur, with their tracking issue, and collected under
+  [Known limitations](../design/ball_float.md#known-limitations) on the
   design page.
 
 ## Importing
@@ -935,19 +936,13 @@ $[\text{largest finite}, +\infty)$ or $[0, \text{smallest positive}]$, which
 is valid because $e^{2^{30}}$ exceeds $2^{e_{\max}+1}$ and $e^{-2^{30}}$ is
 below the smallest positive `BinFloat` at every precision.
 `exp2_interval` and `exp10_interval` evaluate $e^{\xi \ln b}$ at 96 extra bits
-and return exact powers for integer endpoints (for `exp10_interval`,
-exponents $0 \le n \le 100000$). The total `expm1_interval` falls back to
-$[-1, +\infty)$.
-
-> [!WARNING]
-> The exact-power shortcut of `exp2_interval` does not respect the exponent
-> range. An integer lower endpoint $n \ge 2^{30}$ makes $2^n$ overflow to
-> $+\infty$ and the call aborts ("ball lower bound must not be positive
-> infinity"). An integer upper endpoint $n < -2^{30} - p - 94$ (with $p$ the
-> interval precision) makes $2^n$ underflow to 0, so the result misses the
-> positive value $2^n$: at 53 bits, `exp2_interval` of
-> $\{-1073742000\}$ is $\{0\}$. `try_exp2_interval` does not use the
-> shortcut. Tracked in [#84](https://github.com/Luna-Flow/floating/issues/84); a fix is proposed in [#97](https://github.com/Luna-Flow/floating/pull/97).
+and return exact powers for integer endpoints (for `exp2_interval`, exponents
+$e_{\min} \le n \le e_{\max}$, where $2^n$ is a normal `BinFloat`; for
+`exp10_interval`, exponents $0 \le n \le 100000$). An integer endpoint outside
+the exponent range keeps the outward-rounded series enclosure, so
+`exp2_interval` of $\{-1073742000\}$ is $[0, \text{smallest positive}]$ and of
+$\{2^{30}\}$ is $[\text{largest finite}, +\infty)$. The total
+`expm1_interval` falls back to $[-1, +\infty)$.
 
 ### `BallFloat::ln_interval`, `BallFloat::log2_interval`, `BallFloat::log10_interval`, `BallFloat::log1p_interval`, `BallFloat::try_ln_interval`, `BallFloat::try_log2_interval`, `BallFloat::try_log10_interval`, `BallFloat::try_log1p_interval`
 
@@ -972,17 +967,6 @@ $\overline{x} < -1$ for `log1p`) the result is Empty. `log10_interval`
 returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The total
 `log1p_interval` falls back to Entire.
 
-> [!WARNING]
-> On every target except JavaScript, `ln_interval` does not return for some
-> arguments just above 1 at high precision, for example $\{1 + 2^{-243}\}$
-> at 245 or 300 bits, and neither do `asinh_interval` and `atanh_interval`
-> (which evaluate `ln_interval`) for tiny arguments such as $\{2^{-300}\}$
-> at 53 bits. Their certified kernels convert series bounds to rationals with
-> `BinCoeff::gcd`, which barely progresses for operands of very different
-> lengths (see the warning under
-> [`BinCoeff::gcd`](bin_float.md#bincoeffgcd)). The `try_` forms are not
-> affected. Tracked in [#85](https://github.com/Luna-Flow/floating/issues/85); a fix is proposed in [#97](https://github.com/Luna-Flow/floating/pull/97).
-
 ```moonbit
 ///|
 test "exponentials and logarithms" {
@@ -991,6 +975,13 @@ test "exponentials and logarithms" {
   inspect(fmt(iv(0, 4).ln_interval()), content="[-inf, 1.38630e+0]")
   inspect(fmt(iv(1, 1000).log10_interval()), content="[0.00000e+0, 3.00000e+0]")
   inspect(iv(-2, -1).ln_interval().is_empty(), content="true")
+  // Integer endpoints outside the exponent range keep the series enclosure.
+  let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2_interval()
+  inspect(below.lower_bound().to_string(), content="0")
+  inspect(below.upper_bound().to_string(), content="1p-1073741875")
+  let above = @ball_float.BallFloat::from_int(1 << 30, precision=53).exp2_interval()
+  inspect(above.lower_bound().to_string(), content="9007199254740991p1073741771")
+  inspect(above.upper_bound().to_string(), content="inf")
 }
 ```
 
@@ -1014,8 +1005,10 @@ accordingly. The code also adds the value 1 when the base interval contains
 1 or the exponent interval contains 0; it already lies between the corner
 values, so this changes nothing but is harmless. $0^{\eta}$ for $\eta \le 0$
 is excluded, so `pow_interval([0, 0], y)` is Empty when $\overline{y} \le 0$.
-The result precision is the larger operand precision. The total form falls
-back to an evaluation of $e^{\eta \ln \xi}$ at 192 extra bits.
+The result precision is the larger operand precision. A corner whose power is
+representable at the result precision, such as $16^{3/4} = 8$, gives that
+power exactly. The total
+form falls back to an evaluation of $e^{\eta \ln \xi}$ at 192 extra bits.
 
 ### `BallFloat::rootn` and `BallFloat::try_rootn`
 
@@ -1034,7 +1027,21 @@ form evaluates other degrees through `pow_interval` with an enclosure of
 $1/n$, so it may be slightly wider than `try_rootn`; negative degrees are
 `rootn(x, -n).reciprocal()`. For negative $n$, `try_rootn` returns Entire
 when an odd root's argument contains 0 (wider than the total form when 0 is an
-endpoint).
+endpoint). Exact roots are returned exactly for every degree, so
+`try_rootn({8}, -3)` is $\{1/2\}$.
+
+```moonbit
+///|
+test "exact powers and roots" {
+  let three_quarters = @ball_float.BallFloat::exact(
+    @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), -2, 53),
+  )
+  let p = iv(16, 16).pow_interval(three_quarters)
+  inspect(p.lower_bound().to_string() + " " + p.upper_bound().to_string(), content="1p3 1p3")
+  let r = iv(8, 8).try_rootn(-3).unwrap()
+  inspect(r.lower_bound().to_string() + " " + r.upper_bound().to_string(), content="1p-1 1p-1")
+}
+```
 
 ### `BallFloat::hypot` and `BallFloat::try_hypot`
 
@@ -1095,7 +1102,8 @@ pub fn BallFloat::try_tanpi_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 Here the critical points are the exact half-integers $k/2$, located from the
 dyadic endpoints without approximating $\pi$. `tanpi_interval` returns a
 half-unbounded interval when a pole is exactly an endpoint and no other pole
-lies in the interval (for example $[1/2, 1]$ gives $(-\infty, 0]$), Empty for
+lies in the interval (for example $[1/2, 1]$ gives $(-\infty, 0]$, whose upper
+endpoint is $\tan \pi = -0$), Empty for
 the singleton of a pole, and Entire when a pole lies inside. Unbounded
 arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`).
 
@@ -1184,8 +1192,7 @@ $2^{-190}$ the total forms are valid but far from tight. At 53 bits,
 `sinh_interval` of $\{2^{-300}\}$ is $[0, 3 \cdot 2^{-246}]$ while
 `try_sinh_interval` returns the two-ulp interval
 $[2^{-300}, (1 + 2^{-52})\,2^{-300}]$. Use the `try_` forms for tiny
-arguments; for some of them the total `asinh_interval` and `atanh_interval`
-do not return at all (see the warning under `ln_interval`).
+arguments.
 
 ```moonbit
 ///|
@@ -1515,9 +1522,10 @@ pub fn BallFloatDecorated::atanh_interval(Self) -> Self
 | `asin_interval`, `acos_interval` | $\boldsymbol{x} \not\subseteq [-1, 1]$ |
 | `acosh_interval` | $\underline{x} < 1$ |
 | `atanh_interval` | $\underline{x} \le -1$ or $\overline{x} \ge 1$ |
-| `rootn(x, n)` | $n = 0$, or $n$ even and $\underline{x} < 0$ |
+| `rootn(x, n)` | $n = 0$, or $n$ even and $\underline{x} < 0$, or $n < 0$ and $0 \in \boldsymbol{x}$ |
 | `pow_interval(x, y)` | $\underline{x} < 0$, or $0 \in \boldsymbol{x}$ and $\underline{y} \le 0$, or the result is Empty |
-| `tan_interval`, `tanpi_interval` | the result is Entire (a pole may lie inside) |
+| `tan_interval` | the result is Entire (a pole may lie inside) |
+| `tanpi_interval` | the result is unbounded (a pole lies in the argument, possibly at an endpoint) |
 | `atan2_interval` | both operands contain 0 |
 
 All other functions have operation decoration `Com`. For `y.atan2_interval(x)`
@@ -1526,21 +1534,6 @@ the decoration is `Def` when the box crosses the branch cut
 jumps from $-\pi$ to $\pi$) and `Dac` when it touches the cut from above
 ($\overline{x} < 0$, $\underline{y} = 0$: the restriction is continuous, but
 `atan2` itself is not continuous at those points).
-
-> [!WARNING]
-> Two domain tests are incomplete, so the decoration can claim more than is
-> true:
->
-> - `rootn` with a negative degree does not lower the decoration when 0 is in
->   the argument, although $\xi^{1/n}$ is undefined at 0 for $n < 0$:
->   `rootn([0, 4], -2)` is decorated `dac` instead of `trv`.
-> - `tanpi_interval` tests only for an Entire result. When a pole is an
->   endpoint, the bare result is half-unbounded and the decoration becomes
->   `dac`, although $\tan \pi\xi$ is undefined at the pole: `tanpi([1/2, 1])`
->   is `[-inf, 0]_dac` instead of `trv`.
->
-> Tracked in [#45](https://github.com/Luna-Flow/floating/issues/45) (`rootn`) and [#86](https://github.com/Luna-Flow/floating/issues/86) (`tanpi`); a fix is proposed in
-> [#96](https://github.com/Luna-Flow/floating/pull/96).
 
 ### `BallFloatDecorated::apply_ctx`
 
@@ -1560,6 +1553,12 @@ test "decorated intervals" {
   inspect(x.sqrt_interval().decoration(), content="trv")
   inspect(x.exp_interval().decoration(), content="com")
   inspect((x / x).decoration(), content="trv")
+  inspect(@ball_float.BallFloatDecorated::new(iv(0, 4)).rootn(-2).decoration(), content="trv")
+  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
+  let pole = @ball_float.BallFloatDecorated::new(
+    @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53)),
+  )
+  inspect(pole.tanpi_interval().decoration(), content="trv")
   let unbounded = @ball_float.BallFloatDecorated::new(@ball_float.BallFloat::whole())
   inspect(unbounded.decoration(), content="dac")
   let nai = @ball_float.BallFloatDecorated::nai()

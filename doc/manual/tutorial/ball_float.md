@@ -428,10 +428,8 @@ is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is p
 
 **Tiny arguments to hyperbolic functions.** The total `sinh_interval`,
 `tanh_interval`, `asinh_interval` and `atanh_interval` lose all relative
-accuracy for $|\xi|$ below about $2^{-190}$ (and `asinh`/`atanh` can hang
-there, because `BinCoeff::gcd` barely progresses on operands of very
-different lengths; tracked in [#85](https://github.com/Luna-Flow/floating/issues/85), with a fix proposed in [#97](https://github.com/Luna-Flow/floating/pull/97)); use
-the `try_` forms for such arguments.
+accuracy for $|\xi|$ below about $2^{-190}$; use the `try_` forms for such
+arguments.
 
 **Inputs from `Double`.** `from_double(x)` encloses the binary value of `x`
 exactly; it cannot know which decimal number `x` approximated. Enclose decimal

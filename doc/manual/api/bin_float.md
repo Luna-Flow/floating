@@ -216,19 +216,14 @@ pub fn BinCoeff::gcd(Self, Self) -> Self
 
 $\gcd(a, 0) = a$ and $\gcd(0, 0) = 0$.
 
-> [!WARNING]
-> On every target except JavaScript, `gcd` can run practically forever when
-> the operands have very different lengths. Unless both operands fit in four
-> 32-bit limbs it uses Lehmer batches, and the batch loop takes each operand's
-> own top limb as its leading digit. For operands of different lengths these digits have
-> unrelated scales, so each round removes only a small multiple of the smaller
-> operand: a 301-bit odd number and $2^{543}$ need about $2^{220}$ rounds. The
-> certified kernels of `ball_float` call `gcd` when they convert series bounds
-> to rationals, which is why `ln_interval`, `asinh_interval` and
-> `atanh_interval` hang for some arguments. The JavaScript target uses the
-> host `BigInt` and is not affected. Tracked in
-> [#85](https://github.com/Luna-Flow/floating/issues/85); a fix is proposed in
-> [#97](https://github.com/Luna-Flow/floating/pull/97).
+Operands that both fit in four 32-bit limbs use the binary (Stein)
+algorithm. Larger operands use Lehmer rounds: each runs Euclid on the leading
+63 bits of the larger operand and the bits of the smaller one in the same
+window, and takes one plain division step instead when the smaller operand
+has no bits in that window or the cofactors would not shrink the pair. A
+long operand is therefore reduced modulo a much shorter one in one step, and
+operands of any lengths finish. Below eight limbs of the smaller operand the
+loop continues with plain Euclid. JavaScript uses the host `BigInt`.
 
 ### `BinCoeff::shift_left`, `BinCoeff::shift_right`, `BinCoeff::shl`, `BinCoeff::shr`
 
@@ -1414,7 +1409,7 @@ grows by $\max(32, \lfloor w/2 \rfloor)$, for at most 12 attempts. Because
 rounding is monotone, a returned value is the correctly rounded result
 $\circ(f(x))$, never an uncertified approximation; the
 [design page](../design/bin_float.md#certified-elementary-functions) gives the
-argument and lists the cases where the flags can still be wrong.
+argument for the value and the flags.
 
 When the attempts run out, `try_f_ctx` returns a `certification_failure`
 error whose `CertificationFailureDetail` names the operation, the stage
@@ -1426,37 +1421,24 @@ raises `invalid_operation`), and poles return a signed infinity with
 `division_by_zero` (for example $\ln 0 = -\infty$,
 $\operatorname{atanh}(1) = +\infty$). Exactly representable results that an
 enclosure cannot isolate are detected before the loop, for example
-$\log_2 2^k = k$, $2^n$ for integral $n$, $\sin(\pm 0) = \pm 0$ and
+$\log_2 2^k = k$, $2^n$ for integral $n$, $10^n$ for integral $n \ge 0$,
+dyadic powers such as $16^{3/4} = 8$, exact roots such as
+$\operatorname{rootn}(8, -3) = 1/2$, $\sin(\pm 0) = \pm 0$ and
 $\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below.
+They are rounded once from their exact value, so their flags are right in
+every rounding mode.
 
-> [!WARNING]
-> Two families of inputs defeat the certification on the current branch.
->
-> - **Tiny arguments.** For `exp`, `expm1`, `exp2`, `sin` and `atan` (and
->   possibly others built the same way) an argument so small that the series
->   stops after its first term yields an enclosure with one end exactly on a
->   representable number ($1$ for `exp`, $x$ itself for `sin`). That end
->   rounds without `inexact`, the other end with it, so the flags never agree
->   and the budget runs out. For example `try_sin_ctx` of $2^{-6000}$ at 53
->   bits, of $2^{-8000}$ in `binary128()`, and `try_exp_ctx` of $2^{-20000}$
->   at 53 bits all return a `certification_failure`, and the plain forms
->   return NaN. Arguments of binary64 size are not affected. For such tiny
->   $x$ use the first terms of the series yourself ($\sin x \approx x$,
->   $e^x \approx 1 + x$) with a directed rounding. Tracked in
->   [#102](https://github.com/Luna-Flow/floating/issues/102); a fix is
->   proposed in [#107](https://github.com/Luna-Flow/floating/pull/107).
-> - **Exact results that are not filtered.** A result that is exactly
->   representable but not recognised before the loop is returned with a
->   spurious `inexact` under nearest rounding and is a `certification_failure`
->   under a directed rounding. This happens for `pow` with a non-integral
->   exponent such as $16^{3/4} = 8$, for `rootn` with a negative degree such
->   as $8^{-1/3} = 1/2$ (and `pow(4, -0.5)`), and for $10^n$ and
->   $\log_{10} 10^n$ with $n > 4096$ at a precision large enough to hold
->   $10^n$. Tracked in [#49](https://github.com/Luna-Flow/floating/issues/49)
->   (`pow`), [#90](https://github.com/Luna-Flow/floating/issues/90) (`rootn`)
->   and [#102](https://github.com/Luna-Flow/floating/issues/102) ($10^n$);
->   fixes are proposed in [#106](https://github.com/Luna-Flow/floating/pull/106)
->   and [#107](https://github.com/Luna-Flow/floating/pull/107).
+Every result that reaches the loop is not a rounding breakpoint, so an
+enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for
+$\sin x$ at a tiny $x$) cannot be the result. The functions other than `pow`
+and `rootn` move such an end just inside the enclosure before rounding it.
+In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide
+an argument with $|x|^3$ below the target spacing at $x$ directly from
+$|f(x) - x| \le |x|^3$, and `cos`, `cosh`, `expm1` and `log1p` do the same with
+$x^2$ (around $1$ for `cos` and `cosh`, around $x$ for the others), before the
+loop. Tiny arguments are therefore certified in every rounding mode: `sin` of
+$2^{-6000}$ at 53 bits is $2^{-6000}$ with `inexact`, and $e^{2^{-20000}}$
+rounded toward zero is $1$ with `inexact`.
 
 ### `BinFloat::exp`, `BinFloat::exp_ctx`, `BinFloat::try_exp_ctx`
 
@@ -1513,8 +1495,10 @@ pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_exp10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-An integral $x$ in $[0, 4096]$ gives the exact $10^x = 5^x 2^x$, rounded once.
-A negative integral $x$ gives a value that is never dyadic, so it is always
+An integral $x$ in $[0, \max(4096, p)]$ gives the exact $10^x = 5^x 2^x$,
+rounded once. For a larger integral $x$ the odd part $5^x$ has more than
+$p + 1$ bits, so the result is neither representable nor a midpoint, and a
+negative integral $x$ gives a value that is never dyadic; both are always
 inexact. The other special values are those of `exp`.
 
 ### `BinFloat::ln`, `BinFloat::ln_ctx`, `BinFloat::try_ln_ctx`
@@ -1570,8 +1554,9 @@ pub fn BinFloat::log10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_log10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-Special values and domain as for `ln`. $x = 10^k$ with $1 \le k \le 4096$
-gives the exact integer $k$.
+Special values and domain as for `ln`. $x = 10^k$ with $k \ge 1$ (stored as
+the coefficient $5^k$ and exponent $k$) gives the exact integer $k$, rounded
+into the context, at any precision that holds $10^k$.
 
 ### `BinFloat::exp_ln`, `BinFloat::exp_ln_ctx`, `BinFloat::try_exp_ln_ctx`
 
@@ -1599,34 +1584,44 @@ pub fn BinFloat::pow_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-The cases are tried in this order:
+The cases are tried in this order, as in IEEE 754-2019 §9.2.1:
 
 1. $x^{\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included
    (also a signaling NaN, without `invalid_operation`).
 2. An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`.
-3. $y = \pm 2^{-k}$ with $1 \le k \le 29$ is `try_rootn_ctx(x, \pm 2^k)`.
-4. A NaN operand propagates.
-5. A negative finite $x$, including $-0$, is a `domain_error`.
-6. $(+0)^{y<0} = +\infty$ with `division_by_zero`, $(+0)^{y>0} = +0$;
-   $(\pm\infty)^{y<0} = +0$, $(\pm\infty)^{y>0} = +\infty$.
-7. An infinite $y$ gives $+\infty$ or $+0$ according to whether $|x^y|$ grows.
-8. Otherwise the value is certified from enclosures of $e^{y \ln x}$, after
-   certain overflow and underflow have been decided from $\log_2 x$.
+3. A NaN operand propagates.
+4. An infinite $y$: $(\pm 1)^{\pm\infty} = 1$; otherwise the result is
+   $+\infty$ when $|x| > 1$ and $y = +\infty$ or $|x| < 1$ and $y = -\infty$,
+   and $+0$ in the other two cases, $x = \pm 0$ included
+   ($(\pm 0)^{-\infty} = +\infty$). No flag is raised.
+5. An infinite $x$: $(\pm\infty)^{y < 0}$ is a zero and
+   $(\pm\infty)^{y > 0}$ an infinity, negative only for $x = -\infty$ and an
+   odd integral $y$. No flag is raised.
+6. A zero $x$: $(\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and
+   $(\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral
+   $y$; so $(-0)^{3/4} = +0$.
+7. A negative finite $x$ with a non-integral $y$ is a `domain_error`. With an
+   integral $y$ (here $|y| \ge 2^{31}$) the result is $|x|^y$ for an even $y$
+   and $-|x|^y$ for an odd one, computed with the directed rounding modes
+   swapped.
+8. $y = \pm 2^{-k}$ with $1 \le k \le 29$ is `try_rootn_ctx(x, \pm 2^k)`.
+9. A result certainly outside the exponent range is decided from certified
+   bounds on $\log_2 x$.
+10. An exactly dyadic result is computed and rounded once. For
+    $x = c \cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \le k \le 30$) it
+    exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power
+    $r$ (tested, as for `rootn`, for $c$ of at most 4096 bits); then
+    $x^y = r^m \cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when
+    $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would
+    need more than $2p + 64$ bits is not a rounding breakpoint and is left to
+    the next step.
+11. Otherwise the value is certified from enclosures of $e^{y \ln x}$.
 
-> [!WARNING]
-> Step 5 comes too early, and steps 6 and 7 ignore the sign of an infinite
-> base, so `pow` departs from IEEE 754 `pow` for some inputs: a negative base
-> with an integral exponent of magnitude at least $2^{31}$, a base of $-0$
-> with any exponent not handled by steps 1 to 3, and a negative finite base
-> with an infinite exponent (IEEE gives $1$ for $(-1)^{\pm\infty}$) are
-> `domain_error`s; $(-\infty)^y$ for an odd integral $y$ with
-> $|y| \ge 2^{31}$ has the wrong sign; and $(+0)^{-\infty} = +\infty$ raises
-> `division_by_zero`, which IEEE does not. Dyadic results of non-integral
-> exponents, such as $16^{3/4} = 8$, carry a spurious `inexact` or fail under
-> directed rounding (see the warning above). Tracked in
-> [#49](https://github.com/Luna-Flow/floating/issues/49) and
-> [#89](https://github.com/Luna-Flow/floating/issues/89); a fix is proposed in
-> [#106](https://github.com/Luna-Flow/floating/pull/106).
+Integrality and parity of $y$ are read from its odd coefficient: a finite
+nonzero $y$ is integral when `exponent2()` $\ge 0$ and odd when it is $0$.
+Step 11 rounds its enclosure without moving a representable end inward, so an
+exponent so small that $x^y$ lies closer to $1$ than the target spacing is a
+`certification_failure`, for example $2^{2^{-16000}}$ in `binary128()`.
 
 ### `BinFloat::rootn`, `BinFloat::rootn_ctx`, `BinFloat::try_rootn_ctx`
 
@@ -1638,22 +1633,27 @@ pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-$n = 0$ is a `domain_error`, and $|n| > 10^9$ a `certification_failure`.
-Odd $n$ accepts a negative $x$ ($\operatorname{rootn}(-8, 3) = -2$); a
-negative finite $x$ with even $n$ is a `domain_error`. A negative $n$ gives
-$x^{-1/|n|}$. Zeros: $\operatorname{rootn}(\pm 0, n > 0)$ is $\pm 0$ for odd
-$n$ and $+0$ for even $n$; $\operatorname{rootn}(\pm 0, n < 0)$ is
-$\pm\infty$ (odd) or $+\infty$ (even) with `division_by_zero`. For $n > 1$,
-degree at most 64 and a coefficient of at most 4096 bits, an exact root is
-detected and returned without `inexact`.
+$n = 0$ is a `domain_error`, and $|n| > 10^9$ a `certification_failure`. A
+NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
 
-> [!WARNING]
-> $\operatorname{rootn}(-\infty, n)$ with even $n$ returns $+\infty$ (and
-> $+0$ for even negative $n$) instead of a `domain_error`, unlike a finite
-> negative argument. Exact roots with a negative degree are not detected (see
-> the warning at the start of this section). Tracked in
-> [#90](https://github.com/Luna-Flow/floating/issues/90); a fix is proposed in
-> [#106](https://github.com/Luna-Flow/floating/pull/106).
+| $x$ | odd $n > 0$ | even $n > 0$ | odd $n < 0$ | even $n < 0$ |
+| --- | --- | --- | --- | --- |
+| $+\infty$ | $+\infty$ | $+\infty$ | $+0$ | $+0$ |
+| $-\infty$ | $-\infty$ | `domain_error` | $-0$ | `domain_error` |
+| $+0$ | $+0$ | $+0$ | $+\infty$, `division_by_zero` | $+\infty$, `division_by_zero` |
+| $-0$ | $-0$ | $+0$ | $-\infty$, `division_by_zero` | $+\infty$, `division_by_zero` |
+| finite $x < 0$ | $-\vert x\vert^{1/n}$ | `domain_error` | $-\vert x\vert^{1/n}$ | `domain_error` |
+
+So $\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and
+$n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is
+detected when $|n|$ divides the exponent of $x = c \cdot 2^e$ and the odd
+coefficient $c$ (of at most 4096 bits) is a perfect $|n|$-th power $r$; the
+result is then $\pm r \cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the
+correctly rounded reciprocal of it. So $\operatorname{rootn}(8, -3) = 1/2$
+without `inexact` in every rounding mode. A coefficient of more than 4096 bits
+is not tested, so an exact root of one (possible only above 4096 bits of
+precision) comes back with a spurious `inexact` under nearest rounding and as
+a `certification_failure` under a directed one.
 
 ### `BinFloat::hypot`, `BinFloat::hypot_ctx`, `BinFloat::try_hypot_ctx`
 
@@ -1668,11 +1668,16 @@ pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, Binar
 The squares are formed exactly and one correctly rounded square root is
 taken, so the result is $\circ(\sqrt{x^2+y^2})$ and exact when the root is.
 $\operatorname{hypot}(\pm\infty, y) = +\infty$ even when $y$ is a NaN
-(`invalid_operation` is raised only for a signaling NaN). Because the exact
-sum is built, operands whose stored exponents differ by more than $500\,000$
-(possible only in wide or unbounded contexts) give a `certification_failure`.
-Tracked in [#103](https://github.com/Luna-Flow/floating/issues/103); a fix is
-proposed in [#107](https://github.com/Luna-Flow/floating/pull/107).
+(`invalid_operation` is raised only for a signaling NaN). When the smaller
+operand $b$ is too small to move $\sqrt{a^2 + b^2}$ past the next rounding
+breakpoint above $|a|$, it is replaced by a power of two that rounds the same
+way: for $|a| = c \cdot 2^e$ with leading bit $2^t$ and
+$g = \min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The
+exact sum stays small however far apart the exponents are:
+$\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a
+`certification_failure` only when its two squares would still be shifted
+against each other by more than $10^6$ bits, which needs an operand or target
+precision near $500\,000$ bits.
 
 ### `BinFloat::sin`, `BinFloat::sin_ctx`, `BinFloat::try_sin_ctx`
 
@@ -1758,17 +1763,13 @@ pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-$\operatorname{tanpi}(n)$ is $\pm 0$ with the sign of $n$ for integral $n$;
-$\operatorname{tanpi}(n + \frac12)$ is $+\infty$ for even $n$ and $-\infty$
-for odd $n$, with `division_by_zero`; $\operatorname{tanpi}(n \pm \frac14) =
-\pm 1$ exactly. Reduction and domain as for `sinpi`.
-
-> [!WARNING]
-> For odd $n$ the sign of the zero differs from IEEE 754, which gives
-> $\operatorname{tanpi}(n) = -0$ for positive odd and $+0$ for negative odd
-> $n$: `tanpi(1)` is $+0$ here. Tracked in
-> [#81](https://github.com/Luna-Flow/floating/issues/81); a fix is proposed in
-> [#101](https://github.com/Luna-Flow/floating/pull/101).
+For integral $n$, $\operatorname{tanpi}(n)$ is a zero with the sign of
+$\operatorname{sinpi}(n) / \operatorname{cospi}(n)$: $-0$ for positive odd and
+negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$
+and `tanpi(-1)` is $+0$. $\operatorname{tanpi}(n + \frac12)$ is $+\infty$ for
+even $n$ and $-\infty$ for odd $n$, with `division_by_zero`;
+$\operatorname{tanpi}(n \pm \frac14) = \pm 1$ exactly. Reduction and domain
+as for `sinpi`.
 
 ### `BinFloat::asin`, `BinFloat::asin_ctx`, `BinFloat::try_asin_ctx`
 
@@ -1823,21 +1824,24 @@ pub fn BinFloat::atan2_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_atan2_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-The receiver is the ordinate $y$. Infinite operands follow IEEE 754: for
-example $\operatorname{atan2}(\pm\infty, -\infty) = \pm 3\pi/4$,
-$\operatorname{atan2}(\pm\infty, +\infty) = \pm\pi/4$,
-$\operatorname{atan2}(y, -\infty) = \pm\pi$ and
-$\operatorname{atan2}(y, +\infty) = \pm 0$ with the sign of $y$ for finite
-$y$. $\operatorname{atan2}(\pm 0, x > 0) = \pm 0$ and
-$\operatorname{atan2}(y \ne 0, \pm 0) = \pm\pi/2$.
+The receiver is the ordinate $y$. The special cases follow IEEE 754-2019
+§9.2.1; $x \ge +0$ below means $+0$ or a positive $x$, $x \le -0$ means $-0$
+or a negative $x$, infinities included:
 
-> [!WARNING]
-> `atan2` ignores the sign of a zero in two IEEE special cases:
-> $\operatorname{atan2}(\pm 0, \pm 0)$ returns $\pm\pi/2$ (sign of $y$) instead
-> of $\pm 0$ for $x = +0$ and $\pm\pi$ for $x = -0$, and
-> $\operatorname{atan2}(-0, x < 0)$ returns $+\pi$ instead of $-\pi$.
-> Tracked in [#48](https://github.com/Luna-Flow/floating/issues/48); a fix is
-> proposed in [#101](https://github.com/Luna-Flow/floating/pull/101).
+| $y$ | $x$ | result |
+| --- | --- | --- |
+| $\pm 0$ | $x \ge +0$ | $\pm 0$ (exact) |
+| $\pm 0$ | $x \le -0$ | $\pm\pi$ |
+| $\pm\infty$ | $+\infty$ | $\pm\pi/4$ |
+| $\pm\infty$ | $-\infty$ | $\pm 3\pi/4$ |
+| $\pm\infty$ | finite | $\pm\pi/2$ |
+| finite $y \ne 0$ | $\pm 0$ | $\pm\pi/2$ (sign of $y$) |
+| finite $y \ne 0$ | $+\infty$ | $\pm 0$ (sign of $y$, exact) |
+| finite $y \ne 0$ | $-\infty$ | $\pm\pi$ (sign of $y$) |
+
+A NaN operand propagates. Multiples of $\pi$ are correctly rounded and
+`inexact`. So $\operatorname{atan2}(-0, -0) = -\pi$ and
+$\operatorname{atan2}(-0, +0) = -0$.
 
 ### `BinFloat::sinh`, `BinFloat::sinh_ctx`, `BinFloat::try_sinh_ctx`
 
@@ -1939,6 +1943,21 @@ test "elementary functions are correctly rounded" {
     .unwrap()
     .tanpi_ctx(ctx)
   inspect("\{pole} \{pole_flags.division_by_zero()}", content="inf true")
+  let rz = @bin_float.BinaryContext::binary64(
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardZero,
+  )
+  let three_quarters = @bin_float.BinFloat::from_string("0.75").unwrap()
+  let (eight, eight_flags) = @bin_float.BinFloat::from_int(16).pow_ctx(
+    three_quarters, rz,
+  )
+  inspect("\{eight} \{eight_flags.inexact()}", content="1p3 false")
+  let (half, half_flags) = @bin_float.BinFloat::from_int(8).rootn_ctx(-3, rz)
+  inspect("\{half} \{half_flags.inexact()}", content="1p-1 false")
+  inspect(@bin_float.BinFloat::from_int(1).tanpi(), content="-0")
+  let negative_zero = @bin_float.BinFloat::negative_zero()
+  inspect(negative_zero.atan2(negative_zero), content="-884279719003555p-48")
+  let tiny = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -6000, 53)
+  inspect(tiny.sin(), content="1p-6000")
 }
 ```
 

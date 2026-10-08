@@ -338,11 +338,10 @@ pub fn BinFloatResult::rootn_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 
 `rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the
 given context. Both report a `DomainError` for degree $0$ and for an even root
-of a negative finite number, and can report a `CertificationFailure`. Odd
-roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. An even root
-of $-\infty$ is a successful $+\infty$ on the current branch, not an error
-(see [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx);
-tracked in [#90](https://github.com/Luna-Flow/floating/issues/90), with a fix proposed in [#106](https://github.com/Luna-Flow/floating/pull/106)).
+of a negative number, $-\infty$ included, and can report a
+`CertificationFailure`. Odd roots of negative numbers are negative:
+`rootn(-8, 3)` is $-2$. The full table of special values is in
+[`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx).
 
 ### `BinFloatResult::pow`, `BinFloatResult::pow_ctx`
 
@@ -355,13 +354,12 @@ pub fn BinFloatResult::pow_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 
 `pow` uses an unbounded context at the larger operand precision. Errors of the
 operands come first (base, then exponent); the operation itself reports a
-`DomainError` for a negative base with a non-integer exponent (for example
-$(-2)^{0.5}$) and can report a `CertificationFailure`. On the current branch
-it also reports a `DomainError` for some inputs IEEE 754 defines (a base of
-$-0$, a negative base with an infinite exponent or an integral exponent of
-magnitude at least $2^{31}$); the list is in
-[`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx).
-Tracked in [#49](https://github.com/Luna-Flow/floating/issues/49) and [#89](https://github.com/Luna-Flow/floating/issues/89); a fix is proposed in [#106](https://github.com/Luna-Flow/floating/pull/106).
+`DomainError` only for a negative finite base with a non-integer exponent (for
+example $(-2)^{0.5}$) and can report a `CertificationFailure`. A base of $-0$,
+a negative base with an integral exponent of any size and an infinite
+exponent all give the IEEE 754 values listed in
+[`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx),
+for example $(-1)^{\infty} = 1$ and $(-0)^{0.75} = +0$.
 
 ### `BinFloatResult::hypot`, `BinFloatResult::hypot_ctx`
 
@@ -398,10 +396,8 @@ limit; `name_ctx(ctx)` uses the given context instead. A success is the
 correctly rounded value of `bin_float`; the flags are dropped. Besides the
 domain errors listed below, every function can report a
 `CertificationFailure` when `bin_float` cannot certify the rounding within its
-refinement budget, which on the current branch happens for some tiny
-arguments of `exp`, `expm1`, `exp2`, `sin` and `atan` (see
-[`bin_float` elementary functions](bin_float.md#elementary-functions); tracked
-in [#102](https://github.com/Luna-Flow/floating/issues/102), with a fix proposed in [#107](https://github.com/Luna-Flow/floating/pull/107)). Poles
+refinement budget (see
+[`bin_float` elementary functions](bin_float.md#elementary-functions)). Poles
 are values, not errors: $\ln 0 = -\infty$. A NaN operand gives a successful
 NaN.
 
@@ -662,9 +658,8 @@ pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 ```
 
 Errors are taken in the order ordinate, abscissa, operation. `atan2` uses
-`BinaryContext::unbounded` at the larger operand precision. The signed-zero
-defects of `BinFloat::atan2` carry over (tracked in [#48](https://github.com/Luna-Flow/floating/issues/48); a fix is
-proposed in [#101](https://github.com/Luna-Flow/floating/pull/101)).
+`BinaryContext::unbounded` at the larger operand precision. Signed zeros
+follow IEEE 754: `atan2` of $(-0, -0)$ is $-\pi$ and of $(-0, +0)$ is $-0$.
 
 ```moonbit
 ///|

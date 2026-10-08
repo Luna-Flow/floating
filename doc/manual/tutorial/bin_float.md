@@ -383,17 +383,10 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
   `0x1.8p0` is rejected.
 - **`with_precision` hides flags.** Use `round_ctx` when you need to know that
   narrowing was inexact or overflowed.
-- **Known defects.** On the current branch `atan2` mishandles signed zeros in two IEEE special cases. `pow` rejects
-  some inputs IEEE defines (a base of $-0$, a negative base with an infinite
-  exponent or an integral exponent of magnitude at least $2^{31}$). Exact
-  results that are not recognised, such as $16^{3/4} = 8$ or
-  $\operatorname{rootn}(8, -3) = 1/2$, are flagged inexact under nearest
-  rounding and fail under directed rounding, and very tiny arguments (such as
-  $2^{-6000}$) make `exp`, `expm1`, `exp2`, `sin` and `atan` fail
-  certification. The [API reference](../api/bin_float.md#elementary-functions)
-  lists the details. These defects are tracked in [#48](https://github.com/Luna-Flow/floating/issues/48) (`atan2`),
-  [#49](https://github.com/Luna-Flow/floating/issues/49) and [#89](https://github.com/Luna-Flow/floating/issues/89) (`pow`), [#90](https://github.com/Luna-Flow/floating/issues/90) (`rootn`) and [#102](https://github.com/Luna-Flow/floating/issues/102) (tiny
-  arguments); fixes are proposed in [#101](https://github.com/Luna-Flow/floating/pull/101), [#106](https://github.com/Luna-Flow/floating/pull/106) and [#107](https://github.com/Luna-Flow/floating/pull/107).
+- **The sign of a zero is an input.** IEEE 754 special cases read it:
+  `atan2` of $(-0, -1)$ is $-\pi$ but of $(+0, -1)$ is $+\pi$, `tanpi(1)` is
+  $-0$, and $(-0)^{-1}$ is $-\infty$. Keep zeros as they come; normalising
+  $-0$ to $+0$ changes these results.
 
 ## Next steps
 

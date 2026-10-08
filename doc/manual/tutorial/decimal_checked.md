@@ -259,8 +259,6 @@ combining the per-step diagnostics.
   instead.
 - **`remainder` is the IEEE remainder.** It rounds the quotient to the
   nearest integer, so `1` remainder `0.6` is `-0.2`, not `0.4`.
-- **`atan2` with an infinite operand aborts.** Check `is_infinite()` first.
-  Tracked in [#92](https://github.com/Luna-Flow/floating/issues/92); a fix is proposed in [#98](https://github.com/Luna-Flow/floating/pull/98).
 - **Operands are plain `Decimal` values.** They are not rounded to the
   context before the operation; the operation rounds the result.
 - **`clear_flags` also works after an error,** but the error stays.

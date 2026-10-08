@@ -82,10 +82,9 @@ not change the exit status; diagnostic cases always do.
 - **No sharding.** ITL files are small; the tooling parallelizes by phase.
 - **All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops,
   even when the bad statement belongs to an operation you did not select.
-- **Unknown operations with non-interval operands fail the run.** Without
-  `--operation`, cases such as `nums2interval 1.0 2.0 = …` are diagnostics,
-  and any diagnostic makes the exit status `1`. Tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix is
-  proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
+- **Strict mode counts unknown operations.** Without `--operation`, cases
+  such as `nums2interval 1.0 2.0 = …` are unsupported; they do not change
+  the exit status unless `--strict-supported` is given.
 
 ## Next steps
 

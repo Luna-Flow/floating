@@ -86,10 +86,10 @@ and, with `--json`, parse the single JSON object on standard output.
 - **Relative default paths.** Runners default to files under `testdata/`;
   run them from the repository root.
 - **One backend per invocation.** `--backend` may be given only once.
-- **No files is not an error.** The `gda` runner keeps only paths ending in
-  `.decTest`; a directory without such files, or a file with another suffix,
-  gives an empty run that exits with `0`. Tracked in [#77](https://github.com/Luna-Flow/floating/issues/77); a fix is
-  proposed in [#83](https://github.com/Luna-Flow/floating/pull/83).
+- **An empty directory is not an error.** The `gda` runner rejects a named
+  file without the `.decTest` suffix (`not a .decTest file: PATH`, exit `2`),
+  but a directory contributes only its direct `.decTest` files, so a
+  directory without any gives an empty run that exits with `0`.
 
 ## Next steps
 

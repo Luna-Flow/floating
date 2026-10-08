@@ -37,10 +37,9 @@ data was produced with, so aggregated reports state their evidence source.
 
 - Exactly one parser runs per invocation, determined by the file content.
 - Exit `0` iff every row passed; `totalCases = passedCases + failedCases`.
-- Parse errors exit with `2` before any row is executed.
-- The one exception to "every outcome is an exit code" is the frontend's
-  abort on an elementary `pow`, `hypot` or `atan2` row without a second
-  operand ([#61](https://github.com/Luna-Flow/floating/issues/61), fix proposed in [#82](https://github.com/Luna-Flow/floating/pull/82)).
+- Parse errors exit with `2` before any row is executed; an elementary
+  `pow`, `hypot` or `atan2` row without a second operand is such an error, so
+  every outcome is an exit code.
 
 ## Alternatives rejected
 

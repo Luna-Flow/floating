@@ -47,7 +47,9 @@ usage error (exit code 2) instead of an abort in a frontend.
 `collect_files` sorts the expanded list and does not descend into
 subdirectories. Sorting makes case ordinals, and thus shards, reproducible.
 Not recursing keeps the selected corpus explicit: the Python tooling passes
-the exact files of each corpus phase.
+the exact files of each corpus phase. Duplicates are removed, so a file named
+twice is not executed twice, and a named file without the suffix is an error,
+so a mistyped path cannot pass as an empty run.
 
 ### Small JSON layer
 
@@ -61,13 +63,11 @@ order so reports are stable and diff-friendly.
   `remaining()` equals `arguments[1:]`.
 - **Shard validity.** A successful `parse_common_options` always returns
   `shard_count() > 0` and `0 <= shard_index() < shard_count()`.
-- **Deterministic file list.** `collect_files(paths, s)` is sorted and
-  contains exactly the existing non-directory paths named in `paths` that end
-  in `s`, plus the direct entries of named directories whose names end in `s`
-  (entries are not checked to be files). Duplicates are kept, so the list is a
-  function of the argument vector and the directory contents, not of the
-  listing order. Keeping duplicates and directory entries is tracked in
-  [#79](https://github.com/Luna-Flow/floating/issues/79); a fix is proposed in [#83](https://github.com/Luna-Flow/floating/pull/83).
+- **Deterministic file list.** `collect_files(paths, s)` is sorted, free of
+  duplicates, and contains exactly the files named in `paths` plus the direct
+  file entries of named directories that end in `s`; a named file that does
+  not end in `s` is an error, never dropped. The list is a function of the
+  argument vector and the directory contents, not of the listing order.
 - **Diagnostic positions.** `format_diagnostic_at` never prints a line or
   column below 1.
 

@@ -36,12 +36,11 @@ self-contained.
 
 The frontend's `success()` already fails on diagnostic cases; the runner adds
 only the strict check on unsupported cases. Unreadable data in a pinned corpus
-is never an acceptable exclusion. The frontend also classifies an unknown
-operation with a non-interval operand as a diagnostic, so a phase that runs a
-whole file without `--operation` (`sets`, `relations` and `reverse` in
-`interpreter_stages.json`) would fail on a file containing such an
-operation; the reverse operations take interval operands and are reported as
-unsupported. Tracked in [#75](https://github.com/Luna-Flow/floating/issues/75); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
+is never an acceptable exclusion. The frontend classifies every unknown
+operation as unsupported whatever its operands, so a phase that runs a whole
+file without `--operation` (`sets`, `relations` and `reverse` in
+`interpreter_stages.json`) fails only on cases of operations it executes, and
+the unknown ones count against it only under `--strict-supported`.
 
 ## Correctness and invariants
 

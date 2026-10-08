@@ -23,7 +23,8 @@ directions and both tininess rules. There is no hidden state: precision,
 rounding and range travel in an immutable `BinaryContext`, and flags travel
 back as a value. The basic operations, conversions and `pow_int` meet this
 goal unconditionally; the certified elementary functions meet it for every
-value they return, with the flag exceptions and budget failures listed under
+value they return, with the budget failures and the one undetected family of
+exact results described under
 [Certified elementary functions](#certified-elementary-functions).
 
 ## Mathematical background
@@ -392,6 +393,13 @@ bitwise OR, so the flags of a computation form a commutative idempotent
 monoid and can be accumulated in any order, which a global sticky register
 cannot offer to concurrent code.
 
+The elementary functions take the signs of their special values from
+IEEE 754-2019 §9.2.1, which reads the sign of a zero operand: for example
+$\operatorname{atan2}(\pm 0, -0) = \pm\pi$ but $\operatorname{atan2}(\pm 0, +0) = \pm 0$,
+$\operatorname{tanpi}(n)$ has the sign of
+$\operatorname{sinpi}(n)/\operatorname{cospi}(n)$, and $(-0)^y$ and
+$(-\infty)^y$ are negative exactly for an odd integral $y$.
+
 ### Far-apart operands in addition
 
 **Problem.** $2^{10^9} + 2^{-10^9}$ is exact as a dyadic number, but forming
@@ -642,16 +650,20 @@ $\log_2 x = a/b$ forces $x = 2^{a/b}$, a power of two; likewise $10^x$ and
 $\log_{10} x$ are dyadic only at integral $x \ge 0$ and at $x = 10^k$. For
 the $\pi$-scaled functions Niven's theorem shows that integral, half-integral
 and (for `tanpi`) quarter-integral arguments are the only dyadic
-exceptions.[^niven] The exceptions are filtered before the loop: $e^0 = 1$,
-$\ln 1 = 0$, $\log_2 2^k = k$, $2^n$ for integral $|n| < 2^{31}$,
-$\sin(\pm 0)$, the $\pi$-scaled cases, $10^n$ and $\log_{10} 10^n$ for
-$0 \le n \le 4096$, exact `rootn` for positive degrees, and so on.
+exceptions.[^niven] For `pow` and `rootn` the exceptions are characterised
+under *Exact powers and roots* below. The exceptions are filtered before the
+loop: $e^0 = 1$, $\ln 1 = 0$, $\log_2 2^k = k$, $2^n$ for integral
+$|n| < 2^{31}$, $\sin(\pm 0)$, the $\pi$-scaled cases, $10^n$ for
+integral $0 \le n \le \max(4096, p)$ (beyond that the odd part $5^n$ has more
+than $p + 1$ bits, so $10^n$ is not a breakpoint), $\log_{10} 10^n$ for every
+$n \ge 1$, dyadic powers and exact roots, and so on.
 
 Second, the enclosure must shrink onto $f(x)$ fast enough. The series stop
 when the next term is below $2^{-(w+8)}$ or $2^{-(w+12)}$ in *absolute*
 value, which is fine for arguments of moderate size; the width then is
 $O(2^{-w})$ relative to $f(x)$, a non-breakpoint has a positive distance to
-every breakpoint, and some $w$ certifies it. How large $w$ must be is the
+every breakpoint, and some $w$ certifies it. Tiny arguments need the two
+measures under *Tiny arguments* below. How large $w$ must be is the
 table maker's dilemma: no useful a priori bound is known for arbitrary $p$,
 so the budget is a resource limit, not a correctness condition. When it runs
 out the `try_*` form reports a `CertificationFailure` with the stage, the
@@ -659,28 +671,89 @@ reason and the last $w$, and the total forms return a quiet NaN with
 `invalid_operation`; neither returns an uncertified value. The pinned MPFR
 corpus never exhausts it.
 
-**Known gaps.** Two families break these conditions on the current branch.
+**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to
+`pown`. A larger integral $y$ needs no filter: for $x = c \cdot 2^e$ with
+$c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two
+$2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every
+other exponent is $y = m / 2^k$ with $m$ odd and $k \ge 1$. If $x^y$ is
+rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the
+exponents of $2$ and of each odd prime gives $q = a \cdot 2^f$ with $a$ odd,
+$e|m| = f \cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd,
+$2^k \mid e$ and every prime exponent of $c$ is divisible by $2^k$, so
+$c = r^{2^k}$ and $q = r^{|m|} \cdot 2^{e|m|/2^k}$. Conversely these values are
+exact. So a rational `pow` result exists exactly under these two divisibility
+conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$,
+which is dyadic only when $r = 1$. Every other `pow` result is irrational.
+`binary_pow_exact_dyadic` computes the dyadic results and rounds them once,
+unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has
+more than $p + 1$ significant bits and is not a breakpoint). The same argument
+with $1/|n|$ in place of $|y|$ shows that $\operatorname{rootn}(x, n)$ is
+rational exactly when $|n| \mid e$ and $c = r^{|n|}$; `rootn` returns
+$\pm r \cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly
+rounded quotient $1 / (\pm r \cdot 2^{e/|n|})$, which division decides with
+the right `inexact` flag although it need not be dyadic. The perfect-power
+test is a bisection on the root and runs only for coefficients of at most
+4096 bits; an exact root of a wider coefficient, which needs a precision above
+4096 bits, still reaches the loop and gets the spurious `inexact` or the
+budget failure that the flag argument predicts.
 
-- *Unfiltered exact results.* `pow` with a non-integral exponent whose
-  result is dyadic ($16^{3/4} = 8$; $x^y$ for dyadic $x, y$ is not covered by
-  the theorems above), `rootn` with a negative degree ($8^{-1/3} = 1/2$), and
-  $10^n$, $\log_{10} 10^n$ for $n > 4096$ at a precision that holds $10^n$.
-  By the flag argument above these return a spurious `inexact` under nearest
-  rounding and fail under directed rounding. Tracked in [#49](https://github.com/Luna-Flow/floating/issues/49), [#90](https://github.com/Luna-Flow/floating/issues/90) and
-  [#102](https://github.com/Luna-Flow/floating/issues/102); fixes are proposed in [#106](https://github.com/Luna-Flow/floating/pull/106) and [#107](https://github.com/Luna-Flow/floating/pull/107).
-- *Tiny arguments.* For $|x|$ so small that the first omitted term is below
-  the absolute threshold, the series stops after its first term and one end
-  of the enclosure is exactly representable: $U = x$ for $\sin$ and
-  $\operatorname{atan}$ (alternating series bracketed by $x$), $L = 1$ for
-  $e^x$. That end rounds without `inexact` while the other end does, so the
-  test fails until $w$ exceeds about $3\log_2(1/|x|)$ (respectively
-  $\log_2(1/|x|)$), which the budget does not reach for $|x| \lesssim
-  2^{-w_{11}/3}$. Measured: `sin` and `atan` of $2^{-6000}$ at 53 bits,
-  `sin` of $2^{-8000}$ in binary128, and `exp`, `expm1`, `exp2` of
-  $2^{-20000}$ at 53 bits all fail. A fix would use the first term with a
-  strict inequality ($x - x^3/6 < \sin x < x$ gives $U = x^-$ after one step
-  toward zero), as MPFR does. Tracked in [#102](https://github.com/Luna-Flow/floating/issues/102); a fix is proposed in
-  [#107](https://github.com/Luna-Flow/floating/pull/107).
+A negative base with an integral exponent beyond the `pown` range is
+evaluated as $\pm|x|^y$. Negation is an exact symmetry of $\circ$ that swaps
+the two directed modes, $\circ_{\mathrm{RD}}(-v) = -\circ_{\mathrm{RU}}(v)$, so
+for an odd $y$ the code rounds $|x|^y$ with RD and RU exchanged and negates.
+
+**Tiny arguments.** For small enough $|x|$ (about $2^{-p/2}$ for the odd
+functions, $2^{-p}$ for $e^x$) the result lies closer to a representable
+number $a$ than the target spacing: $a = x$ for the odd functions, $a = 1$ for
+$e^x$, $\cos$, $\cosh$. An enclosure whose series stops after its first term then
+has $a$ itself as one end ($U = x$ for $\sin$, $L = 1$ for $e^x$), and that
+end rounds without `inexact` while the other end rounds with it, so the
+acceptance test alone would only pass once $w$ separates $f(x)$ from $a$, at
+$w \approx \log_2(1/|x|)$ or more. Two measures remove the dependence on $|x|$.
+
+*Inner endpoints.* Every result that reaches the loop is known not to be a
+breakpoint. For every function other than `pow` and `rootn`,
+`binary_certified_inexact_target_rounding` replaces an end $E$ that could be a
+breakpoint (an odd coefficient of at most $p + 1$ bits) by
+$E' = E \pm 2^{e_E - s}$ toward the inside of the enclosure, with
+$s = \max(1, p + 3 - \operatorname{bits}(c_E))$. If the leading bit of $E$ is
+$2^t$, breakpoints near $E$ are at least $2^{t - p - 1}$ apart and the offset is
+at most $2^{t - p - 2}$, so no breakpoint lies in $(E, E']$. Since
+$f(x) \ne E$, either $f(x)$ lies beyond $E'$ or between $E$ and $E'$, and in the
+second case it shares the open cell between breakpoints with $E'$ and rounds
+like it. So $\circ(E') = \circ(U')$ with equal flags still forces
+$\circ(f(x))$ and its flags, and the test passes as soon as the enclosure is
+narrower than the spacing, independently of $|x|$.
+
+*Tiny-argument bounds.* Some enclosures (for $\sinh$, $\tanh$ via
+$e^x - e^{-x}$, and for $\operatorname{asinh}$, $\operatorname{atanh}$,
+$\operatorname{asin}$, $\tan$, `expm1`, `log1p`) straddle the neighbour of
+$a$ until $w \approx 3\log_2(1/|x|)$. For $|x| \le 1/2$ the series give
+one-sided bounds with a known side: $0 < x - \sin x$, $0 < \tan x - x$,
+$0 < \operatorname{asin} x - x$, $0 < \sinh x - x$, $0 < x - \tanh x$,
+$0 < x - \operatorname{asinh} x$, $0 < \operatorname{atanh} x - x$, each at
+most $|x|^3$ (for $x > 0$, mirrored for $x < 0$), and $0 < 1 - \cos x$,
+$0 < \cosh x - 1$, $0 < \operatorname{expm1}(x) - x$,
+$0 < x - \operatorname{log1p}(x)$, each at most $x^2$. With $|x| < 2^T$,
+`binary_tiny_argument_result` uses the enclosure $[a, a + 2^{\sigma}]$ or
+$[a - 2^{\sigma}, a]$ with $\sigma = 3T$ (respectively $2T$), raised to at
+least $t_a - p - 8$, when $\sigma < t_a - p - 3$ ($2^{t_a}$ the leading bit of
+$a$), and rounds it with inner endpoints. The condition implies
+$|x| < 2^{-(p+3)/2} \le 1/2$, so the bounds apply, and the enclosure is
+at most a quarter of the breakpoint spacing at $a$ wide. When $a$ is a
+breakpoint, both ends lie in the cell next to $a$ and the result is decided
+before the loop; otherwise (an argument wider than $p + 1$ bits) the loop runs
+as usual. With both measures `sin` and `atan` of $2^{-6000}$ at 53 bits and
+$e^{2^{-20000}}$ are certified in every rounding mode.
+
+`pow` and `rootn` keep the plain test. For `rootn` it suffices: its enclosure
+is $e^{\ln(x)/n}$ at a working precision above the operand precision $q$, and
+$|\ln x| / |n| > 2^{-(q + 31)}$ for $x \ne 1$ and $|n| \le 10^9$, so an end at
+$1$ disappears after an attempt or two. `pow` evaluates $e^{y \ln x}$, where
+$y$ can be arbitrarily small: an exponent so small that $x^y$ lies closer to
+$1$ than the target spacing gives an enclosure with $L = 1$ at every
+affordable $w$, and such inputs, for example $2^{2^{-16000}}$ in binary128,
+exhaust the budget.
 
 [^niven]: I. Niven, *Irrational Numbers*, 1956, Corollary 3.12: if $r$ is
     rational and $\sin(\pi r)$ is rational, then
@@ -716,6 +789,20 @@ is in $F$, so the `inexact` it reports is right (the flag argument above). A
 $c^n$ with exactly $p + 1$ bits is a midpoint; the enclosure then never
 certifies under nearest rounding and the exact fallback decides it.
 
+**hypot.** `hypot` forms $a^2 + b^2$ exactly from the coefficients and takes
+one correctly rounded square root, so it needs no loop; the cost is the
+alignment shift between the two squares. For $|a| \ge |b| > 0$,
+$|a| < \sqrt{a^2 + b^2} \le |a| + b^2 / (2|a|)$. Write $|a| = c \cdot 2^e$ with
+leading bit $2^t$ and $g = 2^{\min(e,\, t - p - 1)}$: $|a|$ and every rounding
+breakpoint near it are multiples of $g$, so when $b^2 < 2|a|g$ no breakpoint
+lies in $(|a|, |a| + b^2/(2|a|)]$ and every such $b$ gives the same rounded
+result and flags. $|b| < g/8$ is enough, and `binary_hypot_negligible_operand`
+then replaces $b$ by $g/8$, which keeps the shift at about twice the operand
+and target precisions however far apart the exponents are
+($\operatorname{hypot}(1, 2^{-600000}) = 1$ with `inexact`). A shift above
+$10^6$ bits is still refused as a `certification_failure`; after the
+replacement it needs a precision near $500\,000$ bits.
+
 ### The coefficient kernel
 
 **Problem.** Precision costs integer multiplication and division of
@@ -740,6 +827,18 @@ Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from
 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to
 Lehmer batches above four limbs. The thresholds are measured, per target, by
 the benchmark suite; they are policy, not semantics.
+
+A Lehmer round is valid only when its single-word digits come from the same
+bit window of both operands: digits taken from each operand's own top limb
+have unrelated scales, and the cofactors they produce subtract only a small
+multiple of the smaller operand per round. Each round therefore keeps
+$a \ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the
+same window, and takes one division step $a \bmod b$ instead when $b$ has no
+bits in that window (then $a / b \ge 2^{62}$) or when the cofactor matrix would
+make an operand negative or shrink neither. Every matrix applied has
+determinant $\pm 1$, so the gcd is unchanged, and a long $a$ is reduced
+modulo a short $b$ in one step however different their lengths are; below
+eight limbs of $b$ the loop finishes with plain Euclid.
 
 **Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate
 integer polynomial identities, for example
@@ -808,11 +907,12 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
   $\circ(r)$ for the exact real result $r$, with the range rules above. By
   (R1), $\circ(r) = r$ and no flag is raised whenever $r \in F$; `round_ctx`
   is idempotent.
-- **Flags.** `inexact` iff $\circ(r) \ne r$ (for the elementary functions,
-  except the unfiltered exact cases listed above); `overflow` implies
-  `inexact`; `underflow` iff tiny (per the context rule) and inexact;
-  `division_by_zero` only for an exact infinite result of finite operands
-  (and, as a deviation, for $\operatorname{pow}(+0, -\infty)$);
+- **Flags.** `inexact` iff $\circ(r) \ne r$, except for an exact `rootn` or
+  `pow` result from a base coefficient wider than 4096 bits (see *Exact
+  powers and roots*);
+  `overflow` implies `inexact`; `underflow` iff tiny (per the context rule)
+  and inexact; `division_by_zero` only for an exact infinite result of finite
+  operands;
   `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a
   signaling NaN was consumed. Exceptions to the last rule: `min`, `max`,
   $\operatorname{pow}(x, \pm 0)$, $\operatorname{pown}(x, 0)$ and
@@ -885,7 +985,7 @@ attachment.
   propagate payloads of more than one input;
 - guarantee completion of an elementary function within any time for every
   input: certification has a budget, and an exhausted budget is reported, not
-  hidden (the known gaps above are reported the same way);
+  hidden;
 - expose limb layout, thresholds or transform parameters: they may change
   without notice as long as every result, flag and encoding stays the same;
 - claim conformance beyond the finite corpus recorded in

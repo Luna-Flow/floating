@@ -168,13 +168,7 @@ for the median.
 `confirmatory_regression` fixes $\delta = 3\,\%$, $R = 10\,000$ and
 $c = 95\,\%$, so a regression gate cannot be weakened by a caller.
 `paired_hotspot` takes $\delta$ and the seed from the caller and uses
-$R = 2000$ for exploratory hotspot reports. It passes the confidence as
-`0.95`; Maremark interprets the value as a percentage, so
-$\alpha = (100 - 0.95)/200 = 0.49525$ and the interval it reports is
-$[Q^{*}(0.49525), Q^{*}(0.50475)]$, the central 0.95 % of the bootstrap
-distribution and almost a point at the bootstrap median. This is a defect of
-the call, not a design choice; the suites only print $\Delta_{\%}$ from it,
-which is unaffected. Tracked in [#60](https://github.com/Luna-Flow/floating/issues/60); a fix is proposed in [#80](https://github.com/Luna-Flow/floating/pull/80).
+$R = 2000$ and $c = 95\,\%$ for exploratory hotspot reports.
 
 ### Auto-tuning by minimum median
 

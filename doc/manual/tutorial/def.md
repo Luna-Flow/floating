@@ -262,8 +262,10 @@ test "a user type joins the generic code" {
   $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations
   of the concrete package.
 - On a `BallFloat`, `normalized` and `with_precision` return an enclosure that
-  can be wider than the input, even at the same precision. They never lose a
-  member, but do not expect the bounds to stay the same (tracked in
+  can be wider than the input, even at the same precision. Apart from
+  endpoints more than about $2^{16}$ binary orders of magnitude apart at a
+  precision above about 65536 bits ([#44](https://github.com/Luna-Flow/floating/issues/44), with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)) they never
+  lose a member, but do not expect the bounds to stay the same (tracked in
   [#69](https://github.com/Luna-Flow/floating/issues/69); a fix is proposed in [#91](https://github.com/Luna-Flow/floating/pull/91)).
 - `with_precision(x, 0, mode)` is not an error: the precision is clamped to 1.
 

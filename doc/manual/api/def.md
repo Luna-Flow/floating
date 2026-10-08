@@ -196,7 +196,10 @@ stored precision.
 
 For `BallFloat` the result is an enclosure of the input: the centre is rounded
 with `mode` and the rounding error is added to the radius, so every member of
-`x` remains a member of the result whatever `mode` is. The result can be wider
+`x` remains a member of the result whatever `mode` is (except for endpoints
+more than about $2^{16}$ binary orders of magnitude apart at a new precision
+above about 65536 bits, tracked in [#44](https://github.com/Luna-Flow/floating/issues/44) with a fix proposed in [#68](https://github.com/Luna-Flow/floating/pull/68)). The result
+can be wider
 than `x` even when `p` equals the current precision, because the exact centre
 of $[\ell, u]$ may need one bit more than the endpoints.
 

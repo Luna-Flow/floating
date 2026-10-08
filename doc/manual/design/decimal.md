@@ -17,8 +17,9 @@ precision, with three properties:
    mathematical result rounded once, in the selected direction, to the
    context's precision and exponent range — for the basic operations and for
    the elementary functions alike. The current implementation misses this goal
-   in a few places, all near the underflow threshold or in the elementary
-   functions; they are listed in [known deviations](#known-deviations).
+   in a few places (exact decimal results of non-integral powers, integral
+   rounding of operands longer than $p$ digits, huge exponents in text); they
+   are listed in [known deviations](#known-deviations).
 2. **Nothing is lost silently.** The exponent of a result (its *quantum*), the
    sign of zero, NaN payloads and every exceptional condition are part of the
    returned value or of the returned `DecimalFlags`.
@@ -255,8 +256,10 @@ change a correctly rounded result.
 that receives an **exact** result $(s, C, Q)$, with $C$ possibly much longer
 than $p$. Operation kernels compute exact integers; they never round. The
 exceptions are operations whose exact result is infinite — division, square
-root, elementary functions — which are described below; each of them still
-decides the last digit from exact information.
+root, elementary functions — and two whose exact result would be needlessly
+long — a sum with a far smaller addend and an integer power — which are
+described below; each of them still decides the last digit from exact
+information.
 
 A single rounding needs a single target exponent. With
 $D = \operatorname{digits}(C)$, the exact value has adjusted exponent
@@ -271,26 +274,38 @@ subnormal grid; the result is $\circ(C\,10^{Q-t})\,10^{t}$, followed by the
 overflow check (on the value rounded to $p$ digits with unbounded exponent),
 the subnormal/underflow flags and the fold-down.
 
-The routine on the current branch does this in two steps instead. If
-$Q < E_{\text{tiny}}$ it first rounds $C$ to the grid $10^{E_{\text{tiny}}}$
-(shift $s_1 = E_{\text{tiny}} - Q$), then drops trailing zeros and rounds the
-result to $p$ digits (shift $s_2 = a - p + 1 - E_{\text{tiny}}$ when that is
-positive). For a subnormal result $s_2 \le 0$ and only the first rounding
-happens, which is correct. For a *normal* result with $Q < E_{\text{tiny}}$
-both shifts are positive, and rounding twice to nearest is not rounding once:
+The routine rounds to the subnormal grid only when $t = E_{\text{tiny}} > Q$,
+which it tests as $Q + \max(0, D - p) < E_{\text{tiny}}$: the exact value is
+then below $10^{e_{\min}}$ and $C$ is rounded once with shift
+$E_{\text{tiny}} - Q$. Every other coefficient is rounded once to $p$ digits,
+also when $Q < E_{\text{tiny}}$. Rounding such a *normal* result first to the
+grid $10^{E_{\text{tiny}}}$ and then to $p$ digits would not be rounding once:
 if the first rounding lands exactly on a midpoint of the second grid, the tie
 rule of the second rounding decides a case the exact value had already
 decided. In decimal32 ($E_{\text{tiny}} = -101$) the product
 $3.000001\cdot 10^{-45} \times 1.500001\cdot 10^{-45} = 4500004500001\cdot
-10^{-102}$ is first rounded to $450000450000\cdot 10^{-101}$ (the dropped
-digit 1 is below half), which is the exact midpoint $4500004.5\cdot
-10^{-96}$; `HalfEven` then gives $4.500004\cdot 10^{-90}$, whereas the exact
-value lies above the midpoint and rounds to $4.500005\cdot 10^{-90}$. The
-directed modes are unaffected: truncating (or rounding up) to a finer grid and
-then to a coarser one is the same as truncating (rounding up) once, because
+10^{-102}$ would first become $450000450000\cdot 10^{-101}$ (the dropped digit
+1 is below half), the exact midpoint $4500004.5\cdot 10^{-96}$, and
+`HalfEven` would then give $4.500004\cdot 10^{-90}$; the exact value lies
+above the midpoint, and the single rounding returns $4.500005\cdot 10^{-90}$.
+(The directed modes would be unaffected, because
 $\lfloor\lfloor y\,10^{-s_1}\rfloor 10^{-s_2}\rfloor = \lfloor y\,
-10^{-s_1-s_2}\rfloor$ for every real $y \ge 0$. The double rounding is
-tracked in [#87](https://github.com/Luna-Flow/floating/issues/87); a fix is proposed in [#100](https://github.com/Luna-Flow/floating/pull/100).
+10^{-s_1-s_2}\rfloor$ for every real $y \ge 0$ and integers $s_1, s_2 \ge 0$.)
+
+#### Addition with a far smaller addend
+
+When one addend $\ell$ lies far below the other, $h$, the exact sum can have
+many more digits than the result keeps. Let $t$ be the target exponent of $h$
+alone and $g = \min(q_h,\ t - 2)$. Every digit of $h$ lies on the grid
+$10^{g}$, and so does every rounding boundary of the sum: the grid $10^{t}$,
+its midpoints, and the grid $10^{t-1}$ with its midpoints, which a
+cancellation can reach. If $0 < |\ell| < 10^{g}$, the sum $h + \ell$ lies
+strictly between the same two neighbours on that grid as the short value
+$h \pm 10^{g-1}$, with the sign of $\ell$. In an extended context `add_ctx`
+rounds that value once instead of the exact sum; result and flags are the
+same in every mode. With precision 7, $1598617.000000000001 - 2\cdot
+10^{-12}$ is `1598616` under `Down`, and $6.0000005\cdot 10^{-73} +
+10^{-101}$ is `6.000001E-73` under `HalfEven`.
 
 #### How the rounding digit and sticky information are obtained
 
@@ -358,18 +373,17 @@ The third route is used for normal results in extended contexts. For subnormal
 results and subset contexts the code forms the integer quotient of
 $c_a\,10^{k}$ by $c_b$ with $k = p + \operatorname{digits}(c_b) + 2$ (about
 $\operatorname{digits}(c_a) + p + 2$ digits), rounds it with `ZeroFiveUp`,
-and rounds again in the context mode to the precision. The context-free
-operator `/` uses the same guarded scheme. By the `ZeroFiveUp` lemma below the
-two roundings equal one rounding of the exact quotient, so $15/83294$ at five
-digits is `0.00018009`.[^div-05up] A subnormal quotient still passes through
-the finalizer, which rounds to the subnormal grid before it rounds to $p$
-digits (see [Round once, in one place](#round-once-in-one-place)): in
-decimal32, $1 / 1.9999999999998\cdot 10^{101} = 5.0000000000005\cdot
-10^{-102}$ gives `0E-101` instead of `1E-101`.
+and rounds that guarded quotient once more in the context mode, straight to
+its final grid: $p$ digits, or $10^{E_{\text{tiny}}}$ for a subnormal
+quotient. The context-free operator `/` uses the same guarded scheme. By the
+`ZeroFiveUp` lemma below the two roundings equal one rounding of the exact
+quotient, so $15/83294$ at five digits is `0.00018009`,[^div-05up] and in
+decimal32 $1 / 1.9999999999998\cdot 10^{101} = 5.0000000000005\cdot
+10^{-102}$ gives `1E-101`.
 
-[^div-05up]: Until upstream commit `fabf8d9` the guarded quotient was rounded
-    in the context mode, which could manufacture a tie: $15/83294$ at five
-    digits gave `0.00018008`.
+[^div-05up]: Rounding the guarded quotient in the context mode instead could
+    manufacture a tie: at five digits the guarded quotient of $15/83294$
+    would end in an exact half unit, and half-even would return `0.00018008`.
 
 `ZeroFiveUp` exists precisely to make such two-step schemes safe. If $x$ is
 first rounded with `ZeroFiveUp` to $p + k$ digits ($k \ge 1$) and then with
@@ -377,9 +391,9 @@ any mode $\circ$ to $p$ digits, the result equals $\circ(x)$: an inexact
 `ZeroFiveUp` result ends in a digit other than 0 and 5, so it is never a
 $p$-digit number nor a $p$-digit midpoint, and it lies on the same side of
 every $p$-digit number and midpoint as $x$. The proof is in the
-attachment.[^attachment] The guarded division above relies on it. The
-finalizer's pre-rounding to the subnormal grid does not; there the simpler
-repair is to round once at the target exponent $t$ derived above.
+attachment.[^attachment] The guarded division above relies on it; the
+finalizer needs no such lemma, because it rounds once at the target exponent
+$t$ derived above.
 
 #### Square root
 
@@ -484,15 +498,18 @@ test "design: overflow depends on the rounding direction" {
 
 #### Subnormals, tininess and underflow
 
-If the exact result needs an exponent below $E_{\text{tiny}}$, it is rounded
-to the subnormal grid: the shift becomes $s = E_{\text{tiny}} - Q$ and the
-rounding rule above applies with fewer than $p$ digits kept. The result is
-**tiny** when its adjusted exponent is below $e_{\min}$, measured on the exact
-value (`BeforeRounding`) or on the value rounded to $p$ digits with
-unbounded exponent (`AfterRounding`, the default). The two rules differ only
-for values just below $10^{e_{\min}}$ that round up to it. On the current
-branch `AfterRounding` tests the value rounded at $E_{\text{tiny}}$ instead,
-which is not the IEEE rule (see [known deviations](#known-deviations)). A tiny result raises
+If the exact value is below $10^{e_{\min}}$ and needs an exponent below
+$E_{\text{tiny}}$, it is rounded once to the subnormal grid: the shift becomes
+$s = E_{\text{tiny}} - Q$ and the rounding rule above applies with fewer than
+$p$ digits kept. The result is **tiny** when its adjusted exponent is below
+$e_{\min}$, measured on the exact value (`BeforeRounding`) or on the value
+rounded to $p$ digits with unbounded exponent (`AfterRounding`, the default).
+The two rules differ only for values just below $10^{e_{\min}}$ whose rounding
+to $p$ digits reaches it; only an exact adjusted exponent of $e_{\min} - 1$
+can change sides, so the extra rounding to $p$ digits is done only there.
+With $p = 3$ and $e_{\min} = 0$, $0.9951$ rounds to $0.995$ at three digits and
+is tiny (its subnormal-grid result is `1.00`), while $0.99951$ rounds to
+$1.00$ and is not. A tiny result raises
 `subnormal`; a tiny **and** inexact result also raises `underflow`, as IEEE 754
 §7.5 requires for default exception handling. A result that rounds to zero
 gets exponent $E_{\text{tiny}}$ and `clamped`.
@@ -697,31 +714,48 @@ Three kinds of inputs are decided outside the agreement test:
 - **Exact results.** If $f(x)$ is a representable decimal and the enclosure
   is not a point, $L < f(x) < U$ round to different neighbours in a directed
   mode, forever. In a half mode both endpoints round to $f(x)$ itself, but
-  with `inexact`, so the agreement test *accepts* the right value with wrong
-  flags and with all $p$ digits instead of the preferred exponent: the
+  with `inexact`, so the agreement test would *accept* the right value with
+  wrong flags and with all $p$ digits instead of the preferred exponent: the
   soundness argument above assumed that $f(x)$ is not representable. The
-  code detects a list of exact cases (`exp(0)`, `ln(1)`, $\log_{10} 10^{k}$,
-  integer and half-integer arguments of `sinpi`/`cospi`/`tanpi`, odd
-  quarter-integers of `tanpi`, `acos(1)`, integer arguments of
-  `exp2`/`exp10`, $x^{1/2}$, integer powers, …); `ball_float` returns point
-  intervals for exact binary results such as $\log_2 8 = 3$, $\log_2 0.125 =
-  -3$, $\sqrt[3]{8} = 2$ and $\operatorname{hypot}(3, 4) = 5$. Exact results
-  that neither recognises fall through: $\operatorname{hypot}(0.3, 0.4) =
-  0.5$, $\sqrt[3]{0.008} = 0.2$ and $0.0016^{0.25} = 0.2$ come back in
-  decimal64 `HalfEven` as `0.5000000000000000` and `0.2000000000000000` with
-  `inexact`, and fail certification in the directed modes; $4^{1.5} = 8$
-  through `power_ctx` exhausts the budget even in `HalfEven`. A complete
-  test would check, before the loop, whether the rounded midpoint of the
-  enclosure is an exact solution (for algebraic functions such as `hypot`,
-  `rootn` and `power` with a rational exponent this is a finite integer
-  computation).
-- **Integer powers** are not certified at all: `power_ctx` with an integral
-  exponent that does not fit in $p$ digits uses the General Decimal
-  Arithmetic square-and-multiply with $p + \operatorname{digits}(n) + 2$
-  working digits, each product rounded, and rounds the final product again.
-  Its error is below one unit in the last place, but the result is not always
-  correctly rounded: $3.339434^3 = 37.240765000\ldots$ is returned in
-  decimal32 as `37.24076`.
+  code therefore detects exact cases before the loop (`exp(0)`, `ln(1)`,
+  $\log_{10} 10^{k}$, integer and half-integer arguments of
+  `sinpi`/`cospi`/`tanpi`, odd quarter-integers of `tanpi`, `acos(1)`,
+  integer arguments of `exp2`/`exp10`, $x^{1/2}$, integer powers, …). For
+  the algebraic functions this is a finite integer computation: `rootn`
+  strips the trailing zeros of the coefficient, aligns the exponent to a
+  multiple of the degree $n$ and tests the integer $n$-th root (Newton's
+  iteration from above) of the result, so $\sqrt[3]{0.008} = 0.2$; `hypot`
+  forms $x^2 + y^2$ exactly when the adjusted exponents of the operands differ
+  by at most $p + 2$ (beyond that, $\sqrt{x^2+y^2} - |x| \approx y^2/(2|x|)$
+  is below the last digit the result could have) and tests it with the exact
+  square root, so $\operatorname{hypot}(0.3, 0.4) = 0.5$; a zero operand
+  gives the other operand's magnitude. `ball_float` returns point intervals
+  for exact binary results such as $\log_2 8 = 3$, $\log_2 0.125 = -3$ and
+  $4^{1.5} = 8$. An exact decimal power with a non-integral exponent that is
+  not a binary fraction is not detected: $0.0016^{0.25} = 0.2$ comes back in
+  decimal64 `HalfEven` as `0.2000000000000000` with `inexact`, and fails
+  certification in the directed modes
+  ([known deviations](#known-deviations)).
+- **Integer powers** are not certified; they are rounded once from exact
+  integer information. `power_ctx` with an integral exponent $n$ that does
+  not fit in $p$ digits first runs the General Decimal Arithmetic
+  square-and-multiply with $p + \operatorname{digits}(n) + 2$ working
+  digits. That scheme only ever discards zero digits of an exact power, so
+  it reports `inexact` exactly when the true power is inexact, and it gives
+  exact powers their GDA cohort and flags. In an extended context an inexact
+  result is then replaced by the correctly rounded one. With $c$ the
+  coefficient stripped of trailing zeros, if $|n| \cdot
+  \operatorname{digits}(c) \le \max(4p, 64)$ the exact power $c^{|n|}$ is
+  formed and rounded once (a negative $n$ divides once, correctly rounded).
+  Otherwise $c^{|n|}$ has more than $p + 1$ significant digits and no
+  trailing zero, so it is never a $p$-digit number or midpoint; lower and
+  upper bounds from square-and-multiply in `Down` and `Up` at a working
+  precision of $p + \operatorname{digits}(n) + 8$ digits, doubled on each
+  attempt, are refined until they round to the same representation. So
+  $3.339434^3 = 37.240765000\ldots$ is `37.24077` in decimal32. If the
+  bounds leave the working exponent range, and in a context that is not
+  extended, the GDA result is kept; its error is below one unit in the last
+  place.
 - **Out-of-range results.** An enclosure such as $[0, \text{tiny}]$ has
   endpoints that round with different flags. Any value $\ge 10^{e_{\max}+2}$
   overflows identically, and any non-zero value
@@ -826,18 +860,20 @@ measurements do not show a crossover.
 - **Representation.** A finite `Decimal` has $c \ge 0$; `DecCoeff` limbs are
   canonical (no leading zero limb, exact digit count). A zero's sign is kept
   in the sign bit; `coefficient()` never carries a sign.
-- **Single rounding.** Every context result of `+`, `-`, `×`, `fma`,
-  `sqrt`, quantize, the conversions and (for normal results) `/` is the exact
-  result rounded once, provided the exact exponent is at least
-  $E_{\text{tiny}}$; certified elementary results are correctly rounded
-  whenever they are returned, and a failure is reported, never approximated.
-  The exceptions are listed under [known deviations](#known-deviations).
+- **Single rounding.** Every context result of `+`, `-`, `×`, `/`, `fma`,
+  `sqrt`, `scaleb`, quantize and the conversions is the exact result rounded
+  once, in the normal and in the subnormal range; integer powers are
+  correctly rounded in extended contexts; certified elementary results are
+  correctly rounded whenever they are returned, and a failure is reported,
+  never approximated. The exceptions are listed under
+  [known deviations](#known-deviations).
 - **Error bound.** For normal results of those operations,
   $\operatorname{fl}(x) = x(1+\delta)$ with $|\delta| \le \tfrac12 10^{1-p}$ in
   the half modes and $|\delta| < 10^{1-p}$ in the directed modes.
 - **Exactness is visible.** `inexact` is raised if and only if the returned
   value differs from the exact result; `rounded` whenever digits were dropped.
-  Undetected exact elementary results violate the "only if" direction.
+  Exact decimal results of non-integral powers violate the "only if"
+  direction.
 - **Cohort preservation.** An exact result that fits is returned at the
   preferred exponent; `quantize` either returns exponent $q_y$ or fails.
 - **Flags.** `combine` is associative, commutative and idempotent with
@@ -855,21 +891,13 @@ measurements do not show a crossover.
 
 These behaviours of the current branch contradict the goals above. Each is
 reproduced in the [API reference](../api/decimal.md) next to the operation
-and tracked in the GitHub issue named in the last column; the proposed fixes
-are not merged yet.
+and tracked in the GitHub issue named in the last column, together with the
+pull request that proposes a fix, where one exists.
 
 | Area | Behaviour | Cause | Issue |
 | --- | --- | --- | --- |
-| finalization | a normal result whose exact exponent is below $E_{\text{tiny}}$ is rounded twice (half modes) | pre-rounding to the subnormal grid, [above](#round-once-in-one-place) | [#87](https://github.com/Luna-Flow/floating/issues/87), fix in [#100](https://github.com/Luna-Flow/floating/pull/100) |
-| `div_ctx` | a subnormal quotient is rounded twice (half modes) | the finalization above, applied after the guarded quotient | [#87](https://github.com/Luna-Flow/floating/issues/87), fix in [#100](https://github.com/Luna-Flow/floating/pull/100) |
-| tininess | `AfterRounding` tests the result rounded at $E_{\text{tiny}}$, not at $p$ digits | tininess is decided after the subnormal-grid rounding | [#110](https://github.com/Luna-Flow/floating/issues/110), fix in [#115](https://github.com/Luna-Flow/floating/pull/115) |
-| elementary functions | undetected exact results carry `inexact` (half modes) or fail certification (directed modes) | the agreement test assumes $f(x)$ is not representable | [#105](https://github.com/Luna-Flow/floating/issues/105), [#53](https://github.com/Luna-Flow/floating/issues/53); fixes in [#113](https://github.com/Luna-Flow/floating/pull/113), [#99](https://github.com/Luna-Flow/floating/pull/99) |
-| integer powers | not always correctly rounded when the power needs more than $p$ digits | GDA square-and-multiply with rounded products | [#104](https://github.com/Luna-Flow/floating/issues/104), fix in [#113](https://github.com/Luna-Flow/floating/pull/113) |
-| `pown_ctx` | an integer exponent with more than $p$ digits is rounded | the exponent is converted at the context precision | [#51](https://github.com/Luna-Flow/floating/issues/51), fix in [#113](https://github.com/Luna-Flow/floating/pull/113) |
-| `atan2_ctx` | aborts on an infinite operand; $\operatorname{atan2}(\pm 0, -0)$ is an invalid NaN | missing special cases before the enclosure | [#92](https://github.com/Luna-Flow/floating/issues/92), fix in [#98](https://github.com/Luna-Flow/floating/pull/98) |
-| `cosh_ctx`, `log2_ctx`, `log1p_ctx` | $\cosh(-\infty)$, $\log_2(+\infty)$ and $\operatorname{log1p}(+\infty)$ are invalid NaNs | missing special cases | [#93](https://github.com/Luna-Flow/floating/issues/93), fix in [#98](https://github.com/Luna-Flow/floating/pull/98) |
+| `power_ctx` | an exact decimal result of a non-integral power that is not a binary fraction ($0.0016^{0.25} = 0.2$) carries `inexact` (half modes) or fails certification (directed modes) | no exactness test before the enclosure loop, whose agreement test assumes $f(x)$ is not representable | [#53](https://github.com/Luna-Flow/floating/issues/53), fix in [#99](https://github.com/Luna-Flow/floating/pull/99) |
 | `ln_ctx`, `log10_ctx` | $\log(\pm 0) = -\infty$ without `division_by_zero` | follows General Decimal Arithmetic, not IEEE 754 §9.2.1 | [#94](https://github.com/Luna-Flow/floating/issues/94), decision pending |
-| `scaleb_ctx` | overflow is $\pm\infty$ in every rounding mode; zero results are not clamped | own finalizer instead of the shared one | [#52](https://github.com/Luna-Flow/floating/issues/52), [#95](https://github.com/Luna-Flow/floating/issues/95); fix in [#100](https://github.com/Luna-Flow/floating/pull/100) |
 | parsing | exponents beyond $\pm 1.5\cdot 10^{9}$ are clamped silently | the shared decimal-string splitter caps the exponent | [#108](https://github.com/Luna-Flow/floating/issues/108), fix in [#117](https://github.com/Luna-Flow/floating/pull/117) |
 | `to_integral_exact`, `to_integral_value` | integers longer than $p$ digits are rounded; a fraction with a longer integral part gives an invalid NaN | the operand is rounded or quantized at the context precision | [#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119) |
 | BID NaN | payloads are kept by leading digits of the value's precision | payload written at the value's precision | [#54](https://github.com/Luna-Flow/floating/issues/54), no fix yet |
@@ -913,9 +941,9 @@ four targets).
 - keep sticky status or traps (use `decimal_checked` or `decimal_gda`);
 - round the context-free operators to a context: `*` is exact, `+` and `/`
   round to the operand precision only, and none applies an exponent range;
-- guarantee correct rounding of integer powers longer than $p$ digits, or the
-  exact flags of exact elementary results it does not recognise (see
-  [known deviations](#known-deviations));
+- guarantee correct rounding of integer powers longer than $p$ digits in a
+  context that is not extended, or the exact flags of exact decimal results
+  of non-integral powers (see [known deviations](#known-deviations));
 - guarantee that elementary-function certification succeeds: after the
   refinement budget (which, at its last steps, works with very wide numbers
   and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN

@@ -64,7 +64,8 @@ gda path/to/add.decTest path/to/multiply.decTest
 gda .tmp/decimal/official          # every *.decTest directly in the directory
 ```
 
-Files are sorted by path and executed as one run.
+Files are sorted by path and executed as one run; a file named twice runs
+once.
 
 ### Select rows
 
@@ -111,10 +112,10 @@ unsupported or legacy, even when all executed rows pass.
 - **First parse error only.** A malformed line stops the run with one
   `file:line:1: message`; fix it and rerun to see the next.
 - **Non-recursive directories.** Subdirectories are not searched.
-- **Other suffixes are dropped silently.** A path such as `add.dectest` or
-  `add.txt` is skipped without a message; if nothing is left the run reports
-  zero cases and exits with `0`. Tracked in [#77](https://github.com/Luna-Flow/floating/issues/77); a fix is proposed in
-  [#83](https://github.com/Luna-Flow/floating/pull/83).
+- **The suffix is case-sensitive.** A named file such as `add.dectest` or
+  `add.txt` is the error `not a .decTest file: PATH` (exit `2`), and inside a
+  directory such entries are skipped, so a directory without any `.decTest`
+  file gives an empty run that exits with `0`.
 
 ## Next steps
 

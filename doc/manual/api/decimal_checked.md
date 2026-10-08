@@ -355,22 +355,17 @@ pub fn DecimalChecked::acosh(Self) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
 ```
 
-The results are those of `decimal`, including its documented exceptions to
-correct rounding (undetected exact results, integer powers, results near the
-underflow threshold; see the
-[decimal API](decimal.md#elementary-functions)). Domain violations are IEEE
-values with flags (`ln` of a negative number is NaN with `invalid_operation`,
-`tanpi(0.5)` is an infinity with `division_by_zero`). An error is recorded only
+The results are those of `decimal`, including its documented exception to
+correct rounding (exact decimal results of non-integral powers, such as
+$0.0016^{0.25} = 0.2$; see the [decimal API](decimal.md#elementary-functions)).
+Zero and infinite operands of `atan2` give the IEEE 754 values (`atan2` of
+$+\infty$ and 1 is $\pi/2$, inexact). Domain violations are IEEE values with
+flags (`ln` of a negative number is NaN with `invalid_operation`, `tanpi(0.5)`
+is an infinity with `division_by_zero`). An error is recorded only
 when `try_*_ctx` returns `Err`, which these functions do for a
 `CertificationFailure` (the correctly rounded result could not be certified
 within the refinement budget). On error the new state is
 $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
-
-> [!WARNING]
-> `atan2` aborts the program, instead of recording an error, when the current
-> value or the abscissa is an infinity, because `Decimal::try_atan2_ctx` does.
-> Check `value().is_infinite()` and the operand first. Tracked in [#92](https://github.com/Luna-Flow/floating/issues/92);
-> a fix is proposed in [#98](https://github.com/Luna-Flow/floating/pull/98).
 
 > [!IMPORTANT]
 > Following the General Decimal Arithmetic rules for the mathematical

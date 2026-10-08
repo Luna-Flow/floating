@@ -178,8 +178,8 @@ pub fn GdaContext::dectest(Self) -> String
 `rounding` is the directive text as written (for example `"half_up"` or
 `"05up"`); it is only interpreted at execution time. `precision`,
 `min_exponent` and `max_exponent` are not range-checked when parsed: a
-`precision: 0` directive is accepted here and aborts `execute_documents`
-(see below).
+`precision: 0` directive is accepted here, and `execute_documents` makes the
+rows under it `Diagnostic` (see below).
 
 ### `ParseDiagnostic`
 
@@ -253,27 +253,13 @@ first gets a disposition:
 
 Only `Executable` rows are evaluated. Operands are decoded as described on
 the [design page](../../design/frontend/gda_expr.md#rows-as-operations); plain
-decimal operands are read at precision $\max(64, p)$ for the row precision
-$p$. The row passes when the result matches the expected token and the raised
+decimal operands are read with every digit, so only the result is rounded.
+The row passes when the result matches the expected token and the raised
 conditions are exactly the listed ones; the
 [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full
 rule. Non-executable rows get `passed() == false` and the message
 `"skipped"`, and are counted as skipped, not failed. Unreadable operands and
 operations that reject their operands give a failed row, not an abort.
-
-> [!WARNING]
-> Two inputs are not handled as the GDA specification requires. A row whose
-> directive context has a non-positive precision (for example
-> `precision: 0`) aborts the whole call, because building the
-> `decimal_gda` context aborts. A plain decimal operand with more than
-> $\max(64, p)$ significant digits is rounded half-even when it is decoded,
-> so the operation sees a rounded operand and its result can be rounded
-> twice. At precision 9 under `half_even`, `add` of `0` and the 67-digit
-> operand made of `1000000014`, 56 nines and a final `5` gives
-> `1.00000002E+66` instead of `1.00000001E+66`: reading the operand at 64
-> digits turns the tail `4999…95` into exactly one half, and the second
-> rounding then breaks the tie to even. Tracked in [#73](https://github.com/Luna-Flow/floating/issues/73) (precision) and
-> [#74](https://github.com/Luna-Flow/floating/issues/74) (long operands); a fix is proposed in [#82](https://github.com/Luna-Flow/floating/pull/82).
 
 ### `RunOptions`
 
