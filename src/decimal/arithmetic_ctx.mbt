@@ -132,7 +132,39 @@ fn add_finite_values_ctx(
       }
     }
     let can_absorb = low_adjusted < target_exponent - precision
-    if can_absorb {
+    // Absorb the low operand as a sticky unit. Every rounding boundary of the
+    // sum (the result grid, its midpoints, and those of the grid one digit
+    // finer that a cancellation can reach) and every digit of `high` lies on
+    // the grid of 10^sticky_limit. A nonzero `low` below that grid therefore
+    // places the sum strictly between the same two neighbours as
+    // `high + sign(low) * 10^(sticky_limit - 1)`, so rounding the latter
+    // rounds the sum correctly in every mode.
+    let sticky_limit = Int::min(high.exponent10, target_exponent - 2)
+    if can_absorb && ctx.extended && low_adjusted < sticky_limit {
+      let sticky_exponent = sticky_limit - 1
+      let units = dec_coeff_shift_power10_repr(
+        high.coefficient,
+        high.exponent10 - sticky_exponent,
+      )
+      let magnitude = if low.negative == high.negative {
+        dec_coeff_magnitude_add_unit(units, 1)
+      } else {
+        dec_coeff_magnitude_sub_unit(units, 1)
+      }
+      let (value, flags) = normalize_decimal_parts_ctx_repr(
+        high.negative,
+        magnitude,
+        sticky_exponent,
+        ctx,
+      )
+      let sticky_adjusted = sticky_exponent + magnitude.digits10() - 1
+      return if sticky_adjusted < ctx.e_min && flags.inexact {
+        (value, { ..flags, subnormal: true, underflow: true, })
+      } else {
+        (value, flags)
+      }
+    }
+    if can_absorb && !ctx.extended {
       let preferred_exponent = Int::min(high.exponent10, target_exponent)
       let magnitude = dec_coeff_shift_power10_repr(
         high.coefficient,
@@ -501,7 +533,19 @@ fn Decimal::decimal_div_ctx_impl(
         self.negative != other.negative,
         DecimalRoundingMode::ZeroFiveUp,
       )
-      let value = finalize_finite_ctx(
+      // With a bounded precision, round the guarded quotient once, straight
+      // to its final grid: to `precision` digits when it is normal and to
+      // Etiny when it is subnormal. Rounding to `precision` digits first and
+      // then to Etiny would round a subnormal quotient twice.
+      let value = if ctx.precision > 0 {
+        normalize_decimal_parts_ctx_repr(
+          self.negative != other.negative,
+          q,
+          self.exponent10 - other.exponent10 - extra,
+          ctx,
+        ).0
+      } else {
+        finalize_finite_ctx(
           normalize_decimal_parts_gda_repr(
             self.negative != other.negative,
             q,
@@ -512,6 +556,7 @@ fn Decimal::decimal_div_ctx_impl(
           DecimalFlags::new(),
           ctx,
         ).0
+      }
       let value = expand_inexact_division_cohort(value, ctx, pad_precision=true)
       (
         value,
