@@ -7,14 +7,16 @@
 `just bench decimal --target native` runs the current Maremark suite in
 `src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis
 file. This is a reproducible measurement artifact, not an immutable release
-gate. There is no checked-in decimal performance manifest or threshold workflow
-in 0.7.1; current instructions use the Maremark suite below.
+gate. The current branch has no checked-in decimal performance manifest or
+threshold workflow; measurements use the Maremark suite below.
 
 ## Workload
 
 The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal
-digits. Each cell compares the coefficient kernel, the core `Decimal` path,
-and the full checked path against an exact `BigInt` reference. Input creation
+digits. Each cell compares a `BigInt` coefficient baseline
+(`kernel/coefficient`), the contextual `Decimal` path (`core/decimal`, the
+`*_ctx` operations) and the full `DecimalChecked` path (`full/checked`), and
+validates every output against an exact `BigInt` reference. Input creation
 and expected-value construction stay outside the timed payload.
 
 ## Reading Results

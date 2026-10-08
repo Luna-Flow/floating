@@ -1,208 +1,320 @@
-# `decimal` Tutorial
+# decimal tutorial
 
-Use `decimal` when decimal quantum, IEEE-style context/flags, or
-decimal32/64/128 DPD/BID interchange is part of the application contract. This
-page targets `floating` 0.8.0. Use [`decimal_gda`](decimal_gda.md)
-instead when sticky GDA status and traps must be threaded through every step.
+This tutorial shows how to compute with decimal numbers that behave the way
+people write them: `0.1 + 0.2` is exactly `0.3`, `12.30` remembers that it
+has two decimal places, and every rounding is chosen by you and reported back
+to you. You will parse and format values, compute under a context and read
+its flags, round money with `quantize`, exchange decimal64 bits, and call
+correctly rounded elementary functions. The mathematics behind each step is in
+the [decimal design](../design/decimal.md); every function is specified in the
+[decimal API](../api/decimal.md).
 
-## Choose The Right Entry Point
+## Quick start
 
-| Need | Recommended API |
-| --- | --- |
-| parse while preserving decimal quantum | `Decimal::parse` / `from_string` |
-| bounded context and operation flags | `from_string_ctx` and `*_ctx` |
-| canonical cohort | `normalized()` or `reduce_ctx()` |
-| decimal32/64/128 bits | `DecimalInterchange` or `*_interchange_hex` |
-| observable elementary proof failure | `try_*_ctx` |
-| accumulated IEEE pipeline state | `decimal_checked` |
+Add `floating` to your module and import the package:
 
-## Parse Without Losing Quantum
+```text
+moon add Luna-Flow/floating
+```
 
-Parsing preserves the input exponent when the coefficient fits the requested
-precision. Trailing zeros can therefore carry application meaning.
-
-```moonbit check
-///|
-test "decimal parsing preserves quantum" {
-  let amount = @decimal.Decimal::from_string("12.3400", precision=10).unwrap()
-  inspect(amount.to_string(), content="12.3400")
-  inspect(amount.quantum(), content="-4")
-  let reduced = amount.normalized()
-  inspect(reduced.to_string(), content="12.34")
-  inspect(reduced.quantum(), content="-2")
+```text
+import {
+  "Luna-Flow/floating/decimal",
 }
 ```
 
-`normalized()` changes the cohort but not the mathematical value. Do not call
-it automatically when scale is part of a monetary, measurement, or protocol
-record.
+The smallest useful program adds two decimal fractions that a `Double` cannot
+represent:
 
-Use `parse` when invalid text needs an `ArithmeticError`; use `from_string`
-when `None` is sufficient.
-
-## Calculate Exact Decimal Values
-
-Ordinary operators are convenient for unconstrained calculations whose working
-precision is already encoded in the operands.
-
-```moonbit check
+```moonbit
 ///|
-test "exact decimal arithmetic" {
-  let a = @decimal.Decimal::from_string("1.25", precision=20).unwrap()
-  let b = @decimal.Decimal::from_string("2.5", precision=20).unwrap()
-  inspect((a + b).to_string(), content="3.75")
-  inspect((a * b).to_string(), content="3.125")
+test "decimal quick start" {
+  let a = @decimal.Decimal::from_string("0.1").unwrap()
+  let b = @decimal.Decimal::from_string("0.2").unwrap()
+  inspect(a + b, content="0.3")
+  inspect(0.1 + 0.2 == 0.3, content="false")
 }
 ```
 
-For externally specified precision, rounding, or exponent bounds, use context
-operations instead of relying on operand precision.
+`0.1` is $1/10$, and no power of two is divisible by 5, so binary floating
+point can only approximate it; decimal floating point stores it exactly.
 
-## Use A Context And Preserve Flags
+## Everyday tasks
 
-`DecimalContext` is immutable. Each `*_ctx` operation returns a value and flags
-raised by that operation.
+### Parse amounts and keep their scale
 
-```moonbit check
+Parsing keeps the exponent of the text. Two values can be equal and still
+carry different information:
+
+```moonbit
 ///|
-test "decimal64 parse and divide" {
-  let context = @decimal.DecimalContext::decimal64()
-  let (value, parse_flags) = @decimal.Decimal::from_string_ctx(
-    "1.234567890123456789",
-    context,
+test "decimal parsing keeps the quantum" {
+  let price = @decimal.Decimal::from_string("12.30").unwrap()
+  let same = @decimal.Decimal::from_string("12.3").unwrap()
+  inspect(price == same, content="true")
+  inspect(price.quantum(), content="-2")
+  inspect(same.quantum(), content="-1")
+  inspect(price.same_quantum(same), content="false")
+  inspect(price.normalized(), content="12.3")
+}
+```
+
+`12.30` and `12.3` are two members of the same *cohort*: numerically equal,
+written with different exponents. `normalized()` picks the shortest member.
+Do not call it on amounts whose number of decimal places matters; call it
+when you want a canonical key.
+
+Integers are built reduced: `Decimal::from_int(1000)` is stored as $1 \times
+10^{3}$ and prints as `1E+3`. Parse `"1000"` when you want the four digits.
+
+### Compute under a context and keep the flags
+
+A `DecimalContext` fixes the precision, rounding mode and exponent range.
+Each `*_ctx` operation returns the result and the flags it raised. Combine the
+flags as you go:
+
+```moonbit
+///|
+test "decimal64 pipeline with flags" {
+  let ctx = @decimal.DecimalContext::decimal64()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  let (total, f1) = d("100").div_ctx(d("3"), ctx)
+  let (scaled, f2) = total.mul_ctx(d("3"), ctx)
+  let flags = f1.combine(f2)
+  inspect(total, content="33.33333333333333")
+  inspect(scaled, content="99.99999999999999")
+  inspect(flags.inexact, content="true")
+  inspect(flags.has_error(), content="false")
+}
+```
+
+`inexact` tells you that $100/3 \cdot 3$ was not computed exactly; it is not
+an error, so `has_error()` stays false. `has_error()` reports invalid
+operations, division by zero, impossible divisions and invalid contexts.
+Check the individual flags (`overflow`, `underflow`, `inexact`) when your
+application cares about them.
+
+### Round money with `quantize`
+
+`quantize` gives a value the exponent of a template value. Choose the rounding
+mode in the context; commercial rounding is `HalfUp`, which the shared
+`RoundingMode` enum does not have, so pass `decimal_rounding`:
+
+```moonbit
+///|
+test "decimal round to cents" {
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  let cents = d("0.01")
+  let bankers = @decimal.DecimalContext::decimal64()
+  let commercial = @decimal.DecimalContext::new(
+    precision=16,
+    e_min=-383,
+    e_max=384,
+    decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
   )
-  let three = @decimal.Decimal::from_int(3, precision=context.precision())
-  let (quotient, divide_flags) = value.div_ctx(three, context)
-  let flags = parse_flags.combine(divide_flags)
-  inspect(quotient.is_finite(), content="true")
-  inspect(flags.contains(@decimal.DecimalSignal::Rounded), content="true")
+  inspect(d("2.345").quantize(cents, bankers).0, content="2.34")
+  inspect(d("2.345").quantize(cents, commercial).0, content="2.35")
+  inspect(d("7").quantize(cents, bankers).0, content="7.00")
 }
 ```
 
-Keep combined flags next to the value for the lifetime of the calculation.
-`has_error()` is a convenience policy, but applications should inspect
-individual signals when inexact, rounded, subnormal, overflow, or clamped
-behavior matters.
+Half-even ("banker's") rounding sends the tie `2.345` to the even last digit
+`4`; half-up sends it away from zero. `quantize` never silently picks another
+exponent: if the result would need more digits than the precision, you get NaN
+with `invalid_operation`.
 
-## Quantize Deliberately
+### Bound a result from both sides
 
-Use `quantize` when the output exponent is part of the contract. The target
-quantum is supplied as a `Decimal` value.
+Directed rounding gives guaranteed bounds. Rounding the same quotient toward
+$-\infty$ and toward $+\infty$ brackets the exact value:
 
-```moonbit nocheck
-let context = @decimal.DecimalContext::decimal64()
-let value = @decimal.Decimal::from_string("12.3456").unwrap()
-let cents = @decimal.Decimal::from_string("0.00").unwrap()
-let (rounded, flags) = value.quantize(cents, context)
-// rounded has quantum -2; inspect Rounded/Inexact before accepting it.
-```
-
-`quantize` reports invalid-operation when the requested exponent cannot fit
-the context. It does not silently choose another scale.
-
-## Encode Decimal Interchange
-
-Select both format and encoding explicitly when exchanging bits with another
-system.
-
-```moonbit check
+```moonbit
 ///|
-test "decimal64 DPD round trip" {
-  let value = @decimal.Decimal::from_string("1.25").unwrap()
-  let (encoded, encode_flags) =
-    @decimal.DecimalInterchange::from_decimal_with_encoding(
-      value,
-      @decimal.DecimalInterchangeFormat::Decimal64,
-      @decimal.DecimalInterchangeEncoding::DPD,
-    )
-  let (decoded, decode_flags) = encoded.to_decimal_ctx()
-  inspect(decoded.to_string(), content="1.25")
-  inspect(encode_flags.combine(decode_flags).has_error(), content="false")
+test "decimal directed rounding brackets the exact quotient" {
+  let ctx = @decimal.DecimalContext::decimal32()
+  let one = @decimal.Decimal::one()
+  let seven = @decimal.Decimal::from_int(7)
+  let down = ctx.with_rounding(@def.RoundingMode::TowardNegative)
+  let up = ctx.with_rounding(@def.RoundingMode::TowardPositive)
+  inspect(one.div_ctx(seven, down).0, content="0.1428571")
+  inspect(one.div_ctx(seven, up).0, content="0.1428572")
 }
 ```
 
-Use `BID` only when the external protocol requires it. GDA concrete
-interchange lives in `decimal_gda` and is DPD-only; do not move encoded values
-between the packages by assuming their contexts are interchangeable.
+The two results are adjacent decimal32 values, and $1/7$ lies strictly
+between them.
 
-## Call Certified Elementary Functions
+### Exchange decimal64 bits
 
-Use `try_*_ctx` at a boundary where certification failure must remain
-observable.
+Interchange formats are what databases, files and other languages exchange.
+Encode in the encoding your peer expects, and decode with the same one:
 
-```moonbit check
+```moonbit
 ///|
-test "certified decimal logarithm" {
-  let context = @decimal.DecimalContext::decimal64()
-  let ten = @decimal.Decimal::from_int(10, precision=context.precision())
-  match ten.try_log10_ctx(context) {
+test "decimal64 DPD and BID round trip" {
+  let fmt = @decimal.DecimalInterchangeFormat::Decimal64
+  let price = @decimal.Decimal::from_string("19.99").unwrap()
+  let (bits, flags) = @decimal.DecimalInterchange::from_decimal_with_encoding(
+    price,
+    fmt,
+    @decimal.DecimalInterchangeEncoding::BID,
+  )
+  inspect(bits.to_hex(), content="#31800000000007CF")
+  inspect(flags.has_error(), content="false")
+  inspect(bits.to_decimal(), content="19.99")
+  let (dpd, _) = price.to_interchange_hex(fmt)
+  inspect(dpd, content="#22300000000004FF")
+}
+```
+
+Both encodings keep the exponent, so `19.99` comes back with two decimal
+places. Bits you did not produce yourself may be non-canonical; keep them in a
+`DecimalInterchange` and call `canonical()` before comparing bit patterns.
+
+### Call an elementary function
+
+Logarithms, exponentials, powers and trigonometric functions are correctly
+rounded in every rounding mode. They need a context with a bounded exponent
+range, such as a format preset:
+
+```moonbit
+///|
+test "decimal certified logarithm" {
+  let ctx = @decimal.DecimalContext::decimal64()
+  let two = @decimal.Decimal::from_int(2)
+  match two.try_ln_ctx(ctx) {
     Ok((value, flags)) => {
-      inspect(value.to_string(), content="1")
-      inspect(flags.has_error(), content="false")
+      inspect(value, content="0.6931471805599453")
+      inspect(flags.inexact, content="true")
     }
-    Err(_) => abort("decimal log10 could not be certified"),
+    Err(e) => fail("not certified: \{e.is_certification_failure()}")
   }
+  inspect(@decimal.Decimal::from_int(1000).log10_ctx(ctx).0, content="3")
 }
 ```
 
-The implementation converts the exact decimal to directed dyadic bounds and
-accepts a result only when both bounds round to the same decimal value and
-flags. Convenience methods such as `log10_ctx` use the same proof path but treat
-proof failure as unrecoverable.
+`try_ln_ctx` returns `Err` only if the result could not be certified within
+the refinement budget; `ln_ctx` turns that case into NaN with
+`invalid_operation`. Exact results such as $\log_{10} 1000 = 3$ come back
+without `inexact`.
 
-## Convert Between Decimal And Binary Carefully
+## Going further
 
-Dyadic values convert exactly to decimal when enough decimal precision is
-available. Most finite decimal fractions do not convert exactly to binary.
+### Generic code over the algebra traits
 
-```moonbit check
+`Decimal` implements `Ring` from [luna-generic](https://lunaflow.cn/en/luna-generic/)
+through its plain operators, so generic code runs on it unchanged:
+
+```moonbit
 ///|
-test "binary decimal boundary" {
-  let exact_binary = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
-    -2,
-    32,
-  )
-  let exact_decimal = @decimal.Decimal::from_bin_float(exact_binary, precision=20)
-  inspect(exact_decimal.to_string(), content="0.75")
+fn[T : @lf_alg.Ring] dot(xs : Array[T], ys : Array[T]) -> T {
+  let mut acc : T = @lf_alg.Zero::zero()
+  for i in 0..<xs.length() {
+    acc = acc + xs[i] * ys[i]
+  }
+  acc
+}
 
-  let tenth = @decimal.Decimal::from_string("0.1", precision=20).unwrap()
-  let approximate_binary = tenth.to_bin_float(precision=24)
-  let back = @decimal.Decimal::from_bin_float(approximate_binary, precision=10)
-  inspect(back.to_string(), content="0.09999999404")
+///|
+test "decimal in generic ring code" {
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  inspect(dot([d("1.5"), d("2.25")], [d("4"), d("0.2")]), content="6.45")
 }
 ```
 
-When building an interval around a decimal real value, convert twice with
-`TowardNegative` and `TowardPositive` and use both bounds. A nearest-rounded
-binary point embedded with `BallFloat::exact` encloses only that binary point,
-not necessarily the original decimal.
+The plain operators have no context: `*` is exact, `+` rounds to the larger
+operand precision (34 digits by default) and returns the shortest cohort
+member. Code that needs a precision, an exponent range or flags should take a
+`DecimalContext` and call the `*_ctx` operations.
 
-## Special Values And Ordering
+### The shared contextual traits
 
-- Signed zero, infinities, quiet/signaling NaNs, and payloads are explicit.
-- `compare` is numerical and is not a total representation order over NaNs.
-- `compare_total` orders representations, including cohorts and NaNs, for
-  deterministic storage/protocol use.
-- `same_quantum` tests exponent/cohort compatibility, not numerical equality.
-- Classification under a context (`is_normal`/`is_subnormal`) may differ from a
-  context-free finite/special classification.
+Code written against [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/)
+uses `ArithmeticContext` and gets an `ArithmeticOutcome` with diagnostics:
 
-## Recommended Practice
+```moonbit
+///|
+test "decimal through the contextual traits" {
+  let ctx = @lf_arith.ArithmeticContext::new(5)
+  let x = @decimal.Decimal::from_int(2)
+  match x.div_contextual(@decimal.Decimal::from_int(3), ctx) {
+    Ok(outcome) => {
+      inspect(outcome.value, content="0.66667")
+      inspect(outcome.diagnostics.inexact, content="true")
+    }
+    Err(_) => fail("unexpected error")
+  }
+  inspect(x.div_contextual(@decimal.Decimal::zero(), ctx) is Err(_), content="true")
+}
+```
 
-1. Preserve parsed quantum until the application has explicitly chosen to
-   normalize or quantize.
-2. Use one context through a calculation and combine every returned flag.
-3. Treat interchange encoding as an IO boundary; do arithmetic on `Decimal`.
-4. Use `try_*_ctx` for elementary functions on untrusted inputs.
-5. Use `decimal_checked` for a closed IEEE pipeline; use `decimal_gda` or
-   `decimal_gda_checked` for sticky GDA status and traps.
+Errors (`invalid_operation`, `division_by_zero`, …) become `Err`; inexactness
+and range events become diagnostics.
 
-## Next Reading
+### Pipelines, GDA status and intervals
 
-- [Design](../design/decimal.md) explains coefficient dispatch, finalization, and
-  certified decimal rounding.
-- [Conformance](../conformance/decimal.md) defines the IEEE evidence boundary.
-- [Performance](../performance/decimal.md) records target-specific crossover policy.
-- [`decimal_checked` tutorial](decimal_checked.md) shows automatic
-  flag accumulation.
+- [`decimal_checked`](decimal_checked.md) wraps a value, its context and its
+  accumulated flags, so a long pipeline does not need explicit `combine`
+  calls.
+- [`decimal_gda`](decimal_gda.md) implements the General Decimal Arithmetic
+  model with sticky status and traps. Its values are a separate type; use it
+  when you need `.decTest` behaviour, not IEEE per-operation flags.
+- To enclose a decimal value in a binary interval, convert it twice with
+  `to_bin_float(mode=TowardNegative)` and `to_bin_float(mode=TowardPositive)`
+  and build a [`ball_float`](ball_float.md) ball from both bounds.
+
+### A deterministic order for storage
+
+`compare_total` orders every representation, including cohorts, signed zeros
+and NaNs, so it is the right key for sorting stored values or deduplicating
+bit-exact records:
+
+```moonbit
+///|
+test "decimal total order separates cohorts" {
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  let xs = [d("1.0"), d("-0"), d("1.00"), d("NaN"), d("0")]
+  xs.sort_by(fn(a, b) { a.compare_total(b) })
+  inspect(xs.map(fn(x) { x.to_string() }).join(" "), content="-0 0 1.00 1.0 nan")
+}
+```
+
+## Common pitfalls
+
+- **Elementary functions need a bounded context.** `DecimalContext::new()`
+  has the exponent range $\pm 999\,999\,999$, which is outside what the
+  elementary functions accept; they return NaN with `invalid_context`. Use
+  `decimal32()`/`decimal64()`/`decimal128()` or pass `e_min`/`e_max` within
+  $\pm 999\,999$.
+- **Operators are not context operations.** `*` never rounds, so repeated
+  products grow without bound; `/` rounds to the operand precision and can,
+  rarely, be off by one unit in the last place. Use `mul_ctx` and `div_ctx`
+  when the result must be bounded or correctly rounded.
+- **`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal
+  to every NaN and greater than every number, so sorting works. Use
+  `compare_checked` or `is_nan` when a NaN must be unordered.
+- **`has_error()` is narrow.** It ignores `inexact`, `overflow`, `underflow`
+  and `conversion_syntax`. After `from_string_ctx`, check `conversion_syntax`
+  or `is_nan()` to detect bad text.
+- **Integer exponents are converted at context precision.** `pown_ctx`,
+  `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a
+  `Decimal` with the context precision, so an exponent with more digits than
+  the precision is rounded before the power is taken. Keep
+  $|n| < 10^{p}$ or call `power_ctx` with an exact `Decimal` exponent.
+- **`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.**
+  Build the context with `DecimalContext::new(decimal_rounding=...)`.
+- **Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact
+  binary value `0.1000000000000000055511151231257827` (rounded to 34 digits),
+  not `0.1`; parse text instead. `from_bin_float` turns $-0$ into $+0$.
+
+## Next steps
+
+- [decimal API](../api/decimal.md): every type and function with its exact
+  semantics.
+- [decimal design](../design/decimal.md): formats, cohorts, encodings,
+  rounding, error bounds and certification.
+- [decimal conformance](../conformance/decimal.md) and
+  [decimal performance](../performance/decimal.md): the finite evidence and
+  the measurement method.
+- [`decimal_checked` tutorial](decimal_checked.md) and
+  [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA status.
