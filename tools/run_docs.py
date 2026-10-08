@@ -4,6 +4,7 @@ import argparse
 import subprocess
 from pathlib import Path
 
+import check_doc_examples
 import doc_quality
 
 
@@ -16,6 +17,9 @@ def main(argv: list[str] | None = None) -> int:
     quality_result = doc_quality.main([])
     if quality_result != 0:
         return quality_result
+    examples_result = check_doc_examples.main([])
+    if examples_result != 0:
+        return examples_result
     return subprocess.run(
         [
             "sh",

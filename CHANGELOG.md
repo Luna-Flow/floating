@@ -44,6 +44,11 @@ notes live in this file.
 - Added a nightly workflow that runs the `quick`, `decimal`, `decimal_gda`,
   `binary` and `interval` gates in parallel with cached, hash-verified corpora
   and uploads each summary.
+- Added `tools/check_doc_examples.py`, which compiles and runs the manual's
+  MoonBit examples against the current branch. `doc/manual` lives outside `src`
+  and its examples use plain `moonbit` fences, which `moon` does not compile, so
+  none of them were covered by a gate before; `just docs` now checks 236
+  examples across 48 pages.
 
 ### Changed
 
