@@ -29,7 +29,7 @@ STALE_GDA_CLAIMS = ("conformance gap", "not full conformance", "完全な confor
 LINK_RE = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
 API_BLOCK_RE = re.compile(
-    r"<!-- generated-api-start -->\n```moonbit\n(.*?)\n```\n<!-- generated-api-end -->",
+    r"<!-- generated-api-start -->\n```(?:mbti|moonbit)\n(.*?)\n```\n<!-- generated-api-end -->",
     re.DOTALL,
 )
 MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
