@@ -4312,12 +4312,8 @@ msgid "These round to an integer with the context rounding mode."
 msgstr "这些函数以上下文舍入模式舍入到整数。"
 
 #: manual/api/decimal_gda.md:786
-msgid "A value with negative exponent is quantized to exponent 0; `to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `to_integral_value` never does. A value with exponent $\\ge 0$ is passed through `apply`, so it is rounded to the context precision if it is longer than $p$ digits.[^integral]"
-msgstr "指数为负的值被量化到指数 0；丢弃数字时 `to_integral_exact` 引发 `Inexact` 和 `Rounded`，而 `to_integral_value` 从不引发。指数 $\\ge 0$ 的值经由 `apply` 处理，因此若它长于 $p$ 位，就会被舍入到上下文精度。[^integral]"
-
-#: manual/api/decimal_gda.md:792
-msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
-msgstr "GDA 参考实现会原样返回此类操作数；例如在精度 3 下，它将 `12345` 映射为 `12345`，而本包返回带 `Inexact` 的 `1.23E+4`。所固定的测试套件中没有这样的用例。"
+msgid "A value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 at a working precision of $\\max(p, \\text{its digit count})$, as decNumber does, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `to_integral_value` never does. In a subset context the operand is first rounded to $p$ digits, with `LostDigits`, like every other operand."
+msgstr "指数 $\\ge 0$ 的值本身已是整数，按原样返回，即使它长于 $p$ 位（`clamp` 上下文仍会把它的指数向下折叠）。指数为负的值以 $\\max(p, \\text{其位数})$ 的工作精度量化到指数 0（与 decNumber 相同），因此整数部分从不被舍入到 $p$ 位：精度为 3 时，`12345.6` 得到 `12346`。丢弃数字时 `to_integral_exact` 引发 `Inexact` 和 `Rounded`，而 `to_integral_value` 从不引发。在子集上下文中，操作数与其他所有操作数一样，先被舍入到 $p$ 位并引发 `LostDigits`。"
 
 #: manual/api/decimal_gda.md:798
 msgid "These are the correctly rounded square root, exponential, natural logarithm and base-10 logarithm."
@@ -7075,7 +7071,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/consistency.md:69
 #: manual/design/decimal.md:783
 #: manual/design/decimal_checked.md:273
-#: manual/design/decimal_gda.md:681
+#: manual/design/decimal_gda.md:680
 #: manual/design/decimal_gda_checked.md:242
 #: manual/design/def.md:294
 #: manual/design/doc_examples.md:36
@@ -7996,7 +7992,7 @@ msgstr "`midpoint_ctx` 不应用上下文的 $e_{\\max}$，且从不引发 `over
 #: manual/design/consistency.md:62
 #: manual/design/decimal.md:762
 #: manual/design/decimal_checked.md:262
-#: manual/design/decimal_gda.md:665
+#: manual/design/decimal_gda.md:664
 #: manual/design/decimal_gda_checked.md:233
 #: manual/design/def.md:281
 #: manual/design/doc_examples.md:30
@@ -11331,46 +11327,46 @@ msgid "**Total order.** `compare_total` is a total order on triples (sign, then 
 msgstr "**全序。** `compare_total` 是三元组上的全序（依次比较符号、类别、值、指数、载荷），`Decimal::compare` 是全预序，其中所有 NaN 构成一个高于所有数的类。"
 
 #: manual/design/decimal_gda.md:658
-msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the division defect above and the to-integral difference noted on the [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value) are not covered by any pinned row."
-msgstr "**证据。** 固定版本的 `official` 测试套件通过了 64,986/64,986 个合法的可执行标量用例，遗留的 `official0` 套件通过了 16,124/16,124 个（[符合性](../conformance/decimal_gda.md)）。这些都是有限的声明：上文的除法缺陷以及 [API 页面](../api/decimal_gda.md#to_integral_exact-to_integral_value)所指出的取整差异，均未被任何固定用例覆盖。"
+msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the division defect above and to-integral operands longer than the precision are not covered by any pinned row."
+msgstr "**证据。** 固定版本的 `official` 测试套件通过了 64,986/64,986 个合法的可执行标量用例，遗留的 `official0` 套件通过了 16,124/16,124 个（[符合性](../conformance/decimal_gda.md)）。这些都是有限的声明：上文的除法缺陷以及长于精度的取整操作数，均未被任何固定用例覆盖。"
 
-#: manual/design/decimal_gda.md:667
+#: manual/design/decimal_gda.md:666
 msgid "**A mutable or global current context.** Rejected because it makes results and flags depend on evaluation order and hidden state (see the first design decision)."
 msgstr "**可变或全局的当前上下文。** 被否决，因为它使结果和标志依赖于求值顺序和隐藏状态（参见第一条设计决策）。"
 
-#: manual/design/decimal_gda.md:670
+#: manual/design/decimal_gda.md:669
 msgid "**Traps as errors.** Rejected because the GDA-defined result would be lost."
 msgstr "**把陷阱作为错误。** 被否决，因为 GDA 定义的结果会丢失。"
 
-#: manual/design/decimal_gda.md:671
+#: manual/design/decimal_gda.md:670
 msgid "**Sharing the engine with `decimal`.** Rejected because one standard's change could alter the other's results; a measured duplication is cheaper than an accidental semantic coupling."
 msgstr "**与 `decimal` 共享引擎。** 被否决，因为一个标准的改动可能改变另一个标准的结果；经测量的重复比意外的语义耦合更划算。"
 
-#: manual/design/decimal_gda.md:674
+#: manual/design/decimal_gda.md:673
 msgid "**Binary floating point for elementary functions with a fixed number of guard digits.** Rejected because no fixed number of guard digits guarantees correct rounding (the table-maker's dilemma); certification with refinement does, and fails visibly when it cannot."
 msgstr "**用固定数量保护位的二进制浮点计算初等函数。** 被否决，因为没有任何固定数量的保护位能保证正确舍入（制表者困境）；带细化的认证则能保证，并在无法做到时显式失败。"
 
-#: manual/design/decimal_gda.md:678
+#: manual/design/decimal_gda.md:677
 msgid "**Normalizing every result.** Rejected because the quantum is part of a GDA number; normalization is available explicitly as `reduce`."
 msgstr "**规范化每个结果。** 被否决，因为量子是 GDA 数的一部分；规范化可通过 `reduce` 显式进行。"
 
-#: manual/design/decimal_gda.md:683
+#: manual/design/decimal_gda.md:682
 msgid "The package implements the GDA operations and nothing else: no trigonometric, hyperbolic or other functions outside the specification, and no IEEE 754 operations other than the few extras of the status-free layer."
 msgstr "本包只实现 GDA 运算：没有三角函数、双曲函数或规范以外的其他函数，除无状态层的少数附加功能外也没有 IEEE 754 运算。"
 
-#: manual/design/decimal_gda.md:686
+#: manual/design/decimal_gda.md:685
 msgid "It does not parse `.decTest` files, run test suites or read files; that is [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools."
 msgstr "它不解析 `.decTest` 文件、不运行测试套件，也不读取文件；这些由 [`frontend/gda_expr`](../api/frontend/gda_expr.md) 和仓库工具负责。"
 
-#: manual/design/decimal_gda.md:688
+#: manual/design/decimal_gda.md:687
 msgid "It does not provide BID interchange; only DPD."
 msgstr "它不提供 BID 交换编码；只有 DPD。"
 
-#: manual/design/decimal_gda.md:689
+#: manual/design/decimal_gda.md:688
 msgid "It does not give correct rounding for integer powers beyond the GDA requirement, and on the current branch not for the half-mode division case described above."
 msgstr "对整数次幂，它不提供超出 GDA 要求的正确舍入；在当前分支上，上文所述的 half 模式除法情形也不是正确舍入的。"
 
-#: manual/design/decimal_gda.md:692
+#: manual/design/decimal_gda.md:691
 msgid "It does not provide a mutable or global context, and contexts carry no identity: two contexts with the same fields are interchangeable."
 msgstr "它不提供可变或全局的上下文，上下文也没有身份：字段相同的两个上下文可以互换。"
 
@@ -18260,6 +18256,9 @@ msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
+
+#~ msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
+#~ msgstr "GDA 参考实现会原样返回此类操作数；例如在精度 3 下，它将 `12345` 映射为 `12345`，而本包返回带 `Inexact` 的 `1.23E+4`。所固定的测试套件中没有这样的用例。"
 
 #~ msgid "These functions convert any Luna-Flow integer type."
 #~ msgstr "这些函数转换任意 Luna-Flow 整数类型。"

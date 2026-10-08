@@ -4302,11 +4302,7 @@ msgid "These round to an integer with the context rounding mode."
 msgstr ""
 
 #: manual/api/decimal_gda.md:786
-msgid "A value with negative exponent is quantized to exponent 0; `to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `to_integral_value` never does. A value with exponent $\\ge 0$ is passed through `apply`, so it is rounded to the context precision if it is longer than $p$ digits.[^integral]"
-msgstr ""
-
-#: manual/api/decimal_gda.md:792
-msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
+msgid "A value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 at a working precision of $\\max(p, \\text{its digit count})$, as decNumber does, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `to_integral_value` never does. In a subset context the operand is first rounded to $p$ digits, with `LostDigits`, like every other operand."
 msgstr ""
 
 #: manual/api/decimal_gda.md:798
@@ -7057,7 +7053,7 @@ msgstr ""
 #: manual/design/consistency.md:69
 #: manual/design/decimal.md:783
 #: manual/design/decimal_checked.md:273
-#: manual/design/decimal_gda.md:681
+#: manual/design/decimal_gda.md:680
 #: manual/design/decimal_gda_checked.md:242
 #: manual/design/def.md:294
 #: manual/design/doc_examples.md:36
@@ -7964,7 +7960,7 @@ msgstr ""
 #: manual/design/consistency.md:62
 #: manual/design/decimal.md:762
 #: manual/design/decimal_checked.md:262
-#: manual/design/decimal_gda.md:665
+#: manual/design/decimal_gda.md:664
 #: manual/design/decimal_gda_checked.md:233
 #: manual/design/def.md:281
 #: manual/design/doc_examples.md:30
@@ -11262,46 +11258,46 @@ msgid "**Total order.** `compare_total` is a total order on triples (sign, then 
 msgstr ""
 
 #: manual/design/decimal_gda.md:658
-msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the division defect above and the to-integral difference noted on the [API page](../api/decimal_gda.md#to_integral_exact-to_integral_value) are not covered by any pinned row."
+msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the division defect above and to-integral operands longer than the precision are not covered by any pinned row."
 msgstr ""
 
-#: manual/design/decimal_gda.md:667
+#: manual/design/decimal_gda.md:666
 msgid "**A mutable or global current context.** Rejected because it makes results and flags depend on evaluation order and hidden state (see the first design decision)."
 msgstr ""
 
-#: manual/design/decimal_gda.md:670
+#: manual/design/decimal_gda.md:669
 msgid "**Traps as errors.** Rejected because the GDA-defined result would be lost."
 msgstr ""
 
-#: manual/design/decimal_gda.md:671
+#: manual/design/decimal_gda.md:670
 msgid "**Sharing the engine with `decimal`.** Rejected because one standard's change could alter the other's results; a measured duplication is cheaper than an accidental semantic coupling."
 msgstr ""
 
-#: manual/design/decimal_gda.md:674
+#: manual/design/decimal_gda.md:673
 msgid "**Binary floating point for elementary functions with a fixed number of guard digits.** Rejected because no fixed number of guard digits guarantees correct rounding (the table-maker's dilemma); certification with refinement does, and fails visibly when it cannot."
 msgstr ""
 
-#: manual/design/decimal_gda.md:678
+#: manual/design/decimal_gda.md:677
 msgid "**Normalizing every result.** Rejected because the quantum is part of a GDA number; normalization is available explicitly as `reduce`."
 msgstr ""
 
-#: manual/design/decimal_gda.md:683
+#: manual/design/decimal_gda.md:682
 msgid "The package implements the GDA operations and nothing else: no trigonometric, hyperbolic or other functions outside the specification, and no IEEE 754 operations other than the few extras of the status-free layer."
 msgstr ""
 
-#: manual/design/decimal_gda.md:686
+#: manual/design/decimal_gda.md:685
 msgid "It does not parse `.decTest` files, run test suites or read files; that is [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools."
 msgstr ""
 
-#: manual/design/decimal_gda.md:688
+#: manual/design/decimal_gda.md:687
 msgid "It does not provide BID interchange; only DPD."
 msgstr ""
 
-#: manual/design/decimal_gda.md:689
+#: manual/design/decimal_gda.md:688
 msgid "It does not give correct rounding for integer powers beyond the GDA requirement, and on the current branch not for the half-mode division case described above."
 msgstr ""
 
-#: manual/design/decimal_gda.md:692
+#: manual/design/decimal_gda.md:691
 msgid "It does not provide a mutable or global context, and contexts carry no identity: two contexts with the same fields are interchangeable."
 msgstr ""
 

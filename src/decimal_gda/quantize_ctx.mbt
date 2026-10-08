@@ -440,15 +440,58 @@ pub fn Decimal::to_integral_exact(
           Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
-      } else if self.exponent10 >= 0 {
+      } else if !ctx.extended && self.exponent10 >= 0 {
         self.apply_ctx(ctx)
       } else {
-        self.quantize(
-          Decimal::one(precision=finite_precision_for_default(ctx)),
-          ctx,
-        )
+        to_integral_finite(self, ctx)
       }
   }
+}
+
+///|
+// GDA round-to-integral of a finite operand (decNumberToIntegralExact): an
+// operand with a non-negative exponent is already an integer and is not
+// rounded; otherwise it is quantized to exponent 0 with the working
+// precision widened to the operand's length, so the integral part is never
+// rounded to the context precision and the result is never invalid. In a
+// subset context the operand is first rounded to the precision (lost digits).
+fn to_integral_finite(
+  value : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  let (operand, operand_flags) = prepare_operand_for_context(value, ctx)
+  if operand.class != FpClass::Finite {
+    return (operand, operand_flags)
+  }
+  if operand.exponent10 >= 0 {
+    // Within the precision `apply_ctx` only applies the exponent range
+    // (the clamp fold-down of interchange formats); a longer integer is
+    // returned as it is instead of being rounded.
+    if ctx.precision <= 0 || operand.coefficient.digits10() <= ctx.precision {
+      let (result, flags) = operand.apply_ctx(ctx)
+      return (result, operand_flags.combine(flags))
+    }
+    return (
+      {
+        ..operand,
+        precision_: finite_precision_for_coeff(operand.coefficient, ctx),
+      },
+      operand_flags,
+    )
+  }
+  let work_ctx = if ctx.precision > 0 {
+    {
+      ..ctx,
+      precision: Int::max(ctx.precision, operand.coefficient.digits10()),
+    }
+  } else {
+    ctx
+  }
+  let (result, flags) = operand.quantize(
+    Decimal::one(precision=finite_precision_for_default(ctx)),
+    work_ctx,
+  )
+  (result, operand_flags.combine(flags))
 }
 
 ///|
@@ -469,11 +512,17 @@ pub fn Decimal::to_integral_value(
           Decimal::zero(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
-      } else if self.exponent10 >= 0 {
+      } else if !ctx.extended && self.exponent10 >= 0 {
         self.apply_ctx(ctx)
       } else {
-        let (value, flags) = self.to_integral_exact(ctx)
-        (value, { ..flags, rounded: false, inexact: false, })
+        let (value, flags) = to_integral_finite(self, ctx)
+        // Only the rounding to an integer is silent; digits lost by a
+        // subset operand are still reported.
+        if flags.lost_digits {
+          (value, flags)
+        } else {
+          (value, { ..flags, rounded: false, inexact: false, })
+        }
       }
   }
 }
