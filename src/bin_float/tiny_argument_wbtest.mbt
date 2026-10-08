@@ -148,3 +148,40 @@ test "BinFloat exp10 and log10 stay exact past 10^4096" {
   assert_eq(logarithm, BinFloat::from_int(5000, precision=12000))
   assert_eq(logarithm_flags, BinaryFlags::new())
 }
+
+///|
+test "BinFloat pow certifies tiny exponents" {
+  let tiny = BinFloat::make(BinCoeff::one(), -16000, 53)
+  let three_tiny = BinFloat::make(BinCoeff::from_uint64(3UL), -20000, 53)
+  let half = BinFloat::make(BinCoeff::one(), -1, 53)
+  // (base, exponent, result above 1)
+  let cases = [
+    (BinFloat::from_int(2), tiny, true),
+    (BinFloat::from_int(2), tiny.neg(), false),
+    (half, tiny, false),
+    (BinFloat::from_int(3), three_tiny, true),
+    (BinFloat::from_int(3), three_tiny.neg(), false),
+  ]
+  let contexts = tiny_contexts(53)
+  for
+    mode in [
+      RoundTiesToEven,
+      RoundTowardNegative,
+      RoundTowardPositive,
+      RoundTowardZero,
+    ] {
+    contexts.push(BinaryContext::binary128(rounding=mode))
+  }
+  for context in contexts {
+    for case in cases {
+      let (base, exponent, above) = case
+      let label = "pow(" + base.to_hex() + ", " + exponent.to_hex() + ")"
+      guard base.try_pow_ctx(exponent, context) is Ok((value, flags)) else {
+        fail(label + " failed to certify")
+      }
+      let one = BinFloat::one(precision=context.precision)
+      assert_eq(value, tiny_expected(one, above, context), msg=label)
+      assert_eq(flags.to_testfloat_bits(), 1, msg=label)
+    }
+  }
+}
