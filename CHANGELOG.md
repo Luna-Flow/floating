@@ -179,6 +179,15 @@ notes live in this file.
   `hypot(1, 2^-600000)` is now 1 (*inexact*). An operand too small to reach a
   rounding breakpoint is replaced by a power of two of the same effect before
   the exact sum of squares is formed.
+- Fixed `BinFloat::rootn` and `pow` for exact roots of coefficients wider than
+  4096 bits (#129). The exact-root check gave up above that width, so at 3001
+  bits `rootn((2^3000 + 1)^2, 2)`, `pow((2^3000 + 1)^2, 0.5)` and
+  `rootn((2^3000 + 1)^3, 3)` returned the root with *inexact* under
+  round-to-nearest and `certification_failure` under the directed modes. The
+  integer root now takes exact square roots for the even part of the degree
+  and integer Newton steps from the root of the leading bits for the odd part,
+  so there is no width limit and wide coefficients no longer cost one power per
+  root bit.
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They

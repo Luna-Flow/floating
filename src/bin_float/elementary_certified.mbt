@@ -2063,6 +2063,62 @@ fn binary_rootn_positive_bounds(
 }
 
 ///|
+/// floor(value^(1 / degree)) for degree >= 2. Small roots are found by
+/// bisection; larger ones by integer Newton steps from an overestimate taken
+/// from the root of the leading bits, which needs a few full-size products and
+/// divisions instead of one power per root bit.
+fn binary_floor_nth_root(value : BinCoeff, degree : Int) -> BinCoeff {
+  let bits = value.bit_length()
+  if bits <= degree {
+    // value < 2^degree, so the root is 0 or 1.
+    return if value.is_zero() { BinCoeff::zero() } else { BinCoeff::one() }
+  }
+  let exponent = degree.reinterpret_as_uint()
+  // The root is below 2^root_bits.
+  let root_bits = (bits + degree - 1) / degree
+  if root_bits <= 64 {
+    let one = BinCoeff::one()
+    let mut lower = BinCoeff::zero()
+    let mut upper = one.shift_left(root_bits)
+    while upper.sub_checked(lower).unwrap().compare(one) > 0 {
+      let midpoint = lower.add(upper).shift_right(1)
+      if midpoint.pow_nat(exponent).compare(value) <= 0 {
+        lower = midpoint
+      } else {
+        upper = midpoint
+      }
+    }
+    return lower
+  }
+  // With high = floor((value >> (degree * half))^(1 / degree)), value is
+  // below ((high + 1) * 2^half)^degree, so that start exceeds the root.
+  let half = root_bits / 2
+  let high = binary_floor_nth_root(value.shift_right(half * degree), degree)
+  let mut root = high.add(BinCoeff::one()).shift_left(half)
+  let previous_degree = BinCoeff::from_uint64((degree - 1).to_uint64())
+  let divisor = BinCoeff::from_uint64(degree.to_uint64())
+  // From any x above the root, y = floor(((degree - 1) x +
+  // floor(value / x^(degree - 1))) / degree) satisfies root <= y < x (AM-GM),
+  // and at x = root the step does not decrease.
+  while true {
+    let quotient = value.div_rem_checked(root.pow_nat(exponent - 1U)).unwrap().0
+    let next = root
+      .mul(previous_degree)
+      .add(quotient)
+      .div_rem_checked(divisor)
+      .unwrap().0
+    if next.compare(root) >= 0 {
+      break
+    }
+    root = next
+  }
+  root
+}
+
+///|
+/// The exact `degree`-th root of `coefficient`, if it is a perfect power. Even
+/// degrees take exact square roots first, which stop at the first nonzero
+/// remainder.
 fn binary_exact_nth_root_coefficient(
   coefficient : BinCoeff,
   degree : Int,
@@ -2073,24 +2129,22 @@ fn binary_exact_nth_root_coefficient(
   }
   // A root r >= 2 has r^degree >= 2^degree, so a coefficient with at most
   // `degree` bits other than 1 is not a perfect power of that degree.
-  guard degree < coefficient.bit_length() && coefficient.bit_length() <= 4096 else {
-    return None
+  guard degree < coefficient.bit_length() else { return None }
+  let mut value = coefficient
+  let mut remaining = degree
+  while remaining % 2 == 0 {
+    let (root, remainder) = bin_coeff_sqrt_rem_kernel(value)
+    guard remainder.is_zero() else { return None }
+    value = root
+    remaining = remaining / 2
   }
-  let root_bits = (coefficient.bit_length() + degree - 1) / degree
-  let mut lower = BinCoeff::zero()
-  let mut upper = BinCoeff::one().shift_left(root_bits)
-  let one = BinCoeff::one()
-  while upper.sub_checked(lower).unwrap().compare(one) > 0 {
-    let midpoint = lower.add(upper).shift_right(1)
-    let power = midpoint.pow_nat(degree.reinterpret_as_uint())
-    if power.compare(coefficient) <= 0 {
-      lower = midpoint
-    } else {
-      upper = midpoint
-    }
+  if remaining == 1 || value.compare(BinCoeff::one()) == 0 {
+    return Some(value)
   }
-  if lower.pow_nat(degree.reinterpret_as_uint()).compare(coefficient) == 0 {
-    Some(lower)
+  guard remaining < value.bit_length() else { return None }
+  let root = binary_floor_nth_root(value, remaining)
+  if root.pow_nat(remaining.reinterpret_as_uint()).compare(value) == 0 {
+    Some(root)
   } else {
     None
   }
