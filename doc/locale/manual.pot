@@ -1010,7 +1010,7 @@ msgstr ""
 #: manual/api/frontend/testfloat_expr.md:293
 #: manual/api/internal.md:429
 #: manual/api/internal/conformance.md:286
-#: manual/api/internal/runner_cli.md:182
+#: manual/api/internal/runner_cli.md:184
 #: manual/api/numeric_expr.md:330
 #: manual/api/semantic.md:340
 msgid "Complete public interface"
@@ -1025,7 +1025,7 @@ msgstr ""
 #: manual/api/frontend/testfloat_expr.md:295
 #: manual/api/internal.md:431
 #: manual/api/internal/conformance.md:288
-#: manual/api/internal/runner_cli.md:184
+#: manual/api/internal/runner_cli.md:186
 #: manual/api/numeric_expr.md:332
 msgid "This snapshot is the generated `pkg.generated.mbti` of the package. It is the authority when prose and interface disagree."
 msgstr ""
@@ -2580,7 +2580,7 @@ msgid "Command line"
 msgstr ""
 
 #: manual/api/cli.md:19
-msgid "selects the runner; required, at most once"
+msgid "selects the runner; required, non-empty, at most once (an empty `--backend=` is an error)"
 msgstr ""
 
 #: manual/api/cli.md:20
@@ -2690,11 +2690,11 @@ msgid "print the usage line and return `2`"
 msgstr ""
 
 #: manual/api/cli/gda_expr_cli.md:29
-msgid "`.decTest` files or directories (direct entries ending in `.decTest`); default `testdata/decimal/smoke.decTest`"
+msgid "`.decTest` files or directories (direct file entries ending in `.decTest`); a named file without that suffix is the error `not a .decTest file: PATH`; default `testdata/decimal/smoke.decTest`"
 msgstr ""
 
 #: manual/api/cli/gda_expr_cli.md:31
-msgid "Any other argument starting with `-` is an error `unknown option: …`. Files are sorted, parsed in order (the first parse diagnostic of a file is printed as `source:line:1: message` and ends the run), and executed together, so row ordinals and shards span all files."
+msgid "Any other argument starting with `-` is an error `unknown option: …`. Files are sorted, each file is run once even if named twice, parsed in order (the first parse diagnostic of a file is printed as `source:line:1: message` and ends the run), and executed together, so row ordinals and shards span all files."
 msgstr ""
 
 #: manual/api/cli/gda_expr_cli.md:36
@@ -6007,66 +6007,66 @@ msgid "`--shard-count N`, `--shard-count=N`, `--shard-index I`, `--shard-index=I
 msgstr ""
 
 #: manual/api/internal/runner_cli.md:49
-msgid "Every other argument is kept, in order, in `remaining()`. Errors: `\"--shard-count requires a value\"` (or `--shard-index`), `\"invalid shard count: X\"` for a non-integer, and the `ShardSpec::try_new` messages when the pair is not valid (count positive, index in `0 ..< count`). Defaults are one shard, index 0, JSON off."
+msgid "Every other argument is kept, in order, in `remaining()`. Errors: `\"--shard-count requires a value\"` (or `--shard-index`) when the value is missing or is another option starting with `--`, `\"invalid shard count: X\"` for a non-integer, and the `ShardSpec::try_new` messages when the pair is not valid (count positive, index in `0 ..< count`). Defaults are one shard, index 0, JSON off."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:57
+#: manual/api/internal/runner_cli.md:58
 msgid "These accessors return the parsed values and a copy of the unconsumed arguments."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:81
+#: manual/api/internal/runner_cli.md:82
 msgid "`parse_int(name, text)` parses a decimal integer for the option `name`."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:87
+#: manual/api/internal/runner_cli.md:88
 msgid "The error is `\"invalid NAME: TEXT\"`."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:89
+#: manual/api/internal/runner_cli.md:90
 msgid "Files"
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:93
+#: manual/api/internal/runner_cli.md:94
 msgid "`read_source(path, label?)` reads a whole UTF-8 file."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:99
+#: manual/api/internal/runner_cli.md:100
 msgid "The error is `\"cannot read LABEL: PATH\"`; `label` defaults to `\"file\"`."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:103
+#: manual/api/internal/runner_cli.md:104
 msgid "`collect_files(paths, suffix)` expands a list of files and directories into the sorted list of files whose names end in `suffix`."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:110
-msgid "A directory contributes its direct entries ending in `suffix` (as `dir + \"/\" + entry`; subdirectories are not searched). A file contributes itself if it ends in `suffix` and is otherwise ignored. The result is sorted in string order, so runs are reproducible across file systems. Errors: `\"path does not exist: P\"`, `\"cannot inspect path: P\"`, `\"cannot read directory: P\"`."
+#: manual/api/internal/runner_cli.md:111
+msgid "A directory contributes its direct entries that are files ending in `suffix` (as `dir + \"/\" + entry`; subdirectories are not searched, even when their names end in `suffix`). A file contributes itself if it ends in `suffix`. The result is sorted in string order, so runs are reproducible across file systems, and each path appears once. Errors: `\"path does not exist: P\"`, `\"not a SUFFIX file: P\"` for a named file without the suffix, `\"cannot inspect path: P\"`, `\"cannot read directory: P\"`."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:117
+#: manual/api/internal/runner_cli.md:119
 msgid "Diagnostics"
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:121
+#: manual/api/internal/runner_cli.md:123
 msgid "These functions format a message as `source:line:column: message`."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:128
+#: manual/api/internal/runner_cli.md:130
 msgid "`format_diagnostic_at(source, line, message, column?)` builds the location with `SourceLocation::new` (column defaults to 1; line and column are clamped to at least 1)."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:142
+#: manual/api/internal/runner_cli.md:144
 msgid "JSON output"
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:146
+#: manual/api/internal/runner_cli.md:148
 msgid "These functions build `Json` values for runner reports."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:156
+#: manual/api/internal/runner_cli.md:158
 msgid "`json_int` stores the integer with its exact decimal representation, so it prints without a fractional part. `json_object` keeps the order of the fields; a repeated key keeps its first position and its last value."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:162
+#: manual/api/internal/runner_cli.md:164
 msgid "`json_stringify(value)` prints a value as compact JSON with escaped strings."
 msgstr ""
 
@@ -7063,7 +7063,7 @@ msgstr ""
 #: manual/design/frontend/testfloat_expr.md:140
 #: manual/design/internal.md:193
 #: manual/design/internal/conformance.md:119
-#: manual/design/internal/runner_cli.md:79
+#: manual/design/internal/runner_cli.md:80
 #: manual/design/numeric_expr.md:192
 #: manual/design/semantic.md:228
 msgid "Boundaries"
@@ -7970,7 +7970,7 @@ msgstr ""
 #: manual/design/frontend/testfloat_expr.md:130
 #: manual/design/internal.md:181
 #: manual/design/internal/conformance.md:109
-#: manual/design/internal/runner_cli.md:70
+#: manual/design/internal/runner_cli.md:71
 #: manual/design/numeric_expr.md:177
 #: manual/design/semantic.md:215
 msgid "Alternatives rejected"
@@ -12703,7 +12703,7 @@ msgid "No check that a result's `passed` bit agrees with its disposition."
 msgstr ""
 
 #: manual/design/internal/conformance.md:125
-#: manual/design/internal/runner_cli.md:84
+#: manual/design/internal/runner_cli.md:85
 msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
 msgstr ""
 
@@ -12768,34 +12768,34 @@ msgid "**Shard validity.** A successful `parse_common_options` always returns `s
 msgstr ""
 
 #: manual/design/internal/runner_cli.md:64
-msgid "**Deterministic file list.** `collect_files(paths, s)` is sorted and contains exactly the existing files named in `paths` that end in `s`, plus the direct entries of named directories that end in `s`."
+msgid "**Deterministic file list.** `collect_files(paths, s)` is sorted, free of duplicates, and contains exactly the files named in `paths` plus the direct file entries of named directories that end in `s`; a named file that does not end in `s` is an error, never dropped."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:67
+#: manual/design/internal/runner_cli.md:68
 msgid "**Diagnostic positions.** `format_diagnostic_at` never prints a line or column below 1."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:72
+#: manual/design/internal/runner_cli.md:73
 msgid "**A generic argument-parsing library.** The runners need four options; a dependency would add more surface than it removes."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:74
+#: manual/design/internal/runner_cli.md:75
 msgid "**Recursive directory walks.** They would pull in unrelated files placed in subdirectories and make the selected corpus implicit."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:76
+#: manual/design/internal/runner_cli.md:77
 msgid "**Free-form text output for tools.** Scripts would have to parse prose; the JSON objects are the stable interface, text output is for humans."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:81
+#: manual/design/internal/runner_cli.md:82
 msgid "No corpus parsing or numeric semantics: frontends own them."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:82
+#: manual/design/internal/runner_cli.md:83
 msgid "No process exit: runners return an exit code; only `cli` calls `exit`."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:83
+#: manual/design/internal/runner_cli.md:84
 msgid "No recursive file search, globbing or encoding detection."
 msgstr ""
 
@@ -15171,7 +15171,7 @@ msgstr ""
 #: manual/tutorial/frontend/testfloat_expr.md:203
 #: manual/tutorial/internal.md:174
 #: manual/tutorial/internal/conformance.md:109
-#: manual/tutorial/internal/runner_cli.md:132
+#: manual/tutorial/internal/runner_cli.md:133
 #: manual/tutorial/numeric_expr.md:260
 #: manual/tutorial/semantic.md:229
 msgid "Next steps"
@@ -17705,22 +17705,22 @@ msgid "**Directories are not searched recursively.** `collect_files` lists only 
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:127
-msgid "**Non-matching files are dropped silently.** A file argument without the suffix is ignored, not reported."
+msgid "**Named files must have the suffix.** A file argument without the suffix is an error (`not a SUFFIX file: P`), so a mistyped name cannot pass as an empty run."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:129
+#: manual/tutorial/internal/runner_cli.md:130
 msgid "**Native only in practice.** File access goes through `moonbitlang/x/fs`; the runners are built and run on the native target."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:134
+#: manual/tutorial/internal/runner_cli.md:135
 msgid "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:135
+#: manual/tutorial/internal/runner_cli.md:136
 msgid "[internal/runner_cli design](../../design/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:136
+#: manual/tutorial/internal/runner_cli.md:137
 msgid "[cli tutorial](../cli.md) for the dispatcher that calls the runners."
 msgstr ""
 
