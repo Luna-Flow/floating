@@ -1,8 +1,8 @@
-# `decimal_gda` Performance
+# decimal_gda performance
 
 <!-- historical-performance-baseline: 0.7.1 -->
 
-## Measurement Boundary
+## Measurement boundary
 
 `just bench decimal-gda --target native` runs the current Maremark suite in
 `src/bench/decimal_gda` and writes `.tmp/bench/decimal-gda.jsonl` plus its
@@ -18,7 +18,7 @@ The Maremark suite measures add, subtract, multiply, divide, FMA, and parse at
 with the full checked path and validates both against the core result before
 reporting layer overhead.
 
-## Reading Results
+## Reading results
 
 `MAREMARK_JSONL` is the raw event stream and `MAREMARK_HOTSPOT` reports paired
 core-versus-checked overhead. The quick fixture additionally records per-
@@ -28,7 +28,7 @@ cross-target threshold or a fixed latency bound.
 
 ## Reproduction
 
-```sh
+```bash
 just bench decimal-gda --target native
 python3 tools/run_gda_benchmark.py
 just bench all --target native
@@ -38,7 +38,7 @@ Use the same target and toolchain when comparing artifacts. Normal benchmark
 tests compile their plans but skip timing, so an explicit benchmark command is
 required for measurement.
 
-## Semantic Gate
+## Semantic gate
 
 The timing path is accepted only alongside the independent GDA state model and
 the pinned legal scalar corpus: 64,986/64,986 current rows and 16,124/16,124

@@ -1,4 +1,4 @@
-# `decimal_gda_checked` tutorial
+# decimal_gda_checked tutorial
 
 This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation
 as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps
@@ -10,13 +10,26 @@ The operations come from [`decimal_gda`](decimal_gda.md); the
 [design page](../design/decimal_gda_checked.md) proves the status and trap laws;
 the [API reference](../api/decimal_gda_checked.md) lists every method.
 
+| I want to | Use |
+| --- | --- |
+| Start a pipeline from text or a value | [`GdaDecimalChecked::parse`, `from_decimal`](#quick-start) |
+| Decide which conditions stop the calculation | [`GdaContext::trap`](#choose-the-traps) |
+| See what the latest step raised and what happened so far | [`raised()`, `status()`](#read-the-sticky-status) |
+| Find the step that trapped | [`is_trapped()`, `trapped_signal()`](#nothing-runs-after-a-trap) |
+| Continue with the defined result after a trap | [`resume_defined()`](#resume-deliberately) |
+| Run an operation that has no pipeline method | [`from_outcome`](#combine-with-the-plain-gda-functions) |
+
 ## Quick start
 
-```sh
+Add the module:
+
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+Import both packages in your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/decimal_gda",
   "Luna-Flow/floating/decimal_gda_checked",
@@ -93,7 +106,7 @@ test "trap inexact results" {
 ### Read the sticky status
 
 `raised()` holds the signals of the latest operation, `status()` every signal
-since the context was created:
+since the context was created or its status was last cleared:
 
 ```moonbit
 ///|

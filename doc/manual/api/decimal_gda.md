@@ -1,5 +1,7 @@
 # decimal_gda API
 
+## Purpose
+
 `decimal_gda` implements the General Decimal Arithmetic Specification (GDA,
 version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length
 decimal coefficient and a decimal exponent; its `GdaContext` carries the
@@ -20,7 +22,24 @@ Throughout, a finite value is written $(-1)^s \cdot c \cdot 10^{e}$ with
 coefficient $c \ge 0$ and exponent $e$; its *adjusted exponent* is
 $\hat e = e + \operatorname{digits}(c) - 1$, the exponent of its leading digit.
 For a context with precision $p$, $E_{\mathrm{tiny}} = e_{\min} - p + 1$ is the
-smallest exponent a result may have.
+smallest exponent a result may have, and with clamping
+$E_{\mathrm{top}} = e_{\max} - p + 1$ is the largest.
+
+## Importing
+
+Add the package to your `moon.pkg`:
+
+```moonbit nocheck
+import {
+  "Luna-Flow/floating/decimal_gda",
+}
+```
+
+The examples on this page call the package through the alias
+`@decimal_gda.`, and the trait adapters through `@lf_arith.` for
+`Luna-Flow/arithmetic`. Several examples define a local helper
+`d(s)`, which parses a literal with `Decimal::from_string` and keeps its
+exponent.
 
 ## The `Decimal` value
 
@@ -133,12 +152,23 @@ pub fn Decimal::from_string(String, precision? : Int) -> Self?
 Accepted syntax is the GDA numeric-string grammar: an optional sign, digits
 with an optional decimal point, an optional exponent `E±n`, or
 `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN
-payload. The exponent is kept exactly, so `from_string("2.50")` has exponent
-$-2$. A literal with more than `precision` (default 34) significant digits is
+payload. The exponent is kept exactly within the limits below, so
+`from_string("2.50")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is
 rounded half to even and its trailing zeros are removed. A malformed literal
 gives `Err(parse_error)` or `None`. Use the package function
 [`parse`](#parse) when the exponent limits, flags, status or traps of a context
 must apply.
+
+> [!WARNING]
+> The exponent field of a literal saturates at $\pm 1\,500\,000\,000$
+> without any error: `from_string("1e1600000000")` returns `1E+1500000000`.
+> Exponents are 32-bit integers, and arithmetic on such values can wrap
+> around: for `x = from_string("1E+1500000000")`, `x * x` prints
+> `1E-1294967296`, and `multiply(x, x, context())` returns `0E-1000000032`
+> with `Underflow` instead of overflowing. The GDA `parse` under a context with
+> $e_{\max} \le 999\,999\,999$ is safe (it overflows to infinity), but a
+> context with a larger $e_{\max}$ accepts the saturated value silently. Keep
+> literal exponents within $\pm 999\,999\,999$, the GDA limit.
 
 ### `Decimal::to_string`, `Decimal::output`
 
@@ -493,8 +523,6 @@ pub(all) enum GdaRoundingMode {
   Up
   ZeroFiveUp
 }
-pub fn GdaRoundingMode::equal(Self, Self) -> Bool
-pub fn GdaRoundingMode::not_equal(Self, Self) -> Bool
 ```
 
 When the exact result lies strictly between two representable neighbours,
@@ -528,8 +556,6 @@ pub(all) enum GdaSignal {
   Clamped
   LostDigits
 }
-pub fn GdaSignal::equal(Self, Self) -> Bool
-pub fn GdaSignal::not_equal(Self, Self) -> Bool
 ```
 
 The GDA signals are `Clamped`, `DivisionByZero`, `Inexact`,
@@ -560,18 +586,26 @@ pub struct GdaFlags {
   clamped : Bool
   lost_digits : Bool
 } derive(Eq)
+```
+
+The fields are public for reading, so `raised().inexact` works; there is no
+public constructor, so sets are built only with `none` and `combine`.
+
+### `GdaFlags::none`, `GdaFlags::contains`, `GdaFlags::combine`
+
+`none` is the empty set, `combine` the field-wise union and `contains` the
+membership test with the GDA invalid-operation grouping.
+
+```mbti
 pub fn GdaFlags::none() -> Self
 pub fn GdaFlags::contains(Self, GdaSignal) -> Bool
 pub fn GdaFlags::combine(Self, Self) -> Self
-pub fn GdaFlags::equal(Self, Self) -> Bool
-pub fn GdaFlags::not_equal(Self, Self) -> Bool
 ```
 
-The fields are read-only; build sets with `none` and `combine` (field-wise
-union). `contains(s)` reads the field for `s`, except that
-`contains(InvalidOperation)` is true when any of `invalid_operation`,
-`conversion_syntax`, `division_impossible`, `division_undefined` or
-`invalid_context` is set.
+`combine` is associative, commutative and idempotent with `none` as identity.
+`contains(s)` reads the field for `s`, except that `contains(InvalidOperation)`
+is true when any of `invalid_operation`, `conversion_syntax`,
+`division_impossible`, `division_undefined` or `invalid_context` is set.
 
 ### `GdaTrapSet`
 
@@ -593,15 +627,22 @@ pub struct GdaTrapSet {
   clamped : Bool
   lost_digits : Bool
 } derive(Eq)
+```
+
+### `GdaTrapSet::none`, `GdaTrapSet::with_signal`, `GdaTrapSet::contains`
+
+These build and query trap sets.
+
+```mbti
 pub fn GdaTrapSet::none() -> Self
 pub fn GdaTrapSet::with_signal(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
-pub fn GdaTrapSet::equal(Self, Self) -> Bool
-pub fn GdaTrapSet::not_equal(Self, Self) -> Bool
 ```
 
-`with_signal(s)` enables one trap (or disables it with `enabled=false`);
-`contains(s)` reads exactly the field for `s`.
+`none` enables no trap. `with_signal(s)` enables one trap (or disables it with
+`enabled=false`); `contains(s)` reads exactly the field for `s`, with no
+invalid-operation grouping. The grouping happens on the raised side, in
+`GdaFlags::contains`.
 
 ### `GdaOutcome`
 
@@ -612,14 +653,23 @@ pub(all) enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
 }
+```
+
+Both variants carry the GDA-defined result, the next context and the
+conditions raised by this operation; `Trapped` also names the trap that fired.
+
+### `GdaOutcome::value`, `GdaOutcome::next_context`, `GdaOutcome::raised`
+
+These read the fields that both variants share, without a `match`.
+
+```mbti
 pub fn[T] GdaOutcome::value(Self[T]) -> T
 pub fn[T] GdaOutcome::next_context(Self[T]) -> GdaContext
 pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 ```
 
-Both variants carry the GDA-defined result, the next context and the
-conditions raised by this operation; `Trapped` also names the trap that fired.
-`value`, `next_context` and `raised` read the common fields without matching.
+`value` is the defined result also for `Trapped`, `next_context` the context
+with the updated status, and `raised` the conditions of this operation only.
 
 ### Trap selection
 
@@ -685,7 +735,8 @@ pub fn parse(String, GdaContext) -> GdaOutcome[Decimal]
 ```
 
 The literal keeps its exponent unless it must be rounded to the precision or
-clamped to the exponent range. Malformed text gives a quiet NaN with
+clamped to the exponent range. Exponents beyond $\pm 1\,500\,000\,000$ saturate first
+(see the warning under [`Decimal::parse`](#decimalparse-decimalfrom_string)). Malformed text gives a quiet NaN with
 `ConversionSyntax`. In subset contexts infinities and NaNs are also a
 conversion-syntax error.
 
@@ -722,8 +773,10 @@ pub fn fma(Decimal, Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 Ideal exponents: $\min(e_1, e_2)$ for `add` and `subtract`; $e_1 + e_2$ for
 `multiply`; $e_1 - e_2$ for `divide` (an inexact quotient has a full
 $p$-digit coefficient); for `fma`, the `add` rule applied to the exact product
-and the addend. An exact zero sum is $+0$, or $-0$ when both operands are
-negative or the mode is `Floor`. Special cases: $\infty - \infty$,
+and the addend. An exact zero sum is $-0$ when both operands (for `subtract`,
+the first operand and the negated second) are negative, $+0$ when both are
+positive, and otherwise $+0$, or $-0$ under `Floor`; so `add(0, -0)` is `0`
+in `HalfEven` and `-0` in `Floor`, while `add(0, 0)` is `0` in every mode. Special cases: $\infty - \infty$,
 $0 \times \infty$ and $\infty / \infty$ are invalid; $x / 0$ is $\pm\infty$
 with `DivisionByZero`; $0 / 0$ is NaN with `DivisionUndefined`;
 $x / \infty$ is a zero with exponent $E_{\mathrm{tiny}}$ and `Clamped`. `fma`
@@ -771,8 +824,10 @@ context mode (raising `Rounded`, and `Inexact` when digits are lost).
 value. The result is invalid when the target exponent lies outside
 $[E_{\mathrm{tiny}}, e_{\max}]$ ($[e_{\min}, e_{\max}]$ in subset contexts),
 when the result coefficient would need more than $p$ digits, or when exactly
-one operand is infinite. Two infinities give the infinity. A quantized result
-never raises `Underflow`.
+one operand is infinite. Two infinities give the infinity. A subnormal result
+raises `Subnormal` (and `Inexact` and `Rounded` when digits are lost) but never
+`Underflow`: in `decimal32`, `quantize(1.55E-100, 1E-101)` is `1.6E-100` with
+`Subnormal`, `Inexact` and `Rounded`.
 
 ### `to_integral_exact`, `to_integral_value`
 
@@ -783,15 +838,21 @@ pub fn to_integral_exact(Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn to_integral_value(Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
-A value with exponent $\ge 0$ is already an integer and is returned
-unchanged, even when it is longer than $p$ digits (a `clamp` context still
-folds its exponent down). A value with negative
-exponent is quantized to exponent 0 at a working precision of
-$\max(p, \text{its digit count})$, as decNumber does, so the integral part is
-never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`.
-`to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and
-`to_integral_value` never does. In a subset context the operand is first
-rounded to $p$ digits, with `LostDigits`, like every other operand.
+A value with negative exponent is quantized to exponent 0; `to_integral_exact`
+raises `Inexact` and `Rounded` when digits are dropped and
+`to_integral_value` never does. A value with exponent $\ge 0$ is passed
+through `apply`, so it is rounded to the context precision if it is longer
+than $p$ digits.
+
+> [!WARNING]
+> Both functions treat an integral part longer than $p$ digits differently
+> from the GDA reference implementation, which never rounds to the precision
+> here. At precision 3, `12345` becomes `1.23E+4` with `Inexact` and
+> `Rounded` (GDA: `12345` unchanged, no flags), and `12345.6` becomes NaN with
+> `InvalidOperation`, because the quantize step refuses a 5-digit coefficient
+> (GDA: `12346`, with `Inexact` and `Rounded` for `to_integral_exact`). The
+> pinned test suite has no such row. Keep the precision at least as large as
+> the number of integer digits.
 
 ### `sqrt`, `exp`, `ln`, `log10`
 
@@ -808,11 +869,14 @@ pub fn log10(Decimal, GdaContext) -> GdaOutcome[Decimal]
 They always round half to even, whatever the context rounding mode. Exact
 results: `sqrt` of a perfect square has the ideal exponent $\lfloor e/2
 \rfloor$; `exp(0) = 1`; `ln(1) = 0`; `log10` of a power of ten $10^k$ is the
-integer $k$. Every other finite result is inexact with $p$ digits. Domain:
-the square root and logarithms of a negative number are invalid,
-$\ln 0 = \log_{10} 0 = -\infty$, $\exp(-\infty) = 0$, and $+\infty$ maps to
-$+\infty$ for all four. `exp`, `ln` and `log10` raise `InvalidContext` unless
-$p$, $e_{\max}$ and $-e_{\min}$ are at most 999,999. If the certified
+integer $k$ (rounded if $k$ has more than $p$ digits). Every other finite
+result is inexact with $p$ digits. Domain: the square root and logarithms of a
+negative number are invalid, $\ln 0 = \log_{10} 0 = -\infty$ (invalid in a
+subset context), $\exp(-\infty) = 0$, and $+\infty$ maps to $+\infty$ for
+all four. `exp`, `ln` and `log10` raise `InvalidContext` unless $p$,
+$e_{\max}$ and $-e_{\min}$ are at most 999,999, and also for a nonzero operand
+with more than 999,999 digits or an adjusted exponent above 999,999 or below
+$-1\,999\,997$. If the certified
 evaluation cannot decide the rounding within its refinement budget the result
 is NaN with `InvalidOperation`. In a subset context, `ln` reproduces the
 result of the classic reference algorithm, which can exceed the correctly
@@ -836,6 +900,17 @@ $y = 0.5$ is computed as a square root under the context rounding mode. The
 same context limits as for `exp` apply to non-integer exponents. Special
 cases follow GDA: $x^0 = 1$ (and $0^0$ is invalid), powers of $\pm\infty$ and
 $\pm 0$ take their sign from the parity of an integer exponent, and $1^y = 1$.
+In a subset context $0^0$ is `1` and $0^{-n}$ is invalid instead of
+$\infty$.
+
+> [!WARNING]
+> A non-integer power whose exact value is representable, such as
+> $4^{1.5} = 8$, is a boundary of the rounding cell in the directed modes
+> (`Down`, `Up`, `Ceiling`, `Floor`), so certification cannot succeed and the
+> refinement loop runs to the end of its budget. On a native debug build
+> `power(4, 1.5)` at precision 5 under `Down` did not return within fifteen
+> minutes, while `HalfEven` returns `8.0000` at once. Some such powers, for
+> example $16^{0.25}$, are recognized early and are fast in every mode.
 
 ### `reduce`
 
@@ -949,7 +1024,10 @@ pub fn min_mag(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 A single quiet NaN is ignored in favour of the number; two quiet NaNs give
 the first; a signaling NaN gives a quiet NaN with `InvalidOperation`. Values
 that compare equal are separated by the total order (so `max(2.5, 2.50)` is
-`2.5`). The selected operand is then rounded to the context as by `plus`.
+`2.5`); in a subset context the first operand is chosen instead. The selected
+operand is then rounded to the context as by `plus`, except that in an
+extended context a zero keeps its sign (`max(-0, -0)` is `-0`, while
+`plus(-0)` is `0`).
 
 ### `class_name`, `is_normal`, `is_subnormal`, `same_quantum`
 
@@ -1129,6 +1207,17 @@ IEEE-style extras it adds (IEEE 754-2019 `minimum`/`maximum`, a choice of
 tininess detection). The [`decimal`](decimal.md) package, not this layer, is
 the supported IEEE 754 implementation.
 
+Each `Decimal` method of this layer whose name ends in `_ctx`, or that takes a
+`DecimalContext` and shares its name with a GDA function, is the status-free
+form of that function: it rounds with the given `DecimalContext` and returns
+`(result, DecimalFlags)`, and the result and flags are exactly those the GDA
+function reports in its outcome. (The GDA functions `parse`, `add`,
+`subtract`, `multiply` and `fma` first try a fast path for small exact integer
+operands; it is taken only when it produces the same value with no flags.)
+The exceptions are `sqrt_ctx`, `exp_ctx`, `ln_ctx` and `log10_ctx`, which the
+GDA functions call with a half-even copy of the context, and the IEEE extras at
+the end of this section, which have no GDA form.
+
 ### `DecimalContext`
 
 `DecimalContext` is a status-free context: precision, two views of the
@@ -1138,38 +1227,77 @@ rounding mode, exponent range, clamp, extended and tininess detection.
 pub struct DecimalContext {
   // private fields
 } derive(Eq)
+```
+
+The fields are private; build contexts with the constructors below and read
+them with the accessors.
+
+### `DecimalContext::new`, `DecimalContext::try_new`
+
+These build a context from explicit parameters.
+
+```mbti
 pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecimalContext::exact() -> Self
-pub fn DecimalContext::decimal32() -> Self
-pub fn DecimalContext::decimal64() -> Self
-pub fn DecimalContext::decimal128() -> Self
-pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
-pub fn DecimalContext::precision(Self) -> Int
-pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
-pub fn DecimalContext::decimal_rounding(Self) -> DecimalRoundingMode
-pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
-pub fn DecimalContext::e_min(Self) -> Int
-pub fn DecimalContext::e_max(Self) -> Int
-pub fn DecimalContext::clamp(Self) -> Bool
-pub fn DecimalContext::extended(Self) -> Bool
-pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
-pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
-pub fn DecimalContext::equal(Self, Self) -> Bool
-pub fn DecimalContext::not_equal(Self, Self) -> Bool
 ```
 
 Defaults are those of `GdaContext::new` with `rounding=ToNearestEven` and
 `tininess=BeforeRounding`. The rounding actually used is `decimal_rounding`,
 which defaults to the translation of `rounding`
 (`DecimalRoundingMode::from_arithmetic`); pass `decimal_rounding` to select
-`HalfUp`, `HalfDown` or `ZeroFiveUp`. `with_rounding` sets both views. `new`
+`HalfUp`, `HalfDown` or `ZeroFiveUp`. If both are passed and disagree,
+`decimal_rounding` wins and `rounding()` keeps reporting the other value. `new`
 aborts and `try_new` returns `Err(domain_error)` for `precision <= 0` or
-`e_min > e_max`. `exact()` is the unbounded-precision context (precision 0):
-results are never rounded. `decimal32`/`64`/`128` match the `GdaContext`
-presets. `from_arithmetic_context` copies precision, rounding, the optional
-exponent bounds (default $\pm 999\,999\,999$) and clamp. The GDA functions
-always use `BeforeRounding` tininess.
+`e_min > e_max`.
+
+### `DecimalContext::exact`, `DecimalContext::decimal32`, `DecimalContext::decimal64`, `DecimalContext::decimal128`, `DecimalContext::from_arithmetic_context`
+
+These return preset contexts or translate an `ArithmeticContext`.
+
+```mbti
+pub fn DecimalContext::exact() -> Self
+pub fn DecimalContext::decimal32() -> Self
+pub fn DecimalContext::decimal64() -> Self
+pub fn DecimalContext::decimal128() -> Self
+pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
+```
+
+`exact()` is the unbounded-precision context (precision 0, exponent range
+$\pm 999\,999\,999$, half-even): results are never rounded to a precision.
+`decimal32`/`64`/`128` match the `GdaContext` presets. `from_arithmetic_context`
+copies precision, rounding, the optional exponent bounds (default
+$\pm 999\,999\,999$) and clamp, and always selects `extended=true` and
+`BeforeRounding`.
+
+### `DecimalContext::precision`, `DecimalContext::rounding`, `DecimalContext::decimal_rounding`, `DecimalContext::e_min`, `DecimalContext::e_max`, `DecimalContext::clamp`, `DecimalContext::extended`, `DecimalContext::tininess`
+
+These read the parameters.
+
+```mbti
+pub fn DecimalContext::precision(Self) -> Int
+pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
+pub fn DecimalContext::decimal_rounding(Self) -> DecimalRoundingMode
+pub fn DecimalContext::e_min(Self) -> Int
+pub fn DecimalContext::e_max(Self) -> Int
+pub fn DecimalContext::clamp(Self) -> Bool
+pub fn DecimalContext::extended(Self) -> Bool
+pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
+```
+
+`precision()` is 0 for `exact()`.
+
+### `DecimalContext::with_rounding`, `DecimalContext::with_tininess`
+
+These return a copy with one parameter replaced.
+
+```mbti
+pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
+pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
+```
+
+`with_rounding` sets both views of the rounding mode, so it cannot select
+`HalfUp`, `HalfDown` or `ZeroFiveUp`. The GDA functions always use
+`BeforeRounding` tininess.
 
 ### `DecimalRoundingMode`
 
@@ -1187,16 +1315,23 @@ pub(all) enum DecimalRoundingMode {
   Up
   ZeroFiveUp
 } derive(Eq)
+```
+
+### `DecimalRoundingMode::from_arithmetic`, `DecimalRoundingMode::to_arithmetic`
+
+These translate between the decimal modes and the five modes of
+`Luna-Flow/arithmetic`.
+
+```mbti
 pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
-pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
-pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 ```
 
 `from_arithmetic` maps `ToNearestEven`, `TowardZero`, `TowardPositive`,
 `TowardNegative`, `AwayFromZero` to `HalfEven`, `Down`, `Ceiling`, `Floor`,
 `Up`; `to_arithmetic` is its inverse and returns `None` for `HalfUp`,
-`HalfDown` and `ZeroFiveUp`.
+`HalfDown` and `ZeroFiveUp`, so `to_arithmetic(from_arithmetic(m)) == Some(m)`
+for every `m`.
 
 ### `DecimalTininessDetection`
 
@@ -1208,17 +1343,25 @@ pub(all) enum DecimalTininessDetection {
   BeforeRounding
   AfterRounding
 } derive(Eq)
-pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
-pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
 ```
 
 `BeforeRounding` tests the adjusted exponent of the exact result against
-$e_{\min}$; `AfterRounding` tests the result rounded to $E_{\mathrm{tiny}}$.
+$e_{\min}$, as GDA does. `AfterRounding` tests the adjusted exponent of the
+result after it has been rounded at $E_{\mathrm{tiny}}$.
 
-### `DecimalSignal`, `DecimalFlags`
+> [!WARNING]
+> `AfterRounding` is not the IEEE 754 after-rounding rule, which rounds to $p$
+> digits with an unbounded exponent range before the test. The two differ for
+> results just below $10^{e_{\min}}$ that round up to $10^{e_{\min}}$ at
+> $E_{\mathrm{tiny}}$ but not at $p$ digits: with $p = 3$ and $e_{\min} = 0$,
+> `0.9951` rounds to `1.00` at $E_{\mathrm{tiny}} = -2$ and is not tiny here,
+> while IEEE rounds it to `0.995` and calls it tiny. Use the
+> [`decimal`](decimal.md) package when IEEE tininess matters.
 
-These are the per-operation condition names and flag set of the status-free
-layer.
+### `DecimalSignal`
+
+`DecimalSignal` names the thirteen conditions of the status-free layer, with
+the same members as `GdaSignal`.
 
 ```mbti
 pub(all) enum DecimalSignal {
@@ -1236,9 +1379,13 @@ pub(all) enum DecimalSignal {
   Clamped
   LostDigits
 } derive(Eq)
-pub fn DecimalSignal::equal(Self, Self) -> Bool
-pub fn DecimalSignal::not_equal(Self, Self) -> Bool
+```
 
+### `DecimalFlags`
+
+`DecimalFlags` is the set of conditions raised by one status-free operation.
+
+```mbti
 pub struct DecimalFlags {
   inexact : Bool
   rounded : Bool
@@ -1254,12 +1401,20 @@ pub struct DecimalFlags {
   division_undefined : Bool
   invalid_context : Bool
 } derive(Eq)
+```
+
+The fields are public for reading. There is no sticky status in this layer:
+each call returns only its own flags.
+
+### `DecimalFlags::new`, `DecimalFlags::combine`, `DecimalFlags::contains`, `DecimalFlags::has_error`
+
+These build and query flag sets.
+
+```mbti
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
-pub fn DecimalFlags::equal(Self, Self) -> Bool
-pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 ```
 
 `new` is the empty set and `combine` the union. Unlike `GdaFlags`,
@@ -1267,58 +1422,116 @@ pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 `invalid_operation` field (the layer sets it together with
 `division_undefined` and `division_impossible`, but not with
 `conversion_syntax` or `invalid_context`). `has_error` is true when any of
-`invalid_operation`, `division_by_zero`, `division_undefined`,
-`division_impossible` or `invalid_context` is set.
+`invalid_operation`, `conversion_syntax`, `division_by_zero`,
+`division_undefined`, `division_impossible` or `invalid_context` is set, so a
+malformed literal read with `Decimal::from_string_ctx` counts as an error.
 
-### Context methods of `Decimal`
+### `Decimal::apply_ctx`, `Decimal::plus_ctx`, `Decimal::minus_ctx`, `Decimal::abs_ctx`
 
-Each method below is the status-free form of the GDA function of the same
-name; it rounds with the given `DecimalContext` and returns
-`(result, DecimalFlags)`.
+These are the forms of [`apply`, `plus`, `minus`, `abs`](#apply-plus-minus-abs).
 
 ```mbti
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::add_ctx`, `Decimal::sub_ctx`, `Decimal::mul_ctx`, `Decimal::div_ctx`, `Decimal::fma_ctx`
+
+These are the forms of
+[`add`, `subtract`, `multiply`, `divide`, `fma`](#add-subtract-multiply-divide-fma),
+including the division defect described there.
+
+```mbti
 pub fn Decimal::add_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sub_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::fma_ctx(Self, Self, Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::divide_integer`, `Decimal::remainder`, `Decimal::remainder_near`
+
+These are the forms of
+[`divide_integer`, `remainder`, `remainder_near`](#divide_integer-remainder-remainder_near).
+
+```mbti
 pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::quantize`, `Decimal::rescale`, `Decimal::to_integral_exact`, `Decimal::to_integral_value`
+
+These are the forms of [`quantize`, `rescale`](#quantize-rescale) and
+[`to_integral_exact`, `to_integral_value`](#to_integral_exact-to_integral_value).
+
+```mbti
 pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::reduce_ctx`, `Decimal::scaleb_ctx`, `Decimal::logb_ctx`
+
+These are the forms of [`reduce`](#reduce) and [`scaleb`, `logb`](#scaleb-logb).
+
+```mbti
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::next_plus`, `Decimal::next_minus`, `Decimal::next_toward`
+
+These are the forms of
+[`next_plus`, `next_minus`, `next_toward`](#next_plus-next_minus-next_toward).
+
+```mbti
 pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::logical_and`, `Decimal::logical_or`, `Decimal::logical_xor`, `Decimal::logical_invert`, `Decimal::shift_ctx`, `Decimal::rotate_ctx`
+
+These are the forms of the
+[logical operations](#logical_and-logical_or-logical_xor-logical_invert) and of
+[`shift`, `rotate`](#shift-rotate).
+
+```mbti
 pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+### `Decimal::compare_ctx`, `Decimal::compare_signal_ctx`, `Decimal::compare_total_ctx`, `Decimal::compare_total_magnitude_ctx`
+
+These are the forms of the
+[GDA comparisons](#compare-compare_signal-compare_total-compare_total_magnitude).
+
+```mbti
 pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::compare_signal_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int, DecimalFlags)
 pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int, DecimalFlags)
+```
+
+### `Decimal::min_ctx`, `Decimal::max_ctx`, `Decimal::min_mag_ctx`, `Decimal::max_mag_ctx`
+
+These are the forms of [`max`, `min`, `max_mag`, `min_mag`](#max-min-max_mag-min_mag).
+
+```mbti
 pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
-
-The results and flags are exactly those the GDA function reports in its
-outcome. (The GDA functions `parse`, `add`, `subtract`, `multiply` and `fma`
-first try a fast path for small exact integer operands; it is taken only when
-it produces the same value with no flags.)
 
 ### `Decimal::sqrt_ctx`, `Decimal::exp_ctx`, `Decimal::ln_ctx`, `Decimal::log10_ctx`, `Decimal::power_ctx`
 
@@ -1334,8 +1547,8 @@ pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 
 Unlike the GDA functions `sqrt`, `exp`, `ln` and `log10`, these methods round
 with the context's own rounding mode (the GDA functions pass them a half-even
-copy of the context). A certification failure gives NaN with
-`invalid_operation`.
+copy of the context); `power_ctx` is exactly the GDA `power`. A certification
+failure gives NaN with `invalid_operation`.
 
 ### `Decimal::try_exp_ctx`, `Decimal::try_ln_ctx`, `Decimal::try_log10_ctx`, `Decimal::try_power_ctx`
 
@@ -1348,8 +1561,8 @@ pub fn Decimal::try_log10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
-When the refinement budget (twelve precision increases) is exhausted without
-certifying the rounding, they return `Err(certification_failure(...))` with
+When the refinement budget (twelve evaluations at growing working precision)
+is exhausted without certifying the rounding, they return `Err(certification_failure(...))` with
 the operation name, target precision, final working precision and refinement
 count. Domain errors are still reported as NaN plus flags inside `Ok`.
 
@@ -1365,7 +1578,7 @@ pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags
 `normalize_ctx` is `reduce_ctx`; `remainder_ctx` is the IEEE remainder, which
 is `remainder_near`.
 
-### `Decimal::minimum_ctx`, `Decimal::maximum_ctx` and their number and magnitude variants
+### `Decimal::minimum_ctx`, `Decimal::maximum_ctx`, `Decimal::minimum_number_ctx`, `Decimal::maximum_number_ctx`, `Decimal::minimum_magnitude_ctx`, `Decimal::maximum_magnitude_ctx`, `Decimal::minimum_number_magnitude_ctx`, `Decimal::maximum_number_magnitude_ctx`
 
 These are the IEEE 754-2019 `minimum`, `maximum`, `minimumNumber`,
 `maximumNumber`, `minimumMagnitude`, `maximumMagnitude`,
@@ -1380,17 +1593,27 @@ pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, Deci
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+The plain variants return the first NaN operand, quieted, when either operand
+is a NaN; the `number` variants return the number when exactly one operand is
+a NaN. A signaling NaN raises `invalid_operation` in both. Values that compare
+equal are separated by the total order (so `maximum_ctx(-0, +0)` is `+0`). The
+selected operand is then rounded to the context. These are not GDA operations
+and have no `GdaContext` form.
+
+### `Decimal::minimum_mag_ctx`, `Decimal::maximum_mag_ctx`, `Decimal::minimum_number_mag_ctx`, `Decimal::maximum_number_mag_ctx`
+
+These are shorter names for the magnitude variants above.
+
+```mbti
 pub fn Decimal::minimum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-The plain variants return a quiet NaN when either operand is a NaN; the
-`number` variants return the number when exactly one operand is a NaN. A
-signaling NaN raises `invalid_operation` in both. Equal values are separated by
-the total order. The `*_mag_ctx` names are aliases of the `*_magnitude_ctx`
-ones. These are not GDA operations and have no `GdaContext` form.
+Each `*_mag_ctx` method is the `*_magnitude_ctx` method of the same prefix.
 
 ```moonbit
 ///|
@@ -1428,13 +1651,18 @@ pub(all) enum GdaInterchangeFormat {
   Decimal64
   Decimal128
 } derive(Eq)
-pub fn GdaInterchangeFormat::context(Self) -> DecimalContext
-pub fn GdaInterchangeFormat::equal(Self, Self) -> Bool
-pub fn GdaInterchangeFormat::not_equal(Self, Self) -> Bool
 ```
 
-`context` returns the matching `DecimalContext` preset (precision 7, 16 or
-34, clamped).
+### `GdaInterchangeFormat::context`
+
+`context` returns the `DecimalContext` preset of the format.
+
+```mbti
+pub fn GdaInterchangeFormat::context(Self) -> DecimalContext
+```
+
+The presets are `DecimalContext::decimal32()`, `decimal64()` and
+`decimal128()`: precision 7, 16 or 34, half-even, clamped.
 
 ### `GdaInterchange`
 
@@ -1445,10 +1673,15 @@ densely packed decimal (DPD) encoding.
 pub struct GdaInterchange {
   // private fields
 }
-pub fn GdaInterchange::format(Self) -> GdaInterchangeFormat
 ```
 
+### `GdaInterchange::format`
+
 `format` returns the format of the pattern.
+
+```mbti
+pub fn GdaInterchange::format(Self) -> GdaInterchangeFormat
+```
 
 ### `GdaInterchange::from_decimal`, `GdaInterchange::to_decimal`, `GdaInterchange::to_decimal_ctx`
 
@@ -1530,9 +1763,43 @@ test "DPD interchange" {
 
 ## Trait implementations
 
-### `Luna-Flow/arithmetic` contextual traits
+### `GdaRoundingMode::equal`, `GdaRoundingMode::not_equal`, `GdaSignal::equal`, `GdaSignal::not_equal`, `GdaFlags::equal`, `GdaFlags::not_equal`, `GdaTrapSet::equal`, `GdaTrapSet::not_equal`, `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalTininessDetection::equal`, `DecimalTininessDetection::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `GdaInterchangeFormat::equal`, `GdaInterchangeFormat::not_equal`
 
-These adapt the status-free layer to `ArithmeticContext`.
+These are the derived `Eq` methods of the enums, flag sets and status-free
+context.
+
+```mbti
+pub fn GdaRoundingMode::equal(Self, Self) -> Bool
+pub fn GdaRoundingMode::not_equal(Self, Self) -> Bool
+pub fn GdaSignal::equal(Self, Self) -> Bool
+pub fn GdaSignal::not_equal(Self, Self) -> Bool
+pub fn GdaFlags::equal(Self, Self) -> Bool
+pub fn GdaFlags::not_equal(Self, Self) -> Bool
+pub fn GdaTrapSet::equal(Self, Self) -> Bool
+pub fn GdaTrapSet::not_equal(Self, Self) -> Bool
+pub fn DecimalContext::equal(Self, Self) -> Bool
+pub fn DecimalContext::not_equal(Self, Self) -> Bool
+pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
+pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
+pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
+pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
+pub fn DecimalSignal::equal(Self, Self) -> Bool
+pub fn DecimalSignal::not_equal(Self, Self) -> Bool
+pub fn DecimalFlags::equal(Self, Self) -> Bool
+pub fn DecimalFlags::not_equal(Self, Self) -> Bool
+pub fn GdaInterchangeFormat::equal(Self, Self) -> Bool
+pub fn GdaInterchangeFormat::not_equal(Self, Self) -> Bool
+```
+
+They compare field by field (or variant by variant), so two contexts are equal
+exactly when all their parameters agree; `GdaContext` has no `Eq`. `Decimal`
+has its own numeric `Eq`, documented under
+[`Decimal::equal`](#decimalequal-decimalnot_equal-decimalop_lt-decimalop_le-decimalop_gt-decimalop_ge).
+
+### `Decimal::add_contextual`, `Decimal::sub_contextual`, `Decimal::mul_contextual`, `Decimal::div_contextual`, `Decimal::abs_contextual`, `Decimal::sqrt_contextual`, `Decimal::exp_contextual`
+
+These implement the `Luna-Flow/arithmetic` contextual traits on top of the
+status-free layer.
 
 ```mbti
 pub fn Decimal::add_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
@@ -1555,11 +1822,22 @@ Each converts the context with `DecimalContext::from_arithmetic_context`,
 calls the `_ctx` method, and returns `Err(division_by_zero)` when
 `division_by_zero` is raised, `Err(domain_error)` for any other error flag,
 and otherwise `Ok` with the value and diagnostics `inexact`, `rounded`,
-`overflow`, `underflow`, `subnormal` and `clamped`.
+`overflow`, `underflow`, `subnormal` and `clamped`. The rounding is one of the
+five `ArithmeticContext` modes, and `sqrt_contextual` and `exp_contextual`
+round with it (not half-even as the GDA functions do).
 
-### `NumericFormatContextual`
+> [!WARNING]
+> `exp_contextual` inherits the GDA range rule for `exp`. An
+> `ArithmeticContext` without explicit exponent bounds translates to
+> $\pm 999\,999\,999$, so `exp_contextual` then always returns
+> `Err(domain_error)`; `ArithmeticContext::new(16)` fails while
+> `ArithmeticContext::decimal64()` works. Pass `e_min` and `e_max` within
+> $\pm 999\,999$.
 
-These describe the number format of an `ArithmeticContext`.
+### `Decimal::zero_contextual`, `Decimal::one_contextual`, `Decimal::epsilon_contextual`, `Decimal::min_normal_contextual`, `Decimal::max_finite_contextual`, `Decimal::classify_contextual`
+
+These implement `NumericFormatContextual`: they describe the number format of
+an `ArithmeticContext`.
 
 ```mbti
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self
@@ -1575,9 +1853,10 @@ pub impl @arithmetic.NumericFormatContextual for Decimal
 `min_normal_contextual` is $10^{e_{\min}}$ and `max_finite_contextual` is
 $(10^p - 1) \cdot 10^{e_{\max} - p + 1}$.
 
-### Checked traits
+### `Decimal::parse_checked`, `Decimal::sqrt_checked`, `Decimal::pow_int_checked`, `Decimal::pow_nat_checked`
 
-These return `Result` instead of flags.
+These implement the checked traits of `Luna-Flow/arithmetic`: they return
+`Result` instead of flags.
 
 ```mbti
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -1591,7 +1870,8 @@ pub impl @arithmetic.PowNatChecked for Decimal
 pub impl @arithmetic.DivChecked for Decimal
 ```
 
-`parse_checked` is `Decimal::parse` at the context precision. `sqrt_checked`
+`parse_checked` is `Decimal::parse` at the context precision; it rounds half
+to even and ignores the context's rounding mode and exponent bounds. `sqrt_checked`
 returns `Err(domain_error)` for negative operands. `pow_int_checked` and
 `pow_nat_checked` call `power_ctx` with an integer exponent; they return
 `Err(division_by_zero)` for a zero base with a negative exponent,
@@ -1600,7 +1880,7 @@ returns `Err(domain_error)` for negative operands. `pow_int_checked` and
 divides under the given context with the same errors as
 [`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt).
 
-### `luna-generic` algebra traits
+### `Decimal::from_nat`, `Decimal::from_integral` and the `luna-generic` algebra traits
 
 These let generic algebra code use `Decimal`.
 
@@ -1627,7 +1907,7 @@ digits. To convert another Luna-Flow integer type, pick its representative with
 the context-free operators; because `+` rounds to the operand precision, the
 ring laws hold exactly only while sums stay within that precision.
 
-### `@def.Floating`, `Show`, `Debug`
+### `Decimal::to_repr` and the `@def.Floating`, `Show` and `Debug` implementations
 
 `Decimal` implements the floating vocabulary of the `def` package, `Show` (see
 [`Decimal::to_string`](#decimalto_string-decimaloutput)) and `Debug`.

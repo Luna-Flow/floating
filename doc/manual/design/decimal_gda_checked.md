@@ -1,4 +1,4 @@
-# `decimal_gda_checked` design
+# decimal_gda_checked design
 
 ## Design goal
 
@@ -93,14 +93,19 @@ $$
 with $f(v, c) = \mathrm{op}(v, \dots, c)$ the `decimal_gda` function, and the
 unit is $\eta(v, c) = \texttt{Completed}(v, c, \varnothing)$. This is the state
 monad over contexts combined with an exception whose payload is the whole
-trapped outcome.[^monads] The laws hold by case analysis exactly as for the
-error monad: left identity $\eta(v, c) \mathbin{>\!\!>\!\!=} f = f(v, c)$ by
-the first equation; right identity because $f = \eta$ maps
-$\texttt{Completed}(v, c, r)$ to $\texttt{Completed}(v, c, \varnothing)$, which
-agrees with the input in value and context (the latest-step flags are a
-per-step observation, reset by every step); associativity because a `Trapped`
-input is returned unchanged by both sides and a `Completed` input reduces both
-sides to $f(v, c) \mathbin{>\!\!>\!\!=} g$.
+trapped outcome.[^monads] Left identity,
+$\eta(v, c) \mathbin{>\!\!>\!\!=} f = f(v, c)$, holds by the first
+equation. Associativity,
+$(x \mathbin{>\!\!>\!\!=} f) \mathbin{>\!\!>\!\!=} g =
+x \mathbin{>\!\!>\!\!=} (\lambda (v, c).\, f(v, c) \mathbin{>\!\!>\!\!=} g)$,
+holds by case analysis on $x$: a `Trapped` input is returned unchanged by both
+sides, and a `Completed` input reduces both sides to
+$f(v, c) \mathbin{>\!\!>\!\!=} g$. Right identity holds only up to the
+latest-step flags: $x \mathbin{>\!\!>\!\!=} \eta$ maps
+$\texttt{Completed}(v, c, r)$ to $\texttt{Completed}(v, c, \varnothing)$,
+which agrees with $x$ in value and context but not in $r$. So the structure is
+a monad on outcomes taken modulo the `raised` field, which is a per-step
+observation that every step overwrites; nothing in the pipeline reads it.
 
 [^monads]: E. Moggi, "Notions of computation and monads", 1991 (state and
     exception monads); P. Wadler, "Monads for functional programming", 1995.
