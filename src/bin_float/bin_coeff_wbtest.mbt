@@ -182,6 +182,32 @@ test "BinCoeff inline binary gcd boundaries" {
 }
 
 ///|
+/// Operands of different lengths used to give the Lehmer loop leading digits
+/// of unrelated scales; this pair (from `ln(1 + 2^-243)` at 245 bits) needed
+/// about 2^220 rounds.
+test "BinCoeff gcd of operands with different lengths" {
+  let odd_big = BigInt::from_string(
+    "2037035976334486086268445688409378161051468393665936250636140449354381299691279112145469441",
+  )
+  let pairs = [
+    (odd_big, 1N << 543),
+    (odd_big << 7, 1N << 543),
+    (odd_big, (1N << 4000) + 3N),
+    ((1N << 600) - 1N, (1N << 300) - 1N),
+    ((1N << 1000) + 1N, (1N << 999) + 7N),
+    ((3N << 700) + 5N, odd_big * odd_big * odd_big),
+  ]
+  for pair in pairs {
+    let (left_big, right_big) = pair
+    let left = bin_coeff_test_from_bigint(left_big)
+    let right = bin_coeff_test_from_bigint(right_big)
+    let expected = bin_coeff_test_bigint_gcd(left_big, right_big)
+    bin_coeff_test_assert_matches(left.gcd(right), expected)
+    bin_coeff_test_assert_matches(right.gcd(left), expected)
+  }
+}
+
+///|
 test "BinCoeff divide-and-conquer radix conversion" {
   let decimal_builder = StringBuilder()
   decimal_builder.write_char('9')

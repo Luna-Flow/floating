@@ -114,6 +114,15 @@ notes live in this file.
   `tanpi_interval` gives `trv` whenever its result is unbounded, which
   includes a pole at an endpoint such as `tanpi([1/2, 1]) = [-inf, 0]`, not only
   an Entire result (#86).
+- Fixed `BinCoeff::gcd` on the non-JS targets, which did not finish for some
+  operands of different lengths: the Lehmer loop took each operand's own top
+  limb as its leading digit, so the quotient estimate ignored the length
+  difference and each round removed only a small multiple of the smaller
+  operand. The leading digits now come from the same bit window, with a
+  division step when the smaller operand has no bits in it. This made
+  `BallFloat::ln_interval` hang for values just above 1 at high precision
+  (`1 + 2^-243` at 245 bits) and `asinh_interval` and `atanh_interval` hang for
+  tiny arguments at 53 bits (#85).
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
