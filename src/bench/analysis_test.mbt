@@ -75,3 +75,45 @@ test "immutable baseline comparison rejects a significant regression" {
   ).unwrap()
   assert_true(@bench.is_significant_regression(comparison))
 }
+
+///|
+test "paired hotspot reports a 95 percent interval" {
+  let baseline = [
+    100.0, 104.0, 98.0, 110.0, 101.0, 97.0, 105.0, 99.0, 103.0, 100.0,
+  ]
+  let candidate = [90.0, 99.0, 91.0, 92.0, 98.0, 88.0, 95.0, 93.0, 90.0, 96.0]
+  let observations = []
+  for block in 0..<baseline.length() {
+    observations.push(observation("base", 0, block, baseline[block]))
+    observations.push(observation("cand", 0, block, candidate[block]))
+  }
+  let hotspot = @bench.paired_hotspot(
+    observations, "mul", 0, "base", "cand", 3.0, 1UL,
+  ).unwrap()
+  let expected = @stats.compare_paired_with_bootstrap(
+    "base",
+    "cand",
+    baseline,
+    candidate,
+    3.0,
+    @model.confirmatory_interval(),
+    1UL,
+    2000,
+    95.0,
+  ).unwrap()
+  assert_eq(hotspot.interval.low, expected.interval.low)
+  assert_eq(hotspot.interval.high, expected.interval.high)
+  assert_true(hotspot.interval.low < hotspot.interval.high)
+}
+
+///|
+test "tune decision counts only the samples behind the median" {
+  let observations = [
+    observation("kernel", 0, 0, 10.0),
+    observation("kernel", 0, 1, -1.0),
+    observation("kernel", 0, 2, 12.0),
+  ]
+  let decision = @bench.tune_dataset(observations, "mul", 0, ["kernel"], 3.0).unwrap()
+  assert_eq(decision.median_us, 11.0)
+  assert_eq(decision.valid_samples, 2)
+}

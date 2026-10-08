@@ -100,10 +100,8 @@ case and dataset, orders them by block id, pairs them by position and calls
 `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's
 `relative_delta_pct` is $100 \cdot \operatorname{med}(c - b) / \operatorname{med}(b)$
 and its `decision` is `Faster`, `Slower` or `Equivalent` relative to
-`practical_delta_pct`. The confidence argument passed is `0.95`, which
-Maremark reads as a percentage, so the reported `interval` is a 0.95 %
-bootstrap interval, not a 95 % one; use `relative_delta_pct` and `decision`,
-or `confirmatory_regression`, when an interval matters. Errors:
+`practical_delta_pct`; its `interval` is the 95 % percentile-bootstrap
+interval of the median paired difference. Errors:
 `MismatchedPairs` when the two implementations have different numbers of
 samples, `EmptySamples` when there are none, `NonFiniteSample`.
 
@@ -162,7 +160,8 @@ pub struct TuneDecision {
 ```
 
 `median_us` is the median per-call time of the chosen candidate and
-`valid_samples` the number of confirmatory observations it was computed from.
+`valid_samples` the number of finite, non-negative confirmatory samples it
+was computed from.
 
 ### `tune_dataset`
 

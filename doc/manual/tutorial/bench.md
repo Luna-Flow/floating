@@ -169,8 +169,6 @@ collects its output.
 - **Pairing needs equal sample counts.** Both implementations of a
   comparison must have the same number of valid confirmatory observations;
   otherwise `paired_hotspot` returns `MismatchedPairs`.
-- **The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a
-  confidence of `0.95` percent; rely on its relative delta and decision.
 
 ## Next steps
 
