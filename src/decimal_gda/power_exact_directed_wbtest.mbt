@@ -41,11 +41,11 @@ test "power decides exact non-integral results in every rounding mode" {
 
 ///|
 test "power rounds an exact result longer than the precision" {
-  // 2.25^1.5 = 3.375 is exact; at two digits it is a
-  // midpoint for the half modes and lies inside a cell for the others.
-  let check = (mode : GdaRoundingMode, expected : String) => {
+  // 2.25^1.5 = 3.375 is exact. At three digits it is the midpoint of
+  // 3.37 and 3.38; at two digits it lies inside the cell (3.3, 3.4).
+  let check = (precision : Int, mode : GdaRoundingMode, expected : String) => {
     let ctx = GdaContext::new(
-      precision=2,
+      precision~,
       rounding=mode,
       e_min=-999_999,
       e_max=999_999,
@@ -56,8 +56,15 @@ test "power rounds an exact result longer than the precision" {
       ctx,
     )
     assert_eq(outcome.value().to_string(), expected)
+    assert_true(outcome.raised().contains(GdaSignal::Inexact))
+    assert_true(outcome.raised().contains(GdaSignal::Rounded))
   }
-  check(GdaRoundingMode::HalfEven, "3.4")
-  check(GdaRoundingMode::Down, "3.3")
-  check(GdaRoundingMode::Up, "3.4")
+  check(3, GdaRoundingMode::HalfEven, "3.38")
+  check(3, GdaRoundingMode::HalfUp, "3.38")
+  check(3, GdaRoundingMode::HalfDown, "3.37")
+  check(3, GdaRoundingMode::Down, "3.37")
+  check(3, GdaRoundingMode::Up, "3.38")
+  check(2, GdaRoundingMode::HalfEven, "3.4")
+  check(2, GdaRoundingMode::Down, "3.3")
+  check(2, GdaRoundingMode::Up, "3.4")
 }
