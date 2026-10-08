@@ -3474,6 +3474,33 @@ pub fn BinFloat::try_acos_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
+  // Without this guard a NaN, an infinity or a finite |x| > 1 reaches the
+  // certified asin bounds below and recurses until the stack overflows.
+  match self.class {
+    FpClass::NaN =>
+      return Ok(
+        (
+          binary_quiet_nan(self, context.precision),
+          if self.signaling_nan {
+            binary_invalid_flags()
+          } else {
+            BinaryFlags::new()
+          },
+        ),
+      )
+    FpClass::Infinity =>
+      return Err(
+        @def.ArithmeticError::domain_error("acos requires an input in [-1, 1]"),
+      )
+    FpClass::Finite =>
+      if self.abs().compare(BinFloat::one(precision=self.precision())) > 0 {
+        return Err(
+          @def.ArithmeticError::domain_error(
+            "acos requires an input in [-1, 1]",
+          ),
+        )
+      }
+  }
   if self.classify() == FpClass::Finite {
     let one = BinFloat::one(precision=self.precision())
     if self.abs().compare(one) == 0 {
