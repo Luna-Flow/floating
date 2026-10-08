@@ -248,6 +248,17 @@ notes live in this file.
   an enclosure. `normalized()` uses the same surrogate but is not affected: it
   keeps the interval's own precision, where the center error always folds the
   surrogate back into the radius.
+- Fixed `BallFloat::normalized`, which rebuilt a bounded interval from its
+  normalized center and radius and so rounded outward a second time:
+  `[1, 1 + 2^-52]` at 53 bits came back as `[1 - 2^-52, 1 + 2^-52]`, breaking
+  the `Floating` law that `normalized` keeps the value. It now normalizes the
+  endpoints themselves. With the `with_precision` fix above, `convex_hull` with
+  an Empty operand and the checked capabilities (`pow_int_checked`,
+  `pow_nat_checked`, `div_checked`) no longer widen representable intervals
+  either (#69).
+- Fixed `BallFloat::pow_nat_checked` and `BallFloatResult::pow_nat`, which
+  returned `{1}` for an Empty base and exponent 0; they now return Empty, like
+  `pown` (#72).
 - Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
   `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
   that flag, a failed parse did not count as an error.
