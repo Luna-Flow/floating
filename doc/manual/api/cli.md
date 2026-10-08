@@ -1,17 +1,60 @@
-# `cli` API Reference
+# cli API
 
-Native executable dispatcher for the repository conformance backends.
+`cli` is the native executable `floating-conformance`. It dispatches its
+arguments to one of the four conformance runners (`gda`, `testfloat`, `mpfr`,
+`itl`) and exits with the runner's code. The package has no public MoonBit
+items; this page documents its command-line interface. The
+[tutorial](../tutorial/cli.md) shows typical invocations and the
+[design page](../design/cli.md) explains the layering.
 
-## Status
+## Command line
 
-This is repository infrastructure, not a stable application API. Its generated declarations are documented for maintainers and integrations inside this module.
+```text
+floating-conformance --backend <gda|testfloat|mpfr|itl> [backend options]
+floating-conformance --help
+```
 
-## Complete Public Interface
+| Argument | Meaning |
+| --- | --- |
+| `--backend NAME`, `--backend=NAME` | selects the runner; required, at most once |
+| `--help`, `-h` | prints the usage line and exits with 0 when reached, even after `--backend` (the runners' own `--help` is therefore not reachable through the dispatcher) |
+| anything else | forwarded, in order, to the runner |
 
-The following snapshot is the complete generated package interface for `0.8.0`. Public declarations are authoritative; prose above groups them by behavior.
+The runner receives the program name followed by the forwarded arguments and
+interprets them as documented in
+[gda_expr_cli](cli/gda_expr_cli.md), [testfloat_expr_cli](cli/testfloat_expr_cli.md),
+[mpfr_expr_cli](cli/mpfr_expr_cli.md) and [itl_expr_cli](cli/itl_expr_cli.md).
+
+## Exit status
+
+| Code | Meaning |
+| --- | --- |
+| `0` | `--help`, or the runner reported success |
+| `1` | the runner found failing cases (or unsupported cases in strict mode) |
+| `2` | a missing, repeated or unknown `--backend`, or a runner usage, file or parse error |
+
+Messages go to standard output.
+
+## Build
+
+The executable is built by the conformance tooling:
+
+```sh
+just conformance build decimal_gda    # or binary, interval
+sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help
+```
+
+`tools/conformance_cli.py` builds `src/cli` once per backend into
+`_build/conformance/<backend>/` and copies it to
+`<backend>-conformance.exe`, so parallel builds for different backends do not
+share a target directory.
+
+## Complete public interface
+
+The package exports no MoonBit items.
 
 <!-- generated-api-start -->
-```moonbit
+```mbti
 // Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/floating/cli"
 

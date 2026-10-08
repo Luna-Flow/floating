@@ -1,25 +1,73 @@
-# `cli` Design
+# cli design
 
-## Responsibility
+## Design goal
 
-Native executable dispatcher for the repository conformance backends.
+Conformance runs are driven by Python tooling that starts many native
+processes in parallel. One executable with a `--backend` switch keeps the
+build simple (one MoonBit package, one link step) while each backend keeps its
+own option syntax. The dispatcher's job is only to choose a runner and turn its
+return value into the process exit status.
 
-## Data Flow
+## Mathematical background
 
-It consumes `--backend`, forwards remaining arguments unchanged, invokes one backend adapter, and converts its return code into process exit status.
+None beyond the runners'. The only contract is functional: the exit status is
+the runner's return value, and the runner's output depends only on its
+arguments and the files it reads (see
+[internal/runner_cli design](internal/runner_cli.md)).
 
-## Algorithms And Invariants
+## Design decisions
 
-Backend names are explicit and dispatch is single-shot; the package owns no corpus grammar or numerical semantics.
+### Three layers
 
-## Failure And Effects
+Parsing and execution of corpora live in pure `frontend/*` packages; argument
+handling, file access and output live in `cli/*_expr_cli` runners, each a
+library with `run(arguments) -> Int`; the process boundary (`@env.args()`,
+`@sys.exit`) lives only in `cli`. Because runners are libraries, their usage
+paths are unit-testable without spawning processes, and the frontends stay
+usable on every target.
 
-Argument parsing and process exit are effects. Parsing, arithmetic, sharding, and summaries remain in imported packages.
+### Forward the program name
 
-## Implementation Trade-offs
+The dispatcher removes `--backend` and its value and forwards
+`[program, rest…]`. Every runner skips element 0, so a runner behaves the
+same when called from the dispatcher, from a test, or (in principle) as its
+own executable.
 
-One executable keeps operator usage uniform, while deliberately exposing only repository verification workflows.
+### One binary, copied per backend
 
-## Stability
+`tools/conformance_cli.py` builds `src/cli` into a backend-specific target
+directory and copies it to `<backend>-conformance.exe`. Parallel builds for
+different backends therefore never share a `_build` directory or lock, and
+tools always invoke an executable whose name says what it runs.
 
-The package is maintained as repository infrastructure. Generated declarations may change with the runners and do not promise downstream compatibility.
+### Dispatcher help wins
+
+`--help` is handled while scanning arguments, before the backend is known, so
+it always prints the dispatcher usage and exits with `0`. This keeps
+`--help` safe to call in any combination; runner options are documented on
+their pages instead.
+
+## Correctness / invariants
+
+- Exactly one runner is called per invocation, or none when the arguments are
+  invalid (exit `2`) or `--help` is given (exit `0`).
+- The exit status equals the runner's return value: `0`, `1` or `2`.
+- Arguments other than `--backend`, its value and `--help`/`-h` reach the
+  runner unchanged and in order.
+
+## Alternatives rejected
+
+- **Four executables.** Four packages with identical `main` functions and four
+  link steps for no behavioural gain.
+- **Subcommands (`floating-conformance gda …`).** A positional backend would
+  collide with runner paths; an explicit option is unambiguous.
+- **Exit codes from runners.** Calling `exit` inside a runner would make it
+  untestable as a library.
+
+## Boundaries
+
+- Native target only (file access through `moonbitlang/x/fs`, exit through
+  `moonbitlang/x/sys`).
+- No corpus download, planning, parallelism or aggregation: those are in
+  `tools/conformance.py` and the `tools/run_*_interpreter.py` scripts.
+- No public MoonBit API.

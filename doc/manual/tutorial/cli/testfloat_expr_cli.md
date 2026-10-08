@@ -1,23 +1,74 @@
-# `cli/testfloat_expr_cli` Tutorial
+# testfloat_expr_cli tutorial
 
-## Quick Start
+This tutorial shows how to execute a Berkeley TestFloat vector file with the
+binary runner. The runner is reached as
+`floating-conformance --backend testfloat`; below, `testfloat` abbreviates that
+command.
 
-Command adapter for Berkeley TestFloat vector files.
+## Quick start
 
-## Workflow
-
-Run the package through the repository wrapper so dependency and target handling match CI:
+Generate vectors with TestFloat's `testfloat_gen` (installed by
+`just conformance fetch binary`) and run them:
 
 ```sh
-sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --backend testfloat --help
+testfloat_gen -level 1 -rnear_even -tininessafter f64_mul > f64_mul.tv
+testfloat --function f64_mul --rounding rnear_even --tininess after f64_mul.tv
 ```
 
-Read failures as repository-maintenance signals; this package is not a standalone end-user product.
+```text
+TestFloat execution summary
+function: f64_mul
+rounding: rnear_even
+tininess: after
+cases: …
+selected cases: …
+passed cases: …
+failed cases: 0
+```
 
-## Failure And Scope
+## Everyday tasks
 
-File access, option parsing, rendering, and exit status are effects isolated at this edge. Do not import this package as a substitute for the numeric packages it supports.
+### Match the generator options
 
-## Next Reading
+Pass the same function, rounding and tininess as the generator, and `--exact`
+when the vectors were generated with `-exact`:
 
-Read [API](../../api/cli/testfloat_expr_cli.md) for the complete generated surface and [Design](../../design/cli/testfloat_expr_cli.md) for ownership and trade-offs.
+```sh
+testfloat_gen -rminMag -exact f32_roundToInt > r.tv
+testfloat --function f32_roundToInt --rounding rminMag --exact r.tv
+```
+
+### Shard a large file
+
+```sh
+testfloat --function f128_mulAdd --shard-count 8 --shard-index 3 --json big.tv
+```
+
+Shard `i` runs the vectors whose index is `i` modulo the shard count.
+
+### JSON for scripts
+
+`--json` prints `function`, `rounding`, `tininess`, `exact`, `totalCases`,
+`selectedCases`, `passedCases`, `failedCases` and `failedIds`
+(`FUNCTION:LINE`).
+
+## Going further
+
+- `just conformance run binary --level 1 --tininess after --tininess before`
+  plans the full matrix, streams `testfloat_gen` output in chunks into
+  temporary files, runs this runner on each chunk, and remaps the line-based
+  ids to global vector numbers.
+- [testfloat_expr tutorial](../frontend/testfloat_expr.md) explains the pass
+  rule.
+
+## Common pitfalls
+
+- **Exactly one file.** A second path is an error.
+- **Rounding defaults to `rnear_even`.** Always pass the generator's mode.
+- **Ids are line numbers of the file you pass.** When you split a stream into
+  chunks, keep track of the offset yourself.
+
+## Next steps
+
+- [testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)
+- [testfloat_expr_cli design](../../design/cli/testfloat_expr_cli.md)

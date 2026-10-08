@@ -1,17 +1,63 @@
-# `cli/testfloat_expr_cli` API Reference
+# cli/testfloat_expr_cli API
 
-Command adapter for Berkeley TestFloat vector files.
+`cli/testfloat_expr_cli` is the command-line runner for Berkeley TestFloat
+vector files. It builds a `TestFloatSpec` from its options, parses one vector
+file with [`frontend/testfloat_expr`](../frontend/testfloat_expr.md),
+executes it against `bin_float` and prints a summary. It is normally reached as
+`floating-conformance --backend testfloat …`. See the
+[tutorial](../../tutorial/cli/testfloat_expr_cli.md) and the
+[design page](../../design/cli/testfloat_expr_cli.md).
 
-## Status
+## `run`
 
-This is repository infrastructure, not a stable application API. Its generated declarations are documented for maintainers and integrations inside this module.
+`run(arguments)` executes one invocation and returns the exit code.
 
-## Complete Public Interface
+```mbti
+pub fn run(Array[String]) -> Int
+```
 
-The following snapshot is the complete generated package interface for `0.8.0`. Public declarations are authoritative; prose above groups them by behavior.
+`arguments[0]` is the program name and is ignored. Options:
+
+| Option | Meaning |
+| --- | --- |
+| `--function NAME` | TestFloat function, for example `f64_mulAdd` (required) |
+| `--rounding NAME` | rounding mode, default `rnear_even` |
+| `--tininess NAME` | `after` (default) or `before` |
+| `--exact` | the `-exact` variant of `roundToInt` and integer conversions |
+| `--json` | print one JSON object instead of text |
+| `--shard-count N`, `--shard-index I` (also `=` forms) | run shard `I` of `N` |
+| `PATH` | exactly one vector file (required) |
+
+The names are interpreted by `TestFloatSpec::parse`. Errors such as
+`--function is required`, `a TestFloat vector path is required`,
+`only one TestFloat vector file is accepted per invocation`, `unknown option:
+…` or an unsupported name are printed and return `2`; so is the first parse
+diagnostic of the file (`source:line:1: message`).
+
+Text output prints the function, rounding, tininess, the counts `cases`,
+`selected cases`, `passed cases`, `failed cases` and one `failed ID: MESSAGE`
+line per failure. JSON output has the keys `function`, `rounding`,
+`tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`,
+`failedCases` and `failedIds`.
+
+Return value: `2` for usage, specification, file or parse errors; `1` when a
+vector failed; `0` otherwise.
+
+```moonbit
+///|
+test "testfloat runner usage errors" {
+  inspect(@testfloat_expr_cli.run(["testfloat", "vectors.tv"]), content="2")
+  inspect(
+    @testfloat_expr_cli.run(["testfloat", "--function", "f64_mul", "--rounding", "rodd", "v.tv"]),
+    content="2",
+  )
+}
+```
+
+## Complete public interface
 
 <!-- generated-api-start -->
-```moonbit
+```mbti
 // Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/floating/cli/testfloat_expr_cli"
 
