@@ -989,7 +989,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 
 #: manual/api/ball_float.md:1491
 #: manual/api/ball_float_checked.md:383
-#: manual/api/bench.md:195
+#: manual/api/bench.md:194
 #: manual/api/bench/ball_float.md:21
 #: manual/api/bench/bin_float.md:23
 #: manual/api/bench/decimal.md:21
@@ -1298,42 +1298,42 @@ msgid "`paired_hotspot(observations, case_id, dataset_id, baseline_id, candidate
 msgstr "`paired_hotspot(observations, case_id, dataset_id, baseline_id, candidate_id, practical_delta_pct, seed)` は 1 つのデータセット上で 2 つの実装を比較します。"
 
 #: manual/api/bench.md:98
-msgid "It selects the valid confirmatory observations of each implementation for the case and dataset, orders them by block id, pairs them by position and calls `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's `relative_delta_pct` is $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ and its `decision` is `Faster`, `Slower` or `Equivalent` relative to `practical_delta_pct`. The confidence argument passed is `0.95`, which Maremark reads as a percentage, so the reported `interval` is a 0.95 % bootstrap interval, not a 95 % one; use `relative_delta_pct` and `decision`, or `confirmatory_regression`, when an interval matters. Errors: `MismatchedPairs` when the two implementations have different numbers of samples, `EmptySamples` when there are none, `NonFiniteSample`."
-msgstr "当該ケースとデータセットについて各実装の有効な確認的観測値を選び、ブロック id 順に並べ、位置でペアにし、2000 回のリサンプリングで `@stats.compare_paired_with_bootstrap` を呼び出します。比較結果の `relative_delta_pct` は $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ であり、`decision` は `practical_delta_pct` に対する `Faster`、`Slower`、`Equivalent` のいずれかです。渡される信頼度の引数は `0.95` ですが、Maremark はこれをパーセントとして解釈するため、報告される `interval` は 95 % ではなく 0.95 % のブートストラップ区間になります。区間が重要な場合は `relative_delta_pct` と `decision`、または `confirmatory_regression` を使ってください。エラー：2 つの実装のサンプル数が異なる場合は `MismatchedPairs`、サンプルがない場合は `EmptySamples`、および `NonFiniteSample`。"
+msgid "It selects the valid confirmatory observations of each implementation for the case and dataset, orders them by block id, pairs them by position and calls `@stats.compare_paired_with_bootstrap` with 2000 resamples. The comparison's `relative_delta_pct` is $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ and its `decision` is `Faster`, `Slower` or `Equivalent` relative to `practical_delta_pct`; its `interval` is the 95 % percentile-bootstrap interval of the median paired difference. Errors: `MismatchedPairs` when the two implementations have different numbers of samples, `EmptySamples` when there are none, `NonFiniteSample`."
+msgstr "当該ケースとデータセットについて各実装の有効な確認的観測値を選び、ブロック id 順に並べ、位置でペアにし、2000 回のリサンプリングで `@stats.compare_paired_with_bootstrap` を呼び出します。比較結果の `relative_delta_pct` は $100 \\cdot \\operatorname{med}(c - b) / \\operatorname{med}(b)$ であり、`decision` は `practical_delta_pct` に対する `Faster`、`Slower`、`Equivalent` のいずれかです。`interval` は対応差の中央値の 95 % パーセンタイル・ブートストラップ区間です。エラー：2 つの実装のサンプル数が異なる場合は `MismatchedPairs`、サンプルがない場合は `EmptySamples`、および `NonFiniteSample`。"
 
-#: manual/api/bench.md:112
+#: manual/api/bench.md:110
 msgid "`confirmatory_regression(baseline, candidate, seed)` compares two paired sample arrays with a 95 % percentile-bootstrap interval."
 msgstr "`confirmatory_regression(baseline, candidate, seed)` は、ペアになった 2 つのサンプル配列を 95 % パーセンタイル・ブートストラップ区間で比較します。"
 
-#: manual/api/bench.md:119
+#: manual/api/bench.md:117
 msgid "The practical threshold is 3 %, the bootstrap uses 10 000 resamples, and the interval is on the median paired difference `candidate[j] - baseline[j]` in the samples' unit. The labels identify the baseline and the current candidate."
 msgstr "実用的な閾値は 3 %、ブートストラップは 10 000 回のリサンプリングを使い、区間はサンプルの単位でのペア差 `candidate[j] - baseline[j]` の中央値に対するものです。ラベルはベースラインと現在の候補を識別します。"
 
-#: manual/api/bench.md:126
+#: manual/api/bench.md:124
 msgid "`is_significant_regression(comparison)` is true when the candidate is practically slower and the interval of the median difference lies entirely above zero."
 msgstr "`is_significant_regression(comparison)` は、候補が実用上遅く、かつ中央値の差の区間が完全にゼロより上にあるとき真になります。"
 
-#: manual/api/bench.md:134
+#: manual/api/bench.md:132
 msgid "That is, `decision` is `Slower` and `interval.low > 0`."
 msgstr "すなわち、`decision` が `Slower` であり、かつ `interval.low > 0` であることです。"
 
-#: manual/api/bench.md:149
+#: manual/api/bench.md:147
 msgid "Auto-tuning"
 msgstr "自動チューニング"
 
-#: manual/api/bench.md:153
+#: manual/api/bench.md:151
 msgid "`TuneDecision` is the implementation chosen for one dataset."
 msgstr "`TuneDecision` は 1 つのデータセットに対して選ばれた実装です。"
 
-#: manual/api/bench.md:164
-msgid "`median_us` is the median per-call time of the chosen candidate and `valid_samples` the number of confirmatory observations it was computed from."
-msgstr "`median_us` は選ばれた候補の 1 回の呼び出しあたりの時間の中央値であり、`valid_samples` はその計算に用いた確認的観測値の数です。"
+#: manual/api/bench.md:162
+msgid "`median_us` is the median per-call time of the chosen candidate and `valid_samples` the number of finite, non-negative confirmatory samples it was computed from."
+msgstr "`median_us` は選ばれた候補の 1 回の呼び出しあたりの時間の中央値であり、`valid_samples` はその計算に用いた有限かつ非負の確認的サンプルの数です。"
 
-#: manual/api/bench.md:169
+#: manual/api/bench.md:168
 msgid "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical_delta_pct)` picks the fastest candidate for one dataset."
 msgstr "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical_delta_pct)` は 1 つのデータセットに対して最速の候補を選びます。"
 
-#: manual/api/bench.md:176
+#: manual/api/bench.md:175
 msgid "For every candidate it takes the valid confirmatory observations of the case and dataset, and scores the candidate by the median of the finite, non-negative samples. Candidates without such samples are invalid. The result is the valid candidate with the smallest median, ties broken by the smaller candidate id; `None` when no candidate is valid. Because the score is used as both the primary and the secondary criterion of `@tune.select_best`, `practical_delta_pct` does not change the choice."
 msgstr "各候補について、当該ケースとデータセットの有効な確認的観測値を取り、有限かつ非負のサンプルの中央値で候補を評価します。そのようなサンプルを持たない候補は無効です。結果は中央値が最小の有効な候補で、同値の場合は候補 id の小さい方が選ばれます。有効な候補がない場合は `None` です。このスコアは `@tune.select_best` の第 1 基準と第 2 基準の両方に使われるため、`practical_delta_pct` は選択に影響しません。"
 
@@ -7056,7 +7056,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/conformance/decimal_gda.md:26
 #: manual/design/ball_float.md:705
 #: manual/design/ball_float_checked.md:157
-#: manual/design/bench.md:208
+#: manual/design/bench.md:204
 #: manual/design/bench/ball_float.md:63
 #: manual/design/bench/bin_float.md:65
 #: manual/design/bench/decimal.md:63
@@ -7890,7 +7890,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 
 #: manual/design/ball_float.md:631
 #: manual/design/ball_float_checked.md:130
-#: manual/design/bench.md:184
+#: manual/design/bench.md:180
 #: manual/design/bench/ball_float.md:47
 #: manual/design/bench/bin_float.md:49
 #: manual/design/bench/decimal.md:47
@@ -7977,7 +7977,7 @@ msgstr "`midpoint_ctx` はコンテキストの $e_{\\max}$ を適用せず、`o
 
 #: manual/design/ball_float.md:686
 #: manual/design/ball_float_checked.md:145
-#: manual/design/bench.md:199
+#: manual/design/bench.md:195
 #: manual/design/bench/ball_float.md:56
 #: manual/design/bench/bin_float.md:58
 #: manual/design/bench/decimal.md:56
@@ -8367,70 +8367,70 @@ msgid "Fixed parameters per use"
 msgstr "用途ごとに固定されたパラメータ"
 
 #: manual/design/bench.md:151
-msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $c = 95\\,\\%$, so a regression gate cannot be weakened by a caller. `paired_hotspot` takes $\\delta$ and the seed from the caller and uses $R = 2000$ for exploratory hotspot reports. It passes the confidence as `0.95`; Maremark interprets the value as a percentage, so the interval it reports is the central 0.95 % of the bootstrap distribution, almost a point at the bootstrap median. The suites only print $\\Delta_{\\%}$ from it, which is unaffected."
-msgstr "`confirmatory_regression` は $\\delta = 3\\,\\%$、$R = 10\\,000$、$c = 95\\,\\%$ に固定されているため、呼び出し側がリグレッションゲートを弱めることはできません。`paired_hotspot` は $\\delta$ とシードを呼び出し側から受け取り、探索的なホットスポットレポート用に $R = 2000$ を用います。信頼水準は `0.95` として渡されますが、Maremark はこの値をパーセントとして解釈するため、報告される区間はブートストラップ分布の中央 0.95 % であり、ほぼブートストラップ中央値の一点になります。スイートはそこから $\\Delta_{\\%}$ のみを表示するので、影響はありません。"
+msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $c = 95\\,\\%$, so a regression gate cannot be weakened by a caller. `paired_hotspot` takes $\\delta$ and the seed from the caller and uses $R = 2000$ and $c = 95\\,\\%$ for exploratory hotspot reports."
+msgstr "`confirmatory_regression` は $\\delta = 3\\,\\%$、$R = 10\\,000$、$c = 95\\,\\%$ に固定されているため、呼び出し側がリグレッションゲートを弱めることはできません。`paired_hotspot` は $\\delta$ とシードを呼び出し側から受け取り、探索的なホットスポットレポート用に $R = 2000$ と $c = 95\\,\\%$ を用います。"
 
-#: manual/design/bench.md:160
+#: manual/design/bench.md:156
 msgid "Auto-tuning by minimum median"
 msgstr "最小中央値による自動チューニング"
 
-#: manual/design/bench.md:162
+#: manual/design/bench.md:158
 msgid "`tune_dataset` scores each candidate by the median of its valid confirmatory samples and returns the one with the smallest median, breaking exact ties by candidate id. The score is passed to `@tune.select_best` as both primary and secondary criterion, so among the candidates within $\\delta$ of the fastest the smallest secondary, which is again the fastest, wins; the practical threshold therefore has no effect on the choice. The crossover between two candidates across scales is computed by Maremark from the per-dataset labels."
 msgstr "`tune_dataset` は各候補を、有効な確認サンプルの中央値で評価し、中央値が最小のものを返します。完全な同点は候補 id で決着します。スコアは主基準と副基準の両方として `@tune.select_best` に渡されるため、最速から $\\delta$ 以内の候補のうち副基準が最小のもの、つまりやはり最速のものが選ばれます。したがって実用上の閾値は選択に影響しません。スケールをまたいだ 2 候補間の交差点は、データセットごとのラベルから Maremark が計算します。"
 
-#: manual/design/bench.md:170
+#: manual/design/bench.md:166
 msgid "Immutable fixtures with an oracle"
 msgstr "オラクル付きの不変フィクスチャ"
 
-#: manual/design/bench.md:172
+#: manual/design/bench.md:168
 msgid "`immutable_bench` generates each input once per scale and checks every output against an independent reference. A faster implementation that computes the wrong result fails the run instead of winning a comparison."
 msgstr "`immutable_bench` は各入力をスケールごとに一度だけ生成し、すべての出力を独立した参照値と照合します。誤った結果を計算する高速な実装は、比較に勝つのではなく実行を失敗させます。"
 
-#: manual/design/bench.md:176
+#: manual/design/bench.md:172
 msgid "Environment as data"
 msgstr "データとしての環境"
 
-#: manual/design/bench.md:178
+#: manual/design/bench.md:174
 msgid "`environment` records the target, profile and a data-type label with every run, and marks what only the outer tool knows (machine, frequency policy, commit) as `external-metadata`. A reader of two artifacts can then tell whether their numbers are comparable; the package itself does not compare runs across environments."
 msgstr "`environment` は各実行についてターゲット、プロファイル、データ型ラベルを記録し、外側のツールだけが知る情報（マシン、周波数ポリシー、コミット）を `external-metadata` として示します。これにより 2 つの成果物を読む人は、その数値が比較可能かどうかを判断できます。パッケージ自体は環境をまたいだ実行の比較は行いません。"
 
-#: manual/design/bench.md:186
+#: manual/design/bench.md:182
 msgid "**Determinism of the reduction.** For fixed observations and seed, `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the same values on every run (sorting by block id, seeded generator, deterministic tie-breaking)."
 msgstr "**集約の決定性。** 観測とシードを固定すれば、`paired_hotspot`、`confirmatory_regression`、`tune_dataset` はどの実行でも同じ値を返します（ブロック id によるソート、シード付き生成器、決定的なタイブレーク）。"
 
-#: manual/design/bench.md:190
+#: manual/design/bench.md:186
 msgid "**Pairing.** Samples are paired by block order. Unequal sample counts are an error (`MismatchedPairs`), never a silent truncation."
 msgstr "**対応付け。** サンプルはブロック順に対応付けられます。サンプル数が異なる場合はエラー（`MismatchedPairs`）であり、黙って切り詰めることはありません。"
 
-#: manual/design/bench.md:192
+#: manual/design/bench.md:188
 msgid "**Interval ordering.** $L \\le U$, because $Q^{*}$ is monotone in its argument and $\\alpha < 1 - \\alpha$ for $c > 0$."
 msgstr "**区間の順序。** $Q^{*}$ は引数について単調であり、$c > 0$ に対して $\\alpha < 1 - \\alpha$ であるため、$L \\le U$ が成り立ちます。"
 
-#: manual/design/bench.md:194
+#: manual/design/bench.md:190
 msgid "**Scale invariance.** Multiplying all samples by a constant $\\lambda > 0$ multiplies $\\operatorname{med}(d)$, $L$ and $U$ by $\\lambda$ and leaves $\\Delta_{\\%}$, the decision and the verdict unchanged, so the unit of time does not matter."
 msgstr "**スケール不変性。** すべてのサンプルに定数 $\\lambda > 0$ を掛けると $\\operatorname{med}(d)$、$L$、$U$ は $\\lambda$ 倍になり、$\\Delta_{\\%}$、判定、評決は変わりません。したがって時間の単位は問題になりません。"
 
-#: manual/design/bench.md:201
+#: manual/design/bench.md:197
 msgid "**Discarding outliers before averaging.** Any fence needs a tuning constant and silently changes the sample; the median makes it unnecessary."
 msgstr "**平均化の前に外れ値を捨てる。** どんなフェンスも調整定数を必要とし、サンプルを暗黙に変えてしまいます。中央値を使えばそれは不要です。"
 
-#: manual/design/bench.md:203
+#: manual/design/bench.md:199
 msgid "**Unpaired comparison of two sample sets.** Drift between the measurement of $B$ and $C$ would enter the difference directly."
 msgstr "**2 つのサンプル集合の非対応比較。** $B$ と $C$ の計測の間のドリフトが、差にそのまま入り込みます。"
 
-#: manual/design/bench.md:205
+#: manual/design/bench.md:201
 msgid "**Normal-theory intervals.** They assume symmetric errors that timing data does not have."
 msgstr "**正規理論に基づく区間。** 計時データにはない対称な誤差を仮定しています。"
 
-#: manual/design/bench.md:210
+#: manual/design/bench.md:206
 msgid "No timing, process control or file output: Maremark's runner and `tools/benchmark.py` do that."
 msgstr "計時、プロセス制御、ファイル出力は行いません。それらは Maremark のランナーと `tools/benchmark.py` が担います。"
 
-#: manual/design/bench.md:212
+#: manual/design/bench.md:208
 msgid "No absolute performance targets; thresholds apply to relative differences."
 msgstr "絶対的な性能目標は設けません。閾値は相対的な差に適用されます。"
 
-#: manual/design/bench.md:213
+#: manual/design/bench.md:209
 msgid "Performance results never change correctness claims, and the benchmarks run only on the native target."
 msgstr "性能の結果が正しさに関する主張を変えることはなく、ベンチマークは native ターゲットでのみ実行されます。"
 
@@ -15233,7 +15233,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 
 #: manual/tutorial/ball_float.md:414
 #: manual/tutorial/ball_float_checked.md:233
-#: manual/tutorial/bench.md:175
+#: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:52
 #: manual/tutorial/bench/bin_float.md:54
 #: manual/tutorial/bench/decimal.md:52
@@ -15517,19 +15517,15 @@ msgstr "**ネイティブのみ。** `tools/benchmark.py` はネイティブタ�
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr "**対応付けにはサンプル数が等しいことが必要です。** 比較する 2 つの実装は、有効な確認用観測値の数が同じでなければなりません。そうでなければ `paired_hotspot` は `MismatchedPairs` を返します。"
 
-#: manual/tutorial/bench.md:172
-msgid "**The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a confidence of `0.95` percent; rely on its relative delta and decision."
-msgstr "**ホットスポットの区間は 95 % 区間ではありません。** `paired_hotspot` は信頼度として `0.95` パーセントを渡しています。その相対差と判定に依拠してください。"
-
-#: manual/tutorial/bench.md:177
+#: manual/tutorial/bench.md:175
 msgid "[bench API](../api/bench.md)"
 msgstr "[bench API](../api/bench.md)"
 
-#: manual/tutorial/bench.md:178
+#: manual/tutorial/bench.md:176
 msgid "[bench design](../design/bench.md)"
 msgstr "[bench の設計](../design/bench.md)"
 
-#: manual/tutorial/bench.md:179
+#: manual/tutorial/bench.md:177
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr "コアごとのスイート：[bin_float](bench/bin_float.md)、[decimal](bench/decimal.md)、[decimal_gda](bench/decimal_gda.md)、[ball_float](bench/ball_float.md)。"
 
@@ -18256,6 +18252,9 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
+
+#~ msgid "**The hotspot interval is not a 95 % interval.** `paired_hotspot` passes a confidence of `0.95` percent; rely on its relative delta and decision."
+#~ msgstr "**ホットスポットの区間は 95 % 区間ではありません。** `paired_hotspot` は信頼度として `0.95` パーセントを渡しています。その相対差と判定に依拠してください。"
 
 #~ msgid "The GDA reference implementation returns such operands unchanged; for example, at precision 3 it maps `12345` to `12345`, while this package returns `1.23E+4` with `Inexact`. The pinned test suite has no such row."
 #~ msgstr "GDA のリファレンス実装はこのようなオペランドをそのまま返します。たとえば精度 3 では `12345` を `12345` に写しますが、このパッケージは `Inexact` 付きで `1.23E+4` を返します。固定されたテストスイートにはそのような行はありません。"
