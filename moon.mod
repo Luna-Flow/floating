@@ -21,10 +21,10 @@ description = "Arbitrary-precision binary, decimal, and ball arithmetic for Moon
 import {
   "Luna-Flow/arithmetic@0.5.0",
   "Luna-Flow/luna-generic@0.3.3",
-  "moonbitlang/x@0.4.46",
+  "moonbitlang/x@0.5.5",
   "Luna-Flow/type_theory@0.2.0",
   "Luna-Flow/mare_mark@0.3.0",
-  "moonbitlang/async@0.20.1",
+  "moonbitlang/async@0.22.4",
 }
 
 source = "src"
