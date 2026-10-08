@@ -1,8 +1,8 @@
-# `decimal` Performance
+# decimal performance
 
 <!-- historical-performance-baseline: 0.7.1 -->
 
-## Measurement Boundary
+## Measurement boundary
 
 `just bench decimal --target native` runs the current Maremark suite in
 `src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis
@@ -19,7 +19,7 @@ digits. Each cell compares a `BigInt` coefficient baseline
 validates every output against an exact `BigInt` reference. Input creation
 and expected-value construction stay outside the timed payload.
 
-## Reading Results
+## Reading results
 
 `MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is
 the paired layer-overhead analysis. Results describe this tree, toolchain, and
@@ -37,7 +37,7 @@ The all-suite run also covers binary, GDA, and interval kernels. It is safe to
 compare artifacts only when the target, toolchain, workload, and benchmark
 protocol are held constant.
 
-## Semantic Gate
+## Semantic gate
 
 Benchmark equivalence checks are necessary but not sufficient. Optimized
 decimal routes must also pass coefficient differential tests and the pinned

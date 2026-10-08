@@ -1,4 +1,4 @@
-# `decimal_checked` tutorial
+# decimal_checked tutorial
 
 This tutorial shows how to run an IEEE decimal calculation as one pipeline that
 remembers every exceptional condition: you fix a `DecimalContext`, start a
@@ -11,13 +11,28 @@ computation, not for the last step. Arithmetic comes from
 the algebra of flag accumulation; the [API reference](../api/decimal_checked.md)
 lists every method.
 
+| I want to | Use |
+| --- | --- |
+| start a pipeline from text or a number | [`DecimalChecked::parse`, `from_int`](#audit-a-price-calculation) |
+| know whether any step rounded | [`flags()`](#find-out-that-an-earlier-step-rounded) |
+| see what only the last step did | [`raised()`](#audit-a-price-calculation) |
+| continue after a division by zero | [flagged values](#keep-going-after-a-division-by-zero) |
+| start a new audit period | [`clear_flags`](#start-a-new-audit-period) |
+| call `ln`, `exp` or `power` in a pipeline | [a bounded context](#elementary-functions-need-a-bounded-context) |
+| use an `ArithmeticContext` | [`from_arithmetic_context`](#start-from-a-luna-flowarithmetic-context) |
+| hand the result to the contextual traits | [`result()`](#hand-the-result-to-the-contextual-traits) |
+
 ## Quick start
 
-```sh
+Add `floating` to your module:
+
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+and import both packages in your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/decimal_checked",
@@ -119,8 +134,8 @@ test "division by zero is a flagged value" {
 
 Decide at the end what the flags mean for your application, for example with
 `DecimalFlags::has_error`, which is true when any of `invalid_operation`,
-`division_by_zero`, `division_impossible`, `division_undefined` or
-`invalid_context` is set.
+`conversion_syntax`, `division_by_zero`, `division_impossible`,
+`division_undefined` or `invalid_context` is set.
 
 ### Start a new audit period
 
@@ -239,7 +254,12 @@ combining the per-step diagnostics.
   also applies to contexts built from an `ArithmeticContext` without
   `e_min` / `e_max`.
 - **Binary sources.** `from_double(0.1, …)` converts the binary value of
-  `0.1` (via 17 digits), not one tenth; parse the string `"0.1"` instead.
+  `0.1` rounded to 17 digits, not one tenth and not the exact binary value
+  (in decimal128 it is `0.10000000000000001`); parse the string `"0.1"`
+  instead.
+- **`remainder` is the IEEE remainder.** It rounds the quotient to the
+  nearest integer, so `1` remainder `0.6` is `-0.2`, not `0.4`.
+- **`atan2` with an infinite operand aborts.** Check `is_infinite()` first.
 - **Operands are plain `Decimal` values.** They are not rounded to the
   context before the operation; the operation rounds the result.
 - **`clear_flags` also works after an error,** but the error stays.

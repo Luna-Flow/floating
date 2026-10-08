@@ -16,7 +16,9 @@ precision, with three properties:
 1. **Every context operation is correctly rounded.** The result is the exact
    mathematical result rounded once, in the selected direction, to the
    context's precision and exponent range — for the basic operations and for
-   the elementary functions alike.
+   the elementary functions alike. The current implementation misses this goal
+   in a few places, all near the underflow threshold or in the elementary
+   functions; they are listed in [known deviations](#known-deviations).
 2. **Nothing is lost silently.** The exponent of a result (its *quantum*), the
    sign of zero, NaN payloads and every exceptional condition are part of the
    returned value or of the returned `DecimalFlags`.
@@ -130,8 +132,9 @@ preferred exponent is attained whenever the exact coefficient fits in $p$
 digits: `1.20 + 3.40 = 4.60` and `1.25 × 2.50 = 3.1250`. For the quotient the
 exact result exists only when $c_a / c_b$ has a finite decimal expansion; it is
 then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 =
-2.00`. An inexact result always uses all $p$ digits, which is the member with
-the smallest exponent. `quantize` makes the exponent an explicit argument, and
+2.00`. An inexact normal result always uses all $p$ digits, which is the
+member with the smallest exponent; an inexact subnormal result ends at
+$E_{\text{tiny}}$. `quantize` makes the exponent an explicit argument, and
 `reduce_ctx`/`normalized` choose the member with the largest exponent.
 
 ```moonbit
@@ -191,7 +194,9 @@ $$
 \operatorname{fl}(x) = x(1 + \delta),\ |\delta| \le u .
 $$
 
-The bound is attained near the bottom of a decade. Near the top, $|x|
+The bound is approached, but not attained, near the bottom of a decade: for
+$x = 10^{e} + \tfrac12\operatorname{ulp}(x)$ the relative error is
+$\tfrac12 10^{1-p}/(1 + \tfrac12 10^{1-p}) < u$. Near the top, $|x|
 \approx 10^{e+1}$, the same absolute error is only $\tfrac12 10^{-p}$ relative.
 The ratio between the worst and the best relative error inside one decade is
 therefore
@@ -248,12 +253,43 @@ change a correctly rounded result.
 
 **Choice.** Every finite context result goes through one finalization routine
 that receives an **exact** result $(s, C, Q)$, with $C$ possibly much longer
-than $p$, and performs, in order: rounding to $p$ digits, the overflow check,
-rounding to the subnormal grid, the subnormal/underflow flags and the
-fold-down. Operation kernels compute exact integers; they never round. The
+than $p$. Operation kernels compute exact integers; they never round. The
 exceptions are operations whose exact result is infinite — division, square
 root, elementary functions — which are described below; each of them still
 decides the last digit from exact information.
+
+A single rounding needs a single target exponent. With
+$D = \operatorname{digits}(C)$, the exact value has adjusted exponent
+$a = Q + D - 1$, and the correctly rounded result has exponent
+
+$$
+t = \max\bigl(a - p + 1,\ E_{\text{tiny}}\bigr),
+$$
+
+the first term keeping $p$ digits for a normal result and the second the
+subnormal grid; the result is $\circ(C\,10^{Q-t})\,10^{t}$, followed by the
+overflow check (on the value rounded to $p$ digits with unbounded exponent),
+the subnormal/underflow flags and the fold-down.
+
+The routine on the current branch does this in two steps instead. If
+$Q < E_{\text{tiny}}$ it first rounds $C$ to the grid $10^{E_{\text{tiny}}}$
+(shift $s_1 = E_{\text{tiny}} - Q$), then drops trailing zeros and rounds the
+result to $p$ digits (shift $s_2 = a - p + 1 - E_{\text{tiny}}$ when that is
+positive). For a subnormal result $s_2 \le 0$ and only the first rounding
+happens, which is correct. For a *normal* result with $Q < E_{\text{tiny}}$
+both shifts are positive, and rounding twice to nearest is not rounding once:
+if the first rounding lands exactly on a midpoint of the second grid, the tie
+rule of the second rounding decides a case the exact value had already
+decided. In decimal32 ($E_{\text{tiny}} = -101$) the product
+$3.000001\cdot 10^{-45} \times 1.500001\cdot 10^{-45} = 4500004500001\cdot
+10^{-102}$ is first rounded to $450000450000\cdot 10^{-101}$ (the dropped
+digit 1 is below half), which is the exact midpoint $4500004.5\cdot
+10^{-96}$; `HalfEven` then gives $4.500004\cdot 10^{-90}$, whereas the exact
+value lies above the midpoint and rounds to $4.500005\cdot 10^{-90}$. The
+directed modes are unaffected: truncating (or rounding up) to a finer grid and
+then to a coarser one is the same as truncating (rounding up) once, because
+$\lfloor\lfloor y\,10^{-s_1}\rfloor 10^{-s_2}\rfloor = \lfloor y\,
+10^{-s_1-s_2}\rfloor$ for every real $y \ge 0$.
 
 #### How the rounding digit and sticky information are obtained
 
@@ -318,16 +354,19 @@ routes, in this order.
    information — so the quotient is rounded once.
 
 The third route is used for normal results in extended contexts. For subnormal
-results and subset contexts the code computes $p + \operatorname{digits}(c_b) +
-2$ digits, rounds them in the context mode, and rounds again to the
-precision and to $E_{\text{tiny}}$. The context-free operator `/` uses that
-same guarded scheme with `HalfEven`. Rounding twice to nearest is not always
-correct: if the first rounding lands exactly on a midpoint of the second, the
-tie rule of the second rounding decides a case the exact value had already
-decided. The scheme is therefore exact in every case except those
-near-midpoints; the operator `/` shows it, for example, for $15/83294$ at five
-digits (`0.00018008` instead of `0.00018009`). `div_ctx` on normal results
-does not have this weakness.
+results and subset contexts the code forms the integer quotient of
+$c_a\,10^{k}$ by $c_b$ with $k = p + \operatorname{digits}(c_b) + 2$ (about
+$\operatorname{digits}(c_a) + p + 2$ digits), rounds it in the context mode,
+and rounds again to the precision and to $E_{\text{tiny}}$. The context-free
+operator `/` uses that same guarded scheme with `HalfEven`. Rounding twice to
+nearest is not always correct, for the reason given above. The scheme is
+therefore exact in every case except those near-midpoints; the operator `/`
+shows it, for example, for $15/83294$ at five digits (`0.00018008` instead of
+`0.00018009`), and `div_ctx` shows it for subnormal quotients: in decimal32,
+$1 / 1.9999999999998\cdot 10^{101} = 5.0000000000005\cdot 10^{-102}$ is
+guarded to $5.000000000\cdot 10^{-102}$, the midpoint between $0$ and
+$10^{-101}$, and `HalfEven` returns `0E-101` instead of `1E-101`. `div_ctx` on
+normal results does not have this weakness.
 
 `ZeroFiveUp` exists precisely to make such two-step schemes safe. If $x$ is
 first rounded with `ZeroFiveUp` to $p + k$ digits ($k \ge 1$) and then with
@@ -335,32 +374,64 @@ any mode $\circ$ to $p$ digits, the result equals $\circ(x)$: an inexact
 `ZeroFiveUp` result ends in a digit other than 0 and 5, so it is never a
 $p$-digit number nor a $p$-digit midpoint, and it lies on the same side of
 every $p$-digit number and midpoint as $x$. The proof is in the
-attachment.[^attachment]
+attachment.[^attachment] The guarded division above does not use it: its first
+rounding is in the context mode. Rounding the guarded quotient with
+`ZeroFiveUp` would make it exact; for the finalizer the simpler repair is to
+round once at the target exponent $t$ derived above.
 
 #### Square root
 
-Let the target exponent be $t = \max(E_{\text{tiny}},\ \lfloor
-\operatorname{adj}(x)/2 \rfloor - p + 1)$ and scale the operand to the integer
-$M = c\,10^{q - 2t}$ (multiplying by 10 first if $q - 2t$ is odd in the
-negative branch). The integer square root $r = \lfloor \sqrt{M} \rfloor$ is
-computed with Newton's iteration on integers,
+Exact roots are detected first: after removing trailing zeros and making the
+exponent even, the operand is $c'\,10^{2m}$, and $\sqrt{x}$ is a decimal if and
+only if the integer $c'$ is a perfect square. Such a root is returned at the
+member closest to the preferred exponent $\lfloor q/2 \rfloor$; if it has more
+than $p$ digits it is rounded like any exact result. For every other operand
+$\sqrt{x} = \sqrt{c'}\,10^{m}$ is irrational.
+
+For the irrational case let the target exponent be $t = \max(E_{\text{tiny}},\
+\lfloor \operatorname{adj}(x)/2 \rfloor - p + 1)$. The root has adjusted
+exponent $\lfloor \operatorname{adj}(x)/2 \rfloor$: from $10^{a} \le x <
+10^{a+1}$ follows $10^{a/2} \le \sqrt x < 10^{(a+1)/2}$, and both for even and
+for odd $a$ the integer part of the exponent is $\lfloor a/2 \rfloor$. So $t$
+leaves $p$ digits, or stops at the subnormal grid. When $q - 2t \ge 0$ the
+operand is scaled to the integer $M = c\,10^{q - 2t}$ and
+$r = \lfloor \sqrt{M} \rfloor$ is the truncated root at exponent $t$. When
+$q - 2t < 0$ the code takes the integer root of $c$ (of $10c$ if $-(q-2t)$ is
+odd) and divides it by $10^{\lceil -(q-2t)/2 \rceil}$; nested floors of a
+positive real by positive integers compose, so this is again
+$\lfloor \sqrt{x}\,10^{-t} \rfloor$. The integer root is computed with
+Newton's iteration on integers,
 
 $$
-a_{k+1} = \left\lfloor \frac{a_k + \lfloor M / a_k \rfloor}{2} \right\rfloor ,
-\qquad a_0 = 10^{\lceil (\operatorname{digits}(M)+1)/2 \rceil} > \sqrt{M},
+a_{k+1} = \left\lfloor \frac{a_k + \lfloor N / a_k \rfloor}{2} \right\rfloor ,
+\qquad a_0 = 10^{\lceil \operatorname{digits}(N)/2 \rceil} > \sqrt{N},
 $$
 
-which decreases strictly while $a_k > \lfloor\sqrt M\rfloor$ (by the AM–GM
-inequality $\tfrac12(a + M/a) \ge \sqrt{M}$, and $a_{k+1} < a_k$ iff $a_k^2 >
-M$) and stops at $\lfloor \sqrt M \rfloor$. The remainder $M - r^2$ is the
-sticky information. The midpoint test is $\sqrt{M} \gtrless r + \tfrac12
-\iff 4M \gtrless (2r+1)^{2}$, and equality is impossible because $4M$ is even
-and $(2r+1)^2$ is odd. **A square root is never exactly halfway**, so
-`HalfEven`, `HalfUp` and `HalfDown` agree on it. Rounding directly at the
-subnormal target exponent avoids rounding twice for tiny roots. Exact roots
-are detected first (the reduced coefficient is a perfect square after making
-the exponent even) and returned at the preferred exponent
-$\lfloor q/2 \rfloor$.
+($N < 10^{\operatorname{digits}(N)}$ gives $\sqrt N < 10^{\operatorname{digits}(N)/2}
+\le a_0$). Because $\lfloor (a + \lfloor y \rfloor)/2 \rfloor = \lfloor (a + y)/2
+\rfloor$ for an integer $a$, the AM–GM inequality $\tfrac12(a + N/a) \ge \sqrt{N}$
+gives $a_{k+1} \ge \lfloor \sqrt N \rfloor$; and $a_{k+1} < a_k$ exactly when
+$a_k^2 > N$. The iterates therefore decrease strictly to
+$\lfloor \sqrt N \rfloor$, where the iteration stops.
+
+Since the root is irrational it is never exact and never a midpoint, so the
+increment decision needs only the comparison $\sqrt{x}\,10^{-t} \gtrless r +
+\tfrac12$, done exactly as $4M \gtrless (2r+1)^2$ (or
+$4c \gtrless (2r+1)^2\,10^{-(q-2t)}$ in the second branch). Rounding directly
+at the subnormal target exponent avoids rounding twice for tiny roots.
+
+A root *can* be exactly halfway when it is exact but longer than $p$ digits:
+$\sqrt{6.25} = 2.5$ at $p = 1$ gives `2` under `HalfEven` and `HalfDown` and
+`3` under `HalfUp`. A halfway root $(r + \tfrac12)10^{t}$ squares to
+$(2r+1)^2\cdot 25 \cdot 10^{2t-2}$, an odd coefficient with at least $2p+1$
+digits when $r$ has $p$ digits ($r \ge 10^{p-1}$ gives $(2r+1)^2 \cdot 25 >
+10^{2p}$). A normal halfway root therefore needs an operand with more than
+$2p$ significant digits, and a subnormal one an operand below the format's
+range. An operand that fits the format (at most $p$ digits, value at least
+$10^{E_{\text{tiny}}}$) has a normal root whenever $e_{\min} \le 1 - p$, as in
+all interchange formats, because $\sqrt{10^{E_{\text{tiny}}}} =
+10^{(e_{\min}-p+1)/2} \ge 10^{e_{\min}}$; for such operands the three half
+modes agree.
 
 [^attachment]: [Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)
 contains the full proofs of the double-rounding lemma, the overflow table, the
@@ -488,7 +559,11 @@ The result must be representable *at that exponent*: the new coefficient must
 have at most $p$ digits, $t$ must lie in $[E_{\text{tiny}}, e_{\max}]$ and the
 result's adjusted exponent must not exceed $e_{\max}$. Otherwise the operation
 is invalid. It never substitutes another exponent, because the exponent is
-the contract (an amount quantized to cents must have two decimal places).
+the contract (an amount quantized to cents must have two decimal places). The
+only change of exponent is the fold-down of [clamping](#clamping): with
+`clamp`, a target $t \in (E_{\text{top}}, e_{\max}]$ is accepted and the
+result is stored at $E_{\text{top}}$ with `clamped`, exactly like any other
+result in that range.
 Rounding a coefficient up can add a digit ($9.99 \to 10.0$ at two digits of
 precision), which is why the digit check comes after rounding.
 `same_quantum` is the predicate $q_x = q_y$ (true for two infinities or two
@@ -593,7 +668,7 @@ input $x$:
    round both with the target context. If both give the same representation
    (`compare_total` equal) and the same flags, return it.
 4. Otherwise increase $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$ and
-   repeat, at most 12 times; then report a certification failure.
+   repeat; after 12 evaluations report a certification failure.
 
 The acceptance test is sound because rounding is monotone:
 $L \le f(x) \le U$ implies $\circ(L) \le \circ(f(x)) \le \circ(U)$, and if the
@@ -608,21 +683,41 @@ The initial working precision is $w_0 = \max(128,\ 4\max(D, p) + 64)$ bits,
 where $D$ is the number of input digits: one decimal digit needs $\log_2 10
 \approx 3.32 < 4$ bits, so $4\max(D,p)$ bits represent the input and the
 target with margin, and 64 bits more cover the loss of the enclosure. The
-schedule grows roughly by a factor $3/2$ per step; after 12 steps the budget is
-about $w_0 \cdot (3/2)^{12} \approx 130\,w_0$ bits.
+schedule grows by a factor of about $3/2$ per step (exactly $w + \lfloor w/2
+\rfloor$ once $w \ge 64$); the 12 evaluations use $w_0, w_1, \ldots, w_{11}$,
+and the last one works with about $w_0 \cdot (3/2)^{11} \approx 86\,w_0$
+bits.
 
-Two kinds of inputs never pass the agreement test and are decided before the
-loop:
+Three kinds of inputs are decided outside the agreement test:
 
-- **Exact results.** If $f(x)$ is a representable decimal, $L < f(x) < U$
-  round to different neighbours in a directed mode, forever. The code
-  detects the exact cases (`exp(0)`, `ln(1)`, $\log_{10} 10^{k}$, integer and
-  half-integer arguments of `sinpi`/`cospi`/`tanpi`, integer arguments of
-  `exp2`/`exp10`, $x^{1/2}$, integer powers, …); `ball_float` returns
-  point intervals for exact binary results such as $\log_2 8 = 3$,
-  $\sqrt[3]{8} = 2$ and $\operatorname{hypot}(3, 4) = 5$. An exact result
-  that neither detects — for example $4^{1.5} = 8$ through `power_ctx` — is
-  not recognised and runs through the whole refinement budget.
+- **Exact results.** If $f(x)$ is a representable decimal and the enclosure
+  is not a point, $L < f(x) < U$ round to different neighbours in a directed
+  mode, forever. In a half mode both endpoints round to $f(x)$ itself, but
+  with `inexact`, so the agreement test *accepts* the right value with wrong
+  flags and with all $p$ digits instead of the preferred exponent: the
+  soundness argument above assumed that $f(x)$ is not representable. The
+  code detects a list of exact cases (`exp(0)`, `ln(1)`, $\log_{10} 10^{k}$,
+  integer and half-integer arguments of `sinpi`/`cospi`/`tanpi`, odd
+  quarter-integers of `tanpi`, `acos(1)`, integer arguments of
+  `exp2`/`exp10`, $x^{1/2}$, integer powers, …); `ball_float` returns point
+  intervals for exact binary results such as $\log_2 8 = 3$, $\log_2 0.125 =
+  -3$, $\sqrt[3]{8} = 2$ and $\operatorname{hypot}(3, 4) = 5$. Exact results
+  that neither recognises fall through: $\operatorname{hypot}(0.3, 0.4) =
+  0.5$, $\sqrt[3]{0.008} = 0.2$ and $0.0016^{0.25} = 0.2$ come back in
+  decimal64 `HalfEven` as `0.5000000000000000` and `0.2000000000000000` with
+  `inexact`, and fail certification in the directed modes; $4^{1.5} = 8$
+  through `power_ctx` exhausts the budget even in `HalfEven`. A complete
+  test would check, before the loop, whether the rounded midpoint of the
+  enclosure is an exact solution (for algebraic functions such as `hypot`,
+  `rootn` and `power` with a rational exponent this is a finite integer
+  computation).
+- **Integer powers** are not certified at all: `power_ctx` with an integral
+  exponent that does not fit in $p$ digits uses the General Decimal
+  Arithmetic square-and-multiply with $p + \operatorname{digits}(n) + 2$
+  working digits, each product rounded, and rounds the final product again.
+  Its error is below one unit in the last place, but the result is not always
+  correctly rounded: $3.339434^3 = 37.240765000\ldots$ is returned in
+  decimal32 as `37.24076`.
 - **Out-of-range results.** An enclosure such as $[0, \text{tiny}]$ has
   endpoints that round with different flags. Any value $\ge 10^{e_{\max}+2}$
   overflows identically, and any non-zero value
@@ -729,13 +824,16 @@ measurements do not show a crossover.
   in the sign bit; `coefficient()` never carries a sign.
 - **Single rounding.** Every context result of `+`, `-`, `×`, `fma`,
   `sqrt`, quantize, the conversions and (for normal results) `/` is the exact
-  result rounded once; elementary results are correctly rounded whenever they
-  are returned, and a failure is reported, never approximated.
+  result rounded once, provided the exact exponent is at least
+  $E_{\text{tiny}}$; certified elementary results are correctly rounded
+  whenever they are returned, and a failure is reported, never approximated.
+  The exceptions are listed under [known deviations](#known-deviations).
 - **Error bound.** For normal results of those operations,
   $\operatorname{fl}(x) = x(1+\delta)$ with $|\delta| \le \tfrac12 10^{1-p}$ in
   the half modes and $|\delta| < 10^{1-p}$ in the directed modes.
 - **Exactness is visible.** `inexact` is raised if and only if the returned
   value differs from the exact result; `rounded` whenever digits were dropped.
+  Undetected exact elementary results violate the "only if" direction.
 - **Cohort preservation.** An exact result that fits is returned at the
   preferred exponent; `quantize` either returns exponent $q_y$ or fails.
 - **Flags.** `combine` is associative, commutative and idempotent with
@@ -748,6 +846,24 @@ measurements do not show a crossover.
   including cohort, sign of zero and NaN payload (DPD).
 - **Complexity.** Comparison, addition, shifts and one-limb division are
   $O(n)$ in limbs; multiplication and division follow the dispatch table.
+
+### Known deviations
+
+These behaviours of the current branch contradict the goals above. Each is
+reproduced in the [API reference](../api/decimal.md) next to the operation.
+
+| Area | Behaviour | Cause |
+| --- | --- | --- |
+| finalization | a normal result whose exact exponent is below $E_{\text{tiny}}$ is rounded twice (half modes) | pre-rounding to the subnormal grid, [above](#round-once-in-one-place) |
+| `div_ctx` | a subnormal quotient is rounded twice (half modes) | guarded quotient rounded in the context mode |
+| elementary functions | undetected exact results carry `inexact` (half modes) or fail certification (directed modes) | the agreement test assumes $f(x)$ is not representable |
+| integer powers | not always correctly rounded when the power needs more than $p$ digits | GDA square-and-multiply with rounded products |
+| `atan2_ctx` | aborts on an infinite operand; $\operatorname{atan2}(\pm 0, -0)$ is an invalid NaN | missing special cases before the enclosure |
+| `cosh_ctx`, `log2_ctx` | $\cosh(-\infty)$ and $\log_2(+\infty)$ are invalid NaNs | missing special cases |
+| `ln_ctx`, `log10_ctx` | $\log(\pm 0) = -\infty$ without `division_by_zero` | follows General Decimal Arithmetic, not IEEE 754 §9.2.1 |
+| `scaleb_ctx` | overflow is $\pm\infty$ in every rounding mode; zero results are not clamped | own finalizer instead of the shared one |
+| parsing | exponents beyond $\pm 1.5\cdot 10^{9}$ are clamped silently | the shared decimal-string splitter caps the exponent |
+| BID NaN | payloads are kept by leading digits of the value's precision | payload written at the value's precision |
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel
@@ -787,6 +903,9 @@ four targets).
 - keep sticky status or traps (use `decimal_checked` or `decimal_gda`);
 - round the context-free operators to a context: `*` is exact, `+` and `/`
   round to the operand precision only, and none applies an exponent range;
+- guarantee correct rounding of integer powers longer than $p$ digits, or the
+  exact flags of exact elementary results it does not recognise (see
+  [known deviations](#known-deviations));
 - guarantee that elementary-function certification succeeds: after the
   refinement budget (which, at its last steps, works with very wide numbers
   and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN

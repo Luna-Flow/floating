@@ -5,19 +5,33 @@ people write them: `0.1 + 0.2` is exactly `0.3`, `12.30` remembers that it
 has two decimal places, and every rounding is chosen by you and reported back
 to you. You will parse and format values, compute under a context and read
 its flags, round money with `quantize`, exchange decimal64 bits, and call
-correctly rounded elementary functions. The mathematics behind each step is in
+certified elementary functions. The mathematics behind each step is in
 the [decimal design](../design/decimal.md); every function is specified in the
 [decimal API](../api/decimal.md).
 
+| I want to | Use |
+| --- | --- |
+| parse an amount and keep its decimal places | [`Decimal::from_string`](#parse-amounts-and-keep-their-scale) |
+| compute with a fixed precision and see what was rounded | [`*_ctx` operations and `DecimalFlags`](#compute-under-a-context-and-keep-the-flags) |
+| round money to cents, half-even or half-up | [`quantize`](#round-money-with-quantize) |
+| get a guaranteed lower and upper bound | [directed rounding](#bound-a-result-from-both-sides) |
+| read or write decimal64 bits (DPD or BID) | [`DecimalInterchange`](#exchange-decimal64-bits) |
+| take a logarithm or an exponential | [`ln_ctx`, `try_ln_ctx`](#call-an-elementary-function) |
+| run generic `Ring` code on decimals | [the algebra traits](#generic-code-over-the-algebra-traits) |
+| sort stored values deterministically | [`compare_total`](#a-deterministic-order-for-storage) |
+| accumulate flags over a long pipeline | [`decimal_checked`](decimal_checked.md) |
+
 ## Quick start
 
-Add `floating` to your module and import the package:
+Add `floating` to your module:
 
-```text
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+and import the package in your `moon.pkg`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/decimal",
 }
@@ -90,7 +104,8 @@ test "decimal64 pipeline with flags" {
 
 `inexact` tells you that $100/3 \cdot 3$ was not computed exactly; it is not
 an error, so `has_error()` stays false. `has_error()` reports invalid
-operations, division by zero, impossible divisions and invalid contexts.
+operations, unparsable text, division by zero, impossible divisions and
+invalid contexts.
 Check the individual flags (`overflow`, `underflow`, `inexact`) when your
 application cares about them.
 
@@ -173,9 +188,10 @@ places. Bits you did not produce yourself may be non-canonical; keep them in a
 
 ### Call an elementary function
 
-Logarithms, exponentials, powers and trigonometric functions are correctly
-rounded in every rounding mode. They need a context with a bounded exponent
-range, such as a format preset:
+Logarithms, exponentials, powers and trigonometric functions are certified:
+the result is the correctly rounded value in every rounding mode, or an
+explicit failure. They need a context with a bounded exponent range, such as a
+format preset:
 
 ```moonbit
 ///|
@@ -293,9 +309,24 @@ test "decimal total order separates cohorts" {
 - **`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal
   to every NaN and greater than every number, so sorting works. Use
   `compare_checked` or `is_nan` when a NaN must be unordered.
-- **`has_error()` is narrow.** It ignores `inexact`, `overflow`, `underflow`
-  and `conversion_syntax`. After `from_string_ctx`, check `conversion_syntax`
-  or `is_nan()` to detect bad text.
+- **`has_error()` is narrow.** It ignores `inexact`, `overflow` and
+  `underflow`. Check those flags yourself when they matter, for example
+  `overflow` after a long product.
+- **Huge exponents in text are capped.** The parsers clamp exponents beyond
+  $\pm 1.5\cdot 10^{9}$ silently (`"1e1600000000"` becomes `1E+1500000000`).
+  Reject such text before parsing if it can reach you.
+- **Exact elementary results may look inexact.** Exact results that the
+  library does not recognise, such as `hypot_ctx(0.3, 0.4) = 0.5`, come back
+  as `0.5000000000000000` with `inexact` in the half modes and fail
+  certification in the directed modes. Integer powers longer than the
+  precision can be one unit in the last place off. See the
+  [API warnings](../api/decimal.md#elementary-functions).
+- **`atan2_ctx` aborts on infinities.** Check `is_infinite()` on both
+  operands first.
+- **Results at the edge of underflow.** In the half rounding modes, a few
+  results just above the smallest normal number, and subnormal quotients, can
+  be one unit in the last place off; see the
+  [context arithmetic warning](../api/decimal.md#context-arithmetic).
 - **Integer exponents are converted at context precision.** `pown_ctx`,
   `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a
   `Decimal` with the context precision, so an exponent with more digits than
