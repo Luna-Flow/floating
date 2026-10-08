@@ -14,7 +14,7 @@ mathematics behind the rounding rules is on the
 Add the module and import the package in your `moon.pkg`:
 
 ```text
-moon add Luna-Flow/floating
+moon add Luna-Flow/floating@0.8.0
 ```
 
 ```text

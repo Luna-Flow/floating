@@ -14,7 +14,7 @@ the [decimal design](../design/decimal.md); every function is specified in the
 Add `floating` to your module and import the package:
 
 ```text
-moon add Luna-Flow/floating
+moon add Luna-Flow/floating@0.8.0
 ```
 
 ```text
