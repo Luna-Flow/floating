@@ -1,6 +1,13 @@
-# `bench/bin_float` Tutorial
+# bench/bin_float tutorial
 
-## Quick Start
+This page shows how to run the binary arithmetic and elementary-function benchmarks and the square auto-tune experiment and how to read their output. The
+suite compares implementation paths on identical inputs with paired
+measurements; see the [bench tutorial](../bench.md) for the toolkit and the
+artifact format.
+
+## Quick start
+
+From the repository root:
 
 ```sh
 just bench bin-float
@@ -8,11 +15,44 @@ just bench elementary
 just bench auto-tune
 ```
 
-## Reading Results
+The runner executes the skipped performance tests of `src/bench/bin_float` on the
+native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all
+observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where
+`SUITE` is the name given to `just bench`.
 
-Use `MAREMARK_JSONL` as the versioned raw artifact, `MAREMARK_HOTSPOT` for paired layer overhead, and `MAREMARK_TUNE` / `MAREMARK_CROSSOVER` for confirmed tuning decisions. Normal tests compile plans but skip timing.
+## Everyday tasks
 
-## Next Reading
+### Read the analysis lines
 
-Read [API](../../api/bench/bin_float.md) for the generated surface and [Design](../../design/bench/bin_float.md) for ownership and invariants.
+The analysis file contains `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment. A `core_pct` value is the median
+paired difference between the core path and the kernel, in percent of the
+kernel's median time; `full_pct` is the same for the checked path against the
+core path. Positive values mean the higher layer is slower.
 
+### Check the plans without measuring
+
+```sh
+sh tools/run_moon_clean_exec.sh test src/bench/bin_float --target native
+```
+
+runs only the plan tests, which compile every specification.
+
+## Going further
+
+- Change datasets or implementations in the `*_test.mbt` files; keep the
+  reference oracle so a faster but wrong path fails the run.
+- Compare two runs only when their recorded environments agree.
+- The [performance audit](../../performance_audit.md) and the `performance/`
+  pages summarize measured results.
+
+## Common pitfalls
+
+- Benchmarks are skipped in normal `moon test` runs; use `just bench`.
+- Results depend on the machine; percentages are more stable than absolute
+  microseconds.
+
+## Next steps
+
+- [bench/bin_float API](../../api/bench/bin_float.md)
+- [bench/bin_float design](../../design/bench/bin_float.md)
+- [bench design](../../design/bench.md) for the statistics.

@@ -1,17 +1,29 @@
-# `bench/decimal_gda` API Reference
+# bench/decimal_gda API
 
-Benchmark-only package for GDA decimal core and checked full paths.
+`bench/decimal_gda` holds the General Decimal Arithmetic benchmarks of `floating`. It is a test-only package: all
+content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit,
+and it exports no MoonBit items. This page records the benchmark cases it
+defines; the [tutorial](../../tutorial/bench/decimal_gda.md) shows how to run them and the
+[design page](../../design/bench/decimal_gda.md) explains the workloads.
 
-## Status
+## Benchmark cases
 
-This is repository performance infrastructure. Only `bench` exposes reusable helpers; datatype subpackages expose no application API.
+| Case | Datasets | Implementations | Protocol |
+| --- | --- | --- | --- |
+| `decimal-gda/add`, `sub`, `mul`, `div`, `fma`, `parse` | 1, 9, 18, 34, 128 digits | `core/gda` (`@decimal_gda.add` and the other functions with an explicit `GdaContext`), `full/checked` (`GdaDecimalChecked`, which threads the sticky context) | `Development` |
 
-## Complete Public Interface
+Every specification has a plan test that runs in normal test runs and checks
+that it compiles (`GDA benchmark plans compile`), and a performance test marked
+`#skip("performance benchmark")` that only `tools/benchmark.py` runs. The
+performance tests stream every observation as a `MAREMARK_JSONL=` line and
+print the reduced results as `MAREMARK_HOTSPOT=decimal-gda/OP/DATASET full_pct=…`.
 
-The snapshot below is the complete generated interface for version `0.8.0`.
+## Complete public interface
+
+The package exports no MoonBit items.
 
 <!-- generated-api-start -->
-```moonbit
+```mbti
 // Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/floating/bench/decimal_gda"
 
@@ -26,4 +38,3 @@ package "Luna-Flow/floating/bench/decimal_gda"
 // Traits
 ```
 <!-- generated-api-end -->
-

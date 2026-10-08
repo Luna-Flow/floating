@@ -1,17 +1,29 @@
-# `bench/decimal` API Reference
+# bench/decimal API
 
-Benchmark-only package for decimal coefficient, core, and checked full paths.
+`bench/decimal` holds the IEEE decimal arithmetic benchmarks of `floating`. It is a test-only package: all
+content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit,
+and it exports no MoonBit items. This page records the benchmark cases it
+defines; the [tutorial](../../tutorial/bench/decimal.md) shows how to run them and the
+[design page](../../design/bench/decimal.md) explains the workloads.
 
-## Status
+## Benchmark cases
 
-This is repository performance infrastructure. Only `bench` exposes reusable helpers; datatype subpackages expose no application API.
+| Case | Datasets | Implementations | Protocol |
+| --- | --- | --- | --- |
+| `decimal/add`, `decimal/mul`, `decimal/div` | 9, 34, 128, 512 digits | `kernel/coefficient` (`BigInt`), `core/decimal` (`Decimal::add_ctx`, `mul_ctx`, `div_ctx`), `full/checked` (`DecimalChecked`) | `Development` |
 
-## Complete Public Interface
+Every specification has a plan test that runs in normal test runs and checks
+that it compiles (`decimal benchmark plans compile`), and a performance test marked
+`#skip("performance benchmark")` that only `tools/benchmark.py` runs. The
+performance tests stream every observation as a `MAREMARK_JSONL=` line and
+print the reduced results as `MAREMARK_HOTSPOT=decimal/OP/DATASET core_pct=… full_pct=…`.
 
-The snapshot below is the complete generated interface for version `0.8.0`.
+## Complete public interface
+
+The package exports no MoonBit items.
 
 <!-- generated-api-start -->
-```moonbit
+```mbti
 // Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/floating/bench/decimal"
 
@@ -26,4 +38,3 @@ package "Luna-Flow/floating/bench/decimal"
 // Traits
 ```
 <!-- generated-api-end -->
-
