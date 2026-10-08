@@ -211,6 +211,35 @@ test "BinFloat inverse trigonometric functions preserve domains" {
 }
 
 ///|
+test "BinFloat acos rejects inputs outside its domain instead of recursing" {
+  let context = BinaryContext::binary64()
+  // Each of these used to recurse through the certified asin bounds until the
+  // stack overflowed (SIGSEGV on native, RangeError on wasm-gc).
+  for
+    value in [
+      BinFloat::from_int(2),
+      BinFloat::from_int(2).neg(),
+      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(Sign::Negative),
+    ] {
+    match value.try_acos_ctx(context) {
+      Ok(_) => assert_true(false)
+      Err(error) => assert_true(error.is_domain_error())
+    }
+    assert_true(value.acos().classify() == FpClass::NaN)
+  }
+  let quiet = BinFloat::nan(precision=53)
+  assert_true(quiet.acos().classify() == FpClass::NaN)
+  match quiet.try_acos_ctx(context) {
+    Ok((result, flags)) => {
+      assert_true(result.classify() == FpClass::NaN)
+      assert_true(flags.invalid_operation() == false)
+    }
+    Err(_) => assert_true(false)
+  }
+}
+
+///|
 test "BinFloat inverse trigonometric half-angle reduction reaches its certified series domain" {
   let context = BinaryContext::binary32()
   let small_negative = BinFloat::make(
