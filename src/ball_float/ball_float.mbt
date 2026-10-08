@@ -861,10 +861,9 @@ pub fn BallFloat::try_exact(
 
 ///|
 pub fn BallFloat::from_int(n : Int, precision? : Int = 16) -> BallFloat {
-  BallFloat::exact(
-    @bin_float.BinFloat::from_int(n, precision=Int::max(precision, 8)),
-    precision~,
-  )
+  // Build the integer exactly and let the interval round outward. Rounding it
+  // to `precision` first produced a singleton that excluded its own input.
+  BallFloat::exact(@bin_float.BinFloat::from_int(n, precision=32), precision~)
 }
 
 ///|
@@ -873,10 +872,12 @@ pub fn BallFloat::from_coefficient(
   precision? : Int = 16,
   negative? : Bool = false,
 ) -> BallFloat {
+  // As in `from_int`: keep the coefficient exact and round the interval
+  // outward, so the result always contains the requested value.
   BallFloat::exact(
     @bin_float.BinFloat::from_coefficient(
       coefficient,
-      precision=Int::max(precision, 8),
+      precision=Int::max(1, coefficient.bit_length()),
       negative~,
     ),
     precision~,
