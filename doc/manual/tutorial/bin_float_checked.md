@@ -1,4 +1,4 @@
-# `bin_float_checked` tutorial
+# bin_float_checked tutorial
 
 This tutorial shows how to write a binary floating-point computation in which
 every step that can fail is checked, without unwrapping a `Result` after each
@@ -8,16 +8,32 @@ end. The wrapper delegates all arithmetic to [`bin_float`](bin_float.md). The
 formal model is in the [design page](../design/bin_float_checked.md); every
 method is listed in the [API reference](../api/bin_float_checked.md).
 
+| I want to | Use |
+| --- | --- |
+| start a checked computation from a number | [`BinFloatResult::from_int`, `from_double`, `ok`](#quick-start) |
+| write a formula with `+`, `-`, `*`, `/` | [operators on wrappers](#write-formulas-with-operators) |
+| add my own validation step | [`BinFloatResult::bind`](#add-your-own-checks-with-bind) |
+| round to a given precision or IEEE format | [the `_ctx` methods](#control-precision-and-rounding-with-a-context) |
+| tell a domain error from a certification failure | [`ArithmeticError` predicates](#tell-domain-errors-from-certification-failures) |
+| feed a generic checked function into a pipeline | [`BinFloatResult::from_result`](#generic-code-over-luna-flowarithmetic-traits) |
+| keep the IEEE flags as well | [the `bin_float` `*_ctx` operations](#keep-ieee-flags-when-they-matter) |
+
 ## Quick start
 
-```sh
+Add the module:
+
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+Import the wrapper and `bin_float` in your `moon.pkg` (the examples also use
+`Luna-Flow/arithmetic` as `@lf_arith`):
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/bin_float_checked",
+  "Luna-Flow/arithmetic" @lf_arith,
 }
 ```
 
@@ -236,6 +252,10 @@ test "carry flags next to the wrapper" {
 - **Precision of mixed operands.** Binary operations use the larger operand
   precision; `from_float` defaults to 24 bits, so mixing it with
   `from_double` values gives 53-bit results.
+- **Operands are always evaluated.** The wrapper skips the *operation* after
+  an error, but MoonBit evaluates every argument first, so in `a + f(b)` the
+  call `f(b)` runs even when `a` is an error. Put expensive steps behind
+  `bind` when they should be skipped.
 - **`flat_map` is deprecated.** Use `bind`.
 
 ## Next steps

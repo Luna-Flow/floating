@@ -1,10 +1,10 @@
-# `bin_float` Conformance
+# bin_float conformance
 
 This page records the `0.8.0` binary floating-point semantic and test
 boundary. It is evidence for a stated, finite corpus; it is not a proof that
 any implementation can be correct for every real input.
 
-## Normative And Research Sources
+## Normative and research sources
 
 - IEEE, *IEEE Standard for Floating-Point Arithmetic*, IEEE 754-2019:
   interchange formats, rounding-direction attributes, NaNs/infinities/signed
@@ -17,7 +17,7 @@ any implementation can be correct for every real input.
   and [TestFloat](https://www.jhauser.us/arithmetic/TestFloat.html), release
   3e, provide the independently generated IEEE result/flag vectors.
 
-## Mathematical Model
+## Mathematical model
 
 A finite nonzero `BinFloat` denotes the dyadic real
 
@@ -36,8 +36,9 @@ For `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, and `pow_int_ctx`:
    root uses an exact integer square root and an exact comparison with the
    rounding midpoint; integer powers certify a directed enclosure (Ziv loop)
    and fall back to the exact power when certification does not succeed.
-3. The exact result is rounded once to the requested precision and rounding
-   direction, then exponent-range/subnormal quantization is applied.
+3. The exact result is rounded once, in the requested direction, directly to
+   the coarser of the precision grid and the subnormal grid of the exponent
+   range (no double rounding); overflow is then decided on the rounded value.
 4. The returned `BinaryFlags` is derived from that mathematical result:
    inexact, underflow, overflow, division-by-zero, and invalid-operation.
 
@@ -49,7 +50,7 @@ interchange encoding.
 No operation branches on test identifiers, test values, or corpus format.
 The corpus interpreter is an adapter around the public contextual operations.
 
-## Interchange And Context
+## Interchange and context
 
 `BinaryInterchange` decodes and encodes IEEE binary16, binary32, binary64, and
 binary128 bit patterns. `BinaryContext` carries precision, rounding direction,
@@ -63,7 +64,7 @@ bits and all exception bits must match exactly. It reflects IEEE's permitted
 choice of a newly generated NaN payload. The implementation itself preserves
 the selected input NaN's sign/payload and quiets signaling NaNs.
 
-## Declared Corpus And Results
+## Declared corpus and results
 
 The pinned full gate is documented in
 [`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md).
@@ -88,11 +89,7 @@ is an optional stress suite and is not included in the result claim above.
 The 966,744-row MPFR run is likewise optional generated stress evidence; the
 2,088-row hash-pinned fixture remains the reproducible release boundary.
 
-## Scope Of The Claim
-
-## Stability Of The Evidence
-
-The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle.
+## Scope of the claim
 
 The results cover contextual add, subtract, multiply, divide, square root,
 fused multiply-add, remainder, roundToIntegral (plain and exact),
@@ -110,5 +107,16 @@ nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end`
 protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a
 general elementary function.
 
-Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full
-pinned gate.
+The fixed-seed elementary inputs do not include the inputs on which the
+package is known to deviate: very tiny arguments of `exp`, `expm1`, `exp2`,
+`sin` and `atan`, exact results that the elementary functions do not filter
+(such as $16^{3/4}$ or $\operatorname{rootn}(8, -3)$), the signed-zero cases
+of `atan2`, and the IEEE `pow` special cases that `pow` rejects. They are
+listed in the [API reference](../api/bin_float.md#elementary-functions).
+
+## Stability of the evidence
+
+The pinned matrix is the release evidence boundary; adding a new operation
+requires a new corpus contract and independent oracle. Run
+`just conformance smoke binary` for the checked-in gate and `just gate binary`
+for the full pinned gate.

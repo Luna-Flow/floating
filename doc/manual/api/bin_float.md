@@ -1,5 +1,7 @@
 # bin_float API
 
+## Purpose
+
 `bin_float` is the binary floating-point core of `floating`. A `BinFloat` is
 a signed dyadic number $(-1)^s \cdot c \cdot 2^{e}$ with an arbitrary-precision
 coefficient, an attached working precision, and the IEEE 754 special values
@@ -12,20 +14,29 @@ The [tutorial](../tutorial/bin_float.md) shows the common workflows and the
 certification rules used below. The verified IEEE 754 scope is listed in
 [conformance](../conformance/bin_float.md).
 
-Import the package in `moon.pkg`:
+Throughout this page, $p$ is a precision in bits, $\circ(x)$ is the rounding of
+the real number $x$ under the active context, and "the flags" are the five IEEE
+exception flags of a `BinaryFlags` value.
 
-```text
+## Importing
+
+Add the package to your `moon.pkg`, together with the two packages whose types
+appear in its signatures:
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/def",
+  "Luna-Flow/arithmetic" @lf_arith,
 }
 ```
 
-Throughout this page, $p$ is a precision in bits, $\circ(x)$ is the rounding of
-the real number $x$ under the active context, and "the flags" are the five IEEE
-exception flags of a `BinaryFlags` value. `@lf_arith` is the
-`Luna-Flow/arithmetic` package; its `RoundingMode`, `ArithmeticContext` and
-`ArithmeticError` types appear in several signatures (the interface file
-prints the package as `@arithmetic`).
+The examples call the package as `@bin_float.`. `@lf_arith` is
+`Luna-Flow/arithmetic`: its `RoundingMode`, `ArithmeticContext` and
+`ArithmeticError` types appear in several signatures, where the interface file
+prints the package as `@arithmetic`. `@def` is `Luna-Flow/floating/def`, which
+provides `Sign`, `PartialOrder` and the `Floating` trait. No helper functions
+are shared between examples.
 
 ## Three ways to call an operation
 
@@ -162,15 +173,12 @@ Exact comparison.
 ```mbti
 pub fn BinCoeff::compare(Self, Self) -> Int
 pub fn BinCoeff::equal(Self, Self) -> Bool
-pub fn BinCoeff::not_equal(Self, Self) -> Bool
-pub fn BinCoeff::op_lt(Self, Self) -> Bool
-pub fn BinCoeff::op_le(Self, Self) -> Bool
-pub fn BinCoeff::op_gt(Self, Self) -> Bool
-pub fn BinCoeff::op_ge(Self, Self) -> Bool
 ```
 
-`compare` returns $-1$, $0$ or $1$. The operator methods are the `Compare` and
-`Eq` trait methods promoted onto the type; use the operators `<`, `==`, ….
+`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which for
+natural numbers is the same as equality of representations. The operators
+`<`, `<=`, `>`, `>=`, `==` and `!=` use them (see
+[Trait implementations](#trait-implementations)).
 
 ### `BinCoeff::add`, `BinCoeff::mul`, `BinCoeff::square`, `BinCoeff::pow_nat`
 
@@ -232,22 +240,9 @@ pub fn BinCoeff::bit_or(Self, Self) -> Self
 pub fn BinCoeff::bit_xor(Self, Self) -> Self
 ```
 
-### `BinCoeff` trait implementations
-
-`BinCoeff` implements `Add`, `Mul`, `Shl`, `Shr`, `Eq`, `Compare`, `Show` and
-`Debug`. `output` and `to_repr` are the promoted `Show` and `Debug` methods.
-
-```mbti
-pub fn BinCoeff::output(Self, &Logger) -> Unit
-pub fn BinCoeff::to_repr(Self) -> @debug.Repr
-pub impl Add for BinCoeff
-pub impl Compare for BinCoeff
-pub impl Eq for BinCoeff
-pub impl Mul for BinCoeff
-pub impl Shl for BinCoeff
-pub impl Show for BinCoeff
-pub impl Shr for BinCoeff
-```
+`BinCoeff` also implements `Add`, `Mul`, `Shl`, `Shr`, `Eq`, `Compare`,
+`Show` and `Debug`; the promoted trait methods are listed under
+[Trait implementations](#trait-implementations).
 
 ```moonbit
 ///|
@@ -300,9 +295,15 @@ pub fn BinFloat::make(BinCoeff, Int, Int, negative? : Bool, mode? : @arithmetic.
 The arguments are the coefficient, the exponent $e$ and the precision. When
 the coefficient has more significant bits than the precision it is rounded
 with `mode` (default `ToNearestEven`). The result is normalized. A precision
-below 1 is treated as 1. A value outside the implementation exponent range
-becomes an infinity or zero according to `mode`, as an overflow or underflow
-would.
+below 1 is treated as 1. A value outside the implementation exponent range is
+replaced as an overflow or underflow would be: above it by $\pm\infty$ or, for
+a mode that rounds toward zero, the largest finite magnitude
+$(2^p - 1)\,2^{e_{\max} - p + 1}$; below the smallest implementation subnormal
+$2^{e_{\min} - p + 1}$ by $\pm 0$ or, for a mode that rounds away from zero
+(and for nearest when the value exceeds half of it), by that subnormal.
+`make` rounds only to $p$ bits: a value between the smallest subnormal and
+$2^{e_{\min}}$ is not moved onto the subnormal grid (use `round_ctx` for
+that), which matters only at magnitudes near $2^{-2^{30}}$.
 
 ### `BinFloat::from_coefficient`, `BinFloat::from_int`
 
@@ -326,9 +327,15 @@ pub fn BinFloat::from_double(Double, precision? : Int) -> Self
 pub fn BinFloat::from_float(Float, precision? : Int) -> Self
 ```
 
-The defaults are 53 and 24 bits, so the conversion is exact. Signed zeros,
-infinities, NaN sign, the quiet/signaling distinction and the NaN payload are
-preserved. The value is the one the host already rounded: `from_double(0.1)` is
+The defaults are 53 and 24 bits, so the conversion is exact. `from_double`
+preserves signed zeros, infinities, the NaN sign, the quiet/signaling
+distinction and the NaN payload (the fraction field without the quiet bit).
+`from_float` first widens the `Float` to a `Double` on the host and then
+decodes that: numbers, zeros and infinities are unaffected, but a NaN keeps
+the payload of the widened binary64 encoding (the binary32 payload times
+$2^{29}$), and on the native target a signaling `Float` NaN arrives as a quiet
+NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs
+bit-exactly. The value is the one the host already rounded: `from_double(0.1)` is
 $3602879701896397 \cdot 2^{-55}$, not one tenth. Use `from_string` to round a
 decimal literal directly.
 
@@ -553,7 +560,7 @@ pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 The two names are the same function. The result is $x^n$ correctly rounded to
 nearest-even at the precision of `x`, computed as in `pow_int_ctx`. A zero
 base with a negative exponent is a `division_by_zero` error; $x^0 = 1$ for
-every $x$, NaN included.
+every $x$, NaN included (a signaling NaN too, without an error).
 
 ### `BinFloat::fma`
 
@@ -609,9 +616,6 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardNegative
   RoundAwayFromZero
 } derive(Eq, @debug.Debug)
-pub fn BinaryRoundingMode::equal(Self, Self) -> Bool
-pub fn BinaryRoundingMode::not_equal(Self, Self) -> Bool
-pub fn BinaryRoundingMode::to_repr(Self) -> @debug.Repr
 ```
 
 The first five are the IEEE 754-2019 rounding directions (clause 4.3).
@@ -641,9 +645,6 @@ pub(all) enum TininessDetection {
   BeforeRounding
   AfterRounding
 } derive(Eq, @debug.Debug)
-pub fn TininessDetection::equal(Self, Self) -> Bool
-pub fn TininessDetection::not_equal(Self, Self) -> Bool
-pub fn TininessDetection::to_repr(Self) -> @debug.Repr
 ```
 
 `BeforeRounding` calls a result tiny when the exact value has
@@ -661,9 +662,6 @@ operation.
 pub struct BinaryContext {
   // private fields
 } derive(Eq, @debug.Debug)
-pub fn BinaryContext::equal(Self, Self) -> Bool
-pub fn BinaryContext::not_equal(Self, Self) -> Bool
-pub fn BinaryContext::to_repr(Self) -> @debug.Repr
 ```
 
 A context is an immutable value; there is no global or thread state.
@@ -745,15 +743,21 @@ The five IEEE 754 exception flags raised by one or more operations.
 pub struct BinaryFlags {
   // private fields
 } derive(Eq, @debug.Debug)
+```
+
+Two flag sets are `==` when all five flags agree.
+
+### `BinaryFlags::new`, `BinaryFlags::inexact`, `BinaryFlags::underflow`, `BinaryFlags::overflow`, `BinaryFlags::division_by_zero`, `BinaryFlags::invalid_operation`
+
+Build an empty flag set and read the individual flags.
+
+```mbti
 pub fn BinaryFlags::new() -> Self
 pub fn BinaryFlags::inexact(Self) -> Bool
 pub fn BinaryFlags::underflow(Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::division_by_zero(Self) -> Bool
 pub fn BinaryFlags::invalid_operation(Self) -> Bool
-pub fn BinaryFlags::equal(Self, Self) -> Bool
-pub fn BinaryFlags::not_equal(Self, Self) -> Bool
-pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
 ```
 
 `new()` has every flag clear. A contextual operation returns only the flags it
@@ -763,7 +767,9 @@ result is tiny and inexact; `overflow`, the rounded result exceeded the
 largest finite value (always together with `inexact`); `division_by_zero`, an
 exact infinite result from finite operands (such as $1/0$ or $\log 0$);
 `invalid_operation`, no useful real result exists and a quiet NaN was
-returned, or a signaling NaN was an operand.
+returned, or a signaling NaN was an operand. The non-`try` elementary
+functions also raise it when they return NaN for a domain error or a
+certification failure.
 
 ### `BinaryFlags::combine`
 
@@ -883,7 +889,7 @@ pub fn BinFloat::pown_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 ```
 
 The two names are the same function, IEEE 754 `pown`. $x^0 = 1$ for every $x$
-(NaN included); $(\pm 0)^{n<0} = \pm\infty$ (sign for odd $n$) with
+(NaN included, and a signaling NaN raises no flag); $(\pm 0)^{n<0} = \pm\infty$ (sign for odd $n$) with
 `division_by_zero`; $(\pm\infty)^n$ is an infinity or zero with the sign of an
 odd power. Small powers are computed exactly; otherwise a Ziv loop rounds an
 enclosure, with an exact fallback, so the result is always correctly rounded.
@@ -1015,10 +1021,6 @@ Numerical three-way comparison that is total on every value.
 ```mbti
 pub fn BinFloat::compare(Self, Self) -> Int
 pub impl Compare for BinFloat
-pub fn BinFloat::op_lt(Self, Self) -> Bool
-pub fn BinFloat::op_le(Self, Self) -> Bool
-pub fn BinFloat::op_gt(Self, Self) -> Bool
-pub fn BinFloat::op_ge(Self, Self) -> Bool
 ```
 
 `compare` returns $-1$, $0$ or $1$ by numerical value, with $-0 = +0$ and
@@ -1107,7 +1109,8 @@ pub fn BinFloat::max(Self, Self) -> Self
 ```
 
 When exactly one operand is a NaN the other is returned (the IEEE 754-2008
-`minNum`/`maxNum` convention for quiet NaNs). When the operands compare equal
+`minNum`/`maxNum` convention for quiet NaNs); a signaling NaN is ignored in the
+same way, without quieting or a flag, and two NaNs give the argument. When the operands compare equal
 under `compare` (for example $-0$ and $+0$) the receiver is returned. No flags
 are produced.
 
@@ -1122,17 +1125,6 @@ pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @
 
 A NaN receiver is returned unchanged. `clamp` aborts when a bound is a NaN or
 `min > max`; `clamp_checked` returns a `domain_error` in those cases.
-
-### `BinFloat::equal`, `BinFloat::not_equal`
-
-Structural equality, the derived `Eq`.
-
-```mbti
-pub fn BinFloat::equal(Self, Self) -> Bool
-pub fn BinFloat::not_equal(Self, Self) -> Bool
-```
-
-See [`BinFloat`](#binfloat): this compares representations, not numbers.
 
 ```moonbit
 ///|
@@ -1161,7 +1153,6 @@ Prints the exact stored value as `coefficient p exponent`.
 
 ```mbti
 pub fn BinFloat::to_string(Self) -> String
-pub fn BinFloat::output(Self, &Logger) -> Unit
 pub impl Show for BinFloat
 ```
 
@@ -1240,7 +1231,7 @@ coefficient times $2^{\text{exponent}}$: `0x3p-1` is $1.5$. There is no
 hexadecimal point, so C-style `0x1.8p0` is a `parse_error`. `from_hex(s, p)`
 rounds to precision `p` with nearest-even and also accepts `nan`, `inf` and
 `infinity` with a sign. `to_hex` prints the stored coefficient in lower case,
-`0x0p0` for zero, and `nan`/`inf` with a sign.
+`0x0p0` or `-0x0p0` for a zero, and `nan`/`inf` with a sign.
 
 ```moonbit
 ///|
@@ -1271,9 +1262,6 @@ pub(all) enum BinaryInterchangeFormat {
   Binary64
   Binary128
 } derive(Eq, @debug.Debug)
-pub fn BinaryInterchangeFormat::equal(Self, Self) -> Bool
-pub fn BinaryInterchangeFormat::not_equal(Self, Self) -> Bool
-pub fn BinaryInterchangeFormat::to_repr(Self) -> @debug.Repr
 ```
 
 ### `BinaryInterchangeFormat::precision`, `BinaryInterchangeFormat::e_min`, `BinaryInterchangeFormat::e_max`, `BinaryInterchangeFormat::bias`, `BinaryInterchangeFormat::exponent_bits`, `BinaryInterchangeFormat::fraction_bits`, `BinaryInterchangeFormat::total_bits`
@@ -1313,14 +1301,23 @@ An encoded value: a format and its bit pattern.
 pub struct BinaryInterchange {
   // private fields
 } derive(Eq)
-pub fn BinaryInterchange::equal(Self, Self) -> Bool
-pub fn BinaryInterchange::not_equal(Self, Self) -> Bool
-pub fn BinaryInterchange::format(Self) -> BinaryInterchangeFormat
-pub fn BinaryInterchange::bits(Self) -> BinCoeff
 ```
 
 Equality compares the format and the bits, so two encodings of NaN with
 different payloads differ and $\pm 0$ differ.
+
+### `BinaryInterchange::format`, `BinaryInterchange::bits`
+
+Return the format and the bit pattern of an encoding.
+
+```mbti
+pub fn BinaryInterchange::format(Self) -> BinaryInterchangeFormat
+pub fn BinaryInterchange::bits(Self) -> BinCoeff
+```
+
+`bits()` is the encoding as a natural number below $2^k$, $k$ = `total_bits`:
+the sign bit is bit $k-1$, the biased exponent field the next $w$ bits and the
+trailing significand field the low $p-1$ bits.
 
 ### `BinaryInterchange::from_bits`, `BinaryInterchange::from_hex`, `BinaryInterchange::to_hex`
 
@@ -1393,71 +1390,170 @@ Each elementary function has three forms:
 - `try_f_ctx(x, ctx)` returns the same pair in `Ok`, or an
   `@lf_arith.ArithmeticError`.
 
-All three run the same certified algorithm: directed-rounding enclosures of
-the exact value at a working precision of $p + 64$ bits, refined up to 12 times
-(each step adds $\max(32, w/2)$ bits) until both ends of the enclosure round to
-the same value with the same flags. A returned value is therefore always the
-correctly rounded result $\circ(f(x))$, and `inexact` is exact. When the budget
-runs out, `try_f_ctx` returns a `certification_failure` error whose
-`CertificationFailureDetail` names the operation, the stage
+All three run the same certified algorithm. It computes an enclosure
+$[L, U] \ni f(x)$ whose every internal operation is rounded downward for $L$
+and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits
+(or at the operand precision plus 16 when that is larger, for `rootn`, the
+inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to
+the same value with the same flags, that value is returned; otherwise $w$
+grows by $\max(32, \lfloor w/2 \rfloor)$, for at most 12 attempts. Because
+rounding is monotone, a returned value is the correctly rounded result
+$\circ(f(x))$, never an uncertified approximation; the
+[design page](../design/bin_float.md#certified-elementary-functions) gives the
+argument and lists the cases where the flags can still be wrong.
+
+When the attempts run out, `try_f_ctx` returns a `certification_failure`
+error whose `CertificationFailureDetail` names the operation, the stage
 (`RangeReduction` or `TargetRounding`), the reason and the last working
 precision. An argument outside the real domain gives a `domain_error` from
-`try_f_ctx`. The non-`try` forms turn both kinds of error into a quiet NaN with
-`invalid_operation`. NaN operands propagate quietly, and poles return a signed
-infinity with `division_by_zero` (for example $\ln 0 = -\infty$,
-$\operatorname{atanh}(1) = +\infty$). Exactly representable results that the
-enclosure cannot isolate are detected first, for example
+`try_f_ctx`. The non-`try` forms turn both kinds of error into a quiet NaN
+with `invalid_operation`. NaN operands propagate quietly (a signaling NaN
+raises `invalid_operation`), and poles return a signed infinity with
+`division_by_zero` (for example $\ln 0 = -\infty$,
+$\operatorname{atanh}(1) = +\infty$). Exactly representable results that an
+enclosure cannot isolate are detected before the loop, for example
 $\log_2 2^k = k$, $2^n$ for integral $n$, $\sin(\pm 0) = \pm 0$ and
-$\operatorname{sinpi}(1/2) = 1$.
+$\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below.
 
-### `BinFloat::exp`, `BinFloat::expm1`, `BinFloat::exp2`, `BinFloat::exp10`
+> [!WARNING]
+> Two families of inputs defeat the certification on the current branch.
+>
+> - **Tiny arguments.** For `exp`, `expm1`, `exp2`, `sin` and `atan` (and
+>   possibly others built the same way) an argument so small that the series
+>   stops after its first term yields an enclosure with one end exactly on a
+>   representable number ($1$ for `exp`, $x$ itself for `sin`). That end
+>   rounds without `inexact`, the other end with it, so the flags never agree
+>   and the budget runs out. For example `try_sin_ctx` of $2^{-6000}$ at 53
+>   bits, of $2^{-8000}$ in `binary128()`, and `try_exp_ctx` of $2^{-20000}$
+>   at 53 bits all return a `certification_failure`, and the plain forms
+>   return NaN. Arguments of binary64 size are not affected. For such tiny
+>   $x$ use the first terms of the series yourself ($\sin x \approx x$,
+>   $e^x \approx 1 + x$) with a directed rounding.
+> - **Exact results that are not filtered.** A result that is exactly
+>   representable but not recognised before the loop is returned with a
+>   spurious `inexact` under nearest rounding and is a `certification_failure`
+>   under a directed rounding. This happens for `pow` with a non-integral
+>   exponent such as $16^{3/4} = 8$, for `rootn` with a negative degree such
+>   as $8^{-1/3} = 1/2$ (and `pow(4, -0.5)`), and for $10^n$ and
+>   $\log_{10} 10^n$ with $n > 4096$ at a precision large enough to hold
+>   $10^n$.
 
-Exponentials $e^x$, $e^x - 1$, $2^x$ and $10^x$.
+### `BinFloat::exp`, `BinFloat::exp_ctx`, `BinFloat::try_exp_ctx`
+
+The exponential $e^x$.
 
 ```mbti
 pub fn BinFloat::exp(Self) -> Self
 pub fn BinFloat::exp_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_exp_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+Defined on all of $\mathbb{R}$: $e^{\pm 0} = 1$ exactly, $e^{-\infty} = +0$
+and $e^{+\infty} = +\infty$. Results certainly beyond the exponent range are
+decided from certified bounds on $\log_2 e$ before the main loop, so huge
+arguments overflow or underflow with the correct flags instead of failing.
+
+### `BinFloat::expm1`, `BinFloat::expm1_ctx`, `BinFloat::try_expm1_ctx`
+
+$e^x - 1$ without the cancellation of `exp(x) - 1` near zero.
+
+```mbti
 pub fn BinFloat::expm1(Self) -> Self
 pub fn BinFloat::expm1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_expm1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\operatorname{expm1}(\pm 0) = \pm 0$, $\operatorname{expm1}(-\infty) = -1$
+and $\operatorname{expm1}(+\infty) = +\infty$. For
+$x \le -(p+3)\ln 2$ the value lies within $2^{-(p+3)}$ above $-1$, and the
+result is decided from the rounding direction alone: $-1$, or
+$-(1 - 2^{-p})$ when rounding toward zero or $+\infty$, always inexact.
+
+### `BinFloat::exp2`, `BinFloat::exp2_ctx`, `BinFloat::try_exp2_ctx`
+
+The power of two $2^x$.
+
+```mbti
 pub fn BinFloat::exp2(Self) -> Self
 pub fn BinFloat::exp2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_exp2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+An integral $x$ with $|x| < 2^{31}$ gives the exact $2^x$, rounded into the
+context only when it leaves the exponent range. The other special values are
+those of `exp`.
+
+### `BinFloat::exp10`, `BinFloat::exp10_ctx`, `BinFloat::try_exp10_ctx`
+
+The power of ten $10^x$.
+
+```mbti
 pub fn BinFloat::exp10(Self) -> Self
 pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_exp10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-Defined on all of $\mathbb{R}$; $f(-\infty) = 0$ ($-1$ for `expm1`) and
-$f(+\infty) = +\infty$. Results certainly beyond the exponent range are decided
-from certified $\log_2$ bounds before the main loop, so huge arguments overflow
-or underflow with the correct flags instead of failing.
+An integral $x$ in $[0, 4096]$ gives the exact $10^x = 5^x 2^x$, rounded once.
+A negative integral $x$ gives a value that is never dyadic, so it is always
+inexact. The other special values are those of `exp`.
 
-### `BinFloat::ln`, `BinFloat::log1p`, `BinFloat::log2`, `BinFloat::log10`
+### `BinFloat::ln`, `BinFloat::ln_ctx`, `BinFloat::try_ln_ctx`
 
-Logarithms $\ln x$, $\ln(1+x)$, $\log_2 x$ and $\log_{10} x$.
+The natural logarithm $\ln x$.
 
 ```mbti
 pub fn BinFloat::ln(Self) -> Self
 pub fn BinFloat::ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $x > 0$. $\ln 1 = +0$ exactly; $\ln(\pm 0) = -\infty$ with
+`division_by_zero`; $\ln(+\infty) = +\infty$. A negative finite argument is a
+`domain_error`, while $-\infty$ gives a quiet NaN with `invalid_operation`
+also from `try_ln_ctx`.
+
+### `BinFloat::log1p`, `BinFloat::log1p_ctx`, `BinFloat::try_log1p_ctx`
+
+$\ln(1 + x)$ without the rounding of `1 + x`.
+
+```mbti
 pub fn BinFloat::log1p(Self) -> Self
 pub fn BinFloat::log1p_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $x > -1$. $\operatorname{log1p}(\pm 0) = \pm 0$,
+$\operatorname{log1p}(-1) = -\infty$ with `division_by_zero`, a finite
+$x < -1$ is a `domain_error`, and $-\infty$ gives a quiet NaN with
+`invalid_operation`.
+
+### `BinFloat::log2`, `BinFloat::log2_ctx`, `BinFloat::try_log2_ctx`
+
+The binary logarithm $\log_2 x$.
+
+```mbti
 pub fn BinFloat::log2(Self) -> Self
 pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_log2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+Special values and domain as for `ln`. A power of two $2^k$ gives the exact
+integer $k$, rounded into the context.
+
+### `BinFloat::log10`, `BinFloat::log10_ctx`, `BinFloat::try_log10_ctx`
+
+The decimal logarithm $\log_{10} x$.
+
+```mbti
 pub fn BinFloat::log10(Self) -> Self
 pub fn BinFloat::log10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_log10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-The domain is $x > 0$ ($x > -1$ for `log1p`). At the boundary the result is
-$-\infty$ with `division_by_zero`; a finite argument below it is a
-`domain_error`, and $-\infty$ gives a quiet NaN with `invalid_operation`.
+Special values and domain as for `ln`. $x = 10^k$ with $1 \le k \le 4096$
+gives the exact integer $k$.
 
-### `BinFloat::exp_ln`
+### `BinFloat::exp_ln`, `BinFloat::exp_ln_ctx`, `BinFloat::try_exp_ln_ctx`
 
 The fused composition $\ln(e^x)$, which equals $x$.
 
@@ -1470,153 +1566,321 @@ pub fn BinFloat::try_exp_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlag
 The result is $x$ rounded once into the context, without two intermediate
 roundings. The current implementation accepts finite arguments with
 $|x| \le 1/8$ and infinities; any other finite argument is a
-`certification_failure` at the range-reduction stage.
+`certification_failure` at the range-reduction stage (reason
+`RangeNotCertified`).
 
-### `BinFloat::pow`, `BinFloat::rootn`, `BinFloat::hypot`
+### `BinFloat::pow`, `BinFloat::pow_ctx`, `BinFloat::try_pow_ctx`
 
-Real power $x^y$, $n$-th root $x^{1/n}$ and $\sqrt{x^2+y^2}$.
+The real power $x^y$.
 
 ```mbti
 pub fn BinFloat::pow(Self, Self) -> Self
 pub fn BinFloat::pow_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The cases are tried in this order:
+
+1. $x^{\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included
+   (also a signaling NaN, without `invalid_operation`).
+2. An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`.
+3. $y = \pm 2^{-k}$ with $1 \le k \le 29$ is `try_rootn_ctx(x, \pm 2^k)`.
+4. A NaN operand propagates.
+5. A negative finite $x$, including $-0$, is a `domain_error`.
+6. $(+0)^{y<0} = +\infty$ with `division_by_zero`, $(+0)^{y>0} = +0$;
+   $(\pm\infty)^{y<0} = +0$, $(\pm\infty)^{y>0} = +\infty$.
+7. An infinite $y$ gives $+\infty$ or $+0$ according to whether $|x^y|$ grows.
+8. Otherwise the value is certified from enclosures of $e^{y \ln x}$, after
+   certain overflow and underflow have been decided from $\log_2 x$.
+
+> [!WARNING]
+> Step 5 comes too early, and steps 6 and 7 ignore the sign of an infinite
+> base, so `pow` departs from IEEE 754 `pow` for some inputs: a negative base
+> with an integral exponent of magnitude at least $2^{31}$, a base of $-0$
+> with any exponent not handled by steps 1 to 3, and a negative finite base
+> with an infinite exponent (IEEE gives $1$ for $(-1)^{\pm\infty}$) are
+> `domain_error`s; $(-\infty)^y$ for an odd integral $y$ with
+> $|y| \ge 2^{31}$ has the wrong sign; and $(+0)^{-\infty} = +\infty$ raises
+> `division_by_zero`, which IEEE does not. Dyadic results of non-integral
+> exponents, such as $16^{3/4} = 8$, carry a spurious `inexact` or fail under
+> directed rounding (see the warning above).
+
+### `BinFloat::rootn`, `BinFloat::rootn_ctx`, `BinFloat::try_rootn_ctx`
+
+The real $n$-th root $x^{1/n}$.
+
+```mbti
 pub fn BinFloat::rootn(Self, Int) -> Self
 pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$n = 0$ is a `domain_error`, and $|n| > 10^9$ a `certification_failure`.
+Odd $n$ accepts a negative $x$ ($\operatorname{rootn}(-8, 3) = -2$); a
+negative finite $x$ with even $n$ is a `domain_error`. A negative $n$ gives
+$x^{-1/|n|}$. Zeros: $\operatorname{rootn}(\pm 0, n > 0)$ is $\pm 0$ for odd
+$n$ and $+0$ for even $n$; $\operatorname{rootn}(\pm 0, n < 0)$ is
+$\pm\infty$ (odd) or $+\infty$ (even) with `division_by_zero`. For $n > 1$,
+degree at most 64 and a coefficient of at most 4096 bits, an exact root is
+detected and returned without `inexact`.
+
+> [!WARNING]
+> $\operatorname{rootn}(-\infty, n)$ with even $n$ returns $+\infty$ (and
+> $+0$ for even negative $n$) instead of a `domain_error`, unlike a finite
+> negative argument. Exact roots with a negative degree are not detected (see
+> the warning at the start of this section).
+
+### `BinFloat::hypot`, `BinFloat::hypot_ctx`, `BinFloat::try_hypot_ctx`
+
+$\sqrt{x^2 + y^2}$ without intermediate overflow or underflow.
+
+```mbti
 pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-`pow` follows IEEE `pow` for its special cases: $x^{\pm 0} = 1$ and
-$1^y = 1$ for every $x$ and $y$ (NaN included); an integral exponent with
-$|y| < 2^{31}$ is handled by `pown`, and $y = 1/2^k$ by `rootn`. Otherwise a
-negative finite base is a `domain_error`, $0^{y<0} = +\infty$ with
-`division_by_zero`, and the value is certified from enclosures of
-$y \ln x$. `rootn(x, n)` is the real $n$-th root: odd $n$ accepts negative
-$x$, even $n$ with $x < 0$ is a `domain_error`, and $n = 0$ is a
-`domain_error`; negative $n$ gives $x^{-1/n}$ with
-$\operatorname{rootn}(\pm 0, n<0) = \pm\infty$ and `division_by_zero`.
-`hypot` squares the operands exactly and takes one correctly rounded square
-root; $\operatorname{hypot}(\pm\infty, y) = +\infty$ even when $y$ is a NaN.
+The squares are formed exactly and one correctly rounded square root is
+taken, so the result is $\circ(\sqrt{x^2+y^2})$ and exact when the root is.
+$\operatorname{hypot}(\pm\infty, y) = +\infty$ even when $y$ is a NaN
+(`invalid_operation` is raised only for a signaling NaN). Because the exact
+sum is built, operands whose stored exponents differ by more than $500\,000$
+(possible only in wide or unbounded contexts) give a `certification_failure`.
 
-> [!NOTE]
-> Three gaps exist in `pow` on the current branch. It returns a
-> `domain_error` for two inputs that IEEE 754 defines: a negative base with an
-> integral exponent of magnitude at least $2^{31}$, and a base of $-0$ with a
-> positive non-integral exponent that is not of the form $1/2^k$. And a
-> dyadic result of a non-integral exponent other than $1/2^k$, such as
-> $16^{3/4} = 8$, is returned with `inexact` under nearest rounding and is a
-> `certification_failure` under directed rounding.
+### `BinFloat::sin`, `BinFloat::sin_ctx`, `BinFloat::try_sin_ctx`
 
-### `BinFloat::sin`, `BinFloat::cos`, `BinFloat::tan`
-
-Trigonometric functions of an argument in radians.
+The sine of an argument in radians.
 
 ```mbti
 pub fn BinFloat::sin(Self) -> Self
 pub fn BinFloat::sin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\sin(\pm 0) = \pm 0$ exactly; an infinite argument is a `domain_error`. The
+argument is reduced by an enclosure of $\pi/2$ computed at a working precision
+of at least $p + \max(0, \lfloor\log_2|x|\rfloor + 1) + 96$ bits, so the
+quadrant is certain for every finite input. When that starting precision
+exceeds $10^6$ bits, that is for $|x| \ge 2^{10^6 - p - 96}$, the result is a
+`certification_failure` with stage `RangeReduction` and reason
+`ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits.
+
+### `BinFloat::cos`, `BinFloat::cos_ctx`, `BinFloat::try_cos_ctx`
+
+The cosine of an argument in radians.
+
+```mbti
 pub fn BinFloat::cos(Self) -> Self
 pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\cos(\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`.
+
+### `BinFloat::tan`, `BinFloat::tan_ctx`, `BinFloat::try_tan_ctx`
+
+The tangent of an argument in radians.
+
+```mbti
 pub fn BinFloat::tan(Self) -> Self
 pub fn BinFloat::tan_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_tan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-The argument is reduced by an enclosure of $\pi/2$ computed at
-$p + \max(0, \lfloor\log_2|x|\rfloor + 1) + 96$ bits, so the reduction is
-exact in the sense of the enclosure for every finite input. An infinite
-argument is a `domain_error`. Arguments needing more than $10^6$ working bits
-(roughly $|x| > 2^{999{,}000}$) return a `certification_failure` with reason
-`ResourceLimit`.
+$\tan(\pm 0) = \pm 0$ exactly. Reduction, domain and limits as for `sin`. No
+binary argument is an odd multiple of $\pi/2$, so there is no pole; an
+enclosure of the cosine that contains zero is refined like any other.
 
-### `BinFloat::sinpi`, `BinFloat::cospi`, `BinFloat::tanpi`
+### `BinFloat::sinpi`, `BinFloat::sinpi_ctx`, `BinFloat::try_sinpi_ctx`
 
-$\sin(\pi x)$, $\cos(\pi x)$ and $\tan(\pi x)$.
+$\sin(\pi x)$.
 
 ```mbti
 pub fn BinFloat::sinpi(Self) -> Self
 pub fn BinFloat::sinpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_sinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The period is reduced exactly on the binary representation, so huge
+arguments cost nothing extra. For integral $n$, $\operatorname{sinpi}(n)$ is
+$\pm 0$ with the sign of $n$; at $n + \frac12$ it is $\pm 1$. An infinite
+argument is a `domain_error`. By Niven's theorem these are the only dyadic
+arguments with a dyadic result.
+
+### `BinFloat::cospi`, `BinFloat::cospi_ctx`, `BinFloat::try_cospi_ctx`
+
+$\cos(\pi x)$.
+
+```mbti
 pub fn BinFloat::cospi(Self) -> Self
 pub fn BinFloat::cospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_cospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and
+$\operatorname{cospi}(n + \frac12) = +0$. Reduction and domain as for
+`sinpi`.
+
+### `BinFloat::tanpi`, `BinFloat::tanpi_ctx`, `BinFloat::try_tanpi_ctx`
+
+$\tan(\pi x)$.
+
+```mbti
 pub fn BinFloat::tanpi(Self) -> Self
 pub fn BinFloat::tanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-The period is reduced exactly on the binary representation, so huge arguments
-cost nothing extra. Integers and half-integers give exact results: for integral
-$n$, $\operatorname{sinpi}(n) = \pm 0$ with the sign of $n$ and
-$\operatorname{cospi}(n) = \pm 1$; at odd multiples of $1/2$ `cospi` is $+0$
-and `tanpi` is a signed infinity with `division_by_zero`. An infinite argument
-is a `domain_error`.
+$\operatorname{tanpi}(n)$ is $\pm 0$ with the sign of $n$ for integral $n$;
+$\operatorname{tanpi}(n + \frac12)$ is $+\infty$ for even $n$ and $-\infty$
+for odd $n$, with `division_by_zero`; $\operatorname{tanpi}(n \pm \frac14) =
+\pm 1$ exactly. Reduction and domain as for `sinpi`.
 
-### `BinFloat::asin`, `BinFloat::acos`, `BinFloat::atan`, `BinFloat::atan2`
+### `BinFloat::asin`, `BinFloat::asin_ctx`, `BinFloat::try_asin_ctx`
 
-Inverse trigonometric functions.
+The arcsine, with values in $[-\pi/2, \pi/2]$.
 
 ```mbti
 pub fn BinFloat::asin(Self) -> Self
 pub fn BinFloat::asin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $[-1, 1]$; a finite argument outside it and both infinities are
+a `domain_error`. $\operatorname{asin}(\pm 0) = \pm 0$ and
+$\operatorname{asin}(\pm 1) = \pm\pi/2$ correctly rounded.
+
+### `BinFloat::acos`, `BinFloat::acos_ctx`, `BinFloat::try_acos_ctx`
+
+The arccosine, with values in $[0, \pi]$.
+
+```mbti
 pub fn BinFloat::acos(Self) -> Self
 pub fn BinFloat::acos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $[-1, 1]$; a finite argument outside it and both infinities are
+a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result
+is $\pi/2 - \operatorname{asin}(x)$ evaluated as one enclosure;
+$\operatorname{acos}(1) = +0$ exactly and $\operatorname{acos}(-1) = \pi$
+correctly rounded.
+
+### `BinFloat::atan`, `BinFloat::atan_ctx`, `BinFloat::try_atan_ctx`
+
+The arctangent, with values in $[-\pi/2, \pi/2]$.
+
+```mbti
 pub fn BinFloat::atan(Self) -> Self
 pub fn BinFloat::atan_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_atan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+Defined on all of $\mathbb{R}$: $\operatorname{atan}(\pm 0) = \pm 0$ and
+$\operatorname{atan}(\pm\infty) = \pm\pi/2$ correctly rounded.
+
+### `BinFloat::atan2`, `BinFloat::atan2_ctx`, `BinFloat::try_atan2_ctx`
+
+The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\pi, \pi]$.
+
+```mbti
 pub fn BinFloat::atan2(Self, Self) -> Self
 pub fn BinFloat::atan2_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_atan2_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-`asin` and `acos` are defined on $[-1, 1]$; `asin` outside it is a
-`domain_error`. $\operatorname{atan}(\pm\infty) = \pm\pi/2$ correctly rounded.
-`y.atan2(x)` is the angle of the point $(x, y)$ in $[-\pi, \pi]$. Infinite
-operands follow IEEE 754 (for example
-$\operatorname{atan2}(+\infty, -\infty) = 3\pi/4$), and
-$\operatorname{atan2}(\pm 0, x > 0) = \pm 0$.
+The receiver is the ordinate $y$. Infinite operands follow IEEE 754: for
+example $\operatorname{atan2}(\pm\infty, -\infty) = \pm 3\pi/4$,
+$\operatorname{atan2}(\pm\infty, +\infty) = \pm\pi/4$,
+$\operatorname{atan2}(y, -\infty) = \pm\pi$ and
+$\operatorname{atan2}(y, +\infty) = \pm 0$ with the sign of $y$ for finite
+$y$. $\operatorname{atan2}(\pm 0, x > 0) = \pm 0$ and
+$\operatorname{atan2}(y \ne 0, \pm 0) = \pm\pi/2$.
 
-> [!CAUTION]
-> Two defects exist on the current branch. `acos` does not check its domain:
-> a NaN, an infinity or a finite argument with $|x| > 1$ makes all three forms
-> recurse until the stack overflows, so check `x` first. `atan2` ignores the
-> sign of zero in two IEEE special cases: $\operatorname{atan2}(\pm 0, \pm 0)$
-> returns $\pi/2$ instead of $\pm 0$ or $\pm\pi$, and
+> [!WARNING]
+> `atan2` ignores the sign of a zero in two IEEE special cases:
+> $\operatorname{atan2}(\pm 0, \pm 0)$ returns $\pm\pi/2$ (sign of $y$) instead
+> of $\pm 0$ for $x = +0$ and $\pm\pi$ for $x = -0$, and
 > $\operatorname{atan2}(-0, x < 0)$ returns $+\pi$ instead of $-\pi$.
 
-### `BinFloat::sinh`, `BinFloat::cosh`, `BinFloat::tanh`, `BinFloat::asinh`, `BinFloat::acosh`, `BinFloat::atanh`
+### `BinFloat::sinh`, `BinFloat::sinh_ctx`, `BinFloat::try_sinh_ctx`
 
-Hyperbolic functions and their inverses.
+The hyperbolic sine.
 
 ```mbti
 pub fn BinFloat::sinh(Self) -> Self
 pub fn BinFloat::sinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_sinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\sinh(\pm 0) = \pm 0$ and $\sinh(\pm\infty) = \pm\infty$. Certain overflow
+is decided before the loop from $|\sinh x| \ge e^{|x|}/4$.
+
+### `BinFloat::cosh`, `BinFloat::cosh_ctx`, `BinFloat::try_cosh_ctx`
+
+The hyperbolic cosine.
+
+```mbti
 pub fn BinFloat::cosh(Self) -> Self
 pub fn BinFloat::cosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\cosh(\pm 0) = 1$ and $\cosh(\pm\infty) = +\infty$; certain overflow is
+decided as for `sinh`.
+
+### `BinFloat::tanh`, `BinFloat::tanh_ctx`, `BinFloat::try_tanh_ctx`
+
+The hyperbolic tangent.
+
+```mbti
 pub fn BinFloat::tanh(Self) -> Self
 pub fn BinFloat::tanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_tanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+$\tanh(\pm 0) = \pm 0$ and $\tanh(\pm\infty) = \pm 1$ exactly.
+
+### `BinFloat::asinh`, `BinFloat::asinh_ctx`, `BinFloat::try_asinh_ctx`
+
+The inverse hyperbolic sine.
+
+```mbti
 pub fn BinFloat::asinh(Self) -> Self
 pub fn BinFloat::asinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_asinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+Defined on all of $\mathbb{R}$; $\operatorname{asinh}(\pm 0) = \pm 0$ and
+$\operatorname{asinh}(\pm\infty) = \pm\infty$.
+
+### `BinFloat::acosh`, `BinFloat::acosh_ctx`, `BinFloat::try_acosh_ctx`
+
+The inverse hyperbolic cosine.
+
+```mbti
 pub fn BinFloat::acosh(Self) -> Self
 pub fn BinFloat::acosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $x \ge 1$; any smaller argument, $-\infty$ included, is a
+`domain_error`. $\operatorname{acosh}(1) = +0$ and
+$\operatorname{acosh}(+\infty) = +\infty$.
+
+### `BinFloat::atanh`, `BinFloat::atanh_ctx`, `BinFloat::try_atanh_ctx`
+
+The inverse hyperbolic tangent.
+
+```mbti
 pub fn BinFloat::atanh(Self) -> Self
 pub fn BinFloat::atanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_atanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-`acosh` needs $x \ge 1$ and `atanh` needs $|x| \le 1$; outside these sets the
-result is a `domain_error`. $\operatorname{atanh}(\pm 1) = \pm\infty$ with
-`division_by_zero`, $\operatorname{tanh}(\pm\infty) = \pm 1$.
+The domain is $|x| \le 1$; outside it, infinities included, the result is a
+`domain_error`. $\operatorname{atanh}(\pm 0) = \pm 0$ and
+$\operatorname{atanh}(\pm 1) = \pm\infty$ with `division_by_zero`.
 
 ```moonbit
 ///|
@@ -1633,10 +1897,55 @@ test "elementary functions are correctly rounded" {
   }
   let (nan, nan_flags) = @bin_float.BinFloat::from_int(-1).ln_ctx(ctx)
   inspect("\{nan} \{nan_flags.invalid_operation()}", content="nan true")
+  let (root, root_flags) = @bin_float.BinFloat::from_int(-8).rootn_ctx(3, ctx)
+  inspect("\{root} \{root_flags.inexact()}", content="-1p1 false")
+  let (pole, pole_flags) = @bin_float.BinFloat::from_string("0.5")
+    .unwrap()
+    .tanpi_ctx(ctx)
+  inspect("\{pole} \{pole_flags.division_by_zero()}", content="inf true")
 }
 ```
 
 ## Trait implementations
+
+### `BinFloat::equal`, `BinFloat::not_equal`
+
+Structural equality, the derived `Eq`.
+
+```mbti
+pub fn BinFloat::equal(Self, Self) -> Bool
+pub fn BinFloat::not_equal(Self, Self) -> Bool
+```
+
+See [`BinFloat`](#binfloat): this compares representations, not numbers, so
+`==` distinguishes $\pm 0$ and precisions and identifies equal NaNs.
+
+### `BinFloat::op_lt`, `BinFloat::op_le`, `BinFloat::op_gt`, `BinFloat::op_ge`
+
+The `Compare` methods behind `<`, `<=`, `>` and `>=`.
+
+```mbti
+pub fn BinFloat::op_lt(Self, Self) -> Bool
+pub fn BinFloat::op_le(Self, Self) -> Bool
+pub fn BinFloat::op_gt(Self, Self) -> Bool
+pub fn BinFloat::op_ge(Self, Self) -> Bool
+```
+
+They use [`compare`](#binfloatcompare), so NaN is greater than every number:
+`nan > x` is `true`. Use the [IEEE predicates](#binfloatequal_quiet-binfloatless_quiet-binfloatless_equal_quiet-binfloatunordered_quiet-binfloatequal_signaling-binfloatless_signaling-binfloatless_equal_signaling)
+when NaN must be unordered.
+
+### `BinFloat::output`, `BinFloat::to_repr`
+
+The `Show` and `Debug` methods.
+
+```mbti
+pub fn BinFloat::output(Self, &Logger) -> Unit
+pub fn BinFloat::to_repr(Self) -> @debug.Repr
+```
+
+`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string).
+`to_repr` (used by `debug_inspect`) shows every private field.
 
 ### `@def.Floating`
 
@@ -1650,7 +1959,7 @@ pub impl @def.Floating for BinFloat
 inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`,
 `@def.is_infinite` and `@def.is_zero`.
 
-### Checked traits
+### `BinFloat::sqrt_checked`, `BinFloat::pow_nat_checked`, `BinFloat::pow_int_checked`
 
 `@lf_arith` traits whose methods return `Result`.
 
@@ -1666,15 +1975,19 @@ pub fn BinFloat::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Re
 ```
 
 Each converts the `ArithmeticContext` with
-`BinaryContext::from_arithmetic_context`, runs the contextual operation and
-drops the flags. `sqrt_checked` is a `domain_error` for a negative nonzero
-argument (as for `sqrt`, this includes a NaN with its sign bit set); `DivChecked::div_checked` is a `division_by_zero` error for a finite
-zero divisor; `pow_int_checked` is a `division_by_zero` error for a zero base
-with a negative exponent; `pow_nat_checked` never fails. The trait's
+`BinaryContext::from_arithmetic_context` (which aborts for a precision above
+`binary_precision_max`), runs the contextual operation and drops the flags.
+`sqrt_checked` is a `domain_error` for a negative nonzero argument (as for
+`sqrt`, this includes $-\infty$ and a NaN with its sign bit set);
+`DivChecked::div_checked` is a `division_by_zero` error for a finite zero
+divisor; `pow_int_checked` is a `division_by_zero` error for a zero base with
+a negative exponent; `pow_nat_checked` never fails. The trait's
 `div_checked(x, y, ctx)` takes a context; the inherent
 [`BinFloat::div_checked`](#binfloatdiv_checked) does not.
+`CompareChecked::compare_checked` is the inherent
+[`compare_checked`](#binfloatcompare_checked).
 
-### Contextual traits
+### `BinFloat::add_contextual`, `BinFloat::sub_contextual`, `BinFloat::mul_contextual`, `BinFloat::div_contextual`, `BinFloat::abs_contextual`, `BinFloat::sqrt_contextual`, `BinFloat::exp_contextual`
 
 `@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics.
 
@@ -1703,16 +2016,102 @@ returned as is. Otherwise the value is returned with `ArithmeticDiagnostics`
 whose `inexact` and `rounded` are the inexact flag and whose `overflow` and
 `underflow` are the matching flags.
 
-### `Show`, `Debug` and promoted methods
+### `BinCoeff::op_lt`, `BinCoeff::op_le`, `BinCoeff::op_gt`, `BinCoeff::op_ge`, `BinCoeff::not_equal`
+
+The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and
+`!=`.
 
 ```mbti
-pub fn BinFloat::to_repr(Self) -> @debug.Repr
+pub fn BinCoeff::op_lt(Self, Self) -> Bool
+pub fn BinCoeff::op_le(Self, Self) -> Bool
+pub fn BinCoeff::op_gt(Self, Self) -> Bool
+pub fn BinCoeff::op_ge(Self, Self) -> Bool
+pub fn BinCoeff::not_equal(Self, Self) -> Bool
+pub impl Add for BinCoeff
+pub impl Compare for BinCoeff
+pub impl Eq for BinCoeff
+pub impl Mul for BinCoeff
+pub impl Shl for BinCoeff
+pub impl Show for BinCoeff
+pub impl Shr for BinCoeff
 ```
 
-`Show` is the exact `c p e` form of [`to_string`](#binfloatto_string). `Debug`
-(`to_repr`, used by `debug_inspect`) shows every private field. `equal`,
-`not_equal`, `output`, `op_lt`, `op_le`, `op_gt` and `op_ge` are trait methods
-promoted onto the type and documented with their traits above.
+They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`,
+`*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`.
+
+### `BinCoeff::output`, `BinCoeff::to_repr`
+
+The `Show` and `Debug` methods of `BinCoeff`.
+
+```mbti
+pub fn BinCoeff::output(Self, &Logger) -> Unit
+pub fn BinCoeff::to_repr(Self) -> @debug.Repr
+```
+
+`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string).
+
+### `BinaryRoundingMode::equal`, `BinaryRoundingMode::not_equal`, `BinaryRoundingMode::to_repr`
+
+The derived `Eq` and `Debug` methods of `BinaryRoundingMode`.
+
+```mbti
+pub fn BinaryRoundingMode::equal(Self, Self) -> Bool
+pub fn BinaryRoundingMode::not_equal(Self, Self) -> Bool
+pub fn BinaryRoundingMode::to_repr(Self) -> @debug.Repr
+```
+
+### `TininessDetection::equal`, `TininessDetection::not_equal`, `TininessDetection::to_repr`
+
+The derived `Eq` and `Debug` methods of `TininessDetection`.
+
+```mbti
+pub fn TininessDetection::equal(Self, Self) -> Bool
+pub fn TininessDetection::not_equal(Self, Self) -> Bool
+pub fn TininessDetection::to_repr(Self) -> @debug.Repr
+```
+
+### `BinaryContext::equal`, `BinaryContext::not_equal`, `BinaryContext::to_repr`
+
+The derived `Eq` and `Debug` methods of `BinaryContext`.
+
+```mbti
+pub fn BinaryContext::equal(Self, Self) -> Bool
+pub fn BinaryContext::not_equal(Self, Self) -> Bool
+pub fn BinaryContext::to_repr(Self) -> @debug.Repr
+```
+
+Equality compares the fields as given: `BinaryContext::new(53)` is not equal
+to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the
+two behave identically.
+
+### `BinaryFlags::equal`, `BinaryFlags::not_equal`, `BinaryFlags::to_repr`
+
+The derived `Eq` and `Debug` methods of `BinaryFlags`.
+
+```mbti
+pub fn BinaryFlags::equal(Self, Self) -> Bool
+pub fn BinaryFlags::not_equal(Self, Self) -> Bool
+pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
+```
+
+### `BinaryInterchangeFormat::equal`, `BinaryInterchangeFormat::not_equal`, `BinaryInterchangeFormat::to_repr`
+
+The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`.
+
+```mbti
+pub fn BinaryInterchangeFormat::equal(Self, Self) -> Bool
+pub fn BinaryInterchangeFormat::not_equal(Self, Self) -> Bool
+pub fn BinaryInterchangeFormat::to_repr(Self) -> @debug.Repr
+```
+
+### `BinaryInterchange::equal`, `BinaryInterchange::not_equal`
+
+The derived `Eq` of `BinaryInterchange`: format and bits must agree.
+
+```mbti
+pub fn BinaryInterchange::equal(Self, Self) -> Bool
+pub fn BinaryInterchange::not_equal(Self, Self) -> Bool
+```
 
 ## Complete public interface
 

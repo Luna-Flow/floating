@@ -9,15 +9,31 @@ mathematics behind the rounding rules is on the
 [design page](../design/bin_float.md), and every function is listed in the
 [API reference](../api/bin_float.md).
 
+| I want to | Use |
+| --- | --- |
+| build an exact binary value | [`BinFloat::make`, `from_int`](#build-exact-values) |
+| read decimal text without double rounding | [`BinFloat::from_string`](#build-exact-values) |
+| compute in binary16/32/64/128 and see the IEEE flags | [`add_ctx` and the other `*_ctx` methods](#compute-in-an-ieee-format-and-keep-the-flags) |
+| decode or encode interchange bit patterns | [`BinaryInterchange`](#read-and-write-interchange-bits) |
+| print the shortest or a fixed-digit decimal | [`to_shortest_string_ctx`, `to_decimal_string_ctx`](#print-decimal-text) |
+| evaluate a correctly rounded `exp`, `ln`, `sin`, … | [the elementary functions](#call-elementary-functions) |
+| bracket a real number from below and above | [directed rounding](#enclose-a-real-number-with-directed-rounding) |
+| recover the rounding error of a product | [`fma_ctx`](#use-fused-and-exact-ieee-operations) |
+| choose how underflow is detected | [`TininessDetection`](#watch-underflow-and-tininess) |
+| write code for every scalar core | [generic traits](#write-generic-code) |
+
 ## Quick start
 
-Add the module and import the package in your `moon.pkg`:
+Add the module:
 
-```text
+```bash
 moon add Luna-Flow/floating@0.8.0
 ```
 
-```text
+Import the package in your `moon.pkg` (the examples also use
+`Luna-Flow/arithmetic` as `@lf_arith` and `Luna-Flow/floating/def` as `@def`):
+
+```moonbit nocheck
 import {
   "Luna-Flow/floating/bin_float",
 }
@@ -367,11 +383,14 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
   `0x1.8p0` is rejected.
 - **`with_precision` hides flags.** Use `round_ctx` when you need to know that
   narrowing was inexact or overflowed.
-- **Known defects.** On the current branch `acos` recurses without end on a
-  NaN, an infinity or $|x| > 1$, `atan2` mishandles signed zeros in two IEEE
-  special cases, and `pow` rejects a negative base with an integral exponent
-  of magnitude at least $2^{31}$ and a base of $-0$ with most non-integral
-  exponents, and flags exact results such as $16^{3/4} = 8$ as inexact. The [API reference](../api/bin_float.md#binfloatasin-binfloatacos-binfloatatan-binfloatatan2)
+- **Known defects.** On the current branch `atan2` mishandles signed zeros in two IEEE special cases. `pow` rejects
+  some inputs IEEE defines (a base of $-0$, a negative base with an infinite
+  exponent or an integral exponent of magnitude at least $2^{31}$). Exact
+  results that are not recognised, such as $16^{3/4} = 8$ or
+  $\operatorname{rootn}(8, -3) = 1/2$, are flagged inexact under nearest
+  rounding and fail under directed rounding, and very tiny arguments (such as
+  $2^{-6000}$) make `exp`, `expm1`, `exp2`, `sin` and `atan` fail
+  certification. The [API reference](../api/bin_float.md#elementary-functions)
   lists the details.
 
 ## Next steps
