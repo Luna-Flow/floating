@@ -61,9 +61,10 @@ order so reports are stable and diff-friendly.
   `remaining()` equals `arguments[1:]`.
 - **Shard validity.** A successful `parse_common_options` always returns
   `shard_count() > 0` and `0 <= shard_index() < shard_count()`.
-- **Deterministic file list.** `collect_files(paths, s)` is sorted and
-  contains exactly the existing files named in `paths` that end in `s`, plus
-  the direct entries of named directories that end in `s`.
+- **Deterministic file list.** `collect_files(paths, s)` is sorted, free of
+  duplicates, and contains exactly the files named in `paths` plus the direct
+  file entries of named directories that end in `s`; a named file that does
+  not end in `s` is an error, never dropped.
 - **Diagnostic positions.** `format_diagnostic_at` never prints a line or
   column below 1.
 
