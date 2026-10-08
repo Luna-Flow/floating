@@ -10,7 +10,7 @@ Expected results are compared by set meaning: endpoint containment, set relation
 
 ## Supported Phases
 
-The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions including `atan2`, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice.
+The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice.
 
 ## Decorations And Fallbacks
 
