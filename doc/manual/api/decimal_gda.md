@@ -754,11 +754,12 @@ pub fn minus(Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn abs(Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
-Ideal exponent: that of the operand. `plus`, `minus` and `abs` return a zero
-result as $+0$; `apply` keeps the sign of a zero and does not round subset
-operands first. Under `Floor` this differs from GDA, which defines `plus` as
-$0 + x$ and `minus` as $0 - x$ and so gives $-0$ for `plus(-0)` and
-`minus(0)`; tracked in [#58](https://github.com/Luna-Flow/floating/issues/58), no fix yet.
+Ideal exponent: that of the operand. A zero result takes its sign from the
+GDA rule for a zero sum: `plus(x)` is $0 + x$ and `minus(x)` is $0 - x$, so
+`plus(-0)` and `minus(0)` are $-0$ under `Floor` and $+0$ in every other mode,
+while `plus(0)`, `minus(-0)` and `abs` of either zero are $+0$ (in a subset
+context every zero result is $+0$). `apply` keeps
+the sign of a zero and does not round subset operands first.
 
 ### `add`, `subtract`, `multiply`, `divide`, `fma`
 
@@ -1042,8 +1043,8 @@ the first; a signaling NaN gives a quiet NaN with `InvalidOperation`. Values
 that compare equal are separated by the total order (so `max(2.5, 2.50)` is
 `2.5`); in a subset context the first operand is chosen instead. The selected
 operand is then rounded to the context as by `plus`, except that in an
-extended context a zero keeps its sign (`max(-0, -0)` is `-0`, while
-`plus(-0)` is `0`).
+extended context a zero keeps its sign (`max(-0, -0)` is `-0` in every
+mode, while `plus(-0)` is `0` unless the rounding is `Floor`).
 
 ### `class_name`, `is_normal`, `is_subnormal`, `same_quantum`
 

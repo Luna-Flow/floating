@@ -21,8 +21,10 @@ pub fn Decimal::plus_ctx(
             DecimalFlags::new(),
           )
         } else {
+          // plus(x) is add(0, x) with the zero taking x's exponent, so
+          // plus(-0) adds zeros of opposite signs: -0 under Floor, else +0.
           normalize_decimal_parts_ctx_repr(
-            false,
+            operand.negative && ctx.rounding == TowardNegative,
             operand.coefficient,
             operand.exponent10,
             ctx,
@@ -94,8 +96,11 @@ pub fn Decimal::minus_ctx(
           DecimalFlags::new(),
         )
       } else {
+        // minus(x) is subtract(0, x) with the zero taking x's exponent, so
+        // minus(+0) subtracts zeros of the same sign: -0 under Floor, else
+        // +0; minus(-0) is 0 + 0 = +0.
         normalize_decimal_parts_ctx_repr(
-          false,
+          !operand.negative && ctx.rounding == TowardNegative,
           operand.coefficient,
           operand.exponent10,
           ctx,
