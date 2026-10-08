@@ -89,6 +89,12 @@ fn parse_elementary_operation(source : String) -> MpfrElementaryOperation? {
 }
 
 ///|
+/// The operations that read the second operand field.
+fn elementary_operation_is_binary(operation : MpfrElementaryOperation) -> Bool {
+  operation is (Pow | Hypot | Atan2)
+}
+
+///|
 pub fn parse_elementary_data(
   source : String,
   text : String,
@@ -137,7 +143,7 @@ pub fn parse_elementary_data(
         Some(inexact),
         Some(invalid),
         Some(division_by_zero),
-      ) =>
+      ) if right is Some(_) || !elementary_operation_is_binary(operation) =>
         match @bin_float.BinFloat::from_hex(tokens[6], output_precision) {
           Ok(expected) =>
             cases.push({
@@ -241,7 +247,12 @@ pub fn execute_elementary_data(document : MpfrElementaryDocument) -> RunSummary 
           ),
         })
       Ok((actual, flags)) => {
+        // `compare` treats -0 and +0 as equal; MPFR results carry the sign.
         let passed = actual.compare(case.expected) == 0 &&
+          (
+            !actual.is_zero() ||
+            actual.is_negative() == case.expected.is_negative()
+          ) &&
           flags.inexact() == case.inexact &&
           flags.invalid_operation() == case.invalid &&
           flags.division_by_zero() == case.division_by_zero &&

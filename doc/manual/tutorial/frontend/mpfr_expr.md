@@ -146,17 +146,16 @@ test "parse errors" {
 
 ## Common pitfalls
 
-- **Elementary rows compare numbers, not encodings.** `+0` and `-0` compare
-  equal there, and any NaN matches an expected `nan`. Square-root and power
-  rows compare the whole `BinFloat`, including the sign of zero.
+- **Elementary rows compare numbers, not encodings.** Any NaN matches an
+  expected `nan`, and a zero must have the expected sign. Square-root and
+  power rows compare the whole `BinFloat`.
 - **Square-root flags are not checked.** `sqrt` data rows compare only the
   value.
 - **No exponent range.** Rows are executed in an unbounded context: there is
   no overflow, underflow or subnormal range, and an elementary or power row
   that reports overflow or underflow fails.
 - **Binary operations need a second operand.** An elementary `pow`, `hypot`
-  or `atan2` row with `-` as second operand is accepted by the parser but
-  aborts when executed.
+  or `atan2` row with `-` as second operand is a parse diagnostic.
 
 ## Next steps
 

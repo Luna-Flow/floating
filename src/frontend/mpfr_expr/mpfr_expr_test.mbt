@@ -66,3 +66,31 @@ test "MPFR elementary parser executes certified exact identities" {
   }
   assert_eq(summary.passed_cases(), 3)
 }
+
+///|
+test "MPFR elementary parser rejects a missing second operand" {
+  for
+    row in [
+      "pow 53 n 0x2p0 - 0 0x1p0 0 0 0", "hypot 53 n 0x3p0 - 0 0x5p0 0 0 0", "atan2 53 n 0x1p0 - 0 0x0p0 0 0 0",
+    ] {
+    match @mpfr_expr.parse_elementary_data("missing", row) {
+      Err([diagnostic]) =>
+        assert_eq(diagnostic.message(), "invalid MPFR elementary field")
+      _ => fail("expected one diagnostic for " + row)
+    }
+  }
+}
+
+///|
+test "MPFR elementary executor compares the sign of zero results" {
+  let source =
+    #|sin 53 n -0x0p0 - 0 0x0p0 0 0 0
+    #|sin 53 n -0x0p0 - 0 -0x0p0 0 0 0
+    #|atan2 53 n -0x0p0 0x1p0 0 0x0p0 0 0 0
+    #|atan2 53 n -0x0p0 0x1p0 0 -0x0p0 0 0 0
+  let summary = @mpfr_expr.execute_elementary_data(
+    @mpfr_expr.parse_elementary_data("zeros", source).unwrap(),
+  )
+  let passed = summary.results().map(result => result.passed())
+  assert_eq(passed, [false, true, false, true])
+}
