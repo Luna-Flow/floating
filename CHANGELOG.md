@@ -140,6 +140,27 @@ notes live in this file.
   Annex F): $-0$ for positive odd and negative even $n$, $+0$ otherwise.
   `BallFloat::tanpi_interval` inherits the sign at such an endpoint, so
   $[1/2, 1]$ now prints as `[-inf, -0.00000e+0]`.
+- Fixed `BinFloat::pow`, `pow_ctx` and `try_pow_ctx` on IEEE 754-2019 §9.2.1
+  inputs they rejected or got wrong (#49, #89). A negative base with an integer
+  exponent of magnitude at least $2^{31}$ was a domain error, and so was a
+  negative base with an infinite exponent (`(-1)^inf` is now 1,
+  `(-0.5)^inf` is $+0$); `(-0)^0.75` was a domain error instead of $+0$;
+  `(-inf)^(2^31 + 1)` returned $+\infty$ instead of $-\infty$; and
+  `pow(±0, -inf)` raised *division_by_zero*. Integrality and parity of the
+  exponent are now read from its representation, and a negative base with an
+  integer exponent is evaluated as $\pm|x|^y$ with mirrored directed rounding.
+- Fixed exact `pow` results with a non-integer exponent (#49): `16^0.75`
+  returned 8 with *inexact* under round-to-nearest and a certification failure
+  under a directed mode. For $x = c \cdot 2^e$ and $y = m / 2^k$, a dyadic
+  result exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th
+  power; it is now computed and rounded once before the Ziv loop.
+- Fixed `BinFloat::rootn` for exact roots with a negative degree or a degree
+  above 64 (#90): `rootn(8, -3)` returned $1/2$ with *inexact*, and in a directed
+  mode `rootn(8, -3)`, `rootn(2^130, 65)` and `pow(4, -0.5)` failed to certify.
+  An exact root $r$ is now returned as $r$, or as the correctly rounded $1/r$.
+- Fixed `BinFloat::rootn(-inf, n)` for even `n` (#90), which returned
+  $+\infty$ (or $+0$ for negative `n`); like a finite negative argument it is
+  now a domain error (*invalid* in `rootn_ctx`).
 - Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
   the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
   `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They

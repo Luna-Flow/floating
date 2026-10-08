@@ -1882,11 +1882,14 @@ fn binary_exact_nth_root_coefficient(
   coefficient : BinCoeff,
   degree : Int,
 ) -> BinCoeff? {
-  guard degree > 1 && degree <= 64 && coefficient.bit_length() <= 4096 else {
-    return None
-  }
+  guard degree > 1 else { return None }
   if coefficient.compare(BinCoeff::one()) == 0 {
     return Some(BinCoeff::one())
+  }
+  // A root r >= 2 has r^degree >= 2^degree, so a coefficient with at most
+  // `degree` bits other than 1 is not a perfect power of that degree.
+  guard degree < coefficient.bit_length() && coefficient.bit_length() <= 4096 else {
+    return None
   }
   let root_bits = (coefficient.bit_length() + degree - 1) / degree
   let mut lower = BinCoeff::zero()
@@ -1963,6 +1966,12 @@ pub fn BinFloat::try_rootn_ctx(
           },
         ),
       )
+    FpClass::Infinity if self.negative && !odd =>
+      Err(
+        @def.ArithmeticError::domain_error(
+          "rootn even degree requires a non-negative value",
+        ),
+      )
     FpClass::Infinity => {
       let negative = self.negative && odd
       if degree < 0 {
@@ -2037,11 +2046,18 @@ pub fn BinFloat::try_rootn_ctx(
         }
         return Ok(self.round_ctx(context))
       }
-      if degree > 0 {
-        match binary_exact_rootn(self, degree) {
-          Some(exact) => return Ok(exact.round_ctx(context))
-          None => ()
-        }
+      // An exact root r is returned as r, or as the correctly rounded 1 / r for
+      // a negative degree; the Ziv loop below cannot certify an exact result.
+      match binary_exact_rootn(self, magnitude_degree) {
+        Some(exact) =>
+          return Ok(
+            if degree > 0 {
+              exact.round_ctx(context)
+            } else {
+              BinFloat::one(precision=context.precision).div_ctx(exact, context)
+            },
+          )
+        None => ()
       }
       let mut work = Int::max(context.precision + 64, positive.precision() + 16)
       let mut attempt = 0
@@ -2158,6 +2174,62 @@ fn binary_pow_may_leave_range(
 }
 
 ///|
+/// Exact `pow` results the Ziv loop cannot certify. For a positive finite base
+/// `c * 2^e` (c odd) and a non-integer exponent `m / 2^k` (m odd), `x^y` is
+/// dyadic exactly when `2^k` divides `e` and `c` is a perfect `2^k`-th power `r`,
+/// and then it is `r^m * 2^(m * e / 2^k)` (only for `r = 1` when `m < 0`). Every
+/// other result is irrational or not dyadic, and so is never a rounding
+/// breakpoint. A dyadic result whose odd part is too large to compute has more
+/// than `precision + 1` significant bits and is not a breakpoint either.
+fn binary_pow_exact_dyadic(
+  base : BinFloat,
+  exponent : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  guard base.classify() == FpClass::Finite &&
+    !base.is_zero() &&
+    !base.is_negative() &&
+    exponent.classify() == FpClass::Finite &&
+    !exponent.is_zero() else {
+    return None
+  }
+  let shift = -exponent.exponent2()
+  guard shift > 0 && shift < 31 else { return None }
+  let degree = 1 << shift
+  guard base.exponent2() % degree == 0 else { return None }
+  let root = match
+    binary_exact_nth_root_coefficient(base.coefficient(), degree) {
+    Some(root) => root
+    None => return None
+  }
+  let numerator = match exponent.coefficient().to_uint64() {
+    Some(value) if value < 1UL << 31 => value.reinterpret_as_int64()
+    _ => return None
+  }
+  let unit_root = root.compare(BinCoeff::one()) == 0
+  guard unit_root || !exponent.is_negative() else { return None }
+  guard unit_root ||
+    numerator * root.bit_length().to_int64() <=
+    2L * context.precision.to_int64() + 64L else {
+    return None
+  }
+  let power = if unit_root {
+    BinCoeff::one()
+  } else {
+    root.pow_nat(numerator.to_int().reinterpret_as_uint())
+  }
+  let scale = (base.exponent2() / degree).to_int64() *
+    (if exponent.is_negative() { -numerator } else { numerator })
+  guard scale >= -2147483648L && scale <= 2147483647L else { return None }
+  let exact = BinFloat::make(
+    power,
+    scale.to_int(),
+    Int::max(1, power.bit_length()),
+  )
+  Some(exact.round_ctx(context))
+}
+
+///|
 pub fn BinFloat::try_pow_ctx(
   self : BinFloat,
   exponent : BinFloat,
@@ -2174,47 +2246,21 @@ pub fn BinFloat::try_pow_ctx(
     Some(integer) => return Ok(self.pown_ctx(integer, context))
     None => ()
   }
-  match binary_exact_unit_fraction_degree(exponent) {
-    Some(degree) => return self.try_rootn_ctx(degree, context)
-    None => ()
-  }
   match binary_nan_pair(self, exponent, context.precision) {
     Some(result) => return Ok(result)
     None => ()
   }
-  if self.classify() == FpClass::Finite && self.is_negative() {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "pow requires a non-negative base for non-integer exponents",
-      ),
-    )
-  }
-  if self.classify() == FpClass::Finite && self.is_zero() {
-    if exponent.sign() == Sign::Negative {
-      return Ok(
-        (
-          BinFloat::inf(Sign::Positive, precision=context.precision),
-          binary_division_by_zero_flags(),
-        ),
-      )
-    }
-    return Ok((BinFloat::zero(precision=context.precision), BinaryFlags::new()))
-  }
-  if self.classify() == FpClass::Infinity {
-    return Ok(
-      (
-        if exponent.sign() == Sign::Negative {
-          BinFloat::zero(precision=context.precision)
-        } else {
-          BinFloat::inf(Sign::Positive, precision=context.precision)
-        },
-        BinaryFlags::new(),
-      ),
-    )
-  }
+  // Coefficients are odd, so a finite nonzero exponent is an integer exactly
+  // when exponent2 >= 0 and an odd integer exactly when exponent2 == 0.
+  let exponent_finite = exponent.classify() == FpClass::Finite
+  let exponent_integer = exponent_finite && exponent.exponent2() >= 0
+  let exponent_odd = exponent_finite && exponent.exponent2() == 0
   if exponent.classify() == FpClass::Infinity {
-    let one = BinFloat::one(precision=self.precision())
-    let comparison = self.compare(one)
+    // IEEE 754-2019 §9.2.1: pow(-1, ±inf) is 1, and otherwise the result is
+    // +0 or +inf by |x| against 1, without an exception (also for x = ±0).
+    let comparison = self
+      .abs()
+      .compare(BinFloat::one(precision=self.precision()))
     if comparison == 0 {
       return Ok(
         (BinFloat::one(precision=context.precision), BinaryFlags::new()),
@@ -2231,6 +2277,89 @@ pub fn BinFloat::try_pow_ctx(
         BinaryFlags::new(),
       ),
     )
+  }
+  // The result of a zero or infinite base is negative only for a negative base
+  // and an odd integer exponent.
+  let negative_result = self.is_negative() && exponent_odd
+  if self.classify() == FpClass::Infinity {
+    return Ok(
+      (
+        if exponent.is_negative() {
+          if negative_result {
+            BinFloat::negative_zero(precision=context.precision)
+          } else {
+            BinFloat::zero(precision=context.precision)
+          }
+        } else {
+          BinFloat::inf(
+            if negative_result {
+              Sign::Negative
+            } else {
+              Sign::Positive
+            },
+            precision=context.precision,
+          )
+        },
+        BinaryFlags::new(),
+      ),
+    )
+  }
+  if self.is_zero() {
+    if exponent.is_negative() {
+      return Ok(
+        (
+          BinFloat::inf(
+            if negative_result {
+              Sign::Negative
+            } else {
+              Sign::Positive
+            },
+            precision=context.precision,
+          ),
+          binary_division_by_zero_flags(),
+        ),
+      )
+    }
+    return Ok(
+      (
+        if negative_result {
+          BinFloat::negative_zero(precision=context.precision)
+        } else {
+          BinFloat::zero(precision=context.precision)
+        },
+        BinaryFlags::new(),
+      ),
+    )
+  }
+  if self.is_negative() {
+    guard exponent_integer else {
+      return Err(
+        @def.ArithmeticError::domain_error(
+          "pow requires a non-negative base for non-integer exponents",
+        ),
+      )
+    }
+    // An integer exponent beyond the `pown` range: |x|^y, negated for an odd
+    // y, which also mirrors the directed rounding modes.
+    if !exponent_odd {
+      return self.abs().try_pow_ctx(exponent, context)
+    }
+    let mirrored = {
+      ..context,
+      rounding: match context.rounding {
+        RoundTowardPositive => RoundTowardNegative
+        RoundTowardNegative => RoundTowardPositive
+        mode => mode
+      },
+    }
+    return self
+      .abs()
+      .try_pow_ctx(exponent, mirrored)
+      .map(fn(result) { (result.0.neg(), result.1) })
+  }
+  match binary_exact_unit_fraction_degree(exponent) {
+    Some(degree) => return self.try_rootn_ctx(degree, context)
+    None => ()
   }
   // log2(result) = exponent * log2(base). The Ziv loop below cannot certify a
   // result whose own enclosure overflows, so certain overflow and underflow
@@ -2267,6 +2396,10 @@ pub fn BinFloat::try_pow_ctx(
       is Some(result) {
       return Ok(result)
     }
+  }
+  match binary_pow_exact_dyadic(self, exponent, context) {
+    Some(result) => return Ok(result)
+    None => ()
   }
   let mut work = Int::max(
     context.precision + 64,
