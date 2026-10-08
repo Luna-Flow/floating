@@ -220,8 +220,15 @@ in the attachment:
 If the exact result has $\hat e < e_{\min}$ it is *tiny*. A tiny result may
 still need the unit $10^{E_{\mathrm{tiny}}}$ at most, so the rounding position
 is not "keep $p$ digits" but "keep the digits at or above
-$10^{E_{\mathrm{tiny}}}$": with the exact exponent $e < E_{\mathrm{tiny}}$, the
-finalizer removes $k = E_{\mathrm{tiny}} - e$ digits, possibly all of them.[^gda-etiny] The
+$10^{E_{\mathrm{tiny}}}$". With an exact coefficient of $D$ digits and
+exponent $e$, rounding to $p$ digits would give the exponent
+$e + \max(0, D - p)$; when that is below $E_{\mathrm{tiny}}$ the finalizer
+instead removes $k = E_{\mathrm{tiny}} - e$ digits, possibly all of them, in
+one rounding. A longer coefficient whose exponent is below
+$E_{\mathrm{tiny}}$ but whose magnitude is normal is rounded once to $p$
+digits; rounding it to the subnormal grid first would round twice (in
+decimal32, $3.000001\cdot 10^{-45} \times 1.500001\cdot 10^{-45}$ is
+`4.500005E-90`). The
 absolute error is then bounded by the subnormal unit,
 
 $$
@@ -247,12 +254,6 @@ the extra rounding is done only there.
 The grid matters: $0.9951$ rounds to $0.995$ at $p$ digits and is tiny,
 although its rounding at $E_{\mathrm{tiny}} = -2$ is the normal `1.00`;
 $0.99951$ rounds to $1.00$ at $p$ digits and is not tiny.
-
-[^gda-etiny]: The finalizer applies this removal whenever $e < E_{\mathrm{tiny}}$,
-    also for a result whose magnitude is normal, and then rounds again to
-    $p$ digits; for such a result the two roundings can differ from one
-    ([#121](https://github.com/Luna-Flow/floating/issues/121), fix proposed in
-    [#124](https://github.com/Luna-Flow/floating/pull/124)).
 
 ### Clamping
 
@@ -486,14 +487,21 @@ with $u/2$ exactly. The special case where $x_1$ is a power of ten and $x_2$
 has the opposite sign (the unit below $x_1$ is ten times smaller) is excluded
 and takes the general path.
 
-The argument assumes that $x_1$ itself ends at or above the last retained
-position. When $x_1$ has digits below it, or is exactly a midpoint, $x_2$ can
+The argument needs $x_1$ itself to end at or above the last retained
+position, so this shortcut is taken only when $x_1$ fits the context exactly
+(and not under `ZeroFiveUp`, whose rounding depends on the last kept digit).
+When $x_1$ has digits below that position, or is exactly a midpoint, $x_2$ can
 still move the sum across a boundary that the comparison with $u/2$ does not
-see, and the shortcut misrounds: at precision 7, `add(1598618.5, 1E-20)` under
-`HalfEven` gives `1598618`. The `decimal` package avoids this by replacing
-$x_2$ with a sticky unit placed just below every rounding boundary of the sum;
-porting that is tracked in [#120](https://github.com/Luna-Flow/floating/issues/120),
-with a fix proposed in [#124](https://github.com/Luna-Flow/floating/pull/124).
+see. An extended context then replaces $x_2$ by a *sticky unit*, as the
+`decimal` package does. Let $t$ be the target exponent of $x_1$ alone and
+$g = \min(e_1, t - 2)$. Every digit of $x_1$ and every rounding boundary of
+the sum (the grid $10^{t}$, its midpoints, and the grid $10^{t-1}$ with its
+midpoints, which a cancellation can reach) lies on the grid $10^{g}$. If
+$0 < |x_2| < 10^{g}$, the sum lies strictly between the same two neighbours on
+that grid as $x_1 \pm 10^{g-1}$, with the sign of $x_2$, so rounding that short
+value once gives the result and the flags of the exact sum in every mode:
+at precision 7, `add(1598618.5, 1E-20)` under `HalfEven` is `1598619`, and
+`subtract(1598618, 9.9E-11)` under `ZeroFiveUp` is `1598617`.
 
 ### Division
 
@@ -501,11 +509,16 @@ with a fix proposed in [#124](https://github.com/Luna-Flow/floating/pull/124).
 small exact divisors separately. Otherwise it scales the dividend by
 $10^{t}$ with $t = p + d(c_2) + 2$, so that $Q = c_1 10^{t} / c_2 \ge
 10^{p+2}$ has at least $p + 3$ integer digits, rounds $Q$ to an integer $q$
-with the context mode, and then rounds $q$ to $p$ digits. Whether the quotient
+with `ZeroFiveUp` (explained below), and then rounds $q$ to $p$ digits in the
+context mode. Whether the quotient
 terminates is decided exactly (`has_finite_decimal_expansion_repr`: $c_1/c_2$
 terminates iff $c_2 / \gcd(c_1, c_2)$ has no prime factors other than 2 and 5),
 which selects the ideal-exponent cohort for exact quotients and forces
-`Inexact` with a $p$-digit coefficient for the others.
+`Inexact` with a $p$-digit coefficient for the others. An exact quotient that
+needs rounding, from any of these paths, goes to the subnormal grid only when
+its value is below $10^{e_{\min}}$ and is otherwise rounded once to $p$
+digits, as in the finalizer: at precision 5, `divide(77223, 16E+21)` is
+`4.8264E-18`.
 
 The two successive roundings are equivalent to one for the directed modes,
 because truncations compose:

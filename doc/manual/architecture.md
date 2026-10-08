@@ -154,12 +154,10 @@ hardest known cases of $\exp$ and $\ln$ need a little more than $2p$ bits,
 far below that, but no such bound is known for every precision, so a failure
 remains possible in principle and is reported rather than hidden.
 
-[^open-exact]: Some exact cases are not yet decided first: non-integral
-    decimal powers such as $4^{1.5}$
+[^open-exact]: The decimal packages do not yet decide exact non-integral
+    powers such as $4^{1.5}$ first
     ([#53](https://github.com/Luna-Flow/floating/issues/53) and
-    [#112](https://github.com/Luna-Flow/floating/issues/112)) and binary roots
-    of coefficients wider than 4096 bits
-    ([#129](https://github.com/Luna-Flow/floating/issues/129)).
+    [#112](https://github.com/Luna-Flow/floating/issues/112)).
 
 `bin_float` owns the scalar dyadic certificates. `ball_float` lifts them over
 endpoints, critical points, poles and domain boundaries. `decimal` and

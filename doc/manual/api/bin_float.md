@@ -1430,11 +1430,9 @@ every rounding mode.
 
 Every result that reaches the loop is not a rounding breakpoint, so an
 enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for
-$\sin x$ at a tiny $x$) cannot be the result. The functions other than `pow`
-and `rootn` move such an end just inside the enclosure before rounding it;
-`pow` does not yet, so a tiny exponent can fail certification
-([#128](https://github.com/Luna-Flow/floating/issues/128), fix proposed in
-[#130](https://github.com/Luna-Flow/floating/pull/130)).
+$\sin x$ at a tiny $x$) cannot be the result. The functions other than
+`rootn` move such an end just inside the enclosure before rounding it; `pow`
+does so once its exactness test has excluded a breakpoint.
 In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide
 an argument with $|x|^3$ below the target spacing at $x$ directly from
 $|f(x) - x| \le |x|^3$, and `cos`, `cosh`, `expm1` and `log1p` do the same with
@@ -1613,7 +1611,7 @@ The cases are tried in this order, as in IEEE 754-2019 §9.2.1:
 10. An exactly dyadic result is computed and rounded once. For
     $x = c \cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \le k \le 30$) it
     exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power
-    $r$ (tested, as for `rootn`, for $c$ of at most 4096 bits); then
+    $r$ (tested as for `rootn`, for coefficients of any size); then
     $x^y = r^m \cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when
     $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would
     need more than $2p + 64$ bits is not a rounding breakpoint and is left to
@@ -1622,10 +1620,13 @@ The cases are tried in this order, as in IEEE 754-2019 §9.2.1:
 
 Integrality and parity of $y$ are read from its odd coefficient: a finite
 nonzero $y$ is integral when `exponent2()` $\ge 0$ and odd when it is $0$.
-Step 11 rounds its enclosure without moving a representable end inward, so an
-exponent so small that $x^y$ lies closer to $1$ than the target spacing is a
-`certification_failure`, for example $2^{2^{-16000}}$ in `binary128()`.
-Tracked in [#128](https://github.com/Luna-Flow/floating/issues/128); a fix is proposed in [#130](https://github.com/Luna-Flow/floating/pull/130).
+When step 10 has shown that the result is not a rounding breakpoint, step 11
+moves a representable enclosure end just inside before rounding, so an
+exponent so small that $x^y$ lies closer to $1$ than the target spacing is
+still certified: $2^{2^{-16000}}$ in `binary128()` is $1$ with `inexact`. A
+few results with a power-of-two base that step 10 cannot classify (an
+exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range)
+keep the plain test.
 
 ### `BinFloat::rootn`, `BinFloat::rootn_ctx`, `BinFloat::try_rootn_ctx`
 
@@ -1651,14 +1652,11 @@ NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
 So $\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and
 $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is
 detected when $|n|$ divides the exponent of $x = c \cdot 2^e$ and the odd
-coefficient $c$ (of at most 4096 bits) is a perfect $|n|$-th power $r$; the
+coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the
 result is then $\pm r \cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the
 correctly rounded reciprocal of it. So $\operatorname{rootn}(8, -3) = 1/2$
-without `inexact` in every rounding mode. A coefficient of more than 4096 bits
-is not tested, so an exact root of one (possible only above 4096 bits of
-precision) comes back with a spurious `inexact` under nearest rounding and as
-a `certification_failure` under a directed one. Tracked in [#129](https://github.com/Luna-Flow/floating/issues/129); a
-fix is proposed in [#130](https://github.com/Luna-Flow/floating/pull/130).
+without `inexact` in every rounding mode, and an exact square root of a
+6001-bit coefficient is found as well.
 
 ### `BinFloat::hypot`, `BinFloat::hypot_ctx`, `BinFloat::try_hypot_ctx`
 

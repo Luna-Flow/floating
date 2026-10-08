@@ -831,13 +831,6 @@ boundaries, and the sum is rounded once (see the
 `1598617.000000000001 - 0.000000000002` is `1598616` under `Down`, and
 `6.0000005E-73 + 1E-101` is `6.000001E-73` under `HalfEven`.
 
-> [!WARNING]
-> `div_ctx` by a power of ten takes an exact-quotient shortcut that rounds a
-> result below $10^{e_{\min}}$ only to the subnormal grid, not to $p$ digits:
-> at precision 5 under `Up`, `4826437 / 1E+24` gives the six-digit
-> `4.82644E-18` instead of `4.8265E-18`. Tracked in [#126](https://github.com/Luna-Flow/floating/issues/126); a fix is
-> proposed in [#127](https://github.com/Luna-Flow/floating/pull/127).
-
 ```moonbit
 ///|
 test "decimal context results are rounded once" {
@@ -1834,10 +1827,9 @@ with `Err(division_by_zero)` and `Err(domain_error)` as in
 [`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under
 the converted context and fails for negative operands. `pow_nat_checked` and
 `pow_int_checked` are `power_ctx` with the integer exponent converted to a
-`Decimal` of the context precision (unlike `pown_ctx`, an exponent with more
-than $p$ digits is rounded first, which can change its parity: at precision 7,
-`(-1).pow_int_checked(12345679, ctx)` is `1`; tracked in
-[#123](https://github.com/Luna-Flow/floating/issues/123), a fix is proposed in [#125](https://github.com/Luna-Flow/floating/pull/125)); they return `Err(division_by_zero)` for a
+`Decimal` exactly (with at least ten digits, which hold every accepted
+exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`;
+they return `Err(division_by_zero)` for a
 zero base with a negative exponent, `Err(domain_error)` for an invalid power,
 and `pow_nat_checked` returns `Err(unsupported)` for exponents above
 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked).

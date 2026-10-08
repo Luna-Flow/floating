@@ -38,12 +38,6 @@ behaviours, none of which has a pinned row:
   proposed in [#116](https://github.com/Luna-Flow/floating/pull/116)).
 - Integer `power` is accurate to about 0.55 units in the last place (0.6 for
   negative exponents), not correctly rounded, as the specification allows.
-- Sums with a far smaller addend can misround ([#120](https://github.com/Luna-Flow/floating/issues/120)); normal results
-  whose exact exponent is below $E_{\mathrm{tiny}}$ are rounded twice, and an
-  exact quotient below $10^{e_{\min}}$ may keep more than $p$ digits
-  ([#121](https://github.com/Luna-Flow/floating/issues/121)); `scaleb` neither rounds nor clamps and overflows to
-  infinity in every mode ([#122](https://github.com/Luna-Flow/floating/issues/122)). A fix for all three is proposed in
-  [#124](https://github.com/Luna-Flow/floating/pull/124) ([API](../api/decimal_gda.md#add-subtract-multiply-divide-fma)).
 
 ## Isolation and native benchmark
 

@@ -692,11 +692,14 @@ rational exactly when $|n| \mid e$ and $c = r^{|n|}$; `rootn` returns
 $\pm r \cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly
 rounded quotient $1 / (\pm r \cdot 2^{e/|n|})$, which division decides with
 the right `inexact` flag although it need not be dyadic. The perfect-power
-test is a bisection on the root and runs only for coefficients of at most
-4096 bits; an exact root of a wider coefficient, which needs a precision above
-4096 bits, still reaches the loop and gets the spurious `inexact` or the
-budget failure that the flag argument predicts ([#129](https://github.com/Luna-Flow/floating/issues/129); a fix is
-proposed in [#130](https://github.com/Luna-Flow/floating/pull/130)).
+test has no size limit. It first takes square roots with remainder for every
+factor $2$ of the degree, stopping at the first nonzero remainder, and then
+the floor of the remaining odd root: by bisection while the root has at most
+64 bits, otherwise by integer Newton steps $r \leftarrow \lfloor ((d-1) r +
+\lfloor c / r^{d-1} \rfloor) / d \rfloor$ started just above the root, which
+decrease monotonically to $\lfloor c^{1/d} \rfloor$; one power $r^d$ then
+decides exactness. A coefficient with at most $d$ bits other than $1$ is
+rejected at once, because $r \ge 2$ gives $r^d \ge 2^d$.
 
 A negative base with an integral exponent beyond the `pown` range is
 evaluated as $\pm|x|^y$. Negation is an exact symmetry of $\circ$ that swaps
@@ -724,11 +727,14 @@ $f(x) \ne E$, either $f(x)$ lies beyond $E'$ or between $E$ and $E'$, and in the
 second case it shares the open cell between breakpoints with $E'$ and rounds
 like it. So $\circ(E') = \circ(U')$ with equal flags still forces
 $\circ(f(x))$ and its flags, and the test passes as soon as the enclosure is
-narrower than the spacing, independently of $|x|$. `pow` does not use inner
-endpoints yet, so an exponent tiny enough that $x^y$ lies closer to $1$ than
-the target spacing exhausts the budget
-([#128](https://github.com/Luna-Flow/floating/issues/128); a fix is proposed in
-[#130](https://github.com/Luna-Flow/floating/pull/130)).
+narrower than the spacing, independently of $|x|$. `pow` uses inner
+endpoints whenever its exactness test (above) has shown that the result is
+irrational, not dyadic, or wider than $p + 1$ bits, so a tiny exponent with
+$x^y$ closer to $1$ than the target spacing is certified too
+($2^{2^{-16000}}$ in binary128 is $1$ with `inexact`). The test leaves a few
+cases with a power-of-two base undecided (an exponent of magnitude at least
+$2^{31}$, or a scale outside the 32-bit range); those keep the plain
+acceptance test.
 
 *Tiny-argument bounds.* Some enclosures (for $\sinh$, $\tanh$ via
 $e^x - e^{-x}$, and for $\operatorname{asinh}$, $\operatorname{atanh}$,
@@ -751,14 +757,16 @@ before the loop; otherwise (an argument wider than $p + 1$ bits) the loop runs
 as usual. With both measures `sin` and `atan` of $2^{-6000}$ at 53 bits and
 $e^{2^{-20000}}$ are certified in every rounding mode.
 
-`pow` and `rootn` keep the plain test. For `rootn` it suffices: its enclosure
+`rootn` keeps the plain test, and `pow` uses it only for the few results its
+exactness test cannot classify. For `rootn` it suffices: its enclosure
 is $e^{\ln(x)/n}$ at a working precision above the operand precision $q$, and
 $|\ln x| / |n| > 2^{-(q + 31)}$ for $x \ne 1$ and $|n| \le 10^9$, so an end at
 $1$ disappears after an attempt or two. `pow` evaluates $e^{y \ln x}$, where
 $y$ can be arbitrarily small: an exponent so small that $x^y$ lies closer to
 $1$ than the target spacing gives an enclosure with $L = 1$ at every
-affordable $w$, and such inputs, for example $2^{2^{-16000}}$ in binary128,
-exhaust the budget.
+affordable $w$. That is why `pow` moves such an end inward once its exactness
+test has excluded a breakpoint, as described under inner endpoints; for
+example $2^{2^{-16000}}$ in binary128 is then $1$ with `inexact`.
 
 [^niven]: I. Niven, *Irrational Numbers*, 1956, Corollary 3.12: if $r$ is
     rational and $\sin(\pi r)$ is rational, then
@@ -912,9 +920,7 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
   $\circ(r)$ for the exact real result $r$, with the range rules above. By
   (R1), $\circ(r) = r$ and no flag is raised whenever $r \in F$; `round_ctx`
   is idempotent.
-- **Flags.** `inexact` iff $\circ(r) \ne r$, except for an exact `rootn` or
-  `pow` result from a base coefficient wider than 4096 bits (see *Exact
-  powers and roots*);
+- **Flags.** `inexact` iff $\circ(r) \ne r$;
   `overflow` implies `inexact`; `underflow` iff tiny (per the context rule)
   and inexact; `division_by_zero` only for an exact infinite result of finite
   operands;
