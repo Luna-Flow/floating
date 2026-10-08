@@ -260,6 +260,14 @@ notes live in this file.
   a non-negative exponent is now returned unchanged and the quantization to
   exponent 0 uses a working precision of at least the operand's length
   (`12345.6` gives `12346`, with `Inexact` and `Rounded` for the exact form).
+- Fixed `DecimalTininessDetection::AfterRounding` in the IEEE and GDA decimal
+  packages. It decided tininess from the result rounded on the subnormal grid
+  (at `Etiny`), which keeps fewer digits than the precision, so a value just
+  below $10^{e_{\min}}$ whose rounding to $p$ digits stays below it counted as
+  not tiny: `0.9951` at precision 3 and $e_{\min} = 0$ rounded to `1.00`
+  without `underflow`. Tininess after rounding now uses the value rounded to
+  $p$ digits with an unbounded exponent range, as IEEE 754 §7.5 and the
+  package documentation define it.
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system
