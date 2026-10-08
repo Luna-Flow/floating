@@ -728,11 +728,16 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
       // GDA decDivideOp performs non-restoring long division directly over
       // Unit arrays and stores the quotient in its decimal accumulator
       // (decNumber.c lines 4159-4201 and 4394-4607).
+      // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
+      // remainder always leaves the retained low digit off 0 and 5. Rounding it
+      // with the target mode here could manufacture an exact tie that the exact
+      // quotient had already decided, and the final rounding would then apply
+      // the tie rule to it (decNumber uses DEC_ROUND_05UP for the same reason).
       let q = round_positive_decimal_div_repr(
         numerator,
         b.coefficient,
         a.sign() != b.sign(),
-        DecimalRoundingMode::HalfEven,
+        DecimalRoundingMode::ZeroFiveUp,
       )
       normalize_decimal_parts_gda_repr(
         a.sign() != b.sign(),
