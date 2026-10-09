@@ -24,9 +24,8 @@ accumulates the flags of a pipeline of `Decimal` operations.
 > below. They are listed where they occur: operands longer than the precision in
 > [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value),
 > exact results of non-integral powers among the
-> [elementary functions](#elementary-functions), the sign of a binary zero in
-> [`from_bin_float`](#decimalfrom_bin_float-to_bin_float), and NaN payloads in
-> the [BID encoder](#decimalto_interchange_hex-to_interchange_hex_with_encoding).
+> [elementary functions](#elementary-functions), and the sign of a binary zero in
+> [`from_bin_float`](#decimalfrom_bin_float-to_bin_float).
 > Each note links the GitHub issue that tracks it and, where one exists,
 > the proposed fix.
 
@@ -1595,20 +1594,10 @@ A finite value is first rounded with `apply_ctx` under the format context
 (its flags are returned), then encoded with its exponent, so the cohort is
 kept when it fits. The text is `#` followed by 8, 16 or 32 upper-case hex
 digits. Infinities are encoded with a zero trailing field. A NaN keeps its
-sign and kind; DPD keeps the low $p-1$ payload digits.
-
-> [!WARNING]
-> The BID encoder does not store the payload as an integer. It writes the
-> payload with $p_{\text{value}}-1$ digits, where $p_{\text{value}}$ is the
-> precision field of the `Decimal`, and keeps the *leading* $p-1$ of those
-> digits (padding with zeros on the right when there are fewer). The payload
-> survives only when $p_{\text{value}}$ equals the format precision. For
-> example, `NaN7` parsed with the default precision 34 encodes to decimal64 BID
-> as `#7C00000000000000` (payload 0) while DPD gives `#7C00000000000007`, and
-> a NaN with payload 7 and precision 7 encodes to BID payload 7000000000.
-> Build NaNs with `Decimal::quiet_nan(payload=..., precision=p)` using the
-> format precision before encoding them in BID. Tracked in [#54](https://github.com/Luna-Flow/floating/issues/54); no fix
-> yet.
+sign and kind, and its payload is stored as an integer, independent of the
+value's precision field (IEEE 754-2019 §3.5.2): a payload below $10^{p-1}$ is
+kept, and a longer one keeps its low $p-1$ digits, in DPD and BID alike.
+`NaN7` encodes to decimal64 as `#7C00000000000007` in both encodings.
 
 ### `Decimal::from_interchange_hex`, `from_interchange_hex_with_encoding`
 

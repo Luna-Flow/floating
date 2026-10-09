@@ -883,7 +883,7 @@ measurements do not show a crossover.
   representations and refines `compare` on non-NaN values.
 - **Encodings.** Decoding then encoding canonical bits is the identity;
   encoding then decoding a value that fits the format is the identity,
-  including cohort, sign of zero and NaN payload (DPD).
+  including cohort, sign of zero and NaN payload (DPD and BID).
 - **Complexity.** Comparison, addition, shifts and one-limb division are
   $O(n)$ in limbs; multiplication and division follow the dispatch table.
 
@@ -898,7 +898,6 @@ pull request that proposes a fix, where one exists.
 | --- | --- | --- | --- |
 | `power_ctx` | an exact decimal result of a non-integral power that is not a binary fraction ($0.0016^{0.25} = 0.2$) carries `inexact` (half modes) or fails certification (directed modes) | no exactness test before the enclosure loop, whose agreement test assumes $f(x)$ is not representable | [#53](https://github.com/Luna-Flow/floating/issues/53), fix in [#99](https://github.com/Luna-Flow/floating/pull/99) |
 | `to_integral_exact`, `to_integral_value` | integers longer than $p$ digits are rounded; a fraction with a longer integral part gives an invalid NaN | the operand is rounded or quantized at the context precision | [#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119) |
-| BID NaN | payloads are kept by leading digits of the value's precision | payload written at the value's precision | [#54](https://github.com/Luna-Flow/floating/issues/54), no fix yet |
 | `from_bin_float` | a binary $-0$ becomes $+0$ | every binary zero is mapped to `Decimal::zero` | [#55](https://github.com/Luna-Flow/floating/issues/55), no fix yet |
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
@@ -948,8 +947,7 @@ four targets).
   with `invalid_operation` (`*_ctx`);
 - evaluate elementary functions in contexts with precision or exponents above
   999,999;
-- preserve NaN payloads through binary conversions, or keep a BID NaN payload
-  whose value precision differs from the format precision;
+- preserve NaN payloads through binary conversions;
 - expose its coefficient representation, kernel selection or thresholds;
 - claim conformance beyond the finite evidence on the
   [conformance page](../conformance/decimal.md).

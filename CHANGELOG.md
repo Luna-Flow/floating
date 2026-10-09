@@ -488,6 +488,16 @@ notes live in this file.
   with divideByZero, as `log2_ctx`, `log1p_ctx(-1)` and `logb_ctx` already
   did; the flag is now raised (#94). `decimal_gda` keeps the General Decimal
   Arithmetic rule, which raises no condition.
+- Fixed NaN payloads in the BID encoder of the IEEE `decimal` package. It
+  wrote the payload with as many digits as the value's precision field and
+  kept the leading $p-1$ of them, so a payload survived only when that field
+  equalled the format precision: `Decimal::quiet_nan(payload=123)` (precision
+  34) encoded to decimal64 BID with payload 0, and a decimal32 payload 256
+  became $256 \cdot 10^{27}$ in decimal128. IEEE 754-2019 §3.5.2 defines the
+  BID payload as the integer value of the trailing significand field (and
+  §9.7 the payload as an integer), so the encoder now stores the payload
+  integer, keeping its low $p-1$ digits when it is longer, as the DPD encoder
+  does (#54).
 
 ## 0.8.0 - 2026-09-06
 

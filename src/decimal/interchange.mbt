@@ -311,28 +311,6 @@ fn decimal_interchange_coefficient_digits(
 }
 
 ///|
-fn decimal_nan_payload_digits(
-  payload : BigInt,
-  source_digits : Int,
-  target_digits : Int,
-) -> String {
-  let raw = abs_bigint(payload).to_string()
-  let source_width = Int::max(source_digits, raw.length())
-  let source = if raw.length() < source_width {
-    zeros(source_width - raw.length()) + raw
-  } else {
-    raw
-  }
-  if source_width == target_digits {
-    source
-  } else if source_width < target_digits {
-    source + zeros(target_digits - source_width)
-  } else {
-    source[:target_digits].to_owned()
-  }
-}
-
-///|
 fn decimal_nan_payload_digits_low(payload : BigInt, digits : Int) -> String {
   let raw = abs_bigint(payload).to_string()
   let limited = if raw.length() > digits {
@@ -688,12 +666,16 @@ fn Decimal::to_interchange_hex_bid(
       (sign_bit << sign_shift) +
       (BigInt::from_int(0b11110) << special_prefix_shift)
     FpClass::NaN => {
-      let payload_digits = decimal_nan_payload_digits(
-        applied.nan_payload(),
-        Int::max(0, applied.precision_ - 1),
-        decimal_interchange_payload_digits(format),
+      // IEEE 754-2019 §3.5.2: the BID payload is the integer value of the
+      // trailing significand field, independent of the value's precision.
+      // As in the DPD encoder, a payload with more than p - 1 digits keeps
+      // its low p - 1 digits.
+      let payload = BigInt::from_string(
+        decimal_nan_payload_digits_low(
+          applied.nan_payload(),
+          decimal_interchange_payload_digits(format),
+        ),
       )
-      let payload = BigInt::from_string(payload_digits)
       let signal_head = if applied.signaling_nan { 1 } else { 0 }
       let exponent_head = BigInt::from_int(signal_head) << (exp_bits - 1)
       (sign_bit << sign_shift) +
