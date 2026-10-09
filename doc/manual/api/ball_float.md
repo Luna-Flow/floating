@@ -487,31 +487,30 @@ it.
 pub fn BallFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 ```
 
-For a bounded interval the center is rounded with `mode`, the displacement
-is added to the radius, and the result is rebuilt as in `BallFloat::new`. For
-an unbounded interval the finite endpoint is rounded outward and `mode` is
-ignored. Empty stays Empty with the new precision.
+The endpoints are rounded outward: the lower bound toward $-\infty$ and the
+upper bound toward $+\infty$. `mode` is accepted for signature compatibility
+and is ignored, because outward rounding is the only direction that keeps the
+result an enclosure. Empty stays Empty with the new precision.
 
-> [!WARNING]
-> The center–radius rebuild is not an identity, even when the precision does
-> not change: if the exact center $(\underline{x} + \overline{x})/2$ needs
-> more than $p$ bits, both endpoints move outward by the rounding error of the
-> center. At 53 bits, $[1, 1 + 2^{-52}]$ has center $1 + 2^{-53}$, and
-> `with_precision(53, ToNearestEven)` returns $[1 - 2^{-52}, 1 + 2^{-52}]$.
-> The result still contains the input (except in the far-endpoint case noted
-> under `center`, when the new precision exceeds about $2^{16}$ bits), but it
-> can be wider by up to one ulp per side at every call. `normalized`,
-> `convex_hull` with an Empty operand, the checked capabilities
+> [!NOTE]
+> The result is the tightest representable enclosure of the input, so widening
+> the precision is exact and re-rounding at an unchanged precision is an
+> identity. The center–radius rebuild this function used to perform is not an
+> identity: if the exact center $(\underline{x} + \overline{x})/2$ needs more
+> than $p$ bits, both endpoints move outward by the rounding error of the
+> center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$.
+> `normalized`, `convex_hull` with an Empty operand, the checked capabilities
 > (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the
-> `pow_nat`/`pow_int` methods of `ball_float_checked` all go through this
-> rebuild. To re-round without widening, use
-> `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`. The widening
-> is tracked in [#69](https://github.com/Luna-Flow/floating/issues/69) and the far-endpoint case in [#44](https://github.com/Luna-Flow/floating/issues/44); fixes are
-> proposed in [#68](https://github.com/Luna-Flow/floating/pull/68) and in [#91](https://github.com/Luna-Flow/floating/pull/91), which builds on it.
+> `pow_nat`/`pow_int` methods of `ball_float_checked` still go through that
+> rebuild and can widen by up to one ulp per side; it is tracked in
+> [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed
+> in [#91](https://github.com/Luna-Flow/floating/pull/91). To re-round one of
+> those results without widening, use
+> `from_bounds(x.lower_bound(), x.upper_bound(), precision=q)`.
 
 ```moonbit
 ///|
-test "with_precision widens" {
+test "with_precision keeps the endpoints" {
   let one = @bin_float.BinFloat::one(precision=53)
   let next = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::from_uint64((1UL << 52) + 1UL),
@@ -520,12 +519,11 @@ test "with_precision widens" {
   )
   let x = @ball_float.BallFloat::from_bounds(one, next)
   let y = x.with_precision(53, @lf_arith.RoundingMode::ToNearestEven)
-  inspect(y.lower_bound().to_string(), content="4503599627370495p-52")
+  inspect(y.lower_bound().to_string(), content="1p0")
   inspect(y.upper_bound().to_string(), content="4503599627370497p-52")
-  inspect(x.subset(y) && !y.subset(x), content="true")
-  // Re-rounding through the bounds keeps the interval.
-  let z = @ball_float.BallFloat::from_bounds(x.lower_bound(), x.upper_bound(), precision=53)
-  inspect(z.set_equal(x), content="true")
+  inspect(y.set_equal(x), content="true")
+  // The center-radius rebuild that `normalized` still uses does widen.
+  inspect(x.normalized().lower_bound().to_string(), content="4503599627370495p-52")
 }
 ```
 

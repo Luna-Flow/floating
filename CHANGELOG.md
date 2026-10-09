@@ -236,6 +236,18 @@ notes live in this file.
   singleton, so the interval could exclude its own input
   (`BallFloat::from_int(100001)` at the default 16 bits returned exactly
   100000). They now build the value exactly and let the interval round outward.
+- Fixed `BallFloat::with_precision`, which rebuilt a bounded interval from
+  `center()` and `radius()`. The center adds the endpoints in round-to-nearest
+  mode, which replaces an addend more than 65536 bits below the larger one by a
+  sticky surrogate, while the radius drops that addend; once the new precision
+  stored the surrogate exactly the result no longer contained the original
+  lower endpoint. Both branches now round the endpoints outward, as the
+  unbounded branch already did, which also makes the result the tightest
+  representable enclosure instead of widening ordinary intervals. The
+  rounding-mode argument is kept for signature compatibility and cannot narrow
+  an enclosure. `normalized()` uses the same surrogate but is not affected: it
+  keeps the interval's own precision, where the center error always folds the
+  surrogate back into the radius.
 - Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
   `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
   that flag, a failed parse did not count as an error.

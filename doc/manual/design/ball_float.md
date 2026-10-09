@@ -259,13 +259,14 @@ $$
 $$
 
 The endpoints $\tilde c \pm R$ are then formed exactly (they may have more
-than $p$ bits). `with_precision` uses the same construction with the current
-center and radius, and a caller-chosen rounding mode for the center. The
-construction is sound but not idempotent: whenever $\tilde c \ne c$, the
-displacement $|c - \tilde c|$ is added on both sides, so rebuilding an
-interval whose center needs more than $p$ bits widens it (see
-[Tightness](#correctness-and-invariants)). The
-converse view is exact: `center` returns $(\underline{x} + \overline{x})/2$
+than $p$ bits). The construction is sound but not idempotent: whenever
+$\tilde c \ne c$, the displacement $|c - \tilde c|$ is added on both sides, so
+rebuilding an interval whose center needs more than $p$ bits widens it (see
+[Tightness](#correctness-and-invariants)). `normalized` accepts that;
+`with_precision` does not use the construction at all. It rounds the endpoints
+outward directly, which encloses the input at every precision and is the
+tightest representable enclosure, so its rounding-mode argument cannot narrow
+the result. The converse view is exact: `center` returns $(\underline{x} + \overline{x})/2$
 and `radius` returns $(\overline{x} - \underline{x})/2$, which are dyadic and
 need no rounding (the radius is rounded up only if it underflows the
 exponent range), so $[\text{center} - \text{radius}, \text{center} +
@@ -718,11 +719,11 @@ are correctly directed roundings when certified; the other elementary
 functions are usually within a few ulps. Not tight: fallbacks; `pown` with
 $n < -4096$ and 0 inside (Entire); the total hyperbolic functions for
 $|\xi| \lesssim 2^{-190}$ (cancellation, see above); and everything that
-goes through the center–radius rebuild of `with_precision`, which can widen
-by one ulp per side even at an unchanged precision. At 53 bits,
+goes through the center–radius rebuild of `normalized`, which can widen by one
+ulp per side even at an unchanged precision. At 53 bits,
 $[1, 1 + 2^{-52}]$ has center $1 + 2^{-53}$, which needs 54 bits; rounding it
 to 1 and adding the displacement $2^{-53}$ to the radius gives
-$[1 - 2^{-52}, 1 + 2^{-52}]$. This affects `with_precision`, `normalized`,
+$[1 - 2^{-52}, 1 + 2^{-52}]$. This affects `normalized`,
 `convex_hull` with an Empty operand and the checked capabilities; it is
 tracked in [#69](https://github.com/Luna-Flow/floating/issues/69), with a fix proposed in [#91](https://github.com/Luna-Flow/floating/pull/91). The
 `Floating` law "normalizing keeps the value" therefore holds for `BallFloat`
@@ -750,12 +751,8 @@ result incorrectly, or return a set other than the specified one. Each is
 tracked in an issue with a proposed fix that is not merged yet; they are
 documented here so that callers can avoid them.
 
-- `with_precision` (and therefore `normalized`) rebuilds a bounded interval
-  from `center()`, which uses the far-addend surrogate with
-  round-to-nearest. For endpoints more than about $2^{16}$ binary orders of
-  magnitude apart and a new precision large enough to store the surrogate
-  exactly (more than about 65536 bits), the result can lose the smaller
-  endpoint. Tracked in [#44](https://github.com/Luna-Flow/floating/issues/44); a fix is proposed in [#68](https://github.com/Luna-Flow/floating/pull/68).
+- Decorated `rootn` with a negative degree does not lower the decoration to
+  `trv` when 0 is in the argument.
 - `midpoint_ctx` does not apply the context's $e_{\max}$ and never raises
   `overflow`. It also rounds to nearest twice (to $p$ bits, then onto the
   subnormal grid), so a subnormal midpoint can be the wrong neighbour: with

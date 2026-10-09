@@ -1074,30 +1074,24 @@ pub fn BallFloat::normalized(self : BallFloat) -> BallFloat {
 }
 
 ///|
+/// Re-quantizes the interval at `precision`. The endpoints are rounded outward
+/// so the result encloses the input at every precision; `mode` is accepted for
+/// signature compatibility and cannot narrow an enclosure.
+///
+/// A bounded interval used to be rebuilt from `center()` and `radius()`. The
+/// center adds the endpoints in round-to-nearest mode, which replaces a far
+/// addend with a sticky surrogate, while the radius drops that addend; once the
+/// new precision stored the surrogate exactly the rebuilt interval no longer
+/// contained the original lower endpoint.
 pub fn BallFloat::with_precision(
   self : BallFloat,
   precision : Int,
-  mode : RoundingMode,
+  _mode : RoundingMode,
 ) -> BallFloat {
   if self.is_empty() {
     empty_interval(precision)
-  } else if self.is_bounded() {
-    quantize_center_radius(self.center(), self.radius(), precision, mode)
   } else {
-    let precision = Int::max(1, precision)
-    let lo = match self.lo_.classify() {
-      FpClass::Finite =>
-        self.lo_.with_precision(precision, RoundingMode::TowardNegative)
-      FpClass::Infinity => @bin_float.BinFloat::inf(self.lo_.sign(), precision~)
-      FpClass::NaN => abort("ball bounds must not be NaN")
-    }
-    let hi = match self.hi_.classify() {
-      FpClass::Finite =>
-        self.hi_.with_precision(precision, RoundingMode::TowardPositive)
-      FpClass::Infinity => @bin_float.BinFloat::inf(self.hi_.sign(), precision~)
-      FpClass::NaN => abort("ball bounds must not be NaN")
-    }
-    store_interval(lo, hi, precision)
+    quantize_interval(self.lo_, self.hi_, precision)
   }
 }
 
