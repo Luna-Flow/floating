@@ -60,18 +60,21 @@ test "BID non-canonical finite coefficient decodes as zero" {
 }
 
 ///|
-test "BID NaN payloads canonicalize and align across formats" {
+test "BID NaN payloads are integers across formats" {
+  // IEEE 754-2019 §3.5.2 and §9.7: the payload is the integer value of the
+  // trailing significand field, so it is kept, not rescaled, when it fits.
   let payload32 = Decimal::from_interchange_hex_with_encoding(
     "#7C000100",
     Decimal32,
     BID,
   ).unwrap()
+  assert_eq(payload32.nan_payload().to_string(), "256")
   assert_eq(
     payload32.to_interchange_hex_with_encoding(Decimal128, BID).0,
-    "#7C0000033B2E3C9FD0803CE800000000",
+    "#7C000000000000000000000000000100",
   )
   let payload128 = Decimal::from_interchange_hex_with_encoding(
-    "#7C0000033B2E3C9FD0803CE800000000",
+    "#7C000000000000000000000000000100",
     Decimal128,
     BID,
   ).unwrap()
@@ -79,6 +82,18 @@ test "BID NaN payloads canonicalize and align across formats" {
     payload128.to_interchange_hex_with_encoding(Decimal32, BID).0,
     "#7C000100",
   )
+  // A payload longer than p - 1 digits keeps its low digits, as with DPD.
+  let wide = Decimal::from_interchange_hex_with_encoding(
+    "#7C0000033B2E3C9FD0803CE800000000",
+    Decimal128,
+    BID,
+  ).unwrap()
+  assert_eq(wide.nan_payload().to_string(), "256000000000000000000000000000")
+  assert_eq(
+    wide.to_interchange_hex_with_encoding(Decimal32, BID).0,
+    "#7C000000",
+  )
+  // A non-canonical trailing significand (>= 10^(p-1)) is payload 0.
   let noncanonical = Decimal::from_interchange_hex_with_encoding(
     "#7C03FFFFFFFFFFFF",
     Decimal64,
@@ -88,6 +103,34 @@ test "BID NaN payloads canonicalize and align across formats" {
     noncanonical.to_interchange_hex_with_encoding(Decimal64, BID).0,
     "#7C00000000000000",
   )
+}
+
+///|
+test "BID NaN payloads do not depend on the value precision" {
+  for encoding in [DPD, BID] {
+    let nan = Decimal::quiet_nan(payload=123N)
+    let (hex, _) = nan.to_interchange_hex_with_encoding(Decimal64, encoding)
+    let back = Decimal::from_interchange_hex_with_encoding(
+      hex,
+      Decimal64,
+      encoding,
+    ).unwrap()
+    assert_eq(back.nan_payload().to_string(), "123")
+    let snan = Decimal::signaling_nan(payload=45N, negative=true, precision=3)
+    let (hex, _) = snan.to_interchange_hex_with_encoding(Decimal128, encoding)
+    let back = Decimal::from_interchange_hex_with_encoding(
+      hex,
+      Decimal128,
+      encoding,
+    ).unwrap()
+    assert_eq(back.nan_payload().to_string(), "45")
+    assert_true(back.is_signaling_nan() && back.is_signed())
+  }
+  let (hex, _) = Decimal::quiet_nan(payload=123N).to_interchange_hex_with_encoding(
+    Decimal64,
+    BID,
+  )
+  assert_eq(hex, "#7C0000000000007B")
 }
 
 ///|
