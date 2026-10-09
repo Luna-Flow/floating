@@ -32,6 +32,10 @@ rounding direction, exponent bounds and clamp apply. The returned Result
 cannot carry GDA status or traps; callers that need those effects should use
 the decimal_gda::parse API with GdaContext.
 
+`divide_integer` constructs its preferred zero at exponent 0 before applying
+the context finalizer. This preserves the quotient sign and lets clamp fold
+the exponent without treating an exact zero exponent change as rounding.
+
 ## Mathematical background
 
 ### Numbers, cohorts and the adjusted exponent

@@ -1338,6 +1338,7 @@ fn decimal_integer_quotient(
   dividend : Decimal,
   other : Decimal,
   ctx : DecimalContext,
+  clamp_zero? : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
   match (dividend.class, other.class) {
@@ -1363,10 +1364,18 @@ fn decimal_integer_quotient(
       if dividend.class == FpClass::Finite && other.class == FpClass::Infinity {
         if !ctx.extended {
           (Decimal::zero(precision~), DecimalFlags::new())
-        } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), DecimalFlags::new())
         } else {
-          (Decimal::zero(precision~), DecimalFlags::new())
+          let zero = finite_with_exponent_repr(
+            dividend.negative != other.negative,
+            gda_coeff_zero(),
+            0,
+            precision,
+          )
+          if clamp_zero && ctx.clamp && ctx.precision > 0 {
+            finalize_finite_ctx(zero, DecimalFlags::new(), ctx)
+          } else {
+            (zero, DecimalFlags::new())
+          }
         }
       } else {
         (Decimal::nan(precision~), invalid_flags())
@@ -1374,12 +1383,19 @@ fn decimal_integer_quotient(
     (FpClass::Finite, FpClass::Finite) => {
       if finite_integer_quotient_is_zero(dividend, other) {
         let flags = divide_integer_zero_quotient_flags(dividend, other, ctx)
-        return if !ctx.extended {
-          (Decimal::zero(precision~), flags)
-        } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), flags)
+        if !ctx.extended {
+          return (Decimal::zero(precision~), flags)
+        }
+        let zero = finite_with_exponent_repr(
+          dividend.negative != other.negative,
+          gda_coeff_zero(),
+          0,
+          precision,
+        )
+        return if clamp_zero && ctx.clamp && ctx.precision > 0 {
+          finalize_finite_ctx(zero, flags, ctx)
         } else {
-          (Decimal::zero(precision~), flags)
+          (zero, flags)
         }
       }
       if ctx.precision > 0 &&

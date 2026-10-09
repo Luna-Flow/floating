@@ -796,7 +796,7 @@ pub fn remainder(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn remainder_near(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
-`divide_integer` returns $q = \operatorname{trunc}(x / y)$ with exponent 0;
+`divide_integer` returns $q = \operatorname{trunc}(x / y)$ with preferred exponent 0;
 `remainder` returns $x - q y$ (the sign of $x$); `remainder_near` returns
 $x - n y$ where $n$ is $x / y$ rounded to the nearest integer, ties to even.
 The remainder has ideal exponent $\min(e_x, e_y)$. When $q$ (or $n$) needs
@@ -804,7 +804,9 @@ more than $p$ digits the result is NaN with `DivisionImpossible`. A zero
 divisor gives `DivisionByZero` (`divide_integer` of a nonzero number) or
 `DivisionUndefined` ($0 / 0$); a zero divisor or an infinite dividend makes
 both remainders invalid; a finite dividend with an infinite divisor is its
-own remainder.
+own remainder. In an extended clamped context, a zero quotient keeps its exact
+sign and is folded to $e_{\max}-p+1$ when needed, raising `Clamped` without
+raising `Rounded` or `Inexact`.
 
 ### `quantize`, `rescale`
 

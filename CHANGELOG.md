@@ -127,6 +127,9 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `decimal_gda::Decimal::divide_integer` zero quotients in clamped
+  extended contexts: the preferred exponent is folded to the clamp limit and
+  `Clamped` is raised for finite and infinite divisors (#179).
 - **Caller-visible:** Fixed `Decimal::parse` and `Decimal::from_string`
   reducing the cohort of a literal rounded to `precision`: `"1.0001"` at
   precision 3 came back as `1` and `"99999"` as `1E+5`. IEEE 754-2019 §5.2
