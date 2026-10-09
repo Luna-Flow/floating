@@ -24662,3 +24662,7 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 
 #~ msgid "Verify links and cross-language file alignment."
 #~ msgstr "リンクと三言語のファイル集合を確認します。"
+
+#: manual/api/decimal.md:936
+msgid "In a clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
+msgstr "clamp を有効にした extended コンテキストでは、ゼロの商の優先指数 0 が $e_{\\max}-p+1$ を超えると、`divide_integer` は指数をその上限まで下げ、`clamped` フラグを設定します。符号は厳密な商の符号を保ちます。"

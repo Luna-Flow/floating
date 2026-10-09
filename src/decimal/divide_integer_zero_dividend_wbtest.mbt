@@ -26,3 +26,13 @@ test "divide_integer and remainder accept a zero dividend" {
     assert_true(n_flags == DecimalFlags::new())
   }
 }
+
+///|
+test "divide_integer clamps a zero quotient exponent" {
+  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
+  let lhs = Decimal::from_string("-8.95E-6").unwrap()
+  let rhs = Decimal::from_string("2.40E-5").unwrap()
+  let (value, flags) = lhs.divide_integer(rhs, ctx)
+  inspect(value.to_string(), content="-0E-7")
+  inspect(flags.clamped, content="true")
+}
