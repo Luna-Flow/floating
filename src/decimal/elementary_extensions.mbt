@@ -151,10 +151,18 @@ fn decimal_pi_scaled_exact(
         },
         precision~,
       )
+      // tanPi(n) = sinPi(n) / cosPi(n), a zero whose sign is the product of
+      // the signs of the two (IEEE 754-2019 9.2.1): -0 at positive odd n.
+      let tangent = if residue % 2 == 0 {
+        sine
+      } else {
+        decimal_elementary_zero(!value.negative, ctx).0
+      }
       return Some(
         (
           match operation {
-            SinPi | TanPi => sine
+            SinPi => sine
+            TanPi => tangent
             CosPi => cosine
             _ => sine
           },
