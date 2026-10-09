@@ -127,6 +127,17 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::power_ctx`, `Decimal::try_power_ctx` and `decimal_gda`
+  `power` for an exact non-integral power whose base raised to `p` passes 1024
+  digits, such as `(2^1200 * 10^-1200)^1.5 = 2^1800 * 10^-1800` at precision
+  1000. The exactness test gave up on such a power, so it came back with
+  `inexact` in the half modes and, after minutes of refinement, as an invalid
+  NaN in the directed modes. The test now takes the `q`-th root of the base
+  first and only then raises it to `p` (the root's reciprocal for a negative
+  exponent), so no intermediate is longer than the result, and it covers every
+  exact result of at most `precision + 1` digits — the only ones that sit on a
+  rounding boundary. A longer exact value lies inside its rounding cell and is
+  rounded by the enclosure (#138).
 - Fixed `Decimal::power_ctx` and `Decimal::try_power_ctx` for an exact
   non-integral power whose value is not a binary fraction. The enclosure
   decides such a power only when it is a point interval, which needs the exact

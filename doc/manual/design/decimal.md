@@ -735,11 +735,21 @@ Three kinds of inputs are decided outside the agreement test:
   in binary is decided in decimal instead: the exponent is reduced to $p/q$ in
   lowest terms — a decimal exponent is $c \cdot 10^{-k}$, so $q$ keeps only the
   twos and fives the coefficient cannot cancel — and the result is exact
-  exactly when $x^{p}$ is a perfect $q$-th power, which a bisection over the
-  root's digit count decides, so $0.0016^{0.25} = 0.2$ and $32^{0.2} = 2$. The
-  search is bounded by the root's digit count rather than by the context,
-  because the enclosure cannot round an exactly representable value however
-  coarse the decimal target is; past that bound the value is left to the
+  exactly when $x^{p/q}$ is a decimal. By Bézout there are integers $a, b$
+  with $ap + bq = 1$, so $x^{1/q} = (x^{p/q})^{a} x^{b}$ is rational whenever
+  $x^{p/q}$ is, and a rational $q$-th root of a decimal is again a decimal
+  (its denominator divides a power of ten). The test therefore writes
+  $x = r \cdot 10^{qe}$ with $r$ an integer keeping fewer than $q$ trailing
+  zeros, decides whether $r$ is a perfect $q$-th power by a bisection over
+  the root's digit count, and only then raises the root to $p$ (the
+  reciprocal of the root, for a negative exponent). Every intermediate is
+  then no longer than the result, so $0.0016^{0.25} = 0.2$, $32^{0.2} = 2$ and
+  $(2^{1200} \cdot 10^{-1200})^{1.5} = 2^{1800} \cdot 10^{-1800}$ at
+  precision 1000 are all decided at once, although $x^{3}$ in the last one has
+  1084 digits. Only a value of at most $p + 1$ significant digits can sit on a
+  rounding boundary — a representable value in the directed modes, a
+  midpoint in the half modes — so the search covers exactly those and leaves
+  a longer exact value, which lies strictly inside its rounding cell, to the
   enclosure.
 - **Integer powers** are not certified; they are rounded once from exact
   integer information. `power_ctx` with an integral exponent $n$ that does
