@@ -127,6 +127,12 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::div_ctx` deciding `underflow`, `subnormal` and `clamped`
+  for an inexact quotient from the delivered value instead of from rounding
+  the quotient. A tiny quotient that rounds up to `10^e_min`, such as
+  `9.999998E-96 / 0.9999999` in decimal32, lost `underflow`, and a quotient
+  rounded to zero below Etiny lost `clamped`. The flags now come from the
+  rounding of the guarded quotient, under either tininess rule (#140).
 - Fixed `Decimal::sqrt_ctx` raising `underflow` and `subnormal` for an
   inexact root below `10^e_min` regardless of the context's tininess rule.
   Under `AfterRounding` a root whose rounding to `p` digits with an unbounded
