@@ -957,6 +957,15 @@ pub fn Decimal::try_hypot_ctx(
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let nan_result = quiet_nan_pair(left, right, ctx)
   if left.class == FpClass::Infinity || right.class == FpClass::Infinity {
+    // hypot(+-inf, y) is +inf for every y, even a quiet NaN. A signaling NaN
+    // is not exempt: it signals invalid and the result is a quiet NaN
+    // (IEEE 754-2019 6.2, 7.2, 9.2.1).
+    if left.is_signaling_nan() || right.is_signaling_nan() {
+      match nan_result {
+        Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+        None => ()
+      }
+    }
     let nan_flags = match nan_result {
       Some(result) => result.1
       None => DecimalFlags::new()

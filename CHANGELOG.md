@@ -127,6 +127,10 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::hypot_ctx` returning `+Infinity` for an infinity and a
+  signaling NaN. Only a quiet NaN leaves `hypot(+-inf, y)` at `+Infinity`; a
+  signaling NaN signals `invalid_operation` and the result is a quiet NaN
+  (#172).
 - Fixed `Decimal::rootn_ctx` returning `-0` for `rootn(-0, n)` with an even
   `n > 0`; IEEE 754-2019 9.2.1 makes it `+0` (odd `n` keeps the sign) (#164).
 - Fixed `Decimal::tanpi_ctx` returning the zero with the argument's sign at
