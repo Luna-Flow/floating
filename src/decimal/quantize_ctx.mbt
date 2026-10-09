@@ -113,13 +113,9 @@ fn decimal_remainder_extended_fast_result(
       ),
     )
   }
-  let quotient_flags = if quotient_digits - 1 > ctx.e_max {
-    decimal_overflow_result(dividend.negative != divisor.negative, ctx).1
-  } else if ctx.clamp && ctx.precision > 0 && 0 > ctx.e_max - ctx.precision + 1 {
-    { ..DecimalFlags::new(), clamped: true, }
-  } else {
-    DecimalFlags::new()
-  }
+  // The integer quotient is internal: only its digit count matters
+  // (division impossible). Its rounding, overflow or clamping to the context
+  // describes no delivered result, so none of its flags reach the remainder.
   let scale = dividend.exponent10 - divisor.exponent10
   let (magnitude, target) = if scale >= 0 {
     (
@@ -143,7 +139,7 @@ fn decimal_remainder_extended_fast_result(
     target,
     ctx,
   )
-  Some((value, quotient_flags.combine(flags)))
+  Some((value, flags))
 }
 
 ///|
@@ -200,20 +196,26 @@ pub fn Decimal::remainder(
         let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
         return (value, quotient_flags.combine(flags))
       }
+      // The quotient rounded to the context may have overflowed or been
+      // clamped, and its flags describe it, not the remainder. The remainder
+      // is taken with the exact integer quotient, under the operand flags.
+      let exact_quotient = decimal_exact_integer_quotient_repr(lhs, rhs)
       let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
         lhs, rhs,
       )
-      let product = dec_coeff_multiply_repr(quotient.coefficient, rhs_units)
+      let product = dec_coeff_multiply_repr(exact_quotient, rhs_units)
+      // lhs - q * rhs with q of sign lhs.negative != rhs.negative, so the
+      // subtracted term has the sign of -lhs.
       let (exact_negative, exact_magnitude) = dec_coeff_signed_add_repr(
         lhs.negative,
         lhs_units,
-        !(quotient.negative != rhs.negative),
+        !lhs.negative,
         product,
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
           Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
-          quotient_flags,
+          operand_flags,
         )
       }
       let negative = if exact_magnitude.is_zero() {
@@ -224,7 +226,7 @@ pub fn Decimal::remainder(
       let (value, flags) = normalize_decimal_parts_ctx_repr(
         negative, exact_magnitude, target, ctx,
       )
-      (value, quotient_flags.combine(flags))
+      (value, operand_flags.combine(flags))
     }
     _ =>
       (

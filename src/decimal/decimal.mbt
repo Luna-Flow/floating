@@ -1528,25 +1528,7 @@ fn decimal_integer_quotient(
         integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {
         return (Decimal::nan(precision~), div_impossible_flags())
       }
-      let quotient = match
-        integer_quotient_by_power_of_ten_repr(dividend, other, false) {
-        Some(value) => value
-        None => {
-          let scale = dividend.exponent10 - other.exponent10
-          let numerator = if scale >= 0 {
-            dec_coeff_shift_power10_repr(dividend.coefficient, scale)
-          } else {
-            dividend.coefficient
-          }
-          let denominator = if scale >= 0 {
-            other.coefficient
-          } else {
-            dec_coeff_shift_power10_repr(other.coefficient, -scale)
-          }
-          let (quotient, _) = dec_coeff_div_rem_repr(numerator, denominator)
-          quotient
-        }
-      }
+      let quotient = decimal_exact_integer_quotient_repr(dividend, other)
       if ctx.precision > 0 &&
         !quotient.is_zero() &&
         quotient.digits10() > ctx.precision {
@@ -1570,6 +1552,32 @@ fn decimal_integer_quotient(
       } else {
         (value, flags)
       }
+    }
+  }
+}
+
+///|
+/// The magnitude of the integer quotient of two finite operands, truncated
+/// towards zero and not rounded to any context. The divisor is nonzero.
+fn decimal_exact_integer_quotient_repr(
+  dividend : Decimal,
+  divisor : Decimal,
+) -> DecCoeff {
+  match integer_quotient_by_power_of_ten_repr(dividend, divisor, false) {
+    Some(value) => value
+    None => {
+      let scale = dividend.exponent10 - divisor.exponent10
+      let numerator = if scale >= 0 {
+        dec_coeff_shift_power10_repr(dividend.coefficient, scale)
+      } else {
+        dividend.coefficient
+      }
+      let denominator = if scale >= 0 {
+        divisor.coefficient
+      } else {
+        dec_coeff_shift_power10_repr(divisor.coefficient, -scale)
+      }
+      dec_coeff_div_rem_repr(numerator, denominator).0
     }
   }
 }
@@ -1599,6 +1607,24 @@ fn zero_quotient_remainder_result(
       finite_precision_for(bigint_zero(), ctx),
     )
     return finalize_finite_ctx(zero, DecimalFlags::new(), ctx)
+  }
+  if ctx.extended && ctx.precision > 0 {
+    // The remainder is the dividend itself, with the smaller exponent as its
+    // ideal exponent. Moving it towards that exponent by at most p + 1 -
+    // digits places and normalizing once rounds and clamps the delivered
+    // result only, not the dividend at its own exponent.
+    let preferred = Int::min(dividend.exponent10, divisor.exponent10)
+    let room = Int::max(0, ctx.precision + 1 - dividend.coefficient.digits10())
+    let shift = Int64::min(
+      dividend.exponent10.to_int64() - preferred.to_int64(),
+      room.to_int64(),
+    ).to_int()
+    return normalize_decimal_parts_ctx_repr(
+      dividend.negative,
+      dec_coeff_shift_power10_repr(dividend.coefficient, shift),
+      dividend.exponent10 - shift,
+      ctx,
+    )
   }
   let (base, base_flags) = apply_finite_ctx(dividend, ctx)
   guard base_flags.has_error() == false &&

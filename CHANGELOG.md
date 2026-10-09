@@ -127,6 +127,16 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::remainder` reporting the flags of its internal integer
+  quotient: an exact remainder such as `6E-6 rem -9.99999999E-15` at
+  precision 9 and `e_max = 4` came back with `inexact`, `rounded` and
+  `overflow`, and a spurious `clamped` appeared when `e_max - p + 1 < 0`. In a
+  subset context the remainder was even taken with a quotient that had
+  overflowed to infinity, so `123456789 rem 7` with `e_max = 4` returned
+  infinity. The remainder now uses the exact integer quotient and reports only
+  its own flags. A remainder with a zero quotient (also in `remainder_near`)
+  is likewise clamped only at its result, not at the dividend's exponent
+  (#144).
 - Fixed `Decimal::add_ctx`, `sub_ctx` and `fma_ctx` raising `clamped` when
   one operand of the sum is zero and the other one, at its own exponent,
   would need clamping, although the delivered result does not: `fma(1E+90,
