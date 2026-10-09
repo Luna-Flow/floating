@@ -179,3 +179,54 @@ test "decimal try power reports a certification failure" {
     Err(_) => assert_true(false)
   }
 }
+
+///|
+/// The reduced exponent is bounded by the operands, not by fixed constants:
+/// `(5^1024)^(2^-10) = 5` has a denominator of 1024, and
+/// `0.25^4096.5 = 5^8193 * 10^-8193` a numerator of 8193.
+test "decimal power decides exact powers with large reduced exponents" {
+  let cases = [
+    (pow5(1024).to_string(), "0.0009765625", 720, "5"),
+    (pow5(1024).to_string(), "-0.0009765625", 720, "0.2"),
+    ("0.25", "4096.5", 5800, "\{pow5(8193)}E-8193"),
+  ]
+  for entry in cases {
+    let (left, right, precision, expected) = entry
+    let base = Decimal::from_string(left, precision~).unwrap()
+    let exponent = Decimal::from_string(right).unwrap()
+    let want = Decimal::from_string(expected, precision~).unwrap()
+    for mode in all_decimal_roundings {
+      let context = DecimalContext::new(
+        precision~,
+        decimal_rounding=mode,
+        e_min=-999_999,
+        e_max=999_999,
+      )
+      let (value, flags) = base.power_ctx(exponent, context)
+      assert_eq(value.compare_total(want), 0)
+      assert_false(flags.inexact)
+      assert_false(flags.invalid_operation)
+    }
+  }
+}
+
+///|
+test "decimal exact integer roots take Newton steps for long roots" {
+  let root = dec_coeff_magnitude_add_repr(
+    dec_coeff_power10_repr(40),
+    dec_coeff_from_int(7),
+  )
+  for degree in [2, 3, 5, 8, 25] {
+    let power = dec_coeff_exact_power_repr(root, degree)
+    match dec_coeff_exact_nth_root_repr(power, degree) {
+      Some(value) => assert_eq(dec_coeff_compare_repr(value, root), 0)
+      None => fail("missed an exact root of degree \{degree}")
+    }
+    let above = dec_coeff_magnitude_add_repr(power, dec_coeff_from_int(1))
+    assert_true(dec_coeff_exact_nth_root_repr(above, degree) is None)
+    assert_eq(
+      dec_coeff_compare_repr(dec_coeff_floor_nth_root_repr(above, degree), root),
+      0,
+    )
+  }
+}
