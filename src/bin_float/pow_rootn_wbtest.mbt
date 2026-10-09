@@ -219,3 +219,41 @@ test "BinFloat pow decides parity of large integer exponents" {
   }
   assert_true(error.is_domain_error())
 }
+
+///|
+/// The exactness check must also fire for a large dyadic exponent. A base
+/// `c * 2^e` with a non-integer exponent `m / 2^k` is dyadic exactly when
+/// `2^k` divides `e` and `c` is a perfect `2^k`-th power, so 4^2048.5 is
+/// exactly 2^4097 and 16^512.25 is exactly 2^2049. The Ziv loop can never
+/// certify any of these, because its enclosure straddles the exact value:
+/// without the check every attempt is wasted and the refinement budget is
+/// exhausted (#53).
+test "BinFloat pow finds exact powers for large dyadic exponents" {
+  let cases = [
+    (BinFloat::from_int(4), pow_rootn_dyadic(3UL, -1), 1UL, 3),
+    (BinFloat::from_int(4), pow_rootn_dyadic(4097UL, -1), 1UL, 4097),
+    (BinFloat::from_int(16), pow_rootn_dyadic(2049UL, -2), 1UL, 2049),
+    (pow_rootn_dyadic(1UL, -2), pow_rootn_dyadic(3UL, -1), 1UL, -3),
+    // A base whose odd part is not one: 9^10.5 is exactly 3^21.
+    (BinFloat::from_int(9), pow_rootn_dyadic(21UL, -1), 10460353203UL, 0),
+  ]
+  for work in [64, 128, 192, 288] {
+    for
+      mode in [
+        BinaryRoundingMode::RoundTiesToEven,
+        BinaryRoundingMode::RoundTowardNegative,
+        BinaryRoundingMode::RoundTowardPositive,
+        BinaryRoundingMode::RoundTowardZero,
+      ] {
+      let context = BinaryContext::unbounded(work, rounding=mode)
+      for case in cases {
+        let (base, exponent, coefficient, scale) = case
+        assert_exact_result(
+          base.try_pow_ctx(exponent, context),
+          BinFloat::make(BinCoeff::from_uint64(coefficient), scale, work),
+          "pow at precision \{work}",
+        )
+      }
+    }
+  }
+}
