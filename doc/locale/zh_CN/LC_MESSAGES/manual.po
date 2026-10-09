@@ -7,6 +7,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: manual/api/decimal.md:940
+msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
+msgstr "例如，在精度 9、$e_{\\min}=0$、$e_{\\max}=1$ 且启用 clamp 时，`-8.95E-6` 除以 `2.40E-5` 得到 `-0E-7`，并设置 `clamped`。折叠零的指数保持其数值，不设置 `rounded` 或 `inexact`。`remainder` 对自身结果应用指数边界；内部整数商的钳制不会向余数传递 `clamped` 标志。"
+
 #: conf.json:summary
 msgid "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 msgstr "面向 MoonBit 的任意精度二进制、十进制与球（区间）算术，提供 checked 运算和显式的数值语义。"
@@ -4001,8 +4005,8 @@ msgid "These functions compute integer quotients and remainders."
 msgstr "这些函数计算整数商和余数。"
 
 #: manual/api/decimal.md:924
-msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*); `remainder_ctx` is the same operation. The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
-msgstr "`divide_integer(x, y)` 为 $\\operatorname{trunc}(x/y)$，指数为 0。当整数商需要多于 $p$ 位数字时，结果为带 `division_impossible` 和 `invalid_operation` 的 NaN。`remainder(x, y)` 为 $x - y\\cdot\\operatorname{trunc}(x/y)$，符号与 $x$ 相同（General Decimal Arithmetic 的 *remainder*）。`remainder_near(x, y)` 为 $x - y\\cdot n$，其中 $n$ 是将 $x/y$ 就近舍入（偶数优先）得到的整数（IEEE 754 的 *remainder*）；`remainder_ctx` 是同一运算。余数在可容纳时是精确的，首选指数为 $\\min(q_x, q_y)$；余数为零时其符号与 $x$ 相同。$x \\operatorname{rem} 0$ 与 $\\infty \\operatorname{rem} y$ 是无效的（$0 \\operatorname{rem} 0$ 还会引发 `division_undefined`）；$x \\operatorname{rem} \\infty = x$。"
+msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with preferred exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*); `remainder_ctx` is the same operation. The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
+msgstr "`divide_integer(x, y)` 为 $\\operatorname{trunc}(x/y)$，首选指数为 0。当整数商需要多于 $p$ 位数字时，结果为带 `division_impossible` 和 `invalid_operation` 的 NaN。`remainder(x, y)` 为 $x - y\\cdot\\operatorname{trunc}(x/y)$，符号与 $x$ 相同（General Decimal Arithmetic 的 *remainder*）。`remainder_near(x, y)` 为 $x - y\\cdot n$，其中 $n$ 是将 $x/y$ 就近舍入（偶数优先）得到的整数（IEEE 754 的 *remainder*）；`remainder_ctx` 是同一运算。余数在可容纳时是精确的，首选指数为 $\\min(q_x, q_y)$；余数为零时其符号与 $x$ 相同。$x \\operatorname{rem} 0$ 与 $\\infty \\operatorname{rem} y$ 是无效的（$0 \\operatorname{rem} 0$ 还会引发 `division_undefined`）；$x \\operatorname{rem} \\infty = x$。"
 
 #: manual/api/decimal.md:948
 msgid "Quantum and exponent operations"
@@ -24901,5 +24905,5 @@ msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的
 #~ msgstr "检查链接以及三语文件集合是否对齐。"
 
 #: manual/api/decimal.md:936
-msgid "In a clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
+msgid "In an extended clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
 msgstr "在启用 clamp 的 extended 上下文中，若零商的首选指数 0 大于 $e_{\\max}-p+1$，`divide_integer` 会将其指数降低到该上限并设置 `clamped` 标志。结果符号仍为精确商的符号。"

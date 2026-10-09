@@ -7,6 +7,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: manual/api/decimal.md:940
+msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
+msgstr "たとえば精度 9、$e_{\\min}=0$、$e_{\\max}=1$、clamp 有効のとき、`-8.95E-6` を `2.40E-5` で割ると `-0E-7` となり、`clamped` が設定されます。ゼロの指数を折り畳んでも値は変わらず、`rounded` や `inexact` は設定されません。`remainder` は自身の結果に指数範囲を適用し、内部の整数商のクランプによる `clamped` フラグを余りに引き継ぎません。"
+
 #: conf.json:summary
 msgid "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 msgstr "MoonBit 向けの任意精度の二進・十進・ボール（区間）演算ライブラリで、checked 演算と明示的な数値意味論を備えます。"
@@ -4001,8 +4005,8 @@ msgid "These functions compute integer quotients and remainders."
 msgstr "これらの関数は整数商と剰余を計算します。"
 
 #: manual/api/decimal.md:924
-msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*); `remainder_ctx` is the same operation. The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
-msgstr "`divide_integer(x, y)` は指数 0 の $\\operatorname{trunc}(x/y)$ です。整数商に $p$ 桁より多くの桁が必要なときは、結果は `division_impossible` と `invalid_operation` 付きの NaN です。`remainder(x, y)` は $x$ の符号を持つ $x - y\\cdot\\operatorname{trunc}(x/y)$ です（General Decimal Arithmetic の *remainder*）。`remainder_near(x, y)` は $x - y\\cdot n$ で、$n$ は $x/y$ を最も近い整数に丸めたもの（中間は偶数へ）です（IEEE 754 の *remainder*）。`remainder_ctx` は同じ演算です。剰余は収まる場合は正確で、優先指数は $\\min(q_x, q_y)$ です。剰余がゼロのときの符号は $x$ の符号です。$x \\operatorname{rem} 0$ と $\\infty \\operatorname{rem} y$ は無効であり（$0 \\operatorname{rem} 0$ は `division_undefined` も立てる）、$x \\operatorname{rem} \\infty = x$ です。"
+msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with preferred exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*); `remainder_ctx` is the same operation. The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
+msgstr "`divide_integer(x, y)` は優先指数 0 の $\\operatorname{trunc}(x/y)$ です。整数商に $p$ 桁より多くの桁が必要なときは、結果は `division_impossible` と `invalid_operation` 付きの NaN です。`remainder(x, y)` は $x$ の符号を持つ $x - y\\cdot\\operatorname{trunc}(x/y)$ です（General Decimal Arithmetic の *remainder*）。`remainder_near(x, y)` は $x - y\\cdot n$ で、$n$ は $x/y$ を最も近い整数に丸めたもの（中間は偶数へ）です（IEEE 754 の *remainder*）。`remainder_ctx` は同じ演算です。剰余は収まる場合は正確で、優先指数は $\\min(q_x, q_y)$ です。剰余がゼロのときの符号は $x$ の符号です。$x \\operatorname{rem} 0$ と $\\infty \\operatorname{rem} y$ は無効であり（$0 \\operatorname{rem} 0$ は `division_undefined` も立てる）、$x \\operatorname{rem} \\infty = x$ です。"
 
 #: manual/api/decimal.md:948
 msgid "Quantum and exponent operations"
@@ -24664,5 +24668,5 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 #~ msgstr "リンクと三言語のファイル集合を確認します。"
 
 #: manual/api/decimal.md:936
-msgid "In a clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
+msgid "In an extended clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
 msgstr "clamp を有効にした extended コンテキストでは、ゼロの商の優先指数 0 が $e_{\\max}-p+1$ を超えると、`divide_integer` は指数をその上限まで下げ、`clamped` フラグを設定します。符号は厳密な商の符号を保ちます。"

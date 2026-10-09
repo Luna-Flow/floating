@@ -921,7 +921,7 @@ pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlag
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`divide_integer(x, y)` is $\operatorname{trunc}(x/y)$ with exponent 0. When
+`divide_integer(x, y)` is $\operatorname{trunc}(x/y)$ with preferred exponent 0. When
 the integer quotient needs more than $p$ digits, the result is NaN with
 `division_impossible` and `invalid_operation`. `remainder(x, y)` is
 $x - y\cdot\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal
@@ -933,9 +933,15 @@ is zero. $x \operatorname{rem} 0$ and $\infty \operatorname{rem} y$ are invalid
 ($0 \operatorname{rem} 0$ also raises `division_undefined`);
 $x \operatorname{rem} \infty = x$.
 
-In a clamped context, a zero `divide_integer` result has its exponent folded
+In an extended clamped context, a zero `divide_integer` result has its exponent folded
 down to $e_{\max}-p+1$ when exponent 0 is larger; the `clamped` flag is
 raised. Its sign is still the sign of the exact quotient.
+
+For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\min}=0$,
+$e_{\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's
+exponent preserves its value and does not raise `rounded` or `inexact`.
+`remainder` applies exponent bounds to its own result; clamping its internal
+integer quotient does not contribute a `clamped` flag to the remainder.
 
 ```moonbit
 ///|
