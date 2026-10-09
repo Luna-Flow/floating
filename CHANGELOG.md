@@ -52,9 +52,6 @@ notes live in this file.
 
 ### Changed
 
-- Decimal text parsing now preserves the IEEE 754 preferred cohort after
-  rounding to the requested precision (for example, `"1.0001"` at precision 3
-  parses as `1.00`, not `1`) (#149).
 - **Caller-visible:** `decimal_gda`'s `Decimal::exp_contextual` (and any other
   `*_contextual` adapter that meets the condition), `pow_int_checked` and
   `pow_nat_checked` now report a GDA `Invalid_context` as
@@ -130,6 +127,12 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible:** Fixed `Decimal::parse` and `Decimal::from_string`
+  reducing the cohort of a literal rounded to `precision`: `"1.0001"` at
+  precision 3 came back as `1` and `"99999"` as `1E+5`. IEEE 754-2019 §5.2
+  keeps all $p$ digits of an inexact conversion, so they are now `1.00` and
+  `1.00E+5`; an exact literal keeps the member closest to its own exponent
+  (#149).
 - Fixed `Decimal::divide_integer` returning a zero integer quotient with
   exponent 0 and no `clamped` flag in a clamped extended context, both for a
   finite zero quotient such as `-8.95E-6 // 2.40E-5` and for `x // Inf`. The

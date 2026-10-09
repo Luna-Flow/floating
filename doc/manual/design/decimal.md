@@ -117,12 +117,6 @@ therefore specifies, for each operation, a **preferred exponent**, and an exact
 result is delivered in the member whose exponent is closest to it. The
 preferred exponents follow from where the exact result naturally lives:
 
-For conversion from a character sequence, IEEE 754-2019 §5.2 selects the
-least possible exponent for an inexact result. Thus parsing `1.0001` at
-precision 3 gives `1.00`; an exact result uses the representable cohort member
-closest to the preferred exponent (parsing `1.000` at precision 3 also gives
-`1.00`).
-
 $$
 \begin{aligned}
 c_a 10^{q_a} \pm c_b 10^{q_b} &= \bigl(c_a 10^{q_a - m} \pm c_b 10^{q_b - m}\bigr)\,10^{m},
@@ -143,6 +137,13 @@ then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 =
 member with the smallest exponent; an inexact subnormal result ends at
 $E_{\text{tiny}}$. `quantize` makes the exponent an explicit argument, and
 `reduce_ctx`/`normalized` choose the member with the largest exponent.
+
+For conversion from a character sequence, IEEE 754-2019 §5.2 selects the
+least possible exponent for an inexact result. Thus parsing `1.0001` at
+precision 3 gives `1.00`, and `99999` gives `1.00E+5`, since a carry into
+$10^p$ still leaves $p$ digits; an exact result uses the representable cohort
+member closest to the preferred exponent (parsing `1.000` at precision 3 also
+gives `1.00`).
 
 ```moonbit
 ///|
