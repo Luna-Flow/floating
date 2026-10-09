@@ -1830,7 +1830,11 @@ pub impl @arithmetic.PowNatChecked for Decimal
 pub impl @arithmetic.PowIntChecked for Decimal
 ```
 
-`parse_checked(s, ctx)` is `Decimal::parse(s, precision=ctx.precision)`.
+`parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and uses
+`Decimal::from_string_ctx`, so the context's precision, rounding direction,
+exponent bounds and clamp setting apply. It returns the converted value; flags
+such as overflow remain available from `from_string_ctx`. Invalid syntax
+returns `Err(parse_error)`.
 `DivChecked::div_checked(x, y, ctx)` is `div_ctx` under the converted context
 with `Err(division_by_zero)` and `Err(domain_error)` as in
 [`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under

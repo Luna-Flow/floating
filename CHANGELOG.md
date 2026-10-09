@@ -138,6 +138,10 @@ notes live in this file.
   finite zero quotient such as `-8.95E-6 // 2.40E-5` and for `x // Inf`. The
   preferred exponent 0 is now folded down to $e_{\max}-p+1$ and `clamped` is
   raised (#147).
+- Fixed IEEE and GDA `Decimal::parse_checked` using only the context precision.
+  Parsing now uses the context's rounding direction, exponent bounds and clamp
+  setting through `from_string_ctx`; invalid syntax still returns
+  `Err(parse_error)` (#154).
 - Fixed `Decimal::rootn_ctx` missing the exact results for degree `1` and
   `-1`: `rootn(5, -1)` came back as `0.2` with `inexact` and the directed
   modes failed certification with NaN. `rootn(x, 1)` and `rootn(x, -1)` are

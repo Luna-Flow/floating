@@ -168,7 +168,17 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn classify_contextu
 
 ///|
 pub impl @lf_arith.ParseChecked for Decimal with fn parse_checked(src, ctx) {
-  Decimal::parse(src, precision=ctx.precision)
+  let (value, flags) = Decimal::from_string_ctx(
+    src,
+    DecimalContext::from_arithmetic_context(ctx),
+  )
+  if flags.conversion_syntax {
+    Err(
+      @lf_arith.ArithmeticError::parse_error("invalid decimal literal: " + src),
+    )
+  } else {
+    Ok(value)
+  }
 }
 
 ///|

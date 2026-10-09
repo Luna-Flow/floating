@@ -1927,8 +1927,11 @@ pub impl @arithmetic.PowNatChecked for Decimal
 pub impl @arithmetic.DivChecked for Decimal
 ```
 
-`parse_checked` is `Decimal::parse` at the context precision; it rounds half
-to even and ignores the context's rounding mode and exponent bounds. `sqrt_checked`
+`parse_checked` converts the arithmetic context to `DecimalContext` and uses
+`Decimal::from_string_ctx`; the context's precision, rounding direction,
+exponent bounds and clamp setting apply. It returns the converted value;
+conditions such as overflow remain available from `from_string_ctx`. Invalid
+syntax returns `Err(parse_error)`. `sqrt_checked`
 returns `Err(domain_error)` for negative operands. `pow_int_checked` and
 `pow_nat_checked` call `power_ctx` with the integer exponent converted
 exactly (with at least ten digits, which hold every accepted exponent), so at

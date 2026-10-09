@@ -34,6 +34,12 @@ Decimal Arithmetic specification by M. F. Cowlishaw (version 1.70) gives the
 same model in an arbitrary-precision form; its terms *coefficient*,
 *adjusted exponent*, *Etiny* and *clamp* are used here.
 
+The checked ParseChecked adapter follows IEEE 754-2019 section 4.3 and section
+5.12.2: text conversion uses the supplied rounding-direction attribute and
+the context exponent range. parse_checked returns the converted value through
+Result; callers that need exception flags such as overflow use
+Decimal::from_string_ctx directly.
+
 ## Mathematical background
 
 ### Decimal floating-point numbers
