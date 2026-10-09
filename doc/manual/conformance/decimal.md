@@ -33,11 +33,10 @@ deviations listed in
 [decimal design: known deviations](../design/decimal.md#known-deviations)
 (`inexact` or a certification failure for exact decimal results of
 non-integral powers, no `division_by_zero` from $\ln 0$ and $\log_{10} 0$,
-silently capped exponents in text, integral rounding of operands longer than
+integral rounding of operands longer than
 $p$ digits, BID NaN payloads, and the sign of a binary $-0$ in
 `from_bin_float`; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53),
 [#94](https://github.com/Luna-Flow/floating/issues/94),
-[#108](https://github.com/Luna-Flow/floating/issues/108),
 [#118](https://github.com/Luna-Flow/floating/issues/118),
 [#54](https://github.com/Luna-Flow/floating/issues/54) and
 [#55](https://github.com/Luna-Flow/floating/issues/55)). Those cases are

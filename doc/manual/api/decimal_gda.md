@@ -154,23 +154,15 @@ with an optional decimal point, an optional exponent `E±n`, or
 `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN
 payload. The exponent is kept exactly, so `from_string("2.50")` has exponent
 $-2$. A literal with more than `precision` (default 34) significant digits is
-rounded half to even and its trailing zeros are removed. A malformed literal,
-or one whose stored exponent or adjusted exponent would not fit `Int`
-(`1e3000000000`), gives `Err(parse_error)` or `None`. Use the package function
+rounded half to even and its trailing zeros are removed. A malformed literal
+gives `Err(parse_error)` or `None`. No context exponent range applies, only
+the limits of the representation (stored exponent at least $-2^{31}$,
+adjusted exponent at most $2^{31}-1$); as in the GDA to-number conversion, a
+numeric string beyond them still converts: `"1e3000000000"` is `inf` and
+`"1e-3000000000"` is `0E-2147483648` (a tiny literal is rounded half to even
+to the exponent $-2^{31}$). Use the package function
 [`parse`](#parse) when the exponent limits, flags, status or traps of a context
 must apply.
-
-> [!WARNING]
-> The exponent field of a literal saturates at $\pm 1\,500\,000\,000$
-> without any error: `from_string("1e1600000000")` returns `1E+1500000000`.
-> Exponents are 32-bit integers, and arithmetic on such values can wrap
-> around: for `x = from_string("1E+1500000000")`, `x * x` prints
-> `1E-1294967296`, and `multiply(x, x, context())` returns `0E-1000000032`
-> with `Underflow` instead of overflowing. The GDA `parse` under a context with
-> $e_{\max} \le 999\,999\,999$ is safe (it overflows to infinity), but a
-> context with a larger $e_{\max}$ accepts the saturated value silently. Keep
-> literal exponents within $\pm 999\,999\,999$, the GDA limit. Tracked in
-> [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
 
 ### `Decimal::to_string`, `Decimal::output`
 
@@ -737,8 +729,8 @@ pub fn parse(String, GdaContext) -> GdaOutcome[Decimal]
 ```
 
 The literal keeps its exponent unless it must be rounded to the precision or
-clamped to the exponent range. Exponents beyond $\pm 1\,500\,000\,000$ saturate first
-(see the warning under [`Decimal::parse`](#decimalparse-decimalfrom_string)). Malformed text gives a quiet NaN with
+clamped to the exponent range; overflow and underflow are decided from the
+exact exponent of the text, however large. Malformed text gives a quiet NaN with
 `ConversionSyntax`. In subset contexts infinities and NaNs are also a
 conversion-syntax error.
 
@@ -1179,8 +1171,9 @@ pub impl Neg for Decimal
 Let $P$ be the larger precision attribute of the operands. `+`, `-` and `/`
 round half to even to $P$ digits and then remove trailing zeros; `*` returns
 the exact product (it is never rounded) with attribute $P$. A result whose
-exponent or adjusted exponent would leave `Int` is a signed infinity when too
-large and a signed zero when too small. Special values
+adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and one that
+needs an exponent below $-2^{31}$ is rounded half to even to that exponent,
+possibly to a signed zero (`1E+1500000000 * 1E+1500000000` is `inf`). Special values
 follow IEEE rules without signals: NaN operands give a quiet NaN,
 $\infty - \infty$, $0 \times \infty$, $0/0$ and $\infty/\infty$ give NaN,
 $x/0$ gives a signed infinity and $x/\infty$ gives $+0$. `neg` is

@@ -546,28 +546,21 @@ pub fn Decimal::parse(
               ),
             )
         }
-        // Rounding and reduction do not depend on the exponent: build the
-        // value at exponent 0 and check that the final exponent fits.
-        let value = if significant_digits.length() <= precision {
-          finite_with_exponent_repr(negative, coeff, 0, precision)
-        } else {
-          normalize_decimal_parts_gda_repr(
+        // As in the GDA to-number conversion, a numeric string always
+        // converts: the digits are rounded once, to the precision and to the
+        // exponent range of a context-free value, so a literal too large for
+        // it is a signed infinity and one too small rounds toward a signed
+        // zero.
+        Ok(
+          context_free_round_wide(
             negative,
             coeff,
-            0,
+            exponent10,
             precision,
-            DecimalRoundingMode::HalfEven,
-          )
-        }
-        match with_exponent10_offset(value, exponent10) {
-          Some(value) => Ok(value)
-          None =>
-            Err(
-              @def.ArithmeticError::parse_error(
-                "decimal literal exponent out of range: " + src,
-              ),
-            )
-        }
+            round_to_precision=true,
+            reduce=significant_digits.length() > precision,
+          ),
+        )
       }
     }
     None =>

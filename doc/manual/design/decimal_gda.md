@@ -768,10 +768,8 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
   requirement.
 - It does not provide a mutable or global context, and contexts carry no
   identity: two contexts with the same fields are interchangeable.
-- It does not support exponents beyond the 32-bit range. Literal exponents
-  saturate at $\pm 1\,500\,000\,000$ and exponent sums of such operands can
-  wrap around (see the warning under `Decimal::parse` on the
-  [API page](../api/decimal_gda.md#decimalparse-decimalfrom_string); tracked
-  in [#108](https://github.com/Luna-Flow/floating/issues/108), with a fix proposed in [#117](https://github.com/Luna-Flow/floating/pull/117)); with
-  operand exponents within the GDA limit of $\pm 999\,999\,999$ the sum or
-  difference of two exponents stays below $2^{31}$.
+- It does not store exponents beyond the 32-bit range. Literals and results
+  outside it are not wrapped or rejected: context operations overflow or
+  underflow against the context range, decided from the exact exponent, and
+  the context-free conversions and operators overflow to a signed infinity or
+  round to the exponent $-2^{31}$.

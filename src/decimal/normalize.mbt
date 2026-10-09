@@ -269,6 +269,20 @@ fn normalize_decimal_parts_gda_repr(
   if magnitude.is_zero() {
     return finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision)
   }
+  if exponent10.to_int64() + (magnitude.digits10() - 1).to_int64() >=
+    2147483647L {
+    // At the top of `Int` a carry would wrap the exponent: round in `Int64`
+    // and overflow as IEEE 754 §7.4 prescribes for the rounding mode.
+    return context_free_round_wide(
+      negative,
+      magnitude,
+      exponent10.to_int64(),
+      precision,
+      round_to_precision=true,
+      reduce=true,
+      mode~,
+    )
+  }
   let (magnitude0, exp0) = remove_factor10_repr(magnitude, exponent10)
   let digits = magnitude0.digits10()
   let (magnitude1, exp1) = if digits > precision {
