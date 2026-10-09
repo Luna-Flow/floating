@@ -2066,64 +2066,111 @@ fn decimal_power_exact_ten_result(
 let decimal_power_exact_digit_limit : Int = 1024
 
 ///|
-/// Exact integer `degree`-th root of `value`, or `None` when `value` is not a
-/// perfect `degree`-th power. Mirrors the binary `rootn` helper: a bisection
-/// over the root's digit count, stopped as soon as the root would need more
-/// than `max_root_digits` digits.
-fn dec_coeff_exact_nth_root_repr(
-  value : DecCoeff,
-  degree : Int,
-  max_root_digits : Int,
-) -> DecCoeff? {
-  guard degree > 1 && !value.is_zero() && max_root_digits >= 1 else {
-    return None
-  }
-  let one = dec_coeff_from_int(1)
-  if dec_coeff_compare_repr(value, one) == 0 {
-    return Some(one)
-  }
+/// floor(value^(1 / degree)) for degree >= 2 and a nonzero `value`, as
+/// `bin_float`'s `binary_floor_nth_root` computes it in binary. Small roots
+/// are found by bisection; larger ones by integer Newton steps from an
+/// overestimate taken from the root of the leading digits, which needs a few
+/// full-size products and divisions instead of one power per root digit.
+fn dec_coeff_floor_nth_root_repr(value : DecCoeff, degree : Int) -> DecCoeff {
   let digits = value.digits10()
+  // The root is below 10^root_digits.
   let root_digits = (digits + degree - 1) / degree
-  guard root_digits <= max_root_digits else { return None }
-  // A root of `root_digits` digits is below `10^root_digits`, so the interval
-  // `[0, 10^root_digits)` brackets it and a power that overflows `digits`
-  // digits is certainly above `value`.
-  let mut lower = dec_coeff_zero()
-  let mut upper = dec_coeff_power10_repr(root_digits)
-  while dec_coeff_compare_repr(dec_coeff_magnitude_sub_repr(upper, lower), one) >
-        0 {
-    let midpoint = dec_coeff_div_rem_by_unit_repr(
-        dec_coeff_magnitude_add_repr(lower, upper),
-        2,
-      ).0
-    match dec_coeff_exact_power_if_fits_repr(midpoint, degree, digits) {
-      Some(power) =>
-        if dec_coeff_compare_repr(power, value) <= 0 {
+  if root_digits <= 18 {
+    let one = dec_coeff_from_int(1)
+    let mut lower = dec_coeff_zero()
+    let mut upper = dec_coeff_power10_repr(root_digits)
+    while dec_coeff_compare_repr(
+            dec_coeff_magnitude_sub_repr(upper, lower),
+            one,
+          ) >
+          0 {
+      let midpoint = dec_coeff_div_rem_by_unit_repr(
+          dec_coeff_magnitude_add_repr(lower, upper),
+          2,
+        ).0
+      // A power longer than `value` is certainly above it.
+      match dec_coeff_exact_power_if_fits_repr(midpoint, degree, digits) {
+        Some(power) if dec_coeff_compare_repr(power, value) <= 0 =>
           lower = midpoint
-        } else {
-          upper = midpoint
-        }
-      None => upper = midpoint
+        _ => upper = midpoint
+      }
     }
+    return lower
   }
-  match dec_coeff_exact_power_if_fits_repr(lower, degree, digits) {
-    Some(power) if dec_coeff_compare_repr(power, value) == 0 => Some(lower)
+  // With high = floor((value / 10^(degree * half))^(1 / degree)), value is
+  // below ((high + 1) * 10^half)^degree, so that start exceeds the root.
+  let half = root_digits / 2
+  let high = dec_coeff_floor_nth_root_repr(
+    dec_coeff_div_rem_repr(value, dec_coeff_power10_repr(half * degree)).0,
+    degree,
+  )
+  let mut root = dec_coeff_shift_power10_repr(
+    dec_coeff_magnitude_add_repr(high, dec_coeff_from_int(1)),
+    half,
+  )
+  // From any x above the root, y = floor(((degree - 1) x +
+  // floor(value / x^(degree - 1))) / degree) satisfies root <= y < x (AM-GM),
+  // and at x = root the step does not decrease.
+  while true {
+    let quotient = dec_coeff_div_rem_repr(
+        value,
+        dec_coeff_exact_power_repr(root, degree - 1),
+      ).0
+    let next = dec_coeff_div_rem_by_unit_repr(
+        dec_coeff_magnitude_add_repr(
+          dec_coeff_multiply_by_unit_repr(root, degree - 1),
+          quotient,
+        ),
+        degree,
+      ).0
+    if dec_coeff_compare_repr(next, root) >= 0 {
+      break
+    }
+    root = next
+  }
+  root
+}
+
+///|
+/// The exact `degree`-th root of `value`, or `None` when `value` is not a
+/// perfect `degree`-th power. Even degrees take exact square roots first,
+/// which stop at the first nonzero remainder.
+fn dec_coeff_exact_nth_root_repr(value : DecCoeff, degree : Int) -> DecCoeff? {
+  guard degree > 1 && !value.is_zero() else { return None }
+  let one = dec_coeff_from_int(1)
+  let mut current = value
+  let mut remaining = degree
+  while remaining % 2 == 0 && dec_coeff_compare_repr(current, one) != 0 {
+    let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(current)
+    guard remainder.is_zero() else { return None }
+    current = root
+    remaining = remaining / 2
+  }
+  if remaining == 1 || dec_coeff_compare_repr(current, one) == 0 {
+    return Some(current)
+  }
+  let root = dec_coeff_floor_nth_root_repr(current, remaining)
+  match
+    dec_coeff_exact_power_if_fits_repr(root, remaining, current.digits10()) {
+    Some(power) if dec_coeff_compare_repr(power, current) == 0 => Some(root)
     _ => None
   }
 }
 
 ///|
-/// Reduces a non-integral exponent to `p / q` in lowest terms. A decimal
-/// exponent is `coefficient * 10^-scale`, so `q` only ever keeps the powers of
-/// two and five the coefficient cannot cancel. Both parts are bounded: an
-/// exponent whose reduced denominator is large has no exactly representable
-/// power for any base a context can hold.
-fn decimal_power_exponent_fraction(exponent : Decimal) -> (DecCoeff, Int)? {
+/// Reduces a non-integral exponent to `p / q` in lowest terms, or `None` when
+/// `q` would exceed `max_denominator`. A decimal exponent is
+/// `coefficient * 10^-scale`, so `q` only ever keeps the powers of two and
+/// five the coefficient cannot cancel.
+fn decimal_power_exponent_fraction(
+  exponent : Decimal,
+  max_denominator : Int,
+) -> (DecCoeff, Int)? {
   guard exponent.class == FpClass::Finite && !exponent.coefficient.is_zero() else {
     return None
   }
   let scale = -exponent.exponent10
-  guard scale > 0 && scale <= 32 else { return None }
+  guard scale > 0 else { return None }
   let (without_twos, twos) = dec_coeff_count_factor_unit_repr(
     exponent.coefficient,
     2,
@@ -2134,10 +2181,15 @@ fn decimal_power_exponent_fraction(exponent : Decimal) -> (DecCoeff, Int)? {
   let remaining_twos = scale - cancelled_twos
   let remaining_fives = scale - cancelled_fives
   guard remaining_twos + remaining_fives > 0 else { return None }
-  guard remaining_twos <= 10 && remaining_fives <= 4 else { return None }
-  let denominator = (1 << remaining_twos) *
-    decimal_small_power_of_five(remaining_fives)
-  guard denominator > 1 && denominator <= 1000 else { return None }
+  let mut denominator = 1
+  for _ in 0..<remaining_twos {
+    guard denominator <= max_denominator / 2 else { return None }
+    denominator = denominator * 2
+  }
+  for _ in 0..<remaining_fives {
+    guard denominator <= max_denominator / 5 else { return None }
+    denominator = denominator * 5
+  }
   let numerator = dec_coeff_multiply_repr(
     dec_coeff_multiply_repr(
       without_fives,
@@ -2146,16 +2198,6 @@ fn decimal_power_exponent_fraction(exponent : Decimal) -> (DecCoeff, Int)? {
     dec_coeff_pow_unit_repr(5, fives - cancelled_fives),
   )
   Some((numerator, denominator))
-}
-
-///|
-/// `5^exponent` for the few exponents a reduced power denominator can keep.
-fn decimal_small_power_of_five(exponent : Int) -> Int {
-  let mut result = 1
-  for _ in 0..<exponent {
-    result = result * 5
-  }
-  result
 }
 
 ///|
@@ -2179,16 +2221,23 @@ fn decimal_power_exact_rational_result(
     !exponent.coefficient.is_zero() else {
     return None
   }
+  // Write base = coefficient * 10^exponent10 without trailing zeros. A root
+  // r >= 2 has r^q >= 2^q, so a coefficient of d digits has no exact q-th
+  // root for q >= d * log2(10), and 3.3220 > log2(10). A coefficient of 1 is
+  // a power of ten, which `decimal_power_exact_ten_result` decides.
+  let (coefficient, exponent10) = remove_factor10_repr(
+    base.coefficient,
+    base.exponent10,
+  )
+  let max_denominator = Int64::min(
+    coefficient.digits10().to_int64() * 33220L / 10000L,
+    100_000_000L,
+  )
   let (numerator, denominator) = match
-    decimal_power_exponent_fraction(exponent) {
+    decimal_power_exponent_fraction(exponent, max_denominator.to_int()) {
     Some(value) => value
     None => return None
   }
-  let count = match dec_coeff_to_bounded_int(numerator, 4096) {
-    Some(value) => value
-    None => return None
-  }
-  guard count >= 1 else { return None }
   // Only a value of at most p + 1 significant digits can sit on a rounding
   // boundary, a representable value in the directed modes or a midpoint in
   // the half modes. A longer exact value lies strictly inside its rounding
@@ -2198,15 +2247,22 @@ fn decimal_power_exact_rational_result(
   } else {
     ctx.precision.to_int64() + 1L
   }
-  // Write base = radicand * 10^(q * root_exponent) with 0 <= shift < q. The
-  // radicand keeps fewer than q trailing zeros, so its root, if any, keeps
-  // none.
-  let (coefficient, exponent10) = remove_factor10_repr(
-    base.coefficient,
-    base.exponent10,
-  )
-  let shift = (exponent10 % denominator + denominator) % denominator
-  let root_exponent = (exponent10 - shift) / denominator
+  // The raised factor is at least 2 as well, so p is below the result's
+  // digit count times log2(10).
+  let count = match
+    dec_coeff_to_bounded_int(
+      numerator,
+      Int64::min(result_limit * 33220L / 10000L, 100_000_000L).to_int(),
+    ) {
+    Some(value) => value
+    None => return None
+  }
+  guard count >= 1 else { return None }
+  // Write a decimal q-th root of the base as r * 10^f with r free of trailing
+  // zeros. Then r^q is free of them too, so r^q = coefficient and
+  // exponent10 = q * f.
+  guard exponent10 % denominator == 0 else { return None }
+  let root_exponent = exponent10 / denominator
   // root^p has at least p * (digits(root) - 1) + 1 digits. A negative exponent
   // raises the reciprocal instead; the reciprocal of a root 5^k is 2^k, which
   // keeps more than a third of its digits.
@@ -2216,17 +2272,10 @@ fn decimal_power_exact_rational_result(
   } else {
     raised_limit
   }
-  guard coefficient.digits10().to_int64() + shift.to_int64() <=
-    denominator.to_int64() * root_limit else {
+  guard coefficient.digits10().to_int64() <= denominator.to_int64() * root_limit else {
     return None
   }
-  let radicand = dec_coeff_shift_power10_repr(coefficient, shift)
-  let root = match
-    dec_coeff_exact_nth_root_repr(
-      radicand,
-      denominator,
-      Int64::min(root_limit, 1_000_000_000L).to_int(),
-    ) {
+  let root = match dec_coeff_exact_nth_root_repr(coefficient, denominator) {
     Some(value) => value
     None => return None
   }

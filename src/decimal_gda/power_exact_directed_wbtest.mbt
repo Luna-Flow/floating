@@ -107,3 +107,35 @@ test "power decides exact non-integral results past base^p's size (#138)" {
     }
   }
 }
+
+///|
+test "power decides exact powers with large reduced exponents" {
+  let cases = [
+    (pow5(1024).to_string(), "0.0009765625", 720, "5"),
+    ("0.25", "4096.5", 5800, "\{pow5(8193)}E-8193"),
+  ]
+  for entry in cases {
+    let (left, right, precision, expected) = entry
+    let want = Decimal::from_string(expected, precision~).unwrap()
+    for
+      mode in [
+        GdaRoundingMode::HalfEven,
+        GdaRoundingMode::Floor,
+        GdaRoundingMode::Up,
+      ] {
+      let ctx = GdaContext::new(
+        precision~,
+        rounding=mode,
+        e_min=-999_999,
+        e_max=999_999,
+      )
+      let outcome = power(
+        Decimal::from_string(left, precision~).unwrap(),
+        Decimal::from_string(right).unwrap(),
+        ctx,
+      )
+      assert_eq(outcome.value().compare(want), 0)
+      assert_false(outcome.raised().contains(GdaSignal::InvalidOperation))
+    }
+  }
+}
