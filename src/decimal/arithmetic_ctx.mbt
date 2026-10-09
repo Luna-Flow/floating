@@ -601,35 +601,42 @@ fn Decimal::decimal_div_ctx_impl(
       // to its final grid: to `precision` digits when it is normal and to
       // Etiny when it is subnormal. Rounding to `precision` digits first and
       // then to Etiny would round a subnormal quotient twice.
-      let value = if ctx.precision > 0 {
-        normalize_decimal_parts_ctx_repr(
+      // The guarded quotient keeps the exact quotient's tininess: ZeroFiveUp
+      // never carries it across 10^e_min, and its sticky low digit lets the
+      // p-digit rounding used by after-rounding detection see the exact
+      // value. Its normalization flags are therefore the quotient's, while
+      // the delivered value alone cannot tell a tiny quotient that rounded up
+      // to 10^e_min from a normal one.
+      let (value, flags) = if ctx.precision > 0 {
+        let (value, flags) = normalize_decimal_parts_ctx_repr(
           self.negative != other.negative,
           q,
           self.exponent10 - other.exponent10 - extra,
           ctx,
-        ).0
+        )
+        (value, { ..flags, rounded: true, inexact: true, })
       } else {
-        finalize_finite_ctx(
-          normalize_decimal_parts_gda_repr(
-            self.negative != other.negative,
-            q,
-            self.exponent10 - other.exponent10 - extra,
-            precision,
-            ctx.decimal_rounding,
-          ),
-          DecimalFlags::new(),
-          ctx,
-        ).0
-      }
-      let value = expand_inexact_division_cohort(value, ctx, pad_precision=true)
-      (
-        value,
-        with_underflow_for_inexact_subnormal(
+        let value = finalize_finite_ctx(
+            normalize_decimal_parts_gda_repr(
+              self.negative != other.negative,
+              q,
+              self.exponent10 - other.exponent10 - extra,
+              precision,
+              ctx.decimal_rounding,
+            ),
+            DecimalFlags::new(),
+            ctx,
+          ).0
+        (
           value,
-          { ..DecimalFlags::new(), rounded: true, inexact: true, },
-          ctx,
-        ),
-      )
+          with_underflow_for_inexact_subnormal(
+            value,
+            { ..DecimalFlags::new(), rounded: true, inexact: true, },
+            ctx,
+          ),
+        )
+      }
+      (expand_inexact_division_cohort(value, ctx, pad_precision=true), flags)
     }
   }
 }
