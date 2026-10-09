@@ -127,6 +127,8 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::rootn_ctx` returning `-0` for `rootn(-0, n)` with an even
+  `n > 0`; IEEE 754-2019 9.2.1 makes it `+0` (odd `n` keeps the sign) (#164).
 - Fixed `Decimal::tanpi_ctx` returning the zero with the argument's sign at
   every integer. `tanPi(n)` is `sinPi(n) / cosPi(n)`, so it is `-0` at
   positive odd `n` and `+0` at negative odd `n` (IEEE 754-2019 9.2.1), as

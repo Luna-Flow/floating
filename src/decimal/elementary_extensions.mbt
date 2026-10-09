@@ -372,7 +372,10 @@ fn Decimal::try_unary_elementary_ctx(
             ctx,
           ),
         )
-      Rootn(_) => Some(decimal_elementary_zero(value.negative, ctx))
+      // rootn(+-0, n) is +-0 for odd n > 0 and +0 for even n > 0 (IEEE 754-2019
+      // 9.2.1).
+      Rootn(degree) =>
+        Some(decimal_elementary_zero(value.negative && degree % 2 != 0, ctx))
       Acos => None
     }
     match exact {
