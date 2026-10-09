@@ -58,6 +58,25 @@ fn add_finite_values_ctx(
   if lhs_value.is_zero() || rhs_value.is_zero() {
     let zero = if lhs_value.is_zero() { lhs_value } else { rhs_value }
     let nonzero = if lhs_value.is_zero() { rhs_value } else { lhs_value }
+    if ctx.extended && ctx.precision > 0 {
+      // The exact sum is the nonzero operand, with the smaller exponent as its
+      // ideal exponent. Moving it towards that exponent by at most p + 1 -
+      // digits places and normalizing once rounds and clamps the delivered
+      // result only, so an exact product in fma no longer reports a clamp
+      // that its own exponent would have needed.
+      let preferred = Int::min(zero.exponent10, nonzero.exponent10)
+      let room = Int::max(0, ctx.precision + 1 - nonzero.coefficient.digits10())
+      let shift = Int64::min(
+        nonzero.exponent10.to_int64() - preferred.to_int64(),
+        room.to_int64(),
+      ).to_int()
+      return normalize_decimal_parts_ctx_repr(
+        nonzero.negative,
+        dec_coeff_shift_power10_repr(nonzero.coefficient, shift),
+        nonzero.exponent10 - shift,
+        ctx,
+      )
+    }
     let (base, base_flags) = apply_finite_ctx(nonzero, ctx)
     guard base_flags.has_error() == false &&
       base.class == FpClass::Finite &&
