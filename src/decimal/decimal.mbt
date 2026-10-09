@@ -1480,6 +1480,7 @@ fn decimal_integer_quotient(
   dividend : Decimal,
   other : Decimal,
   ctx : DecimalContext,
+  clamp_zero? : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for(bigint_one(), ctx)
   match (dividend.class, other.class) {
@@ -1516,12 +1517,19 @@ fn decimal_integer_quotient(
     (FpClass::Finite, FpClass::Finite) => {
       if finite_integer_quotient_is_zero(dividend, other) {
         let flags = divide_integer_zero_quotient_flags(dividend, other, ctx)
-        return if !ctx.extended {
-          (Decimal::zero(precision~), flags)
-        } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), flags)
+        if !ctx.extended {
+          return (Decimal::zero(precision~), flags)
+        }
+        let quotient = finite_with_exponent_repr(
+          dividend.negative != other.negative,
+          dec_coeff_zero(),
+          0,
+          precision,
+        )
+        return if clamp_zero && ctx.clamp && ctx.precision > 0 {
+          finalize_finite_ctx(quotient, flags, ctx)
         } else {
-          (Decimal::zero(precision~), flags)
+          (quotient, flags)
         }
       }
       if ctx.precision > 0 &&

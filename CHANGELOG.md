@@ -6,6 +6,11 @@ notes live in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Clamped zero results from `Decimal::divide_integer` now carry the required
+  exponent and raise the `clamped` flag when exponent 0 exceeds $e_{\max}-p+1$.
+
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each

@@ -933,6 +933,10 @@ is zero. $x \operatorname{rem} 0$ and $\infty \operatorname{rem} y$ are invalid
 ($0 \operatorname{rem} 0$ also raises `division_undefined`);
 $x \operatorname{rem} \infty = x$.
 
+In a clamped context, a zero `divide_integer` result has its exponent folded
+down to $e_{\max}-p+1$ when exponent 0 is larger; the `clamped` flag is
+raised. Its sign is still the sign of the exact quotient.
+
 ```moonbit
 ///|
 test "decimal remainders" {

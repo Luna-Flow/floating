@@ -185,7 +185,12 @@ pub fn Decimal::remainder(
       None => ()
     }
   }
-  let (quotient, quotient_flags0) = decimal_integer_quotient(lhs, rhs, ctx)
+  let (quotient, quotient_flags0) = decimal_integer_quotient(
+    lhs,
+    rhs,
+    ctx,
+    clamp_zero=false,
+  )
   let quotient_flags = operand_flags.combine(quotient_flags0)
   if quotient.class == FpClass::NaN || quotient_flags.has_error() {
     return (quotient, quotient_flags)

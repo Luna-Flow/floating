@@ -20897,3 +20897,7 @@ msgstr ""
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr ""
+
+#: manual/api/decimal.md:936
+msgid "In a clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
+msgstr ""
