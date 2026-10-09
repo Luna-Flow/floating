@@ -127,6 +127,10 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::rootn_ctx` missing the exact results for degree `1` and
+  `-1`: `rootn(5, -1)` came back as `0.2` with `inexact` and the directed
+  modes failed certification with NaN. `rootn(x, 1)` and `rootn(x, -1)` are
+  now decided exactly like the other degrees (#165).
 - Fixed `Decimal::hypot_ctx` returning `+Infinity` for an infinity and a
   signaling NaN. Only a quiet NaN leaves `hypot(+-inf, y)` at `+Infinity`; a
   signaling NaN signals `invalid_operation` and the result is a quiet NaN
