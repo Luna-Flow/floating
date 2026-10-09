@@ -127,6 +127,12 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::to_bin_float` (in `decimal` and `decimal_gda`) rounding
+  twice under `ToNearestEven`: the scaled quotient was first rounded to an
+  integer in the target mode and then to the binary precision, so a value
+  just above a binary midpoint, such as `0.0003` or `0.00001` at 53 bits,
+  was rounded onto the midpoint and then the wrong way. The quotient is now
+  truncated with a sticky bit (round to odd) and rounded once (#148).
 - Fixed `Decimal::div_ctx` deciding `underflow`, `subnormal` and `clamped`
   for an inexact quotient from the delivered value instead of from rounding
   the quotient. A tiny quotient that rounds up to `10^e_min`, such as
