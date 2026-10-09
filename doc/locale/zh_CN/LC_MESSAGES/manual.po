@@ -5025,8 +5025,8 @@ msgid "For an integer $y$ the result is computed by binary powering with $p + \\
 msgstr "对整数 $y$，结果通过二进制幂算法以 $p + \\operatorname{digits}(|y|) + 2$ 位工作精度（子集上下文中少一位）计算，然后以上下文模式舍入；能容纳于 $p$ 位的精确幂以指数 $y \\cdot e_x$ 精确返回。对非整数 $y$，$x$ 必须为正（负底数无效），并且结果经认证是*按上下文舍入模式*正确舍入的；$y = 0.5$ 按上下文舍入模式作为平方根计算。对非整数指数施加与 `exp` 相同的上下文限制。特殊情形遵循 GDA：$x^0 = 1$（而 $0^0$ 无效），$\\pm\\infty$ 和 $\\pm 0$ 的幂的符号取决于整数指数的奇偶性，且 $1^y = 1$。在子集上下文中，$0^0$ 为 `1`，$0^{-n}$ 是无效的，而不是 $\\infty$。"
 
 #: manual/api/decimal_gda.md:911
-msgid "GDA treats every non-integer power as inexact, even when its exact value is representable: `power(4, 1.5)` at precision 5 is `8.0000` with `Inexact` and `Rounded` in every rounding mode. Such exact values (an exponent $a/q$ with a small denominator $q$ and $x^a$ a perfect $q$-th power) are decided before the certified loop, because they lie on the boundary of a directed rounding cell or on a midpoint, which the loop cannot certify. The specification allows an inexact power to be up to one unit in the last place in error; this package always returns the correctly rounded value, so `Down`, `Floor` and `ZeroFiveUp` give `8.0000` where libmpdec gives `7.9999`."
-msgstr "GDA 把所有非整数次幂都视为不精确，即使其精确值可以表示：精度为 5 时，`power(4, 1.5)` 在每种舍入模式下都是 `8.0000`，并带有 `Inexact` 和 `Rounded`。这类精确值（指数为 $a/q$，分母 $q$ 较小，且 $x^a$ 是完全 $q$ 次幂）在认证循环之前判定，因为它们落在定向舍入单元的边界上或中点上，循环无法认证。规范允许不精确的幂有至多一个末位单位的误差；本包始终返回正确舍入的值，因此 `Down`、`Floor` 和 `ZeroFiveUp` 给出 `8.0000`，而 libmpdec 给出 `7.9999`。"
+msgid "GDA treats every non-integer power as inexact, even when its exact value is representable: `power(4, 1.5)` at precision 5 is `8.0000` with `Inexact` and `Rounded` in every rounding mode. Such exact values (an exponent $a/q$ in lowest terms with $x$ a perfect $q$-th power) are decided before the certified loop, because they lie on the boundary of a directed rounding cell or on a midpoint, which the loop cannot certify. The specification allows an inexact power to be up to one unit in the last place in error; this package always returns the correctly rounded value, so `Down`, `Floor` and `ZeroFiveUp` give `8.0000` where libmpdec gives `7.9999`."
+msgstr "GDA 把所有非整数次幂都视为不精确，即使其精确值可以表示：精度为 5 时，`power(4, 1.5)` 在每种舍入模式下都是 `8.0000`，并带有 `Inexact` 和 `Rounded`。这类精确值（指数为既约分数 $a/q$，且 $x$ 是完全 $q$ 次幂）在认证循环之前判定，因为它们落在定向舍入单元的边界上或中点上，循环无法认证。规范允许不精确的幂有至多一个末位单位的误差；本包始终返回正确舍入的值，因此 `Down`、`Floor` 和 `ZeroFiveUp` 给出 `8.0000`，而 libmpdec 给出 `7.9999`。"
 
 #: manual/api/decimal_gda.md:923
 msgid "`reduce` rounds to the context and removes trailing zeros."
@@ -8088,7 +8088,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/consistency.md:70
 #: manual/design/decimal.md:943
 #: manual/design/decimal_checked.md:276
-#: manual/design/decimal_gda.md:759
+#: manual/design/decimal_gda.md:760
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/doc_examples.md:36
@@ -8962,7 +8962,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/consistency.md:56
 #: manual/design/decimal.md:873
 #: manual/design/decimal_checked.md:193
-#: manual/design/decimal_gda.md:714
+#: manual/design/decimal_gda.md:715
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/doc_examples.md:25
@@ -9037,7 +9037,7 @@ msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当
 #: manual/design/consistency.md:63
 #: manual/design/decimal.md:922
 #: manual/design/decimal_checked.md:265
-#: manual/design/decimal_gda.md:743
+#: manual/design/decimal_gda.md:744
 #: manual/design/decimal_gda_checked.md:238
 #: manual/design/def.md:324
 #: manual/design/doc_examples.md:30
@@ -10175,7 +10175,7 @@ msgstr "Native"
 
 #: manual/design/bin_float.md:828
 #: manual/design/decimal.md:862
-#: manual/design/decimal_gda.md:707
+#: manual/design/decimal_gda.md:708
 msgid "LLVM"
 msgstr "LLVM"
 
@@ -11571,7 +11571,7 @@ msgstr "达到 Toom-3 阈值起"
 
 #: manual/design/decimal.md:816
 #: manual/design/decimal.md:859
-#: manual/design/decimal_gda.md:704
+#: manual/design/decimal_gda.md:705
 msgid "Toom-3"
 msgstr "Toom-3"
 
@@ -11608,22 +11608,22 @@ msgid "The crossovers are measured per target and stored in target-specific file
 msgstr "各交叉点按目标平台测量，并存放在目标平台专属的文件中："
 
 #: manual/design/decimal.md:859
-#: manual/design/decimal_gda.md:704
+#: manual/design/decimal_gda.md:705
 msgid "Target"
 msgstr "目标平台"
 
 #: manual/design/decimal.md:859
-#: manual/design/decimal_gda.md:704
+#: manual/design/decimal_gda.md:705
 msgid "Karatsuba mul / square"
 msgstr "Karatsuba mul/square"
 
 #: manual/design/decimal.md:859
-#: manual/design/decimal_gda.md:704
+#: manual/design/decimal_gda.md:705
 msgid "first NTT mul / square"
 msgstr "首个 NTT mul/square"
 
 #: manual/design/decimal.md:859
-#: manual/design/decimal_gda.md:704
+#: manual/design/decimal_gda.md:705
 msgid "Burnikel–Ziegler"
 msgstr "Burnikel–Ziegler"
 
@@ -11632,12 +11632,12 @@ msgid "Newton"
 msgstr "Newton"
 
 #: manual/design/decimal.md:861
-#: manual/design/decimal_gda.md:706
+#: manual/design/decimal_gda.md:707
 msgid "native"
 msgstr "native"
 
 #: manual/design/decimal.md:861
-#: manual/design/decimal_gda.md:706
+#: manual/design/decimal_gda.md:707
 msgid "from 2,816"
 msgstr "从 2,816 起"
 
@@ -12420,14 +12420,14 @@ msgid "These functions are evaluated by certified interval arithmetic and a Ziv-
 msgstr "这些函数通过经认证的区间算术和 Ziv 式细化循环求值。[^ziv] 对 $f(x)$："
 
 #: manual/design/decimal_gda.md:618
-msgid "**Exact cases first.** $\\exp 0 = 1$, $\\ln 1 = 0$, $\\log_{10} 10^k = k$, special operands, domain errors, and the cases `power` can decide exactly ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or underflow, and exact rational powers: $y = a/q$ in lowest terms with a small $q$ and $x^a$ a perfect $q$-th power, such as $4^{1.5} = 8$) never reach the loop. An exact result is a boundary of its rounding cell in the directed modes (and an exact midpoint is one in the half modes), which the loop could never certify."
-msgstr "**先处理精确情形。** $\\exp 0 = 1$、$\\ln 1 = 0$、$\\log_{10} 10^k = k$、特殊操作数、定义域错误，以及 `power` 能精确判定的情形（经由 `sqrt` 的 $x^{1/2}$、十的幂、$1^y$、必然上溢或下溢，以及精确的有理幂：$y = a/q$ 为既约分数且 $q$ 较小、$x^a$ 是完全 $q$ 次幂，例如 $4^{1.5} = 8$）永远不会进入循环。在定向舍入模式下，精确结果是其舍入单元的端点（在半值舍入模式下，精确的中点也是端点），循环永远无法认证这样的结果。"
+msgid "**Exact cases first.** $\\exp 0 = 1$, $\\ln 1 = 0$, $\\log_{10} 10^k = k$, special operands, domain errors, and the cases `power` can decide exactly ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or underflow, and exact rational powers: $y = a/q$ in lowest terms with $x$ a perfect $q$-th power, such as $4^{1.5} = 8$, the root taken before the power so no intermediate is longer than the result) never reach the loop. An exact result is a boundary of its rounding cell in the directed modes (and an exact midpoint is one in the half modes), which the loop could never certify."
+msgstr "**先处理精确情形。** $\\exp 0 = 1$、$\\ln 1 = 0$、$\\log_{10} 10^k = k$、特殊操作数、定义域错误，以及 `power` 能精确判定的情形（经由 `sqrt` 的 $x^{1/2}$、十的幂、$1^y$、必然上溢或下溢，以及精确的有理幂：$y = a/q$ 为既约分数且 $x$ 是完全 $q$ 次幂，例如 $4^{1.5} = 8$，先开根再求幂，因此任何中间量都不比结果更长）永远不会进入循环。在定向舍入模式下，精确结果是其舍入单元的端点（在半值舍入模式下，精确的中点也是端点），循环永远无法认证这样的结果。"
 
-#: manual/design/decimal_gda.md:626
+#: manual/design/decimal_gda.md:627
 msgid "**Enclose the input.** $x$ is converted to a binary ball $[x^-, x^+]$ at $w$ bits with directed rounding (`to_bin_float` towards $-\\infty$ and $+\\infty$), so $x \\in [x^-, x^+]$ exactly."
 msgstr "**包络输入。** $x$ 以定向舍入（`to_bin_float` 朝 $-\\infty$ 和 $+\\infty$）转换为 $w$ 位的二进制球 $[x^-, x^+]$，因此精确地有 $x \\in [x^-, x^+]$。"
 
-#: manual/design/decimal_gda.md:629
+#: manual/design/decimal_gda.md:630
 msgid ""
 "**Enclose the output.** `ball_float` evaluates $f$ on the ball and returns $[L, U] \\n"
 "i f(x)$ (for `log10`, $\\ln$ divided by a cached enclosure of $\\ln 10$; for `power`, $\\exp(y \\ln x)$ through enclosures of $\\ln x$)."
@@ -12435,23 +12435,23 @@ msgstr ""
 "**包络输出。** `ball_float` 在球上计算 $f$ 并返回 $[L, U] \\n"
 "i f(x)$（对 `log10`，为 $\\ln$ 除以缓存的 $\\ln 10$ 包络；对 `power`，$\\exp(y \\ln x)$ 经由 $\\ln x$ 的包络计算）。"
 
-#: manual/design/decimal_gda.md:632
+#: manual/design/decimal_gda.md:633
 msgid "**Certify a candidate.** A decimal approximation $\\tilde y$ (the ball midpoint, or a decimal series evaluation) is rounded to $r$. Let $(a, b)$ be the open interval of reals around $r$ that round to $r$: the two midpoints with the neighbours for the half modes, $(r, r^+)$ or $(r^-, r)$ for the directed ones (the real rounding cell of a directed mode is half-open, $[r, r^+)$ or $(r^-, r]$; the test uses the open interior, which is sufficient). Its endpoints are exact decimals; each is enclosed in binary, and the result is accepted when"
 msgstr "**认证候选值。** 十进制近似 $\\tilde y$（球心，或十进制级数求值的结果）被舍入为 $r$。设 $(a, b)$ 为 $r$ 周围舍入到 $r$ 的实数构成的开区间：对 half 模式是与两侧相邻值之间的两个中点，对定向模式是 $(r, r^+)$ 或 $(r^-, r)$（定向模式真正的实数舍入单元是半开区间 $[r, r^+)$ 或 $(r^-, r]$；检验使用其开内部，这已足够）。其端点是精确的十进制数；每个端点都被包络在二进制中，当满足下式时接受该结果"
 
-#: manual/design/decimal_gda.md:643
+#: manual/design/decimal_gda.md:644
 msgid "which proves $\\mathrm{round}(f(x)) = r$. A second test rounds both exact dyadic endpoints $L$ and $U$ to the context; since every rounding mode is monotone, $\\mathrm{round}(L) = \\mathrm{round}(U) = r$ also proves $\\mathrm{round}(f(x)) = r$."
 msgstr "这就证明了 $\\mathrm{round}(f(x)) = r$。第二种测试把两个精确的二进分数端点 $L$ 和 $U$ 都舍入到上下文；由于每种舍入模式都是单调的，$\\mathrm{round}(L) = \\mathrm{round}(U) = r$ 同样证明了 $\\mathrm{round}(f(x)) = r$。"
 
-#: manual/design/decimal_gda.md:647
+#: manual/design/decimal_gda.md:648
 msgid "**Refine.** Otherwise the working precision grows, $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$; at most twelve evaluations are made, so the last one runs at roughly $1.5^{11} \\approx 86$ times the starting precision."
 msgstr "**细化。** 否则增大工作精度，$w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$；至多进行十二次求值，因此最后一次的精度约为起始精度的 $1.5^{11} \\approx 86$ 倍。"
 
-#: manual/design/decimal_gda.md:652
+#: manual/design/decimal_gda.md:653
 msgid "The starting precision is $w_0 = \\max(128, 4D + 64)$ bits with $D = \\max(d(c), p)$: four bits per decimal digit exceed $\\log_2 10 \\approx 3.32$, so the input is carried without loss of decimal information and 64 guard bits remain. For arguments with $\\hat e = 0$ in a wide, unclamped context with $p \\le 64$, a cheaper first attempt uses about $\\frac{10}{3} D + 12$ bits and falls back to $w_0$ if it cannot certify."
 msgstr "起始精度为 $w_0 = \\max(128, 4D + 64)$ 位，其中 $D = \\max(d(c), p)$：每位十进制数字四个比特超过了 $\\log_2 10 \\approx 3.32$，因此输入在传递时不会丢失十进制信息，并且还剩 64 个保护位。对于宽且未钳制、满足 $p \\le 64$ 的上下文中 $\\hat e = 0$ 的参数，会先用约 $\\frac{10}{3} D + 12$ 位作一次更廉价的尝试，若无法认证则回退到 $w_0$。"
 
-#: manual/design/decimal_gda.md:659
+#: manual/design/decimal_gda.md:660
 msgid ""
 "The loop always stops, after at most twelve evaluations. It certifies a result whenever $f(x)$ is neither a representable number nor a midpoint (for the half modes) and the budget is large enough, because the enclosure shrinks to a point while $f(x)$ stays at a positive distance from every rounding boundary. For `exp`, `ln` and `log10` this always holds after step 1: by the Lindemann–Weierstrass theorem $e^x$ is transcendental for rational $x \\n"
 "e 0$, hence $\\ln x$ is irrational for rational $x \\n"
@@ -12461,111 +12461,111 @@ msgstr ""
 "e 0$，$e^x$ 是超越数，因此对有理数 $x \\n"
 "e 1$，$\\ln x$ 是无理数，而 $\\log_{10} x$ 只在十的整数次幂处为有理数；可表示数和中点都是有理数。若预算仍然耗尽（例如某个精确值恰为中点且未在第 1 步捕获的 `power`），`try_*` 方法返回认证失败，GDA 函数返回带 `InvalidOperation` 的 NaN，绝不返回未经证明的结果。"
 
-#: manual/design/decimal_gda.md:673
+#: manual/design/decimal_gda.md:674
 msgid "The GDA functions `exp`, `ln`, `log10` and `sqrt` pass a copy of the context with `HalfEven` rounding, because the specification defines these functions as correctly rounded with round-half-even regardless of the context mode; `power` uses the context's mode, as the specification and its test vectors require, and reports non-integer powers as `Inexact` with $p$ digits even when the power happens to be exact (`decimal_power_noninteger_gda_result`). Two more GDA rules are implemented literally: these functions are defined only for contexts with $p$, $e_{\\max}$ and $-e_{\\min}$ at most 999,999 (`math_context_is_restricted`, raising `InvalidContext` otherwise), and in subset arithmetic `ln` reproduces the result of the classic reference algorithm, which can be one unit in the last place above the correctly rounded one (`decimal_ln_subset_result`), because the legacy subset test vectors encode that result."
 msgstr "GDA 函数 `exp`、`ln`、`log10` 和 `sqrt` 传入一份采用 `HalfEven` 舍入的上下文副本，因为规范把这些函数定义为无论上下文模式如何都按 round-half-even 正确舍入；`power` 则使用上下文的模式，这是规范及其测试向量所要求的，并且即使幂恰好是精确的，也把非整数次幂报告为带 $p$ 位数字的 `Inexact`（`decimal_power_noninteger_gda_result`）。另有两条 GDA 规则被逐字实现：这些函数只对 $p$、$e_{\\max}$ 和 $-e_{\\min}$ 都不超过 999,999 的上下文有定义（`math_context_is_restricted`，否则引发 `InvalidContext`）；在子集算术中，`ln` 复现经典参考算法的结果，它可能比正确舍入的结果大末位一个单位（`decimal_ln_subset_result`），因为遗留的子集测试向量编码的正是那个结果。"
 
-#: manual/design/decimal_gda.md:687
+#: manual/design/decimal_gda.md:688
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991. On ball arithmetic see J. van der Hoeven, \"Ball arithmetic\", 2009, and F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991。关于球算术，参见 J. van der Hoeven, \"Ball arithmetic\", 2009，以及 F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017。"
 
-#: manual/design/decimal_gda.md:693
+#: manual/design/decimal_gda.md:694
 msgid "Coefficient representation and kernels"
 msgstr "系数表示与内核"
 
-#: manual/design/decimal_gda.md:695
+#: manual/design/decimal_gda.md:696
 msgid "A coefficient is either `Small(UInt64)` for values below $10^{18}$ or an array of base-$10^9$ limbs with a cached digit count, both persistent: operations never mutate operand limbs. Decimal limbs make digit counts, trailing-zero removal, the half-unit comparison and the `ZeroFiveUp` last-digit test constant-time or linear without binary-to-decimal conversion. Multiplication and division choose among schoolbook, Karatsuba, Toom-3, a dual-modulus NTT, Knuth's algorithm D, Burnikel–Ziegler and Newton reciprocal division by limb count, with thresholds per target:"
 msgstr "系数要么是用于小于 $10^{18}$ 的值的 `Small(UInt64)`，要么是以 $10^9$ 为基数、缓存了位数的 limb 数组，两者都是持久的：运算从不修改操作数的 limb。十进制 limb 使位数计数、去除末尾零、半单位比较以及 `ZeroFiveUp` 的末位测试都成为常数时间或线性时间，无需二进制到十进制的转换。乘法和除法按 limb 数在教科书算法、Karatsuba、Toom-3、双模数 NTT、Knuth 的 algorithm D、Burnikel–Ziegler 和 Newton 倒数除法之间选择，阈值按目标平台设定："
 
-#: manual/design/decimal_gda.md:704
+#: manual/design/decimal_gda.md:705
 msgid "Newton division"
 msgstr "Newton"
 
-#: manual/design/decimal_gda.md:706
+#: manual/design/decimal_gda.md:707
 msgid "off"
 msgstr "关闭"
 
-#: manual/design/decimal_gda.md:708
+#: manual/design/decimal_gda.md:709
 msgid "Wasm, Wasm-GC, JS"
 msgstr "Wasm, Wasm-GC, JS"
 
-#: manual/design/decimal_gda.md:710
+#: manual/design/decimal_gda.md:711
 msgid "The thresholds are measured performance policy, not semantics: every kernel returns the exact product or quotient, so the choice cannot change a result or a flag. See [performance](../performance/decimal_gda.md) for the measurements."
 msgstr "阈值是经测量的性能策略，而非语义：每个内核都返回精确的积或商，因此这种选择不可能改变结果或标志。测量数据参见[性能](../performance/decimal_gda.md)。"
 
-#: manual/design/decimal_gda.md:716
+#: manual/design/decimal_gda.md:717
 msgid "**Single rounding.** Every finite result other than integer `power`, the division case above and the to-integral operations on integers longer than $p$ digits is the exact result rounded once, so $|\\hat x - x| \\le \\frac12 u$ in the half modes and $< u$ otherwise, and $|\\hat x - x|/|x| \\le \\frac12 10^{1-p}$ outside the subnormal range."
 msgstr "**单次舍入。** 除整数 `power`、上文的除法情形以及对长于 $p$ 位的整数进行的取整运算外，每个有限结果都是精确结果舍入一次所得，因此在 half 模式下 $|\\hat x - x| \\le \\frac12 u$，其他模式下 $< u$，并且在次正规范围之外 $|\\hat x - x|/|x| \\le \\frac12 10^{1-p}$。"
 
-#: manual/design/decimal_gda.md:721
+#: manual/design/decimal_gda.md:722
 msgid "**Ideal cohort.** An exact result is returned at the representable exponent nearest to its ideal exponent, so operations on exact data keep their quantum (`2.50 × 3 = 7.50`)."
 msgstr "**理想同值类成员。** 精确结果以最接近其理想指数的可表示指数返回，因此对精确数据的运算会保持其量子（`2.50 × 3 = 7.50`）。"
 
-#: manual/design/decimal_gda.md:724
+#: manual/design/decimal_gda.md:725
 msgid "**Independence of status.** $F(\\vec x, C)$ depends on $C$ only through its policy: results never depend on the sticky status or the traps."
 msgstr "**与状态无关。** $F(\\vec x, C)$ 仅通过策略依赖于 $C$：结果从不依赖于粘滞状态或陷阱。"
 
-#: manual/design/decimal_gda.md:726
+#: manual/design/decimal_gda.md:727
 msgid "**Status algebra.** Status only grows, and the status after a threaded sequence is the union of the raised sets."
 msgstr "**状态代数。** 状态只会增长，串联执行一系列运算之后的状态就是各引发集合的并。"
 
-#: manual/design/decimal_gda.md:728
+#: manual/design/decimal_gda.md:729
 msgid "**Trap determinism.** At most one trap fires per operation, selected by a fixed total order; `Trapped` carries the same value as `Completed` would."
 msgstr "**陷阱确定性。** 每个运算至多触发一个陷阱，按固定的全序选出；`Trapped` 携带的值与 `Completed` 所给出的相同。"
 
-#: manual/design/decimal_gda.md:730
+#: manual/design/decimal_gda.md:731
 msgid "**Certified elementary functions.** A finite inexact result of `exp`, `ln`, `log10` or non-integer `power` is returned only together with a proof (Lemma 3 or 4 of the attachment) that it is the correctly rounded value; a failure to prove it yields NaN and `InvalidOperation`."
 msgstr "**经认证的初等函数。** `exp`、`ln`、`log10` 或非整数 `power` 的有限不精确结果，只会连同其为正确舍入值的证明（附录中的引理 3 或 4）一起返回；若无法证明，则得到 NaN 和 `InvalidOperation`。"
 
-#: manual/design/decimal_gda.md:734
+#: manual/design/decimal_gda.md:735
 msgid "**Total order.** `compare_total` is a total order on triples (sign, then class, then value, then exponent, then payload), and `Decimal::compare` is a total preorder in which NaNs form one class above all numbers."
 msgstr "**全序。** `compare_total` 是三元组上的全序（依次比较符号、类别、值、指数、载荷），`Decimal::compare` 是全预序，其中所有 NaN 构成一个高于所有数的类。"
 
-#: manual/design/decimal_gda.md:737
+#: manual/design/decimal_gda.md:738
 msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the half-mode division tie above and to-integral operands longer than the precision are not covered by any pinned row."
 msgstr "**证据。** 固定版本的 `official` 测试套件通过了 64,986/64,986 个合法的可执行标量用例，遗留的 `official0` 套件通过了 16,124/16,124 个（[符合性](../conformance/decimal_gda.md)）。这些都是有限的声明：上文所述 half 模式下除法的中点（tie）情形，以及长于精度的取整操作数，均未被任何固定用例覆盖。"
 
-#: manual/design/decimal_gda.md:745
+#: manual/design/decimal_gda.md:746
 msgid "**A mutable or global current context.** Rejected because it makes results and flags depend on evaluation order and hidden state (see the first design decision)."
 msgstr "**可变或全局的当前上下文。** 被否决，因为它使结果和标志依赖于求值顺序和隐藏状态（参见第一条设计决策）。"
 
-#: manual/design/decimal_gda.md:748
+#: manual/design/decimal_gda.md:749
 msgid "**Traps as errors.** Rejected because the GDA-defined result would be lost."
 msgstr "**把陷阱作为错误。** 被否决，因为 GDA 定义的结果会丢失。"
 
-#: manual/design/decimal_gda.md:749
+#: manual/design/decimal_gda.md:750
 msgid "**Sharing the engine with `decimal`.** Rejected because one standard's change could alter the other's results; a measured duplication is cheaper than an accidental semantic coupling."
 msgstr "**与 `decimal` 共享引擎。** 被否决，因为一个标准的改动可能改变另一个标准的结果；经测量的重复比意外的语义耦合更划算。"
 
-#: manual/design/decimal_gda.md:752
+#: manual/design/decimal_gda.md:753
 msgid "**Binary floating point for elementary functions with a fixed number of guard digits.** Rejected because no fixed number of guard digits guarantees correct rounding (the table-maker's dilemma); certification with refinement does, and fails visibly when it cannot."
 msgstr "**用固定数量保护位的二进制浮点计算初等函数。** 被否决，因为没有任何固定数量的保护位能保证正确舍入（制表者困境）；带细化的认证则能保证，并在无法做到时显式失败。"
 
-#: manual/design/decimal_gda.md:756
+#: manual/design/decimal_gda.md:757
 msgid "**Normalizing every result.** Rejected because the quantum is part of a GDA number; normalization is available explicitly as `reduce`."
 msgstr "**规范化每个结果。** 被否决，因为量子是 GDA 数的一部分；规范化可通过 `reduce` 显式进行。"
 
-#: manual/design/decimal_gda.md:761
+#: manual/design/decimal_gda.md:762
 msgid "The package implements the GDA operations and nothing else: no trigonometric, hyperbolic or other functions outside the specification, and no IEEE 754 operations other than the few extras of the status-free layer."
 msgstr "本包只实现 GDA 运算：没有三角函数、双曲函数或规范以外的其他函数，除无状态层的少数附加功能外也没有 IEEE 754 运算。"
 
-#: manual/design/decimal_gda.md:764
+#: manual/design/decimal_gda.md:765
 msgid "It does not parse `.decTest` files, run test suites or read files; that is [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools."
 msgstr "它不解析 `.decTest` 文件、不运行测试套件，也不读取文件；这些由 [`frontend/gda_expr`](../api/frontend/gda_expr.md) 和仓库工具负责。"
 
-#: manual/design/decimal_gda.md:766
+#: manual/design/decimal_gda.md:767
 msgid "It does not provide BID interchange; only DPD."
 msgstr "它不提供 BID 交换编码；只有 DPD。"
 
-#: manual/design/decimal_gda.md:767
+#: manual/design/decimal_gda.md:768
 msgid "It does not give correct rounding for integer powers beyond the GDA requirement."
 msgstr "对整数次幂，它不提供超出 GDA 要求的正确舍入。"
 
-#: manual/design/decimal_gda.md:769
+#: manual/design/decimal_gda.md:770
 msgid "It does not provide a mutable or global context, and contexts carry no identity: two contexts with the same fields are interchangeable."
 msgstr "它不提供可变或全局的上下文，上下文也没有身份：字段相同的两个上下文可以互换。"
 
-#: manual/design/decimal_gda.md:771
+#: manual/design/decimal_gda.md:772
 msgid "It does not store exponents beyond the 32-bit range. Literals and results outside it are not wrapped or rejected: context operations overflow or underflow against the context range, decided from the exact exponent, and the context-free conversions and operators overflow to a signed infinity or round to the exponent $-2^{31}$."
 msgstr "它不存储超出 32 位范围的指数。超出该范围的字面量和结果既不会回绕，也不会被拒绝：上下文运算依据精确指数对照上下文范围判定上溢或下溢，无上下文的转换与运算符则上溢为带符号的无穷，或舍入到指数 $-2^{31}$。"
 

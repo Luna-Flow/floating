@@ -910,8 +910,8 @@ $\infty$.
 
 GDA treats every non-integer power as inexact, even when its exact value is
 representable: `power(4, 1.5)` at precision 5 is `8.0000` with `Inexact` and
-`Rounded` in every rounding mode. Such exact values (an exponent $a/q$ with a
-small denominator $q$ and $x^a$ a perfect $q$-th power) are decided before the
+`Rounded` in every rounding mode. Such exact values (an exponent $a/q$ in
+lowest terms with $x$ a perfect $q$-th power) are decided before the
 certified loop, because they lie on the boundary of a directed rounding cell
 or on a midpoint, which the loop cannot certify. The specification allows an
 inexact power to be up to one unit in the last place in error; this package

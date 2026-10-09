@@ -137,7 +137,12 @@ notes live in this file.
   exponent), so no intermediate is longer than the result, and it covers every
   exact result of at most `precision + 1` digits — the only ones that sit on a
   rounding boundary. A longer exact value lies inside its rounding cell and is
-  rounded by the enclosure (#138).
+  rounded by the enclosure. The reduced exponent `p / q` is no longer capped
+  at `q <= 1000` and `p <= 4096` either: `q` is bounded by the base (a root of
+  at least 2 needs `q < digits * log2(10)`) and `p` by the result, so
+  `(5^1024)^(2^-10) = 5` and `0.25^4096.5 = 0.5^8193` are decided too. The
+  integer root takes exact square roots for the factors of two and Newton
+  steps from a leading-digit estimate, as `bin_float` does (#138).
 - Fixed `Decimal::power_ctx` and `Decimal::try_power_ctx` for an exact
   non-integral power whose value is not a binary fraction. The enclosure
   decides such a power only when it is a point interval, which needs the exact
