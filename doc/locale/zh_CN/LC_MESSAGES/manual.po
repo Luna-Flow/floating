@@ -96,7 +96,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/cli/mpfr_expr_cli.md:12
 #: manual/api/cli/testfloat_expr_cli.md:13
 #: manual/api/consistency.md:15
-#: manual/api/decimal.md:31
+#: manual/api/decimal.md:28
 #: manual/api/decimal_checked.md:18
 #: manual/api/decimal_gda.md:28
 #: manual/api/decimal_gda_checked.md:18
@@ -163,7 +163,7 @@ msgstr "构造子"
 #: manual/api/cli/gda_expr_cli.md:39
 #: manual/api/cli/itl_expr_cli.md:37
 #: manual/api/cli/testfloat_expr_cli.md:38
-#: manual/api/decimal.md:392
+#: manual/api/decimal.md:389
 #: manual/numeric_semantics.md:301
 #: manual/tutorial/internal/runner_cli.md:106
 msgid "Meaning"
@@ -648,7 +648,7 @@ msgstr "`minimum` 为 $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 #: manual/api/ball_float_checked.md:313
 #: manual/api/bin_float.md:1392
 #: manual/api/bin_float_checked.md:390
-#: manual/api/decimal.md:1308
+#: manual/api/decimal.md:1307
 #: manual/api/frontend/mpfr_expr.md:154
 #: manual/design/decimal_gda.md:442
 msgid "Elementary functions"
@@ -941,7 +941,7 @@ msgid "These are the decorated hyperbolic functions and their inverses."
 msgstr "这些是装饰版的双曲函数及其反函数。"
 
 #: manual/api/ball_float.md:1512
-#: manual/api/decimal.md:1489
+#: manual/api/decimal.md:1488
 #: manual/numeric_semantics.md:136
 msgid "Function"
 msgstr "函数"
@@ -994,7 +994,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/ball_float_checked.md:398
 #: manual/api/bin_float.md:1967
 #: manual/api/bin_float_checked.md:681
-#: manual/api/decimal.md:1711
+#: manual/api/decimal.md:1710
 #: manual/api/decimal_gda.md:1793
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
@@ -1078,7 +1078,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/cli/mpfr_expr_cli.md:71
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:49
-#: manual/api/decimal.md:1905
+#: manual/api/decimal.md:1904
 #: manual/api/decimal_checked.md:398
 #: manual/api/decimal_gda.md:1971
 #: manual/api/decimal_gda_checked.md:281
@@ -1097,7 +1097,7 @@ msgid "Complete public interface"
 msgstr "完整公共接口"
 
 #: manual/api/ball_float.md:1721
-#: manual/api/decimal.md:1907
+#: manual/api/decimal.md:1906
 #: manual/api/decimal_gda.md:1973
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
@@ -1632,7 +1632,7 @@ msgstr "示例"
 
 #: manual/api/bin_float.md:46
 #: manual/api/bin_float.md:713
-#: manual/api/decimal.md:430
+#: manual/api/decimal.md:427
 #: manual/api/decimal_gda.md:442
 msgid "Context"
 msgstr "上下文"
@@ -2169,7 +2169,7 @@ msgid "`x.scaleb_ctx(n, ctx)` is $\\circ(x \\cdot 2^n)$ with the usual overflow 
 msgstr "`x.scaleb_ctx(n, ctx)` 为 $\\circ(x \\cdot 2^n)$，按常规方式处理上溢和下溢；除非结果离开正规范围，否则它是精确的。`x.logb_ctx(ctx)` 是作为精确整数值的 $\\lfloor \\log_2 |x| \\rfloor$（对次正规的 $x$ 同样如此）：$\\operatorname{logB}(0) = -\\infty$ 并触发 `division_by_zero`，$\\operatorname{logB}(\\pm\\infty) = +\\infty$，NaN 会传播。"
 
 #: manual/api/bin_float.md:1024
-#: manual/api/decimal.md:1125
+#: manual/api/decimal.md:1124
 msgid "Comparison and ordering"
 msgstr "比较与排序"
 
@@ -3479,251 +3479,251 @@ msgid "The [decimal tutorial](../tutorial/decimal.md) walks through typical task
 msgstr "[decimal 教程](../tutorial/decimal.md)介绍常见任务，[decimal 设计](../design/decimal.md)解释算术模型、编码、舍入与认证。支持 IEEE 声明的有限证据记录在 [decimal 符合性](../conformance/decimal.md)中。粘滞的 General Decimal Arithmetic 状态与陷阱（trap）位于独立的 [`decimal_gda`](decimal_gda.md) 包中；[`decimal_checked`](decimal_checked.md) 则累积一串 `Decimal` 运算的标志。"
 
 #: manual/api/decimal.md:22
-msgid "[!WARNING] A few results on the current branch do not meet the contracts described below. They are listed where they occur: operands longer than the precision in [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value), and exact results of non-integral powers among the [elementary functions](#elementary-functions). Each note links the GitHub issue that tracks it and, where one exists, the proposed fix."
-msgstr "[!WARNING] 当前分支上有少数结果不满足下文所述的约定。它们在出现之处列出：[`to_integral_exact` 与 `to_integral_value`](#decimalto_integral_exact-to_integral_value) 中长于精度的操作数，以及[初等函数](#elementary-functions)中非整数次幂的精确结果。每条说明都链接到跟踪它的 GitHub issue，以及（如有）所提出的修复。"
+msgid "[!WARNING] Exact results of non-integral powers among the [elementary functions](#elementary-functions) do not yet meet the contracts described below. The note there links the GitHub issue that tracks them and the proposed fix."
+msgstr "[!WARNING] [初等函数](#elementary-functions)中非整数次幂的精确结果尚不满足下文所述的约定。那里的说明链接到跟踪它们的 GitHub issue 以及所提出的修复。"
 
-#: manual/api/decimal.md:33
+#: manual/api/decimal.md:30
 #: manual/api/decimal_gda.md:30
 #: manual/api/numeric_expr.md:18
 msgid "Add the package to your `moon.pkg`:"
 msgstr "将该包添加到你的 `moon.pkg` 中："
 
-#: manual/api/decimal.md:41
+#: manual/api/decimal.md:38
 msgid "The examples call the package through the alias `@decimal.`. Some of them also use `@def.` for `Luna-Flow/floating/def` (the shared `RoundingMode` and `Sign`), `@lf_arith.` for `Luna-Flow/arithmetic`, `@lf_alg.` for `Luna-Flow/luna-generic` and `@bigint.` for `moonbitlang/core/bigint`; import those packages too when you copy such an example. Most examples build values with a local helper `d(s)`, which is `@decimal.Decimal::from_string(s).unwrap()`."
 msgstr "示例通过别名 `@decimal.` 调用该包。其中一些示例还使用 `@def.` 表示 `Luna-Flow/floating/def`（共享的 `RoundingMode` 与 `Sign`）、`@lf_arith.` 表示 `Luna-Flow/arithmetic`、`@lf_alg.` 表示 `Luna-Flow/luna-generic`、`@bigint.` 表示 `moonbitlang/core/bigint`；复制此类示例时也请导入这些包。大多数示例用局部辅助函数 `d(s)` 构造值，它即 `@decimal.Decimal::from_string(s).unwrap()`。"
 
-#: manual/api/decimal.md:48
+#: manual/api/decimal.md:45
 msgid "Notation"
 msgstr "记号"
 
-#: manual/api/decimal.md:50
+#: manual/api/decimal.md:47
 msgid "Notation used below: a finite value is $(-1)^s \\cdot c \\cdot 10^{q}$ with sign $s$, non-negative integer coefficient $c$ and exponent (quantum) $q$; $p$ is the context precision, $e_{\\max}$ and $e_{\\min}$ the context exponent limits for the *adjusted* exponent $q + \\operatorname{digits}(c) - 1$, and $E_{\\text{tiny}} = e_{\\min} - p + 1$ the smallest exponent of a subnormal."
 msgstr "下文记号：有限值为 $(-1)^s \\cdot c \\cdot 10^{q}$，其中符号为 $s$，非负整数系数为 $c$，指数（量子）为 $q$；$p$ 为上下文精度，$e_{\\max}$ 与 $e_{\\min}$ 为上下文对*调整后*指数 $q + \\operatorname{digits}(c) - 1$ 的限制，$E_{\\text{tiny}} = e_{\\min} - p + 1$ 为次正规数的最小指数。"
 
-#: manual/api/decimal.md:56
+#: manual/api/decimal.md:53
 msgid "Values and representation"
 msgstr "值与表示"
 
-#: manual/api/decimal.md:60
+#: manual/api/decimal.md:57
 msgid "`Decimal` is an immutable decimal floating-point value."
 msgstr "`Decimal` 是不可变的十进制浮点值。"
 
-#: manual/api/decimal.md:68
+#: manual/api/decimal.md:65
 msgid "A `Decimal` is one of: a finite value $(-1)^s c\\,10^q$ (including $\\pm 0$), $\\pm\\infty$, or a quiet or signaling NaN with a sign and a non-negative integer payload. Every value also carries a working `precision`, used by the plain operators and by conversions that have no context argument. The fields are private; use the observers below. Two values with the same mathematical value but different exponents (for example `1.2` and `1.20`) are different members of the same *cohort*: they compare equal numerically but are distinguished by `quantum`, `same_quantum`, `compare_total`, formatting and interchange encoding."
 msgstr "`Decimal` 是以下之一：有限值 $(-1)^s c\\,10^q$（包括 $\\pm 0$）、$\\pm\\infty$，或带符号与非负整数载荷的静默 NaN 或信号 NaN。每个值还带有一个工作精度 `precision`，供普通运算符以及没有上下文参数的转换使用。字段是私有的；请使用下面的观察函数。数学值相同但指数不同的两个值（例如 `1.2` 与 `1.20`）是同一*同值类（cohort）*的不同成员：它们在数值上比较相等，但可以通过 `quantum`、`same_quantum`、`compare_total`、格式化以及交换编码加以区分。"
 
-#: manual/api/decimal.md:78
+#: manual/api/decimal.md:75
 msgid "The derived `Debug` implementation is promoted as `Decimal::to_repr`; see [Trait implementations](#trait-implementations)."
 msgstr "派生的 `Debug` 实现被提升为 `Decimal::to_repr`；参见 [trait 实现](#trait-implementations)。"
 
-#: manual/api/decimal.md:83
+#: manual/api/decimal.md:80
 msgid "These observers return the stored representation of a value."
 msgstr "这些观察函数返回值的存储表示。"
 
-#: manual/api/decimal.md:93
+#: manual/api/decimal.md:90
 msgid "`precision` is the working precision stored in the value (at least 1). `coefficient` and `magnitude` both return the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_negative`. `exponent10` and `quantum` both return the stored exponent $q$; for special values it is `0`."
 msgstr "`precision` 是值中存储的工作精度（至少为 1）。`coefficient` 和 `magnitude` 都返回非负系数 $c$；对 NaN 返回载荷，对无穷返回 `0`。符号从不属于系数：请使用 `is_negative`。`exponent10` 和 `quantum` 都返回存储的指数 $q$；对特殊值为 `0`。"
 
-#: manual/api/decimal.md:112
+#: manual/api/decimal.md:109
 msgid "These observers report the sign of a value."
 msgstr "这些观察函数报告值的符号。"
 
-#: manual/api/decimal.md:120
+#: manual/api/decimal.md:117
 msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_negative` and `is_signed` are the same predicate: they return the stored sign bit, so they are `true` for $-0$, for $-\\infty$ and for a negative NaN."
 msgstr "`sign` 对两个零以及所有 NaN 返回 `@def.Sign::Zero`，其余情况返回 `Negative`/`Positive`。`is_negative` 与 `is_signed` 是同一个谓词：它们返回存储的符号位，因此对 $-0$、$-\\infty$ 以及负 NaN 都为 `true`。"
 
-#: manual/api/decimal.md:127
+#: manual/api/decimal.md:124
 msgid "`classify` returns the coarse class of a value; `class_name` returns the General Decimal Arithmetic class string under a context."
 msgstr "`classify` 返回值的粗略类别；`class_name` 返回某上下文下的 General Decimal Arithmetic 类别字符串。"
 
-#: manual/api/decimal.md:135
+#: manual/api/decimal.md:132
 msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `class_name` returns one of `\"sNaN\"`, `\"NaN\"`, `\"-Infinity\"`, `\"+Infinity\"`, `\"-Zero\"`, `\"+Zero\"`, `\"-Subnormal\"`, `\"+Subnormal\"`, `\"-Normal\"` or `\"+Normal\"`; the normal/subnormal split uses the context's $e_{\\min}$."
 msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`。`class_name` 返回 `\"sNaN\"`、`\"NaN\"`、`\"-Infinity\"`、`\"+Infinity\"`、`\"-Zero\"`、`\"+Zero\"`、`\"-Subnormal\"`、`\"+Subnormal\"`、`\"-Normal\"` 或 `\"+Normal\"` 之一；正规/次正规的划分使用上下文的 $e_{\\min}$。"
 
-#: manual/api/decimal.md:142
+#: manual/api/decimal.md:139
 msgid "These predicates test the class of a value."
 msgstr "这些谓词检测值的类别。"
 
-#: manual/api/decimal.md:159
+#: manual/api/decimal.md:156
 msgid "`is_qnan` and `is_snan` are the General Decimal Arithmetic spellings of `is_quiet_nan` and `is_signaling_nan`. `is_canonical` always returns `true`: a `Decimal` has no non-canonical form; non-canonical *encodings* are a property of [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex). A value is normal under a context when it is finite, non-zero and its adjusted exponent is at least $e_{\\min}$; it is subnormal when it is finite, non-zero and its adjusted exponent is below $e_{\\min}$. Zeros, infinities and NaNs are neither."
 msgstr "`is_qnan` 和 `is_snan` 是 `is_quiet_nan` 与 `is_signaling_nan` 的 General Decimal Arithmetic 写法。`is_canonical` 总是返回 `true`：`Decimal` 不存在非规范形式；非规范的*编码*是 [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex) 的性质。在某上下文下，若值有限、非零且调整后指数至少为 $e_{\\min}$，则它是正规的；若值有限、非零且调整后指数小于 $e_{\\min}$，则它是次正规的。零、无穷与 NaN 两者都不是。"
 
-#: manual/api/decimal.md:169
+#: manual/api/decimal.md:166
 msgid "These functions read and replace the payload of a NaN."
 msgstr "这些函数读取并替换 NaN 的载荷。"
 
-#: manual/api/decimal.md:178
+#: manual/api/decimal.md:175
 msgid "`nan_payload` and `get_payload` return the payload of a NaN and `0` for every other value. `set_payload` returns a quiet NaN with the given payload (its absolute value) and the original sign; `set_payload_signaling` returns a signaling NaN. Both return a non-NaN argument unchanged."
 msgstr "`nan_payload` 和 `get_payload` 返回 NaN 的载荷，对其他所有值返回 `0`。`set_payload` 返回带给定载荷（取其绝对值）且保持原符号的静默 NaN；`set_payload_signaling` 返回信号 NaN。二者对非 NaN 参数都原样返回。"
 
-#: manual/api/decimal.md:183
+#: manual/api/decimal.md:180
 msgid "Construction and conversion"
 msgstr "构造与转换"
 
-#: manual/api/decimal.md:187
+#: manual/api/decimal.md:184
 msgid "`make` builds a finite value from a signed integer coefficient and an exponent, rounding it to a precision."
 msgstr "`make` 由带符号的整数系数和指数构建有限值，并将其舍入到某个精度。"
 
-#: manual/api/decimal.md:194
+#: manual/api/decimal.md:191
 msgid "`Decimal::make(c, q, p, mode~)` represents $c \\cdot 10^{q}$; the sign comes from `c`. Trailing zeros are removed first, the coefficient is then rounded to `p` digits with `mode` (default `ToNearestEven`) if it is longer, and trailing zeros are removed again. The result is therefore always in the *reduced* member of its cohort, and `make(0, q, p)` is $+0$ with exponent `0`. No exponent range applies."
 msgstr "`Decimal::make(c, q, p, mode~)` 表示 $c \\cdot 10^{q}$；符号取自 `c`。首先去除尾随零，若系数更长，则以 `mode`（默认 `ToNearestEven`）舍入到 `p` 位，然后再次去除尾随零。因此结果总是其同值类中的*约简*成员，且 `make(0, q, p)` 是指数为 `0` 的 $+0$。不施加任何指数范围。"
 
-#: manual/api/decimal.md:203
+#: manual/api/decimal.md:200
 msgid "These constructors build the special and unit values."
 msgstr "这些构造函数构建特殊值与单位值。"
 
-#: manual/api/decimal.md:215
+#: manual/api/decimal.md:212
 msgid "The default precision is 34. `zero`, `negative_zero` and `one` have exponent `0`. `inf(sign)` is $-\\infty$ for `Negative` and $+\\infty$ otherwise. `nan` is a positive quiet NaN with payload 0; `quiet_nan` and `signaling_nan` default to payload 0 and a positive sign."
 msgstr "默认精度为 34。`zero`、`negative_zero` 和 `one` 的指数为 `0`。`inf(sign)` 对 `Negative` 为 $-\\infty$，否则为 $+\\infty$。`nan` 是载荷为 0 的正静默 NaN；`quiet_nan` 和 `signaling_nan` 默认载荷为 0、符号为正。"
 
-#: manual/api/decimal.md:222
+#: manual/api/decimal.md:219
 msgid "These constructors convert an integer."
 msgstr "这些构造函数转换整数。"
 
-#: manual/api/decimal.md:229
+#: manual/api/decimal.md:226
 msgid "Both are `make(n, 0, precision)` with the default precision 34: the result is reduced (`from_int(1000)` is `1E+3`, exponent 3) and an integer with more than `precision` digits is rounded half-even."
 msgstr "二者都是采用默认精度 34 的 `make(n, 0, precision)`：结果是约简的（`from_int(1000)` 为 `1E+3`，指数为 3），位数超过 `precision` 的整数按半值取偶（half-even）舍入。"
 
-#: manual/api/decimal.md:235
+#: manual/api/decimal.md:232
 msgid "These constructors convert a binary floating-point number."
 msgstr "这些构造函数转换二进制浮点数。"
 
-#: manual/api/decimal.md:242
+#: manual/api/decimal.md:239
 msgid "Every finite `Double` is a dyadic rational $m \\cdot 2^{k}$ and therefore has a finite decimal expansion $m \\cdot 5^{-k} \\cdot 10^{k}$ for $k<0$; the conversion forms that exact expansion and rounds it half-even to `precision` digits (default 34). Signed zeros and infinities are preserved; every NaN becomes a quiet NaN with payload 0 and the input's sign. `from_float` widens to `Double` first, which is exact."
 msgstr "每个有限 `Double` 都是二进有理数 $m \\cdot 2^{k}$，因而当 $k<0$ 时具有有限十进制展开 $m \\cdot 5^{-k} \\cdot 10^{k}$；转换会构造这一精确展开，并按半值取偶舍入到 `precision` 位（默认 34）。带符号的零与无穷得以保留；每个 NaN 都变为载荷为 0、符号与输入相同的静默 NaN。`from_float` 先扩展为 `Double`，这一步是精确的。"
 
-#: manual/api/decimal.md:251
+#: manual/api/decimal.md:248
 msgid "These functions convert between `Decimal` and the binary [`BinFloat`](bin_float.md)."
 msgstr "这些函数在 `Decimal` 与二进制 [`BinFloat`](bin_float.md) 之间转换。"
 
-#: manual/api/decimal.md:259
+#: manual/api/decimal.md:256
 msgid "`from_bin_float(x, precision~)` is exact whenever the decimal expansion of `x` fits in `precision` decimal digits (default: the precision of `x`) and is otherwise rounded half-even; a binary zero keeps its sign ($-0$ becomes $-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value to a `BinFloat` of `precision` bits (default: the decimal's precision field) with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic, so this direction is usually inexact; converting with `TowardNegative` and `TowardPositive` gives a binary enclosure of the decimal value. Zeros keep their sign and NaN payloads are not kept."
 msgstr "只要 `x` 的十进制展开能容纳于 `precision` 位十进制数字（默认：`x` 的精度），`from_bin_float(x, precision~)` 就是精确的，否则按半值取偶舍入；二进制零保留其符号（$-0$ 变为 $-0$，这是 IEEE 754-2019 §5.4.2 与 §6.3 的要求），NaN 变为载荷为 0 的静默 NaN。`to_bin_float(precision~, mode~)` 以 `mode`（默认 `ToNearestEven`）将精确的十进制值舍入为 `precision` 位（默认：该十进制值的精度字段）的 `BinFloat`。大多数十进制小数都不是二进有理数，因此这一方向通常不精确；分别以 `TowardNegative` 和 `TowardPositive` 转换可得到该十进制值的二进制包络。零保留其符号，NaN 载荷不予保留。"
 
-#: manual/api/decimal.md:272
+#: manual/api/decimal.md:269
 msgid "These functions are the canonical maps out of the naturals and the integers."
 msgstr "这两个函数是从自然数和整数出发的典范映射。"
 
-#: manual/api/decimal.md:279
+#: manual/api/decimal.md:276
 msgid "They return `from_bigint(n).normalized()` with precision 34. They are the `FromNat` and `FromInteger` implementations. To convert another Luna-Flow integer type, pick its representative with `Integral::normalize` first, or use `lift_to`."
 msgstr "它们以精度 34 返回 `from_bigint(n).normalized()`，即 `FromNat` 与 `FromInteger` 的实现。要转换其他 Luna-Flow 整数类型，请先用 `Integral::normalize` 取其代表元，或使用 `lift_to`。"
 
-#: manual/api/decimal.md:284
+#: manual/api/decimal.md:281
 msgid "Parsing and formatting"
 msgstr "解析与格式化"
 
-#: manual/api/decimal.md:288
+#: manual/api/decimal.md:285
 msgid "`parse` converts decimal text to a `Decimal` while keeping its quantum."
 msgstr "`parse` 将十进制文本转换为 `Decimal`，同时保留其量子。"
 
-#: manual/api/decimal.md:295
+#: manual/api/decimal.md:292
 msgid "The accepted syntax is an optional sign, digits with an optional decimal point, an optional exponent `E`/`e` with optional sign, or one of `Inf`, `Infinity`, `NaN` and `sNaN` (any letter case) followed for NaNs by optional decimal payload digits. If the significant digits fit `precision` (default 34) the exponent of the text is kept exactly: `\"1.2300\"` has coefficient 12300 and exponent $-4$, and `\"0.00\"` is $+0$ with exponent $-2$. A longer coefficient is rounded half-even to `precision` digits and reduced. Invalid text returns `Err(parse_error)` from `parse` and `None` from `from_string`."
 msgstr "可接受的语法为：可选符号、带可选小数点的数字、带可选符号的可选指数 `E`/`e`；或者 `Inf`、`Infinity`、`NaN`、`sNaN` 之一（不区分大小写），NaN 后面还可跟可选的十进制载荷数字。若有效数字能容纳于 `precision`（默认 34），则文本中的指数被精确保留：`\"1.2300\"` 的系数为 12300、指数为 $-4$，`\"0.00\"` 是指数为 $-2$ 的 $+0$。更长的系数按半值取偶舍入到 `precision` 位并约简。无效文本使 `parse` 返回 `Err(parse_error)`，使 `from_string` 返回 `None`。"
 
-#: manual/api/decimal.md:304
+#: manual/api/decimal.md:301
 msgid "No context exponent range is applied; the only limits are those of the representation: the stored exponent must be at least $-2^{31}$ and the adjusted exponent at most $2^{31}-1$. As IEEE 754 §5.12 requires, a valid literal beyond them still converts, with the conversion rounded once: a literal too large is a signed infinity (`\"1e3000000000\"` is `inf`), and one too small is rounded half-even to the exponent $-2^{31}$, possibly to a signed zero (`\"1e-3000000000\"` is `0E-2147483648`, `\"15e-2147483649\"` is `2E-2147483648`). Use `from_string_ctx` to get the `overflow` and `underflow` flags."
 msgstr "不施加任何上下文指数范围，唯一的限制来自表示本身：存储的指数至少为 $-2^{31}$，调整指数至多为 $2^{31}-1$。按照 IEEE 754 §5.12 的要求，超出这些限制的有效字面量仍会被转换，且转换只舍入一次：过大的字面量得到带符号的无穷（`\"1e3000000000\"` 为 `inf`），过小的字面量按半值取偶舍入到指数 $-2^{31}$，可能得到带符号的零（`\"1e-3000000000\"` 为 `0E-2147483648`，`\"15e-2147483649\"` 为 `2E-2147483648`）。如需得到 `overflow` 与 `underflow` 标志，请使用 `from_string_ctx`。"
 
-#: manual/api/decimal.md:316
+#: manual/api/decimal.md:313
 msgid "`from_string_ctx` converts text under a context and reports conversion flags."
 msgstr "`from_string_ctx` 在上下文下转换文本并报告转换标志。"
 
-#: manual/api/decimal.md:322
+#: manual/api/decimal.md:319
 msgid "The syntax is the one of `parse`. The value is rounded to the context precision (raising `rounded`, and `inexact` when non-zero digits are discarded), checked against the exponent range (overflow, subnormal, underflow, clamping) and, when `clamp` is set, folded down. A NaN payload with more digits than the context allows (precision $-1$ digits when `clamp` is set, otherwise precision) is a syntax error. Invalid text returns a quiet NaN with only the `conversion_syntax` flag set. In a non-extended context, `Inf` and `NaN` spellings are conversion-syntax errors."
 msgstr "语法与 `parse` 相同。值被舍入到上下文精度（引发 `rounded`，若丢弃了非零数字还会引发 `inexact`），按指数范围检查（上溢、次正规、下溢、钳制），并在设置了 `clamp` 时进行折叠（fold-down）。若 NaN 载荷的位数超过上下文允许的位数（设置 `clamp` 时为精度 $-1$ 位，否则为精度位），则视为语法错误。无效文本返回仅设置了 `conversion_syntax` 标志的静默 NaN。在非扩展上下文中，`Inf` 与 `NaN` 写法属于转换语法错误。"
 
-#: manual/api/decimal.md:346
+#: manual/api/decimal.md:343
 msgid "These functions implement the General Decimal Arithmetic `to-scientific-string` and `to-engineering-string` conversions of a text operand."
 msgstr "这些函数对文本操作数实现 General Decimal Arithmetic 的 `to-scientific-string` 与 `to-engineering-string` 转换。"
 
-#: manual/api/decimal.md:354
+#: manual/api/decimal.md:351
 msgid "Both take *text*, convert it with `from_string_ctx` and format the result. Scientific form writes the coefficient with an exponent `E±n` whenever the exponent is positive or the adjusted exponent is below $-6$, and plain digits otherwise; engineering form uses an exponent that is a multiple of three. Special values are written `Infinity`, `-Infinity`, `NaN`, `sNaN`, with a payload such as `NaN7`. The flags are those of the conversion."
 msgstr "二者都接受*文本*，用 `from_string_ctx` 转换后格式化结果。科学记数形式在指数为正或调整后指数小于 $-6$ 时，用指数 `E±n` 书写系数，否则写成普通数字；工程记数形式使用 3 的倍数作为指数。特殊值写作 `Infinity`、`-Infinity`、`NaN`、`sNaN`，带载荷时如 `NaN7`。标志即转换所产生的标志。"
 
-#: manual/api/decimal.md:361
+#: manual/api/decimal.md:358
 msgid "Values without a context are formatted by `Decimal::to_string` (the `Show` implementation), which uses the same scientific rule; see [`Show` and `Debug`](#show-and-debug-decimalto_string-output-to_repr)."
 msgstr "不带上下文的值由 `Decimal::to_string`（`Show` 实现）格式化，它使用同样的科学记数规则；参见 [`Show` 与 `Debug`](#show-and-debug-decimalto_string-output-to_repr)。"
 
-#: manual/api/decimal.md:365
+#: manual/api/decimal.md:362
 msgid "Contexts"
 msgstr "上下文"
 
-#: manual/api/decimal.md:369
+#: manual/api/decimal.md:366
 msgid "A `DecimalContext` is an immutable set of arithmetic parameters."
 msgstr "`DecimalContext` 是一组不可变的算术参数。"
 
-#: manual/api/decimal.md:377
+#: manual/api/decimal.md:374
 msgid "A context holds a precision $p$, a shared Luna-Flow `rounding` mode, a decimal rounding mode (`decimal_rounding`, the one the arithmetic uses), the adjusted-exponent limits $e_{\\min} \\le e_{\\max}$, the `clamp` switch, the `extended` switch and a tininess rule. No operation reads ambient state: every context operation receives its context as an argument."
 msgstr "上下文包含精度 $p$、共享的 Luna-Flow `rounding` 模式、十进制舍入模式（`decimal_rounding`，即算术实际使用的模式）、调整后指数的限制 $e_{\\min} \\le e_{\\max}$、`clamp` 开关、`extended` 开关以及微小性规则。任何运算都不读取环境状态：每个上下文运算都以参数形式接收其上下文。"
 
-#: manual/api/decimal.md:385
+#: manual/api/decimal.md:382
 msgid "These constructors build a context from named parameters."
 msgstr "这些构造函数由命名参数构建上下文。"
 
-#: manual/api/decimal.md:392
+#: manual/api/decimal.md:389
 msgid "Parameter"
 msgstr "参数"
 
-#: manual/api/decimal.md:392
+#: manual/api/decimal.md:389
 msgid "Default"
 msgstr "默认值"
 
-#: manual/api/decimal.md:394
+#: manual/api/decimal.md:391
 msgid "coefficient digits $p$"
 msgstr "系数位数 $p$"
 
-#: manual/api/decimal.md:395
+#: manual/api/decimal.md:392
 msgid "shared rounding mode"
 msgstr "共享舍入模式"
 
-#: manual/api/decimal.md:396
+#: manual/api/decimal.md:393
 msgid "from `rounding`"
 msgstr "由 `rounding` 推出"
 
-#: manual/api/decimal.md:396
+#: manual/api/decimal.md:393
 msgid "rounding mode used by the arithmetic"
 msgstr "算术所用的舍入模式"
 
-#: manual/api/decimal.md:397
+#: manual/api/decimal.md:394
 msgid "adjusted-exponent range"
 msgstr "调整后指数的范围"
 
-#: manual/api/decimal.md:398
+#: manual/api/decimal.md:395
 msgid "fold large exponents down to $e_{\\max}-p+1$"
 msgstr "将大指数折叠到 $e_{\\max}-p+1$"
 
-#: manual/api/decimal.md:399
+#: manual/api/decimal.md:396
 msgid "IEEE/extended arithmetic; `false` selects the GDA subset"
 msgstr "IEEE/扩展算术；`false` 选择 GDA 子集"
 
-#: manual/api/decimal.md:400
+#: manual/api/decimal.md:397
 msgid "when a result counts as tiny"
 msgstr "结果何时算作微小"
 
-#: manual/api/decimal.md:402
+#: manual/api/decimal.md:399
 msgid "When `decimal_rounding` is omitted it is `DecimalRoundingMode::from_arithmetic(rounding)`; pass it explicitly to use `HalfUp`, `HalfDown` or `ZeroFiveUp`. `new` aborts when `precision <= 0` or `e_min > e_max`; `try_new` returns `Err(domain_error)` instead."
 msgstr "省略 `decimal_rounding` 时，它取 `DecimalRoundingMode::from_arithmetic(rounding)`；若要使用 `HalfUp`、`HalfDown` 或 `ZeroFiveUp`，请显式传入。`new` 在 `precision <= 0` 或 `e_min > e_max` 时中止；`try_new` 则返回 `Err(domain_error)`。"
 
-#: manual/api/decimal.md:407
+#: manual/api/decimal.md:404
 msgid "[!IMPORTANT] The default exponent range is wider than the range the elementary functions accept ($|e| \\le 999\\,999$ and $p \\le 999\\,999$). With `DecimalContext::new()` they return NaN with `invalid_context`; use a format preset or explicit `e_min`/`e_max`."
 msgstr "[!IMPORTANT] 默认指数范围比初等函数所接受的范围（$|e| \\le 999\\,999$ 且 $p \\le 999\\,999$）更宽。在 `DecimalContext::new()` 下，它们返回带 `invalid_context` 的 NaN；请使用格式预设或显式的 `e_min`/`e_max`。"
 
-#: manual/api/decimal.md:413
+#: manual/api/decimal.md:410
 msgid "The subset mode (`extended=false`) reproduces the classic decNumber subset: operands longer than $p$ digits are rounded first (raising `lost_digits`), zero results lose their sign and exponent, and special-value text is rejected. It exists for General Decimal Arithmetic test compatibility."
 msgstr "子集模式（`extended=false`）重现经典的 decNumber 子集：长于 $p$ 位的操作数先被舍入（引发 `lost_digits`），零结果丢失其符号和指数，特殊值文本被拒绝。它是为了兼容 General Decimal Arithmetic 测试而存在的。"
 
-#: manual/api/decimal.md:420
+#: manual/api/decimal.md:417
 msgid "These constructors return the interchange-format contexts and an exact working context."
 msgstr "这些构造函数返回交换格式的上下文以及一个精确的工作上下文。"
 
-#: manual/api/decimal.md:430
+#: manual/api/decimal.md:427
 #: manual/api/decimal_gda.md:442
 msgid "clamp"
 msgstr "clamp"
 
-#: manual/api/decimal.md:432
-#: manual/api/decimal.md:433
-#: manual/api/decimal.md:434
+#: manual/api/decimal.md:429
+#: manual/api/decimal.md:430
+#: manual/api/decimal.md:431
 #: manual/api/decimal_gda.md:445
 #: manual/api/decimal_gda.md:446
 #: manual/api/decimal_gda.md:447
@@ -3731,441 +3731,441 @@ msgstr "clamp"
 msgid "yes"
 msgstr "是"
 
-#: manual/api/decimal.md:436
+#: manual/api/decimal.md:433
 msgid "All three use `ToNearestEven` (`HalfEven`), extended arithmetic and after-rounding tininess. `exact()` has precision 0, which means \"unlimited\": results keep every digit and no rounding by precision happens; its exponent range is the default one. It is the only way to obtain precision 0."
 msgstr "三者都使用 `ToNearestEven`（`HalfEven`）、扩展算术以及舍入后微小性判定。`exact()` 的精度为 0，表示“无限”：结果保留所有数字，不按精度进行舍入；其指数范围为默认范围。这是获得精度 0 的唯一途径。"
 
-#: manual/api/decimal.md:443
+#: manual/api/decimal.md:440
 msgid "`from_arithmetic_context` converts the shared Luna-Flow context."
 msgstr "`from_arithmetic_context` 转换共享的 Luna-Flow 上下文。"
 
-#: manual/api/decimal.md:449
+#: manual/api/decimal.md:446
 msgid "Precision, rounding and clamp are copied; a missing `e_min` or `e_max` becomes $\\mp 999\\,999\\,999$. The result is extended and uses after-rounding tininess. The contextual and checked trait implementations use this conversion."
 msgstr "精度、舍入与 clamp 被复制；缺失的 `e_min` 或 `e_max` 变为 $\\mp 999\\,999\\,999$。结果为扩展上下文，并采用舍入后微小性判定。contextual 与 checked 的 trait 实现都使用这一转换。"
 
-#: manual/api/decimal.md:455
+#: manual/api/decimal.md:452
 msgid "These accessors return the fields of a context."
 msgstr "这些访问函数返回上下文的字段。"
 
-#: manual/api/decimal.md:468
+#: manual/api/decimal.md:465
 msgid "`precision` is 0 only for `exact()`."
 msgstr "只有 `exact()` 的 `precision` 为 0。"
 
-#: manual/api/decimal.md:472
+#: manual/api/decimal.md:469
 msgid "These functions derive a context or describe its standard."
 msgstr "这些函数派生上下文或描述其所遵循的标准。"
 
-#: manual/api/decimal.md:481
+#: manual/api/decimal.md:478
 msgid "`with_rounding` replaces both rounding fields (the decimal mode becomes `from_arithmetic(rounding)`). `with_tininess` replaces the tininess rule. `ieee754` returns the context unchanged: every context already follows the IEEE 754-2019 semantics of this package. `is754version2019` always returns `true`."
 msgstr "`with_rounding` 替换两个舍入字段（十进制模式变为 `from_arithmetic(rounding)`）。`with_tininess` 替换微小性规则。`ieee754` 原样返回上下文：每个上下文都已遵循本包的 IEEE 754-2019 语义。`is754version2019` 总是返回 `true`。"
 
-#: manual/api/decimal.md:487
+#: manual/api/decimal.md:484
 msgid "Rounding modes and tininess"
 msgstr "舍入模式与微小性"
 
-#: manual/api/decimal.md:491
+#: manual/api/decimal.md:488
 msgid "`DecimalRoundingMode` lists the eight decimal rounding directions."
 msgstr "`DecimalRoundingMode` 列出八种十进制舍入方向。"
 
-#: manual/api/decimal.md:506
+#: manual/api/decimal.md:503
 msgid "Let $x>0$ lie strictly between two adjacent representable coefficients $c$ and $c+1$ (in units of the last place). `Down` returns $c$, `Up` $c+1$; `Ceiling` and `Floor` round toward $+\\infty$ and $-\\infty$ (so they depend on the sign); `HalfEven`, `HalfUp` and `HalfDown` return the nearer of the two and break an exact tie toward the even coefficient, away from zero, and toward zero respectively; `ZeroFiveUp` returns $c+1$ when the last digit of $c$ is 0 or 5 and $c$ otherwise. IEEE 754 calls `HalfEven` roundTiesToEven, `HalfUp` roundTiesToAway, `Down` roundTowardZero, `Ceiling` roundTowardPositive and `Floor` roundTowardNegative."
 msgstr "设 $x>0$ 严格位于两个相邻可表示系数 $c$ 与 $c+1$ 之间（以末位单位计）。`Down` 返回 $c$，`Up` 返回 $c+1$；`Ceiling` 和 `Floor` 分别向 $+\\infty$ 和 $-\\infty$ 舍入（因此依赖于符号）；`HalfEven`、`HalfUp` 和 `HalfDown` 返回两者中较近的一个，恰好处于中点时分别取偶系数、远离零、趋向零；`ZeroFiveUp` 在 $c$ 的末位数字为 0 或 5 时返回 $c+1$，否则返回 $c$。IEEE 754 将 `HalfEven` 称为 roundTiesToEven，`HalfUp` 称为 roundTiesToAway，`Down` 称为 roundTowardZero，`Ceiling` 称为 roundTowardPositive，`Floor` 称为 roundTowardNegative。"
 
-#: manual/api/decimal.md:518
+#: manual/api/decimal.md:515
 msgid "These functions map between decimal modes and the shared `@arithmetic.RoundingMode`."
 msgstr "这些函数在十进制模式与共享的 `@arithmetic.RoundingMode` 之间映射。"
 
-#: manual/api/decimal.md:534
+#: manual/api/decimal.md:531
 msgid "`to_arithmetic` returns `None` for `HalfUp`, `HalfDown` and `ZeroFiveUp`, which the shared enum does not have."
 msgstr "`to_arithmetic` 对 `HalfUp`、`HalfDown` 和 `ZeroFiveUp` 返回 `None`，因为共享枚举中没有这些模式。"
 
-#: manual/api/decimal.md:539
+#: manual/api/decimal.md:536
 msgid "`DecimalTininessDetection` chooses when a non-zero result is tiny."
 msgstr "`DecimalTininessDetection` 决定非零结果何时为微小。"
 
-#: manual/api/decimal.md:548
+#: manual/api/decimal.md:545
 msgid "`BeforeRounding` calls a result tiny when the adjusted exponent of the exact result is below $e_{\\min}$; `AfterRounding` uses the result rounded to $p$ digits with unbounded exponent. A tiny result raises `subnormal`, and also `underflow` when it is inexact."
 msgstr "`BeforeRounding` 在精确结果的调整后指数小于 $e_{\\min}$ 时判定结果微小；`AfterRounding` 则使用在无界指数下舍入到 $p$ 位后的结果进行判定。微小结果会引发 `subnormal`，若同时不精确还会引发 `underflow`。"
 
-#: manual/api/decimal.md:553
+#: manual/api/decimal.md:550
 msgid "The two rules differ only for results just below $10^{e_{\\min}}$. With $p = 3$, $e_{\\min} = 0$ and `HalfEven`, `plus_ctx` of `0.9951` returns the subnormal-grid rounding `1.00`, but its rounding to three digits is $0.995 < 1$, so under `AfterRounding` it is tiny and raises `underflow`, `subnormal` and `inexact`; `0.99951` rounds to $1.00$ at three digits and raises only `inexact`."
 msgstr "两条规则仅对略低于 $10^{e_{\\min}}$ 的结果有所不同。取 $p = 3$、$e_{\\min} = 0$ 和 `HalfEven`，`0.9951` 的 `plus_ctx` 返回次正规网格上的舍入结果 `1.00`，但它舍入到三位数字是 $0.995 < 1$，因此在 `AfterRounding` 下它是微小的，并引发 `underflow`、`subnormal` 和 `inexact`；`0.99951` 在三位数字下舍入为 $1.00$，只引发 `inexact`。"
 
-#: manual/api/decimal.md:560
+#: manual/api/decimal.md:557
 msgid "Status flags"
 msgstr "状态标志"
 
-#: manual/api/decimal.md:564
+#: manual/api/decimal.md:561
 msgid "`DecimalFlags` records the conditions raised by one operation."
 msgstr "`DecimalFlags` 记录一次运算所引发的条件。"
 
-#: manual/api/decimal.md:584
+#: manual/api/decimal.md:581
 #: manual/api/frontend/mpfr_expr.md:32
 msgid "Field"
 msgstr "字段"
 
-#: manual/api/decimal.md:584
+#: manual/api/decimal.md:581
 msgid "Raised when"
 msgstr "引发条件"
 
-#: manual/api/decimal.md:586
+#: manual/api/decimal.md:583
 msgid "the result differs from the exact result"
 msgstr "结果与精确结果不同"
 
-#: manual/api/decimal.md:587
+#: manual/api/decimal.md:584
 msgid "digits were discarded, even if they were all zero"
 msgstr "丢弃了数字，即使它们全为零"
 
-#: manual/api/decimal.md:588
+#: manual/api/decimal.md:585
 msgid "a subset-mode operand longer than $p$ lost non-zero digits"
 msgstr "子集模式下长于 $p$ 位的操作数丢失了非零数字"
 
-#: manual/api/decimal.md:589
+#: manual/api/decimal.md:586
 msgid "the operation is invalid (signaling NaN, $\\infty-\\infty$, $0\\times\\infty$, bad quantize, domain error)"
 msgstr "运算无效（信号 NaN、$\\infty-\\infty$、$0\\times\\infty$、无效的 quantize、定义域错误）"
 
-#: manual/api/decimal.md:590
+#: manual/api/decimal.md:587
 msgid "an exact infinite result from finite operands ($x/0$, $\\ln 0$, $\\log_2 0$, $\\log_{10} 0$, $\\operatorname{logb} 0$, $\\operatorname{log1p}(-1)$)"
 msgstr "有限操作数产生的精确无穷结果（$x/0$、$\\ln 0$、$\\log_2 0$、$\\log_{10} 0$、$\\operatorname{logb} 0$、$\\operatorname{log1p}(-1)$）"
 
-#: manual/api/decimal.md:591
+#: manual/api/decimal.md:588
 msgid "the rounded result's adjusted exponent exceeds $e_{\\max}$"
 msgstr "舍入后结果的调整后指数超过 $e_{\\max}$"
 
-#: manual/api/decimal.md:592
+#: manual/api/decimal.md:589
 msgid "the result is tiny and inexact"
 msgstr "结果微小且不精确"
 
-#: manual/api/decimal.md:593
+#: manual/api/decimal.md:590
 msgid "the result is tiny"
 msgstr "结果微小"
 
-#: manual/api/decimal.md:594
+#: manual/api/decimal.md:591
 msgid "the exponent was changed to fit (fold-down or zero exponent clamp)"
 msgstr "为适配而改变了指数（折叠或零指数钳制）"
 
-#: manual/api/decimal.md:595
+#: manual/api/decimal.md:592
 msgid "text could not be parsed"
 msgstr "文本无法解析"
 
-#: manual/api/decimal.md:596
+#: manual/api/decimal.md:593
 msgid "an integer quotient needs more than $p$ digits"
 msgstr "整数商需要多于 $p$ 位数字"
 
-#: manual/api/decimal.md:597
+#: manual/api/decimal.md:594
 msgid "$0/0$ (raised together with `invalid_operation`)"
 msgstr "$0/0$（与 `invalid_operation` 一同引发）"
 
-#: manual/api/decimal.md:598
+#: manual/api/decimal.md:595
 msgid "the context is outside the range an elementary function supports"
 msgstr "上下文超出初等函数所支持的范围"
 
-#: manual/api/decimal.md:600
+#: manual/api/decimal.md:597
 msgid "Fields are public and read-only; the flags never accumulate implicitly."
 msgstr "字段是公开且只读的；标志从不隐式累积。"
 
-#: manual/api/decimal.md:604
+#: manual/api/decimal.md:601
 msgid "These functions create, merge and query flag sets."
 msgstr "这些函数创建、合并与查询标志集合。"
 
-#: manual/api/decimal.md:613
+#: manual/api/decimal.md:610
 msgid "`new` has every flag clear. `combine` is the field-wise OR, so it is associative, commutative and idempotent with `new()` as identity. `contains` reads the flag named by a `DecimalSignal`. `has_error` is"
 msgstr "`new` 的所有标志均为清除状态。`combine` 是逐字段的 OR，因此满足结合律、交换律和幂等律，并以 `new()` 为单位元。`contains` 读取由 `DecimalSignal` 指定的标志。`has_error` 为"
 
-#: manual/api/decimal.md:623
+#: manual/api/decimal.md:620
 msgid "the conditions for which IEEE 754 or General Decimal Arithmetic delivers no meaningful number (`conversion_syntax`, `division_impossible` and `division_undefined` are conditions of the Invalid operation signal). A failed `from_string_ctx`, which raises only `conversion_syntax`, therefore counts as an error. `has_error` does not include `overflow`, `underflow`, `inexact`, `rounded`, `subnormal`, `clamped` or `lost_digits`."
 msgstr "即 IEEE 754 或 General Decimal Arithmetic 无法给出有意义数值的那些条件（`conversion_syntax`、`division_impossible` 和 `division_undefined` 是 Invalid operation 信号下的条件）。因此，只引发 `conversion_syntax` 的失败的 `from_string_ctx` 也算作错误。`has_error` 不包括 `overflow`、`underflow`、`inexact`、`rounded`、`subnormal`、`clamped` 或 `lost_digits`。"
 
-#: manual/api/decimal.md:648
+#: manual/api/decimal.md:645
 msgid "`DecimalSignal` names one flag of `DecimalFlags`."
 msgstr "`DecimalSignal` 指定 `DecimalFlags` 中的一个标志。"
 
-#: manual/api/decimal.md:668
+#: manual/api/decimal.md:665
 msgid "Each constructor corresponds to the field of the same name."
 msgstr "每个构造子对应同名的字段。"
 
-#: manual/api/decimal.md:670
+#: manual/api/decimal.md:667
 msgid "Plain operations without a context"
 msgstr "无上下文的普通运算"
 
-#: manual/api/decimal.md:672
+#: manual/api/decimal.md:669
 msgid "The operators and the functions in this group take no context and return no flags. They are convenient for exact work and for generic code over the Luna-Flow algebra traits; use the [context arithmetic](#context-arithmetic) whenever rounding, the exponent range or flags matter."
 msgstr "本组中的运算符和函数既不接受上下文，也不返回标志。它们便于进行精确计算，以及编写基于 Luna-Flow 代数 trait 的泛型代码；只要舍入、指数范围或标志有影响，就请使用[上下文算术](#context-arithmetic)。"
 
-#: manual/api/decimal.md:679
+#: manual/api/decimal.md:676
 msgid "These functions are the arithmetic operators `+`, `-`, `*`, `/` and unary `-`."
 msgstr "这些函数即算术运算符 `+`、`-`、`*`、`/` 以及一元 `-`。"
 
-#: manual/api/decimal.md:689
+#: manual/api/decimal.md:686
 msgid "The result precision is $\\max(p_a, p_b)$ of the operand precision fields."
 msgstr "结果精度为操作数精度字段的 $\\max(p_a, p_b)$。"
 
-#: manual/api/decimal.md:691
+#: manual/api/decimal.md:688
 msgid "`add`/`sub` compute the exact sum, round it half-even to that precision and return the reduced cohort member: `1.20 + 3.40` is `4.6`."
 msgstr "`add`/`sub` 计算精确和，按半值取偶舍入到该精度，并返回同值类中的约简成员：`1.20 + 3.40` 为 `4.6`。"
 
-#: manual/api/decimal.md:693
+#: manual/api/decimal.md:690
 msgid "`mul` returns the exact product with exponent $q_a+q_b$ and is **not rounded**: `1.25 * 2.50` is `3.1250`, and the coefficient may be longer than the precision field."
 msgstr "`mul` 返回指数为 $q_a+q_b$ 的精确乘积，且**不进行舍入**：`1.25 * 2.50` 为 `3.1250`，系数可能比精度字段更长。"
 
-#: manual/api/decimal.md:696
+#: manual/api/decimal.md:693
 msgid "`div` rounds the quotient half-even to that precision and reduces it. The quotient is computed with a few guard digits and rounded with `ZeroFiveUp` first, which makes the second rounding equal to one correct rounding: `15 / 83294` at five digits is `0.00018009`."
 msgstr "`div` 将商按半值取偶舍入到该精度并约简。商先以若干保护位计算，并首先用 `ZeroFiveUp` 舍入，这使第二次舍入等同于一次正确舍入：`15 / 83294` 在五位精度下为 `0.00018009`。"
 
-#: manual/api/decimal.md:700
+#: manual/api/decimal.md:697
 msgid "`neg` flips the sign bit of every value, including zeros and NaNs."
 msgstr "`neg` 翻转每个值的符号位，包括零和 NaN。"
 
-#: manual/api/decimal.md:702
+#: manual/api/decimal.md:699
 msgid "Special values: a NaN operand gives a quiet NaN with the first NaN's sign and payload; $\\infty-\\infty$, $0\\times\\infty$, $0/0$ and $\\infty/\\infty$ give a positive NaN; $x/0$ gives a signed infinity; finite$/\\infty$ gives $+0$. No context exponent range is applied, only the limits of the representation described under [`parse`](#decimalparse-from_string): a result whose adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and a result that needs an exponent below $-2^{31}$ is rounded half-even to that exponent, possibly to a signed zero, as IEEE 754 §7.4 and §7.5 prescribe for that range (`1E+1500000000 * 1E+1500000000` is `inf`, `123E-2147483640 * 1E-10` is `1E-2147483648`). Exact cancellation gives $+0$; the sum of two negative zeros is $-0$."
 msgstr "特殊值：NaN 操作数产生一个静默 NaN，其符号和载荷取自第一个 NaN；$\\infty-\\infty$、$0\\times\\infty$、$0/0$ 和 $\\infty/\\infty$ 产生正 NaN；$x/0$ 产生带符号的无穷；有限值$/\\infty$ 产生 $+0$。不施加任何上下文指数范围，只适用 [`parse`](#decimalparse-from_string) 下所述的表示限制：调整指数将超过 $2^{31}-1$ 的结果为带符号的无穷，需要低于 $-2^{31}$ 的指数的结果按半值取偶舍入到该指数，可能得到带符号的零，这正是 IEEE 754 §7.4 与 §7.5 对该范围的规定（`1E+1500000000 * 1E+1500000000` 为 `inf`，`123E-2147483640 * 1E-10` 为 `1E-2147483648`）。精确抵消得到 $+0$；两个负零之和为 $-0$。"
 
-#: manual/api/decimal.md:729
+#: manual/api/decimal.md:726
 msgid "These functions change only the sign bit."
 msgstr "这些函数只改变符号位。"
 
-#: manual/api/decimal.md:739
+#: manual/api/decimal.md:736
 msgid "They never round, never raise flags and keep exponent, payload and NaN kind. `abs` and `copy_abs` clear the sign, `copy_negate` flips it, `copy_sign` copies the sign bit of the second operand and `copy` returns its argument."
 msgstr "它们从不舍入，从不引发标志，并保持指数、载荷与 NaN 种类不变。`abs` 和 `copy_abs` 清除符号，`copy_negate` 翻转符号，`copy_sign` 复制第二个操作数的符号位，`copy` 返回其参数。"
 
-#: manual/api/decimal.md:745
+#: manual/api/decimal.md:742
 msgid "These functions change the cohort member or the precision field."
 msgstr "这些函数改变同值类成员或精度字段。"
 
-#: manual/api/decimal.md:753
+#: manual/api/decimal.md:750
 msgid "`normalized` returns the reduced member of the cohort (all trailing zeros removed, zero with exponent 0), rounding half-even to the value's own precision if the coefficient is longer. `trim` removes the trailing zeros of the fractional part: with a negative exponent it stops at exponent 0 (`12.300` becomes `12.3`, `1200` stays `1200`), with a positive exponent it removes all of them (`1.20E+3` becomes `1.2E+3`); a zero gets exponent 0. `with_precision(p, mode)` rounds a finite value to `p` digits with `mode`, reduces it and stores `p` as the precision field; special values only get the new precision field. All three are flag-free."
 msgstr "`normalized` 返回同值类中的约简成员（去除所有尾随零，零的指数为 0），若系数更长则按半值取偶舍入到该值自身的精度。`trim` 去除小数部分的尾随零：指数为负时在指数 0 处停止（`12.300` 变为 `12.3`，`1200` 保持 `1200`），指数为正时全部去除（`1.20E+3` 变为 `1.2E+3`）；零的指数变为 0。`with_precision(p, mode)` 以 `mode` 将有限值舍入到 `p` 位，约简后将 `p` 存为精度字段；特殊值只获得新的精度字段。三者都不产生标志。"
 
-#: manual/api/decimal.md:765
+#: manual/api/decimal.md:762
 msgid "These functions divide and take a square root, reporting domain errors as `Result`."
 msgstr "这些函数执行除法和求平方根，并以 `Result` 报告定义域错误。"
 
-#: manual/api/decimal.md:773
+#: manual/api/decimal.md:770
 msgid "`div_checked(a, b)` is `div_ctx` under `DecimalContext::new(precision=max(p_a, p_b))`; it returns `Err(division_by_zero)` for $x/0$ and `Err(domain_error)` for an invalid division. `sqrt` is `sqrt_ctx` under `DecimalContext::new(precision=p)` and returns `Err(domain_error)` for a negative non-zero operand. Both are correctly rounded half-even."
 msgstr "`div_checked(a, b)` 即 `DecimalContext::new(precision=max(p_a, p_b))` 下的 `div_ctx`；对 $x/0$ 返回 `Err(division_by_zero)`，对无效除法返回 `Err(domain_error)`。`sqrt` 即 `DecimalContext::new(precision=p)` 下的 `sqrt_ctx`，对负的非零操作数返回 `Err(domain_error)`。二者都按半值取偶正确舍入。"
 
-#: manual/api/decimal.md:779
+#: manual/api/decimal.md:776
 msgid "Context arithmetic"
 msgstr "上下文算术"
 
-#: manual/api/decimal.md:781
+#: manual/api/decimal.md:778
 msgid "Every function in this group takes a `DecimalContext` and returns `(result, flags)`. The result is the exact result rounded once to the context precision with the context's decimal rounding mode, then checked against the exponent range: overflow gives the rounding-mode-dependent result of the [design page](../design/decimal.md#overflow), a result whose exact magnitude is below $10^{e_{\\min}}$ is rounded directly to the subnormal grid $10^{E_{\\text{tiny}}}$ (a normal result is rounded only to $p$ digits, even when its exact exponent is below $E_{\\text{tiny}}$), and with `clamp` large exponents are folded down to $e_{\\max}-p+1$. When the exact result fits, the exponent is the *preferred exponent* of the operation, so cohorts carry information. NaN operands propagate as a quiet NaN with the first NaN's sign and payload (the payload is cut to its low $p$ digits, even with `clamp`, where `from_string_ctx` and the interchange encodings allow only $p-1$); any signaling NaN operand raises `invalid_operation`."
 msgstr "本组中的每个函数都接受一个 `DecimalContext` 并返回 `(result, flags)`。结果是将精确结果以上下文的十进制舍入模式一次性舍入到上下文精度，再按指数范围检查：上溢得到依赖于舍入模式的结果（见[设计页面](../design/decimal.md#overflow)），精确绝对值小于 $10^{e_{\\min}}$ 的结果被直接舍入到次正规网格 $10^{E_{\\text{tiny}}}$（正规结果只舍入到 $p$ 位，即使其精确指数低于 $E_{\\text{tiny}}$），并且在设置 `clamp` 时，大指数被折叠到 $e_{\\max}-p+1$。当精确结果可以容纳时，指数取该运算的*首选指数*，因此同值类携带了信息。NaN 操作数以静默 NaN 传播，其符号和载荷取自第一个 NaN（载荷截取为其低 $p$ 位，即使在设置 `clamp` 时也是如此，而 `from_string_ctx` 和交换编码只允许 $p-1$ 位）；任何信号 NaN 操作数都会引发 `invalid_operation`。"
 
-#: manual/api/decimal.md:796
+#: manual/api/decimal.md:793
 msgid "Near the underflow threshold the single rounding matters. In decimal32, the exact product `3.000001E-45 * 1.500001E-45` is $4.5000045000015\\cdot 10^{-90}$, a normal number whose exact exponent is below $E_{\\text{tiny}} = -101$; it is rounded once to seven digits, `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is $5.0000000000005\\cdot 10^{-102}$, which is subnormal; its guarded quotient is rounded once to the grid $10^{-101}$, giving `1E-101` with `inexact`, `underflow` and `subnormal`."
 msgstr "在下溢阈值附近，单次舍入至关重要。在 decimal32 中，精确乘积 `3.000001E-45 * 1.500001E-45` 为 $4.5000045000015\\cdot 10^{-90}$，这是一个精确指数低于 $E_{\\text{tiny}} = -101$ 的正规数；它被一次舍入到七位数字，得到 `4.500005E-90`。商 `1 / 1.9999999999998E+101` 为 $5.0000000000005\\cdot 10^{-102}$，是次正规的；其带保护位的商被一次舍入到网格 $10^{-101}$，得到 `1E-101`，并带 `inexact`、`underflow` 和 `subnormal`。"
 
-#: manual/api/decimal.md:806
+#: manual/api/decimal.md:803
 msgid "These functions are the correctly rounded arithmetic operations."
 msgstr "这些函数是正确舍入的算术运算。"
 
-#: manual/api/decimal.md:815
+#: manual/api/decimal.md:812
 msgid "Preferred exponents: $\\min(q_a,q_b)$ for addition and subtraction, $q_a+q_b$ for multiplication, $q_a-q_b$ for division. An exact quotient is returned in the member closest to the preferred exponent; an inexact quotient has $p$ digits, except a subnormal one, which ends at $E_{\\text{tiny}}$. A zero sum is $+0$ except under `Floor` (where it is $-0$ if either operand is negative) or when both operands are $-0$."
 msgstr "首选指数：加法与减法为 $\\min(q_a,q_b)$，乘法为 $q_a+q_b$，除法为 $q_a-q_b$。精确的商以最接近首选指数的成员返回；不精确的商有 $p$ 位数字，但次正规的商除外，它截止于 $E_{\\text{tiny}}$。零和为 $+0$，除非在 `Floor` 下（此时只要有一个操作数为负即为 $-0$）或两个操作数均为 $-0$。"
 
-#: manual/api/decimal.md:822
+#: manual/api/decimal.md:819
 msgid "Special cases: $\\infty-\\infty$ and $0\\times\\infty$, $\\infty/\\infty$ give NaN with `invalid_operation`; $0/0$ gives NaN with `invalid_operation` and `division_undefined`; $x/0$ for finite non-zero $x$ gives a signed infinity with `division_by_zero`; finite$/\\infty$ gives a signed zero with exponent $E_{\\text{tiny}}$ and `clamped`."
 msgstr "特殊情形：$\\infty-\\infty$、$0\\times\\infty$ 与 $\\infty/\\infty$ 产生带 `invalid_operation` 的 NaN；$0/0$ 产生带 `invalid_operation` 与 `division_undefined` 的 NaN；对有限非零的 $x$，$x/0$ 产生带 `division_by_zero` 的带符号无穷；有限值$/\\infty$ 产生指数为 $E_{\\text{tiny}}$ 的带符号零，并引发 `clamped`。"
 
-#: manual/api/decimal.md:828
+#: manual/api/decimal.md:825
 msgid "When one operand of `add_ctx` or `sub_ctx` lies entirely below every rounding boundary of the sum, an extended context does not align it digit by digit: it is replaced by a sticky unit of the same sign just below those boundaries, and the sum is rounded once (see the [design](../design/decimal.md#addition-with-a-far-smaller-addend)). With precision 7, `1598617.000000000001 - 0.000000000002` is `1598616` under `Down`, and `6.0000005E-73 + 1E-101` is `6.000001E-73` under `HalfEven`."
 msgstr "当 `add_ctx` 或 `sub_ctx` 的一个操作数完全低于和的每个舍入边界时，扩展上下文不会逐位对齐它：它被替换为一个恰好低于这些边界、符号相同的粘滞单位，然后对和只舍入一次（参见[设计](../design/decimal.md#addition-with-a-far-smaller-addend)）。在精度 7 下，`1598617.000000000001 - 0.000000000002` 在 `Down` 下为 `1598616`，`6.0000005E-73 + 1E-101` 在 `HalfEven` 下为 `6.000001E-73`。"
 
-#: manual/api/decimal.md:869
+#: manual/api/decimal.md:866
 msgid "`fma_ctx` computes $x \\cdot y + z$ with a single rounding."
 msgstr "`fma_ctx` 以单次舍入计算 $x \\cdot y + z$。"
 
-#: manual/api/decimal.md:875
+#: manual/api/decimal.md:872
 msgid "The product is formed exactly and added to `z` exactly; only the sum is rounded. $0\\times\\infty + z$ is invalid for a number or infinite `z`; when `z` is a quiet NaN the result is that NaN **without** `invalid_operation` (IEEE 754-2019 §7.2 leaves this case to the implementation). $\\infty \\cdot y + (-\\infty)$ with opposite signs is invalid. In a non-extended context the operation returns NaN with `invalid_operation`."
 msgstr "乘积被精确地构造并精确地加到 `z` 上；只对和进行舍入。当 `z` 为数值或无穷时，$0\\times\\infty + z$ 是无效的；当 `z` 是静默 NaN 时，结果即该 NaN，**不**引发 `invalid_operation`（IEEE 754-2019 §7.2 将这种情形留给实现决定）。符号相反的 $\\infty \\cdot y + (-\\infty)$ 是无效的。在非扩展上下文中，该运算返回带 `invalid_operation` 的 NaN。"
 
-#: manual/api/decimal.md:884
+#: manual/api/decimal.md:881
 msgid "`sqrt_ctx` returns the correctly rounded square root."
 msgstr "`sqrt_ctx` 返回正确舍入的平方根。"
 
-#: manual/api/decimal.md:890
+#: manual/api/decimal.md:887
 msgid "The preferred exponent is $\\lfloor q/2 \\rfloor$. An exact root is returned in the member closest to it (`sqrt(0.0400)` is `0.20`); an inexact root has $p$ digits and raises `inexact` and `rounded`. $\\sqrt{-0} = -0$; a negative non-zero operand or $-\\infty$ gives NaN with `invalid_operation`; $\\sqrt{+\\infty}=+\\infty$."
 msgstr "首选指数为 $\\lfloor q/2 \\rfloor$。精确的根以最接近它的成员返回（`sqrt(0.0400)` 为 `0.20`）；不精确的根有 $p$ 位数字，并引发 `inexact` 和 `rounded`。$\\sqrt{-0} = -0$；负的非零操作数或 $-\\infty$ 产生带 `invalid_operation` 的 NaN；$\\sqrt{+\\infty}=+\\infty$。"
 
-#: manual/api/decimal.md:898
+#: manual/api/decimal.md:895
 msgid "These functions round one operand to the context."
 msgstr "这些函数将单个操作数舍入到上下文。"
 
-#: manual/api/decimal.md:907
+#: manual/api/decimal.md:904
 msgid "`apply_ctx` rounds a value to the context (precision, exponent range, clamping) and quiets a NaN, keeping the sign of zero. `plus_ctx` is $0 + x$: like `apply_ctx`, but a zero becomes $+0$. `minus_ctx` is $0 - x$ and `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise `invalid_operation`."
 msgstr "`apply_ctx` 将值舍入到上下文（精度、指数范围、钳制），并将 NaN 静默化，保留零的符号。`plus_ctx` 即 $0 + x$：与 `apply_ctx` 类似，但零变为 $+0$。`minus_ctx` 即 $0 - x$，`abs_ctx` 即舍入到上下文的 $|x|$；信号 NaN 会引发 `invalid_operation`。"
 
-#: manual/api/decimal.md:915
+#: manual/api/decimal.md:912
 msgid "These functions compute integer quotients and remainders."
 msgstr "这些函数计算整数商和余数。"
 
-#: manual/api/decimal.md:924
+#: manual/api/decimal.md:921
 msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*); `remainder_ctx` is the same operation. The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
 msgstr "`divide_integer(x, y)` 为 $\\operatorname{trunc}(x/y)$，指数为 0。当整数商需要多于 $p$ 位数字时，结果为带 `division_impossible` 和 `invalid_operation` 的 NaN。`remainder(x, y)` 为 $x - y\\cdot\\operatorname{trunc}(x/y)$，符号与 $x$ 相同（General Decimal Arithmetic 的 *remainder*）。`remainder_near(x, y)` 为 $x - y\\cdot n$，其中 $n$ 是将 $x/y$ 就近舍入（偶数优先）得到的整数（IEEE 754 的 *remainder*）；`remainder_ctx` 是同一运算。余数在可容纳时是精确的，首选指数为 $\\min(q_x, q_y)$；余数为零时其符号与 $x$ 相同。$x \\operatorname{rem} 0$ 与 $\\infty \\operatorname{rem} y$ 是无效的（$0 \\operatorname{rem} 0$ 还会引发 `division_undefined`）；$x \\operatorname{rem} \\infty = x$。"
 
-#: manual/api/decimal.md:948
+#: manual/api/decimal.md:945
 msgid "Quantum and exponent operations"
 msgstr "量子与指数运算"
 
-#: manual/api/decimal.md:952
+#: manual/api/decimal.md:949
 msgid "`quantize` rounds a value to the exponent of another value."
 msgstr "`quantize` 将值舍入到另一个值的指数。"
 
-#: manual/api/decimal.md:958
+#: manual/api/decimal.md:955
 msgid "`x.quantize(y, ctx)` returns the value of `x` with exponent $q_y$, rounding with the context's mode when digits are dropped (raising `rounded`, and `inexact` if they were non-zero). The result is NaN with `invalid_operation` when the target exponent is outside $[E_{\\text{tiny}}, e_{\\max}]$, when the resulting coefficient needs more than $p$ digits, when its adjusted exponent exceeds $e_{\\max}$, or when exactly one operand is infinite. Two infinities give the infinity of `x`. The quantum never silently changes to another value of the cohort range: if the result cannot have exponent $q_y$ the operation fails. The one exception is `clamp`: a target exponent in $(e_{\\max}-p+1,\\ e_{\\max}]$ is accepted and the result is then folded down to exponent $e_{\\max}-p+1$ with `clamped`, like every other result (`1E+384` quantized to `1E+384` in decimal64 is `1.000000000000000E+384`)."
 msgstr "`x.quantize(y, ctx)` 返回指数为 $q_y$ 的 `x` 的值，丢弃数字时以上下文的模式舍入（引发 `rounded`，若丢弃的数字非零还会引发 `inexact`）。当目标指数超出 $[E_{\\text{tiny}}, e_{\\max}]$、结果系数需要多于 $p$ 位数字、其调整后指数超过 $e_{\\max}$，或恰有一个操作数为无穷时，结果为带 `invalid_operation` 的 NaN。两个无穷产生 `x` 的无穷。量子从不悄然变为同值类范围内的另一个值：若结果无法具有指数 $q_y$，运算即失败。唯一的例外是 `clamp`：位于 $(e_{\\max}-p+1,\\ e_{\\max}]$ 的目标指数会被接受，随后结果像其他所有结果一样被折叠到指数 $e_{\\max}-p+1$ 并带 `clamped`（在 decimal64 中，将 `1E+384` 量化到 `1E+384` 得到 `1.000000000000000E+384`）。"
 
-#: manual/api/decimal.md:988
+#: manual/api/decimal.md:985
 msgid "`rescale` sets the exponent to an integer operand."
 msgstr "`rescale` 将指数设为一个整数操作数。"
 
-#: manual/api/decimal.md:994
+#: manual/api/decimal.md:991
 msgid "`x.rescale(n, ctx)` is `quantize` with target exponent $n$, where $n$ must be a finite integer; any other second operand gives NaN with `invalid_operation`."
 msgstr "`x.rescale(n, ctx)` 即目标指数为 $n$ 的 `quantize`，其中 $n$ 必须是有限整数；任何其他第二操作数都产生带 `invalid_operation` 的 NaN。"
 
-#: manual/api/decimal.md:1000
+#: manual/api/decimal.md:997
 #: manual/api/decimal_gda.md:378
 msgid "`same_quantum` tests whether two values have the same exponent."
 msgstr "`same_quantum` 检测两个值是否具有相同的指数。"
 
-#: manual/api/decimal.md:1006
+#: manual/api/decimal.md:1003
 msgid "Two finite values have the same quantum when their exponents are equal; two infinities, and two NaNs, always have the same quantum; any other pair does not. It never raises flags."
 msgstr "两个有限值在指数相等时具有相同的量子；两个无穷、两个 NaN 总是具有相同的量子；其他任何组合都不具有。它从不引发标志。"
 
-#: manual/api/decimal.md:1012
+#: manual/api/decimal.md:1009
 msgid "These functions round a value to the context and remove trailing zeros."
 msgstr "这些函数将值舍入到上下文并去除尾随零。"
 
-#: manual/api/decimal.md:1019
+#: manual/api/decimal.md:1016
 msgid "`reduce_ctx` applies the context, then removes trailing zeros while the exponent stays at most $e_{\\max}$ (with `clamp`, at most $e_{\\max}-p+1$). A zero becomes a zero with exponent 0 (keeping its sign in an extended context). `normalize_ctx` is the same operation under its older General Decimal Arithmetic name."
 msgstr "`reduce_ctx` 先应用上下文，然后在指数不超过 $e_{\\max}$（设置 `clamp` 时不超过 $e_{\\max}-p+1$）的前提下去除尾随零。零变为指数为 0 的零（在扩展上下文中保留其符号）。`normalize_ctx` 是同一运算在 General Decimal Arithmetic 中的旧名称。"
 
-#: manual/api/decimal.md:1027
+#: manual/api/decimal.md:1024
 msgid "These functions round to an integer."
 msgstr "这些函数舍入到整数。"
 
-#: manual/api/decimal.md:1034
-msgid "A finite value with negative exponent is quantized to exponent 0 with the context's rounding mode; a value with exponent $\\ge 0$ is only rounded to the context. `to_integral_exact` reports `rounded`/`inexact`; `to_integral_value` returns the same value with those two flags cleared. Infinities are returned unchanged; NaNs are quieted."
-msgstr "指数为负的有限值以上下文的舍入模式量化到指数 0；指数 $\\ge 0$ 的值仅舍入到上下文。`to_integral_exact` 报告 `rounded`/`inexact`；`to_integral_value` 返回相同的值，但清除这两个标志。无穷原样返回；NaN 被静默化。"
+#: manual/api/decimal.md:1031
+msgid "A finite value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 with the context's rounding mode, at a working precision of $\\max(p, \\text{its digit count})$, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact` reports `rounded`/`inexact` when digits are dropped; `to_integral_value` returns the same value with those two flags cleared. In a subset context the operand is first rounded to $p$ digits, with `lost_digits`. Infinities are returned unchanged; NaNs are quieted."
+msgstr "指数 $\\ge 0$ 的有限值本身已是整数，按原样返回，即使它长于 $p$ 位（`clamp` 上下文仍会把它的指数向下折叠）。指数为负的值以上下文的舍入模式、以 $\\max(p, \\text{其位数})$ 的工作精度量化到指数 0，因此整数部分从不被舍入到 $p$ 位：精度为 3 时，`12345.6` 得到 `12346`。丢弃数字时 `to_integral_exact` 报告 `rounded`/`inexact`；`to_integral_value` 返回相同的值，但清除这两个标志。在子集上下文中，操作数先被舍入到 $p$ 位并报告 `lost_digits`。无穷原样返回；NaN 被静默化。"
 
-#: manual/api/decimal.md:1040
-msgid "[!WARNING] Operands longer than the context precision are mishandled. An integer with more than $p$ digits is rounded to $p$ digits: at precision 3, `12345` becomes `1.23E+4` with `inexact` and `rounded`, from `to_integral_value` too (IEEE 754 §5.9 returns `12345` unchanged). An operand with a fraction whose integral part is longer than $p$ digits gives NaN with `invalid_operation`, because the quantize to exponent 0 needs too many digits: `12345.6` at precision 3 and `-99.9` at precision 2 are NaN instead of `12346` and `-100`. Keep the precision at least as large as the number of integer digits. Tracked in [#118](https://github.com/Luna-Flow/floating/issues/118); a fix is proposed in [#119](https://github.com/Luna-Flow/floating/pull/119)."
-msgstr "[!WARNING] 长于上下文精度的操作数会被错误处理。多于 $p$ 位的整数会被舍入到 $p$ 位：在精度 3 下，`12345` 变为带 `inexact` 和 `rounded` 的 `1.23E+4`，`to_integral_value` 也是如此（IEEE 754 §5.9 会原样返回 `12345`）。整数部分长于 $p$ 位的带小数操作数会得到带 `invalid_operation` 的 NaN，因为 quantize 到指数 0 需要过多的位数：精度 3 下的 `12345.6` 和精度 2 下的 `-99.9` 都是 NaN，而不是 `12346` 和 `-100`。请使精度不小于整数部分的位数。由 [#118](https://github.com/Luna-Flow/floating/issues/118) 跟踪；修复已在 [#119](https://github.com/Luna-Flow/floating/pull/119) 中提出。"
+#: manual/api/decimal.md:1042
+msgid "IEEE 754 §5.9 defines roundToIntegral for an operand in the context's format (at most $p$ digits), and for such an operand these are its results. An operand longer than $p$ digits is not a value of the format, so §5.9 does not cover it and the result is implementation-defined. The behaviour described above for such operands (a longer integer unchanged, a longer fraction quantized at $\\max(p, \\text{its digit count})$ digits) is the package's chosen, GDA-style behaviour: General Decimal Arithmetic rounds to an integral value at the operand's own precision."
+msgstr "IEEE 754 §5.9 为上下文格式内（至多 $p$ 位）的操作数定义 roundToIntegral，对这类操作数，上述结果就是它的结果。长于 $p$ 位的操作数不是该格式的值，§5.9 不涵盖它，其结果由实现定义。上文对这类操作数描述的行为（更长的整数原样返回，更长的小数以 $\\max(p, \\text{其位数})$ 位量化）是本包选定的 GDA 风格行为：通用十进制算术（General Decimal Arithmetic）以操作数自身的精度舍入为整数值。"
 
-#: manual/api/decimal.md:1054
+#: manual/api/decimal.md:1053
 msgid "These functions scale by a power of ten and extract the adjusted exponent."
 msgstr "这些函数按 10 的幂进行缩放，并提取调整后指数。"
 
-#: manual/api/decimal.md:1061
+#: manual/api/decimal.md:1060
 msgid "`x.scaleb_ctx(n, ctx)` returns $x \\cdot 10^{n}$ by adding $n$ to the exponent; $n$ must be a finite integer with exponent 0 and $|n| \\le 2(e_{\\max}+p)$, otherwise the result is NaN with `invalid_operation`. The scaled value is then rounded once like every other context result: a coefficient longer than $p$ digits is rounded to $p$ digits (`12345678901234567890` scaled by 0 in decimal64 is `1.234567890123457E+19` with `inexact`), a subnormal result is rounded to $E_{\\text{tiny}}$, overflow gives the rounding-mode-dependent result with `overflow`, `inexact` and `rounded` (in decimal64 with `TowardZero`, `9E+384` scaled by 1 is `9.999999999999999E+384`), and `clamp` folds large exponents down. A zero keeps its sign and has its exponent clamped into the range with `clamped`: `0` scaled by 700 in decimal64 is `0E+369`."
 msgstr "`x.scaleb_ctx(n, ctx)` 通过将 $n$ 加到指数上返回 $x \\cdot 10^{n}$；$n$ 必须是指数为 0 且满足 $|n| \\le 2(e_{\\max}+p)$ 的有限整数，否则结果为带 `invalid_operation` 的 NaN。缩放后的值随后像其他所有上下文结果一样只舍入一次：长于 $p$ 位的系数被舍入到 $p$ 位（在 decimal64 中，`12345678901234567890` 缩放 0 得到带 `inexact` 的 `1.234567890123457E+19`），次正规结果被舍入到 $E_{\\text{tiny}}$，上溢得到依赖于舍入模式的结果并带 `overflow`、`inexact` 和 `rounded`（在 decimal64 中使用 `TowardZero` 时，`9E+384` 缩放 1 得到 `9.999999999999999E+384`），并且 `clamp` 会把大指数折叠下来。零保留其符号，其指数被钳制到范围内并带 `clamped`：在 decimal64 中，`0` 缩放 700 得到 `0E+369`。"
 
-#: manual/api/decimal.md:1089
+#: manual/api/decimal.md:1088
 msgid "`logb_ctx(x)` returns the adjusted exponent $\\lfloor\\log_{10}|x|\\rfloor$ as an integer `Decimal`; $\\operatorname{logb}(\\pm 0) = -\\infty$ with `division_by_zero` and $\\operatorname{logb}(\\pm\\infty) = +\\infty$."
 msgstr "`logb_ctx(x)` 以整数 `Decimal` 的形式返回调整后指数 $\\lfloor\\log_{10}|x|\\rfloor$；$\\operatorname{logb}(\\pm 0) = -\\infty$ 并引发 `division_by_zero`，$\\operatorname{logb}(\\pm\\infty) = +\\infty$。"
 
-#: manual/api/decimal.md:1093
+#: manual/api/decimal.md:1092
 msgid "Adjacent values"
 msgstr "相邻值"
 
-#: manual/api/decimal.md:1097
+#: manual/api/decimal.md:1096
 msgid "These functions return the neighbouring representable values."
 msgstr "这些函数返回相邻的可表示值。"
 
-#: manual/api/decimal.md:1105
+#: manual/api/decimal.md:1104
 msgid "`next_plus` is the smallest representable value greater than `x` in the context and `next_minus` the largest smaller one, including subnormals down to $10^{E_{\\text{tiny}}}$ and the largest finite value $(10^{p}-1)\\,10^{e_{\\max}-p+1}$; `next_plus(-∞)` is the most negative finite value. They raise no flags for finite results. `next_toward(x, y)` moves `x` one step toward `y`; when $x = y$ it returns `x` with the sign of `y` for zeros. A step of `next_toward` that ends in an infinity raises `overflow`, `inexact` and `rounded`; one that ends subnormal or zero raises `underflow`, `subnormal`, `inexact` and `rounded`."
 msgstr "`next_plus` 是上下文中大于 `x` 的最小可表示值，`next_minus` 是比它小的最大可表示值，范围包括低至 $10^{E_{\\text{tiny}}}$ 的次正规数以及最大有限值 $(10^{p}-1)\\,10^{e_{\\max}-p+1}$；`next_plus(-∞)` 是最小（最负）的有限值。对有限结果，它们不引发任何标志。`next_toward(x, y)` 将 `x` 朝 `y` 移动一步；当 $x = y$ 时返回 `x`，对零则取 `y` 的符号。`next_toward` 的一步若落到无穷，则引发 `overflow`、`inexact` 和 `rounded`；若落到次正规数或零，则引发 `underflow`、`subnormal`、`inexact` 和 `rounded`。"
 
-#: manual/api/decimal.md:1129
+#: manual/api/decimal.md:1128
 msgid "`compare` is the numeric three-way comparison used by `Compare`, `==` and the comparison operators."
 msgstr "`compare` 是 `Compare`、`==` 及比较运算符所使用的数值三路比较。"
 
-#: manual/api/decimal.md:1136
+#: manual/api/decimal.md:1135
 msgid "`compare` returns $-1$, 0 or 1 by numeric value, with $-0 = +0$ and all members of a cohort equal. NaN has no numeric order, so that `Compare` stays a total preorder (sorting never aborts) every NaN compares equal to every other NaN and greater than every non-NaN. `equal` (`==`) agrees with `compare`: NaN `==` NaN is `true`. This is *not* IEEE equality; use [`compare_checked`](#decimalcompare_checked), `compare_ctx` or the NaN predicates when NaN must be unordered. The operator methods are listed under [trait implementations](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge)."
 msgstr "`compare` 按数值返回 $-1$、0 或 1，其中 $-0 = +0$，同值类的所有成员相等。NaN 没有数值顺序，为使 `Compare` 保持全预序（排序永不中止），每个 NaN 与其他任何 NaN 比较相等，且大于所有非 NaN。`equal`（`==`）与 `compare` 一致：NaN `==` NaN 为 `true`。这*不是* IEEE 相等；当 NaN 必须无序时，请使用 [`compare_checked`](#decimalcompare_checked)、`compare_ctx` 或 NaN 谓词。运算符方法列在 [trait 实现](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge)下。"
 
-#: manual/api/decimal.md:1160
+#: manual/api/decimal.md:1159
 msgid "`compare_checked` is the IEEE numeric comparison with NaN as an error."
 msgstr "`compare_checked` 是将 NaN 视为错误的 IEEE 数值比较。"
 
-#: manual/api/decimal.md:1166
+#: manual/api/decimal.md:1165
 msgid "It returns `Ok(compare(x, y))` when neither operand is a NaN and `Err(unordered_comparison)` otherwise. It is the `CompareChecked` implementation."
 msgstr "当两个操作数都不是 NaN 时，它返回 `Ok(compare(x, y))`，否则返回 `Err(unordered_comparison)`。它是 `CompareChecked` 的实现。"
 
-#: manual/api/decimal.md:1172
+#: manual/api/decimal.md:1171
 msgid "These functions are the General Decimal Arithmetic comparisons with a decimal result."
 msgstr "这些函数是结果为十进制值的 General Decimal Arithmetic 比较。"
 
-#: manual/api/decimal.md:1180
+#: manual/api/decimal.md:1179
 msgid "They return the `Decimal` $-1$, 0 or 1, or a quiet NaN when an operand is a NaN. `compare_ctx` raises `invalid_operation` only for a signaling NaN; `compare_signal_ctx` raises it for every NaN (IEEE *signaling* comparison)."
 msgstr "它们返回 `Decimal` 值 $-1$、0 或 1；当某个操作数为 NaN 时返回静默 NaN。`compare_ctx` 仅对信号 NaN 引发 `invalid_operation`；`compare_signal_ctx` 对所有 NaN 都引发（IEEE *signaling* 比较）。"
 
-#: manual/api/decimal.md:1186
+#: manual/api/decimal.md:1185
 msgid "These functions implement the IEEE 754 `totalOrder` predicate as a three-way comparison."
 msgstr "这些函数以三路比较的形式实现 IEEE 754 的 `totalOrder` 谓词。"
 
-#: manual/api/decimal.md:1196
+#: manual/api/decimal.md:1195
 msgid "`compare_total` orders every representation:"
 msgstr "`compare_total` 对所有表示进行排序："
 
-#: manual/api/decimal.md:1203
+#: manual/api/decimal.md:1202
 msgid "Equal finite values are ordered by exponent: for positive values the smaller exponent comes first ($1.00 < 1.0$), for negative values the larger. NaNs of the same sign and kind are ordered by payload (reversed for negative NaNs). It returns 0 only for identical representations. `compare_total_magnitude` compares the absolute values. The `_ctx` forms first prepare the operands for the context (which only matters in subset mode) and return the flags of that step."
 msgstr "相等的有限值按指数排序：对正值，较小指数在前（$1.00 < 1.0$），对负值则较大指数在前。符号与种类相同的 NaN 按载荷排序（负 NaN 则逆序）。仅当表示完全相同时才返回 0。`compare_total_magnitude` 比较绝对值。`_ctx` 形式先为上下文准备操作数（仅在子集模式下有影响），并返回该步骤的标志。"
 
-#: manual/api/decimal.md:1213
+#: manual/api/decimal.md:1212
 msgid "These functions select by numeric order without a context."
 msgstr "这些函数在无上下文的情况下按数值顺序进行选择。"
 
-#: manual/api/decimal.md:1222
+#: manual/api/decimal.md:1221
 msgid "`min` and `max` return the other operand when exactly one is a quiet NaN, a quiet NaN when both are NaNs or either is signaling, and the receiver on ties. `clamp` returns `min` below the range, `max` above it, and the value (including a NaN) otherwise; it aborts when a bound is NaN or `min > max`. `clamp_checked` returns `Err(domain_error)` in those cases."
 msgstr "当恰有一个操作数是静默 NaN 时，`min` 和 `max` 返回另一个操作数；当两者都是 NaN 或任一为信号 NaN 时，返回静默 NaN；相等时返回接收者。`clamp` 在低于范围时返回 `min`，高于范围时返回 `max`，否则返回该值（包括 NaN）；当某个边界为 NaN 或 `min > max` 时中止。`clamp_checked` 在这些情形下返回 `Err(domain_error)`。"
 
-#: manual/api/decimal.md:1230
+#: manual/api/decimal.md:1229
 msgid "These functions are the General Decimal Arithmetic `min`, `max`, `min-magnitude` and `max-magnitude` operations."
 msgstr "这些函数是 General Decimal Arithmetic 的 `min`、`max`、`min-magnitude` 和 `max-magnitude` 运算。"
 
-#: manual/api/decimal.md:1240
+#: manual/api/decimal.md:1239
 msgid "A quiet NaN loses to a number; two NaNs give the first quieted; a signaling NaN gives a quiet NaN with `invalid_operation`. Numerically equal operands are separated by `compare_total` (so `min_ctx(1.0, 1.00)` is `1.00` and `min_ctx(-0, 0)` is `-0`). The selected value is rounded to the context."
 msgstr "静默 NaN 输给数值；两个 NaN 时返回静默化后的第一个；信号 NaN 产生带 `invalid_operation` 的静默 NaN。数值相等的操作数由 `compare_total` 区分（因此 `min_ctx(1.0, 1.00)` 为 `1.00`，`min_ctx(-0, 0)` 为 `-0`）。所选的值被舍入到上下文。"
 
-#: manual/api/decimal.md:1247
+#: manual/api/decimal.md:1246
 msgid "These twelve functions are the IEEE 754-2019 §9.6 minimum and maximum operations."
 msgstr "这十二个函数是 IEEE 754-2019 §9.6 中的最小值与最大值运算。"
 
-#: manual/api/decimal.md:1265
+#: manual/api/decimal.md:1264
 msgid "`minimum_ctx` and `maximum_ctx` propagate NaN: any NaN operand gives a quiet NaN. The `_number_` variants return the number when exactly one operand is a NaN. In both, a signaling NaN raises `invalid_operation`. The magnitude variants compare $|x|$ and $|y|$ and fall back to the signed order on equal magnitudes. Ties are broken by `compare_total`, so $-0 < +0$. The `_mag_` spellings are aliases of the `_magnitude_` ones. The selected value is rounded to the context."
 msgstr "`minimum_ctx` 和 `maximum_ctx` 传播 NaN：任何 NaN 操作数都产生静默 NaN。`_number_` 变体在恰有一个操作数为 NaN 时返回数值。在这两种情形下，信号 NaN 都会引发 `invalid_operation`。按大小比较的变体比较 $|x|$ 与 $|y|$，大小相等时退回到带符号的顺序。相等时由 `compare_total` 决定，因此 $-0 < +0$。`_mag_` 写法是 `_magnitude_` 写法的别名。所选的值被舍入到上下文。"
 
-#: manual/api/decimal.md:1273
+#: manual/api/decimal.md:1272
 msgid "Digit-wise operations"
 msgstr "逐位运算"
 
-#: manual/api/decimal.md:1277
+#: manual/api/decimal.md:1276
 msgid "These functions apply Boolean operations digit by digit to *logical operands*."
 msgstr "这些函数对*逻辑操作数*逐位应用布尔运算。"
 
-#: manual/api/decimal.md:1287
+#: manual/api/decimal.md:1286
 msgid "A logical operand is a finite, non-negative value with exponent 0 whose coefficient digits are all 0 or 1, such as `1101`. The operation works on the low $p$ digits and returns a logical operand; any other operand gives NaN with `invalid_operation`."
 msgstr "逻辑操作数是指数为 0、系数各位均为 0 或 1 的有限非负值，例如 `1101`。运算作用于低 $p$ 位并返回一个逻辑操作数；任何其他操作数都产生带 `invalid_operation` 的 NaN。"
 
-#: manual/api/decimal.md:1294
+#: manual/api/decimal.md:1293
 msgid "These functions shift or rotate the coefficient digits."
 msgstr "这些函数对系数数字进行移位或循环移位。"
 
-#: manual/api/decimal.md:1301
+#: manual/api/decimal.md:1300
 msgid "The coefficient is viewed as $p$ digits. A positive count $n$ moves digits toward the most significant end, a negative one toward the least significant end; `shift_ctx` fills with zeros and drops digits that leave the window, `rotate_ctx` wraps them around. The exponent and sign are kept. The count must be an integer with exponent 0 and $|n| \\le p$; otherwise the result is NaN with `invalid_operation`. Infinities are returned unchanged."
 msgstr "系数被视为 $p$ 位数字。正的计数 $n$ 将数字向最高有效端移动，负的计数则向最低有效端移动；`shift_ctx` 用零填充并丢弃移出窗口的数字，`rotate_ctx` 则将它们循环移回。指数与符号保持不变。计数必须是指数为 0 且 $|n| \\le p$ 的整数；否则结果为带 `invalid_operation` 的 NaN。无穷原样返回。"
 
-#: manual/api/decimal.md:1310
+#: manual/api/decimal.md:1309
 msgid "Every elementary function exists in two forms. `f_ctx(x, ctx)` returns `(result, flags)`. `try_f_ctx(x, ctx)` returns the same pair in `Ok`, or `Err` with an `ArithmeticError` whose `certification_failure_detail()` names the operation, the target precision and the exhausted refinement budget when the result could not be certified. When certification fails, `f_ctx` returns NaN with `invalid_operation`."
 msgstr "每个初等函数都有两种形式。`f_ctx(x, ctx)` 返回 `(result, flags)`。`try_f_ctx(x, ctx)` 在 `Ok` 中返回同样的二元组；当结果无法认证时返回 `Err`，其中的 `ArithmeticError` 的 `certification_failure_detail()` 给出运算名称、目标精度以及已耗尽的细化预算。认证失败时，`f_ctx` 返回带 `invalid_operation` 的 NaN。"
 
-#: manual/api/decimal.md:1317
+#: manual/api/decimal.md:1316
 msgid "Transcendental results are **certified**: the implementation evaluates a guaranteed enclosure of $f(x)$ in [`ball_float`](ball_float.md) and accepts it only when both endpoints round to the same `Decimal` with the same flags (see the [design](../design/decimal.md#certified-elementary-functions)). Because rounding is monotone, an accepted result is the rounding of $f(x)$ in every `DecimalRoundingMode`. A list of exact cases (such as $\\log_{10} 1000 = 3$, $e^0 = 1$, $\\sin 0 = 0$, $\\operatorname{cospi}(1) = -1$, $\\operatorname{tanpi}(0.25) = 1$, $\\operatorname{acos}(1) = 0$, $x^{0.5}$, exact roots such as `rootn_ctx(0.008, 3)` $= 0.2$, exact norms such as `hypot_ctx(0.3, 0.4)` $= 0.5$) is decided before the enclosure loop and returned without `inexact`, and an exact binary result such as `power_ctx(4, 1.5)` $= 8$ is returned exactly by the enclosure itself. Integer powers are not certified: [`power_ctx`](#decimalpower_ctx-pown_ctx-rootn_ctx-hypot_ctx-try_power_ctx-try_pown_ctx-try_rootn_ctx-try_hypot_ctx) rounds them once, in an extended context, from the exact power or from refined directed bounds."
 msgstr "超越函数的结果是**经过认证**的：实现会在 [`ball_float`](ball_float.md) 中计算 $f(x)$ 的一个有保证的包络，仅当两个端点以相同标志舍入到同一个 `Decimal` 时才接受它（参见[设计](../design/decimal.md#certified-elementary-functions)）。由于舍入是单调的，被接受的结果在每种 `DecimalRoundingMode` 下都是 $f(x)$ 的舍入。一系列精确情形（例如 $\\log_{10} 1000 = 3$、$e^0 = 1$、$\\sin 0 = 0$、$\\operatorname{cospi}(1) = -1$、$\\operatorname{tanpi}(0.25) = 1$、$\\operatorname{acos}(1) = 0$、$x^{0.5}$、精确的根如 `rootn_ctx(0.008, 3)` $= 0.2$、精确的范数如 `hypot_ctx(0.3, 0.4)` $= 0.5$）会在包络循环之前判定，并以不带 `inexact` 的形式返回；而像 `power_ctx(4, 1.5)` $= 8$ 这样的精确二进制结果则由包络本身精确返回。整数次幂不经过认证：[`power_ctx`](#decimalpower_ctx-pown_ctx-rootn_ctx-hypot_ctx-try_power_ctx-try_pown_ctx-try_rootn_ctx-try_hypot_ctx) 在扩展上下文中，从精确幂或细化后的定向界出发，对其只舍入一次。"
 
-#: manual/api/decimal.md:1333
+#: manual/api/decimal.md:1332
 msgid ""
 "[!WARNING] **Exact non-integral powers.** When $x^y$ with a non-integral $y \\n"
 "e 0.5$ is a representable decimal but not a binary fraction, the enclosure never shrinks to a point. In the half modes both endpoints round to the right value, so it is returned, but with `inexact` and `rounded` raised and with all $p$ digits: in decimal64, `power_ctx(0.0016, 0.25)` is `0.2000000000000000` and `power_ctx(0.04, 1.5)` is `0.008000000000000000`, both flagged inexact. In the directed modes the endpoints round to neighbours, the refinement budget runs out, and the result is a certification failure (NaN with `invalid_operation` from `power_ctx`). Tracked in [#53](https://github.com/Luna-Flow/floating/issues/53); a fix is proposed in [#99](https://github.com/Luna-Flow/floating/pull/99)."
@@ -4173,23 +4173,23 @@ msgstr ""
 "[!WARNING] **非整数次幂的精确结果。** 当非整数 $y \\n"
 "e 0.5$ 的 $x^y$ 是一个可表示的十进制数、但不是二进制分数时，包络永远不会收缩为一个点。在 half 模式下，两个端点都舍入到正确的值，因此会返回该值，但会引发 `inexact` 和 `rounded`，并带有全部 $p$ 位数字：在 decimal64 中，`power_ctx(0.0016, 0.25)` 为 `0.2000000000000000`，`power_ctx(0.04, 1.5)` 为 `0.008000000000000000`，二者都被标记为不精确。在定向模式下，端点舍入到相邻值，细化预算耗尽，结果为认证失败（`power_ctx` 返回带 `invalid_operation` 的 NaN）。由 [#53](https://github.com/Luna-Flow/floating/issues/53) 跟踪；修复已在 [#99](https://github.com/Luna-Flow/floating/pull/99) 中提出。"
 
-#: manual/api/decimal.md:1345
+#: manual/api/decimal.md:1344
 msgid "All of them except `power_ctx`/`pown_ctx` with an integral exponent or the exponent $0.5$ return NaN with `invalid_context` when $p > 999\\,999$, $e_{\\max} > 999\\,999$ or $e_{\\min} < -999\\,999$, or when a finite operand has more than 999,999 digits or an adjusted exponent beyond about $\\pm 10^6$. Integral powers and $x^{0.5}$ work in any context up to $\\pm 999\\,999\\,999$, so `power_ctx(2, 3)` is `8` under `DecimalContext::new()` while `power_ctx(2, 1.5)` and `exp2_ctx(2)` are NaN with `invalid_context`."
 msgstr "除带整数指数或指数为 $0.5$ 的 `power_ctx`/`pown_ctx` 外，当 $p > 999\\,999$、$e_{\\max} > 999\\,999$ 或 $e_{\\min} < -999\\,999$，或者某个有限操作数超过 999,999 位数字、或其调整后指数超出约 $\\pm 10^6$ 时，它们都返回带 `invalid_context` 的 NaN。整数次幂和 $x^{0.5}$ 在指数范围直到 $\\pm 999\\,999\\,999$ 的任何上下文中都可用，因此在 `DecimalContext::new()` 下 `power_ctx(2, 3)` 为 `8`，而 `power_ctx(2, 1.5)` 和 `exp2_ctx(2)` 是带 `invalid_context` 的 NaN。"
 
-#: manual/api/decimal.md:1355
+#: manual/api/decimal.md:1354
 msgid "These functions are the General Decimal Arithmetic exponential and logarithms."
 msgstr "这些函数是 General Decimal Arithmetic 的指数函数与对数函数。"
 
-#: manual/api/decimal.md:1367
+#: manual/api/decimal.md:1366
 msgid "$e^{\\pm 0} = 1$, $e^{+\\infty}=+\\infty$, $e^{-\\infty} = +0$. $\\ln$ and $\\log_{10}$ of $\\pm 0$ are $-\\infty$ with `division_by_zero` in an extended context, as IEEE 754-2019 §9.2.1 requires and as `log2_ctx`, `log1p_ctx` and `logb_ctx` do (General Decimal Arithmetic, which [`decimal_gda`](decimal_gda.md) follows, raises no condition here; a subset context makes a zero operand invalid); of $+\\infty$ are $+\\infty$, of a negative value or $-\\infty$ are NaN with `invalid_operation`; $\\ln 1 = 0$, and $\\log_{10}$ of a power of ten is the exact integer exponent. Arguments so large or small that $e^x$ certainly overflows or underflows are decided without evaluation."
 msgstr "$e^{\\pm 0} = 1$，$e^{+\\infty}=+\\infty$，$e^{-\\infty} = +0$。在扩展上下文中，$\\pm 0$ 的 $\\ln$ 和 $\\log_{10}$ 为 $-\\infty$ 并引发 `division_by_zero`，这是 IEEE 754-2019 §9.2.1 的要求，与 `log2_ctx`、`log1p_ctx` 和 `logb_ctx` 的行为一致（[`decimal_gda`](decimal_gda.md) 所遵循的 General Decimal Arithmetic 在此不引发任何条件；子集上下文则使零操作数无效）；$+\\infty$ 的为 $+\\infty$，负值或 $-\\infty$ 的为带 `invalid_operation` 的 NaN；$\\ln 1 = 0$，10 的幂的 $\\log_{10}$ 为精确的整数指数。对于大到或小到 $e^x$ 必然上溢或下溢的参数，无需求值即可判定。"
 
-#: manual/api/decimal.md:1380
+#: manual/api/decimal.md:1379
 msgid "These functions compute powers, roots and the Euclidean norm."
 msgstr "这些函数计算幂、方根和欧几里得范数。"
 
-#: manual/api/decimal.md:1393
+#: manual/api/decimal.md:1392
 msgid ""
 "`power_ctx(x, y)` is $x^y$ with the General Decimal Arithmetic special cases: an integral exponent gives the exact power when it fits in $p$ digits and otherwise, in an extended context, the correctly rounded power (in decimal32, `power_ctx(3.339434, 3)` is `37.24077`; the exact cube is $37.240765000\\ldots$); $x^{0.5}$ is `sqrt_ctx`; a positive base with a non-integer exponent is certified; a negative base with a non-integer exponent is invalid; $0^0$ is invalid in an extended context; $0^{-n}$ is $\\pm\\infty$. A context that is not extended keeps the General Decimal Arithmetic square-and-multiply with $p + \\operatorname{digits}(n) + 2$ working digits, whose error is below one unit in the last place. `pown_ctx(x, n)` is `power_ctx` with the integer `n` converted exactly, so $(-1)^{12345679}$ is $-1$ at any precision. `rootn_ctx(x, n)` is $x^{1/n}$ for integer $n \\n"
 "e 0$; an even root of a negative value and $n=0$ are invalid, and $\\operatorname{rootn}(\\pm 0, n<0)$ is an infinity with `division_by_zero`; an exactly representable root is returned exactly (`rootn_ctx(0.008, 3)` is `0.2` with no flag). `hypot_ctx(x, y)` is $\\sqrt{x^2+y^2}$; it is $+\\infty$ if either operand is infinite, even if the other is a quiet NaN, and an exactly representable norm, or $|x|$ when $y$ is zero, is returned exactly (`hypot_ctx(0.3, 0.4)` is `0.5`)."
@@ -4197,47 +4197,47 @@ msgstr ""
 "`power_ctx(x, y)` 即 $x^y$，并采用 General Decimal Arithmetic 的特殊情形：整数指数在可容纳于 $p$ 位时得到精确幂，否则在扩展上下文中得到正确舍入的幂（在 decimal32 中，`power_ctx(3.339434, 3)` 为 `37.24077`；精确的立方为 $37.240765000\\ldots$）；$x^{0.5}$ 即 `sqrt_ctx`；正底数配非整数指数会经过认证；负底数配非整数指数是无效的；在扩展上下文中 $0^0$ 是无效的；$0^{-n}$ 为 $\\pm\\infty$。非扩展的上下文保留 General Decimal Arithmetic 的平方-乘算法，使用 $p + \\operatorname{digits}(n) + 2$ 位工作精度，其误差小于末位的一个单位。`pown_ctx(x, n)` 即把整数 `n` 精确转换后的 `power_ctx`，因此 $(-1)^{12345679}$ 在任何精度下都是 $-1$。`rootn_ctx(x, n)` 对整数 $n \\n"
 "e 0$ 为 $x^{1/n}$；负值的偶次方根以及 $n=0$ 是无效的，$\\operatorname{rootn}(\\pm 0, n<0)$ 为带 `division_by_zero` 的无穷；可精确表示的根被精确返回（`rootn_ctx(0.008, 3)` 为 `0.2`，不带标志）。`hypot_ctx(x, y)` 即 $\\sqrt{x^2+y^2}$；只要任一操作数为无穷，结果就是 $+\\infty$，即使另一个是静默 NaN；可精确表示的范数，或 $y$ 为零时的 $|x|$，被精确返回（`hypot_ctx(0.3, 0.4)` 为 `0.5`）。"
 
-#: manual/api/decimal.md:1415
+#: manual/api/decimal.md:1414
 msgid "These functions are the IEEE 754-2019 §9.2 exponentials and logarithms in bases 2 and 10 and near zero. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "这些函数是 IEEE 754-2019 §9.2 中以 2 和 10 为底以及在零附近的指数函数与对数函数。每个函数都具有本节开头所述的 `f_ctx`/`try_f_ctx` 形式。"
 
-#: manual/api/decimal.md:1433
+#: manual/api/decimal.md:1432
 msgid "These functions are the trigonometric functions of $x$ and of $\\pi x$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "这些函数是 $x$ 和 $\\pi x$ 的三角函数。每个函数都具有本节开头所述的 `f_ctx`/`try_f_ctx` 形式。"
 
-#: manual/api/decimal.md:1453
+#: manual/api/decimal.md:1452
 msgid "These functions are the inverse trigonometric functions; `atan2(y, x)` is the angle of the point $(x, y)$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "这些函数是反三角函数；`atan2(y, x)` 是点 $(x, y)$ 的辐角。每个函数都具有本节开头所述的 `f_ctx`/`try_f_ctx` 形式。"
 
-#: manual/api/decimal.md:1469
+#: manual/api/decimal.md:1468
 msgid "These functions are the hyperbolic functions and their inverses. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "这些函数是双曲函数及其反函数。每个函数都具有本节开头所述的 `f_ctx`/`try_f_ctx` 形式。"
 
-#: manual/api/decimal.md:1487
+#: manual/api/decimal.md:1486
 msgid "Domain and special values of the functions in these four groups:"
 msgstr "这四组函数的定义域与特殊值："
 
-#: manual/api/decimal.md:1489
+#: manual/api/decimal.md:1488
 msgid "Invalid (`invalid_operation`)"
 msgstr "无效（`invalid_operation`）"
 
-#: manual/api/decimal.md:1489
+#: manual/api/decimal.md:1488
 msgid "Pole (`division_by_zero`)"
 msgstr "极点（`division_by_zero`）"
 
-#: manual/api/decimal.md:1489
+#: manual/api/decimal.md:1488
 msgid "Exact cases"
 msgstr "精确情形"
 
+#: manual/api/decimal.md:1490
 #: manual/api/decimal.md:1491
-#: manual/api/decimal.md:1492
-#: manual/api/decimal.md:1495
+#: manual/api/decimal.md:1494
+#: manual/api/decimal.md:1496
 #: manual/api/decimal.md:1497
 #: manual/api/decimal.md:1498
 #: manual/api/decimal.md:1499
 #: manual/api/decimal.md:1500
 #: manual/api/decimal.md:1501
-#: manual/api/decimal.md:1502
 #: manual/api/decimal_gda.md:445
 #: manual/api/decimal_gda.md:446
 #: manual/api/decimal_gda.md:447
@@ -4245,187 +4245,187 @@ msgstr "精确情形"
 msgid "none"
 msgstr "无"
 
-#: manual/api/decimal.md:1491
+#: manual/api/decimal.md:1490
 msgid "integer argument (via `power_ctx`), $\\pm 0 \\mapsto 1$, $-\\infty \\mapsto 0$, $+\\infty \\mapsto +\\infty$"
 msgstr "整数参数（通过 `power_ctx`），$\\pm 0 \\mapsto 1$，$-\\infty \\mapsto 0$，$+\\infty \\mapsto +\\infty$"
 
-#: manual/api/decimal.md:1493
+#: manual/api/decimal.md:1492
 msgid "$1 \\mapsto 0$, exact binary powers ($0.125 \\mapsto -3$), $+\\infty \\mapsto +\\infty$"
 msgstr "$1 \\mapsto 0$，精确的 2 的幂（$0.125 \\mapsto -3$），$+\\infty \\mapsto +\\infty$"
 
-#: manual/api/decimal.md:1496
+#: manual/api/decimal.md:1495
 msgid "`tanpi` at odd half-integers"
 msgstr "`tanpi` 在奇数的一半处"
 
-#: manual/api/decimal.md:1496
+#: manual/api/decimal.md:1495
 msgid "integers, half-integers, `tanpi` at odd quarter-integers ($\\pm 1$)"
 msgstr "整数、半整数，以及 `tanpi` 在四分之一的奇数倍处（$\\pm 1$）"
 
-#: manual/api/decimal.md:1498
+#: manual/api/decimal.md:1497
 msgid "$\\pm 0$; $\\pm\\infty \\mapsto \\pm\\pi/2$ (certified)"
 msgstr "$\\pm 0$；$\\pm\\infty \\mapsto \\pm\\pi/2$（经过认证）"
 
-#: manual/api/decimal.md:1499
+#: manual/api/decimal.md:1498
 msgid "$\\operatorname{atan2}(\\pm 0, x) = \\pm 0$ for $x = +0$ or $x > 0$, and $\\operatorname{atan2}(y, +\\infty) = \\pm 0$ for finite $y$; any other zero or infinite operand gives $\\pi$, $\\pi/2$, $\\pi/4$ or $3\\pi/4$ with the sign of $y$ (certified)"
 msgstr "当 $x = +0$ 或 $x > 0$ 时 $\\operatorname{atan2}(\\pm 0, x) = \\pm 0$，对有限的 $y$ 有 $\\operatorname{atan2}(y, +\\infty) = \\pm 0$；其他任何零或无穷操作数都得到符号同 $y$ 的 $\\pi$、$\\pi/2$、$\\pi/4$ 或 $3\\pi/4$（经过认证）"
 
-#: manual/api/decimal.md:1500
+#: manual/api/decimal.md:1499
 msgid "$\\pm0\\mapsto\\pm0$; $\\sinh$, $\\operatorname{asinh}$ keep $\\pm\\infty$; $\\tanh(\\pm\\infty)=\\pm 1$"
 msgstr "$\\pm0\\mapsto\\pm0$；$\\sinh$、$\\operatorname{asinh}$ 保持 $\\pm\\infty$；$\\tanh(\\pm\\infty)=\\pm 1$"
 
-#: manual/api/decimal.md:1505
+#: manual/api/decimal.md:1504
 msgid "These special values follow IEEE 754-2019 §9.2.1: in decimal64, `atan2_ctx(-0, -1)` is `-3.141592653589793`, `atan2_ctx(+∞, -∞)` is `2.356194490192345` and `atan2_ctx(-1, +∞)` is `-0`."
 msgstr "这些特殊值遵循 IEEE 754-2019 §9.2.1：在 decimal64 中，`atan2_ctx(-0, -1)` 为 `-3.141592653589793`，`atan2_ctx(+∞, -∞)` 为 `2.356194490192345`，`atan2_ctx(-1, +∞)` 为 `-0`。"
 
-#: manual/api/decimal.md:1550
+#: manual/api/decimal.md:1549
 msgid "Interchange formats"
 msgstr "交换格式"
 
-#: manual/api/decimal.md:1554
+#: manual/api/decimal.md:1553
 msgid "`DecimalInterchangeFormat` names an IEEE 754 decimal interchange format."
 msgstr "`DecimalInterchangeFormat` 指定一种 IEEE 754 十进制交换格式。"
 
-#: manual/api/decimal.md:1565
+#: manual/api/decimal.md:1564
 msgid "`context` returns `DecimalContext::decimal32()`, `decimal64()` or `decimal128()`."
 msgstr "`context` 返回 `DecimalContext::decimal32()`、`decimal64()` 或 `decimal128()`。"
 
-#: manual/api/decimal.md:1570
+#: manual/api/decimal.md:1569
 msgid "`DecimalInterchangeEncoding` selects how the coefficient is stored in the bits."
 msgstr "`DecimalInterchangeEncoding` 选择系数在比特中的存储方式。"
 
-#: manual/api/decimal.md:1580
+#: manual/api/decimal.md:1579
 msgid "`DPD` stores three decimal digits per 10-bit declet (densely packed decimal); `BID` stores the coefficient as a binary integer. Functions without an encoding argument use `DPD`."
 msgstr "`DPD` 每个 10 位 declet 存储三个十进制数字（densely packed decimal，密集压缩十进制）；`BID` 将系数存储为二进制整数。没有编码参数的函数使用 `DPD`。"
 
-#: manual/api/decimal.md:1586
+#: manual/api/decimal.md:1585
 msgid "These functions encode a value as interchange bits written in hexadecimal."
 msgstr "这些函数将值编码为以十六进制书写的交换比特。"
 
-#: manual/api/decimal.md:1593
+#: manual/api/decimal.md:1592
 msgid "A finite value is first rounded with `apply_ctx` under the format context (its flags are returned), then encoded with its exponent, so the cohort is kept when it fits. The text is `#` followed by 8, 16 or 32 upper-case hex digits. Infinities are encoded with a zero trailing field. A NaN keeps its sign and kind, and its payload is stored as an integer, independent of the value's precision field (IEEE 754-2019 §3.5.2): a payload below $10^{p-1}$ is kept, and a longer one keeps its low $p-1$ digits, in DPD and BID alike. `NaN7` encodes to decimal64 as `#7C00000000000007` in both encodings."
 msgstr "有限值先在格式上下文下用 `apply_ctx` 舍入（返回其标志），再连同其指数一起编码，因此在可容纳时会保留同值类成员。文本为 `#` 后跟 8、16 或 32 个大写十六进制数字。无穷以全零的尾随字段编码。NaN 保留其符号和种类，其载荷作为整数存储，与值的精度字段无关（IEEE 754-2019 §3.5.2）：小于 $10^{p-1}$ 的载荷被保留，更长的载荷保留其低 $p-1$ 位，DPD 与 BID 皆然。`NaN7` 在两种编码下都编码为 decimal64 的 `#7C00000000000007`。"
 
-#: manual/api/decimal.md:1604
+#: manual/api/decimal.md:1603
 msgid "These functions decode interchange hex text."
 msgstr "这些函数解码交换十六进制文本。"
 
-#: manual/api/decimal.md:1611
+#: manual/api/decimal.md:1610
 msgid "The text may have surrounding ASCII whitespace and a leading `#`; it must have exactly the format's number of hex digits, in either case, or the result is `None`. Decoding is exact and keeps the exponent, the sign of zero, the NaN kind and payload. Non-canonical encodings decode to the value IEEE 754 assigns them: a non-canonical DPD declet to its digits, a BID coefficient $\\ge 10^{p}$ to zero, an out-of-range BID NaN payload to 0; the unused exponent bits of infinities and NaNs are ignored. The result has the format's precision."
 msgstr "文本两侧可以有 ASCII 空白，并可带前导 `#`；它必须恰好具有该格式规定数量的十六进制数字（大小写均可），否则结果为 `None`。解码是精确的，并保留指数、零的符号、NaN 种类和载荷。非规范编码被解码为 IEEE 754 为其指定的值：非规范的 DPD declet 解码为其数字，满足 $\\ge 10^{p}$ 的 BID 系数解码为零，超出范围的 BID NaN 载荷解码为 0；无穷与 NaN 中未使用的指数位被忽略。结果具有该格式的精度。"
 
-#: manual/api/decimal.md:1639
+#: manual/api/decimal.md:1638
 msgid "`DecimalInterchange` holds the raw bits of one interchange value together with its format and encoding."
 msgstr "`DecimalInterchange` 保存一个交换值的原始比特及其格式和编码。"
 
-#: manual/api/decimal.md:1651
+#: manual/api/decimal.md:1650
 msgid "Use it when bits must be inspected or kept exactly, including non-canonical encodings that a `Decimal` cannot represent. `format` and `encoding` return the format and encoding the bits belong to; `to_hex` writes `#` and the full-width upper-case hex digits."
 msgstr "当需要检查或精确保留比特时（包括 `Decimal` 无法表示的非规范编码），请使用它。`format` 和 `encoding` 返回这些比特所属的格式和编码；`to_hex` 写出 `#` 以及全宽的大写十六进制数字。"
 
-#: manual/api/decimal.md:1658
+#: manual/api/decimal.md:1657
 msgid "These functions build an interchange value from text or from a `Decimal`."
 msgstr "这些函数由文本或 `Decimal` 构建交换值。"
 
-#: manual/api/decimal.md:1667
+#: manual/api/decimal.md:1666
 msgid "`from_hex` stores the bits unchanged (text rules as in `from_interchange_hex`). `from_decimal` encodes like `to_interchange_hex` and returns the same flags. The forms without an encoding use `DPD`."
 msgstr "`from_hex` 原样存储比特（文本规则同 `from_interchange_hex`）。`from_decimal` 的编码方式与 `to_interchange_hex` 相同，并返回相同的标志。不带编码参数的形式使用 `DPD`。"
 
-#: manual/api/decimal.md:1673
+#: manual/api/decimal.md:1672
 msgid "These functions decode the stored bits."
 msgstr "这些函数解码所存储的比特。"
 
-#: manual/api/decimal.md:1680
+#: manual/api/decimal.md:1679
 msgid "Decoding is exact. `to_decimal_ctx` additionally raises `subnormal` when the decoded value is subnormal in the format; no other flag is possible."
 msgstr "解码是精确的。若解码值在该格式中为次正规数，`to_decimal_ctx` 还会引发 `subnormal`；不可能出现其他标志。"
 
-#: manual/api/decimal.md:1685
+#: manual/api/decimal.md:1684
 msgid "These functions canonicalize the stored bits."
 msgstr "这些函数将所存储的比特规范化。"
 
-#: manual/api/decimal.md:1692
+#: manual/api/decimal.md:1691
 msgid "`canonical` decodes and re-encodes in the same format and encoding: every non-canonical declet, out-of-range BID coefficient, and unused bit of an infinity or NaN is replaced by its canonical form. It is idempotent. `is_canonical` tests whether the bits are already canonical."
 msgstr "`canonical` 以相同的格式和编码进行解码并重新编码：每个非规范的 declet、超出范围的 BID 系数以及无穷或 NaN 中未使用的比特都被替换为其规范形式。它是幂等的。`is_canonical` 检测比特是否已经是规范的。"
 
-#: manual/api/decimal.md:1699
+#: manual/api/decimal.md:1698
 msgid "These functions change only the sign bit of the stored bits."
 msgstr "这些函数只改变所存储比特中的符号位。"
 
-#: manual/api/decimal.md:1708
+#: manual/api/decimal.md:1707
 msgid "All other bits, canonical or not, are kept. `copy_sign` aborts unless both operands have the same format and encoding."
 msgstr "其他所有比特（无论是否规范）都被保留。除非两个操作数具有相同的格式和编码，否则 `copy_sign` 会中止。"
 
-#: manual/api/decimal.md:1713
+#: manual/api/decimal.md:1712
 msgid "`Zero`, `One`, `Ring` and the operator traits"
 msgstr "`Zero`、`One`、`Ring` 与运算符 trait"
 
-#: manual/api/decimal.md:1715
+#: manual/api/decimal.md:1714
 msgid "`Decimal` implements the Luna-Flow algebra traits through the plain operators."
 msgstr "`Decimal` 通过普通运算符实现 Luna-Flow 代数 trait。"
 
-#: manual/api/decimal.md:1737
+#: manual/api/decimal.md:1736
 msgid "`Zero::zero()` and `One::one()` are `Decimal::zero()` and `Decimal::one()`. The ring laws hold exactly for `+`, `-` and `*` as long as no sum is rounded (sums whose exact coefficient fits the operand precision, and every product, since `*` is exact); a rounded sum is only approximately associative. `from_natural` and `from_integer` are documented under [construction](#decimalfrom_natural-from_integer)."
 msgstr "`Zero::zero()` 和 `One::one()` 即 `Decimal::zero()` 和 `Decimal::one()`。只要没有和被舍入（精确系数能容纳于操作数精度的和，以及所有乘积，因为 `*` 是精确的），环公理对 `+`、`-` 和 `*` 精确成立；经过舍入的和只是近似满足结合律。`from_natural` 和 `from_integer` 的说明见[构造](#decimalfrom_natural-from_integer)。"
 
-#: manual/api/decimal.md:1746
+#: manual/api/decimal.md:1745
 msgid "`Decimal` implements the `floating` scalar trait."
 msgstr "`Decimal` 实现了 `floating` 的标量 trait。"
 
-#: manual/api/decimal.md:1752
+#: manual/api/decimal.md:1751
 msgid "The trait methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
 msgstr "trait 方法为 `classify`、`sign`、`precision`、`with_precision` 和 `normalized`，均已在上文说明；`@def.is_finite(x)` 及其他泛型谓词都通过它工作。"
 
-#: manual/api/decimal.md:1758
+#: manual/api/decimal.md:1757
 msgid "These functions implement the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/)."
 msgstr "这些函数实现了 [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) 的 contextual trait。"
 
-#: manual/api/decimal.md:1785
+#: manual/api/decimal.md:1784
 msgid "Each `*_contextual` operation converts the context with `DecimalContext::from_arithmetic_context`, runs the matching `*_ctx` operation and returns `Err(division_by_zero)` when `division_by_zero` was raised, `Err(domain_error)` when another `has_error` flag was raised, and otherwise `Ok` with diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped` copied from the flags. Because the converted context has the default exponent range, `exp_contextual` without explicit `e_min`/`e_max` fails with `domain_error` (`invalid_context`)."
 msgstr "每个 `*_contextual` 运算都用 `DecimalContext::from_arithmetic_context` 转换上下文，执行对应的 `*_ctx` 运算：若引发了 `division_by_zero` 则返回 `Err(division_by_zero)`，若引发了其他 `has_error` 标志则返回 `Err(domain_error)`，否则返回 `Ok`，其诊断信息 `inexact`、`rounded`、`overflow`、`underflow`、`subnormal` 和 `clamped` 复制自标志。由于转换后的上下文采用默认指数范围，未显式指定 `e_min`/`e_max` 的 `exp_contextual` 会以 `domain_error`（`invalid_context`）失败。"
 
-#: manual/api/decimal.md:1794
+#: manual/api/decimal.md:1793
 msgid "`zero_contextual` and `one_contextual` have the context precision. `epsilon_contextual` is $10^{1-p}$ (`next_plus(1) - 1`). `min_normal_contextual` is $10^{e_{\\min}}$ (default $e_{\\min} = -999\\,999\\,999$). `max_finite_contextual` is $(10^{p}-1)\\,10^{e_{\\max}-p+1}$. `classify_contextual` is `classify`."
 msgstr "`zero_contextual` 和 `one_contextual` 具有上下文精度。`epsilon_contextual` 为 $10^{1-p}$（`next_plus(1) - 1`）。`min_normal_contextual` 为 $10^{e_{\\min}}$（默认 $e_{\\min} = -999\\,999\\,999$）。`max_finite_contextual` 为 $(10^{p}-1)\\,10^{e_{\\max}-p+1}$。`classify_contextual` 即 `classify`。"
 
-#: manual/api/decimal.md:1802
+#: manual/api/decimal.md:1801
 msgid "These functions implement the checked traits of `Luna-Flow/arithmetic`."
 msgstr "这些函数实现了 `Luna-Flow/arithmetic` 的 checked trait。"
 
-#: manual/api/decimal.md:1817
+#: manual/api/decimal.md:1816
 msgid "`parse_checked(s, ctx)` is `Decimal::parse(s, precision=ctx.precision)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx` under the converted context with `Err(division_by_zero)` and `Err(domain_error)` as in [`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under the converted context and fails for negative operands. `pow_nat_checked` and `pow_int_checked` are `power_ctx` with the integer exponent converted to a `Decimal` exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`; they return `Err(division_by_zero)` for a zero base with a negative exponent, `Err(domain_error)` for an invalid power, and `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked)."
 msgstr "`parse_checked(s, ctx)` 即 `Decimal::parse(s, precision=ctx.precision)`。`DivChecked::div_checked(x, y, ctx)` 即转换后上下文下的 `div_ctx`，其 `Err(division_by_zero)` 与 `Err(domain_error)` 同 [`div_checked`](#decimaldiv_checked-sqrt)。`sqrt_checked` 即转换后上下文下的 `sqrt_ctx`，对负操作数失败。`pow_nat_checked` 和 `pow_int_checked` 即把整数指数精确转换为 `Decimal`（至少十位数字，足以容纳每个可接受的指数）后的 `power_ctx`，因此精度为 7 时 `(-1).pow_int_checked(12345679, ctx)` 为 `-1`；它们对零底数配负指数返回 `Err(division_by_zero)`，对无效的幂返回 `Err(domain_error)`，且 `pow_nat_checked` 对大于 999,999,999 的指数返回 `Err(unsupported)`。`CompareChecked` 即 [`compare_checked`](#decimalcompare_checked)。"
 
-#: manual/api/decimal.md:1830
+#: manual/api/decimal.md:1829
 msgid "`Eq` and `Compare`: `Decimal::equal`, `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`"
 msgstr "`Eq` 与 `Compare`：`Decimal::equal`、`not_equal`、`op_lt`、`op_le`、`op_gt`、`op_ge`"
 
-#: manual/api/decimal.md:1832
+#: manual/api/decimal.md:1831
 msgid "These are the operator methods of `Eq` and `Compare`."
 msgstr "这些是 `Eq` 与 `Compare` 的运算符方法。"
 
-#: manual/api/decimal.md:1843
+#: manual/api/decimal.md:1842
 msgid "They are defined by [`compare`](#decimalcompare): `x == y` is `compare(x, y) == 0`, `x < y` is `compare(x, y) < 0`, and so on. Cohort members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and is greater than every number. Use `compare_total` to tell representations apart."
 msgstr "它们由 [`compare`](#decimalcompare) 定义：`x == y` 即 `compare(x, y) == 0`，`x < y` 即 `compare(x, y) < 0`，依此类推。同值类成员相等（`1.0 == 1.00`），$-0 = +0$，每个 NaN 都等于每个 NaN，且大于所有数。要区分不同的表示，请使用 `compare_total`。"
 
-#: manual/api/decimal.md:1849
+#: manual/api/decimal.md:1848
 msgid "Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalTininessDetection::equal`, `DecimalTininessDetection::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`"
 msgstr "派生相等：`DecimalContext::equal`、`DecimalContext::not_equal`、`DecimalFlags::equal`、`DecimalFlags::not_equal`、`DecimalRoundingMode::equal`、`DecimalRoundingMode::not_equal`、`DecimalTininessDetection::equal`、`DecimalTininessDetection::not_equal`、`DecimalSignal::equal`、`DecimalSignal::not_equal`、`DecimalInterchangeFormat::equal`、`DecimalInterchangeFormat::not_equal`、`DecimalInterchangeEncoding::equal`、`DecimalInterchangeEncoding::not_equal`"
 
-#: manual/api/decimal.md:1851
+#: manual/api/decimal.md:1850
 msgid "These are the derived `Eq` methods of the context, flag and enum types."
 msgstr "这些是上下文、标志与枚举类型的派生 `Eq` 方法。"
 
-#: manual/api/decimal.md:1870
+#: manual/api/decimal.md:1869
 msgid "Contexts compare field by field (precision, both rounding fields, exponent limits, clamp, extended, tininess); flag sets compare all thirteen fields. `DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is equal to `DecimalContext::decimal64()`."
 msgstr "上下文逐字段比较（精度、两个舍入字段、指数界限、clamp、extended、微小性判定）；标志集比较全部十三个字段。`DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` 等于 `DecimalContext::decimal64()`。"
 
-#: manual/api/decimal.md:1875
+#: manual/api/decimal.md:1874
 msgid "`Show` and `Debug`: `Decimal::to_string`, `output`, `to_repr`"
 msgstr "`Show` 与 `Debug`：`Decimal::to_string`、`output`、`to_repr`"
 
-#: manual/api/decimal.md:1877
+#: manual/api/decimal.md:1876
 msgid "`Decimal` implements `Show` and `Debug`."
 msgstr "`Decimal` 实现了 `Show` 和 `Debug`。"
 
-#: manual/api/decimal.md:1886
+#: manual/api/decimal.md:1885
 msgid "`to_string` formats a value in scientific notation without a context. Finite values use the scientific-string rule of [`to_sci_string`](#decimalto_sci_string-to_eng_string), so trailing zeros and the exponent are visible: `1.20`, `1E+3`, `1.2E-7`. Special values are written in lower case: `inf`, `-inf`, `nan`, `snan`, `-nan12`. `output` writes the same text to a logger. `to_repr` is the derived structural representation used by `debug_inspect` and `assert_eq`."
 msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值。有限值使用 [`to_sci_string`](#decimalto_sci_string-to_eng_string) 的科学记数字符串规则，因此尾随零和指数均可见：`1.20`、`1E+3`、`1.2E-7`。特殊值以小写书写：`inf`、`-inf`、`nan`、`snan`、`-nan12`。`output` 将相同文本写入 logger。`to_repr` 是 `debug_inspect` 和 `assert_eq` 所使用的派生结构表示。"
 
@@ -7842,7 +7842,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr "reverse interval operation、选定 phase 以外的全部 decoration 规则、任意 endpoint format 和未固定的上游 revision 均不在声明内。"
 
 #: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:41
+#: manual/conformance/decimal.md:39
 #: manual/conformance/decimal_gda.md:49
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:29
@@ -8094,7 +8094,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:933
+#: manual/design/decimal.md:932
 #: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:759
 #: manual/design/decimal_gda_checked.md:247
@@ -8117,10 +8117,10 @@ msgid "The checked matrix is finite and does not claim every IEEE 754 operation,
 msgstr "固定矩阵是有限的，不声明覆盖 IEEE 754 全部操作、所有 payload 传播策略或所有可能十进制输入。补充的 `dd*`/`dq*` decTest 行只作诊断，不是 IEEE oracle。"
 
 #: manual/conformance/decimal.md:31
-msgid "The matrix passes on the current branch although the branch has the deviations listed in [decimal design: known deviations](../design/decimal.md#known-deviations) (`inexact` or a certification failure for exact decimal results of non-integral powers and integral rounding of operands longer than $p$ digits; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53) and [#118](https://github.com/Luna-Flow/floating/issues/118)). Those cases are therefore not covered by its rows, and passing the gate is evidence for the covered rows only."
-msgstr "尽管当前分支存在[decimal 设计：已知偏差](../design/decimal.md#known-deviations)中列出的偏差（非整数次幂的精确十进制结果带有 `inexact` 或认证失败，以及长于 $p$ 位的操作数的取整舍入；由 [#53](https://github.com/Luna-Flow/floating/issues/53) 和 [#118](https://github.com/Luna-Flow/floating/issues/118) 跟踪），该矩阵在当前分支上仍然通过。因此这些情形不在其各行的覆盖范围内，通过门禁仅是所覆盖各行的证据。"
+msgid "The matrix passes on the current branch although the branch has the deviations listed in [decimal design: known deviations](../design/decimal.md#known-deviations) (`inexact` or a certification failure for exact decimal results of non-integral powers; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53)). Those cases are therefore not covered by its rows, and passing the gate is evidence for the covered rows only."
+msgstr "尽管当前分支存在[decimal 设计：已知偏差](../design/decimal.md#known-deviations)中列出的偏差（非整数次幂的精确十进制结果带有 `inexact` 或认证失败；由 [#53](https://github.com/Luna-Flow/floating/issues/53) 跟踪），该矩阵在当前分支上仍然通过。因此这些情形不在其各行的覆盖范围内，通过门禁仅是所覆盖各行的证据。"
 
-#: manual/conformance/decimal.md:49
+#: manual/conformance/decimal.md:47
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "语料来源、vector family 和失败记录见[十进制数据指南](../../../testdata/decimal/README.md)。"
 
@@ -9043,7 +9043,7 @@ msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:912
+#: manual/design/decimal.md:911
 #: manual/design/decimal_checked.md:265
 #: manual/design/decimal_gda.md:743
 #: manual/design/decimal_gda_checked.md:238
@@ -11734,87 +11734,75 @@ msgstr "包络循环之前没有精确性测试，而其一致性测试假设 $f
 msgid "[#53](https://github.com/Luna-Flow/floating/issues/53), fix in [#99](https://github.com/Luna-Flow/floating/pull/99)"
 msgstr "[#53](https://github.com/Luna-Flow/floating/issues/53)，修复见 [#99](https://github.com/Luna-Flow/floating/pull/99)"
 
-#: manual/design/decimal.md:900
-msgid "integers longer than $p$ digits are rounded; a fraction with a longer integral part gives an invalid NaN"
-msgstr "长于 $p$ 位的整数会被舍入；整数部分更长的小数得到表示无效运算的 NaN"
-
-#: manual/design/decimal.md:900
-msgid "the operand is rounded or quantized at the context precision"
-msgstr "操作数在上下文精度下被舍入或 quantize"
-
-#: manual/design/decimal.md:900
-msgid "[#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119)"
-msgstr "[#118](https://github.com/Luna-Flow/floating/issues/118)，修复见 [#119](https://github.com/Luna-Flow/floating/pull/119)"
-
-#: manual/design/decimal.md:902
+#: manual/design/decimal.md:901
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr "中点测试、`ZeroFiveUp` 双重舍入引理、上溢表、下折界、认证引理以及各内核界的证明汇集在附录中："
 
-#: manual/design/decimal.md:906
+#: manual/design/decimal.md:905
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr "[decimal 的舍入证明](../../attachments/design_decimal_rounding.typ)"
 
-#: manual/design/decimal.md:908
+#: manual/design/decimal.md:907
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr "[符合性页面](../conformance/decimal.md)记录了有限的证据（固定的 IEEE 测试语料、穷举的 declet 检查、经 MPFR 认证的初等函数用例、四个目标平台）。"
 
-#: manual/design/decimal.md:914
+#: manual/design/decimal.md:913
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr "**二进制的 `BigInt` 系数。** 在十进制位置上舍入，每次运算都需要除以 $10^{s}$ 并计数位数；用二进制系数时两者都很昂贵，而用基数 $10^{9}$ 的 limb 时，它们只是 limb 移动加一次小除法。"
 
-#: manual/design/decimal.md:918
+#: manual/design/decimal.md:917
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr "**环境上下文与粘滞标志。** 出于显式性和可组合性的考虑而被否决；标志幺半群提供了同样的信息。"
 
-#: manual/design/decimal.md:920
+#: manual/design/decimal.md:919
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_ctx`, `compare_signal_ctx` and `compare_total`."
 msgstr "**遇到 NaN 就中止的 `compare`。** 排序和泛型 `Compare` 代码会在含 NaN 的数据上中止。当前的 `compare` 是全预序，IEEE 语义可通过 `compare_checked`、`compare_ctx`、`compare_signal_ctx` 和 `compare_total` 获得。"
 
-#: manual/design/decimal.md:924
+#: manual/design/decimal.md:923
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr "**带解析误差界的固定精度超越函数内核。** 在小精度下更快，但需要针对每个函数、每种精度给出正确性证明；包络循环在构造上即正确，且其失败方式是显式的。"
 
-#: manual/design/decimal.md:928
+#: manual/design/decimal.md:927
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr "**IEEE 与 GDA 共用一个包。** 粘滞状态、陷阱及陷阱优先级会改变每个运算的类型；它们放在 `decimal_gda` 中。"
 
-#: manual/design/decimal.md:930
+#: manual/design/decimal.md:929
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr "**规范化每个结果。** 丢失同值类会使 `12.30` 与 `12.3` 无法区分，并破坏对量子敏感的协议。"
 
-#: manual/design/decimal.md:935
+#: manual/design/decimal.md:934
 msgid "`decimal` deliberately does not:"
 msgstr "`decimal` 有意不做以下事情："
 
-#: manual/design/decimal.md:937
+#: manual/design/decimal.md:936
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr "保持粘滞状态或陷阱（请使用 `decimal_checked` 或 `decimal_gda`）；"
 
-#: manual/design/decimal.md:938
+#: manual/design/decimal.md:937
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr "把无上下文运算符舍入到某个上下文：`*` 是精确的，`+` 和 `/` 只舍入到操作数精度，且都不施加指数范围；"
 
-#: manual/design/decimal.md:940
+#: manual/design/decimal.md:939
 msgid "guarantee correct rounding of integer powers longer than $p$ digits in a context that is not extended, or the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr "保证在非扩展上下文中长于 $p$ 位的整数次幂的正确舍入，或保证非整数次幂的精确十进制结果的精确标志（参见[已知偏差](#known-deviations)）；"
 
-#: manual/design/decimal.md:943
+#: manual/design/decimal.md:942
 msgid "guarantee that elementary-function certification succeeds: after the refinement budget (which, at its last steps, works with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr "保证初等函数的认证一定成功：在细化预算耗尽后（预算的最后几步要处理非常宽的数，可能耗时很长），它会报告 `CertificationFailure`（`try_*_ctx`），或返回带 `invalid_operation` 的 NaN（`*_ctx`）；"
 
-#: manual/design/decimal.md:947
+#: manual/design/decimal.md:946
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr "在精度或指数超过 999,999 的上下文中计算初等函数；"
 
-#: manual/design/decimal.md:949
+#: manual/design/decimal.md:948
 msgid "preserve NaN payloads through binary conversions;"
 msgstr "在二进制转换中保留 NaN 载荷；"
 
-#: manual/design/decimal.md:950
+#: manual/design/decimal.md:949
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr "暴露其系数表示、内核选择或阈值；"
 
-#: manual/design/decimal.md:951
+#: manual/design/decimal.md:950
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr "作出超出[符合性页面](../conformance/decimal.md)上有限证据的符合性声明。"
 
@@ -21054,6 +21042,21 @@ msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
+
+#~ msgid "A finite value with negative exponent is quantized to exponent 0 with the context's rounding mode; a value with exponent $\\ge 0$ is only rounded to the context. `to_integral_exact` reports `rounded`/`inexact`; `to_integral_value` returns the same value with those two flags cleared. Infinities are returned unchanged; NaNs are quieted."
+#~ msgstr "指数为负的有限值以上下文的舍入模式量化到指数 0；指数 $\\ge 0$ 的值仅舍入到上下文。`to_integral_exact` 报告 `rounded`/`inexact`；`to_integral_value` 返回相同的值，但清除这两个标志。无穷原样返回；NaN 被静默化。"
+
+#~ msgid "[!WARNING] Operands longer than the context precision are mishandled. An integer with more than $p$ digits is rounded to $p$ digits: at precision 3, `12345` becomes `1.23E+4` with `inexact` and `rounded`, from `to_integral_value` too (IEEE 754 §5.9 returns `12345` unchanged). An operand with a fraction whose integral part is longer than $p$ digits gives NaN with `invalid_operation`, because the quantize to exponent 0 needs too many digits: `12345.6` at precision 3 and `-99.9` at precision 2 are NaN instead of `12346` and `-100`. Keep the precision at least as large as the number of integer digits. Tracked in [#118](https://github.com/Luna-Flow/floating/issues/118); a fix is proposed in [#119](https://github.com/Luna-Flow/floating/pull/119)."
+#~ msgstr "[!WARNING] 长于上下文精度的操作数会被错误处理。多于 $p$ 位的整数会被舍入到 $p$ 位：在精度 3 下，`12345` 变为带 `inexact` 和 `rounded` 的 `1.23E+4`，`to_integral_value` 也是如此（IEEE 754 §5.9 会原样返回 `12345`）。整数部分长于 $p$ 位的带小数操作数会得到带 `invalid_operation` 的 NaN，因为 quantize 到指数 0 需要过多的位数：精度 3 下的 `12345.6` 和精度 2 下的 `-99.9` 都是 NaN，而不是 `12346` 和 `-100`。请使精度不小于整数部分的位数。由 [#118](https://github.com/Luna-Flow/floating/issues/118) 跟踪；修复已在 [#119](https://github.com/Luna-Flow/floating/pull/119) 中提出。"
+
+#~ msgid "integers longer than $p$ digits are rounded; a fraction with a longer integral part gives an invalid NaN"
+#~ msgstr "长于 $p$ 位的整数会被舍入；整数部分更长的小数得到表示无效运算的 NaN"
+
+#~ msgid "the operand is rounded or quantized at the context precision"
+#~ msgstr "操作数在上下文精度下被舍入或 quantize"
+
+#~ msgid "[#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119)"
+#~ msgstr "[#118](https://github.com/Luna-Flow/floating/issues/118)，修复见 [#119](https://github.com/Luna-Flow/floating/pull/119)"
 
 #~ msgid "a binary $-0$ becomes $+0$"
 #~ msgstr "二进制 $-0$ 变为 $+0$"

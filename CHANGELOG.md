@@ -462,9 +462,14 @@ notes live in this file.
   exponent was rounded to the precision (`12345` at precision 3 gave `1.23E+4`
   with `inexact`, even from `to_integral_value`), and one with a negative
   exponent was quantized at the context precision, so `12345.6` gave NaN with
-  `invalid_operation`. As IEEE 754-2019 section 5.9 requires, an integral
-  operand is now returned unchanged, and the quantization to exponent 0 uses a
-  working precision of at least the operand's length (`12345.6` gives `12346`).
+  `invalid_operation`. IEEE 754-2019 §5.9 defines roundToIntegral for an
+  operand in the destination format (at most p digits), where the old and new
+  results agree; an operand longer than the precision is outside §5.9, so its
+  result is implementation-defined. The package now chooses the GDA-style
+  behaviour (General Decimal Arithmetic rounds at the operand's own
+  precision): an integer longer than the precision is returned unchanged, and
+  a fraction is quantized to exponent 0 at a working precision of
+  max(p, its digit count) (`12345.6` at precision 3 gives `12346`) (#118).
 - Fixed `just gate <scope>` on a clean checkout: every scope now installs the
   module dependencies first. `moon update` only refreshes the registry index, so
   the first `--frozen` command failed with "`frozen` is set, so the build system

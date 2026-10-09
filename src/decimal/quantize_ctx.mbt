@@ -503,12 +503,17 @@ pub fn Decimal::to_integral_exact(
 }
 
 ///|
-// IEEE 754-2019 roundToIntegral of a finite operand (section 5.9): an operand
-// with a non-negative exponent is already an integer and is returned as it
-// is; otherwise it is quantized to exponent 0 with the working precision
-// widened to the operand's length, so the integral part is never rounded to
-// the context precision and the result is never invalid. In a subset context
-// the operand is first rounded to the precision (lost digits).
+// roundToIntegral of a finite operand. IEEE 754-2019 §5.9 defines it for an
+// operand in the destination format (at most p digits), and for such an
+// operand this is its result. An operand longer than the precision is not a
+// value of the format, so §5.9 does not cover it and the result is
+// implementation-defined. The behaviour chosen here is GDA-style (General
+// Decimal Arithmetic rounds at the operand's own precision): an operand with
+// a non-negative exponent is already an integer and is returned unchanged,
+// and an operand with a fraction is quantized to exponent 0 at a working
+// precision of max(p, its digit count), so the integral part is never rounded
+// to the context precision and the result is never invalid. In a subset
+// context the operand is first rounded to the precision (lost digits).
 fn to_integral_finite(
   value : Decimal,
   ctx : DecimalContext,
