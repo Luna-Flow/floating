@@ -829,10 +829,11 @@ fn context_free_round_wide(
     ).0
   }
   if round_to_precision && rounded.digits10() > precision {
-    // The rounding carried into 10^precision.
-    let (carried, extra) = remove_factor10_repr(rounded, 0)
-    rounded = carried
-    target = target + extra.to_int64()
+    // The rounding carried into 10^precision: drop only the carry digit, so
+    // the result keeps `precision` digits (10^(precision-1) at the next
+    // exponent) and stays in the cohort the rounding selected.
+    rounded = dec_coeff_power10_repr(precision - 1)
+    target = target + 1L
   }
   if rounded.is_zero() {
     return finite_with_exponent_repr(

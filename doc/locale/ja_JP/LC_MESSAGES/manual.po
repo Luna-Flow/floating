@@ -11,10 +11,6 @@ msgstr ""
 msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
 msgstr "たとえば精度 9、$e_{\\min}=0$、$e_{\\max}=1$、clamp 有効のとき、`-8.95E-6` を `2.40E-5` で割ると `-0E-7` となり、`clamped` が設定されます。ゼロの指数を折り畳んでも値は変わらず、`rounded` や `inexact` は設定されません。`remainder` は自身の結果に指数範囲を適用し、内部の整数商のクランプによる `clamped` フラグを余りに引き継ぎません。"
 
-#: manual/design/decimal.md:120
-msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
-msgstr "文字列からの変換では、IEEE 754-2019 §5.2 に従い、不正確な結果に可能な最小の指数を選びます。したがって精度 3 で `1.0001` を解析すると `1.00` になります。正確な結果には、表現可能で優先指数に最も近いコホートの要素を選びます（精度 3 で `1.000` を解析した場合も `1.00` になります）。"
-
 #: conf.json:summary
 msgid "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 msgstr "MoonBit 向けの任意精度の二進・十進・ボール（区間）演算ライブラリで、checked 演算と明示的な数値意味論を備えます。"
@@ -3626,7 +3622,7 @@ msgstr "`parse` は量子を保ったまま十進テキストを `Decimal` に�
 
 #: manual/api/decimal.md:292
 msgid "The accepted syntax is an optional sign, digits with an optional decimal point, an optional exponent `E`/`e` with optional sign, or one of `Inf`, `Infinity`, `NaN` and `sNaN` (any letter case) followed for NaNs by optional decimal payload digits. Conversion rounds once, half-even, to `precision` (default 34), while preserving the preferred exponent as far as the precision and representation permit. For example, `\"1.2300\"` has coefficient 12300 and exponent $-4$; `\"1.0001\"` at precision 3 rounds to `1.00`, and the exact `\"1.000\"` at precision 3 is `1.00` because its four coefficient digits do not fit. `\"10001\"` at precision 3 rounds to `1.00E+4`. Invalid text returns `Err(parse_error)` from `parse` and `None` from `from_string`."
-msgstr "受理される構文は、省略可能な符号、省略可能な小数点を含む数字列、省略可能な符号付きの省略可能な指数 `E`/`e`、または `Inf`、`Infinity`、`NaN`、`sNaN`（大文字小文字は問わない）のいずれかで、NaN の場合はその後に省略可能な十進のペイロード数字が続きます。変換は半偶丸めで `precision`（既定値 34）桁に一度だけ丸め、精度と表現が許す限り preferred exponent を保ちます。たとえば、`\"1.2300\"` の係数は 12300、指数は $-4$ です。精度 3 では `\"1.0001\"` は `1.00` に丸められ、正確な `\"1.000\"` も係数が 4 桁で収まらないため `1.00` になります。精度 3 では `\"10001\"` は `1.00E+4` に丸められます。無効なテキストに対しては、`parse` は `Err(parse_error)` を、`from_string` は `None` を返します。"
+msgstr "受理される構文は、省略可能な符号、省略可能な小数点を含む数字列、省略可能な符号付きの省略可能な指数 `E`/`e`、または `Inf`、`Infinity`、`NaN`、`sNaN`（大文字小文字は問わない）のいずれかで、NaN の場合はその後に省略可能な十進のペイロード数字が続きます。変換は半偶丸めで `precision`（既定値 34）桁に一度だけ丸め、精度と表現が許す限り優先指数を保ちます。たとえば、`\"1.2300\"` の係数は 12300、指数は $-4$ です。精度 3 では `\"1.0001\"` は `1.00` に丸められ、正確な `\"1.000\"` も係数が 4 桁で収まらないため `1.00` になります。精度 3 では `\"10001\"` は `1.00E+4` に丸められます。無効なテキストに対しては、`parse` は `Err(parse_error)` を、`from_string` は `None` を返します。"
 
 #: manual/api/decimal.md:301
 msgid "No context exponent range is applied; the only limits are those of the representation: the stored exponent must be at least $-2^{31}$ and the adjusted exponent at most $2^{31}-1$. As IEEE 754 §5.12 requires, a valid literal beyond them still converts, with the conversion rounded once: a literal too large is a signed infinity (`\"1e3000000000\"` is `inf`), and one too small is rounded half-even to the exponent $-2^{31}$, possibly to a signed zero (`\"1e-3000000000\"` is `0E-2147483648`, `\"15e-2147483649\"` is `2E-2147483648`). Use `from_string_ctx` to get the `overflow` and `underflow` flags."
@@ -11101,6 +11097,10 @@ msgstr "コホートのメンバーは、数値的な等価性では表せない
 #: manual/design/decimal.md:131
 msgid "For the sum and the product, the bracketed coefficient is an integer, so the preferred exponent is attained whenever the exact coefficient fits in $p$ digits: `1.20 + 3.40 = 4.60` and `1.25 × 2.50 = 3.1250`. For the quotient the exact result exists only when $c_a / c_b$ has a finite decimal expansion; it is then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 = 2.00`. An inexact normal result always uses all $p$ digits, which is the member with the smallest exponent; an inexact subnormal result ends at $E_{\\text{tiny}}$. `quantize` makes the exponent an explicit argument, and `reduce_ctx`/`normalized` choose the member with the largest exponent."
 msgstr "和と積では括弧内の係数が整数なので、厳密な係数が $p$ 桁に収まる限り推奨指数が達成されます：`1.20 + 3.40 = 4.60`、`1.25 × 2.50 = 3.1250`。商では、$c_a / c_b$ が有限の 10 進展開を持つ場合にのみ厳密な結果が存在し、そのとき $p$ 桁が許す範囲で $q_a - q_b$ に向けて移動されるので、`2.400 / 1.2 = 2.00` となります。厳密でない正規の結果は常に $p$ 桁すべてを使い、これは指数が最小のメンバーです。厳密でない非正規の結果は $E_{\\text{tiny}}$ で終わります。`quantize` は指数を明示的な引数とし、`reduce_ctx`/`normalized` は指数が最大のメンバーを選びます。"
+
+#: manual/design/decimal.md:141
+msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`, and `99999` gives `1.00E+5`, since a carry into $10^p$ still leaves $p$ digits; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
+msgstr "文字列からの変換では、IEEE 754-2019 §5.2 に従い、不正確な結果に可能な最小の指数を選びます。したがって精度 3 で `1.0001` を解析すると `1.00` に、`99999` を解析すると `1.00E+5` になります。$10^p$ への繰り上がりが起きても $p$ 桁が残るからです。正確な結果には、表現可能で優先指数に最も近いコホートのメンバーを選びます（精度 3 で `1.000` を解析した場合も `1.00` になります）。"
 
 #: manual/design/decimal.md:154
 msgid "Rounding directions"

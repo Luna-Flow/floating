@@ -11,10 +11,6 @@ msgstr ""
 msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
 msgstr "例如，在精度 9、$e_{\\min}=0$、$e_{\\max}=1$ 且启用 clamp 时，`-8.95E-6` 除以 `2.40E-5` 得到 `-0E-7`，并设置 `clamped`。折叠零的指数保持其数值，不设置 `rounded` 或 `inexact`。`remainder` 对自身结果应用指数边界；内部整数商的钳制不会向余数传递 `clamped` 标志。"
 
-#: manual/design/decimal.md:120
-msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
-msgstr "从字符序列转换时，IEEE 754-2019 §5.2 为非精确结果选择最小的可能指数。因此，在精度 3 下解析 `1.0001` 得到 `1.00`；精确结果选择可表示且最接近首选指数的同群成员（在精度 3 下解析 `1.000` 也得到 `1.00`）。"
-
 #: conf.json:summary
 msgid "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 msgstr "面向 MoonBit 的任意精度二进制、十进制与球（区间）算术，提供 checked 运算和显式的数值语义。"
@@ -11101,6 +11097,10 @@ msgstr "同值类成员携带着数值相等所不具备的信息：`12.30` 表�
 #: manual/design/decimal.md:131
 msgid "For the sum and the product, the bracketed coefficient is an integer, so the preferred exponent is attained whenever the exact coefficient fits in $p$ digits: `1.20 + 3.40 = 4.60` and `1.25 × 2.50 = 3.1250`. For the quotient the exact result exists only when $c_a / c_b$ has a finite decimal expansion; it is then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 = 2.00`. An inexact normal result always uses all $p$ digits, which is the member with the smallest exponent; an inexact subnormal result ends at $E_{\\text{tiny}}$. `quantize` makes the exponent an explicit argument, and `reduce_ctx`/`normalized` choose the member with the largest exponent."
 msgstr "对于和与积，括号中的系数是整数，因此只要精确系数能放入 $p$ 位，就能达到首选指数：`1.20 + 3.40 = 4.60` 和 `1.25 × 2.50 = 3.1250`。对于商，只有当 $c_a / c_b$ 有有限十进制展开时精确结果才存在；此时在 $p$ 位允许的范围内尽量向 $q_a - q_b$ 移动，于是 `2.400 / 1.2 = 2.00`。不精确的正规结果总是用满 $p$ 位，即指数最小的成员；不精确的次正规结果止于 $E_{\\text{tiny}}$。`quantize` 把指数作为显式参数，`reduce_ctx`/`normalized` 则选择指数最大的成员。"
+
+#: manual/design/decimal.md:141
+msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`, and `99999` gives `1.00E+5`, since a carry into $10^p$ still leaves $p$ digits; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
+msgstr "从字符序列转换时，IEEE 754-2019 §5.2 为非精确结果选择最小的可能指数。因此，在精度 3 下解析 `1.0001` 得到 `1.00`，解析 `99999` 得到 `1.00E+5`，因为进位到 $10^p$ 后仍保留 $p$ 位数字；精确结果选择可表示且最接近首选指数的同值类成员（在精度 3 下解析 `1.000` 也得到 `1.00`）。"
 
 #: manual/design/decimal.md:154
 msgid "Rounding directions"

@@ -51,3 +51,24 @@ test "decimal parse keeps the IEEE preferred cohort at its precision" {
   inspect(p("1.000"), content="1.00")
   inspect(p("10001"), content="1.00E+4")
 }
+
+///|
+/// IEEE 754 §5.12 converts a literal by one correct rounding to the format; a
+/// carry into 10^p advances the exponent by one and the result still has p
+/// digits, so its cohort is not reduced.
+test "decimal parse keeps p digits when rounding carries into 10^p" {
+  let p = fn(text : String) {
+    Decimal::parse(text, precision=3).unwrap().to_string()
+  }
+  inspect(p("99999"), content="1.00E+5")
+  inspect(p("-99999"), content="-1.00E+5")
+  inspect(p("9.9999"), content="10.0")
+  inspect(p("999.5"), content="1.00E+3")
+  inspect(p("9995"), content="1.00E+4")
+  inspect(p("0.0009999"), content="0.00100")
+  inspect(p("998.5"), content="998")
+  inspect(
+    Decimal::parse("9.5", precision=1).unwrap().to_string(),
+    content="1E+1",
+  )
+}
