@@ -127,6 +127,12 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::sqrt_ctx` raising `underflow` and `subnormal` for an
+  inexact root below `10^e_min` regardless of the context's tininess rule.
+  Under `AfterRounding` a root whose rounding to `p` digits with an unbounded
+  exponent range reaches `10^e_min` is not tiny, so `sqrt(0.9999999)` at
+  precision 7, `e_min = 0` raises only `inexact` and `rounded` under `Up` and
+  `Ceiling` (#141).
 - Fixed `Decimal::remainder` reporting the flags of its internal integer
   quotient: an exact remainder such as `6E-6 rem -9.99999999E-15` at
   precision 9 and `e_max = 4` came back with `inexact`, `rounded` and
