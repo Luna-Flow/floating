@@ -1336,9 +1336,12 @@ refined directed bounds.
 > and `power_ctx(0.04, 1.5)` is `0.008`, all without `inexact` and in every
 > rounding mode. The exponent is reduced to $p/q$ in lowest terms — a decimal
 > exponent is $c \cdot 10^{-k}$, so $q$ keeps only the twos and fives the
-> coefficient cannot cancel — and the power is exact exactly when $x^{p}$ is a
-> perfect $q$-th power. The test gives up past a bounded root length, and such
-> a power is then left to the enclosure.
+> coefficient cannot cancel — and the power is exact exactly when $x$ itself
+> is a perfect $q$-th power. The root is taken first and then raised to $p$,
+> so the test never handles a number longer than the result. It finds every
+> exact result of at most `precision + 1` digits, the only ones that sit on a
+> rounding boundary; a longer exact value lies inside its rounding cell and the
+> enclosure rounds it like any other.
 
 All of them except `power_ctx`/`pown_ctx` with an integral exponent or the
 exponent $0.5$ return NaN with `invalid_context` when $p > 999\,999$,
