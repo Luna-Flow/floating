@@ -134,15 +134,22 @@ pub fn Decimal::to_bin_float(
         )
       }
       let scale = -self.exponent10
-      let binary_shift = precision + scale * 4
+      // 10^scale < 2^(4 * scale), so the quotient keeps at least precision + 3
+      // bits. Truncating it and setting its last bit when the division is
+      // inexact (round to odd) leaves two bits below the target position and a
+      // sticky bit, so BinFloat::make rounds the exact value once, in every
+      // mode; rounding the quotient in the target mode first would round a
+      // value just above a binary midpoint onto it, and ties-to-even would
+      // then go the wrong way.
+      let binary_shift = precision + scale * 4 + 2
       let numerator = abs_bigint(coeff_bigint(self.coefficient)) << binary_shift
       let denominator = pow10(scale)
-      let q = round_positive_div(
-        numerator,
-        denominator,
-        self.sign() == Sign::Negative,
-        mode,
-      )
+      let truncated = numerator / denominator
+      let q = if (numerator % denominator).is_zero() {
+        truncated
+      } else {
+        truncated | bigint_one()
+      }
       @bin_float.BinFloat::make(
         @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
         -binary_shift,
