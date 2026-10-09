@@ -52,6 +52,9 @@ notes live in this file.
 
 ### Changed
 
+- Decimal text parsing now preserves the IEEE 754 preferred cohort after
+  rounding to the requested precision (for example, `"1.0001"` at precision 3
+  parses as `1.00`, not `1`) (#149).
 - **Caller-visible:** `decimal_gda`'s `Decimal::exp_contextual` (and any other
   `*_contextual` adapter that meets the condition), `pow_int_checked` and
   `pow_nat_checked` now report a GDA `Invalid_context` as
