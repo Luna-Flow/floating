@@ -898,7 +898,6 @@ pull request that proposes a fix, where one exists.
 | --- | --- | --- | --- |
 | `power_ctx` | an exact decimal result of a non-integral power that is not a binary fraction ($0.0016^{0.25} = 0.2$) carries `inexact` (half modes) or fails certification (directed modes) | no exactness test before the enclosure loop, whose agreement test assumes $f(x)$ is not representable | [#53](https://github.com/Luna-Flow/floating/issues/53), fix in [#99](https://github.com/Luna-Flow/floating/pull/99) |
 | `to_integral_exact`, `to_integral_value` | integers longer than $p$ digits are rounded; a fraction with a longer integral part gives an invalid NaN | the operand is rounded or quantized at the context precision | [#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119) |
-| `from_bin_float` | a binary $-0$ becomes $+0$ | every binary zero is mapped to `Decimal::zero` | [#55](https://github.com/Luna-Flow/floating/issues/55), no fix yet |
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel

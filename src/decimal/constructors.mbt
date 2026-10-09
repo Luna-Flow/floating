@@ -115,8 +115,13 @@ pub fn Decimal::to_bin_float(
     FpClass::NaN => @bin_float.BinFloat::nan(precision~)
     FpClass::Infinity => @bin_float.BinFloat::inf(self.sign(), precision~)
     FpClass::Finite => {
+      // IEEE 754-2019 §5.4.2 and §6.3: conversions keep the sign of zero.
       if self.coefficient.is_zero() {
-        return @bin_float.BinFloat::zero(precision~)
+        return if self.negative {
+          @bin_float.BinFloat::negative_zero(precision~)
+        } else {
+          @bin_float.BinFloat::zero(precision~)
+        }
       }
       if self.exponent10 >= 0 {
         let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
@@ -158,8 +163,13 @@ pub fn Decimal::from_bin_float(
     FpClass::NaN => Decimal::nan(precision~)
     FpClass::Infinity => Decimal::inf(x.sign(), precision~)
     FpClass::Finite =>
+      // IEEE 754-2019 §5.4.2 and §6.3: conversions keep the sign of zero.
       if x.is_zero() {
-        Decimal::zero(precision~)
+        if x.is_negative() {
+          Decimal::negative_zero(precision~)
+        } else {
+          Decimal::zero(precision~)
+        }
       } else {
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
         let signed = if x.is_negative() { -coefficient } else { coefficient }

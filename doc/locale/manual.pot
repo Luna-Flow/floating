@@ -96,7 +96,7 @@ msgstr ""
 #: manual/api/cli/mpfr_expr_cli.md:12
 #: manual/api/cli/testfloat_expr_cli.md:13
 #: manual/api/consistency.md:15
-#: manual/api/decimal.md:32
+#: manual/api/decimal.md:31
 #: manual/api/decimal_checked.md:18
 #: manual/api/decimal_gda.md:28
 #: manual/api/decimal_gda_checked.md:18
@@ -3465,125 +3465,125 @@ msgid "The [decimal tutorial](../tutorial/decimal.md) walks through typical task
 msgstr ""
 
 #: manual/api/decimal.md:22
-msgid "[!WARNING] A few results on the current branch do not meet the contracts described below. They are listed where they occur: operands longer than the precision in [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value), exact results of non-integral powers among the [elementary functions](#elementary-functions), and the sign of a binary zero in [`from_bin_float`](#decimalfrom_bin_float-to_bin_float). Each note links the GitHub issue that tracks it and, where one exists, the proposed fix."
+msgid "[!WARNING] A few results on the current branch do not meet the contracts described below. They are listed where they occur: operands longer than the precision in [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value), and exact results of non-integral powers among the [elementary functions](#elementary-functions). Each note links the GitHub issue that tracks it and, where one exists, the proposed fix."
 msgstr ""
 
-#: manual/api/decimal.md:34
+#: manual/api/decimal.md:33
 #: manual/api/decimal_gda.md:30
 #: manual/api/numeric_expr.md:18
 msgid "Add the package to your `moon.pkg`:"
 msgstr ""
 
-#: manual/api/decimal.md:42
+#: manual/api/decimal.md:41
 msgid "The examples call the package through the alias `@decimal.`. Some of them also use `@def.` for `Luna-Flow/floating/def` (the shared `RoundingMode` and `Sign`), `@lf_arith.` for `Luna-Flow/arithmetic`, `@lf_alg.` for `Luna-Flow/luna-generic` and `@bigint.` for `moonbitlang/core/bigint`; import those packages too when you copy such an example. Most examples build values with a local helper `d(s)`, which is `@decimal.Decimal::from_string(s).unwrap()`."
 msgstr ""
 
-#: manual/api/decimal.md:49
+#: manual/api/decimal.md:48
 msgid "Notation"
 msgstr ""
 
-#: manual/api/decimal.md:51
+#: manual/api/decimal.md:50
 msgid "Notation used below: a finite value is $(-1)^s \\cdot c \\cdot 10^{q}$ with sign $s$, non-negative integer coefficient $c$ and exponent (quantum) $q$; $p$ is the context precision, $e_{\\max}$ and $e_{\\min}$ the context exponent limits for the *adjusted* exponent $q + \\operatorname{digits}(c) - 1$, and $E_{\\text{tiny}} = e_{\\min} - p + 1$ the smallest exponent of a subnormal."
 msgstr ""
 
-#: manual/api/decimal.md:57
+#: manual/api/decimal.md:56
 msgid "Values and representation"
 msgstr ""
 
-#: manual/api/decimal.md:61
+#: manual/api/decimal.md:60
 msgid "`Decimal` is an immutable decimal floating-point value."
 msgstr ""
 
-#: manual/api/decimal.md:69
+#: manual/api/decimal.md:68
 msgid "A `Decimal` is one of: a finite value $(-1)^s c\\,10^q$ (including $\\pm 0$), $\\pm\\infty$, or a quiet or signaling NaN with a sign and a non-negative integer payload. Every value also carries a working `precision`, used by the plain operators and by conversions that have no context argument. The fields are private; use the observers below. Two values with the same mathematical value but different exponents (for example `1.2` and `1.20`) are different members of the same *cohort*: they compare equal numerically but are distinguished by `quantum`, `same_quantum`, `compare_total`, formatting and interchange encoding."
 msgstr ""
 
-#: manual/api/decimal.md:79
+#: manual/api/decimal.md:78
 msgid "The derived `Debug` implementation is promoted as `Decimal::to_repr`; see [Trait implementations](#trait-implementations)."
 msgstr ""
 
-#: manual/api/decimal.md:84
+#: manual/api/decimal.md:83
 msgid "These observers return the stored representation of a value."
 msgstr ""
 
-#: manual/api/decimal.md:94
+#: manual/api/decimal.md:93
 msgid "`precision` is the working precision stored in the value (at least 1). `coefficient` and `magnitude` both return the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_negative`. `exponent10` and `quantum` both return the stored exponent $q$; for special values it is `0`."
 msgstr ""
 
-#: manual/api/decimal.md:113
+#: manual/api/decimal.md:112
 msgid "These observers report the sign of a value."
 msgstr ""
 
-#: manual/api/decimal.md:121
+#: manual/api/decimal.md:120
 msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_negative` and `is_signed` are the same predicate: they return the stored sign bit, so they are `true` for $-0$, for $-\\infty$ and for a negative NaN."
 msgstr ""
 
-#: manual/api/decimal.md:128
+#: manual/api/decimal.md:127
 msgid "`classify` returns the coarse class of a value; `class_name` returns the General Decimal Arithmetic class string under a context."
 msgstr ""
 
-#: manual/api/decimal.md:136
+#: manual/api/decimal.md:135
 msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `class_name` returns one of `\"sNaN\"`, `\"NaN\"`, `\"-Infinity\"`, `\"+Infinity\"`, `\"-Zero\"`, `\"+Zero\"`, `\"-Subnormal\"`, `\"+Subnormal\"`, `\"-Normal\"` or `\"+Normal\"`; the normal/subnormal split uses the context's $e_{\\min}$."
 msgstr ""
 
-#: manual/api/decimal.md:143
+#: manual/api/decimal.md:142
 msgid "These predicates test the class of a value."
 msgstr ""
 
-#: manual/api/decimal.md:160
+#: manual/api/decimal.md:159
 msgid "`is_qnan` and `is_snan` are the General Decimal Arithmetic spellings of `is_quiet_nan` and `is_signaling_nan`. `is_canonical` always returns `true`: a `Decimal` has no non-canonical form; non-canonical *encodings* are a property of [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex). A value is normal under a context when it is finite, non-zero and its adjusted exponent is at least $e_{\\min}$; it is subnormal when it is finite, non-zero and its adjusted exponent is below $e_{\\min}$. Zeros, infinities and NaNs are neither."
 msgstr ""
 
-#: manual/api/decimal.md:170
+#: manual/api/decimal.md:169
 msgid "These functions read and replace the payload of a NaN."
 msgstr ""
 
-#: manual/api/decimal.md:179
+#: manual/api/decimal.md:178
 msgid "`nan_payload` and `get_payload` return the payload of a NaN and `0` for every other value. `set_payload` returns a quiet NaN with the given payload (its absolute value) and the original sign; `set_payload_signaling` returns a signaling NaN. Both return a non-NaN argument unchanged."
 msgstr ""
 
-#: manual/api/decimal.md:184
+#: manual/api/decimal.md:183
 msgid "Construction and conversion"
 msgstr ""
 
-#: manual/api/decimal.md:188
+#: manual/api/decimal.md:187
 msgid "`make` builds a finite value from a signed integer coefficient and an exponent, rounding it to a precision."
 msgstr ""
 
-#: manual/api/decimal.md:195
+#: manual/api/decimal.md:194
 msgid "`Decimal::make(c, q, p, mode~)` represents $c \\cdot 10^{q}$; the sign comes from `c`. Trailing zeros are removed first, the coefficient is then rounded to `p` digits with `mode` (default `ToNearestEven`) if it is longer, and trailing zeros are removed again. The result is therefore always in the *reduced* member of its cohort, and `make(0, q, p)` is $+0$ with exponent `0`. No exponent range applies."
 msgstr ""
 
-#: manual/api/decimal.md:204
+#: manual/api/decimal.md:203
 msgid "These constructors build the special and unit values."
 msgstr ""
 
-#: manual/api/decimal.md:216
+#: manual/api/decimal.md:215
 msgid "The default precision is 34. `zero`, `negative_zero` and `one` have exponent `0`. `inf(sign)` is $-\\infty$ for `Negative` and $+\\infty$ otherwise. `nan` is a positive quiet NaN with payload 0; `quiet_nan` and `signaling_nan` default to payload 0 and a positive sign."
 msgstr ""
 
-#: manual/api/decimal.md:223
+#: manual/api/decimal.md:222
 msgid "These constructors convert an integer."
 msgstr ""
 
-#: manual/api/decimal.md:230
+#: manual/api/decimal.md:229
 msgid "Both are `make(n, 0, precision)` with the default precision 34: the result is reduced (`from_int(1000)` is `1E+3`, exponent 3) and an integer with more than `precision` digits is rounded half-even."
 msgstr ""
 
-#: manual/api/decimal.md:236
+#: manual/api/decimal.md:235
 msgid "These constructors convert a binary floating-point number."
 msgstr ""
 
-#: manual/api/decimal.md:243
+#: manual/api/decimal.md:242
 msgid "Every finite `Double` is a dyadic rational $m \\cdot 2^{k}$ and therefore has a finite decimal expansion $m \\cdot 5^{-k} \\cdot 10^{k}$ for $k<0$; the conversion forms that exact expansion and rounds it half-even to `precision` digits (default 34). Signed zeros and infinities are preserved; every NaN becomes a quiet NaN with payload 0 and the input's sign. `from_float` widens to `Double` first, which is exact."
 msgstr ""
 
-#: manual/api/decimal.md:252
+#: manual/api/decimal.md:251
 msgid "These functions convert between `Decimal` and the binary [`BinFloat`](bin_float.md)."
 msgstr ""
 
-#: manual/api/decimal.md:260
-msgid "`from_bin_float(x, precision~)` is exact whenever the decimal expansion of `x` fits in `precision` decimal digits (default: the precision of `x`) and is otherwise rounded half-even; a binary zero becomes $+0$, so $-0$ loses its sign (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet), and a NaN a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value to a `BinFloat` of `precision` bits (default: the decimal's precision field) with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic, so this direction is usually inexact; converting with `TowardNegative` and `TowardPositive` gives a binary enclosure of the decimal value. Zeros map to $+0$ and NaN payloads are not kept."
+#: manual/api/decimal.md:259
+msgid "`from_bin_float(x, precision~)` is exact whenever the decimal expansion of `x` fits in `precision` decimal digits (default: the precision of `x`) and is otherwise rounded half-even; a binary zero keeps its sign ($-0$ becomes $-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value to a `BinFloat` of `precision` bits (default: the decimal's precision field) with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic, so this direction is usually inexact; converting with `TowardNegative` and `TowardPositive` gives a binary enclosure of the decimal value. Zeros keep their sign and NaN payloads are not kept."
 msgstr ""
 
 #: manual/api/decimal.md:272
@@ -7816,7 +7816,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr ""
 
 #: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:43
+#: manual/conformance/decimal.md:41
 #: manual/conformance/decimal_gda.md:49
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:29
@@ -8068,7 +8068,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:934
+#: manual/design/decimal.md:933
 #: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:759
 #: manual/design/decimal_gda_checked.md:247
@@ -8091,10 +8091,10 @@ msgid "The checked matrix is finite and does not claim every IEEE 754 operation,
 msgstr ""
 
 #: manual/conformance/decimal.md:31
-msgid "The matrix passes on the current branch although the branch has the deviations listed in [decimal design: known deviations](../design/decimal.md#known-deviations) (`inexact` or a certification failure for exact decimal results of non-integral powers, integral rounding of operands longer than $p$ digits, and the sign of a binary $-0$ in `from_bin_float`; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53), [#118](https://github.com/Luna-Flow/floating/issues/118) and [#55](https://github.com/Luna-Flow/floating/issues/55)). Those cases are therefore not covered by its rows, and passing the gate is evidence for the covered rows only."
+msgid "The matrix passes on the current branch although the branch has the deviations listed in [decimal design: known deviations](../design/decimal.md#known-deviations) (`inexact` or a certification failure for exact decimal results of non-integral powers and integral rounding of operands longer than $p$ digits; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53) and [#118](https://github.com/Luna-Flow/floating/issues/118)). Those cases are therefore not covered by its rows, and passing the gate is evidence for the covered rows only."
 msgstr ""
 
-#: manual/conformance/decimal.md:51
+#: manual/conformance/decimal.md:49
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr ""
 
@@ -8997,7 +8997,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:913
+#: manual/design/decimal.md:912
 #: manual/design/decimal_checked.md:265
 #: manual/design/decimal_gda.md:743
 #: manual/design/decimal_gda_checked.md:238
@@ -11659,87 +11659,75 @@ msgstr ""
 msgid "[#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119)"
 msgstr ""
 
-#: manual/design/decimal.md:901
-msgid "a binary $-0$ becomes $+0$"
-msgstr ""
-
-#: manual/design/decimal.md:901
-msgid "every binary zero is mapped to `Decimal::zero`"
-msgstr ""
-
-#: manual/design/decimal.md:901
-msgid "[#55](https://github.com/Luna-Flow/floating/issues/55), no fix yet"
-msgstr ""
-
-#: manual/design/decimal.md:903
+#: manual/design/decimal.md:902
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr ""
 
-#: manual/design/decimal.md:907
+#: manual/design/decimal.md:906
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr ""
 
-#: manual/design/decimal.md:909
+#: manual/design/decimal.md:908
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr ""
 
-#: manual/design/decimal.md:915
+#: manual/design/decimal.md:914
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr ""
 
-#: manual/design/decimal.md:919
+#: manual/design/decimal.md:918
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr ""
 
-#: manual/design/decimal.md:921
+#: manual/design/decimal.md:920
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_ctx`, `compare_signal_ctx` and `compare_total`."
 msgstr ""
 
-#: manual/design/decimal.md:925
+#: manual/design/decimal.md:924
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr ""
 
-#: manual/design/decimal.md:929
+#: manual/design/decimal.md:928
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr ""
 
-#: manual/design/decimal.md:931
+#: manual/design/decimal.md:930
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr ""
 
-#: manual/design/decimal.md:936
+#: manual/design/decimal.md:935
 msgid "`decimal` deliberately does not:"
 msgstr ""
 
-#: manual/design/decimal.md:938
+#: manual/design/decimal.md:937
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr ""
 
-#: manual/design/decimal.md:939
+#: manual/design/decimal.md:938
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr ""
 
-#: manual/design/decimal.md:941
+#: manual/design/decimal.md:940
 msgid "guarantee correct rounding of integer powers longer than $p$ digits in a context that is not extended, or the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr ""
 
-#: manual/design/decimal.md:944
+#: manual/design/decimal.md:943
 msgid "guarantee that elementary-function certification succeeds: after the refinement budget (which, at its last steps, works with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr ""
 
-#: manual/design/decimal.md:948
+#: manual/design/decimal.md:947
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr ""
 
-#: manual/design/decimal.md:950
+#: manual/design/decimal.md:949
 msgid "preserve NaN payloads through binary conversions;"
 msgstr ""
 
-#: manual/design/decimal.md:951
+#: manual/design/decimal.md:950
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr ""
 
-#: manual/design/decimal.md:952
+#: manual/design/decimal.md:951
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr ""
 
@@ -16909,7 +16897,7 @@ msgstr ""
 #: manual/tutorial/cli/mpfr_expr_cli.md:80
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:78
-#: manual/tutorial/decimal.md:334
+#: manual/tutorial/decimal.md:333
 #: manual/tutorial/decimal_checked.md:266
 #: manual/tutorial/decimal_gda.md:381
 #: manual/tutorial/decimal_gda_checked.md:247
@@ -18768,22 +18756,22 @@ msgid "**`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.** B
 msgstr ""
 
 #: manual/tutorial/decimal.md:329
-msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead. `from_bin_float` turns $-0$ into $+0$ (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet)."
+msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead."
 msgstr ""
 
-#: manual/tutorial/decimal.md:336
+#: manual/tutorial/decimal.md:335
 msgid "[decimal API](../api/decimal.md): every type and function with its exact semantics."
 msgstr ""
 
-#: manual/tutorial/decimal.md:338
+#: manual/tutorial/decimal.md:337
 msgid "[decimal design](../design/decimal.md): formats, cohorts, encodings, rounding, error bounds and certification."
 msgstr ""
 
-#: manual/tutorial/decimal.md:340
+#: manual/tutorial/decimal.md:339
 msgid "[decimal conformance](../conformance/decimal.md) and [decimal performance](../performance/decimal.md): the finite evidence and the measurement method."
 msgstr ""
 
-#: manual/tutorial/decimal.md:343
+#: manual/tutorial/decimal.md:342
 msgid "[`decimal_checked` tutorial](decimal_checked.md) and [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA status."
 msgstr ""
 
