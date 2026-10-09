@@ -1433,9 +1433,9 @@ fn finite_integer_quotient_is_zero(
   guard dividend.class == FpClass::Finite && divisor.class == FpClass::Finite else {
     return false
   }
-  guard !dividend.coefficient.is_zero() && !divisor.coefficient.is_zero() else {
-    return false
-  }
+  guard !divisor.coefficient.is_zero() else { return false }
+  // A zero dividend has a zero integer quotient whatever the exponents.
+  guard !dividend.coefficient.is_zero() else { return true }
   compare_finite_magnitude_repr(
     dividend.coefficient,
     dividend.exponent10,

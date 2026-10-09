@@ -127,6 +127,11 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::divide_integer`, `remainder` and `remainder_near`
+  returning NaN with `division_impossible` for a zero dividend whose exponent
+  exceeds the divisor's by at least the precision, such as `0E+10 / 3` in
+  decimal32. The integer quotient of a zero dividend is zero and always fits,
+  so they now return zeros with no flags (#143).
 - Fixed `Decimal::plus_ctx` and `Decimal::minus_ctx` returning `+0` for
   `plus(-0)` and `minus(+0)` under `Floor` (`TowardNegative`). They are
   `0 + x` and `0 - x`, so a zero result now follows the sign rule of addition
