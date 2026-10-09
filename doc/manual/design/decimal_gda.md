@@ -618,8 +618,9 @@ refinement loop.[^ziv] For $f(x)$:
 1. **Exact cases first.** $\exp 0 = 1$, $\ln 1 = 0$, $\log_{10} 10^k = k$,
    special operands, domain errors, and the cases `power` can decide exactly
    ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or
-   underflow, and exact rational powers: $y = a/q$ in lowest terms with a
-   small $q$ and $x^a$ a perfect $q$-th power, such as $4^{1.5} = 8$) never
+   underflow, and exact rational powers: $y = a/q$ in lowest terms with $x$
+   a perfect $q$-th power, such as $4^{1.5} = 8$, the root taken before the
+   power so no intermediate is longer than the result) never
    reach the loop. An exact result is a boundary of its rounding cell in the
    directed modes (and an exact midpoint is one in the half modes), which the
    loop could never certify.
