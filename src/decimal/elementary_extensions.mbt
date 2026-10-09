@@ -864,7 +864,14 @@ fn decimal_rootn_exact_result(
   guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
     return None
   }
-  guard degree != 0 && (degree >= 2 || degree <= -2) else { return None }
+  guard degree != 0 else { return None }
+  // rootn(x, 1) = x and rootn(x, -1) = 1 / x are decided without a root.
+  if degree == 1 {
+    return Some(apply_finite_ctx(value, ctx))
+  }
+  if degree == -1 {
+    return exact_decimal_reciprocal(value, ctx)
+  }
   guard !value.negative || degree % 2 != 0 else { return None }
   let n = abs_int(degree)
   let target_precision = decimal_math_target_precision(ctx)
