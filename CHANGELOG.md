@@ -127,6 +127,11 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::add_ctx`, `sub_ctx` and `fma_ctx` raising `clamped` when
+  one operand of the sum is zero and the other one, at its own exponent,
+  would need clamping, although the delivered result does not: `fma(1E+90,
+  1E+1, -0E+80)` in decimal32 now raises only `rounded`. The nonzero operand
+  is moved towards the ideal exponent first and normalized once (#146).
 - Fixed `Decimal::divide_integer`, `remainder` and `remainder_near`
   returning NaN with `division_impossible` for a zero dividend whose exponent
   exceeds the divisor's by at least the precision, such as `0E+10 / 3` in
