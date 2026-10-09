@@ -1981,9 +1981,9 @@ fn decimal_power_positive_integer_restricted(rhs : Decimal) -> Bool {
 }
 
 ///|
-/// Digits an exact non-integral power may take before the search gives up and
-/// leaves the value to the certified refinement loop. The bisection below costs
-/// about one squaring per root bit, so this keeps the detection cheap.
+/// Digits an exact non-integral power may take in a context of unlimited
+/// precision, where every exact value is representable and no rounding
+/// boundary narrows the search.
 let decimal_power_exact_digit_limit : Int = 1024
 
 ///|
@@ -2081,12 +2081,12 @@ fn decimal_small_power_of_five(exponent : Int) -> Int {
 
 ///|
 /// Decides `base^exponent` for a positive base and a non-integral exponent
-/// whose value is exactly representable. With the exponent reduced to `p / q`,
-/// the power is exact precisely when `base^p` is a perfect `q`-th power, the
-/// same reasoning the `x^0.5` and integer-exponent paths already use. The
-/// certified refinement loop cannot decide such a result: its enclosure
-/// straddles the exact value, so no refinement ever makes the two endpoints
-/// round alike.
+/// whose value is exactly representable. With the exponent reduced to `p / q`
+/// in lowest terms, `base^(p/q)` is a decimal exactly when `base^(1/q)` is, so
+/// the root is taken first and then raised: every intermediate stays the size
+/// of the result, however large `base^p` would be. The certified refinement
+/// loop cannot decide such a result: its enclosure straddles the exact value,
+/// so no refinement ever makes the two endpoints round alike.
 fn decimal_power_exact_rational_result(
   base : Decimal,
   exponent : Decimal,
@@ -2110,53 +2110,86 @@ fn decimal_power_exact_rational_result(
     None => return None
   }
   guard count >= 1 else { return None }
-  // The search is bounded by digit count, not by the context: an exact result
-  // longer than the context precision still has to be found here, because the
-  // binary evaluation underneath cannot round an exactly representable value
-  // either, however coarse the decimal target is.
-  let root_limit = Int::min(
-    Int::max(
-      decimal_math_target_precision(ctx) + 1,
-      decimal_power_exact_digit_limit / 2,
-    ),
-    decimal_power_exact_digit_limit,
-  )
-  let scaled_limit = denominator.to_int64() * root_limit.to_int64()
-  let digit_limit = if scaled_limit > decimal_power_exact_digit_limit.to_int64() {
-    decimal_power_exact_digit_limit
+  // Only a value of at most p + 1 significant digits can sit on a rounding
+  // boundary, a representable value in the directed modes or a midpoint in
+  // the half modes. A longer exact value lies strictly inside its rounding
+  // cell, so the refinement loop decides it like any other.
+  let result_limit = if ctx.precision == 0 {
+    decimal_power_exact_digit_limit.to_int64()
   } else {
-    Int::max(1, scaled_limit.to_int())
+    ctx.precision.to_int64() + 1L
   }
-  let powered = match
-    gda_coeff_exact_power_if_fits_repr(base.coefficient, count, digit_limit) {
-    Some(value) => value
-    None => return None
+  // Write base = radicand * 10^(q * root_exponent) with 0 <= shift < q. The
+  // radicand keeps fewer than q trailing zeros, so its root, if any, keeps
+  // none.
+  let (coefficient, exponent10) = remove_factor10_repr(
+    base.coefficient,
+    base.exponent10,
+  )
+  let shift = (exponent10 % denominator + denominator) % denominator
+  let root_exponent = (exponent10 - shift) / denominator
+  // root^p has at least p * (digits(root) - 1) + 1 digits. A negative exponent
+  // raises the reciprocal instead; the reciprocal of a root 5^k is 2^k, which
+  // keeps more than a third of its digits.
+  let raised_limit = (result_limit - 1L) / count.to_int64() + 1L
+  let root_limit = if exponent.negative {
+    raised_limit * 3L
+  } else {
+    raised_limit
   }
-  // base^count = powered * 10^total; lift the exponent to a non-negative
-  // residue so the root is taken of an integer.
-  let total = base.exponent10.to_int64() * count.to_int64()
-  let quotient = denominator.to_int64()
-  let lift = if total >= 0L { 0L } else { (-total + quotient - 1L) / quotient }
-  let residue = total + lift * quotient
-  guard residue >= 0L && residue <= digit_limit.to_int64() else { return None }
-  guard powered.digits10().to_int64() + residue <= digit_limit.to_int64() else {
+  guard coefficient.digits10().to_int64() + shift.to_int64() <=
+    denominator.to_int64() * root_limit else {
     return None
   }
-  guard lift <= 1_000_000_000L else { return None }
-  let scaled = gda_coeff_shift_power10_repr(powered, residue.to_int())
+  let radicand = gda_coeff_shift_power10_repr(coefficient, shift)
   let root = match
-    gda_coeff_exact_nth_root_repr(scaled, denominator, root_limit) {
+    gda_coeff_exact_nth_root_repr(
+      radicand,
+      denominator,
+      Int64::min(root_limit, 1_000_000_000L).to_int(),
+    ) {
     Some(value) => value
     None => return None
   }
-  let result_exponent = -lift.to_int()
-  if exponent.negative {
-    let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
-    exact_decimal_reciprocal(
-      finite_with_exponent_repr(false, root, result_exponent, precision),
-      ctx,
+  let (factor, factor_exponent) = if exponent.negative {
+    // 1 / root is a decimal exactly when root = 2^a * 5^b.
+    let (without_twos, twos) = gda_coeff_count_factor_unit_repr(root, 2)
+    let (without_fives, fives) = gda_coeff_count_factor_unit_repr(
+      without_twos, 5,
+    )
+    guard gda_coeff_compare_repr(without_fives, gda_coeff_from_int(1)) == 0 else {
+      return None
+    }
+    let scale = Int::max(twos, fives)
+    (
+      gda_coeff_multiply_repr(
+        gda_coeff_pow_unit_repr(2, scale - twos),
+        gda_coeff_pow_unit_repr(5, scale - fives),
+      ),
+      -scale.to_int64() - root_exponent.to_int64(),
     )
   } else {
-    Some(normalize_decimal_parts_ctx_repr(false, root, result_exponent, ctx))
+    (root, root_exponent.to_int64())
   }
+  let powered = match
+    gda_coeff_exact_power_if_fits_repr(
+      factor,
+      count,
+      Int64::min(result_limit, 1_000_000_000L).to_int(),
+    ) {
+    Some(value) => value
+    None => return None
+  }
+  let result_exponent = factor_exponent * count.to_int64()
+  guard result_exponent >= -1_000_000_000L && result_exponent <= 1_000_000_000L else {
+    return None
+  }
+  Some(
+    normalize_decimal_parts_ctx_repr(
+      false,
+      powered,
+      result_exponent.to_int(),
+      ctx,
+    ),
+  )
 }
