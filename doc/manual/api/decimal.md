@@ -20,12 +20,9 @@ Decimal Arithmetic status and traps live in the separate
 accumulates the flags of a pipeline of `Decimal` operations.
 
 > [!WARNING]
-> A few results on the current branch do not meet the contracts described
-> below. They are listed where they occur: operands longer than the precision in
-> [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value),
-> and exact results of non-integral powers among the
-> [elementary functions](#elementary-functions).
-> Each note links the GitHub issue that tracks it and, where one exists,
+> Exact results of non-integral powers among the
+> [elementary functions](#elementary-functions) do not yet meet the contracts
+> described below. The note there links the GitHub issue that tracks them and
 > the proposed fix.
 
 ## Importing
@@ -1042,17 +1039,14 @@ returns the same value with those two flags cleared. In a subset context the
 operand is first rounded to $p$ digits, with `lost_digits`. Infinities are
 returned unchanged; NaNs are quieted.
 
-> [!WARNING]
-> Operands longer than the context precision are mishandled. An integer with
-> more than $p$ digits is rounded to $p$ digits: at precision 3, `12345`
-> becomes `1.23E+4` with `inexact` and `rounded`, from `to_integral_value`
-> too (IEEE 754 §5.9 returns `12345` unchanged). An operand with a fraction
-> whose integral part is longer than $p$ digits gives NaN with
-> `invalid_operation`, because the quantize to exponent 0 needs too many
-> digits: `12345.6` at precision 3 and `-99.9` at precision 2 are NaN
-> instead of `12346` and `-100`. Keep the precision at least as large as the
-> number of integer digits. Tracked in [#118](https://github.com/Luna-Flow/floating/issues/118); a fix is proposed in
-> [#119](https://github.com/Luna-Flow/floating/pull/119).
+IEEE 754 §5.9 defines roundToIntegral for an operand in the context's format
+(at most $p$ digits), and for such an operand these are its results. An
+operand longer than $p$ digits is not a value of the format, so §5.9 does not
+cover it and the result is implementation-defined. The behaviour described
+above for such operands (a longer integer unchanged, a longer fraction
+quantized at $\max(p, \text{its digit count})$ digits) is the package's
+chosen, GDA-style behaviour: General Decimal Arithmetic rounds to an integral
+value at the operand's own precision.
 
 ### `Decimal::scaleb_ctx`, `logb_ctx`
 
