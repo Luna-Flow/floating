@@ -6,11 +6,6 @@ notes live in this file.
 
 ## Unreleased
 
-### Fixed
-
-- Clamped zero results from `Decimal::divide_integer` now carry the required
-  exponent and raise the `clamped` flag when exponent 0 exceeds $e_{\max}-p+1$.
-
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each
@@ -132,6 +127,11 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::divide_integer` returning a zero integer quotient with
+  exponent 0 and no `clamped` flag in a clamped extended context, both for a
+  finite zero quotient such as `-8.95E-6 // 2.40E-5` and for `x // Inf`. The
+  preferred exponent 0 is now folded down to $e_{\max}-p+1$ and `clamped` is
+  raised (#147).
 - Fixed `Decimal::rootn_ctx` missing the exact results for degree `1` and
   `-1`: `rootn(5, -1)` came back as `0.2` with `inexact` and the directed
   modes failed certification with NaN. `rootn(x, 1)` and `rootn(x, -1)` are

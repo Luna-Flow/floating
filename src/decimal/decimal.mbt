@@ -1476,6 +1476,29 @@ fn finite_nearest_integer_quotient_is_zero(
 }
 
 ///|
+/// Zero integer quotient of an extended context: preferred exponent 0, folded
+/// down to e_max - p + 1 (raising `clamped`) when clamping applies. The value
+/// is unchanged, so `rounded` and `inexact` are never raised.
+fn divide_integer_zero_result(
+  negative : Bool,
+  flags : DecimalFlags,
+  ctx : DecimalContext,
+  clamp_zero? : Bool = true,
+) -> (Decimal, DecimalFlags) {
+  let quotient = finite_with_exponent_repr(
+    negative,
+    dec_coeff_zero(),
+    0,
+    finite_precision_for(bigint_one(), ctx),
+  )
+  if clamp_zero && ctx.extended && ctx.clamp && ctx.precision > 0 {
+    finalize_finite_ctx(quotient, flags, ctx)
+  } else {
+    (quotient, flags)
+  }
+}
+
+///|
 fn decimal_integer_quotient(
   dividend : Decimal,
   other : Decimal,
@@ -1506,10 +1529,13 @@ fn decimal_integer_quotient(
       if dividend.class == FpClass::Finite && other.class == FpClass::Infinity {
         if !ctx.extended {
           (Decimal::zero(precision~), DecimalFlags::new())
-        } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), DecimalFlags::new())
         } else {
-          (Decimal::zero(precision~), DecimalFlags::new())
+          divide_integer_zero_result(
+            dividend.negative != other.negative,
+            DecimalFlags::new(),
+            ctx,
+            clamp_zero~,
+          )
         }
       } else {
         (Decimal::nan(precision~), invalid_flags())
@@ -1520,17 +1546,12 @@ fn decimal_integer_quotient(
         if !ctx.extended {
           return (Decimal::zero(precision~), flags)
         }
-        let quotient = finite_with_exponent_repr(
+        return divide_integer_zero_result(
           dividend.negative != other.negative,
-          dec_coeff_zero(),
-          0,
-          precision,
+          flags,
+          ctx,
+          clamp_zero~,
         )
-        return if clamp_zero && ctx.clamp && ctx.precision > 0 {
-          finalize_finite_ctx(quotient, flags, ctx)
-        } else {
-          (quotient, flags)
-        }
       }
       if ctx.precision > 0 &&
         integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {

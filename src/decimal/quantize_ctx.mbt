@@ -75,11 +75,11 @@ fn Decimal::divide_integer_impl(
             DecimalFlags::new(),
           )
         (FpClass::Finite, FpClass::Infinity) =>
-          if self.negative != other.negative {
-            (Decimal::negative_zero(precision~), DecimalFlags::new())
-          } else {
-            (Decimal::zero(precision~), DecimalFlags::new())
-          }
+          divide_integer_zero_result(
+            self.negative != other.negative,
+            DecimalFlags::new(),
+            ctx,
+          )
         (FpClass::Infinity, FpClass::Infinity) =>
           (Decimal::nan(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) =>
