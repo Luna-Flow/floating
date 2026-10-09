@@ -968,7 +968,28 @@ fn decimal_sqrt_fixed_result(
     rounded: normalized_flags.rounded || inexact,
     inexact: normalized_flags.inexact || inexact,
   }
-  let flags = if inexact && root_adjusted < ctx.e_min {
+  // An inexact root below 10^e_min is tiny before rounding. Detected after
+  // rounding (IEEE 754-2019 7.5), it is tiny only if rounding it to p digits
+  // with an unbounded exponent range stays below 10^e_min, which can fail
+  // only when its adjusted exponent is e_min - 1.
+  let tiny = inexact &&
+    root_adjusted < ctx.e_min &&
+    (
+      ctx.tininess != DecimalTininessDetection::AfterRounding ||
+      root_adjusted < ctx.e_min - 1 ||
+      ({
+        let unbounded = {
+          ..ctx,
+          e_min: ctx.e_min - precision - 1,
+          clamp: false,
+        }
+        let (rounded, _) = decimal_sqrt_fixed_result(
+          operand, unbounded, precision,
+        )
+        adjusted_exponent(rounded) < ctx.e_min
+      })
+    )
+  let flags = if tiny {
     {
       ..flags,
       subnormal: true,
