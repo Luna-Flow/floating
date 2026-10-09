@@ -127,6 +127,10 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::tanpi_ctx` returning the zero with the argument's sign at
+  every integer. `tanPi(n)` is `sinPi(n) / cosPi(n)`, so it is `-0` at
+  positive odd `n` and `+0` at negative odd `n` (IEEE 754-2019 9.2.1), as
+  `BinFloat::tanpi` has done since #81 (#163).
 - Fixed `Decimal::to_bin_float` (in `decimal` and `decimal_gda`) rounding
   twice under `ToNearestEven`: the scaled quotient was first rounded to an
   integer in the target mode and then to the binary precision, so a value
