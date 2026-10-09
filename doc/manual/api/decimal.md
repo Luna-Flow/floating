@@ -902,9 +902,12 @@ pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `apply_ctx` rounds a value to the context (precision, exponent range,
-clamping) and quiets a NaN, keeping the sign of zero. `plus_ctx` is $0 + x$:
-like `apply_ctx`, but a zero becomes $+0$. `minus_ctx` is $0 - x$ and
-`abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
+clamping) and quiets a NaN, keeping the sign of zero. `plus_ctx` is $0 + x$
+and `minus_ctx` is $0 - x$, the zero taking the operand's exponent, so a zero
+result follows the sign rule of addition: it is $-0$ under `Floor`
+(`TowardNegative`)
+when the zeros have opposite signs (`plus_ctx(-0)`, `minus_ctx(+0)`) and $+0$
+otherwise. `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
 `invalid_operation`.
 
 ### `Decimal::divide_integer`, `remainder`, `remainder_near`, `remainder_ctx`

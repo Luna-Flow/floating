@@ -127,6 +127,11 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::plus_ctx` and `Decimal::minus_ctx` returning `+0` for
+  `plus(-0)` and `minus(+0)` under `Floor` (`TowardNegative`). They are
+  `0 + x` and `0 - x`, so a zero result now follows the sign rule of addition
+  like `add_ctx`: `-0` under `Floor` when the zeros have opposite signs, `+0`
+  otherwise (#142).
 - Fixed `Decimal::power_ctx`, `Decimal::try_power_ctx` and `decimal_gda`
   `power` for an exact non-integral power whose base raised to `p` passes 1024
   digits, such as `(2^1200 * 10^-1200)^1.5 = 2^1800 * 10^-1800` at precision
