@@ -731,11 +731,16 @@ Three kinds of inputs are decided outside the agreement test:
   square root, so $\operatorname{hypot}(0.3, 0.4) = 0.5$; a zero operand
   gives the other operand's magnitude. `ball_float` returns point intervals
   for exact binary results such as $\log_2 8 = 3$, $\log_2 0.125 = -3$ and
-  $4^{1.5} = 8$. An exact decimal power with a non-integral exponent that is
-  not a binary fraction is not detected: $0.0016^{0.25} = 0.2$ comes back in
-  decimal64 `HalfEven` as `0.2000000000000000` with `inexact`, and fails
-  certification in the directed modes
-  ([known deviations](#known-deviations)).
+  $4^{1.5} = 8$. A power whose exact value is representable in decimal but not
+  in binary is decided in decimal instead: the exponent is reduced to $p/q$ in
+  lowest terms — a decimal exponent is $c \cdot 10^{-k}$, so $q$ keeps only the
+  twos and fives the coefficient cannot cancel — and the result is exact
+  exactly when $x^{p}$ is a perfect $q$-th power, which a bisection over the
+  root's digit count decides, so $0.0016^{0.25} = 0.2$ and $32^{0.2} = 2$. The
+  search is bounded by the root's digit count rather than by the context,
+  because the enclosure cannot round an exactly representable value however
+  coarse the decimal target is; past that bound the value is left to the
+  enclosure.
 - **Integer powers** are not certified; they are rounded once from exact
   integer information. `power_ctx` with an integral exponent $n$ that does
   not fit in $p$ digits first runs the General Decimal Arithmetic
@@ -889,14 +894,10 @@ measurements do not show a crossover.
 
 ### Known deviations
 
-These behaviours of the current branch contradict the goals above. Each is
-reproduced in the [API reference](../api/decimal.md) next to the operation
-and tracked in the GitHub issue named in the last column, together with the
-pull request that proposes a fix, where one exists.
-
-| Area | Behaviour | Cause | Issue |
-| --- | --- | --- | --- |
-| `power_ctx` | an exact decimal result of a non-integral power that is not a binary fraction ($0.0016^{0.25} = 0.2$) carries `inexact` (half modes) or fails certification (directed modes) | no exactness test before the enclosure loop, whose agreement test assumes $f(x)$ is not representable | [#53](https://github.com/Luna-Flow/floating/issues/53), fix in [#99](https://github.com/Luna-Flow/floating/pull/99) |
+No behaviour of the current branch contradicts the goals above. A deviation
+found later is listed here, reproduced in the
+[API reference](../api/decimal.md) next to the operation, and tracked in a
+GitHub issue together with the pull request that proposes a fix.
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel

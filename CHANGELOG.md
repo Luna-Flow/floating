@@ -127,6 +127,21 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::power_ctx` and `Decimal::try_power_ctx` for an exact
+  non-integral power whose value is not a binary fraction. The enclosure
+  decides such a power only when it is a point interval, which needs the exact
+  value to be representable in binary, so `4^1.5` was returned as `8` while
+  `power_ctx(0.0016, 0.25)`, `power_ctx(32, 0.2)` and `power_ctx(0.04, 1.5)`
+  came back padded to the full precision with `inexact` in the half modes and
+  failed certification with an invalid NaN in the directed modes. The exponent
+  is now reduced to `p / q` in lowest terms before the loop — a decimal
+  exponent is `c * 10^-k`, so `q` keeps only the twos and fives the
+  coefficient cannot cancel — and the power is decided exactly when the base
+  raised to `p` is a perfect `q`-th power, which a bisection over the root's
+  digit count tests. The search is bounded by that digit count rather than by
+  the context, because the enclosure cannot round an exactly representable
+  value however coarse the decimal target is; a power past the bound is left
+  to the enclosure as before (#53).
 - Fixed the `decimal_gda` contextual and checked adapters for operations that
   need exponent bounds (`exp`, `ln`, `log10` and non-integral `power` accept
   precision, `e_max` and `-e_min` of at most 999,999). An `ArithmeticContext`
