@@ -26,6 +26,12 @@ goal is to model all of that exactly and observably, so that
     1.70 (2009), <https://speleotrove.com/decimal/decarith.html>. The test suite
     is the same author's `dectest` collection, version 2.62.
 
+The ParseChecked adapter is a value-only adapter over the GDA to-number
+conversion. It maps ArithmeticContext to DecimalContext, so precision,
+rounding direction, exponent bounds and clamp apply. The returned Result
+cannot carry GDA status or traps; callers that need those effects should use
+the decimal_gda::parse API with GdaContext.
+
 ## Mathematical background
 
 ### Numbers, cohorts and the adjusted exponent

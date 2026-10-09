@@ -16,6 +16,10 @@ The pinned `official0` corpus passes 16,124/16,124 legal executable rows with ze
 
 Each operation returns a `GdaOutcome` containing the defined result, flags raised by that operation, and the next context with accumulated sticky status. Enabling a trap changes the outcome variant but does not erase the defined result.
 
+The arithmetic `ParseChecked` adapter applies its mapped DecimalContext to
+GDA parsing but returns only a value or syntax error. Use the `decimal_gda::parse`
+API with `GdaContext` when sticky status and traps must remain observable.
+
 ## Runner model
 
 Documents are parsed once, directive state is snapshotted per case, and

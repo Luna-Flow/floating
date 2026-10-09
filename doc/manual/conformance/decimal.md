@@ -28,6 +28,11 @@ secondary routes and are not counted when unavailable.
 
 The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle.
 
+`Decimal::parse_checked` routes through `from_string_ctx`; it applies the
+ArithmeticContext rounding direction and exponent bounds. This checked API
+returns only a value or syntax error, so its `Result` does not expose overflow
+or underflow flags.
+
 The matrix passes on the current branch, which has no
 [known deviations](../design/decimal.md#known-deviations) left. Passing the
 gate is evidence for the covered rows only.

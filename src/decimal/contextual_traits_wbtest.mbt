@@ -21,6 +21,55 @@ test "Decimal contextual division preserves rounding diagnostics" {
 }
 
 ///|
+test "Decimal checked parsing uses the arithmetic context" {
+  let context = @lf_arith.ArithmeticContext::new(
+    3,
+    rounding=@lf_arith.RoundingMode::TowardZero,
+  )
+  let rounded : Result[Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
+    "1.239", context,
+  )
+  let rounded = rounded.unwrap()
+  inspect(rounded.to_string(), content="1.23")
+  let toward_positive = @lf_arith.ArithmeticContext::new(
+    3,
+    rounding=@lf_arith.RoundingMode::TowardPositive,
+  )
+  let positive_result : Result[Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
+    "1.231", toward_positive,
+  )
+  inspect(positive_result.unwrap().to_string(), content="1.24")
+
+  let negative_result : Result[Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
+    "-1.231", toward_positive,
+  )
+  inspect(negative_result.unwrap().to_string(), content="-1.23")
+
+  let decimal32 = @lf_arith.ArithmeticContext::new(
+    7,
+    e_min=-95,
+    e_max=96,
+    clamp=true,
+  )
+  let overflow : Result[Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
+    "1E+200", decimal32,
+  )
+  let overflow = overflow.unwrap()
+  assert_true(overflow.class == FpClass::Infinity)
+  let (overflow_value, overflow_flags) = Decimal::from_string_ctx(
+    "1E+200",
+    DecimalContext::from_arithmetic_context(decimal32),
+  )
+  assert_true(overflow_flags.overflow)
+  assert_true(overflow_value.class == FpClass::Infinity)
+
+  let invalid : Result[Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
+    "not-a-decimal", context,
+  )
+  assert_true(invalid is Err(_))
+}
+
+///|
 test "IEEE context exposes 2019 semantics and explicit rounding updates" {
   let ctx = DecimalContext::decimal64()
   assert_true(ctx.is754version2019())
