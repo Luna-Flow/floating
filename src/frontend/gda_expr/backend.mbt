@@ -277,22 +277,21 @@ fn decode_decimal(
   token : String,
   context : GdaContext,
 ) -> @decimal_gda.Decimal? {
-  match decode_decimal_literal(token, context) {
-    Some(value) => Some(value)
-    None => decode_extreme_exponent_decimal(token, context)
-  }
+  decode_decimal_literal(saturate_operand_exponent(token), context)
 }
 
 ///|
-/// A literal whose exponent does not fit `Int` (`1e3000000000`) is not a
-/// `Decimal`, but decTest rows use such operands to check that an operation
-/// rejects them. Like the reference implementation's string conversion,
-/// saturate the written exponent (at 2,000,000,000, beyond every test
-/// context's range) and keep the digits.
-fn decode_extreme_exponent_decimal(
-  token : String,
-  context : GdaContext,
-) -> @decimal_gda.Decimal? {
+/// decTest converts an operand with "sufficient precision so that rounding
+/// of the operand is avoided" under the exponent limits of the directives
+/// (dtfile.html). With the reference implementation's maximum precision of
+/// 999,999,999 digits that gives an operand exponent range of about
+/// $\pm 2 \cdot 10^9$: `1e-1000000008` keeps its exponent (`quax854`),
+/// while `1e3000000000` overflows and `1e-12345678903` underflows, which a
+/// subset context turns into 0 (`qua531`). Saturating the written exponent
+/// at 2,000,000,000, beyond every test context's range, reproduces that
+/// range; the context-free conversion alone would round such a literal to
+/// the limits of `Int` instead.
+fn saturate_operand_exponent(token : String) -> String {
   let normalized = normalize_token(token)
   let mut marker = -1
   for index in 0..<normalized.length() {
@@ -300,11 +299,20 @@ fn decode_extreme_exponent_decimal(
       marker = index
     }
   }
-  guard marker > 0 else { return None }
+  guard marker > 0 && !normalized.has_prefix("#") else { return token }
   let mut start = marker + 1
   let negative = start < normalized.length() && normalized[start] == '-'
   if start < normalized.length() &&
     (normalized[start] == '-' || normalized[start] == '+') {
+    start += 1
+  }
+  for index in start..<normalized.length() {
+    guard normalized[index] >= '0' && normalized[index] <= '9' else {
+      return token
+    }
+  }
+  // Leading zeros do not change the exponent.
+  while start < normalized.length() - 1 && normalized[start] == '0' {
     start += 1
   }
   guard normalized.length() - start > 10 ||
@@ -312,12 +320,11 @@ fn decode_extreme_exponent_decimal(
       normalized.length() - start == 10 &&
       normalized[start:].to_owned() > "2000000000"
     ) else {
-    return None
+    return token
   }
-  let saturated = normalized[:marker].to_owned() +
-    (if negative { "E-" } else { "E+" }) +
-    "2000000000"
-  decode_decimal_literal(saturated, context)
+  normalized[:marker].to_owned() +
+  (if negative { "E-" } else { "E+" }) +
+  "2000000000"
 }
 
 ///|

@@ -174,9 +174,10 @@ test "certified floor of 1/3" {
 - The `consistency` package tests these helpers against `BigInt` oracles.
 - Run the package tests from a workspace containing the module:
   `moon test -p Luna-Flow/floating/internal`.
-- The decimal cores parse literals with `split_decimal_string`; its exponent
-  saturation is a known defect described on the
-  [API page](../api/internal.md#split_decimal_string).
+- The decimal cores parse literals with `split_decimal_string_wide`, which
+  returns the exponent as an `Int64` so that they can overflow or underflow
+  on it (see the
+  [API page](../api/internal.md#split_decimal_string-split_decimal_string_wide)).
 
 ## Common pitfalls
 

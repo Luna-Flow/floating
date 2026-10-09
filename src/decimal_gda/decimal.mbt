@@ -555,16 +555,13 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         Decimal::zero(precision~)
       }
     (FpClass::Finite, FpClass::Finite) =>
-      with_exponent10_offset_or_saturate(
-        {
-          class: FpClass::Finite,
-          negative: a.negative != b.negative,
-          coefficient: gda_coeff_multiply_repr(a.coefficient, b.coefficient),
-          exponent10: 0,
-          precision_: precision,
-          signaling_nan: false,
-        },
+      context_free_round_wide(
+        a.negative != b.negative,
+        gda_coeff_multiply_repr(a.coefficient, b.coefficient),
         a.exponent10.to_int64() + b.exponent10.to_int64(),
+        precision,
+        round_to_precision=false,
+        reduce=false,
       )
   }
 }
@@ -625,62 +622,125 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         a.sign() != b.sign(),
         DecimalRoundingMode::ZeroFiveUp,
       )
-      with_exponent10_offset_or_saturate(
-        normalize_decimal_parts_gda_repr(
-          a.sign() != b.sign(),
-          q,
-          -extra,
-          precision,
-          DecimalRoundingMode::HalfEven,
-        ),
-        a.exponent10.to_int64() - b.exponent10.to_int64(),
+      // The guarded quotient is rounded once, to the precision and, below the
+      // exponent range, to its smallest exponent.
+      context_free_round_wide(
+        a.sign() != b.sign(),
+        q,
+        a.exponent10.to_int64() - b.exponent10.to_int64() - extra.to_int64(),
+        precision,
+        round_to_precision=true,
+        reduce=true,
       )
     }
   }
 }
 
 ///|
-// Adds `offset` to the exponent of a finite context-free result. The result
-// is representable only when its exponent and its adjusted exponent fit
-// `Int`; a zero keeps its value when its exponent is clamped.
-fn with_exponent10_offset(value : Decimal, offset : Int64) -> Decimal? {
-  let exponent10 = value.exponent10.to_int64() + offset
-  if value.coefficient.is_zero() {
-    return Some({ ..value, exponent10: scaleb_int64_to_int(exponent10), })
-  }
-  let adjusted = exponent10 + (value.coefficient.digits10() - 1).to_int64()
-  if exponent10 < -2147483648L || adjusted > 2147483647L {
-    None
-  } else {
-    Some({ ..value, exponent10: exponent10.to_int(), })
-  }
-}
-
-///|
-// `with_exponent10_offset` for the context-free operators: a result that is
-// not representable becomes a signed infinity when too large and a signed zero
-// when too small, instead of wrapping around.
-fn with_exponent10_offset_or_saturate(
-  value : Decimal,
-  offset : Int64,
+// Rounds the exact context-free result (-1)^negative * magnitude * 10^exponent10
+// once, with `mode` (half-even by default), to `precision` digits when `round_to_precision` is set and
+// to the exponent range of a context-free value: the stored exponent must not
+// be below the minimum of `Int` and the adjusted exponent must not exceed its
+// maximum. As for the GDA Overflow and Underflow conditions with that exponent
+// range and half-even rounding, a result too large is a signed infinity and a
+// result too small is rounded to the smallest exponent, possibly to a signed
+// zero, rather than being replaced by zero or wrapping around. With `reduce` the result is
+// the reduced member of its cohort (a zero then has exponent 0).
+fn context_free_round_wide(
+  negative : Bool,
+  magnitude : GdaCoeff,
+  exponent10 : Int64,
+  precision : Int,
+  round_to_precision~ : Bool,
+  reduce~ : Bool,
+  mode? : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
-  match with_exponent10_offset(value, offset) {
-    Some(result) => result
-    None if value.exponent10.to_int64() + offset > 0L =>
+  let precision = Int::max(1, precision)
+  let min_exponent = -2147483648L
+  let max_exponent = 2147483647L
+  if magnitude.is_zero() {
+    // A zero keeps its value when its exponent is clamped to `Int`.
+    return finite_with_exponent_repr(
+      negative,
+      magnitude,
+      if reduce {
+        0
+      } else {
+        scaleb_int64_to_int(exponent10)
+      },
+      precision,
+    )
+  }
+  let digits = magnitude.digits10()
+  let mut target = exponent10
+  if round_to_precision && digits > precision {
+    target = exponent10 + (digits - precision).to_int64()
+  }
+  if target < min_exponent {
+    target = min_exponent
+  }
+  let shift = target - exponent10
+  let mut rounded = if shift == 0L {
+    magnitude
+  } else if shift > digits.to_int64() {
+    // Below a tenth of a unit of the target exponent: only the directed
+    // modes away from zero can give a unit.
+    huge_shift_rounded_unit_repr(magnitude, negative, mode)
+  } else {
+    round_positive_decimal_div_pow10_repr(
+      magnitude,
+      shift.to_int(),
+      negative,
+      mode,
+    ).0
+  }
+  if round_to_precision && rounded.digits10() > precision {
+    // The rounding carried into 10^precision.
+    let (carried, extra) = remove_factor10_repr(rounded, 0)
+    rounded = carried
+    target = target + extra.to_int64()
+  }
+  if rounded.is_zero() {
+    return finite_with_exponent_repr(
+      negative,
+      rounded,
+      if reduce {
+        0
+      } else {
+        target.to_int()
+      },
+      precision,
+    )
+  }
+  if target + (rounded.digits10() - 1).to_int64() > max_exponent {
+    return if overflow_to_infinity(negative, mode) {
       Decimal::inf(
-        if value.negative {
+        if negative {
           Sign::Negative
         } else {
           Sign::Positive
         },
-        precision=value.precision_,
+        precision~,
       )
-    None =>
-      if value.negative {
-        Decimal::negative_zero(precision=value.precision_)
-      } else {
-        Decimal::zero(precision=value.precision_)
-      }
+    } else {
+      // The largest finite value with the result's number of digits.
+      let digits = if round_to_precision { precision } else { digits }
+      finite_with_exponent_repr(
+        negative,
+        gda_coeff_magnitude_sub_unit(gda_coeff_power10_repr(digits), 1),
+        2147483647 - digits + 1,
+        precision,
+      )
+    }
+  }
+  if reduce {
+    let (reduced, reduced_exponent) = remove_factor10_repr(
+      rounded,
+      target.to_int(),
+    )
+    finite_with_exponent_repr(negative, reduced, reduced_exponent, precision)
+  } else {
+    finite_with_exponent_repr(negative, rounded, target.to_int(), precision)
   }
 }
 

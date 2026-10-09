@@ -312,10 +312,6 @@ test "decimal total order separates cohorts" {
 - **`has_error()` is narrow.** It ignores `inexact`, `overflow` and
   `underflow`. Check those flags yourself when they matter, for example
   `overflow` after a long product.
-- **Huge exponents in text are capped.** The parsers clamp exponents beyond
-  $\pm 1.5\cdot 10^{9}$ silently (`"1e1600000000"` becomes `1E+1500000000`).
-  Reject such text before parsing if it can reach you. Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108);
-  a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
 - **Exact non-integral powers may look inexact.** An exact decimal power
   with a non-integral exponent, such as `power_ctx(0.0016, 0.25) = 0.2`,
   comes back as `0.2000000000000000` with `inexact` in the half modes and

@@ -21,8 +21,7 @@ accumulates the flags of a pipeline of `Decimal` operations.
 
 > [!WARNING]
 > A few results on the current branch do not meet the contracts described
-> below. They are listed where they occur: the exponent cap of the
-> [parsers](#decimalparse-from_string), operands longer than the precision in
+> below. They are listed where they occur: operands longer than the precision in
 > [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value),
 > exact results of non-integral powers among the
 > [elementary functions](#elementary-functions), the sign of a binary zero in
@@ -300,21 +299,18 @@ point, an optional exponent `E`/`e` with optional sign, or one of `Inf`,
 decimal payload digits. If the significant digits fit `precision` (default 34)
 the exponent of the text is kept exactly: `"1.2300"` has coefficient 12300 and
 exponent $-4$, and `"0.00"` is $+0$ with exponent $-2$. A longer coefficient is
-rounded half-even to `precision` digits and reduced. No exponent range is
-applied, but the stored exponent and the adjusted exponent must fit `Int`:
-`1e3000000000` is rejected like invalid text. Invalid text returns
+rounded half-even to `precision` digits and reduced. Invalid text returns
 `Err(parse_error)` from `parse` and `None` from `from_string`.
 
-> [!WARNING]
-> The exponent of the text is clamped to $\pm 1\,500\,000\,000$ without any
-> signal. `from_string("1e1600000000")` returns `1E+1500000000`, and
-> `from_string("1e-1600000000")` returns `1E-1500000000`. The same capped
-> value reaches `from_string_ctx`, so under a context whose exponent range
-> includes $\pm 1.5\cdot 10^{9}$ (for example `e_max=2000000000`) the
-> conversion reports no flag at all instead of `overflow` or `underflow`.
-> Contexts with the default range ($\pm 999\,999\,999$) still overflow or
-> underflow correctly, because the capped exponent is itself out of range.
-> Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
+No context exponent range is applied; the only limits are those of the
+representation: the stored exponent must be at least $-2^{31}$ and the
+adjusted exponent at most $2^{31}-1$. As IEEE 754 §5.12 requires, a valid
+literal beyond them still converts, with the conversion rounded once: a
+literal too large is a signed infinity (`"1e3000000000"` is `inf`), and one
+too small is rounded half-even to the exponent $-2^{31}$, possibly to a
+signed zero (`"1e-3000000000"` is `0E-2147483648`, `"15e-2147483649"` is
+`2E-2147483648`). Use `from_string_ctx` to get the `overflow` and
+`underflow` flags.
 
 ### `Decimal::from_string_ctx`
 
@@ -697,9 +693,7 @@ The result precision is $\max(p_a, p_b)$ of the operand precision fields.
   return the reduced cohort member: `1.20 + 3.40` is `4.6`.
 - `mul` returns the exact product with exponent $q_a+q_b$ and is **not
   rounded**: `1.25 * 2.50` is `3.1250`, and the coefficient may be longer
-  than the precision field. A product (or quotient) whose exponent or
-  adjusted exponent would leave `Int` is a signed infinity when too large and
-  a signed zero when too small.
+  than the precision field.
 - `div` rounds the quotient half-even to that precision and reduces it. The
   quotient is computed with a few guard digits and rounded with `ZeroFiveUp`
   first, which makes the second rounding equal to one correct rounding:
@@ -709,7 +703,13 @@ The result precision is $\max(p_a, p_b)$ of the operand precision fields.
 Special values: a NaN operand gives a quiet NaN with the first NaN's sign and
 payload; $\infty-\infty$, $0\times\infty$, $0/0$ and $\infty/\infty$ give a
 positive NaN; $x/0$ gives a signed infinity; finite$/\infty$ gives $+0$. No
-exponent range is applied. Exact cancellation gives $+0$; the sum of two
+context exponent range is applied, only the limits of the representation
+described under [`parse`](#decimalparse-from_string): a result whose
+adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and a result
+that needs an exponent below $-2^{31}$ is rounded half-even to that exponent,
+possibly to a signed zero, as IEEE 754 §7.4 and §7.5 prescribe for that
+range (`1E+1500000000 * 1E+1500000000` is `inf`, `123E-2147483640 * 1E-10`
+is `1E-2147483648`). Exact cancellation gives $+0$; the sum of two
 negative zeros is $-0$.
 
 ```moonbit

@@ -270,18 +270,8 @@ string of all mantissa digits (leading zeros kept) and $q$ is the written
 exponent minus the number of fraction digits. In the wide form the written
 exponent is exact up to $10^{18}$ in magnitude and saturates there, which is
 far outside every exponent range. `split_decimal_string` returns `None` when
-$q$ does not fit `Int`. Anything else, including `inf` and `nan`, gives
-`None`.
-
-> [!WARNING]
-> The magnitude of the written exponent saturates at $1\,500\,000\,000$ before
-> the fraction digits are subtracted, so `1e1600000000` and `1e1500000000`
-> split to the same exponent. `@decimal.Decimal::from_string` and
-> `@decimal_gda.Decimal::from_string` (which keep any exponent when no context
-> is given), and `from_string_ctx` with a context whose `e_max` exceeds
-> $1.5 \cdot 10^{9}$, therefore return `1E+1500000000` for `1e1600000000`
-> instead of overflowing or keeping its value. Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is
-> proposed in [#117](https://github.com/Luna-Flow/floating/pull/117).
+$q$ does not fit `Int`. Anything else, including whitespace, `_`, `inf` and
+`nan`, gives `None`.
 
 ```moonbit
 ///|
