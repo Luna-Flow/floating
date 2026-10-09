@@ -3607,7 +3607,7 @@ msgid "`parse` converts decimal text to a `Decimal` while keeping its quantum."
 msgstr ""
 
 #: manual/api/decimal.md:292
-msgid "The accepted syntax is an optional sign, digits with an optional decimal point, an optional exponent `E`/`e` with optional sign, or one of `Inf`, `Infinity`, `NaN` and `sNaN` (any letter case) followed for NaNs by optional decimal payload digits. If the significant digits fit `precision` (default 34) the exponent of the text is kept exactly: `\"1.2300\"` has coefficient 12300 and exponent $-4$, and `\"0.00\"` is $+0$ with exponent $-2$. A longer coefficient is rounded half-even to `precision` digits and reduced. Invalid text returns `Err(parse_error)` from `parse` and `None` from `from_string`."
+msgid "The accepted syntax is an optional sign, digits with an optional decimal point, an optional exponent `E`/`e` with optional sign, or one of `Inf`, `Infinity`, `NaN` and `sNaN` (any letter case) followed for NaNs by optional decimal payload digits. Conversion rounds once, half-even, to `precision` (default 34), while preserving the preferred exponent as far as the precision and representation permit. For example, `\"1.2300\"` has coefficient 12300 and exponent $-4$; `\"1.0001\"` at precision 3 rounds to `1.00`, and the exact `\"1.000\"` at precision 3 is `1.00` because its four coefficient digits do not fit. `\"10001\"` at precision 3 rounds to `1.00E+4`. Invalid text returns `Err(parse_error)` from `parse` and `None` from `from_string`."
 msgstr ""
 
 #: manual/api/decimal.md:301

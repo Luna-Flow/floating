@@ -117,6 +117,12 @@ therefore specifies, for each operation, a **preferred exponent**, and an exact
 result is delivered in the member whose exponent is closest to it. The
 preferred exponents follow from where the exact result naturally lives:
 
+For conversion from a character sequence, IEEE 754-2019 §5.2 selects the
+least possible exponent for an inexact result. Thus parsing `1.0001` at
+precision 3 gives `1.00`; an exact result uses the representable cohort member
+closest to the preferred exponent (parsing `1.000` at precision 3 also gives
+`1.00`).
+
 $$
 \begin{aligned}
 c_a 10^{q_a} \pm c_b 10^{q_b} &= \bigl(c_a 10^{q_a - m} \pm c_b 10^{q_b - m}\bigr)\,10^{m},

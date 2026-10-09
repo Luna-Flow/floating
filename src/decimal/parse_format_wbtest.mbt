@@ -41,3 +41,13 @@ test "decimal parsing coefficient-native boundary paths preserve flags" {
   assert_true(tiny_flags.subnormal)
   assert_true(tiny_flags.underflow)
 }
+
+///|
+test "decimal parse keeps the IEEE preferred cohort at its precision" {
+  let p = fn(text : String) {
+    Decimal::parse(text, precision=3).unwrap().to_string()
+  }
+  inspect(p("1.0001"), content="1.00")
+  inspect(p("1.000"), content="1.00")
+  inspect(p("10001"), content="1.00E+4")
+}
