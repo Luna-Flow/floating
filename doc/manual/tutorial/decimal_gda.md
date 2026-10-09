@@ -376,7 +376,10 @@ test "decimal64 interchange round trip" {
   context.** `GdaContext::new()` and `context()` allow exponents up to
   ±999,999,999, which is outside the range these functions are defined for, so
   they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a
-  preset or pass `e_min=-999_999, e_max=999_999`.
+  preset or pass `e_min=-999_999, e_max=999_999`. The same holds for an
+  `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in for
+  you, and `exp_contextual` returns `Err(unsupported)` with an
+  `invalid context:` message naming the missing bounds.
 
 ## Next steps
 

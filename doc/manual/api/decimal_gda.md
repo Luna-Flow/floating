@@ -1280,7 +1280,11 @@ $\pm 999\,999\,999$, half-even): results are never rounded to a precision.
 `decimal32`/`64`/`128` match the `GdaContext` presets. `from_arithmetic_context`
 copies precision, rounding, the optional exponent bounds (default
 $\pm 999\,999\,999$) and clamp, and always selects `extended=true` and
-`BeforeRounding`.
+`BeforeRounding`. The default is the full GDA range, not a choice of bounds
+for the mathematical functions: `exp`, `ln`, `log10` and non-integral `power`
+need bounds within $\pm 999\,999$, so under a context translated from an
+`ArithmeticContext` without `e_min` and `e_max` they return NaN with
+`invalid_context`.
 
 ### `DecimalContext::precision`, `DecimalContext::rounding`, `DecimalContext::decimal_rounding`, `DecimalContext::e_min`, `DecimalContext::e_max`, `DecimalContext::clamp`, `DecimalContext::extended`, `DecimalContext::tininess`
 
@@ -1848,21 +1852,44 @@ pub impl @arithmetic.ExpContextual for Decimal
 ```
 
 Each converts the context with `DecimalContext::from_arithmetic_context`,
-calls the `_ctx` method, and returns `Err(division_by_zero)` when
-`division_by_zero` is raised, `Err(domain_error)` for any other error flag,
-and otherwise `Ok` with the value and diagnostics `inexact`, `rounded`,
-`overflow`, `underflow`, `subnormal` and `clamped`. The rounding is one of the
-five `ArithmeticContext` modes, and `sqrt_contextual` and `exp_contextual`
-round with it (not half-even as the GDA functions do).
+calls the `_ctx` method, and returns `Err(unsupported)` when the operation
+raises `invalid_context`, `Err(division_by_zero)` when `division_by_zero` is
+raised, `Err(domain_error)` for any other error flag, and otherwise `Ok` with
+the value and diagnostics `inexact`, `rounded`, `overflow`, `underflow`,
+`subnormal` and `clamped`. The rounding is one of the five
+`ArithmeticContext` modes, and `sqrt_contextual` and `exp_contextual` round
+with it (not half-even as the GDA functions do).
 
-> [!WARNING]
-> `exp_contextual` inherits the GDA range rule for `exp`. An
-> `ArithmeticContext` without explicit exponent bounds translates to
-> $\pm 999\,999\,999$, so `exp_contextual` then always returns
-> `Err(domain_error)`; `ArithmeticContext::new(16)` fails while
-> `ArithmeticContext::decimal64()` works. Pass `e_min` and `e_max` within
-> $\pm 999\,999$. Whether this should change is discussed in [#111](https://github.com/Luna-Flow/floating/issues/111); no fix
-> yet.
+`exp_contextual` requires the caller to set the exponent bounds. Like the GDA
+`exp`, it is defined only for precision, $e_{\max}$ and $-e_{\min}$ of at most
+$999\,999$, and an `ArithmeticContext` without `e_min` or `e_max` is not
+given bounds by default: it translates to the full range
+$\pm 999\,999\,999$, which is an invalid context for `exp`. The result is
+`Err(unsupported)` whose message starts with `invalid context:`, states the
+limit and names the bounds the `ArithmeticContext` does not set, whatever the
+operand (as `exp(-Infinity)` is `Invalid_context` in the decTest row
+`expx901`). `ArithmeticContext::new(16)` therefore fails, while
+`ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` and
+`ArithmeticContext::decimal64()` work.
+
+```moonbit
+///|
+test "exp_contextual needs exponent bounds" {
+  let one = @decimal_gda.Decimal::one()
+  let unbounded = @lf_arith.ArithmeticContext::new(16)
+  let error = @lf_arith.ExpContextual::exp_contextual(one, unbounded).unwrap_err()
+  inspect(error.is_unsupported(), content="true")
+  inspect(
+    error.message,
+    content="invalid context: exp requires precision, e_max and -e_min of at most 999999; the ArithmeticContext sets no e_min and e_max",
+  )
+  let bounded = @lf_arith.ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)
+  inspect(
+    @lf_arith.ExpContextual::exp_contextual(one, bounded).unwrap().value,
+    content="2.718281828459045",
+  )
+}
+```
 
 ### `Decimal::zero_contextual`, `Decimal::one_contextual`, `Decimal::epsilon_contextual`, `Decimal::min_normal_contextual`, `Decimal::max_finite_contextual`, `Decimal::classify_contextual`
 
@@ -1907,8 +1934,12 @@ returns `Err(domain_error)` for negative operands. `pow_int_checked` and
 exactly (with at least ten digits, which hold every accepted exponent), so at
 precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`; they return
 `Err(division_by_zero)` for a zero base with a negative exponent,
-`Err(domain_error)` for invalid results, and `pow_nat_checked` returns
-`Err(unsupported)` for exponents above 999,999,999. `DivChecked::div_checked`
+`Err(unsupported)` with an `invalid context:` message when `power` raises
+`invalid_context` (a positive exponent above 999,999,999 under a context
+without exponent bounds within $\pm 999\,999$, as in the decTest rows
+`powx1183` and `powx1184`), `Err(domain_error)` for other invalid results,
+and `pow_nat_checked` returns `Err(unsupported)` for exponents above
+999,999,999. `DivChecked::div_checked`
 divides under the given context with the same errors as
 [`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt).
 
