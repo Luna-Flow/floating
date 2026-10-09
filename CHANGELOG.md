@@ -498,6 +498,10 @@ notes live in this file.
   §9.7 the payload as an integer), so the encoder now stores the payload
   integer, keeping its low $p-1$ digits when it is longer, as the DPD encoder
   does (#54).
+- Fixed `Decimal::from_bin_float` and `Decimal::to_bin_float` in the IEEE
+  `decimal` package, which mapped every zero to $+0$, so a binary $-0$ became
+  $+0$ and a decimal $-0$ became a binary $+0$. IEEE 754-2019 §5.4.2 and §6.3
+  make conversions keep the sign of zero; both directions now do (#55).
 
 ## 0.8.0 - 2026-09-06
 

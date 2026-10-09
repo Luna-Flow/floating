@@ -328,8 +328,7 @@ test "decimal total order separates cohorts" {
   Build the context with `DecimalContext::new(decimal_rounding=...)`.
 - **Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact
   binary value `0.1000000000000000055511151231257827` (rounded to 34 digits),
-  not `0.1`; parse text instead. `from_bin_float` turns $-0$ into $+0$
-  (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet).
+  not `0.1`; parse text instead.
 
 ## Next steps
 

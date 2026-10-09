@@ -96,7 +96,7 @@ msgstr "現在のコードが入力集合の一部を失う、不必要に広げ
 #: manual/api/cli/mpfr_expr_cli.md:12
 #: manual/api/cli/testfloat_expr_cli.md:13
 #: manual/api/consistency.md:15
-#: manual/api/decimal.md:32
+#: manual/api/decimal.md:31
 #: manual/api/decimal_checked.md:18
 #: manual/api/decimal_gda.md:28
 #: manual/api/decimal_gda_checked.md:18
@@ -3479,126 +3479,126 @@ msgid "The [decimal tutorial](../tutorial/decimal.md) walks through typical task
 msgstr "[decimal チュートリアル](../tutorial/decimal.md)では典型的な作業を順に説明し、[decimal の設計](../design/decimal.md)では演算モデル、エンコーディング、丸め、認証を解説します。IEEE への適合を主張する根拠となる有限の証拠は [decimal の適合性](../conformance/decimal.md)に記録されています。General Decimal Arithmetic のスティッキーなステータスとトラップは別パッケージ [`decimal_gda`](decimal_gda.md) にあり、[`decimal_checked`](decimal_checked.md) は `Decimal` 演算のパイプラインのフラグを蓄積します。"
 
 #: manual/api/decimal.md:22
-msgid "[!WARNING] A few results on the current branch do not meet the contracts described below. They are listed where they occur: operands longer than the precision in [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value), exact results of non-integral powers among the [elementary functions](#elementary-functions), and the sign of a binary zero in [`from_bin_float`](#decimalfrom_bin_float-to_bin_float). Each note links the GitHub issue that tracks it and, where one exists, the proposed fix."
-msgstr "[!WARNING] 現在のブランチでは、いくつかの結果が以下で述べる契約を満たしません。それらは該当箇所に列挙しています。[`to_integral_exact` と `to_integral_value`](#decimalto_integral_exact-to_integral_value) における精度より長いオペランド、[初等関数](#elementary-functions)のうち非整数乗の正確な結果、そして [`from_bin_float`](#decimalfrom_bin_float-to_bin_float) における二進のゼロの符号です。各注記には、それを追跡する GitHub の issue と、存在する場合は提案された修正へのリンクを付けています。"
+msgid "[!WARNING] A few results on the current branch do not meet the contracts described below. They are listed where they occur: operands longer than the precision in [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value), and exact results of non-integral powers among the [elementary functions](#elementary-functions). Each note links the GitHub issue that tracks it and, where one exists, the proposed fix."
+msgstr "[!WARNING] 現在のブランチでは、いくつかの結果が以下で述べる契約を満たしません。それらは該当箇所に列挙しています。[`to_integral_exact` と `to_integral_value`](#decimalto_integral_exact-to_integral_value) における精度より長いオペランド、そして[初等関数](#elementary-functions)のうち非整数乗の正確な結果です。各注記には、それを追跡する GitHub の issue と、存在する場合は提案された修正へのリンクを付けています。"
 
-#: manual/api/decimal.md:34
+#: manual/api/decimal.md:33
 #: manual/api/decimal_gda.md:30
 #: manual/api/numeric_expr.md:18
 msgid "Add the package to your `moon.pkg`:"
 msgstr "`moon.pkg` にパッケージを追加します。"
 
-#: manual/api/decimal.md:42
+#: manual/api/decimal.md:41
 msgid "The examples call the package through the alias `@decimal.`. Some of them also use `@def.` for `Luna-Flow/floating/def` (the shared `RoundingMode` and `Sign`), `@lf_arith.` for `Luna-Flow/arithmetic`, `@lf_alg.` for `Luna-Flow/luna-generic` and `@bigint.` for `moonbitlang/core/bigint`; import those packages too when you copy such an example. Most examples build values with a local helper `d(s)`, which is `@decimal.Decimal::from_string(s).unwrap()`."
 msgstr "例ではパッケージを別名 `@decimal.` で呼び出します。一部の例では、`Luna-Flow/floating/def`（共有の `RoundingMode` と `Sign`）に `@def.`、`Luna-Flow/arithmetic` に `@lf_arith.`、`Luna-Flow/luna-generic` に `@lf_alg.`、`moonbitlang/core/bigint` に `@bigint.` も使います。そのような例をコピーするときは、これらのパッケージもインポートしてください。ほとんどの例は局所的な補助関数 `d(s)` で値を作ります。これは `@decimal.Decimal::from_string(s).unwrap()` です。"
 
-#: manual/api/decimal.md:49
+#: manual/api/decimal.md:48
 msgid "Notation"
 msgstr "記法"
 
-#: manual/api/decimal.md:51
+#: manual/api/decimal.md:50
 msgid "Notation used below: a finite value is $(-1)^s \\cdot c \\cdot 10^{q}$ with sign $s$, non-negative integer coefficient $c$ and exponent (quantum) $q$; $p$ is the context precision, $e_{\\max}$ and $e_{\\min}$ the context exponent limits for the *adjusted* exponent $q + \\operatorname{digits}(c) - 1$, and $E_{\\text{tiny}} = e_{\\min} - p + 1$ the smallest exponent of a subnormal."
 msgstr "以下で用いる記法：有限値は符号 $s$、非負整数の係数 $c$、指数（量子）$q$ により $(-1)^s \\cdot c \\cdot 10^{q}$ と表されます。$p$ はコンテキストの精度、$e_{\\max}$ と $e_{\\min}$ は*調整済み*指数 $q + \\operatorname{digits}(c) - 1$ に対するコンテキストの指数の上下限、$E_{\\text{tiny}} = e_{\\min} - p + 1$ は非正規化数の最小の指数です。"
 
-#: manual/api/decimal.md:57
+#: manual/api/decimal.md:56
 msgid "Values and representation"
 msgstr "値と表現"
 
-#: manual/api/decimal.md:61
+#: manual/api/decimal.md:60
 msgid "`Decimal` is an immutable decimal floating-point value."
 msgstr "`Decimal` は不変の十進浮動小数点値です。"
 
-#: manual/api/decimal.md:69
+#: manual/api/decimal.md:68
 msgid "A `Decimal` is one of: a finite value $(-1)^s c\\,10^q$ (including $\\pm 0$), $\\pm\\infty$, or a quiet or signaling NaN with a sign and a non-negative integer payload. Every value also carries a working `precision`, used by the plain operators and by conversions that have no context argument. The fields are private; use the observers below. Two values with the same mathematical value but different exponents (for example `1.2` and `1.20`) are different members of the same *cohort*: they compare equal numerically but are distinguished by `quantum`, `same_quantum`, `compare_total`, formatting and interchange encoding."
 msgstr "`Decimal` は次のいずれかです：有限値 $(-1)^s c\\,10^q$（$\\pm 0$ を含む）、$\\pm\\infty$、または符号と非負整数のペイロードを持つ quiet NaN か signaling NaN。すべての値は作業用の `precision` も持ち、これは素の演算子やコンテキスト引数を持たない変換で使われます。フィールドは非公開なので、以下のオブザーバーを使用してください。数学的な値が同じで指数が異なる 2 つの値（たとえば `1.2` と `1.20`）は同じ*コホート*の別のメンバーです。数値としては等しく比較されますが、`quantum`、`same_quantum`、`compare_total`、書式化、交換エンコーディングでは区別されます。"
 
-#: manual/api/decimal.md:79
+#: manual/api/decimal.md:78
 msgid "The derived `Debug` implementation is promoted as `Decimal::to_repr`; see [Trait implementations](#trait-implementations)."
 msgstr "導出された `Debug` 実装は `Decimal::to_repr` として公開されています。[トレイト実装](#trait-implementations)を参照してください。"
 
-#: manual/api/decimal.md:84
+#: manual/api/decimal.md:83
 msgid "These observers return the stored representation of a value."
 msgstr "これらのオブザーバーは、値の格納された表現を返します。"
 
-#: manual/api/decimal.md:94
+#: manual/api/decimal.md:93
 msgid "`precision` is the working precision stored in the value (at least 1). `coefficient` and `magnitude` both return the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_negative`. `exponent10` and `quantum` both return the stored exponent $q$; for special values it is `0`."
 msgstr "`precision` は値に格納された作業精度（1 以上）です。`coefficient` と `magnitude` はどちらも非負の係数 $c$ を返します。NaN ではペイロードを、無限大では `0` を返します。符号が係数に含まれることはないので、`is_negative` を使用してください。`exponent10` と `quantum` はどちらも格納された指数 $q$ を返し、特殊値では `0` です。"
 
-#: manual/api/decimal.md:113
+#: manual/api/decimal.md:112
 msgid "These observers report the sign of a value."
 msgstr "これらのオブザーバーは値の符号を報告します。"
 
-#: manual/api/decimal.md:121
+#: manual/api/decimal.md:120
 msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_negative` and `is_signed` are the same predicate: they return the stored sign bit, so they are `true` for $-0$, for $-\\infty$ and for a negative NaN."
 msgstr "`sign` は両方のゼロとすべての NaN に対して `@def.Sign::Zero` を返し、それ以外では `Negative`/`Positive` を返します。`is_negative` と `is_signed` は同じ述語で、格納された符号ビットを返すため、$-0$、$-\\infty$、負の NaN に対して `true` になります。"
 
-#: manual/api/decimal.md:128
+#: manual/api/decimal.md:127
 msgid "`classify` returns the coarse class of a value; `class_name` returns the General Decimal Arithmetic class string under a context."
 msgstr "`classify` は値の大まかなクラスを返し、`class_name` はコンテキストのもとで General Decimal Arithmetic のクラス文字列を返します。"
 
-#: manual/api/decimal.md:136
+#: manual/api/decimal.md:135
 msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `class_name` returns one of `\"sNaN\"`, `\"NaN\"`, `\"-Infinity\"`, `\"+Infinity\"`, `\"-Zero\"`, `\"+Zero\"`, `\"-Subnormal\"`, `\"+Subnormal\"`, `\"-Normal\"` or `\"+Normal\"`; the normal/subnormal split uses the context's $e_{\\min}$."
 msgstr "`classify` は `Finite`、`Infinity`、`NaN` のいずれかを返します。`class_name` は `\"sNaN\"`、`\"NaN\"`、`\"-Infinity\"`、`\"+Infinity\"`、`\"-Zero\"`、`\"+Zero\"`、`\"-Subnormal\"`、`\"+Subnormal\"`、`\"-Normal\"`、`\"+Normal\"` のいずれかを返します。正規化数と非正規化数の区別にはコンテキストの $e_{\\min}$ が使われます。"
 
-#: manual/api/decimal.md:143
+#: manual/api/decimal.md:142
 msgid "These predicates test the class of a value."
 msgstr "これらの述語は値のクラスを判定します。"
 
-#: manual/api/decimal.md:160
+#: manual/api/decimal.md:159
 msgid "`is_qnan` and `is_snan` are the General Decimal Arithmetic spellings of `is_quiet_nan` and `is_signaling_nan`. `is_canonical` always returns `true`: a `Decimal` has no non-canonical form; non-canonical *encodings* are a property of [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex). A value is normal under a context when it is finite, non-zero and its adjusted exponent is at least $e_{\\min}$; it is subnormal when it is finite, non-zero and its adjusted exponent is below $e_{\\min}$. Zeros, infinities and NaNs are neither."
 msgstr "`is_qnan` と `is_snan` は、`is_quiet_nan` と `is_signaling_nan` の General Decimal Arithmetic における綴りです。`is_canonical` は常に `true` を返します。`Decimal` には非正準形が存在せず、非正準な*エンコーディング*は [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex) の性質です。値がコンテキストのもとで正規化数であるのは、有限かつ非ゼロで、調整済み指数が $e_{\\min}$ 以上のときです。非正規化数であるのは、有限かつ非ゼロで、調整済み指数が $e_{\\min}$ 未満のときです。ゼロ、無限大、NaN はどちらでもありません。"
 
-#: manual/api/decimal.md:170
+#: manual/api/decimal.md:169
 msgid "These functions read and replace the payload of a NaN."
 msgstr "これらの関数は NaN のペイロードを読み取り、置き換えます。"
 
-#: manual/api/decimal.md:179
+#: manual/api/decimal.md:178
 msgid "`nan_payload` and `get_payload` return the payload of a NaN and `0` for every other value. `set_payload` returns a quiet NaN with the given payload (its absolute value) and the original sign; `set_payload_signaling` returns a signaling NaN. Both return a non-NaN argument unchanged."
 msgstr "`nan_payload` と `get_payload` は NaN のペイロードを返し、それ以外のすべての値に対しては `0` を返します。`set_payload` は与えられたペイロード（の絶対値）と元の符号を持つ quiet NaN を返し、`set_payload_signaling` は signaling NaN を返します。どちらも NaN でない引数はそのまま返します。"
 
-#: manual/api/decimal.md:184
+#: manual/api/decimal.md:183
 msgid "Construction and conversion"
 msgstr "構築と変換"
 
-#: manual/api/decimal.md:188
+#: manual/api/decimal.md:187
 msgid "`make` builds a finite value from a signed integer coefficient and an exponent, rounding it to a precision."
 msgstr "`make` は符号付き整数の係数と指数から有限値を構築し、精度に丸めます。"
 
-#: manual/api/decimal.md:195
+#: manual/api/decimal.md:194
 msgid "`Decimal::make(c, q, p, mode~)` represents $c \\cdot 10^{q}$; the sign comes from `c`. Trailing zeros are removed first, the coefficient is then rounded to `p` digits with `mode` (default `ToNearestEven`) if it is longer, and trailing zeros are removed again. The result is therefore always in the *reduced* member of its cohort, and `make(0, q, p)` is $+0$ with exponent `0`. No exponent range applies."
 msgstr "`Decimal::make(c, q, p, mode~)` は $c \\cdot 10^{q}$ を表し、符号は `c` から取られます。まず末尾のゼロが除去され、次に係数が長すぎれば `mode`（既定は `ToNearestEven`）で `p` 桁に丸められ、再び末尾のゼロが除去されます。したがって結果は常にそのコホートの*縮約された*メンバーであり、`make(0, q, p)` は指数 `0` の $+0$ です。指数範囲は適用されません。"
 
-#: manual/api/decimal.md:204
+#: manual/api/decimal.md:203
 msgid "These constructors build the special and unit values."
 msgstr "これらのコンストラクタは特殊値と単位値を構築します。"
 
-#: manual/api/decimal.md:216
+#: manual/api/decimal.md:215
 msgid "The default precision is 34. `zero`, `negative_zero` and `one` have exponent `0`. `inf(sign)` is $-\\infty$ for `Negative` and $+\\infty$ otherwise. `nan` is a positive quiet NaN with payload 0; `quiet_nan` and `signaling_nan` default to payload 0 and a positive sign."
 msgstr "既定の精度は 34 です。`zero`、`negative_zero`、`one` の指数は `0` です。`inf(sign)` は `Negative` なら $-\\infty$、それ以外なら $+\\infty$ です。`nan` はペイロード 0 の正の quiet NaN です。`quiet_nan` と `signaling_nan` の既定はペイロード 0、正の符号です。"
 
-#: manual/api/decimal.md:223
+#: manual/api/decimal.md:222
 msgid "These constructors convert an integer."
 msgstr "これらのコンストラクタは整数を変換します。"
 
-#: manual/api/decimal.md:230
+#: manual/api/decimal.md:229
 msgid "Both are `make(n, 0, precision)` with the default precision 34: the result is reduced (`from_int(1000)` is `1E+3`, exponent 3) and an integer with more than `precision` digits is rounded half-even."
 msgstr "どちらも既定の精度 34 での `make(n, 0, precision)` です。結果は縮約され（`from_int(1000)` は `1E+3`、指数 3）、`precision` 桁を超える整数は最近接偶数丸め（half-even）で丸められます。"
 
-#: manual/api/decimal.md:236
+#: manual/api/decimal.md:235
 msgid "These constructors convert a binary floating-point number."
 msgstr "これらのコンストラクタは二進浮動小数点数を変換します。"
 
-#: manual/api/decimal.md:243
+#: manual/api/decimal.md:242
 msgid "Every finite `Double` is a dyadic rational $m \\cdot 2^{k}$ and therefore has a finite decimal expansion $m \\cdot 5^{-k} \\cdot 10^{k}$ for $k<0$; the conversion forms that exact expansion and rounds it half-even to `precision` digits (default 34). Signed zeros and infinities are preserved; every NaN becomes a quiet NaN with payload 0 and the input's sign. `from_float` widens to `Double` first, which is exact."
 msgstr "有限の `Double` はすべて二進有理数 $m \\cdot 2^{k}$ であり、したがって $k<0$ のとき有限の十進展開 $m \\cdot 5^{-k} \\cdot 10^{k}$ を持ちます。変換はこの正確な展開を構成し、`precision` 桁（既定 34）に half-even で丸めます。符号付きゼロと無限大は保存され、NaN はすべて入力の符号を持つペイロード 0 の quiet NaN になります。`from_float` はまず `Double` に拡張しますが、これは正確です。"
 
-#: manual/api/decimal.md:252
+#: manual/api/decimal.md:251
 msgid "These functions convert between `Decimal` and the binary [`BinFloat`](bin_float.md)."
 msgstr "これらの関数は `Decimal` と二進の [`BinFloat`](bin_float.md) の間で変換を行います。"
 
-#: manual/api/decimal.md:260
-msgid "`from_bin_float(x, precision~)` is exact whenever the decimal expansion of `x` fits in `precision` decimal digits (default: the precision of `x`) and is otherwise rounded half-even; a binary zero becomes $+0$, so $-0$ loses its sign (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet), and a NaN a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value to a `BinFloat` of `precision` bits (default: the decimal's precision field) with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic, so this direction is usually inexact; converting with `TowardNegative` and `TowardPositive` gives a binary enclosure of the decimal value. Zeros map to $+0$ and NaN payloads are not kept."
-msgstr "`from_bin_float(x, precision~)` は、`x` の十進展開が `precision` 桁（既定は `x` の精度）に収まるときは正確で、そうでなければ half-even で丸められます。二進のゼロは $+0$ になるため $-0$ は符号を失い（[#55](https://github.com/Luna-Flow/floating/issues/55) で追跡しています。修正はまだありません）、NaN はペイロード 0 の quiet NaN になります。`to_bin_float(precision~, mode~)` は、正確な十進値を `mode`（既定 `ToNearestEven`）で `precision` ビット（既定は十進値の精度フィールド）の `BinFloat` に丸めます。ほとんどの十進小数は二進有理数ではないため、この方向の変換は通常不正確です。`TowardNegative` と `TowardPositive` で変換すると、十進値を包む二進の包含区間が得られます。ゼロは $+0$ に写され、NaN のペイロードは保持されません。"
+#: manual/api/decimal.md:259
+msgid "`from_bin_float(x, precision~)` is exact whenever the decimal expansion of `x` fits in `precision` decimal digits (default: the precision of `x`) and is otherwise rounded half-even; a binary zero keeps its sign ($-0$ becomes $-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value to a `BinFloat` of `precision` bits (default: the decimal's precision field) with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic, so this direction is usually inexact; converting with `TowardNegative` and `TowardPositive` gives a binary enclosure of the decimal value. Zeros keep their sign and NaN payloads are not kept."
+msgstr "`from_bin_float(x, precision~)` は、`x` の十進展開が `precision` 桁（既定は `x` の精度）に収まるときは正確で、そうでなければ half-even で丸められます。二進のゼロは符号を保ち（IEEE 754-2019 §5.4.2 と §6.3 の要求どおり $-0$ は $-0$ になります）、NaN はペイロード 0 の quiet NaN になります。`to_bin_float(precision~, mode~)` は、正確な十進値を `mode`（既定 `ToNearestEven`）で `precision` ビット（既定は十進値の精度フィールド）の `BinFloat` に丸めます。ほとんどの十進小数は二進有理数ではないため、この方向の変換は通常不正確です。`TowardNegative` と `TowardPositive` で変換すると、十進値を包む二進の包含区間が得られます。ゼロは符号を保ち、NaN のペイロードは保持されません。"
 
 #: manual/api/decimal.md:272
 msgid "These functions are the canonical maps out of the naturals and the integers."
@@ -7842,7 +7842,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr "reverse interval operation、選択 phase 外の全 decoration rule、任意 endpoint format、固定されていない upstream revision は宣言外です。"
 
 #: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:43
+#: manual/conformance/decimal.md:41
 #: manual/conformance/decimal_gda.md:49
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:29
@@ -8094,7 +8094,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:934
+#: manual/design/decimal.md:933
 #: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:759
 #: manual/design/decimal_gda_checked.md:247
@@ -8117,10 +8117,10 @@ msgid "The checked matrix is finite and does not claim every IEEE 754 operation,
 msgstr "固定 matrix は有限で、IEEE 754 の全 operation、全 payload propagation policy、全 decimal input を宣言しません。追加の `dd*`/`dq*` decTest row は diagnostic であり IEEE oracle ではありません。"
 
 #: manual/conformance/decimal.md:31
-msgid "The matrix passes on the current branch although the branch has the deviations listed in [decimal design: known deviations](../design/decimal.md#known-deviations) (`inexact` or a certification failure for exact decimal results of non-integral powers, integral rounding of operands longer than $p$ digits, and the sign of a binary $-0$ in `from_bin_float`; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53), [#118](https://github.com/Luna-Flow/floating/issues/118) and [#55](https://github.com/Luna-Flow/floating/issues/55)). Those cases are therefore not covered by its rows, and passing the gate is evidence for the covered rows only."
-msgstr "現在のブランチには[decimal の設計：既知の逸脱](../design/decimal.md#known-deviations)に挙げられた逸脱（非整数べきの厳密な 10 進結果に対する `inexact` または認証失敗、$p$ 桁より長いオペランドの整数への丸め、`from_bin_float` における二進の $-0$ の符号。[#53](https://github.com/Luna-Flow/floating/issues/53)、[#118](https://github.com/Luna-Flow/floating/issues/118)、[#55](https://github.com/Luna-Flow/floating/issues/55) で追跡しています）がありますが、マトリクスはこのブランチで合格します。したがってこれらのケースはその行ではカバーされておらず、ゲートの合格はカバーされた行についてのみのエビデンスです。"
+msgid "The matrix passes on the current branch although the branch has the deviations listed in [decimal design: known deviations](../design/decimal.md#known-deviations) (`inexact` or a certification failure for exact decimal results of non-integral powers and integral rounding of operands longer than $p$ digits; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53) and [#118](https://github.com/Luna-Flow/floating/issues/118)). Those cases are therefore not covered by its rows, and passing the gate is evidence for the covered rows only."
+msgstr "現在のブランチには[decimal の設計：既知の逸脱](../design/decimal.md#known-deviations)に挙げられた逸脱（非整数べきの厳密な 10 進結果に対する `inexact` または認証失敗、$p$ 桁より長いオペランドの整数への丸め。[#53](https://github.com/Luna-Flow/floating/issues/53) と [#118](https://github.com/Luna-Flow/floating/issues/118) で追跡しています）がありますが、マトリクスはこのブランチで合格します。したがってこれらのケースはその行ではカバーされておらず、ゲートの合格はカバーされた行についてのみのエビデンスです。"
 
-#: manual/conformance/decimal.md:51
+#: manual/conformance/decimal.md:49
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "corpus provenance、vector family、failure record は[decimal data guide](../../../testdata/decimal/README.md)を参照してください。"
 
@@ -9043,7 +9043,7 @@ msgstr "負の次数の `rootn` は、引数に 0 が含まれていても装飾
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:913
+#: manual/design/decimal.md:912
 #: manual/design/decimal_checked.md:265
 #: manual/design/decimal_gda.md:743
 #: manual/design/decimal_gda_checked.md:238
@@ -11746,87 +11746,75 @@ msgstr "オペランドがコンテキストの精度で丸められるか quant
 msgid "[#118](https://github.com/Luna-Flow/floating/issues/118), fix in [#119](https://github.com/Luna-Flow/floating/pull/119)"
 msgstr "[#118](https://github.com/Luna-Flow/floating/issues/118)、修正は [#119](https://github.com/Luna-Flow/floating/pull/119)"
 
-#: manual/design/decimal.md:901
-msgid "a binary $-0$ becomes $+0$"
-msgstr "二進の $-0$ が $+0$ になる"
-
-#: manual/design/decimal.md:901
-msgid "every binary zero is mapped to `Decimal::zero`"
-msgstr "2 進のゼロはすべて `Decimal::zero` に対応付けられる"
-
-#: manual/design/decimal.md:901
-msgid "[#55](https://github.com/Luna-Flow/floating/issues/55), no fix yet"
-msgstr "[#55](https://github.com/Luna-Flow/floating/issues/55)、修正なし"
-
-#: manual/design/decimal.md:903
+#: manual/design/decimal.md:902
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr "中点テスト、`ZeroFiveUp` の二重丸めの補題、オーバーフローの表、フォールドダウンの限界、認証の補題、カーネルの限界の証明は、添付資料にまとめられています。"
 
-#: manual/design/decimal.md:907
+#: manual/design/decimal.md:906
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr "[decimal の丸めに関する証明](../../attachments/design_decimal_rounding.typ)"
 
-#: manual/design/decimal.md:909
+#: manual/design/decimal.md:908
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr "[適合性のページ](../conformance/decimal.md)には、有限の証拠（固定された IEEE コーパス、デクレットの網羅的検査、MPFR で認証された初等関数の行、4 つのターゲット）が記録されています。"
 
-#: manual/design/decimal.md:915
+#: manual/design/decimal.md:914
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr "**2 進の `BigInt` 係数。** 10 進の位置での丸めには、毎回の演算で $10^{s}$ による除算と桁数の計算が必要です。2 進の係数ではどちらも高価ですが、基数 $10^{9}$ のリムならリムの移動と 1 回の小さな除算で済みます。"
 
-#: manual/design/decimal.md:919
+#: manual/design/decimal.md:918
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr "**暗黙のコンテキストとスティッキーフラグ。** 明示性と合成可能性のために不採用としました。フラグのモノイドが同じ情報を与えます。"
 
-#: manual/design/decimal.md:921
+#: manual/design/decimal.md:920
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_ctx`, `compare_signal_ctx` and `compare_total`."
 msgstr "**NaN で中断する `compare`。** NaN を含むデータに対して、ソートや汎用の `Compare` コードが中断してしまいます。現在の `compare` は全前順序であり、IEEE の意味論は `compare_checked`、`compare_ctx`、`compare_signal_ctx`、`compare_total` を通じて利用できます。"
 
-#: manual/design/decimal.md:925
+#: manual/design/decimal.md:924
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr "**解析的な誤差限界を持つ固定精度の超越関数カーネル。** 小さな精度では高速ですが、関数ごと・精度ごとに正しさの証明が必要になります。包含区間のループは構成上正しく、その失敗モードは明示的です。"
 
-#: manual/design/decimal.md:929
+#: manual/design/decimal.md:928
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr "**IEEE と GDA を 1 つのパッケージにすること。** スティッキーなステータス、トラップ、トラップの優先順位はすべての演算の型を変えてしまいます。これらは `decimal_gda` にあります。"
 
-#: manual/design/decimal.md:931
+#: manual/design/decimal.md:930
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr "**すべての結果を正規化すること。** コホートを失うと `12.30` と `12.3` が区別できなくなり、量子に依存するプロトコルが壊れます。"
 
-#: manual/design/decimal.md:936
+#: manual/design/decimal.md:935
 msgid "`decimal` deliberately does not:"
 msgstr "`decimal` は意図的に次のことを行いません。"
 
-#: manual/design/decimal.md:938
+#: manual/design/decimal.md:937
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr "スティッキーなステータスやトラップを保持すること（`decimal_checked` または `decimal_gda` を使ってください）。"
 
-#: manual/design/decimal.md:939
+#: manual/design/decimal.md:938
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr "コンテキストを持たない演算子をコンテキストへ丸めること。`*` は厳密で、`+` と `/` はオペランドの精度にのみ丸め、いずれも指数範囲を適用しません。"
 
-#: manual/design/decimal.md:941
+#: manual/design/decimal.md:940
 msgid "guarantee correct rounding of integer powers longer than $p$ digits in a context that is not extended, or the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr "拡張でないコンテキストにおける $p$ 桁より長い整数べきの正しい丸めや、非整数乗の厳密な十進の結果の正確なフラグを保証すること（[既知の逸脱](#known-deviations)を参照）。"
 
-#: manual/design/decimal.md:944
+#: manual/design/decimal.md:943
 msgid "guarantee that elementary-function certification succeeds: after the refinement budget (which, at its last steps, works with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr "初等関数の認証が成功することを保証すること。精緻化の予算（最後のステップでは非常に長い数を扱い、長い時間がかかることがあります）を使い切ると、`CertificationFailure`（`try_*_ctx`）または `invalid_operation` を伴う NaN（`*_ctx`）を報告します。"
 
-#: manual/design/decimal.md:948
+#: manual/design/decimal.md:947
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr "精度または指数が 999,999 を超えるコンテキストで初等関数を評価すること。"
 
-#: manual/design/decimal.md:950
+#: manual/design/decimal.md:949
 msgid "preserve NaN payloads through binary conversions;"
 msgstr "二進との変換で NaN のペイロードを保持すること。"
 
-#: manual/design/decimal.md:951
+#: manual/design/decimal.md:950
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr "係数の表現、カーネルの選択、閾値を公開すること。"
 
-#: manual/design/decimal.md:952
+#: manual/design/decimal.md:951
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr "[適合性のページ](../conformance/decimal.md)にある有限の証拠を超えて適合性を主張すること。"
 
@@ -17017,7 +17005,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/cli/mpfr_expr_cli.md:80
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:78
-#: manual/tutorial/decimal.md:334
+#: manual/tutorial/decimal.md:333
 #: manual/tutorial/decimal_checked.md:266
 #: manual/tutorial/decimal_gda.md:381
 #: manual/tutorial/decimal_gda_checked.md:247
@@ -18878,22 +18866,22 @@ msgid "**`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.** B
 msgstr "**`with_rounding` では `HalfUp`、`HalfDown`、`ZeroFiveUp` を選べない。** `DecimalContext::new(decimal_rounding=...)` でコンテキストを構築してください。"
 
 #: manual/tutorial/decimal.md:329
-msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead. `from_bin_float` turns $-0$ into $+0$ (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet)."
-msgstr "**二進からの変換は十進としての意味を失う。** `from_double(0.1)` は `0.1` ではなく、厳密な二進値 `0.1000000000000000055511151231257827`（34 桁に丸めたもの）です。代わりにテキストをパースしてください。`from_bin_float` は $-0$ を $+0$ に変えます（[#55](https://github.com/Luna-Flow/floating/issues/55) で追跡しています。修正はまだありません）。"
+msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead."
+msgstr "**二進からの変換は十進としての意味を失う。** `from_double(0.1)` は `0.1` ではなく、厳密な二進値 `0.1000000000000000055511151231257827`（34 桁に丸めたもの）です。代わりにテキストをパースしてください。"
 
-#: manual/tutorial/decimal.md:336
+#: manual/tutorial/decimal.md:335
 msgid "[decimal API](../api/decimal.md): every type and function with its exact semantics."
 msgstr "[decimal API](../api/decimal.md): すべての型と関数、およびその厳密な意味論。"
 
-#: manual/tutorial/decimal.md:338
+#: manual/tutorial/decimal.md:337
 msgid "[decimal design](../design/decimal.md): formats, cohorts, encodings, rounding, error bounds and certification."
 msgstr "[decimal の設計](../design/decimal.md): 形式、コホート、エンコーディング、丸め、誤差限界、認証。"
 
-#: manual/tutorial/decimal.md:340
+#: manual/tutorial/decimal.md:339
 msgid "[decimal conformance](../conformance/decimal.md) and [decimal performance](../performance/decimal.md): the finite evidence and the measurement method."
 msgstr "[decimal の適合性](../conformance/decimal.md)と [decimal の性能](../performance/decimal.md): 有限の根拠と測定方法。"
 
-#: manual/tutorial/decimal.md:343
+#: manual/tutorial/decimal.md:342
 msgid "[`decimal_checked` tutorial](decimal_checked.md) and [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA status."
 msgstr "パイプラインと GDA のステータスについては [`decimal_checked` チュートリアル](decimal_checked.md)と [`decimal_gda` チュートリアル](decimal_gda.md)。"
 
@@ -21066,6 +21054,15 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 #: manual/verification.md:150
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
+
+#~ msgid "a binary $-0$ becomes $+0$"
+#~ msgstr "二進の $-0$ が $+0$ になる"
+
+#~ msgid "every binary zero is mapped to `Decimal::zero`"
+#~ msgstr "2 進のゼロはすべて `Decimal::zero` に対応付けられる"
+
+#~ msgid "[#55](https://github.com/Luna-Flow/floating/issues/55), no fix yet"
+#~ msgstr "[#55](https://github.com/Luna-Flow/floating/issues/55)、修正なし"
 
 #~ msgid "[!WARNING] The BID encoder does not store the payload as an integer. It writes the payload with $p_{\\text{value}}-1$ digits, where $p_{\\text{value}}$ is the precision field of the `Decimal`, and keeps the *leading* $p-1$ of those digits (padding with zeros on the right when there are fewer). The payload survives only when $p_{\\text{value}}$ equals the format precision. For example, `NaN7` parsed with the default precision 34 encodes to decimal64 BID as `#7C00000000000000` (payload 0) while DPD gives `#7C00000000000007`, and a NaN with payload 7 and precision 7 encodes to BID payload 7000000000. Build NaNs with `Decimal::quiet_nan(payload=..., precision=p)` using the format precision before encoding them in BID. Tracked in [#54](https://github.com/Luna-Flow/floating/issues/54); no fix yet."
 #~ msgstr "[!WARNING] BID エンコーダはペイロードを整数として格納しません。ペイロードを $p_{\\text{value}}-1$ 桁で書き（$p_{\\text{value}}$ は `Decimal` の精度フィールド）、その桁の*上位* $p-1$ 桁を保持します（足りない場合は右側をゼロで埋めます）。ペイロードが保たれるのは $p_{\\text{value}}$ が形式の精度と等しい場合だけです。例えば、既定の精度 34 でパースした `NaN7` を decimal64 BID にエンコードすると `#7C00000000000000`（ペイロード 0）になりますが、DPD では `#7C00000000000007` になります。また、ペイロード 7、精度 7 の NaN は BID のペイロード 7000000000 にエンコードされます。BID でエンコードする前に、形式の精度を使って `Decimal::quiet_nan(payload=..., precision=p)` で NaN を作成してください。[#54](https://github.com/Luna-Flow/floating/issues/54) で追跡しています。修正はまだありません。"

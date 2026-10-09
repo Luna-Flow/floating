@@ -23,9 +23,8 @@ accumulates the flags of a pipeline of `Decimal` operations.
 > A few results on the current branch do not meet the contracts described
 > below. They are listed where they occur: operands longer than the precision in
 > [`to_integral_exact` and `to_integral_value`](#decimalto_integral_exact-to_integral_value),
-> exact results of non-integral powers among the
-> [elementary functions](#elementary-functions), and the sign of a binary zero in
-> [`from_bin_float`](#decimalfrom_bin_float-to_bin_float).
+> and exact results of non-integral powers among the
+> [elementary functions](#elementary-functions).
 > Each note links the GitHub issue that tracks it and, where one exists,
 > the proposed fix.
 
@@ -259,13 +258,14 @@ pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @arithmetic.Roundin
 
 `from_bin_float(x, precision~)` is exact whenever the decimal expansion of
 `x` fits in `precision` decimal digits (default: the precision of `x`) and is
-otherwise rounded half-even; a binary zero becomes $+0$, so $-0$ loses its
-sign (tracked in [#55](https://github.com/Luna-Flow/floating/issues/55); no fix yet), and a NaN a quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value
+otherwise rounded half-even; a binary zero keeps its sign ($-0$ becomes
+$-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a quiet
+NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value
 to a `BinFloat` of `precision` bits (default: the decimal's precision field)
 with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic,
 so this direction is usually inexact; converting with `TowardNegative` and
-`TowardPositive` gives a binary enclosure of the decimal value. Zeros map to
-$+0$ and NaN payloads are not kept.
+`TowardPositive` gives a binary enclosure of the decimal value. Zeros keep
+their sign and NaN payloads are not kept.
 
 ### `Decimal::from_natural`, `from_integer`
 
