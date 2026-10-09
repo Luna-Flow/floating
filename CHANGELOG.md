@@ -482,6 +482,12 @@ notes live in this file.
   $2^{2^{30}}$ into hundreds of millions of digits (`sinh(1e300)` used several
   GB), and decimal power results far outside the exponent range, which are now
   decided before certification.
+- Fixed `Decimal::ln_ctx` and `log10_ctx` (and their `try_` forms) of a zero
+  in the IEEE `decimal` package, which returned $-\infty$ without
+  `division_by_zero`. IEEE 754-2019 §9.2.1 defines $\log(\pm 0) = -\infty$
+  with divideByZero, as `log2_ctx`, `log1p_ctx(-1)` and `logb_ctx` already
+  did; the flag is now raised (#94). `decimal_gda` keeps the General Decimal
+  Arithmetic rule, which raises no condition.
 
 ## 0.8.0 - 2026-09-06
 
