@@ -20,6 +20,10 @@ The arithmetic `ParseChecked` adapter applies its mapped DecimalContext to
 GDA parsing but returns only a value or syntax error. Use the `decimal_gda::parse`
 API with `GdaContext` when sticky status and traps must remain observable.
 
+The white-box coverage includes zero `divide_integer` results in clamped
+extended contexts for both finite and infinite divisors, checking the folded
+exponent and the `Clamped` condition.
+
 ## Runner model
 
 Documents are parsed once, directive state is snapshotted per case, and

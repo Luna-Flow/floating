@@ -74,12 +74,19 @@ fn Decimal::divide_integer_impl(
             ),
             DecimalFlags::new(),
           )
-        (FpClass::Finite, FpClass::Infinity) =>
-          if self.negative != other.negative {
-            (Decimal::negative_zero(precision~), DecimalFlags::new())
+        (FpClass::Finite, FpClass::Infinity) => {
+          let zero = finite_with_exponent_repr(
+            self.negative != other.negative,
+            gda_coeff_zero(),
+            0,
+            precision,
+          )
+          if ctx.extended && ctx.clamp && ctx.precision > 0 {
+            finalize_finite_ctx(zero, DecimalFlags::new(), ctx)
           } else {
-            (Decimal::zero(precision~), DecimalFlags::new())
+            (zero, DecimalFlags::new())
           }
+        }
         (FpClass::Infinity, FpClass::Infinity) =>
           (Decimal::nan(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) =>
@@ -127,7 +134,12 @@ pub fn Decimal::remainder(
       operand_flags.combine(invalid_flags()),
     )
   }
-  let (quotient, quotient_flags0) = decimal_integer_quotient(lhs, rhs, ctx)
+  let (quotient, quotient_flags0) = decimal_integer_quotient(
+    lhs,
+    rhs,
+    ctx,
+    clamp_zero=false,
+  )
   let quotient_flags = operand_flags.combine(quotient_flags0)
   if quotient.class == FpClass::NaN || quotient_flags.has_error() {
     return (quotient, quotient_flags)
