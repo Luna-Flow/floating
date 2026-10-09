@@ -28,13 +28,9 @@ secondary routes and are not counted when unavailable.
 
 The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle.
 
-The matrix passes on the current branch although the branch has the
-deviations listed in
-[decimal design: known deviations](../design/decimal.md#known-deviations)
-(`inexact` or a certification failure for exact decimal results of
-non-integral powers; tracked in [#53](https://github.com/Luna-Flow/floating/issues/53)). Those cases are
-therefore not covered by its rows, and passing the gate is evidence for the
-covered rows only.
+The matrix passes on the current branch, which has no
+[known deviations](../design/decimal.md#known-deviations) left. Passing the
+gate is evidence for the covered rows only.
 
 ## Reproduction
 

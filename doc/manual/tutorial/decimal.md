@@ -312,13 +312,6 @@ test "decimal total order separates cohorts" {
 - **`has_error()` is narrow.** It ignores `inexact`, `overflow` and
   `underflow`. Check those flags yourself when they matter, for example
   `overflow` after a long product.
-- **Exact non-integral powers may look inexact.** An exact decimal power
-  with a non-integral exponent, such as `power_ctx(0.0016, 0.25) = 0.2`,
-  comes back as `0.2000000000000000` with `inexact` in the half modes and
-  fails certification in the directed modes. See the
-  [API warning](../api/decimal.md#elementary-functions); tracked in
-  [#53](https://github.com/Luna-Flow/floating/issues/53), with a fix proposed in
-  [#99](https://github.com/Luna-Flow/floating/pull/99).
 - **The checked powers convert the exponent at context precision.**
   `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a
   `Decimal` with the context precision, so an exponent with more digits than

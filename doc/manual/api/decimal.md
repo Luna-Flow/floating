@@ -1329,17 +1329,16 @@ powers are not certified: [`power_ctx`](#decimalpower_ctx-pown_ctx-rootn_ctx-hyp
 rounds them once, in an extended context, from the exact power or from
 refined directed bounds.
 
-> [!WARNING]
-> **Exact non-integral powers.** When $x^y$ with a non-integral $y \ne 0.5$ is
-> a representable decimal but not a binary fraction, the enclosure never
-> shrinks to a point. In the half modes both endpoints round to the right
-> value, so it is returned, but with `inexact` and `rounded` raised and with
-> all $p$ digits: in decimal64, `power_ctx(0.0016, 0.25)` is
-> `0.2000000000000000` and `power_ctx(0.04, 1.5)` is `0.008000000000000000`,
-> both flagged inexact. In the directed modes the endpoints round to
-> neighbours, the refinement budget runs out, and the result is a
-> certification failure (NaN with `invalid_operation` from `power_ctx`).
-> Tracked in [#53](https://github.com/Luna-Flow/floating/issues/53); a fix is proposed in [#99](https://github.com/Luna-Flow/floating/pull/99).
+> [!NOTE]
+> **Exact non-integral powers.** A power whose exact value is a representable
+> decimal but not a binary fraction is decided in decimal before the loop, so
+> in decimal64 `power_ctx(0.0016, 0.25)` is `0.2`, `power_ctx(32, 0.2)` is `2`
+> and `power_ctx(0.04, 1.5)` is `0.008`, all without `inexact` and in every
+> rounding mode. The exponent is reduced to $p/q$ in lowest terms — a decimal
+> exponent is $c \cdot 10^{-k}$, so $q$ keeps only the twos and fives the
+> coefficient cannot cancel — and the power is exact exactly when $x^{p}$ is a
+> perfect $q$-th power. The test gives up past a bounded root length, and such
+> a power is then left to the enclosure.
 
 All of them except `power_ctx`/`pown_ctx` with an integral exponent or the
 exponent $0.5$ return NaN with `invalid_context` when $p > 999\,999$,
