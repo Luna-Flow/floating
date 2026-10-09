@@ -44,10 +44,11 @@ pub fn Decimal::try_log10_ctx(
           (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
         },
       )
+    // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
     FpClass::Finite if value.coefficient.is_zero() =>
       Ok(
         if ctx.extended {
-          (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+          decimal_elementary_division_by_zero(Sign::Negative, ctx)
         } else {
           (Decimal::nan(precision~), invalid_flags())
         },
@@ -146,10 +147,11 @@ pub fn Decimal::try_ln_ctx(
           (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
         },
       )
+    // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
     FpClass::Finite if value.coefficient.is_zero() =>
       Ok(
         if ctx.extended {
-          (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+          decimal_elementary_division_by_zero(Sign::Negative, ctx)
         } else {
           (Decimal::nan(precision~), invalid_flags())
         },

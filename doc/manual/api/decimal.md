@@ -588,7 +588,7 @@ pub struct DecimalFlags {
 | `rounded` | digits were discarded, even if they were all zero |
 | `lost_digits` | a subset-mode operand longer than $p$ lost non-zero digits |
 | `invalid_operation` | the operation is invalid (signaling NaN, $\infty-\infty$, $0\times\infty$, bad quantize, domain error) |
-| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\log_2 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$; not $\ln 0$ or $\log_{10} 0$, see [#94](https://github.com/Luna-Flow/floating/issues/94)) |
+| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$) |
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `underflow` | the result is tiny and inexact |
 | `subnormal` | the result is tiny |
@@ -1366,10 +1366,11 @@ pub fn Decimal::try_log10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 ```
 
 $e^{\pm 0} = 1$, $e^{+\infty}=+\infty$, $e^{-\infty} = +0$. $\ln$ and
-$\log_{10}$ of $\pm 0$ are $-\infty$ with **no** flag in an extended context,
-as in General Decimal Arithmetic (IEEE 754-2019 §9.2.1 asks for
-`division_by_zero`, and `log2_ctx`, `log1p_ctx` and `logb_ctx` do raise it;
-whether to follow IEEE here is open in [#94](https://github.com/Luna-Flow/floating/issues/94)); of
+$\log_{10}$ of $\pm 0$ are $-\infty$ with `division_by_zero` in an extended
+context, as IEEE 754-2019 §9.2.1 requires and as `log2_ctx`, `log1p_ctx` and
+`logb_ctx` do (General Decimal Arithmetic, which
+[`decimal_gda`](decimal_gda.md) follows, raises no condition here; a subset
+context makes a zero operand invalid); of
 $+\infty$ are $+\infty$, of a negative value or $-\infty$ are NaN with
 `invalid_operation`; $\ln 1 = 0$, and $\log_{10}$ of a power of ten is the
 exact integer exponent. Arguments so large or small that $e^x$ certainly

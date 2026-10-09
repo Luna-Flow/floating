@@ -314,11 +314,10 @@ The five IEEE exceptions[^ieee-exceptions] are reported as booleans on
   $0 \cdot \infty$, $\sqrt{-1}$, any operation on a signaling NaN); the result is
   a quiet NaN.
 - *division by zero*: an exact infinite result from finite operands
-  ($1/{-0} = -\infty$, $\log 0 = -\infty$). `bin_float` raises it for every
-  logarithm of zero; `decimal` raises it for `log2_ctx`, `logb_ctx` and
-  $\operatorname{log1p}(-1)$, but its `ln_ctx` and `log10_ctx` of zero return
-  $-\infty$ without a flag, following General Decimal Arithmetic (see
-  [#94](https://github.com/Luna-Flow/floating/issues/94)).
+  ($1/{-0} = -\infty$, $\log 0 = -\infty$). `bin_float` and `decimal` raise
+  it for every logarithm of zero and for $\operatorname{log1p}(-1)$;
+  `decimal_gda` follows General Decimal Arithmetic, whose `ln` and `log10` of
+  zero return $-\infty$ without a condition.
 - *overflow*: the rounded result with an unbounded exponent would exceed the
   largest finite value; the result is $\pm\infty$ or the largest finite value
   by direction, and *inexact* is raised too.
