@@ -4940,16 +4940,29 @@ test "decimal context clamps finite exponent by padding coefficient" {
     clamp=true,
   )
   let value = @decimal.Decimal::from_string("1e9", precision=10).unwrap()
+  // The ideal exponent of 1e9 + 0E+9 is 9, above e_max - p + 1 = 7, so the
+  // result is clamped by padding the coefficient; no digit is dropped.
   let (clamped, flags) = value.add_ctx(
-    @decimal.Decimal::zero(precision=10),
+    @decimal.Decimal::from_string("0E+9", precision=10).unwrap(),
     ctx,
   )
   assert_eq(clamped.to_string(), "1.00E+9")
   assert_eq(decimal_coeff_magnitude(clamped), 100N)
   assert_eq(clamped.exponent10(), 7)
   assert_true(flags.clamped)
-  assert_true(flags.rounded)
+  assert_false(flags.rounded)
   assert_false(flags.inexact)
+  // With 0 (exponent 0) the ideal exponent is 0: rounding the exact sum to
+  // three digits lands on exponent 7 itself, so nothing is clamped.
+  let (rounded, rounded_flags) = value.add_ctx(
+    @decimal.Decimal::zero(precision=10),
+    ctx,
+  )
+  assert_eq(rounded.to_string(), "1.00E+9")
+  assert_eq(rounded.exponent10(), 7)
+  assert_false(rounded_flags.clamped)
+  assert_true(rounded_flags.rounded)
+  assert_false(rounded_flags.inexact)
 }
 
 ///|
@@ -5204,10 +5217,18 @@ test "decimal dectest-style runner covers context operations and flags" {
     "lfclamp001",
     Add,
     "1e9",
-    "0",
+    "0E+9",
     "1.00E+9",
     ctx,
     clamped=true,
+  )
+  run_decimal_binary_conformance_case(
+    "lfclamp002",
+    Add,
+    "1e9",
+    "0",
+    "1.00E+9",
+    ctx,
     rounded=true,
   )
   run_decimal_binary_conformance_case(
