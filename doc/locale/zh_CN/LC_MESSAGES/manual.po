@@ -11,6 +11,10 @@ msgstr ""
 msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
 msgstr "例如，在精度 9、$e_{\\min}=0$、$e_{\\max}=1$ 且启用 clamp 时，`-8.95E-6` 除以 `2.40E-5` 得到 `-0E-7`，并设置 `clamped`。折叠零的指数保持其数值，不设置 `rounded` 或 `inexact`。`remainder` 对自身结果应用指数边界；内部整数商的钳制不会向余数传递 `clamped` 标志。"
 
+#: manual/design/decimal.md:120
+msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
+msgstr "从字符序列转换时，IEEE 754-2019 §5.2 为非精确结果选择最小的可能指数。因此，在精度 3 下解析 `1.0001` 得到 `1.00`；精确结果选择可表示且最接近首选指数的同群成员（在精度 3 下解析 `1.000` 也得到 `1.00`）。"
+
 #: conf.json:summary
 msgid "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 msgstr "面向 MoonBit 的任意精度二进制、十进制与球（区间）算术，提供 checked 运算和显式的数值语义。"

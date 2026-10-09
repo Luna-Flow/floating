@@ -11,6 +11,10 @@ msgstr ""
 msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
 msgstr ""
 
+#: manual/design/decimal.md:120
+msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
+msgstr ""
+
 #: conf.json:summary
 msgid "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 msgstr ""
