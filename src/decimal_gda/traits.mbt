@@ -15,11 +15,47 @@ fn contextual_diagnostics(
 }
 
 ///|
+/// The error for a GDA `Invalid_context` condition raised under a context
+/// translated from `context` (#111). The mathematical functions (`exp`, and
+/// `power` with a non-integral or very large exponent) are only defined for
+/// precision, `e_max` and `-e_min` of at most 999,999; every other operation
+/// for at most 999,999,999. `from_arithmetic_context` keeps the full GDA range
+/// (±999,999,999) when the `ArithmeticContext` sets no exponent bounds, so the
+/// mathematical functions need the caller to set them. The bounds are never
+/// chosen silently: the error says which ones are missing.
+fn contextual_invalid_context_error(
+  operation : String,
+  context : @lf_arith.ArithmeticContext,
+) -> @lf_arith.ArithmeticError {
+  let mathematical = operation == "exp" || operation == "power"
+  let missing = match (context.e_min, context.e_max) {
+    _ if !mathematical => ""
+    (None, None) => "e_min and e_max"
+    (None, Some(_)) => "e_min"
+    (Some(_), None) => "e_max"
+    (Some(_), Some(_)) => ""
+  }
+  let limit = if mathematical { "999999" } else { "999999999" }
+  let requirement = "\{operation} requires precision, e_max and -e_min of at most \{limit}"
+  if missing == "" {
+    @lf_arith.ArithmeticError::unsupported("invalid context: \{requirement}")
+  } else {
+    @lf_arith.ArithmeticError::unsupported(
+      "invalid context: \{requirement}; the ArithmeticContext sets no \{missing}",
+    )
+  }
+}
+
+///|
 fn contextual_outcome(
   value : Decimal,
   flags : DecimalFlags,
+  operation : String,
+  context : @lf_arith.ArithmeticContext,
 ) -> Result[@lf_arith.ArithmeticOutcome[Decimal], @lf_arith.ArithmeticError] {
-  if flags.division_by_zero {
+  if flags.invalid_context {
+    Err(contextual_invalid_context_error(operation, context))
+  } else if flags.division_by_zero {
     Err(@lf_arith.ArithmeticError::division_by_zero("division by zero"))
   } else if flags.has_error() {
     Err(@lf_arith.ArithmeticError::domain_error("invalid decimal operation"))
@@ -43,7 +79,7 @@ pub impl @lf_arith.AddContextual for Decimal with fn add_contextual(
     other,
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "add", context)
 }
 
 ///|
@@ -56,7 +92,7 @@ pub impl @lf_arith.SubContextual for Decimal with fn sub_contextual(
     other,
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "sub", context)
 }
 
 ///|
@@ -69,7 +105,7 @@ pub impl @lf_arith.MulContextual for Decimal with fn mul_contextual(
     other,
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "mul", context)
 }
 
 ///|
@@ -82,7 +118,7 @@ pub impl @lf_arith.DivContextual for Decimal with fn div_contextual(
     other,
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "div", context)
 }
 
 ///|
@@ -93,7 +129,7 @@ pub impl @lf_arith.AbsContextual for Decimal with fn abs_contextual(
   let (value, flags) = self.abs_ctx(
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "abs", context)
 }
 
 ///|
@@ -104,7 +140,7 @@ pub impl @lf_arith.SqrtContextual for Decimal with fn sqrt_contextual(
   let (value, flags) = self.sqrt_ctx(
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "sqrt", context)
 }
 
 ///|
@@ -115,7 +151,7 @@ pub impl @lf_arith.ExpContextual for Decimal with fn exp_contextual(
   let (value, flags) = self.exp_ctx(
     DecimalContext::from_arithmetic_context(context),
   )
-  contextual_outcome(value, flags)
+  contextual_outcome(value, flags, "exp", context)
 }
 
 ///|
@@ -239,7 +275,9 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
         "negative exponent requires a non-zero base",
       ),
     )
-  } else if flags.invalid_operation || flags.invalid_context {
+  } else if flags.invalid_context {
+    Err(contextual_invalid_context_error("power", ctx))
+  } else if flags.invalid_operation {
     Err(@def.ArithmeticError::domain_error("invalid decimal power"))
   } else {
     Ok(value)
@@ -271,7 +309,9 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
         "negative exponent requires a non-zero base",
       ),
     )
-  } else if flags.invalid_operation || flags.invalid_context {
+  } else if flags.invalid_context {
+    Err(contextual_invalid_context_error("power", ctx))
+  } else if flags.invalid_operation {
     Err(@def.ArithmeticError::domain_error("invalid decimal power"))
   } else {
     Ok(value)

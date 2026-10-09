@@ -52,6 +52,13 @@ notes live in this file.
 
 ### Changed
 
+- **Caller-visible:** `decimal_gda`'s `Decimal::exp_contextual` (and any other
+  `*_contextual` adapter that meets the condition), `pow_int_checked` and
+  `pow_nat_checked` now report a GDA `Invalid_context` as
+  `Err(unsupported)` with an `invalid context:` message instead of
+  `Err(domain_error)`. Code that matched `is_domain_error()` for this case must
+  match `is_unsupported()` instead; `Luna-Flow/arithmetic` 0.5.0 has no
+  invalid-context error kind (#111).
 - `BinFloat::compare` and the IEEE and GDA `Decimal::compare` no longer abort
   on NaN. They keep the numeric order for other operands (`-0 == +0`) and
   order every NaN equal to every other NaN and above every number, so
@@ -120,6 +127,14 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed the `decimal_gda` contextual and checked adapters for operations that
+  need exponent bounds (`exp`, `ln`, `log10` and non-integral `power` accept
+  precision, `e_max` and `-e_min` of at most 999,999). An `ArithmeticContext`
+  without `e_min` or `e_max` is no longer given any default bounds: such calls
+  now fail with an explicit `invalid context:` error that names the missing
+  bounds, and the GDA forms keep raising `Invalid_context` (decTest
+  `expx901`–`905`, `lnx901`–`905`, `logx901`–`905`, `powx4001`–`4006`, now
+  covered by unit tests) (#111).
 - Fixed the sign of a zero result of `decimal_gda` `plus` and `minus`
   (`Decimal::plus_ctx`, `Decimal::minus_ctx`, `GdaDecimalChecked::plus` and
   `GdaDecimalChecked::minus`), which was always `+0`. GDA defines `plus(x)` as
