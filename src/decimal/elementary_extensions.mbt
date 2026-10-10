@@ -120,6 +120,55 @@ fn decimal_elementary_zero(
 }
 
 ///|
+fn decimal_certified_saturated_unary_result(
+  value : Decimal,
+  operation : DecimalUnaryElementary,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  if ctx.precision <= 0 || ctx.e_min > 0 || ctx.e_max < 0 {
+    return None
+  }
+  let saturates = match operation {
+    Tanh => true
+    Expm1 => value.negative
+    _ => false
+  }
+  if !saturates {
+    return None
+  }
+  let magnitude = { ..value, negative: false, }
+  let threshold = Decimal::from_int(ctx.precision * 6)
+  if magnitude.compare(threshold) < 0 {
+    return None
+  }
+  // e > 5/2 gives e^6 > 100. At |x| >= 6p, both tanh's gap
+  // from its limit and expm1's negative gap are below half a p-digit ulp.
+  let toward_limit = match (value.negative, ctx.decimal_rounding) {
+    (false, Down | Floor | ZeroFiveUp) => false
+    (true, Down | Ceiling | ZeroFiveUp) => false
+    _ => true
+  }
+  let limit_coefficient = dec_coeff_power10_repr(ctx.precision - 1)
+  let limit = finite_with_exponent_repr(
+    value.negative,
+    limit_coefficient,
+    1 - ctx.precision,
+    finite_precision_for_coeff(limit_coefficient, ctx),
+  )
+  let (candidate, adjacent_flags) = if toward_limit {
+    (limit, DecimalFlags::new())
+  } else if value.negative {
+    limit.next_plus(ctx)
+  } else {
+    limit.next_minus(ctx)
+  }
+  let inexact_flags = { ..DecimalFlags::new(), rounded: true, inexact: true, }
+  Some(
+    finalize_finite_ctx(candidate, inexact_flags.combine(adjacent_flags), ctx),
+  )
+}
+
+///|
 fn decimal_elementary_integer_mod4(value : Decimal) -> Int? {
   match decimal_exact_integer_coeff(value) {
     Some((negative, magnitude)) => {
@@ -414,6 +463,10 @@ fn Decimal::try_unary_elementary_ctx(
   }
   if invalid_domain {
     return Ok(finish(decimal_elementary_invalid(ctx)))
+  }
+  match decimal_certified_saturated_unary_result(value, operation, ctx) {
+    Some(result) => return Ok(finish(result))
+    None => ()
   }
   if operation == Log1p && value.compare(minus_one) == 0 {
     return Ok(finish(decimal_elementary_division_by_zero(Sign::Negative, ctx)))

@@ -7818,7 +7818,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr ""
 
 #: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:40
+#: manual/conformance/decimal.md:50
 #: manual/conformance/decimal_gda.md:57
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:29
@@ -8046,14 +8046,18 @@ msgid "The committed elementary layer contains 2,784 certified rows. MPFR 4.2.2 
 msgstr ""
 
 #: manual/conformance/decimal.md:23
+msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound chooses the limit or its adjacent value according to sign and rounding direction. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
+msgstr ""
+
+#: manual/conformance/decimal.md:33
 msgid "Targets"
 msgstr ""
 
-#: manual/conformance/decimal.md:25
+#: manual/conformance/decimal.md:35
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr ""
 
-#: manual/conformance/decimal.md:27
+#: manual/conformance/decimal.md:37
 #: manual/conformance/decimal_gda.md:34
 #: manual/design/ball_float.md:771
 #: manual/design/ball_float_checked.md:170
@@ -8088,19 +8092,19 @@ msgstr ""
 msgid "Boundaries"
 msgstr ""
 
-#: manual/conformance/decimal.md:29
+#: manual/conformance/decimal.md:39
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr ""
 
-#: manual/conformance/decimal.md:31
+#: manual/conformance/decimal.md:41
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr ""
 
-#: manual/conformance/decimal.md:36
+#: manual/conformance/decimal.md:46
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr ""
 
-#: manual/conformance/decimal.md:48
+#: manual/conformance/decimal.md:58
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr ""
 

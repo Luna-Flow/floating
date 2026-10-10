@@ -127,6 +127,11 @@ notes live in this file.
 
 ### Fixed
 
+- Fixed `Decimal::tanh_ctx` and `Decimal::expm1_ctx` returning NaN when large
+  finite inputs made the certified loop unable to distinguish a result from
+  its saturation limit. IEEE 754-2019 §9.2 now returns the correctly rounded
+  limit or adjacent value with `Rounded` and `Inexact`
+  ([#169](https://github.com/Luna-Flow/floating/issues/169)).
 - Fixed `decimal_gda::Decimal::divide_integer` zero quotients in clamped
   extended contexts: the preferred exponent is folded to the clamp limit and
   `Clamped` is raised for finite and infinite divisors (#179).

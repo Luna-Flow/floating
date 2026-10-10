@@ -105,6 +105,74 @@ test "Decimal elementary extensions honor context rounding" {
 }
 
 ///|
+/// IEEE 754-2019 §9.2 requires correctly rounded finite `tanh` and `expm1`
+/// results, including when their exact values lie arbitrarily close to ±1.
+test "Decimal tanh and expm1 certify saturated finite results" {
+  let modes = [
+    DecimalRoundingMode::HalfEven,
+    DecimalRoundingMode::HalfUp,
+    DecimalRoundingMode::HalfDown,
+    DecimalRoundingMode::Down,
+    DecimalRoundingMode::Floor,
+    DecimalRoundingMode::Ceiling,
+    DecimalRoundingMode::Up,
+    DecimalRoundingMode::ZeroFiveUp,
+  ]
+  for clamp in [false, true] {
+    for extended in [false, true] {
+      for mode in modes {
+        let context = DecimalContext::new(
+          precision=16,
+          decimal_rounding=mode,
+          e_min=-383,
+          e_max=384,
+          clamp~,
+          extended~,
+        ).ieee754()
+        let (positive, positive_flags) = Decimal::from_int(5000).tanh_ctx(
+          context,
+        )
+        let (negative, negative_flags) = Decimal::from_int(-5000).tanh_ctx(
+          context,
+        )
+        let (expm1_negative, expm1_flags) = Decimal::from_int(-20000).expm1_ctx(
+          context,
+        )
+        let positive_expected = match mode {
+          Down | Floor | ZeroFiveUp => "0.9999999999999999"
+          _ => "1.000000000000000"
+        }
+        let negative_expected = match mode {
+          Down | Ceiling | ZeroFiveUp => "-0.9999999999999999"
+          _ => "-1.000000000000000"
+        }
+        let expected_flags = {
+          ..DecimalFlags::new(),
+          rounded: true,
+          inexact: true,
+        }
+        assert_eq(positive.to_string(), positive_expected)
+        assert_eq(negative.to_string(), negative_expected)
+        assert_eq(expm1_negative.to_string(), negative_expected)
+        assert_true(positive_flags == expected_flags)
+        assert_true(negative_flags == expected_flags)
+        assert_true(expm1_flags == expected_flags)
+      }
+    }
+  }
+  let context = DecimalContext::decimal64().ieee754()
+  match Decimal::from_int(-20000).try_expm1_ctx(context) {
+    Ok((value, flags)) => {
+      assert_eq(value.to_string(), "-1.000000000000000")
+      assert_true(
+        flags == { ..DecimalFlags::new(), rounded: true, inexact: true, },
+      )
+    }
+    Err(_) => assert_true(false)
+  }
+}
+
+///|
 test "Decimal extreme exp avoids unbounded dyadic endpoint expansion" {
   let input = Decimal::from_int(-100_000_000, precision=16)
   for
