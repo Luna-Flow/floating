@@ -157,8 +157,10 @@ fn add_finite_values_ctx(
         sticky_exponent,
         ctx,
       )
-      let sticky_adjusted = sticky_exponent + magnitude.digits10() - 1
-      return if sticky_adjusted < ctx.e_min && flags.inexact {
+      let sticky_adjusted = sticky_exponent.to_int64() +
+        magnitude.digits10().to_int64() -
+        1L
+      return if sticky_adjusted < ctx.e_min.to_int64() && flags.inexact {
         (value, { ..flags, subnormal: true, underflow: true, })
       } else {
         (value, flags)
@@ -185,9 +187,9 @@ fn add_finite_values_ctx(
   )
   let exact_digits = exact_magnitude.digits10()
   let exact_adjusted = if exact_magnitude.is_zero() {
-    0
+    0L
   } else {
-    target + exact_digits - 1
+    target.to_int64() + exact_digits.to_int64() - 1L
   }
   let negative = if exact_magnitude.is_zero() {
     ctx.decimal_rounding == DecimalRoundingMode::Floor &&
@@ -258,7 +260,7 @@ fn add_finite_values_ctx(
   } else {
     flags
   }
-  if exact_adjusted < ctx.e_min && flags.inexact {
+  if exact_adjusted < ctx.e_min.to_int64() && flags.inexact {
     (value, { ..flags, subnormal: true, underflow: true, })
   } else {
     (value, flags)
@@ -441,6 +443,12 @@ fn gda_exact_small_division_result(
   let precision = finite_precision_for_default(ctx)
   let negative = dividend.negative != divisor.negative
   let preferred_exponent = dividend.exponent10 - divisor.exponent10
+  let adjusted = preferred_exponent.to_int64() +
+    quotient.digits10().to_int64() -
+    1L
+  if adjusted > ctx.e_max.to_int64() {
+    return Some(decimal_overflow_result(negative, ctx))
+  }
   let exact_unrounded = normalize_decimal_parts_gda_repr(
     negative,
     quotient,
@@ -827,6 +835,18 @@ fn Decimal::decimal_fma_ctx_impl(
         multiplier.exponent10.to_int64()
       if addend.class == FpClass::Finite &&
         !product_coeff.is_zero() &&
+        !addend.coefficient.is_zero() {
+        let product_adjusted = product_exponent +
+          (product_coeff.digits10() - 1).to_int64()
+        let addend_adjusted = addend.exponent10.to_int64() +
+          (addend.coefficient.digits10() - 1).to_int64()
+        if product_adjusted > ctx.e_max.to_int64() &&
+          product_adjusted - addend_adjusted > precision.to_int64() + 2L {
+          return decimal_overflow_result(product_negative, ctx)
+        }
+      }
+      if addend.class == FpClass::Finite &&
+        !product_coeff.is_zero() &&
         product_exponent > 2147483647L {
         return decimal_overflow_result(product_negative, ctx)
       }
@@ -911,7 +931,10 @@ pub fn Decimal::div_checked(
   self : Decimal,
   other : Decimal,
 ) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = DecimalContext::new(precision=max_precision(self, other))
+  let ctx = match DecimalContext::new(precision=max_precision(self, other)) {
+    Err(error) => return Err(error)
+    Ok(ctx) => ctx
+  }
   let (value, flags) = self.div_ctx(other, ctx)
   if flags.division_by_zero {
     Err(@def.ArithmeticError::division_by_zero("division by zero"))
@@ -929,7 +952,10 @@ pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = DecimalContext::new(precision=self.precision_)
+  let ctx = match DecimalContext::new(precision=self.precision_) {
+    Err(error) => return Err(error)
+    Ok(ctx) => ctx
+  }
   let (value, flags) = self.sqrt_ctx(ctx)
   if flags.invalid_operation {
     Err(

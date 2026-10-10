@@ -213,51 +213,12 @@ pub fn DecimalContext::new(
   clamp? : Bool = false,
   extended? : Bool = true,
   tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
-) -> DecimalContext {
-  guard precision > 0 else {
-    abort("DecimalContext::new: precision must be positive")
-  }
-  guard e_min <= e_max else {
-    abort("DecimalContext::new: e_min must not exceed e_max")
-  }
-  let decimal_rounding = match decimal_rounding {
-    Some(mode) => mode
-    None => DecimalRoundingMode::from_arithmetic(rounding)
-  }
-  {
-    precision,
-    rounding,
-    decimal_rounding,
-    e_min,
-    e_max,
-    clamp,
-    extended,
-    tininess,
-  }
-}
-
-///|
-pub fn DecimalContext::try_new(
-  precision? : Int = 34,
-  rounding? : RoundingMode = RoundingMode::ToNearestEven,
-  decimal_rounding? : DecimalRoundingMode,
-  e_min? : Int = -999_999_999,
-  e_max? : Int = 999_999_999,
-  clamp? : Bool = false,
-  extended? : Bool = true,
-  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
-  guard precision > 0 else {
+  let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
+  guard bounds.is_valid() else {
     return Err(
       @def.ArithmeticError::domain_error(
-        "DecimalContext::try_new: precision must be positive",
-      ),
-    )
-  }
-  guard e_min <= e_max else {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "DecimalContext::try_new: e_min must not exceed e_max",
+        "DecimalContext fields must be within the GDA reference limits",
       ),
     )
   }
@@ -275,6 +236,29 @@ pub fn DecimalContext::try_new(
     extended,
     tininess,
   })
+}
+
+///|
+pub fn DecimalContext::try_new(
+  precision? : Int = 34,
+  rounding? : RoundingMode = RoundingMode::ToNearestEven,
+  decimal_rounding? : DecimalRoundingMode,
+  e_min? : Int = -999_999_999,
+  e_max? : Int = 999_999_999,
+  clamp? : Bool = false,
+  extended? : Bool = true,
+  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+) -> Result[DecimalContext, @def.ArithmeticError] {
+  DecimalContext::new(
+    precision~,
+    rounding~,
+    decimal_rounding?,
+    e_min~,
+    e_max~,
+    clamp~,
+    extended~,
+    tininess~,
+  )
 }
 
 ///|
@@ -378,7 +362,7 @@ pub fn DecimalContext::decimal32() -> DecimalContext {
     e_min=-95,
     e_max=96,
     clamp=true,
-  )
+  ).unwrap()
 }
 
 ///|
@@ -389,7 +373,7 @@ pub fn DecimalContext::decimal64() -> DecimalContext {
     e_min=-383,
     e_max=384,
     clamp=true,
-  )
+  ).unwrap()
 }
 
 ///|
@@ -400,13 +384,13 @@ pub fn DecimalContext::decimal128() -> DecimalContext {
     e_min=-6143,
     e_max=6144,
     clamp=true,
-  )
+  ).unwrap()
 }
 
 ///|
 pub fn DecimalContext::from_arithmetic_context(
   ctx : @lf_arith.ArithmeticContext,
-) -> DecimalContext {
+) -> Result[DecimalContext, @def.ArithmeticError] {
   DecimalContext::new(
     precision=ctx.precision,
     rounding=ctx.rounding,

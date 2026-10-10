@@ -5,7 +5,7 @@ test "bounded division rounds a long coefficient at context precision" {
     precision=64,
   ).unwrap()
   let divisor = Decimal::from_string("7", precision=64).unwrap()
-  let ctx = DecimalContext::new(precision=6)
+  let ctx = DecimalContext::new(precision=6).unwrap()
   let (value, flags) = dividend.div_ctx(divisor, ctx)
   assert_eq(value.compare(Decimal::from_string("1.76367E+28").unwrap()), 0)
   assert_true(flags.rounded)
@@ -18,7 +18,7 @@ test "exact division preserves the preferred cohort" {
   let divisor = Decimal::one(precision=16)
   let (value, flags) = dividend.div_ctx(
     divisor,
-    DecimalContext::new(precision=16),
+    DecimalContext::new(precision=16).unwrap(),
   )
   assert_eq(value.coefficient().to_string(), "120")
   assert_eq(value.exponent10(), -2)
@@ -30,11 +30,11 @@ test "exact division preserves the preferred cohort" {
 test "exact division honors decimal tie rounding" {
   let dividend = Decimal::from_string("1", precision=8).unwrap()
   let divisor = Decimal::from_string("8", precision=8).unwrap()
-  let half_even = DecimalContext::new(precision=2)
+  let half_even = DecimalContext::new(precision=2).unwrap()
   let half_up = DecimalContext::new(
     precision=2,
     decimal_rounding=DecimalRoundingMode::HalfUp,
-  )
+  ).unwrap()
   let (even_value, even_flags) = dividend.div_ctx(divisor, half_even)
   let (up_value, up_flags) = dividend.div_ctx(divisor, half_up)
   assert_eq(even_value.compare(Decimal::from_string("0.12").unwrap()), 0)

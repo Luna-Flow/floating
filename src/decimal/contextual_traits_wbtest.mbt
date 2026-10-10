@@ -58,7 +58,7 @@ test "Decimal checked parsing uses the arithmetic context" {
   assert_true(overflow.class == FpClass::Infinity)
   let (overflow_value, overflow_flags) = Decimal::from_string_ctx(
     "1E+200",
-    DecimalContext::from_arithmetic_context(decimal32),
+    DecimalContext::from_arithmetic_context(decimal32).unwrap(),
   )
   assert_true(overflow_flags.overflow)
   assert_true(overflow_value.class == FpClass::Infinity)
@@ -86,7 +86,7 @@ test "Decimal contextual conversion preserves exponent bounds and clamp" {
     e_max=96,
     clamp=true,
   )
-  let context = DecimalContext::from_arithmetic_context(arithmetic)
+  let context = DecimalContext::from_arithmetic_context(arithmetic).unwrap()
   assert_eq(context.precision(), 7)
   assert_eq(context.e_min(), -95)
   assert_eq(context.e_max(), 96)
@@ -128,4 +128,16 @@ test "Decimal checked integer powers use the exact exponent" {
   assert_eq(nat_power(12345679U), "-1")
   assert_eq(nat_power(999999999U), "-1")
   assert_eq(nat_power(999999998U), "1")
+}
+
+///|
+test "Decimal context translation rejects out of range bounds" {
+  let invalid = @lf_arith.ArithmeticContext::new(7, e_min=-1_000_000_000)
+  assert_true(DecimalContext::from_arithmetic_context(invalid) is Err(_))
+  let outcome = @lf_arith.AddContextual::add_contextual(
+    Decimal::one(),
+    Decimal::one(),
+    invalid,
+  )
+  assert_true(outcome is Err(_))
 }

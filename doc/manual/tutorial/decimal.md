@@ -126,7 +126,7 @@ test "decimal round to cents" {
     e_min=-383,
     e_max=384,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
-  )
+  ).unwrap()
   inspect(d("2.345").quantize(cents, bankers).0, content="2.34")
   inspect(d("2.345").quantize(cents, commercial).0, content="2.35")
   inspect(d("7").quantize(cents, bankers).0, content="7.00")

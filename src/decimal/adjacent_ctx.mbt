@@ -5,16 +5,17 @@ fn signed_units_at_quantum_repr(
   value : Decimal,
   quantum : Int,
 ) -> ((Bool, DecCoeff), (Bool, DecCoeff), Bool) {
-  let shift = value.exponent10 - quantum
+  let shift = value.exponent10.to_int64() - quantum.to_int64()
   if shift >= 0 {
-    let units = dec_coeff_shift_power10_repr(value.coefficient, shift)
+    let units = dec_coeff_shift_power10_repr(value.coefficient, shift.to_int())
     let signed = (value.negative, units)
     return (signed, signed, true)
   }
   let scale = -shift
-  let (quotient, exact) = if scale >= value.coefficient.digits10() {
+  let (quotient, exact) = if scale >= value.coefficient.digits10().to_int64() {
     (dec_coeff_zero(), false)
   } else {
+    let scale = scale.to_int()
     let (quotient0, remainder) = dec_coeff_div_rem_repr(
       value.coefficient,
       dec_coeff_power10_repr(scale),
@@ -66,7 +67,14 @@ fn next_quantum(
   } else {
     1
   }
-  Int::max(etiny(ctx), adjusted_exponent(value) - precision + boundary_adjust)
+  Int::max(
+    etiny(ctx),
+    decimal_int_from_int64_clamped(
+      adjusted_exponent64(value) -
+      precision.to_int64() +
+      boundary_adjust.to_int64(),
+    ),
+  )
 }
 
 ///|
@@ -94,7 +102,7 @@ fn next_toward_flags(
       rounded: true,
       clamped: !source.coefficient.is_zero(),
     }
-  } else if adjusted_exponent(result) < ctx.e_min {
+  } else if adjusted_exponent64(result) < ctx.e_min.to_int64() {
     {
       ..DecimalFlags::new(),
       underflow: true,
@@ -129,7 +137,7 @@ fn max_finite_for(ctx : DecimalContext, negative : Bool) -> Decimal {
   finite_with_exponent(
     negative,
     pow10(precision) - bigint_one(),
-    ctx.e_max - precision + 1,
+    etop(ctx, precision),
     precision,
   )
 }
@@ -201,7 +209,7 @@ fn decimal_next(
         let candidate = finite_next_candidate_repr(
           units_negative, units_magnitude, quantum, precision,
         )
-        if adjusted_exponent(candidate) > ctx.e_max {
+        if adjusted_exponent64(candidate) > ctx.e_max.to_int64() {
           (
             Decimal::inf(
               if candidate.negative {

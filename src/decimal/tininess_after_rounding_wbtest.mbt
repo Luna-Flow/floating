@@ -23,7 +23,7 @@ test "after-rounding tininess rounds to the precision with unbounded exponent" {
     e_min=0,
     e_max=10,
     tininess=DecimalTininessDetection::AfterRounding,
-  )
+  ).unwrap()
   // 0.9951 rounds to 0.995 < 1 at three digits: tiny, although rounding on
   // the subnormal grid gives the normal 1.00.
   inspect(
@@ -50,6 +50,6 @@ test "after-rounding tininess rounds to the precision with unbounded exponent" {
     e_max=10,
     decimal_rounding=DecimalRoundingMode::Up,
     tininess=DecimalTininessDetection::AfterRounding,
-  )
+  ).unwrap()
   inspect(tininess_after_rounding_show("0.9991", up), content="1.00 [inexact]")
 }

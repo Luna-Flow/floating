@@ -222,7 +222,7 @@ test "Decimal construction and printing" {
   inspect(@decimal_gda.Decimal::from_double(0.5), content="0.5")
   inspect(@decimal_gda.Decimal::signaling_nan(payload=7N), content="snan7")
   inspect(@decimal_gda.Decimal::from_string("1.2.3") is None, content="true")
-  let ctx = @decimal_gda.DecimalContext::new(precision=3)
+  let ctx = @decimal_gda.DecimalContext::new(precision=3).unwrap()
   let (v, flags) = @decimal_gda.Decimal::from_string_ctx("1.2345", ctx)
   inspect(v, content="1.23")
   inspect(flags.inexact, content="true")
@@ -408,14 +408,16 @@ whether the outcome is `Completed` or `Trapped`.
 These build a context with an empty status.
 
 ```mbti
-pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
+pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn GdaContext::try_new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Defaults: `precision=34`, `rounding=HalfEven`, `e_min=-999_999_999`,
-`e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. `new` aborts
-when `precision <= 0` or `e_min > e_max`; `try_new` returns
-`Err(domain_error)` instead. `clamp=true` limits exponents to
+`e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. Both `new` and
+`try_new` return `Err(domain_error)` when precision is outside
+`1..=999_999_999`, either exponent bound is outside `+/-999_999_999`, or
+`e_min > e_max`. These shared bounds keep Etiny/Etop and exponent arithmetic
+within `Int`. `clamp=true` limits exponents to
 $e_{\max} - p + 1$ as the interchange formats do. `extended=false` selects GDA
 *subset* arithmetic: operands longer than $p$ digits are rounded first
 (raising `LostDigits` when that is inexact), special values cannot be parsed,
@@ -455,7 +457,7 @@ These package functions are shorthands for `GdaContext::new` (without a trap
 argument) and the three interchange presets.
 
 ```mbti
-pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> GdaContext
+pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Result[GdaContext, @arithmetic.ArithmeticError]
 pub fn decimal32_context() -> GdaContext
 pub fn decimal64_context() -> GdaContext
 pub fn decimal128_context() -> GdaContext
@@ -851,7 +853,7 @@ rounded to $p$ digits, with `LostDigits`, like every other operand.
 ///|
 test "to_integral keeps long integral parts" {
   let d = (s : String) => @decimal_gda.Decimal::from_string(s).unwrap()
-  let p3 = @decimal_gda.GdaContext::new(precision=3)
+  let p3 = @decimal_gda.GdaContext::new(precision=3).unwrap()
   let exact = @decimal_gda.to_integral_exact(d("12345.6"), p3)
   inspect(exact.value(), content="12346")
   inspect(exact.raised().inexact, content="true")
@@ -1074,11 +1076,11 @@ test "GDA operation sampler" {
   inspect(@decimal_gda.next_plus(d("1"), ctx).value(), content="1.000000000000001")
   inspect(@decimal_gda.logical_xor(d("1100"), d("1010"), ctx).value(), content="110")
   inspect(@decimal_gda.shift(d("12345"), d("2"), ctx).value(), content="1234500")
-  inspect(@decimal_gda.rotate(d("12345"), d("-1"), @decimal_gda.context(precision=5)).value(), content="51234")
+  inspect(@decimal_gda.rotate(d("12345"), d("-1"), @decimal_gda.context(precision=5).unwrap()).value(), content="51234")
   inspect(@decimal_gda.power(d("2"), d("-3"), ctx).value(), content="0.125")
   inspect(@decimal_gda.max(d("2.5"), d("2.50"), ctx).value(), content="2.5")
   inspect(@decimal_gda.class_name(d("-0"), ctx).value(), content="-Zero")
-  let wide = @decimal_gda.context() // exponent range ±999,999,999
+  let wide = @decimal_gda.context().unwrap() // exponent range ±999,999,999
   inspect(@decimal_gda.exp(d("1"), wide).raised().invalid_context, content="true")
 }
 ```
@@ -1252,7 +1254,7 @@ them with the accessors.
 These build a context from explicit parameters.
 
 ```mbti
-pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
@@ -1261,9 +1263,11 @@ Defaults are those of `GdaContext::new` with `rounding=ToNearestEven` and
 which defaults to the translation of `rounding`
 (`DecimalRoundingMode::from_arithmetic`); pass `decimal_rounding` to select
 `HalfUp`, `HalfDown` or `ZeroFiveUp`. If both are passed and disagree,
-`decimal_rounding` wins and `rounding()` keeps reporting the other value. `new`
-aborts and `try_new` returns `Err(domain_error)` for `precision <= 0` or
-`e_min > e_max`.
+`decimal_rounding` wins and `rounding()` keeps reporting the other value.
+`precision` must be positive and at most 999,999,999; `e_min` and `e_max` must
+each be within +/-999,999,999 and `e_min <= e_max`. Both constructors return
+`Err(domain_error)` for invalid parameters. These limits keep Etiny, Etop and
+context exponent arithmetic within `Int`.
 
 ### `DecimalContext::exact`, `DecimalContext::decimal32`, `DecimalContext::decimal64`, `DecimalContext::decimal128`, `DecimalContext::from_arithmetic_context`
 
@@ -1274,7 +1278,7 @@ pub fn DecimalContext::exact() -> Self
 pub fn DecimalContext::decimal32() -> Self
 pub fn DecimalContext::decimal64() -> Self
 pub fn DecimalContext::decimal128() -> Self
-pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
+pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 `exact()` is the unbounded-precision context (precision 0, exponent range
@@ -1384,7 +1388,7 @@ test "after-rounding tininess" {
     e_min=0,
     e_max=10,
     tininess=AfterRounding,
-  )
+  ).unwrap()
   let (v, flags) = d("0.9951").plus_ctx(ctx)
   inspect(v, content="1.00")
   inspect(flags.underflow, content="true")
@@ -1654,7 +1658,7 @@ Each `*_mag_ctx` method is the `*_magnitude_ctx` method of the same prefix.
 ///|
 test "status-free layer" {
   let d = (s : String) => @decimal_gda.Decimal::from_string(s).unwrap()
-  let ctx = @decimal_gda.DecimalContext::new(precision=5, decimal_rounding=HalfUp)
+  let ctx = @decimal_gda.DecimalContext::new(precision=5, decimal_rounding=HalfUp).unwrap()
   let (q, flags) = d("2").div_ctx(d("3"), ctx)
   inspect(q, content="0.66667")
   inspect(flags.inexact, content="true")
@@ -1664,7 +1668,7 @@ test "status-free layer" {
     rounding=TowardNegative,
     e_min=-999_999,
     e_max=999_999,
-  )
+  ).unwrap()
   inspect(d("1").exp_ctx(floor).0, content="2.71") // context rounding
   let nan = @decimal_gda.Decimal::nan()
   inspect(d("1").maximum_ctx(nan, ctx).0, content="nan")
@@ -2039,7 +2043,7 @@ pub fn compare_total(Decimal, Decimal, GdaContext) -> GdaOutcome[Int]
 
 pub fn compare_total_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Int]
 
-pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> GdaContext
+pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Result[GdaContext, @arithmetic.ArithmeticError]
 
 pub fn decimal128_context() -> GdaContext
 
@@ -2333,8 +2337,8 @@ pub fn DecimalContext::e_min(Self) -> Int
 pub fn DecimalContext::equal(Self, Self) -> Bool
 pub fn DecimalContext::exact() -> Self
 pub fn DecimalContext::extended(Self) -> Bool
-pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
-pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int
 pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
@@ -2418,7 +2422,7 @@ pub fn GdaContext::default() -> Self
 pub fn GdaContext::e_max(Self) -> Int
 pub fn GdaContext::e_min(Self) -> Int
 pub fn GdaContext::extended(Self) -> Bool
-pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
+pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn GdaContext::precision(Self) -> Int
 pub fn GdaContext::radix(Self) -> Int
 pub fn GdaContext::reset(Self) -> Self

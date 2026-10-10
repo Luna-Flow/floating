@@ -95,7 +95,7 @@ fn decimal_exact_dyadic_endpoint(
       finite_with_exponent(
         value.is_negative(),
         BigInt::from_int(1),
-        ctx.e_max + 2,
+        decimal_int_from_int64_clamped(ctx.e_max.to_int64() + 2L),
         1,
       ),
     )

@@ -90,6 +90,16 @@ pub fn CertifiedRefinementBudget::next(Self) -> Self
 pub fn CertifiedRefinementBudget::precision(Self) -> Int
 pub fn CertifiedRefinementBudget::refinements(Self) -> Int
 
+pub struct DecimalExponentBounds {
+  valid_ : Bool
+  etiny_ : Int
+  etop_ : Int
+}
+pub fn DecimalExponentBounds::etiny(Self) -> Int
+pub fn DecimalExponentBounds::etop(Self) -> Int
+pub fn DecimalExponentBounds::is_valid(Self) -> Bool
+pub fn DecimalExponentBounds::new(Int, Int, Int) -> Self
+
 pub struct ExactRat {
   // private fields
 } derive(Eq)

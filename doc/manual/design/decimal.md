@@ -60,6 +60,12 @@ $$
 E_{\text{tiny}} = e_{\min} - p + 1, \qquad E_{\text{top}} = e_{\max} - p + 1 .
 $$
 
+Contexts require $1 \le p \le 999\,999\,999$ and
+$|e_{\min}|, |e_{\max}| \le 999\,999\,999$. A shared constructor helper
+validates these bounds and computes $E_{\text{tiny}}$ and $E_{\text{top}}$;
+invalid parameters return an error. This is the General Decimal Arithmetic
+reference limit and keeps context-derived exponent sums within `Int`.
+
 The *adjusted exponent* of a non-zero $x$ is $\operatorname{adj}(x) = q +
 \operatorname{digits}(c) - 1 = \lfloor \log_{10} |x| \rfloor$: it is the
 exponent of $x$ written in scientific notation $d_0.d_1d_2\ldots \times

@@ -19,7 +19,7 @@ test "sqrt detects tininess per the context's rule" {
       e_max=1,
       clamp=true,
       tininess~,
-    )
+    ).unwrap()
     let (value, flags) = Decimal::from_string("0.9999999")
       .unwrap()
       .sqrt_ctx(ctx)

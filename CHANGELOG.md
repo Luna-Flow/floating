@@ -6,6 +6,14 @@ notes live in this file.
 
 ## Unreleased
 
+### Fixed
+
+- **Breaking:** `DecimalContext::new` and `GdaContext::new` now return
+  `Result` and reject precision or exponent bounds outside the General Decimal
+  Arithmetic reference limits. Call `.unwrap()` for known-valid parameters or
+  handle the domain error. Both decimal implementations share checked
+  Etiny/Etop calculations (#145).
+
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each

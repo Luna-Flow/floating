@@ -369,7 +369,7 @@ on:
 ```moonbit
 ///|
 test "status is the union of the raised sets" {
-  let ctx = @decimal_gda.context(precision=3)
+  let ctx = @decimal_gda.context(precision=3).unwrap()
   let d = (s : String) => @decimal_gda.Decimal::from_string(s).unwrap()
   let a = @decimal_gda.divide(d("1"), d("3"), ctx) // Inexact, Rounded
   let b = @decimal_gda.divide(d("1"), d("0"), a.next_context()) // DivisionByZero

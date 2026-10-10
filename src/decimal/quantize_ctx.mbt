@@ -398,21 +398,35 @@ fn quantize_finite_to_exponent(
     )
   }
   let mut flags = DecimalFlags::new()
-  let coeff = if value.exponent10 < target {
-    let shift = target - value.exponent10
-    let (rounded, inexact) = round_positive_decimal_div_pow10_repr(
-      value.coefficient,
-      shift,
-      negative,
-      ctx.decimal_rounding,
-    )
+  let exponent_delta = target.to_int64() - value.exponent10.to_int64()
+  let coeff = if exponent_delta > 0L {
+    let (rounded, inexact) = if exponent_delta >
+      value.coefficient.digits10().to_int64() {
+      let increment = match ctx.decimal_rounding {
+        Down | HalfEven | HalfUp | HalfDown => false
+        Ceiling => !negative
+        Floor => negative
+        Up => true
+        ZeroFiveUp => true
+      }
+      (if increment { dec_coeff_from_int(1) } else { dec_coeff_zero() }, true)
+    } else {
+      round_positive_decimal_div_pow10_repr(
+        value.coefficient,
+        exponent_delta.to_int(),
+        negative,
+        ctx.decimal_rounding,
+      )
+    }
     flags = { ..flags, rounded: true, inexact, }
     rounded
-  } else if value.exponent10 > target {
-    let shift = value.exponent10 - target
-    if ctx.precision > 0 && shift > ctx.precision - value.coefficient.digits10() {
+  } else if exponent_delta < 0L {
+    let shift64 = -exponent_delta
+    if ctx.precision > 0 &&
+      shift64 > (ctx.precision - value.coefficient.digits10()).to_int64() {
       return (Decimal::nan(precision~), invalid_flags())
     }
+    let shift = shift64.to_int()
     dec_coeff_shift_power10_repr(value.coefficient, shift)
   } else {
     value.coefficient
@@ -420,7 +434,7 @@ fn quantize_finite_to_exponent(
   if ctx.precision > 0 && coeff.digits10() > ctx.precision {
     return (Decimal::nan(precision~), invalid_flags())
   }
-  if target > ctx.e_max - coeff.digits10() + 1 {
+  if target.to_int64() > ctx.e_max.to_int64() - coeff.digits10().to_int64() + 1L {
     return (Decimal::nan(precision~), invalid_flags())
   }
   let (result, final_flags) = finalize_finite_ctx(
