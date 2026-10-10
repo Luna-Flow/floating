@@ -25,8 +25,9 @@ IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and
 `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and
 negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values,
 both clamp settings, both extended settings, and exact `Rounded`/`Inexact`
-flags. The certified pre-loop bound chooses the limit or its adjacent value
-according to sign and rounding direction. These targeted cases are separate
+flags. The certified pre-loop bound selects a same-side representative within
+the proved gap and passes it through the normal context finalizer, which
+supplies tininess, overflow and clamp flags. These targeted cases are separate
 from the committed MPFR row count. `decimal_gda` currently exposes neither
 operation, so this entry makes no GDA conformance claim.
 

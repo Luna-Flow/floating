@@ -125,7 +125,7 @@ fn decimal_certified_saturated_unary_result(
   operation : DecimalUnaryElementary,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  if ctx.precision <= 0 || ctx.e_min > 0 || ctx.e_max < 0 {
+  if ctx.precision <= 0 {
     return None
   }
   let saturates = match operation {
@@ -141,30 +141,20 @@ fn decimal_certified_saturated_unary_result(
   if magnitude.compare(threshold) < 0 {
     return None
   }
-  // e > 5/2 gives e^6 > 100. At |x| >= 6p, both tanh's gap
-  // from its limit and expm1's negative gap are below half a p-digit ulp.
-  let toward_limit = match (value.negative, ctx.decimal_rounding) {
-    (false, Down | Floor | ZeroFiveUp) => false
-    (true, Down | Ceiling | ZeroFiveUp) => false
-    _ => true
-  }
-  let limit_coefficient = dec_coeff_power10_repr(ctx.precision - 1)
-  let limit = finite_with_exponent_repr(
-    value.negative,
-    limit_coefficient,
-    1 - ctx.precision,
-    finite_precision_for_coeff(limit_coefficient, ctx),
-  )
-  let (candidate, adjacent_flags) = if toward_limit {
-    (limit, DecimalFlags::new())
-  } else if value.negative {
-    limit.next_plus(ctx)
-  } else {
-    limit.next_minus(ctx)
-  }
-  let inexact_flags = { ..DecimalFlags::new(), rounded: true, inexact: true, }
+  // Since e > 5/2, the function's gap from ±1 is below 10^(-2p).
+  // The representative ±(1 - 10^(-(p+2))) is on the same side of the
+  // limit and within that bound, so it has the same rounded result. Running
+  // it through normal context rounding also supplies tininess/overflow flags.
+  let scale = ctx.precision + 2
+  let power = dec_coeff_power10_repr(scale)
+  let coefficient = dec_coeff_magnitude_sub_unit(power, 1)
   Some(
-    finalize_finite_ctx(candidate, inexact_flags.combine(adjacent_flags), ctx),
+    normalize_decimal_parts_math_ctx_repr(
+      value.negative,
+      coefficient,
+      -scale,
+      ctx,
+    ),
   )
 }
 
