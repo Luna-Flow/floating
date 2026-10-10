@@ -263,12 +263,26 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
     one_digit,
   )
   assert_eq(zero_five_up.to_string(), "1")
-  assert_true(zero_five_up_flags.inexact && zero_five_up_flags.rounded)
+  assert_true(
+    zero_five_up_flags ==
+    {
+      ..DecimalFlags::new(),
+      rounded: true,
+      inexact: true,
+      underflow: true,
+      subnormal: true,
+    },
+  )
 
   let huge = Decimal::from_string("1E+10").unwrap()
   let (huge_tanh, huge_flags) = huge.tanh_ctx(DecimalContext::decimal64())
+  let (huge_negative_tanh, huge_negative_flags) = huge
+    .neg()
+    .tanh_ctx(DecimalContext::decimal64())
   assert_eq(huge_tanh.to_string(), "1.000000000000000")
+  assert_eq(huge_negative_tanh.to_string(), "-1.000000000000000")
   assert_true(huge_flags.inexact && huge_flags.rounded)
+  assert_true(huge_negative_flags.inexact && huge_negative_flags.rounded)
 }
 
 ///|
