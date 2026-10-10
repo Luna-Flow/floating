@@ -120,6 +120,45 @@ fn decimal_elementary_zero(
 }
 
 ///|
+fn decimal_certified_saturated_unary_result(
+  value : Decimal,
+  operation : DecimalUnaryElementary,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  if ctx.precision <= 0 {
+    return None
+  }
+  let saturates = match operation {
+    Tanh => true
+    Expm1 => value.negative
+    _ => false
+  }
+  if !saturates {
+    return None
+  }
+  let magnitude = { ..value, negative: false, }
+  let threshold = Decimal::from_int(ctx.precision * 6)
+  if magnitude.compare(threshold) < 0 {
+    return None
+  }
+  // Since e > 5/2, the function's gap from ±1 is below 10^(-2p).
+  // The representative ±(1 - 10^(-(p+2))) is on the same side of the
+  // limit and within that bound, so it has the same rounded result. Running
+  // it through normal context rounding also supplies tininess/overflow flags.
+  let scale = ctx.precision + 2
+  let power = dec_coeff_power10_repr(scale)
+  let coefficient = dec_coeff_magnitude_sub_unit(power, 1)
+  Some(
+    normalize_decimal_parts_math_ctx_repr(
+      value.negative,
+      coefficient,
+      -scale,
+      ctx,
+    ),
+  )
+}
+
+///|
 fn decimal_elementary_integer_mod4(value : Decimal) -> Int? {
   match decimal_exact_integer_coeff(value) {
     Some((negative, magnitude)) => {
@@ -414,6 +453,10 @@ fn Decimal::try_unary_elementary_ctx(
   }
   if invalid_domain {
     return Ok(finish(decimal_elementary_invalid(ctx)))
+  }
+  match decimal_certified_saturated_unary_result(value, operation, ctx) {
+    Some(result) => return Ok(finish(result))
+    None => ()
   }
   if operation == Log1p && value.compare(minus_one) == 0 {
     return Ok(finish(decimal_elementary_division_by_zero(Sign::Negative, ctx)))

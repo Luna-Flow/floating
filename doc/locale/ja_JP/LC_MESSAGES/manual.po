@@ -7842,7 +7842,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr "reverse interval operation、選択 phase 外の全 decoration rule、任意 endpoint format、固定されていない upstream revision は宣言外です。"
 
 #: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:40
+#: manual/conformance/decimal.md:51
 #: manual/conformance/decimal_gda.md:57
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:29
@@ -8070,14 +8070,18 @@ msgid "The committed elementary layer contains 2,784 certified rows. MPFR 4.2.2 
 msgstr "commit 済み elementary layer は 2,784 の certified row を含みます。MPFR 4.2.2 が 768-bit downward/upward dyadic endpoint を生成し、exact integer conversion が全 `DecimalRoundingMode` で両端点を decimal32/64/128 に丸めます。generator は result と flags が一意な row だけを保持します。これらの row を生成した後、native、Wasm、Wasm-GC、JavaScript はそれぞれ 2,975/2,975 test に合格し、full gate は 15,839/15,839 です。RDFP/Arb は optional secondary route のままで、利用不能なら実行済み evidence に数えません。"
 
 #: manual/conformance/decimal.md:23
+msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
+msgstr "IEEE 754-2019 §9.2 の飽和に関する回帰テストは `src/decimal/elementary_extensions_wbtest.mbt` にあり、`Decimal::tanh_ctx` と `Decimal::expm1_ctx` を対象とします。正負の `tanh`、負の `expm1`、8 種すべての `DecimalRoundingMode`、両方の clamp 設定と extended 設定を検査し、`Rounded`/`Inexact` フラグも厳密に確認します。認証ループ前の境界判定は、証明済み誤差範囲内で真の結果と同じ側にある代表値を選び、通常のコンテキスト最終化に渡して、微小性・オーバーフロー・clamp のフラグを正しく処理します。これらの対象を絞ったケースは commit 済み MPFR row 数には含まれません。`decimal_gda` には現在どちらの演算もないため、この項目では GDA の適合性を主張しません。"
+
+#: manual/conformance/decimal.md:34
 msgid "Targets"
 msgstr "対象"
 
-#: manual/conformance/decimal.md:25
+#: manual/conformance/decimal.md:36
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行します。必要な local artifact が repository にないため LLVM は除外します。target-specific coefficient dispatch は value、encoding、flags を変更してはなりません。"
 
-#: manual/conformance/decimal.md:27
+#: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:34
 #: manual/design/ball_float.md:771
 #: manual/design/ball_float_checked.md:170
@@ -8112,19 +8116,19 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 msgid "Boundaries"
 msgstr "境界"
 
-#: manual/conformance/decimal.md:29
+#: manual/conformance/decimal.md:40
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr "固定 matrix は有限で、IEEE 754 の全 operation、全 payload propagation policy、全 decimal input を宣言しません。追加の `dd*`/`dq*` decTest row は diagnostic であり IEEE oracle ではありません。"
 
-#: manual/conformance/decimal.md:31
+#: manual/conformance/decimal.md:42
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr "`Decimal::parse_checked` は `from_string_ctx` を通じて ArithmeticContext の丸め方向と指数範囲を適用します。Result は値または構文エラーのみを返し、例外フラグを保持しません。"
 
-#: manual/conformance/decimal.md:36
+#: manual/conformance/decimal.md:47
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr "マトリクスは現在のブランチで合格し、そのブランチにはもはや[既知の逸脱](../design/decimal.md#known-deviations)はありません。ゲートの合格はカバーされた行についてのみのエビデンスです。"
 
-#: manual/conformance/decimal.md:48
+#: manual/conformance/decimal.md:59
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "corpus provenance、vector family、failure record は[decimal data guide](../../../testdata/decimal/README.md)を参照してください。"
 
@@ -8165,7 +8169,6 @@ msgid "The arithmetic `ParseChecked` adapter applies its mapped DecimalContext t
 msgstr "ParseChecked は変換した DecimalContext を GDA 解析に適用し、値または構文エラーのみを返します。累積状態やトラップには GdaContext を受け取る decimal_gda::parse を使います。"
 
 #: manual/conformance/decimal_gda.md:23
-#| msgid "The checked quotient matrix covers zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, including exponent and `Clamped` condition checks."
 msgid "The white-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, checking the folded exponent and the `Clamped` condition."
 msgstr "ホワイトボックステストは、有限および無限の除数について、クランプされた拡張コンテキストでのゼロの `divide_integer` 結果を対象とし、折りたたまれた指数と `Clamped` 条件を検査します。"
 

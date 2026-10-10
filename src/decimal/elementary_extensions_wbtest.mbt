@@ -105,6 +105,187 @@ test "Decimal elementary extensions honor context rounding" {
 }
 
 ///|
+/// IEEE 754-2019 §9.2 requires correctly rounded finite `tanh` and `expm1`
+/// results, including when their exact values lie arbitrarily close to ±1.
+test "Decimal tanh and expm1 certify saturated finite results" {
+  let modes = [
+    DecimalRoundingMode::HalfEven,
+    DecimalRoundingMode::HalfUp,
+    DecimalRoundingMode::HalfDown,
+    DecimalRoundingMode::Down,
+    DecimalRoundingMode::Floor,
+    DecimalRoundingMode::Ceiling,
+    DecimalRoundingMode::Up,
+    DecimalRoundingMode::ZeroFiveUp,
+  ]
+  for clamp in [false, true] {
+    for extended in [false, true] {
+      for mode in modes {
+        let context = DecimalContext::new(
+          precision=16,
+          decimal_rounding=mode,
+          e_min=-383,
+          e_max=384,
+          clamp~,
+          extended~,
+        ).ieee754()
+        let (positive, positive_flags) = Decimal::from_int(5000).tanh_ctx(
+          context,
+        )
+        let (negative, negative_flags) = Decimal::from_int(-5000).tanh_ctx(
+          context,
+        )
+        let (expm1_negative, expm1_flags) = Decimal::from_int(-20000).expm1_ctx(
+          context,
+        )
+        let positive_expected = match mode {
+          Down | Floor | ZeroFiveUp => "0.9999999999999999"
+          _ => "1.000000000000000"
+        }
+        let negative_expected = match mode {
+          Down | Ceiling | ZeroFiveUp => "-0.9999999999999999"
+          _ => "-1.000000000000000"
+        }
+        let expected_flags = {
+          ..DecimalFlags::new(),
+          rounded: true,
+          inexact: true,
+        }
+        assert_eq(positive.to_string(), positive_expected)
+        assert_eq(negative.to_string(), negative_expected)
+        assert_eq(expm1_negative.to_string(), negative_expected)
+        assert_true(positive_flags == expected_flags)
+        assert_true(negative_flags == expected_flags)
+        assert_true(expm1_flags == expected_flags)
+      }
+    }
+  }
+  for mode in modes {
+    match
+      Decimal::from_int(-20000).try_expm1_ctx(
+        DecimalContext::new(
+          precision=16,
+          decimal_rounding=mode,
+          e_min=-383,
+          e_max=384,
+        ).ieee754(),
+      ) {
+      Ok((value, flags)) => {
+        let expected = match mode {
+          Down | Ceiling | ZeroFiveUp => "-0.9999999999999999"
+          _ => "-1.000000000000000"
+        }
+        assert_eq(value.to_string(), expected)
+        assert_true(
+          flags == { ..DecimalFlags::new(), rounded: true, inexact: true, },
+        )
+      }
+      Err(_) => assert_true(false)
+    }
+  }
+}
+
+///|
+test "Decimal saturation shortcut covers thresholds and narrow contexts" {
+  for precision in [1, 2, 7, 16, 34] {
+    let context = DecimalContext::new(
+      precision~,
+      e_min=-(precision + 4),
+      e_max=precision + 4,
+    )
+    for input in [6 * precision - 1, 6 * precision] {
+      let (positive, positive_flags) = Decimal::from_int(input).tanh_ctx(
+        context,
+      )
+      let (negative, negative_flags) = Decimal::from_int(-input).tanh_ctx(
+        context,
+      )
+      let (expm1, expm1_flags) = Decimal::from_int(-input).expm1_ctx(context)
+      assert_eq(positive.compare(Decimal::one(precision~)), 0)
+      assert_eq(negative.compare(Decimal::from_int(-1, precision~)), 0)
+      assert_eq(expm1.compare(Decimal::from_int(-1, precision~)), 0)
+      assert_true(positive_flags.inexact && positive_flags.rounded)
+      assert_true(negative_flags.inexact && negative_flags.rounded)
+      assert_true(expm1_flags.inexact && expm1_flags.rounded)
+    }
+  }
+  let before_rounding = DecimalContext::new(
+    precision=7,
+    e_min=0,
+    e_max=10,
+    tininess=DecimalTininessDetection::BeforeRounding,
+  )
+  let (below_threshold, below_flags) = Decimal::from_int(20).tanh_ctx(
+    before_rounding,
+  )
+  let (at_threshold, at_flags) = Decimal::from_int(42).tanh_ctx(before_rounding)
+  assert_eq(below_threshold.to_string(), "1.000000")
+  assert_eq(at_threshold.to_string(), "1.000000")
+  assert_true(below_flags.underflow && below_flags.subnormal)
+  assert_true(at_flags.underflow && at_flags.subnormal)
+  assert_true(below_flags == at_flags)
+
+  let positive_emin = DecimalContext::new(precision=7, e_min=2, e_max=10)
+  let (subnormal_limit, subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
+    positive_emin,
+  )
+  assert_false(subnormal_limit.is_nan())
+  assert_true(subnormal_flags.inexact && subnormal_flags.rounded)
+  assert_true(subnormal_flags.underflow && subnormal_flags.subnormal)
+
+  let unit_emin = DecimalContext::new(precision=7, e_min=1, e_max=10)
+  let (unit_subnormal, unit_subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
+    unit_emin,
+  )
+  assert_false(unit_subnormal.is_nan())
+  assert_true(unit_subnormal_flags.inexact && unit_subnormal_flags.rounded)
+  assert_true(unit_subnormal_flags.underflow && unit_subnormal_flags.subnormal)
+
+  let negative_emax = DecimalContext::new(
+    precision=7,
+    decimal_rounding=DecimalRoundingMode::Down,
+    e_min=-10,
+    e_max=-1,
+  )
+  let (overflow_edge, overflow_flags) = Decimal::from_int(-20000).expm1_ctx(
+    negative_emax,
+  )
+  assert_eq(overflow_edge.to_string(), "-0.9999999")
+  assert_true(overflow_flags.inexact && overflow_flags.rounded)
+
+  let one_digit = DecimalContext::new(
+    precision=1,
+    decimal_rounding=DecimalRoundingMode::ZeroFiveUp,
+    e_min=0,
+    e_max=10,
+  )
+  let (zero_five_up, zero_five_up_flags) = Decimal::from_int(6).tanh_ctx(
+    one_digit,
+  )
+  assert_eq(zero_five_up.to_string(), "1")
+  assert_true(
+    zero_five_up_flags ==
+    {
+      ..DecimalFlags::new(),
+      rounded: true,
+      inexact: true,
+      underflow: true,
+      subnormal: true,
+    },
+  )
+
+  let huge = Decimal::from_string("1E+10").unwrap()
+  let (huge_tanh, huge_flags) = huge.tanh_ctx(DecimalContext::decimal64())
+  let (huge_negative_tanh, huge_negative_flags) = huge
+    .neg()
+    .tanh_ctx(DecimalContext::decimal64())
+  assert_eq(huge_tanh.to_string(), "1.000000000000000")
+  assert_eq(huge_negative_tanh.to_string(), "-1.000000000000000")
+  assert_true(huge_flags.inexact && huge_flags.rounded)
+  assert_true(huge_negative_flags.inexact && huge_negative_flags.rounded)
+}
+
+///|
 test "Decimal extreme exp avoids unbounded dyadic endpoint expansion" {
   let input = Decimal::from_int(-100_000_000, precision=16)
   for

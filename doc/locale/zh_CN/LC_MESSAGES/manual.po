@@ -7842,7 +7842,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr "reverse interval operation、选定 phase 以外的全部 decoration 规则、任意 endpoint format 和未固定的上游 revision 均不在声明内。"
 
 #: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:40
+#: manual/conformance/decimal.md:51
 #: manual/conformance/decimal_gda.md:57
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:29
@@ -8070,14 +8070,18 @@ msgid "The committed elementary layer contains 2,784 certified rows. MPFR 4.2.2 
 msgstr "提交的 elementary 层包含 2,784 个证明行。MPFR 4.2.2 生成 768-bit 向下/向上 dyadic 端点；精确整数转换把两端在全部 `DecimalRoundingMode` 下舍入到 decimal32/64/128，只有结果与 flags 唯一时生成器才保留该行。生成这些行后，native、Wasm、Wasm-GC、JavaScript 各通过 2,975/2,975 个测试，完整 gate 为 15,839/15,839。RDFP 与 Arb 仍是可选 secondary route；不可用时不计入已执行证据。"
 
 #: manual/conformance/decimal.md:23
+msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
+msgstr "IEEE 754-2019 §9.2 的饱和回归测试位于 `src/decimal/elementary_extensions_wbtest.mbt`，覆盖 `Decimal::tanh_ctx` 和 `Decimal::expm1_ctx`。测试检查正负 `tanh`、负值 `expm1`、全部八种 `DecimalRoundingMode`、两种 clamp 设置和两种 extended 设置，并精确核对 `Rounded`/`Inexact` 标志。认证循环前的界限会选取与真实结果同侧且处于已证明误差范围内的代表值，并交由常规上下文终结器处理，以正确产生微小性、溢出和 clamp 标志。这些定向用例不计入已提交的 MPFR 行数。`decimal_gda` 目前没有这两个运算，因此本条不声明 GDA 符合性。"
+
+#: manual/conformance/decimal.md:34
 msgid "Targets"
 msgstr "目标"
 
-#: manual/conformance/decimal.md:25
+#: manual/conformance/decimal.md:36
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM 因仓库不包含所需本地产物而排除。target-specific 系数调度不得改变值、编码或 flags。"
 
-#: manual/conformance/decimal.md:27
+#: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:34
 #: manual/design/ball_float.md:771
 #: manual/design/ball_float_checked.md:170
@@ -8112,19 +8116,19 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 msgid "Boundaries"
 msgstr "边界"
 
-#: manual/conformance/decimal.md:29
+#: manual/conformance/decimal.md:40
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr "固定矩阵是有限的，不声明覆盖 IEEE 754 全部操作、所有 payload 传播策略或所有可能十进制输入。补充的 `dd*`/`dq*` decTest 行只作诊断，不是 IEEE oracle。"
 
-#: manual/conformance/decimal.md:31
+#: manual/conformance/decimal.md:42
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr "`Decimal::parse_checked` 通过 `from_string_ctx` 应用 ArithmeticContext 的舍入方向与指数边界。此 checked API 仅返回值或语法错误，因此其 `Result` 不携带溢出或下溢标志。"
 
-#: manual/conformance/decimal.md:36
+#: manual/conformance/decimal.md:47
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏差](../design/decimal.md#known-deviations)。门禁通过仅是所覆盖各行的证据。"
 
-#: manual/conformance/decimal.md:48
+#: manual/conformance/decimal.md:59
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "语料来源、vector family 和失败记录见[十进制数据指南](../../../testdata/decimal/README.md)。"
 
@@ -8165,7 +8169,6 @@ msgid "The arithmetic `ParseChecked` adapter applies its mapped DecimalContext t
 msgstr "arithmetic 的 `ParseChecked` 适配器将映射后的 DecimalContext 用于 GDA 解析，但仅返回值或语法错误。需要观察粘滞状态与陷阱时，应使用接受 `GdaContext` 的 `decimal_gda::parse` API。"
 
 #: manual/conformance/decimal_gda.md:23
-#| msgid "The checked quotient matrix covers zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, including exponent and `Clamped` condition checks."
 msgid "The white-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, checking the folded exponent and the `Clamped` condition."
 msgstr "白盒覆盖测试了钳制扩展上下文中有限除数和无穷除数的零 `divide_integer` 结果，并检查折叠后的指数和 `Clamped` 条件。"
 

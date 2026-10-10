@@ -20,6 +20,17 @@ Wasm-GC, and JavaScript each pass 2,975/2,975 tests after these rows are
 materialized; the full gate is 15,839/15,839. RDFP and Arb remain optional
 secondary routes and are not counted when unavailable.
 
+IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and
+`Decimal::expm1_ctx` are in
+`src/decimal/elementary_extensions_wbtest.mbt`. They check positive and
+negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values,
+both clamp settings, both extended settings, and exact `Rounded`/`Inexact`
+flags. The certified pre-loop bound selects a same-side representative within
+the proved gap and passes it through the normal context finalizer, which
+supplies tininess, overflow and clamp flags. These targeted cases are separate
+from the committed MPFR row count. `decimal_gda` currently exposes neither
+operation, so this entry makes no GDA conformance claim.
+
 ## Targets
 
 `just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags.
