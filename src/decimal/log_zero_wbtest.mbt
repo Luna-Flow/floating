@@ -46,7 +46,7 @@ test "logarithms of zero signal division by zero (IEEE 754 9.2.1)" {
     content="-inf [division_by_zero]",
   )
   // A subset context keeps the X3.274 rule: a zero operand is invalid.
-  let subset = DecimalContext::new(precision=9, extended=false)
+  let subset = DecimalContext::new(precision=9, extended=false).unwrap()
   inspect(
     log_zero_show(d("0").ln_ctx(subset)),
     content="nan [invalid_operation]",

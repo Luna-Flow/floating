@@ -23,7 +23,7 @@ fn to_integral_show(result : (Decimal, DecimalFlags)) -> String {
 ///|
 test "to_integral returns integers longer than the precision unchanged" {
   let d = (s : String) => Decimal::from_string(s).unwrap()
-  let p3 = DecimalContext::new(precision=3)
+  let p3 = DecimalContext::new(precision=3).unwrap()
   inspect(
     to_integral_show(d("12345").to_integral_exact(p3)),
     content="12345 []",
@@ -46,7 +46,7 @@ test "to_integral returns integers longer than the precision unchanged" {
 ///|
 test "to_integral keeps integral parts longer than the precision" {
   let d = (s : String) => Decimal::from_string(s).unwrap()
-  let p3 = DecimalContext::new(precision=3)
+  let p3 = DecimalContext::new(precision=3).unwrap()
   inspect(
     to_integral_show(d("12345.6").to_integral_exact(p3)),
     content="12346 [Inexact,Rounded]",
@@ -61,7 +61,7 @@ test "to_integral keeps integral parts longer than the precision" {
   )
   inspect(
     to_integral_show(
-      d("-99.9").to_integral_exact(DecimalContext::new(precision=2)),
+      d("-99.9").to_integral_exact(DecimalContext::new(precision=2).unwrap()),
     ),
     content="-100 [Inexact,Rounded]",
   )
@@ -70,7 +70,7 @@ test "to_integral keeps integral parts longer than the precision" {
 ///|
 test "to_integral in a subset context rounds the operand first" {
   let d = (s : String) => Decimal::from_string(s).unwrap()
-  let p3 = DecimalContext::new(precision=3, extended=false)
+  let p3 = DecimalContext::new(precision=3, extended=false).unwrap()
   inspect(
     to_integral_show(d("12345.6").to_integral_exact(p3)),
     content="1.23E+4 [Inexact,Rounded,LostDigits]",

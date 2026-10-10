@@ -71,7 +71,7 @@ test "GDA Decimal contextual conversion preserves exponent bounds and clamp" {
     e_max=384,
     clamp=true,
   )
-  let context = DecimalContext::from_arithmetic_context(arithmetic)
+  let context = DecimalContext::from_arithmetic_context(arithmetic).unwrap()
   assert_eq(context.precision(), 16)
   assert_eq(context.e_min(), -383)
   assert_eq(context.e_max(), 384)

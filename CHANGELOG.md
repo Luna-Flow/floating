@@ -6,6 +6,12 @@ notes live in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Decimal and GDA contexts now return an error for precision or exponent
+  bounds outside the General Decimal Arithmetic reference limits. Both
+  decimal implementations share checked Etiny/Etop calculations.
+
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each

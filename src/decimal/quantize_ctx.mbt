@@ -398,8 +398,12 @@ fn quantize_finite_to_exponent(
     )
   }
   let mut flags = DecimalFlags::new()
-  let coeff = if value.exponent10 < target {
-    let shift = target - value.exponent10
+  let exponent_delta = target.to_int64() - value.exponent10.to_int64()
+  if exponent_delta > 2_147_483_647L {
+    return (Decimal::nan(precision~), invalid_flags())
+  }
+  let coeff = if exponent_delta > 0L {
+    let shift = exponent_delta.to_int()
     let (rounded, inexact) = round_positive_decimal_div_pow10_repr(
       value.coefficient,
       shift,
@@ -408,11 +412,13 @@ fn quantize_finite_to_exponent(
     )
     flags = { ..flags, rounded: true, inexact, }
     rounded
-  } else if value.exponent10 > target {
-    let shift = value.exponent10 - target
-    if ctx.precision > 0 && shift > ctx.precision - value.coefficient.digits10() {
+  } else if exponent_delta < 0L {
+    let shift64 = -exponent_delta
+    if ctx.precision > 0 &&
+      shift64 > (ctx.precision - value.coefficient.digits10()).to_int64() {
       return (Decimal::nan(precision~), invalid_flags())
     }
+    let shift = shift64.to_int()
     dec_coeff_shift_power10_repr(value.coefficient, shift)
   } else {
     value.coefficient
@@ -420,7 +426,7 @@ fn quantize_finite_to_exponent(
   if ctx.precision > 0 && coeff.digits10() > ctx.precision {
     return (Decimal::nan(precision~), invalid_flags())
   }
-  if target > ctx.e_max - coeff.digits10() + 1 {
+  if target.to_int64() > ctx.e_max.to_int64() - coeff.digits10().to_int64() + 1L {
     return (Decimal::nan(precision~), invalid_flags())
   }
   let (result, final_flags) = finalize_finite_ctx(

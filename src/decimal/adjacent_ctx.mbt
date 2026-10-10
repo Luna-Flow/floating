@@ -66,7 +66,14 @@ fn next_quantum(
   } else {
     1
   }
-  Int::max(etiny(ctx), adjusted_exponent(value) - precision + boundary_adjust)
+  Int::max(
+    etiny(ctx),
+    decimal_int_from_int64_clamped(
+      adjusted_exponent64(value) -
+      precision.to_int64() +
+      boundary_adjust.to_int64(),
+    ),
+  )
 }
 
 ///|
@@ -94,7 +101,7 @@ fn next_toward_flags(
       rounded: true,
       clamped: !source.coefficient.is_zero(),
     }
-  } else if adjusted_exponent(result) < ctx.e_min {
+  } else if adjusted_exponent64(result) < ctx.e_min.to_int64() {
     {
       ..DecimalFlags::new(),
       underflow: true,
@@ -129,7 +136,7 @@ fn max_finite_for(ctx : DecimalContext, negative : Bool) -> Decimal {
   finite_with_exponent(
     negative,
     pow10(precision) - bigint_one(),
-    ctx.e_max - precision + 1,
+    etop(ctx, precision),
     precision,
   )
 }
@@ -201,7 +208,7 @@ fn decimal_next(
         let candidate = finite_next_candidate_repr(
           units_negative, units_magnitude, quantum, precision,
         )
-        if adjusted_exponent(candidate) > ctx.e_max {
+        if adjusted_exponent64(candidate) > ctx.e_max.to_int64() {
           (
             Decimal::inf(
               if candidate.negative {

@@ -14,7 +14,7 @@ test "remainder keeps only the flags of the delivered remainder" {
         e_max=4,
         clamp~,
         extended~,
-      )
+      ).unwrap()
       let (value, flags) = x.remainder(y, ctx)
       assert_eq(value.to_string(), "6.00000000E-15")
       assert_true(flags == DecimalFlags::new())
@@ -26,7 +26,7 @@ test "remainder keeps only the flags of the delivered remainder" {
     e_min=-24,
     e_max=4,
     extended=false,
-  )
+  ).unwrap()
   let (value, flags) = Decimal::from_string("123456789")
     .unwrap()
     .remainder(Decimal::from_string("7").unwrap(), subset)
@@ -38,7 +38,7 @@ test "remainder keeps only the flags of the delivered remainder" {
 /// With a zero quotient the remainder is the dividend at the smaller exponent;
 /// only that result may be clamped, not the dividend at its own exponent.
 test "a zero-quotient remainder is clamped only at its result" {
-  let ctx = DecimalContext::new(precision=9, e_min=-24, e_max=4, clamp=true)
+  let ctx = DecimalContext::new(precision=9, e_min=-24, e_max=4, clamp=true).unwrap()
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   let (r, r_flags) = d("-80E-3").remainder(d("4442621E-4"), ctx)
   assert_eq(r.to_string(), "-0.0800")

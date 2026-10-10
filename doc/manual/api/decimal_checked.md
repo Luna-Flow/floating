@@ -136,7 +136,7 @@ every `Double` exactly.
 ```moonbit
 ///|
 test "construction records conversion flags" {
-  let ctx = @decimal.DecimalContext::new(precision=5)
+  let ctx = @decimal.DecimalContext::new(precision=5).unwrap()
   let parsed = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
   inspect(parsed.value().to_string(), content="1.2346")
   inspect(flags(parsed.raised()), content="inexact,rounded")
@@ -233,7 +233,7 @@ pub fn DecimalChecked::apply(Self) -> Self
 ```moonbit
 ///|
 test "raised versus accumulated flags" {
-  let ctx = @decimal.DecimalContext::new(precision=5)
+  let ctx = @decimal.DecimalContext::new(precision=5).unwrap()
   let start = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
   let step = start.add(@decimal.Decimal::from_int(1))
   inspect(flags(step.raised()), content="")
@@ -386,7 +386,7 @@ test "elementary functions under a bounded context" {
   inspect(flags(ln2.raised()), content="inexact,rounded")
   let unbounded = @decimal_checked.DecimalChecked::from_int(
     2,
-    @decimal.DecimalContext::new(precision=16),
+    @decimal.DecimalContext::new(precision=16).unwrap(),
   ).ln()
   inspect(unbounded.value().to_string(), content="nan")
   inspect(flags(unbounded.raised()), content="invalid_context")

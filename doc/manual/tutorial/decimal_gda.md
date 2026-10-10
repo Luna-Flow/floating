@@ -256,7 +256,7 @@ test "comparisons and text" {
   inspect(@decimal_gda.class_name(big, ctx).value(), content="+Normal")
   let (eng, _) = @decimal_gda.Decimal::to_eng_string(
     "123E+5",
-    @decimal_gda.DecimalContext::new(),
+    @decimal_gda.DecimalContext::new().unwrap(),
   )
   inspect(eng, content="12.3E+6")
 }

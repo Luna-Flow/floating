@@ -65,7 +65,7 @@ fn scaleb_finite_result_ctx(
     let (lower64, upper64) = if ctx.precision > 0 {
       (
         etiny(ctx).to_int64(),
-        (if ctx.clamp { ctx.e_max - precision + 1 } else { ctx.e_max }).to_int64(),
+        (if ctx.clamp { etop(ctx, precision) } else { ctx.e_max }).to_int64(),
       )
     } else {
       (-2147483648L, 2147483647L)
