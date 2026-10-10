@@ -45,7 +45,7 @@ operation raised.
 ```moonbit
 ///|
 test "quick start: one third in nine digits" {
-  let ctx = @decimal_gda.context(precision=9)
+  let ctx = @decimal_gda.context(precision=9).unwrap()
   let one = @decimal_gda.parse("1", ctx)
   let three = @decimal_gda.Decimal::from_string("3").unwrap()
   let third = @decimal_gda.divide(one.value(), three, one.next_context())
@@ -69,7 +69,7 @@ is a value, not a mutable object.
 ```moonbit
 ///|
 test "sticky status follows the threaded context" {
-  let start = @decimal_gda.context(precision=5)
+  let start = @decimal_gda.context(precision=5).unwrap()
   let two = @decimal_gda.Decimal::from_string("2").unwrap()
   let three = @decimal_gda.Decimal::from_string("3").unwrap()
   let q = @decimal_gda.divide(two, three, start) // inexact
@@ -96,7 +96,7 @@ That is how you round an amount to cents:
 ///|
 test "round to cents with quantize" {
   let even = @decimal_gda.GdaContext::decimal64() // HalfEven
-  let half_up = @decimal_gda.context(precision=16, rounding=HalfUp)
+  let half_up = @decimal_gda.context(precision=16, rounding=HalfUp).unwrap()
   let price = @decimal_gda.Decimal::from_string("2.50").unwrap()
   let qty = @decimal_gda.Decimal::from_string("3").unwrap()
   inspect(@decimal_gda.multiply(price, qty, even).value(), content="7.50")
@@ -182,7 +182,7 @@ test "overflow and underflow in decimal32" {
     e_min=-95,
     e_max=96,
     clamp=true,
-  )
+  ).unwrap()
   let big = @decimal_gda.Decimal::from_string("9E+96").unwrap()
   let ten = @decimal_gda.Decimal::from_string("10").unwrap()
   inspect(@decimal_gda.multiply(big, ten, d32).value(), content="inf")
@@ -223,7 +223,7 @@ test "elementary functions" {
     rounding=Floor,
     e_min=-999_999,
     e_max=999_999,
-  )
+  ).unwrap()
   let three_halves = @decimal_gda.Decimal::from_string("1.5").unwrap()
   inspect(@decimal_gda.exp(one, floor3).value(), content="2.72") // still half-even
   inspect(@decimal_gda.power(two, three_halves, floor3).value(), content="2.82") // floor

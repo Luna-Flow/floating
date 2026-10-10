@@ -76,3 +76,93 @@ test "GDA decimal context rejects out of range fields without aborting" {
   assert_true(DecimalContext::new(e_min=-1_000_000_000) is Err(_))
   assert_true(DecimalContext::new(e_max=1_000_000_000) is Err(_))
 }
+
+///|
+/// GDA division must not wrap the distance from a p=1 quotient to Etiny.
+test "p=1 extreme division overflows without aborting" {
+  let ctx = DecimalContext::new(
+    precision=1,
+    e_min=-999_999_999,
+    e_max=999_999_999,
+  ).unwrap()
+  let (value, flags) = Decimal::make(9N, 999_999_999, 1).div_ctx(
+    Decimal::make(5N, -999_999_999, 1),
+    ctx,
+  )
+  assert_true(value.is_infinite())
+  assert_true(flags.overflow && flags.inexact && flags.rounded)
+}
+
+///|
+/// GDA integral and quantize conversions with an unrepresentable shift use a
+/// sticky zero result at the requested quantum, with the specified flags.
+test "huge quantize and to-integral shifts round to zero" {
+  let ctx = DecimalContext::new(
+    precision=1,
+    e_min=-999_999_999,
+    e_max=999_999_999,
+  ).unwrap()
+  let tiny = Decimal::make(1N, -2_147_483_648, 1)
+  let (quantized, quantize_flags) = tiny.quantize(
+    Decimal::make(1N, 999_999_999, 1),
+    ctx,
+  )
+  assert_true(quantized.is_zero())
+  assert_eq(quantized.exponent10, 999_999_999)
+  assert_true(quantize_flags.inexact && quantize_flags.rounded)
+  assert_false(quantize_flags.invalid_operation)
+
+  let (exact, exact_flags) = tiny.to_integral_exact(ctx)
+  assert_true(exact.is_zero())
+  assert_eq(exact.exponent10, 0)
+  assert_true(exact_flags.inexact && exact_flags.rounded)
+  let (silent, silent_flags) = tiny.to_integral_value(ctx)
+  assert_true(silent.is_zero())
+  assert_false(silent_flags.inexact || silent_flags.rounded)
+}
+
+///|
+/// Adjacent-value operations handle Int::min when the context Etiny is zero.
+test "next operations handle Int minimum with zero etiny" {
+  let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999).unwrap()
+  let tiny = Decimal::make(1N, -2_147_483_648, 34)
+  let (plus, plus_flags) = tiny.next_plus(ctx)
+  assert_eq(plus.to_string(), "1")
+  assert_true(plus_flags == DecimalFlags::new())
+  let (minus, minus_flags) = tiny.next_minus(ctx)
+  assert_true(minus.is_zero())
+  assert_true(minus_flags == DecimalFlags::new())
+  let (toward, toward_flags) = tiny.next_toward(Decimal::zero(), ctx)
+  assert_true(toward.is_zero())
+  assert_true(
+    toward_flags.underflow && toward_flags.inexact && toward_flags.rounded,
+  )
+}
+
+///|
+/// GdaContext validates through the same reference bounds before constructing
+/// a DecimalContext for stateful operations.
+test "GdaContext rejects precision and exponent bounds outside reference limits" {
+  assert_true(GdaContext::try_new(precision=999_999_999) is Ok(_))
+  assert_true(GdaContext::try_new(e_min=-999_999_999) is Ok(_))
+  assert_true(GdaContext::try_new(e_max=999_999_999) is Ok(_))
+  assert_true(GdaContext::new(precision=999_999_999) is Ok(_))
+  assert_true(GdaContext::new(e_min=-999_999_999) is Ok(_))
+  assert_true(GdaContext::new(e_max=999_999_999) is Ok(_))
+  assert_true(GdaContext::try_new(precision=2_000_000_000) is Err(_))
+  assert_true(GdaContext::try_new(precision=-1) is Err(_))
+  assert_true(GdaContext::try_new(e_min=-2_147_483_648) is Err(_))
+  assert_true(GdaContext::try_new(e_min=-1_000_000_000) is Err(_))
+  assert_true(GdaContext::try_new(e_max=2_147_483_647) is Err(_))
+  assert_true(GdaContext::try_new(e_max=1_000_000_000) is Err(_))
+  assert_true(GdaContext::try_new(precision=0) is Err(_))
+  assert_true(GdaContext::try_new(e_min=1, e_max=0) is Err(_))
+  assert_true(GdaContext::new(precision=2_000_000_000) is Err(_))
+  assert_true(GdaContext::new(precision=-1) is Err(_))
+  assert_true(GdaContext::new(e_min=-2_147_483_648) is Err(_))
+  assert_true(GdaContext::new(e_min=-1_000_000_000) is Err(_))
+  assert_true(GdaContext::new(e_max=2_147_483_647) is Err(_))
+  assert_true(GdaContext::new(e_max=1_000_000_000) is Err(_))
+  assert_true(GdaContext::new(precision=0) is Err(_))
+  assert_true(GdaContext::new(e_min=1, e_max=0) is Err(_))
+}

@@ -27,7 +27,7 @@ pub fn compare_total(Decimal, Decimal, GdaContext) -> GdaOutcome[Int]
 
 pub fn compare_total_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Int]
 
-pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> GdaContext
+pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Result[GdaContext, @Luna-Flow/arithmetic.ArithmeticError]
 
 pub fn decimal128_context() -> GdaContext
 
@@ -406,7 +406,7 @@ pub fn GdaContext::default() -> Self
 pub fn GdaContext::e_max(Self) -> Int
 pub fn GdaContext::e_min(Self) -> Int
 pub fn GdaContext::extended(Self) -> Bool
-pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
+pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @Luna-Flow/arithmetic.ArithmeticError]
 pub fn GdaContext::precision(Self) -> Int
 pub fn GdaContext::radix(Self) -> Int
 pub fn GdaContext::reset(Self) -> Self

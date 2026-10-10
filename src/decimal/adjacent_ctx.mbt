@@ -5,16 +5,17 @@ fn signed_units_at_quantum_repr(
   value : Decimal,
   quantum : Int,
 ) -> ((Bool, DecCoeff), (Bool, DecCoeff), Bool) {
-  let shift = value.exponent10 - quantum
+  let shift = value.exponent10.to_int64() - quantum.to_int64()
   if shift >= 0 {
-    let units = dec_coeff_shift_power10_repr(value.coefficient, shift)
+    let units = dec_coeff_shift_power10_repr(value.coefficient, shift.to_int())
     let signed = (value.negative, units)
     return (signed, signed, true)
   }
   let scale = -shift
-  let (quotient, exact) = if scale >= value.coefficient.digits10() {
+  let (quotient, exact) = if scale >= value.coefficient.digits10().to_int64() {
     (dec_coeff_zero(), false)
   } else {
+    let scale = scale.to_int()
     let (quotient0, remainder) = dec_coeff_div_rem_repr(
       value.coefficient,
       dec_coeff_power10_repr(scale),

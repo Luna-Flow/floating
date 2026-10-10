@@ -9,7 +9,7 @@ test "GDA outcomes retain sticky status and defined trap results" {
       precision=9,
       rounding=GdaRoundingMode::HalfUp,
       extended=false,
-    ),
+    ).unwrap(),
   )
   match disabled {
     GdaOutcome::Completed(value, context, raised) => {
@@ -94,7 +94,7 @@ test "GDA exact outcomes preserve sticky status without raising flags" {
   let sticky = divide(
     Decimal::one(precision=9),
     Decimal::zero(precision=9),
-    GdaContext::new(),
+    GdaContext::new().unwrap(),
   ).next_context()
   let outcome = add(
     Decimal::one(precision=9),
@@ -174,7 +174,7 @@ test "GDA basic context matches the 1.70 defaults" {
 test "GDA invalid conditions signal InvalidOperation" {
   let outcome = parse(
     "not-a-number",
-    GdaContext::new().trap(GdaSignal::InvalidOperation),
+    GdaContext::new().unwrap().trap(GdaSignal::InvalidOperation),
   )
   match outcome {
     GdaOutcome::Trapped(signal, value, context, raised) => {

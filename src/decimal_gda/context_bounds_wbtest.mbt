@@ -33,7 +33,7 @@ fn context_bounds_case(
   e_min : Int,
   e_max : Int,
 ) -> String raise {
-  let gda = GdaContext::new(precision~, e_min~, e_max~)
+  let gda = GdaContext::new(precision~, e_min~, e_max~).unwrap()
   let ctx = DecimalContext::new(precision~, e_min~, e_max~).unwrap()
   let lhs = Decimal::from_string(operands[0]).unwrap()
   let (outcome, direct) = match operation {

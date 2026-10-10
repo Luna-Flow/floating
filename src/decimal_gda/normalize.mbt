@@ -855,12 +855,12 @@ fn expand_inexact_division_cohort(
   let target = etiny(ctx)
   let digits = value.coefficient.digits10()
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
-  if target < value.exponent10 {
-    let shift = value.exponent10 - target
-    if digits + shift <= precision {
+  let shift = value.exponent10.to_int64() - target.to_int64()
+  if shift > 0L {
+    if digits.to_int64() + shift <= precision.to_int64() {
       return finite_with_exponent_repr(
         value.negative,
-        gda_coeff_shift_power10_repr(value.coefficient, shift),
+        gda_coeff_shift_power10_repr(value.coefficient, shift.to_int()),
         target,
         value.precision_,
       )

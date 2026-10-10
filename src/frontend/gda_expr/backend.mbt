@@ -265,7 +265,7 @@ fn resolve_context(context : GdaContext) -> ResolvedContext? {
       clamp=context.clamp(),
       extended=context.extended(),
       traps=@decimal_gda.GdaTrapSet::none(),
-    ),
+    ).unwrap(),
   })
 }
 

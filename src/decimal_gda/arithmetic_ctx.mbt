@@ -835,6 +835,18 @@ fn Decimal::decimal_fma_ctx_impl(
         multiplier.exponent10.to_int64()
       if addend.class == FpClass::Finite &&
         !product_coeff.is_zero() &&
+        !addend.coefficient.is_zero() {
+        let product_adjusted = product_exponent +
+          (product_coeff.digits10() - 1).to_int64()
+        let addend_adjusted = addend.exponent10.to_int64() +
+          (addend.coefficient.digits10() - 1).to_int64()
+        if product_adjusted > ctx.e_max.to_int64() &&
+          product_adjusted - addend_adjusted > precision.to_int64() + 2L {
+          return decimal_overflow_result(product_negative, ctx)
+        }
+      }
+      if addend.class == FpClass::Finite &&
+        !product_coeff.is_zero() &&
         product_exponent > 2147483647L {
         return decimal_overflow_result(product_negative, ctx)
       }

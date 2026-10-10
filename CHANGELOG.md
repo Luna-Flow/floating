@@ -8,9 +8,11 @@ notes live in this file.
 
 ### Fixed
 
-- Decimal and GDA contexts now return an error for precision or exponent
-  bounds outside the General Decimal Arithmetic reference limits. Both
-  decimal implementations share checked Etiny/Etop calculations.
+- **Breaking:** `DecimalContext::new` and `GdaContext::new` now return
+  `Result` and reject precision or exponent bounds outside the General Decimal
+  Arithmetic reference limits. Call `.unwrap()` for known-valid parameters or
+  handle the domain error. Both decimal implementations share checked
+  Etiny/Etop calculations (#145).
 
 ### Added
 

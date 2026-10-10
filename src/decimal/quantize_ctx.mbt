@@ -399,17 +399,25 @@ fn quantize_finite_to_exponent(
   }
   let mut flags = DecimalFlags::new()
   let exponent_delta = target.to_int64() - value.exponent10.to_int64()
-  if exponent_delta > 2_147_483_647L {
-    return (Decimal::nan(precision~), invalid_flags())
-  }
   let coeff = if exponent_delta > 0L {
-    let shift = exponent_delta.to_int()
-    let (rounded, inexact) = round_positive_decimal_div_pow10_repr(
-      value.coefficient,
-      shift,
-      negative,
-      ctx.decimal_rounding,
-    )
+    let (rounded, inexact) = if exponent_delta >
+      value.coefficient.digits10().to_int64() {
+      let increment = match ctx.decimal_rounding {
+        Down | HalfEven | HalfUp | HalfDown => false
+        Ceiling => !negative
+        Floor => negative
+        Up => true
+        ZeroFiveUp => true
+      }
+      (if increment { dec_coeff_from_int(1) } else { dec_coeff_zero() }, true)
+    } else {
+      round_positive_decimal_div_pow10_repr(
+        value.coefficient,
+        exponent_delta.to_int(),
+        negative,
+        ctx.decimal_rounding,
+      )
+    }
     flags = { ..flags, rounded: true, inexact, }
     rounded
   } else if exponent_delta < 0L {
