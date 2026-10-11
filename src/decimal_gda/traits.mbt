@@ -19,7 +19,8 @@ fn contextual_diagnostics(
 /// translated from `context` (#111). The mathematical functions (`exp`, and
 /// `power` with a non-integral or very large exponent) are only defined for
 /// precision, `e_max` and `-e_min` of at most 999,999; every other operation
-/// for at most 999,999,999. `from_arithmetic_context` keeps the full GDA range
+/// for at most 999,999,999. `from_arithmetic_context` keeps the default
+/// decNumber-limit range
 /// (±999,999,999) when the `ArithmeticContext` sets no exponent bounds, so the
 /// mathematical functions need the caller to set them. The bounds are never
 /// chosen silently: the error says which ones are missing.

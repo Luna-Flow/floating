@@ -64,12 +64,69 @@ test "quantize with extreme exponent distance returns invalid operation" {
 
 ///|
 test "decimal context rejects out of range fields without aborting" {
+  assert_true(DecimalContext::try_new(precision=1) is Ok(_))
+  assert_true(DecimalContext::try_new(precision=0) is Err(_))
   assert_true(DecimalContext::try_new(precision=999_999_999) is Ok(_))
   assert_true(DecimalContext::try_new(e_min=-999_999_999) is Ok(_))
   assert_true(DecimalContext::try_new(e_max=999_999_999) is Ok(_))
   assert_true(DecimalContext::try_new(precision=1_000_000_000) is Err(_))
   assert_true(DecimalContext::try_new(e_min=-1_000_000_000) is Err(_))
   assert_true(DecimalContext::try_new(e_max=1_000_000_000) is Err(_))
+  match DecimalContext::try_new(precision=0) {
+    Err(error) =>
+      assert_eq(error.message, "precision must be within 1..=999999999")
+    Ok(_) => fail("zero precision must be rejected")
+  }
+  match DecimalContext::try_new(precision=1_000_000_000) {
+    Err(error) =>
+      assert_eq(error.message, "precision must be within 1..=999999999")
+    Ok(_) => fail("precision above the maximum must be rejected")
+  }
+  match DecimalContext::try_new(e_min=-1_000_000_000) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("e_min below the minimum must be rejected")
+  }
+  match DecimalContext::try_new(e_max=1_000_000_000) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("e_max above the maximum must be rejected")
+  }
+  for
+    (result, expected) in [
+      (DecimalContext::try_new(e_min=1), "e_min must be within -999999999..=0"),
+      (DecimalContext::try_new(e_max=-1), "e_max must be within 0..=999999999"),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid decimal context sign must be rejected")
+    }
+  }
+  for
+    (result, expected) in [
+      (
+        DecimalContext::new(precision=0),
+        "precision must be within 1..=999999999",
+      ),
+      (
+        DecimalContext::new(precision=1_000_000_000),
+        "precision must be within 1..=999999999",
+      ),
+      (
+        DecimalContext::new(e_min=-1_000_000_000),
+        "e_min must be within -999999999..=0",
+      ),
+      (DecimalContext::new(e_min=1), "e_min must be within -999999999..=0"),
+      (
+        DecimalContext::new(e_max=1_000_000_000),
+        "e_max must be within 0..=999999999",
+      ),
+      (DecimalContext::new(e_max=-1), "e_max must be within 0..=999999999"),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid decimal context must be rejected")
+    }
+  }
   assert_true(DecimalContext::new(precision=1_000_000_000) is Err(_))
   assert_true(DecimalContext::new(e_min=-1_000_000_000) is Err(_))
   assert_true(DecimalContext::new(e_max=1_000_000_000) is Err(_))
