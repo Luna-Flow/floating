@@ -272,6 +272,11 @@ fn exact_division_by_power_of_ten_result(
   }
   let precision = finite_precision_for_default(ctx)
   let negative = dividend.negative != divisor.negative
+  let lower_adjusted = adjusted_exponent64(dividend) -
+    adjusted_exponent64(divisor)
+  if lower_adjusted > ctx.e_max.to_int64() {
+    return Some(decimal_overflow_result(negative, ctx))
+  }
   let preferred_exponent = dividend.exponent10 - divisor.exponent10
   let exact_unrounded = normalize_decimal_parts_gda_repr(
     negative,

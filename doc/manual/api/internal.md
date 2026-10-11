@@ -17,7 +17,7 @@ code uses:
 
 | Package | Helpers it uses |
 | --- | --- |
-| `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `CertifiedRefinementBudget`, `certified_failure` |
+| `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `CertifiedRefinementBudget`, `certified_failure` |
 | `bin_float`, `ball_float` | `CertifiedRefinementBudget`, `certified_failure` |
 | `semantic` | `ExactRat` |
 
@@ -27,6 +27,30 @@ kernels. The remaining helpers (`round_shift`, `remove_factor2`,
 `exact_divide_by_power_of_ten`, `compare_abs`, `sign_of_bigint`, `pow2`, the
 `CertifiedDyadic` family and the `result_lift2` combinators) are exercised by
 the `consistency` and package tests only.
+
+## Decimal exponent bounds
+
+`DecimalExponentBounds` validates the reference limit used by both decimal
+cores and computes the context-derived exponent endpoints without `Int`
+wraparound. A precision must be positive and at most 999,999,999; each
+context exponent must be within +/-999,999,999 and `e_min <= e_max`.
+
+```mbti
+pub struct DecimalExponentBounds {
+  valid_ : Bool
+  etiny_ : Int
+  etop_ : Int
+}
+pub fn DecimalExponentBounds::new(Int, Int, Int) -> Self
+pub fn DecimalExponentBounds::is_valid(Self) -> Bool
+pub fn DecimalExponentBounds::etiny(Self) -> Int
+pub fn DecimalExponentBounds::etop(Self) -> Int
+```
+
+For valid inputs, `etiny` is $e_{\min} - p + 1$ and `etop` is
+$e_{\max} - p + 1$. Invalid inputs set `is_valid()` to false; the returned
+endpoints are clamped only to keep this internal value total, and callers
+must reject the context before using them.
 
 ## Importing
 
@@ -650,6 +674,16 @@ pub fn CertifiedRefinementBudget::new(Int, limit? : Int) -> Self
 pub fn CertifiedRefinementBudget::next(Self) -> Self
 pub fn CertifiedRefinementBudget::precision(Self) -> Int
 pub fn CertifiedRefinementBudget::refinements(Self) -> Int
+
+pub struct DecimalExponentBounds {
+  valid_ : Bool
+  etiny_ : Int
+  etop_ : Int
+}
+pub fn DecimalExponentBounds::etiny(Self) -> Int
+pub fn DecimalExponentBounds::etop(Self) -> Int
+pub fn DecimalExponentBounds::is_valid(Self) -> Bool
+pub fn DecimalExponentBounds::new(Int, Int, Int) -> Self
 
 pub struct ExactRat {
   // private fields

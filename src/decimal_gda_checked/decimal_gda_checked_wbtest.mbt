@@ -1,6 +1,6 @@
 ///|
 test "gda checked threads sticky status" {
-  let context = @decimal_gda.GdaContext::new(precision=3)
+  let context = @decimal_gda.GdaContext::new(precision=3).unwrap()
   let parsed = GdaDecimalChecked::parse("1.2345", context)
   assert_true(parsed.raised().contains(@decimal_gda.GdaSignal::Rounded))
   let result = parsed.add(@decimal_gda.Decimal::zero())

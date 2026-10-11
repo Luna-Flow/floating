@@ -383,7 +383,7 @@ def render_moon_fixture_test() -> str:
         ctx = (
             "DecimalContext::new("
             f"precision={precision}, e_min={e_min}, e_max={e_max}, clamp=true, "
-            f"decimal_rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]})"
+            f"decimal_rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]}).unwrap()"
         )
         rhs = (
             f"Decimal::from_string({_moon_string(row['right'])}).unwrap()"

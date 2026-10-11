@@ -42,7 +42,7 @@ test "decimal integer powers are correctly rounded" {
 /// pown_ctx built its exponent at the context precision, so an exponent
 /// longer than the precision was rounded and could change parity (#51).
 test "decimal pown keeps the integer exponent exact" {
-  let ctx = DecimalContext::new(precision=7)
+  let ctx = DecimalContext::new(precision=7).unwrap()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   assert_eq(power_case(d("-1").pown_ctx(12345679, ctx)), "-1")
   assert_eq(
@@ -50,7 +50,9 @@ test "decimal pown keeps the integer exponent exact" {
     power_case(d("-1").pown_ctx(12345679, ctx)),
   )
   assert_eq(
-    power_case(d("-0.02").pown_ctx(115, DecimalContext::new(precision=2))),
+    power_case(
+      d("-0.02").pown_ctx(115, DecimalContext::new(precision=2).unwrap()),
+    ),
     "-4.2E-196 inexact",
   )
 }
@@ -95,7 +97,7 @@ test "decimal power returns exact non-integral powers" {
   // An irrational power is still rounded and inexact.
   assert_eq(power_case(d("2").power_ctx(d("0.5"), c32)), "1.414214 inexact")
   // 4^2048.5 = 2^4097 has 1234 digits, so it is rounded to the precision.
-  let wide = DecimalContext::new(precision=34, e_max=999_999, e_min=-999_999)
+  let wide = DecimalContext::new(precision=34, e_max=999_999, e_min=-999_999).unwrap()
   assert_eq(
     power_case(d("4").power_ctx(d("2048.5"), wide)),
     "2.088777762826305013383505421433249E+1233 inexact",
@@ -109,7 +111,7 @@ test "decimal power returns exact non-integral powers" {
 /// non-integral power signals Invalid context rather than computing.
 test "decimal power rejects contexts outside the math function range" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let default_e_min = DecimalContext::new(precision=34, e_max=999_999)
+  let default_e_min = DecimalContext::new(precision=34, e_max=999_999).unwrap()
   let (value, flags) = d("4").power_ctx(d("2048.5"), default_e_min)
   assert_true(value.is_nan())
   assert_true(flags.contains(DecimalSignal::InvalidContext))

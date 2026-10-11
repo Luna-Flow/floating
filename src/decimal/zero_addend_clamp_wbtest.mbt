@@ -22,7 +22,7 @@ test "a zero addend does not leak a clamp of the other operand" {
       e_min~,
       e_max~,
       clamp=true,
-    )
+    ).unwrap()
     let x = Decimal::from_string(left).unwrap()
     let y = Decimal::from_string(right).unwrap()
     let (value, flags) = if addend == "" {

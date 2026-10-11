@@ -33,8 +33,8 @@ fn context_bounds_case(
   e_min : Int,
   e_max : Int,
 ) -> String raise {
-  let gda = GdaContext::new(precision~, e_min~, e_max~)
-  let ctx = DecimalContext::new(precision~, e_min~, e_max~)
+  let gda = GdaContext::new(precision~, e_min~, e_max~).unwrap()
+  let ctx = DecimalContext::new(precision~, e_min~, e_max~).unwrap()
   let lhs = Decimal::from_string(operands[0]).unwrap()
   let (outcome, direct) = match operation {
     "exp" => (exp(lhs, gda), lhs.exp_ctx(ctx))
@@ -111,7 +111,7 @@ test "an ArithmeticContext without exponent bounds is an invalid context for exp
   // The translation keeps the full GDA range; it does not pick bounds.
   let unbounded = DecimalContext::from_arithmetic_context(
     @lf_arith.ArithmeticContext::new(16),
-  )
+  ).unwrap()
   assert_eq(unbounded.e_min(), -999_999_999)
   assert_eq(unbounded.e_max(), 999_999_999)
   // The GDA form raises Invalid_context ...

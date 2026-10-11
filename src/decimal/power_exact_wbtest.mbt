@@ -57,11 +57,13 @@ test "decimal power keeps inexact non-integral results inexact" {
 /// rounds it like any other value.
 test "decimal power rounds exact non-integral results beyond the precision" {
   let coarse = DecimalContext::new(
-    precision=1,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
-    e_min=-999,
-    e_max=999,
-  ).ieee754()
+      precision=1,
+      decimal_rounding=DecimalRoundingMode::HalfEven,
+      e_min=-999,
+      e_max=999,
+    )
+    .unwrap()
+    .ieee754()
   let (coarse_value, coarse_flags) = Decimal::from_string("4096")
     .unwrap()
     .power_ctx(Decimal::from_string("1.5").unwrap(), coarse)
@@ -115,7 +117,7 @@ test "decimal power rounds long exact non-integral results in every mode" {
         decimal_rounding=mode,
         e_min=-999,
         e_max=999,
-      )
+      ).unwrap()
       let (value, flags) = Decimal::from_string(left)
         .unwrap()
         .power_ctx(Decimal::from_string(right).unwrap(), context)
@@ -148,7 +150,7 @@ test "decimal power decides exact non-integral results past base^p's size (#138)
         decimal_rounding=mode,
         e_min=-999_999,
         e_max=999_999,
-      )
+      ).unwrap()
       let (value, flags) = base.power_ctx(exponent, context)
       assert_eq(
         value.compare_total(
@@ -201,7 +203,7 @@ test "decimal power decides exact powers with large reduced exponents" {
         decimal_rounding=mode,
         e_min=-999_999,
         e_max=999_999,
-      )
+      ).unwrap()
       let (value, flags) = base.power_ctx(exponent, context)
       assert_eq(value.compare_total(want), 0)
       assert_false(flags.inexact)

@@ -56,24 +56,10 @@ test "literal exponents beyond 1.5e9 are not saturated" {
 
 ///|
 test "context conversion of huge exponents overflows or underflows" {
-  let wide = GdaContext::new(e_min=-2_000_000_000, e_max=2_000_000_000)
-  inspect(
-    exponent_range_show(parse("1e1600000000", wide)),
-    content="1E+1600000000 []",
+  assert_true(
+    GdaContext::new(e_min=-2_000_000_000, e_max=2_000_000_000) is Err(_),
   )
-  inspect(
-    exponent_range_show(parse("1e2100000000", wide)),
-    content="inf [Overflow,Inexact,Rounded]",
-  )
-  inspect(
-    exponent_range_show(parse("1e-3000000000", wide)),
-    content="0E-2000000033 [Underflow,Subnormal,Inexact,Rounded,Clamped]",
-  )
-  inspect(
-    exponent_range_show(parse("0e+3000000000", wide)),
-    content="0E+2000000000 [Clamped]",
-  )
-  let floor = GdaContext::new(rounding=GdaRoundingMode::Floor)
+  let floor = GdaContext::new(rounding=GdaRoundingMode::Floor).unwrap()
   inspect(
     exponent_range_show(parse("-1e-99999999999999999999999999", floor)),
     content="-1E-1000000032 [Underflow,Subnormal,Inexact,Rounded]",
@@ -140,9 +126,9 @@ test "context-free literals overflow and underflow instead of failing" {
 test "products and quotients of extreme exponents do not wrap" {
   let big = Decimal::from_string("1E+1500000000").unwrap()
   let small = Decimal::from_string("1E-1500000000").unwrap()
-  let ctx = GdaContext::new()
-  let up = GdaContext::new(rounding=GdaRoundingMode::Up)
-  let down = GdaContext::new(rounding=GdaRoundingMode::Down)
+  let ctx = GdaContext::new().unwrap()
+  let up = GdaContext::new(rounding=GdaRoundingMode::Up).unwrap()
+  let down = GdaContext::new(rounding=GdaRoundingMode::Down).unwrap()
   inspect(
     exponent_range_show(multiply(big, big, ctx)),
     content="inf [Overflow,Inexact,Rounded]",

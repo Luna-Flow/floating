@@ -11,7 +11,7 @@ test "decimal checked preserves IEEE defined results" {
 
 ///|
 test "decimal checked accumulates IEEE flags" {
-  let context = @decimal.DecimalContext::new(precision=3)
+  let context = @decimal.DecimalContext::new(precision=3).unwrap()
   let parsed = DecimalChecked::parse("1.2345", context)
   assert_true(parsed.raised().contains(@decimal.DecimalSignal::Rounded))
   let result = parsed.add(@decimal.Decimal::zero())

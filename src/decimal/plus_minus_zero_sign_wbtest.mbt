@@ -14,7 +14,7 @@ test "plus and minus of a zero follow the addition sign rule" {
     DecimalRoundingMode::ZeroFiveUp,
   ]
   for mode in modes {
-    let ctx = DecimalContext::new(precision=16, decimal_rounding=mode)
+    let ctx = DecimalContext::new(precision=16, decimal_rounding=mode).unwrap()
     let floor = mode == DecimalRoundingMode::Floor
     let check = (
       op : (Decimal, DecimalContext) -> (Decimal, DecimalFlags),

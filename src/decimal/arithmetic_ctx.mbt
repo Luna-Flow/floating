@@ -135,7 +135,8 @@ fn add_finite_values_ctx(
     if low_adjusted < target_exponent &&
       ctx.decimal_rounding != DecimalRoundingMode::ZeroFiveUp {
       let (base, base_flags) = apply_finite_ctx(high, ctx)
-      if base_flags.overflow {
+      if base_flags.overflow &&
+        !(high_adjusted == ctx.e_max + 1 && low.negative != high.negative) {
         return (base, base_flags)
       }
       if base_flags == DecimalFlags::new() &&
@@ -176,8 +177,10 @@ fn add_finite_values_ctx(
         sticky_exponent,
         ctx,
       )
-      let sticky_adjusted = sticky_exponent + magnitude.digits10() - 1
-      return if sticky_adjusted < ctx.e_min && flags.inexact {
+      let sticky_adjusted = sticky_exponent.to_int64() +
+        magnitude.digits10().to_int64() -
+        1L
+      return if sticky_adjusted < ctx.e_min.to_int64() && flags.inexact {
         (value, { ..flags, subnormal: true, underflow: true, })
       } else {
         (value, flags)
@@ -206,7 +209,9 @@ fn add_finite_values_ctx(
   let exact_adjusted = if exact_magnitude.is_zero() {
     0
   } else {
-    target + exact_digits - 1
+    decimal_int_from_int64_clamped(
+      target.to_int64() + exact_digits.to_int64() - 1L,
+    )
   }
   let negative = if exact_magnitude.is_zero() {
     ctx.decimal_rounding == DecimalRoundingMode::Floor &&
@@ -277,7 +282,7 @@ fn add_finite_values_ctx(
   } else {
     flags
   }
-  if exact_adjusted < ctx.e_min && flags.inexact {
+  if exact_adjusted.to_int64() < ctx.e_min.to_int64() && flags.inexact {
     (value, { ..flags, subnormal: true, underflow: true, })
   } else {
     (value, flags)
@@ -743,6 +748,22 @@ fn Decimal::decimal_fma_ctx_impl(
         multiplier.exponent10.to_int64()
       if addend.class == FpClass::Finite &&
         !product_coeff.is_zero() &&
+        !addend.coefficient.is_zero() {
+        let product_adjusted = product_exponent +
+          (product_coeff.digits10() - 1).to_int64()
+        let addend_adjusted = addend.exponent10.to_int64() +
+          (addend.coefficient.digits10() - 1).to_int64()
+        // An adjusted exponent exactly at e_max + 1 can still round back to
+        // the largest finite value after an opposite-sign addend.  Only a
+        // product at least one full decade farther out is unconditionally
+        // beyond the finite boundary.
+        if product_adjusted >= ctx.e_max.to_int64() + 2L &&
+          product_adjusted - addend_adjusted > precision.to_int64() + 2L {
+          return decimal_overflow_result(product_negative, ctx)
+        }
+      }
+      if addend.class == FpClass::Finite &&
+        !product_coeff.is_zero() &&
         product_exponent > 2147483647L {
         return decimal_overflow_result(product_negative, ctx)
       }
@@ -811,7 +832,7 @@ fn Decimal::decimal_fma_ctx_impl(
             exact_product,
             addend,
             ctx,
-            allow_shortcuts=false,
+            allow_shortcuts=true,
           )
         FpClass::Infinity =>
           (addend.with_precision(precision, ctx.rounding), DecimalFlags::new())
@@ -827,7 +848,10 @@ pub fn Decimal::div_checked(
   self : Decimal,
   other : Decimal,
 ) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = DecimalContext::new(precision=max_precision(self, other))
+  let ctx = match DecimalContext::new(precision=max_precision(self, other)) {
+    Err(error) => return Err(error)
+    Ok(ctx) => ctx
+  }
   let (value, flags) = self.div_ctx(other, ctx)
   if flags.division_by_zero {
     Err(@def.ArithmeticError::division_by_zero("division by zero"))
@@ -845,7 +869,10 @@ pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = DecimalContext::new(precision=self.precision_)
+  let ctx = match DecimalContext::new(precision=self.precision_) {
+    Err(error) => return Err(error)
+    Ok(ctx) => ctx
+  }
   let (value, flags) = self.sqrt_ctx(ctx)
   if flags.invalid_operation {
     Err(
@@ -983,11 +1010,13 @@ fn decimal_sqrt_fixed_result(
     root_adjusted < ctx.e_min &&
     (
       ctx.tininess != DecimalTininessDetection::AfterRounding ||
-      root_adjusted < ctx.e_min - 1 ||
+      root_adjusted.to_int64() < ctx.e_min.to_int64() - 1L ||
       ({
         let unbounded = {
           ..ctx,
-          e_min: ctx.e_min - precision - 1,
+          e_min: decimal_int_from_int64_clamped(
+            ctx.e_min.to_int64() - precision.to_int64() - 1L,
+          ),
           clamp: false,
         }
         let (rounded, _) = decimal_sqrt_fixed_result(

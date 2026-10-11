@@ -70,7 +70,7 @@ test "Decimal GDA checked parsing uses the arithmetic context" {
   assert_true(overflow.class == FpClass::Infinity)
   let (overflow_value, overflow_flags) = Decimal::from_string_ctx(
     "1E+200",
-    DecimalContext::from_arithmetic_context(decimal32),
+    DecimalContext::from_arithmetic_context(decimal32).unwrap(),
   )
   assert_true(overflow_flags.overflow)
   assert_true(overflow_value.class == FpClass::Infinity)
@@ -83,7 +83,7 @@ test "Decimal GDA checked parsing uses the arithmetic context" {
 
 ///|
 test "GDA divide_integer clamps zero quotient exponents" {
-  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
+  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true).unwrap()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let (finite, finite_flags) = d("-8.95E-6").divide_integer(d("2.40E-5"), ctx)
   inspect(finite.to_string(), content="-0E-7")

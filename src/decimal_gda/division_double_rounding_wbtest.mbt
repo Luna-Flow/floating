@@ -12,7 +12,7 @@ test "gda divide rounds once near a manufactured midpoint" {
       GdaRoundingMode::HalfUp,
       GdaRoundingMode::HalfDown,
     ] {
-    let ctx = GdaContext::new(precision=1, rounding=mode, traps=none)
+    let ctx = GdaContext::new(precision=1, rounding=mode, traps=none).unwrap()
     inspect(divide(one, divisor, ctx).value(), content="0.0005")
   }
 }
@@ -24,7 +24,7 @@ test "gda divide stays exact when the quotient terminates" {
     precision=9,
     rounding=GdaRoundingMode::HalfEven,
     traps=none,
-  )
+  ).unwrap()
   let cases = [
     ("1", "2", "0.5"),
     ("1", "4", "0.25"),

@@ -53,7 +53,7 @@ fn decimal_input(operation : DecimalOperation, digits : Int) -> DecimalInput {
   let precision = left_coeff.to_string().length() +
     right_coeff.to_string().length() +
     4
-  let context = @decimal_core.DecimalContext::new(precision~)
+  let context = @decimal_core.DecimalContext::new(precision~).unwrap()
   let left = @decimal_core.Decimal::from_bigint(left_coeff, precision~)
   let right = @decimal_core.Decimal::from_bigint(right_coeff, precision~)
   {

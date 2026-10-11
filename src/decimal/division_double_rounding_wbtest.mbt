@@ -9,7 +9,7 @@ test "decimal division rounds once near a manufactured midpoint" {
   let b = Decimal::from_string("83294", precision=5).unwrap()
   inspect(a / b, content="0.00018009")
   inspect(
-    a.div_ctx(b, DecimalContext::new(precision=5)).0,
+    a.div_ctx(b, DecimalContext::new(precision=5).unwrap()).0,
     content="0.00018009",
   )
 }
@@ -32,7 +32,7 @@ test "decimal division keeps the context-free and contextual paths equal" {
       let a = Decimal::from_string(left, precision~).unwrap()
       let b = Decimal::from_string(right, precision~).unwrap()
       let operator = a / b
-      let contextual = a.div_ctx(b, DecimalContext::new(precision~)).0
+      let contextual = a.div_ctx(b, DecimalContext::new(precision~).unwrap()).0
       assert_eq(operator, contextual)
     }
   }

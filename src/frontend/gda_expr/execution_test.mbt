@@ -109,14 +109,18 @@ test "gda interpreter reports an invalid context as a diagnostic row" {
     #|maxexponent: -5
     #|minexponent: 5
     #|z2 add 1 1 -> 2
+    #|precision: 9
+    #|maxexponent: 1000000000
+    #|z3 add 1 1 -> 2
     #|
   let document = @gda_expr.parse_dectest("context.decTest", source).unwrap()
   let summary = @gda_expr.execute_documents([document])
-  assert_eq(summary.diagnostic_cases(), 2)
+  assert_eq(summary.diagnostic_cases(), 3)
   assert_eq(summary.executable_cases(), 0)
   let results = summary.results()
   assert_true(results[0].disposition() is Diagnostic(_))
   assert_true(results[1].disposition() is Diagnostic(_))
+  assert_true(results[2].disposition() is Diagnostic(_))
 }
 
 ///|

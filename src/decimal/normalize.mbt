@@ -369,8 +369,37 @@ fn finite_precision_for(magnitude : BigInt, ctx : DecimalContext) -> Int {
 }
 
 ///|
+fn decimal_int_from_int64_clamped(value : Int64) -> Int {
+  if value < -2_147_483_648L {
+    -2_147_483_648
+  } else if value > 2_147_483_647L {
+    2_147_483_647
+  } else {
+    value.to_int()
+  }
+}
+
+///|
 fn etiny(ctx : DecimalContext) -> Int {
-  ctx.e_min - finite_precision_for(bigint_one(), ctx) + 1
+  @internal.DecimalExponentBounds::new(
+    finite_precision_for(bigint_one(), ctx),
+    ctx.e_min,
+    ctx.e_max,
+  ).etiny()
+}
+
+///|
+fn adjusted_exponent64(x : Decimal) -> Int64 {
+  if x.class != FpClass::Finite || x.coefficient.is_zero() {
+    x.exponent10.to_int64()
+  } else {
+    x.exponent10.to_int64() + x.coefficient.digits10().to_int64() - 1L
+  }
+}
+
+///|
+fn etop(ctx : DecimalContext, precision : Int) -> Int {
+  @internal.DecimalExponentBounds::new(precision, ctx.e_min, ctx.e_max).etop()
 }
 
 ///|
@@ -443,7 +472,9 @@ fn adjusted_exponent(x : Decimal) -> Int {
   if x.class != FpClass::Finite || x.coefficient.is_zero() {
     x.exponent10
   } else {
-    x.exponent10 + x.coefficient.digits10() - 1
+    decimal_int_from_int64_clamped(
+      x.exponent10.to_int64() + x.coefficient.digits10().to_int64() - 1L,
+    )
   }
 }
 
@@ -458,7 +489,7 @@ fn finalize_finite_ctx(
     if ctx.precision > 0 {
       let lower = etiny(ctx)
       let upper = if ctx.clamp {
-        ctx.e_max - value.precision_ + 1
+        etop(ctx, value.precision_)
       } else {
         ctx.e_max
       }
@@ -483,10 +514,9 @@ fn finalize_finite_ctx(
     }
     return (value, flags)
   }
-  let unrounded_adjusted = value.exponent10.to_int64() +
-    (value.coefficient.digits10() - 1).to_int64()
-  let adjusted = adjusted_exponent(value)
-  if !ctx.extended && adjusted < ctx.e_min {
+  let unrounded_adjusted = adjusted_exponent64(value)
+  let adjusted = unrounded_adjusted
+  if !ctx.extended && adjusted < ctx.e_min.to_int64() {
     return (
       finite_with_exponent_repr(false, dec_coeff_zero(), 0, value.precision_),
       {
@@ -499,7 +529,7 @@ fn finalize_finite_ctx(
       },
     )
   }
-  if adjusted > ctx.e_max {
+  if adjusted > ctx.e_max.to_int64() {
     let (overflowed, overflow_flags) = decimal_overflow_result(
       value.negative,
       ctx,
@@ -510,7 +540,9 @@ fn finalize_finite_ctx(
   let mut flags = flags
   if ctx.precision > 0 && value.exponent10 < etiny(ctx) {
     let tiny = etiny(ctx)
-    let shift = tiny - value.exponent10
+    let shift = decimal_int_from_int64_clamped(
+      tiny.to_int64() - value.exponent10.to_int64(),
+    )
     let target_digits = value.coefficient.digits10() - shift
     let (magnitude, next_exponent, _, inexact) = decimal_round_coeff_to_digits_repr(
       value.coefficient,
@@ -546,8 +578,7 @@ fn finalize_finite_ctx(
       return (value, { ..flags, clamped: true, rounded: true, })
     }
   }
-  let adjusted2 = adjusted_exponent(value)
-  if adjusted2 < ctx.e_min {
+  if adjusted_exponent64(value) < ctx.e_min.to_int64() {
     flags = { ..flags, subnormal: true, }
     if flags.inexact {
       flags = { ..flags, underflow: true, }
@@ -556,9 +587,11 @@ fn finalize_finite_ctx(
     }
   }
   if ctx.clamp && ctx.precision > 0 {
-    let e_top = ctx.e_max - ctx.precision + 1
+    let e_top = etop(ctx, ctx.precision)
     if value.exponent10 > e_top {
-      let shift = value.exponent10 - e_top
+      let shift = decimal_int_from_int64_clamped(
+        value.exponent10.to_int64() - e_top.to_int64(),
+      )
       value = finite_with_exponent_repr(
         value.negative,
         dec_coeff_shift_power10_repr(value.coefficient, shift),
@@ -590,11 +623,15 @@ fn normalize_decimal_parts_ctx_repr(
   if apply_etiny &&
     ctx.precision > 0 &&
     !magnitude.is_zero() &&
-    exponent10 + Int::max(0, magnitude.digits10() - precision) < etiny(ctx) {
+    exponent10.to_int64() +
+    Int::max(0, magnitude.digits10() - precision).to_int64() <
+    etiny(ctx).to_int64() {
     let unrounded_adjusted = exponent10.to_int64() +
       (magnitude.digits10() - 1).to_int64()
     let etiny_value = etiny(ctx)
-    let shift = etiny_value - exponent10
+    let shift = decimal_int_from_int64_clamped(
+      etiny_value.to_int64() - exponent10.to_int64(),
+    )
     let target_digits = magnitude.digits10() - shift
     let (rounded_magnitude0, next_exponent0, _, inexact) = decimal_round_coeff_to_digits_repr(
       magnitude,
@@ -604,8 +641,10 @@ fn normalize_decimal_parts_ctx_repr(
       ctx.decimal_rounding,
     )
     let (rounded_magnitude, next_exponent) = if !rounded_magnitude0.is_zero() &&
-      etiny_value < next_exponent0 {
-      let restore_shift = next_exponent0 - etiny_value
+      etiny_value.to_int64() < next_exponent0.to_int64() {
+      let restore_shift = decimal_int_from_int64_clamped(
+        next_exponent0.to_int64() - etiny_value.to_int64(),
+      )
       let restored = dec_coeff_shift_power10_repr(
         rounded_magnitude0, restore_shift,
       )
@@ -783,7 +822,7 @@ fn with_underflow_for_inexact_subnormal(
 ) -> DecimalFlags {
   if flags.inexact &&
     value.class == FpClass::Finite &&
-    adjusted_exponent(value) < ctx.e_min {
+    adjusted_exponent64(value) < ctx.e_min.to_int64() {
     { ..flags, subnormal: true, underflow: true, }
   } else {
     flags
@@ -870,7 +909,7 @@ fn expand_inexact_division_cohort(
       )
     }
   }
-  guard pad_precision && adjusted_exponent(value) >= ctx.e_min else {
+  guard pad_precision && adjusted_exponent64(value) >= ctx.e_min.to_int64() else {
     return value
   }
   let shift = precision - digits
@@ -1007,7 +1046,7 @@ fn reduce_finite_cohort_ctx(value : Decimal, ctx : DecimalContext) -> Decimal {
   guard value.class == FpClass::Finite else { return value }
   guard !value.coefficient.is_zero() else { return value.normalized() }
   let upper = if ctx.clamp && ctx.precision > 0 {
-    ctx.e_max - finite_precision_for(bigint_zero(), ctx) + 1
+    etop(ctx, finite_precision_for(bigint_zero(), ctx))
   } else {
     ctx.e_max
   }

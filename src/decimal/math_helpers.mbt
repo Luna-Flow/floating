@@ -789,7 +789,7 @@ fn decimal_math_work_ctx(precision : Int) -> DecimalContext {
     decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999_999,
     e_max=999_999,
-  )
+  ).unwrap()
 }
 
 ///|

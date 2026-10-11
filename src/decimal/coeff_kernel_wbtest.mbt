@@ -1077,7 +1077,7 @@ test "decimal subset operand rounding stays coefficient-native" {
     precision=5,
     extended=false,
     decimal_rounding=DecimalRoundingMode::HalfEven,
-  )
+  ).unwrap()
   let (exact, exact_flags) = round_operand_for_subset(
     Decimal::from_string("1234500", precision=16).unwrap(),
     ctx,
@@ -1099,7 +1099,7 @@ test "decimal subset operand rounding stays coefficient-native" {
 
 ///|
 test "decimal unary finalize and zero compare stay coefficient-native" {
-  let ctx = DecimalContext::new(precision=3)
+  let ctx = DecimalContext::new(precision=3).unwrap()
   let value = Decimal::from_string("1234", precision=16).unwrap()
   let (applied, flags) = value.apply_ctx(ctx)
   assert_eq(applied.coefficient.to_bigint(), 123N)
@@ -1149,8 +1149,8 @@ test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
 ///|
 test "decimal coefficient-native precision helper matches bigint precision helper" {
   let coeff = dec_coeff_from_bigint_repr(1234500N)
-  let exact_ctx = DecimalContext::new(precision=34)
-  let fixed_ctx = DecimalContext::new(precision=9)
+  let exact_ctx = DecimalContext::new(precision=34).unwrap()
+  let fixed_ctx = DecimalContext::new(precision=9).unwrap()
   assert_eq(
     finite_precision_for_coeff(coeff, exact_ctx),
     finite_precision_for(coeff.to_bigint(), exact_ctx),
@@ -1181,7 +1181,7 @@ test "decimal coefficient exact powers stay native and honor precision caps" {
 
 ///|
 test "decimal exact integer power and reciprocal keep coefficient units" {
-  let exact_ctx = DecimalContext::new(precision=34)
+  let exact_ctx = DecimalContext::new(precision=34).unwrap()
   let base = Decimal::from_int(40, precision=16)
   let (positive, positive_flags) = decimal_power_integer_exact_result(
     base, 3, exact_ctx,
@@ -1304,7 +1304,7 @@ test "scaleb count extracts exponent-zero integers from coeff repr" {
     decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999,
     e_max=999,
-  )
+  ).unwrap()
   let positive = Decimal::from_string("123", precision=16).unwrap()
   let negative = Decimal::from_string("-45", precision=16).unwrap()
   let negative_zero = Decimal::from_string("-0", precision=16).unwrap()
@@ -1876,7 +1876,7 @@ test "decimal logical coefficient helpers match bigint digit formulas" {
 
 ///|
 test "decimal logical invert and digit motion helpers match bigint formulas" {
-  let ctx = DecimalContext::new(precision=8)
+  let ctx = DecimalContext::new(precision=8).unwrap()
   let coeff = dec_coeff_from_bigint_repr(101011N)
   assert_eq(
     logical_invert_digits_repr(coeff, ctx).to_bigint(),
@@ -1908,7 +1908,7 @@ test "decimal div_ctx repr pipeline matches bigint divide normalization" {
     e_min=-20,
     e_max=20,
     clamp=false,
-  )
+  ).unwrap()
   let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
   let exact_rhs = Decimal::from_string("16", precision=8).unwrap()
   let inexact_lhs = Decimal::from_string("22", precision=8).unwrap()
@@ -1931,7 +1931,7 @@ test "decimal math small-int division repr pipeline matches bigint divide normal
     e_min=-12,
     e_max=12,
     clamp=true,
-  )
+  ).unwrap()
   let exact = Decimal::from_string("7.50", precision=8).unwrap()
   let inexact = Decimal::from_string("-2", precision=8).unwrap()
   assert_decimal_and_flags_eq(
@@ -1952,7 +1952,7 @@ test "decimal math finite division repr pipeline matches bigint divide normaliza
     e_min=-15,
     e_max=15,
     clamp=false,
-  )
+  ).unwrap()
   let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
   let exact_rhs = Decimal::from_string("16", precision=8).unwrap()
   let inexact_lhs = Decimal::from_string("-22", precision=8).unwrap()
@@ -1975,7 +1975,7 @@ test "decimal repr math normalization and multiplication match bigint path" {
     e_min=-20,
     e_max=20,
     clamp=false,
-  )
+  ).unwrap()
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
   assert_decimal_and_flags_eq(
     decimal_normalize_finite_work(value, work_ctx),
@@ -2012,7 +2012,7 @@ test "decimal scaleb repr construction matches bigint path" {
     e_min=-6,
     e_max=6,
     clamp=true,
-  )
+  ).unwrap()
   let regular = Decimal::from_string("12.34", precision=8).unwrap()
   let tiny = Decimal::from_string("12.34", precision=8).unwrap()
   assert_decimal_and_flags_eq(
@@ -2033,7 +2033,7 @@ test "decimal repr normalization matches bigint normalization on finite values" 
     e_min=-20,
     e_max=20,
     clamp=true,
-  )
+  ).unwrap()
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
   let expected = normalize_decimal_parts_ctx(
     value.negative,

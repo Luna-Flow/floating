@@ -156,7 +156,7 @@ if it recurs.
 ```moonbit
 ///|
 test "a trap stops the pipeline until it is resumed" {
-  let ctx = @decimal_gda.GdaContext::new(precision=5).trap(
+  let ctx = @decimal_gda.GdaContext::new(precision=5).unwrap().trap(
     @decimal_gda.GdaSignal::DivisionByZero,
   )
   let one = @decimal_gda.Decimal::one()
@@ -202,7 +202,7 @@ $\pm 999\,999$; otherwise they return NaN with `invalid_context`, which an
 ```moonbit
 ///|
 test "sticky status across operations" {
-  let ctx = @decimal_gda.GdaContext::new(precision=5)
+  let ctx = @decimal_gda.GdaContext::new(precision=5).unwrap()
   let parsed = @decimal_gda_checked.GdaDecimalChecked::parse("1.234567", ctx)
   inspect(parsed.value().to_string(), content="1.2346")
   inspect(gda_flags(parsed.raised()), content="inexact,rounded")

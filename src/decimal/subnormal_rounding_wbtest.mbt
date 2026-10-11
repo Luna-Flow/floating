@@ -40,7 +40,7 @@ test "decimal division rounds subnormal quotients once" {
 test "decimal addition rounds sums with a far smaller addend correctly" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let ctx = fn(mode : DecimalRoundingMode) {
-    DecimalContext::new(precision=7, decimal_rounding=mode)
+    DecimalContext::new(precision=7, decimal_rounding=mode).unwrap()
   }
   // 1598617.000000000001 - 0.000000000002 = 1598616.999999999999
   let high = d("1598617000000000001E-12")
@@ -83,14 +83,14 @@ test "decimal exact division by a power of ten below Etiny rounds to precision" 
       decimal_rounding=row.0,
       e_min=-19,
       e_max=20,
-    )
+    ).unwrap()
     let (value, flags) = d("4826437").div_ctx(d("1E+24"), ctx)
     assert_eq(value.to_string(), row.1)
     assert_true(flags.inexact && flags.rounded && !flags.subnormal)
     assert_eq(d("482643751").div_ctx(d("1E+26"), ctx).0.to_string(), row.1)
   }
   // A quotient that is subnormal is still rounded to Etiny.
-  let ctx = DecimalContext::new(precision=5, e_min=-19, e_max=20)
+  let ctx = DecimalContext::new(precision=5, e_min=-19, e_max=20).unwrap()
   let (value, flags) = d("4826437").div_ctx(d("1E+29"), ctx)
   inspect(value, content="5E-23")
   assert_true(flags.subnormal && flags.underflow && flags.inexact)

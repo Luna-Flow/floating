@@ -284,7 +284,7 @@ fn decimal_overflow_result(
       finite_with_exponent_repr(
         negative,
         gda_coeff_magnitude_sub_unit(gda_coeff_power10_repr(precision), 1),
-        ctx.e_max - precision + 1,
+        etop(ctx, precision),
         precision,
       ),
       flags,
@@ -306,7 +306,7 @@ fn decimal_zero_conversion_result(
     )
   }
   let upper = if ctx.clamp && ctx.precision > 0 {
-    ctx.e_max - precision + 1
+    etop(ctx, precision)
   } else {
     ctx.e_max
   }
@@ -511,7 +511,11 @@ pub fn Decimal::parse(
   precision? : Int = 34,
 ) -> Result[Decimal, @def.ArithmeticError] {
   let precision = Int::max(1, precision)
-  match parse_special_decimal_string_ctx(src, DecimalContext::new(precision~)) {
+  let ctx = match DecimalContext::new(precision~) {
+    Err(error) => return Err(error)
+    Ok(ctx) => ctx
+  }
+  match parse_special_decimal_string_ctx(src, ctx) {
     Some((value, flags)) => {
       if flags.conversion_syntax {
         return Err(

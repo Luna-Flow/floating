@@ -20,7 +20,7 @@ fn to_integral_show(outcome : GdaOutcome[Decimal]) -> String {
 ///|
 test "to_integral keeps integral parts longer than the precision" {
   let d = (s : String) => Decimal::from_string(s).unwrap()
-  let p3 = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999)
+  let p3 = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999).unwrap()
   inspect(
     to_integral_show(to_integral_exact(d("12345.6"), p3)),
     content="12346 [Inexact,Rounded]",
@@ -35,7 +35,7 @@ test "to_integral keeps integral parts longer than the precision" {
   )
   inspect(
     to_integral_show(
-      to_integral_exact(d("-99.9"), GdaContext::new(precision=2)),
+      to_integral_exact(d("-99.9"), GdaContext::new(precision=2).unwrap()),
     ),
     content="-100 [Inexact,Rounded]",
   )

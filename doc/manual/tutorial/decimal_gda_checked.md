@@ -111,7 +111,7 @@ since the context was created or its status was last cleared:
 ```moonbit
 ///|
 test "status is sticky" {
-  let ctx = @decimal_gda.GdaContext::new(precision=5)
+  let ctx = @decimal_gda.GdaContext::new(precision=5).unwrap()
   let r = @decimal_gda_checked.GdaDecimalChecked::parse("1.234567", ctx)
     .add(@decimal_gda.Decimal::one())
     .multiply(@decimal_gda.Decimal::from_int(2))
@@ -203,7 +203,7 @@ test "exp needs a bounded context" {
   inspect(good.value().to_string(), content="7.389056098930650")
   let bad = @decimal_gda_checked.GdaDecimalChecked::parse(
     "2",
-    @decimal_gda.GdaContext::new(precision=16),
+    @decimal_gda.GdaContext::new(precision=16).unwrap(),
   ).exp()
   inspect(bad.value().to_string(), content="nan")
   inspect(gda_flags(bad.raised()), content="invalid_context")

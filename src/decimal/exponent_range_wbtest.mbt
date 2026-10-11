@@ -32,18 +32,8 @@ test "literal exponents beyond 1.5e9 are not saturated" {
     Decimal::from_string("1e1600000000").unwrap().to_string(),
     content="1E+1600000000",
   )
-  let wide = DecimalContext::new(e_min=-2_000_000_000, e_max=2_000_000_000)
-  inspect(
-    exponent_range_show(Decimal::from_string_ctx("1e1600000000", wide)),
-    content="1E+1600000000 []",
-  )
-  inspect(
-    exponent_range_show(Decimal::from_string_ctx("1e2100000000", wide)),
-    content="inf [overflow,inexact,rounded]",
-  )
-  inspect(
-    exponent_range_show(Decimal::from_string_ctx("-1e-3000000000", wide)),
-    content="-0E-2000000033 [underflow,subnormal,inexact,rounded,clamped]",
+  assert_true(
+    DecimalContext::try_new(e_min=-2_000_000_000, e_max=2_000_000_000) is Err(_),
   )
 }
 
@@ -107,8 +97,8 @@ test "context-free literals overflow and underflow instead of failing" {
 test "products and quotients of extreme exponents do not wrap" {
   let big = Decimal::from_string("1E+1500000000").unwrap()
   let small = Decimal::from_string("1E-1500000000").unwrap()
-  let ctx = DecimalContext::new()
-  let up = DecimalContext::new(rounding=RoundingMode::AwayFromZero)
+  let ctx = DecimalContext::new().unwrap()
+  let up = DecimalContext::new(rounding=RoundingMode::AwayFromZero).unwrap()
   inspect(
     exponent_range_show(big.mul_ctx(big, ctx)),
     content="inf [overflow,inexact,rounded]",

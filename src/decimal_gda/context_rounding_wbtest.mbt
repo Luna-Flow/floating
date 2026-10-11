@@ -31,7 +31,7 @@ fn gda_rounding_dec(text : String) -> Decimal {
 /// Expected values agree with Python's decimal module.
 test "gda add rounds sums with a far smaller addend once" {
   let ctx = fn(mode : GdaRoundingMode) {
-    GdaContext::new(precision=7, rounding=mode)
+    GdaContext::new(precision=7, rounding=mode).unwrap()
   }
   let d = gda_rounding_dec
   // 1598618 - 9.9E-11 truncates to 1598617, whose last digit is not 0 or 5.
@@ -117,7 +117,7 @@ test "gda divide rounds subnormal quotients once" {
       (GdaRoundingMode::HalfEven, "4.8264E-18"),
       (GdaRoundingMode::Down, "4.8264E-18"),
     ] {
-    let ctx = GdaContext::new(precision=5, rounding=row.0, e_min=-19, e_max=20)
+    let ctx = GdaContext::new(precision=5, rounding=row.0, e_min=-19, e_max=20).unwrap()
     assert_eq(divide(d("77223"), d("16E+21"), ctx).value().to_string(), row.1)
     assert_eq(divide(d("4826437"), d("1E+24"), ctx).value().to_string(), row.1)
     assert_eq(
@@ -168,7 +168,7 @@ test "gda scaleb rounds, clamps and overflows like other operations" {
           e_min=-95,
           e_max=96,
           clamp=true,
-        ),
+        ).unwrap(),
       ),
     ),
     content="9.999999E+96 [inexact,overflow,rounded]",
@@ -184,7 +184,7 @@ test "gda scaleb rounds, clamps and overflows like other operations" {
           e_min=-95,
           e_max=96,
           clamp=true,
-        ),
+        ).unwrap(),
       ),
     ),
     content="-9.999999E+96 [inexact,overflow,rounded]",

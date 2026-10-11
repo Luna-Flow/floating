@@ -19,7 +19,7 @@ test "plus and minus of a zero follow the add and subtract sign rule" {
       precision=9,
       rounding=mode,
       traps=GdaTrapSet::none(),
-    )
+    ).unwrap()
     let floor = mode == GdaRoundingMode::Floor
     let check = (
       op : (Decimal, GdaContext) -> GdaOutcome[Decimal],

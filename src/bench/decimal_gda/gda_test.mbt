@@ -54,7 +54,7 @@ fn gda_input(digits : Int) -> GdaInput {
     precision=(digits * 2 + 4).max(9),
     e_min=-999999,
     e_max=999999,
-  )
+  ).unwrap()
   let left = @gda.Decimal::from_string(source).unwrap()
   let right = @gda.Decimal::from_string("2").unwrap()
   let addend = @gda.Decimal::from_string("3").unwrap()

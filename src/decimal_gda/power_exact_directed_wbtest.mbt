@@ -23,7 +23,7 @@ test "power decides exact non-integral results in every rounding mode" {
       rounding=mode,
       e_min=-999_999,
       e_max=999_999,
-    )
+    ).unwrap()
     for entry in cases {
       let (left, right, expected) = entry
       let outcome = power(
@@ -49,7 +49,7 @@ test "power rounds an exact result longer than the precision" {
       rounding=mode,
       e_min=-999_999,
       e_max=999_999,
-    )
+    ).unwrap()
     let outcome = power(
       Decimal::from_string("2.25").unwrap(),
       Decimal::from_string("1.5").unwrap(),
@@ -94,7 +94,7 @@ test "power decides exact non-integral results past base^p's size (#138)" {
       rounding=mode,
       e_min=-999_999,
       e_max=999_999,
-    )
+    ).unwrap()
     for entry in cases {
       let (left, right) = entry
       let outcome = power(
@@ -128,7 +128,7 @@ test "power decides exact powers with large reduced exponents" {
         rounding=mode,
         e_min=-999_999,
         e_max=999_999,
-      )
+      ).unwrap()
       let outcome = power(
         Decimal::from_string(left, precision~).unwrap(),
         Decimal::from_string(right).unwrap(),

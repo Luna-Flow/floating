@@ -20,7 +20,7 @@ test "division reports the underflow flags of the quotient" {
     e_min=-23,
     e_max=23,
     tininess=BeforeRounding,
-  )
+  ).unwrap()
   let (v2, f2) = d("-2E-23").div_ctx(d("-9E+18"), p1)
   assert_eq(v2.to_string(), "0E-23")
   assert_true(f2.underflow && f2.subnormal && f2.clamped && f2.inexact)
@@ -34,7 +34,7 @@ test "division reports the underflow flags of the quotient" {
     e_max=5,
     clamp=true,
     tininess=BeforeRounding,
-  )
+  ).unwrap()
   let (v4, f4) = d("4.39E-7").div_ctx(d("440"), p3)
   assert_eq(v4.to_string(), "0E-7")
   assert_true(f4.clamped && f4.underflow)

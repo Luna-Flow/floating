@@ -1,6 +1,6 @@
 ///|
 test "GDA binary and ternary operations prioritize signaling nan payloads" {
-  let context = DecimalContext::new(precision=9)
+  let context = DecimalContext::new(precision=9).unwrap()
   let left = Decimal::quiet_nan(payload=95N, precision=12)
   let signal = Decimal::signaling_nan(payload=93N, precision=12)
   let (quotient, quotient_flags) = left.div_ctx(signal, context)
@@ -16,7 +16,7 @@ test "GDA binary and ternary operations prioritize signaling nan payloads" {
   let large_signal = Decimal::signaling_nan(payload=123456N, precision=16)
   let (scaled, scaled_flags) = Decimal::quiet_nan(payload=16N, precision=16).scaleb_ctx(
     large_signal,
-    DecimalContext::new(precision=5, e_min=-9, e_max=9),
+    DecimalContext::new(precision=5, e_min=-9, e_max=9).unwrap(),
   )
   assert_eq(scaled.to_string(), "nan23456")
   assert_true(scaled_flags.invalid_operation)
@@ -29,7 +29,7 @@ test "GDA unary operations use before-rounding tininess" {
     decimal_rounding=DecimalRoundingMode::HalfUp,
     e_min=-999,
     e_max=999,
-  )
+  ).unwrap()
   let (value, flags) = Decimal::from_string("0.999E-999", precision=64)
     .unwrap()
     .plus_ctx(context)
@@ -48,7 +48,7 @@ test "GDA huge remainders report DivisionImpossible" {
     e_min=-999_999_999,
     e_max=999_999_999,
     extended=false,
-  )
+  ).unwrap()
   let huge = Decimal::from_string("9E+999999999", precision=64).unwrap()
   let small = Decimal::from_string("0.23456789012345", precision=64).unwrap()
   let (remainder, remainder_flags) = huge.remainder(small, context)
@@ -74,7 +74,7 @@ test "GDA exp boundary cache stays bounded and preserves hits" {
   }
   decimal_exp_boundary_cache.clear()
   decimal_exp_boundary_cache_next.val = 0
-  let first_context = DecimalContext::new(precision=9, e_min=-100, e_max=100)
+  let first_context = DecimalContext::new(precision=9, e_min=-100, e_max=100).unwrap()
   let first = decimal_exp_boundary_entry(first_context)
   let repeated = decimal_exp_boundary_entry(first_context)
   assert_eq(decimal_exp_boundary_cache.length(), 1)
@@ -83,7 +83,7 @@ test "GDA exp boundary cache stays bounded and preserves hits" {
   for index in 0..<(decimal_exp_boundary_cache_capacity + 2) {
     ignore(
       decimal_exp_boundary_entry(
-        DecimalContext::new(precision=9, e_min=-200 - index, e_max=200 + index),
+        DecimalContext::new(precision=9, e_min=-200 - index, e_max=200 + index).unwrap(),
       ),
     )
   }
@@ -101,4 +101,16 @@ test "GDA exp boundary cache stays bounded and preserves hits" {
     }
   }
   assert_false(first_present)
+}
+
+///|
+test "GDA decimal context translation rejects out of range bounds" {
+  let invalid = @lf_arith.ArithmeticContext::new(7, e_max=1_000_000_000)
+  assert_true(DecimalContext::from_arithmetic_context(invalid) is Err(_))
+  let outcome = @lf_arith.AddContextual::add_contextual(
+    Decimal::one(),
+    Decimal::one(),
+    invalid,
+  )
+  assert_true(outcome is Err(_))
 }

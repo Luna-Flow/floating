@@ -171,14 +171,20 @@ fn interchange_format(
 }
 
 ///|
-/// Reports a context the decimal packages cannot represent: GDA requires a
-/// positive precision and `minexponent <= maxexponent`. Such rows are
-/// diagnostics, so the context constructors are never called with them.
+/// Reports a context outside the decimal package's GDA reference limits.
 fn invalid_context_reason(context : GdaContext) -> String? {
   if context.precision() <= 0 {
     Some(
       "diagnostic invalid context: precision " + context.precision().to_string(),
     )
+  } else if context.precision() > 999_999_999 {
+    Some("diagnostic invalid context: precision exceeds 999999999")
+  } else if context.min_exponent() < -999_999_999 ||
+    context.min_exponent() > 999_999_999 {
+    Some("diagnostic invalid context: minexponent outside +/-999999999")
+  } else if context.max_exponent() < -999_999_999 ||
+    context.max_exponent() > 999_999_999 {
+    Some("diagnostic invalid context: maxexponent outside +/-999999999")
   } else if context.min_exponent() > context.max_exponent() {
     Some("diagnostic invalid context: minexponent exceeds maxexponent")
   } else {
@@ -250,7 +256,7 @@ fn resolve_context(context : GdaContext) -> ResolvedContext? {
       e_max=context.max_exponent(),
       clamp=context.clamp(),
       extended=context.extended(),
-    ),
+    ).unwrap(),
     gda: @decimal_gda.GdaContext::new(
       precision=context.precision(),
       rounding=gda_rounding,
@@ -259,7 +265,7 @@ fn resolve_context(context : GdaContext) -> ResolvedContext? {
       clamp=context.clamp(),
       extended=context.extended(),
       traps=@decimal_gda.GdaTrapSet::none(),
-    ),
+    ).unwrap(),
   })
 }
 
