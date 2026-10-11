@@ -1290,8 +1290,8 @@ $\pm 999\,999\,999$, half-even): results are never rounded to a precision.
 `decimal32`/`64`/`128` match the `GdaContext` presets. `from_arithmetic_context`
 copies precision, rounding, the optional exponent bounds (default
 $\pm 999\,999\,999$) and clamp, and always selects `extended=true` and
-`BeforeRounding`. The default is the default decNumber-limit range, not a choice of bounds
-for the mathematical functions: `exp`, `ln`, `log10` and non-integral `power`
+`BeforeRounding`. The default uses the decNumber-limit range; it does not select
+bounds for the mathematical functions. `exp`, `ln`, `log10` and non-integral `power`
 need bounds within $\pm 999\,999$, so under a context translated from an
 `ArithmeticContext` without `e_min` and `e_max` they return NaN with
 `invalid_context`.

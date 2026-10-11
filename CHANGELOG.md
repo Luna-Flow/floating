@@ -129,13 +129,15 @@ notes live in this file.
 
 - **Breaking:** Decimal and GDA context constructors now return `Result` and
   reject precision outside `1..=999,999,999`, `e_min` outside
-  `-999,999,999..=0`, or `e_max` outside `0..=999,999,999`. The exponent
-  limits adopt decNumber's `decContext.h`; GDA 1.70 specifies no fixed limit
-  and requires a balanced range, which this library does not enforce. The
+  `-999,999,999..=0`, or `e_max` outside `0..=999,999,999`; positive `e_min`
+  and negative `e_max` are rejected. These sign constraints imply
+  `e_min <= e_max`, so the former separate ordering check is redundant. The
+  exponent limits adopt decNumber's `decContext.h`; GDA 1.70 specifies no fixed
+  limit and requires a balanced range, which this library does not enforce. The
   changed signatures also include `DecimalContext::from_arithmetic_context`
   and `decimal_gda::context()`; callers must handle the returned domain error.
   Both decimal implementations use the same checked Etiny/Etop bounds and
-  FMA exponent-gap handling (#145, #186).
+  FMA exponent-gap handling (#145, #186, #188).
 - Fused multiply-add no longer materializes an exponent-sized alignment for
   operands inside the supported context range. Far-gap products use a sticky
   addend, while an opposite-sign addend at the `e_max + 1` boundary can round
