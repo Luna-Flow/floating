@@ -73,6 +73,32 @@ test "GDA DecimalContext rejects exponent bounds with invalid signs" {
   for
     (result, expected) in [
       (
+        DecimalContext::new(precision=0),
+        "precision must be within 1..=999999999",
+      ),
+      (
+        DecimalContext::new(precision=1_000_000_000),
+        "precision must be within 1..=999999999",
+      ),
+      (
+        DecimalContext::new(e_min=-1_000_000_000),
+        "e_min must be within -999999999..=0",
+      ),
+      (DecimalContext::new(e_min=1), "e_min must be within -999999999..=0"),
+      (
+        DecimalContext::new(e_max=1_000_000_000),
+        "e_max must be within 0..=999999999",
+      ),
+      (DecimalContext::new(e_max=-1), "e_max must be within 0..=999999999"),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid DecimalContext field must be rejected")
+    }
+  }
+  for
+    (result, expected) in [
+      (
         GdaContext::try_new(precision=0),
         "GdaContext precision must be in 1..=999999999",
       ),
