@@ -6,6 +6,14 @@ notes live in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Corrected IEEE `decimal` power special-value ordering: signaling NaNs now
+  quiet and raise `invalid_operation` before zero-exponent and unit-base
+  identities. Documented the IEEE/GDA distinction and added coverage across
+  decimal32/64/128, directed rounding, subset contexts, checked and try routes,
+  integer exponent limits, and the GDA `0^0` and `powx2015` rules.
+
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each

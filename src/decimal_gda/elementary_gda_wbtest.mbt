@@ -10,6 +10,25 @@ test "GDA noninteger power preserves GDA cohort and flags" {
 }
 
 ///|
+/// GDA deliberately keeps its specification rules, including 0^0 = NaN.
+/// The official powx2015 vector is distinct from decimal's IEEE power rule.
+test "GDA power keeps zero-zero rule and official powx2015 vector" {
+  let context = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999).unwrap()
+  let zero_zero = power(Decimal::zero(), Decimal::zero(), context)
+  assert_true(zero_zero.value().is_nan())
+  assert_true(zero_zero.raised().contains(GdaSignal::InvalidOperation))
+
+  let one_noninteger = power(
+    Decimal::one(),
+    Decimal::from_string("12.3").unwrap(),
+    context,
+  )
+  assert_eq(one_noninteger.value().to_string(), "1.00")
+  assert_true(one_noninteger.raised().contains(GdaSignal::Rounded))
+  assert_true(one_noninteger.raised().contains(GdaSignal::Inexact))
+}
+
+///|
 test "GDA transcendental operations finalize with half even" {
   let half_even = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999).unwrap()
   let upward = GdaContext::new(

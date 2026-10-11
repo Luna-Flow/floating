@@ -31,13 +31,87 @@ test "decimal power special values for zero exponents" {
   )
   assert_eq(power_issue166_case(d("0").pown_ctx(0, ctx)), "1")
   assert_eq(power_issue166_case(d("NaN").pown_ctx(0, ctx)), "1")
-  assert_eq(power_issue166_case(Decimal::signaling_nan().pown_ctx(0, ctx)), "1")
+  assert_eq(
+    power_issue166_case(Decimal::signaling_nan().pown_ctx(0, ctx)),
+    "nan invalid_operation",
+  )
   assert_eq(power_issue166_case(d("0").power_ctx(d("-0"), ctx)), "1")
   assert_eq(power_issue166_case(d("1").power_ctx(d("NaN"), ctx)), "1")
   assert_eq(
     power_issue166_case(d("1").power_ctx(Decimal::signaling_nan(), ctx)),
-    "1",
+    "nan invalid_operation",
   )
+}
+
+///|
+test "decimal power identities across formats modes and checked routes" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let contexts = [
+    DecimalContext::decimal32(),
+    DecimalContext::decimal64(),
+    DecimalContext::decimal128(),
+  ]
+  for base in [d("0"), d("-0"), d("Inf"), d("-Inf"), d("NaN")] {
+    for ctx in contexts {
+      assert_eq(power_issue166_case(base.power_ctx(d("0"), ctx)), "1")
+      assert_eq(power_issue166_case(base.power_ctx(d("-0"), ctx)), "1")
+    }
+  }
+  let down = DecimalContext::decimal32().with_rounding(
+    @lf_arith.RoundingMode::TowardZero,
+  )
+  let ceiling = DecimalContext::decimal128().with_rounding(
+    @lf_arith.RoundingMode::TowardPositive,
+  )
+  assert_eq(power_issue166_case(d("1").power_ctx(d("1.5"), down)), "1")
+  assert_eq(power_issue166_case(d("1").power_ctx(d("Inf"), ceiling)), "1")
+
+  let restricted = DecimalContext::new(extended=false).unwrap()
+  assert_eq(power_issue166_case(d("0").power_ctx(d("0"), restricted)), "1")
+  assert_eq(
+    power_issue166_case(d("0").power_ctx(d("-0.5"), restricted)),
+    "nan invalid_operation",
+  )
+
+  match d("0").try_power_ctx(d("0"), DecimalContext::decimal64()) {
+    Ok((value, flags)) => {
+      assert_eq(value.to_string(), "1")
+      assert_false(flags.has_error())
+    }
+    Err(_) => fail("zero to zero should be a defined IEEE result")
+  }
+  match Decimal::signaling_nan().try_pown_ctx(0, DecimalContext::decimal64()) {
+    Ok((value, flags)) => {
+      assert_true(value.is_quiet_nan())
+      assert_true(flags.invalid_operation)
+    }
+    Err(_) => fail("signaling NaN power should return a defined IEEE result")
+  }
+  match d("0").pow_int_checked(0, @lf_arith.ArithmeticContext::new(16)) {
+    Ok(value) => assert_eq(value.to_string(), "1")
+    Err(_) => fail("checked integer zero power should be defined as one")
+  }
+  match d("NaN").pow_nat_checked(0U, @lf_arith.ArithmeticContext::new(16)) {
+    Ok(value) => assert_eq(value.to_string(), "1")
+    Err(_) => fail("checked NaN zero power should be defined as one")
+  }
+}
+
+///|
+test "decimal power handles signed zero infinity and Int exponent limits" {
+  let ctx = DecimalContext::decimal64()
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  assert_eq(power_issue166_case(d("0").power_ctx(d("Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-0").power_ctx(d("-Inf"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("-0").pown_ctx(2147483647, ctx)), "-0")
+  assert_eq(
+    power_issue166_case(d("-0").pown_ctx(-2147483648, ctx)),
+    "inf division_by_zero",
+  )
+  assert_eq(power_issue166_case(d("-Inf").pown_ctx(3, ctx)), "-inf")
+  assert_eq(power_issue166_case(d("-Inf").pown_ctx(-3, ctx)), "-0")
+  assert_eq(power_issue166_case(d("-Inf").pown_ctx(2, ctx)), "inf")
+  assert_eq(power_issue166_case(d("-Inf").pown_ctx(-2, ctx)), "0")
 }
 
 ///|

@@ -1790,6 +1790,9 @@ fn decimal_power_ieee_special_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
+  if base.is_signaling_nan() || exponent.is_signaling_nan() {
+    return quiet_nan_pair(base, exponent, ctx)
+  }
   if exponent.class == FpClass::Finite && exponent.coefficient.is_zero() {
     return Some((Decimal::one(precision~), DecimalFlags::new()))
   }
@@ -1798,6 +1801,72 @@ fn decimal_power_ieee_special_result(
   }
   if exponent.class == FpClass::Infinity {
     return decimal_power_infinite_exponent_result(base, exponent, ctx)
+  }
+  if exponent.class == FpClass::Finite {
+    match decimal_power_integer_is_odd(exponent) {
+      Some(odd) =>
+        match base.class {
+          FpClass::Infinity => {
+            if exponent.negative {
+              let negative = base.negative && odd
+              return Some(
+                (
+                  finite_with_exponent_repr(
+                    negative,
+                    dec_coeff_zero(),
+                    0,
+                    precision,
+                  ),
+                  DecimalFlags::new(),
+                ),
+              )
+            }
+            return Some(
+              (
+                Decimal::inf(
+                  if base.negative && odd {
+                    Sign::Negative
+                  } else {
+                    Sign::Positive
+                  },
+                  precision~,
+                ),
+                DecimalFlags::new(),
+              ),
+            )
+          }
+          FpClass::Finite if base.coefficient.is_zero() => {
+            if exponent.negative {
+              if !ctx.extended {
+                return Some((Decimal::nan(precision~), invalid_flags()))
+              }
+              return Some(
+                decimal_elementary_division_by_zero(
+                  if base.negative && odd {
+                    Sign::Negative
+                  } else {
+                    Sign::Positive
+                  },
+                  ctx,
+                ),
+              )
+            }
+            return Some(
+              (
+                finite_with_exponent_repr(
+                  base.negative && odd,
+                  dec_coeff_zero(),
+                  0,
+                  precision,
+                ),
+                DecimalFlags::new(),
+              ),
+            )
+          }
+          _ => ()
+        }
+      None => ()
+    }
   }
   None
 }
