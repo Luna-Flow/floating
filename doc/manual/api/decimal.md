@@ -1859,8 +1859,8 @@ the converted context and fails for negative operands. `pow_nat_checked` and
 exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`;
 they return `Ok(1)` for a zero or NaN base with exponent zero, and
 `Err(division_by_zero)` for a zero base with a negative exponent;
-`Err(domain_error)` is returned for an invalid power, including a signaling
-NaN result. This IEEE checked behavior differs from `decimal_gda`, where
+`Err(domain_error)` is returned for an invalid power, including an operation
+with a signaling NaN operand. This IEEE checked behavior differs from `decimal_gda`, where
 `0^0` remains invalid. `pow_nat_checked` returns `Err(unsupported)` for exponents above
 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked).
 

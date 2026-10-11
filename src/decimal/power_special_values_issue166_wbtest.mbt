@@ -102,6 +102,8 @@ test "decimal power handles signed zero infinity and Int exponent limits" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   assert_eq(power_issue166_case(d("0").power_ctx(d("Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-0").power_ctx(d("Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("0").power_ctx(d("-Inf"), ctx)), "inf")
   assert_eq(power_issue166_case(d("-0").power_ctx(d("-Inf"), ctx)), "inf")
   assert_eq(power_issue166_case(d("-0").pown_ctx(2147483647, ctx)), "-0")
   assert_eq(
