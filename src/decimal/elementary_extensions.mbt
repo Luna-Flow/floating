@@ -427,7 +427,7 @@ fn Decimal::try_unary_elementary_ctx(
     None => ()
   }
   if operation == Exp2 || operation == Exp10 {
-    match decimal_exact_integer_coeff(value) {
+    match decimal_power_integer_is_odd(value) {
       Some(_) => {
         let base = Decimal::from_int(
           if operation == Exp2 {

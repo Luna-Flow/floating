@@ -1375,9 +1375,19 @@ more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
 Only `power_ctx` and `pown_ctx` handle their IEEE power cases before this
 restricted-context check. For example, `power_ctx(1, 1.1)` is exactly `1` even
 in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
-`invalid_context`. Apart from those power cases, integral powers and $x^{0.5}$ work in contexts up to
-$\pm 999\,999\,999$; `power_ctx(2, 3)` is `8` under `DecimalContext::new()`,
-while `power_ctx(2, 1.5)` and `exp2_ctx(2)` return NaN with `invalid_context`.
+`invalid_context`. Integral powers in `decimal` support counts through
+999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
+these are adopted decNumber implementation limits, not limits imposed by GDA
+1.70. Integer powers above those counts use bounded square-and-multiply when
+the exact exponent coefficient has at most 4,096 decimal digits. Larger
+coefficients return NaN with `invalid_context` before expansion. Thus
+`power_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while
+`power_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same
+large input to `decimal_gda` still follows the GDA adapter's decNumber count
+limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda`
+therefore intentionally differ on this input. Non-integral powers such as
+`power_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function
+context limits.
 
 ### `Decimal::exp_ctx`, `ln_ctx`, `log10_ctx`, `try_exp_ctx`, `try_ln_ctx`, `try_log10_ctx`
 

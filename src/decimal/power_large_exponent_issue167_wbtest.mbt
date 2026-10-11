@@ -212,13 +212,208 @@ test "decimal large negative-base powers mirror directed rounding" {
 /// bounded square-and-multiply helper.
 test "decimal large integer powers work in the default context" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let exponent = d("1E+30")
   let context = DecimalContext::new().unwrap()
-  let (negative, negative_flags) = d("-2").power_ctx(exponent, context)
-  let (positive, positive_flags) = d("2").power_ctx(exponent, context)
-  assert_false(negative.is_nan())
-  assert_false(negative_flags.invalid_context)
-  assert_false(positive.is_nan())
-  assert_false(positive_flags.invalid_context)
-  assert_eq(negative, positive)
+  let cases = [
+    ("1.0000000000001", "1E+11", "1.010050167084167552517081914852626"),
+    ("0.999999", "1000000001", "5.073416477377115719975853397616633E-435"),
+    ("-1.000001", "1000000001", "-1.969088294420576654510139814956395E+434"),
+    ("2", "1E+9", "4.612976001169069393116119221037316E+301029995"),
+    ("1.01", "1E+10", "6.705416252570703534199491376911599E+43213737"),
+  ]
+  for (base, exponent, expected) in cases {
+    let (value, flags) = d(base).power_ctx(d(exponent), context)
+    assert_eq(value.to_string(), expected)
+    assert_true(flags.inexact)
+    assert_true(flags.rounded)
+    assert_false(flags.invalid_context)
+    assert_false(flags.invalid_operation)
+    assert_false(flags.division_by_zero)
+    assert_false(flags.overflow)
+    assert_false(flags.underflow)
+    assert_false(flags.subnormal)
+    assert_false(flags.clamped)
+  }
+}
+
+///|
+/// Exponents whose exact coefficient exceeds the bounded materialization
+/// budget terminate with invalid_context instead of expanding millions of
+/// decimal limbs or entering an unbounded certification loop.
+test "decimal large integer powers enforce the expansion budget" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let context = DecimalContext::new().unwrap()
+  let (value, flags) = d("2").power_ctx(d("1E+9999999"), context)
+  assert_true(value.is_nan())
+  assert_true(flags.invalid_context)
+  let (exp2, exp2_flags) = d("1E+9999999").exp2_ctx(context)
+  let (exp10, exp10_flags) = d("1E+9999999").exp10_ctx(context)
+  assert_true(exp2.is_nan())
+  assert_true(exp2_flags.invalid_context)
+  assert_true(exp10.is_nan())
+  assert_true(exp10_flags.invalid_context)
+}
+
+///|
+/// The expected strings below were generated independently with Python's
+/// `decimal` module at precision 34 and the same exponent bounds.  Directed
+/// rounding must survive the large integer route, including sign reversal.
+test "decimal large integer powers honor all rounding modes" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let context = DecimalContext::new().unwrap()
+  let modes = [
+    (
+      RoundingMode::ToNearestEven,
+      "4.612976001169069393116119221037316E+301029995",
+    ),
+    (
+      RoundingMode::AwayFromZero,
+      "4.612976001169069393116119221037317E+301029995",
+    ),
+    (RoundingMode::TowardZero, "4.612976001169069393116119221037316E+301029995"),
+    (
+      RoundingMode::TowardPositive,
+      "4.612976001169069393116119221037317E+301029995",
+    ),
+    (
+      RoundingMode::TowardNegative,
+      "4.612976001169069393116119221037316E+301029995",
+    ),
+  ]
+  for (mode, expected) in modes {
+    let (value, flags) = d("2").power_ctx(
+      d("1E+9"),
+      context.with_rounding(mode),
+    )
+    assert_eq(value.to_string(), expected)
+    assert_true(flags.inexact)
+    assert_true(flags.rounded)
+  }
+  let (ceiling, _) = d("-1.000001").power_ctx(
+    d("1000000001"),
+    context.with_rounding(RoundingMode::TowardPositive),
+  )
+  let (floor, _) = d("-1.000001").power_ctx(
+    d("1000000001"),
+    context.with_rounding(RoundingMode::TowardNegative),
+  )
+  assert_eq(ceiling.to_string(), "-1.969088294420576654510139814956394E+434")
+  assert_eq(floor.to_string(), "-1.969088294420576654510139814956395E+434")
+}
+
+///|
+/// Mirror the independent Python 34-digit oracle for an odd negative-base
+/// exponent. These absolute expected values kill a lost-parity or rounding
+/// direction regression without comparing the implementation to itself.
+test "decimal large integer negative powers match directed oracle values" {
+  let base = Decimal::from_string("-1.000001").unwrap()
+  let exponent = Decimal::from_string("1000000001").unwrap()
+  let context = DecimalContext::new().unwrap()
+  let (ceiling, ceiling_flags) = base.power_ctx(
+    exponent,
+    context.with_rounding(RoundingMode::TowardPositive),
+  )
+  let (floor, floor_flags) = base.power_ctx(
+    exponent,
+    context.with_rounding(RoundingMode::TowardNegative),
+  )
+  assert_eq(ceiling.to_string(), "-1.969088294420576654510139814956394E+434")
+  assert_eq(floor.to_string(), "-1.969088294420576654510139814956395E+434")
+  assert_true(ceiling_flags.inexact)
+  assert_true(ceiling_flags.rounded)
+  assert_true(floor_flags.inexact)
+  assert_true(floor_flags.rounded)
+}
+
+///|
+/// Python decimal p=9 oracle strings for the default exponent limits.
+test "decimal large integer powers work at precision nine" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let context = DecimalContext::new(precision=9).unwrap()
+  let cases = [
+    ("1.0000000000001", "1E+11", "1.01005017"),
+    ("0.999999", "1000000001", "5.07341648E-435"),
+    ("-1.000001", "1000000001", "-1.96908829E+434"),
+    ("2", "1E+9", "4.61297600E+301029995"),
+    ("1.01", "1E+10", "6.70541625E+43213737"),
+  ]
+  for (base, exponent, expected) in cases {
+    let (value, flags) = d(base).power_ctx(d(exponent), context)
+    assert_eq(value.to_string(), expected)
+    assert_true(flags.inexact)
+    assert_true(flags.rounded)
+    assert_false(flags.invalid_context)
+  }
+}
+
+///|
+/// Decimal spellings with trailing zeros must share the same parity and
+/// bounded power path as their canonical coefficient form.
+test "decimal large integer exponent spellings preserve parity" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let context = DecimalContext::new().unwrap()
+  for exponent in ["1.0E+30", "10E+29", "100E+28"] {
+    let (value, flags) = d("-2").power_ctx(d(exponent), context)
+    assert_eq(value.to_string(), "inf")
+    assert_true(flags.overflow)
+    assert_false(flags.invalid_context)
+  }
+  let (value, flags) = d("-1.000000000000001").power_ctx(
+    d("12345678901234567E+0"),
+    context,
+  )
+  assert_eq(value.to_string(), "-229964.1948529869209840694937236457")
+  assert_true(flags.inexact)
+  assert_true(flags.rounded)
+  let (even, even_flags) = d("-1.000001").power_ctx(
+    d("1234567890123456789012345678900"),
+    context,
+  )
+  let (odd, odd_flags) = d("-1.000001").power_ctx(
+    d("1234567890123456789012345678901"),
+    context,
+  )
+  assert_eq(even.to_string(), "inf")
+  assert_eq(odd.to_string(), "-inf")
+  assert_true(even_flags.overflow)
+  assert_true(odd_flags.overflow)
+  assert_true(even_flags.inexact)
+  assert_true(odd_flags.inexact)
+}
+
+///|
+/// IEEE special values remain exact even when the exponent itself is beyond
+/// the bounded coefficient materialization budget.
+test "decimal large integer powers keep signed zero and infinity" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let context = DecimalContext::new().unwrap()
+  let (zero, zero_flags) = d("-0").power_ctx(d("1E+9999999"), context)
+  let (infinity, infinity_flags) = d("-Inf").power_ctx(
+    d("12345678901234567E+0"),
+    context,
+  )
+  assert_eq(zero.to_string(), "0")
+  assert_false(zero_flags.invalid_context)
+  assert_eq(infinity.to_string(), "-inf")
+  assert_false(infinity_flags.invalid_context)
+}
+
+///|
+/// A subset context still returns the correct finite result when its exponent
+/// range admits it; a smaller range uses the IEEE overflow result.
+test "decimal large integer powers support extended and subset contexts" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  let extended = DecimalContext::new().unwrap()
+  let subset = DecimalContext::new(
+    precision=34,
+    e_min=-999_999_999,
+    e_max=384,
+    extended=false,
+  ).unwrap()
+  let (wide, wide_flags) = d("2").power_ctx(d("1E+9"), extended)
+  let (narrow, narrow_flags) = d("2").power_ctx(d("1E+9"), subset)
+  assert_eq(wide.to_string(), "4.612976001169069393116119221037316E+301029995")
+  assert_false(wide_flags.invalid_context)
+  assert_eq(narrow.to_string(), "inf")
+  assert_true(narrow_flags.overflow)
+  assert_false(narrow_flags.invalid_context)
 }
