@@ -138,3 +138,84 @@ test "next operations handle Int minimum with zero etiny" {
     toward_flags.underflow && toward_flags.inexact && toward_flags.rounded,
   )
 }
+
+///|
+test "fma far gap uses sticky addend without aborting" {
+  let ctx = DecimalContext::new(
+    precision=34,
+    e_min=-999_999_999,
+    e_max=999_999_999,
+  ).unwrap()
+  let (value, flags) = Decimal::make(1N, -999_999_999, 34).fma_ctx(
+    Decimal::make(1N, -999_999_999, 34),
+    Decimal::make(1N, 999_999_999, 34),
+    ctx,
+  )
+  inspect(
+    value.to_string(),
+    content="1.000000000000000000000000000000000E+999999999",
+  )
+  inspect(flags.overflow, content="false")
+  inspect(flags.inexact, content="true")
+  inspect(flags.rounded, content="true")
+}
+
+///|
+test "fma exact product boundary honors negative addend" {
+  let ctx = DecimalContext::new(
+    precision=2,
+    e_min=-999_999_999,
+    e_max=0,
+    rounding=RoundingMode::TowardZero,
+    decimal_rounding=DecimalRoundingMode::Down,
+  ).unwrap()
+  let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
+    Decimal::make(1N, -5, 2),
+    Decimal::make(-9N, -4, 2),
+    ctx,
+  )
+  inspect(value.to_string(), content="9.9")
+  inspect(flags.overflow, content="false")
+  inspect(flags.inexact, content="true")
+  inspect(flags.rounded, content="true")
+}
+
+///|
+test "fma exact product boundary follows floor without overflow" {
+  let ctx = DecimalContext::new(
+    precision=2,
+    e_min=-999_999_999,
+    e_max=0,
+    decimal_rounding=DecimalRoundingMode::Floor,
+  ).unwrap()
+  let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
+    Decimal::make(1N, -5, 2),
+    Decimal::make(-9N, -4, 2),
+    ctx,
+  )
+  inspect(value.to_string(), content="9.9")
+  inspect(flags.overflow, content="false")
+  inspect(flags.inexact, content="true")
+  inspect(flags.rounded, content="true")
+}
+
+///|
+test "fma product below Int range uses a bounded sticky alignment" {
+  let ctx = DecimalContext::new(
+    precision=34,
+    e_min=-999_999_999,
+    e_max=999_999_999,
+  ).unwrap()
+  let (value, flags) = Decimal::make(1N, -2_147_483_648, 34).fma_ctx(
+    Decimal::make(1N, -2_147_483_648, 34),
+    Decimal::make(1N, 999_999_999, 34),
+    ctx,
+  )
+  inspect(
+    value.to_string(),
+    content="1.000000000000000000000000000000000E+999999999",
+  )
+  inspect(flags.overflow, content="false")
+  inspect(flags.inexact, content="true")
+  inspect(flags.rounded, content="true")
+}

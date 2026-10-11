@@ -7861,8 +7861,8 @@ msgstr "reverse interval operation、选定 phase 以外的全部 decoration 规
 #: manual/conformance/decimal.md:51
 #: manual/conformance/decimal_gda.md:57
 #: manual/performance/ball_float.md:26
-#: manual/performance/decimal.md:29
-#: manual/performance/decimal_gda.md:29
+#: manual/performance/decimal.md:35
+#: manual/performance/decimal_gda.md:35
 msgid "Reproduction"
 msgstr "复现"
 
@@ -15995,8 +15995,8 @@ msgid "The suite measures add, multiply, and divide at 53, 128, 512, and 2,048 b
 msgstr "suite 在 53、128、512、2,048 bit 上测量 add、multiply、divide。每个 cell 比较 binary kernel、核心 `BallFloat` 和完整 checked 路径。期望值是精确 binary result；在接受计时观察前，ball 与 checked 输出必须都与该值匹配为 singleton enclosure。"
 
 #: manual/performance/ball_float.md:19
-#: manual/performance/decimal.md:22
-#: manual/performance/decimal_gda.md:21
+#: manual/performance/decimal.md:28
+#: manual/performance/decimal_gda.md:27
 msgid "Reading results"
 msgstr "读取结果"
 
@@ -16009,8 +16009,8 @@ msgid "Compare artifacts only with the same target, toolchain, workload, and ben
 msgstr "只有在 target、toolchain、workload 和 benchmark protocol 相同的情况下才比较 artifact。普通 benchmark test 只编译 plan 而跳过计时。"
 
 #: manual/performance/ball_float.md:36
-#: manual/performance/decimal.md:40
-#: manual/performance/decimal_gda.md:41
+#: manual/performance/decimal.md:46
+#: manual/performance/decimal_gda.md:47
 msgid "Semantic gate"
 msgstr "语义门禁"
 
@@ -16087,15 +16087,19 @@ msgstr "`just bench decimal --target native` 运行 `src/bench/decimal` 中当�
 msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell compares a `BigInt` coefficient baseline (`kernel/coefficient`), the contextual `Decimal` path (`core/decimal`, the `*_ctx` operations) and the full `DecimalChecked` path (`full/checked`), and validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
 msgstr "该套件在 9、34、128 和 512 位十进制数字下测量加法、乘法和除法。每个单元格比较 `BigInt` 系数基线（`kernel/coefficient`）、contextual `Decimal` 路径（`core/decimal`，即 `*_ctx` 运算）以及完整的 `DecimalChecked` 路径（`full/checked`），并用精确的 `BigInt` 参考值验证每个输出。输入构造和期望值构造都不计入计时部分。"
 
-#: manual/performance/decimal.md:24
+#: manual/performance/decimal.md:22
+msgid "The reference exponent and precision limits admit contexts up to `999,999,999`. Such contexts are valid but can require very large coefficient work: debug-native probes at that limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases. Choose a smaller precision for interactive work and treat the large limit as a compatibility boundary."
+msgstr "参考指数和精度上限允许上下文达到 `999,999,999`。这些上下文有效，但可能需要大量系数运算：在该上限下进行的 debug-native 探测中，某些 `plus`、`min` 和 `quantize` 用例耗时超过 25 秒。交互式工作建议使用较小精度，并将此上限视为兼容性边界。"
+
+#: manual/performance/decimal.md:30
 msgid "`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
 msgstr "`MAREMARK_JSONL` 是带版本的原始事件流，`MAREMARK_HOTSPOT` 是成对的分层开销分析。结果只描述当前 tree、toolchain 和 target，可用于定位 hotspot，但不能证明通用 crossover 或 release-wide latency bound。"
 
-#: manual/performance/decimal.md:36
+#: manual/performance/decimal.md:42
 msgid "The all-suite run also covers binary, GDA, and interval kernels. It is safe to compare artifacts only when the target, toolchain, workload, and benchmark protocol are held constant."
 msgstr "all-suite 运行也覆盖 binary、GDA 和 interval kernel。只有在 target、toolchain、workload 和 benchmark protocol 相同的情况下，artifact 才适合比较。"
 
-#: manual/performance/decimal.md:42
+#: manual/performance/decimal.md:48
 msgid "Benchmark equivalence checks are necessary but not sufficient. Optimized decimal routes must also pass coefficient differential tests and the pinned IEEE decimal and GDA conformance gates before they are accepted. See [Conformance](../conformance/decimal.md), [Design](../design/decimal.md), and the [0.7.1 performance and semantic audit](../performance_audit.md)."
 msgstr "benchmark equivalence check 是必要条件，但不是充分条件。优化后的 decimal 路径还必须通过 coefficient differential test 以及固定的 IEEE decimal、GDA conformance gate，才能被接受。参见[一致性说明](../conformance/decimal.md)、[设计](../design/decimal.md)和[0.7.1 性能与语义审计](../performance_audit.md)。"
 
@@ -16111,15 +16115,19 @@ msgstr "`just bench decimal-gda --target native` 运行 `src/bench/decimal_gda` 
 msgid "The Maremark suite measures add, subtract, multiply, divide, FMA, and parse at 1, 9, 18, 34, and 128 decimal digits. It compares the core `GdaContext` path with the full checked path and validates both against the core result before reporting layer overhead."
 msgstr "Maremark suite 在 1、9、18、34、128 位十进制数字上测量 add、subtract、multiply、divide、 FMA 和 parse。它比较核心 `GdaContext` 路径与完整 checked 路径，并在报告分层开销前将两者与 core result 做验证。"
 
-#: manual/performance/decimal_gda.md:23
+#: manual/performance/decimal_gda.md:21
+msgid "Contexts may use the reference maximum precision `999,999,999`, but operations at that boundary can be expensive. In debug-native measurements, `1 / 4` in `decimal_gda` did not finish within 40 seconds. Use a smaller precision for interactive work and reserve the maximum for compatibility or conformance checks."
+msgstr "上下文可以使用参考精度上限 `999,999,999`，但在该边界执行运算可能代价很高。在 debug-native 测量中，`decimal_gda` 的 `1 / 4` 未能在 40 秒内完成。交互式工作建议使用较小精度，将最大精度留给兼容性或一致性检查。"
+
+#: manual/performance/decimal_gda.md:29
 msgid "`MAREMARK_JSONL` is the raw event stream and `MAREMARK_HOTSPOT` reports paired core-versus-checked overhead. The quick fixture additionally records per- operation medians and dispersion. Interpret these measurements only for the recorded target, toolchain, fixture, and workload; they do not establish a cross-target threshold or a fixed latency bound."
 msgstr "`MAREMARK_JSONL` 是原始事件流，`MAREMARK_HOTSPOT` 报告 core 与 checked 的成对开销。 quick fixture 还记录每个 operation 的 median 和 dispersion。结果只适用于记录的 target、 toolchain、fixture 和 workload，不能证明跨 target threshold 或固定 latency bound。"
 
-#: manual/performance/decimal_gda.md:37
+#: manual/performance/decimal_gda.md:43
 msgid "Use the same target and toolchain when comparing artifacts. Normal benchmark tests compile their plans but skip timing, so an explicit benchmark command is required for measurement."
 msgstr "比较 artifact 时保持 target 和 toolchain 相同。普通 benchmark test 只编译 plan 而跳过计时，因此必须显式运行 benchmark command 才会产生测量。"
 
-#: manual/performance/decimal_gda.md:43
+#: manual/performance/decimal_gda.md:49
 msgid "The timing path is accepted only alongside the independent GDA state model and the pinned legal scalar corpus: 64,986/64,986 current rows and 16,124/16,124 legacy rows pass in the 0.7.1 audit. See [Conformance](../conformance/decimal_gda.md), [Design](../design/decimal_gda.md), and the [0.7.1 performance and semantic audit](../performance_audit.md)."
 msgstr "计时路径只有与独立的 GDA 状态模型和固定合法标量语料一起验证后才可接受：0.7.1 审计中的当前 64,986/64,986 行与 legacy 16,124/16,124 行全部通过。参见[一致性说明](../conformance/decimal_gda.md)、 [设计](../design/decimal_gda.md)和[0.7.1 性能与语义审计](../performance_audit.md)。"
 

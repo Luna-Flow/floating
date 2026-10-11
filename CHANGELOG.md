@@ -6,14 +6,6 @@ notes live in this file.
 
 ## Unreleased
 
-### Fixed
-
-- **Breaking:** `DecimalContext::new` and `GdaContext::new` now return
-  `Result` and reject precision or exponent bounds outside the General Decimal
-  Arithmetic reference limits. Call `.unwrap()` for known-valid parameters or
-  handle the domain error. Both decimal implementations share checked
-  Etiny/Etop calculations (#145).
-
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each
@@ -134,6 +126,17 @@ notes live in this file.
   to the affected operations. The Chinese and Japanese catalogs follow.
 
 ### Fixed
+
+- **Breaking:** Decimal and GDA context constructors now return `Result` and
+  reject precision above `999,999,999`, either `e_min` or `e_max` outside
+  `+/-999,999,999`, or `e_min > e_max`. The changed signatures also include
+  `DecimalContext::from_arithmetic_context` and `decimal_gda::context()`;
+  callers must handle the returned domain error. Both decimal implementations
+  use the same checked Etiny/Etop bounds and FMA exponent-gap handling (#145).
+- Fused multiply-add no longer materializes an exponent-sized alignment for
+  operands inside the supported context range. Far-gap products use a sticky
+  addend, while an opposite-sign addend at the `e_max + 1` boundary can round
+  back to the largest finite value without a false `Overflow` signal (#145).
 
 - Fixed `Decimal::tanh_ctx` and `Decimal::expm1_ctx` returning NaN when large
   finite inputs made the certified loop unable to distinguish a result from

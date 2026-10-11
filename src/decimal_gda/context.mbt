@@ -215,11 +215,16 @@ pub fn DecimalContext::new(
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "DecimalContext fields must be within the GDA reference limits",
-      ),
-    )
+    let reason = if precision <= 0 || precision > 999_999_999 {
+      "precision must be within 1..=999999999"
+    } else if e_min < -999_999_999 || e_min > 999_999_999 {
+      "e_min must be within +/-999999999"
+    } else if e_max < -999_999_999 || e_max > 999_999_999 {
+      "e_max must be within +/-999999999"
+    } else {
+      "e_min must not exceed e_max"
+    }
+    return Err(@def.ArithmeticError::domain_error(reason))
   }
   let decimal_rounding = match decimal_rounding {
     Some(mode) => mode

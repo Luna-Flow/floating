@@ -135,7 +135,8 @@ fn add_finite_values_ctx(
     if low_adjusted < target_exponent &&
       ctx.decimal_rounding != DecimalRoundingMode::ZeroFiveUp {
       let (base, base_flags) = apply_finite_ctx(high, ctx)
-      if base_flags.overflow {
+      if base_flags.overflow &&
+        !(high_adjusted == ctx.e_max + 1 && low.negative != high.negative) {
         return (base, base_flags)
       }
       if base_flags == DecimalFlags::new() &&
@@ -752,7 +753,11 @@ fn Decimal::decimal_fma_ctx_impl(
           (product_coeff.digits10() - 1).to_int64()
         let addend_adjusted = addend.exponent10.to_int64() +
           (addend.coefficient.digits10() - 1).to_int64()
-        if product_adjusted > ctx.e_max.to_int64() &&
+        // An adjusted exponent exactly at e_max + 1 can still round back to
+        // the largest finite value after an opposite-sign addend.  Only a
+        // product at least one full decade farther out is unconditionally
+        // beyond the finite boundary.
+        if product_adjusted >= ctx.e_max.to_int64() + 2L &&
           product_adjusted - addend_adjusted > precision.to_int64() + 2L {
           return decimal_overflow_result(product_negative, ctx)
         }
@@ -827,7 +832,7 @@ fn Decimal::decimal_fma_ctx_impl(
             exact_product,
             addend,
             ctx,
-            allow_shortcuts=false,
+            allow_shortcuts=true,
           )
         FpClass::Infinity =>
           (addend.with_precision(precision, ctx.rounding), DecimalFlags::new())

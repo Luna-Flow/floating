@@ -19,6 +19,12 @@ digits. Each cell compares a `BigInt` coefficient baseline
 validates every output against an exact `BigInt` reference. Input creation
 and expected-value construction stay outside the timed payload.
 
+The reference exponent and precision limits admit contexts up to
+`999,999,999`. Such contexts are valid but can require very large coefficient
+work: debug-native probes at that limit took more than 25 seconds for some
+`plus`, `min`, and `quantize` cases. Choose a smaller precision for interactive
+work and treat the large limit as a compatibility boundary.
+
 ## Reading results
 
 `MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is
