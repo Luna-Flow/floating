@@ -1781,9 +1781,9 @@ fn decimal_power_infinite_base_noninteger_result(
 }
 
 ///|
-/// IEEE 754-2019 §9.2.1 puts the zero-exponent and unit-base identities before
-/// NaN propagation and the other power special cases.  Infinite exponents
-/// also classify negative finite bases by magnitude, without a domain error.
+/// IEEE 754-2019 §9.2.1 gives signaling NaN operands priority over the
+/// zero-exponent and unit-base identities. Infinite exponents classify finite
+/// bases by magnitude, including negative bases, without a domain error.
 fn decimal_power_ieee_special_result(
   base : Decimal,
   exponent : Decimal,

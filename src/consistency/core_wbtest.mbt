@@ -7678,7 +7678,7 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
 }
 
 ///|
-test "decimal noninteger power matches near-integer vector and IEEE one-base identity" {
+test "decimal power matches near-integer vector and IEEE one-base identity" {
   let near_integer_ctx = @decimal.DecimalContext::new(
     precision=16,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfEven,

@@ -6,14 +6,6 @@ notes live in this file.
 
 ## Unreleased
 
-### Fixed
-
-- Corrected IEEE `decimal` power special-value ordering: signaling NaNs now
-  quiet and raise `invalid_operation` before zero-exponent and unit-base
-  identities. Documented the IEEE/GDA distinction and added coverage across
-  decimal32/64/128, directed rounding, subset contexts, checked and try routes,
-  integer exponent limits, and the GDA `0^0` and `powx2015` rules.
-
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each
@@ -134,6 +126,15 @@ notes live in this file.
   to the affected operations. The Chinese and Japanese catalogs follow.
 
 ### Fixed
+
+- **Caller-visible ([#166](https://github.com/Luna-Flow/floating/issues/166)):** IEEE `Decimal::power_ctx` and `pown_ctx` now
+  return 1 for $0^0$, signed zero for positive integer powers of zero, and
+  signed infinity with `division_by_zero` for a zero base and negative integer
+  exponent. `pow(1, y)` and `pow(-1, ±inf)` are 1. The checked integer-power
+  routes return `Ok(1)` for a zero or quiet-NaN base with exponent zero and
+  `Err(division_by_zero)` for a zero base with a negative exponent. Signaling
+  NaN operands still produce a quiet NaN with `invalid_operation`; `decimal_gda`
+  retains its distinct GDA behavior.
 
 - **Breaking:** Decimal and GDA context constructors now return `Result` and
   reject precision above `999,999,999`, either `e_min` or `e_max` outside

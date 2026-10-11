@@ -41,6 +41,18 @@ test "decimal power special values for zero exponents" {
     power_issue166_case(d("1").power_ctx(Decimal::signaling_nan(), ctx)),
     "nan invalid_operation",
   )
+  assert_eq(
+    power_issue166_case(
+      Decimal::signaling_nan().power_ctx(Decimal::quiet_nan(), ctx),
+    ),
+    "nan invalid_operation",
+  )
+  assert_eq(
+    power_issue166_case(
+      Decimal::quiet_nan().power_ctx(Decimal::signaling_nan(), ctx),
+    ),
+    "nan invalid_operation",
+  )
 }
 
 ///|
@@ -72,7 +84,14 @@ test "decimal power identities across formats modes and checked routes" {
     power_issue166_case(d("0").power_ctx(d("-0.5"), restricted)),
     "nan invalid_operation",
   )
-
+  for base in [d("0"), d("-0")] {
+    for exponent in [-1, -2] {
+      assert_eq(
+        power_issue166_case(base.pown_ctx(exponent, restricted)),
+        "nan invalid_operation",
+      )
+    }
+  }
   match d("0").try_power_ctx(d("0"), DecimalContext::decimal64()) {
     Ok((value, flags)) => {
       assert_eq(value.to_string(), "1")
@@ -95,6 +114,28 @@ test "decimal power identities across formats modes and checked routes" {
     Ok(value) => assert_eq(value.to_string(), "1")
     Err(_) => fail("checked NaN zero power should be defined as one")
   }
+  match d("0").pow_int_checked(-1, @lf_arith.ArithmeticContext::new(16)) {
+    Err(error) => assert_true(error.is_division_by_zero())
+    Ok(_) =>
+      fail("checked negative power of zero should report division by zero")
+  }
+  match
+    Decimal::signaling_nan().pow_nat_checked(
+      1U,
+      @lf_arith.ArithmeticContext::new(16),
+    ) {
+    Err(error) => assert_true(error.is_domain_error())
+    Ok(_) =>
+      fail("checked power with signaling NaN should report a domain error")
+  }
+  match
+    Decimal::signaling_nan().pow_int_checked(
+      0,
+      @lf_arith.ArithmeticContext::new(16),
+    ) {
+    Err(error) => assert_true(error.is_domain_error())
+    Ok(_) => fail("checked zero power with signaling NaN should be invalid")
+  }
 }
 
 ///|
@@ -114,6 +155,12 @@ test "decimal power handles signed zero infinity and Int exponent limits" {
   assert_eq(power_issue166_case(d("-Inf").pown_ctx(-3, ctx)), "-0")
   assert_eq(power_issue166_case(d("-Inf").pown_ctx(2, ctx)), "inf")
   assert_eq(power_issue166_case(d("-Inf").pown_ctx(-2, ctx)), "0")
+  assert_eq(power_issue166_case(d("-Inf").pown_ctx(2147483647, ctx)), "-inf")
+  assert_eq(power_issue166_case(d("-Inf").pown_ctx(-2147483648, ctx)), "0")
+  assert_eq(power_issue166_case(d("Inf").pown_ctx(2147483647, ctx)), "inf")
+  assert_eq(power_issue166_case(d("Inf").pown_ctx(-2147483648, ctx)), "0")
+  assert_eq(power_issue166_case(d("-0").power_ctx(d("1E+30"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-1").power_ctx(d("1E+30"), ctx)), "1")
 }
 
 ///|
