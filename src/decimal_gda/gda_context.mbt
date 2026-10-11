@@ -302,10 +302,10 @@ pub fn GdaContext::new(
   guard bounds.is_valid() else {
     let message = if precision <= 0 || precision > 999_999_999 {
       "GdaContext precision must be in 1..=999999999"
-    } else if e_min < -999_999_999 || e_min > 999_999_999 {
-      "GdaContext e_min must be within +/-999999999"
-    } else if e_max < -999_999_999 || e_max > 999_999_999 {
-      "GdaContext e_max must be within +/-999999999"
+    } else if e_min < -999_999_999 || e_min > 0 {
+      "GdaContext e_min must be within -999999999..=0"
+    } else if e_max < 0 || e_max > 999_999_999 {
+      "GdaContext e_max must be within 0..=999999999"
     } else {
       "GdaContext e_min must not exceed e_max"
     }

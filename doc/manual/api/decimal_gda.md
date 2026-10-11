@@ -414,10 +414,12 @@ pub fn GdaContext::try_new(precision? : Int, rounding? : GdaRoundingMode, e_min?
 
 Defaults: `precision=34`, `rounding=HalfEven`, `e_min=-999_999_999`,
 `e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. Both `new` and
-`try_new` return `Err(domain_error)` when precision is outside
-`1..=999_999_999`, either exponent bound is outside `+/-999_999_999`, or
-`e_min > e_max`. These shared bounds keep Etiny/Etop and exponent arithmetic
-within `Int`. `clamp=true` limits exponents to
+`try_new` return `Err(domain_error)` naming the invalid field when precision
+is outside `1..=999_999_999`, `e_min` outside `-999_999_999..=0`, or `e_max`
+outside `0..=999_999_999`. These adopted decNumber `decContext.h` limits keep
+Etiny/Etop and exponent arithmetic within `Int`. GDA 1.70 itself specifies no
+fixed context limits and requires a balanced exponent range; this library
+does not enforce that separate balance rule. `clamp=true` limits exponents to
 $e_{\max} - p + 1$ as the interchange formats do. `extended=false` selects GDA
 *subset* arithmetic: operands longer than $p$ digits are rounded first
 (raising `LostDigits` when that is inexact), special values cannot be parsed,
@@ -1264,10 +1266,12 @@ which defaults to the translation of `rounding`
 (`DecimalRoundingMode::from_arithmetic`); pass `decimal_rounding` to select
 `HalfUp`, `HalfDown` or `ZeroFiveUp`. If both are passed and disagree,
 `decimal_rounding` wins and `rounding()` keeps reporting the other value.
-`precision` must be positive and at most 999,999,999; `e_min` and `e_max` must
-each be within +/-999,999,999 and `e_min <= e_max`. Both constructors return
-`Err(domain_error)` for invalid parameters. These limits keep Etiny, Etop and
-context exponent arithmetic within `Int`.
+`precision` must be in `1..=999,999,999`, `e_min` in
+`-999,999,999..=0`, and `e_max` in `0..=999,999,999`. Both constructors
+return `Err(domain_error)` naming the invalid field. These adopted decNumber
+`decContext.h` limits keep Etiny, Etop and context exponent arithmetic within
+`Int`; GDA 1.70 specifies no fixed limits and its separate balanced-range
+rule is not enforced here.
 
 ### `DecimalContext::exact`, `DecimalContext::decimal32`, `DecimalContext::decimal64`, `DecimalContext::decimal128`, `DecimalContext::from_arithmetic_context`
 
@@ -1286,8 +1290,8 @@ $\pm 999\,999\,999$, half-even): results are never rounded to a precision.
 `decimal32`/`64`/`128` match the `GdaContext` presets. `from_arithmetic_context`
 copies precision, rounding, the optional exponent bounds (default
 $\pm 999\,999\,999$) and clamp, and always selects `extended=true` and
-`BeforeRounding`. The default is the full GDA range, not a choice of bounds
-for the mathematical functions: `exp`, `ln`, `log10` and non-integral `power`
+`BeforeRounding`. The default uses the decNumber-limit range; it does not select
+bounds for the mathematical functions. `exp`, `ln`, `log10` and non-integral `power`
 need bounds within $\pm 999\,999$, so under a context translated from an
 `ArithmeticContext` without `e_min` and `e_max` they return NaN with
 `invalid_context`.

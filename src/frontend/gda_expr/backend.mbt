@@ -171,7 +171,7 @@ fn interchange_format(
 }
 
 ///|
-/// Reports a context outside the decimal package's GDA reference limits.
+/// Reports a context outside the decimal package's adopted decNumber limits.
 fn invalid_context_reason(context : GdaContext) -> String? {
   if context.precision() <= 0 {
     Some(
@@ -179,12 +179,10 @@ fn invalid_context_reason(context : GdaContext) -> String? {
     )
   } else if context.precision() > 999_999_999 {
     Some("diagnostic invalid context: precision exceeds 999999999")
-  } else if context.min_exponent() < -999_999_999 ||
-    context.min_exponent() > 999_999_999 {
-    Some("diagnostic invalid context: minexponent outside +/-999999999")
-  } else if context.max_exponent() < -999_999_999 ||
-    context.max_exponent() > 999_999_999 {
-    Some("diagnostic invalid context: maxexponent outside +/-999999999")
+  } else if context.min_exponent() < -999_999_999 || context.min_exponent() > 0 {
+    Some("diagnostic invalid context: minexponent outside -999999999..=0")
+  } else if context.max_exponent() < 0 || context.max_exponent() > 999_999_999 {
+    Some("diagnostic invalid context: maxexponent outside 0..=999999999")
   } else if context.min_exponent() > context.max_exponent() {
     Some("diagnostic invalid context: minexponent exceeds maxexponent")
   } else {

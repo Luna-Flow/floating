@@ -398,10 +398,13 @@ pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.Roundin
 | `extended` | `true` | IEEE/extended arithmetic; `false` selects the GDA subset |
 | `tininess` | `AfterRounding` | when a result counts as tiny |
 
-`precision` must be positive and no greater than 999,999,999; each of
-`e_min` and `e_max` must be within +/-999,999,999, and `e_min <= e_max`.
-Both `new` and `try_new` return `Err(domain_error)` for invalid parameters.
-These limits keep Etiny, Etop and context exponent arithmetic within `Int`.
+`precision` must be in `1..=999,999,999`, `e_min` in
+`-999,999,999..=0`, and `e_max` in `0..=999,999,999`. Both `new` and
+`try_new` return `Err(domain_error)` naming the invalid field. These bounds
+adopt decNumber's `decContext.h` limits and keep Etiny, Etop and context
+exponent arithmetic within `Int`. GDA 1.70 specifies no fixed exponent limit
+and requires a balanced range; this library does not enforce that balance
+rule.
 
 When `decimal_rounding` is omitted it is
 `DecimalRoundingMode::from_arithmetic(rounding)`; pass it explicitly to use
@@ -451,8 +454,11 @@ pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) ->
 
 Precision, rounding and clamp are copied; a missing `e_min` or `e_max` becomes
 $\mp 999\,999\,999$. The result is extended and uses after-rounding tininess.
-The conversion returns `Err(domain_error)` if the precision or bounds exceed
-the GDA reference limits.
+The conversion returns `Err(domain_error)` if precision is outside
+`1..=999,999,999`, `e_min` outside `-999,999,999..=0`, or `e_max` outside
+`0..=999,999,999`. These are the adopted decNumber `decContext.h` limits; GDA
+1.70 itself sets no fixed limits and its separate balanced-range rule is not
+enforced here.
 
 ### `DecimalContext::precision`, `rounding`, `decimal_rounding`, `e_min`, `e_max`, `clamp`, `extended`, `tininess`
 

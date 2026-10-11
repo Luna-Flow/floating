@@ -18,8 +18,8 @@ pub fn DecimalExponentBounds::new(
     valid_: precision > 0 &&
     precision <= limit &&
     e_min >= -limit &&
-    e_min <= limit &&
-    e_max >= -limit &&
+    e_min <= 0 &&
+    e_max >= 0 &&
     e_max <= limit &&
     e_min <= e_max,
     etiny_: decimal_int_from_int64_clamped(etiny),
