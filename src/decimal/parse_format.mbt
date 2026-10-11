@@ -19,6 +19,15 @@ fn signed_exponent10(exponent : Int) -> String {
 }
 
 ///|
+fn signed_exponent10_64(exponent : Int64) -> String {
+  if exponent >= 0L {
+    "E+" + exponent.to_string()
+  } else {
+    "E" + exponent.to_string()
+  }
+}
+
+///|
 fn format_special_gda(value : Decimal) -> String {
   match value.class {
     FpClass::Infinity => if value.negative { "-Infinity" } else { "Infinity" }
@@ -80,45 +89,46 @@ fn format_sci_finite(value : Decimal) -> String {
 }
 
 ///|
-fn floor_multiple3(n : Int) -> Int {
-  if n >= 0 {
-    n - n % 3
+fn floor_multiple3_64(n : Int64) -> Int64 {
+  if n >= 0L {
+    n - n % 3L
   } else {
-    n - (n % 3 + 3) % 3
+    n - (n % 3L + 3L) % 3L
   }
 }
 
 ///|
-fn ceil_multiple3(n : Int) -> Int {
-  let floor = floor_multiple3(n)
+fn ceil_multiple3_64(n : Int64) -> Int64 {
+  let floor = floor_multiple3_64(n)
   if floor == n {
     floor
   } else {
-    floor + 3
+    floor + 3L
   }
 }
 
 ///|
 fn format_eng_finite(value : Decimal) -> String {
   if value.coefficient.is_zero() {
-    if value.exponent10 <= 0 && value.exponent10 >= -6 {
+    let exponent10 = value.exponent10.to_int64()
+    if exponent10 <= 0L && exponent10 >= -6L {
       return format_plain_finite(value)
     }
-    let eng_exp = ceil_multiple3(value.exponent10)
-    let zero_count = eng_exp - value.exponent10
+    let eng_exp = ceil_multiple3_64(exponent10)
+    let zero_count = (eng_exp - exponent10).to_int()
     let prefix = if value.negative { "-" } else { "" }
     if zero_count == 0 {
-      prefix + "0" + signed_exponent10(eng_exp)
+      prefix + "0" + signed_exponent10_64(eng_exp)
     } else {
-      prefix + "0." + zeros(zero_count) + signed_exponent10(eng_exp)
+      prefix + "0." + zeros(zero_count) + signed_exponent10_64(eng_exp)
     }
   } else {
-    let adjusted = adjusted_exponent(value)
-    let eng_exp = floor_multiple3(adjusted)
-    if adjusted >= -6 && (value.exponent10 <= 0 || eng_exp == 0) {
+    let adjusted = adjusted_exponent64(value)
+    let eng_exp = floor_multiple3_64(adjusted)
+    if adjusted >= -6L && (value.exponent10 <= 0 || eng_exp == 0L) {
       return format_plain_finite(value)
     }
-    let int_digits = adjusted - eng_exp + 1
+    let int_digits = (adjusted - eng_exp + 1L).to_int()
     let prefix = if value.negative { "-" } else { "" }
     let digits = value.coefficient.to_string()
     let significand = if int_digits >= digits.length() {
@@ -130,7 +140,7 @@ fn format_eng_finite(value : Decimal) -> String {
     } else {
       digits[:int_digits].to_owned() + "." + digits[int_digits:].to_owned()
     }
-    prefix + significand + signed_exponent10(eng_exp)
+    prefix + significand + signed_exponent10_64(eng_exp)
   }
 }
 

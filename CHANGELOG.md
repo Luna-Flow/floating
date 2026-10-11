@@ -137,6 +137,9 @@ notes live in this file.
   operands inside the supported context range. Far-gap products use a sticky
   addend, while an opposite-sign addend at the `e_max + 1` boundary can round
   back to the largest finite value without a false `Overflow` signal (#145).
+- Fixed decimal and GDA engineering-string formatting at the `Int` exponent
+  endpoints: engineering exponents are now calculated in `Int64`, so the
+  output exponent keeps its sign and value instead of wrapping (#153).
 
 - Fixed `Decimal::tanh_ctx` and `Decimal::expm1_ctx` returning NaN when large
   finite inputs made the certified loop unable to distinguish a result from
