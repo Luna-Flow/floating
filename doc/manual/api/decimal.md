@@ -1369,13 +1369,15 @@ refined directed bounds.
 > rounding boundary; a longer exact value lies inside its rounding cell and the
 > enclosure rounds it like any other.
 
-All of them except `power_ctx`/`pown_ctx` with an integral exponent or the
-exponent $0.5$ return NaN with `invalid_context` when $p > 999\,999$,
+These operations return NaN with `invalid_context` when $p > 999\,999$,
 $e_{\max} > 999\,999$ or $e_{\min} < -999\,999$, or when a finite operand has
 more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
-Integral powers and $x^{0.5}$ work in any context up to $\pm 999\,999\,999$,
-so `power_ctx(2, 3)` is `8` under `DecimalContext::new()` while
-`power_ctx(2, 1.5)` and `exp2_ctx(2)` are NaN with `invalid_context`.
+Only `power_ctx` and `pown_ctx` handle their IEEE power cases before this
+restricted-context check. For example, `power_ctx(1, 1.1)` is exactly `1` even
+in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
+`invalid_context`. Apart from those power cases, integral powers and $x^{0.5}$ work in contexts up to
+$\pm 999\,999\,999$; `power_ctx(2, 3)` is `8` under `DecimalContext::new()`,
+while `power_ctx(2, 1.5)` and `exp2_ctx(2)` return NaN with `invalid_context`.
 
 ### `Decimal::exp_ctx`, `ln_ctx`, `log10_ctx`, `try_exp_ctx`, `try_ln_ctx`, `try_log10_ctx`
 
@@ -1417,18 +1419,45 @@ pub fn Decimal::try_rootn_ctx(Self, Int, DecimalContext) -> Result[(Self, Decima
 pub fn Decimal::try_hypot_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
-`power_ctx(x, y)` is $x^y$ with the General Decimal Arithmetic special cases:
-an integral exponent gives the exact power when it fits in $p$ digits and
-otherwise, in an extended context, the correctly rounded power (in decimal32,
-`power_ctx(3.339434, 3)` is `37.24077`; the exact cube is
-$37.240765000\ldots$); $x^{0.5}$ is `sqrt_ctx`; a positive base with a
-non-integer exponent is certified; a negative base with a non-integer exponent
-is invalid; $0^0$ is invalid in an extended context; $0^{-n}$ is $\pm\infty$.
-A context that is not extended keeps the General Decimal Arithmetic
-square-and-multiply with $p + \operatorname{digits}(n) + 2$ working digits,
-whose error is below one unit in the last place. `pown_ctx(x, n)` is
-`power_ctx` with the integer `n` converted exactly, so $(-1)^{12345679}$ is
-$-1$ at any precision. `rootn_ctx(x, n)` is
+`power_ctx(x, y)` is the IEEE 754-2019 §9.2 power operation. A signaling NaN
+operand is quieted and raises `invalid_operation`; this takes precedence over
+the identities below. Otherwise $x^{\pm 0}=1$, including for zero, infinity,
+and quiet NaN, and $\operatorname{pow}(+1,y)=1$ for every $y$ (including quiet
+NaN). Also $\operatorname{pow}(-1,\pm\infty)=1$. An infinite exponent
+classifies the magnitude of any other base: $|x|<1$ tends to zero for
+$+\infty$ and infinity for $-\infty$, while $|x|>1$ does the reverse; the
+sign of a negative base does not make these cases invalid.
+
+For a zero base and a negative integer exponent, an extended context returns
+the signed infinity selected by the zero sign and exponent parity, with
+`division_by_zero`: for example, $(-0)^{-1}=-\infty$ and $(-0)^{-2}=+\infty$.
+With `extended = false`, every negative integer power of zero instead returns
+NaN with `invalid_operation`, including $0^{-1}$ and $(-0)^{-1}$. In that
+subset context, positive integer powers preserve the zero sign by parity:
+$(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a negative non-integer exponent
+is positive infinity with `division_by_zero` in an extended context, and NaN
+with `invalid_operation` in a subset context.
+
+Integer powers use binary square-and-multiply. In extended contexts, an exact
+power is returned when it fits in $p$ digits; otherwise the result is correctly
+rounded. Subset contexts use $p + \operatorname{digits}(|n|) + 1$ working
+digits with half-even intermediate rounding, then apply the reciprocal for a
+negative exponent. For large integer exponents the zero and infinity cases
+are decided from sign and parity without expanding the exponent: for example,
+`pown_ctx(-0, Int::max_value())` is `-0`,
+`pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero` in an
+extended context, and `pown_ctx(-infinity, Int::min_value())` is `+0`.
+
+For other integral exponents, an exact power is returned when it fits in $p$
+digits and otherwise, in an extended context, the correctly rounded power (in
+decimal32, `power_ctx(3.339434, 3)` is `37.24077`; the exact cube is
+$37.240765000\ldots$); $x^{0.5}$ is `sqrt_ctx`; positive non-integer powers
+are certified and negative bases with a finite non-integer exponent are
+invalid. These IEEE rules intentionally differ from
+[`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic
+(including its `0^0` invalid result and the `powx2015` rounded `1.00` vector).
+`pown_ctx(x, n)` converts the integer `n` exactly, so
+$(-1)^{12345679}=-1$ at any precision. `rootn_ctx(x, n)` is
 $x^{1/n}$ for integer $n \ne 0$; an even root of a negative value and $n=0$
 are invalid, and $\operatorname{rootn}(\pm 0, n<0)$ is an infinity with
 `division_by_zero`; an exactly representable root is returned exactly
@@ -1845,18 +1874,20 @@ pub impl @arithmetic.PowIntChecked for Decimal
 `Decimal::from_string_ctx`, so the context's precision, rounding direction,
 exponent bounds and clamp setting apply. It returns the converted value; flags
 such as overflow remain available from `from_string_ctx`. Invalid syntax
-returns `Err(parse_error)`.
-`DivChecked::div_checked(x, y, ctx)` is `div_ctx` under the converted context
-with `Err(division_by_zero)` and `Err(domain_error)` as in
-[`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under
-the converted context and fails for negative operands. `pow_nat_checked` and
-`pow_int_checked` are `power_ctx` with the integer exponent converted to a
-`Decimal` exactly (with at least ten digits, which hold every accepted
-exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`;
-they return `Err(division_by_zero)` for a
-zero base with a negative exponent, `Err(domain_error)` for an invalid power,
-and `pow_nat_checked` returns `Err(unsupported)` for exponents above
-999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked).
+returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx`
+under the converted context with `Err(division_by_zero)` and
+`Err(domain_error)` as in [`div_checked`](#decimaldiv_checked-sqrt).
+`sqrt_checked` is `sqrt_ctx` under the converted context and fails for
+negative operands. `pow_nat_checked` and `pow_int_checked` call `power_ctx`
+with the integer exponent converted exactly (with at least ten digits, which
+hold every accepted exponent), so at precision 7
+`(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero
+or quiet-NaN base with exponent zero, `Err(division_by_zero)` for a zero base with
+a negative exponent in an extended context, and `Err(domain_error)` for an
+invalid result such as a signaling NaN operand or a negative power of zero in
+a subset context. `pow_nat_checked` returns `Err(unsupported)` for exponents
+above 999,999,999. `CompareChecked` is
+[`compare_checked`](#decimalcompare_checked).
 
 ### `Eq` and `Compare`: `Decimal::equal`, `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`
 

@@ -7483,8 +7483,10 @@ test "decimal transcendental operations report invalid_context on restricted mat
   assert_eq(exp_lower.to_string(), "nan")
   assert_true(exp_lower_flags.invalid_context)
   assert_false(exp_lower_flags.invalid_operation)
-  assert_eq(power_upper.to_string(), "nan")
-  assert_true(power_upper_flags.invalid_context)
+  // IEEE 754-2019 §9.2.1: pow(+1, y) is exactly 1 for every y, before
+  // the restricted-context rule for non-integral powers.
+  assert_eq(power_upper.to_string(), "1")
+  assert_false(power_upper_flags.invalid_context)
   assert_false(power_upper_flags.invalid_operation)
   assert_eq(power_fast.to_string(), "100")
   assert_false(power_fast_flags.invalid_context)
@@ -7676,7 +7678,7 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
 }
 
 ///|
-test "decimal noninteger power matches official near-integer and one-base representatives" {
+test "decimal power matches near-integer vector and IEEE one-base identity" {
   let near_integer_ctx = @decimal.DecimalContext::new(
     precision=16,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfEven,
@@ -7717,11 +7719,11 @@ test "decimal noninteger power matches official near-integer and one-base repres
   )
   assert_decimal_total_eq(
     one_noninteger,
-    decimal_test_operand("1.00"),
-    "powx2015 result",
+    decimal_test_operand("1"),
+    "IEEE one-base noninteger power",
   )
-  assert_true(one_noninteger_flags.rounded)
-  assert_true(one_noninteger_flags.inexact)
+  // IEEE 754-2019 §9.2.1: pow(+1, y) is exact 1 for every finite y.
+  assert_true(one_noninteger_flags == @decimal.DecimalFlags::new())
   assert_decimal_total_eq(
     one_integer_like,
     decimal_test_operand("1"),

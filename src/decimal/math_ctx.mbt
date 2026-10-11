@@ -247,6 +247,10 @@ fn Decimal::power_ctx_impl(
   exponent : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  match decimal_power_ieee_special_result(self, exponent, ctx) {
+    Some(result) => return result
+    None => ()
+  }
   match decimal_power_simple_ten_result(self, exponent, ctx) {
     Some(result) => return decimal_power_finalize_result(result, ctx)
     None => ()
@@ -348,16 +352,13 @@ fn Decimal::power_ctx_impl(
           if !ctx.extended {
             return (Decimal::nan(precision~), invalid_flags())
           }
-          (
-            Decimal::inf(
-              if negative {
-                Sign::Negative
-              } else {
-                Sign::Positive
-              },
-              precision~,
-            ),
-            DecimalFlags::new(),
+          decimal_elementary_division_by_zero(
+            if negative {
+              Sign::Negative
+            } else {
+              Sign::Positive
+            },
+            ctx,
           )
         } else {
           (

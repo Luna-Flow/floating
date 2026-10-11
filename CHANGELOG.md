@@ -127,6 +127,15 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible ([#166](https://github.com/Luna-Flow/floating/issues/166)):** IEEE `Decimal::power_ctx` and `pown_ctx` now
+  return 1 for $0^0$, signed zero for positive integer powers of zero, and
+  signed infinity with `division_by_zero` for a zero base and negative integer
+  exponent. `pow(1, y)` and `pow(-1, ±inf)` are 1. The checked integer-power
+  routes return `Ok(1)` for a zero or quiet-NaN base with exponent zero and
+  `Err(division_by_zero)` for a zero base with a negative exponent. Signaling
+  NaN operands still produce a quiet NaN with `invalid_operation`; `decimal_gda`
+  retains its distinct GDA behavior.
+
 - **Breaking:** Decimal and GDA context constructors now return `Result` and
   reject precision outside `1..=999,999,999`, `e_min` outside
   `-999,999,999..=0`, or `e_max` outside `0..=999,999,999`; positive `e_min`
