@@ -221,9 +221,9 @@ test "GDA fma product below Int range uses a bounded sticky alignment" {
 }
 
 ///|
-/// GdaContext validates through the same reference bounds before constructing
+/// GdaContext validates through the same adopted context bounds before constructing
 /// a DecimalContext for stateful operations.
-test "GdaContext rejects precision and exponent bounds outside reference limits" {
+test "GdaContext rejects precision and exponent bounds outside adopted limits" {
   assert_true(GdaContext::try_new(precision=999_999_999) is Ok(_))
   assert_true(GdaContext::try_new(e_min=-999_999_999) is Ok(_))
   assert_true(GdaContext::try_new(e_max=999_999_999) is Ok(_))
@@ -246,4 +246,28 @@ test "GdaContext rejects precision and exponent bounds outside reference limits"
   assert_true(GdaContext::new(e_max=1_000_000_000) is Err(_))
   assert_true(GdaContext::new(precision=0) is Err(_))
   assert_true(GdaContext::new(e_min=1, e_max=0) is Err(_))
+}
+
+///|
+/// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted
+/// implementation bounds require `e_min <= 0 <= e_max` without enforcing the
+/// separate balanced-range rule.
+test "GdaContext rejects exponent bounds with invalid signs" {
+  assert_true(GdaContext::try_new(e_min=0, e_max=0) is Ok(_))
+  assert_true(
+    GdaContext::try_new(e_min=-999_999_999, e_max=999_999_999) is Ok(_),
+  )
+  assert_true(GdaContext::try_new(e_min=-10, e_max=10) is Ok(_))
+  assert_true(GdaContext::try_new(e_min=1, e_max=10) is Err(_))
+  assert_true(GdaContext::try_new(e_min=-10, e_max=-1) is Err(_))
+  match GdaContext::try_new(e_min=1, e_max=10) {
+    Err(error) =>
+      assert_eq(error.message, "GdaContext e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min must be rejected")
+  }
+  match GdaContext::try_new(e_min=-10, e_max=-1) {
+    Err(error) =>
+      assert_eq(error.message, "GdaContext e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max must be rejected")
+  }
 }

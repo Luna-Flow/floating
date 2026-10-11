@@ -140,4 +140,15 @@ test "Decimal context translation rejects out of range bounds" {
     invalid,
   )
   assert_true(outcome is Err(_))
+  let positive = @lf_arith.ArithmeticContext::new(7, e_min=1, e_max=10)
+  match DecimalContext::from_arithmetic_context(positive) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min must be rejected")
+  }
+  let negative = @lf_arith.ArithmeticContext::new(7, e_min=-10, e_max=-1)
+  match DecimalContext::from_arithmetic_context(negative) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max must be rejected")
+  }
 }

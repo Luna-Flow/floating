@@ -24,6 +24,29 @@ fn context_bounds_row(value : Decimal, raised : GdaFlags) -> String {
 }
 
 ///|
+/// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted limits
+/// require `e_min <= 0 <= e_max`.  D-F1 deliberately does not impose GDA's
+/// separate balanced-range rule.
+test "GDA DecimalContext rejects exponent bounds with invalid signs" {
+  assert_true(DecimalContext::try_new(e_min=0, e_max=0) is Ok(_))
+  assert_true(
+    DecimalContext::try_new(e_min=-999_999_999, e_max=999_999_999) is Ok(_),
+  )
+  assert_true(DecimalContext::try_new(e_min=-10, e_max=10) is Ok(_))
+  assert_true(DecimalContext::try_new(e_min=1, e_max=10) is Err(_))
+  assert_true(DecimalContext::try_new(e_min=-10, e_max=-1) is Err(_))
+  match DecimalContext::try_new(e_min=1, e_max=10) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min must be rejected")
+  }
+  match DecimalContext::try_new(e_min=-10, e_max=-1) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max must be rejected")
+  }
+}
+
+///|
 /// Runs one decTest row through both the GDA operation form (`GdaContext`)
 /// and the status-free `_ctx` form (`DecimalContext`), which must agree.
 fn context_bounds_case(

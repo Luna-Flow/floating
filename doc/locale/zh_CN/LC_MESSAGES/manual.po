@@ -3701,8 +3701,8 @@ msgid "when a result counts as tiny"
 msgstr "结果何时算作微小"
 
 #: manual/api/decimal.md:401
-msgid "`precision` must be positive and no greater than 999,999,999; each of `e_min` and `e_max` must be within +/-999,999,999, and `e_min <= e_max`. Both `new` and `try_new` return `Err(domain_error)` for invalid parameters. These limits keep Etiny, Etop and context exponent arithmetic within `Int`."
-msgstr "`precision` 必须为正且不超过 999,999,999；`e_min` 和 `e_max` 均须在 +/-999,999,999 范围内，且 `e_min <= e_max`。参数无效时，`new` 和 `try_new` 都会返回 `Err(domain_error)`。这些限制确保 Etiny、Etop 和上下文指数运算都在 `Int` 范围内。"
+msgid "`precision` must be in `1..=999,999,999`, `e_min` in `-999,999,999..=0`, and `e_max` in `0..=999,999,999`. Both `new` and `try_new` return `Err(domain_error)` naming the invalid field. These bounds adopt decNumber's `decContext.h` limits and keep Etiny, Etop and context exponent arithmetic within `Int`. GDA 1.70 specifies no fixed exponent limit and requires a balanced range; this library does not enforce that balance rule."
+msgstr "`precision` 必须在 `1..=999,999,999` 范围内，`e_min` 在 `-999,999,999..=0` 范围内，`e_max` 在 `0..=999,999,999` 范围内。`new` 和 `try_new` 会返回指出无效字段的 `Err(domain_error)`。这些边界采用 decNumber `decContext.h` 的限制，并确保 Etiny、Etop 和上下文指数运算都在 `Int` 范围内。GDA 1.70 未规定固定的指数上限，并要求指数范围平衡；本库不强制该平衡规则。"
 
 #: manual/api/decimal.md:406
 msgid "When `decimal_rounding` is omitted it is `DecimalRoundingMode::from_arithmetic(rounding)`; pass it explicitly to use `HalfUp`, `HalfDown` or `ZeroFiveUp`."
@@ -3744,8 +3744,8 @@ msgid "`from_arithmetic_context` converts the shared Luna-Flow context."
 msgstr "`from_arithmetic_context` 转换共享的 Luna-Flow 上下文。"
 
 #: manual/api/decimal.md:452
-msgid "Precision, rounding and clamp are copied; a missing `e_min` or `e_max` becomes $\\mp 999\\,999\\,999$. The result is extended and uses after-rounding tininess. The conversion returns `Err(domain_error)` if the precision or bounds exceed the GDA reference limits."
-msgstr "精度、舍入模式和 clamp 会被复制；缺少 `e_min` 或 `e_max` 时分别使用 $\\mp 999\\,999\\,999$。结果是扩展上下文，并采用舍入后微小性判定。如果精度或边界超过 GDA 参考限制，转换会返回 `Err(domain_error)`。上下文 trait 和 checked trait 实现均使用此转换。"
+msgid "Precision, rounding and clamp are copied; a missing `e_min` or `e_max` becomes $\\mp 999\\,999\\,999$. The result is extended and uses after-rounding tininess. The conversion returns `Err(domain_error)` if precision is outside `1..=999,999,999`, `e_min` outside `-999,999,999..=0`, or `e_max` outside `0..=999,999,999`. These are the adopted decNumber `decContext.h` limits; GDA 1.70 itself sets no fixed limits and its separate balanced-range rule is not enforced here."
+msgstr "精度、舍入模式和 clamp 会被复制；缺少 `e_min` 或 `e_max` 时分别使用 $\\mp 999\\,999\\,999$。结果是扩展上下文，并采用舍入后微小性判定。若 precision 不在 `1..=999,999,999`、`e_min` 不在 `-999,999,999..=0` 或 `e_max` 不在 `0..=999,999,999`，转换会返回 `Err(domain_error)`。这些是本库采用的 decNumber `decContext.h` 限制；GDA 1.70 本身没有固定限制，本库也不强制其单独规定的平衡范围规则。上下文 trait 和 checked trait 实现均使用此转换。"
 
 #: manual/api/decimal.md:459
 msgid "These accessors return the fields of a context."
@@ -4811,8 +4811,8 @@ msgid "These build a context with an empty status."
 msgstr "这些函数构建状态为空的上下文。"
 
 #: manual/api/decimal_gda.md:415
-msgid "Defaults: `precision=34`, `rounding=HalfEven`, `e_min=-999_999_999`, `e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. Both `new` and `try_new` return `Err(domain_error)` when precision is outside `1..=999_999_999`, either exponent bound is outside `+/-999_999_999`, or `e_min > e_max`. These shared bounds keep Etiny/Etop and exponent arithmetic within `Int`. `clamp=true` limits exponents to $e_{\\max} - p + 1$ as the interchange formats do. `extended=false` selects GDA *subset* arithmetic: operands longer than $p$ digits are rounded first (raising `LostDigits` when that is inexact), special values cannot be parsed, zeros and some results are normalized, and `fma` is invalid."
-msgstr "默认值：`precision=34`、`rounding=HalfEven`、`e_min=-999_999_999`、`e_max=999_999_999`、`clamp=false`、`extended=true`，无陷阱。`new` 和 `try_new` 都会在精度不属于 `1..=999_999_999`、任一指数超出 `+/-999_999_999` 或 `e_min > e_max` 时返回 `Err(domain_error)`。这些共享边界确保 Etiny/Etop 及指数运算保持在 `Int` 范围内。`clamp=true` 像交换格式那样将指数限制为 $e_{\\max} - p + 1$。`extended=false` 选择 GDA *子集*算术：长于 $p$ 位的操作数先被舍入（若不精确则引发 `LostDigits`），特殊值无法解析，零以及某些结果会被规范化，且 `fma` 无效。"
+msgid "Defaults: `precision=34`, `rounding=HalfEven`, `e_min=-999_999_999`, `e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. Both `new` and `try_new` return `Err(domain_error)` naming the invalid field when precision is outside `1..=999_999_999`, `e_min` outside `-999_999_999..=0`, or `e_max` outside `0..=999_999_999`. These adopted decNumber `decContext.h` limits keep Etiny/Etop and exponent arithmetic within `Int`. GDA 1.70 itself specifies no fixed context limits and requires a balanced exponent range; this library does not enforce that separate balance rule. `clamp=true` limits exponents to $e_{\\max} - p + 1$ as the interchange formats do. `extended=false` selects GDA *subset* arithmetic: operands longer than $p$ digits are rounded first (raising `LostDigits` when that is inexact), special values cannot be parsed, zeros and some results are normalized, and `fma` is invalid."
+msgstr "默认值：`precision=34`、`rounding=HalfEven`、`e_min=-999_999_999`、`e_max=999_999_999`、`clamp=false`、`extended=true`，无陷阱。当 precision 不在 `1..=999_999_999`、`e_min` 不在 `-999_999_999..=0` 或 `e_max` 不在 `0..=999_999_999` 时，`new` 和 `try_new` 会返回指出无效字段的 `Err(domain_error)`。这些边界采用 decNumber `decContext.h` 的限制，并确保 Etiny、Etop 和上下文指数运算都在 `Int` 范围内。GDA 1.70 本身没有规定固定的上下文限制，并要求指数范围平衡；本库不强制该单独的平衡规则。`clamp=true` 会像交换格式一样将指数限制为 $e_{\\max} - p + 1$。`extended=false` 选择 GDA *子集*算术：长于 $p$ 位的操作数会先舍入（若发生不精确则引发 `LostDigits`），特殊值无法解析，零和某些结果会被规范化，且 `fma` 无效。"
 
 #: manual/api/decimal_gda.md:426
 msgid "[!NOTE] `exp`, `ln`, `log10` and `power` with a non-integer exponent require $p \\le 999\\,999$, $e_{\\max} \\le 999\\,999$ and $e_{\\min} \\ge -999\\,999$, as the GDA specification does for its mathematical functions. With the default exponent range they return NaN and raise `InvalidContext`."
@@ -6588,8 +6588,8 @@ msgid "Decimal exponent bounds"
 msgstr "十进制指数边界"
 
 #: manual/api/internal.md:33
-msgid "`DecimalExponentBounds` validates the reference limit used by both decimal cores and computes the context-derived exponent endpoints without `Int` wraparound. A precision must be positive and at most 999,999,999; each context exponent must be within +/-999,999,999 and `e_min <= e_max`."
-msgstr "`DecimalExponentBounds` 用于验证两个十进制核心共用的参考上限，并在不发生 `Int` 回绕的情况下计算由上下文导出的指数端点。精度必须为正且至多为 999,999,999；每个上下文指数都必须介于 -999,999,999 和 999,999,999 之间，且 `e_min` <= `e_max`。"
+msgid "`DecimalExponentBounds` validates the adopted decNumber `decContext.h` limits used by both decimal cores and computes the context-derived exponent endpoints without `Int` wraparound. Precision must be in `1..=999,999,999`, `e_min` in `-999,999,999..=0`, and `e_max` in `0..=999,999,999`. GDA 1.70 specifies no fixed context limits and requires a balanced exponent range; that separate balance rule is not enforced here."
+msgstr "`DecimalExponentBounds` 用于验证两个十进制核心采用的 decNumber `decContext.h` 限制，并在不发生 `Int` 回绕的情况下计算由上下文导出的指数端点。precision 必须在 `1..=999,999,999` 范围内，`e_min` 在 `-999,999,999..=0` 范围内，`e_max` 在 `0..=999,999,999` 范围内。GDA 1.70 未规定固定的上下文限制，并要求指数范围平衡；这里不强制该单独的平衡规则。"
 
 #: manual/api/internal.md:50
 msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max} - p + 1$. Invalid inputs set `is_valid()` to false; the returned endpoints are clamped only to keep this internal value total, and callers must reject the context before using them."
@@ -11076,8 +11076,8 @@ msgid "together with $\\pm\\infty$ and NaNs, where $c$ is the *coefficient*, $q$
 msgstr "再加上 $\\pm\\infty$ 和 NaN，其中 $c$ 是*系数*，$q$ 是*指数*或*量子*，且"
 
 #: manual/design/decimal.md:63
-msgid "Contexts require $1 \\le p \\le 999\\,999\\,999$ and $|e_{\\min}|, |e_{\\max}| \\le 999\\,999\\,999$. A shared constructor helper validates these bounds and computes $E_{\\text{tiny}}$ and $E_{\\text{top}}$; invalid parameters return an error. This is the General Decimal Arithmetic reference limit and keeps context-derived exponent sums within `Int`."
-msgstr "上下文要求 $1 \\le p \\le 999\\,999\\,999$ 且 $|e_{\\min}|, |e_{\\max}| \\le 999\\,999\\,999$。共用构造辅助函数会验证这些边界并计算 $E_{\\text{tiny}}$ 和 $E_{\\text{top}}$；参数无效时返回错误。这是 General Decimal Arithmetic 的参考上限，可确保由上下文推导出的指数加法不会超出 `Int` 范围。"
+msgid "Contexts require $1 \\le p \\le 999\\,999\\,999$, $-999\\,999\\,999 \\le e_{\\min} \\le 0$ and $0 \\le e_{\\max} \\le 999\\,999\\,999$. A shared constructor helper validates these bounds and computes $E_{\\text{tiny}}$ and $E_{\\text{top}}$; invalid parameters return an error naming the invalid field. These are the adopted decNumber `decContext.h` limits and keep context-derived exponent sums within `Int`. GDA 1.70 specifies no fixed context limits and requires a balanced range; this library does not enforce that separate balance rule."
+msgstr "上下文要求 $1 \\le p \\le 999\\,999\\,999$、$-999\\,999\\,999 \\le e_{\\min} \\le 0$ 且 $0 \\le e_{\\max} \\le 999\\,999\\,999$。共用构造辅助函数会验证这些边界并计算 $E_{\\text{tiny}}$ 和 $E_{\\text{top}}$；参数无效时返回指出无效字段的错误。这些边界采用 decNumber `decContext.h` 的限制，并确保由上下文推导出的指数加法不会超出 `Int` 范围。GDA 1.70 未规定固定的上下文限制，并要求指数范围平衡；本库不强制该单独的平衡规则。"
 
 #: manual/design/decimal.md:69
 msgid "The *adjusted exponent* of a non-zero $x$ is $\\operatorname{adj}(x) = q + \\operatorname{digits}(c) - 1 = \\lfloor \\log_{10} |x| \\rfloor$: it is the exponent of $x$ written in scientific notation $d_0.d_1d_2\\ldots \\times 10^{\\operatorname{adj}(x)}$. A non-zero $x$ is *normal* when $\\operatorname{adj}(x) \\ge e_{\\min}$ and *subnormal* otherwise; the smallest positive subnormal is $10^{E_{\\text{tiny}}}$ and the largest finite value is"

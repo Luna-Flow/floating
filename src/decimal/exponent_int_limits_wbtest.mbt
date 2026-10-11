@@ -76,6 +76,30 @@ test "decimal context rejects out of range fields without aborting" {
 }
 
 ///|
+/// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted
+/// implementation bounds require `e_min <= 0 <= e_max`.  D-F1 keeps the GDA
+/// balance rule itself optional, so an asymmetric range such as -10..=10 is
+/// valid; only the signs at the two boundaries are constrained.
+test "decimal context rejects exponent bounds with invalid signs" {
+  assert_true(DecimalContext::try_new(e_min=0, e_max=0) is Ok(_))
+  assert_true(
+    DecimalContext::try_new(e_min=-999_999_999, e_max=999_999_999) is Ok(_),
+  )
+  assert_true(DecimalContext::try_new(e_min=-10, e_max=10) is Ok(_))
+  assert_true(DecimalContext::try_new(e_min=1, e_max=10) is Err(_))
+  assert_true(DecimalContext::try_new(e_min=-10, e_max=-1) is Err(_))
+  match DecimalContext::try_new(e_min=1, e_max=10) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min must be rejected")
+  }
+  match DecimalContext::try_new(e_min=-10, e_max=-1) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max must be rejected")
+  }
+}
+
+///|
 /// IEEE 754-2019 §9.2.1: fused multiply-add rounds the exact product-plus-sum
 /// once. An out-of-range product cannot be rescued by this negligible addend.
 test "fma with maximum context exponents reports overflow" {

@@ -235,27 +235,27 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
   assert_true(at_flags.underflow && at_flags.subnormal)
   assert_true(below_flags == at_flags)
 
-  let positive_emin = DecimalContext::new(precision=7, e_min=2, e_max=10).unwrap()
+  let positive_emin = DecimalContext::new(precision=7, e_min=0, e_max=10).unwrap()
   let (subnormal_limit, subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
     positive_emin,
   )
   assert_false(subnormal_limit.is_nan())
   assert_true(subnormal_flags.inexact && subnormal_flags.rounded)
-  assert_true(subnormal_flags.underflow && subnormal_flags.subnormal)
+  assert_false(subnormal_flags.underflow || subnormal_flags.subnormal)
 
-  let unit_emin = DecimalContext::new(precision=7, e_min=1, e_max=10).unwrap()
+  let unit_emin = DecimalContext::new(precision=7, e_min=-1, e_max=10).unwrap()
   let (unit_subnormal, unit_subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
     unit_emin,
   )
   assert_false(unit_subnormal.is_nan())
   assert_true(unit_subnormal_flags.inexact && unit_subnormal_flags.rounded)
-  assert_true(unit_subnormal_flags.underflow && unit_subnormal_flags.subnormal)
+  assert_false(unit_subnormal_flags.underflow || unit_subnormal_flags.subnormal)
 
   let negative_emax = DecimalContext::new(
     precision=7,
     decimal_rounding=DecimalRoundingMode::Down,
     e_min=-10,
-    e_max=-1,
+    e_max=0,
   ).unwrap()
   let (overflow_edge, overflow_flags) = Decimal::from_int(-20000).expm1_ctx(
     negative_emax,

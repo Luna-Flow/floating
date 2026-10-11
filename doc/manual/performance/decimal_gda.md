@@ -18,8 +18,8 @@ The Maremark suite measures add, subtract, multiply, divide, FMA, and parse at
 with the full checked path and validates both against the core result before
 reporting layer overhead.
 
-Contexts may use the reference maximum precision `999,999,999`, but operations
-at that boundary can be expensive. In debug-native measurements, `1 / 4` in
+Contexts may use the adopted decNumber maximum precision `999,999,999`, but
+operations at that boundary can be expensive. In debug-native measurements, `1 / 4` in
 `decimal_gda` did not finish within 40 seconds. Use a smaller precision for
 interactive work and reserve the maximum for compatibility or conformance
 checks.
