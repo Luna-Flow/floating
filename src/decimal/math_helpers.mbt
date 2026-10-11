@@ -143,14 +143,9 @@ fn decimal_power_one_finite_exponent_result(
     Some(_) => None
     None => {
       let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-      if adjusted_exponent(exponent) > 999_999 ||
-        exponent.exponent10 + exponent.coefficient.digits10() < -1_999_996 {
-        Some((Decimal::nan(precision~), invalid_flags()))
-      } else if adjusted_exponent(exponent) >= ctx.e_max {
-        Some(decimal_apply_finite_ctx(Decimal::one(precision~), ctx))
-      } else {
-        Some(decimal_power_one_limit_result(ctx))
-      }
+      // IEEE 754-2019 §9.2.1: pow(+1, y) is exact 1 for every finite y,
+      // including exponents outside the non-integral math context range.
+      Some((Decimal::one(precision~), DecimalFlags::new()))
     }
   }
 }
@@ -250,9 +245,10 @@ fn decimal_power_finite_noninteger_domain_result(
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if base.coefficient.is_zero() {
     if exponent.negative && !exponent.coefficient.is_zero() {
-      return Some(
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()),
-      )
+      if ctx.extended {
+        return Some(decimal_elementary_division_by_zero(Sign::Positive, ctx))
+      }
+      return Some((Decimal::nan(precision~), invalid_flags()))
     }
     return Some(
       (
@@ -1719,9 +1715,7 @@ fn decimal_power_infinite_exponent_result(
   match base.class {
     FpClass::NaN => None
     FpClass::Infinity =>
-      if base.negative {
-        Some((Decimal::nan(precision~), invalid_flags()))
-      } else if exponent.negative {
+      if exponent.negative {
         Some(
           (
             finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
@@ -1743,12 +1737,10 @@ fn decimal_power_infinite_exponent_result(
             ),
           )
         }
-      } else if base.negative {
-        Some((Decimal::nan(precision~), invalid_flags()))
       } else {
         let cmp = decimal_power_compare_abs_one(base, precision)
         if cmp == 0 {
-          Some(decimal_power_one_limit_result(ctx))
+          Some((Decimal::one(precision~), DecimalFlags::new()))
         } else if (cmp < 0 && !exponent.negative) ||
           (cmp > 0 && exponent.negative) {
           Some(
@@ -1775,9 +1767,7 @@ fn decimal_power_infinite_base_noninteger_result(
   match decimal_power_integer_is_odd(exponent) {
     Some(_) => None
     None =>
-      if base.negative {
-        Some((Decimal::nan(precision~), invalid_flags()))
-      } else if exponent.negative {
+      if exponent.negative {
         Some(
           (
             finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
@@ -1788,6 +1778,28 @@ fn decimal_power_infinite_base_noninteger_result(
         Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
       }
   }
+}
+
+///|
+/// IEEE 754-2019 §9.2.1 puts the zero-exponent and unit-base identities before
+/// NaN propagation and the other power special cases.  Infinite exponents
+/// also classify negative finite bases by magnitude, without a domain error.
+fn decimal_power_ieee_special_result(
+  base : Decimal,
+  exponent : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
+  if exponent.class == FpClass::Finite && exponent.coefficient.is_zero() {
+    return Some((Decimal::one(precision~), DecimalFlags::new()))
+  }
+  if is_finite_decimal_one(base) {
+    return Some((Decimal::one(precision~), DecimalFlags::new()))
+  }
+  if exponent.class == FpClass::Infinity {
+    return decimal_power_infinite_exponent_result(base, exponent, ctx)
+  }
+  None
 }
 
 ///|
