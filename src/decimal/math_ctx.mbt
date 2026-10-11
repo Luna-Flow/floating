@@ -198,10 +198,25 @@ pub fn Decimal::try_power_ctx(
     let square_root = base.sqrt_ctx(ctx)
     return Ok((square_root.0, operand_flags.combine(square_root.1)))
   }
+  match decimal_power_integer_is_odd(rounded_exponent) {
+    Some(odd) =>
+      if decimal_power_gda_integer_count(rounded_exponent) is None {
+        match
+          decimal_power_large_integer_result(base, rounded_exponent, odd, ctx) {
+          Some(result) =>
+            return result.map(fn(value) {
+              (value.0, operand_flags.combine(value.1))
+            })
+          None => ()
+        }
+      }
+    None => ()
+  }
   let is_positive_noninteger = base.class == FpClass::Finite &&
     !base.negative &&
     !base.coefficient.is_zero() &&
     rounded_exponent.class == FpClass::Finite &&
+    decimal_power_integer_is_odd(rounded_exponent) is None &&
     decimal_power_gda_integer_count(rounded_exponent) is None
   if is_positive_noninteger {
     let handled_before_certification = decimal_power_simple_ten_result(
@@ -286,17 +301,13 @@ fn Decimal::power_ctx_impl(
     Some(result) => return result
     None => ()
   }
-  if decimal_power_gda_integer_count(exponent) is None &&
+  if decimal_power_integer_is_odd(exponent) is None &&
     math_context_is_restricted(ctx) {
     return invalid_context_result(ctx)
   }
   match decimal_power_one_finite_exponent_result(self, exponent, ctx) {
     Some(result) => return decimal_power_finalize_result(result, ctx)
     None => ()
-  }
-  if decimal_power_positive_integer_restricted(exponent) &&
-    (ctx.precision > 999_999 || ctx.e_max > 999_999 || ctx.e_min < -999_999) {
-    return invalid_context_result(ctx)
   }
   match decimal_power_positive_noninteger_result(self, exponent, ctx) {
     Some(result) => return decimal_power_finalize_result(result, ctx)

@@ -1438,13 +1438,16 @@ $(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a negative non-integer exponent
 is positive infinity with `division_by_zero` in an extended context, and NaN
 with `invalid_operation` in a subset context.
 
-Integer powers use binary square-and-multiply. In extended contexts, an exact
-power is returned when it fits in $p$ digits; otherwise the result is correctly
-rounded. Subset contexts use $p + \operatorname{digits}(|n|) + 1$ working
-digits with half-even intermediate rounding, then apply the reciprocal for a
-negative exponent. For large integer exponents the zero and infinity cases
-are decided from sign and parity without expanding the exponent: for example,
-`pown_ctx(-0, Int::max_value())` is `-0`,
+Integer powers within the bounded count use binary square-and-multiply. In
+extended contexts, an exact power is returned when it fits in $p$ digits;
+otherwise the result is correctly rounded. Subset contexts use
+$p + \operatorname{digits}(|n|) + 1$ working digits with half-even intermediate
+rounding, then apply the reciprocal for a negative exponent. An integral
+exponent outside the bounded count is still supported: the magnitude is
+certified, and an odd power of a negative base swaps the directed rounding
+modes before restoring its sign. For large integer exponents the zero and
+infinity cases are decided from sign and parity without expanding the exponent:
+for example, `pown_ctx(-0, Int::max_value())` is `-0`,
 `pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero` in an
 extended context, and `pown_ctx(-infinity, Int::min_value())` is `+0`.
 

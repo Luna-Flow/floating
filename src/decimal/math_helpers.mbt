@@ -100,6 +100,13 @@ fn decimal_power_finite_noninteger_operand_range_result(
   guard base.class == FpClass::Finite && exponent.class == FpClass::Finite else {
     return None
   }
+  // Zero has a defined result for every positive non-integral exponent and
+  // raises DivisionByZero for every negative one. Let the domain helper below
+  // handle it before rejecting an exponent whose representation is outside the
+  // ordinary math operand range.
+  if base.coefficient.is_zero() {
+    return None
+  }
   match decimal_power_gda_integer_count(exponent) {
     Some(_) => None
     None =>
@@ -1781,6 +1788,59 @@ fn decimal_power_infinite_base_noninteger_result(
 }
 
 ///|
+/// IEEE 754-2019 §9.2.1 defines a negative finite base for every exact
+/// integral exponent. The ordinary decimal integer-power loop accepts only
+/// the GDA bounded `Int` count; for a larger count, certify the magnitude of
+/// the corresponding positive base and restore the sign from the exponent's
+/// parity.
+fn decimal_power_large_integer_result(
+  base : Decimal,
+  exponent : Decimal,
+  odd : Bool,
+  ctx : DecimalContext,
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError]? {
+  guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
+    return None
+  }
+  guard !is_finite_decimal_one(base) && !is_finite_decimal_negative_one(base) else {
+    return None
+  }
+  guard decimal_power_gda_integer_count(exponent) is None else { return None }
+  let negative = base.negative && odd
+  let magnitude = base.abs()
+  let magnitude_ctx = if negative {
+    match ctx.decimal_rounding {
+      Ceiling =>
+        {
+          ..ctx,
+          rounding: RoundingMode::TowardNegative,
+          decimal_rounding: DecimalRoundingMode::Floor,
+        }
+      Floor =>
+        {
+          ..ctx,
+          rounding: RoundingMode::TowardPositive,
+          decimal_rounding: DecimalRoundingMode::Ceiling,
+        }
+      _ => ctx
+    }
+  } else {
+    ctx
+  }
+  Some(
+    decimal_certified_power_result(magnitude, exponent, magnitude_ctx).map(fn(
+      value,
+    ) {
+      if value.0.class == FpClass::NaN {
+        value
+      } else {
+        ({ ..value.0, negative, }, value.1)
+      }
+    }),
+  )
+}
+
+///|
 /// IEEE 754-2019 §9.2.1 gives signaling NaN operands priority over the
 /// zero-exponent and unit-base identities. Infinite exponents classify finite
 /// bases by magnitude, including negative bases, without a domain error.
@@ -2401,13 +2461,4 @@ fn decimal_power_exact_rational_result(
       ctx,
     ),
   )
-}
-
-///|
-fn decimal_power_positive_integer_restricted(rhs : Decimal) -> Bool {
-  match decimal_exact_integer_coeff(rhs) {
-    Some((negative, magnitude)) =>
-      !negative && dec_coeff_to_bounded_int(magnitude, 999_999_999) is None
-    None => false
-  }
 }
