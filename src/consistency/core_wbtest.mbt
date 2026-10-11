@@ -7678,7 +7678,7 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
 }
 
 ///|
-test "decimal noninteger power matches official near-integer and one-base representatives" {
+test "decimal noninteger power matches near-integer vector and IEEE one-base identity" {
   let near_integer_ctx = @decimal.DecimalContext::new(
     precision=16,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfEven,
@@ -7720,7 +7720,7 @@ test "decimal noninteger power matches official near-integer and one-base repres
   assert_decimal_total_eq(
     one_noninteger,
     decimal_test_operand("1"),
-    "powx2015 result",
+    "IEEE one-base noninteger power",
   )
   // IEEE 754-2019 §9.2.1: pow(+1, y) is exact 1 for every finite y.
   assert_true(one_noninteger_flags == @decimal.DecimalFlags::new())
