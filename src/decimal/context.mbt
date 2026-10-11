@@ -218,10 +218,10 @@ pub fn DecimalContext::new(
   guard bounds.is_valid() else {
     let reason = if precision <= 0 || precision > 999_999_999 {
       "precision must be within 1..=999999999"
-    } else if e_min < -999_999_999 || e_min > 999_999_999 {
-      "e_min must be within +/-999999999"
-    } else if e_max < -999_999_999 || e_max > 999_999_999 {
-      "e_max must be within +/-999999999"
+    } else if e_min < -999_999_999 || e_min > 0 {
+      "e_min must be within -999999999..=0"
+    } else if e_max < 0 || e_max > 999_999_999 {
+      "e_max must be within 0..=999999999"
     } else {
       "e_min must not exceed e_max"
     }

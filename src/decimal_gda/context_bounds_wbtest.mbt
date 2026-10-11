@@ -24,6 +24,199 @@ fn context_bounds_row(value : Decimal, raised : GdaFlags) -> String {
 }
 
 ///|
+/// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted limits
+/// require `e_min <= 0 <= e_max`.  D-F1 deliberately does not impose GDA's
+/// separate balanced-range rule.
+test "GDA DecimalContext rejects exponent bounds with invalid signs" {
+  assert_true(DecimalContext::try_new(precision=1) is Ok(_))
+  assert_true(DecimalContext::try_new(precision=0) is Err(_))
+  assert_true(DecimalContext::new(precision=1) is Ok(_))
+  assert_true(DecimalContext::new(precision=0) is Err(_))
+  assert_true(GdaContext::try_new(precision=1) is Ok(_))
+  assert_true(GdaContext::new(precision=1) is Ok(_))
+  assert_true(DecimalContext::try_new(e_min=0, e_max=0) is Ok(_))
+  assert_true(
+    DecimalContext::try_new(e_min=-999_999_999, e_max=999_999_999) is Ok(_),
+  )
+  assert_true(DecimalContext::try_new(e_min=-10, e_max=10) is Ok(_))
+  assert_true(DecimalContext::try_new(e_min=1, e_max=10) is Err(_))
+  assert_true(DecimalContext::try_new(e_min=-10, e_max=-1) is Err(_))
+  match DecimalContext::try_new(e_min=1, e_max=10) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min must be rejected")
+  }
+  match DecimalContext::try_new(e_min=-10, e_max=-1) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max must be rejected")
+  }
+  for
+    (result, expected) in [
+      (
+        DecimalContext::try_new(precision=999_999_999, e_min=1),
+        "e_min must be within -999999999..=0",
+      ),
+      (
+        DecimalContext::try_new(e_min=0, e_max=-1),
+        "e_max must be within 0..=999999999",
+      ),
+      (
+        DecimalContext::new(precision=999_999_999, e_min=1),
+        "e_min must be within -999999999..=0",
+      ),
+      (
+        DecimalContext::new(e_min=0, e_max=-1),
+        "e_max must be within 0..=999999999",
+      ),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) =>
+        fail("invalid DecimalContext boundary combination must be rejected")
+    }
+  }
+  for
+    result in [
+      DecimalContext::try_new(precision=0),
+      DecimalContext::try_new(precision=1_000_000_000),
+    ] {
+    match result {
+      Err(error) =>
+        assert_eq(error.message, "precision must be within 1..=999999999")
+      Ok(_) => fail("invalid precision must be rejected")
+    }
+  }
+  match DecimalContext::try_new(e_min=-1_000_000_000) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("e_min below the minimum must be rejected")
+  }
+  match DecimalContext::try_new(e_max=1_000_000_000) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("e_max above the maximum must be rejected")
+  }
+  for
+    (result, expected) in [
+      (
+        DecimalContext::new(precision=0),
+        "precision must be within 1..=999999999",
+      ),
+      (
+        DecimalContext::new(precision=1_000_000_000),
+        "precision must be within 1..=999999999",
+      ),
+      (
+        DecimalContext::new(e_min=-1_000_000_000),
+        "e_min must be within -999999999..=0",
+      ),
+      (DecimalContext::new(e_min=1), "e_min must be within -999999999..=0"),
+      (
+        DecimalContext::new(e_max=1_000_000_000),
+        "e_max must be within 0..=999999999",
+      ),
+      (DecimalContext::new(e_max=-1), "e_max must be within 0..=999999999"),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid DecimalContext field must be rejected")
+    }
+  }
+  for
+    (result, expected) in [
+      (
+        GdaContext::try_new(precision=0),
+        "GdaContext precision must be in 1..=999999999",
+      ),
+      (
+        GdaContext::new(precision=0),
+        "GdaContext precision must be in 1..=999999999",
+      ),
+      (
+        GdaContext::try_new(precision=1_000_000_000),
+        "GdaContext precision must be in 1..=999999999",
+      ),
+      (
+        GdaContext::new(precision=1_000_000_000),
+        "GdaContext precision must be in 1..=999999999",
+      ),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid GdaContext precision must be rejected")
+    }
+  }
+  let arithmetic_min = @lf_arith.ArithmeticContext::new(34, e_min=1, e_max=10)
+  let arithmetic_max = @lf_arith.ArithmeticContext::new(34, e_min=-10, e_max=-1)
+  match DecimalContext::from_arithmetic_context(arithmetic_min) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min translation must be rejected")
+  }
+  match DecimalContext::from_arithmetic_context(arithmetic_max) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max translation must be rejected")
+  }
+  for
+    (e_min, e_max, expected) in [
+      (1, 10, "GdaContext e_min must be within -999999999..=0"),
+      (-1_000_000_000, 10, "GdaContext e_min must be within -999999999..=0"),
+      (-10, -1, "GdaContext e_max must be within 0..=999999999"),
+      (-10, 1_000_000_000, "GdaContext e_max must be within 0..=999999999"),
+    ] {
+    match context(e_min~, e_max~) {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("context facade must reject invalid exponent signs")
+    }
+    for
+      result in [
+        GdaContext::try_new(e_min~, e_max~),
+        GdaContext::new(e_min~, e_max~),
+      ] {
+      match result {
+        Err(error) => assert_eq(error.message, expected)
+        Ok(_) => fail("invalid GdaContext exponent signs must be rejected")
+      }
+    }
+  }
+  let large_precision_positive_min = "GdaContext e_min must be within -999999999..=0"
+  let zero_min_negative_max = "GdaContext e_max must be within 0..=999999999"
+  for
+    (result, expected) in [
+      (context(precision=999_999_999, e_min=1), large_precision_positive_min),
+      (context(e_min=0, e_max=-1), zero_min_negative_max),
+      (
+        GdaContext::try_new(precision=999_999_999, e_min=1),
+        large_precision_positive_min,
+      ),
+      (GdaContext::try_new(e_min=0, e_max=-1), zero_min_negative_max),
+      (
+        GdaContext::new(precision=999_999_999, e_min=1),
+        large_precision_positive_min,
+      ),
+      (GdaContext::new(e_min=0, e_max=-1), zero_min_negative_max),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid GdaContext boundary combination must be rejected")
+    }
+  }
+  let arithmetic_zero_precision = @lf_arith.ArithmeticContext::new(0)
+  let zero_precision_context = DecimalContext::from_arithmetic_context(
+    arithmetic_zero_precision,
+  ).unwrap()
+  assert_eq(zero_precision_context.precision(), 1)
+  let arithmetic_excessive_precision = @lf_arith.ArithmeticContext::new(
+    1_000_000_000,
+  )
+  match
+    DecimalContext::from_arithmetic_context(arithmetic_excessive_precision) {
+    Err(error) =>
+      assert_eq(error.message, "precision must be within 1..=999999999")
+    Ok(_) => fail("excessive arithmetic precision must be rejected")
+  }
+}
+
+///|
 /// Runs one decTest row through both the GDA operation form (`GdaContext`)
 /// and the status-free `_ctx` form (`DecimalContext`), which must agree.
 fn context_bounds_case(
@@ -108,7 +301,7 @@ test "decTest powx4001-4006: non-integral power requires bounded contexts" {
 ///|
 test "an ArithmeticContext without exponent bounds is an invalid context for exp (#111)" {
   let one = Decimal::from_string("1").unwrap()
-  // The translation keeps the full GDA range; it does not pick bounds.
+  // The translation keeps the default decNumber-limit range; it does not pick bounds.
   let unbounded = DecimalContext::from_arithmetic_context(
     @lf_arith.ArithmeticContext::new(16),
   ).unwrap()

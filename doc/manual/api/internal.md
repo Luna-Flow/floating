@@ -30,10 +30,12 @@ the `consistency` and package tests only.
 
 ## Decimal exponent bounds
 
-`DecimalExponentBounds` validates the reference limit used by both decimal
-cores and computes the context-derived exponent endpoints without `Int`
-wraparound. A precision must be positive and at most 999,999,999; each
-context exponent must be within +/-999,999,999 and `e_min <= e_max`.
+`DecimalExponentBounds` validates the adopted decNumber `decContext.h` limits
+used by both decimal cores and computes the context-derived exponent endpoints
+without `Int` wraparound. Precision must be in `1..=999,999,999`, `e_min` in
+`-999,999,999..=0`, and `e_max` in `0..=999,999,999`. GDA 1.70 specifies no
+fixed context limits and requires a balanced exponent range; that separate
+balance rule is not enforced here.
 
 ```mbti
 pub struct DecimalExponentBounds {

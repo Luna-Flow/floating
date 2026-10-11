@@ -60,11 +60,14 @@ $$
 E_{\text{tiny}} = e_{\min} - p + 1, \qquad E_{\text{top}} = e_{\max} - p + 1 .
 $$
 
-Contexts require $1 \le p \le 999\,999\,999$ and
-$|e_{\min}|, |e_{\max}| \le 999\,999\,999$. A shared constructor helper
-validates these bounds and computes $E_{\text{tiny}}$ and $E_{\text{top}}$;
-invalid parameters return an error. This is the General Decimal Arithmetic
-reference limit and keeps context-derived exponent sums within `Int`.
+Contexts require $1 \le p \le 999\,999\,999$,
+$-999\,999\,999 \le e_{\min} \le 0$ and
+$0 \le e_{\max} \le 999\,999\,999$. A shared constructor helper validates
+these bounds and computes $E_{\text{tiny}}$ and $E_{\text{top}}$; invalid
+parameters return an error naming the invalid field. These are the adopted
+decNumber `decContext.h` limits and keep context-derived exponent sums within
+`Int`. GDA 1.70 specifies no fixed context limits and requires a balanced
+range; this library does not enforce that separate balance rule.
 
 The *adjusted exponent* of a non-zero $x$ is $\operatorname{adj}(x) = q +
 \operatorname{digits}(c) - 1 = \lfloor \log_{10} |x| \rfloor$: it is the

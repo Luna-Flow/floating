@@ -132,6 +132,15 @@ test "Decimal checked integer powers use the exact exponent" {
 
 ///|
 test "Decimal context translation rejects out of range bounds" {
+  let zero_precision = @lf_arith.ArithmeticContext::new(0)
+  let zero_context = DecimalContext::from_arithmetic_context(zero_precision).unwrap()
+  assert_eq(zero_context.precision(), 1)
+  let excessive_precision = @lf_arith.ArithmeticContext::new(1_000_000_000)
+  match DecimalContext::from_arithmetic_context(excessive_precision) {
+    Err(error) =>
+      assert_eq(error.message, "precision must be within 1..=999999999")
+    Ok(_) => fail("excessive precision must be rejected")
+  }
   let invalid = @lf_arith.ArithmeticContext::new(7, e_min=-1_000_000_000)
   assert_true(DecimalContext::from_arithmetic_context(invalid) is Err(_))
   let outcome = @lf_arith.AddContextual::add_contextual(
@@ -140,4 +149,15 @@ test "Decimal context translation rejects out of range bounds" {
     invalid,
   )
   assert_true(outcome is Err(_))
+  let positive = @lf_arith.ArithmeticContext::new(7, e_min=1, e_max=10)
+  match DecimalContext::from_arithmetic_context(positive) {
+    Err(error) =>
+      assert_eq(error.message, "e_min must be within -999999999..=0")
+    Ok(_) => fail("positive e_min must be rejected")
+  }
+  let negative = @lf_arith.ArithmeticContext::new(7, e_min=-10, e_max=-1)
+  match DecimalContext::from_arithmetic_context(negative) {
+    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
+    Ok(_) => fail("negative e_max must be rejected")
+  }
 }

@@ -102,25 +102,71 @@ test "gda interpreter applies the 1.70 sqrt rounding rule" {
 
 ///|
 test "gda interpreter reports an invalid context as a diagnostic row" {
-  let source =
+  let assert_diagnostic = fn(source : String, expected : String) raise {
+    let document = @gda_expr.parse_dectest("context.decTest", source).unwrap()
+    let summary = @gda_expr.execute_documents([document])
+    assert_eq(summary.diagnostic_cases(), 1)
+    assert_eq(summary.executable_cases(), 0)
+    let result = summary.results()[0]
+    match result.disposition() {
+      Diagnostic(message) => assert_eq(message, expected)
+      _ => fail("expected an invalid-context diagnostic")
+    }
+  }
+
+  let precision_zero =
     #|precision: 0
     #|z1 add 1 1 -> 2
+    #|
+  assert_diagnostic(precision_zero, "diagnostic invalid context: precision 0")
+  let overlapping_invalid_bounds =
     #|precision: 9
     #|maxexponent: -5
     #|minexponent: 5
     #|z2 add 1 1 -> 2
+    #|
+  assert_diagnostic(
+    overlapping_invalid_bounds, "diagnostic invalid context: minexponent outside -999999999..=0",
+  )
+  let max_out_of_range =
     #|precision: 9
+    #|minexponent: -999999999
     #|maxexponent: 1000000000
     #|z3 add 1 1 -> 2
     #|
-  let document = @gda_expr.parse_dectest("context.decTest", source).unwrap()
-  let summary = @gda_expr.execute_documents([document])
-  assert_eq(summary.diagnostic_cases(), 3)
-  assert_eq(summary.executable_cases(), 0)
-  let results = summary.results()
-  assert_true(results[0].disposition() is Diagnostic(_))
-  assert_true(results[1].disposition() is Diagnostic(_))
-  assert_true(results[2].disposition() is Diagnostic(_))
+  assert_diagnostic(
+    max_out_of_range, "diagnostic invalid context: maxexponent outside 0..=999999999",
+  )
+  let positive_min =
+    #|precision: 9
+    #|minexponent: 1
+    #|maxexponent: 999999999
+    #|z4 add 1 1 -> 2
+    #|
+  assert_diagnostic(
+    positive_min, "diagnostic invalid context: minexponent outside -999999999..=0",
+  )
+  let negative_max =
+    #|precision: 9
+    #|minexponent: -999999999
+    #|maxexponent: -1
+    #|z5 add 1 1 -> 2
+    #|
+  assert_diagnostic(
+    negative_max, "diagnostic invalid context: maxexponent outside 0..=999999999",
+  )
+
+  let valid_source =
+    #|precision: 9
+    #|minexponent: 0
+    #|maxexponent: 999999999
+    #|z6 add 1 1 -> 2
+    #|
+  let valid_document = @gda_expr.parse_dectest("context.decTest", valid_source).unwrap()
+  let valid_summary = @gda_expr.execute_documents([valid_document])
+  assert_eq(valid_summary.diagnostic_cases(), 0)
+  assert_eq(valid_summary.executable_cases(), 1)
+  assert_eq(valid_summary.passed_cases(), 1)
 }
 
 ///|
