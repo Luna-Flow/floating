@@ -130,6 +130,31 @@ test "decimal context rejects out of range fields without aborting" {
   assert_true(DecimalContext::new(precision=1_000_000_000) is Err(_))
   assert_true(DecimalContext::new(e_min=-1_000_000_000) is Err(_))
   assert_true(DecimalContext::new(e_max=1_000_000_000) is Err(_))
+  for
+    (result, expected) in [
+      (
+        DecimalContext::try_new(precision=999_999_999, e_min=1),
+        "e_min must be within -999999999..=0",
+      ),
+      (
+        DecimalContext::try_new(e_min=0, e_max=-1),
+        "e_max must be within 0..=999999999",
+      ),
+      (
+        DecimalContext::new(precision=999_999_999, e_min=1),
+        "e_min must be within -999999999..=0",
+      ),
+      (
+        DecimalContext::new(e_min=0, e_max=-1),
+        "e_max must be within 0..=999999999",
+      ),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) =>
+        fail("invalid decimal context boundary combination must be rejected")
+    }
+  }
 }
 
 ///|

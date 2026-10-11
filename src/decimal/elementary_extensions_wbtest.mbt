@@ -235,17 +235,17 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
   assert_true(at_flags.underflow && at_flags.subnormal)
   assert_true(below_flags == at_flags)
 
-  let positive_emin = DecimalContext::new(precision=7, e_min=0, e_max=10).unwrap()
+  let zero_emin = DecimalContext::new(precision=7, e_min=0, e_max=10).unwrap()
   let (subnormal_limit, subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
-    positive_emin,
+    zero_emin,
   )
   assert_false(subnormal_limit.is_nan())
   assert_true(subnormal_flags.inexact && subnormal_flags.rounded)
   assert_false(subnormal_flags.underflow || subnormal_flags.subnormal)
 
-  let unit_emin = DecimalContext::new(precision=7, e_min=-1, e_max=10).unwrap()
+  let negative_emin = DecimalContext::new(precision=7, e_min=-1, e_max=10).unwrap()
   let (unit_subnormal, unit_subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
-    unit_emin,
+    negative_emin,
   )
   assert_false(unit_subnormal.is_nan())
   assert_true(unit_subnormal_flags.inexact && unit_subnormal_flags.rounded)

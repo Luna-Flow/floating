@@ -51,6 +51,31 @@ test "GDA DecimalContext rejects exponent bounds with invalid signs" {
     Ok(_) => fail("negative e_max must be rejected")
   }
   for
+    (result, expected) in [
+      (
+        DecimalContext::try_new(precision=999_999_999, e_min=1),
+        "e_min must be within -999999999..=0",
+      ),
+      (
+        DecimalContext::try_new(e_min=0, e_max=-1),
+        "e_max must be within 0..=999999999",
+      ),
+      (
+        DecimalContext::new(precision=999_999_999, e_min=1),
+        "e_min must be within -999999999..=0",
+      ),
+      (
+        DecimalContext::new(e_min=0, e_max=-1),
+        "e_max must be within 0..=999999999",
+      ),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) =>
+        fail("invalid DecimalContext boundary combination must be rejected")
+    }
+  }
+  for
     result in [
       DecimalContext::try_new(precision=0),
       DecimalContext::try_new(precision=1_000_000_000),
@@ -152,6 +177,42 @@ test "GDA DecimalContext rejects exponent bounds with invalid signs" {
         Ok(_) => fail("invalid GdaContext exponent signs must be rejected")
       }
     }
+  }
+  let large_precision_positive_min = "GdaContext e_min must be within -999999999..=0"
+  let zero_min_negative_max = "GdaContext e_max must be within 0..=999999999"
+  for
+    (result, expected) in [
+      (context(precision=999_999_999, e_min=1), large_precision_positive_min),
+      (context(e_min=0, e_max=-1), zero_min_negative_max),
+      (
+        GdaContext::try_new(precision=999_999_999, e_min=1),
+        large_precision_positive_min,
+      ),
+      (GdaContext::try_new(e_min=0, e_max=-1), zero_min_negative_max),
+      (
+        GdaContext::new(precision=999_999_999, e_min=1),
+        large_precision_positive_min,
+      ),
+      (GdaContext::new(e_min=0, e_max=-1), zero_min_negative_max),
+    ] {
+    match result {
+      Err(error) => assert_eq(error.message, expected)
+      Ok(_) => fail("invalid GdaContext boundary combination must be rejected")
+    }
+  }
+  let arithmetic_zero_precision = @lf_arith.ArithmeticContext::new(0)
+  let zero_precision_context = DecimalContext::from_arithmetic_context(
+    arithmetic_zero_precision,
+  ).unwrap()
+  assert_eq(zero_precision_context.precision(), 1)
+  let arithmetic_excessive_precision = @lf_arith.ArithmeticContext::new(
+    1_000_000_000,
+  )
+  match
+    DecimalContext::from_arithmetic_context(arithmetic_excessive_precision) {
+    Err(error) =>
+      assert_eq(error.message, "precision must be within 1..=999999999")
+    Ok(_) => fail("excessive arithmetic precision must be rejected")
   }
 }
 
