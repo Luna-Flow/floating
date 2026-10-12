@@ -2,17 +2,66 @@
 // Power, logarithm, and exponential helper routines.
 
 ///|
+let decimal_integer_coeff_expansion_limit : Int = 4096
+
+///|
 fn decimal_exact_integer_coeff(rhs : Decimal) -> (Bool, DecCoeff)? {
   guard rhs.class == FpClass::Finite else { return None }
+  guard rhs.coefficient.digits10() <= decimal_integer_coeff_expansion_limit else {
+    return None
+  }
   let magnitude = if rhs.exponent10 >= 0 {
+    guard rhs.exponent10 <=
+      decimal_integer_coeff_expansion_limit - rhs.coefficient.digits10() else {
+      return None
+    }
     dec_coeff_shift_power10_repr(rhs.coefficient, rhs.exponent10)
   } else {
-    match exact_divide_by_power_of_ten_repr(rhs.coefficient, -rhs.exponent10) {
+    let scale = -rhs.exponent10.to_int64()
+    guard scale <= coeff_trailing_decimal_zeros(rhs.coefficient).to_int64() else {
+      return None
+    }
+    match exact_divide_by_power_of_ten_repr(rhs.coefficient, scale.to_int()) {
       Some(value) => value
       None => return None
     }
   }
   Some((rhs.negative && !magnitude.is_zero(), magnitude))
+}
+
+///|
+fn decimal_exact_integer_coeff_bounded(
+  rhs : Decimal,
+  limit : Int,
+) -> (Bool, DecCoeff)? {
+  guard limit >= 0 && rhs.class == FpClass::Finite else { return None }
+  if rhs.exponent10 >= 0 {
+    let total_digits = rhs.coefficient.digits10().to_int64() +
+      rhs.exponent10.to_int64()
+    let limit_digits = dec_coeff_from_int_magnitude(limit).digits10()
+    guard total_digits <= limit_digits.to_int64() else { return None }
+    let magnitude = dec_coeff_shift_power10_repr(
+      rhs.coefficient,
+      rhs.exponent10,
+    )
+    match dec_coeff_to_bounded_int(magnitude, limit) {
+      Some(_) => Some((rhs.negative && !magnitude.is_zero(), magnitude))
+      None => None
+    }
+  } else {
+    let scale = -rhs.exponent10.to_int64()
+    guard scale <= coeff_trailing_decimal_zeros(rhs.coefficient).to_int64() else {
+      return None
+    }
+    match exact_divide_by_power_of_ten_repr(rhs.coefficient, scale.to_int()) {
+      Some(magnitude) =>
+        match dec_coeff_to_bounded_int(magnitude, limit) {
+          Some(_) => Some((rhs.negative && !magnitude.is_zero(), magnitude))
+          None => None
+        }
+      None => None
+    }
+  }
 }
 
 ///|
@@ -34,7 +83,7 @@ fn dec_coeff_to_bounded_int(coeff : DecCoeff, limit : Int) -> Int? {
 ///|
 fn decimal_power_integer_count(rhs : Decimal, limit : Int) -> Int? {
   guard limit >= 0 else { return None }
-  match decimal_exact_integer_coeff(rhs) {
+  match decimal_exact_integer_coeff_bounded(rhs, limit) {
     Some((negative, magnitude)) =>
       match dec_coeff_to_bounded_int(magnitude, limit) {
         Some(value) => Some(if negative { -value } else { value })
@@ -46,23 +95,85 @@ fn decimal_power_integer_count(rhs : Decimal, limit : Int) -> Int? {
 
 ///|
 fn decimal_power_gda_integer_count(rhs : Decimal) -> Int? {
-  match decimal_exact_integer_coeff(rhs) {
-    Some((negative, magnitude)) => {
-      let limit = if negative { 1_999_999_997 } else { 999_999_999 }
-      match dec_coeff_to_bounded_int(magnitude, limit) {
-        Some(value) => Some(if negative { -value } else { value })
-        None => None
-      }
-    }
+  if rhs.class != FpClass::Finite {
+    return None
+  }
+  let negative = rhs.negative && !rhs.coefficient.is_zero()
+  let limit = if negative { 1_999_999_997 } else { 999_999_999 }
+  match decimal_exact_integer_coeff_bounded(rhs, limit) {
+    Some((negative, magnitude)) =>
+      dec_coeff_to_bounded_int(magnitude, limit).map(fn(value) {
+        if negative {
+          -value
+        } else {
+          value
+        }
+      })
+    None => None
+  }
+}
+
+///|
+/// Converts an exact integer exponent when it fits the host machine count.
+/// This is deliberately separate from the GDA decNumber compatibility bound:
+/// integer powers up to the native `Int` range can use logarithmic repeated
+/// squaring without expanding the exponent coefficient.
+fn decimal_power_machine_integer_count(rhs : Decimal) -> Int? {
+  guard rhs.class == FpClass::Finite else { return None }
+  let negative = rhs.negative && !rhs.coefficient.is_zero()
+  let machine_limit = 2147483647
+  match decimal_exact_integer_coeff_bounded(rhs, machine_limit) {
+    Some((_, magnitude)) =>
+      dec_coeff_to_bounded_int(magnitude, machine_limit).map(fn(value) {
+        if negative {
+          -value
+        } else {
+          value
+        }
+      })
     None => None
   }
 }
 
 ///|
 fn decimal_power_integer_is_odd(rhs : Decimal) -> Bool? {
-  match decimal_exact_integer_coeff(rhs) {
-    Some((_, magnitude)) => Some(dec_coeff_is_odd(magnitude))
+  guard rhs.class == FpClass::Finite else { return None }
+  guard !rhs.coefficient.is_zero() else { return Some(false) }
+  if rhs.exponent10 > 0 {
+    return Some(false)
+  }
+  if rhs.exponent10 == 0 {
+    return Some(dec_coeff_is_odd(rhs.coefficient))
+  }
+  let scale = -rhs.exponent10.to_int64()
+  guard scale <= coeff_trailing_decimal_zeros(rhs.coefficient).to_int64() else {
+    return None
+  }
+  match exact_divide_by_power_of_ten_repr(rhs.coefficient, scale.to_int()) {
+    Some(magnitude) => Some(dec_coeff_is_odd(magnitude))
     None => None
+  }
+}
+
+///|
+/// Exact integer exponents whose coefficient would exceed the bounded
+/// materialization budget.  The caller must reject these before any
+/// certification or coefficient expansion; parity alone is still available
+/// from `decimal_power_integer_is_odd`.
+fn decimal_power_integer_expansion_exceeds_limit(rhs : Decimal) -> Bool {
+  guard rhs.class == FpClass::Finite else { return false }
+  if rhs.exponent10 >= 0 {
+    rhs.coefficient.digits10() > decimal_integer_coeff_expansion_limit ||
+    rhs.exponent10 >
+    decimal_integer_coeff_expansion_limit - rhs.coefficient.digits10()
+  } else {
+    let scale = -rhs.exponent10.to_int64()
+    if scale > coeff_trailing_decimal_zeros(rhs.coefficient).to_int64() {
+      false
+    } else {
+      rhs.coefficient.digits10() - scale.to_int() >
+      decimal_integer_coeff_expansion_limit
+    }
   }
 }
 
@@ -98,6 +209,13 @@ fn decimal_power_finite_noninteger_operand_range_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard base.class == FpClass::Finite && exponent.class == FpClass::Finite else {
+    return None
+  }
+  // Zero has a defined result for every positive non-integral exponent and
+  // raises DivisionByZero for every negative one. Let the domain helper below
+  // handle it before rejecting an exponent whose representation is outside the
+  // ordinary math operand range.
+  if base.coefficient.is_zero() {
     return None
   }
   match decimal_power_gda_integer_count(exponent) {
@@ -492,6 +610,122 @@ fn decimal_power_integer_bounded_result(
   }
   let (result, finalize_flags) = decimal_apply_finite_ctx(powered, ctx)
   (result, power_flags.combine(finalize_flags))
+}
+
+///|
+/// Integer powers whose exact coefficient is larger than the historical GDA
+/// `Int` count are still evaluated by logarithmic square-and-multiply.  The
+/// exponent coefficient is divided by two in place, so its decimal expansion
+/// is never proportional to the exponent's numeric value.  Callers only use
+/// this after `decimal_exact_integer_coeff`, which caps the materialized
+/// coefficient at `decimal_integer_coeff_expansion_limit` digits.
+fn decimal_power_large_integer_coeff_result(
+  base : Decimal,
+  exponent : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
+    return None
+  }
+  guard decimal_power_gda_integer_count(exponent) is None else { return None }
+  let (negative_exponent, magnitude) = match
+    decimal_exact_integer_coeff(exponent) {
+    Some(value) => value
+    None => return None
+  }
+  guard !magnitude.is_zero() else { return None }
+  let odd = dec_coeff_is_odd(magnitude)
+  let extra_digits = magnitude.digits10() + (if ctx.extended { 2 } else { 1 })
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
+  let work_ctx = {
+    ..ctx,
+    precision: precision + extra_digits,
+    decimal_rounding: DecimalRoundingMode::HalfEven,
+  }
+  let one = Decimal::one(
+    precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
+  )
+  let (factor0, initial_flags) = if negative_exponent && ctx.extended {
+    decimal_div_finite_work(one, base, work_ctx)
+  } else {
+    (base, DecimalFlags::new())
+  }
+  guard factor0.class == FpClass::Finite else {
+    return Some((factor0, initial_flags))
+  }
+  let mut remaining = magnitude
+  let mut factor = factor0
+  let mut acc = one
+  let mut flags = initial_flags
+  while !remaining.is_zero() {
+    if dec_coeff_is_odd(remaining) {
+      let (next, mul_flags) = decimal_mul_finite_work_power_fast(
+        acc, factor, work_ctx,
+      )
+      acc = next
+      flags = flags.combine(mul_flags)
+      if decimal_power_terminal_work_result(acc, flags) {
+        return Some(
+          decimal_power_large_integer_terminal_result(
+            base, negative_exponent, odd, flags, ctx,
+          ),
+        )
+      }
+    }
+    remaining = dec_coeff_div_rem_by_unit_repr(remaining, 2).0
+    if !remaining.is_zero() {
+      let (next, square_flags) = decimal_mul_finite_work_power_fast(
+        factor, factor, work_ctx,
+      )
+      factor = next
+      flags = flags.combine(square_flags)
+      if decimal_power_terminal_work_result(factor, flags) {
+        return Some(
+          decimal_power_large_integer_terminal_result(
+            base, negative_exponent, odd, flags, ctx,
+          ),
+        )
+      }
+    }
+  }
+  let (powered, power_flags) = if negative_exponent && !ctx.extended {
+    let (reciprocal, reciprocal_flags) = decimal_div_finite_work(
+      one, acc, work_ctx,
+    )
+    (reciprocal, flags.combine(reciprocal_flags))
+  } else {
+    (acc, flags)
+  }
+  let (result, finalize_flags) = decimal_apply_finite_ctx(powered, ctx)
+  Some((result, power_flags.combine(finalize_flags)))
+}
+
+///|
+fn decimal_power_large_integer_terminal_result(
+  base : Decimal,
+  negative_exponent : Bool,
+  odd : Bool,
+  flags : DecimalFlags,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  let negative = base.negative && odd
+  if ctx.extended {
+    if flags.overflow {
+      decimal_overflow_result(negative, ctx)
+    } else {
+      decimal_power_underflow_zero_result(negative, ctx)
+    }
+  } else if negative_exponent {
+    if flags.overflow {
+      decimal_power_underflow_zero_result(negative, ctx)
+    } else {
+      decimal_overflow_result(negative, ctx)
+    }
+  } else if flags.overflow {
+    decimal_overflow_result(negative, ctx)
+  } else {
+    decimal_power_underflow_zero_result(negative, ctx)
+  }
 }
 
 ///|
@@ -1781,6 +2015,59 @@ fn decimal_power_infinite_base_noninteger_result(
 }
 
 ///|
+/// IEEE 754-2019 §9.2.1 defines a negative finite base for every exact
+/// integral exponent. The ordinary decimal integer-power loop accepts only
+/// the GDA bounded `Int` count; for a larger count, certify the magnitude of
+/// the corresponding positive base and restore the sign from the exponent's
+/// parity.
+fn decimal_power_large_integer_result(
+  base : Decimal,
+  exponent : Decimal,
+  odd : Bool,
+  ctx : DecimalContext,
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError]? {
+  guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
+    return None
+  }
+  guard !is_finite_decimal_one(base) && !is_finite_decimal_negative_one(base) else {
+    return None
+  }
+  guard decimal_power_gda_integer_count(exponent) is None else { return None }
+  let negative = base.negative && odd
+  let magnitude = base.abs()
+  let magnitude_ctx = if negative {
+    match ctx.decimal_rounding {
+      Ceiling =>
+        {
+          ..ctx,
+          rounding: RoundingMode::TowardNegative,
+          decimal_rounding: DecimalRoundingMode::Floor,
+        }
+      Floor =>
+        {
+          ..ctx,
+          rounding: RoundingMode::TowardPositive,
+          decimal_rounding: DecimalRoundingMode::Ceiling,
+        }
+      _ => ctx
+    }
+  } else {
+    ctx
+  }
+  Some(
+    decimal_certified_power_result(magnitude, exponent, magnitude_ctx).map(fn(
+      value,
+    ) {
+      if value.0.class == FpClass::NaN {
+        value
+      } else {
+        ({ ..value.0, negative, }, value.1)
+      }
+    }),
+  )
+}
+
+///|
 /// IEEE 754-2019 §9.2.1 gives signaling NaN operands priority over the
 /// zero-exponent and unit-base identities. Infinite exponents classify finite
 /// bases by magnitude, including negative bases, without a domain error.
@@ -1798,6 +2085,18 @@ fn decimal_power_ieee_special_result(
   }
   if is_finite_decimal_one(base) {
     return Some((Decimal::one(precision~), DecimalFlags::new()))
+  }
+  if is_finite_decimal_negative_one(base) && exponent.class == FpClass::Finite {
+    match decimal_power_integer_is_odd(exponent) {
+      Some(odd) =>
+        return Some(
+          (
+            finite_with_exponent_repr(odd, dec_coeff_from_int(1), 0, precision),
+            DecimalFlags::new(),
+          ),
+        )
+      None => ()
+    }
   }
   if exponent.class == FpClass::Infinity {
     return decimal_power_infinite_exponent_result(base, exponent, ctx)
@@ -2401,13 +2700,4 @@ fn decimal_power_exact_rational_result(
       ctx,
     ),
   )
-}
-
-///|
-fn decimal_power_positive_integer_restricted(rhs : Decimal) -> Bool {
-  match decimal_exact_integer_coeff(rhs) {
-    Some((negative, magnitude)) =>
-      !negative && dec_coeff_to_bounded_int(magnitude, 999_999_999) is None
-    None => false
-  }
 }

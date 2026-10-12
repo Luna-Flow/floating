@@ -127,6 +127,8 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible ([#167](https://github.com/Luna-Flow/floating/issues/167)):** IEEE `Decimal::power_ctx` now accepts finite integral exponents above the decNumber count bound in the default context. Previously those inputs returned `invalid_context`; powers within the bounded work path now return their correctly rounded finite, overflow, or underflow result. Exponent coefficient expansion is capped at 4,096 decimal digits; larger coefficients return NaN with `invalid_context` without entering an exponent-sized loop. `decimal_gda` keeps its GDA compatibility behavior.
+
 - **Caller-visible ([#166](https://github.com/Luna-Flow/floating/issues/166)):** IEEE `Decimal::power_ctx` and `pown_ctx` now
   return 1 for $0^0$, signed zero for positive integer powers of zero, and
   signed infinity with `division_by_zero` for a zero base and negative integer

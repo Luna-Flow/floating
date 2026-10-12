@@ -1375,9 +1375,19 @@ more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
 Only `power_ctx` and `pown_ctx` handle their IEEE power cases before this
 restricted-context check. For example, `power_ctx(1, 1.1)` is exactly `1` even
 in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
-`invalid_context`. Apart from those power cases, integral powers and $x^{0.5}$ work in contexts up to
-$\pm 999\,999\,999$; `power_ctx(2, 3)` is `8` under `DecimalContext::new()`,
-while `power_ctx(2, 1.5)` and `exp2_ctx(2)` return NaN with `invalid_context`.
+`invalid_context`. Integral powers in `decimal` support counts through
+999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
+these are adopted decNumber implementation limits, not limits imposed by GDA
+1.70. Integer powers above those counts use bounded square-and-multiply when
+the exact exponent coefficient has at most 4,096 decimal digits. Larger
+coefficients return NaN with `invalid_context` before expansion. Thus
+`power_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while
+`power_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same
+large input to `decimal_gda` still follows the GDA adapter's decNumber count
+limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda`
+therefore intentionally differ on this input. Non-integral powers such as
+`power_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function
+context limits.
 
 ### `Decimal::exp_ctx`, `ln_ctx`, `log10_ctx`, `try_exp_ctx`, `try_ln_ctx`, `try_log10_ctx`
 
@@ -1438,13 +1448,16 @@ $(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a negative non-integer exponent
 is positive infinity with `division_by_zero` in an extended context, and NaN
 with `invalid_operation` in a subset context.
 
-Integer powers use binary square-and-multiply. In extended contexts, an exact
-power is returned when it fits in $p$ digits; otherwise the result is correctly
-rounded. Subset contexts use $p + \operatorname{digits}(|n|) + 1$ working
-digits with half-even intermediate rounding, then apply the reciprocal for a
-negative exponent. For large integer exponents the zero and infinity cases
-are decided from sign and parity without expanding the exponent: for example,
-`pown_ctx(-0, Int::max_value())` is `-0`,
+Integer powers within the bounded count use binary square-and-multiply. In
+extended contexts, an exact power is returned when it fits in $p$ digits;
+otherwise the result is correctly rounded. Subset contexts use
+$p + \operatorname{digits}(|n|) + 1$ working digits with half-even intermediate
+rounding, then apply the reciprocal for a negative exponent. An integral
+exponent outside the bounded count is still supported: the magnitude is
+certified, and an odd power of a negative base swaps the directed rounding
+modes before restoring its sign. For large integer exponents the zero and
+infinity cases are decided from sign and parity without expanding the exponent:
+for example, `pown_ctx(-0, Int::max_value())` is `-0`,
 `pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero` in an
 extended context, and `pown_ctx(-infinity, Int::min_value())` is `+0`.
 
