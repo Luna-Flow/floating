@@ -47,7 +47,7 @@ fn SignedGdaCoeff::sub(
 
 ///|
 fn signed_gda_coeff_from_int_product(
-  value : Int,
+  value : Int32,
   magnitude : GdaCoeff,
 ) -> SignedGdaCoeff {
   let absolute = gda_coeff_from_int_magnitude(value)
@@ -57,7 +57,7 @@ fn signed_gda_coeff_from_int_product(
 ///|
 fn SignedGdaCoeff::round_power10_half_even(
   self : SignedGdaCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> SignedGdaCoeff {
   if shift <= 0 {
     return signed_gda_coeff(

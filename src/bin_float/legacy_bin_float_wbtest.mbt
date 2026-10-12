@@ -2,8 +2,8 @@
 struct LegacyBigIntBinFloat {
   class_ : FpClass
   significand_ : BigInt
-  exponent2_ : Int
-  precision_ : Int
+  exponent2_ : Int32
+  precision_ : Int32
   negative_zero_ : Bool
   nan_negative_ : Bool
   signaling_nan_ : Bool
@@ -32,8 +32,8 @@ fn legacy_bin_abs(value : BigInt) -> BigInt {
 ///|
 fn legacy_bin_remove_factor2(
   significand : BigInt,
-  exponent2 : Int,
-) -> (BigInt, Int) {
+  exponent2 : Int32,
+) -> (BigInt, Int32) {
   if significand.is_zero() {
     (legacy_bin_zero(), 0)
   } else {
@@ -69,7 +69,7 @@ fn legacy_bin_should_increment(
 ///|
 fn legacy_bin_round_shift(
   magnitude : BigInt,
-  shift : Int,
+  shift : Int32,
   negative : Bool,
   mode : RoundingMode,
 ) -> BigInt {
@@ -105,7 +105,10 @@ fn legacy_bin_round_positive_div(
 }
 
 ///|
-fn legacy_bin_ratio_floor_log2(numerator : BigInt, denominator : BigInt) -> Int {
+fn legacy_bin_ratio_floor_log2(
+  numerator : BigInt,
+  denominator : BigInt,
+) -> Int32 {
   let bit_difference = numerator.bit_length() - denominator.bit_length()
   let below_candidate = if bit_difference >= 0 {
     numerator < denominator << bit_difference
@@ -122,12 +125,12 @@ fn legacy_bin_ratio_floor_log2(numerator : BigInt, denominator : BigInt) -> Int 
 ///|
 fn LegacyBigIntBinFloat::make(
   significand : BigInt,
-  exponent2 : Int,
-  precision : Int,
-  negative_zero? : Bool = false,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  exponent2 : Int32,
+  precision : Int32,
+  negative_zero~ : Bool = false,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> LegacyBigIntBinFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   if significand.is_zero() {
     return {
       class_: FpClass::Finite,
@@ -173,8 +176,8 @@ fn LegacyBigIntBinFloat::make(
 
 ///|
 fn LegacyBigIntBinFloat::zero(
-  precision? : Int = 53,
-  negative? : Bool = false,
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
 ) -> LegacyBigIntBinFloat {
   LegacyBigIntBinFloat::make(
     legacy_bin_zero(),
@@ -187,7 +190,7 @@ fn LegacyBigIntBinFloat::zero(
 ///|
 fn LegacyBigIntBinFloat::inf(
   negative : Bool,
-  precision? : Int = 53,
+  precision~ : Int32 = 53,
 ) -> LegacyBigIntBinFloat {
   {
     class_: FpClass::Infinity,
@@ -197,7 +200,7 @@ fn LegacyBigIntBinFloat::inf(
       legacy_bin_one()
     },
     exponent2_: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     negative_zero_: false,
     nan_negative_: false,
     signaling_nan_: false,
@@ -207,17 +210,17 @@ fn LegacyBigIntBinFloat::inf(
 
 ///|
 fn LegacyBigIntBinFloat::nan(
-  precision? : Int = 53,
-  negative? : Bool = false,
-  signaling? : Bool = false,
-  payload? : BigInt = legacy_bin_zero(),
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
+  signaling~ : Bool = false,
+  payload~ : BigInt = legacy_bin_zero(),
 ) -> LegacyBigIntBinFloat {
   let payload = legacy_bin_abs(payload)
   {
     class_: FpClass::NaN,
     significand_: legacy_bin_zero(),
     exponent2_: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     negative_zero_: false,
     nan_negative_: negative,
     signaling_nan_: signaling,
@@ -235,7 +238,7 @@ fn LegacyBigIntBinFloat::classify(self : LegacyBigIntBinFloat) -> FpClass {
 }
 
 ///|
-fn LegacyBigIntBinFloat::precision(self : LegacyBigIntBinFloat) -> Int {
+fn LegacyBigIntBinFloat::precision(self : LegacyBigIntBinFloat) -> Int32 {
   self.precision_
 }
 
@@ -273,7 +276,7 @@ fn LegacyBigIntBinFloat::coefficient(self : LegacyBigIntBinFloat) -> BigInt {
 }
 
 ///|
-fn LegacyBigIntBinFloat::exponent2(self : LegacyBigIntBinFloat) -> Int {
+fn LegacyBigIntBinFloat::exponent2(self : LegacyBigIntBinFloat) -> Int32 {
   self.exponent2_
 }
 
@@ -294,7 +297,7 @@ fn LegacyBigIntBinFloat::nan_payload(self : LegacyBigIntBinFloat) -> BigInt {
 ///|
 fn LegacyBigIntBinFloat::with_precision(
   self : LegacyBigIntBinFloat,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
 ) -> LegacyBigIntBinFloat {
   match self.class_ {
@@ -306,8 +309,8 @@ fn LegacyBigIntBinFloat::with_precision(
         negative_zero=self.negative_zero_,
         mode~,
       )
-    FpClass::Infinity => { ..self, precision_: Int::max(1, precision), }
-    FpClass::NaN => { ..self, precision_: Int::max(1, precision), }
+    FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }
   }
 }
 
@@ -326,7 +329,7 @@ fn LegacyBigIntBinFloat::neg(
 ///|
 fn legacy_bin_quiet_nan(
   value : LegacyBigIntBinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> LegacyBigIntBinFloat {
   LegacyBigIntBinFloat::nan(
     precision~,
@@ -340,7 +343,7 @@ fn legacy_bin_quiet_nan(
 fn legacy_bin_nan_pair(
   left : LegacyBigIntBinFloat,
   right : LegacyBigIntBinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> LegacyBigIntBinFloat? {
   if left.class_ == FpClass::NaN {
     Some(legacy_bin_quiet_nan(left, precision))
@@ -356,7 +359,7 @@ fn LegacyBigIntBinFloat::add(
   self : LegacyBigIntBinFloat,
   other : LegacyBigIntBinFloat,
 ) -> LegacyBigIntBinFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   match legacy_bin_nan_pair(self, other, precision) {
     Some(value) => return value
     None => ()
@@ -373,7 +376,7 @@ fn LegacyBigIntBinFloat::add(
     (_, FpClass::Infinity) =>
       other.with_precision(precision, RoundingMode::ToNearestEven)
     (FpClass::Finite, FpClass::Finite) => {
-      let target = Int::min(self.exponent2_, other.exponent2_)
+      let target = Int32::min(self.exponent2_, other.exponent2_)
       let left = self.significand_ << (self.exponent2_ - target)
       let right = other.significand_ << (other.exponent2_ - target)
       let sum = left + right
@@ -401,7 +404,7 @@ fn LegacyBigIntBinFloat::mul(
   self : LegacyBigIntBinFloat,
   other : LegacyBigIntBinFloat,
 ) -> LegacyBigIntBinFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   match legacy_bin_nan_pair(self, other, precision) {
     Some(value) => return value
     None => ()
@@ -429,7 +432,7 @@ fn LegacyBigIntBinFloat::mul(
 ///|
 fn LegacyBigIntBinFloat::pow_positive(
   self : LegacyBigIntBinFloat,
-  exponent : Int,
+  exponent : Int32,
 ) -> LegacyBigIntBinFloat {
   guard exponent > 0 else { abort("legacy positive exponent must be positive") }
   let precision = self.precision_
@@ -459,7 +462,7 @@ fn LegacyBigIntBinFloat::div(
   self : LegacyBigIntBinFloat,
   other : LegacyBigIntBinFloat,
 ) -> LegacyBigIntBinFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   match legacy_bin_nan_pair(self, other, precision) {
     Some(value) => return value
     None => ()
@@ -524,7 +527,7 @@ fn legacy_bin_integer_sqrt_floor(value : BigInt) -> BigInt {
 ///|
 fn legacy_bin_round_sqrt(
   value : LegacyBigIntBinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> LegacyBigIntBinFloat {
   let odd_exponent = value.exponent2_ % 2 != 0
   let radicand = if odd_exponent {

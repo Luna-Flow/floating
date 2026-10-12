@@ -16,7 +16,7 @@ fn BallOperation::name(self : BallOperation) -> String {
 
 ///|
 struct BallInput {
-  bits : Int
+  bits : Int32
   left_binary : @binary.BinFloat
   right_binary : @binary.BinFloat
   left : @ball.BallFloat
@@ -33,7 +33,7 @@ enum BallOutput {
 }
 
 ///|
-fn ball_pattern(bits : Int, phase : Int) -> @binary.BinCoeff {
+fn ball_pattern(bits : Int32, phase : Int32) -> @binary.BinCoeff {
   let one = @binary.BinCoeff::one()
   let mut value = one.shift_left(bits - 1)
   let mut index = phase % 13
@@ -45,7 +45,7 @@ fn ball_pattern(bits : Int, phase : Int) -> @binary.BinCoeff {
 }
 
 ///|
-fn ball_input(operation : BallOperation, bits : Int) -> BallInput {
+fn ball_input(operation : BallOperation, bits : Int32) -> BallInput {
   let raw_left = ball_pattern(bits, 5)
   let raw_right = ball_pattern((bits - 1).max(2), 9)
   let (left_coeff, right_coeff) = match operation {
@@ -143,7 +143,7 @@ fn ball_implementations(
 fn ball_spec(
   operation : BallOperation,
 ) -> @runner.BenchSpec[
-  Int,
+  Int32,
   BallInput,
   BallInput,
   @binary.BinFloat,

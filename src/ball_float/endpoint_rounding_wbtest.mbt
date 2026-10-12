@@ -1,8 +1,8 @@
 ///|
 fn endpoint_rounding_value(
   coefficient : UInt64,
-  exponent : Int,
-  precision : Int,
+  exponent : Int32,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
   @bin_float.BinFloat::make(
     @bin_float.BinCoeff::from_uint64(coefficient),

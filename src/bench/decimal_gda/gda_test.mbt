@@ -22,7 +22,7 @@ fn GdaOperation::name(self : GdaOperation) -> String {
 
 ///|
 struct GdaInput {
-  digits : Int
+  digits : Int32
   source : String
   left : @gda.Decimal
   right : @gda.Decimal
@@ -38,7 +38,7 @@ enum GdaOutput {
 }
 
 ///|
-fn gda_source(digits : Int) -> String {
+fn gda_source(digits : Int32) -> String {
   let text = StringBuilder()
   for index in 0..<digits {
     let digit = if index == 0 { 7 } else { (index * 7 + 3) % 10 }
@@ -48,7 +48,7 @@ fn gda_source(digits : Int) -> String {
 }
 
 ///|
-fn gda_input(digits : Int) -> GdaInput {
+fn gda_input(digits : Int32) -> GdaInput {
   let source = gda_source(digits)
   let context = @gda.GdaContext::new(
     precision=(digits * 2 + 4).max(9),
@@ -117,7 +117,7 @@ fn gda_output_text(output : GdaOutput) -> String {
 fn gda_spec(
   operation : GdaOperation,
 ) -> @runner.BenchSpec[
-  Int,
+  Int32,
   GdaInput,
   GdaInput,
   @gda.Decimal,

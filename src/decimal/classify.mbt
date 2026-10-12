@@ -148,7 +148,7 @@ pub fn Decimal::classify(self : Decimal) -> FpClass {
 }
 
 ///|
-pub fn Decimal::precision(self : Decimal) -> Int {
+pub fn Decimal::precision(self : Decimal) -> Int32 {
   self.precision_
 }
 
@@ -178,7 +178,7 @@ pub fn Decimal::magnitude(self : Decimal) -> BigInt {
 }
 
 ///|
-pub fn Decimal::exponent10(self : Decimal) -> Int {
+pub fn Decimal::exponent10(self : Decimal) -> Int32 {
   self.exponent10
 }
 
@@ -290,7 +290,7 @@ pub fn Decimal::set_payload_signaling(
 }
 
 ///|
-pub fn Decimal::quantum(self : Decimal) -> Int {
+pub fn Decimal::quantum(self : Decimal) -> Int32 {
   self.exponent10
 }
 

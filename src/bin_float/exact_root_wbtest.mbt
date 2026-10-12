@@ -1,5 +1,5 @@
 ///|
-fn exact_root_contexts(precision : Int) -> Array[BinaryContext] {
+fn exact_root_contexts(precision : Int32) -> Array[BinaryContext] {
   [RoundTiesToEven, RoundTowardNegative, RoundTowardPositive, RoundTowardZero].map(fn(
       mode,
     ) {
@@ -10,7 +10,7 @@ fn exact_root_contexts(precision : Int) -> Array[BinaryContext] {
 
 ///|
 /// An odd coefficient of `bits` bits with a varied bit pattern.
-fn exact_root_odd_coefficient(bits : Int, seed : UInt64) -> BinCoeff {
+fn exact_root_odd_coefficient(bits : Int32, seed : UInt64) -> BinCoeff {
   let mut value = BinCoeff::one()
   let mut state = seed
   while value.bit_length() < bits {

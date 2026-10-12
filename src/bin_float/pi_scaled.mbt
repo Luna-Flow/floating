@@ -1,5 +1,5 @@
 ///|
-fn binary_scaled_integer_mod4(value : BinFloat, shift : Int) -> Int? {
+fn binary_scaled_integer_mod4(value : BinFloat, shift : Int32) -> Int32? {
   guard value.classify() == FpClass::Finite else { return None }
   guard value.exponent2() + shift >= 0 else { return None }
   let exponent = value.exponent2() + shift
@@ -144,7 +144,7 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
   let reduced = BinFloat::make(
     residue,
     value.exponent2(),
-    Int::max(1, residue.bit_length()),
+    Int32::max(1, residue.bit_length()),
   )
   Some(if value.is_negative() { reduced.neg() } else { reduced })
 }
@@ -152,9 +152,9 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
 ///|
 fn binary_pi_scaled_quadrant_reduction(
   value : BinFloat,
-  work_precision : Int,
-) -> (BinFloat, Int)? {
-  let threshold_precision = Int::max(4, value.precision())
+  work_precision : Int32,
+) -> (BinFloat, Int32)? {
+  let threshold_precision = Int32::max(4, value.precision())
   let quarter = BinFloat::make(BinCoeff::one(), -2, threshold_precision)
   let three_quarters = BinFloat::make(
     BinCoeff::from_uint64(3UL),
@@ -225,7 +225,7 @@ fn binary_pi_scaled_quadrant_reduction(
 fn binary_pi_scaled_bounds(
   value : BinFloat,
   operation : BinaryTrigonometricOperation,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let reduced = match binary_pi_periodic_remainder(value) {
     Some(remainder) => remainder
@@ -317,7 +317,7 @@ fn BinFloat::try_pi_scaled_ctx(
         None => ()
       }
       let mut budget = CertifiedRefinementBudget::new(
-        Int::max(context.precision + 96, self.precision() + 32),
+        Int32::max(context.precision + 96, self.precision() + 32),
       )
       while budget.available() {
         match binary_pi_scaled_bounds(self, operation, budget.precision()) {

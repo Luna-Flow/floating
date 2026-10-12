@@ -1,15 +1,15 @@
 ///|
 pub struct DecimalExponentBounds {
   valid_ : Bool
-  etiny_ : Int
-  etop_ : Int
+  etiny_ : Int32
+  etop_ : Int32
 }
 
 ///|
 pub fn DecimalExponentBounds::new(
-  precision : Int,
-  e_min : Int,
-  e_max : Int,
+  precision : Int32,
+  e_min : Int32,
+  e_max : Int32,
 ) -> DecimalExponentBounds {
   let limit = 999_999_999
   let etiny = e_min.to_int64() - precision.to_int64() + 1L
@@ -28,7 +28,7 @@ pub fn DecimalExponentBounds::new(
 }
 
 ///|
-fn decimal_int_from_int64_clamped(value : Int64) -> Int {
+fn decimal_int_from_int64_clamped(value : Int64) -> Int32 {
   if value < -2_147_483_648L {
     -2_147_483_648
   } else if value > 2_147_483_647L {
@@ -44,11 +44,11 @@ pub fn DecimalExponentBounds::is_valid(self : DecimalExponentBounds) -> Bool {
 }
 
 ///|
-pub fn DecimalExponentBounds::etiny(self : DecimalExponentBounds) -> Int {
+pub fn DecimalExponentBounds::etiny(self : DecimalExponentBounds) -> Int32 {
   self.etiny_
 }
 
 ///|
-pub fn DecimalExponentBounds::etop(self : DecimalExponentBounds) -> Int {
+pub fn DecimalExponentBounds::etop(self : DecimalExponentBounds) -> Int32 {
   self.etop_
 }

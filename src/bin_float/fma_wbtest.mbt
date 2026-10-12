@@ -5,7 +5,7 @@ fn fma_show(result : (BinFloat, BinaryFlags)) -> String {
 }
 
 ///|
-fn fma_value(coefficient : Int, exponent : Int) -> BinFloat {
+fn fma_value(coefficient : Int32, exponent : Int32) -> BinFloat {
   let magnitude = BinCoeff::from_uint64(coefficient.abs().to_uint64())
   BinFloat::make(magnitude, exponent, 53, negative=coefficient < 0)
 }
@@ -182,7 +182,7 @@ fn fma_reference(
   if product.is_zero() && c.is_zero() {
     return a.mul_ctx(b, BinaryContext::unbounded(106)).0.add_ctx(c, context)
   }
-  let target = Int::min(product_exponent, c.exponent2)
+  let target = Int32::min(product_exponent, c.exponent2)
   let left = product.shift_left(product_exponent - target)
   let right = c.coefficient_.shift_left(c.exponent2 - target)
   let (negative, magnitude) = if product_negative == c.negative {
@@ -223,7 +223,7 @@ test "fma agrees with an exact-sum reference on random operands" {
     state = state * 6364136223846793005UL + 1442695040888963407UL
     state >> 11
   }
-  let operand = fn(spread : Int) {
+  let operand = fn(spread : Int32) {
     let bits = next()
     let coefficient = (bits & ((1UL << 53) - 1UL)) | 1UL
     let exponent = (next() % (2UL * spread.to_uint64() + 1UL)).to_int() -

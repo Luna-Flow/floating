@@ -119,7 +119,7 @@ fn parse_decimal_literal(
 ///|
 /// Above these decimal exponents no tie or exactly representable value is
 /// possible (see `binary_round_decimal`), so the Ziv path always terminates.
-fn decimal_exact_limit(digit_count : Int, precision : Int) -> Int64 {
+fn decimal_exact_limit(digit_count : Int32, precision : Int32) -> Int64 {
   Int64::max(
     400L,
     (digit_count.to_int64() * 3L + precision.to_int64()) / 2L + 64L,
@@ -258,7 +258,7 @@ pub fn BinFloat::from_string_ctx(
 /// `from_string_ctx` in an unbounded round-to-nearest-even context.
 pub fn BinFloat::from_string(
   source : String,
-  precision? : Int = 53,
+  precision~ : Int32 = 53,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   BinFloat::from_string_ctx(source, BinaryContext::unbounded(precision)).map(fn(
     result,

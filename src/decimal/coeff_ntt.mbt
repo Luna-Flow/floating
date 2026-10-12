@@ -98,7 +98,7 @@ fn dec_coeff_ntt_transform(
 }
 
 ///|
-fn dec_coeff_ntt_digit_len(value : DecCoeff) -> Int {
+fn dec_coeff_ntt_digit_len(value : DecCoeff) -> Int32 {
   (value.digits10() + 3) / 4
 }
 
@@ -125,7 +125,7 @@ fn dec_coeff_ntt_digits(value : DecCoeff) -> Array[UInt64] {
 }
 
 ///|
-fn dec_coeff_ntt_next_power_of_two(value : Int) -> Int {
+fn dec_coeff_ntt_next_power_of_two(value : Int32) -> Int32 {
   let mut result = 1
   while result < value {
     result = result << 1
@@ -134,7 +134,7 @@ fn dec_coeff_ntt_next_power_of_two(value : Int) -> Int {
 }
 
 ///|
-fn dec_coeff_ntt_limits_fit(left_len : Int, right_len : Int) -> Bool {
+fn dec_coeff_ntt_limits_fit(left_len : Int32, right_len : Int32) -> Bool {
   if left_len <= 0 ||
     right_len <= 0 ||
     left_len.to_int64() + right_len.to_int64() - 1L > (1 << 23).to_int64() {
@@ -144,12 +144,12 @@ fn dec_coeff_ntt_limits_fit(left_len : Int, right_len : Int) -> Bool {
     left_len + right_len - 1,
   )
   transform_length <= 1 << 23 &&
-  Int::min(left_len, right_len).to_uint64() * 9999UL * 9999UL <
+  Int32::min(left_len, right_len).to_uint64() * 9999UL * 9999UL <
   dec_coeff_ntt_prime1 * dec_coeff_ntt_prime2
 }
 
 ///|
-fn dec_coeff_ntt_transform_length(left : DecCoeff, right : DecCoeff) -> Int {
+fn dec_coeff_ntt_transform_length(left : DecCoeff, right : DecCoeff) -> Int32 {
   dec_coeff_ntt_next_power_of_two(
     dec_coeff_ntt_digit_len(left) + dec_coeff_ntt_digit_len(right) - 1,
   )
@@ -220,7 +220,7 @@ fn dec_coeff_ntt_crt(left : UInt64, right : UInt64) -> UInt64 {
 ///|
 fn dec_coeff_from_ntt_digits(digits : Array[UInt64]) -> DecCoeff {
   let limb_len = (digits.length() * 4 + dec_coeff_dpun - 1) / dec_coeff_dpun + 1
-  let limbs = Array::make(Int::max(1, limb_len), 0UL)
+  let limbs = Array::make(Int32::max(1, limb_len), 0UL)
   for index in 0..<digits.length() {
     let decimal_offset = index * 4
     let limb_index = decimal_offset / dec_coeff_dpun
@@ -242,7 +242,7 @@ fn dec_coeff_from_ntt_digits(digits : Array[UInt64]) -> DecCoeff {
 fn dec_coeff_ntt_reconstruct(
   first : Array[UInt64],
   second : Array[UInt64],
-  length : Int,
+  length : Int32,
 ) -> DecCoeff {
   let normalized = Array::make(length + 8, 0UL)
   let mut carry = 0UL

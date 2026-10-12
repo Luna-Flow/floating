@@ -2,7 +2,7 @@
 pub struct BallFloat {
   priv lo_ : @bin_float.BinFloat
   priv hi_ : @bin_float.BinFloat
-  priv precision_ : Int
+  priv precision_ : Int32
   priv empty_ : Bool
 } derive(Eq, Debug)
 
@@ -28,12 +28,12 @@ pub(all) enum OverlapState {
 } derive(Eq, Debug)
 
 ///|
-fn neg_inf(precision : Int) -> @bin_float.BinFloat {
+fn neg_inf(precision : Int32) -> @bin_float.BinFloat {
   @bin_float.BinFloat::inf(Sign::Negative, precision~)
 }
 
 ///|
-fn pos_inf(precision : Int) -> @bin_float.BinFloat {
+fn pos_inf(precision : Int32) -> @bin_float.BinFloat {
   @bin_float.BinFloat::inf(Sign::Positive, precision~)
 }
 
@@ -85,7 +85,7 @@ fn validate_interval(
 fn checked_interval(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> Result[BallFloat, String] {
   match interval_validation_error(lo, hi) {
     Some(message) => Err(message)
@@ -96,7 +96,7 @@ fn checked_interval(
 ///|
 fn checked_exact(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> Result[BallFloat, String] {
   guard value.classify() == FpClass::Finite else {
     return Err("ball exact source must be finite")
@@ -110,14 +110,14 @@ fn checked_exact(
 /// side it is clamped to; endpoint computations pass the outward direction.
 fn exact_make(
   coefficient : @bin_float.BinCoeff,
-  exponent2 : Int,
-  negative? : Bool = false,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  exponent2 : Int32,
+  negative~ : Bool = false,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   @bin_float.BinFloat::make(
     coefficient,
     exponent2,
-    Int::max(1, coefficient.bit_length()),
+    Int32::max(1, coefficient.bit_length()),
     negative~,
     mode~,
   )
@@ -126,7 +126,7 @@ fn exact_make(
 ///|
 /// Bits below the larger addend's leading bit that an endpoint sum keeps
 /// exactly; deeper addends become sticky surrogates.
-let far_addend_margin : Int = 65536
+let far_addend_margin : Int32 = 65536
 
 ///|
 fn exponent_top(x : @bin_float.BinFloat) -> Int64 {
@@ -148,9 +148,9 @@ fn far_addend_surrogate(
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   let a_is_large = exponent_top(a) >= exponent_top(b)
   let (large, small) = if a_is_large { (a, b) } else { (b, a) }
-  let margin = Int::max(
+  let margin = Int32::max(
     far_addend_margin,
-    Int::max(large.precision(), small.precision()),
+    Int32::max(large.precision(), small.precision()),
   ).to_int64()
   let cut = Int64::min(
     large.exponent2().to_int64(),
@@ -190,7 +190,7 @@ fn far_addend_surrogate(
 fn exact_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   if a.is_zero() {
     return b
@@ -205,7 +205,7 @@ fn exact_add(
   if b.is_zero() {
     return a
   }
-  let target = Int::min(a.exponent2(), b.exponent2())
+  let target = Int32::min(a.exponent2(), b.exponent2())
   let left = a.coefficient().shift_left(a.exponent2() - target)
   let right = b.coefficient().shift_left(b.exponent2() - target)
   if a.is_negative() == b.is_negative() {
@@ -236,7 +236,7 @@ fn exact_add(
 fn exact_sub(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   exact_add(a, b.neg(), mode~)
 }
@@ -245,7 +245,7 @@ fn exact_sub(
 fn exact_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   // Saturating keeps the direction of an out-of-range exponent sum; the
   // binary layer then clamps it according to `mode`.
@@ -268,7 +268,7 @@ fn exact_mul(
 ///|
 fn exact_half(
   x : @bin_float.BinFloat,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   exact_make(
     x.coefficient(),
@@ -281,7 +281,7 @@ fn exact_half(
 ///|
 fn outward_round(
   x : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
   x.with_precision(precision, RoundingMode::AwayFromZero).abs()
 }
@@ -290,7 +290,7 @@ fn outward_round(
 fn outward_sum(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
   outward_round(exact_add(a, b, mode=RoundingMode::AwayFromZero), precision)
 }
@@ -299,7 +299,7 @@ fn outward_sum(
 fn quantize_center_radius(
   center : @bin_float.BinFloat,
   radius : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
 ) -> BallFloat {
   guard center.classify() == FpClass::Finite else {
@@ -311,7 +311,7 @@ fn quantize_center_radius(
   guard radius.sign() != Sign::Negative else {
     abort("ball radius must be non-negative")
   }
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   let rounded_center = center.with_precision(precision, mode)
   let center_error = outward_round(
     exact_sub(center, rounded_center).abs(),
@@ -335,9 +335,9 @@ fn quantize_center_radius(
 ///|
 fn lower_round_bound(
   x : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   match x.classify() {
     FpClass::Finite =>
       if x.precision() == precision {
@@ -358,9 +358,9 @@ fn lower_round_bound(
 ///|
 fn upper_round_bound(
   x : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   match x.classify() {
     FpClass::Finite =>
       if x.precision() == precision {
@@ -382,15 +382,15 @@ fn upper_round_bound(
 fn store_interval(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   validate_interval(lo, hi)
-  { lo_: lo, hi_: hi, precision_: Int::max(1, precision), empty_: false, }
+  { lo_: lo, hi_: hi, precision_: Int32::max(1, precision), empty_: false, }
 }
 
 ///|
-fn empty_interval(precision : Int) -> BallFloat {
-  let precision = Int::max(1, precision)
+fn empty_interval(precision : Int32) -> BallFloat {
+  let precision = Int32::max(1, precision)
   {
     lo_: pos_inf(precision),
     hi_: neg_inf(precision),
@@ -403,9 +403,9 @@ fn empty_interval(precision : Int) -> BallFloat {
 fn quantize_interval(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   store_interval(
     lower_round_bound(lo, precision),
     upper_round_bound(hi, precision),
@@ -440,12 +440,15 @@ fn interval_radius(x : BallFloat) -> @bin_float.BinFloat {
 }
 
 ///|
-fn zero_radius_interval(x : @bin_float.BinFloat, precision : Int) -> BallFloat {
+fn zero_radius_interval(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> BallFloat {
   quantize_interval(x, x, precision)
 }
 
 ///|
-fn whole_real(precision : Int) -> BallFloat {
+fn whole_real(precision : Int32) -> BallFloat {
   store_interval(neg_inf(precision), pos_inf(precision), precision)
 }
 
@@ -453,7 +456,7 @@ fn whole_real(precision : Int) -> BallFloat {
 fn division_bounds(
   numerator : @bin_float.BinFloat,
   denominator : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   let downward = @bin_float.BinaryContext::unbounded(
     precision,
@@ -473,7 +476,7 @@ fn division_bounds(
 fn extended_division_bounds(
   numerator : @bin_float.BinFloat,
   denominator : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if numerator.is_zero() || denominator.classify() == FpClass::Infinity {
     let zero = @bin_float.BinFloat::zero(precision~)
@@ -495,7 +498,7 @@ fn extended_division_bounds(
 fn quotient_interval_nonzero_denominator(
   numerator : BallFloat,
   denominator : BallFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   let numerator_nonnegative = numerator.lo_.is_zero() ||
     numerator.lo_.sign() == Sign::Positive
@@ -542,7 +545,7 @@ fn quotient_interval_nonzero_denominator(
 }
 
 ///|
-fn pow_nat(base : BallFloat, exponent : UInt, precision : Int) -> BallFloat {
+fn pow_nat(base : BallFloat, exponent : UInt32, precision : Int32) -> BallFloat {
   if base.is_empty() {
     return empty_interval(precision)
   }
@@ -569,7 +572,7 @@ fn pow_nat(base : BallFloat, exponent : UInt, precision : Int) -> BallFloat {
 
 ///|
 fn add_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
-  let precision = Int::max(a.precision_, b.precision_)
+  let precision = Int32::max(a.precision_, b.precision_)
   if a.is_empty() || b.is_empty() {
     return empty_interval(precision)
   }
@@ -591,7 +594,7 @@ fn add_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
 
 ///|
 fn sub_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
-  let precision = Int::max(a.precision_, b.precision_)
+  let precision = Int32::max(a.precision_, b.precision_)
   if a.is_empty() || b.is_empty() {
     return empty_interval(precision)
   }
@@ -637,7 +640,7 @@ fn bin_max(
 /// Set-based interval endpoints identify both signed zeros with the real 0.
 fn canonical_interval_endpoint(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
   if value.is_zero() {
     @bin_float.BinFloat::zero(precision~)
@@ -650,7 +653,7 @@ fn canonical_interval_endpoint(
 fn extended_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
 ) -> @bin_float.BinFloat {
   if a.is_zero() || b.is_zero() {
@@ -686,7 +689,7 @@ fn extended_add(
 fn multiplication_bounds(
   a : BallFloat,
   b : BallFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if a.is_bounded() && b.is_bounded() {
     let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
@@ -761,7 +764,7 @@ fn multiplication_bounds(
 
 ///|
 fn mul_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
-  let precision = Int::max(a.precision_, b.precision_)
+  let precision = Int32::max(a.precision_, b.precision_)
   if a.is_empty() || b.is_empty() {
     return empty_interval(precision)
   }
@@ -771,7 +774,7 @@ fn mul_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
 
 ///|
 fn div_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
-  let precision = Int::max(a.precision_, b.precision_)
+  let precision = Int32::max(a.precision_, b.precision_)
   if a.is_empty() || b.is_empty() {
     return empty_interval(precision)
   }
@@ -826,7 +829,7 @@ fn div_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
 pub fn BallFloat::new(
   center : @bin_float.BinFloat,
   radius : @bin_float.BinFloat,
-  precision? : Int = Int::max(center.precision(), radius.precision()),
+  precision~ : Int32 = Int32::max(center.precision(), radius.precision()),
 ) -> BallFloat {
   quantize_center_radius(center, radius, precision, RoundingMode::ToNearestEven)
 }
@@ -835,7 +838,7 @@ pub fn BallFloat::new(
 pub fn BallFloat::from_bounds(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
-  precision? : Int = Int::max(lo.precision(), hi.precision()),
+  precision~ : Int32 = Int32::max(lo.precision(), hi.precision()),
 ) -> BallFloat {
   match BallFloat::try_from_bounds(lo, hi, precision~) {
     Ok(value) => value
@@ -847,7 +850,7 @@ pub fn BallFloat::from_bounds(
 pub fn BallFloat::try_from_bounds(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
-  precision? : Int = Int::max(lo.precision(), hi.precision()),
+  precision~ : Int32 = Int32::max(lo.precision(), hi.precision()),
 ) -> Result[BallFloat, @def.ArithmeticError] {
   checked_interval(lo, hi, precision).map_err(fn(message) {
     @def.ArithmeticError::domain_error(message)
@@ -857,7 +860,7 @@ pub fn BallFloat::try_from_bounds(
 ///|
 pub fn BallFloat::exact(
   x : @bin_float.BinFloat,
-  precision? : Int = x.precision(),
+  precision~ : Int32 = x.precision(),
 ) -> BallFloat {
   match BallFloat::try_exact(x, precision~) {
     Ok(value) => value
@@ -868,7 +871,7 @@ pub fn BallFloat::exact(
 ///|
 pub fn BallFloat::try_exact(
   value : @bin_float.BinFloat,
-  precision? : Int = value.precision(),
+  precision~ : Int32 = value.precision(),
 ) -> Result[BallFloat, @def.ArithmeticError] {
   checked_exact(value, precision).map_err(fn(message) {
     @def.ArithmeticError::domain_error(message)
@@ -876,7 +879,7 @@ pub fn BallFloat::try_exact(
 }
 
 ///|
-pub fn BallFloat::from_int(n : Int, precision? : Int = 16) -> BallFloat {
+pub fn BallFloat::from_int(n : Int32, precision~ : Int32 = 16) -> BallFloat {
   // Build the integer exactly and let the interval round outward. Rounding it
   // to `precision` first produced a singleton that excluded its own input.
   BallFloat::exact(@bin_float.BinFloat::from_int(n, precision=32), precision~)
@@ -885,15 +888,15 @@ pub fn BallFloat::from_int(n : Int, precision? : Int = 16) -> BallFloat {
 ///|
 pub fn BallFloat::from_coefficient(
   coefficient : @bin_float.BinCoeff,
-  precision? : Int = 16,
-  negative? : Bool = false,
+  precision~ : Int32 = 16,
+  negative~ : Bool = false,
 ) -> BallFloat {
   // As in `from_int`: keep the coefficient exact and round the interval
   // outward, so the result always contains the requested value.
   BallFloat::exact(
     @bin_float.BinFloat::from_coefficient(
       coefficient,
-      precision=Int::max(1, coefficient.bit_length()),
+      precision=Int32::max(1, coefficient.bit_length()),
       negative~,
     ),
     precision~,
@@ -901,7 +904,7 @@ pub fn BallFloat::from_coefficient(
 }
 
 ///|
-pub fn BallFloat::from_double(x : Double, precision? : Int = 53) -> BallFloat {
+pub fn BallFloat::from_double(x : Double, precision~ : Int32 = 53) -> BallFloat {
   match BallFloat::try_from_double(x, precision~) {
     Ok(value) => value
     Err(error) => abort(error.message)
@@ -911,11 +914,11 @@ pub fn BallFloat::from_double(x : Double, precision? : Int = 53) -> BallFloat {
 ///|
 pub fn BallFloat::try_from_double(
   value : Double,
-  precision? : Int = 53,
+  precision~ : Int32 = 53,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   let bin = @bin_float.BinFloat::from_double(
     value,
-    precision=Int::max(precision, 53),
+    precision=Int32::max(precision, 53),
   )
   checked_exact(bin, precision).map_err(fn(_) {
     @def.ArithmeticError::domain_error("ball double source must be finite")
@@ -923,7 +926,7 @@ pub fn BallFloat::try_from_double(
 }
 
 ///|
-pub fn BallFloat::from_float(x : Float, precision? : Int = 24) -> BallFloat {
+pub fn BallFloat::from_float(x : Float, precision~ : Int32 = 24) -> BallFloat {
   match BallFloat::try_from_float(x, precision~) {
     Ok(value) => value
     Err(error) => abort(error.message)
@@ -933,11 +936,11 @@ pub fn BallFloat::from_float(x : Float, precision? : Int = 24) -> BallFloat {
 ///|
 pub fn BallFloat::try_from_float(
   value : Float,
-  precision? : Int = 24,
+  precision~ : Int32 = 24,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   let bin = @bin_float.BinFloat::from_float(
     value,
-    precision=Int::max(precision, 24),
+    precision=Int32::max(precision, 24),
   )
   checked_exact(bin, precision).map_err(fn(_) {
     @def.ArithmeticError::domain_error("ball float source must be finite")
@@ -945,12 +948,12 @@ pub fn BallFloat::try_from_float(
 }
 
 ///|
-pub fn BallFloat::whole(precision? : Int = 53) -> BallFloat {
+pub fn BallFloat::whole(precision~ : Int32 = 53) -> BallFloat {
   whole_real(precision)
 }
 
 ///|
-pub fn BallFloat::empty(precision? : Int = 53) -> BallFloat {
+pub fn BallFloat::empty(precision~ : Int32 = 53) -> BallFloat {
   empty_interval(precision)
 }
 
@@ -1047,7 +1050,7 @@ pub fn BallFloat::radius_extended(self : BallFloat) -> @bin_float.BinFloat {
 }
 
 ///|
-pub fn BallFloat::precision(self : BallFloat) -> Int {
+pub fn BallFloat::precision(self : BallFloat) -> Int32 {
   self.precision_
 }
 
@@ -1101,7 +1104,7 @@ pub fn BallFloat::normalized(self : BallFloat) -> BallFloat {
 /// contained the original lower endpoint.
 pub fn BallFloat::with_precision(
   self : BallFloat,
-  precision : Int,
+  precision : Int32,
   _mode : RoundingMode,
 ) -> BallFloat {
   if self.is_empty() {
@@ -1182,7 +1185,7 @@ pub fn BallFloat::square(self : BallFloat) -> BallFloat {
 }
 
 ///|
-fn pown_exponent_is_odd(exponent : Int) -> Bool {
+fn pown_exponent_is_odd(exponent : Int32) -> Bool {
   let magnitude = if exponent < 0 {
     (-(exponent + 1)).reinterpret_as_uint() + 1U
   } else {
@@ -1194,8 +1197,8 @@ fn pown_exponent_is_odd(exponent : Int) -> Bool {
 ///|
 fn pown_endpoint(
   value : @bin_float.BinFloat,
-  exponent : Int,
-  precision : Int,
+  exponent : Int32,
+  precision : Int32,
   rounding : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
   value.pow_int_ctx(
@@ -1207,8 +1210,8 @@ fn pown_endpoint(
 ///|
 fn pown_positive(
   value : BallFloat,
-  exponent : Int,
-  precision : Int,
+  exponent : Int32,
+  precision : Int32,
 ) -> BallFloat {
   let lo_power = pown_endpoint(
     value.lo_,
@@ -1262,8 +1265,8 @@ fn pown_positive(
 ///|
 fn pown_negative(
   value : BallFloat,
-  exponent : Int,
-  precision : Int,
+  exponent : Int32,
+  precision : Int32,
 ) -> BallFloat {
   let lo_is_zero = value.lo_.is_zero()
   let hi_is_zero = value.hi_.is_zero()
@@ -1365,7 +1368,7 @@ fn pown_negative(
 }
 
 ///|
-pub fn BallFloat::pown(self : BallFloat, exponent : Int) -> BallFloat {
+pub fn BallFloat::pown(self : BallFloat, exponent : Int32) -> BallFloat {
   if self.is_empty() {
     return self
   }
@@ -1393,7 +1396,7 @@ pub fn BallFloat::pown(self : BallFloat, exponent : Int) -> BallFloat {
 
 ///|
 pub fn BallFloat::minimum(self : BallFloat, other : BallFloat) -> BallFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
   }
@@ -1406,7 +1409,7 @@ pub fn BallFloat::minimum(self : BallFloat, other : BallFloat) -> BallFloat {
 
 ///|
 pub fn BallFloat::maximum(self : BallFloat, other : BallFloat) -> BallFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
   }
@@ -1584,7 +1587,7 @@ pub fn BallFloat::intersection(
   self : BallFloat,
   other : BallFloat,
 ) -> BallFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
   }
@@ -1599,7 +1602,7 @@ pub fn BallFloat::intersection(
 
 ///|
 pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
     return other.with_precision(precision, RoundingMode::ToNearestEven)
   }
@@ -1615,7 +1618,7 @@ pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat 
 
 ///|
 pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
     return if other.is_empty() || other.is_bounded() {
       empty_interval(precision)
@@ -1640,7 +1643,7 @@ pub fn BallFloat::cancel_minus(
   self : BallFloat,
   other : BallFloat,
 ) -> BallFloat {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
     return if other.is_empty() || other.is_bounded() {
       empty_interval(precision)
@@ -1730,9 +1733,9 @@ pub fn BallFloat::fma(
   multiplier : BallFloat,
   addend : BallFloat,
 ) -> BallFloat {
-  let precision = Int::max(
+  let precision = Int32::max(
     self.precision_,
-    Int::max(multiplier.precision_, addend.precision_),
+    Int32::max(multiplier.precision_, addend.precision_),
   )
   if self.is_empty() || multiplier.is_empty() || addend.is_empty() {
     return empty_interval(precision)

@@ -1,7 +1,7 @@
 ///|
 fn elementary_range_power(
-  exponent : Int,
-  precision : Int,
+  exponent : Int32,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
   @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, precision)
 }

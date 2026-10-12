@@ -1,5 +1,5 @@
 ///|
-fn square_tune_pattern(limbs : Int) -> @binary.BinCoeff {
+fn square_tune_pattern(limbs : Int32) -> @binary.BinCoeff {
   let bits = limbs * 32
   let one = @binary.BinCoeff::one()
   let mut value = one.shift_left(bits - 1)
@@ -13,7 +13,7 @@ fn square_tune_pattern(limbs : Int) -> @binary.BinCoeff {
 
 ///|
 fn square_tune_spec() -> @runner.BenchSpec[
-  Int,
+  Int32,
   @binary.BinCoeff,
   @binary.BinCoeff,
   @binary.BinCoeff,

@@ -1,8 +1,8 @@
 ///|
 pub struct CertifiedRefinementBudget {
-  work_precision : Int
-  refinements_ : Int
-  limit_ : Int
+  work_precision : Int32
+  refinements_ : Int32
+  limit_ : Int32
 }
 
 ///|
@@ -15,7 +15,7 @@ pub struct CertifiedInterval[T] {
 pub fn[T] CertifiedInterval::new(
   lower : T,
   upper : T,
-  compare : (T, T) -> Int,
+  compare : (T, T) -> Int32,
 ) -> Result[CertifiedInterval[T], @def.ArithmeticError] {
   guard compare(lower, upper) <= 0 else {
     return Err(
@@ -46,13 +46,13 @@ pub fn[T] CertifiedInterval::upper(self : CertifiedInterval[T]) -> T {
 
 ///|
 pub fn CertifiedRefinementBudget::new(
-  initial_precision : Int,
-  limit? : Int = 12,
+  initial_precision : Int32,
+  limit~ : Int32 = 12,
 ) -> CertifiedRefinementBudget {
   {
-    work_precision: Int::max(1, initial_precision),
+    work_precision: Int32::max(1, initial_precision),
     refinements_: 0,
-    limit_: Int::max(1, limit),
+    limit_: Int32::max(1, limit),
   }
 }
 
@@ -66,14 +66,14 @@ pub fn CertifiedRefinementBudget::available(
 ///|
 pub fn CertifiedRefinementBudget::precision(
   self : CertifiedRefinementBudget,
-) -> Int {
+) -> Int32 {
   self.work_precision
 }
 
 ///|
 pub fn CertifiedRefinementBudget::refinements(
   self : CertifiedRefinementBudget,
-) -> Int {
+) -> Int32 {
   self.refinements_
 }
 
@@ -82,7 +82,8 @@ pub fn CertifiedRefinementBudget::next(
   self : CertifiedRefinementBudget,
 ) -> CertifiedRefinementBudget {
   {
-    work_precision: self.work_precision + Int::max(32, self.work_precision / 2),
+    work_precision: self.work_precision +
+    Int32::max(32, self.work_precision / 2),
     refinements_: self.refinements_ + 1,
     limit_: self.limit_,
   }
@@ -93,7 +94,7 @@ pub fn certified_failure(
   operation : String,
   stage : @def.CertificationStage,
   reason : @def.CertificationFailureReason,
-  target_precision : Int,
+  target_precision : Int32,
   budget : CertifiedRefinementBudget,
 ) -> @def.ArithmeticError {
   @def.ArithmeticError::certification_failure(

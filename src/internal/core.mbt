@@ -55,7 +55,7 @@ let pow_cache_limit = 4096
 fn extend_pow_cache(
   cache : Array[BigInt],
   multiplier : BigInt,
-  n : Int,
+  n : Int32,
 ) -> BigInt {
   while cache.length() <= n {
     cache.push(cache[cache.length() - 1] * multiplier)
@@ -64,13 +64,13 @@ fn extend_pow_cache(
 }
 
 ///|
-pub fn pow2(n : Int) -> BigInt {
+pub fn pow2(n : Int32) -> BigInt {
   guard n >= 0 else { abort("pow2 exponent must be non-negative") }
   bigint_one() << n
 }
 
 ///|
-pub fn pow10(n : Int) -> BigInt {
+pub fn pow10(n : Int32) -> BigInt {
   guard n >= 0 else { abort("pow10 exponent must be non-negative") }
   if n < pow10_cache.length() {
     return pow10_cache[n]
@@ -82,7 +82,7 @@ pub fn pow10(n : Int) -> BigInt {
 }
 
 ///|
-pub fn pow5(n : Int) -> BigInt {
+pub fn pow5(n : Int32) -> BigInt {
   guard n >= 0 else { abort("pow5 exponent must be non-negative") }
   if n < pow5_cache.length() {
     return pow5_cache[n]
@@ -94,7 +94,7 @@ pub fn pow5(n : Int) -> BigInt {
 }
 
 ///|
-pub fn digits10(x : BigInt) -> Int {
+pub fn digits10(x : BigInt) -> Int32 {
   let magnitude = abs_bigint(x)
   if magnitude.is_zero() {
     return 1
@@ -120,7 +120,7 @@ pub fn digits10(x : BigInt) -> Int {
 }
 
 ///|
-pub fn remove_factor2(sig : BigInt, exp : Int) -> (BigInt, Int) {
+pub fn remove_factor2(sig : BigInt, exp : Int32) -> (BigInt, Int32) {
   if sig.is_zero() {
     (bigint_zero(), 0)
   } else {
@@ -130,7 +130,7 @@ pub fn remove_factor2(sig : BigInt, exp : Int) -> (BigInt, Int) {
 }
 
 ///|
-pub fn remove_factor10(coeff : BigInt, exp : Int) -> (BigInt, Int) {
+pub fn remove_factor10(coeff : BigInt, exp : Int32) -> (BigInt, Int32) {
   if coeff.is_zero() {
     return (bigint_zero(), 0)
   }
@@ -146,7 +146,7 @@ pub fn remove_factor10(coeff : BigInt, exp : Int) -> (BigInt, Int) {
 }
 
 ///|
-pub fn exact_divide_by_power_of_ten(coeff : BigInt, shift : Int) -> BigInt? {
+pub fn exact_divide_by_power_of_ten(coeff : BigInt, shift : Int32) -> BigInt? {
   if coeff.is_zero() {
     return Some(bigint_zero())
   }
@@ -164,9 +164,9 @@ pub fn exact_divide_by_power_of_ten(coeff : BigInt, shift : Int) -> BigInt? {
 ///|
 pub fn trim_trailing_decimal_zeros(
   coeff : BigInt,
-  exp : Int,
-  max_drop? : Int = -1,
-) -> (BigInt, Int, Int) {
+  exp : Int32,
+  max_drop~ : Int32 = -1,
+) -> (BigInt, Int32, Int32) {
   if coeff.is_zero() {
     return (bigint_zero(), 0, 0)
   }
@@ -238,7 +238,7 @@ pub fn round_positive_div(
 ///|
 pub fn round_shift(
   magnitude : BigInt,
-  shift : Int,
+  shift : Int32,
   negative : Bool,
   mode : RoundingMode,
 ) -> BigInt {
@@ -256,7 +256,7 @@ pub fn round_shift(
 }
 
 ///|
-pub fn compare_abs(a : BigInt, b : BigInt) -> Int {
+pub fn compare_abs(a : BigInt, b : BigInt) -> Int32 {
   abs_bigint(a).compare(abs_bigint(b))
 }
 
@@ -267,7 +267,7 @@ pub fn compare_abs(a : BigInt, b : BigInt) -> Int {
 /// so an out-of-range exponent is never replaced by a different value. Use
 /// `split_decimal_string_wide` when such literals must be told apart from
 /// malformed text.
-pub fn split_decimal_string(src : String) -> (Bool, String, Int)? {
+pub fn split_decimal_string(src : String) -> (Bool, String, Int32)? {
   guard split_decimal_string_wide(src) is Some((negative, digits, exponent)) &&
     exponent >= -2147483648L &&
     exponent <= 2147483647L else {
@@ -331,7 +331,7 @@ pub fn split_decimal_string_wide(src : String) -> (Bool, String, Int64)? {
       exp_mode = true
     } else if ch >= '0' && ch <= '9' {
       has_digit = true
-      digits_builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      digits_builder.write_char(Int32::unsafe_to_char(ch.to_int()))
       if seen_point {
         frac_digits += 1
       }

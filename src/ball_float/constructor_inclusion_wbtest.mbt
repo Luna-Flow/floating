@@ -19,7 +19,7 @@ test "BallFloat::from_coefficient contains coefficients wider than the precision
   for negative in [false, true] {
     let exact = @bin_float.BinFloat::from_coefficient(
       coefficient,
-      precision=Int::max(1, coefficient.bit_length()),
+      precision=Int32::max(1, coefficient.bit_length()),
       negative~,
     )
     for precision in [16, 8, 24] {

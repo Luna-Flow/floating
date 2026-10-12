@@ -1,5 +1,5 @@
 ///|
-fn exponent_range_power(exponent : Int) -> BinFloat {
+fn exponent_range_power(exponent : Int32) -> BinFloat {
   BinFloat::make(BinCoeff::one(), exponent, 53)
 }
 

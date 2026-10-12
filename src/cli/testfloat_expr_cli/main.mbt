@@ -6,8 +6,8 @@ priv struct CliOptions {
   exact : Bool
   path : String
   json : Bool
-  shard_count : Int
-  shard_index : Int
+  shard_count : Int32
+  shard_index : Int32
 }
 
 ///|
@@ -92,7 +92,7 @@ fn summary_json(
 }
 
 ///|
-pub fn run(arguments : Array[String]) -> Int {
+pub fn run(arguments : Array[String]) -> Int32 {
   let options = match parse_cli(arguments) {
     Ok(value) => value
     Err(message) => {

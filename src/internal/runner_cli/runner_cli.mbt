@@ -6,7 +6,7 @@ pub struct CommonOptions {
 }
 
 ///|
-pub fn parse_int(name : String, source : String) -> Result[Int, String] {
+pub fn parse_int(name : String, source : String) -> Result[Int32, String] {
   try @string.parse_int(source) catch {
     _ => Err("invalid " + name + ": " + source)
   } noraise {
@@ -17,7 +17,7 @@ pub fn parse_int(name : String, source : String) -> Result[Int, String] {
 ///|
 pub fn parse_common_options(
   arguments : Array[String],
-  allow_shard? : Bool = true,
+  allow_shard~ : Bool = true,
 ) -> Result[CommonOptions, String] {
   let mut json = false
   let mut shard_count = 1
@@ -77,12 +77,12 @@ pub fn CommonOptions::json(self : CommonOptions) -> Bool {
 }
 
 ///|
-pub fn CommonOptions::shard_count(self : CommonOptions) -> Int {
+pub fn CommonOptions::shard_count(self : CommonOptions) -> Int32 {
   self.shard.count()
 }
 
 ///|
-pub fn CommonOptions::shard_index(self : CommonOptions) -> Int {
+pub fn CommonOptions::shard_index(self : CommonOptions) -> Int32 {
   self.shard.index()
 }
 
@@ -94,7 +94,7 @@ pub fn CommonOptions::remaining(self : CommonOptions) -> Array[String] {
 ///|
 pub fn read_source(
   path : String,
-  label? : String = "file",
+  label~ : String = "file",
 ) -> Result[String, String] {
   try @fs.read_file_to_string(path) catch {
     _ => Err("cannot read " + label + ": " + path)
@@ -166,9 +166,9 @@ pub fn format_diagnostic(
 ///|
 pub fn format_diagnostic_at(
   source : String,
-  line : Int,
+  line : Int32,
   message : String,
-  column? : Int = 1,
+  column~ : Int32 = 1,
 ) -> String {
   format_diagnostic(
     @conformance.SourceLocation::new(source, line, column~),
@@ -177,7 +177,7 @@ pub fn format_diagnostic_at(
 }
 
 ///|
-pub fn json_int(value : Int) -> Json {
+pub fn json_int(value : Int32) -> Json {
   Json::number(value.to_double(), repr=value.to_string())
 }
 

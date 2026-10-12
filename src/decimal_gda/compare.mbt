@@ -21,9 +21,9 @@ fn plain_minmax_nan_result(lhs : Decimal, rhs : Decimal) -> Decimal? {
 fn compare_same_adjusted_magnitude(
   a : Decimal,
   b : Decimal,
-  a_digits : Int,
-  b_digits : Int,
-) -> Int {
+  a_digits : Int32,
+  b_digits : Int32,
+) -> Int32 {
   if a_digits == b_digits {
     return gda_coeff_compare_repr(a.coefficient, b.coefficient)
   }
@@ -61,10 +61,10 @@ fn compare_same_adjusted_magnitude(
 ///|
 fn compare_finite_magnitude_repr(
   lhs_coefficient : GdaCoeff,
-  lhs_exponent10 : Int,
+  lhs_exponent10 : Int32,
   rhs_coefficient : GdaCoeff,
-  rhs_exponent10 : Int,
-) -> Int {
+  rhs_exponent10 : Int32,
+) -> Int32 {
   if lhs_coefficient.is_zero() || rhs_coefficient.is_zero() {
     return compare_int(
       if lhs_coefficient.is_zero() {
@@ -104,7 +104,7 @@ fn compare_finite_magnitude_repr(
 }
 
 ///|
-fn compare_finite(a : Decimal, b : Decimal) -> Int {
+fn compare_finite(a : Decimal, b : Decimal) -> Int32 {
   if a.coefficient.is_zero() {
     if b.coefficient.is_zero() {
       return 0
@@ -132,7 +132,7 @@ fn compare_finite(a : Decimal, b : Decimal) -> Int {
 pub fn Decimal::compare_checked(
   self : Decimal,
   other : Decimal,
-) -> Result[Int, @def.ArithmeticError] {
+) -> Result[Int32, @def.ArithmeticError] {
   guard self.class != FpClass::NaN && other.class != FpClass::NaN else {
     return Err(@def.ArithmeticError::unordered_comparison("NaN is unordered"))
   }
@@ -185,7 +185,7 @@ pub fn Decimal::compare_total_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
-) -> (Int, DecimalFlags) {
+) -> (Int32, DecimalFlags) {
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
     self, other, ctx,
   )
@@ -197,7 +197,7 @@ pub fn Decimal::compare_total_magnitude_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
-) -> (Int, DecimalFlags) {
+) -> (Int32, DecimalFlags) {
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
     self, other, ctx,
   )
@@ -229,7 +229,7 @@ pub fn Decimal::compare_signal_ctx(
 /// so that `Compare` stays a total preorder (and sorting never aborts), every
 /// NaN compares equal to every other NaN and greater than every non-NaN.
 /// Use the quiet/signaling predicates or `compare_checked` for IEEE semantics.
-pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int {
+pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int32 {
   match (self.class == FpClass::NaN, other.class == FpClass::NaN) {
     (true, true) => return 0
     (true, false) => return 1
@@ -258,7 +258,7 @@ pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int {
 }
 
 ///|
-pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int {
+pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int32 {
   if self.negative != other.negative {
     return if self.negative { -1 } else { 1 }
   }
@@ -309,7 +309,10 @@ pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int {
 }
 
 ///|
-pub fn Decimal::compare_total_magnitude(self : Decimal, other : Decimal) -> Int {
+pub fn Decimal::compare_total_magnitude(
+  self : Decimal,
+  other : Decimal,
+) -> Int32 {
   { ..self, negative: false, }.compare_total({ ..other, negative: false, })
 }
 

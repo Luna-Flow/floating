@@ -12,7 +12,7 @@ fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
 ///|
 fn dec_coeff_div_rem_power_limbs(
   value : DecCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> (DecCoeff, DecCoeff) {
   guard shift >= 0 else {
     abort("decimal coefficient base-power division shift is negative")
@@ -31,7 +31,7 @@ fn dec_coeff_div_rem_power_limbs(
 }
 
 ///|
-fn dec_coeff_bz_max_quotient(block_len : Int) -> DecCoeff {
+fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
   guard block_len > 0 else {
     abort("Burnikel-Ziegler quotient block length must be positive")
   }
@@ -45,9 +45,9 @@ fn dec_coeff_bz_max_quotient(block_len : Int) -> DecCoeff {
 fn dec_coeff_div_3n_2n_bz(
   numerator : DecCoeff,
   denominator : DecCoeff,
-  half_len : Int,
+  half_len : Int32,
   arena : DecCoeffScratchArena,
-  depth : Int,
+  depth : Int32,
 ) -> (DecCoeff, DecCoeff) {
   if half_len <= dec_coeff_bz_recursive_threshold || depth >= 64 {
     return dec_coeff_div_rem_knuth_repr(numerator, denominator)
@@ -118,9 +118,9 @@ fn dec_coeff_div_3n_2n_bz(
 fn dec_coeff_div_2n_1n_bz(
   numerator : DecCoeff,
   denominator : DecCoeff,
-  block_len : Int,
+  block_len : Int32,
   arena : DecCoeffScratchArena,
-  depth : Int,
+  depth : Int32,
 ) -> (DecCoeff, DecCoeff) {
   if block_len <= dec_coeff_bz_recursive_threshold ||
     (block_len & 1) != 0 ||

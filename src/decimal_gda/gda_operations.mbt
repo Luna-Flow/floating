@@ -258,7 +258,7 @@ pub fn compare_total(
   lhs : Decimal,
   rhs : Decimal,
   ctx : GdaContext,
-) -> GdaOutcome[Int] {
+) -> GdaOutcome[Int32] {
   let (result, flags) = lhs.compare_total_ctx(rhs, ctx.decimal_context())
   complete_gda(result, ctx, flags)
 }
@@ -268,7 +268,7 @@ pub fn compare_total_magnitude(
   lhs : Decimal,
   rhs : Decimal,
   ctx : GdaContext,
-) -> GdaOutcome[Int] {
+) -> GdaOutcome[Int32] {
   let (result, flags) = lhs.compare_total_magnitude_ctx(
     rhs,
     ctx.decimal_context(),
