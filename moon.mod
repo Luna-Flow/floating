@@ -19,11 +19,10 @@ keywords = [
 description = "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 
 import {
-  "Luna-Flow/arithmetic@0.5.0",
-  "Kaida-Amethyst/math@0.1.21",
+  "Luna-Flow/arithmetic@0.5.1",
   "Luna-Flow/luna-generic@0.4.0",
   "moonbitlang/x@0.5.5",
-  "Luna-Flow/type_theory@0.3.0",
+  "Luna-Flow/type_theory@0.4.0",
   "Luna-Flow/mare_mark@0.4.0",
   "moonbitlang/async@0.22.4",
 }

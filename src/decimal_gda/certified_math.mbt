@@ -360,7 +360,7 @@ priv struct DecimalCertifiedLn10Cache {
 }
 
 ///|
-let decimal_certified_ln10_cache : @ref.Ref[DecimalCertifiedLn10Cache] = @ref.new({
+let decimal_certified_ln10_cache : @ref.Ref[DecimalCertifiedLn10Cache] = @ref.Ref({
     precision: 0,
     interval: None,
   },
