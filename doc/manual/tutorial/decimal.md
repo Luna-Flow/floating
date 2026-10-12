@@ -26,7 +26,7 @@ the [decimal design](../design/decimal.md); every function is specified in the
 Add `floating` to your module:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 and import the package in your `moon.pkg`:

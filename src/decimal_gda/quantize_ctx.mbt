@@ -150,20 +150,26 @@ pub fn Decimal::remainder(
         let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
         return (value, quotient_flags.combine(flags))
       }
+      // The quotient rounded to the context may have overflowed or been
+      // clamped, and its flags describe it, not the remainder. The remainder
+      // is taken with the exact integer quotient, under the operand flags.
+      let exact_quotient = decimal_exact_integer_quotient_repr(lhs, rhs)
       let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
         lhs, rhs,
       )
-      let product = gda_coeff_multiply_repr(quotient.coefficient, rhs_units)
+      let product = gda_coeff_multiply_repr(exact_quotient, rhs_units)
+      // lhs - q * rhs with q of sign lhs.negative != rhs.negative, so the
+      // subtracted term has the sign of -lhs.
       let (exact_negative, exact_magnitude) = gda_coeff_signed_add_repr(
         lhs.negative,
         lhs_units,
-        !(quotient.negative != rhs.negative),
+        !lhs.negative,
         product,
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
           Decimal::zero(precision=finite_precision_for_default(ctx)),
-          quotient_flags,
+          operand_flags,
         )
       }
       let negative = if exact_magnitude.is_zero() {
@@ -174,7 +180,7 @@ pub fn Decimal::remainder(
       let (value, flags) = normalize_decimal_parts_ctx_repr(
         negative, exact_magnitude, target, ctx,
       )
-      (value, quotient_flags.combine(flags))
+      (value, operand_flags.combine(flags))
     }
     _ =>
       (
@@ -221,28 +227,28 @@ pub fn Decimal::remainder_near(
       operand_flags.combine(invalid_flags()),
     )
   }
+  // GDA remainder-near is defined only when the nearest integer quotient has
+  // at most `precision` digits (division impossible otherwise). The quotient
+  // is internal: it decides that and nothing else, so its rounding, overflow
+  // or clamping flags never reach the delivered remainder.
   let (quotient, quotient_flags0) = decimal_nearest_integer_quotient(
     lhs, rhs, ctx, true,
   )
-  let quotient_flags = operand_flags.combine(quotient_flags0)
-  if quotient.class == FpClass::NaN || quotient_flags.has_error() {
-    return (quotient, quotient_flags)
+  let quotient_error_flags = operand_flags.combine(quotient_flags0)
+  if quotient.class == FpClass::NaN || quotient_error_flags.has_error() {
+    return (quotient, quotient_error_flags)
+  }
+  let quotient_flags = operand_flags.combine(
+    divide_integer_zero_quotient_flags(lhs, rhs, ctx),
+  )
+  if finite_nearest_integer_quotient_is_zero(lhs, rhs) {
+    let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
+    return (value, quotient_flags.combine(flags))
   }
   match (lhs.class, rhs.class) {
     (FpClass::Finite, FpClass::Finite) => {
-      if quotient.is_zero() {
-        let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
-        return (value, quotient_flags.combine(flags))
-      }
-      let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
+      let (exact_negative, exact_magnitude, target) = decimal_nearest_remainder_parts(
         lhs, rhs,
-      )
-      let product = gda_coeff_multiply_repr(quotient.coefficient, rhs_units)
-      let (exact_negative, exact_magnitude) = gda_coeff_signed_add_repr(
-        lhs.negative,
-        lhs_units,
-        !(quotient.negative != rhs.negative),
-        product,
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (

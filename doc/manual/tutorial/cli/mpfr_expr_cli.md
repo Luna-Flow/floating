@@ -31,7 +31,7 @@ failed cases: 0
 
 ### From MoonBit code
 
-After `moon add Luna-Flow/floating@0.8.0`, import
+After `moon add Luna-Flow/floating@0.9.0`, import
 `"Luna-Flow/floating/cli/mpfr_expr_cli"` in `moon.pkg` and call `run`:
 
 ```moonbit nocheck

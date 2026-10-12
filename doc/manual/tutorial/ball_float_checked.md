@@ -23,7 +23,7 @@ lists every method.
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 Import the wrapper and the endpoint package (the later examples also use

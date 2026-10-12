@@ -1305,9 +1305,9 @@ fn finite_integer_quotient_is_zero(
   guard dividend.class == FpClass::Finite && divisor.class == FpClass::Finite else {
     return false
   }
-  guard !dividend.coefficient.is_zero() && !divisor.coefficient.is_zero() else {
-    return false
-  }
+  guard !divisor.coefficient.is_zero() else { return false }
+  // A zero dividend has a zero integer quotient whatever the exponents.
+  guard !dividend.coefficient.is_zero() else { return true }
   compare_finite_magnitude_repr(
     dividend.coefficient,
     dividend.exponent10,
@@ -1341,9 +1341,9 @@ fn finite_nearest_integer_quotient_is_zero(
   guard dividend.class == FpClass::Finite && divisor.class == FpClass::Finite else {
     return false
   }
-  guard !dividend.coefficient.is_zero() && !divisor.coefficient.is_zero() else {
-    return false
-  }
+  guard !divisor.coefficient.is_zero() else { return false }
+  // A zero dividend has a zero nearest integer quotient whatever the exponents.
+  guard !dividend.coefficient.is_zero() else { return true }
   compare_twice_dividend_to_divisor(dividend, divisor) <= 0
 }
 
@@ -1593,6 +1593,27 @@ fn zero_quotient_remainder_result(
     )
     return finalize_finite_ctx(zero, DecimalFlags::new(), ctx)
   }
+  if ctx.extended && ctx.precision > 0 {
+    // The remainder is the dividend itself, with the smaller exponent as its
+    // ideal exponent. Moving it towards that exponent by at most p + 1 -
+    // digits places and normalizing once rounds and clamps the delivered
+    // result only, not the dividend at its own exponent.
+    let preferred = Int32::min(dividend.exponent10, divisor.exponent10)
+    let room = Int32::max(
+      0,
+      ctx.precision + 1 - dividend.coefficient.digits10(),
+    )
+    let shift = Int64::min(
+      dividend.exponent10.to_int64() - preferred.to_int64(),
+      room.to_int64(),
+    ).to_int()
+    return normalize_decimal_parts_ctx_repr(
+      dividend.negative,
+      gda_coeff_shift_power10_repr(dividend.coefficient, shift),
+      dividend.exponent10 - shift,
+      ctx,
+    )
+  }
   let (base, base_flags) = apply_finite_ctx(dividend, ctx)
   guard base_flags.has_error() == false &&
     base.class == FpClass::Finite &&
@@ -1627,4 +1648,74 @@ fn zero_quotient_remainder_result(
     }
   }
   (base, base_flags)
+}
+
+///|
+/// The magnitude of the integer quotient of two finite operands, truncated
+/// towards zero and not rounded to any context. The divisor is nonzero.
+fn decimal_exact_integer_quotient_repr(
+  dividend : Decimal,
+  divisor : Decimal,
+) -> GdaCoeff {
+  match integer_quotient_by_power_of_ten_repr(dividend, divisor, false) {
+    Some(value) => value
+    None => {
+      let scale = dividend.exponent10 - divisor.exponent10
+      let numerator = if scale >= 0 {
+        gda_coeff_shift_power10_repr(dividend.coefficient, scale)
+      } else {
+        dividend.coefficient
+      }
+      let denominator = if scale >= 0 {
+        divisor.coefficient
+      } else {
+        gda_coeff_shift_power10_repr(divisor.coefficient, -scale)
+      }
+      gda_coeff_div_rem_repr(numerator, denominator).0
+    }
+  }
+}
+
+///|
+fn decimal_nearest_remainder_parts(
+  dividend : Decimal,
+  divisor : Decimal,
+) -> (Bool, GdaCoeff, Int32) {
+  let scale = dividend.exponent10 - divisor.exponent10
+  let (quotient_odd, remainder, denominator, target) = if scale >= 0 {
+    let denominator = divisor.coefficient
+    let doubled_denominator = gda_coeff_multiply_by_unit_repr(denominator, 2)
+    let residue = gda_coeff_shift_power10_mod_repr(
+      dividend.coefficient,
+      scale,
+      doubled_denominator,
+    )
+    if gda_coeff_compare_repr(residue, denominator) >= 0 {
+      (
+        true,
+        gda_coeff_magnitude_sub_repr(residue, denominator),
+        denominator,
+        divisor.exponent10,
+      )
+    } else {
+      (false, residue, denominator, divisor.exponent10)
+    }
+  } else {
+    let denominator = gda_coeff_shift_power10_repr(divisor.coefficient, -scale)
+    let (quotient, remainder) = gda_coeff_div_rem_repr(
+      dividend.coefficient,
+      denominator,
+    )
+    (gda_coeff_is_odd(quotient), remainder, denominator, dividend.exponent10)
+  }
+  let twice_remainder = gda_coeff_multiply_by_unit_repr(remainder, 2)
+  let half_compare = gda_coeff_compare_repr(twice_remainder, denominator)
+  let increment = half_compare > 0 || (half_compare == 0 && quotient_odd)
+  let magnitude = if increment {
+    gda_coeff_magnitude_sub_repr(denominator, remainder)
+  } else {
+    remainder
+  }
+  let negative = !magnitude.is_zero() && dividend.negative != increment
+  (negative, magnitude, target)
 }

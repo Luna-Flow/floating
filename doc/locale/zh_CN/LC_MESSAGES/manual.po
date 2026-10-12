@@ -7887,8 +7887,8 @@ msgid "bin_float conformance"
 msgstr "bin_float 符合性"
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.8.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
-msgstr "本文记录 `0.8.0` 二进制浮点语义与验证边界。有限测试全部通过是声明范围内的证据，不是对所有实数输入的形式化证明。"
+msgid "This page records the `0.9.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgstr "本文记录 `0.9.0` 二进制浮点语义与验证边界。有限测试全部通过是声明范围内的证据，不是对所有实数输入的形式化证明。"
 
 #: manual/conformance/bin_float.md:7
 msgid "Normative and research sources"
@@ -8245,8 +8245,8 @@ msgid "Repository conventions"
 msgstr "仓库约定"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.8.0`**, the version in `moon.mod`."
-msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前发布版本为 **`0.8.0`**，即 `moon.mod` 中的版本。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.9.0`**, the version in `moon.mod`."
+msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前发布版本为 **`0.9.0`**，即 `moon.mod` 中的版本。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"
@@ -14738,8 +14738,8 @@ msgid "floating"
 msgstr "floating"
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.8.0` release; the changes since that release are listed in the changelog."
-msgstr "本手册记录 `Luna-Flow/floating` 的 `main` 分支，它基于 `0.8.0` 版本；自该版本以来的变更列于变更日志中。"
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.9.0` release; the changes since that release are listed in the changelog."
+msgstr "本手册记录 `Luna-Flow/floating` 的 `main` 分支，它基于 `0.9.0` 版本；自该版本以来的变更列于变更日志中。"
 
 #: manual/index.md:7
 msgid "Overview"
@@ -18235,8 +18235,8 @@ msgid "From MoonBit code"
 msgstr "从 MoonBit 代码调用"
 
 #: manual/tutorial/cli/gda_expr_cli.md:42
-msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.8.0`, import it and pass the argument vector, program name first:"
-msgstr "运行器也是一个库。执行 `moon add Luna-Flow/floating@0.8.0` 之后，导入它并传入参数向量（程序名在前）："
+msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.9.0`, import it and pass the argument vector, program name first:"
+msgstr "运行器也是一个库。执行 `moon add Luna-Flow/floating@0.9.0` 之后，导入它并传入参数向量（程序名在前）："
 
 #: manual/tutorial/cli/gda_expr_cli.md:55
 msgid "`run` prints the same output as the executable and returns the exit status instead of exiting."
@@ -18346,8 +18346,8 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr "不给路径时，运行器执行 `testdata/interval/smoke.itl` 并打印一个 JSON 对象，例如"
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.8.0`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
-msgstr "执行 `moon add Luna-Flow/floating@0.8.0` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/itl_expr_cli\"`，并以参数向量（程序名在前）调用 `run`："
+msgid "After `moon add Luna-Flow/floating@0.9.0`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgstr "执行 `moon add Luna-Flow/floating@0.9.0` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/itl_expr_cli\"`，并以参数向量（程序名在前）调用 `run`："
 
 #: manual/tutorial/cli/itl_expr_cli.md:43
 msgid "Run files"
@@ -18439,8 +18439,8 @@ msgid "run all binary corpora"
 msgstr "运行所有二进制语料"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.8.0`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
-msgstr "执行 `moon add Luna-Flow/floating@0.8.0` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` 并调用 `run`："
+msgid "After `moon add Luna-Flow/floating@0.9.0`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgstr "执行 `moon add Luna-Flow/floating@0.9.0` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` 并调用 `run`："
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:43
 msgid "Run each format"
@@ -18528,8 +18528,8 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr "用 TestFloat 的 `testfloat_gen` 生成向量并运行它们。`just conformance fetch binary` 下载固定版本的 SoftFloat 和 TestFloat 源码；`just conformance run binary` 用这些源码把 `testfloat_gen` 构建到 `.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/` 中。"
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.8.0`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
-msgstr "执行 `moon add Luna-Flow/floating@0.8.0` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/testfloat_expr_cli\"`，并以相同的参数调用 `run`："
+msgid "After `moon add Luna-Flow/floating@0.9.0`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgstr "执行 `moon add Luna-Flow/floating@0.9.0` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/testfloat_expr_cli\"`，并以相同的参数调用 `run`："
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:57
 msgid "Match the generator options"

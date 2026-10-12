@@ -1801,3 +1801,41 @@ fn trim_trailing_decimal_zeros_repr(
     dropped,
   )
 }
+
+///|
+fn gda_coeff_shift_power10_mod_repr(
+  coeff : GdaCoeff,
+  shift : Int32,
+  modulus : GdaCoeff,
+) -> GdaCoeff {
+  guard shift >= 0 else {
+    abort("gda_coeff_shift_power10_mod_repr expects a non-negative shift")
+  }
+  guard !modulus.is_zero() else {
+    abort("gda_coeff_shift_power10_mod_repr expects a non-zero modulus")
+  }
+  let mut remainder = gda_coeff_mod_repr(coeff, modulus)
+  let mut factor = gda_coeff_mod_repr(gda_coeff_from_int(10), modulus)
+  let mut exponent = shift
+  while exponent > 0 {
+    if exponent % 2 == 1 {
+      remainder = gda_coeff_mod_repr(
+        gda_coeff_multiply_repr(remainder, factor),
+        modulus,
+      )
+    }
+    exponent /= 2
+    if exponent > 0 {
+      factor = gda_coeff_mod_repr(
+        gda_coeff_multiply_repr(factor, factor),
+        modulus,
+      )
+    }
+  }
+  remainder
+}
+
+///|
+fn gda_coeff_mod_repr(numerator : GdaCoeff, denominator : GdaCoeff) -> GdaCoeff {
+  gda_coeff_div_rem_repr(numerator, denominator).1
+}

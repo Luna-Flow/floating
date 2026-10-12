@@ -39,7 +39,7 @@ The exit status is `0` when no executable row failed.
 
 ### From MoonBit code
 
-The runner is also a library. After `moon add Luna-Flow/floating@0.8.0`,
+The runner is also a library. After `moon add Luna-Flow/floating@0.9.0`,
 import it and pass the argument vector, program name first:
 
 ```moonbit nocheck
