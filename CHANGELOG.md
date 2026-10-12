@@ -135,6 +135,8 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible ([#183](https://github.com/Luna-Flow/floating/issues/183); Closes #183):** `decimal_gda` `remainder` and `remainder_near` now use the exact integer quotient and report only the flags of the delivered remainder, so extended contexts no longer leak the quotient's Division impossible/Clamped flags or return wrong results for large quotients; zero dividends are handled (GDA 1.70 `remainder`, `remainder-near`). `divide_integer` of a zero dividend no longer reports Division impossible or Clamped, and the subset zero is `+0`.
+
 - **Caller-visible ([#192](https://github.com/Luna-Flow/floating/issues/192); Closes #192):** Interval `pow` and `atan2` now treat `-0` and `+0` endpoints as the real zero. This changes results for intervals with a signed-zero endpoint.
 
 - **Caller-visible ([#170](https://github.com/Luna-Flow/floating/issues/170); Closes #170):** Tiny arguments to decimal elementary functions, `hypot` and `atan2` in wide formats now return correctly rounded results promptly instead of NaN or taking minutes to certify.
