@@ -21,6 +21,22 @@ test "certified atan2 handles axes and branch cut" {
 }
 
 ///|
+test "atan2 identifies signed zero endpoints with the real interval zero" {
+  let ordinate = BallFloat::from_bounds(
+    @bin_float.BinFloat::negative_zero(precision=53),
+    @bin_float.BinFloat::zero(precision=53),
+    precision=53,
+  )
+  let actual = ordinate.atan2_interval(BallFloat::whole(precision=53))
+  let rounded = actual.apply_ctx(BallContext::binary64()).0
+  assert_true(rounded.lower_bound().is_zero())
+  assert_eq(
+    rounded.upper_bound().compare(expected_binary64("0x1921FB54442D19p-51")),
+    0,
+  )
+}
+
+///|
 test "decorated atan2 downgrades an upper-side branch-cut touch" {
   let ordinate = BallFloatDecorated::new(
     BallFloat::from_bounds(

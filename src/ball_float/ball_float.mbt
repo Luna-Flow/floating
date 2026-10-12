@@ -634,6 +634,19 @@ fn bin_max(
 }
 
 ///|
+/// Set-based interval endpoints identify both signed zeros with the real 0.
+fn canonical_interval_endpoint(
+  value : @bin_float.BinFloat,
+  precision : Int,
+) -> @bin_float.BinFloat {
+  if value.is_zero() {
+    @bin_float.BinFloat::zero(precision~)
+  } else {
+    value
+  }
+}
+
+///|
 fn extended_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,

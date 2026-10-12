@@ -70,6 +70,8 @@ fn try_certified_atan2_point(
   abscissa : @bin_float.BinFloat,
   precision : Int,
 ) -> Result[BallFloat, @def.ArithmeticError] {
+  let ordinate = canonical_interval_endpoint(ordinate, precision)
+  let abscissa = canonical_interval_endpoint(abscissa, precision)
   if ordinate.is_zero() && abscissa.is_zero() {
     return Ok(empty_interval(precision))
   }
@@ -99,51 +101,61 @@ pub fn BallFloat::try_atan2_interval(
   if self.is_empty() || abscissa.is_empty() {
     return Ok(empty_interval(precision))
   }
-  if self.is_singleton() &&
-    self.contains_zero() &&
+  let ordinate = store_interval(
+    canonical_interval_endpoint(self.lo_, precision),
+    canonical_interval_endpoint(self.hi_, precision),
+    precision,
+  )
+  let abscissa = store_interval(
+    canonical_interval_endpoint(abscissa.lo_, precision),
+    canonical_interval_endpoint(abscissa.hi_, precision),
+    precision,
+  )
+  if ordinate.is_singleton() &&
+    ordinate.contains_zero() &&
     abscissa.is_singleton() &&
     abscissa.contains_zero() {
     return Ok(empty_interval(precision))
   }
   let zero = @bin_float.BinFloat::zero(precision~)
   if abscissa.lo_.compare(zero) < 0 &&
-    self.lo_.compare(zero) < 0 &&
-    self.hi_.compare(zero) >= 0 {
+    ordinate.lo_.compare(zero) < 0 &&
+    ordinate.hi_.compare(zero) >= 0 {
     let pi = certified_pi_interval(precision)
     return Ok(store_interval(pi.hi_.neg(), pi.hi_, precision))
   }
-  try_certified_atan2_point(self.lo_, abscissa.lo_, precision).bind(fn(
+  try_certified_atan2_point(ordinate.lo_, abscissa.lo_, precision).bind(fn(
     lower_lower,
   ) {
-    try_certified_atan2_point(self.lo_, abscissa.hi_, precision).bind(fn(
+    try_certified_atan2_point(ordinate.lo_, abscissa.hi_, precision).bind(fn(
       lower_upper,
     ) {
-      try_certified_atan2_point(self.hi_, abscissa.lo_, precision).bind(fn(
+      try_certified_atan2_point(ordinate.hi_, abscissa.lo_, precision).bind(fn(
         upper_lower,
       ) {
-        try_certified_atan2_point(self.hi_, abscissa.hi_, precision).bind(fn(
+        try_certified_atan2_point(ordinate.hi_, abscissa.hi_, precision).bind(fn(
           upper_upper,
         ) {
           let mut result = include_angle_hull(lower_lower, lower_upper)
           result = include_angle_hull(result, upper_lower)
           result = include_angle_hull(result, upper_upper)
           let ordinate_axis = if abscissa.contains_zero() &&
-            self.hi_.compare(zero) > 0 {
-            try_certified_atan2_point(self.hi_, zero, precision)
+            ordinate.hi_.compare(zero) > 0 {
+            try_certified_atan2_point(ordinate.hi_, zero, precision)
           } else {
             Ok(empty_interval(precision))
           }
           ordinate_axis.bind(fn(positive_axis) {
             result = include_angle_hull(result, positive_axis)
             let negative_axis = if abscissa.contains_zero() &&
-              self.lo_.compare(zero) < 0 {
-              try_certified_atan2_point(self.lo_, zero, precision)
+              ordinate.lo_.compare(zero) < 0 {
+              try_certified_atan2_point(ordinate.lo_, zero, precision)
             } else {
               Ok(empty_interval(precision))
             }
             negative_axis.bind(fn(negative_axis) {
               result = include_angle_hull(result, negative_axis)
-              let positive_abscissa = if self.contains_zero() &&
+              let positive_abscissa = if ordinate.contains_zero() &&
                 abscissa.hi_.compare(zero) > 0 {
                 try_certified_atan2_point(zero, abscissa.hi_, precision)
               } else {
@@ -151,7 +163,7 @@ pub fn BallFloat::try_atan2_interval(
               }
               positive_abscissa.bind(fn(positive_abscissa) {
                 result = include_angle_hull(result, positive_abscissa)
-                let negative_abscissa = if self.contains_zero() &&
+                let negative_abscissa = if ordinate.contains_zero() &&
                   abscissa.lo_.compare(zero) < 0 {
                   try_certified_atan2_point(zero, abscissa.lo_, precision)
                 } else {
