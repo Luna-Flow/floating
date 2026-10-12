@@ -52,6 +52,8 @@ notes live in this file.
 
 ### Changed
 
+- Updated registry dependencies for the current MoonBit package layout: `Luna-Flow/type_theory` 0.2.0 -> 0.3.0, `Luna-Flow/mare_mark` 0.3.0 -> 0.4.0, and the transitive `Kaida-Amethyst/math` compatibility pin 0.1.20 -> 0.1.21. `moonbitlang/x` remains at its latest registry version 0.5.5 and `moonbitlang/async` at 0.22.4; `moonbitlang/quickcheck` remains 0.14.0 because no newer registry release is available. The latest MoonBit installer can resolve the upgraded graph through the Kaida manifest, but quickcheck's published legacy manifest and existing 0.10.15 syntax warnings still require upstream/toolchain follow-up.
+
 - **Caller-visible:** `decimal_gda`'s `Decimal::exp_contextual` (and any other
   `*_contextual` adapter that meets the condition), `pow_int_checked` and
   `pow_nat_checked` now report a GDA `Invalid_context` as
