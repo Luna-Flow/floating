@@ -57,6 +57,16 @@ test "BinFloat rootn returns exact results for negative degrees" {
 }
 
 ///|
+test "BinFloat rootn handles Int.min magnitude exactly" {
+  let minimum = -2147483647 - 1
+  assert_exact_result(
+    BinFloat::one().try_rootn_ctx(minimum, BinaryContext::binary64()),
+    BinFloat::one(),
+    "rootn(1, Int.min)",
+  )
+}
+
+///|
 test "BinFloat rootn of negative infinity follows the degree parity" {
   let context = BinaryContext::binary64()
   let negative_infinity = BinFloat::inf(Sign::Negative)

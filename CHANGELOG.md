@@ -127,6 +127,8 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible ([#171](https://github.com/Luna-Flow/floating/issues/171); Closes #171):** Decimal and binary `rootn` now handle every nonzero `Int` degree. Decimal exact-root detection skips impossible high-degree probes using a coefficient-size bound, avoiding degree-sized integer powers; binary certification handles the full signed `Int` range, including `Int.min`.
+
 - **Caller-visible ([#192](https://github.com/Luna-Flow/floating/issues/192); Closes #192):** Interval `pow` and `atan2` now treat `-0` and `+0` endpoints as the real zero. This changes results for intervals with a signed-zero endpoint.
 
 - **Caller-visible ([#170](https://github.com/Luna-Flow/floating/issues/170); Closes #170):** Tiny arguments to decimal elementary functions, `hypot` and `atan2` in wide formats now return correctly rounded results promptly instead of NaN or taking minutes to certify.

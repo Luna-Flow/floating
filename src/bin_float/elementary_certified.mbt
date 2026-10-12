@@ -2019,7 +2019,7 @@ pub fn BinFloat::pown(
 ///|
 fn binary_rootn_positive_bounds(
   value : BinFloat,
-  degree : Int,
+  degree : Int64,
   work_precision : Int,
 ) -> (BinFloat, BinFloat)? {
   match binary_ln_bounds(value, work_precision) {
@@ -2033,7 +2033,11 @@ fn binary_rootn_positive_bounds(
         work_precision,
         rounding=RoundTowardPositive,
       )
-      let divisor = BinFloat::from_int(degree, precision=work_precision)
+      let divisor = BinFloat::make(
+        BinCoeff::from_uint64(degree.reinterpret_as_uint64()),
+        0,
+        work_precision,
+      )
       let candidates = [
         logarithm.0.div_ctx(divisor, downward).0,
         logarithm.0.div_ctx(divisor, upward).0,
@@ -2151,14 +2155,23 @@ fn binary_exact_nth_root_coefficient(
 }
 
 ///|
-fn binary_exact_rootn(value : BinFloat, degree : Int) -> BinFloat? {
-  guard degree > 1 && value.exponent2() % degree == 0 else { return None }
-  match binary_exact_nth_root_coefficient(value.coefficient(), degree) {
+fn binary_exact_rootn_int64(value : BinFloat, degree : Int64) -> BinFloat? {
+  guard degree > 1L && value.exponent2().to_int64() % degree == 0L else {
+    return None
+  }
+  let coefficient = if degree <= 2147483647L {
+    binary_exact_nth_root_coefficient(value.coefficient(), degree.to_int())
+  } else if value.coefficient().compare(BinCoeff::one()) == 0 {
+    Some(BinCoeff::one())
+  } else {
+    None
+  }
+  match coefficient {
     Some(coefficient) =>
       Some(
         BinFloat::make(
           coefficient,
-          value.exponent2() / degree,
+          (value.exponent2().to_int64() / degree).to_int(),
           Int::max(1, coefficient.bit_length()),
           negative=value.is_negative(),
         ),
@@ -2179,20 +2192,8 @@ pub fn BinFloat::try_rootn_ctx(
     )
   }
   let degree64 = degree.to_int64()
-  guard degree64 >= -1_000_000_000L && degree64 <= 1_000_000_000L else {
-    return Err(
-      binary_certification_failure(
-        "rootn",
-        @def.CertificationStage::RangeReduction,
-        @def.CertificationFailureReason::RangeNotCertified,
-        context.precision,
-        context.precision,
-        0,
-      ),
-    )
-  }
-  let magnitude_degree = if degree < 0 { -degree } else { degree }
-  let odd = magnitude_degree % 2 != 0
+  let magnitude_degree = if degree64 < 0L { -degree64 } else { degree64 }
+  let odd = magnitude_degree % 2L != 0L
   match self.class {
     FpClass::NaN =>
       Ok(
@@ -2287,7 +2288,7 @@ pub fn BinFloat::try_rootn_ctx(
       }
       // An exact root r is returned as r, or as the correctly rounded 1 / r for
       // a negative degree; the Ziv loop below cannot certify an exact result.
-      match binary_exact_rootn(self, magnitude_degree) {
+      match binary_exact_rootn_int64(self, magnitude_degree) {
         Some(exact) =>
           return Ok(
             if degree > 0 {

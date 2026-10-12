@@ -953,6 +953,8 @@ fn decimal_rootn_exact_result(
     return exact_decimal_reciprocal(value, ctx)
   }
   guard !value.negative || degree % 2 != 0 else { return None }
+  // Int.min has no positive Int magnitude; let the certified path handle it.
+  guard degree != -2147483647 - 1 else { return None }
   let n = abs_int(degree)
   let target_precision = decimal_math_target_precision(ctx)
   let (coefficient, exponent) = remove_factor10_repr(
@@ -962,6 +964,14 @@ fn decimal_rootn_exact_result(
   // Write |x| = radicand * 10^(n * root_exponent) with 0 <= shift < n.
   let shift = (exponent % n + n) % n
   let root_exponent = (exponent - shift) / n
+  let radicand_digits = coefficient.digits10().to_int64() + shift.to_int64()
+  // If r >= 2, then r^n >= 2^n. A d-digit radicand is less than
+  // 10^d < 2^(4d), so a degree of at least 4d cannot be a perfect root.
+  if !(dec_coeff_compare_repr(coefficient, dec_coeff_from_int(1)) == 0 &&
+    shift == 0) &&
+    n.to_int64() >= 4L * radicand_digits {
+    return None
+  }
   guard coefficient.digits10().to_int64() + shift.to_int64() <=
     n.to_int64() * target_precision.to_int64() else {
     return None

@@ -81,6 +81,26 @@ test "decimal rootn and hypot return exact results exactly" {
 }
 
 ///|
+/// Large degrees must avoid unbounded exact-power probes and remain supported
+/// across the complete Int range (#171).
+test "decimal rootn handles large degrees" {
+  let c64 = DecimalContext::decimal64()
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  assert_eq(
+    power_case(d("2").rootn_ctx(1_000_000, c64)),
+    "1.000000693147421 inexact",
+  )
+  assert_eq(
+    power_case(d("-2").rootn_ctx(2_147_483_647, c64)),
+    "-1.000000000322772 inexact",
+  )
+  assert_eq(
+    power_case(d("2").rootn_ctx(-2_147_483_647 - 1, c64)),
+    "0.9999999996772282 inexact",
+  )
+}
+
+///|
 /// An exact non-integral power must come back exactly, and must come back at
 /// all: the binary layer certifies these before refining, because a Ziv
 /// enclosure straddles the exact value and never rounds uniquely (#53).
