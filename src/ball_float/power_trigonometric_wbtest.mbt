@@ -48,6 +48,18 @@ test "IEEE 1788 general power follows the nonnegative real domain" {
 }
 
 ///|
+test "general power treats negative zero as the real interval endpoint zero" {
+  let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
+  let base = BallFloat::from_bounds(
+    negative_zero,
+    @bin_float.BinFloat::from_double(0.5, precision=53),
+    precision=53,
+  )
+  let exponent = elementary_test_interval(-1.0, 0.1)
+  assert_binary64_bounds(base.pow_interval(exponent), "0x0p0", "inf")
+}
+
+///|
 test "certified sine and cosine match ITF1788 directed endpoints" {
   let source = elementary_test_interval(-0.7, 0.1)
   assert_binary64_bounds(

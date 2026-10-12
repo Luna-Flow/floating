@@ -282,6 +282,7 @@ fn try_pow_point_bounds(
   exponent : @bin_float.BinFloat,
   precision : Int,
 ) -> Result[(@bin_float.BinFloat, @bin_float.BinFloat), @def.ArithmeticError] {
+  let base = canonical_interval_endpoint(base, precision)
   let downward = @bin_float.BinaryContext::unbounded(
     precision,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
