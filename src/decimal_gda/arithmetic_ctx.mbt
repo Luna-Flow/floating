@@ -19,7 +19,7 @@ fn add_finite_values_ctx(
   lhs_value : Decimal,
   rhs_value : Decimal,
   ctx : DecimalContext,
-  allow_shortcuts? : Bool = true,
+  allow_shortcuts~ : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   guard lhs_value.class == FpClass::Finite && rhs_value.class == FpClass::Finite else {
     abort("add_finite_ctx expects finite operands")
@@ -31,7 +31,7 @@ fn add_finite_values_ctx(
     } else {
       lhs_value.negative && rhs_value.negative
     }
-    let preferred_zero_exponent = Int::min(
+    let preferred_zero_exponent = Int32::min(
       lhs_value.exponent10,
       rhs_value.exponent10,
     )
@@ -65,9 +65,9 @@ fn add_finite_values_ctx(
       return (base, base_flags)
     }
     let preferred_exponent = if ctx.extended {
-      Int::min(zero.exponent10, base.exponent10)
+      Int32::min(zero.exponent10, base.exponent10)
     } else {
-      Int::min(base.exponent10, Int::max(0, zero.exponent10))
+      Int32::min(base.exponent10, Int32::max(0, zero.exponent10))
     }
     if preferred_exponent < base.exponent10 && ctx.precision > 0 {
       let digits = base.coefficient.digits10()
@@ -81,7 +81,7 @@ fn add_finite_values_ctx(
         )
         return finalize_finite_ctx(shifted, base_flags, ctx)
       }
-      let available_shift = Int::max(0, ctx.precision - digits)
+      let available_shift = Int32::max(0, ctx.precision - digits)
       if ctx.extended {
         let shifted = if available_shift > 0 {
           finite_with_exponent_repr(
@@ -140,7 +140,7 @@ fn add_finite_values_ctx(
     // places the sum strictly between the same two neighbours as
     // `high + sign(low) * 10^(sticky_limit - 1)`, so rounding the latter
     // rounds the sum correctly in every mode.
-    let sticky_limit = Int::min(high.exponent10, target_exponent - 2)
+    let sticky_limit = Int32::min(high.exponent10, target_exponent - 2)
     if can_absorb && ctx.extended && low_adjusted < sticky_limit {
       let sticky_exponent = sticky_limit - 1
       let units = gda_coeff_shift_power10_repr(
@@ -168,7 +168,7 @@ fn add_finite_values_ctx(
       }
     }
     if can_absorb && !ctx.extended {
-      let preferred_exponent = Int::min(high.exponent10, target_exponent)
+      let preferred_exponent = Int32::min(high.exponent10, target_exponent)
       let magnitude = gda_coeff_shift_power10_repr(
         high.coefficient,
         high.exponent10 - preferred_exponent,
@@ -182,7 +182,7 @@ fn add_finite_values_ctx(
       return absorbed_sum_result(high, base, base_flags, low, ctx)
     }
   }
-  let target = Int::min(lhs_value.exponent10, rhs_value.exponent10)
+  let target = Int32::min(lhs_value.exponent10, rhs_value.exponent10)
   let (exact_negative, exact_magnitude) = decimal_exact_aligned_sum_result(
     lhs_value, rhs_value, target,
   )
@@ -205,7 +205,7 @@ fn add_finite_values_ctx(
     let rhs_width = rhs_value.coefficient.digits10() +
       rhs_value.exponent10 -
       target
-    let virtual_digits = Int::max(lhs_width, rhs_width)
+    let virtual_digits = Int32::max(lhs_width, rhs_width)
     let discard = virtual_digits - ctx.precision
     if discard > 0 &&
       virtual_digits > exact_digits &&
@@ -974,7 +974,7 @@ pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
 ///|
 fn decimal_sqrt_should_increment(
   quotient : GdaCoeff,
-  midpoint_cmp : Int,
+  midpoint_cmp : Int32,
   inexact : Bool,
   mode : DecimalRoundingMode,
 ) -> Bool {
@@ -996,7 +996,7 @@ fn decimal_sqrt_should_increment(
 fn decimal_sqrt_fixed_result(
   operand : Decimal,
   ctx : DecimalContext,
-  precision : Int,
+  precision : Int32,
 ) -> (Decimal, DecimalFlags) {
   let adjusted = adjusted_exponent(operand)
   let root_adjusted = if adjusted >= 0 {
@@ -1007,7 +1007,7 @@ fn decimal_sqrt_fixed_result(
   // Round directly at the representable subnormal precision.  Rounding first
   // at the nominal context precision and then again in normalization can
   // double-round a tiny square root (for example 1.2E-19 at p=2).
-  let root_exponent = Int::max(etiny(ctx), root_adjusted - precision + 1)
+  let root_exponent = Int32::max(etiny(ctx), root_adjusted - precision + 1)
   let scale = operand.exponent10 - root_exponent * 2
   let (quotient0, inexact, midpoint_cmp) = if scale >= 0 {
     let radicand = gda_coeff_shift_power10_repr(operand.coefficient, scale)

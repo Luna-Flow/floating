@@ -1,5 +1,5 @@
 ///|
-fn bin_coeff_bz_radix_minus_one(limbs : Int) -> BinCoeff {
+fn bin_coeff_bz_radix_minus_one(limbs : Int32) -> BinCoeff {
   BinCoeff::one()
   .shift_left(limbs * bin_coeff_limb_bits)
   .sub_checked(BinCoeff::one())
@@ -10,7 +10,7 @@ fn bin_coeff_bz_radix_minus_one(limbs : Int) -> BinCoeff {
 fn bin_coeff_bz_div_3n_2n(
   numerator : BinCoeff,
   denominator : BinCoeff,
-  half_limbs : Int,
+  half_limbs : Int32,
 ) -> (BinCoeff, BinCoeff) {
   if numerator.compare(denominator) < 0 {
     return (BinCoeff::zero(), numerator)
@@ -68,7 +68,7 @@ fn bin_coeff_bz_div_3n_2n(
 fn bin_coeff_bz_div_2n_1n(
   numerator : BinCoeff,
   denominator : BinCoeff,
-  divisor_limbs : Int,
+  divisor_limbs : Int32,
 ) -> (BinCoeff, BinCoeff) {
   if numerator.compare(denominator) < 0 {
     return (BinCoeff::zero(), numerator)
@@ -133,7 +133,7 @@ fn bin_coeff_div_rem_burnikel_ziegler(
 ///|
 fn bin_coeff_newton_reciprocal(
   denominator : BinCoeff,
-  scale_bits : Int,
+  scale_bits : Int32,
 ) -> BinCoeff {
   let denominator_bits = denominator.bit_length()
   let seed_bits = 30

@@ -1,5 +1,5 @@
 ///|
-pub fn run(args : Array[String]) -> Int {
+pub fn run(args : Array[String]) -> Int32 {
   let mut strict_supported = false
   let operations : Array[String] = []
   let paths : Array[String] = []

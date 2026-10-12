@@ -8,7 +8,7 @@ pub fn BinFloat::copy_sign(self : BinFloat, sign_source : BinFloat) -> BinFloat 
 ///|
 /// Rank of the non-finite and finite classes for one sign in the total order:
 /// finite (including zero) < infinity < signaling NaN < quiet NaN.
-fn binary_total_order_rank(value : BinFloat) -> Int {
+fn binary_total_order_rank(value : BinFloat) -> Int32 {
   match value.class {
     FpClass::Finite => 0
     FpClass::Infinity => 1
@@ -18,7 +18,7 @@ fn binary_total_order_rank(value : BinFloat) -> Int {
 
 ///|
 /// Magnitude comparison in the total order for operands of the same sign.
-fn binary_total_order_magnitude(left : BinFloat, right : BinFloat) -> Int {
+fn binary_total_order_magnitude(left : BinFloat, right : BinFloat) -> Int32 {
   let rank = binary_total_order_rank(left) - binary_total_order_rank(right)
   if rank != 0 {
     return if rank < 0 { -1 } else { 1 }
@@ -44,7 +44,10 @@ fn binary_total_order_magnitude(left : BinFloat, right : BinFloat) -> Int {
 /// -1, 0, or 1 as `self` precedes, equals, or follows `other` in the IEEE 754
 /// totalOrder: -qNaN < -sNaN < -inf < negative finites < -0 < +0 < positive
 /// finites < +inf < +sNaN < +qNaN, with NaNs of one kind ordered by payload.
-pub fn BinFloat::total_order_compare(self : BinFloat, other : BinFloat) -> Int {
+pub fn BinFloat::total_order_compare(
+  self : BinFloat,
+  other : BinFloat,
+) -> Int32 {
   if self.negative != other.negative {
     return if self.negative { -1 } else { 1 }
   }

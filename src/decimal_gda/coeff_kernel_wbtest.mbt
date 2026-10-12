@@ -4,9 +4,9 @@
 fn normalize_decimal_parts_ctx(
   negative : Bool,
   magnitude : BigInt,
-  exponent10 : Int,
+  exponent10 : Int32,
   ctx : DecimalContext,
-  apply_etiny? : Bool = true,
+  apply_etiny~ : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   normalize_decimal_parts_ctx_repr(
     negative,
@@ -36,7 +36,7 @@ fn huge_shift_rounded_unit(
 fn normalize_decimal_parts_math_ctx(
   negative : Bool,
   magnitude : BigInt,
-  exponent10 : Int,
+  exponent10 : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   normalize_decimal_parts_ctx(negative, magnitude, exponent10, {
@@ -49,7 +49,7 @@ fn normalize_decimal_parts_math_ctx(
 fn reference_ln_atanh_scaled(
   numerator : BigInt,
   denominator : BigInt,
-  scale : Int,
+  scale : Int32,
 ) -> BigInt {
   guard numerator > bigint_zero() && denominator > bigint_zero() else {
     abort("reference ln atanh expects positive inputs")
@@ -166,7 +166,7 @@ test "Knuth quotient clamp preserves the full normalized remainder" {
 ///|
 fn reference_round_positive_decimal_div_pow10(
   numerator : BigInt,
-  shift : Int,
+  shift : Int32,
   negative : Bool,
   mode : DecimalRoundingMode,
 ) -> (BigInt, Bool) {
@@ -202,12 +202,12 @@ fn reference_round_positive_decimal_div_pow10(
 }
 
 ///|
-fn reference_decimal_exact_int(rhs : Decimal) -> Int? {
+fn reference_decimal_exact_int(rhs : Decimal) -> Int32? {
   decimal_power_integer_count(rhs, 999_999_999)
 }
 
 ///|
-fn reference_remove_factor(base : Int, n : BigInt) -> BigInt {
+fn reference_remove_factor(base : Int32, n : BigInt) -> BigInt {
   let factor = BigInt::from_int(base)
   let mut value = n
   while (value % factor).is_zero() {
@@ -217,7 +217,7 @@ fn reference_remove_factor(base : Int, n : BigInt) -> BigInt {
 }
 
 ///|
-fn reference_count_factor(base : Int, n : BigInt) -> (BigInt, Int) {
+fn reference_count_factor(base : Int32, n : BigInt) -> (BigInt, Int32) {
   let factor = BigInt::from_int(base)
   let mut value = n
   let mut count = 0
@@ -312,29 +312,29 @@ test "decimal half-power comparison uses decimal leading digits" {
 
 ///|
 test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
-  let acc1 : Array[UInt] = [0U, 0U, 0U, 0U]
-  let lhs1 : Array[UInt] = [
+  let acc1 : Array[UInt32] = [0U, 0U, 0U, 0U]
+  let lhs1 : Array[UInt32] = [
     (gda_coeff_base - 1).reinterpret_as_uint(),
     (gda_coeff_base - 1).reinterpret_as_uint(),
   ]
-  let rhs1 : Array[UInt] = [2U]
+  let rhs1 : Array[UInt32] = [2U]
   let len1 = gda_coeff_unit_add_sub(lhs1, 2, rhs1, 1, 0, acc1, 1)
   assert_eq(len1, 3)
   assert_eq(acc1[0], 1)
   assert_eq(acc1[1], 0)
   assert_eq(acc1[2], 1)
 
-  let acc2 : Array[UInt] = [0U, 0U, 0U]
-  let lhs2 : Array[UInt] = [0U, 1U]
-  let rhs2 : Array[UInt] = [1U]
+  let acc2 : Array[UInt32] = [0U, 0U, 0U]
+  let lhs2 : Array[UInt32] = [0U, 1U]
+  let rhs2 : Array[UInt32] = [1U]
   let len2 = gda_coeff_unit_add_sub(lhs2, 2, rhs2, 1, 0, acc2, -1)
   assert_eq(len2, 2)
   assert_eq(acc2[0], (gda_coeff_base - 1).reinterpret_as_uint())
   assert_eq(acc2[1], 0)
 
-  let acc3 : Array[UInt] = [0U, 0U, 0U]
-  let lhs3 : Array[UInt] = [5U]
-  let rhs3 : Array[UInt] = [7U]
+  let acc3 : Array[UInt32] = [0U, 0U, 0U]
+  let lhs3 : Array[UInt32] = [5U]
+  let rhs3 : Array[UInt32] = [7U]
   let len3 = gda_coeff_unit_add_sub(lhs3, 1, rhs3, 1, 0, acc3, -1)
   assert_eq(len3, -1)
   assert_eq(acc3[0], 2)
@@ -840,7 +840,7 @@ test "advanced decimal division algorithms cross-check" {
 }
 
 ///|
-fn gda_coeff_test_dense_pattern(length : Int, salt : Int) -> GdaCoeff {
+fn gda_coeff_test_dense_pattern(length : Int32, salt : Int32) -> GdaCoeff {
   let limbs = Array::make(length, 0U)
   for index in 0..<length {
     let value = ((index + 1) * 104729 + salt * 13007) % (gda_coeff_base - 1) + 1
@@ -868,7 +868,7 @@ test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
     let expected_remainder = gda_coeff_slice(
       denominator,
       0,
-      Int::max(1, length / 2),
+      Int32::max(1, length / 2),
     )
     let numerator = gda_coeff_magnitude_add_repr(
       gda_coeff_multiply_repr(denominator, expected_quotient),
@@ -1611,7 +1611,7 @@ test "decimal coefficient finite-expansion predicate matches bigint predicate" {
 fn bigint_logical_binary_digits(
   lhs : BigInt,
   rhs : BigInt,
-  precision : Int,
+  precision : Int32,
   op : (Bool, Bool) -> Bool,
 ) -> BigInt {
   let ten = BigInt::from_int(10)
@@ -1633,7 +1633,7 @@ fn bigint_logical_binary_digits(
 }
 
 ///|
-fn bigint_logical_invert_digits(value : BigInt, precision : Int) -> BigInt {
+fn bigint_logical_invert_digits(value : BigInt, precision : Int32) -> BigInt {
   let ten = BigInt::from_int(10)
   let mut value = value
   let mut place = bigint_one()
@@ -1651,8 +1651,8 @@ fn bigint_logical_invert_digits(value : BigInt, precision : Int) -> BigInt {
 ///|
 fn bigint_shift_digits(
   coefficient : BigInt,
-  count : Int,
-  precision : Int,
+  count : Int32,
+  precision : Int32,
 ) -> BigInt {
   if coefficient.is_zero() {
     return coefficient
@@ -1670,8 +1670,8 @@ fn bigint_shift_digits(
 ///|
 fn bigint_rotate_digits(
   coefficient : BigInt,
-  count : Int,
-  precision : Int,
+  count : Int32,
+  precision : Int32,
 ) -> BigInt {
   if coefficient.is_zero() {
     return coefficient
@@ -1713,7 +1713,7 @@ fn assert_decimal_and_flags_eq(
 ///|
 fn decimal_div_finite_by_small_int_work_bigint_expected(
   value : Decimal,
-  divisor : Int,
+  divisor : Int32,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(work_ctx)
@@ -1982,7 +1982,7 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
 ///|
 fn scaleb_finite_result_ctx_bigint_expected(
   value : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(value.coefficient, ctx)

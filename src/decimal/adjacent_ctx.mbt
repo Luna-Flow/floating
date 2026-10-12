@@ -3,7 +3,7 @@
 
 fn signed_units_at_quantum_repr(
   value : Decimal,
-  quantum : Int,
+  quantum : Int32,
 ) -> ((Bool, DecCoeff), (Bool, DecCoeff), Bool) {
   let shift = value.exponent10.to_int64() - quantum.to_int64()
   if shift >= 0 {
@@ -50,7 +50,7 @@ fn next_quantum(
   value : Decimal,
   ctx : DecimalContext,
   toward_positive : Bool,
-) -> Int {
+) -> Int32 {
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
   let moving_away_from_zero = if value.negative {
     !toward_positive
@@ -67,7 +67,7 @@ fn next_quantum(
   } else {
     1
   }
-  Int::max(
+  Int32::max(
     etiny(ctx),
     decimal_int_from_int64_clamped(
       adjusted_exponent64(value) -
@@ -119,8 +119,8 @@ fn next_toward_flags(
 fn finite_next_candidate_repr(
   negative : Bool,
   magnitude : DecCoeff,
-  quantum : Int,
-  precision : Int,
+  quantum : Int32,
+  precision : Int32,
 ) -> Decimal {
   let extra_digits = magnitude.digits10() - precision
   let (magnitude2, exponent10, _) = if extra_digits > 0 {
@@ -230,7 +230,7 @@ fn decimal_next(
 
 ///|
 fn logb_finite_result_ctx(
-  adjusted : Int,
+  adjusted : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   // GDA decNumberLogB computes rhs->exponent + rhs->digits - 1 and lays that

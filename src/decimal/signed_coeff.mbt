@@ -47,7 +47,7 @@ fn SignedDecCoeff::sub(
 
 ///|
 fn signed_dec_coeff_from_int_product(
-  value : Int,
+  value : Int32,
   magnitude : DecCoeff,
 ) -> SignedDecCoeff {
   let absolute = dec_coeff_from_int_magnitude(value)
@@ -57,7 +57,7 @@ fn signed_dec_coeff_from_int_product(
 ///|
 fn SignedDecCoeff::round_power10_half_even(
   self : SignedDecCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> SignedDecCoeff {
   if shift <= 0 {
     return signed_dec_coeff(

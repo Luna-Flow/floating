@@ -1,9 +1,9 @@
 ///|
 pub struct GdaContext {
-  priv precision : Int
+  priv precision : Int32
   priv rounding : String
-  priv min_exponent : Int
-  priv max_exponent : Int
+  priv min_exponent : Int32
+  priv max_exponent : Int32
   priv clamp : Bool
   priv extended : Bool
   priv dectest : String
@@ -23,7 +23,7 @@ pub fn GdaContext::default() -> GdaContext {
 }
 
 ///|
-pub fn GdaContext::precision(self : GdaContext) -> Int {
+pub fn GdaContext::precision(self : GdaContext) -> Int32 {
   self.precision
 }
 
@@ -33,12 +33,12 @@ pub fn GdaContext::rounding(self : GdaContext) -> String {
 }
 
 ///|
-pub fn GdaContext::min_exponent(self : GdaContext) -> Int {
+pub fn GdaContext::min_exponent(self : GdaContext) -> Int32 {
   self.min_exponent
 }
 
 ///|
-pub fn GdaContext::max_exponent(self : GdaContext) -> Int {
+pub fn GdaContext::max_exponent(self : GdaContext) -> Int32 {
   self.max_exponent
 }
 
@@ -132,7 +132,7 @@ pub fn GdaDocument::cases(self : GdaDocument) -> Array[GdaCase] {
 }
 
 ///|
-pub fn GdaDocument::case_count(self : GdaDocument) -> Int {
+pub fn GdaDocument::case_count(self : GdaDocument) -> Int32 {
   self.cases.length()
 }
 
@@ -209,7 +209,7 @@ fn case_result(
   id : String,
   disposition : CaseDisposition,
   passed : Bool,
-  message? : String = "",
+  message~ : String = "",
 ) -> CaseResult {
   {
     inner: @conformance.CaseResult::new(
@@ -230,10 +230,10 @@ pub struct RunOptions {
 
 ///|
 pub fn RunOptions::new(
-  shard_count? : Int = 1,
-  shard_index? : Int = 0,
-  strict_supported? : Bool = false,
-  case_filter? : String = "",
+  shard_count~ : Int32 = 1,
+  shard_index~ : Int32 = 0,
+  strict_supported~ : Bool = false,
+  case_filter~ : String = "",
 ) -> RunOptions {
   {
     shard: @conformance.ShardSpec::new(shard_count, shard_index),
@@ -243,12 +243,12 @@ pub fn RunOptions::new(
 }
 
 ///|
-pub fn RunOptions::shard_count(self : RunOptions) -> Int {
+pub fn RunOptions::shard_count(self : RunOptions) -> Int32 {
   self.shard.count()
 }
 
 ///|
-pub fn RunOptions::shard_index(self : RunOptions) -> Int {
+pub fn RunOptions::shard_index(self : RunOptions) -> Int32 {
   self.shard.index()
 }
 
@@ -268,47 +268,47 @@ pub struct RunSummary {
 }
 
 ///|
-pub fn RunSummary::total_cases(self : RunSummary) -> Int {
+pub fn RunSummary::total_cases(self : RunSummary) -> Int32 {
   self.inner.total_cases()
 }
 
 ///|
-pub fn RunSummary::selected_cases(self : RunSummary) -> Int {
+pub fn RunSummary::selected_cases(self : RunSummary) -> Int32 {
   self.inner.selected_cases()
 }
 
 ///|
-pub fn RunSummary::executable_cases(self : RunSummary) -> Int {
+pub fn RunSummary::executable_cases(self : RunSummary) -> Int32 {
   self.inner.executable_cases()
 }
 
 ///|
-pub fn RunSummary::passed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::passed_cases(self : RunSummary) -> Int32 {
   self.inner.passed_cases()
 }
 
 ///|
-pub fn RunSummary::failed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::failed_cases(self : RunSummary) -> Int32 {
   self.inner.failed_cases()
 }
 
 ///|
-pub fn RunSummary::skipped_cases(self : RunSummary) -> Int {
+pub fn RunSummary::skipped_cases(self : RunSummary) -> Int32 {
   self.inner.skipped_cases()
 }
 
 ///|
-pub fn RunSummary::diagnostic_cases(self : RunSummary) -> Int {
+pub fn RunSummary::diagnostic_cases(self : RunSummary) -> Int32 {
   self.inner.diagnostic_cases()
 }
 
 ///|
-pub fn RunSummary::legacy_cases(self : RunSummary) -> Int {
+pub fn RunSummary::legacy_cases(self : RunSummary) -> Int32 {
   self.inner.legacy_cases()
 }
 
 ///|
-pub fn RunSummary::unsupported_cases(self : RunSummary) -> Int {
+pub fn RunSummary::unsupported_cases(self : RunSummary) -> Int32 {
   self.inner.unsupported_cases()
 }
 

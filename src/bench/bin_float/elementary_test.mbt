@@ -100,7 +100,7 @@ fn ElementaryOperation::name(self : ElementaryOperation) -> String {
 
 ///|
 struct ElementaryInput {
-  precision : Int
+  precision : Int32
   positive : @binary.BinFloat
   unit : @binary.BinFloat
   quarter : @binary.BinFloat
@@ -116,7 +116,7 @@ enum ElementaryOutput {
 }
 
 ///|
-fn elementary_input(precision : Int) -> ElementaryInput {
+fn elementary_input(precision : Int32) -> ElementaryInput {
   let positive = @binary.BinFloat::from_double(1.25, precision~)
   let unit = @binary.BinFloat::from_double(0.5, precision~)
   let quarter = @binary.BinFloat::from_double(0.25, precision~)
@@ -236,7 +236,7 @@ fn elementary_output_text(output : ElementaryOutput) -> String {
 fn elementary_spec(
   operation : ElementaryOperation,
 ) -> @runner.BenchSpec[
-  Int,
+  Int32,
   ElementaryInput,
   ElementaryInput,
   @binary.BinFloat,

@@ -3,20 +3,20 @@
 
 pub fn Decimal::make(
   coefficient : BigInt,
-  exponent10 : Int,
-  precision : Int,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  exponent10 : Int32,
+  precision : Int32,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> Decimal {
   normalize_decimal(coefficient, exponent10, precision, mode)
 }
 
 ///|
-pub fn Decimal::zero(precision? : Int = 34) -> Decimal {
+pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
   Decimal::make(bigint_zero(), 0, precision)
 }
 
 ///|
-pub fn Decimal::negative_zero(precision? : Int = 34) -> Decimal {
+pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
   normalize_decimal_parts(
     true,
     bigint_zero(),
@@ -27,12 +27,12 @@ pub fn Decimal::negative_zero(precision? : Int = 34) -> Decimal {
 }
 
 ///|
-pub fn Decimal::one(precision? : Int = 34) -> Decimal {
+pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
   Decimal::make(bigint_one(), 0, precision)
 }
 
 ///|
-pub fn Decimal::inf(sign : Sign, precision? : Int = 34) -> Decimal {
+pub fn Decimal::inf(sign : Sign, precision~ : Int32 = 34) -> Decimal {
   make_special(
     FpClass::Infinity,
     sign == Sign::Negative,
@@ -43,41 +43,41 @@ pub fn Decimal::inf(sign : Sign, precision? : Int = 34) -> Decimal {
 }
 
 ///|
-pub fn Decimal::nan(precision? : Int = 34) -> Decimal {
+pub fn Decimal::nan(precision~ : Int32 = 34) -> Decimal {
   make_special(FpClass::NaN, false, bigint_zero(), precision, false)
 }
 
 ///|
 pub fn Decimal::quiet_nan(
-  payload? : BigInt = bigint_zero(),
-  negative? : Bool = false,
-  precision? : Int = 34,
+  payload~ : BigInt = bigint_zero(),
+  negative~ : Bool = false,
+  precision~ : Int32 = 34,
 ) -> Decimal {
   make_special(FpClass::NaN, negative, payload, precision, false)
 }
 
 ///|
 pub fn Decimal::signaling_nan(
-  payload? : BigInt = bigint_zero(),
-  negative? : Bool = false,
-  precision? : Int = 34,
+  payload~ : BigInt = bigint_zero(),
+  negative~ : Bool = false,
+  precision~ : Int32 = 34,
 ) -> Decimal {
   make_special(FpClass::NaN, negative, payload, precision, true)
 }
 
 ///|
-pub fn Decimal::from_int(n : Int, precision? : Int = 34) -> Decimal {
+pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
   Decimal::make(BigInt::from_int(n), 0, precision)
 }
 
 ///|
-pub fn Decimal::from_bigint(n : BigInt, precision? : Int = 34) -> Decimal {
+pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
   Decimal::make(n, 0, precision)
 }
 
 ///|
-pub fn Decimal::from_double(x : Double, precision? : Int = 34) -> Decimal {
-  let precision = Int::max(1, precision)
+pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
+  let precision = Int32::max(1, precision)
   let bits = x.reinterpret_as_uint64()
   let negative = bits >> 63 != 0UL
   let exponent_bits = ((bits >> 52) & 0x7ffUL).to_int()
@@ -101,15 +101,15 @@ pub fn Decimal::from_double(x : Double, precision? : Int = 34) -> Decimal {
 }
 
 ///|
-pub fn Decimal::from_float(x : Float, precision? : Int = 34) -> Decimal {
+pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
   Decimal::from_double(x.to_double(), precision~)
 }
 
 ///|
 pub fn Decimal::to_bin_float(
   self : Decimal,
-  precision? : Int = self.precision_,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  precision~ : Int32 = self.precision_,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> @bin_float.BinFloat {
   match self.class {
     FpClass::NaN => @bin_float.BinFloat::nan(precision~)
@@ -164,7 +164,7 @@ pub fn Decimal::to_bin_float(
 ///|
 pub fn Decimal::from_bin_float(
   x : @bin_float.BinFloat,
-  precision? : Int = x.precision(),
+  precision~ : Int32 = x.precision(),
 ) -> Decimal {
   match x.classify() {
     FpClass::NaN => Decimal::nan(precision~)

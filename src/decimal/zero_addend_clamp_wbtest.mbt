@@ -6,7 +6,7 @@
 /// `decimal` in the same contexts.
 test "a zero addend does not leak a clamp of the other operand" {
   let cases : Array[
-    (Int, Int, Int, DecimalRoundingMode, String, String, String, String),
+    (Int32, Int32, Int32, DecimalRoundingMode, String, String, String, String),
   ] = [
     (3, -5, 5, HalfUp, "7E+4", "-0E-20", "", "7.00E+4"),
     (9, -20, 20, ZeroFiveUp, "-0E+8", "-5E+19", "", "-5.00000000E+19"),

@@ -328,8 +328,8 @@ fn Decimal::quantize_impl(
 ///|
 fn quantize_finite_to_exponent(
   value : Decimal,
-  target : Int,
-  precision : Int,
+  target : Int32,
+  precision : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   guard value.class == FpClass::Finite else {
@@ -508,7 +508,7 @@ fn to_integral_finite(
   let work_ctx = if ctx.precision > 0 {
     {
       ..ctx,
-      precision: Int::max(ctx.precision, operand.coefficient.digits10()),
+      precision: Int32::max(ctx.precision, operand.coefficient.digits10()),
     }
   } else {
     ctx

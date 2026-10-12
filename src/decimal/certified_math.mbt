@@ -2,20 +2,20 @@
 fn decimal_certified_work_precision(
   value : Decimal,
   ctx : DecimalContext,
-) -> Int {
+) -> Int32 {
   let digits = if value.class == FpClass::Finite {
     value.coefficient.digits10()
   } else {
     1
   }
   let target = decimal_math_target_precision(ctx)
-  Int::max(128, Int::max(digits, target) * 4 + 64)
+  Int32::max(128, Int32::max(digits, target) * 4 + 64)
 }
 
 ///|
 fn decimal_to_certified_ball(
   value : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> @ball_float.BallFloat {
   let lower = value.to_bin_float(precision~, mode=RoundingMode::TowardNegative)
   let upper = value.to_bin_float(precision~, mode=RoundingMode::TowardPositive)
@@ -259,7 +259,7 @@ fn decimal_certified_binary_result(
   ],
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let mut budget = CertifiedRefinementBudget::new(
-    Int::max(
+    Int32::max(
       decimal_certified_work_precision(left, ctx),
       decimal_certified_work_precision(right, ctx),
     ),

@@ -2,7 +2,7 @@
 priv enum BinCoeffRepr {
   Inline64(UInt64)
   Inline128(UInt64, UInt64)
-  Heap(FixedArray[UInt], Int)
+  Heap(FixedArray[UInt32], Int32)
 } derive(Debug)
 
 ///|
@@ -20,7 +20,7 @@ let bin_coeff_limb_mask = 0xffff_ffffUL
 let bin_coeff_limb_base = 0x1_0000_0000UL
 
 ///|
-fn bin_coeff_u64_bits(value : UInt64) -> Int {
+fn bin_coeff_u64_bits(value : UInt64) -> Int32 {
   if value == 0UL {
     0
   } else {
@@ -38,7 +38,7 @@ fn bin_coeff_inline(high : UInt64, low : UInt64) -> BinCoeff {
 }
 
 ///|
-fn bin_coeff_limb_len(value : BinCoeff) -> Int {
+fn bin_coeff_limb_len(value : BinCoeff) -> Int32 {
   match value.repr {
     Inline64(value) => if value >> 32 == 0UL { 1 } else { 2 }
     Inline128(high, _) => if high >> 32 == 0UL { 3 } else { 4 }
@@ -47,7 +47,7 @@ fn bin_coeff_limb_len(value : BinCoeff) -> Int {
 }
 
 ///|
-fn bin_coeff_limb(value : BinCoeff, index : Int) -> UInt {
+fn bin_coeff_limb(value : BinCoeff, index : Int32) -> UInt32 {
   match value.repr {
     Inline64(low) =>
       match index {
@@ -74,8 +74,8 @@ fn bin_coeff_limb(value : BinCoeff, index : Int) -> UInt {
 
 ///|
 fn bin_coeff_from_limbs(
-  limbs : FixedArray[UInt],
-  maximum_len : Int,
+  limbs : FixedArray[UInt32],
+  maximum_len : Int32,
 ) -> BinCoeff {
   let mut len = maximum_len
   while len > 1 && limbs.unsafe_get(len - 1) == 0U {
@@ -132,7 +132,7 @@ fn BinCoeff::is_odd(self : BinCoeff) -> Bool {
 }
 
 ///|
-pub fn BinCoeff::bit_length(self : BinCoeff) -> Int {
+pub fn BinCoeff::bit_length(self : BinCoeff) -> Int32 {
   match self.repr {
     Inline64(value) => bin_coeff_u64_bits(value)
     Inline128(high, _) => 64 + bin_coeff_u64_bits(high)
@@ -143,7 +143,7 @@ pub fn BinCoeff::bit_length(self : BinCoeff) -> Int {
 }
 
 ///|
-pub fn BinCoeff::ctz(self : BinCoeff) -> Int {
+pub fn BinCoeff::ctz(self : BinCoeff) -> Int32 {
   match self.repr {
     Inline64(value) =>
       if value == 0UL {
@@ -180,7 +180,7 @@ pub fn BinCoeff::to_uint64(self : BinCoeff) -> UInt64? {
 }
 
 ///|
-pub fn BinCoeff::test_bit(self : BinCoeff, index : Int) -> Bool {
+pub fn BinCoeff::test_bit(self : BinCoeff, index : Int32) -> Bool {
   if index < 0 || index >= self.bit_length() {
     return false
   }
@@ -189,7 +189,7 @@ pub fn BinCoeff::test_bit(self : BinCoeff, index : Int) -> Bool {
 }
 
 ///|
-pub fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int {
+pub fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int32 {
   let self_len = bin_coeff_limb_len(self)
   let other_len = bin_coeff_limb_len(other)
   if self_len != other_len {
@@ -214,7 +214,7 @@ pub fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int {
 fn bin_coeff_add_heap(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   match (left.repr, right.repr) {
     (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
-      let len = Int::max(left_len, right_len)
+      let len = Int32::max(left_len, right_len)
       let limbs = FixedArray::make(len + 1, 0U)
       let mut carry = 0UL
       for index in 0..<len {
@@ -239,7 +239,7 @@ fn bin_coeff_add_heap(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   }
   let left_len = bin_coeff_limb_len(left)
   let right_len = bin_coeff_limb_len(right)
-  let len = Int::max(left_len, right_len)
+  let len = Int32::max(left_len, right_len)
   let limbs = FixedArray::make(len + 1, 0U)
   let mut carry = 0UL
   for index in 0..<len {
@@ -294,10 +294,10 @@ pub fn BinCoeff::add(self : BinCoeff, other : BinCoeff) -> BinCoeff {
 fn bin_coeff_add_normalized_odd(
   left : BinCoeff,
   right : BinCoeff,
-) -> (BinCoeff, Int) {
+) -> (BinCoeff, Int32) {
   match (left.repr, right.repr) {
     (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
-      let len = Int::max(left_len, right_len)
+      let len = Int32::max(left_len, right_len)
       let limbs = FixedArray::make(len + 1, 0U)
       let mut carry = 0UL
       for index in 0..<len {
@@ -420,7 +420,7 @@ fn bin_coeff_sub_unchecked(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 fn bin_coeff_sub_normalized_odd(
   left : BinCoeff,
   right : BinCoeff,
-) -> (BinCoeff, Int) {
+) -> (BinCoeff, Int32) {
   match (left.repr, right.repr) {
     (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
       let limbs = FixedArray::make(left_len, 0U)
@@ -613,7 +613,10 @@ fn bin_coeff_mul_schoolbook(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 }
 
 ///|
-fn bin_coeff_nonzero_limb_count_limited(value : BinCoeff, limit : Int) -> Int? {
+fn bin_coeff_nonzero_limb_count_limited(
+  value : BinCoeff,
+  limit : Int32,
+) -> Int32? {
   match value.repr {
     Heap(limbs, len) => {
       let mut count = 0
@@ -632,7 +635,10 @@ fn bin_coeff_nonzero_limb_count_limited(value : BinCoeff, limit : Int) -> Int? {
 }
 
 ///|
-fn bin_coeff_sparse_positions(value : BinCoeff, count : Int) -> FixedArray[Int] {
+fn bin_coeff_sparse_positions(
+  value : BinCoeff,
+  count : Int32,
+) -> FixedArray[Int32] {
   let positions = FixedArray::make(count, 0)
   match value.repr {
     Heap(limbs, len) => {
@@ -653,8 +659,8 @@ fn bin_coeff_sparse_positions(value : BinCoeff, count : Int) -> FixedArray[Int] 
 fn bin_coeff_mul_sparse(
   left : BinCoeff,
   right : BinCoeff,
-  left_count : Int,
-  right_count : Int,
+  left_count : Int32,
+  right_count : Int32,
 ) -> BinCoeff {
   let left_len = bin_coeff_limb_len(left)
   let right_len = bin_coeff_limb_len(right)
@@ -679,9 +685,9 @@ fn bin_coeff_mul_sparse(
 
 ///|
 fn bin_coeff_add_product_at(
-  limbs : FixedArray[UInt],
-  len : Int,
-  offset : Int,
+  limbs : FixedArray[UInt32],
+  len : Int32,
+  offset : Int32,
   product : UInt64,
 ) -> Unit {
   let low_sum = limbs.unsafe_get(offset).to_uint64() +
@@ -704,9 +710,9 @@ fn bin_coeff_add_product_at(
 
 ///|
 fn bin_coeff_add_limb_at(
-  limbs : FixedArray[UInt],
-  len : Int,
-  offset : Int,
+  limbs : FixedArray[UInt32],
+  len : Int32,
+  offset : Int32,
   value : UInt64,
 ) -> Unit {
   let mut carry = value
@@ -779,10 +785,10 @@ pub fn BinCoeff::mul(self : BinCoeff, other : BinCoeff) -> BinCoeff {
   let self_len = bin_coeff_limb_len(self)
   let other_len = bin_coeff_limb_len(other)
   if self_len >= 8 && other_len >= 8 {
-    let self_limit = Int::max(4, self_len / 8)
+    let self_limit = Int32::max(4, self_len / 8)
     match bin_coeff_nonzero_limb_count_limited(self, self_limit) {
       Some(self_count) => {
-        let other_limit = Int::max(4, other_len / 8)
+        let other_limit = Int32::max(4, other_len / 8)
         match bin_coeff_nonzero_limb_count_limited(other, other_limit) {
           Some(other_count) if self_count.to_int64() *
             other_count.to_int64() *
@@ -795,7 +801,7 @@ pub fn BinCoeff::mul(self : BinCoeff, other : BinCoeff) -> BinCoeff {
       None => ()
     }
   }
-  if Int::min(self_len, other_len) >= bin_coeff_karatsuba_threshold {
+  if Int32::min(self_len, other_len) >= bin_coeff_karatsuba_threshold {
     bin_coeff_mul_large_dispatch(self, other)
   } else {
     bin_coeff_mul_schoolbook(self, other)
@@ -815,7 +821,7 @@ pub fn BinCoeff::square(self : BinCoeff) -> BinCoeff {
 }
 
 ///|
-pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int) -> BinCoeff {
+pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int32) -> BinCoeff {
   if shift < 0 {
     abort("BinCoeff shift count must be non-negative")
   }
@@ -856,7 +862,7 @@ pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int) -> BinCoeff {
 }
 
 ///|
-pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int) -> BinCoeff {
+pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
   if shift < 0 {
     abort("BinCoeff shift count must be non-negative")
   }
@@ -919,7 +925,7 @@ pub fn BinCoeff::bit_and(self : BinCoeff, other : BinCoeff) -> BinCoeff {
       return bin_coeff_inline(left_high & right_high, left_low & right_low)
     _ => ()
   }
-  let len = Int::min(bin_coeff_limb_len(self), bin_coeff_limb_len(other))
+  let len = Int32::min(bin_coeff_limb_len(self), bin_coeff_limb_len(other))
   let limbs = FixedArray::make(len, 0U)
   for index in 0..<len {
     limbs.unsafe_set(
@@ -937,7 +943,7 @@ pub fn BinCoeff::bit_or(self : BinCoeff, other : BinCoeff) -> BinCoeff {
       return bin_coeff_inline(left_high | right_high, left_low | right_low)
     _ => ()
   }
-  let len = Int::max(bin_coeff_limb_len(self), bin_coeff_limb_len(other))
+  let len = Int32::max(bin_coeff_limb_len(self), bin_coeff_limb_len(other))
   let limbs = FixedArray::make(len, 0U)
   for index in 0..<len {
     limbs.unsafe_set(
@@ -955,7 +961,7 @@ pub fn BinCoeff::bit_xor(self : BinCoeff, other : BinCoeff) -> BinCoeff {
       return bin_coeff_inline(left_high ^ right_high, left_low ^ right_low)
     _ => ()
   }
-  let len = Int::max(bin_coeff_limb_len(self), bin_coeff_limb_len(other))
+  let len = Int32::max(bin_coeff_limb_len(self), bin_coeff_limb_len(other))
   let limbs = FixedArray::make(len, 0U)
   for index in 0..<len {
     limbs.unsafe_set(
@@ -969,7 +975,7 @@ pub fn BinCoeff::bit_xor(self : BinCoeff, other : BinCoeff) -> BinCoeff {
 ///|
 fn bin_coeff_div_rem_word(
   numerator : BinCoeff,
-  denominator : UInt,
+  denominator : UInt32,
 ) -> (BinCoeff, BinCoeff) {
   let source_len = bin_coeff_limb_len(numerator)
   let quotient = FixedArray::make(source_len, 0U)
@@ -1189,7 +1195,7 @@ pub fn BinCoeff::gcd(self : BinCoeff, other : BinCoeff) -> BinCoeff {
     if other.is_zero() {
       return self
     }
-    let common_shift = Int::min(self.ctz(), other.ctz())
+    let common_shift = Int32::min(self.ctz(), other.ctz())
     let mut left = self.shift_right(self.ctz())
     let mut right = other.shift_right(other.ctz())
     while left != right {
@@ -1207,7 +1213,7 @@ pub fn BinCoeff::gcd(self : BinCoeff, other : BinCoeff) -> BinCoeff {
 }
 
 ///|
-pub fn BinCoeff::pow_nat(self : BinCoeff, exponent : UInt) -> BinCoeff {
+pub fn BinCoeff::pow_nat(self : BinCoeff, exponent : UInt32) -> BinCoeff {
   if exponent == 0U {
     return BinCoeff::one()
   }
@@ -1224,26 +1230,26 @@ pub fn BinCoeff::pow_nat(self : BinCoeff, exponent : UInt) -> BinCoeff {
 }
 
 ///|
-fn bin_coeff_digit(character : Int) -> Int {
+fn bin_coeff_digit(character : Int32) -> Int32 {
   match character {
-    '0'..='9' => character - '0'
-    'A'..='Z' => character + (10 - 'A')
-    'a'..='z' => character + (10 - 'a')
+    '0'..<='9' => character - '0'
+    'A'..<='Z' => character + (10 - 'A')
+    'a'..<='z' => character + (10 - 'a')
     _ => -1
   }
 }
 
 ///|
-fn bin_coeff_digit_char(digit : Int) -> Char {
+fn bin_coeff_digit_char(digit : Int32) -> Char {
   if digit < 10 {
-    Int::unsafe_to_char('0'.to_int() + digit)
+    Int32::unsafe_to_char('0'.to_int() + digit)
   } else {
-    Int::unsafe_to_char('a'.to_int() + digit - 10)
+    Int32::unsafe_to_char('a'.to_int() + digit - 10)
   }
 }
 
 ///|
-fn bin_coeff_mul_small(value : BinCoeff, multiplier : UInt) -> BinCoeff {
+fn bin_coeff_mul_small(value : BinCoeff, multiplier : UInt32) -> BinCoeff {
   if multiplier == 0U || value.is_zero() {
     return BinCoeff::zero()
   }
@@ -1269,7 +1275,7 @@ fn bin_coeff_mul_small(value : BinCoeff, multiplier : UInt) -> BinCoeff {
 }
 
 ///|
-fn bin_coeff_radix_shift(radix : Int) -> Int? {
+fn bin_coeff_radix_shift(radix : Int32) -> Int32? {
   if radix >= 2 && (radix & (radix - 1)) == 0 {
     Some(radix.ctz())
   } else {
@@ -1278,7 +1284,7 @@ fn bin_coeff_radix_shift(radix : Int) -> Int? {
 }
 
 ///|
-fn bin_coeff_radix_chunk(radix : Int) -> (Int, UInt) {
+fn bin_coeff_radix_chunk(radix : Int32) -> (Int32, UInt32) {
   let radix64 = radix.to_uint64()
   let mut width = 1
   let mut power = radix64
@@ -1292,9 +1298,9 @@ fn bin_coeff_radix_chunk(radix : Int) -> (Int, UInt) {
 ///|
 fn bin_coeff_parse_power_of_two(
   source : String,
-  start : Int,
-  radix : Int,
-  digit_bits : Int,
+  start : Int32,
+  radix : Int32,
+  digit_bits : Int32,
 ) -> Result[BinCoeff, String] {
   let digit_count = source.length() - start
   let limbs = FixedArray::make((digit_count * digit_bits + 31) / 32, 0U)
@@ -1331,10 +1337,10 @@ priv struct BinCoeffRadixSegment {
 
 ///|
 fn bin_coeff_parse_chunks_divide_and_conquer(
-  chunks : FixedArray[UInt],
-  start : Int,
-  len : Int,
-  chunk_power : UInt,
+  chunks : FixedArray[UInt32],
+  start : Int32,
+  len : Int32,
+  chunk_power : UInt32,
 ) -> BinCoeffRadixSegment {
   if len <= 32 {
     let mut value = BinCoeff::zero()
@@ -1367,7 +1373,7 @@ fn bin_coeff_parse_chunks_divide_and_conquer(
 ///|
 pub fn BinCoeff::parse(
   source : String,
-  radix? : Int = 10,
+  radix~ : Int32 = 10,
 ) -> Result[BinCoeff, String] {
   if radix < 2 || radix > 36 {
     return Err("BinCoeff radix must be between 2 and 36")
@@ -1475,7 +1481,7 @@ pub fn BinCoeff::to_bytes_be(self : BinCoeff) -> Bytes {
 ///|
 fn bin_coeff_to_string_power_of_two(
   value : BinCoeff,
-  digit_bits : Int,
+  digit_bits : Int32,
 ) -> String {
   let digit_count = (value.bit_length() + digit_bits - 1) / digit_bits
   let mask = (1U << digit_bits) - 1U
@@ -1505,7 +1511,7 @@ fn bin_coeff_to_string_power_of_two(
 fn bin_coeff_format_chunks_divide_and_conquer(
   value : BinCoeff,
   powers : Array[BinCoeff],
-  level : Int,
+  level : Int32,
   padded : Bool,
   chunks : Array[UInt64],
 ) -> Unit {
@@ -1544,8 +1550,8 @@ fn bin_coeff_format_chunks_divide_and_conquer(
 ///|
 fn bin_coeff_small_chunk_string(
   value : UInt64,
-  radix : Int,
-  minimum_width : Int,
+  radix : Int32,
+  minimum_width : Int32,
 ) -> String {
   let digits : Array[Char] = []
   let mut value = value
@@ -1573,7 +1579,7 @@ fn bin_coeff_small_chunk_string(
 }
 
 ///|
-pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int) -> String {
+pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int32) -> String {
   if radix < 2 || radix > 36 {
     abort("BinCoeff radix must be between 2 and 36")
   }

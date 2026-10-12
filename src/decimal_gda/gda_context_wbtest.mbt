@@ -196,12 +196,12 @@ test "GDA Decimal checked integer powers use the exact exponent" {
   // before use: rounding 12345679 to seven digits makes it even (#51).
   let context = @lf_arith.ArithmeticContext::new(7)
   let minus_one = Decimal::from_int(-1, precision=7)
-  let int_power = fn(exponent : Int) {
+  let int_power = fn(exponent : Int32) {
     @lf_arith.PowIntChecked::pow_int_checked(minus_one, exponent, context)
     .unwrap()
     .to_string()
   }
-  let nat_power = fn(exponent : UInt) {
+  let nat_power = fn(exponent : UInt32) {
     @lf_arith.PowNatChecked::pow_nat_checked(minus_one, exponent, context)
     .unwrap()
     .to_string()

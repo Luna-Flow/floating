@@ -1,17 +1,17 @@
 ///|
 pub struct SourceLocation {
   priv source : String
-  priv line : Int
-  priv column : Int
+  priv line : Int32
+  priv column : Int32
 } derive(Eq, @debug.Debug)
 
 ///|
 pub fn SourceLocation::new(
   source : String,
-  line : Int,
-  column? : Int = 1,
+  line : Int32,
+  column~ : Int32 = 1,
 ) -> SourceLocation {
-  { source, line: Int::max(1, line), column: Int::max(1, column), }
+  { source, line: Int32::max(1, line), column: Int32::max(1, column), }
 }
 
 ///|
@@ -20,12 +20,12 @@ pub fn SourceLocation::source(self : SourceLocation) -> String {
 }
 
 ///|
-pub fn SourceLocation::line(self : SourceLocation) -> Int {
+pub fn SourceLocation::line(self : SourceLocation) -> Int32 {
   self.line
 }
 
 ///|
-pub fn SourceLocation::column(self : SourceLocation) -> Int {
+pub fn SourceLocation::column(self : SourceLocation) -> Int32 {
   self.column
 }
 
@@ -50,7 +50,7 @@ pub fn CaseResult::new(
   id : String,
   disposition : CaseDisposition,
   passed : Bool,
-  message? : String = "",
+  message~ : String = "",
 ) -> CaseResult {
   { id, disposition, passed, message, }
 }
@@ -59,7 +59,7 @@ pub fn CaseResult::new(
 pub fn CaseResult::executable(
   id : String,
   passed : Bool,
-  message? : String = "",
+  message~ : String = "",
 ) -> CaseResult {
   CaseResult::new(id, Executable, passed, message~)
 }
@@ -86,14 +86,14 @@ pub fn CaseResult::message(self : CaseResult) -> String {
 
 ///|
 pub struct ShardSpec {
-  priv count : Int
-  priv index : Int
+  priv count : Int32
+  priv index : Int32
 } derive(Eq, @debug.Debug)
 
 ///|
 pub fn ShardSpec::try_new(
-  count : Int,
-  index : Int,
+  count : Int32,
+  index : Int32,
 ) -> Result[ShardSpec, String] {
   guard count > 0 else { return Err("shard count must be positive") }
   guard index >= 0 && index < count else {
@@ -103,7 +103,7 @@ pub fn ShardSpec::try_new(
 }
 
 ///|
-pub fn ShardSpec::new(count : Int, index : Int) -> ShardSpec {
+pub fn ShardSpec::new(count : Int32, index : Int32) -> ShardSpec {
   match ShardSpec::try_new(count, index) {
     Ok(shard) => shard
     Err(message) => abort(message)
@@ -111,37 +111,37 @@ pub fn ShardSpec::new(count : Int, index : Int) -> ShardSpec {
 }
 
 ///|
-pub fn ShardSpec::count(self : ShardSpec) -> Int {
+pub fn ShardSpec::count(self : ShardSpec) -> Int32 {
   self.count
 }
 
 ///|
-pub fn ShardSpec::index(self : ShardSpec) -> Int {
+pub fn ShardSpec::index(self : ShardSpec) -> Int32 {
   self.index
 }
 
 ///|
-pub fn ShardSpec::selects(self : ShardSpec, ordinal : Int) -> Bool {
+pub fn ShardSpec::selects(self : ShardSpec, ordinal : Int32) -> Bool {
   ordinal % self.count == self.index
 }
 
 ///|
 pub struct RunSummary {
-  priv total_cases : Int
-  priv selected_cases : Int
-  priv executable_cases : Int
-  priv passed_cases : Int
-  priv failed_cases : Int
-  priv skipped_cases : Int
-  priv diagnostic_cases : Int
-  priv legacy_cases : Int
-  priv unsupported_cases : Int
+  priv total_cases : Int32
+  priv selected_cases : Int32
+  priv executable_cases : Int32
+  priv passed_cases : Int32
+  priv failed_cases : Int32
+  priv skipped_cases : Int32
+  priv diagnostic_cases : Int32
+  priv legacy_cases : Int32
+  priv unsupported_cases : Int32
   priv results : Array[CaseResult]
 } derive(Eq, @debug.Debug)
 
 ///|
 pub fn RunSummary::from_results(
-  total_cases : Int,
+  total_cases : Int32,
   results : Array[CaseResult],
 ) -> RunSummary {
   let mut executable_cases = 0
@@ -202,7 +202,7 @@ pub fn RunSummary::merge(parts : Array[RunSummary]) -> RunSummary {
   let mut unsupported_cases = 0
   let results : Array[CaseResult] = []
   for part in parts {
-    total_cases = Int::max(total_cases, part.total_cases)
+    total_cases = Int32::max(total_cases, part.total_cases)
     selected_cases += part.selected_cases
     executable_cases += part.executable_cases
     passed_cases += part.passed_cases
@@ -228,47 +228,47 @@ pub fn RunSummary::merge(parts : Array[RunSummary]) -> RunSummary {
 }
 
 ///|
-pub fn RunSummary::total_cases(self : RunSummary) -> Int {
+pub fn RunSummary::total_cases(self : RunSummary) -> Int32 {
   self.total_cases
 }
 
 ///|
-pub fn RunSummary::selected_cases(self : RunSummary) -> Int {
+pub fn RunSummary::selected_cases(self : RunSummary) -> Int32 {
   self.selected_cases
 }
 
 ///|
-pub fn RunSummary::executable_cases(self : RunSummary) -> Int {
+pub fn RunSummary::executable_cases(self : RunSummary) -> Int32 {
   self.executable_cases
 }
 
 ///|
-pub fn RunSummary::passed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::passed_cases(self : RunSummary) -> Int32 {
   self.passed_cases
 }
 
 ///|
-pub fn RunSummary::failed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::failed_cases(self : RunSummary) -> Int32 {
   self.failed_cases
 }
 
 ///|
-pub fn RunSummary::skipped_cases(self : RunSummary) -> Int {
+pub fn RunSummary::skipped_cases(self : RunSummary) -> Int32 {
   self.skipped_cases
 }
 
 ///|
-pub fn RunSummary::diagnostic_cases(self : RunSummary) -> Int {
+pub fn RunSummary::diagnostic_cases(self : RunSummary) -> Int32 {
   self.diagnostic_cases
 }
 
 ///|
-pub fn RunSummary::legacy_cases(self : RunSummary) -> Int {
+pub fn RunSummary::legacy_cases(self : RunSummary) -> Int32 {
   self.legacy_cases
 }
 
 ///|
-pub fn RunSummary::unsupported_cases(self : RunSummary) -> Int {
+pub fn RunSummary::unsupported_cases(self : RunSummary) -> Int32 {
   self.unsupported_cases
 }
 

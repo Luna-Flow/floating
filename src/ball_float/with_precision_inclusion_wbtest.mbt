@@ -1,5 +1,8 @@
 ///|
-fn with_precision_power(exponent : Int, precision : Int) -> @bin_float.BinFloat {
+fn with_precision_power(
+  exponent : Int32,
+  precision : Int32,
+) -> @bin_float.BinFloat {
   @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, precision)
 }
 
@@ -46,7 +49,7 @@ test "BallFloat::with_precision encloses across the far addend margin" {
           let y = x.with_precision(precision, mode)
           assert_true(y.contains(x.lower_bound()))
           assert_true(y.contains(x.upper_bound()))
-          assert_eq(y.precision(), Int::max(1, precision))
+          assert_eq(y.precision(), Int32::max(1, precision))
         }
       }
     }

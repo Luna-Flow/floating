@@ -68,7 +68,7 @@ fn BinCoeffSignedScratch::mul(
 ///|
 fn BinCoeffSignedScratch::shift_left(
   self : BinCoeffSignedScratch,
-  shift : Int,
+  shift : Int32,
 ) -> BinCoeffSignedScratch {
   bin_coeff_signed_scratch(self.negative, self.magnitude.shift_left(shift))
 }
@@ -96,12 +96,12 @@ fn BinCoeffSignedScratch::nonnegative(self : BinCoeffSignedScratch) -> BinCoeff 
 }
 
 ///|
-fn bin_coeff_slice(value : BinCoeff, start : Int, length : Int) -> BinCoeff {
+fn bin_coeff_slice(value : BinCoeff, start : Int32, length : Int32) -> BinCoeff {
   let source_len = bin_coeff_limb_len(value)
   if length <= 0 || start >= source_len {
     return BinCoeff::zero()
   }
-  let len = Int::min(length, source_len - start)
+  let len = Int32::min(length, source_len - start)
   let limbs = FixedArray::make(len, 0U)
   for index in 0..<len {
     limbs.unsafe_set(index, bin_coeff_limb(value, start + index))
@@ -111,10 +111,10 @@ fn bin_coeff_slice(value : BinCoeff, start : Int, length : Int) -> BinCoeff {
 
 ///|
 fn bin_coeff_add_shifted_into(
-  destination : FixedArray[UInt],
-  destination_len : Int,
+  destination : FixedArray[UInt32],
+  destination_len : Int32,
   value : BinCoeff,
-  offset : Int,
+  offset : Int32,
 ) -> Unit {
   let value_len = bin_coeff_limb_len(value)
   let mut carry = 0UL
@@ -150,16 +150,19 @@ fn bin_coeff_add_shifted_into(
 ///|
 priv struct BinCoeffScratchArena {
   slots : FixedArray[BinCoeff]
-  mut used : Int
+  mut used : Int32
 }
 
 ///|
-fn bin_coeff_scratch_arena_new(capacity : Int) -> BinCoeffScratchArena {
-  { slots: FixedArray::make(Int::max(1, capacity), BinCoeff::zero()), used: 0, }
+fn bin_coeff_scratch_arena_new(capacity : Int32) -> BinCoeffScratchArena {
+  {
+    slots: FixedArray::make(Int32::max(1, capacity), BinCoeff::zero()),
+    used: 0,
+  }
 }
 
 ///|
-fn BinCoeffScratchArena::mark(self : BinCoeffScratchArena) -> Int {
+fn BinCoeffScratchArena::mark(self : BinCoeffScratchArena) -> Int32 {
   self.used
 }
 
@@ -178,9 +181,9 @@ fn BinCoeffScratchArena::save(
 ///|
 fn BinCoeffScratchArena::rewind(
   self : BinCoeffScratchArena,
-  mark : Int,
+  mark : Int32,
 ) -> Unit {
-  self.used = Int::max(0, mark)
+  self.used = Int32::max(0, mark)
 }
 
 ///|
@@ -197,7 +200,7 @@ fn bin_coeff_mul_karatsuba_scratch(
 
 ///|
 fn bin_coeff_mul_karatsuba(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  let maximum_len = Int::max(
+  let maximum_len = Int32::max(
     bin_coeff_limb_len(left),
     bin_coeff_limb_len(right),
   )
@@ -222,7 +225,7 @@ fn bin_coeff_mul_karatsuba(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 
 ///|
 fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  let maximum_len = Int::max(
+  let maximum_len = Int32::max(
     bin_coeff_limb_len(left),
     bin_coeff_limb_len(right),
   )
@@ -291,8 +294,8 @@ fn bin_coeff_mul_unbalanced(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff {
 fn bin_coeff_mul_large_dispatch(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let left_len = bin_coeff_limb_len(left)
   let right_len = bin_coeff_limb_len(right)
-  let shorter_len = Int::min(left_len, right_len)
-  let longer_len = Int::max(left_len, right_len)
+  let shorter_len = Int32::min(left_len, right_len)
+  let longer_len = Int32::max(left_len, right_len)
   if shorter_len >= bin_coeff_ntt_mul_threshold &&
     bin_coeff_ntt_fits(left, right) {
     bin_coeff_mul_ntt(left, right)

@@ -7,7 +7,7 @@ pub struct BinaryInterchange {
 ///|
 pub fn BinaryInterchangeFormat::total_bits(
   self : BinaryInterchangeFormat,
-) -> Int {
+) -> Int32 {
   match self {
     Binary16 => 16
     Binary32 => 32
@@ -19,7 +19,7 @@ pub fn BinaryInterchangeFormat::total_bits(
 ///|
 pub fn BinaryInterchangeFormat::exponent_bits(
   self : BinaryInterchangeFormat,
-) -> Int {
+) -> Int32 {
   match self {
     Binary16 => 5
     Binary32 => 8
@@ -31,12 +31,12 @@ pub fn BinaryInterchangeFormat::exponent_bits(
 ///|
 pub fn BinaryInterchangeFormat::fraction_bits(
   self : BinaryInterchangeFormat,
-) -> Int {
+) -> Int32 {
   self.precision() - 1
 }
 
 ///|
-pub fn BinaryInterchangeFormat::bias(self : BinaryInterchangeFormat) -> Int {
+pub fn BinaryInterchangeFormat::bias(self : BinaryInterchangeFormat) -> Int32 {
   self.e_max()
 }
 
@@ -75,7 +75,9 @@ fn binary_uppercase_ascii(source : String) -> String {
   for character in source {
     if character >= 'a' && character <= 'f' {
       builder.write_char(
-        Int::unsafe_to_char(character.to_int() + ('A'.to_int() - 'a'.to_int())),
+        Int32::unsafe_to_char(
+          character.to_int() + ('A'.to_int() - 'a'.to_int()),
+        ),
       )
     } else {
       builder.write_char(character)
@@ -85,7 +87,7 @@ fn binary_uppercase_ascii(source : String) -> String {
 }
 
 ///|
-fn binary_zero_digits(count : Int) -> String {
+fn binary_zero_digits(count : Int32) -> String {
   let builder = StringBuilder()
   for _ in 0..<count {
     builder.write_char('0')
@@ -94,7 +96,7 @@ fn binary_zero_digits(count : Int) -> String {
 }
 
 ///|
-fn binary_normalize_hex(source : String, digits : Int) -> BinCoeff? {
+fn binary_normalize_hex(source : String, digits : Int32) -> BinCoeff? {
   let trimmed = source.trim()
   let body = if trimmed.has_prefix("#") {
     trimmed[1:].to_owned()
@@ -278,8 +280,8 @@ fn binary_encode_rounded(
 pub fn BinaryInterchange::from_bin_float(
   value : BinFloat,
   format : BinaryInterchangeFormat,
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> (BinaryInterchange, BinaryFlags) {
   let (rounded, flags) = value.round_ctx(format.context(rounding~, tininess~))
   ({ format, bits: binary_encode_rounded(rounded, format), }, flags)
@@ -289,8 +291,8 @@ pub fn BinaryInterchange::from_bin_float(
 pub fn BinFloat::to_interchange(
   self : BinFloat,
   format : BinaryInterchangeFormat,
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> (BinaryInterchange, BinaryFlags) {
   BinaryInterchange::from_bin_float(self, format, rounding~, tininess~)
 }

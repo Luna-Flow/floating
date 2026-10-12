@@ -34,7 +34,7 @@ pub(all) enum SemanticResult[T] {
 } derive(Eq)
 
 ///|
-fn pow_bigint(base : Int, exponent : Int) -> BigInt {
+fn pow_bigint(base : Int32, exponent : Int32) -> BigInt {
   guard exponent >= 0 else {
     abort("semantic scale exponent must be non-negative")
   }
@@ -62,8 +62,8 @@ pub fn ExactRational::denominator(self : ExactRational) -> BigInt {
 ///|
 pub fn ExactRational::from_scaled_integer(
   significand : BigInt,
-  radix : Int,
-  exponent : Int,
+  radix : Int32,
+  exponent : Int32,
 ) -> ExactRational {
   guard radix > 1 else { abort("semantic radix must be greater than one") }
   if exponent >= 0 {

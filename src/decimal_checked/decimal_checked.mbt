@@ -75,7 +75,7 @@ pub fn DecimalChecked::parse(
 
 ///|
 pub fn DecimalChecked::from_int(
-  value : Int,
+  value : Int32,
   context : @decimal.DecimalContext,
 ) -> DecimalChecked {
   DecimalChecked::parse(value.to_string(), context)
@@ -305,7 +305,7 @@ pub fn DecimalChecked::log1p(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::rootn(
   self : DecimalChecked,
-  degree : Int,
+  degree : Int32,
 ) -> DecimalChecked {
   self.record_result(self.value_.try_rootn_ctx(degree, self.context_))
 }
@@ -313,7 +313,7 @@ pub fn DecimalChecked::rootn(
 ///|
 pub fn DecimalChecked::pown(
   self : DecimalChecked,
-  exponent : Int,
+  exponent : Int32,
 ) -> DecimalChecked {
   self.record_result(self.value_.try_pown_ctx(exponent, self.context_))
 }

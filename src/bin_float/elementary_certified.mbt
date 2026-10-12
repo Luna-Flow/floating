@@ -3,9 +3,9 @@ fn binary_certification_failure(
   operation : String,
   stage : @def.CertificationStage,
   reason : @def.CertificationFailureReason,
-  target_precision : Int,
-  work_precision : Int,
-  refinements : Int,
+  target_precision : Int32,
+  work_precision : Int32,
+  refinements : Int32,
 ) -> @def.ArithmeticError {
   @def.ArithmeticError::certification_failure(
     @def.CertificationFailureDetail::new(
@@ -48,8 +48,8 @@ fn binary_refinement_failure_for(
 fn binary_refinement_failure_state(
   operation : String,
   context : BinaryContext,
-  work_precision : Int,
-  refinements : Int,
+  work_precision : Int32,
+  refinements : Int32,
 ) -> @def.ArithmeticError {
   binary_certification_failure(
     operation,
@@ -65,8 +65,8 @@ fn binary_refinement_failure_state(
 fn binary_range_failure_state(
   operation : String,
   context : BinaryContext,
-  work_precision : Int,
-  refinements : Int,
+  work_precision : Int32,
+  refinements : Int32,
 ) -> @def.ArithmeticError {
   binary_certification_failure(
     operation,
@@ -121,7 +121,7 @@ fn binary_inexact_inner_endpoint(
   // 2^(e - shift) with shift >= precision + 3 - bits(c) is at most
   // 2^(t - precision - 2), so no breakpoint lies between the endpoint and the
   // new point.
-  let shift = Int::max(1, context.precision + 3 - coefficient.bit_length())
+  let shift = Int32::max(1, context.precision + 3 - coefficient.bit_length())
   let scaled = coefficient.shift_left(shift)
   let grows = toward_positive != endpoint.is_negative()
   let moved = if grows {
@@ -132,7 +132,7 @@ fn binary_inexact_inner_endpoint(
   BinFloat::make(
     moved,
     endpoint.exponent2() - shift,
-    Int::max(1, moved.bit_length()),
+    Int32::max(1, moved.bit_length()),
     negative=endpoint.is_negative(),
   )
 }
@@ -159,7 +159,7 @@ fn binary_tiny_argument_result(
     Int64::max(scale, anchor_top - precision - 8L).to_int(),
     1,
   )
-  let work = Int::max(context.precision, anchor.precision()) + 8
+  let work = Int32::max(context.precision, anchor.precision()) + 8
   let (lower, upper) = if above {
     (
       anchor,
@@ -219,7 +219,7 @@ fn binary_certified_inexact_target_rounding(
 ///|
 fn binary_exp_small_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -287,7 +287,7 @@ fn binary_exp_small_bounds(
 ///|
 fn binary_exp_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -338,7 +338,7 @@ fn binary_exp_bounds(
 ///|
 fn binary_ln_unit_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -411,7 +411,7 @@ fn binary_ln_unit_bounds(
 }
 
 ///|
-let binary_range_check_precision : Int = 128
+let binary_range_check_precision : Int32 = 128
 
 ///|
 /// Certified bounds on `log2(e) = 1 / ln 2`.
@@ -468,8 +468,8 @@ fn binary_log2_10_bounds() -> (BinFloat, BinFloat)? {
 fn binary_log2_linear_out_of_range(
   value : BinFloat,
   scale_bounds : () -> (BinFloat, BinFloat)?,
-  scale_bits : Int,
-  offset : Int,
+  scale_bits : Int32,
+  offset : Int32,
   check_tiny : Bool,
   negative : Bool,
   context : BinaryContext,
@@ -573,7 +573,7 @@ fn binary_expm1_negative_saturation(
 }
 
 ///|
-fn binary_ln10_bounds(work_precision : Int) -> (BinFloat, BinFloat)? {
+fn binary_ln10_bounds(work_precision : Int32) -> (BinFloat, BinFloat)? {
   let two = BinFloat::from_int(2, precision=work_precision)
   let five_quarters = BinFloat::make(
     BinCoeff::from_uint64(5UL),
@@ -612,7 +612,7 @@ fn binary_ln10_bounds(work_precision : Int) -> (BinFloat, BinFloat)? {
 ///|
 fn binary_ln_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
@@ -621,7 +621,7 @@ fn binary_ln_bounds(
   let normalized = BinFloat::make(
     value.coefficient(),
     -(coefficient_bits - 1),
-    Int::max(work_precision, coefficient_bits),
+    Int32::max(work_precision, coefficient_bits),
   )
   match
     (
@@ -738,7 +738,7 @@ fn binary_quotient_bounds(
 ///|
 fn binary_expm1_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -836,7 +836,7 @@ fn binary_expm1_bounds(
 ///|
 fn binary_atanh_small_positive_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -896,7 +896,7 @@ fn binary_atanh_small_positive_bounds(
 ///|
 fn binary_atanh_small_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   if value.is_negative() {
     match binary_atanh_small_positive_bounds(value.neg(), work_precision) {
@@ -911,7 +911,7 @@ fn binary_atanh_small_bounds(
 ///|
 fn binary_log1p_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -975,7 +975,7 @@ fn binary_log1p_bounds(
 ///|
 fn binary_exp2_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -1018,7 +1018,7 @@ fn binary_exp2_bounds(
 ///|
 fn binary_log2_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -1105,7 +1105,7 @@ pub fn BinFloat::try_exp_ctx(
               ),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("exp", context, work, attempt))
@@ -1503,14 +1503,14 @@ pub fn BinFloat::try_exp10_ctx(
       // so the result is neither representable nor a rounding breakpoint.
       match binary_exact_bounded_int(self) {
         Some(exponent) if exponent >= 0 &&
-          exponent <= Int::max(4096, context.precision) => {
+          exponent <= Int32::max(4096, context.precision) => {
           let coefficient = BinCoeff::from_uint64(5UL).pow_nat(
             exponent.reinterpret_as_uint(),
           )
           let exact = BinFloat::make(
             coefficient,
             exponent,
-            Int::max(1, coefficient.bit_length()),
+            Int32::max(1, coefficient.bit_length()),
           )
           return Ok(exact.round_ctx(context))
         }
@@ -1576,7 +1576,7 @@ pub fn BinFloat::try_exp10_ctx(
               binary_range_failure_state("exp10", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("exp10", context, work, attempt))
@@ -1696,7 +1696,7 @@ pub fn BinFloat::try_log10_ctx(
               binary_range_failure_state("log10", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("log10", context, work, attempt))
@@ -1849,7 +1849,7 @@ pub fn BinFloat::try_ln_ctx(
               ),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("ln", context, work, attempt))
@@ -1953,7 +1953,7 @@ pub fn BinFloat::try_hypot_ctx(
   }
   let left_square = self.coefficient().mul(self.coefficient())
   let right_square = other.coefficient().mul(other.coefficient())
-  let common_exponent = Int::min(
+  let common_exponent = Int32::min(
     left_exponent.to_int(),
     right_exponent.to_int(),
   )
@@ -1977,7 +1977,7 @@ pub fn BinFloat::try_hypot_ctx(
   let exact_sum = BinFloat::make(
     sum,
     common_exponent,
-    Int::max(1, sum.bit_length()),
+    Int32::max(1, sum.bit_length()),
   )
   Ok(exact_sum.sqrt_ctx(context))
 }
@@ -1995,14 +1995,14 @@ pub fn BinFloat::hypot_ctx(
 pub fn BinFloat::hypot(self : BinFloat, other : BinFloat) -> BinFloat {
   self.hypot_ctx(
     other,
-    BinaryContext::unbounded(Int::max(self.precision(), other.precision())),
+    BinaryContext::unbounded(Int32::max(self.precision(), other.precision())),
   ).0
 }
 
 ///|
 pub fn BinFloat::pown_ctx(
   self : BinFloat,
-  exponent : Int,
+  exponent : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   self.pow_int_ctx(exponent, context)
@@ -2011,7 +2011,7 @@ pub fn BinFloat::pown_ctx(
 ///|
 pub fn BinFloat::pown(
   self : BinFloat,
-  exponent : Int,
+  exponent : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   self.pow_int(exponent)
 }
@@ -2019,8 +2019,8 @@ pub fn BinFloat::pown(
 ///|
 fn binary_rootn_positive_bounds(
   value : BinFloat,
-  degree : Int,
-  work_precision : Int,
+  degree : Int32,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   match binary_ln_bounds(value, work_precision) {
     None => None
@@ -2067,7 +2067,7 @@ fn binary_rootn_positive_bounds(
 /// bisection; larger ones by integer Newton steps from an overestimate taken
 /// from the root of the leading bits, which needs a few full-size products and
 /// divisions instead of one power per root bit.
-fn binary_floor_nth_root(value : BinCoeff, degree : Int) -> BinCoeff {
+fn binary_floor_nth_root(value : BinCoeff, degree : Int32) -> BinCoeff {
   let bits = value.bit_length()
   if bits <= degree {
     // value < 2^degree, so the root is 0 or 1.
@@ -2121,7 +2121,7 @@ fn binary_floor_nth_root(value : BinCoeff, degree : Int) -> BinCoeff {
 /// remainder.
 fn binary_exact_nth_root_coefficient(
   coefficient : BinCoeff,
-  degree : Int,
+  degree : Int32,
 ) -> BinCoeff? {
   guard degree > 1 else { return None }
   if coefficient.compare(BinCoeff::one()) == 0 {
@@ -2151,7 +2151,7 @@ fn binary_exact_nth_root_coefficient(
 }
 
 ///|
-fn binary_exact_rootn(value : BinFloat, degree : Int) -> BinFloat? {
+fn binary_exact_rootn(value : BinFloat, degree : Int32) -> BinFloat? {
   guard degree > 1 && value.exponent2() % degree == 0 else { return None }
   match binary_exact_nth_root_coefficient(value.coefficient(), degree) {
     Some(coefficient) =>
@@ -2159,7 +2159,7 @@ fn binary_exact_rootn(value : BinFloat, degree : Int) -> BinFloat? {
         BinFloat::make(
           coefficient,
           value.exponent2() / degree,
-          Int::max(1, coefficient.bit_length()),
+          Int32::max(1, coefficient.bit_length()),
           negative=value.is_negative(),
         ),
       )
@@ -2170,7 +2170,7 @@ fn binary_exact_rootn(value : BinFloat, degree : Int) -> BinFloat? {
 ///|
 pub fn BinFloat::try_rootn_ctx(
   self : BinFloat,
-  degree : Int,
+  degree : Int32,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   guard degree != 0 else {
@@ -2298,7 +2298,10 @@ pub fn BinFloat::try_rootn_ctx(
           )
         None => ()
       }
-      let mut work = Int::max(context.precision + 64, positive.precision() + 16)
+      let mut work = Int32::max(
+        context.precision + 64,
+        positive.precision() + 16,
+      )
       let mut attempt = 0
       while attempt < 12 {
         match binary_rootn_positive_bounds(positive, magnitude_degree, work) {
@@ -2339,7 +2342,7 @@ pub fn BinFloat::try_rootn_ctx(
               binary_range_failure_state("rootn", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("rootn", context, work, attempt))
@@ -2350,19 +2353,19 @@ pub fn BinFloat::try_rootn_ctx(
 ///|
 pub fn BinFloat::rootn_ctx(
   self : BinFloat,
-  degree : Int,
+  degree : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   binary_defined_or_nan(self.try_rootn_ctx(degree, context), context)
 }
 
 ///|
-pub fn BinFloat::rootn(self : BinFloat, degree : Int) -> BinFloat {
+pub fn BinFloat::rootn(self : BinFloat, degree : Int32) -> BinFloat {
   self.rootn_ctx(degree, BinaryContext::unbounded(self.precision())).0
 }
 
 ///|
-fn binary_exact_bounded_int(value : BinFloat) -> Int? {
+fn binary_exact_bounded_int(value : BinFloat) -> Int32? {
   guard value.classify() == FpClass::Finite else { return None }
   if value.is_zero() {
     return Some(0)
@@ -2382,7 +2385,7 @@ fn binary_exact_bounded_int(value : BinFloat) -> Int? {
 }
 
 ///|
-fn binary_exact_unit_fraction_degree(value : BinFloat) -> Int? {
+fn binary_exact_unit_fraction_degree(value : BinFloat) -> Int32? {
   guard value.classify() == FpClass::Finite &&
     value.coefficient().compare(BinCoeff::one()) == 0 &&
     value.exponent2() < 0 &&
@@ -2493,7 +2496,7 @@ fn binary_pow_exactness(
   let exact = BinFloat::make(
     power,
     scale.to_int(),
-    Int::max(1, power.bit_length()),
+    Int32::max(1, power.bit_length()),
   )
   Exact(exact.round_ctx(context))
 }
@@ -2656,7 +2659,7 @@ pub fn BinFloat::try_pow_ctx(
     if binary_log2_linear_out_of_range(
         value,
         fn() { Some(scale) },
-        Int::max(0, scale_top + 1),
+        Int32::max(0, scale_top + 1),
         0,
         true,
         false,
@@ -2675,9 +2678,9 @@ pub fn BinFloat::try_pow_ctx(
     NotBreakpoint => true
     Undecided => false
   }
-  let mut work = Int::max(
+  let mut work = Int32::max(
     context.precision + 64,
-    Int::max(self.precision(), exponent.precision()) + 16,
+    Int32::max(self.precision(), exponent.precision()) + 16,
   )
   let mut attempt = 0
   while attempt < 12 {
@@ -2751,7 +2754,7 @@ pub fn BinFloat::try_pow_ctx(
       None =>
         return Err(binary_range_failure_state("pow", context, work, attempt))
     }
-    work += Int::max(32, work / 2)
+    work += Int32::max(32, work / 2)
     attempt += 1
   }
   Err(binary_refinement_failure_state("pow", context, work, attempt))
@@ -2770,7 +2773,7 @@ pub fn BinFloat::pow_ctx(
 pub fn BinFloat::pow(self : BinFloat, exponent : BinFloat) -> BinFloat {
   self.pow_ctx(
     exponent,
-    BinaryContext::unbounded(Int::max(self.precision(), exponent.precision())),
+    BinaryContext::unbounded(Int32::max(self.precision(), exponent.precision())),
   ).0
 }
 
@@ -2794,7 +2797,7 @@ fn BinaryHyperbolicOperation::name(self : BinaryHyperbolicOperation) -> String {
 fn binary_hyperbolic_bounds(
   value : BinFloat,
   operation : BinaryHyperbolicOperation,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   match
     (
@@ -2954,7 +2957,7 @@ fn BinFloat::try_hyperbolic_ctx(
       if tiny is Some(result) {
         return Ok(result)
       }
-      let mut work = Int::max(context.precision + 64, self.precision() + 16)
+      let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
         match binary_hyperbolic_bounds(self, operation, work) {
@@ -2978,7 +2981,7 @@ fn BinFloat::try_hyperbolic_ctx(
               ),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(
@@ -3077,7 +3080,7 @@ fn BinaryInverseHyperbolicOperation::name(
 ///|
 fn binary_asinh_positive_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -3120,7 +3123,7 @@ fn binary_asinh_positive_bounds(
 ///|
 fn binary_acosh_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -3166,7 +3169,7 @@ fn binary_acosh_bounds(
 ///|
 fn binary_atanh_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -3313,7 +3316,7 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
         is Some(result) {
         return Ok(result)
       }
-      let mut work = Int::max(context.precision + 64, self.precision() + 16)
+      let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
         let bounds = match operation {
@@ -3355,7 +3358,7 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
               ),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(
@@ -3445,7 +3448,7 @@ pub fn BinFloat::atanh(self : BinFloat) -> BinFloat {
 ///|
 fn binary_atan_small_positive_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -3513,7 +3516,7 @@ fn binary_atan_small_positive_bounds(
 ///|
 fn binary_atan_small_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   if value.is_negative() {
     match binary_atan_small_positive_bounds(value.neg(), work_precision) {
@@ -3528,7 +3531,7 @@ fn binary_atan_small_bounds(
 ///|
 fn binary_atan_finite_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   if value.is_zero() {
     let zero = value.with_precision(work_precision, RoundingMode::ToNearestEven)
@@ -3601,7 +3604,7 @@ fn binary_atan_finite_bounds(
 }
 
 ///|
-fn binary_pi_bounds(work_precision : Int) -> (BinFloat, BinFloat)? {
+fn binary_pi_bounds(work_precision : Int32) -> (BinFloat, BinFloat)? {
   match
     binary_atan_finite_bounds(
       BinFloat::one(precision=work_precision),
@@ -3682,14 +3685,14 @@ pub fn BinFloat::try_atan_ctx(
               binary_range_failure_state("atan", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("atan", context, work, attempt))
     }
     FpClass::Finite if self.is_zero() => Ok(self.round_ctx(context))
     FpClass::Finite => {
-      let mut work = Int::max(context.precision + 64, self.precision() + 16)
+      let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
         match binary_atan_finite_bounds(self, work) {
@@ -3708,7 +3711,7 @@ pub fn BinFloat::try_atan_ctx(
               binary_range_failure_state("atan", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("atan", context, work, attempt))
@@ -3732,7 +3735,7 @@ pub fn BinFloat::atan(self : BinFloat) -> BinFloat {
 ///|
 fn binary_asin_bounds(
   value : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -3878,7 +3881,7 @@ pub fn BinFloat::try_asin_ctx(
                 binary_range_failure_state("asin", context, work, attempt),
               )
           }
-          work += Int::max(32, work / 2)
+          work += Int32::max(32, work / 2)
           attempt += 1
         }
         return Err(
@@ -3895,7 +3898,7 @@ pub fn BinFloat::try_asin_ctx(
         is Some(result) {
         return Ok(result)
       }
-      let mut work = Int::max(context.precision + 64, self.precision() + 16)
+      let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
       while attempt < 12 {
         match binary_asin_bounds(self, work) {
@@ -3914,7 +3917,7 @@ pub fn BinFloat::try_asin_ctx(
               binary_range_failure_state("asin", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       Err(binary_refinement_failure_state("asin", context, work, attempt))
@@ -4002,7 +4005,7 @@ pub fn BinFloat::try_acos_ctx(
               binary_range_failure_state("acos", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       return Err(
@@ -4010,7 +4013,7 @@ pub fn BinFloat::try_acos_ctx(
       )
     }
   }
-  let mut work = Int::max(context.precision + 64, self.precision() + 16)
+  let mut work = Int32::max(context.precision + 64, self.precision() + 16)
   let mut attempt = 0
   while attempt < 12 {
     match (binary_asin_bounds(self, work), binary_pi_bounds(work)) {
@@ -4039,7 +4042,7 @@ pub fn BinFloat::try_acos_ctx(
       _ =>
         return Err(binary_range_failure_state("acos", context, work, attempt))
     }
-    work += Int::max(32, work / 2)
+    work += Int32::max(32, work / 2)
     attempt += 1
   }
   Err(binary_refinement_failure_state("acos", context, work, attempt))
@@ -4060,10 +4063,10 @@ pub fn BinFloat::acos(self : BinFloat) -> BinFloat {
 
 ///|
 fn binary_pi_fraction_bounds(
-  numerator : Int,
-  denominator_shift : Int,
+  numerator : Int32,
+  denominator_shift : Int32,
   negative : Bool,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   match binary_pi_bounds(work_precision) {
     Some(pi) => {
@@ -4100,7 +4103,7 @@ fn binary_pi_fraction_bounds(
 fn binary_atan2_finite_bounds(
   ordinate : BinFloat,
   abscissa : BinFloat,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -4233,7 +4236,7 @@ pub fn BinFloat::try_atan2_ctx(
               binary_range_failure_state("atan2", context, work, attempt),
             )
         }
-        work += Int::max(32, work / 2)
+        work += Int32::max(32, work / 2)
         attempt += 1
       }
       return Err(
@@ -4266,9 +4269,9 @@ pub fn BinFloat::try_atan2_ctx(
       ),
     )
   }
-  let mut work = Int::max(
+  let mut work = Int32::max(
     context.precision + 64,
-    Int::max(self.precision(), abscissa.precision()) + 16,
+    Int32::max(self.precision(), abscissa.precision()) + 16,
   )
   let mut attempt = 0
   while attempt < 12 {
@@ -4286,7 +4289,7 @@ pub fn BinFloat::try_atan2_ctx(
       None =>
         return Err(binary_range_failure_state("atan2", context, work, attempt))
     }
-    work += Int::max(32, work / 2)
+    work += Int32::max(32, work / 2)
     attempt += 1
   }
   Err(binary_refinement_failure_state("atan2", context, work, attempt))
@@ -4305,7 +4308,7 @@ pub fn BinFloat::atan2_ctx(
 pub fn BinFloat::atan2(self : BinFloat, abscissa : BinFloat) -> BinFloat {
   self.atan2_ctx(
     abscissa,
-    BinaryContext::unbounded(Int::max(self.precision(), abscissa.precision())),
+    BinaryContext::unbounded(Int32::max(self.precision(), abscissa.precision())),
   ).0
 }
 
@@ -4331,7 +4334,7 @@ fn BinaryTrigonometricOperation::name(
 fn binary_sin_cos_series(
   value : BinFloat,
   cosine : Bool,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
     work_precision,
@@ -4451,13 +4454,13 @@ fn binary_floor_integer(value : BinFloat) -> BinFloat? {
   let integer = BinFloat::make(
     floor_magnitude,
     0,
-    Int::max(1, floor_magnitude.bit_length()),
+    Int32::max(1, floor_magnitude.bit_length()),
   )
   Some(if value.is_negative() { integer.neg() } else { integer })
 }
 
 ///|
-fn binary_integer_mod4(value : BinFloat) -> Int? {
+fn binary_integer_mod4(value : BinFloat) -> Int32? {
   guard value.classify() == FpClass::Finite &&
     (value.is_zero() || value.exponent2() >= 0) else {
     return None
@@ -4487,8 +4490,8 @@ fn binary_integer_mod4(value : BinFloat) -> Int? {
 fn binary_trigonometric_reduction(
   value : BinFloat,
   half_pi : (BinFloat, BinFloat),
-  work_precision : Int,
-) -> ((BinFloat, BinFloat), Int)? {
+  work_precision : Int32,
+) -> ((BinFloat, BinFloat), Int32)? {
   let downward = BinaryContext::unbounded(
     work_precision,
     rounding=RoundTowardNegative,
@@ -4538,7 +4541,7 @@ fn binary_trigonometric_reduction(
 fn binary_trigonometric_bounds(
   value : BinFloat,
   operation : BinaryTrigonometricOperation,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let pi = binary_pi_bounds(work_precision).unwrap()
   let downward = BinaryContext::unbounded(
@@ -4578,9 +4581,9 @@ fn binary_trigonometric_bounds(
 fn binary_reduced_trigonometric_bounds(
   lower : BinFloat,
   upper : BinFloat,
-  quadrant : Int,
+  quadrant : Int32,
   operation : BinaryTrigonometricOperation,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let one = BinFloat::one(precision=work_precision)
   guard lower.compare(upper) <= 0 &&
@@ -4745,7 +4748,7 @@ fn BinFloat::try_trigonometric_ctx(
         return Ok(result)
       }
       let mut budget = CertifiedRefinementBudget::new(
-        Int::max(required.to_int(), self.precision() + 16),
+        Int32::max(required.to_int(), self.precision() + 16),
       )
       let mut certified_range = false
       while budget.available() && budget.precision() <= 1_000_000 {

@@ -149,7 +149,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn epsilon_contextua
   let decimal_context = match DecimalContext::from_arithmetic_context(context) {
     Err(_) =>
       return Decimal::zero(
-        precision=Int::max(1, Int::min(context.precision, 999_999_999)),
+        precision=Int32::max(1, Int32::min(context.precision, 999_999_999)),
       )
     Ok(dctx) => dctx
   }
@@ -164,7 +164,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn min_normal_contex
   let decimal_context = match DecimalContext::from_arithmetic_context(context) {
     Err(_) =>
       return Decimal::zero(
-        precision=Int::max(1, Int::min(context.precision, 999_999_999)),
+        precision=Int32::max(1, Int32::min(context.precision, 999_999_999)),
       )
     Ok(dctx) => dctx
   }
@@ -179,7 +179,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn max_finite_contex
   let decimal_context = match DecimalContext::from_arithmetic_context(context) {
     Err(_) =>
       return Decimal::zero(
-        precision=Int::max(1, Int::min(context.precision, 999_999_999)),
+        precision=Int32::max(1, Int32::min(context.precision, 999_999_999)),
       )
     Ok(dctx) => dctx
   }
@@ -256,8 +256,8 @@ pub impl @lf_arith.SqrtChecked for Decimal with fn sqrt_checked(self, ctx) {
 /// Ten digits hold every `Int` and every accepted `UInt` exponent, so the
 /// exponent is never rounded to the context precision, which could change its
 /// value and parity (#123).
-fn checked_power_exponent_precision(ctx : @lf_arith.ArithmeticContext) -> Int {
-  Int::max(ctx.precision, 10)
+fn checked_power_exponent_precision(ctx : @lf_arith.ArithmeticContext) -> Int32 {
+  Int32::max(ctx.precision, 10)
 }
 
 ///|

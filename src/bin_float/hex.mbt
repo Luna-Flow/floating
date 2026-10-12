@@ -1,5 +1,5 @@
 ///|
-fn binary_hex_exponent(source : String) -> Int? {
+fn binary_hex_exponent(source : String) -> Int32? {
   try @string.parse_int(source) catch {
     _ => None
   } noraise {
@@ -10,7 +10,7 @@ fn binary_hex_exponent(source : String) -> Int? {
 ///|
 pub fn BinFloat::from_hex(
   source : String,
-  precision : Int,
+  precision : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   let trimmed = source.trim().to_owned()
   let lower = trimmed.to_lower()

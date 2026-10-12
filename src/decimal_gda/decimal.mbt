@@ -1,8 +1,8 @@
 ///|
 // Shared internal decimal helpers.
 
-fn max_precision(a : Decimal, b : Decimal) -> Int {
-  Int::max(a.precision_, b.precision_)
+fn max_precision(a : Decimal, b : Decimal) -> Int32 {
+  Int32::max(a.precision_, b.precision_)
 }
 
 ///|
@@ -16,17 +16,17 @@ fn coeff_bigint(coeff : GdaCoeff) -> BigInt {
 }
 
 ///|
-fn coeff_digits(coeff : GdaCoeff) -> Int {
+fn coeff_digits(coeff : GdaCoeff) -> Int32 {
   coeff.digits10()
 }
 
 ///|
-fn finite_precision_for_coeff(coeff : GdaCoeff, ctx : DecimalContext) -> Int {
+fn finite_precision_for_coeff(coeff : GdaCoeff, ctx : DecimalContext) -> Int32 {
   finite_precision_for_digits(coeff_digits(coeff), ctx)
 }
 
 ///|
-fn coeff_trailing_decimal_zeros(coeff : GdaCoeff) -> Int {
+fn coeff_trailing_decimal_zeros(coeff : GdaCoeff) -> Int32 {
   let (_, _, dropped) = trim_trailing_decimal_zeros_repr(coeff, 0)
   dropped
 }
@@ -36,7 +36,7 @@ fn make_special(
   class : FpClass,
   negative : Bool,
   payload : BigInt,
-  precision : Int,
+  precision : Int32,
   signaling_nan : Bool,
 ) -> Decimal {
   make_special_repr(
@@ -53,7 +53,7 @@ fn make_special_repr(
   class : FpClass,
   negative : Bool,
   payload : GdaCoeff,
-  precision : Int,
+  precision : Int32,
   signaling_nan : Bool,
 ) -> Decimal {
   {
@@ -61,7 +61,7 @@ fn make_special_repr(
     negative,
     coefficient: payload,
     exponent10: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan,
   }
 }
@@ -106,7 +106,7 @@ fn gda_coeff_integer_sqrt_rem_repr(n : GdaCoeff) -> (GdaCoeff, GdaCoeff) {
 }
 
 ///|
-fn exact_finite_sqrt(value : Decimal, precision : Int) -> Decimal? {
+fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
   guard value.class == FpClass::Finite else { return None }
   if value.coefficient.is_zero() {
     let preferred_exponent = if value.exponent10 >= 0 {
@@ -147,8 +147,11 @@ fn exact_finite_sqrt(value : Decimal, precision : Int) -> Decimal? {
       -((-value.exponent10 + 1) / 2)
     }
     let extra_zeros = exact.exponent10 - preferred_exponent
-    let available_zeros = Int::max(0, precision - exact.coefficient.digits10())
-    let zeros_to_add = Int::min(extra_zeros, available_zeros)
+    let available_zeros = Int32::max(
+      0,
+      precision - exact.coefficient.digits10(),
+    )
+    let zeros_to_add = Int32::min(extra_zeros, available_zeros)
     if zeros_to_add > 0 {
       Some(
         finite_with_exponent_repr(
@@ -169,14 +172,14 @@ fn exact_finite_sqrt(value : Decimal, precision : Int) -> Decimal? {
 ///|
 fn exact_result_rounding_flags(
   value : Decimal,
-  preferred_exponent : Int,
+  preferred_exponent : Int32,
   ctx : DecimalContext,
 ) -> DecimalFlags {
   guard value.class == FpClass::Finite else { return DecimalFlags::new() }
   guard ctx.precision > 0 && !value.coefficient.is_zero() else {
     return DecimalFlags::new()
   }
-  let shift = Int::max(0, value.exponent10 - preferred_exponent)
+  let shift = Int32::max(0, value.exponent10 - preferred_exponent)
   let effective_digits = value.coefficient.digits10() + shift
   let extra_digits = effective_digits - ctx.precision
   guard extra_digits > 0 else { return DecimalFlags::new() }
@@ -197,12 +200,12 @@ fn exact_result_rounding_flags(
 /// than `precision` digits or round it twice).
 fn exact_result_is_subnormal(
   value : Decimal,
-  precision : Int,
+  precision : Int32,
   ctx : DecimalContext,
 ) -> Bool {
   ctx.precision > 0 &&
   !value.coefficient.is_zero() &&
-  value.exponent10 + Int::max(0, value.coefficient.digits10() - precision) <
+  value.exponent10 + Int32::max(0, value.coefficient.digits10() - precision) <
   etiny(ctx)
 }
 
@@ -239,7 +242,7 @@ fn exact_decimal_reciprocal(
   guard gda_coeff_compare_repr(without_fives, gda_coeff_from_int(1)) == 0 else {
     return None
   }
-  let scale = Int::max(twos, fives)
+  let scale = Int32::max(twos, fives)
   let magnitude = gda_coeff_multiply_repr(
     gda_coeff_pow_unit_repr(2, scale - twos),
     gda_coeff_pow_unit_repr(5, scale - fives),
@@ -382,7 +385,7 @@ fn is_finite_decimal_negative_one(value : Decimal) -> Bool {
 }
 
 ///|
-fn decimal_small_pow10(shift : Int) -> Int {
+fn decimal_small_pow10(shift : Int32) -> Int32 {
   guard shift >= 0 && shift < gda_coeff_dpun else {
     abort("decimal_small_pow10 shift exceeds one coefficient limb")
   }
@@ -393,7 +396,7 @@ fn decimal_small_pow10(shift : Int) -> Int {
 fn decimal_exact_aligned_sum_result(
   lhs : Decimal,
   rhs : Decimal,
-  target : Int,
+  target : Int32,
 ) -> (Bool, GdaCoeff) {
   guard lhs.class == FpClass::Finite && rhs.class == FpClass::Finite else {
     abort("decimal_exact_aligned_sum_result expects finite operands")
@@ -422,7 +425,10 @@ fn decimal_exact_aligned_sum_result(
   let bshift = (padding + gda_coeff_dpun) / gda_coeff_dpun - 1
   let mult = decimal_small_pow10(padding - bshift * gda_coeff_dpun)
 
-  let acc = Array::make(Int::max(low_unit_len, high_unit_len + bshift) + 2, 0U)
+  let acc = Array::make(
+    Int32::max(low_unit_len, high_unit_len + bshift) + 2,
+    0U,
+  )
   let signed_len = if low.negative == high.negative {
     gda_coeff_unit_add_sub(
       low_units, low_unit_len, high_units, high_unit_len, bshift, acc, mult,
@@ -504,7 +510,7 @@ fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         Some(value) => return value
         None => ()
       }
-      let target = Int::min(a.exponent10, b.exponent10)
+      let target = Int32::min(a.exponent10, b.exponent10)
       // Same Unit padding + decUnitAddSub mapping as GDA decAddOp
       // (decNumber.c lines 3978-4059), without a binary-integer detour.
       let (negative, magnitude) = decimal_exact_aligned_sum_result(a, b, target)
@@ -655,12 +661,12 @@ fn context_free_round_wide(
   negative : Bool,
   magnitude : GdaCoeff,
   exponent10 : Int64,
-  precision : Int,
+  precision : Int32,
   round_to_precision~ : Bool,
   reduce~ : Bool,
-  mode? : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
+  mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   let min_exponent = -2147483648L
   let max_exponent = 2147483647L
   if magnitude.is_zero() {
@@ -750,7 +756,10 @@ fn context_free_round_wide(
 }
 
 ///|
-fn compare_magnitude_to_half_ulp(value : Decimal, ulp_exponent : Int) -> Int {
+fn compare_magnitude_to_half_ulp(
+  value : Decimal,
+  ulp_exponent : Int32,
+) -> Int32 {
   let adjusted = adjusted_exponent(value)
   if adjusted < ulp_exponent - 1 {
     return -1
@@ -762,7 +771,7 @@ fn compare_magnitude_to_half_ulp(value : Decimal, ulp_exponent : Int) -> Int {
 }
 
 ///|
-fn exact_units_at_quantum_repr(value : Decimal, quantum : Int) -> GdaCoeff {
+fn exact_units_at_quantum_repr(value : Decimal, quantum : Int32) -> GdaCoeff {
   let shift = value.exponent10 - quantum
   guard shift >= 0 else {
     abort("exact_units_at_quantum_repr requires an exact non-negative shift")
@@ -782,9 +791,9 @@ fn exact_base_small_addend_step(
   base_ends_zero_or_five : Bool,
   base_negative : Bool,
   low_negative : Bool,
-  cmp_half : Int,
+  cmp_half : Int32,
   mode : DecimalRoundingMode,
-) -> Int {
+) -> Int32 {
   let delta_direction = if low_negative { -1 } else { 1 }
   let away_from_zero_direction = if base_negative { -1 } else { 1 }
   let toward_zero_direction = -away_from_zero_direction
@@ -840,7 +849,7 @@ fn exact_base_small_addend_step(
 ///|
 fn exact_base_small_addend_result(
   base : Decimal,
-  ulp_exponent : Int,
+  ulp_exponent : Int32,
   low : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -883,7 +892,7 @@ fn exact_base_small_addend_result(
 fn plain_absorbed_sum_result(
   high : Decimal,
   low : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> Decimal? {
   guard high.class == FpClass::Finite &&
     low.class == FpClass::Finite &&
@@ -1090,7 +1099,7 @@ fn gda_context_is_restricted(ctx : DecimalContext) -> Bool {
 }
 
 ///|
-fn decimal_compare_result(value : Int, ctx : DecimalContext) -> Decimal {
+fn decimal_compare_result(value : Int32, ctx : DecimalContext) -> Decimal {
   Decimal::from_int(value, precision=finite_precision_for_default(ctx))
 }
 
@@ -1113,7 +1122,7 @@ fn div_impossible_flags() -> DecimalFlags {
 }
 
 ///|
-fn decimal_order_sign(x : Decimal) -> Int {
+fn decimal_order_sign(x : Decimal) -> Int32 {
   if x.negative {
     -1
   } else {
@@ -1122,7 +1131,7 @@ fn decimal_order_sign(x : Decimal) -> Int {
 }
 
 ///|
-fn compare_int(a : Int, b : Int) -> Int {
+fn compare_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -1133,7 +1142,7 @@ fn compare_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn abs_int(value : Int) -> Int {
+fn abs_int(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -1145,7 +1154,7 @@ fn abs_int(value : Int) -> Int {
 fn integer_quotient_digit_lower_bound(
   dividend : Decimal,
   divisor : Decimal,
-) -> Int {
+) -> Int32 {
   let scale = dividend.exponent10 - divisor.exponent10
   let numerator_extra = if scale > 0 { scale } else { 0 }
   let denominator_extra = if scale < 0 { -scale } else { 0 }
@@ -1271,7 +1280,7 @@ fn divide_integer_zero_quotient_flags(
 fn decimal_division_common_magnitude_units(
   dividend : Decimal,
   divisor : Decimal,
-) -> (GdaCoeff, GdaCoeff, Int) {
+) -> (GdaCoeff, GdaCoeff, Int32) {
   let scale = dividend.exponent10 - divisor.exponent10
   if scale >= 0 {
     (
@@ -1312,7 +1321,7 @@ fn finite_integer_quotient_is_zero(
 fn compare_twice_dividend_to_divisor(
   dividend : Decimal,
   divisor : Decimal,
-) -> Int {
+) -> Int32 {
   guard dividend.class == FpClass::Finite && divisor.class == FpClass::Finite else {
     return 0
   }
@@ -1343,7 +1352,7 @@ fn decimal_integer_quotient(
   dividend : Decimal,
   other : Decimal,
   ctx : DecimalContext,
-  clamp_zero? : Bool = true,
+  clamp_zero~ : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
   match (dividend.class, other.class) {
@@ -1541,7 +1550,7 @@ fn decimal_nearest_integer_quotient(
       let quotient_precision = if limit_precision {
         precision
       } else {
-        Int::max(1, quotient.digits10())
+        Int32::max(1, quotient.digits10())
       }
       let quotient_value = finite_with_exponent_repr(
         dividend.negative != other.negative,
@@ -1571,7 +1580,7 @@ fn zero_quotient_remainder_result(
     )
   }
   if dividend.coefficient.is_zero() {
-    let target = Int::min(dividend.exponent10, divisor.exponent10)
+    let target = Int32::min(dividend.exponent10, divisor.exponent10)
     let zero = finite_with_exponent(
       if ctx.extended {
         dividend.negative
@@ -1590,14 +1599,14 @@ fn zero_quotient_remainder_result(
     !base.coefficient.is_zero() else {
     return (base, base_flags)
   }
-  let preferred_exponent = Int::min(dividend.exponent10, divisor.exponent10)
+  let preferred_exponent = Int32::min(dividend.exponent10, divisor.exponent10)
   if preferred_exponent < base.exponent10 {
     let digits = base.coefficient.digits10()
     let wanted_shift = base.exponent10 - preferred_exponent
     let actual_shift = if ctx.precision == 0 {
       wanted_shift
     } else {
-      Int::min(wanted_shift, Int::max(0, ctx.precision - digits))
+      Int32::min(wanted_shift, Int32::max(0, ctx.precision - digits))
     }
     if actual_shift > 0 {
       let shifted = finite_with_exponent_repr(

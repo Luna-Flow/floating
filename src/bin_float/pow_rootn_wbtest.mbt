@@ -9,7 +9,7 @@ fn pow_rootn_contexts() -> Array[BinaryContext] {
 }
 
 ///|
-fn pow_rootn_dyadic(coefficient : UInt64, exponent : Int) -> BinFloat {
+fn pow_rootn_dyadic(coefficient : UInt64, exponent : Int32) -> BinFloat {
   BinFloat::make(BinCoeff::from_uint64(coefficient), exponent, 53)
 }
 

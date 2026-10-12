@@ -1,7 +1,7 @@
 ///|
 // Decimal string parsing and formatting APIs.
 
-fn zeros(n : Int) -> String {
+fn zeros(n : Int32) -> String {
   let b = StringBuilder()
   for _ in 0..<n {
     b.write_char('0')
@@ -10,7 +10,7 @@ fn zeros(n : Int) -> String {
 }
 
 ///|
-fn write_zeros(builder : StringBuilder, count : Int) -> Unit {
+fn write_zeros(builder : StringBuilder, count : Int32) -> Unit {
   for _ in 0..<count {
     builder.write_char('0')
   }
@@ -20,16 +20,16 @@ fn write_zeros(builder : StringBuilder, count : Int) -> Unit {
 fn write_chars_range(
   builder : StringBuilder,
   src : String,
-  start : Int,
-  end : Int,
+  start : Int32,
+  end : Int32,
 ) -> Unit {
   for index in start..<end {
-    builder.write_char(Int::unsafe_to_char(src[index].to_int()))
+    builder.write_char(Int32::unsafe_to_char(src[index].to_int()))
   }
 }
 
 ///|
-fn write_signed_exponent10(builder : StringBuilder, exponent : Int) -> Unit {
+fn write_signed_exponent10(builder : StringBuilder, exponent : Int32) -> Unit {
   builder.write_char('E')
   if exponent >= 0 {
     builder.write_char('+')
@@ -121,7 +121,7 @@ fn format_sci_finite(value : Decimal) -> String {
   if value.negative {
     builder.write_char('-')
   }
-  builder.write_char(Int::unsafe_to_char(digits[0].to_int()))
+  builder.write_char(Int32::unsafe_to_char(digits[0].to_int()))
   if digits.length() > 1 {
     builder.write_char('.')
     write_chars_range(builder, digits, 1, digits.length())
@@ -221,10 +221,10 @@ fn ascii_lower(src : String) -> String {
     let ch = src[i]
     if ch >= 'A' && ch <= 'Z' {
       b.write_char(
-        Int::unsafe_to_char(ch.to_int() + ('a'.to_int() - 'A'.to_int())),
+        Int32::unsafe_to_char(ch.to_int() + ('a'.to_int() - 'A'.to_int())),
       )
     } else {
-      b.write_char(Int::unsafe_to_char(ch.to_int()))
+      b.write_char(Int32::unsafe_to_char(ch.to_int()))
     }
   }
   b.to_string()
@@ -346,7 +346,7 @@ fn decimal_zero_conversion_result(
 ///|
 fn decimal_extreme_tiny_conversion_result(
   negative : Bool,
-  original_digits : Int,
+  original_digits : Int32,
   exponent10 : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
@@ -518,9 +518,9 @@ fn parse_decimal_string_ctx(
 ///|
 pub fn Decimal::parse(
   src : String,
-  precision? : Int = 34,
+  precision~ : Int32 = 34,
 ) -> Result[Decimal, @def.ArithmeticError] {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   let ctx = match DecimalContext::new(precision~) {
     Err(error) => return Err(error)
     Ok(ctx) => ctx
@@ -583,7 +583,7 @@ pub fn Decimal::parse(
 }
 
 ///|
-pub fn Decimal::from_string(src : String, precision? : Int = 34) -> Decimal? {
+pub fn Decimal::from_string(src : String, precision~ : Int32 = 34) -> Decimal? {
   match Decimal::parse(src, precision~) {
     Ok(value) => Some(value)
     Err(_) => None

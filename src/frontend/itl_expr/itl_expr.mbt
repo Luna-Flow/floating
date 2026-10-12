@@ -94,32 +94,32 @@ pub fn summarize_results(results : Array[ItlResult]) -> RunSummary {
 }
 
 ///|
-pub fn RunSummary::total_cases(self : RunSummary) -> Int {
+pub fn RunSummary::total_cases(self : RunSummary) -> Int32 {
   self.inner.total_cases()
 }
 
 ///|
-pub fn RunSummary::executable_cases(self : RunSummary) -> Int {
+pub fn RunSummary::executable_cases(self : RunSummary) -> Int32 {
   self.inner.executable_cases()
 }
 
 ///|
-pub fn RunSummary::passed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::passed_cases(self : RunSummary) -> Int32 {
   self.inner.passed_cases()
 }
 
 ///|
-pub fn RunSummary::failed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::failed_cases(self : RunSummary) -> Int32 {
   self.inner.failed_cases()
 }
 
 ///|
-pub fn RunSummary::diagnostic_cases(self : RunSummary) -> Int {
+pub fn RunSummary::diagnostic_cases(self : RunSummary) -> Int32 {
   self.inner.diagnostic_cases()
 }
 
 ///|
-pub fn RunSummary::unsupported_cases(self : RunSummary) -> Int {
+pub fn RunSummary::unsupported_cases(self : RunSummary) -> Int32 {
   self.inner.unsupported_cases()
 }
 
@@ -134,7 +134,7 @@ pub fn RunSummary::success(self : RunSummary) -> Bool {
 }
 
 ///|
-fn find_char(src : String, target : UInt16) -> Int? {
+fn find_char(src : String, target : UInt16) -> Int32? {
   for index in 0..<src.length() {
     if src[index] == target {
       return Some(index)
@@ -152,10 +152,10 @@ fn split_words_preserving_intervals(src : String) -> Array[String] {
     let ch = src[index]
     if ch == '[' {
       bracket_depth += 1
-      builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int()))
     } else if ch == ']' {
       bracket_depth -= 1
-      builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int()))
     } else if (ch == ' ' || ch == '\t') && bracket_depth == 0 {
       let word = builder.to_string()
       if word.length() > 0 {
@@ -163,7 +163,7 @@ fn split_words_preserving_intervals(src : String) -> Array[String] {
         builder.reset()
       }
     } else {
-      builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int()))
     }
   }
   let word = builder.to_string()
@@ -176,7 +176,7 @@ fn split_words_preserving_intervals(src : String) -> Array[String] {
 ///|
 fn parse_statement(
   testcase : String,
-  index : Int,
+  index : Int32,
   statement : String,
 ) -> Result[ItlCase, String] {
   guard find_char(statement, '=') is Some(equals) else {
@@ -301,7 +301,7 @@ fn split_literal_decoration(src : String) -> (String, String?) {
 ///|
 fn parse_bound(
   src : String,
-  precision : Int,
+  precision : Int32,
   mode : @lf_arith.RoundingMode,
 ) -> @bin_float.BinFloat? {
   let normalized = src.trim().to_owned()
@@ -330,7 +330,7 @@ fn parse_bound(
 }
 
 ///|
-fn parse_int_option(src : String) -> Int? {
+fn parse_int_option(src : String) -> Int32? {
   try @string.parse_int(src) catch {
     _ => None
   } noraise {
@@ -341,7 +341,7 @@ fn parse_int_option(src : String) -> Int? {
 ///|
 fn parse_hex_bound(
   src : String,
-  precision : Int,
+  precision : Int32,
   mode : @lf_arith.RoundingMode,
 ) -> @bin_float.BinFloat? {
   let negative = src.has_prefix("-")
@@ -372,7 +372,7 @@ fn parse_hex_bound(
     if ch == '.' {
       after_point = true
     } else {
-      digits.write_char(Int::unsafe_to_char(ch.to_int()))
+      digits.write_char(Int32::unsafe_to_char(ch.to_int()))
       if after_point {
         fractional_digits += 1
       }
@@ -386,7 +386,7 @@ fn parse_hex_bound(
     @bin_float.BinFloat::make(
       magnitude,
       exponent - 4 * fractional_digits,
-      Int::max(precision, magnitude.bit_length()),
+      Int32::max(precision, magnitude.bit_length()),
       negative~,
     ).with_precision(precision, mode),
   )
@@ -395,7 +395,7 @@ fn parse_hex_bound(
 ///|
 fn parse_interval(
   src : String,
-  precision : Int,
+  precision : Int32,
 ) -> @ball_float.BallFloatDecorated? {
   let (literal, decoration_src) = split_literal_decoration(
     src.trim().to_owned(),
@@ -454,7 +454,7 @@ fn parse_interval(
 /// The interval format of a run: `precision` significand bits with the
 /// binary64 exponent range, the range the ITF1788 data is written for.
 /// `precision = 53` is exactly `BallContext::binary64()`.
-fn result_context(precision : Int) -> @ball_float.BallContext {
+fn result_context(precision : Int32) -> @ball_float.BallContext {
   @ball_float.BallContext::new(precision~)
 }
 
@@ -522,7 +522,7 @@ fn boolean_operation(name : String) -> Bool {
 }
 
 ///|
-pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
+pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
   if case.expected_ == "true" || case.expected_ == "false" {
     return execute_boolean_case(case, precision)
   }
@@ -649,7 +649,7 @@ pub fn execute_case(case : ItlCase, precision? : Int = 53) -> ItlResult {
 }
 
 ///|
-fn execute_pown_case(case : ItlCase, precision : Int) -> ItlResult {
+fn execute_pown_case(case : ItlCase, precision : Int32) -> ItlResult {
   guard case.operands_.length() == 2 &&
     parse_interval(case.operands_[0], precision) is Some(base) &&
     parse_int_option(case.operands_[1]) is Some(exponent) else {
@@ -687,7 +687,7 @@ fn execute_pown_case(case : ItlCase, precision : Int) -> ItlResult {
 }
 
 ///|
-fn execute_fma_case(case : ItlCase, precision : Int) -> ItlResult {
+fn execute_fma_case(case : ItlCase, precision : Int32) -> ItlResult {
   guard case.operands_.length() == 3 &&
     parse_interval(case.operands_[0], precision) is Some(left) &&
     parse_interval(case.operands_[1], precision) is Some(multiplier) &&
@@ -726,7 +726,7 @@ fn execute_fma_case(case : ItlCase, precision : Int) -> ItlResult {
 }
 
 ///|
-fn execute_interval_unary_case(case : ItlCase, precision : Int) -> ItlResult {
+fn execute_interval_unary_case(case : ItlCase, precision : Int32) -> ItlResult {
   guard case.operands_.length() == 1 &&
     parse_interval(case.operands_[0], precision) is Some(operand) else {
     return {
@@ -790,7 +790,7 @@ fn execute_interval_unary_case(case : ItlCase, precision : Int) -> ItlResult {
 }
 
 ///|
-fn execute_numeric_case(case : ItlCase, precision : Int) -> ItlResult {
+fn execute_numeric_case(case : ItlCase, precision : Int32) -> ItlResult {
   guard case.operands_.length() == 1 &&
     parse_interval(case.operands_[0], precision) is Some(operand) else {
     return {
@@ -861,7 +861,7 @@ fn overlap_name(state : @ball_float.OverlapState) -> String {
 }
 
 ///|
-fn execute_overlap_case(case : ItlCase, precision : Int) -> ItlResult {
+fn execute_overlap_case(case : ItlCase, precision : Int32) -> ItlResult {
   guard case.operands_.length() == 2 &&
     parse_interval(case.operands_[0], precision) is Some(left) &&
     parse_interval(case.operands_[1], precision) is Some(right) else {
@@ -889,7 +889,7 @@ fn execute_overlap_case(case : ItlCase, precision : Int) -> ItlResult {
 ///|
 fn parse_boolean_interval(
   src : String,
-  precision : Int,
+  precision : Int32,
 ) -> @ball_float.BallFloatDecorated? {
   parse_interval(src, precision)
 }
@@ -911,7 +911,7 @@ fn boolean_result(case : ItlCase, actual : Bool) -> ItlResult {
 }
 
 ///|
-fn execute_boolean_case(case : ItlCase, precision : Int) -> ItlResult {
+fn execute_boolean_case(case : ItlCase, precision : Int32) -> ItlResult {
   guard boolean_operation(case.operation_) else {
     return {
       id_: case.id_,

@@ -37,9 +37,9 @@ priv struct MpfrElementaryCase {
   operation : MpfrElementaryOperation
   left : @bin_float.BinFloat
   right : @bin_float.BinFloat?
-  integer : Int
+  integer : Int32
   expected : @bin_float.BinFloat
-  output_precision : Int
+  output_precision : Int32
   rounding : @bin_float.BinaryRoundingMode
   inexact : Bool
   invalid : Bool
@@ -185,7 +185,9 @@ pub fn MpfrElementaryDocument::source(self : MpfrElementaryDocument) -> String {
 }
 
 ///|
-pub fn MpfrElementaryDocument::case_count(self : MpfrElementaryDocument) -> Int {
+pub fn MpfrElementaryDocument::case_count(
+  self : MpfrElementaryDocument,
+) -> Int32 {
   self.cases.length()
 }
 

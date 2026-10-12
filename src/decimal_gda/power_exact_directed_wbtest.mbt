@@ -43,7 +43,7 @@ test "power decides exact non-integral results in every rounding mode" {
 test "power rounds an exact result longer than the precision" {
   // 2.25^1.5 = 3.375 is exact. At three digits it is the midpoint of
   // 3.37 and 3.38; at two digits it lies inside the cell (3.3, 3.4).
-  let check = (precision : Int, mode : GdaRoundingMode, expected : String) => {
+  let check = (precision : Int32, mode : GdaRoundingMode, expected : String) => {
     let ctx = GdaContext::new(
       precision~,
       rounding=mode,

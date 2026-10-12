@@ -12,7 +12,7 @@ fn gda_coeff_owned(value : GdaCoeff) -> GdaCoeff {
 ///|
 fn gda_coeff_div_rem_power_limbs(
   value : GdaCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> (GdaCoeff, GdaCoeff) {
   guard shift >= 0 else {
     abort("decimal coefficient base-power division shift is negative")
@@ -31,7 +31,7 @@ fn gda_coeff_div_rem_power_limbs(
 }
 
 ///|
-fn gda_coeff_bz_max_quotient(block_len : Int) -> GdaCoeff {
+fn gda_coeff_bz_max_quotient(block_len : Int32) -> GdaCoeff {
   guard block_len > 0 else {
     abort("Burnikel-Ziegler quotient block length must be positive")
   }
@@ -45,9 +45,9 @@ fn gda_coeff_bz_max_quotient(block_len : Int) -> GdaCoeff {
 fn gda_coeff_div_3n_2n_bz(
   numerator : GdaCoeff,
   denominator : GdaCoeff,
-  half_len : Int,
+  half_len : Int32,
   arena : GdaCoeffScratchArena,
-  depth : Int,
+  depth : Int32,
 ) -> (GdaCoeff, GdaCoeff) {
   if half_len <= gda_coeff_bz_recursive_threshold || depth >= 64 {
     return gda_coeff_div_rem_knuth_repr(numerator, denominator)
@@ -118,9 +118,9 @@ fn gda_coeff_div_3n_2n_bz(
 fn gda_coeff_div_2n_1n_bz(
   numerator : GdaCoeff,
   denominator : GdaCoeff,
-  block_len : Int,
+  block_len : Int32,
   arena : GdaCoeffScratchArena,
-  depth : Int,
+  depth : Int32,
 ) -> (GdaCoeff, GdaCoeff) {
   if block_len <= gda_coeff_bz_recursive_threshold ||
     (block_len & 1) != 0 ||

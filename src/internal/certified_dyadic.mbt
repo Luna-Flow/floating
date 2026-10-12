@@ -1,17 +1,20 @@
 ///|
 pub struct CertifiedDyadic {
   numerator_ : BigInt
-  scale_ : Int
+  scale_ : Int32
 }
 
 ///|
-pub fn CertifiedDyadic::new(numerator : BigInt, scale : Int) -> CertifiedDyadic {
+pub fn CertifiedDyadic::new(
+  numerator : BigInt,
+  scale : Int32,
+) -> CertifiedDyadic {
   guard scale >= 0 else { abort("certified dyadic scale must be non-negative") }
   { numerator_: numerator, scale_: scale, }
 }
 
 ///|
-pub fn CertifiedDyadic::from_int(value : Int) -> CertifiedDyadic {
+pub fn CertifiedDyadic::from_int(value : Int32) -> CertifiedDyadic {
   CertifiedDyadic::new(BigInt::from_int(value), 0)
 }
 
@@ -21,7 +24,7 @@ pub fn CertifiedDyadic::numerator(self : CertifiedDyadic) -> BigInt {
 }
 
 ///|
-pub fn CertifiedDyadic::scale(self : CertifiedDyadic) -> Int {
+pub fn CertifiedDyadic::scale(self : CertifiedDyadic) -> Int32 {
   self.scale_
 }
 
@@ -29,8 +32,8 @@ pub fn CertifiedDyadic::scale(self : CertifiedDyadic) -> Int {
 pub fn CertifiedDyadic::compare(
   self : CertifiedDyadic,
   other : CertifiedDyadic,
-) -> Int {
-  let scale = Int::max(self.scale_, other.scale_)
+) -> Int32 {
+  let scale = Int32::max(self.scale_, other.scale_)
   let left = self.numerator_ << (scale - self.scale_)
   let right = other.numerator_ << (scale - other.scale_)
   left.compare(right)
@@ -46,7 +49,7 @@ pub fn CertifiedDyadic::add(
   self : CertifiedDyadic,
   other : CertifiedDyadic,
 ) -> CertifiedDyadic {
-  let scale = Int::max(self.scale_, other.scale_)
+  let scale = Int32::max(self.scale_, other.scale_)
   CertifiedDyadic::new(
     (self.numerator_ << (scale - self.scale_)) +
     (other.numerator_ << (scale - other.scale_)),
@@ -94,7 +97,7 @@ fn certified_ceil_ratio(numerator : BigInt, denominator : BigInt) -> BigInt {
 ///|
 pub fn CertifiedDyadic::round_down(
   self : CertifiedDyadic,
-  scale : Int,
+  scale : Int32,
 ) -> CertifiedDyadic {
   guard scale >= 0 else { abort("certified dyadic scale must be non-negative") }
   if scale >= self.scale_ {
@@ -113,7 +116,7 @@ pub fn CertifiedDyadic::round_down(
 ///|
 pub fn CertifiedDyadic::round_up(
   self : CertifiedDyadic,
-  scale : Int,
+  scale : Int32,
 ) -> CertifiedDyadic {
   guard scale >= 0 else { abort("certified dyadic scale must be non-negative") }
   if scale >= self.scale_ {
@@ -133,7 +136,7 @@ pub fn CertifiedDyadic::round_up(
 pub fn certified_dyadic_fraction(
   numerator : BigInt,
   denominator : BigInt,
-  scale : Int,
+  scale : Int32,
 ) -> Result[CertifiedInterval[CertifiedDyadic], @def.ArithmeticError] {
   guard denominator > BigInt::from_int(0) else {
     return Err(
@@ -152,7 +155,7 @@ pub fn certified_dyadic_fraction(
 pub fn certified_dyadic_div(
   numerator : CertifiedDyadic,
   denominator : CertifiedDyadic,
-  scale : Int,
+  scale : Int32,
 ) -> Result[CertifiedInterval[CertifiedDyadic], @def.ArithmeticError] {
   guard denominator.numerator_ != BigInt::from_int(0) else {
     return Err(

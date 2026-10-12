@@ -40,8 +40,8 @@ pub fn BinFloatResult::err(err : @def.ArithmeticError) -> BinFloatResult {
 
 ///|
 pub fn BinFloatResult::from_int(
-  value : Int,
-  precision? : Int = 53,
+  value : Int32,
+  precision~ : Int32 = 53,
 ) -> BinFloatResult {
   BinFloatResult::ok(@bin_float.BinFloat::from_int(value, precision~))
 }
@@ -49,8 +49,8 @@ pub fn BinFloatResult::from_int(
 ///|
 pub fn BinFloatResult::from_coefficient(
   value : @bin_float.BinCoeff,
-  precision? : Int = 53,
-  negative? : Bool = false,
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
 ) -> BinFloatResult {
   BinFloatResult::ok(
     @bin_float.BinFloat::from_coefficient(value, precision~, negative~),
@@ -60,7 +60,7 @@ pub fn BinFloatResult::from_coefficient(
 ///|
 pub fn BinFloatResult::from_double(
   value : Double,
-  precision? : Int = 53,
+  precision~ : Int32 = 53,
 ) -> BinFloatResult {
   BinFloatResult::ok(@bin_float.BinFloat::from_double(value, precision~))
 }
@@ -68,7 +68,7 @@ pub fn BinFloatResult::from_double(
 ///|
 pub fn BinFloatResult::from_float(
   value : Float,
-  precision? : Int = 24,
+  precision~ : Int32 = 24,
 ) -> BinFloatResult {
   BinFloatResult::ok(@bin_float.BinFloat::from_float(value, precision~))
 }
@@ -126,7 +126,7 @@ pub fn BinFloatResult::normalized(self : BinFloatResult) -> BinFloatResult {
 ///|
 pub fn BinFloatResult::with_precision(
   self : BinFloatResult,
-  precision : Int,
+  precision : Int32,
   mode : @def.RoundingMode,
 ) -> BinFloatResult {
   self.map(fn(value) { value.with_precision(precision, mode) })
@@ -482,7 +482,7 @@ pub fn BinFloatResult::hypot(
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(left, right) {
       let context = @bin_float.BinaryContext::unbounded(
-        Int::max(left.precision(), right.precision()),
+        Int32::max(left.precision(), right.precision()),
       )
       left.try_hypot_ctx(right, context).map(fn(result) { result.0 })
     }),
@@ -505,7 +505,7 @@ pub fn BinFloatResult::hypot_ctx(
 ///|
 pub fn BinFloatResult::pow_nat(
   self : BinFloatResult,
-  exponent : UInt,
+  exponent : UInt32,
 ) -> BinFloatResult {
   self.bind(fn(value) {
     let ctx = @lf_arith.ArithmeticContext::new(value.precision())
@@ -518,7 +518,7 @@ pub fn BinFloatResult::pow_nat(
 ///|
 pub fn BinFloatResult::pow_int(
   self : BinFloatResult,
-  exponent : Int,
+  exponent : Int32,
 ) -> BinFloatResult {
   self.bind(fn(value) { BinFloatResult::from_result(value.pow_int(exponent)) })
 }
@@ -526,7 +526,7 @@ pub fn BinFloatResult::pow_int(
 ///|
 pub fn BinFloatResult::pow_int_ctx(
   self : BinFloatResult,
-  exponent : Int,
+  exponent : Int32,
   context : @bin_float.BinaryContext,
 ) -> BinFloatResult {
   self.bind(fn(value) {
@@ -537,7 +537,7 @@ pub fn BinFloatResult::pow_int_ctx(
 ///|
 pub fn BinFloatResult::pown(
   self : BinFloatResult,
-  exponent : Int,
+  exponent : Int32,
 ) -> BinFloatResult {
   self.bind(fn(value) { BinFloatResult::from_result(value.pown(exponent)) })
 }
@@ -545,7 +545,7 @@ pub fn BinFloatResult::pown(
 ///|
 pub fn BinFloatResult::pown_ctx(
   self : BinFloatResult,
-  exponent : Int,
+  exponent : Int32,
   context : @bin_float.BinaryContext,
 ) -> BinFloatResult {
   self.bind(fn(value) {
@@ -556,7 +556,7 @@ pub fn BinFloatResult::pown_ctx(
 ///|
 pub fn BinFloatResult::rootn(
   self : BinFloatResult,
-  degree : Int,
+  degree : Int32,
 ) -> BinFloatResult {
   self.bind(fn(value) {
     let context = @bin_float.BinaryContext::unbounded(value.precision())
@@ -569,7 +569,7 @@ pub fn BinFloatResult::rootn(
 ///|
 pub fn BinFloatResult::rootn_ctx(
   self : BinFloatResult,
-  degree : Int,
+  degree : Int32,
   context : @bin_float.BinaryContext,
 ) -> BinFloatResult {
   self.bind(fn(value) {
@@ -587,7 +587,7 @@ pub fn BinFloatResult::pow(
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, exponent.inner, fn(base, power) {
       let context = @bin_float.BinaryContext::unbounded(
-        Int::max(base.precision(), power.precision()),
+        Int32::max(base.precision(), power.precision()),
       )
       base.try_pow_ctx(power, context).map(fn(result) { result.0 })
     }),
@@ -771,7 +771,7 @@ pub fn BinFloatResult::atan2(
       horizontal,
     ) {
       let context = @bin_float.BinaryContext::unbounded(
-        Int::max(ordinate.precision(), horizontal.precision()),
+        Int32::max(ordinate.precision(), horizontal.precision()),
       )
       ordinate.try_atan2_ctx(horizontal, context).map(fn(result) { result.0 })
     }),

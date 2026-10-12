@@ -52,6 +52,14 @@ notes live in this file.
 
 ### Changed
 
+- Builds with the latest MoonBit toolchain (moon 0.1.20261012, moonc 0.10.15):
+  the dependencies are raised to `Luna-Flow/arithmetic` 0.5.1,
+  `Luna-Flow/type_theory` 0.4.0 and `Luna-Flow/mare_mark` 0.4.0 (their earlier
+  releases depend on packages that ship the legacy `moon.mod.json`, which the new
+  toolchain rejects), the four decimal cache cells use `@ref.Ref(...)` instead
+  of the deprecated `@ref.new(...)`, and the sources follow the formatter of that
+  toolchain.
+
 - **Caller-visible:** `decimal_gda`'s `Decimal::exp_contextual` (and any other
   `*_contextual` adapter that meets the condition), `pow_int_checked` and
   `pow_nat_checked` now report a GDA `Invalid_context` as

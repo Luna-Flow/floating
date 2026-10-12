@@ -6,8 +6,8 @@ pub struct Decimal {
   priv class : FpClass
   priv negative : Bool
   priv coefficient : DecCoeff
-  priv exponent10 : Int
-  priv precision_ : Int
+  priv exponent10 : Int32
+  priv precision_ : Int32
   priv signaling_nan : Bool
 } derive(Debug)
 
@@ -70,11 +70,11 @@ pub struct DecimalInterchange {
 
 ///|
 pub struct DecimalContext {
-  priv precision : Int
+  priv precision : Int32
   priv rounding : RoundingMode
   priv decimal_rounding : DecimalRoundingMode
-  priv e_min : Int
-  priv e_max : Int
+  priv e_min : Int32
+  priv e_max : Int32
   priv clamp : Bool
   priv extended : Bool
   priv tininess : DecimalTininessDetection
@@ -99,7 +99,7 @@ pub struct DecimalFlags {
 
 ///|
 priv struct DecimalMathConstantCache {
-  scale : Int
+  scale : Int32
   ln2 : DecCoeff
   ln5 : DecCoeff
   ln10 : DecCoeff
@@ -107,16 +107,16 @@ priv struct DecimalMathConstantCache {
 
 ///|
 priv struct DecimalExpBoundaryCacheEntry {
-  precision : Int
-  e_min : Int
-  e_max : Int
+  precision : Int32
+  e_min : Int32
+  e_max : Int32
   clamp : Bool
   lower : Decimal
   upper : Decimal
 }
 
 ///|
-let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.new({
+let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.Ref({
     scale: 0,
     ln2: dec_coeff_zero(),
     ln5: dec_coeff_zero(),
@@ -205,14 +205,14 @@ pub fn DecimalFlags::contains(
 
 ///|
 pub fn DecimalContext::new(
-  precision? : Int = 34,
-  rounding? : RoundingMode = RoundingMode::ToNearestEven,
+  precision~ : Int32 = 34,
+  rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
-  e_min? : Int = -999_999_999,
-  e_max? : Int = 999_999_999,
-  clamp? : Bool = false,
-  extended? : Bool = true,
-  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+  tininess~ : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
@@ -245,14 +245,14 @@ pub fn DecimalContext::new(
 
 ///|
 pub fn DecimalContext::try_new(
-  precision? : Int = 34,
-  rounding? : RoundingMode = RoundingMode::ToNearestEven,
+  precision~ : Int32 = 34,
+  rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
-  e_min? : Int = -999_999_999,
-  e_max? : Int = 999_999_999,
-  clamp? : Bool = false,
-  extended? : Bool = true,
-  tininess? : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+  tininess~ : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   DecimalContext::new(
     precision~,
@@ -267,7 +267,7 @@ pub fn DecimalContext::try_new(
 }
 
 ///|
-pub fn DecimalContext::precision(self : DecimalContext) -> Int {
+pub fn DecimalContext::precision(self : DecimalContext) -> Int32 {
   self.precision
 }
 
@@ -301,12 +301,12 @@ pub fn DecimalContext::decimal_rounding(
 }
 
 ///|
-pub fn DecimalContext::e_min(self : DecimalContext) -> Int {
+pub fn DecimalContext::e_min(self : DecimalContext) -> Int32 {
   self.e_min
 }
 
 ///|
-pub fn DecimalContext::e_max(self : DecimalContext) -> Int {
+pub fn DecimalContext::e_max(self : DecimalContext) -> Int32 {
   self.e_max
 }
 

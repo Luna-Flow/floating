@@ -4,9 +4,9 @@ fn ascii_lower(src : String) -> String {
   for index in 0..<src.length() {
     let ch = src[index]
     if ch >= 'A' && ch <= 'Z' {
-      builder.write_char(Int::unsafe_to_char(ch.to_int() + 32))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int() + 32))
     } else {
-      builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int()))
     }
   }
   builder.to_string()
@@ -19,14 +19,14 @@ fn normalized_word(src : String) -> String {
   for index in 0..<lower.length() {
     let ch = lower[index]
     if ch != '-' && ch != '_' && ch != ' ' && ch != '\t' {
-      builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int()))
     }
   }
   builder.to_string()
 }
 
 ///|
-fn find_unquoted(src : String, target : UInt16) -> Int {
+fn find_unquoted(src : String, target : UInt16) -> Int32 {
   let mut quote : UInt16? = None
   for index in 0..<src.length() {
     let ch = src[index]
@@ -64,7 +64,7 @@ fn strip_comment(src : String) -> String {
 }
 
 ///|
-fn find_arrow(src : String) -> Int {
+fn find_arrow(src : String) -> Int32 {
   let mut quote : UInt16? = None
   let mut index = 0
   while index + 1 < src.length() {
@@ -98,7 +98,7 @@ fn tokenize(src : String) -> Result[Array[String], String] {
         if ch == active && index < src.length() && src[index] == active {
           // decTest: a doubled delimiter inside a quoted token is one literal
           // delimiter character and does not end the token.
-          builder.write_char(Int::unsafe_to_char(ch.to_int()))
+          builder.write_char(Int32::unsafe_to_char(ch.to_int()))
           has_content = true
           index += 1
         } else if ch == active {
@@ -107,7 +107,7 @@ fn tokenize(src : String) -> Result[Array[String], String] {
           has_content = false
           quote = None
         } else {
-          builder.write_char(Int::unsafe_to_char(ch.to_int()))
+          builder.write_char(Int32::unsafe_to_char(ch.to_int()))
           has_content = true
         }
       None =>
@@ -125,7 +125,7 @@ fn tokenize(src : String) -> Result[Array[String], String] {
             has_content = false
           }
         } else {
-          builder.write_char(Int::unsafe_to_char(ch.to_int()))
+          builder.write_char(Int32::unsafe_to_char(ch.to_int()))
           has_content = true
         }
     }
@@ -141,7 +141,7 @@ fn tokenize(src : String) -> Result[Array[String], String] {
 }
 
 ///|
-fn parse_int_value(src : String) -> Int? {
+fn parse_int_value(src : String) -> Int32? {
   try @string.parse_int(src) catch {
     _ => None
   } noraise {

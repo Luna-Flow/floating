@@ -3,7 +3,7 @@
 /// overflow, underflow, and subnormal handling.
 pub fn BinFloat::scaleb_ctx(
   self : BinFloat,
-  n : Int,
+  n : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   match self.class {
@@ -65,7 +65,7 @@ pub fn BinFloat::logb_ctx(
         (
           BinFloat::from_int(
             binary_exact_top(self.coefficient_, self.exponent2),
-            precision=Int::max(context.precision, 32),
+            precision=Int32::max(context.precision, 32),
           ),
           BinaryFlags::new(),
         )

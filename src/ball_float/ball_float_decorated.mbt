@@ -8,7 +8,7 @@ pub(all) enum Decoration {
 } derive(Eq, Debug)
 
 ///|
-fn decoration_rank(decoration : Decoration) -> Int {
+fn decoration_rank(decoration : Decoration) -> Int32 {
   match decoration {
     Ill => 0
     Trv => 1
@@ -53,7 +53,7 @@ pub struct BallFloatDecorated {
 ///|
 pub fn BallFloatDecorated::new(
   interval : BallFloat,
-  decoration? : Decoration = Com,
+  decoration~ : Decoration = Com,
 ) -> BallFloatDecorated {
   {
     interval_: interval,
@@ -63,7 +63,7 @@ pub fn BallFloatDecorated::new(
 }
 
 ///|
-pub fn BallFloatDecorated::nai(precision? : Int = 53) -> BallFloatDecorated {
+pub fn BallFloatDecorated::nai(precision~ : Int32 = 53) -> BallFloatDecorated {
   { interval_: BallFloat::empty(precision~), decoration_: Ill, nai_: true, }
 }
 
@@ -201,7 +201,7 @@ fn binary_result(
 ) -> BallFloatDecorated {
   if left.is_nai() || right.is_nai() {
     return BallFloatDecorated::nai(
-      precision=Int::max(
+      precision=Int32::max(
         left.interval_.precision(),
         right.interval_.precision(),
       ),
@@ -444,7 +444,7 @@ pub fn BallFloatDecorated::log1p_interval(
 ///|
 pub fn BallFloatDecorated::rootn(
   self : BallFloatDecorated,
-  degree : Int,
+  degree : Int32,
 ) -> BallFloatDecorated {
   // rootn(x, n) is undefined for n = 0, for x < 0 when n is even and at
   // x = 0 when n is negative (x^(-1/n) has a pole there).
@@ -700,9 +700,12 @@ pub fn BallFloatDecorated::fma(
 ) -> BallFloatDecorated {
   if self.is_nai() || multiplier.is_nai() || addend.is_nai() {
     return BallFloatDecorated::nai(
-      precision=Int::max(
+      precision=Int32::max(
         self.interval_.precision(),
-        Int::max(multiplier.interval_.precision(), addend.interval_.precision()),
+        Int32::max(
+          multiplier.interval_.precision(),
+          addend.interval_.precision(),
+        ),
       ),
     )
   }
@@ -718,7 +721,7 @@ pub fn BallFloatDecorated::fma(
 ///|
 pub fn BallFloatDecorated::pown(
   self : BallFloatDecorated,
-  exponent : Int,
+  exponent : Int32,
 ) -> BallFloatDecorated {
   unary_result(
     self,

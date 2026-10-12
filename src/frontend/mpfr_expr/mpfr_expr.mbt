@@ -3,7 +3,7 @@ pub struct MpfrCase {
   priv id : String
   priv input : @bin_float.BinFloat
   priv expected : @bin_float.BinFloat
-  priv output_precision : Int
+  priv output_precision : Int32
   priv rounding : @bin_float.BinaryRoundingMode
 }
 
@@ -17,9 +17,9 @@ pub struct MpfrDocument {
 pub struct MpfrPowCase {
   priv id : String
   priv input : @bin_float.BinFloat
-  priv exponent : Int
+  priv exponent : Int32
   priv expected : @bin_float.BinFloat
-  priv output_precision : Int
+  priv output_precision : Int32
   priv rounding : @bin_float.BinaryRoundingMode
   priv inexact : Bool
 }
@@ -70,7 +70,7 @@ fn tokenize(source : String) -> Array[String] {
 }
 
 ///|
-fn parse_int(source : String) -> Int? {
+fn parse_int(source : String) -> Int32? {
   try @string.parse_int(source) catch {
     _ => None
   } noraise {
@@ -265,7 +265,7 @@ pub fn MpfrDocument::source(self : MpfrDocument) -> String {
 }
 
 ///|
-pub fn MpfrDocument::case_count(self : MpfrDocument) -> Int {
+pub fn MpfrDocument::case_count(self : MpfrDocument) -> Int32 {
   self.cases.length()
 }
 
@@ -275,12 +275,12 @@ pub fn MpfrPowDocument::source(self : MpfrPowDocument) -> String {
 }
 
 ///|
-pub fn MpfrPowDocument::case_count(self : MpfrPowDocument) -> Int {
+pub fn MpfrPowDocument::case_count(self : MpfrPowDocument) -> Int32 {
   self.cases.length()
 }
 
 ///|
-pub fn ParseDiagnostic::line(self : ParseDiagnostic) -> Int {
+pub fn ParseDiagnostic::line(self : ParseDiagnostic) -> Int32 {
   self.location.line()
 }
 
@@ -384,17 +384,17 @@ pub fn execute_pow_data(document : MpfrPowDocument) -> RunSummary {
 }
 
 ///|
-pub fn RunSummary::total_cases(self : RunSummary) -> Int {
+pub fn RunSummary::total_cases(self : RunSummary) -> Int32 {
   self.inner.total_cases()
 }
 
 ///|
-pub fn RunSummary::passed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::passed_cases(self : RunSummary) -> Int32 {
   self.inner.passed_cases()
 }
 
 ///|
-pub fn RunSummary::failed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::failed_cases(self : RunSummary) -> Int32 {
   self.inner.failed_cases()
 }
 

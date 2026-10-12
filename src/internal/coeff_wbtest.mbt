@@ -12,7 +12,7 @@ fn coeff_reference_values() -> Array[BigInt] {
 }
 
 ///|
-fn coeff_assert_shift_round_sticky(value : BigInt, shift : Int) -> Unit raise {
+fn coeff_assert_shift_round_sticky(value : BigInt, shift : Int32) -> Unit raise {
   let coefficient = coeff_from_nonnegative_bigint(value)
   let quotient = coeff_shift_right(coefficient, shift)
   let expected_quotient = value >> shift
@@ -52,13 +52,13 @@ fn coeff_test_next_random(state : BigInt) -> BigInt {
 }
 
 ///|
-fn coeff_test_random_value(state : BigInt, bits : Int) -> (BigInt, BigInt) {
+fn coeff_test_random_value(state : BigInt, bits : Int32) -> (BigInt, BigInt) {
   let mut state = state
   let mut value = 0N
   let mut remaining = bits
   while remaining > 0 {
     state = coeff_test_next_random(state)
-    let chunk_bits = Int::min(remaining, 60)
+    let chunk_bits = Int32::min(remaining, 60)
     value = (value << chunk_bits) + state % (1N << chunk_bits)
     remaining -= chunk_bits
   }

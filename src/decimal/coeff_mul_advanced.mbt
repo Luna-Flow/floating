@@ -67,7 +67,7 @@ fn DecCoeffSignedScratch::mul(
 ///|
 fn DecCoeffSignedScratch::div_exact_small(
   self : DecCoeffSignedScratch,
-  divisor : Int,
+  divisor : Int32,
 ) -> DecCoeffSignedScratch {
   let (quotient, remainder) = dec_coeff_div_rem_by_unit_repr(
     self.magnitude,
@@ -90,15 +90,15 @@ fn DecCoeffSignedScratch::nonnegative(self : DecCoeffSignedScratch) -> DecCoeff 
 ///|
 priv struct DecCoeffScratchArena {
   slots : Array[DecCoeff]
-  mut used : Int
-  limb_buffers : Array[Array[UInt]]
-  mut limb_used : Int
+  mut used : Int32
+  limb_buffers : Array[Array[UInt32]]
+  mut limb_used : Int32
 }
 
 ///|
-fn dec_coeff_scratch_arena_new(capacity : Int) -> DecCoeffScratchArena {
-  let capacity = Int::max(1, capacity)
-  let limb_buffers : Array[Array[UInt]] = []
+fn dec_coeff_scratch_arena_new(capacity : Int32) -> DecCoeffScratchArena {
+  let capacity = Int32::max(1, capacity)
+  let limb_buffers : Array[Array[UInt32]] = []
   for _ in 0..<capacity {
     limb_buffers.push([])
   }
@@ -111,15 +111,15 @@ fn dec_coeff_scratch_arena_new(capacity : Int) -> DecCoeffScratchArena {
 }
 
 ///|
-fn DecCoeffScratchArena::mark(self : DecCoeffScratchArena) -> (Int, Int) {
+fn DecCoeffScratchArena::mark(self : DecCoeffScratchArena) -> (Int32, Int32) {
   (self.used, self.limb_used)
 }
 
 ///|
 fn DecCoeffScratchArena::alloc_limbs(
   self : DecCoeffScratchArena,
-  length : Int,
-) -> Array[UInt] {
+  length : Int32,
+) -> Array[UInt32] {
   guard length > 0 else { return [0U] }
   let slot = self.limb_used
   self.limb_used += 1
@@ -146,19 +146,19 @@ fn DecCoeffScratchArena::save(
 ///|
 fn DecCoeffScratchArena::rewind(
   self : DecCoeffScratchArena,
-  mark : (Int, Int),
+  mark : (Int32, Int32),
 ) -> Unit {
-  self.used = Int::max(0, mark.0)
-  self.limb_used = Int::max(0, mark.1)
+  self.used = Int32::max(0, mark.0)
+  self.limb_used = Int32::max(0, mark.1)
 }
 
 ///|
-fn dec_coeff_slice(value : DecCoeff, start : Int, length : Int) -> DecCoeff {
+fn dec_coeff_slice(value : DecCoeff, start : Int32, length : Int32) -> DecCoeff {
   let source_len = dec_coeff_unit_len(value)
   if length <= 0 || start >= source_len {
     return dec_coeff_zero()
   }
-  let len = Int::min(length, source_len - start)
+  let len = Int32::min(length, source_len - start)
   let units = Array::make(len, 0U)
   for index in 0..<len {
     units[index] = dec_coeff_limb_at(value, start + index)
@@ -169,15 +169,15 @@ fn dec_coeff_slice(value : DecCoeff, start : Int, length : Int) -> DecCoeff {
 ///|
 fn dec_coeff_slice_arena(
   value : DecCoeff,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
   arena : DecCoeffScratchArena,
 ) -> DecCoeff {
   let source_len = dec_coeff_unit_len(value)
   if length <= 0 || start >= source_len {
     return dec_coeff_zero()
   }
-  let len = Int::min(length, source_len - start)
+  let len = Int32::min(length, source_len - start)
   let units = arena.alloc_limbs(len)
   for index in 0..<len {
     units[index] = dec_coeff_limb_at(value, start + index)
@@ -186,7 +186,7 @@ fn dec_coeff_slice_arena(
 }
 
 ///|
-fn dec_coeff_shift_limbs(value : DecCoeff, shift : Int) -> DecCoeff {
+fn dec_coeff_shift_limbs(value : DecCoeff, shift : Int32) -> DecCoeff {
   guard shift >= 0 else { abort("decimal coefficient limb shift is negative") }
   if shift == 0 || value.is_zero() {
     return value
@@ -202,7 +202,7 @@ fn dec_coeff_shift_limbs(value : DecCoeff, shift : Int) -> DecCoeff {
 ///|
 fn dec_coeff_add_product_at(
   result : Array[UInt64],
-  index : Int,
+  index : Int32,
   product : UInt64,
 ) -> Unit {
   let mut target = index
@@ -251,7 +251,7 @@ fn dec_coeff_square_schoolbook(value : DecCoeff) -> DecCoeff {
 }
 
 ///|
-fn dec_coeff_nonzero_count_limited(value : DecCoeff, limit : Int) -> Int? {
+fn dec_coeff_nonzero_count_limited(value : DecCoeff, limit : Int32) -> Int32? {
   let len = dec_coeff_unit_len(value)
   let mut count = 0
   for index in 0..<len {
@@ -268,7 +268,7 @@ fn dec_coeff_nonzero_count_limited(value : DecCoeff, limit : Int) -> Int? {
 ///|
 fn dec_coeff_maybe_sparse(value : DecCoeff) -> Bool {
   let len = dec_coeff_unit_len(value)
-  let probes = Int::min(8, len)
+  let probes = Int32::min(8, len)
   for probe in 0..<probes {
     let index = probe * len / probes
     if dec_coeff_limb_at(value, index) == 0U {
@@ -283,9 +283,9 @@ fn dec_coeff_mul_sparse(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   let left_len = dec_coeff_unit_len(left)
   let right_len = dec_coeff_unit_len(right)
   let result = Array::make(left_len + right_len + 1, 0UL)
-  let left_indices : Array[Int] = []
+  let left_indices : Array[Int32] = []
   let left_values : Array[UInt64] = []
-  let right_indices : Array[Int] = []
+  let right_indices : Array[Int32] = []
   let right_values : Array[UInt64] = []
   for index in 0..<left_len {
     let value = dec_coeff_limb_at(left, index)
@@ -318,14 +318,14 @@ fn dec_coeff_mul_karatsuba_inner(
   left : DecCoeff,
   right : DecCoeff,
   arena : DecCoeffScratchArena,
-  base_threshold : Int,
+  base_threshold : Int32,
   square : Bool,
-  depth : Int,
+  depth : Int32,
 ) -> DecCoeff {
   let left_len = dec_coeff_unit_len(left)
   let right_len = dec_coeff_unit_len(right)
-  let shorter = Int::min(left_len, right_len)
-  let longer = Int::max(left_len, right_len)
+  let shorter = Int32::min(left_len, right_len)
+  let longer = Int32::max(left_len, right_len)
   if shorter < base_threshold || longer > 2 * shorter || depth >= 64 {
     return if square {
       dec_coeff_square_schoolbook(left)
@@ -403,7 +403,7 @@ fn dec_coeff_square_karatsuba(value : DecCoeff) -> DecCoeff {
 fn dec_coeff_mul_toom3(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   let arena = dec_coeff_scratch_arena_new(16)
   let mark = arena.mark()
-  let maximum_len = Int::max(
+  let maximum_len = Int32::max(
     dec_coeff_unit_len(left),
     dec_coeff_unit_len(right),
   )
@@ -509,7 +509,7 @@ fn dec_coeff_mul_unbalanced(shorter : DecCoeff, longer : DecCoeff) -> DecCoeff {
         dec_coeff_slice_arena(
           longer,
           start,
-          Int::min(shorter_len, longer_len - start),
+          Int32::min(shorter_len, longer_len - start),
           arena,
         ),
       )
@@ -568,8 +568,8 @@ fn dec_coeff_mul_algorithm(
       None => ()
     }
   }
-  let shorter = Int::min(left_len, right_len)
-  let longer = Int::max(left_len, right_len)
+  let shorter = Int32::min(left_len, right_len)
+  let longer = Int32::max(left_len, right_len)
   if longer > 2 * shorter {
     return Unbalanced
   }
@@ -599,7 +599,7 @@ fn dec_coeff_ntt_mul_profitable(left : DecCoeff, right : DecCoeff) -> Bool {
   } else {
     dec_coeff_ntt_mul_threshold_large
   }
-  Int::min(dec_coeff_unit_len(left), dec_coeff_unit_len(right)) >= threshold
+  Int32::min(dec_coeff_unit_len(left), dec_coeff_unit_len(right)) >= threshold
 }
 
 ///|
