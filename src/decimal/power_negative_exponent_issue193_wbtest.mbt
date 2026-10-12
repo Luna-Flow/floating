@@ -84,3 +84,70 @@ test "decimal power large fractional bases cover interchange formats and modes" 
     }
   }
 }
+
+///|
+test "decimal power keeps finite values below overflow boundaries" {
+  let cases = [
+    ("0.9", "-1000", "5.721245194772949E+45"),
+    ("0.9", "-2000", "3.273264657871256E+91"),
+    ("0.99", "-10000", "4.446865812651755E+43"),
+    ("0.19", "-500", "4.199518739829564E+360"),
+    ("0.95", "-5000", "2.409758693747040E+111"),
+    ("0.5", "-1270", "2.032799256770390E+382"),
+  ]
+  let context = DecimalContext::decimal64()
+  for (base, exponent, expected) in cases {
+    let (value, flags) = Decimal::from_string(base)
+      .unwrap()
+      .power_ctx(Decimal::from_string(exponent).unwrap(), context)
+    assert_eq(value.to_string(), expected)
+    assert_true(!flags.overflow)
+  }
+}
+
+///|
+test "decimal power checks both sides across all rounding modes" {
+  let modes = [
+    DecimalRoundingMode::HalfEven,
+    DecimalRoundingMode::HalfUp,
+    DecimalRoundingMode::HalfDown,
+    DecimalRoundingMode::Down,
+    DecimalRoundingMode::Floor,
+    DecimalRoundingMode::Ceiling,
+    DecimalRoundingMode::Up,
+    DecimalRoundingMode::ZeroFiveUp,
+  ]
+  let p9 = DecimalContext::new(precision=9, e_min=-383, e_max=384).unwrap()
+  for mode in modes {
+    let context = { ..p9, decimal_rounding: mode, }
+    let (finite, finite_flags) = Decimal::from_string("0.9")
+      .unwrap()
+      .power_ctx(Decimal::from_string("-1000").unwrap(), context)
+    assert_true(finite.is_finite() && !finite_flags.overflow)
+    if mode == DecimalRoundingMode::HalfEven {
+      assert_eq(finite.to_string(), "5.72124519E+45")
+      let (negative, negative_flags) = Decimal::from_string("-0.9")
+        .unwrap()
+        .power_ctx(Decimal::from_string("-999").unwrap(), context)
+      assert_eq(negative.to_string(), "-5.14912068E+45")
+      assert_true(!negative_flags.overflow)
+    }
+    let (near_limit, near_flags) = Decimal::from_string("0.5")
+      .unwrap()
+      .power_ctx(Decimal::from_string("-1270").unwrap(), context)
+    assert_true(near_limit.is_finite() && !near_flags.overflow)
+    let (overflow, overflow_flags) = Decimal::from_string("0.5")
+      .unwrap()
+      .power_ctx(Decimal::from_string("-1280").unwrap(), context)
+    assert_true(overflow_flags.overflow && !overflow.is_nan())
+  }
+  let default_context = DecimalContext::new().unwrap()
+  let (default_value, default_flags) = Decimal::from_string("0.5")
+    .unwrap()
+    .power_ctx(Decimal::from_string("-1999999997").unwrap(), default_context)
+  assert_eq(
+    default_value.to_string(),
+    "2.659943448420222263365646200686070E+602059990",
+  )
+  assert_true(!default_flags.overflow)
+}

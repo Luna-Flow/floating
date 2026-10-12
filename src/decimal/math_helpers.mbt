@@ -845,20 +845,6 @@ fn decimal_power_integer_correctly_rounded_result(
     base.coefficient,
     base.exponent10,
   )
-  let base_adjusted = exponent.to_int64() +
-    coefficient.digits10().to_int64() -
-    1L
-  let power_adjusted = if count < 0 {
-    -base_adjusted * n.to_int64()
-  } else {
-    base_adjusted * n.to_int64()
-  }
-  // An adjusted exponent this far above e_max cannot round to a finite
-  // result at the target precision, so resolve the IEEE overflow direction
-  // without entering the expensive interval certification loop.
-  if power_adjusted > ctx.e_max.to_int64() + precision.to_int64() {
-    return Some(decimal_overflow_result(negative, ctx))
-  }
   let exponent64 = exponent.to_int64() * n.to_int64()
   let exact_limit = Int::max(4 * precision, 64)
   if n.to_int64() * coefficient.digits10().to_int64() <= exact_limit.to_int64() {
