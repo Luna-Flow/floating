@@ -30,7 +30,7 @@ JSON object such as
 
 ### From MoonBit code
 
-After `moon add Luna-Flow/floating@0.8.0`, import
+After `moon add Luna-Flow/floating@0.9.0`, import
 `"Luna-Flow/floating/cli/itl_expr_cli"` in `moon.pkg` and call `run` with the
 argument vector, program name first:
 

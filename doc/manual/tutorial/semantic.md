@@ -22,7 +22,7 @@ listed in the [API reference](../api/semantic.md).
 ## Quick start
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 ```moonbit nocheck

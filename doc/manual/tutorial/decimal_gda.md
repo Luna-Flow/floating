@@ -27,7 +27,7 @@ every public name is on the [API page](../api/decimal_gda.md).
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 Import the package in your `moon.pkg`:

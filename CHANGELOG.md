@@ -6,6 +6,8 @@ notes live in this file.
 
 ## Unreleased
 
+## 0.9.0 - 2026-10-13
+
 ### Added
 
 - Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each

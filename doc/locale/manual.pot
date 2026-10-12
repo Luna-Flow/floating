@@ -7863,7 +7863,7 @@ msgid "bin_float conformance"
 msgstr ""
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.8.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgid "This page records the `0.9.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
 msgstr ""
 
 #: manual/conformance/bin_float.md:7
@@ -8221,7 +8221,7 @@ msgid "Repository conventions"
 msgstr ""
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.8.0`**, the version in `moon.mod`."
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.9.0`**, the version in `moon.mod`."
 msgstr ""
 
 #: manual/conventions.md:7
@@ -14632,7 +14632,7 @@ msgid "floating"
 msgstr ""
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.8.0` release; the changes since that release are listed in the changelog."
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.9.0` release; the changes since that release are listed in the changelog."
 msgstr ""
 
 #: manual/index.md:7
@@ -18127,7 +18127,7 @@ msgid "From MoonBit code"
 msgstr ""
 
 #: manual/tutorial/cli/gda_expr_cli.md:42
-msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.8.0`, import it and pass the argument vector, program name first:"
+msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.9.0`, import it and pass the argument vector, program name first:"
 msgstr ""
 
 #: manual/tutorial/cli/gda_expr_cli.md:55
@@ -18238,7 +18238,7 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr ""
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.8.0`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgid "After `moon add Luna-Flow/floating@0.9.0`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
 msgstr ""
 
 #: manual/tutorial/cli/itl_expr_cli.md:43
@@ -18331,7 +18331,7 @@ msgid "run all binary corpora"
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.8.0`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgid "After `moon add Luna-Flow/floating@0.9.0`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:43
@@ -18420,7 +18420,7 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr ""
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.8.0`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgid "After `moon add Luna-Flow/floating@0.9.0`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
 msgstr ""
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:57
