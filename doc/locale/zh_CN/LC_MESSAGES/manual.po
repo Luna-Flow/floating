@@ -2510,8 +2510,8 @@ msgid "The real $n$-th root $x^{1/n}$."
 msgstr "实数 $n$ 次方根 $x^{1/n}$。"
 
 #: manual/api/bin_float.md:1641
-msgid "$n = 0$ is a `domain_error`, and $|n| > 10^9$ a `certification_failure`. A NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
-msgstr "$n = 0$ 为 `domain_error`，$|n| > 10^9$ 为 `certification_failure`。NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
+msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+msgstr "$n = 0$ 为 `domain_error`。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
 
 #: manual/api/bin_float.md:1644
 msgid "odd $n > 0$"

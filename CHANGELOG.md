@@ -6,6 +6,10 @@ notes live in this file.
 
 ## Unreleased
 
+### Fixed
+
+- **Caller-visible ([#171](https://github.com/Luna-Flow/floating/issues/171); Closes #171):** Decimal and binary `rootn` now handle every nonzero `Int` degree. Decimal exact-root detection skips impossible high-degree probes using a coefficient-size bound, avoiding degree-sized integer powers; binary certification handles the full signed `Int` range, including `Int.min`.
+
 ## 0.9.0 - 2026-10-13
 
 ### Added

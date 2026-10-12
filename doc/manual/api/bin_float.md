@@ -1638,8 +1638,8 @@ pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-$n = 0$ is a `domain_error`, and $|n| > 10^9$ a `certification_failure`. A
-NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
+$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including
+`Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
 
 | $x$ | odd $n > 0$ | even $n > 0$ | odd $n < 0$ | even $n < 0$ |
 | --- | --- | --- | --- | --- |
