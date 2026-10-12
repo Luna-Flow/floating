@@ -900,7 +900,7 @@ fn expand_inexact_division_cohort(
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
   if target < value.exponent10 {
     let shift = value.exponent10 - target
-    if digits + shift <= precision {
+    if shift > 0 && shift <= precision - digits {
       return finite_with_exponent_repr(
         value.negative,
         dec_coeff_shift_power10_repr(value.coefficient, shift),
