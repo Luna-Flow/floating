@@ -23,7 +23,7 @@ method is listed in the [API reference](../api/bin_float_checked.md).
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 Import the wrapper and `bin_float` in your `moon.pkg` (the examples also use

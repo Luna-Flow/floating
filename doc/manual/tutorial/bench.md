@@ -21,7 +21,7 @@ To use the reduction functions in your own module, add the library and import
 the package in `moon.pkg`:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 ```moonbit nocheck

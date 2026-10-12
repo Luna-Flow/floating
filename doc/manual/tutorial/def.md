@@ -24,7 +24,7 @@ behind the trait are in the [design page](../design/def.md).
 Add the module and import `def` next to the representation you use:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 ```moonbit nocheck

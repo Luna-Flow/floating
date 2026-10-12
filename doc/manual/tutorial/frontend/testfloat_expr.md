@@ -23,7 +23,7 @@ the summary. The command-line runner is
 Add the library to your module and import the package in `moon.pkg`:
 
 ```bash
-moon add Luna-Flow/floating@0.8.0
+moon add Luna-Flow/floating@0.9.0
 ```
 
 ```moonbit nocheck
