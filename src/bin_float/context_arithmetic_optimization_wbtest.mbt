@@ -1,7 +1,7 @@
 ///|
 fn binary_split_shift_legacy_for_test(
   magnitude : BinCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> (BinCoeff, Bool, Bool) {
   if shift <= 0 {
     return (magnitude, false, false)
@@ -21,7 +21,7 @@ fn binary_split_shift_legacy_for_test(
 fn binary_round_dyadic_legacy_for_test(
   negative : Bool,
   magnitude : BinCoeff,
-  exponent2 : Int,
+  exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   if magnitude.is_zero() {
@@ -31,7 +31,7 @@ fn binary_round_dyadic_legacy_for_test(
     )
   }
   let bits = magnitude.bit_length()
-  let precision_shift = Int::max(0, bits - context.precision())
+  let precision_shift = Int32::max(0, bits - context.precision())
   let (precision_retained, precision_guard, precision_sticky) = binary_split_shift_legacy_for_test(
     magnitude, precision_shift,
   )
@@ -48,7 +48,7 @@ fn binary_round_dyadic_legacy_for_test(
   )
   let range_shift = match context.e_min() {
     Some(e_min) =>
-      Int::max(
+      Int32::max(
         0,
         binary_sub_sat(
           binary_sub_sat(e_min, context.precision() - 1),
@@ -57,7 +57,7 @@ fn binary_round_dyadic_legacy_for_test(
       )
     None => 0
   }
-  let shift = Int::max(precision_shift, range_shift)
+  let shift = Int32::max(precision_shift, range_shift)
   let (retained, round_bit, sticky) = binary_split_shift_legacy_for_test(
     magnitude, shift,
   )
@@ -78,7 +78,7 @@ fn binary_round_rational_legacy_for_test(
   negative : Bool,
   numerator : BinCoeff,
   denominator : BinCoeff,
-  exponent2 : Int,
+  exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let exact_top = binary_add_sat(
@@ -120,7 +120,7 @@ fn binary_add_aligned_legacy_for_test(
   right : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let target = Int::min(left.exponent2(), right.exponent2())
+  let target = Int32::min(left.exponent2(), right.exponent2())
   let left_coefficient = left
     .coefficient()
     .shift_left(left.exponent2() - target)

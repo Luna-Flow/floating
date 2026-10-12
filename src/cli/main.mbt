@@ -4,7 +4,7 @@ fn usage() -> String {
 }
 
 ///|
-fn dispatch(arguments : Array[String]) -> Int {
+fn dispatch(arguments : Array[String]) -> Int32 {
   let forwarded : Array[String] = [arguments[0]]
   let mut backend = ""
   // Tracked separately: an empty `--backend=` must still count as given.

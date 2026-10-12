@@ -1,5 +1,5 @@
 ///|
-fn arithmetic_interval(lo : Int, hi : Int) -> BallFloat {
+fn arithmetic_interval(lo : Int32, hi : Int32) -> BallFloat {
   BallFloat::from_bounds(
     @bin_float.BinFloat::from_int(lo, precision=53),
     @bin_float.BinFloat::from_int(hi, precision=53),

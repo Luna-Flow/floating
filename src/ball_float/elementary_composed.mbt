@@ -1,5 +1,5 @@
 ///|
-fn certified_pi_interval(precision : Int) -> BallFloat {
+fn certified_pi_interval(precision : Int32) -> BallFloat {
   let (lower, upper) = certified_pi_rational(precision + 64)
   store_interval(
     rat_dyadic_bounds(lower, precision).0,
@@ -76,7 +76,7 @@ fn first_odd_index_at_or_above(index : SignedBinCoeff) -> SignedBinCoeff {
 }
 
 ///|
-pub fn BallFloat::rootn(self : BallFloat, degree : Int) -> BallFloat {
+pub fn BallFloat::rootn(self : BallFloat, degree : Int32) -> BallFloat {
   if self.is_empty() || degree == 0 || degree == -2147483647 - 1 {
     return BallFloat::empty(precision=self.precision_)
   }
@@ -204,7 +204,7 @@ pub fn BallFloat::try_log10_interval(
 ///|
 pub fn BallFloat::try_rootn(
   self : BallFloat,
-  degree : Int,
+  degree : Int32,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   guard degree != 0 else {
     return Err(
@@ -253,7 +253,7 @@ pub fn BallFloat::try_hypot(
   self : BallFloat,
   other : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
-  let precision = Int::max(self.precision_, other.precision_)
+  let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() || other.is_empty() {
     return Ok(empty_interval(precision))
   }
@@ -280,7 +280,7 @@ pub fn BallFloat::try_hypot(
 fn try_pow_point_bounds(
   base : @bin_float.BinFloat,
   exponent : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> Result[(@bin_float.BinFloat, @bin_float.BinFloat), @def.ArithmeticError] {
   let base = canonical_interval_endpoint(base, precision)
   let downward = @bin_float.BinaryContext::unbounded(
@@ -303,7 +303,7 @@ pub fn BallFloat::try_pow_interval(
   self : BallFloat,
   exponent : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
-  let precision = Int::max(self.precision_, exponent.precision_)
+  let precision = Int32::max(self.precision_, exponent.precision_)
   if self.is_empty() || exponent.is_empty() {
     return Ok(empty_interval(precision))
   }
@@ -490,7 +490,7 @@ pub fn BallFloat::try_tanpi_interval(
 ///|
 fn certified_sinh_point(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   let point = BallFloat::exact(value, precision~)
   let two = BallFloat::from_int(2, precision~)
@@ -519,7 +519,7 @@ pub fn BallFloat::sinh_interval(self : BallFloat) -> BallFloat {
 ///|
 fn certified_cosh_point(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   let point = BallFloat::exact(value, precision~)
   let two = BallFloat::from_int(2, precision~)
@@ -561,7 +561,7 @@ pub fn BallFloat::cosh_interval(self : BallFloat) -> BallFloat {
 ///|
 fn certified_tanh_nonnegative_point(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   let point = BallFloat::exact(value, precision~)
   let one = BallFloat::from_int(1, precision~)
@@ -573,7 +573,7 @@ fn certified_tanh_nonnegative_point(
 ///|
 fn certified_tanh_point(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   if value.classify() == FpClass::Infinity {
     let limit = if value.sign() == Sign::Negative {

@@ -213,7 +213,7 @@ test "BinCoeff divide-and-conquer radix conversion" {
   decimal_builder.write_char('9')
   for index in 1..<2200 {
     decimal_builder.write_char(
-      Int::unsafe_to_char('0'.to_int() + (index * 7 + 3) % 10),
+      Int32::unsafe_to_char('0'.to_int() + (index * 7 + 3) % 10),
     )
   }
   let decimal = decimal_builder.to_string()
@@ -223,7 +223,7 @@ test "BinCoeff divide-and-conquer radix conversion" {
   ternary_builder.write_char('2')
   for index in 1..<6000 {
     ternary_builder.write_char(
-      Int::unsafe_to_char('0'.to_int() + (index * 5 + 1) % 3),
+      Int32::unsafe_to_char('0'.to_int() + (index * 5 + 1) % 3),
     )
   }
   let ternary = ternary_builder.to_string()
@@ -242,7 +242,7 @@ test "BinCoeff checked failures" {
 }
 
 ///|
-fn bin_coeff_test_limb_pattern(limbs : Int, phase : Int) -> BigInt {
+fn bin_coeff_test_limb_pattern(limbs : Int32, phase : Int32) -> BigInt {
   let bits = limbs * 32
   let mut value = 1N << (bits - 1)
   let mut index = phase % 17

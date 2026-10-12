@@ -7,8 +7,8 @@ fn binary_test_coefficient(value : BigInt) -> @bin_float.BinCoeff {
 ///|
 fn binary_test_make(
   value : BigInt,
-  exponent2 : Int,
-  precision : Int,
+  exponent2 : Int32,
+  precision : Int32,
 ) -> @bin_float.BinFloat {
   @bin_float.BinFloat::make(
     binary_test_coefficient(value),

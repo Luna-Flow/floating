@@ -1,7 +1,7 @@
 ///|
 fn certified_atan_small_series(
   argument : CertifiedRat,
-  work_bits : Int,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   guard rat_sign(argument) >= 0 &&
     rat_compare(argument, rat_from_fraction_int(1, 2)) <= 0 else {
@@ -89,7 +89,7 @@ fn certified_atan_small_series(
 ///|
 fn certified_atan_rational_with_pi(
   argument : CertifiedRat,
-  work_bits : Int,
+  work_bits : Int32,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
 ) -> (CertifiedRat, CertifiedRat) {
@@ -135,7 +135,7 @@ fn certified_atan_rational_with_pi(
 ///|
 fn certified_atan_endpoint(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if value.classify() == FpClass::Infinity {
     let (pi_lower, pi_upper) = certified_pi_rational(precision + 80)
@@ -190,7 +190,7 @@ pub fn BallFloat::atan_interval(self : BallFloat) -> BallFloat {
 ///|
 fn certified_asin_point(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   let one_bin = @bin_float.BinFloat::one(precision~)
   let minus_one_bin = one_bin.neg()
@@ -226,7 +226,7 @@ pub fn BallFloat::asin_interval(self : BallFloat) -> BallFloat {
 ///|
 fn certified_acos_point(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   let one_bin = @bin_float.BinFloat::one(precision~)
   if value.compare(one_bin) == 0 {
@@ -278,7 +278,7 @@ pub fn BallFloat::atan2_interval(
   self : BallFloat,
   abscissa : BallFloat,
 ) -> BallFloat {
-  let precision = Int::max(self.precision_, abscissa.precision_)
+  let precision = Int32::max(self.precision_, abscissa.precision_)
   match self.try_atan2_interval(abscissa) {
     Ok(result) => result
     Err(_) => {

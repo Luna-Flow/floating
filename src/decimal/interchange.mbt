@@ -1,7 +1,7 @@
 ///|
 // Decimal interchange encoding helpers and public APIs.
 
-fn decimal_interchange_total_bits(format : DecimalInterchangeFormat) -> Int {
+fn decimal_interchange_total_bits(format : DecimalInterchangeFormat) -> Int32 {
   match format {
     Decimal32 => 32
     Decimal64 => 64
@@ -10,12 +10,12 @@ fn decimal_interchange_total_bits(format : DecimalInterchangeFormat) -> Int {
 }
 
 ///|
-fn decimal_interchange_hex_digits(format : DecimalInterchangeFormat) -> Int {
+fn decimal_interchange_hex_digits(format : DecimalInterchangeFormat) -> Int32 {
   decimal_interchange_total_bits(format) / 4
 }
 
 ///|
-fn decimal_interchange_precision(format : DecimalInterchangeFormat) -> Int {
+fn decimal_interchange_precision(format : DecimalInterchangeFormat) -> Int32 {
   match format {
     Decimal32 => 7
     Decimal64 => 16
@@ -24,7 +24,7 @@ fn decimal_interchange_precision(format : DecimalInterchangeFormat) -> Int {
 }
 
 ///|
-fn decimal_interchange_bias(format : DecimalInterchangeFormat) -> Int {
+fn decimal_interchange_bias(format : DecimalInterchangeFormat) -> Int32 {
   match format {
     Decimal32 => 101
     Decimal64 => 398
@@ -35,7 +35,7 @@ fn decimal_interchange_bias(format : DecimalInterchangeFormat) -> Int {
 ///|
 fn decimal_interchange_exponent_continuation_bits(
   format : DecimalInterchangeFormat,
-) -> Int {
+) -> Int32 {
   match format {
     Decimal32 => 6
     Decimal64 => 8
@@ -46,7 +46,7 @@ fn decimal_interchange_exponent_continuation_bits(
 ///|
 fn decimal_interchange_coefficient_bits(
   format : DecimalInterchangeFormat,
-) -> Int {
+) -> Int32 {
   match format {
     Decimal32 => 20
     Decimal64 => 50
@@ -55,7 +55,7 @@ fn decimal_interchange_coefficient_bits(
 }
 
 ///|
-fn decimal_bid_exponent_bits(format : DecimalInterchangeFormat) -> Int {
+fn decimal_bid_exponent_bits(format : DecimalInterchangeFormat) -> Int32 {
   match format {
     Decimal32 => 8
     Decimal64 => 10
@@ -64,7 +64,9 @@ fn decimal_bid_exponent_bits(format : DecimalInterchangeFormat) -> Int {
 }
 
 ///|
-fn decimal_bid_small_coefficient_bits(format : DecimalInterchangeFormat) -> Int {
+fn decimal_bid_small_coefficient_bits(
+  format : DecimalInterchangeFormat,
+) -> Int32 {
   match format {
     Decimal32 => 23
     Decimal64 => 53
@@ -73,7 +75,9 @@ fn decimal_bid_small_coefficient_bits(format : DecimalInterchangeFormat) -> Int 
 }
 
 ///|
-fn decimal_interchange_payload_digits(format : DecimalInterchangeFormat) -> Int {
+fn decimal_interchange_payload_digits(
+  format : DecimalInterchangeFormat,
+) -> Int32 {
   decimal_interchange_precision(format) - 1
 }
 
@@ -93,7 +97,7 @@ fn uppercase_ascii(src : String) -> String {
   for ch in src {
     if ch >= 'a' && ch <= 'f' {
       b.write_char(
-        Int::unsafe_to_char(ch.to_int() + ('A'.to_int() - 'a'.to_int())),
+        Int32::unsafe_to_char(ch.to_int() + ('A'.to_int() - 'a'.to_int())),
       )
     } else {
       b.write_char(ch)
@@ -103,7 +107,7 @@ fn uppercase_ascii(src : String) -> String {
 }
 
 ///|
-fn normalize_interchange_hex(src : String, digits : Int) -> BigInt? {
+fn normalize_interchange_hex(src : String, digits : Int32) -> BigInt? {
   let trimmed = src.trim()
   let body = if trimmed.length() > 0 && trimmed[0] == '#' {
     trimmed[1:].to_owned()
@@ -289,7 +293,11 @@ pub fn DecimalInterchange::copy_sign(
 }
 
 ///|
-fn decimal_interchange_extract(bits : BigInt, shift : Int, width : Int) -> Int {
+fn decimal_interchange_extract(
+  bits : BigInt,
+  shift : Int32,
+  width : Int32,
+) -> Int32 {
   if width <= 0 {
     0
   } else {
@@ -300,7 +308,7 @@ fn decimal_interchange_extract(bits : BigInt, shift : Int, width : Int) -> Int {
 ///|
 fn decimal_interchange_coefficient_digits(
   value : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> String {
   let digits = value.coefficient.to_string()
   if digits.length() >= precision {
@@ -311,7 +319,7 @@ fn decimal_interchange_coefficient_digits(
 }
 
 ///|
-fn decimal_nan_payload_digits_low(payload : BigInt, digits : Int) -> String {
+fn decimal_nan_payload_digits_low(payload : BigInt, digits : Int32) -> String {
   let raw = abs_bigint(payload).to_string()
   let limited = if raw.length() > digits {
     raw[raw.length() - digits:].to_owned()
@@ -326,7 +334,7 @@ fn decimal_nan_payload_digits_low(payload : BigInt, digits : Int) -> String {
 }
 
 ///|
-fn bit_from_bool(value : Bool) -> Int {
+fn bit_from_bool(value : Bool) -> Int32 {
   if value {
     1
   } else {
@@ -335,7 +343,7 @@ fn bit_from_bool(value : Bool) -> Int {
 }
 
 ///|
-fn decimal_digit_triplet_to_dpd(lhs : Int, mid : Int, rhs : Int) -> Int {
+fn decimal_digit_triplet_to_dpd(lhs : Int32, mid : Int32, rhs : Int32) -> Int32 {
   let a = (lhs & 0b1000) != 0
   let b = (lhs & 0b0100) != 0
   let c = (lhs & 0b0010) != 0
@@ -364,7 +372,7 @@ fn decimal_digit_triplet_to_dpd(lhs : Int, mid : Int, rhs : Int) -> Int {
 }
 
 ///|
-fn decimal_dpd_to_digit_triplet(code : Int) -> (Int, Int, Int) {
+fn decimal_dpd_to_digit_triplet(code : Int32) -> (Int32, Int32, Int32) {
   let p = ((code >> 9) & 1) == 1
   let q = ((code >> 8) & 1) == 1
   let r = ((code >> 7) & 1) == 1
@@ -421,16 +429,16 @@ fn decimal_interchange_digits_to_coefficient_bits(digits : String) -> BigInt {
 ///|
 fn decimal_interchange_coefficient_bits_to_digits(
   bits : BigInt,
-  groups : Int,
+  groups : Int32,
 ) -> String {
   let b = StringBuilder()
   for index in 0..<groups {
     let shift = (groups - index - 1) * 10
     let code = decimal_interchange_extract(bits, shift, 10)
     let (lhs, mid, rhs) = decimal_dpd_to_digit_triplet(code)
-    b.write_char(Int::unsafe_to_char('0'.to_int() + lhs))
-    b.write_char(Int::unsafe_to_char('0'.to_int() + mid))
-    b.write_char(Int::unsafe_to_char('0'.to_int() + rhs))
+    b.write_char(Int32::unsafe_to_char('0'.to_int() + lhs))
+    b.write_char(Int32::unsafe_to_char('0'.to_int() + mid))
+    b.write_char(Int32::unsafe_to_char('0'.to_int() + rhs))
   }
   b.to_string()
 }

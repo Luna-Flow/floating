@@ -20,7 +20,7 @@ priv enum DecimalUnaryElementary {
   Asinh
   Acosh
   Atanh
-  Rootn(Int)
+  Rootn(Int32)
 } derive(Eq)
 
 ///|
@@ -192,7 +192,7 @@ fn decimal_tiny_unary_result(
 }
 
 ///|
-fn decimal_elementary_integer_mod4(value : Decimal) -> Int? {
+fn decimal_elementary_integer_mod4(value : Decimal) -> Int32? {
   match decimal_exact_integer_coeff(value) {
     Some((negative, magnitude)) => {
       let residue = dec_coeff_limb_at(magnitude, 0).reinterpret_as_int() % 4
@@ -248,7 +248,7 @@ fn decimal_pi_scaled_exact(
     value.negative,
     dec_coeff_multiply_by_unit_repr(value.coefficient, 2),
     value.exponent10,
-    Int::max(value.precision_, value.coefficient.digits10() + 1),
+    Int32::max(value.precision_, value.coefficient.digits10() + 1),
   )
   match decimal_elementary_integer_mod4(doubled) {
     Some(residue) if residue % 2 != 0 => {
@@ -301,7 +301,7 @@ fn decimal_certified_atan_infinity(
 ///|
 /// Correctly rounds `quarters * pi / 4`, negated when `negative` is set.
 fn decimal_certified_quarter_pi_multiple(
-  quarters : Int,
+  quarters : Int32,
   negative : Bool,
   ctx : DecimalContext,
   operation : String,
@@ -614,7 +614,7 @@ pub fn Decimal::log1p_ctx(
 ///|
 pub fn Decimal::try_rootn_ctx(
   self : Decimal,
-  degree : Int,
+  degree : Int32,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   self.try_unary_elementary_ctx(Rootn(degree), ctx)
@@ -623,7 +623,7 @@ pub fn Decimal::try_rootn_ctx(
 ///|
 pub fn Decimal::rootn_ctx(
   self : Decimal,
-  degree : Int,
+  degree : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   self.unary_elementary_ctx(Rootn(degree), ctx)
@@ -633,14 +633,14 @@ pub fn Decimal::rootn_ctx(
 /// The integer exponent of `pown_ctx` as an exact `Decimal`. Building it at
 /// the context precision rounded exponents longer than the precision, which
 /// could change their value and parity.
-fn decimal_pown_exponent(exponent : Int, ctx : DecimalContext) -> Decimal {
-  Decimal::from_int(exponent, precision=Int::max(ctx.precision, 10))
+fn decimal_pown_exponent(exponent : Int32, ctx : DecimalContext) -> Decimal {
+  Decimal::from_int(exponent, precision=Int32::max(ctx.precision, 10))
 }
 
 ///|
 pub fn Decimal::try_pown_ctx(
   self : Decimal,
-  exponent : Int,
+  exponent : Int32,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   self.try_power_ctx(decimal_pown_exponent(exponent, ctx), ctx)
@@ -649,7 +649,7 @@ pub fn Decimal::try_pown_ctx(
 ///|
 pub fn Decimal::pown_ctx(
   self : Decimal,
-  exponent : Int,
+  exponent : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   self.power_ctx(decimal_pown_exponent(exponent, ctx), ctx)
@@ -897,7 +897,7 @@ pub fn Decimal::atanh_ctx(
 
 ///|
 /// The integer `degree`-th root of `value` if `value` is a perfect power.
-fn dec_coeff_exact_root_repr(value : DecCoeff, degree : Int) -> DecCoeff? {
+fn dec_coeff_exact_root_repr(value : DecCoeff, degree : Int32) -> DecCoeff? {
   guard degree >= 2 && !value.is_zero() else { return None }
   let radicand = coeff_bigint(value)
   let n = BigInt::from_int(degree)
@@ -938,7 +938,7 @@ fn dec_coeff_exact_root_repr(value : DecCoeff, degree : Int) -> DecCoeff? {
 /// directed modes failed certification.
 fn decimal_rootn_exact_result(
   value : Decimal,
-  degree : Int,
+  degree : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
@@ -1018,7 +1018,7 @@ fn decimal_hypot_exact_result(
   guard abs_int(gap) <= target_precision + 2 else { return None }
   let left_square_exponent = 2 * left.exponent10
   let right_square_exponent = 2 * right.exponent10
-  let exponent = Int::min(left_square_exponent, right_square_exponent)
+  let exponent = Int32::min(left_square_exponent, right_square_exponent)
   let sum = dec_coeff_magnitude_add_repr(
     dec_coeff_shift_power10_repr(
       dec_coeff_square_repr(left.coefficient),

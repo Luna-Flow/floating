@@ -3,7 +3,7 @@
 pub enum Coeff {
   Small(UInt64)
   Medium(UInt64, UInt64)
-  Large(Array[UInt])
+  Large(Array[UInt32])
 } derive(Eq)
 
 ///|
@@ -14,7 +14,7 @@ pub struct SignedCoeff {
 } derive(Eq)
 
 ///|
-let coeff_unit_bits : Int = 30
+let coeff_unit_bits : Int32 = 30
 
 ///|
 let coeff_base : UInt64 = 1UL << coeff_unit_bits
@@ -23,7 +23,7 @@ let coeff_base : UInt64 = 1UL << coeff_unit_bits
 let coeff_mask : UInt64 = coeff_base - 1UL
 
 ///|
-fn coeff_small_bits(value : UInt64) -> Int {
+fn coeff_small_bits(value : UInt64) -> Int32 {
   let mut bits = 0
   let mut current = value
   while current != 0UL {
@@ -34,11 +34,11 @@ fn coeff_small_bits(value : UInt64) -> Int {
 }
 
 ///|
-fn coeff_small_units(value : UInt64) -> Array[UInt] {
+fn coeff_small_units(value : UInt64) -> Array[UInt32] {
   if value == 0UL {
     return [0U]
   }
-  let units : Array[UInt] = []
+  let units : Array[UInt32] = []
   let mut remaining = value
   while remaining != 0UL {
     units.push((remaining & coeff_mask).to_uint())
@@ -57,8 +57,8 @@ fn coeff_medium(high : UInt64, low : UInt64) -> Coeff {
 }
 
 ///|
-fn coeff_medium_units(high : UInt64, low : UInt64) -> Array[UInt] {
-  let units : Array[UInt] = []
+fn coeff_medium_units(high : UInt64, low : UInt64) -> Array[UInt32] {
+  let units : Array[UInt32] = []
   let mut high = high
   let mut low = low
   while high != 0UL || low != 0UL {
@@ -73,7 +73,7 @@ fn coeff_medium_units(high : UInt64, low : UInt64) -> Array[UInt] {
 }
 
 ///|
-fn coeff_units(value : Coeff) -> Array[UInt] {
+fn coeff_units(value : Coeff) -> Array[UInt32] {
   match value {
     Small(value) => coeff_small_units(value)
     Medium(high, low) => coeff_medium_units(high, low)
@@ -82,7 +82,7 @@ fn coeff_units(value : Coeff) -> Array[UInt] {
 }
 
 ///|
-fn coeff_make(units : Array[UInt]) -> Coeff {
+fn coeff_make(units : Array[UInt32]) -> Coeff {
   while units.length() > 1 && units[units.length() - 1] == 0U {
     ignore(units.pop())
   }
@@ -139,7 +139,7 @@ pub fn coeff_from_uint64(value : UInt64) -> Coeff {
 }
 
 ///|
-pub fn coeff_from_nonnegative_int(value : Int) -> Coeff {
+pub fn coeff_from_nonnegative_int(value : Int32) -> Coeff {
   guard value >= 0 else {
     abort("coeff_from_nonnegative_int expects a non-negative value")
   }
@@ -159,7 +159,7 @@ pub fn coeff_from_nonnegative_bigint(value : BigInt) -> Coeff {
     return Medium((value >> 64).to_uint64(), value.to_uint64())
   }
   let base = BigInt::from_uint64(coeff_base)
-  let units : Array[UInt] = []
+  let units : Array[UInt32] = []
   let mut remaining = value
   while !remaining.is_zero() {
     let quotient = remaining / base
@@ -209,7 +209,7 @@ pub fn coeff_is_zero(value : Coeff) -> Bool {
 }
 
 ///|
-pub fn coeff_bits(value : Coeff) -> Int {
+pub fn coeff_bits(value : Coeff) -> Int32 {
   match value {
     Small(value) => coeff_small_bits(value)
     Medium(high, _) => 64 + coeff_small_bits(high)
@@ -220,7 +220,7 @@ pub fn coeff_bits(value : Coeff) -> Int {
 }
 
 ///|
-pub fn coeff_compare(left : Coeff, right : Coeff) -> Int {
+pub fn coeff_compare(left : Coeff, right : Coeff) -> Int32 {
   match (left, right) {
     (Small(left), Small(right)) =>
       if left < right {
@@ -305,8 +305,8 @@ pub fn coeff_add(left : Coeff, right : Coeff) -> Coeff {
   }
   let left_units = coeff_units(left)
   let right_units = coeff_units(right)
-  let length = Int::max(left_units.length(), right_units.length())
-  let units : Array[UInt] = []
+  let length = Int32::max(left_units.length(), right_units.length())
+  let units : Array[UInt32] = []
   let mut carry = 0UL
   for index in 0..<length {
     let left_unit = if index < left_units.length() {
@@ -356,7 +356,7 @@ pub fn coeff_sub(left : Coeff, right : Coeff) -> Coeff {
   }
   let left_units = coeff_units(left)
   let right_units = coeff_units(right)
-  let units : Array[UInt] = []
+  let units : Array[UInt32] = []
   let mut borrow = 0UL
   for index in 0..<left_units.length() {
     let left_unit = left_units[index].to_uint64()
@@ -429,7 +429,7 @@ pub fn coeff_mul(left : Coeff, right : Coeff) -> Coeff {
 }
 
 ///|
-pub fn coeff_shift_left(value : Coeff, shift : Int) -> Coeff {
+pub fn coeff_shift_left(value : Coeff, shift : Int32) -> Coeff {
   guard shift >= 0 else { abort("coeff_shift_left expects shift >= 0") }
   if shift == 0 || coeff_is_zero(value) {
     return value
@@ -472,7 +472,7 @@ pub fn coeff_shift_left(value : Coeff, shift : Int) -> Coeff {
 }
 
 ///|
-pub fn coeff_shift_right(value : Coeff, shift : Int) -> Coeff {
+pub fn coeff_shift_right(value : Coeff, shift : Int32) -> Coeff {
   guard shift >= 0 else { abort("coeff_shift_right expects shift >= 0") }
   if shift == 0 || coeff_is_zero(value) {
     return value
@@ -519,7 +519,7 @@ pub fn coeff_shift_right(value : Coeff, shift : Int) -> Coeff {
 }
 
 ///|
-fn coeff_uint64_low_bits_nonzero(value : UInt64, count : Int) -> Bool {
+fn coeff_uint64_low_bits_nonzero(value : UInt64, count : Int32) -> Bool {
   if count <= 0 {
     false
   } else if count >= 64 {
@@ -530,7 +530,7 @@ fn coeff_uint64_low_bits_nonzero(value : UInt64, count : Int) -> Bool {
 }
 
 ///|
-fn coeff_bit_is_set(value : Coeff, index : Int) -> Bool {
+fn coeff_bit_is_set(value : Coeff, index : Int32) -> Bool {
   if index < 0 {
     return false
   }
@@ -552,7 +552,7 @@ fn coeff_bit_is_set(value : Coeff, index : Int) -> Bool {
 }
 
 ///|
-fn coeff_low_bits_nonzero(value : Coeff, count : Int) -> Bool {
+fn coeff_low_bits_nonzero(value : Coeff, count : Int32) -> Bool {
   if count <= 0 {
     return false
   }
@@ -566,7 +566,7 @@ fn coeff_low_bits_nonzero(value : Coeff, count : Int) -> Bool {
       }
     Large(units) => {
       let full_units = count / coeff_unit_bits
-      let full_length = Int::min(full_units, units.length())
+      let full_length = Int32::min(full_units, units.length())
       for index in 0..<full_length {
         if units[index] != 0U {
           return true
@@ -582,7 +582,7 @@ fn coeff_low_bits_nonzero(value : Coeff, count : Int) -> Bool {
 
 ///|
 #warnings("-unused_value")
-fn coeff_round_shift_ties_even(value : Coeff, shift : Int) -> (Coeff, Bool) {
+fn coeff_round_shift_ties_even(value : Coeff, shift : Int32) -> (Coeff, Bool) {
   guard shift >= 0 else {
     abort("coeff_round_shift_ties_even expects shift >= 0")
   }
@@ -704,7 +704,7 @@ fn coeff_round_shift_ties_even(value : Coeff, shift : Int) -> (Coeff, Bool) {
 ///|
 fn coeff_div_rem_by_unit(
   numerator : Coeff,
-  denominator : UInt,
+  denominator : UInt32,
 ) -> (Coeff, Coeff) {
   let denominator64 = denominator.to_uint64()
   let source = coeff_units(numerator)
@@ -724,11 +724,14 @@ fn coeff_div_rem_by_unit(
 }
 
 ///|
-fn coeff_normalized_shift(units : Array[UInt], shift : Int) -> Array[UInt] {
+fn coeff_normalized_shift(
+  units : Array[UInt32],
+  shift : Int32,
+) -> Array[UInt32] {
   if shift == 0 {
     return units.copy()
   }
-  let result : Array[UInt] = []
+  let result : Array[UInt32] = []
   let mut carry = 0UL
   for unit in units {
     let shifted = (unit.to_uint64() << shift) | carry
@@ -873,7 +876,7 @@ pub fn coeff_gcd(left : Coeff, right : Coeff) -> Coeff {
 }
 
 ///|
-pub fn coeff_mod_int(value : Coeff, divisor : Int) -> Int {
+pub fn coeff_mod_int(value : Coeff, divisor : Int32) -> Int32 {
   guard divisor > 0 else { abort("coeff_mod_int expects a positive divisor") }
   let divisor = divisor.to_uint64()
   match value {
@@ -911,7 +914,7 @@ pub fn signed_coeff_from_parts(
 }
 
 ///|
-pub fn signed_coeff_from_int(value : Int) -> SignedCoeff {
+pub fn signed_coeff_from_int(value : Int32) -> SignedCoeff {
   if value >= 0 {
     signed_coeff_from_parts(false, coeff_from_nonnegative_int(value))
   } else {
@@ -949,7 +952,7 @@ pub fn signed_coeff_magnitude(value : SignedCoeff) -> Coeff {
 }
 
 ///|
-pub fn signed_coeff_sign(value : SignedCoeff) -> Int {
+pub fn signed_coeff_sign(value : SignedCoeff) -> Int32 {
   if coeff_is_zero(value.magnitude) {
     0
   } else if value.negative {
@@ -975,7 +978,7 @@ pub fn signed_coeff_abs(value : SignedCoeff) -> SignedCoeff {
 }
 
 ///|
-pub fn signed_coeff_compare(left : SignedCoeff, right : SignedCoeff) -> Int {
+pub fn signed_coeff_compare(left : SignedCoeff, right : SignedCoeff) -> Int32 {
   let left_sign = signed_coeff_sign(left)
   let right_sign = signed_coeff_sign(right)
   if left_sign != right_sign {

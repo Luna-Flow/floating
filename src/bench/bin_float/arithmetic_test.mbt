@@ -16,7 +16,7 @@ fn BinaryOperation::name(self : BinaryOperation) -> String {
 
 ///|
 struct BinaryInput {
-  bits : Int
+  bits : Int32
   left_coeff : @binary.BinCoeff
   right_coeff : @binary.BinCoeff
   left : @binary.BinFloat
@@ -33,7 +33,7 @@ enum BinaryOutput {
 }
 
 ///|
-fn binary_pattern(bits : Int, phase : Int) -> @binary.BinCoeff {
+fn binary_pattern(bits : Int32, phase : Int32) -> @binary.BinCoeff {
   let one = @binary.BinCoeff::one()
   let mut value = one.shift_left(bits - 1)
   let mut index = phase % 17
@@ -45,7 +45,7 @@ fn binary_pattern(bits : Int, phase : Int) -> @binary.BinCoeff {
 }
 
 ///|
-fn binary_input(operation : BinaryOperation, bits : Int) -> BinaryInput {
+fn binary_input(operation : BinaryOperation, bits : Int32) -> BinaryInput {
   let raw_left = binary_pattern(bits, 3)
   let raw_right = binary_pattern((bits - 1).max(2), 11)
   let (left_coeff, right_coeff) = match operation {
@@ -155,7 +155,7 @@ fn binary_implementations(
 fn binary_spec(
   operation : BinaryOperation,
 ) -> @runner.BenchSpec[
-  Int,
+  Int32,
   BinaryInput,
   BinaryInput,
   @binary.BinCoeff,

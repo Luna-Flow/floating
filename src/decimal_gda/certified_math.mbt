@@ -2,14 +2,14 @@
 fn decimal_certified_work_precision(
   value : Decimal,
   ctx : DecimalContext,
-) -> Int {
+) -> Int32 {
   let digits = if value.class == FpClass::Finite {
     value.coefficient.digits10()
   } else {
     1
   }
   let target = decimal_math_target_precision(ctx)
-  let decimal_digits = Int::max(digits, target)
+  let decimal_digits = Int32::max(digits, target)
   if value.class == FpClass::Finite &&
     !value.negative &&
     adjusted_exponent(value) == 0 &&
@@ -18,9 +18,9 @@ fn decimal_certified_work_precision(
     ctx.precision <= 64 &&
     ctx.e_min <= -999_999 &&
     ctx.e_max >= 999_999 {
-    Int::max(80, (decimal_digits * 10 + 2) / 3 + 12)
+    Int32::max(80, (decimal_digits * 10 + 2) / 3 + 12)
   } else {
-    Int::max(128, decimal_digits * 4 + 64)
+    Int32::max(128, decimal_digits * 4 + 64)
   }
 }
 
@@ -28,33 +28,36 @@ fn decimal_certified_work_precision(
 fn decimal_certified_conservative_work_precision(
   value : Decimal,
   ctx : DecimalContext,
-) -> Int {
+) -> Int32 {
   let digits = if value.class == FpClass::Finite {
     value.coefficient.digits10()
   } else {
     1
   }
-  Int::max(128, Int::max(digits, decimal_math_target_precision(ctx)) * 4 + 64)
+  Int32::max(
+    128,
+    Int32::max(digits, decimal_math_target_precision(ctx)) * 4 + 64,
+  )
 }
 
 ///|
 fn decimal_candidate_work_precision(
   value : Decimal,
   ctx : DecimalContext,
-  refinements : Int,
-) -> Int {
+  refinements : Int32,
+) -> Int32 {
   let digits = if value.class == FpClass::Finite {
     value.coefficient.digits10()
   } else {
     1
   }
-  Int::max(digits, decimal_math_target_precision(ctx)) + 16 + refinements * 8
+  Int32::max(digits, decimal_math_target_precision(ctx)) + 16 + refinements * 8
 }
 
 ///|
 fn decimal_to_certified_ball(
   value : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> @ball_float.BallFloat {
   let lower = value.to_bin_float(precision~, mode=RoundingMode::TowardNegative)
   let upper = value.to_bin_float(precision~, mode=RoundingMode::TowardPositive)
@@ -193,7 +196,7 @@ fn decimal_certified_target(
 ///|
 fn decimal_bounded_binary_interval(
   value : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
   guard value.class == FpClass::Finite else { return None }
   if value.coefficient.is_zero() {
@@ -203,7 +206,7 @@ fn decimal_bounded_binary_interval(
   let coefficient = @bin_float.BinCoeff::from_bytes_be(
     value.coefficient.to_bigint().to_octets(),
   )
-  let binary_precision = Int::max(precision, coefficient.bit_length() + 8)
+  let binary_precision = Int32::max(precision, coefficient.bit_length() + 8)
   let downward = @bin_float.BinaryContext::unbounded(
     binary_precision,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
@@ -251,10 +254,10 @@ fn decimal_certified_half_even_candidate(
   candidate : Decimal,
   source : Decimal,
   ctx : DecimalContext,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (Decimal, DecimalFlags)? {
   let target_ctx = ctx
-  let boundary_precision = Int::max(work_precision + 24, 104)
+  let boundary_precision = Int32::max(work_precision + 24, 104)
   if candidate.class == FpClass::Infinity {
     let overflow_boundary = decimal_bounded_binary_interval(
       decimal_power_overflow_boundary(target_ctx),
@@ -322,7 +325,7 @@ fn decimal_certified_half_even_candidate(
 }
 
 ///|
-fn decimal_ln_candidate(value : Decimal, work_precision : Int) -> Decimal {
+fn decimal_ln_candidate(value : Decimal, work_precision : Int32) -> Decimal {
   let work_ctx = decimal_math_work_ctx(work_precision)
   let constant_scale = work_ctx.precision + 12
   let (_, _, ln10_scaled) = decimal_transcendental_ln_constants(constant_scale)
@@ -332,8 +335,8 @@ fn decimal_ln_candidate(value : Decimal, work_precision : Int) -> Decimal {
 }
 
 ///|
-fn decimal_exp_candidate(value : Decimal, work_precision : Int) -> Decimal {
-  let work_ctx = decimal_math_work_ctx(Int::max(work_precision + 24, 96))
+fn decimal_exp_candidate(value : Decimal, work_precision : Int32) -> Decimal {
+  let work_ctx = decimal_math_work_ctx(Int32::max(work_precision + 24, 96))
   let constant_scale = work_ctx.precision + 12
   let (_, _, ln10_scaled) = decimal_transcendental_ln_constants(constant_scale)
   _decimal_exp_finite_work_result_with_ln10(value, work_ctx, ln10_scaled).0
@@ -352,7 +355,7 @@ fn decimal_ball_candidate(
 
 ///|
 priv struct DecimalCertifiedLn10Cache {
-  precision : Int
+  precision : Int32
   interval : @ball_float.BallFloat?
 }
 
@@ -365,7 +368,7 @@ let decimal_certified_ln10_cache : @ref.Ref[DecimalCertifiedLn10Cache] = @ref.ne
 
 ///|
 fn decimal_certified_ln10_interval(
-  precision : Int,
+  precision : Int32,
 ) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
   let cached = decimal_certified_ln10_cache.val
   if cached.precision == precision && cached.interval is Some(interval) {
@@ -385,7 +388,7 @@ fn decimal_certified_finite_candidate(
   interval : @ball_float.BallFloat,
   candidate : Decimal,
   ctx : DecimalContext,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> (Decimal, DecimalFlags)? {
   guard candidate.class == FpClass::Finite else { return None }
   let (rounded, rounded_flags) = decimal_apply_finite_ctx(candidate, ctx)
@@ -394,7 +397,7 @@ fn decimal_certified_finite_candidate(
   }
   let rounding_cell = decimal_power_rounding_cell(candidate, rounded, ctx)
   guard rounding_cell is Some((lower_value, upper_value)) else { return None }
-  let boundary_precision = Int::max(work_precision + 24, 104)
+  let boundary_precision = Int32::max(work_precision + 24, 104)
   let lower = decimal_bounded_binary_interval(lower_value, boundary_precision)
   let upper = decimal_bounded_binary_interval(upper_value, boundary_precision)
   guard lower is Some(lower) && upper is Some(upper) else { return None }
@@ -451,9 +454,9 @@ fn decimal_ln_subset_result(
     return certified
   }
   let target_precision = decimal_math_target_precision(ctx)
-  let classic_precision = Int::max(
+  let classic_precision = Int32::max(
       value.coefficient.digits10(),
-      Int::max(target_precision, 7),
+      Int32::max(target_precision, 7),
     ) +
     8
   let candidate = decimal_ln_candidate(value, classic_precision)
@@ -475,9 +478,9 @@ fn decimal_ln_subset_result(
 fn decimal_power_candidate(
   base : Decimal,
   exponent : Decimal,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> Decimal {
-  let work_ctx = decimal_math_work_ctx(Int::max(work_precision + 24, 96))
+  let work_ctx = decimal_math_work_ctx(Int32::max(work_precision + 24, 96))
   let constant_scale = work_ctx.precision + 12
   let (_, _, ln10_scaled) = decimal_transcendental_ln_constants(constant_scale)
   let (log_base, _) = _decimal_ln_positive_finite_work_result_with_ln10(
@@ -492,7 +495,7 @@ fn decimal_power_candidate(
 ///|
 fn decimal_bounded_ball(
   value : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> @ball_float.BallFloat? {
   match decimal_bounded_binary_interval(value, precision) {
     Some((lower, upper)) =>
@@ -598,10 +601,10 @@ fn decimal_certified_power_log_candidate(
   exponent : Decimal,
   candidate : Decimal,
   ctx : DecimalContext,
-  work_precision : Int,
+  work_precision : Int32,
 ) -> Result[(Decimal, DecimalFlags)?, @def.ArithmeticError] {
   let target_ctx = ctx
-  let boundary_precision = Int::max(work_precision + 24, 104)
+  let boundary_precision = Int32::max(work_precision + 24, 104)
   let base_ball = decimal_bounded_ball(base, boundary_precision)
   let exponent_ball = decimal_bounded_ball(exponent, boundary_precision)
   guard base_ball is Some(base_ball) && exponent_ball is Some(exponent_ball) else {
@@ -904,7 +907,7 @@ fn decimal_certified_power_result(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let mut budget = CertifiedRefinementBudget::new(
-    Int::max(
+    Int32::max(
       decimal_certified_conservative_work_precision(base, ctx),
       decimal_certified_conservative_work_precision(exponent, ctx),
     ),
@@ -913,7 +916,7 @@ fn decimal_certified_power_result(
     let candidate = decimal_power_candidate(
       base,
       exponent,
-      Int::max(
+      Int32::max(
         decimal_candidate_work_precision(base, ctx, budget.refinements()),
         decimal_candidate_work_precision(exponent, ctx, budget.refinements()),
       ),

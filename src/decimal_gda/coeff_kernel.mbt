@@ -9,7 +9,7 @@
 ///|
 priv enum GdaCoeff {
   Small(UInt64)
-  Limbs(Array[UInt], Int)
+  Limbs(Array[UInt32], Int32)
 } derive(Debug)
 
 ///|
@@ -19,7 +19,7 @@ let gda_coeff_dpun = 9
 let gda_coeff_base = 1000000000
 
 ///|
-let gda_coeff_powers : Array[Int] = [
+let gda_coeff_powers : Array[Int32] = [
   1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
 ]
 
@@ -38,7 +38,7 @@ let gda_coeff_small_powers10 : Array[UInt64] = [
 ]
 
 ///|
-fn gda_coeff_small_digits(value : UInt64) -> Int {
+fn gda_coeff_small_digits(value : UInt64) -> Int32 {
   let mut digits = 1
   while digits < gda_coeff_small_powers10.length() &&
         value >= gda_coeff_small_powers10[digits] {
@@ -48,12 +48,12 @@ fn gda_coeff_small_digits(value : UInt64) -> Int {
 }
 
 ///|
-fn gda_coeff_d2u(digits : Int) -> Int {
+fn gda_coeff_d2u(digits : Int32) -> Int32 {
   (digits + gda_coeff_dpun - 1) / gda_coeff_dpun
 }
 
 ///|
-fn gda_coeff_msu_digits(digits : Int) -> Int {
+fn gda_coeff_msu_digits(digits : Int32) -> Int32 {
   let rem = digits % gda_coeff_dpun
   if rem == 0 {
     gda_coeff_dpun
@@ -63,7 +63,7 @@ fn gda_coeff_msu_digits(digits : Int) -> Int {
 }
 
 ///|
-fn gda_coeff_ensure_length(units : Array[UInt], needed : Int) -> Unit {
+fn gda_coeff_ensure_length(units : Array[UInt32], needed : Int32) -> Unit {
   while units.length() < needed {
     units.push(0U)
   }
@@ -75,7 +75,7 @@ fn gda_coeff_zero() -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_from_int(value : Int) -> GdaCoeff {
+fn gda_coeff_from_int(value : Int32) -> GdaCoeff {
   guard value >= 0 && value < gda_coeff_base else {
     abort("gda_coeff_from_int expects one non-negative coefficient unit")
   }
@@ -83,7 +83,7 @@ fn gda_coeff_from_int(value : Int) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_from_nonnegative_int(value : Int) -> GdaCoeff {
+fn gda_coeff_from_nonnegative_int(value : Int32) -> GdaCoeff {
   guard value >= 0 else {
     abort("gda_coeff_from_nonnegative_int expects a non-negative integer")
   }
@@ -94,7 +94,7 @@ fn gda_coeff_from_nonnegative_int(value : Int) -> GdaCoeff {
   if value64 < gda_coeff_small_limit {
     return GdaCoeff::Small(value64)
   }
-  let units : Array[UInt] = []
+  let units : Array[UInt32] = []
   let mut remaining = value
   while remaining > 0 {
     units.push((remaining % gda_coeff_base).reinterpret_as_uint())
@@ -124,7 +124,7 @@ fn gda_coeff_from_decimal_digits_repr(src : String) -> GdaCoeff? {
   let mut end = src.length()
   let mut unit_index = 0
   while end > 0 {
-    let start = Int::max(0, end - gda_coeff_dpun)
+    let start = Int32::max(0, end - gda_coeff_dpun)
     let mut value = 0
     for index in start..<end {
       let digit = src[index].to_int() - '0'.to_int()
@@ -144,7 +144,7 @@ fn gda_coeff_from_decimal_digits_repr(src : String) -> GdaCoeff? {
 // Isomorphic to GDA decNumberFromInt32/decNumberFromUInt32: form the unsigned
 // magnitude without negating the minimum Int, then decompose it in DECDPUN
 // units. See libdecnumber/decNumber.c lines 345-374 in the GCC mirror.
-fn gda_coeff_from_int_magnitude(value : Int) -> GdaCoeff {
+fn gda_coeff_from_int_magnitude(value : Int32) -> GdaCoeff {
   if value >= 0 {
     gda_coeff_from_nonnegative_int(value)
   } else {
@@ -156,7 +156,7 @@ fn gda_coeff_from_int_magnitude(value : Int) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_power10_repr(shift : Int) -> GdaCoeff {
+fn gda_coeff_power10_repr(shift : Int32) -> GdaCoeff {
   guard shift >= 0 else {
     abort("gda_coeff_power10_repr expects a non-negative shift")
   }
@@ -164,7 +164,7 @@ fn gda_coeff_power10_repr(shift : Int) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_unit_len(coeff : GdaCoeff) -> Int {
+fn gda_coeff_unit_len(coeff : GdaCoeff) -> Int32 {
   match coeff {
     Small(value) => if value < gda_coeff_wide_base { 1 } else { 2 }
     Limbs(units, _) => units.length()
@@ -172,7 +172,7 @@ fn gda_coeff_unit_len(coeff : GdaCoeff) -> Int {
 }
 
 ///|
-fn gda_coeff_limb_at(coeff : GdaCoeff, index : Int) -> UInt {
+fn gda_coeff_limb_at(coeff : GdaCoeff, index : Int32) -> UInt32 {
   match coeff {
     Small(value) =>
       if index == 0 {
@@ -187,7 +187,7 @@ fn gda_coeff_limb_at(coeff : GdaCoeff, index : Int) -> UInt {
 }
 
 ///|
-fn gda_coeff_copy_limbs(coeff : GdaCoeff) -> Array[UInt] {
+fn gda_coeff_copy_limbs(coeff : GdaCoeff) -> Array[UInt32] {
   match coeff {
     Small(value) =>
       if value < gda_coeff_wide_base {
@@ -203,7 +203,7 @@ fn gda_coeff_copy_limbs(coeff : GdaCoeff) -> Array[UInt] {
 }
 
 ///|
-fn gda_coeff_digits_cached(coeff : GdaCoeff) -> Int {
+fn gda_coeff_digits_cached(coeff : GdaCoeff) -> Int32 {
   match coeff {
     Small(value) => gda_coeff_small_digits(value)
     Limbs(_, digits) => digits
@@ -232,7 +232,7 @@ fn gda_coeff_is_odd(coeff : GdaCoeff) -> Bool {
 }
 
 ///|
-fn gda_coeff_matches_unit_repr(coeff : GdaCoeff, value : Int) -> Bool {
+fn gda_coeff_matches_unit_repr(coeff : GdaCoeff, value : Int32) -> Bool {
   guard value >= 0 && value < gda_coeff_base else {
     abort("gda_coeff_matches_unit_repr expects one coefficient unit")
   }
@@ -251,7 +251,7 @@ fn GdaCoeff::to_bigint(self : GdaCoeff) -> BigInt {
 }
 
 ///|
-fn GdaCoeff::digits10(self : GdaCoeff) -> Int {
+fn GdaCoeff::digits10(self : GdaCoeff) -> Int32 {
   gda_coeff_digits_cached(self)
 }
 
@@ -273,7 +273,7 @@ fn GdaCoeff::to_string(self : GdaCoeff) -> String {
 }
 
 ///|
-fn gda_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt], Int) {
+fn gda_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt32], Int32) {
   guard magnitude >= 0N else {
     abort("gda_coeff_from_bigint expects a non-negative coefficient")
   }
@@ -281,7 +281,7 @@ fn gda_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt], Int) {
     return ([0U], 1)
   }
   let base = BigInt::from_int(gda_coeff_base)
-  let units : Array[UInt] = []
+  let units : Array[UInt32] = []
   let mut remaining = magnitude
   while !remaining.is_zero() {
     let quotient = remaining / base
@@ -294,8 +294,8 @@ fn gda_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt], Int) {
 
 ///|
 fn gda_coeff_to_bigint(
-  units : Array[UInt],
-  unit_len? : Int = units.length(),
+  units : Array[UInt32],
+  unit_len~ : Int32 = units.length(),
 ) -> BigInt {
   guard unit_len >= 1 else {
     abort("gda_coeff_to_bigint expects unit_len >= 1")
@@ -328,7 +328,7 @@ fn gda_coeff_to_bigint_repr(coeff : GdaCoeff) -> BigInt {
 }
 
 ///|
-fn gda_coeff_get_digits(units : Array[UInt], unit_len : Int) -> Int {
+fn gda_coeff_get_digits(units : Array[UInt32], unit_len : Int32) -> Int32 {
   guard unit_len >= 1 else {
     abort("gda_coeff_get_digits expects unit_len >= 1")
   }
@@ -362,10 +362,10 @@ fn gda_coeff_get_digits(units : Array[UInt], unit_len : Int) -> Int {
 
 ///|
 fn gda_coeff_shift_to_most(
-  units : Array[UInt],
-  digits : Int,
-  shift : Int,
-) -> Int {
+  units : Array[UInt32],
+  digits : Int32,
+  shift : Int32,
+) -> Int32 {
   guard digits >= 1 else {
     abort("gda_coeff_shift_to_most expects digits >= 1")
   }
@@ -430,10 +430,10 @@ fn gda_coeff_shift_to_most(
 
 ///|
 fn gda_coeff_shift_to_least(
-  units : Array[UInt],
-  unit_len : Int,
-  shift : Int,
-) -> Int {
+  units : Array[UInt32],
+  unit_len : Int32,
+  shift : Int32,
+) -> Int32 {
   guard unit_len >= 1 else {
     abort("gda_coeff_shift_to_least expects unit_len >= 1")
   }
@@ -485,8 +485,8 @@ fn gda_coeff_shift_to_least(
 ///|
 fn gda_coeff_div_pow10_round_info_repr(
   numerator : GdaCoeff,
-  shift : Int,
-) -> (GdaCoeff, Bool, Int) {
+  shift : Int32,
+) -> (GdaCoeff, Bool, Int32) {
   guard shift >= 0 else {
     abort("gda_coeff_div_pow10_round_info_repr expects shift >= 0")
   }
@@ -550,12 +550,12 @@ fn gda_coeff_div_pow10_round_info_repr(
 
 ///|
 fn gda_coeff_trim(
-  units : Array[UInt],
-  digits : Int,
-  exponent : Int,
-  all? : Bool = true,
-  max_drop? : Int = -1,
-) -> (Int, Int, Int) {
+  units : Array[UInt32],
+  digits : Int32,
+  exponent : Int32,
+  all~ : Bool = true,
+  max_drop~ : Int32 = -1,
+) -> (Int32, Int32, Int32) {
   guard digits >= 1 else { abort("gda_coeff_trim expects digits >= 1") }
   if (units[0] & 1U) == 1U {
     return (digits, exponent, 0)
@@ -602,7 +602,7 @@ fn gda_coeff_trim(
 }
 
 ///|
-fn gda_coeff_split_carry_3(carry : Int64) -> (Int, Int64) {
+fn gda_coeff_split_carry_3(carry : Int64) -> (Int32, Int64) {
   let base = 1000000000L
   if carry >= 0L {
     ((carry % base).to_int(), carry / base)
@@ -614,14 +614,14 @@ fn gda_coeff_split_carry_3(carry : Int64) -> (Int, Int64) {
 
 ///|
 fn gda_coeff_unit_add_sub(
-  a : Array[UInt],
-  alength : Int,
-  b : Array[UInt],
-  blength : Int,
-  bshift : Int,
-  c : Array[UInt],
-  m : Int,
-) -> Int {
+  a : Array[UInt32],
+  alength : Int32,
+  b : Array[UInt32],
+  blength : Int32,
+  bshift : Int32,
+  c : Array[UInt32],
+  m : Int32,
+) -> Int32 {
   guard alength >= 1 else {
     abort("gda_coeff_unit_add_sub expects alength >= 1")
   }
@@ -719,7 +719,7 @@ fn gda_coeff_unit_add_sub(
 }
 
 ///|
-fn gda_coeff_shift_power10_repr(coeff : GdaCoeff, shift : Int) -> GdaCoeff {
+fn gda_coeff_shift_power10_repr(coeff : GdaCoeff, shift : Int32) -> GdaCoeff {
   guard shift >= 0 else {
     abort("gda_coeff_shift_power10_repr expects a non-negative shift")
   }
@@ -739,7 +739,7 @@ fn gda_coeff_shift_power10_repr(coeff : GdaCoeff, shift : Int) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_compare_repr(lhs : GdaCoeff, rhs : GdaCoeff) -> Int {
+fn gda_coeff_compare_repr(lhs : GdaCoeff, rhs : GdaCoeff) -> Int32 {
   let lhs_len = gda_coeff_unit_len(lhs)
   let rhs_len = gda_coeff_unit_len(rhs)
   if lhs_len > rhs_len {
@@ -767,7 +767,7 @@ fn gda_coeff_compare_repr(lhs : GdaCoeff, rhs : GdaCoeff) -> Int {
 }
 
 ///|
-fn gda_coeff_compare_half_power10(coeff : GdaCoeff) -> Int {
+fn gda_coeff_compare_half_power10(coeff : GdaCoeff) -> Int32 {
   if coeff.is_zero() {
     return -1
   }
@@ -797,7 +797,7 @@ fn gda_coeff_compare_half_power10(coeff : GdaCoeff) -> Int {
 }
 
 ///|
-fn gda_coeff_trim_units(units : Array[UInt], unit_len : Int) -> Int {
+fn gda_coeff_trim_units(units : Array[UInt32], unit_len : Int32) -> Int32 {
   let mut len = unit_len
   while len > 1 && units[len - 1] == 0U {
     len -= 1
@@ -807,8 +807,8 @@ fn gda_coeff_trim_units(units : Array[UInt], unit_len : Int) -> Int {
 
 ///|
 fn gda_coeff_write_wide_unit(
-  units : Array[UInt],
-  wide_index : Int,
+  units : Array[UInt32],
+  wide_index : Int32,
   value : UInt64,
 ) -> Unit {
   guard value < gda_coeff_wide_base else {
@@ -830,9 +830,9 @@ fn gda_coeff_pack_wide(coeff : GdaCoeff) -> Array[UInt64] {
 ///|
 fn gda_coeff_from_wide_accumulator(
   wide_units : Array[UInt64],
-  wide_len : Int,
+  wide_len : Int32,
 ) -> GdaCoeff {
-  let units = Array::make(Int::max(1, wide_len), 0U)
+  let units = Array::make(Int32::max(1, wide_len), 0U)
   for wide_index in 0..<wide_len {
     gda_coeff_write_wide_unit(units, wide_index, wide_units[wide_index])
   }
@@ -841,10 +841,10 @@ fn gda_coeff_from_wide_accumulator(
 
 ///|
 fn gda_coeff_multiply_units_by_unit(
-  units : Array[UInt],
-  unit_len : Int,
-  multiplier : Int,
-) -> (Array[UInt], Int) {
+  units : Array[UInt32],
+  unit_len : Int32,
+  multiplier : Int32,
+) -> (Array[UInt32], Int32) {
   guard multiplier >= 0 && multiplier < gda_coeff_base else {
     abort("gda_coeff_multiply_units_by_unit expects one coefficient unit")
   }
@@ -860,11 +860,11 @@ fn gda_coeff_multiply_units_by_unit(
 
 ///|
 fn gda_coeff_multiply_units_by_unit_into(
-  units : Array[UInt],
-  unit_len : Int,
-  multiplier : Int,
-  result : Array[UInt],
-) -> Int {
+  units : Array[UInt32],
+  unit_len : Int32,
+  multiplier : Int32,
+  result : Array[UInt32],
+) -> Int32 {
   guard multiplier >= 0 && multiplier < gda_coeff_base else {
     abort("gda_coeff_multiply_units_by_unit_into expects one coefficient unit")
   }
@@ -890,7 +890,7 @@ fn gda_coeff_multiply_units_by_unit_into(
 ///|
 fn gda_coeff_multiply_by_unit_repr(
   coeff : GdaCoeff,
-  multiplier : Int,
+  multiplier : Int32,
 ) -> GdaCoeff {
   guard multiplier >= 0 && multiplier < gda_coeff_base else {
     abort("gda_coeff_multiply_by_unit_repr expects one coefficient unit")
@@ -914,7 +914,7 @@ fn gda_coeff_multiply_by_unit_repr(
 }
 
 ///|
-fn gda_coeff_pow_unit_repr(base : Int, exponent : Int) -> GdaCoeff {
+fn gda_coeff_pow_unit_repr(base : Int32, exponent : Int32) -> GdaCoeff {
   guard exponent >= 0 else {
     abort("gda_coeff_pow_unit_repr expects a non-negative exponent")
   }
@@ -925,7 +925,7 @@ fn gda_coeff_pow_unit_repr(base : Int, exponent : Int) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_exact_power_repr(base : GdaCoeff, exponent : Int) -> GdaCoeff {
+fn gda_coeff_exact_power_repr(base : GdaCoeff, exponent : Int32) -> GdaCoeff {
   guard exponent >= 0 else {
     abort("gda_coeff_exact_power_repr expects a non-negative exponent")
   }
@@ -950,8 +950,8 @@ fn gda_coeff_exact_power_repr(base : GdaCoeff, exponent : Int) -> GdaCoeff {
 ///|
 fn gda_coeff_exact_power_if_fits_repr(
   base : GdaCoeff,
-  exponent : Int,
-  max_digits : Int,
+  exponent : Int32,
+  max_digits : Int32,
 ) -> GdaCoeff? {
   guard exponent >= 0 else {
     abort("gda_coeff_exact_power_if_fits_repr expects a non-negative exponent")
@@ -989,8 +989,8 @@ fn gda_coeff_exact_power_if_fits_repr(
 ///|
 fn gda_coeff_div_rem_by_unit_repr(
   coeff : GdaCoeff,
-  divisor : Int,
-) -> (GdaCoeff, Int) {
+  divisor : Int32,
+) -> (GdaCoeff, Int32) {
   guard divisor > 0 && divisor < gda_coeff_base else {
     abort(
       "gda_coeff_div_rem_by_unit_repr expects one positive coefficient unit",
@@ -1034,7 +1034,7 @@ fn gda_coeff_div_rem_by_unit_repr(
 ///|
 fn gda_coeff_exact_divide_by_unit_repr(
   coeff : GdaCoeff,
-  divisor : Int,
+  divisor : Int32,
 ) -> GdaCoeff? {
   let (quotient, remainder) = gda_coeff_div_rem_by_unit_repr(coeff, divisor)
   if remainder == 0 {
@@ -1047,8 +1047,8 @@ fn gda_coeff_exact_divide_by_unit_repr(
 ///|
 fn gda_coeff_count_factor_unit_repr(
   coeff : GdaCoeff,
-  factor : Int,
-) -> (GdaCoeff, Int) {
+  factor : Int32,
+) -> (GdaCoeff, Int32) {
   guard !coeff.is_zero() else {
     abort("gda_coeff_count_factor_unit_repr expects a non-zero coefficient")
   }
@@ -1085,15 +1085,15 @@ fn gda_coeff_count_factor_unit_repr(
 ///|
 fn gda_coeff_remove_factor_unit_repr(
   coeff : GdaCoeff,
-  factor : Int,
+  factor : Int32,
 ) -> GdaCoeff {
   gda_coeff_count_factor_unit_repr(coeff, factor).0
 }
 
 ///|
 fn gda_coeff_from_unit_accumulator(
-  units : Array[UInt],
-  unit_len : Int,
+  units : Array[UInt32],
+  unit_len : Int32,
 ) -> GdaCoeff {
   guard unit_len >= 1 else {
     abort("gda_coeff_from_unit_accumulator expects unit_len >= 1")
@@ -1158,7 +1158,7 @@ fn gda_coeff_magnitude_add_repr(lhs : GdaCoeff, rhs : GdaCoeff) -> GdaCoeff {
   }
   let lhs_len = gda_coeff_unit_len(lhs)
   let rhs_len = gda_coeff_unit_len(rhs)
-  let wide_len = Int::max(lhs_len, rhs_len)
+  let wide_len = Int32::max(lhs_len, rhs_len)
   let result = Array::make(wide_len + 1, 0U)
   let mut carry = 0UL
   for wide_index in 0..<wide_len {
@@ -1248,7 +1248,7 @@ fn gda_coeff_signed_compare_repr(
   lhs : GdaCoeff,
   rhs_negative : Bool,
   rhs : GdaCoeff,
-) -> Int {
+) -> Int32 {
   let lhs_negative = lhs_negative && !lhs.is_zero()
   let rhs_negative = rhs_negative && !rhs.is_zero()
   if lhs_negative != rhs_negative {
@@ -1266,8 +1266,8 @@ fn gda_coeff_signed_compare_repr(
 fn gda_coeff_signed_compare_int_repr(
   negative : Bool,
   magnitude : GdaCoeff,
-  rhs : Int,
-) -> Int {
+  rhs : Int32,
+) -> Int32 {
   gda_coeff_signed_compare_repr(
     negative,
     magnitude,
@@ -1277,7 +1277,7 @@ fn gda_coeff_signed_compare_int_repr(
 }
 
 ///|
-fn gda_coeff_magnitude_add_unit(coeff : GdaCoeff, addend : Int) -> GdaCoeff {
+fn gda_coeff_magnitude_add_unit(coeff : GdaCoeff, addend : Int32) -> GdaCoeff {
   guard addend >= 0 && addend < gda_coeff_base else {
     abort("gda_coeff_magnitude_add_unit expects one coefficient unit")
   }
@@ -1302,7 +1302,10 @@ fn gda_coeff_magnitude_add_unit(coeff : GdaCoeff, addend : Int) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_magnitude_sub_unit(coeff : GdaCoeff, subtrahend : Int) -> GdaCoeff {
+fn gda_coeff_magnitude_sub_unit(
+  coeff : GdaCoeff,
+  subtrahend : Int32,
+) -> GdaCoeff {
   guard subtrahend >= 0 && subtrahend < gda_coeff_base else {
     abort("gda_coeff_magnitude_sub_unit expects one coefficient unit")
   }
@@ -1357,7 +1360,7 @@ fn gda_coeff_signed_step_unit_repr(
 }
 
 ///|
-fn gda_coeff_wide_trim_units(units : Array[UInt64], unit_len : Int) -> Int {
+fn gda_coeff_wide_trim_units(units : Array[UInt64], unit_len : Int32) -> Int32 {
   let mut len = unit_len
   while len > 1 && units[len - 1] == 0UL {
     len -= 1
@@ -1370,7 +1373,7 @@ fn gda_coeff_wide_multiply_coeff_by_unit_into(
   coeff : GdaCoeff,
   multiplier : UInt64,
   result : Array[UInt64],
-) -> Int {
+) -> Int32 {
   let unit_len = gda_coeff_unit_len(coeff)
   let mut carry = 0UL
   for index in 0..<unit_len {
@@ -1600,13 +1603,13 @@ fn gda_coeff_mul_schoolbook(lhs : GdaCoeff, rhs : GdaCoeff) -> GdaCoeff {
   let rhs_len = gda_coeff_unit_len(rhs)
   let lhs_wide_len = lhs_len
   let rhs_wide_len = rhs_len
-  if Int::min(lhs_wide_len, rhs_wide_len) <= 18 {
+  if Int32::min(lhs_wide_len, rhs_wide_len) <= 18 {
     let result = Array::make(lhs_wide_len + rhs_wide_len + 1, 0U)
     let columns = lhs_wide_len + rhs_wide_len - 1
     let mut carry = 0UL
     for column in 0..<columns {
-      let lhs_start = Int::max(0, column - (rhs_wide_len - 1))
-      let lhs_end = Int::min(lhs_wide_len - 1, column)
+      let lhs_start = Int32::max(0, column - (rhs_wide_len - 1))
+      let lhs_end = Int32::min(lhs_wide_len - 1, column)
       let mut current = carry
       for lhs_index in lhs_start..<=lhs_end {
         let rhs_index = column - lhs_index
@@ -1655,8 +1658,8 @@ fn gda_coeff_mul_schoolbook(lhs : GdaCoeff, rhs : GdaCoeff) -> GdaCoeff {
 fn gda_coeff_compare_scaled_repr(
   lhs : GdaCoeff,
   rhs : GdaCoeff,
-  exp : Int,
-) -> Int {
+  exp : Int32,
+) -> Int32 {
   guard exp >= 0 else {
     abort("gda_coeff_compare_scaled_repr expects a non-negative exponent")
   }
@@ -1668,7 +1671,7 @@ fn gda_coeff_compare_scaled_repr(
   let expunit_shift = exp / gda_coeff_dpun
   let exprem = exp % gda_coeff_dpun
   let multiplier = gda_coeff_powers[exprem].to_uint64()
-  let need = Int::max(alength, expunit_shift + blength + 1)
+  let need = Int32::max(alength, expunit_shift + blength + 1)
   let mut multiply_carry = 0UL
   let mut borrow = 0UL
   let mut nonzero = false
@@ -1713,7 +1716,7 @@ fn gda_coeff_compare_scaled_repr(
 }
 
 ///|
-fn remove_factor10_repr(coeff : GdaCoeff, exp : Int) -> (GdaCoeff, Int) {
+fn remove_factor10_repr(coeff : GdaCoeff, exp : Int32) -> (GdaCoeff, Int32) {
   if coeff.is_zero() {
     return (gda_coeff_zero(), 0)
   }
@@ -1736,7 +1739,7 @@ fn remove_factor10_repr(coeff : GdaCoeff, exp : Int) -> (GdaCoeff, Int) {
 ///|
 fn exact_divide_by_power_of_ten_repr(
   coeff : GdaCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> GdaCoeff? {
   guard shift >= 0 else {
     abort("exact_divide_by_power_of_ten_repr expects shift >= 0")
@@ -1775,9 +1778,9 @@ fn exact_divide_by_power_of_ten_repr(
 ///|
 fn trim_trailing_decimal_zeros_repr(
   coeff : GdaCoeff,
-  exp : Int,
-  max_drop? : Int = -1,
-) -> (GdaCoeff, Int, Int) {
+  exp : Int32,
+  max_drop~ : Int32 = -1,
+) -> (GdaCoeff, Int32, Int32) {
   if coeff.is_zero() {
     return (gda_coeff_zero(), 0, 0)
   }

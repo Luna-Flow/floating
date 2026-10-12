@@ -1,7 +1,7 @@
 ///|
 priv enum RuntimeValue {
   DecimalValue(@decimal_gda.Decimal)
-  IntValue(Int)
+  IntValue(Int32)
   BoolValue(Bool)
   TextValue(String)
 }
@@ -38,7 +38,7 @@ priv struct ResolvedContext {
 ///|
 fn evaluated_decimal(
   value : @decimal_gda.Decimal,
-  flags? : @decimal_gda.DecimalFlags = @decimal_gda.DecimalFlags::new(),
+  flags~ : @decimal_gda.DecimalFlags = @decimal_gda.DecimalFlags::new(),
 ) -> EvaluatedValue {
   { value: DecimalValue(value), flags: runtime_flags_from_decimal(flags), }
 }
@@ -150,9 +150,9 @@ fn uppercase_ascii(src : String) -> String {
   for index in 0..<src.length() {
     let ch = src[index]
     if ch >= 'a' && ch <= 'z' {
-      builder.write_char(Int::unsafe_to_char(ch.to_int() - 32))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int() - 32))
     } else {
-      builder.write_char(Int::unsafe_to_char(ch.to_int()))
+      builder.write_char(Int32::unsafe_to_char(ch.to_int()))
     }
   }
   builder.to_string()
@@ -369,7 +369,10 @@ fn decode_decimal_literal(
     // token length bounds the number of significant digits.
     @decimal_gda.Decimal::from_string(
       normalized,
-      precision=Int::max(64, Int::max(context.precision(), normalized.length())),
+      precision=Int32::max(
+        64,
+        Int32::max(context.precision(), normalized.length()),
+      ),
     )
   }
 }
@@ -377,7 +380,7 @@ fn decode_decimal_literal(
 ///|
 fn decimal_argument(
   values : Array[EvaluatedValue],
-  index : Int,
+  index : Int32,
 ) -> @decimal_gda.Decimal? {
   guard index >= 0 && index < values.length() else { return None }
   match values[index].value {
@@ -1169,7 +1172,7 @@ fn case_filter_matches(id : String, filter : String) -> Bool {
 ///|
 pub fn execute_documents(
   documents : Array[GdaDocument],
-  options? : RunOptions = RunOptions::new(),
+  options~ : RunOptions = RunOptions::new(),
 ) -> RunSummary {
   let results : Array[CaseResult] = []
   let mut total_cases = 0

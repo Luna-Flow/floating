@@ -106,7 +106,7 @@ fn binary_exact_product(
         negative,
         coefficient,
         exponent.to_int(),
-        Int::max(1, coefficient.bit_length()),
+        Int32::max(1, coefficient.bit_length()),
       ),
     )
   }
@@ -134,9 +134,9 @@ pub fn BinFloat::fma(
   multiplier : BinFloat,
   addend : BinFloat,
 ) -> BinFloat {
-  let precision = Int::max(
+  let precision = Int32::max(
     self.precision_,
-    Int::max(multiplier.precision_, addend.precision_),
+    Int32::max(multiplier.precision_, addend.precision_),
   )
   self.fma_ctx(multiplier, addend, BinaryContext::unbounded(precision)).0
 }

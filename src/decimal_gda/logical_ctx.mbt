@@ -24,8 +24,11 @@ fn logical_invalid_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
 }
 
 ///|
-fn logical_coeff_digits_lsd(coeff : GdaCoeff, precision : Int) -> Array[Int] {
-  let digits : Array[Int] = []
+fn logical_coeff_digits_lsd(
+  coeff : GdaCoeff,
+  precision : Int32,
+) -> Array[Int32] {
+  let digits : Array[Int32] = []
   for index in 0..<precision {
     let limb_index = index / gda_coeff_dpun
     let digit_index = index % gda_coeff_dpun
@@ -42,11 +45,11 @@ fn logical_coeff_digits_lsd(coeff : GdaCoeff, precision : Int) -> Array[Int] {
 }
 
 ///|
-fn logical_coeff_from_digits_lsd(digits : Array[Int]) -> GdaCoeff {
-  let limbs : Array[UInt] = []
+fn logical_coeff_from_digits_lsd(digits : Array[Int32]) -> GdaCoeff {
+  let limbs : Array[UInt32] = []
   let mut index = 0
   while index < digits.length() {
-    let end = Int::min(index + gda_coeff_dpun, digits.length())
+    let end = Int32::min(index + gda_coeff_dpun, digits.length())
     let mut limb = 0U
     let mut power = 1U
     for digit_index in index..<end {
@@ -65,12 +68,12 @@ fn logical_coeff_from_digits_lsd(digits : Array[Int]) -> GdaCoeff {
 fn logical_binary_digits_repr(
   lhs : GdaCoeff,
   rhs : GdaCoeff,
-  precision : Int,
+  precision : Int32,
   op : (Bool, Bool) -> Bool,
 ) -> GdaCoeff {
   let lhs_digits = logical_coeff_digits_lsd(lhs, precision)
   let rhs_digits = logical_coeff_digits_lsd(rhs, precision)
-  let result_digits : Array[Int] = []
+  let result_digits : Array[Int32] = []
   for index in 0..<precision {
     let lhs_digit = lhs_digits[index] == 1
     let rhs_digit = rhs_digits[index] == 1
@@ -87,7 +90,7 @@ fn logical_invert_digits_repr(
 ) -> GdaCoeff {
   let precision = finite_precision_for_coeff(value, ctx)
   let digits = logical_coeff_digits_lsd(value, precision)
-  let result_digits : Array[Int] = []
+  let result_digits : Array[Int32] = []
   for index in 0..<precision {
     result_digits.push(if digits[index] == 1 { 0 } else { 1 })
   }
@@ -95,7 +98,7 @@ fn logical_invert_digits_repr(
 }
 
 ///|
-fn decimal_shift_count(rhs : Decimal, ctx : DecimalContext) -> Int? {
+fn decimal_shift_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
   guard rhs.class == FpClass::Finite && rhs.exponent10 == 0 else { return None }
   let limit = if ctx.precision != 0 { ctx.precision } else { 999_999_999 }
   match gda_coeff_to_bounded_int(rhs.coefficient, limit) {
@@ -114,8 +117,8 @@ fn decimal_shift_count(rhs : Decimal, ctx : DecimalContext) -> Int? {
 ///|
 fn coefficient_shift_digits_repr(
   coefficient : GdaCoeff,
-  count : Int,
-  precision : Int,
+  count : Int32,
+  precision : Int32,
 ) -> GdaCoeff {
   if coefficient.is_zero() {
     return coefficient
@@ -124,7 +127,7 @@ fn coefficient_shift_digits_repr(
     return coefficient
   }
   let digits = logical_coeff_digits_lsd(coefficient, precision)
-  let shifted : Array[Int] = []
+  let shifted : Array[Int32] = []
   if count > 0 {
     for index in 0..<precision {
       shifted.push(if index >= count { digits[index - count] } else { 0 })
@@ -147,8 +150,8 @@ fn coefficient_shift_digits_repr(
 ///|
 fn coefficient_rotate_digits_repr(
   coefficient : GdaCoeff,
-  count : Int,
-  precision : Int,
+  count : Int32,
+  precision : Int32,
 ) -> GdaCoeff {
   if coefficient.is_zero() {
     return coefficient
@@ -161,7 +164,7 @@ fn coefficient_rotate_digits_repr(
   if shift == 0 {
     return coefficient
   }
-  let rotated : Array[Int] = []
+  let rotated : Array[Int32] = []
   for index in 0..<precision {
     let source = (index - shift + precision) % precision
     rotated.push(digits[source])

@@ -10,7 +10,7 @@ fn coeff_one() -> @bin_float.BinCoeff {
 }
 
 ///|
-fn coeff_from_nonnegative_int(value : Int) -> @bin_float.BinCoeff {
+fn coeff_from_nonnegative_int(value : Int32) -> @bin_float.BinCoeff {
   guard value >= 0 else {
     abort("coefficient constructor requires a non-negative integer")
   }
@@ -23,7 +23,7 @@ fn coeff_is_zero(value : @bin_float.BinCoeff) -> Bool {
 }
 
 ///|
-fn coeff_bits(value : @bin_float.BinCoeff) -> Int {
+fn coeff_bits(value : @bin_float.BinCoeff) -> Int32 {
   value.bit_length()
 }
 
@@ -31,7 +31,7 @@ fn coeff_bits(value : @bin_float.BinCoeff) -> Int {
 fn coeff_compare(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
-) -> Int {
+) -> Int32 {
   left.compare(right)
 }
 
@@ -54,7 +54,7 @@ fn coeff_mul(
 ///|
 fn coeff_shift_left(
   value : @bin_float.BinCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> @bin_float.BinCoeff {
   value.shift_left(shift)
 }
@@ -88,7 +88,7 @@ fn coeff_to_uint64(value : @bin_float.BinCoeff) -> UInt64? {
 }
 
 ///|
-fn coeff_mod_int(value : @bin_float.BinCoeff, divisor : Int) -> Int {
+fn coeff_mod_int(value : @bin_float.BinCoeff, divisor : Int32) -> Int32 {
   guard divisor > 0 else { abort("coefficient modulus must be positive") }
   value
   .div_rem_checked(@bin_float.BinCoeff::from_uint64(divisor.to_uint64()))
@@ -107,7 +107,7 @@ fn signed_coeff_from_parts(
 }
 
 ///|
-fn signed_coeff_from_int(value : Int) -> SignedBinCoeff {
+fn signed_coeff_from_int(value : Int32) -> SignedBinCoeff {
   let negative = value < 0
   let magnitude = if negative {
     (-(value + 1)).to_uint64() + 1UL
@@ -123,7 +123,7 @@ fn signed_coeff_magnitude(value : SignedBinCoeff) -> @bin_float.BinCoeff {
 }
 
 ///|
-fn signed_coeff_sign(value : SignedBinCoeff) -> Int {
+fn signed_coeff_sign(value : SignedBinCoeff) -> Int32 {
   if value.magnitude.is_zero() {
     0
   } else if value.negative {
@@ -149,7 +149,7 @@ fn signed_coeff_abs(value : SignedBinCoeff) -> SignedBinCoeff {
 }
 
 ///|
-fn signed_coeff_compare(left : SignedBinCoeff, right : SignedBinCoeff) -> Int {
+fn signed_coeff_compare(left : SignedBinCoeff, right : SignedBinCoeff) -> Int32 {
   let left_sign = signed_coeff_sign(left)
   let right_sign = signed_coeff_sign(right)
   if left_sign != right_sign {

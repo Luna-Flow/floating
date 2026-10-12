@@ -1,15 +1,15 @@
 ///|
 pub struct SourceSpan {
   priv source : String
-  priv line : Int
-  priv column : Int
+  priv line : Int32
+  priv column : Int32
 } derive(Eq, Debug)
 
 ///|
 pub fn SourceSpan::new(
   source : String,
-  line? : Int = 0,
-  column? : Int = 0,
+  line~ : Int32 = 0,
+  column~ : Int32 = 0,
 ) -> SourceSpan {
   { source, line, column, }
 }
@@ -20,12 +20,12 @@ pub fn SourceSpan::source(self : SourceSpan) -> String {
 }
 
 ///|
-pub fn SourceSpan::line(self : SourceSpan) -> Int {
+pub fn SourceSpan::line(self : SourceSpan) -> Int32 {
   self.line
 }
 
 ///|
-pub fn SourceSpan::column(self : SourceSpan) -> Int {
+pub fn SourceSpan::column(self : SourceSpan) -> Int32 {
   self.column
 }
 
@@ -38,7 +38,7 @@ pub struct Literal {
 ///|
 pub fn Literal::new(
   raw : String,
-  span? : SourceSpan = SourceSpan::new(""),
+  span~ : SourceSpan = SourceSpan::new(""),
 ) -> Literal {
   { raw, span, }
 }
@@ -62,7 +62,7 @@ pub struct Operation {
 ///|
 pub fn Operation::new(
   name : String,
-  span? : SourceSpan = SourceSpan::new(""),
+  span~ : SourceSpan = SourceSpan::new(""),
 ) -> Operation {
   { name, span, }
 }

@@ -125,7 +125,7 @@ fn round_positive_decimal_div_repr(
 ///|
 fn round_positive_decimal_div_pow10_repr(
   numerator : DecCoeff,
-  shift : Int,
+  shift : Int32,
   negative : Bool,
   mode : DecimalRoundingMode,
 ) -> (DecCoeff, Bool) {
@@ -210,8 +210,8 @@ fn round_positive_decimal_div_pow10_repr(
 ///|
 fn normalize_decimal(
   coefficient : BigInt,
-  exponent10 : Int,
-  precision : Int,
+  exponent10 : Int32,
+  precision : Int32,
   mode : RoundingMode,
 ) -> Decimal {
   normalize_decimal_parts(
@@ -227,8 +227,8 @@ fn normalize_decimal(
 fn normalize_decimal_parts(
   negative : Bool,
   magnitude : BigInt,
-  exponent10 : Int,
-  precision : Int,
+  exponent10 : Int32,
+  precision : Int32,
   mode : RoundingMode,
 ) -> Decimal {
   normalize_decimal_parts_gda(
@@ -244,8 +244,8 @@ fn normalize_decimal_parts(
 fn normalize_decimal_parts_gda(
   negative : Bool,
   magnitude : BigInt,
-  exponent10 : Int,
-  precision : Int,
+  exponent10 : Int32,
+  precision : Int32,
   mode : DecimalRoundingMode,
 ) -> Decimal {
   normalize_decimal_parts_gda_repr(
@@ -261,11 +261,11 @@ fn normalize_decimal_parts_gda(
 fn normalize_decimal_parts_gda_repr(
   negative : Bool,
   magnitude : DecCoeff,
-  exponent10 : Int,
-  precision : Int,
+  exponent10 : Int32,
+  precision : Int32,
   mode : DecimalRoundingMode,
 ) -> Decimal {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   if magnitude.is_zero() {
     return finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision)
   }
@@ -301,7 +301,7 @@ fn normalize_decimal_parts_gda_repr(
 ///|
 fn expand_exact_cohort_toward_preferred_exponent(
   value : Decimal,
-  preferred_exponent : Int,
+  preferred_exponent : Int32,
   ctx : DecimalContext,
 ) -> Decimal {
   guard value.class == FpClass::Finite else { return value }
@@ -329,15 +329,15 @@ fn expand_exact_cohort_toward_preferred_exponent(
 fn finite_with_exponent(
   negative : Bool,
   magnitude : BigInt,
-  exponent10 : Int,
-  precision : Int,
+  exponent10 : Int32,
+  precision : Int32,
 ) -> Decimal {
   {
     class: FpClass::Finite,
     negative,
     coefficient: coeff_from_bigint(magnitude),
     exponent10,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: false,
   }
 }
@@ -346,30 +346,30 @@ fn finite_with_exponent(
 fn finite_with_exponent_repr(
   negative : Bool,
   magnitude : DecCoeff,
-  exponent10 : Int,
-  precision : Int,
+  exponent10 : Int32,
+  precision : Int32,
 ) -> Decimal {
   {
     class: FpClass::Finite,
     negative,
     coefficient: magnitude,
     exponent10,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: false,
   }
 }
 
 ///|
-fn finite_precision_for(magnitude : BigInt, ctx : DecimalContext) -> Int {
+fn finite_precision_for(magnitude : BigInt, ctx : DecimalContext) -> Int32 {
   if ctx.precision == 0 {
-    Int::max(1, digits10(magnitude))
+    Int32::max(1, digits10(magnitude))
   } else {
-    Int::max(1, ctx.precision)
+    Int32::max(1, ctx.precision)
   }
 }
 
 ///|
-fn decimal_int_from_int64_clamped(value : Int64) -> Int {
+fn decimal_int_from_int64_clamped(value : Int64) -> Int32 {
   if value < -2_147_483_648L {
     -2_147_483_648
   } else if value > 2_147_483_647L {
@@ -380,7 +380,7 @@ fn decimal_int_from_int64_clamped(value : Int64) -> Int {
 }
 
 ///|
-fn etiny(ctx : DecimalContext) -> Int {
+fn etiny(ctx : DecimalContext) -> Int32 {
   @internal.DecimalExponentBounds::new(
     finite_precision_for(bigint_one(), ctx),
     ctx.e_min,
@@ -398,7 +398,7 @@ fn adjusted_exponent64(x : Decimal) -> Int64 {
 }
 
 ///|
-fn etop(ctx : DecimalContext, precision : Int) -> Int {
+fn etop(ctx : DecimalContext, precision : Int32) -> Int32 {
   @internal.DecimalExponentBounds::new(precision, ctx.e_min, ctx.e_max).etop()
 }
 
@@ -425,7 +425,7 @@ fn tiny_for_underflow(
 // so the rounding is done only there.
 fn adjusted_after_rounding_to_precision(
   magnitude : DecCoeff,
-  exponent10 : Int,
+  exponent10 : Int32,
   negative : Bool,
   ctx : DecimalContext,
 ) -> Int64 {
@@ -449,11 +449,11 @@ fn adjusted_after_rounding_to_precision(
 ///|
 fn decimal_round_coeff_to_digits_repr(
   magnitude : DecCoeff,
-  exponent10 : Int,
-  target_digits : Int,
+  exponent10 : Int32,
+  target_digits : Int32,
   negative : Bool,
   mode : DecimalRoundingMode,
-) -> (DecCoeff, Int, Bool, Bool) {
+) -> (DecCoeff, Int32, Bool, Bool) {
   if magnitude.is_zero() {
     return (dec_coeff_zero(), 0, false, false)
   }
@@ -468,7 +468,7 @@ fn decimal_round_coeff_to_digits_repr(
 }
 
 ///|
-fn adjusted_exponent(x : Decimal) -> Int {
+fn adjusted_exponent(x : Decimal) -> Int32 {
   if x.class != FpClass::Finite || x.coefficient.is_zero() {
     x.exponent10
   } else {
@@ -608,9 +608,9 @@ fn finalize_finite_ctx(
 fn normalize_decimal_parts_ctx_repr(
   negative : Bool,
   magnitude : DecCoeff,
-  exponent10 : Int,
+  exponent10 : Int32,
   ctx : DecimalContext,
-  apply_etiny? : Bool = true,
+  apply_etiny~ : Bool = true,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(magnitude, ctx)
   let mut flags = DecimalFlags::new()
@@ -624,7 +624,7 @@ fn normalize_decimal_parts_ctx_repr(
     ctx.precision > 0 &&
     !magnitude.is_zero() &&
     exponent10.to_int64() +
-    Int::max(0, magnitude.digits10() - precision).to_int64() <
+    Int32::max(0, magnitude.digits10() - precision).to_int64() <
     etiny(ctx).to_int64() {
     let unrounded_adjusted = exponent10.to_int64() +
       (magnitude.digits10() - 1).to_int64()
@@ -745,7 +745,7 @@ fn normalize_decimal_parts_ctx_repr(
 // Exponents are stored as `Int`, but the exponent of an exact product or of a
 // literal can lie outside it. Exponent arithmetic on such values is done in
 // `Int64` and brought back here.
-fn exponent10_from_int64(value : Int64) -> Int? {
+fn exponent10_from_int64(value : Int64) -> Int32? {
   if value < -2147483648L || value > 2147483647L {
     None
   } else {
@@ -764,7 +764,7 @@ fn fold_exponent10_into_int_repr(
   negative : Bool,
   magnitude : DecCoeff,
   exponent10 : Int64,
-) -> (DecCoeff, Int, Bool) {
+) -> (DecCoeff, Int32, Bool) {
   if exponent10_from_int64(exponent10) is Some(exponent) {
     return (magnitude, exponent, false)
   }
@@ -832,7 +832,7 @@ fn with_underflow_for_inexact_subnormal(
 ///|
 fn expand_finite_cohort_toward_target_exponent(
   value : Decimal,
-  target : Int,
+  target : Int32,
   ctx : DecimalContext,
 ) -> Decimal {
   guard value.class == FpClass::Finite &&
@@ -859,7 +859,7 @@ fn expand_finite_cohort_toward_target_exponent(
 ///|
 fn expand_rounded_exact_cohort_toward_preferred_exponent(
   value : Decimal,
-  preferred_exponent : Int,
+  preferred_exponent : Int32,
   ctx : DecimalContext,
 ) -> Decimal {
   guard value.class == FpClass::Finite &&
@@ -869,9 +869,9 @@ fn expand_rounded_exact_cohort_toward_preferred_exponent(
     return value
   }
   let digits = value.coefficient.digits10()
-  let available_shift = Int::max(0, ctx.precision - digits)
+  let available_shift = Int32::max(0, ctx.precision - digits)
   let wanted_shift = value.exponent10 - preferred_exponent
-  let shift = Int::min(wanted_shift, available_shift)
+  let shift = Int32::min(wanted_shift, available_shift)
   if shift > 0 {
     finite_with_exponent_repr(
       value.negative,
@@ -888,7 +888,7 @@ fn expand_rounded_exact_cohort_toward_preferred_exponent(
 fn expand_inexact_division_cohort(
   value : Decimal,
   ctx : DecimalContext,
-  pad_precision? : Bool = false,
+  pad_precision~ : Bool = false,
 ) -> Decimal {
   guard value.class == FpClass::Finite &&
     ctx.precision > 0 &&
@@ -1103,7 +1103,7 @@ pub fn Decimal::normalize_ctx(
 ///|
 pub fn Decimal::with_precision(
   self : Decimal,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
 ) -> Decimal {
   match self.class {
@@ -1115,7 +1115,7 @@ pub fn Decimal::with_precision(
         precision,
         DecimalRoundingMode::from_arithmetic(mode),
       )
-    FpClass::Infinity => { ..self, precision_: Int::max(1, precision), }
-    FpClass::NaN => { ..self, precision_: Int::max(1, precision), }
+    FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }
   }
 }

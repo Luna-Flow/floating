@@ -43,8 +43,8 @@ fn binary_to_integer_parts(
 pub fn BinFloat::to_int_ctx(
   self : BinFloat,
   context : BinaryContext,
-  exact? : Bool = false,
-) -> (Int?, BinaryFlags) {
+  exact~ : Bool = false,
+) -> (Int32?, BinaryFlags) {
   let (parts, flags) = binary_to_integer_parts(
     self, context, exact, 0x80000000UL, 0x7FFFFFFFUL,
   )
@@ -62,7 +62,7 @@ pub fn BinFloat::to_int_ctx(
 pub fn BinFloat::to_int64_ctx(
   self : BinFloat,
   context : BinaryContext,
-  exact? : Bool = false,
+  exact~ : Bool = false,
 ) -> (Int64?, BinaryFlags) {
   let (parts, flags) = binary_to_integer_parts(
     self, context, exact, 0x8000000000000000UL, 0x7FFFFFFFFFFFFFFFUL,
@@ -89,8 +89,8 @@ pub fn BinFloat::to_int64_ctx(
 pub fn BinFloat::to_uint_ctx(
   self : BinFloat,
   context : BinaryContext,
-  exact? : Bool = false,
-) -> (UInt?, BinaryFlags) {
+  exact~ : Bool = false,
+) -> (UInt32?, BinaryFlags) {
   let (parts, flags) = binary_to_integer_parts(
     self, context, exact, 0UL, 0xFFFFFFFFUL,
   )
@@ -102,7 +102,7 @@ pub fn BinFloat::to_uint_ctx(
 pub fn BinFloat::to_uint64_ctx(
   self : BinFloat,
   context : BinaryContext,
-  exact? : Bool = false,
+  exact~ : Bool = false,
 ) -> (UInt64?, BinaryFlags) {
   let (parts, flags) = binary_to_integer_parts(
     self, context, exact, 0UL, 0xFFFFFFFFFFFFFFFFUL,

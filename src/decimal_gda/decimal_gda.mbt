@@ -136,12 +136,12 @@ fn gda_completed_exact(
 
 ///|
 pub fn context(
-  precision? : Int = 34,
-  rounding? : GdaRoundingMode = GdaRoundingMode::HalfEven,
-  e_min? : Int = -999_999_999,
-  e_max? : Int = 999_999_999,
-  clamp? : Bool = false,
-  extended? : Bool = true,
+  precision~ : Int32 = 34,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
 ) -> Result[GdaContext, @def.ArithmeticError] {
   GdaContext::new(precision~, rounding~, e_min~, e_max~, clamp~, extended~)
 }

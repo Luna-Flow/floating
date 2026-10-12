@@ -23,7 +23,7 @@ fn tiny_expected(
 }
 
 ///|
-fn tiny_contexts(precision : Int) -> Array[BinaryContext] {
+fn tiny_contexts(precision : Int32) -> Array[BinaryContext] {
   [RoundTiesToEven, RoundTowardNegative, RoundTowardPositive, RoundTowardZero].map(fn(
       mode,
     ) {

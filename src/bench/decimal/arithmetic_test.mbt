@@ -16,7 +16,7 @@ fn DecimalOperation::name(self : DecimalOperation) -> String {
 
 ///|
 struct DecimalInput {
-  digits : Int
+  digits : Int32
   left_coeff : BigInt
   right_coeff : BigInt
   left : @decimal_core.Decimal
@@ -33,7 +33,7 @@ enum DecimalOutput {
 }
 
 ///|
-fn decimal_pattern(digits : Int, phase : Int) -> BigInt {
+fn decimal_pattern(digits : Int32, phase : Int32) -> BigInt {
   let text = StringBuilder()
   for index in 0..<digits {
     let digit = if index == 0 { 7 } else { (index * 7 + phase * 3) % 10 }
@@ -43,7 +43,7 @@ fn decimal_pattern(digits : Int, phase : Int) -> BigInt {
 }
 
 ///|
-fn decimal_input(operation : DecimalOperation, digits : Int) -> DecimalInput {
+fn decimal_input(operation : DecimalOperation, digits : Int32) -> DecimalInput {
   let raw_left = decimal_pattern(digits, 3)
   let raw_right = decimal_pattern((digits - 1).max(1), 11)
   let (left_coeff, right_coeff) = match operation {
@@ -145,7 +145,7 @@ fn decimal_implementations(
 fn decimal_spec(
   operation : DecimalOperation,
 ) -> @runner.BenchSpec[
-  Int,
+  Int32,
   DecimalInput,
   DecimalInput,
   BigInt,

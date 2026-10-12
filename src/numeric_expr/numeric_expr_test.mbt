@@ -38,7 +38,7 @@ test "numeric expression evaluates nested invocations" {
 ///|
 test "numeric expression preserves literal source failures" {
   let span = @numeric_expr.SourceSpan::new("bad.expr", line=7, column=3)
-  let result : Result[Int, @numeric_expr.EvalError[String]] = @numeric_expr.evaluate(
+  let result : Result[Int32, @numeric_expr.EvalError[String]] = @numeric_expr.evaluate(
     @numeric_expr.Expr::literal(@numeric_expr.Literal::new("bad", span~)),
     fn(_) { Err("invalid") },
     fn(_, _) { Err("unused") },

@@ -104,7 +104,7 @@ fn gda_coeff_ntt_transform(
 }
 
 ///|
-fn gda_coeff_ntt_digit_len(value : GdaCoeff) -> Int {
+fn gda_coeff_ntt_digit_len(value : GdaCoeff) -> Int32 {
   (value.digits10() + gda_coeff_ntt_radix_digits - 1) /
   gda_coeff_ntt_radix_digits
 }
@@ -132,7 +132,7 @@ fn gda_coeff_ntt_digits(value : GdaCoeff) -> Array[UInt64] {
 }
 
 ///|
-fn gda_coeff_ntt_next_power_of_two(value : Int) -> Int {
+fn gda_coeff_ntt_next_power_of_two(value : Int32) -> Int32 {
   let mut result = 1
   while result < value {
     result = result << 1
@@ -141,7 +141,7 @@ fn gda_coeff_ntt_next_power_of_two(value : Int) -> Int {
 }
 
 ///|
-fn gda_coeff_ntt_limits_fit(left_len : Int, right_len : Int) -> Bool {
+fn gda_coeff_ntt_limits_fit(left_len : Int32, right_len : Int32) -> Bool {
   if left_len <= 0 ||
     right_len <= 0 ||
     left_len.to_int64() + right_len.to_int64() - 1L > (1 << 23).to_int64() {
@@ -151,14 +151,14 @@ fn gda_coeff_ntt_limits_fit(left_len : Int, right_len : Int) -> Bool {
     left_len + right_len - 1,
   )
   transform_length <= 1 << 23 &&
-  Int::min(left_len, right_len).to_uint64() *
+  Int32::min(left_len, right_len).to_uint64() *
   (gda_coeff_ntt_radix - 1UL) *
   (gda_coeff_ntt_radix - 1UL) <
   gda_coeff_ntt_prime1 * gda_coeff_ntt_prime2
 }
 
 ///|
-fn gda_coeff_ntt_transform_length(left : GdaCoeff, right : GdaCoeff) -> Int {
+fn gda_coeff_ntt_transform_length(left : GdaCoeff, right : GdaCoeff) -> Int32 {
   gda_coeff_ntt_next_power_of_two(
     gda_coeff_ntt_digit_len(left) + gda_coeff_ntt_digit_len(right) - 1,
   )
@@ -233,7 +233,7 @@ fn gda_coeff_from_ntt_digits(digits : Array[UInt64]) -> GdaCoeff {
     ) /
     gda_coeff_dpun +
     1
-  let limbs = Array::make(Int::max(1, limb_len), 0UL)
+  let limbs = Array::make(Int32::max(1, limb_len), 0UL)
   for index in 0..<digits.length() {
     let decimal_offset = index * gda_coeff_ntt_radix_digits
     let limb_index = decimal_offset / gda_coeff_dpun
@@ -255,7 +255,7 @@ fn gda_coeff_from_ntt_digits(digits : Array[UInt64]) -> GdaCoeff {
 fn gda_coeff_ntt_reconstruct(
   first : Array[UInt64],
   second : Array[UInt64],
-  length : Int,
+  length : Int32,
 ) -> GdaCoeff {
   let normalized = Array::make(length + 8, 0UL)
   let mut carry = 0UL

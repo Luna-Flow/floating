@@ -32,7 +32,7 @@ let bin_coeff_ntt_r_prime2 = 520093691UL
 let bin_coeff_ntt_crt_inverse = 416537774UL
 
 ///|
-let bin_coeff_ntt_max_length : Int = 1 << 23
+let bin_coeff_ntt_max_length : Int32 = 1 << 23
 
 ///|
 fn bin_coeff_ntt_montgomery_mul(
@@ -136,8 +136,8 @@ fn bin_coeff_ntt_sub(left : UInt64, right : UInt64, prime : UInt64) -> UInt64 {
 
 ///|
 fn bin_coeff_ntt_forward_dif(
-  values : FixedArray[UInt],
-  length : Int,
+  values : FixedArray[UInt32],
+  length : Int32,
   prime : UInt64,
   primitive_root : UInt64,
   nprime : UInt64,
@@ -242,8 +242,8 @@ fn bin_coeff_ntt_forward_dif(
 
 ///|
 fn bin_coeff_ntt_inverse_dit(
-  values : FixedArray[UInt],
-  length : Int,
+  values : FixedArray[UInt32],
+  length : Int32,
   prime : UInt64,
   primitive_root : UInt64,
   nprime : UInt64,
@@ -378,12 +378,12 @@ fn bin_coeff_ntt_inverse_dit(
 }
 
 ///|
-fn bin_coeff_ntt_digit_length(value : BinCoeff) -> Int {
+fn bin_coeff_ntt_digit_length(value : BinCoeff) -> Int32 {
   (value.bit_length() + 15) / 16
 }
 
 ///|
-fn bin_coeff_ntt_transform_length(coefficient_count : Int) -> Int {
+fn bin_coeff_ntt_transform_length(coefficient_count : Int32) -> Int32 {
   let mut length = 1
   while length < coefficient_count {
     length *= 2
@@ -393,9 +393,9 @@ fn bin_coeff_ntt_transform_length(coefficient_count : Int) -> Int {
 
 ///|
 fn bin_coeff_ntt_fill(
-  destination : FixedArray[UInt],
+  destination : FixedArray[UInt32],
   value : BinCoeff,
-  digit_length : Int,
+  digit_length : Int32,
   prime : UInt64,
   nprime : UInt64,
   r2 : UInt64,
@@ -415,14 +415,14 @@ fn bin_coeff_ntt_convolution_mod(
   left : BinCoeff,
   right : BinCoeff,
   square : Bool,
-  transform_length : Int,
-  coefficient_count : Int,
+  transform_length : Int32,
+  coefficient_count : Int32,
   prime : UInt64,
   primitive_root : UInt64,
   nprime : UInt64,
   r2 : UInt64,
   montgomery_one : UInt64,
-) -> FixedArray[UInt] {
+) -> FixedArray[UInt32] {
   let left_values = FixedArray::make(transform_length, 0U)
   bin_coeff_ntt_fill(
     left_values,
@@ -517,10 +517,10 @@ fn bin_coeff_ntt_crt(residue1 : UInt64, residue2 : UInt64) -> UInt64 {
 
 ///|
 fn bin_coeff_ntt_reconstruct(
-  residues1 : FixedArray[UInt],
-  residues2 : FixedArray[UInt],
-  coefficient_count : Int,
-  maximum_limbs : Int,
+  residues1 : FixedArray[UInt32],
+  residues2 : FixedArray[UInt32],
+  coefficient_count : Int32,
+  maximum_limbs : Int32,
 ) -> BinCoeff {
   let limbs = FixedArray::make(maximum_limbs + 1, 0U)
   let mut carry = 0UL
@@ -608,7 +608,7 @@ fn bin_coeff_square_ntt(value : BinCoeff) -> BinCoeff {
 fn bin_coeff_mul_ntt_overlap(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff {
   let shorter_digits = bin_coeff_ntt_digit_length(shorter)
   let block_digits = bin_coeff_ntt_max_length - shorter_digits + 1
-  let block_limbs = Int::max(1, block_digits / 2)
+  let block_limbs = Int32::max(1, block_digits / 2)
   let longer_limbs = bin_coeff_limb_len(longer)
   let output_len = bin_coeff_limb_len(shorter) + longer_limbs
   let result = FixedArray::make(output_len, 0U)

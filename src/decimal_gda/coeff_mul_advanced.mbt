@@ -67,7 +67,7 @@ fn GdaCoeffSignedScratch::mul(
 ///|
 fn GdaCoeffSignedScratch::div_exact_small(
   self : GdaCoeffSignedScratch,
-  divisor : Int,
+  divisor : Int32,
 ) -> GdaCoeffSignedScratch {
   let (quotient, remainder) = gda_coeff_div_rem_by_unit_repr(
     self.magnitude,
@@ -90,9 +90,9 @@ fn GdaCoeffSignedScratch::nonnegative(self : GdaCoeffSignedScratch) -> GdaCoeff 
 ///|
 priv struct GdaCoeffScratchArena {
   slots : Array[GdaCoeff]
-  mut used : Int
-  limb_buffers : Array[Array[UInt]]
-  mut limb_used : Int
+  mut used : Int32
+  limb_buffers : Array[Array[UInt32]]
+  mut limb_used : Int32
 }
 
 ///|
@@ -101,15 +101,15 @@ fn gda_coeff_scratch_arena_new() -> GdaCoeffScratchArena {
 }
 
 ///|
-fn GdaCoeffScratchArena::mark(self : GdaCoeffScratchArena) -> (Int, Int) {
+fn GdaCoeffScratchArena::mark(self : GdaCoeffScratchArena) -> (Int32, Int32) {
   (self.used, self.limb_used)
 }
 
 ///|
 fn GdaCoeffScratchArena::alloc_limbs(
   self : GdaCoeffScratchArena,
-  length : Int,
-) -> Array[UInt] {
+  length : Int32,
+) -> Array[UInt32] {
   guard length > 0 else { return [0U] }
   let slot = self.limb_used
   self.limb_used += 1
@@ -138,19 +138,19 @@ fn GdaCoeffScratchArena::save(
 ///|
 fn GdaCoeffScratchArena::rewind(
   self : GdaCoeffScratchArena,
-  mark : (Int, Int),
+  mark : (Int32, Int32),
 ) -> Unit {
-  self.used = Int::max(0, mark.0)
-  self.limb_used = Int::max(0, mark.1)
+  self.used = Int32::max(0, mark.0)
+  self.limb_used = Int32::max(0, mark.1)
 }
 
 ///|
-fn gda_coeff_slice(value : GdaCoeff, start : Int, length : Int) -> GdaCoeff {
+fn gda_coeff_slice(value : GdaCoeff, start : Int32, length : Int32) -> GdaCoeff {
   let source_len = gda_coeff_unit_len(value)
   if length <= 0 || start >= source_len {
     return gda_coeff_zero()
   }
-  let len = Int::min(length, source_len - start)
+  let len = Int32::min(length, source_len - start)
   let units = Array::make(len, 0U)
   for index in 0..<len {
     units[index] = gda_coeff_limb_at(value, start + index)
@@ -161,15 +161,15 @@ fn gda_coeff_slice(value : GdaCoeff, start : Int, length : Int) -> GdaCoeff {
 ///|
 fn gda_coeff_slice_arena(
   value : GdaCoeff,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
   arena : GdaCoeffScratchArena,
 ) -> GdaCoeff {
   let source_len = gda_coeff_unit_len(value)
   if length <= 0 || start >= source_len {
     return gda_coeff_zero()
   }
-  let len = Int::min(length, source_len - start)
+  let len = Int32::min(length, source_len - start)
   let units = arena.alloc_limbs(len)
   for index in 0..<len {
     units[index] = gda_coeff_limb_at(value, start + index)
@@ -178,7 +178,7 @@ fn gda_coeff_slice_arena(
 }
 
 ///|
-fn gda_coeff_shift_limbs(value : GdaCoeff, shift : Int) -> GdaCoeff {
+fn gda_coeff_shift_limbs(value : GdaCoeff, shift : Int32) -> GdaCoeff {
   guard shift >= 0 else { abort("decimal coefficient limb shift is negative") }
   if shift == 0 || value.is_zero() {
     return value
@@ -194,7 +194,7 @@ fn gda_coeff_shift_limbs(value : GdaCoeff, shift : Int) -> GdaCoeff {
 ///|
 fn gda_coeff_add_product_at(
   result : Array[UInt64],
-  index : Int,
+  index : Int32,
   product : UInt64,
 ) -> Unit {
   let mut target = index
@@ -211,7 +211,7 @@ fn gda_coeff_add_product_at(
 fn gda_coeff_accumulate_at(
   accumulator : Array[UInt64],
   value : GdaCoeff,
-  offset : Int,
+  offset : Int32,
 ) -> Unit {
   let value_len = gda_coeff_unit_len(value)
   let mut carry = 0UL
@@ -268,7 +268,7 @@ fn gda_coeff_square_schoolbook(value : GdaCoeff) -> GdaCoeff {
 }
 
 ///|
-fn gda_coeff_nonzero_count_limited(value : GdaCoeff, limit : Int) -> Int? {
+fn gda_coeff_nonzero_count_limited(value : GdaCoeff, limit : Int32) -> Int32? {
   let len = gda_coeff_unit_len(value)
   let mut count = 0
   for index in 0..<len {
@@ -285,7 +285,7 @@ fn gda_coeff_nonzero_count_limited(value : GdaCoeff, limit : Int) -> Int? {
 ///|
 fn gda_coeff_maybe_sparse(value : GdaCoeff) -> Bool {
   let len = gda_coeff_unit_len(value)
-  let probes = Int::min(8, len)
+  let probes = Int32::min(8, len)
   for probe in 0..<probes {
     let index = probe * len / probes
     if gda_coeff_limb_at(value, index) == 0U {
@@ -300,9 +300,9 @@ fn gda_coeff_mul_sparse(left : GdaCoeff, right : GdaCoeff) -> GdaCoeff {
   let left_len = gda_coeff_unit_len(left)
   let right_len = gda_coeff_unit_len(right)
   let result = Array::make(left_len + right_len + 1, 0UL)
-  let left_indices : Array[Int] = []
+  let left_indices : Array[Int32] = []
   let left_values : Array[UInt64] = []
-  let right_indices : Array[Int] = []
+  let right_indices : Array[Int32] = []
   let right_values : Array[UInt64] = []
   for index in 0..<left_len {
     let value = gda_coeff_limb_at(left, index)
@@ -335,14 +335,14 @@ fn gda_coeff_mul_karatsuba_inner(
   left : GdaCoeff,
   right : GdaCoeff,
   arena : GdaCoeffScratchArena,
-  base_threshold : Int,
+  base_threshold : Int32,
   square : Bool,
-  depth : Int,
+  depth : Int32,
 ) -> GdaCoeff {
   let left_len = gda_coeff_unit_len(left)
   let right_len = gda_coeff_unit_len(right)
-  let shorter = Int::min(left_len, right_len)
-  let longer = Int::max(left_len, right_len)
+  let shorter = Int32::min(left_len, right_len)
+  let longer = Int32::max(left_len, right_len)
   if shorter < base_threshold || longer > 2 * shorter || depth >= 64 {
     return if square {
       gda_coeff_square_schoolbook(left)
@@ -420,7 +420,7 @@ fn gda_coeff_square_karatsuba(value : GdaCoeff) -> GdaCoeff {
 fn gda_coeff_mul_toom3(left : GdaCoeff, right : GdaCoeff) -> GdaCoeff {
   let arena = gda_coeff_scratch_arena_new()
   let mark = arena.mark()
-  let maximum_len = Int::max(
+  let maximum_len = Int32::max(
     gda_coeff_unit_len(left),
     gda_coeff_unit_len(right),
   )
@@ -526,7 +526,7 @@ fn gda_coeff_mul_unbalanced(shorter : GdaCoeff, longer : GdaCoeff) -> GdaCoeff {
         gda_coeff_slice_arena(
           longer,
           start,
-          Int::min(shorter_len, longer_len - start),
+          Int32::min(shorter_len, longer_len - start),
           arena,
         ),
       )
@@ -582,8 +582,8 @@ fn gda_coeff_mul_algorithm(
       None => ()
     }
   }
-  let shorter = Int::min(left_len, right_len)
-  let longer = Int::max(left_len, right_len)
+  let shorter = Int32::min(left_len, right_len)
+  let longer = Int32::max(left_len, right_len)
   if longer > 2 * shorter {
     return Unbalanced
   }
@@ -613,7 +613,7 @@ fn gda_coeff_ntt_mul_profitable(left : GdaCoeff, right : GdaCoeff) -> Bool {
   } else {
     gda_coeff_ntt_mul_threshold_large
   }
-  Int::min(gda_coeff_unit_len(left), gda_coeff_unit_len(right)) >= threshold
+  Int32::min(gda_coeff_unit_len(left), gda_coeff_unit_len(right)) >= threshold
 }
 
 ///|

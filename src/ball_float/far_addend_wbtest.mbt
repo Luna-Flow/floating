@@ -1,5 +1,5 @@
 ///|
-fn far_addend_power(exponent : Int) -> BallFloat {
+fn far_addend_power(exponent : Int32) -> BallFloat {
   BallFloat::exact(
     @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, 53),
   )

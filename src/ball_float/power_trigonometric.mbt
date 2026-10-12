@@ -66,7 +66,7 @@ fn rat_ceil(value : CertifiedRat) -> SignedBinCoeff {
 }
 
 ///|
-fn signed_coeff_mod4(value : SignedBinCoeff) -> Int {
+fn signed_coeff_mod4(value : SignedBinCoeff) -> Int32 {
   let remainder = coeff_mod_int(signed_coeff_magnitude(value), 4)
   if signed_coeff_sign(value) < 0 && remainder != 0 {
     4 - remainder
@@ -85,7 +85,7 @@ fn negate_rat_bounds(
 
 ///|
 fn directed_context(
-  precision : Int,
+  precision : Int32,
   rounding : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinaryContext {
   @bin_float.BinaryContext::unbounded(precision, rounding~)
@@ -129,8 +129,8 @@ fn directed_div(
 
 ///|
 fn certified_atan_inverse_series(
-  inverse : Int,
-  work_bits : Int,
+  inverse : Int32,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   let precision = work_bits + 32
   let downward = directed_context(
@@ -207,7 +207,7 @@ fn certified_atan_inverse_series(
 }
 
 ///|
-fn certified_pi_rational(work_bits : Int) -> (CertifiedRat, CertifiedRat) {
+fn certified_pi_rational(work_bits : Int32) -> (CertifiedRat, CertifiedRat) {
   let (atan5_lower, atan5_upper) = certified_atan_inverse_series(5, work_bits)
   let (atan239_lower, atan239_upper) = certified_atan_inverse_series(
     239, work_bits,
@@ -221,7 +221,7 @@ fn certified_pi_rational(work_bits : Int) -> (CertifiedRat, CertifiedRat) {
 ///|
 fn certified_sin_series(
   argument : CertifiedRat,
-  work_bits : Int,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   if rat_sign(argument) < 0 {
     let (lower, upper) = certified_sin_series(rat_neg(argument), work_bits)
@@ -310,7 +310,7 @@ fn certified_sin_series(
 ///|
 fn certified_cos_series(
   argument : CertifiedRat,
-  work_bits : Int,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   let magnitude = rat_abs(argument)
   guard rat_compare(magnitude, rat_from_int(1)) <= 0 else {
@@ -411,7 +411,7 @@ fn trig_quotient_bounds(
 ///|
 fn certified_trig_endpoint_rationals(
   value : @bin_float.BinFloat,
-  work_bits : Int,
+  work_bits : Int32,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
 ) -> TrigRatBounds? {
@@ -501,7 +501,7 @@ fn certified_trig_endpoint_rationals(
 fn unique_directed_bounds(
   lower : CertifiedRat,
   upper : CertifiedRat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
   let lower_from_lower = rat_dyadic_bounds(lower, precision).0
   let lower_from_upper = rat_dyadic_bounds(upper, precision).0
@@ -516,11 +516,11 @@ fn unique_directed_bounds(
 }
 
 ///|
-fn trig_initial_work(value : @bin_float.BinFloat, precision : Int) -> Int {
+fn trig_initial_work(value : @bin_float.BinFloat, precision : Int32) -> Int32 {
   let magnitude_bits = if value.is_zero() {
     0
   } else {
-    Int::max(0, value.exponent2() + value.coefficient().bit_length())
+    Int32::max(0, value.exponent2() + value.coefficient().bit_length())
   }
   precision + magnitude_bits + 96
 }
@@ -528,8 +528,8 @@ fn trig_initial_work(value : @bin_float.BinFloat, precision : Int) -> Int {
 ///|
 fn certified_sin_cos_endpoint_bounds(
   value : @bin_float.BinFloat,
-  precision : Int,
-  work_bits : Int,
+  precision : Int32,
+  work_bits : Int32,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
 ) -> (
@@ -588,7 +588,7 @@ fn certified_sin_cos_interval_bounds(
   SignedBinCoeff,
 )? {
   let mut budget = certified_refinement_budget(
-    Int::max(
+    Int32::max(
       trig_initial_work(value.lo_, value.precision_),
       trig_initial_work(value.hi_, value.precision_),
     ),
@@ -640,7 +640,7 @@ fn certified_sin_cos_interval_bounds(
 fn index_range_contains_residue(
   lower : SignedBinCoeff,
   upper : SignedBinCoeff,
-  residue : Int,
+  residue : Int32,
 ) -> Bool {
   if signed_coeff_compare(lower, upper) > 0 {
     return false
@@ -674,11 +674,11 @@ fn trig_cutoff_exceeded(value : BallFloat) -> Bool {
   let adjusted = magnitude.exponent2() +
     magnitude.coefficient().bit_length() -
     1
-  adjusted > Int::max(65536, 4 * value.precision_)
+  adjusted > Int32::max(65536, 4 * value.precision_)
 }
 
 ///|
-fn unit_interval(precision : Int) -> BallFloat {
+fn unit_interval(precision : Int32) -> BallFloat {
   store_interval(
     @bin_float.BinFloat::from_int(-1, precision~),
     @bin_float.BinFloat::one(precision~),
@@ -759,8 +759,8 @@ fn rat_quotient_interval(
 ///|
 fn certified_tan_endpoint_bounds(
   value : @bin_float.BinFloat,
-  precision : Int,
-  work_bits : Int,
+  precision : Int32,
+  work_bits : Int32,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
@@ -794,7 +794,7 @@ fn certified_tan_interval_bounds(
   value : BallFloat,
 ) -> CertifiedTanIntervalBounds {
   let mut budget = certified_refinement_budget(
-    Int::max(
+    Int32::max(
       trig_initial_work(value.lo_, value.precision_),
       trig_initial_work(value.hi_, value.precision_),
     ),
@@ -854,7 +854,7 @@ pub fn BallFloat::tan_interval(self : BallFloat) -> BallFloat {
 fn pow_positive_endpoint(
   base : @bin_float.BinFloat,
   exponent : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   let base = canonical_interval_endpoint(base, precision)
   let zero = @bin_float.BinFloat::zero(precision~)
@@ -912,9 +912,9 @@ fn include_pow_candidate(
 fn pow_interval_at_precision(
   base : BallFloat,
   exponent : BallFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   if base.is_empty() || exponent.is_empty() {
     return empty_interval(precision)
   }
@@ -987,7 +987,7 @@ pub fn BallFloat::pow_interval(
   self : BallFloat,
   exponent : BallFloat,
 ) -> BallFloat {
-  let precision = Int::max(self.precision_, exponent.precision_)
+  let precision = Int32::max(self.precision_, exponent.precision_)
   match self.try_pow_interval(exponent) {
     Ok(result) => result
     Err(_) => pow_interval_at_precision(self, exponent, precision)

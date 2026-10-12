@@ -222,9 +222,9 @@ test "GDA DecimalContext rejects exponent bounds with invalid signs" {
 fn context_bounds_case(
   operation : String,
   operands : Array[String],
-  precision : Int,
-  e_min : Int,
-  e_max : Int,
+  precision : Int32,
+  e_min : Int32,
+  e_max : Int32,
 ) -> String raise {
   let gda = GdaContext::new(precision~, e_min~, e_max~).unwrap()
   let ctx = DecimalContext::new(precision~, e_min~, e_max~).unwrap()
