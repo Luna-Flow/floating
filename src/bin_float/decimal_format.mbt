@@ -4,7 +4,7 @@
 let decimal_format_exact_bits : Int64 = 1L << 20
 
 ///|
-fn bin_coeff_pow10(exponent : Int) -> BinCoeff {
+fn bin_coeff_pow10(exponent : Int32) -> BinCoeff {
   BinCoeff::from_uint64(10UL).pow_nat(exponent.reinterpret_as_uint())
 }
 
@@ -12,7 +12,7 @@ fn bin_coeff_pow10(exponent : Int) -> BinCoeff {
 /// Decimal exponent of the leading digit, `floor(log10 |value|)`, for a finite
 /// nonzero value. Starts from a binary estimate and corrects it exactly or with
 /// directed bounds.
-fn binary_decimal_exponent(value : BinFloat) -> Int {
+fn binary_decimal_exponent(value : BinFloat) -> Int32 {
   let top = binary_exact_top(value.coefficient_, value.exponent2)
   // log10(2) = 0.30102999566...; the estimate is within one of the answer.
   let estimate = (top.to_double() * 0.30102999566398120).floor().to_int()
@@ -65,9 +65,9 @@ fn binary_decimal_exponent(value : BinFloat) -> Int {
 /// whether it is inexact.
 fn binary_scaled_decimal_integer(
   value : BinFloat,
-  scale : Int,
+  scale : Int32,
   mode : BinaryRoundingMode,
-  digits : Int,
+  digits : Int32,
 ) -> (BinCoeff, Bool) {
   // value / 10^scale = c * 2^(e - scale) * 5^(-scale).
   let coefficient = value.coefficient_
@@ -152,9 +152,9 @@ fn binary_scaled_decimal_integer(
 /// whether rounding was inexact.
 fn binary_decimal_digits(
   value : BinFloat,
-  digits : Int,
+  digits : Int32,
   mode : BinaryRoundingMode,
-) -> (String, Int, Bool) {
+) -> (String, Int32, Bool) {
   let mut exponent = binary_decimal_exponent(value)
   while true {
     let (integer, inexact) = binary_scaled_decimal_integer(
@@ -192,14 +192,14 @@ fn binary_special_string(value : BinFloat) -> String? {
 /// back with `from_string_ctx`.
 pub fn BinFloat::to_decimal_string_ctx(
   self : BinFloat,
-  digits : Int,
+  digits : Int32,
   context : BinaryContext,
 ) -> (String, BinaryFlags) {
   match binary_special_string(self) {
     Some(text) => return (text, BinaryFlags::new())
     None => ()
   }
-  let digits = Int::max(1, digits)
+  let digits = Int32::max(1, digits)
   let sign = if self.negative { "-" } else { "" }
   let (text, exponent, inexact) = if self.coefficient_.is_zero() {
     ("0".repeat(digits), 0, false)
@@ -246,8 +246,8 @@ fn binary_round_trips(
 fn binary_shortest_digits(
   value : BinFloat,
   context : BinaryContext,
-) -> (String, Int) {
-  let candidates = fn(digits : Int) -> (String, Int)? {
+) -> (String, Int32) {
+  let candidates = fn(digits : Int32) -> (String, Int32)? {
     let (down, down_exponent, _) = binary_decimal_digits(
       value,
       digits,
@@ -258,7 +258,7 @@ fn binary_shortest_digits(
       digits,
       RoundAwayFromZero,
     )
-    let render = fn(text : String, exponent : Int) {
+    let render = fn(text : String, exponent : Int32) {
       (if value.negative { "-" } else { "" }) +
       text +
       "e" +

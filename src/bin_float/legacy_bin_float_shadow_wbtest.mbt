@@ -2,7 +2,7 @@
 fn legacy_shadow_assert_equal(
   candidate : BinFloat,
   legacy : LegacyBigIntBinFloat,
-  label? : String = "",
+  label~ : String = "",
 ) -> Unit raise {
   if candidate.classify() != legacy.classify() ||
     candidate.sign() != legacy.sign() ||
@@ -40,12 +40,12 @@ fn legacy_shadow_assert_equal(
 }
 
 ///|
-fn legacy_shadow_next(state : Int) -> Int {
+fn legacy_shadow_next(state : Int32) -> Int32 {
   ((state.to_int64() * 1103515245L + 12345L) % 2147483648L).to_int()
 }
 
 ///|
-fn legacy_shadow_magnitude(seed : Int, bits : Int) -> (Int, BigInt) {
+fn legacy_shadow_magnitude(seed : Int32, bits : Int32) -> (Int32, BigInt) {
   let mut state = seed
   let mut magnitude = legacy_bin_zero()
   let chunks = (bits + 29) / 30
@@ -65,7 +65,9 @@ fn legacy_shadow_magnitude(seed : Int, bits : Int) -> (Int, BigInt) {
 }
 
 ///|
-fn legacy_shadow_operand(seed : Int) -> (Int, BinFloat, LegacyBigIntBinFloat) {
+fn legacy_shadow_operand(
+  seed : Int32,
+) -> (Int32, BinFloat, LegacyBigIntBinFloat) {
   let mut state = legacy_shadow_next(seed)
   let bits = state % 192 + 1
   let (next_state, magnitude) = legacy_shadow_magnitude(state, bits)

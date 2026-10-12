@@ -7,7 +7,7 @@ priv struct CertifiedRat {
 
 ///|
 fn certified_refinement_budget(
-  initial_work_bits : Int,
+  initial_work_bits : Int32,
 ) -> CertifiedRefinementBudget {
   @internal.CertifiedRefinementBudget::new(initial_work_bits)
 }
@@ -31,7 +31,10 @@ fn certified_rat_coeff(
 }
 
 ///|
-fn rat_from_fraction_int(numerator : Int, denominator : Int) -> CertifiedRat {
+fn rat_from_fraction_int(
+  numerator : Int32,
+  denominator : Int32,
+) -> CertifiedRat {
   guard denominator > 0 else {
     abort("certified rational denominator must be positive")
   }
@@ -42,12 +45,12 @@ fn rat_from_fraction_int(numerator : Int, denominator : Int) -> CertifiedRat {
 }
 
 ///|
-fn rat_from_int(value : Int) -> CertifiedRat {
+fn rat_from_int(value : Int32) -> CertifiedRat {
   { num: signed_coeff_from_int(value), den: coeff_one(), }
 }
 
 ///|
-fn rat_sign(value : CertifiedRat) -> Int {
+fn rat_sign(value : CertifiedRat) -> Int32 {
   signed_coeff_sign(value.num)
 }
 
@@ -107,7 +110,7 @@ fn rat_mul(left : CertifiedRat, right : CertifiedRat) -> CertifiedRat {
 }
 
 ///|
-fn rat_mul_int(value : CertifiedRat, multiplier : Int) -> CertifiedRat {
+fn rat_mul_int(value : CertifiedRat, multiplier : Int32) -> CertifiedRat {
   rat_mul(value, rat_from_int(multiplier))
 }
 
@@ -140,7 +143,7 @@ fn rat_div(left : CertifiedRat, right : CertifiedRat) -> CertifiedRat {
 }
 
 ///|
-fn rat_div_int(value : CertifiedRat, divisor : Int) -> CertifiedRat {
+fn rat_div_int(value : CertifiedRat, divisor : Int32) -> CertifiedRat {
   guard divisor > 0 else {
     abort("certified rational divisor must be positive")
   }
@@ -153,7 +156,7 @@ fn rat_div_int(value : CertifiedRat, divisor : Int) -> CertifiedRat {
 }
 
 ///|
-fn rat_div_pow2(value : CertifiedRat, shift : Int) -> CertifiedRat {
+fn rat_div_pow2(value : CertifiedRat, shift : Int32) -> CertifiedRat {
   guard shift >= 0 else {
     abort("certified rational shift must be non-negative")
   }
@@ -166,7 +169,7 @@ fn rat_div_pow2(value : CertifiedRat, shift : Int) -> CertifiedRat {
 }
 
 ///|
-fn rat_compare(left : CertifiedRat, right : CertifiedRat) -> Int {
+fn rat_compare(left : CertifiedRat, right : CertifiedRat) -> Int32 {
   signed_coeff_compare(
     signed_coeff_mul_magnitude(left.num, right.den),
     signed_coeff_mul_magnitude(right.num, left.den),
@@ -174,7 +177,7 @@ fn rat_compare(left : CertifiedRat, right : CertifiedRat) -> Int {
 }
 
 ///|
-fn rat_compare_pow2(value : CertifiedRat, exponent : Int) -> Int {
+fn rat_compare_pow2(value : CertifiedRat, exponent : Int32) -> Int32 {
   guard rat_sign(value) > 0 else {
     abort("power comparison requires a positive rational")
   }
@@ -192,7 +195,7 @@ fn rat_compare_pow2(value : CertifiedRat, exponent : Int) -> Int {
 }
 
 ///|
-fn rat_floor_log2(value : CertifiedRat) -> Int {
+fn rat_floor_log2(value : CertifiedRat) -> Int32 {
   guard rat_sign(value) > 0 else { abort("log2 requires a positive rational") }
   let mut exponent = coeff_bits(signed_coeff_magnitude(value.num)) -
     coeff_bits(value.den)
@@ -205,12 +208,12 @@ fn rat_floor_log2(value : CertifiedRat) -> Int {
 ///|
 fn positive_rat_dyadic_bounds(
   value : CertifiedRat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   guard rat_sign(value) >= 0 else {
     abort("positive dyadic conversion received a negative rational")
   }
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   if rat_is_zero(value) {
     let zero = @bin_float.BinFloat::zero(precision~)
     return (zero, zero)
@@ -244,7 +247,7 @@ fn positive_rat_dyadic_bounds(
 ///|
 fn rat_dyadic_bounds(
   value : CertifiedRat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if rat_sign(value) < 0 {
     let (positive_lower, positive_upper) = positive_rat_dyadic_bounds(
@@ -279,7 +282,7 @@ fn rat_from_finite_bin(value : @bin_float.BinFloat) -> CertifiedRat {
 }
 
 ///|
-fn finite_bin_exact_int(value : @bin_float.BinFloat) -> Int? {
+fn finite_bin_exact_int(value : @bin_float.BinFloat) -> Int32? {
   guard value.classify() == FpClass::Finite else { return None }
   let source = value.coefficient()
   if coeff_is_zero(source) {
@@ -320,7 +323,7 @@ fn finite_bin_exact_int(value : @bin_float.BinFloat) -> Int? {
 /// round to nearest, to 0 or infinity), so the enclosure of the series is used.
 fn exact_exp2_endpoint(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat? {
   guard finite_bin_exact_int(value) is Some(exponent) &&
     exponent >= @bin_float.binary_implementation_e_min &&
@@ -338,7 +341,7 @@ fn exact_exp2_endpoint(
 ///|
 fn exact_exp10_endpoint(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat? {
   guard finite_bin_exact_int(value) is Some(exponent) &&
     exponent >= 0 &&
@@ -360,7 +363,7 @@ fn exact_exp10_endpoint(
 ///|
 fn exact_log10_endpoint(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat? {
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
@@ -385,7 +388,7 @@ fn exact_log10_endpoint(
 ///|
 fn certified_exp_series(
   argument : CertifiedRat,
-  work_bits : Int,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   guard rat_sign(argument) >= 0 &&
     rat_compare(argument, rat_from_fraction_int(1, 8)) <= 0 else {
@@ -453,7 +456,7 @@ fn certified_exp_series(
 ///|
 fn certified_log_unit_series(
   value : CertifiedRat,
-  work_bits : Int,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   let one = rat_from_int(1)
   let two = rat_from_int(2)
@@ -539,14 +542,14 @@ fn certified_log_unit_series(
 }
 
 ///|
-fn certified_ln2_rational(work_bits : Int) -> (CertifiedRat, CertifiedRat) {
+fn certified_ln2_rational(work_bits : Int32) -> (CertifiedRat, CertifiedRat) {
   certified_log_unit_series(rat_from_int(2), work_bits)
 }
 
 ///|
 fn certified_ln_finite_rational(
   value : @bin_float.BinFloat,
-  work_bits : Int,
+  work_bits : Int32,
 ) -> (CertifiedRat, CertifiedRat) {
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     abort("certified log requires a positive finite value")
@@ -580,7 +583,7 @@ fn certified_ln_finite_rational(
 ///|
 fn certified_ln_endpoint_bounds(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if value.classify() == FpClass::Infinity {
     let infinity = pos_inf(precision)
@@ -595,7 +598,7 @@ fn certified_ln_endpoint_bounds(
 ///|
 fn certified_log2_endpoint_bounds(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if value.classify() == FpClass::Infinity {
     let infinity = pos_inf(precision)
@@ -620,8 +623,8 @@ fn certified_log2_endpoint_bounds(
 }
 
 ///|
-fn certified_exp_rational(value : CertifiedRat, precision : Int) -> BallFloat {
-  let precision = Int::max(1, precision)
+fn certified_exp_rational(value : CertifiedRat, precision : Int32) -> BallFloat {
+  let precision = Int32::max(1, precision)
   if rat_is_zero(value) {
     return zero_radius_interval(@bin_float.BinFloat::one(precision~), precision)
   }
@@ -667,7 +670,7 @@ fn certified_exp_rational(value : CertifiedRat, precision : Int) -> BallFloat {
     }
     return quantize_interval(one, exact_add(one, step), precision)
   }
-  let reductions = Int::max(0, adjusted + 4)
+  let reductions = Int32::max(0, adjusted + 4)
   let work = precision + 64 + 2 * reductions
   let reduced = rat_div_pow2(magnitude, reductions)
   let (series_lower, series_upper) = certified_exp_series(reduced, work + 16)
@@ -693,7 +696,7 @@ fn certified_exp_rational(value : CertifiedRat, precision : Int) -> BallFloat {
 ///|
 fn certified_exp_endpoint(
   value : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> BallFloat {
   match value.classify() {
     FpClass::Infinity =>
@@ -713,7 +716,7 @@ fn certified_exp_endpoint(
 }
 
 ///|
-fn exp_interval_at_precision(value : BallFloat, precision : Int) -> BallFloat {
+fn exp_interval_at_precision(value : BallFloat, precision : Int32) -> BallFloat {
   if value.is_empty() {
     return empty_interval(precision)
   }
@@ -723,7 +726,7 @@ fn exp_interval_at_precision(value : BallFloat, precision : Int) -> BallFloat {
 }
 
 ///|
-fn ln_interval_at_precision(value : BallFloat, precision : Int) -> BallFloat {
+fn ln_interval_at_precision(value : BallFloat, precision : Int32) -> BallFloat {
   if value.is_empty() ||
     (
       value.hi_.classify() == FpClass::Finite &&
@@ -745,8 +748,8 @@ fn ln_interval_at_precision(value : BallFloat, precision : Int) -> BallFloat {
 ///|
 fn scale_by_log_constant(
   value : BallFloat,
-  constant : Int,
-  precision : Int,
+  constant : Int32,
+  precision : Int32,
 ) -> BallFloat {
   if value.is_empty() {
     return empty_interval(precision)
@@ -788,8 +791,8 @@ fn scale_by_log_constant(
 ///|
 fn log_with_base_constant(
   value : BallFloat,
-  constant : Int,
-  precision : Int,
+  constant : Int32,
+  precision : Int32,
 ) -> BallFloat {
   if value.is_empty() {
     return empty_interval(precision)
@@ -907,8 +910,8 @@ pub fn BallFloat::ln_ctx(
 ///|
 fn ball_certification_failure(
   operation : String,
-  precision : Int,
-  initial_work_precision : Int,
+  precision : Int32,
+  initial_work_precision : Int32,
 ) -> @def.ArithmeticError {
   let mut budget = certified_refinement_budget(initial_work_precision)
   while budget.available() {
@@ -926,8 +929,8 @@ fn ball_certification_failure(
 ///|
 fn ball_range_resource_failure(
   operation : String,
-  precision : Int,
-  required_work_precision : Int,
+  precision : Int32,
+  required_work_precision : Int32,
 ) -> @def.ArithmeticError {
   @def.ArithmeticError::certification_failure(
     @def.CertificationFailureDetail::new(
@@ -1062,7 +1065,7 @@ pub fn BallFloat::try_sin_interval(
   if !self.is_bounded() {
     return Ok(unit_interval(self.precision_))
   }
-  let initial_work = Int::max(
+  let initial_work = Int32::max(
     trig_initial_work(self.lo_, self.precision_),
     trig_initial_work(self.hi_, self.precision_),
   )
@@ -1100,7 +1103,7 @@ pub fn BallFloat::try_cos_interval(
   if !self.is_bounded() {
     return Ok(unit_interval(self.precision_))
   }
-  let initial_work = Int::max(
+  let initial_work = Int32::max(
     trig_initial_work(self.lo_, self.precision_),
     trig_initial_work(self.hi_, self.precision_),
   )
@@ -1138,7 +1141,7 @@ pub fn BallFloat::try_tan_interval(
   if !self.is_bounded() {
     return Ok(whole_real(self.precision_))
   }
-  let initial_work = Int::max(
+  let initial_work = Int32::max(
     trig_initial_work(self.lo_, self.precision_),
     trig_initial_work(self.hi_, self.precision_),
   )

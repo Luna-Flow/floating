@@ -63,10 +63,10 @@ pub struct GdaTrapSet {
 
 ///|
 pub struct GdaContext {
-  priv precision_ : Int
+  priv precision_ : Int32
   priv rounding_ : GdaRoundingMode
-  priv e_min_ : Int
-  priv e_max_ : Int
+  priv e_min_ : Int32
+  priv e_max_ : Int32
   priv clamp_ : Bool
   priv extended_ : Bool
   priv status_ : GdaFlags
@@ -200,7 +200,7 @@ pub fn GdaTrapSet::none() -> GdaTrapSet {
 pub fn GdaTrapSet::with_signal(
   self : GdaTrapSet,
   signal : GdaSignal,
-  enabled? : Bool = true,
+  enabled~ : Bool = true,
 ) -> GdaTrapSet {
   match signal {
     ConversionSyntax => { ..self, conversion_syntax: enabled, }
@@ -290,13 +290,13 @@ fn GdaContext::mathematical_decimal_context(
 
 ///|
 pub fn GdaContext::new(
-  precision? : Int = 34,
-  rounding? : GdaRoundingMode = GdaRoundingMode::HalfEven,
-  e_min? : Int = -999_999_999,
-  e_max? : Int = 999_999_999,
-  clamp? : Bool = false,
-  extended? : Bool = true,
-  traps? : GdaTrapSet = GdaTrapSet::none(),
+  precision~ : Int32 = 34,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+  traps~ : GdaTrapSet = GdaTrapSet::none(),
 ) -> Result[GdaContext, @def.ArithmeticError] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
@@ -325,13 +325,13 @@ pub fn GdaContext::new(
 
 ///|
 pub fn GdaContext::try_new(
-  precision? : Int = 34,
-  rounding? : GdaRoundingMode = GdaRoundingMode::HalfEven,
-  e_min? : Int = -999_999_999,
-  e_max? : Int = 999_999_999,
-  clamp? : Bool = false,
-  extended? : Bool = true,
-  traps? : GdaTrapSet = GdaTrapSet::none(),
+  precision~ : Int32 = 34,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+  traps~ : GdaTrapSet = GdaTrapSet::none(),
 ) -> Result[GdaContext, @def.ArithmeticError] {
   GdaContext::new(
     precision~,
@@ -409,22 +409,22 @@ let gda_decimal128_context_cache : GdaContext = GdaContext::new(
 ).unwrap()
 
 ///|
-pub fn GdaContext::radix(_self : GdaContext) -> Int {
+pub fn GdaContext::radix(_self : GdaContext) -> Int32 {
   10
 }
 
 ///|
-pub fn GdaContext::precision(self : GdaContext) -> Int {
+pub fn GdaContext::precision(self : GdaContext) -> Int32 {
   self.precision_
 }
 
 ///|
-pub fn GdaContext::e_min(self : GdaContext) -> Int {
+pub fn GdaContext::e_min(self : GdaContext) -> Int32 {
   self.e_min_
 }
 
 ///|
-pub fn GdaContext::e_max(self : GdaContext) -> Int {
+pub fn GdaContext::e_max(self : GdaContext) -> Int32 {
   self.e_max_
 }
 
@@ -465,7 +465,7 @@ pub fn GdaContext::with_traps(
 pub fn GdaContext::trap(
   self : GdaContext,
   signal : GdaSignal,
-  enabled? : Bool = true,
+  enabled~ : Bool = true,
 ) -> GdaContext {
   { ..self, traps_: self.traps_.with_signal(signal, enabled~), }
 }

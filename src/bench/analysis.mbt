@@ -1,16 +1,16 @@
 ///|
 pub struct TuneDecision {
-  dataset_id : Int
+  dataset_id : Int32
   candidate_id : String
   median_us : Double
-  valid_samples : Int
+  valid_samples : Int32
 }
 
 ///|
 fn samples_for(
   observations : Array[@model.Observation],
   case_id : String,
-  dataset_id : Int,
+  dataset_id : Int32,
   candidate_id : String,
 ) -> Array[Double] {
   let selected = observations.filter(observation => {
@@ -28,12 +28,12 @@ fn samples_for(
 pub fn tune_dataset(
   observations : Array[@model.Observation],
   case_id : String,
-  dataset_id : Int,
+  dataset_id : Int32,
   candidate_ids : Array[String],
   practical_delta_pct : Double,
 ) -> TuneDecision? {
   let scores = []
-  let sample_counts : Map[String, Int] = Map([])
+  let sample_counts : Map[String, Int32] = Map([])
   for candidate_id in candidate_ids {
     let samples = samples_for(observations, case_id, dataset_id, candidate_id)
     let score = @tune.score_samples(candidate_id, samples, 0.0)
@@ -66,7 +66,7 @@ pub fn tune_dataset(
 pub fn paired_hotspot(
   observations : Array[@model.Observation],
   case_id : String,
-  dataset_id : Int,
+  dataset_id : Int32,
   baseline_id : String,
   candidate_id : String,
   practical_delta_pct : Double,

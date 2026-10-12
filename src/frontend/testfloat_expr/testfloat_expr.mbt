@@ -42,10 +42,10 @@ priv enum TestFloatExpected {
 ///|
 pub struct TestFloatCase {
   priv id : String
-  priv line : Int
+  priv line : Int32
   priv operands : Array[@bin_float.BinaryInterchange]
   priv expected : TestFloatExpected
-  priv expected_flags : Int
+  priv expected_flags : Int32
 }
 
 ///|
@@ -82,7 +82,9 @@ fn normalized_word(source : String) -> String {
   for character in source {
     if character >= 'A' && character <= 'Z' {
       builder.write_char(
-        Int::unsafe_to_char(character.to_int() + ('a'.to_int() - 'A'.to_int())),
+        Int32::unsafe_to_char(
+          character.to_int() + ('a'.to_int() - 'A'.to_int()),
+        ),
       )
     } else if character != '-' && character != '_' && character != ' ' {
       builder.write_char(character)
@@ -154,7 +156,7 @@ fn parse_operation(source : String) -> TestFloatOperation? {
 }
 
 ///|
-fn operand_count(operation : TestFloatOperation) -> Int {
+fn operand_count(operation : TestFloatOperation) -> Int32 {
   match operation {
     SquareRoot | RoundToInt | ToInt32 | ToInt64 | ToUInt32 | ToUInt64 => 1
     MulAdd => 3
@@ -197,8 +199,8 @@ fn parse_tininess(source : String) -> @bin_float.TininessDetection? {
 pub fn TestFloatSpec::parse(
   function_name : String,
   rounding : String,
-  tininess? : String = "after",
-  exact? : Bool = false,
+  tininess~ : String = "after",
+  exact~ : Bool = false,
 ) -> Result[TestFloatSpec, String] {
   let parts = function_name.split("_").to_array()
   guard parts.length() >= 2 else {
@@ -262,7 +264,7 @@ pub fn TestFloatCase::id(self : TestFloatCase) -> String {
 }
 
 ///|
-pub fn TestFloatCase::line(self : TestFloatCase) -> Int {
+pub fn TestFloatCase::line(self : TestFloatCase) -> Int32 {
   self.line
 }
 
@@ -284,7 +286,7 @@ pub fn TestFloatDocument::cases(
 }
 
 ///|
-pub fn TestFloatDocument::case_count(self : TestFloatDocument) -> Int {
+pub fn TestFloatDocument::case_count(self : TestFloatDocument) -> Int32 {
   self.cases.length()
 }
 
@@ -294,7 +296,7 @@ pub fn ParseDiagnostic::source(self : ParseDiagnostic) -> String {
 }
 
 ///|
-pub fn ParseDiagnostic::line(self : ParseDiagnostic) -> Int {
+pub fn ParseDiagnostic::line(self : ParseDiagnostic) -> Int32 {
   self.location.line()
 }
 
@@ -304,7 +306,7 @@ pub fn ParseDiagnostic::message(self : ParseDiagnostic) -> String {
 }
 
 ///|
-fn parse_flags(source : String) -> Int? {
+fn parse_flags(source : String) -> Int32? {
   guard source.length() == 2 else { return None }
   for character in source {
     guard character.is_ascii_hexdigit() else { return None }
@@ -405,19 +407,19 @@ pub fn parse_testfloat(
 
 ///|
 pub fn RunOptions::new(
-  shard_count? : Int = 1,
-  shard_index? : Int = 0,
+  shard_count~ : Int32 = 1,
+  shard_index~ : Int32 = 0,
 ) -> RunOptions {
   { shard: @conformance.ShardSpec::new(shard_count, shard_index), }
 }
 
 ///|
-pub fn RunOptions::shard_count(self : RunOptions) -> Int {
+pub fn RunOptions::shard_count(self : RunOptions) -> Int32 {
   self.shard.count()
 }
 
 ///|
-pub fn RunOptions::shard_index(self : RunOptions) -> Int {
+pub fn RunOptions::shard_index(self : RunOptions) -> Int32 {
   self.shard.index()
 }
 
@@ -440,7 +442,7 @@ pub fn CaseResult::message(self : CaseResult) -> String {
 fn executable_result(
   id : String,
   passed : Bool,
-  message? : String = "",
+  message~ : String = "",
 ) -> CaseResult {
   { inner: @conformance.CaseResult::executable(id, passed, message~), }
 }
@@ -462,7 +464,7 @@ fn execute_case(case : TestFloatCase, spec : TestFloatSpec) -> CaseResult {
 }
 
 ///|
-fn flags_result(case : TestFloatCase, actual_flags : Int) -> CaseResult {
+fn flags_result(case : TestFloatCase, actual_flags : Int32) -> CaseResult {
   if actual_flags != case.expected_flags {
     return executable_result(
       case.id,
@@ -611,7 +613,7 @@ fn execute_boolean_case(
 ///|
 pub fn execute_document(
   document : TestFloatDocument,
-  options? : RunOptions = RunOptions::new(),
+  options~ : RunOptions = RunOptions::new(),
 ) -> RunSummary {
   let results : Array[CaseResult] = []
   for index, case in document.cases {
@@ -630,22 +632,22 @@ pub fn execute_document(
 }
 
 ///|
-pub fn RunSummary::total_cases(self : RunSummary) -> Int {
+pub fn RunSummary::total_cases(self : RunSummary) -> Int32 {
   self.inner.total_cases()
 }
 
 ///|
-pub fn RunSummary::selected_cases(self : RunSummary) -> Int {
+pub fn RunSummary::selected_cases(self : RunSummary) -> Int32 {
   self.inner.selected_cases()
 }
 
 ///|
-pub fn RunSummary::passed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::passed_cases(self : RunSummary) -> Int32 {
   self.inner.passed_cases()
 }
 
 ///|
-pub fn RunSummary::failed_cases(self : RunSummary) -> Int {
+pub fn RunSummary::failed_cases(self : RunSummary) -> Int32 {
   self.inner.failed_cases()
 }
 

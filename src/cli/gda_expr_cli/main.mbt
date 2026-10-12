@@ -4,8 +4,8 @@ priv struct CliOptions {
   json : Bool
   strict_supported : Bool
   case_filter : String
-  shard_count : Int
-  shard_index : Int
+  shard_count : Int32
+  shard_index : Int32
 }
 
 ///|
@@ -136,7 +136,7 @@ fn print_text(summary : @gda_expr.RunSummary, options : CliOptions) -> Unit {
 }
 
 ///|
-pub fn run(arguments : Array[String]) -> Int {
+pub fn run(arguments : Array[String]) -> Int32 {
   let cli = match parse_cli(arguments) {
     Ok(value) => value
     Err(message) => {

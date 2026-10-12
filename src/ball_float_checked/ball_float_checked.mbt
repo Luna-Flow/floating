@@ -31,8 +31,8 @@ pub fn BallFloatResult::err(err : @def.ArithmeticError) -> BallFloatResult {
 
 ///|
 pub fn BallFloatResult::from_int(
-  value : Int,
-  precision? : Int = 16,
+  value : Int32,
+  precision~ : Int32 = 16,
 ) -> BallFloatResult {
   BallFloatResult::ok(@ball_float.BallFloat::from_int(value, precision~))
 }
@@ -40,8 +40,8 @@ pub fn BallFloatResult::from_int(
 ///|
 pub fn BallFloatResult::from_coefficient(
   value : @bin_float.BinCoeff,
-  precision? : Int = 16,
-  negative? : Bool = false,
+  precision~ : Int32 = 16,
+  negative~ : Bool = false,
 ) -> BallFloatResult {
   BallFloatResult::ok(
     @ball_float.BallFloat::from_coefficient(value, precision~, negative~),
@@ -51,7 +51,7 @@ pub fn BallFloatResult::from_coefficient(
 ///|
 pub fn BallFloatResult::from_double(
   value : Double,
-  precision? : Int = 53,
+  precision~ : Int32 = 53,
 ) -> BallFloatResult {
   BallFloatResult::from_result(
     @ball_float.BallFloat::try_from_double(value, precision~),
@@ -61,7 +61,7 @@ pub fn BallFloatResult::from_double(
 ///|
 pub fn BallFloatResult::from_float(
   value : Float,
-  precision? : Int = 24,
+  precision~ : Int32 = 24,
 ) -> BallFloatResult {
   BallFloatResult::from_result(
     @ball_float.BallFloat::try_from_float(value, precision~),
@@ -71,7 +71,7 @@ pub fn BallFloatResult::from_float(
 ///|
 pub fn BallFloatResult::exact(
   value : @bin_float.BinFloat,
-  precision? : Int = value.precision(),
+  precision~ : Int32 = value.precision(),
 ) -> BallFloatResult {
   BallFloatResult::from_result(
     @ball_float.BallFloat::try_exact(value, precision~),
@@ -82,7 +82,7 @@ pub fn BallFloatResult::exact(
 pub fn BallFloatResult::from_bounds(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
-  precision? : Int = Int::max(lo.precision(), hi.precision()),
+  precision~ : Int32 = Int32::max(lo.precision(), hi.precision()),
 ) -> BallFloatResult {
   BallFloatResult::from_result(
     @ball_float.BallFloat::try_from_bounds(lo, hi, precision~),
@@ -90,7 +90,7 @@ pub fn BallFloatResult::from_bounds(
 }
 
 ///|
-pub fn BallFloatResult::whole(precision? : Int = 53) -> BallFloatResult {
+pub fn BallFloatResult::whole(precision~ : Int32 = 53) -> BallFloatResult {
   BallFloatResult::ok(@ball_float.BallFloat::whole(precision~))
 }
 
@@ -155,7 +155,7 @@ pub fn BallFloatResult::normalized(self : BallFloatResult) -> BallFloatResult {
 ///|
 pub fn BallFloatResult::with_precision(
   self : BallFloatResult,
-  precision : Int,
+  precision : Int32,
   mode : @def.RoundingMode,
 ) -> BallFloatResult {
   self.map(fn(value) { value.with_precision(precision, mode) })
@@ -214,7 +214,7 @@ pub fn BallFloatResult::div(
 ///|
 pub fn BallFloatResult::pow_nat(
   self : BallFloatResult,
-  exponent : UInt,
+  exponent : UInt32,
 ) -> BallFloatResult {
   self.bind(fn(value) {
     let ctx = @lf_arith.ArithmeticContext::new(value.precision())
@@ -227,7 +227,7 @@ pub fn BallFloatResult::pow_nat(
 ///|
 pub fn BallFloatResult::pow_int(
   self : BallFloatResult,
-  exponent : Int,
+  exponent : Int32,
 ) -> BallFloatResult {
   self.bind(fn(value) {
     let ctx = @lf_arith.ArithmeticContext::new(value.precision())
@@ -240,7 +240,7 @@ pub fn BallFloatResult::pow_int(
 ///|
 pub fn BallFloatResult::rootn(
   self : BallFloatResult,
-  degree : Int,
+  degree : Int32,
 ) -> BallFloatResult {
   self.bind(fn(value) { BallFloatResult::from_result(value.try_rootn(degree)) })
 }

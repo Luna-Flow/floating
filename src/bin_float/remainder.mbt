@@ -6,7 +6,7 @@ fn bin_coeff_mod(value : BinCoeff, modulus : BinCoeff) -> BinCoeff {
 ///|
 /// `2^exponent mod modulus` by square-and-multiply, for exponents up to the
 /// Int range without materializing `2^exponent`.
-fn bin_coeff_pow2_mod(exponent : Int, modulus : BinCoeff) -> BinCoeff {
+fn bin_coeff_pow2_mod(exponent : Int32, modulus : BinCoeff) -> BinCoeff {
   let mut result = bin_coeff_mod(BinCoeff::one(), modulus)
   let mut base = bin_coeff_mod(BinCoeff::from_uint64(2UL), modulus)
   let mut remaining = exponent
@@ -98,6 +98,6 @@ pub fn BinFloat::remainder_ctx(
 pub fn BinFloat::remainder(self : BinFloat, divisor : BinFloat) -> BinFloat {
   self.remainder_ctx(
     divisor,
-    BinaryContext::unbounded(Int::max(self.precision_, divisor.precision_)),
+    BinaryContext::unbounded(Int32::max(self.precision_, divisor.precision_)),
   ).0
 }

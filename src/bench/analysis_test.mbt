@@ -1,8 +1,8 @@
 ///|
 fn observation(
   implementation_id : String,
-  dataset_id : Int,
-  block_id : Int,
+  dataset_id : Int32,
+  block_id : Int32,
   elapsed_us : Double,
 ) -> @model.Observation {
   @model.Observation::new(

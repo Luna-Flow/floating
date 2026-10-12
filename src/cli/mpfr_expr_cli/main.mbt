@@ -1,5 +1,5 @@
 ///|
-pub fn run(arguments : Array[String]) -> Int {
+pub fn run(arguments : Array[String]) -> Int32 {
   let common = match
     @runner_cli.parse_common_options(arguments, allow_shard=false) {
     Ok(value) => value

@@ -40,7 +40,7 @@ fn[T : DivChecked] div_checked_generic(
 fn[T : CompareChecked] compare_checked_generic(
   x : T,
   y : T,
-) -> Result[Int, ArithmeticError] {
+) -> Result[Int32, ArithmeticError] {
   CompareChecked::compare_checked(x, y)
 }
 
@@ -72,7 +72,7 @@ fn[T : PowNatChecked] square_checked(
 ///|
 fn[T : PowIntChecked] reciprocal_power_checked(
   x : T,
-  exponent : Int,
+  exponent : Int32,
   ctx : ArithmeticContext,
 ) -> Result[T, ArithmeticError] {
   PowIntChecked::pow_int_checked(x, exponent, ctx)
@@ -263,17 +263,17 @@ fn assert_decimal_conformance_value(
 fn assert_decimal_conformance_flags(
   id : String,
   flags : @decimal.DecimalFlags,
-  rounded? : Bool = false,
-  inexact? : Bool = false,
-  lost_digits? : Bool = false,
-  invalid_operation? : Bool = false,
-  division_by_zero? : Bool = false,
-  overflow? : Bool = false,
-  underflow? : Bool = false,
-  subnormal? : Bool = false,
-  clamped? : Bool = false,
-  division_impossible? : Bool = false,
-  division_undefined? : Bool = false,
+  rounded~ : Bool = false,
+  inexact~ : Bool = false,
+  lost_digits~ : Bool = false,
+  invalid_operation~ : Bool = false,
+  division_by_zero~ : Bool = false,
+  overflow~ : Bool = false,
+  underflow~ : Bool = false,
+  subnormal~ : Bool = false,
+  clamped~ : Bool = false,
+  division_impossible~ : Bool = false,
+  division_undefined~ : Bool = false,
 ) -> Unit raise {
   assert_eq(flags.rounded.to_string(), rounded.to_string(), msg=id + " rounded")
   assert_eq(flags.inexact.to_string(), inexact.to_string(), msg=id + " inexact")
@@ -328,16 +328,16 @@ fn run_decimal_binary_conformance_case(
   rhs_src : String,
   expected : String,
   ctx : @decimal.DecimalContext,
-  rounded? : Bool = false,
-  inexact? : Bool = false,
-  invalid_operation? : Bool = false,
-  division_by_zero? : Bool = false,
-  overflow? : Bool = false,
-  underflow? : Bool = false,
-  subnormal? : Bool = false,
-  clamped? : Bool = false,
-  division_impossible? : Bool = false,
-  division_undefined? : Bool = false,
+  rounded~ : Bool = false,
+  inexact~ : Bool = false,
+  invalid_operation~ : Bool = false,
+  division_by_zero~ : Bool = false,
+  overflow~ : Bool = false,
+  underflow~ : Bool = false,
+  subnormal~ : Bool = false,
+  clamped~ : Bool = false,
+  division_impossible~ : Bool = false,
+  division_undefined~ : Bool = false,
 ) -> Unit raise {
   let lhs = decimal_conformance_operand(id, lhs_src)
   let rhs = decimal_conformance_operand(id, rhs_src)
@@ -380,8 +380,8 @@ fn run_decimal_ternary_conformance_case(
   third_src : String,
   expected : String,
   ctx : @decimal.DecimalContext,
-  rounded? : Bool = false,
-  inexact? : Bool = false,
+  rounded~ : Bool = false,
+  inexact~ : Bool = false,
 ) -> Unit raise {
   let lhs = decimal_conformance_operand(id, lhs_src)
   let rhs = decimal_conformance_operand(id, rhs_src)
@@ -411,16 +411,16 @@ fn run_decimal_unary_conformance_case(
   operand_src : String,
   expected : String,
   ctx : @decimal.DecimalContext,
-  rounded? : Bool = false,
-  inexact? : Bool = false,
-  invalid_operation? : Bool = false,
-  division_by_zero? : Bool = false,
-  overflow? : Bool = false,
-  underflow? : Bool = false,
-  subnormal? : Bool = false,
-  clamped? : Bool = false,
-  division_impossible? : Bool = false,
-  division_undefined? : Bool = false,
+  rounded~ : Bool = false,
+  inexact~ : Bool = false,
+  invalid_operation~ : Bool = false,
+  division_by_zero~ : Bool = false,
+  overflow~ : Bool = false,
+  underflow~ : Bool = false,
+  subnormal~ : Bool = false,
+  clamped~ : Bool = false,
+  division_impossible~ : Bool = false,
+  division_undefined~ : Bool = false,
 ) -> Unit raise {
   let operand = decimal_conformance_operand(id, operand_src)
   let (actual, flags) = match op {

@@ -3,20 +3,20 @@ pub struct BinFloat {
   priv class : FpClass
   priv negative : Bool
   priv coefficient_ : BinCoeff
-  priv exponent2 : Int
-  priv precision_ : Int
+  priv exponent2 : Int32
+  priv precision_ : Int32
   priv signaling_nan : Bool
   priv nan_payload : BinCoeff
 } derive(Eq, Debug)
 
 ///|
-fn finite_zero(negative : Bool, precision : Int) -> BinFloat {
+fn finite_zero(negative : Bool, precision : Int32) -> BinFloat {
   {
     class: FpClass::Finite,
     negative,
     coefficient_: BinCoeff::zero(),
     exponent2: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: false,
     nan_payload: BinCoeff::zero(),
   }
@@ -26,15 +26,15 @@ fn finite_zero(negative : Bool, precision : Int) -> BinFloat {
 fn finite_normalized(
   negative : Bool,
   coefficient : BinCoeff,
-  exponent2 : Int,
-  precision : Int,
+  exponent2 : Int32,
+  precision : Int32,
 ) -> BinFloat {
   {
     class: FpClass::Finite,
     negative,
     coefficient_: coefficient,
     exponent2,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: false,
     nan_payload: BinCoeff::zero(),
   }
@@ -43,7 +43,7 @@ fn finite_normalized(
 ///|
 fn bin_coeff_round_shift_for_make(
   magnitude : BinCoeff,
-  shift : Int,
+  shift : Int32,
   negative : Bool,
   mode : RoundingMode,
 ) -> BinCoeff {
@@ -74,11 +74,11 @@ fn bin_coeff_round_shift_for_make(
 ///|
 fn normalize_finite_odd(
   coefficient : BinCoeff,
-  exponent2 : Int,
-  precision : Int,
+  exponent2 : Int32,
+  precision : Int32,
   negative : Bool,
   mode : RoundingMode,
-  bits : Int,
+  bits : Int32,
 ) -> BinFloat {
   // Underflow is decided on the exact value so that precision rounding cannot
   // move a magnitude onto the halfway point of the smallest subnormal.
@@ -122,7 +122,7 @@ fn normalize_finite_odd(
 ///|
 fn implementation_overflow(
   negative : Bool,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
 ) -> BinFloat {
   let to_infinity = match mode {
@@ -158,7 +158,7 @@ fn implementation_overflow(
 /// smallest subnormal and the smallest subnormal.
 fn implementation_underflow(
   negative : Bool,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
   above_half : Bool,
 ) -> BinFloat {
@@ -184,12 +184,12 @@ fn implementation_underflow(
 ///|
 fn normalize_finite(
   coefficient : BinCoeff,
-  exponent2 : Int,
-  precision : Int,
+  exponent2 : Int32,
+  precision : Int32,
   negative : Bool,
   mode : RoundingMode,
 ) -> BinFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   if coefficient.is_zero() {
     return finite_zero(negative, precision)
   }
@@ -214,8 +214,8 @@ fn normalize_finite(
 fn finite_from_parts(
   negative : Bool,
   magnitude : BinCoeff,
-  exponent2 : Int,
-  precision : Int,
+  exponent2 : Int32,
+  precision : Int32,
 ) -> BinFloat {
   if magnitude.is_zero() {
     return finite_zero(negative, precision)
@@ -234,9 +234,9 @@ fn finite_from_parts(
 fn finite_from_uint64(
   negative : Bool,
   magnitude : UInt64,
-  precision : Int,
+  precision : Int32,
 ) -> BinFloat {
-  let precision = Int::max(1, precision)
+  let precision = Int32::max(1, precision)
   let coefficient = BinCoeff::from_uint64(magnitude)
   if coefficient.is_zero() {
     return finite_zero(negative, precision)
@@ -267,12 +267,12 @@ fn finite_from_uint64(
 }
 
 ///|
-fn max_precision(a : BinFloat, b : BinFloat) -> Int {
-  Int::max(a.precision_, b.precision_)
+fn max_precision(a : BinFloat, b : BinFloat) -> Int32 {
+  Int32::max(a.precision_, b.precision_)
 }
 
 ///|
-fn compare_finite(a : BinFloat, b : BinFloat) -> Int {
+fn compare_finite(a : BinFloat, b : BinFloat) -> Int32 {
   if a.coefficient_.is_zero() && b.coefficient_.is_zero() {
     return 0
   }
@@ -311,7 +311,7 @@ fn div_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
 ///|
 pub fn sqrt_bounds_for_precision(
   x : BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> Result[(BinFloat, BinFloat), @def.ArithmeticError] {
   guard x.classify() == FpClass::Finite else {
     return Err(
@@ -349,7 +349,7 @@ pub fn sqrt_bounds_for_precision(
 ///|
 pub fn sqrt_for_precision(
   x : BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   guard !(x.is_negative() && !x.is_zero()) else {
     return Err(
@@ -362,60 +362,60 @@ pub fn sqrt_for_precision(
 ///|
 pub fn BinFloat::make(
   coefficient : BinCoeff,
-  exponent2 : Int,
-  precision : Int,
-  negative? : Bool = false,
-  mode? : RoundingMode = RoundingMode::ToNearestEven,
+  exponent2 : Int32,
+  precision : Int32,
+  negative~ : Bool = false,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> BinFloat {
   normalize_finite(coefficient, exponent2, precision, negative, mode)
 }
 
 ///|
-pub fn BinFloat::zero(precision? : Int = 53) -> BinFloat {
+pub fn BinFloat::zero(precision~ : Int32 = 53) -> BinFloat {
   finite_zero(false, precision)
 }
 
 ///|
-pub fn BinFloat::negative_zero(precision? : Int = 53) -> BinFloat {
+pub fn BinFloat::negative_zero(precision~ : Int32 = 53) -> BinFloat {
   finite_zero(true, precision)
 }
 
 ///|
-pub fn BinFloat::one(precision? : Int = 53) -> BinFloat {
+pub fn BinFloat::one(precision~ : Int32 = 53) -> BinFloat {
   finite_normalized(false, BinCoeff::one(), 0, precision)
 }
 
 ///|
-pub fn BinFloat::inf(sign : Sign, precision? : Int = 53) -> BinFloat {
+pub fn BinFloat::inf(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
   let negative = sign == Sign::Negative
   {
     class: FpClass::Infinity,
     negative,
     coefficient_: BinCoeff::one(),
     exponent2: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: false,
     nan_payload: BinCoeff::zero(),
   }
 }
 
 ///|
-pub fn BinFloat::nan(precision? : Int = 53) -> BinFloat {
+pub fn BinFloat::nan(precision~ : Int32 = 53) -> BinFloat {
   BinFloat::quiet_nan(precision~)
 }
 
 ///|
 pub fn BinFloat::quiet_nan(
-  payload? : BinCoeff = BinCoeff::zero(),
-  negative? : Bool = false,
-  precision? : Int = 53,
+  payload~ : BinCoeff = BinCoeff::zero(),
+  negative~ : Bool = false,
+  precision~ : Int32 = 53,
 ) -> BinFloat {
   {
     class: FpClass::NaN,
     negative,
     coefficient_: BinCoeff::zero(),
     exponent2: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: false,
     nan_payload: payload,
   }
@@ -423,16 +423,16 @@ pub fn BinFloat::quiet_nan(
 
 ///|
 pub fn BinFloat::signaling_nan(
-  payload? : BinCoeff = BinCoeff::one(),
-  negative? : Bool = false,
-  precision? : Int = 53,
+  payload~ : BinCoeff = BinCoeff::one(),
+  negative~ : Bool = false,
+  precision~ : Int32 = 53,
 ) -> BinFloat {
   {
     class: FpClass::NaN,
     negative,
     coefficient_: BinCoeff::zero(),
     exponent2: 0,
-    precision_: Int::max(1, precision),
+    precision_: Int32::max(1, precision),
     signaling_nan: true,
     nan_payload: if payload.is_zero() {
       BinCoeff::one()
@@ -443,7 +443,7 @@ pub fn BinFloat::signaling_nan(
 }
 
 ///|
-pub fn BinFloat::from_int(n : Int, precision? : Int = 53) -> BinFloat {
+pub fn BinFloat::from_int(n : Int32, precision~ : Int32 = 53) -> BinFloat {
   let negative = n < 0
   let magnitude = if negative {
     (-(n + 1)).to_uint64() + 1UL
@@ -456,15 +456,15 @@ pub fn BinFloat::from_int(n : Int, precision? : Int = 53) -> BinFloat {
 ///|
 pub fn BinFloat::from_coefficient(
   coefficient : BinCoeff,
-  precision? : Int = 53,
-  negative? : Bool = false,
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
 ) -> BinFloat {
   BinFloat::make(coefficient, 0, precision, negative~)
 }
 
 ///|
-pub fn BinFloat::from_double(x : Double, precision? : Int = 53) -> BinFloat {
-  let precision = Int::max(1, precision)
+pub fn BinFloat::from_double(x : Double, precision~ : Int32 = 53) -> BinFloat {
+  let precision = Int32::max(1, precision)
   let bits = x.reinterpret_as_uint64()
   let negative = bits >> 63 != 0UL
   let exponent_bits = ((bits >> 52) & 0x7ffUL).to_int()
@@ -519,7 +519,7 @@ pub fn BinFloat::from_double(x : Double, precision? : Int = 53) -> BinFloat {
 }
 
 ///|
-pub fn BinFloat::from_float(x : Float, precision? : Int = 24) -> BinFloat {
+pub fn BinFloat::from_float(x : Float, precision~ : Int32 = 24) -> BinFloat {
   BinFloat::from_double(x.to_double(), precision~)
 }
 
@@ -529,7 +529,7 @@ pub fn BinFloat::classify(self : BinFloat) -> FpClass {
 }
 
 ///|
-pub fn BinFloat::precision(self : BinFloat) -> Int {
+pub fn BinFloat::precision(self : BinFloat) -> Int32 {
   self.precision_
 }
 
@@ -577,7 +577,7 @@ pub fn BinFloat::coefficient(self : BinFloat) -> BinCoeff {
 }
 
 ///|
-pub fn BinFloat::exponent2(self : BinFloat) -> Int {
+pub fn BinFloat::exponent2(self : BinFloat) -> Int32 {
   self.exponent2
 }
 
@@ -598,7 +598,7 @@ pub fn BinFloat::normalized(self : BinFloat) -> BinFloat {
 ///|
 pub fn BinFloat::with_precision(
   self : BinFloat,
-  precision : Int,
+  precision : Int32,
   mode : RoundingMode,
 ) -> BinFloat {
   match self.class {
@@ -614,8 +614,8 @@ pub fn BinFloat::with_precision(
           mode~,
         )
       }
-    FpClass::Infinity => { ..self, precision_: Int::max(1, precision), }
-    FpClass::NaN => { ..self, precision_: Int::max(1, precision), }
+    FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }
   }
 }
 
@@ -642,7 +642,7 @@ pub fn BinFloat::is_zero(self : BinFloat) -> Bool {
 pub fn BinFloat::compare_checked(
   self : BinFloat,
   other : BinFloat,
-) -> Result[Int, @def.ArithmeticError] {
+) -> Result[Int32, @def.ArithmeticError] {
   guard self.class != FpClass::NaN && other.class != FpClass::NaN else {
     return Err(@def.ArithmeticError::unordered_comparison("NaN is unordered"))
   }
@@ -679,7 +679,7 @@ pub fn BinFloat::compare_checked(
 /// so that `Compare` stays a total preorder (and sorting never aborts), every
 /// NaN compares equal to every other NaN and greater than every non-NaN.
 /// Use the quiet/signaling predicates or `compare_checked` for IEEE semantics.
-pub fn BinFloat::compare(self : BinFloat, other : BinFloat) -> Int {
+pub fn BinFloat::compare(self : BinFloat, other : BinFloat) -> Int32 {
   match (self.class == FpClass::NaN, other.class == FpClass::NaN) {
     (true, true) => return 0
     (true, false) => return 1
@@ -830,7 +830,7 @@ pub fn BinFloat::sqrt(
 ///|
 pub fn BinFloat::pow_int(
   self : BinFloat,
-  exponent : Int,
+  exponent : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   guard !(exponent < 0 && self.is_zero()) else {
     return Err(

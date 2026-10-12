@@ -25,24 +25,24 @@ pub(all) enum BinaryInterchangeFormat {
 ///|
 /// Largest exponent of the leading bit that a finite `BinFloat` may carry.
 /// Unbounded contexts use this as their effective `e_max`.
-pub let binary_implementation_e_max : Int = 1073741823
+pub let binary_implementation_e_max : Int32 = 1073741823
 
 ///|
 /// Smallest normal leading-bit exponent. Unbounded contexts use this as their
 /// effective `e_min`, with gradual underflow below it.
-pub let binary_implementation_e_min : Int = -1073741823
+pub let binary_implementation_e_min : Int32 = -1073741823
 
 ///|
 /// Largest context precision. Together with the exponent range above it keeps
 /// every coefficient exponent inside the 32-bit `Int` range.
-pub let binary_precision_max : Int = 268435456
+pub let binary_precision_max : Int32 = 268435456
 
 ///|
 pub struct BinaryContext {
-  priv precision : Int
+  priv precision : Int32
   priv rounding : BinaryRoundingMode
-  priv e_min : Int?
-  priv e_max : Int?
+  priv e_min : Int32?
+  priv e_max : Int32?
   priv tininess : TininessDetection
 } derive(Eq, Debug)
 
@@ -106,7 +106,7 @@ pub fn BinaryFlags::invalid_operation(self : BinaryFlags) -> Bool {
 }
 
 ///|
-pub fn BinaryFlags::to_testfloat_bits(self : BinaryFlags) -> Int {
+pub fn BinaryFlags::to_testfloat_bits(self : BinaryFlags) -> Int32 {
   (if self.inexact { 0x01 } else { 0 }) |
   (if self.underflow { 0x02 } else { 0 }) |
   (if self.overflow { 0x04 } else { 0 }) |
@@ -163,11 +163,11 @@ pub fn BinaryRoundingMode::to_arithmetic(
 
 ///|
 pub fn BinaryContext::new(
-  precision : Int,
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  e_min? : Int,
-  e_max? : Int,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  precision : Int32,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  e_min? : Int32,
+  e_max? : Int32,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   guard precision > 0 else {
     abort("BinaryContext::new: precision must be positive")
@@ -188,11 +188,11 @@ pub fn BinaryContext::new(
 
 ///|
 pub fn BinaryContext::try_new(
-  precision : Int,
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  e_min? : Int,
-  e_max? : Int,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  precision : Int32,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  e_min? : Int32,
+  e_max? : Int32,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> Result[BinaryContext, @def.ArithmeticError] {
   guard precision > 0 else {
     return Err(
@@ -223,8 +223,8 @@ pub fn BinaryContext::try_new(
 
 ///|
 pub fn BinaryContext::unbounded(
-  precision : Int,
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  precision : Int32,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> BinaryContext {
   BinaryContext::new(precision, rounding~)
 }
@@ -246,7 +246,7 @@ pub fn BinaryContext::from_arithmetic_context(
 }
 
 ///|
-pub fn BinaryContext::precision(self : BinaryContext) -> Int {
+pub fn BinaryContext::precision(self : BinaryContext) -> Int32 {
   self.precision
 }
 
@@ -256,12 +256,12 @@ pub fn BinaryContext::rounding(self : BinaryContext) -> BinaryRoundingMode {
 }
 
 ///|
-pub fn BinaryContext::e_min(self : BinaryContext) -> Int? {
+pub fn BinaryContext::e_min(self : BinaryContext) -> Int32? {
   self.e_min
 }
 
 ///|
-pub fn BinaryContext::e_max(self : BinaryContext) -> Int? {
+pub fn BinaryContext::e_max(self : BinaryContext) -> Int32? {
   self.e_max
 }
 
@@ -271,17 +271,17 @@ pub fn BinaryContext::tininess(self : BinaryContext) -> TininessDetection {
 }
 
 ///|
-fn BinaryContext::range_e_max(self : BinaryContext) -> Int {
+fn BinaryContext::range_e_max(self : BinaryContext) -> Int32 {
   match self.e_max {
-    Some(e_max) => Int::min(e_max, binary_implementation_e_max)
+    Some(e_max) => Int32::min(e_max, binary_implementation_e_max)
     None => binary_implementation_e_max
   }
 }
 
 ///|
-fn BinaryContext::range_e_min(self : BinaryContext) -> Int {
+fn BinaryContext::range_e_min(self : BinaryContext) -> Int32 {
   match self.e_min {
-    Some(e_min) => Int::max(e_min, binary_implementation_e_min)
+    Some(e_min) => Int32::max(e_min, binary_implementation_e_min)
     None => binary_implementation_e_min
   }
 }
@@ -289,7 +289,7 @@ fn BinaryContext::range_e_min(self : BinaryContext) -> Int {
 ///|
 pub fn BinaryInterchangeFormat::precision(
   self : BinaryInterchangeFormat,
-) -> Int {
+) -> Int32 {
   match self {
     Binary16 => 11
     Binary32 => 24
@@ -299,7 +299,7 @@ pub fn BinaryInterchangeFormat::precision(
 }
 
 ///|
-pub fn BinaryInterchangeFormat::e_min(self : BinaryInterchangeFormat) -> Int {
+pub fn BinaryInterchangeFormat::e_min(self : BinaryInterchangeFormat) -> Int32 {
   match self {
     Binary16 => -14
     Binary32 => -126
@@ -309,7 +309,7 @@ pub fn BinaryInterchangeFormat::e_min(self : BinaryInterchangeFormat) -> Int {
 }
 
 ///|
-pub fn BinaryInterchangeFormat::e_max(self : BinaryInterchangeFormat) -> Int {
+pub fn BinaryInterchangeFormat::e_max(self : BinaryInterchangeFormat) -> Int32 {
   match self {
     Binary16 => 15
     Binary32 => 127
@@ -321,8 +321,8 @@ pub fn BinaryInterchangeFormat::e_max(self : BinaryInterchangeFormat) -> Int {
 ///|
 pub fn BinaryInterchangeFormat::context(
   self : BinaryInterchangeFormat,
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   BinaryContext::new(
     self.precision(),
@@ -335,32 +335,32 @@ pub fn BinaryInterchangeFormat::context(
 
 ///|
 pub fn BinaryContext::binary16(
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   BinaryInterchangeFormat::Binary16.context(rounding~, tininess~)
 }
 
 ///|
 pub fn BinaryContext::binary32(
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   BinaryInterchangeFormat::Binary32.context(rounding~, tininess~)
 }
 
 ///|
 pub fn BinaryContext::binary64(
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   BinaryInterchangeFormat::Binary64.context(rounding~, tininess~)
 }
 
 ///|
 pub fn BinaryContext::binary128(
-  rounding? : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  tininess? : TininessDetection = TininessDetection::AfterRounding,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   BinaryInterchangeFormat::Binary128.context(rounding~, tininess~)
 }

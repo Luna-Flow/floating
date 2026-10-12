@@ -2,7 +2,7 @@
 // Power, logarithm, and exponential helper routines.
 
 ///|
-let decimal_integer_coeff_expansion_limit : Int = 4096
+let decimal_integer_coeff_expansion_limit : Int32 = 4096
 
 ///|
 fn decimal_exact_integer_coeff(rhs : Decimal) -> (Bool, DecCoeff)? {
@@ -32,7 +32,7 @@ fn decimal_exact_integer_coeff(rhs : Decimal) -> (Bool, DecCoeff)? {
 ///|
 fn decimal_exact_integer_coeff_bounded(
   rhs : Decimal,
-  limit : Int,
+  limit : Int32,
 ) -> (Bool, DecCoeff)? {
   guard limit >= 0 && rhs.class == FpClass::Finite else { return None }
   if rhs.exponent10 >= 0 {
@@ -65,7 +65,7 @@ fn decimal_exact_integer_coeff_bounded(
 }
 
 ///|
-fn dec_coeff_to_bounded_int(coeff : DecCoeff, limit : Int) -> Int? {
+fn dec_coeff_to_bounded_int(coeff : DecCoeff, limit : Int32) -> Int32? {
   guard limit >= 0 else { return None }
   let unit_count = dec_coeff_d2u(coeff.digits10())
   let mut value = 0
@@ -81,7 +81,7 @@ fn dec_coeff_to_bounded_int(coeff : DecCoeff, limit : Int) -> Int? {
 }
 
 ///|
-fn decimal_power_integer_count(rhs : Decimal, limit : Int) -> Int? {
+fn decimal_power_integer_count(rhs : Decimal, limit : Int32) -> Int32? {
   guard limit >= 0 else { return None }
   match decimal_exact_integer_coeff_bounded(rhs, limit) {
     Some((negative, magnitude)) =>
@@ -94,7 +94,7 @@ fn decimal_power_integer_count(rhs : Decimal, limit : Int) -> Int? {
 }
 
 ///|
-fn decimal_power_gda_integer_count(rhs : Decimal) -> Int? {
+fn decimal_power_gda_integer_count(rhs : Decimal) -> Int32? {
   if rhs.class != FpClass::Finite {
     return None
   }
@@ -118,7 +118,7 @@ fn decimal_power_gda_integer_count(rhs : Decimal) -> Int? {
 /// This is deliberately separate from the GDA decNumber compatibility bound:
 /// integer powers up to the native `Int` range can use logarithmic repeated
 /// squaring without expanding the exponent coefficient.
-fn decimal_power_machine_integer_count(rhs : Decimal) -> Int? {
+fn decimal_power_machine_integer_count(rhs : Decimal) -> Int32? {
   guard rhs.class == FpClass::Finite else { return None }
   let negative = rhs.negative && !rhs.coefficient.is_zero()
   let machine_limit = 2147483647
@@ -236,7 +236,7 @@ fn decimal_power_one_limit_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-  let zeros = Int::max(0, precision - 1)
+  let zeros = Int32::max(0, precision - 1)
   (
     finite_with_exponent_repr(
       false,
@@ -390,7 +390,7 @@ fn decimal_math_result_ctx(ctx : DecimalContext) -> DecimalContext {
 fn normalize_decimal_parts_math_ctx_repr(
   negative : Bool,
   magnitude : DecCoeff,
-  exponent10 : Int,
+  exponent10 : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   normalize_decimal_parts_ctx_repr(
@@ -435,7 +435,7 @@ fn decimal_apply_finite_ctx(
 
 ///|
 fn decimal_power_integer_work_ctx(
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> DecimalContext {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
@@ -451,7 +451,7 @@ fn decimal_power_integer_work_ctx(
 ///|
 fn decimal_power_large_integer_exponent_bound_result(
   base : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
@@ -501,7 +501,7 @@ fn decimal_power_large_integer_exponent_bound_result(
 ///|
 fn decimal_power_integer_exact_result(
   base : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
@@ -553,7 +553,7 @@ fn decimal_power_integer_exact_result(
 ///|
 fn decimal_power_integer_bounded_result(
   base : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let work_ctx = decimal_power_integer_work_ctx(count, ctx)
@@ -731,7 +731,7 @@ fn decimal_power_large_integer_terminal_result(
 ///|
 fn decimal_power_terminal_result(
   base : Decimal,
-  count : Int,
+  count : Int32,
   flags : DecimalFlags,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -758,7 +758,7 @@ fn decimal_power_terminal_result(
 ///|
 fn decimal_power_integer_finite_result(
   base : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let required_precision = finite_precision_for_coeff(
@@ -831,7 +831,7 @@ fn decimal_same_representation(left : Decimal, right : Decimal) -> Bool {
 /// caller keeps its own result.
 fn decimal_power_integer_correctly_rounded_result(
   base : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard ctx.extended && ctx.precision > 0 && count != 0 else { return None }
@@ -846,7 +846,7 @@ fn decimal_power_integer_correctly_rounded_result(
     base.exponent10,
   )
   let exponent64 = exponent.to_int64() * n.to_int64()
-  let exact_limit = Int::max(4 * precision, 64)
+  let exact_limit = Int32::max(4 * precision, 64)
   if n.to_int64() * coefficient.digits10().to_int64() <= exact_limit.to_int64() {
     guard exponent64 >= -2_000_000_000L && exponent64 <= 2_000_000_000L else {
       return None
@@ -1012,18 +1012,18 @@ fn decimal_exp_underflow_zero_result(
 }
 
 ///|
-fn decimal_math_target_precision(ctx : DecimalContext) -> Int {
+fn decimal_math_target_precision(ctx : DecimalContext) -> Int32 {
   if ctx.precision == 0 {
     34
   } else {
-    Int::max(1, ctx.precision)
+    Int32::max(1, ctx.precision)
   }
 }
 
 ///|
-fn decimal_math_work_ctx(precision : Int) -> DecimalContext {
+fn decimal_math_work_ctx(precision : Int32) -> DecimalContext {
   DecimalContext::new(
-    precision=Int::max(precision, 1),
+    precision=Int32::max(precision, 1),
     decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999_999,
     e_max=999_999,
@@ -1031,7 +1031,7 @@ fn decimal_math_work_ctx(precision : Int) -> DecimalContext {
 }
 
 ///|
-fn decimal_math_small_threshold(work_precision : Int) -> Decimal {
+fn decimal_math_small_threshold(work_precision : Int32) -> Decimal {
   finite_with_exponent_repr(
     false,
     dec_coeff_from_int(1),
@@ -1058,7 +1058,7 @@ fn decimal_math_term_is_small(value : Decimal, threshold : Decimal) -> Bool {
 ///|
 fn decimal_mul_finite_by_small_int_work(
   value : Decimal,
-  factor : Int,
+  factor : Int32,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   guard value.class == FpClass::Finite else {
@@ -1081,7 +1081,7 @@ fn decimal_mul_finite_by_small_int_work(
 ///|
 fn decimal_div_finite_by_small_int_work(
   value : Decimal,
-  divisor : Int,
+  divisor : Int32,
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   guard value.class == FpClass::Finite else {
@@ -1391,7 +1391,7 @@ fn decimal_add_finite_work(
   guard lhs.class == FpClass::Finite && rhs.class == FpClass::Finite else {
     abort("decimal_add_finite_work expects finite operands")
   }
-  let target = Int::min(lhs.exponent10, rhs.exponent10)
+  let target = Int32::min(lhs.exponent10, rhs.exponent10)
   let (negative, exact) = decimal_exact_aligned_sum_result(lhs, rhs, target)
   normalize_decimal_parts_math_ctx_repr(negative, exact, target, work_ctx)
 }
@@ -1399,7 +1399,7 @@ fn decimal_add_finite_work(
 ///|
 fn decimal_round_scaled_coeff(
   value : SignedDecCoeff,
-  shift : Int,
+  shift : Int32,
 ) -> SignedDecCoeff {
   value.round_power10_half_even(shift)
 }
@@ -1408,7 +1408,7 @@ fn decimal_round_scaled_coeff(
 fn decimal_ln_atanh_scaled_coeff(
   numerator : DecCoeff,
   denominator : DecCoeff,
-  scale : Int,
+  scale : Int32,
 ) -> SignedDecCoeff {
   guard !numerator.is_zero() && !denominator.is_zero() else {
     abort("decimal_ln_atanh_scaled_coeff expects positive rational input")
@@ -1457,7 +1457,7 @@ fn decimal_ln_atanh_scaled_coeff(
 
 ///|
 fn decimal_transcendental_ln_constants(
-  work_scale : Int,
+  work_scale : Int32,
 ) -> (DecCoeff, DecCoeff, DecCoeff) {
   let cache = decimal_math_constant_cache.val
   if cache.scale >= work_scale && cache.scale > 0 {
@@ -1490,7 +1490,7 @@ fn decimal_transcendental_ln_constants(
 ///|
 fn decimal_math_scaled_constant(
   magnitude : DecCoeff,
-  scale : Int,
+  scale : Int32,
   work_ctx : DecimalContext,
 ) -> Decimal {
   normalize_decimal_parts_math_ctx_repr(false, magnitude, -scale, work_ctx).0
@@ -1529,7 +1529,7 @@ fn decimal_ln_near_one_series(
   let mut term = t
   let mut divisor = 3
   let mut steps = 0
-  let max_steps = Int::max(32, work_ctx.precision / 2 + 32)
+  let max_steps = Int32::max(32, work_ctx.precision / 2 + 32)
   while steps < max_steps {
     let (next_term0, mul_flags) = decimal_mul_finite_work(term, t2, work_ctx)
     flags = flags.combine(mul_flags)
@@ -1700,7 +1700,7 @@ fn decimal_ln_lookaside_work_result_with_ln10(
 ///|
 fn decimal_finite_to_scaled_repr(
   value : Decimal,
-  scale : Int,
+  scale : Int32,
 ) -> (Bool, DecCoeff) {
   let shift = value.exponent10 + scale
   let magnitude = if shift >= 0 {
@@ -1716,7 +1716,7 @@ fn decimal_floor_div_scaled_repr(
   negative : Bool,
   numerator : DecCoeff,
   denominator : DecCoeff,
-) -> Int {
+) -> Int32 {
   guard !denominator.is_zero() else {
     abort("decimal_floor_div_scaled_repr expects a positive denominator")
   }
@@ -1751,7 +1751,7 @@ fn decimal_exp_series_result(
   let mut term = one
   let mut index = 1
   let mut steps = 0
-  let max_steps = Int::max(48, work_ctx.precision + 32)
+  let max_steps = Int32::max(48, work_ctx.precision + 32)
   while steps < max_steps {
     let (next_term0, mul_flags) = decimal_mul_finite_work(
       term, reduced, work_ctx,
@@ -1877,7 +1877,10 @@ fn decimal_exp_boundary_entry(
       return entry
     }
   }
-  let boundary_precision = Int::max(decimal_math_target_precision(ctx) + 12, 64)
+  let boundary_precision = Int32::max(
+    decimal_math_target_precision(ctx) + 12,
+    64,
+  )
   let boundary_ctx = decimal_math_work_ctx(boundary_precision)
   let boundary_scale = boundary_precision + 12
   let (_, ln5_scaled, ln10_scaled) = decimal_transcendental_ln_constants(
@@ -1939,7 +1942,7 @@ fn decimal_exp_extreme_half_even_result(
 }
 
 ///|
-fn decimal_power_compare_abs_one(value : Decimal, precision : Int) -> Int {
+fn decimal_power_compare_abs_one(value : Decimal, precision : Int32) -> Int32 {
   compare_finite(
     { ..value, negative: false, },
     finite_with_exponent_repr(false, dec_coeff_from_int(1), 0, precision),
@@ -2002,7 +2005,7 @@ fn decimal_power_infinite_exponent_result(
 fn decimal_power_infinite_base_noninteger_result(
   base : Decimal,
   exponent : Decimal,
-  precision : Int,
+  precision : Int32,
 ) -> (Decimal, DecimalFlags)? {
   guard base.class == FpClass::Infinity else { return None }
   guard exponent.class == FpClass::Finite else { return None }
@@ -2179,7 +2182,7 @@ fn decimal_power_ieee_special_result(
 }
 
 ///|
-fn decimal_power_simple_ten_exponent(base : Decimal) -> Int? {
+fn decimal_power_simple_ten_exponent(base : Decimal) -> Int32? {
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
     return None
   }
@@ -2195,7 +2198,7 @@ fn decimal_power_simple_ten_exponent(base : Decimal) -> Int? {
 }
 
 ///|
-fn decimal_power_of_ten_exponent(base : Decimal) -> Int? {
+fn decimal_power_of_ten_exponent(base : Decimal) -> Int32? {
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
     return None
   }
@@ -2402,7 +2405,7 @@ fn decimal_power_exact_ten_result(
     return Some(decimal_power_underflow_zero_result(negative, ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-  let exponent_limit = Int::max(abs_int(ctx.e_max), abs_int(etiny(ctx)))
+  let exponent_limit = Int32::max(abs_int(ctx.e_max), abs_int(etiny(ctx)))
   let result_exponent_magnitude = match
     dec_coeff_to_bounded_int(result_exponent_magnitude, exponent_limit) {
     Some(value) => value
@@ -2451,7 +2454,7 @@ fn decimal_power_exact_ten_result(
 /// Digits an exact non-integral power may take in a context of unlimited
 /// precision, where every exact value is representable and no rounding
 /// boundary narrows the search.
-let decimal_power_exact_digit_limit : Int = 1024
+let decimal_power_exact_digit_limit : Int32 = 1024
 
 ///|
 /// floor(value^(1 / degree)) for degree >= 2 and a nonzero `value`, as
@@ -2459,7 +2462,7 @@ let decimal_power_exact_digit_limit : Int = 1024
 /// are found by bisection; larger ones by integer Newton steps from an
 /// overestimate taken from the root of the leading digits, which needs a few
 /// full-size products and divisions instead of one power per root digit.
-fn dec_coeff_floor_nth_root_repr(value : DecCoeff, degree : Int) -> DecCoeff {
+fn dec_coeff_floor_nth_root_repr(value : DecCoeff, degree : Int32) -> DecCoeff {
   let digits = value.digits10()
   // The root is below 10^root_digits.
   let root_digits = (digits + degree - 1) / degree
@@ -2523,7 +2526,7 @@ fn dec_coeff_floor_nth_root_repr(value : DecCoeff, degree : Int) -> DecCoeff {
 /// The exact `degree`-th root of `value`, or `None` when `value` is not a
 /// perfect `degree`-th power. Even degrees take exact square roots first,
 /// which stop at the first nonzero remainder.
-fn dec_coeff_exact_nth_root_repr(value : DecCoeff, degree : Int) -> DecCoeff? {
+fn dec_coeff_exact_nth_root_repr(value : DecCoeff, degree : Int32) -> DecCoeff? {
   guard degree > 1 && !value.is_zero() else { return None }
   let one = dec_coeff_from_int(1)
   let mut current = value
@@ -2552,8 +2555,8 @@ fn dec_coeff_exact_nth_root_repr(value : DecCoeff, degree : Int) -> DecCoeff? {
 /// five the coefficient cannot cancel.
 fn decimal_power_exponent_fraction(
   exponent : Decimal,
-  max_denominator : Int,
-) -> (DecCoeff, Int)? {
+  max_denominator : Int32,
+) -> (DecCoeff, Int32)? {
   guard exponent.class == FpClass::Finite && !exponent.coefficient.is_zero() else {
     return None
   }
@@ -2564,8 +2567,8 @@ fn decimal_power_exponent_fraction(
     2,
   )
   let (without_fives, fives) = dec_coeff_count_factor_unit_repr(without_twos, 5)
-  let cancelled_twos = Int::min(scale, twos)
-  let cancelled_fives = Int::min(scale, fives)
+  let cancelled_twos = Int32::min(scale, twos)
+  let cancelled_fives = Int32::min(scale, fives)
   let remaining_twos = scale - cancelled_twos
   let remaining_fives = scale - cancelled_fives
   guard remaining_twos + remaining_fives > 0 else { return None }
@@ -2676,7 +2679,7 @@ fn decimal_power_exact_rational_result(
     guard dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 else {
       return None
     }
-    let scale = Int::max(twos, fives)
+    let scale = Int32::max(twos, fives)
     (
       dec_coeff_multiply_repr(
         dec_coeff_pow_unit_repr(2, scale - twos),

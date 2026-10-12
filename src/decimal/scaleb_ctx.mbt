@@ -1,7 +1,7 @@
 ///|
 // Public scale-by-power-of-ten context operation.
 
-fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int? {
+fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
   guard rhs.class == FpClass::Finite && rhs.exponent10 == 0 else { return None }
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let limit64 = 2L * (ctx.e_max.to_int64() + precision.to_int64())
@@ -41,7 +41,7 @@ fn huge_shift_rounded_unit_repr(
 }
 
 ///|
-fn scaleb_int64_to_int(value : Int64) -> Int {
+fn scaleb_int64_to_int(value : Int64) -> Int32 {
   if value > 2147483647L {
     2147483647
   } else if value < -2147483648L {
@@ -54,7 +54,7 @@ fn scaleb_int64_to_int(value : Int64) -> Int {
 ///|
 fn scaleb_finite_result_ctx(
   value : Decimal,
-  count : Int,
+  count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(value.coefficient, ctx)

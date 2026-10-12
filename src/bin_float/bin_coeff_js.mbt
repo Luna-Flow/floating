@@ -104,7 +104,7 @@ extern "js" fn BinCoeff::is_odd(self : BinCoeff) -> Bool =
   #|(value) => (value & 1n) !== 0n
 
 ///|
-pub extern "js" fn BinCoeff::bit_length(self : BinCoeff) -> Int =
+pub extern "js" fn BinCoeff::bit_length(self : BinCoeff) -> Int32 =
   #|(value) => {
   #|  if (value === 0n) return 0;
   #|  const hex = value.toString(16);
@@ -115,7 +115,7 @@ pub extern "js" fn BinCoeff::bit_length(self : BinCoeff) -> Int =
   #|}
 
 ///|
-pub extern "js" fn BinCoeff::ctz(self : BinCoeff) -> Int =
+pub extern "js" fn BinCoeff::ctz(self : BinCoeff) -> Int32 =
   #|(value) => {
   #|  if (value === 0n) return 0;
   #|  let count = 0;
@@ -144,11 +144,14 @@ pub fn BinCoeff::to_uint64(self : BinCoeff) -> UInt64? {
 }
 
 ///|
-pub extern "js" fn BinCoeff::test_bit(self : BinCoeff, index : Int) -> Bool =
+pub extern "js" fn BinCoeff::test_bit(self : BinCoeff, index : Int32) -> Bool =
   #|(value, index) => index >= 0 && ((value >> BigInt(index)) & 1n) !== 0n
 
 ///|
-pub extern "js" fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int =
+pub extern "js" fn BinCoeff::compare(
+  self : BinCoeff,
+  other : BinCoeff,
+) -> Int32 =
   #|(left, right) => left < right ? -1 : left > right ? 1 : 0
 
 ///|
@@ -163,7 +166,7 @@ pub extern "js" fn BinCoeff::add(self : BinCoeff, other : BinCoeff) -> BinCoeff 
 fn bin_coeff_add_normalized_odd(
   left : BinCoeff,
   right : BinCoeff,
-) -> (BinCoeff, Int) {
+) -> (BinCoeff, Int32) {
   let sum = left.add(right)
   let normalization_shift = sum.ctz()
   (sum.shift_right(normalization_shift), normalization_shift)
@@ -195,7 +198,7 @@ pub fn BinCoeff::sub_checked(
 fn bin_coeff_sub_normalized_odd(
   left : BinCoeff,
   right : BinCoeff,
-) -> (BinCoeff, Int) {
+) -> (BinCoeff, Int32) {
   let difference = left.sub_checked(right).unwrap()
   let normalization_shift = difference.ctz()
   (difference.shift_right(normalization_shift), normalization_shift)
@@ -259,16 +262,19 @@ pub extern "js" fn BinCoeff::gcd(self : BinCoeff, other : BinCoeff) -> BinCoeff 
 ///|
 pub extern "js" fn BinCoeff::pow_nat(
   self : BinCoeff,
-  exponent : UInt,
+  exponent : UInt32,
 ) -> BinCoeff =
   #|(value, exponent) => value ** BigInt(exponent >>> 0)
 
 ///|
-extern "js" fn bin_coeff_shift_left(value : BinCoeff, shift : Int) -> BinCoeff =
+extern "js" fn bin_coeff_shift_left(
+  value : BinCoeff,
+  shift : Int32,
+) -> BinCoeff =
   #|(value, shift) => value << BigInt(shift)
 
 ///|
-pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int) -> BinCoeff {
+pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int32) -> BinCoeff {
   if shift < 0 {
     abort("BinCoeff shift count must be non-negative")
   }
@@ -276,11 +282,14 @@ pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int) -> BinCoeff {
 }
 
 ///|
-extern "js" fn bin_coeff_shift_right(value : BinCoeff, shift : Int) -> BinCoeff =
+extern "js" fn bin_coeff_shift_right(
+  value : BinCoeff,
+  shift : Int32,
+) -> BinCoeff =
   #|(value, shift) => value >> BigInt(shift)
 
 ///|
-pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int) -> BinCoeff {
+pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
   if shift < 0 {
     abort("BinCoeff shift count must be non-negative")
   }
@@ -309,7 +318,10 @@ pub extern "js" fn BinCoeff::bit_xor(
   #|(left, right) => left ^ right
 
 ///|
-extern "js" fn bin_coeff_parse(source : String, radix : Int) -> BinCoeffOutcome =
+extern "js" fn bin_coeff_parse(
+  source : String,
+  radix : Int32,
+) -> BinCoeffOutcome =
   #|(() => {
   #|  const digitValues = new Int8Array(128);
   #|  digitValues.fill(-1);
@@ -394,7 +406,7 @@ extern "js" fn bin_coeff_parse(source : String, radix : Int) -> BinCoeffOutcome 
 ///|
 pub fn BinCoeff::parse(
   source : String,
-  radix? : Int = 10,
+  radix~ : Int32 = 10,
 ) -> Result[BinCoeff, String] {
   let outcome = bin_coeff_parse(source, radix)
   if outcome.is_ok() {
@@ -407,8 +419,8 @@ pub fn BinCoeff::parse(
 ///|
 extern "js" fn bin_coeff_from_bytes_be(
   source : Bytes,
-  start : Int,
-  length : Int,
+  start : Int32,
+  length : Int32,
 ) -> BinCoeff =
   #|(() => {
   #|  const hex = new Array(256);
@@ -456,11 +468,11 @@ pub extern "js" fn BinCoeff::to_bytes_be(self : BinCoeff) -> Bytes =
   #|})()
 
 ///|
-extern "js" fn bin_coeff_to_string(value : BinCoeff, radix : Int) -> String =
+extern "js" fn bin_coeff_to_string(value : BinCoeff, radix : Int32) -> String =
   #|(value, radix) => value.toString(radix)
 
 ///|
-pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int) -> String {
+pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int32) -> String {
   if radix < 2 || radix > 36 {
     abort("BinCoeff radix must be between 2 and 36")
   }

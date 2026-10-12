@@ -1,8 +1,8 @@
 ///|
 pub struct BallContext {
-  priv precision : Int
-  priv e_min : Int
-  priv e_max : Int
+  priv precision : Int32
+  priv e_min : Int32
+  priv e_max : Int32
 }
 
 ///|
@@ -43,9 +43,9 @@ pub fn BallFlags::underflow(self : BallFlags) -> Bool {
 
 ///|
 pub fn BallContext::try_new(
-  precision? : Int = 53,
-  e_min? : Int = -1022,
-  e_max? : Int = 1023,
+  precision~ : Int32 = 53,
+  e_min~ : Int32 = -1022,
+  e_max~ : Int32 = 1023,
 ) -> Result[BallContext, @def.ArithmeticError] {
   guard precision > 0 else {
     return Err(
@@ -66,9 +66,9 @@ pub fn BallContext::try_new(
 
 ///|
 pub fn BallContext::new(
-  precision? : Int = 53,
-  e_min? : Int = -1022,
-  e_max? : Int = 1023,
+  precision~ : Int32 = 53,
+  e_min~ : Int32 = -1022,
+  e_max~ : Int32 = 1023,
 ) -> BallContext {
   guard precision > 0 else {
     abort("BallContext::new: precision must be positive")
@@ -80,17 +80,17 @@ pub fn BallContext::new(
 }
 
 ///|
-pub fn BallContext::precision(self : BallContext) -> Int {
+pub fn BallContext::precision(self : BallContext) -> Int32 {
   self.precision
 }
 
 ///|
-pub fn BallContext::e_min(self : BallContext) -> Int {
+pub fn BallContext::e_min(self : BallContext) -> Int32 {
   self.e_min
 }
 
 ///|
-pub fn BallContext::e_max(self : BallContext) -> Int {
+pub fn BallContext::e_max(self : BallContext) -> Int32 {
   self.e_max
 }
 
@@ -116,7 +116,7 @@ pub fn BallContext::binary64() -> BallContext {
 }
 
 ///|
-fn finite_adjusted_exponent(value : @bin_float.BinFloat) -> Int {
+fn finite_adjusted_exponent(value : @bin_float.BinFloat) -> Int32 {
   value.exponent2() + value.coefficient().bit_length() - 1
 }
 
@@ -136,7 +136,7 @@ fn context_max_finite(ctx : BallContext) -> @bin_float.BinFloat {
 ///|
 fn ball_round_shift(
   magnitude : @bin_float.BinCoeff,
-  shift : Int,
+  shift : Int32,
   negative : Bool,
   mode : RoundingMode,
 ) -> @bin_float.BinCoeff {

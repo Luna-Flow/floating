@@ -68,7 +68,7 @@ pub fn BallFloat::try_atan_interval(
 fn try_certified_atan2_point(
   ordinate : @bin_float.BinFloat,
   abscissa : @bin_float.BinFloat,
-  precision : Int,
+  precision : Int32,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   let ordinate = canonical_interval_endpoint(ordinate, precision)
   let abscissa = canonical_interval_endpoint(abscissa, precision)
@@ -97,7 +97,7 @@ pub fn BallFloat::try_atan2_interval(
   self : BallFloat,
   abscissa : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
-  let precision = Int::max(self.precision_, abscissa.precision_)
+  let precision = Int32::max(self.precision_, abscissa.precision_)
   if self.is_empty() || abscissa.is_empty() {
     return Ok(empty_interval(precision))
   }
