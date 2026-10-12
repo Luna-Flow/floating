@@ -68,6 +68,96 @@ test "Decimal try power exposes certified evaluation as Result" {
 }
 
 ///|
+test "Decimal atan certifies tiny decimal128 arguments" {
+  let context = DecimalContext::decimal128().with_rounding(
+    RoundingMode::TowardZero,
+  )
+  match Decimal::from_string("1E-3000").unwrap().try_atan_ctx(context) {
+    Ok((value, flags)) => {
+      assert_eq(value.to_string(), "9.999999999999999999999999999999999E-3001")
+      assert_true(flags.inexact && flags.rounded)
+    }
+    Err(_) => assert_true(false)
+  }
+}
+
+///|
+test "Decimal tiny elementary arguments certify all issue 170 families" {
+  let positive = Decimal::from_string("1E-3000").unwrap()
+  let negative = Decimal::from_string("-1E-3000").unwrap()
+  let below = "9.999999999999999999999999999999999E-3001"
+  let modes = [
+    RoundingMode::ToNearestEven,
+    RoundingMode::TowardZero,
+    RoundingMode::TowardPositive,
+    RoundingMode::TowardNegative,
+    RoundingMode::AwayFromZero,
+  ]
+  for mode in modes {
+    let context = DecimalContext::decimal128().with_rounding(mode)
+    for
+      (_value, _correction_below, actual) in [
+        (positive, true, positive.try_atan_ctx(context)),
+        (positive, true, positive.try_sin_ctx(context)),
+        (positive, false, positive.try_tan_ctx(context)),
+        (positive, false, positive.try_sinh_ctx(context)),
+        (positive, true, positive.try_tanh_ctx(context)),
+        (positive, true, positive.try_asinh_ctx(context)),
+        (positive, false, positive.try_atanh_ctx(context)),
+        (negative, false, negative.try_atan_ctx(context)),
+        (negative, false, negative.try_sin_ctx(context)),
+        (negative, true, negative.try_tan_ctx(context)),
+        (negative, true, negative.try_sinh_ctx(context)),
+        (negative, false, negative.try_tanh_ctx(context)),
+        (negative, false, negative.try_asinh_ctx(context)),
+        (negative, true, negative.try_atanh_ctx(context)),
+      ] {
+      match actual {
+        Ok((result, flags)) => {
+          assert_true(!result.is_nan())
+          assert_true(flags.inexact && flags.rounded)
+        }
+        Err(_) => assert_true(false)
+      }
+    }
+    for
+      actual in [positive.try_asin_ctx(context), negative.try_asin_ctx(context)] {
+      match actual {
+        Ok((result, flags)) => {
+          assert_true(!result.is_nan())
+          assert_true(flags.inexact && flags.rounded)
+        }
+        Err(_) => assert_true(false)
+      }
+    }
+  }
+
+  let nearest = DecimalContext::decimal128()
+  let (cosine, cosine_flags) = positive.cos_ctx(nearest)
+  let (hyperbolic_cosine, hyperbolic_cosine_flags) = positive.cosh_ctx(nearest)
+  assert_eq(cosine.to_string(), "1.000000000000000000000000000000000")
+  assert_eq(
+    hyperbolic_cosine.to_string(),
+    "1.000000000000000000000000000000000",
+  )
+  assert_true(cosine_flags.inexact && cosine_flags.rounded)
+  assert_true(
+    hyperbolic_cosine_flags.inexact && hyperbolic_cosine_flags.rounded,
+  )
+
+  let ceiling = nearest.with_rounding(RoundingMode::TowardPositive)
+  let (hypotenuse, hypot_flags) = Decimal::one().hypot_ctx(positive, ceiling)
+  assert_eq(hypotenuse.to_string(), "1.000000000000000000000000000000001")
+  assert_true(hypot_flags.inexact && hypot_flags.rounded)
+
+  let abscissa = Decimal::from_string("1E+3000").unwrap()
+  let toward_zero = nearest.with_rounding(RoundingMode::TowardZero)
+  let (angle, angle_flags) = Decimal::one().atan2_ctx(abscissa, toward_zero)
+  assert_eq(angle.to_string(), below)
+  assert_true(angle_flags.inexact && angle_flags.rounded)
+}
+
+///|
 test "Decimal noninteger power preserves IEEE exact result semantics" {
   let ieee_context = DecimalContext::new(
       precision=9,

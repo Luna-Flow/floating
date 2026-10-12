@@ -159,6 +159,39 @@ fn decimal_certified_saturated_unary_result(
 }
 
 ///|
+/// Uses the first nonzero correction term to certify a tiny argument without
+/// resolving that correction in the binary input enclosure.
+fn decimal_tiny_unary_result(
+  value : Decimal,
+  operation : DecimalUnaryElementary,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
+    return None
+  }
+  let magnitude = { ..value, negative: false, }
+  guard magnitude.compare(Decimal::from_string("0.5").unwrap()) < 0 else {
+    return None
+  }
+  let top = value.exponent10.to_int64() +
+    value.coefficient.digits10().to_int64()
+  let (anchor, above, order) = match operation {
+    Sin => (value, value.negative, 3L)
+    Tan => (value, !value.negative, 3L)
+    Atan => (value, value.negative, 3L)
+    Asin => (value, !value.negative, 3L)
+    Sinh => (value, !value.negative, 3L)
+    Tanh => (value, value.negative, 3L)
+    Asinh => (value, value.negative, 3L)
+    Atanh => (value, !value.negative, 3L)
+    Cos => (Decimal::from_int(1, precision=ctx.precision), false, 2L)
+    Cosh => (Decimal::from_int(1, precision=ctx.precision), true, 2L)
+    _ => return None
+  }
+  decimal_tiny_argument_result(anchor, above, order * top, ctx)
+}
+
+///|
 fn decimal_elementary_integer_mod4(value : Decimal) -> Int? {
   match decimal_exact_integer_coeff(value) {
     Some((negative, magnitude)) => {
@@ -455,6 +488,10 @@ fn Decimal::try_unary_elementary_ctx(
     return Ok(finish(decimal_elementary_invalid(ctx)))
   }
   match decimal_certified_saturated_unary_result(value, operation, ctx) {
+    Some(result) => return Ok(finish(result))
+    None => ()
+  }
+  match decimal_tiny_unary_result(value, operation, ctx) {
     Some(result) => return Ok(finish(result))
     None => ()
   }
@@ -1038,6 +1075,22 @@ pub fn Decimal::try_hypot_ctx(
     Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
     None => ()
   }
+  let (large, small) = if adjusted_exponent(left) >= adjusted_exponent(right) {
+    (left, right)
+  } else {
+    (right, left)
+  }
+  if !small.coefficient.is_zero() {
+    let large = { ..large, negative: false, }
+    let small = { ..small, negative: false, }
+    let error_exponent = 2L *
+      (small.exponent10.to_int64() + small.coefficient.digits10().to_int64()) -
+      adjusted_exponent(large).to_int64()
+    match decimal_tiny_argument_result(large, true, error_exponent, ctx) {
+      Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+      None => ()
+    }
+  }
   decimal_certified_binary_result(left, right, ctx, "hypot", fn(lhs, rhs) {
     lhs.try_hypot(rhs)
   }).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
@@ -1106,6 +1159,24 @@ pub fn Decimal::try_atan2_ctx(
         "atan2",
       ).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
     None => ()
+  }
+  if !x.negative && !ordinate.coefficient.is_zero() && !x.coefficient.is_zero() {
+    match exact_decimal_division_result(ordinate, x, DecimalContext::exact()) {
+      Some((ratio, _)) => {
+        let magnitude = { ..ratio, negative: false, }
+        if magnitude.compare(Decimal::from_string("0.5").unwrap()) < 0 {
+          let top = ratio.exponent10.to_int64() +
+            ratio.coefficient.digits10().to_int64()
+          match
+            decimal_tiny_argument_result(ratio, ratio.negative, 3L * top, ctx) {
+            Some(result) =>
+              return Ok((result.0, operand_flags.combine(result.1)))
+            None => ()
+          }
+        }
+      }
+      None => ()
+    }
   }
   decimal_certified_binary_result(ordinate, x, ctx, "atan2", fn(y, x_interval) {
     y.try_atan2_interval(x_interval)
