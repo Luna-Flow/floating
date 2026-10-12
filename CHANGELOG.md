@@ -127,6 +127,10 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible ([#192](https://github.com/Luna-Flow/floating/issues/192); Closes #192):** Interval `pow` and `atan2` now treat `-0` and `+0` endpoints as the real zero. This changes results for intervals with a signed-zero endpoint.
+
+- **Caller-visible ([#170](https://github.com/Luna-Flow/floating/issues/170); Closes #170):** Tiny arguments to decimal elementary functions, `hypot` and `atan2` in wide formats now return correctly rounded results promptly instead of NaN or taking minutes to certify.
+
 - **Caller-visible ([#193](https://github.com/Luna-Flow/floating/issues/193)):** IEEE decimal `power_ctx` no longer aborts or performs unbounded work for fractional bases with very large negative integral exponents. The result now follows the context's overflow direction, including finite values on both sides of the overflow boundary.
 
 - **Caller-visible ([#167](https://github.com/Luna-Flow/floating/issues/167)):** IEEE `Decimal::power_ctx` now accepts finite integral exponents above the decNumber count bound in the default context. Previously those inputs returned `invalid_context`; powers within the bounded work path now return their correctly rounded finite, overflow, or underflow result. Exponent coefficient expansion is capped at 4,096 decimal digits; larger coefficients return NaN with `invalid_context` without entering an exponent-sized loop. `decimal_gda` keeps its GDA compatibility behavior.

@@ -856,6 +856,7 @@ fn pow_positive_endpoint(
   exponent : @bin_float.BinFloat,
   precision : Int,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  let base = canonical_interval_endpoint(base, precision)
   let zero = @bin_float.BinFloat::zero(precision~)
   let one = @bin_float.BinFloat::one(precision~)
   if exponent.is_zero() || base.compare(one) == 0 {

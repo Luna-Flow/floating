@@ -152,6 +152,70 @@ fn decimal_certified_target(
 }
 
 ///|
+/// Rounds a proven one-sided enclosure around an exact decimal anchor. Both
+/// rounded endpoints lie strictly on the known side of the anchor, which
+/// matters for directed rounding at the anchor itself.
+fn decimal_tiny_argument_result(
+  anchor : Decimal,
+  above : Bool,
+  error_exponent : Int64,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.precision > 0 &&
+    anchor.class == FpClass::Finite &&
+    !anchor.coefficient.is_zero() else {
+    return None
+  }
+  let anchor_adjusted = adjusted_exponent(anchor).to_int64()
+  let precision = ctx.precision.to_int64()
+  guard error_exponent < anchor_adjusted - precision - 3L else { return None }
+  let endpoint_exponent = Int64::max(
+    error_exponent,
+    anchor_adjusted - precision - 8L,
+  )
+  guard endpoint_exponent >= -2147483647L && endpoint_exponent <= 2147483647L else {
+    return None
+  }
+  let offset = finite_with_exponent_repr(
+    false,
+    dec_coeff_from_int(1),
+    endpoint_exponent.to_int(),
+    1,
+  )
+  let inner_exponent = endpoint_exponent - 4L
+  guard inner_exponent >= -2147483647L else { return None }
+  let inner_offset = finite_with_exponent_repr(
+    false,
+    dec_coeff_from_int(1),
+    inner_exponent.to_int(),
+    1,
+  )
+  let (lower, upper) = if above {
+    (
+      anchor.add_ctx(inner_offset, DecimalContext::exact()).0,
+      anchor.add_ctx(offset, DecimalContext::exact()).0,
+    )
+  } else {
+    (
+      anchor.sub_ctx(offset, DecimalContext::exact()).0,
+      anchor.sub_ctx(inner_offset, DecimalContext::exact()).0,
+    )
+  }
+  guard lower.class == FpClass::Finite && upper.class == FpClass::Finite else {
+    return None
+  }
+  let target_ctx = decimal_math_result_ctx(ctx)
+  let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
+  let upper_result = decimal_apply_finite_ctx(upper, target_ctx)
+  guard lower_result.0.compare_total(upper_result.0) == 0 else { return None }
+  let lower_status = { ..lower_result.1, rounded: false, inexact: false, }
+  let upper_status = { ..upper_result.1, rounded: false, inexact: false, }
+  guard lower_status == upper_status else { return None }
+  let selected = if above { upper_result } else { lower_result }
+  Some((selected.0, { ..selected.1, rounded: true, inexact: true, }))
+}
+
+///|
 fn decimal_certified_unary_result(
   value : Decimal,
   ctx : DecimalContext,
