@@ -116,7 +116,7 @@ priv struct DecimalExpBoundaryCacheEntry {
 }
 
 ///|
-let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.new({
+let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.Ref({
     scale: 0,
     ln2: dec_coeff_zero(),
     ln5: dec_coeff_zero(),

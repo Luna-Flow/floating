@@ -109,7 +109,7 @@ priv struct DecimalExpBoundaryCacheEntry {
 }
 
 ///|
-let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.new({
+let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.Ref({
     scale: 0,
     ln2: gda_coeff_zero(),
     ln5: gda_coeff_zero(),
@@ -124,7 +124,7 @@ let decimal_exp_boundary_cache : Array[DecimalExpBoundaryCacheEntry] = []
 let decimal_exp_boundary_cache_capacity = 8
 
 ///|
-let decimal_exp_boundary_cache_next : @ref.Ref[Int32] = @ref.new(0)
+let decimal_exp_boundary_cache_next : @ref.Ref[Int32] = @ref.Ref(0)
 
 ///|
 pub fn DecimalFlags::new() -> DecimalFlags {
