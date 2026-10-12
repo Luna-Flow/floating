@@ -934,6 +934,14 @@ fn decimal_power_integer_correctly_rounded_result(
       !lower.coefficient.is_zero() else {
       return None
     }
+    // If the lower directed bound is already above the target's adjusted
+    // exponent range, the exact power must overflow as well.  Resolve this
+    // before independently normalizing the interval: one endpoint can round
+    // to infinity while the other rounds to the largest finite value under a
+    // directed mode, even though the exact result is unambiguously overflow.
+    if adjusted_exponent64(lower) > ctx.e_max.to_int64() {
+      return Some(decimal_overflow_result(negative, ctx))
+    }
     let (rounded_lower, _) = normalize_decimal_parts_ctx_repr(
       negative,
       lower.coefficient,
