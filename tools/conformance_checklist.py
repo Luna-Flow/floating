@@ -42,9 +42,9 @@ def split_row(line: str) -> list[str]:
     return [cell.strip() for cell in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
 
 
-def clause_rows(page: Path) -> list[tuple[str, str]]:
+def clause_rows(page: Path) -> list[tuple[str, str, str]]:
     lines = page.read_text(encoding="utf-8").split("\n")
-    rows: list[tuple[str, str]] = []
+    rows: list[tuple[str, str, str]] = []
     in_section = False
     index = 0
     while index < len(lines):
@@ -53,10 +53,12 @@ def clause_rows(page: Path) -> list[tuple[str, str]]:
             in_section = line[3:].strip() == "Clause traceability"
         if in_section and line.startswith("|") and index + 1 < len(lines):
             if set(lines[index + 1]) <= set("| -"):
+                has_level = split_row(line)[1] == "Level"
                 index += 2
                 while index < len(lines) and lines[index].startswith("|"):
                     cells = split_row(lines[index])
-                    rows.append((cells[0], cells[-1]))
+                    level = cells[1].split()[0] if has_level else "required"
+                    rows.append((cells[0], level, cells[-1]))
                     index += 1
                 continue
         index += 1
@@ -71,23 +73,28 @@ def build() -> str:
         if not rows:
             raise SystemExit(f"no clause traceability table in {name}")
         tally = {state: 0 for state in STATES}
+        tally["missing required"] = 0
+        tally["missing other"] = 0
         items = []
-        for clause, status in rows:
+        for clause, level, status in rows:
             state = classify(status)
             tally[state] += 1
+            if state in ("partial", "not implemented"):
+                tally["missing required" if level == "required" else "missing other"] += 1
             mark = "x" if state == "conforming" else " "
             suffix = "" if state == "conforming" else f" ({state})"
-            items.append(f"- [{mark}] {clause}{suffix}")
+            items.append(f"- [{mark}] {clause} [{level}]{suffix}")
         counts.append((title, len(rows), tally))
         blocks.append((title, items))
     out = [
-        "| Standard | Rows | Conforming | Partial | Not implemented | Not applicable |",
-        "| --- | ---: | ---: | ---: | ---: | ---: |",
+        "| Standard | Rows | Conforming | Partial | Not implemented | Not applicable | Required gaps | Recommended or optional gaps |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for title, total, tally in counts:
         out.append(
             f"| {title} | {total} | {tally['conforming']} | {tally['partial']} | "
-            f"{tally['not implemented']} | {tally['not applicable']} |"
+            f"{tally['not implemented']} | {tally['not applicable']} | "
+            f"{tally['missing required']} | {tally['missing other']} |"
         )
     for title, items in blocks:
         out += ["", f"**{title}**", ""] + items
