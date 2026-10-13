@@ -8,6 +8,7 @@ notes live in this file.
 
 ### Fixed
 
+- **Caller-visible ([#168](https://github.com/Luna-Flow/floating/issues/168); Closes #168):** `decimal` and `decimal_gda` integer powers (`pown_ctx`, `power_ctx`, `exp10_ctx`) whose exact value lies below the smallest subnormal now round in the rounding direction (IEEE 754-2019 §4.3, §7.5) instead of returning zero in every mode: `pown(9.9E-200, 2)` is `1E-398` to nearest (it is `9.801E-399`), and `pow(0.1, 400)` is `1E-398` rounding up, as `mul_ctx` already was. The bound shortcut no longer fires when the adjusted exponent is `Etiny - 1`, and an exact power of ten with a non-unit coefficient (`10`, not `1E+1`) takes the same overflow/underflow route, so `decimal_gda` `power(10, -1E+30)` no longer returns NaN.
 - **Caller-visible ([#171](https://github.com/Luna-Flow/floating/issues/171); Closes #171):** Decimal and binary `rootn` now handle every nonzero `Int` degree. Decimal exact-root detection skips impossible high-degree probes using a coefficient-size bound, avoiding degree-sized integer powers; binary certification handles the full signed `Int` range, including `Int.min`.
 
 ## 0.9.0 - 2026-10-13
