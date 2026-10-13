@@ -22543,109 +22543,113 @@ msgid "by design (flags are values)"
 msgstr ""
 
 #: manual/verification.md:325
+msgid "IEEE 754-2019 §9.3"
+msgstr ""
+
+#: manual/verification.md:325
+msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
+msgstr ""
+
+#: manual/verification.md:325
+msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
+msgstr ""
+
+#: manual/verification.md:326
 msgid "IEEE 754-2019 §9.2"
 msgstr ""
 
-#: manual/verification.md:325
+#: manual/verification.md:326
 msgid "Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal`"
 msgstr ""
 
-#: manual/verification.md:325
-#: manual/verification.md:326
 #: manual/verification.md:327
-#: manual/verification.md:328
-#: manual/verification.md:332
-msgid "not scheduled"
-msgstr ""
-
-#: manual/verification.md:326
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr ""
 
-#: manual/verification.md:326
+#: manual/verification.md:327
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr ""
 
-#: manual/verification.md:327
+#: manual/verification.md:328
 msgid "IEEE 754-2019 §9.5"
 msgstr ""
 
-#: manual/verification.md:327
+#: manual/verification.md:328
 msgid "No augmented arithmetic for `bin_float`"
 msgstr ""
 
-#: manual/verification.md:328
+#: manual/verification.md:329
 msgid "IEEE 754-2019 §5.4.1"
 msgstr ""
 
-#: manual/verification.md:328
+#: manual/verification.md:329
 msgid "`decimal` has no convertToInteger"
 msgstr ""
 
-#: manual/verification.md:329
+#: manual/verification.md:330
 msgid "IEEE 754-2019 §5.3.2"
 msgstr ""
 
-#: manual/verification.md:329
+#: manual/verification.md:330
 msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
 msgstr ""
 
-#: manual/verification.md:329
-msgid "decision pending; see the pull request of issue #187"
+#: manual/verification.md:330
+msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
 msgstr ""
 
-#: manual/verification.md:330
+#: manual/verification.md:331
 msgid "IEEE 754-2019 §3.7"
 msgstr ""
 
-#: manual/verification.md:330
+#: manual/verification.md:331
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr ""
 
-#: manual/verification.md:330
+#: manual/verification.md:331
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr ""
 
-#: manual/verification.md:331
+#: manual/verification.md:332
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr ""
 
-#: manual/verification.md:331
+#: manual/verification.md:332
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr ""
 
-#: manual/verification.md:331
-msgid "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
+#: manual/verification.md:332
+msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr ""
 
-#: manual/verification.md:332
+#: manual/verification.md:333
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr ""
 
-#: manual/verification.md:332
+#: manual/verification.md:333
 msgid "No two-output division, no slope functions"
 msgstr ""
 
-#: manual/verification.md:333
+#: manual/verification.md:334
 msgid "IEEE 1788-2015 §11"
 msgstr ""
 
-#: manual/verification.md:333
+#: manual/verification.md:334
 msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
 msgstr ""
 
-#: manual/verification.md:333
-msgid "[design page](design/ball_float.md#known-limitations)"
+#: manual/verification.md:334
+msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
 msgstr ""
 
-#: manual/verification.md:334
+#: manual/verification.md:335
 msgid "Public API"
 msgstr ""
 
-#: manual/verification.md:334
+#: manual/verification.md:335
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr ""
 
-#: manual/verification.md:334
-msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22)"
+#: manual/verification.md:335
+msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr ""

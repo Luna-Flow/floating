@@ -6,6 +6,8 @@ notes live in this file.
 
 ## Unreleased
 
+- Documentation: the "Known gaps and deviations" table of `doc/manual/verification.md` now links the issue that tracks each gap (roadmap [#245](https://github.com/Luna-Flow/floating/issues/245)).
+
 ## 0.10.0 - 2026-10-13
 
 ### Added
