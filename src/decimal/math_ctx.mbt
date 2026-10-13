@@ -220,6 +220,14 @@ pub fn Decimal::try_power_ctx(
           None => ()
         }
         if decimal_power_integer_expansion_exceeds_limit(rounded_exponent) {
+          match
+            decimal_power_huge_integer_exponent_result(
+              base, rounded_exponent, odd, ctx,
+            ) {
+            Some(result) =>
+              return Ok((result.0, operand_flags.combine(result.1)))
+            None => ()
+          }
           return Ok(
             (
               Decimal::nan(

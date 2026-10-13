@@ -237,20 +237,27 @@ test "decimal large integer powers work in the default context" {
 
 ///|
 /// Exponents whose exact coefficient exceeds the bounded materialization
-/// budget terminate with invalid_context instead of expanding millions of
-/// decimal limbs or entering an unbounded certification loop.
+/// budget are never expanded: the magnitude of `y ln|x|` decides overflow or
+/// underflow directly (#196), so `2^(1E+9999999)` overflows instead of
+/// returning invalid_context, with no expansion of millions of decimal limbs
+/// and no unbounded certification loop.
 test "decimal large integer powers enforce the expansion budget" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let context = DecimalContext::new().unwrap()
   let (value, flags) = d("2").power_ctx(d("1E+9999999"), context)
-  assert_true(value.is_nan())
-  assert_true(flags.invalid_context)
+  assert_true(value.is_infinite())
+  assert_true(flags.overflow && flags.inexact)
+  assert_false(flags.invalid_context)
   let (exp2, exp2_flags) = d("1E+9999999").exp2_ctx(context)
   let (exp10, exp10_flags) = d("1E+9999999").exp10_ctx(context)
+  // `exp2` and `exp10` reject such arguments before they reach `power_ctx`.
   assert_true(exp2.is_nan())
   assert_true(exp2_flags.invalid_context)
   assert_true(exp10.is_nan())
   assert_true(exp10_flags.invalid_context)
+  let (small, small_flags) = d("0.5").power_ctx(d("1E+9999999"), context)
+  assert_true(small.is_zero())
+  assert_true(small_flags.underflow && small_flags.inexact)
 }
 
 ///|
