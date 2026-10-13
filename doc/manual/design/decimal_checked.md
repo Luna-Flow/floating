@@ -143,7 +143,7 @@ converts it with `DecimalContext::from_arithmetic_context`, which maps
 | `e_min`, `e_max` | the same, or $\mp 999\,999\,999$ when absent |
 | `clamp` | `clamp` |
 
-with `extended = true` and after-rounding tininess detection. So the
+with `extended = true` and before-rounding tininess detection (IEEE 754-2019 §7.5). So the
 predefined `ArithmeticContext::decimal64()` maps exactly to
 `DecimalContext::decimal64()`. The constructors pass the context through
 `DecimalContext::ieee754()`, the hook that selects the IEEE profile; on the

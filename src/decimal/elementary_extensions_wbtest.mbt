@@ -325,13 +325,29 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
   assert_true(at_flags.underflow && at_flags.subnormal)
   assert_true(below_flags == at_flags)
 
+  // expm1(-20000) = -(1 - 10^-8686) is below 10^e_min = 1 before rounding but
+  // rounds to -1 at seven digits. IEEE 754-2019 §7.5 detects tininess before
+  // rounding for decimal formats (the default); after rounding is the explicit
+  // non-standard option.
   let zero_emin = DecimalContext::new(precision=7, e_min=0, e_max=10).unwrap()
   let (subnormal_limit, subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
     zero_emin,
   )
   assert_false(subnormal_limit.is_nan())
   assert_true(subnormal_flags.inexact && subnormal_flags.rounded)
-  assert_false(subnormal_flags.underflow || subnormal_flags.subnormal)
+  assert_true(subnormal_flags.underflow && subnormal_flags.subnormal)
+  let zero_emin_after = DecimalContext::new(
+    precision=7,
+    e_min=0,
+    e_max=10,
+    tininess=DecimalTininessDetection::AfterRounding,
+  ).unwrap()
+  let (after_limit, after_flags) = Decimal::from_int(-20000).expm1_ctx(
+    zero_emin_after,
+  )
+  assert_false(after_limit.is_nan())
+  assert_true(after_flags.inexact && after_flags.rounded)
+  assert_false(after_flags.underflow || after_flags.subnormal)
 
   let negative_emin = DecimalContext::new(precision=7, e_min=-1, e_max=10).unwrap()
   let (unit_subnormal, unit_subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(

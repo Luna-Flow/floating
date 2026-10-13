@@ -212,7 +212,7 @@ pub fn DecimalContext::new(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
@@ -252,7 +252,7 @@ pub fn DecimalContext::try_new(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::AfterRounding,
+  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   DecimalContext::new(
     precision~,
@@ -350,7 +350,7 @@ fn decimal_exact_work_context() -> DecimalContext {
     e_max: 999_999_999,
     clamp: false,
     extended: true,
-    tininess: DecimalTininessDetection::AfterRounding,
+    tininess: DecimalTininessDetection::BeforeRounding,
   }
 }
 

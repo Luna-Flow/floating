@@ -408,7 +408,7 @@ pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.Roundin
 | `e_min`, `e_max` | $-999\,999\,999$, $999\,999\,999$ | adjusted-exponent range |
 | `clamp` | `false` | fold large exponents down to $e_{\max}-p+1$ |
 | `extended` | `true` | IEEE/extended arithmetic; `false` selects the GDA subset |
-| `tininess` | `AfterRounding` | when a result counts as tiny |
+| `tininess` | `BeforeRounding` | when a result counts as tiny |
 
 `precision` must be in `1..=999,999,999`, `e_min` in
 `-999,999,999..=0`, and `e_max` in `0..=999,999,999`. Both `new` and
@@ -452,7 +452,7 @@ pub fn DecimalContext::exact() -> Self
 | `decimal128` | 34 | $-6143$ | 6144 | yes |
 
 All three use `ToNearestEven` (`HalfEven`), extended arithmetic and
-after-rounding tininess. `exact()` has precision 0, which means "unlimited":
+before-rounding tininess. `exact()` has precision 0, which means "unlimited":
 results keep every digit and no rounding by precision happens; its exponent
 range is the default one. It is the only way to obtain precision 0.
 
@@ -465,7 +465,7 @@ pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) ->
 ```
 
 Precision, rounding and clamp are copied; a missing `e_min` or `e_max` becomes
-$\mp 999\,999\,999$. The result is extended and uses after-rounding tininess.
+$\mp 999\,999\,999$. The result is extended and uses before-rounding tininess.
 The conversion returns `Err(domain_error)` if precision is outside
 `1..=999,999,999`, `e_min` outside `-999,999,999..=0`, or `e_max` outside
 `0..=999,999,999`. These are the adopted decNumber `decContext.h` limits; GDA
@@ -567,17 +567,18 @@ pub(all) enum DecimalTininessDetection {
 }
 ```
 
-`BeforeRounding` calls a result tiny when the adjusted exponent of the exact
-result is below $e_{\min}$; `AfterRounding` uses the result rounded to $p$
-digits with unbounded exponent. A tiny result raises `subnormal`, and also
-`underflow` when it is inexact.
+`BeforeRounding` (the default) calls a result tiny when the adjusted exponent of
+the exact result is below $e_{\min}$, as IEEE 754-2019 §7.5 requires for decimal
+formats; `AfterRounding` uses the result rounded to $p$ digits with unbounded
+exponent and is a non-standard option for callers who want the binary-style
+rule. A tiny result raises `subnormal`, and also `underflow` when it is
+inexact.
 
 The two rules differ only for results just below $10^{e_{\min}}$. With
-$p = 3$, $e_{\min} = 0$ and `HalfEven`, `plus_ctx` of `0.9951` returns the
-subnormal-grid rounding `1.00`, but its rounding to three digits is
-$0.995 < 1$, so under `AfterRounding` it is tiny and raises `underflow`,
-`subnormal` and `inexact`; `0.99951` rounds to $1.00$ at three digits and
-raises only `inexact`.
+$p = 3$, $e_{\min} = 0$ and `HalfEven`, `plus_ctx` of `0.9951` and of `0.99951`
+are both tiny by default and raise `underflow`, `subnormal` and `inexact`.
+Under `AfterRounding` only `0.9951` is (its rounding to three digits is
+$0.995 < 1$); `0.99951` rounds to $1.00$ and raises only `inexact`.
 
 ## Status flags
 
