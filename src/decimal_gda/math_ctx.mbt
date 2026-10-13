@@ -344,13 +344,21 @@ fn Decimal::power_ctx_impl(
   }
   match decimal_power_integer_is_odd(exponent) {
     Some(odd) =>
-      if is_finite_decimal_one(self) {
-        return Decimal::one(precision~).plus_ctx(ctx)
-      } else if is_finite_decimal_negative_one(self) {
-        return (
-          finite_with_exponent_repr(odd, gda_coeff_from_int(1), 0, precision),
-          DecimalFlags::new(),
-        )
+      if is_finite_decimal_one(self) || is_finite_decimal_negative_one(self) {
+        // Repeated multiplication of `+-1` keeps the cohort of the base: the
+        // exponent is `n * q` (clipped to the precision) and the sign follows
+        // the parity of `n`.
+        return match
+          decimal_power_preferred_exponent(self.exponent10, exponent) {
+          Some(preferred) =>
+            decimal_power_ten_cohort_result(
+              self.negative && odd,
+              0,
+              preferred,
+              ctx,
+            )
+          None => Decimal::one(precision~).plus_ctx(ctx)
+        }
       }
     None => ()
   }
