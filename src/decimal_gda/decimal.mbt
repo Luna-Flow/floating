@@ -109,11 +109,7 @@ fn gda_coeff_integer_sqrt_rem_repr(n : GdaCoeff) -> (GdaCoeff, GdaCoeff) {
 fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
   guard value.class == FpClass::Finite else { return None }
   if value.coefficient.is_zero() {
-    let preferred_exponent = if value.exponent10 >= 0 {
-      value.exponent10 / 2
-    } else {
-      -((-value.exponent10 + 1) / 2)
-    }
+    let preferred_exponent = value.exponent10 >> 1
     return Some(
       finite_with_exponent_repr(
         value.negative,
@@ -141,11 +137,7 @@ fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
       exponent10 / 2,
       precision,
     )
-    let preferred_exponent = if value.exponent10 >= 0 {
-      value.exponent10 / 2
-    } else {
-      -((-value.exponent10 + 1) / 2)
-    }
+    let preferred_exponent = value.exponent10 >> 1
     let extra_zeros = exact.exponent10 - preferred_exponent
     let available_zeros = Int32::max(
       0,
@@ -1156,12 +1148,14 @@ fn integer_quotient_digit_lower_bound(
   dividend : Decimal,
   divisor : Decimal,
 ) -> Int32 {
-  let scale = dividend.exponent10 - divisor.exponent10
-  let numerator_extra = if scale > 0 { scale } else { 0 }
-  let denominator_extra = if scale < 0 { -scale } else { 0 }
-  let numerator_digits = dividend.coefficient.digits10() + numerator_extra
-  let denominator_digits = divisor.coefficient.digits10() + denominator_extra
-  numerator_digits - denominator_digits
+  // (digits of the dividend + exponent) - (digits of the divisor + exponent),
+  // formed in Int64: the exponent difference alone can exceed `Int`.
+  decimal_int_from_int64_clamped(
+    dividend.exponent10.to_int64() +
+    dividend.coefficient.digits10().to_int64() -
+    divisor.exponent10.to_int64() -
+    divisor.coefficient.digits10().to_int64(),
+  )
 }
 
 ///|
@@ -1678,17 +1672,37 @@ fn decimal_exact_integer_quotient_repr(
 }
 
 ///|
+/// `coeff * 10^shift mod modulus` for a shift beyond `Int`, reduced in chunks.
+fn gda_coeff_shift_power10_mod_wide_repr(
+  coeff : GdaCoeff,
+  shift : Int64,
+  modulus : GdaCoeff,
+) -> GdaCoeff {
+  let mut value = gda_coeff_shift_power10_mod_repr(coeff, 0, modulus)
+  let mut remaining = shift
+  while remaining > 0L {
+    let step = Int64::min(remaining, 1073741824L)
+    value = gda_coeff_shift_power10_mod_repr(value, step.to_int(), modulus)
+    remaining = remaining - step
+  }
+  value
+}
+
+///|
 fn decimal_nearest_remainder_parts(
   dividend : Decimal,
   divisor : Decimal,
 ) -> (Bool, GdaCoeff, Int32) {
-  let scale = dividend.exponent10 - divisor.exponent10
-  let (quotient_odd, remainder, denominator, target) = if scale >= 0 {
+  // The exponent difference of operands near the `Int` limits exceeds `Int`:
+  // form it in Int64 and reduce the power of ten modulo 2 * divisor in chunks.
+  let scale64 = dividend.exponent10.to_int64() - divisor.exponent10.to_int64()
+  let scale = if scale64 < 0L { scale64.to_int() } else { 0 }
+  let (quotient_odd, remainder, denominator, target) = if scale64 >= 0L {
     let denominator = divisor.coefficient
     let doubled_denominator = gda_coeff_multiply_by_unit_repr(denominator, 2)
-    let residue = gda_coeff_shift_power10_mod_repr(
+    let residue = gda_coeff_shift_power10_mod_wide_repr(
       dividend.coefficient,
-      scale,
+      scale64,
       doubled_denominator,
     )
     if gda_coeff_compare_repr(residue, denominator) >= 0 {

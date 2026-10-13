@@ -683,6 +683,11 @@ fn normalize_decimal_parts_ctx_repr(
     1
   }
   let magnitude = if ctx.precision > 0 && final_digits > precision {
+    // The carry into 10^p moves the exponent up by one; at the top of `Int` it
+    // would wrap, and such a value is beyond e_max anyway.
+    if exponent10 == 2147483647 {
+      return decimal_overflow_result(negative, ctx)
+    }
     exponent10 += 1
     match exact_divide_by_power_of_ten_repr(magnitude, 1) {
       Some(value) => value

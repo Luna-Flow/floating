@@ -81,12 +81,12 @@ fn compare_finite_magnitude_repr(
   }
   let lhs_digits = lhs_coefficient.digits10()
   let rhs_digits = rhs_coefficient.digits10()
-  let adjusted_cmp = compare_int(
-    lhs_exponent10 + lhs_digits - 1,
-    rhs_exponent10 + rhs_digits - 1,
-  )
-  if adjusted_cmp != 0 {
-    return adjusted_cmp
+  // Adjusted exponents in Int64: the coefficient of an operand that is doubled
+  // (nearest-quotient test) can gain a digit at the top of the `Int` range.
+  let lhs_adjusted = lhs_exponent10.to_int64() + lhs_digits.to_int64() - 1L
+  let rhs_adjusted = rhs_exponent10.to_int64() + rhs_digits.to_int64() - 1L
+  if lhs_adjusted != rhs_adjusted {
+    return if lhs_adjusted < rhs_adjusted { -1 } else { 1 }
   }
   if lhs_exponent10 <= rhs_exponent10 {
     gda_coeff_compare_scaled_repr(
