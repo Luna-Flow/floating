@@ -619,6 +619,11 @@ round the wrong way. The specification does not require more for integer
 powers. Exponents so large
 that the result must overflow or underflow are detected beforehand from the
 bounds $n(\hat e + 1) - 1$ and $n \hat e$ on the result's adjusted exponent.
+The underflow shortcut is taken only when the upper bound is at most
+$E_{\text{tiny}} - 2$, so the exact power is below $\tfrac12 10^{E_{\text{tiny}}}$,
+and the result is that value rounded in the context's rounding mode: zero in
+the half modes and `Down`, and $\pm 10^{E_{\text{tiny}}}$ when the mode rounds
+away from zero for the result's sign.
 
 ### Correctly rounded `exp`, `ln`, `log10` and non-integer `power`
 

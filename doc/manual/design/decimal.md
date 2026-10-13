@@ -792,7 +792,12 @@ Three kinds of inputs are decided outside the agreement test:
   $3.339434^3 = 37.240765000\ldots$ is `37.24077` in decimal32. If the
   bounds leave the working exponent range, and in a context that is not
   extended, the GDA result is kept; its error is below one unit in the last
-  place.
+  place. A power that the exponent bounds place below
+  $10^{E_{\text{tiny}}-2}$ (including an exact power of ten below
+  $10^{E_{\text{tiny}}}$) is not evaluated: it rounds like any non-zero value
+  below $\tfrac12 10^{E_{\text{tiny}}}$, to zero in the nearest modes and to
+  $\pm 10^{E_{\text{tiny}}}$ when the rounding direction is away from zero
+  for its sign (IEEE 754-2019 §7.5).
 - **Out-of-range results.** An enclosure such as $[0, \text{tiny}]$ has
   endpoints that round with different flags. Any value $\ge 10^{e_{\max}+2}$
   overflows identically, and any non-zero value

@@ -477,7 +477,10 @@ fn decimal_power_large_integer_exponent_bound_result(
     return Some(decimal_overflow_result(negative, ctx))
   }
   // For positive integer powers the exact adjusted exponent lies in
-  // [n*(e+d-1), n*(e+d)-1]. Only the upper end is safe for a zero shortcut.
+  // [n*(e+d-1), n*(e+d)-1]. Only the upper end is safe for a tiny shortcut,
+  // and only at Etiny - 2 or below: an adjusted exponent of Etiny - 1 can
+  // still reach half of 10^Etiny (9.9E-200^2 = 9.801E-399 in decimal64),
+  // which the nearest modes round up.
   let upper_base = base.exponent10 + digits
   let upper_product = signed_dec_coeff(
     (count < 0) != (upper_base < 0),
@@ -489,11 +492,10 @@ fn decimal_power_large_integer_exponent_bound_result(
   if dec_coeff_signed_compare_int_repr(
       upper_product.negative,
       upper_product.magnitude,
-      etiny(ctx),
+      etiny(ctx) - 1,
     ) <
     0 {
-    let (value, flags) = decimal_power_underflow_zero_result(negative, ctx)
-    return Some(({ ..value, negative, }, flags))
+    return Some(decimal_power_tiny_result(negative, ctx))
   }
   None
 }
@@ -713,18 +715,18 @@ fn decimal_power_large_integer_terminal_result(
     if flags.overflow {
       decimal_overflow_result(negative, ctx)
     } else {
-      decimal_power_underflow_zero_result(negative, ctx)
+      decimal_power_tiny_result(negative, ctx)
     }
   } else if negative_exponent {
     if flags.overflow {
-      decimal_power_underflow_zero_result(negative, ctx)
+      decimal_power_tiny_result(negative, ctx)
     } else {
       decimal_overflow_result(negative, ctx)
     }
   } else if flags.overflow {
     decimal_overflow_result(negative, ctx)
   } else {
-    decimal_power_underflow_zero_result(negative, ctx)
+    decimal_power_tiny_result(negative, ctx)
   }
 }
 
@@ -740,18 +742,18 @@ fn decimal_power_terminal_result(
     if flags.overflow {
       decimal_overflow_result(negative, ctx)
     } else {
-      decimal_power_underflow_zero_result(negative, ctx)
+      decimal_power_tiny_result(negative, ctx)
     }
   } else if count < 0 {
     if flags.overflow {
-      decimal_power_underflow_zero_result(negative, ctx)
+      decimal_power_tiny_result(negative, ctx)
     } else {
       decimal_overflow_result(negative, ctx)
     }
   } else if flags.overflow {
     decimal_overflow_result(negative, ctx)
   } else {
-    decimal_power_underflow_zero_result(negative, ctx)
+    decimal_power_tiny_result(negative, ctx)
   }
 }
 
@@ -2245,6 +2247,30 @@ fn decimal_power_underflow_zero_result(
 }
 
 ///|
+/// The delivered result of a nonzero power whose exact magnitude is below half
+/// of the smallest subnormal `10^Etiny`. IEEE 754-2019 §4.3 and §7.5 round
+/// the exact value in the rounding direction on the subnormal grid, so the
+/// nearest modes give zero and the directed modes that round away from zero
+/// give `±10^Etiny`. Every value in that range rounds alike, so the stand-in
+/// `10^(Etiny - 2)` is finalized in place of the exact value. The subset
+/// arithmetic (`extended = false`) treats underflow as an error with an
+/// undefined result (General Decimal Arithmetic, Appendix A) and keeps zero.
+fn decimal_power_tiny_result(
+  negative : Bool,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  guard ctx.extended else {
+    return decimal_power_underflow_zero_result(negative, ctx)
+  }
+  normalize_decimal_parts_ctx_repr(
+    negative,
+    dec_coeff_from_int(1),
+    etiny(ctx) - 2,
+    ctx,
+  )
+}
+
+///|
 fn decimal_power_of_ten_extreme_result(
   base : Decimal,
   exponent : Decimal,
@@ -2266,9 +2292,8 @@ fn decimal_power_of_ten_extreme_result(
   }
   if result_exponent > ctx.e_max.to_int64() {
     Some(decimal_overflow_result(negative, ctx))
-  } else if result_exponent < etiny(ctx).to_int64() &&
-    ctx.decimal_rounding == DecimalRoundingMode::HalfEven {
-    Some(decimal_power_underflow_zero_result(negative, ctx))
+  } else if result_exponent < etiny(ctx).to_int64() {
+    Some(decimal_power_tiny_result(negative, ctx))
   } else {
     None
   }
@@ -2355,7 +2380,6 @@ fn decimal_power_exact_ten_result(
   exponent : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  guard dec_coeff_matches_unit_repr(base.coefficient, 1) else { return None }
   if decimal_power_gda_integer_count(exponent) is None &&
     decimal_power_math_operand_out_of_range(exponent, ctx) {
     return None
@@ -2372,16 +2396,6 @@ fn decimal_power_exact_ten_result(
   let negative = match decimal_power_integer_is_odd(exponent) {
     Some(odd) => base.negative && odd
     None => false
-  }
-  if count_magnitude.is_zero() {
-    return Some(
-      decimal_apply_finite_ctx(
-        Decimal::one(
-          precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
-        ),
-        ctx,
-      ),
-    )
   }
   let result_exponent_negative = count_negative != (base_power < 0)
   let result_exponent_magnitude = dec_coeff_multiply_repr(
@@ -2402,7 +2416,21 @@ fn decimal_power_exact_ten_result(
       etiny(ctx),
     ) <
     0 {
-    return Some(decimal_power_underflow_zero_result(negative, ctx))
+    return Some(decimal_power_tiny_result(negative, ctx))
+  }
+  // Overflow and underflow do not depend on the cohort of a power-of-ten
+  // base (`10` and `1E+1` alike); the exact result below keeps the
+  // repeated-multiplication exponent only for a unit coefficient.
+  guard dec_coeff_matches_unit_repr(base.coefficient, 1) else { return None }
+  if count_magnitude.is_zero() {
+    return Some(
+      decimal_apply_finite_ctx(
+        Decimal::one(
+          precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
+        ),
+        ctx,
+      ),
+    )
   }
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let exponent_limit = Int32::max(abs_int(ctx.e_max), abs_int(etiny(ctx)))
