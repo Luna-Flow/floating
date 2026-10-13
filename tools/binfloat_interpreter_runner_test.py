@@ -155,6 +155,30 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
         self.assertEqual(digest, spec["sha256"])
         self.assertEqual(spec["expectedCases"], 2088)
 
+    def test_decimal_string_mpfr_corpora_are_hash_pinned(self):
+        manifest = RUNNER.load_json(RUNNER.DEFAULT_MANIFEST)
+        expected = {
+            "mpfr-4.2.2-strtofr": 1716,
+            "mpfr-4.2.2-decimal-output": 3300,
+        }
+        for name, cases in expected.items():
+            spec = manifest["mpfrCorpora"][name]
+            path = RUNNER.repo_path(spec["path"])
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertEqual(digest, spec["sha256"], name)
+            self.assertEqual(spec["expectedCases"], cases, name)
+            rows = [
+                line
+                for line in path.read_text(encoding="utf-8").splitlines()
+                if line and not line.startswith("#")
+            ]
+            self.assertEqual(len(rows), cases, name)
+        smoke = RUNNER.load_json(RUNNER.DEFAULT_SMOKE_MANIFEST)
+        smoke_paths = {entry["path"]: entry["expectedCases"] for entry in smoke["mpfr"]}
+        for name, cases in expected.items():
+            spec = manifest["mpfrCorpora"][name]
+            self.assertEqual(smoke_paths[spec["path"]], cases, name)
+
 
 if __name__ == "__main__":
     unittest.main()

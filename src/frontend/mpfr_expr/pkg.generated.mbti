@@ -6,17 +6,25 @@ import {
 }
 
 // Values
+pub fn execute_decimal_output_data(MpfrDecimalOutputDocument) -> RunSummary
+
 pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
 
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 
+pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary
+
+pub fn parse_decimal_output_data(String, String) -> Result[MpfrDecimalOutputDocument, Array[ParseDiagnostic]]
+
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
 pub fn parse_pow_data(String, String) -> Result[MpfrPowDocument, Array[ParseDiagnostic]]
 
 pub fn parse_sqrt_data(String, String) -> Result[MpfrDocument, Array[ParseDiagnostic]]
+
+pub fn parse_strtofr_data(String, String) -> Result[MpfrStrtofrDocument, Array[ParseDiagnostic]]
 
 // Errors
 
@@ -31,6 +39,12 @@ pub fn CaseResult::passed(Self) -> Bool
 pub struct MpfrCase {
   // private fields
 }
+
+pub struct MpfrDecimalOutputDocument {
+  // private fields
+}
+pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
+pub fn MpfrDecimalOutputDocument::source(Self) -> String
 
 pub struct MpfrDocument {
   // private fields
@@ -53,6 +67,12 @@ pub struct MpfrPowDocument {
 }
 pub fn MpfrPowDocument::case_count(Self) -> Int
 pub fn MpfrPowDocument::source(Self) -> String
+
+pub struct MpfrStrtofrDocument {
+  // private fields
+}
+pub fn MpfrStrtofrDocument::case_count(Self) -> Int
+pub fn MpfrStrtofrDocument::source(Self) -> String
 
 pub struct ParseDiagnostic {
   // private fields

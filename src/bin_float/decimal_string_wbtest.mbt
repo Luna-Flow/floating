@@ -189,3 +189,35 @@ test "arbitrary precision parses agree with exact rational rounding" {
   )
   inspect(parsed.precision(), content="200")
 }
+
+///|
+/// Within a few binades of the exponent limit `10^k` leaves the exponent range
+/// before `D * 10^k` does, which used to make the correctly rounded parse
+/// retry at ever higher working precision until it aborted ("precision exceeds
+/// binary_precision_max"). The powers of five stay inside the range, and the
+/// power of two is applied after rounding. Expected values: MPFR 4.2.2
+/// `mpfr_strtofr` (`testdata/bin_float/mpfr-4.2.2-strtofr.txt`).
+test "decimal parses next to the exponent limit round correctly" {
+  let near = BinFloat::from_string_ctx(
+    "1e323228495",
+    BinaryContext::unbounded(24),
+  ).unwrap()
+  assert_eq(
+    near.0.compare(BinFloat::from_hex("0xc32e02p1073741795", 24).unwrap()),
+    0,
+  )
+  assert_true(near.1.inexact())
+  assert_false(near.1.overflow())
+  let (over, over_flags) = BinFloat::from_string_ctx(
+    "1e323228497",
+    BinaryContext::unbounded(24),
+  ).unwrap()
+  assert_eq(over.to_hex(), "inf")
+  assert_true(over_flags.overflow() && over_flags.inexact())
+  let (negative, negative_flags) = BinFloat::from_string_ctx(
+    "-9e323228496",
+    BinaryContext::unbounded(53, rounding=RoundTowardNegative),
+  ).unwrap()
+  assert_eq(negative.to_hex(), "-inf")
+  assert_true(negative_flags.overflow())
+}

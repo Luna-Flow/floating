@@ -76,8 +76,10 @@ The pinned full gate is documented in
 | MPFR 4.2.2 `tests/data/sqrt` | all executable hexadecimal sqrt rows | 1,055 / 1,055 |
 | MPFR 4.2.2 `pow_si` fixture | 4 precisions × 5 supported roundings × 6 inputs | 120 / 120 |
 | MPFR 4.2.2 elementary fixture | 29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs | 2,088 / 2,088 |
+| MPFR 4.2.2 `mpfr_strtofr` fixture | decimal text to binary: 5 precisions (11 to 200 bits) × 6 roundings × random, long-mantissa, huge-exponent, exact-halfway and one-unit-off-halfway literals, plus range limits and signed zeros | 1,716 / 1,716 |
+| MPFR 4.2.2 `mpfr_get_str` fixture | binary to decimal: 5 precisions × 5 roundings × 10 digit counts × fixed-seed values (exponents up to ±20,000), 12 exact ties, and the shortest round-trip digit count of 1,200 values | 3,300 / 3,300 |
 | Optional MPFR elementary stress, seed 20260715 | at least 100,000 cases per three-operation-or-larger family | 966,744 / 966,744 |
-| Committed smoke | TestFloat, sqrt, `pow_si`, and elementary witnesses | 2,451 / 2,451 |
+| Committed smoke | TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses | 7,467 / 7,467 |
 | TestFloat 3e level 2 | binary16, all declared operations/directions/tininess modes | 50,205,600 / 50,205,600 |
 
 The level-2 binary16 result is additional streaming stress evidence, not a

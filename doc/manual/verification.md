@@ -73,9 +73,13 @@ and `testdata/interval/README.md`.
   the conversions. Invalid integer conversions are compared by flags only,
   because SoftFloat returns platform-specific sentinel values where the API
   returns `None`. The MPFR part adds the 1,055 executable rows of the pinned
-  square-root data and 2,088 hash-pinned witnesses covering 29 elementary
+  square-root data, 2,088 hash-pinned witnesses covering 29 elementary
   operations at binary32/64/128 precision under all six `BinaryRoundingMode`
-  values.
+  values, and the decimal character conversions of IEEE 754-2019 §5.12:
+  1,716 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits,
+  including exact halfway points and the exponent limits) and 3,300
+  `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest
+  round-trip digit count).
 - **IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover
   encoding, special values, flags, core arithmetic and all 1,024 DPD declets on
   native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed
@@ -88,9 +92,9 @@ and `testdata/interval/README.md`.
   Reverse operations remain unsupported.
 
 The committed smoke fixtures that `just pr` runs are subsets of these: the
-binary smoke, for example, has 2,451 rows (240 TestFloat vectors, 3
-square-root witnesses, 120 integer-power witnesses and 2,088 elementary
-witnesses).
+binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3
+square-root witnesses, 120 integer-power witnesses, 2,088 elementary witnesses,
+1,716 `strtofr` witnesses and 3,300 decimal output witnesses).
 
 These are finite claims. They do not imply every IEEE 754 or IEEE 1788
 operation, arbitrary resource sizes, every NaN payload policy, or future

@@ -33,6 +33,22 @@
       "generator": "tools/generate_mpfr_elementary_oracle.c",
       "seed": 20260715,
       "casesPerCell": 4
+    },
+    "mpfr-4.2.2-strtofr": {
+      "path": "testdata/bin_float/mpfr-4.2.2-strtofr.txt",
+      "sha256": "254f4c570eab0aad45d9bc499a8848762dece8b2723ce82219458ecd1d8e0a3a",
+      "expectedCases": 1716,
+      "generator": "tools/generate_mpfr_decimal_string_oracle.c strtofr 24 20261014",
+      "seed": 20261014,
+      "casesPerCell": 24
+    },
+    "mpfr-4.2.2-decimal-output": {
+      "path": "testdata/bin_float/mpfr-4.2.2-decimal-output.txt",
+      "sha256": "9a2dcf4c7595ed908a2fae8e7f8f17f533241837a7b41ab71da9ae13fddc0481",
+      "expectedCases": 3300,
+      "generator": "tools/generate_mpfr_decimal_string_oracle.c output 12 20261014",
+      "seed": 20261014,
+      "casesPerCell": 12
     }
   }
 }

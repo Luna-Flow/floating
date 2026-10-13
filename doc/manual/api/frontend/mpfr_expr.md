@@ -3,9 +3,10 @@
 ## Purpose
 
 `frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes
-it against `bin_float`. Three formats are supported: MPFR's square-root
-`data_check` files, integer-power rows, and an elementary-function matrix with
-exception flags. The package does no IO; the runner is
+it against `bin_float`. Five formats are supported: MPFR's square-root
+`data_check` files, integer-power rows, an elementary-function matrix with
+exception flags, and two corpora for decimal character conversion
+(`mpfr_strtofr` and `mpfr_get_str`). The package does no IO; the runner is
 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the
 [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the
 [design page](../../design/frontend/mpfr_expr.md) for the pass rules.
@@ -25,7 +26,7 @@ text, so `bin_float` does not need to be imported.
 
 ## Common row syntax
 
-All three parsers split the text at `\n`, trim each line, and skip empty lines
+All five parsers split the text at `\n`, trim each line, and skip empty lines
 and lines starting with `#`. Fields are separated by spaces, tabs or carriage
 returns. Line numbers start at 1. A rounding field is one of
 
@@ -210,6 +211,92 @@ pub fn MpfrElementaryDocument::source(Self) -> String
 pub fn MpfrElementaryDocument::case_count(Self) -> Int
 ```
 
+## Decimal character conversion
+
+### `parse_strtofr_data`
+
+`parse_strtofr_data(source, text)` parses rows of seven fields: `precision
+rounding input expected inexact overflow underflow`.
+
+```mbti
+pub fn parse_strtofr_data(String, String) -> Result[MpfrStrtofrDocument, Array[ParseDiagnostic]]
+```
+
+`input` is a decimal literal kept as text, `expected` is the `mpfr_strtofr`
+result read at `precision` bits, and the last three fields are `0` or `1`.
+Row ids are `strtofr:LINE`.
+
+### `execute_strtofr_data`
+
+`execute_strtofr_data(document)` evaluates `BinFloat::from_string_ctx(input,
+ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`.
+
+```mbti
+pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary
+```
+
+A row passes when the result compares equal to the expected value, with the
+same sign (including zero) and class, the inexact, overflow and underflow
+flags equal the row's flags, and neither invalid nor division by zero is
+raised. A literal rejected by the parser fails the row.
+
+### `MpfrStrtofrDocument`, `MpfrStrtofrDocument::source`, `MpfrStrtofrDocument::case_count`
+
+`MpfrStrtofrDocument` is a parsed file; the methods return the name given to
+the parser and the number of rows.
+
+```mbti
+pub struct MpfrStrtofrDocument {
+  // private fields
+}
+
+pub fn MpfrStrtofrDocument::source(Self) -> String
+pub fn MpfrStrtofrDocument::case_count(Self) -> Int
+```
+
+### `parse_decimal_output_data`
+
+`parse_decimal_output_data(source, text)` parses two row kinds.
+
+```mbti
+pub fn parse_decimal_output_data(String, String) -> Result[MpfrDecimalOutputDocument, Array[ParseDiagnostic]]
+```
+
+`fixed digits precision rounding value expected_digits expected_exponent10
+inexact` (eight fields) is a value printed with `digits` significant digits:
+`expected_digits` is the digit string and `expected_exponent10` the decimal
+exponent of its first digit. `shortest precision value expected_digit_count`
+(four fields) is the number of significant digits of the shortest round-trip
+form. Values are read at `precision` bits. Row ids are `fixed:LINE` and
+`shortest:LINE`.
+
+### `execute_decimal_output_data`
+
+`execute_decimal_output_data(document)` runs `BinFloat::to_decimal_string_ctx`
+for a `fixed` row and `BinFloat::to_shortest_string` for a `shortest` row.
+
+```mbti
+pub fn execute_decimal_output_data(MpfrDecimalOutputDocument) -> RunSummary
+```
+
+A `fixed` row passes when the printed digits, the exponent and the sign match
+and the inexact flag equals the row's flag (no overflow or underflow). A
+`shortest` row passes when the text has exactly `expected_digit_count`
+significant digits (leading zeros and the trailing zeros of positional notation
+are not counted) and `BinFloat::from_string(text, precision~)` returns the same
+value.
+
+### `MpfrDecimalOutputDocument`, `MpfrDecimalOutputDocument::source`, `MpfrDecimalOutputDocument::case_count`
+
+```mbti
+pub struct MpfrDecimalOutputDocument {
+  // private fields
+}
+
+pub fn MpfrDecimalOutputDocument::source(Self) -> String
+pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
+```
+
 ## Diagnostics and results
 
 ### `ParseDiagnostic`
@@ -335,17 +422,25 @@ import {
 }
 
 // Values
+pub fn execute_decimal_output_data(MpfrDecimalOutputDocument) -> RunSummary
+
 pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
 
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 
+pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary
+
+pub fn parse_decimal_output_data(String, String) -> Result[MpfrDecimalOutputDocument, Array[ParseDiagnostic]]
+
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
 pub fn parse_pow_data(String, String) -> Result[MpfrPowDocument, Array[ParseDiagnostic]]
 
 pub fn parse_sqrt_data(String, String) -> Result[MpfrDocument, Array[ParseDiagnostic]]
+
+pub fn parse_strtofr_data(String, String) -> Result[MpfrStrtofrDocument, Array[ParseDiagnostic]]
 
 // Errors
 
@@ -360,6 +455,12 @@ pub fn CaseResult::passed(Self) -> Bool
 pub struct MpfrCase {
   // private fields
 }
+
+pub struct MpfrDecimalOutputDocument {
+  // private fields
+}
+pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
+pub fn MpfrDecimalOutputDocument::source(Self) -> String
 
 pub struct MpfrDocument {
   // private fields
@@ -382,6 +483,12 @@ pub struct MpfrPowDocument {
 }
 pub fn MpfrPowDocument::case_count(Self) -> Int
 pub fn MpfrPowDocument::source(Self) -> String
+
+pub struct MpfrStrtofrDocument {
+  // private fields
+}
+pub fn MpfrStrtofrDocument::case_count(Self) -> Int
+pub fn MpfrStrtofrDocument::source(Self) -> String
 
 pub struct ParseDiagnostic {
   // private fields
