@@ -2086,6 +2086,51 @@ fn decimal_power_large_integer_result(
 }
 
 ///|
+/// IEEE 754-2019 §9.2: an integral exponent with more than
+/// `decimal_integer_coeff_expansion_limit` digits is at least `10^4096` in
+/// magnitude. For a finite base `x` other than `+-1` that decides overflow or
+/// underflow without any exponent-sized work: `|ln|x||` is at least `10^(q-1)`
+/// when `|x| < 2` (`1 - x` and `x - 1` are nonzero multiples of `10^q`, with `q`
+/// the exponent of `x`, `q < 0`) and at least `ln 2` otherwise, so
+/// `|y ln|x||` is at least `10^(digits(y) - 1 + min(q, 0) - 1)`, and once that
+/// exceeds `10^12` it is far beyond `ln 10 * (e_max + p)` and
+/// `ln 10 * (|e_tiny| + p)` for every valid context. The sign follows the
+/// exponent's parity. `None` when the base has so many fractional digits that
+/// the bound is not met.
+fn decimal_power_huge_integer_exponent_result(
+  base : Decimal,
+  exponent : Decimal,
+  odd : Bool,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard base.class == FpClass::Finite &&
+    !base.coefficient.is_zero() &&
+    exponent.class == FpClass::Finite &&
+    !exponent.coefficient.is_zero() else {
+    return None
+  }
+  guard !is_finite_decimal_one(base) && !is_finite_decimal_negative_one(base) else {
+    return None
+  }
+  let exponent_digits = adjusted_exponent64(exponent) + 1L
+  let q = Int64::min(base.exponent10.to_int64(), 0L)
+  guard exponent_digits - 1L + q - 1L >= 12L else { return None }
+  let magnitude_above_one = compare_finite_magnitude_repr(
+      base.coefficient,
+      base.exponent10,
+      dec_coeff_from_int(1),
+      0,
+    ) >
+    0
+  let negative = base.negative && odd
+  if magnitude_above_one != exponent.negative {
+    Some(decimal_overflow_result(negative, ctx))
+  } else {
+    Some(decimal_power_tiny_result(negative, ctx))
+  }
+}
+
+///|
 /// IEEE 754-2019 §9.2.1 gives signaling NaN operands priority over the
 /// zero-exponent and unit-base identities. Infinite exponents classify finite
 /// bases by magnitude, including negative bases, without a domain error.

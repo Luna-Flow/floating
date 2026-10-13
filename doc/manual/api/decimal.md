@@ -1491,6 +1491,14 @@ $\sqrt{x^2+y^2}$; it is $+\infty$ if either operand is infinite, even if the
 other is a quiet NaN, and an exactly representable norm, or $|x|$ when $y$ is
 zero, is returned exactly (`hypot_ctx(0.3, 0.4)` is `0.5`).
 
+An integral exponent with more than 4,096 digits is never expanded: for a base
+other than $\pm 1$, $\pm 0$ and $\pm\infty$ the magnitude $|y \ln |x||$ is far
+beyond any context, so the result is the overflow or the underflow value of the
+rounding direction (decided from the base being above or below 1 and the sign
+of the exponent) and the sign follows the parity, not an `invalid_context`. A
+base with more than about 4,000 fractional digits, whose bound is not met, still
+returns NaN with `invalid_context`.
+
 An exact result is delivered in the cohort member whose exponent is closest to
 the preferred exponent of IEEE 754-2019 §9.2.2, $\lfloor y\,q_x \rfloor$ for
 `power_ctx(x, y)` and $\lfloor n\,q_x \rfloor$ for `pown_ctx(x, n)`, where
