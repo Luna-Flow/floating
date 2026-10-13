@@ -1491,6 +1491,18 @@ $\sqrt{x^2+y^2}$; it is $+\infty$ if either operand is infinite, even if the
 other is a quiet NaN, and an exactly representable norm, or $|x|$ when $y$ is
 zero, is returned exactly (`hypot_ctx(0.3, 0.4)` is `0.5`).
 
+An exact result is delivered in the cohort member whose exponent is closest to
+the preferred exponent of IEEE 754-2019 §9.2.2, $\lfloor y\,q_x \rfloor$ for
+`power_ctx(x, y)` and $\lfloor n\,q_x \rfloor$ for `pown_ctx(x, n)`, where
+$q_x$ is the exponent of the stored `x` and the member must fit in $p$ digits:
+in decimal64 `pown_ctx(1.00, 2)` is `1.0000`, `pown_ctx(-1.0, 3)` is `-1.000`,
+`pown_ctx(-1E+5, 5)` is `-1E+25` (exact, no flags), `power_ctx(1.00, 1.5)` is
+`1.000` and `power_ctx(4.00, 1.5)` is `8.000`; a negative exponent cannot reach
+a preferred exponent above the value (`pown_ctx(1.00, -2)` is `1`). The
+standard defines no preferred exponent when $y$ is infinite or a NaN, so
+`power_ctx(1.00, Infinity)` stays `1`. `decimal_gda` follows the repeated
+multiplication exponent of General Decimal Arithmetic instead.
+
 ### `Decimal::exp2_ctx`, `exp10_ctx`, `expm1_ctx`, `log2_ctx`, `log1p_ctx`, `try_exp2_ctx`, `try_exp10_ctx`, `try_expm1_ctx`, `try_log2_ctx`, `try_log1p_ctx`
 
 These functions are the IEEE 754-2019 §9.2 exponentials and logarithms in bases 2 and 10 and near zero. Each has the `f_ctx`/`try_f_ctx` shape described

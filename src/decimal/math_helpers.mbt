@@ -262,8 +262,13 @@ fn decimal_power_one_finite_exponent_result(
     None => {
       let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
       // IEEE 754-2019 §9.2.1: pow(+1, y) is exact 1 for every finite y,
-      // including exponents outside the non-integral math context range.
-      Some((Decimal::one(precision~), DecimalFlags::new()))
+      // including exponents outside the non-integral math context range; its
+      // cohort has the preferred exponent floor(y * Q(x)) of §9.2.2.
+      match decimal_power_preferred_exponent(base.exponent10, exponent) {
+        Some(preferred) =>
+          Some(decimal_power_ten_cohort_result(false, 0, preferred, ctx))
+        None => Some((Decimal::one(precision~), DecimalFlags::new()))
+      }
     }
   }
 }
@@ -2096,17 +2101,37 @@ fn decimal_power_ieee_special_result(
   if exponent.class == FpClass::Finite && exponent.coefficient.is_zero() {
     return Some((Decimal::one(precision~), DecimalFlags::new()))
   }
+  // pow(+1, y) is exactly 1 for every y, and pow(-1, n) is +-1 for an integer
+  // n (IEEE 754-2019 §9.2.1). For a finite y the cohort is the one of the
+  // preferred exponent floor(y * Q(x)) (§9.2.2), so `pow(1.00, 2)` is `1.0000`;
+  // the standard defines no preferred exponent for an infinite or NaN y.
   if is_finite_decimal_one(base) {
-    return Some((Decimal::one(precision~), DecimalFlags::new()))
+    return Some(
+      match decimal_power_preferred_exponent(base.exponent10, exponent) {
+        Some(preferred) =>
+          decimal_power_ten_cohort_result(false, 0, preferred, ctx)
+        None => (Decimal::one(precision~), DecimalFlags::new())
+      },
+    )
   }
   if is_finite_decimal_negative_one(base) && exponent.class == FpClass::Finite {
     match decimal_power_integer_is_odd(exponent) {
       Some(odd) =>
         return Some(
-          (
-            finite_with_exponent_repr(odd, dec_coeff_from_int(1), 0, precision),
-            DecimalFlags::new(),
-          ),
+          match decimal_power_preferred_exponent(base.exponent10, exponent) {
+            Some(preferred) =>
+              decimal_power_ten_cohort_result(odd, 0, preferred, ctx)
+            None =>
+              (
+                finite_with_exponent_repr(
+                  odd,
+                  dec_coeff_from_int(1),
+                  0,
+                  precision,
+                ),
+                DecimalFlags::new(),
+              )
+          },
         )
       None => ()
     }
@@ -2300,6 +2325,161 @@ fn decimal_power_of_ten_extreme_result(
 }
 
 ///|
+/// IEEE 754-2019 §9.2.2: the preferred exponent of `pow(x, y)` and `pown(x, n)`
+/// is `floor(y * Q(x))` with `Q(x)` the exponent of `x`. The product is exact;
+/// it is saturated at +-2^62, far outside any context exponent range, so the
+/// caller can compare it with exponent bounds. `None` for a non-finite `y`.
+fn decimal_power_preferred_exponent(
+  base_exponent10 : Int32,
+  exponent : Decimal,
+) -> Int64? {
+  guard exponent.class == FpClass::Finite else { return None }
+  let limit = 4611686018427387904L
+  if exponent.coefficient.is_zero() || base_exponent10 == 0 {
+    return Some(0L)
+  }
+  let negative = exponent.negative != (base_exponent10 < 0)
+  let numerator = coeff_bigint(exponent.coefficient) *
+    BigInt::from_int(abs_int(base_exponent10))
+  let scale = exponent.exponent10
+  let magnitude : BigInt = if scale >= 0 {
+    if scale > 20 {
+      return Some(if negative { -limit } else { limit })
+    }
+    numerator * pow10(scale)
+  } else if -scale.to_int64() > numerator.to_string().length().to_int64() + 1L {
+    // |y * Q(x)| < 1: the floor is 0 or -1.
+    return Some(if negative { -1L } else { 0L })
+  } else {
+    let divisor = pow10(-scale)
+    let quotient = numerator / divisor
+    if negative && !(numerator % divisor).is_zero() {
+      quotient + bigint_one()
+    } else {
+      quotient
+    }
+  }
+  if magnitude.to_string().length() > 18 {
+    return Some(if negative { -limit } else { limit })
+  }
+  let value = magnitude.to_int64()
+  Some(if negative { -value } else { value })
+}
+
+///|
+/// The exact value `+-10^value_exponent` with the cohort member IEEE 754-2019
+/// §5.2 selects for a preferred exponent: the exponent closest to `preferred`
+/// among those at most `value_exponent` whose coefficient `10^(value_exponent -
+/// exponent)` has at most `precision` digits and that stay above `Etiny`.
+/// `rounded` is raised when the preferred exponent is out of reach on the
+/// high side, i.e. zeros had to be dropped to fit the precision.
+fn decimal_power_ten_cohort_result(
+  negative : Bool,
+  value_exponent : Int32,
+  preferred : Int64,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
+  let high = value_exponent.to_int64()
+  let low = if ctx.precision == 0 {
+    -4611686018427387904L
+  } else {
+    high - (precision - 1).to_int64()
+  }
+  let lowest = Int64::max(low, etiny(ctx).to_int64())
+  let chosen = Int64::min(Int64::max(preferred, lowest), high)
+  let exponent = chosen.to_int()
+  let result = finite_with_exponent_repr(
+    negative,
+    dec_coeff_power10_repr(value_exponent - exponent),
+    exponent,
+    precision,
+  )
+  let flags = if ctx.precision != 0 && chosen > preferred && chosen == low {
+    { ..DecimalFlags::new(), rounded: true, }
+  } else if value_exponent < ctx.e_min {
+    { ..DecimalFlags::new(), subnormal: true, }
+  } else {
+    DecimalFlags::new()
+  }
+  (result, flags)
+}
+
+///|
+/// IEEE 754-2019 §9.2.2 and §5.2: an exact result of `pow` takes the cohort
+/// member whose exponent is closest to the preferred exponent
+/// `floor(y * Q(x))` among those that represent the value within the
+/// precision (trailing zeros may be dropped, zeros may be added up to
+/// `precision` digits). Inexact, exceptional, zero and non-finite results are
+/// returned unchanged.
+fn decimal_power_adjust_exact_cohort(
+  result : (Decimal, DecimalFlags),
+  base : Decimal,
+  exponent : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  let (value, flags) = result
+  guard value.class == FpClass::Finite &&
+    !value.coefficient.is_zero() &&
+    !flags.inexact &&
+    !flags.overflow &&
+    !flags.underflow &&
+    !flags.subnormal &&
+    !flags.clamped &&
+    !flags.invalid_operation &&
+    !flags.invalid_context else {
+    return result
+  }
+  let preferred = match
+    decimal_power_preferred_exponent(base.exponent10, exponent) {
+    Some(value) => value
+    None => return result
+  }
+  let precision = finite_precision_for_coeff(value.coefficient, ctx)
+  let digits = value.coefficient.digits10()
+  let (_, stripped_exponent) = remove_factor10_repr(
+    value.coefficient,
+    value.exponent10,
+  )
+  let highest = stripped_exponent.to_int64()
+  let mut lowest = if ctx.precision == 0 {
+    -4611686018427387904L
+  } else {
+    value.exponent10.to_int64() - (precision - digits).to_int64()
+  }
+  lowest = Int64::max(lowest, etiny(ctx).to_int64())
+  let mut chosen = Int64::min(Int64::max(preferred, lowest), highest)
+  if ctx.clamp && ctx.precision > 0 {
+    chosen = Int64::min(chosen, (ctx.e_max - precision + 1).to_int64())
+  }
+  if chosen < lowest || chosen == value.exponent10.to_int64() {
+    return result
+  }
+  let target = chosen.to_int()
+  let coefficient = if target < value.exponent10 {
+    dec_coeff_shift_power10_repr(value.coefficient, value.exponent10 - target)
+  } else {
+    match
+      exact_divide_by_power_of_ten_repr(
+        value.coefficient,
+        target - value.exponent10,
+      ) {
+      Some(quotient) => quotient
+      None => return result
+    }
+  }
+  (
+    finite_with_exponent_repr(
+      value.negative,
+      coefficient,
+      target,
+      value.precision_,
+    ),
+    flags,
+  )
+}
+
+///|
 fn decimal_power_simple_ten_result(
   base : Decimal,
   exponent : Decimal,
@@ -2432,7 +2612,6 @@ fn decimal_power_exact_ten_result(
       ),
     )
   }
-  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let exponent_limit = Int32::max(abs_int(ctx.e_max), abs_int(etiny(ctx)))
   let result_exponent_magnitude = match
     dec_coeff_to_bounded_int(result_exponent_magnitude, exponent_limit) {
@@ -2444,38 +2623,16 @@ fn decimal_power_exact_ten_result(
   } else {
     result_exponent_magnitude
   }
-  let result = if result_exponent >= 0 {
-    if result_exponent + 1 <= precision {
-      finite_with_exponent_repr(
-        negative,
-        dec_coeff_power10_repr(result_exponent),
-        0,
-        precision,
-      )
-    } else {
-      finite_with_exponent_repr(
-        negative,
-        dec_coeff_power10_repr(precision - 1),
-        result_exponent - precision + 1,
-        precision,
-      )
-    }
-  } else {
-    finite_with_exponent_repr(
-      negative,
-      dec_coeff_from_int(1),
-      result_exponent,
-      precision,
-    )
+  // The preferred exponent floor(y * Q(x)) is that of the stored base
+  // (`1.00` and `1E+0` are different cohorts), IEEE 754-2019 §9.2.2.
+  let preferred = match
+    decimal_power_preferred_exponent(base.exponent10, exponent) {
+    Some(value) => value
+    None => return None
   }
-  let flags = if result_exponent >= 0 && result_exponent + 1 > precision {
-    { ..DecimalFlags::new(), rounded: true, }
-  } else if result_exponent < ctx.e_min {
-    { ..DecimalFlags::new(), subnormal: true, }
-  } else {
-    DecimalFlags::new()
-  }
-  Some((result, flags))
+  Some(
+    decimal_power_ten_cohort_result(negative, result_exponent, preferred, ctx),
+  )
 }
 
 ///|

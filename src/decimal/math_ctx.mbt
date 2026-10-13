@@ -283,7 +283,12 @@ pub fn Decimal::try_power_ctx(
       return decimal_certified_power_result(base, rounded_exponent, ctx).map(fn(
         result,
       ) {
-        let finalized = decimal_power_finalize_result(result, ctx)
+        let finalized = decimal_power_adjust_exact_cohort(
+          decimal_power_finalize_result(result, ctx),
+          base,
+          rounded_exponent,
+          ctx,
+        )
         (finalized.0, operand_flags.combine(finalized.1))
       })
     }
