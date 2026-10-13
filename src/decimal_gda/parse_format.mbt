@@ -572,7 +572,7 @@ pub fn Decimal::parse(
             exponent10,
             precision,
             round_to_precision=true,
-            reduce=significant_digits.length() > precision,
+            reduce=false,
           ),
         )
       }
