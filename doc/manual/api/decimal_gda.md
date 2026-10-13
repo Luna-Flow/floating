@@ -312,10 +312,13 @@ pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
 pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
 ```
 
-`nan_payload` and `get_payload` return the payload of a NaN and 0 for any
-other value. `set_payload` turns a NaN into a quiet NaN with the given payload
-and the same sign; `set_payload_signaling` makes it signaling. Both return
-non-NaN values unchanged.
+`nan_payload` returns the payload of a NaN and 0 for any other value.
+`get_payload` returns the payload of a NaN and `-1` for any other value, as
+IEEE 754-2019 §9.7 getPayload does. `set_payload` and `set_payload_signaling`
+return a quiet (respectively signaling) NaN with the given payload and the
+receiver's sign when the argument is a non-negative integer of at most
+`precision - 1` digits (the receiver's `precision`), and `+0` otherwise,
+whatever the receiver is.
 
 ### `Decimal::is_normal`, `Decimal::is_subnormal`, `Decimal::class_name`
 

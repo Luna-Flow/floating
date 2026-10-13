@@ -172,10 +172,15 @@ pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
 pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
 ```
 
-`nan_payload` and `get_payload` return the payload of a NaN and `0` for every
-other value. `set_payload` returns a quiet NaN with the given payload (its
-absolute value) and the original sign; `set_payload_signaling` returns a
-signaling NaN. Both return a non-NaN argument unchanged.
+`nan_payload` returns the payload of a NaN and `0` for every other value.
+`get_payload` is IEEE 754-2019 §9.7 getPayload: the payload of a NaN, and `-1`
+for any other value. `set_payload` and `set_payload_signaling` are setPayload
+and setPayloadSignaling: when the argument is a non-negative integer of at most
+`precision - 1` digits (the receiver's `precision`, like the trailing
+significand of an interchange NaN) the result is a quiet (respectively
+signaling) NaN with that payload and the receiver's sign bit; otherwise it is
+`+0` with exponent 0. The result does not depend on whether the receiver is a
+NaN.
 
 ## Construction and conversion
 
@@ -799,8 +804,8 @@ when its exact exponent is below $E_{\text{tiny}}$), and with `clamp` large
 exponents are folded down to $e_{\max}-p+1$. When the exact result fits, the exponent is the
 *preferred exponent* of the operation, so cohorts carry information. NaN
 operands propagate as a quiet NaN with the first NaN's sign and payload (the
-payload is cut to its low $p$ digits, even with `clamp`, where
-`from_string_ctx` and the interchange encodings allow only $p-1$); any
+payload is cut to its low $p$ digits, or $p-1$ with `clamp`, as in
+`from_string_ctx` and the interchange encodings); any
 signaling NaN operand raises `invalid_operation`.
 
 Near the underflow threshold the single rounding matters. In decimal32, the
