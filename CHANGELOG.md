@@ -6,6 +6,8 @@ notes live in this file.
 
 ## Unreleased
 
+## 0.10.0 - 2026-10-13
+
 ### Added
 
 - **Required versus recommended:** each clause row of the IEEE 754-2019 and 1788-2015 conformance tables now has a `Level` (`required`, `recommended`, `optional`), the checklist counts required gaps separately from recommended ones, and the §9.5 decimal row now says augmented arithmetic is recommended for binary formats only.
