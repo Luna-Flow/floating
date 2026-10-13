@@ -4785,9 +4785,9 @@ test "decimal context division reports inexact and exceptional flags" {
 test "decimal exact division preserves preferred integer cohort when it fits precision" {
   let ctx = @decimal.DecimalContext::new(precision=9).unwrap()
   let one = @decimal.Decimal::one(precision=12)
-  let ten = @decimal.Decimal::from_int(10, precision=12)
-  let hundred = @decimal.Decimal::from_int(100, precision=12)
-  let thousand = @decimal.Decimal::from_int(1000, precision=12)
+  let ten = @decimal.Decimal::from_string("1E+1", precision=12).unwrap()
+  let hundred = @decimal.Decimal::from_string("1E+2", precision=12).unwrap()
+  let thousand = @decimal.Decimal::from_string("1E+3", precision=12).unwrap()
   let tiny = @decimal.Decimal::from_string("1E-8", precision=12).unwrap()
   let tinier = @decimal.Decimal::from_string("1E-9", precision=12).unwrap()
   let (ten_over_one, flags1) = ten.div_ctx(one, ctx)

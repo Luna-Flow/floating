@@ -150,14 +150,19 @@ test "clear flags between phases" {
     @decimal.Decimal::from_int(3),
   )
   inspect(flags(phase1.flags()), content="inexact,rounded")
-  let phase2 = phase1.clear_flags().mul(@decimal.Decimal::from_int(10))
+  let phase2 = phase1.clear_flags().mul(
+    @decimal.Decimal::from_string("1E+1").unwrap(),
+  )
   inspect(phase2.value().to_string(), content="6.666666666666667")
   inspect(flags(phase2.flags()), content="")
 }
 ```
 
-Multiplying the 16-digit quotient by ten is exact, so the second phase reports
-no flags although the first one rounded.
+Multiplying the 16-digit quotient by `1E+1` is exact and its exponent fits, so
+the second phase reports no flags although the first one rounded. (Ten as
+`from_int(10)` has exponent 0 and coefficient 10: the exact product then needs
+a 17-digit coefficient, so the multiplication discards a zero digit and raises
+`rounded`, though not `inexact`.)
 
 ## Going further
 

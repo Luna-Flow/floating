@@ -67,12 +67,40 @@ pub fn Decimal::signaling_nan(
 
 ///|
 pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
-  Decimal::make(BigInt::from_int(n), 0, precision)
+  Decimal::from_bigint(BigInt::from_int(n), precision~)
 }
 
 ///|
 pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
-  Decimal::make(n, 0, precision)
+  decimal_from_integer_parts(n, 0, precision)
+}
+
+///|
+/// IEEE 754-2019 §5.4.1 convertFromInt has preferred exponent 0 and §5.2 an
+/// inexact result takes the least possible exponent: an integer of at most
+/// `precision` digits keeps `exponent10` (its cohort is not reduced), a longer
+/// one is rounded to exactly `precision` digits (a carry into `10^p` leaves
+/// `10^(p-1)` at the next exponent).
+fn decimal_from_integer_parts(
+  value : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+) -> Decimal {
+  let negative = value < bigint_zero()
+  let magnitude = coeff_from_bigint(abs_bigint(value))
+  let precision = Int32::max(1, precision)
+  if magnitude.is_zero() {
+    return finite_with_exponent_repr(negative, magnitude, 0, precision)
+  }
+  context_free_round_wide(
+    negative,
+    magnitude,
+    exponent10.to_int64(),
+    precision,
+    round_to_precision=true,
+    reduce=false,
+    mode=DecimalRoundingMode::HalfEven,
+  )
 }
 
 ///|
@@ -181,10 +209,34 @@ pub fn Decimal::from_bin_float(
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
         let signed = if x.is_negative() { -coefficient } else { coefficient }
         if x.exponent2() >= 0 {
-          Decimal::make(signed << x.exponent2(), 0, precision)
+          decimal_from_integer_parts(signed << x.exponent2(), 0, precision)
         } else {
+          // c * 2^-k = c * 5^k * 10^-k. IEEE 754-2019 §5.4.2: an exact result
+          // takes the exponent closest to the preferred exponent 0, so
+          // trailing zeros are dropped but never past exponent 0; an inexact
+          // one keeps exactly `precision` digits (§5.2).
           let k = -x.exponent2()
-          Decimal::make(signed * pow5(k), -k, precision)
+          let mut magnitude = coeff_from_bigint(abs_bigint(signed * pow5(k)))
+          let mut exponent = -k
+          while exponent < 0 {
+            let (quotient, remainder) = dec_coeff_div_rem_by_unit_repr(
+              magnitude, 10,
+            )
+            if remainder != 0 {
+              break
+            }
+            magnitude = quotient
+            exponent = exponent + 1
+          }
+          decimal_from_integer_parts(
+            if x.is_negative() {
+              -coeff_bigint(magnitude)
+            } else {
+              coeff_bigint(magnitude)
+            },
+            exponent,
+            precision,
+          )
         }
       }
   }

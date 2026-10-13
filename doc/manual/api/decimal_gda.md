@@ -107,8 +107,10 @@ The sign comes from the sign of `c`. Rounding uses `mode` (default
 
 ### `Decimal::from_int`, `Decimal::from_bigint`, `Decimal::from_double`, `Decimal::from_float`, `Decimal::from_bin_float`
 
-These convert binary values to decimal, round half to even to `precision`
-digits and remove trailing zeros.
+These convert binary values to decimal. An integer of at most `precision`
+digits keeps exponent 0 and an exact binary fraction takes the exponent closest
+to 0 (trailing zeros are removed only down to exponent 0); a longer or inexact
+value is rounded half to even to exactly `precision` digits.
 
 ```mbti
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
@@ -124,7 +126,8 @@ as $m 5^{-k} \cdot 10^{k}$, so the conversion is exact whenever the result fits
 in `precision` digits; for example `from_double(0.1)` is the 34-digit
 rounding of the binary64 value nearest to $0.1$. NaNs become the quiet NaN
 (sign kept by `from_double`), infinities keep their sign, zeros keep their
-sign (`from_bin_float` returns $+0$). `from_int(100)` is `1E+2`.
+sign (`from_bin_float` returns $+0$). `from_int(100)` is `100` (exponent 0),
+`from_int(99999, precision=3)` is `1.00E+5` and `from_double(0.5)` is `0.5`.
 
 ### `Decimal::to_bin_float`
 
@@ -217,7 +220,7 @@ error, and zeros lose their sign and exponent.
 ///|
 test "Decimal construction and printing" {
   inspect(@decimal_gda.Decimal::from_string("2.50").unwrap(), content="2.50")
-  inspect(@decimal_gda.Decimal::from_int(100), content="1E+2")
+  inspect(@decimal_gda.Decimal::from_int(100), content="100")
   inspect(@decimal_gda.Decimal::make(12345N, -2, 3), content="123")
   inspect(@decimal_gda.Decimal::from_double(0.5), content="0.5")
   inspect(@decimal_gda.Decimal::signaling_nan(payload=7N), content="snan7")

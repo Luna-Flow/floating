@@ -71,18 +71,39 @@ pub fn Decimal::signaling_nan(
 
 ///|
 pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
-  normalize_decimal_parts_gda_repr(
-    n < 0,
-    gda_coeff_from_int_magnitude(n),
-    0,
-    precision,
-    DecimalRoundingMode::HalfEven,
-  )
+  Decimal::from_bigint(BigInt::from_int(n), precision~)
 }
 
 ///|
 pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
-  Decimal::make(n, 0, precision)
+  decimal_from_integer_parts(n, 0, precision)
+}
+
+///|
+/// An integer of at most `precision` digits keeps `exponent10` (its cohort is
+/// not reduced, as in the General Decimal Arithmetic to-number conversion); a
+/// longer one is rounded half-even to exactly `precision` digits, and a carry
+/// into `10^p` leaves `10^(p-1)` at the next exponent.
+fn decimal_from_integer_parts(
+  value : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+) -> Decimal {
+  let negative = value < bigint_zero()
+  let magnitude = coeff_from_bigint(abs_bigint(value))
+  let precision = Int32::max(1, precision)
+  if magnitude.is_zero() {
+    return finite_with_exponent_repr(negative, magnitude, 0, precision)
+  }
+  context_free_round_wide(
+    negative,
+    magnitude,
+    exponent10.to_int64(),
+    precision,
+    round_to_precision=true,
+    reduce=false,
+    mode=DecimalRoundingMode::HalfEven,
+  )
 }
 
 ///|
@@ -181,10 +202,32 @@ pub fn Decimal::from_bin_float(
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
         let signed = if x.is_negative() { -coefficient } else { coefficient }
         if x.exponent2() >= 0 {
-          Decimal::make(signed << x.exponent2(), 0, precision)
+          decimal_from_integer_parts(signed << x.exponent2(), 0, precision)
         } else {
+          // c * 2^-k = c * 5^k * 10^-k; an exact result takes the exponent
+          // closest to 0, so trailing zeros go but never past exponent 0.
           let k = -x.exponent2()
-          Decimal::make(signed * pow5(k), -k, precision)
+          let mut magnitude = coeff_from_bigint(abs_bigint(signed * pow5(k)))
+          let mut exponent = -k
+          while exponent < 0 {
+            let (quotient, remainder) = gda_coeff_div_rem_by_unit_repr(
+              magnitude, 10,
+            )
+            if remainder != 0 {
+              break
+            }
+            magnitude = quotient
+            exponent = exponent + 1
+          }
+          decimal_from_integer_parts(
+            if x.is_negative() {
+              -coeff_bigint(magnitude)
+            } else {
+              coeff_bigint(magnitude)
+            },
+            exponent,
+            precision,
+          )
         }
       }
   }
