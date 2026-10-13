@@ -216,11 +216,12 @@ collects its output.
 - **Pairing needs equal sample counts.** Both implementations of a
   comparison must have the same number of valid confirmatory observations;
   otherwise `paired_hotspot` returns `MismatchedPairs`.
-- **The tuning threshold does nothing.** `tune_dataset` always returns the
-  candidate with the smallest median; its `practical_delta_pct` argument does
-  not create ties, so two nearly equal candidates can alternate between
-  datasets and make the crossover non-monotonic. Which secondary criterion
-  is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60).
+- **Near ties go to the steadier candidate, not the faster one.**
+  `tune_dataset` treats candidates within `practical_delta_pct` percent of the
+  smallest median as tied and picks the one with the smaller interquartile
+  range (then the smaller id), so a candidate whose median is slightly higher
+  can win when its timings are less spread out. Use `0.0` to always take the
+  smallest median.
 
 ## Next steps
 

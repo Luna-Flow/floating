@@ -170,18 +170,20 @@ $c = 95\,\%$, so a regression gate cannot be weakened by a caller.
 `paired_hotspot` takes $\delta$ and the seed from the caller and uses
 $R = 2000$ and $c = 95\,\%$ for exploratory hotspot reports.
 
-### Auto-tuning by minimum median
+### Auto-tuning by median with an interquartile tie-break
 
-`tune_dataset` scores each candidate by the median of its valid confirmatory
-samples and returns the one with the smallest median, breaking exact ties by
-candidate id. The score is passed to `@tune.select_best` as both primary and
-secondary criterion. `select_best` keeps the finalists
+`tune_dataset` scores each candidate by the median $\mu_c$ of its valid
+confirmatory samples and, as secondary criterion, by their interquartile range
+$\mathrm{IQR}_c$ (the median of the upper half minus the median of the lower
+half, the middle sample of an odd count belonging to neither; fewer than two
+samples give 0). `@tune.select_best` keeps the finalists
 $F = \{c : 100\,(\mu_c - \mu_{\min})/\mu_{\min} \le \delta\}$ (those with
 $\mu_c = 0$ when $\mu_{\min} = 0$), which always contains every candidate with
-$\mu_c = \mu_{\min}$, and returns the finalist with the smallest secondary
-score, ties broken by the smaller id. With secondary $= \mu_c$ that is a
-candidate with $\mu_c = \mu_{\min}$, so the practical threshold has no effect
-on the choice. Which secondary criterion is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60).
+$\mu_c = \mu_{\min}$, and returns the finalist with the smallest
+$\mathrm{IQR}_c$, ties broken by the smaller candidate id. Candidates that the
+practical threshold ties with the fastest are thus decided by stability, and
+$\delta = 0$ keeps only the fastest medians. The result does not depend on the
+order of `candidate_ids`.
 
 The auto-tune suite turns the per-dataset winners $\ell_1, \dots, \ell_S$
 (ordered by scale) into a crossover with
@@ -190,8 +192,9 @@ $\ell_i \ne \ell_{i-1}$. No change gives `NoCrossover`, exactly one change at
 $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale
 $i$, and more than one gives `NonMonotonic`, for which the suite prints a
 plain lookup table instead of a piecewise policy. Because the winner of each
-dataset is the minimum median without a practical threshold, noise between
-two nearly equal candidates can produce several changes.
+dataset is decided by the median and, within the practical threshold, by
+the spread, noise between two nearly equal candidates can still produce several
+changes.
 
 ### Immutable fixtures with an oracle
 

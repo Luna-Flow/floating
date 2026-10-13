@@ -25,6 +25,38 @@ fn samples_for(
 }
 
 ///|
+fn median_of_sorted(sorted : ArrayView[Double]) -> Double {
+  let middle = sorted.length() / 2
+  if sorted.length() % 2 == 0 {
+    (sorted[middle - 1] + sorted[middle]) / 2.0
+  } else {
+    sorted[middle]
+  }
+}
+
+///|
+/// Interquartile range of the samples `score_samples` keeps (finite and
+/// non-negative): the median of the upper half minus the median of the lower
+/// half, the middle sample belonging to neither for an odd count. Fewer than
+/// two samples have no spread, so the range is 0.
+fn interquartile_range(samples : Array[Double]) -> Double {
+  let sorted = samples.filter(sample => {
+    !sample.is_nan() && !sample.is_inf() && sample >= 0.0
+  })
+  sorted.sort()
+  let count = sorted.length()
+  if count < 2 {
+    return 0.0
+  }
+  let half = count / 2
+  let upper_start = if count % 2 == 0 { half } else { half + 1 }
+  median_of_sorted(sorted[upper_start:]) - median_of_sorted(sorted[0:half])
+}
+
+///|
+/// Picks the candidate with the lowest median; candidates within
+/// `practical_delta_pct` percent of it are practically tied and the one with
+/// the smaller interquartile range wins (then the smaller candidate id).
 pub fn tune_dataset(
   observations : Array[@model.Observation],
   case_id : String,
@@ -36,14 +68,8 @@ pub fn tune_dataset(
   let sample_counts : Map[String, Int32] = Map([])
   for candidate_id in candidate_ids {
     let samples = samples_for(observations, case_id, dataset_id, candidate_id)
-    let score = @tune.score_samples(candidate_id, samples, 0.0)
     scores.push(
-      @tune.CandidateScore::new(
-        score.candidate_id,
-        score.primary,
-        score.primary,
-        score.valid,
-      ),
+      @tune.score_samples(candidate_id, samples, interquartile_range(samples)),
     )
     // Count only the samples `score_samples` keeps for the median.
     sample_counts[candidate_id] = samples
