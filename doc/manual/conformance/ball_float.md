@@ -25,7 +25,7 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 | §9.6, §11 decoration system | `Decoration`, `BallFloatDecorated`, `decoration`, `is_nai` | ITF1788 phases above (every selected case checks the decoration) | conforming for the selected phases; decorated `rootn` with a negative degree can keep a decoration above `trv` (see the [design page](../design/ball_float.md#known-limitations)) |
 | §9.7, §12.11 interval and number literals | none | none | not implemented (issue [#21](https://github.com/Luna-Flow/floating/issues/21)) |
 | §12.10 accuracy of operations | all `*_interval` operations | ITF1788 strict gate checks containment, not tightness | valid accuracy only; no tightest-result claim beyond the arithmetic operations |
-| §12.6 754-conformance of the interval types | endpoints are `BinFloat` | see the `bin_float` clause table | not claimed as a Level 2 type claim |
+| §12.6 754-conformance of the interval types | endpoints are `BinFloat` | see the `bin_float` clause table | not implemented (no Level 2 754-conformance claim) |
 
 ## Semantic oracle
 
