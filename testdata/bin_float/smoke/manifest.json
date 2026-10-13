@@ -159,6 +159,16 @@
       "name": "mpfr-elementary",
       "path": "testdata/bin_float/mpfr-4.2.2-elementary.txt",
       "expectedCases": 2088
+    },
+    {
+      "name": "mpfr-strtofr",
+      "path": "testdata/bin_float/mpfr-4.2.2-strtofr.txt",
+      "expectedCases": 1716
+    },
+    {
+      "name": "mpfr-decimal-output",
+      "path": "testdata/bin_float/mpfr-4.2.2-decimal-output.txt",
+      "expectedCases": 3300
     }
   ]
 }

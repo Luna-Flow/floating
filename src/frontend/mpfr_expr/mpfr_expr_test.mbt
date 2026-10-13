@@ -94,3 +94,71 @@ test "MPFR elementary executor compares the sign of zero results" {
   let passed = summary.results().map(result => result.passed())
   assert_eq(passed, [false, true, false, true])
 }
+
+///|
+test "MPFR strtofr parser executes literals, halfway points and the range limits" {
+  let source =
+    #|# mpfr-strtofr-v1
+    #|# precision rounding input expected inexact overflow underflow
+    #|24 n 0.1 0xcccccdp-27 1 0 0
+    #|24 z 0.1 0xccccccp-27 1 0 0
+    #|11 n 2049 0x1p11 1 0 0
+    #|11 na 2049 0x401p1 1 0 0
+    #|53 u -0.0 -0x0p0 0 0 0
+    #|24 n 1e323228497 inf 1 1 0
+  let document = @mpfr_expr.parse_strtofr_data("inline.strtofr", source).unwrap()
+  assert_eq(document.source(), "inline.strtofr")
+  assert_eq(document.case_count(), 6)
+  let summary = @mpfr_expr.execute_strtofr_data(document)
+  for result in summary.results() {
+    assert_true(result.passed(), msg=result.message())
+  }
+  assert_eq(summary.passed_cases(), 6)
+}
+
+///|
+test "MPFR strtofr parser rejects malformed rows" {
+  for
+    row in [
+      "24 n 0.1 0x1p0 1 0", "24 q 0.1 0x1p0 1 0 0", "24 n 0.1 0xzp0 1 0 0", "24 n 0.1 0x1p0 2 0 0",
+    ] {
+    match @mpfr_expr.parse_strtofr_data("bad", row) {
+      Err([_]) => ()
+      _ => fail("expected one diagnostic for " + row)
+    }
+  }
+}
+
+///|
+test "MPFR decimal output parser executes fixed digits, ties and shortest forms" {
+  let source =
+    #|# mpfr-decimal-output-v1
+    #|fixed 1 53 n 0x5p-1 2 0 1
+    #|fixed 1 53 na 0x5p-1 3 0 1
+    #|fixed 1 53 z 0x5p-1 2 0 1
+    #|fixed 2 53 n 0x1p-3 12 -1 1
+    #|fixed 2 53 u 0x1p-3 13 -1 1
+    #|fixed 3 53 n 0x7dp0 125 2 0
+    #|shortest 53 0x1999999999999ap-56 1
+    #|shortest 24 0x1p-1 1
+  let document = @mpfr_expr.parse_decimal_output_data("inline.output", source).unwrap()
+  assert_eq(document.source(), "inline.output")
+  assert_eq(document.case_count(), 8)
+  let summary = @mpfr_expr.execute_decimal_output_data(document)
+  for result in summary.results() {
+    assert_true(result.passed(), msg=result.message())
+  }
+}
+
+///|
+test "MPFR decimal output parser rejects malformed rows" {
+  for
+    row in [
+      "fixed 1 53 n 0x5p-1 2 0", "shortest 53 0x1p0", "other 1 2 3 4", "fixed x 53 n 0x5p-1 2 0 0",
+    ] {
+    match @mpfr_expr.parse_decimal_output_data("bad", row) {
+      Err([_]) => ()
+      _ => fail("expected one diagnostic for " + row)
+    }
+  }
+}

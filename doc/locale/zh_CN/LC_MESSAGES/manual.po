@@ -104,7 +104,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/doc_examples.md:14
 #: manual/api/frontend/gda_expr.md:16
 #: manual/api/frontend/itl_expr.md:12
-#: manual/api/frontend/mpfr_expr.md:13
+#: manual/api/frontend/mpfr_expr.md:14
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:57
 #: manual/api/internal/conformance.md:15
@@ -649,7 +649,7 @@ msgstr "`minimum` 为 $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 #: manual/api/bin_float.md:1392
 #: manual/api/bin_float_checked.md:390
 #: manual/api/decimal.md:1345
-#: manual/api/frontend/mpfr_expr.md:154
+#: manual/api/frontend/mpfr_expr.md:155
 #: manual/design/decimal_gda.md:452
 msgid "Elementary functions"
 msgstr "初等函数"
@@ -999,7 +999,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:311
+#: manual/api/frontend/mpfr_expr.md:398
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
 #: manual/api/numeric_expr.md:298
@@ -1086,7 +1086,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:324
+#: manual/api/frontend/mpfr_expr.md:411
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:582
 #: manual/api/internal/conformance.md:353
@@ -1101,7 +1101,7 @@ msgstr "完整公共接口"
 #: manual/api/decimal_gda.md:2027
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:326
+#: manual/api/frontend/mpfr_expr.md:413
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:584
 #: manual/api/internal/conformance.md:355
@@ -3804,7 +3804,7 @@ msgid "`DecimalFlags` records the conditions raised by one operation."
 msgstr "`DecimalFlags` 记录一次运算所引发的条件。"
 
 #: manual/api/decimal.md:606
-#: manual/api/frontend/mpfr_expr.md:32
+#: manual/api/frontend/mpfr_expr.md:33
 msgid "Field"
 msgstr "字段"
 
@@ -5780,7 +5780,7 @@ msgstr "`frontend/gda_expr` 读取 General Decimal Arithmetic 测试文件（Cow
 
 #: manual/api/frontend/gda_expr.md:18
 #: manual/api/frontend/itl_expr.md:14
-#: manual/api/frontend/mpfr_expr.md:15
+#: manual/api/frontend/mpfr_expr.md:16
 msgid "Add the package to the `import` block of your `moon.pkg`:"
 msgstr "将该包添加到你的 `moon.pkg` 的 `import` 块中："
 
@@ -6250,159 +6250,199 @@ msgid "frontend/mpfr_expr API"
 msgstr "frontend/mpfr_expr API"
 
 #: manual/api/frontend/mpfr_expr.md:5
-msgid "`frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes it against `bin_float`. Three formats are supported: MPFR's square-root `data_check` files, integer-power rows, and an elementary-function matrix with exception flags. The package does no IO; the runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the [design page](../../design/frontend/mpfr_expr.md) for the pass rules."
-msgstr "`frontend/mpfr_expr` 解析用 GNU MPFR 生成的参考数据，并针对 `bin_float` 执行它。支持三种格式：MPFR 的平方根 `data_check` 文件、整数幂行，以及带异常标志的初等函数矩阵。该包不进行任何 IO；运行器是 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)。工作流程参见[教程](../../tutorial/frontend/mpfr_expr.md)，通过规则参见[设计页面](../../design/frontend/mpfr_expr.md)。"
+msgid "`frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes it against `bin_float`. Five formats are supported: MPFR's square-root `data_check` files, integer-power rows, an elementary-function matrix with exception flags, and two corpora for decimal character conversion (`mpfr_strtofr` and `mpfr_get_str`). The package does no IO; the runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the [design page](../../design/frontend/mpfr_expr.md) for the pass rules."
+msgstr "`frontend/mpfr_expr` 解析用 GNU MPFR 生成的参考数据，并针对 `bin_float` 执行它。支持五种格式：MPFR 的平方根 `data_check` 文件、整数幂行、带异常标志的初等函数矩阵，以及两个十进制字符转换语料（`mpfr_strtofr` 与 `mpfr_get_str`）。该包不进行任何 IO；运行器是 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)。工作流程参见[教程](../../tutorial/frontend/mpfr_expr.md)，通过规则参见[设计页面](../../design/frontend/mpfr_expr.md)。"
 
-#: manual/api/frontend/mpfr_expr.md:23
+#: manual/api/frontend/mpfr_expr.md:24
 msgid "The examples call it through the alias `@mpfr_expr`; rows are written as text, so `bin_float` does not need to be imported."
 msgstr "示例通过别名 `@mpfr_expr` 调用它；行以文本形式书写，因此无需导入 `bin_float`。"
 
-#: manual/api/frontend/mpfr_expr.md:26
+#: manual/api/frontend/mpfr_expr.md:27
 msgid "Common row syntax"
 msgstr "通用行语法"
 
-#: manual/api/frontend/mpfr_expr.md:28
+#: manual/api/frontend/mpfr_expr.md:29
 msgid ""
-"All three parsers split the text at `\\n"
+"All five parsers split the text at `\\n"
 "`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field is one of"
 msgstr ""
-"三个解析器都在 `\\n"
+"五个解析器都在 `\\n"
 "` 处切分文本，修剪每一行，并跳过空行和以 `#` 开头的行。字段以空格、制表符或回车符分隔。行号从 1 开始。舍入字段为以下之一"
 
-#: manual/api/frontend/mpfr_expr.md:41
+#: manual/api/frontend/mpfr_expr.md:42
 msgid "and a number is read by `@bin_float.BinFloat::from_hex` (`0x…p…` with an integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the precision named for that field; a significand with more bits than that precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and otherwise `Err` with one `ParseDiagnostic` per invalid line."
 msgstr "数值由 `@bin_float.BinFloat::from_hex` 以该字段所指定的精度读取（`0x…p…`，其有效数为不带小数点的十六进制整数；以及 `inf`、`-inf`、`nan`）；位数多于该精度的有效数按就近舍入（偶数优先）舍入。每个解析器在所有行都有效时返回 `Ok(document)`，否则返回 `Err`，其中每个无效行对应一个 `ParseDiagnostic`。"
 
-#: manual/api/frontend/mpfr_expr.md:47
+#: manual/api/frontend/mpfr_expr.md:48
 msgid "Square-root data"
 msgstr "平方根数据"
 
-#: manual/api/frontend/mpfr_expr.md:51
+#: manual/api/frontend/mpfr_expr.md:52
 msgid "`parse_sqrt_data(source, text)` parses rows of five fields: `input_precision output_precision rounding input expected`."
 msgstr "`parse_sqrt_data(source, text)` 解析由五个字段组成的行：`input_precision output_precision rounding input expected`。"
 
-#: manual/api/frontend/mpfr_expr.md:58
+#: manual/api/frontend/mpfr_expr.md:59
 msgid "The input is read at `input_precision` bits and the expected value at `output_precision` bits. Row ids are `sqrt:LINE`."
 msgstr "输入以 `input_precision` 位读取，期望值以 `output_precision` 位读取。行 id 为 `sqrt:LINE`。"
 
-#: manual/api/frontend/mpfr_expr.md:63
+#: manual/api/frontend/mpfr_expr.md:64
 msgid "`execute_sqrt_data(document)` computes `input.sqrt_ctx(ctx)` for every row, where `ctx` is `BinaryContext::unbounded(output_precision, rounding~)`."
 msgstr "`execute_sqrt_data(document)` 为每一行计算 `input.sqrt_ctx(ctx)`，其中 `ctx` 为 `BinaryContext::unbounded(output_precision, rounding~)`。"
 
-#: manual/api/frontend/mpfr_expr.md:70
+#: manual/api/frontend/mpfr_expr.md:71
 msgid "A row passes when the result is equal (`==`) to the expected `BinFloat`. Flags are not compared."
 msgstr "当结果与期望的 `BinFloat` 相等（`==`）时该行通过。不比较标志。"
 
-#: manual/api/frontend/mpfr_expr.md:75
+#: manual/api/frontend/mpfr_expr.md:76
 msgid "`MpfrDocument` is a parsed square-root file; `MpfrCase` is one of its rows and has no public methods."
 msgstr "`MpfrDocument` 是一个已解析的平方根文件；`MpfrCase` 是其中的一行，没有公开方法。"
 
-#: manual/api/frontend/mpfr_expr.md:90
+#: manual/api/frontend/mpfr_expr.md:91
 msgid "`source` returns the name given to the parser and `case_count` the number of rows."
 msgstr "`source` 返回传给解析器的名称，`case_count` 返回行数。"
 
-#: manual/api/frontend/mpfr_expr.md:98
+#: manual/api/frontend/mpfr_expr.md:99
 #: manual/design/decimal_gda.md:578
 #: manual/tutorial/frontend/mpfr_expr.md:83
 msgid "Integer powers"
 msgstr "整数次幂"
 
-#: manual/api/frontend/mpfr_expr.md:102
+#: manual/api/frontend/mpfr_expr.md:103
 msgid "`parse_pow_data(source, text)` parses rows of ten fields."
 msgstr "`parse_pow_data(source, text)` 解析由十个字段组成的行。"
 
-#: manual/api/frontend/mpfr_expr.md:108
+#: manual/api/frontend/mpfr_expr.md:109
 msgid "The fields are `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact`, where the two numbers are $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$, the signs and `inexact` are `0` or `1`, and `exponent` is the integer power. The input is read at 512 bits and the expected value at `precision` bits. Row ids are `pow:LINE`. The coefficient fields are bare hexadecimal digits; the parser builds `0xCOEFFpEXP` from them."
 msgstr "字段为 `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact`，其中两个数均为 $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$，各符号位和 `inexact` 为 `0` 或 `1`，`exponent` 是整数幂指数。输入以 512 位读取，期望值以 `precision` 位读取。行 id 为 `pow:LINE`。系数字段是不带前缀的十六进制数字；解析器由它们构造 `0xCOEFFpEXP`。"
 
-#: manual/api/frontend/mpfr_expr.md:119
+#: manual/api/frontend/mpfr_expr.md:120
 msgid "`execute_pow_data(document)` computes `input.pow_int_ctx(exponent, ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`."
 msgstr "`execute_pow_data(document)` 计算 `input.pow_int_ctx(exponent, ctx)`，其中 `ctx = BinaryContext::unbounded(precision, rounding~)`。"
 
-#: manual/api/frontend/mpfr_expr.md:126
+#: manual/api/frontend/mpfr_expr.md:127
 msgid "A row passes when the result is equal (`==`) to the expected value, the inexact flag equals the row's flag, and no underflow, overflow, division by zero or invalid flag is raised."
 msgstr "当结果与期望值相等（`==`）、不精确标志等于该行的标志，并且没有引发下溢、上溢、除以零或无效标志时，该行通过。"
 
-#: manual/api/frontend/mpfr_expr.md:132
+#: manual/api/frontend/mpfr_expr.md:133
 msgid "`MpfrPowDocument` is a parsed power file; `MpfrPowCase` is one row and has no public methods."
 msgstr "`MpfrPowDocument` 是一个已解析的幂文件；`MpfrPowCase` 是其中的一行，没有公开方法。"
 
-#: manual/api/frontend/mpfr_expr.md:147
-#: manual/api/frontend/mpfr_expr.md:206
+#: manual/api/frontend/mpfr_expr.md:148
+#: manual/api/frontend/mpfr_expr.md:207
 msgid "These methods return the name given to the parser and the number of rows."
 msgstr "这些方法返回传给解析器的名称以及行数。"
 
-#: manual/api/frontend/mpfr_expr.md:158
+#: manual/api/frontend/mpfr_expr.md:159
 msgid "`parse_elementary_data(source, text)` parses rows of ten fields: `op precision rounding x y n expected inexact invalid divbyzero`."
 msgstr "`parse_elementary_data(source, text)` 解析由十个字段组成的行：`op precision rounding x y n expected inexact invalid divbyzero`。"
 
-#: manual/api/frontend/mpfr_expr.md:165
+#: manual/api/frontend/mpfr_expr.md:166
 msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sqrt`, `rootn`, `pown`, `pow`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits (`y` is `-` when unused), `n` is the integer argument of `rootn` and `pown`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
 msgstr "`op` 为 `exp`、`exp2`、`exp10`、`expm1`、`ln`、`log2`、`log10`、`log1p`、`sqrt`、`rootn`、`pown`、`pow`、`hypot`、`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`、`asin`、`acos`、`atan`、`atan2`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh` 之一。`x` 和 `y` 是以 512 位读取的操作数（未使用时 `y` 为 `-`），`n` 是 `rootn` 和 `pown` 的整数参数，`expected` 以 `precision` 位读取，最后三个字段为 `0` 或 `1`。行 id 为 `op:LINE`。"
 
-#: manual/api/frontend/mpfr_expr.md:173
+#: manual/api/frontend/mpfr_expr.md:174
 msgid "A row of the two-operand functions `pow`, `hypot` and `atan2` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
 msgstr "双操作数函数 `pow`、`hypot` 和 `atan2` 中 `y` 为 `-` 的行是诊断 `\"invalid MPFR elementary field\"`。"
 
-#: manual/api/frontend/mpfr_expr.md:178
+#: manual/api/frontend/mpfr_expr.md:179
 msgid "`execute_elementary_data(document)` evaluates every row with the checked `try_*_ctx` method of `BinFloat` for its operation (`sqrt_ctx` and `pown_ctx` for `sqrt` and `pown`) in `BinaryContext::unbounded(precision, rounding~)`."
 msgstr "`execute_elementary_data(document)` 在 `BinaryContext::unbounded(precision, rounding~)` 中，用 `BinFloat` 对应其运算的 checked 方法 `try_*_ctx`（对 `sqrt` 和 `pown` 则为 `sqrt_ctx` 和 `pown_ctx`）对每一行求值。"
 
-#: manual/api/frontend/mpfr_expr.md:186
+#: manual/api/frontend/mpfr_expr.md:187
 msgid "A row passes when the result compares equal to the expected value (`compare == 0`, so every NaN equals every NaN) with the same sign when it is zero, the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
 msgstr "当结果与期望值比较相等（`compare == 0`，因此任意 NaN 都与任意 NaN 相等）且结果为零时符号相同，不精确、无效和除以零标志等于该行的标志，并且既没有引发下溢也没有引发上溢时，该行通过。若某个 `try_*_ctx` 方法返回 `Err`（例如认证失败），该行以消息 `\"certification failure for MPFR differential case\"` 失败。"
 
-#: manual/api/frontend/mpfr_expr.md:196
+#: manual/api/frontend/mpfr_expr.md:197
 msgid "`MpfrElementaryDocument` is a parsed elementary file."
 msgstr "`MpfrElementaryDocument` 是一个已解析的初等函数文件。"
 
-#: manual/api/frontend/mpfr_expr.md:213
+#: manual/api/frontend/mpfr_expr.md:214
+msgid "Decimal character conversion"
+msgstr "十进制字符转换"
+
+#: manual/api/frontend/mpfr_expr.md:218
+msgid "`parse_strtofr_data(source, text)` parses rows of seven fields: `precision rounding input expected inexact overflow underflow`."
+msgstr "`parse_strtofr_data(source, text)` 解析含七个字段的行：`precision rounding input expected inexact overflow underflow`。"
+
+#: manual/api/frontend/mpfr_expr.md:225
+msgid "`input` is a decimal literal kept as text, `expected` is the `mpfr_strtofr` result read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `strtofr:LINE`."
+msgstr "`input` 是按文本保留的十进制字面量，`expected` 是以 `precision` 位读取的 `mpfr_strtofr` 结果，最后三个字段为 `0` 或 `1`。行 id 为 `strtofr:LINE`。"
+
+#: manual/api/frontend/mpfr_expr.md:231
+msgid "`execute_strtofr_data(document)` evaluates `BinFloat::from_string_ctx(input, ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`."
+msgstr "`execute_strtofr_data(document)` 以 `ctx = BinaryContext::unbounded(precision, rounding~)` 计算 `BinFloat::from_string_ctx(input, ctx)`。"
+
+#: manual/api/frontend/mpfr_expr.md:238
+msgid "A row passes when the result compares equal to the expected value, with the same sign (including zero) and class, the inexact, overflow and underflow flags equal the row's flags, and neither invalid nor division by zero is raised. A literal rejected by the parser fails the row."
+msgstr "当结果与期望值比较相等、符号（含零）和类别相同、inexact、overflow 与 underflow 标志等于该行的标志，且未引发 invalid 或除零时，该行通过。被解析器拒绝的字面量会使该行失败。"
+
+#: manual/api/frontend/mpfr_expr.md:245
+msgid "`MpfrStrtofrDocument` is a parsed file; the methods return the name given to the parser and the number of rows."
+msgstr "`MpfrStrtofrDocument` 是一个已解析的文件；这些方法返回传给解析器的名称和行数。"
+
+#: manual/api/frontend/mpfr_expr.md:259
+msgid "`parse_decimal_output_data(source, text)` parses two row kinds."
+msgstr "`parse_decimal_output_data(source, text)` 解析两种行。"
+
+#: manual/api/frontend/mpfr_expr.md:265
+msgid "`fixed digits precision rounding value expected_digits expected_exponent10 inexact` (eight fields) is a value printed with `digits` significant digits: `expected_digits` is the digit string and `expected_exponent10` the decimal exponent of its first digit. `shortest precision value expected_digit_count` (four fields) is the number of significant digits of the shortest round-trip form. Values are read at `precision` bits. Row ids are `fixed:LINE` and `shortest:LINE`."
+msgstr "`fixed digits precision rounding value expected_digits expected_exponent10 inexact`（八个字段）是以 `digits` 位有效数字打印的值：`expected_digits` 是数字串，`expected_exponent10` 是其首位数字的十进制指数。`shortest precision value expected_digit_count`（四个字段）是最短往返形式的有效数字个数。值以 `precision` 位读取。行 id 为 `fixed:LINE` 和 `shortest:LINE`。"
+
+#: manual/api/frontend/mpfr_expr.md:275
+msgid "`execute_decimal_output_data(document)` runs `BinFloat::to_decimal_string_ctx` for a `fixed` row and `BinFloat::to_shortest_string` for a `shortest` row."
+msgstr "`execute_decimal_output_data(document)` 对 `fixed` 行运行 `BinFloat::to_decimal_string_ctx`，对 `shortest` 行运行 `BinFloat::to_shortest_string`。"
+
+#: manual/api/frontend/mpfr_expr.md:282
+msgid "A `fixed` row passes when the printed digits, the exponent and the sign match and the inexact flag equals the row's flag (no overflow or underflow). A `shortest` row passes when the text has exactly `expected_digit_count` significant digits (leading zeros and the trailing zeros of positional notation are not counted) and `BinFloat::from_string(text, precision~)` returns the same value."
+msgstr "当打印的数字、指数和符号都匹配，且 inexact 标志等于该行的标志（无上溢或下溢）时，`fixed` 行通过。当文本恰有 `expected_digit_count` 位有效数字（不计前导零和位置记法的尾随零），且 `BinFloat::from_string(text, precision~)` 返回相同的值时，`shortest` 行通过。"
+
+#: manual/api/frontend/mpfr_expr.md:300
 msgid "Diagnostics and results"
 msgstr "诊断与结果"
 
-#: manual/api/frontend/mpfr_expr.md:217
+#: manual/api/frontend/mpfr_expr.md:304
 #: manual/api/frontend/testfloat_expr.md:218
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr "`ParseDiagnostic` 是一个无效行。"
 
-#: manual/api/frontend/mpfr_expr.md:227
+#: manual/api/frontend/mpfr_expr.md:314
 #: manual/api/frontend/testfloat_expr.md:228
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr "这些方法返回传给解析器的名称、从 1 开始的行号和消息。"
 
-#: manual/api/frontend/mpfr_expr.md:236
+#: manual/api/frontend/mpfr_expr.md:323
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr "消息指明问题所在，例如 `\"MPFR pow row must contain ten fields\"`、`\"invalid MPFR pow field\"` 或 `\"invalid MPFR elementary expected value\"`。"
 
-#: manual/api/frontend/mpfr_expr.md:242
+#: manual/api/frontend/mpfr_expr.md:329
 msgid "`CaseResult` is the outcome of one row."
 msgstr "`CaseResult` 是一行的结果。"
 
-#: manual/api/frontend/mpfr_expr.md:252
+#: manual/api/frontend/mpfr_expr.md:339
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr "这些方法返回行 id、该行是否通过，以及一条消息。"
 
-#: manual/api/frontend/mpfr_expr.md:260
+#: manual/api/frontend/mpfr_expr.md:347
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr "通过时消息为空，否则以十六进制显示期望值和实际值（对于幂行和初等函数行，还显示所比较的标志）。"
 
-#: manual/api/frontend/mpfr_expr.md:265
+#: manual/api/frontend/mpfr_expr.md:352
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr "`RunSummary` 汇总一个文档中的各行。"
 
-#: manual/api/frontend/mpfr_expr.md:275
+#: manual/api/frontend/mpfr_expr.md:362
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr "这些方法返回行数，以及通过和失败的数目。"
 
-#: manual/api/frontend/mpfr_expr.md:285
+#: manual/api/frontend/mpfr_expr.md:372
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr "`results` 返回逐行结果的副本；`success` 是判定。"
 
-#: manual/api/frontend/mpfr_expr.md:292
+#: manual/api/frontend/mpfr_expr.md:379
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr "每一行都会被执行，因此 $\\text{total} = \\text{passed} + \\text{failed}$；当没有行失败时 `success` 为真。`results` 按行序返回结果。"
 
-#: manual/api/frontend/mpfr_expr.md:315
+#: manual/api/frontend/mpfr_expr.md:402
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法比较位置和消息，并为 `Debug` 渲染诊断。新代码中请使用 `==`、`!=` 和 `debug_inspect`。"
 
@@ -8022,50 +8062,66 @@ msgid "29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs"
 msgstr "29 运算 × 3 精度 × 6 舍入 × 4 组固定 seed 输入"
 
 #: manual/conformance/bin_float.md:79
+msgid "MPFR 4.2.2 `mpfr_strtofr` fixture"
+msgstr "MPFR 4.2.2 `mpfr_strtofr` fixture"
+
+#: manual/conformance/bin_float.md:79
+msgid "decimal text to binary: 5 precisions (11 to 200 bits) × 6 roundings × random, long-mantissa, huge-exponent, exact-halfway and one-unit-off-halfway literals, plus range limits and signed zeros"
+msgstr "十进制文本转二进制：5 种精度（11 至 200 位）× 6 种舍入 ×（随机、长尾数、极大指数、恰好中点和偏离中点一个单位的字面量），外加范围边界和带符号的零"
+
+#: manual/conformance/bin_float.md:80
+msgid "MPFR 4.2.2 `mpfr_get_str` fixture"
+msgstr "MPFR 4.2.2 `mpfr_get_str` fixture"
+
+#: manual/conformance/bin_float.md:80
+msgid "binary to decimal: 5 precisions × 5 roundings × 10 digit counts × fixed-seed values (exponents up to ±20,000), 12 exact ties, and the shortest round-trip digit count of 1,200 values"
+msgstr "二进制转十进制：5 种精度 × 5 种舍入 × 10 种位数 × 固定种子的值（指数至 ±20,000）、12 个恰好的平局，以及 1,200 个值的最短往返位数"
+
+#: manual/conformance/bin_float.md:81
 msgid "Optional MPFR elementary stress, seed 20260715"
 msgstr "可选 MPFR elementary 压力、seed 20260715"
 
-#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:81
 msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr "每个不少于三运算的 family 至少 100,000 例"
 
-#: manual/conformance/bin_float.md:80
+#: manual/conformance/bin_float.md:82
 msgid "Committed smoke"
 msgstr "提交的 smoke"
 
-#: manual/conformance/bin_float.md:80
-msgid "TestFloat, sqrt, `pow_si`, and elementary witnesses"
-msgstr "TestFloat、sqrt、`pow_si` 与 elementary 见证"
+#: manual/conformance/bin_float.md:82
+msgid "TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses"
+msgstr "TestFloat、sqrt、`pow_si`、elementary、`strtofr` 与十进制输出见证"
 
-#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:83
 msgid "TestFloat 3e level 2"
 msgstr "TestFloat 3e level 2"
 
-#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:83
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr "binary16 的全部已声明运算/方向/tininess"
 
-#: manual/conformance/bin_float.md:83
+#: manual/conformance/bin_float.md:85
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr "binary16 的 level-2 结果是额外的流式压力证据，并不代表规模大得多的 binary32/64/128 level-2 套件也已通过。归档、文件及其摘要固定在 [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json) 中。运行器以经过校验的有界分块流式执行 TestFloat level 2，但 level 2 是可选的压力套件，不计入上述结果声明。966,744 行的 MPFR 运行同样是可选的生成式压力证据；可复现的发布边界仍是按哈希固定的 2,088 行测试数据。"
 
-#: manual/conformance/bin_float.md:92
+#: manual/conformance/bin_float.md:94
 msgid "Scope of the claim"
 msgstr "声明的范围"
 
-#: manual/conformance/bin_float.md:94
+#: manual/conformance/bin_float.md:96
 msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
 msgstr "上述结果覆盖四个 interchange format 在所列舍入/tininess 模式下的 contextual 加、减、乘、除、平方根、融合乘加、remainder、roundToIntegral（普通与 exact）、到有/无符号 32/64 位整数的 convertToInteger（普通与 exact），以及 quiet/signaling 的相等、小于、小于等于谓词；另含 24、53、113 bit、全部六种项目舍入模式下声明的 29 个 elementary 运算。非法整数转换只比较标志：SoftFloat 返回平台相关的哨兵值，而 API 返回 `None`。不宣称格式间转换、min/max、total order、nextUp/nextDown、scaleB/logB 或十进制字符转换（由包内测试覆盖）的 TestFloat 一致性，也不宣称全部 IEEE 754 操作或全部实数输入的一致性。elementary 生成器通过 MPFR 要求的 `mpfr_round_nearest_away_begin/end` 协议实现 nearest-away，绝不把明确禁止的 `MPFR_RNDNA` 值直接传给通用 elementary 函数。"
 
-#: manual/conformance/bin_float.md:110
+#: manual/conformance/bin_float.md:112
 msgid "The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of magnitude at most 16, inside each function's domain: `pow` takes a positive base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2` never two zeros, and `tanpi` no integral or half-integral argument. A zero input is $+0$. The matrix therefore does not exercise tiny or huge arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees of `rootn`, or the poles and signed zeros of the IEEE special-case tables; exact results such as $16^{3/4}$ occur only by chance. Those cases are covered by the package's unit tests against the special-value tables in the [API reference](../api/bin_float.md#elementary-functions), not by this claim."
 msgstr "固定 seed 的初等函数输入是 $2^{-8}$ 的二进有理倍数，绝对值至多为 16，且位于各函数的定义域内：`pow` 取正的底数和 $[-3, 3]$ 中的指数，`rootn` 取 2 到 7 的次数，`atan2` 从不取两个零，`tanpi` 不取整数或半整数参数。零输入为 $+0$。因此该矩阵不覆盖极小或极大的参数、$-0$、无穷、NaN、`pow` 的负底数、`rootn` 的负次数，也不覆盖 IEEE 特殊情形表中的极点与带符号零；像 $16^{3/4}$ 这样的精确结果只是偶然出现。这些情形由本包的单元测试对照 [API 参考](../api/bin_float.md#elementary-functions)中的特殊值表来覆盖，而不在本声明之内。"
 
-#: manual/conformance/bin_float.md:122
+#: manual/conformance/bin_float.md:124
 msgid "Stability of the evidence"
 msgstr "证据的稳定性"
 
-#: manual/conformance/bin_float.md:124
+#: manual/conformance/bin_float.md:126
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle. Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr "固定矩阵是发布证据的边界；新增一个运算需要新的语料契约和独立的预言机。运行 `just conformance smoke binary` 执行已提交的门禁，运行 `just gate binary` 执行完整的固定门禁。"
 
@@ -20995,98 +21051,98 @@ msgid "**GDA.** All 64,986 legal executable scalar rows of the 144-file `officia
 msgstr "**GDA。** 144 个文件的 `official` 语料中全部 64,986 条合法可执行标量行均通过，`official0` 的全部 16,124 条合法行也均通过。141 条 `#` 占位行或非标量行属于诊断性排除，而非未支持的合法行为。"
 
 #: manual/verification.md:65
-msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,227,872 vectors in 468 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations and mulAdd, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The MPFR part adds the 1,055 executable rows of the pinned square-root data and 2,088 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under all six `BinaryRoundingMode` values."
-msgstr "**二进制。** TestFloat level-1 矩阵（种子 1）在 binary16/32/64/128 上共有 468 个任务、254,227,872 个向量：其中加、减、乘、除和平方根占 7,461,360 个，其余 246,766,512 个用于 IEEE 运算 mulAdd（占其中 245,329,920 个）、rem、roundToInt、到 32 位与 64 位有符号及无符号整数的转换，以及比较运算 eq、le、lt、eq_signaling、le_quiet 和 lt_quiet。对于使用舍入方向的运算，测试覆盖五种舍入方向；算术运算和 mulAdd 覆盖两种微小性模式；roundToInt 和各转换覆盖精确与不精确两种变体。无效的整数转换只比较标志，因为在 API 返回 `None` 的地方，SoftFloat 返回的是平台相关的哨兵值。MPFR 部分另外加入了固定版本平方根数据中的 1,055 条可执行行，以及 2,088 个以哈希固定的见证数据，覆盖 29 种初等运算，精度为 binary32/64/128，涵盖全部六种 `BinaryRoundingMode` 值。"
+msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,227,872 vectors in 468 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations and mulAdd, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The MPFR part adds the 1,055 executable rows of the pinned square-root data, 2,088 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under all six `BinaryRoundingMode` values, and the decimal character conversions of IEEE 754-2019 §5.12: 1,716 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits, including exact halfway points and the exponent limits) and 3,300 `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest round-trip digit count)."
+msgstr "**二进制。** TestFloat level-1 矩阵（种子 1）在 binary16/32/64/128 上共有 468 个任务、254,227,872 个向量：其中加、减、乘、除和平方根占 7,461,360 个，其余 246,766,512 个用于 IEEE 运算 mulAdd（占其中 245,329,920 个）、rem、roundToInt、到 32 位与 64 位有符号及无符号整数的转换，以及比较运算 eq、le、lt、eq_signaling、le_quiet 和 lt_quiet。对于使用舍入方向的运算，测试覆盖五种舍入方向；算术运算和 mulAdd 覆盖两种微小性模式；roundToInt 和各转换覆盖精确与不精确两种变体。无效的整数转换只比较标志，因为在 API 返回 `None` 的地方，SoftFloat 返回的是平台相关的哨兵值。MPFR 部分另外加入了固定版本平方根数据中的 1,055 条可执行行，以及 2,088 个以哈希固定的见证数据，覆盖 29 种初等运算，精度为 binary32/64/128，涵盖全部六种 `BinaryRoundingMode` 值。此外MPFR 部分还加入了十进制字符转换（IEEE 754-2019 §5.12）：1,716 个 `mpfr_strtofr` 见证（11 至 200 位的十进制文本转二进制，含恰好的中点和指数边界）与 3,300 个 `mpfr_get_str` 见证（固定位数、恰好的平局和最短往返位数）。"
 
-#: manual/verification.md:79
+#: manual/verification.md:83
 msgid "**IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover encoding, special values, flags, core arithmetic and all 1,024 DPD declets on native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed elementary oracle adds 2,784 rows computed from 768-bit MPFR enclosures under all eight decimal rounding modes."
 msgstr "**IEEE 十进制。** 已提交的 decimal32/64/128 DPD 与 BID fixture 覆盖编码、特殊值、标志、核心算术以及全部 1,024 个 DPD declet，在 native、Wasm、Wasm-GC 和 JavaScript 上运行；LLVM 不在此关卡范围内。一份已提交的初等函数判定数据另外加入了 2,784 行，由 768 位 MPFR 包络在全部八种十进制舍入模式下计算得到。"
 
-#: manual/verification.md:84
+#: manual/verification.md:88
 msgid "**Interval.** The strict ITF1788 phases pass 4,656/4,656 selected cases: sets, relations, numeric observations, cancellation, arithmetic, elementary-core, exponentials and logarithms, general power, trigonometric, hyperbolic, inverse trigonometric, `atan2`, FMA, integer power and extrema. Reverse operations remain unsupported."
 msgstr "**区间。** 严格 ITF1788 阶段通过了全部 4,656/4,656 个选定用例：集合、关系、数值观测、消去、算术、初等核心、指数与对数、一般幂、三角函数、双曲函数、反三角函数、`atan2`、FMA、整数幂和极值。逆运算仍不受支持。"
 
-#: manual/verification.md:90
-msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 2,451 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses and 2,088 elementary witnesses)."
-msgstr "`just pr` 运行的已提交冒烟 fixture 是上述语料的子集：例如二进制冒烟测试有 2,451 行（240 个 TestFloat 向量、3 个平方根见证、120 个整数幂见证以及 2,088 个初等函数见证）。"
+#: manual/verification.md:94
+msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses, 2,088 elementary witnesses, 1,716 `strtofr` witnesses and 3,300 decimal output witnesses)."
+msgstr "`just pr` 运行的已提交冒烟 fixture 是上述语料的子集：例如二进制冒烟测试有 7,467 行（240 个 TestFloat 向量、3 个平方根见证、120 个整数幂见证、2,088 个初等函数见证、1,716 个 `strtofr` 见证以及 3,300 个十进制输出见证）。"
 
-#: manual/verification.md:95
+#: manual/verification.md:99
 msgid "These are finite claims. They do not imply every IEEE 754 or IEEE 1788 operation, arbitrary resource sizes, every NaN payload policy, or future corpus revisions. The per-package [binary](./conformance/bin_float.md), [IEEE decimal](./conformance/decimal.md), [GDA](./conformance/decimal_gda.md) and [interval](./conformance/ball_float.md) conformance pages state the exact matrix and its exclusions."
 msgstr "这些都是有限的结论。它们并不意味着覆盖 IEEE 754 或 IEEE 1788 的每一个运算、任意的资源规模、每一种 NaN 载荷策略，或将来的语料版本。各包的[二进制](./conformance/bin_float.md)、[IEEE 十进制](./conformance/decimal.md)、[GDA](./conformance/decimal_gda.md)和[区间](./conformance/ball_float.md)符合性页面给出了确切的矩阵及其排除项。"
 
-#: manual/verification.md:102
+#: manual/verification.md:106
 msgid "Reproducibility"
 msgstr "可复现性"
 
-#: manual/verification.md:104
+#: manual/verification.md:108
 msgid "External artifacts are pinned by revision and SHA-256 in each corpus manifest (`testdata/*/corpora.json`). Builds use backend-named outputs and isolated target directories so that parallel jobs do not overwrite each other. Shards select deterministic case indices, and merged summaries keep exact totals and failed IDs. Large generated fixtures are split across files (the IEEE decimal public-API fixture is written 400 tests per file) so that every toolchain compiles them."
 msgstr "外部产物在各语料清单（`testdata/*/corpora.json`）中按版本和 SHA-256 固定。构建使用以后端命名的输出和隔离的目标目录，使并行任务不会相互覆盖。分片选取确定性的用例索引，合并后的汇总保留精确的总数和失败 ID。大型生成 fixture 被拆分到多个文件中（IEEE 十进制公开 API fixture 每个文件写入 400 个测试），以便每种工具链都能编译。"
 
-#: manual/verification.md:112
+#: manual/verification.md:116
 msgid "The MoonBit frontends parse and execute numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection and aggregation. An optional oracle is never silently replaced by a weaker one; a missing requirement is reported explicitly."
 msgstr "MoonBit 前端负责解析并执行数值行。Python 负责编排下载、任务规划、子进程、目标选择和结果汇总。可选的判定实现（oracle）绝不会被悄悄替换为更弱的实现；缺失的前提条件会被明确报告。"
 
-#: manual/verification.md:117
+#: manual/verification.md:121
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin the baseline source, dependencies, toolchain, target, schedule, sample count and dispersion limits, and a performance threshold never changes correctness. See [performance audit](./performance_audit.md) and the per-package performance pages."
 msgstr "性能证据与语义符合性相互独立。基准测试清单固定了基线源码、依赖、工具链、目标、调度、样本数和离散度上限，且性能阈值从不改变正确性。参见[性能审计](./performance_audit.md)以及各包的性能页面。"
 
-#: manual/verification.md:123
+#: manual/verification.md:127
 msgid "Failure triage"
 msgstr "失败排查"
 
-#: manual/verification.md:125
+#: manual/verification.md:129
 msgid "Re-run the failing backend with the smallest case, ID filter, phase or shard that reproduces it."
 msgstr "用能复现问题的最小用例、ID 过滤器、阶段或分片重新运行失败的后端。"
 
-#: manual/verification.md:127
+#: manual/verification.md:131
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches and infrastructure failures."
 msgstr "区分解析诊断、不受支持的用例、旧有分类、可执行结果不匹配以及基础设施故障。"
 
-#: manual/verification.md:129
+#: manual/verification.md:133
 msgid "Record the expected value, actual value, flags, context, target, corpus revision and command."
 msgstr "记录期望值、实际值、标志、上下文、目标、语料版本和命令。"
 
-#: manual/verification.md:131
+#: manual/verification.md:135
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange or aggregation."
 msgstr "运行对应的白盒包测试，以判断缺陷位于解析、算术、交换格式还是汇总环节。"
 
-#: manual/verification.md:133
+#: manual/verification.md:137
 msgid "After a fix, run the focused case, the committed smoke fixture, the backend gate, and finally `just pr` or `just ci`."
 msgstr "修复后，依次运行针对性用例、已提交的冒烟 fixture、后端关卡，最后运行 `just pr` 或 `just ci`。"
 
-#: manual/verification.md:136
+#: manual/verification.md:140
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr "不得通过降低 strict support、丢弃 flags 或改写分母让失败 gate 变绿。"
 
-#: manual/verification.md:139
+#: manual/verification.md:143
 msgid "Release gate"
 msgstr "发布关卡"
 
-#: manual/verification.md:141
+#: manual/verification.md:145
 msgid "Before publishing:"
 msgstr "发布前："
 
-#: manual/verification.md:143
+#: manual/verification.md:147
 msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
 msgstr "使 `moon.mod`、`README.md`、手册与 `CHANGELOG.md` 保持一致；"
 
-#: manual/verification.md:144
+#: manual/verification.md:148
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
 msgstr "运行 `just docs`、`lunadoc check`，并检查生成接口的差异；"
 
-#: manual/verification.md:146
+#: manual/verification.md:150
 msgid "run `just pr` while iterating;"
 msgstr "迭代期间运行 `just pr`；"
 
-#: manual/verification.md:147
+#: manual/verification.md:151
 msgid "run `just ci` on the release candidate;"
 msgstr "对候选发布版本运行 `just ci`；"
 
-#: manual/verification.md:148
+#: manual/verification.md:152
 msgid "publish through the repository's `publish.yml` GitHub Actions workflow."
 msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 
-#: manual/verification.md:150
+#: manual/verification.md:154
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
 

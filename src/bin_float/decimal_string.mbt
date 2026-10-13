@@ -127,6 +127,27 @@ fn decimal_exact_limit(digit_count : Int32, precision : Int32) -> Int64 {
 }
 
 ///|
+/// `value * 2^shift` for a rounded result of the shifted context. The result
+/// is representable in the original context by construction, so no rounding
+/// happens; zeros and infinities are unchanged.
+fn binary_shift_exponent(
+  value : BinFloat,
+  shift : Int32,
+  precision : Int32,
+) -> BinFloat {
+  match value.class {
+    FpClass::Finite if !value.coefficient_.is_zero() =>
+      finite_from_parts(
+        value.negative,
+        value.coefficient_,
+        value.exponent2 + shift,
+        precision,
+      )
+    _ => value
+  }
+}
+
+///|
 fn binary_round_decimal(
   literal : DecimalLiteral,
   context : BinaryContext,
@@ -170,13 +191,30 @@ fn binary_round_decimal(
   // Large exponents: D * 5^k with 5^k > 2^(p + 2) is neither representable
   // nor a midpoint, and D / 10^k with 5^k > D is not dyadic, so directed
   // enclosures eventually round to one value.
+  //
+  // D * 10^k = (D * 5^k) * 2^k. The factor 5^k needs about 2.32 k bits where
+  // 10^k needs 3.32 k, so it stays inside the exponent range when 10^k would
+  // already overflow it (a value within a few binades of the limit). The
+  // power of two is applied after rounding: rounding D * 5^k in the context
+  // whose exponent range is shifted by k and shifting the result back rounds
+  // the product once, exactly as the original context would.
+  let shift = if literal.exponent >= 0L { scale_int } else { -scale_int }
+  let shifted_e_min = (context.range_e_min().to_int64() - shift.to_int64()).to_int()
+  let shifted_e_max = (context.range_e_max().to_int64() - shift.to_int64()).to_int()
+  let shifted = BinaryContext::new(
+    context.precision,
+    rounding=context.rounding,
+    e_min=shifted_e_min,
+    e_max=shifted_e_max,
+    tininess=context.tininess,
+  )
   let mut work = context.precision + 64
   while true {
     let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
     let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
-    let ten = BinFloat::from_int(10, precision=work)
-    let power_low = ten.pow_int_ctx(scale_int, down).0
-    let power_high = ten.pow_int_ctx(scale_int, up).0
+    let five = BinFloat::from_int(5, precision=work)
+    let power_low = five.pow_int_ctx(scale_int, down).0
+    let power_high = five.pow_int_ctx(scale_int, up).0
     let digits_low = BinFloat::make(
       digits,
       0,
@@ -206,10 +244,10 @@ fn binary_round_decimal(
       (low, high)
     }
     let (result, unique, flags) = binary_certified_target_rounding(
-      lower, upper, context,
+      lower, upper, shifted,
     )
     if unique {
-      return (result, flags)
+      return (binary_shift_exponent(result, shift, context.precision), flags)
     }
     work = work * 2
   }

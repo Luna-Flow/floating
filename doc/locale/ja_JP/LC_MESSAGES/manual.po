@@ -104,7 +104,7 @@ msgstr "現在のコードが入力集合の一部を失う、不必要に広げ
 #: manual/api/doc_examples.md:14
 #: manual/api/frontend/gda_expr.md:16
 #: manual/api/frontend/itl_expr.md:12
-#: manual/api/frontend/mpfr_expr.md:13
+#: manual/api/frontend/mpfr_expr.md:14
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:57
 #: manual/api/internal/conformance.md:15
@@ -649,7 +649,7 @@ msgstr "`minimum` は $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 #: manual/api/bin_float.md:1392
 #: manual/api/bin_float_checked.md:390
 #: manual/api/decimal.md:1345
-#: manual/api/frontend/mpfr_expr.md:154
+#: manual/api/frontend/mpfr_expr.md:155
 #: manual/design/decimal_gda.md:452
 msgid "Elementary functions"
 msgstr "初等関数"
@@ -999,7 +999,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:311
+#: manual/api/frontend/mpfr_expr.md:398
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
 #: manual/api/numeric_expr.md:298
@@ -1086,7 +1086,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:324
+#: manual/api/frontend/mpfr_expr.md:411
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:582
 #: manual/api/internal/conformance.md:353
@@ -1101,7 +1101,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/decimal_gda.md:2027
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:326
+#: manual/api/frontend/mpfr_expr.md:413
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:584
 #: manual/api/internal/conformance.md:355
@@ -3804,7 +3804,7 @@ msgid "`DecimalFlags` records the conditions raised by one operation."
 msgstr "`DecimalFlags` は 1 回の演算で発生した条件を記録します。"
 
 #: manual/api/decimal.md:606
-#: manual/api/frontend/mpfr_expr.md:32
+#: manual/api/frontend/mpfr_expr.md:33
 msgid "Field"
 msgstr "フィールド"
 
@@ -5780,7 +5780,7 @@ msgstr "`frontend/gda_expr` は General Decimal Arithmetic のテストファイ
 
 #: manual/api/frontend/gda_expr.md:18
 #: manual/api/frontend/itl_expr.md:14
-#: manual/api/frontend/mpfr_expr.md:15
+#: manual/api/frontend/mpfr_expr.md:16
 msgid "Add the package to the `import` block of your `moon.pkg`:"
 msgstr "`moon.pkg` の `import` ブロックにパッケージを追加します。"
 
@@ -6250,159 +6250,199 @@ msgid "frontend/mpfr_expr API"
 msgstr "frontend/mpfr_expr API"
 
 #: manual/api/frontend/mpfr_expr.md:5
-msgid "`frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes it against `bin_float`. Three formats are supported: MPFR's square-root `data_check` files, integer-power rows, and an elementary-function matrix with exception flags. The package does no IO; the runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the [design page](../../design/frontend/mpfr_expr.md) for the pass rules."
-msgstr "`frontend/mpfr_expr` は GNU MPFR で生成された参照データを構文解析し、`bin_float` に対して実行します。サポートする形式は 3 つで、MPFR の平方根 `data_check` ファイル、整数べきの行、および例外フラグ付きの初等関数マトリクスです。このパッケージは IO を行わず、ランナーは [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md) です。ワークフローは[チュートリアル](../../tutorial/frontend/mpfr_expr.md)を、合格規則は[設計ページ](../../design/frontend/mpfr_expr.md)を参照してください。"
+msgid "`frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes it against `bin_float`. Five formats are supported: MPFR's square-root `data_check` files, integer-power rows, an elementary-function matrix with exception flags, and two corpora for decimal character conversion (`mpfr_strtofr` and `mpfr_get_str`). The package does no IO; the runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the [design page](../../design/frontend/mpfr_expr.md) for the pass rules."
+msgstr "`frontend/mpfr_expr` は GNU MPFR で生成した参照データを解析し、`bin_float` に対して実行します。対応する形式は 5 つです。MPFR の平方根 `data_check` ファイル、整数べきの行、例外フラグ付きの初等関数マトリクス、そして十進文字変換の 2 つのコーパス（`mpfr_strtofr` と `mpfr_get_str`）です。このパッケージは IO を行いません。ランナーは [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md) です。手順は[チュートリアル](../../tutorial/frontend/mpfr_expr.md)、判定規則は[設計ページ](../../design/frontend/mpfr_expr.md)を参照してください。"
 
-#: manual/api/frontend/mpfr_expr.md:23
+#: manual/api/frontend/mpfr_expr.md:24
 msgid "The examples call it through the alias `@mpfr_expr`; rows are written as text, so `bin_float` does not need to be imported."
 msgstr "例では別名 `@mpfr_expr` を通じて呼び出します。行はテキストとして書かれるため、`bin_float` をインポートする必要はありません。"
 
-#: manual/api/frontend/mpfr_expr.md:26
+#: manual/api/frontend/mpfr_expr.md:27
 msgid "Common row syntax"
 msgstr "共通の行構文"
 
-#: manual/api/frontend/mpfr_expr.md:28
+#: manual/api/frontend/mpfr_expr.md:29
 msgid ""
-"All three parsers split the text at `\\n"
+"All five parsers split the text at `\\n"
 "`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field is one of"
 msgstr ""
-"3 つのパーサはいずれもテキストを `\\n"
-"` で分割し、各行の前後の空白を除去し、空行と `#` で始まる行をスキップします。フィールドは空白、タブ、キャリッジリターンで区切られます。行番号は 1 から始まります。丸めフィールドは次のいずれかであり、"
+"5 つのパーサーはいずれも、テキストを `\\n"
+"` で分割し、各行をトリムし、空行と `#` で始まる行を読み飛ばします。フィールドは空白、タブ、キャリッジリターンで区切られます。行番号は 1 から始まります。丸めフィールドは次のいずれかです"
 
-#: manual/api/frontend/mpfr_expr.md:41
+#: manual/api/frontend/mpfr_expr.md:42
 msgid "and a number is read by `@bin_float.BinFloat::from_hex` (`0x…p…` with an integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the precision named for that field; a significand with more bits than that precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and otherwise `Err` with one `ParseDiagnostic` per invalid line."
 msgstr "数は、そのフィールドに指定された精度で `@bin_float.BinFloat::from_hex`（小数点のない整数の 16 進仮数を持つ `0x…p…`、`inf`、`-inf`、`nan`）によって読み取られます。その精度より多いビットを持つ仮数は最近接偶数丸めされます。各パーサは、すべての行が有効なら `Ok(document)` を、そうでなければ無効な行ごとに 1 つの `ParseDiagnostic` を含む `Err` を返します。"
 
-#: manual/api/frontend/mpfr_expr.md:47
+#: manual/api/frontend/mpfr_expr.md:48
 msgid "Square-root data"
 msgstr "平方根データ"
 
-#: manual/api/frontend/mpfr_expr.md:51
+#: manual/api/frontend/mpfr_expr.md:52
 msgid "`parse_sqrt_data(source, text)` parses rows of five fields: `input_precision output_precision rounding input expected`."
 msgstr "`parse_sqrt_data(source, text)` は 5 つのフィールド `input_precision output_precision rounding input expected` からなる行を構文解析します。"
 
-#: manual/api/frontend/mpfr_expr.md:58
+#: manual/api/frontend/mpfr_expr.md:59
 msgid "The input is read at `input_precision` bits and the expected value at `output_precision` bits. Row ids are `sqrt:LINE`."
 msgstr "入力は `input_precision` ビットで、期待値は `output_precision` ビットで読み取られます。行 id は `sqrt:LINE` です。"
 
-#: manual/api/frontend/mpfr_expr.md:63
+#: manual/api/frontend/mpfr_expr.md:64
 msgid "`execute_sqrt_data(document)` computes `input.sqrt_ctx(ctx)` for every row, where `ctx` is `BinaryContext::unbounded(output_precision, rounding~)`."
 msgstr "`execute_sqrt_data(document)` は各行について `input.sqrt_ctx(ctx)` を計算します。ここで `ctx` は `BinaryContext::unbounded(output_precision, rounding~)` です。"
 
-#: manual/api/frontend/mpfr_expr.md:70
+#: manual/api/frontend/mpfr_expr.md:71
 msgid "A row passes when the result is equal (`==`) to the expected `BinFloat`. Flags are not compared."
 msgstr "結果が期待される `BinFloat` と等しい（`==`）とき、その行は合格です。フラグは比較されません。"
 
-#: manual/api/frontend/mpfr_expr.md:75
+#: manual/api/frontend/mpfr_expr.md:76
 msgid "`MpfrDocument` is a parsed square-root file; `MpfrCase` is one of its rows and has no public methods."
 msgstr "`MpfrDocument` は構文解析済みの平方根ファイルです。`MpfrCase` はその 1 行で、公開メソッドはありません。"
 
-#: manual/api/frontend/mpfr_expr.md:90
+#: manual/api/frontend/mpfr_expr.md:91
 msgid "`source` returns the name given to the parser and `case_count` the number of rows."
 msgstr "`source` はパーサに与えられた名前を、`case_count` は行数を返します。"
 
-#: manual/api/frontend/mpfr_expr.md:98
+#: manual/api/frontend/mpfr_expr.md:99
 #: manual/design/decimal_gda.md:578
 #: manual/tutorial/frontend/mpfr_expr.md:83
 msgid "Integer powers"
 msgstr "整数べき"
 
-#: manual/api/frontend/mpfr_expr.md:102
+#: manual/api/frontend/mpfr_expr.md:103
 msgid "`parse_pow_data(source, text)` parses rows of ten fields."
 msgstr "`parse_pow_data(source, text)` は 10 個のフィールドからなる行を構文解析します。"
 
-#: manual/api/frontend/mpfr_expr.md:108
+#: manual/api/frontend/mpfr_expr.md:109
 msgid "The fields are `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact`, where the two numbers are $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$, the signs and `inexact` are `0` or `1`, and `exponent` is the integer power. The input is read at 512 bits and the expected value at `precision` bits. Row ids are `pow:LINE`. The coefficient fields are bare hexadecimal digits; the parser builds `0xCOEFFpEXP` from them."
 msgstr "フィールドは `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact` です。ここで 2 つの数は $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$ であり、符号と `inexact` は `0` または `1`、`exponent` は整数のべき指数です。入力は 512 ビットで、期待値は `precision` ビットで読み取られます。行 id は `pow:LINE` です。係数のフィールドは接頭辞のない 16 進数字であり、パーサはそれらから `0xCOEFFpEXP` を組み立てます。"
 
-#: manual/api/frontend/mpfr_expr.md:119
+#: manual/api/frontend/mpfr_expr.md:120
 msgid "`execute_pow_data(document)` computes `input.pow_int_ctx(exponent, ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`."
 msgstr "`execute_pow_data(document)` は `ctx = BinaryContext::unbounded(precision, rounding~)` として `input.pow_int_ctx(exponent, ctx)` を計算します。"
 
-#: manual/api/frontend/mpfr_expr.md:126
+#: manual/api/frontend/mpfr_expr.md:127
 msgid "A row passes when the result is equal (`==`) to the expected value, the inexact flag equals the row's flag, and no underflow, overflow, division by zero or invalid flag is raised."
 msgstr "結果が期待値と等しく（`==`）、inexact フラグが行のフラグと等しく、アンダーフロー・オーバーフロー・ゼロ除算・invalid のいずれのフラグも発生しないとき、その行は合格です。"
 
-#: manual/api/frontend/mpfr_expr.md:132
+#: manual/api/frontend/mpfr_expr.md:133
 msgid "`MpfrPowDocument` is a parsed power file; `MpfrPowCase` is one row and has no public methods."
 msgstr "`MpfrPowDocument` は構文解析済みのべき乗ファイルです。`MpfrPowCase` はその 1 行で、公開メソッドはありません。"
 
-#: manual/api/frontend/mpfr_expr.md:147
-#: manual/api/frontend/mpfr_expr.md:206
+#: manual/api/frontend/mpfr_expr.md:148
+#: manual/api/frontend/mpfr_expr.md:207
 msgid "These methods return the name given to the parser and the number of rows."
 msgstr "これらのメソッドは、パーサに渡された名前と行の数を返します。"
 
-#: manual/api/frontend/mpfr_expr.md:158
+#: manual/api/frontend/mpfr_expr.md:159
 msgid "`parse_elementary_data(source, text)` parses rows of ten fields: `op precision rounding x y n expected inexact invalid divbyzero`."
 msgstr "`parse_elementary_data(source, text)` は 10 個のフィールド `op precision rounding x y n expected inexact invalid divbyzero` からなる行を構文解析します。"
 
-#: manual/api/frontend/mpfr_expr.md:165
+#: manual/api/frontend/mpfr_expr.md:166
 msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sqrt`, `rootn`, `pown`, `pow`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits (`y` is `-` when unused), `n` is the integer argument of `rootn` and `pown`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
 msgstr "`op` は `exp`、`exp2`、`exp10`、`expm1`、`ln`、`log2`、`log10`、`log1p`、`sqrt`、`rootn`、`pown`、`pow`、`hypot`、`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`、`asin`、`acos`、`atan`、`atan2`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh` のいずれかです。`x` と `y` は 512 ビットで読み取られるオペランド（`y` は使わない場合 `-`）、`n` は `rootn` と `pown` の整数引数、`expected` は `precision` ビットで読み取られ、最後の 3 つのフィールドは `0` または `1` です。行 id は `op:LINE` です。"
 
-#: manual/api/frontend/mpfr_expr.md:173
+#: manual/api/frontend/mpfr_expr.md:174
 msgid "A row of the two-operand functions `pow`, `hypot` and `atan2` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
 msgstr "2 オペランド関数 `pow`、`hypot`、`atan2` の行で `y` が `-` であるものは、診断 `\"invalid MPFR elementary field\"` になります。"
 
-#: manual/api/frontend/mpfr_expr.md:178
+#: manual/api/frontend/mpfr_expr.md:179
 msgid "`execute_elementary_data(document)` evaluates every row with the checked `try_*_ctx` method of `BinFloat` for its operation (`sqrt_ctx` and `pown_ctx` for `sqrt` and `pown`) in `BinaryContext::unbounded(precision, rounding~)`."
 msgstr "`execute_elementary_data(document)` は各行を、その演算に対応する `BinFloat` の checked な `try_*_ctx` メソッド（`sqrt` と `pown` については `sqrt_ctx` と `pown_ctx`）で `BinaryContext::unbounded(precision, rounding~)` のもとで評価します。"
 
-#: manual/api/frontend/mpfr_expr.md:186
+#: manual/api/frontend/mpfr_expr.md:187
 msgid "A row passes when the result compares equal to the expected value (`compare == 0`, so every NaN equals every NaN) with the same sign when it is zero, the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
 msgstr "結果が期待値と等しいと比較され（`compare == 0`。そのため、すべての NaN はすべての NaN と等しい）、ゼロの場合は符号も同じであり、inexact・invalid・ゼロ除算の各フラグが行のフラグと等しく、アンダーフローもオーバーフローも発生しないとき、その行は合格です。`try_*_ctx` メソッドが `Err` を返した場合（例えば認証の失敗）、その行はメッセージ `\"certification failure for MPFR differential case\"` で失敗します。"
 
-#: manual/api/frontend/mpfr_expr.md:196
+#: manual/api/frontend/mpfr_expr.md:197
 msgid "`MpfrElementaryDocument` is a parsed elementary file."
 msgstr "`MpfrElementaryDocument` は構文解析済みの初等関数ファイルです。"
 
-#: manual/api/frontend/mpfr_expr.md:213
+#: manual/api/frontend/mpfr_expr.md:214
+msgid "Decimal character conversion"
+msgstr "十進文字変換"
+
+#: manual/api/frontend/mpfr_expr.md:218
+msgid "`parse_strtofr_data(source, text)` parses rows of seven fields: `precision rounding input expected inexact overflow underflow`."
+msgstr "`parse_strtofr_data(source, text)` は 7 フィールドの行 `precision rounding input expected inexact overflow underflow` を解析します。"
+
+#: manual/api/frontend/mpfr_expr.md:225
+msgid "`input` is a decimal literal kept as text, `expected` is the `mpfr_strtofr` result read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `strtofr:LINE`."
+msgstr "`input` はテキストのまま保持される十進リテラル、`expected` は `precision` ビットで読み込んだ `mpfr_strtofr` の結果で、最後の 3 フィールドは `0` か `1` です。行 id は `strtofr:LINE` です。"
+
+#: manual/api/frontend/mpfr_expr.md:231
+msgid "`execute_strtofr_data(document)` evaluates `BinFloat::from_string_ctx(input, ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`."
+msgstr "`execute_strtofr_data(document)` は `ctx = BinaryContext::unbounded(precision, rounding~)` で `BinFloat::from_string_ctx(input, ctx)` を評価します。"
+
+#: manual/api/frontend/mpfr_expr.md:238
+msgid "A row passes when the result compares equal to the expected value, with the same sign (including zero) and class, the inexact, overflow and underflow flags equal the row's flags, and neither invalid nor division by zero is raised. A literal rejected by the parser fails the row."
+msgstr "結果が期待値と等しく、符号（ゼロを含む）と分類が同じで、inexact・overflow・underflow フラグが行のフラグと等しく、invalid と division by zero が立たなければ、その行は合格です。パーサーに拒否されたリテラルは行を不合格にします。"
+
+#: manual/api/frontend/mpfr_expr.md:245
+msgid "`MpfrStrtofrDocument` is a parsed file; the methods return the name given to the parser and the number of rows."
+msgstr "`MpfrStrtofrDocument` は解析済みのファイルです。メソッドはパーサーに渡された名前と行数を返します。"
+
+#: manual/api/frontend/mpfr_expr.md:259
+msgid "`parse_decimal_output_data(source, text)` parses two row kinds."
+msgstr "`parse_decimal_output_data(source, text)` は 2 種類の行を解析します。"
+
+#: manual/api/frontend/mpfr_expr.md:265
+msgid "`fixed digits precision rounding value expected_digits expected_exponent10 inexact` (eight fields) is a value printed with `digits` significant digits: `expected_digits` is the digit string and `expected_exponent10` the decimal exponent of its first digit. `shortest precision value expected_digit_count` (four fields) is the number of significant digits of the shortest round-trip form. Values are read at `precision` bits. Row ids are `fixed:LINE` and `shortest:LINE`."
+msgstr "`fixed digits precision rounding value expected_digits expected_exponent10 inexact`（8 フィールド）は `digits` 桁の有効数字で出力した値です。`expected_digits` は桁の文字列、`expected_exponent10` はその先頭桁の十進指数です。`shortest precision value expected_digit_count`（4 フィールド）は最短の往復形式の有効桁数です。値は `precision` ビットで読み込みます。行 id は `fixed:LINE` と `shortest:LINE` です。"
+
+#: manual/api/frontend/mpfr_expr.md:275
+msgid "`execute_decimal_output_data(document)` runs `BinFloat::to_decimal_string_ctx` for a `fixed` row and `BinFloat::to_shortest_string` for a `shortest` row."
+msgstr "`execute_decimal_output_data(document)` は `fixed` 行で `BinFloat::to_decimal_string_ctx`、`shortest` 行で `BinFloat::to_shortest_string` を実行します。"
+
+#: manual/api/frontend/mpfr_expr.md:282
+msgid "A `fixed` row passes when the printed digits, the exponent and the sign match and the inexact flag equals the row's flag (no overflow or underflow). A `shortest` row passes when the text has exactly `expected_digit_count` significant digits (leading zeros and the trailing zeros of positional notation are not counted) and `BinFloat::from_string(text, precision~)` returns the same value."
+msgstr "`fixed` 行は、出力された桁、指数、符号が一致し、inexact フラグが行のフラグと等しい（オーバーフローとアンダーフローはなし）とき合格です。`shortest` 行は、テキストの有効桁数がちょうど `expected_digit_count`（先頭のゼロと位取り表記の末尾のゼロは数えない）で、`BinFloat::from_string(text, precision~)` が同じ値を返すとき合格です。"
+
+#: manual/api/frontend/mpfr_expr.md:300
 msgid "Diagnostics and results"
 msgstr "診断と結果"
 
-#: manual/api/frontend/mpfr_expr.md:217
+#: manual/api/frontend/mpfr_expr.md:304
 #: manual/api/frontend/testfloat_expr.md:218
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr "`ParseDiagnostic` は 1 つの無効な行です。"
 
-#: manual/api/frontend/mpfr_expr.md:227
+#: manual/api/frontend/mpfr_expr.md:314
 #: manual/api/frontend/testfloat_expr.md:228
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr "これらのメソッドは、パーサに渡された名前、1 始まりの行番号、およびメッセージを返します。"
 
-#: manual/api/frontend/mpfr_expr.md:236
+#: manual/api/frontend/mpfr_expr.md:323
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr "メッセージは問題を示します。例えば `\"MPFR pow row must contain ten fields\"`、`\"invalid MPFR pow field\"`、`\"invalid MPFR elementary expected value\"` などです。"
 
-#: manual/api/frontend/mpfr_expr.md:242
+#: manual/api/frontend/mpfr_expr.md:329
 msgid "`CaseResult` is the outcome of one row."
 msgstr "`CaseResult` は 1 行の結果です。"
 
-#: manual/api/frontend/mpfr_expr.md:252
+#: manual/api/frontend/mpfr_expr.md:339
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr "これらのメソッドは、行 id、その行が合格したかどうか、およびメッセージを返します。"
 
-#: manual/api/frontend/mpfr_expr.md:260
+#: manual/api/frontend/mpfr_expr.md:347
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr "メッセージは合格なら空で、そうでなければ期待値と実際の値を 16 進で示します（べき乗と初等関数の行では比較したフラグも示します）。"
 
-#: manual/api/frontend/mpfr_expr.md:265
+#: manual/api/frontend/mpfr_expr.md:352
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr "`RunSummary` は 1 つの文書の行を集計します。"
 
-#: manual/api/frontend/mpfr_expr.md:275
+#: manual/api/frontend/mpfr_expr.md:362
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr "これらのメソッドは、行の数と、合格した数および失敗した数を返します。"
 
-#: manual/api/frontend/mpfr_expr.md:285
+#: manual/api/frontend/mpfr_expr.md:372
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr "`results` は行ごとの結果のコピーを返し、`success` は判定です。"
 
-#: manual/api/frontend/mpfr_expr.md:292
+#: manual/api/frontend/mpfr_expr.md:379
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr "すべての行が実行されるため $\\text{total} = \\text{passed} + \\text{failed}$ です。`success` はどの行も失敗しなかったとき真です。`results` は結果を行順に返します。"
 
-#: manual/api/frontend/mpfr_expr.md:315
+#: manual/api/frontend/mpfr_expr.md:402
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは位置とメッセージを比較し、診断を `Debug` 用に描画します。新しいコードでは `==`、`!=`、`debug_inspect` を使ってください。"
 
@@ -8022,50 +8062,66 @@ msgid "29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs"
 msgstr "29 operation × 3 precision × 6 rounding × 4 fixed-seed input"
 
 #: manual/conformance/bin_float.md:79
+msgid "MPFR 4.2.2 `mpfr_strtofr` fixture"
+msgstr "MPFR 4.2.2 `mpfr_strtofr` フィクスチャ"
+
+#: manual/conformance/bin_float.md:79
+msgid "decimal text to binary: 5 precisions (11 to 200 bits) × 6 roundings × random, long-mantissa, huge-exponent, exact-halfway and one-unit-off-halfway literals, plus range limits and signed zeros"
+msgstr "十進テキストから二進へ：5 種類の精度（11〜200 ビット）× 6 種類の丸め ×（ランダム、長い仮数、巨大な指数、ちょうど中点、中点から 1 単位ずれたリテラル）に加え、範囲の限界と符号付きゼロ"
+
+#: manual/conformance/bin_float.md:80
+msgid "MPFR 4.2.2 `mpfr_get_str` fixture"
+msgstr "MPFR 4.2.2 `mpfr_get_str` フィクスチャ"
+
+#: manual/conformance/bin_float.md:80
+msgid "binary to decimal: 5 precisions × 5 roundings × 10 digit counts × fixed-seed values (exponents up to ±20,000), 12 exact ties, and the shortest round-trip digit count of 1,200 values"
+msgstr "二進から十進へ：5 種類の精度 × 5 種類の丸め × 10 種類の桁数 × 固定シードの値（指数は ±20,000 まで）、12 個のちょうどのタイ、および 1,200 個の値の最短往復桁数"
+
+#: manual/conformance/bin_float.md:81
 msgid "Optional MPFR elementary stress, seed 20260715"
 msgstr "optional MPFR elementary stress、seed 20260715"
 
-#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:81
 msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr "three-operation 以上の各 family で 100,000 case 以上"
 
-#: manual/conformance/bin_float.md:80
+#: manual/conformance/bin_float.md:82
 msgid "Committed smoke"
 msgstr "コミット済み smoke"
 
-#: manual/conformance/bin_float.md:80
-msgid "TestFloat, sqrt, `pow_si`, and elementary witnesses"
-msgstr "TestFloat、sqrt、`pow_si`、elementary witness"
+#: manual/conformance/bin_float.md:82
+msgid "TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses"
+msgstr "TestFloat、sqrt、`pow_si`、elementary、`strtofr`、十進出力の証人"
 
-#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:83
 msgid "TestFloat 3e level 2"
 msgstr "TestFloat 3e レベル 2"
 
-#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:83
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr "binary16 の全 declared operation/direction/tininess"
 
-#: manual/conformance/bin_float.md:83
+#: manual/conformance/bin_float.md:85
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr "binary16 の level-2 の結果は追加のストリーミング負荷試験の証拠であり、はるかに大きい binary32/64/128 の level-2 スイートについて主張するものではありません。アーカイブ、ファイルとそのダイジェストは [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json) に固定されています。ランナーは TestFloat level 2 を検証済みの有界チャンク単位でストリーミング実行しますが、level 2 は任意の負荷試験スイートであり、上記の結果の主張には含まれません。966,744 行の MPFR 実行も同様に任意の生成負荷試験の証拠であり、再現可能なリリース境界は引き続きハッシュで固定された 2,088 行のフィクスチャです。"
 
-#: manual/conformance/bin_float.md:92
+#: manual/conformance/bin_float.md:94
 msgid "Scope of the claim"
 msgstr "主張の範囲"
 
-#: manual/conformance/bin_float.md:94
+#: manual/conformance/bin_float.md:96
 msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
 msgstr "four interchange format の contextual add/sub/mul/div/sqrt、fused multiply-add、remainder、roundToIntegral（通常と exact）、符号付き/符号なし 32/64 bit 整数への convertToInteger（通常と exact）、quiet/signaling の equal/less/less-or-equal predicate に加え、24、53、113 bit と六つの project rounding mode における 29 elementary operation を検証します。invalid な整数変換は flag のみ比較します（SoftFloat は platform 依存の sentinel を返し、API は `None` を返すため）。format 間変換、min/max、total order、nextUp/nextDown、scaleB/logB、decimal character 変換（package test で検証）の TestFloat 適合性、および全 IEEE 754 operation または全実数入力の適合性は主張しません。nearest-away は MPFR が要求する `mpfr_round_nearest_away_begin/end` protocol で生成し、禁止されている `MPFR_RNDNA` を general elementary function に直接渡しません。"
 
-#: manual/conformance/bin_float.md:110
+#: manual/conformance/bin_float.md:112
 msgid "The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of magnitude at most 16, inside each function's domain: `pow` takes a positive base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2` never two zeros, and `tanpi` no integral or half-integral argument. A zero input is $+0$. The matrix therefore does not exercise tiny or huge arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees of `rootn`, or the poles and signed zeros of the IEEE special-case tables; exact results such as $16^{3/4}$ occur only by chance. Those cases are covered by the package's unit tests against the special-value tables in the [API reference](../api/bin_float.md#elementary-functions), not by this claim."
 msgstr "固定 seed の初等関数の入力は、絶対値が 16 以下の $2^{-8}$ の二進有理数倍で、各関数の定義域内にあります。`pow` は正の底と $[-3, 3]$ の指数を、`rootn` は 2 から 7 の次数を取り、`atan2` が 2 つのゼロを取ることはなく、`tanpi` は整数や半整数の引数を取りません。ゼロの入力は $+0$ です。したがってこのマトリクスは、極小や巨大な引数、$-0$、無限大、NaN、`pow` の負の底、`rootn` の負の次数、IEEE の特殊ケース表にある極や符号付きゼロを検査しません。$16^{3/4}$ のような厳密な結果は偶然にしか現れません。これらのケースは、[API リファレンス](../api/bin_float.md#elementary-functions)の特殊値の表に照らすパッケージの単体テストでカバーされており、この主張の対象ではありません。"
 
-#: manual/conformance/bin_float.md:122
+#: manual/conformance/bin_float.md:124
 msgid "Stability of the evidence"
 msgstr "エビデンスの安定性"
 
-#: manual/conformance/bin_float.md:124
+#: manual/conformance/bin_float.md:126
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle. Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr "固定されたマトリクスがリリースのエビデンスの境界です。新しい演算を追加するには、新しいコーパス契約と独立したオラクルが必要です。チェックイン済みのゲートには `just conformance smoke binary` を、固定された完全なゲートには `just gate binary` を実行します。"
 
@@ -20995,98 +21051,98 @@ msgid "**GDA.** All 64,986 legal executable scalar rows of the 144-file `officia
 msgstr "**GDA。** 144 ファイルからなる `official` コーパスの実行可能で正当なスカラー行 64,986 件すべてと、`official0` の正当な行 16,124 件すべてが合格します。141 件の `#` プレースホルダ行または非スカラー行は診断上の除外であり、サポートされていない正当な挙動ではありません。"
 
 #: manual/verification.md:65
-msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,227,872 vectors in 468 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations and mulAdd, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The MPFR part adds the 1,055 executable rows of the pinned square-root data and 2,088 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under all six `BinaryRoundingMode` values."
-msgstr "**二進。** TestFloat レベル 1 マトリクス（シード 1）は、binary16/32/64/128 にわたる 468 タスクで 254,227,872 個のベクタを持ちます。内訳は、加算、減算、乗算、除算、平方根で 7,461,360 個、IEEE 演算の mulAdd（うち 245,329,920 個）、rem、roundToInt、32 ビットおよび 64 ビットの符号付き・符号なし整数への変換、比較 eq、le、lt、eq_signaling、le_quiet、lt_quiet で 246,766,512 個です。演算が丸め方向を用いる場合は 5 つの丸め方向で、算術演算と mulAdd では両方の極小性モードで、roundToInt と変換では exact と inexact の両方の変種で実行します。無効な整数変換はフラグのみで比較します。API が `None` を返す箇所で SoftFloat はプラットフォーム固有の番兵値を返すためです。MPFR の部分は、固定された平方根データの実行可能な 1,055 行と、6 つの `BinaryRoundingMode` 値すべての下で binary32/64/128 精度の 29 個の初等演算を網羅する、ハッシュで固定された 2,088 個の証拠値を追加します。"
+msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,227,872 vectors in 468 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations and mulAdd, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The MPFR part adds the 1,055 executable rows of the pinned square-root data, 2,088 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under all six `BinaryRoundingMode` values, and the decimal character conversions of IEEE 754-2019 §5.12: 1,716 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits, including exact halfway points and the exponent limits) and 3,300 `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest round-trip digit count)."
+msgstr "**二進。** TestFloat レベル 1 マトリクス（シード 1）は、binary16/32/64/128 にわたる 468 タスクで 254,227,872 個のベクタを持ちます。内訳は、加算、減算、乗算、除算、平方根で 7,461,360 個、IEEE 演算の mulAdd（うち 245,329,920 個）、rem、roundToInt、32 ビットおよび 64 ビットの符号付き・符号なし整数への変換、比較 eq、le、lt、eq_signaling、le_quiet、lt_quiet で 246,766,512 個です。演算が丸め方向を用いる場合は 5 つの丸め方向で、算術演算と mulAdd では両方の極小性モードで、roundToInt と変換では exact と inexact の両方の変種で実行します。無効な整数変換はフラグのみで比較します。API が `None` を返す箇所で SoftFloat はプラットフォーム固有の番兵値を返すためです。MPFR の部分は、固定された平方根データの実行可能な 1,055 行と、6 つの `BinaryRoundingMode` 値すべての下で binary32/64/128 精度の 29 個の初等演算を網羅する、ハッシュで固定された 2,088 個の証拠値を追加します。MPFR 部分にはさらに十進文字変換（IEEE 754-2019 §5.12）が加わります。1,716 件の `mpfr_strtofr` の証人（11〜200 ビットの十進テキストから二進へ。ちょうどの中点と指数の限界を含む）と、3,300 件の `mpfr_get_str` の証人（固定桁数、ちょうどのタイ、最短往復桁数）です。"
 
-#: manual/verification.md:79
+#: manual/verification.md:83
 msgid "**IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover encoding, special values, flags, core arithmetic and all 1,024 DPD declets on native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed elementary oracle adds 2,784 rows computed from 768-bit MPFR enclosures under all eight decimal rounding modes."
 msgstr "**IEEE 十進。** コミット済みの decimal32/64/128 DPD および BID フィクスチャは、ネイティブ、Wasm、Wasm-GC、JavaScript 上で、エンコーディング、特殊値、フラグ、コア算術、および 1,024 個すべての DPD declet を網羅します。LLVM はこのゲートの対象外です。コミット済みの初等関数オラクルは、8 つの十進丸めモードすべての下で 768 ビットの MPFR 包含区間から計算された 2,784 行を追加します。"
 
-#: manual/verification.md:84
+#: manual/verification.md:88
 msgid "**Interval.** The strict ITF1788 phases pass 4,656/4,656 selected cases: sets, relations, numeric observations, cancellation, arithmetic, elementary-core, exponentials and logarithms, general power, trigonometric, hyperbolic, inverse trigonometric, `atan2`, FMA, integer power and extrema. Reverse operations remain unsupported."
 msgstr "**区間。** strict ITF1788 の各フェーズは、選択された 4,656/4,656 件のケースに合格します：集合、関係、数値の観測、相殺、算術、初等関数コア、指数と対数、一般のべき乗、三角関数、双曲線関数、逆三角関数、`atan2`、FMA、整数べき、極値。逆演算は引き続きサポートされていません。"
 
-#: manual/verification.md:90
-msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 2,451 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses and 2,088 elementary witnesses)."
-msgstr "`just pr` が実行するコミット済みのスモークフィクスチャはこれらの部分集合です。たとえば二進のスモークは 2,451 行（TestFloat ベクタ 240 個、平方根の証拠値 3 個、整数べきの証拠値 120 個、初等関数の証拠値 2,088 個）です。"
+#: manual/verification.md:94
+msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses, 2,088 elementary witnesses, 1,716 `strtofr` witnesses and 3,300 decimal output witnesses)."
+msgstr "`just pr` が実行するコミット済みスモークフィクスチャは、これらの部分集合です。たとえば二進のスモークは 7,467 行（TestFloat ベクトル 240、平方根の証人 3、整数べきの証人 120、初等関数の証人 2,088、`strtofr` の証人 1,716、十進出力の証人 3,300）です。"
 
-#: manual/verification.md:95
+#: manual/verification.md:99
 msgid "These are finite claims. They do not imply every IEEE 754 or IEEE 1788 operation, arbitrary resource sizes, every NaN payload policy, or future corpus revisions. The per-package [binary](./conformance/bin_float.md), [IEEE decimal](./conformance/decimal.md), [GDA](./conformance/decimal_gda.md) and [interval](./conformance/ball_float.md) conformance pages state the exact matrix and its exclusions."
 msgstr "これらは有限の主張です。すべての IEEE 754 や IEEE 1788 の演算、任意のリソースサイズ、あらゆる NaN ペイロードのポリシー、将来のコーパスのリビジョンを含意するものではありません。パッケージごとの[二進](./conformance/bin_float.md)、[IEEE 十進](./conformance/decimal.md)、[GDA](./conformance/decimal_gda.md)、[区間](./conformance/ball_float.md)の適合性ページに、正確なマトリクスとその除外事項が記載されています。"
 
-#: manual/verification.md:102
+#: manual/verification.md:106
 msgid "Reproducibility"
 msgstr "再現性"
 
-#: manual/verification.md:104
+#: manual/verification.md:108
 msgid "External artifacts are pinned by revision and SHA-256 in each corpus manifest (`testdata/*/corpora.json`). Builds use backend-named outputs and isolated target directories so that parallel jobs do not overwrite each other. Shards select deterministic case indices, and merged summaries keep exact totals and failed IDs. Large generated fixtures are split across files (the IEEE decimal public-API fixture is written 400 tests per file) so that every toolchain compiles them."
 msgstr "外部の成果物は、各コーパスのマニフェスト（`testdata/*/corpora.json`）でリビジョンと SHA-256 によって固定されています。ビルドはバックエンド名を付けた出力と分離されたターゲットディレクトリを使い、並列ジョブが互いに上書きしないようにしています。シャードは決定的なケースのインデックスを選択し、マージされたサマリは正確な合計と失敗した ID を保持します。大きな生成フィクスチャは複数のファイルに分割されており（IEEE 十進の公開 API フィクスチャは 1 ファイルあたり 400 テストで書き出されます）、どのツールチェーンでもコンパイルできるようになっています。"
 
-#: manual/verification.md:112
+#: manual/verification.md:116
 msgid "The MoonBit frontends parse and execute numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection and aggregation. An optional oracle is never silently replaced by a weaker one; a missing requirement is reported explicitly."
 msgstr "MoonBit のフロントエンドが数値の行をパースして実行します。Python はダウンロード、タスク計画、サブプロセス、ターゲット選択、集計を統括します。省略可能なオラクルが、より弱いものに黙って置き換えられることはありません。満たされない要件は明示的に報告されます。"
 
-#: manual/verification.md:117
+#: manual/verification.md:121
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin the baseline source, dependencies, toolchain, target, schedule, sample count and dispersion limits, and a performance threshold never changes correctness. See [performance audit](./performance_audit.md) and the per-package performance pages."
 msgstr "性能の証拠はセマンティクスの適合性とは別物です。ベンチマークのマニフェストは、ベースラインのソース、依存関係、ツールチェーン、ターゲット、スケジュール、サンプル数、ばらつきの上限を固定しており、性能のしきい値が正しさを変えることはありません。[性能監査](./performance_audit.md)とパッケージごとの性能ページを参照してください。"
 
-#: manual/verification.md:123
+#: manual/verification.md:127
 msgid "Failure triage"
 msgstr "失敗のトリアージ"
 
-#: manual/verification.md:125
+#: manual/verification.md:129
 msgid "Re-run the failing backend with the smallest case, ID filter, phase or shard that reproduces it."
 msgstr "失敗したバックエンドを、それを再現する最小のケース、ID フィルタ、フェーズ、シャードで再実行します。"
 
-#: manual/verification.md:127
+#: manual/verification.md:131
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches and infrastructure failures."
 msgstr "パース時の診断、サポート外のケース、レガシーな分類、実行可能な不一致、インフラの障害を区別します。"
 
-#: manual/verification.md:129
+#: manual/verification.md:133
 msgid "Record the expected value, actual value, flags, context, target, corpus revision and command."
 msgstr "期待値、実際の値、フラグ、コンテキスト、ターゲット、コーパスのリビジョン、コマンドを記録します。"
 
-#: manual/verification.md:131
+#: manual/verification.md:135
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange or aggregation."
 msgstr "対応するホワイトボックスのパッケージテストを実行し、欠陥がパース、算術、交換形式、集計のどこにあるかを判断します。"
 
-#: manual/verification.md:133
+#: manual/verification.md:137
 msgid "After a fix, run the focused case, the committed smoke fixture, the backend gate, and finally `just pr` or `just ci`."
 msgstr "修正後は、対象のケース、コミット済みのスモークフィクスチャ、バックエンドのゲートを実行し、最後に `just pr` または `just ci` を実行します。"
 
-#: manual/verification.md:136
+#: manual/verification.md:140
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr "Strict support を弱める、flags を捨てる、denominator を変えることで gate を通してはいけません。"
 
-#: manual/verification.md:139
+#: manual/verification.md:143
 msgid "Release gate"
 msgstr "リリースゲート"
 
-#: manual/verification.md:141
+#: manual/verification.md:145
 msgid "Before publishing:"
 msgstr "Publish 前に次を行います。"
 
-#: manual/verification.md:143
+#: manual/verification.md:147
 msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
 msgstr "`moon.mod`、`README.md`、マニュアル、`CHANGELOG.md` の内容を揃える。"
 
-#: manual/verification.md:144
+#: manual/verification.md:148
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
 msgstr "`just docs` と `lunadoc check` を実行し、生成されたインターフェースの差分を確認する。"
 
-#: manual/verification.md:146
+#: manual/verification.md:150
 msgid "run `just pr` while iterating;"
 msgstr "反復作業中は `just pr` を実行する。"
 
-#: manual/verification.md:147
+#: manual/verification.md:151
 msgid "run `just ci` on the release candidate;"
 msgstr "リリース候補に対して `just ci` を実行する。"
 
-#: manual/verification.md:148
+#: manual/verification.md:152
 msgid "publish through the repository's `publish.yml` GitHub Actions workflow."
 msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通じて公開する。"
 
-#: manual/verification.md:150
+#: manual/verification.md:154
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
 
