@@ -746,8 +746,10 @@ result incorrectly, or return a set other than the specified one. Each is
 tracked in an issue with a proposed fix that is not merged yet; they are
 documented here so that callers can avoid them.
 
-- Decorated `rootn` with a negative degree does not lower the decoration to
-  `trv` when 0 is in the argument.
+No limitation is open at present. Decorated `rootn` with a negative degree
+lowers the decoration to `trv` when 0 is in the argument, as the decoration
+rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt`
+checks degrees `-1`, `-2` and `-3`.
 
 ## Alternatives rejected
 

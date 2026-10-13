@@ -6,6 +6,7 @@ notes live in this file.
 
 ## Unreleased
 
+- Documentation: the known-limitations list of the `ball_float` design page and the known-gaps table no longer claim that decorated `rootn` with a negative degree keeps its decoration when 0 is in the argument. The decoration has been lowered to `trv` since the pole fix (`e008dd1`), and `src/ball_float/ball_float_decorated_wbtest.mbt` checks it; issue [#233](https://github.com/Luna-Flow/floating/issues/233) was opened from the stale text and is closed.
 - Documentation: the "Known gaps and deviations" table of `doc/manual/verification.md` now links the issue that tracks each gap (roadmap [#245](https://github.com/Luna-Flow/floating/issues/245)).
 
 ## 0.10.0 - 2026-10-13
