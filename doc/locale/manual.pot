@@ -8089,7 +8089,7 @@ msgstr ""
 #: manual/conformance/decimal_gda.md:34
 #: manual/design/ball_float.md:771
 #: manual/design/ball_float_checked.md:170
-#: manual/design/bench.md:241
+#: manual/design/bench.md:244
 #: manual/design/bench/ball_float.md:67
 #: manual/design/bench/bin_float.md:69
 #: manual/design/bench/decimal.md:67
@@ -8958,7 +8958,7 @@ msgstr ""
 
 #: manual/design/ball_float.md:699
 #: manual/design/ball_float_checked.md:137
-#: manual/design/bench.md:215
+#: manual/design/bench.md:218
 #: manual/design/bench/ball_float.md:51
 #: manual/design/bench/bin_float.md:53
 #: manual/design/bench/decimal.md:51
@@ -9030,7 +9030,7 @@ msgstr ""
 
 #: manual/design/ball_float.md:752
 #: manual/design/ball_float_checked.md:157
-#: manual/design/bench.md:232
+#: manual/design/bench.md:235
 #: manual/design/bench/ball_float.md:60
 #: manual/design/bench/bin_float.md:62
 #: manual/design/bench/decimal.md:60
@@ -9424,72 +9424,72 @@ msgid "`confirmatory_regression` fixes $\\delta = 3\\,\\%$, $R = 10\\,000$ and $
 msgstr ""
 
 #: manual/design/bench.md:173
-msgid "Auto-tuning by minimum median"
+msgid "Auto-tuning by median with an interquartile tie-break"
 msgstr ""
 
 #: manual/design/bench.md:175
-msgid "`tune_dataset` scores each candidate by the median of its valid confirmatory samples and returns the one with the smallest median, breaking exact ties by candidate id. The score is passed to `@tune.select_best` as both primary and secondary criterion. `select_best` keeps the finalists $F = \\{c : 100\\,(\\mu_c - \\mu_{\\min})/\\mu_{\\min} \\le \\delta\\}$ (those with $\\mu_c = 0$ when $\\mu_{\\min} = 0$), which always contains every candidate with $\\mu_c = \\mu_{\\min}$, and returns the finalist with the smallest secondary score, ties broken by the smaller id. With secondary $= \\mu_c$ that is a candidate with $\\mu_c = \\mu_{\\min}$, so the practical threshold has no effect on the choice. Which secondary criterion is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60)."
+msgid "`tune_dataset` scores each candidate by the median $\\mu_c$ of its valid confirmatory samples and, as secondary criterion, by their interquartile range $\\mathrm{IQR}_c$ (the median of the upper half minus the median of the lower half, the middle sample of an odd count belonging to neither; fewer than two samples give 0). `@tune.select_best` keeps the finalists $F = \\{c : 100\\,(\\mu_c - \\mu_{\\min})/\\mu_{\\min} \\le \\delta\\}$ (those with $\\mu_c = 0$ when $\\mu_{\\min} = 0$), which always contains every candidate with $\\mu_c = \\mu_{\\min}$, and returns the finalist with the smallest $\\mathrm{IQR}_c$, ties broken by the smaller candidate id. Candidates that the practical threshold ties with the fastest are thus decided by stability, and $\\delta = 0$ keeps only the fastest medians. The result does not depend on the order of `candidate_ids`."
 msgstr ""
 
-#: manual/design/bench.md:186
+#: manual/design/bench.md:188
 msgid ""
 "The auto-tune suite turns the per-dataset winners $\\ell_1, \\dots, \\ell_S$ (ordered by scale) into a crossover with `@experiment.crossover_from_labels`: it counts the indices $i$ with $\\ell_i \\n"
-"e \\ell_{i-1}$. No change gives `NoCrossover`, exactly one change at $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale $i$, and more than one gives `NonMonotonic`, for which the suite prints a plain lookup table instead of a piecewise policy. Because the winner of each dataset is the minimum median without a practical threshold, noise between two nearly equal candidates can produce several changes."
+"e \\ell_{i-1}$. No change gives `NoCrossover`, exactly one change at $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale $i$, and more than one gives `NonMonotonic`, for which the suite prints a plain lookup table instead of a piecewise policy. Because the winner of each dataset is decided by the median and, within the practical threshold, by the spread, noise between two nearly equal candidates can still produce several changes."
 msgstr ""
 
-#: manual/design/bench.md:196
+#: manual/design/bench.md:199
 msgid "Immutable fixtures with an oracle"
 msgstr ""
 
-#: manual/design/bench.md:198
+#: manual/design/bench.md:201
 msgid "`immutable_bench` generates each input once per scale and checks every output against a reference. A faster implementation that computes the wrong result fails the run instead of winning a comparison. The reference is only as independent as the suite makes it: the arithmetic suites of `bin_float` and `decimal` compare with the exact coefficient result, while the elementary-function and `decimal_gda` suites use the core path itself as the reference (so they check that the checked path agrees with the core) and the `ball_float` suite uses the `BinFloat` kernel result."
 msgstr ""
 
-#: manual/design/bench.md:207
+#: manual/design/bench.md:210
 msgid "Environment as data"
 msgstr ""
 
-#: manual/design/bench.md:209
+#: manual/design/bench.md:212
 msgid "`environment` records the target, profile and a data-type label with every run, and marks what only the outer tool knows (machine, frequency policy, commit) as `external-metadata`. A reader of two artifacts can then tell whether their numbers are comparable; the package itself does not compare runs across environments."
 msgstr ""
 
-#: manual/design/bench.md:217
+#: manual/design/bench.md:220
 msgid "**Determinism of the reduction.** For fixed observations and seed, `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the same values on every run (sorting by block id, seeded generator, deterministic tie-breaking)."
 msgstr ""
 
-#: manual/design/bench.md:221
+#: manual/design/bench.md:224
 msgid "**Pairing.** Samples are paired by block order. Unequal sample counts are an error (`MismatchedPairs`), never a silent truncation. Pairing is by position, not by block id, so if both implementations lose one invalid observation in different blocks the later pairs are formed across blocks."
 msgstr ""
 
-#: manual/design/bench.md:225
+#: manual/design/bench.md:228
 msgid "**Interval ordering.** $L \\le U$, because $Q^{*}$ is monotone in its argument and $\\alpha < 1 - \\alpha$ for $c > 0$."
 msgstr ""
 
-#: manual/design/bench.md:227
+#: manual/design/bench.md:230
 msgid "**Scale invariance.** Multiplying all samples by a constant $\\lambda > 0$ multiplies $\\operatorname{med}(d)$, $L$ and $U$ by $\\lambda$ and leaves $\\Delta_{\\%}$, the decision and the verdict unchanged, so the unit of time does not matter."
 msgstr ""
 
-#: manual/design/bench.md:234
+#: manual/design/bench.md:237
 msgid "**Discarding outliers before averaging.** Any fence needs a tuning constant and silently changes the sample; the median makes it unnecessary."
 msgstr ""
 
-#: manual/design/bench.md:236
+#: manual/design/bench.md:239
 msgid "**Unpaired comparison of two sample sets.** Drift between the measurement of $B$ and $C$ would enter the difference directly."
 msgstr ""
 
-#: manual/design/bench.md:238
+#: manual/design/bench.md:241
 msgid "**Normal-theory intervals.** They assume symmetric errors that timing data does not have."
 msgstr ""
 
-#: manual/design/bench.md:243
+#: manual/design/bench.md:246
 msgid "No timing, process control or file output: Maremark's runner and `tools/benchmark.py` do that."
 msgstr ""
 
-#: manual/design/bench.md:245
+#: manual/design/bench.md:248
 msgid "No absolute performance targets; thresholds apply to relative differences."
 msgstr ""
 
-#: manual/design/bench.md:246
+#: manual/design/bench.md:249
 msgid "Performance results never change correctness claims, and the benchmarks run only on the native target."
 msgstr ""
 
@@ -16921,7 +16921,7 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
-#: manual/tutorial/bench.md:225
+#: manual/tutorial/bench.md:226
 #: manual/tutorial/bench/ball_float.md:62
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
@@ -17182,7 +17182,7 @@ msgid "understand the statistics"
 msgstr ""
 
 #: manual/tutorial/bench.md:16
-#: manual/tutorial/bench.md:228
+#: manual/tutorial/bench.md:229
 msgid "[bench design](../design/bench.md)"
 msgstr ""
 
@@ -17307,14 +17307,14 @@ msgid "**Pairing needs equal sample counts.** Both implementations of a comparis
 msgstr ""
 
 #: manual/tutorial/bench.md:219
-msgid "**The tuning threshold does nothing.** `tune_dataset` always returns the candidate with the smallest median; its `practical_delta_pct` argument does not create ties, so two nearly equal candidates can alternate between datasets and make the crossover non-monotonic. Which secondary criterion is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60)."
+msgid "**Near ties go to the steadier candidate, not the faster one.** `tune_dataset` treats candidates within `practical_delta_pct` percent of the smallest median as tied and picks the one with the smaller interquartile range (then the smaller id), so a candidate whose median is slightly higher can win when its timings are less spread out. Use `0.0` to always take the smallest median."
 msgstr ""
 
-#: manual/tutorial/bench.md:227
+#: manual/tutorial/bench.md:228
 msgid "[bench API](../api/bench.md)"
 msgstr ""
 
-#: manual/tutorial/bench.md:229
+#: manual/tutorial/bench.md:230
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr ""
 

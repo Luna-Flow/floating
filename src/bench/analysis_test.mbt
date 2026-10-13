@@ -117,3 +117,48 @@ test "tune decision counts only the samples behind the median" {
   assert_eq(decision.median_us, 11.0)
   assert_eq(decision.valid_samples, 2)
 }
+
+///|
+/// Candidates within `practical_delta_pct` of the fastest median are tied in
+/// practice; the secondary criterion is the interquartile range of their
+/// samples (#60). `a` has median 102 and no spread, `b` median 100 and a wide
+/// spread: outside the threshold the faster `b` wins, inside it the steadier `a`.
+test "tune_dataset breaks practical ties by interquartile range" {
+  let observations = []
+  let a = [102.0, 102.0, 102.0, 102.0]
+  let b = [90.0, 95.0, 105.0, 110.0]
+  for i in 0..<4 {
+    observations.push(observation("a", 0, i, a[i]))
+    observations.push(observation("b", 0, i, b[i]))
+  }
+  let pick = fn(delta : Double) {
+    @bench.tune_dataset(observations, "mul", 0, ["a", "b"], delta).unwrap().candidate_id
+  }
+  inspect(pick(0.0), content="b")
+  inspect(pick(1.0), content="b")
+  inspect(pick(2.0), content="a")
+  inspect(pick(50.0), content="a")
+  inspect(
+    @bench.tune_dataset(observations, "mul", 0, ["b", "a"], 50.0).unwrap().candidate_id,
+    content="a",
+  )
+}
+
+///|
+/// With equal medians and equal spread the smaller candidate id wins, whatever
+/// the order of `candidate_ids`.
+test "tune_dataset ties on median and spread resolve by candidate id" {
+  let observations = [
+    observation("a", 0, 0, 102.0),
+    observation("a", 0, 1, 102.0),
+    observation("b", 0, 0, 100.0),
+    observation("b", 0, 1, 100.0),
+  ]
+  let pick = fn(ids : Array[String], delta : Double) {
+    @bench.tune_dataset(observations, "mul", 0, ids, delta).unwrap().candidate_id
+  }
+  inspect(pick(["a", "b"], 0.0), content="b")
+  inspect(pick(["a", "b"], 3.0), content="a")
+  inspect(pick(["b", "a"], 3.0), content="a")
+  inspect(pick(["b", "a"], 1.0), content="b")
+}
