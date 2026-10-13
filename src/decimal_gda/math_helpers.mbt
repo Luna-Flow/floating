@@ -1824,6 +1824,89 @@ fn decimal_power_of_ten_extreme_result(
 }
 
 ///|
+/// General Decimal Arithmetic 1.70 *power*: for an integral `y` the exponent of an
+/// unrounded result is the one repeated multiplication gives, `y * Q(x)` (the
+/// reciprocal route for a negative `y` lands on the same exponent or on the
+/// closest reachable one). IEEE 754-2019 §9.2.2 states it as `floor(y * Q(x))`. The product is exact;
+/// it is saturated at +-2^62, far outside any context exponent range, so the
+/// caller can compare it with exponent bounds. `None` for a non-finite `y`.
+fn decimal_power_preferred_exponent(
+  base_exponent10 : Int32,
+  exponent : Decimal,
+) -> Int64? {
+  guard exponent.class == FpClass::Finite else { return None }
+  let limit = 4611686018427387904L
+  if exponent.coefficient.is_zero() || base_exponent10 == 0 {
+    return Some(0L)
+  }
+  let negative = exponent.negative != (base_exponent10 < 0)
+  let numerator = coeff_bigint(exponent.coefficient) *
+    BigInt::from_int(abs_int(base_exponent10))
+  let scale = exponent.exponent10
+  let magnitude : BigInt = if scale >= 0 {
+    if scale > 20 {
+      return Some(if negative { -limit } else { limit })
+    }
+    numerator * pow10(scale)
+  } else if -scale.to_int64() > numerator.to_string().length().to_int64() + 1L {
+    // |y * Q(x)| < 1: the floor is 0 or -1.
+    return Some(if negative { -1L } else { 0L })
+  } else {
+    let divisor = pow10(-scale)
+    let quotient = numerator / divisor
+    if negative && !(numerator % divisor).is_zero() {
+      quotient + bigint_one()
+    } else {
+      quotient
+    }
+  }
+  if magnitude.to_string().length() > 18 {
+    return Some(if negative { -limit } else { limit })
+  }
+  let value = magnitude.to_int64()
+  Some(if negative { -value } else { value })
+}
+
+///|
+/// The exact value `+-10^value_exponent` with the cohort member IEEE 754-2019
+/// §5.2 selects for a preferred exponent: the exponent closest to `preferred`
+/// among those at most `value_exponent` whose coefficient `10^(value_exponent -
+/// exponent)` has at most `precision` digits and that stay above `Etiny`.
+/// `rounded` is raised when the preferred exponent is out of reach on the
+/// high side, i.e. zeros had to be dropped to fit the precision.
+fn decimal_power_ten_cohort_result(
+  negative : Bool,
+  value_exponent : Int32,
+  preferred : Int64,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
+  let high = value_exponent.to_int64()
+  let low = if ctx.precision == 0 {
+    -4611686018427387904L
+  } else {
+    high - (precision - 1).to_int64()
+  }
+  let lowest = Int64::max(low, etiny(ctx).to_int64())
+  let chosen = Int64::min(Int64::max(preferred, lowest), high)
+  let exponent = chosen.to_int()
+  let result = finite_with_exponent_repr(
+    negative,
+    gda_coeff_power10_repr(value_exponent - exponent),
+    exponent,
+    precision,
+  )
+  let flags = if ctx.precision != 0 && chosen > preferred && chosen == low {
+    { ..DecimalFlags::new(), rounded: true, }
+  } else if value_exponent < ctx.e_min {
+    { ..DecimalFlags::new(), subnormal: true, }
+  } else {
+    DecimalFlags::new()
+  }
+  (result, flags)
+}
+
+///|
 fn decimal_power_simple_ten_result(
   base : Decimal,
   exponent : Decimal,
@@ -1956,7 +2039,6 @@ fn decimal_power_exact_ten_result(
       ),
     )
   }
-  let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
   let exponent_limit = Int32::max(abs_int(ctx.e_max), abs_int(etiny(ctx)))
   let result_exponent_magnitude = match
     gda_coeff_to_bounded_int(result_exponent_magnitude, exponent_limit) {
@@ -1968,38 +2050,16 @@ fn decimal_power_exact_ten_result(
   } else {
     result_exponent_magnitude
   }
-  let result = if result_exponent >= 0 {
-    if result_exponent + 1 <= precision {
-      finite_with_exponent_repr(
-        negative,
-        gda_coeff_power10_repr(result_exponent),
-        0,
-        precision,
-      )
-    } else {
-      finite_with_exponent_repr(
-        negative,
-        gda_coeff_power10_repr(precision - 1),
-        result_exponent - precision + 1,
-        precision,
-      )
-    }
-  } else {
-    finite_with_exponent_repr(
-      negative,
-      gda_coeff_from_int(1),
-      result_exponent,
-      precision,
-    )
+  // Repeated multiplication of `1E+q` leaves the exponent `n * q`; zeros are
+  // dropped only to fit the precision (General Decimal Arithmetic, *power*).
+  let preferred = match
+    decimal_power_preferred_exponent(base.exponent10, exponent) {
+    Some(value) => value
+    None => return None
   }
-  let flags = if result_exponent >= 0 && result_exponent + 1 > precision {
-    { ..DecimalFlags::new(), rounded: true, }
-  } else if result_exponent < ctx.e_min {
-    { ..DecimalFlags::new(), subnormal: true, }
-  } else {
-    DecimalFlags::new()
-  }
-  Some((result, flags))
+  Some(
+    decimal_power_ten_cohort_result(negative, result_exponent, preferred, ctx),
+  )
 }
 
 ///|

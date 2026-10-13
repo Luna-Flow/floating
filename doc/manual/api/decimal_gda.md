@@ -1597,7 +1597,11 @@ pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 Unlike the GDA functions `sqrt`, `exp`, `ln` and `log10`, these methods round
 with the context's own rounding mode (the GDA functions pass them a half-even
 copy of the context); `power_ctx` is exactly the GDA `power`. A certification
-failure gives NaN with `invalid_operation`.
+failure gives NaN with `invalid_operation`. An unrounded integer power has the
+exponent that repeated multiplication gives, so with precision 16
+`power_ctx(1.00, 2)` is `1.0000`, `power_ctx(-1.0, 3)` is `-1.000` and
+`power_ctx(-1E+5, 5)` is `-1E+25` with no flags; zeros are dropped only to fit
+the precision, which raises `rounded`.
 
 ### `Decimal::try_exp_ctx`, `Decimal::try_ln_ctx`, `Decimal::try_log10_ctx`, `Decimal::try_power_ctx`
 
