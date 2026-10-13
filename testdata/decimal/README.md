@@ -25,9 +25,9 @@ arithmetic/flag rows, and a compact exhaustive 1,024-code DPD declet fixture.
 `manifest.json` records the IEEE encoding and exact-arithmetic fixture schema;
 no implementation-specific source archive is downloaded during a test run.
 
-IEEE permits either tininess policy. The public context defaults to
-after-rounding and exposes an explicit before-rounding option; GDA always uses
-before-rounding. NaN payload and sign selection follow the public API contract.
+IEEE 754-2019 §7.5 requires tininess to be detected before rounding for decimal
+formats, so the public context defaults to before-rounding (as GDA always
+does); after-rounding remains an explicit, non-standard option. NaN payload and sign selection follow the public API contract.
 
 The checked-in runner validates all 1,024 DPD declets and the fixed-width BID
 and DPD cases directly from the IEEE formulas, then executes the same public

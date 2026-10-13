@@ -167,7 +167,7 @@ cite them.
 
 | Clause | Choice left open | Choice made |
 | --- | --- | --- |
-| IEEE 754 §7.5 | Tininess detection for binary formats | `BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding; see the known gaps. |
+| IEEE 754 §7.5 | Tininess detection for binary formats | `BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option. |
 | IEEE 754 §6.2 | Which NaN payload a NaN result carries | `bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field). |
 | IEEE 754 §9.7 | Admissible payloads of `setPayload` | `decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload. |
 | IEEE 754 §3.7 | Exponent range and precision of an extendable format | `bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`. |
@@ -191,7 +191,7 @@ or the page that documents the decision.
 
 | Standard | Gap | Tracking |
 | --- | --- | --- |
-| IEEE 754-2019 §7.5 | `decimal` detects tininess after rounding by default; decimal formats require before rounding | issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
+| IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal` | not scheduled |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | not scheduled |

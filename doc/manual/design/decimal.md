@@ -525,13 +525,15 @@ $E_{\text{tiny}}$, it is rounded once to the subnormal grid: the shift becomes
 $s = E_{\text{tiny}} - Q$ and the rounding rule above applies with fewer than
 $p$ digits kept. The result is **tiny** when its adjusted exponent is below
 $e_{\min}$, measured on the exact value (`BeforeRounding`) or on the value
-rounded to $p$ digits with unbounded exponent (`AfterRounding`, the default).
-The two rules differ only for values just below $10^{e_{\min}}$ whose rounding
+rounded to $p$ digits with unbounded exponent (`AfterRounding`). IEEE 754-2019
+§7.5 requires the first for decimal formats, so `BeforeRounding` is the default
+and `AfterRounding` is an explicit non-standard option. The two rules differ only for values just below $10^{e_{\min}}$ whose rounding
 to $p$ digits reaches it; only an exact adjusted exponent of $e_{\min} - 1$
 can change sides, so the extra rounding to $p$ digits is done only there.
-With $p = 3$ and $e_{\min} = 0$, $0.9951$ rounds to $0.995$ at three digits and
-is tiny (its subnormal-grid result is `1.00`), while $0.99951$ rounds to
-$1.00$ and is not. A tiny result raises
+With $p = 3$ and $e_{\min} = 0$, $0.9951$ and $0.99951$ are both tiny by
+default (their subnormal-grid result is `1.00`); under `AfterRounding` only
+$0.9951$ is, since it rounds to $0.995$ at three digits, while $0.99951$ rounds
+to $1.00$ and is not. A tiny result raises
 `subnormal`; a tiny **and** inexact result also raises `underflow`, as IEEE 754
 §7.5 requires for default exception handling. A result that rounds to zero
 gets exponent $E_{\text{tiny}}$ and `clamped`.
