@@ -42,7 +42,7 @@ failed cases: 0
 
 ### From MoonBit code
 
-After `moon add Luna-Flow/floating@0.9.0`, import
+After `moon add Luna-Flow/floating@0.10.0`, import
 `"Luna-Flow/floating/cli/testfloat_expr_cli"` in `moon.pkg` and call `run`
 with the same arguments:
 
