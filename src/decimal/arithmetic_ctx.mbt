@@ -765,9 +765,13 @@ fn Decimal::decimal_fma_ctx_impl(
           return decimal_overflow_result(product_negative, ctx)
         }
       }
+      // A product whose adjusted exponent exceeds `Int` is at least 10^(2^31),
+      // which no finite addend (adjusted exponent at most 2^31 - 1) brings back
+      // below e_max.
       if addend.class == FpClass::Finite &&
         !product_coeff.is_zero() &&
-        product_exponent > 2147483647L {
+        product_exponent + (product_coeff.digits10() - 1).to_int64() >
+        2147483647L {
         return decimal_overflow_result(product_negative, ctx)
       }
       if addend.class == FpClass::Finite &&
@@ -787,6 +791,27 @@ fn Decimal::decimal_fma_ctx_impl(
         // sign; 10^(m-1) keeps the alignment with the addend short.
         let addend_adjusted = addend.exponent10.to_int64() +
           (addend.coefficient.digits10() - 1).to_int64()
+        // Product and addend both below 10^(Etiny - 1): the sum is tiny and
+        // carries the sign of the operand with the larger adjusted exponent
+        // (the product's exponent is the smaller one only when its adjusted
+        // exponent is, which it is not always). Equal adjusted exponents with
+        // opposite signs may cancel; they are left to the exact path.
+        if ctx.precision > 0 && addend_adjusted <= etiny(ctx).to_int64() - 2L {
+          let product_adjusted_tiny = product_exponent +
+            (product_coeff.digits10() - 1).to_int64()
+          if product_adjusted_tiny != addend_adjusted {
+            return decimal_power_tiny_result(
+              if product_adjusted_tiny > addend_adjusted {
+                product_negative
+              } else {
+                addend.negative
+              },
+              ctx,
+            )
+          } else if product_negative == addend.negative {
+            return decimal_power_tiny_result(addend.negative, ctx)
+          }
+        }
         let lowest_rounding = if ctx.precision > 0 {
           Int64::max(
             etiny(ctx).to_int64(),
@@ -914,11 +939,7 @@ fn decimal_sqrt_fixed_result(
   precision : Int32,
 ) -> (Decimal, DecimalFlags) {
   let adjusted = adjusted_exponent(operand)
-  let root_adjusted = if adjusted >= 0 {
-    adjusted / 2
-  } else {
-    -((-adjusted + 1) / 2)
-  }
+  let root_adjusted = adjusted >> 1
   // Round directly at the representable subnormal precision.  Rounding first
   // at the nominal context precision and then again in normalization can
   // double-round a tiny square root (for example 1.2E-19 at p=2).
@@ -1042,6 +1063,29 @@ fn decimal_sqrt_fixed_result(
 }
 
 ///|
+/// A positive operand whose square root has an adjusted exponent of at most
+/// `Etiny - 2` is below `10^(Etiny - 1)`, a tenth of the smallest subnormal,
+/// so the root is tiny and inexact and rounds like any such value (zero in the
+/// nearest modes). Deciding it from the adjusted exponent avoids forming
+/// coefficients with an exponent distance of billions of digits.
+fn decimal_sqrt_tiny_result(
+  operand : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.precision > 0 &&
+    operand.class == FpClass::Finite &&
+    !operand.negative &&
+    !operand.coefficient.is_zero() else {
+    return None
+  }
+  if adjusted_exponent64(operand) >> 1 <= etiny(ctx).to_int64() - 2L {
+    Some(decimal_power_tiny_result(false, ctx))
+  } else {
+    None
+  }
+}
+
+///|
 pub fn Decimal::sqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,
@@ -1059,6 +1103,8 @@ pub fn Decimal::sqrt_ctx(
     FpClass::Finite =>
       if operand.negative && !operand.coefficient.is_zero() {
         (Decimal::nan(precision~), invalid_flags())
+      } else if decimal_sqrt_tiny_result(operand, ctx) is Some(tiny) {
+        tiny
       } else {
         match exact_finite_sqrt(operand, precision) {
           Some(root) => {
@@ -1072,11 +1118,7 @@ pub fn Decimal::sqrt_ctx(
                 ctx,
               )
             }
-            let ideal_exponent = if operand.exponent10 >= 0 {
-              operand.exponent10 / 2
-            } else {
-              -((-operand.exponent10 + 1) / 2)
-            }
+            let ideal_exponent = operand.exponent10 >> 1
             if value.class == FpClass::Finite &&
               !value.coefficient.is_zero() &&
               value.exponent10 > ideal_exponent {

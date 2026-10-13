@@ -7,7 +7,13 @@ fn decimal_exact_integer_coeff(rhs : Decimal) -> (Bool, GdaCoeff)? {
   let magnitude = if rhs.exponent10 >= 0 {
     gda_coeff_shift_power10_repr(rhs.coefficient, rhs.exponent10)
   } else {
-    match exact_divide_by_power_of_ten_repr(rhs.coefficient, -rhs.exponent10) {
+    // `-exponent10` wraps for `Int::min`; only a coefficient with enough
+    // trailing zeros is an integer.
+    let scale = -rhs.exponent10.to_int64()
+    guard scale <= coeff_trailing_decimal_zeros(rhs.coefficient).to_int64() else {
+      return None
+    }
+    match exact_divide_by_power_of_ten_repr(rhs.coefficient, scale.to_int()) {
       Some(value) => value
       None => return None
     }
@@ -73,8 +79,12 @@ fn decimal_exact_integer_count_bounded(rhs : Decimal, limit : Int32) -> Int32? {
       None => return None
     }
   } else {
+    // `-exponent10` wraps for `Int::min`; a nonzero coefficient with more
+    // fractional places than digits is below 1 and not an integer.
+    let scale = -rhs.exponent10.to_int64()
+    guard scale <= rhs.coefficient.digits10().to_int64() else { return None }
     let exact = match
-      exact_divide_by_power_of_ten_repr(rhs.coefficient, -rhs.exponent10) {
+      exact_divide_by_power_of_ten_repr(rhs.coefficient, scale.to_int()) {
       Some(value) => value
       None => return None
     }
