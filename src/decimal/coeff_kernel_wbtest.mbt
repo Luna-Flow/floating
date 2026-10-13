@@ -1182,7 +1182,7 @@ test "decimal coefficient exact powers stay native and honor precision caps" {
 ///|
 test "decimal exact integer power and reciprocal keep coefficient units" {
   let exact_ctx = DecimalContext::new(precision=34).unwrap()
-  let base = Decimal::from_int(40, precision=16)
+  let base = Decimal::from_string("4E+1", precision=16).unwrap()
   let (positive, positive_flags) = decimal_power_integer_exact_result(
     base, 3, exact_ctx,
   ).unwrap()
@@ -1192,7 +1192,7 @@ test "decimal exact integer power and reciprocal keep coefficient units" {
   assert_false(positive_flags.inexact)
 
   let (reciprocal, reciprocal_flags) = exact_decimal_reciprocal(
-    Decimal::from_int(40, precision=16),
+    Decimal::from_string("4E+1", precision=16).unwrap(),
     exact_ctx,
   ).unwrap()
   assert_eq(reciprocal.coefficient.to_bigint(), 25N)

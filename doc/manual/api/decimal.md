@@ -228,9 +228,11 @@ pub fn Decimal::from_int(Int, precision? : Int) -> Self
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
 ```
 
-Both are `make(n, 0, precision)` with the default precision 34: the result is
-reduced (`from_int(1000)` is `1E+3`, exponent 3) and an integer with more than
-`precision` digits is rounded half-even.
+Both implement convertFromInt (IEEE 754-2019 §5.4.1, preferred exponent 0)
+with the default precision 34: an integer of at most `precision` digits keeps
+exponent 0, so `from_int(1000)` is `1000` and not the reduced `1E+3`; a longer
+one is rounded half-even to exactly `precision` digits (§5.2), so
+`from_int(99999, precision=3)` is `1.00E+5`. Zero is $+0$ with exponent 0.
 
 ### `Decimal::from_double`, `from_float`
 
@@ -243,8 +245,12 @@ pub fn Decimal::from_float(Float, precision? : Int) -> Self
 
 Every finite `Double` is a dyadic rational $m \cdot 2^{k}$ and therefore has a
 finite decimal expansion $m \cdot 5^{-k} \cdot 10^{k}$ for $k<0$; the
-conversion forms that exact expansion and rounds it half-even to `precision`
-digits (default 34). Signed zeros and infinities are preserved; every NaN
+conversion forms that exact expansion and, when it fits in `precision` digits
+(default 34), returns it with the exponent closest to the preferred exponent 0
+(`from_double(0.5)` is `0.5`, `from_double(100.0)` is `100`). Otherwise it is
+rounded half-even to exactly `precision` digits, the least possible exponent
+(IEEE 754-2019 §5.2): `from_double(0.1, precision=16)` is `0.1000000000000000`.
+Signed zeros and infinities are preserved; every NaN
 becomes a quiet NaN with payload 0 and the input's sign. `from_float` widens
 to `Double` first, which is exact.
 
@@ -259,8 +265,9 @@ pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @arithmetic.Roundin
 ```
 
 `from_bin_float(x, precision~)` is exact whenever the decimal expansion of
-`x` fits in `precision` decimal digits (default: the precision of `x`) and is
-otherwise rounded half-even; a binary zero keeps its sign ($-0$ becomes
+`x` fits in `precision` decimal digits (default: the precision of `x`), with the
+exponent closest to 0 as for `from_double`, and is otherwise rounded half-even
+to exactly `precision` digits; a binary zero keeps its sign ($-0$ becomes
 $-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a quiet
 NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value
 to a `BinFloat` of `precision` bits (default: the decimal's precision field)
