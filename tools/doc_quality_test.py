@@ -54,6 +54,22 @@ class DocumentationQualityTests(unittest.TestCase):
             )
             self.assertIsNotNone(doc_quality.API_BLOCK_RE.search(path.read_text()))
 
+    def test_cited_evidence_paths_must_exist(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory)
+            page = root / "doc" / "manual" / "conformance" / "bin_float.md"
+            page.parent.mkdir(parents=True)
+            (root / "src").mkdir()
+            (root / "src" / "present_wbtest.mbt").write_text("", encoding="utf-8")
+            page.write_text(
+                "| `src/present_wbtest.mbt` | `src/missing_wbtest.mbt` |\n",
+                encoding="utf-8",
+            )
+            use_repo(stack, root)
+            errors = doc_quality.check_evidence_paths()
+            self.assertEqual(len(errors), 1)
+            self.assertIn("src/missing_wbtest.mbt", errors[0])
+
     def test_package_coverage_uses_all_moon_packages(self) -> None:
         with patch.object(doc_quality, "package_paths", return_value={"nested/example"}):
             with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:

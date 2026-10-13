@@ -567,7 +567,7 @@ msgstr "除数 $\\boldsymbol{y}$"
 #: manual/api/ball_float.md:764
 #: manual/api/bin_float.md:46
 #: manual/api/decimal_checked.md:281
-#: manual/conformance/bin_float.md:72
+#: manual/conformance/bin_float.md:107
 #: manual/performance_audit.md:122
 msgid "Result"
 msgstr "結果"
@@ -899,6 +899,7 @@ msgid "The arithmetic operations apply the bare operation; their operation decor
 msgstr "算術演算は装飾なしの演算を適用します。演算の装飾は、表に別途記載がない限り `Com` です。"
 
 #: manual/api/ball_float.md:1451
+#: manual/conformance/decimal_gda.md:15
 #: manual/design/bin_float_checked.md:122
 #: manual/design/decimal_gda.md:129
 msgid "Operation"
@@ -4269,6 +4270,21 @@ msgstr "正確なケース"
 #: manual/api/decimal_gda.md:455
 #: manual/api/decimal_gda.md:456
 #: manual/api/decimal_gda.md:457
+#: manual/conformance/ball_float.md:14
+#: manual/conformance/ball_float.md:16
+#: manual/conformance/ball_float.md:17
+#: manual/conformance/ball_float.md:23
+#: manual/conformance/ball_float.md:26
+#: manual/conformance/bin_float.md:94
+#: manual/conformance/bin_float.md:96
+#: manual/conformance/bin_float.md:97
+#: manual/conformance/bin_float.md:98
+#: manual/conformance/bin_float.md:99
+#: manual/conformance/decimal.md:52
+#: manual/conformance/decimal.md:62
+#: manual/conformance/decimal.md:65
+#: manual/conformance/decimal.md:66
+#: manual/conformance/decimal.md:67
 #: manual/design/frontend/mpfr_expr.md:50
 msgid "none"
 msgstr "なし"
@@ -7564,6 +7580,10 @@ msgid "shared helpers, summaries, sharding, files, JSON and text output, exit st
 msgstr "共有ヘルパー、サマリー、シャーディング、ファイル、JSON およびテキスト出力、終了ステータス"
 
 #: manual/architecture.md:22
+#: manual/conformance/ball_float.md:11
+#: manual/conformance/bin_float.md:71
+#: manual/conformance/decimal.md:38
+#: manual/conformance/decimal_gda.md:15
 #: manual/index.md:56
 #: manual/performance_audit.md:154
 msgid "Evidence"
@@ -7886,47 +7906,308 @@ msgid "The current strict ITF1788 gate executes 4,656/4,656 selected cases with 
 msgstr "現在の strict ITF1788 gate は選択した 4,656/4,656 case を実行し、failed、unsupported、diagnostic はすべてゼロです。この宣言は固定 corpus revision、選択 operation phase、runner precision だけを対象とし、IEEE 1788 全体の実装宣言ではありません。"
 
 #: manual/conformance/ball_float.md:7
+#: manual/conformance/bin_float.md:67
+#: manual/conformance/decimal.md:34
+#: manual/conformance/decimal_gda.md:11
+msgid "Clause traceability"
+msgstr "条項のトレーサビリティ"
+
+#: manual/conformance/ball_float.md:9
+msgid "IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
+msgstr "`ball_float` の IEEE Std 1788-2015（集合ベースの flavor）。 演算が存在し、引用した証拠がそれを検証しているときの状態は `準拠`、条項の一部が欠けているか証拠が薄いときは `部分準拠`（セルにどちらかを書きます）、それ以外は `未実装` と `適用外` です。コーパス名のない証拠はリポジトリ内のユニットテストで、「外部コーパスなし」は独立した oracle が検査しない演算を表します。"
+
+#: manual/conformance/ball_float.md:11
+#: manual/conformance/bin_float.md:71
+#: manual/conformance/decimal.md:38
+#: manual/verification.md:168
+msgid "Clause"
+msgstr "条項"
+
+#: manual/conformance/ball_float.md:11
+#: manual/conformance/bin_float.md:71
+#: manual/conformance/decimal.md:38
+#: manual/conformance/decimal_gda.md:15
+#: manual/index.md:56
+#: manual/index.md:65
+#: manual/index.md:76
+#: manual/index.md:86
+#: manual/index.md:96
+#: manual/numeric_semantics.md:579
+msgid "API"
+msgstr "API"
+
+#: manual/conformance/ball_float.md:11
+#: manual/conformance/bin_float.md:71
+#: manual/conformance/decimal.md:38
+#: manual/conformance/decimal_gda.md:15
+#: manual/performance_audit.md:154
+msgid "Status"
+msgstr "ステータス"
+
+#: manual/conformance/ball_float.md:13
+msgid "§4.2 set-based interval arithmetic flavor"
+msgstr "§4.2 集合ベースの区間算術 flavor"
+
+#: manual/conformance/ball_float.md:13
+msgid "ITF1788 strict gate (4,656 cases)"
+msgstr "ITF1788 strict ゲート (4,656 ケース)"
+
+#: manual/conformance/ball_float.md:13
+msgid "conforming for the selected phases"
+msgstr "選択したフェーズに準拠"
+
+#: manual/conformance/ball_float.md:14
+msgid "§4.2.2 compressed decorated interval arithmetic"
+msgstr "§4.2.2 圧縮された装飾付き区間算術"
+
+#: manual/conformance/ball_float.md:14
+#: manual/conformance/ball_float.md:17
+#: manual/conformance/ball_float.md:23
+#: manual/conformance/bin_float.md:97
+#: manual/conformance/bin_float.md:98
+#: manual/conformance/bin_float.md:99
+#: manual/conformance/decimal.md:62
+#: manual/conformance/decimal.md:66
+msgid "not implemented"
+msgstr "未実装"
+
+#: manual/conformance/ball_float.md:15
+msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions"
+msgstr "§9.1, §10.5.3 順方向モードの算術と初等関数"
+
+#: manual/conformance/ball_float.md:15
+msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174"
+msgstr "ITF1788 フェーズ：add/sub/mul/div 539, 初等関数コア 107, exp/log 131, 一般べき 1,428, 三角関数 176, `atan2` 375, 双曲線関数 107, 逆三角関数 61, FMA 567, 整数べき 174"
+
+#: manual/conformance/ball_float.md:15
+msgid "conforming (valid enclosures; tightness is not promised, see [Implementation-defined choices](../verification.md#implementation-defined-choices))"
+msgstr "準拠 （有効な包含。tightness は保証しない。参照： [実装定義の選択](../verification.md#implementation-defined-choices))"
+
+#: manual/conformance/ball_float.md:16
+msgid "§10.5.4 reverse-mode elementary functions"
+msgstr "§10.5.4 逆方向モードの初等関数"
+
+#: manual/conformance/ball_float.md:16
+#: manual/conformance/ball_float.md:26
+msgid "not implemented (issue [#21](https://github.com/Luna-Flow/floating/issues/21))"
+msgstr "未実装（issue [#21](https://github.com/Luna-Flow/floating/issues/21))"
+
+#: manual/conformance/ball_float.md:17
+msgid "§10.5.5 two-output division"
+msgstr "§10.5.5 2 出力除算"
+
+#: manual/conformance/ball_float.md:18
+msgid "§9.2, §10.5.6 cancellative addition and subtraction"
+msgstr "§9.2, §10.5.6 相殺的な加算と減算"
+
+#: manual/conformance/ball_float.md:18
+msgid "ITF1788 cancellation phase (242 cases)"
+msgstr "ITF1788 cancellation フェーズ (242 ケース)"
+
+#: manual/conformance/ball_float.md:18
+#: manual/conformance/ball_float.md:19
+#: manual/conformance/ball_float.md:21
+#: manual/conformance/ball_float.md:22
+#: manual/conformance/bin_float.md:73
+#: manual/conformance/bin_float.md:74
+#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:78
+#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:80
+#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:82
+#: manual/conformance/bin_float.md:83
+#: manual/conformance/bin_float.md:85
+#: manual/conformance/bin_float.md:86
+#: manual/conformance/bin_float.md:88
+#: manual/conformance/bin_float.md:89
+#: manual/conformance/bin_float.md:92
+#: manual/conformance/bin_float.md:93
+#: manual/conformance/decimal.md:40
+#: manual/conformance/decimal.md:41
+#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:45
+#: manual/conformance/decimal.md:46
+#: manual/conformance/decimal.md:47
+#: manual/conformance/decimal.md:48
+#: manual/conformance/decimal.md:49
+#: manual/conformance/decimal.md:51
+#: manual/conformance/decimal.md:54
+#: manual/conformance/decimal.md:55
+#: manual/conformance/decimal.md:56
+#: manual/conformance/decimal.md:58
+#: manual/conformance/decimal.md:60
+#: manual/conformance/decimal.md:64
+#: manual/conformance/decimal.md:68
+#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal_gda.md:17
+#: manual/conformance/decimal_gda.md:18
+#: manual/conformance/decimal_gda.md:19
+#: manual/conformance/decimal_gda.md:20
+#: manual/conformance/decimal_gda.md:21
+#: manual/conformance/decimal_gda.md:23
+#: manual/conformance/decimal_gda.md:24
+#: manual/conformance/decimal_gda.md:25
+#: manual/conformance/decimal_gda.md:26
+#: manual/conformance/decimal_gda.md:27
+#: manual/conformance/decimal_gda.md:28
+#: manual/conformance/decimal_gda.md:29
+#: manual/conformance/decimal_gda.md:30
+#: manual/conformance/decimal_gda.md:31
+#: manual/conformance/decimal_gda.md:32
+#: manual/conformance/decimal_gda.md:33
+#: manual/conformance/decimal_gda.md:34
+#: manual/conformance/decimal_gda.md:35
+msgid "conforming"
+msgstr "準拠"
+
+#: manual/conformance/ball_float.md:19
+msgid "§9.3, §10.5.7 set operations"
+msgstr "§9.3, §10.5.7 集合演算"
+
+#: manual/conformance/ball_float.md:19
+msgid "ITF1788 sets phase (20 cases)"
+msgstr "ITF1788 sets フェーズ (20 ケース)"
+
+#: manual/conformance/ball_float.md:20
+msgid "§9.8, §10.5.8 constructors"
+msgstr "§9.8, §10.5.8 構築関数"
+
+#: manual/conformance/ball_float.md:20
+msgid "ITF1788 sets phase; `src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
+msgstr "ITF1788 sets フェーズ; `src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
+
+#: manual/conformance/ball_float.md:20
+msgid "partial (no text-to-interval constructor)"
+msgstr "部分準拠 （テキストから区間への構築関数はない）"
+
+#: manual/conformance/ball_float.md:21
+msgid "§9.4, §10.5.9 numeric functions of intervals"
+msgstr "§9.4, §10.5.9 区間の数値関数"
+
+#: manual/conformance/ball_float.md:21
+msgid "ITF1788 numeric observations phase (124 cases)"
+msgstr "ITF1788 numeric observations フェーズ (124 ケース)"
+
+#: manual/conformance/ball_float.md:22
+msgid "§9.5, §10.5.10 boolean functions of intervals"
+msgstr "§9.5, §10.5.10 区間の真偽値関数"
+
+#: manual/conformance/ball_float.md:22
+msgid "ITF1788 relations phase (567 cases); `src/ball_float/ieee1788_relations_wbtest.mbt`"
+msgstr "ITF1788 relations フェーズ (567 ケース); `src/ball_float/ieee1788_relations_wbtest.mbt`"
+
+#: manual/conformance/ball_float.md:23
+msgid "§10.6.2 slope functions"
+msgstr "§10.6.2 傾き関数"
+
+#: manual/conformance/ball_float.md:24
+msgid "§10.6.4 extended interval comparisons"
+msgstr "§10.6.4 拡張された区間比較"
+
+#: manual/conformance/ball_float.md:24
+#: manual/conformance/bin_float.md:84
+#: manual/conformance/bin_float.md:87
+#: manual/conformance/bin_float.md:90
+#: manual/conformance/bin_float.md:100
+#: manual/conformance/decimal.md:52
+#: manual/conformance/decimal.md:53
+#: manual/conformance/decimal.md:57
+#: manual/conformance/decimal_gda.md:36
+msgid "partial"
+msgstr "部分準拠"
+
+#: manual/conformance/ball_float.md:25
+msgid "§9.6, §11 decoration system"
+msgstr "§9.6, §11 デコレーションシステム"
+
+#: manual/conformance/ball_float.md:25
+msgid "ITF1788 phases above (every selected case checks the decoration)"
+msgstr "上記の ITF1788 フェーズ (選択した各ケースがデコレーションを検査する)"
+
+#: manual/conformance/ball_float.md:25
+msgid "conforming for the selected phases; decorated `rootn` with a negative degree can keep a decoration above `trv` (see the [design page](../design/ball_float.md#known-limitations))"
+msgstr "選択したフェーズに準拠; 負の次数の装飾付き `rootn` は `trv` より上のデコレーションを残すことがある （[設計ページ]を参照(../design/ball_float.md#known-limitations))"
+
+#: manual/conformance/ball_float.md:26
+msgid "§9.7, §12.11 interval and number literals"
+msgstr "§9.7, §12.11 区間と数値のリテラル"
+
+#: manual/conformance/ball_float.md:27
+msgid "§12.10 accuracy of operations"
+msgstr "§12.10 演算の精度"
+
+#: manual/conformance/ball_float.md:27
+msgid "all `*_interval` operations"
+msgstr "すべての `*_interval` 演算"
+
+#: manual/conformance/ball_float.md:27
+msgid "ITF1788 strict gate checks containment, not tightness"
+msgstr "ITF1788 strict ゲートは包含を検査し、tightness は検査しない"
+
+#: manual/conformance/ball_float.md:27
+msgid "valid accuracy only; no tightest-result claim beyond the arithmetic operations"
+msgstr "valid accuracy のみ。算術演算以外では最も狭い結果を主張しない"
+
+#: manual/conformance/ball_float.md:28
+msgid "§12.6 754-conformance of the interval types"
+msgstr "§12.6 区間型の 754 準拠"
+
+#: manual/conformance/ball_float.md:28
+msgid "endpoints are `BinFloat`"
+msgstr "端点は `BinFloat`"
+
+#: manual/conformance/ball_float.md:28
+msgid "see the `bin_float` clause table"
+msgstr "`bin_float` の条項表を参照"
+
+#: manual/conformance/ball_float.md:28
+msgid "not claimed as a Level 2 type claim"
+msgstr "Level 2 型の主張としては扱わない"
+
+#: manual/conformance/ball_float.md:30
 msgid "Semantic oracle"
 msgstr "意味論オラクル"
 
-#: manual/conformance/ball_float.md:9
+#: manual/conformance/ball_float.md:32
 msgid "Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid."
 msgstr "期待値は集合の意味で比較します。endpoint containment、set relation、boolean relation、overlap state、numeric observation、decoration ごとに専用 comparator を使います。contract が widening を許す場合は広い interval も正しい一方、exact result を失う enclosure は常に誤りです。"
 
-#: manual/conformance/ball_float.md:11
+#: manual/conformance/ball_float.md:34
 msgid "Supported phases"
 msgstr "対応フェーズ"
 
-#: manual/conformance/ball_float.md:13
+#: manual/conformance/ball_float.md:36
 msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice."
 msgstr "strict マトリクスは、集合、関係、観測、相殺、加算・減算・乗算・除算、初等関数のコア、指数関数・対数関数、一般の冪、三角関数、`atan2`、双曲線関数、逆三角関数、FMA、整数冪、極値を網羅します。フェーズごとの演算集合は互いに素なので、同じ行が二重に数えられることはありません。"
 
-#: manual/conformance/ball_float.md:15
+#: manual/conformance/ball_float.md:38
 msgid "Decorations and fallbacks"
 msgstr "装飾とフォールバック"
 
-#: manual/conformance/ball_float.md:17
+#: manual/conformance/ball_float.md:40
 msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
 msgstr "Empty、Entire、装飾付きの NaI はそれぞれ別の状態です。初等関数のカーネルは方向付きの二進有理数（dyadic）証明書を用います。範囲縮約を認証できない場合、`sin`/`cos` は `[-1,1]` を、`tan` は Entire を返します。これは包含性を保ちますが、緊密さは保証しません。ゲートに合格しても、コーパス外の入力はカバーされません。[既知の制限](../design/ball_float.md#known-limitations)に挙げた残りの欠陥（負の次数の `rootn` の装飾）は、選択されたケースでは検査されません。"
 
-#: manual/conformance/ball_float.md:19
+#: manual/conformance/ball_float.md:42
 msgid "Exclusions"
 msgstr "対象外"
 
-#: manual/conformance/ball_float.md:21
+#: manual/conformance/ball_float.md:44
 msgid "Reverse interval operations, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
 msgstr "reverse interval operation、選択 phase 外の全 decoration rule、任意 endpoint format、固定されていない upstream revision は宣言外です。"
 
-#: manual/conformance/ball_float.md:23
-#: manual/conformance/decimal.md:51
-#: manual/conformance/decimal_gda.md:57
+#: manual/conformance/ball_float.md:46
+#: manual/conformance/decimal.md:88
+#: manual/conformance/decimal_gda.md:84
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
 msgid "Reproduction"
 msgstr "再現"
 
-#: manual/conformance/ball_float.md:31
+#: manual/conformance/ball_float.md:54
 msgid "See [the interval data guide](../../../testdata/interval/README.md) for provenance, phase counts, strict-mode behavior, and failure triage."
 msgstr "provenance、phase count、strict mode、failure triage は[interval data guide](../../../testdata/interval/README.md)を参照してください。"
 
@@ -8010,122 +8291,382 @@ msgstr "`BinaryInterchange` は IEEE の binary16、binary32、binary64、binary
 msgid "NaN comparisons in the TestFloat adapter are class-based only when an expected result is NaN. This is not a weakened finite-value comparison: non-NaN encoded bits and all exception bits must match exactly. It reflects IEEE's permitted choice of a newly generated NaN payload. The implementation itself preserves the selected input NaN's sign/payload and quiets signaling NaNs."
 msgstr "TestFloat アダプタにおける NaN の比較は、期待される結果が NaN である場合に限りクラス単位で行われます。これは有限値の比較を緩めたものではありません。NaN でないエンコードのビットと、すべての例外ビットは厳密に一致しなければなりません。これは、新たに生成される NaN のペイロードの選択を IEEE が許容していることを反映しています。実装自体は、選ばれた入力 NaN の符号とペイロードを保持し、signaling NaN を quiet NaN にします。"
 
-#: manual/conformance/bin_float.md:67
+#: manual/conformance/bin_float.md:69
+msgid "IEEE Std 754-2019 for `bin_float`. Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
+msgstr "`bin_float` の IEEE Std 754-2019。 演算が存在し、引用した証拠がそれを検証しているときの状態は `準拠`、条項の一部が欠けているか証拠が薄いときは `部分準拠`（セルにどちらかを書きます）、それ以外は `未実装` と `適用外` です。コーパス名のない証拠はリポジトリ内のユニットテストで、「外部コーパスなし」は独立した oracle が検査しない演算を表します。"
+
+#: manual/conformance/bin_float.md:73
+msgid "§3.3–§3.6 binary16/32/64/128 interchange formats"
+msgstr "§3.3–§3.6 binary16/32/64/128 交換形式"
+
+#: manual/conformance/bin_float.md:73
+msgid "TestFloat gate; `src/bin_float/ieee754_wbtest.mbt`"
+msgstr "TestFloat ゲート; `src/bin_float/ieee754_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:74
+#: manual/conformance/decimal.md:41
+msgid "§3.7 extendable precisions"
+msgstr "§3.7 拡張可能な精度"
+
+#: manual/conformance/bin_float.md:74
+msgid "MPFR elementary fixture; `src/bin_float/exponent_range_wbtest.mbt`"
+msgstr "MPFR 初等関数フィクスチャ; `src/bin_float/exponent_range_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:75
+#: manual/conformance/decimal.md:42
+msgid "§4.3 rounding-direction attributes"
+msgstr "§4.3 丸め方向属性"
+
+#: manual/conformance/bin_float.md:75
+msgid "TestFloat gate (five directions)"
+msgstr "TestFloat ゲート (5 方向)"
+
+#: manual/conformance/bin_float.md:75
+msgid "conforming; `RoundAwayFromZero` is an extension"
+msgstr "準拠； `RoundAwayFromZero` は拡張"
+
+#: manual/conformance/bin_float.md:76
+#: manual/conformance/decimal.md:44
+msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot"
+msgstr "§5.3.1 加算、減算、乗算、除算、squareRoot"
+
+#: manual/conformance/bin_float.md:76
+msgid "TestFloat gate (7,461,360 vectors); `src/bin_float/ieee754_wbtest.mbt`"
+msgstr "TestFloat ゲート (7,461,360 ベクトル); `src/bin_float/ieee754_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:77
+#: manual/conformance/decimal.md:45
+msgid "§5.3.1 fusedMultiplyAdd"
+msgstr "§5.3.1 fusedMultiplyAdd"
+
+#: manual/conformance/bin_float.md:77
+msgid "TestFloat gate (245,329,920 mulAdd vectors); `src/bin_float/fma_wbtest.mbt`"
+msgstr "TestFloat ゲート (245,329,920 mulAdd ベクトル); `src/bin_float/fma_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:78
+#: manual/conformance/decimal.md:46
+msgid "§5.3.1 remainder"
+msgstr "§5.3.1 remainder"
+
+#: manual/conformance/bin_float.md:78
+msgid "TestFloat gate (rem); `src/bin_float/remainder_wbtest.mbt`"
+msgstr "TestFloat ゲート (rem); `src/bin_float/remainder_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:79
+msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact)"
+msgstr "§5.3.1, §5.9 roundToIntegral (5 方向、exact 版を含む)"
+
+#: manual/conformance/bin_float.md:79
+msgid "TestFloat gate (roundToInt, exact and inexact); `src/bin_float/integral_wbtest.mbt`"
+msgstr "TestFloat ゲート (roundToInt, exact と inexact); `src/bin_float/integral_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:80
+#: manual/conformance/decimal.md:48
+msgid "§5.3.1 nextUp, nextDown"
+msgstr "§5.3.1 nextUp, nextDown"
+
+#: manual/conformance/bin_float.md:80
+msgid "`src/bin_float/next_wbtest.mbt` (no external corpus)"
+msgstr "`src/bin_float/next_wbtest.mbt` (外部コーパスなし)"
+
+#: manual/conformance/bin_float.md:81
+#: manual/conformance/decimal.md:49
+msgid "§5.3.1 scaleB, logB"
+msgstr "§5.3.1 scaleB, logB"
+
+#: manual/conformance/bin_float.md:81
+msgid "`src/bin_float/scale_wbtest.mbt` (no external corpus)"
+msgstr "`src/bin_float/scale_wbtest.mbt` (外部コーパスなし)"
+
+#: manual/conformance/bin_float.md:82
+#: manual/conformance/decimal.md:51
+msgid "§5.4.1 convertFromInt"
+msgstr "§5.4.1 convertFromInt"
+
+#: manual/conformance/bin_float.md:82
+#: manual/conformance/bin_float.md:88
+msgid "`src/bin_float/order_wbtest.mbt` (no external corpus)"
+msgstr "`src/bin_float/order_wbtest.mbt` (外部コーパスなし)"
+
+#: manual/conformance/bin_float.md:83
+msgid "§5.4.1, §5.8 convertToInteger (exact and inexact)"
+msgstr "§5.4.1, §5.8 convertToInteger （exact と inexact）"
+
+#: manual/conformance/bin_float.md:83
+msgid "TestFloat gate (32- and 64-bit conversions); `src/bin_float/to_integer_wbtest.mbt`"
+msgstr "TestFloat ゲート (32 ビットと 64 ビットの変換); `src/bin_float/to_integer_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:84
+#: manual/conformance/decimal.md:53
+msgid "§5.4.2 convertFormat"
+msgstr "§5.4.2 convertFormat"
+
+#: manual/conformance/bin_float.md:84
+msgid "`src/bin_float/ieee754_wbtest.mbt`; TestFloat format-to-format conversions are not run"
+msgstr "`src/bin_float/ieee754_wbtest.mbt`; TestFloat の形式間変換は実行していない"
+
+#: manual/conformance/bin_float.md:85
+#: manual/conformance/decimal.md:54
+msgid "§5.5 copy, negate, abs, copySign"
+msgstr "§5.5 copy, negate, abs, copySign"
+
+#: manual/conformance/bin_float.md:86
+msgid "§5.6, §5.11 comparison predicates, quiet and signaling"
+msgstr "§5.6, §5.11 比較述語（quiet と signaling）"
+
+#: manual/conformance/bin_float.md:86
+msgid "TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `src/bin_float/order_wbtest.mbt`"
+msgstr "TestFloat ゲート (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `src/bin_float/order_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:87
+msgid "§5.7 class and sign predicates"
+msgstr "§5.7 class と符号の述語"
+
+#: manual/conformance/bin_float.md:87
+msgid "`src/bin_float/contextual_traits_wbtest.mbt`; the ten-way `class` of §5.7.2 is not one function"
+msgstr "`src/bin_float/contextual_traits_wbtest.mbt`; §5.7.2 の 10 種の `class` は単一の関数ではない"
+
+#: manual/conformance/bin_float.md:88
+#: manual/conformance/decimal.md:57
+msgid "§5.10 totalOrder, totalOrderMag"
+msgstr "§5.10 totalOrder, totalOrderMag"
+
+#: manual/conformance/bin_float.md:89
+msgid "§5.12 decimal character conversion, both directions"
+msgstr "§5.12 十進文字変換（両方向）"
+
+#: manual/conformance/bin_float.md:89
+msgid "MPFR `mpfr_strtofr` corpus (1,716 rows) and `mpfr_get_str` corpus (3,300 rows); `src/bin_float/decimal_string_wbtest.mbt`"
+msgstr "MPFR `mpfr_strtofr` コーパス (1,716 行) and `mpfr_get_str` コーパス (3,300 行); `src/bin_float/decimal_string_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:90
+msgid "§5.12 hexadecimal character conversion"
+msgstr "§5.12 十六進文字変換"
+
+#: manual/conformance/bin_float.md:90
+msgid "used by every MPFR corpus row; the full grammar of §5.12.3 is not enumerated"
+msgstr "すべての MPFR コーパス行で使用; §5.12.3 の文法全体は列挙していない"
+
+#: manual/conformance/bin_float.md:91
+#: manual/conformance/decimal.md:59
+msgid "§6.1–§6.3 infinities, NaNs, sign bit"
+msgstr "§6.1–§6.3 無限大、NaN、符号ビット"
+
+#: manual/conformance/bin_float.md:91
+#: manual/conformance/decimal.md:59
+msgid "every `*_ctx` operation"
+msgstr "すべての `*_ctx` 演算"
+
+#: manual/conformance/bin_float.md:91
+msgid "TestFloat gate (a NaN result is compared by class only); `src/bin_float/compare_nan_wbtest.mbt`"
+msgstr "TestFloat ゲート (NaN の結果は種別だけを比較); `src/bin_float/compare_nan_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:91
+#: manual/conformance/decimal.md:59
+msgid "conforming; payload choice in [Implementation-defined choices](../verification.md#implementation-defined-choices)"
+msgstr "準拠； ペイロードの選択は [実装定義の選択](../verification.md#implementation-defined-choices)"
+
+#: manual/conformance/bin_float.md:92
+msgid "§7.2–§7.6 exceptions and default handling"
+msgstr "§7.2–§7.6 例外と既定の処理"
+
+#: manual/conformance/bin_float.md:92
+msgid "`BinaryFlags` returned by every `*_ctx` operation"
+msgstr "`BinaryFlags` すべての `*_ctx` 演算が返す"
+
+#: manual/conformance/bin_float.md:92
+msgid "TestFloat gate (exact flag bits, both tininess modes)"
+msgstr "TestFloat ゲート (フラグビットを厳密に、両方の tininess モード)"
+
+#: manual/conformance/bin_float.md:93
+msgid "§7.5 tininess detection"
+msgstr "§7.5 tininess の検出"
+
+#: manual/conformance/bin_float.md:93
+msgid "TestFloat gate (before and after rounding)"
+msgstr "TestFloat ゲート (丸め前と丸め後)"
+
+#: manual/conformance/bin_float.md:94
+#: manual/conformance/decimal.md:62
+msgid "§8 alternate exception handling"
+msgstr "§8 代替例外処理"
+
+#: manual/conformance/bin_float.md:94
+msgid "not implemented (flags are values; no traps, no resumption)"
+msgstr "未実装 （フラグは値であり、トラップも再開もない）"
+
+#: manual/conformance/bin_float.md:95
+#: manual/conformance/decimal.md:63
+msgid "§9.2 recommended mathematical functions"
+msgstr "§9.2 推奨される数学関数"
+
+#: manual/conformance/bin_float.md:95
+msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
+msgstr "MPFR 初等関数フィクスチャ (2,088 行); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
+
+#: manual/conformance/bin_float.md:95
+#: manual/conformance/decimal.md:63
+msgid "partial: no `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1`"
+msgstr "部分準拠： no `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1`"
+
+#: manual/conformance/bin_float.md:96
+#: manual/conformance/decimal.md:65
+msgid "§9.3 dynamic mode operations"
+msgstr "§9.3 動的モード演算"
+
+#: manual/conformance/bin_float.md:96
+#: manual/conformance/decimal.md:65
+msgid "none (contexts are explicit values)"
+msgstr "なし（コンテキストは明示的な値）"
+
+#: manual/conformance/bin_float.md:96
+#: manual/conformance/decimal.md:65
+msgid "not implemented by design"
+msgstr "設計上実装しない"
+
+#: manual/conformance/bin_float.md:97
+#: manual/conformance/decimal.md:66
+msgid "§9.4 reduction operations"
+msgstr "§9.4 リダクション演算"
+
+#: manual/conformance/bin_float.md:98
+#: manual/conformance/decimal.md:67
+msgid "§9.5 augmented arithmetic"
+msgstr "§9.5 拡張算術"
+
+#: manual/conformance/bin_float.md:99
+msgid "§9.6 minimum, maximum and magnitude variants"
+msgstr "§9.6 minimum、maximum と絶対値の変種"
+
+#: manual/conformance/bin_float.md:99
+msgid "none (`BinFloat::min` and `BinFloat::max` are plain helpers)"
+msgstr "なし（`BinFloat::min` と `BinFloat::max` は単なる補助関数）"
+
+#: manual/conformance/bin_float.md:100
+#: manual/conformance/decimal.md:69
+msgid "§9.7 NaN payload operations"
+msgstr "§9.7 NaN ペイロード演算"
+
+#: manual/conformance/bin_float.md:100
+msgid "`src/bin_float/order_wbtest.mbt`; no getPayload/setPayload pair"
+msgstr "`src/bin_float/order_wbtest.mbt`; getPayload/setPayload の対はない"
+
+#: manual/conformance/bin_float.md:102
 msgid "Declared corpus and results"
 msgstr "宣言されたコーパスと結果"
 
-#: manual/conformance/bin_float.md:69
+#: manual/conformance/bin_float.md:104
 msgid "The pinned full gate is documented in [`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md)."
 msgstr "完全ゲートは [`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md) に定義します。"
 
-#: manual/conformance/bin_float.md:72
+#: manual/conformance/bin_float.md:107
 #: manual/design/ball_float_checked.md:71
 msgid "Source"
 msgstr "ソース"
 
-#: manual/conformance/bin_float.md:72
+#: manual/conformance/bin_float.md:107
 #: manual/performance_audit.md:15
 msgid "Scope"
 msgstr "範囲"
 
-#: manual/conformance/bin_float.md:74
-#: manual/conformance/bin_float.md:75
+#: manual/conformance/bin_float.md:109
+#: manual/conformance/bin_float.md:110
 msgid "TestFloat 3e level 1, seed 1"
 msgstr "TestFloat 3e level 1、seed 1"
 
-#: manual/conformance/bin_float.md:74
+#: manual/conformance/bin_float.md:109
 msgid "4 formats × 5 arithmetic operations × 5 rounding directions × 2 tininess modes"
 msgstr "4 format × 5 arithmetic operation × 5 rounding × 2 tininess"
 
-#: manual/conformance/bin_float.md:75
+#: manual/conformance/bin_float.md:110
 msgid "4 formats × mulAdd (5 directions × 2 tininess modes), rem, roundToInt and four integer conversions (5 directions × exact/inexact variants), six comparison predicates"
 msgstr "4 format × mulAdd（5 rounding × 2 tininess）、rem、roundToInt と四つの integer conversion（5 rounding × exact/非 exact）、六つの comparison predicate"
 
-#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:111
 msgid "MPFR 4.2.2 `tests/data/sqrt`"
 msgstr "MPFR 4.2.2 `tests/data/sqrt`"
 
-#: manual/conformance/bin_float.md:76
+#: manual/conformance/bin_float.md:111
 msgid "all executable hexadecimal sqrt rows"
 msgstr "実行可能な 16 進 sqrt 行すべて"
 
-#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:112
 msgid "MPFR 4.2.2 `pow_si` fixture"
 msgstr "MPFR 4.2.2 `pow_si` フィクスチャ"
 
-#: manual/conformance/bin_float.md:77
+#: manual/conformance/bin_float.md:112
 msgid "4 precisions × 5 supported roundings × 6 inputs"
 msgstr "4 precision × 5 supported rounding × 6 input"
 
-#: manual/conformance/bin_float.md:78
+#: manual/conformance/bin_float.md:113
 msgid "MPFR 4.2.2 elementary fixture"
 msgstr "MPFR 4.2.2 初等関数フィクスチャ"
 
-#: manual/conformance/bin_float.md:78
+#: manual/conformance/bin_float.md:113
 msgid "29 operations × 3 precisions × 6 roundings × 4 fixed-seed inputs"
 msgstr "29 operation × 3 precision × 6 rounding × 4 fixed-seed input"
 
-#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:114
 msgid "MPFR 4.2.2 `mpfr_strtofr` fixture"
 msgstr "MPFR 4.2.2 `mpfr_strtofr` フィクスチャ"
 
-#: manual/conformance/bin_float.md:79
+#: manual/conformance/bin_float.md:114
 msgid "decimal text to binary: 5 precisions (11 to 200 bits) × 6 roundings × random, long-mantissa, huge-exponent, exact-halfway and one-unit-off-halfway literals, plus range limits and signed zeros"
 msgstr "十進テキストから二進へ：5 種類の精度（11〜200 ビット）× 6 種類の丸め ×（ランダム、長い仮数、巨大な指数、ちょうど中点、中点から 1 単位ずれたリテラル）に加え、範囲の限界と符号付きゼロ"
 
-#: manual/conformance/bin_float.md:80
+#: manual/conformance/bin_float.md:115
 msgid "MPFR 4.2.2 `mpfr_get_str` fixture"
 msgstr "MPFR 4.2.2 `mpfr_get_str` フィクスチャ"
 
-#: manual/conformance/bin_float.md:80
+#: manual/conformance/bin_float.md:115
 msgid "binary to decimal: 5 precisions × 5 roundings × 10 digit counts × fixed-seed values (exponents up to ±20,000), 12 exact ties, and the shortest round-trip digit count of 1,200 values"
 msgstr "二進から十進へ：5 種類の精度 × 5 種類の丸め × 10 種類の桁数 × 固定シードの値（指数は ±20,000 まで）、12 個のちょうどのタイ、および 1,200 個の値の最短往復桁数"
 
-#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:116
 msgid "Optional MPFR elementary stress, seed 20260715"
 msgstr "optional MPFR elementary stress、seed 20260715"
 
-#: manual/conformance/bin_float.md:81
+#: manual/conformance/bin_float.md:116
 msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr "three-operation 以上の各 family で 100,000 case 以上"
 
-#: manual/conformance/bin_float.md:82
+#: manual/conformance/bin_float.md:117
 msgid "Committed smoke"
 msgstr "コミット済み smoke"
 
-#: manual/conformance/bin_float.md:82
+#: manual/conformance/bin_float.md:117
 msgid "TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses"
 msgstr "TestFloat、sqrt、`pow_si`、elementary、`strtofr`、十進出力の証人"
 
-#: manual/conformance/bin_float.md:83
+#: manual/conformance/bin_float.md:118
 msgid "TestFloat 3e level 2"
 msgstr "TestFloat 3e レベル 2"
 
-#: manual/conformance/bin_float.md:83
+#: manual/conformance/bin_float.md:118
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr "binary16 の全 declared operation/direction/tininess"
 
-#: manual/conformance/bin_float.md:85
+#: manual/conformance/bin_float.md:120
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr "binary16 の level-2 の結果は追加のストリーミング負荷試験の証拠であり、はるかに大きい binary32/64/128 の level-2 スイートについて主張するものではありません。アーカイブ、ファイルとそのダイジェストは [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json) に固定されています。ランナーは TestFloat level 2 を検証済みの有界チャンク単位でストリーミング実行しますが、level 2 は任意の負荷試験スイートであり、上記の結果の主張には含まれません。966,744 行の MPFR 実行も同様に任意の生成負荷試験の証拠であり、再現可能なリリース境界は引き続きハッシュで固定された 2,088 行のフィクスチャです。"
 
-#: manual/conformance/bin_float.md:94
+#: manual/conformance/bin_float.md:129
 msgid "Scope of the claim"
 msgstr "主張の範囲"
 
-#: manual/conformance/bin_float.md:96
+#: manual/conformance/bin_float.md:131
 msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
 msgstr "four interchange format の contextual add/sub/mul/div/sqrt、fused multiply-add、remainder、roundToIntegral（通常と exact）、符号付き/符号なし 32/64 bit 整数への convertToInteger（通常と exact）、quiet/signaling の equal/less/less-or-equal predicate に加え、24、53、113 bit と六つの project rounding mode における 29 elementary operation を検証します。invalid な整数変換は flag のみ比較します（SoftFloat は platform 依存の sentinel を返し、API は `None` を返すため）。format 間変換、min/max、total order、nextUp/nextDown、scaleB/logB、decimal character 変換（package test で検証）の TestFloat 適合性、および全 IEEE 754 operation または全実数入力の適合性は主張しません。nearest-away は MPFR が要求する `mpfr_round_nearest_away_begin/end` protocol で生成し、禁止されている `MPFR_RNDNA` を general elementary function に直接渡しません。"
 
-#: manual/conformance/bin_float.md:112
+#: manual/conformance/bin_float.md:147
 msgid "The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of magnitude at most 16, inside each function's domain: `pow` takes a positive base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2` never two zeros, and `tanpi` no integral or half-integral argument. A zero input is $+0$. The matrix therefore does not exercise tiny or huge arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees of `rootn`, or the poles and signed zeros of the IEEE special-case tables; exact results such as $16^{3/4}$ occur only by chance. Those cases are covered by the package's unit tests against the special-value tables in the [API reference](../api/bin_float.md#elementary-functions), not by this claim."
 msgstr "固定 seed の初等関数の入力は、絶対値が 16 以下の $2^{-8}$ の二進有理数倍で、各関数の定義域内にあります。`pow` は正の底と $[-3, 3]$ の指数を、`rootn` は 2 から 7 の次数を取り、`atan2` が 2 つのゼロを取ることはなく、`tanpi` は整数や半整数の引数を取りません。ゼロの入力は $+0$ です。したがってこのマトリクスは、極小や巨大な引数、$-0$、無限大、NaN、`pow` の負の底、`rootn` の負の次数、IEEE の特殊ケース表にある極や符号付きゼロを検査しません。$16^{3/4}$ のような厳密な結果は偶然にしか現れません。これらのケースは、[API リファレンス](../api/bin_float.md#elementary-functions)の特殊値の表に照らすパッケージの単体テストでカバーされており、この主張の対象ではありません。"
 
-#: manual/conformance/bin_float.md:124
+#: manual/conformance/bin_float.md:159
 msgid "Stability of the evidence"
 msgstr "エビデンスの安定性"
 
-#: manual/conformance/bin_float.md:126
+#: manual/conformance/bin_float.md:161
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle. Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr "固定されたマトリクスがリリースのエビデンスの境界です。新しい演算を追加するには、新しいコーパス契約と独立したオラクルが必要です。チェックイン済みのゲートには `just conformance smoke binary` を、固定された完全なゲートには `just gate binary` を実行します。"
 
@@ -8165,16 +8706,152 @@ msgstr "commit 済み elementary layer は 2,784 の certified row を含みま�
 msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
 msgstr "IEEE 754-2019 §9.2 の飽和に関する回帰テストは `src/decimal/elementary_extensions_wbtest.mbt` にあり、`Decimal::tanh_ctx` と `Decimal::expm1_ctx` を対象とします。正負の `tanh`、負の `expm1`、8 種すべての `DecimalRoundingMode`、両方の clamp 設定と extended 設定を検査し、`Rounded`/`Inexact` フラグも厳密に確認します。認証ループ前の境界判定は、証明済み誤差範囲内で真の結果と同じ側にある代表値を選び、通常のコンテキスト最終化に渡して、微小性・オーバーフロー・clamp のフラグを正しく処理します。これらの対象を絞ったケースは commit 済み MPFR row 数には含まれません。`decimal_gda` には現在どちらの演算もないため、この項目では GDA の適合性を主張しません。"
 
-#: manual/conformance/decimal.md:34
+#: manual/conformance/decimal.md:36
+msgid "IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
+msgstr "`decimal` の IEEE Std 754-2019（decimal32/64/128 と任意精度）。 演算が存在し、引用した証拠がそれを検証しているときの状態は `準拠`、条項の一部が欠けているか証拠が薄いときは `部分準拠`（セルにどちらかを書きます）、それ以外は `未実装` と `適用外` です。コーパス名のない証拠はリポジトリ内のユニットテストで、「外部コーパスなし」は独立した oracle が検査しない演算を表します。"
+
+#: manual/conformance/decimal.md:40
+msgid "§3.5 decimal32/64/128 interchange, DPD and BID"
+msgstr "§3.5 decimal32/64/128 交換形式、DPD と BID"
+
+#: manual/conformance/decimal.md:40
+msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `src/decimal/interchange_wbtest.mbt`"
+msgstr "IEEE 十進コーパス (`testdata/decimal/ieee/decimal64_dpd.json` および他の 5 つのエンコーディング); 1,024 個の declet すべて; `src/decimal/interchange_wbtest.mbt`"
+
+#: manual/conformance/decimal.md:41
+msgid "`DecimalContext::new` (precision up to 999,999,999)"
+msgstr "`DecimalContext::new` （精度は最大 999,999,999）"
+
+#: manual/conformance/decimal.md:42
+msgid "IEEE decimal corpus (five directions); `src/decimal/subnormal_rounding_wbtest.mbt`"
+msgstr "IEEE 十進コーパス (5 方向); `src/decimal/subnormal_rounding_wbtest.mbt`"
+
+#: manual/conformance/decimal.md:42
+msgid "conforming; `HalfDown`, `Up` and `ZeroFiveUp` are extensions"
+msgstr "準拠； `HalfDown`, `Up` と `ZeroFiveUp` は拡張"
+
+#: manual/conformance/decimal.md:43
+msgid "§5.2 preferred exponents"
+msgstr "§5.2 優先指数"
+
+#: manual/conformance/decimal.md:43
+msgid "every `*_ctx` operation, `power_ctx`, `pown_ctx`"
+msgstr "すべての `*_ctx` 演算, `power_ctx`, `pown_ctx`"
+
+#: manual/conformance/decimal.md:43
+msgid "conforming; `pow(1, ±inf)` has no defined exponent and returns `1`"
+msgstr "準拠； `pow(1, ±inf)` には指数が定義されておらず `1` を返す"
+
+#: manual/conformance/decimal.md:44
+msgid "IEEE decimal corpus (authoritative operations); `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgstr "IEEE 十進コーパス (権威ある演算); `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+
+#: manual/conformance/decimal.md:45
+msgid "IEEE decimal corpus; `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgstr "IEEE 十進コーパス; `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+
+#: manual/conformance/decimal.md:46
+msgid "`remainder_ctx` (IEEE remainder; `remainder` and `remainder_near` are the GDA forms)"
+msgstr "`remainder_ctx` （IEEE の剰余。`remainder` と `remainder_near` は GDA 形式）"
+
+#: manual/conformance/decimal.md:46
+msgid "`src/decimal/remainder_wbtest.mbt` (no external corpus)"
+msgstr "`src/decimal/remainder_wbtest.mbt` (外部コーパスなし)"
+
+#: manual/conformance/decimal.md:47
+msgid "§5.3.1 roundToIntegral (all five, exact)"
+msgstr "§5.3.1 roundToIntegral (5 種すべて、exact 版を含む)"
+
+#: manual/conformance/decimal.md:50
+msgid "§5.3.2 quantize, quantum, sameQuantum"
+msgstr "§5.3.2 quantize, quantum, sameQuantum"
+
+#: manual/conformance/decimal.md:50
+msgid "conforming; a zero result above `e_max - p + 1` under `clamp` is not folded down"
+msgstr "準拠； `clamp` で `e_max - p + 1` を超えるゼロの結果は折り返されない"
+
+#: manual/conformance/decimal.md:52
+msgid "§5.4.1 convertToInteger"
+msgstr "§5.4.1 convertToInteger"
+
+#: manual/conformance/decimal.md:52
+msgid "none (`to_integral_*` return a `Decimal`)"
+msgstr "なし（`to_integral_*` は `Decimal` を返す）"
+
+#: manual/conformance/decimal.md:55
+msgid "§5.6, §5.11 comparison, quiet and signaling"
+msgstr "§5.6, §5.11 比較（quiet と signaling）"
+
+#: manual/conformance/decimal.md:56
+msgid "§5.7 class, isCanonical, radix"
+msgstr "§5.7 class, isCanonical, radix"
+
+#: manual/conformance/decimal.md:58
+msgid "§5.12 decimal character conversion (decimal to decimal)"
+msgstr "§5.12 十進文字変換（十進から十進）"
+
+#: manual/conformance/decimal.md:58
+msgid "`src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
+msgstr "`src/decimal/parse_format_wbtest.mbt`; IEEE 十進コーパス"
+
+#: manual/conformance/decimal.md:59
+msgid "IEEE decimal corpus; `src/decimal/nan_payload_issue151_152_wbtest.mbt`"
+msgstr "IEEE 十進コーパス; `src/decimal/nan_payload_issue151_152_wbtest.mbt`"
+
+#: manual/conformance/decimal.md:60
+msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact"
+msgstr "§7.2–§7.4, §7.6 無効演算、ゼロ除算、オーバーフロー、inexact"
+
+#: manual/conformance/decimal.md:60
+msgid "`DecimalFlags` returned by every `*_ctx` operation"
+msgstr "`DecimalFlags` すべての `*_ctx` 演算が返す"
+
+#: manual/conformance/decimal.md:60
+msgid "IEEE decimal corpus (flags recorded independently of values)"
+msgstr "IEEE 十進コーパス (フラグは値と別に記録)"
+
+#: manual/conformance/decimal.md:61
+msgid "§7.5 underflow and tininess"
+msgstr "§7.5 アンダーフローと tininess"
+
+#: manual/conformance/decimal.md:61
+msgid "partial: the default is after rounding, §7.5 requires before rounding for decimal formats (issue [#217](https://github.com/Luna-Flow/floating/issues/217))"
+msgstr "部分準拠： 既定は丸め後だが、§7.5 は十進形式に丸め前を要求する （issue [#217](https://github.com/Luna-Flow/floating/issues/217))"
+
+#: manual/conformance/decimal.md:63
+msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows = 2,784); `src/decimal/elementary_extensions_wbtest.mbt`"
+msgstr "MPFR で認証した初等関数 oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 演算 × 96 行 = 2,784); `src/decimal/elementary_extensions_wbtest.mbt`"
+
+#: manual/conformance/decimal.md:64
+msgid "§9.2.2 preferred exponents of pow and pown"
+msgstr "§9.2.2 pow と pown の優先指数"
+
+#: manual/conformance/decimal.md:67
+msgid "defined for binary formats only"
+msgstr "二進形式にのみ定義されている"
+
+#: manual/conformance/decimal.md:67
+msgid "not applicable"
+msgstr "適用外"
+
+#: manual/conformance/decimal.md:68
+msgid "§9.6 minimum and maximum, eight variants"
+msgstr "§9.6 minimum と maximum（8 種の変種）"
+
+#: manual/conformance/decimal.md:68
+msgid "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` and the `*_magnitude_ctx` forms"
+msgstr "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` および `*_magnitude_ctx` 形式"
+
+#: manual/conformance/decimal.md:71
 msgid "Targets"
 msgstr "対象"
 
-#: manual/conformance/decimal.md:36
+#: manual/conformance/decimal.md:73
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行します。必要な local artifact が repository にないため LLVM は除外します。target-specific coefficient dispatch は value、encoding、flags を変更してはなりません。"
 
-#: manual/conformance/decimal.md:38
-#: manual/conformance/decimal_gda.md:34
+#: manual/conformance/decimal.md:75
+#: manual/conformance/decimal_gda.md:61
 #: manual/design/ball_float.md:771
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:244
@@ -8208,19 +8885,19 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 msgid "Boundaries"
 msgstr "境界"
 
-#: manual/conformance/decimal.md:40
+#: manual/conformance/decimal.md:77
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr "固定 matrix は有限で、IEEE 754 の全 operation、全 payload propagation policy、全 decimal input を宣言しません。追加の `dd*`/`dq*` decTest row は diagnostic であり IEEE oracle ではありません。"
 
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:79
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr "`Decimal::parse_checked` は `from_string_ctx` を通じて ArithmeticContext の丸め方向と指数範囲を適用します。Result は値または構文エラーのみを返し、例外フラグを保持しません。"
 
-#: manual/conformance/decimal.md:47
+#: manual/conformance/decimal.md:84
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr "マトリクスは現在のブランチで合格し、そのブランチにはもはや[既知の逸脱](../design/decimal.md#known-deviations)はありません。ゲートの合格はカバーされた行についてのみのエビデンスです。"
 
-#: manual/conformance/decimal.md:59
+#: manual/conformance/decimal.md:96
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "corpus provenance、vector family、failure record は[decimal data guide](../../../testdata/decimal/README.md)を参照してください。"
 
@@ -8240,67 +8917,171 @@ msgstr "公開された結果"
 msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator."
 msgstr "固定 official corpus の legal executable scalar row 64,986/64,986 がすべて通過し、failed、unsupported、legacy はゼロです。残り 141 row は `#` placeholder または non-scalar invalid input で、legal denominator 外の diagnostic として報告します。"
 
-#: manual/conformance/decimal_gda.md:11
+#: manual/conformance/decimal_gda.md:13
+msgid "General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per operation or conversion of the specification. The decTest files are those of the pinned corpus (`testdata/decimal/corpora.json`). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
+msgstr "`decimal_gda` の General Decimal Arithmetic Specification 1.70 で、仕様の演算または変換ごとに 1 行です。decTest のファイルは固定したコーパス（`testdata/decimal/corpora.json`）のものです。 演算が存在し、引用した証拠がそれを検証しているときの状態は `準拠`、条項の一部が欠けているか証拠が薄いときは `部分準拠`（セルにどちらかを書きます）、それ以外は `未実装` と `適用外` です。コーパス名のない証拠はリポジトリ内のユニットテストで、「外部コーパスなし」は独立した oracle が検査しない演算を表します。"
+
+#: manual/conformance/decimal_gda.md:17
+msgid "abs, minus, plus"
+msgstr "abs, minus, plus"
+
+#: manual/conformance/decimal_gda.md:18
+msgid "add, subtract, multiply"
+msgstr "add, subtract, multiply"
+
+#: manual/conformance/decimal_gda.md:19
+msgid "divide, divide-integer, remainder, remainder-near"
+msgstr "divide, divide-integer, remainder, remainder-near"
+
+#: manual/conformance/decimal_gda.md:20
+msgid "fused-multiply-add"
+msgstr "fused-multiply-add"
+
+#: manual/conformance/decimal_gda.md:21
+msgid "square-root"
+msgstr "square-root"
+
+#: manual/conformance/decimal_gda.md:22
+msgid "power"
+msgstr "power"
+
+#: manual/conformance/decimal_gda.md:22
+msgid "conforming; integer powers are within about 0.55 units in the last place (0.6 for negative exponents), as the specification allows"
+msgstr "準拠； 整数べきは最終桁の約 0.55 単位以内（負の指数では 0.6）で、仕様はこれを許している"
+
+#: manual/conformance/decimal_gda.md:23
+msgid "exp, ln, log10"
+msgstr "exp, ln, log10"
+
+#: manual/conformance/decimal_gda.md:24
+msgid "compare, compare-signal, compare-total, compare-total-mag"
+msgstr "compare, compare-signal, compare-total, compare-total-mag"
+
+#: manual/conformance/decimal_gda.md:25
+msgid "max, max-magnitude, min, min-magnitude"
+msgstr "max, max-magnitude, min, min-magnitude"
+
+#: manual/conformance/decimal_gda.md:26
+msgid "next-minus, next-plus, next-toward"
+msgstr "next-minus, next-plus, next-toward"
+
+#: manual/conformance/decimal_gda.md:27
+msgid "quantize, rescale, same-quantum, reduce, trim"
+msgstr "quantize, rescale, same-quantum, reduce, trim"
+
+#: manual/conformance/decimal_gda.md:28
+msgid "round-to-integral-exact, round-to-integral-value"
+msgstr "round-to-integral-exact, round-to-integral-value"
+
+#: manual/conformance/decimal_gda.md:29
+msgid "scaleb, logb, rotate, shift"
+msgstr "scaleb, logb, rotate, shift"
+
+#: manual/conformance/decimal_gda.md:30
+msgid "and, or, xor, invert"
+msgstr "and, or, xor, invert"
+
+#: manual/conformance/decimal_gda.md:31
+msgid "class, copy, copy-abs, copy-negate, copy-sign"
+msgstr "class, copy, copy-abs, copy-negate, copy-sign"
+
+#: manual/conformance/decimal_gda.md:32
+msgid "to-number, to-scientific-string, to-engineering-string"
+msgstr "to-number, to-scientific-string, to-engineering-string"
+
+#: manual/conformance/decimal_gda.md:33
+msgid "canonical"
+msgstr "canonical"
+
+#: manual/conformance/decimal_gda.md:33
+msgid "no decTest file; `src/consistency/api_audit_wbtest.mbt`"
+msgstr "decTest ファイルなし; `src/consistency/api_audit_wbtest.mbt`"
+
+#: manual/conformance/decimal_gda.md:34
+msgid "context: precision, rounding, clamp, exponent limits"
+msgstr "コンテキスト：精度、丸め、clamp、指数の限界"
+
+#: manual/conformance/decimal_gda.md:35
+msgid "status flags and traps (Appendix and Exceptional conditions)"
+msgstr "ステータスフラグとトラップ（付録と例外条件）"
+
+#: manual/conformance/decimal_gda.md:35
+msgid "every decTest row checks the flag set; trap enablement is covered by the runner's directive handling"
+msgstr "すべての decTest 行がフラグ集合を検査する; トラップの有効化はランナーのディレクティブ処理で扱われる"
+
+#: manual/conformance/decimal_gda.md:36
+msgid "subset arithmetic (Appendix A)"
+msgstr "サブセット算術（付録 A）"
+
+#: manual/conformance/decimal_gda.md:36
+msgid "`extended = false` contexts"
+msgstr "`extended = false` contexts"
+
+#: manual/conformance/decimal_gda.md:36
+msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
+msgstr "`src/decimal_gda/` ホワイトボックステスト; decTest の subset 実行なし"
+
+#: manual/conformance/decimal_gda.md:38
 msgid "Legacy corpus"
 msgstr "レガシーコーパス"
 
-#: manual/conformance/decimal_gda.md:13
+#: manual/conformance/decimal_gda.md:40
 msgid "The pinned `official0` corpus passes 16,124/16,124 legal executable rows with zero failures. It is retained for historical compatibility checks, not as the definition of the current surface."
 msgstr "固定 `official0` corpus の legal executable row 16,124/16,124 が通過します。historical compatibility check 用であり、現在の surface の定義ではありません。"
 
-#: manual/conformance/decimal_gda.md:15
+#: manual/conformance/decimal_gda.md:42
 msgid "State semantics"
 msgstr "状態の意味論"
 
-#: manual/conformance/decimal_gda.md:17
+#: manual/conformance/decimal_gda.md:44
 msgid "Each operation returns a `GdaOutcome` containing the defined result, flags raised by that operation, and the next context with accumulated sticky status. Enabling a trap changes the outcome variant but does not erase the defined result."
 msgstr "各 operation は GDA-defined result、今回 raised された flags、sticky status を蓄積した next context を持つ `GdaOutcome` を返します。trap を有効にすると outcome variant は変わりますが、defined result は失われません。"
 
-#: manual/conformance/decimal_gda.md:19
+#: manual/conformance/decimal_gda.md:46
 msgid "The arithmetic `ParseChecked` adapter applies its mapped DecimalContext to GDA parsing but returns only a value or syntax error. Use the `decimal_gda::parse` API with `GdaContext` when sticky status and traps must remain observable."
 msgstr "ParseChecked は変換した DecimalContext を GDA 解析に適用し、値または構文エラーのみを返します。累積状態やトラップには GdaContext を受け取る decimal_gda::parse を使います。"
 
-#: manual/conformance/decimal_gda.md:23
+#: manual/conformance/decimal_gda.md:50
 msgid "The white-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, checking the folded exponent and the `Clamped` condition."
 msgstr "ホワイトボックステストは、有限および無限の除数について、クランプされた拡張コンテキストでのゼロの `divide_integer` 結果を対象とし、折りたたまれた指数と `Clamped` 条件を検査します。"
 
-#: manual/conformance/decimal_gda.md:27
+#: manual/conformance/decimal_gda.md:54
 msgid "Runner model"
 msgstr "ランナーモデル"
 
-#: manual/conformance/decimal_gda.md:29
+#: manual/conformance/decimal_gda.md:56
 msgid "Documents are parsed once, directive state is snapshotted per case, and deterministic shards execute disjoint case positions through the public `GdaContext`/`GdaOutcome` operation surface. Executable, diagnostic, unsupported, legacy, passed, and failed counts remain separate."
 msgstr "document は一度だけ parse し、directive state を case ごとに snapshot し、 deterministic shard が public `GdaContext`/`GdaOutcome` operation surface を通じて disjoint case position を実行します。executable、diagnostic、unsupported、legacy、 passed、failed count は分離します。"
 
-#: manual/conformance/decimal_gda.md:36
+#: manual/conformance/decimal_gda.md:63
 msgid "The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar invalid rows, future directives, unpinned revisions, and an unbounded universe of decimal strings remain outside it."
 msgstr "宣言は固定 corpus の legal scalar row だけを対象にします。placeholder/non-scalar invalid row、future directive、固定されていない revision、無限の decimal string 空間は対象外です。"
 
-#: manual/conformance/decimal_gda.md:38
+#: manual/conformance/decimal_gda.md:65
 msgid "Known deviations outside the corpus"
 msgstr "コーパス外の既知の逸脱"
 
-#: manual/conformance/decimal_gda.md:40
+#: manual/conformance/decimal_gda.md:67
 msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
 msgstr "コーパスへの合格は有限の主張にすぎません。実装のレビューにより次の挙動が見つかっていますが、いずれにも固定された行はありません。"
 
-#: manual/conformance/decimal_gda.md:43
+#: manual/conformance/decimal_gda.md:70
 msgid "Integer `power` is accurate to about 0.55 units in the last place (0.6 for negative exponents), not correctly rounded, as the specification allows."
 msgstr "整数の `power` の精度は最終桁の単位で約 0.55（負の指数では 0.6）であり、正しく丸められてはいませんが、これは仕様で許されています。"
 
-#: manual/conformance/decimal_gda.md:46
+#: manual/conformance/decimal_gda.md:73
 msgid "Isolation and native benchmark"
 msgstr "分離とネイティブベンチマーク"
 
-#: manual/conformance/decimal_gda.md:48
+#: manual/conformance/decimal_gda.md:75
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "Production dependency scan は `decimal_gda`、`decimal_gda_checked`、 `frontend/gda_expr` に IEEE `decimal` import または GDA profile bridge がないことを要求します。IEEE test と independent conformance corpus は別に実行します。"
 
-#: manual/conformance/decimal_gda.md:52
+#: manual/conformance/decimal_gda.md:79
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "Quick benchmark は current engine だけを isolated snapshot で build し、cell ごとに 3 native sample を実行します。Arithmetic、parser、context、elementary の timing を観測しますが、performance を conformance requirement にせず、historical adapter とも比較しません。"
 
-#: manual/conformance/decimal_gda.md:66
+#: manual/conformance/decimal_gda.md:93
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、filter、phase、JSON output、failure triage は[decimal data guide](../../../testdata/decimal/README.md)を参照してください。"
 
@@ -14874,15 +15655,6 @@ msgstr "チュートリアル"
 #: manual/index.md:76
 #: manual/index.md:86
 #: manual/index.md:96
-#: manual/numeric_semantics.md:579
-msgid "API"
-msgstr "API"
-
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:96
 msgid "Design"
 msgstr "設計"
 
@@ -16589,10 +17361,6 @@ msgstr "健全性：負の半軸の回帰修正と IEEE 1788 の完全なゲー�
 #: manual/performance_audit.md:152
 msgid "Claim–evidence map"
 msgstr "主張と証拠の対応表"
-
-#: manual/performance_audit.md:154
-msgid "Status"
-msgstr "ステータス"
 
 #: manual/performance_audit.md:156
 msgid "fast coefficient routes preserve the declared numerical results"
@@ -21150,6 +21918,354 @@ msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
 
+#: manual/verification.md:157
+msgid "Implementation-defined choices"
+msgstr "実装定義の選択"
+
+#: manual/verification.md:159
+msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
+msgstr "IEEE 754-2019 と IEEE 1788-2015 は、次の点を実装に委ねており、IEEE 754 はそれを文書化するよう求めています。各項目に、選択の余地を残す条項と採用した選択を書きます。 [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability)、[interval](./conformance/ball_float.md#clause-traceability) 適合性ページの条項表がこれらを引用します。"
+
+#: manual/verification.md:168
+msgid "Choice left open"
+msgstr "実装に委ねられた事項"
+
+#: manual/verification.md:168
+msgid "Choice made"
+msgstr "採用した選択"
+
+#: manual/verification.md:170
+msgid "IEEE 754 §7.5"
+msgstr "IEEE 754 §7.5"
+
+#: manual/verification.md:170
+msgid "Tininess detection for binary formats"
+msgstr "二進形式の tininess 検出"
+
+#: manual/verification.md:170
+msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding; see the known gaps."
+msgstr "`BinaryContext` の既定は丸め後の検出です。丸め前も選択でき、TestFloat ゲートは両方を実行します。十進では規格が丸め前を要求します。既知のギャップを参照してください。"
+
+#: manual/verification.md:171
+msgid "IEEE 754 §6.2"
+msgstr "IEEE 754 §6.2"
+
+#: manual/verification.md:171
+msgid "Which NaN payload a NaN result carries"
+msgstr "NaN の結果がどの NaN ペイロードを持つか"
+
+#: manual/verification.md:171
+msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
+msgstr "`bin_float`：選ばれた NaN オペランドのペイロードと符号を保ち、signaling NaN は quiet にします。`decimal`：最初の NaN オペランドの符号とペイロードを、下位 `p` 桁（`clamp` では交換形式のペイロード欄の幅である `p - 1` 桁）に切り詰めます。"
+
+#: manual/verification.md:172
+msgid "IEEE 754 §9.7"
+msgstr "IEEE 754 §9.7"
+
+#: manual/verification.md:172
+msgid "Admissible payloads of `setPayload`"
+msgstr "`setPayload` が受け付けるペイロード"
+
+#: manual/verification.md:172
+msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
+msgstr "`decimal`：レシーバーの `precision - 1` 桁以下の非負整数。それ以外は `+0` になります。`bin_float` に setPayload はありません。"
+
+#: manual/verification.md:173
+msgid "IEEE 754 §3.7"
+msgstr "IEEE 754 §3.7"
+
+#: manual/verification.md:173
+msgid "Exponent range and precision of an extendable format"
+msgstr "拡張可能な形式の指数範囲と精度"
+
+#: manual/verification.md:173
+msgid "`bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
+msgstr "`bin_float`：先頭ビットの指数は `[1 - 2^30, 2^30 - 1]`、精度は最大 `2^28` ビット（両端とも MPFR より 1 binade 上）。`decimal`：`e_min` と `e_max` は ±999,999,999 以内、精度は `1..999,999,999`。"
+
+#: manual/verification.md:174
+msgid "IEEE 754 §4.3"
+msgstr "IEEE 754 §4.3"
+
+#: manual/verification.md:174
+msgid "Rounding directions beyond the five required"
+msgstr "必須の 5 つ以外の丸め方向"
+
+#: manual/verification.md:174
+msgid "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
+msgstr "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
+
+#: manual/verification.md:175
+msgid "IEEE 754 §4.1, §9.3"
+msgstr "IEEE 754 §4.1, §9.3"
+
+#: manual/verification.md:175
+msgid "How attributes are specified"
+msgstr "属性の指定方法"
+
+#: manual/verification.md:175
+msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
+msgstr "静的：各演算にコンテキスト値を渡します。動的モードもグローバル状態もありません。"
+
+#: manual/verification.md:176
+msgid "IEEE 754 §7"
+msgstr "IEEE 754 §7"
+
+#: manual/verification.md:176
+msgid "How flags are exposed"
+msgstr "フラグの公開方法"
+
+#: manual/verification.md:176
+msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
+msgstr "演算ごとに返され（`BinaryFlags`、`DecimalFlags`）、呼び出し側が合成します。IEEE のパッケージに環境のスティッキーフラグはありません。"
+
+#: manual/verification.md:177
+msgid "IEEE 754 §9.2"
+msgstr "IEEE 754 §9.2"
+
+#: manual/verification.md:177
+msgid "Accuracy of recommended functions"
+msgstr "推奨関数の精度"
+
+#: manual/verification.md:177
+msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
+msgstr "すべての丸め方向で正しく丸められます（認証した包含を、丸めが一意になるまで精密化します）。精密化の予算を使い切ると `try_*_ctx` は `Err` を返し、通常の形式は NaN を返します。精度または指数の限界の絶対値が 999,999 を超える十進コンテキストは `invalid_context` を返します。"
+
+#: manual/verification.md:178
+msgid "IEEE 754 §9.2.2"
+msgstr "IEEE 754 §9.2.2"
+
+#: manual/verification.md:178
+msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
+msgstr "優先指数が未定義のとき（`pow` の `y` が無限大または NaN）"
+
+#: manual/verification.md:178
+msgid "`decimal`: `pow(+1, y)` is the plain `1`."
+msgstr "`decimal`：`pow(+1, y)` は素の `1` です。"
+
+#: manual/verification.md:179
+msgid "IEEE 754 §5.12"
+msgstr "IEEE 754 §5.12"
+
+#: manual/verification.md:179
+msgid "Character sequences accepted and produced (`bin_float`)"
+msgstr "受理および生成する文字列（`bin_float`）"
+
+#: manual/verification.md:179
+msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
+msgstr "十進：`[+-]digits[.digits][e[+-]digits]`、`inf`、`infinity`、`nan`、`snan`（大文字小文字を区別しない）。出力は `d.ddde±x`、最短形式は ECMAScript の `Number#toString` と同じ書式で `-0` を保ちます。十六進：`0x<hex>p<exp>`。"
+
+#: manual/verification.md:180
+msgid "IEEE 754 §6.3"
+msgstr "IEEE 754 §6.3"
+
+#: manual/verification.md:180
+msgid "Sign of a zero `remainder` result (`decimal`)"
+msgstr "`remainder` の結果がゼロのときの符号（`decimal`）"
+
+#: manual/verification.md:180
+msgid "The sign of the dividend, kept in extended contexts."
+msgstr "被除数の符号。拡張コンテキストで保たれます。"
+
+#: manual/verification.md:181
+msgid "IEEE 1788 §7, §4.2"
+msgstr "IEEE 1788 §7, §4.2"
+
+#: manual/verification.md:181
+msgid "Flavor"
+msgstr "Flavor"
+
+#: manual/verification.md:181
+msgid "Set-based."
+msgstr "集合ベース。"
+
+#: manual/verification.md:182
+msgid "IEEE 1788 §12.10"
+msgstr "IEEE 1788 §12.10"
+
+#: manual/verification.md:182
+msgid "Accuracy of the elementary functions"
+msgstr "初等関数の精度"
+
+#: manual/verification.md:182
+msgid "Valid (the result contains the exact image); not the tightest enclosure. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
+msgstr "有効（結果は厳密な像を含む）。最も狭い包含ではありません。範囲縮約を認証できないとき、`sin` と `cos` は `[-1, 1]`、`tan` は Entire を返します。"
+
+#: manual/verification.md:183
+msgid "IEEE 1788 §12.5"
+msgstr "IEEE 1788 §12.5"
+
+#: manual/verification.md:183
+msgid "Interval types"
+msgstr "区間型"
+
+#: manual/verification.md:183
+msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
+msgstr "任意精度の `BinFloat` を端点とする inf-sup 区間（binary32 と binary64 の名前付き形式あり）。mid-rad 型はありません。"
+
+#: manual/verification.md:184
+msgid "General Decimal Arithmetic"
+msgstr "General Decimal Arithmetic"
+
+#: manual/verification.md:184
+msgid "Exponent limit"
+msgstr "指数の限界"
+
+#: manual/verification.md:184
+msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
+msgstr "±999,999,999 と最大 999,999,999 の精度で、decNumber の限界です。仕様自体は `5 × mlength` を超える限界だけを要求します。"
+
+#: manual/verification.md:186
+msgid "Known gaps and deviations"
+msgstr "既知のギャップと逸脱"
+
+#: manual/verification.md:188
+msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
+msgstr "規格が求めていることをこのパッケージが提供していない、または異なる形で提供している場合に、ここに載せます。各項目は、それを追跡する issue か、判断を記録したページにリンクします。"
+
+#: manual/verification.md:192
+msgid "Standard"
+msgstr "規格"
+
+#: manual/verification.md:192
+msgid "Gap"
+msgstr "ギャップ"
+
+#: manual/verification.md:192
+msgid "Tracking"
+msgstr "追跡"
+
+#: manual/verification.md:194
+msgid "IEEE 754-2019 §7.5"
+msgstr "IEEE 754-2019 §7.5"
+
+#: manual/verification.md:194
+msgid "`decimal` detects tininess after rounding by default; decimal formats require before rounding"
+msgstr "`decimal` は既定で丸め後に tininess を検出するが、十進形式は丸め前を要求する"
+
+#: manual/verification.md:194
+msgid "issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
+msgstr "issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
+
+#: manual/verification.md:195
+msgid "IEEE 754-2019 §8"
+msgstr "IEEE 754-2019 §8"
+
+#: manual/verification.md:195
+msgid "No alternate exception handling"
+msgstr "代替例外処理はない"
+
+#: manual/verification.md:195
+msgid "by design (flags are values)"
+msgstr "設計どおり（フラグは値）"
+
+#: manual/verification.md:196
+msgid "IEEE 754-2019 §9.2"
+msgstr "IEEE 754-2019 §9.2"
+
+#: manual/verification.md:196
+msgid "Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal`"
+msgstr "`bin_float` と `decimal` に `rSqrt`、`compound`、`powr`、`asinPi`、`acosPi`、`atanPi`、`atan2Pi`、`exp2m1`、`exp10m1`、`log2p1`、`log10p1` がない"
+
+#: manual/verification.md:196
+#: manual/verification.md:197
+#: manual/verification.md:198
+#: manual/verification.md:199
+#: manual/verification.md:203
+msgid "not scheduled"
+msgstr "予定なし"
+
+#: manual/verification.md:197
+msgid "IEEE 754-2019 §9.4, §9.6"
+msgstr "IEEE 754-2019 §9.4, §9.6"
+
+#: manual/verification.md:197
+msgid "No reduction operations; `bin_float` has no minimum/maximum family"
+msgstr "リダクション演算はない。`bin_float` に minimum/maximum 系はない"
+
+#: manual/verification.md:198
+msgid "IEEE 754-2019 §9.5"
+msgstr "IEEE 754-2019 §9.5"
+
+#: manual/verification.md:198
+msgid "No augmented arithmetic for `bin_float`"
+msgstr "`bin_float` に拡張算術はない"
+
+#: manual/verification.md:199
+msgid "IEEE 754-2019 §5.4.1"
+msgstr "IEEE 754-2019 §5.4.1"
+
+#: manual/verification.md:199
+msgid "`decimal` has no convertToInteger"
+msgstr "`decimal` に convertToInteger はない"
+
+#: manual/verification.md:200
+msgid "IEEE 754-2019 §5.3.2"
+msgstr "IEEE 754-2019 §5.3.2"
+
+#: manual/verification.md:200
+msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
+msgstr "`clamp` で `e_max - p + 1` を超えるゼロの `quantize` 結果は折り返されず、`clamped` も立たない（General Decimal Arithmetic では立つ）"
+
+#: manual/verification.md:200
+msgid "decision pending; see the pull request of issue #187"
+msgstr "判断待ち。issue #187 の pull request を参照"
+
+#: manual/verification.md:201
+msgid "IEEE 754-2019 §3.7"
+msgstr "IEEE 754-2019 §3.7"
+
+#: manual/verification.md:201
+msgid "The implementation exponent range is one binade above MPFR's at both ends"
+msgstr "実装の指数範囲は両端とも MPFR より 1 binade 上"
+
+#: manual/verification.md:201
+msgid "documented in `testdata/bin_float/README.md`"
+msgstr "`testdata/bin_float/README.md` に記載"
+
+#: manual/verification.md:202
+msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
+msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
+
+#: manual/verification.md:202
+msgid "No reverse-mode operations and no interval literals (text input and output)"
+msgstr "逆方向モードの演算も区間リテラル（テキストの入出力）もない"
+
+#: manual/verification.md:202
+msgid "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
+msgstr "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
+
+#: manual/verification.md:203
+msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
+msgstr "IEEE 1788-2015 §10.5.5, §10.6.2"
+
+#: manual/verification.md:203
+msgid "No two-output division, no slope functions"
+msgstr "2 出力除算も傾き関数もない"
+
+#: manual/verification.md:204
+msgid "IEEE 1788-2015 §11"
+msgstr "IEEE 1788-2015 §11"
+
+#: manual/verification.md:204
+msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
+msgstr "負の次数の装飾付き `rootn` は、引数に 0 を含むときでもデコレーションを `trv` に下げない"
+
+#: manual/verification.md:204
+msgid "[design page](design/ball_float.md#known-limitations)"
+msgstr "[design page](design/ball_float.md#known-limitations)"
+
+#: manual/verification.md:205
+msgid "Public API"
+msgstr "公開 API"
+
+#: manual/verification.md:205
+msgid "The clause to API mapping may change when the public API is narrowed"
+msgstr "公開 API を絞ると、条項から API への対応が変わることがある"
+
+#: manual/verification.md:205
+msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22)"
+msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)"
+
 #~ msgid "Auto-tuning by minimum median"
 #~ msgstr "最小中央値による自動チューニング"
 
@@ -21255,9 +22371,6 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 
 #~ msgid "follows General Decimal Arithmetic, not IEEE 754 §9.2.1"
 #~ msgstr "IEEE 754 §9.2.1 ではなく General Decimal Arithmetic に従う"
-
-#~ msgid "[#94](https://github.com/Luna-Flow/floating/issues/94), decision pending"
-#~ msgstr "[#94](https://github.com/Luna-Flow/floating/issues/94)、判断保留中"
 
 #~ msgid "[!WARNING] The exponent of the text is clamped to $\\pm 1\\,500\\,000\\,000$ without any signal. `from_string(\"1e1600000000\")` returns `1E+1500000000`, and `from_string(\"1e-1600000000\")` returns `1E-1500000000`. The same capped value reaches `from_string_ctx`, so under a context whose exponent range includes $\\pm 1.5\\cdot 10^{9}$ (for example `e_max=2000000000`) the conversion reports no flag at all instead of `overflow` or `underflow`. Contexts with the default range ($\\pm 999\\,999\\,999$) still overflow or underflow correctly, because the capped exponent is itself out of range. Tracked in [#108](https://github.com/Luna-Flow/floating/issues/108); a fix is proposed in [#117](https://github.com/Luna-Flow/floating/pull/117)."
 #~ msgstr "[!WARNING] テキストの指数は、何のシグナルもなく $\\pm 1\\,500\\,000\\,000$ にクランプされます。`from_string(\"1e1600000000\")` は `1E+1500000000` を返し、`from_string(\"1e-1600000000\")` は `1E-1500000000` を返します。同じく上限で切られた値が `from_string_ctx` にも渡るため、指数範囲が $\\pm 1.5\\cdot 10^{9}$ を含むコンテキスト（例えば `e_max=2000000000`）のもとでは、この変換は `overflow` や `underflow` ではなく、フラグをまったく報告しません。既定の範囲（$\\pm 999\\,999\\,999$）のコンテキストでは、上限で切られた指数自体が範囲外なので、引き続き正しくオーバーフローまたはアンダーフローします。 [#108](https://github.com/Luna-Flow/floating/issues/108) で追跡しています。修正は [#117](https://github.com/Luna-Flow/floating/pull/117) で提案されています。"
@@ -21597,9 +22710,6 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 
 #~ msgid "`ln_interval` does not return (more than five minutes in a release build) for some arguments just above 1 at high precision, for example $\\{1 + 2^{-243}\\}$ or $\\{1 + 2^{-238}\\}$ at 245 bits and $\\{1 + 2^{-243}\\}$ at 300 bits, while $\\{1 + 2^{-230}\\}$ and $\\{1 + 2^{-244}\\}$ at 245 bits return at once. Because the total `asinh_interval` and `atanh_interval` evaluate `ln_interval` at $p + 192$ bits, they hang the same way for tiny arguments: neither returned within minutes for $\\{2^{-300}\\}$ at 53 bits. The `try_` forms are not affected. The cause is `BinCoeff::gcd`, which the certified kernels call when they convert series bounds to rationals: its Lehmer loop takes each operand's own top limb as its leading digit, so for operands of very different lengths it barely progresses (a 301-bit odd number and $2^{543}$ need about $2^{220}$ rounds). The JavaScript target computes the gcd with the host `BigInt` and is not affected. Tracked in [#85](https://github.com/Luna-Flow/floating/issues/85); a fix is proposed in [#97](https://github.com/Luna-Flow/floating/pull/97)."
 #~ msgstr "`ln_interval` は、高精度で 1 をわずかに上回る一部の引数に対して戻りません（リリースビルドで 5 分以上）。たとえば 245 ビットでの $\\{1 + 2^{-243}\\}$ や $\\{1 + 2^{-238}\\}$、300 ビットでの $\\{1 + 2^{-243}\\}$ です。一方、245 ビットでの $\\{1 + 2^{-230}\\}$ と $\\{1 + 2^{-244}\\}$ はすぐに戻ります。全域形式の `asinh_interval` と `atanh_interval` は `ln_interval` を $p + 192$ ビットで評価するため、非常に小さな引数に対して同様に停止しなくなります。53 ビットでの $\\{2^{-300}\\}$ に対しては、どちらも数分以内に戻りませんでした。`try_` 形式は影響を受けません。 原因は `BinCoeff::gcd` です。認証付きカーネルは級数の上界を有理数に変換するときにこれを呼び出しますが、その Lehmer ループは各オペランド自身の最上位リムを先頭の桁とみなすため、長さが大きく異なるオペランドではほとんど進みません（301 ビットの奇数と $2^{543}$ では約 $2^{220}$ ラウンドが必要です）。JavaScript ターゲットはホストの `BigInt` で gcd を計算するため影響を受けません。[#85](https://github.com/Luna-Flow/floating/issues/85) で追跡しています。修正は [#97](https://github.com/Luna-Flow/floating/pull/97) で提案されています。"
-
-#~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument. Tracked in [#45](https://github.com/Luna-Flow/floating/issues/45); a fix is proposed in [#96](https://github.com/Luna-Flow/floating/pull/96)."
-#~ msgstr "負の次数を持つ装飾付き `rootn` は、引数に 0 が含まれるときに装飾を `trv` に下げません。[#45](https://github.com/Luna-Flow/floating/issues/45) で追跡しています。修正は [#96](https://github.com/Luna-Flow/floating/pull/96) で提案されています。"
 
 #~ msgid "Decorated `tanpi_interval` lowers the decoration only when the result is Entire. When a pole is an endpoint (for example $[1/2, 1]$), the half-unbounded result is decorated `dac`, although the pole is outside the domain and the decoration must be `trv`. Tracked in [#86](https://github.com/Luna-Flow/floating/issues/86); a fix is proposed in [#96](https://github.com/Luna-Flow/floating/pull/96)."
 #~ msgstr "装飾付きの `tanpi_interval` は、結果が Entire の場合にしか装飾を下げません。極が端点である場合（たとえば $[1/2, 1]$）、半非有界な結果は `dac` と装飾されますが、極は定義域外なので装飾は `trv` でなければなりません。 [#86](https://github.com/Luna-Flow/floating/issues/86) で追跡しています。修正は [#96](https://github.com/Luna-Flow/floating/pull/96) で提案されています。"
@@ -22771,9 +23881,6 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 
 #~ msgid "BigInt Helpers"
 #~ msgstr "`BigInt` 補助"
-
-#~ msgid "Power Helpers"
-#~ msgstr "べき乗・桁数補助"
 
 #~ msgid "Normalization Helpers"
 #~ msgstr "正規化補助"
@@ -24478,9 +25585,6 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 #~ msgid "`from_string_ctx` and `*_ctx`"
 #~ msgstr "canonical cohort"
 
-#~ msgid "canonical cohort"
-#~ msgstr "fixed decimal bits"
-
 #~ msgid "observable elementary proof failure"
 #~ msgstr "observable proof failure"
 
@@ -24809,9 +25913,6 @@ msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順で
 
 #~ msgid "run `just pr` during iteration;"
 #~ msgstr "Iteration 中は `just pr` を実行する。"
-
-#~ msgid "Documentation Standard"
-#~ msgstr "ドキュメント標準"
 
 #~ msgid "Document Types And Ownership"
 #~ msgstr "文書種別と責務"
