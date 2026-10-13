@@ -322,13 +322,14 @@ or the page that documents the decision.
 | --- | --- | --- |
 | IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
-| IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal` | not scheduled |
-| IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | not scheduled |
-| IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | not scheduled |
-| IEEE 754-2019 §5.4.1 | `decimal` has no convertToInteger | not scheduled |
-| IEEE 754-2019 §5.3.2 | A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does) | decision pending; see the pull request of issue #187 |
+| IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
+| IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal` | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
+| IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
+| IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
+| IEEE 754-2019 §5.4.1 | `decimal` has no convertToInteger | [#226](https://github.com/Luna-Flow/floating/issues/226) |
+| IEEE 754-2019 §5.3.2 | A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does) | decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187 |
 | IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/bin_float/README.md` |
-| IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | issue [#21](https://github.com/Luna-Flow/floating/issues/21) |
-| IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | not scheduled |
-| IEEE 1788-2015 §11 | Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument | [design page](design/ball_float.md#known-limitations) |
-| Public API | The clause to API mapping may change when the public API is narrowed | issue [#22](https://github.com/Luna-Flow/floating/issues/22) |
+| IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | [#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text) |
+| IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | [#231](https://github.com/Luna-Flow/floating/issues/231), [#242](https://github.com/Luna-Flow/floating/issues/242) |
+| IEEE 1788-2015 §11 | Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument | [#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations) |
+| Public API | The clause to API mapping may change when the public API is narrowed | issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245) |

@@ -22651,112 +22651,125 @@ msgid "by design (flags are values)"
 msgstr "按设计如此（标志是值）"
 
 #: manual/verification.md:325
+msgid "IEEE 754-2019 §9.3"
+msgstr "IEEE 754-2019 §9.3"
+
+#: manual/verification.md:325
+msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
+msgstr "核心包不提供动态模式运算（context 是显式值）"
+
+#: manual/verification.md:325
+msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
+msgstr "按设计如此；可选包装包：[#247](https://github.com/Luna-Flow/floating/issues/247)"
+
+#: manual/verification.md:326
 msgid "IEEE 754-2019 §9.2"
 msgstr "IEEE 754-2019 §9.2"
 
-#: manual/verification.md:325
+#: manual/verification.md:326
 msgid "Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal`"
 msgstr "`bin_float` 与 `decimal` 缺少 `rSqrt`、`compound`、`powr`、`asinPi`、`acosPi`、`atanPi`、`atan2Pi`、`exp2m1`、`exp10m1`、`log2p1`、`log10p1`"
 
-#: manual/verification.md:325
-#: manual/verification.md:326
 #: manual/verification.md:327
-#: manual/verification.md:328
-#: manual/verification.md:332
-msgid "not scheduled"
-msgstr "未排期"
-
-#: manual/verification.md:326
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr "IEEE 754-2019 §9.4, §9.6"
 
-#: manual/verification.md:326
+#: manual/verification.md:327
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr "没有归约运算；`bin_float` 没有 minimum/maximum 系列"
 
-#: manual/verification.md:327
+#: manual/verification.md:328
 msgid "IEEE 754-2019 §9.5"
 msgstr "IEEE 754-2019 §9.5"
 
-#: manual/verification.md:327
+#: manual/verification.md:328
 msgid "No augmented arithmetic for `bin_float`"
 msgstr "`bin_float` 没有增强算术"
 
-#: manual/verification.md:328
+#: manual/verification.md:329
 msgid "IEEE 754-2019 §5.4.1"
 msgstr "IEEE 754-2019 §5.4.1"
 
-#: manual/verification.md:328
+#: manual/verification.md:329
 msgid "`decimal` has no convertToInteger"
 msgstr "`decimal` 没有 convertToInteger"
 
-#: manual/verification.md:329
+#: manual/verification.md:330
 msgid "IEEE 754-2019 §5.3.2"
 msgstr "IEEE 754-2019 §5.3.2"
 
-#: manual/verification.md:329
+#: manual/verification.md:330
 msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
 msgstr "`clamp` 下超过 `e_max - p + 1` 的零 `quantize` 结果不会被折叠下来，也不报 `clamped`（General Decimal Arithmetic 会）"
 
-#: manual/verification.md:329
-msgid "decision pending; see the pull request of issue #187"
-msgstr "待决定；见 issue #187 的 pull request"
-
 #: manual/verification.md:330
+msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
+msgstr "已决定：提供可选的 GDA 风格折叠，默认行为不变；[#234](https://github.com/Luna-Flow/floating/issues/234)；见 issue #187 的拉取请求"
+
+#: manual/verification.md:331
 msgid "IEEE 754-2019 §3.7"
 msgstr "IEEE 754-2019 §3.7"
 
-#: manual/verification.md:330
+#: manual/verification.md:331
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr "实现的指数范围两端都比 MPFR 高一个 binade"
 
-#: manual/verification.md:330
+#: manual/verification.md:331
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr "记录在 `testdata/bin_float/README.md`"
 
-#: manual/verification.md:331
+#: manual/verification.md:332
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 
-#: manual/verification.md:331
+#: manual/verification.md:332
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr "没有反向模式运算，也没有区间字面量（文本输入输出）"
 
-#: manual/verification.md:331
-msgid "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
-msgstr "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
-
 #: manual/verification.md:332
+msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
+msgstr "[#230](https://github.com/Luna-Flow/floating/issues/230)（反向模式），[#21](https://github.com/Luna-Flow/floating/issues/21)（文本）"
+
+#: manual/verification.md:333
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr "IEEE 1788-2015 §10.5.5, §10.6.2"
 
-#: manual/verification.md:332
+#: manual/verification.md:333
 msgid "No two-output division, no slope functions"
 msgstr "没有双输出除法，也没有斜率函数"
 
-#: manual/verification.md:333
+#: manual/verification.md:334
 msgid "IEEE 1788-2015 §11"
 msgstr "IEEE 1788-2015 §11"
 
-#: manual/verification.md:333
+#: manual/verification.md:334
 msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
 msgstr "带装饰的负次数 `rootn` 在参数含 0 时不会把装饰降为 `trv`"
 
-#: manual/verification.md:333
-msgid "[design page](design/ball_float.md#known-limitations)"
-msgstr "[design page](design/ball_float.md#known-limitations)"
-
 #: manual/verification.md:334
+msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
+msgstr "[#233](https://github.com/Luna-Flow/floating/issues/233)；[design page](design/ball_float.md#known-limitations)"
+
+#: manual/verification.md:335
 msgid "Public API"
 msgstr "公开 API"
 
-#: manual/verification.md:334
+#: manual/verification.md:335
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 
-#: manual/verification.md:334
-msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22)"
-msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)"
+#: manual/verification.md:335
+msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
+msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "not scheduled"
+#~ msgstr "未排期"
+
+#~ msgid "decision pending; see the pull request of issue #187"
+#~ msgstr "待决定；见 issue #187 的 pull request"
+
+#~ msgid "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
+#~ msgstr "issue [#21](https://github.com/Luna-Flow/floating/issues/21)"
 
 #~ msgid "defined for binary formats only"
 #~ msgstr "仅为二进制格式定义"
@@ -22818,9 +22831,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)"
 
 #~ msgid "no exactness test before the enclosure loop, whose agreement test assumes $f(x)$ is not representable"
 #~ msgstr "包络循环之前没有精确性测试，而其一致性测试假设 $f(x)$ 不可表示"
-
-#~ msgid "[#53](https://github.com/Luna-Flow/floating/issues/53), fix in [#99](https://github.com/Luna-Flow/floating/pull/99)"
-#~ msgstr "[#53](https://github.com/Luna-Flow/floating/issues/53)，修复见 [#99](https://github.com/Luna-Flow/floating/pull/99)"
 
 #~ msgid "**Exact non-integral powers may look inexact.** An exact decimal power with a non-integral exponent, such as `power_ctx(0.0016, 0.25) = 0.2`, comes back as `0.2000000000000000` with `inexact` in the half modes and fails certification in the directed modes. See the [API warning](../api/decimal.md#elementary-functions); tracked in [#53](https://github.com/Luna-Flow/floating/issues/53), with a fix proposed in [#99](https://github.com/Luna-Flow/floating/pull/99)."
 #~ msgstr "**精确的非整数次幂可能看起来不精确。** 指数为非整数的精确十进制幂，例如 `power_ctx(0.0016, 0.25) = 0.2`，在 half 模式下返回带有 `inexact` 的 `0.2000000000000000`，在定向模式下则认证失败。参见 [API 警告](../api/decimal.md#elementary-functions)；由 [#53](https://github.com/Luna-Flow/floating/issues/53) 跟踪，修复已在 [#99](https://github.com/Luna-Flow/floating/pull/99) 中提出。"
