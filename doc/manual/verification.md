@@ -331,5 +331,4 @@ or the page that documents the decision.
 | IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/bin_float/README.md` |
 | IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | [#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text) |
 | IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | [#231](https://github.com/Luna-Flow/floating/issues/231), [#242](https://github.com/Luna-Flow/floating/issues/242) |
-| IEEE 1788-2015 §11 | Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument | [#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations) |
 | Public API | The clause to API mapping may change when the public API is narrowed | issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245) |

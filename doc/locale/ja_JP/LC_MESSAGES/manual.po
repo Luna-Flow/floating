@@ -8944,7 +8944,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 
 #: manual/conformance/decimal.md:75
 #: manual/conformance/decimal_gda.md:61
-#: manual/design/ball_float.md:771
+#: manual/design/ball_float.md:773
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:244
 #: manual/design/bench/ball_float.md:67
@@ -10006,10 +10006,10 @@ msgid "The following inputs currently lose part of the input set, round or flag 
 msgstr "以下の入力は現在、入力集合の一部を失う、結果の丸めやフラグを誤る、または規定とは異なる集合を返すものです。それぞれ issue で追跡されており、まだマージされていない修正の提案があります。呼び出し側が回避できるようここに記載しています。"
 
 #: manual/design/ball_float.md:749
-msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
-msgstr "負の次数の `rootn` は、引数に 0 が含まれていても装飾を引き下げません。$n < 0$ のとき $\\xi^{1/n}$ は 0 で未定義であるにもかかわらず、`rootn([0, 4], -2)` の装飾は `trv` ではなく `dac` になります。"
+msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
+msgstr "現時点で未解決の制限はありません。負の次数の装飾付き `rootn` は、引数に 0 を含むとき装飾を `trv` に下げます。これは IEEE 1788-2015 §11 の装飾規則が求めるとおりで、`src/ball_float/ball_float_decorated_wbtest.mbt` が次数 `-1`、`-2`、`-3` を検査しています。"
 
-#: manual/design/ball_float.md:752
+#: manual/design/ball_float.md:754
 #: manual/design/ball_float_checked.md:157
 #: manual/design/bench.md:235
 #: manual/design/bench/ball_float.md:60
@@ -10042,51 +10042,51 @@ msgstr "負の次数の `rootn` は、引数に 0 が含まれていても装飾
 msgid "Alternatives rejected"
 msgstr "却下した代替案"
 
-#: manual/design/ball_float.md:754
+#: manual/design/ball_float.md:756
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr "**中点・半径による保存**（Arb 方式）：半径は安価ですが、積を過大評価し、片側非有界な集合を表現できません。[上記](#endpoints-not-midpoint-and-radius)を参照してください。"
 
-#: manual/design/ball_float.md:757
+#: manual/design/ball_float.md:759
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr "**丸めモードを切り替えたハードウェアの `Double` 端点：** 精度が固定され、プロセス全体の大域状態となり、しかも丸めモードの制御はすべての MoonBit ターゲットで利用できるわけではありません。"
 
-#: manual/design/ball_float.md:760
+#: manual/design/ball_float.md:762
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr "**最近接に丸めて 1 ulp 膨らませる**（「イプシロン膨張」）：より単純ですが、方向付き丸めより端点ごとに約 1 ulp 広くなり、最近接丸めの結果が 1 ulp 以内であることがわかっている演算でしか有効でないため、初等関数のカーネルの大半が除外されます。"
 
-#: manual/design/ball_float.md:764
+#: manual/design/ball_float.md:766
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr "**認証できない初等関数で中断すること：** 難しい引数が 1 つあるだけで計算全体が止まってしまいます。失敗を知る必要がある呼び出し側には `try_` 形式があります。"
 
-#: manual/design/ball_float.md:767
+#: manual/design/ball_float.md:769
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr "**ゼロを含む区間による除算をエラーとして扱うこと：** IEEE 1788 はこれらの結果を集合（Entire、片側非有界、または空）として定義しており、拡張された除算こそが区間ニュートン法を機能させるものです。"
 
-#: manual/design/ball_float.md:773
+#: manual/design/ball_float.md:775
 msgid "The package deliberately does not:"
 msgstr "このパッケージは意図的に以下を行いません。"
 
-#: manual/design/ball_float.md:775
+#: manual/design/ball_float.md:777
 msgid "provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or two-output division;"
 msgstr "IEEE 1788 の逆演算（`sqrRev`、`mulRevToPair`、…）や 2 出力の除算を提供すること。"
 
-#: manual/design/ball_float.md:777
+#: manual/design/ball_float.md:779
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr "緊密な結果を約束すること。フォールバックと依存性問題によって包含区間は任意に広がりえます。"
 
-#: manual/design/ball_float.md:779
+#: manual/design/ball_float.md:781
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr "区間上の全順序を定義すること、あるいは `Eq` を集合の等価性として扱うこと。"
 
-#: manual/design/ball_float.md:780
+#: manual/design/ball_float.md:782
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr "10 進データを独自に外向き変換すること。`from_double` と `exact` は 2 進の値を包含するものであり、10 進リテラルを包含するのは呼び出し側の役割です（[チュートリアル](../tutorial/ball_float.md#enclose-a-decimal-constant)を参照）。"
 
-#: manual/design/ball_float.md:783
+#: manual/design/ball_float.md:785
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr "10 進の端点による区間、複素ボール、区間ベクトルや区間行列、テイラーモデルを実装すること。"
 
-#: manual/design/ball_float.md:785
+#: manual/design/ball_float.md:787
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr "ステータスを大域フラグで報告すること。フラグは `*_ctx` 呼び出しから返され、装飾は値とともに受け渡されます。"
 
@@ -22739,28 +22739,28 @@ msgid "No two-output division, no slope functions"
 msgstr "2 出力除算も傾き関数もない"
 
 #: manual/verification.md:334
-msgid "IEEE 1788-2015 §11"
-msgstr "IEEE 1788-2015 §11"
-
-#: manual/verification.md:334
-msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
-msgstr "負の次数の装飾付き `rootn` は、引数に 0 を含むときでもデコレーションを `trv` に下げない"
-
-#: manual/verification.md:334
-msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
-msgstr "[#233](https://github.com/Luna-Flow/floating/issues/233)；[design page](design/ball_float.md#known-limitations)"
-
-#: manual/verification.md:335
 msgid "Public API"
 msgstr "公開 API"
 
-#: manual/verification.md:335
+#: manual/verification.md:334
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公開 API を絞ると、条項から API への対応が変わることがある"
 
-#: manual/verification.md:335
+#: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
+#~ msgstr "負の次数の `rootn` は、引数に 0 が含まれていても装飾を引き下げません。$n < 0$ のとき $\\xi^{1/n}$ は 0 で未定義であるにもかかわらず、`rootn([0, 4], -2)` の装飾は `trv` ではなく `dac` になります。"
+
+#~ msgid "IEEE 1788-2015 §11"
+#~ msgstr "IEEE 1788-2015 §11"
+
+#~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
+#~ msgstr "負の次数の装飾付き `rootn` は、引数に 0 を含むときでもデコレーションを `trv` に下げない"
+
+#~ msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
+#~ msgstr "[#233](https://github.com/Luna-Flow/floating/issues/233)；[design page](design/ball_float.md#known-limitations)"
 
 #~ msgid "not scheduled"
 #~ msgstr "予定なし"

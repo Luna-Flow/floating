@@ -8920,7 +8920,7 @@ msgstr ""
 
 #: manual/conformance/decimal.md:75
 #: manual/conformance/decimal_gda.md:61
-#: manual/design/ball_float.md:771
+#: manual/design/ball_float.md:773
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:244
 #: manual/design/bench/ball_float.md:67
@@ -9962,10 +9962,10 @@ msgid "The following inputs currently lose part of the input set, round or flag 
 msgstr ""
 
 #: manual/design/ball_float.md:749
-msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
+msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr ""
 
-#: manual/design/ball_float.md:752
+#: manual/design/ball_float.md:754
 #: manual/design/ball_float_checked.md:157
 #: manual/design/bench.md:235
 #: manual/design/bench/ball_float.md:60
@@ -9998,51 +9998,51 @@ msgstr ""
 msgid "Alternatives rejected"
 msgstr ""
 
-#: manual/design/ball_float.md:754
+#: manual/design/ball_float.md:756
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr ""
 
-#: manual/design/ball_float.md:757
+#: manual/design/ball_float.md:759
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr ""
 
-#: manual/design/ball_float.md:760
+#: manual/design/ball_float.md:762
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr ""
 
-#: manual/design/ball_float.md:764
+#: manual/design/ball_float.md:766
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr ""
 
-#: manual/design/ball_float.md:767
+#: manual/design/ball_float.md:769
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr ""
 
-#: manual/design/ball_float.md:773
+#: manual/design/ball_float.md:775
 msgid "The package deliberately does not:"
 msgstr ""
 
-#: manual/design/ball_float.md:775
+#: manual/design/ball_float.md:777
 msgid "provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or two-output division;"
 msgstr ""
 
-#: manual/design/ball_float.md:777
+#: manual/design/ball_float.md:779
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr ""
 
-#: manual/design/ball_float.md:779
+#: manual/design/ball_float.md:781
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr ""
 
-#: manual/design/ball_float.md:780
+#: manual/design/ball_float.md:782
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr ""
 
-#: manual/design/ball_float.md:783
+#: manual/design/ball_float.md:785
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr ""
 
-#: manual/design/ball_float.md:785
+#: manual/design/ball_float.md:787
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr ""
 
@@ -22631,25 +22631,13 @@ msgid "No two-output division, no slope functions"
 msgstr ""
 
 #: manual/verification.md:334
-msgid "IEEE 1788-2015 §11"
-msgstr ""
-
-#: manual/verification.md:334
-msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
-msgstr ""
-
-#: manual/verification.md:334
-msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
-msgstr ""
-
-#: manual/verification.md:335
 msgid "Public API"
 msgstr ""
 
-#: manual/verification.md:335
+#: manual/verification.md:334
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr ""
 
-#: manual/verification.md:335
+#: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr ""

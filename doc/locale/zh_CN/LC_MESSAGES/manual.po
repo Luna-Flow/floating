@@ -8944,7 +8944,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 
 #: manual/conformance/decimal.md:75
 #: manual/conformance/decimal_gda.md:61
-#: manual/design/ball_float.md:771
+#: manual/design/ball_float.md:773
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:244
 #: manual/design/bench/ball_float.md:67
@@ -10006,10 +10006,10 @@ msgid "The following inputs currently lose part of the input set, round or flag 
 msgstr "以下输入目前会丢失输入集合的一部分、对结果做出错误的舍入或设置错误的标志，或返回与规定不同的集合。每一项都有对应的 issue 跟踪，并附有尚未合并的修复提案；它们记录于此，以便调用者避开。"
 
 #: manual/design/ball_float.md:749
-msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
-msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当 $n < 0$ 时 $\\xi^{1/n}$ 在 0 处无定义：`rootn([0, 4], -2)` 的装饰为 `dac` 而非 `trv`。"
+msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
+msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含 0 时会把装饰降为 `trv`，这正是 IEEE 1788-2015 §11 的装饰规则所要求的；`src/ball_float/ball_float_decorated_wbtest.mbt` 检查了次数 `-1`、`-2` 和 `-3`。"
 
-#: manual/design/ball_float.md:752
+#: manual/design/ball_float.md:754
 #: manual/design/ball_float_checked.md:157
 #: manual/design/bench.md:235
 #: manual/design/bench/ball_float.md:60
@@ -10042,51 +10042,51 @@ msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当
 msgid "Alternatives rejected"
 msgstr "被否决的替代方案"
 
-#: manual/design/ball_float.md:754
+#: manual/design/ball_float.md:756
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr "**中点–半径存储**（Arb 风格）：半径更廉价，但会高估乘积，且无法表示半无界集合；参见[上文](#endpoints-not-midpoint-and-radius)。"
 
-#: manual/design/ball_float.md:757
+#: manual/design/ball_float.md:759
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr "**使用硬件 `Double` 端点并切换舍入模式：** 精度固定、依赖进程全局状态，且并非每个 MoonBit 目标都支持舍入模式控制。"
 
-#: manual/design/ball_float.md:760
+#: manual/design/ball_float.md:762
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr "**就近舍入后膨胀一个 ulp**（\"epsilon 膨胀\"）：更简单，但每个端点比定向舍入宽约一个 ulp，且只对就近舍入结果已知误差在一个 ulp 以内的运算有效，这排除了大多数初等函数内核。"
 
-#: manual/design/ball_float.md:764
+#: manual/design/ball_float.md:766
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr "**对未认证的初等函数中止：** 单个困难参数就会使整个计算停止；需要获知失败的调用者可使用 `try_` 形式。"
 
-#: manual/design/ball_float.md:767
+#: manual/design/ball_float.md:769
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr "**将除以含零区间视为错误：** IEEE 1788 将这些结果定义为集合（Entire、半无界或空集），而扩展除法正是区间 Newton 方法得以奏效的关键。"
 
-#: manual/design/ball_float.md:773
+#: manual/design/ball_float.md:775
 msgid "The package deliberately does not:"
 msgstr "本包有意不做以下事情："
 
-#: manual/design/ball_float.md:775
+#: manual/design/ball_float.md:777
 msgid "provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or two-output division;"
 msgstr "提供 IEEE 1788 逆运算（`sqrRev`、`mulRevToPair`、…）或双输出除法；"
 
-#: manual/design/ball_float.md:777
+#: manual/design/ball_float.md:779
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr "承诺紧致的结果：后备值和依赖问题可能使包络任意变宽；"
 
-#: manual/design/ball_float.md:779
+#: manual/design/ball_float.md:781
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr "在区间上定义全序，或将 `Eq` 视为集合相等；"
 
-#: manual/design/ball_float.md:780
+#: manual/design/ball_float.md:782
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr "自行将十进制数据向外转换：`from_double` 和 `exact` 包络的是二进制值，包络十进制字面量是调用者的职责（参见[教程](../tutorial/ball_float.md#enclose-a-decimal-constant)）；"
 
-#: manual/design/ball_float.md:783
+#: manual/design/ball_float.md:785
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr "实现以十进制数为端点的区间、复球、区间向量或矩阵，或 Taylor 模型；"
 
-#: manual/design/ball_float.md:785
+#: manual/design/ball_float.md:787
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr "通过全局标志报告状态：标志由 `*_ctx` 调用返回，装饰随值一起传递。"
 
@@ -22739,28 +22739,28 @@ msgid "No two-output division, no slope functions"
 msgstr "没有双输出除法，也没有斜率函数"
 
 #: manual/verification.md:334
-msgid "IEEE 1788-2015 §11"
-msgstr "IEEE 1788-2015 §11"
-
-#: manual/verification.md:334
-msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
-msgstr "带装饰的负次数 `rootn` 在参数含 0 时不会把装饰降为 `trv`"
-
-#: manual/verification.md:334
-msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
-msgstr "[#233](https://github.com/Luna-Flow/floating/issues/233)；[design page](design/ball_float.md#known-limitations)"
-
-#: manual/verification.md:335
 msgid "Public API"
 msgstr "公开 API"
 
-#: manual/verification.md:335
+#: manual/verification.md:334
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 
-#: manual/verification.md:335
+#: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
+#~ msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当 $n < 0$ 时 $\\xi^{1/n}$ 在 0 处无定义：`rootn([0, 4], -2)` 的装饰为 `dac` 而非 `trv`。"
+
+#~ msgid "IEEE 1788-2015 §11"
+#~ msgstr "IEEE 1788-2015 §11"
+
+#~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument"
+#~ msgstr "带装饰的负次数 `rootn` 在参数含 0 时不会把装饰降为 `trv`"
+
+#~ msgid "[#233](https://github.com/Luna-Flow/floating/issues/233); [design page](design/ball_float.md#known-limitations)"
+#~ msgstr "[#233](https://github.com/Luna-Flow/floating/issues/233)；[design page](design/ball_float.md#known-limitations)"
 
 #~ msgid "not scheduled"
 #~ msgstr "未排期"
