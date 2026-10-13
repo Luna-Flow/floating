@@ -70,6 +70,17 @@ class DocumentationQualityTests(unittest.TestCase):
             self.assertEqual(len(errors), 1)
             self.assertIn("src/missing_wbtest.mbt", errors[0])
 
+    def test_conformance_checklist_counts_follow_the_tables(self) -> None:
+        import conformance_checklist
+
+        self.assertEqual(conformance_checklist.classify("conforming; extension"), "conforming")
+        self.assertEqual(conformance_checklist.classify("partial: no rSqrt"), "partial")
+        self.assertEqual(conformance_checklist.classify("not implemented by design"), "not implemented")
+        self.assertEqual(conformance_checklist.classify("not applicable"), "not applicable")
+        with self.assertRaises(ValueError):
+            conformance_checklist.classify("probably fine")
+        self.assertEqual(doc_quality.check_conformance_checklist(), [])
+
     def test_package_coverage_uses_all_moon_packages(self) -> None:
         with patch.object(doc_quality, "package_paths", return_value={"nested/example"}):
             with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:

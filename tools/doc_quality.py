@@ -319,6 +319,23 @@ def check_evidence_paths() -> list[str]:
     return errors
 
 
+def check_conformance_checklist() -> list[str]:
+    """The checklist of verification.md is generated from the clause tables."""
+    import conformance_checklist
+
+    text = (MANUAL_ROOT / "verification.md").read_text(encoding="utf-8")
+    if conformance_checklist.START not in text:
+        return ["doc/manual/verification.md: conformance checklist markers are missing"]
+    head, rest = text.split(conformance_checklist.START, 1)
+    current, _ = rest.split(conformance_checklist.END, 1)
+    if current.strip("\n") != conformance_checklist.build():
+        return [
+            "doc/manual/verification.md: conformance checklist is stale; "
+            "run python3 tools/conformance_checklist.py --write"
+        ]
+    return []
+
+
 def has_stale_gda_claim(text: str) -> bool:
     lowered = text.lower()
     return any(claim in lowered for claim in STALE_GDA_CLAIMS)
@@ -364,6 +381,7 @@ def run_checks() -> list[str]:
         *check_api_snapshots(),
         *check_gda_claims(),
         *check_evidence_paths(),
+        *check_conformance_checklist(),
     ]
 
 
