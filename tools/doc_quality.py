@@ -291,6 +291,34 @@ def check_api_snapshots() -> list[str]:
     return errors
 
 
+EVIDENCE_PATH_RE = re.compile(r"`((?:src|testdata|tools)/[^`\s]+)`")
+
+
+def check_evidence_paths() -> list[str]:
+    """Every repository path cited in an evidence page must exist.
+
+    The clause traceability tables of the conformance pages and the
+    implementation-defined choices cite tests, corpora and tools by path; a
+    renamed or deleted file must not leave a claim pointing at nothing.
+    """
+    errors: list[str] = []
+    pages = sorted((MANUAL_ROOT / "conformance").glob("*.md"))
+    pages.append(MANUAL_ROOT / "verification.md")
+    for path in pages:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for match in EVIDENCE_PATH_RE.finditer(text):
+            cited = match.group(1)
+            if "*" in cited or "<" in cited:
+                continue
+            if not (REPO_ROOT / cited).exists():
+                errors.append(
+                    f"{path.relative_to(REPO_ROOT)}: cited path does not exist: {cited}"
+                )
+    return errors
+
+
 def has_stale_gda_claim(text: str) -> bool:
     lowered = text.lower()
     return any(claim in lowered for claim in STALE_GDA_CLAIMS)
@@ -335,6 +363,7 @@ def run_checks() -> list[str]:
         *check_package_readme_coverage(),
         *check_api_snapshots(),
         *check_gda_claims(),
+        *check_evidence_paths(),
     ]
 
 

@@ -153,3 +153,53 @@ Before publishing:
 
 Local `moon publish` is not the Luna-Flow release path, because the
 organization's credentials are supplied by the workflow.
+
+## Implementation-defined choices
+
+IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and
+IEEE 754 asks for them to be documented. Each entry names the clause that
+leaves it open and the choice made. The clause tables of the
+[binary](./conformance/bin_float.md#clause-traceability),
+[IEEE decimal](./conformance/decimal.md#clause-traceability),
+[GDA](./conformance/decimal_gda.md#clause-traceability) and
+[interval](./conformance/ball_float.md#clause-traceability) conformance pages
+cite them.
+
+| Clause | Choice left open | Choice made |
+| --- | --- | --- |
+| IEEE 754 §7.5 | Tininess detection for binary formats | `BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding; see the known gaps. |
+| IEEE 754 §6.2 | Which NaN payload a NaN result carries | `bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field). |
+| IEEE 754 §9.7 | Admissible payloads of `setPayload` | `decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload. |
+| IEEE 754 §3.7 | Exponent range and precision of an extendable format | `bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`. |
+| IEEE 754 §4.3 | Rounding directions beyond the five required | `RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal). |
+| IEEE 754 §4.1, §9.3 | How attributes are specified | Static: a context value passed to each operation; there are no dynamic modes and no global state. |
+| IEEE 754 §7 | How flags are exposed | Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages. |
+| IEEE 754 §9.2 | Accuracy of recommended functions | Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`. |
+| IEEE 754 §9.2.2 | Preferred exponent when undefined (infinite or NaN `y` in `pow`) | `decimal`: `pow(+1, y)` is the plain `1`. |
+| IEEE 754 §5.12 | Character sequences accepted and produced (`bin_float`) | Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`. |
+| IEEE 754 §6.3 | Sign of a zero `remainder` result (`decimal`) | The sign of the dividend, kept in extended contexts. |
+| IEEE 1788 §7, §4.2 | Flavor | Set-based. |
+| IEEE 1788 §12.10 | Accuracy of the elementary functions | Valid (the result contains the exact image); not the tightest enclosure. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire. |
+| IEEE 1788 §12.5 | Interval types | Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type. |
+| General Decimal Arithmetic | Exponent limit | ±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`. |
+
+## Known gaps and deviations
+
+A gap is listed here when the standard asks for something the package does
+not provide or provides differently. Each item links the issue that tracks it
+or the page that documents the decision.
+
+| Standard | Gap | Tracking |
+| --- | --- | --- |
+| IEEE 754-2019 §7.5 | `decimal` detects tininess after rounding by default; decimal formats require before rounding | issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
+| IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
+| IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal` | not scheduled |
+| IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | not scheduled |
+| IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | not scheduled |
+| IEEE 754-2019 §5.4.1 | `decimal` has no convertToInteger | not scheduled |
+| IEEE 754-2019 §5.3.2 | A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does) | decision pending; see the pull request of issue #187 |
+| IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/bin_float/README.md` |
+| IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | issue [#21](https://github.com/Luna-Flow/floating/issues/21) |
+| IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | not scheduled |
+| IEEE 1788-2015 §11 | Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument | [design page](design/ball_float.md#known-limitations) |
+| Public API | The clause to API mapping may change when the public API is narrowed | issue [#22](https://github.com/Luna-Flow/floating/issues/22) |
