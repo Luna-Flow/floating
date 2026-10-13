@@ -573,6 +573,66 @@ fn binary_expm1_negative_saturation(
 }
 
 ///|
+/// For `|x| > (p + 4) ln 2 / 2`, `1 - tanh|x| = 2 / (e^(2|x|) + 1) < 2 e^(-2|x|)
+/// < 2^-(p + 3)`, less than a quarter of the spacing `2^-p` below 1, so
+/// `tanh x` rounds to `+-1` or to the adjacent value `+-(1 - 2^-p)` by the
+/// rounding direction alone. The general enclosure works with `e^(2|x|)`,
+/// which leaves the exponent range long before that.
+fn binary_tanh_saturation(
+  value : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  let work = binary_range_check_precision
+  let limit = BinFloat::from_int(context.precision + 4, precision=work)
+  // ln 2 > 1/2, so arguments below (p + 4) / 4 cannot reach the threshold.
+  let quarter = BinFloat::make(BinCoeff::one(), -2, work)
+  let magnitude = value.abs()
+  if magnitude.compare(limit.mul(quarter)) < 0 {
+    return None
+  }
+  let two = BinFloat::from_int(2, precision=work)
+  guard binary_ln_unit_bounds(two, work) is Some((_, ln2_high)) else {
+    return None
+  }
+  let half = BinFloat::make(BinCoeff::one(), -1, work)
+  let threshold = limit
+    .mul(half)
+    .mul_ctx(
+      ln2_high,
+      BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+    ).0
+  if magnitude.compare(threshold) <= 0 {
+    return None
+  }
+  let negative = value.is_negative()
+  let toward_zero = match context.rounding {
+    RoundTowardZero => true
+    RoundTowardPositive => negative
+    RoundTowardNegative => !negative
+    RoundTiesToEven | RoundTiesToAway | RoundAwayFromZero => false
+  }
+  let result = if toward_zero {
+    finite_from_parts(
+      negative,
+      BinCoeff::one()
+      .shift_left(context.precision)
+      .sub_checked(BinCoeff::one())
+      .unwrap(),
+      -context.precision,
+      context.precision,
+    )
+  } else {
+    let one = BinFloat::one(precision=context.precision)
+    if negative {
+      one.neg()
+    } else {
+      one
+    }
+  }
+  Some((result, binary_inexact_flags(false)))
+}
+
+///|
 fn binary_ln10_bounds(work_precision : Int32) -> (BinFloat, BinFloat)? {
   let two = BinFloat::from_int(2, precision=work_precision)
   let five_quarters = BinFloat::make(
@@ -2932,6 +2992,10 @@ fn BinFloat::try_hyperbolic_ctx(
       }
       // |x| <= 1/2: 0 < sinh x - x <= |x|^3 (sign of x), 0 < x - tanh x <= |x|^3
       // (sign of x) and 0 < cosh x - 1 <= x^2.
+      if operation is BinaryHyperbolicOperation::Tanh &&
+        binary_tanh_saturation(self, context) is Some(result) {
+        return Ok(result)
+      }
       let tiny = match operation {
         BinaryHyperbolicOperation::Sinh =>
           binary_tiny_argument_result(
