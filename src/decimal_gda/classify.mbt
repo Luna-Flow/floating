@@ -7,10 +7,20 @@ fn quiet_nan_operand(
 ) -> (Decimal, DecimalFlags) {
   guard value.class == FpClass::NaN else { return (value, DecimalFlags::new()) }
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
+  // IEEE 754-2019 §3.5.2 and §6.2.3: a propagated payload is one the
+  // destination can hold, and an interchange-shaped (clamped) format holds at
+  // most p - 1 digits, as `from_string_ctx` already enforces.
+  let limit = if ctx.clamp && ctx.precision > 0 {
+    precision - 1
+  } else {
+    precision
+  }
   let payload = if value.coefficient.is_zero() {
     value.coefficient
-  } else if value.coefficient.digits10() > precision {
-    gda_coeff_div_rem_repr(value.coefficient, gda_coeff_power10_repr(precision)).1
+  } else if limit == 0 {
+    gda_coeff_zero()
+  } else if value.coefficient.digits10() > limit {
+    gda_coeff_div_rem_repr(value.coefficient, gda_coeff_power10_repr(limit)).1
   } else {
     value.coefficient
   }
@@ -263,22 +273,43 @@ pub fn Decimal::nan_payload(self : Decimal) -> BigInt {
 
 ///|
 pub fn Decimal::get_payload(self : Decimal) -> BigInt {
-  self.nan_payload()
+  // IEEE 754-2019 §9.7 getPayload: -1 when the operand is not a NaN.
+  if self.class == FpClass::NaN {
+    self.nan_payload()
+  } else {
+    BigInt::from_int(-1)
+  }
+}
+
+///|
+/// IEEE 754-2019 §9.7 setPayload and setPayloadSignaling: a NaN carrying the
+/// payload when it is a non-negative integer the format can hold (at most
+/// `precision - 1` digits, like the trailing significand of an interchange
+/// NaN), otherwise +0 with preferred exponent 0. The receiver only supplies the
+/// format precision and the sign bit of a NaN result.
+fn Decimal::payload_result(
+  self : Decimal,
+  payload : BigInt,
+  signaling : Bool,
+) -> Decimal {
+  let precision = Int32::max(1, self.precision_)
+  let coefficient = coeff_from_bigint(payload)
+  if payload < BigInt::from_int(0) ||
+    (coeff_digits(coefficient) > precision - 1 && !coefficient.is_zero()) {
+    return Decimal::zero(precision~)
+  }
+  make_special_repr(
+    FpClass::NaN,
+    self.negative,
+    coefficient,
+    precision,
+    signaling,
+  )
 }
 
 ///|
 pub fn Decimal::set_payload(self : Decimal, payload : BigInt) -> Decimal {
-  if self.class == FpClass::NaN {
-    make_special_repr(
-      FpClass::NaN,
-      self.negative,
-      coeff_from_bigint(payload),
-      self.precision_,
-      false,
-    )
-  } else {
-    self
-  }
+  Decimal::payload_result(self, payload, false)
 }
 
 ///|
@@ -286,17 +317,7 @@ pub fn Decimal::set_payload_signaling(
   self : Decimal,
   payload : BigInt,
 ) -> Decimal {
-  if self.class == FpClass::NaN {
-    make_special_repr(
-      FpClass::NaN,
-      self.negative,
-      coeff_from_bigint(payload),
-      self.precision_,
-      true,
-    )
-  } else {
-    self
-  }
+  Decimal::payload_result(self, payload, true)
 }
 
 ///|
