@@ -71,9 +71,11 @@ def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
     return tuple(base)
 
 
+# Since moon 0.1.20261028 `moon install` without a source installs a binary
+# package; dependencies are fetched by an unfrozen build command instead.
 DEPENDENCY_STAGE = Stage(
-    "DEPENDENCIES · install",
-    ("sh", "tools/run_moon_clean_exec.sh", "install"),
+    "DEPENDENCIES · fetch",
+    ("sh", "tools/run_moon_clean_exec.sh", "check"),
 )
 
 

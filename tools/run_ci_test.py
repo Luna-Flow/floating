@@ -30,14 +30,15 @@ class RunCiTests(unittest.TestCase):
         self.assertEqual(stages[3].command[backend_index], "decimal_gda")
         self.assertIn("official0", stages[4].command)
 
-    def test_every_scope_installs_dependencies_first(self) -> None:
+    def test_every_scope_fetches_dependencies_first(self) -> None:
         # `moon update` only refreshes the registry index, so a scope whose first
         # command passes `--frozen` used to fail on a clean checkout.
         for scope in ("all", "quick", "decimal", "decimal_gda", "binary", "interval", "elementary"):
             with self.subTest(scope=scope):
                 first = run_ci.stages_for(scope, 2)[0]
-                self.assertEqual(first.name, "DEPENDENCIES · install")
-                self.assertIn("install", first.command)
+                self.assertEqual(first.name, "DEPENDENCIES · fetch")
+                self.assertIn("check", first.command)
+                self.assertNotIn("install", first.command)
                 self.assertNotIn("--frozen", first.command)
 
     def test_binary_scope_uses_binary_backend(self) -> None:
