@@ -14,27 +14,27 @@ pub fn bigint_one() -> @bigint.BigInt
 
 pub fn bigint_zero() -> @bigint.BigInt
 
-pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int32) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
 
-pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int32) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
 
-pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
+pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int32, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
 
-pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
+pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int32
 
-pub fn digits10(@bigint.BigInt) -> Int
+pub fn digits10(@bigint.BigInt) -> Int32
 
-pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int) -> @bigint.BigInt?
+pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int32) -> @bigint.BigInt?
 
-pub fn pow10(Int) -> @bigint.BigInt
+pub fn pow10(Int32) -> @bigint.BigInt
 
-pub fn pow2(Int) -> @bigint.BigInt
+pub fn pow2(Int32) -> @bigint.BigInt
 
-pub fn pow5(Int) -> @bigint.BigInt
+pub fn pow5(Int32) -> @bigint.BigInt
 
-pub fn remove_factor10(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
+pub fn remove_factor10(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
 
-pub fn remove_factor2(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
+pub fn remove_factor2(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
 
 pub fn[A, B, E, C] result_lift2(Result[A, E], Result[B, E], (A, B) -> C) -> Result[C, E]
 
@@ -42,33 +42,33 @@ pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Re
 
 pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
-pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
+pub fn round_shift(@bigint.BigInt, Int32, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
 pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 
-pub fn split_decimal_string(String) -> (Bool, String, Int)?
+pub fn split_decimal_string(String) -> (Bool, String, Int32)?
 
 pub fn split_decimal_string_wide(String) -> (Bool, String, Int64)?
 
-pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bigint.BigInt, Int, Int)
+pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int32, max_drop? : Int32) -> (@bigint.BigInt, Int32, Int32)
 
 // Errors
 
 // Types and methods
 pub struct CertifiedDyadic {
   numerator_ : @bigint.BigInt
-  scale_ : Int
+  scale_ : Int32
 }
 pub fn CertifiedDyadic::add(Self, Self) -> Self
-pub fn CertifiedDyadic::compare(Self, Self) -> Int
-pub fn CertifiedDyadic::from_int(Int) -> Self
+pub fn CertifiedDyadic::compare(Self, Self) -> Int32
+pub fn CertifiedDyadic::from_int(Int32) -> Self
 pub fn CertifiedDyadic::mul(Self, Self) -> Self
 pub fn CertifiedDyadic::neg(Self) -> Self
-pub fn CertifiedDyadic::new(@bigint.BigInt, Int) -> Self
+pub fn CertifiedDyadic::new(@bigint.BigInt, Int32) -> Self
 pub fn CertifiedDyadic::numerator(Self) -> @bigint.BigInt
-pub fn CertifiedDyadic::round_down(Self, Int) -> Self
-pub fn CertifiedDyadic::round_up(Self, Int) -> Self
-pub fn CertifiedDyadic::scale(Self) -> Int
+pub fn CertifiedDyadic::round_down(Self, Int32) -> Self
+pub fn CertifiedDyadic::round_up(Self, Int32) -> Self
+pub fn CertifiedDyadic::scale(Self) -> Int32
 pub fn CertifiedDyadic::sub(Self, Self) -> Self
 
 pub struct CertifiedInterval[T] {
@@ -76,29 +76,29 @@ pub struct CertifiedInterval[T] {
   upper_ : T
 }
 pub fn[T] CertifiedInterval::lower(Self[T]) -> T
-pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int) -> Result[Self[T], @arithmetic.ArithmeticError]
+pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int32) -> Result[Self[T], @arithmetic.ArithmeticError]
 pub fn[T] CertifiedInterval::upper(Self[T]) -> T
 
 pub struct CertifiedRefinementBudget {
-  work_precision : Int
-  refinements_ : Int
-  limit_ : Int
+  work_precision : Int32
+  refinements_ : Int32
+  limit_ : Int32
 }
 pub fn CertifiedRefinementBudget::available(Self) -> Bool
-pub fn CertifiedRefinementBudget::new(Int, limit? : Int) -> Self
+pub fn CertifiedRefinementBudget::new(Int32, limit? : Int32) -> Self
 pub fn CertifiedRefinementBudget::next(Self) -> Self
-pub fn CertifiedRefinementBudget::precision(Self) -> Int
-pub fn CertifiedRefinementBudget::refinements(Self) -> Int
+pub fn CertifiedRefinementBudget::precision(Self) -> Int32
+pub fn CertifiedRefinementBudget::refinements(Self) -> Int32
 
 pub struct DecimalExponentBounds {
   valid_ : Bool
-  etiny_ : Int
-  etop_ : Int
+  etiny_ : Int32
+  etop_ : Int32
 }
-pub fn DecimalExponentBounds::etiny(Self) -> Int
-pub fn DecimalExponentBounds::etop(Self) -> Int
+pub fn DecimalExponentBounds::etiny(Self) -> Int32
+pub fn DecimalExponentBounds::etop(Self) -> Int32
 pub fn DecimalExponentBounds::is_valid(Self) -> Bool
-pub fn DecimalExponentBounds::new(Int, Int, Int) -> Self
+pub fn DecimalExponentBounds::new(Int32, Int32, Int32) -> Self
 
 pub struct ExactRat {
   // private fields

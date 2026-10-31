@@ -23,7 +23,7 @@ pub struct ExactRational {
 } derive(Eq)
 pub fn ExactRational::denominator(Self) -> @bigint.BigInt
 pub fn ExactRational::equal(Self, Self) -> Bool
-pub fn ExactRational::from_scaled_integer(@bigint.BigInt, Int, Int) -> Self
+pub fn ExactRational::from_scaled_integer(@bigint.BigInt, Int32, Int32) -> Self
 pub fn ExactRational::new(@bigint.BigInt, @bigint.BigInt) -> Self
 pub fn ExactRational::not_equal(Self, Self) -> Bool
 pub fn ExactRational::numerator(Self) -> @bigint.BigInt

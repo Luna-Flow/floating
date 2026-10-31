@@ -17,20 +17,20 @@ pub fn[Scale, Input, Expected, Output] immutable_bench(String, String, Array[Sca
 
 pub fn is_significant_regression(@stats.Comparison) -> Bool
 
-pub fn paired_hotspot(Array[@model.Observation], String, Int, String, String, Double, UInt64) -> Result[@stats.Comparison, @stats.BootstrapError]
+pub fn paired_hotspot(Array[@model.Observation], String, Int32, String, String, Double, UInt64) -> Result[@stats.Comparison, @stats.BootstrapError]
 
 pub async fn[Scale, Input, Prepared, Expected, Output, Context, State, SinkValue] run(@runner.BenchSpec[Scale, Input, Prepared, Expected, Output, Context, State, SinkValue], @model.EnvironmentSnapshot, @event.ObservationSink, UInt64, @runner.ValidatedProtocol) -> @model.RunSummary
 
-pub fn tune_dataset(Array[@model.Observation], String, Int, Array[String], Double) -> TuneDecision?
+pub fn tune_dataset(Array[@model.Observation], String, Int32, Array[String], Double) -> TuneDecision?
 
 // Errors
 
 // Types and methods
 pub struct TuneDecision {
-  dataset_id : Int
+  dataset_id : Int32
   candidate_id : String
   median_us : Double
-  valid_samples : Int
+  valid_samples : Int32
 }
 
 // Type aliases
