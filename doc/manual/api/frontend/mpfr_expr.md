@@ -459,19 +459,19 @@ pub struct MpfrCase {
 pub struct MpfrDecimalOutputDocument {
   // private fields
 }
-pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
+pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int32
 pub fn MpfrDecimalOutputDocument::source(Self) -> String
 
 pub struct MpfrDocument {
   // private fields
 }
-pub fn MpfrDocument::case_count(Self) -> Int
+pub fn MpfrDocument::case_count(Self) -> Int32
 pub fn MpfrDocument::source(Self) -> String
 
 pub struct MpfrElementaryDocument {
   // private fields
 }
-pub fn MpfrElementaryDocument::case_count(Self) -> Int
+pub fn MpfrElementaryDocument::case_count(Self) -> Int32
 pub fn MpfrElementaryDocument::source(Self) -> String
 
 pub struct MpfrPowCase {
@@ -481,20 +481,20 @@ pub struct MpfrPowCase {
 pub struct MpfrPowDocument {
   // private fields
 }
-pub fn MpfrPowDocument::case_count(Self) -> Int
+pub fn MpfrPowDocument::case_count(Self) -> Int32
 pub fn MpfrPowDocument::source(Self) -> String
 
 pub struct MpfrStrtofrDocument {
   // private fields
 }
-pub fn MpfrStrtofrDocument::case_count(Self) -> Int
+pub fn MpfrStrtofrDocument::case_count(Self) -> Int32
 pub fn MpfrStrtofrDocument::source(Self) -> String
 
 pub struct ParseDiagnostic {
   // private fields
 } derive(Eq, @debug.Debug)
 pub fn ParseDiagnostic::equal(Self, Self) -> Bool
-pub fn ParseDiagnostic::line(Self) -> Int
+pub fn ParseDiagnostic::line(Self) -> Int32
 pub fn ParseDiagnostic::message(Self) -> String
 pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::source(Self) -> String
@@ -503,11 +503,11 @@ pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 pub struct RunSummary {
   // private fields
 }
-pub fn RunSummary::failed_cases(Self) -> Int
-pub fn RunSummary::passed_cases(Self) -> Int
+pub fn RunSummary::failed_cases(Self) -> Int32
+pub fn RunSummary::passed_cases(Self) -> Int32
 pub fn RunSummary::results(Self) -> Array[CaseResult]
 pub fn RunSummary::success(Self) -> Bool
-pub fn RunSummary::total_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
 
 // Type aliases
 

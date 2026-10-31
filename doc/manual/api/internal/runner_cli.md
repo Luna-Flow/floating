@@ -224,11 +224,11 @@ pub fn collect_files(Array[String], String) -> Result[Array[String], String]
 
 pub fn format_diagnostic(@conformance.SourceLocation, String) -> String
 
-pub fn format_diagnostic_at(String, Int, String, column? : Int) -> String
+pub fn format_diagnostic_at(String, Int32, String, column? : Int32) -> String
 
 pub fn json_bool(Bool) -> Json
 
-pub fn json_int(Int) -> Json
+pub fn json_int(Int32) -> Json
 
 pub fn json_object(Array[(String, Json)]) -> Json
 
@@ -240,7 +240,7 @@ pub fn json_strings(Array[String]) -> Json
 
 pub fn parse_common_options(Array[String], allow_shard? : Bool) -> Result[CommonOptions, String]
 
-pub fn parse_int(String, String) -> Result[Int, String]
+pub fn parse_int(String, String) -> Result[Int32, String]
 
 pub fn read_source(String, label? : String) -> Result[String, String]
 
@@ -252,8 +252,8 @@ pub struct CommonOptions {
 }
 pub fn CommonOptions::json(Self) -> Bool
 pub fn CommonOptions::remaining(Self) -> Array[String]
-pub fn CommonOptions::shard_count(Self) -> Int
-pub fn CommonOptions::shard_index(Self) -> Int
+pub fn CommonOptions::shard_count(Self) -> Int32
+pub fn CommonOptions::shard_index(Self) -> Int32
 
 // Type aliases
 

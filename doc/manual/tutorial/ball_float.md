@@ -25,7 +25,7 @@ output. The mathematics behind the guarantees is in the
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 Import the package, plus `bin_float`, which supplies the endpoint type (the

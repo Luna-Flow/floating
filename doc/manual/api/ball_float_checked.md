@@ -461,18 +461,18 @@ pub fn BallFloatResult::cospi(Self) -> Self
 pub fn BallFloatResult::div(Self, Self) -> Self
 pub fn BallFloatResult::err(@arithmetic.ArithmeticError) -> Self
 pub fn BallFloatResult::error(Self) -> @arithmetic.ArithmeticError?
-pub fn BallFloatResult::exact(@bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloatResult::exact(@bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloatResult::exp(Self) -> Self
 pub fn BallFloatResult::exp10(Self) -> Self
 pub fn BallFloatResult::exp2(Self) -> Self
 pub fn BallFloatResult::expm1(Self) -> Self
 #deprecated
 pub fn BallFloatResult::flat_map(Self, (@ball_float.BallFloat) -> Self) -> Self
-pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
-pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
-pub fn BallFloatResult::from_double(Double, precision? : Int) -> Self
-pub fn BallFloatResult::from_float(Float, precision? : Int) -> Self
-pub fn BallFloatResult::from_int(Int, precision? : Int) -> Self
+pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
+pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn BallFloatResult::from_double(Double, precision? : Int32) -> Self
+pub fn BallFloatResult::from_float(Float, precision? : Int32) -> Self
+pub fn BallFloatResult::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
 pub fn BallFloatResult::hypot(Self, Self) -> Self
 pub fn BallFloatResult::is_err(Self) -> Bool
@@ -487,10 +487,10 @@ pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
-pub fn BallFloatResult::pow_int(Self, Int) -> Self
-pub fn BallFloatResult::pow_nat(Self, UInt) -> Self
+pub fn BallFloatResult::pow_int(Self, Int32) -> Self
+pub fn BallFloatResult::pow_nat(Self, UInt32) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
-pub fn BallFloatResult::rootn(Self, Int) -> Self
+pub fn BallFloatResult::rootn(Self, Int32) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
@@ -498,8 +498,8 @@ pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self
 pub fn BallFloatResult::tanpi(Self) -> Self
-pub fn BallFloatResult::whole(precision? : Int) -> Self
-pub fn BallFloatResult::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn BallFloatResult::whole(precision? : Int32) -> Self
+pub fn BallFloatResult::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
 pub impl Add for BallFloatResult
 pub impl Div for BallFloatResult
 pub impl Mul for BallFloatResult

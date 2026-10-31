@@ -445,7 +445,7 @@ pub fn DecimalChecked::from_bigint(@bigint.BigInt, @decimal.DecimalContext) -> S
 pub fn DecimalChecked::from_decimal(@decimal.Decimal, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_double(Double, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_float(Float, @decimal.DecimalContext) -> Self
-pub fn DecimalChecked::from_int(Int, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_int(Int32, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @decimal.DecimalFlags) -> Self
 pub fn DecimalChecked::hypot(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::is_err(Self) -> Bool
@@ -465,13 +465,13 @@ pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::plus(Self) -> Self
 pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::pown(Self, Int) -> Self
+pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
-pub fn DecimalChecked::rootn(Self, Int) -> Self
+pub fn DecimalChecked::rootn(Self, Int32) -> Self
 pub fn DecimalChecked::sin(Self) -> Self
 pub fn DecimalChecked::sinh(Self) -> Self
 pub fn DecimalChecked::sinpi(Self) -> Self

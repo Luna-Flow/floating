@@ -498,8 +498,8 @@ pub using @arithmetic {type RoundingMode}
 pub(open) trait Floating {
   fn classify(Self) -> @arithmetic.FpClass
   fn sign(Self) -> Sign
-  fn precision(Self) -> Int
-  fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+  fn precision(Self) -> Int32
+  fn with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
   fn normalized(Self) -> Self
 }
 ```

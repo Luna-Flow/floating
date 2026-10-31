@@ -1,7 +1,7 @@
 # floating
 
 This manual documents the `main` branch of `Luna-Flow/floating`, which builds
-on the `0.10.0` release; the changes since that release are listed in the
+on the `0.10.1` release; the changes since that release are listed in the
 changelog.
 
 ## Overview
@@ -27,7 +27,7 @@ The library is built around three contracts:
 ## Install
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 Then import the packages you need in your `moon.pkg`:

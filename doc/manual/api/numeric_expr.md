@@ -390,10 +390,10 @@ pub fn Operation::to_repr(Self) -> @debug.Repr
 pub struct SourceSpan {
   // private fields
 } derive(Eq, @debug.Debug)
-pub fn SourceSpan::column(Self) -> Int
+pub fn SourceSpan::column(Self) -> Int32
 pub fn SourceSpan::equal(Self, Self) -> Bool
-pub fn SourceSpan::line(Self) -> Int
-pub fn SourceSpan::new(String, line? : Int, column? : Int) -> Self
+pub fn SourceSpan::line(Self) -> Int32
+pub fn SourceSpan::new(String, line? : Int32, column? : Int32) -> Self
 pub fn SourceSpan::not_equal(Self, Self) -> Bool
 pub fn SourceSpan::source(Self) -> String
 pub fn SourceSpan::to_repr(Self) -> @debug.Repr

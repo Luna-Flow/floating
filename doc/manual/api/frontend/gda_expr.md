@@ -563,17 +563,17 @@ pub fn GdaContext::dectest(Self) -> String
 pub fn GdaContext::default() -> Self
 pub fn GdaContext::equal(Self, Self) -> Bool
 pub fn GdaContext::extended(Self) -> Bool
-pub fn GdaContext::max_exponent(Self) -> Int
-pub fn GdaContext::min_exponent(Self) -> Int
+pub fn GdaContext::max_exponent(Self) -> Int32
+pub fn GdaContext::min_exponent(Self) -> Int32
 pub fn GdaContext::not_equal(Self, Self) -> Bool
-pub fn GdaContext::precision(Self) -> Int
+pub fn GdaContext::precision(Self) -> Int32
 pub fn GdaContext::rounding(Self) -> String
 pub fn GdaContext::to_repr(Self) -> @debug.Repr
 
 pub struct GdaDocument {
   // private fields
 }
-pub fn GdaDocument::case_count(Self) -> Int
+pub fn GdaDocument::case_count(Self) -> Int32
 pub fn GdaDocument::cases(Self) -> Array[GdaCase]
 pub fn GdaDocument::source(Self) -> String
 
@@ -591,28 +591,28 @@ pub struct RunOptions {
 } derive(Eq, @debug.Debug)
 pub fn RunOptions::case_filter(Self) -> String
 pub fn RunOptions::equal(Self, Self) -> Bool
-pub fn RunOptions::new(shard_count? : Int, shard_index? : Int, strict_supported? : Bool, case_filter? : String) -> Self
+pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String) -> Self
 pub fn RunOptions::not_equal(Self, Self) -> Bool
-pub fn RunOptions::shard_count(Self) -> Int
-pub fn RunOptions::shard_index(Self) -> Int
+pub fn RunOptions::shard_count(Self) -> Int32
+pub fn RunOptions::shard_index(Self) -> Int32
 pub fn RunOptions::strict_supported(Self) -> Bool
 pub fn RunOptions::to_repr(Self) -> @debug.Repr
 
 pub struct RunSummary {
   // private fields
 }
-pub fn RunSummary::diagnostic_cases(Self) -> Int
-pub fn RunSummary::executable_cases(Self) -> Int
-pub fn RunSummary::failed_cases(Self) -> Int
-pub fn RunSummary::legacy_cases(Self) -> Int
+pub fn RunSummary::diagnostic_cases(Self) -> Int32
+pub fn RunSummary::executable_cases(Self) -> Int32
+pub fn RunSummary::failed_cases(Self) -> Int32
+pub fn RunSummary::legacy_cases(Self) -> Int32
 pub fn RunSummary::merge(Array[Self]) -> Self
-pub fn RunSummary::passed_cases(Self) -> Int
+pub fn RunSummary::passed_cases(Self) -> Int32
 pub fn RunSummary::results(Self) -> Array[CaseResult]
-pub fn RunSummary::selected_cases(Self) -> Int
-pub fn RunSummary::skipped_cases(Self) -> Int
+pub fn RunSummary::selected_cases(Self) -> Int32
+pub fn RunSummary::skipped_cases(Self) -> Int32
 pub fn RunSummary::success(Self) -> Bool
-pub fn RunSummary::total_cases(Self) -> Int
-pub fn RunSummary::unsupported_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
+pub fn RunSummary::unsupported_cases(Self) -> Int32
 
 // Type aliases
 

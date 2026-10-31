@@ -20,7 +20,7 @@ command-line runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md).
 Add the library to your module and import the package in `moon.pkg`:
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 ```moonbit nocheck
