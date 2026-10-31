@@ -27,7 +27,7 @@ mathematics behind the rounding rules is on the
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 Import the package in your `moon.pkg` (the examples also use

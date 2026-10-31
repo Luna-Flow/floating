@@ -88,7 +88,7 @@ test "gda runner usage errors" {
 package "Luna-Flow/floating/cli/gda_expr_cli"
 
 // Values
-pub fn run(Array[String]) -> Int
+pub fn run(Array[String]) -> Int32
 
 // Errors
 

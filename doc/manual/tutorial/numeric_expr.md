@@ -19,7 +19,7 @@ conformance frontend `frontend/gda_expr` uses to run `.decTest` corpora.
 ## Quick start
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 Add the package to `moon.pkg`:

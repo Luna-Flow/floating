@@ -76,7 +76,7 @@ test "itl runner usage errors" {
 package "Luna-Flow/floating/cli/itl_expr_cli"
 
 // Values
-pub fn run(Array[String]) -> Int
+pub fn run(Array[String]) -> Int32
 
 // Errors
 

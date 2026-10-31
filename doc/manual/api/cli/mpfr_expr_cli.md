@@ -76,7 +76,7 @@ test "mpfr runner usage errors" {
 package "Luna-Flow/floating/cli/mpfr_expr_cli"
 
 // Values
-pub fn run(Array[String]) -> Int
+pub fn run(Array[String]) -> Int32
 
 // Errors
 

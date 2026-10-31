@@ -21,7 +21,7 @@ To use the reduction functions in your own module, add the library and import
 the package in `moon.pkg`:
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 ```moonbit nocheck
@@ -146,10 +146,10 @@ fn square_spec() -> @runner.BenchSpec[Int, BigInt, BigInt, BigInt, BigInt, Unit,
     context => (1N << context.dataset_key.scale) - 1N,
     value => value.bit_length().to_string(),
     [
-      @runner.Implementation::stateless("mul-self", "0.10.0", x => {
+      @runner.Implementation::stateless("mul-self", "0.10.1", x => {
         @model.OperationResult::completed(x * x, ())
       }),
-      @runner.Implementation::stateless("pow", "0.10.0", x => {
+      @runner.Implementation::stateless("pow", "0.10.1", x => {
         @model.OperationResult::completed(x.pow(2N), ())
       }),
     ],

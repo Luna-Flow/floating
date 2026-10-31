@@ -8303,8 +8303,8 @@ msgid "bin_float conformance"
 msgstr "bin_float 適合性"
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.10.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
-msgstr "この文書は `0.10.0` における 2 進浮動小数点の意味論と検証境界を記録します。有限のテストが全通過しても、すべての実数入力に対する形式的証明を意味しません。"
+msgid "This page records the `0.10.1` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgstr "この文書は `0.10.1` における 2 進浮動小数点の意味論と検証境界を記録します。有限のテストが全通過しても、すべての実数入力に対する形式的証明を意味しません。"
 
 #: manual/conformance/bin_float.md:7
 msgid "Normative and research sources"
@@ -9182,8 +9182,8 @@ msgid "Repository conventions"
 msgstr "リポジトリの規約"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.0`**, the version in `moon.mod`."
-msgstr "これらの規則は `floating` に対して Luna-Flow のドキュメント標準に追加されるものであり、標準を緩めることはありません。マニュアルは現在のブランチの実装を説明します。現在のリリースは **`0.10.0`** で、これは `moon.mod` のバージョンです。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.1`**, the version in `moon.mod`."
+msgstr "これらの規則は `floating` に対して Luna-Flow のドキュメント標準に追加されるものであり、標準を緩めることはありません。マニュアルは現在のブランチの実装を説明します。現在のリリースは **`0.10.1`** で、これは `moon.mod` のバージョンです。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"
@@ -15675,8 +15675,8 @@ msgid "floating"
 msgstr "floating"
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.10.0` release; the changes since that release are listed in the changelog."
-msgstr "このマニュアルは `Luna-Flow/floating` の `main` ブランチを説明しています。これは `0.10.0` リリースを基にしており、そのリリース以降の変更は変更履歴に記載されています。"
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.10.1` release; the changes since that release are listed in the changelog."
+msgstr "このマニュアルは `Luna-Flow/floating` の `main` ブランチを説明しています。これは `0.10.1` リリースを基にしており、そのリリース以降の変更は変更履歴に記載されています。"
 
 #: manual/index.md:7
 msgid "Overview"
@@ -19159,8 +19159,8 @@ msgid "From MoonBit code"
 msgstr "MoonBit コードから"
 
 #: manual/tutorial/cli/gda_expr_cli.md:42
-msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.0`, import it and pass the argument vector, program name first:"
-msgstr "ランナーはライブラリでもあります。`moon add Luna-Flow/floating@0.10.0` の後、インポートして引数ベクタ（先頭はプログラム名）を渡します。"
+msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.1`, import it and pass the argument vector, program name first:"
+msgstr "ランナーはライブラリでもあります。`moon add Luna-Flow/floating@0.10.1` の後、インポートして引数ベクタ（先頭はプログラム名）を渡します。"
 
 #: manual/tutorial/cli/gda_expr_cli.md:55
 msgid "`run` prints the same output as the executable and returns the exit status instead of exiting."
@@ -19270,8 +19270,8 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr "パスを指定しない場合、ランナーは `testdata/interval/smoke.itl` を実行し、次のような JSON オブジェクトを 1 つ出力します。"
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.10.0`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
-msgstr "`moon add Luna-Flow/floating@0.10.0` の後、`moon.pkg` で `\"Luna-Flow/floating/cli/itl_expr_cli\"` をインポートし、引数ベクタ（先頭はプログラム名）を渡して `run` を呼び出します。"
+msgid "After `moon add Luna-Flow/floating@0.10.1`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgstr "`moon add Luna-Flow/floating@0.10.1` の後、`moon.pkg` で `\"Luna-Flow/floating/cli/itl_expr_cli\"` をインポートし、引数ベクタ（先頭はプログラム名）を渡して `run` を呼び出します。"
 
 #: manual/tutorial/cli/itl_expr_cli.md:43
 msgid "Run files"
@@ -19363,8 +19363,8 @@ msgid "run all binary corpora"
 msgstr "すべての二進コーパスを実行する"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.10.0`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
-msgstr "`moon add Luna-Flow/floating@0.10.0` の後、`moon.pkg` で `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` をインポートし、`run` を呼び出します。"
+msgid "After `moon add Luna-Flow/floating@0.10.1`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgstr "`moon add Luna-Flow/floating@0.10.1` の後、`moon.pkg` で `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` をインポートし、`run` を呼び出します。"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:43
 msgid "Run each format"
@@ -19452,8 +19452,8 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr "TestFloat の `testfloat_gen` でベクトルを生成して実行します。`just conformance fetch binary` は固定された SoftFloat と TestFloat のソースをダウンロードし、`just conformance run binary` はそれらから `testfloat_gen` を `.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/` にビルドします。"
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.10.0`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
-msgstr "`moon add Luna-Flow/floating@0.10.0` の後、`moon.pkg` で `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` をインポートし、同じ引数で `run` を呼び出します。"
+msgid "After `moon add Luna-Flow/floating@0.10.1`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgstr "`moon add Luna-Flow/floating@0.10.1` の後、`moon.pkg` で `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` をインポートし、同じ引数で `run` を呼び出します。"
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:57
 msgid "Match the generator options"

@@ -24,7 +24,7 @@ the [API reference](../api/decimal_gda_checked.md) lists every method.
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.10.0
+moon add Luna-Flow/floating@0.10.1
 ```
 
 Import both packages in your `moon.pkg`:
