@@ -21,6 +21,7 @@ from typing import Any
 
 import decimal_oracles
 import generate_decimal_elementary_oracle
+import generate_decimal_total_order
 import generate_ieee_decimal_vectors
 from conformance_ui import SummaryRow, print_summary
 
@@ -31,6 +32,7 @@ MATRIX_PATH = FIXTURE_ROOT / "conformance_matrix.json"
 STANDARD_EXCERPT_PATH = FIXTURE_ROOT / "dectest_ieee_excerpt.json"
 ELEMENTARY_ORACLE_PATH = FIXTURE_ROOT / "elementary_mpfr_oracle.json"
 ELEMENTARY_INTERVAL_PATH = FIXTURE_ROOT / "mpfr-4.2.2-elementary-interval.txt"
+TOTAL_ORDER_PATH = FIXTURE_ROOT / "total_order.json"
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 DEFAULT_OUTPUT = ROOT / ".tmp/decimal-ieee-conformance"
 MOON_TEST_SUMMARY = re.compile(
@@ -447,7 +449,64 @@ def render_moon_fixture_test() -> str:
                 "",
             ]
         )
+    total_order = load_json(TOTAL_ORDER_PATH)
+    for format_name, entry in total_order["formats"].items():
+        operands = ", ".join(_moon_string(item) for item in entry["operands"])
+        for op, method in (("totalOrder", "compare_total"), ("totalOrderMag", "compare_total_magnitude")):
+            expected = ", ".join({"<": "-1", "=": "0", ">": "1"}[cell] for cell in entry[op])
+            name = f"IEEE {op} {format_name}"
+            source.extend(
+                [
+                    f"test {_moon_string(name)} {{",
+                    f"  let ctx = DecimalContext::{format_name}()",
+                    f"  let operands = [{operands}]",
+                    f"  let expected : Array[Int] = [{expected}]",
+                    "  let n = operands.length()",
+                    "  for i in 0..<n {",
+                    "    let lhs = Decimal::from_string(operands[i]).unwrap()",
+                    "    for j in 0..<n {",
+                    "      let rhs = Decimal::from_string(operands[j]).unwrap()",
+                    "      let id = operands[i] + \" \" + operands[j]",
+                    f"      let (actual, flags) = lhs.{method}_ctx(rhs, ctx)",
+                    "      assert_eq(actual, expected[i * n + j], msg=id)",
+                    f"      assert_eq(lhs.{method}(rhs), expected[i * n + j], msg=id)",
+                    "      assert_ieee_fixture_flags(id, flags, [])",
+                    "    }",
+                    "  }",
+                    "}",
+                    "",
+                ]
+            )
     return "\n".join(source)
+
+
+def check_total_order() -> int:
+    """The checked-in §5.10 corpus must equal a fresh generation and be a total order."""
+    fixture = load_json(TOTAL_ORDER_PATH)
+    if fixture != generate_decimal_total_order.fixture():
+        raise CorpusError("totalOrder corpus is stale; run tools/generate_decimal_total_order.py --write")
+    for format_name, entry in fixture["formats"].items():
+        n = len(entry["operands"])
+        if len(set(entry["operands"])) != n:
+            raise CorpusError(f"{format_name}: totalOrder operands must be distinct")
+        for op in ("totalOrder", "totalOrderMag"):
+            cells = entry[op]
+            sign = {"<": -1, "=": 0, ">": 1}
+            at = lambda i, j: sign[cells[i * n + j]]
+            for i in range(n):
+                for j in range(n):
+                    if at(i, j) != -at(j, i):
+                        raise CorpusError(f"{format_name} {op}: not antisymmetric at {i}, {j}")
+                    if op == "totalOrder" and (at(i, j) == 0) != (i == j):
+                        raise CorpusError(f"{format_name} {op}: distinct operands compare equal at {i}, {j}")
+            for i in range(n):
+                for j in range(n):
+                    if at(i, j) > 0:
+                        continue
+                    for k in range(n):
+                        if at(j, k) <= 0 and at(i, k) > 0:
+                            raise CorpusError(f"{format_name} {op}: not transitive at {i}, {j}, {k}")
+    return generate_decimal_total_order.pair_count(fixture)
 
 
 def check_elementary_oracle() -> int:
@@ -651,6 +710,7 @@ def collect_corpus_checks() -> dict[str, Any]:
     declets = check_declets(FIXTURE_ROOT / manifest["exhaustive"]["path"])
     bridge = check_encoding_bridge()
     elementary = check_elementary_oracle()
+    total_order = check_total_order()
     return {
         "requiredOperations": required,
         "recommendedOperations": recommended,
@@ -662,6 +722,7 @@ def collect_corpus_checks() -> dict[str, Any]:
         "declets": declets,
         "encodingBridge": bridge,
         "elementaryOracle": elementary,
+        "totalOrderPairs": total_order,
     }
 
 
@@ -795,6 +856,7 @@ def _report(
         {"name": "DPD/BID bridge", "passedCases": checks["encodingBridge"], "totalCases": checks["encodingBridge"], "failedCases": 0},
         {"name": "static Oracle examples", "passedCases": checks["staticExamples"], "totalCases": checks["staticExamples"], "failedCases": 0},
         {"name": "certified elementary Oracle", "passedCases": checks["elementaryOracle"], "totalCases": checks["elementaryOracle"], "failedCases": 0},
+        {"name": "§5.10 totalOrder model", "passedCases": checks["totalOrderPairs"], "totalCases": checks["totalOrderPairs"], "failedCases": 0},
     ]
     rows.extend(
         {
@@ -873,6 +935,12 @@ def _print_report(report: dict[str, Any]) -> None:
                 "name": "certified elementary Oracle",
                 "passedCases": report["checks"]["elementaryOracle"],
                 "totalCases": report["checks"]["elementaryOracle"],
+                "failedCases": 0,
+            },
+            {
+                "name": "§5.10 totalOrder model",
+                "passedCases": report["checks"]["totalOrderPairs"],
+                "totalCases": report["checks"]["totalOrderPairs"],
                 "failedCases": 0,
             },
         ]

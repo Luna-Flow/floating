@@ -8103,6 +8103,7 @@ msgstr "ITF1788 cancellation フェーズ (242 ケース)"
 #: manual/conformance/decimal.md:54
 #: manual/conformance/decimal.md:55
 #: manual/conformance/decimal.md:56
+#: manual/conformance/decimal.md:57
 #: manual/conformance/decimal.md:58
 #: manual/conformance/decimal.md:60
 #: manual/conformance/decimal.md:64
@@ -8201,7 +8202,6 @@ msgstr "§10.6.4 拡張された区間比較"
 #: manual/conformance/bin_float.md:100
 #: manual/conformance/decimal.md:52
 #: manual/conformance/decimal.md:53
-#: manual/conformance/decimal.md:57
 msgid "partial"
 msgstr "部分準拠"
 
@@ -8877,6 +8877,10 @@ msgstr "§5.6, §5.11 比較（quiet と signaling）"
 #: manual/conformance/decimal.md:56
 msgid "§5.7 class, isCanonical, radix"
 msgstr "§5.7 class, isCanonical, radix"
+
+#: manual/conformance/decimal.md:57
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL · IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
+msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 の cohort、符号付きゼロ、非正規数、無限大、payload 付きの quiet と signaling NaN のすべての順序対（18,816 対）。期待値は §5.10 を逐条に書き写したモデルから求め、libmpdec と照合し、`DECIMAL · IEEE 754` ゲートで 4 ターゲットで実行します。NaN は payload の値の順で、負符号では逆順です（§5.10 d) 5) iii) により実装定義）；`src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:58
 msgid "§5.12 decimal character conversion (decimal to decimal)"
@@ -22142,6 +22146,7 @@ msgid "§5.7 class and sign predicates [required] (partial)"
 msgstr "§5.7 class と符号の述語 [必須] （部分準拠）"
 
 #: manual/verification.md:196
+#: manual/verification.md:229
 msgid "§5.10 totalOrder, totalOrderMag [required]"
 msgstr "§5.10 totalOrder, totalOrderMag [必須]"
 
@@ -22229,10 +22234,6 @@ msgstr "§5.6, §5.11 比較（quiet と signaling） [必須]"
 #: manual/verification.md:228
 msgid "§5.7 class, isCanonical, radix [required]"
 msgstr "§5.7 class, isCanonical, radix [必須]"
-
-#: manual/verification.md:229
-msgid "§5.10 totalOrder, totalOrderMag [required] (partial)"
-msgstr "§5.10 totalOrder, totalOrderMag [必須] （部分準拠）"
 
 #: manual/verification.md:230
 msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
@@ -22749,6 +22750,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "§5.10 totalOrder, totalOrderMag [required] (partial)"
+#~ msgstr "§5.10 totalOrder, totalOrderMag [必須] （部分準拠）"
 
 #~ msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
 #~ msgstr "`src/decimal_gda/` ホワイトボックステスト; decTest の subset 実行なし"

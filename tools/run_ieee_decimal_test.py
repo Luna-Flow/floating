@@ -39,6 +39,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
             "encodingBridge": 11,
             "staticExamples": 19,
             "elementaryOracle": 2784,
+            "totalOrderPairs": 18816,
         }
         targets = [{"target": "native", "totalCases": 2, "passedCases": 2, "failedCases": 0, "exitCode": 0}]
         with tempfile.TemporaryDirectory() as directory, patch.object(

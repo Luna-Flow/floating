@@ -8,6 +8,7 @@ notes live in this file.
 
 ### Verified
 
+- IEEE 754-2019 §5.10 totalOrder and totalOrderMag for `decimal` are checked against an independent corpus: a transcription of §5.10 cross-checked with libmpdec, every ordered pair of cohorts, signed zeros, subnormals, infinities and NaNs with payloads in decimal32/64/128 (18,816 pairs) on four targets ([#227](https://github.com/Luna-Flow/floating/issues/227)).
 - General Decimal Arithmetic Appendix A (subset arithmetic) is conforming: the `DECIMAL_GDA` gate runs the pinned subset corpus `dectest0.zip` (16,124/16,124 executable rows); the clause row and checklist now say so ([#228](https://github.com/Luna-Flow/floating/issues/228)).
 
 ## 0.10.2 - 2026-11-12

@@ -8103,6 +8103,7 @@ msgstr "ITF1788 抵消阶段 (242 个用例)"
 #: manual/conformance/decimal.md:54
 #: manual/conformance/decimal.md:55
 #: manual/conformance/decimal.md:56
+#: manual/conformance/decimal.md:57
 #: manual/conformance/decimal.md:58
 #: manual/conformance/decimal.md:60
 #: manual/conformance/decimal.md:64
@@ -8201,7 +8202,6 @@ msgstr "§10.6.4 扩展的区间比较"
 #: manual/conformance/bin_float.md:100
 #: manual/conformance/decimal.md:52
 #: manual/conformance/decimal.md:53
-#: manual/conformance/decimal.md:57
 msgid "partial"
 msgstr "部分符合"
 
@@ -8877,6 +8877,10 @@ msgstr "§5.6, §5.11 比较，quiet 与 signaling"
 #: manual/conformance/decimal.md:56
 msgid "§5.7 class, isCanonical, radix"
 msgstr "§5.7 class, isCanonical, radix"
+
+#: manual/conformance/decimal.md:57
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL · IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
+msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL · IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:58
 msgid "§5.12 decimal character conversion (decimal to decimal)"
@@ -22142,6 +22146,7 @@ msgid "§5.7 class and sign predicates [required] (partial)"
 msgstr "§5.7 class 与符号谓词 [必须] （部分符合）"
 
 #: manual/verification.md:196
+#: manual/verification.md:229
 msgid "§5.10 totalOrder, totalOrderMag [required]"
 msgstr "§5.10 totalOrder, totalOrderMag [必须]"
 
@@ -22229,10 +22234,6 @@ msgstr "§5.6, §5.11 比较，quiet 与 signaling [必须]"
 #: manual/verification.md:228
 msgid "§5.7 class, isCanonical, radix [required]"
 msgstr "§5.7 class, isCanonical, radix [必须]"
-
-#: manual/verification.md:229
-msgid "§5.10 totalOrder, totalOrderMag [required] (partial)"
-msgstr "§5.10 totalOrder, totalOrderMag [必须] （部分符合）"
 
 #: manual/verification.md:230
 msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
@@ -22749,6 +22750,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "§5.10 totalOrder, totalOrderMag [required] (partial)"
+#~ msgstr "§5.10 totalOrder, totalOrderMag [必须] （部分符合）"
 
 #~ msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
 #~ msgstr "`src/decimal_gda/` 白盒测试; 未运行 decTest 子集"
