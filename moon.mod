@@ -1,6 +1,6 @@
 name = "Luna-Flow/floating"
 
-version = "0.10.1"
+version = "0.10.2"
 
 readme = "README.md"
 
@@ -19,11 +19,11 @@ keywords = [
 description = "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 
 import {
-  "Luna-Flow/arithmetic@0.5.1",
+  "Luna-Flow/arithmetic@0.5.2",
   "Luna-Flow/luna-generic@0.4.0",
   "moonbitlang/x@0.5.7",
-  "Luna-Flow/type_theory@0.4.0",
-  "Luna-Flow/mare_mark@0.4.1",
+  "Luna-Flow/type_theory@0.4.1",
+  "Luna-Flow/mare_mark@0.4.2",
   "moonbitlang/async@0.22.9",
 }
 

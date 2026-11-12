@@ -14,7 +14,7 @@ enclosures are explicit values in every API rather than hidden global state.
 ## Install
 
 ```bash
-moon add Luna-Flow/floating@0.10.1
+moon add Luna-Flow/floating@0.10.2
 ```
 
 The module needs the MoonBit toolchain with `moonc` 0.10.20 or later (verified with `moon 0.1.20261104` and `moonc v0.10.20`; older 0.10 compilers ignore `#derive`). Import
