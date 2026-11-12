@@ -458,20 +458,22 @@ pub fn[F : Floating] is_zero(F) -> Bool
 // Errors
 
 // Types and methods
+#derive(Eq)
 pub(all) enum PartialOrder {
   Less
   Equal
   Greater
   Unordered
-} derive(Eq)
+}
 pub fn PartialOrder::equal(Self, Self) -> Bool
 pub fn PartialOrder::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum Sign {
   Negative
   Zero
   Positive
-} derive(Eq)
+}
 pub fn Sign::equal(Self, Self) -> Bool
 pub fn Sign::not_equal(Self, Self) -> Bool
 

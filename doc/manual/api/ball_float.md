@@ -1749,11 +1749,12 @@ pub fn BallContext::new(precision? : Int32, e_min? : Int32, e_max? : Int32) -> S
 pub fn BallContext::precision(Self) -> Int32
 pub fn BallContext::try_new(precision? : Int32, e_min? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 
+#derive(Eq)
 pub struct BallFlags {
   inexact : Bool
   overflow : Bool
   underflow : Bool
-} derive(Eq)
+}
 pub fn BallFlags::combine(Self, Self) -> Self
 pub fn BallFlags::equal(Self, Self) -> Bool
 pub fn BallFlags::inexact(Self) -> Bool
@@ -1762,9 +1763,10 @@ pub fn BallFlags::not_equal(Self, Self) -> Bool
 pub fn BallFlags::overflow(Self) -> Bool
 pub fn BallFlags::underflow(Self) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub struct BallFloat {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn BallFloat::abs(Self) -> Self
 pub fn BallFloat::acos_interval(Self) -> Self
 pub fn BallFloat::acosh_interval(Self) -> Self
@@ -1917,9 +1919,10 @@ pub impl Neg for BallFloat
 pub impl Show for BallFloat
 pub impl Sub for BallFloat
 
+#derive(Eq)
 pub struct BallFloatDecorated {
   // private fields
-} derive(Eq)
+}
 pub fn BallFloatDecorated::abs(Self) -> Self
 pub fn BallFloatDecorated::acos_interval(Self) -> Self
 pub fn BallFloatDecorated::acosh_interval(Self) -> Self
@@ -1995,13 +1998,14 @@ pub impl Mul for BallFloatDecorated
 pub impl Show for BallFloatDecorated
 pub impl Sub for BallFloatDecorated
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Decoration {
   Ill
   Trv
   Def
   Dac
   Com
-} derive(Eq, @debug.Debug)
+}
 pub fn Decoration::equal(Self, Self) -> Bool
 pub fn Decoration::not_equal(Self, Self) -> Bool
 pub fn Decoration::output(Self, &Logger) -> Unit
@@ -2009,6 +2013,7 @@ pub fn Decoration::to_repr(Self) -> @debug.Repr
 pub fn Decoration::to_string(Self) -> String
 pub impl Show for Decoration
 
+#derive(Eq, @debug.Debug)
 pub(all) enum OverlapState {
   Undefined
   BothEmpty
@@ -2027,7 +2032,7 @@ pub(all) enum OverlapState {
   StartedBy
   ContainsInterval
   FinishedBy
-} derive(Eq, @debug.Debug)
+}
 pub fn OverlapState::equal(Self, Self) -> Bool
 pub fn OverlapState::not_equal(Self, Self) -> Bool
 pub fn OverlapState::to_repr(Self) -> @debug.Repr

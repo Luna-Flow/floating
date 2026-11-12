@@ -367,9 +367,10 @@ pub struct Expr {
 pub fn Expr::invoke(Operation, Array[Self]) -> Self
 pub fn Expr::literal(Literal) -> Self
 
+#derive(Eq, @debug.Debug)
 pub struct Literal {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn Literal::equal(Self, Self) -> Bool
 pub fn Literal::new(String, span? : SourceSpan) -> Self
 pub fn Literal::not_equal(Self, Self) -> Bool
@@ -377,9 +378,10 @@ pub fn Literal::raw(Self) -> String
 pub fn Literal::span(Self) -> SourceSpan
 pub fn Literal::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub struct Operation {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn Operation::equal(Self, Self) -> Bool
 pub fn Operation::name(Self) -> String
 pub fn Operation::new(String, span? : SourceSpan) -> Self
@@ -387,9 +389,10 @@ pub fn Operation::not_equal(Self, Self) -> Bool
 pub fn Operation::span(Self) -> SourceSpan
 pub fn Operation::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub struct SourceSpan {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn SourceSpan::column(Self) -> Int32
 pub fn SourceSpan::equal(Self, Self) -> Bool
 pub fn SourceSpan::line(Self) -> Int32

@@ -2144,9 +2144,10 @@ pub fn to_integral_value(Decimal, GdaContext) -> GdaOutcome[Decimal]
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct Decimal {
   // private fields
-} derive(@debug.Debug)
+}
 pub fn Decimal::abs(Self) -> Self
 pub fn Decimal::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2338,9 +2339,10 @@ pub impl Neg for Decimal
 pub impl Show for Decimal
 pub impl Sub for Decimal
 
+#derive(Eq)
 pub struct DecimalContext {
   // private fields
-} derive(Eq)
+}
 pub fn DecimalContext::clamp(Self) -> Bool
 pub fn DecimalContext::decimal128() -> Self
 pub fn DecimalContext::decimal32() -> Self
@@ -2361,6 +2363,7 @@ pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.Round
 pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
+#derive(Eq)
 pub struct DecimalFlags {
   inexact : Bool
   rounded : Bool
@@ -2375,7 +2378,7 @@ pub struct DecimalFlags {
   division_impossible : Bool
   division_undefined : Bool
   invalid_context : Bool
-} derive(Eq)
+}
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
@@ -2383,6 +2386,7 @@ pub fn DecimalFlags::has_error(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum DecimalRoundingMode {
   HalfEven
   HalfUp
@@ -2392,12 +2396,13 @@ pub(all) enum DecimalRoundingMode {
   Floor
   Up
   ZeroFiveUp
-} derive(Eq)
+}
 pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 
+#derive(Eq)
 pub(all) enum DecimalSignal {
   ConversionSyntax
   DivisionByZero
@@ -2412,14 +2417,15 @@ pub(all) enum DecimalSignal {
   Rounded
   Clamped
   LostDigits
-} derive(Eq)
+}
 pub fn DecimalSignal::equal(Self, Self) -> Bool
 pub fn DecimalSignal::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum DecimalTininessDetection {
   BeforeRounding
   AfterRounding
-} derive(Eq)
+}
 pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
 pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
 
@@ -2447,6 +2453,7 @@ pub fn GdaContext::traps(Self) -> GdaTrapSet
 pub fn GdaContext::try_new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn GdaContext::with_traps(Self, GdaTrapSet) -> Self
 
+#derive(Eq)
 pub struct GdaFlags {
   conversion_syntax : Bool
   division_by_zero : Bool
@@ -2461,7 +2468,7 @@ pub struct GdaFlags {
   rounded : Bool
   clamped : Bool
   lost_digits : Bool
-} derive(Eq)
+}
 pub fn GdaFlags::combine(Self, Self) -> Self
 pub fn GdaFlags::contains(Self, GdaSignal) -> Bool
 pub fn GdaFlags::equal(Self, Self) -> Bool
@@ -2484,11 +2491,12 @@ pub fn GdaInterchange::to_decimal(Self) -> Decimal
 pub fn GdaInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
 pub fn GdaInterchange::to_hex(Self) -> String
 
+#derive(Eq)
 pub(all) enum GdaInterchangeFormat {
   Decimal32
   Decimal64
   Decimal128
-} derive(Eq)
+}
 pub fn GdaInterchangeFormat::context(Self) -> DecimalContext
 pub fn GdaInterchangeFormat::equal(Self, Self) -> Bool
 pub fn GdaInterchangeFormat::not_equal(Self, Self) -> Bool
@@ -2501,6 +2509,7 @@ pub fn[T] GdaOutcome::next_context(Self[T]) -> GdaContext
 pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 pub fn[T] GdaOutcome::value(Self[T]) -> T
 
+#derive(Eq)
 pub(all) enum GdaRoundingMode {
   HalfEven
   HalfUp
@@ -2510,10 +2519,11 @@ pub(all) enum GdaRoundingMode {
   Floor
   Up
   ZeroFiveUp
-} derive(Eq)
+}
 pub fn GdaRoundingMode::equal(Self, Self) -> Bool
 pub fn GdaRoundingMode::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum GdaSignal {
   ConversionSyntax
   DivisionByZero
@@ -2528,10 +2538,11 @@ pub(all) enum GdaSignal {
   Rounded
   Clamped
   LostDigits
-} derive(Eq)
+}
 pub fn GdaSignal::equal(Self, Self) -> Bool
 pub fn GdaSignal::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub struct GdaTrapSet {
   conversion_syntax : Bool
   division_by_zero : Bool
@@ -2546,7 +2557,7 @@ pub struct GdaTrapSet {
   rounded : Bool
   clamped : Bool
   lost_digits : Bool
-} derive(Eq)
+}
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
 pub fn GdaTrapSet::equal(Self, Self) -> Bool
 pub fn GdaTrapSet::none() -> Self

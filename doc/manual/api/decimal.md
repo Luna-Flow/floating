@@ -2033,9 +2033,10 @@ import {
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct Decimal {
   // private fields
-} derive(@debug.Debug)
+}
 pub fn Decimal::abs(Self) -> Self
 pub fn Decimal::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2277,9 +2278,10 @@ pub impl Neg for Decimal
 pub impl Show for Decimal
 pub impl Sub for Decimal
 
+#derive(Eq)
 pub struct DecimalContext {
   // private fields
-} derive(Eq)
+}
 pub fn DecimalContext::clamp(Self) -> Bool
 pub fn DecimalContext::decimal128() -> Self
 pub fn DecimalContext::decimal32() -> Self
@@ -2302,6 +2304,7 @@ pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.Round
 pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
+#derive(Eq)
 pub struct DecimalFlags {
   inexact : Bool
   rounded : Bool
@@ -2316,7 +2319,7 @@ pub struct DecimalFlags {
   division_impossible : Bool
   division_undefined : Bool
   invalid_context : Bool
-} derive(Eq)
+}
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
@@ -2343,22 +2346,25 @@ pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
 pub fn DecimalInterchange::to_hex(Self) -> String
 
+#derive(Eq)
 pub(all) enum DecimalInterchangeEncoding {
   DPD
   BID
-} derive(Eq)
+}
 pub fn DecimalInterchangeEncoding::equal(Self, Self) -> Bool
 pub fn DecimalInterchangeEncoding::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum DecimalInterchangeFormat {
   Decimal32
   Decimal64
   Decimal128
-} derive(Eq)
+}
 pub fn DecimalInterchangeFormat::context(Self) -> DecimalContext
 pub fn DecimalInterchangeFormat::equal(Self, Self) -> Bool
 pub fn DecimalInterchangeFormat::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum DecimalRoundingMode {
   HalfEven
   HalfUp
@@ -2368,12 +2374,13 @@ pub(all) enum DecimalRoundingMode {
   Floor
   Up
   ZeroFiveUp
-} derive(Eq)
+}
 pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 
+#derive(Eq)
 pub(all) enum DecimalSignal {
   ConversionSyntax
   DivisionByZero
@@ -2388,14 +2395,15 @@ pub(all) enum DecimalSignal {
   Rounded
   Clamped
   LostDigits
-} derive(Eq)
+}
 pub fn DecimalSignal::equal(Self, Self) -> Bool
 pub fn DecimalSignal::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum DecimalTininessDetection {
   BeforeRounding
   AfterRounding
-} derive(Eq)
+}
 pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
 pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
 

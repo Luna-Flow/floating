@@ -430,9 +430,10 @@ pub fn CaseResult::id(Self) -> String
 pub fn CaseResult::message(Self) -> String
 pub fn CaseResult::passed(Self) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub struct ParseDiagnostic {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::line(Self) -> Int32
 pub fn ParseDiagnostic::message(Self) -> String
@@ -471,6 +472,7 @@ pub fn TestFloatDocument::cases(Self) -> Array[TestFloatCase]
 pub fn TestFloatDocument::source(Self) -> String
 pub fn TestFloatDocument::spec(Self) -> TestFloatSpec
 
+#derive(Eq, @debug.Debug)
 pub(all) enum TestFloatOperation {
   Add
   Subtract
@@ -490,14 +492,15 @@ pub(all) enum TestFloatOperation {
   EqualSignaling
   LessEqualQuiet
   LessQuiet
-} derive(Eq, @debug.Debug)
+}
 pub fn TestFloatOperation::equal(Self, Self) -> Bool
 pub fn TestFloatOperation::not_equal(Self, Self) -> Bool
 pub fn TestFloatOperation::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub struct TestFloatSpec {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn TestFloatSpec::equal(Self, Self) -> Bool
 pub fn TestFloatSpec::exact(Self) -> Bool
 pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
