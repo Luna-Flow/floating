@@ -38,7 +38,7 @@ import {
 }
 ```
 
-The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). It
+The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). It
 depends on `Luna-Flow/arithmetic` (rounding modes, contexts, checked and
 contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add
 `Luna-Flow/arithmetic` yourself when you name its types.

@@ -29,7 +29,7 @@ trait design, and test coverage are especially valuable.
   ```
 
 - Run `moon fmt` before committing to keep the repository consistent.
-- The repository targets the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10)
+- The repository targets the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20)
   and builds with `--deny-warn`. Promote a trait-implementation method to
   dot syntax explicitly with `pub extend`; implicit promotion is deprecated.
 - Prefer `using`-imported names over repeated fully-qualified package references when the imported names are used repeatedly in a file.

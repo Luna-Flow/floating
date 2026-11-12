@@ -31,7 +31,7 @@ package.
 
 ## Install and import
 
-You need the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Add the module,
+You need the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Add the module,
 and `Luna-Flow/arithmetic` if you name its rounding modes or contexts
 yourself:
 
