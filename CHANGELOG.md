@@ -6,6 +6,13 @@ notes live in this file.
 
 ## Unreleased
 
+### Changed
+
+- Require MoonBit `moonc` 0.10.20 or later, verified with `moon 0.1.20261104` and `moonc v0.10.20`: `derive(...)` clauses are now `#derive(...)` attributes, which older 0.10 compilers ignore. No public API changed.
+- Replace the deprecated `String::view(start_offset~, end_offset~)` with `exact_view(start~, end~)`, which keeps the same bounds check.
+- Bump `moonbitlang/async` from 0.22.5 to 0.22.9. It has no wasm-gc runtime ([moonbitlang/core#4584](https://github.com/moonbitlang/core/issues/4584)), so the skipped `async test` benchmarks in `bench/*` now live in files built only for native, JS and wasm instead of relying on the old pin.
+- Sync the API snapshots in `doc/manual/api` with the regenerated interfaces.
+
 ## 0.10.1 - 2026-10-31
 
 - Documentation: the known-limitations list of the `ball_float` design page and the known-gaps table no longer claim that decorated `rootn` with a negative degree keeps its decoration when 0 is in the argument. The decoration has been lowered to `trv` since the pole fix (`e008dd1`), and `src/ball_float/ball_float_decorated_wbtest.mbt` checks it; issue [#233](https://github.com/Luna-Flow/floating/issues/233) was opened from the stale text and is closed.

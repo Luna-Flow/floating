@@ -15547,8 +15547,8 @@ msgid "Install and import"
 msgstr "安装与导入"
 
 #: manual/getting_started.md:34
-msgid "You need the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Add the module, and `Luna-Flow/arithmetic` if you name its rounding modes or contexts yourself:"
-msgstr "你需要 MoonBit 工具链 0.10 或更高版本（`moonc` ≥ 0.10）。添加本模块；如果你要直接使用 `Luna-Flow/arithmetic` 的舍入模式或上下文，也一并添加它："
+msgid "You need the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Add the module, and `Luna-Flow/arithmetic` if you name its rounding modes or contexts yourself:"
+msgstr "你需要 MoonBit 工具链 0.10.20 或更高版本（`moonc` ≥ 0.10.20）。添加本模块；如果你要直接使用 `Luna-Flow/arithmetic` 的舍入模式或上下文，也一并添加它："
 
 #: manual/getting_started.md:43
 msgid "[!NOTE] The manual describes the current branch. Operations listed under \"Unreleased\" in the changelog (for example `BinFloat::fma_ctx`, `remainder_ctx`, `next_up_ctx` and decimal string formatting) are not in a published release yet."
@@ -15711,8 +15711,8 @@ msgid "Then import the packages you need in your `moon.pkg`:"
 msgstr "然后在 `moon.pkg` 中导入所需的包："
 
 #: manual/index.md:41
-msgid "The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). It depends on `Luna-Flow/arithmetic` (rounding modes, contexts, checked and contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add `Luna-Flow/arithmetic` yourself when you name its types. [Getting started](getting_started.md) walks through the first program."
-msgstr "本模块需要 MoonBit 工具链 0.10 或更高版本（`moonc` ≥ 0.10）。它依赖 `Luna-Flow/arithmetic`（舍入模式、上下文、checked 与 contextual trait）和 `Luna-Flow/luna-generic`（代数 trait）；当你直接使用 `Luna-Flow/arithmetic` 的类型时，需要自行添加它。[快速上手](getting_started.md)将带你完成第一个程序。"
+msgid "The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). It depends on `Luna-Flow/arithmetic` (rounding modes, contexts, checked and contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add `Luna-Flow/arithmetic` yourself when you name its types. [Getting started](getting_started.md) walks through the first program."
+msgstr "本模块需要 MoonBit 工具链 0.10.20 或更高版本（`moonc` ≥ 0.10.20）。它依赖 `Luna-Flow/arithmetic`（舍入模式、上下文、checked 与 contextual trait）和 `Luna-Flow/luna-generic`（代数 trait）；当你直接使用 `Luna-Flow/arithmetic` 的类型时，需要自行添加它。[快速上手](getting_started.md)将带你完成第一个程序。"
 
 #: manual/index.md:47
 msgid "Pages"

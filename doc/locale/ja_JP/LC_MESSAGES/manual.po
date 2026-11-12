@@ -15547,8 +15547,8 @@ msgid "Install and import"
 msgstr "インストールとインポート"
 
 #: manual/getting_started.md:34
-msgid "You need the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Add the module, and `Luna-Flow/arithmetic` if you name its rounding modes or contexts yourself:"
-msgstr "MoonBit ツールチェーン 0.10 以降（`moonc` ≥ 0.10）が必要です。モジュールを追加し、丸めモードやコンテキストを自分で名指しする場合は `Luna-Flow/arithmetic` も追加します。"
+msgid "You need the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Add the module, and `Luna-Flow/arithmetic` if you name its rounding modes or contexts yourself:"
+msgstr "MoonBit ツールチェーン 0.10.20 以降（`moonc` ≥ 0.10.20）が必要です。モジュールを追加し、丸めモードやコンテキストを自分で名指しする場合は `Luna-Flow/arithmetic` も追加します。"
 
 #: manual/getting_started.md:43
 msgid "[!NOTE] The manual describes the current branch. Operations listed under \"Unreleased\" in the changelog (for example `BinFloat::fma_ctx`, `remainder_ctx`, `next_up_ctx` and decimal string formatting) are not in a published release yet."
@@ -15711,8 +15711,8 @@ msgid "Then import the packages you need in your `moon.pkg`:"
 msgstr "次に、`moon.pkg` で必要なパッケージをインポートします："
 
 #: manual/index.md:41
-msgid "The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). It depends on `Luna-Flow/arithmetic` (rounding modes, contexts, checked and contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add `Luna-Flow/arithmetic` yourself when you name its types. [Getting started](getting_started.md) walks through the first program."
-msgstr "このモジュールには MoonBit ツールチェーン 0.10 以降（`moonc` ≥ 0.10）が必要です。`Luna-Flow/arithmetic`（丸めモード、コンテキスト、checked およびコンテキスト付きトレイト）と `Luna-Flow/luna-generic`（代数的トレイト）に依存しています。`Luna-Flow/arithmetic` の型を名指しする場合は、自分でそれを追加してください。[はじめに](getting_started.md)では最初のプログラムを順を追って説明しています。"
+msgid "The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). It depends on `Luna-Flow/arithmetic` (rounding modes, contexts, checked and contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add `Luna-Flow/arithmetic` yourself when you name its types. [Getting started](getting_started.md) walks through the first program."
+msgstr "このモジュールには MoonBit ツールチェーン 0.10.20 以降（`moonc` ≥ 0.10.20）が必要です。`Luna-Flow/arithmetic`（丸めモード、コンテキスト、checked およびコンテキスト付きトレイト）と `Luna-Flow/luna-generic`（代数的トレイト）に依存しています。`Luna-Flow/arithmetic` の型を名指しする場合は、自分でそれを追加してください。[はじめに](getting_started.md)では最初のプログラムを順を追って説明しています。"
 
 #: manual/index.md:47
 msgid "Pages"
