@@ -24,7 +24,7 @@ import {
   "moonbitlang/x@0.5.7",
   "Luna-Flow/type_theory@0.4.0",
   "Luna-Flow/mare_mark@0.4.1",
-  "moonbitlang/async@0.22.5",
+  "moonbitlang/async@0.22.9",
 }
 
 source = "src"
