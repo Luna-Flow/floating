@@ -1,22 +1,26 @@
 ///|
+#derive(Eq)
 pub struct ExactRational {
   priv inner : @internal.ExactRat
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum SemanticScalar {
   Rational(ExactRational)
   Infinity(Sign)
   NaN
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub struct SemanticInterval {
   lower : SemanticScalar
   upper : SemanticScalar
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum SemanticError {
   DivisionByZero
   ParseError
@@ -25,13 +29,14 @@ pub(all) enum SemanticError {
   UnsupportedOperation
   UnorderedComparison
   CertificationFailure
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum SemanticResult[T] {
   Value(T)
   Error(SemanticError)
-} derive(Eq)
+}
 
 ///|
 fn pow_bigint(base : Int32, exponent : Int32) -> BigInt {

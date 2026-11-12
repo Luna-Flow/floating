@@ -1,4 +1,5 @@
 ///|
+#derive(Eq)
 #warnings("-unused_value")
 priv enum GdaCoeffMulAlgorithm {
   Inline
@@ -8,7 +9,7 @@ priv enum GdaCoeffMulAlgorithm {
   Karatsuba
   Toom3
   Ntt
-} derive(Eq)
+}
 
 ///|
 priv struct GdaCoeffSignedScratch {

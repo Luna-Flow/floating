@@ -1,19 +1,21 @@
 ///|
 
 ///|
+#derive(Eq)
 pub(all) enum Sign {
   Negative
   Zero
   Positive
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum PartialOrder {
   Less
   Equal
   Greater
   Unordered
-} derive(Eq)
+}
 
 ///|
 pub(open) trait Floating {

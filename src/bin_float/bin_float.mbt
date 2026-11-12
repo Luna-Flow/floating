@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 pub struct BinFloat {
   priv class : FpClass
   priv negative : Bool
@@ -7,7 +8,7 @@ pub struct BinFloat {
   priv precision_ : Int32
   priv signaling_nan : Bool
   priv nan_payload : BinCoeff
-} derive(Eq, Debug)
+}
 
 ///|
 fn finite_zero(negative : Bool, precision : Int32) -> BinFloat {

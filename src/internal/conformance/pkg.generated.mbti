@@ -10,19 +10,21 @@ import {
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) enum CaseDisposition {
   Executable
   Diagnostic(String)
   Legacy(String)
   Unsupported(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn CaseDisposition::equal(Self, Self) -> Bool
 pub fn CaseDisposition::not_equal(Self, Self) -> Bool
 pub fn CaseDisposition::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub struct CaseResult {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn CaseResult::disposition(Self) -> CaseDisposition
 pub fn CaseResult::equal(Self, Self) -> Bool
 pub fn CaseResult::executable(String, Bool, message? : String) -> Self
@@ -33,9 +35,10 @@ pub fn CaseResult::not_equal(Self, Self) -> Bool
 pub fn CaseResult::passed(Self) -> Bool
 pub fn CaseResult::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub struct RunSummary {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn RunSummary::diagnostic_cases(Self) -> Int32
 pub fn RunSummary::equal(Self, Self) -> Bool
 pub fn RunSummary::executable_cases(Self) -> Int32
@@ -53,9 +56,10 @@ pub fn RunSummary::to_repr(Self) -> @debug.Repr
 pub fn RunSummary::total_cases(Self) -> Int32
 pub fn RunSummary::unsupported_cases(Self) -> Int32
 
+#derive(Eq, @debug.Debug)
 pub struct ShardSpec {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn ShardSpec::count(Self) -> Int32
 pub fn ShardSpec::equal(Self, Self) -> Bool
 pub fn ShardSpec::index(Self) -> Int32
@@ -65,9 +69,10 @@ pub fn ShardSpec::selects(Self, Int32) -> Bool
 pub fn ShardSpec::to_repr(Self) -> @debug.Repr
 pub fn ShardSpec::try_new(Int32, Int32) -> Result[Self, String]
 
+#derive(Eq, @debug.Debug)
 pub struct SourceLocation {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn SourceLocation::column(Self) -> Int32
 pub fn SourceLocation::equal(Self, Self) -> Bool
 pub fn SourceLocation::line(Self) -> Int32

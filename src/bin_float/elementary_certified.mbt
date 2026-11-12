@@ -3125,11 +3125,12 @@ pub fn BinFloat::tanh(self : BinFloat) -> BinFloat {
 }
 
 ///|
+#derive(Eq)
 priv enum BinaryInverseHyperbolicOperation {
   Asinh
   Acosh
   Atanh
-} derive(Eq)
+}
 
 ///|
 fn BinaryInverseHyperbolicOperation::name(
@@ -4378,11 +4379,12 @@ pub fn BinFloat::atan2(self : BinFloat, abscissa : BinFloat) -> BinFloat {
 }
 
 ///|
+#derive(Eq)
 priv enum BinaryTrigonometricOperation {
   Sin
   Cos
   Tan
-} derive(Eq)
+}
 
 ///|
 fn BinaryTrigonometricOperation::name(

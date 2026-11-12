@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 pub struct GdaContext {
   priv precision : Int32
   priv rounding : String
@@ -7,7 +8,7 @@ pub struct GdaContext {
   priv clamp : Bool
   priv extended : Bool
   priv dectest : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn GdaContext::default() -> GdaContext {
@@ -137,10 +138,11 @@ pub fn GdaDocument::case_count(self : GdaDocument) -> Int32 {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct ParseDiagnostic {
   priv span : @numeric_expr.SourceSpan
   priv message : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ParseDiagnostic::span(
@@ -222,11 +224,12 @@ fn case_result(
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct RunOptions {
   priv shard : @conformance.ShardSpec
   priv strict_supported : Bool
   priv case_filter : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn RunOptions::new(

@@ -1,4 +1,5 @@
 ///|
+#derive(Eq)
 priv enum DecimalUnaryElementary {
   Exp2
   Exp10
@@ -21,7 +22,7 @@ priv enum DecimalUnaryElementary {
   Acosh
   Atanh
   Rootn(Int32)
-} derive(Eq)
+}
 
 ///|
 fn DecimalUnaryElementary::name(self : DecimalUnaryElementary) -> String {

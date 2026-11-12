@@ -1,8 +1,9 @@
 ///|
+#derive(Eq)
 priv struct SignedBinCoeff {
   negative : Bool
   magnitude : @bin_float.BinCoeff
-} derive(Eq)
+}
 
 ///|
 fn coeff_one() -> @bin_float.BinCoeff {

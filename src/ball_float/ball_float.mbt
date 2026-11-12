@@ -1,12 +1,14 @@
 ///|
+#derive(Eq, Debug)
 pub struct BallFloat {
   priv lo_ : @bin_float.BinFloat
   priv hi_ : @bin_float.BinFloat
   priv precision_ : Int32
   priv empty_ : Bool
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum OverlapState {
   Undefined
   BothEmpty
@@ -25,7 +27,7 @@ pub(all) enum OverlapState {
   StartedBy
   ContainsInterval
   FinishedBy
-} derive(Eq, Debug)
+}
 
 ///|
 fn neg_inf(precision : Int32) -> @bin_float.BinFloat {

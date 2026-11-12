@@ -210,9 +210,9 @@ pub fn BinFloat::to_decimal_string_ctx(
   let mantissa = if digits == 1 {
     padded
   } else {
-    padded.view(end_offset=1).to_owned() +
+    padded.exact_view(end=1).to_owned() +
     "." +
-    padded.view(start_offset=1).to_owned()
+    padded.exact_view(start=1).to_owned()
   }
   let exponent_text = (if exponent < 0 { "-" } else { "+" }) +
     exponent.abs().to_string()
@@ -313,7 +313,7 @@ fn binary_shortest_digits(
   while end > 1 && text.unsafe_get(end - 1) == '0' {
     end -= 1
   }
-  (text.view(end_offset=end).to_owned(), exponent)
+  (text.exact_view(end~).to_owned(), exponent)
 }
 
 ///|
@@ -344,9 +344,9 @@ pub fn BinFloat::to_shortest_string_ctx(
     if exponent >= count - 1 {
       digits + "0".repeat(exponent - count + 1)
     } else if exponent >= 0 {
-      digits.view(end_offset=exponent + 1).to_owned() +
+      digits.exact_view(end=exponent + 1).to_owned() +
       "." +
-      digits.view(start_offset=exponent + 1).to_owned()
+      digits.exact_view(start=exponent + 1).to_owned()
     } else {
       "0." + "0".repeat(-exponent - 1) + digits
     }
@@ -354,9 +354,9 @@ pub fn BinFloat::to_shortest_string_ctx(
     let mantissa = if count == 1 {
       digits
     } else {
-      digits.view(end_offset=1).to_owned() +
+      digits.exact_view(end=1).to_owned() +
       "." +
-      digits.view(start_offset=1).to_owned()
+      digits.exact_view(start=1).to_owned()
     }
     mantissa +
     "e" +

@@ -1,4 +1,5 @@
 ///|
+#derive(Eq)
 #warnings("-unused_value")
 priv enum DecCoeffMulAlgorithm {
   Inline
@@ -8,7 +9,7 @@ priv enum DecCoeffMulAlgorithm {
   Karatsuba
   Toom3
   Ntt
-} derive(Eq)
+}
 
 ///|
 priv struct DecCoeffSignedScratch {

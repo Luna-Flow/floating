@@ -2,6 +2,7 @@
 // Decimal public types and context/flag helpers.
 
 ///|
+#derive(Debug)
 pub struct Decimal {
   priv class : FpClass
   priv negative : Bool
@@ -9,11 +10,12 @@ pub struct Decimal {
   priv exponent10 : Int32
   priv precision_ : Int32
   priv signaling_nan : Bool
-} derive(Debug)
+}
 
 ///|
 
 ///|
+#derive(Eq)
 pub(all) enum DecimalRoundingMode {
   HalfEven
   HalfUp
@@ -23,15 +25,17 @@ pub(all) enum DecimalRoundingMode {
   Floor
   Up
   ZeroFiveUp
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum DecimalTininessDetection {
   BeforeRounding
   AfterRounding
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum DecimalSignal {
   ConversionSyntax
   DivisionByZero
@@ -46,14 +50,15 @@ pub(all) enum DecimalSignal {
   Rounded
   Clamped
   LostDigits
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum GdaInterchangeFormat {
   Decimal32
   Decimal64
   Decimal128
-} derive(Eq)
+}
 
 ///|
 pub struct GdaInterchange {
@@ -62,6 +67,7 @@ pub struct GdaInterchange {
 }
 
 ///|
+#derive(Eq)
 pub struct DecimalContext {
   priv precision : Int32
   priv rounding : RoundingMode
@@ -71,9 +77,10 @@ pub struct DecimalContext {
   priv clamp : Bool
   priv extended : Bool
   priv tininess : DecimalTininessDetection
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub struct DecimalFlags {
   inexact : Bool
   rounded : Bool
@@ -88,7 +95,7 @@ pub struct DecimalFlags {
   division_impossible : Bool
   division_undefined : Bool
   invalid_context : Bool
-} derive(Eq)
+}
 
 ///|
 priv struct DecimalMathConstantCache {
