@@ -6,6 +6,10 @@ notes live in this file.
 
 ## Unreleased
 
+### Fixed
+
+- `BinFloat::from_hex` reads the whole IEEE 754-2019 §5.12.3 hexSequence grammar: a hexadecimal significand with a point (`0x1.8p0`, `0x.8p1`, `0x1.p0`) was rejected before, the exponent is read as decimal digits only, and `snan` in any case (§5.12.1) gives a signaling NaN. Every production has accepting and rejecting tests and a round trip; the signature is unchanged. The missing rounding direction and flags are tracked in [#256](https://github.com/Luna-Flow/floating/issues/256) ([#225](https://github.com/Luna-Flow/floating/issues/225)).
+
 ### Verified
 
 - IEEE 1788-2015 §12.10: the `ball_float` conformance page documents the tightness of every interval operation with its range and evidence (§12.10.3). The ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result, so the arithmetic, `abs`/`minimum`/`maximum`, `pown`, trigonometric, `atan2` and power phases are tightness evidence; the page said containment before. The forward-operation row is now partial, because the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)) ([#229](https://github.com/Luna-Flow/floating/issues/229)).

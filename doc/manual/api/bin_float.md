@@ -1235,12 +1235,17 @@ pub fn BinFloat::from_hex(String, Int) -> Result[Self, @arithmetic.ArithmeticErr
 pub fn BinFloat::to_hex(Self) -> String
 ```
 
-The syntax is `[+-]0x<hexdigits>p<decimal exponent>` and means the integer
-coefficient times $2^{\text{exponent}}$: `0x3p-1` is $1.5$. There is no
-hexadecimal point, so C-style `0x1.8p0` is a `parse_error`. `from_hex(s, p)`
-rounds to precision `p` with nearest-even and also accepts `nan`, `inf` and
-`infinity` with a sign. `to_hex` prints the stored coefficient in lower case,
-`0x0p0` or `-0x0p0` for a zero, and `nan`/`inf` with a sign.
+The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `0x`
+or `0X`, hexadecimal digits with at most one point (`1.8`, `.8` or `1.`), and a
+required `p` or `P` exponent with an optional sign and decimal digits. The
+value is the hexadecimal significand times $2^{\text{exponent}}$, so `0x3p-1`
+and `0x1.8p0` are both $1.5$. `from_hex(s, p)` rounds once to precision `p`
+with nearest-even and reports no flags
+([#256](https://github.com/Luna-Flow/floating/issues/256)). It also accepts
+`inf`, `infinity`, `nan` and `snan` in any case with an optional sign
+(§5.12.1); `snan` gives a signaling NaN. Surrounding whitespace is trimmed;
+any other text is a `parse_error`. `to_hex` prints the stored coefficient in
+lower case, `0x0p0` or `-0x0p0` for a zero, and `nan`/`inf` with a sign.
 
 ```moonbit
 ///|

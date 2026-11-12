@@ -379,8 +379,9 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
   already rounded. Parse decimal text with `from_string`.
 - **`to_string` is not decimal.** It prints `3602879701896397p-55`. Use
   `to_shortest_string` or `to_decimal_string_ctx` for people.
-- **`from_hex` has no hexadecimal point.** `0x3p-1` means $3 \cdot 2^{-1}$;
-  `0x1.8p0` is rejected.
+- **`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and
+  `0x3p-1` are both $1.5$, but `0x1.8` is rejected, and an inexact conversion
+  looks like an exact one; use `from_string_ctx` when the flags matter.
 - **`with_precision` hides flags.** Use `round_ctx` when you need to know that
   narrowing was inexact or overflowed.
 - **The sign of a zero is an input.** IEEE 754 special cases read it:
