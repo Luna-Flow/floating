@@ -5558,6 +5558,7 @@ msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(
 
 #: manual/api/decimal_gda_checked.md:183
 #: manual/api/frontend/itl_expr.md:115
+#: manual/conformance/ball_float.md:42
 msgid "Operations"
 msgstr "运算"
 
@@ -7581,6 +7582,7 @@ msgstr "共享辅助函数、汇总、分片、文件、JSON 与文本输出、�
 
 #: manual/architecture.md:22
 #: manual/conformance/ball_float.md:11
+#: manual/conformance/ball_float.md:42
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:15
@@ -8047,8 +8049,8 @@ msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, ge
 msgstr "ITF1788 阶段：add/sub/mul/div 539, 初等核心 107, exp/log 131, 一般幂 1,428, 三角函数 176, `atan2` 375, 双曲函数 107, 反三角函数 61, FMA 567, 整数幂 174"
 
 #: manual/conformance/ball_float.md:15
-msgid "conforming (valid enclosures; tightness is not promised, see [Implementation-defined choices](../verification.md#implementation-defined-choices))"
-msgstr "符合 （有效包络；不承诺紧致性，参见 [由实现定义的选择](../verification.md#implementation-defined-choices))"
+msgid "partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations)"
+msgstr "部分符合：未提供表 9.1 中的整数函数（[#257](https://github.com/Luna-Flow/floating/issues/257)）；各运算的紧性见[运算精度](#accuracy-of-operations)"
 
 #: manual/conformance/ball_float.md:16
 msgid "§10.5.4 reverse-mode elementary functions"
@@ -8226,16 +8228,16 @@ msgid "§12.10 accuracy of operations"
 msgstr "§12.10 运算的精度"
 
 #: manual/conformance/ball_float.md:27
-msgid "all `*_interval` operations"
-msgstr "所有 `*_interval` 运算"
+msgid "every interval operation"
+msgstr "所有区间运算"
 
 #: manual/conformance/ball_float.md:27
-msgid "ITF1788 strict gate checks containment, not tightness"
-msgstr "ITF1788 严格门禁检查包含性，而非紧致性"
+msgid "[Accuracy of operations](#accuracy-of-operations): tightness and range per operation; the ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result"
+msgstr "[运算精度](#accuracy-of-operations)：逐个运算给出紧性和适用范围；ITF1788 strict 门禁将两个端点与语料给出的 binary64 最紧结果逐一比较"
 
 #: manual/conformance/ball_float.md:27
-msgid "valid accuracy only; no tightest-result claim beyond the arithmetic operations"
-msgstr "仅有效精度；除算术运算外不声称最紧结果"
+msgid "conforming for the provided operations"
+msgstr "对已提供的运算符合"
 
 #: manual/conformance/ball_float.md:28
 msgid "§12.6 754-conformance of the interval types"
@@ -8254,38 +8256,147 @@ msgid "not implemented (no Level 2 754-conformance claim)"
 msgstr "未实现（不声称 Level 2 的 754 符合性）"
 
 #: manual/conformance/ball_float.md:30
+msgid "Accuracy of operations"
+msgstr "运算精度"
+
+#: manual/conformance/ball_float.md:32
+msgid "This is the tightness documentation that §12.10.3 requires, for the inf-sup type with `p`-bit `BinFloat` endpoints and the binary64 exponent range (`BallContext::new(p)`; `p = 53` is the binary64 inf-sup type of the ITF1788 corpus). *Tightest* means the result is the hull of the exact range in that type (§12.10.1, (27)); *valid* means it contains the exact range ((26)). No operation claims the intermediate *accurate* mode. Every operation returns Empty for an Empty input. The ITF1788 phases cited below compare both endpoints for equality with the corpus's tightest binary64 result, so a passing phase is tightness evidence for every case it runs, not only containment."
+msgstr "这是 §12.10.3 要求的紧性说明，针对端点为 `p` 位 `BinFloat`、指数范围为 binary64 的 inf-sup 类型（`BallContext::new(p)`；`p = 53` 即 ITF1788 语料所用的 binary64 inf-sup 类型）。*最紧*（tightest）指结果等于该类型下精确值域的 hull（§12.10.1，式 (27)）；*有效*（valid）指结果包含精确值域（式 (26)）。没有运算声称达到中间的 *accurate* 模式。对 Empty 输入，所有运算都返回 Empty。下文引用的 ITF1788 阶段会把两个端点与语料给出的 binary64 最紧结果做相等比较，因此一个通过的阶段对其运行的每个用例都是紧性证据，而不只是包含关系的证据。"
+
+#: manual/conformance/ball_float.md:42
+msgid "Tightness"
+msgstr "紧性"
+
+#: manual/conformance/ball_float.md:42
+msgid "Range"
+msgstr "范围"
+
+#: manual/conformance/ball_float.md:44
+#: manual/conformance/ball_float.md:45
+#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:47
+msgid "tightest"
+msgstr "最紧"
+
+#: manual/conformance/ball_float.md:44
+#: manual/conformance/ball_float.md:45
+#: manual/conformance/ball_float.md:47
+#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:53
+msgid "all inputs"
+msgstr "所有输入"
+
+#: manual/conformance/ball_float.md:44
+msgid "outward rounding of the exact hull ([design](../design/ball_float.md#correctness-and-invariants)); ITF1788 add/sub/mul/div (539), elementary core (107), FMA (567)"
+msgstr "精确 hull 的向外舍入（[设计](../design/ball_float.md#correctness-and-invariants)）；ITF1788 add/sub/mul/div（539）、elementary core（107）、FMA（567）"
+
+#: manual/conformance/ball_float.md:45
+msgid "design; ITF1788 elementary core and extrema"
+msgstr "设计；ITF1788 elementary core 和 extrema"
+
+#: manual/conformance/ball_float.md:46
+msgid "all inputs except a degree below −4096 with 0 inside the input, which gives Entire (valid)"
+msgstr "除指数低于 −4096 且输入包含 0 的情形外的所有输入；该情形返回 Entire（有效）"
+
+#: manual/conformance/ball_float.md:46
+msgid "design; ITF1788 integer power (174)"
+msgstr "设计；ITF1788 integer power（174）"
+
+#: manual/conformance/ball_float.md:47
+msgid "ITF1788 sets"
+msgstr "ITF1788 sets"
+
+#: manual/conformance/ball_float.md:48
+msgid "as §12.12.5 requires"
+msgstr "按 §12.12.5 的要求"
+
+#: manual/conformance/ball_float.md:48
+msgid "ITF1788 cancellation (242)"
+msgstr "ITF1788 cancellation（242）"
+
+#: manual/conformance/ball_float.md:49
+msgid "tightest when the endpoint evaluation is certified; valid otherwise"
+msgstr "端点求值通过认证时为最紧；否则为有效"
+
+#: manual/conformance/ball_float.md:49
+msgid "certified unless an endpoint magnitude reaches 2^(max(65536, 4p)+1) (trigonometric reduction) or the refinement budget of 12 work precisions runs out; then `sin`/`cos` give [−1, 1], `tan` Entire, `atan2` [−π, π], `pow` the composed formula, and the `try_*` forms report the failure"
+msgstr "除非端点绝对值达到 2^(max(65536, 4p)+1)（三角约化）或 12 个工作精度的精化预算用尽，否则都能认证；此时 `sin`/`cos` 返回 [−1, 1]，`tan` 返回 Entire，`atan2` 返回 [−π, π]，`pow` 使用组合公式，而 `try_*` 形式会报告失败"
+
+#: manual/conformance/ball_float.md:49
+msgid "design; ITF1788 trigonometric (176), `atan2` (375), general power (1,428), inverse trigonometric (61)"
+msgstr "设计；ITF1788 trigonometric（176）、`atan2`（375）、general power（1,428）、inverse trigonometric（61）"
+
+#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:51
+msgid "valid; tightest on every ITF1788 case"
+msgstr "有效；在每个 ITF1788 用例上均为最紧"
+
+#: manual/conformance/ball_float.md:50
+msgid "guard bits keep the endpoints almost always tight (design); ITF1788 exponential/logarithmic (131), inverse trigonometric (61)"
+msgstr "保护位使端点几乎总是最紧（设计）；ITF1788 exponential/logarithmic（131）、inverse trigonometric（61）"
+
+#: manual/conformance/ball_float.md:51
+msgid "not tight for inputs near 0 with \\|ξ\\| ≲ 2^−190 in `sinh`, `tanh`, `asinh`, `atanh` (cancellation in the defining formulas)"
+msgstr "`sinh`、`tanh`、`asinh`、`atanh` 在 0 附近 |ξ| ≲ 2^−190 的输入上不紧（定义公式中的相消）"
+
+#: manual/conformance/ball_float.md:51
+msgid "design; ITF1788 hyperbolic (107)"
+msgstr "设计；ITF1788 hyperbolic（107）"
+
+#: manual/conformance/ball_float.md:52
+msgid "tightest when certified; valid otherwise"
+msgstr "通过认证时为最紧；否则为有效"
+
+#: manual/conformance/ball_float.md:52
+msgid "as for the certified functions above; `expm1` falls back to [−1, +∞)"
+msgstr "与上面的认证函数相同；`expm1` 回退为 [−1, +∞)"
+
+#: manual/conformance/ball_float.md:52
+msgid "design; package tests only, no ITF1788 cases"
+msgstr "设计；仅有包内测试，没有 ITF1788 用例"
+
+#: manual/conformance/ball_float.md:53
+msgid "valid"
+msgstr "有效"
+
+#: manual/conformance/ball_float.md:53
+msgid "design (composed formula); package tests only"
+msgstr "设计（组合公式）；仅有包内测试"
+
+#: manual/conformance/ball_float.md:55
 msgid "Semantic oracle"
 msgstr "语义预言机"
 
-#: manual/conformance/ball_float.md:32
+#: manual/conformance/ball_float.md:57
 msgid "Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid."
 msgstr "预期结果按集合意义比较：端点包含、集合关系、布尔关系、overlap state、数值观察和 decoration 分别使用操作专用比较器。合同允许放宽时，更宽区间可以正确；排除精确结果的包络永远错误。"
 
-#: manual/conformance/ball_float.md:34
+#: manual/conformance/ball_float.md:59
 msgid "Supported phases"
 msgstr "支持的阶段"
 
-#: manual/conformance/ball_float.md:36
+#: manual/conformance/ball_float.md:61
 msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice."
 msgstr "strict 矩阵涵盖集合、关系、观察、抵消、加/减/乘/除、初等函数核心、指数/对数函数、一般幂、三角函数、`atan2`、双曲函数、反三角函数、FMA、整数幂以及极值。各阶段的运算集合互不相交，因此同一行不会被重复计数。"
 
-#: manual/conformance/ball_float.md:38
+#: manual/conformance/ball_float.md:63
 msgid "Decorations and fallbacks"
 msgstr "装饰与回退"
 
-#: manual/conformance/ball_float.md:40
+#: manual/conformance/ball_float.md:65
 msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
 msgstr "Empty、Entire 和装饰后的 NaI 是彼此独立的状态。初等函数内核使用定向二进有理数证书。当范围约简无法认证时，`sin`/`cos` 返回 `[-1,1]`，`tan` 返回 Entire；这保持了包含性，但不保证紧致性。门禁通过并不覆盖语料之外的输入：[已知局限](../design/ball_float.md#known-limitations)中列出的其余缺陷（负次数 `rootn` 的装饰）未被所选用例覆盖。"
 
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:67
 msgid "Exclusions"
 msgstr "排除范围"
 
-#: manual/conformance/ball_float.md:44
+#: manual/conformance/ball_float.md:69
 msgid "Reverse interval operations, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
 msgstr "reverse interval operation、选定 phase 以外的全部 decoration 规则、任意 endpoint format 和未固定的上游 revision 均不在声明内。"
 
-#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:71
 #: manual/conformance/decimal.md:88
 #: manual/conformance/decimal_gda.md:84
 #: manual/performance/ball_float.md:26
@@ -8294,7 +8405,7 @@ msgstr "reverse interval operation、选定 phase 以外的全部 decoration 规
 msgid "Reproduction"
 msgstr "复现"
 
-#: manual/conformance/ball_float.md:54
+#: manual/conformance/ball_float.md:79
 msgid "See [the interval data guide](../../../testdata/interval/README.md) for provenance, phase counts, strict-mode behavior, and failure triage."
 msgstr "语料来源、phase 计数、strict 模式和失败排查见[区间数据指南](../../../testdata/interval/README.md)。"
 
@@ -22360,8 +22471,8 @@ msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemen
 msgstr "§4.2.2 压缩的带装饰区间算术 [可选] （未实现）"
 
 #: manual/verification.md:270
-msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required]"
-msgstr "§9.1, §10.5.3 前向模式算术与初等函数 [必须]"
+msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
+msgstr "§9.1、§10.5.3 前向模式算术与初等函数 [必须] （部分符合）"
 
 #: manual/verification.md:271
 msgid "§10.5.4 reverse-mode elementary functions [required] (not implemented)"
@@ -22408,8 +22519,8 @@ msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
 msgstr "§9.7, §12.11 区间与数值字面量 [必须] （未实现）"
 
 #: manual/verification.md:282
-msgid "§12.10 accuracy of operations [required] (partial)"
-msgstr "§12.10 运算的精度 [必须] （部分符合）"
+msgid "§12.10 accuracy of operations [required]"
+msgstr "§12.10 运算精度 [必须]"
 
 #: manual/verification.md:283
 msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
@@ -22584,8 +22695,8 @@ msgid "Accuracy of the elementary functions"
 msgstr "初等函数的精度"
 
 #: manual/verification.md:311
-msgid "Valid (the result contains the exact image); not the tightest enclosure. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
-msgstr "有效（结果包含精确像）；不是最紧的包络。无法认证范围归约时，`sin` 和 `cos` 返回 `[-1, 1]`，`tan` 返回 Entire。"
+msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
+msgstr "已在[区间精度表](./conformance/ball_float.md#accuracy-of-operations)中逐个运算说明：基本算术、`abs`、`minimum`、`maximum` 和 `pown` 为最紧；通过认证的三角、反正切和幂函数端点为最紧；其余初等函数为有效，且在每个 ITF1788 用例上均为最紧。当区间约化无法认证时，`sin` 和 `cos` 返回 `[-1, 1]`，`tan` 返回 Entire。"
 
 #: manual/verification.md:312
 msgid "IEEE 1788 §12.5"
@@ -22750,6 +22861,21 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "conforming (valid enclosures; tightness is not promised, see [Implementation-defined choices](../verification.md#implementation-defined-choices))"
+#~ msgstr "符合 （有效包络；不承诺紧致性，参见 [由实现定义的选择](../verification.md#implementation-defined-choices))"
+
+#~ msgid "all `*_interval` operations"
+#~ msgstr "所有 `*_interval` 运算"
+
+#~ msgid "ITF1788 strict gate checks containment, not tightness"
+#~ msgstr "ITF1788 严格门禁检查包含性，而非紧致性"
+
+#~ msgid "valid accuracy only; no tightest-result claim beyond the arithmetic operations"
+#~ msgstr "仅有效精度；除算术运算外不声称最紧结果"
+
+#~ msgid "Valid (the result contains the exact image); not the tightest enclosure. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
+#~ msgstr "有效（结果包含精确像）；不是最紧的包络。无法认证范围归约时，`sin` 和 `cos` 返回 `[-1, 1]`，`tan` 返回 Entire。"
 
 #~ msgid "§5.10 totalOrder, totalOrderMag [required] (partial)"
 #~ msgstr "§5.10 totalOrder, totalOrderMag [必须] （部分符合）"
