@@ -5542,6 +5542,7 @@ msgstr ""
 
 #: manual/api/decimal_gda_checked.md:183
 #: manual/api/frontend/itl_expr.md:115
+#: manual/conformance/ball_float.md:42
 msgid "Operations"
 msgstr ""
 
@@ -7557,6 +7558,7 @@ msgstr ""
 
 #: manual/architecture.md:22
 #: manual/conformance/ball_float.md:11
+#: manual/conformance/ball_float.md:42
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:15
@@ -8023,7 +8025,7 @@ msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, ge
 msgstr ""
 
 #: manual/conformance/ball_float.md:15
-msgid "conforming (valid enclosures; tightness is not promised, see [Implementation-defined choices](../verification.md#implementation-defined-choices))"
+msgid "partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations)"
 msgstr ""
 
 #: manual/conformance/ball_float.md:16
@@ -8202,15 +8204,15 @@ msgid "§12.10 accuracy of operations"
 msgstr ""
 
 #: manual/conformance/ball_float.md:27
-msgid "all `*_interval` operations"
+msgid "every interval operation"
 msgstr ""
 
 #: manual/conformance/ball_float.md:27
-msgid "ITF1788 strict gate checks containment, not tightness"
+msgid "[Accuracy of operations](#accuracy-of-operations): tightness and range per operation; the ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result"
 msgstr ""
 
 #: manual/conformance/ball_float.md:27
-msgid "valid accuracy only; no tightest-result claim beyond the arithmetic operations"
+msgid "conforming for the provided operations"
 msgstr ""
 
 #: manual/conformance/ball_float.md:28
@@ -8230,38 +8232,147 @@ msgid "not implemented (no Level 2 754-conformance claim)"
 msgstr ""
 
 #: manual/conformance/ball_float.md:30
-msgid "Semantic oracle"
+msgid "Accuracy of operations"
 msgstr ""
 
 #: manual/conformance/ball_float.md:32
-msgid "Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid."
-msgstr ""
-
-#: manual/conformance/ball_float.md:34
-msgid "Supported phases"
-msgstr ""
-
-#: manual/conformance/ball_float.md:36
-msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice."
-msgstr ""
-
-#: manual/conformance/ball_float.md:38
-msgid "Decorations and fallbacks"
-msgstr ""
-
-#: manual/conformance/ball_float.md:40
-msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
+msgid "This is the tightness documentation that §12.10.3 requires, for the inf-sup type with `p`-bit `BinFloat` endpoints and the binary64 exponent range (`BallContext::new(p)`; `p = 53` is the binary64 inf-sup type of the ITF1788 corpus). *Tightest* means the result is the hull of the exact range in that type (§12.10.1, (27)); *valid* means it contains the exact range ((26)). No operation claims the intermediate *accurate* mode. Every operation returns Empty for an Empty input. The ITF1788 phases cited below compare both endpoints for equality with the corpus's tightest binary64 result, so a passing phase is tightness evidence for every case it runs, not only containment."
 msgstr ""
 
 #: manual/conformance/ball_float.md:42
-msgid "Exclusions"
+msgid "Tightness"
+msgstr ""
+
+#: manual/conformance/ball_float.md:42
+msgid "Range"
 msgstr ""
 
 #: manual/conformance/ball_float.md:44
-msgid "Reverse interval operations, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
+#: manual/conformance/ball_float.md:45
+#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:47
+msgid "tightest"
+msgstr ""
+
+#: manual/conformance/ball_float.md:44
+#: manual/conformance/ball_float.md:45
+#: manual/conformance/ball_float.md:47
+#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:53
+msgid "all inputs"
+msgstr ""
+
+#: manual/conformance/ball_float.md:44
+msgid "outward rounding of the exact hull ([design](../design/ball_float.md#correctness-and-invariants)); ITF1788 add/sub/mul/div (539), elementary core (107), FMA (567)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:45
+msgid "design; ITF1788 elementary core and extrema"
 msgstr ""
 
 #: manual/conformance/ball_float.md:46
+msgid "all inputs except a degree below −4096 with 0 inside the input, which gives Entire (valid)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:46
+msgid "design; ITF1788 integer power (174)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:47
+msgid "ITF1788 sets"
+msgstr ""
+
+#: manual/conformance/ball_float.md:48
+msgid "as §12.12.5 requires"
+msgstr ""
+
+#: manual/conformance/ball_float.md:48
+msgid "ITF1788 cancellation (242)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:49
+msgid "tightest when the endpoint evaluation is certified; valid otherwise"
+msgstr ""
+
+#: manual/conformance/ball_float.md:49
+msgid "certified unless an endpoint magnitude reaches 2^(max(65536, 4p)+1) (trigonometric reduction) or the refinement budget of 12 work precisions runs out; then `sin`/`cos` give [−1, 1], `tan` Entire, `atan2` [−π, π], `pow` the composed formula, and the `try_*` forms report the failure"
+msgstr ""
+
+#: manual/conformance/ball_float.md:49
+msgid "design; ITF1788 trigonometric (176), `atan2` (375), general power (1,428), inverse trigonometric (61)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:51
+msgid "valid; tightest on every ITF1788 case"
+msgstr ""
+
+#: manual/conformance/ball_float.md:50
+msgid "guard bits keep the endpoints almost always tight (design); ITF1788 exponential/logarithmic (131), inverse trigonometric (61)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:51
+msgid "not tight for inputs near 0 with \\|ξ\\| ≲ 2^−190 in `sinh`, `tanh`, `asinh`, `atanh` (cancellation in the defining formulas)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:51
+msgid "design; ITF1788 hyperbolic (107)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:52
+msgid "tightest when certified; valid otherwise"
+msgstr ""
+
+#: manual/conformance/ball_float.md:52
+msgid "as for the certified functions above; `expm1` falls back to [−1, +∞)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:52
+msgid "design; package tests only, no ITF1788 cases"
+msgstr ""
+
+#: manual/conformance/ball_float.md:53
+msgid "valid"
+msgstr ""
+
+#: manual/conformance/ball_float.md:53
+msgid "design (composed formula); package tests only"
+msgstr ""
+
+#: manual/conformance/ball_float.md:55
+msgid "Semantic oracle"
+msgstr ""
+
+#: manual/conformance/ball_float.md:57
+msgid "Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid."
+msgstr ""
+
+#: manual/conformance/ball_float.md:59
+msgid "Supported phases"
+msgstr ""
+
+#: manual/conformance/ball_float.md:61
+msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice."
+msgstr ""
+
+#: manual/conformance/ball_float.md:63
+msgid "Decorations and fallbacks"
+msgstr ""
+
+#: manual/conformance/ball_float.md:65
+msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
+msgstr ""
+
+#: manual/conformance/ball_float.md:67
+msgid "Exclusions"
+msgstr ""
+
+#: manual/conformance/ball_float.md:69
+msgid "Reverse interval operations, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
+msgstr ""
+
+#: manual/conformance/ball_float.md:71
 #: manual/conformance/decimal.md:88
 #: manual/conformance/decimal_gda.md:84
 #: manual/performance/ball_float.md:26
@@ -8270,7 +8381,7 @@ msgstr ""
 msgid "Reproduction"
 msgstr ""
 
-#: manual/conformance/ball_float.md:54
+#: manual/conformance/ball_float.md:79
 msgid "See [the interval data guide](../../../testdata/interval/README.md) for provenance, phase counts, strict-mode behavior, and failure triage."
 msgstr ""
 
@@ -22252,7 +22363,7 @@ msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemen
 msgstr ""
 
 #: manual/verification.md:270
-msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required]"
+msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
 msgstr ""
 
 #: manual/verification.md:271
@@ -22300,7 +22411,7 @@ msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
 msgstr ""
 
 #: manual/verification.md:282
-msgid "§12.10 accuracy of operations [required] (partial)"
+msgid "§12.10 accuracy of operations [required]"
 msgstr ""
 
 #: manual/verification.md:283
@@ -22476,7 +22587,7 @@ msgid "Accuracy of the elementary functions"
 msgstr ""
 
 #: manual/verification.md:311
-msgid "Valid (the result contains the exact image); not the tightest enclosure. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
+msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr ""
 
 #: manual/verification.md:312
