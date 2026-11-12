@@ -296,9 +296,10 @@ pub fn summarize_results(Array[ItlResult]) -> RunSummary
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub struct ItlCase {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn ItlCase::equal(Self, Self) -> Bool
 pub fn ItlCase::expected(Self) -> String
 pub fn ItlCase::id(Self) -> String

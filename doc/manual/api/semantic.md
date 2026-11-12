@@ -396,9 +396,10 @@ pub fn[T] semantic_scalar_result(Result[T, @arithmetic.ArithmeticError], (T) -> 
 // Errors
 
 // Types and methods
+#derive(Eq)
 pub struct ExactRational {
   // private fields
-} derive(Eq)
+}
 pub fn ExactRational::denominator(Self) -> @bigint.BigInt
 pub fn ExactRational::equal(Self, Self) -> Bool
 pub fn ExactRational::from_scaled_integer(@bigint.BigInt, Int32, Int32) -> Self
@@ -406,6 +407,7 @@ pub fn ExactRational::new(@bigint.BigInt, @bigint.BigInt) -> Self
 pub fn ExactRational::not_equal(Self, Self) -> Bool
 pub fn ExactRational::numerator(Self) -> @bigint.BigInt
 
+#derive(Eq)
 pub(all) enum SemanticError {
   DivisionByZero
   ParseError
@@ -414,31 +416,34 @@ pub(all) enum SemanticError {
   UnsupportedOperation
   UnorderedComparison
   CertificationFailure
-} derive(Eq)
+}
 pub fn SemanticError::equal(Self, Self) -> Bool
 pub fn SemanticError::from_arithmetic(@arithmetic.ArithmeticError) -> Self
 pub fn SemanticError::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub struct SemanticInterval {
   lower : SemanticScalar
   upper : SemanticScalar
-} derive(Eq)
+}
 pub fn SemanticInterval::equal(Self, Self) -> Bool
 pub fn SemanticInterval::from_ball_float(@ball_float.BallFloat) -> Self
 pub fn SemanticInterval::not_equal(Self, Self) -> Bool
 
+#derive(Eq)
 pub(all) enum SemanticResult[T] {
   Value(T)
   Error(SemanticError)
-} derive(Eq)
+}
 pub fn[T : Eq] SemanticResult::equal(Self[T], Self[T]) -> Bool
 pub fn[T : Eq] SemanticResult::not_equal(Self[T], Self[T]) -> Bool
 
+#derive(Eq)
 pub(all) enum SemanticScalar {
   Rational(ExactRational)
   Infinity(@def.Sign)
   NaN
-} derive(Eq)
+}
 pub fn SemanticScalar::equal(Self, Self) -> Bool
 pub fn SemanticScalar::from_bin_float(@bin_float.BinFloat) -> Self
 pub fn SemanticScalar::from_decimal(@decimal.Decimal) -> Self
