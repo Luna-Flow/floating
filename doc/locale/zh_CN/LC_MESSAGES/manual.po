@@ -8126,6 +8126,7 @@ msgstr "ITF1788 抵消阶段 (242 个用例)"
 #: manual/conformance/decimal_gda.md:33
 #: manual/conformance/decimal_gda.md:34
 #: manual/conformance/decimal_gda.md:35
+#: manual/conformance/decimal_gda.md:36
 msgid "conforming"
 msgstr "符合"
 
@@ -8201,7 +8202,6 @@ msgstr "§10.6.4 扩展的区间比较"
 #: manual/conformance/decimal.md:52
 #: manual/conformance/decimal.md:53
 #: manual/conformance/decimal.md:57
-#: manual/conformance/decimal_gda.md:36
 msgid "partial"
 msgstr "部分符合"
 
@@ -9006,8 +9006,8 @@ msgid "Published result"
 msgstr "公布的结果"
 
 #: manual/conformance/decimal_gda.md:9
-msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator."
-msgstr "固定 official 语料的 64,986/64,986 条合法 executable 标量行全部通过，failed、unsupported 和 legacy 均为零。其余 141 行是 `#` placeholder 或 non-scalar 非法输入，作为 diagnostic 报告，不进入合法分母。"
+msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator. The pinned subset corpus (`dectest0.zip`, Appendix A) passes 16,124/16,124 executable rows; its 40 diagnostic rows are excluded the same way."
+msgstr "固定 official 语料的 64,986/64,986 条合法 executable 标量行全部通过，failed、unsupported 和 legacy 均为零。其余 141 行是 `#` placeholder 或 non-scalar 非法输入，作为 diagnostic 报告，不进入合法分母。固定的子集语料（`dectest0.zip`，附录 A）的 16,124/16,124 条 executable 行全部通过；其中 40 行 diagnostic 以同样方式排除。"
 
 #: manual/conformance/decimal_gda.md:13
 msgid "General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per operation or conversion of the specification. The decTest files are those of the pinned corpus (`testdata/decimal/corpora.json`). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
@@ -9110,8 +9110,8 @@ msgid "`extended = false` contexts"
 msgstr "`extended = false` contexts"
 
 #: manual/conformance/decimal_gda.md:36
-msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
-msgstr "`src/decimal_gda/` 白盒测试; 未运行 decTest 子集"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA · official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
+msgstr "门禁阶段 `DECIMAL_GDA · official0 decTest` 中固定的子集语料 `dectest0.zip`（32 个文件，其中 31 个为 `extended: 0`）；`src/decimal_gda/` 白盒测试"
 
 #: manual/conformance/decimal_gda.md:38
 msgid "Legacy corpus"
@@ -22343,8 +22343,8 @@ msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr "状态标志与陷阱（附录与异常条件） [必须]"
 
 #: manual/verification.md:264
-msgid "subset arithmetic (Appendix A) [required] (partial)"
-msgstr "子集算术（附录 A） [必须] （部分符合）"
+msgid "subset arithmetic (Appendix A) [required]"
+msgstr "子集算术（附录 A） [必须]"
 
 #: manual/verification.md:266
 msgid "**IEEE 1788-2015: ball_float**"
@@ -22749,6 +22749,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
+#~ msgstr "`src/decimal_gda/` 白盒测试; 未运行 decTest 子集"
 
 #~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
 #~ msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当 $n < 0$ 时 $\\xi^{1/n}$ 在 0 处无定义：`rootn([0, 4], -2)` 的装饰为 `dac` 而非 `trv`。"
