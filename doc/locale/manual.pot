@@ -8102,6 +8102,7 @@ msgstr ""
 #: manual/conformance/decimal_gda.md:33
 #: manual/conformance/decimal_gda.md:34
 #: manual/conformance/decimal_gda.md:35
+#: manual/conformance/decimal_gda.md:36
 msgid "conforming"
 msgstr ""
 
@@ -8177,7 +8178,6 @@ msgstr ""
 #: manual/conformance/decimal.md:52
 #: manual/conformance/decimal.md:53
 #: manual/conformance/decimal.md:57
-#: manual/conformance/decimal_gda.md:36
 msgid "partial"
 msgstr ""
 
@@ -8982,7 +8982,7 @@ msgid "Published result"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:9
-msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator."
+msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator. The pinned subset corpus (`dectest0.zip`, Appendix A) passes 16,124/16,124 executable rows; its 40 diagnostic rows are excluded the same way."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:13
@@ -9086,7 +9086,7 @@ msgid "`extended = false` contexts"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:36
-msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA · official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:38
@@ -22235,7 +22235,7 @@ msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr ""
 
 #: manual/verification.md:264
-msgid "subset arithmetic (Appendix A) [required] (partial)"
+msgid "subset arithmetic (Appendix A) [required]"
 msgstr ""
 
 #: manual/verification.md:266

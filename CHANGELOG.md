@@ -6,6 +6,10 @@ notes live in this file.
 
 ## Unreleased
 
+### Verified
+
+- General Decimal Arithmetic Appendix A (subset arithmetic) is conforming: the `DECIMAL_GDA` gate runs the pinned subset corpus `dectest0.zip` (16,124/16,124 executable rows); the clause row and checklist now say so ([#228](https://github.com/Luna-Flow/floating/issues/228)).
+
 ## 0.10.2 - 2026-11-12
 
 ### Changed

@@ -8126,6 +8126,7 @@ msgstr "ITF1788 cancellation フェーズ (242 ケース)"
 #: manual/conformance/decimal_gda.md:33
 #: manual/conformance/decimal_gda.md:34
 #: manual/conformance/decimal_gda.md:35
+#: manual/conformance/decimal_gda.md:36
 msgid "conforming"
 msgstr "準拠"
 
@@ -8201,7 +8202,6 @@ msgstr "§10.6.4 拡張された区間比較"
 #: manual/conformance/decimal.md:52
 #: manual/conformance/decimal.md:53
 #: manual/conformance/decimal.md:57
-#: manual/conformance/decimal_gda.md:36
 msgid "partial"
 msgstr "部分準拠"
 
@@ -9006,8 +9006,8 @@ msgid "Published result"
 msgstr "公開された結果"
 
 #: manual/conformance/decimal_gda.md:9
-msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator."
-msgstr "固定 official corpus の legal executable scalar row 64,986/64,986 がすべて通過し、failed、unsupported、legacy はゼロです。残り 141 row は `#` placeholder または non-scalar invalid input で、legal denominator 外の diagnostic として報告します。"
+msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator. The pinned subset corpus (`dectest0.zip`, Appendix A) passes 16,124/16,124 executable rows; its 40 diagnostic rows are excluded the same way."
+msgstr "固定 official corpus の legal executable scalar row 64,986/64,986 がすべて通過し、failed、unsupported、legacy はゼロです。残り 141 row は `#` placeholder または non-scalar invalid input で、legal denominator 外の diagnostic として報告します。固定したサブセット corpus（`dectest0.zip`、付録 A）の executable row 16,124/16,124 もすべて通過し、その 40 row の diagnostic は同じ方法で除外します。"
 
 #: manual/conformance/decimal_gda.md:13
 msgid "General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per operation or conversion of the specification. The decTest files are those of the pinned corpus (`testdata/decimal/corpora.json`). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
@@ -9110,8 +9110,8 @@ msgid "`extended = false` contexts"
 msgstr "`extended = false` contexts"
 
 #: manual/conformance/decimal_gda.md:36
-msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
-msgstr "`src/decimal_gda/` ホワイトボックステスト; decTest の subset 実行なし"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA · official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
+msgstr "ゲート段階 `DECIMAL_GDA · official0 decTest` で実行する固定サブセット corpus `dectest0.zip`（32 ファイル、うち 31 が `extended: 0`）；`src/decimal_gda/` のホワイトボックステスト"
 
 #: manual/conformance/decimal_gda.md:38
 msgid "Legacy corpus"
@@ -22343,8 +22343,8 @@ msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr "ステータスフラグとトラップ（付録と例外条件） [必須]"
 
 #: manual/verification.md:264
-msgid "subset arithmetic (Appendix A) [required] (partial)"
-msgstr "サブセット算術（付録 A） [必須] （部分準拠）"
+msgid "subset arithmetic (Appendix A) [required]"
+msgstr "サブセット算術（付録 A） [必須]"
 
 #: manual/verification.md:266
 msgid "**IEEE 1788-2015: ball_float**"
@@ -22749,6 +22749,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:334
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
+#~ msgstr "`src/decimal_gda/` ホワイトボックステスト; decTest の subset 実行なし"
 
 #~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
 #~ msgstr "負の次数の `rootn` は、引数に 0 が含まれていても装飾を引き下げません。$n < 0$ のとき $\\xi^{1/n}$ は 0 で未定義であるにもかかわらず、`rootn([0, 4], -2)` の装飾は `trv` ではなく `dac` になります。"
