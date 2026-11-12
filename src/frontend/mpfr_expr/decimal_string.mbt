@@ -316,7 +316,7 @@ pub fn MpfrDecimalOutputDocument::case_count(
 /// digit string and the decimal exponent of the first digit.
 fn split_scientific(text : String) -> (String, Int32)? {
   let body = if text.has_prefix("-") {
-    text.view(start_offset=1).to_owned()
+    text.exact_view(start=1).to_owned()
   } else {
     text
   }
@@ -328,10 +328,10 @@ fn split_scientific(text : String) -> (String, Int32)? {
     }
   }
   guard split > 0 else { return None }
-  let mantissa = body.view(end_offset=split).to_owned()
-  let exponent_text = body.view(start_offset=split + 1).to_owned()
+  let mantissa = body.exact_view(end=split).to_owned()
+  let exponent_text = body.exact_view(start=split + 1).to_owned()
   let exponent_text = if exponent_text.has_prefix("+") {
-    exponent_text.view(start_offset=1).to_owned()
+    exponent_text.exact_view(start=1).to_owned()
   } else {
     exponent_text
   }

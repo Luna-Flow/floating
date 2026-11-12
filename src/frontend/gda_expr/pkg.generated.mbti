@@ -42,9 +42,10 @@ pub fn GdaCase::operands(Self) -> Array[String]
 pub fn GdaCase::operation(Self) -> String
 pub fn GdaCase::span(Self) -> @numeric_expr.SourceSpan
 
+#derive(Eq, @debug.Debug)
 pub struct GdaContext {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn GdaContext::clamp(Self) -> Bool
 pub fn GdaContext::dectest(Self) -> String
 pub fn GdaContext::default() -> Self
@@ -64,18 +65,20 @@ pub fn GdaDocument::case_count(Self) -> Int32
 pub fn GdaDocument::cases(Self) -> Array[GdaCase]
 pub fn GdaDocument::source(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub struct ParseDiagnostic {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::message(Self) -> String
 pub fn ParseDiagnostic::not_equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::span(Self) -> @numeric_expr.SourceSpan
 pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub struct RunOptions {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn RunOptions::case_filter(Self) -> String
 pub fn RunOptions::equal(Self, Self) -> Bool
 pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String) -> Self

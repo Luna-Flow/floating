@@ -6,11 +6,12 @@ pub struct BallContext {
 }
 
 ///|
+#derive(Eq)
 pub struct BallFlags {
   inexact : Bool
   overflow : Bool
   underflow : Bool
-} derive(Eq)
+}
 
 ///|
 pub fn BallFlags::new() -> BallFlags {

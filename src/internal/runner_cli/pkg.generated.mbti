@@ -3,6 +3,7 @@ package "Luna-Flow/floating/internal/runner_cli"
 
 import {
   "Luna-Flow/floating/internal/conformance",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -12,17 +13,17 @@ pub fn format_diagnostic(@conformance.SourceLocation, String) -> String
 
 pub fn format_diagnostic_at(String, Int32, String, column? : Int32) -> String
 
-pub fn json_bool(Bool) -> Json
+pub fn json_bool(Bool) -> @json.Json
 
-pub fn json_int(Int32) -> Json
+pub fn json_int(Int32) -> @json.Json
 
-pub fn json_object(Array[(String, Json)]) -> Json
+pub fn json_object(Array[(String, @json.Json)]) -> @json.Json
 
-pub fn json_string(String) -> Json
+pub fn json_string(String) -> @json.Json
 
-pub fn json_stringify(Json) -> String
+pub fn json_stringify(@json.Json) -> String
 
-pub fn json_strings(Array[String]) -> Json
+pub fn json_strings(Array[String]) -> @json.Json
 
 pub fn parse_common_options(Array[String], allow_shard? : Bool) -> Result[CommonOptions, String]
 

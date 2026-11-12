@@ -21,9 +21,10 @@ pub fn sqrt_for_precision(BinFloat, Int32) -> Result[BinFloat, @arithmetic.Arith
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub struct BinCoeff {
   // private fields
-} derive(@debug.Debug)
+}
 pub fn BinCoeff::add(Self, Self) -> Self
 pub fn BinCoeff::bit_and(Self, Self) -> Self
 pub fn BinCoeff::bit_length(Self) -> Int32
@@ -68,9 +69,10 @@ pub impl Shl for BinCoeff
 pub impl Show for BinCoeff
 pub impl Shr for BinCoeff
 
+#derive(Eq, @debug.Debug)
 pub struct BinFloat {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn BinFloat::abs(Self) -> Self
 pub fn BinFloat::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::acos(Self) -> Self
@@ -285,9 +287,10 @@ pub impl Neg for BinFloat
 pub impl Show for BinFloat
 pub impl Sub for BinFloat
 
+#derive(Eq, @debug.Debug)
 pub struct BinaryContext {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn BinaryContext::binary128(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::binary16(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::binary32(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
@@ -305,9 +308,10 @@ pub fn BinaryContext::to_repr(Self) -> @debug.Repr
 pub fn BinaryContext::try_new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinaryContext::unbounded(Int32, rounding? : BinaryRoundingMode) -> Self
 
+#derive(Eq, @debug.Debug)
 pub struct BinaryFlags {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn BinaryFlags::combine(Self, Self) -> Self
 pub fn BinaryFlags::division_by_zero(Self) -> Bool
 pub fn BinaryFlags::equal(Self, Self) -> Bool
@@ -320,9 +324,10 @@ pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
 pub fn BinaryFlags::to_testfloat_bits(Self) -> Int32
 pub fn BinaryFlags::underflow(Self) -> Bool
 
+#derive(Eq)
 pub struct BinaryInterchange {
   // private fields
-} derive(Eq)
+}
 pub fn BinaryInterchange::bits(Self) -> BinCoeff
 pub fn BinaryInterchange::equal(Self, Self) -> Bool
 pub fn BinaryInterchange::format(Self) -> BinaryInterchangeFormat
@@ -333,12 +338,13 @@ pub fn BinaryInterchange::not_equal(Self, Self) -> Bool
 pub fn BinaryInterchange::to_bin_float(Self) -> BinFloat
 pub fn BinaryInterchange::to_hex(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub(all) enum BinaryInterchangeFormat {
   Binary16
   Binary32
   Binary64
   Binary128
-} derive(Eq, @debug.Debug)
+}
 pub fn BinaryInterchangeFormat::bias(Self) -> Int32
 pub fn BinaryInterchangeFormat::context(Self, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> BinaryContext
 pub fn BinaryInterchangeFormat::e_max(Self) -> Int32
@@ -351,6 +357,7 @@ pub fn BinaryInterchangeFormat::precision(Self) -> Int32
 pub fn BinaryInterchangeFormat::to_repr(Self) -> @debug.Repr
 pub fn BinaryInterchangeFormat::total_bits(Self) -> Int32
 
+#derive(Eq, @debug.Debug)
 pub(all) enum BinaryRoundingMode {
   RoundTiesToEven
   RoundTiesToAway
@@ -358,17 +365,18 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardPositive
   RoundTowardNegative
   RoundAwayFromZero
-} derive(Eq, @debug.Debug)
+}
 pub fn BinaryRoundingMode::equal(Self, Self) -> Bool
 pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
 pub fn BinaryRoundingMode::not_equal(Self, Self) -> Bool
 pub fn BinaryRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 pub fn BinaryRoundingMode::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
 pub(all) enum TininessDetection {
   BeforeRounding
   AfterRounding
-} derive(Eq, @debug.Debug)
+}
 pub fn TininessDetection::equal(Self, Self) -> Bool
 pub fn TininessDetection::not_equal(Self, Self) -> Bool
 pub fn TininessDetection::to_repr(Self) -> @debug.Repr

@@ -1,11 +1,12 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum Decoration {
   Ill
   Trv
   Def
   Dac
   Com
-} derive(Eq, Debug)
+}
 
 ///|
 fn decoration_rank(decoration : Decoration) -> Int32 {
@@ -44,11 +45,12 @@ fn canonical_decoration(
 }
 
 ///|
+#derive(Eq)
 pub struct BallFloatDecorated {
   priv interval_ : BallFloat
   priv decoration_ : Decoration
   priv nai_ : Bool
-} derive(Eq)
+}
 
 ///|
 pub fn BallFloatDecorated::new(

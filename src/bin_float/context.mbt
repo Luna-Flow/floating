@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum BinaryRoundingMode {
   RoundTiesToEven
   RoundTiesToAway
@@ -6,21 +7,23 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardPositive
   RoundTowardNegative
   RoundAwayFromZero
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum TininessDetection {
   BeforeRounding
   AfterRounding
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub(all) enum BinaryInterchangeFormat {
   Binary16
   Binary32
   Binary64
   Binary128
-} derive(Eq, Debug)
+}
 
 ///|
 /// Largest exponent of the leading bit that a finite `BinFloat` may carry.
@@ -38,22 +41,24 @@ pub let binary_implementation_e_min : Int32 = -1073741823
 pub let binary_precision_max : Int32 = 268435456
 
 ///|
+#derive(Eq, Debug)
 pub struct BinaryContext {
   priv precision : Int32
   priv rounding : BinaryRoundingMode
   priv e_min : Int32?
   priv e_max : Int32?
   priv tininess : TininessDetection
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub struct BinaryFlags {
   priv inexact : Bool
   priv underflow : Bool
   priv overflow : Bool
   priv division_by_zero : Bool
   priv invalid_operation : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn BinaryFlags::new() -> BinaryFlags {

@@ -1,4 +1,5 @@
 ///|
+#derive(Eq)
 pub(all) enum GdaRoundingMode {
   HalfEven
   HalfUp
@@ -8,9 +9,10 @@ pub(all) enum GdaRoundingMode {
   Floor
   Up
   ZeroFiveUp
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub(all) enum GdaSignal {
   ConversionSyntax
   DivisionByZero
@@ -25,9 +27,10 @@ pub(all) enum GdaSignal {
   Rounded
   Clamped
   LostDigits
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub struct GdaFlags {
   conversion_syntax : Bool
   division_by_zero : Bool
@@ -42,9 +45,10 @@ pub struct GdaFlags {
   rounded : Bool
   clamped : Bool
   lost_digits : Bool
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 pub struct GdaTrapSet {
   conversion_syntax : Bool
   division_by_zero : Bool
@@ -59,7 +63,7 @@ pub struct GdaTrapSet {
   rounded : Bool
   clamped : Bool
   lost_digits : Bool
-} derive(Eq)
+}
 
 ///|
 pub struct GdaContext {

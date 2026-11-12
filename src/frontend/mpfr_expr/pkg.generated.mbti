@@ -74,9 +74,10 @@ pub struct MpfrStrtofrDocument {
 pub fn MpfrStrtofrDocument::case_count(Self) -> Int32
 pub fn MpfrStrtofrDocument::source(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub struct ParseDiagnostic {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 pub fn ParseDiagnostic::equal(Self, Self) -> Bool
 pub fn ParseDiagnostic::line(Self) -> Int32
 pub fn ParseDiagnostic::message(Self) -> String

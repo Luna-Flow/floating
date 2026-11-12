@@ -342,13 +342,14 @@ fn gda_coeff_div_rem_newton(
 }
 
 ///|
+#derive(Eq)
 #warnings("-unused_value")
 priv enum GdaCoeffDivAlgorithm {
   Word
   Knuth
   BurnikelZiegler
   Newton
-} derive(Eq)
+}
 
 ///|
 fn gda_coeff_division_algorithm(

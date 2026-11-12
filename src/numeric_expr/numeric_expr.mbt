@@ -1,9 +1,10 @@
 ///|
+#derive(Eq, Debug)
 pub struct SourceSpan {
   priv source : String
   priv line : Int32
   priv column : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn SourceSpan::new(
@@ -30,10 +31,11 @@ pub fn SourceSpan::column(self : SourceSpan) -> Int32 {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct Literal {
   priv raw : String
   priv span : SourceSpan
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Literal::new(
@@ -54,10 +56,11 @@ pub fn Literal::span(self : Literal) -> SourceSpan {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct Operation {
   priv name : String
   priv span : SourceSpan
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Operation::new(

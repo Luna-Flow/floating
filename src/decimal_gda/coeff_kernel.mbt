@@ -7,10 +7,11 @@
 // storage.
 
 ///|
+#derive(Debug)
 priv enum GdaCoeff {
   Small(UInt64)
   Limbs(Array[UInt32], Int32)
-} derive(Debug)
+}
 
 ///|
 let gda_coeff_dpun = 9

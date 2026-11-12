@@ -15,10 +15,11 @@ fn exact_rat_gcd(left : BigInt, right : BigInt) -> BigInt {
 }
 
 ///|
+#derive(Eq)
 pub struct ExactRat {
   priv numerator : BigInt
   priv denominator : BigInt
-} derive(Eq)
+}
 
 ///|
 pub fn ExactRat::new(numerator : BigInt, denominator : BigInt) -> ExactRat {

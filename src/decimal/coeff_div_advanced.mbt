@@ -342,13 +342,14 @@ fn dec_coeff_div_rem_newton(
 }
 
 ///|
+#derive(Eq)
 #warnings("-unused_value")
 priv enum DecCoeffDivAlgorithm {
   Word
   Knuth
   BurnikelZiegler
   Newton
-} derive(Eq)
+}
 
 ///|
 fn dec_coeff_division_algorithm(denominator : DecCoeff) -> DecCoeffDivAlgorithm {

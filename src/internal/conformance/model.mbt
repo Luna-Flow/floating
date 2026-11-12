@@ -1,9 +1,10 @@
 ///|
+#derive(Eq, @debug.Debug)
 pub struct SourceLocation {
   priv source : String
   priv line : Int32
   priv column : Int32
-} derive(Eq, @debug.Debug)
+}
 
 ///|
 pub fn SourceLocation::new(
@@ -30,20 +31,22 @@ pub fn SourceLocation::column(self : SourceLocation) -> Int32 {
 }
 
 ///|
+#derive(Eq, @debug.Debug)
 pub(all) enum CaseDisposition {
   Executable
   Diagnostic(String)
   Legacy(String)
   Unsupported(String)
-} derive(Eq, @debug.Debug)
+}
 
 ///|
+#derive(Eq, @debug.Debug)
 pub struct CaseResult {
   priv id : String
   priv disposition : CaseDisposition
   priv passed : Bool
   priv message : String
-} derive(Eq, @debug.Debug)
+}
 
 ///|
 pub fn CaseResult::new(
@@ -85,10 +88,11 @@ pub fn CaseResult::message(self : CaseResult) -> String {
 }
 
 ///|
+#derive(Eq, @debug.Debug)
 pub struct ShardSpec {
   priv count : Int32
   priv index : Int32
-} derive(Eq, @debug.Debug)
+}
 
 ///|
 pub fn ShardSpec::try_new(
@@ -126,6 +130,7 @@ pub fn ShardSpec::selects(self : ShardSpec, ordinal : Int32) -> Bool {
 }
 
 ///|
+#derive(Eq, @debug.Debug)
 pub struct RunSummary {
   priv total_cases : Int32
   priv selected_cases : Int32
@@ -137,7 +142,7 @@ pub struct RunSummary {
   priv legacy_cases : Int32
   priv unsupported_cases : Int32
   priv results : Array[CaseResult]
-} derive(Eq, @debug.Debug)
+}
 
 ///|
 pub fn RunSummary::from_results(

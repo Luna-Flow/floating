@@ -31,10 +31,11 @@ pub struct MpfrPowDocument {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct ParseDiagnostic {
   priv location : @conformance.SourceLocation
   priv message : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub struct CaseResult {

@@ -1,8 +1,9 @@
 ///|
+#derive(Eq)
 pub struct BinaryInterchange {
   priv format : BinaryInterchangeFormat
   priv bits : BinCoeff
-} derive(Eq)
+}
 
 ///|
 pub fn BinaryInterchangeFormat::total_bits(

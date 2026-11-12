@@ -34,7 +34,7 @@ fn parse_decimal_literal(
   let first = text.unsafe_get(0)
   let negative = first == '-'
   let start = if first == '-' || first == '+' { 1 } else { 0 }
-  let body = text.view(start_offset=start).to_owned().to_lower()
+  let body = text.exact_view(start~).to_owned().to_lower()
   match body {
     "inf" | "infinity" => return Ok(Infinite(negative))
     "nan" | "qnan" => return Ok(QuietNaN(negative))
@@ -110,7 +110,7 @@ fn parse_decimal_literal(
   Ok(
     Finite({
       negative,
-      digits: raw.view(end_offset=end).to_owned(),
+      digits: raw.exact_view(end~).to_owned(),
       exponent: exponent - fraction_digits + (raw.length() - end).to_int64(),
     }),
   )

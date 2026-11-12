@@ -193,6 +193,7 @@ test "decimal add/sub exact alignment can follow coefficient kernel shifts" {
 }
 
 ///|
+#derive(Eq)
 enum DecimalConformanceOp {
   Add
   Subtract
@@ -206,7 +207,7 @@ enum DecimalConformanceOp {
   Fma
   ToIntegralExact
   Reduce
-} derive(Eq)
+}
 
 ///|
 fn decimal_conformance_operand(

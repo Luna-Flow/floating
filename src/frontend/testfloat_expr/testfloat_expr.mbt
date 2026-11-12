@@ -1,4 +1,5 @@
 ///|
+#derive(Eq, Debug)
 pub(all) enum TestFloatOperation {
   Add
   Subtract
@@ -18,9 +19,10 @@ pub(all) enum TestFloatOperation {
   EqualSignaling
   LessEqualQuiet
   LessQuiet
-} derive(Eq, Debug)
+}
 
 ///|
+#derive(Eq, Debug)
 pub struct TestFloatSpec {
   priv function_name : String
   priv format : @bin_float.BinaryInterchangeFormat
@@ -28,7 +30,7 @@ pub struct TestFloatSpec {
   priv rounding : @bin_float.BinaryRoundingMode
   priv tininess : @bin_float.TininessDetection
   priv exact : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Result column of a TestFloat vector: an interchange encoding, an integer
@@ -56,10 +58,11 @@ pub struct TestFloatDocument {
 }
 
 ///|
+#derive(Eq, Debug)
 pub struct ParseDiagnostic {
   priv location : @conformance.SourceLocation
   priv message : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub struct CaseResult {

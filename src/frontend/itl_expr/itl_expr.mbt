@@ -1,10 +1,11 @@
 ///|
+#derive(Eq, Debug)
 pub struct ItlCase {
   priv id_ : String
   priv operation_ : String
   priv operands_ : Array[String]
   priv expected_ : String
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn ItlCase::id(self : ItlCase) -> String {

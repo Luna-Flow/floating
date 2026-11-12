@@ -1,17 +1,19 @@
 ///|
 /// Non-negative binary coefficient with an inline UInt64 fast path.
+#derive(Eq)
 pub enum Coeff {
   Small(UInt64)
   Medium(UInt64, UInt64)
   Large(Array[UInt32])
-} derive(Eq)
+}
 
 ///|
 /// Signed coefficient with a canonical non-negative zero.
+#derive(Eq)
 pub struct SignedCoeff {
   priv negative : Bool
   priv magnitude : Coeff
-} derive(Eq)
+}
 
 ///|
 let coeff_unit_bits : Int32 = 30

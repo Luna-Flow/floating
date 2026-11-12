@@ -7,10 +7,11 @@
 // storage.
 
 ///|
+#derive(Debug)
 priv enum DecCoeff {
   Inline(UInt32)
   Limbs(Array[UInt32], Int32)
-} derive(Debug)
+}
 
 ///|
 let dec_coeff_dpun = 9
