@@ -27,7 +27,7 @@ lists every method.
 Add `floating` to your module:
 
 ```bash
-moon add Luna-Flow/floating@0.10.1
+moon add Luna-Flow/floating@0.10.2
 ```
 
 and import both packages in your `moon.pkg`:

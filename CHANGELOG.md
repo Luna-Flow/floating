@@ -6,8 +6,11 @@ notes live in this file.
 
 ## Unreleased
 
+## 0.10.2 - 2026-11-12
+
 ### Changed
 
+- Dependencies: `Luna-Flow/arithmetic` 0.5.2 (was 0.5.1), `Luna-Flow/type_theory` 0.4.1 (was 0.4.0), `Luna-Flow/mare_mark` 0.4.2 (was 0.4.1).
 - Require MoonBit `moonc` 0.10.20 or later, verified with `moon 0.1.20261104` and `moonc v0.10.20`: `derive(...)` clauses are now `#derive(...)` attributes, which older 0.10 compilers ignore. No public API changed.
 - Replace the deprecated `String::view(start_offset~, end_offset~)` with `exact_view(start~, end~)`, which keeps the same bounds check.
 - Bump `moonbitlang/async` from 0.22.5 to 0.22.9. It has no wasm-gc runtime ([moonbitlang/core#4584](https://github.com/moonbitlang/core/issues/4584)), so the skipped `async test` benchmarks in `bench/*` now live in files built only for native, JS and wasm instead of relying on the old pin.
