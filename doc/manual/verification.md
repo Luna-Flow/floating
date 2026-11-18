@@ -17,6 +17,7 @@ result.
 | GDA decimal | `just gate decimal_gda [jobs]` | package and frontend tests, then the pinned `official` and `official0` `.decTest` corpora |
 | Binary | `just gate binary [jobs]` | the pinned TestFloat level-1 matrix and the MPFR witnesses |
 | Interval | `just gate interval [jobs]` | every strict ITF1788 phase |
+| Random differential | `just random-diff run …` | seeded random cases against MPFR (binary) and libmpdec (decimal), recorded through mare_mark; `just random-diff smoke` runs the committed sample in `just pr` |
 | Complete | `just ci [jobs]` | format, docs, `--deny-warn` checks and tests on all four targets, generated interfaces, and every conformance gate |
 
 Run the narrowest relevant check first, then broaden before a release.
@@ -110,6 +111,178 @@ operands and records the ratios; every `floating` result is first compared with
 the result of the reference library for the same operand. The method, machine
 and results are on the [external baseline page](./performance/bench/external.md).
 It is evidence about speed, not a conformance gate, and is not part of `just pr`.
+
+## Randomized differential testing
+
+The fixed corpora above check rows someone chose. The randomized campaign
+(`just random-diff`, [tutorial](./tutorial/differential.md),
+[design](./design/differential.md)) generates seeded cases and compares the
+library with two independent implementations: GNU MPFR 4.2.2 (GMP 6.3.0) for
+`bin_float` and libmpdec 4.0.0 (Python 3.13 `decimal`) for the decimal cores
+(`decimal` formats through the GDA frontend). Both are oracles, not
+specifications: every disagreement was read against IEEE 754-2019 or the
+General Decimal Arithmetic 1.70 text before it was called a bug.
+
+**What is varied.** Binary: output precisions 2 to 10,000 (a mix of small,
+format-sized, log-uniform and large), operand widths independent of the output
+precision, all five MPFR directions plus the nearest-away wrapper, unbounded
+contexts and bounded ones (binary16/32/64/128 ranges and random ranges) with
+both tininess rules, operand exponents at the overflow threshold, the smallest
+normal number and in the subnormal range, exact halfway and near-halfway results
+(precision one bit below the exact result), cancellation, alignment gaps around
+the precision, zeros, infinities and NaNs, decimal text in both directions
+(`strtofr` with exact halfway literals, `getstr` with 1 to 1,200 digits, the
+shortest round-trip form) and 28 elementary functions (including `pow`, `pown`,
+`rootn`, `hypot` and `atan2`). Decimal:
+decimal32/64/128 contexts and random GDA contexts (precision up to 5,000,
+Emax up to 999,999,999, all eight rounding modes, clamp on and off), the same
+structured operands, string conversion (`apply`, `tosci`, `toeng`) and `exp`,
+`ln`, `log10`, `power`. Every value and every flag (inexact, overflow,
+underflow, invalid, division by zero; the GDA conditions for decimal) is
+compared.
+
+**Reproducibility.** Case `I` of family `F` under seed `S` is a pure function of
+`(S, F, I)`; the seed of every run below is 20261118. Each run is recorded as
+mare_mark JSONL (validations per batch of 1,000 cases, delta-debugged failures,
+replay commands) and summarized in `summary.json` next to it. The record of a
+backend stays in `.tmp/random-diff/<run>/records-<backend>.jsonl`.
+
+**Cases run, per operation and backend.** Native: 26,900,000 cases (28,900,000
+executed, counting 2,000,000 `sqrt` cases made before the MPFR defect filter);
+Wasm, JavaScript and Wasm-GC: 2,730,000 each. Wasm-GC has no mare_mark runtime
+(the runner needs `moonbitlang/async`), so it ran the same corpora through the
+synchronous `floating-conformance` runner without the JSONL record. The three
+other backends ran the first 200,000 (binary) or 100,000 (decimal) cases of each
+family of the native run, so their failing batches can be compared with it:
+Wasm and JavaScript fail on exactly the same batches as native within that
+range.
+
+**MPFR (binary)**
+
+| Operation | native | Wasm | JavaScript | Wasm-GC |
+| --- | ---: | ---: | ---: | ---: |
+| `acos (elementary)` | 35,445 | 3,625 | 3,625 | 3,625 |
+| `acosh (elementary)` | 35,602 | 3,507 | 3,507 | 3,507 |
+| `add` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `asin (elementary)` | 35,524 | 3,431 | 3,431 | 3,431 |
+| `asinh (elementary)` | 35,946 | 3,618 | 3,618 | 3,618 |
+| `atan (elementary)` | 35,763 | 3,499 | 3,499 | 3,499 |
+| `atan2 (elementary)` | 35,765 | 3,645 | 3,645 | 3,645 |
+| `atanh (elementary)` | 35,595 | 3,565 | 3,565 | 3,565 |
+| `cos (elementary)` | 35,396 | 3,493 | 3,493 | 3,493 |
+| `cosh (elementary)` | 35,695 | 3,686 | 3,686 | 3,686 |
+| `cospi (elementary)` | 35,627 | 3,491 | 3,491 | 3,491 |
+| `div` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `exp (elementary)` | 35,748 | 3,590 | 3,590 | 3,590 |
+| `exp10 (elementary)` | 35,668 | 3,579 | 3,579 | 3,579 |
+| `exp2 (elementary)` | 35,751 | 3,648 | 3,648 | 3,648 |
+| `expm1 (elementary)` | 35,992 | 3,691 | 3,691 | 3,691 |
+| `fma` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `getstr` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `hypot (elementary)` | 35,805 | 3,655 | 3,655 | 3,655 |
+| `ln (elementary)` | 36,144 | 3,517 | 3,517 | 3,517 |
+| `log10 (elementary)` | 36,002 | 3,575 | 3,575 | 3,575 |
+| `log1p (elementary)` | 35,554 | 3,566 | 3,566 | 3,566 |
+| `log2 (elementary)` | 35,473 | 3,546 | 3,546 | 3,546 |
+| `mul` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `pow (elementary)` | 35,594 | 3,595 | 3,595 | 3,595 |
+| `pown (elementary)` | 35,598 | 3,573 | 3,573 | 3,573 |
+| `rootn (elementary)` | 35,779 | 3,482 | 3,482 | 3,482 |
+| `shortest` | 500,000 | 50,000 | 50,000 | 50,000 |
+| `sin (elementary)` | 35,681 | 3,643 | 3,643 | 3,643 |
+| `sinh (elementary)` | 35,669 | 3,530 | 3,530 | 3,530 |
+| `sinpi (elementary)` | 35,631 | 3,513 | 3,513 | 3,513 |
+| `sqrt` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `strtofr` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `sub` | 2,000,000 | 200,000 | 200,000 | 200,000 |
+| `tan (elementary)` | 35,727 | 3,531 | 3,531 | 3,531 |
+| `tanh (elementary)` | 35,796 | 3,659 | 3,659 | 3,659 |
+| `tanpi (elementary)` | 36,030 | 3,547 | 3,547 | 3,547 |
+| **total** | **17,500,000** | **1,750,000** | **1,750,000** | **1,750,000** |
+
+**libmpdec (decimal)**
+
+| Operation | native | Wasm | JavaScript | Wasm-GC |
+| --- | ---: | ---: | ---: | ---: |
+| `add` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `apply` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `divide` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `exp` | 100,000 | 20,000 | 20,000 | 20,000 |
+| `fma` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `ln` | 100,000 | 20,000 | 20,000 | 20,000 |
+| `log10` | 100,000 | 20,000 | 20,000 | 20,000 |
+| `multiply` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `power` | 100,000 | 20,000 | 20,000 | 20,000 |
+| `squareroot` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `subtract` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `toeng` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| `tosci` | 1,000,000 | 100,000 | 100,000 | 100,000 |
+| **total** | **9,400,000** | **980,000** | **980,000** | **980,000** |
+
+(`sqrt` on native: the table counts the 2,000,000 cases of the final run; the first run of 2,000,000 `sqrt` cases, made before the MPFR defect filter, is not counted: 2,000,000.)
+
+**Outcome.**
+
+- *Binary arithmetic, string conversion and `shortest`*: no disagreement in
+  16,500,000 native cases (plus 1,650,000 on each of the other three
+  backends) apart from the MPFR defect below. Every one of the 5 rounding directions, both
+  tininess rules, the exponent limits and the subnormal range were exercised;
+  a mutation check (swapping the two tininess rules, or nearest-even with
+  nearest-away, in the executor) fails 0.15% to 2.8% of the rows, so the rows
+  that decide those cases are present.
+- *Binary elementary functions*: one finding in 1,000,000 native cases (and
+  300,000 on the other backends): `exp2` of exactly −2^30 returns +0 with no
+  flags where the result 2^−1073741824 is an exact subnormal (13 cases). It is
+  recorded as the known failure `B1` of
+  `testdata/bin_float/random-regressions.txt` until its issue number is known.
+- *Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and
+  `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`,
+  `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an
+  operand rounds past Nmax: [#264](https://github.com/Luna-Flow/floating/issues/264)).
+  The campaign's first run had 10 further disagreements whose operand was above
+  Emax; decTest converts operands subject to the directives, so they are a
+  property of the rows, not findings (the generator now keeps operands within
+  Emax).
+- *Decimal `power`*: 100,000 native cases disagreed with libmpdec in at least
+  300 of them; four defects are filed: the sign of an overflowing result
+  ([#265](https://github.com/Luna-Flow/floating/issues/265)), trailing zeros of
+  inexact results ([#266](https://github.com/Luna-Flow/floating/issues/266)), a
+  spurious Clamped ([#267](https://github.com/Luna-Flow/floating/issues/267)) and
+  missing Subnormal and Underflow
+  ([#268](https://github.com/Luna-Flow/floating/issues/268)). One more symptom
+  (the exact result `power(0.05, -8) = 2.56E+10` raises Rounded) is not filed
+  yet. `exp`, `ln` and `log10` agreed in all 300,000 native cases.
+
+**Known intentional differences, filtered where the rows are generated.** The
+numbers above exclude, and the test-data READMEs document, these cases:
+MPFR has no subnormals (emulated with `mpfr_subnormalize`; nearest-away rows
+that would be subnormal are drawn in nearest-even) and its range is one binade
+narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the
+row's own range, so those limits are compared); NaN payloads are not compared;
+the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin|
+reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts; opt-in
+`dec-*wide` families sample those contexts); libmpdec decides Subnormal and
+Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before
+any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN
+is not specified; `tosci` and `toeng` apply the context precision as decTest
+specifies.
+
+**An oracle defect.** `mpfr_sqrt` of MPFR 4.2.2 (Homebrew bottle, arm64) reports
+an exact result, or a result on the wrong side of the root, for some operands
+with an odd binary exponent whose precision is near the output precision
+(`tools/mpfr_sqrt_ternary_repro.c` is a standalone reproducer). The first run of
+2,000,000 `sqrt` cases had 22 failing batches from it; the generator now checks
+each `sqrt` row with exact arithmetic and draws the case again when MPFR is
+wrong, and the final run of 2,000,000 `sqrt` cases agreed in all cases. This is
+a claim about the Homebrew build I used, not about every MPFR release.
+
+**Not covered.** Operations the oracles lack (`rem`, `roundToIntegral`, the
+integer conversions, `scaleB`/`logB`, decimal operations other than the thirteen
+families); NaN payload policy; nearest-away results in the subnormal range;
+decimal contexts with |Emax| or |Emin| of 10^6 or more for the elementary
+functions; precisions above 700 for the binary elementary functions; the LLVM
+backend; interval arithmetic. The campaign samples a finite space with fixed
+seeds: the counts are what was run, not a proof of absence.
 
 ## Reproducibility
 

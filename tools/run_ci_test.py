@@ -74,7 +74,7 @@ class RunCiTests(unittest.TestCase):
             ],
         )
 
-    def test_quick_scope_runs_native_tools_and_three_smokes(self) -> None:
+    def test_quick_scope_runs_native_tools_and_four_smokes(self) -> None:
         stages = run_ci.stages_for("quick", 4)
         self.assertEqual(
             [stage.name.split(" · ")[0] for stage in stages],
@@ -89,6 +89,7 @@ class RunCiTests(unittest.TestCase):
                 "SMOKE",
                 "SMOKE",
                 "SMOKE",
+                "SMOKE",
             ],
         )
         commands = [stage.command for stage in stages]
@@ -98,9 +99,12 @@ class RunCiTests(unittest.TestCase):
         self.assertIn("--deny-warn", commands[3])
         self.assertIn("unittest", commands[6])
         self.assertEqual(
-            [command[command.index("--backend") + 1] for command in commands[7:]],
-            ["decimal_gda", "binary", "interval"],
+            [command[command.index("--backend") + 1] for command in commands[7:9]],
+            ["decimal_gda", "binary"],
         )
+        self.assertEqual(commands[9][1], "tools/random_differential.py")
+        self.assertEqual(commands[9][2], "smoke")
+        self.assertEqual(commands[10][commands[10].index("--backend") + 1], "interval")
         self.assertIn("--strict-supported", commands[-1])
 
     def test_repository_scopes_exclude_performance_comparisons(self) -> None:

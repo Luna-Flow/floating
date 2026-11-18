@@ -250,6 +250,10 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
+                "SMOKE · Random differential",
+                (sys.executable, "tools/random_differential.py", "smoke"),
+            ),
+            Stage(
                 "SMOKE · Interval",
                 (
                     sys.executable,
