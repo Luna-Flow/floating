@@ -4762,6 +4762,31 @@ fn binary_trigonometric_bounds(
   operation : BinaryTrigonometricOperation,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  if work_precision >= binary_trig_burst_min_precision {
+    let burst = match operation {
+      BinaryTrigonometricOperation::Sin =>
+        binary_trig_bounds_burst(value, false, work_precision)
+      BinaryTrigonometricOperation::Cos =>
+        binary_trig_bounds_burst(value, true, work_precision)
+      BinaryTrigonometricOperation::Tan => None
+    }
+    match burst {
+      Some(bounds) => return Some(bounds)
+      None => ()
+    }
+  }
+  binary_trigonometric_bounds_series(value, operation, work_precision)
+}
+
+///|
+/// The enclosure of `sin`, `cos` or `tan` by the reduction with an enclosure of
+/// `pi / 2` and the series: the path below the bit-burst threshold and the
+/// reference of its tests.
+fn binary_trigonometric_bounds_series(
+  value : BinFloat,
+  operation : BinaryTrigonometricOperation,
+  work_precision : Int32,
+) -> (BinFloat, BinFloat)? {
   let pi = binary_pi_bounds(work_precision).unwrap()
   let downward = BinaryContext::unbounded(
     work_precision,

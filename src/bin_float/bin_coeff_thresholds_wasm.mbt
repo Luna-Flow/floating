@@ -56,3 +56,8 @@ let bin_coeff_newton_division_threshold = 1073741824
 /// Working precision from which the verified Newton step replaces the series for
 /// `ln` of a number in (1, 2] (measured crossover on this target).
 let binary_ln_burst_min_precision = 1280
+
+///|
+/// Working precision from which the bit-burst enclosure of `sin` and `cos`
+/// replaces the reduction and the series (measured crossover on this target).
+let binary_trig_burst_min_precision = 2112
