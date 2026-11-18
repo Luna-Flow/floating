@@ -187,7 +187,7 @@ other last digit after an inexact rounding is never 0 or 5. Rounding the
 result again to at least one digit fewer, in any mode, therefore gives the
 same value as rounding the exact result once in that mode: the retained digit
 acts as a sticky digit, as round-to-odd does in binary. The comparison $2r$ versus $10^k$ is done exactly on
-the decimal limbs (`gda_coeff_div_pow10_round_info_repr` returns the quotient,
+the decimal limbs (`dec_coeff_div_pow10_round_info_repr` returns the quotient,
 whether $r > 0$, and the sign of $2r - 10^k$). If $q + \delta = 10^p$ the result
 is renormalized to $10^{p-1} \cdot 10^{e+k+1}$. Before rounding, the finalizer
 first tries to drop trailing zeros of $c$; when the exact coefficient is too
@@ -454,10 +454,23 @@ finite results, but their contracts differ:
 
 A shared core would have to carry the union of both state models, and a change
 made for one standard could silently change the other's results. The package
-therefore owns its value type, coefficient kernels, contexts, finalizer and
-DPD codec, and production dependency scans check that it never imports
-`decimal`. The coefficient thresholds currently equal those of `decimal`;
-that is a measured coincidence, not a shared dependency.
+therefore owns its value type, contexts, finalizer and DPD codec, and
+`tools/check_imports.py` (part of `just pr`) fails if it imports `decimal`, or
+the reverse.
+
+What the two packages do share is the part that has no standard in it: the
+integer arithmetic on coefficients, in the internal package
+`internal/decimal_kernel`. It contains the limb representation, addition,
+subtraction, comparison, shifts by powers of ten, digit counts, and the
+multiplication and division algorithms with their per-target thresholds. Its
+functions are exact integer functions: they take coefficients and return
+coefficients, they raise no condition, and they know neither a rounding mode,
+a context nor a flag. A change there cannot change which condition an
+operation raises, only how fast the exact integer is found, and the kernel
+imports neither decimal package (`tools/check_imports.py` checks that too).
+Two copies of this code had already diverged: a fix in one did not reach the
+other, and `decimal` lacked the small-value fast paths of `decimal_gda`. The
+thresholds are therefore one set, measured on the shared kernel.
 
 The status-free layer (`DecimalContext`, `DecimalFlags`, the `*_ctx` methods)
 is the package's own engine made public. It returns flags per operation like
@@ -755,7 +768,8 @@ encode that result.
 
 ### Coefficient representation and kernels
 
-A coefficient is either `Small(UInt64)` for values below $10^{18}$ or an array
+The kernel lives in `internal/decimal_kernel` and is shared with `decimal`
+(see the previous section). A coefficient is either `Small(UInt64)` for values below $10^{18}$ or an array
 of base-$10^9$ limbs with a cached digit count, both persistent: operations
 never mutate operand limbs. Decimal limbs make digit counts, trailing-zero
 removal, the half-unit comparison and the `ZeroFiveUp` last-digit test

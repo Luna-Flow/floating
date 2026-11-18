@@ -1,0 +1,115 @@
+# internal/decimal_kernel design
+
+## Design goal
+
+`decimal` and `decimal_gda` implement two different standards on top of the
+same arithmetic: nonnegative integers in decimal digits. The integer part
+should exist once, so that a fix or a measurement helps both, while nothing of
+either standard leaks into it. The package therefore contains only functions
+from integers to integers.
+
+## Mathematical background
+
+A coefficient $c \ge 0$ is stored in base $B = 10^{9}$, the largest power of
+ten below $2^{30}$, so a limb product is below $B^{2} = 10^{18} < 2^{60}$ and
+fits a `UInt64` together with carries. Values below $10^{18}$ (two limbs) are
+kept as one `UInt64`. Digit counts, trailing zeros, the half-unit comparison
+and the last-digit test of `ZeroFiveUp` are then limb operations; no
+binary-to-decimal conversion exists.
+
+Every operation computes an exact result:
+
+- $\operatorname{add}(a,b) = a + b$, $\operatorname{sub}(a,b) = a - b$ for
+  $a \ge b$, $\operatorname{mul}(a,b) = ab$;
+- $\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \le r < b$;
+- $\operatorname{shift}(a,k) = a\cdot 10^{k}$ and
+  $\operatorname{divpow10}(a,k) = (\lfloor a/10^{k}\rfloor,\; a \bmod 10^{k} \ne 0,\; \operatorname{sign}(2(a \bmod 10^{k}) - 10^{k}))$,
+  which is everything a rounding decision needs;
+- $\operatorname{gcd}$, the multiplicity of a unit factor and exact division by
+  a unit.
+
+Because each result is determined by the mathematical definition, the algorithm
+chosen by the dispatcher (schoolbook, Karatsuba, Toom-3, a two-prime NTT,
+Knuth's Algorithm D, Burnikel–Ziegler, Newton reciprocal division) cannot
+change a value. The dispatch is performance policy.
+
+### The NTT bound
+
+The NTT uses base-$10^5$ digits and the primes $p_1 = 998\,244\,353$ and
+$p_2 = 754\,974\,721$, so $p_1 p_2 = 753\,649\,251\,896\,000\,513$. A
+convolution coefficient is a sum of at most $m = \min(n_a, n_b)$ products of
+digits at most $99\,999$, hence at most $m\cdot 99\,999^{2}$, and the Chinese
+remainder theorem recovers it exactly when that is below $p_1p_2$, that is for
+$m < 75\,366\,432$. Both primes have $2^{23}$-th roots of unity, so the
+transform length is at most $2^{23}$ and $m \le 2^{22}$:
+$2^{22}\cdot 99\,999^{2} = 41\,942\,201\,143\,394\,304 < p_1 p_2$. The bound
+holds for every length the transform accepts, and `dec_coeff_ntt_limits_fit`
+checks it before each use. (`decimal` used base-$10^4$ digits before the
+kernels were shared; the bound $2^{22}\cdot 9\,999^{2}$ was also satisfied, and
+the product is the same integer either way.)
+
+## Design decisions
+
+### One kernel, two representations merged
+
+The two packages had diverged. `decimal_gda` stored `Small(UInt64)` and had
+small-value fast paths, a numerator-aware division dispatch and an
+allocation-free scaled comparison; `decimal` stored an inline `UInt32`, had
+`gcd`, `mod`, `shift_power10_mod` and a whole-limb mode in `trim`. The shared
+kernel is the union, built on the `Small(UInt64)` representation, because the
+fast paths are pure integer facts. The functions that only one side had are
+kept (they are exact integer functions too). The `trim` whole-limb mode counts
+trailing zeros per limb instead of per digit and returns the same count as the
+digit loop; `dec_coeff_count_factor_unit_repr` returns early when the lowest
+limb is not divisible by 2 or 5 (the base is divisible by both, so the lowest
+limb decides), which is cheaper than the batched attempt for the common case.
+
+### What stays out
+
+Nothing that depends on a standard moves here: rounding modes, precision,
+exponent range, the finalizer, flags, traps, the `Decimal` type, the DPD and
+BID codecs. The design page of `decimal_gda` explains why those must not be
+shared. A function belongs in the kernel only if it would be correct, with the
+same meaning, in either standard.
+
+### Public types, internal package
+
+`DecCoeff`, its algorithm enums and the scratch types are `pub(all)` so that
+the two packages can pattern-match the `Small` case in their own fast paths
+without a call per access. Visibility is bounded by the package itself:
+`internal/` makes it unimportable outside `Luna-Flow/floating`, and no public
+signature of `decimal` or `decimal_gda` mentions the types.
+
+### Option-free hot paths
+
+`dec_coeff_small_value` returns an `Option`, which allocates for a small
+value. Functions on the hot path of the `decimal` greatest-common-divisor loop
+(`dec_coeff_mod_repr`) match the constructors directly instead. A paired A/B of
+`decimal` division at 34 and 100 digits showed the allocation; matching
+removed it.
+
+## Correctness and invariants
+
+- **Canonical form.** A `Limbs` value has no leading zero limb and is at least
+  $10^{18}$; a smaller value is `Small`. Equal integers therefore have equal
+  representations, and `DecCoeff::to_string` is the plain decimal string.
+- **Persistence.** No operation mutates the limbs of an operand.
+- **Totality inside the contract.** A violated precondition aborts; it is never
+  mapped to a value.
+- **Exactness.** All results equal the `BigInt` result. The white-box tests
+  compare with `BigInt` at limb boundaries, at the threshold of every target and
+  for forced algorithms on nines, powers of ten and sparse operands.
+
+## Trade-offs and limitations
+
+Sharing means a performance change hits both standards; every change is
+measured on both. The kernel is not a general bignum: it has no negative
+numbers except `SignedDecCoeff` for intermediate values, and no radix other
+than $10^{9}$.
+
+## References
+
+D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1;
+C. Burnikel and J. Ziegler, "Fast recursive division", MPI-I-98-1-022, 1998;
+R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010,
+§1.3–1.4 and §2.4.

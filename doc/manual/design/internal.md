@@ -13,9 +13,11 @@ helpers together without a public compatibility promise.
 On the current branch the sharing is partial. The decimal cores use the
 string splitter, `round_positive_div`, the power caches and `digits10`; every
 core uses the refinement budget and `certified_failure`; `semantic` uses
-`ExactRat`. The hot paths of `bin_float` and `decimal` round with their own
-limb kernels (`BinCoeff` and `DecCoeff`), which implement the same rounding
-table as `round_positive_div` but are not built on it, and several helpers
+`ExactRat`. The hot paths of `bin_float` and the two decimal packages round with their
+own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage
+`internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which
+implement the same rounding table as `round_positive_div` but are not built
+on it, and several helpers
 (`round_shift`, the factor removers, the `CertifiedDyadic` family, the
 `result_lift2` combinators) are exercised only by tests. The table on the
 [API page](../api/internal.md#purpose) lists the users of each helper.

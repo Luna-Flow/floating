@@ -826,9 +826,13 @@ J. van der Hoeven, "Ball arithmetic", 2009, for the enclosure model.
 ten and fast digit counts; large precisions need sub-quadratic
 multiplication and division.
 
-**Choice.** The package-private `DecCoeff` is either an inline `UInt` below
-$10^{9}$ or a little-endian array of base-$10^{9}$ limbs with no leading zero
-limb and a cached digit count. Base $10^9$ is the largest power of ten below
+**Choice.** `DecCoeff`, defined in the internal package
+`internal/decimal_kernel` that `decimal` shares with `decimal_gda` (neither
+package exposes it), is either a `Small(UInt64)` below $10^{18}$ or a
+little-endian array of base-$10^{9}$ limbs with no leading zero limb and a
+cached digit count. The package holds only status-free integer arithmetic;
+the finalizer, flags and contexts stay in each decimal package (see
+[the shared kernel](decimal_gda.md#a-gda-package-independent-of-decimal)). Base $10^9$ is the largest power of ten below
 $2^{30}$, so a limb product is below $10^{18} < 2^{60}$; shifting by a
 multiple of nine digits moves limbs, and `digits10` is a limb count plus the
 digits of the top limb. `BigInt` appears only at the public boundary.
@@ -850,20 +854,23 @@ only when $\min(n_a,n_b) \le 18$: a column sum plus incoming carry is at most
 $18(10^{9}-1)^{2} + 2\cdot 10^{10} < 1.8\cdot 10^{19} < 2^{64}$, while 19
 products could exceed $2^{64} \approx 1.845\cdot 10^{19}$.
 
-The NTT splits the coefficients into base-$10^4$ digits and convolves them
+The NTT splits the coefficients into base-$10^5$ digits and convolves them
 modulo the primes $p_1 = 998\,244\,353 = 119\cdot 2^{23} + 1$ and $p_2 =
 754\,974\,721 = 45 \cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of
 unity, so transforms up to length $2^{23}$ exist. A convolution coefficient
-is a sum of at most $m = \min(n_a, n_b)$ products of digits below $10^{4}$,
-hence below $m \cdot 9999^{2}$; it is recovered exactly from its residues by
+is a sum of at most $m = \min(n_a, n_b)$ products of digits below $10^{5}$,
+hence below $m \cdot 99999^{2}$; it is recovered exactly from its residues by
 the Chinese remainder theorem,
 
 $$
 z = r_1 + p_1 \bigl((r_2 - r_1)\, p_1^{-1} \bmod p_2\bigr),
 $$
 
-as long as $m \cdot 9999^{2} < p_1 p_2 \approx 7.54 \cdot 10^{17}$, i.e.
-$m < 7.5 \cdot 10^{9}$ — always true below the transform limit. Base $10^{9}$
+as long as $m \cdot 99999^{2} < p_1 p_2 = 753\,649\,251\,896\,000\,513$, i.e.
+$m < 7.5 \cdot 10^{7}$. The transform limit $2^{23}$ allows at most
+$m = 2^{22}$, and $2^{22} \cdot 99999^{2} = 41\,942\,201\,143\,394\,304 <
+p_1 p_2$, so the bound always holds below the transform limit (the kernel
+checks it before every transform). Base $10^{9}$
 digits would need $m\cdot 10^{18} < p_1p_2$, impossible for any $m \ge 1$,
 which is why the NTT uses smaller digits. When the bounds do not hold the
 kernel falls back to Toom-3.
