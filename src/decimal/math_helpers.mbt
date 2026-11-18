@@ -446,10 +446,14 @@ fn decimal_power_integer_work_ctx(
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let extra_digits = dec_coeff_from_int_magnitude(count).digits10() +
     (if ctx.extended { 2 } else { 1 })
+  // The working context does not clamp: a fold-down of an intermediate product
+  // at the working precision is not the result's, and the final rounding to
+  // `ctx` clamps the delivered value and raises `clamped` when it does.
   {
     ..ctx,
     precision: precision + extra_digits,
     decimal_rounding: DecimalRoundingMode::HalfEven,
+    clamp: false,
   }
 }
 
@@ -663,6 +667,7 @@ fn decimal_power_large_integer_coeff_result(
     ..ctx,
     precision: precision + extra_digits,
     decimal_rounding: DecimalRoundingMode::HalfEven,
+    clamp: false,
   }
   let one = Decimal::one(
     precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
