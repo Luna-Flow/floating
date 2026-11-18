@@ -830,8 +830,8 @@ replacement it needs a precision near $500\,000$ bits.
 ### Asymptotically fast elementary kernels (proposed)
 
 *Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18).
-Only the constants (`pi`, `ln 2`, `ln 10` by binary splitting) are implemented;
-the rest of this section is design. The measured figures are baselines or
+The constants (`pi`, `ln 2`, `ln 10` by binary splitting) and the `exp`
+enclosure are implemented; the rest of this section is design. The measured figures are baselines or
 results of the implemented part; the figures marked "projection" come from a
 cost model fitted to them and are replaced by measurements as each step
 lands.*
@@ -866,7 +866,7 @@ $w$, and only from a per-target precision threshold upward. Every new
 kernel is a pure function $(x, w) \mapsto [L, U]$ of exactly the type the
 loop already consumes (`binary_exp_bounds`, `binary_ln_bounds`,
 `binary_trigonometric_bounds`, and the constants), so `exp2`, `exp10`,
-`expm1`, `sinh`, `cosh`, `pow`, `rootn` and the logarithm family inherit the
+`sinh`, `cosh`, `pow`, `rootn` and the logarithm family inherit the
 speed-up, and the recommended functions of
 [#235](https://github.com/Luna-Flow/floating/issues/235) (`compound`, `powr`,
 `exp2m1`, `exp10m1`, `log2p1`, `log10p1`, `rSqrt`, the $\pi$-scaled inverses)
@@ -958,14 +958,69 @@ $2\, \tau_n < 2$ units. A stage is estimated (not yet measured) at 8 to 14 full
 products independent of $N$, a fixed-point stage with $n$ terms costs $n$ unbalanced
 products, so the crossover per stage is at $n$ of a few tens of terms.
 
-*Projection (native, this machine).* With the measured unit costs (product
-$8192 \times m$ bits above, shift 0.2 µs, one-limb division 1.5 µs, addition
-0.3 µs at 8192 bits) the model gives about 1.6 to 2.2 ms for $w = 8192$ and
-120 to 160 µs for $w = 2048$, against 17.8 ms and 514 µs today. The model
-ignores allocation, the final division of each binary-splitting stage and
-cache effects, so a safe reading is 2 to 3.5 ms (5 to 9 times faster) at
-8192 bits and 2 to 4 times at 2048 bits; the break-even against the
-current series is expected at a few hundred bits.
+*Implementation (`elementary_burst_exp.mbt`).* The kernel
+`binary_exp_bounds_burst` follows the construction above with these choices:
+$g = 48$ guard bits; chunk boundaries at $16, 64, 256, \dots$ (first chunk 16
+bits, factor 4); a chunk is evaluated by binary splitting when its term count
+(from the integer bound on $2^F N^n < n!\, 2^{sn}$, using
+$\log_2 n! \ge \sum_{i \le n} (\operatorname{bits}(i) - 1)$) is at least 40, and
+by the fixed-point series otherwise; `ln 2` is requested at the next multiple
+of 64 above $G + 2$. The reduced argument comes from one Euclidean division of
+$x 2^G$ by $\lfloor 2^G \ln 2 \rfloor$, so $0 \le R < \ln 2$ with no
+correction loop. The kernel declines (`None`, and the series runs) for
+$|x| < 2^{-65}$ or $|x| \ge 2^{30}$, when $|n| \ge 2^{29}$ (the result
+exponent would approach the limit of the exponent range), when $x$ has bits
+below $2^{-G}$, and when the computed width exceeds $2^{-(w+6)}$ of the value.
+It is used from a per-target working precision, kept with the coefficient
+thresholds: 1024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on
+JavaScript (the kernel is slower than the series below roughly 1000 bits on
+Native, 600 on Wasm-GC; on JavaScript it wins already at 256). The three
+chunk constants were swept on Native; in a repeat on a quiet machine the chosen
+point (16, factor 4, split at 40 terms) was the fastest at 8256 bits (1.5 ms
+against 1.6 to 2.3 ms for the other tried settings) and within about 15 % of the
+fastest at 2112 bits.
+
+*Evidence for the `exp` kernel.* White-box tests
+(`elementary_burst_exp_wbtest.mbt`): the enclosure at $w$ contains the series
+enclosure at $w + 256$ for every argument the kernel accepts in a corpus of
+224 values of 60 to 2000 bits with $|x|$ from $2^{-60}$ to $2^{30}$, and for
+arguments next to multiples of $\ln 2$, to
+$2^{29} - 1$ and to $1 - 2^{-k}$; it is no wider than the series enclosure at
+$w$; and `exp_ctx` returns the same value and flags as the Ziv loop run on the
+series alone, in four rounding directions. Three deliberately wrong variants
+are caught by the containment test: a bias of 64 units in every stage, 40 terms
+fewer in the binary-splitting stages, and `ln 2` taken with 128 bits fewer for
+an argument near $2^{27}$. Two obligations are not exercised by such tests: the
+slack of the fixed-point stages and the units for $\delta$ are dominated by
+the much larger worst-case terms of the other stages, so an enclosure without
+them still contains the value; their justification is the paper argument
+above, not the tests. MPFR 4.2.2 comparison: 35,040 rows (precisions 256 to
+4096, four rounding directions, arguments from $2^{-60}$ to $2^{28}$ and next
+to multiples of $\ln 2$) all match; the output is byte-identical on Native,
+Wasm, Wasm-GC and JavaScript; the random differential run (`elem`) agrees on
+100,000 cases on Native and 20,000 on each other target.
+
+*Measured (native, release, this machine).* Kernel only, $w = p + 64$ bits,
+$x \approx 0.7$: 20 ms to 1.97 ms at 8256 bits, 3.3 ms to 0.67 ms at 4160, 594
+to 220 µs at 2112, 112 to 87 µs at 1088; below 1000 bits it is slower (37 to
+41 µs at 576). End to end, `just bench external quick --ops exp` paired and
+alternating with `origin/main` (four rounds, the quiet ones last), floating
+time per call: 8192 bits 20.2 and 20.4 ms against 1.78 and 1.69 ms (paired
+ratios 9.1 to 12.1), 2048 bits 508 and 517 µs against 187 and 196 µs (2.1 to
+2.7), and 53 and 512 bits unchanged within the noise of the machine (0.92 to
+1.19). Against the stored MPFR reference of that tool the ratio of the
+8192-bit call moves from about 95 to about 8 on the machine of the run (the
+machine reads about 1.4 times slower than the stored run, so the drift
+corrected values are about 66 and 5.6).
+
+*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size products
+(43 µs each) and spends most of it in products and divisions of $w$-bit
+numbers. With a
+multiplication and division kernel three times faster, and everything else
+unchanged, a first estimate (not measured) is 0.6 to 0.8 ms at 8192 bits and
+60 to 80 µs at 2048 bits, which is about 3 to 4 times the MPFR reference
+(213 µs and 17 µs). The remaining gap would be allocation and the small-integer
+steps of the fixed-point stages.
 
 **`ln`, by verified Newton step.** Write $v = m\, 2^{k}$ with
 $m \in [2^{-1/2}, 2^{1/2})$, so $\ln v = k \ln 2 + \ln m$. Take any dyadic

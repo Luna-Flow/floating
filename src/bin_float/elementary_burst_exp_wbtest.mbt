@@ -1,0 +1,309 @@
+///|
+/// Deterministic pseudo-random coefficient with exactly `bits` bits (odd).
+fn burst_test_coefficient(bits : Int32, seed : UInt64) -> BinCoeff {
+  let mut value = BinCoeff::one()
+  let mut state = seed * 2862933555777941757UL + 3037000493UL
+  let mut produced = 1
+  while produced < bits {
+    state = state * 6364136223846793005UL + 1442695040888963407UL
+    let take = Int32::min(32, bits - produced)
+    let chunk = (state >> 32) & ((1UL << take) - 1UL)
+    value = value.shift_left(take).add(BinCoeff::from_uint64(chunk))
+    produced += take
+  }
+  if value.test_bit(0) {
+    value
+  } else {
+    value.add(BinCoeff::one())
+  }
+}
+
+///|
+/// A value with `bits` random bits and `|value|` in `[2^(top-1), 2^top)`.
+fn burst_test_value(
+  bits : Int32,
+  top : Int32,
+  negative : Bool,
+  seed : UInt64,
+) -> BinFloat {
+  BinFloat::make(
+    burst_test_coefficient(bits, seed),
+    top - bits,
+    bits,
+    negative~,
+  )
+}
+
+///|
+fn burst_test_contains(
+  outer : (BinFloat, BinFloat),
+  inner : (BinFloat, BinFloat),
+) -> Bool {
+  outer.0.compare(inner.0) <= 0 && inner.1.compare(outer.1) <= 0
+}
+
+///|
+/// A mutated kernel is caught when it declines or misses the reference.
+fn burst_test_caught(
+  bounds : (BinFloat, BinFloat)?,
+  reference : (BinFloat, BinFloat),
+) -> Bool {
+  match bounds {
+    Some(value) => !burst_test_contains(value, reference)
+    None => true
+  }
+}
+
+///|
+fn burst_test_work(bits : Int32) -> Int32 {
+  Int32::max(256, bits + 64)
+}
+
+///|
+fn burst_test_corpus() -> Array[BinFloat] {
+  let values : Array[BinFloat] = []
+  let tops = [-60, -20, -8, -3, -1, 0, 1, 2, 3, 5, 8, 12, 20, 28, 29, 30]
+  let mut seed = 1UL
+  for bits in [60, 130, 256, 400, 700, 1100, 2000] {
+    for top in tops {
+      values.push(burst_test_value(bits, top, false, seed))
+      seed += 1UL
+      values.push(burst_test_value(bits, top, true, seed))
+      seed += 1UL
+    }
+  }
+  values
+}
+
+///|
+test "bit-burst exp contains the series enclosure at higher precision" {
+  let mut checked = 0
+  for value in burst_test_corpus() {
+    let work = burst_test_work(value.precision())
+    match binary_exp_bounds_burst(value, work) {
+      Some(bounds) => {
+        let reference = binary_exp_bounds_series(value, work + 256).unwrap()
+        assert_true(burst_test_contains(bounds, reference))
+        checked += 1
+      }
+      None => ()
+    }
+  }
+  // Only arguments below 2^-64, above 2^30 or with too many bits may decline.
+  assert_true(checked > 100)
+}
+
+///|
+test "bit-burst exp is no wider than the series enclosure" {
+  for value in burst_test_corpus() {
+    let work = burst_test_work(value.precision())
+    match binary_exp_bounds_burst(value, work) {
+      Some((low, high)) => {
+        let (series_low, series_high) = binary_exp_bounds_series(value, work).unwrap()
+        assert_true(high.sub(low).compare(series_high.sub(series_low)) <= 0)
+      }
+      None => ()
+    }
+  }
+}
+
+///|
+test "bit-burst exp at the reduction boundaries" {
+  // Arguments next to multiples of ln 2 (reduced argument near 0 and near
+  // ln 2), the extreme exponents and the chunk boundaries.
+  let (ln2_low, _) = binary_ln2_bounds(2048).unwrap()
+  let values : Array[BinFloat] = []
+  for bits in [200, 300, 600, 1500] {
+    let ln2 = ln2_low.with_precision(bits, RoundingMode::TowardNegative)
+    let up = ln2_low.with_precision(bits, RoundingMode::TowardPositive)
+    for k in [1, 2, 3, 7, 100, 12345, 1000000] {
+      let factor = BinFloat::from_int(k, precision=64)
+      for base in [ln2, up] {
+        let product = base.mul_ctx(
+            factor,
+            BinaryContext::unbounded(bits + 64, rounding=RoundTiesToEven),
+          ).0
+        values.push(product)
+        values.push(product.neg())
+        // One unit in the last place away, on both sides.
+        let context = BinaryContext::unbounded(bits + 64)
+        values.push(product.next_up_ctx(context).0)
+        values.push(product.next_down_ctx(context).0)
+      }
+    }
+  }
+  for k in [1, 2, 3, 7, 100, 536870911] {
+    values.push(BinFloat::from_int(k, precision=64))
+    values.push(BinFloat::from_int(-k, precision=64))
+  }
+  values.push(BinFloat::make(BinCoeff::one(), -60, 1))
+  values.push(BinFloat::make(BinCoeff::one(), -60, 1, negative=true))
+  values.push(BinFloat::make(BinCoeff::from_uint64(3UL), -40, 2))
+  // A value just below one half and just above it, and 1 - 2^-k.
+  for k in [16, 17, 64, 65, 256, 257, 1024] {
+    values.push(
+      BinFloat::make(
+        BinCoeff::one().shift_left(k).sub_checked(BinCoeff::one()).unwrap(),
+        -k,
+        k,
+      ),
+    )
+  }
+  let mut checked = 0
+  for value in values {
+    let work = burst_test_work(value.precision())
+    match binary_exp_bounds_burst(value, work) {
+      Some(bounds) => {
+        let reference = binary_exp_bounds_series(value, work + 256).unwrap()
+        assert_true(burst_test_contains(bounds, reference))
+        checked += 1
+      }
+      None => ()
+    }
+  }
+  assert_true(checked > 150)
+}
+
+///|
+test "bit-burst exp declines outside its range" {
+  let work = 512
+  assert_true(
+    binary_exp_bounds_burst(BinFloat::zero(precision=64), work) is None,
+  )
+  assert_true(
+    binary_exp_bounds_burst(BinFloat::from_int(1073741824, precision=64), work)
+    is None,
+  )
+  assert_true(
+    binary_exp_bounds_burst(BinFloat::make(BinCoeff::one(), -200, 1), work)
+    is None,
+  )
+  assert_true(
+    binary_exp_bounds_burst(BinFloat::inf(Sign::Positive), work) is None,
+  )
+  assert_true(binary_exp_bounds_burst(BinFloat::nan(), work) is None)
+}
+
+///|
+test "mutated bit-burst kernels are caught by the containment test" {
+  let value = burst_test_value(2000, 0, false, 77UL)
+  let work = 2064
+  let reference = binary_exp_bounds_series(value, work + 256).unwrap()
+  assert_true(
+    burst_test_contains(
+      binary_exp_bounds_burst(value, work).unwrap(),
+      reference,
+    ),
+  )
+  // An arithmetic bias of 64 units in every stage.
+  let dropped = {
+    lower_bias: 64,
+    split_reduce_terms: 0,
+    drop_delta: false,
+    ln2_drop_bits: 0,
+  }
+  assert_true(
+    burst_test_caught(
+      binary_exp_bounds_burst(value, work, mutation=dropped),
+      reference,
+    ),
+  )
+  // Too few terms in the binary-splitting stages.
+  let shortened = {
+    lower_bias: 0,
+    split_reduce_terms: 40,
+    drop_delta: false,
+    ln2_drop_bits: 0,
+  }
+  assert_true(
+    burst_test_caught(
+      binary_exp_bounds_burst(value, work, mutation=shortened),
+      reference,
+    ),
+  )
+  // A reduction with too few bits of ln 2 for a large argument.
+  let large = burst_test_value(2000, 27, false, 78UL)
+  let large_reference = binary_exp_bounds_series(large, work + 256).unwrap()
+  assert_true(
+    burst_test_contains(
+      binary_exp_bounds_burst(large, work).unwrap(),
+      large_reference,
+    ),
+  )
+  let coarse = {
+    lower_bias: 0,
+    split_reduce_terms: 0,
+    drop_delta: false,
+    ln2_drop_bits: 128,
+  }
+  assert_true(
+    burst_test_caught(
+      binary_exp_bounds_burst(large, work, mutation=coarse),
+      large_reference,
+    ),
+  )
+}
+
+///|
+/// The result of `exp_ctx` computed with the series enclosures only: the
+/// Ziv loop of `try_exp_ctx` without the bit-burst kernel.
+fn burst_test_exp_series(
+  value : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  let mut work = context.precision + 64
+  let mut attempt = 0
+  while attempt < 12 {
+    match binary_exp_bounds_series(value, work) {
+      Some(bounds) => {
+        let (result, unique, flags) = binary_certified_inexact_target_rounding(
+          bounds.0,
+          bounds.1,
+          context,
+        )
+        if unique {
+          return Some((result, flags))
+        }
+      }
+      None => return None
+    }
+    work += Int32::max(32, work / 2)
+    attempt += 1
+  }
+  None
+}
+
+///|
+test "exp results are identical with and without the bit-burst kernel" {
+  // Precisions around and above the threshold, all rounding directions.
+  let modes = [
+    RoundTiesToEven,
+    RoundTowardZero,
+    RoundTowardPositive,
+    RoundTowardNegative,
+  ]
+  let mut seed = 500UL
+  let mut compared = 0
+  for bits in [200, 300, 513, 576, 640, 1000, 1024, 2048] {
+    for top in [-5, -1, 0, 1, 3, 6, 10, 20] {
+      for negative in [false, true] {
+        seed += 1UL
+        let value = burst_test_value(bits, top, negative, seed)
+        for mode in modes {
+          let context = BinaryContext::unbounded(bits, rounding=mode)
+          let reference = burst_test_exp_series(value, context)
+          let actual = value.try_exp_ctx(context)
+          match (reference, actual) {
+            (Some((expected, expected_flags)), Ok((result, flags))) => {
+              assert_true(result == expected)
+              assert_true(flags == expected_flags)
+              compared += 1
+            }
+            _ => ()
+          }
+        }
+      }
+    }
+  }
+  assert_true(compared > 200)
+}

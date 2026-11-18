@@ -534,3 +534,8 @@ pub extend BinCoeff with Shl::{shl}
 
 ///|
 pub extend BinCoeff with Shr::{shr}
+
+///|
+/// Working precision from which the bit-burst enclosure of `exp` replaces the
+/// series (measured crossover on this target).
+let binary_exp_burst_min_precision = 256
