@@ -137,10 +137,13 @@ static const op_t operations[] = {
     // above so that its rows do not change, the new ones are "elem2".
     {"exp2m1", K_ELEM, 1},  {"exp10m1", K_ELEM, 1},
     {"log2p1", K_ELEM, 1},  {"log10p1", K_ELEM, 1},
+    // The family "elem3".
+    {"rsqrt", K_ELEM, 1},   {"compound", K_ELEM, 1}, {"powr", K_ELEM, 2},
 };
 #define OP_COUNT (sizeof(operations) / sizeof(operations[0]))
 #define FIRST_ELEM 9
 #define LEGACY_OP_COUNT 37
+#define ELEM2_END 41
 
 static const char *rounding_names[] = {"n", "na", "z", "u", "d", "a"};
 static const mpfr_rnd_t rounding_modes[] = {
@@ -271,6 +274,65 @@ static void print_row(FILE *out, const row_t *row) {
 
 // ---------------------------------------------------------- computation ---
 
+// mpfr_compound_si of MPFR 4.2.2 (the Homebrew build) is not correctly rounded
+// for a negative n in the directed modes, nor at the ends of the exponent
+// range: 15 of 1,000,000 rows of the family elem3 and 2,017 of 718,824 range
+// boundary rows are wrong (the neighbour on the wrong side, a missing overflow
+// flag, a flushed zero where the smallest subnormal belongs). For example
+// (1 + 7/64)^-2 = 4096/5041 = 0.81254 rounded toward negative infinity at 4 bits
+// is 13/16, MPFR gives 3/4. (1 + x)^n is an exact rational, so wherever its
+// numerator and denominator are of a manageable size it is formed with GMP and
+// rounded by mpfr_set_q, which is correctly rounded and honours the exponent
+// range of the row; mpfr_compound_si is used only for the remaining rows. The
+// exact value agrees with every row that mpfr_compound_si gets right, and the
+// disagreeing rows are proven by exact rational arithmetic (see
+// docs/verification.md).
+static int compound_exact(mpfr_t y, const mpfr_t x, long n, mpfr_rnd_t rnd,
+                          int *done) {
+  *done = 0;
+  if (n == 0 || !mpfr_regular_p(x)) return 0;
+  mpz_t m, num, den, power_num, power_den;
+  mpz_inits(m, num, den, power_num, power_den, NULL);
+  mpfr_exp_t e = mpfr_get_z_2exp(m, x);
+  mp_bitcnt_t trailing = mpz_scan1(m, 0);
+  mpz_tdiv_q_2exp(m, m, trailing);  // the operand is read at 512 bits
+  e += (mpfr_exp_t)trailing;
+  int ternary = 0;
+  if (e > -3000000L && e < 3000000L) {
+    if (e < 0) {
+      mpz_set_ui(den, 1);
+      mpz_mul_2exp(den, den, (mp_bitcnt_t)-e);
+      mpz_add(num, m, den);
+    } else {
+      mpz_mul_2exp(num, m, (mp_bitcnt_t)e);
+      mpz_add_ui(num, num, 1);
+      mpz_set_ui(den, 1);
+    }
+    unsigned long count = (unsigned long)labs(n);
+    if (mpz_sgn(num) > 0 &&
+        ((unsigned long)mpz_sizeinbase(num, 2) +
+         (unsigned long)mpz_sizeinbase(den, 2)) * count <= 3000000UL) {
+      mpz_pow_ui(power_num, num, count);
+      mpz_pow_ui(power_den, den, count);
+      mpq_t q;
+      mpq_init(q);
+      if (n > 0) {
+        mpz_set(mpq_numref(q), power_num);
+        mpz_set(mpq_denref(q), power_den);
+      } else {
+        mpz_set(mpq_numref(q), power_den);
+        mpz_set(mpq_denref(q), power_num);
+      }
+      mpq_canonicalize(q);
+      ternary = mpfr_set_q(y, q, rnd);
+      *done = 1;
+      mpq_clear(q);
+    }
+  }
+  mpz_clears(m, num, den, power_num, power_den, NULL);
+  return ternary;
+}
+
 static int apply_op(const row_t *row, mpfr_t y, mpfr_rnd_t rnd) {
   const char *name = row->op->name;
   const mpfr_t *a = &row->a;
@@ -303,6 +365,14 @@ static int apply_op(const row_t *row, mpfr_t y, mpfr_rnd_t rnd) {
   if (!strcmp(name, "exp10m1")) return mpfr_exp10m1(y, *a, rnd);
   if (!strcmp(name, "log2p1")) return mpfr_log2p1(y, *a, rnd);
   if (!strcmp(name, "log10p1")) return mpfr_log10p1(y, *a, rnd);
+  if (!strcmp(name, "rsqrt")) return mpfr_rec_sqrt(y, *a, rnd);
+  if (!strcmp(name, "compound")) {
+    int done;
+    int ternary = compound_exact(y, *a, row->n, rnd, &done);
+    if (done) return ternary;
+    return mpfr_compound_si(y, *a, row->n, rnd);
+  }
+  if (!strcmp(name, "powr")) return mpfr_powr(y, *a, *b, rnd);
   if (!strcmp(name, "rootn")) return mpfr_rootn_si(y, *a, row->n, rnd);
   if (!strcmp(name, "pown")) return mpfr_pow_si(y, *a, row->n, rnd);
   if (!strcmp(name, "pow")) return mpfr_pow(y, *a, *b, rnd);
@@ -472,6 +542,14 @@ static void compute_row_real(row_t *row) {
     compute_real(row);
   }
   check_sqrt(row);
+  // IEEE 754-2019 9.2.1: "rSqrt(±0) is ±∞ and signals the divideByZero
+  // exception"; mpfr_rec_sqrt(-0) is +inf, so the expected value follows the
+  // standard here.
+  if (strcmp(row->op->name, "rsqrt") == 0 && mpfr_zero_p(row->a) &&
+      mpfr_signbit(row->a)) {
+    mpfr_set_inf(row->y, -1);
+    row->flags = F_DIVZERO;
+  }
 }
 
 // mpfr_get_str of a positive |value| and whether the digits are exact.
@@ -1368,6 +1446,26 @@ static void gen_elem(rng_t *rng, row_t *row, const op_t *op) {
     long l = rnd_range(rng, -60, 10);
     if (chance(rng, 3, 100)) l = rnd_range(rng, 28, 32);  // overflow range
     make_dyadic(rng, row->a, pa, l, neg);
+  } else if (!strcmp(name, "rsqrt")) {
+    // positive operands, a few negative ones and the special values below
+    make_dyadic(rng, row->a, pa, lead, chance(rng, 1, 10));
+  } else if (!strcmp(name, "compound")) {
+    row->n = chance(rng, 1, 6) ? -rnd_range(rng, 1, 25) : rnd_range(rng, 1, 40);
+    if (chance(rng, 1, 25)) row->n = rnd_range(rng, 41, 100000);
+    if (chance(rng, 1, 25)) row->n = -rnd_range(rng, 26, 100000);
+    if (chance(rng, 1, 6)) {
+      // close to -1
+      long e = rnd_range(rng, 1, 40);
+      mpfr_set_prec(row->a, (mpfr_prec_t)(pa + e + 4));
+      mpfr_set_ui_2exp(row->a, 1, -e, MPFR_RNDN);
+      mpfr_sub_ui(row->a, row->a, 1, MPFR_RNDN);
+    } else {
+      make_dyadic(rng, row->a, pa, rnd_range(rng, -30, 6), neg && chance(rng, 1, 3));
+      if (mpfr_cmp_si(row->a, -1) < 0) make_dyadic(rng, row->a, pa, -2, 1);
+    }
+  } else if (!strcmp(name, "powr")) {
+    make_dyadic(rng, row->a, pa, rnd_range(rng, -6, 6), chance(rng, 1, 12));
+    make_dyadic(rng, row->b, pb, rnd_range(rng, -6, 6), neg);
   } else if (!strcmp(name, "rootn")) {
     row->n = chance(rng, 1, 8) ? -rnd_range(rng, 1, 10) : rnd_range(rng, 2, 12);
     if (chance(rng, 1, 30)) row->n = rnd_range(rng, 13, 3000);
@@ -1435,7 +1533,10 @@ static const op_t *pick_family_op(const char *family, rng_t *rng) {
     return &operations[FIRST_ELEM + rnd_range(rng, 0, (long)LEGACY_OP_COUNT - FIRST_ELEM - 1)];
   }
   if (!strcmp(family, "elem2")) {
-    return &operations[LEGACY_OP_COUNT + rnd_range(rng, 0, (long)OP_COUNT - LEGACY_OP_COUNT - 1)];
+    return &operations[LEGACY_OP_COUNT + rnd_range(rng, 0, (long)ELEM2_END - LEGACY_OP_COUNT - 1)];
+  }
+  if (!strcmp(family, "elem3")) {
+    return &operations[ELEM2_END + rnd_range(rng, 0, (long)OP_COUNT - ELEM2_END - 1)];
   }
   if (!strcmp(family, "arith")) return &operations[rnd_range(rng, 0, 5)];
   return find_op(family);
