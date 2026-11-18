@@ -113,3 +113,29 @@ reg.log2p1.boundary.4 log2p1 z 163 -6 7 b 0x58b90bfbe88f03c9e908f20f2c140e2633fe
 reg.log2p1.boundary.5 log2p1 n 201 -14 15 b 0x58b90bfbe8e7bcd63daae5c7eae0bcd5e4f1d9cc01f9p-189 - - 0 0xfffe9d1e60058851c64a17d472de1560a04cdbd910224f7d3fp-214 xu
 reg.log2p1.boundary.6 log2p1 n 238 -16382 16383 b 0x58b9118779a77b6460bf381b1f95c01f9p-16513 - - 0 0x100000ffffffffffffffffffffffe9c1be99d4ed23c23635fecf9b59c0ebp-16618 x
 reg.log2p1.boundary.7 log2p1 a 276 - - - 0x58b90ba32fdbc0ecfd3503e7101f33fe07p-1073741958 - - 0 0x7fffff7fffffffffffffffffffff4e0e009fb96a53d3a354aa95e02e2c7a3356052f7p-1073742098 xu
+# #235 rSqrt, compound and powr: rows from tools/range_boundary_rows.py on the thresholds
+# (the compound rows are those where mpfr_compound_si 4.2.2 is itself wrong and the oracle uses the exact rational)
+reg.rsqrt.boundary.0 rsqrt n 151 -14 15 a 0xffffffffffp288 - - 0 0x1p-164 xu
+reg.rsqrt.boundary.1 rsqrt u 232 -6 7 a 0x10000000000000001p-78 - - 0 0xffffffffffffffff80000000000000005fffffffffffffffb000000001p-225 x
+reg.rsqrt.boundary.2 rsqrt n 29 -6 7 b 0xffffffp-40 - - 0 inf xo
+reg.rsqrt.boundary.3 rsqrt a 88 -6 7 b 0x1p186 - - 0 0x1p-93 -
+reg.rsqrt.boundary.4 rsqrt n 36 -14 15 a 0x3fffffffp68 - - 0 0x1p-49 xu
+reg.rsqrt.boundary.5 rsqrt n 51 -14 15 b 0xfffffffffffffp-24 - - 0 0x1p-14 x
+reg.rsqrt.boundary.6 rsqrt u 23 -14 15 a 0x10000000000000001p-96 - - 0 inf xo
+reg.rsqrt.boundary.7 rsqrt n 89 -16382 16383 a 0x1p32764 - - 0 0x1p-16382 -
+reg.compound.boundary.0 compound d 11 -6 7 b -0x1ffffffffffcd4d1db931c23613p-106 - - -7 0x7ffp-4 x
+reg.compound.boundary.1 compound d 6 -1022 1023 b 0x50a28be635ca2b888f76adc56f89p232 - - -3 0x1p-1027 xu
+reg.compound.boundary.2 compound z 9 -14 15 a -0xca3d31d5e23e569ae9e74c3ec7bp-111 - - -100 0x1ffp6 x
+reg.compound.boundary.3 compound z 32 -14 15 b -0x1f34d00ad6148e1bea6914863c48fp-113 - - -3 0xffffffffp-16 x
+reg.compound.boundary.4 compound u 15 -14 15 b 0xdb55e75dc9f5e0debed5ce0efcfp-110 - - -100 0x1p-27 xu
+reg.compound.boundary.5 compound d 12 -6 7 a -0x46089f9cb17cb6663dbb7513643p-107 - - -7 0xfffp-4 x
+reg.compound.boundary.6 compound z 24 -126 127 a 0x1cf136614a8b1d55d21ebcf794bdp-108 - - -100 0x1p-149 xu
+reg.compound.boundary.7 compound z 29 -126 127 a -0xffffc6089f9cb17cb6663dbb7513643p-124 - - -7 0x1fffffffp98 x
+reg.powr.boundary.0 powr n 135 -6 7 a 0x3p-1 -0x3c42a140ad86f77320842ad39100088ca33933ebc179p-166 - 0 0x1p-140 xu
+reg.powr.boundary.1 powr n 249 -1022 1023 a 0x3p0 -0x284cf674853ea844220a0db0a666f80a75p-124 - 0 0x80016234a7e9ceed62272110f0b8446f708c6e0d964559280799f0de180721p-1269 x
+reg.powr.boundary.2 powr d 57 -6 7 b 0xb33333333333333p-60 -0x3e2ffd8e7a6709634ced911baf6609630ebd938d34ffp-170 - 0 0x1ffffffffffffffp-49 xo
+reg.powr.boundary.3 powr n 252 -6 7 a 0x3p0 -0xf246eb227e7eddf5065e07335afp-106 - 0 0x7fffffffffffffffffffffffffff545e376d6d9d5d58c32e8891db607e9c89bp-257 xu
+reg.powr.boundary.4 powr d 50 -6 7 b 0xb33333333333333p-60 -0x3669fddcab1a2836ace5e11b8e5fp-106 - 0 0x1p7 x
+reg.powr.boundary.5 powr a 42 - - - 0x3p0 0xa1849cc42fbc5c54aae654afa2eebdde47dp-110 - 0 inf xo
+reg.powr.boundary.6 powr a 172 -126 127 a 0x3p0 -0x17808bcf2deff932b19eaad753ecf9329a1e1f0825fdp-165 - 0 0x1p-297 xu
+reg.powr.boundary.7 powr d 266 -1022 1023 a 0x3p-1 0x36b450cf5b98403f6580508980a927b8b7p-123 - 0 0x3fff4e8ede053ad4f35d8a75c28c6b51e971e641b9f05c2d8da5d9ba14e936ef713p758 x

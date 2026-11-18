@@ -19,6 +19,12 @@ Rounding direction (six) and tininess rule (two) cycle with the row number. The
 rows carry the expected columns as `?`; `generate_mpfr_random_oracle eval`
 fills them from MPFR (see tools/generate_mpfr_random_oracle.c). The 1,269,554
 rows of the full range ran against the library in a few minutes of CPU time.
+
+`rsqrt`, `compound` and `powr` take the same thresholds: `rsqrt` at
+x = 2^(-2 level), `compound` at 1 + x = 2^(level / n) for n in
+{-100, -7, -3, 3, 7, 100} and `powr` as `pow` with positive bases. The 718,824
+rows of precisions 2 to 300 that these three give were compared with MPFR
+(`mpfr_compound_si` needs the exact-rational correction of the generator).
 """
 
 from __future__ import annotations
@@ -43,9 +49,10 @@ CONTEXTS: list[tuple[int | None, int | None]] = [
     (-6, 7),
 ]
 MODES = ["n", "na", "z", "u", "d", "a"]
-OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1")
+OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1", "rsqrt", "compound", "powr")
 RELATIVE_OFFSETS = (20, 24, 30, 40, 52, 64)
 ROOT_DEGREES = (-3, -7, 100, -1000)
+COMPOUND_DEGREES = (-3, -7, 3, 7, -100, 100)
 
 
 def to_dyadic(value: Fraction, bits: int = 110) -> Fraction:
@@ -111,6 +118,20 @@ def scaled_hex(value: Fraction, level: int) -> str:
     text = hexfmt(value)
     mantissa, exponent = text.rsplit("p", 1)
     return f"{mantissa}p{int(exponent) + level}"
+
+
+def pow2_minus_one_hex(exponent: Fraction) -> str | None:
+    """hex of 2^exponent - 1 (110 bits), or None when it needs too long an operand."""
+    whole = exponent.numerator // exponent.denominator
+    frac = exponent - whole
+    significand = decimal_to_dyadic((decimal.Decimal(frac.numerator) / decimal.Decimal(frac.denominator) * decimal.Decimal(2).ln()).exp(), 110)
+    if whole >= 0:
+        if whole < 120:
+            return hexfmt(significand * (1 << whole) - 1)
+        return scaled_hex(significand, whole)
+    if whole < -400:
+        return None
+    return hexfmt(significand / (1 << -whole) - 1)
 
 
 def log2_of(base: Fraction) -> Fraction:
@@ -200,6 +221,29 @@ def rows(p_min: int, p_max: int, operations: tuple[str, ...], tag: str = "tgt") 
                             for x in around(constant):
                                 if floor_log2(x) + level >= q:
                                     yield row(op, p, context, scaled_hex(x, level))
+                    elif op == "rsqrt":
+                        # log2(1/sqrt x) = level  <=>  x = 2^(-2 level); operands in range only
+                        if abs(2 * level) <= IMPL_EMAX - 100 and -2 * level >= q:
+                            for x in around(Fraction(1)):
+                                yield row(op, p, context, scaled_hex(x, -2 * level))
+                    elif op == "compound":
+                        for degree in COMPOUND_DEGREES:
+                            # log2((1 + x)^n) = level  <=>  1 + x = 2^(level / n)
+                            if abs(level) > 4 * 10**8:
+                                continue
+                            hexa = pow2_minus_one_hex(Fraction(level, degree))
+                            if hexa is None:
+                                continue
+                            yield row(op, p, context, hexa, n=degree)
+                            # a few relative offsets of 1 + x, as 1 + x +- 2^-k
+                            for k in RELATIVE_OFFSETS:
+                                shifted = pow2_minus_one_hex(Fraction(level, degree) + Fraction(1, 1 << k) / 7)
+                                if shifted is not None:
+                                    yield row(op, p, context, shifted, n=degree)
+                    elif op == "powr":
+                        for base in bases:
+                            for y in around(level / base_logs[base]):
+                                yield row(op, p, context, base_hex[base], hexfmt(y))
                     else:
                         raise ValueError(f"unknown operation {op}")
 

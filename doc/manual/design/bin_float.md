@@ -409,6 +409,19 @@ and $2^n$, where every value rounds alike in each direction, so a
 representative of the same binade stands for it and the huge integer is never
 formed; below $p + 2$ bits it is exact or a tie and is rounded as it is.
 
+`rsqrt`, `compound` and `powr` (second family of
+[#235](https://github.com/Luna-Flow/floating/issues/235)) add no new
+rounding logic: each reduces to an operation that already owns the exact cases
+and the range decision, after the special values of §9.2.1. $1/\sqrt{x}$ is
+`rootn(x, -2)`, $x^y$ for $x > 0$ is `pow`, and $(1 + x)^n$ is `pown` of the
+exact sum $1 + x$ whenever that sum fits in $2^{26}$ bits. The one decision
+of its own is the tiny rule of `compound`: for $|n x| < 2^{-(p + 9)}$ the exact
+value is $1 + \delta$ with $|\delta| < 2^{-(p+8)}$, far inside the window
+around $1$ bounded by the breakpoints $1 - 2^{-(p+1)}$ and $1 + 2^{-p}$, so the
+result is $1$ or its neighbour by direction alone and equals the rounding of
+the surrogate $1 \pm 2^{-(p+3)}$, which `binary_round_dyadic` takes through
+the same finalizer as any exact value.
+
 ### Signed zeros and NaNs
 
 An exact zero sum $a + b = 0$ with $a, b$ of opposite sign is $+0$ in every

@@ -17,6 +17,9 @@ priv enum MpfrElementaryOperation {
   Pown
   Pow
   Hypot
+  Rsqrt
+  Compound
+  Powr
   Sin
   Cos
   Tan
@@ -76,6 +79,9 @@ fn parse_elementary_operation(source : String) -> MpfrElementaryOperation? {
     "pown" => Some(Pown)
     "pow" => Some(Pow)
     "hypot" => Some(Hypot)
+    "rsqrt" => Some(Rsqrt)
+    "compound" => Some(Compound)
+    "powr" => Some(Powr)
     "sin" => Some(Sin)
     "cos" => Some(Cos)
     "tan" => Some(Tan)
@@ -99,7 +105,7 @@ fn parse_elementary_operation(source : String) -> MpfrElementaryOperation? {
 ///|
 /// The operations that read the second operand field.
 fn elementary_operation_is_binary(operation : MpfrElementaryOperation) -> Bool {
-  operation is (Pow | Hypot | Atan2)
+  operation is (Pow | Hypot | Atan2 | Powr)
 }
 
 ///|
@@ -228,6 +234,9 @@ fn evaluate_elementary(
     Pown => Ok(left.pown_ctx(integer, context))
     Pow => left.try_pow_ctx(right.unwrap(), context)
     Hypot => left.try_hypot_ctx(right.unwrap(), context)
+    Rsqrt => left.try_rsqrt_ctx(context)
+    Compound => left.try_compound_ctx(integer, context)
+    Powr => left.try_powr_ctx(right.unwrap(), context)
     Sin => left.try_sin_ctx(context)
     Cos => left.try_cos_ctx(context)
     Tan => left.try_tan_ctx(context)

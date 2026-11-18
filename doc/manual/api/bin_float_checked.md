@@ -369,6 +369,44 @@ exponent all give the IEEE 754 values listed in
 [`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx),
 for example $(-1)^{\infty} = 1$ and $(-0)^{0.75} = +0$.
 
+### `BinFloatResult::rsqrt`, `BinFloatResult::rsqrt_ctx`
+
+$1/\sqrt{x}$, delegated to [`BinFloat::try_rsqrt_ctx`](bin_float.md#binfloatrsqrt-binfloatrsqrt_ctx-binfloattry_rsqrt_ctx).
+
+```mbti
+pub fn BinFloatResult::rsqrt(Self) -> Self
+pub fn BinFloatResult::rsqrt_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for a negative operand ($-\infty$ included) and for a
+signaling NaN; a `DivisionByZero` error for $\operatorname{rSqrt}(\pm 0)$.
+
+### `BinFloatResult::compound`, `BinFloatResult::compound_ctx`
+
+$(1 + x)^n$, delegated to [`BinFloat::try_compound_ctx`](bin_float.md#binfloatcompound-binfloatcompound_ctx-binfloattry_compound_ctx).
+
+```mbti
+pub fn BinFloatResult::compound(Self, Int) -> Self
+pub fn BinFloatResult::compound_ctx(Self, Int, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` below $-1$ ($-\infty$ included) and for a signaling NaN;
+a `DivisionByZero` error for $\operatorname{compound}(-1, n)$ with $n < 0$.
+
+### `BinFloatResult::powr`, `BinFloatResult::powr_ctx`
+
+$x^y$ for $x \ge 0$, delegated to [`BinFloat::try_powr_ctx`](bin_float.md#binfloatpowr-binfloatpowr_ctx-binfloattry_powr_ctx).
+
+```mbti
+pub fn BinFloatResult::powr(Self, Self) -> Self
+pub fn BinFloatResult::powr_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors of the operands come first (base, then exponent). The operation reports
+a `DomainError` for a negative base, for a signaling NaN, and for the invalid
+pairs $(\pm 0, \pm 0)$, $(+\infty, \pm 0)$ and $(1, \pm\infty)$, and a
+`DivisionByZero` error for $(\pm 0, y)$ with a finite $y < 0$.
+
 ### `BinFloatResult::hypot`, `BinFloatResult::hypot_ctx`
 
 `hypot(y)` computes $\sqrt{x^2 + y^2}$ without intermediate overflow, with
@@ -808,6 +846,8 @@ pub fn BinFloatResult::atanh(Self) -> Self
 pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::bind(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BinFloatResult::compound(Self, Int32) -> Self
+pub fn BinFloatResult::compound_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::cos(Self) -> Self
 pub fn BinFloatResult::cos_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::cosh(Self) -> Self
@@ -869,9 +909,13 @@ pub fn BinFloatResult::pow_int_ctx(Self, Int32, @bin_float.BinaryContext) -> Sel
 pub fn BinFloatResult::pow_nat(Self, UInt32) -> Self
 pub fn BinFloatResult::pown(Self, Int32) -> Self
 pub fn BinFloatResult::pown_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::powr(Self, Self) -> Self
+pub fn BinFloatResult::powr_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::result(Self) -> Result[@bin_float.BinFloat, @arithmetic.ArithmeticError]
 pub fn BinFloatResult::rootn(Self, Int32) -> Self
 pub fn BinFloatResult::rootn_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::rsqrt(Self) -> Self
+pub fn BinFloatResult::rsqrt_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::sin(Self) -> Self
 pub fn BinFloatResult::sin_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::sinh(Self) -> Self
