@@ -311,6 +311,23 @@ fn binary_exp_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  if work_precision >= binary_exp_burst_min_precision {
+    match binary_exp_bounds_burst(value, work_precision) {
+      Some(bounds) => return Some(bounds)
+      None => ()
+    }
+  }
+  binary_exp_bounds_series(value, work_precision)
+}
+
+///|
+/// The enclosure of `exp` by the series (fixed point when the argument is
+/// exact at the working precision, rounded floating point otherwise): the path
+/// below the bit-burst threshold and the reference of its tests.
+fn binary_exp_bounds_series(
+  value : BinFloat,
+  work_precision : Int32,
+) -> (BinFloat, BinFloat)? {
   match binary_exp_bounds_fixed(value, work_precision) {
     Some(bounds) => return Some(bounds)
     None => ()
