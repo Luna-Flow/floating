@@ -598,6 +598,10 @@ overflows the working context, the power overflows, and the sign of the result
 is the sign of $x^n$ (negative only for a negative $x$ and an odd $n$), not the
 sign of $x$: $(-0.07)^{-8}$ overflows to $+\infty$ and $(-0.07)^{-7}$ to
 $-\infty$.
+The reciprocal keeps the cohort of the division ($1 / 5 \times 10^{-2}$ is
+$2 \times 10^{1}$, not $20$), because the exponent of an exact power is the one
+repeated multiplication gives: $0.05^{-8}$ is $2.56 \times 10^{10}$ with three
+digits and no `Rounded`.
 
 Write $\mathbf u_w = \frac12 10^{1-w}$ and let the accumulator hold
 $x^k(1 + \theta_k)$. A squaring gives
