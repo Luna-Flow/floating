@@ -138,8 +138,24 @@ fn add_finite_values_ctx(
     if low_adjusted < target_exponent &&
       ctx.decimal_rounding != DecimalRoundingMode::ZeroFiveUp {
       let (base, base_flags) = apply_finite_ctx(high, ctx)
-      if base_flags.overflow &&
-        !(high_adjusted == ctx.e_max + 1 && low.negative != high.negative) {
+      // GDA 1.70, Exceptional conditions, Overflow: the condition is judged on
+      // the adjusted exponent of the result after rounding, that is, of the
+      // sum, not of `high` alone. An addend of the same sign only moves the
+      // sum away from zero, so the sum overflows whenever `high` does. An
+      // addend of the opposite sign can pull the sum back below e_max, and only
+      // when precision >= 2 and `high` is at least two decades beyond e_max is
+      // the sum (more than 0.9 * 10^adj(high)) certain to stay beyond it.
+      // Every other extended case takes the exact path below. A non-extended
+      // context rounds each operand to the precision first (GDA 1.70, Appendix
+      // A), so an operand cannot round past e_max inside the operation, and
+      // that path keeps the shortcut it always had.
+      let overflow_is_certain = if ctx.extended {
+        low.negative == high.negative ||
+        (precision >= 2 && high_adjusted >= ctx.e_max + 2)
+      } else {
+        !(high_adjusted == ctx.e_max + 1 && low.negative != high.negative)
+      }
+      if base_flags.overflow && overflow_is_certain {
         return (base, base_flags)
       }
       if base_flags == DecimalFlags::new() &&

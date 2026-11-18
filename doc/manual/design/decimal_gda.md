@@ -497,6 +497,16 @@ with $u/2$ exactly. The special case where $x_1$ is a power of ten and $x_2$
 has the opposite sign (the unit below $x_1$ is ten times smaller) is excluded
 and takes the general path.
 
+*Overflow of the larger addend.* The shortcut returns the overflow of $x_1$
+rounded alone only when the sum overflows as well, because overflow is judged
+on the rounded sum (see Overflow above). That holds when $x_2$ has the sign of
+$x_1$ (the sum is larger in magnitude), or when $p \ge 2$ and
+$\hat e_1 \ge e_{\max} + 2$ (the sum is more than $0.9 \cdot 10^{\hat e_1}$).
+Otherwise an opposite sign can pull the sum back into range, so the case takes
+the general path: `add(9.5, -0.5)` at precision 1 and $e_{\max} = 0$ is `9`,
+not an overflow. A non-extended context rounds the operands first, so the
+shortcut is unchanged there.
+
 The argument needs $x_1$ itself to end at or above the last retained
 position, so this shortcut is taken only when $x_1$ fits the context exactly
 (and not under `ZeroFiveUp`, whose rounding depends on the last kept digit).
