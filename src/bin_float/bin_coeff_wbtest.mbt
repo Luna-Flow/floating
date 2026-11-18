@@ -186,7 +186,7 @@ test "BinCoeff inline binary gcd boundaries" {
 /// of unrelated scales; this pair (from `ln(1 + 2^-243)` at 245 bits) needed
 /// about 2^220 rounds.
 test "BinCoeff gcd of operands with different lengths" {
-  let odd_big = BigInt::from_string(
+  let odd_big = bigint_from_text(
     "2037035976334486086268445688409378161051468393665936250636140449354381299691279112145469441",
   )
   let pairs = [

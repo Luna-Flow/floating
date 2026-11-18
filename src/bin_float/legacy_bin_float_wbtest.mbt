@@ -582,7 +582,7 @@ fn LegacyBigIntBinFloat::sqrt(
 
 ///|
 fn legacy_bin_float_from_candidate(value : BinFloat) -> LegacyBigIntBinFloat {
-  let magnitude = BigInt::from_string(value.coefficient().to_string())
+  let magnitude = bigint_from_text(value.coefficient().to_string())
   match value.classify() {
     FpClass::Finite =>
       LegacyBigIntBinFloat::make(
@@ -605,7 +605,16 @@ fn legacy_bin_float_from_candidate(value : BinFloat) -> LegacyBigIntBinFloat {
         precision=value.precision(),
         negative=value.is_negative(),
         signaling=value.is_signaling_nan(),
-        payload=BigInt::from_string(value.nan_payload().to_string()),
+        payload=bigint_from_text(value.nan_payload().to_string()),
       )
+  }
+}
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
   }
 }

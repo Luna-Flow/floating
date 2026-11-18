@@ -39,7 +39,7 @@ fn decimal_pattern(digits : Int32, phase : Int32) -> BigInt {
     let digit = if index == 0 { 7 } else { (index * 7 + phase * 3) % 10 }
     text.write_char((digit + 48).to_char().unwrap())
   }
-  BigInt::from_string(text.to_string())
+  bigint_from_text(text.to_string())
 }
 
 ///|
@@ -174,5 +174,14 @@ fn decimal_spec(
 test "decimal benchmark plans compile" {
   for operation in [DecimalOperation::Add, Mul, Div] {
     ignore(decimal_spec(operation).compile().unwrap())
+  }
+}
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
   }
 }

@@ -119,7 +119,7 @@ fn normalize_interchange_hex(src : String, digits : Int32) -> BigInt? {
   for ch in body {
     guard ch.is_ascii_hexdigit() else { return None }
   }
-  Some(BigInt::from_string(body, radix=16))
+  Some(bigint_from_text(body, radix=16))
 }
 
 ///|
@@ -480,7 +480,7 @@ fn Decimal::from_interchange_hex_dpd(
       coefficient_bits,
       coeff_bits / 10,
     )
-    let payload = BigInt::from_string(payload_digits)
+    let payload = bigint_from_text(payload_digits)
     let signaling = decimal_interchange_extract(
         bits,
         coeff_bits + exp_bits - 1,
@@ -509,7 +509,7 @@ fn Decimal::from_interchange_hex_dpd(
     coeff_bits / 10,
   )
   let coefficient_digits = msd.to_string() + continuation_digits
-  let coefficient = BigInt::from_string(coefficient_digits)
+  let coefficient = bigint_from_text(coefficient_digits)
   Some(finite_with_exponent(sign, coefficient, exponent, precision))
 }
 
@@ -678,7 +678,7 @@ fn Decimal::to_interchange_hex_bid(
       // trailing significand field, independent of the value's precision.
       // As in the DPD encoder, a payload with more than p - 1 digits keeps
       // its low p - 1 digits.
-      let payload = BigInt::from_string(
+      let payload = bigint_from_text(
         decimal_nan_payload_digits_low(
           applied.nan_payload(),
           decimal_interchange_payload_digits(format),
@@ -750,3 +750,12 @@ pub fn Decimal::to_interchange_hex_with_encoding(
 }
 
 ///|
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
+  }
+}
