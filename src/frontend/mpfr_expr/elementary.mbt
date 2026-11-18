@@ -30,6 +30,10 @@ priv enum MpfrElementaryOperation {
   Acos
   Atan
   Atan2
+  Asinpi
+  Acospi
+  Atanpi
+  Atan2pi
   Sinh
   Cosh
   Tanh
@@ -92,6 +96,10 @@ fn parse_elementary_operation(source : String) -> MpfrElementaryOperation? {
     "acos" => Some(Acos)
     "atan" => Some(Atan)
     "atan2" => Some(Atan2)
+    "asinpi" => Some(Asinpi)
+    "acospi" => Some(Acospi)
+    "atanpi" => Some(Atanpi)
+    "atan2pi" => Some(Atan2pi)
     "sinh" => Some(Sinh)
     "cosh" => Some(Cosh)
     "tanh" => Some(Tanh)
@@ -105,7 +113,7 @@ fn parse_elementary_operation(source : String) -> MpfrElementaryOperation? {
 ///|
 /// The operations that read the second operand field.
 fn elementary_operation_is_binary(operation : MpfrElementaryOperation) -> Bool {
-  operation is (Pow | Hypot | Atan2 | Powr)
+  operation is (Pow | Hypot | Atan2 | Powr | Atan2pi)
 }
 
 ///|
@@ -247,6 +255,10 @@ fn evaluate_elementary(
     Acos => left.try_acos_ctx(context)
     Atan => left.try_atan_ctx(context)
     Atan2 => left.try_atan2_ctx(right.unwrap(), context)
+    Asinpi => left.try_asinpi_ctx(context)
+    Acospi => left.try_acospi_ctx(context)
+    Atanpi => left.try_atanpi_ctx(context)
+    Atan2pi => left.try_atan2pi_ctx(right.unwrap(), context)
     Sinh => left.try_sinh_ctx(context)
     Cosh => left.try_cosh_ctx(context)
     Tanh => left.try_tanh_ctx(context)

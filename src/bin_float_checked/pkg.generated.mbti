@@ -19,18 +19,26 @@ pub fn BinFloatResult::acos(Self) -> Self
 pub fn BinFloatResult::acos_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::acosh(Self) -> Self
 pub fn BinFloatResult::acosh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::acospi(Self) -> Self
+pub fn BinFloatResult::acospi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::add(Self, Self) -> Self
 pub fn BinFloatResult::add_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::asin(Self) -> Self
 pub fn BinFloatResult::asin_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::asinh(Self) -> Self
 pub fn BinFloatResult::asinh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::asinpi(Self) -> Self
+pub fn BinFloatResult::asinpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::atan(Self) -> Self
 pub fn BinFloatResult::atan2(Self, Self) -> Self
 pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atan2pi(Self, Self) -> Self
+pub fn BinFloatResult::atan2pi_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::atan_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::atanh(Self) -> Self
 pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atanpi(Self) -> Self
+pub fn BinFloatResult::atanpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::bind(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloatResult::compound(Self, Int32) -> Self

@@ -914,6 +914,95 @@ pub fn BinFloatResult::acos_ctx(
 }
 
 ///|
+pub fn BinFloatResult::asinpi(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_asinpi_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::asinpi_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_asinpi_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::acospi(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_acospi_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::acospi_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_acospi_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::atanpi(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_atanpi_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::atanpi_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_atanpi_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::atan2pi(
+  self : BinFloatResult,
+  abscissa : BinFloatResult,
+) -> BinFloatResult {
+  BinFloatResult::from_result(
+    bin_result_lift2_checked(self.inner, abscissa.inner, fn(
+      ordinate,
+      horizontal,
+    ) {
+      let context = @bin_float.BinaryContext::unbounded(
+        Int32::max(ordinate.precision(), horizontal.precision()),
+      )
+      ordinate
+      .try_atan2pi_ctx(horizontal, context)
+      .bind(bin_result_checked_flags)
+    }),
+  )
+}
+
+///|
+pub fn BinFloatResult::atan2pi_ctx(
+  self : BinFloatResult,
+  abscissa : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  BinFloatResult::from_result(
+    bin_result_lift2_checked(self.inner, abscissa.inner, fn(
+      ordinate,
+      horizontal,
+    ) {
+      ordinate
+      .try_atan2pi_ctx(horizontal, context)
+      .bind(bin_result_checked_flags)
+    }),
+  )
+}
+
+///|
 pub fn BinFloatResult::atan2(
   self : BinFloatResult,
   abscissa : BinFloatResult,
