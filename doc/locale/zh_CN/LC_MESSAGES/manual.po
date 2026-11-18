@@ -18576,8 +18576,8 @@ msgid "Division, square root and GCD"
 msgstr "除法、开方与 GCD"
 
 #: manual/performance/bin_float.md:20
-msgid "Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Ziegler from 48, and Newton reciprocal division from 1,024. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
-msgstr "除法使用单 limb 路径，除数少于 48 个 limb 时使用 Knuth，从 48 起使用 Burnikel–Ziegler，从 1,024 起使用 Newton 倒数除法。平方根在 512 位以内使用定宽内核，超过则使用分治法。大数 GCD 在两个操作数共同的 63 位窗口上使用 Lehmer 批处理；当较短的操作数在该窗口中没有任何位时，执行一次除法步骤，因此长度相差很大的操作数会被一次性约简。"
+msgid "Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Ziegler from 48, and Newton reciprocal division from 1,024. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that; the recursion stops at the same fixed-width kernels once a block is at most 256 bits on Native/LLVM and 512 bits on Wasm/Wasm-GC (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) about 3.4 times faster on Native and 3.1 to 3.3 times on Wasm in paired runs. The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
+msgstr "除法使用单 limb 路径，除数少于 48 个 limb 时使用 Knuth，从 48 起使用 Burnikel–Ziegler，从 1,024 起使用 Newton 倒数除法。平方根在 512 位以内使用定宽内核，超过则使用分治法；当分治递归中的块不超过 Native/LLVM 上的 256 位或 Wasm/Wasm-GC 上的 512 位时，递归在同一组定宽内核处结束（此前是在 128 位处对堆整数使用恢复式循环），这使 1,024 位被开方数（即 512 位 `sqrt`）在成对运行中在 Native 上快约 3.4 倍，在 Wasm 上快 3.1 至 3.3 倍。该截断点是按目标平台测得的策略；LLVM 的取值未经测量，因为所用工具链不提供该后端。大数 GCD 在两个操作数共同的 63 位窗口上使用 Lehmer 批处理；当较短的操作数在该窗口中没有任何位时，执行一次除法步骤，因此长度相差很大的操作数会被一次性约简。"
 
 #: manual/performance/bin_float.md:22
 msgid "Certified constants"

@@ -20,6 +20,7 @@ options(
     "bin_coeff_ntt_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_sqrt_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_thresholds_llvm.mbt": [ "llvm" ],
     "bin_coeff_thresholds_native.mbt": [ "native" ],
     "bin_coeff_thresholds_wasm.mbt": [ "wasm" ],

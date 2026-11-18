@@ -12,3 +12,6 @@ let bin_coeff_ntt_square_threshold = 3072
 
 ///|
 let bin_coeff_square_recursive_threshold = 768
+
+///|
+let bin_coeff_sqrt_dc_base_bits = 512

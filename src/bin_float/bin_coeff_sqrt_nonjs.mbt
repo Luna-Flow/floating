@@ -264,10 +264,27 @@ fn bin_coeff_sqrt_rem_restoring(value : BinCoeff) -> (BinCoeff, BinCoeff) {
 }
 
 ///|
+/// Square root with remainder through the allocation-free fixed-width kernels,
+/// for values of at most 512 bits (the base case of the divide-and-conquer
+/// recursion); wider values use the restoring reference.
+fn bin_coeff_sqrt_rem_fixed_width(value : BinCoeff) -> (BinCoeff, BinCoeff) {
+  match value.repr {
+    Inline64(word) => {
+      let (root, remainder) = bin_coeff_sqrt_rem_u64(word)
+      (BinCoeff::from_uint64(root), BinCoeff::from_uint64(remainder))
+    }
+    Inline128(high, low) => bin_coeff_sqrt_rem_u128(high, low)
+    Heap(_, _) if value.bit_length() <= 256 => bin_coeff_sqrt_rem_u256(value)
+    Heap(_, _) if value.bit_length() <= 512 => bin_coeff_sqrt_rem_u512(value)
+    Heap(_, _) => bin_coeff_sqrt_rem_restoring(value)
+  }
+}
+
+///|
 fn bin_coeff_sqrt_rem_divide_conquer(value : BinCoeff) -> (BinCoeff, BinCoeff) {
   let value_bits = value.bit_length()
-  if value_bits <= 128 {
-    return bin_coeff_sqrt_rem_restoring(value)
+  if value_bits <= bin_coeff_sqrt_dc_base_bits {
+    return bin_coeff_sqrt_rem_fixed_width(value)
   }
   let root_bits = (value_bits + 1) / 2
   let block_bits = root_bits / 2
