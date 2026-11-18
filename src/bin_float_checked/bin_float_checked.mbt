@@ -290,6 +290,25 @@ pub fn BinFloatResult::sqrt_ctx(
 }
 
 ///|
+/// Maps the flags of a contextual result to the checked tier, as
+/// `@bin_float.BinFloat::div_checked` does (#262): the invalid operation
+/// exception (IEEE 754-2019 section 7.2) becomes `DomainError`, divideByZero
+/// (section 7.3) becomes `DivisionByZero`, and every other result, NaN and
+/// range exceptions included, is `Ok` (#290).
+fn bin_result_checked_flags(
+  result : (@bin_float.BinFloat, @bin_float.BinaryFlags),
+) -> Result[@bin_float.BinFloat, @def.ArithmeticError] {
+  let (value, flags) = result
+  if flags.division_by_zero() {
+    Err(@def.ArithmeticError::division_by_zero("division by zero"))
+  } else if flags.invalid_operation() {
+    Err(@def.ArithmeticError::domain_error("invalid operation"))
+  } else {
+    Ok(value)
+  }
+}
+
+///|
 fn bin_result_try_elementary(
   value : BinFloatResult,
   operation : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
@@ -300,7 +319,7 @@ fn bin_result_try_elementary(
   value.bind(fn(number) {
     let context = @bin_float.BinaryContext::unbounded(number.precision())
     BinFloatResult::from_result(
-      operation(number, context).map(fn(result) { result.0 }),
+      operation(number, context).bind(bin_result_checked_flags),
     )
   })
 }
@@ -316,7 +335,7 @@ fn bin_result_try_elementary_ctx(
 ) -> BinFloatResult {
   value.bind(fn(number) {
     BinFloatResult::from_result(
-      operation(number, context).map(fn(result) { result.0 }),
+      operation(number, context).bind(bin_result_checked_flags),
     )
   })
 }
@@ -484,7 +503,7 @@ pub fn BinFloatResult::hypot(
       let context = @bin_float.BinaryContext::unbounded(
         Int32::max(left.precision(), right.precision()),
       )
-      left.try_hypot_ctx(right, context).map(fn(result) { result.0 })
+      left.try_hypot_ctx(right, context).bind(bin_result_checked_flags)
     }),
   )
 }
@@ -497,7 +516,7 @@ pub fn BinFloatResult::hypot_ctx(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(left, right) {
-      left.try_hypot_ctx(right, context).map(fn(result) { result.0 })
+      left.try_hypot_ctx(right, context).bind(bin_result_checked_flags)
     }),
   )
 }
@@ -561,7 +580,7 @@ pub fn BinFloatResult::rootn(
   self.bind(fn(value) {
     let context = @bin_float.BinaryContext::unbounded(value.precision())
     BinFloatResult::from_result(
-      value.try_rootn_ctx(degree, context).map(fn(result) { result.0 }),
+      value.try_rootn_ctx(degree, context).bind(bin_result_checked_flags),
     )
   })
 }
@@ -574,7 +593,7 @@ pub fn BinFloatResult::rootn_ctx(
 ) -> BinFloatResult {
   self.bind(fn(value) {
     BinFloatResult::from_result(
-      value.try_rootn_ctx(degree, context).map(fn(result) { result.0 }),
+      value.try_rootn_ctx(degree, context).bind(bin_result_checked_flags),
     )
   })
 }
@@ -589,7 +608,7 @@ pub fn BinFloatResult::pow(
       let context = @bin_float.BinaryContext::unbounded(
         Int32::max(base.precision(), power.precision()),
       )
-      base.try_pow_ctx(power, context).map(fn(result) { result.0 })
+      base.try_pow_ctx(power, context).bind(bin_result_checked_flags)
     }),
   )
 }
@@ -602,7 +621,7 @@ pub fn BinFloatResult::pow_ctx(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, exponent.inner, fn(base, power) {
-      base.try_pow_ctx(power, context).map(fn(result) { result.0 })
+      base.try_pow_ctx(power, context).bind(bin_result_checked_flags)
     }),
   )
 }
@@ -773,7 +792,7 @@ pub fn BinFloatResult::atan2(
       let context = @bin_float.BinaryContext::unbounded(
         Int32::max(ordinate.precision(), horizontal.precision()),
       )
-      ordinate.try_atan2_ctx(horizontal, context).map(fn(result) { result.0 })
+      ordinate.try_atan2_ctx(horizontal, context).bind(bin_result_checked_flags)
     }),
   )
 }
@@ -789,7 +808,7 @@ pub fn BinFloatResult::atan2_ctx(
       ordinate,
       horizontal,
     ) {
-      ordinate.try_atan2_ctx(horizontal, context).map(fn(result) { result.0 })
+      ordinate.try_atan2_ctx(horizontal, context).bind(bin_result_checked_flags)
     }),
   )
 }

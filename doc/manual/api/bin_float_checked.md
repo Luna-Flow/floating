@@ -6,7 +6,9 @@
 `Result[BinFloat, ArithmeticError]`. Every operation takes and returns a
 `BinFloatResult`, applies the corresponding [`bin_float`](bin_float.md)
 operation when all operands are successes, and otherwise passes on the first
-error without running the operation. The wrapper keeps no IEEE flags. The
+error without running the operation. The wrapper keeps no IEEE flags: the
+checked operations turn the invalid operation and divideByZero exceptions into
+errors, and the arithmetic `_ctx` methods drop them. The
 [tutorial](../tutorial/bin_float_checked.md) builds pipelines step by step; the
 [design page](../design/bin_float_checked.md) models the wrapper as the error
 monad and proves the composition laws it relies on.
@@ -340,9 +342,10 @@ pub fn BinFloatResult::rootn_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 ```
 
 `rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the
-given context. Both report a `DomainError` for degree $0$ and for an even root
-of a negative number, $-\infty$ included, and can report a
-`CertificationFailure`. Odd roots of negative numbers are negative:
+given context. Both report a `DomainError` for degree $0$, for an even root
+of a negative number ($-\infty$ included) and for a signaling NaN, a
+`DivisionByZero` error for $\operatorname{rootn}(\pm 0, n)$ with $n < 0$
+(IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative:
 `rootn(-8, 3)` is $-2$. The full table of special values is in
 [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx).
 
@@ -357,8 +360,10 @@ pub fn BinFloatResult::pow_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 
 `pow` uses an unbounded context at the larger operand precision. Errors of the
 operands come first (base, then exponent); the operation itself reports a
-`DomainError` only for a negative finite base with a non-integer exponent (for
-example $(-2)^{0.5}$) and can report a `CertificationFailure`. A base of $-0$,
+`DomainError` for a negative finite base with a non-integer exponent (for
+example $(-2)^{0.5}$) and for a signaling NaN operand, a `DivisionByZero`
+error for a zero base with a finite negative exponent ($(\pm 0)^{-1.5}$,
+IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. A base of $-0$,
 a negative base with an integral exponent of any size and an infinite
 exponent all give the IEEE 754 values listed in
 [`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx),
@@ -374,7 +379,9 @@ pub fn BinFloatResult::hypot(Self, Self) -> Self
 pub fn BinFloatResult::hypot_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 ```
 
-`hypot` uses an unbounded context at the larger operand precision.
+`hypot` uses an unbounded context at the larger operand precision. A
+signaling NaN operand is a `DomainError`; `hypot` raises no other exception
+(overflow and underflow are values).
 
 ```moonbit
 ///|
@@ -396,13 +403,16 @@ Each unary elementary function `name` has two wrapper methods. `name()` is
 `bind` of `BinFloat::try_name_ctx` under `BinaryContext::unbounded(x.precision())`,
 that is nearest-even rounding to the operand's precision with no exponent
 limit; `name_ctx(ctx)` uses the given context instead. A success is the
-correctly rounded value of `bin_float`; the flags are dropped. Besides the
-domain errors listed below, every function can report a
+correctly rounded value of `bin_float`. The flags of the step are mapped as
+for `div`: the invalid operation exception (a signaling NaN operand, or an
+argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`,
+divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow,
+underflow and inexact are dropped. Besides the errors listed below, every
+function can report a
 `CertificationFailure` when `bin_float` cannot certify the rounding within its
 refinement budget (see
-[`bin_float` elementary functions](bin_float.md#elementary-functions)). Poles
-are values, not errors: $\ln 0 = -\infty$. A NaN operand gives a successful
-NaN.
+[`bin_float` elementary functions](bin_float.md#elementary-functions)). A
+quiet NaN operand gives a successful NaN.
 
 ### `BinFloatResult::exp`, `BinFloatResult::exp_ctx`
 
@@ -449,7 +459,7 @@ pub fn BinFloatResult::ln(Self) -> Self
 pub fn BinFloatResult::ln_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Errors: a `DomainError` for a negative finite argument; $\ln 0 = -\infty$ and $\ln(-\infty)$ is a successful NaN.
+Errors: a `DomainError` for a negative argument, $-\infty$ included; a `DivisionByZero` error for $\ln(\pm 0)$.
 
 ### `BinFloatResult::log1p`, `BinFloatResult::log1p_ctx`
 
@@ -460,7 +470,7 @@ pub fn BinFloatResult::log1p(Self) -> Self
 pub fn BinFloatResult::log1p_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Errors: a `DomainError` below $-1$; $\operatorname{log1p}(-1) = -\infty$.
+Errors: a `DomainError` below $-1$, $-\infty$ included; a `DivisionByZero` error for $\operatorname{log1p}(-1)$.
 
 ### `BinFloatResult::log2`, `BinFloatResult::log2_ctx`
 
@@ -471,7 +481,7 @@ pub fn BinFloatResult::log2(Self) -> Self
 pub fn BinFloatResult::log2_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Errors: a `DomainError` for a negative finite argument; $\log_2 0 = -\infty$.
+Errors: a `DomainError` for a negative argument, $-\infty$ included; a `DivisionByZero` error for $\log_2(\pm 0)$.
 
 ### `BinFloatResult::log10`, `BinFloatResult::log10_ctx`
 
@@ -482,7 +492,7 @@ pub fn BinFloatResult::log10(Self) -> Self
 pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Errors: a `DomainError` for a negative finite argument; $\log_{10} 0 = -\infty$.
+Errors: a `DomainError` for a negative argument, $-\infty$ included; a `DivisionByZero` error for $\log_{10}(\pm 0)$.
 
 ### `BinFloatResult::exp_ln`, `BinFloatResult::exp_ln_ctx`
 
@@ -559,7 +569,7 @@ pub fn BinFloatResult::tanpi(Self) -> Self
 pub fn BinFloatResult::tanpi_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Errors: a `DomainError` for an infinite argument; at half-integers the result is a successful $\pm\infty$.
+Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1.
 
 ### `BinFloatResult::asin`, `BinFloatResult::asin_ctx`
 
@@ -648,7 +658,7 @@ pub fn BinFloatResult::atanh(Self) -> Self
 pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
-Errors: a `DomainError` for $|x| > 1$; $\operatorname{atanh}(\pm 1) = \pm\infty$.
+Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\operatorname{atanh}(\pm 1)$.
 
 ### `BinFloatResult::atan2`, `BinFloatResult::atan2_ctx`
 
@@ -663,6 +673,8 @@ pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 Errors are taken in the order ordinate, abscissa, operation. `atan2` uses
 `BinaryContext::unbounded` at the larger operand precision. Signed zeros
 follow IEEE 754: `atan2` of $(-0, -0)$ is $-\pi$ and of $(-0, +0)$ is $-0$.
+A signaling NaN operand is a `DomainError`; `atan2` raises no other
+exception.
 
 ```moonbit
 ///|
@@ -673,7 +685,7 @@ test "elementary functions" {
     show(r(2).ln_ctx(@bin_float.BinaryContext::unbounded(24))),
     content="1453635p-21",
   )
-  inspect(show(r(0).ln()), content="-inf")
+  inspect(show(r(0).ln()), content="error: division by zero")
   inspect(show(r(-4).ln()), content="error: ln requires a positive value")
   inspect(show(r(2).asin()), content="error: asin requires an input in [-1, 1]")
   inspect(show(r(3).exp_ln()), content="error: certified evaluation failed for exp_ln")
