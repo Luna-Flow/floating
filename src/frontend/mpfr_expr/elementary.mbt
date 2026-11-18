@@ -4,10 +4,14 @@ priv enum MpfrElementaryOperation {
   Exp2
   Exp10
   Expm1
+  Exp2m1
+  Exp10m1
   Ln
   Log2
   Log10
   Log1p
+  Log2p1
+  Log10p1
   Sqrt
   Rootn
   Pown
@@ -59,10 +63,14 @@ fn parse_elementary_operation(source : String) -> MpfrElementaryOperation? {
     "exp2" => Some(Exp2)
     "exp10" => Some(Exp10)
     "expm1" => Some(Expm1)
+    "exp2m1" => Some(Exp2m1)
+    "exp10m1" => Some(Exp10m1)
     "ln" => Some(Ln)
     "log2" => Some(Log2)
     "log10" => Some(Log10)
     "log1p" => Some(Log1p)
+    "log2p1" => Some(Log2p1)
+    "log10p1" => Some(Log10p1)
     "sqrt" => Some(Sqrt)
     "rootn" => Some(Rootn)
     "pown" => Some(Pown)
@@ -207,10 +215,14 @@ fn evaluate_elementary(
     Exp2 => left.try_exp2_ctx(context)
     Exp10 => left.try_exp10_ctx(context)
     Expm1 => left.try_expm1_ctx(context)
+    Exp2m1 => left.try_exp2m1_ctx(context)
+    Exp10m1 => left.try_exp10m1_ctx(context)
     Ln => left.try_ln_ctx(context)
     Log2 => left.try_log2_ctx(context)
     Log10 => left.try_log10_ctx(context)
     Log1p => left.try_log1p_ctx(context)
+    Log2p1 => left.try_log2p1_ctx(context)
+    Log10p1 => left.try_log10p1_ctx(context)
     Sqrt => Ok(left.sqrt_ctx(context))
     Rootn => left.try_rootn_ctx(integer, context)
     Pown => Ok(left.pown_ctx(integer, context))

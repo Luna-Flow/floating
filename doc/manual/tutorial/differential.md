@@ -23,8 +23,8 @@ just random-diff smoke
 ```
 
 ```text
-binary: 500/500 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
-binary-regression: 7/7 passed (testdata/bin_float/random-regressions.txt)
+binary: 550/550 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
+binary-regression: 99/99 passed (testdata/bin_float/random-regressions.txt)
 decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
 decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
 ```
@@ -59,7 +59,8 @@ records and summary: .tmp/random-diff/run-20261118-120000
 ```
 
 `--family` is repeatable and defaults to every family. The binary families
-are `add sub mul div sqrt fma strtofr getstr shortest elem`; the decimal
+are `add sub mul div sqrt fma strtofr getstr shortest elem elem2` (`elem2` holds
+`exp2m1`, `exp10m1`, `log2p1` and `log10p1`, which `elem` does not draw); the decimal
 ones are `dec-add dec-subtract dec-multiply dec-divide dec-squareroot dec-fma
 dec-apply dec-tosci dec-toeng dec-exp dec-ln dec-log10 dec-power`. The
 `dec-*wide` families sample the contexts on which the elementary functions

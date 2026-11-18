@@ -43,7 +43,7 @@ CONTEXTS: list[tuple[int | None, int | None]] = [
     (-6, 7),
 ]
 MODES = ["n", "na", "z", "u", "d", "a"]
-OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn")
+OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1")
 RELATIVE_OFFSETS = (20, 24, 30, 40, 52, 64)
 ROOT_DEGREES = (-3, -7, 100, -1000)
 
@@ -91,6 +91,26 @@ def around(center: Fraction) -> Iterator[Fraction]:
         step = base / (1 << k)
         yield base + step
         yield base - step
+
+
+LN10 = decimal_to_dyadic(decimal.Decimal(10).ln(), 200)
+
+
+def floor_log2(value: Fraction) -> int:
+    """floor(log2(|value|)) of a nonzero Fraction."""
+    magnitude = abs(value)
+    k = magnitude.numerator.bit_length() - magnitude.denominator.bit_length()
+    power = Fraction(1 << k) if k >= 0 else Fraction(1, 1 << -k)
+    if magnitude < power:
+        k -= 1
+    return k
+
+
+def scaled_hex(value: Fraction, level: int) -> str:
+    """hexfmt(value * 2**level) without forming 2**level (|level| may be 2^30)."""
+    text = hexfmt(value)
+    mantissa, exponent = text.rsplit("p", 1)
+    return f"{mantissa}p{int(exponent) + level}"
 
 
 def log2_of(base: Fraction) -> Fraction:
@@ -156,6 +176,30 @@ def rows(p_min: int, p_max: int, operations: tuple[str, ...], tag: str = "tgt") 
                             for k in RELATIVE_OFFSETS:
                                 for sign in (1, -1):
                                     yield row(op, p, context, f"0x{(1 << k) + sign:x}p{log2_x - k}", n=degree)
+                    elif op in ("exp2m1", "exp10m1"):
+                        tiny_scale = 1 / (LN2 if op == "exp2m1" else LN10)
+                        threshold = Fraction(1) if op == "exp2m1" else LOG10_2
+                        if level >= e_max:
+                            # 2^x - 1 and 10^x - 1 overflow near log2(result) = level
+                            for x in around(level * threshold):
+                                yield row(op, p, context, hexfmt(x))
+                        elif level < e_min or level == e_min:
+                            # tiny results: f(x) ~ x ln b, so x ~ 2^level / ln b
+                            for x in around(tiny_scale):
+                                # the operand must be representable in the format
+                                if floor_log2(x) + level >= q:
+                                    yield row(op, p, context, scaled_hex(x, level))
+                        if level == q - 1:
+                            # saturation towards -1 at 2^x < 2^-(p + 3)
+                            for x in around(-(p + 3) * threshold):
+                                yield row(op, p, context, hexfmt(x))
+                    elif op in ("log2p1", "log10p1"):
+                        if level <= e_min:
+                            # tiny results: f(x) ~ x / ln b, so x ~ 2^level ln b
+                            constant = LN2 if op == "log2p1" else LN10
+                            for x in around(constant):
+                                if floor_log2(x) + level >= q:
+                                    yield row(op, p, context, scaled_hex(x, level))
                     else:
                         raise ValueError(f"unknown operation {op}")
 

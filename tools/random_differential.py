@@ -52,6 +52,7 @@ BINARY_FAMILIES = (
     "getstr",
     "shortest",
     "elem",
+    "elem2",
 )
 DECIMAL_PREFIX = "dec-"
 DECIMAL_FAMILIES = tuple(DECIMAL_PREFIX + name for name in decimal_oracle.FAMILIES)
