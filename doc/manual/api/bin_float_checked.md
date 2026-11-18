@@ -342,7 +342,9 @@ pub fn BinFloatResult::rootn_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 ```
 
 `rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the
-given context. Both report a `DomainError` for degree $0$, for an even root
+given context. Both report a `DomainError` for degree $0$ (for every $x$, a
+quiet NaN and $\pm 0$ included: $n = 0$ is outside the domain of IEEE 754-2019
+Table 9.1, an invalid operation and not divideByZero), for an even root
 of a negative number ($-\infty$ included) and for a signaling NaN, a
 `DivisionByZero` error for $\operatorname{rootn}(\pm 0, n)$ with $n < 0$
 (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative:

@@ -653,7 +653,7 @@ msgstr "`minimum` 为 $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 #: manual/api/ball_float.md:875
 #: manual/api/ball_float_checked.md:313
 #: manual/api/bin_float.md:1405
-#: manual/api/bin_float_checked.md:400
+#: manual/api/bin_float_checked.md:402
 #: manual/api/decimal.md:1346
 #: manual/api/frontend/mpfr_expr.md:156
 #: manual/design/decimal_gda.md:452
@@ -1001,8 +1001,8 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 
 #: manual/api/ball_float.md:1565
 #: manual/api/ball_float_checked.md:398
-#: manual/api/bin_float.md:1980
-#: manual/api/bin_float_checked.md:696
+#: manual/api/bin_float.md:1983
+#: manual/api/bin_float_checked.md:698
 #: manual/api/decimal.md:1813
 #: manual/api/decimal_gda.md:1817
 #: manual/api/def.md:421
@@ -1080,8 +1080,8 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:68
-#: manual/api/bin_float.md:2193
-#: manual/api/bin_float_checked.md:726
+#: manual/api/bin_float.md:2196
+#: manual/api/bin_float_checked.md:728
 #: manual/api/cli.md:81
 #: manual/api/cli/gda_expr_cli.md:83
 #: manual/api/cli/itl_expr_cli.md:71
@@ -1284,22 +1284,22 @@ msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr "`BallFloatResult` 的 `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
 #: manual/api/ball_float_checked.md:402
-#: manual/api/bin_float_checked.md:700
+#: manual/api/bin_float_checked.md:702
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr "运算符 `+`、`-`、`*`、`/` 和一元 `-` 调用 `add`、`sub`、`mul`、`div` 和 `neg`。"
 
 #: manual/api/ball_float_checked.md:413
-#: manual/api/bin_float_checked.md:714
+#: manual/api/bin_float_checked.md:716
 msgid "Deprecated"
 msgstr "已弃用"
 
 #: manual/api/ball_float_checked.md:417
-#: manual/api/bin_float_checked.md:718
+#: manual/api/bin_float_checked.md:720
 msgid "`flat_map` is the former name of `bind`. Replace `r.flat_map(f)` with `r.bind(f)`."
 msgstr "`flat_map` 是 `bind` 的旧名称。请将 `r.flat_map(f)` 替换为 `r.bind(f)`。"
 
 #: manual/api/ball_float_checked.md:427
-#: manual/api/bin_float_checked.md:728
+#: manual/api/bin_float_checked.md:730
 #: manual/api/decimal_checked.md:400
 #: manual/api/decimal_gda_checked.md:283
 #: manual/api/def.md:437
@@ -2631,124 +2631,124 @@ msgid "The real $n$-th root $x^{1/n}$."
 msgstr "实数 $n$ 次方根 $x^{1/n}$。"
 
 #: manual/api/bin_float.md:1654
-msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
-msgstr "$n = 0$ 为 `domain_error`。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
+msgid "$n = 0$ is a `domain_error` for every $x$, a quiet NaN and $\\pm 0$ included: it is outside the rootn domain of IEEE 754-2019 Table 9.1 (\"n = 0: invalid operation\", §9.2), so it is an invalid operation and never divideByZero (§7.3). Every other `Int` degree is supported, including `Int.min`; for those a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+msgstr "对每个 $x$（包括静默 NaN 和 $\\pm 0$），$n = 0$ 都为 `domain_error`：它在 IEEE 754-2019 表 9.1 的 rootn 定义域之外（\"n = 0: invalid operation\"，§9.2），因此是无效运算，绝不是除以零（§7.3）。其他所有 `Int` 次数均受支持，包括 `Int.min`；对这些次数 NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1660
 msgid "odd $n > 0$"
 msgstr "奇数 $n > 0$"
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1660
 msgid "even $n > 0$"
 msgstr "偶数 $n > 0$"
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1660
 msgid "odd $n < 0$"
 msgstr "奇数 $n < 0$"
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1660
 msgid "even $n < 0$"
 msgstr "偶数 $n < 0$"
 
-#: manual/api/bin_float.md:1663
+#: manual/api/bin_float.md:1666
 msgid "finite $x < 0$"
 msgstr "有限 $x < 0$"
 
-#: manual/api/bin_float.md:1665
+#: manual/api/bin_float.md:1668
 msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is detected when $|n|$ divides the exponent of $x = c \\cdot 2^e$ and the odd coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the result is then $\\pm r \\cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the correctly rounded reciprocal of it. So $\\operatorname{rootn}(8, -3) = 1/2$ without `inexact` in every rounding mode, and an exact square root of a 6001-bit coefficient is found as well."
 msgstr "因此 $\\operatorname{rootn}(-8, 3) = -2$。$n = 1$ 将 $x$ 舍入到上下文中，$n = -1$ 为正确舍入的 $1/x$。对其他任何次数，当 $|n|$ 整除 $x = c \\cdot 2^e$ 的指数，且奇数系数 $c$（任意大小）是完全 $|n|$ 次幂 $r$ 时，会检测到精确根；此时结果为只舍入一次的 $\\pm r \\cdot 2^{e/|n|}$，当 $n < 0$ 时则为其正确舍入的倒数。因此在任何舍入模式下 $\\operatorname{rootn}(8, -3) = 1/2$ 都不触发 `inexact`，6001 位系数的精确平方根也同样能被找到。"
 
-#: manual/api/bin_float.md:1676
+#: manual/api/bin_float.md:1679
 msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
 msgstr "$\\sqrt{x^2 + y^2}$，不会发生中间上溢或下溢。"
 
-#: manual/api/bin_float.md:1684
+#: manual/api/bin_float.md:1687
 msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr "两个平方被精确构成，然后只取一次正确舍入的平方根，因此结果为 $\\circ(\\sqrt{x^2+y^2})$，且当平方根精确时结果也精确。即使 $y$ 为 NaN，$\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$（仅对信号 NaN 触发 `invalid_operation`）。当较小的操作数 $b$ 小到不足以把 $\\sqrt{a^2 + b^2}$ 推过 $|a|$ 之上的下一个舍入断点时，它会被替换为一个舍入方式相同的 2 的幂：对首位为 $2^t$ 的 $|a| = c \\cdot 2^e$ 以及 $g = \\min(e, t - p - 1)$，所有 $|b| < 2^{g - 3}$ 都变为 $2^{g - 3}$。无论两个指数相差多远，精确和的规模都保持很小：$\\operatorname{hypot}(1, 2^{-600000})$ 为 $1$ 并触发 `inexact`。只有当两个平方之间仍需相互移位超过 $10^6$ 位时，精确和才会以 `certification_failure` 被拒绝，这需要操作数或目标精度接近 $500\\,000$ 位。"
 
-#: manual/api/bin_float.md:1700
+#: manual/api/bin_float.md:1703
 msgid "The sine of an argument in radians."
 msgstr "以弧度为参数的正弦。"
 
-#: manual/api/bin_float.md:1708
+#: manual/api/bin_float.md:1711
 msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
 msgstr "$\\sin(\\pm 0) = \\pm 0$ 精确成立；无穷参数为 `domain_error`。参数用在至少 $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ 位的工作精度下计算的 $\\pi/2$ 包络进行约简，因此对每个有限输入，象限都是确定的。当该起始精度超过 $10^6$ 位，即 $|x| \\ge 2^{10^6 - p - 96}$ 时，立即返回阶段为 `RangeReduction`、原因为 `ResourceLimit` 的 `certification_failure`；任何尝试都不会超过 $10^6$ 位。"
 
-#: manual/api/bin_float.md:1718
+#: manual/api/bin_float.md:1721
 msgid "The cosine of an argument in radians."
 msgstr "以弧度为参数的余弦。"
 
-#: manual/api/bin_float.md:1726
+#: manual/api/bin_float.md:1729
 msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
 msgstr "$\\cos(\\pm 0) = 1$ 精确成立。约简、定义域和限制同 `sin`。"
 
-#: manual/api/bin_float.md:1730
+#: manual/api/bin_float.md:1733
 msgid "The tangent of an argument in radians."
 msgstr "以弧度为参数的正切。"
 
-#: manual/api/bin_float.md:1738
+#: manual/api/bin_float.md:1741
 msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
 msgstr "$\\tan(\\pm 0) = \\pm 0$ 精确成立。约简、定义域和限制同 `sin`。没有任何二进制参数是 $\\pi/2$ 的奇数倍，因此不存在极点；包含零的余弦包络会像其他包络一样被细化。"
 
-#: manual/api/bin_float.md:1752
+#: manual/api/bin_float.md:1755
 msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
 msgstr "周期在二进制表示上被精确约简，因此巨大参数不会带来额外开销。对整数 $n$，$\\operatorname{sinpi}(n)$ 为 $\\pm 0$（符号与 $n$ 相同）；在 $n + \\frac12$ 处为 $\\pm 1$。无穷参数为 `domain_error`。由 Niven 定理，这些是仅有的给出二进有理数结果的二进有理数参数。"
 
-#: manual/api/bin_float.md:1768
+#: manual/api/bin_float.md:1771
 msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
 msgstr "对整数 $n$，$\\operatorname{cospi}(n) = (-1)^n$，且 $\\operatorname{cospi}(n + \\frac12) = +0$。约简和定义域同 `sinpi`。"
 
-#: manual/api/bin_float.md:1782
+#: manual/api/bin_float.md:1785
 msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
 msgstr "对整数 $n$，$\\operatorname{tanpi}(n)$ 为零，其符号同 $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$：对正奇数和负偶数 $n$（包括 $-0$）为 $-0$，否则为 $+0$，因此 `tanpi(1)` 为 $-0$，`tanpi(-1)` 为 $+0$。$\\operatorname{tanpi}(n + \\frac12)$ 对偶数 $n$ 为 $+\\infty$，对奇数 $n$ 为 $-\\infty$，并触发 `division_by_zero`；$\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ 精确成立。约简和定义域同 `sinpi`。"
 
-#: manual/api/bin_float.md:1792
+#: manual/api/bin_float.md:1795
 msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
 msgstr "反正弦，取值于 $[-\\pi/2, \\pi/2]$。"
 
-#: manual/api/bin_float.md:1800
+#: manual/api/bin_float.md:1803
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr "定义域为 $[-1, 1]$；其外的有限参数以及两个无穷都是 `domain_error`。$\\operatorname{asin}(\\pm 0) = \\pm 0$，$\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$（正确舍入）。"
 
-#: manual/api/bin_float.md:1806
+#: manual/api/bin_float.md:1809
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr "反余弦，取值于 $[0, \\pi]$。"
 
-#: manual/api/bin_float.md:1814
+#: manual/api/bin_float.md:1817
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr "定义域为 $[-1, 1]$；其外的有限参数以及两个无穷都是 `domain_error`，NaN 与 `asin` 一样传播。在 $[-1, 1]$ 上，结果为作为一个包络求值的 $\\pi/2 - \\operatorname{asin}(x)$；$\\operatorname{acos}(1) = +0$ 精确成立，$\\operatorname{acos}(-1) = \\pi$（正确舍入）。"
 
-#: manual/api/bin_float.md:1822
+#: manual/api/bin_float.md:1825
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr "反正切，取值于 $[-\\pi/2, \\pi/2]$。"
 
-#: manual/api/bin_float.md:1830
+#: manual/api/bin_float.md:1833
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr "在整个 $\\mathbb{R}$ 上有定义：$\\operatorname{atan}(\\pm 0) = \\pm 0$，$\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$（正确舍入）。"
 
-#: manual/api/bin_float.md:1835
+#: manual/api/bin_float.md:1838
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr "`y.atan2(x)` 中点 $(x, y)$ 的辐角，取值于 $[-\\pi, \\pi]$。"
 
-#: manual/api/bin_float.md:1843
+#: manual/api/bin_float.md:1846
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr "接收者是纵坐标 $y$。特殊情形遵循 IEEE 754-2019 §9.2.1；下文中 $x \\ge +0$ 表示 $+0$ 或正的 $x$，$x \\le -0$ 表示 $-0$ 或负的 $x$，均包括无穷："
 
-#: manual/api/bin_float.md:1847
+#: manual/api/bin_float.md:1850
 msgid "result"
 msgstr "结果"
 
-#: manual/api/bin_float.md:1849
+#: manual/api/bin_float.md:1852
 msgid "$\\pm 0$ (exact)"
 msgstr "$\\pm 0$（精确）"
 
-#: manual/api/bin_float.md:1853
+#: manual/api/bin_float.md:1856
 msgid "finite"
 msgstr "有限"
 
-#: manual/api/bin_float.md:1854
-#: manual/api/bin_float.md:1855
-#: manual/api/bin_float.md:1856
+#: manual/api/bin_float.md:1857
+#: manual/api/bin_float.md:1858
+#: manual/api/bin_float.md:1859
 msgid ""
 "finite $y \\n"
 "e 0$"
@@ -2756,159 +2756,159 @@ msgstr ""
 "有限 $y \\n"
 "e 0$"
 
-#: manual/api/bin_float.md:1854
+#: manual/api/bin_float.md:1857
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr "$\\pm\\pi/2$（符号同 $y$）"
 
-#: manual/api/bin_float.md:1855
+#: manual/api/bin_float.md:1858
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr "$\\pm 0$（符号同 $y$，精确）"
 
-#: manual/api/bin_float.md:1856
+#: manual/api/bin_float.md:1859
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr "$\\pm\\pi$（符号同 $y$）"
 
-#: manual/api/bin_float.md:1858
+#: manual/api/bin_float.md:1861
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr "NaN 操作数会传播。$\\pi$ 的倍数经过正确舍入并且为 `inexact`。因此 $\\operatorname{atan2}(-0, -0) = -\\pi$，$\\operatorname{atan2}(-0, +0) = -0$。"
 
-#: manual/api/bin_float.md:1864
+#: manual/api/bin_float.md:1867
 msgid "The hyperbolic sine."
 msgstr "双曲正弦。"
 
-#: manual/api/bin_float.md:1872
+#: manual/api/bin_float.md:1875
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$."
 msgstr "$\\sinh(\\pm 0) = \\pm 0$，$\\sinh(\\pm\\infty) = \\pm\\infty$。确定的上溢会在循环之前由 $|\\sinh x| \\ge e^{|x|}/4$ 判定。"
 
-#: manual/api/bin_float.md:1877
+#: manual/api/bin_float.md:1880
 msgid "The hyperbolic cosine."
 msgstr "双曲余弦。"
 
-#: manual/api/bin_float.md:1885
+#: manual/api/bin_float.md:1888
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr "$\\cosh(\\pm 0) = 1$，$\\cosh(\\pm\\infty) = +\\infty$；确定的上溢按 `sinh` 的方式判定。"
 
-#: manual/api/bin_float.md:1890
+#: manual/api/bin_float.md:1893
 msgid "The hyperbolic tangent."
 msgstr "双曲正切。"
 
-#: manual/api/bin_float.md:1898
+#: manual/api/bin_float.md:1901
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr "$\\tanh(\\pm 0) = \\pm 0$，$\\tanh(\\pm\\infty) = \\pm 1$，均精确成立。"
 
-#: manual/api/bin_float.md:1902
+#: manual/api/bin_float.md:1905
 msgid "The inverse hyperbolic sine."
 msgstr "反双曲正弦。"
 
-#: manual/api/bin_float.md:1910
+#: manual/api/bin_float.md:1913
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr "在整个 $\\mathbb{R}$ 上有定义；$\\operatorname{asinh}(\\pm 0) = \\pm 0$，$\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$。"
 
-#: manual/api/bin_float.md:1915
+#: manual/api/bin_float.md:1918
 msgid "The inverse hyperbolic cosine."
 msgstr "反双曲余弦。"
 
-#: manual/api/bin_float.md:1923
+#: manual/api/bin_float.md:1926
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a `domain_error`. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr "定义域为 $x \\ge 1$；任何更小的参数（包括 $-\\infty$）都是 `domain_error`。$\\operatorname{acosh}(1) = +0$，$\\operatorname{acosh}(+\\infty) = +\\infty$。"
 
-#: manual/api/bin_float.md:1929
+#: manual/api/bin_float.md:1932
 msgid "The inverse hyperbolic tangent."
 msgstr "反双曲正切。"
 
-#: manual/api/bin_float.md:1937
+#: manual/api/bin_float.md:1940
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a `domain_error`. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr "定义域为 $|x| \\le 1$；在其之外（包括无穷）结果为 `domain_error`。$\\operatorname{atanh}(\\pm 0) = \\pm 0$，$\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ 并触发 `division_by_zero`。"
 
-#: manual/api/bin_float.md:1984
+#: manual/api/bin_float.md:1987
 msgid "Structural equality, the derived `Eq`."
 msgstr "结构相等，即派生的 `Eq`。"
 
-#: manual/api/bin_float.md:1991
+#: manual/api/bin_float.md:1994
 msgid "See [`BinFloat`](#binfloat): this compares representations, not numbers, so `==` distinguishes $\\pm 0$ and precisions and identifies equal NaNs."
 msgstr "参见 [`BinFloat`](#binfloat)：它比较的是表示，而不是数值，因此 `==` 会区分 $\\pm 0$ 和精度，并将相同的 NaN 视为相等。"
 
-#: manual/api/bin_float.md:1996
+#: manual/api/bin_float.md:1999
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr "`<`、`<=`、`>` 和 `>=` 背后的 `Compare` 方法。"
 
-#: manual/api/bin_float.md:2005
+#: manual/api/bin_float.md:2008
 msgid "They use [`compare`](#binfloatcompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binfloatequal_quiet-binfloatless_quiet-binfloatless_equal_quiet-binfloatunordered_quiet-binfloatequal_signaling-binfloatless_signaling-binfloatless_equal_signaling) when NaN must be unordered."
 msgstr "它们使用 [`compare`](#binfloatcompare)，因此 NaN 大于所有数：`nan > x` 为 `true`。当 NaN 必须是无序的时，请使用 [IEEE 谓词](#binfloatequal_quiet-binfloatless_quiet-binfloatless_equal_quiet-binfloatunordered_quiet-binfloatequal_signaling-binfloatless_signaling-binfloatless_equal_signaling)。"
 
-#: manual/api/bin_float.md:2011
+#: manual/api/bin_float.md:2014
 msgid "The `Show` and `Debug` methods."
 msgstr "`Show` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2018
+#: manual/api/bin_float.md:2021
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr "`output` 写出 [`to_string`](#binfloatto_string) 的精确 `c p e` 形式。`to_repr`（供 `debug_inspect` 使用）显示所有私有字段。"
 
-#: manual/api/bin_float.md:2023
+#: manual/api/bin_float.md:2026
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr "`floating` 共享的浮点词汇。"
 
-#: manual/api/bin_float.md:2029
+#: manual/api/bin_float.md:2032
 msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr "`classify`、`sign`、`precision`、`with_precision` 和 `normalized` 即上文的固有方法。泛型代码使用 `@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero`。"
 
-#: manual/api/bin_float.md:2035
+#: manual/api/bin_float.md:2038
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr "方法返回 `Result` 的 `@lf_arith` trait。"
 
-#: manual/api/bin_float.md:2048
+#: manual/api/bin_float.md:2051
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (which aborts for a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. The trait's `div_checked(x, y, ctx)` takes a context; the inherent [`BinFloat::div_checked`](#binfloatdiv_checked) does not. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binfloatcompare_checked)."
 msgstr "每个方法都用 `BinaryContext::from_arithmetic_context`（当精度超过 `binary_precision_max` 时会中止）转换 `ArithmeticContext`，并运行上下文式运算。invalid 标志变为 `domain_error`，除以零标志变为 `division_by_zero` 错误；其余标志被丢弃，因此 NaN、无穷、上溢或下溢都是放在 `Ok` 中的 IEEE 754-2019 默认结果，与 Luna-Flow/arithmetic 的 `Double` 实例一致。`sqrt_checked` 对负的非零参数（包括 $-\\infty$）和信号 NaN 为 `domain_error`；任一符号的静默 NaN 为 `Ok`。`DivChecked::div_checked` 对 $0/0$、$\\infty/\\infty$ 和信号 NaN 操作数为 `domain_error`，对有限非零被除数除以带符号零为 `division_by_zero` 错误；NaN$/0$ 与 $\\infty/0$ 为 `Ok`。`pow_int_checked` 对零底数配负指数为 `division_by_zero` 错误，两种幂对信号 NaN 底数（包括零指数）都为 `domain_error`。trait 的 `div_checked(x, y, ctx)` 接受上下文；固有方法 [`BinFloat::div_checked`](#binfloatdiv_checked) 则不接受。`CompareChecked::compare_checked` 即固有方法 [`compare_checked`](#binfloatcompare_checked)。"
 
-#: manual/api/bin_float.md:2069
+#: manual/api/bin_float.md:2072
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr "返回带诊断信息的 `ArithmeticOutcome` 的 `@lf_arith` trait。"
 
-#: manual/api/bin_float.md:2088
+#: manual/api/bin_float.md:2091
 msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
 msgstr "每个方法都在转换后的上下文下运行对应的 `*_ctx` 方法（对 `abs` 为先 `abs` 再 `round_ctx`；对 `exp` 为 `try_exp_ctx`）。带有 `division_by_zero` 的结果变为 `division_by_zero` 错误，带有 `invalid_operation` 的结果变为 `domain_error`；`exp` 的认证失败原样返回。否则返回值以及 `ArithmeticDiagnostics`，其 `inexact` 和 `rounded` 为不精确标志，`overflow` 和 `underflow` 为相应的标志。"
 
-#: manual/api/bin_float.md:2098
+#: manual/api/bin_float.md:2101
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr "`BinCoeff` 的 `Compare` 和 `Eq` 方法，位于 `<`、`<=`、`>`、`>=` 和 `!=` 背后。"
 
-#: manual/api/bin_float.md:2116
+#: manual/api/bin_float.md:2119
 msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`, `*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`."
 msgstr "它们与 [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal) 一致；`+`、`*`、`<<` 和 `>>` 即 `add`、`mul`、`shl` 和 `shr`。"
 
-#: manual/api/bin_float.md:2121
+#: manual/api/bin_float.md:2124
 msgid "The `Show` and `Debug` methods of `BinCoeff`."
 msgstr "`BinCoeff` 的 `Show` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2128
+#: manual/api/bin_float.md:2131
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr "`output` 写出 [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string) 的十进制数字。"
 
-#: manual/api/bin_float.md:2132
+#: manual/api/bin_float.md:2135
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr "`BinaryRoundingMode` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2142
+#: manual/api/bin_float.md:2145
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr "`TininessDetection` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2152
+#: manual/api/bin_float.md:2155
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr "`BinaryContext` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2160
+#: manual/api/bin_float.md:2163
 msgid "Equality compares the fields as given: `BinaryContext::new(53)` is not equal to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the two behave identically."
 msgstr "相等比较按给定的字段进行：`BinaryContext::new(53)` 不等于 `BinaryContext::new(53, e_max=binary_implementation_e_max)`，尽管二者的行为完全相同。"
 
-#: manual/api/bin_float.md:2166
+#: manual/api/bin_float.md:2169
 msgid "The derived `Eq` and `Debug` methods of `BinaryFlags`."
 msgstr "`BinaryFlags` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2176
+#: manual/api/bin_float.md:2179
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr "`BinaryInterchangeFormat` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2186
+#: manual/api/bin_float.md:2189
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr "`BinaryInterchange` 派生的 `Eq`：格式和位必须一致。"
 
@@ -3062,183 +3062,183 @@ msgid "`rootn(n)` computes the real $n$-th root with `BinFloat::try_rootn_ctx`."
 msgstr "`rootn(n)` 用 `BinFloat::try_rootn_ctx` 计算实数 $n$ 次方根。"
 
 #: manual/api/bin_float_checked.md:344
-msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$, for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
-msgstr "`rootn` 使用操作数精度下的无界上下文；`rootn_ctx` 使用给定的上下文。二者在次数为 $0$、对负数（包括 $-\\infty$）开偶次方根以及遇到信号 NaN 时报告 `DomainError`，对 $n < 0$ 的 $\\operatorname{rootn}(\\pm 0, n)$ 报告 `DivisionByZero` 错误（IEEE 754-2019 §9.2.1），并且可能报告 `CertificationFailure`。负数的奇次方根为负：`rootn(-8, 3)` 为 $-2$。完整的特殊值表见 [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)。"
+msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every $x$, a quiet NaN and $\\pm 0$ included: $n = 0$ is outside the domain of IEEE 754-2019 Table 9.1, an invalid operation and not divideByZero), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
+msgstr "`rootn` 使用操作数精度下的无界上下文；`rootn_ctx` 使用给定的上下文。二者在次数为 $0$ 时（对每个 $x$，包括静默 NaN 和 $\\pm 0$：$n = 0$ 在 IEEE 754-2019 表 9.1 的定义域之外，是无效运算而非除以零）、对负数（包括 $-\\infty$）开偶次方根以及遇到信号 NaN 时报告 `DomainError`，对 $n < 0$ 的 $\\operatorname{rootn}(\\pm 0, n)$ 报告 `DivisionByZero` 错误（IEEE 754-2019 §9.2.1），并且可能报告 `CertificationFailure`。负数的奇次方根为负：`rootn(-8, 3)` 为 $-2$。完整的特殊值表见 [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)。"
 
-#: manual/api/bin_float_checked.md:354
+#: manual/api/bin_float_checked.md:356
 msgid "`pow(y)` computes $x^{y}$ for a binary exponent with `BinFloat::try_pow_ctx`."
 msgstr "`pow(y)` 用 `BinFloat::try_pow_ctx` 计算二进制指数下的 $x^{y}$。"
 
-#: manual/api/bin_float_checked.md:361
+#: manual/api/bin_float_checked.md:363
 msgid "`pow` uses an unbounded context at the larger operand precision. Errors of the operands come first (base, then exponent); the operation itself reports a `DomainError` for a negative finite base with a non-integer exponent (for example $(-2)^{0.5}$) and for a signaling NaN operand, a `DivisionByZero` error for a zero base with a finite negative exponent ($(\\pm 0)^{-1.5}$, IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. A base of $-0$, a negative base with an integral exponent of any size and an infinite exponent all give the IEEE 754 values listed in [`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx), for example $(-1)^{\\infty} = 1$ and $(-0)^{0.75} = +0$."
 msgstr "`pow` 使用较大操作数精度下的无界上下文。操作数的错误优先（先底数，后指数）；运算本身在底数为负的有限数且指数非整数时（例如 $(-2)^{0.5}$）以及遇到信号 NaN 操作数时报告 `DomainError`，在零底数配有限负指数时（$(\\pm 0)^{-1.5}$，IEEE 754-2019 §9.2.1）报告 `DivisionByZero` 错误，并且可能报告 `CertificationFailure`。底数为 $-0$、负底数配任意大小的整数指数以及无穷指数，都得到 [`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx) 中列出的 IEEE 754 值，例如 $(-1)^{\\infty} = 1$ 和 $(-0)^{0.75} = +0$。"
 
-#: manual/api/bin_float_checked.md:374
+#: manual/api/bin_float_checked.md:376
 msgid "`hypot(y)` computes $\\sqrt{x^2 + y^2}$ without intermediate overflow, with `BinFloat::try_hypot_ctx`."
 msgstr "`hypot(y)` 用 `BinFloat::try_hypot_ctx` 计算 $\\sqrt{x^2 + y^2}$，中间过程不会上溢。"
 
-#: manual/api/bin_float_checked.md:382
+#: manual/api/bin_float_checked.md:384
 msgid "`hypot` uses an unbounded context at the larger operand precision. A signaling NaN operand is a `DomainError`; `hypot` raises no other exception (overflow and underflow are values)."
 msgstr "`hypot` 使用较大操作数精度下的无界上下文。信号 NaN 操作数为 `DomainError`；`hypot` 不触发其他异常（上溢和下溢是值）。"
 
-#: manual/api/bin_float_checked.md:402
+#: manual/api/bin_float_checked.md:404
 msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `BinFloat::try_name_ctx` under `BinaryContext::unbounded(x.precision())`, that is nearest-even rounding to the operand's precision with no exponent limit; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `bin_float`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `bin_float` cannot certify the rounding within its refinement budget (see [`bin_float` elementary functions](bin_float.md#elementary-functions)). A quiet NaN operand gives a successful NaN."
 msgstr "每个一元初等函数 `name` 都有两个包装方法。`name()` 是 `BinFloat::try_name_ctx` 在 `BinaryContext::unbounded(x.precision())` 下的 `bind`，即以就近舍入（偶数优先）舍入到操作数的精度，且无指数限制；`name_ctx(ctx)` 则改用给定的上下文。成功值是 `bin_float` 的正确舍入值。该步骤的标志按与 `div` 相同的方式映射：无效运算异常（信号 NaN 操作数，或超出 IEEE 754-2019 表 9.1 定义域的参数）为 `DomainError`，除以零（极点，§9.2）为 `DivisionByZero` 错误，上溢、下溢和不精确则被丢弃。除下文列出的错误外，当 `bin_float` 无法在其细化预算内认证舍入时，每个函数都可能报告 `CertificationFailure`（参见 [`bin_float` 初等函数](bin_float.md#elementary-functions)）。静默 NaN 操作数得到一个成功的 NaN。"
 
-#: manual/api/bin_float_checked.md:419
+#: manual/api/bin_float_checked.md:421
 msgid "$e^x$, delegated to [`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx)."
 msgstr "$e^x$，委托给 [`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx)。"
 
-#: manual/api/bin_float_checked.md:428
+#: manual/api/bin_float_checked.md:430
 msgid "$e^x - 1$, delegated to [`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx)."
 msgstr "$e^x - 1$，委托给 [`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx)。"
 
-#: manual/api/bin_float_checked.md:437
+#: manual/api/bin_float_checked.md:439
 msgid "$2^x$, delegated to [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx)."
 msgstr "$2^x$，委托给 [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx)。"
 
-#: manual/api/bin_float_checked.md:446
+#: manual/api/bin_float_checked.md:448
 msgid "$10^x$, delegated to [`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx)."
 msgstr "$10^x$，委托给 [`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx)。"
 
-#: manual/api/bin_float_checked.md:455
+#: manual/api/bin_float_checked.md:457
 msgid "$\\ln x$, delegated to [`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx)."
 msgstr "$\\ln x$，委托给 [`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx)。"
 
-#: manual/api/bin_float_checked.md:462
+#: manual/api/bin_float_checked.md:464
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\ln(\\pm 0)$."
 msgstr "错误：负参数（包括 $-\\infty$）为 `DomainError`；$\\ln(\\pm 0)$ 为 `DivisionByZero` 错误。"
 
-#: manual/api/bin_float_checked.md:466
+#: manual/api/bin_float_checked.md:468
 msgid "$\\ln(1 + x)$, delegated to [`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx)."
 msgstr "$\\ln(1 + x)$，委托给 [`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx)。"
 
-#: manual/api/bin_float_checked.md:473
+#: manual/api/bin_float_checked.md:475
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included; a `DivisionByZero` error for $\\operatorname{log1p}(-1)$."
 msgstr "错误：小于 $-1$ 时（包括 $-\\infty$）为 `DomainError`；$\\operatorname{log1p}(-1)$ 为 `DivisionByZero` 错误。"
 
-#: manual/api/bin_float_checked.md:477
+#: manual/api/bin_float_checked.md:479
 msgid "$\\log_2 x$, delegated to [`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx)."
 msgstr "$\\log_2 x$，委托给 [`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx)。"
 
-#: manual/api/bin_float_checked.md:484
+#: manual/api/bin_float_checked.md:486
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_2(\\pm 0)$."
 msgstr "错误：负参数（包括 $-\\infty$）为 `DomainError`；$\\log_2(\\pm 0)$ 为 `DivisionByZero` 错误。"
 
-#: manual/api/bin_float_checked.md:488
+#: manual/api/bin_float_checked.md:490
 msgid "$\\log_{10} x$, delegated to [`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx)."
 msgstr "$\\log_{10} x$，委托给 [`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx)。"
 
-#: manual/api/bin_float_checked.md:495
+#: manual/api/bin_float_checked.md:497
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_{10}(\\pm 0)$."
 msgstr "错误：负参数（包括 $-\\infty$）为 `DomainError`；$\\log_{10}(\\pm 0)$ 为 `DivisionByZero` 错误。"
 
-#: manual/api/bin_float_checked.md:499
+#: manual/api/bin_float_checked.md:501
 msgid "$\\ln(e^x)$ as one fused operation, delegated to [`BinFloat::try_exp_ln_ctx`](bin_float.md#binfloatexp_ln-binfloatexp_ln_ctx-binfloattry_exp_ln_ctx)."
 msgstr "作为一个融合运算的 $\\ln(e^x)$，委托给 [`BinFloat::try_exp_ln_ctx`](bin_float.md#binfloatexp_ln-binfloatexp_ln_ctx-binfloattry_exp_ln_ctx)。"
 
-#: manual/api/bin_float_checked.md:506
+#: manual/api/bin_float_checked.md:508
 msgid "Errors: a `CertificationFailure` (stage `RangeReduction`, reason `RangeNotCertified`) for a finite $|x| > 1/8$."
 msgstr "错误：对有限的 $|x| > 1/8$ 为 `CertificationFailure`（阶段为 `RangeReduction`，原因为 `RangeNotCertified`）。"
 
-#: manual/api/bin_float_checked.md:510
+#: manual/api/bin_float_checked.md:512
 msgid "$\\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx)."
 msgstr "$\\sin x$，委托给 [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx)。"
 
-#: manual/api/bin_float_checked.md:517
-#: manual/api/bin_float_checked.md:528
-#: manual/api/bin_float_checked.md:539
-#: manual/api/bin_float_checked.md:550
-#: manual/api/bin_float_checked.md:561
+#: manual/api/bin_float_checked.md:519
+#: manual/api/bin_float_checked.md:530
+#: manual/api/bin_float_checked.md:541
+#: manual/api/bin_float_checked.md:552
+#: manual/api/bin_float_checked.md:563
 msgid "Errors: a `DomainError` for an infinite argument."
 msgstr "错误：无穷参数为 `DomainError`。"
 
-#: manual/api/bin_float_checked.md:521
+#: manual/api/bin_float_checked.md:523
 msgid "$\\cos x$, delegated to [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx)."
 msgstr "$\\cos x$，委托给 [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx)。"
 
-#: manual/api/bin_float_checked.md:532
+#: manual/api/bin_float_checked.md:534
 msgid "$\\tan x$, delegated to [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx)."
 msgstr "$\\tan x$，委托给 [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx)。"
 
-#: manual/api/bin_float_checked.md:543
+#: manual/api/bin_float_checked.md:545
 msgid "$\\sin(\\pi x)$, delegated to [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx)."
 msgstr "$\\sin(\\pi x)$，委托给 [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx)。"
 
-#: manual/api/bin_float_checked.md:554
+#: manual/api/bin_float_checked.md:556
 msgid "$\\cos(\\pi x)$, delegated to [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx)."
 msgstr "$\\cos(\\pi x)$，委托给 [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx)。"
 
-#: manual/api/bin_float_checked.md:565
+#: manual/api/bin_float_checked.md:567
 msgid "$\\tan(\\pi x)$, delegated to [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx)."
 msgstr "$\\tan(\\pi x)$，委托给 [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx)。"
 
-#: manual/api/bin_float_checked.md:572
+#: manual/api/bin_float_checked.md:574
 msgid "Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1."
 msgstr "错误：无穷参数为 `DomainError`；在半整数处（§9.2.1 的极点）为 `DivisionByZero` 错误。"
 
-#: manual/api/bin_float_checked.md:576
+#: manual/api/bin_float_checked.md:578
 msgid "$\\arcsin x$, delegated to [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx)."
 msgstr "$\\arcsin x$，委托给 [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx)。"
 
-#: manual/api/bin_float_checked.md:583
-#: manual/api/bin_float_checked.md:594
+#: manual/api/bin_float_checked.md:585
+#: manual/api/bin_float_checked.md:596
 msgid "Errors: a `DomainError` outside $[-1, 1]$, infinities included."
 msgstr "错误：在 $[-1, 1]$ 之外（包括无穷）为 `DomainError`。"
 
-#: manual/api/bin_float_checked.md:587
+#: manual/api/bin_float_checked.md:589
 msgid "$\\arccos x$, delegated to [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx)."
 msgstr "$\\arccos x$，委托给 [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx)。"
 
-#: manual/api/bin_float_checked.md:598
+#: manual/api/bin_float_checked.md:600
 msgid "$\\arctan x$, delegated to [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx)."
 msgstr "$\\arctan x$，委托给 [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx)。"
 
-#: manual/api/bin_float_checked.md:607
+#: manual/api/bin_float_checked.md:609
 msgid "$\\sinh x$, delegated to [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx)."
 msgstr "$\\sinh x$，委托给 [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx)。"
 
-#: manual/api/bin_float_checked.md:616
+#: manual/api/bin_float_checked.md:618
 msgid "$\\cosh x$, delegated to [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx)."
 msgstr "$\\cosh x$，委托给 [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx)。"
 
-#: manual/api/bin_float_checked.md:625
+#: manual/api/bin_float_checked.md:627
 msgid "$\\tanh x$, delegated to [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx)."
 msgstr "$\\tanh x$，委托给 [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx)。"
 
-#: manual/api/bin_float_checked.md:634
+#: manual/api/bin_float_checked.md:636
 msgid "$\\operatorname{asinh} x$, delegated to [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx)."
 msgstr "$\\operatorname{asinh} x$，委托给 [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx)。"
 
-#: manual/api/bin_float_checked.md:643
+#: manual/api/bin_float_checked.md:645
 msgid "$\\operatorname{acosh} x$, delegated to [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx)."
 msgstr "$\\operatorname{acosh} x$，委托给 [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx)。"
 
-#: manual/api/bin_float_checked.md:650
+#: manual/api/bin_float_checked.md:652
 msgid "Errors: a `DomainError` below $1$."
 msgstr "错误：小于 $1$ 时为 `DomainError`。"
 
-#: manual/api/bin_float_checked.md:654
+#: manual/api/bin_float_checked.md:656
 msgid "$\\operatorname{atanh} x$, delegated to [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx)."
 msgstr "$\\operatorname{atanh} x$，委托给 [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx)。"
 
-#: manual/api/bin_float_checked.md:661
+#: manual/api/bin_float_checked.md:663
 msgid "Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\\operatorname{atanh}(\\pm 1)$."
 msgstr "错误：$|x| > 1$ 时为 `DomainError`；$\\operatorname{atanh}(\\pm 1)$ 为 `DivisionByZero` 错误。"
 
-#: manual/api/bin_float_checked.md:665
+#: manual/api/bin_float_checked.md:667
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$, delegated to [`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx)."
 msgstr "点 $(\\text{abscissa}, \\text{self})$ 的辐角，委托给 [`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx)。"
 
-#: manual/api/bin_float_checked.md:673
+#: manual/api/bin_float_checked.md:675
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2` uses `BinaryContext::unbounded` at the larger operand precision. Signed zeros follow IEEE 754: `atan2` of $(-0, -0)$ is $-\\pi$ and of $(-0, +0)$ is $-0$. A signaling NaN operand is a `DomainError`; `atan2` raises no other exception."
 msgstr "错误按纵坐标、横坐标、运算的顺序取用。`atan2` 使用较大操作数精度下的 `BinaryContext::unbounded`。带符号零遵循 IEEE 754：$(-0, -0)$ 的 `atan2` 为 $-\\pi$，$(-0, +0)$ 的则为 $-0$。信号 NaN 操作数为 `DomainError`；`atan2` 不触发其他异常。"
 
-#: manual/api/bin_float_checked.md:698
+#: manual/api/bin_float_checked.md:700
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinFloatResult`"
 msgstr "`BinFloatResult` 的 `Add`、`Sub`、`Mul`、`Div` 和 `Neg`"
 
-#: manual/api/bin_float_checked.md:711
+#: manual/api/bin_float_checked.md:713
 msgid "So `/` on wrappers reports division by zero, while `/` on plain `BinFloat` values returns an infinity."
 msgstr "因此，包装值上的 `/` 会报告除以零，而普通 `BinFloat` 值上的 `/` 返回无穷。"
 
@@ -24780,6 +24780,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:515
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+#~ msgstr "$n = 0$ 为 `domain_error`。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
 
 #~ msgid "`hypot` uses an unbounded context at the larger operand precision."
 #~ msgstr "`hypot` 使用较大操作数精度下的无界上下文。"

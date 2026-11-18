@@ -1651,8 +1651,11 @@ pub fn BinFloat::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including
-`Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
+$n = 0$ is a `domain_error` for every $x$, a quiet NaN and $\pm 0$ included:
+it is outside the rootn domain of IEEE 754-2019 Table 9.1 ("n = 0: invalid
+operation", §9.2), so it is an invalid operation and never divideByZero
+(§7.3). Every other `Int` degree is supported, including `Int.min`; for those
+a NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
 
 | $x$ | odd $n > 0$ | even $n > 0$ | odd $n < 0$ | even $n < 0$ |
 | --- | --- | --- | --- | --- |
