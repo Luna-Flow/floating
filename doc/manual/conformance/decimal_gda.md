@@ -69,6 +69,18 @@ behaviours, none of which has a pinned row:
 
 - Integer `power` is accurate to about 0.55 units in the last place (0.6 for
   negative exponents), not correctly rounded, as the specification allows.
+- An exponent of `power` with more than nine digits is not computed: the
+  result is NaN with Invalid operation, the limit of the decNumber design (the
+  specification states none). Python `decimal` (libmpdec) and the IEEE `decimal`
+  package compute these powers.
+- In the directed rounding modes an inexact `power` can differ from libmpdec in
+  the last digit, because the specification allows an inexact `power` to be up
+  to one unit in the last place from the correctly rounded result and libmpdec
+  is not correctly rounded there either.
+- `power` of a zero base and a negative exponent is an infinity with no
+  condition raised, as in libmpdec: the Division by zero condition of the
+  specification applies when "the dividend was not zero". The IEEE `decimal`
+  package signals divideByZero for it (IEEE 754-2019 §9.2.1).
 
 ## Isolation and native benchmark
 

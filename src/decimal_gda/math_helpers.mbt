@@ -573,6 +573,14 @@ fn decimal_power_integer_bounded_result(
     let (reciprocal, reciprocal_flags) = decimal_div_finite_work(
       one, acc, work_ctx,
     )
+    // A subset context takes the reciprocal of the positive power at the end.
+    // A tiny power has a reciprocal beyond the working range, which is the
+    // overflow of the result (GDA 1.70, Exceptional conditions, Overflow), with
+    // the sign of x^n; it is not a finite value to round to the context.
+    guard reciprocal.class == FpClass::Finite else {
+      let negative = base.negative && (abs_int(count) & 1) == 1
+      return decimal_overflow_result(negative, ctx)
+    }
     (reciprocal, flags.combine(reciprocal_flags))
   } else {
     (acc, flags)
