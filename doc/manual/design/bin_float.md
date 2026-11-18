@@ -830,9 +830,11 @@ replacement it needs a precision near $500\,000$ bits.
 ### Asymptotically fast elementary kernels (proposed)
 
 *Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18).
-Nothing on this page below is implemented yet; the measured figures are the
-baseline, the figures marked "projection" come from a cost model fitted to
-them and are replaced by measurements as each step lands.*
+Only the constants (`pi`, `ln 2`, `ln 10` by binary splitting) are implemented;
+the rest of this section is design. The measured figures are baselines or
+results of the implemented part; the figures marked "projection" come from a
+cost model fitted to them and are replaced by measurements as each step
+lands.*
 
 **Problem.** Every enclosure above is built from a Taylor or artanh series
 whose terms are $w$-bit numbers, so one evaluation costs
@@ -1038,17 +1040,71 @@ $$
 \ln 10 = 3 \ln 2 + 2\operatorname{artanh}\tfrac19 ,
 $$
 
-where $(P, Q, T)$ come from the Chudnovsky series (alternating, tail below the
-next term, about 47 bits per term) and $\operatorname{artanh}(1/k) =
-\sum_j 1/((2j+1)k^{2j+1})$ has positive terms whose tail after $n$ terms is
-below $2 \cdot$ the first omitted term. $\sqrt{10005}$ is the integer square
-root of $10005 \cdot 2^{2F}$ with the exact floor property, and each series is
-divided once. The identities above were checked numerically to 60 digits; the
-enclosure proofs are the same integer-bound arguments as for the stage kernel.
-The cache stays as it is (it only changes the value of a miss), and requests
-for `ln 2` use a canonical precision (the next multiple of 64 above
-$F + \operatorname{bits}(n) + 2$) so `exp`, `ln` and the trigonometric reduction
-share entries instead of evicting each other.
+where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46
+bits per term) and $\operatorname{artanh}(1/k) = \sum_j 1/((2j+1)k^{2j+1})$.
+
+*Implementation (`elementary_constants_split.mbt`).* The state of a series on
+an index range is $(p, q, t)$ with $p = \prod p(k)$, $q = \prod q(k)$ and
+$t = q \cdot (\text{partial sum})$, combined as
+$t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and
+$q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the
+Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$,
+$q(k) = k^3\, 640320^3 / 24$ and the leaf $t = \pm p(k)(A + Bk)$. Only the
+Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned
+`BinCoeff` suffices and the code is the same on every target. The partial sum
+$t/q$ is exact; the only roundings are the final directed divisions and
+$\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is
+rounded outward to $w$ bits.
+
+*Tail bounds.* For $\operatorname{artanh}(1/k)$ with $K = k^2$ take
+$N$ terms with $K^N \ge 2^{F+9}$, $F = w + 16$ (using
+$\lfloor \log_2 K \rfloor$): the first omitted term is at most
+$2^{-(F+9)}$ and the omitted terms are positive and shrink by at least $1/K \le
+1/4$, so they sum to less than $2^{-(F+8)}$, which is added to the upper end.
+For Chudnovsky the ratio of the factorial parts of consecutive terms is
+$8(6k+1)(6k+3)(6k+5)/(k+1)^3 \le 1728$, the linear factor grows by at most
+41.11 from $k = 0$ to $1$ and by less than 2 after that, and
+$640320^3 > 2^{57.8}$, so the ratios are below $2^{-41.7}$ and then $2^{-46.1}$,
+the terms decrease in size, alternate in sign, and the first is below $2^{24}$.
+The omitted sum from index $N$ is therefore at most the size of term $N$, below
+$2^{-17 - 46(N-1)}$, which is at most $2^{-(F+4)}$ for $N = \lfloor F/46
+\rfloor + 3$. Then $S \in [(t - e)/q, (t + e)/q]$ for the integer
+$e = \lfloor q / 2^{F+4} \rfloor + 1$, and $\pi$ is enclosed by dividing
+$426880 \sqrt{10005}\, q$ by $t \pm e$ with directed rounding. The
+identities were checked numerically to 60 digits.
+
+*Evidence.* Tests (`elementary_constants_split_wbtest.mbt`): the new enclosure
+at $w$ contains the old series enclosure at $w + 256$ (an independent
+computation) for $w$ from 64 to 1024; it is no wider than the old enclosure at
+$w$ up to 2048; enclosures at $w$ and $w + 300$ nest up to 20000 bits; and
+removing terms (a test hook) makes the containment test fail, so the tail
+count is checked and not just assumed. A one-off comparison against MPFR 4.2.2
+(`mpfr_const_pi`, `mpfr_const_log2`, `mpfr_log(10)` at $2w + 64$ bits) at 64,
+100, 257, 1000, 4096, 8192, 30000 and 100000 bits found every enclosure
+containing the MPFR value, one to two units of the last place wide. All
+`bin_float` tests pass on native, wasm, wasm-gc and js, `just pr` passes, and
+30000 (native) and 10000 (each of wasm, wasm-gc, js) random `elem` cases agree
+with MPFR.
+
+*Measured (native, release, cold enclosure at $w = p + 64$, this machine).*
+`pi` 449 ms to 0.67 ms at $p = 8192$, 14 ms to 71 µs at 2048, 0.93 ms to 15 µs
+at 512; `ln 2` 178 ms to 1.33 ms, 5.6 ms to 156 µs, 0.36 ms to 32 µs;
+`ln 10` (with `ln 2` cached) 89 ms to 0.99 ms, 2.8 ms to 114 µs, 0.18 ms to
+26 µs. At $p = 64$ the splitting is already 3 to 19 times faster, on wasm-gc
+and js as well (js at 8192 bits: `pi` 0.63 ms, `ln 2` 0.67 ms), so the
+threshold `binary_constants_split_min_precision` is 64 on every target. Warm
+(cached) calls are unchanged. A first `sin` or `ln` at 8192 bits used to pay
+the series cost on top of the warm time (about 450 ms for `pi`, about 180 ms
+for `ln 2`); now a cold call costs at most about 7 ms more than a warm one
+(`sin` 53.4 ms cold against 53.6 ms warm, `ln` 101.9 ms against 94.3 ms at
+8192 bits).
+
+The cache itself is unchanged. The design asks for requests for `ln 2` at a
+canonical precision (the next multiple of 64 above
+$F + \operatorname{bits}(n) + 2$) so that `exp`, `ln` and the trigonometric
+reduction share entries instead of evicting each other; that belongs to the
+`exp` kernel, which is the first caller with such an irregular precision, and
+is not part of the constants step.
 
 **Working-precision schedule and the Ziv loop.** The attempt precisions
 $w_0 = p + 64$, $w_{i+1} = w_i + \max(32, \lfloor w_i/2 \rfloor)$ and the
@@ -1097,6 +1153,15 @@ at 8192 bits in the same run (MPFR: `exp` 326 µs, `ln` 177 µs, `sin` 291 µs):
 today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17
 to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is
 therefore within reach for `exp` only if the product kernel also improves.
+
+**Evidence still to confirm.** The reference to Brent (1976) in the footnote
+below, for bit-burst and the AGM logarithm, and the statement of the Jacobi
+identity for the nome, were written from memory and have not been checked
+against the sources; the owner will check them, and nothing in the design or
+in the code depends on them (the AGM is not used until its truncation bound
+is derived and proved here). The 1-ulp and 2-ulp widths quoted above come from
+the MPFR comparison, which is secondary evidence for the enclosures; the
+proof is the integer-bound argument in this section.
 
 [^brent-agm]: R. P. Brent, "Fast multiple-precision evaluation of elementary
     functions", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation
