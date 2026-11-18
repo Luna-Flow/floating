@@ -74,3 +74,17 @@ maxexponent: 0
 minexponent: 0
 clamp: 0
 reg.power.missing-underflow power 100000000000000000001E-20 -1 -> 1 Inexact Rounded Subnormal Underflow
+-- regression #305 D1 (fixed): random differential d20261118.power.1081
+precision: 4
+rounding: half_even
+maxexponent: 18
+minexponent: -16
+clamp: 1
+reg.power.inexact-clamped-p10 power 000999999900000000000000000E-27 -6 -> 1.000E+18 Inexact Rounded
+-- regression #305 D1 (fixed): random differential d20261118.power.1129
+precision: 6
+rounding: half_even
+maxexponent: 0
+minexponent: -1
+clamp: 1
+reg.power.inexact-clamped-p10-small power 099999999999999999999999999999E-29 -001e+0 -> 1.00000 Inexact Rounded

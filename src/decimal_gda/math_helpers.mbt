@@ -790,18 +790,19 @@ fn decimal_power_integer_finite_result(
   //
   // Padding can undo a fold-down: the final rounding trims the zeros first, and
   // a trimmed coefficient above Etop was folded down and flagged Clamped, but
-  // the padded coefficient has `precision` digits at an exponent at most Etop
-  // (the adjusted exponent is at most e_max), so the exponent was not altered
-  // to fit (GDA 1.70, Exceptional conditions, Clamped).
+  // the full-precision form of an inexact result has the exponent
+  // adjusted - precision + 1, at most Etop (the adjusted exponent is at most
+  // e_max), so the exponent was not altered to fit (GDA 1.70, Exceptional
+  // conditions, Clamped). That holds whether or not padding changes the
+  // coefficient: 0.9999999 ^ -1 at precision 4 and Emax 0 is 1000E-3 by the
+  // fold-down itself.
   let result = if ctx.extended && result.1.inexact {
     let padded = expand_inexact_division_cohort(
       result.0,
       ctx,
       pad_precision=true,
     )
-    if padded.class == FpClass::Finite &&
-      !padded.coefficient.is_zero() &&
-      padded.exponent10 != result.0.exponent10 {
+    if padded.class == FpClass::Finite && !padded.coefficient.is_zero() {
       (padded, { ..result.1, clamped: false, })
     } else {
       (padded, result.1)
