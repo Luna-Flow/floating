@@ -105,6 +105,7 @@ verified, and how) and a performance page (measurements and their method).
 | `bench/decimal`: IEEE decimal benchmarks | [tutorial](tutorial/bench/decimal.md) | [API](api/bench/decimal.md) | [design](design/bench/decimal.md) |
 | `bench/decimal_gda`: GDA decimal benchmarks | [tutorial](tutorial/bench/decimal_gda.md) | [API](api/bench/decimal_gda.md) | [design](design/bench/decimal_gda.md) |
 | `bench/ball_float`: interval arithmetic benchmarks | [tutorial](tutorial/bench/ball_float.md) | [API](api/bench/ball_float.md) | [design](design/bench/ball_float.md) |
+| `bench/external`: timing against MPFR and libmpdec on shared operands | [tutorial](tutorial/bench/external.md) | [API](api/bench/external.md) | [design](design/bench/external.md) · [performance](performance/bench/external.md) |
 
 ### Guides
 
@@ -115,6 +116,7 @@ verified, and how) and a performance page (measurements and their method).
 | [Architecture](architecture.md) | package layers, the numeric core pipeline, certified elementary functions, invariants |
 | [Verification](verification.md) | the gates, the published conformance claims and how to reproduce them |
 | [Performance audit](performance_audit.md) | proofs and evidence for the optimized arithmetic paths |
+| [External baseline](performance/bench/external.md) | `floating` timed against MPFR and libmpdec: method, machine, ratios |
 | [Repository conventions](conventions.md) | documentation rules and the review checklist |
 
 The application surface is the numerical cores, `def` and the checked

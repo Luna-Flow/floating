@@ -103,6 +103,14 @@ corpus revisions. The per-package [binary](./conformance/bin_float.md),
 and [interval](./conformance/ball_float.md) conformance pages state the exact
 matrix and its exclusions.
 
+## External performance baseline
+
+`just bench external run` times `floating` against MPFR and libmpdec on the same
+operands and records the ratios; every `floating` result is first compared with
+the result of the reference library for the same operand. The method, machine
+and results are on the [external baseline page](./performance/bench/external.md).
+It is evidence about speed, not a conformance gate, and is not part of `just pr`.
+
 ## Reproducibility
 
 External artifacts are pinned by revision and SHA-256 in each corpus manifest

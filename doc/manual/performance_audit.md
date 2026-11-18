@@ -111,6 +111,7 @@ unsupported reverse operations.
 | binary square policy | `just bench auto-tune --target native` | a target-specific policy artifact; raw observations can be non-monotonic and are not a universal threshold |
 | IEEE and GDA fast paths | benchmark package tests plus the conformance gates | a fast route is admissible only while the semantic oracle stays green |
 | interval endpoint dispatch | `src/bench/ball_float` and strict ITF1788 | lower cost is acceptable only with ordered, outward-rounded enclosures |
+| external comparison | `just bench external run` ([results](performance/bench/external.md)) | `floating` timed against MPFR and libmpdec on the same operands; slower in every measured cell, by 1.8 to 2554 times |
 
 Generated artifacts live under `.tmp/bench/` and are not published as API data.
 Re-run the commands on the target hardware before promoting a crossover. The
@@ -157,6 +158,7 @@ lists the current claims.
 | interval `pown` keeps ordered outward enclosures | monotonicity table, negative-half-axis regression, 4,656 strict ITF1788 cases | supported for the declared forward interval operations |
 | the optimized paths are performance-audited | native Maremark `all` and `auto-tune` artifacts | supported as measurement evidence, not a universal speed claim |
 | every target and operation has equivalent performance | no paired cross-target artifact | not claimed |
+| `floating` is competitive with MPFR and libmpdec | [external baseline](performance/bench/external.md): slower in all 59 measured cells on native | refuted for the measured operations; the ratios are tracked per release |
 
 ## Limits
 
