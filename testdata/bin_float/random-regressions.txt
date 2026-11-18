@@ -13,3 +13,7 @@ reg.pow.exact-subnormal pow n 3 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741825 -
 reg.pow.exact-subnormal-tie pow n 2 - - - 0x1p-2 0x40000001p-1 - 0 0x0p0 xu
 # #272 and rounded up
 reg.pow.exact-subnormal-up pow u 2 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741824 xu
+# #278 pown of a value between half and the whole smallest subnormal, rounded toward negative
+reg.pown.below-smallest-down pown d 40 - - - 0x3p0 - - -677455689 0x0p0 xu
+# #278 at p = 42 the value is between 2^q and 2^(q+1) and rounds down to the smallest subnormal 2^q
+reg.pown.below-smallest-down-next pown d 42 - - - 0x3p-1 - - -1835573839 0x1p-1073741864 xu

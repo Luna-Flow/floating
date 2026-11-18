@@ -43,3 +43,43 @@ test "pown tininess after rounding at the implementation subnormal limit" {
   }
   assert_eq(cases, 24)
 }
+
+///|
+/// The Ziv interval of `pown` built its endpoints at their own bit length, so an
+/// endpoint in the implementation subnormal range (3^n and 1.5^n near 2^(e_min -
+/// p) at p = 40 to 43) was flushed to zero or to the smallest value of its
+/// width, and directed rounding of a value between half and the whole smallest
+/// subnormal came out on the wrong side. Rows from the range-boundary sweep,
+/// with the reference rounded by `round_ctx` from a 300-bit `pown`.
+test "pown directed rounding between half and the smallest subnormal" {
+  // precision, base coefficient, base exponent, n
+  let rows : Array[(Int32, Int64, Int32, Int32)] = [
+    (40, 3L, 0, -677455689),
+    (41, 3L, -1, -1835573840),
+    (41, 3L, -1, -1835573839),
+    (42, 3L, -1, -1835573839),
+    (43, 0xb33333333333333L, -60, 2086665068),
+  ]
+  let mut cases = 0
+  for row in rows {
+    let (p, coefficient, exponent, n) = row
+    let base = BinFloat::make(
+      BinCoeff::from_uint64(coefficient.reinterpret_as_uint64()),
+      exponent,
+      64,
+    )
+    let reference = base.pown_ctx(n, BinaryContext::unbounded(300)).0
+    for mode in e2s_modes() {
+      let ctx = BinaryContext::new(p, rounding=mode)
+      let (value, flags) = base.pown_ctx(n, ctx)
+      let (expected, expected_flags) = reference.round_ctx(ctx)
+      let label = "pown(\{base}, \{n}) p=\{p} \{e2s_mode_name(mode)}"
+      assert_eq(
+        "\{label} => \{value} \{e2s_flags(flags)}",
+        "\{label} => \{expected} \{e2s_flags(expected_flags)}",
+      )
+      cases += 1
+    }
+  }
+  assert_eq(cases, 30)
+}
