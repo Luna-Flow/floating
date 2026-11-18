@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Run the unified Maremark benchmark packages and persist their JSONL events."""
+"""Run the unified Maremark benchmark packages and persist their JSONL events.
+
+`benchmark.py external ...` runs the external baseline against MPFR and
+libmpdec instead (tools/external_baseline.py).
+"""
 
 from __future__ import annotations
 
@@ -130,6 +134,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
+    arguments = sys.argv[1:] if argv is None else argv
+    if arguments and arguments[0] == "external":
+        # `just bench external ...`: floating against MPFR and libmpdec.
+        import external_baseline
+
+        return external_baseline.main(arguments[1:])
     args = parse_args(argv)
     commands = [
         benchmark_command(spec, args.target) for spec in BENCHMARKS[args.suite]

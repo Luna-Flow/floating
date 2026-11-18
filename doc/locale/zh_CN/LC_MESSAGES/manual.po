@@ -22,6 +22,7 @@ msgstr "ball_float API"
 #: manual/api/bench/bin_float.md:3
 #: manual/api/bench/decimal.md:3
 #: manual/api/bench/decimal_gda.md:3
+#: manual/api/bench/external.md:3
 #: manual/api/bin_float.md:3
 #: manual/api/bin_float_checked.md:3
 #: manual/api/cli.md:3
@@ -88,6 +89,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/bench/bin_float.md:11
 #: manual/api/bench/decimal.md:11
 #: manual/api/bench/decimal_gda.md:11
+#: manual/api/bench/external.md:14
 #: manual/api/bin_float.md:21
 #: manual/api/bin_float_checked.md:14
 #: manual/api/cli.md:12
@@ -158,6 +160,7 @@ msgstr "构造子"
 
 #: manual/api/ball_float.md:144
 #: manual/api/bench.md:52
+#: manual/api/bench/external.md:53
 #: manual/api/cli.md:39
 #: manual/api/cli.md:59
 #: manual/api/cli/gda_expr_cli.md:39
@@ -568,7 +571,7 @@ msgstr "除数 $\\boldsymbol{y}$"
 #: manual/api/bin_float.md:46
 #: manual/api/decimal_checked.md:281
 #: manual/conformance/bin_float.md:107
-#: manual/performance_audit.md:122
+#: manual/performance_audit.md:123
 msgid "Result"
 msgstr "结果"
 
@@ -1071,6 +1074,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/bench/bin_float.md:45
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
+#: manual/api/bench/external.md:68
 #: manual/api/bin_float.md:2179
 #: manual/api/bin_float_checked.md:711
 #: manual/api/cli.md:81
@@ -1445,6 +1449,7 @@ msgstr "该包仅用于测试，不导出任何项，因此没有可从中导入
 #: manual/api/bench/bin_float.md:30
 #: manual/api/bench/decimal.md:29
 #: manual/api/bench/decimal_gda.md:29
+#: manual/api/bench/external.md:37
 msgid "Benchmark cases"
 msgstr "基准用例"
 
@@ -1452,6 +1457,7 @@ msgstr "基准用例"
 #: manual/api/bench/bin_float.md:32
 #: manual/api/bench/decimal.md:31
 #: manual/api/bench/decimal_gda.md:31
+#: manual/api/bench/external.md:39
 #: manual/api/frontend/itl_expr.md:115
 #: manual/design/bench/ball_float.md:33
 #: manual/design/bench/bin_float.md:33
@@ -1490,6 +1496,7 @@ msgstr "实现"
 #: manual/design/bench/bin_float.md:33
 #: manual/design/bench/decimal.md:33
 #: manual/design/bench/decimal_gda.md:30
+#: manual/performance/bench/external.md:76
 msgid "Protocol"
 msgstr "协议"
 
@@ -1508,6 +1515,7 @@ msgstr "每个规格都有一个计划测试，它在常规测试运行中执行
 #: manual/api/bench/bin_float.md:47
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
+#: manual/api/bench/external.md:70
 #: manual/api/cli.md:83
 #: manual/api/consistency.md:51
 #: manual/api/doc_examples.md:48
@@ -1594,6 +1602,111 @@ msgstr "`core/gda`（`@decimal_gda.add` 以及其他带显式 `GdaContext` 的�
 #: manual/api/bench/decimal_gda.md:35
 msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`GDA benchmark plans compile`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=decimal-gda/OP/DATASET full_pct=…`."
 msgstr "每个规格都有一个计划测试，它在常规测试运行中执行并检查规格能否编译（`GDA benchmark plans compile`），还有一个标记为 `#skip(\"performance benchmark\")` 的性能测试，只有 `tools/benchmark.py` 会运行它。在报告的行中，`DATASET` 是数据集列中从 0 开始的索引。性能测试将每个观测以 `MAREMARK_JSONL=` 行的形式输出，并将归约结果打印为 `MAREMARK_HOTSPOT=decimal-gda/OP/DATASET full_pct=…`。"
+
+#: manual/api/bench/external.md:1
+msgid "bench/external API"
+msgstr "bench/external API"
+
+#: manual/api/bench/external.md:5
+msgid "`bench/external` holds the benchmark that times `floating` on an operand file shared with a C harness for MPFR and libmpdec. It is a test-only package: all content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit, and it exports no MoonBit items. This page records the cases it defines; the [tutorial](../../tutorial/bench/external.md) shows how to run them, the [design page](../../design/bench/external.md) explains the method, and the [performance page](../../performance/bench/external.md) holds the measured ratios."
+msgstr "`bench/external` 包含对 `floating` 计时的基准测试，所用操作数文件与 MPFR 和 libmpdec 的 C 测试程序共用。它是一个仅用于测试的包：所有内容都位于基于 [`bench`](../bench.md) 工具包的 `*_test.mbt` 文件中，不导出任何 MoonBit 项。本页记录它定义的用例；[教程](../../tutorial/bench/external.md)介绍如何运行它们，[设计页面](../../design/bench/external.md)解释其方法，[性能页面](../../performance/bench/external.md)给出测得的比值。"
+
+#: manual/api/bench/external.md:16
+msgid "The package is test-only and exports no items, so there is nothing to import from it. Its tests import the toolkit as `@benchkit`, the packages under test, Maremark, the file and environment access of the runner, and the async runtime:"
+msgstr "该包仅用于测试，不导出任何项，因此没有可供导入的内容。它的测试导入工具包 `@benchkit`、被测的包、Maremark、运行器使用的文件与环境访问，以及异步运行时："
+
+#: manual/api/bench/external.md:39
+msgid "Scale"
+msgstr "规模"
+
+#: manual/api/bench/external.md:39
+#: manual/api/def.md:151
+msgid "Implementation"
+msgstr "实现"
+
+#: manual/api/bench/external.md:39
+msgid "Oracle"
+msgstr "预言机"
+
+#: manual/api/bench/external.md:41
+msgid "`external/binary/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln`, `sin`"
+msgstr "`external/binary/OP`，OP 为 `add`、`mul`、`div`、`sqrt`、`exp`、`ln`、`sin`"
+
+#: manual/api/bench/external.md:41
+msgid "53, 128, 512, 2048, 8192 bits"
+msgstr "53、128、512、2048、8192 位"
+
+#: manual/api/bench/external.md:41
+msgid "`floating` (`BinFloat` methods at the scale as precision, round to nearest even)"
+msgstr "`floating`（以该规模为精度的 `BinFloat` 方法，舍入到最近偶数）"
+
+#: manual/api/bench/external.md:41
+msgid "the MPFR result for each operand, bit for bit"
+msgstr "每个操作数的 MPFR 结果，逐位一致"
+
+#: manual/api/bench/external.md:42
+msgid "`external/decimal/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln`"
+msgstr "`external/decimal/OP`，OP 为 `add`、`mul`、`div`、`sqrt`、`exp`、`ln`"
+
+#: manual/api/bench/external.md:42
+msgid "16, 34, 100, 1000 digits"
+msgstr "16、34、100、1000 位十进制数字"
+
+#: manual/api/bench/external.md:42
+msgid "`floating` (`decimal_gda` functions in a context of the scale as precision, `HalfEven`, exponent range ±999999)"
+msgstr "`floating`（以该规模为精度的上下文中的 `decimal_gda` 函数，`HalfEven`，指数范围 ±999999）"
+
+#: manual/api/bench/external.md:42
+msgid "the libmpdec result for each operand, value for value"
+msgstr "每个操作数的 libmpdec 结果，数值一致"
+
+#: manual/api/bench/external.md:43
+msgid "53 bits, 16 digits"
+msgstr "53 位、16 位数字"
+
+#: manual/api/bench/external.md:43
+msgid "`floating` with the arithmetic removed: the loop and result store only"
+msgstr "去掉算术的 `floating`：只剩循环和结果存储"
+
+#: manual/api/bench/external.md:43
+msgid "the operands themselves"
+msgstr "操作数本身"
+
+#: manual/api/bench/external.md:45
+msgid "One iteration of the timed function is one pass over the eight operand sets of the case, so a reported time per operation is the observation divided by eight. The scales and the operation list come from the operand file: the test runs the cases named by `EXTBENCH_CASES`, in that order, or every case of the file."
+msgstr "被计时函数的一次迭代是对该用例八组操作数的一遍处理，因此报告的每次操作时间是观测值除以八。规模和操作列表来自操作数文件：测试按 `EXTBENCH_CASES` 指定的用例及其顺序运行，未设置时运行文件中的所有用例。"
+
+#: manual/api/bench/external.md:51
+msgid "The inputs of the test are environment variables set by the runner:"
+msgstr "测试的输入是由运行器设置的环境变量："
+
+#: manual/api/bench/external.md:53
+msgid "Variable"
+msgstr "变量"
+
+#: manual/api/bench/external.md:55
+msgid "operand file (required)"
+msgstr "操作数文件（必需）"
+
+#: manual/api/bench/external.md:56
+msgid "MPFR/libmpdec reference results, the oracle"
+msgstr "MPFR/libmpdec 的参考结果，即预言机"
+
+#: manual/api/bench/external.md:57
+msgid "comma-separated `kind/op/size`, in measurement order"
+msgstr "以逗号分隔的 `kind/op/size`，按测量顺序排列"
+
+#: manual/api/bench/external.md:58
+msgid "Maremark seed and the round number copied to the log"
+msgstr "Maremark 种子，以及复制到日志中的轮次编号"
+
+#: manual/api/bench/external.md:59
+msgid "the measurement protocol, the same numbers the C harness receives"
+msgstr "测量协议，与 C 测试程序收到的数值相同"
+
+#: manual/api/bench/external.md:61
+msgid "Three plan tests run in normal test runs (`external input rows group by case`, `external binary and decimal plans compile`, `external operand parsing is exact`). The performance test `external baseline floating` is marked `#skip(\"performance benchmark\")` and builds on native only; the runner prints a `MAREMARK_JSONL=` line for every event, `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F` for every case, and `EXTBENCH_FAILED=N` at the end."
+msgstr "三个计划测试在常规测试运行中执行（`external input rows group by case`、`external binary and decimal plans compile`、`external operand parsing is exact`）。性能测试 `external baseline floating` 标记为 `#skip(\"performance benchmark\")`，且仅在 native 上构建；运行器为每个事件打印一行 `MAREMARK_JSONL=`，为每个用例打印 `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F`，最后打印 `EXTBENCH_FAILED=N`。"
 
 #: manual/api/bin_float.md:1
 msgid "bin_float API"
@@ -3444,10 +3557,12 @@ msgid "Test files"
 msgstr "测试文件"
 
 #: manual/api/consistency.md:40
+#: manual/tutorial/bench/external.md:38
 msgid "File"
 msgstr "文件"
 
 #: manual/api/consistency.md:40
+#: manual/tutorial/bench/external.md:38
 msgid "Content"
 msgstr "内容"
 
@@ -5650,10 +5765,6 @@ msgstr "对于标量类型，这是将信号 NaN 与静默 NaN 合并后的 IEEE
 msgid "`sign` returns the sign classification of a value."
 msgstr "`sign` 返回值的符号分类。"
 
-#: manual/api/def.md:151
-msgid "Implementation"
-msgstr "实现"
-
 #: manual/api/def.md:153
 msgid "`BinFloat`, both `Decimal`s"
 msgstr "`BinFloat`，两种 `Decimal`"
@@ -5969,6 +6080,7 @@ msgstr "这些访问器返回选项值。"
 #: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:296
 #: manual/getting_started.md:13
+#: manual/performance/bench/external.md:88
 msgid "Results"
 msgstr "结果"
 
@@ -7587,7 +7699,7 @@ msgstr "共享辅助函数、汇总、分片、文件、JSON 与文本输出、�
 #: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:56
-#: manual/performance_audit.md:154
+#: manual/performance_audit.md:155
 msgid "Evidence"
 msgstr "证据"
 
@@ -7899,7 +8011,7 @@ msgid "ball_float conformance"
 msgstr "ball_float 符合性"
 
 #: manual/conformance/ball_float.md:3
-#: manual/performance_audit.md:154
+#: manual/performance_audit.md:155
 msgid "Claim"
 msgstr "声明"
 
@@ -7921,7 +8033,7 @@ msgstr "`ball_float` 的 IEEE Std 1788-2015（基于集合的 flavor）。 当�
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:38
-#: manual/verification.md:297
+#: manual/verification.md:305
 msgid "Clause"
 msgstr "条款"
 
@@ -7948,7 +8060,7 @@ msgstr "API"
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:15
-#: manual/performance_audit.md:154
+#: manual/performance_audit.md:155
 msgid "Status"
 msgstr "状态"
 
@@ -9066,6 +9178,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/bin_float.md:69
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
+#: manual/design/bench/external.md:124
 #: manual/design/bin_float.md:984
 #: manual/design/bin_float_checked.md:292
 #: manual/design/cli.md:69
@@ -9483,6 +9596,7 @@ msgstr "`ball_float` 以实数集合而非单个近似值进行计算。本页�
 #: manual/design/bench/bin_float.md:3
 #: manual/design/bench/decimal.md:3
 #: manual/design/bench/decimal_gda.md:3
+#: manual/design/bench/external.md:3
 #: manual/design/bin_float.md:13
 #: manual/design/bin_float_checked.md:3
 #: manual/design/cli.md:3
@@ -9536,6 +9650,7 @@ msgstr "IEEE Std 1788-2015，*IEEE Standard for Interval Arithmetic*。本包遵
 #: manual/design/bench/bin_float.md:9
 #: manual/design/bench/decimal.md:9
 #: manual/design/bench/decimal_gda.md:9
+#: manual/design/bench/external.md:11
 #: manual/design/bin_float.md:30
 #: manual/design/bin_float_checked.md:13
 #: manual/design/cli.md:11
@@ -9899,6 +10014,7 @@ msgstr "集合关系（`subset`、`interior`、`disjoint`、`set_equal`）和 IE
 #: manual/design/bench/bin_float.md:29
 #: manual/design/bench/decimal.md:29
 #: manual/design/bench/decimal_gda.md:26
+#: manual/design/bench/external.md:38
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
@@ -10056,6 +10172,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/bin_float.md:53
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
+#: manual/design/bench/external.md:105
 #: manual/design/bin_float.md:912
 #: manual/design/bin_float_checked.md:162
 #: manual/design/cli.md:50
@@ -10131,6 +10248,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/bin_float.md:62
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
+#: manual/design/bench/external.md:114
 #: manual/design/bin_float.md:959
 #: manual/design/bin_float_checked.md:279
 #: manual/design/cli.md:60
@@ -10762,6 +10880,122 @@ msgstr "左操作数是长度为数据集长度的固定数字模式，右操作
 #: manual/design/bench/decimal_gda.md:38
 msgid "Outputs are checked against the core result with structural equality, so the checked path must return the identical decimal, exponent included. An output that disagrees with the oracle is counted as a failure and the performance test asserts that there is none, so a comparison is never between paths that compute different things."
 msgstr "输出以结构相等与 core 结果核对，因此 checked 路径必须返回完全相同的十进制数，包括指数。与预言不符的输出计为失败，且性能测试断言不存在失败，因此比较永远不会发生在计算不同结果的路径之间。"
+
+#: manual/design/bench/external.md:1
+msgid "bench/external design"
+msgstr "bench/external 设计"
+
+#: manual/design/bench/external.md:5
+msgid "Put a number on how far `floating` is from the established C libraries, on the same machine, the same operands and the same measurement protocol, so that a statement such as \"N times slower than MPFR at 512 bits\" can be checked and tracked from release to release. Benchmarks that compare `floating` with its own earlier versions cannot say that."
+msgstr "给出一个数字，说明 `floating` 距离成熟的 C 库有多远：在同一台机器上、使用相同的操作数和相同的测量协议，使得“在 512 位上比 MPFR 慢 N 倍”这样的陈述可以被检验，并能逐版本跟踪。只把 `floating` 与自己的早期版本比较的基准无法给出这样的结论。"
+
+#: manual/design/bench/external.md:13
+msgid "Let $t_F$ and $t_R$ be the time per operation of `floating` and of the reference library for one case (operation and precision). Each side yields blocks of per-operation times, $x_{r,j}$ in round $r$ and block $j$. The reported quantities are the pooled medians $\\tilde t_F = \\operatorname{med}_{r,j} x^F_{r,j}$ and $\\tilde t_R = \\operatorname{med}_{r,j} x^R_{r,j}$ and the ratio"
+msgstr "设 $t_F$ 和 $t_R$ 分别为 `floating` 和参考库在某个用例（操作与精度）上的每次操作时间。每一侧产生若干块每次操作时间，第 $r$ 轮第 $j$ 块记为 $x_{r,j}$。报告的量是合并后的中位数 $\\tilde t_F = \\operatorname{med}_{r,j} x^F_{r,j}$ 与 $\\tilde t_R = \\operatorname{med}_{r,j} x^R_{r,j}$，以及比值"
+
+#: manual/design/bench/external.md:24
+msgid "Blocks of one round come from one process and share memory layout, frequency state and system noise, so they are not independent. The interval is therefore a two-level percentile bootstrap: a replicate draws $R$ rounds with replacement, once for both sides, and then draws the blocks of each chosen round with replacement on each side; the ratio of the two replicate medians is one replicate of $\\rho$, and the 2.5% and 97.5% quantiles of 2000 replicates (seeded) are the interval. Drawing the rounds once for both sides pairs them, so a slow drift of the machine between rounds cancels in the ratio. The interval of a single median is obtained the same way from one side."
+msgstr "同一轮的各块来自同一个进程，共享内存布局、频率状态和系统噪声，因此并不相互独立。区间因此采用两层百分位自助法（bootstrap）：一次重复先对轮次有放回地抽取 $R$ 轮（两侧共用同一次抽取），再在每个被选中的轮次内对每一侧的块有放回地抽取；两个重复中位数之比是 $\\rho$ 的一个重复值，2000 次重复（带种子）的 2.5% 与 97.5% 分位数即为区间。两侧共用同一次轮次抽取使它们配对，因此机器在轮次之间的缓慢漂移会在比值中抵消。单个中位数的区间以同样方式仅用一侧得到。"
+
+#: manual/design/bench/external.md:34
+msgid "A cell is flagged as noisy when the half-width of its median interval exceeds 5% of the median or when the medians of the rounds spread (maximum minus minimum) by more than 10% of the pooled median, on either side."
+msgstr "当某个单元格中位数区间的半宽超过中位数的 5%，或各轮中位数的离散（最大值减最小值）超过合并中位数的 10%（任一侧）时，该单元格被标记为有噪声。"
+
+#: manual/design/bench/external.md:40
+msgid "One operand file, read by both sides"
+msgstr "一个操作数文件，两侧共同读取"
+
+#: manual/design/bench/external.md:42
+msgid "A seeded generator (Python's `random.Random` seeded by a string, stable across versions) writes `operands-per-case = 8` operand sets for every case. Binary operands are exact `±0x<mantissa>p<exponent>` values with exactly the case precision in mantissa bits and the leading bit set; decimal operands are exact `±<coefficient>E<exponent>` values with exactly the case digit count. Parsing is therefore exact on both sides and needs no rounding mode, and both sides time the same values. Magnitudes are chosen so that no operation takes a special-case shortcut: the leading-bit exponent of `add`, `mul`, `div` and `sqrt` operands lies in $[-8, 8]$, `exp` and `sin` arguments have $|x| \\in [0.25, 4)$, `ln` arguments lie in $[2^{-3}, 2^4)$; for decimal the magnitudes are $[10^{-2}, 10^{3})$ for arithmetic, $[0.1, 10)$ for `exp` and $[0.1, 10^3)$ for `ln` and `sqrt`. Every operand is a different random mantissa, so no result repeats and nothing can be answered from a cache of results."
+msgstr "带种子的生成器（以字符串为种子的 Python `random.Random`，跨版本稳定）为每个用例写入 `operands-per-case = 8` 组操作数。二进制操作数是精确的 `±0x<mantissa>p<exponent>` 值，尾数恰有该用例的精度位数且最高位为 1；十进制操作数是精确的 `±<coefficient>E<exponent>` 值，恰有该用例的数字位数。因此两侧的解析都是精确的，不需要舍入模式，并且两侧计时的是相同的值。量级的选取使任何操作都不会走特殊情形的捷径：`add`、`mul`、`div` 和 `sqrt` 操作数的最高位指数位于 $[-8, 8]$，`exp` 和 `sin` 的自变量满足 $|x| \\in [0.25, 4)$，`ln` 的自变量位于 $[2^{-3}, 2^4)$；十进制的量级为：算术运算 $[10^{-2}, 10^{3})$，`exp` 为 $[0.1, 10)$，`ln` 和 `sqrt` 为 $[0.1, 10^3)$。每个操作数都是不同的随机尾数，因此没有结果重复出现，也不可能从结果缓存中直接得到答案。"
+
+#: manual/design/bench/external.md:57
+msgid "Oracle: the reference result of the same operands"
+msgstr "预言机：相同操作数的参考结果"
+
+#: manual/design/bench/external.md:59
+msgid "The C harness prints the correctly rounded MPFR (round to nearest even) and libmpdec (`HalfEven`, `allcr = 1`) results for every operand to a reference file. The `floating` benchmark reads that file as its oracle, so Maremark validates every `floating` output against the reference library before it is timed. A mismatch is reported (it would be a correctness finding) and the case is still timed, so the table never silently compares different results. The elementary functions of both libraries are correctly rounded, so for them, too, equal precision implies equal results."
+msgstr "C 测试程序把每个操作数的正确舍入 MPFR 结果（舍入到最近偶数）和 libmpdec 结果（`HalfEven`，`allcr = 1`）打印到参考文件。`floating` 基准把该文件当作预言机读取，因此 Maremark 在计时之前就把每个 `floating` 输出与参考库对照验证。不一致会被报告（这将是一个正确性发现），该用例仍会被计时，因此表格绝不会悄悄比较不同的结果。两个库的初等函数都是正确舍入的，所以对它们而言，相同精度同样意味着相同结果。"
+
+#: manual/design/bench/external.md:68
+msgid "Same protocol on both sides"
+msgstr "两侧使用同一协议"
+
+#: manual/design/bench/external.md:70
+msgid "The C harness implements the Maremark protocol literally: warm-up passes until both a count and a time are reached, the calibration rule that grows the batch towards a target batch time, then exploratory and confirmatory blocks of a fixed number of passes. The numbers (warm-up, batch target, block counts) are passed to both sides from one place. Only confirmatory blocks enter the statistics."
+msgstr "C 测试程序逐字实现了 Maremark 协议：预热遍数直到计数和时间都达到要求，把批次朝目标批次时间增长的校准规则，然后是遍数固定的探索块和确认块。各项数值（预热、批次目标、块数）从同一处传给两侧。只有确认块进入统计。"
+
+#: manual/design/bench/external.md:77
+msgid "Alternating sides, shuffled cases"
+msgstr "两侧交替，用例顺序打乱"
+
+#: manual/design/bench/external.md:79
+msgid "Each round runs the C harness and the `floating` test as two processes, the first side alternating from round to round (seeded AB/BA), with one shuffled case order per round shared by both sides, so a case occupies different times of the run in different rounds. Seven rounds give each case seven process-level measurements per side to bootstrap over; between-process variation (core placement, allocator layout, other load) is larger than the variation between blocks of one process, and the two-level bootstrap accounts for it. Before each side starts the runner waits until other processes use under 150% CPU and records the load it saw."
+msgstr "每一轮把 C 测试程序和 `floating` 测试作为两个进程运行，先运行的一侧逐轮交替（带种子的 AB/BA），每轮用一个两侧共用的打乱后的用例顺序，因此同一用例在不同轮次处于运行中的不同时间。七轮使每个用例每一侧有七次进程级测量可供自助法抽样；进程间的差异（核心放置、分配器布局、其他负载）大于同一进程内各块之间的差异，两层自助法对此予以考虑。每一侧开始之前，运行器会等待其他进程的 CPU 使用率低于 150%，并记录它看到的负载。"
+
+#: manual/design/bench/external.md:89
+msgid "What is not in the timed region"
+msgstr "不在计时区间内的内容"
+
+#: manual/design/bench/external.md:91
+msgid "Operand parsing, context and `mpfr_t` / `mpd_t` initialisation, result buffers (MPFR and libmpdec write into preallocated results; `floating` writes into a preallocated array of results), and printing are outside. What stays inside is the cost of the library's own API: for MPFR and libmpdec the call and any internal temporaries, for `floating` the construction of an immutable result value, which is how the library is used. That difference is inherent in the two designs and is part of what the ratio reports."
+msgstr "操作数解析、上下文以及 `mpfr_t` / `mpd_t` 的初始化、结果缓冲区（MPFR 和 libmpdec 写入预先分配的结果；`floating` 写入预先分配的结果数组）以及打印都在计时之外。留在计时之内的是库自身 API 的成本：对 MPFR 和 libmpdec 是调用本身及其内部临时量，对 `floating` 是构造不可变结果值，这正是该库的使用方式。这一差异是两种设计所固有的，也是比值所反映内容的一部分。"
+
+#: manual/design/bench/external.md:99
+msgid "The harness overhead is measured, not assumed"
+msgstr "测量框架的开销是测出来的，而不是假设的"
+
+#: manual/design/bench/external.md:101
+msgid "`external/*/null` cases run `floating`'s timed loop with the arithmetic removed. Its time per operation bounds what the harness adds to every `floating` number and is reported next to the results; it is not subtracted."
+msgstr "`external/*/null` 用例运行 `floating` 去掉算术后的计时循环。它的每次操作时间给出了测量框架给每个 `floating` 数字增加的开销上限，并与结果一并报告；它不会被扣除。"
+
+#: manual/design/bench/external.md:107
+msgid "The operand file and the reference file are checksummed in `machine.json`."
+msgstr "操作数文件和参考文件的校验和记录在 `machine.json` 中。"
+
+#: manual/design/bench/external.md:108
+msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
+msgstr "与参考结果不同的 `floating` 结果会被计入 Maremark 验证统计，并列在 `results.json` 中。"
+
+#: manual/design/bench/external.md:110
+msgid "The ratio uses only rounds in which both sides produced confirmatory blocks."
+msgstr "比值只使用两侧都产生了确认块的轮次。"
+
+#: manual/design/bench/external.md:111
+msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the raw JSONL; the timings themselves are not."
+msgstr "种子被记录下来，因此轮次顺序和自助法可以从原始 JSONL 重现；计时本身则不能。"
+
+#: manual/design/bench/external.md:116
+msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
+msgstr "**从 MoonBit 绑定 MPFR。** 这会把 FFI 编组放进只有一侧的计时区间内。"
+
+#: manual/design/bench/external.md:118
+msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
+msgstr "**与 mpmath 或 gmpy2 比较。** 它们的开销来自 Python 解释器，而不是库本身。"
+
+#: manual/design/bench/external.md:120
+msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
+msgstr "**重复对同一个操作数计时。** 单个固定的操作数会让分支预测器和缓存记住数据路径；每遍使用八个不同的操作数可以避免这一点，代价是批次时长变为八倍。"
+
+#: manual/design/bench/external.md:126
+msgid "Native target only; no claims for JavaScript or WebAssembly."
+msgstr "仅限 native 目标；不对 JavaScript 或 WebAssembly 作出任何结论。"
+
+#: manual/design/bench/external.md:127
+msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
+msgstr "每次运行只有一台机器、一个操作系统、一个编译器；机器信息见性能页面。"
+
+#: manual/design/bench/external.md:129
+msgid "Elementary functions are measured on a few well-conditioned argument ranges; huge arguments and arguments near singularities are not measured."
+msgstr "初等函数只在少数条件良好的自变量范围内测量；巨大的自变量和接近奇点的自变量不在测量之列。"
+
+#: manual/design/bench/external.md:131
+msgid "The library caches of MPFR (for $\\pi$ and $\\log 2$) and the corresponding caches of `floating` are warm during timing; cold-start cost is not measured."
+msgstr "MPFR 的缓存（用于 $\\pi$ 和 $\\log 2$）以及 `floating` 中相应的缓存在计时期间都是热的；冷启动成本不被测量。"
+
+#: manual/design/bench/external.md:133
+msgid "Only a single thread is used; memory use is not measured."
+msgstr "只使用单线程；不测量内存使用。"
 
 #: manual/design/bin_float.md:1
 msgid "bin_float design"
@@ -16377,187 +16611,211 @@ msgstr "[API](api/bench/ball_float.md)"
 msgid "[design](design/bench/ball_float.md)"
 msgstr "[设计](design/bench/ball_float.md)"
 
-#: manual/index.md:109
+#: manual/index.md:108
+msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
+msgstr "`bench/external`：在共用操作数上与 MPFR 和 libmpdec 比较计时"
+
+#: manual/index.md:108
+msgid "[tutorial](tutorial/bench/external.md)"
+msgstr "[教程](tutorial/bench/external.md)"
+
+#: manual/index.md:108
+msgid "[API](api/bench/external.md)"
+msgstr "[API](api/bench/external.md)"
+
+#: manual/index.md:108
+msgid "[design](design/bench/external.md) · [performance](performance/bench/external.md)"
+msgstr "[设计](design/bench/external.md) · [性能](performance/bench/external.md)"
+
+#: manual/index.md:110
 msgid "Guides"
 msgstr "指南"
 
-#: manual/index.md:111
+#: manual/index.md:112
 msgid "Guide"
 msgstr "指南"
 
-#: manual/index.md:111
+#: manual/index.md:112
 msgid "Read it for"
 msgstr "阅读目的"
 
-#: manual/index.md:113
+#: manual/index.md:114
 msgid "[Getting started](getting_started.md)"
 msgstr "[快速上手](getting_started.md)"
 
-#: manual/index.md:113
+#: manual/index.md:114
 msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr "选择包、安装、初始值、上下文与失败模型"
 
-#: manual/index.md:114
+#: manual/index.md:115
 msgid "[Numeric semantics](numeric_semantics.md)"
 msgstr "[数值语义](numeric_semantics.md)"
 
-#: manual/index.md:114
+#: manual/index.md:115
 msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
 msgstr "共享术语：精确值与舍入结果、舍入函数、ulp 与单位舍入误差、标志、量子、带符号零、NaN、包络"
 
-#: manual/index.md:115
+#: manual/index.md:116
 msgid "[Architecture](architecture.md)"
 msgstr "[架构](architecture.md)"
 
-#: manual/index.md:115
+#: manual/index.md:116
 msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr "包的分层、数值核心流水线、经认证的初等函数、不变量"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[Verification](verification.md)"
 msgstr "[验证](verification.md)"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "the gates, the published conformance claims and how to reproduce them"
 msgstr "检查关卡、已发布的符合性声明及其复现方法"
 
-#: manual/index.md:117
+#: manual/index.md:118
 msgid "[Performance audit](performance_audit.md)"
 msgstr "[性能审计](performance_audit.md)"
 
-#: manual/index.md:117
+#: manual/index.md:118
 msgid "proofs and evidence for the optimized arithmetic paths"
 msgstr "优化算术路径的证明与证据"
 
-#: manual/index.md:118
+#: manual/index.md:119
+msgid "[External baseline](performance/bench/external.md)"
+msgstr "[外部基线](performance/bench/external.md)"
+
+#: manual/index.md:119
+msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
+msgstr "`floating` 与 MPFR 和 libmpdec 的计时比较：方法、机器、比值"
+
+#: manual/index.md:120
 msgid "[Repository conventions](conventions.md)"
 msgstr "[仓库约定](conventions.md)"
 
-#: manual/index.md:118
+#: manual/index.md:120
 msgid "documentation rules and the review checklist"
 msgstr "文档规则与评审清单"
 
-#: manual/index.md:120
+#: manual/index.md:122
 msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr "应用接口包括各数值核心、`def` 和 checked 包装器；`semantic` 和 `numeric_expr` 是暂定的集成接口。其他包之所以公开接口，是因为仓库工具需要组合它们，其设计页面会给出范围更窄的稳定性承诺。"
 
-#: manual/index.md:125
+#: manual/index.md:127
 msgid "Exported types"
 msgstr "导出的类型"
 
-#: manual/index.md:127
+#: manual/index.md:129
 msgid "Binary floating point (`bin_float`)"
 msgstr "二进制浮点（`bin_float`）"
 
-#: manual/index.md:129
+#: manual/index.md:131
 msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr "值：`BinFloat`（带精度的有符号二进有理数、有符号零、无穷以及带载荷的 NaN）及其精确系数 `BinCoeff`"
 
-#: manual/index.md:131
+#: manual/index.md:133
 msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr "上下文与状态：`BinaryContext`、`BinaryRoundingMode`、`TininessDetection`、`BinaryFlags`"
 
-#: manual/index.md:133
+#: manual/index.md:135
 msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr "交换格式：`BinaryInterchange`、`BinaryInterchangeFormat`（binary16、32、64、128 及更宽的格式）"
 
-#: manual/index.md:135
+#: manual/index.md:137
 msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr "限值：`binary_implementation_e_min`、`binary_implementation_e_max`、`binary_precision_max`"
 
-#: manual/index.md:138
+#: manual/index.md:140
 msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr "十进制浮点（`decimal`、`decimal_gda`）"
 
-#: manual/index.md:140
+#: manual/index.md:142
 msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr "IEEE 754 十进制：`Decimal`、`DecimalContext`、`DecimalRoundingMode`、`DecimalTininessDetection`、`DecimalFlags`、`DecimalSignal`，以及 DPD/BID 交换格式类型 `DecimalInterchange`、`DecimalInterchangeFormat`、`DecimalInterchangeEncoding`"
 
-#: manual/index.md:144
+#: manual/index.md:146
 msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr "General Decimal Arithmetic：`Decimal`、`GdaContext`、`GdaRoundingMode`、`GdaFlags`、`GdaSignal`、`GdaTrapSet`、`GdaOutcome`、`GdaInterchange`、`GdaInterchangeFormat`，以及每个 GDA 运算对应的一个自由函数（`add`、`divide`、`quantize`、`power`……）"
 
-#: manual/index.md:149
+#: manual/index.md:151
 msgid "Intervals (`ball_float`)"
 msgstr "区间（`ball_float`）"
 
-#: manual/index.md:151
+#: manual/index.md:153
 msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
 msgstr "`BallFloat`（裸区间）、带有 `Decoration` 的 `BallFloatDecorated`、`OverlapState`"
 
-#: manual/index.md:153
+#: manual/index.md:155
 msgid "`BallContext` and `BallFlags` for intervals in a target format"
 msgstr "用于目标格式中区间的 `BallContext` 与 `BallFlags`"
 
-#: manual/index.md:155
+#: manual/index.md:157
 msgid "Pipelines and shared vocabulary"
 msgstr "流水线与共享词汇"
 
-#: manual/index.md:157
+#: manual/index.md:159
 msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr "checked 包装器：`BinFloatResult`、`DecimalChecked`、`GdaDecimalChecked`、`BallFloatResult`"
 
-#: manual/index.md:159
+#: manual/index.md:161
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` trait、`is_finite`、`is_infinite`、`is_nan`、`is_zero`，以及从 `Luna-Flow/arithmetic` 重新导出的 `RoundingMode`、`ArithmeticContext` 和 `ArithmeticError`"
 
-#: manual/index.md:164
+#: manual/index.md:166
 msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr "`numeric_expr`：`Expr`、`Literal`、`Operation`、`SourceSpan`、`EvalError` 和 `evaluate`"
 
-#: manual/index.md:167
+#: manual/index.md:169
 msgid "Where to read next"
 msgstr "接下来读什么"
 
-#: manual/index.md:169
+#: manual/index.md:171
 msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr "**初次接触本库。** 阅读[快速上手](getting_started.md)，然后阅读所选包的教程，例如 [`bin_float` 教程](tutorial/bin_float.md)或 [`decimal` 教程](tutorial/decimal.md)。阅读时可随时查阅[数值语义](numeric_semantics.md)中的术语。"
 
-#: manual/index.md:174
+#: manual/index.md:176
 msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr "**在应用或库中使用。** 先通读一遍[数值语义](numeric_semantics.md)，然后以所用包的 API 页面为依据进行开发。在依赖某项标准行为之前，请查看对应的符合性页面；对于流水线，请阅读相应 checked 包装器的教程。"
 
-#: manual/index.md:179
+#: manual/index.md:181
 msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr "**参与贡献。** 阅读[架构](architecture.md)、[验证](verification.md)和[仓库约定](conventions.md)，然后阅读你要修改的包的设计页面。修改优化路径时，还需阅读[性能审计](performance_audit.md)以及该包的性能页面。"
 
-#: manual/index.md:186
+#: manual/index.md:188
 msgid "Evidence snapshot"
 msgstr "证据快照"
 
-#: manual/index.md:188
+#: manual/index.md:190
 msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
 msgstr "固定版本的 GDA `official` 语料通过了 **64,986/64,986 条合法的可执行标量行**，`official0` 通过了 16,124/16,124 条。其余 141 条 `#` 占位行或非标量行属于诊断性排除项。"
 
-#: manual/index.md:191
+#: manual/index.md:193
 msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr "二进制 TestFloat level-1 矩阵在 binary16/32/64/128 上通过了 254,227,872 个向量，涵盖融合乘加、余数、舍入到整数、整数转换和比较谓词，此外还通过了固定版本的 MPFR 平方根与初等函数见证数据。"
 
-#: manual/index.md:195
+#: manual/index.md:197
 msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
 msgstr "严格的 ITF1788 汇总通过了 4,656/4,656 个选定的区间用例。"
 
-#: manual/index.md:196
+#: manual/index.md:198
 msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
 msgstr "IEEE 十进制检查关卡在四个目标平台上覆盖 decimal32/64/128 的 DPD 与 BID 编码、标志和算术。"
 
-#: manual/index.md:199
+#: manual/index.md:201
 msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
 msgstr "这些有限的结果并不意味着支持每一种运算、每一个未来的语料修订版或每一个实数输入。在将某项结果转化为兼容性声明之前，请先阅读该包的符合性页面。"
 
-#: manual/index.md:203
+#: manual/index.md:205
 msgid "Validation"
 msgstr "校验"
 
-#: manual/index.md:205
+#: manual/index.md:207
 msgid "Recommended checks before a release, from the repository root:"
 msgstr "发布前建议在仓库根目录下运行的检查："
 
-#: manual/index.md:215
+#: manual/index.md:217
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr "[验证](verification.md)解释了每个关卡以及如何复现已发布的结果。"
 
-#: manual/index.md:218
+#: manual/index.md:220
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr "`pkg.generated.mbti` 定义哪些内容是公开的，源码和测试定义行为；如果页面与生成的接口不一致，以接口为准。"
 
@@ -17073,13 +17331,934 @@ msgstr "语义门禁"
 msgid "Performance evidence is subordinate to enclosure correctness. The 0.7.1 interval gate passes 4,656/4,656 selected strict ITF1788 cases, including the integer-power regression boundary. See [Conformance](../conformance/ball_float.md), [Design](../design/ball_float.md), and the [0.7.1 performance and semantic audit](../performance_audit.md)."
 msgstr "性能证据从属于 enclosure correctness。0.7.1 interval gate 通过 4,656/4,656 条固定的 strict ITF1788 case，其中包括 integer-power regression boundary。参见[一致性说明](../conformance/ball_float.md)、 [设计](../design/ball_float.md)和[0.7.1 性能与语义审计](../performance_audit.md)。"
 
-#: manual/performance/bin_float.md:1
-msgid "bin_float performance"
-msgstr "bin_float 性能"
+#: manual/performance/bench/external.md:1
+msgid "External baseline: floating against MPFR and libmpdec"
+msgstr "外部基线：floating 对比 MPFR 和 libmpdec"
 
+#: manual/performance/bench/external.md:3
 #: manual/performance/bin_float.md:6
 msgid "Contract"
 msgstr "合同"
+
+#: manual/performance/bench/external.md:5
+msgid "This page records how much slower or faster `floating` is than the established C libraries on the same machine, with the same operands and the same measurement protocol: `bin_float` against MPFR for binary arithmetic and `decimal_gda` against libmpdec for decimal arithmetic. It makes no API promise, and the numbers are evidence about one machine, one toolchain and one operand distribution, not a speed claim for every environment. Where `floating` is slower, the tables say so as measured; nothing here is tuned for the comparison, and no library code was changed for it."
+msgstr "本页记录 `floating` 比成熟的 C 库慢多少或快多少：在同一台机器上，使用相同的操作数和相同的测量协议，二进制算术用 `bin_float` 对比 MPFR，十进制算术用 `decimal_gda` 对比 libmpdec。它不作任何 API 承诺；这些数字只是关于一台机器、一套工具链和一种操作数分布的证据，不是对所有环境的速度声明。`floating` 更慢的地方，表格如实给出；这里没有为比较做任何调优，也没有为此修改任何库代码。"
+
+#: manual/performance/bench/external.md:14
+msgid "The ratio of a cell is the median time of `floating` divided by the median time of the reference library; above 1 means `floating` is slower. The bracketed interval is a 95% two-level bootstrap interval over rounds and blocks (see the [design page](../../design/bench/external.md)). The measurements are native, release builds only."
+msgstr "单元格的比值是 `floating` 的中位数时间除以参考库的中位数时间；大于 1 表示 `floating` 更慢。方括号中的区间是对轮次和块做的 95% 两层自助法区间（见[设计页面](../../design/bench/external.md)）。测量仅限 native 的 release 构建。"
+
+#: manual/performance/bench/external.md:20
+msgid "Machine and toolchain"
+msgstr "机器与工具链"
+
+#: manual/performance/bench/external.md:22
+msgid "Item"
+msgstr "项目"
+
+#: manual/performance/bench/external.md:22
+msgid "Value"
+msgstr "值"
+
+#: manual/performance/bench/external.md:24
+msgid "CPU"
+msgstr "CPU"
+
+#: manual/performance/bench/external.md:24
+msgid "Apple M4, 10 logical cores (4 performance, 6 efficiency), 16 GiB"
+msgstr "Apple M4，10 个逻辑核心（4 个性能核心，6 个能效核心），16 GiB"
+
+#: manual/performance/bench/external.md:25
+msgid "OS"
+msgstr "OS"
+
+#: manual/performance/bench/external.md:25
+msgid "Darwin 27.2.1 (Darwin kernel 27.2.0)"
+msgstr "Darwin 27.2.1（Darwin 内核 27.2.0）"
+
+#: manual/performance/bench/external.md:26
+msgid "Power"
+msgstr "电源"
+
+#: manual/performance/bench/external.md:26
+msgid "AC power at start and end of the run; no frequency pinning, no core pinning"
+msgstr "运行开始和结束时均为交流电；未固定频率，未绑定核心"
+
+#: manual/performance/bench/external.md:27
+msgid "Other load"
+msgstr "其他负载"
+
+#: manual/performance/bench/external.md:27
+msgid "the runner waits for the other processes to use under 150% CPU (1.5 cores) before each timed side; at the start of each side they used 30% to 91%, mostly the window server and desktop applications"
+msgstr "运行器在每个计时侧开始前等待其他进程的 CPU 使用率低于 150%（1.5 个核心）；每一侧开始时它们的使用率为 30% 到 91%，主要是窗口服务器和桌面应用程序"
+
+#: manual/performance/bench/external.md:28
+msgid "MoonBit"
+msgstr "MoonBit"
+
+#: manual/performance/bench/external.md:28
+msgid "moon 0.1.20261117 (eb64713 2026-11-17), v0.10.21+06da1ed44 (2026-11-16)"
+msgstr "moon 0.1.20261117 (eb64713 2026-11-17), v0.10.21+06da1ed44 (2026-11-16)"
+
+#: manual/performance/bench/external.md:29
+msgid "`floating` build"
+msgstr "`floating` 构建"
+
+#: manual/performance/bench/external.md:29
+msgid "`moon test --release --target native`; moon compiles the generated C with `/usr/bin/cc -fwrapv -fno-strict-aliasing -ffp-contract=off -Wno-unused-value -O2 -DMOONBIT_ALLOCATOR=MOONBIT_ALLOCATOR_MIMALLOC` (reference-counted memory management, mimalloc allocator)"
+msgstr "`moon test --release --target native`；moon 用 `/usr/bin/cc -fwrapv -fno-strict-aliasing -ffp-contract=off -Wno-unused-value -O2 -DMOONBIT_ALLOCATOR=MOONBIT_ALLOCATOR_MIMALLOC` 编译生成的 C 代码（引用计数内存管理，mimalloc 分配器）"
+
+#: manual/performance/bench/external.md:30
+msgid "C compiler of the harness"
+msgstr "测试程序使用的 C 编译器"
+
+#: manual/performance/bench/external.md:30
+msgid "Apple clang 21.0.0 (Xcode command line tools), flags `-O2`"
+msgstr "Apple clang 21.0.0（Xcode 命令行工具），选项 `-O2`"
+
+#: manual/performance/bench/external.md:31
+msgid "MPFR"
+msgstr "MPFR"
+
+#: manual/performance/bench/external.md:31
+msgid "4.2.2 (Homebrew bottle, thread-local storage on, no shared cache)"
+msgstr "4.2.2（Homebrew 预编译包，启用线程局部存储，无共享缓存）"
+
+#: manual/performance/bench/external.md:32
+msgid "GMP"
+msgstr "GMP"
+
+#: manual/performance/bench/external.md:32
+msgid "6.3.0 (Homebrew bottle, built with `clang -O2 -pedantic -march=armv8-a`)"
+msgstr "6.3.0（Homebrew 预编译包，使用 `clang -O2 -pedantic -march=armv8-a` 构建）"
+
+#: manual/performance/bench/external.md:33
+msgid "mpdecimal"
+msgstr "mpdecimal"
+
+#: manual/performance/bench/external.md:33
+msgid "4.0.1 (Homebrew bottle)"
+msgstr "4.0.1（Homebrew 预编译包）"
+
+#: manual/performance/bench/external.md:34
+msgid "Library revision"
+msgstr "库版本"
+
+#: manual/performance/bench/external.md:34
+msgid "`2938f6ce6ab6` plus documentation-only edits; no library source differs from the commit"
+msgstr "`2938f6ce6ab6` 加上仅涉及文档的修改；库源代码与该提交没有任何差别"
+
+#: manual/performance/bench/external.md:35
+msgid "Run"
+msgstr "运行"
+
+#: manual/performance/bench/external.md:35
+msgid "2026-11-18T12:03:10Z, `just bench external run` with the `standard` preset"
+msgstr "2026-11-18T12:03:10Z，使用 `standard` 预设的 `just bench external run`"
+
+#: manual/performance/bench/external.md:36
+msgid "Operand and reference files"
+msgstr "操作数文件和参考文件"
+
+#: manual/performance/bench/external.md:36
+msgid "SHA-256 `4be4d4ca88128cad` and `f5ee544a4698cfac` (seed 20261118)"
+msgstr "SHA-256 `4be4d4ca88128cad` 与 `f5ee544a4698cfac`（种子 20261118）"
+
+#: manual/performance/bench/external.md:38
+msgid "What is timed"
+msgstr "计时的内容"
+
+#: manual/performance/bench/external.md:40
+msgid "Each case is one operation at one precision with eight different operand sets read from the same file by both sides (`inputs.txt`, written by one seeded generator; checksums are in `machine.json`). One timed iteration is one pass over the eight sets, so a time per operation is the batch time divided by the iterations and by eight."
+msgstr "每个用例是在一种精度下的一种操作，有八组不同的操作数，两侧从同一个文件中读取（`inputs.txt`，由一个带种子的生成器写入；校验和在 `machine.json` 中）。一次被计时的迭代是对这八组的一遍处理，因此每次操作的时间是批次时间除以迭代次数再除以八。"
+
+#: manual/performance/bench/external.md:46
+msgid "**Binary.** Operands and results have the case precision in bits. MPFR: `mpfr_add`, `mpfr_mul`, `mpfr_div`, `mpfr_sqrt`, `mpfr_exp`, `mpfr_log`, `mpfr_sin` with `MPFR_RNDN`. `floating`: the `BinFloat` methods `add`, `mul`, `div`, `sqrt`, `exp`, `ln`, `sin` on operands of that precision (round to nearest even, unbounded exponent range)."
+msgstr "**二进制。** 操作数和结果的精度为该用例的位数。MPFR：`mpfr_add`、`mpfr_mul`、`mpfr_div`、`mpfr_sqrt`、`mpfr_exp`、`mpfr_log`、`mpfr_sin`，使用 `MPFR_RNDN`。`floating`：在该精度的操作数上调用 `BinFloat` 方法 `add`、`mul`、`div`、`sqrt`、`exp`、`ln`、`sin`（舍入到最近偶数，指数范围无界）。"
+
+#: manual/performance/bench/external.md:51
+msgid "**Decimal.** Operands and results have the case digit count, rounding half even, exponent range ±999999. libmpdec: `mpd_qadd`, `mpd_qmul`, `mpd_qdiv`, `mpd_qsqrt`, `mpd_qexp`, `mpd_qln` with `allcr = 1`. `floating`: `decimal_gda` `add`, `multiply`, `divide`, `sqrt`, `exp`, `ln` in a context of that precision. libmpdec has no `sin`, so decimal has six operations."
+msgstr "**十进制。** 操作数和结果的数字位数为该用例的位数，舍入为 half even，指数范围 ±999999。libmpdec：`mpd_qadd`、`mpd_qmul`、`mpd_qdiv`、`mpd_qsqrt`、`mpd_qexp`、`mpd_qln`，`allcr = 1`。`floating`：在该精度的上下文中调用 `decimal_gda` 的 `add`、`multiply`、`divide`、`sqrt`、`exp`、`ln`。libmpdec 没有 `sin`，因此十进制有六种操作。"
+
+#: manual/performance/bench/external.md:56
+msgid "**Included in the time.** The library call itself, with whatever temporary storage it allocates internally. For `floating` this includes constructing the immutable result value and the Maremark per-iteration bookkeeping; the `null` rows below measure the latter."
+msgstr "**计入时间的部分。** 库调用本身，以及它在内部分配的任何临时存储。对 `floating` 而言，这包括构造不可变结果值和 Maremark 每次迭代的簿记；下面的 `null` 行测量的是后者。"
+
+#: manual/performance/bench/external.md:60
+msgid "**Excluded.** Parsing operands, creating contexts, `mpfr_t` and `mpd_t` initialisation and result buffers (MPFR and libmpdec write into results allocated before timing), reading files, and printing. Process start-up and the first warm-up passes are outside the measured blocks."
+msgstr "**不计入的部分。** 解析操作数、创建上下文、`mpfr_t` 和 `mpd_t` 的初始化以及结果缓冲区（MPFR 和 libmpdec 写入计时前已分配的结果）、读取文件以及打印。进程启动和最初的预热遍数在被测量的块之外。"
+
+#: manual/performance/bench/external.md:64
+msgid "**Correctness.** Before it is timed, every `floating` output is compared with the MPFR or libmpdec result for the same operand (all 427 comparisons, 61 cases in 7 rounds, were equal). Both libraries round every result correctly (MPFR always; libmpdec with `allcr = 1`; `floating` by certified refinement), so at equal precision the results are identical and the ratio compares equal work."
+msgstr "**正确性。** 计时之前，每个 `floating` 输出都与 MPFR 或 libmpdec 对同一操作数的结果进行比较（全部 427 次比较，即 7 轮中的 61 个用例，结果均相等）。两个库对每个结果都是正确舍入的（MPFR 始终如此；libmpdec 在 `allcr = 1` 时；`floating` 通过经证明的逐步细化），因此在相同精度下结果完全一致，比值比较的是等量的工作。"
+
+#: manual/performance/bench/external.md:69
+msgid "**Not trivially cached.** The operands are 8 distinct random sets per case, every result is overwritten on the next pass, and neither library keeps a result cache. Both keep internal caches of constants such as $\\pi$ and $\\ln 2$ per precision; these are warm during timing on both sides (the warm-up passes fill them), so the numbers are steady-state rates, not cold-start costs."
+msgstr "**不是平凡的缓存命中。** 每个用例有 8 组不同的随机操作数，每个结果在下一遍都会被覆盖，两个库都不保留结果缓存。两者都按精度保留 $\\pi$ 和 $\\ln 2$ 等常数的内部缓存；这些缓存在计时期间两侧都是热的（预热遍数会填充它们），所以这些数字是稳态速率，而不是冷启动成本。"
+
+#: manual/performance/bench/external.md:78
+msgid "Both sides run the Maremark protocol with the same numbers: 3 warm-up passes and at least 5 ms of warm-up, batches calibrated to about 20 ms (at least one pass of eight operations), 3 exploratory blocks that are discarded and 12 confirmatory blocks. The two sides alternate over 7 rounds in seeded AB/BA order, each round with its own shuffled case order, so every cell has 84 confirmatory blocks per side from 7 separate processes. Before each side starts, the runner waits until other processes use under 150% CPU. The slowest cells (elementary functions at 8192 bits and 1000 digits) take seconds per pass, so their batch is a single pass."
+msgstr "两侧使用相同数值运行 Maremark 协议：3 遍预热且预热至少 5 ms，批次校准到约 20 ms（至少一遍八个操作），3 个被丢弃的探索块和 12 个确认块。两侧以带种子的 AB/BA 顺序在 7 轮中交替，每轮都有自己打乱后的用例顺序，因此每个单元格每一侧有来自 7 个独立进程的 84 个确认块。每一侧开始之前，运行器会等待其他进程的 CPU 使用率低于 150%。最慢的单元格（8192 位和 1000 位数字的初等函数）每遍需要数秒，因此它们的批次只有一遍。"
+
+#: manual/performance/bench/external.md:90
+msgid "Binary: floating `bin_float` against MPFR"
+msgstr "二进制：floating `bin_float` 对比 MPFR"
+
+#: manual/performance/bench/external.md:92
+msgid "Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)"
+msgstr "比值 floating / MPFR（中位数时间，95% 自助法区间；大于 1 表示 floating 更慢）"
+
+#: manual/performance/bench/external.md:94
+#: manual/performance/bench/external.md:106
+#: manual/performance/bench/external.md:118
+#: manual/performance/bench/external.md:132
+#: manual/performance/bench/external.md:143
+#: manual/performance/bench/external.md:154
+msgid "op"
+msgstr "op"
+
+#: manual/performance/bench/external.md:94
+#: manual/performance/bench/external.md:106
+#: manual/performance/bench/external.md:118
+msgid "53 bits"
+msgstr "53 bits"
+
+#: manual/performance/bench/external.md:94
+#: manual/performance/bench/external.md:106
+#: manual/performance/bench/external.md:118
+msgid "128 bits"
+msgstr "128 bits"
+
+#: manual/performance/bench/external.md:94
+#: manual/performance/bench/external.md:106
+#: manual/performance/bench/external.md:118
+msgid "512 bits"
+msgstr "512 bits"
+
+#: manual/performance/bench/external.md:94
+#: manual/performance/bench/external.md:106
+#: manual/performance/bench/external.md:118
+msgid "2048 bits"
+msgstr "2048 bits"
+
+#: manual/performance/bench/external.md:94
+#: manual/performance/bench/external.md:106
+#: manual/performance/bench/external.md:118
+msgid "8192 bits"
+msgstr "8192 bits"
+
+#: manual/performance/bench/external.md:96
+#: manual/performance/bench/external.md:108
+#: manual/performance/bench/external.md:120
+#: manual/performance/bench/external.md:134
+#: manual/performance/bench/external.md:145
+#: manual/performance/bench/external.md:156
+msgid "add"
+msgstr "add"
+
+#: manual/performance/bench/external.md:97
+#: manual/performance/bench/external.md:109
+#: manual/performance/bench/external.md:121
+#: manual/performance/bench/external.md:135
+#: manual/performance/bench/external.md:146
+#: manual/performance/bench/external.md:157
+msgid "mul"
+msgstr "mul"
+
+#: manual/performance/bench/external.md:98
+#: manual/performance/bench/external.md:110
+#: manual/performance/bench/external.md:122
+#: manual/performance/bench/external.md:136
+#: manual/performance/bench/external.md:147
+#: manual/performance/bench/external.md:158
+msgid "div"
+msgstr "div"
+
+#: manual/performance/bench/external.md:99
+#: manual/performance/bench/external.md:111
+#: manual/performance/bench/external.md:123
+#: manual/performance/bench/external.md:137
+#: manual/performance/bench/external.md:148
+#: manual/performance/bench/external.md:159
+msgid "sqrt"
+msgstr "sqrt"
+
+#: manual/performance/bench/external.md:100
+#: manual/performance/bench/external.md:112
+#: manual/performance/bench/external.md:124
+#: manual/performance/bench/external.md:138
+#: manual/performance/bench/external.md:149
+#: manual/performance/bench/external.md:160
+msgid "exp"
+msgstr "exp"
+
+#: manual/performance/bench/external.md:101
+#: manual/performance/bench/external.md:113
+#: manual/performance/bench/external.md:125
+#: manual/performance/bench/external.md:139
+#: manual/performance/bench/external.md:150
+#: manual/performance/bench/external.md:161
+msgid "ln"
+msgstr "ln"
+
+#: manual/performance/bench/external.md:102
+#: manual/performance/bench/external.md:114
+#: manual/performance/bench/external.md:126
+msgid "sin"
+msgstr "sin"
+
+#: manual/performance/bench/external.md:104
+msgid "Median ns per operation, MPFR"
+msgstr "每次操作的中位数 ns，MPFR"
+
+#: manual/performance/bench/external.md:108
+msgid "4.57 ns"
+msgstr "4.57 ns"
+
+#: manual/performance/bench/external.md:108
+msgid "6 ns"
+msgstr "6 ns"
+
+#: manual/performance/bench/external.md:108
+msgid "12.4 ns"
+msgstr "12.4 ns"
+
+#: manual/performance/bench/external.md:108
+msgid "21.8 ns"
+msgstr "21.8 ns"
+
+#: manual/performance/bench/external.md:108
+msgid "85.9 ns"
+msgstr "85.9 ns"
+
+#: manual/performance/bench/external.md:109
+msgid "5.01 ns"
+msgstr "5.01 ns"
+
+#: manual/performance/bench/external.md:109
+msgid "10.1 ns"
+msgstr "10.1 ns"
+
+#: manual/performance/bench/external.md:109
+msgid "32 ns"
+msgstr "32 ns"
+
+#: manual/performance/bench/external.md:109
+msgid "232 ns"
+msgstr "232 ns"
+
+#: manual/performance/bench/external.md:109
+msgid "2.14 us"
+msgstr "2.14 us"
+
+#: manual/performance/bench/external.md:110
+msgid "5.4 ns"
+msgstr "5.4 ns"
+
+#: manual/performance/bench/external.md:110
+msgid "26.4 ns"
+msgstr "26.4 ns"
+
+#: manual/performance/bench/external.md:110
+msgid "108 ns"
+msgstr "108 ns"
+
+#: manual/performance/bench/external.md:110
+msgid "514 ns"
+msgstr "514 ns"
+
+#: manual/performance/bench/external.md:110
+msgid "4.07 us"
+msgstr "4.07 us"
+
+#: manual/performance/bench/external.md:111
+msgid "5.65 ns"
+msgstr "5.65 ns"
+
+#: manual/performance/bench/external.md:111
+msgid "62.9 ns"
+msgstr "62.9 ns"
+
+#: manual/performance/bench/external.md:111
+msgid "166 ns"
+msgstr "166 ns"
+
+#: manual/performance/bench/external.md:111
+msgid "522 ns"
+msgstr "522 ns"
+
+#: manual/performance/bench/external.md:111
+msgid "2.97 us"
+msgstr "2.97 us"
+
+#: manual/performance/bench/external.md:112
+msgid "559 ns"
+msgstr "559 ns"
+
+#: manual/performance/bench/external.md:112
+msgid "851 ns"
+msgstr "851 ns"
+
+#: manual/performance/bench/external.md:112
+msgid "2.38 us"
+msgstr "2.38 us"
+
+#: manual/performance/bench/external.md:112
+msgid "17 us"
+msgstr "17 us"
+
+#: manual/performance/bench/external.md:112
+msgid "213 us"
+msgstr "213 us"
+
+#: manual/performance/bench/external.md:113
+msgid "388 ns"
+msgstr "388 ns"
+
+#: manual/performance/bench/external.md:113
+msgid "1.1 us"
+msgstr "1.1 us"
+
+#: manual/performance/bench/external.md:113
+msgid "3.45 us"
+msgstr "3.45 us"
+
+#: manual/performance/bench/external.md:113
+msgid "15.1 us"
+msgstr "15.1 us"
+
+#: manual/performance/bench/external.md:113
+msgid "116 us"
+msgstr "116 us"
+
+#: manual/performance/bench/external.md:114
+msgid "503 ns"
+msgstr "503 ns"
+
+#: manual/performance/bench/external.md:114
+msgid "803 ns"
+msgstr "803 ns"
+
+#: manual/performance/bench/external.md:114
+msgid "2.23 us"
+msgstr "2.23 us"
+
+#: manual/performance/bench/external.md:114
+msgid "14.2 us"
+msgstr "14.2 us"
+
+#: manual/performance/bench/external.md:114
+msgid "198 us"
+msgstr "198 us"
+
+#: manual/performance/bench/external.md:116
+#: manual/performance/bench/external.md:152
+msgid "Median ns per operation, floating"
+msgstr "每次操作的中位数 ns，floating"
+
+#: manual/performance/bench/external.md:120
+msgid "101 ns"
+msgstr "101 ns"
+
+#: manual/performance/bench/external.md:120
+msgid "127 ns"
+msgstr "127 ns"
+
+#: manual/performance/bench/external.md:120
+msgid "225 ns"
+msgstr "225 ns"
+
+#: manual/performance/bench/external.md:120
+msgid "357 ns"
+msgstr "357 ns"
+
+#: manual/performance/bench/external.md:120
+msgid "1.34 us"
+msgstr "1.34 us"
+
+#: manual/performance/bench/external.md:121
+msgid "100 ns"
+msgstr "100 ns"
+
+#: manual/performance/bench/external.md:121
+msgid "134 ns"
+msgstr "134 ns"
+
+#: manual/performance/bench/external.md:121
+msgid "341 ns"
+msgstr "341 ns"
+
+#: manual/performance/bench/external.md:121
+msgid "2.54 us"
+msgstr "2.54 us"
+
+#: manual/performance/bench/external.md:121
+msgid "27.3 us"
+msgstr "27.3 us"
+
+#: manual/performance/bench/external.md:122
+msgid "180 ns"
+msgstr "180 ns"
+
+#: manual/performance/bench/external.md:122
+msgid "236 ns"
+msgstr "236 ns"
+
+#: manual/performance/bench/external.md:122
+msgid "668 ns"
+msgstr "668 ns"
+
+#: manual/performance/bench/external.md:122
+msgid "4.42 us"
+msgstr "4.42 us"
+
+#: manual/performance/bench/external.md:122
+msgid "56.2 us"
+msgstr "56.2 us"
+
+#: manual/performance/bench/external.md:123
+msgid "223 ns"
+msgstr "223 ns"
+
+#: manual/performance/bench/external.md:123
+msgid "493 ns"
+msgstr "493 ns"
+
+#: manual/performance/bench/external.md:123
+msgid "8.26 us"
+msgstr "8.26 us"
+
+#: manual/performance/bench/external.md:123
+msgid "14.5 us"
+msgstr "14.5 us"
+
+#: manual/performance/bench/external.md:123
+msgid "82.7 us"
+msgstr "82.7 us"
+
+#: manual/performance/bench/external.md:124
+msgid "36.4 us"
+msgstr "36.4 us"
+
+#: manual/performance/bench/external.md:124
+msgid "65.7 us"
+msgstr "65.7 us"
+
+#: manual/performance/bench/external.md:124
+msgid "244 us"
+msgstr "244 us"
+
+#: manual/performance/bench/external.md:124
+msgid "3.18 ms"
+msgstr "3.18 ms"
+
+#: manual/performance/bench/external.md:124
+msgid "87.4 ms"
+msgstr "87.4 ms"
+
+#: manual/performance/bench/external.md:125
+msgid "54.7 us"
+msgstr "54.7 us"
+
+#: manual/performance/bench/external.md:125
+msgid "118 us"
+msgstr "118 us"
+
+#: manual/performance/bench/external.md:125
+msgid "536 us"
+msgstr "536 us"
+
+#: manual/performance/bench/external.md:125
+msgid "8.47 ms"
+msgstr "8.47 ms"
+
+#: manual/performance/bench/external.md:125
+msgid "286 ms"
+msgstr "286 ms"
+
+#: manual/performance/bench/external.md:126
+msgid "218 us"
+msgstr "218 us"
+
+#: manual/performance/bench/external.md:126
+msgid "348 us"
+msgstr "348 us"
+
+#: manual/performance/bench/external.md:126
+msgid "1.29 ms"
+msgstr "1.29 ms"
+
+#: manual/performance/bench/external.md:126
+msgid "17.3 ms"
+msgstr "17.3 ms"
+
+#: manual/performance/bench/external.md:126
+msgid "507 ms"
+msgstr "507 ms"
+
+#: manual/performance/bench/external.md:128
+msgid "Decimal: floating `decimal_gda` against libmpdec"
+msgstr "十进制：floating `decimal_gda` 对比 libmpdec"
+
+#: manual/performance/bench/external.md:130
+msgid "Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means floating is slower)"
+msgstr "比值 floating / libmpdec（中位数时间，95% 自助法区间；大于 1 表示 floating 更慢）"
+
+#: manual/performance/bench/external.md:132
+#: manual/performance/bench/external.md:143
+#: manual/performance/bench/external.md:154
+msgid "16 digits"
+msgstr "16 digits"
+
+#: manual/performance/bench/external.md:132
+#: manual/performance/bench/external.md:143
+#: manual/performance/bench/external.md:154
+msgid "34 digits"
+msgstr "34 digits"
+
+#: manual/performance/bench/external.md:132
+#: manual/performance/bench/external.md:143
+#: manual/performance/bench/external.md:154
+msgid "100 digits"
+msgstr "100 digits"
+
+#: manual/performance/bench/external.md:132
+#: manual/performance/bench/external.md:143
+#: manual/performance/bench/external.md:154
+msgid "1000 digits"
+msgstr "1000 digits"
+
+#: manual/performance/bench/external.md:141
+msgid "Median ns per operation, libmpdec"
+msgstr "每次操作的中位数 ns，libmpdec"
+
+#: manual/performance/bench/external.md:145
+msgid "19.2 ns"
+msgstr "19.2 ns"
+
+#: manual/performance/bench/external.md:145
+msgid "23.5 ns"
+msgstr "23.5 ns"
+
+#: manual/performance/bench/external.md:145
+msgid "43.2 ns"
+msgstr "43.2 ns"
+
+#: manual/performance/bench/external.md:145
+msgid "160 ns"
+msgstr "160 ns"
+
+#: manual/performance/bench/external.md:146
+msgid "18.4 ns"
+msgstr "18.4 ns"
+
+#: manual/performance/bench/external.md:146
+msgid "47.5 ns"
+msgstr "47.5 ns"
+
+#: manual/performance/bench/external.md:146
+msgid "142 ns"
+msgstr "142 ns"
+
+#: manual/performance/bench/external.md:146
+msgid "9.68 us"
+msgstr "9.68 us"
+
+#: manual/performance/bench/external.md:147
+msgid "30.1 ns"
+msgstr "30.1 ns"
+
+#: manual/performance/bench/external.md:147
+msgid "119 ns"
+msgstr "119 ns"
+
+#: manual/performance/bench/external.md:147
+msgid "343 ns"
+msgstr "343 ns"
+
+#: manual/performance/bench/external.md:147
+msgid "15.3 us"
+msgstr "15.3 us"
+
+#: manual/performance/bench/external.md:148
+msgid "289 ns"
+msgstr "289 ns"
+
+#: manual/performance/bench/external.md:148
+msgid "1.09 us"
+msgstr "1.09 us"
+
+#: manual/performance/bench/external.md:148
+msgid "4.13 us"
+msgstr "4.13 us"
+
+#: manual/performance/bench/external.md:148
+msgid "211 us"
+msgstr "211 us"
+
+#: manual/performance/bench/external.md:149
+msgid "2.85 us"
+msgstr "2.85 us"
+
+#: manual/performance/bench/external.md:149
+msgid "8.01 us"
+msgstr "8.01 us"
+
+#: manual/performance/bench/external.md:149
+msgid "17.6 us"
+msgstr "17.6 us"
+
+#: manual/performance/bench/external.md:149
+msgid "4.98 ms"
+msgstr "4.98 ms"
+
+#: manual/performance/bench/external.md:150
+msgid "9.87 us"
+msgstr "9.87 us"
+
+#: manual/performance/bench/external.md:150
+msgid "15.8 us"
+msgstr "15.8 us"
+
+#: manual/performance/bench/external.md:150
+msgid "40.7 us"
+msgstr "40.7 us"
+
+#: manual/performance/bench/external.md:150
+msgid "5.95 ms"
+msgstr "5.95 ms"
+
+#: manual/performance/bench/external.md:156
+msgid "307 ns"
+msgstr "307 ns"
+
+#: manual/performance/bench/external.md:156
+msgid "273 ns"
+msgstr "273 ns"
+
+#: manual/performance/bench/external.md:156
+msgid "371 ns"
+msgstr "371 ns"
+
+#: manual/performance/bench/external.md:156
+msgid "1.07 us"
+msgstr "1.07 us"
+
+#: manual/performance/bench/external.md:157
+msgid "296 ns"
+msgstr "296 ns"
+
+#: manual/performance/bench/external.md:157
+msgid "303 ns"
+msgstr "303 ns"
+
+#: manual/performance/bench/external.md:157
+msgid "446 ns"
+msgstr "446 ns"
+
+#: manual/performance/bench/external.md:157
+msgid "17.2 us"
+msgstr "17.2 us"
+
+#: manual/performance/bench/external.md:158
+msgid "666 ns"
+msgstr "666 ns"
+
+#: manual/performance/bench/external.md:158
+msgid "955 ns"
+msgstr "955 ns"
+
+#: manual/performance/bench/external.md:158
+msgid "1.62 us"
+msgstr "1.62 us"
+
+#: manual/performance/bench/external.md:158
+msgid "47.9 us"
+msgstr "47.9 us"
+
+#: manual/performance/bench/external.md:159
+msgid "1.72 us"
+msgstr "1.72 us"
+
+#: manual/performance/bench/external.md:159
+msgid "4.71 us"
+msgstr "4.71 us"
+
+#: manual/performance/bench/external.md:159
+msgid "11.4 us"
+msgstr "11.4 us"
+
+#: manual/performance/bench/external.md:159
+msgid "445 us"
+msgstr "445 us"
+
+#: manual/performance/bench/external.md:160
+msgid "248 us"
+msgstr "248 us"
+
+#: manual/performance/bench/external.md:160
+msgid "293 us"
+msgstr "293 us"
+
+#: manual/performance/bench/external.md:160
+msgid "1.69 ms"
+msgstr "1.69 ms"
+
+#: manual/performance/bench/external.md:160
+msgid "327 ms"
+msgstr "327 ms"
+
+#: manual/performance/bench/external.md:161
+msgid "221 us"
+msgstr "221 us"
+
+#: manual/performance/bench/external.md:161
+msgid "353 us"
+msgstr "353 us"
+
+#: manual/performance/bench/external.md:161
+msgid "996 us"
+msgstr "996 us"
+
+#: manual/performance/bench/external.md:161
+msgid "89.4 ms"
+msgstr "89.4 ms"
+
+#: manual/performance/bench/external.md:163
+msgid "Harness overhead of the floating side"
+msgstr "floating 一侧的测量框架开销"
+
+#: manual/performance/bench/external.md:165
+msgid "case"
+msgstr "用例"
+
+#: manual/performance/bench/external.md:165
+msgid "ns per operation (loop and result store only)"
+msgstr "每次操作的 ns（仅循环和结果存储）"
+
+#: manual/performance/bench/external.md:167
+msgid "9.28 ns [9.23 ns, 9.4 ns]"
+msgstr "9.28 ns [9.23 ns, 9.4 ns]"
+
+#: manual/performance/bench/external.md:168
+msgid "9.36 ns [9.28 ns, 9.48 ns]"
+msgstr "9.36 ns [9.28 ns, 9.48 ns]"
+
+#: manual/performance/bench/external.md:170
+msgid "Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `decimal/exp/34`."
+msgstr "带星号的单元格超过了离散度阈值（置信区间半宽超过中位数的 5%，或各轮中位数的离散超过 10%）：`decimal/exp/34`。"
+
+#: manual/performance/bench/external.md:172
+msgid "What the numbers say"
+msgstr "数字说明了什么"
+
+#: manual/performance/bench/external.md:174
+msgid "Everything below is read from the tables above; ratios are rounded and the intervals are in the tables."
+msgstr "以下内容均读自上面的表格；比值已经过四舍五入，区间见表格。"
+
+#: manual/performance/bench/external.md:177
+msgid "**`floating` is slower than both C libraries in every one of the 59 cells.** The smallest ratio is 1.77 (decimal multiplication at 1000 digits) and the largest 2554 (binary `sin` at 8192 bits)."
+msgstr "**在全部 59 个单元格中，`floating` 都比两个 C 库慢。** 最小比值为 1.77（1000 位数字的十进制乘法），最大为 2554（8192 位的二进制 `sin`）。"
+
+#: manual/performance/bench/external.md:181
+msgid "**Basic binary arithmetic: roughly 6 to 40 times slower.** Addition costs 15.6 to 22 times MPFR's time at every precision, and multiplication 10.7 to 20 times. The gap is widest at 53 bits, where MPFR needs 4.6 ns for an addition and `floating` 101 ns; about 9 ns of that is the harness (see the `null` row), the rest is allocation and normalisation of an immutable result. Division is 6.2 times slower at 512 bits but 33 times at 53 bits and 13.8 times at 8192 bits. At 8192 bits multiplication takes 27.3 us against 2.14 us (12.8 times); 8192 bits is 256 limbs of 32 bits, in the Karatsuba range, against GMP's 64-bit limbs with assembly kernels."
+msgstr "**基础二进制算术：大约慢 6 到 40 倍。** 加法的耗时是 MPFR 的 15.6 到 22 倍（每种精度皆然），乘法是 10.7 到 20 倍。差距在 53 位时最大：MPFR 做一次加法需要 4.6 ns，`floating` 需要 101 ns；其中约 9 ns 来自测量框架（见 `null` 行），其余是不可变结果的分配与规范化。除法在 512 位时慢 6.2 倍，在 53 位时慢 33 倍，在 8192 位时慢 13.8 倍。在 8192 位时，乘法耗时 27.3 us，对比 2.14 us（12.8 倍）；8192 位是 256 个 32 位肢，处在 Karatsuba 范围内，而 GMP 使用 64 位肢和汇编内核。"
+
+#: manual/performance/bench/external.md:191
+msgid "**Square root is not smooth in precision.** The ratio is 7.8 at 128 bits, 49.9 at 512 bits and 27.8 at 2048 and 8192 bits. At 512 bits `floating` takes 8.26 us, 17 times its time at 128 bits for 4 times the width, where MPFR's time grows 2.6 times. The change of algorithm at 512 bits (fixed-width kernels below, divide and conquer above) is the likely cause; see the follow-up list."
+msgstr "**平方根随精度并不平滑。** 比值在 128 位时为 7.8，512 位时为 49.9，2048 位和 8192 位时为 27.8。在 512 位时 `floating` 需要 8.26 us，是它 128 位时间的 17 倍，而宽度只增加到 4 倍，MPFR 的时间则增长 2.6 倍。512 位处的算法切换（以下为定宽内核，以上为分治）很可能是原因；见后续事项列表。"
+
+#: manual/performance/bench/external.md:197
+msgid "**Elementary functions: 65 to 2554 times slower, and the gap grows with precision.** `exp` is 65 times slower at 53 bits and 411 times at 8192 bits; `ln` 141 and 2472 times; `sin` 435 and 2554 times. At 53 bits a `sin` takes 218 us in `floating` and 0.5 us in MPFR. Both are correctly rounded, so the work is equal in specification but not in method: `floating` certifies each result by interval arithmetic and a Ziv refinement loop, and the cost grows faster than MPFR's with the precision. `exp` at 8192 bits (87 ms against 213 us) and `ln` and `sin` at 8192 bits (286 ms and 507 ms) are among the slowest operations measured."
+msgstr "**初等函数：慢 65 到 2554 倍，且差距随精度增大。** `exp` 在 53 位时慢 65 倍，在 8192 位时慢 411 倍；`ln` 为 141 倍和 2472 倍；`sin` 为 435 倍和 2554 倍。在 53 位时，一次 `sin` 在 `floating` 中耗时 218 us，在 MPFR 中为 0.5 us。两者都是正确舍入的，所以按规格看工作量相同，但方法不同：`floating` 通过区间算术和 Ziv 细化循环来证明每个结果，其成本随精度增长得比 MPFR 更快。8192 位的 `exp`（87 ms 对 213 us）以及 8192 位的 `ln` 和 `sin`（286 ms 和 507 ms）属于测得最慢的操作。"
+
+#: manual/performance/bench/external.md:207
+msgid "**Decimal: closer, but still slower everywhere.** Against libmpdec, addition is 6.7 to 16 times slower, multiplication 1.8 to 16, division 3.1 to 22 and square root 2.1 to 6.0. The gap narrows with the digit count for these four operations: at 1000 digits multiplication is 1.8 times, square root 2.1 and division 3.1 times libmpdec. `ln` is 15 to 24 times slower and `exp` 37 to 96 times. The `exp` ratio is not monotone in the digit count: `floating` takes about 250 to 290 us at 16 and 34 digits, a floor that does not shrink with fewer digits, while libmpdec's time grows from 2.9 us to 8.0 us."
+msgstr "**十进制：更接近，但处处仍然更慢。** 对比 libmpdec，加法慢 6.7 到 16 倍，乘法慢 1.8 到 16 倍，除法慢 3.1 到 22 倍，平方根慢 2.1 到 6.0 倍。这四种操作的差距随数字位数增加而缩小：在 1000 位数字时，乘法是 libmpdec 的 1.8 倍，平方根是 2.1 倍，除法是 3.1 倍。`ln` 慢 15 到 24 倍，`exp` 慢 37 到 96 倍。`exp` 的比值随数字位数并不单调：`floating` 在 16 位和 34 位数字时耗时约 250 到 290 us，这是一个不随位数减少而降低的下限，而 libmpdec 的时间从 2.9 us 增长到 8.0 us。"
+
+#: manual/performance/bench/external.md:216
+msgid "**Harness overhead.** The `null` rows show that the timed loop of the `floating` side costs 9.3 ns per operation with the arithmetic removed. That is 9% of the 101 ns of a 53-bit addition and under 1% of anything above 1 us; it is not subtracted. The C side's loop overhead is below the clock resolution."
+msgstr "**测量框架的开销。** `null` 行表明，在去掉算术后，`floating` 一侧的计时循环每次操作耗时 9.3 ns。这相当于 53 位加法 101 ns 的 9%，以及任何高于 1 us 的操作的不到 1%；它不会被扣除。C 一侧的循环开销低于时钟分辨率。"
+
+#: manual/performance/bench/external.md:222
+msgid "**Dispersion.** Within a process the 20 ms batches vary by under 3% (largest median absolute deviation 1.9% for `floating` and 2.9% for the references). Between the seven rounds the medians of one cell spread by at most 8.7% for the references and 10.4% for `floating`; the bootstrap intervals therefore cover whole-process variation, and their half-widths are at most 1.9% of the median. One cell exceeds a dispersion threshold (marked in the table): `decimal/exp/34`, whose round medians for `floating` spread by 10.4%."
+msgstr "**离散度。** 在一个进程内，20 ms 的批次变化不到 3%（`floating` 的最大中位数绝对偏差为 1.9%，参考库为 2.9%）。七轮之间，同一单元格的中位数离散最多为：参考库 8.7%，`floating` 10.4%；因此自助法区间涵盖了整个进程之间的变化，其半宽至多为中位数的 1.9%。有一个单元格超过了离散度阈值（在表中已标出）：`decimal/exp/34`，其 `floating` 的各轮中位数离散为 10.4%。"
+
+#: manual/performance/bench/external.md:230
+msgid "**Measurement history.** A first five-round run was discarded, not selected against: the machine switched from battery to AC power during it and another session on the same machine kept about six processes at full CPU, and round medians of one cell differed by up to a factor of two, so every cell was marked noisy. Its ratios differ from this run's by 21% in the median cell and by up to 49% (`decimal/ln/16`), and its intervals are 7 to 250 times wider (median 62 times). The reported run added the quiet-machine gate, the power-source check, and a larger number of shorter rounds."
+msgstr "**测量历史。** 第一次五轮运行被丢弃，不是出于选择性取舍：运行期间机器从电池供电切换为交流电，并且同一台机器上的另一个会话让大约六个进程满负荷占用 CPU，同一单元格各轮的中位数相差多达两倍，所以每个单元格都被标记为有噪声。其比值与本次运行相比，中位数单元格相差 21%，最多相差 49%（`decimal/ln/16`），其区间宽 7 到 250 倍（中位数 62 倍）。本次报告的运行增加了安静机器门控、电源检查，以及更多次、更短的轮次。"
+
+#: manual/performance/bench/external.md:239
+msgid "Follow-ups (not fixed here)"
+msgstr "后续事项（此处未修复）"
+
+#: manual/performance/bench/external.md:241
+msgid "A short `sample` profile of the `floating` test binary (4 seconds on `binary/sqrt/512` and on `binary/sin/128`; indicative, not a rigorous profile) shows the following. No library code was changed for this baseline."
+msgstr "对 `floating` 测试二进制文件做了一次简短的 `sample` 分析（在 `binary/sqrt/512` 和 `binary/sin/128` 上各 4 秒；仅供参考，不是严格的性能剖析），结果如下。本基线没有修改任何库代码。"
+
+#: manual/performance/bench/external.md:245
+msgid "**Allocation and reference counting dominate the small cases.** The top frames are `moonbit_drop_object`, `mi_malloc`, `moonbit_make_int32_array` and, for the elementary functions, `scan_regular_object` (the cycle scan of the reference counter) and thread-local lookups of the allocator. Every `BinCoeff` intermediate is a heap array of 32-bit limbs. Fewer intermediate `BinCoeff` values in the contextual rounding path (`binary_round_rational`, `normalize_finite`, `add_heap`) would help add, mul and div at 53 to 512 bits, where `floating` is 10 to 33 times slower."
+msgstr "**分配和引用计数主导了小规模用例。** 最靠前的栈帧是 `moonbit_drop_object`、`mi_malloc`、`moonbit_make_int32_array`，对初等函数还有 `scan_regular_object`（引用计数器的环扫描）以及分配器的线程局部查找。每个 `BinCoeff` 中间量都是由 32 位肢组成的堆数组。在上下文舍入路径（`binary_round_rational`、`normalize_finite`、`add_heap`）中减少 `BinCoeff` 中间量，会改善 53 到 512 位的加法、乘法和除法，那里 `floating` 慢 10 到 33 倍。"
+
+#: manual/performance/bench/external.md:253
+msgid "**`sqrt` at 512 bits.** The profile is led by `compare`, `shift_left` and `test_bit` inside `bin_coeff_sqrt_rem_divide_conquer`: bit-level work on heap coefficients. The jump from 493 ns at 128 bits to 8.26 us at 512 bits suggests the divide-and-conquer threshold is too low, or its base case too slow, at this size."
+msgstr "**512 位的 `sqrt`。** 剖析结果以 `bin_coeff_sqrt_rem_divide_conquer` 内的 `compare`、`shift_left` 和 `test_bit` 为主：这是对堆上系数的位级操作。从 128 位的 493 ns 跳到 512 位的 8.26 us，说明分治阈值在这个规模上偏低，或者它的基本情形太慢。"
+
+#: manual/performance/bench/external.md:258
+msgid "**Elementary functions.** The start precision of the certification loop is at least 128 bits (`max(128, 4D + 64)` for decimal), which puts a floor of roughly 220 to 350 us on decimal `exp` and `ln` at 16 and 34 digits and 36 to 55 us on binary `exp` and `ln` at 53 bits, where MPFR needs 0.4 to 0.6 us. A cheaper first attempt at the target precision plus a few guard bits, falling back to the existing loop, would address the low-precision end. The growth towards 8192 bits needs a different algorithm (argument reduction and series evaluation on `BinCoeff` with bit-burst or binary splitting) and is a larger piece of work."
+msgstr "**初等函数。** 证明循环的起始精度至少为 128 位（十进制为 `max(128, 4D + 64)`），这使得 16 位和 34 位数字的十进制 `exp` 和 `ln` 有大约 220 到 350 us 的下限，53 位二进制 `exp` 和 `ln` 有 36 到 55 us 的下限，而 MPFR 只需要 0.4 到 0.6 us。先以目标精度加少量保护位做一次更便宜的尝试，失败时回退到现有循环，可以改善低精度一端。向 8192 位增长则需要不同的算法（在 `BinCoeff` 上做自变量规约和级数求值，采用 bit-burst 或二进制分裂），是更大的工作。"
+
+#: manual/performance/bench/external.md:267
+msgid "**Multiplication at 8192 bits.** 27.3 us against 2.14 us; 8192 bits is 256 limbs of 32 bits, below the native Toom-3 and transform thresholds (2048 limbs), so the Karatsuba range and its allocations are where the time goes. This is an inference from the thresholds, not a measurement."
+msgstr "**8192 位的乘法。** 27.3 us 对 2.14 us；8192 位是 256 个 32 位肢，低于 native 上的 Toom-3 和变换阈值（2048 个肢），所以时间花在 Karatsuba 范围及其分配上。这是根据阈值作出的推断，不是测量结果。"
+
+#: manual/performance/bench/external.md:272
+msgid "What is not measured"
+msgstr "未测量的内容"
+
+#: manual/performance/bench/external.md:274
+msgid "**Other targets.** JavaScript, WebAssembly and LLVM builds are not measured; the C libraries have no counterpart there."
+msgstr "**其他目标。** 未测量 JavaScript、WebAssembly 和 LLVM 构建；C 库在那里没有对应物。"
+
+#: manual/performance/bench/external.md:276
+msgid "**Other machines and compilers.** One Apple M4 laptop on AC power, with no frequency or core pinning and some background desktop load; absolute times will differ on other hardware, and ratios shift with the memory system and the CPU's multiplier and SIMD units."
+msgstr "**其他机器和编译器。** 一台使用交流电的 Apple M4 笔记本，未固定频率或核心，有一些桌面后台负载；在其他硬件上绝对时间会不同，比值会随内存系统以及 CPU 的乘法器和 SIMD 单元而变化。"
+
+#: manual/performance/bench/external.md:280
+msgid "**Tuned library builds.** The MPFR and GMP in use are Homebrew bottles built with `-O2 -march=armv8-a`; a GMP configured for the exact CPU, or a libmpdec with other build options, can be faster."
+msgstr "**调优过的库构建。** 所用的 MPFR 和 GMP 是用 `-O2 -march=armv8-a` 构建的 Homebrew 预编译包；针对具体 CPU 配置的 GMP，或使用其他构建选项的 libmpdec，可能更快。"
+
+#: manual/performance/bench/external.md:283
+msgid "**Large and special arguments.** Elementary functions are timed on well-conditioned arguments of modest magnitude; argument reduction of huge arguments, arguments near zeros and singularities, subnormal results, overflow, and exceptional values are not timed."
+msgstr "**大自变量和特殊自变量。** 初等函数只在量级适中、条件良好的自变量上计时；巨大自变量的自变量规约、接近零点和奇点的自变量、次正规结果、溢出以及异常值都没有计时。"
+
+#: manual/performance/bench/external.md:287
+msgid "**Cold start.** Warm caches only; the cost of the first call at a precision is excluded."
+msgstr "**冷启动。** 只有热缓存；在某个精度上首次调用的成本不计入。"
+
+#: manual/performance/bench/external.md:289
+msgid "**Other operations.** `fma`, `pow`, `hypot`, `cos`, `tan`, the hyperbolic and inverse functions, remainders, conversions, and parsing and printing are not compared. Interval (`ball_float`) arithmetic has no counterpart in MPFR and is not compared (MPFI is not part of this baseline)."
+msgstr "**其他操作。** `fma`、`pow`、`hypot`、`cos`、`tan`、双曲函数和反函数、余数、转换以及解析与打印都没有比较。区间（`ball_float`）算术在 MPFR 中没有对应物，因此未作比较（MPFI 不属于本基线）。"
+
+#: manual/performance/bench/external.md:293
+msgid "**Memory and threads.** Peak memory and multi-threaded behaviour are not measured."
+msgstr "**内存和线程。** 不测量内存峰值和多线程行为。"
+
+#: manual/performance/bench/external.md:295
+msgid "**Other rounding modes.** Only round to nearest even."
+msgstr "**其他舍入模式。** 只测舍入到最近偶数。"
+
+#: manual/performance/bench/external.md:297
+msgid "Reproduce"
+msgstr "复现"
+
+#: manual/performance/bench/external.md:304
+msgid "`run` writes the inputs, the reference results, the raw rounds and the summary under `.tmp/external`; `publish` copies the compact summary to `testdata/external_baseline/summary-VERSION.json`. The raw JSONL of the run reported here (about 12 MB, 2.4 MB compressed) is not committed; its checksums and the checksums of the operand and reference files are in the published summary. `just bench external compare OLD NEW` compares two summaries; see the [tutorial](../../tutorial/bench/external.md) for the commands and the [API page](../../api/bench/external.md) for the benchmark cases."
+msgstr "`run` 把输入、参考结果、原始各轮数据和摘要写入 `.tmp/external`；`publish` 把精简摘要复制到 `testdata/external_baseline/summary-VERSION.json`。本页所报告运行的原始 JSONL（约 12 MB，压缩后 2.4 MB）没有提交；它的校验和以及操作数文件和参考文件的校验和都在已发布的摘要中。`just bench external compare OLD NEW` 比较两份摘要；命令见[教程](../../tutorial/bench/external.md)，基准用例见 [API 页面](../../api/bench/external.md)。"
+
+#: manual/performance/bin_float.md:1
+msgid "bin_float performance"
+msgstr "bin_float 性能"
 
 #: manual/performance/bin_float.md:8
 msgid "Performance thresholds, limb layout, NTT primes, scratch storage, and fallback selection are implementation details. Public results, flags, and interchange bits must be identical across algorithms and targets."
@@ -17489,139 +18668,163 @@ msgstr "`src/bench/ball_float` 与 strict ITF1788"
 msgid "lower cost is acceptable only with ordered, outward-rounded enclosures"
 msgstr "只有有序且向外舍入的包络成立时，降低成本才可接受"
 
-#: manual/performance_audit.md:115
+#: manual/performance_audit.md:114
+msgid "external comparison"
+msgstr "外部比较"
+
+#: manual/performance_audit.md:114
+msgid "`just bench external run` ([results](performance/bench/external.md))"
+msgstr "`just bench external run`（[结果](performance/bench/external.md)）"
+
+#: manual/performance_audit.md:114
+msgid "`floating` timed against MPFR and libmpdec on the same operands; slower in every measured cell, by 1.8 to 2554 times"
+msgstr "`floating` 与 MPFR 和 libmpdec 在相同操作数上的计时对比；在每个测量单元格中都更慢，慢 1.8 到 2554 倍"
+
+#: manual/performance_audit.md:116
 msgid "Generated artifacts live under `.tmp/bench/` and are not published as API data. Re-run the commands on the target hardware before promoting a crossover. The workload is evidence about the audited tree; it does not prove a speedup for every release, equivalence across targets, or a latency bound."
 msgstr "生成的产物位于 `.tmp/bench/` 之下，不作为 API 数据发布。在提升交叉点阈值之前，请在目标硬件上重新运行这些命令。该工作负载只是关于被审计代码树的证据；它并不证明每个发布版本都有加速、不同目标之间性能等价，也不提供延迟上界。"
 
-#: manual/performance_audit.md:120
+#: manual/performance_audit.md:121
 msgid "Acceptance matrix"
 msgstr "验收矩阵"
 
-#: manual/performance_audit.md:122
+#: manual/performance_audit.md:123
 msgid "Check"
 msgstr "检查"
 
-#: manual/performance_audit.md:124
+#: manual/performance_audit.md:125
 msgid "93/93 passed"
 msgstr "93/93 通过"
 
-#: manual/performance_audit.md:125
+#: manual/performance_audit.md:126
 msgid "94/94 passed"
 msgstr "94/94 通过"
 
-#: manual/performance_audit.md:126
+#: manual/performance_audit.md:127
 msgid "68/68 passed"
 msgstr "68/68 通过"
 
-#: manual/performance_audit.md:127
+#: manual/performance_audit.md:128
 msgid "42/42 passed"
 msgstr "42/42 通过"
 
-#: manual/performance_audit.md:128
+#: manual/performance_audit.md:129
 msgid "7,464,503/7,464,503 passed"
 msgstr "7,464,503/7,464,503 通过"
 
-#: manual/performance_audit.md:129
+#: manual/performance_audit.md:130
 msgid "15,763/15,763 passed"
 msgstr "15,763/15,763 通过"
 
-#: manual/performance_audit.md:130
+#: manual/performance_audit.md:131
 msgid "64,986/64,986 and 16,124/16,124 passed"
 msgstr "64,986/64,986 与 16,124/16,124 通过"
 
-#: manual/performance_audit.md:131
+#: manual/performance_audit.md:132
 msgid "4,656/4,656 passed"
 msgstr "4,656/4,656 通过"
 
-#: manual/performance_audit.md:132
+#: manual/performance_audit.md:133
 msgid "passed"
 msgstr "通过"
 
-#: manual/performance_audit.md:134
+#: manual/performance_audit.md:135
 msgid "These counts describe the audited tree. The gates have grown since (the binary gate now runs the full IEEE operation matrix); [verification](./verification.md) lists the current claims."
 msgstr "这些计数描述的是被审计的代码树。此后各关卡已有扩展（二进制关卡现已运行完整的 IEEE 运算矩阵）；当前的结论见[验证](./verification.md)。"
 
-#: manual/performance_audit.md:138
+#: manual/performance_audit.md:139
 msgid "Reviewer self-review"
 msgstr "评审者自查"
 
-#: manual/performance_audit.md:140
+#: manual/performance_audit.md:141
 msgid "Contribution: pass. The audit records concrete optimization boundaries and a repaired semantic failure instead of an unexplained speedup."
 msgstr "贡献：通过。审计记录了具体的优化边界和一个已修复的语义故障，而非无法解释的加速。"
 
-#: manual/performance_audit.md:142
+#: manual/performance_audit.md:143
 msgid "Clarity: pass. Each proof separates representation, monotonicity, rounding direction and evidence."
 msgstr "清晰度：通过。每个证明都分别说明表示、单调性、舍入方向和证据。"
 
-#: manual/performance_audit.md:144
+#: manual/performance_audit.md:145
 msgid "Experimental strength: needs replication. The native artifacts are valid, but noisy auto-tune observations should be repeated before a threshold is promoted."
 msgstr "实验强度：需要复现。原生产物有效，但在提升阈值之前，应重复那些噪声较大的自动调优观测。"
 
-#: manual/performance_audit.md:147
+#: manual/performance_audit.md:148
 msgid "Completeness: pass for the declared pinned corpora; it does not cover every standard operation or every real input."
 msgstr "完整性：对声明的固定语料通过；它并未覆盖每一个标准运算或每一种实数输入。"
 
-#: manual/performance_audit.md:149
+#: manual/performance_audit.md:150
 msgid "Soundness: pass for the covered branches after the negative-half-axis regression fix and the full IEEE 1788 gate."
 msgstr "可靠性：在修复负半轴回归并通过完整的 IEEE 1788 关卡之后，对所覆盖的分支通过。"
 
-#: manual/performance_audit.md:152
+#: manual/performance_audit.md:153
 msgid "Claim–evidence map"
 msgstr "结论与证据对照"
 
-#: manual/performance_audit.md:156
+#: manual/performance_audit.md:157
 msgid "fast coefficient routes preserve the declared numerical results"
 msgstr "快速系数路线保持所声明的数值结果"
 
-#: manual/performance_audit.md:156
+#: manual/performance_audit.md:157
 msgid "exact-kernel identities, package tests, IEEE and GDA conformance"
 msgstr "精确内核恒等式、包测试、IEEE 与 GDA 符合性"
 
-#: manual/performance_audit.md:156
+#: manual/performance_audit.md:157
 msgid "supported within the declared APIs and preconditions"
 msgstr "在声明 API 与前置条件内支持"
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:158
 msgid "interval `pown` keeps ordered outward enclosures"
 msgstr "区间 `pown` 保持有序的向外包络"
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:158
 msgid "monotonicity table, negative-half-axis regression, 4,656 strict ITF1788 cases"
 msgstr "单调性表、负半轴回归、4,656 条 strict ITF1788"
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:158
 msgid "supported for the declared forward interval operations"
 msgstr "对所声明的正向区间运算成立"
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:159
 msgid "the optimized paths are performance-audited"
 msgstr "优化路径已经过性能审计"
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:159
 msgid "native Maremark `all` and `auto-tune` artifacts"
 msgstr "native Maremark `all` 与 `auto-tune` artifact"
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:159
 msgid "supported as measurement evidence, not a universal speed claim"
 msgstr "作为测量证据成立，而非通用的速度结论"
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:160
 msgid "every target and operation has equivalent performance"
 msgstr "所有目标和运算都具有等价的性能"
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:160
 msgid "no paired cross-target artifact"
 msgstr "没有成对的跨目标产物"
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:160
 msgid "not claimed"
 msgstr "不作此结论"
 
 #: manual/performance_audit.md:161
+msgid "`floating` is competitive with MPFR and libmpdec"
+msgstr "`floating` 与 MPFR 和 libmpdec 相比具有竞争力"
+
+#: manual/performance_audit.md:161
+msgid "[external baseline](performance/bench/external.md): slower in all 59 measured cells on native"
+msgstr "[外部基线](performance/bench/external.md)：在 native 上全部 59 个测量单元格中都更慢"
+
+#: manual/performance_audit.md:161
+msgid "refuted for the measured operations; the ratios are tracked per release"
+msgstr "对被测量的操作而言已被推翻；比值按版本跟踪"
+
+#: manual/performance_audit.md:163
 msgid "Limits"
 msgstr "限制"
 
-#: manual/performance_audit.md:163
+#: manual/performance_audit.md:165
 msgid "The semantic claims are bounded by the pinned corpora, the public operations, target-specific precision rules and the explicit fallback contracts. The 0.6.1 elementary manifest remains the comparison baseline of the elementary performance gate, with 0.7.1 as its candidate. No public API, rounding rule, error signal or enclosure contract is changed merely to improve a benchmark."
 msgstr "语义结论受限于固定语料、公开运算、特定目标的精度规则以及显式的回退契约。0.6.1 的初等函数清单仍是初等函数性能关卡的比较基线，0.7.1 是其候选版本。不会仅为改善某个基准测试而更改任何公开 API、舍入规则、错误信号或包络契约。"
 
@@ -17640,6 +18843,7 @@ msgstr "本教程教你使用有保证的包络进行计算：构造一个已知
 #: manual/tutorial/bench/bin_float.md:8
 #: manual/tutorial/bench/decimal.md:8
 #: manual/tutorial/bench/decimal_gda.md:8
+#: manual/tutorial/bench/external.md:8
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
@@ -17673,6 +18877,7 @@ msgstr "我想要"
 #: manual/tutorial/bench/bin_float.md:8
 #: manual/tutorial/bench/decimal.md:8
 #: manual/tutorial/bench/decimal_gda.md:8
+#: manual/tutorial/bench/external.md:8
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
@@ -17774,6 +18979,7 @@ msgstr "报告多步计算中的第一个失败"
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
 #: manual/tutorial/bench/decimal_gda.md:16
+#: manual/tutorial/bench/external.md:18
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
@@ -17832,6 +19038,7 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
+#: manual/tutorial/bench/external.md:46
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
@@ -18002,6 +19209,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
+#: manual/tutorial/bench/external.md:97
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
@@ -18071,6 +19279,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
+#: manual/tutorial/bench/external.md:106
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:261
 #: manual/tutorial/cli.md:94
@@ -18688,6 +19897,138 @@ msgstr "[bench/decimal_gda API](../../api/bench/decimal_gda.md)"
 #: manual/tutorial/bench/decimal_gda.md:67
 msgid "[bench/decimal_gda design](../../design/bench/decimal_gda.md)"
 msgstr "[bench/decimal_gda 设计](../../design/bench/decimal_gda.md)"
+
+#: manual/tutorial/bench/external.md:1
+msgid "bench/external tutorial"
+msgstr "bench/external 教程"
+
+#: manual/tutorial/bench/external.md:3
+msgid "This page shows how to run the external baseline, `floating` against MPFR and libmpdec, and how to read what it writes. The measured ratios and the method are on the [performance page](../../performance/bench/external.md); the toolkit and the statistics are in the [bench tutorial](../bench.md)."
+msgstr "本页介绍如何运行外部基线，即 `floating` 对比 MPFR 和 libmpdec，以及如何阅读它写出的内容。测得的比值和方法见[性能页面](../../performance/bench/external.md)；工具包和统计方法见 [bench 教程](../bench.md)。"
+
+#: manual/tutorial/bench/external.md:10
+msgid "run the baseline"
+msgstr "运行基线"
+
+#: manual/tutorial/bench/external.md:11
+msgid "try it quickly before a real run"
+msgstr "在正式运行前先快速试跑"
+
+#: manual/tutorial/bench/external.md:12
+msgid "restrict the matrix"
+msgstr "限制矩阵范围"
+
+#: manual/tutorial/bench/external.md:13
+msgid "re-reduce raw rounds without measuring"
+msgstr "不重新测量，重新归约原始轮次数据"
+
+#: manual/tutorial/bench/external.md:14
+msgid "keep a summary in the repository"
+msgstr "在仓库中保存摘要"
+
+#: manual/tutorial/bench/external.md:15
+msgid "see how the ratios moved since a release"
+msgstr "查看自某个版本以来比值如何变化"
+
+#: manual/tutorial/bench/external.md:16
+msgid "understand what is timed"
+msgstr "了解计时的内容"
+
+#: manual/tutorial/bench/external.md:16
+msgid "[performance page](../../performance/bench/external.md#what-is-timed)"
+msgstr "[性能页面](../../performance/bench/external.md#what-is-timed)"
+
+#: manual/tutorial/bench/external.md:20
+msgid "The baseline needs a C compiler and the headers and libraries of MPFR, GMP and mpdecimal. The runner looks for them under `/opt/homebrew`; set `--prefix` or `EXTBENCH_PREFIX` for another location. From the repository root:"
+msgstr "基线需要 C 编译器以及 MPFR、GMP 和 mpdecimal 的头文件和库。运行器在 `/opt/homebrew` 下查找它们；对其他位置请设置 `--prefix` 或 `EXTBENCH_PREFIX`。在仓库根目录执行："
+
+#: manual/tutorial/bench/external.md:28
+msgid "The run builds `tools/external_baseline.c`, writes the operand file, asks the C harness for the reference results, checks `floating` against them while it is timed, and alternates the two sides over seven rounds, waiting before each side until the machine is quiet (under 150% CPU used by other processes; `--no-gate` turns this off). It takes about 40 minutes on the machine of the reported run, because the slowest cases (elementary functions at 8192 bits and 1000 digits) run for hundreds of milliseconds per operation. Run it on AC power and close other heavy work: the load of other processes is the main source of noise. The files land in `.tmp/external`:"
+msgstr "该运行会构建 `tools/external_baseline.c`，写入操作数文件，向 C 测试程序索取参考结果，在计时的同时对照参考结果检查 `floating`，并在七轮中交替运行两侧，每一侧开始之前等待机器安静（其他进程使用的 CPU 低于 150%；`--no-gate` 可关闭这一等待）。在所报告运行的机器上大约需要 40 分钟，因为最慢的用例（8192 位和 1000 位数字的初等函数）每次操作要运行数百毫秒。请使用交流电运行，并关闭其他重负载的工作：其他进程的负载是噪声的主要来源。文件写入 `.tmp/external`："
+
+#: manual/tutorial/bench/external.md:40
+msgid "the operands both sides read"
+msgstr "两侧读取的操作数"
+
+#: manual/tutorial/bench/external.md:41
+msgid "MPFR and libmpdec results for those operands"
+msgstr "这些操作数的 MPFR 和 libmpdec 结果"
+
+#: manual/tutorial/bench/external.md:42
+msgid "CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above"
+msgstr "CPU、操作系统、编译器、库、`moon` 和 `moonc` 的版本，修订版本，以及上面两个文件的校验和"
+
+#: manual/tutorial/bench/external.md:43
+msgid "raw observations of each round"
+msgstr "每一轮的原始观测值"
+
+#: manual/tutorial/bench/external.md:44
+msgid "medians, intervals, ratios"
+msgstr "中位数、区间、比值"
+
+#: manual/tutorial/bench/external.md:48
+msgid "Restrict the matrix"
+msgstr "限制矩阵范围"
+
+#: manual/tutorial/bench/external.md:54
+msgid "A restricted run writes its own directory, so it never mixes with a full run."
+msgstr "受限的运行写入它自己的目录，因此绝不会与完整运行混在一起。"
+
+#: manual/tutorial/bench/external.md:56
+msgid "Try a run quickly"
+msgstr "快速试跑"
+
+#: manual/tutorial/bench/external.md:62
+msgid "The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path but is not a measurement to publish."
+msgstr "`quick` 预设使用较短的批次和两轮，噪声远大于 `standard` 预设。它会走遍每条路径，但不是可以发布的测量。"
+
+#: manual/tutorial/bench/external.md:65
+msgid "Re-reduce and publish"
+msgstr "重新归约与发布"
+
+#: manual/tutorial/bench/external.md:72
+msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring. `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION.json`, one file per release, and refreshes `summary.md`; the raw JSONL stays out of the repository."
+msgstr "`report` 重新归约 `.tmp/external` 中的原始轮次数据，例如在统计方法变化之后，无需重新测量。`publish` 把精简摘要作为 `summary-VERSION.json` 复制到 `testdata/external_baseline`，每个版本一个文件，并刷新 `summary.md`；原始 JSONL 不进入仓库。"
+
+#: manual/tutorial/bench/external.md:78
+msgid "Compare two releases"
+msgstr "比较两个版本"
+
+#: manual/tutorial/bench/external.md:84
+msgid "prints the ratio of every case in both files, the change in percent, and a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
+msgstr "打印两个文件中每个用例的比值、以百分比表示的变化，以及一个结论：新比值的区间完全高于旧区间时为 `slower`，完全低于旧区间时为 `faster`，否则为 `same`。比较的是比值而不是绝对时间，因此更快的机器不会掩盖退化；两次运行仍应来自同一类机器。"
+
+#: manual/tutorial/bench/external.md:90
+msgid "Read a ratio"
+msgstr "阅读比值"
+
+#: manual/tutorial/bench/external.md:92
+msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divided by the median time of the reference library, with a 95% bootstrap interval. Above 1 means `floating` is slower. An asterisk marks a cell whose measurements spread more than the dispersion thresholds on the performance page."
+msgstr "形如 `37.5 [36.9, 38.2]` 的单元格是 `floating` 的中位数时间除以参考库的中位数时间，附 95% 自助法区间。大于 1 表示 `floating` 更慢。星号标记测量离散超过性能页面上所述离散度阈值的单元格。"
+
+#: manual/tutorial/bench/external.md:99
+msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
+msgstr "只有当 `machine.json` 在 CPU、编译器和库版本上一致时，才比较不同的运行。"
+
+#: manual/tutorial/bench/external.md:101
+msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
+msgstr "验证失败会被报告，但不会中止计时：请查看 `WARNING` 行和 `results.json` 中的 `validation_failed_cases`。"
+
+#: manual/tutorial/bench/external.md:103
+msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
+msgstr "测量期间不要运行其他重负载的工作；平均负载只在开始时记录。"
+
+#: manual/tutorial/bench/external.md:108
+msgid "[bench/external API](../../api/bench/external.md)"
+msgstr "[bench/external API](../../api/bench/external.md)"
+
+#: manual/tutorial/bench/external.md:109
+msgid "[bench/external design](../../design/bench/external.md)"
+msgstr "[bench/external 设计](../../design/bench/external.md)"
+
+#: manual/tutorial/bench/external.md:110
+msgid "[External baseline results](../../performance/bench/external.md)"
+msgstr "[外部基线结果](../../performance/bench/external.md)"
 
 #: manual/tutorial/bin_float.md:1
 msgid "bin_float tutorial"
@@ -22050,815 +23391,823 @@ msgid "These are finite claims. They do not imply every IEEE 754 or IEEE 1788 op
 msgstr "这些都是有限的结论。它们并不意味着覆盖 IEEE 754 或 IEEE 1788 的每一个运算、任意的资源规模、每一种 NaN 载荷策略，或将来的语料版本。各包的[二进制](./conformance/bin_float.md)、[IEEE 十进制](./conformance/decimal.md)、[GDA](./conformance/decimal_gda.md)和[区间](./conformance/ball_float.md)符合性页面给出了确切的矩阵及其排除项。"
 
 #: manual/verification.md:106
+msgid "External performance baseline"
+msgstr "外部性能基线"
+
+#: manual/verification.md:108
+msgid "`just bench external run` times `floating` against MPFR and libmpdec on the same operands and records the ratios; every `floating` result is first compared with the result of the reference library for the same operand. The method, machine and results are on the [external baseline page](./performance/bench/external.md). It is evidence about speed, not a conformance gate, and is not part of `just pr`."
+msgstr "`just bench external run` 在相同的操作数上对 `floating` 与 MPFR 和 libmpdec 计时并记录比值；每个 `floating` 结果都先与参考库对同一操作数的结果比较。方法、机器和结果见[外部基线页面](./performance/bench/external.md)。它是关于速度的证据，不是一致性门禁，也不属于 `just pr`。"
+
+#: manual/verification.md:114
 msgid "Reproducibility"
 msgstr "可复现性"
 
-#: manual/verification.md:108
+#: manual/verification.md:116
 msgid "External artifacts are pinned by revision and SHA-256 in each corpus manifest (`testdata/*/corpora.json`). Builds use backend-named outputs and isolated target directories so that parallel jobs do not overwrite each other. Shards select deterministic case indices, and merged summaries keep exact totals and failed IDs. Large generated fixtures are split across files (the IEEE decimal public-API fixture is written 400 tests per file) so that every toolchain compiles them."
 msgstr "外部产物在各语料清单（`testdata/*/corpora.json`）中按版本和 SHA-256 固定。构建使用以后端命名的输出和隔离的目标目录，使并行任务不会相互覆盖。分片选取确定性的用例索引，合并后的汇总保留精确的总数和失败 ID。大型生成 fixture 被拆分到多个文件中（IEEE 十进制公开 API fixture 每个文件写入 400 个测试），以便每种工具链都能编译。"
 
-#: manual/verification.md:116
+#: manual/verification.md:124
 msgid "The MoonBit frontends parse and execute numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection and aggregation. An optional oracle is never silently replaced by a weaker one; a missing requirement is reported explicitly."
 msgstr "MoonBit 前端负责解析并执行数值行。Python 负责编排下载、任务规划、子进程、目标选择和结果汇总。可选的判定实现（oracle）绝不会被悄悄替换为更弱的实现；缺失的前提条件会被明确报告。"
 
-#: manual/verification.md:121
+#: manual/verification.md:129
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin the baseline source, dependencies, toolchain, target, schedule, sample count and dispersion limits, and a performance threshold never changes correctness. See [performance audit](./performance_audit.md) and the per-package performance pages."
 msgstr "性能证据与语义符合性相互独立。基准测试清单固定了基线源码、依赖、工具链、目标、调度、样本数和离散度上限，且性能阈值从不改变正确性。参见[性能审计](./performance_audit.md)以及各包的性能页面。"
 
-#: manual/verification.md:127
+#: manual/verification.md:135
 msgid "Failure triage"
 msgstr "失败排查"
 
-#: manual/verification.md:129
+#: manual/verification.md:137
 msgid "Re-run the failing backend with the smallest case, ID filter, phase or shard that reproduces it."
 msgstr "用能复现问题的最小用例、ID 过滤器、阶段或分片重新运行失败的后端。"
 
-#: manual/verification.md:131
+#: manual/verification.md:139
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches and infrastructure failures."
 msgstr "区分解析诊断、不受支持的用例、旧有分类、可执行结果不匹配以及基础设施故障。"
 
-#: manual/verification.md:133
+#: manual/verification.md:141
 msgid "Record the expected value, actual value, flags, context, target, corpus revision and command."
 msgstr "记录期望值、实际值、标志、上下文、目标、语料版本和命令。"
 
-#: manual/verification.md:135
+#: manual/verification.md:143
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange or aggregation."
 msgstr "运行对应的白盒包测试，以判断缺陷位于解析、算术、交换格式还是汇总环节。"
 
-#: manual/verification.md:137
+#: manual/verification.md:145
 msgid "After a fix, run the focused case, the committed smoke fixture, the backend gate, and finally `just pr` or `just ci`."
 msgstr "修复后，依次运行针对性用例、已提交的冒烟 fixture、后端关卡，最后运行 `just pr` 或 `just ci`。"
 
-#: manual/verification.md:140
+#: manual/verification.md:148
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr "不得通过降低 strict support、丢弃 flags 或改写分母让失败 gate 变绿。"
 
-#: manual/verification.md:143
+#: manual/verification.md:151
 msgid "Release gate"
 msgstr "发布关卡"
 
-#: manual/verification.md:145
+#: manual/verification.md:153
 msgid "Before publishing:"
 msgstr "发布前："
 
-#: manual/verification.md:147
+#: manual/verification.md:155
 msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
 msgstr "使 `moon.mod`、`README.md`、手册与 `CHANGELOG.md` 保持一致；"
 
-#: manual/verification.md:148
+#: manual/verification.md:156
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
 msgstr "运行 `just docs`、`lunadoc check`，并检查生成接口的差异；"
 
-#: manual/verification.md:150
+#: manual/verification.md:158
 msgid "run `just pr` while iterating;"
 msgstr "迭代期间运行 `just pr`；"
 
-#: manual/verification.md:151
+#: manual/verification.md:159
 msgid "run `just ci` on the release candidate;"
 msgstr "对候选发布版本运行 `just ci`；"
 
-#: manual/verification.md:152
+#: manual/verification.md:160
 msgid "publish through the repository's `publish.yml` GitHub Actions workflow."
 msgstr "通过仓库的 `publish.yml` GitHub Actions 工作流发布。"
 
-#: manual/verification.md:154
+#: manual/verification.md:162
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "本地 `moon publish` 不是 Luna-Flow 的发布途径，因为组织的凭据由工作流提供。"
 
-#: manual/verification.md:157
+#: manual/verification.md:165
 msgid "Conformance checklist"
 msgstr "一致性清单"
 
-#: manual/verification.md:159
+#: manual/verification.md:167
 msgid "One line per row of the clause traceability tables of the conformance pages ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability)). A checked box is a `conforming` row; an unchecked box names its state (`partial`, `not implemented`, `not applicable`) and carries the clause level in brackets: `required` (the standard says \"shall\"), `recommended` (\"should\") or `optional`. The counts separate gaps in required clauses from gaps in recommended or optional ones. The block is generated by `tools/conformance_checklist.py` and `just docs` fails when it is stale."
 msgstr "条款追溯表（见各一致性页面）的每一行对应一行。已勾选的框表示状态为 `conforming` 的行；未勾选的框写明其状态（`partial`、`not implemented`、`not applicable`），并在方括号中标注条款级别：`required`（标准用 “shall”）、`recommended`（“should”）或 `optional`。计数把必须条款的缺口与推荐或可选条款的缺口分开。该块由 `tools/conformance_checklist.py` 生成，过期时 `just docs` 会失败。 ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability))"
 
-#: manual/verification.md:172
-#: manual/verification.md:321
+#: manual/verification.md:180
+#: manual/verification.md:329
 msgid "Standard"
 msgstr "标准"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Rows"
 msgstr "行数"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Conforming"
 msgstr "符合"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Partial"
 msgstr "部分符合"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Not implemented"
 msgstr "未实现"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Not applicable"
 msgstr "不适用"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Required gaps"
 msgstr "必须条款缺口"
 
-#: manual/verification.md:172
+#: manual/verification.md:180
 msgid "Recommended or optional gaps"
 msgstr "推荐或可选条款缺口"
 
-#: manual/verification.md:174
+#: manual/verification.md:182
 msgid "IEEE 754-2019: bin_float"
 msgstr "IEEE 754-2019: bin_float"
 
-#: manual/verification.md:175
+#: manual/verification.md:183
 msgid "IEEE 754-2019: decimal"
 msgstr "IEEE 754-2019: decimal"
 
-#: manual/verification.md:176
+#: manual/verification.md:184
 msgid "General Decimal Arithmetic 1.70: decimal_gda"
 msgstr "General Decimal Arithmetic 1.70: decimal_gda"
 
-#: manual/verification.md:177
+#: manual/verification.md:185
 msgid "IEEE 1788-2015: ball_float"
 msgstr "IEEE 1788-2015: ball_float"
 
-#: manual/verification.md:179
+#: manual/verification.md:187
 msgid "**IEEE 754-2019: bin_float**"
 msgstr "**IEEE 754-2019: bin_float**"
 
-#: manual/verification.md:181
+#: manual/verification.md:189
 msgid "§3.3–§3.6 binary16/32/64/128 interchange formats [required]"
 msgstr "§3.3–§3.6 binary16/32/64/128 交换格式 [必须]"
 
-#: manual/verification.md:182
-#: manual/verification.md:213
+#: manual/verification.md:190
+#: manual/verification.md:221
 msgid "§3.7 extendable precisions [recommended]"
 msgstr "§3.7 可扩展精度 [推荐]"
 
-#: manual/verification.md:183
-#: manual/verification.md:214
+#: manual/verification.md:191
+#: manual/verification.md:222
 msgid "§4.3 rounding-direction attributes [required]"
 msgstr "§4.3 舍入方向属性 [必须]"
 
-#: manual/verification.md:184
-#: manual/verification.md:216
+#: manual/verification.md:192
+#: manual/verification.md:224
 msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot [required]"
 msgstr "§5.3.1 加法、减法、乘法、除法、squareRoot [必须]"
 
-#: manual/verification.md:185
-#: manual/verification.md:217
+#: manual/verification.md:193
+#: manual/verification.md:225
 msgid "§5.3.1 fusedMultiplyAdd [required]"
 msgstr "§5.3.1 fusedMultiplyAdd [必须]"
 
-#: manual/verification.md:186
-#: manual/verification.md:218
+#: manual/verification.md:194
+#: manual/verification.md:226
 msgid "§5.3.1 remainder [required]"
 msgstr "§5.3.1 remainder [必须]"
 
-#: manual/verification.md:187
+#: manual/verification.md:195
 msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact) [required]"
 msgstr "§5.3.1, §5.9 roundToIntegral (五种方向，含 exact 版) [必须]"
 
-#: manual/verification.md:188
-#: manual/verification.md:220
+#: manual/verification.md:196
+#: manual/verification.md:228
 msgid "§5.3.1 nextUp, nextDown [required]"
 msgstr "§5.3.1 nextUp, nextDown [必须]"
 
-#: manual/verification.md:189
-#: manual/verification.md:221
+#: manual/verification.md:197
+#: manual/verification.md:229
 msgid "§5.3.1 scaleB, logB [required]"
 msgstr "§5.3.1 scaleB, logB [必须]"
 
-#: manual/verification.md:190
-#: manual/verification.md:223
+#: manual/verification.md:198
+#: manual/verification.md:231
 msgid "§5.4.1 convertFromInt [required]"
 msgstr "§5.4.1 convertFromInt [必须]"
 
-#: manual/verification.md:191
+#: manual/verification.md:199
 msgid "§5.4.1, §5.8 convertToInteger (exact and inexact) [required]"
 msgstr "§5.4.1, §5.8 convertToInteger （exact 与 inexact） [必须]"
 
-#: manual/verification.md:192
-#: manual/verification.md:225
+#: manual/verification.md:200
+#: manual/verification.md:233
 msgid "§5.4.2 convertFormat [required] (partial)"
 msgstr "§5.4.2 convertFormat [必须] （部分符合）"
 
-#: manual/verification.md:193
-#: manual/verification.md:226
+#: manual/verification.md:201
+#: manual/verification.md:234
 msgid "§5.5 copy, negate, abs, copySign [required]"
 msgstr "§5.5 copy, negate, abs, copySign [必须]"
 
-#: manual/verification.md:194
+#: manual/verification.md:202
 msgid "§5.6, §5.11 comparison predicates, quiet and signaling [required]"
 msgstr "§5.6, §5.11 比较谓词，quiet 与 signaling [必须]"
 
-#: manual/verification.md:195
+#: manual/verification.md:203
 msgid "§5.7 class and sign predicates [required] (partial)"
 msgstr "§5.7 class 与符号谓词 [必须] （部分符合）"
 
-#: manual/verification.md:196
-#: manual/verification.md:229
+#: manual/verification.md:204
+#: manual/verification.md:237
 msgid "§5.10 totalOrder, totalOrderMag [required]"
 msgstr "§5.10 totalOrder, totalOrderMag [必须]"
 
-#: manual/verification.md:197
+#: manual/verification.md:205
 msgid "§5.12 decimal character conversion, both directions [required]"
 msgstr "§5.12 十进制字符转换，双向 [必须]"
 
-#: manual/verification.md:198
+#: manual/verification.md:206
 msgid "§5.12 hexadecimal character conversion [required] (partial)"
 msgstr "§5.12 十六进制字符转换 [必须] （部分符合）"
 
-#: manual/verification.md:199
-#: manual/verification.md:231
+#: manual/verification.md:207
+#: manual/verification.md:239
 msgid "§6.1–§6.3 infinities, NaNs, sign bit [required]"
 msgstr "§6.1–§6.3 无穷、NaN、符号位 [必须]"
 
-#: manual/verification.md:200
+#: manual/verification.md:208
 msgid "§7.2–§7.6 exceptions and default handling [required]"
 msgstr "§7.2–§7.6 异常与默认处理 [必须]"
 
-#: manual/verification.md:201
+#: manual/verification.md:209
 msgid "§7.5 tininess detection [required]"
 msgstr "§7.5 微小性检测 [必须]"
 
-#: manual/verification.md:202
-#: manual/verification.md:234
+#: manual/verification.md:210
+#: manual/verification.md:242
 msgid "§8 alternate exception handling [recommended] (not implemented)"
 msgstr "§8 替代异常处理 [推荐] （未实现）"
 
-#: manual/verification.md:203
-#: manual/verification.md:235
+#: manual/verification.md:211
+#: manual/verification.md:243
 msgid "§9.2 recommended mathematical functions [recommended] (partial)"
 msgstr "§9.2 推荐的数学函数 [推荐] （部分符合）"
 
-#: manual/verification.md:204
-#: manual/verification.md:237
+#: manual/verification.md:212
+#: manual/verification.md:245
 msgid "§9.3 dynamic mode operations [recommended] (not implemented)"
 msgstr "§9.3 动态模式运算 [推荐] （未实现）"
 
-#: manual/verification.md:205
-#: manual/verification.md:238
+#: manual/verification.md:213
+#: manual/verification.md:246
 msgid "§9.4 reduction operations [recommended] (not implemented)"
 msgstr "§9.4 归约运算 [推荐] （未实现）"
 
-#: manual/verification.md:206
+#: manual/verification.md:214
 msgid "§9.5 augmented arithmetic [recommended] (not implemented)"
 msgstr "§9.5 增强算术 [推荐] （未实现）"
 
-#: manual/verification.md:207
+#: manual/verification.md:215
 msgid "§9.6 minimum, maximum and magnitude variants [recommended] (not implemented)"
 msgstr "§9.6 minimum、maximum 及其按绝对值变体 [推荐] （未实现）"
 
-#: manual/verification.md:208
+#: manual/verification.md:216
 msgid "§9.7 NaN payload operations [recommended] (partial)"
 msgstr "§9.7 NaN 载荷运算 [推荐] （部分符合）"
 
-#: manual/verification.md:210
+#: manual/verification.md:218
 msgid "**IEEE 754-2019: decimal**"
 msgstr "**IEEE 754-2019: decimal**"
 
-#: manual/verification.md:212
+#: manual/verification.md:220
 msgid "§3.5 decimal32/64/128 interchange, DPD and BID [required]"
 msgstr "§3.5 decimal32/64/128 交换格式，DPD 与 BID [必须]"
 
-#: manual/verification.md:215
+#: manual/verification.md:223
 msgid "§5.2 preferred exponents [required]"
 msgstr "§5.2 首选指数 [必须]"
 
-#: manual/verification.md:219
+#: manual/verification.md:227
 msgid "§5.3.1 roundToIntegral (all five, exact) [required]"
 msgstr "§5.3.1 roundToIntegral (全部五种，含 exact 版) [必须]"
 
-#: manual/verification.md:222
+#: manual/verification.md:230
 msgid "§5.3.2 quantize, quantum, sameQuantum [required]"
 msgstr "§5.3.2 quantize, quantum, sameQuantum [必须]"
 
-#: manual/verification.md:224
+#: manual/verification.md:232
 msgid "§5.4.1 convertToInteger [required] (partial)"
 msgstr "§5.4.1 convertToInteger [必须] （部分符合）"
 
-#: manual/verification.md:227
+#: manual/verification.md:235
 msgid "§5.6, §5.11 comparison, quiet and signaling [required]"
 msgstr "§5.6, §5.11 比较，quiet 与 signaling [必须]"
 
-#: manual/verification.md:228
+#: manual/verification.md:236
 msgid "§5.7 class, isCanonical, radix [required]"
 msgstr "§5.7 class, isCanonical, radix [必须]"
 
-#: manual/verification.md:230
+#: manual/verification.md:238
 msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
 msgstr "§5.12 十进制字符转换（十进制到十进制） [必须]"
 
-#: manual/verification.md:232
+#: manual/verification.md:240
 msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact [required]"
 msgstr "§7.2–§7.4, §7.6 无效运算、除零、上溢、不精确 [必须]"
 
-#: manual/verification.md:233
+#: manual/verification.md:241
 msgid "§7.5 underflow and tininess [required]"
 msgstr "§7.5 下溢与微小性 [必须]"
 
-#: manual/verification.md:236
+#: manual/verification.md:244
 msgid "§9.2.2 preferred exponents of pow and pown [recommended]"
 msgstr "§9.2.2 pow 与 pown 的首选指数 [推荐]"
 
-#: manual/verification.md:239
+#: manual/verification.md:247
 msgid "§9.5 augmented arithmetic [recommended] (not applicable)"
 msgstr "§9.5 增强算术 [推荐] （不适用）"
 
-#: manual/verification.md:240
+#: manual/verification.md:248
 msgid "§9.6 minimum and maximum, eight variants [recommended]"
 msgstr "§9.6 minimum 与 maximum，八种变体 [推荐]"
 
-#: manual/verification.md:241
+#: manual/verification.md:249
 msgid "§9.7 NaN payload operations [recommended]"
 msgstr "§9.7 NaN 载荷运算 [推荐]"
 
-#: manual/verification.md:243
+#: manual/verification.md:251
 msgid "**General Decimal Arithmetic 1.70: decimal_gda**"
 msgstr "**General Decimal Arithmetic 1.70: decimal_gda**"
 
-#: manual/verification.md:245
+#: manual/verification.md:253
 msgid "abs, minus, plus [required]"
 msgstr "abs, minus, plus [必须]"
 
-#: manual/verification.md:246
+#: manual/verification.md:254
 msgid "add, subtract, multiply [required]"
 msgstr "add, subtract, multiply [必须]"
 
-#: manual/verification.md:247
+#: manual/verification.md:255
 msgid "divide, divide-integer, remainder, remainder-near [required]"
 msgstr "divide, divide-integer, remainder, remainder-near [必须]"
 
-#: manual/verification.md:248
+#: manual/verification.md:256
 msgid "fused-multiply-add [required]"
 msgstr "fused-multiply-add [必须]"
 
-#: manual/verification.md:249
+#: manual/verification.md:257
 msgid "square-root [required]"
 msgstr "square-root [必须]"
 
-#: manual/verification.md:250
+#: manual/verification.md:258
 msgid "power [required]"
 msgstr "power [必须]"
 
-#: manual/verification.md:251
+#: manual/verification.md:259
 msgid "exp, ln, log10 [required]"
 msgstr "exp, ln, log10 [必须]"
 
-#: manual/verification.md:252
+#: manual/verification.md:260
 msgid "compare, compare-signal, compare-total, compare-total-mag [required]"
 msgstr "compare, compare-signal, compare-total, compare-total-mag [必须]"
 
-#: manual/verification.md:253
+#: manual/verification.md:261
 msgid "max, max-magnitude, min, min-magnitude [required]"
 msgstr "max, max-magnitude, min, min-magnitude [必须]"
 
-#: manual/verification.md:254
+#: manual/verification.md:262
 msgid "next-minus, next-plus, next-toward [required]"
 msgstr "next-minus, next-plus, next-toward [必须]"
 
-#: manual/verification.md:255
+#: manual/verification.md:263
 msgid "quantize, rescale, same-quantum, reduce, trim [required]"
 msgstr "quantize, rescale, same-quantum, reduce, trim [必须]"
 
-#: manual/verification.md:256
+#: manual/verification.md:264
 msgid "round-to-integral-exact, round-to-integral-value [required]"
 msgstr "round-to-integral-exact, round-to-integral-value [必须]"
 
-#: manual/verification.md:257
+#: manual/verification.md:265
 msgid "scaleb, logb, rotate, shift [required]"
 msgstr "scaleb, logb, rotate, shift [必须]"
 
-#: manual/verification.md:258
+#: manual/verification.md:266
 msgid "and, or, xor, invert [required]"
 msgstr "and, or, xor, invert [必须]"
 
-#: manual/verification.md:259
+#: manual/verification.md:267
 msgid "class, copy, copy-abs, copy-negate, copy-sign [required]"
 msgstr "class, copy, copy-abs, copy-negate, copy-sign [必须]"
 
-#: manual/verification.md:260
+#: manual/verification.md:268
 msgid "to-number, to-scientific-string, to-engineering-string [required]"
 msgstr "to-number, to-scientific-string, to-engineering-string [必须]"
 
-#: manual/verification.md:261
+#: manual/verification.md:269
 msgid "canonical [required]"
 msgstr "canonical [必须]"
 
-#: manual/verification.md:262
+#: manual/verification.md:270
 msgid "context: precision, rounding, clamp, exponent limits [required]"
 msgstr "上下文：精度、舍入、clamp、指数限制 [必须]"
 
-#: manual/verification.md:263
+#: manual/verification.md:271
 msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr "状态标志与陷阱（附录与异常条件） [必须]"
 
-#: manual/verification.md:264
+#: manual/verification.md:272
 msgid "subset arithmetic (Appendix A) [required]"
 msgstr "子集算术（附录 A） [必须]"
 
-#: manual/verification.md:266
+#: manual/verification.md:274
 msgid "**IEEE 1788-2015: ball_float**"
 msgstr "**IEEE 1788-2015: ball_float**"
 
-#: manual/verification.md:268
+#: manual/verification.md:276
 msgid "§4.2 set-based interval arithmetic flavor [required]"
 msgstr "§4.2 基于集合的区间算术 flavor [必须]"
 
-#: manual/verification.md:269
+#: manual/verification.md:277
 msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemented)"
 msgstr "§4.2.2 压缩的带装饰区间算术 [可选] （未实现）"
 
-#: manual/verification.md:270
+#: manual/verification.md:278
 msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
 msgstr "§9.1、§10.5.3 前向模式算术与初等函数 [必须] （部分符合）"
 
-#: manual/verification.md:271
+#: manual/verification.md:279
 msgid "§10.5.4 reverse-mode elementary functions [required] (not implemented)"
 msgstr "§10.5.4 反向模式初等函数 [必须] （未实现）"
 
-#: manual/verification.md:272
+#: manual/verification.md:280
 msgid "§10.5.5 two-output division [required] (not implemented)"
 msgstr "§10.5.5 双输出除法 [必须] （未实现）"
 
-#: manual/verification.md:273
+#: manual/verification.md:281
 msgid "§9.2, §10.5.6 cancellative addition and subtraction [required]"
 msgstr "§9.2, §10.5.6 可抵消的加减法 [必须]"
 
-#: manual/verification.md:274
+#: manual/verification.md:282
 msgid "§9.3, §10.5.7 set operations [required]"
 msgstr "§9.3, §10.5.7 集合运算 [必须]"
 
-#: manual/verification.md:275
+#: manual/verification.md:283
 msgid "§9.8, §10.5.8 constructors [required] (partial)"
 msgstr "§9.8, §10.5.8 构造函数 [必须] （部分符合）"
 
-#: manual/verification.md:276
+#: manual/verification.md:284
 msgid "§9.4, §10.5.9 numeric functions of intervals [required]"
 msgstr "§9.4, §10.5.9 区间的数值函数 [必须]"
 
-#: manual/verification.md:277
+#: manual/verification.md:285
 msgid "§9.5, §10.5.10 boolean functions of intervals [required]"
 msgstr "§9.5, §10.5.10 区间的布尔函数 [必须]"
 
-#: manual/verification.md:278
+#: manual/verification.md:286
 msgid "§10.6.2 slope functions [recommended] (not implemented)"
 msgstr "§10.6.2 斜率函数 [推荐] （未实现）"
 
-#: manual/verification.md:279
+#: manual/verification.md:287
 msgid "§10.6.4 extended interval comparisons [recommended] (partial)"
 msgstr "§10.6.4 扩展的区间比较 [推荐] （部分符合）"
 
-#: manual/verification.md:280
+#: manual/verification.md:288
 msgid "§9.6, §11 decoration system [required]"
 msgstr "§9.6, §11 装饰系统 [必须]"
 
-#: manual/verification.md:281
+#: manual/verification.md:289
 msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
 msgstr "§9.7, §12.11 区间与数值字面量 [必须] （未实现）"
 
-#: manual/verification.md:282
+#: manual/verification.md:290
 msgid "§12.10 accuracy of operations [required]"
 msgstr "§12.10 运算精度 [必须]"
 
-#: manual/verification.md:283
+#: manual/verification.md:291
 msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
 msgstr "§12.6 区间类型的 754 符合性 [必须] （未实现）"
 
-#: manual/verification.md:286
+#: manual/verification.md:294
 msgid "Implementation-defined choices"
 msgstr "由实现定义的选择"
 
-#: manual/verification.md:288
+#: manual/verification.md:296
 msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
 msgstr "IEEE 754-2019 与 IEEE 1788-2015 把这些事项留给实现决定，IEEE 754 要求把它们写成文档。每一项都写明留下选择余地的条款和所作的选择。 [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability)、[interval](./conformance/ball_float.md#clause-traceability) 一致性页面中的条款表引用了这些项。"
 
-#: manual/verification.md:297
+#: manual/verification.md:305
 msgid "Choice left open"
 msgstr "留待实现决定的事项"
 
-#: manual/verification.md:297
+#: manual/verification.md:305
 msgid "Choice made"
 msgstr "所作选择"
 
-#: manual/verification.md:299
+#: manual/verification.md:307
 msgid "IEEE 754 §7.5"
 msgstr "IEEE 754 §7.5"
 
-#: manual/verification.md:299
+#: manual/verification.md:307
 msgid "Tininess detection for binary formats"
 msgstr "二进制格式的微小性检测"
 
-#: manual/verification.md:299
+#: manual/verification.md:307
 msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
 msgstr "`BinaryContext` 默认舍入后检测；也可选择舍入前，TestFloat 门禁两种都运行。对十进制，标准要求舍入前检测，`DecimalContext` 默认如此；舍入后检测是显式的非标准选项。"
 
-#: manual/verification.md:300
+#: manual/verification.md:308
 msgid "IEEE 754 §6.2"
 msgstr "IEEE 754 §6.2"
 
-#: manual/verification.md:300
+#: manual/verification.md:308
 msgid "Which NaN payload a NaN result carries"
 msgstr "NaN 结果携带哪个 NaN 载荷"
 
-#: manual/verification.md:300
+#: manual/verification.md:308
 msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
 msgstr "`bin_float`：保留所选 NaN 操作数的载荷和符号，signaling NaN 被转为 quiet。`decimal`：取第一个 NaN 操作数的符号和载荷，截取其低 `p` 位（`clamp` 时为 `p - 1` 位，即交换格式载荷字段的宽度）。"
 
-#: manual/verification.md:301
+#: manual/verification.md:309
 msgid "IEEE 754 §9.7"
 msgstr "IEEE 754 §9.7"
 
-#: manual/verification.md:301
+#: manual/verification.md:309
 msgid "Admissible payloads of `setPayload`"
 msgstr "`setPayload` 允许的载荷"
 
-#: manual/verification.md:301
+#: manual/verification.md:309
 msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
 msgstr "`decimal`：不超过接收者 `precision - 1` 位的非负整数；其他情况得到 `+0`。`bin_float` 没有 setPayload。"
 
-#: manual/verification.md:302
+#: manual/verification.md:310
 msgid "IEEE 754 §3.7"
 msgstr "IEEE 754 §3.7"
 
-#: manual/verification.md:302
+#: manual/verification.md:310
 msgid "Exponent range and precision of an extendable format"
 msgstr "可扩展格式的指数范围与精度"
 
-#: manual/verification.md:302
+#: manual/verification.md:310
 msgid "`bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
 msgstr "`bin_float`：首位指数在 `[1 - 2^30, 2^30 - 1]` 内，精度至多 `2^28` 位（两端都比 MPFR 高一个 binade）。`decimal`：`e_min` 与 `e_max` 在 ±999,999,999 内，精度在 `1..999,999,999` 内。"
 
-#: manual/verification.md:303
+#: manual/verification.md:311
 msgid "IEEE 754 §4.3"
 msgstr "IEEE 754 §4.3"
 
-#: manual/verification.md:303
+#: manual/verification.md:311
 msgid "Rounding directions beyond the five required"
 msgstr "必需的五种之外的舍入方向"
 
-#: manual/verification.md:303
+#: manual/verification.md:311
 msgid "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
 msgstr "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
 
-#: manual/verification.md:304
+#: manual/verification.md:312
 msgid "IEEE 754 §4.1, §9.3"
 msgstr "IEEE 754 §4.1, §9.3"
 
-#: manual/verification.md:304
+#: manual/verification.md:312
 msgid "How attributes are specified"
 msgstr "属性如何指定"
 
-#: manual/verification.md:304
+#: manual/verification.md:312
 msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
 msgstr "静态：把上下文值传给每个运算；没有动态模式，也没有全局状态。"
 
-#: manual/verification.md:305
+#: manual/verification.md:313
 msgid "IEEE 754 §7"
 msgstr "IEEE 754 §7"
 
-#: manual/verification.md:305
+#: manual/verification.md:313
 msgid "How flags are exposed"
 msgstr "标志如何暴露"
 
-#: manual/verification.md:305
+#: manual/verification.md:313
 msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
 msgstr "每个运算返回一份（`BinaryFlags`、`DecimalFlags`），由调用者合并；IEEE 包中没有环境粘滞标志。"
 
-#: manual/verification.md:306
+#: manual/verification.md:314
 msgid "IEEE 754 §9.2"
 msgstr "IEEE 754 §9.2"
 
-#: manual/verification.md:306
+#: manual/verification.md:314
 msgid "Accuracy of recommended functions"
 msgstr "推荐函数的精度"
 
-#: manual/verification.md:306
+#: manual/verification.md:314
 msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
 msgstr "在每种舍入方向下都正确舍入（认证的包络不断细化，直到舍入结果唯一）。细化预算耗尽时，`try_*_ctx` 返回 `Err`，普通形式返回 NaN；精度或指数界的绝对值超过 999,999 的十进制上下文返回 `invalid_context`。"
 
-#: manual/verification.md:307
+#: manual/verification.md:315
 msgid "IEEE 754 §9.2.2"
 msgstr "IEEE 754 §9.2.2"
 
-#: manual/verification.md:307
+#: manual/verification.md:315
 msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
 msgstr "首选指数未定义时（`pow` 的 `y` 为无穷或 NaN）"
 
-#: manual/verification.md:307
+#: manual/verification.md:315
 msgid "`decimal`: `pow(+1, y)` is the plain `1`."
 msgstr "`decimal`：`pow(+1, y)` 是普通的 `1`。"
 
-#: manual/verification.md:308
+#: manual/verification.md:316
 msgid "IEEE 754 §5.12"
 msgstr "IEEE 754 §5.12"
 
-#: manual/verification.md:308
+#: manual/verification.md:316
 msgid "Character sequences accepted and produced (`bin_float`)"
 msgstr "接受和产生的字符序列（`bin_float`）"
 
-#: manual/verification.md:308
+#: manual/verification.md:316
 msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
 msgstr "十进制：`[+-]digits[.digits][e[+-]digits]`、`inf`、`infinity`、`nan`、`snan`（不区分大小写）；输出 `d.ddde±x`，最短形式的格式与 ECMAScript `Number#toString` 相同，并保留 `-0`。十六进制：`0x<hex>p<exp>`。"
 
-#: manual/verification.md:309
+#: manual/verification.md:317
 msgid "IEEE 754 §6.3"
 msgstr "IEEE 754 §6.3"
 
-#: manual/verification.md:309
+#: manual/verification.md:317
 msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr "`remainder` 结果为零时的符号（`decimal`）"
 
-#: manual/verification.md:309
+#: manual/verification.md:317
 msgid "The sign of the dividend, kept in extended contexts."
 msgstr "被除数的符号，在扩展上下文中保留。"
 
-#: manual/verification.md:310
+#: manual/verification.md:318
 msgid "IEEE 1788 §7, §4.2"
 msgstr "IEEE 1788 §7, §4.2"
 
-#: manual/verification.md:310
+#: manual/verification.md:318
 msgid "Flavor"
 msgstr "Flavor"
 
-#: manual/verification.md:310
+#: manual/verification.md:318
 msgid "Set-based."
 msgstr "基于集合。"
 
-#: manual/verification.md:311
+#: manual/verification.md:319
 msgid "IEEE 1788 §12.10"
 msgstr "IEEE 1788 §12.10"
 
-#: manual/verification.md:311
+#: manual/verification.md:319
 msgid "Accuracy of the elementary functions"
 msgstr "初等函数的精度"
 
-#: manual/verification.md:311
+#: manual/verification.md:319
 msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr "已在[区间精度表](./conformance/ball_float.md#accuracy-of-operations)中逐个运算说明：基本算术、`abs`、`minimum`、`maximum` 和 `pown` 为最紧；通过认证的三角、反正切和幂函数端点为最紧；其余初等函数为有效，且在每个 ITF1788 用例上均为最紧。当区间约化无法认证时，`sin` 和 `cos` 返回 `[-1, 1]`，`tan` 返回 Entire。"
 
-#: manual/verification.md:312
+#: manual/verification.md:320
 msgid "IEEE 1788 §12.5"
 msgstr "IEEE 1788 §12.5"
 
-#: manual/verification.md:312
+#: manual/verification.md:320
 msgid "Interval types"
 msgstr "区间类型"
 
-#: manual/verification.md:312
+#: manual/verification.md:320
 msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
 msgstr "端点为任意精度 `BinFloat` 的 inf-sup 区间（有 binary32 和 binary64 命名格式）；没有 mid-rad 类型。"
 
-#: manual/verification.md:313
+#: manual/verification.md:321
 msgid "General Decimal Arithmetic"
 msgstr "General Decimal Arithmetic"
 
-#: manual/verification.md:313
+#: manual/verification.md:321
 msgid "Exponent limit"
 msgstr "指数限制"
 
-#: manual/verification.md:313
+#: manual/verification.md:321
 msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
 msgstr "±999,999,999，精度最高 999,999,999，即 decNumber 的限制；规范本身只要求限制大于 `5 × mlength`。"
 
-#: manual/verification.md:315
+#: manual/verification.md:323
 msgid "Known gaps and deviations"
 msgstr "已知缺口与偏离"
 
-#: manual/verification.md:317
+#: manual/verification.md:325
 msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
 msgstr "当标准要求某项功能而本包没有提供或提供方式不同时，就列在这里。每一项都链接到跟踪它的 issue 或记录该决定的页面。"
 
-#: manual/verification.md:321
+#: manual/verification.md:329
 msgid "Gap"
 msgstr "缺口"
 
-#: manual/verification.md:321
+#: manual/verification.md:329
 msgid "Tracking"
 msgstr "跟踪"
 
-#: manual/verification.md:323
+#: manual/verification.md:331
 msgid "IEEE 754-2019 §7.5"
 msgstr "IEEE 754-2019 §7.5"
 
-#: manual/verification.md:323
+#: manual/verification.md:331
 msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
 msgstr "`decimal` 提供舍入后微小性检测，作为非标准选项（默认是舍入前检测，符合 §7.5 的要求）"
 
-#: manual/verification.md:323
+#: manual/verification.md:331
 msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
 msgstr "无；由 issue [#217](https://github.com/Luna-Flow/floating/issues/217) 关闭"
 
-#: manual/verification.md:324
+#: manual/verification.md:332
 msgid "IEEE 754-2019 §8"
 msgstr "IEEE 754-2019 §8"
 
-#: manual/verification.md:324
+#: manual/verification.md:332
 msgid "No alternate exception handling"
 msgstr "没有替代异常处理"
 
-#: manual/verification.md:324
+#: manual/verification.md:332
 msgid "by design (flags are values)"
 msgstr "按设计如此（标志是值）"
 
-#: manual/verification.md:325
+#: manual/verification.md:333
 msgid "IEEE 754-2019 §9.3"
 msgstr "IEEE 754-2019 §9.3"
 
-#: manual/verification.md:325
+#: manual/verification.md:333
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr "核心包不提供动态模式运算（context 是显式值）"
 
-#: manual/verification.md:325
+#: manual/verification.md:333
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr "按设计如此；可选包装包：[#247](https://github.com/Luna-Flow/floating/issues/247)"
 
-#: manual/verification.md:326
+#: manual/verification.md:334
 msgid "IEEE 754-2019 §9.2"
 msgstr "IEEE 754-2019 §9.2"
 
-#: manual/verification.md:326
+#: manual/verification.md:334
 msgid "Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal`"
 msgstr "`bin_float` 与 `decimal` 缺少 `rSqrt`、`compound`、`powr`、`asinPi`、`acosPi`、`atanPi`、`atan2Pi`、`exp2m1`、`exp10m1`、`log2p1`、`log10p1`"
 
-#: manual/verification.md:327
+#: manual/verification.md:335
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr "IEEE 754-2019 §9.4, §9.6"
 
-#: manual/verification.md:327
+#: manual/verification.md:335
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr "没有归约运算；`bin_float` 没有 minimum/maximum 系列"
 
-#: manual/verification.md:328
+#: manual/verification.md:336
 msgid "IEEE 754-2019 §9.5"
 msgstr "IEEE 754-2019 §9.5"
 
-#: manual/verification.md:328
+#: manual/verification.md:336
 msgid "No augmented arithmetic for `bin_float`"
 msgstr "`bin_float` 没有增强算术"
 
-#: manual/verification.md:329
+#: manual/verification.md:337
 msgid "IEEE 754-2019 §5.4.1"
 msgstr "IEEE 754-2019 §5.4.1"
 
-#: manual/verification.md:329
+#: manual/verification.md:337
 msgid "`decimal` has no convertToInteger"
 msgstr "`decimal` 没有 convertToInteger"
 
-#: manual/verification.md:330
+#: manual/verification.md:338
 msgid "IEEE 754-2019 §5.3.2"
 msgstr "IEEE 754-2019 §5.3.2"
 
-#: manual/verification.md:330
+#: manual/verification.md:338
 msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
 msgstr "`clamp` 下超过 `e_max - p + 1` 的零 `quantize` 结果不会被折叠下来，也不报 `clamped`（General Decimal Arithmetic 会）"
 
-#: manual/verification.md:330
+#: manual/verification.md:338
 msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
 msgstr "已决定：提供可选的 GDA 风格折叠，默认行为不变；[#234](https://github.com/Luna-Flow/floating/issues/234)；见 issue #187 的拉取请求"
 
-#: manual/verification.md:331
+#: manual/verification.md:339
 msgid "IEEE 754-2019 §3.7"
 msgstr "IEEE 754-2019 §3.7"
 
-#: manual/verification.md:331
+#: manual/verification.md:339
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr "实现的指数范围两端都比 MPFR 高一个 binade"
 
-#: manual/verification.md:331
+#: manual/verification.md:339
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr "记录在 `testdata/bin_float/README.md`"
 
-#: manual/verification.md:332
+#: manual/verification.md:340
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 
-#: manual/verification.md:332
+#: manual/verification.md:340
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr "没有反向模式运算，也没有区间字面量（文本输入输出）"
 
-#: manual/verification.md:332
+#: manual/verification.md:340
 msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr "[#230](https://github.com/Luna-Flow/floating/issues/230)（反向模式），[#21](https://github.com/Luna-Flow/floating/issues/21)（文本）"
 
-#: manual/verification.md:333
+#: manual/verification.md:341
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr "IEEE 1788-2015 §10.5.5, §10.6.2"
 
-#: manual/verification.md:333
+#: manual/verification.md:341
 msgid "No two-output division, no slope functions"
 msgstr "没有双输出除法，也没有斜率函数"
 
-#: manual/verification.md:334
+#: manual/verification.md:342
 msgid "Public API"
 msgstr "公开 API"
 
-#: manual/verification.md:334
+#: manual/verification.md:342
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 
-#: manual/verification.md:334
+#: manual/verification.md:342
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
 
@@ -25835,9 +27184,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 
 #~ msgid "Requirement"
 #~ msgstr "需求"
-
-#~ msgid "Primary value"
-#~ msgstr "主要值类型"
 
 #~ msgid "IEEE arbitrary-precision decimal and decimal interchange"
 #~ msgstr "IEEE 任意精度十进制与 decimal interchange"
