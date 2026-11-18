@@ -18624,47 +18624,55 @@ msgid "Balanced multiplication uses schoolbook below 96 limbs, then Karatsuba, T
 msgstr "balanced multiplication は 96 limb 未満で schoolbook、その後 Karatsuba、Toom-3、transform bound を満たす二素数 Montgomery NTT + CRT を選びます。unbalanced input は block multiplication または overlap-add を使います。native/LLVM の現在値は Toom-3/NTT multiply が 2,048 limb、NTT square が 768、Wasm/Wasm-GC は 4,096 と 3,072 です。native の square dispatch は 512 limb で specialized schoolbook から recursive multiplication へ切り替え、他 target は従来の 768-limb 境界を維持します。"
 
 #: manual/performance/bin_float.md:22
+msgid "Single-word fast paths"
+msgstr "1 ワードの高速経路"
+
+#: manual/performance/bin_float.md:24
+msgid "`BinFloat::add`, `mul`, `div` and `sqrt` on operands whose coefficients fit one machine word (up to 64 bits) and whose precision is at most 62 bits (60 for `div` and `sqrt`) skip the general path, which builds several coefficient values, a context, a flags record and a result tuple for each operation. The fast path computes on `UInt64` pairs (128-bit sums and products, a 128 by 64 bit division, a double-precision estimate refined by a Newton step and settled by exact comparisons for the square root), rounds to nearest even with the round and sticky bits, and allocates only the result. It declines a NaN, an infinity, a zero, an exact zero sum, wider coefficients or precision, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare 40,000 random operand pairs per operation, ties, carries, cancellation and perfect squares with the general path. Paired native runs at 53 bits: `add` 2.9 times faster, `mul` 3.0, `div` 4.9, `sqrt` 2.8; on Wasm 3.1 to 5.1 times and on Wasm-GC 3.9 to 7.6 times. Operands of 128 bits and more are unchanged."
+msgstr "係数が 1 つのマシンワード（64 ビット以下）に収まり、精度が 62 ビット以下（`div` と `sqrt` は 60 ビット以下）のオペランドでは、`BinFloat::add`、`mul`、`div`、`sqrt` は一般経路を通りません。一般経路は演算のたびに複数の係数値、コンテキスト、フラグの記録、結果のタプルを作ります。高速経路は `UInt64` の組で計算し（128 ビットの和と積、128 ビットを 64 ビットで割る除算、平方根では倍精度の推定に Newton 法 1 回と厳密な比較による確定）、丸めビットとスティッキービットで最近接偶数に丸め、結果だけを確保します。NaN、無限大、ゼロ、ちょうどゼロになる和、より広い係数や精度、指数が大きく離れた、または実装の限界に近いオペランド、および JavaScript では見送り、一般経路が答えます。結果は同じ値で、精度と指数も同じです。ホワイトボックステストは、演算ごとに 40,000 組の乱数オペランド、同値の丸め、桁上がり、相殺、完全平方を一般経路と比較します。Native の 53 ビットでのペア実行では、`add` が 2.9 倍、`mul` が 3.0 倍、`div` が 4.9 倍、`sqrt` が 2.8 倍速くなり、Wasm では 3.1〜5.1 倍、Wasm-GC では 3.9〜7.6 倍速くなります。128 ビット以上のオペランドは変わりません。"
+
+#: manual/performance/bin_float.md:26
 msgid "Division, square root and GCD"
 msgstr "除算・平方根・GCD"
 
-#: manual/performance/bin_float.md:24
+#: manual/performance/bin_float.md:28
 msgid "Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Ziegler from 48, and Newton reciprocal division from 1,024. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that; the recursion stops at the same fixed-width kernels once a block is at most 256 bits on Native/LLVM and 512 bits on Wasm/Wasm-GC (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) about 3.4 times faster on Native and 3.1 to 3.3 times on Wasm in paired runs. The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
 msgstr "除算は、1 リムの経路、除数が 48 リム未満では Knuth、48 以上で Burnikel–Ziegler、1,024 以上で Newton の逆数除算を使います。平方根は 512 ビットまでは固定幅のカーネル、それを超えると分割統治を使います。分割統治の再帰は、ブロックが Native/LLVM で 256 ビット以下、Wasm/Wasm-GC で 512 ビット以下になった時点で同じ固定幅カーネルに入って終わります（以前は 128 ビットでヒープ整数に対する復元型ループを使っていました）。これにより 1,024 ビットの被開方数（512 ビットの `sqrt`）は、ペアで比較した実行で Native では約 3.4 倍、Wasm では 3.1〜3.3 倍速くなります。この切り替え点はターゲットごとに測定した方針です。LLVM の値は、使用中のツールチェーンにそのバックエンドがないため測定していません。大きな GCD は、両オペランドに共通する 63 ビットのウィンドウで Lehmer のバッチ処理を行い、短い方のオペランドがそのウィンドウにビットを持たない場合は除算を 1 ステップ行うので、長さが大きく異なるオペランドも一度に縮約されます。"
 
-#: manual/performance/bin_float.md:26
+#: manual/performance/bin_float.md:30
 msgid "Certified constants"
 msgstr "認証済み定数"
 
-#: manual/performance/bin_float.md:28
+#: manual/performance/bin_float.md:32
 msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
 msgstr "認証済みの初等関数は、必要な定数の包含区間（`ln 2`、`ln 10`、`pi`）を作業精度ごとに記憶します。定数ごとに小さなキャッシュを持ち、6 つの精度、最大 65,536 ビットまで保持します。キャッシュ内の包含区間は再計算で得られる値そのものなので、結果がキャッシュの状態や呼び出し順序に依存することはありません。以前は `ln`、`log2`、`log10`、`sin`、`cos`、`tan`、`atan2` の呼び出しごとに `ln 2` の級数や `atan(1)` の評価をやり直しており、その費用は関数本体と同程度でした。Native でのペア実行では、53〜512 ビットの `ln` が 2.4〜2.6 倍、`sin` が 2.4〜3.7 倍、10 進の `ln` が 2.5 倍速くなり、Wasm と Wasm-GC では `ln` と `sin` が 1.7〜2.2 倍速くなります。`exp` にはこの種の定数がないため変わりません。"
 
-#: manual/performance/bin_float.md:30
+#: manual/performance/bin_float.md:34
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "測定"
 
-#: manual/performance/bin_float.md:32
+#: manual/performance/bin_float.md:36
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "統一 `bench/bin_float` Maremark harness は balanced block で係数 kernel、数値 core、checked 全経路、意味的に等価な square 候補を比較します。auto-tune は versioned per-scale policy を出力し、threshold は計測した target だけへ適用します。全 target correctness test は引き続き必須です。"
 
-#: manual/performance/bin_float.md:34
+#: manual/performance/bin_float.md:38
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary release gate は immutable `0.6.1` commit と dirty candidate tree を別々に archive し、同一 add/mul/div/sqrt workload を注入して、53/128/512 bit の alternating AB/BA native pair を十組収集します。candidate が 3% 以上遅く、かつ Maremark 95% bootstrap interval の下限が正の場合だけ release を阻止します。 `0.7.1` で初めて追加された function は candidate workload として測定し、この release を最初の正当な baseline とします。`0.6.1` に存在しない API の timing を捏造しません。"
 
-#: manual/performance/bin_float.md:43
+#: manual/performance/bin_float.md:47
 msgid "Certified series"
 msgstr "認証済み級数"
 
-#: manual/performance/bin_float.md:45
+#: manual/performance/bin_float.md:49
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr "引数が作業精度で正確に表せる場合（通常はそうです）、`exp` の包含区間はテイラー級数を 2 回ではなく 1 回だけ評価します。このとき下端と上端は同じ値であり、各級数が読むのはその一方の界だけだからです。三角関数の包含区間は、要求された関数と象限が実際に読む正弦または余弦の級数だけを評価し、`sin` と `cos` では 4 つの級数が 2 つになります。どちらの省略も以前とまったく同じ包含区間を返し、ホワイトボックステストで以前のコードの複製と比較しています。Native でのペア実行では、53〜512 ビットの `exp` が 1.8〜2.0 倍、10 進の `exp` が 1.3〜1.4 倍、`sin` はこれ単独で 1.15〜1.2 倍速くなり、Wasm と Wasm-GC では `exp` が 1.7〜1.9 倍速くなります。"
 
-#: manual/performance/bin_float.md:47
+#: manual/performance/bin_float.md:51
 msgid "Trade-offs"
 msgstr "Trade-off"
 
-#: manual/performance/bin_float.md:49
+#: manual/performance/bin_float.md:53
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
 
@@ -27726,9 +27734,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 
 #~ msgid "Use this page as an index. Public names come from each package's `pkg.generated.mbti`; package tutorials explain recommended use, and design pages explain standards, algorithms, optimization, and switching boundaries."
 #~ msgstr "このページはクイックインデックスです。公開名は各 package の `pkg.generated.mbti` を正とし、Tutorial は推奨利用法、Design は標準整合・アルゴリズム・最適化・切替境界を説明します。"
-
-#~ msgid "Fast Paths"
-#~ msgstr "クイックパス"
 
 #~ msgid "What is actually verified: [Verification](./verification.md)"
 #~ msgstr "実際の検証範囲：[Verification](./verification.md)"
