@@ -25,6 +25,42 @@ fn decimal_certified_work_precision(
 }
 
 ///|
+/// The first work precision, in bits, of the certified exponential. For an
+/// argument below 1000 in magnitude, in a context whose exponent range holds
+/// every result (e^1000 is about 10^434), the binary enclosure alone chooses
+/// the rounding cell (its midpoint, converted to decimal) and certifies it:
+/// `precision * log2(10)` bits for the digits of the result and of the
+/// argument, 12 guard bits, and 4 bits per decade of the argument, which the
+/// conversion of the argument to binary scales into the relative error of the
+/// result. A hard case falls back to the conservative precision and the
+/// decimal series candidate, as before.
+fn decimal_certified_exp_work_precision(
+  value : Decimal,
+  ctx : DecimalContext,
+) -> Int32 {
+  if value.class == FpClass::Finite &&
+    !value.coefficient.is_zero() &&
+    ctx.extended &&
+    !ctx.clamp &&
+    ctx.e_min <= -999_999 &&
+    ctx.e_max >= 999_999 &&
+    adjusted_exponent(value) <= 2 {
+    let decimal_digits = Int32::max(
+      value.coefficient.digits10(),
+      decimal_math_target_precision(ctx),
+    )
+    Int32::max(
+      80,
+      (decimal_digits * 10 + 2) / 3 +
+      12 +
+      4 * Int32::max(0, adjusted_exponent(value) + 1),
+    )
+  } else {
+    decimal_certified_work_precision(value, ctx)
+  }
+}
+
+///|
 fn decimal_certified_conservative_work_precision(
   value : Decimal,
   ctx : DecimalContext,
@@ -194,6 +230,54 @@ fn decimal_certified_target(
 }
 
 ///|
+priv struct DecimalPower10Entry {
+  precision : Int32
+  exponent10 : Int32
+  lower : @bin_float.BinFloat
+  upper : @bin_float.BinFloat
+}
+
+///|
+/// The last few `(precision, exponent)` pairs of `decimal_power10_bounds`:
+/// the two boundaries of a rounding cell, and the cells of successive calls
+/// at one precision, share their power of ten.
+let decimal_power10_cache : @ref.Ref[Array[DecimalPower10Entry]] = @ref.Ref([])
+
+///|
+/// `10^exponent10` rounded down and up to `precision` bits.
+fn decimal_power10_bounds(
+  precision : Int32,
+  exponent10 : Int32,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  let entries = decimal_power10_cache.val
+  for entry in entries {
+    if entry.precision == precision && entry.exponent10 == exponent10 {
+      return (entry.lower, entry.upper)
+    }
+  }
+  let ten = @bin_float.BinFloat::from_int(10, precision~)
+  let lower = ten.pow_int_ctx(
+      exponent10,
+      @bin_float.BinaryContext::unbounded(
+        precision,
+        rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+      ),
+    ).0
+  let upper = ten.pow_int_ctx(
+      exponent10,
+      @bin_float.BinaryContext::unbounded(
+        precision,
+        rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+      ),
+    ).0
+  if entries.length() >= 4 {
+    entries.remove(0) |> ignore
+  }
+  entries.push({ precision, exponent10, lower, upper, })
+  (lower, upper)
+}
+
+///|
 fn decimal_bounded_binary_interval(
   value : Decimal,
   precision : Int32,
@@ -218,9 +302,10 @@ fn decimal_bounded_binary_interval(
   let coefficient_value = @bin_float.BinFloat::make(
     coefficient, 0, binary_precision,
   )
-  let ten = @bin_float.BinFloat::from_int(10, precision=binary_precision)
-  let power_lower = ten.pow_int_ctx(value.exponent10, downward).0
-  let power_upper = ten.pow_int_ctx(value.exponent10, upward).0
+  let (power_lower, power_upper) = decimal_power10_bounds(
+    binary_precision,
+    value.exponent10,
+  )
   let positive_lower = coefficient_value.mul_ctx(power_lower, downward).0
   let positive_upper = coefficient_value.mul_ctx(power_upper, upward).0
   if value.negative {
@@ -351,6 +436,34 @@ fn decimal_ball_candidate(
     interval.midpoint(),
     precision=decimal_math_target_precision(ctx) + 8,
   )
+}
+
+///|
+/// `decimal_ball_candidate` padded to at least `precision + 8` digits, as the
+/// decimal series candidate always is: a midpoint with a short expansion (the
+/// exponential of a tiny argument is within the enclosure of 1) would
+/// otherwise round to a coefficient shorter than the precision, a different
+/// cohort of the same value.
+fn decimal_exp_ball_candidate(
+  interval : @ball_float.BallFloat,
+  ctx : DecimalContext,
+) -> Decimal {
+  let candidate = decimal_ball_candidate(interval, ctx)
+  guard candidate.class == FpClass::Finite && !candidate.coefficient.is_zero() else {
+    return candidate
+  }
+  let wanted = decimal_math_target_precision(ctx) + 8
+  let shift = wanted - candidate.coefficient.digits10()
+  if shift <= 0 {
+    candidate
+  } else {
+    finite_with_exponent_repr(
+      candidate.negative,
+      dec_coeff_shift_power10_repr(candidate.coefficient, shift),
+      candidate.exponent10 - shift,
+      candidate.precision_,
+    )
+  }
 }
 
 ///|
@@ -820,7 +933,7 @@ fn decimal_certified_exp_result(
     Some(result) => return Ok(result)
     None => ()
   }
-  let initial_precision = decimal_certified_work_precision(value, ctx)
+  let initial_precision = decimal_certified_exp_work_precision(value, ctx)
   let conservative_precision = decimal_certified_conservative_work_precision(
     value, ctx,
   )
@@ -831,7 +944,7 @@ fn decimal_certified_exp_result(
     match input.try_exp_interval() {
       Ok(interval) => {
         let candidate = if fast_attempt {
-          decimal_ball_candidate(interval, ctx)
+          decimal_exp_ball_candidate(interval, ctx)
         } else {
           decimal_exp_candidate(value, budget.precision())
         }

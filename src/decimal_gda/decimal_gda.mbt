@@ -181,6 +181,10 @@ pub fn add(
     Some(value) => return gda_completed_exact(value, ctx)
     None => ()
   }
+  match gda_fast_sum(lhs, rhs, ctx, false) {
+    Some(outcome) => return outcome
+    None => ()
+  }
   let (value, flags) = lhs.add_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
@@ -193,6 +197,10 @@ pub fn subtract(
 ) -> GdaOutcome[Decimal] {
   match gda_exact_small_sum(lhs, rhs, ctx, true) {
     Some(value) => return gda_completed_exact(value, ctx)
+    None => ()
+  }
+  match gda_fast_sum(lhs, rhs, ctx, true) {
+    Some(outcome) => return outcome
     None => ()
   }
   let (value, flags) = lhs.sub_ctx(rhs, ctx.decimal_context())
@@ -209,6 +217,10 @@ pub fn multiply(
     Some(value) => return gda_completed_exact(value, ctx)
     None => ()
   }
+  match gda_fast_product(lhs, rhs, ctx) {
+    Some(outcome) => return outcome
+    None => ()
+  }
   let (value, flags) = lhs.mul_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
@@ -219,6 +231,10 @@ pub fn divide(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  match gda_fast_quotient(lhs, rhs, ctx) {
+    Some(outcome) => return outcome
+    None => ()
+  }
   let (value, flags) = lhs.div_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
