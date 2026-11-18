@@ -52,6 +52,7 @@ decimal-kernel-ci:
 bin-kernel-ci:
     @sh tools/run_moon_clean_exec.sh test src/bin_float --target all --no-parallelize
 
+# Run a Maremark suite, or `just bench external run` for floating against MPFR and libmpdec.
 bench suite *args:
     @python3 tools/benchmark.py {{ suite }} {{ args }}
 

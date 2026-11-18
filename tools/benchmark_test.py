@@ -75,6 +75,11 @@ class BenchmarkDispatcherTests(unittest.TestCase):
             self.assertEqual(benchmark.main(["decimal", "--dry-run"]), 0)
             run.assert_not_called()
 
+    def test_external_subcommand_is_delegated(self) -> None:
+        with patch("external_baseline.main", return_value=0) as external:
+            self.assertEqual(benchmark.main(["external", "run", "--preset", "quick"]), 0)
+            external.assert_called_once_with(["run", "--preset", "quick"])
+
 
 if __name__ == "__main__":
     unittest.main()
