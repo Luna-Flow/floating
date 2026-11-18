@@ -317,11 +317,16 @@ fn binary_exp_bounds(
   guard lower.compare(eighth.neg()) >= 0 && upper.compare(eighth) <= 0 else {
     return None
   }
-  match
-    (
-      binary_exp_small_bounds(lower, work_precision),
-      binary_exp_small_bounds(upper, work_precision),
-    ) {
+  // Only `lower_bounds.0` and `upper_bounds.1` are used. When both endpoints
+  // are the same value (an argument that is exact at the working precision,
+  // so every halving is exact too), one evaluation supplies both.
+  let lower_series = binary_exp_small_bounds(lower, work_precision)
+  let upper_series = if lower.compare(upper) == 0 {
+    lower_series
+  } else {
+    binary_exp_small_bounds(upper, work_precision)
+  }
+  match (lower_series, upper_series) {
     (Some(lower_bounds), Some(upper_bounds)) => {
       let mut result_lower = lower_bounds.0
       let mut result_upper = upper_bounds.1
@@ -4654,25 +4659,52 @@ fn binary_reduced_trigonometric_bounds(
     work_precision,
     rounding=RoundTowardPositive,
   )
-  let sin_lower = binary_sin_cos_series(lower, false, work_precision).unwrap()
-  let sin_upper = binary_sin_cos_series(upper, false, work_precision).unwrap()
-  let cos_lower = binary_sin_cos_series(lower, true, work_precision).unwrap()
-  let cos_upper = binary_sin_cos_series(upper, true, work_precision).unwrap()
-  let sin_bounds = (sin_lower.0, sin_upper.1)
+  // The quadrant maps sine and cosine of the reduced argument onto the result
+  // (see `mapped`): sine and cosine results of the even quadrants come from
+  // the sine and cosine series, those of the odd quadrants from the other one.
+  // A series that the requested operation does not read is not evaluated;
+  // `zero` stands in for it and is never read.
   let zero = BinFloat::zero(precision=work_precision)
-  let cos_bounds = if lower.compare(zero) <= 0 && upper.compare(zero) >= 0 {
-    (
-      if cos_lower.0.compare(cos_upper.0) < 0 {
-        cos_lower.0
-      } else {
-        cos_upper.0
-      },
-      BinFloat::one(precision=work_precision),
-    )
-  } else if upper.compare(zero) <= 0 {
-    (cos_lower.0, cos_upper.1)
+  let sine_first = match quadrant % 4 {
+    0 | 2 => true
+    _ => false
+  }
+  let need_sin = match operation {
+    BinaryTrigonometricOperation::Sin => sine_first
+    BinaryTrigonometricOperation::Cos => !sine_first
+    BinaryTrigonometricOperation::Tan => true
+  }
+  let need_cos = match operation {
+    BinaryTrigonometricOperation::Sin => !sine_first
+    BinaryTrigonometricOperation::Cos => sine_first
+    BinaryTrigonometricOperation::Tan => true
+  }
+  let sin_bounds = if need_sin {
+    let sin_lower = binary_sin_cos_series(lower, false, work_precision).unwrap()
+    let sin_upper = binary_sin_cos_series(upper, false, work_precision).unwrap()
+    (sin_lower.0, sin_upper.1)
   } else {
-    (cos_upper.0, cos_lower.1)
+    (zero, zero)
+  }
+  let cos_bounds = if !need_cos {
+    (zero, zero)
+  } else {
+    let cos_lower = binary_sin_cos_series(lower, true, work_precision).unwrap()
+    let cos_upper = binary_sin_cos_series(upper, true, work_precision).unwrap()
+    if lower.compare(zero) <= 0 && upper.compare(zero) >= 0 {
+      (
+        if cos_lower.0.compare(cos_upper.0) < 0 {
+          cos_lower.0
+        } else {
+          cos_upper.0
+        },
+        BinFloat::one(precision=work_precision),
+      )
+    } else if upper.compare(zero) <= 0 {
+      (cos_lower.0, cos_upper.1)
+    } else {
+      (cos_upper.0, cos_lower.1)
+    }
   }
   let mapped = match quadrant % 4 {
     0 => (sin_bounds, cos_bounds)

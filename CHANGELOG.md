@@ -13,6 +13,7 @@ notes live in this file.
 ### Performance
 
 - `bin_float`: the certified elementary functions memoize their `ln 2`, `ln 10` and `pi` enclosures per working precision (six precisions each, up to 65,536 bits) instead of recomputing them in every call. `ln` is 2.4 to 2.6 times and `sin` 2.4 to 3.7 times faster on Native at 53 to 512 bits (paired medians), decimal `ln` 2.5 times; results, flags and certification failures are unchanged ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the `exp` enclosure evaluates its Taylor series once instead of twice when the argument is exact at the working precision, and the sine/cosine enclosure skips the series that the requested function and quadrant do not read. `exp` is 1.8 to 2.0 times faster on Native at 53 to 512 bits (paired medians), decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times; enclosures, results, flags and certification failures are unchanged, checked against copies of the previous code ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
 
 ### Fixed
 
