@@ -59,51 +59,6 @@ fn compare_same_adjusted_magnitude(
 }
 
 ///|
-fn compare_finite_magnitude_repr(
-  lhs_coefficient : DecCoeff,
-  lhs_exponent10 : Int32,
-  rhs_coefficient : DecCoeff,
-  rhs_exponent10 : Int32,
-) -> Int32 {
-  if lhs_coefficient.is_zero() || rhs_coefficient.is_zero() {
-    return compare_int(
-      if lhs_coefficient.is_zero() {
-        0
-      } else {
-        1
-      },
-      if rhs_coefficient.is_zero() {
-        0
-      } else {
-        1
-      },
-    )
-  }
-  let lhs_digits = lhs_coefficient.digits10()
-  let rhs_digits = rhs_coefficient.digits10()
-  // Adjusted exponents in Int64: the coefficient of an operand that is doubled
-  // (nearest-quotient test) can gain a digit at the top of the `Int` range.
-  let lhs_adjusted = lhs_exponent10.to_int64() + lhs_digits.to_int64() - 1L
-  let rhs_adjusted = rhs_exponent10.to_int64() + rhs_digits.to_int64() - 1L
-  if lhs_adjusted != rhs_adjusted {
-    return if lhs_adjusted < rhs_adjusted { -1 } else { 1 }
-  }
-  if lhs_exponent10 <= rhs_exponent10 {
-    dec_coeff_compare_scaled_repr(
-      lhs_coefficient,
-      rhs_coefficient,
-      rhs_exponent10 - lhs_exponent10,
-    )
-  } else {
-    -dec_coeff_compare_scaled_repr(
-      rhs_coefficient,
-      lhs_coefficient,
-      lhs_exponent10 - rhs_exponent10,
-    )
-  }
-}
-
-///|
 fn compare_finite(a : Decimal, b : Decimal) -> Int32 {
   if a.coefficient.is_zero() {
     if b.coefficient.is_zero() {

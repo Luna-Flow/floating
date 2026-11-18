@@ -474,3 +474,19 @@ pub extend DecimalContext with Eq::{not_equal, equal}
 
 ///|
 pub extend DecimalFlags with Eq::{not_equal, equal}
+
+///|
+// The kernel's rounding enum has the same eight directions; it is a different
+// type so that the kernel does not depend on this package.
+fn DecimalRoundingMode::kernel(self : DecimalRoundingMode) -> DecCoeffRounding {
+  match self {
+    HalfEven => DecCoeffRounding::HalfEven
+    HalfUp => DecCoeffRounding::HalfUp
+    HalfDown => DecCoeffRounding::HalfDown
+    Down => DecCoeffRounding::Down
+    Ceiling => DecCoeffRounding::Ceiling
+    Floor => DecCoeffRounding::Floor
+    Up => DecCoeffRounding::Up
+    ZeroFiveUp => DecCoeffRounding::ZeroFiveUp
+  }
+}

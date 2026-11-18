@@ -50,6 +50,14 @@ limb, with the digit count cached. The value is persistent; no function mutates
 the limbs of an operand. The constructors are public because the two decimal
 packages pattern-match on them in a few fast paths; prefer the functions below.
 
+### `DecCoeffRounding`
+
+The eight rounding directions (`HalfEven`, `HalfUp`, `HalfDown`, `Down`,
+`Ceiling`, `Floor`, `Up`, `ZeroFiveUp`) as a plain enum. It is a direction, not
+a status: each decimal package converts its own rounding-mode type into it with
+a total match, and the functions in the rounding family answer only whether a
+kept magnitude grows by one unit in the last place.
+
 ### `SignedDecCoeff`
 
 A sign and a `DecCoeff` magnitude, for algorithms whose intermediate values can
@@ -70,6 +78,9 @@ All functions are named `dec_coeff_*`; the ones without that prefix are
 | multiply | `dec_coeff_multiply_repr`, `dec_coeff_square_repr`, `dec_coeff_multiply_by_unit_repr`, `dec_coeff_multiply_forced`, `dec_coeff_mul_algorithm` |
 | divide | `dec_coeff_div_rem_repr`, `dec_coeff_mod_repr`, `dec_coeff_div_rem_by_unit_repr`, `dec_coeff_mod_by_unit_repr`, `dec_coeff_div_rem_knuth_repr`, `dec_coeff_div_rem_burnikel_ziegler`, `dec_coeff_div_rem_newton`, `dec_coeff_division_algorithm` |
 | number theory | `dec_coeff_gcd_repr`, `dec_coeff_count_factor_unit_repr`, `dec_coeff_remove_factor_unit_repr`, `dec_coeff_exact_divide_by_unit_repr`, `dec_coeff_pow_unit_repr`, `dec_coeff_exact_power_repr` |
+| rounding decisions | `DecCoeffRounding`, `dec_coeff_should_increment`, `dec_coeff_should_increment_bigint`, `dec_coeff_round_div`, `dec_coeff_round_div_bigint`, `dec_coeff_round_div_pow10`, `dec_coeff_round_to_digits`, `dec_coeff_huge_shift_rounded_unit`, `dec_coeff_sqrt_should_increment`, `dec_coeff_addend_rounding_step` |
+| exact helpers | `compare_finite_magnitude_repr`, `dec_coeff_integer_sqrt_rem_repr`, `dec_coeff_integer_sqrt_floor_repr`, `dec_coeff_floor_nth_root_repr`, `dec_coeff_exact_nth_root_repr`, `has_finite_decimal_expansion_repr`, `decimal_ln_atanh_scaled_coeff`, `decimal_round_scaled_coeff`, `decimal_floor_div_scaled_repr`, `dec_coeff_shift_power10_mod_wide_repr`, `dec_coeff_to_bounded_int`, `is_power_of_ten_coeff`, `decimal_small_pow10` |
+| digit-wise logic | `logical_binary_digits_repr`, `coefficient_shift_digits_repr`, `coefficient_rotate_digits_repr`, `logical_coeff_digits_lsd`, `logical_coeff_from_digits_lsd` |
 | thresholds | `dec_coeff_karatsuba_threshold` and the other `dec_coeff_*_threshold*` values, chosen per target in `coeff_thresholds_<target>.mbt` |
 
 Preconditions are checked with `abort` (a negative shift, a zero divisor, a
@@ -91,9 +102,17 @@ import {
 }
 
 // Values
+pub fn coefficient_rotate_digits_repr(DecCoeff, Int32, Int32) -> DecCoeff
+
+pub fn coefficient_shift_digits_repr(DecCoeff, Int32, Int32) -> DecCoeff
+
+pub fn compare_finite_magnitude_repr(DecCoeff, Int32, DecCoeff, Int32) -> Int32
+
 pub fn dec_coeff_accumulate_at(Array[UInt64], DecCoeff, Int32) -> Unit
 
 pub fn dec_coeff_add_product_at(Array[UInt64], Int32, UInt64) -> Unit
+
+pub fn dec_coeff_addend_rounding_step(Bool, Bool, Bool, Bool, Int32, DecCoeffRounding) -> Int32
 
 pub let dec_coeff_base : Int32
 
@@ -155,9 +174,13 @@ pub fn dec_coeff_ensure_length(Array[UInt32], Int32) -> Unit
 
 pub fn dec_coeff_exact_divide_by_unit_repr(DecCoeff, Int32) -> DecCoeff?
 
+pub fn dec_coeff_exact_nth_root_repr(DecCoeff, Int32) -> DecCoeff?
+
 pub fn dec_coeff_exact_power_if_fits_repr(DecCoeff, Int32, Int32) -> DecCoeff?
 
 pub fn dec_coeff_exact_power_repr(DecCoeff, Int32) -> DecCoeff
+
+pub fn dec_coeff_floor_nth_root_repr(DecCoeff, Int32) -> DecCoeff
 
 pub fn dec_coeff_from_bigint(@bigint.BigInt) -> (Array[UInt32], Int32)
 
@@ -180,6 +203,12 @@ pub fn dec_coeff_from_wide_accumulator(Array[UInt64], Int32) -> DecCoeff
 pub fn dec_coeff_gcd_repr(DecCoeff, DecCoeff) -> DecCoeff
 
 pub fn dec_coeff_get_digits(Array[UInt32], Int32) -> Int32
+
+pub fn dec_coeff_huge_shift_rounded_unit(DecCoeff, Bool, DecCoeffRounding) -> DecCoeff
+
+pub fn dec_coeff_integer_sqrt_floor_repr(DecCoeff) -> DecCoeff
+
+pub fn dec_coeff_integer_sqrt_rem_repr(DecCoeff) -> (DecCoeff, DecCoeff)
 
 pub fn dec_coeff_is_odd(DecCoeff) -> Bool
 
@@ -337,17 +366,31 @@ pub let dec_coeff_powers : Array[Int32]
 
 pub fn dec_coeff_remove_factor_unit_repr(DecCoeff, Int32) -> DecCoeff
 
+pub fn dec_coeff_round_div(DecCoeff, DecCoeff, Bool, DecCoeffRounding) -> DecCoeff
+
+pub fn dec_coeff_round_div_bigint(@bigint.BigInt, @bigint.BigInt, Bool, DecCoeffRounding) -> @bigint.BigInt
+
+pub fn dec_coeff_round_div_pow10(DecCoeff, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
+
+pub fn dec_coeff_round_to_digits(DecCoeff, Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool, Bool)
+
 pub fn dec_coeff_scratch_arena_new() -> DecCoeffScratchArena
 
 pub fn dec_coeff_shift_limbs(DecCoeff, Int32) -> DecCoeff
 
 pub fn dec_coeff_shift_power10_mod_repr(DecCoeff, Int32, DecCoeff) -> DecCoeff
 
+pub fn dec_coeff_shift_power10_mod_wide_repr(DecCoeff, Int64, DecCoeff) -> DecCoeff
+
 pub fn dec_coeff_shift_power10_repr(DecCoeff, Int32) -> DecCoeff
 
 pub fn dec_coeff_shift_to_least(Array[UInt32], Int32, Int32) -> Int32
 
 pub fn dec_coeff_shift_to_most(Array[UInt32], Int32, Int32) -> Int32
+
+pub fn dec_coeff_should_increment(DecCoeff, DecCoeff, DecCoeff, Bool, DecCoeffRounding) -> Bool
+
+pub fn dec_coeff_should_increment_bigint(@bigint.BigInt, @bigint.BigInt, @bigint.BigInt, Bool, DecCoeffRounding) -> Bool
 
 pub fn dec_coeff_signed_add_repr(Bool, DecCoeff, Bool, DecCoeff) -> (Bool, DecCoeff)
 
@@ -373,6 +416,8 @@ pub fn dec_coeff_small_value(DecCoeff) -> UInt64?
 
 pub fn dec_coeff_split_carry_3(Int64) -> (Int32, Int64)
 
+pub fn dec_coeff_sqrt_should_increment(DecCoeff, Int32, Bool, DecCoeffRounding) -> Bool
+
 pub fn dec_coeff_square_algorithm(DecCoeff) -> DecCoeffMulAlgorithm
 
 pub fn dec_coeff_square_karatsuba(DecCoeff) -> DecCoeff
@@ -386,6 +431,8 @@ pub fn dec_coeff_square_schoolbook(DecCoeff) -> DecCoeff
 pub fn dec_coeff_to_bigint(Array[UInt32], unit_len? : Int32) -> @bigint.BigInt
 
 pub fn dec_coeff_to_bigint_repr(DecCoeff) -> @bigint.BigInt
+
+pub fn dec_coeff_to_bounded_int(DecCoeff, Int32) -> Int32?
 
 pub let dec_coeff_toom3_threshold : Int32
 
@@ -409,7 +456,25 @@ pub fn dec_coeff_write_wide_unit(Array[UInt32], Int32, UInt64) -> Unit
 
 pub fn dec_coeff_zero() -> DecCoeff
 
+pub fn decimal_floor_div_scaled_repr(Bool, DecCoeff, DecCoeff) -> Int32
+
+pub fn decimal_ln_atanh_scaled_coeff(DecCoeff, DecCoeff, Int32) -> SignedDecCoeff
+
+pub fn decimal_round_scaled_coeff(SignedDecCoeff, Int32) -> SignedDecCoeff
+
+pub fn decimal_small_pow10(Int32) -> Int32
+
 pub fn exact_divide_by_power_of_ten_repr(DecCoeff, Int32) -> DecCoeff?
+
+pub fn has_finite_decimal_expansion_repr(DecCoeff, DecCoeff) -> Bool
+
+pub fn is_power_of_ten_coeff(DecCoeff) -> Bool
+
+pub fn logical_binary_digits_repr(DecCoeff, DecCoeff, Int32, (Bool, Bool) -> Bool) -> DecCoeff
+
+pub fn logical_coeff_digits_lsd(DecCoeff, Int32) -> Array[Int32]
+
+pub fn logical_coeff_from_digits_lsd(Array[Int32]) -> DecCoeff
 
 pub fn remove_factor10_repr(DecCoeff, Int32) -> (DecCoeff, Int32)
 
@@ -451,6 +516,18 @@ pub(all) enum DecCoeffMulAlgorithm {
   Karatsuba
   Toom3
   Ntt
+}
+
+#derive(Eq)
+pub(all) enum DecCoeffRounding {
+  HalfEven
+  HalfUp
+  HalfDown
+  Down
+  Ceiling
+  Floor
+  Up
+  ZeroFiveUp
 }
 
 pub(all) struct DecCoeffScratchArena {

@@ -65,22 +65,6 @@ fn decimal_exact_integer_coeff_bounded(
 }
 
 ///|
-fn dec_coeff_to_bounded_int(coeff : DecCoeff, limit : Int32) -> Int32? {
-  guard limit >= 0 else { return None }
-  let unit_count = dec_coeff_d2u(coeff.digits10())
-  let mut value = 0
-  for i = unit_count - 1; i >= 0; i = i - 1 {
-    let unit = dec_coeff_limb_at(coeff, i).reinterpret_as_int()
-    let remaining = limit - unit
-    guard remaining >= 0 && value <= remaining / dec_coeff_base else {
-      return None
-    }
-    value = value * dec_coeff_base + unit
-  }
-  Some(value)
-}
-
-///|
 fn decimal_power_integer_count(rhs : Decimal, limit : Int32) -> Int32? {
   guard limit >= 0 else { return None }
   match decimal_exact_integer_coeff_bounded(rhs, limit) {
@@ -1449,79 +1433,6 @@ fn decimal_add_finite_work(
 }
 
 ///|
-fn decimal_round_scaled_coeff(
-  value : SignedDecCoeff,
-  shift : Int32,
-) -> SignedDecCoeff {
-  if shift <= 0 {
-    return signed_dec_coeff(
-      value.negative,
-      dec_coeff_shift_power10_repr(value.magnitude, -shift),
-    )
-  }
-  signed_dec_coeff(
-    value.negative,
-    round_positive_decimal_div_pow10_repr(
-      value.magnitude,
-      shift,
-      value.negative,
-      DecimalRoundingMode::HalfEven,
-    ).0,
-  )
-}
-
-///|
-fn decimal_ln_atanh_scaled_coeff(
-  numerator : DecCoeff,
-  denominator : DecCoeff,
-  scale : Int32,
-) -> SignedDecCoeff {
-  guard !numerator.is_zero() && !denominator.is_zero() else {
-    abort("decimal_ln_atanh_scaled_coeff expects positive rational input")
-  }
-  let comparison = dec_coeff_compare_repr(numerator, denominator)
-  if comparison == 0 {
-    return signed_dec_coeff_zero()
-  }
-  let extra_digits = 8
-  let work_scale = scale + extra_digits
-  let negative = comparison < 0
-  let delta = if negative {
-    dec_coeff_magnitude_sub_repr(denominator, numerator)
-  } else {
-    dec_coeff_magnitude_sub_repr(numerator, denominator)
-  }
-  let sum = dec_coeff_magnitude_add_repr(numerator, denominator)
-  let scale_factor = dec_coeff_power10_repr(work_scale)
-  let delta2 = dec_coeff_square_repr(delta)
-  let sum2 = dec_coeff_square_repr(sum)
-  let mut power_num = delta
-  let mut power_den = sum
-  let mut divisor_index = 1
-  let mut total = dec_coeff_zero()
-  let stop_threshold = dec_coeff_power10_repr(extra_digits)
-  let mut active = true
-  while active {
-    let divisor = dec_coeff_multiply_repr(
-      power_den,
-      dec_coeff_from_nonnegative_int(divisor_index),
-    )
-    let scaled_power = dec_coeff_multiply_repr(scale_factor, power_num)
-    let term_numerator = dec_coeff_multiply_by_unit_repr(scaled_power, 2)
-    let term = dec_coeff_div_rem_repr(term_numerator, divisor).0
-    total = dec_coeff_magnitude_add_repr(total, term)
-    if dec_coeff_compare_repr(term, stop_threshold) <= 0 {
-      active = false
-    } else {
-      power_num = dec_coeff_multiply_repr(power_num, delta2)
-      power_den = dec_coeff_multiply_repr(power_den, sum2)
-      divisor_index += 2
-    }
-  }
-  decimal_round_scaled_coeff(signed_dec_coeff(negative, total), extra_digits)
-}
-
-///|
 fn decimal_transcendental_ln_constants(
   work_scale : Int32,
 ) -> (DecCoeff, DecCoeff, DecCoeff) {
@@ -1775,33 +1686,6 @@ fn decimal_finite_to_scaled_repr(
     dec_coeff_div_rem_repr(value.coefficient, dec_coeff_power10_repr(-shift)).0
   }
   (value.negative && !magnitude.is_zero(), magnitude)
-}
-
-///|
-fn decimal_floor_div_scaled_repr(
-  negative : Bool,
-  numerator : DecCoeff,
-  denominator : DecCoeff,
-) -> Int32 {
-  guard !denominator.is_zero() else {
-    abort("decimal_floor_div_scaled_repr expects a positive denominator")
-  }
-  let (quotient0, remainder) = dec_coeff_div_rem_repr(numerator, denominator)
-  let quotient = if negative && !remainder.is_zero() {
-    dec_coeff_magnitude_add_unit(quotient0, 1)
-  } else {
-    quotient0
-  }
-  let magnitude = match dec_coeff_to_bounded_int(quotient, 999_999_999) {
-    Some(value) => value
-    None =>
-      abort("decimal_floor_div_scaled_repr quotient exceeds GDA math bounds")
-  }
-  if negative {
-    -magnitude
-  } else {
-    magnitude
-  }
 }
 
 ///|
@@ -2755,98 +2639,6 @@ fn decimal_power_exact_ten_result(
 /// precision, where every exact value is representable and no rounding
 /// boundary narrows the search.
 let decimal_power_exact_digit_limit : Int32 = 1024
-
-///|
-/// floor(value^(1 / degree)) for degree >= 2 and a nonzero `value`, as
-/// `bin_float`'s `binary_floor_nth_root` computes it in binary. Small roots
-/// are found by bisection; larger ones by integer Newton steps from an
-/// overestimate taken from the root of the leading digits, which needs a few
-/// full-size products and divisions instead of one power per root digit.
-fn dec_coeff_floor_nth_root_repr(value : DecCoeff, degree : Int32) -> DecCoeff {
-  let digits = value.digits10()
-  // The root is below 10^root_digits.
-  let root_digits = (digits + degree - 1) / degree
-  if root_digits <= 18 {
-    let one = dec_coeff_from_int(1)
-    let mut lower = dec_coeff_zero()
-    let mut upper = dec_coeff_power10_repr(root_digits)
-    while dec_coeff_compare_repr(
-            dec_coeff_magnitude_sub_repr(upper, lower),
-            one,
-          ) >
-          0 {
-      let midpoint = dec_coeff_div_rem_by_unit_repr(
-          dec_coeff_magnitude_add_repr(lower, upper),
-          2,
-        ).0
-      // A power longer than `value` is certainly above it.
-      match dec_coeff_exact_power_if_fits_repr(midpoint, degree, digits) {
-        Some(power) if dec_coeff_compare_repr(power, value) <= 0 =>
-          lower = midpoint
-        _ => upper = midpoint
-      }
-    }
-    return lower
-  }
-  // With high = floor((value / 10^(degree * half))^(1 / degree)), value is
-  // below ((high + 1) * 10^half)^degree, so that start exceeds the root.
-  let half = root_digits / 2
-  let high = dec_coeff_floor_nth_root_repr(
-    dec_coeff_div_rem_repr(value, dec_coeff_power10_repr(half * degree)).0,
-    degree,
-  )
-  let mut root = dec_coeff_shift_power10_repr(
-    dec_coeff_magnitude_add_repr(high, dec_coeff_from_int(1)),
-    half,
-  )
-  // From any x above the root, y = floor(((degree - 1) x +
-  // floor(value / x^(degree - 1))) / degree) satisfies root <= y < x (AM-GM),
-  // and at x = root the step does not decrease.
-  while true {
-    let quotient = dec_coeff_div_rem_repr(
-        value,
-        dec_coeff_exact_power_repr(root, degree - 1),
-      ).0
-    let next = dec_coeff_div_rem_by_unit_repr(
-        dec_coeff_magnitude_add_repr(
-          dec_coeff_multiply_by_unit_repr(root, degree - 1),
-          quotient,
-        ),
-        degree,
-      ).0
-    if dec_coeff_compare_repr(next, root) >= 0 {
-      break
-    }
-    root = next
-  }
-  root
-}
-
-///|
-/// The exact `degree`-th root of `value`, or `None` when `value` is not a
-/// perfect `degree`-th power. Even degrees take exact square roots first,
-/// which stop at the first nonzero remainder.
-fn dec_coeff_exact_nth_root_repr(value : DecCoeff, degree : Int32) -> DecCoeff? {
-  guard degree > 1 && !value.is_zero() else { return None }
-  let one = dec_coeff_from_int(1)
-  let mut current = value
-  let mut remaining = degree
-  while remaining % 2 == 0 && dec_coeff_compare_repr(current, one) != 0 {
-    let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(current)
-    guard remainder.is_zero() else { return None }
-    current = root
-    remaining = remaining / 2
-  }
-  if remaining == 1 || dec_coeff_compare_repr(current, one) == 0 {
-    return Some(current)
-  }
-  let root = dec_coeff_floor_nth_root_repr(current, remaining)
-  match
-    dec_coeff_exact_power_if_fits_repr(root, remaining, current.digits10()) {
-    Some(power) if dec_coeff_compare_repr(power, current) == 0 => Some(root)
-    _ => None
-  }
-}
 
 ///|
 /// Reduces a non-integral exponent to `p / q` in lowest terms, or `None` when
