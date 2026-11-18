@@ -19265,63 +19265,71 @@ msgid "`BinFloat::add`, `mul`, `div` and `sqrt` on operands whose coefficients f
 msgstr "对系数能放进一个机器字（至多 64 位）且精度不超过 62 位（`div` 与 `sqrt` 为 60 位）的操作数，`BinFloat::add`、`mul`、`div` 和 `sqrt` 跳过通用路径；通用路径每次运算都要构造若干系数值、一个上下文、一个标志记录和一个结果元组。快速路径在 `UInt64` 对上计算（128 位的和与积、128 除以 64 位的除法，平方根则用双精度估计加一步牛顿迭代并以精确比较定稿），用舍入位和粘滞位向最近偶数舍入，只分配结果。遇到 NaN、无穷、零、恰为零的和、更宽的系数或精度、指数相差很远或接近实现极限的操作数，以及 JavaScript，它都放弃，由通用路径回答；结果是同样的值，精度与指数也相同。白盒测试对每种运算比较 40,000 对随机操作数、平局、进位、相消和完全平方数与通用路径的结果。Native 上 53 位的成对运行：`add` 快 2.9 倍，`mul` 快 3.0 倍，`div` 快 4.9 倍，`sqrt` 快 2.8 倍；Wasm 上快 3.1 至 5.1 倍，Wasm-GC 上快 3.9 至 7.6 倍。128 位及以上的操作数不变。"
 
 #: manual/performance/bin_float.md:26
+msgid "Two-word and coefficient fast paths"
+msgstr "双字与系数级快速路径"
+
+#: manual/performance/bin_float.md:28
+msgid "Above the single-word range, `BinFloat::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words as well: a 192-bit aligned sum or difference and a 256-bit product (four word products, the high halves by 32-bit pieces), rounded to nearest even from the words with the round and sticky bits, and only the result is allocated. Wider operands, and `div` and `sqrt` at any size, go through coefficient-level paths that do the same exact integer arithmetic as the general path but skip its context, flags record, result tuple and repeated rounding decisions: the sum is built in one array (up to 24 words, then whole-coefficient shifts and one addition), the product is the existing `BinCoeff` product, the quotient carries at least two bits more than the precision plus a sticky bit from the remainder, the square root rounds from the integer root and its remainder (`remainder > root` decides, there are no ties), and the kept bits are copied once into the array that becomes the coefficient. Each path declines a NaN, an infinity, a zero, an exact zero sum, coefficients or precisions above 2^20 bits, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare tens of thousands of random, all-ones, sparse, tie, exact-quotient, perfect-square and cancelling operand sets per operation with the general path on Native, Wasm and Wasm-GC (JavaScript keeps the general path). Paired runs against the previous build: `add` 3.3 times and `mul` 3.5 times faster at 128 bits on Native (2.5 and 3.7 on Wasm-GC, 3.5 and 3.0 on Wasm), 1.9 to 2.2 times at 256 bits, 1.5 to 1.9 times at 512 bits and 1.2 times at 1,024 bits; `sqrt` 1.4 times at 128 bits (1.9 on Wasm-GC) and 1.1 at 512 and 2,048 bits; `div` 1.1 to 1.2 times at 128 to 512 bits, where the Knuth division dominates."
+msgstr "在单字范围之上，系数至多 128 位、精度至多 128 位的 `BinFloat::add` 与 `mul` 同样在 `UInt64` 字上运行：对齐后的 192 位和或差、256 位乘积（四个字乘积，高半部分按 32 位片段计算），由这些字用舍入位与粘滞位按就近偶数舍入，只分配结果。更宽的操作数，以及任意大小的 `div` 与 `sqrt`，走系数级路径：其精确整数运算与通用路径相同，但跳过上下文、标志记录、结果元组与重复的舍入判断——和在一个数组中构造（至多 24 个字，更大时用整体系数移位与一次加法），乘积用现有的 `BinCoeff` 乘积，商比精度多至少两位并带有来自余数的粘滞位，平方根由整数根及其余数舍入（`余数 > 根` 即决定进位，不会出现平局），保留的位只复制一次，直接进入成为系数的数组。每条路径都拒绝 NaN、无穷、零、精确为零的和、系数或精度超过 2^20 位、指数相距很远或接近实现极限的操作数，以及 JavaScript，这些由通用路径回答；结果是同一个值，精度与指数也相同。白盒测试对每种运算用数万组随机、全 1、稀疏、平局、精确商、完全平方与相消的操作数与通用路径比较，覆盖 Native、Wasm 与 Wasm-GC（JavaScript 保留通用路径）。与此前构建的成对运行对比：128 位时 `add` 在 Native 上快 3.3 倍、`mul` 快 3.5 倍（Wasm-GC 上 2.5 与 3.7 倍，Wasm 上 3.5 与 3.0 倍），256 位时快 1.9 至 2.2 倍，512 位时快 1.5 至 1.9 倍，1,024 位时快 1.2 倍；`sqrt` 在 128 位时快 1.4 倍（Wasm-GC 上 1.9 倍），在 512 与 2,048 位时快 1.1 倍；`div` 在 128 至 512 位时快 1.1 至 1.2 倍，那里 Knuth 除法占主导。"
+
+#: manual/performance/bin_float.md:30
 msgid "Fixed-point sine and cosine"
 msgstr "定点正弦与余弦"
 
-#: manual/performance/bin_float.md:28
+#: manual/performance/bin_float.md:32
 msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 28)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that the guard bits would exceed four times the working precision, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities. Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series): `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits and 4.6 times on Wasm-GC; on its own the change gives 1.3 to 1.4 times, because the series is about nine tenths of the time only once `pi` is cached."
 msgstr "当参数在工作精度下精确表示时，化简后参数（模不超过 1）的 `sin` 与 `cos` 泰勒级数以定点方式求和，使用 20 位保护位；对正弦还加上参数的前导零位数，因此小参数也保有 `precision + 20` 个有效位。每个已计算的项都向下舍入，至多相差 4 个单位；该级数各项符号交替且逐项递减，所以 `带符号和 +- (4n + 28)` 即包住该值，负的正弦参数则翻转符号。参数不精确，或小到保护位将超过工作精度的四倍时，仍使用此前的浮点级数；细化循环及其工作精度均不变。白盒测试检查该包络包含一个更紧的包络、宽度有界，并检查正弦与余弦恒等式。在已缓存常数的基础上的成对运行（没有缓存时，`pi` 的重复计算会掩盖级数的开销）：`sin` 在 Native 上于 53 至 2,048 位快 4.3 至 5.7 倍，在 Wasm-GC 上快 4.6 倍；单独使用该改动时为 1.3 至 1.4 倍，因为只有在 `pi` 被缓存之后，级数才占用约十分之九的时间。"
 
-#: manual/performance/bin_float.md:30
+#: manual/performance/bin_float.md:34
 msgid "Division, square root and GCD"
 msgstr "除法、开方与 GCD"
 
-#: manual/performance/bin_float.md:32
+#: manual/performance/bin_float.md:36
 msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) up to 128 32-bit divisor limbs, and Burnikel–Ziegler from 192. Newton reciprocal division is no longer selected: once multiplication was 2 to 3 times faster it was 3 to 12 times slower than Burnikel–Ziegler from 32,768 bits (4.4 ms against 0.37 ms at 32,768 bits), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Paired runs against the previous kernels: `div` is 1.5, 2.3 and 2.9 times faster on Native at 512, 2,048 and 8,192 bits, 1.9 and 3.3 times on Wasm-GC and 1.3 and 3.3 times on Wasm at 2,048 and 8,192 bits, and the `sqrt` of 8,192 bits 1.5 to 1.8 times faster on all three; native multiplication switches to the NTT at 8,192 limbs instead of 2,048 now that the Karatsuba is faster. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that; the recursion stops at the same fixed-width kernels once a block is at most 256 bits on Native/LLVM and 512 bits on Wasm/Wasm-GC (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) about 3.4 times faster on Native and 3.1 to 3.3 times on Wasm in paired runs. The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
 msgstr "除法使用单 limb 路径、在 64 位数位上的 Knuth 算法 D（128 除以 64 位的商估计与 128 位修正检验，除数最多 128 个 32 位 limb），以及从 192 个 limb 起的 Burnikel–Ziegler。牛顿倒数除法不再被选用：乘法快了 2 到 3 倍之后，它在 32,768 位起比 Burnikel–Ziegler 慢 3 到 12 倍（32,768 位时 4.4 毫秒对 0.37 毫秒），因此分派不会到达它；该例程保留并由测试覆盖，阈值常量按目标设置。与此前内核的成对运行对比：`div` 在 Native 上于 512、2,048、8,192 位分别快 1.5、2.3、2.9 倍，在 Wasm-GC 上于 2,048 与 8,192 位快 1.9 与 3.3 倍，在 Wasm 上快 1.3 与 3.3 倍，8,192 位的 `sqrt` 在三者上快 1.5 到 1.8 倍；乘法更快之后，Native 乘法在 8,192 个 limb（原为 2,048）处才切换到 NTT。平方根在 512 位以内使用定宽内核，超过则使用分治法；当分治递归中的块不超过 Native/LLVM 上的 256 位或 Wasm/Wasm-GC 上的 512 位时，递归在同一组定宽内核处结束（此前是在 128 位处对堆整数使用恢复式循环），这使 1,024 位被开方数（即 512 位 `sqrt`）在成对运行中在 Native 上快约 3.4 倍，在 Wasm 上快 3.1 至 3.3 倍。该截断点是按目标平台测得的策略；LLVM 的取值未经测量，因为所用工具链不提供该后端。大数 GCD 在两个操作数共同的 63 位窗口上使用 Lehmer 批处理；当较短的操作数在该窗口中没有任何位时，执行一次除法步骤，因此长度相差很大的操作数会被一次性约简。"
 
-#: manual/performance/bin_float.md:34
+#: manual/performance/bin_float.md:38
 msgid "Certified constants"
 msgstr "认证常数"
 
-#: manual/performance/bin_float.md:36
+#: manual/performance/bin_float.md:40
 msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
 msgstr "认证初等函数按工作精度缓存其所需的常数包络（`ln 2`、`ln 10` 与 `pi`），每个常数一个小缓存，保存六个精度，最高 65,536 位。缓存中的包络就是重新计算会得到的值，因此结果绝不依赖缓存状态或调用顺序。此前每次 `ln`、`log2`、`log10`、`sin`、`cos`、`tan` 与 `atan2` 调用都会重新运行一次 `ln 2` 级数或 `atan(1)` 求值，其代价与函数本身相当。在 Native 上的成对运行中：53 至 512 位的 `ln` 快 2.4 至 2.6 倍，`sin` 快 2.4 至 3.7 倍，十进制 `ln` 快 2.5 倍；在 Wasm 与 Wasm-GC 上 `ln` 和 `sin` 快 1.7 至 2.2 倍。`exp` 没有这类常数，保持不变。"
 
-#: manual/performance/bin_float.md:38
+#: manual/performance/bin_float.md:42
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "测量"
 
-#: manual/performance/bin_float.md:40
+#: manual/performance/bin_float.md:44
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "统一的 `bench/bin_float` Maremark harness 使用平衡 block 比较系数核、数值核心、checked 全路径与语义等价的平方候选。auto-tune 输出版本化的逐尺度 policy，并且只把阈值应用到实际测量的 target；所有阈值变更仍须通过全 target 正确性测试。"
 
-#: manual/performance/bin_float.md:42
+#: manual/performance/bin_float.md:46
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary 发布门禁会分别归档不可变的 `0.6.1` commit 与当前 dirty candidate，向两者注入完全相同的 add/mul/div/sqrt workload，并在 53、128、512 bit 收集十组交替 AB/BA native 配对样本。只有 candidate 至少慢 3%，且 Maremark 95% bootstrap 区间下界为正时才阻断发布。`0.7.1` 首次新增的函数只运行 candidate workload；本版本将成为它们的首个合法 baseline，不能为 `0.6.1` 中不存在的 API 伪造耗时。"
 
-#: manual/performance/bin_float.md:51
+#: manual/performance/bin_float.md:55
 msgid "Certified series"
 msgstr "认证级数"
 
-#: manual/performance/bin_float.md:53
+#: manual/performance/bin_float.md:57
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr "当参数在工作精度下精确表示（通常如此）时，`exp` 的包络只计算一次泰勒级数而不是两次，因为此时下端点与上端点是同一个值，而每个级数只读取其中一个界。三角函数的包络只计算所请求函数和象限实际读取的正弦或余弦级数，`sin` 与 `cos` 由四个级数减为两个。两种跳过都返回与之前完全相同的包络，白盒测试将其与此前代码的副本逐一比对。在 Native 上的成对运行中：53 至 512 位的 `exp` 快 1.8 至 2.0 倍，十进制 `exp` 快 1.3 至 1.4 倍，仅此一项使 `sin` 快 1.15 至 1.2 倍；在 Wasm 与 Wasm-GC 上 `exp` 快 1.7 至 1.9 倍。"
 
-#: manual/performance/bin_float.md:55
+#: manual/performance/bin_float.md:59
 msgid "Trade-offs"
 msgstr "取舍"
 
-#: manual/performance/bin_float.md:57
+#: manual/performance/bin_float.md:61
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook 降低初始化和分配，递归算法减少渐近工作，NTT 改善超大平衡输入但需要 transform 与临时存储。所有快路径保留精确 fallback，因此性能调度不能改变语义。"
 
-#: manual/performance/bin_float.md:59
+#: manual/performance/bin_float.md:63
 msgid "Fixed-point logarithm"
 msgstr "定点对数函数"
 
-#: manual/performance/bin_float.md:61
+#: manual/performance/bin_float.md:65
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr "当参数在工作精度下精确表示时，认证 `ln` 对 [1, 2] 内规范化参数的包络（以及由它构造的 `ln 2` 与 `ln 10` 常数）以定点方式对级数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）求和。小数部分包含 16 位保护位再加上 `z` 的前导零位数，因此即使参数接近 1，包络也保有 `precision + 16` 个有效位；每一步运算都向下舍入，使和成为下界，每项误差小于 2 个单位的证明以及尾项界给出上界。参数不精确，或接近 1 以致小数位数将超过工作精度的四倍时，仍使用此前的浮点级数，因此细化循环及其工作精度均不变。白盒测试检查该包络包含一个更紧的包络、宽度有界，并检查最终正确舍入的结果与标志与此前的级数一致。不含常数缓存的成对运行：`ln` 在 Native 上于 53 至 2,048 位快 5 至 7 倍，在 Wasm 与 Wasm-GC 上快 5.5 至 7.5 倍，十进制 `ln` 快 6 倍。"
 
