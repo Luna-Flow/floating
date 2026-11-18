@@ -568,7 +568,11 @@ fn decimal_power_integer_bounded_result(
     precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
   )
   let (factor0, initial_flags) = if count < 0 && ctx.extended {
-    decimal_div_finite_work(one, base, work_ctx)
+    // The reciprocal of repeated multiplication keeps the cohort the division
+    // gives (1 / 5E-2 is 2E+1): IEEE 754-2019 5.2 and 9.2.2 take the exponent of
+    // an exact power from the preferred exponent, and padding the reciprocal
+    // towards exponent 0 moves the result away from it.
+    decimal_div_finite_work(one, base, work_ctx, keep_cohort=true)
   } else {
     (base, DecimalFlags::new())
   }
@@ -664,7 +668,7 @@ fn decimal_power_large_integer_coeff_result(
     precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
   )
   let (factor0, initial_flags) = if negative_exponent && ctx.extended {
-    decimal_div_finite_work(one, base, work_ctx)
+    decimal_div_finite_work(one, base, work_ctx, keep_cohort=true)
   } else {
     (base, DecimalFlags::new())
   }
@@ -1218,6 +1222,7 @@ fn decimal_div_finite_work(
   lhs : Decimal,
   rhs : Decimal,
   work_ctx : DecimalContext,
+  keep_cohort~ : Bool = false,
 ) -> (Decimal, DecimalFlags) {
   guard lhs.class == FpClass::Finite && rhs.class == FpClass::Finite else {
     abort("decimal_div_finite_work expects finite operands")
@@ -1303,7 +1308,7 @@ fn decimal_div_finite_work(
         lhs.exponent10 - rhs.exponent10,
         work_ctx,
       )
-      let exact_value = if work_ctx.clamp {
+      let exact_value = if work_ctx.clamp || keep_cohort {
         exact_value
       } else {
         expand_finite_cohort_toward_target_exponent(exact_value, 0, work_ctx)
