@@ -472,6 +472,15 @@ Two copies of this code had already diverged: a fix in one did not reach the
 other, and `decimal` lacked the small-value fast paths of `decimal_gda`. The
 thresholds are therefore one set, measured on the shared kernel.
 
+The rounding-direction decisions are shared too, because they are pure functions
+of a coefficient and the digits that were discarded: whether the kept magnitude
+grows by one unit in the last place, for the eight directions. Each package
+converts its own rounding-mode type into the kernel's direction enum with one
+total match, so the kernel knows neither type. What the decision is applied to,
+and every flag, clamp, subnormal and overflow rule around it, stays in the
+finalizer of each package. The same holds for the exact integer helpers that
+roots, logarithm series and the logical digit operations are built on.
+
 The status-free layer (`DecimalContext`, `DecimalFlags`, the `*_ctx` methods)
 is the package's own engine made public. It returns flags per operation like
 IEEE, which is convenient for adapters (the `Luna-Flow/arithmetic` trait

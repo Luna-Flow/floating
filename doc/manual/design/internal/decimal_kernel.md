@@ -64,6 +64,32 @@ digit loop; `dec_coeff_count_factor_unit_repr` returns early when the lowest
 limb is not divisible by 2 or 5 (the base is divisible by both, so the lowest
 limb decides), which is cheaper than the batched attempt for the common case.
 
+### Rounding decisions as pure functions
+
+A rounding decision is a function of a coefficient and the digits that were
+discarded: given $q$, the remainder $r$ with $0 \le r < d$, the sign and the
+direction, the kept magnitude is incremented when
+
+$$
+\begin{cases}
+\text{never} & \text{Down},\\
+\text{always (if } r > 0) & \text{Up},\\
+\operatorname{sign} = + & \text{Ceiling},\\
+\operatorname{sign} = - & \text{Floor},\\
+2r > d \lor (2r = d \land q \text{ odd}) & \text{HalfEven},\\
+2r \ge d & \text{HalfUp},\\
+2r > d & \text{HalfDown},\\
+q \bmod 10 \in \{0, 5\} & \text{ZeroFiveUp}.
+\end{cases}
+$$
+
+The kernel computes this from `dec_coeff_div_pow10_round_info_repr` or a
+division, in a `DecCoeffRounding` enum that carries the direction only. What the
+direction is applied to (the precision, the exponent range, the tininess rule,
+the flags raised by the discarded digits) is decided by the finalizer of each
+package, which converts its own rounding mode with one total match. The kernel
+therefore needs neither package's mode, context nor flags type.
+
 ### What stays out
 
 Nothing that depends on a standard moves here: rounding modes, precision,
