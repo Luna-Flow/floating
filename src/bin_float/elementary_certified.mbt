@@ -1986,7 +1986,16 @@ fn binary_hypot_negligible_operand(
     ) -
     2L
   guard small_top < bound - 1L && bound >= -2147483648L else { return None }
-  let replacement = BinFloat::make(BinCoeff::one(), (bound - 1L).to_int(), 1)
+  // A BinFloat of width w stores nothing below 2^(e_min - (w - 1)), so the
+  // power of two is built wide enough to be kept, not flushed to zero or to
+  // 2^e_min when it lies in the implementation subnormal range.
+  let width = binary_implementation_e_min.to_int64() - (bound - 1L) + 2L
+  guard width <= 1073741824L else { return None }
+  let replacement = BinFloat::make(
+    BinCoeff::one(),
+    (bound - 1L).to_int(),
+    Int64::max(1L, width).to_int(),
+  )
   Some((large.abs(), replacement))
 }
 
@@ -2017,32 +2026,27 @@ pub fn BinFloat::try_hypot_ctx(
     Some(operands) => return operands.0.try_hypot_ctx(operands.1, context)
     None => ()
   }
-  let left_exponent = self.exponent2().to_int64() * 2L
-  let right_exponent = other.exponent2().to_int64() * 2L
-  guard left_exponent >= -2147483648L &&
-    left_exponent <= 2147483647L &&
-    right_exponent >= -2147483648L &&
-    right_exponent <= 2147483647L else {
-    return Err(
-      binary_certification_failure(
-        "hypot",
-        @def.CertificationStage::RangeReduction,
-        @def.CertificationFailureReason::RangeNotCertified,
-        context.precision,
-        context.precision,
-        0,
-      ),
-    )
+  // |x|^2 + |y|^2 = T * 2^(2 m) with m the smaller exponent of the nonzero
+  // operands: the exponent stays at the operands' own scale (it is halved by
+  // the square root below), so operands near 2^+-2^30 do not leave the range
+  // of the exponent field or of BinFloat::make.
+  if self.is_zero() && other.is_zero() {
+    return Ok((BinFloat::zero(precision=context.precision), BinaryFlags::new()))
   }
-  let left_square = self.coefficient().mul(self.coefficient())
-  let right_square = other.coefficient().mul(other.coefficient())
-  let common_exponent = Int32::min(
-    left_exponent.to_int(),
-    right_exponent.to_int(),
-  )
-  let left_shift = left_exponent.to_int() - common_exponent
-  let right_shift = right_exponent.to_int() - common_exponent
-  guard left_shift <= 1_000_000 && right_shift <= 1_000_000 else {
+  let left_exponent = if self.is_zero() {
+    other.exponent2().to_int64()
+  } else {
+    self.exponent2().to_int64()
+  }
+  let right_exponent = if other.is_zero() {
+    self.exponent2().to_int64()
+  } else {
+    other.exponent2().to_int64()
+  }
+  let half_exponent = Int64::min(left_exponent, right_exponent)
+  let left_shift = (left_exponent - half_exponent) * 2L
+  let right_shift = (right_exponent - half_exponent) * 2L
+  guard left_shift <= 1_000_000L && right_shift <= 1_000_000L else {
     return Err(
       binary_certification_failure(
         "hypot",
@@ -2054,15 +2058,68 @@ pub fn BinFloat::try_hypot_ctx(
       ),
     )
   }
+  let left_square = self.coefficient().mul(self.coefficient())
+  let right_square = other.coefficient().mul(other.coefficient())
   let sum = left_square
-    .shift_left(left_shift)
-    .add(right_square.shift_left(right_shift))
-  let exact_sum = BinFloat::make(
-    sum,
-    common_exponent,
-    Int32::max(1, sum.bit_length()),
+    .shift_left(left_shift.to_int())
+    .add(right_square.shift_left(right_shift.to_int()))
+  Ok(binary_round_sqrt_half_exponent(sum, half_exponent.to_int(), context))
+}
+
+///|
+/// The correctly rounded square root of `magnitude * 2^(2 * half_exponent)`,
+/// with the doubled exponent never formed: `binary_round_sqrt` with an exponent
+/// that is even by construction, for sums of squares whose own exponent would
+/// leave the 32-bit range.
+fn binary_round_sqrt_half_exponent(
+  magnitude : BinCoeff,
+  half_exponent : Int32,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  let exact_top = binary_add_sat(
+    binary_floor_div2(magnitude.bit_length() - 1),
+    half_exponent,
   )
-  Ok(exact_sum.sqrt_ctx(context))
+  if exact_top > context.range_e_max() {
+    return binary_overflow_result(false, context)
+  }
+  let target_exponent = binary_target_exponent(exact_top, context)
+  let scale = binary_mul_sat(2, binary_sub_sat(half_exponent, target_exponent))
+  let (floor_root, exact, midpoint_comparison) = binary_sqrt_split(
+    magnitude, scale,
+  )
+  let (round_bit, sticky) = binary_sqrt_round_bits(exact, midpoint_comparison)
+  let unbounded_target = binary_sub_sat(exact_top, context.precision - 1)
+  let unbounded_scale = binary_mul_sat(
+    2,
+    binary_sub_sat(half_exponent, unbounded_target),
+  )
+  let (unbounded_root, unbounded_exact, unbounded_midpoint_comparison) = if unbounded_scale ==
+    scale {
+    (floor_root, exact, midpoint_comparison)
+  } else {
+    binary_sqrt_split(magnitude, unbounded_scale)
+  }
+  let (unbounded_guard, unbounded_sticky) = binary_sqrt_round_bits(
+    unbounded_exact, unbounded_midpoint_comparison,
+  )
+  let unbounded_rounded = binary_apply_round_bits(
+    unbounded_root,
+    unbounded_guard,
+    unbounded_sticky,
+    false,
+    context.rounding,
+  )
+  binary_round_pack(
+    false,
+    floor_root,
+    round_bit,
+    sticky,
+    target_exponent,
+    exact_top,
+    binary_exact_top(unbounded_rounded, unbounded_target),
+    context,
+  )
 }
 
 ///|

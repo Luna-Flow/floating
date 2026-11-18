@@ -17,3 +17,10 @@ reg.pow.exact-subnormal-up pow u 2 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-107374182
 reg.pown.below-smallest-down pown d 40 - - - 0x3p0 - - -677455689 0x0p0 xu
 # #278 at p = 42 the value is between 2^q and 2^(q+1) and rounds down to the smallest subnormal 2^q
 reg.pown.below-smallest-down-next pown d 42 - - - 0x3p-1 - - -1835573839 0x1p-1073741864 xu
+# #275 hypot of operands with an exponent beyond 2^29 in magnitude, or near the subnormal limit
+reg.hypot.exponent-beyond-2e29 hypot n 53 - - - 0x1p-600000000 0x1p-600000000 - 0 0x16a09e667f3bcdp-600000052 x
+reg.hypot.exponent-beyond-2e29-unequal hypot n 53 - - - 0x1p-540000000 0x1p-540000001 - 0 0x23c6ef372fe95p-540000049 x
+reg.hypot.exponent-beyond-2e29-large hypot n 53 - - - 0x1p600000000 0x1p600000000 - 0 0x16a09e667f3bcdp599999948 x
+reg.hypot.near-smallest-normal hypot n 53 - - - 0x1p-1073741700 0x1p-1073741720 - 0 0x20000000001p-1073741741 x
+reg.hypot.negligible-subnormal-operand hypot u 53 - - - 0x1p-1073741780 0x1p-1073741860 - 0 0x10000000000001p-1073741832 x
+reg.hypot.subnormal-result hypot d 53 - - - 0x3p-1073741860 0x3p-1073741860 - 0 0x10f87p-1073741874 xu
