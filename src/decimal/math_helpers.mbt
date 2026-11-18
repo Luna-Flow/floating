@@ -980,6 +980,19 @@ fn decimal_power_integer_correctly_rounded_result(
     if adjusted_exponent64(lower) > ctx.e_max.to_int64() {
       return Some(decimal_overflow_result(negative, ctx))
     }
+    // IEEE 754-2019 7.5: for decimal formats tininess is detected before
+    // rounding, on the exact power. While the enclosure straddles 10^e_min the
+    // side of the exact power is unknown, and the delivered value alone does
+    // not tell it (1 / 1.00000000000000000001 rounds to 1 at precision 1, but is
+    // below 10^0): refine the enclosure first. The exact power is not 10^e_min
+    // itself (that would be exact), so the refinement separates it.
+    if ctx.tininess == DecimalTininessDetection::BeforeRounding &&
+      _attempt < 8 &&
+      adjusted_exponent64(lower) < ctx.e_min.to_int64() &&
+      adjusted_exponent64(upper) >= ctx.e_min.to_int64() {
+      work_precision = work_precision * 2
+      continue
+    }
     let (rounded_lower, _) = normalize_decimal_parts_ctx_repr(
       negative,
       lower.coefficient,

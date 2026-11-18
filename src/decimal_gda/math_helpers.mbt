@@ -597,7 +597,126 @@ fn decimal_power_integer_bounded_result(
     (acc, flags)
   }
   let (result, finalize_flags) = decimal_apply_finite_ctx(powered, ctx)
-  (result, power_flags.combine(finalize_flags))
+  let flags = power_flags.combine(finalize_flags)
+  (
+    result,
+    decimal_power_integer_tininess_flags(base, count, result, flags, ctx),
+  )
+}
+
+///|
+/// Whether the exact magnitude of `base^count` is below `10^e_min`: `Some` when
+/// the power is separated from `10^e_min`, `None` when five doublings of the
+/// working precision do not. The repeated multiplication at `wp` digits keeps a
+/// relative error below `10^(d + 2 - wp)` (`d` the digits of `|count|`:
+/// `(1 + u)^m - 1 <= 2 m u` with `m <= 2 |count|` roundings of `u = 1/2 10^(1 - wp)`
+/// each), so a scaled power outside `1 +- 10^(d + 2 - wp)` is on one side for sure.
+fn decimal_power_integer_below_e_min(
+  base : Decimal,
+  count : Int32,
+  ctx : DecimalContext,
+) -> Bool? {
+  let digits = gda_coeff_from_int_magnitude(count).digits10()
+  let positive_base = { ..base, negative: false, }
+  let mut wp = finite_precision_for_default(ctx) + digits + 6
+  let mut attempt = 0
+  while attempt < 5 {
+    let wide = DecimalContext::new(
+      precision=wp,
+      e_min=-999_999_999,
+      e_max=999_999_999,
+    ).unwrap()
+    let one = Decimal::one(precision=wp)
+    let factor0 = if count < 0 {
+      decimal_div_finite_work(one, positive_base, wide).0
+    } else {
+      positive_base
+    }
+    guard factor0.class == FpClass::Finite else { return None }
+    let mut acc = one
+    let mut factor = factor0
+    let mut remaining = abs_int(count)
+    while remaining > 0 {
+      if (remaining & 1) == 1 {
+        acc = decimal_mul_finite_work(acc, factor, wide).0
+        guard acc.class == FpClass::Finite else { return None }
+      }
+      remaining = remaining >> 1
+      if remaining > 0 {
+        factor = decimal_mul_finite_work(factor, factor, wide).0
+        guard factor.class == FpClass::Finite else { return None }
+      }
+    }
+    if acc.coefficient.is_zero() {
+      return Some(true)
+    }
+    let tolerance_exponent = digits + 2 - wp
+    let unit = gda_coeff_power10_repr(-tolerance_exponent)
+    let upper = finite_with_exponent_repr(
+      false,
+      gda_coeff_magnitude_add_unit(unit, 1),
+      tolerance_exponent,
+      wp,
+    )
+    let lower = finite_with_exponent_repr(
+      false,
+      gda_coeff_magnitude_sub_unit(unit, 1),
+      tolerance_exponent,
+      wp,
+    )
+    let scaled = finite_with_exponent_repr(
+      false,
+      acc.coefficient,
+      acc.exponent10 - ctx.e_min,
+      wp,
+    )
+    if scaled.compare(upper) > 0 {
+      return Some(false)
+    }
+    if scaled.compare(lower) < 0 {
+      return Some(true)
+    }
+    wp = wp * 2
+    attempt += 1
+  }
+  None
+}
+
+///|
+/// GDA 1.70, Exceptional conditions: Subnormal is signaled when the adjusted
+/// exponent of the result is below Emin "before any rounding", and Underflow when
+/// the result is also inexact. IEEE 754-2019 7.5 detects tininess before rounding
+/// for decimal formats in the same way. The working arithmetic rounds the power
+/// to a finite precision, so an exact power just below `10^e_min` can come out as
+/// `10^e_min` itself and then rounds to the same delivered value as a power just
+/// above it: `1 / 1.00000000000000000001` is `0.99999999999999999999`, which
+/// rounds to `1` at precision 1 and is subnormal for e_min = 0. Only a delivered
+/// `10^e_min` can be affected, and the side of the exact power is decided there.
+fn decimal_power_integer_tininess_flags(
+  base : Decimal,
+  count : Int32,
+  result : Decimal,
+  flags : DecimalFlags,
+  ctx : DecimalContext,
+) -> DecimalFlags {
+  guard ctx.extended &&
+    ctx.tininess == DecimalTininessDetection::BeforeRounding &&
+    flags.inexact &&
+    result.class == FpClass::Finite &&
+    !result.coefficient.is_zero() &&
+    adjusted_exponent64(result) == ctx.e_min.to_int64() &&
+    gda_coeff_compare_repr(
+      remove_factor10_repr(result.coefficient, 0).0,
+      gda_coeff_from_int(1),
+    ) ==
+    0 else {
+    return flags
+  }
+  match decimal_power_integer_below_e_min(base, count, ctx) {
+    Some(true) => { ..flags, subnormal: true, underflow: true, }
+    Some(false) => { ..flags, subnormal: false, underflow: false, }
+    None => flags
+  }
 }
 
 ///|

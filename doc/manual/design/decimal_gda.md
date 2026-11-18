@@ -658,6 +658,20 @@ a non-integer exponent. `power(99999E-1, -1)` at precision 2 is `0.00010`. Only 
 subset context strips the zeros, as Appendix A prescribes, and a subnormal
 result has fewer digits because its exponent is $E_{\mathrm{tiny}}$.
 
+Tininess is judged on the exact power, before rounding (GDA 1.70: Subnormal when
+the adjusted exponent is below $e_{\min}$ "before any rounding", Underflow when the
+result is also inexact). The working arithmetic only sees the power rounded to $w$
+digits, so when the delivered result is exactly $10^{e_{\min}}$ the side of the
+exact power is decided separately: the power is recomputed at precision
+$w' = p + d(|n|) + 6$, then doubled (five attempts in all), with relative error below
+$10^{d(|n|) + 2 - w'}$ (at most $2|n|$ roundings of $\mathbf u_{w'}$), and compared
+with $10^{e_{\min}}(1 \pm 10^{d(|n|) + 2 - w'})$. A power outside that band is
+subnormal exactly when it is below $10^{e_{\min}}$; for
+$1/1.00000000000000000001$ at $p = 1$ and $e_{\min} = 0$ the exact value
+$0.99999999999999999999$ is separated at $w' = 32$, so the result `1` carries
+`Subnormal` and `Underflow`. The test is made only when tininess is detected
+before rounding, as GDA does.
+
 ### Correctly rounded `exp`, `ln`, `log10` and non-integer `power`
 
 These functions are evaluated by certified interval arithmetic and a Ziv-style
