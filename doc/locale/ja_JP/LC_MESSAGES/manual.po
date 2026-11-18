@@ -18572,23 +18572,31 @@ msgid "Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Z
 msgstr "除算は、1 リムの経路、除数が 48 リム未満では Knuth、48 以上で Burnikel–Ziegler、1,024 以上で Newton の逆数除算を使います。平方根は 512 ビットまでは固定幅のカーネル、それを超えると分割統治を使います。大きな GCD は、両オペランドに共通する 63 ビットのウィンドウで Lehmer のバッチ処理を行い、短い方のオペランドがそのウィンドウにビットを持たない場合は除算を 1 ステップ行うので、長さが大きく異なるオペランドも一度に縮約されます。"
 
 #: manual/performance/bin_float.md:22
+msgid "Certified constants"
+msgstr "認証済み定数"
+
+#: manual/performance/bin_float.md:24
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgstr "認証済みの初等関数は、必要な定数の包含区間（`ln 2`、`ln 10`、`pi`）を作業精度ごとに記憶します。定数ごとに小さなキャッシュを持ち、6 つの精度、最大 65,536 ビットまで保持します。キャッシュ内の包含区間は再計算で得られる値そのものなので、結果がキャッシュの状態や呼び出し順序に依存することはありません。以前は `ln`、`log2`、`log10`、`sin`、`cos`、`tan`、`atan2` の呼び出しごとに `ln 2` の級数や `atan(1)` の評価をやり直しており、その費用は関数本体と同程度でした。Native でのペア実行では、53〜512 ビットの `ln` が 2.4〜2.6 倍、`sin` が 2.4〜3.7 倍、10 進の `ln` が 2.5 倍速くなり、Wasm と Wasm-GC では `ln` と `sin` が 1.7〜2.2 倍速くなります。`exp` にはこの種の定数がないため変わりません。"
+
+#: manual/performance/bin_float.md:26
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "測定"
 
-#: manual/performance/bin_float.md:24
+#: manual/performance/bin_float.md:28
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "統一 `bench/bin_float` Maremark harness は balanced block で係数 kernel、数値 core、checked 全経路、意味的に等価な square 候補を比較します。auto-tune は versioned per-scale policy を出力し、threshold は計測した target だけへ適用します。全 target correctness test は引き続き必須です。"
 
-#: manual/performance/bin_float.md:26
+#: manual/performance/bin_float.md:30
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary release gate は immutable `0.6.1` commit と dirty candidate tree を別々に archive し、同一 add/mul/div/sqrt workload を注入して、53/128/512 bit の alternating AB/BA native pair を十組収集します。candidate が 3% 以上遅く、かつ Maremark 95% bootstrap interval の下限が正の場合だけ release を阻止します。 `0.7.1` で初めて追加された function は candidate workload として測定し、この release を最初の正当な baseline とします。`0.6.1` に存在しない API の timing を捏造しません。"
 
-#: manual/performance/bin_float.md:35
+#: manual/performance/bin_float.md:39
 msgid "Trade-offs"
 msgstr "Trade-off"
 
-#: manual/performance/bin_float.md:37
+#: manual/performance/bin_float.md:41
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
 

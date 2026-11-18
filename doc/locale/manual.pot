@@ -18466,23 +18466,31 @@ msgid "Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Z
 msgstr ""
 
 #: manual/performance/bin_float.md:22
+msgid "Certified constants"
+msgstr ""
+
+#: manual/performance/bin_float.md:24
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgstr ""
+
+#: manual/performance/bin_float.md:26
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr ""
 
-#: manual/performance/bin_float.md:24
+#: manual/performance/bin_float.md:28
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr ""
 
-#: manual/performance/bin_float.md:26
+#: manual/performance/bin_float.md:30
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr ""
 
-#: manual/performance/bin_float.md:35
+#: manual/performance/bin_float.md:39
 msgid "Trade-offs"
 msgstr ""
 
-#: manual/performance/bin_float.md:37
+#: manual/performance/bin_float.md:41
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr ""
 
