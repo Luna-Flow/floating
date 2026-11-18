@@ -89,6 +89,7 @@ verified, and how) and a performance page (measurements and their method).
 | `cli/gda_expr_cli`: file and output adapter for `.decTest` runs | [tutorial](tutorial/cli/gda_expr_cli.md) | [API](api/cli/gda_expr_cli.md) | [design](design/cli/gda_expr_cli.md) |
 | `cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs | [tutorial](tutorial/cli/itl_expr_cli.md) | [API](api/cli/itl_expr_cli.md) | [design](design/cli/itl_expr_cli.md) |
 | `cli/mpfr_expr_cli`: command adapter for MPFR witness runs | [tutorial](tutorial/cli/mpfr_expr_cli.md) | [API](api/cli/mpfr_expr_cli.md) | [design](design/cli/mpfr_expr_cli.md) |
+| `differential`: seeded random differential harness against MPFR and libmpdec | [tutorial](tutorial/differential.md) | [API](api/differential.md) | [design](design/differential.md) |
 | `cli/testfloat_expr_cli`: command adapter for TestFloat runs | [tutorial](tutorial/cli/testfloat_expr_cli.md) | [API](api/cli/testfloat_expr_cli.md) | [design](design/cli/testfloat_expr_cli.md) |
 
 ### Infrastructure and evidence

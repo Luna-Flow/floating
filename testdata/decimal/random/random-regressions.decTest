@@ -1,0 +1,76 @@
+-- Regression rows for decimal disagreements found by the random differential
+-- campaign. Expected results and conditions: Python decimal (libmpdec); each
+-- row is annotated with the finding it reproduces (`xfail #<issue>`).
+-- The smoke run requires exactly the xfail rows to fail.
+version: 2.62
+extended: 1
+-- xfail #264 F1
+precision: 1
+rounding: half_even
+maxexponent: 0
+minexponent: -5
+clamp: 0
+reg.add.overflow-operand-rounds add 9.5 -0.5 -> 9 Rounded
+-- xfail #264 F1
+precision: 1
+rounding: half_even
+maxexponent: 0
+minexponent: -5
+clamp: 0
+reg.subtract.overflow-operand-rounds subtract -9.5 -0.5 -> -9 Rounded
+-- xfail #264 F1
+precision: 2
+rounding: half_even
+maxexponent: 0
+minexponent: -5
+clamp: 0
+reg.add.overflow-operand-rounds-p2 add 9.99 -0.07 -> 9.9 Inexact Rounded
+-- xfail #264 F1
+precision: 1
+rounding: up
+maxexponent: 0
+minexponent: 0
+clamp: 0
+reg.add.overflow-operand-rounds-up add 0.1 -9.1 -> -9 Rounded
+-- xfail #264 F1
+precision: 5
+rounding: up
+maxexponent: 18
+minexponent: 0
+clamp: 0
+reg.fma.overflow-product-rounds fma 100000.00000000000000000000000000000000000001 -9999.9E+10 1E+0 -> -9.9999E+18 Inexact Rounded
+-- xfail #265 F2
+precision: 1
+rounding: half_even
+maxexponent: 0
+minexponent: 0
+clamp: 0
+reg.power.overflow-sign power -7E-2 -8 -> Infinity Inexact Overflow Rounded
+-- xfail #266 F3
+precision: 2
+rounding: half_even
+maxexponent: 0
+minexponent: -5
+clamp: 0
+reg.power.trailing-zeros power 99999E-1 -1 -> 0.00010 Inexact Rounded
+-- xfail #266 F3
+precision: 3
+rounding: half_even
+maxexponent: 97
+minexponent: -97
+clamp: 1
+reg.power.trailing-zeros-clamp power 999.99999999 -8 -> 1.00E-24 Inexact Rounded
+-- xfail #267 F4
+precision: 1
+rounding: half_even
+maxexponent: 0
+minexponent: -1
+clamp: 1
+reg.power.spurious-clamped power 6E-1 2 -> 0.4 Inexact Rounded
+-- xfail #268 F5
+precision: 1
+rounding: half_even
+maxexponent: 0
+minexponent: 0
+clamp: 0
+reg.power.missing-underflow power 100000000000000000001E-20 -1 -> 1 Inexact Rounded Subnormal Underflow

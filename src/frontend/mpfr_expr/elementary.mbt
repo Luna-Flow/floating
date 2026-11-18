@@ -192,6 +192,50 @@ pub fn MpfrElementaryDocument::case_count(
 }
 
 ///|
+fn evaluate_elementary(
+  operation : MpfrElementaryOperation,
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat?,
+  integer : Int32,
+  context : @bin_float.BinaryContext,
+) -> Result[
+  (@bin_float.BinFloat, @bin_float.BinaryFlags),
+  @lf_arith.ArithmeticError,
+] {
+  match operation {
+    Exp => left.try_exp_ctx(context)
+    Exp2 => left.try_exp2_ctx(context)
+    Exp10 => left.try_exp10_ctx(context)
+    Expm1 => left.try_expm1_ctx(context)
+    Ln => left.try_ln_ctx(context)
+    Log2 => left.try_log2_ctx(context)
+    Log10 => left.try_log10_ctx(context)
+    Log1p => left.try_log1p_ctx(context)
+    Sqrt => Ok(left.sqrt_ctx(context))
+    Rootn => left.try_rootn_ctx(integer, context)
+    Pown => Ok(left.pown_ctx(integer, context))
+    Pow => left.try_pow_ctx(right.unwrap(), context)
+    Hypot => left.try_hypot_ctx(right.unwrap(), context)
+    Sin => left.try_sin_ctx(context)
+    Cos => left.try_cos_ctx(context)
+    Tan => left.try_tan_ctx(context)
+    Sinpi => left.try_sinpi_ctx(context)
+    Cospi => left.try_cospi_ctx(context)
+    Tanpi => left.try_tanpi_ctx(context)
+    Asin => left.try_asin_ctx(context)
+    Acos => left.try_acos_ctx(context)
+    Atan => left.try_atan_ctx(context)
+    Atan2 => left.try_atan2_ctx(right.unwrap(), context)
+    Sinh => left.try_sinh_ctx(context)
+    Cosh => left.try_cosh_ctx(context)
+    Tanh => left.try_tanh_ctx(context)
+    Asinh => left.try_asinh_ctx(context)
+    Acosh => left.try_acosh_ctx(context)
+    Atanh => left.try_atanh_ctx(context)
+  }
+}
+
+///|
 fn evaluate_elementary_case(
   case : MpfrElementaryCase,
 ) -> Result[
@@ -202,37 +246,13 @@ fn evaluate_elementary_case(
     case.output_precision,
     rounding=case.rounding,
   )
-  match case.operation {
-    Exp => case.left.try_exp_ctx(context)
-    Exp2 => case.left.try_exp2_ctx(context)
-    Exp10 => case.left.try_exp10_ctx(context)
-    Expm1 => case.left.try_expm1_ctx(context)
-    Ln => case.left.try_ln_ctx(context)
-    Log2 => case.left.try_log2_ctx(context)
-    Log10 => case.left.try_log10_ctx(context)
-    Log1p => case.left.try_log1p_ctx(context)
-    Sqrt => Ok(case.left.sqrt_ctx(context))
-    Rootn => case.left.try_rootn_ctx(case.integer, context)
-    Pown => Ok(case.left.pown_ctx(case.integer, context))
-    Pow => case.left.try_pow_ctx(case.right.unwrap(), context)
-    Hypot => case.left.try_hypot_ctx(case.right.unwrap(), context)
-    Sin => case.left.try_sin_ctx(context)
-    Cos => case.left.try_cos_ctx(context)
-    Tan => case.left.try_tan_ctx(context)
-    Sinpi => case.left.try_sinpi_ctx(context)
-    Cospi => case.left.try_cospi_ctx(context)
-    Tanpi => case.left.try_tanpi_ctx(context)
-    Asin => case.left.try_asin_ctx(context)
-    Acos => case.left.try_acos_ctx(context)
-    Atan => case.left.try_atan_ctx(context)
-    Atan2 => case.left.try_atan2_ctx(case.right.unwrap(), context)
-    Sinh => case.left.try_sinh_ctx(context)
-    Cosh => case.left.try_cosh_ctx(context)
-    Tanh => case.left.try_tanh_ctx(context)
-    Asinh => case.left.try_asinh_ctx(context)
-    Acosh => case.left.try_acosh_ctx(context)
-    Atanh => case.left.try_atanh_ctx(context)
-  }
+  evaluate_elementary(
+    case.operation,
+    case.left,
+    case.right,
+    case.integer,
+    context,
+  )
 }
 
 ///|

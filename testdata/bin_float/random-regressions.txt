@@ -1,0 +1,8 @@
+# mpfr-random-v1 regression rows for disagreements found by the random differential campaign
+# id op rounding precision emin emax tininess a b c n expected flags
+# Each row is annotated with the finding it reproduces (xfail #TBD until the issue
+# number is known). The smoke run requires exactly the xfail rows to fail.
+# xfail #TBD B1 exp2 of an exactly representable subnormal returns +0 (unbounded context)
+reg.exp2.exact-subnormal exp2 n 2 - - - -0x1p30 - - 0 0x1p-1073741824 -
+# xfail #TBD B1 the same with the argument below -2^30
+reg.exp2.exact-subnormal-below exp2 z 28 - - - -0x40000001p0 - - 0 0x1p-1073741825 -

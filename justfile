@@ -38,6 +38,14 @@ pr jobs='':
 conformance action backend *args:
     @python3 tools/conformance.py {{ action }} --backend {{ backend }} {{ args }}
 
+# Seeded random differential testing against MPFR and libmpdec through the
+# mare_mark harness. Actions: run, replay, minimize, smoke, plan. Examples:
+#   just random-diff run --count 1000000 --target native --target wasm
+#   just random-diff replay 20261118.add.1234 --target native
+#   just random-diff smoke
+random-diff action *args:
+    @python3 tools/random_differential.py {{ action }} {{ args }}
+
 ieee-vectors family='mandatory-decimal' count='100000' output='.tmp/ieee-{{ family }}.jsonl':
     @mkdir -p .tmp
     @python3 tools/generate_ieee_decimal_vectors.py --family {{ family }} --count {{ count }} --output {{ output }}
