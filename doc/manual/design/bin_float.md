@@ -384,7 +384,10 @@ exact power of `pow` with a dyadic result) passes it to the finalizer as the
 pair $(m, n)$. It does not build a `BinFloat` first: a `BinFloat` made from
 $(1, n)$ at one bit has its smallest value at $2^{e_{\min}}$, so $2^{n}$ with
 $n < e_{\min}$ was flushed to zero before any context could round it, although
-it is exactly representable at $p \ge 2$.
+it is exactly representable at $p \ge 2$. The after-rounding rule uses
+$\circ_{p,\infty}$ with no exponent range at all, not an unbounded context,
+which still has gradual underflow at the implementation limit
+$2^{e_{\min}}$.
 
 ### Signed zeros and NaNs
 
