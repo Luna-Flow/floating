@@ -166,6 +166,10 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
     common_repository_stages = [
         DEPENDENCY_STAGE,
         Stage(
+            "IMPORTS · package independence",
+            (sys.executable, "tools/check_imports.py"),
+        ),
+        Stage(
             "FORMAT · MoonBit sources",
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
         ),

@@ -6,27 +6,27 @@ fn max_precision(a : Decimal, b : Decimal) -> Int32 {
 }
 
 ///|
-fn coeff_from_bigint(magnitude : BigInt) -> GdaCoeff {
-  gda_coeff_from_bigint_repr(abs_bigint(magnitude))
+fn coeff_from_bigint(magnitude : BigInt) -> DecCoeff {
+  dec_coeff_from_bigint_repr(abs_bigint(magnitude))
 }
 
 ///|
-fn coeff_bigint(coeff : GdaCoeff) -> BigInt {
-  gda_coeff_to_bigint_repr(coeff)
+fn coeff_bigint(coeff : DecCoeff) -> BigInt {
+  dec_coeff_to_bigint_repr(coeff)
 }
 
 ///|
-fn coeff_digits(coeff : GdaCoeff) -> Int32 {
+fn coeff_digits(coeff : DecCoeff) -> Int32 {
   coeff.digits10()
 }
 
 ///|
-fn finite_precision_for_coeff(coeff : GdaCoeff, ctx : DecimalContext) -> Int32 {
+fn finite_precision_for_coeff(coeff : DecCoeff, ctx : DecimalContext) -> Int32 {
   finite_precision_for_digits(coeff_digits(coeff), ctx)
 }
 
 ///|
-fn coeff_trailing_decimal_zeros(coeff : GdaCoeff) -> Int32 {
+fn coeff_trailing_decimal_zeros(coeff : DecCoeff) -> Int32 {
   let (_, _, dropped) = trim_trailing_decimal_zeros_repr(coeff, 0)
   dropped
 }
@@ -52,7 +52,7 @@ fn make_special(
 fn make_special_repr(
   class : FpClass,
   negative : Bool,
-  payload : GdaCoeff,
+  payload : DecCoeff,
   precision : Int32,
   signaling_nan : Bool,
 ) -> Decimal {
@@ -67,41 +67,41 @@ fn make_special_repr(
 }
 
 ///|
-fn gda_coeff_integer_sqrt_rem_repr(n : GdaCoeff) -> (GdaCoeff, GdaCoeff) {
-  if gda_coeff_small_value(n) is Some(small) {
+fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
+  if dec_coeff_small_value(n) is Some(small) {
     if small <= 1UL {
-      return (n, gda_coeff_zero())
+      return (n, dec_coeff_zero())
     }
-    let mut approximation = gda_coeff_small_powers10[(n.digits10() + 1) / 2]
+    let mut approximation = dec_coeff_small_powers10[(n.digits10() + 1) / 2]
     while true {
       let next = (approximation + small / approximation) / 2UL
       if next >= approximation {
         let square = approximation * approximation
-        return (GdaCoeff::Small(approximation), GdaCoeff::Small(small - square))
+        return (DecCoeff::Small(approximation), DecCoeff::Small(small - square))
       }
       approximation = next
     } nobreak {
       abort("small coefficient square-root iteration must terminate")
     }
   }
-  if gda_coeff_compare_repr(n, gda_coeff_from_int(1)) <= 0 {
-    return (n, gda_coeff_zero())
+  if dec_coeff_compare_repr(n, dec_coeff_from_int(1)) <= 0 {
+    return (n, dec_coeff_zero())
   }
   // Exact-integer specialization of GDA SquareRoot's Newton step
   // a = 0.5 * (a + f/a), using the same decimal Unit primitives
   // (decNumber.c lines 2965-2978).
-  let mut approximation = gda_coeff_power10_repr((n.digits10() + 1) / 2)
+  let mut approximation = dec_coeff_power10_repr((n.digits10() + 1) / 2)
   while true {
-    let (quotient, _) = gda_coeff_div_rem_repr(n, approximation)
-    let sum = gda_coeff_magnitude_add_repr(approximation, quotient)
-    let next = gda_coeff_div_rem_by_unit_repr(sum, 2).0
-    if gda_coeff_compare_repr(next, approximation) >= 0 {
-      let square = gda_coeff_square_repr(approximation)
-      return (approximation, gda_coeff_magnitude_sub_repr(n, square))
+    let (quotient, _) = dec_coeff_div_rem_repr(n, approximation)
+    let sum = dec_coeff_magnitude_add_repr(approximation, quotient)
+    let next = dec_coeff_div_rem_by_unit_repr(sum, 2).0
+    if dec_coeff_compare_repr(next, approximation) >= 0 {
+      let square = dec_coeff_square_repr(approximation)
+      return (approximation, dec_coeff_magnitude_sub_repr(n, square))
     }
     approximation = next
   } nobreak {
-    (approximation, gda_coeff_zero())
+    (approximation, dec_coeff_zero())
   }
 }
 
@@ -113,7 +113,7 @@ fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
     return Some(
       finite_with_exponent_repr(
         value.negative,
-        gda_coeff_zero(),
+        dec_coeff_zero(),
         preferred_exponent,
         precision,
       ),
@@ -127,9 +127,9 @@ fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
   let (radicand, exponent10) = if (normalized_exp & 1) == 0 {
     (normalized_coeff0, normalized_exp)
   } else {
-    (gda_coeff_multiply_by_unit_repr(normalized_coeff0, 10), normalized_exp - 1)
+    (dec_coeff_multiply_by_unit_repr(normalized_coeff0, 10), normalized_exp - 1)
   }
-  let (root, remainder) = gda_coeff_integer_sqrt_rem_repr(radicand)
+  let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(radicand)
   if remainder.is_zero() {
     let exact = finite_with_exponent_repr(
       false,
@@ -148,7 +148,7 @@ fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
       Some(
         finite_with_exponent_repr(
           false,
-          gda_coeff_shift_power10_repr(exact.coefficient, zeros_to_add),
+          dec_coeff_shift_power10_repr(exact.coefficient, zeros_to_add),
           exact.exponent10 - zeros_to_add,
           precision,
         ),
@@ -203,19 +203,19 @@ fn exact_result_is_subnormal(
 
 ///|
 fn has_finite_decimal_expansion_repr(
-  numerator : GdaCoeff,
-  denominator : GdaCoeff,
+  numerator : DecCoeff,
+  denominator : DecCoeff,
 ) -> Bool {
   guard !denominator.is_zero() else {
     abort("has_finite_decimal_expansion_repr expects denominator > 0")
   }
   let (without_tens, _, _) = trim_trailing_decimal_zeros_repr(denominator, 0)
-  let without_twos = gda_coeff_remove_factor_unit_repr(without_tens, 2)
-  let without_fives = gda_coeff_remove_factor_unit_repr(without_twos, 5)
-  if gda_coeff_compare_repr(without_fives, gda_coeff_from_int(1)) == 0 {
+  let without_twos = dec_coeff_remove_factor_unit_repr(without_tens, 2)
+  let without_fives = dec_coeff_remove_factor_unit_repr(without_twos, 5)
+  if dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 {
     return true
   }
-  gda_coeff_div_rem_repr(numerator, without_fives).1.is_zero()
+  dec_coeff_div_rem_repr(numerator, without_fives).1.is_zero()
 }
 
 ///|
@@ -226,18 +226,18 @@ fn exact_decimal_reciprocal(
   guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
     return None
   }
-  let (without_twos, twos) = gda_coeff_count_factor_unit_repr(
+  let (without_twos, twos) = dec_coeff_count_factor_unit_repr(
     value.coefficient,
     2,
   )
-  let (without_fives, fives) = gda_coeff_count_factor_unit_repr(without_twos, 5)
-  guard gda_coeff_compare_repr(without_fives, gda_coeff_from_int(1)) == 0 else {
+  let (without_fives, fives) = dec_coeff_count_factor_unit_repr(without_twos, 5)
+  guard dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 else {
     return None
   }
   let scale = Int32::max(twos, fives)
-  let magnitude = gda_coeff_multiply_repr(
-    gda_coeff_pow_unit_repr(2, scale - twos),
-    gda_coeff_pow_unit_repr(5, scale - fives),
+  let magnitude = dec_coeff_multiply_repr(
+    dec_coeff_pow_unit_repr(2, scale - twos),
+    dec_coeff_pow_unit_repr(5, scale - fives),
   )
   Some(
     normalize_decimal_parts_ctx_repr(
@@ -318,7 +318,7 @@ fn integer_quotient_by_power_of_ten_repr(
   dividend : Decimal,
   divisor : Decimal,
   nearest : Bool,
-) -> GdaCoeff? {
+) -> DecCoeff? {
   guard dividend.class == FpClass::Finite &&
     divisor.class == FpClass::Finite &&
     !dividend.coefficient.is_zero() &&
@@ -331,16 +331,16 @@ fn integer_quotient_by_power_of_ten_repr(
   }
   let shift = dividend.exponent10 - power
   if shift >= 0 {
-    return Some(gda_coeff_shift_power10_repr(dividend.coefficient, shift))
+    return Some(dec_coeff_shift_power10_repr(dividend.coefficient, shift))
   }
   match exact_divide_by_power_of_ten_repr(dividend.coefficient, -shift) {
     Some(exact) if !nearest => return Some(exact)
     _ => ()
   }
   if !nearest {
-    let (quotient0, _) = gda_coeff_div_rem_repr(
+    let (quotient0, _) = dec_coeff_div_rem_repr(
       dividend.coefficient,
-      gda_coeff_power10_repr(-shift),
+      dec_coeff_power10_repr(-shift),
     )
     return Some(quotient0)
   }
@@ -362,7 +362,7 @@ fn has_finite_decimal_unit_magnitude(value : Decimal) -> Bool {
     value.coefficient,
     0,
   )
-  gda_coeff_compare_repr(reduced, gda_coeff_from_int(1)) == 0 &&
+  dec_coeff_compare_repr(reduced, dec_coeff_from_int(1)) == 0 &&
   value.exponent10 + dropped == 0
 }
 
@@ -378,10 +378,10 @@ fn is_finite_decimal_negative_one(value : Decimal) -> Bool {
 
 ///|
 fn decimal_small_pow10(shift : Int32) -> Int32 {
-  guard shift >= 0 && shift < gda_coeff_dpun else {
+  guard shift >= 0 && shift < dec_coeff_dpun else {
     abort("decimal_small_pow10 shift exceeds one coefficient limb")
   }
-  gda_coeff_powers[shift]
+  dec_coeff_powers[shift]
 }
 
 ///|
@@ -389,7 +389,7 @@ fn decimal_exact_aligned_sum_result(
   lhs : Decimal,
   rhs : Decimal,
   target : Int32,
-) -> (Bool, GdaCoeff) {
+) -> (Bool, DecCoeff) {
   guard lhs.class == FpClass::Finite && rhs.class == FpClass::Finite else {
     abort("decimal_exact_aligned_sum_result expects finite operands")
   }
@@ -400,33 +400,33 @@ fn decimal_exact_aligned_sum_result(
     (rhs, lhs)
   }
   let low_units = match low.coefficient {
-    GdaCoeff::Small(_) => gda_coeff_copy_limbs(low.coefficient)
-    GdaCoeff::Limbs(units, _) => units
+    DecCoeff::Small(_) => dec_coeff_copy_limbs(low.coefficient)
+    DecCoeff::Limbs(units, _) => units
   }
-  let low_unit_len = gda_coeff_unit_len(low.coefficient)
+  let low_unit_len = dec_coeff_unit_len(low.coefficient)
 
   let high_units = match high.coefficient {
-    GdaCoeff::Small(_) => gda_coeff_copy_limbs(high.coefficient)
-    GdaCoeff::Limbs(units, _) => units
+    DecCoeff::Small(_) => dec_coeff_copy_limbs(high.coefficient)
+    DecCoeff::Limbs(units, _) => units
   }
-  let high_unit_len = gda_coeff_unit_len(high.coefficient)
+  let high_unit_len = dec_coeff_unit_len(high.coefficient)
   let padding = high.exponent10 - low.exponent10
   // GDA decAddOp splits decimal padding into a whole-unit shift and a
   // power-of-ten multiplier, then calls decUnitAddSub directly
   // (libdecnumber/decNumber.c lines 3978-4018 and 4055-4059).
-  let bshift = (padding + gda_coeff_dpun) / gda_coeff_dpun - 1
-  let mult = decimal_small_pow10(padding - bshift * gda_coeff_dpun)
+  let bshift = (padding + dec_coeff_dpun) / dec_coeff_dpun - 1
+  let mult = decimal_small_pow10(padding - bshift * dec_coeff_dpun)
 
   let acc = Array::make(
     Int32::max(low_unit_len, high_unit_len + bshift) + 2,
     0U,
   )
   let signed_len = if low.negative == high.negative {
-    gda_coeff_unit_add_sub(
+    dec_coeff_unit_add_sub(
       low_units, low_unit_len, high_units, high_unit_len, bshift, acc, mult,
     )
   } else {
-    gda_coeff_unit_add_sub(
+    dec_coeff_unit_add_sub(
       low_units,
       low_unit_len,
       high_units,
@@ -438,7 +438,7 @@ fn decimal_exact_aligned_sum_result(
   }
   let len = if signed_len < 0 { -signed_len } else { signed_len }
 
-  let magnitude = gda_coeff_from_unit_accumulator(acc, len)
+  let magnitude = dec_coeff_from_unit_accumulator(acc, len)
   let negative = if magnitude.is_zero() {
     false
   } else if low.negative == high.negative {
@@ -560,7 +560,7 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
     (FpClass::Finite, FpClass::Finite) =>
       context_free_round_wide(
         a.negative != b.negative,
-        gda_coeff_multiply_repr(a.coefficient, b.coefficient),
+        dec_coeff_multiply_repr(a.coefficient, b.coefficient),
         a.exponent10.to_int64() + b.exponent10.to_int64(),
         precision,
         round_to_precision=false,
@@ -610,7 +610,7 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
       }
     (FpClass::Finite, FpClass::Finite) => {
       let extra = precision + b.coefficient.digits10() + 2
-      let numerator = gda_coeff_shift_power10_repr(a.coefficient, extra)
+      let numerator = dec_coeff_shift_power10_repr(a.coefficient, extra)
       // GDA decDivideOp performs non-restoring long division directly over
       // Unit arrays and stores the quotient in its decimal accumulator
       // (decNumber.c lines 4159-4201 and 4394-4607).
@@ -651,7 +651,7 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
 // the reduced member of its cohort (a zero then has exponent 0).
 fn context_free_round_wide(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int64,
   precision : Int32,
   round_to_precision~ : Bool,
@@ -701,7 +701,7 @@ fn context_free_round_wide(
     // The rounding carried into 10^precision: drop only the carry digit, so
     // the result keeps `precision` digits (10^(precision-1) at the next
     // exponent) and stays in the cohort the rounding selected.
-    rounded = gda_coeff_power10_repr(precision - 1)
+    rounded = dec_coeff_power10_repr(precision - 1)
     target = target + 1L
   }
   if rounded.is_zero() {
@@ -731,7 +731,7 @@ fn context_free_round_wide(
       let digits = if round_to_precision { precision } else { digits }
       finite_with_exponent_repr(
         negative,
-        gda_coeff_magnitude_sub_unit(gda_coeff_power10_repr(digits), 1),
+        dec_coeff_magnitude_sub_unit(dec_coeff_power10_repr(digits), 1),
         2147483647 - digits + 1,
         precision,
       )
@@ -760,22 +760,22 @@ fn compare_magnitude_to_half_ulp(
   if adjusted > ulp_exponent - 1 {
     return 1
   }
-  gda_coeff_compare_half_power10(value.coefficient)
+  dec_coeff_compare_half_power10(value.coefficient)
 }
 
 ///|
-fn exact_units_at_quantum_repr(value : Decimal, quantum : Int32) -> GdaCoeff {
+fn exact_units_at_quantum_repr(value : Decimal, quantum : Int32) -> DecCoeff {
   let shift = value.exponent10 - quantum
   guard shift >= 0 else {
     abort("exact_units_at_quantum_repr requires an exact non-negative shift")
   }
-  gda_coeff_shift_power10_repr(value.coefficient, shift)
+  dec_coeff_shift_power10_repr(value.coefficient, shift)
 }
 
 ///|
-fn is_power_of_ten_coeff(coeff : GdaCoeff) -> Bool {
+fn is_power_of_ten_coeff(coeff : DecCoeff) -> Bool {
   let (reduced, _, dropped) = trim_trailing_decimal_zeros_repr(coeff, 0)
-  dropped > 0 && gda_coeff_compare_repr(reduced, gda_coeff_from_int(1)) == 0
+  dropped > 0 && dec_coeff_compare_repr(reduced, dec_coeff_from_int(1)) == 0
 }
 
 ///|
@@ -852,9 +852,9 @@ fn exact_base_small_addend_result(
   // result below half makes no coefficient step, while a half-even tie reads
   // the retained coefficient LSD. Both decisions are unit-native here.
   let step = exact_base_small_addend_step(
-    gda_coeff_is_odd(base_units_repr),
-    gda_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 0 ||
-    gda_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 5,
+    dec_coeff_is_odd(base_units_repr),
+    dec_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 0 ||
+    dec_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 5,
     base.negative,
     low.negative,
     cmp_half,
@@ -863,7 +863,7 @@ fn exact_base_small_addend_result(
   let (negative, magnitude) = if step == 0 {
     (base.negative, base_units_repr)
   } else {
-    gda_coeff_signed_step_unit_repr(base.negative, base_units_repr, step > 0)
+    dec_coeff_signed_step_unit_repr(base.negative, base_units_repr, step > 0)
   }
   let (value, adjust_flags) = normalize_decimal_parts_ctx_repr(
     negative, magnitude, ulp_exponent, ctx,
@@ -907,9 +907,9 @@ fn plain_absorbed_sum_result(
   guard base.class == FpClass::Finite &&
     !base.coefficient.is_zero() &&
     !(low.negative != base.negative &&
-    gda_coeff_compare_repr(
+    dec_coeff_compare_repr(
       remove_factor10_repr(base.coefficient, 0).0,
-      gda_coeff_from_int(1),
+      dec_coeff_from_int(1),
     ) ==
     0) else {
     return None
@@ -923,9 +923,9 @@ fn plain_absorbed_sum_result(
   }
   let base_units_repr = exact_units_at_quantum_repr(base, target_exponent)
   let step = exact_base_small_addend_step(
-    gda_coeff_is_odd(base_units_repr),
-    gda_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 0 ||
-    gda_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 5,
+    dec_coeff_is_odd(base_units_repr),
+    dec_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 0 ||
+    dec_coeff_limb_at(base_units_repr, 0).reinterpret_as_int() % 10 == 5,
     base.negative,
     low.negative,
     cmp_half,
@@ -934,7 +934,7 @@ fn plain_absorbed_sum_result(
   let (negative, magnitude) = if step == 0 {
     (base.negative, base_units_repr)
   } else {
-    gda_coeff_signed_step_unit_repr(base.negative, base_units_repr, step > 0)
+    dec_coeff_signed_step_unit_repr(base.negative, base_units_repr, step > 0)
   }
   Some(
     normalize_decimal_parts_gda_repr(
@@ -968,8 +968,8 @@ fn absorbed_sum_result(
   let zero_five_up_moves = base.class == FpClass::Finite &&
     !base.coefficient.is_zero() &&
     (
-      gda_coeff_limb_at(base.coefficient, 0).reinterpret_as_int() % 10 == 0 ||
-      gda_coeff_limb_at(base.coefficient, 0).reinterpret_as_int() % 10 == 5
+      dec_coeff_limb_at(base.coefficient, 0).reinterpret_as_int() % 10 == 0 ||
+      dec_coeff_limb_at(base.coefficient, 0).reinterpret_as_int() % 10 == 5
     )
   let move_toward_positive = match ctx.decimal_rounding {
     Ceiling =>
@@ -1275,18 +1275,18 @@ fn divide_integer_zero_quotient_flags(
 fn decimal_division_common_magnitude_units(
   dividend : Decimal,
   divisor : Decimal,
-) -> (GdaCoeff, GdaCoeff, Int32) {
+) -> (DecCoeff, DecCoeff, Int32) {
   let scale = dividend.exponent10 - divisor.exponent10
   if scale >= 0 {
     (
-      gda_coeff_shift_power10_repr(dividend.coefficient, scale),
+      dec_coeff_shift_power10_repr(dividend.coefficient, scale),
       divisor.coefficient,
       divisor.exponent10,
     )
   } else {
     (
       dividend.coefficient,
-      gda_coeff_shift_power10_repr(divisor.coefficient, -scale),
+      dec_coeff_shift_power10_repr(divisor.coefficient, -scale),
       dividend.exponent10,
     )
   }
@@ -1321,7 +1321,7 @@ fn compare_twice_dividend_to_divisor(
     return 0
   }
   compare_finite_magnitude_repr(
-    gda_coeff_multiply_by_unit_repr(dividend.coefficient, 2),
+    dec_coeff_multiply_by_unit_repr(dividend.coefficient, 2),
     dividend.exponent10,
     divisor.coefficient,
     divisor.exponent10,
@@ -1376,7 +1376,7 @@ fn decimal_integer_quotient(
         } else {
           let zero = finite_with_exponent_repr(
             dividend.negative != other.negative,
-            gda_coeff_zero(),
+            dec_coeff_zero(),
             0,
             precision,
           )
@@ -1397,7 +1397,7 @@ fn decimal_integer_quotient(
         }
         let zero = finite_with_exponent_repr(
           dividend.negative != other.negative,
-          gda_coeff_zero(),
+          dec_coeff_zero(),
           0,
           precision,
         )
@@ -1417,16 +1417,16 @@ fn decimal_integer_quotient(
         None => {
           let scale = dividend.exponent10 - other.exponent10
           let numerator = if scale >= 0 {
-            gda_coeff_shift_power10_repr(dividend.coefficient, scale)
+            dec_coeff_shift_power10_repr(dividend.coefficient, scale)
           } else {
             dividend.coefficient
           }
           let denominator = if scale >= 0 {
             other.coefficient
           } else {
-            gda_coeff_shift_power10_repr(other.coefficient, -scale)
+            dec_coeff_shift_power10_repr(other.coefficient, -scale)
           }
-          let (quotient, _) = gda_coeff_div_rem_repr(numerator, denominator)
+          let (quotient, _) = dec_coeff_div_rem_repr(numerator, denominator)
           quotient
         }
       }
@@ -1508,29 +1508,29 @@ fn decimal_nearest_integer_quotient(
         None => {
           let scale = dividend.exponent10 - other.exponent10
           let numerator = if scale >= 0 {
-            gda_coeff_shift_power10_repr(dividend.coefficient, scale)
+            dec_coeff_shift_power10_repr(dividend.coefficient, scale)
           } else {
             dividend.coefficient
           }
           let denominator = if scale >= 0 {
             other.coefficient
           } else {
-            gda_coeff_shift_power10_repr(other.coefficient, -scale)
+            dec_coeff_shift_power10_repr(other.coefficient, -scale)
           }
-          let (quotient0, remainder) = gda_coeff_div_rem_repr(
+          let (quotient0, remainder) = dec_coeff_div_rem_repr(
             numerator, denominator,
           )
-          let twice = gda_coeff_multiply_by_unit_repr(remainder, 2)
-          let half_compare = gda_coeff_compare_scaled_repr(
+          let twice = dec_coeff_multiply_by_unit_repr(remainder, 2)
+          let half_compare = dec_coeff_compare_scaled_repr(
             twice, denominator, 0,
           )
           // GDA REMNEAR records `*accnext & 0x01`, compares 2*remainder with
           // rhs, and adjusts only for greater-than-half or an odd tie
           // (decNumber.c lines 4673-4723).
           let increment = half_compare > 0 ||
-            (half_compare == 0 && gda_coeff_is_odd(quotient0))
+            (half_compare == 0 && dec_coeff_is_odd(quotient0))
           if increment {
-            gda_coeff_magnitude_add_unit(quotient0, 1)
+            dec_coeff_magnitude_add_unit(quotient0, 1)
           } else {
             quotient0
           }
@@ -1604,7 +1604,7 @@ fn zero_quotient_remainder_result(
     ).to_int()
     return normalize_decimal_parts_ctx_repr(
       dividend.negative,
-      gda_coeff_shift_power10_repr(dividend.coefficient, shift),
+      dec_coeff_shift_power10_repr(dividend.coefficient, shift),
       dividend.exponent10 - shift,
       ctx,
     )
@@ -1627,7 +1627,7 @@ fn zero_quotient_remainder_result(
     if actual_shift > 0 {
       let shifted = finite_with_exponent_repr(
         base.negative,
-        gda_coeff_shift_power10_repr(base.coefficient, actual_shift),
+        dec_coeff_shift_power10_repr(base.coefficient, actual_shift),
         base.exponent10 - actual_shift,
         base.precision_,
       )
@@ -1651,38 +1651,38 @@ fn zero_quotient_remainder_result(
 fn decimal_exact_integer_quotient_repr(
   dividend : Decimal,
   divisor : Decimal,
-) -> GdaCoeff {
+) -> DecCoeff {
   match integer_quotient_by_power_of_ten_repr(dividend, divisor, false) {
     Some(value) => value
     None => {
       let scale = dividend.exponent10 - divisor.exponent10
       let numerator = if scale >= 0 {
-        gda_coeff_shift_power10_repr(dividend.coefficient, scale)
+        dec_coeff_shift_power10_repr(dividend.coefficient, scale)
       } else {
         dividend.coefficient
       }
       let denominator = if scale >= 0 {
         divisor.coefficient
       } else {
-        gda_coeff_shift_power10_repr(divisor.coefficient, -scale)
+        dec_coeff_shift_power10_repr(divisor.coefficient, -scale)
       }
-      gda_coeff_div_rem_repr(numerator, denominator).0
+      dec_coeff_div_rem_repr(numerator, denominator).0
     }
   }
 }
 
 ///|
 /// `coeff * 10^shift mod modulus` for a shift beyond `Int`, reduced in chunks.
-fn gda_coeff_shift_power10_mod_wide_repr(
-  coeff : GdaCoeff,
+fn dec_coeff_shift_power10_mod_wide_repr(
+  coeff : DecCoeff,
   shift : Int64,
-  modulus : GdaCoeff,
-) -> GdaCoeff {
-  let mut value = gda_coeff_shift_power10_mod_repr(coeff, 0, modulus)
+  modulus : DecCoeff,
+) -> DecCoeff {
+  let mut value = dec_coeff_shift_power10_mod_repr(coeff, 0, modulus)
   let mut remaining = shift
   while remaining > 0L {
     let step = Int64::min(remaining, 1073741824L)
-    value = gda_coeff_shift_power10_mod_repr(value, step.to_int(), modulus)
+    value = dec_coeff_shift_power10_mod_repr(value, step.to_int(), modulus)
     remaining = remaining - step
   }
   value
@@ -1692,23 +1692,23 @@ fn gda_coeff_shift_power10_mod_wide_repr(
 fn decimal_nearest_remainder_parts(
   dividend : Decimal,
   divisor : Decimal,
-) -> (Bool, GdaCoeff, Int32) {
+) -> (Bool, DecCoeff, Int32) {
   // The exponent difference of operands near the `Int` limits exceeds `Int`:
   // form it in Int64 and reduce the power of ten modulo 2 * divisor in chunks.
   let scale64 = dividend.exponent10.to_int64() - divisor.exponent10.to_int64()
   let scale = if scale64 < 0L { scale64.to_int() } else { 0 }
   let (quotient_odd, remainder, denominator, target) = if scale64 >= 0L {
     let denominator = divisor.coefficient
-    let doubled_denominator = gda_coeff_multiply_by_unit_repr(denominator, 2)
-    let residue = gda_coeff_shift_power10_mod_wide_repr(
+    let doubled_denominator = dec_coeff_multiply_by_unit_repr(denominator, 2)
+    let residue = dec_coeff_shift_power10_mod_wide_repr(
       dividend.coefficient,
       scale64,
       doubled_denominator,
     )
-    if gda_coeff_compare_repr(residue, denominator) >= 0 {
+    if dec_coeff_compare_repr(residue, denominator) >= 0 {
       (
         true,
-        gda_coeff_magnitude_sub_repr(residue, denominator),
+        dec_coeff_magnitude_sub_repr(residue, denominator),
         denominator,
         divisor.exponent10,
       )
@@ -1716,18 +1716,18 @@ fn decimal_nearest_remainder_parts(
       (false, residue, denominator, divisor.exponent10)
     }
   } else {
-    let denominator = gda_coeff_shift_power10_repr(divisor.coefficient, -scale)
-    let (quotient, remainder) = gda_coeff_div_rem_repr(
+    let denominator = dec_coeff_shift_power10_repr(divisor.coefficient, -scale)
+    let (quotient, remainder) = dec_coeff_div_rem_repr(
       dividend.coefficient,
       denominator,
     )
-    (gda_coeff_is_odd(quotient), remainder, denominator, dividend.exponent10)
+    (dec_coeff_is_odd(quotient), remainder, denominator, dividend.exponent10)
   }
-  let twice_remainder = gda_coeff_multiply_by_unit_repr(remainder, 2)
-  let half_compare = gda_coeff_compare_repr(twice_remainder, denominator)
+  let twice_remainder = dec_coeff_multiply_by_unit_repr(remainder, 2)
+  let half_compare = dec_coeff_compare_repr(twice_remainder, denominator)
   let increment = half_compare > 0 || (half_compare == 0 && quotient_odd)
   let magnitude = if increment {
-    gda_coeff_magnitude_sub_repr(denominator, remainder)
+    dec_coeff_magnitude_sub_repr(denominator, remainder)
   } else {
     remainder
   }

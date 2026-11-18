@@ -5,9 +5,9 @@ fn is_logical_operand(x : Decimal) -> Bool {
   guard x.class == FpClass::Finite && !x.negative && x.exponent10 == 0 else {
     return false
   }
-  for limb_index in 0..<gda_coeff_unit_len(x.coefficient) {
-    let mut limb = gda_coeff_limb_at(x.coefficient, limb_index)
-    for _ in 0..<gda_coeff_dpun {
+  for limb_index in 0..<dec_coeff_unit_len(x.coefficient) {
+    let mut limb = dec_coeff_limb_at(x.coefficient, limb_index)
+    for _ in 0..<dec_coeff_dpun {
       let digit = limb % 10U
       if digit != 0U && digit != 1U {
         return false
@@ -25,31 +25,31 @@ fn logical_invalid_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
 
 ///|
 fn logical_coeff_digits_lsd(
-  coeff : GdaCoeff,
+  coeff : DecCoeff,
   precision : Int32,
 ) -> Array[Int32] {
   let digits : Array[Int32] = []
   for index in 0..<precision {
-    let limb_index = index / gda_coeff_dpun
-    let digit_index = index % gda_coeff_dpun
-    let limb = if limb_index < gda_coeff_unit_len(coeff) {
-      gda_coeff_limb_at(coeff, limb_index)
+    let limb_index = index / dec_coeff_dpun
+    let digit_index = index % dec_coeff_dpun
+    let limb = if limb_index < dec_coeff_unit_len(coeff) {
+      dec_coeff_limb_at(coeff, limb_index)
     } else {
       0U
     }
     digits.push(
-      (limb / gda_coeff_powers[digit_index].reinterpret_as_uint() % 10U).reinterpret_as_int(),
+      (limb / dec_coeff_powers[digit_index].reinterpret_as_uint() % 10U).reinterpret_as_int(),
     )
   }
   digits
 }
 
 ///|
-fn logical_coeff_from_digits_lsd(digits : Array[Int32]) -> GdaCoeff {
+fn logical_coeff_from_digits_lsd(digits : Array[Int32]) -> DecCoeff {
   let limbs : Array[UInt32] = []
   let mut index = 0
   while index < digits.length() {
-    let end = Int32::min(index + gda_coeff_dpun, digits.length())
+    let end = Int32::min(index + dec_coeff_dpun, digits.length())
     let mut limb = 0U
     let mut power = 1U
     for digit_index in index..<end {
@@ -59,18 +59,18 @@ fn logical_coeff_from_digits_lsd(digits : Array[Int32]) -> GdaCoeff {
     limbs.push(limb)
     index = end
   }
-  gda_coeff_from_unit_accumulator(limbs, limbs.length())
+  dec_coeff_from_unit_accumulator(limbs, limbs.length())
 }
 
 ///|
 // GDA logical operations are digit-wise over coefficient digits in base 10;
 // this mirrors decNumber-style repeated coefficient digit extraction.
 fn logical_binary_digits_repr(
-  lhs : GdaCoeff,
-  rhs : GdaCoeff,
+  lhs : DecCoeff,
+  rhs : DecCoeff,
   precision : Int32,
   op : (Bool, Bool) -> Bool,
-) -> GdaCoeff {
+) -> DecCoeff {
   let lhs_digits = logical_coeff_digits_lsd(lhs, precision)
   let rhs_digits = logical_coeff_digits_lsd(rhs, precision)
   let result_digits : Array[Int32] = []
@@ -85,9 +85,9 @@ fn logical_binary_digits_repr(
 
 ///|
 fn logical_invert_digits_repr(
-  value : GdaCoeff,
+  value : DecCoeff,
   ctx : DecimalContext,
-) -> GdaCoeff {
+) -> DecCoeff {
   let precision = finite_precision_for_coeff(value, ctx)
   let digits = logical_coeff_digits_lsd(value, precision)
   let result_digits : Array[Int32] = []
@@ -101,7 +101,7 @@ fn logical_invert_digits_repr(
 fn decimal_shift_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
   guard rhs.class == FpClass::Finite && rhs.exponent10 == 0 else { return None }
   let limit = if ctx.precision != 0 { ctx.precision } else { 999_999_999 }
-  match gda_coeff_to_bounded_int(rhs.coefficient, limit) {
+  match dec_coeff_to_bounded_int(rhs.coefficient, limit) {
     Some(value) =>
       Some(
         if rhs.negative && !rhs.coefficient.is_zero() {
@@ -116,10 +116,10 @@ fn decimal_shift_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
 
 ///|
 fn coefficient_shift_digits_repr(
-  coefficient : GdaCoeff,
+  coefficient : DecCoeff,
   count : Int32,
   precision : Int32,
-) -> GdaCoeff {
+) -> DecCoeff {
   if coefficient.is_zero() {
     return coefficient
   }
@@ -149,10 +149,10 @@ fn coefficient_shift_digits_repr(
 
 ///|
 fn coefficient_rotate_digits_repr(
-  coefficient : GdaCoeff,
+  coefficient : DecCoeff,
   count : Int32,
   precision : Int32,
-) -> GdaCoeff {
+) -> DecCoeff {
   if coefficient.is_zero() {
     return coefficient
   }

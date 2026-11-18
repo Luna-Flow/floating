@@ -18,9 +18,9 @@ fn quiet_nan_operand(
   let payload = if value.coefficient.is_zero() {
     value.coefficient
   } else if limit == 0 {
-    gda_coeff_zero()
+    dec_coeff_zero()
   } else if value.coefficient.digits10() > limit {
-    gda_coeff_div_rem_repr(value.coefficient, gda_coeff_power10_repr(limit)).1
+    dec_coeff_div_rem_repr(value.coefficient, dec_coeff_power10_repr(limit)).1
   } else {
     value.coefficient
   }

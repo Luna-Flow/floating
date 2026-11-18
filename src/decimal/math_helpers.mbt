@@ -1453,7 +1453,21 @@ fn decimal_round_scaled_coeff(
   value : SignedDecCoeff,
   shift : Int32,
 ) -> SignedDecCoeff {
-  value.round_power10_half_even(shift)
+  if shift <= 0 {
+    return signed_dec_coeff(
+      value.negative,
+      dec_coeff_shift_power10_repr(value.magnitude, -shift),
+    )
+  }
+  signed_dec_coeff(
+    value.negative,
+    round_positive_decimal_div_pow10_repr(
+      value.magnitude,
+      shift,
+      value.negative,
+      DecimalRoundingMode::HalfEven,
+    ).0,
+  )
 }
 
 ///|

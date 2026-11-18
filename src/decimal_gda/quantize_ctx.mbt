@@ -77,7 +77,7 @@ fn Decimal::divide_integer_impl(
         (FpClass::Finite, FpClass::Infinity) => {
           let zero = finite_with_exponent_repr(
             self.negative != other.negative,
-            gda_coeff_zero(),
+            dec_coeff_zero(),
             0,
             precision,
           )
@@ -157,10 +157,10 @@ pub fn Decimal::remainder(
       let (lhs_units, rhs_units, target) = decimal_division_common_magnitude_units(
         lhs, rhs,
       )
-      let product = gda_coeff_multiply_repr(exact_quotient, rhs_units)
+      let product = dec_coeff_multiply_repr(exact_quotient, rhs_units)
       // lhs - q * rhs with q of sign lhs.negative != rhs.negative, so the
       // subtracted term has the sign of -lhs.
-      let (exact_negative, exact_magnitude) = gda_coeff_signed_add_repr(
+      let (exact_negative, exact_magnitude) = dec_coeff_signed_add_repr(
         lhs.negative,
         lhs_units,
         !lhs.negative,
@@ -350,7 +350,7 @@ fn quantize_finite_to_exponent(
     return (
       finite_with_exponent_repr(
         negative && ctx.extended,
-        gda_coeff_zero(),
+        dec_coeff_zero(),
         target,
         precision,
       ),
@@ -369,7 +369,7 @@ fn quantize_finite_to_exponent(
         Up => true
         ZeroFiveUp => true
       }
-      (if increment { gda_coeff_from_int(1) } else { gda_coeff_zero() }, true)
+      (if increment { dec_coeff_from_int(1) } else { dec_coeff_zero() }, true)
     } else {
       round_positive_decimal_div_pow10_repr(
         value.coefficient,
@@ -387,7 +387,7 @@ fn quantize_finite_to_exponent(
       return (Decimal::nan(precision~), invalid_flags())
     }
     let shift = shift64.to_int()
-    gda_coeff_shift_power10_repr(value.coefficient, shift)
+    dec_coeff_shift_power10_repr(value.coefficient, shift)
   } else {
     value.coefficient
   }
@@ -405,7 +405,7 @@ fn quantize_finite_to_exponent(
   let final_flags = { ..final_flags, underflow: false, }
   if !ctx.extended && result.coefficient.is_zero() {
     (
-      finite_with_exponent_repr(false, gda_coeff_zero(), target, precision),
+      finite_with_exponent_repr(false, dec_coeff_zero(), target, precision),
       final_flags,
     )
   } else {

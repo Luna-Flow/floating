@@ -15,10 +15,10 @@ fn gda_exact_small_result(
 ) -> Decimal? {
   guard ctx.extended_ &&
     coefficient > 0UL &&
-    coefficient < gda_coeff_small_limit else {
+    coefficient < dec_coeff_small_limit else {
     return None
   }
-  let magnitude = GdaCoeff::Small(coefficient)
+  let magnitude = DecCoeff::Small(coefficient)
   let adjusted = magnitude.digits10() - 1
   guard magnitude.digits10() <= ctx.precision_ &&
     adjusted >= ctx.e_min_ &&
@@ -40,8 +40,8 @@ fn gda_exact_small_sum(
     rhs.class == FpClass::Finite &&
     lhs.exponent10 == 0 &&
     rhs.exponent10 == 0 &&
-    gda_coeff_small_value(lhs.coefficient) is Some(left) &&
-    gda_coeff_small_value(rhs.coefficient) is Some(right) else {
+    dec_coeff_small_value(lhs.coefficient) is Some(left) &&
+    dec_coeff_small_value(rhs.coefficient) is Some(right) else {
     return None
   }
   let rhs_negative = rhs.negative != subtract_rhs
@@ -68,11 +68,11 @@ fn gda_exact_small_product(
     rhs.class == FpClass::Finite &&
     lhs.exponent10 == 0 &&
     rhs.exponent10 == 0 &&
-    gda_coeff_small_value(lhs.coefficient) is Some(left) &&
-    gda_coeff_small_value(rhs.coefficient) is Some(right) &&
+    dec_coeff_small_value(lhs.coefficient) is Some(left) &&
+    dec_coeff_small_value(rhs.coefficient) is Some(right) &&
     left > 0UL &&
     right > 0UL &&
-    left <= (gda_coeff_small_limit - 1UL) / right else {
+    left <= (dec_coeff_small_limit - 1UL) / right else {
     return None
   }
   gda_exact_small_result(lhs.negative != rhs.negative, left * right, ctx)
@@ -91,12 +91,12 @@ fn gda_exact_small_fma(
     lhs.exponent10 == 0 &&
     rhs.exponent10 == 0 &&
     addend.exponent10 == 0 &&
-    gda_coeff_small_value(lhs.coefficient) is Some(left) &&
-    gda_coeff_small_value(rhs.coefficient) is Some(right) &&
-    gda_coeff_small_value(addend.coefficient) is Some(extra) &&
+    dec_coeff_small_value(lhs.coefficient) is Some(left) &&
+    dec_coeff_small_value(rhs.coefficient) is Some(right) &&
+    dec_coeff_small_value(addend.coefficient) is Some(extra) &&
     left > 0UL &&
     right > 0UL &&
-    left <= (gda_coeff_small_limit - 1UL) / right else {
+    left <= (dec_coeff_small_limit - 1UL) / right else {
     return None
   }
   let product = left * right
@@ -119,8 +119,8 @@ fn gda_exact_small_integer_parse(source : String, ctx : GdaContext) -> Decimal? 
   guard source.length() > 0 && source.length() <= 18 && source[0] != '0' else {
     return None
   }
-  let magnitude = match gda_coeff_from_decimal_digits_repr(source) {
-    Some(GdaCoeff::Small(value)) => value
+  let magnitude = match dec_coeff_from_decimal_digits_repr(source) {
+    Some(DecCoeff::Small(value)) => value
     _ => return None
   }
   gda_exact_small_result(false, magnitude, ctx)

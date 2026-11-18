@@ -39,9 +39,9 @@ fn should_increment_decimal(
 // Mirrors decNumber's coefficient-first rounding step: compare the remainder
 // against one-half ulp, then apply the mode-specific increment rule.
 fn should_increment_decimal_repr(
-  quotient : GdaCoeff,
-  remainder : GdaCoeff,
-  divisor : GdaCoeff,
+  quotient : DecCoeff,
+  remainder : DecCoeff,
+  divisor : DecCoeff,
   negative : Bool,
   mode : DecimalRoundingMode,
 ) -> Bool {
@@ -54,26 +54,26 @@ fn should_increment_decimal_repr(
     Floor => negative
     Up => true
     HalfEven => {
-      let half_cmp = gda_coeff_compare_repr(
-        gda_coeff_multiply_by_unit_repr(remainder, 2),
+      let half_cmp = dec_coeff_compare_repr(
+        dec_coeff_multiply_by_unit_repr(remainder, 2),
         divisor,
       )
-      half_cmp > 0 || (half_cmp == 0 && gda_coeff_is_odd(quotient))
+      half_cmp > 0 || (half_cmp == 0 && dec_coeff_is_odd(quotient))
     }
     HalfUp =>
-      gda_coeff_compare_repr(
-        gda_coeff_multiply_by_unit_repr(remainder, 2),
+      dec_coeff_compare_repr(
+        dec_coeff_multiply_by_unit_repr(remainder, 2),
         divisor,
       ) >=
       0
     HalfDown =>
-      gda_coeff_compare_repr(
-        gda_coeff_multiply_by_unit_repr(remainder, 2),
+      dec_coeff_compare_repr(
+        dec_coeff_multiply_by_unit_repr(remainder, 2),
         divisor,
       ) >
       0
     ZeroFiveUp => {
-      let last = gda_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10
+      let last = dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10
       last == 0 || last == 5
     }
   }
@@ -104,19 +104,19 @@ fn round_positive_decimal_div(
 
 ///|
 fn round_positive_decimal_div_repr(
-  numerator : GdaCoeff,
-  denominator : GdaCoeff,
+  numerator : DecCoeff,
+  denominator : DecCoeff,
   negative : Bool,
   mode : DecimalRoundingMode,
-) -> GdaCoeff {
+) -> DecCoeff {
   guard !denominator.is_zero() else {
     abort("round_positive_decimal_div_repr expects denominator > 0")
   }
-  let (quotient, remainder) = gda_coeff_div_rem_repr(numerator, denominator)
+  let (quotient, remainder) = dec_coeff_div_rem_repr(numerator, denominator)
   if should_increment_decimal_repr(
       quotient, remainder, denominator, negative, mode,
     ) {
-    gda_coeff_magnitude_add_unit(quotient, 1)
+    dec_coeff_magnitude_add_unit(quotient, 1)
   } else {
     quotient
   }
@@ -124,15 +124,15 @@ fn round_positive_decimal_div_repr(
 
 ///|
 fn round_positive_decimal_div_pow10_repr(
-  numerator : GdaCoeff,
+  numerator : DecCoeff,
   shift : Int32,
   negative : Bool,
   mode : DecimalRoundingMode,
-) -> (GdaCoeff, Bool) {
+) -> (DecCoeff, Bool) {
   guard shift >= 0 else {
     abort("round_positive_decimal_div_pow10_repr expects non-negative shift")
   }
-  let (quotient, has_remainder, half_cmp) = gda_coeff_div_pow10_round_info_repr(
+  let (quotient, has_remainder, half_cmp) = dec_coeff_div_pow10_round_info_repr(
     numerator, shift,
   )
   if !has_remainder {
@@ -144,16 +144,16 @@ fn round_positive_decimal_div_pow10_repr(
     Floor => negative
     Up => true
     ZeroFiveUp => {
-      let last = gda_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10
+      let last = dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10
       last == 0 || last == 5
     }
-    HalfEven => half_cmp > 0 || (half_cmp == 0 && gda_coeff_is_odd(quotient))
+    HalfEven => half_cmp > 0 || (half_cmp == 0 && dec_coeff_is_odd(quotient))
     HalfUp => half_cmp >= 0
     HalfDown => half_cmp > 0
   }
   (
     if should_increment {
-      gda_coeff_magnitude_add_unit(quotient, 1)
+      dec_coeff_magnitude_add_unit(quotient, 1)
     } else {
       quotient
     },
@@ -214,14 +214,14 @@ fn normalize_decimal_parts_gda(
 ///|
 fn normalize_decimal_parts_gda_repr(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int32,
   precision : Int32,
   mode : DecimalRoundingMode,
 ) -> Decimal {
   let precision = Int32::max(1, precision)
   if magnitude.is_zero() {
-    return finite_with_exponent_repr(negative, gda_coeff_zero(), 0, precision)
+    return finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision)
   }
   if exponent10.to_int64() + (magnitude.digits10() - 1).to_int64() >=
     2147483647L {
@@ -270,7 +270,7 @@ fn expand_exact_cohort_toward_preferred_exponent(
   if digits + shift <= precision {
     finite_with_exponent_repr(
       value.negative,
-      gda_coeff_shift_power10_repr(value.coefficient, shift),
+      dec_coeff_shift_power10_repr(value.coefficient, shift),
       preferred_exponent,
       value.precision_,
     )
@@ -299,7 +299,7 @@ fn finite_with_exponent(
 ///|
 fn finite_with_exponent_repr(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int32,
   precision : Int32,
 ) -> Decimal {
@@ -383,7 +383,7 @@ fn tiny_for_underflow(
 // power of ten; only a value with adjusted exponent e_min - 1 can change sides,
 // so the rounding is done only there.
 fn adjusted_after_rounding_to_precision(
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int32,
   negative : Bool,
   ctx : DecimalContext,
@@ -407,14 +407,14 @@ fn adjusted_after_rounding_to_precision(
 
 ///|
 fn decimal_round_coeff_to_digits_repr(
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int32,
   target_digits : Int32,
   negative : Bool,
   mode : DecimalRoundingMode,
-) -> (GdaCoeff, Int32, Bool, Bool) {
+) -> (DecCoeff, Int32, Bool, Bool) {
   if magnitude.is_zero() {
-    return (gda_coeff_zero(), 0, false, false)
+    return (dec_coeff_zero(), 0, false, false)
   }
   let discard = magnitude.digits10() - target_digits
   if discard <= 0 {
@@ -461,7 +461,7 @@ fn finalize_finite_ctx(
         return (
           finite_with_exponent_repr(
             value.negative,
-            gda_coeff_zero(),
+            dec_coeff_zero(),
             clamped_exponent,
             value.precision_,
           ),
@@ -474,7 +474,7 @@ fn finalize_finite_ctx(
   let unrounded_adjusted = adjusted_exponent64(value)
   if !ctx.extended && unrounded_adjusted < ctx.e_min.to_int64() {
     return (
-      finite_with_exponent_repr(false, gda_coeff_zero(), 0, value.precision_),
+      finite_with_exponent_repr(false, dec_coeff_zero(), 0, value.precision_),
       {
         ..flags,
         underflow: true,
@@ -551,7 +551,7 @@ fn finalize_finite_ctx(
       )
       value = finite_with_exponent_repr(
         value.negative,
-        gda_coeff_shift_power10_repr(value.coefficient, shift),
+        dec_coeff_shift_power10_repr(value.coefficient, shift),
         e_top,
         value.precision_,
       )
@@ -564,7 +564,7 @@ fn finalize_finite_ctx(
 ///|
 fn normalize_decimal_parts_ctx_repr(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int32,
   ctx : DecimalContext,
   apply_etiny~ : Bool = true,
@@ -602,7 +602,7 @@ fn normalize_decimal_parts_ctx_repr(
       let restore_shift = decimal_int_from_int64_clamped(
         next_exponent0.to_int64() - etiny_value.to_int64(),
       )
-      let restored = gda_coeff_shift_power10_repr(
+      let restored = dec_coeff_shift_power10_repr(
         rounded_magnitude0, restore_shift,
       )
       if restored.digits10() <= precision {
@@ -724,9 +724,9 @@ fn exponent10_from_int64(value : Int64) -> Int32? {
 // Exponents above `Int` are saturated; callers reject them first.
 fn fold_exponent10_into_int_repr(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int64,
-) -> (GdaCoeff, Int32, Bool) {
+) -> (DecCoeff, Int32, Bool) {
   if exponent10_from_int64(exponent10) is Some(exponent) {
     return (magnitude, exponent, false)
   }
@@ -736,7 +736,7 @@ fn fold_exponent10_into_int_repr(
   let floor_exponent = -2147483647
   let shift = floor_exponent.to_int64() - exponent10
   if shift >= magnitude.digits10().to_int64() {
-    return (gda_coeff_from_int(1), floor_exponent, true)
+    return (dec_coeff_from_int(1), floor_exponent, true)
   }
   let (folded, inexact) = round_positive_decimal_div_pow10_repr(
     magnitude,
@@ -753,7 +753,7 @@ fn fold_exponent10_into_int_repr(
 // top of `Int` overflows every context; a result below `Int` is folded first.
 fn normalize_decimal_parts_ctx_wide_repr(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   exponent10 : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -809,7 +809,7 @@ fn expand_finite_cohort_toward_target_exponent(
   if digits + shift <= precision {
     finite_with_exponent_repr(
       value.negative,
-      gda_coeff_shift_power10_repr(value.coefficient, shift),
+      dec_coeff_shift_power10_repr(value.coefficient, shift),
       target,
       value.precision_,
     )
@@ -837,7 +837,7 @@ fn expand_rounded_exact_cohort_toward_preferred_exponent(
   if shift > 0 {
     finite_with_exponent_repr(
       value.negative,
-      gda_coeff_shift_power10_repr(value.coefficient, shift),
+      dec_coeff_shift_power10_repr(value.coefficient, shift),
       value.exponent10 - shift,
       value.precision_,
     )
@@ -865,7 +865,7 @@ fn expand_inexact_division_cohort(
     if digits.to_int64() + shift <= precision.to_int64() {
       return finite_with_exponent_repr(
         value.negative,
-        gda_coeff_shift_power10_repr(value.coefficient, shift.to_int()),
+        dec_coeff_shift_power10_repr(value.coefficient, shift.to_int()),
         target,
         value.precision_,
       )
@@ -878,7 +878,7 @@ fn expand_inexact_division_cohort(
   if shift > 0 {
     finite_with_exponent_repr(
       value.negative,
-      gda_coeff_shift_power10_repr(value.coefficient, shift),
+      dec_coeff_shift_power10_repr(value.coefficient, shift),
       value.exponent10 - shift,
       value.precision_,
     )
@@ -973,7 +973,7 @@ fn finish_subset_finite_result(
     ctx.precision >= value.exponent10 + value.coefficient.digits10() {
     finite_with_exponent_repr(
       value.negative,
-      gda_coeff_shift_power10_repr(value.coefficient, value.exponent10),
+      dec_coeff_shift_power10_repr(value.coefficient, value.exponent10),
       0,
       value.precision_,
     )

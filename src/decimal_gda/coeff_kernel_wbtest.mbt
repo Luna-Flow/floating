@@ -1,6 +1,4 @@
 ///|
-
-///|
 fn normalize_decimal_parts_ctx(
   negative : Bool,
   magnitude : BigInt,
@@ -105,9 +103,9 @@ test "BigInt-free ln constants preserve the old scaled integers" {
   let saved_cache = decimal_math_constant_cache.val
   decimal_math_constant_cache.val = {
     scale: 0,
-    ln2: gda_coeff_zero(),
-    ln5: gda_coeff_zero(),
-    ln10: gda_coeff_zero(),
+    ln2: dec_coeff_zero(),
+    ln5: dec_coeff_zero(),
+    ln10: dec_coeff_zero(),
   }
   for scale in [1, 2, 8, 9, 10, 34, 40, 64, 128, 257] {
     let expected_ln2 = reference_ln_atanh_scaled(2N, 1N, scale)
@@ -115,13 +113,13 @@ test "BigInt-free ln constants preserve the old scaled integers" {
     let expected_ln10 = expected_ln2 * 3N + expected_lnfq
     let expected_ln5 = expected_ln10 - expected_ln2
     let actual_ln2 = decimal_ln_atanh_scaled_coeff(
-      gda_coeff_from_int(2),
-      gda_coeff_from_int(1),
+      dec_coeff_from_int(2),
+      dec_coeff_from_int(1),
       scale,
     )
     let actual_reverse = decimal_ln_atanh_scaled_coeff(
-      gda_coeff_from_int(1),
-      gda_coeff_from_int(2),
+      dec_coeff_from_int(1),
+      dec_coeff_from_int(2),
       scale,
     )
     assert_false(actual_ln2.negative)
@@ -151,9 +149,9 @@ test "BigInt-free ln constants preserve the old scaled integers" {
 test "Knuth quotient clamp preserves the full normalized remainder" {
   let numerator = 81531386803002131355773364661909970000000000000000000000000000000000000000000000000000000000000000000N
   let denominator = 8153138680300213135577336466220607N
-  let (quotient, remainder) = gda_coeff_div_rem_knuth_repr(
-    gda_coeff_from_bigint_repr(numerator),
-    gda_coeff_from_bigint_repr(denominator),
+  let (quotient, remainder) = dec_coeff_div_rem_knuth_repr(
+    dec_coeff_from_bigint_repr(numerator),
+    dec_coeff_from_bigint_repr(denominator),
   )
   assert_eq(quotient.to_bigint(), numerator / denominator)
   assert_eq(remainder.to_bigint(), numerator % denominator)
@@ -217,18 +215,6 @@ fn reference_remove_factor(base : Int32, n : BigInt) -> BigInt {
 }
 
 ///|
-fn reference_count_factor(base : Int32, n : BigInt) -> (BigInt, Int32) {
-  let factor = BigInt::from_int(base)
-  let mut value = n
-  let mut count = 0
-  while (value % factor).is_zero() {
-    value = value / factor
-    count += 1
-  }
-  (value, count)
-}
-
-///|
 fn reference_gcd_bigint(a : BigInt, b : BigInt) -> BigInt {
   let mut x = abs_bigint(a)
   let mut y = abs_bigint(b)
@@ -258,53 +244,38 @@ fn reference_has_finite_decimal_expansion(
 ///|
 test "decimal coefficient exact power-of-ten division uses unit shifts" {
   match
-    exact_divide_by_power_of_ten_repr(gda_coeff_from_bigint_repr(12345000N), 3) {
+    exact_divide_by_power_of_ten_repr(dec_coeff_from_bigint_repr(12345000N), 3) {
     Some(value) => assert_eq(value.to_bigint(), 12345N)
     None => fail("expected exact division by 10^3")
   }
   match
-    exact_divide_by_power_of_ten_repr(gda_coeff_from_bigint_repr(5000N), 2) {
+    exact_divide_by_power_of_ten_repr(dec_coeff_from_bigint_repr(5000N), 2) {
     Some(value) => assert_eq(value.to_bigint(), 50N)
     None => fail("expected exact division by 10^2")
   }
   assert_true(
-    exact_divide_by_power_of_ten_repr(gda_coeff_from_bigint_repr(12345N), 1)
+    exact_divide_by_power_of_ten_repr(dec_coeff_from_bigint_repr(12345N), 1)
     is None,
-  )
-}
-
-///|
-test "decimal small coefficient helpers preserve direct representations" {
-  assert_eq(gda_coeff_from_int(123).to_bigint(), 123N)
-  assert_eq(gda_coeff_from_nonnegative_int(999999999).to_bigint(), 999999999N)
-  assert_eq(gda_coeff_from_nonnegative_int(1000000000).to_bigint(), 1000000000N)
-  assert_eq(
-    gda_coeff_div_rem_by_unit_repr(gda_coeff_from_int(987654321), 97).0.to_bigint(),
-    10182003N,
-  )
-  assert_eq(
-    gda_coeff_div_rem_by_unit_repr(gda_coeff_from_int(987654321), 97).1,
-    30,
   )
 }
 
 ///|
 test "decimal half-power comparison uses decimal leading digits" {
   assert_eq(
-    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(4999N)),
+    dec_coeff_compare_half_power10(dec_coeff_from_bigint_repr(4999N)),
     -1,
   )
   assert_eq(
-    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5000N)),
+    dec_coeff_compare_half_power10(dec_coeff_from_bigint_repr(5000N)),
     0,
   )
   assert_eq(
-    gda_coeff_compare_half_power10(gda_coeff_from_bigint_repr(5001N)),
+    dec_coeff_compare_half_power10(dec_coeff_from_bigint_repr(5001N)),
     1,
   )
   assert_eq(
-    gda_coeff_compare_half_power10(
-      gda_coeff_from_bigint_repr(500000000000000000001N),
+    dec_coeff_compare_half_power10(
+      dec_coeff_from_bigint_repr(500000000000000000001N),
     ),
     1,
   )
@@ -314,11 +285,11 @@ test "decimal half-power comparison uses decimal leading digits" {
 test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
   let acc1 : Array[UInt32] = [0U, 0U, 0U, 0U]
   let lhs1 : Array[UInt32] = [
-    (gda_coeff_base - 1).reinterpret_as_uint(),
-    (gda_coeff_base - 1).reinterpret_as_uint(),
+    (dec_coeff_base - 1).reinterpret_as_uint(),
+    (dec_coeff_base - 1).reinterpret_as_uint(),
   ]
   let rhs1 : Array[UInt32] = [2U]
-  let len1 = gda_coeff_unit_add_sub(lhs1, 2, rhs1, 1, 0, acc1, 1)
+  let len1 = dec_coeff_unit_add_sub(lhs1, 2, rhs1, 1, 0, acc1, 1)
   assert_eq(len1, 3)
   assert_eq(acc1[0], 1)
   assert_eq(acc1[1], 0)
@@ -327,54 +298,54 @@ test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
   let acc2 : Array[UInt32] = [0U, 0U, 0U]
   let lhs2 : Array[UInt32] = [0U, 1U]
   let rhs2 : Array[UInt32] = [1U]
-  let len2 = gda_coeff_unit_add_sub(lhs2, 2, rhs2, 1, 0, acc2, -1)
+  let len2 = dec_coeff_unit_add_sub(lhs2, 2, rhs2, 1, 0, acc2, -1)
   assert_eq(len2, 2)
-  assert_eq(acc2[0], (gda_coeff_base - 1).reinterpret_as_uint())
+  assert_eq(acc2[0], (dec_coeff_base - 1).reinterpret_as_uint())
   assert_eq(acc2[1], 0)
 
   let acc3 : Array[UInt32] = [0U, 0U, 0U]
   let lhs3 : Array[UInt32] = [5U]
   let rhs3 : Array[UInt32] = [7U]
-  let len3 = gda_coeff_unit_add_sub(lhs3, 1, rhs3, 1, 0, acc3, -1)
+  let len3 = dec_coeff_unit_add_sub(lhs3, 1, rhs3, 1, 0, acc3, -1)
   assert_eq(len3, -1)
   assert_eq(acc3[0], 2)
 }
 
 ///|
 test "decimal signed coefficient add matches remainder identity arithmetic" {
-  let lhs = gda_coeff_from_bigint_repr(1000000N)
-  let rhs = gda_coeff_from_bigint_repr(999999N)
-  let (positive, one) = gda_coeff_signed_add_repr(false, lhs, true, rhs)
+  let lhs = dec_coeff_from_bigint_repr(1000000N)
+  let rhs = dec_coeff_from_bigint_repr(999999N)
+  let (positive, one) = dec_coeff_signed_add_repr(false, lhs, true, rhs)
   assert_false(positive)
   assert_eq(one.to_bigint(), 1N)
 
-  let (negative, minus_one) = gda_coeff_signed_add_repr(true, lhs, false, rhs)
+  let (negative, minus_one) = dec_coeff_signed_add_repr(true, lhs, false, rhs)
   assert_true(negative)
   assert_eq(minus_one.to_bigint(), 1N)
 
-  let (carry_negative, carry) = gda_coeff_signed_add_repr(
+  let (carry_negative, carry) = dec_coeff_signed_add_repr(
     false,
-    gda_coeff_from_bigint_repr(999999N),
+    dec_coeff_from_bigint_repr(999999N),
     false,
-    gda_coeff_from_bigint_repr(2N),
+    dec_coeff_from_bigint_repr(2N),
   )
   assert_false(carry_negative)
   assert_eq(carry.to_bigint(), 1000001N)
 
-  let (zero_negative, zero) = gda_coeff_signed_add_repr(false, lhs, true, lhs)
+  let (zero_negative, zero) = dec_coeff_signed_add_repr(false, lhs, true, lhs)
   assert_false(zero_negative)
   assert_true(zero.is_zero())
 }
 
 ///|
 test "decimal signed coefficient compare proves power exponent bounds" {
-  let huge = gda_coeff_from_bigint_repr(100000000000000000000N)
-  assert_eq(gda_coeff_signed_compare_int_repr(false, huge, 999_999_999), 1)
-  assert_eq(gda_coeff_signed_compare_int_repr(true, huge, -999_999_999), -1)
+  let huge = dec_coeff_from_bigint_repr(100000000000000000000N)
+  assert_eq(dec_coeff_signed_compare_int_repr(false, huge, 999_999_999), 1)
+  assert_eq(dec_coeff_signed_compare_int_repr(true, huge, -999_999_999), -1)
   assert_eq(
-    gda_coeff_signed_compare_int_repr(
+    dec_coeff_signed_compare_int_repr(
       false,
-      gda_coeff_from_nonnegative_int(384),
+      dec_coeff_from_nonnegative_int(384),
       384,
     ),
     0,
@@ -467,88 +438,25 @@ test "decimal plain add preserves half-even absorption boundaries" {
 }
 
 ///|
-test "decimal signed Int magnitude layout matches GDA from-int32 decomposition" {
-  let min_int = -2147483647 - 1
-  assert_eq(gda_coeff_from_int_magnitude(0).to_bigint(), 0N)
-  assert_eq(gda_coeff_from_int_magnitude(999).to_bigint(), 999N)
-  assert_eq(gda_coeff_from_int_magnitude(-1000).to_bigint(), 1000N)
-  assert_eq(
-    gda_coeff_from_int_magnitude(min_int).to_bigint(),
-    abs_bigint(BigInt::from_int(min_int)),
-  )
-}
-
-///|
-test "decimal coefficient string lays out GDA units without BigInt" {
-  let coeff = gda_coeff_from_bigint_repr(123456789012345678901N)
-  assert_eq(coeff.to_string(), "123456789012345678901")
-  assert_eq(gda_coeff_zero().to_string(), "0")
-  assert_eq(gda_coeff_from_bigint_repr(1000001N).to_string(), "1000001")
-}
-
-///|
-test "decimal coefficient unit subtraction handles borrow and zero exactly" {
-  assert_eq(
-    gda_coeff_magnitude_sub_unit(gda_coeff_from_bigint_repr(1000N), 1).to_bigint(),
-    999N,
-  )
-  assert_eq(
-    gda_coeff_magnitude_sub_unit(gda_coeff_from_bigint_repr(1N), 1).to_bigint(),
-    0N,
-  )
-  assert_eq(
-    gda_coeff_magnitude_sub_unit(gda_coeff_from_bigint_repr(5000N), 0).to_bigint(),
-    5000N,
-  )
-}
-
-///|
-test "decimal signed coefficient step crosses zero in both directions" {
-  let one = gda_coeff_from_bigint_repr(1N)
-  let two = gda_coeff_from_bigint_repr(2N)
-  let zero = gda_coeff_zero()
-  let (neg_to_zero_sign, neg_to_zero_mag) = gda_coeff_signed_step_unit_repr(
-    true, one, true,
-  )
-  assert_false(neg_to_zero_sign)
-  assert_eq(neg_to_zero_mag.to_bigint(), 0N)
-  let (pos_to_zero_sign, pos_to_zero_mag) = gda_coeff_signed_step_unit_repr(
-    false, one, false,
-  )
-  assert_false(pos_to_zero_sign)
-  assert_eq(pos_to_zero_mag.to_bigint(), 0N)
-  let (zero_to_neg_sign, zero_to_neg_mag) = gda_coeff_signed_step_unit_repr(
-    false, zero, false,
-  )
-  assert_true(zero_to_neg_sign)
-  assert_eq(zero_to_neg_mag.to_bigint(), 1N)
-  let (neg_to_less_neg_sign, neg_to_less_neg_mag) = gda_coeff_signed_step_unit_repr(
-    true, two, true,
-  )
-  assert_true(neg_to_less_neg_sign)
-  assert_eq(neg_to_less_neg_mag.to_bigint(), 1N)
-}
-
-///|
 test "decimal decNumber-style coefficient multiply matches long multiplication" {
   assert_eq(
-    gda_coeff_multiply_repr(
-      gda_coeff_from_bigint_repr(0N),
-      gda_coeff_from_bigint_repr(12345N),
+    dec_coeff_multiply_repr(
+      dec_coeff_from_bigint_repr(0N),
+      dec_coeff_from_bigint_repr(12345N),
     ).to_bigint(),
     0N,
   )
   assert_eq(
-    gda_coeff_multiply_repr(
-      gda_coeff_from_bigint_repr(999N),
-      gda_coeff_from_bigint_repr(999N),
+    dec_coeff_multiply_repr(
+      dec_coeff_from_bigint_repr(999N),
+      dec_coeff_from_bigint_repr(999N),
     ).to_bigint(),
     998001N,
   )
   assert_eq(
-    gda_coeff_multiply_repr(
-      gda_coeff_from_bigint_repr(1234567890123N),
-      gda_coeff_from_bigint_repr(987654321N),
+    dec_coeff_multiply_repr(
+      dec_coeff_from_bigint_repr(1234567890123N),
+      dec_coeff_from_bigint_repr(987654321N),
     ).to_bigint(),
     1219326311247834171483N,
   )
@@ -557,7 +465,7 @@ test "decimal decNumber-style coefficient multiply matches long multiplication" 
 ///|
 test "decimal coefficient and finite format builders preserve digit sequences" {
   let digits = "123456789012345678901234567890"
-  let coefficient = gda_coeff_from_decimal_digits_repr(digits).unwrap()
+  let coefficient = dec_coeff_from_decimal_digits_repr(digits).unwrap()
   assert_eq(coefficient.to_string(), digits)
   assert_eq(
     format_plain_finite(
@@ -583,27 +491,27 @@ test "decimal coefficient and finite format builders preserve digit sequences" {
 
 ///|
 test "decimal decNumber-style coefficient divide returns quotient and residue" {
-  let (q0, r0) = gda_coeff_div_rem_repr(
-    gda_coeff_from_bigint_repr(0N),
-    gda_coeff_from_bigint_repr(37N),
+  let (q0, r0) = dec_coeff_div_rem_repr(
+    dec_coeff_from_bigint_repr(0N),
+    dec_coeff_from_bigint_repr(37N),
   )
   assert_eq(q0.to_bigint(), 0N)
   assert_eq(r0.to_bigint(), 0N)
-  let (q1, r1) = gda_coeff_div_rem_repr(
-    gda_coeff_from_bigint_repr(1000N),
-    gda_coeff_from_bigint_repr(7N),
+  let (q1, r1) = dec_coeff_div_rem_repr(
+    dec_coeff_from_bigint_repr(1000N),
+    dec_coeff_from_bigint_repr(7N),
   )
   assert_eq(q1.to_bigint(), 142N)
   assert_eq(r1.to_bigint(), 6N)
-  let (q2, r2) = gda_coeff_div_rem_repr(
-    gda_coeff_from_bigint_repr(1219326311247834171483N),
-    gda_coeff_from_bigint_repr(987654321N),
+  let (q2, r2) = dec_coeff_div_rem_repr(
+    dec_coeff_from_bigint_repr(1219326311247834171483N),
+    dec_coeff_from_bigint_repr(987654321N),
   )
   assert_eq(q2.to_bigint(), 1234567890123N)
   assert_eq(r2.to_bigint(), 0N)
-  let (q3, r3) = gda_coeff_div_rem_repr(
-    gda_coeff_from_bigint_repr(1234567890123456789012345N),
-    gda_coeff_from_bigint_repr(999999937N),
+  let (q3, r3) = dec_coeff_div_rem_repr(
+    dec_coeff_from_bigint_repr(1234567890123456789012345N),
+    dec_coeff_from_bigint_repr(999999937N),
   )
   assert_eq(q3.to_bigint(), 1234567967901238N)
   assert_eq(r3.to_bigint(), 766790339N)
@@ -617,24 +525,24 @@ test "optimized decimal coefficient primitives match BigInt boundaries" {
     9999999999999999999999999999999999N, 10000000000000000000000000000000000N,
   ]
   for left_bigint in boundaries {
-    let left = gda_coeff_from_bigint_repr(left_bigint)
+    let left = dec_coeff_from_bigint_repr(left_bigint)
     for right_bigint in boundaries {
-      let right = gda_coeff_from_bigint_repr(right_bigint)
-      let sum = gda_coeff_magnitude_add_repr(left, right)
+      let right = dec_coeff_from_bigint_repr(right_bigint)
+      let sum = dec_coeff_magnitude_add_repr(left, right)
       assert_eq(sum.to_bigint(), left_bigint + right_bigint)
-      assert_eq(gda_coeff_unit_len(sum), gda_coeff_unit_len(sum))
-      let product = gda_coeff_multiply_repr(left, right)
+      assert_eq(dec_coeff_unit_len(sum), dec_coeff_unit_len(sum))
+      let product = dec_coeff_multiply_repr(left, right)
       assert_eq(product.to_bigint(), left_bigint * right_bigint)
       if left_bigint >= right_bigint {
-        let difference = gda_coeff_magnitude_sub_repr(left, right)
+        let difference = dec_coeff_magnitude_sub_repr(left, right)
         assert_eq(difference.to_bigint(), left_bigint - right_bigint)
         assert_eq(
-          gda_coeff_unit_len(difference),
-          gda_coeff_unit_len(difference),
+          dec_coeff_unit_len(difference),
+          dec_coeff_unit_len(difference),
         )
       }
       if !right_bigint.is_zero() {
-        let (quotient, remainder) = gda_coeff_div_rem_repr(left, right)
+        let (quotient, remainder) = dec_coeff_div_rem_repr(left, right)
         assert_eq(quotient.to_bigint(), left_bigint / right_bigint)
         assert_eq(remainder.to_bigint(), left_bigint % right_bigint)
       }
@@ -654,34 +562,34 @@ test "optimized decimal coefficient primitives match deterministic BigInt matrix
     let divisor_bigint = right_state + 1N
     let decimal_shift = index % 37
     let numerator_bigint = left_state * pow10(decimal_shift) + right_state
-    let left = gda_coeff_from_bigint_repr(left_state)
-    let right = gda_coeff_from_bigint_repr(right_state)
-    let numerator = gda_coeff_from_bigint_repr(numerator_bigint)
-    let divisor = gda_coeff_from_bigint_repr(divisor_bigint)
+    let left = dec_coeff_from_bigint_repr(left_state)
+    let right = dec_coeff_from_bigint_repr(right_state)
+    let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
+    let divisor = dec_coeff_from_bigint_repr(divisor_bigint)
     assert_eq(
-      gda_coeff_magnitude_add_repr(left, right).to_bigint(),
+      dec_coeff_magnitude_add_repr(left, right).to_bigint(),
       left_state + right_state,
     )
     assert_eq(
-      gda_coeff_multiply_repr(left, right).to_bigint(),
+      dec_coeff_multiply_repr(left, right).to_bigint(),
       left_state * right_state,
     )
-    let (quotient, remainder) = gda_coeff_div_rem_repr(numerator, divisor)
+    let (quotient, remainder) = dec_coeff_div_rem_repr(numerator, divisor)
     assert_eq(quotient.to_bigint(), numerator_bigint / divisor_bigint)
     assert_eq(remainder.to_bigint(), numerator_bigint % divisor_bigint)
-    assert_true(gda_coeff_compare_repr(remainder, divisor) < 0)
+    assert_true(dec_coeff_compare_repr(remainder, divisor) < 0)
   }
 }
 
 ///|
 test "optimized decimal coefficient single-unit division matches BigInt" {
   let numerator_bigint = pow10(180) - 123456789N
-  let numerator = gda_coeff_from_bigint_repr(numerator_bigint)
+  let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
   for divisor in [1, 2, 3, 5, 7, 10, 97, 499, 998, 999] {
     let divisor_bigint = BigInt::from_int(divisor)
-    let (quotient, remainder) = gda_coeff_div_rem_repr(
+    let (quotient, remainder) = dec_coeff_div_rem_repr(
       numerator,
-      gda_coeff_from_int(divisor),
+      dec_coeff_from_int(divisor),
     )
     assert_eq(quotient.to_bigint(), numerator_bigint / divisor_bigint)
     assert_eq(remainder.to_bigint(), numerator_bigint % divisor_bigint)
@@ -699,14 +607,14 @@ test "optimized decimal coefficient quotient estimate matches constructed cases"
     1N, 2N, 499N, 998N, 999N, 1000N, 1001N, 499999N, 999999N, 1000000N, 999999999999999999N,
   ]
   for denominator_bigint in denominators {
-    let denominator = gda_coeff_from_bigint_repr(denominator_bigint)
+    let denominator = dec_coeff_from_bigint_repr(denominator_bigint)
     let remainders = [0N, 1N, denominator_bigint / 2N, denominator_bigint - 1N]
     for expected_quotient in quotients {
       for expected_remainder in remainders {
         let numerator_bigint = denominator_bigint * expected_quotient +
           expected_remainder
-        let (quotient, remainder) = gda_coeff_div_rem_repr(
-          gda_coeff_from_bigint_repr(numerator_bigint),
+        let (quotient, remainder) = dec_coeff_div_rem_repr(
+          dec_coeff_from_bigint_repr(numerator_bigint),
           denominator,
         )
         assert_eq(quotient.to_bigint(), expected_quotient)
@@ -714,88 +622,6 @@ test "optimized decimal coefficient quotient estimate matches constructed cases"
       }
     }
   }
-}
-
-///|
-test "advanced decimal multiplication algorithms cross-check" {
-  let modulus = pow10(520) - 159N
-  let left_bigint = modulus - 123456789N
-  let right_bigint = pow10(513) + 987654321N
-  let left = gda_coeff_from_bigint_repr(left_bigint)
-  let right = gda_coeff_from_bigint_repr(right_bigint)
-  let expected = left_bigint * right_bigint
-  for algorithm in [Schoolbook, Karatsuba, Toom3, Ntt] {
-    assert_eq(
-      gda_coeff_multiply_forced(algorithm, left, right).to_bigint(),
-      expected,
-    )
-  }
-  assert_eq(gda_coeff_square_repr(left).to_bigint(), left_bigint * left_bigint)
-  assert_eq(gda_coeff_square_ntt(left).to_bigint(), left_bigint * left_bigint)
-  let sparse_left = gda_coeff_from_bigint_repr(pow10(450) + 7N)
-  let sparse_right = gda_coeff_from_bigint_repr(pow10(440) + 11N)
-  assert_eq(
-    gda_coeff_mul_sparse(sparse_left, sparse_right).to_bigint(),
-    (pow10(450) + 7N) * (pow10(440) + 11N),
-  )
-  let block_left_bigint = pow10(1000) - 1N
-  let block_right_bigint = pow10(2500) + pow10(1900) + 13N
-  assert_eq(
-    gda_coeff_multiply_forced(
-      Unbalanced,
-      gda_coeff_from_bigint_repr(block_left_bigint),
-      gda_coeff_from_bigint_repr(block_right_bigint),
-    ).to_bigint(),
-    block_left_bigint * block_right_bigint,
-  )
-  let carry_short_bigint = pow10(9 * gda_coeff_karatsuba_threshold) - 1N
-  let carry_long_bigint = pow10(9 * (gda_coeff_karatsuba_threshold * 4 + 3)) -
-    1N
-  let carry_short = gda_coeff_from_bigint_repr(carry_short_bigint)
-  let carry_long = gda_coeff_from_bigint_repr(carry_long_bigint)
-  let unbalanced_product = gda_coeff_multiply_forced(
-    Unbalanced,
-    carry_short,
-    carry_long,
-  )
-  assert_eq(
-    unbalanced_product.to_bigint(),
-    carry_short_bigint * carry_long_bigint,
-  )
-  assert_eq(carry_short.to_bigint(), carry_short_bigint)
-  assert_eq(carry_long.to_bigint(), carry_long_bigint)
-}
-
-///|
-test "decimal NTT transform identity and CRT reconstruction" {
-  let values = [0UL, 1UL, 9999UL, 42UL, 998UL, 17UL, 5UL, 3UL]
-  let original = values.copy()
-  gda_coeff_ntt_transform(
-    values, false, gda_coeff_ntt_prime1, gda_coeff_ntt_root1,
-  )
-  gda_coeff_ntt_transform(
-    values, true, gda_coeff_ntt_prime1, gda_coeff_ntt_root1,
-  )
-  for index in 0..<values.length() {
-    assert_eq(values[index], original[index])
-  }
-  let product = gda_coeff_ntt_prime1 * gda_coeff_ntt_prime2
-  for value in [0UL, 1UL, 99999999UL, product / 2UL, product - 1UL] {
-    assert_eq(
-      gda_coeff_ntt_crt(
-        value % gda_coeff_ntt_prime1,
-        value % gda_coeff_ntt_prime2,
-      ),
-      value,
-    )
-  }
-  assert_true(gda_coeff_ntt_limits_fit(1 << 22, 1 << 22))
-  assert_false(gda_coeff_ntt_limits_fit((1 << 22) + 1, (1 << 22) + 1))
-  let coefficient = gda_coeff_from_bigint_repr(pow10(73) + 123456789N)
-  assert_eq(
-    gda_coeff_ntt_digit_len(coefficient),
-    gda_coeff_ntt_digits(coefficient).length(),
-  )
 }
 
 ///|
@@ -814,8 +640,8 @@ test "decimal integer sqrt_rem preserves exact decomposition" {
       999999999999999999N,
       pow10(160) - 1N,
     ] {
-    let (root, remainder) = gda_coeff_integer_sqrt_rem_repr(
-      gda_coeff_from_bigint_repr(value),
+    let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(
+      dec_coeff_from_bigint_repr(value),
     )
     let root_bigint = root.to_bigint()
     assert_eq(root_bigint * root_bigint + remainder.to_bigint(), value)
@@ -824,57 +650,31 @@ test "decimal integer sqrt_rem preserves exact decomposition" {
 }
 
 ///|
-test "advanced decimal division algorithms cross-check" {
-  let numerator_bigint = pow10(620) - 123456789N
-  let denominator_bigint = pow10(310) + 987654321N
-  let numerator = gda_coeff_from_bigint_repr(numerator_bigint)
-  let denominator = gda_coeff_from_bigint_repr(denominator_bigint)
-  let expected_q = numerator_bigint / denominator_bigint
-  let expected_r = numerator_bigint % denominator_bigint
-  let (bz_q, bz_r) = gda_coeff_div_rem_burnikel_ziegler(numerator, denominator)
-  assert_eq(bz_q.to_bigint(), expected_q)
-  assert_eq(bz_r.to_bigint(), expected_r)
-  let (newton_q, newton_r) = gda_coeff_div_rem_newton(numerator, denominator)
-  assert_eq(newton_q.to_bigint(), expected_q)
-  assert_eq(newton_r.to_bigint(), expected_r)
-}
-
-///|
-fn gda_coeff_test_dense_pattern(length : Int32, salt : Int32) -> GdaCoeff {
+fn dec_coeff_test_dense_pattern(length : Int32, salt : Int32) -> DecCoeff {
   let limbs = Array::make(length, 0U)
   for index in 0..<length {
-    let value = ((index + 1) * 104729 + salt * 13007) % (gda_coeff_base - 1) + 1
+    let value = ((index + 1) * 104729 + salt * 13007) % (dec_coeff_base - 1) + 1
     limbs[index] = value.reinterpret_as_uint()
   }
-  limbs[length - 1] = (gda_coeff_base - 1 - salt).reinterpret_as_uint()
-  gda_coeff_from_unit_accumulator(limbs, limbs.length())
-}
-
-///|
-fn gda_coeff_test_division_algorithm(
-  denominator : GdaCoeff,
-) -> GdaCoeffDivAlgorithm {
-  gda_coeff_division_algorithm(
-    gda_coeff_shift_limbs(denominator, gda_coeff_unit_len(denominator)),
-    denominator,
-  )
+  limbs[length - 1] = (dec_coeff_base - 1 - salt).reinterpret_as_uint()
+  dec_coeff_from_unit_accumulator(limbs, limbs.length())
 }
 
 ///|
 test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
   for length in [17, 31, 32, 33, 47, 48, 49, 63, 64, 65] {
-    let denominator = gda_coeff_test_dense_pattern(length, 3)
-    let expected_quotient = gda_coeff_test_dense_pattern(length + 7, 5)
-    let expected_remainder = gda_coeff_slice(
+    let denominator = dec_coeff_test_dense_pattern(length, 3)
+    let expected_quotient = dec_coeff_test_dense_pattern(length + 7, 5)
+    let expected_remainder = dec_coeff_slice(
       denominator,
       0,
       Int32::max(1, length / 2),
     )
-    let numerator = gda_coeff_magnitude_add_repr(
-      gda_coeff_multiply_repr(denominator, expected_quotient),
+    let numerator = dec_coeff_magnitude_add_repr(
+      dec_coeff_multiply_repr(denominator, expected_quotient),
       expected_remainder,
     )
-    let (quotient, remainder) = gda_coeff_div_rem_burnikel_ziegler(
+    let (quotient, remainder) = dec_coeff_div_rem_burnikel_ziegler(
       numerator, denominator,
     )
     assert_eq(quotient.to_bigint(), expected_quotient.to_bigint())
@@ -889,14 +689,14 @@ test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
 
 ///|
 test "Newton reciprocal division converges without fallback" {
-  let denominator = gda_coeff_test_dense_pattern(64, 7)
-  let expected_quotient = gda_coeff_test_dense_pattern(71, 11)
-  let expected_remainder = gda_coeff_slice(denominator, 0, 29)
-  let numerator = gda_coeff_magnitude_add_repr(
-    gda_coeff_multiply_repr(denominator, expected_quotient),
+  let denominator = dec_coeff_test_dense_pattern(64, 7)
+  let expected_quotient = dec_coeff_test_dense_pattern(71, 11)
+  let expected_remainder = dec_coeff_slice(denominator, 0, 29)
+  let numerator = dec_coeff_magnitude_add_repr(
+    dec_coeff_multiply_repr(denominator, expected_quotient),
     expected_remainder,
   )
-  match gda_coeff_div_rem_newton_try(numerator, denominator) {
+  match dec_coeff_div_rem_newton_try(numerator, denominator) {
     Some((quotient, remainder)) => {
       assert_eq(quotient.to_bigint(), expected_quotient.to_bigint())
       assert_eq(remainder.to_bigint(), expected_remainder.to_bigint())
@@ -920,9 +720,9 @@ test "normalized Knuth division matches BigInt at limb boundaries" {
   for pair in cases {
     let numerator_bigint = pair.0
     let denominator_bigint = pair.1
-    let numerator = gda_coeff_from_bigint_repr(numerator_bigint)
-    let denominator = gda_coeff_from_bigint_repr(denominator_bigint)
-    let (quotient, remainder) = gda_coeff_div_rem_knuth_repr(
+    let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
+    let denominator = dec_coeff_from_bigint_repr(denominator_bigint)
+    let (quotient, remainder) = dec_coeff_div_rem_knuth_repr(
       numerator, denominator,
     )
     assert_eq(quotient.to_bigint(), numerator_bigint / denominator_bigint)
@@ -936,187 +736,9 @@ test "normalized Knuth division matches BigInt at limb boundaries" {
 }
 
 ///|
-test "decimal coefficient dispatch covers operand shapes and thresholds" {
-  assert_true(
-    gda_coeff_mul_algorithm(gda_coeff_from_int(3), gda_coeff_from_int(7)) ==
-    Inline,
-  )
-  let balanced = gda_coeff_from_bigint_repr(pow10(360) - 1N)
-  let expected_balanced = if gda_coeff_karatsuba_threshold <= 40 {
-    Karatsuba
-  } else {
-    Schoolbook
-  }
-  assert_true(gda_coeff_mul_algorithm(balanced, balanced) == expected_balanced)
-  let toom = gda_coeff_from_bigint_repr(pow10(1200) - 1N)
-  let toom_algorithm = gda_coeff_mul_algorithm(toom, toom)
-  let expected_toom = if gda_coeff_toom3_threshold <= 134 {
-    Toom3
-  } else {
-    Karatsuba
-  }
-  assert_true(toom_algorithm == expected_toom)
-  let ntt = gda_coeff_from_bigint_repr(pow10(5200) - 1N)
-  let ntt_algorithm = gda_coeff_mul_algorithm(ntt, ntt)
-  let expected_ntt = if gda_coeff_ntt_mul_threshold <= 578 {
-    Ntt
-  } else if gda_coeff_toom3_threshold <= 578 {
-    Toom3
-  } else if gda_coeff_karatsuba_threshold <= 578 {
-    Karatsuba
-  } else {
-    Schoolbook
-  }
-  assert_true(ntt_algorithm == expected_ntt)
-  let sparse = gda_coeff_from_bigint_repr(pow10(500) + 1N)
-  assert_true(gda_coeff_mul_algorithm(sparse, sparse) == Sparse)
-  assert_true(gda_coeff_maybe_sparse(sparse))
-  assert_false(gda_coeff_maybe_sparse(balanced))
-  let shorter_dense = gda_coeff_from_bigint_repr(pow10(500) - 1N)
-  let unbalanced = gda_coeff_from_bigint_repr(pow10(5000) - 1N)
-  assert_true(gda_coeff_mul_algorithm(shorter_dense, unbalanced) == Unbalanced)
-  assert_true(
-    gda_coeff_division_algorithm(gda_coeff_from_int(49), gda_coeff_from_int(7)) ==
-    Word,
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(gda_coeff_from_bigint_repr(pow10(9 * 48))) ==
-    Knuth,
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(
-      gda_coeff_test_dense_pattern(gda_coeff_burnikel_ziegler_threshold - 1, 17),
-    ) ==
-    Knuth,
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(
-      gda_coeff_test_dense_pattern(gda_coeff_burnikel_ziegler_threshold, 19),
-    ) ==
-    BurnikelZiegler,
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(
-      gda_coeff_test_dense_pattern(gda_coeff_newton_threshold - 1, 23),
-    ) ==
-    BurnikelZiegler,
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(
-      gda_coeff_test_dense_pattern(gda_coeff_newton_threshold, 29),
-    ) ==
-    (if gda_coeff_newton_enabled { Newton } else { BurnikelZiegler }),
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(
-      gda_coeff_test_dense_pattern(
-        gda_coeff_burnikel_ziegler_threshold_8k - 1,
-        31,
-      ),
-    ) ==
-    Knuth,
-  )
-  assert_true(
-    gda_coeff_test_division_algorithm(
-      gda_coeff_test_dense_pattern(gda_coeff_burnikel_ziegler_threshold_8k, 37),
-    ) ==
-    (if gda_coeff_newton_enabled &&
-      gda_coeff_burnikel_ziegler_threshold_8k >= gda_coeff_newton_threshold {
-      Newton
-    } else {
-      BurnikelZiegler
-    }),
-  )
-  let threshold_denominator = gda_coeff_test_dense_pattern(
-    gda_coeff_burnikel_ziegler_threshold, 41,
-  )
-  let same_length_numerator = gda_coeff_magnitude_add_unit(
-    threshold_denominator, 1,
-  )
-  assert_eq(
-    gda_coeff_unit_len(same_length_numerator),
-    gda_coeff_unit_len(threshold_denominator),
-  )
-  assert_true(
-    gda_coeff_division_algorithm(same_length_numerator, threshold_denominator) ==
-    Knuth,
-  )
-  let (same_length_quotient, same_length_remainder) = gda_coeff_div_rem_repr(
-    same_length_numerator, threshold_denominator,
-  )
-  assert_eq(same_length_quotient.to_bigint(), 1N)
-  assert_eq(same_length_remainder.to_bigint(), 1N)
-}
-
-///|
-test "decimal multiplication dispatch crosses every target threshold exactly" {
-  for delta in [-1, 0, 1] {
-    let length = gda_coeff_karatsuba_threshold + delta
-    let lhs = gda_coeff_test_dense_pattern(length, 23)
-    let rhs = gda_coeff_test_dense_pattern(length, 29)
-    assert_true(
-      gda_coeff_mul_algorithm(lhs, rhs) ==
-      (if delta < 0 { Schoolbook } else { Karatsuba }),
-    )
-  }
-  for delta in [-1, 0, 1] {
-    let length = gda_coeff_toom3_threshold + delta
-    let lhs = gda_coeff_test_dense_pattern(length, 31)
-    let rhs = gda_coeff_test_dense_pattern(length, 37)
-    assert_true(
-      gda_coeff_mul_algorithm(lhs, rhs) ==
-      (if delta < 0 { Karatsuba } else { Toom3 }),
-    )
-  }
-  for delta in [-1, 0, 1] {
-    let length = gda_coeff_ntt_mul_threshold + delta
-    let lhs = gda_coeff_test_dense_pattern(length, 41)
-    let rhs = gda_coeff_test_dense_pattern(length, 43)
-    assert_true(
-      gda_coeff_mul_algorithm(lhs, rhs) == (if delta < 0 { Toom3 } else { Ntt }),
-    )
-  }
-  for delta in [-1, 0, 1] {
-    let length = gda_coeff_karatsuba_square_threshold + delta
-    let value = gda_coeff_test_dense_pattern(length, 47)
-    assert_true(
-      gda_coeff_square_algorithm(value) ==
-      (if delta < 0 { Schoolbook } else { Karatsuba }),
-    )
-    assert_eq(
-      gda_coeff_square_repr(value).to_bigint(),
-      gda_coeff_multiply_forced(Schoolbook, value, value).to_bigint(),
-    )
-  }
-}
-
-///|
-test "decimal square NTT profitability uses exact transform bands" {
-  let capacity_4k = gda_coeff_test_dense_pattern(640, 53)
-  assert_eq(gda_coeff_ntt_transform_length(capacity_4k, capacity_4k), 4096)
-  assert_true(
-    gda_coeff_ntt_square_profitable(capacity_4k) ==
-    (640 >= gda_coeff_ntt_square_threshold),
-  )
-  for length in [1152, 1250, 1400] {
-    let capacity_8k = gda_coeff_test_dense_pattern(length, 59)
-    assert_eq(gda_coeff_ntt_transform_length(capacity_8k, capacity_8k), 8192)
-    assert_true(
-      gda_coeff_ntt_square_profitable(capacity_8k) ==
-      (length >= gda_coeff_ntt_square_threshold_8k),
-    )
-  }
-  let toom3_8k = gda_coeff_test_dense_pattern(1152, 61)
-  assert_true(
-    gda_coeff_ntt_square_toom3_profitable(toom3_8k) ==
-    (1152 >= gda_coeff_ntt_square_toom3_threshold_8k),
-  )
-}
-
-///|
 test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
-  let numerator = gda_coeff_from_bigint_repr(125N)
-  let denominator = gda_coeff_from_bigint_repr(10N)
+  let numerator = dec_coeff_from_bigint_repr(125N)
+  let denominator = dec_coeff_from_bigint_repr(10N)
   assert_eq(
     round_positive_decimal_div_repr(
       numerator,
@@ -1137,8 +759,8 @@ test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
   )
   assert_eq(
     round_positive_decimal_div_repr(
-      gda_coeff_from_bigint_repr(123456789012345678901N),
-      gda_coeff_from_bigint_repr(97N),
+      dec_coeff_from_bigint_repr(123456789012345678901N),
+      dec_coeff_from_bigint_repr(97N),
       true,
       DecimalRoundingMode::Floor,
     ).to_bigint(),
@@ -1243,7 +865,7 @@ test "decimal unary finalize and zero compare stay coefficient-native" {
 ///|
 test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
   let (repr_half, repr_half_inexact) = round_positive_decimal_div_pow10_repr(
-    gda_coeff_from_bigint_repr(12345N),
+    dec_coeff_from_bigint_repr(12345N),
     2,
     false,
     DecimalRoundingMode::HalfEven,
@@ -1258,7 +880,7 @@ test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
   assert_eq(repr_half_inexact, big_half_inexact)
 
   let (repr_tiny, repr_tiny_inexact) = round_positive_decimal_div_pow10_repr(
-    gda_coeff_from_bigint_repr(5N),
+    dec_coeff_from_bigint_repr(5N),
     1,
     false,
     DecimalRoundingMode::HalfUp,
@@ -1316,7 +938,7 @@ test "decimal power-of-ten rounding specialization matches every mode" {
       for negative in [false, true] {
         for mode in modes {
           let (actual, actual_inexact) = round_positive_decimal_div_pow10_repr(
-            gda_coeff_from_bigint_repr(value),
+            dec_coeff_from_bigint_repr(value),
             shift,
             negative,
             mode,
@@ -1334,7 +956,7 @@ test "decimal power-of-ten rounding specialization matches every mode" {
 
 ///|
 test "decimal coefficient-native precision helper matches bigint precision helper" {
-  let coeff = gda_coeff_from_bigint_repr(1234500N)
+  let coeff = dec_coeff_from_bigint_repr(1234500N)
   let exact_ctx = DecimalContext::new(precision=34).unwrap()
   let fixed_ctx = DecimalContext::new(precision=9).unwrap()
   assert_eq(
@@ -1348,21 +970,14 @@ test "decimal coefficient-native precision helper matches bigint precision helpe
 }
 
 ///|
-test "decimal coefficient-native powers of ten match bigint powers" {
-  assert_eq(gda_coeff_power10_repr(0).to_bigint(), pow10(0))
-  assert_eq(gda_coeff_power10_repr(1).to_bigint(), pow10(1))
-  assert_eq(gda_coeff_power10_repr(17).to_bigint(), pow10(17))
-}
-
-///|
 test "decimal coefficient exact powers stay native and honor precision caps" {
-  let base = gda_coeff_from_bigint_repr(12345N)
-  assert_eq(gda_coeff_exact_power_repr(base, 3).to_bigint(), 1881365963625N)
-  match gda_coeff_exact_power_if_fits_repr(base, 3, 13) {
+  let base = dec_coeff_from_bigint_repr(12345N)
+  assert_eq(dec_coeff_exact_power_repr(base, 3).to_bigint(), 1881365963625N)
+  match dec_coeff_exact_power_if_fits_repr(base, 3, 13) {
     Some(value) => assert_eq(value.to_bigint(), 1881365963625N)
     None => fail("expected coefficient-native exact power to fit")
   }
-  assert_true(gda_coeff_exact_power_if_fits_repr(base, 3, 12) is None)
+  assert_true(dec_coeff_exact_power_if_fits_repr(base, 3, 12) is None)
 }
 
 ///|
@@ -1412,14 +1027,14 @@ test "decimal exp range reduction keeps runtime coefficient units" {
   assert_true(negative)
   assert_eq(scaled.to_bigint(), 1250N)
 
-  let ln10 = gda_coeff_from_bigint_repr(2303N)
+  let ln10 = dec_coeff_from_bigint_repr(2303N)
   let exponent = decimal_floor_div_scaled_repr(negative, scaled, ln10)
   assert_eq(exponent, -1)
-  let product = gda_coeff_multiply_repr(
-    gda_coeff_from_nonnegative_int(abs_int(exponent)),
+  let product = dec_coeff_multiply_repr(
+    dec_coeff_from_nonnegative_int(abs_int(exponent)),
     ln10,
   )
-  let (reduced_negative, reduced) = gda_coeff_signed_add_repr(
+  let (reduced_negative, reduced) = dec_coeff_signed_add_repr(
     negative,
     scaled,
     exponent >= 0,
@@ -1427,14 +1042,6 @@ test "decimal exp range reduction keeps runtime coefficient units" {
   )
   assert_false(reduced_negative)
   assert_eq(reduced.to_bigint(), 1053N)
-}
-
-///|
-test "decimal coefficient parity matches bigint parity" {
-  let even = gda_coeff_from_bigint_repr(12345678901234567890N)
-  let odd = gda_coeff_from_bigint_repr(12345678901234567891N)
-  assert_false(gda_coeff_is_odd(even))
-  assert_true(gda_coeff_is_odd(odd))
 }
 
 ///|
@@ -1553,31 +1160,11 @@ test "scaleb count extracts exponent-zero integers from coeff repr" {
 
 ///|
 test "decimal coefficient repr div-rem by power of ten matches bigint path" {
-  let coeff = gda_coeff_from_bigint_repr(1234500N)
-  let divisor = gda_coeff_power10_repr(3)
-  let (quotient, remainder) = gda_coeff_div_rem_repr(coeff, divisor)
+  let coeff = dec_coeff_from_bigint_repr(1234500N)
+  let divisor = dec_coeff_power10_repr(3)
+  let (quotient, remainder) = dec_coeff_div_rem_repr(coeff, divisor)
   assert_eq(quotient.to_bigint(), 1234N)
   assert_eq(remainder.to_bigint(), 500N)
-}
-
-///|
-test "decimal coefficient factor counting matches bigint factor counting" {
-  let coeff = gda_coeff_from_bigint_repr(160000N)
-  let (without_twos_repr, twos_repr) = gda_coeff_count_factor_unit_repr(
-    coeff, 2,
-  )
-  let (without_twos_big, twos_big) = reference_count_factor(2, 160000N)
-  assert_eq(without_twos_repr.to_bigint(), without_twos_big)
-  assert_eq(twos_repr, twos_big)
-
-  let (without_fives_repr, fives_repr) = gda_coeff_count_factor_unit_repr(
-    without_twos_repr, 5,
-  )
-  let (without_fives_big, fives_big) = reference_count_factor(
-    5, without_twos_big,
-  )
-  assert_eq(without_fives_repr.to_bigint(), without_fives_big)
-  assert_eq(fives_repr, fives_big)
 }
 
 ///|
@@ -1599,8 +1186,8 @@ test "decimal coefficient finite-expansion predicate matches bigint predicate" {
   for pair in cases {
     assert_eq(
       has_finite_decimal_expansion_repr(
-        gda_coeff_from_bigint_repr(pair.0),
-        gda_coeff_from_bigint_repr(pair.1),
+        dec_coeff_from_bigint_repr(pair.0),
+        dec_coeff_from_bigint_repr(pair.1),
       ),
       reference_has_finite_decimal_expansion(pair.0, pair.1),
     )
@@ -1719,7 +1306,7 @@ fn decimal_div_finite_by_small_int_work_bigint_expected(
   let precision = finite_precision_for_default(work_ctx)
   let denominator = BigInt::from_int(divisor)
   let extra = precision + digits10(denominator) + 2
-  let numerator = gda_coeff_shift_power10_repr(value.coefficient, extra).to_bigint()
+  let numerator = dec_coeff_shift_power10_repr(value.coefficient, extra).to_bigint()
   let exact = reference_has_finite_decimal_expansion(
     coeff_bigint(value.coefficient),
     denominator,
@@ -1820,7 +1407,7 @@ fn decimal_div_finite_work_bigint_expected(
   let precision = finite_precision_for_default(work_ctx)
   let denominator = coeff_bigint(rhs.coefficient)
   let extra = precision + digits10(denominator) + 2
-  let numerator = gda_coeff_shift_power10_repr(lhs.coefficient, extra).to_bigint()
+  let numerator = dec_coeff_shift_power10_repr(lhs.coefficient, extra).to_bigint()
   let exact = reference_has_finite_decimal_expansion(
     coeff_bigint(lhs.coefficient),
     denominator,
@@ -2058,8 +1645,8 @@ test "decimal logical coefficient helpers match bigint digit formulas" {
         34,
       ),
     ] {
-    let lhs = gda_coeff_from_bigint_repr(values.0)
-    let rhs = gda_coeff_from_bigint_repr(values.1)
+    let lhs = dec_coeff_from_bigint_repr(values.0)
+    let rhs = dec_coeff_from_bigint_repr(values.1)
     assert_eq(
       logical_binary_digits_repr(lhs, rhs, values.2, fn(a, b) { a && b }).to_bigint(),
       bigint_logical_binary_digits(values.0, values.1, values.2, fn(a, b) {
@@ -2090,9 +1677,9 @@ test "decimal scaled comparison matches exact virtual shift" {
     for rhs in values {
       for exponent in [0, 1, 8, 9, 10, 17, 18, 37] {
         assert_eq(
-          gda_coeff_compare_scaled_repr(
-            gda_coeff_from_bigint_repr(lhs),
-            gda_coeff_from_bigint_repr(rhs),
+          dec_coeff_compare_scaled_repr(
+            dec_coeff_from_bigint_repr(lhs),
+            dec_coeff_from_bigint_repr(rhs),
             exponent,
           ),
           compare_int(lhs.compare(rhs * pow10(exponent)), 0),
@@ -2105,7 +1692,7 @@ test "decimal scaled comparison matches exact virtual shift" {
 ///|
 test "decimal logical invert and digit motion helpers match bigint formulas" {
   let ctx = DecimalContext::new(precision=8).unwrap()
-  let coeff = gda_coeff_from_bigint_repr(101011N)
+  let coeff = dec_coeff_from_bigint_repr(101011N)
   assert_eq(
     logical_invert_digits_repr(coeff, ctx).to_bigint(),
     bigint_logical_invert_digits(101011N, 8),

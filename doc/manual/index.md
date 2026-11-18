@@ -98,6 +98,7 @@ verified, and how) and a performance page (measurements and their method).
 | --- | --- | --- | --- |
 | `internal`: exact rationals, big-integer, parsing, normalization and rounding helpers | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
 | `internal/conformance`: source locations, deterministic shards, case dispositions and summaries | [tutorial](tutorial/internal/conformance.md) | [API](api/internal/conformance.md) | [design](design/internal/conformance.md) |
+| `internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda` | [tutorial](tutorial/internal/decimal_kernel.md) | [API](api/internal/decimal_kernel.md) | [design](design/internal/decimal_kernel.md) |
 | `internal/runner_cli`: shared command-line options, files, diagnostics and JSON | [tutorial](tutorial/internal/runner_cli.md) | [API](api/internal/runner_cli.md) | [design](design/internal/runner_cli.md) |
 | `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
 | `doc_examples`: executable documentation examples run by `just docs` | [tutorial](tutorial/doc_examples.md) | [API](api/doc_examples.md) | [design](design/doc_examples.md) |

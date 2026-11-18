@@ -240,7 +240,7 @@ fn decimal_exact_midpoint(left : Decimal, right : Decimal) -> Decimal? {
   guard !sum_flags.has_error() && sum.class == FpClass::Finite else {
     return None
   }
-  let half = finite_with_exponent_repr(false, gda_coeff_from_int(5), -1, 1)
+  let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
   let (midpoint, midpoint_flags) = sum.mul_ctx(half, exact_ctx)
   guard !midpoint_flags.has_error() && midpoint.class == FpClass::Finite else {
     return None
@@ -426,16 +426,16 @@ fn decimal_same_quantum_adjacent(left : Decimal, right : Decimal) -> Bool {
     left.exponent10 == right.exponent10 else {
     return false
   }
-  let comparison = gda_coeff_compare_repr(left.coefficient, right.coefficient)
+  let comparison = dec_coeff_compare_repr(left.coefficient, right.coefficient)
   if comparison > 0 {
-    gda_coeff_compare_repr(
-      gda_coeff_magnitude_sub_unit(left.coefficient, 1),
+    dec_coeff_compare_repr(
+      dec_coeff_magnitude_sub_unit(left.coefficient, 1),
       right.coefficient,
     ) ==
     0
   } else if comparison < 0 {
-    gda_coeff_compare_repr(
-      gda_coeff_magnitude_sub_unit(right.coefficient, 1),
+    dec_coeff_compare_repr(
+      dec_coeff_magnitude_sub_unit(right.coefficient, 1),
       left.coefficient,
     ) ==
     0
@@ -468,7 +468,7 @@ fn decimal_ln_subset_result(
   let checked = decimal_apply_finite_ctx(check, ctx).0
   guard classic.compare_total(checked) == 0 &&
     decimal_same_quantum_adjacent(classic, certified.0) &&
-    gda_coeff_compare_repr(classic.coefficient, certified.0.coefficient) > 0 else {
+    dec_coeff_compare_repr(classic.coefficient, certified.0.coefficient) > 0 else {
     return certified
   }
   (classic, certified.1)
@@ -507,12 +507,12 @@ fn decimal_bounded_ball(
 ///|
 fn decimal_power_overflow_midpoint(ctx : DecimalContext) -> Decimal {
   let precision = decimal_math_target_precision(ctx)
-  let twice_power = gda_coeff_multiply_by_unit_repr(
-    gda_coeff_power10_repr(precision),
+  let twice_power = dec_coeff_multiply_by_unit_repr(
+    dec_coeff_power10_repr(precision),
     2,
   )
-  let midpoint_coefficient = gda_coeff_multiply_by_unit_repr(
-    gda_coeff_magnitude_sub_unit(twice_power, 1),
+  let midpoint_coefficient = dec_coeff_multiply_by_unit_repr(
+    dec_coeff_magnitude_sub_unit(twice_power, 1),
     5,
   )
   finite_with_exponent_repr(
@@ -525,7 +525,7 @@ fn decimal_power_overflow_midpoint(ctx : DecimalContext) -> Decimal {
 
 ///|
 fn decimal_power_zero_midpoint(ctx : DecimalContext) -> Decimal {
-  finite_with_exponent_repr(false, gda_coeff_from_int(5), etiny(ctx) - 1, 1)
+  finite_with_exponent_repr(false, dec_coeff_from_int(5), etiny(ctx) - 1, 1)
 }
 
 ///|
@@ -545,7 +545,7 @@ fn decimal_power_zero_boundary(ctx : DecimalContext) -> Decimal? {
         decimal_next(
           finite_with_exponent_repr(
             false,
-            gda_coeff_zero(),
+            dec_coeff_zero(),
             etiny(ctx),
             decimal_math_target_precision(ctx),
           ),
@@ -775,9 +775,9 @@ fn decimal_certified_exp_coarse_extreme_result(
     return None
   }
   if value.negative && etiny(ctx) <= 0 {
-    let guard_coefficient = gda_coeff_multiply_repr(
-      gda_coeff_from_nonnegative_int(abs_int(etiny(ctx) - 1)),
-      gda_coeff_from_int(3),
+    let guard_coefficient = dec_coeff_multiply_repr(
+      dec_coeff_from_nonnegative_int(abs_int(etiny(ctx) - 1)),
+      dec_coeff_from_int(3),
     )
     let guard_value = finite_with_exponent_repr(
       true,
@@ -794,9 +794,9 @@ fn decimal_certified_exp_coarse_extreme_result(
     }
   }
   if !value.negative && ctx.e_max >= 0 {
-    let guard_coefficient = gda_coeff_multiply_repr(
-      gda_coeff_from_nonnegative_int(ctx.e_max + 1),
-      gda_coeff_from_int(3),
+    let guard_coefficient = dec_coeff_multiply_repr(
+      dec_coeff_from_nonnegative_int(ctx.e_max + 1),
+      dec_coeff_from_int(3),
     )
     let guard_value = finite_with_exponent_repr(
       false,
