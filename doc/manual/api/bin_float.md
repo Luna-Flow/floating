@@ -1735,6 +1735,88 @@ correctly rounded reciprocal of it. So $\operatorname{rootn}(8, -3) = 1/2$
 without `inexact` in every rounding mode, and an exact square root of a
 6001-bit coefficient is found as well.
 
+### `BinFloat::rsqrt`, `BinFloat::rsqrt_ctx`, `BinFloat::try_rsqrt_ctx`
+
+The reciprocal square root $1/\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2).
+
+```mbti
+pub fn BinFloat::rsqrt(Self) -> Self
+pub fn BinFloat::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_rsqrt_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+§9.2.1: $\operatorname{rSqrt}(+\infty) = +0$ with no exception and
+$\operatorname{rSqrt}(\pm 0) = \pm\infty$ with `division_by_zero`, so
+$\operatorname{rSqrt}(-0) = -\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\infty$
+there by its own convention, and the oracle rows follow the standard). A
+negative finite $x$ and $-\infty$ are a `domain_error` (Table 9.1,
+"$x < 0$: invalid operation"); a signaling NaN is invalid and a quiet NaN
+propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four
+$4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside
+the range is decided without forming the root.
+
+### `BinFloat::compound`, `BinFloat::compound_ctx`, `BinFloat::try_compound_ctx`
+
+The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$
+(interest and growth rates, without the rounding of `1 + x`).
+
+```mbti
+pub fn BinFloat::compound(Self, Int) -> Self
+pub fn BinFloat::compound_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_compound_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The special values of §9.2.1 are decided first, a signaling NaN before any of
+them:
+
+| $x$ | $n < 0$ | $n = 0$ | $n > 0$ |
+| --- | --- | --- | --- |
+| quiet NaN | quiet NaN | $1$ | quiet NaN |
+| $-\infty$, finite $x < -1$ | `domain_error` | `domain_error` | `domain_error` |
+| $-1$ | $+\infty$, `division_by_zero` | $1$ | $+0$ |
+| $\pm 0$ | $1$ | $1$ | $1$ |
+| $+\infty$ | $+0$ | $1$ | $+\infty$ |
+
+Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and
+the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and
+the single rounding are those of `pown`. When $|n x|$ is below
+$2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding
+direction chooses, always inexact and never an underflow. A wider operand
+(beyond $2^{26}$ bits) is not representable in the context and is certified
+from $n \cdot \operatorname{log1p}(x)$.
+
+### `BinFloat::powr`, `BinFloat::powr_ctx`, `BinFloat::try_powr_ctx`
+
+The real power $x^y$ defined as $\exp(y \ln x)$, so that the domain excludes a
+negative $x$ (`powr` of IEEE 754-2019 §9.2).
+
+```mbti
+pub fn BinFloat::powr(Self, Self) -> Self
+pub fn BinFloat::powr_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_powr_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The cases are tried in this order, as in §9.2.1; every `domain_error` below is
+a quiet NaN with `invalid_operation` from `powr_ctx`:
+
+1. A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN.
+2. A negative $x$ ($-\infty$ included, a quiet NaN exponent too) is invalid:
+   $\operatorname{powr}(x, y)$ for $x < 0$ is never a real number.
+3. A quiet NaN $y$ gives a quiet NaN.
+4. $x = \pm 0$: $y = \pm 0$ is invalid; $y = -\infty$ gives $+\infty$ with no
+   exception; a finite $y < 0$ gives $+\infty$ with `division_by_zero`; $y > 0$
+   gives $+0$.
+5. $x = +\infty$: $y = \pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives
+   $+\infty$.
+6. $x = +1$: $\pm\infty$ is invalid, any other $y$ gives $1$.
+7. $y = \pm 0$ gives $1$.
+8. Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which
+   owns the exact dyadic cases, the range decision and the rounding.
+
+So $\operatorname{powr}(\pm 0, \pm 0)$, $\operatorname{powr}(+\infty, \pm 0)$
+and $\operatorname{powr}(1, \pm\infty)$ are invalid operations, where
+`pow` gives $1$ for the first two and for $1^{\pm\infty}$ (§9.2.1).
+
 ### `BinFloat::hypot`, `BinFloat::hypot_ctx`, `BinFloat::try_hypot_ctx`
 
 $\sqrt{x^2 + y^2}$ without intermediate overflow or underflow.
@@ -2361,6 +2443,8 @@ pub fn BinFloat::compare(Self, Self) -> Int32
 pub fn BinFloat::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
+pub fn BinFloat::compound(Self, Int32) -> Self
+pub fn BinFloat::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::copy_sign(Self, Self) -> Self
 pub fn BinFloat::cos(Self) -> Self
 pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
@@ -2454,6 +2538,8 @@ pub fn BinFloat::pow_int_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::powr(Self, Self) -> Self
+pub fn BinFloat::powr_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::precision(Self) -> Int32
 pub fn BinFloat::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
 pub fn BinFloat::remainder(Self, Self) -> Self
@@ -2463,6 +2549,8 @@ pub fn BinFloat::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round(Self) -> Self
 pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ties_even(Self) -> Self
+pub fn BinFloat::rsqrt(Self) -> Self
+pub fn BinFloat::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::scaleb_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sign(Self) -> @def.Sign
 pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
@@ -2509,6 +2597,7 @@ pub fn BinFloat::try_asinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::try_atan2_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_compound_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -2527,7 +2616,9 @@ pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::try_log2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log2p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_powr_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_rootn_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_rsqrt_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]

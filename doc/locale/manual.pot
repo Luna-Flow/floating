@@ -651,7 +651,7 @@ msgstr ""
 #: manual/api/ball_float.md:875
 #: manual/api/ball_float_checked.md:313
 #: manual/api/bin_float.md:1405
-#: manual/api/bin_float_checked.md:400
+#: manual/api/bin_float_checked.md:438
 #: manual/api/decimal.md:1346
 #: manual/api/frontend/mpfr_expr.md:156
 #: manual/design/decimal_gda.md:452
@@ -997,14 +997,14 @@ msgstr ""
 
 #: manual/api/ball_float.md:1565
 #: manual/api/ball_float_checked.md:398
-#: manual/api/bin_float.md:2044
-#: manual/api/bin_float_checked.md:740
+#: manual/api/bin_float.md:2126
+#: manual/api/bin_float_checked.md:778
 #: manual/api/decimal.md:1813
 #: manual/api/decimal_gda.md:1817
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:452
+#: manual/api/frontend/mpfr_expr.md:453
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
 #: manual/api/numeric_expr.md:298
@@ -1076,8 +1076,8 @@ msgstr ""
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:68
-#: manual/api/bin_float.md:2257
-#: manual/api/bin_float_checked.md:770
+#: manual/api/bin_float.md:2339
+#: manual/api/bin_float_checked.md:808
 #: manual/api/cli.md:81
 #: manual/api/cli/gda_expr_cli.md:83
 #: manual/api/cli/itl_expr_cli.md:71
@@ -1093,7 +1093,7 @@ msgstr ""
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:465
+#: manual/api/frontend/mpfr_expr.md:466
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:582
 #: manual/api/internal/conformance.md:353
@@ -1109,7 +1109,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:2027
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:467
+#: manual/api/frontend/mpfr_expr.md:468
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:584
 #: manual/api/internal/conformance.md:355
@@ -1282,22 +1282,22 @@ msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr ""
 
 #: manual/api/ball_float_checked.md:402
-#: manual/api/bin_float_checked.md:744
+#: manual/api/bin_float_checked.md:782
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr ""
 
 #: manual/api/ball_float_checked.md:413
-#: manual/api/bin_float_checked.md:758
+#: manual/api/bin_float_checked.md:796
 msgid "Deprecated"
 msgstr ""
 
 #: manual/api/ball_float_checked.md:417
-#: manual/api/bin_float_checked.md:762
+#: manual/api/bin_float_checked.md:800
 msgid "`flat_map` is the former name of `bind`. Replace `r.flat_map(f)` with `r.bind(f)`."
 msgstr ""
 
 #: manual/api/ball_float_checked.md:427
-#: manual/api/bin_float_checked.md:772
+#: manual/api/bin_float_checked.md:810
 #: manual/api/decimal_checked.md:400
 #: manual/api/decimal_gda_checked.md:283
 #: manual/api/def.md:437
@@ -2683,254 +2683,326 @@ msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the conte
 msgstr ""
 
 #: manual/api/bin_float.md:1740
-msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
+msgid "The reciprocal square root $1/\\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2)."
 msgstr ""
 
 #: manual/api/bin_float.md:1748
-msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
+msgid "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ with no exception and $\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ with `division_by_zero`, so $\\operatorname{rSqrt}(-0) = -\\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\\infty$ there by its own convention, and the oracle rows follow the standard). A negative finite $x$ and $-\\infty$ are a `domain_error` (Table 9.1, \"$x < 0$: invalid operation\"); a signaling NaN is invalid and a quiet NaN propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside the range is decided without forming the root."
 msgstr ""
 
-#: manual/api/bin_float.md:1764
-msgid "The sine of an argument in radians."
+#: manual/api/bin_float.md:1760
+msgid "The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$ (interest and growth rates, without the rounding of `1 + x`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1772
-msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
+#: manual/api/bin_float.md:1769
+msgid "The special values of §9.2.1 are decided first, a signaling NaN before any of them:"
 msgstr ""
 
-#: manual/api/bin_float.md:1782
-msgid "The cosine of an argument in radians."
+#: manual/api/bin_float.md:1774
+msgid "quiet NaN"
+msgstr ""
+
+#: manual/api/bin_float.md:1775
+msgid "$-\\infty$, finite $x < -1$"
+msgstr ""
+
+#: manual/api/bin_float.md:1780
+msgid "Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and the single rounding are those of `pown`. When $|n x|$ is below $2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding direction chooses, always inexact and never an underflow. A wider operand (beyond $2^{26}$ bits) is not representable in the context and is certified from $n \\cdot \\operatorname{log1p}(x)$."
 msgstr ""
 
 #: manual/api/bin_float.md:1790
-msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
+msgid "The real power $x^y$ defined as $\\exp(y \\ln x)$, so that the domain excludes a negative $x$ (`powr` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:1794
-msgid "The tangent of an argument in radians."
+#: manual/api/bin_float.md:1799
+msgid "The cases are tried in this order, as in §9.2.1; every `domain_error` below is a quiet NaN with `invalid_operation` from `powr_ctx`:"
 msgstr ""
 
 #: manual/api/bin_float.md:1802
-msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
+msgid "A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN."
+msgstr ""
+
+#: manual/api/bin_float.md:1803
+msgid "A negative $x$ ($-\\infty$ included, a quiet NaN exponent too) is invalid: $\\operatorname{powr}(x, y)$ for $x < 0$ is never a real number."
+msgstr ""
+
+#: manual/api/bin_float.md:1805
+msgid "A quiet NaN $y$ gives a quiet NaN."
+msgstr ""
+
+#: manual/api/bin_float.md:1806
+msgid "$x = \\pm 0$: $y = \\pm 0$ is invalid; $y = -\\infty$ gives $+\\infty$ with no exception; a finite $y < 0$ gives $+\\infty$ with `division_by_zero`; $y > 0$ gives $+0$."
+msgstr ""
+
+#: manual/api/bin_float.md:1809
+msgid "$x = +\\infty$: $y = \\pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives $+\\infty$."
+msgstr ""
+
+#: manual/api/bin_float.md:1811
+msgid "$x = +1$: $\\pm\\infty$ is invalid, any other $y$ gives $1$."
+msgstr ""
+
+#: manual/api/bin_float.md:1812
+msgid "$y = \\pm 0$ gives $1$."
+msgstr ""
+
+#: manual/api/bin_float.md:1813
+msgid "Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which owns the exact dyadic cases, the range decision and the rounding."
 msgstr ""
 
 #: manual/api/bin_float.md:1816
-msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
+msgid "So $\\operatorname{powr}(\\pm 0, \\pm 0)$, $\\operatorname{powr}(+\\infty, \\pm 0)$ and $\\operatorname{powr}(1, \\pm\\infty)$ are invalid operations, where `pow` gives $1$ for the first two and for $1^{\\pm\\infty}$ (§9.2.1)."
 msgstr ""
 
-#: manual/api/bin_float.md:1832
-msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
+#: manual/api/bin_float.md:1822
+msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
+msgstr ""
+
+#: manual/api/bin_float.md:1830
+msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr ""
 
 #: manual/api/bin_float.md:1846
-msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
+msgid "The sine of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1856
-msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
+#: manual/api/bin_float.md:1854
+msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
 msgstr ""
 
 #: manual/api/bin_float.md:1864
+msgid "The cosine of an argument in radians."
+msgstr ""
+
+#: manual/api/bin_float.md:1872
+msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
+msgstr ""
+
+#: manual/api/bin_float.md:1876
+msgid "The tangent of an argument in radians."
+msgstr ""
+
+#: manual/api/bin_float.md:1884
+msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
+msgstr ""
+
+#: manual/api/bin_float.md:1898
+msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
+msgstr ""
+
+#: manual/api/bin_float.md:1914
+msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
+msgstr ""
+
+#: manual/api/bin_float.md:1928
+msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
+msgstr ""
+
+#: manual/api/bin_float.md:1938
+msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
+msgstr ""
+
+#: manual/api/bin_float.md:1946
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:1870
+#: manual/api/bin_float.md:1952
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr ""
 
-#: manual/api/bin_float.md:1878
+#: manual/api/bin_float.md:1960
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:1886
+#: manual/api/bin_float.md:1968
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/bin_float.md:1894
+#: manual/api/bin_float.md:1976
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:1899
+#: manual/api/bin_float.md:1981
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr ""
 
-#: manual/api/bin_float.md:1907
+#: manual/api/bin_float.md:1989
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr ""
 
-#: manual/api/bin_float.md:1911
+#: manual/api/bin_float.md:1993
 msgid "result"
 msgstr ""
 
-#: manual/api/bin_float.md:1913
+#: manual/api/bin_float.md:1995
 msgid "$\\pm 0$ (exact)"
 msgstr ""
 
-#: manual/api/bin_float.md:1917
+#: manual/api/bin_float.md:1999
 msgid "finite"
 msgstr ""
 
-#: manual/api/bin_float.md:1918
-#: manual/api/bin_float.md:1919
-#: manual/api/bin_float.md:1920
+#: manual/api/bin_float.md:2000
+#: manual/api/bin_float.md:2001
+#: manual/api/bin_float.md:2002
 msgid ""
 "finite $y \\n"
 "e 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1918
+#: manual/api/bin_float.md:2000
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:1919
+#: manual/api/bin_float.md:2001
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr ""
 
-#: manual/api/bin_float.md:1920
+#: manual/api/bin_float.md:2002
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:1922
+#: manual/api/bin_float.md:2004
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr ""
 
-#: manual/api/bin_float.md:1928
+#: manual/api/bin_float.md:2010
 msgid "The hyperbolic sine."
 msgstr ""
 
-#: manual/api/bin_float.md:1936
+#: manual/api/bin_float.md:2018
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$."
 msgstr ""
 
-#: manual/api/bin_float.md:1941
+#: manual/api/bin_float.md:2023
 msgid "The hyperbolic cosine."
 msgstr ""
 
-#: manual/api/bin_float.md:1949
+#: manual/api/bin_float.md:2031
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr ""
 
-#: manual/api/bin_float.md:1954
+#: manual/api/bin_float.md:2036
 msgid "The hyperbolic tangent."
 msgstr ""
 
-#: manual/api/bin_float.md:1962
+#: manual/api/bin_float.md:2044
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr ""
 
-#: manual/api/bin_float.md:1966
+#: manual/api/bin_float.md:2048
 msgid "The inverse hyperbolic sine."
 msgstr ""
 
-#: manual/api/bin_float.md:1974
+#: manual/api/bin_float.md:2056
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:1979
+#: manual/api/bin_float.md:2061
 msgid "The inverse hyperbolic cosine."
 msgstr ""
 
-#: manual/api/bin_float.md:1987
+#: manual/api/bin_float.md:2069
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a `domain_error`. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:1993
+#: manual/api/bin_float.md:2075
 msgid "The inverse hyperbolic tangent."
 msgstr ""
 
-#: manual/api/bin_float.md:2001
+#: manual/api/bin_float.md:2083
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a `domain_error`. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr ""
 
-#: manual/api/bin_float.md:2048
+#: manual/api/bin_float.md:2130
 msgid "Structural equality, the derived `Eq`."
 msgstr ""
 
-#: manual/api/bin_float.md:2055
+#: manual/api/bin_float.md:2137
 msgid "See [`BinFloat`](#binfloat): this compares representations, not numbers, so `==` distinguishes $\\pm 0$ and precisions and identifies equal NaNs."
 msgstr ""
 
-#: manual/api/bin_float.md:2060
+#: manual/api/bin_float.md:2142
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr ""
 
-#: manual/api/bin_float.md:2069
+#: manual/api/bin_float.md:2151
 msgid "They use [`compare`](#binfloatcompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binfloatequal_quiet-binfloatless_quiet-binfloatless_equal_quiet-binfloatunordered_quiet-binfloatequal_signaling-binfloatless_signaling-binfloatless_equal_signaling) when NaN must be unordered."
 msgstr ""
 
-#: manual/api/bin_float.md:2075
+#: manual/api/bin_float.md:2157
 msgid "The `Show` and `Debug` methods."
 msgstr ""
 
-#: manual/api/bin_float.md:2082
+#: manual/api/bin_float.md:2164
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr ""
 
-#: manual/api/bin_float.md:2087
+#: manual/api/bin_float.md:2169
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr ""
 
-#: manual/api/bin_float.md:2093
+#: manual/api/bin_float.md:2175
 msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr ""
 
-#: manual/api/bin_float.md:2099
+#: manual/api/bin_float.md:2181
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr ""
 
-#: manual/api/bin_float.md:2112
+#: manual/api/bin_float.md:2194
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (which aborts for a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. The trait's `div_checked(x, y, ctx)` takes a context; the inherent [`BinFloat::div_checked`](#binfloatdiv_checked) does not. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binfloatcompare_checked)."
 msgstr ""
 
-#: manual/api/bin_float.md:2133
+#: manual/api/bin_float.md:2215
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr ""
 
-#: manual/api/bin_float.md:2152
+#: manual/api/bin_float.md:2234
 msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
 msgstr ""
 
-#: manual/api/bin_float.md:2162
+#: manual/api/bin_float.md:2244
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr ""
 
-#: manual/api/bin_float.md:2180
+#: manual/api/bin_float.md:2262
 msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`, `*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`."
 msgstr ""
 
-#: manual/api/bin_float.md:2185
+#: manual/api/bin_float.md:2267
 msgid "The `Show` and `Debug` methods of `BinCoeff`."
 msgstr ""
 
-#: manual/api/bin_float.md:2192
+#: manual/api/bin_float.md:2274
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr ""
 
-#: manual/api/bin_float.md:2196
+#: manual/api/bin_float.md:2278
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr ""
 
-#: manual/api/bin_float.md:2206
+#: manual/api/bin_float.md:2288
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr ""
 
-#: manual/api/bin_float.md:2216
+#: manual/api/bin_float.md:2298
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr ""
 
-#: manual/api/bin_float.md:2224
+#: manual/api/bin_float.md:2306
 msgid "Equality compares the fields as given: `BinaryContext::new(53)` is not equal to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the two behave identically."
 msgstr ""
 
-#: manual/api/bin_float.md:2230
+#: manual/api/bin_float.md:2312
 msgid "The derived `Eq` and `Debug` methods of `BinaryFlags`."
 msgstr ""
 
-#: manual/api/bin_float.md:2240
+#: manual/api/bin_float.md:2322
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr ""
 
-#: manual/api/bin_float.md:2250
+#: manual/api/bin_float.md:2332
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr ""
 
@@ -3096,203 +3168,227 @@ msgid "`pow` uses an unbounded context at the larger operand precision. Errors o
 msgstr ""
 
 #: manual/api/bin_float_checked.md:374
+msgid "$1/\\sqrt{x}$, delegated to [`BinFloat::try_rsqrt_ctx`](bin_float.md#binfloatrsqrt-binfloatrsqrt_ctx-binfloattry_rsqrt_ctx)."
+msgstr ""
+
+#: manual/api/bin_float_checked.md:381
+msgid "Errors: a `DomainError` for a negative operand ($-\\infty$ included) and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{rSqrt}(\\pm 0)$."
+msgstr ""
+
+#: manual/api/bin_float_checked.md:386
+msgid "$(1 + x)^n$, delegated to [`BinFloat::try_compound_ctx`](bin_float.md#binfloatcompound-binfloatcompound_ctx-binfloattry_compound_ctx)."
+msgstr ""
+
+#: manual/api/bin_float_checked.md:393
+msgid "Errors: a `DomainError` below $-1$ ($-\\infty$ included) and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{compound}(-1, n)$ with $n < 0$."
+msgstr ""
+
+#: manual/api/bin_float_checked.md:398
+msgid "$x^y$ for $x \\ge 0$, delegated to [`BinFloat::try_powr_ctx`](bin_float.md#binfloatpowr-binfloatpowr_ctx-binfloattry_powr_ctx)."
+msgstr ""
+
+#: manual/api/bin_float_checked.md:405
+msgid "Errors of the operands come first (base, then exponent). The operation reports a `DomainError` for a negative base, for a signaling NaN, and for the invalid pairs $(\\pm 0, \\pm 0)$, $(+\\infty, \\pm 0)$ and $(1, \\pm\\infty)$, and a `DivisionByZero` error for $(\\pm 0, y)$ with a finite $y < 0$."
+msgstr ""
+
+#: manual/api/bin_float_checked.md:412
 msgid "`hypot(y)` computes $\\sqrt{x^2 + y^2}$ without intermediate overflow, with `BinFloat::try_hypot_ctx`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:382
+#: manual/api/bin_float_checked.md:420
 msgid "`hypot` uses an unbounded context at the larger operand precision. A signaling NaN operand is a `DomainError`; `hypot` raises no other exception (overflow and underflow are values)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:402
+#: manual/api/bin_float_checked.md:440
 msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `BinFloat::try_name_ctx` under `BinaryContext::unbounded(x.precision())`, that is nearest-even rounding to the operand's precision with no exponent limit; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `bin_float`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `bin_float` cannot certify the rounding within its refinement budget (see [`bin_float` elementary functions](bin_float.md#elementary-functions)). A quiet NaN operand gives a successful NaN."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:419
+#: manual/api/bin_float_checked.md:457
 msgid "$e^x$, delegated to [`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:428
+#: manual/api/bin_float_checked.md:466
 msgid "$e^x - 1$, delegated to [`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:437
+#: manual/api/bin_float_checked.md:475
 msgid "$2^x - 1$, delegated to [`BinFloat::try_exp2m1_ctx`](bin_float.md#binfloatexp2m1-binfloatexp2m1_ctx-binfloattry_exp2m1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:444
+#: manual/api/bin_float_checked.md:482
 msgid "Errors: a signaling NaN is a `DomainError`; $-\\infty$ gives $-1$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:448
+#: manual/api/bin_float_checked.md:486
 msgid "$10^x - 1$, delegated to [`BinFloat::try_exp10m1_ctx`](bin_float.md#binfloatexp10m1-binfloatexp10m1_ctx-binfloattry_exp10m1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:455
+#: manual/api/bin_float_checked.md:493
 msgid "Errors: as `exp2m1`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:459
+#: manual/api/bin_float_checked.md:497
 msgid "$2^x$, delegated to [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:468
+#: manual/api/bin_float_checked.md:506
 msgid "$10^x$, delegated to [`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:477
+#: manual/api/bin_float_checked.md:515
 msgid "$\\ln x$, delegated to [`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:484
+#: manual/api/bin_float_checked.md:522
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\ln(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:488
+#: manual/api/bin_float_checked.md:526
 msgid "$\\ln(1 + x)$, delegated to [`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:495
+#: manual/api/bin_float_checked.md:533
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included; a `DivisionByZero` error for $\\operatorname{log1p}(-1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:499
+#: manual/api/bin_float_checked.md:537
 msgid "$\\log_2(1 + x)$, delegated to [`BinFloat::try_log2p1_ctx`](bin_float.md#binfloatlog2p1-binfloatlog2p1_ctx-binfloattry_log2p1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:506
+#: manual/api/bin_float_checked.md:544
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included, and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{log2p1}(-1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:510
+#: manual/api/bin_float_checked.md:548
 msgid "$\\log_{10}(1 + x)$, delegated to [`BinFloat::try_log10p1_ctx`](bin_float.md#binfloatlog10p1-binfloatlog10p1_ctx-binfloattry_log10p1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:517
+#: manual/api/bin_float_checked.md:555
 msgid "Errors: as `log2p1`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:521
+#: manual/api/bin_float_checked.md:559
 msgid "$\\log_2 x$, delegated to [`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:528
+#: manual/api/bin_float_checked.md:566
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_2(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:532
+#: manual/api/bin_float_checked.md:570
 msgid "$\\log_{10} x$, delegated to [`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:539
+#: manual/api/bin_float_checked.md:577
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_{10}(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:543
+#: manual/api/bin_float_checked.md:581
 msgid "$\\ln(e^x)$ as one fused operation, delegated to [`BinFloat::try_exp_ln_ctx`](bin_float.md#binfloatexp_ln-binfloatexp_ln_ctx-binfloattry_exp_ln_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:550
+#: manual/api/bin_float_checked.md:588
 msgid "Errors: a `CertificationFailure` (stage `RangeReduction`, reason `RangeNotCertified`) for a finite $|x| > 1/8$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:554
+#: manual/api/bin_float_checked.md:592
 msgid "$\\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:561
-#: manual/api/bin_float_checked.md:572
-#: manual/api/bin_float_checked.md:583
-#: manual/api/bin_float_checked.md:594
-#: manual/api/bin_float_checked.md:605
+#: manual/api/bin_float_checked.md:599
+#: manual/api/bin_float_checked.md:610
+#: manual/api/bin_float_checked.md:621
+#: manual/api/bin_float_checked.md:632
+#: manual/api/bin_float_checked.md:643
 msgid "Errors: a `DomainError` for an infinite argument."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:565
+#: manual/api/bin_float_checked.md:603
 msgid "$\\cos x$, delegated to [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:576
+#: manual/api/bin_float_checked.md:614
 msgid "$\\tan x$, delegated to [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:587
+#: manual/api/bin_float_checked.md:625
 msgid "$\\sin(\\pi x)$, delegated to [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:598
+#: manual/api/bin_float_checked.md:636
 msgid "$\\cos(\\pi x)$, delegated to [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:609
+#: manual/api/bin_float_checked.md:647
 msgid "$\\tan(\\pi x)$, delegated to [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:616
+#: manual/api/bin_float_checked.md:654
 msgid "Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:620
+#: manual/api/bin_float_checked.md:658
 msgid "$\\arcsin x$, delegated to [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:627
-#: manual/api/bin_float_checked.md:638
+#: manual/api/bin_float_checked.md:665
+#: manual/api/bin_float_checked.md:676
 msgid "Errors: a `DomainError` outside $[-1, 1]$, infinities included."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:631
+#: manual/api/bin_float_checked.md:669
 msgid "$\\arccos x$, delegated to [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:642
+#: manual/api/bin_float_checked.md:680
 msgid "$\\arctan x$, delegated to [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:651
+#: manual/api/bin_float_checked.md:689
 msgid "$\\sinh x$, delegated to [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:660
+#: manual/api/bin_float_checked.md:698
 msgid "$\\cosh x$, delegated to [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:669
+#: manual/api/bin_float_checked.md:707
 msgid "$\\tanh x$, delegated to [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:678
+#: manual/api/bin_float_checked.md:716
 msgid "$\\operatorname{asinh} x$, delegated to [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:687
+#: manual/api/bin_float_checked.md:725
 msgid "$\\operatorname{acosh} x$, delegated to [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:694
+#: manual/api/bin_float_checked.md:732
 msgid "Errors: a `DomainError` below $1$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:698
+#: manual/api/bin_float_checked.md:736
 msgid "$\\operatorname{atanh} x$, delegated to [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:705
+#: manual/api/bin_float_checked.md:743
 msgid "Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\\operatorname{atanh}(\\pm 1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:709
+#: manual/api/bin_float_checked.md:747
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$, delegated to [`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:717
+#: manual/api/bin_float_checked.md:755
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2` uses `BinaryContext::unbounded` at the larger operand precision. Signed zeros follow IEEE 754: `atan2` of $(-0, -0)$ is $-\\pi$ and of $(-0, +0)$ is $-0$. A signaling NaN operand is a `DomainError`; `atan2` raises no other exception."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:742
+#: manual/api/bin_float_checked.md:780
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinFloatResult`"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:755
+#: manual/api/bin_float_checked.md:793
 msgid "So `/` on wrappers reports division by zero, while `/` on plain `BinFloat` values returns an infinity."
 msgstr ""
 
@@ -6632,7 +6728,7 @@ msgid "`MpfrPowDocument` is a parsed power file; `MpfrPowCase` is one row and ha
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:149
-#: manual/api/frontend/mpfr_expr.md:208
+#: manual/api/frontend/mpfr_expr.md:209
 msgid "These methods return the name given to the parser and the number of rows."
 msgstr ""
 
@@ -6641,132 +6737,132 @@ msgid "`parse_elementary_data(source, text)` parses rows of ten fields: `op prec
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:167
-msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rootn`, `pown`, `pow`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits (`y` is `-` when unused), `n` is the integer argument of `rootn` and `pown`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
+msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rsqrt`, `rootn`, `pown`, `compound`, `pow`, `powr`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits (`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:175
-msgid "A row of the two-operand functions `pow`, `hypot` and `atan2` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
+#: manual/api/frontend/mpfr_expr.md:176
+msgid "A row of the two-operand functions `pow`, `powr`, `hypot` and `atan2` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:180
+#: manual/api/frontend/mpfr_expr.md:181
 msgid "`execute_elementary_data(document)` evaluates every row with the checked `try_*_ctx` method of `BinFloat` for its operation (`sqrt_ctx` and `pown_ctx` for `sqrt` and `pown`) in `BinaryContext::unbounded(precision, rounding~)`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:188
+#: manual/api/frontend/mpfr_expr.md:189
 msgid "A row passes when the result compares equal to the expected value (`compare == 0`, so every NaN equals every NaN) with the same sign when it is zero, the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:198
+#: manual/api/frontend/mpfr_expr.md:199
 msgid "`MpfrElementaryDocument` is a parsed elementary file."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:215
+#: manual/api/frontend/mpfr_expr.md:216
 msgid "Decimal character conversion"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:219
+#: manual/api/frontend/mpfr_expr.md:220
 msgid "`parse_strtofr_data(source, text)` parses rows of seven fields: `precision rounding input expected inexact overflow underflow`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:226
+#: manual/api/frontend/mpfr_expr.md:227
 msgid "`input` is a decimal literal kept as text, `expected` is the `mpfr_strtofr` result read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `strtofr:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:232
+#: manual/api/frontend/mpfr_expr.md:233
 msgid "`execute_strtofr_data(document)` evaluates `BinFloat::from_string_ctx(input, ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:239
+#: manual/api/frontend/mpfr_expr.md:240
 msgid "A row passes when the result compares equal to the expected value, with the same sign (including zero) and class, the inexact, overflow and underflow flags equal the row's flags, and neither invalid nor division by zero is raised. A literal rejected by the parser fails the row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:246
+#: manual/api/frontend/mpfr_expr.md:247
 msgid "`MpfrStrtofrDocument` is a parsed file; the methods return the name given to the parser and the number of rows."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:260
+#: manual/api/frontend/mpfr_expr.md:261
 msgid "`parse_decimal_output_data(source, text)` parses two row kinds."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:266
+#: manual/api/frontend/mpfr_expr.md:267
 msgid "`fixed digits precision rounding value expected_digits expected_exponent10 inexact` (eight fields) is a value printed with `digits` significant digits: `expected_digits` is the digit string and `expected_exponent10` the decimal exponent of its first digit. `shortest precision value expected_digit_count` (four fields) is the number of significant digits of the shortest round-trip form. Values are read at `precision` bits. Row ids are `fixed:LINE` and `shortest:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:276
+#: manual/api/frontend/mpfr_expr.md:277
 msgid "`execute_decimal_output_data(document)` runs `BinFloat::to_decimal_string_ctx` for a `fixed` row and `BinFloat::to_shortest_string` for a `shortest` row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:283
+#: manual/api/frontend/mpfr_expr.md:284
 msgid "A `fixed` row passes when the printed digits, the exponent and the sign match and the inexact flag equals the row's flag (no overflow or underflow). A `shortest` row passes when the text has exactly `expected_digit_count` significant digits (leading zeros and the trailing zeros of positional notation are not counted) and `BinFloat::from_string(text, precision~)` returns the same value."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:301
+#: manual/api/frontend/mpfr_expr.md:302
 msgid "Seeded random rows"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:303
+#: manual/api/frontend/mpfr_expr.md:304
 msgid "`mpfr-random-v1` rows come from `tools/generate_mpfr_random_oracle.c`: one row per case, with precisions up to 10,000, six rounding directions, an optional exponent range with its tininess rule, up to three exact operands and the MPFR result with its flags. The full field list is in [`testdata/bin_float/README.md`](../../../../testdata/bin_float/README.md)."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:319
+#: manual/api/frontend/mpfr_expr.md:320
 msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have thirteen fields, a known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of the elementary names), a rounding of `n na z u d a`, a positive precision, an exponent range that is either `- - -` or two integers and `a`/`b`, exact operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to `-` or a subset of `xouvz`. Operands and results are read at least at the row's precision, because reading a value below the smallest subnormal of a lower precision would flush it to zero. Each bad row is one diagnostic."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:335
+#: manual/api/frontend/mpfr_expr.md:336
 msgid "Runs every row with the row's `BinaryContext` (bounded when the row has an exponent range, `unbounded` otherwise) and passes a row only when the value and the flags agree. Values are compared with their sign for zeros and infinities; a NaN result must be a quiet NaN. A domain error of the elementary functions (`ArithmeticError::is_domain_error`) counts as the invalid operation: a quiet NaN with flag `v`; any other error fails the row with the error message. The row id is the first field of the row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:351
+#: manual/api/frontend/mpfr_expr.md:352
 msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:354
+#: manual/api/frontend/mpfr_expr.md:355
 msgid "Diagnostics and results"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:358
+#: manual/api/frontend/mpfr_expr.md:359
 #: manual/api/frontend/testfloat_expr.md:218
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:368
+#: manual/api/frontend/mpfr_expr.md:369
 #: manual/api/frontend/testfloat_expr.md:228
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:377
+#: manual/api/frontend/mpfr_expr.md:378
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:383
+#: manual/api/frontend/mpfr_expr.md:384
 msgid "`CaseResult` is the outcome of one row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:393
+#: manual/api/frontend/mpfr_expr.md:394
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:401
+#: manual/api/frontend/mpfr_expr.md:402
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:406
+#: manual/api/frontend/mpfr_expr.md:407
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:416
+#: manual/api/frontend/mpfr_expr.md:417
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:426
+#: manual/api/frontend/mpfr_expr.md:427
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:433
+#: manual/api/frontend/mpfr_expr.md:434
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:456
+#: manual/api/frontend/mpfr_expr.md:457
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
@@ -8097,7 +8193,7 @@ msgid "Crossover points are private, target-specific policy. They are measured w
 msgstr ""
 
 #: manual/architecture.md:110
-#: manual/design/bin_float.md:602
+#: manual/design/bin_float.md:615
 #: manual/design/decimal.md:691
 msgid "Certified elementary functions"
 msgstr ""
@@ -8321,7 +8417,7 @@ msgstr ""
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:38
-#: manual/verification.md:501
+#: manual/verification.md:512
 msgid "Clause"
 msgstr ""
 
@@ -9099,11 +9195,11 @@ msgid "§9.2 recommended mathematical functions"
 msgstr ""
 
 #: manual/conformance/bin_float.md:95
-msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases, thresholds): `src/bin_float/pm1_functions_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
+msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases, thresholds): `src/bin_float/pm1_functions_wbtest.mbt`; `rsqrt`, `compound`, `powr` (special values of §9.2.1, exact cases, tiny-argument rule, `pow` agreement): `src/bin_float/rsqrt_compound_powr_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:95
-msgid "partial: no `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`"
+msgid "partial: no `asinPi`, `acosPi`, `atanPi`, `atan2Pi`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:96
@@ -9253,6 +9349,7 @@ msgid "Seeded random elementary (`elem2`: `exp2m1`, `exp10m1`, `log2p1`, `log10p
 msgstr ""
 
 #: manual/conformance/bin_float.md:119
+#: manual/conformance/bin_float.md:121
 msgid "unbounded contexts, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC"
 msgstr ""
 
@@ -9265,42 +9362,54 @@ msgid "precisions 2 to 300, six contexts, overflow, saturation and tiny-result t
 msgstr ""
 
 #: manual/conformance/bin_float.md:121
+msgid "Seeded random elementary (`elem3`: `rsqrt`, `compound`, `powr`), seed 20261118"
+msgstr ""
+
+#: manual/conformance/bin_float.md:122
+msgid "Range-boundary sweep of the three new functions"
+msgstr ""
+
+#: manual/conformance/bin_float.md:122
+msgid "precisions 2 to 300, six contexts, overflow and tiny-result thresholds; the `compound` rows use the exact rational in place of `mpfr_compound_si` (see the oracle defect in `verification.md`)"
+msgstr ""
+
+#: manual/conformance/bin_float.md:123
 msgid "Committed smoke"
 msgstr ""
 
-#: manual/conformance/bin_float.md:121
+#: manual/conformance/bin_float.md:123
 msgid "TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses"
 msgstr ""
 
-#: manual/conformance/bin_float.md:122
+#: manual/conformance/bin_float.md:124
 msgid "TestFloat 3e level 2"
 msgstr ""
 
-#: manual/conformance/bin_float.md:122
+#: manual/conformance/bin_float.md:124
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr ""
 
-#: manual/conformance/bin_float.md:124
+#: manual/conformance/bin_float.md:126
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr ""
 
-#: manual/conformance/bin_float.md:133
+#: manual/conformance/bin_float.md:135
 msgid "Scope of the claim"
 msgstr ""
 
-#: manual/conformance/bin_float.md:135
+#: manual/conformance/bin_float.md:137
 msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
 msgstr ""
 
-#: manual/conformance/bin_float.md:151
+#: manual/conformance/bin_float.md:153
 msgid "The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of magnitude at most 16, inside each function's domain: `pow` takes a positive base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2` never two zeros, and `tanpi` no integral or half-integral argument. A zero input is $+0$. The matrix therefore does not exercise tiny or huge arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees of `rootn`, or the poles and signed zeros of the IEEE special-case tables; exact results such as $16^{3/4}$ occur only by chance. Those cases are covered by the package's unit tests against the special-value tables in the [API reference](../api/bin_float.md#elementary-functions), not by this claim."
 msgstr ""
 
-#: manual/conformance/bin_float.md:163
+#: manual/conformance/bin_float.md:165
 msgid "Stability of the evidence"
 msgstr ""
 
-#: manual/conformance/bin_float.md:165
+#: manual/conformance/bin_float.md:167
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle. Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr ""
 
@@ -9510,7 +9619,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:1413
+#: manual/design/bin_float.md:1426
 #: manual/design/bin_float_checked.md:317
 #: manual/design/cli.md:69
 #: manual/design/cli/gda_expr_cli.md:67
@@ -10514,7 +10623,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:1341
+#: manual/design/bin_float.md:1354
 #: manual/design/bin_float_checked.md:187
 #: manual/design/cli.md:50
 #: manual/design/cli/gda_expr_cli.md:50
@@ -10589,7 +10698,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:1388
+#: manual/design/bin_float.md:1401
 #: manual/design/bin_float_checked.md:304
 #: manual/design/cli.md:60
 #: manual/design/cli/gda_expr_cli.md:60
@@ -11618,517 +11727,521 @@ msgid "**One layer for the new recommended functions.** The defects of the range
 msgstr ""
 
 #: manual/design/bin_float.md:412
+msgid "`rsqrt`, `compound` and `powr` (second family of [#235](https://github.com/Luna-Flow/floating/issues/235)) add no new rounding logic: each reduces to an operation that already owns the exact cases and the range decision, after the special values of §9.2.1. $1/\\sqrt{x}$ is `rootn(x, -2)`, $x^y$ for $x > 0$ is `pow`, and $(1 + x)^n$ is `pown` of the exact sum $1 + x$ whenever that sum fits in $2^{26}$ bits. The one decision of its own is the tiny rule of `compound`: for $|n x| < 2^{-(p + 9)}$ the exact value is $1 + \\delta$ with $|\\delta| < 2^{-(p+8)}$, far inside the window around $1$ bounded by the breakpoints $1 - 2^{-(p+1)}$ and $1 + 2^{-p}$, so the result is $1$ or its neighbour by direction alone and equals the rounding of the surrogate $1 \\pm 2^{-(p+3)}$, which `binary_round_dyadic` takes through the same finalizer as any exact value."
+msgstr ""
+
+#: manual/design/bin_float.md:425
 msgid "Signed zeros and NaNs"
 msgstr ""
 
-#: manual/design/bin_float.md:414
+#: manual/design/bin_float.md:427
 msgid "An exact zero sum $a + b = 0$ with $a, b$ of opposite sign is $+0$ in every direction except RD, where it is $-0$; $(-0) + (-0) = -0$ (clause 6.3). Products and quotients take the exclusive-or of the signs. A NaN operand yields the first NaN operand, quieted, with its sign and payload (clause 6.2.3 allows any input NaN), and `invalid_operation` is raised exactly when an operand is a signaling NaN or the operation is invalid on its own ($\\infty - \\infty$, $0 \\cdot \\infty$, $0/0$, $\\infty/\\infty$, $\\sqrt{x<0}$, $\\operatorname{remainder}(\\infty, y)$, $\\operatorname{remainder}(x, 0)$). Flags are values: `combine` is the bitwise OR, so the flags of a computation form a commutative idempotent monoid and can be accumulated in any order, which a global sticky register cannot offer to concurrent code."
 msgstr ""
 
-#: manual/design/bin_float.md:427
+#: manual/design/bin_float.md:440
 msgid "The elementary functions take the signs of their special values from IEEE 754-2019 §9.2.1, which reads the sign of a zero operand: for example $\\operatorname{atan2}(\\pm 0, -0) = \\pm\\pi$ but $\\operatorname{atan2}(\\pm 0, +0) = \\pm 0$, $\\operatorname{tanpi}(n)$ has the sign of $\\operatorname{sinpi}(n)/\\operatorname{cospi}(n)$, and $(-0)^y$ and $(-\\infty)^y$ are negative exactly for an odd integral $y$."
 msgstr ""
 
-#: manual/design/bin_float.md:434
+#: manual/design/bin_float.md:447
 msgid "Far-apart operands in addition"
 msgstr ""
 
-#: manual/design/bin_float.md:436
+#: manual/design/bin_float.md:449
 msgid "**Problem.** $2^{10^9} + 2^{-10^9}$ is exact as a dyadic number, but forming it needs a two-billion-bit coefficient."
 msgstr ""
 
-#: manual/design/bin_float.md:439
+#: manual/design/bin_float.md:452
 msgid "**Choice.** When the leading exponents differ by more than $p + 3$, the sum is formed on the grid with unit $\\upsilon = 2^{e(\\text{high}) - p - 3}$, where $e(\\text{high})$ is the exponent of the last bit of the larger operand, so $\\upsilon \\le 2^{\\operatorname{top}(\\text{high}) - p - 3}$. The larger operand $H\\upsilon$ is exact on that grid; of the smaller operand only the integer part $L$ of its value in units $\\upsilon$ enters, and if anything below $\\upsilon$ was discarded the magnitude becomes $2(H \\pm L) + 1$ (for subtraction $2(H - L - 1) + 1$) in units of $\\upsilon/2$, that is, one sticky bit at the half unit."
 msgstr ""
 
-#: manual/design/bin_float.md:449
+#: manual/design/bin_float.md:462
 msgid "**Why it is exact for rounding.** The result has $\\operatorname{top} \\ge \\operatorname{top}(\\text{high}) - 1$, because the smaller operand is below $2^{\\operatorname{top}(\\text{high}) - p - 2}$. The last retained bit of the rounded result therefore has position at least $\\operatorname{top}(\\text{high}) - p$ (more on the subnormal grid), and its round bit at least $\\operatorname{top}(\\text{high}) - p - 1$. The true sum and the substitute both lie strictly inside the same open interval $\\bigl((H \\pm L)\\upsilon, (H \\pm L + 1)\\upsilon\\bigr)$ (or are equal when nothing was discarded), and that interval lies between two consecutive multiples of $\\upsilon \\le 2^{\\operatorname{top}(\\text{high}) - p - 3}$, at least two bit positions below the round bit. So $q$ and $g$ agree, and $t$ is set in both cases exactly when something nonzero was discarded. The argument does not need the larger operand to have at most $p$ bits. For subtraction, $H - (L + \\varepsilon) = (H - L - 1) + (1 - \\varepsilon)$ with $0 < 1 - \\varepsilon < 1$, so the same substitution applies to the borrowed form. The complete argument, including the subnormal shift, is in the attachment below."
 msgstr ""
 
-#: manual/design/bin_float.md:467
+#: manual/design/bin_float.md:480
 msgid "Fused multiply-add"
 msgstr ""
 
-#: manual/design/bin_float.md:469
+#: manual/design/bin_float.md:482
 msgid "`fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose precision equals its own bit length, and passes it to the addition finalizer, so $x y + z$ is rounded once (clause 5.4.1). The difference from two roundings is the point of the operation: for $a = \\operatorname{RN}(0.1)$ in binary64, the rounding error $a \\cdot a - \\operatorname{RN}(a \\cdot a)$ is lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers) but `fma_ctx(a, a, -RN(a·a))` returns it exactly, $-8.33\\ldots \\cdot 10^{-19}$. That the result is exact is Dekker's theorem: the error of a rounded-to-nearest product is itself in $F$ when no underflow occurs (precisely, when $e_a + e_b \\ge e_{\\min} - p + 1$ for the exponents of the last bits of $a$ and $b$, so the exact product lies on the grid of $F$).[^dekker] If the product exponent leaves the `Int` range, the product either certainly overflows, or it is so small that it acts as a sticky bit next to a nonzero addend; the code places a single bit $p + 9$ positions below the addend's last bit, which by the far-operand argument above rounds identically. With a zero addend such a product is the tiny result of the underflow rule."
 msgstr ""
 
-#: manual/design/bin_float.md:487
+#: manual/design/bin_float.md:500
 msgid "T. J. Dekker, \"A floating-point technique for extending the available precision\", *Numerische Mathematik* 18, 1971; Muller et al., §4.4."
 msgstr ""
 
-#: manual/design/bin_float.md:491
+#: manual/design/bin_float.md:504
 msgid "IEEE remainder is exact"
 msgstr ""
 
-#: manual/design/bin_float.md:493
+#: manual/design/bin_float.md:506
 msgid ""
 "**Claim.** If $x, y \\in F$ (same precision $p$, same range) and $y \\n"
 "e 0$, then $r = x - n y$ with $n = \\operatorname{RNE}_{\\mathbb{Z}}(x/y)$ lies in $F$."
 msgstr ""
 
-#: manual/design/bin_float.md:497
+#: manual/design/bin_float.md:510
 msgid "**Proof.** Write $x = M_x 2^{q_x}$, $y = M_y 2^{q_y}$ with $|M_x|, |M_y| < 2^p$ and $q_x, q_y \\ge e_{\\min} - p + 1$. By the choice of $n$, $|r| \\le |y|/2$. If $n = 0$ then $r = x$. Otherwise $|x/y| \\ge \\frac12$, so $|r| \\le |y|/2 \\le |x|$. Now $r$ is an integer multiple of $2^{\\min(q_x, q_y)}$."
 msgstr ""
 
-#: manual/design/bin_float.md:503
+#: manual/design/bin_float.md:516
 msgid "If $q_x \\ge q_y$: $r = k 2^{q_y}$ with $|k| 2^{q_y} \\le |M_y| 2^{q_y}/2$, so $|k| < 2^{p-1}$."
 msgstr ""
 
-#: manual/design/bin_float.md:505
+#: manual/design/bin_float.md:518
 msgid "If $q_x < q_y$: $r = k 2^{q_x}$ with $|k| 2^{q_x} \\le |x| = |M_x| 2^{q_x}$, so $|k| < 2^{p}$."
 msgstr ""
 
-#: manual/design/bin_float.md:508
+#: manual/design/bin_float.md:521
 msgid "In both cases $|k| < 2^p$, the exponent is at least $e_{\\min} - p + 1$, and $|r| \\le \\max(|x|, |y|) \\le \\Omega$, so $r \\in F$. $\\square$"
 msgstr ""
 
-#: manual/design/bin_float.md:511
+#: manual/design/bin_float.md:524
 msgid "The implementation never forms $n$, which can have $2^{30}$ bits. With $X = |x| 2^{-m}$, $Y = |y| 2^{-m}$, $m = \\min(q_x, q_y)$ (integers), it computes $X \\bmod 2Y$ by modular exponentiation of $2^{q_x - q_y}$ when $q_x > q_y$. Writing $X = Q (2Y) + R$, $0 \\le R < 2Y$, gives $\\lfloor X/Y \\rfloor = 2Q + [R \\ge Y]$, so $R$ alone yields both $X \\bmod Y$ and the parity of $\\lfloor X/Y \\rfloor$, which is all the ties-to-even choice of $n$ needs. The exact $r$ then goes through the usual finalizer; by the claim, no rounding happens for operands of the context's format."
 msgstr ""
 
-#: manual/design/bin_float.md:521
+#: manual/design/bin_float.md:534
 msgid "Neighbours, scaling and integral values"
 msgstr ""
 
-#: manual/design/bin_float.md:523
+#: manual/design/bin_float.md:536
 msgid "`next_up_ctx(x)` adds a positive step $2^{\\pi - 2}$ to $x$ and rounds toward $+\\infty$, where $\\pi = \\min(e_{\\min} - p,\\ e(x),\\ \\operatorname{top}(x) - p)$. Every gap between consecutive points of $F$ next to $x$ is at least $2^{\\min(e_{\\min} - p + 1,\\ \\operatorname{top}(x) - p)}$ and $x$ itself is a multiple of $2^{e(x)}$, so $x < x + 2^{\\pi - 2} < x^{+}$ for $x \\in F$, and by the definition of RU the result is the least point of $F$ above $x$. The same argument works for an $x$ with more than $p$ bits, which is why such operands are accepted. The flags of this internal addition are discarded, because `nextUp` is quiet (clause 5.3.1) even when it steps from $\\Omega$ to $+\\infty$."
 msgstr ""
 
-#: manual/design/bin_float.md:534
+#: manual/design/bin_float.md:547
 msgid "`scaleb_ctx(x, n)` is the finalizer applied to $(c, e + n)$: exact in the normal range, correctly rounded with underflow and overflow outside it. `logb_ctx` returns $\\operatorname{top}(x)$, which is exact and correct for subnormal $x$ because $\\operatorname{top}$ is computed on the integer coefficient. The integral roundings use the same round and sticky bits with $\\sigma = -e$ (the bits below the binary point); `to_int_ctx` and its siblings round first and then compare the integer with the target range, reporting `invalid_operation` instead of returning an implementation-defined sentinel."
 msgstr ""
 
-#: manual/design/bin_float.md:544
+#: manual/design/bin_float.md:557
 msgid "Decimal conversion"
 msgstr ""
 
-#: manual/design/bin_float.md:546
+#: manual/design/bin_float.md:559
 msgid ""
 "**Parsing.** `from_string_ctx` reads $D \\cdot 10^{k}$ exactly ($D$ an integer without trailing zeros). For $|k|$ up to $\\max\\bigl(400, \\lfloor (3n + p)/2 \\rfloor + 64\\bigr)$ ($n$ the number of digits) it is rounded exactly: $D \\cdot 5^{k} \\cdot 2^{k}$ by the dyadic finalizer for $k \\ge 0$, and $D / 5^{|k|} \\cdot 2^{k}$ by the division finalizer for $k < 0$. Beyond that bound it uses directed enclosures $[\\operatorname{RD}_w(D)\\operatorname{RD}_w(10^k), \\operatorname{RU}_w(D)\\operatorname{RU}_w(10^k)]$ at a working precision $w$, doubled until both ends round to the same value with the same flags. The bound makes the loop terminate. The rounding breakpoints of a direction are the points of $F$ (directed modes) or the midpoints between them (nearest modes); both are dyadic with at most $p + 1$ significant bits. For $k \\ge 0$ the odd part of $D 10^{k}$ is a multiple of $5^{k}$, and $5^{k} > 2^{2.32 k} > 2^{p+2}$ beyond the bound, so the value is no breakpoint: $k > \\lfloor (3n+p)/2 \\rfloor + 64 > (p+2)/2.32$. For $k < 0$, $|k| > 1.5n$ gives $5^{|k|} > 10^{n} > D$, so $5^{|k|} \\n"
 "mid D$ and $D/10^{|k|}$ is not even dyadic. The points where a flag changes (the overflow threshold, $2^{e_{\\min}}$ for tininess, the points of $F$ for inexactness) are dyadic with at most $p + 1$ significant bits as well. A value that is none of these has a positive distance to all of them, and the enclosure, whose relative width is $O(2^{-w})$, eventually lies strictly between two of them, so some $w$ certifies it; the loop has no attempt limit. Values whose binary logarithm is certainly beyond the range, estimated with $\\log_2 10$ and a safety margin, overflow or underflow without any arithmetic, so `1e100000000` costs nothing."
 msgstr ""
 
-#: manual/design/bin_float.md:572
+#: manual/design/bin_float.md:585
 msgid "**Fixed digits.** `to_decimal_string_ctx(x, d)` needs $\\operatorname{round}(x / 10^{E - d + 1})$ with $E = \\lfloor \\log_{10}|x| \\rfloor$. $E$ starts from $\\lfloor \\operatorname{top}(x) \\log_{10} 2 \\rfloor$, which is within one of the answer, and is corrected by comparing $|x|$ with $10^{E+1}$, first through directed bounds of the power and, when they straddle, exactly. The quotient is formed exactly as an integer division when its operands have at most $2^{20}$ bits, so ties and exact results are recognised; otherwise directed enclosures are widened until both ends round to the same integer, which terminates because such a quotient is neither an integer nor a half-integer. A carry into a new leading digit ($9.99 \\to 10.0$) increments $E$ and repeats."
 msgstr ""
 
-#: manual/design/bin_float.md:584
+#: manual/design/bin_float.md:597
 msgid "**Shortest output.** Let $I(x)$ be the set of reals that round to $x$ under RNE in the context; it is an interval containing $x$. For each digit count $n$, the two $n$-digit decimals next to $x$ (truncated and rounded away from zero) are candidates, and a candidate is accepted when parsing it returns $x$, that is when it lies in $I(x)$. Acceptance is monotone in $n$: if the $n$-digit truncation $d_n$ lies in $I(x)$, the $(n+1)$-digit truncation satisfies $d_n \\le d_{n+1} \\le x$ (in magnitude), so it lies in the interval too, and likewise for the upper neighbour. So the least accepted $n$ is found by bisection on $[1, \\lceil p \\log_{10} 2 \\rceil + 2]$, an upper bound at which a candidate is always accepted.[^shortest] If both candidates are accepted, the nearer one is chosen, then the even one, which is the nearest decimal of that length. For binary64 this reproduces the host formatter on every value tested."
 msgstr ""
 
-#: manual/design/bin_float.md:598
+#: manual/design/bin_float.md:611
 msgid "The digit count $\\lceil p \\log_{10} 2 \\rceil + 1$ suffices for round trip (Matula 1968; Goldberg 1991, Theorem 15); the extra digit is a margin for the bisection's upper end."
 msgstr ""
 
-#: manual/design/bin_float.md:604
+#: manual/design/bin_float.md:617
 msgid "**Problem.** For $f = \\exp, \\ln, \\sin, \\ldots$ the value $f(x)$ is transcendental and must be rounded correctly without knowing it."
 msgstr ""
 
-#: manual/design/bin_float.md:607
+#: manual/design/bin_float.md:620
 msgid "**Options.** Fixed polynomial approximations with a proven error bound (fast, but tied to one precision); Ziv's strategy of evaluating with an a priori error bound and retrying at a higher precision when the rounding is ambiguous;[^ziv] or interval evaluation."
 msgstr ""
 
-#: manual/design/bin_float.md:612
+#: manual/design/bin_float.md:625
 msgid ""
 "**Choice.** A Ziv loop whose error bound is not estimated but computed: every elementary function evaluates an enclosure $[L, U] \\n"
 "i f(x)$ in which every internal operation is rounded downward for $L$ and upward for $U$ at a working precision $w$. If"
 msgstr ""
 
-#: manual/design/bin_float.md:621
+#: manual/design/bin_float.md:634
 msgid "the common value is returned, otherwise $w$ grows. **The value is sound by (R2):** $L \\le f(x) \\le U$ implies $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$, so equal ends force $\\circ(f(x)) = \\circ(L)$."
 msgstr ""
 
-#: manual/design/bin_float.md:625
+#: manual/design/bin_float.md:638
 msgid "The flags need a separate argument. Overflow and tininess (under either rule) depend only on $|r|$ through a threshold, so on one side of zero they are monotone: if $L$ and $U$ (which have the same sign once they round to the same nonzero value) agree, every $r \\in [L, U]$ agrees with them. Inexactness is not monotone: it is false exactly on $F$. If $L < U$ round to the same value $v$ with `inexact`, then $f(x)$ is inexact *unless* $f(x) = v \\in F$. The loop cannot tell these apart, so the flags are right only if every input whose exact result lies in $F$ is caught before the loop. That is why the exact cases below are filtered, and why an exact case that is missed shows up as a spurious `inexact` (nearest rounding) or as a budget failure (directed rounding, where $L$ and $U$ round to different neighbours of $v$)."
 msgstr ""
 
-#: manual/design/bin_float.md:638
+#: manual/design/bin_float.md:651
 msgid "The enclosures come from series with rigorous tails and from monotone reductions. For $\\exp$ on $[0, 1/8]$, the terms $t_k = x^k/k!$ satisfy $t_{k+1}/t_k = x/(k+1) \\le 1/8$, so after the last summed term $t_n$"
 msgstr ""
 
-#: manual/design/bin_float.md:646
+#: manual/design/bin_float.md:659
 msgid "and the code stops once $t_n < 2^{-(w+8)}$ and adds $2 t_n$ (rounded upward) to the upper sum; the lower sum of positive terms is already a lower bound. Larger arguments are halved $r$ times and the result squared $r$ times, which is monotone on positive numbers and therefore keeps the enclosure; $e^{-x} = 1/e^{x}$ handles negative arguments. For $\\ln v$ with $v \\in [1, 2]$ the series is"
 msgstr ""
 
-#: manual/design/bin_float.md:657
+#: manual/design/bin_float.md:670
 msgid "with tail $\\sum_{k \\ge m} z^{2k+1}/(2k+1) \\le \\frac{z^{2m+1}}{2m+1} \\cdot \\frac{1}{1 - z^2}$, the bound the code adds. The trigonometric functions reduce $x$ by an enclosure of $\\pi/2$ (from $\\pi = 4 \\arctan 1$, itself enclosed by the arctangent series after argument halving) at $w \\ge p + \\max(0, \\operatorname{top}(x) + 1) + 96$ bits, so the quadrant $k = \\operatorname{round}(x / (\\pi/2))$ is the same integer at both ends of the enclosure; otherwise the attempt is repeated at a higher precision. This is the Payne–Hanek idea realised by brute precision instead of a stored table of $2/\\pi$; its cost grows with $\\log_2|x|$, so inputs needing more than $10^6$ bits are refused with `ResourceLimit` rather than run for minutes."
 msgstr ""
 
-#: manual/design/bin_float.md:668
+#: manual/design/bin_float.md:681
 msgid "**Budget.** The loop starts at $w_0 = p + 64$ (for some functions at the operand precision plus 16 when that is larger) and steps $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$, at most 12 attempts. For binary64 the sequence is $117, 175, 262, \\ldots, 10053$ bits."
 msgstr ""
 
-#: manual/design/bin_float.md:673
+#: manual/design/bin_float.md:686
 msgid ""
 "**Termination.** Ziv's argument has two parts. First, $f(x)$ must not be a breakpoint of $\\circ$ (a point of $F$, a midpoint, or a flag threshold), all of which are dyadic. For a nonzero dyadic $x$, $e^{x}$, $\\sin x$, $\\cos x$, $\\tan x$, the hyperbolic functions, their inverses and $\\ln x$ ($x \\n"
 "e 1$) are transcendental by Lindemann–Weierstrass. For $2^x$, $10^x$, $\\log_2 x$ and $\\log_{10} x$ irrationality is enough and elementary: $2^{a/b}$ with $b \\n"
 "mid a$ is irrational, so $2^x$ is dyadic only for integral $x$, and $\\log_2 x = a/b$ forces $x = 2^{a/b}$, a power of two; likewise $10^x$ and $\\log_{10} x$ are dyadic only at integral $x \\ge 0$ and at $x = 10^k$. For the $\\pi$-scaled functions Niven's theorem shows that integral, half-integral and (for `tanpi`) quarter-integral arguments are the only dyadic exceptions.[^niven] For `pow` and `rootn` the exceptions are characterised under *Exact powers and roots* below. The exceptions are filtered before the loop: $e^0 = 1$, $\\ln 1 = 0$, $\\log_2 2^k = k$, $2^n$ for integral $|n| < 2^{31}$, $\\sin(\\pm 0)$, the $\\pi$-scaled cases, $10^n$ for integral $0 \\le n \\le \\max(4096, p)$ (beyond that the odd part $5^n$ has more than $p + 1$ bits, so $10^n$ is not a breakpoint), $\\log_{10} 10^n$ for every $n \\ge 1$, dyadic powers and exact roots, and so on."
 msgstr ""
 
-#: manual/design/bin_float.md:692
+#: manual/design/bin_float.md:705
 msgid "Second, the enclosure must shrink onto $f(x)$ fast enough. The series stop when the next term is below $2^{-(w+8)}$ or $2^{-(w+12)}$ in *absolute* value, which is fine for arguments of moderate size; the width then is $O(2^{-w})$ relative to $f(x)$, a non-breakpoint has a positive distance to every breakpoint, and some $w$ certifies it. Tiny arguments need the two measures under *Tiny arguments* below. How large $w$ must be is the table maker's dilemma: no useful a priori bound is known for arbitrary $p$, so the budget is a resource limit, not a correctness condition. When it runs out the `try_*` form reports a `CertificationFailure` with the stage, the reason and the last $w$, and the total forms return a quiet NaN with `invalid_operation`; neither returns an uncertified value. The pinned MPFR corpus never exhausts it."
 msgstr ""
 
-#: manual/design/bin_float.md:705
+#: manual/design/bin_float.md:718
 msgid "**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to `pown`. A larger integral $y$ needs no filter: for $x = c \\cdot 2^e$ with $c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two $2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every other exponent is $y = m / 2^k$ with $m$ odd and $k \\ge 1$. If $x^y$ is rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the exponents of $2$ and of each odd prime gives $q = a \\cdot 2^f$ with $a$ odd, $e|m| = f \\cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd, $2^k \\mid e$ and every prime exponent of $c$ is divisible by $2^k$, so $c = r^{2^k}$ and $q = r^{|m|} \\cdot 2^{e|m|/2^k}$. Conversely these values are exact. So a rational `pow` result exists exactly under these two divisibility conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$, which is dyadic only when $r = 1$. Every other `pow` result is irrational. `binary_pow_exact_dyadic` computes the dyadic results and rounds them once, unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has more than $p + 1$ significant bits and is not a breakpoint). The same argument with $1/|n|$ in place of $|y|$ shows that $\\operatorname{rootn}(x, n)$ is rational exactly when $|n| \\mid e$ and $c = r^{|n|}$; `rootn` returns $\\pm r \\cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly rounded quotient $1 / (\\pm r \\cdot 2^{e/|n|})$, which division decides with the right `inexact` flag although it need not be dyadic. The perfect-power test has no size limit. It first takes square roots with remainder for every factor $2$ of the degree, stopping at the first nonzero remainder, and then the floor of the remaining odd root: by bisection while the root has at most 64 bits, otherwise by integer Newton steps $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$ started just above the root, which decrease monotonically to $\\lfloor c^{1/d} \\rfloor$; one power $r^d$ then decides exactness. A coefficient with at most $d$ bits other than $1$ is rejected at once, because $r \\ge 2$ gives $r^d \\ge 2^d$."
 msgstr ""
 
-#: manual/design/bin_float.md:735
+#: manual/design/bin_float.md:748
 msgid "A negative base with an integral exponent beyond the `pown` range is evaluated as $\\pm|x|^y$. Negation is an exact symmetry of $\\circ$ that swaps the two directed modes, $\\circ_{\\mathrm{RD}}(-v) = -\\circ_{\\mathrm{RU}}(v)$, so for an odd $y$ the code rounds $|x|^y$ with RD and RU exchanged and negates."
 msgstr ""
 
-#: manual/design/bin_float.md:740
+#: manual/design/bin_float.md:753
 msgid "**Tiny arguments.** For small enough $|x|$ (about $2^{-p/2}$ for the odd functions, $2^{-p}$ for $e^x$) the result lies closer to a representable number $a$ than the target spacing: $a = x$ for the odd functions, $a = 1$ for $e^x$, $\\cos$, $\\cosh$. An enclosure whose series stops after its first term then has $a$ itself as one end ($U = x$ for $\\sin$, $L = 1$ for $e^x$), and that end rounds without `inexact` while the other end rounds with it, so the acceptance test alone would only pass once $w$ separates $f(x)$ from $a$, at $w \\approx \\log_2(1/|x|)$ or more. Two measures remove the dependence on $|x|$."
 msgstr ""
 
-#: manual/design/bin_float.md:749
+#: manual/design/bin_float.md:762
 msgid ""
 "*Inner endpoints.* Every result that reaches the loop is known not to be a breakpoint. For every function other than `pow` and `rootn`, `binary_certified_inexact_target_rounding` replaces an end $E$ that could be a breakpoint (an odd coefficient of at most $p + 1$ bits) by $E' = E \\pm 2^{e_E - s}$ toward the inside of the enclosure, with $s = \\max(1, p + 3 - \\operatorname{bits}(c_E))$. If the leading bit of $E$ is $2^t$, breakpoints near $E$ are at least $2^{t - p - 1}$ apart and the offset is at most $2^{t - p - 2}$, so no breakpoint lies in $(E, E']$. Since $f(x) \\n"
 "e E$, either $f(x)$ lies beyond $E'$ or between $E$ and $E'$, and in the second case it shares the open cell between breakpoints with $E'$ and rounds like it. So $\\circ(E') = \\circ(U')$ with equal flags still forces $\\circ(f(x))$ and its flags, and the test passes as soon as the enclosure is narrower than the spacing, independently of $|x|$. `pow` uses inner endpoints whenever its exactness test (above) has shown that the result is irrational, not dyadic, or wider than $p + 1$ bits, so a tiny exponent with $x^y$ closer to $1$ than the target spacing is certified too ($2^{2^{-16000}}$ in binary128 is $1$ with `inexact`). The test leaves a few cases with a power-of-two base undecided (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range); those keep the plain acceptance test."
 msgstr ""
 
-#: manual/design/bin_float.md:770
+#: manual/design/bin_float.md:783
 msgid "*Tiny-argument bounds.* Some enclosures (for $\\sinh$, $\\tanh$ via $e^x - e^{-x}$, and for $\\operatorname{asinh}$, $\\operatorname{atanh}$, $\\operatorname{asin}$, $\\tan$, `expm1`, `log1p`) straddle the neighbour of $a$ until $w \\approx 3\\log_2(1/|x|)$. For $|x| \\le 1/2$ the series give one-sided bounds with a known side: $0 < x - \\sin x$, $0 < \\tan x - x$, $0 < \\operatorname{asin} x - x$, $0 < \\sinh x - x$, $0 < x - \\tanh x$, $0 < x - \\operatorname{asinh} x$, $0 < \\operatorname{atanh} x - x$, each at most $|x|^3$ (for $x > 0$, mirrored for $x < 0$), and $0 < 1 - \\cos x$, $0 < \\cosh x - 1$, $0 < \\operatorname{expm1}(x) - x$, $0 < x - \\operatorname{log1p}(x)$, each at most $x^2$. With $|x| < 2^T$, `binary_tiny_argument_result` uses the enclosure $[a, a + 2^{\\sigma}]$ or $[a - 2^{\\sigma}, a]$ with $\\sigma = 3T$ (respectively $2T$), raised to at least $t_a - p - 8$, when $\\sigma < t_a - p - 3$ ($2^{t_a}$ the leading bit of $a$), and rounds it with inner endpoints. The condition implies $|x| < 2^{-(p+3)/2} \\le 1/2$, so the bounds apply, and the enclosure is at most a quarter of the breakpoint spacing at $a$ wide. When $a$ is a breakpoint, both ends lie in the cell next to $a$ and the result is decided before the loop; otherwise (an argument wider than $p + 1$ bits) the loop runs as usual. With both measures `sin` and `atan` of $2^{-6000}$ at 53 bits and $e^{2^{-20000}}$ are certified in every rounding mode."
 msgstr ""
 
-#: manual/design/bin_float.md:791
+#: manual/design/bin_float.md:804
 msgid ""
 "`rootn` keeps the plain test, and `pow` uses it only for the few results its exactness test cannot classify. For `rootn` it suffices: its enclosure is $e^{\\ln(x)/n}$ at a working precision above the operand precision $q$, and $|\\ln x| / |n| > 2^{-(q + 31)}$ for $x \\n"
 "e 1$ and $|n| \\le 10^9$, so an end at $1$ disappears after an attempt or two. `pow` evaluates $e^{y \\ln x}$, where $y$ can be arbitrarily small: an exponent so small that $x^y$ lies closer to $1$ than the target spacing gives an enclosure with $L = 1$ at every affordable $w$. That is why `pow` moves such an end inward once its exactness test has excluded a breakpoint, as described under inner endpoints; for example $2^{2^{-16000}}$ in binary128 is then $1$ with `inexact`."
 msgstr ""
 
-#: manual/design/bin_float.md:802
+#: manual/design/bin_float.md:815
 msgid "I. Niven, *Irrational Numbers*, 1956, Corollary 3.12: if $r$ is rational and $\\sin(\\pi r)$ is rational, then $\\sin(\\pi r) \\in \\{0, \\pm\\frac12, \\pm 1\\}$; similarly for $\\cos$, and $\\tan(\\pi r) \\in \\{0, \\pm 1\\}$. The value $\\pm\\frac12$ needs $r$ with denominator 6 or 3, which is not dyadic."
 msgstr ""
 
-#: manual/design/bin_float.md:808
+#: manual/design/bin_float.md:821
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; for interval evaluation see W. Tucker, *Validated Numerics*, Princeton 2011, and F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr ""
 
-#: manual/design/bin_float.md:814
+#: manual/design/bin_float.md:827
 msgid "**Integer powers.** `pow_int_ctx` computes $x^n$ by an addition chain at $w = p + \\operatorname{bits}(n) + \\operatorname{bits}(p) + 4$ bits with round-to-nearest. Each chain step $a_k = a_i + a_j$ multiplies two approximations; if $x^{a} \\prod (1 + \\delta)^{E(a)}$ describes the error structure, then $E(a_k) = E(a_i) + E(a_j) + 1$ and $E(1) = 0$, so by induction $E(a) \\le a - 1$. The computed value is therefore $x^n (1 + \\theta)$ with $|\\theta| \\le \\gamma_{n-1} = (n-1)u_w/(1 - (n-1)u_w)$ in Higham's notation, which is below $2^{\\operatorname{bits}(n)}$ units in the last place of the $w$-bit result. The code uses the radius $2^{\\operatorname{bits}(n) + 2}$ units (one more factor of two for a negative power, whose reciprocal adds $n$ further factors), builds the interval, and accepts when both ends round alike, by the same (R2) argument. When 12 attempts (with $w$ doubled between them) do not certify, the exact power $c^n 2^{ne}$ is formed and rounded, so the result is correctly rounded in every case. A power certainly outside the range is decided first from certified $\\log_2$ bounds; powers of two and powers whose exact value fits in $p$ bits are computed exactly. The Ziv path therefore only sees $c^n$ with $c > 1$ odd and more than $p$ bits, or $1/c^n$, which is not dyadic: neither is in $F$, so the `inexact` it reports is right (the flag argument above). A $c^n$ with exactly $p + 1$ bits is a midpoint; the enclosure then never certifies under nearest rounding and the exact fallback decides it."
 msgstr ""
 
-#: manual/design/bin_float.md:836
+#: manual/design/bin_float.md:849
 msgid "**hypot.** `hypot` forms $a^2 + b^2$ exactly from the coefficients and takes one correctly rounded square root, so it needs no loop; the cost is the alignment shift between the two squares. For $|a| \\ge |b| > 0$, $|a| < \\sqrt{a^2 + b^2} \\le |a| + b^2 / (2|a|)$. Write $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = 2^{\\min(e,\\, t - p - 1)}$: $|a|$ and every rounding breakpoint near it are multiples of $g$, so when $b^2 < 2|a|g$ no breakpoint lies in $(|a|, |a| + b^2/(2|a|)]$ and every such $b$ gives the same rounded result and flags. $|b| < g/8$ is enough, and `binary_hypot_negligible_operand` then replaces $b$ by $g/8$, which keeps the shift at about twice the operand and target precisions however far apart the exponents are ($\\operatorname{hypot}(1, 2^{-600000}) = 1$ with `inexact`). A shift above $10^6$ bits is still refused as a `certification_failure`; after the replacement it needs a precision near $500\\,000$ bits."
 msgstr ""
 
-#: manual/design/bin_float.md:850
+#: manual/design/bin_float.md:863
 msgid "Asymptotically fast elementary kernels (proposed)"
 msgstr ""
 
-#: manual/design/bin_float.md:852
+#: manual/design/bin_float.md:865
 msgid "*Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18). The constants (`pi`, `ln 2`, `ln 10` by binary splitting) and the `exp` enclosure are implemented; the rest of this section is design. The measured figures are baselines or results of the implemented part; the figures marked \"projection\" come from a cost model fitted to them and are replaced by measurements as each step lands.*"
 msgstr ""
 
-#: manual/design/bin_float.md:859
+#: manual/design/bin_float.md:872
 msgid "**Problem.** Every enclosure above is built from a Taylor or artanh series whose terms are $w$-bit numbers, so one evaluation costs $O(w / \\log w)$ full multiplications, that is $O(w\\, M(w) / \\log w)$. At $w \\approx 8200$ bits on the native target `exp` takes 17.8 ms, `ln` 164 ms and `sin` 64 ms (before the fixed-point `ln` and `sin` branches), while the $8192 \\times 8192$-bit product takes 43 µs: `exp` is about 400 products. The constants are worse when cold: `pi` takes 742 ms, `ln 2` 297 ms and `ln 10` 146 ms at 8192 bits, which a call without a cached constant pays in full (MPFR on the same machine: 0.09 ms for `pi`, 0.29 ms for `ln 2`)."
 msgstr ""
 
-#: manual/design/bin_float.md:869
+#: manual/design/bin_float.md:882
 msgid "**Options.** (1) Binary splitting of the series of a rational argument, $O(M(w) \\log^2 w)$. (2) Bit-burst: split the argument into chunks of doubling length, evaluate the exponential of each chunk by a series with few terms (the later the chunk, the smaller it is), multiply the results: $O(M(w) \\log^2 w)$ with binary splitting inside and, with the plain fixed-point series inside, one cheap unbalanced product per term (measured: $8192 \\times 64$ bits 1.8 µs, $\\times 1024$ bits 6.9 µs, $\\times 8192$ bits 43 µs). (3) Newton iteration for `ln` on top of `exp`. (4) The arithmetic-geometric mean (AGM) for `ln` and `pi`, $O(M(w) \\log w)$ with large constants. (5) More halving and squaring: the squarings cost one full product each and lose a bit each, so it does not scale."
 msgstr ""
 
-#: manual/design/bin_float.md:882
+#: manual/design/bin_float.md:895
 msgid "**Choice.** Keep the Ziv loop, its working precisions and the exact cases untouched (see [Certified elementary functions](#certified-elementary-functions)). Replace only the function that produces the enclosure $[L, U]$ for a given $w$, and only from a per-target precision threshold upward. Every new kernel is a pure function $(x, w) \\mapsto [L, U]$ of exactly the type the loop already consumes (`binary_exp_bounds`, `binary_ln_bounds`, `binary_trigonometric_bounds`, and the constants), so `exp2`, `exp10`, `sinh`, `cosh`, `pow`, `rootn` and the logarithm family inherit the speed-up, and the recommended functions of [#235](https://github.com/Luna-Flow/floating/issues/235) (`compound`, `powr`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1`, `rSqrt`, the $\\pi$-scaled inverses) are written on the same layer. A kernel returns `None` for any precondition it cannot verify, and the caller then runs the existing path, so correctness never depends on the new code covering a case."
 msgstr ""
 
-#: manual/design/bin_float.md:897
+#: manual/design/bin_float.md:910
 msgid "*Integer enclosures.* All new kernels work on non-negative integers in units of $2^{-F}$ with $F = w + g$, using only `BinCoeff` operations (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`, `bit_length`), which exist on every target, so the same source runs on native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a pair $(\\ell, u)$ of integers with the invariant $\\ell \\le E \\cdot 2^{F} \\le u$. Every step produces a new pair from the old ones by monotone operations on non-negative numbers, so the invariant is proved step by step, and the final width $u - \\ell$ is a computed integer, not an estimate. The last step converts to `BinFloat::make(coeff, exp, w, mode=TowardNegative / TowardPositive)`, which is what the existing fixed-point series already does."
 msgstr ""
 
-#: manual/design/bin_float.md:910
+#: manual/design/bin_float.md:923
 msgid ""
 "**`exp`, by ln 2 reduction and bit-burst.** For finite $x \\n"
 "eq 0$ with $|x| < 2^{30}$ (larger magnitudes are decided before the loop or fall back), let $n = \\lfloor x / \\ln 2 \\rfloor$, found from the cached enclosure of $\\ln 2$ at $G = F + \\operatorname{bits}(n) + 2$ bits. Let $L = \\lfloor 2^{G} \\ln 2 \\rfloor / 2^{G}$ (a dyadic lower bound with $0 \\le \\ln 2 - L \\le 2^{1-G}$) and $R = x - nL$, computed exactly. If $R < 0$ or $R \\ge 1$ the integer $n$ is corrected by one and $R$ recomputed. Put $R_t = \\lfloor 2^{F} R \\rfloor / 2^{F}$ and $\\delta = (x - n \\ln 2) - R_t$. Then $-|n|\\,2^{1-G} \\le \\delta \\le 2^{-F}$ for $n \\ge 0$ (mirrored for $n < 0$), so $|\\delta| \\le 2^{-F}$ by the choice of $G$, and since $0 \\le R_t < 1$"
 msgstr ""
 
-#: manual/design/bin_float.md:926
+#: manual/design/bin_float.md:939
 msgid "The factor $e^\\delta$ costs at most $2 \\cdot 3 = 6$ units at the end (because $e^{R_t} < 3$), and no sign handling or reciprocal is needed because $R_t \\ge 0$."
 msgstr ""
 
-#: manual/design/bin_float.md:930
+#: manual/design/bin_float.md:943
 msgid "Write $R_t = \\sum_j y_j$ with $y_j = N_j / 2^{b_{j+1}}$ the bits of $R_t$ at positions $(b_j, b_{j+1}]$ after the binary point, $0 = b_0 < b_1 < \\dots$, and $b$ growing geometrically (factor about 4, first chunk about 16 bits; the constants are tuned per target). Then $y_j < 2^{-b_j}$, $N_j < 2^{b_{j+1} - b_j}$, and $e^{R_t} = \\prod_j e^{y_j}$."
 msgstr ""
 
-#: manual/design/bin_float.md:936
+#: manual/design/bin_float.md:949
 msgid "*Stage kernel.* For $y = N / 2^{s} < 1$ let $t_0 = 2^{F}$ and $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$ (the second floor is absent for $i = 1$), and let $\\tau_i = 2^{F} y^i / i!$ be the exact terms. By induction $t_i \\le \\tau_i$ (both floors round down), and the deficit $d_i = \\tau_i - t_i$ satisfies $d_1 < 1$ and $d_i < (d_{i-1}\\, y + 1)/i + 1$, hence $d_2 < 2$ and $d_i < 4/3 + 1 < 3$ for $i \\ge 3$ (this is the argument of the fixed-point series already in `elementary_fixed_exp.mbt`, with $y < 1$ in place of $y \\le 1/8$). Stop at the first $n$ with $t_n < 2^{8}$. For $n \\ge 1$ the ratio of consecutive exact terms is at most $y/(n+1) \\le 1/2$, so $\\sum_{i > n} \\tau_i \\le \\tau_n \\cdot \\frac{1/2}{1 - 1/3} < \\tau_n < t_n + 3$. With $S = \\sum_{i=0}^{n} t_i$,"
 msgstr ""
 
-#: manual/design/bin_float.md:954
+#: manual/design/bin_float.md:967
 msgid "Then $(\\ell, u) \\mapsto (\\lfloor \\ell\\, S / 2^{F} \\rfloor,\\; \\lceil u\\,(S + e_y) / 2^{F} \\rceil)$ folds the stage into the running product: $e^{y}$ and the partial product are in the stated intervals, both are non-negative, and multiplication is monotone on non-negative numbers, so the new pair satisfies the invariant. Each stage adds at most $e_y + 2$ units of relative width, so with at most $J$ stages the final width is below $J (2^{8} + 3 n_{\\max} + 5) + 6$ units, about $2^{15}$ units for $w = 8192$; $g = 48$ guard bits therefore keep the enclosure within $2^{-(w+7)}$ relative width, which is the width of the current series. The kernel computes the true width and returns `None` when it exceeds that bound."
 msgstr ""
 
-#: manual/design/bin_float.md:965
+#: manual/design/bin_float.md:978
 msgid "*Cost.* A stage with $m$-bit numerator at position $b$ needs $n_b \\approx F / (b + \\log_2 n_b)$ terms, each a product of the shrinking term by an $m$-bit integer, a shift and a division by a one-limb integer. For $w = 8192$ the first chunk (16 bits) needs about 880 terms, the chunk at 65 to 261 bits about 120, the chunk at 261 to 1045 bits about 31, and the last chunks fewer than 10. The early chunks have too many terms for the fixed-point loop; they are evaluated by **binary splitting** of $\\sum_{i<n} N^i / (i!\\, 2^{si})$ with exact integers $(P, Q, T)$, $T = T_L Q_R 2^{s\\,|R|} + P_L T_R$, $P = P_L P_R$, $Q = Q_L Q_R$. The enclosure then has no accumulated rounding: $\\ell = \\lfloor 2^{F} T / (Q 2^{sn}) \\rfloor$, $u = \\ell + 3$ once $n$ is large enough that $N^n 2^{F} < n!\\, 2^{sn}$ (an integer comparison on bit lengths), because then the tail is at most $2\\, \\tau_n < 2$ units. A stage is estimated (not yet measured) at 8 to 14 full products independent of $N$, a fixed-point stage with $n$ terms costs $n$ unbalanced products, so the crossover per stage is at $n$ of a few tens of terms."
 msgstr ""
 
-#: manual/design/bin_float.md:981
+#: manual/design/bin_float.md:994
 msgid "*Implementation (`elementary_burst_exp.mbt`).* The kernel `binary_exp_bounds_burst` follows the construction above with these choices: $g = 48$ guard bits; chunk boundaries at $16, 64, 256, \\dots$ (first chunk 16 bits, factor 4); a chunk is evaluated by binary splitting when its term count (from the integer bound on $2^F N^n < n!\\, 2^{sn}$, using $\\log_2 n! \\ge \\sum_{i \\le n} (\\operatorname{bits}(i) - 1)$) is at least 40, and by the fixed-point series otherwise; `ln 2` is requested at the next multiple of 64 above $G + 2$. The reduced argument comes from one Euclidean division of $x 2^G$ by $\\lfloor 2^G \\ln 2 \\rfloor$, so $0 \\le R < \\ln 2$ with no correction loop. The kernel declines (`None`, and the series runs) for $|x| < 2^{-65}$ or $|x| \\ge 2^{30}$, when $|n| \\ge 2^{29}$ (the result exponent would approach the limit of the exponent range), when $x$ has bits below $2^{-G}$, and when the computed width exceeds $2^{-(w+6)}$ of the value. It is used from a per-target working precision, kept with the coefficient thresholds: 1024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on JavaScript (the kernel is slower than the series below roughly 1000 bits on Native, 600 on Wasm-GC; on JavaScript it wins already at 256). The three chunk constants were swept on Native; in a repeat on a quiet machine the chosen point (16, factor 4, split at 40 terms) was the fastest at 8256 bits (1.5 ms against 1.6 to 2.3 ms for the other tried settings) and within about 15 % of the fastest at 2112 bits."
 msgstr ""
 
-#: manual/design/bin_float.md:1003
+#: manual/design/bin_float.md:1016
 msgid "*Evidence for the `exp` kernel.* White-box tests (`elementary_burst_exp_wbtest.mbt`): the enclosure at $w$ contains the series enclosure at $w + 256$ for every argument the kernel accepts in a corpus of 224 values of 60 to 2000 bits with $|x|$ from $2^{-60}$ to $2^{30}$, and for arguments next to multiples of $\\ln 2$, to $2^{29} - 1$ and to $1 - 2^{-k}$; it is no wider than the series enclosure at $w$; and `exp_ctx` returns the same value and flags as the Ziv loop run on the series alone, in four rounding directions. Three deliberately wrong variants are caught by the containment test: a bias of 64 units in every stage, 40 terms fewer in the binary-splitting stages, and `ln 2` taken with 128 bits fewer for an argument near $2^{27}$. Two obligations are not exercised by such tests: the slack of the fixed-point stages and the units for $\\delta$ are dominated by the much larger worst-case terms of the other stages, so an enclosure without them still contains the value; their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 35,040 rows (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{28}$ and next to multiples of $\\ln 2$) all match; the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript; the random differential run (`elem`) agrees on 100,000 cases on Native and 20,000 on each other target."
 msgstr ""
 
-#: manual/design/bin_float.md:1023
+#: manual/design/bin_float.md:1036
 msgid "*Measured (native, release, this machine).* Kernel only, $w = p + 64$ bits, $x \\approx 0.7$: 20 ms to 1.97 ms at 8256 bits, 3.3 ms to 0.67 ms at 4160, 594 to 220 µs at 2112, 112 to 87 µs at 1088; below 1000 bits it is slower (37 to 41 µs at 576). End to end, `just bench external quick --ops exp` paired and alternating with `origin/main` (four rounds, the quiet ones last), floating time per call: 8192 bits 20.2 and 20.4 ms against 1.78 and 1.69 ms (paired ratios 9.1 to 12.1), 2048 bits 508 and 517 µs against 187 and 196 µs (2.1 to 2.7), and 53 and 512 bits unchanged within the noise of the machine (0.92 to 1.19). Against the stored MPFR reference of that tool the ratio of the 8192-bit call moves from about 95 to about 8 on the machine of the run (the machine reads about 1.4 times slower than the stored run, so the drift corrected values are about 66 and 5.6)."
 msgstr ""
 
-#: manual/design/bin_float.md:1036
+#: manual/design/bin_float.md:1049
 msgid "*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size products (43 µs each) and spends most of it in products and divisions of $w$-bit numbers. With a multiplication and division kernel three times faster, and everything else unchanged, a first estimate (not measured) is 0.6 to 0.8 ms at 8192 bits and 60 to 80 µs at 2048 bits, which is about 3 to 4 times the MPFR reference (213 µs and 17 µs). The remaining gap would be allocation and the small-integer steps of the fixed-point stages."
 msgstr ""
 
-#: manual/design/bin_float.md:1045
+#: manual/design/bin_float.md:1058
 msgid "**`ln`, by verified Newton step.** Write $v = m\\, 2^{k}$ with $m \\in [2^{-1/2}, 2^{1/2})$, so $\\ln v = k \\ln 2 + \\ln m$. Take any dyadic $y_0$ with about $w/2 + 16$ bits (from the same function at half the precision, recursively, down to the existing series). Correctness does not depend on how good $y_0$ is, only the speed does. Let $[E_\\ell, E_u]$ be the enclosure of $e^{y_0}$ from the kernel above and $q_\\ell = m / E_u$, $q_u = m / E_\\ell$ (directed divisions). Since $\\ln$ is monotone, $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$, and for $|u| \\le 1/2$ one has $u - u^2 \\le \\ln(1 + u) \\le u$, so"
 msgstr ""
 
-#: manual/design/bin_float.md:1059
+#: manual/design/bin_float.md:1072
 msgid "whenever $|q_\\ell - 1|, |q_u - 1| \\le 1/2$ (checked at run time, else `None`). If $|\\ln m - y_0| \\le 2^{-(w/2+8)}$ the quadratic term is below $2^{-(w+14)}$ and the width is that of $E$. Adding $k \\ln 2$ uses the exact integer product of $k$ with the dyadic bounds of $\\ln 2$. For $|m - 1| < 2^{-16}$ the existing artanh series has $O(w/16)$ terms and stays in use. The cost is that of one `exp` at $w$ plus the recursive call at about $w/2$ (about $1.5$ times one `exp` in total) plus two divisions. Projection at 8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point branch)."
 msgstr ""
 
-#: manual/design/bin_float.md:1069
+#: manual/design/bin_float.md:1082
 msgid "*AGM alternative.* $\\ln s = \\pi / (2\\, \\mathrm{AGM}(1, 4/s)) - m \\ln 2$ for $s = v\\, 2^{m} > 2^{w/2}$ costs about $\\log_2 w$ iterations of one product and one square root. With today's kernels (`sqrt_ctx` 128 µs, product 43 µs at 8192 bits) this is 2.7 to 3.2 ms, no better than the Newton step within the model's error, because our square root is 29 times and our product 13 times slower than MPFR's (4.4 and 3.2 µs on the same machine, secondary evidence). It also needs a rigorous bound for the truncation error of the formula (the $O(s^{-2})$ term, derived from Jacobi's identity $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$[^brent-agm]), which this page does not yet provide. It is therefore the second choice, taken up only if the Newton step measures slower than the projection."
 msgstr ""
 
-#: manual/design/bin_float.md:1081
+#: manual/design/bin_float.md:1094
 msgid "**`sin` and `cos`, by complex bit-burst.** With $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, $G = F + \\operatorname{bits}(n) + 2$, the quadrant integer $n = \\operatorname{round}(x / H)$ and $R = x - nH$ (exact, $|R| \\le 0.8$ after a correction of $n$), the true reduced argument $r = x - n \\pi/2$ satisfies $|r - R| \\le |n|\\,2^{1-G} \\le 2^{-F}$. Sine and cosine are 1-Lipschitz, so $\\sin r \\in \\sin R \\pm 2^{-F}$ and likewise for the cosine; truncating $|R|$ to $F$ bits costs one more unit. The quadrant $n \\bmod 4$ maps $(\\sin r, \\cos r)$ to the result, as in `binary_reduced_trigonometric_bounds`. For $y = N/2^s < 1$ the real and imaginary parts of the series of $e^{iy}$ are the even and odd terms of the same sequence $t_i$ as above, with signs $(-1)^{\\lfloor i/2 \\rfloor}$, so a stage costs the same as an `exp` stage and gives both $\\cos y$ and $\\sin y$. The deficits satisfy the same bound $d_i < 3$, and each of the two alternating series has terms that decrease in size ($y^2 / ((i+1)(i+2)) < 1$), so the tail after $t_n < 2^{8}$ is at most $t_n + 3$ in size and the enclosure is $S_{\\mathrm{cos}}$ or $S_{\\mathrm{sin}} \\pm (t_n + 3n + 3)$. Stages are folded by rotation, $(C, S) \\leftarrow (C c - S s,\\; S c + C s)$, with four products and interval bounds on non-negative integers; all partial angles lie in $[0, 0.8]$, so all four factors are non-negative and the difference of bounds is checked to be non-negative. Because the merge costs four full products per stage, the stages are fewer than for `exp` (factor 4 to 8 between chunk boundaries), and the last stage computes only the requested one of the two values. For $|R| < 2^{-16}$ the existing series stays. Projection at 8192 bits: 4 to 6 ms, against 64 ms today (16 ms projected for the fixed-point branch); `tan` and the $\\pi$-scaled functions follow."
 msgstr ""
 
-#: manual/design/bin_float.md:1107
+#: manual/design/bin_float.md:1120
 msgid "**Constants by binary splitting.** `pi`, `ln 2` and `ln 10` are computed once per working precision and cached, but a first call pays the cold cost above. Binary splitting gives $O(M(w) \\log^2 w)$ with rigorous bounds:"
 msgstr ""
 
-#: manual/design/bin_float.md:1118
+#: manual/design/bin_float.md:1131
 msgid "where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46 bits per term) and $\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$."
 msgstr ""
 
-#: manual/design/bin_float.md:1121
+#: manual/design/bin_float.md:1134
 msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `BinCoeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
 msgstr ""
 
-#: manual/design/bin_float.md:1134
+#: manual/design/bin_float.md:1147
 msgid "*Tail bounds.* For $\\operatorname{artanh}(1/k)$ with $K = k^2$ take $N$ terms with $K^N \\ge 2^{F+9}$, $F = w + 16$ (using $\\lfloor \\log_2 K \\rfloor$): the first omitted term is at most $2^{-(F+9)}$ and the omitted terms are positive and shrink by at least $1/K \\le 1/4$, so they sum to less than $2^{-(F+8)}$, which is added to the upper end. For Chudnovsky the ratio of the factorial parts of consecutive terms is $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$, the linear factor grows by at most 41.11 from $k = 0$ to $1$ and by less than 2 after that, and $640320^3 > 2^{57.8}$, so the ratios are below $2^{-41.7}$ and then $2^{-46.1}$, the terms decrease in size, alternate in sign, and the first is below $2^{24}$. The omitted sum from index $N$ is therefore at most the size of term $N$, below $2^{-17 - 46(N-1)}$, which is at most $2^{-(F+4)}$ for $N = \\lfloor F/46 \\rfloor + 3$. Then $S \\in [(t - e)/q, (t + e)/q]$ for the integer $e = \\lfloor q / 2^{F+4} \\rfloor + 1$, and $\\pi$ is enclosed by dividing $426880 \\sqrt{10005}\\, q$ by $t \\pm e$ with directed rounding. The identities were checked numerically to 60 digits."
 msgstr ""
 
-#: manual/design/bin_float.md:1151
+#: manual/design/bin_float.md:1164
 msgid "*Evidence.* Tests (`elementary_constants_split_wbtest.mbt`): the new enclosure at $w$ contains the old series enclosure at $w + 256$ (an independent computation) for $w$ from 64 to 1024; it is no wider than the old enclosure at $w$ up to 2048; enclosures at $w$ and $w + 300$ nest up to 20000 bits; and removing terms (a test hook) makes the containment test fail, so the tail count is checked and not just assumed. A one-off comparison against MPFR 4.2.2 (`mpfr_const_pi`, `mpfr_const_log2`, `mpfr_log(10)` at $2w + 64$ bits) at 64, 100, 257, 1000, 4096, 8192, 30000 and 100000 bits found every enclosure containing the MPFR value, one to two units of the last place wide. All `bin_float` tests pass on native, wasm, wasm-gc and js, `just pr` passes, and 30000 (native) and 10000 (each of wasm, wasm-gc, js) random `elem` cases agree with MPFR."
 msgstr ""
 
-#: manual/design/bin_float.md:1164
+#: manual/design/bin_float.md:1177
 msgid "*Measured (native, release, cold enclosure at $w = p + 64$, this machine).* `pi` 449 ms to 0.67 ms at $p = 8192$, 14 ms to 71 µs at 2048, 0.93 ms to 15 µs at 512; `ln 2` 178 ms to 1.33 ms, 5.6 ms to 156 µs, 0.36 ms to 32 µs; `ln 10` (with `ln 2` cached) 89 ms to 0.99 ms, 2.8 ms to 114 µs, 0.18 ms to 26 µs. At $p = 64$ the splitting is already 3 to 19 times faster, on wasm-gc and js as well (js at 8192 bits: `pi` 0.63 ms, `ln 2` 0.67 ms), so the threshold `binary_constants_split_min_precision` is 64 on every target. Warm (cached) calls are unchanged. A first `sin` or `ln` at 8192 bits used to pay the series cost on top of the warm time (about 450 ms for `pi`, about 180 ms for `ln 2`); now a cold call costs at most about 7 ms more than a warm one (`sin` 53.4 ms cold against 53.6 ms warm, `ln` 101.9 ms against 94.3 ms at 8192 bits)."
 msgstr ""
 
-#: manual/design/bin_float.md:1177
+#: manual/design/bin_float.md:1190
 msgid "The cache itself is unchanged. The design asks for requests for `ln 2` at a canonical precision (the next multiple of 64 above $F + \\operatorname{bits}(n) + 2$) so that `exp`, `ln` and the trigonometric reduction share entries instead of evicting each other; that belongs to the `exp` kernel, which is the first caller with such an irregular precision, and is not part of the constants step."
 msgstr ""
 
-#: manual/design/bin_float.md:1184
+#: manual/design/bin_float.md:1197
 msgid "**Working-precision schedule and the Ziv loop.** The attempt precisions $w_0 = p + 64$, $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ and the budget of 12 attempts are unchanged. Each attempt picks the old or the new kernel by comparing $w$ with a per-target constant and, for `ln` and the sine, by the argument (the near-1 and tiny-argument cases above); a kernel that returns `None` or an enclosure wider than the old series' falls through to the old kernel at the same $w$. So an attempt never certifies less than before, and the exact cases, the tiny-argument measures, the inner-endpoint rounding and the flag argument of the loop are untouched. The result of a call is the correctly rounded value whenever either path certifies, hence identical to the current result; they can differ only in which inputs exhaust the budget, which the corpus comparison below counts. The faster attempts make a longer budget affordable, which is the point of [#15](https://github.com/Luna-Flow/floating/issues/15): the limit is a policy of the loop and does not interact with the kernels."
 msgstr ""
 
-#: manual/design/bin_float.md:1200
+#: manual/design/bin_float.md:1213
 msgid "**Allocation and targets.** `BinCoeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). A fused in-place multiply-shift-divide loop on a mutable limb array would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `BinCoeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
 msgstr ""
 
-#: manual/design/bin_float.md:1213
+#: manual/design/bin_float.md:1226
 msgid "**Evidence the new path must produce.** Each kernel carries its own invariant tests: containment of the enclosure of the old path at $w + 256$ bits in the new enclosure at $w$ (an independent computation), the width bound, and boundary cases (arguments at chunk boundaries, $R$ near $0$ and $1$, the corrections of $n$, huge $|n|$, tiny and near-1 arguments). The end-to-end check compares every result bit for bit with the old path and with MPFR on a seeded random corpus plus the existing boundary corpus on all four targets, and a deliberately biased kernel (one unit too narrow) must make the tests fail."
 msgstr ""
 
-#: manual/design/bin_float.md:1222
+#: manual/design/bin_float.md:1235
 msgid "**Limits of the speed-up.** The model reaches algorithmic parity with MPFR (`exp` at 8192 bits is about 65 to 100 products in MPFR and, projected, about 50 to 80 here), so the remaining gap is the product kernel: 43 µs against 3.2 µs at 8192 bits, a factor 13 (4 µs against 0.31 µs, a factor 12, at 2048 bits). Ratios to MPFR at 8192 bits in the same run (MPFR: `exp` 326 µs, `ln` 177 µs, `sin` 291 µs): today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17 to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is therefore within reach for `exp` only if the product kernel also improves."
 msgstr ""
 
-#: manual/design/bin_float.md:1232
+#: manual/design/bin_float.md:1245
 msgid "**Evidence still to confirm.** The reference to Brent (1976) in the footnote below, for bit-burst and the AGM logarithm, and the statement of the Jacobi identity for the nome, were written from memory and have not been checked against the sources; the owner will check them, and nothing in the design or in the code depends on them (the AGM is not used until its truncation bound is derived and proved here). The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
 msgstr ""
 
-#: manual/design/bin_float.md:1241
+#: manual/design/bin_float.md:1254
 msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The sharp truncation bound has to be derived from the theta series before the AGM is used. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
 msgstr ""
 
-#: manual/design/bin_float.md:1248
+#: manual/design/bin_float.md:1261
 msgid "The coefficient kernel"
 msgstr ""
 
-#: manual/design/bin_float.md:1250
+#: manual/design/bin_float.md:1263
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr ""
 
-#: manual/design/bin_float.md:1253
+#: manual/design/bin_float.md:1266
 msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 32-bit limbs (a host `bigint` on JavaScript), and dispatches on the shorter operand length $n$ in limbs:"
 msgstr ""
 
-#: manual/design/bin_float.md:1257
+#: manual/design/bin_float.md:1270
 msgid "Product"
 msgstr ""
 
-#: manual/design/bin_float.md:1257
+#: manual/design/bin_float.md:1270
 msgid "Native"
 msgstr ""
 
-#: manual/design/bin_float.md:1257
+#: manual/design/bin_float.md:1270
 #: manual/design/decimal.md:898
 #: manual/design/decimal_gda.md:793
 msgid "LLVM"
 msgstr ""
 
-#: manual/design/bin_float.md:1257
+#: manual/design/bin_float.md:1270
 msgid "Wasm, Wasm-GC"
 msgstr ""
 
-#: manual/design/bin_float.md:1259
+#: manual/design/bin_float.md:1272
 msgid "schoolbook below"
 msgstr ""
 
-#: manual/design/bin_float.md:1260
+#: manual/design/bin_float.md:1273
 msgid "Karatsuba from"
 msgstr ""
 
-#: manual/design/bin_float.md:1261
+#: manual/design/bin_float.md:1274
 msgid "Toom-3 from"
 msgstr ""
 
-#: manual/design/bin_float.md:1262
+#: manual/design/bin_float.md:1275
 msgid "two-prime NTT multiply from"
 msgstr ""
 
-#: manual/design/bin_float.md:1263
+#: manual/design/bin_float.md:1276
 msgid "NTT square from"
 msgstr ""
 
-#: manual/design/bin_float.md:1264
+#: manual/design/bin_float.md:1277
 msgid "recursive square from"
 msgstr ""
 
-#: manual/design/bin_float.md:1266
+#: manual/design/bin_float.md:1279
 msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
 msgstr ""
 
-#: manual/design/bin_float.md:1273
+#: manual/design/bin_float.md:1286
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr ""
 
-#: manual/design/bin_float.md:1285
+#: manual/design/bin_float.md:1298
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr ""
 
-#: manual/design/bin_float.md:1292
+#: manual/design/bin_float.md:1305
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr ""
 
-#: manual/design/bin_float.md:1301
+#: manual/design/bin_float.md:1314
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr ""
 
-#: manual/design/bin_float.md:1315
+#: manual/design/bin_float.md:1328
 msgid "Ordering NaN in `compare`"
 msgstr ""
 
-#: manual/design/bin_float.md:1317
+#: manual/design/bin_float.md:1330
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr ""
 
-#: manual/design/bin_float.md:1321
+#: manual/design/bin_float.md:1334
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr ""
 
-#: manual/design/bin_float.md:1328
+#: manual/design/bin_float.md:1341
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr ""
 
-#: manual/design/bin_float.md:1343
+#: manual/design/bin_float.md:1356
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr ""
 
-#: manual/design/bin_float.md:1347
+#: manual/design/bin_float.md:1360
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:1352
+#: manual/design/bin_float.md:1365
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:1361
+#: manual/design/bin_float.md:1374
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr ""
 
-#: manual/design/bin_float.md:1365
+#: manual/design/bin_float.md:1378
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr ""
 
-#: manual/design/bin_float.md:1369
+#: manual/design/bin_float.md:1382
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr ""
 
-#: manual/design/bin_float.md:1373
+#: manual/design/bin_float.md:1386
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr ""
 
-#: manual/design/bin_float.md:1382
+#: manual/design/bin_float.md:1395
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr ""
 
-#: manual/design/bin_float.md:1386
+#: manual/design/bin_float.md:1399
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr ""
 
-#: manual/design/bin_float.md:1390
+#: manual/design/bin_float.md:1403
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr ""
 
-#: manual/design/bin_float.md:1394
+#: manual/design/bin_float.md:1407
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr ""
 
-#: manual/design/bin_float.md:1399
+#: manual/design/bin_float.md:1412
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr ""
 
-#: manual/design/bin_float.md:1402
+#: manual/design/bin_float.md:1415
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr ""
 
-#: manual/design/bin_float.md:1406
+#: manual/design/bin_float.md:1419
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr ""
 
-#: manual/design/bin_float.md:1410
+#: manual/design/bin_float.md:1423
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr ""
 
-#: manual/design/bin_float.md:1415
+#: manual/design/bin_float.md:1428
 msgid "`bin_float` deliberately does not:"
 msgstr ""
 
-#: manual/design/bin_float.md:1417
+#: manual/design/bin_float.md:1430
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr ""
 
-#: manual/design/bin_float.md:1420
+#: manual/design/bin_float.md:1433
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr ""
 
-#: manual/design/bin_float.md:1422
+#: manual/design/bin_float.md:1435
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr ""
 
-#: manual/design/bin_float.md:1424
+#: manual/design/bin_float.md:1437
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr ""
 
-#: manual/design/bin_float.md:1426
+#: manual/design/bin_float.md:1439
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr ""
 
-#: manual/design/bin_float.md:1429
+#: manual/design/bin_float.md:1442
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr ""
 
-#: manual/design/bin_float.md:1431
+#: manual/design/bin_float.md:1444
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr ""
 
@@ -19928,7 +20041,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda.md:265
 #: manual/tutorial/decimal_gda_checked.md:164
 #: manual/tutorial/def.md:166
-#: manual/tutorial/differential.md:149
+#: manual/tutorial/differential.md:150
 #: manual/tutorial/doc_examples.md:52
 #: manual/tutorial/frontend/gda_expr.md:225
 #: manual/tutorial/frontend/itl_expr.md:153
@@ -19999,7 +20112,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda.md:352
 #: manual/tutorial/decimal_gda_checked.md:233
 #: manual/tutorial/def.md:246
-#: manual/tutorial/differential.md:159
+#: manual/tutorial/differential.md:160
 #: manual/tutorial/doc_examples.md:58
 #: manual/tutorial/frontend/gda_expr.md:241
 #: manual/tutorial/frontend/itl_expr.md:166
@@ -20070,7 +20183,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda.md:384
 #: manual/tutorial/decimal_gda_checked.md:247
 #: manual/tutorial/def.md:270
-#: manual/tutorial/differential.md:170
+#: manual/tutorial/differential.md:171
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
 #: manual/tutorial/frontend/itl_expr.md:180
@@ -22798,90 +22911,90 @@ msgid "A campaign needs the oracles: a C compiler with MPFR and GMP (Homebrew pu
 msgstr ""
 
 #: manual/tutorial/differential.md:61
-msgid "`--family` is repeatable and defaults to every family. The binary families are `add sub mul div sqrt fma strtofr getstr shortest elem elem2` (`elem2` holds `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, which `elem` does not draw); the decimal ones are `dec-add dec-subtract dec-multiply dec-divide dec-squareroot dec-fma dec-apply dec-tosci dec-toeng dec-exp dec-ln dec-log10 dec-power`. The `dec-*wide` families sample the contexts on which the elementary functions refuse by design and are opt-in. `--count` is per family, `--shard` bounds the rows generated per file, `--batch` the cases validated together, `--jobs` the parallel shards."
+msgid "`--family` is repeatable and defaults to every family. The binary families are `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3` (`elem2` holds `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, `elem3` holds `rsqrt`, `compound` and `powr`, which `elem` does not draw); the decimal ones are `dec-add dec-subtract dec-multiply dec-divide dec-squareroot dec-fma dec-apply dec-tosci dec-toeng dec-exp dec-ln dec-log10 dec-power`. The `dec-*wide` families sample the contexts on which the elementary functions refuse by design and are opt-in. `--count` is per family, `--shard` bounds the rows generated per file, `--batch` the cases validated together, `--jobs` the parallel shards."
 msgstr ""
 
-#: manual/tutorial/differential.md:71
+#: manual/tutorial/differential.md:72
 msgid "The run directory holds `records-<target>.jsonl` (append-only, one file per backend) and `summary.json` with the exact number of cases per backend, family and operation. The command exits with `1` when a batch disagreed."
 msgstr ""
 
-#: manual/tutorial/differential.md:75
+#: manual/tutorial/differential.md:76
 msgid "Read the record"
 msgstr ""
 
-#: manual/tutorial/differential.md:93
+#: manual/tutorial/differential.md:94
 msgid "Each `validation` names the batch by its first and last case id and its size. An `invalid` one is followed by a `validation_failure` that carries the minimized case."
 msgstr ""
 
-#: manual/tutorial/differential.md:97
+#: manual/tutorial/differential.md:98
 msgid "Replay a case"
 msgstr ""
 
-#: manual/tutorial/differential.md:105
+#: manual/tutorial/differential.md:106
 msgid "The generators are pure functions of seed, family and index, so the id is the whole reproduction. The output is the frontend's summary; a failing row is printed with the expected and the actual value and flags."
 msgstr ""
 
-#: manual/tutorial/differential.md:109
+#: manual/tutorial/differential.md:110
 msgid "Minimize a failure"
 msgstr ""
 
-#: manual/tutorial/differential.md:115
+#: manual/tutorial/differential.md:116
 msgid "The minimizer tries simpler variants (smaller precision, plain rounding, no clamp, narrower exponent range, shorter operands, operands rewritten as `1E+k`), asks the oracle for the correct answer of each variant, and keeps a variant when the library still disagrees. The result is a row the oracle produced itself, so it is a consistent regression case, not an edited one."
 msgstr ""
 
-#: manual/tutorial/differential.md:121
+#: manual/tutorial/differential.md:122
 msgid "Sweep the range limits"
 msgstr ""
 
-#: manual/tutorial/differential.md:123
+#: manual/tutorial/differential.md:124
 msgid "The random rows rarely land on an underflow or overflow threshold. For the binary elementary functions, `tools/range_boundary_rows.py` writes rows on the thresholds themselves, for every precision in a range, with the oracle columns left as `?`:"
 msgstr ""
 
-#: manual/tutorial/differential.md:134
+#: manual/tutorial/differential.md:135
 msgid "The generator binary is built by any `just random-diff run`. A failing row is named with its expected and actual value and flags, so it can be pasted into a regression fixture."
 msgstr ""
 
-#: manual/tutorial/differential.md:138
+#: manual/tutorial/differential.md:139
 msgid "Other backends"
 msgstr ""
 
-#: manual/tutorial/differential.md:140
+#: manual/tutorial/differential.md:141
 msgid "`--target` selects the backend of the harness: `native`, `wasm`, `js` or `llvm` (the mare_mark runner has no Wasm-GC runtime). For Wasm-GC, run the same fixtures through the synchronous runner:"
 msgstr ""
 
-#: manual/tutorial/differential.md:151
+#: manual/tutorial/differential.md:152
 msgid "[API](../api/differential.md): the command line and the record."
 msgstr ""
 
-#: manual/tutorial/differential.md:152
+#: manual/tutorial/differential.md:153
 msgid "[Design](../design/differential.md): the oracle reductions and the batch validation."
 msgstr ""
 
-#: manual/tutorial/differential.md:154
+#: manual/tutorial/differential.md:155
 msgid "[Binary test data](../../../testdata/bin_float/README.md) and [decimal test data](../../../testdata/decimal/README.md): row formats, coverage, the intentional differences and the regression fixtures."
 msgstr ""
 
-#: manual/tutorial/differential.md:157
+#: manual/tutorial/differential.md:158
 msgid "[Verification](../verification.md): what has been run, with exact counts."
 msgstr ""
 
-#: manual/tutorial/differential.md:161
+#: manual/tutorial/differential.md:162
 msgid "**A stale `moon` earlier on `PATH`.** The build runs `moon`; make sure the one you meant comes first."
 msgstr ""
 
-#: manual/tutorial/differential.md:163
+#: manual/tutorial/differential.md:164
 msgid "**No MPFR headers.** The generator build fails with `mpfr.h not found`; set `MPFR_PREFIX` or pass `--mpfr-prefix`."
 msgstr ""
 
-#: manual/tutorial/differential.md:165
+#: manual/tutorial/differential.md:166
 msgid "**Seeds above 2^31.** The harness takes the seed as a 32-bit integer and the tool reduces it; the case ids keep the full seed."
 msgstr ""
 
-#: manual/tutorial/differential.md:167
+#: manual/tutorial/differential.md:168
 msgid "**Treating a disagreement as a bug.** The oracles are implementations. Read the clause first."
 msgstr ""
 
-#: manual/tutorial/differential.md:172
+#: manual/tutorial/differential.md:173
 msgid "Run a longer campaign on every backend, then read [verification](../verification.md) for how the published counts were produced."
 msgstr ""
 
@@ -24499,834 +24612,838 @@ msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and
 msgstr ""
 
 #: manual/verification.md:261
+msgid "*`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2, and so do 718,824 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules; the thresholds of $1/\\sqrt{x}$, $(1 + x)^n$ for $n \\in \\{\\pm 3, \\pm 7, \\pm 100\\}$ and $x^y$ with $y$ placed on $\\log_2$ of each threshold). The comparison needed two corrections of the oracle, both documented in `testdata/bin_float/README.md`: `mpfr_compound_si` is wrong for a negative `n` in the directed modes and near the range limits (proved with exact rational arithmetic on all 2,017 boundary rows; the rows use the exact rational instead), and `mpfr_rec_sqrt(-0)` is +inf where the standard says -inf. The library had no disagreement in either case."
+msgstr ""
+
+#: manual/verification.md:272
 msgid "*Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`, `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an operand rounds past Nmax: [#264](https://github.com/Luna-Flow/floating/issues/264)). The campaign's first run had 10 further disagreements whose operand was above Emax; decTest converts operands subject to the directives, so they are a property of the rows, not findings (the generator now keeps operands within Emax)."
 msgstr ""
 
-#: manual/verification.md:269
+#: manual/verification.md:280
 msgid "*Decimal `power`*: 100,000 native cases disagreed with libmpdec in at least 300 of them; four defects are filed: the sign of an overflowing result ([#265](https://github.com/Luna-Flow/floating/issues/265)), trailing zeros of inexact results ([#266](https://github.com/Luna-Flow/floating/issues/266)), a spurious Clamped ([#267](https://github.com/Luna-Flow/floating/issues/267)) and missing Subnormal and Underflow ([#268](https://github.com/Luna-Flow/floating/issues/268)). One more symptom (the exact result `power(0.05, -8) = 2.56E+10` raises Rounded) is not filed yet. `exp`, `ln` and `log10` agreed in all 300,000 native cases."
 msgstr ""
 
-#: manual/verification.md:279
+#: manual/verification.md:290
 msgid "**Known intentional differences, filtered where the rows are generated.** The numbers above exclude, and the test-data READMEs document, these cases: MPFR has no subnormals (emulated with `mpfr_subnormalize`; nearest-away rows that would be subnormal are drawn in nearest-even) and its range is one binade narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the row's own range, so those limits are compared); NaN payloads are not compared; the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin| reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts; opt-in `dec-*wide` families sample those contexts); libmpdec decides Subnormal and Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN is not specified; `tosci` and `toeng` apply the context precision as decTest specifies."
 msgstr ""
 
-#: manual/verification.md:293
+#: manual/verification.md:304
 msgid "**An oracle defect.** `mpfr_sqrt` of MPFR 4.2.2 (Homebrew bottle, arm64) reports an exact result, or a result on the wrong side of the root, for some operands with an odd binary exponent whose precision is near the output precision (`tools/mpfr_sqrt_ternary_repro.c` is a standalone reproducer). The first run of 2,000,000 `sqrt` cases had 22 failing batches from it; the generator now checks each `sqrt` row with exact arithmetic and draws the case again when MPFR is wrong, and the final run of 2,000,000 `sqrt` cases agreed in all cases. This is a claim about the Homebrew build I used, not about every MPFR release."
 msgstr ""
 
-#: manual/verification.md:302
+#: manual/verification.md:313
 msgid "**Not covered.** Operations the oracles lack (`rem`, `roundToIntegral`, the integer conversions, `scaleB`/`logB`, decimal operations other than the thirteen families); NaN payload policy; nearest-away results in the subnormal range; decimal contexts with |Emax| or |Emin| of 10^6 or more for the elementary functions; precisions above 700 for the binary elementary functions; the LLVM backend; interval arithmetic. The campaign samples a finite space with fixed seeds: the counts are what was run, not a proof of absence."
 msgstr ""
 
-#: manual/verification.md:310
+#: manual/verification.md:321
 msgid "Reproducibility"
 msgstr ""
 
-#: manual/verification.md:312
+#: manual/verification.md:323
 msgid "External artifacts are pinned by revision and SHA-256 in each corpus manifest (`testdata/*/corpora.json`). Builds use backend-named outputs and isolated target directories so that parallel jobs do not overwrite each other. Shards select deterministic case indices, and merged summaries keep exact totals and failed IDs. Large generated fixtures are split across files (the IEEE decimal public-API fixture is written 400 tests per file) so that every toolchain compiles them."
 msgstr ""
 
-#: manual/verification.md:320
+#: manual/verification.md:331
 msgid "The MoonBit frontends parse and execute numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection and aggregation. An optional oracle is never silently replaced by a weaker one; a missing requirement is reported explicitly."
 msgstr ""
 
-#: manual/verification.md:325
+#: manual/verification.md:336
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin the baseline source, dependencies, toolchain, target, schedule, sample count and dispersion limits, and a performance threshold never changes correctness. See [performance audit](./performance_audit.md) and the per-package performance pages."
 msgstr ""
 
-#: manual/verification.md:331
+#: manual/verification.md:342
 msgid "Failure triage"
 msgstr ""
 
-#: manual/verification.md:333
+#: manual/verification.md:344
 msgid "Re-run the failing backend with the smallest case, ID filter, phase or shard that reproduces it."
 msgstr ""
 
-#: manual/verification.md:335
+#: manual/verification.md:346
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches and infrastructure failures."
 msgstr ""
 
-#: manual/verification.md:337
+#: manual/verification.md:348
 msgid "Record the expected value, actual value, flags, context, target, corpus revision and command."
 msgstr ""
 
-#: manual/verification.md:339
+#: manual/verification.md:350
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange or aggregation."
 msgstr ""
 
-#: manual/verification.md:341
+#: manual/verification.md:352
 msgid "After a fix, run the focused case, the committed smoke fixture, the backend gate, and finally `just pr` or `just ci`."
 msgstr ""
 
-#: manual/verification.md:344
+#: manual/verification.md:355
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr ""
 
-#: manual/verification.md:347
+#: manual/verification.md:358
 msgid "Release gate"
 msgstr ""
 
-#: manual/verification.md:349
+#: manual/verification.md:360
 msgid "Before publishing:"
 msgstr ""
 
-#: manual/verification.md:351
+#: manual/verification.md:362
 msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
 msgstr ""
 
-#: manual/verification.md:352
+#: manual/verification.md:363
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
 msgstr ""
 
-#: manual/verification.md:354
+#: manual/verification.md:365
 msgid "run `just pr` while iterating;"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:366
 msgid "run `just ci` on the release candidate;"
 msgstr ""
 
-#: manual/verification.md:356
+#: manual/verification.md:367
 msgid "publish through the repository's `publish.yml` GitHub Actions workflow."
 msgstr ""
 
-#: manual/verification.md:358
+#: manual/verification.md:369
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr ""
 
-#: manual/verification.md:361
+#: manual/verification.md:372
 msgid "Conformance checklist"
 msgstr ""
 
-#: manual/verification.md:363
+#: manual/verification.md:374
 msgid "One line per row of the clause traceability tables of the conformance pages ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability)). A checked box is a `conforming` row; an unchecked box names its state (`partial`, `not implemented`, `not applicable`) and carries the clause level in brackets: `required` (the standard says \"shall\"), `recommended` (\"should\") or `optional`. The counts separate gaps in required clauses from gaps in recommended or optional ones. The block is generated by `tools/conformance_checklist.py` and `just docs` fails when it is stale."
 msgstr ""
 
-#: manual/verification.md:376
-#: manual/verification.md:525
+#: manual/verification.md:387
+#: manual/verification.md:536
 msgid "Standard"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Rows"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Conforming"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Partial"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Not implemented"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Not applicable"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Required gaps"
 msgstr ""
 
-#: manual/verification.md:376
+#: manual/verification.md:387
 msgid "Recommended or optional gaps"
 msgstr ""
 
-#: manual/verification.md:378
+#: manual/verification.md:389
 msgid "IEEE 754-2019: bin_float"
 msgstr ""
 
-#: manual/verification.md:379
+#: manual/verification.md:390
 msgid "IEEE 754-2019: decimal"
 msgstr ""
 
-#: manual/verification.md:380
+#: manual/verification.md:391
 msgid "General Decimal Arithmetic 1.70: decimal_gda"
 msgstr ""
 
-#: manual/verification.md:381
+#: manual/verification.md:392
 msgid "IEEE 1788-2015: ball_float"
 msgstr ""
 
-#: manual/verification.md:383
+#: manual/verification.md:394
 msgid "**IEEE 754-2019: bin_float**"
 msgstr ""
 
-#: manual/verification.md:385
+#: manual/verification.md:396
 msgid "§3.3–§3.6 binary16/32/64/128 interchange formats [required]"
 msgstr ""
 
-#: manual/verification.md:386
-#: manual/verification.md:417
+#: manual/verification.md:397
+#: manual/verification.md:428
 msgid "§3.7 extendable precisions [recommended]"
 msgstr ""
 
-#: manual/verification.md:387
-#: manual/verification.md:418
+#: manual/verification.md:398
+#: manual/verification.md:429
 msgid "§4.3 rounding-direction attributes [required]"
 msgstr ""
 
-#: manual/verification.md:388
-#: manual/verification.md:420
+#: manual/verification.md:399
+#: manual/verification.md:431
 msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot [required]"
 msgstr ""
 
-#: manual/verification.md:389
-#: manual/verification.md:421
+#: manual/verification.md:400
+#: manual/verification.md:432
 msgid "§5.3.1 fusedMultiplyAdd [required]"
 msgstr ""
 
-#: manual/verification.md:390
-#: manual/verification.md:422
+#: manual/verification.md:401
+#: manual/verification.md:433
 msgid "§5.3.1 remainder [required]"
 msgstr ""
 
-#: manual/verification.md:391
-msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact) [required]"
-msgstr ""
-
-#: manual/verification.md:392
-#: manual/verification.md:424
-msgid "§5.3.1 nextUp, nextDown [required]"
-msgstr ""
-
-#: manual/verification.md:393
-#: manual/verification.md:425
-msgid "§5.3.1 scaleB, logB [required]"
-msgstr ""
-
-#: manual/verification.md:394
-#: manual/verification.md:427
-msgid "§5.4.1 convertFromInt [required]"
-msgstr ""
-
-#: manual/verification.md:395
-msgid "§5.4.1, §5.8 convertToInteger (exact and inexact) [required]"
-msgstr ""
-
-#: manual/verification.md:396
-#: manual/verification.md:429
-msgid "§5.4.2 convertFormat [required] (partial)"
-msgstr ""
-
-#: manual/verification.md:397
-#: manual/verification.md:430
-msgid "§5.5 copy, negate, abs, copySign [required]"
-msgstr ""
-
-#: manual/verification.md:398
-msgid "§5.6, §5.11 comparison predicates, quiet and signaling [required]"
-msgstr ""
-
-#: manual/verification.md:399
-msgid "§5.7 class and sign predicates [required] (partial)"
-msgstr ""
-
-#: manual/verification.md:400
-#: manual/verification.md:433
-msgid "§5.10 totalOrder, totalOrderMag [required]"
-msgstr ""
-
-#: manual/verification.md:401
-msgid "§5.12 decimal character conversion, both directions [required]"
-msgstr ""
-
 #: manual/verification.md:402
-msgid "§5.12 hexadecimal character conversion [required] (partial)"
+msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact) [required]"
 msgstr ""
 
 #: manual/verification.md:403
 #: manual/verification.md:435
-msgid "§6.1–§6.3 infinities, NaNs, sign bit [required]"
+msgid "§5.3.1 nextUp, nextDown [required]"
 msgstr ""
 
 #: manual/verification.md:404
-msgid "§7.2–§7.6 exceptions and default handling [required]"
+#: manual/verification.md:436
+msgid "§5.3.1 scaleB, logB [required]"
 msgstr ""
 
 #: manual/verification.md:405
-msgid "§7.5 tininess detection [required]"
+#: manual/verification.md:438
+msgid "§5.4.1 convertFromInt [required]"
 msgstr ""
 
 #: manual/verification.md:406
-#: manual/verification.md:438
-msgid "§8 alternate exception handling [recommended] (not implemented)"
+msgid "§5.4.1, §5.8 convertToInteger (exact and inexact) [required]"
 msgstr ""
 
 #: manual/verification.md:407
-#: manual/verification.md:439
-msgid "§9.2 recommended mathematical functions [recommended] (partial)"
+#: manual/verification.md:440
+msgid "§5.4.2 convertFormat [required] (partial)"
 msgstr ""
 
 #: manual/verification.md:408
 #: manual/verification.md:441
-msgid "§9.3 dynamic mode operations [recommended] (not implemented)"
+msgid "§5.5 copy, negate, abs, copySign [required]"
 msgstr ""
 
 #: manual/verification.md:409
-#: manual/verification.md:442
-msgid "§9.4 reduction operations [recommended] (not implemented)"
+msgid "§5.6, §5.11 comparison predicates, quiet and signaling [required]"
 msgstr ""
 
 #: manual/verification.md:410
-msgid "§9.5 augmented arithmetic [recommended] (not implemented)"
+msgid "§5.7 class and sign predicates [required] (partial)"
 msgstr ""
 
 #: manual/verification.md:411
-msgid "§9.6 minimum, maximum and magnitude variants [recommended] (not implemented)"
+#: manual/verification.md:444
+msgid "§5.10 totalOrder, totalOrderMag [required]"
 msgstr ""
 
 #: manual/verification.md:412
-msgid "§9.7 NaN payload operations [recommended] (partial)"
+msgid "§5.12 decimal character conversion, both directions [required]"
+msgstr ""
+
+#: manual/verification.md:413
+msgid "§5.12 hexadecimal character conversion [required] (partial)"
 msgstr ""
 
 #: manual/verification.md:414
-msgid "**IEEE 754-2019: decimal**"
+#: manual/verification.md:446
+msgid "§6.1–§6.3 infinities, NaNs, sign bit [required]"
+msgstr ""
+
+#: manual/verification.md:415
+msgid "§7.2–§7.6 exceptions and default handling [required]"
 msgstr ""
 
 #: manual/verification.md:416
-msgid "§3.5 decimal32/64/128 interchange, DPD and BID [required]"
+msgid "§7.5 tininess detection [required]"
+msgstr ""
+
+#: manual/verification.md:417
+#: manual/verification.md:449
+msgid "§8 alternate exception handling [recommended] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:418
+#: manual/verification.md:450
+msgid "§9.2 recommended mathematical functions [recommended] (partial)"
 msgstr ""
 
 #: manual/verification.md:419
-msgid "§5.2 preferred exponents [required]"
+#: manual/verification.md:452
+msgid "§9.3 dynamic mode operations [recommended] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:420
+#: manual/verification.md:453
+msgid "§9.4 reduction operations [recommended] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:421
+msgid "§9.5 augmented arithmetic [recommended] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:422
+msgid "§9.6 minimum, maximum and magnitude variants [recommended] (not implemented)"
 msgstr ""
 
 #: manual/verification.md:423
-msgid "§5.3.1 roundToIntegral (all five, exact) [required]"
+msgid "§9.7 NaN payload operations [recommended] (partial)"
 msgstr ""
 
-#: manual/verification.md:426
-msgid "§5.3.2 quantize, quantum, sameQuantum [required]"
+#: manual/verification.md:425
+msgid "**IEEE 754-2019: decimal**"
 msgstr ""
 
-#: manual/verification.md:428
-msgid "§5.4.1 convertToInteger [required] (partial)"
+#: manual/verification.md:427
+msgid "§3.5 decimal32/64/128 interchange, DPD and BID [required]"
 msgstr ""
 
-#: manual/verification.md:431
-msgid "§5.6, §5.11 comparison, quiet and signaling [required]"
-msgstr ""
-
-#: manual/verification.md:432
-msgid "§5.7 class, isCanonical, radix [required]"
+#: manual/verification.md:430
+msgid "§5.2 preferred exponents [required]"
 msgstr ""
 
 #: manual/verification.md:434
-msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
-msgstr ""
-
-#: manual/verification.md:436
-msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact [required]"
+msgid "§5.3.1 roundToIntegral (all five, exact) [required]"
 msgstr ""
 
 #: manual/verification.md:437
-msgid "§7.5 underflow and tininess [required]"
+msgid "§5.3.2 quantize, quantum, sameQuantum [required]"
 msgstr ""
 
-#: manual/verification.md:440
-msgid "§9.2.2 preferred exponents of pow and pown [recommended]"
+#: manual/verification.md:439
+msgid "§5.4.1 convertToInteger [required] (partial)"
+msgstr ""
+
+#: manual/verification.md:442
+msgid "§5.6, §5.11 comparison, quiet and signaling [required]"
 msgstr ""
 
 #: manual/verification.md:443
-msgid "§9.5 augmented arithmetic [recommended] (not applicable)"
-msgstr ""
-
-#: manual/verification.md:444
-msgid "§9.6 minimum and maximum, eight variants [recommended]"
+msgid "§5.7 class, isCanonical, radix [required]"
 msgstr ""
 
 #: manual/verification.md:445
-msgid "§9.7 NaN payload operations [recommended]"
+msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
 msgstr ""
 
 #: manual/verification.md:447
-msgid "**General Decimal Arithmetic 1.70: decimal_gda**"
+msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact [required]"
 msgstr ""
 
-#: manual/verification.md:449
-msgid "abs, minus, plus [required]"
-msgstr ""
-
-#: manual/verification.md:450
-msgid "add, subtract, multiply [required]"
+#: manual/verification.md:448
+msgid "§7.5 underflow and tininess [required]"
 msgstr ""
 
 #: manual/verification.md:451
-msgid "divide, divide-integer, remainder, remainder-near [required]"
-msgstr ""
-
-#: manual/verification.md:452
-msgid "fused-multiply-add [required]"
-msgstr ""
-
-#: manual/verification.md:453
-msgid "square-root [required]"
+msgid "§9.2.2 preferred exponents of pow and pown [recommended]"
 msgstr ""
 
 #: manual/verification.md:454
-msgid "power [required]"
+msgid "§9.5 augmented arithmetic [recommended] (not applicable)"
 msgstr ""
 
 #: manual/verification.md:455
-msgid "exp, ln, log10 [required]"
+msgid "§9.6 minimum and maximum, eight variants [recommended]"
 msgstr ""
 
 #: manual/verification.md:456
-msgid "compare, compare-signal, compare-total, compare-total-mag [required]"
-msgstr ""
-
-#: manual/verification.md:457
-msgid "max, max-magnitude, min, min-magnitude [required]"
+msgid "§9.7 NaN payload operations [recommended]"
 msgstr ""
 
 #: manual/verification.md:458
-msgid "next-minus, next-plus, next-toward [required]"
-msgstr ""
-
-#: manual/verification.md:459
-msgid "quantize, rescale, same-quantum, reduce, trim [required]"
+msgid "**General Decimal Arithmetic 1.70: decimal_gda**"
 msgstr ""
 
 #: manual/verification.md:460
-msgid "round-to-integral-exact, round-to-integral-value [required]"
+msgid "abs, minus, plus [required]"
 msgstr ""
 
 #: manual/verification.md:461
-msgid "scaleb, logb, rotate, shift [required]"
+msgid "add, subtract, multiply [required]"
 msgstr ""
 
 #: manual/verification.md:462
-msgid "and, or, xor, invert [required]"
+msgid "divide, divide-integer, remainder, remainder-near [required]"
 msgstr ""
 
 #: manual/verification.md:463
-msgid "class, copy, copy-abs, copy-negate, copy-sign [required]"
+msgid "fused-multiply-add [required]"
 msgstr ""
 
 #: manual/verification.md:464
-msgid "to-number, to-scientific-string, to-engineering-string [required]"
+msgid "square-root [required]"
 msgstr ""
 
 #: manual/verification.md:465
-msgid "canonical [required]"
+msgid "power [required]"
 msgstr ""
 
 #: manual/verification.md:466
-msgid "context: precision, rounding, clamp, exponent limits [required]"
+msgid "exp, ln, log10 [required]"
 msgstr ""
 
 #: manual/verification.md:467
-msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
+msgid "compare, compare-signal, compare-total, compare-total-mag [required]"
 msgstr ""
 
 #: manual/verification.md:468
-msgid "subset arithmetic (Appendix A) [required]"
+msgid "max, max-magnitude, min, min-magnitude [required]"
+msgstr ""
+
+#: manual/verification.md:469
+msgid "next-minus, next-plus, next-toward [required]"
 msgstr ""
 
 #: manual/verification.md:470
-msgid "**IEEE 1788-2015: ball_float**"
+msgid "quantize, rescale, same-quantum, reduce, trim [required]"
+msgstr ""
+
+#: manual/verification.md:471
+msgid "round-to-integral-exact, round-to-integral-value [required]"
 msgstr ""
 
 #: manual/verification.md:472
-msgid "§4.2 set-based interval arithmetic flavor [required]"
+msgid "scaleb, logb, rotate, shift [required]"
 msgstr ""
 
 #: manual/verification.md:473
-msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemented)"
+msgid "and, or, xor, invert [required]"
 msgstr ""
 
 #: manual/verification.md:474
-msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
+msgid "class, copy, copy-abs, copy-negate, copy-sign [required]"
 msgstr ""
 
 #: manual/verification.md:475
-msgid "§10.5.4 reverse-mode elementary functions [required] (not implemented)"
+msgid "to-number, to-scientific-string, to-engineering-string [required]"
 msgstr ""
 
 #: manual/verification.md:476
-msgid "§10.5.5 two-output division [required] (not implemented)"
+msgid "canonical [required]"
 msgstr ""
 
 #: manual/verification.md:477
-msgid "§9.2, §10.5.6 cancellative addition and subtraction [required]"
+msgid "context: precision, rounding, clamp, exponent limits [required]"
 msgstr ""
 
 #: manual/verification.md:478
-msgid "§9.3, §10.5.7 set operations [required]"
+msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr ""
 
 #: manual/verification.md:479
-msgid "§9.8, §10.5.8 constructors [required] (partial)"
-msgstr ""
-
-#: manual/verification.md:480
-msgid "§9.4, §10.5.9 numeric functions of intervals [required]"
+msgid "subset arithmetic (Appendix A) [required]"
 msgstr ""
 
 #: manual/verification.md:481
-msgid "§9.5, §10.5.10 boolean functions of intervals [required]"
-msgstr ""
-
-#: manual/verification.md:482
-msgid "§10.6.2 slope functions [recommended] (not implemented)"
+msgid "**IEEE 1788-2015: ball_float**"
 msgstr ""
 
 #: manual/verification.md:483
-msgid "§10.6.4 extended interval comparisons [recommended] (partial)"
+msgid "§4.2 set-based interval arithmetic flavor [required]"
 msgstr ""
 
 #: manual/verification.md:484
-msgid "§9.6, §11 decoration system [required]"
+msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemented)"
 msgstr ""
 
 #: manual/verification.md:485
-msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
+msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
 msgstr ""
 
 #: manual/verification.md:486
-msgid "§12.10 accuracy of operations [required]"
+msgid "§10.5.4 reverse-mode elementary functions [required] (not implemented)"
 msgstr ""
 
 #: manual/verification.md:487
-msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
+msgid "§10.5.5 two-output division [required] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:488
+msgid "§9.2, §10.5.6 cancellative addition and subtraction [required]"
+msgstr ""
+
+#: manual/verification.md:489
+msgid "§9.3, §10.5.7 set operations [required]"
 msgstr ""
 
 #: manual/verification.md:490
-msgid "Implementation-defined choices"
+msgid "§9.8, §10.5.8 constructors [required] (partial)"
+msgstr ""
+
+#: manual/verification.md:491
+msgid "§9.4, §10.5.9 numeric functions of intervals [required]"
 msgstr ""
 
 #: manual/verification.md:492
+msgid "§9.5, §10.5.10 boolean functions of intervals [required]"
+msgstr ""
+
+#: manual/verification.md:493
+msgid "§10.6.2 slope functions [recommended] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:494
+msgid "§10.6.4 extended interval comparisons [recommended] (partial)"
+msgstr ""
+
+#: manual/verification.md:495
+msgid "§9.6, §11 decoration system [required]"
+msgstr ""
+
+#: manual/verification.md:496
+msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:497
+msgid "§12.10 accuracy of operations [required]"
+msgstr ""
+
+#: manual/verification.md:498
+msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
+msgstr ""
+
+#: manual/verification.md:501
+msgid "Implementation-defined choices"
+msgstr ""
+
+#: manual/verification.md:503
 msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
 msgstr ""
 
-#: manual/verification.md:501
+#: manual/verification.md:512
 msgid "Choice left open"
 msgstr ""
 
-#: manual/verification.md:501
+#: manual/verification.md:512
 msgid "Choice made"
 msgstr ""
 
-#: manual/verification.md:503
+#: manual/verification.md:514
 msgid "IEEE 754 §7.5"
 msgstr ""
 
-#: manual/verification.md:503
+#: manual/verification.md:514
 msgid "Tininess detection for binary formats"
 msgstr ""
 
-#: manual/verification.md:503
+#: manual/verification.md:514
 msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
 msgstr ""
 
-#: manual/verification.md:504
+#: manual/verification.md:515
 msgid "IEEE 754 §6.2"
 msgstr ""
 
-#: manual/verification.md:504
+#: manual/verification.md:515
 msgid "Which NaN payload a NaN result carries"
 msgstr ""
 
-#: manual/verification.md:504
+#: manual/verification.md:515
 msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
 msgstr ""
 
-#: manual/verification.md:505
+#: manual/verification.md:516
 msgid "IEEE 754 §9.7"
 msgstr ""
 
-#: manual/verification.md:505
+#: manual/verification.md:516
 msgid "Admissible payloads of `setPayload`"
 msgstr ""
 
-#: manual/verification.md:505
+#: manual/verification.md:516
 msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
 msgstr ""
 
-#: manual/verification.md:506
+#: manual/verification.md:517
 msgid "IEEE 754 §3.7"
 msgstr ""
 
-#: manual/verification.md:506
+#: manual/verification.md:517
 msgid "Exponent range and precision of an extendable format"
 msgstr ""
 
-#: manual/verification.md:506
+#: manual/verification.md:517
 msgid "`bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
 msgstr ""
 
-#: manual/verification.md:507
+#: manual/verification.md:518
 msgid "IEEE 754 §4.3"
 msgstr ""
 
-#: manual/verification.md:507
+#: manual/verification.md:518
 msgid "Rounding directions beyond the five required"
 msgstr ""
 
-#: manual/verification.md:507
+#: manual/verification.md:518
 msgid "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
 msgstr ""
 
-#: manual/verification.md:508
+#: manual/verification.md:519
 msgid "IEEE 754 §4.1, §9.3"
 msgstr ""
 
-#: manual/verification.md:508
+#: manual/verification.md:519
 msgid "How attributes are specified"
 msgstr ""
 
-#: manual/verification.md:508
+#: manual/verification.md:519
 msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
 msgstr ""
 
-#: manual/verification.md:509
+#: manual/verification.md:520
 msgid "IEEE 754 §7"
 msgstr ""
 
-#: manual/verification.md:509
+#: manual/verification.md:520
 msgid "How flags are exposed"
 msgstr ""
 
-#: manual/verification.md:509
+#: manual/verification.md:520
 msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
 msgstr ""
 
-#: manual/verification.md:510
+#: manual/verification.md:521
 msgid "IEEE 754 §9.2"
 msgstr ""
 
-#: manual/verification.md:510
+#: manual/verification.md:521
 msgid "Accuracy of recommended functions"
 msgstr ""
 
-#: manual/verification.md:510
+#: manual/verification.md:521
 msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
 msgstr ""
 
-#: manual/verification.md:511
+#: manual/verification.md:522
 msgid "IEEE 754 §9.2.2"
 msgstr ""
 
-#: manual/verification.md:511
+#: manual/verification.md:522
 msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
 msgstr ""
 
-#: manual/verification.md:511
+#: manual/verification.md:522
 msgid "`decimal`: `pow(+1, y)` is the plain `1`."
 msgstr ""
 
-#: manual/verification.md:512
+#: manual/verification.md:523
 msgid "IEEE 754 §5.12"
 msgstr ""
 
-#: manual/verification.md:512
+#: manual/verification.md:523
 msgid "Character sequences accepted and produced (`bin_float`)"
 msgstr ""
 
-#: manual/verification.md:512
+#: manual/verification.md:523
 msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
 msgstr ""
 
-#: manual/verification.md:513
+#: manual/verification.md:524
 msgid "IEEE 754 §6.3"
 msgstr ""
 
-#: manual/verification.md:513
+#: manual/verification.md:524
 msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr ""
 
-#: manual/verification.md:513
+#: manual/verification.md:524
 msgid "The sign of the dividend, kept in extended contexts."
 msgstr ""
 
-#: manual/verification.md:514
+#: manual/verification.md:525
 msgid "IEEE 1788 §7, §4.2"
 msgstr ""
 
-#: manual/verification.md:514
+#: manual/verification.md:525
 msgid "Flavor"
 msgstr ""
 
-#: manual/verification.md:514
+#: manual/verification.md:525
 msgid "Set-based."
 msgstr ""
 
-#: manual/verification.md:515
+#: manual/verification.md:526
 msgid "IEEE 1788 §12.10"
 msgstr ""
 
-#: manual/verification.md:515
+#: manual/verification.md:526
 msgid "Accuracy of the elementary functions"
 msgstr ""
 
-#: manual/verification.md:515
+#: manual/verification.md:526
 msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr ""
 
-#: manual/verification.md:516
+#: manual/verification.md:527
 msgid "IEEE 1788 §12.5"
 msgstr ""
 
-#: manual/verification.md:516
+#: manual/verification.md:527
 msgid "Interval types"
 msgstr ""
 
-#: manual/verification.md:516
+#: manual/verification.md:527
 msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
 msgstr ""
 
-#: manual/verification.md:517
+#: manual/verification.md:528
 msgid "General Decimal Arithmetic"
 msgstr ""
 
-#: manual/verification.md:517
+#: manual/verification.md:528
 msgid "Exponent limit"
 msgstr ""
 
-#: manual/verification.md:517
+#: manual/verification.md:528
 msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
 msgstr ""
 
-#: manual/verification.md:519
+#: manual/verification.md:530
 msgid "Known gaps and deviations"
 msgstr ""
 
-#: manual/verification.md:521
+#: manual/verification.md:532
 msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
 msgstr ""
 
-#: manual/verification.md:525
+#: manual/verification.md:536
 msgid "Gap"
 msgstr ""
 
-#: manual/verification.md:525
+#: manual/verification.md:536
 msgid "Tracking"
 msgstr ""
 
-#: manual/verification.md:527
+#: manual/verification.md:538
 msgid "IEEE 754-2019 §7.5"
 msgstr ""
 
-#: manual/verification.md:527
+#: manual/verification.md:538
 msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
 msgstr ""
 
-#: manual/verification.md:527
+#: manual/verification.md:538
 msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
 msgstr ""
 
-#: manual/verification.md:528
+#: manual/verification.md:539
 msgid "IEEE 754-2019 §8"
 msgstr ""
 
-#: manual/verification.md:528
+#: manual/verification.md:539
 msgid "No alternate exception handling"
 msgstr ""
 
-#: manual/verification.md:528
+#: manual/verification.md:539
 msgid "by design (flags are values)"
 msgstr ""
 
-#: manual/verification.md:529
+#: manual/verification.md:540
 msgid "IEEE 754-2019 §9.3"
 msgstr ""
 
-#: manual/verification.md:529
+#: manual/verification.md:540
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr ""
 
-#: manual/verification.md:529
+#: manual/verification.md:540
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr ""
 
-#: manual/verification.md:530
+#: manual/verification.md:541
 msgid "IEEE 754-2019 §9.2"
 msgstr ""
 
-#: manual/verification.md:530
-msgid "Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi` in `bin_float`, and all of those and `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `decimal`"
+#: manual/verification.md:541
+msgid "Missing `asinPi`, `acosPi`, `atanPi`, `atan2Pi` in `bin_float`, and all of those, `rSqrt`, `compound`, `powr`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `decimal`"
 msgstr ""
 
-#: manual/verification.md:531
+#: manual/verification.md:542
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr ""
 
-#: manual/verification.md:531
+#: manual/verification.md:542
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr ""
 
-#: manual/verification.md:532
+#: manual/verification.md:543
 msgid "IEEE 754-2019 §9.5"
 msgstr ""
 
-#: manual/verification.md:532
+#: manual/verification.md:543
 msgid "No augmented arithmetic for `bin_float`"
 msgstr ""
 
-#: manual/verification.md:533
+#: manual/verification.md:544
 msgid "IEEE 754-2019 §5.4.1"
 msgstr ""
 
-#: manual/verification.md:533
+#: manual/verification.md:544
 msgid "`decimal` has no convertToInteger"
 msgstr ""
 
-#: manual/verification.md:534
+#: manual/verification.md:545
 msgid "IEEE 754-2019 §5.3.2"
 msgstr ""
 
-#: manual/verification.md:534
+#: manual/verification.md:545
 msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
 msgstr ""
 
-#: manual/verification.md:534
+#: manual/verification.md:545
 msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
 msgstr ""
 
-#: manual/verification.md:535
+#: manual/verification.md:546
 msgid "IEEE 754-2019 §3.7"
 msgstr ""
 
-#: manual/verification.md:535
+#: manual/verification.md:546
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr ""
 
-#: manual/verification.md:535
+#: manual/verification.md:546
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr ""
 
-#: manual/verification.md:536
+#: manual/verification.md:547
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr ""
 
-#: manual/verification.md:536
+#: manual/verification.md:547
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr ""
 
-#: manual/verification.md:536
+#: manual/verification.md:547
 msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr ""
 
-#: manual/verification.md:537
+#: manual/verification.md:548
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr ""
 
-#: manual/verification.md:537
+#: manual/verification.md:548
 msgid "No two-output division, no slope functions"
 msgstr ""
 
-#: manual/verification.md:538
+#: manual/verification.md:549
 msgid "Public API"
 msgstr ""
 
-#: manual/verification.md:538
+#: manual/verification.md:549
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr ""
 
-#: manual/verification.md:538
+#: manual/verification.md:549
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr ""

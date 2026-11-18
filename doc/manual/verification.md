@@ -258,6 +258,17 @@ range.
   without flags ([#275](https://github.com/Luna-Flow/floating/issues/275),
   open): the random generator does not draw such operands and the sweep does
   not include that function.
+- *`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000,000
+  native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with
+  MPFR 4.2.2, and so do 718,824 range-boundary rows (precisions 2 to 300, six
+  contexts, both tininess rules; the thresholds of $1/\sqrt{x}$,
+  $(1 + x)^n$ for $n \in \{\pm 3, \pm 7, \pm 100\}$ and $x^y$ with $y$ placed on
+  $\log_2$ of each threshold). The comparison needed two corrections of the
+  oracle, both documented in `testdata/bin_float/README.md`: `mpfr_compound_si`
+  is wrong for a negative `n` in the directed modes and near the range limits
+  (proved with exact rational arithmetic on all 2,017 boundary rows; the rows
+  use the exact rational instead), and `mpfr_rec_sqrt(-0)` is +inf where the
+  standard says -inf. The library had no disagreement in either case.
 - *Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and
   `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`,
   `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an
@@ -527,7 +538,7 @@ or the page that documents the decision.
 | IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
-| IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi` in `bin_float`, and all of those and `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `decimal` | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
+| IEEE 754-2019 §9.2 | Missing `asinPi`, `acosPi`, `atanPi`, `atan2Pi` in `bin_float`, and all of those, `rSqrt`, `compound`, `powr`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `decimal` | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
 | IEEE 754-2019 §5.4.1 | `decimal` has no convertToInteger | [#226](https://github.com/Luna-Flow/floating/issues/226) |
