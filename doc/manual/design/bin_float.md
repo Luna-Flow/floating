@@ -827,6 +827,284 @@ and target precisions however far apart the exponents are
 $10^6$ bits is still refused as a `certification_failure`; after the
 replacement it needs a precision near $500\,000$ bits.
 
+### Asymptotically fast elementary kernels (proposed)
+
+*Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18).
+Nothing on this page below is implemented yet; the measured figures are the
+baseline, the figures marked "projection" come from a cost model fitted to
+them and are replaced by measurements as each step lands.*
+
+**Problem.** Every enclosure above is built from a Taylor or artanh series
+whose terms are $w$-bit numbers, so one evaluation costs
+$O(w / \log w)$ full multiplications, that is $O(w\, M(w) / \log w)$. At
+$w \approx 8200$ bits on the native target `exp` takes 17.8 ms, `ln` 164 ms
+and `sin` 64 ms (before the fixed-point `ln` and `sin` branches), while the
+$8192 \times 8192$-bit product takes 43 µs: `exp` is about 400 products.
+The constants are worse when cold: `pi` takes 742 ms, `ln 2` 297 ms and
+`ln 10` 146 ms at 8192 bits, which a call without a cached constant pays in
+full (MPFR on the same machine: 0.09 ms for `pi`, 0.29 ms for `ln 2`).
+
+**Options.** (1) Binary splitting of the series of a rational argument,
+$O(M(w) \log^2 w)$. (2) Bit-burst: split the argument into chunks of
+doubling length, evaluate the exponential of each chunk by a series with
+few terms (the later the chunk, the smaller it is), multiply the results:
+$O(M(w) \log^2 w)$ with binary splitting inside and, with the plain
+fixed-point series inside, one cheap unbalanced product per term
+(measured: $8192 \times 64$ bits 1.8 µs, $\times 1024$ bits 6.9 µs,
+$\times 8192$ bits 43 µs). (3) Newton iteration for `ln` on top of `exp`.
+(4) The arithmetic-geometric mean (AGM) for `ln` and `pi`,
+$O(M(w) \log w)$ with large constants. (5) More halving and squaring: the
+squarings cost one full product each and lose a bit each, so it does not
+scale.
+
+**Choice.** Keep the Ziv loop, its working precisions and the exact cases
+untouched (see [Certified elementary functions](#certified-elementary-functions)).
+Replace only the function that produces the enclosure $[L, U]$ for a given
+$w$, and only from a per-target precision threshold upward. Every new
+kernel is a pure function $(x, w) \mapsto [L, U]$ of exactly the type the
+loop already consumes (`binary_exp_bounds`, `binary_ln_bounds`,
+`binary_trigonometric_bounds`, and the constants), so `exp2`, `exp10`,
+`expm1`, `sinh`, `cosh`, `pow`, `rootn` and the logarithm family inherit the
+speed-up, and the recommended functions of
+[#235](https://github.com/Luna-Flow/floating/issues/235) (`compound`, `powr`,
+`exp2m1`, `exp10m1`, `log2p1`, `log10p1`, `rSqrt`, the $\pi$-scaled inverses)
+are written on the same layer. A kernel returns `None` for any precondition it
+cannot verify, and the caller then runs the existing path, so correctness
+never depends on the new code covering a case.
+
+*Integer enclosures.* All new kernels work on non-negative integers in
+units of $2^{-F}$ with $F = w + g$, using only `BinCoeff` operations
+(`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`,
+`bit_length`), which exist on every target, so the same source runs on
+native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a
+pair $(\ell, u)$ of integers with the invariant
+$\ell \le E \cdot 2^{F} \le u$. Every step produces a new pair from the old
+ones by monotone operations on non-negative numbers, so the invariant is
+proved step by step, and the final width $u - \ell$ is a computed integer,
+not an estimate. The last step converts to
+`BinFloat::make(coeff, exp, w, mode=TowardNegative / TowardPositive)`, which is
+what the existing fixed-point series already does.
+
+**`exp`, by ln 2 reduction and bit-burst.** For finite $x \neq 0$ with
+$|x| < 2^{30}$ (larger magnitudes are decided before the loop or fall back),
+let $n = \lfloor x / \ln 2 \rfloor$, found from the cached enclosure of
+$\ln 2$ at $G = F + \operatorname{bits}(n) + 2$ bits. Let $L = \lfloor 2^{G}
+\ln 2 \rfloor / 2^{G}$ (a dyadic lower bound with $0 \le \ln 2 - L \le
+2^{1-G}$) and $R = x - nL$, computed exactly. If $R < 0$ or $R \ge 1$ the
+integer $n$ is corrected by one and $R$ recomputed. Put $R_t = \lfloor 2^{F} R
+\rfloor / 2^{F}$ and $\delta = (x - n \ln 2) - R_t$. Then
+$-|n|\,2^{1-G} \le \delta \le 2^{-F}$ for $n \ge 0$ (mirrored for $n < 0$), so
+$|\delta| \le 2^{-F}$ by the choice of $G$, and since $0 \le R_t < 1$
+
+$$
+e^{x} = 2^{n}\, e^{R_t}\, e^{\delta}, \qquad
+1 - 2^{-F} \le e^{\delta} \le 1 + 2 \cdot 2^{-F}.
+$$
+
+The factor $e^\delta$ costs at most $2 \cdot 3 = 6$ units at the end
+(because $e^{R_t} < 3$), and no sign handling or reciprocal is needed because
+$R_t \ge 0$.
+
+Write $R_t = \sum_j y_j$ with $y_j = N_j / 2^{b_{j+1}}$ the bits of $R_t$ at
+positions $(b_j, b_{j+1}]$ after the binary point, $0 = b_0 < b_1 < \dots$,
+and $b$ growing geometrically (factor about 4, first chunk about 16 bits; the
+constants are tuned per target). Then $y_j < 2^{-b_j}$, $N_j < 2^{b_{j+1} -
+b_j}$, and $e^{R_t} = \prod_j e^{y_j}$.
+
+*Stage kernel.* For $y = N / 2^{s} < 1$ let $t_0 = 2^{F}$ and
+$t_i = \lfloor \lfloor t_{i-1} N / 2^{s} \rfloor / i \rfloor$ (the second floor
+is absent for $i = 1$), and let $\tau_i = 2^{F} y^i / i!$ be the exact terms.
+By induction $t_i \le \tau_i$ (both floors round down), and the deficit
+$d_i = \tau_i - t_i$ satisfies $d_1 < 1$ and
+$d_i < (d_{i-1}\, y + 1)/i + 1$, hence $d_2 < 2$ and
+$d_i < 4/3 + 1 < 3$ for $i \ge 3$ (this is the argument of the
+fixed-point series already in `elementary_fixed_exp.mbt`, with $y < 1$ in
+place of $y \le 1/8$). Stop at the first $n$ with $t_n < 2^{8}$. For
+$n \ge 1$ the ratio of consecutive exact terms is at most $y/(n+1) \le 1/2$,
+so $\sum_{i > n} \tau_i \le \tau_n \cdot \frac{1/2}{1 - 1/3} < \tau_n <
+t_n + 3$. With $S = \sum_{i=0}^{n} t_i$,
+
+$$
+S \;\le\; 2^{F} e^{y} \;\le\; S + t_n + 3n + 3 =: S + e_y,
+\qquad e_y < 2^{8} + 3n + 3 .
+$$
+
+Then $(\ell, u) \mapsto (\lfloor \ell\, S / 2^{F} \rfloor,\; \lceil u\,(S + e_y) /
+2^{F} \rceil)$ folds the stage into the running product: $e^{y}$ and the
+partial product are in the stated intervals, both are non-negative, and
+multiplication is monotone on non-negative numbers, so the new pair satisfies
+the invariant. Each stage adds at most $e_y + 2$ units of relative width, so
+with at most $J$ stages the final width is below
+$J (2^{8} + 3 n_{\max} + 5) + 6$ units, about $2^{15}$ units for
+$w = 8192$; $g = 48$ guard bits therefore keep the enclosure within
+$2^{-(w+7)}$ relative width, which is the width of the current series. The
+kernel computes the true width and returns `None` when it exceeds that bound.
+
+*Cost.* A stage with $m$-bit numerator at position $b$ needs
+$n_b \approx F / (b + \log_2 n_b)$ terms, each a product of the shrinking term
+by an $m$-bit integer, a shift and a division by a one-limb integer. For
+$w = 8192$ the first chunk (16 bits) needs about 880 terms, the chunk at 65 to
+261 bits about 120, the chunk at 261 to 1045 bits about 31, and the last chunks
+fewer than 10. The early chunks have too many terms for the fixed-point loop;
+they are evaluated by **binary splitting** of $\sum_{i<n} N^i / (i!\, 2^{si})$
+with exact integers $(P, Q, T)$,
+$T = T_L Q_R 2^{s\,|R|} + P_L T_R$, $P = P_L P_R$, $Q = Q_L Q_R$. The enclosure
+then has no accumulated rounding: $\ell = \lfloor 2^{F} T / (Q 2^{sn}) \rfloor$,
+$u = \ell + 3$ once $n$ is large enough that $N^n 2^{F} < n!\, 2^{sn}$ (an
+integer comparison on bit lengths), because then the tail is at most
+$2\, \tau_n < 2$ units. A stage is estimated (not yet measured) at 8 to 14 full
+products independent of $N$, a fixed-point stage with $n$ terms costs $n$ unbalanced
+products, so the crossover per stage is at $n$ of a few tens of terms.
+
+*Projection (native, this machine).* With the measured unit costs (product
+$8192 \times m$ bits above, shift 0.2 µs, one-limb division 1.5 µs, addition
+0.3 µs at 8192 bits) the model gives about 1.6 to 2.2 ms for $w = 8192$ and
+120 to 160 µs for $w = 2048$, against 17.8 ms and 514 µs today. The model
+ignores allocation, the final division of each binary-splitting stage and
+cache effects, so a safe reading is 2 to 3.5 ms (5 to 9 times faster) at
+8192 bits and 2 to 4 times at 2048 bits; the break-even against the
+current series is expected at a few hundred bits.
+
+**`ln`, by verified Newton step.** Write $v = m\, 2^{k}$ with
+$m \in [2^{-1/2}, 2^{1/2})$, so $\ln v = k \ln 2 + \ln m$. Take any dyadic
+$y_0$ with about $w/2 + 16$ bits (from the same function at half the
+precision, recursively, down to the existing series). Correctness does not
+depend on how good $y_0$ is, only the speed does. Let $[E_\ell, E_u]$ be the
+enclosure of $e^{y_0}$ from the kernel above and
+$q_\ell = m / E_u$, $q_u = m / E_\ell$ (directed divisions). Since
+$\ln$ is monotone, $\ln m = y_0 + \ln(m / e^{y_0}) \in y_0 + [\ln q_\ell, \ln q_u]$,
+and for $|u| \le 1/2$ one has $u - u^2 \le \ln(1 + u) \le u$, so
+
+$$
+\ln m \in \bigl[\, y_0 + (q_\ell - 1) - (q_\ell - 1)^2,\;\; y_0 + (q_u - 1) \,\bigr]
+$$
+
+whenever $|q_\ell - 1|, |q_u - 1| \le 1/2$ (checked at run time, else `None`).
+If $|\ln m - y_0| \le 2^{-(w/2+8)}$ the quadratic term is below
+$2^{-(w+14)}$ and the width is that of $E$. Adding $k \ln 2$ uses the exact
+integer product of $k$ with the dyadic bounds of $\ln 2$. For $|m - 1| <
+2^{-16}$ the existing artanh series has $O(w/16)$ terms and stays in use. The
+cost is that of one `exp` at $w$ plus the recursive call at about $w/2$
+(about $1.5$ times one `exp` in total) plus two divisions. Projection at
+8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point
+branch).
+
+*AGM alternative.* $\ln s = \pi / (2\, \mathrm{AGM}(1, 4/s)) - m \ln 2$ for
+$s = v\, 2^{m} > 2^{w/2}$ costs about $\log_2 w$ iterations of one product and
+one square root. With today's kernels (`sqrt_ctx` 128 µs, product 43 µs at
+8192 bits) this is 2.7 to 3.2 ms, no better than the Newton step within the
+model's error, because our square root is 29 times and our product 13 times
+slower than MPFR's (4.4 and 3.2 µs on the same machine, secondary evidence).
+It also needs a rigorous bound for the truncation error of the formula (the
+$O(s^{-2})$ term, derived from Jacobi's identity
+$\ln(1/q) = \pi / \mathrm{AGM}(\theta_2^2(q), \theta_3^2(q))$[^brent-agm]),
+which this page does not yet provide. It is therefore the second choice,
+taken up only if the Newton step measures slower than the projection.
+
+**`sin` and `cos`, by complex bit-burst.** With $H = \lfloor 2^{G} \pi/2
+\rfloor / 2^{G}$, $G = F + \operatorname{bits}(n) + 2$, the quadrant integer
+$n = \operatorname{round}(x / H)$ and $R = x - nH$ (exact, $|R| \le 0.8$ after
+a correction of $n$), the true reduced argument $r = x - n \pi/2$ satisfies
+$|r - R| \le |n|\,2^{1-G} \le 2^{-F}$. Sine and cosine are 1-Lipschitz, so
+$\sin r \in \sin R \pm 2^{-F}$ and likewise for the cosine; truncating
+$|R|$ to $F$ bits costs one more unit. The quadrant $n \bmod 4$ maps
+$(\sin r, \cos r)$ to the result, as in `binary_reduced_trigonometric_bounds`.
+For $y = N/2^s < 1$ the real and imaginary parts of the series of
+$e^{iy}$ are the even and odd terms of the same sequence $t_i$ as above, with
+signs $(-1)^{\lfloor i/2 \rfloor}$, so a stage costs the same as an `exp` stage
+and gives both $\cos y$ and $\sin y$. The deficits satisfy the same bound
+$d_i < 3$, and each of the two alternating series has terms that decrease in
+size ($y^2 / ((i+1)(i+2)) < 1$), so the tail after $t_n < 2^{8}$ is at most
+$t_n + 3$ in size and the enclosure is $S_{\mathrm{cos}}$ or $S_{\mathrm{sin}}
+\pm (t_n + 3n + 3)$. Stages are folded by rotation,
+$(C, S) \leftarrow (C c - S s,\; S c + C s)$, with four products and interval
+bounds on non-negative integers; all partial angles lie in $[0, 0.8]$, so all
+four factors are non-negative and the difference of bounds is checked to be
+non-negative. Because the merge costs four full products per stage, the stages
+are fewer than for `exp` (factor 4 to 8 between chunk boundaries), and the last
+stage computes only the requested one of the two values. For $|R| < 2^{-16}$
+the existing series stays. Projection at 8192 bits: 4 to 6 ms, against 64 ms
+today (16 ms projected for the fixed-point branch); `tan` and the
+$\pi$-scaled functions follow.
+
+**Constants by binary splitting.** `pi`, `ln 2` and `ln 10` are computed once
+per working precision and cached, but a first call pays the cold cost above.
+Binary splitting gives $O(M(w) \log^2 w)$ with rigorous bounds:
+
+$$
+\pi = \frac{426880\sqrt{10005}\, Q}{T}, \qquad
+\ln 2 = 18\,\operatorname{artanh}\tfrac1{26} - 2\,\operatorname{artanh}\tfrac1{4801}
++ 8\,\operatorname{artanh}\tfrac1{8749}, \qquad
+\ln 10 = 3 \ln 2 + 2\operatorname{artanh}\tfrac19 ,
+$$
+
+where $(P, Q, T)$ come from the Chudnovsky series (alternating, tail below the
+next term, about 47 bits per term) and $\operatorname{artanh}(1/k) =
+\sum_j 1/((2j+1)k^{2j+1})$ has positive terms whose tail after $n$ terms is
+below $2 \cdot$ the first omitted term. $\sqrt{10005}$ is the integer square
+root of $10005 \cdot 2^{2F}$ with the exact floor property, and each series is
+divided once. The identities above were checked numerically to 60 digits; the
+enclosure proofs are the same integer-bound arguments as for the stage kernel.
+The cache stays as it is (it only changes the value of a miss), and requests
+for `ln 2` use a canonical precision (the next multiple of 64 above
+$F + \operatorname{bits}(n) + 2$) so `exp`, `ln` and the trigonometric reduction
+share entries instead of evicting each other.
+
+**Working-precision schedule and the Ziv loop.** The attempt precisions
+$w_0 = p + 64$, $w_{i+1} = w_i + \max(32, \lfloor w_i/2 \rfloor)$ and the
+budget of 12 attempts are unchanged. Each attempt picks the old or the new
+kernel by comparing $w$ with a per-target constant and, for `ln` and the
+sine, by the argument (the near-1 and tiny-argument cases above); a kernel that
+returns `None` or an enclosure wider than the old series' falls through to the
+old kernel at the same $w$. So an attempt never certifies less than before, and
+the exact cases, the tiny-argument measures, the inner-endpoint rounding and
+the flag argument of the loop are untouched. The result of a call is the
+correctly rounded value whenever either path certifies, hence identical to the
+current result; they can differ only in which inputs exhaust the budget, which
+the corpus comparison below counts. The faster attempts make a longer budget
+affordable, which is the point of
+[#15](https://github.com/Luna-Flow/floating/issues/15): the limit is a policy
+of the loop and does not interact with the kernels.
+
+**Allocation and targets.** `BinCoeff` values are immutable, so each term of
+a fixed-point stage allocates four arrays of up to $w/32$ limbs (product,
+shift, quotient, sum); on native these are included in the measured unit costs
+above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits).
+A fused in-place multiply-shift-divide loop on a mutable limb array would
+remove most of that for the non-JavaScript targets, and is a later optimization
+behind the same function, not part of the design. On JavaScript `BinCoeff` is a
+`bigint`: products, shifts and divisions are the engine's, with a larger
+constant per operation and an asymptotically faster product, so the stage
+boundaries and every threshold are measured separately on native, LLVM, Wasm,
+Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The
+source of the kernels is shared; only the constants differ.
+
+**Evidence the new path must produce.** Each kernel carries its own
+invariant tests: containment of the enclosure of the old path at $w + 256$
+bits in the new enclosure at $w$ (an independent computation), the width bound,
+and boundary cases (arguments at chunk boundaries, $R$ near $0$ and $1$, the
+corrections of $n$, huge $|n|$, tiny and near-1 arguments). The end-to-end
+check compares every result bit for bit with the old path and with MPFR on a
+seeded random corpus plus the existing boundary corpus on all four targets,
+and a deliberately biased kernel (one unit too narrow) must make the tests fail.
+
+**Limits of the speed-up.** The model reaches algorithmic parity with MPFR
+(`exp` at 8192 bits is about 65 to 100 products in MPFR and, projected, about
+50 to 80 here), so
+the remaining gap is the product kernel: 43 µs against 3.2 µs at 8192 bits,
+a factor 13 (4 µs against 0.31 µs, a factor 12, at 2048 bits). Ratios to MPFR
+at 8192 bits in the same run (MPFR: `exp` 326 µs, `ln` 177 µs, `sin` 291 µs):
+today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17
+to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is
+therefore within reach for `exp` only if the product kernel also improves.
+
+[^brent-agm]: R. P. Brent, "Fast multiple-precision evaluation of elementary
+    functions", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation
+    to be confirmed against the paper). The
+    sharp truncation bound has to be derived from the theta series before the
+    AGM is used. MPFR's `log.c` documents the same algorithm and is secondary
+    evidence only.
+
 ### The coefficient kernel
 
 **Problem.** Precision costs integer multiplication and division of
