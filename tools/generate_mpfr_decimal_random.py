@@ -17,9 +17,12 @@ only if
   the white-box tests), and
 * for the tininess rule of the row, both endpoints agree on "tiny".
 
-Underflow and Subnormal follow IEEE 754-2019 7.5 and the library's convention
-(Subnormal = tiny, Underflow = tiny and inexact), computed here for both
-tininess rules because Python's `decimal` knows only one. Rounded, Clamped and
+Underflow and Subnormal follow the library's convention (Subnormal = tiny,
+Underflow = tiny and inexact) and are computed here for both tininess rules
+because Python's `decimal` knows only one: before rounding is the rule of IEEE
+754-2019 7.5 for decimal formats; after rounding is the library's non-standard
+`AfterRounding` option, which applies the rule that 7.5 states for binary
+formats (the result computed with an unbounded exponent range and precision p). Rounded, Clamped and
 Overflow come from libmpdec. MPFR and libmpdec are oracles, not authorities.
 
 A candidate that does not certify is replaced by the next attempt of the same

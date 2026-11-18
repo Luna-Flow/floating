@@ -255,10 +255,12 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   decimal64 gives `0`, not `0E-398`; IEEE 754-2019 §5.2: an inexact result uses
   the cohort member of least possible exponent), and `exp` raises no
   Underflow and Subnormal for a result that underflows to the smallest
-  subnormal when `precision = 1`, tininess is detected after rounding and the
-  direction is `Up`, `Ceiling` or `ZeroFiveUp` (22 of 20,000 rows, §7.5, where
-  the smallest subnormal equals the smallest normal number). Both are reported
-  separately and become regression rows when fixed.
+  subnormal when `precision = 1`, the non-standard `AfterRounding` tininess
+  option is selected and the direction is `Up`, `Ceiling` or `ZeroFiveUp` (22
+  of 20,000 rows; the smallest subnormal equals the smallest normal number
+  then, and the library's own after-rounding rule says the result is tiny; the
+  standard rule for decimal formats, tininess before rounding, was correct).
+  Both are reported separately and become regression rows when fixed.
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and
   300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
   flags where the result 2^−1073741824 is an exact subnormal (13 cases,
