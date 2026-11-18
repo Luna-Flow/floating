@@ -141,10 +141,13 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
       },
     )
   }
+  // Built at the width of the argument, not of the residue: a BinFloat of
+  // width w stores nothing below 2^(e_min - (w - 1)), so a tiny argument near
+  // the implementation subnormal limit would be flushed to zero.
   let reduced = BinFloat::make(
     residue,
     value.exponent2(),
-    Int32::max(1, residue.bit_length()),
+    Int32::max(value.precision(), residue.bit_length()),
   )
   Some(if value.is_negative() { reduced.neg() } else { reduced })
 }

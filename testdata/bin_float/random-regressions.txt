@@ -61,3 +61,22 @@ reg.tiny-arg.asin.32 asin d 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
 reg.tiny-arg.asin.33 asin n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
 reg.tiny-arg.asin.34 asin u 53 - - - 0x1p-1073741823 - - 0 0x10000000000001p-1073741875 x
 reg.tiny-arg.asin.35 asin d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
+# #316 sinpi, tanpi and cospi of tiny arguments within a few bits of the implementation subnormal limit
+reg.pi-tiny-arg.sinpi.0 sinpi n 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
+reg.pi-tiny-arg.sinpi.1 sinpi u 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
+reg.pi-tiny-arg.sinpi.2 sinpi d 53 - - - 0x1p-1073741860 - - 0 0x1921fp-1073741875 xu
+reg.pi-tiny-arg.sinpi.3 sinpi n 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
+reg.pi-tiny-arg.sinpi.4 sinpi u 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
+reg.pi-tiny-arg.sinpi.5 sinpi d 53 - - - 0x1p-1073741870 - - 0 0x19p-1073741873 xu
+reg.pi-tiny-arg.tanpi.6 tanpi n 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
+reg.pi-tiny-arg.tanpi.7 tanpi u 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
+reg.pi-tiny-arg.tanpi.8 tanpi d 53 - - - 0x1p-1073741860 - - 0 0x1921fp-1073741875 xu
+reg.pi-tiny-arg.tanpi.9 tanpi n 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
+reg.pi-tiny-arg.tanpi.10 tanpi u 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
+reg.pi-tiny-arg.tanpi.11 tanpi d 53 - - - 0x1p-1073741870 - - 0 0x19p-1073741873 xu
+reg.pi-tiny-arg.cospi.12 cospi n 53 - - - 0x1p-1073741860 - - 0 0x1p0 x
+reg.pi-tiny-arg.cospi.13 cospi u 53 - - - 0x1p-1073741860 - - 0 0x1p0 x
+reg.pi-tiny-arg.cospi.14 cospi d 53 - - - 0x1p-1073741860 - - 0 0x1fffffffffffffp-53 x
+reg.pi-tiny-arg.cospi.15 cospi n 53 - - - 0x1p-1073741870 - - 0 0x1p0 x
+reg.pi-tiny-arg.cospi.16 cospi u 53 - - - 0x1p-1073741870 - - 0 0x1p0 x
+reg.pi-tiny-arg.cospi.17 cospi d 53 - - - 0x1p-1073741870 - - 0 0x1fffffffffffffp-53 x
