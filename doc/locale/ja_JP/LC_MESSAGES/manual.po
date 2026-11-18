@@ -19049,6 +19049,14 @@ msgstr "Trade-off"
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
 
+#: manual/performance/bin_float.md:55
+msgid "Fixed-point logarithm"
+msgstr "固定小数点の対数関数"
+
+#: manual/performance/bin_float.md:57
+msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
+msgstr "引数が作業精度で正確に表せる場合、認証済みの `ln` は、[1, 2] に正規化した引数の包含区間（およびそこから作る `ln 2` と `ln 10` の定数）で、級数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）を固定小数点で足し合わせます。小数部は 16 ビットのガードビットに `z` の先頭のゼロビット数を加えたもので、引数が 1 に近くても包含区間は `precision + 16` ビットの有効桁を保ちます。各演算は切り捨てなので和は下界になり、各項の誤差が 2 単位未満であるという証明と剰余の上界から上界が得られます。引数が正確でない場合や、1 に近すぎて小数部が作業精度の 4 倍を超える場合は、従来の浮動小数点の級数を使うので、精密化ループとその作業精度は変わりません。ホワイトボックステストは、より狭い包含区間を含むこと、幅が抑えられていること、および最終的な正しく丸めた結果とフラグが従来の級数と一致することを確認します。定数キャッシュなしのペア実行では、`ln` は Native で 53〜2,048 ビットにおいて 5〜7 倍、Wasm と Wasm-GC で 5.5〜7.5 倍、10 進の `ln` は 6 倍速くなります。"
+
 #: manual/performance/decimal.md:1
 msgid "decimal performance"
 msgstr "decimal 性能"

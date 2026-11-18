@@ -19049,6 +19049,14 @@ msgstr "取舍"
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook 降低初始化和分配，递归算法减少渐近工作，NTT 改善超大平衡输入但需要 transform 与临时存储。所有快路径保留精确 fallback，因此性能调度不能改变语义。"
 
+#: manual/performance/bin_float.md:55
+msgid "Fixed-point logarithm"
+msgstr "定点对数函数"
+
+#: manual/performance/bin_float.md:57
+msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
+msgstr "当参数在工作精度下精确表示时，认证 `ln` 对 [1, 2] 内规范化参数的包络（以及由它构造的 `ln 2` 与 `ln 10` 常数）以定点方式对级数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）求和。小数部分包含 16 位保护位再加上 `z` 的前导零位数，因此即使参数接近 1，包络也保有 `precision + 16` 个有效位；每一步运算都向下舍入，使和成为下界，每项误差小于 2 个单位的证明以及尾项界给出上界。参数不精确，或接近 1 以致小数位数将超过工作精度的四倍时，仍使用此前的浮点级数，因此细化循环及其工作精度均不变。白盒测试检查该包络包含一个更紧的包络、宽度有界，并检查最终正确舍入的结果与标志与此前的级数一致。不含常数缓存的成对运行：`ln` 在 Native 上于 53 至 2,048 位快 5 至 7 倍，在 Wasm 与 Wasm-GC 上快 5.5 至 7.5 倍，十进制 `ln` 快 6 倍。"
+
 #: manual/performance/decimal.md:1
 msgid "decimal performance"
 msgstr "decimal 性能"
