@@ -133,9 +133,14 @@ static const op_t operations[] = {
     {"atan2", K_ELEM, 2},   {"sinh", K_ELEM, 1},   {"cosh", K_ELEM, 1},
     {"tanh", K_ELEM, 1},    {"asinh", K_ELEM, 1},  {"acosh", K_ELEM, 1},
     {"atanh", K_ELEM, 1},
+    // Added after the first campaign; the "elem" family stays on the entries
+    // above so that its rows do not change, the new ones are "elem2".
+    {"exp2m1", K_ELEM, 1},  {"exp10m1", K_ELEM, 1},
+    {"log2p1", K_ELEM, 1},  {"log10p1", K_ELEM, 1},
 };
 #define OP_COUNT (sizeof(operations) / sizeof(operations[0]))
 #define FIRST_ELEM 9
+#define LEGACY_OP_COUNT 37
 
 static const char *rounding_names[] = {"n", "na", "z", "u", "d", "a"};
 static const mpfr_rnd_t rounding_modes[] = {
@@ -294,6 +299,10 @@ static int apply_op(const row_t *row, mpfr_t y, mpfr_rnd_t rnd) {
   if (!strcmp(name, "log2")) return mpfr_log2(y, *a, rnd);
   if (!strcmp(name, "log10")) return mpfr_log10(y, *a, rnd);
   if (!strcmp(name, "log1p")) return mpfr_log1p(y, *a, rnd);
+  if (!strcmp(name, "exp2m1")) return mpfr_exp2m1(y, *a, rnd);
+  if (!strcmp(name, "exp10m1")) return mpfr_exp10m1(y, *a, rnd);
+  if (!strcmp(name, "log2p1")) return mpfr_log2p1(y, *a, rnd);
+  if (!strcmp(name, "log10p1")) return mpfr_log10p1(y, *a, rnd);
   if (!strcmp(name, "rootn")) return mpfr_rootn_si(y, *a, row->n, rnd);
   if (!strcmp(name, "pown")) return mpfr_pow_si(y, *a, row->n, rnd);
   if (!strcmp(name, "pow")) return mpfr_pow(y, *a, *b, rnd);
@@ -1316,7 +1325,8 @@ static void gen_elem(rng_t *rng, row_t *row, const op_t *op) {
     } else {
       make_dyadic(rng, row->a, pa, lead, 0);
     }
-  } else if (!strcmp(name, "log1p")) {
+  } else if (!strcmp(name, "log1p") || !strcmp(name, "log2p1") ||
+             !strcmp(name, "log10p1")) {
     if (chance(rng, 1, 6)) {
       // close to -1
       long e = rnd_range(rng, 1, 40);
@@ -1352,7 +1362,8 @@ static void gen_elem(rng_t *rng, row_t *row, const op_t *op) {
     long l = chance(rng, 85, 100) ? rnd_range(rng, -30, 12) : rnd_range(rng, 12, 300);
     make_dyadic(rng, row->a, pa, l, neg);
   } else if (!strcmp(name, "exp") || !strcmp(name, "exp2") || !strcmp(name, "exp10") ||
-             !strcmp(name, "expm1") || !strcmp(name, "sinh") || !strcmp(name, "cosh") ||
+             !strcmp(name, "expm1") || !strcmp(name, "exp2m1") ||
+             !strcmp(name, "exp10m1") || !strcmp(name, "sinh") || !strcmp(name, "cosh") ||
              !strcmp(name, "tanh")) {
     long l = rnd_range(rng, -60, 10);
     if (chance(rng, 3, 100)) l = rnd_range(rng, 28, 32);  // overflow range
@@ -1421,7 +1432,10 @@ static const op_t *find_op(const char *name) {
 // the stream), or "arith" (the six arithmetic operations).
 static const op_t *pick_family_op(const char *family, rng_t *rng) {
   if (!strcmp(family, "elem")) {
-    return &operations[FIRST_ELEM + rnd_range(rng, 0, (long)OP_COUNT - FIRST_ELEM - 1)];
+    return &operations[FIRST_ELEM + rnd_range(rng, 0, (long)LEGACY_OP_COUNT - FIRST_ELEM - 1)];
+  }
+  if (!strcmp(family, "elem2")) {
+    return &operations[LEGACY_OP_COUNT + rnd_range(rng, 0, (long)OP_COUNT - LEGACY_OP_COUNT - 1)];
   }
   if (!strcmp(family, "arith")) return &operations[rnd_range(rng, 0, 5)];
   return find_op(family);
