@@ -148,6 +148,69 @@ fn bin_coeff_add_shifted_into(
 }
 
 ///|
+/// `length` 64-bit limbs of `value` starting at limb `start`.
+fn bin_coeff_word_slice(
+  value : BinCoeff,
+  start : Int32,
+  length : Int32,
+) -> BinCoeff {
+  let source_len = bin_coeff_word_len(value)
+  if length <= 0 || start >= source_len {
+    return BinCoeff::zero()
+  }
+  let len = Int32::min(length, source_len - start)
+  let words = FixedArray::make(len, 0UL)
+  match value.repr {
+    Heap(source, _) =>
+      for index in 0..<len {
+        words.unsafe_set(index, source.unsafe_get(start + index))
+      }
+    _ =>
+      for index in 0..<len {
+        words.unsafe_set(index, bin_coeff_word(value, start + index))
+      }
+  }
+  bin_coeff_from_words(words, len)
+}
+
+///|
+/// `destination += value * 2^(64 * offset)` on 64-bit limbs.
+fn bin_coeff_add_word_shifted_into(
+  destination : FixedArray[UInt64],
+  destination_len : Int32,
+  value : BinCoeff,
+  offset : Int32,
+) -> Unit {
+  let value_len = bin_coeff_word_len(value)
+  let mut carry = 0UL
+  for value_index in 0..<value_len {
+    let destination_index = offset + value_index
+    guard destination_index < destination_len else {
+      abort("BinCoeff shifted accumulation exceeded its output")
+    }
+    let current = destination.unsafe_get(destination_index)
+    let addend = bin_coeff_word(value, value_index)
+    let sum = current + addend
+    let carry_one = if sum < current { 1UL } else { 0UL }
+    let total = sum + carry
+    let carry_two = if total < sum { 1UL } else { 0UL }
+    destination.unsafe_set(destination_index, total)
+    carry = carry_one + carry_two
+  }
+  let mut destination_index = offset + value_len
+  while carry != 0UL && destination_index < destination_len {
+    let current = destination.unsafe_get(destination_index)
+    let total = current + carry
+    destination.unsafe_set(destination_index, total)
+    carry = if total < current { 1UL } else { 0UL }
+    destination_index += 1
+  }
+  guard carry == 0UL else {
+    abort("BinCoeff shifted accumulation exceeded its output")
+  }
+}
+
+///|
 priv struct BinCoeffScratchArena {
   slots : FixedArray[BinCoeff]
   mut used : Int32
@@ -201,14 +264,14 @@ fn bin_coeff_mul_karatsuba_scratch(
 ///|
 fn bin_coeff_mul_karatsuba(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let maximum_len = Int32::max(
-    bin_coeff_limb_len(left),
-    bin_coeff_limb_len(right),
+    bin_coeff_word_len(left),
+    bin_coeff_word_len(right),
   )
   let split = (maximum_len + 1) / 2
-  let left_low = bin_coeff_slice(left, 0, split)
-  let left_high = bin_coeff_slice(left, split, maximum_len - split)
-  let right_low = bin_coeff_slice(right, 0, split)
-  let right_high = bin_coeff_slice(right, split, maximum_len - split)
+  let left_low = bin_coeff_word_slice(left, 0, split)
+  let left_high = bin_coeff_word_slice(left, split, maximum_len - split)
+  let right_low = bin_coeff_word_slice(right, 0, split)
+  let right_high = bin_coeff_word_slice(right, split, maximum_len - split)
   let low_product = left_low.mul(right_low)
   let high_product = left_high.mul(right_high)
   let middle = left_low
@@ -219,23 +282,23 @@ fn bin_coeff_mul_karatsuba(left : BinCoeff, right : BinCoeff) -> BinCoeff {
     .sub_checked(high_product)
     .unwrap()
   low_product
-  .add(middle.shift_left(split * bin_coeff_limb_bits))
-  .add(high_product.shift_left(2 * split * bin_coeff_limb_bits))
+  .add(middle.shift_left(split * 64))
+  .add(high_product.shift_left(2 * split * 64))
 }
 
 ///|
 fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let maximum_len = Int32::max(
-    bin_coeff_limb_len(left),
-    bin_coeff_limb_len(right),
+    bin_coeff_word_len(left),
+    bin_coeff_word_len(right),
   )
   let split = (maximum_len + 2) / 3
-  let left0 = bin_coeff_slice(left, 0, split)
-  let left1 = bin_coeff_slice(left, split, split)
-  let left2 = bin_coeff_slice(left, 2 * split, split)
-  let right0 = bin_coeff_slice(right, 0, split)
-  let right1 = bin_coeff_slice(right, split, split)
-  let right2 = bin_coeff_slice(right, 2 * split, split)
+  let left0 = bin_coeff_word_slice(left, 0, split)
+  let left1 = bin_coeff_word_slice(left, split, split)
+  let left2 = bin_coeff_word_slice(left, 2 * split, split)
+  let right0 = bin_coeff_word_slice(right, 0, split)
+  let right1 = bin_coeff_word_slice(right, split, split)
+  let right2 = bin_coeff_word_slice(right, 2 * split, split)
   let left_at_one = left0.add(left1).add(left2)
   let right_at_one = right0.add(right1).add(right2)
   let left_at_minus_one = bin_coeff_signed_scratch(false, left0)
@@ -266,7 +329,7 @@ fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
     .div_exact_small(2UL)
   let coefficient3 = odd_weighted.sub(odd_sum).div_exact_small(3UL)
   let coefficient1 = odd_sum.sub(coefficient3)
-  let shift = split * bin_coeff_limb_bits
+  let shift = split * 64
   coefficient0
   .add(coefficient1.nonnegative().shift_left(shift))
   .add(coefficient2.nonnegative().shift_left(2 * shift))
@@ -276,18 +339,18 @@ fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 
 ///|
 fn bin_coeff_mul_unbalanced(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff {
-  let block_len = bin_coeff_limb_len(shorter)
-  let longer_len = bin_coeff_limb_len(longer)
+  let block_len = bin_coeff_word_len(shorter)
+  let longer_len = bin_coeff_word_len(longer)
   let output_len = block_len + longer_len
-  let result = FixedArray::make(output_len, 0U)
+  let result = FixedArray::make(output_len, 0UL)
   let mut start = 0
   while start < longer_len {
-    let block = bin_coeff_slice(longer, start, block_len)
+    let block = bin_coeff_word_slice(longer, start, block_len)
     let product = shorter.mul(block)
-    bin_coeff_add_shifted_into(result, output_len, product, start)
+    bin_coeff_add_word_shifted_into(result, output_len, product, start)
     start += block_len
   }
-  bin_coeff_from_limbs(result, output_len)
+  bin_coeff_from_words(result, output_len)
 }
 
 ///|

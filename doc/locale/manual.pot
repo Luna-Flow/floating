@@ -18871,7 +18871,7 @@ msgid "Representation"
 msgstr ""
 
 #: manual/performance/bin_float.md:12
-msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 32-bit limbs; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable."
+msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT still read a 32-bit view of the same storage until their stages. A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products on every target; the schoolbook kernel is still 2.7 to 3.7 times faster on Native and 1.7 to 1.9 times on Wasm-GC because it runs a quarter of the limb steps. Paired Native runs of the whole stage: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times. On Wasm and Wasm-GC multiplication below about 6,000 bits is 1.3 to 1.7 times faster; above about 9,000 bits the Karatsuba step, which allocates a coefficient for every intermediate value, is up to 1.8 times slower until the next stage moves it to limb arrays."
 msgstr ""
 
 #: manual/performance/bin_float.md:14
@@ -18951,11 +18951,11 @@ msgstr ""
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr ""
 
-#: manual/performance/bin_float.md:55
+#: manual/performance/bin_float.md:59
 msgid "Fixed-point logarithm"
 msgstr ""
 
-#: manual/performance/bin_float.md:57
+#: manual/performance/bin_float.md:61
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr ""
 

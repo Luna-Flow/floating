@@ -3,7 +3,8 @@
 priv enum BinCoeffRepr {
   Inline64(UInt64)
   Inline128(UInt64, UInt64)
-  Heap(FixedArray[UInt32], Int32)
+  // little-endian 64-bit limbs, `len` of them used (len >= 3, top limb nonzero)
+  Heap(FixedArray[UInt64], Int32)
 }
 
 ///|
@@ -40,15 +41,23 @@ fn bin_coeff_inline(high : UInt64, low : UInt64) -> BinCoeff {
 }
 
 ///|
+/// Number of 32-bit limbs (the compatibility view used by the kernels that
+/// have not been moved to 64-bit limbs yet).
 fn bin_coeff_limb_len(value : BinCoeff) -> Int32 {
   match value.repr {
     Inline64(value) => if value >> 32 == 0UL { 1 } else { 2 }
     Inline128(high, _) => if high >> 32 == 0UL { 3 } else { 4 }
-    Heap(_, len) => len
+    Heap(words, len) =>
+      if words.unsafe_get(len - 1) >> 32 == 0UL {
+        2 * len - 1
+      } else {
+        2 * len
+      }
   }
 }
 
 ///|
+/// The `index`-th 32-bit limb (compatibility view).
 fn bin_coeff_limb(value : BinCoeff, index : Int32) -> UInt32 {
   match value.repr {
     Inline64(low) =>
@@ -65,9 +74,14 @@ fn bin_coeff_limb(value : BinCoeff, index : Int32) -> UInt32 {
         3 => (high >> 32).to_uint()
         _ => 0U
       }
-    Heap(limbs, len) =>
-      if index >= 0 && index < len {
-        limbs.unsafe_get(index)
+    Heap(words, len) =>
+      if index >= 0 && index < 2 * len {
+        let word = words.unsafe_get(index >> 1)
+        if (index & 1) == 0 {
+          (word & bin_coeff_limb_mask).to_uint()
+        } else {
+          (word >> 32).to_uint()
+        }
       } else {
         0U
       }
@@ -75,6 +89,8 @@ fn bin_coeff_limb(value : BinCoeff, index : Int32) -> UInt32 {
 }
 
 ///|
+/// Builds a value from little-endian 32-bit limbs (compatibility view): the
+/// limbs are packed into 64-bit words.
 fn bin_coeff_from_limbs(
   limbs : FixedArray[UInt32],
   maximum_len : Int32,
@@ -102,7 +118,88 @@ fn bin_coeff_from_limbs(
       (if len == 4 { limbs.unsafe_get(3).to_uint64() << 32 } else { 0UL })
     return bin_coeff_inline(high, low)
   }
-  { repr: Heap(limbs, len), }
+  let word_len = (len + 1) / 2
+  let words = FixedArray::make(word_len, 0UL)
+  for index in 0..<word_len {
+    let low = limbs.unsafe_get(2 * index).to_uint64()
+    let high = if 2 * index + 1 < len {
+      limbs.unsafe_get(2 * index + 1).to_uint64() << 32
+    } else {
+      0UL
+    }
+    words.unsafe_set(index, high | low)
+  }
+  { repr: Heap(words, word_len), }
+}
+
+///|
+/// Number of 64-bit limbs (1 for zero).
+fn bin_coeff_word_len(value : BinCoeff) -> Int32 {
+  match value.repr {
+    Inline64(_) => 1
+    Inline128(_, _) => 2
+    Heap(_, len) => len
+  }
+}
+
+///|
+/// The `index`-th 64-bit limb, zero beyond the top.
+fn bin_coeff_word(value : BinCoeff, index : Int32) -> UInt64 {
+  match value.repr {
+    Inline64(low) => if index == 0 { low } else { 0UL }
+    Inline128(high, low) =>
+      match index {
+        0 => low
+        1 => high
+        _ => 0UL
+      }
+    Heap(words, len) =>
+      if index >= 0 && index < len {
+        words.unsafe_get(index)
+      } else {
+        0UL
+      }
+  }
+}
+
+///|
+/// Builds a value from little-endian 64-bit limbs; the array is kept by a
+/// heap value, so the caller must not modify it afterwards.
+fn bin_coeff_from_words(
+  words : FixedArray[UInt64],
+  maximum_len : Int32,
+) -> BinCoeff {
+  let mut len = maximum_len
+  while len > 1 && words.unsafe_get(len - 1) == 0UL {
+    len -= 1
+  }
+  if len <= 0 {
+    return BinCoeff::zero()
+  }
+  if len == 1 {
+    return { repr: Inline64(words.unsafe_get(0)), }
+  }
+  if len == 2 {
+    return bin_coeff_inline(words.unsafe_get(1), words.unsafe_get(0))
+  }
+  { repr: Heap(words, len), }
+}
+
+///|
+/// High 64 bits of the 128-bit product of two words.
+fn bin_coeff_mul_high(left : UInt64, right : UInt64) -> UInt64 {
+  let left_low = left & bin_coeff_limb_mask
+  let left_high = left >> 32
+  let right_low = right & bin_coeff_limb_mask
+  let right_high = right >> 32
+  let low_low = left_low * right_low
+  let high_low = left_high * right_low
+  let low_high = left_low * right_high
+  let high_high = left_high * right_high
+  let middle = (low_low >> 32) +
+    (high_low & bin_coeff_limb_mask) +
+    (low_high & bin_coeff_limb_mask)
+  high_high + (high_low >> 32) + (low_high >> 32) + (middle >> 32)
 }
 
 ///|
@@ -138,9 +235,8 @@ pub fn BinCoeff::bit_length(self : BinCoeff) -> Int32 {
   match self.repr {
     Inline64(value) => bin_coeff_u64_bits(value)
     Inline128(high, _) => 64 + bin_coeff_u64_bits(high)
-    Heap(limbs, len) =>
-      (len - 1) * bin_coeff_limb_bits +
-      (bin_coeff_limb_bits - limbs.unsafe_get(len - 1).clz())
+    Heap(words, len) =>
+      (len - 1) * 64 + bin_coeff_u64_bits(words.unsafe_get(len - 1))
   }
 }
 
@@ -159,15 +255,15 @@ pub fn BinCoeff::ctz(self : BinCoeff) -> Int32 {
       } else {
         64 + high.reinterpret_as_int64().ctz()
       }
-    Heap(limbs, len) => {
+    Heap(words, len) => {
       let mut index = 0
-      while index < len && limbs.unsafe_get(index) == 0U {
+      while index < len && words.unsafe_get(index) == 0UL {
         index += 1
       }
       if index == len {
         0
       } else {
-        index * bin_coeff_limb_bits + limbs.unsafe_get(index).ctz()
+        index * 64 + words.unsafe_get(index).reinterpret_as_int64().ctz()
       }
     }
   }
@@ -192,67 +288,85 @@ pub fn BinCoeff::test_bit(self : BinCoeff, index : Int32) -> Bool {
 
 ///|
 pub fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int32 {
-  let self_len = bin_coeff_limb_len(self)
-  let other_len = bin_coeff_limb_len(other)
+  let self_len = bin_coeff_word_len(self)
+  let other_len = bin_coeff_word_len(other)
   if self_len != other_len {
     return if self_len < other_len { -1 } else { 1 }
   }
-  let mut index = self_len - 1
-  while true {
-    let left = bin_coeff_limb(self, index)
-    let right = bin_coeff_limb(other, index)
-    if left != right {
-      return if left < right { -1 } else { 1 }
+  match (self.repr, other.repr) {
+    (Heap(left_words, _), Heap(right_words, _)) => {
+      let mut index = self_len - 1
+      while true {
+        let left = left_words.unsafe_get(index)
+        let right = right_words.unsafe_get(index)
+        if left != right {
+          return if left < right { -1 } else { 1 }
+        }
+        if index == 0 {
+          break
+        }
+        index -= 1
+      }
+      0
     }
-    if index == 0 {
-      break
+    _ => {
+      let mut index = self_len - 1
+      while true {
+        let left = bin_coeff_word(self, index)
+        let right = bin_coeff_word(other, index)
+        if left != right {
+          return if left < right { -1 } else { 1 }
+        }
+        if index == 0 {
+          break
+        }
+        index -= 1
+      }
+      0
     }
-    index -= 1
   }
-  0
 }
 
 ///|
 fn bin_coeff_add_heap(left : BinCoeff, right : BinCoeff) -> BinCoeff {
+  let left_len = bin_coeff_word_len(left)
+  let right_len = bin_coeff_word_len(right)
+  let len = Int32::max(left_len, right_len)
+  let words = FixedArray::make(len + 1, 0UL)
+  let mut carry = 0UL
   match (left.repr, right.repr) {
-    (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
-      let len = Int32::max(left_len, right_len)
-      let limbs = FixedArray::make(len + 1, 0U)
-      let mut carry = 0UL
+    (Heap(left_words, _), Heap(right_words, _)) =>
       for index in 0..<len {
         let left_value = if index < left_len {
-          left_limbs.unsafe_get(index).to_uint64()
+          left_words.unsafe_get(index)
         } else {
           0UL
         }
         let right_value = if index < right_len {
-          right_limbs.unsafe_get(index).to_uint64()
+          right_words.unsafe_get(index)
         } else {
           0UL
         }
-        let sum = left_value + right_value + carry
-        limbs.unsafe_set(index, (sum & bin_coeff_limb_mask).to_uint())
-        carry = sum >> bin_coeff_limb_bits
+        let sum = left_value + right_value
+        let carry_one = if sum < left_value { 1UL } else { 0UL }
+        let total = sum + carry
+        let carry_two = if total < sum { 1UL } else { 0UL }
+        words.unsafe_set(index, total)
+        carry = carry_one + carry_two
       }
-      limbs.unsafe_set(len, carry.to_uint())
-      return bin_coeff_from_limbs(limbs, len + 1)
-    }
-    _ => ()
+    _ =>
+      for index in 0..<len {
+        let left_value = bin_coeff_word(left, index)
+        let sum = left_value + bin_coeff_word(right, index)
+        let carry_one = if sum < left_value { 1UL } else { 0UL }
+        let total = sum + carry
+        let carry_two = if total < sum { 1UL } else { 0UL }
+        words.unsafe_set(index, total)
+        carry = carry_one + carry_two
+      }
   }
-  let left_len = bin_coeff_limb_len(left)
-  let right_len = bin_coeff_limb_len(right)
-  let len = Int32::max(left_len, right_len)
-  let limbs = FixedArray::make(len + 1, 0U)
-  let mut carry = 0UL
-  for index in 0..<len {
-    let sum = bin_coeff_limb(left, index).to_uint64() +
-      bin_coeff_limb(right, index).to_uint64() +
-      carry
-    limbs.unsafe_set(index, (sum & bin_coeff_limb_mask).to_uint())
-    carry = sum >> bin_coeff_limb_bits
-  }
-  limbs.unsafe_set(len, carry.to_uint())
-  bin_coeff_from_limbs(limbs, len + 1)
+  words.unsafe_set(len, carry)
+  bin_coeff_from_words(words, len + 1)
 }
 
 ///|
@@ -298,55 +412,64 @@ fn bin_coeff_add_normalized_odd(
   right : BinCoeff,
 ) -> (BinCoeff, Int32) {
   match (left.repr, right.repr) {
-    (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
+    (Heap(left_words, left_len), Heap(right_words, right_len)) => {
       let len = Int32::max(left_len, right_len)
-      let limbs = FixedArray::make(len + 1, 0U)
+      let words = FixedArray::make(len + 1, 0UL)
       let mut carry = 0UL
       for index in 0..<len {
         let left_value = if index < left_len {
-          left_limbs.unsafe_get(index).to_uint64()
+          left_words.unsafe_get(index)
         } else {
           0UL
         }
         let right_value = if index < right_len {
-          right_limbs.unsafe_get(index).to_uint64()
+          right_words.unsafe_get(index)
         } else {
           0UL
         }
-        let sum = left_value + right_value + carry
-        limbs.unsafe_set(index, (sum & bin_coeff_limb_mask).to_uint())
-        carry = sum >> bin_coeff_limb_bits
+        let sum = left_value + right_value
+        let carry_one = if sum < left_value { 1UL } else { 0UL }
+        let total = sum + carry
+        let carry_two = if total < sum { 1UL } else { 0UL }
+        words.unsafe_set(index, total)
+        carry = carry_one + carry_two
       }
-      limbs.unsafe_set(len, carry.to_uint())
-      let mut first_nonzero = 0
-      while limbs.unsafe_get(first_nonzero) == 0U {
-        first_nonzero += 1
-      }
-      let bit_shift = limbs.unsafe_get(first_nonzero).ctz()
-      let normalization_shift = first_nonzero * bin_coeff_limb_bits + bit_shift
-      if normalization_shift == 0 {
-        return (bin_coeff_from_limbs(limbs, len + 1), 0)
-      }
-      let output_len = len + 1 - first_nonzero
-      for output_index in 0..<output_len {
-        let source_index = output_index + first_nonzero
-        let mut limb = limbs.unsafe_get(source_index).to_uint64() >> bit_shift
-        if bit_shift != 0 && source_index + 1 <= len {
-          limb = limb |
-            (
-              limbs.unsafe_get(source_index + 1).to_uint64() <<
-              (bin_coeff_limb_bits - bit_shift)
-            )
-        }
-        limbs.unsafe_set(output_index, (limb & bin_coeff_limb_mask).to_uint())
-      }
-      return (bin_coeff_from_limbs(limbs, output_len), normalization_shift)
+      words.unsafe_set(len, carry)
+      return bin_coeff_normalize_odd_words(words, len + 1)
     }
     _ => ()
   }
   let sum = left.add(right)
   let normalization_shift = sum.ctz()
   (sum.shift_right(normalization_shift), normalization_shift)
+}
+
+///|
+/// Strips the trailing zero bits of the nonzero words `words[0..len)` in
+/// place and returns the value with the number of bits removed.
+fn bin_coeff_normalize_odd_words(
+  words : FixedArray[UInt64],
+  len : Int32,
+) -> (BinCoeff, Int32) {
+  let mut first_nonzero = 0
+  while words.unsafe_get(first_nonzero) == 0UL {
+    first_nonzero += 1
+  }
+  let bit_shift = words.unsafe_get(first_nonzero).reinterpret_as_int64().ctz()
+  let normalization_shift = first_nonzero * 64 + bit_shift
+  if normalization_shift == 0 {
+    return (bin_coeff_from_words(words, len), 0)
+  }
+  let output_len = len - first_nonzero
+  for output_index in 0..<output_len {
+    let source_index = output_index + first_nonzero
+    let mut word = words.unsafe_get(source_index) >> bit_shift
+    if bit_shift != 0 && source_index + 1 < len {
+      word = word | (words.unsafe_get(source_index + 1) << (64 - bit_shift))
+    }
+    words.unsafe_set(output_index, word)
+  }
+  (bin_coeff_from_words(words, output_len), normalization_shift)
 }
 
 ///|
@@ -367,55 +490,51 @@ fn bin_coeff_sub_unchecked(left : BinCoeff, right : BinCoeff) -> BinCoeff {
     }
     _ => ()
   }
-  match (left.repr, right.repr) {
-    (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
-      let limbs = FixedArray::make(left_len, 0U)
-      let mut borrow = 0UL
-      for index in 0..<left_len {
-        let minuend = left_limbs.unsafe_get(index).to_uint64()
-        let subtrahend = if index < right_len {
-          right_limbs.unsafe_get(index).to_uint64() + borrow
-        } else {
-          borrow
-        }
-        if minuend < subtrahend {
-          limbs.unsafe_set(
-            index,
-            (minuend + bin_coeff_limb_base - subtrahend).to_uint(),
-          )
-          borrow = 1UL
-        } else {
-          limbs.unsafe_set(index, (minuend - subtrahend).to_uint())
-          borrow = 0UL
-        }
-      }
-      return bin_coeff_from_limbs(limbs, left_len)
-    }
-    _ => ()
-  }
-  let left_len = bin_coeff_limb_len(left)
-  let right_len = bin_coeff_limb_len(right)
-  let limbs = FixedArray::make(left_len, 0U)
+  let left_len = bin_coeff_word_len(left)
+  let right_len = bin_coeff_word_len(right)
+  let words = FixedArray::make(left_len, 0UL)
+  bin_coeff_sub_words(left, right, words, left_len, right_len)
+  bin_coeff_from_words(words, left_len)
+}
+
+///|
+/// `words[0..left_len) = left - right` for `left >= right`.
+fn bin_coeff_sub_words(
+  left : BinCoeff,
+  right : BinCoeff,
+  words : FixedArray[UInt64],
+  left_len : Int32,
+  right_len : Int32,
+) -> Unit {
   let mut borrow = 0UL
-  for index in 0..<left_len {
-    let minuend = bin_coeff_limb(left, index).to_uint64()
-    let subtrahend = if index < right_len {
-      bin_coeff_limb(right, index).to_uint64() + borrow
-    } else {
-      borrow
-    }
-    if minuend < subtrahend {
-      limbs.unsafe_set(
-        index,
-        (minuend + bin_coeff_limb_base - subtrahend).to_uint(),
-      )
-      borrow = 1UL
-    } else {
-      limbs.unsafe_set(index, (minuend - subtrahend).to_uint())
-      borrow = 0UL
-    }
+  match (left.repr, right.repr) {
+    (Heap(left_words, _), Heap(right_words, _)) =>
+      for index in 0..<left_len {
+        let minuend = left_words.unsafe_get(index)
+        let subtrahend = if index < right_len {
+          right_words.unsafe_get(index)
+        } else {
+          0UL
+        }
+        let difference = minuend - subtrahend
+        let borrow_one = if minuend < subtrahend { 1UL } else { 0UL }
+        let result = difference - borrow
+        let borrow_two = if difference < borrow { 1UL } else { 0UL }
+        words.unsafe_set(index, result)
+        borrow = borrow_one + borrow_two
+      }
+    _ =>
+      for index in 0..<left_len {
+        let minuend = bin_coeff_word(left, index)
+        let subtrahend = bin_coeff_word(right, index)
+        let difference = minuend - subtrahend
+        let borrow_one = if minuend < subtrahend { 1UL } else { 0UL }
+        let result = difference - borrow
+        let borrow_two = if difference < borrow { 1UL } else { 0UL }
+        words.unsafe_set(index, result)
+        borrow = borrow_one + borrow_two
+      }
   }
-  bin_coeff_from_limbs(limbs, left_len)
 }
 
 ///|
@@ -424,50 +543,10 @@ fn bin_coeff_sub_normalized_odd(
   right : BinCoeff,
 ) -> (BinCoeff, Int32) {
   match (left.repr, right.repr) {
-    (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
-      let limbs = FixedArray::make(left_len, 0U)
-      let mut borrow = 0UL
-      for index in 0..<left_len {
-        let minuend = left_limbs.unsafe_get(index).to_uint64()
-        let subtrahend = if index < right_len {
-          right_limbs.unsafe_get(index).to_uint64() + borrow
-        } else {
-          borrow
-        }
-        if minuend < subtrahend {
-          limbs.unsafe_set(
-            index,
-            (minuend + bin_coeff_limb_base - subtrahend).to_uint(),
-          )
-          borrow = 1UL
-        } else {
-          limbs.unsafe_set(index, (minuend - subtrahend).to_uint())
-          borrow = 0UL
-        }
-      }
-      let mut first_nonzero = 0
-      while limbs.unsafe_get(first_nonzero) == 0U {
-        first_nonzero += 1
-      }
-      let bit_shift = limbs.unsafe_get(first_nonzero).ctz()
-      let normalization_shift = first_nonzero * bin_coeff_limb_bits + bit_shift
-      if normalization_shift == 0 {
-        return (bin_coeff_from_limbs(limbs, left_len), 0)
-      }
-      let output_len = left_len - first_nonzero
-      for output_index in 0..<output_len {
-        let source_index = output_index + first_nonzero
-        let mut limb = limbs.unsafe_get(source_index).to_uint64() >> bit_shift
-        if bit_shift != 0 && source_index + 1 < left_len {
-          limb = limb |
-            (
-              limbs.unsafe_get(source_index + 1).to_uint64() <<
-              (bin_coeff_limb_bits - bit_shift)
-            )
-        }
-        limbs.unsafe_set(output_index, (limb & bin_coeff_limb_mask).to_uint())
-      }
-      return (bin_coeff_from_limbs(limbs, output_len), normalization_shift)
+    (Heap(_, left_len), Heap(_, right_len)) => {
+      let words = FixedArray::make(left_len, 0UL)
+      bin_coeff_sub_words(left, right, words, left_len, right_len)
+      return bin_coeff_normalize_odd_words(words, left_len)
     }
     _ => ()
   }
@@ -523,16 +602,12 @@ fn bin_coeff_from_words_256(
   if word3 == 0UL && word2 == 0UL {
     return bin_coeff_inline(word1, word0)
   }
-  let limbs = FixedArray::make(8, 0U)
-  limbs.unsafe_set(0, (word0 & bin_coeff_limb_mask).to_uint())
-  limbs.unsafe_set(1, (word0 >> 32).to_uint())
-  limbs.unsafe_set(2, (word1 & bin_coeff_limb_mask).to_uint())
-  limbs.unsafe_set(3, (word1 >> 32).to_uint())
-  limbs.unsafe_set(4, (word2 & bin_coeff_limb_mask).to_uint())
-  limbs.unsafe_set(5, (word2 >> 32).to_uint())
-  limbs.unsafe_set(6, (word3 & bin_coeff_limb_mask).to_uint())
-  limbs.unsafe_set(7, (word3 >> 32).to_uint())
-  bin_coeff_from_limbs(limbs, 8)
+  let words = FixedArray::make(4, 0UL)
+  words.unsafe_set(0, word0)
+  words.unsafe_set(1, word1)
+  words.unsafe_set(2, word2)
+  words.unsafe_set(3, word3)
+  bin_coeff_from_words(words, 4)
 }
 
 ///|
@@ -575,43 +650,56 @@ fn bin_coeff_mul_inline_128(
 
 ///|
 fn bin_coeff_mul_schoolbook(left : BinCoeff, right : BinCoeff) -> BinCoeff {
+  let left_len = bin_coeff_word_len(left)
+  let right_len = bin_coeff_word_len(right)
+  let words = FixedArray::make(left_len + right_len, 0UL)
   match (left.repr, right.repr) {
-    (Heap(left_limbs, left_len), Heap(right_limbs, right_len)) => {
-      let limbs = FixedArray::make(left_len + right_len, 0U)
+    (Heap(left_words, _), Heap(right_words, _)) =>
       for left_index in 0..<left_len {
-        let left_limb = left_limbs.unsafe_get(left_index).to_uint64()
+        let left_word = left_words.unsafe_get(left_index)
         let mut carry = 0UL
         for right_index in 0..<right_len {
           let index = left_index + right_index
-          let product = limbs.unsafe_get(index).to_uint64() +
-            left_limb * right_limbs.unsafe_get(right_index).to_uint64() +
-            carry
-          limbs.unsafe_set(index, (product & bin_coeff_limb_mask).to_uint())
-          carry = product >> bin_coeff_limb_bits
+          let right_word = right_words.unsafe_get(right_index)
+          let low = left_word * right_word
+          let mut high = bin_coeff_mul_high(left_word, right_word)
+          let sum = low + words.unsafe_get(index)
+          if sum < low {
+            high += 1UL
+          }
+          let total = sum + carry
+          if total < sum {
+            high += 1UL
+          }
+          words.unsafe_set(index, total)
+          carry = high
         }
-        limbs.unsafe_set(left_index + right_len, carry.to_uint())
+        words.unsafe_set(left_index + right_len, carry)
       }
-      return bin_coeff_from_limbs(limbs, left_len + right_len)
-    }
-    _ => ()
+    _ =>
+      for left_index in 0..<left_len {
+        let left_word = bin_coeff_word(left, left_index)
+        let mut carry = 0UL
+        for right_index in 0..<right_len {
+          let index = left_index + right_index
+          let right_word = bin_coeff_word(right, right_index)
+          let low = left_word * right_word
+          let mut high = bin_coeff_mul_high(left_word, right_word)
+          let sum = low + words.unsafe_get(index)
+          if sum < low {
+            high += 1UL
+          }
+          let total = sum + carry
+          if total < sum {
+            high += 1UL
+          }
+          words.unsafe_set(index, total)
+          carry = high
+        }
+        words.unsafe_set(left_index + right_len, carry)
+      }
   }
-  let left_len = bin_coeff_limb_len(left)
-  let right_len = bin_coeff_limb_len(right)
-  let limbs = FixedArray::make(left_len + right_len, 0U)
-  for left_index in 0..<left_len {
-    let left_limb = bin_coeff_limb(left, left_index).to_uint64()
-    let mut carry = 0UL
-    for right_index in 0..<right_len {
-      let index = left_index + right_index
-      let product = limbs.unsafe_get(index).to_uint64() +
-        left_limb * bin_coeff_limb(right, right_index).to_uint64() +
-        carry
-      limbs.unsafe_set(index, (product & bin_coeff_limb_mask).to_uint())
-      carry = product >> bin_coeff_limb_bits
-    }
-    limbs.unsafe_set(left_index + right_len, carry.to_uint())
-  }
-  bin_coeff_from_limbs(limbs, left_len + right_len)
+  bin_coeff_from_words(words, left_len + right_len)
 }
 
 ///|
@@ -620,14 +708,19 @@ fn bin_coeff_nonzero_limb_count_limited(
   limit : Int32,
 ) -> Int32? {
   match value.repr {
-    Heap(limbs, len) => {
+    Heap(words, len) => {
+      // counted in 32-bit limbs, as the sparse-multiplication policy expects
       let mut count = 0
       for index in 0..<len {
-        if limbs.unsafe_get(index) != 0U {
+        let word = words.unsafe_get(index)
+        if (word & bin_coeff_limb_mask) != 0UL {
           count += 1
-          if count > limit {
-            return None
-          }
+        }
+        if word >> 32 != 0UL {
+          count += 1
+        }
+        if count > limit {
+          return None
         }
       }
       Some(count)
@@ -643,11 +736,17 @@ fn bin_coeff_sparse_positions(
 ) -> FixedArray[Int32] {
   let positions = FixedArray::make(count, 0)
   match value.repr {
-    Heap(limbs, len) => {
+    Heap(words, len) => {
+      // positions of the nonzero 32-bit limbs
       let mut position_index = 0
       for index in 0..<len {
-        if limbs.unsafe_get(index) != 0U {
-          positions.unsafe_set(position_index, index)
+        let word = words.unsafe_get(index)
+        if (word & bin_coeff_limb_mask) != 0UL {
+          positions.unsafe_set(position_index, 2 * index)
+          position_index += 1
+        }
+        if word >> 32 != 0UL {
+          positions.unsafe_set(position_index, 2 * index + 1)
           position_index += 1
         }
       }
@@ -711,60 +810,65 @@ fn bin_coeff_add_product_at(
 }
 
 ///|
-fn bin_coeff_add_limb_at(
-  limbs : FixedArray[UInt32],
-  len : Int32,
-  offset : Int32,
-  value : UInt64,
-) -> Unit {
-  let mut carry = value
-  let mut index = offset
-  while carry != 0UL && index < len {
-    let sum = limbs.unsafe_get(index).to_uint64() + carry
-    limbs.unsafe_set(index, (sum & bin_coeff_limb_mask).to_uint())
-    carry = sum >> bin_coeff_limb_bits
-    index += 1
-  }
-  guard carry == 0UL else { abort("BinCoeff square carry exceeded its output") }
-}
-
-///|
 fn bin_coeff_square_schoolbook(value : BinCoeff) -> BinCoeff {
   let (source, source_len) = match value.repr {
     Heap(source, source_len) => (source, source_len)
     Inline64(_) | Inline128(_, _) => return value.mul(value)
   }
   let output_len = source_len * 2
-  let limbs = FixedArray::make(output_len, 0U)
+  let words = FixedArray::make(output_len, 0UL)
+  // the cross products a_i * a_j, i < j, once
   for left_index in 0..<source_len {
-    let left_limb = source.unsafe_get(left_index).to_uint64()
+    let left_word = source.unsafe_get(left_index)
     let mut carry = 0UL
     for right_index in (left_index + 1)..<source_len {
       let offset = left_index + right_index
-      let product = limbs.unsafe_get(offset).to_uint64() +
-        left_limb * source.unsafe_get(right_index).to_uint64() +
-        carry
-      limbs.unsafe_set(offset, (product & bin_coeff_limb_mask).to_uint())
-      carry = product >> bin_coeff_limb_bits
+      let right_word = source.unsafe_get(right_index)
+      let low = left_word * right_word
+      let mut high = bin_coeff_mul_high(left_word, right_word)
+      let sum = low + words.unsafe_get(offset)
+      if sum < low {
+        high += 1UL
+      }
+      let total = sum + carry
+      if total < sum {
+        high += 1UL
+      }
+      words.unsafe_set(offset, total)
+      carry = high
     }
-    if carry != 0UL {
-      bin_coeff_add_limb_at(limbs, output_len, left_index + source_len, carry)
-    }
+    words.unsafe_set(left_index + source_len, carry)
   }
-  let mut double_carry = 0UL
+  // double them
+  let mut shifted_out = 0UL
   for index in 0..<output_len {
-    let doubled = limbs.unsafe_get(index).to_uint64() * 2UL + double_carry
-    limbs.unsafe_set(index, (doubled & bin_coeff_limb_mask).to_uint())
-    double_carry = doubled >> bin_coeff_limb_bits
+    let word = words.unsafe_get(index)
+    words.unsafe_set(index, (word << 1) | shifted_out)
+    shifted_out = word >> 63
   }
-  guard double_carry == 0UL else {
+  guard shifted_out == 0UL else {
     abort("BinCoeff square doubling exceeded its output")
   }
+  // add the squares a_i * a_i at 2 i
+  let mut carry = 0UL
   for index in 0..<source_len {
-    let limb = source.unsafe_get(index).to_uint64()
-    bin_coeff_add_product_at(limbs, output_len, index * 2, limb * limb)
+    let word = source.unsafe_get(index)
+    let low = word * word
+    let high = bin_coeff_mul_high(word, word)
+    let low_sum = words.unsafe_get(2 * index) + low
+    let low_carry = if low_sum < low { 1UL } else { 0UL }
+    let low_total = low_sum + carry
+    let low_carry_two = if low_total < low_sum { 1UL } else { 0UL }
+    words.unsafe_set(2 * index, low_total)
+    let high_sum = words.unsafe_get(2 * index + 1) + high
+    let high_carry = if high_sum < high { 1UL } else { 0UL }
+    let high_total = high_sum + low_carry + low_carry_two
+    let high_carry_two = if high_total < high_sum { 1UL } else { 0UL }
+    words.unsafe_set(2 * index + 1, high_total)
+    carry = high_carry + high_carry_two
   }
-  bin_coeff_from_limbs(limbs, output_len)
+  guard carry == 0UL else { abort("BinCoeff square carry exceeded its output") }
+  bin_coeff_from_words(words, output_len)
 }
 
 ///|
@@ -846,21 +950,41 @@ pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int32) -> BinCoeff {
       Heap(_, _) => ()
     }
   }
-  let source_len = bin_coeff_limb_len(self)
-  let limb_shift = shift / bin_coeff_limb_bits
-  let bit_shift = shift % bin_coeff_limb_bits
-  let limbs = FixedArray::make(source_len + limb_shift + 1, 0U)
-  let mut carry = 0UL
-  for index in 0..<source_len {
-    let shifted = (bin_coeff_limb(self, index).to_uint64() << bit_shift) | carry
-    limbs.unsafe_set(
-      index + limb_shift,
-      (shifted & bin_coeff_limb_mask).to_uint(),
-    )
-    carry = shifted >> bin_coeff_limb_bits
+  let source_len = bin_coeff_word_len(self)
+  let word_shift = shift / 64
+  let bit_shift = shift % 64
+  let words = FixedArray::make(source_len + word_shift + 1, 0UL)
+  match self.repr {
+    Heap(source, _) =>
+      if bit_shift == 0 {
+        for index in 0..<source_len {
+          words.unsafe_set(index + word_shift, source.unsafe_get(index))
+        }
+      } else {
+        let mut carry = 0UL
+        for index in 0..<source_len {
+          let word = source.unsafe_get(index)
+          words.unsafe_set(index + word_shift, (word << bit_shift) | carry)
+          carry = word >> (64 - bit_shift)
+        }
+        words.unsafe_set(source_len + word_shift, carry)
+      }
+    _ =>
+      if bit_shift == 0 {
+        for index in 0..<source_len {
+          words.unsafe_set(index + word_shift, bin_coeff_word(self, index))
+        }
+      } else {
+        let mut carry = 0UL
+        for index in 0..<source_len {
+          let word = bin_coeff_word(self, index)
+          words.unsafe_set(index + word_shift, (word << bit_shift) | carry)
+          carry = word >> (64 - bit_shift)
+        }
+        words.unsafe_set(source_len + word_shift, carry)
+      }
   }
-  limbs.unsafe_set(source_len + limb_shift, carry.to_uint())
-  bin_coeff_from_limbs(limbs, source_len + limb_shift + 1)
+  bin_coeff_from_words(words, source_len + word_shift + 1)
 }
 
 ///|
@@ -891,24 +1015,25 @@ pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
   if shift >= self.bit_length() {
     return BinCoeff::zero()
   }
-  let source_len = bin_coeff_limb_len(self)
-  let limb_shift = shift / bin_coeff_limb_bits
-  let bit_shift = shift % bin_coeff_limb_bits
-  let output_len = source_len - limb_shift
-  let limbs = FixedArray::make(output_len, 0U)
-  for output_index in 0..<output_len {
-    let source_index = output_index + limb_shift
-    let mut limb = bin_coeff_limb(self, source_index).to_uint64() >> bit_shift
-    if bit_shift > 0 && source_index + 1 < source_len {
-      limb = limb |
-        (
-          bin_coeff_limb(self, source_index + 1).to_uint64() <<
-          (bin_coeff_limb_bits - bit_shift)
-        )
-    }
-    limbs.unsafe_set(output_index, (limb & bin_coeff_limb_mask).to_uint())
+  let source_len = bin_coeff_word_len(self)
+  let word_shift = shift / 64
+  let bit_shift = shift % 64
+  let output_len = source_len - word_shift
+  let words = FixedArray::make(output_len, 0UL)
+  match self.repr {
+    Heap(source, _) =>
+      for output_index in 0..<output_len {
+        let source_index = output_index + word_shift
+        let mut word = source.unsafe_get(source_index) >> bit_shift
+        if bit_shift > 0 && source_index + 1 < source_len {
+          word = word |
+            (source.unsafe_get(source_index + 1) << (64 - bit_shift))
+        }
+        words.unsafe_set(output_index, word)
+      }
+    _ => ()
   }
-  bin_coeff_from_limbs(limbs, output_len)
+  bin_coeff_from_words(words, output_len)
 }
 
 ///|

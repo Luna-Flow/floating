@@ -18981,8 +18981,8 @@ msgid "Representation"
 msgstr "Context、flags 与 interchange"
 
 #: manual/performance/bin_float.md:12
-msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 32-bit limbs; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable."
-msgstr "非 JS target 使用 inline 64/128-bit 系数与 little-endian 32-bit limbs；JavaScript 使用隐藏的宿主 `bigint` adapter。公开 `BinCoeff` 使 backend 选择不可观察。"
+msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT still read a 32-bit view of the same storage until their stages. A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products on every target; the schoolbook kernel is still 2.7 to 3.7 times faster on Native and 1.7 to 1.9 times on Wasm-GC because it runs a quarter of the limb steps. Paired Native runs of the whole stage: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times. On Wasm and Wasm-GC multiplication below about 6,000 bits is 1.3 to 1.7 times faster; above about 9,000 bits the Karatsuba step, which allocates a coefficient for every intermediate value, is up to 1.8 times slower until the next stage moves it to limb arrays."
+msgstr "非 JS 目标把 128 位以内的系数内联存储，更大的系数使用小端 64 位 limb；JavaScript 使用隐藏的宿主 `bigint` 适配器。公开的 `BinCoeff` 类型使后端选择不可观察。从 32 位 limb 到 64 位 limb 的迁移（问题 #19）分阶段进行：加法、减法、比较、移位、schoolbook 乘法与平方，以及 Karatsuba 和 Toom-3 步骤已在 64 位 limb 上工作；除法、平方根内核和 NTT 在各自的阶段之前仍读取同一存储的 32 位视图。64 位 limb 乘积需要 64 乘 64 位乘法的高半部分，MoonBit 没有对应指令，因此在所有目标上都由四个 32 乘 32 位乘积算出；schoolbook 内核因为只执行四分之一的 limb 步骤，在 Native 上仍快 2.7 至 3.7 倍，在 Wasm-GC 上快 1.7 至 1.9 倍。整个阶段在 Native 上的成对运行：2,048 至 8,192 位乘法快 2.2 倍，8,192 位加法快 2.3 倍，2,048 位的 `exp` 与 `ln` 快 2.0 倍。在 Wasm 与 Wasm-GC 上，约 6,000 位以下的乘法快 1.3 至 1.7 倍；约 9,000 位以上，为每个中间值分配一个系数的 Karatsuba 步骤最多慢 1.8 倍，直到下一阶段把它改到 limb 数组上。"
 
 #: manual/performance/bin_float.md:14
 msgid "Fixed-point exponential"
@@ -19061,11 +19061,11 @@ msgstr "取舍"
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook 降低初始化和分配，递归算法减少渐近工作，NTT 改善超大平衡输入但需要 transform 与临时存储。所有快路径保留精确 fallback，因此性能调度不能改变语义。"
 
-#: manual/performance/bin_float.md:55
+#: manual/performance/bin_float.md:59
 msgid "Fixed-point logarithm"
 msgstr "定点对数函数"
 
-#: manual/performance/bin_float.md:57
+#: manual/performance/bin_float.md:61
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr "当参数在工作精度下精确表示时，认证 `ln` 对 [1, 2] 内规范化参数的包络（以及由它构造的 `ln 2` 与 `ln 10` 常数）以定点方式对级数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）求和。小数部分包含 16 位保护位再加上 `z` 的前导零位数，因此即使参数接近 1，包络也保有 `precision + 16` 个有效位；每一步运算都向下舍入，使和成为下界，每项误差小于 2 个单位的证明以及尾项界给出上界。参数不精确，或接近 1 以致小数位数将超过工作精度的四倍时，仍使用此前的浮点级数，因此细化循环及其工作精度均不变。白盒测试检查该包络包含一个更紧的包络、宽度有界，并检查最终正确舍入的结果与标志与此前的级数一致。不含常数缓存的成对运行：`ln` 在 Native 上于 53 至 2,048 位快 5 至 7 倍，在 Wasm 与 Wasm-GC 上快 5.5 至 7.5 倍，十进制 `ln` 快 6 倍。"
 
@@ -25323,6 +25323,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:538
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 32-bit limbs; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable."
+#~ msgstr "非 JS target 使用 inline 64/128-bit 系数与 little-endian 32-bit limbs；JavaScript 使用隐藏的宿主 `bigint` adapter。公开 `BinCoeff` 使 backend 选择不可观察。"
 
 #~ msgid "*Projection (native, this machine).* With the measured unit costs (product $8192 \\times m$ bits above, shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits) the model gives about 1.6 to 2.2 ms for $w = 8192$ and 120 to 160 µs for $w = 2048$, against 17.8 ms and 514 µs today. The model ignores allocation, the final division of each binary-splitting stage and cache effects, so a safe reading is 2 to 3.5 ms (5 to 9 times faster) at 8192 bits and 2 to 4 times at 2048 bits; the break-even against the current series is expected at a few hundred bits."
 #~ msgstr "*预测（原生，本机）。* 取实测单位成本（$8192 \\times m$ 位乘积见上，移位 0.2 µs，单字除法 1.5 µs，8192 位下加法 0.3 µs），模型给出 $w = 8192$ 时约 1.6 到 2.2 ms，$w = 2048$ 时 120 到 160 µs，而现在分别是 17.8 ms 和 514 µs。模型忽略了内存分配、每个二进制拆分阶段末尾的除法和缓存效应，因此稳妥的读法是：8192 位下 2 到 3.5 ms（快 5 到 9 倍），2048 位下快 2 到 4 倍；与当前级数的盈亏平衡点预计在几百位。"
