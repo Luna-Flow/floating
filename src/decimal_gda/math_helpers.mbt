@@ -679,7 +679,9 @@ fn decimal_power_integer_below_e_min(
 /// `10^e_min` itself and then rounds to the same delivered value as a power just
 /// above it: `1 / 1.00000000000000000001` is `0.99999999999999999999`, which
 /// rounds to `1` at precision 1 and is subnormal for e_min = 0. Only a delivered
-/// `10^e_min` can be affected, and the side of the exact power is decided there.
+/// `10^e_min` can be affected by that, and the side of the exact power is decided there.
+/// Independently of it, a delivered value below `10^e_min` is subnormal and, when the
+/// power is inexact, raises Underflow (#342).
 fn decimal_power_integer_tininess_flags(
   base : Decimal,
   count : Int32,
@@ -687,6 +689,22 @@ fn decimal_power_integer_tininess_flags(
   flags : DecimalFlags,
   ctx : DecimalContext,
 ) -> DecimalFlags {
+  // A delivered value below `10^e_min` is subnormal whatever the working
+  // arithmetic did. The final rounding of the working value only sees an
+  // inexact result when the working value itself needed rounding to the context,
+  // so the inexactness of the working arithmetic (the exact power has more digits
+  // than the working precision, hence than the context) has to raise Underflow
+  // here: 10.000000000000000000000000001 ^ -9 at precision 23 and Emin -1 is
+  // 9.99999999999999999999999991E-10, whose 26-digit working value is already
+  // 1.00000000000000000000000E-9 and rounds to the context without a further
+  // loss (GDA 1.70, Exceptional conditions, Underflow; #342).
+  if ctx.extended &&
+    flags.inexact &&
+    result.class == FpClass::Finite &&
+    !result.coefficient.is_zero() &&
+    adjusted_exponent64(result) < ctx.e_min.to_int64() {
+    return { ..flags, subnormal: true, underflow: true, }
+  }
   guard ctx.extended &&
     ctx.tininess == DecimalTininessDetection::BeforeRounding &&
     flags.inexact &&
