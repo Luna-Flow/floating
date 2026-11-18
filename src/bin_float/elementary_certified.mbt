@@ -1217,6 +1217,29 @@ pub fn BinFloat::try_expm1_ctx(
         binary_expm1_negative_saturation(self, context) is Some(result) {
         return Ok(result)
       }
+      // For x >= 64, e^x - 1 >= e^(x - 2^-60) (e^(x - d) >= 1 / d once x - d >=
+      // 60 ln 2), which decides the overflow window [e_max + 1, e_max + 2) in
+      // log2 that the offset of the next check leaves open.
+      if !self.is_negative() &&
+        self.compare(BinFloat::from_int(64, precision=7)) >= 0 &&
+        binary_log2_linear_out_of_range(
+          self.sub_ctx(
+            BinFloat::make(BinCoeff::one(), -60, 1),
+            BinaryContext::unbounded(
+              binary_range_check_precision,
+              rounding=RoundTowardNegative,
+            ),
+          ).0,
+          binary_log2_e_bounds,
+          2,
+          0,
+          false,
+          false,
+          context,
+        )
+        is Some(result) {
+        return Ok(result)
+      }
       // expm1(x) >= exp(x) / 2 once it can overflow; it never underflows below -1.
       if !self.is_negative() &&
         binary_log2_linear_out_of_range(
