@@ -3,7 +3,7 @@
 
 fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
   guard rhs.class == FpClass::Finite && rhs.exponent10 == 0 else { return None }
-  let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let limit64 = 2L * (ctx.e_max.to_int64() + precision.to_int64())
   let limit = if limit64 <= 0L {
     0
@@ -12,7 +12,7 @@ fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
   } else {
     limit64.to_int()
   }
-  match gda_coeff_to_bounded_int(rhs.coefficient, limit) {
+  match dec_coeff_to_bounded_int(rhs.coefficient, limit) {
     Some(value) =>
       Some(
         if rhs.negative && !rhs.coefficient.is_zero() {
@@ -27,16 +27,16 @@ fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
 
 ///|
 fn huge_shift_rounded_unit_repr(
-  coefficient : GdaCoeff,
+  coefficient : DecCoeff,
   negative : Bool,
   mode : DecimalRoundingMode,
-) -> GdaCoeff {
-  guard !coefficient.is_zero() else { return gda_coeff_zero() }
+) -> DecCoeff {
+  guard !coefficient.is_zero() else { return dec_coeff_zero() }
   match mode {
-    Down | HalfEven | HalfUp | HalfDown => gda_coeff_zero()
-    Up | ZeroFiveUp => gda_coeff_from_int(1)
-    Ceiling => if negative { gda_coeff_zero() } else { gda_coeff_from_int(1) }
-    Floor => if negative { gda_coeff_from_int(1) } else { gda_coeff_zero() }
+    Down | HalfEven | HalfUp | HalfDown => dec_coeff_zero()
+    Up | ZeroFiveUp => dec_coeff_from_int(1)
+    Ceiling => if negative { dec_coeff_zero() } else { dec_coeff_from_int(1) }
+    Floor => if negative { dec_coeff_from_int(1) } else { dec_coeff_zero() }
   }
 }
 
@@ -80,7 +80,7 @@ fn scaleb_finite_result_ctx(
     return (
       finite_with_exponent_repr(
         value.negative,
-        gda_coeff_zero(),
+        dec_coeff_zero(),
         scaleb_int64_to_int(exponent64),
         precision,
       ),
@@ -137,7 +137,7 @@ pub fn Decimal::scaleb_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   match quiet_nan_pair(self, other, ctx) {
     Some(result) => result
     None =>

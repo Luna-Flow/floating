@@ -27,7 +27,10 @@ FORBIDDEN: dict[str, tuple[str, ...]] = {
     "decimal_gda": (f"{MODULE}/decimal",),
 }
 # package directories that may import nothing of this module except what they list.
-ALLOWED_MODULE_IMPORTS: dict[str, tuple[str, ...]] = {}
+ALLOWED_MODULE_IMPORTS: dict[str, tuple[str, ...]] = {
+    # `internal` holds BigInt helpers that the white-box tests use as oracles.
+    "internal/decimal_kernel": (f"{MODULE}/internal",),
+}
 
 IMPORT_PATH = re.compile(r'"([^"\s]+)"')
 

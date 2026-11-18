@@ -247,9 +247,9 @@ fn strip_leading_zero_digits(src : String) -> String {
 fn decimal_conversion_syntax_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   (
-    make_special_repr(FpClass::NaN, false, gda_coeff_zero(), precision, false),
+    make_special_repr(FpClass::NaN, false, dec_coeff_zero(), precision, false),
     { ..DecimalFlags::new(), conversion_syntax: true, },
   )
 }
@@ -270,7 +270,7 @@ fn decimal_overflow_result(
   negative : Bool,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let flags = {
     ..DecimalFlags::new(),
     overflow: true,
@@ -293,7 +293,7 @@ fn decimal_overflow_result(
     (
       finite_with_exponent_repr(
         negative,
-        gda_coeff_magnitude_sub_unit(gda_coeff_power10_repr(precision), 1),
+        dec_coeff_magnitude_sub_unit(dec_coeff_power10_repr(precision), 1),
         etop(ctx, precision),
         precision,
       ),
@@ -308,10 +308,10 @@ fn decimal_zero_conversion_result(
   exponent10 : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if !ctx.extended {
     return (
-      finite_with_exponent_repr(false, gda_coeff_zero(), 0, precision),
+      finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
       DecimalFlags::new(),
     )
   }
@@ -331,7 +331,7 @@ fn decimal_zero_conversion_result(
   (
     finite_with_exponent_repr(
       negative,
-      gda_coeff_zero(),
+      dec_coeff_zero(),
       clamped_exponent,
       precision,
     ),
@@ -357,7 +357,7 @@ fn decimal_extreme_tiny_conversion_result(
   guard shift > (original_digits + 2).to_int64() else { return None }
   let precision = finite_precision_for_default(ctx)
   let rounded_magnitude = huge_shift_rounded_unit_repr(
-    gda_coeff_from_int(1),
+    dec_coeff_from_int(1),
     negative,
     ctx.decimal_rounding,
   )
@@ -404,7 +404,7 @@ fn parse_special_decimal_string_ctx(
   }
   let body = src[start:].to_owned()
   let lower = ascii_lower(body)
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if lower == "inf" || lower == "infinity" {
     if !ctx.extended {
       return Some(decimal_conversion_syntax_result(ctx))
@@ -453,9 +453,9 @@ fn parse_special_decimal_string_ctx(
     return Some(decimal_conversion_syntax_result(ctx))
   }
   let payload = if payload_digits.length() == 0 {
-    gda_coeff_zero()
+    dec_coeff_zero()
   } else {
-    match gda_coeff_from_decimal_digits_repr(payload_digits) {
+    match dec_coeff_from_decimal_digits_repr(payload_digits) {
       Some(value) => value
       None => return Some(decimal_conversion_syntax_result(ctx))
     }
@@ -495,7 +495,7 @@ fn parse_decimal_string_ctx(
             None => ()
           }
           let magnitude = match
-            gda_coeff_from_decimal_digits_repr(significant_digits) {
+            dec_coeff_from_decimal_digits_repr(significant_digits) {
             Some(value) => value
             None => return decimal_conversion_syntax_result(ctx)
           }
@@ -544,14 +544,14 @@ pub fn Decimal::parse(
         Ok(
           finite_with_exponent_repr(
             negative,
-            gda_coeff_zero(),
+            dec_coeff_zero(),
             scaleb_int64_to_int(exponent10),
             precision,
           ),
         )
       } else {
         let coeff = match
-          gda_coeff_from_decimal_digits_repr(significant_digits) {
+          dec_coeff_from_decimal_digits_repr(significant_digits) {
           Some(value) => value
           None =>
             return Err(

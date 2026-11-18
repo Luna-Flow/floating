@@ -4,34 +4,34 @@
 fn signed_units_at_quantum_repr(
   value : Decimal,
   quantum : Int32,
-) -> ((Bool, GdaCoeff), (Bool, GdaCoeff), Bool) {
+) -> ((Bool, DecCoeff), (Bool, DecCoeff), Bool) {
   let shift = value.exponent10.to_int64() - quantum.to_int64()
   if shift >= 0 {
-    let units = gda_coeff_shift_power10_repr(value.coefficient, shift.to_int())
+    let units = dec_coeff_shift_power10_repr(value.coefficient, shift.to_int())
     let signed = (value.negative, units)
     return (signed, signed, true)
   }
   let scale = -shift
   let (quotient, exact) = if scale >= value.coefficient.digits10().to_int64() {
-    (gda_coeff_zero(), false)
+    (dec_coeff_zero(), false)
   } else {
     let scale = scale.to_int()
-    let (quotient0, remainder) = gda_coeff_div_rem_repr(
+    let (quotient0, remainder) = dec_coeff_div_rem_repr(
       value.coefficient,
-      gda_coeff_power10_repr(scale),
+      dec_coeff_power10_repr(scale),
     )
     (quotient0, remainder.is_zero())
   }
   if value.negative {
     let ceil = if quotient.is_zero() && !exact {
-      (false, gda_coeff_zero())
+      (false, dec_coeff_zero())
     } else {
       (true, quotient)
     }
     let floor = if exact {
       ceil
     } else {
-      (true, gda_coeff_magnitude_add_unit(quotient, 1))
+      (true, dec_coeff_magnitude_add_unit(quotient, 1))
     }
     (floor, ceil, exact)
   } else {
@@ -39,7 +39,7 @@ fn signed_units_at_quantum_repr(
     let ceil = if exact {
       floor
     } else {
-      (false, gda_coeff_magnitude_add_unit(quotient, 1))
+      (false, dec_coeff_magnitude_add_unit(quotient, 1))
     }
     (floor, ceil, exact)
   }
@@ -58,9 +58,9 @@ fn next_quantum(
     toward_positive
   }
   let boundary_adjust = if !moving_away_from_zero &&
-    gda_coeff_compare_repr(
+    dec_coeff_compare_repr(
       remove_factor10_repr(value.coefficient, 0).0,
-      gda_coeff_from_int(1),
+      dec_coeff_from_int(1),
     ) ==
     0 {
     0
@@ -118,7 +118,7 @@ fn next_toward_flags(
 ///|
 fn finite_next_candidate_repr(
   negative : Bool,
-  magnitude : GdaCoeff,
+  magnitude : DecCoeff,
   quantum : Int32,
   precision : Int32,
 ) -> Decimal {
@@ -136,7 +136,7 @@ fn max_finite_for(ctx : DecimalContext, negative : Bool) -> Decimal {
   let precision = finite_precision_for_default(ctx)
   finite_with_exponent_repr(
     negative,
-    gda_coeff_magnitude_sub_unit(gda_coeff_power10_repr(precision), 1),
+    dec_coeff_magnitude_sub_unit(dec_coeff_power10_repr(precision), 1),
     etop(ctx, precision),
     precision,
   )
@@ -173,7 +173,7 @@ fn decimal_next(
         (
           finite_with_exponent_repr(
             !toward_positive,
-            gda_coeff_from_int(1),
+            dec_coeff_from_int(1),
             zero_quantum,
             precision,
           ),
@@ -186,12 +186,12 @@ fn decimal_next(
         )
         let (units_negative, units_magnitude) = if toward_positive {
           if exact {
-            gda_coeff_signed_step_unit_repr(ceil_units.0, ceil_units.1, true)
+            dec_coeff_signed_step_unit_repr(ceil_units.0, ceil_units.1, true)
           } else {
             ceil_units
           }
         } else if exact {
-          gda_coeff_signed_step_unit_repr(floor_units.0, floor_units.1, false)
+          dec_coeff_signed_step_unit_repr(floor_units.0, floor_units.1, false)
         } else {
           floor_units
         }
@@ -199,7 +199,7 @@ fn decimal_next(
           return (
             finite_with_exponent_repr(
               value.negative,
-              gda_coeff_zero(),
+              dec_coeff_zero(),
               quantum,
               precision,
             ),
@@ -237,8 +237,8 @@ fn logb_finite_result_ctx(
   // Int out with decNumberFromInt32 (decNumber.c lines 1333-1352). Keep the
   // same adjusted-exponent value and decimal-unit layout throughout here.
   let negative = adjusted < 0
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
-  let mut magnitude = gda_coeff_from_int_magnitude(adjusted)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
+  let mut magnitude = dec_coeff_from_int_magnitude(adjusted)
   let mut exponent10 = 0
   let mut flags = DecimalFlags::new()
   let digits = magnitude.digits10()
@@ -258,7 +258,7 @@ fn logb_finite_result_ctx(
     magnitude = rounded
     if magnitude.digits10() > precision {
       exponent10 += 1
-      magnitude = gda_coeff_div_rem_by_unit_repr(magnitude, 10).0
+      magnitude = dec_coeff_div_rem_by_unit_repr(magnitude, 10).0
     }
   }
   finalize_finite_ctx(

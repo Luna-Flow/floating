@@ -4,7 +4,7 @@
 test "engineering format preserves maximum zero exponent" {
   let value = finite_with_exponent_repr(
     false,
-    gda_coeff_zero(),
+    dec_coeff_zero(),
     2_147_483_647,
     34,
   )
@@ -15,7 +15,7 @@ test "engineering format preserves maximum zero exponent" {
 test "engineering format preserves minimum finite exponent" {
   let value = finite_with_exponent_repr(
     false,
-    gda_coeff_from_int(1),
+    dec_coeff_from_int(1),
     -2_147_483_647,
     34,
   )
@@ -26,7 +26,7 @@ test "engineering format preserves minimum finite exponent" {
 test "engineering format extends adjusted exponent without wrapping" {
   let value = finite_with_exponent_repr(
     false,
-    gda_coeff_from_int(12345),
+    dec_coeff_from_int(12345),
     2_147_483_647,
     34,
   )

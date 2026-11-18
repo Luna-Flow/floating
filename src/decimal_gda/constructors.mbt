@@ -14,7 +14,7 @@ pub fn Decimal::make(
 pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
   finite_with_exponent_repr(
     false,
-    gda_coeff_zero(),
+    dec_coeff_zero(),
     0,
     Int32::max(1, precision),
   )
@@ -22,14 +22,14 @@ pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
 
 ///|
 pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
-  finite_with_exponent_repr(true, gda_coeff_zero(), 0, Int32::max(1, precision))
+  finite_with_exponent_repr(true, dec_coeff_zero(), 0, Int32::max(1, precision))
 }
 
 ///|
 pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
   finite_with_exponent_repr(
     false,
-    gda_coeff_from_int(1),
+    dec_coeff_from_int(1),
     0,
     Int32::max(1, precision),
   )
@@ -40,7 +40,7 @@ pub fn Decimal::inf(sign : Sign, precision~ : Int32 = 34) -> Decimal {
   make_special_repr(
     FpClass::Infinity,
     sign == Sign::Negative,
-    gda_coeff_zero(),
+    dec_coeff_zero(),
     precision,
     false,
   )
@@ -48,7 +48,7 @@ pub fn Decimal::inf(sign : Sign, precision~ : Int32 = 34) -> Decimal {
 
 ///|
 pub fn Decimal::nan(precision~ : Int32 = 34) -> Decimal {
-  make_special_repr(FpClass::NaN, false, gda_coeff_zero(), precision, false)
+  make_special_repr(FpClass::NaN, false, dec_coeff_zero(), precision, false)
 }
 
 ///|
@@ -210,7 +210,7 @@ pub fn Decimal::from_bin_float(
           let mut magnitude = coeff_from_bigint(abs_bigint(signed * pow5(k)))
           let mut exponent = -k
           while exponent < 0 {
-            let (quotient, remainder) = gda_coeff_div_rem_by_unit_repr(
+            let (quotient, remainder) = dec_coeff_div_rem_by_unit_repr(
               magnitude, 10,
             )
             if remainder != 0 {

@@ -6,7 +6,7 @@
 pub struct Decimal {
   priv class : FpClass
   priv negative : Bool
-  priv coefficient : GdaCoeff
+  priv coefficient : DecCoeff
   priv exponent10 : Int32
   priv precision_ : Int32
   priv signaling_nan : Bool
@@ -100,9 +100,9 @@ pub struct DecimalFlags {
 ///|
 priv struct DecimalMathConstantCache {
   scale : Int32
-  ln2 : GdaCoeff
-  ln5 : GdaCoeff
-  ln10 : GdaCoeff
+  ln2 : DecCoeff
+  ln5 : DecCoeff
+  ln10 : DecCoeff
 }
 
 ///|
@@ -118,9 +118,9 @@ priv struct DecimalExpBoundaryCacheEntry {
 ///|
 let decimal_math_constant_cache : @ref.Ref[DecimalMathConstantCache] = @ref.Ref({
     scale: 0,
-    ln2: gda_coeff_zero(),
-    ln5: gda_coeff_zero(),
-    ln10: gda_coeff_zero(),
+    ln2: dec_coeff_zero(),
+    ln5: dec_coeff_zero(),
+    ln10: dec_coeff_zero(),
   },
 )
 

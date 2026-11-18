@@ -25,32 +25,32 @@ fn compare_same_adjusted_magnitude(
   b_digits : Int32,
 ) -> Int32 {
   if a_digits == b_digits {
-    return gda_coeff_compare_repr(a.coefficient, b.coefficient)
+    return dec_coeff_compare_repr(a.coefficient, b.coefficient)
   }
   if a_digits > b_digits &&
-    gda_coeff_compare_repr(a.coefficient, gda_coeff_power10_repr(a_digits - 1)) ==
+    dec_coeff_compare_repr(a.coefficient, dec_coeff_power10_repr(a_digits - 1)) ==
     0 {
-    return gda_coeff_compare_repr(
-      gda_coeff_power10_repr(b_digits - 1),
+    return dec_coeff_compare_repr(
+      dec_coeff_power10_repr(b_digits - 1),
       b.coefficient,
     )
   }
   if b_digits > a_digits &&
-    gda_coeff_compare_repr(b.coefficient, gda_coeff_power10_repr(b_digits - 1)) ==
+    dec_coeff_compare_repr(b.coefficient, dec_coeff_power10_repr(b_digits - 1)) ==
     0 {
-    return gda_coeff_compare_repr(
+    return dec_coeff_compare_repr(
       a.coefficient,
-      gda_coeff_power10_repr(a_digits - 1),
+      dec_coeff_power10_repr(a_digits - 1),
     )
   }
   if a_digits > b_digits {
-    gda_coeff_compare_scaled_repr(
+    dec_coeff_compare_scaled_repr(
       a.coefficient,
       b.coefficient,
       a_digits - b_digits,
     )
   } else {
-    -gda_coeff_compare_scaled_repr(
+    -dec_coeff_compare_scaled_repr(
       b.coefficient,
       a.coefficient,
       b_digits - a_digits,
@@ -60,9 +60,9 @@ fn compare_same_adjusted_magnitude(
 
 ///|
 fn compare_finite_magnitude_repr(
-  lhs_coefficient : GdaCoeff,
+  lhs_coefficient : DecCoeff,
   lhs_exponent10 : Int32,
-  rhs_coefficient : GdaCoeff,
+  rhs_coefficient : DecCoeff,
   rhs_exponent10 : Int32,
 ) -> Int32 {
   if lhs_coefficient.is_zero() || rhs_coefficient.is_zero() {
@@ -89,13 +89,13 @@ fn compare_finite_magnitude_repr(
     return if lhs_adjusted < rhs_adjusted { -1 } else { 1 }
   }
   if lhs_exponent10 <= rhs_exponent10 {
-    gda_coeff_compare_scaled_repr(
+    dec_coeff_compare_scaled_repr(
       lhs_coefficient,
       rhs_coefficient,
       rhs_exponent10 - lhs_exponent10,
     )
   } else {
-    -gda_coeff_compare_scaled_repr(
+    -dec_coeff_compare_scaled_repr(
       rhs_coefficient,
       lhs_coefficient,
       lhs_exponent10 - rhs_exponent10,
@@ -280,7 +280,7 @@ pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int32 {
       if signal_cmp != 0 {
         return direction * signal_cmp
       }
-      let payload_cmp = gda_coeff_compare_repr(
+      let payload_cmp = dec_coeff_compare_repr(
         self.coefficient,
         other.coefficient,
       )
@@ -303,7 +303,7 @@ pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int32 {
       if exponent_cmp != 0 {
         return direction * exponent_cmp
       }
-      gda_coeff_compare_repr(self.coefficient, other.coefficient) * direction
+      dec_coeff_compare_repr(self.coefficient, other.coefficient) * direction
     }
   }
 }

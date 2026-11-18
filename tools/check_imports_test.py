@@ -29,6 +29,13 @@ class ImportsOfTests(unittest.TestCase):
 
 
 class ViolationsTests(unittest.TestCase):
+    def setUp(self) -> None:
+        # The restricted packages of the real repository do not exist in the
+        # temporary trees below; the tests that need one register their own.
+        patcher = patch.dict(check_imports.ALLOWED_MODULE_IMPORTS, {}, clear=True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_clean_tree_passes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
@@ -85,6 +92,9 @@ class ViolationsTests(unittest.TestCase):
 
 
 class RepositoryTests(unittest.TestCase):
+    def test_the_shared_kernel_is_restricted(self) -> None:
+        self.assertIn("internal/decimal_kernel", check_imports.ALLOWED_MODULE_IMPORTS)
+
     def test_this_repository_satisfies_the_rules(self) -> None:
         self.assertEqual(check_imports.violations(check_imports.REPO_ROOT / "src"), [])
 

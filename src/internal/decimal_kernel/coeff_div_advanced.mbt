@@ -1,8 +1,8 @@
 ///|
-let dec_coeff_bz_recursive_threshold = 16
+pub let dec_coeff_bz_recursive_threshold = 16
 
 ///|
-fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
+pub fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
   dec_coeff_from_unit_accumulator(
     dec_coeff_copy_limbs(value),
     dec_coeff_unit_len(value),
@@ -10,7 +10,7 @@ fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
 }
 
 ///|
-fn dec_coeff_div_rem_power_limbs(
+pub fn dec_coeff_div_rem_power_limbs(
   value : DecCoeff,
   shift : Int32,
 ) -> (DecCoeff, DecCoeff) {
@@ -31,7 +31,7 @@ fn dec_coeff_div_rem_power_limbs(
 }
 
 ///|
-fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
+pub fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
   guard block_len > 0 else {
     abort("Burnikel-Ziegler quotient block length must be positive")
   }
@@ -42,7 +42,7 @@ fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
 }
 
 ///|
-fn dec_coeff_div_3n_2n_bz(
+pub fn dec_coeff_div_3n_2n_bz(
   numerator : DecCoeff,
   denominator : DecCoeff,
   half_len : Int32,
@@ -115,7 +115,7 @@ fn dec_coeff_div_3n_2n_bz(
 }
 
 ///|
-fn dec_coeff_div_2n_1n_bz(
+pub fn dec_coeff_div_2n_1n_bz(
   numerator : DecCoeff,
   denominator : DecCoeff,
   block_len : Int32,
@@ -161,7 +161,7 @@ fn dec_coeff_div_2n_1n_bz(
 }
 
 ///|
-fn dec_coeff_div_rem_bz_repr(
+pub fn dec_coeff_div_rem_bz_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
@@ -185,7 +185,7 @@ fn dec_coeff_div_rem_bz_repr(
   let normalized_numerator = dec_coeff_shift_limbs(numerator, padding)
   let numerator_len = dec_coeff_unit_len(normalized_numerator)
   let block_count = (numerator_len + block_len - 1) / block_len
-  let arena = dec_coeff_scratch_arena_new(192)
+  let arena = dec_coeff_scratch_arena_new()
   let mut quotient = dec_coeff_zero()
   let mut remainder = dec_coeff_zero()
   let mut block_index = block_count
@@ -234,7 +234,7 @@ fn dec_coeff_div_rem_bz_repr(
 }
 
 ///|
-fn dec_coeff_div_rem_newton_try(
+pub fn dec_coeff_div_rem_newton_try(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff)? {
@@ -323,7 +323,7 @@ fn dec_coeff_div_rem_newton_try(
 }
 
 ///|
-fn dec_coeff_div_rem_burnikel_ziegler(
+pub fn dec_coeff_div_rem_burnikel_ziegler(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
@@ -331,7 +331,7 @@ fn dec_coeff_div_rem_burnikel_ziegler(
 }
 
 ///|
-fn dec_coeff_div_rem_newton(
+pub fn dec_coeff_div_rem_newton(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
@@ -344,7 +344,7 @@ fn dec_coeff_div_rem_newton(
 ///|
 #derive(Eq)
 #warnings("-unused_value")
-priv enum DecCoeffDivAlgorithm {
+pub(all) enum DecCoeffDivAlgorithm {
   Word
   Knuth
   BurnikelZiegler
@@ -352,10 +352,15 @@ priv enum DecCoeffDivAlgorithm {
 }
 
 ///|
-fn dec_coeff_division_algorithm(denominator : DecCoeff) -> DecCoeffDivAlgorithm {
+pub fn dec_coeff_division_algorithm(
+  numerator : DecCoeff,
+  denominator : DecCoeff,
+) -> DecCoeffDivAlgorithm {
   let length = dec_coeff_unit_len(denominator)
   if length == 1 {
     Word
+  } else if dec_coeff_unit_len(numerator) - length + 1 <= 1 {
+    Knuth
   } else if dec_coeff_newton_enabled && length >= dec_coeff_newton_threshold {
     Newton
   } else if dec_coeff_bz_profitable(denominator) {
@@ -366,7 +371,7 @@ fn dec_coeff_division_algorithm(denominator : DecCoeff) -> DecCoeffDivAlgorithm 
 }
 
 ///|
-fn dec_coeff_bz_profitable(denominator : DecCoeff) -> Bool {
+pub fn dec_coeff_bz_profitable(denominator : DecCoeff) -> Bool {
   let length = dec_coeff_unit_len(denominator)
   let mut block_length = 1
   while block_length < length {

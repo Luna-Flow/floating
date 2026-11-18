@@ -33,7 +33,7 @@ pub fn Decimal::try_log10_ctx(
     return Ok(
       (
         Decimal::nan(
-          precision=finite_precision_for_coeff(gda_coeff_zero(), ctx),
+          precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
         ),
         invalid_flags(),
       ),
@@ -43,7 +43,7 @@ pub fn Decimal::try_log10_ctx(
     return Ok(invalid_context_result(ctx))
   }
   let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = match value.class {
     FpClass::NaN => Ok(quiet_nan_operand(value, ctx))
     FpClass::Infinity =>
@@ -64,9 +64,9 @@ pub fn Decimal::try_log10_ctx(
       )
     FpClass::Finite if value.negative =>
       Ok((Decimal::nan(precision~), invalid_flags()))
-    FpClass::Finite if gda_coeff_compare_repr(
+    FpClass::Finite if dec_coeff_compare_repr(
         remove_factor10_repr(value.coefficient, 0).0,
-        gda_coeff_from_int(1),
+        dec_coeff_from_int(1),
       ) ==
       0 => Ok(logb_finite_result_ctx(adjusted_exponent(value), ctx))
     FpClass::Finite => decimal_certified_log10_result(value, ctx)
@@ -94,7 +94,7 @@ pub fn Decimal::try_exp_ctx(
     return Ok(invalid_context_result(ctx))
   }
   let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = match value.class {
     FpClass::NaN => Ok(quiet_nan_operand(value, ctx))
     FpClass::Infinity =>
@@ -135,7 +135,7 @@ pub fn Decimal::try_ln_ctx(
     return Ok(
       (
         Decimal::nan(
-          precision=finite_precision_for_coeff(gda_coeff_zero(), ctx),
+          precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
         ),
         invalid_flags(),
       ),
@@ -145,7 +145,7 @@ pub fn Decimal::try_ln_ctx(
     return Ok(invalid_context_result(ctx))
   }
   let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let precision = finite_precision_for_coeff(gda_coeff_zero(), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = match value.class {
     FpClass::NaN => Ok(quiet_nan_operand(value, ctx))
     FpClass::Infinity =>
@@ -197,7 +197,7 @@ pub fn Decimal::try_power_ctx(
   let (base, rounded_exponent, operand_flags) = prepare_binary_operands_for_context(
     self, exponent, ctx,
   )
-  let half = finite_with_exponent_repr(false, gda_coeff_from_int(5), -1, 1)
+  let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
   if base.class == FpClass::Finite &&
     !base.negative &&
     rounded_exponent.class == FpClass::Finite &&
@@ -207,9 +207,9 @@ pub fn Decimal::try_power_ctx(
         (
           finite_with_exponent_repr(
             false,
-            gda_coeff_zero(),
+            dec_coeff_zero(),
             0,
-            finite_precision_for_coeff(gda_coeff_zero(), ctx),
+            finite_precision_for_coeff(dec_coeff_zero(), ctx),
           ),
           operand_flags,
         ),
@@ -304,7 +304,7 @@ fn Decimal::power_ctx_impl(
     Some(result) => return result
     None => ()
   }
-  let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
+  let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   match decimal_power_infinite_exponent_result(self, exponent, ctx) {
     Some(result) => return result
     None => ()
@@ -376,7 +376,7 @@ fn Decimal::power_ctx_impl(
       } else if count < 0 {
         let negative = self.negative && (-count & 1) == 1
         (
-          finite_with_exponent_repr(negative, gda_coeff_zero(), 0, precision),
+          finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision),
           DecimalFlags::new(),
         )
       } else if self.negative && (count & 1) == 1 {
@@ -410,7 +410,7 @@ fn Decimal::power_ctx_impl(
           )
         } else {
           (
-            finite_with_exponent_repr(negative, gda_coeff_zero(), 0, precision),
+            finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision),
             DecimalFlags::new(),
           )
         }

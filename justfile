@@ -55,7 +55,7 @@ ci jobs='':
     @just gate all {{ jobs }}
 
 decimal-kernel-ci:
-    @sh tools/run_moon_clean_exec.sh test src/decimal/coeff_kernel_wbtest.mbt --no-parallelize
+    @sh tools/run_moon_clean_exec.sh test src/internal/decimal_kernel --no-parallelize
 
 bin-kernel-ci:
     @sh tools/run_moon_clean_exec.sh test src/bin_float --target all --no-parallelize
