@@ -7,7 +7,7 @@ it against `bin_float`. Six formats are supported: MPFR's square-root
 `data_check` files, integer-power rows, an elementary-function matrix with
 exception flags, two corpora for decimal character conversion
 (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows
-(`mpfr-random-v1`). The package does no IO; the runner is
+(`mpfr-random-v1`) and their decimal counterpart (`mpfr-decimal-random-v1`). The package does no IO; the runner is
 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the
 [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the
 [design page](../../design/frontend/mpfr_expr.md) for the pass rules.
@@ -161,6 +161,8 @@ pub fn MpfrPowDocument::case_count(Self) -> Int
 `op precision rounding x y n expected inexact invalid divbyzero`.
 
 ```mbti
+pub fn parse_decimal_random_data(String, String) -> Result[MpfrDecimalRandomDocument, Array[ParseDiagnostic]]
+
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 ```
 
@@ -183,6 +185,8 @@ A row of the two-operand functions `pow`, `powr`, `hypot` and `atan2` whose `y` 
 for `sqrt` and `pown`) in `BinaryContext::unbounded(precision, rounding~)`.
 
 ```mbti
+pub fn execute_decimal_random_data(MpfrDecimalRandomDocument) -> RunSummary
+
 pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 ```
 
@@ -341,6 +345,64 @@ a NaN result must be a quiet NaN. A domain error of the elementary functions
 with flag `v`; any other error fails the row with the error message. The row id
 is the first field of the row.
 
+## Seeded random decimal rows
+
+`mpfr-decimal-random-v1` rows come from `tools/generate_mpfr_decimal_random.py`:
+one row per case for the IEEE decimal elementary functions (`exp exp2 exp10
+expm1 ln log2 log10 log1p sin cos tan sinpi cospi tanpi asin acos atan sinh cosh
+tanh asinh acosh atanh pow hypot atan2 rootn pown`), with a decimal context
+(precision, exponent range, clamp, tininess rule, one of the eight rounding
+modes), exact decimal operands and the expected value with its flags. The
+expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one
+MPFR result, and a row exists only when both enclosure endpoints round alike and
+the rounded value lies outside the enclosure (the true value is not
+representable), so exact results are not sampled by this corpus.
+
+```text
+id op rounding precision emin emax clamp tininess a b n expected flags
+```
+
+### `parse_decimal_random_data`
+
+```mbti
+pub fn parse_decimal_random_data(String, String) -> Result[MpfrDecimalRandomDocument, Array[ParseDiagnostic]]
+```
+
+Parses the text (the first argument names the source). Blank lines and lines
+starting with `#` are skipped. Every other line must have thirteen fields: a
+known operation, a rounding of `half_even half_up half_down down ceiling floor
+up 05up`, a positive precision, two integers `emin` and `emax` that form a valid
+`DecimalContext`, `clamp` `0` or `1`, `tininess` `b` (before rounding) or `a`
+(after rounding), one operand, a second operand or `-` (required by `pow`,
+`hypot` and `atan2`), an integer (`rootn` and `pown`; `0` otherwise), the
+expected value and `flags` equal to `-` or a subset of `xrosucvz` (inexact,
+rounded, overflow, subnormal, underflow, clamped, invalid operation, division by
+zero) in that order. Every digit written in an operand or the expected value is
+kept. Each bad row is one diagnostic.
+
+### `execute_decimal_random_data`
+
+```mbti
+pub fn execute_decimal_random_data(MpfrDecimalRandomDocument) -> RunSummary
+```
+
+Runs every row through the `try_*_ctx` form of the operation with the row's
+context, so a certification failure fails the row instead of becoming a quiet
+NaN. A row passes only when the result has the expected value *and* cohort
+(`compare_total` equal, so `1.0` and `1.00` differ) and the flags agree. The row
+id is the first field of the row.
+
+### `MpfrDecimalRandomDocument`
+
+```mbti
+pub struct MpfrDecimalRandomDocument {
+  // private fields
+}
+pub fn MpfrDecimalRandomDocument::source(Self) -> String
+pub fn MpfrDecimalRandomDocument::case_count(Self) -> Int32
+pub fn MpfrDecimalRandomDocument::case_ids(Self) -> Array[String]
+```
+
 ### `MpfrRandomDocument`
 
 ```mbti
@@ -479,6 +541,8 @@ import {
 // Values
 pub fn execute_decimal_output_data(MpfrDecimalOutputDocument) -> RunSummary
 
+pub fn execute_decimal_random_data(MpfrDecimalRandomDocument) -> RunSummary
+
 pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
@@ -490,6 +554,8 @@ pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary
 
 pub fn parse_decimal_output_data(String, String) -> Result[MpfrDecimalOutputDocument, Array[ParseDiagnostic]]
+
+pub fn parse_decimal_random_data(String, String) -> Result[MpfrDecimalRandomDocument, Array[ParseDiagnostic]]
 
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
@@ -520,6 +586,13 @@ pub struct MpfrDecimalOutputDocument {
 }
 pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int32
 pub fn MpfrDecimalOutputDocument::source(Self) -> String
+
+pub struct MpfrDecimalRandomDocument {
+  // private fields
+}
+pub fn MpfrDecimalRandomDocument::case_count(Self) -> Int32
+pub fn MpfrDecimalRandomDocument::case_ids(Self) -> Array[String]
+pub fn MpfrDecimalRandomDocument::source(Self) -> String
 
 pub struct MpfrDocument {
   // private fields
@@ -579,5 +652,6 @@ pub fn RunSummary::total_cases(Self) -> Int32
 // Type aliases
 
 // Traits
+
 ```
 <!-- generated-api-end -->

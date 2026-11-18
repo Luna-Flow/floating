@@ -221,6 +221,22 @@ range.
 
 (`sqrt` on native: the table counts the 2,000,000 cases of the final run; the first run of 2,000,000 `sqrt` cases, made before the MPFR defect filter, is not counted: 2,000,000.)
 
+**MPFR enclosures (decimal elementary functions)**, a third corpus
+(`mpfr-decimal-random-v1`, `just random-diff run --decm`). The IEEE `decimal`
+package's elementary functions are checked against MPFR through certified
+enclosures, not single results: 2048-bit directed operand bounds, 768-bit
+directed results on every corner, one ulp of slack, both endpoints rounded to
+the context with Python `decimal`; a row exists only if the endpoints agree and
+the rounded value lies outside the enclosure (so exact results are not sampled
+here). Contexts are decimal32/64/128 and random ones (precision 1 to 120,
+exponent range up to ±20,000, all eight rounding modes, clamp on and off, both
+tininess rules); operands are drawn so that results reach overflow, underflow
+and the subnormal range. Native: 559,979 cases, 20,000 for each of 28 functions
+(`exp exp2 exp10 expm1 sinh cosh ln log2 log10 log1p sin cos tan sinpi cospi
+tanpi atan tanh asinh asin acos atanh acosh pow hypot atan2 rootn pown`; `cospi`
+and `tanh` have a few candidates that never certify within eight attempts);
+Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
+
 **Outcome.**
 
 - *Binary arithmetic, string conversion and `shortest`*: no disagreement in
@@ -230,6 +246,19 @@ range.
   a mutation check (swapping the two tininess rules, or nearest-even with
   nearest-away, in the executor) fails 0.15% to 2.8% of the rows, so the rows
   that decide those cases are present.
+- *Decimal elementary functions against MPFR*: 26 of the 28 functions agree
+  with MPFR in value, cohort and all eight flags in every one of their 20,000
+  native cases, and the same rows pass on Wasm, JavaScript and Wasm-GC. Two
+  disagreements, with the identical failing ids on all four backends: `atan2`
+  returns the zero of an underflowed result with exponent 0 instead of the
+  least exponent `e_min - p + 1` (54 of 20,000 rows, e.g. `atan2(1E-500, 9)` in
+  decimal64 gives `0`, not `0E-398`; IEEE 754-2019 §5.2: an inexact result uses
+  the cohort member of least possible exponent), and `exp` raises no
+  Underflow and Subnormal for a result that underflows to the smallest
+  subnormal when `precision = 1`, tininess is detected after rounding and the
+  direction is `Up`, `Ceiling` or `ZeroFiveUp` (22 of 20,000 rows, §7.5, where
+  the smallest subnormal equals the smallest normal number). Both are reported
+  separately and become regression rows when fixed.
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and
   300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
   flags where the result 2^−1073741824 is an exact subnormal (13 cases,

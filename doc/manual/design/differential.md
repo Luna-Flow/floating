@@ -32,6 +32,19 @@ Both oracles are implementations, not specifications.
   rows: libmpdec lumps `Division_undefined` into `Invalid_operation`, and the
   GDA `tosci` and `toeng` rows apply the context precision to their operand
   (dtfile.html, "Processing of a test case line").
+- **IEEE decimal elementary functions.** The IEEE `decimal` package has
+  functions (`exp`, `atan2`, `pown`, ...) that libmpdec either lacks or answers
+  only to nearest-even, so their oracle is MPFR through its *enclosure*, not
+  through one result: each decimal operand is bracketed by 2048-bit directed
+  bounds, the function is evaluated at 768 bits in both directions on every
+  corner, the enclosure is widened by one ulp, and both endpoints are rounded to
+  the decimal context with Python `decimal`. A case becomes a row only if the
+  endpoints round to one representation with one flag set and the rounded value
+  lies outside the enclosure, which also makes the inexact flag certain.
+  Underflow and Subnormal are recomputed for both tininess rules from the same
+  endpoints, because libmpdec knows only one. Exact results (an enclosure that
+  contains the rounded value) are not sampled; they belong to the white-box
+  tests of each function.
 
 A disagreement is therefore a lead, not a verdict. Each one is triaged against
 the clause of IEEE 754-2019 or of the GDA specification before it is called a

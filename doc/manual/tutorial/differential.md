@@ -27,15 +27,34 @@ binary: 600/600 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
 binary-regression: 123/123 passed (testdata/bin_float/random-regressions.txt)
 decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
 decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
+decm: 336/336 passed (testdata/decimal/random/mpfr-decimal-random.txt)
 ```
 
 `smoke` builds the synchronous `floating-conformance` executable for the
-native target and runs the four fixture files through it. A known failure
+native target and runs the fixture files through it. A known failure
 recorded in a regression fixture is annotated `xfail` with its issue number; the
 smoke run requires exactly those rows to fail, so a fix shows up as an
 unexpected pass.
 
 ## Everyday tasks
+
+### Decimal elementary functions against MPFR
+
+The IEEE `decimal` package's elementary functions have one family each,
+`decm-<function>` (`decm-exp`, `decm-atan2`, `decm-pown`, ...), checked against
+certified MPFR enclosures instead of libmpdec. They are not in the default set
+(there are as many families as functions); name them with `--family`, or add
+all of them with `--decm`. A case id reads `m<seed>.<function>.<index>`.
+
+```bash
+just random-diff run --family decm-exp --family decm-atan2 --count 100000 --target native
+just random-diff replay m20261118.atan2.137
+```
+
+Operands and contexts are drawn so that results reach overflow, underflow and
+the subnormal range; exact results are not sampled (an enclosure cannot
+certify them), and exponent ranges stay within ±20,000 because the cost of the
+exact endpoint conversion grows steeply beyond that.
 
 ### Run a campaign
 
