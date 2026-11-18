@@ -349,6 +349,10 @@ fn binary_ln_unit_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  match binary_ln_unit_fixed_bounds(value, work_precision) {
+    Some(bounds) => return Some(bounds)
+    None => ()
+  }
   let downward = BinaryContext::unbounded(
     work_precision,
     rounding=RoundTowardNegative,
