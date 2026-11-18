@@ -642,6 +642,35 @@ fn decimal_power_integer_finite_result(
     Some(result) => result
     None => decimal_power_integer_bounded_result(base, count, ctx)
   }
+  // An inexact result carries `precision` digits (GDA 1.70, Arithmetic
+  // operations: the coefficient is "rounded (shortened) to exactly precision
+  // digits"; IEEE 754-2019 5.2: "if the result is inexact the cohort member of
+  // least possible exponent is used"). The working arithmetic drops trailing
+  // zeros of the rounded value, so they are restored here, as the non-integer
+  // power does. A subset context (extended = false) strips them by definition
+  // (GDA 1.70, Appendix A, Operation differences).
+  //
+  // Padding can undo a fold-down: the final rounding trims the zeros first, and
+  // a trimmed coefficient above Etop was folded down and flagged Clamped, but
+  // the padded coefficient has `precision` digits at an exponent at most Etop
+  // (the adjusted exponent is at most e_max), so the exponent was not altered
+  // to fit (GDA 1.70, Exceptional conditions, Clamped).
+  let result = if ctx.extended && result.1.inexact {
+    let padded = expand_inexact_division_cohort(
+      result.0,
+      ctx,
+      pad_precision=true,
+    )
+    if padded.class == FpClass::Finite &&
+      !padded.coefficient.is_zero() &&
+      padded.exponent10 != result.0.exponent10 {
+      (padded, { ..result.1, clamped: false, })
+    } else {
+      (padded, result.1)
+    }
+  } else {
+    result
+  }
   decimal_power_finalize_result(result, ctx)
 }
 

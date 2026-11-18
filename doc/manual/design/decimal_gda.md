@@ -639,6 +639,15 @@ and the result is that value rounded in the context's rounding mode: zero in
 the half modes and `Down`, and $\pm 10^{E_{\text{tiny}}}$ when the mode rounds
 away from zero for the result's sign.
 
+An inexact result is delivered with the coefficient of $p$ digits: the working
+arithmetic drops the trailing zeros of the rounded value, so they are restored
+after the final rounding (GDA 1.70: a result with more digits than the precision
+is "rounded (shortened) to exactly precision digits"; IEEE 754-2019 §5.2: the
+cohort member of least possible exponent for an inexact result), the same as for
+a non-integer exponent. `power(99999E-1, -1)` at precision 2 is `0.00010`. Only a
+subset context strips the zeros, as Appendix A prescribes, and a subnormal
+result has fewer digits because its exponent is $E_{\mathrm{tiny}}$.
+
 ### Correctly rounded `exp`, `ln`, `log10` and non-integer `power`
 
 These functions are evaluated by certified interval arithmetic and a Ziv-style
