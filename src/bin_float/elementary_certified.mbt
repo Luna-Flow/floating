@@ -1996,15 +1996,16 @@ pub fn BinFloat::try_hypot_ctx(
   other : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  if self.class == FpClass::Infinity || other.class == FpClass::Infinity {
+  // IEEE 754-2019 9.2: hypot(+-inf, qNaN) is +inf. A signaling NaN operand is
+  // an invalid operation (7.2 a) with a quiet NaN result, even beside an
+  // infinity, so it goes to the NaN handling below.
+  if (self.class == FpClass::Infinity || other.class == FpClass::Infinity) &&
+    !self.is_signaling_nan() &&
+    !other.is_signaling_nan() {
     return Ok(
       (
         BinFloat::inf(Sign::Positive, precision=context.precision),
-        if self.is_signaling_nan() || other.is_signaling_nan() {
-          binary_invalid_flags()
-        } else {
-          BinaryFlags::new()
-        },
+        BinaryFlags::new(),
       ),
     )
   }
