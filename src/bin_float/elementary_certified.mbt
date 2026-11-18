@@ -388,6 +388,23 @@ fn binary_ln_unit_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  if work_precision >= binary_ln_burst_min_precision {
+    match binary_ln_unit_burst_bounds(value, work_precision) {
+      Some(bounds) => return Some(bounds)
+      None => ()
+    }
+  }
+  binary_ln_unit_bounds_series(value, work_precision)
+}
+
+///|
+/// The enclosure of `ln` for a number in `[1, 2]` by the series (fixed point
+/// when the argument is exact at the working precision): the path below the
+/// Newton-step threshold and the reference of its tests.
+fn binary_ln_unit_bounds_series(
+  value : BinFloat,
+  work_precision : Int32,
+) -> (BinFloat, BinFloat)? {
   match binary_ln_unit_fixed_bounds(value, work_precision) {
     Some(bounds) => return Some(bounds)
     None => ()
@@ -716,6 +733,7 @@ fn binary_ln10_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
 fn binary_ln_bounds(
   value : BinFloat,
   work_precision : Int32,
+  series_only~ : Bool = false,
 ) -> (BinFloat, BinFloat)? {
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
@@ -726,11 +744,12 @@ fn binary_ln_bounds(
     -(coefficient_bits - 1),
     Int32::max(work_precision, coefficient_bits),
   )
-  match
-    (
-      binary_ln_unit_bounds(normalized, work_precision),
-      binary_ln2_bounds(work_precision),
-    ) {
+  let unit_bounds = if series_only {
+    binary_ln_unit_bounds_series(normalized, work_precision)
+  } else {
+    binary_ln_unit_bounds(normalized, work_precision)
+  }
+  match (unit_bounds, binary_ln2_bounds(work_precision)) {
     (Some(unit), Some(ln2)) => {
       let downward = BinaryContext::unbounded(
         work_precision,

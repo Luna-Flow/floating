@@ -51,3 +51,8 @@ let bin_coeff_bz_leaf_limbs = 128
 /// Divisor length, in 32-bit limbs, from which division uses Newton's
 /// reciprocal.
 let bin_coeff_newton_division_threshold = 1073741824
+
+///|
+/// Working precision from which the verified Newton step replaces the series for
+/// `ln` of a number in (1, 2] (measured crossover on this target).
+let binary_ln_burst_min_precision = 1280
