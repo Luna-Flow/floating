@@ -2477,7 +2477,18 @@ fn decimal_power_ten_cohort_result(
     high - (precision - 1).to_int64()
   }
   let lowest = Int64::max(low, etiny(ctx).to_int64())
-  let chosen = Int64::min(Int64::max(preferred, lowest), high)
+  let unclamped = Int64::min(Int64::max(preferred, lowest), high)
+  // With clamp the exponent is at most Etop: a larger one is folded down by
+  // appending zeros to the coefficient, which fits in `precision` digits because
+  // the value does not exceed e_max (GDA 1.70, Exceptional conditions, Clamped).
+  // The value 1 (`value_exponent == 0`, a base of value 1 or an exponent 0) keeps
+  // its cohort: GDA 1.70 says only that the result "will be 1 and exact", and
+  // Python decimal (libmpdec) does not fold it either (open question, issue 287).
+  let chosen = if ctx.clamp && ctx.precision != 0 && value_exponent != 0 {
+    Int64::min(unclamped, etop(ctx, precision).to_int64())
+  } else {
+    unclamped
+  }
   let exponent = chosen.to_int()
   let result = finite_with_exponent_repr(
     negative,
@@ -2492,7 +2503,7 @@ fn decimal_power_ten_cohort_result(
   } else {
     DecimalFlags::new()
   }
-  (result, flags)
+  (result, if chosen < unclamped { { ..flags, clamped: true, } } else { flags })
 }
 
 ///|
