@@ -24,7 +24,7 @@ just random-diff smoke
 
 ```text
 binary: 500/500 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
-binary-regression: 0/2 passed, 2 known failures (xfail) (testdata/bin_float/random-regressions.txt)
+binary-regression: 5/5 passed (testdata/bin_float/random-regressions.txt)
 decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
 decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
 ```
@@ -116,6 +116,23 @@ clamp, narrower exponent range, shorter operands, operands rewritten as `1E+k`),
 asks the oracle for the correct answer of each variant, and keeps a variant when
 the library still disagrees. The result is a row the oracle produced itself, so
 it is a consistent regression case, not an edited one.
+
+### Sweep the range limits
+
+The random rows rarely land on an underflow or overflow threshold. For the
+binary elementary functions, `tools/range_boundary_rows.py` writes rows on the
+thresholds themselves, for every precision in a range, with the oracle columns
+left as `?`:
+
+```bash
+python3 tools/range_boundary_rows.py --p-min 2 --p-max 300 --out .tmp/boundary.in
+(head -n 1 .tmp/boundary.in; .tmp/random-diff/bin/generate_mpfr_random_oracle eval < .tmp/boundary.in) > .tmp/boundary.rows
+moon run src/cli --target native --release -- --backend mpfr .tmp/boundary.rows
+```
+
+The generator binary is built by any `just random-diff run`. A failing row is
+named with its expected and actual value and flags, so it can be pasted into a
+regression fixture.
 
 ### Other backends
 

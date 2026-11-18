@@ -378,6 +378,14 @@ $2^{-10^9} \cdot 2^{-10^9}$) rounds to $\pm 0$ or $\pm\eta$ according to the
 direction, with `underflow` and `inexact`. A result certainly above the range
 goes to the overflow result.
 
+**Exact results in the subnormal range.** An elementary function whose exact
+result is the dyadic $m \cdot 2^{n}$ ($2^{n}$ for `exp2` of an integer, the
+exact power of `pow` with a dyadic result) passes it to the finalizer as the
+pair $(m, n)$. It does not build a `BinFloat` first: a `BinFloat` made from
+$(1, n)$ at one bit has its smallest value at $2^{e_{\min}}$, so $2^{n}$ with
+$n < e_{\min}$ was flushed to zero before any context could round it, although
+it is exactly representable at $p \ge 2$.
+
 ### Signed zeros and NaNs
 
 An exact zero sum $a + b = 0$ with $a, b$ of opposite sign is $+0$ in every
