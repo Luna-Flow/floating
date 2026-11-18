@@ -61,3 +61,8 @@ let binary_ln_burst_min_precision = 576
 /// Working precision from which the bit-burst enclosure of `sin` and `cos`
 /// replaces the reduction and the series (measured crossover on this target).
 let binary_trig_burst_min_precision = 640
+
+///|
+/// Whether the integer square roots of up to 256 bits use the word kernels
+/// (`bin_coeff_sqrt_words_nonjs.mbt`) instead of the restoring loops.
+let bin_coeff_sqrt_words_enabled = true

@@ -273,8 +273,18 @@ fn bin_coeff_sqrt_rem_fixed_width(value : BinCoeff) -> (BinCoeff, BinCoeff) {
       let (root, remainder) = bin_coeff_sqrt_rem_u64(word)
       (BinCoeff::from_uint64(root), BinCoeff::from_uint64(remainder))
     }
-    Inline128(high, low) => bin_coeff_sqrt_rem_u128(high, low)
-    Heap(_, _) if value.bit_length() <= 256 => bin_coeff_sqrt_rem_u256(value)
+    Inline128(high, low) =>
+      if bin_coeff_sqrt_words_enabled {
+        bin_coeff_sqrt_rem_u128_words(high, low)
+      } else {
+        bin_coeff_sqrt_rem_u128(high, low)
+      }
+    Heap(_, _) if value.bit_length() <= 256 =>
+      if bin_coeff_sqrt_words_enabled {
+        bin_coeff_sqrt_rem_u256_words(value)
+      } else {
+        bin_coeff_sqrt_rem_u256(value)
+      }
     Heap(_, _) if value.bit_length() <= 512 => bin_coeff_sqrt_rem_u512(value)
     Heap(_, _) => bin_coeff_sqrt_rem_restoring(value)
   }
@@ -342,9 +352,18 @@ fn bin_coeff_sqrt_rem_kernel(value : BinCoeff) -> (BinCoeff, BinCoeff) {
       let (root, remainder) = bin_coeff_sqrt_rem_u64(value)
       (BinCoeff::from_uint64(root), BinCoeff::from_uint64(remainder))
     }
-    Inline128(high, low) => bin_coeff_sqrt_rem_u128(high, low)
-    Heap(_, _) if value.bit_length() <= 256 => bin_coeff_sqrt_rem_u256(value)
-    Heap(_, _) if value.bit_length() <= 512 => bin_coeff_sqrt_rem_u512(value)
+    Inline128(high, low) =>
+      if bin_coeff_sqrt_words_enabled {
+        bin_coeff_sqrt_rem_u128_words(high, low)
+      } else {
+        bin_coeff_sqrt_rem_u128(high, low)
+      }
+    Heap(_, _) if value.bit_length() <= 256 =>
+      if bin_coeff_sqrt_words_enabled {
+        bin_coeff_sqrt_rem_u256_words(value)
+      } else {
+        bin_coeff_sqrt_rem_u256(value)
+      }
     Heap(_, _) => bin_coeff_sqrt_rem_divide_conquer(value)
   }
 }
