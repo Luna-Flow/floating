@@ -21,6 +21,8 @@ options(
     "bin_coeff_division_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_ntt_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_ntt_nonjs_wbtest.mbt": [ "not", "js" ],
+    "bin_coeff_knuth_words_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_knuth_words_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_limb32_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_limb32_square_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_nonjs.mbt": [ "not", "js" ],

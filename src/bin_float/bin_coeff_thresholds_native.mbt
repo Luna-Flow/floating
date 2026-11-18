@@ -1,8 +1,8 @@
 ///|
-let bin_coeff_toom3_threshold = 2048
+let bin_coeff_toom3_threshold = 8192
 
 ///|
-let bin_coeff_ntt_mul_threshold = 2048
+let bin_coeff_ntt_mul_threshold = 8192
 
 ///|
 let bin_coeff_ntt_square_threshold = 768
@@ -32,3 +32,22 @@ let bin_coeff_limb32_karatsuba_cutoff : Int32 = 96
 /// Smallest operand length, in 64-bit limbs, that is multiplied through
 /// 32-bit limbs (never on this target).
 let bin_coeff_limb32_min_words : Int32 = 1073741824
+
+///|
+/// Whether Knuth's division runs on 64-bit digits (a 64-bit digit step costs
+/// four `i64.mul` on Wasm, so Wasm keeps 32-bit digits).
+let bin_coeff_knuth_words_enabled : Bool = true
+
+///|
+/// Divisor length, in 32-bit limbs, from which division uses Burnikel-Ziegler.
+let bin_coeff_bz_division_threshold = 192
+
+///|
+/// Divisor length, in 32-bit limbs, up to which the Burnikel-Ziegler
+/// recursion ends in Knuth's algorithm.
+let bin_coeff_bz_leaf_limbs = 128
+
+///|
+/// Divisor length, in 32-bit limbs, from which division uses Newton's
+/// reciprocal.
+let bin_coeff_newton_division_threshold = 1073741824

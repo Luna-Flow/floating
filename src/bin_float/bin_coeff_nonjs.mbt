@@ -1128,6 +1128,20 @@ fn bin_coeff_div_rem_knuth(
   numerator : BinCoeff,
   denominator : BinCoeff,
 ) -> (BinCoeff, BinCoeff) {
+  if bin_coeff_knuth_words_enabled {
+    bin_coeff_div_rem_knuth_words(numerator, denominator)
+  } else {
+    bin_coeff_div_rem_knuth_limb32(numerator, denominator)
+  }
+}
+
+///|
+/// Knuth's algorithm D on 32-bit limbs (the Wasm route, see
+/// `bin_coeff_knuth_words_enabled`).
+fn bin_coeff_div_rem_knuth_limb32(
+  numerator : BinCoeff,
+  denominator : BinCoeff,
+) -> (BinCoeff, BinCoeff) {
   let numerator_len = bin_coeff_limb_len(numerator)
   let denominator_len = bin_coeff_limb_len(denominator)
   let top = bin_coeff_limb(denominator, denominator_len - 1)
@@ -1277,9 +1291,10 @@ pub fn BinCoeff::div_rem_checked(
   }
   if bin_coeff_limb_len(denominator) == 1 {
     Ok(bin_coeff_div_rem_word(self, bin_coeff_limb(denominator, 0)))
-  } else if bin_coeff_limb_len(denominator) >= 1024 {
+  } else if bin_coeff_limb_len(denominator) >=
+    bin_coeff_newton_division_threshold {
     Ok(bin_coeff_div_rem_newton(self, denominator))
-  } else if bin_coeff_limb_len(denominator) >= 48 {
+  } else if bin_coeff_limb_len(denominator) >= bin_coeff_bz_division_threshold {
     Ok(bin_coeff_div_rem_burnikel_ziegler(self, denominator))
   } else {
     Ok(bin_coeff_div_rem_knuth(self, denominator))
