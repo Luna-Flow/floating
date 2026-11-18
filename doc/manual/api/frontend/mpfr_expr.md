@@ -3,10 +3,11 @@
 ## Purpose
 
 `frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes
-it against `bin_float`. Five formats are supported: MPFR's square-root
+it against `bin_float`. Six formats are supported: MPFR's square-root
 `data_check` files, integer-power rows, an elementary-function matrix with
-exception flags, and two corpora for decimal character conversion
-(`mpfr_strtofr` and `mpfr_get_str`). The package does no IO; the runner is
+exception flags, two corpora for decimal character conversion
+(`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows
+(`mpfr-random-v1`). The package does no IO; the runner is
 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the
 [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the
 [design page](../../design/frontend/mpfr_expr.md) for the pass rules.
@@ -297,6 +298,59 @@ pub fn MpfrDecimalOutputDocument::source(Self) -> String
 pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
 ```
 
+## Seeded random rows
+
+`mpfr-random-v1` rows come from `tools/generate_mpfr_random_oracle.c`: one row
+per case, with precisions up to 10,000, six rounding directions, an optional
+exponent range with its tininess rule, up to three exact operands and the MPFR
+result with its flags. The full field list is in
+[`testdata/bin_float/README.md`](../../../../testdata/bin_float/README.md).
+
+```text
+id op rounding precision emin emax tininess a b c n expected flags
+```
+
+### `parse_random_data`
+
+```mbti
+pub fn parse_random_data(String, String) -> Result[MpfrRandomDocument, Array[ParseDiagnostic]]
+```
+
+Parses the text (the first argument names the source). Blank lines and lines
+starting with `#` are skipped. Every other line must have thirteen fields, a
+known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of
+the elementary names), a rounding of `n na z u d a`, a positive precision, an
+exponent range that is either `- - -` or two integers and `a`/`b`, exact
+operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to
+`-` or a subset of `xouvz`. Operands and results are read at least at the row's
+precision, because reading a value below the smallest subnormal of a lower
+precision would flush it to zero. Each bad row is one diagnostic.
+
+### `execute_random_data`
+
+```mbti
+pub fn execute_random_data(MpfrRandomDocument) -> RunSummary
+```
+
+Runs every row with the row's `BinaryContext` (bounded when the row has an
+exponent range, `unbounded` otherwise) and passes a row only when the value and
+the flags agree. Values are compared with their sign for zeros and infinities;
+a NaN result must be a quiet NaN. A domain error of the elementary functions
+(`ArithmeticError::is_domain_error`) counts as the invalid operation: a quiet NaN
+with flag `v`; any other error fails the row with the error message. The row id
+is the first field of the row.
+
+### `MpfrRandomDocument`
+
+```mbti
+pub fn MpfrRandomDocument::source(Self) -> String
+pub fn MpfrRandomDocument::case_count(Self) -> Int
+pub fn MpfrRandomDocument::case_ids(Self) -> Array[String]
+```
+
+`case_ids` lists the row ids in order, which the differential harness uses to
+name the failing case of a batch.
+
 ## Diagnostics and results
 
 ### `ParseDiagnostic`
@@ -428,6 +482,8 @@ pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
 
+pub fn execute_random_data(MpfrRandomDocument) -> RunSummary
+
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 
 pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary
@@ -437,6 +493,8 @@ pub fn parse_decimal_output_data(String, String) -> Result[MpfrDecimalOutputDocu
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
 pub fn parse_pow_data(String, String) -> Result[MpfrPowDocument, Array[ParseDiagnostic]]
+
+pub fn parse_random_data(String, String) -> Result[MpfrRandomDocument, Array[ParseDiagnostic]]
 
 pub fn parse_sqrt_data(String, String) -> Result[MpfrDocument, Array[ParseDiagnostic]]
 
@@ -483,6 +541,13 @@ pub struct MpfrPowDocument {
 }
 pub fn MpfrPowDocument::case_count(Self) -> Int32
 pub fn MpfrPowDocument::source(Self) -> String
+
+pub struct MpfrRandomDocument {
+  // private fields
+}
+pub fn MpfrRandomDocument::case_count(Self) -> Int32
+pub fn MpfrRandomDocument::case_ids(Self) -> Array[String]
+pub fn MpfrRandomDocument::source(Self) -> String
 
 pub struct MpfrStrtofrDocument {
   // private fields
