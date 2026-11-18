@@ -16,7 +16,7 @@ let bin_coeff_sqrt_dc_base_bits = 512
 ///|
 /// Working precision from which the bit-burst enclosure of `exp` replaces the
 /// series (measured crossover on this target).
-let binary_exp_burst_min_precision = 640
+let binary_exp_burst_min_precision = 1088
 
 ///|
 /// Limb count (64-bit limbs) below which the schoolbook product beats the
