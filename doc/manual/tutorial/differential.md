@@ -24,7 +24,7 @@ just random-diff smoke
 
 ```text
 binary: 500/500 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
-binary-regression: 5/5 passed (testdata/bin_float/random-regressions.txt)
+binary-regression: 7/7 passed (testdata/bin_float/random-regressions.txt)
 decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
 decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
 ```

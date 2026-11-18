@@ -236,7 +236,28 @@ range.
   [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and
   its rows are regression rows of `testdata/bin_float/random-regressions.txt`.
   After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000
-  native `elem` cases each.
+  native `elem` cases each. The random sample reaches the range limits rarely,
+  so `tools/range_boundary_rows.py` generates the thresholds directly: for
+  every precision from 2 to 300, six contexts (unbounded, the binary16, 32, 64
+  and 128 ranges, `e_min = -6`) and the thresholds log2(result) in
+  {q − 1, q, e_min, e_max, e_max + 1}, the arguments of `exp`, `exp2`, `exp10`,
+  `expm1`, `pow`, `pown` and `rootn` are placed on each threshold and at
+  relative offsets of 2^−20 to 2^−64, rounding direction and tininess rule
+  cycling (1,269,554 rows). That sweep found four more disagreements, all
+  fixed with regression rows or tests: `pow` of an exact power of two below
+  2^e_min ([#272](https://github.com/Luna-Flow/floating/issues/272)), the
+  underflow flag of `pown` under after-rounding tininess near the
+  implementation limit
+  ([#273](https://github.com/Luna-Flow/floating/issues/273)), `expm1` just
+  past its overflow threshold
+  ([#274](https://github.com/Luna-Flow/floating/issues/274)) and `pown` of a
+  value between half and the whole smallest subnormal, rounded to the wrong
+  neighbour ([#278](https://github.com/Luna-Flow/floating/issues/278)); after
+  the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring
+  `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity
+  without flags ([#275](https://github.com/Luna-Flow/floating/issues/275),
+  open): the random generator does not draw such operands and the sweep does
+  not include that function.
 - *Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and
   `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`,
   `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an

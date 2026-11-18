@@ -8152,7 +8152,7 @@ msgstr ""
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:38
-#: manual/verification.md:480
+#: manual/verification.md:501
 msgid "Clause"
 msgstr ""
 
@@ -8912,7 +8912,7 @@ msgid "§7.5 tininess detection"
 msgstr ""
 
 #: manual/conformance/bin_float.md:93
-msgid "TestFloat gate (before and after rounding)"
+msgid "TestFloat gate (before and after rounding); the exact-subnormal and range-limit cases of `exp2`, `pow` and `pown` above"
 msgstr ""
 
 #: manual/conformance/bin_float.md:94
@@ -8930,7 +8930,7 @@ msgid "§9.2 recommended mathematical functions"
 msgstr ""
 
 #: manual/conformance/bin_float.md:95
-msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
+msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:95
@@ -9065,42 +9065,58 @@ msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr ""
 
 #: manual/conformance/bin_float.md:117
-msgid "Committed smoke"
+msgid "Seeded random elementary (`elem`), seeds 20261118 and 20261201"
 msgstr ""
 
 #: manual/conformance/bin_float.md:117
+msgid "29 functions, unbounded contexts, precisions 2 to 700, all rounding directions"
+msgstr ""
+
+#: manual/conformance/bin_float.md:118
+msgid "Range-boundary sweep (`tools/range_boundary_rows.py`)"
+msgstr ""
+
+#: manual/conformance/bin_float.md:118
+msgid "`exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown`, `rootn` on the underflow and overflow thresholds, precisions 2 to 300, six contexts, both tininess rules"
+msgstr ""
+
+#: manual/conformance/bin_float.md:119
+msgid "Committed smoke"
+msgstr ""
+
+#: manual/conformance/bin_float.md:119
 msgid "TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses"
 msgstr ""
 
-#: manual/conformance/bin_float.md:118
+#: manual/conformance/bin_float.md:120
 msgid "TestFloat 3e level 2"
 msgstr ""
 
-#: manual/conformance/bin_float.md:118
+#: manual/conformance/bin_float.md:120
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr ""
 
-#: manual/conformance/bin_float.md:120
+#: manual/conformance/bin_float.md:122
 msgid "The level-2 binary16 result is additional streaming stress evidence, not a claim for the much larger binary32/64/128 level-2 suites. The archives/files and digests are pinned in [`testdata/bin_float/corpora.json`](../../../testdata/bin_float/corpora.json). The runner streams TestFloat level 2 in verified bounded chunks, but level 2 is an optional stress suite and is not included in the result claim above. The 966,744-row MPFR run is likewise optional generated stress evidence; the 2,088-row hash-pinned fixture remains the reproducible release boundary."
 msgstr ""
 
-#: manual/conformance/bin_float.md:129
+#: manual/conformance/bin_float.md:131
 msgid "Scope of the claim"
 msgstr ""
 
-#: manual/conformance/bin_float.md:131
+#: manual/conformance/bin_float.md:133
 msgid "The results cover contextual add, subtract, multiply, divide, square root, fused multiply-add, remainder, roundToIntegral (plain and exact), convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE interchange formats and stated rounding/tininess modes, plus the declared 29-function elementary surface at 24, 53, and 113 bits under all six project rounding modes. Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. They do not claim TestFloat conformance for format-to-format conversions, min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character conversion (covered by package tests), nor for every IEEE 754 operation or every real input. The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
 msgstr ""
 
-#: manual/conformance/bin_float.md:147
+#: manual/conformance/bin_float.md:149
 msgid "The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of magnitude at most 16, inside each function's domain: `pow` takes a positive base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2` never two zeros, and `tanpi` no integral or half-integral argument. A zero input is $+0$. The matrix therefore does not exercise tiny or huge arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees of `rootn`, or the poles and signed zeros of the IEEE special-case tables; exact results such as $16^{3/4}$ occur only by chance. Those cases are covered by the package's unit tests against the special-value tables in the [API reference](../api/bin_float.md#elementary-functions), not by this claim."
 msgstr ""
 
-#: manual/conformance/bin_float.md:159
+#: manual/conformance/bin_float.md:161
 msgid "Stability of the evidence"
 msgstr ""
 
-#: manual/conformance/bin_float.md:161
+#: manual/conformance/bin_float.md:163
 msgid "The pinned matrix is the release evidence boundary; adding a new operation requires a new corpus contract and independent oracle. Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr ""
 
@@ -23885,838 +23901,838 @@ msgid "*Binary arithmetic, string conversion and `shortest`*: no disagreement in
 msgstr ""
 
 #: manual/verification.md:233
-msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and 300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no flags where the result 2^−1073741824 is an exact subnormal (13 cases, [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and its rows are regression rows of `testdata/bin_float/random-regressions.txt`. After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000 native `elem` cases each."
+msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and 300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no flags where the result 2^−1073741824 is an exact subnormal (13 cases, [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and its rows are regression rows of `testdata/bin_float/random-regressions.txt`. After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000 native `elem` cases each. The random sample reaches the range limits rarely, so `tools/range_boundary_rows.py` generates the thresholds directly: for every precision from 2 to 300, six contexts (unbounded, the binary16, 32, 64 and 128 ranges, `e_min = -6`) and the thresholds log2(result) in {q − 1, q, e_min, e_max, e_max + 1}, the arguments of `exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown` and `rootn` are placed on each threshold and at relative offsets of 2^−20 to 2^−64, rounding direction and tininess rule cycling (1,269,554 rows). That sweep found four more disagreements, all fixed with regression rows or tests: `pow` of an exact power of two below 2^e_min ([#272](https://github.com/Luna-Flow/floating/issues/272)), the underflow flag of `pown` under after-rounding tininess near the implementation limit ([#273](https://github.com/Luna-Flow/floating/issues/273)), `expm1` just past its overflow threshold ([#274](https://github.com/Luna-Flow/floating/issues/274)) and `pown` of a value between half and the whole smallest subnormal, rounded to the wrong neighbour ([#278](https://github.com/Luna-Flow/floating/issues/278)); after the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity without flags ([#275](https://github.com/Luna-Flow/floating/issues/275), open): the random generator does not draw such operands and the sweep does not include that function."
 msgstr ""
 
-#: manual/verification.md:240
+#: manual/verification.md:261
 msgid "*Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`, `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an operand rounds past Nmax: [#264](https://github.com/Luna-Flow/floating/issues/264)). The campaign's first run had 10 further disagreements whose operand was above Emax; decTest converts operands subject to the directives, so they are a property of the rows, not findings (the generator now keeps operands within Emax)."
 msgstr ""
 
-#: manual/verification.md:248
+#: manual/verification.md:269
 msgid "*Decimal `power`*: 100,000 native cases disagreed with libmpdec in at least 300 of them; four defects are filed: the sign of an overflowing result ([#265](https://github.com/Luna-Flow/floating/issues/265)), trailing zeros of inexact results ([#266](https://github.com/Luna-Flow/floating/issues/266)), a spurious Clamped ([#267](https://github.com/Luna-Flow/floating/issues/267)) and missing Subnormal and Underflow ([#268](https://github.com/Luna-Flow/floating/issues/268)). One more symptom (the exact result `power(0.05, -8) = 2.56E+10` raises Rounded) is not filed yet. `exp`, `ln` and `log10` agreed in all 300,000 native cases."
 msgstr ""
 
-#: manual/verification.md:258
+#: manual/verification.md:279
 msgid "**Known intentional differences, filtered where the rows are generated.** The numbers above exclude, and the test-data READMEs document, these cases: MPFR has no subnormals (emulated with `mpfr_subnormalize`; nearest-away rows that would be subnormal are drawn in nearest-even) and its range is one binade narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the row's own range, so those limits are compared); NaN payloads are not compared; the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin| reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts; opt-in `dec-*wide` families sample those contexts); libmpdec decides Subnormal and Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN is not specified; `tosci` and `toeng` apply the context precision as decTest specifies."
 msgstr ""
 
-#: manual/verification.md:272
+#: manual/verification.md:293
 msgid "**An oracle defect.** `mpfr_sqrt` of MPFR 4.2.2 (Homebrew bottle, arm64) reports an exact result, or a result on the wrong side of the root, for some operands with an odd binary exponent whose precision is near the output precision (`tools/mpfr_sqrt_ternary_repro.c` is a standalone reproducer). The first run of 2,000,000 `sqrt` cases had 22 failing batches from it; the generator now checks each `sqrt` row with exact arithmetic and draws the case again when MPFR is wrong, and the final run of 2,000,000 `sqrt` cases agreed in all cases. This is a claim about the Homebrew build I used, not about every MPFR release."
 msgstr ""
 
-#: manual/verification.md:281
+#: manual/verification.md:302
 msgid "**Not covered.** Operations the oracles lack (`rem`, `roundToIntegral`, the integer conversions, `scaleB`/`logB`, decimal operations other than the thirteen families); NaN payload policy; nearest-away results in the subnormal range; decimal contexts with |Emax| or |Emin| of 10^6 or more for the elementary functions; precisions above 700 for the binary elementary functions; the LLVM backend; interval arithmetic. The campaign samples a finite space with fixed seeds: the counts are what was run, not a proof of absence."
 msgstr ""
 
-#: manual/verification.md:289
+#: manual/verification.md:310
 msgid "Reproducibility"
 msgstr ""
 
-#: manual/verification.md:291
+#: manual/verification.md:312
 msgid "External artifacts are pinned by revision and SHA-256 in each corpus manifest (`testdata/*/corpora.json`). Builds use backend-named outputs and isolated target directories so that parallel jobs do not overwrite each other. Shards select deterministic case indices, and merged summaries keep exact totals and failed IDs. Large generated fixtures are split across files (the IEEE decimal public-API fixture is written 400 tests per file) so that every toolchain compiles them."
 msgstr ""
 
-#: manual/verification.md:299
+#: manual/verification.md:320
 msgid "The MoonBit frontends parse and execute numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection and aggregation. An optional oracle is never silently replaced by a weaker one; a missing requirement is reported explicitly."
 msgstr ""
 
-#: manual/verification.md:304
+#: manual/verification.md:325
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin the baseline source, dependencies, toolchain, target, schedule, sample count and dispersion limits, and a performance threshold never changes correctness. See [performance audit](./performance_audit.md) and the per-package performance pages."
 msgstr ""
 
-#: manual/verification.md:310
+#: manual/verification.md:331
 msgid "Failure triage"
 msgstr ""
 
-#: manual/verification.md:312
+#: manual/verification.md:333
 msgid "Re-run the failing backend with the smallest case, ID filter, phase or shard that reproduces it."
 msgstr ""
 
-#: manual/verification.md:314
+#: manual/verification.md:335
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches and infrastructure failures."
 msgstr ""
 
-#: manual/verification.md:316
+#: manual/verification.md:337
 msgid "Record the expected value, actual value, flags, context, target, corpus revision and command."
 msgstr ""
 
-#: manual/verification.md:318
+#: manual/verification.md:339
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange or aggregation."
 msgstr ""
 
-#: manual/verification.md:320
+#: manual/verification.md:341
 msgid "After a fix, run the focused case, the committed smoke fixture, the backend gate, and finally `just pr` or `just ci`."
 msgstr ""
 
-#: manual/verification.md:323
+#: manual/verification.md:344
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr ""
 
-#: manual/verification.md:326
+#: manual/verification.md:347
 msgid "Release gate"
 msgstr ""
 
-#: manual/verification.md:328
+#: manual/verification.md:349
 msgid "Before publishing:"
 msgstr ""
 
-#: manual/verification.md:330
+#: manual/verification.md:351
 msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
 msgstr ""
 
-#: manual/verification.md:331
+#: manual/verification.md:352
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
 msgstr ""
 
-#: manual/verification.md:333
+#: manual/verification.md:354
 msgid "run `just pr` while iterating;"
 msgstr ""
 
-#: manual/verification.md:334
+#: manual/verification.md:355
 msgid "run `just ci` on the release candidate;"
 msgstr ""
 
-#: manual/verification.md:335
+#: manual/verification.md:356
 msgid "publish through the repository's `publish.yml` GitHub Actions workflow."
 msgstr ""
 
-#: manual/verification.md:337
+#: manual/verification.md:358
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr ""
 
-#: manual/verification.md:340
+#: manual/verification.md:361
 msgid "Conformance checklist"
 msgstr ""
 
-#: manual/verification.md:342
+#: manual/verification.md:363
 msgid "One line per row of the clause traceability tables of the conformance pages ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability)). A checked box is a `conforming` row; an unchecked box names its state (`partial`, `not implemented`, `not applicable`) and carries the clause level in brackets: `required` (the standard says \"shall\"), `recommended` (\"should\") or `optional`. The counts separate gaps in required clauses from gaps in recommended or optional ones. The block is generated by `tools/conformance_checklist.py` and `just docs` fails when it is stale."
 msgstr ""
 
-#: manual/verification.md:355
-#: manual/verification.md:504
+#: manual/verification.md:376
+#: manual/verification.md:525
 msgid "Standard"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Rows"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Conforming"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Partial"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Not implemented"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Not applicable"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Required gaps"
 msgstr ""
 
-#: manual/verification.md:355
+#: manual/verification.md:376
 msgid "Recommended or optional gaps"
 msgstr ""
 
-#: manual/verification.md:357
+#: manual/verification.md:378
 msgid "IEEE 754-2019: bin_float"
 msgstr ""
 
-#: manual/verification.md:358
+#: manual/verification.md:379
 msgid "IEEE 754-2019: decimal"
 msgstr ""
 
-#: manual/verification.md:359
+#: manual/verification.md:380
 msgid "General Decimal Arithmetic 1.70: decimal_gda"
 msgstr ""
 
-#: manual/verification.md:360
+#: manual/verification.md:381
 msgid "IEEE 1788-2015: ball_float"
 msgstr ""
 
-#: manual/verification.md:362
+#: manual/verification.md:383
 msgid "**IEEE 754-2019: bin_float**"
 msgstr ""
 
-#: manual/verification.md:364
+#: manual/verification.md:385
 msgid "§3.3–§3.6 binary16/32/64/128 interchange formats [required]"
 msgstr ""
 
-#: manual/verification.md:365
-#: manual/verification.md:396
+#: manual/verification.md:386
+#: manual/verification.md:417
 msgid "§3.7 extendable precisions [recommended]"
 msgstr ""
 
-#: manual/verification.md:366
-#: manual/verification.md:397
+#: manual/verification.md:387
+#: manual/verification.md:418
 msgid "§4.3 rounding-direction attributes [required]"
 msgstr ""
 
-#: manual/verification.md:367
-#: manual/verification.md:399
+#: manual/verification.md:388
+#: manual/verification.md:420
 msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot [required]"
 msgstr ""
 
-#: manual/verification.md:368
-#: manual/verification.md:400
+#: manual/verification.md:389
+#: manual/verification.md:421
 msgid "§5.3.1 fusedMultiplyAdd [required]"
 msgstr ""
 
-#: manual/verification.md:369
-#: manual/verification.md:401
+#: manual/verification.md:390
+#: manual/verification.md:422
 msgid "§5.3.1 remainder [required]"
 msgstr ""
 
-#: manual/verification.md:370
+#: manual/verification.md:391
 msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact) [required]"
 msgstr ""
 
-#: manual/verification.md:371
-#: manual/verification.md:403
+#: manual/verification.md:392
+#: manual/verification.md:424
 msgid "§5.3.1 nextUp, nextDown [required]"
 msgstr ""
 
-#: manual/verification.md:372
-#: manual/verification.md:404
+#: manual/verification.md:393
+#: manual/verification.md:425
 msgid "§5.3.1 scaleB, logB [required]"
 msgstr ""
 
-#: manual/verification.md:373
-#: manual/verification.md:406
+#: manual/verification.md:394
+#: manual/verification.md:427
 msgid "§5.4.1 convertFromInt [required]"
 msgstr ""
 
-#: manual/verification.md:374
+#: manual/verification.md:395
 msgid "§5.4.1, §5.8 convertToInteger (exact and inexact) [required]"
 msgstr ""
 
-#: manual/verification.md:375
-#: manual/verification.md:408
+#: manual/verification.md:396
+#: manual/verification.md:429
 msgid "§5.4.2 convertFormat [required] (partial)"
 msgstr ""
 
-#: manual/verification.md:376
-#: manual/verification.md:409
+#: manual/verification.md:397
+#: manual/verification.md:430
 msgid "§5.5 copy, negate, abs, copySign [required]"
 msgstr ""
 
-#: manual/verification.md:377
+#: manual/verification.md:398
 msgid "§5.6, §5.11 comparison predicates, quiet and signaling [required]"
 msgstr ""
 
-#: manual/verification.md:378
+#: manual/verification.md:399
 msgid "§5.7 class and sign predicates [required] (partial)"
 msgstr ""
 
-#: manual/verification.md:379
-#: manual/verification.md:412
+#: manual/verification.md:400
+#: manual/verification.md:433
 msgid "§5.10 totalOrder, totalOrderMag [required]"
 msgstr ""
 
-#: manual/verification.md:380
+#: manual/verification.md:401
 msgid "§5.12 decimal character conversion, both directions [required]"
 msgstr ""
 
-#: manual/verification.md:381
+#: manual/verification.md:402
 msgid "§5.12 hexadecimal character conversion [required] (partial)"
 msgstr ""
 
-#: manual/verification.md:382
-#: manual/verification.md:414
+#: manual/verification.md:403
+#: manual/verification.md:435
 msgid "§6.1–§6.3 infinities, NaNs, sign bit [required]"
 msgstr ""
 
-#: manual/verification.md:383
+#: manual/verification.md:404
 msgid "§7.2–§7.6 exceptions and default handling [required]"
 msgstr ""
 
-#: manual/verification.md:384
+#: manual/verification.md:405
 msgid "§7.5 tininess detection [required]"
 msgstr ""
 
-#: manual/verification.md:385
-#: manual/verification.md:417
+#: manual/verification.md:406
+#: manual/verification.md:438
 msgid "§8 alternate exception handling [recommended] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:386
-#: manual/verification.md:418
+#: manual/verification.md:407
+#: manual/verification.md:439
 msgid "§9.2 recommended mathematical functions [recommended] (partial)"
 msgstr ""
 
-#: manual/verification.md:387
-#: manual/verification.md:420
+#: manual/verification.md:408
+#: manual/verification.md:441
 msgid "§9.3 dynamic mode operations [recommended] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:388
-#: manual/verification.md:421
+#: manual/verification.md:409
+#: manual/verification.md:442
 msgid "§9.4 reduction operations [recommended] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:389
+#: manual/verification.md:410
 msgid "§9.5 augmented arithmetic [recommended] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:390
+#: manual/verification.md:411
 msgid "§9.6 minimum, maximum and magnitude variants [recommended] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:391
+#: manual/verification.md:412
 msgid "§9.7 NaN payload operations [recommended] (partial)"
 msgstr ""
 
-#: manual/verification.md:393
+#: manual/verification.md:414
 msgid "**IEEE 754-2019: decimal**"
 msgstr ""
 
-#: manual/verification.md:395
+#: manual/verification.md:416
 msgid "§3.5 decimal32/64/128 interchange, DPD and BID [required]"
 msgstr ""
 
-#: manual/verification.md:398
+#: manual/verification.md:419
 msgid "§5.2 preferred exponents [required]"
 msgstr ""
 
-#: manual/verification.md:402
+#: manual/verification.md:423
 msgid "§5.3.1 roundToIntegral (all five, exact) [required]"
 msgstr ""
 
-#: manual/verification.md:405
+#: manual/verification.md:426
 msgid "§5.3.2 quantize, quantum, sameQuantum [required]"
 msgstr ""
 
-#: manual/verification.md:407
+#: manual/verification.md:428
 msgid "§5.4.1 convertToInteger [required] (partial)"
 msgstr ""
 
-#: manual/verification.md:410
+#: manual/verification.md:431
 msgid "§5.6, §5.11 comparison, quiet and signaling [required]"
 msgstr ""
 
-#: manual/verification.md:411
+#: manual/verification.md:432
 msgid "§5.7 class, isCanonical, radix [required]"
 msgstr ""
 
-#: manual/verification.md:413
+#: manual/verification.md:434
 msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
 msgstr ""
 
-#: manual/verification.md:415
+#: manual/verification.md:436
 msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact [required]"
 msgstr ""
 
-#: manual/verification.md:416
+#: manual/verification.md:437
 msgid "§7.5 underflow and tininess [required]"
 msgstr ""
 
-#: manual/verification.md:419
+#: manual/verification.md:440
 msgid "§9.2.2 preferred exponents of pow and pown [recommended]"
 msgstr ""
 
-#: manual/verification.md:422
+#: manual/verification.md:443
 msgid "§9.5 augmented arithmetic [recommended] (not applicable)"
 msgstr ""
 
-#: manual/verification.md:423
+#: manual/verification.md:444
 msgid "§9.6 minimum and maximum, eight variants [recommended]"
 msgstr ""
 
-#: manual/verification.md:424
+#: manual/verification.md:445
 msgid "§9.7 NaN payload operations [recommended]"
 msgstr ""
 
-#: manual/verification.md:426
+#: manual/verification.md:447
 msgid "**General Decimal Arithmetic 1.70: decimal_gda**"
 msgstr ""
 
-#: manual/verification.md:428
+#: manual/verification.md:449
 msgid "abs, minus, plus [required]"
 msgstr ""
 
-#: manual/verification.md:429
+#: manual/verification.md:450
 msgid "add, subtract, multiply [required]"
 msgstr ""
 
-#: manual/verification.md:430
+#: manual/verification.md:451
 msgid "divide, divide-integer, remainder, remainder-near [required]"
 msgstr ""
 
-#: manual/verification.md:431
+#: manual/verification.md:452
 msgid "fused-multiply-add [required]"
 msgstr ""
 
-#: manual/verification.md:432
+#: manual/verification.md:453
 msgid "square-root [required]"
 msgstr ""
 
-#: manual/verification.md:433
+#: manual/verification.md:454
 msgid "power [required]"
 msgstr ""
 
-#: manual/verification.md:434
+#: manual/verification.md:455
 msgid "exp, ln, log10 [required]"
 msgstr ""
 
-#: manual/verification.md:435
+#: manual/verification.md:456
 msgid "compare, compare-signal, compare-total, compare-total-mag [required]"
 msgstr ""
 
-#: manual/verification.md:436
+#: manual/verification.md:457
 msgid "max, max-magnitude, min, min-magnitude [required]"
 msgstr ""
 
-#: manual/verification.md:437
+#: manual/verification.md:458
 msgid "next-minus, next-plus, next-toward [required]"
 msgstr ""
 
-#: manual/verification.md:438
+#: manual/verification.md:459
 msgid "quantize, rescale, same-quantum, reduce, trim [required]"
 msgstr ""
 
-#: manual/verification.md:439
+#: manual/verification.md:460
 msgid "round-to-integral-exact, round-to-integral-value [required]"
 msgstr ""
 
-#: manual/verification.md:440
+#: manual/verification.md:461
 msgid "scaleb, logb, rotate, shift [required]"
 msgstr ""
 
-#: manual/verification.md:441
+#: manual/verification.md:462
 msgid "and, or, xor, invert [required]"
 msgstr ""
 
-#: manual/verification.md:442
+#: manual/verification.md:463
 msgid "class, copy, copy-abs, copy-negate, copy-sign [required]"
 msgstr ""
 
-#: manual/verification.md:443
+#: manual/verification.md:464
 msgid "to-number, to-scientific-string, to-engineering-string [required]"
 msgstr ""
 
-#: manual/verification.md:444
+#: manual/verification.md:465
 msgid "canonical [required]"
 msgstr ""
 
-#: manual/verification.md:445
+#: manual/verification.md:466
 msgid "context: precision, rounding, clamp, exponent limits [required]"
 msgstr ""
 
-#: manual/verification.md:446
+#: manual/verification.md:467
 msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr ""
 
-#: manual/verification.md:447
+#: manual/verification.md:468
 msgid "subset arithmetic (Appendix A) [required]"
 msgstr ""
 
-#: manual/verification.md:449
+#: manual/verification.md:470
 msgid "**IEEE 1788-2015: ball_float**"
 msgstr ""
 
-#: manual/verification.md:451
+#: manual/verification.md:472
 msgid "§4.2 set-based interval arithmetic flavor [required]"
 msgstr ""
 
-#: manual/verification.md:452
+#: manual/verification.md:473
 msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:453
+#: manual/verification.md:474
 msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
 msgstr ""
 
-#: manual/verification.md:454
+#: manual/verification.md:475
 msgid "§10.5.4 reverse-mode elementary functions [required] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:455
+#: manual/verification.md:476
 msgid "§10.5.5 two-output division [required] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:456
+#: manual/verification.md:477
 msgid "§9.2, §10.5.6 cancellative addition and subtraction [required]"
 msgstr ""
 
-#: manual/verification.md:457
+#: manual/verification.md:478
 msgid "§9.3, §10.5.7 set operations [required]"
 msgstr ""
 
-#: manual/verification.md:458
+#: manual/verification.md:479
 msgid "§9.8, §10.5.8 constructors [required] (partial)"
 msgstr ""
 
-#: manual/verification.md:459
+#: manual/verification.md:480
 msgid "§9.4, §10.5.9 numeric functions of intervals [required]"
 msgstr ""
 
-#: manual/verification.md:460
+#: manual/verification.md:481
 msgid "§9.5, §10.5.10 boolean functions of intervals [required]"
 msgstr ""
 
-#: manual/verification.md:461
+#: manual/verification.md:482
 msgid "§10.6.2 slope functions [recommended] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:462
+#: manual/verification.md:483
 msgid "§10.6.4 extended interval comparisons [recommended] (partial)"
 msgstr ""
 
-#: manual/verification.md:463
+#: manual/verification.md:484
 msgid "§9.6, §11 decoration system [required]"
 msgstr ""
 
-#: manual/verification.md:464
+#: manual/verification.md:485
 msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:465
+#: manual/verification.md:486
 msgid "§12.10 accuracy of operations [required]"
 msgstr ""
 
-#: manual/verification.md:466
+#: manual/verification.md:487
 msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:469
+#: manual/verification.md:490
 msgid "Implementation-defined choices"
 msgstr ""
 
-#: manual/verification.md:471
+#: manual/verification.md:492
 msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
 msgstr ""
 
-#: manual/verification.md:480
+#: manual/verification.md:501
 msgid "Choice left open"
 msgstr ""
 
-#: manual/verification.md:480
+#: manual/verification.md:501
 msgid "Choice made"
 msgstr ""
 
-#: manual/verification.md:482
+#: manual/verification.md:503
 msgid "IEEE 754 §7.5"
 msgstr ""
 
-#: manual/verification.md:482
+#: manual/verification.md:503
 msgid "Tininess detection for binary formats"
 msgstr ""
 
-#: manual/verification.md:482
+#: manual/verification.md:503
 msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
 msgstr ""
 
-#: manual/verification.md:483
+#: manual/verification.md:504
 msgid "IEEE 754 §6.2"
 msgstr ""
 
-#: manual/verification.md:483
+#: manual/verification.md:504
 msgid "Which NaN payload a NaN result carries"
 msgstr ""
 
-#: manual/verification.md:483
+#: manual/verification.md:504
 msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
 msgstr ""
 
-#: manual/verification.md:484
+#: manual/verification.md:505
 msgid "IEEE 754 §9.7"
 msgstr ""
 
-#: manual/verification.md:484
+#: manual/verification.md:505
 msgid "Admissible payloads of `setPayload`"
 msgstr ""
 
-#: manual/verification.md:484
+#: manual/verification.md:505
 msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
 msgstr ""
 
-#: manual/verification.md:485
+#: manual/verification.md:506
 msgid "IEEE 754 §3.7"
 msgstr ""
 
-#: manual/verification.md:485
+#: manual/verification.md:506
 msgid "Exponent range and precision of an extendable format"
 msgstr ""
 
-#: manual/verification.md:485
+#: manual/verification.md:506
 msgid "`bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
 msgstr ""
 
-#: manual/verification.md:486
+#: manual/verification.md:507
 msgid "IEEE 754 §4.3"
 msgstr ""
 
-#: manual/verification.md:486
+#: manual/verification.md:507
 msgid "Rounding directions beyond the five required"
 msgstr ""
 
-#: manual/verification.md:486
+#: manual/verification.md:507
 msgid "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
 msgstr ""
 
-#: manual/verification.md:487
+#: manual/verification.md:508
 msgid "IEEE 754 §4.1, §9.3"
 msgstr ""
 
-#: manual/verification.md:487
+#: manual/verification.md:508
 msgid "How attributes are specified"
 msgstr ""
 
-#: manual/verification.md:487
+#: manual/verification.md:508
 msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
 msgstr ""
 
-#: manual/verification.md:488
+#: manual/verification.md:509
 msgid "IEEE 754 §7"
 msgstr ""
 
-#: manual/verification.md:488
+#: manual/verification.md:509
 msgid "How flags are exposed"
 msgstr ""
 
-#: manual/verification.md:488
+#: manual/verification.md:509
 msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
 msgstr ""
 
-#: manual/verification.md:489
+#: manual/verification.md:510
 msgid "IEEE 754 §9.2"
 msgstr ""
 
-#: manual/verification.md:489
+#: manual/verification.md:510
 msgid "Accuracy of recommended functions"
 msgstr ""
 
-#: manual/verification.md:489
+#: manual/verification.md:510
 msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
 msgstr ""
 
-#: manual/verification.md:490
+#: manual/verification.md:511
 msgid "IEEE 754 §9.2.2"
 msgstr ""
 
-#: manual/verification.md:490
+#: manual/verification.md:511
 msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
 msgstr ""
 
-#: manual/verification.md:490
+#: manual/verification.md:511
 msgid "`decimal`: `pow(+1, y)` is the plain `1`."
 msgstr ""
 
-#: manual/verification.md:491
+#: manual/verification.md:512
 msgid "IEEE 754 §5.12"
 msgstr ""
 
-#: manual/verification.md:491
+#: manual/verification.md:512
 msgid "Character sequences accepted and produced (`bin_float`)"
 msgstr ""
 
-#: manual/verification.md:491
+#: manual/verification.md:512
 msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
 msgstr ""
 
-#: manual/verification.md:492
+#: manual/verification.md:513
 msgid "IEEE 754 §6.3"
 msgstr ""
 
-#: manual/verification.md:492
+#: manual/verification.md:513
 msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr ""
 
-#: manual/verification.md:492
+#: manual/verification.md:513
 msgid "The sign of the dividend, kept in extended contexts."
 msgstr ""
 
-#: manual/verification.md:493
+#: manual/verification.md:514
 msgid "IEEE 1788 §7, §4.2"
 msgstr ""
 
-#: manual/verification.md:493
+#: manual/verification.md:514
 msgid "Flavor"
 msgstr ""
 
-#: manual/verification.md:493
+#: manual/verification.md:514
 msgid "Set-based."
 msgstr ""
 
-#: manual/verification.md:494
+#: manual/verification.md:515
 msgid "IEEE 1788 §12.10"
 msgstr ""
 
-#: manual/verification.md:494
+#: manual/verification.md:515
 msgid "Accuracy of the elementary functions"
 msgstr ""
 
-#: manual/verification.md:494
+#: manual/verification.md:515
 msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr ""
 
-#: manual/verification.md:495
+#: manual/verification.md:516
 msgid "IEEE 1788 §12.5"
 msgstr ""
 
-#: manual/verification.md:495
+#: manual/verification.md:516
 msgid "Interval types"
 msgstr ""
 
-#: manual/verification.md:495
+#: manual/verification.md:516
 msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
 msgstr ""
 
-#: manual/verification.md:496
+#: manual/verification.md:517
 msgid "General Decimal Arithmetic"
 msgstr ""
 
-#: manual/verification.md:496
+#: manual/verification.md:517
 msgid "Exponent limit"
 msgstr ""
 
-#: manual/verification.md:496
+#: manual/verification.md:517
 msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
 msgstr ""
 
-#: manual/verification.md:498
+#: manual/verification.md:519
 msgid "Known gaps and deviations"
 msgstr ""
 
-#: manual/verification.md:500
+#: manual/verification.md:521
 msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
 msgstr ""
 
-#: manual/verification.md:504
+#: manual/verification.md:525
 msgid "Gap"
 msgstr ""
 
-#: manual/verification.md:504
+#: manual/verification.md:525
 msgid "Tracking"
 msgstr ""
 
-#: manual/verification.md:506
+#: manual/verification.md:527
 msgid "IEEE 754-2019 §7.5"
 msgstr ""
 
-#: manual/verification.md:506
+#: manual/verification.md:527
 msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
 msgstr ""
 
-#: manual/verification.md:506
+#: manual/verification.md:527
 msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
 msgstr ""
 
-#: manual/verification.md:507
+#: manual/verification.md:528
 msgid "IEEE 754-2019 §8"
 msgstr ""
 
-#: manual/verification.md:507
+#: manual/verification.md:528
 msgid "No alternate exception handling"
 msgstr ""
 
-#: manual/verification.md:507
+#: manual/verification.md:528
 msgid "by design (flags are values)"
 msgstr ""
 
-#: manual/verification.md:508
+#: manual/verification.md:529
 msgid "IEEE 754-2019 §9.3"
 msgstr ""
 
-#: manual/verification.md:508
+#: manual/verification.md:529
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr ""
 
-#: manual/verification.md:508
+#: manual/verification.md:529
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr ""
 
-#: manual/verification.md:509
+#: manual/verification.md:530
 msgid "IEEE 754-2019 §9.2"
 msgstr ""
 
-#: manual/verification.md:509
+#: manual/verification.md:530
 msgid "Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal`"
 msgstr ""
 
-#: manual/verification.md:510
+#: manual/verification.md:531
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr ""
 
-#: manual/verification.md:510
+#: manual/verification.md:531
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr ""
 
-#: manual/verification.md:511
+#: manual/verification.md:532
 msgid "IEEE 754-2019 §9.5"
 msgstr ""
 
-#: manual/verification.md:511
+#: manual/verification.md:532
 msgid "No augmented arithmetic for `bin_float`"
 msgstr ""
 
-#: manual/verification.md:512
+#: manual/verification.md:533
 msgid "IEEE 754-2019 §5.4.1"
 msgstr ""
 
-#: manual/verification.md:512
+#: manual/verification.md:533
 msgid "`decimal` has no convertToInteger"
 msgstr ""
 
-#: manual/verification.md:513
+#: manual/verification.md:534
 msgid "IEEE 754-2019 §5.3.2"
 msgstr ""
 
-#: manual/verification.md:513
+#: manual/verification.md:534
 msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
 msgstr ""
 
-#: manual/verification.md:513
+#: manual/verification.md:534
 msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
 msgstr ""
 
-#: manual/verification.md:514
+#: manual/verification.md:535
 msgid "IEEE 754-2019 §3.7"
 msgstr ""
 
-#: manual/verification.md:514
+#: manual/verification.md:535
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr ""
 
-#: manual/verification.md:514
+#: manual/verification.md:535
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr ""
 
-#: manual/verification.md:515
+#: manual/verification.md:536
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr ""
 
-#: manual/verification.md:515
+#: manual/verification.md:536
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr ""
 
-#: manual/verification.md:515
+#: manual/verification.md:536
 msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr ""
 
-#: manual/verification.md:516
+#: manual/verification.md:537
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr ""
 
-#: manual/verification.md:516
+#: manual/verification.md:537
 msgid "No two-output division, no slope functions"
 msgstr ""
 
-#: manual/verification.md:517
+#: manual/verification.md:538
 msgid "Public API"
 msgstr ""
 
-#: manual/verification.md:517
+#: manual/verification.md:538
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr ""
 
-#: manual/verification.md:517
+#: manual/verification.md:538
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr ""
