@@ -67,7 +67,7 @@ maxexponent: 0
 minexponent: -1
 clamp: 1
 reg.power.spurious-clamped power 6E-1 2 -> 0.4 Inexact Rounded
--- xfail #268 F5
+-- regression #268 F5 (fixed)
 precision: 1
 rounding: half_even
 maxexponent: 0
