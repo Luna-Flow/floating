@@ -20,10 +20,19 @@ fn binary_test_make(
 
 ///|
 fn binary_test_signed_bigint(value : @bin_float.BinFloat) -> BigInt {
-  let magnitude = BigInt::from_string(value.coefficient().to_string())
+  let magnitude = bigint_from_text(value.coefficient().to_string())
   if value.is_negative() {
     -magnitude
   } else {
     magnitude
+  }
+}
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
   }
 }

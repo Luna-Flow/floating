@@ -8,6 +8,7 @@ import {
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/ball_float",
   "moonbitlang/core/bigint",
+  "moonbitlang/core/string",
 }
 
 options(

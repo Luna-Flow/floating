@@ -314,7 +314,7 @@ fn parse_flags(source : String) -> Int32? {
   for character in source {
     guard character.is_ascii_hexdigit() else { return None }
   }
-  Some(@bigint.BigInt::from_string(source, radix=16).to_int())
+  Some(bigint_from_text(source, radix=16).to_int())
 }
 
 ///|
@@ -681,3 +681,12 @@ pub extend ParseDiagnostic with Eq::{not_equal, equal}
 
 ///|
 pub extend ParseDiagnostic with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> @bigint.BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
+  }
+}

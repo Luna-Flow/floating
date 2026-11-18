@@ -30,12 +30,12 @@ priv enum MpfrDecimalOutputCase {
     rounding~ : @bin_float.BinaryRoundingMode,
     expected_digits~ : String,
     expected_exponent10~ : Int32,
-    inexact~ : Bool
+    inexact~ : Bool,
   )
   Shortest(
     id~ : String,
     value~ : @bin_float.BinFloat,
-    expected_digit_count~ : Int32
+    expected_digit_count~ : Int32,
   )
 }
 
@@ -387,7 +387,7 @@ pub fn execute_decimal_output_data(
         rounding~,
         expected_digits~,
         expected_exponent10~,
-        inexact~
+        inexact~,
       ) => {
         let context = @bin_float.BinaryContext::unbounded(
           value.precision(),

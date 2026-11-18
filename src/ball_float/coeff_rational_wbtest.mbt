@@ -14,7 +14,7 @@ fn signed_coeff_for_test(value : BigInt) -> SignedBinCoeff {
 
 ///|
 fn coeff_bigint_for_test(value : @bin_float.BinCoeff) -> BigInt {
-  BigInt::from_string(value.to_string())
+  bigint_from_text(value.to_string())
 }
 
 ///|
@@ -83,5 +83,14 @@ test "coefficient rational floor and ceil handle negative values" {
     let value = rat_for_test(numerator, denominator)
     assert_eq(signed_coeff_bigint_for_test(rat_floor(value)), floor)
     assert_eq(signed_coeff_bigint_for_test(rat_ceil(value)), ceil)
+  }
+}
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
   }
 }
