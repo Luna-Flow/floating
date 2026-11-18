@@ -202,9 +202,13 @@ fn decimal_power_one_finite_exponent_result(
       if adjusted_exponent(exponent) > 999_999 ||
         exponent.exponent10 + exponent.coefficient.digits10() < -1_999_996 {
         Some((Decimal::nan(precision~), invalid_flags()))
-      } else if adjusted_exponent(exponent) >= ctx.e_max {
-        Some(decimal_apply_finite_ctx(Decimal::one(precision~), ctx))
       } else {
+        // GDA 1.70, power: the result is inexact unless the exponent is
+        // integral and the result exact, so 1^y for a non-integral y is 1 with
+        // `precision` digits, Inexact and Rounded, whatever Emax is. (A shortcut
+        // for adjusted exponents of y of at least Emax returned the exact 1,
+        // which is wrong in a context with a small Emax: 1.03 has adjusted
+        // exponent 0.)
         Some(decimal_power_one_limit_result(ctx))
       }
     }
