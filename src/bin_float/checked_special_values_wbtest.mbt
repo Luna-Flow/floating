@@ -145,29 +145,32 @@ fn checked_expected_sqrt(a : String) -> String {
 }
 
 ///|
-/// Expected `pown(a, n)` from IEEE 754-2019 section 9.2.1, or `None` for
-/// `pown(sNaN, 0)`, which 9.2.1 leaves to section 7.2 a) and which the
-/// contextual layer still answers with 1 (reported separately from #262).
-fn checked_expected_pown(a : String, n : Int32) -> String? {
+/// Expected `pown(a, n)` from IEEE 754-2019 section 9.2.1. `pown(sNaN, 0)` is
+/// not 1 (9.2.1 excludes it) but an invalid operation (7.2 a), #286).
+fn checked_expected_pown(a : String, n : Int32) -> String {
   let negative = checked_is_neg(a) && n % 2 != 0
   if n == 0 {
-    // 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN.
+    // 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; 7.2 a) otherwise.
     if checked_is_snan(a) {
-      None
+      "err:invalid"
     } else {
-      Some("ok:+fin")
+      "ok:+fin"
     }
   } else if checked_is_snan(a) {
-    Some("err:invalid")
+    "err:invalid"
   } else if checked_is_nan(a) {
-    Some("ok:nan")
+    "ok:nan"
   } else if checked_is_zero(a) {
     // 9.2.1: pown(+-0, n) signals divideByZero for n < 0.
-    Some(if n < 0 { "err:div0" } else { checked_signed(negative, "0") })
+    if n < 0 {
+      "err:div0"
+    } else {
+      checked_signed(negative, "0")
+    }
   } else if checked_is_inf(a) {
-    Some(checked_signed(negative, if n < 0 { "0" } else { "inf" }))
+    checked_signed(negative, if n < 0 { "0" } else { "inf" })
   } else {
-    Some(checked_signed(negative, "fin"))
+    checked_signed(negative, "fin")
   }
 }
 
@@ -293,51 +296,47 @@ test "checked trait adapters follow the IEEE special-value table" {
         )
       }
       for n in -3..<=3 {
-        match checked_expected_pown(a, n) {
-          None => ()
-          Some(expected) => {
-            let actual = checked_render(
-              @lf_arith.PowIntChecked::pow_int_checked(x, n, context),
+        let expected = checked_expected_pown(a, n)
+        let actual = checked_render(
+          @lf_arith.PowIntChecked::pow_int_checked(x, n, context),
+        )
+        cases += 1
+        if actual != expected {
+          failures.push(
+            checked_mismatch(
+              "pow_int(" + a + ", " + n.to_string() + ")",
+              context,
+              actual,
+              expected,
+            ),
+          )
+        }
+        if n >= 0 {
+          let nat = checked_render(
+            @lf_arith.PowNatChecked::pow_nat_checked(
+              x,
+              n.reinterpret_as_uint(),
+              context,
+            ),
+          )
+          cases += 1
+          if nat != expected {
+            failures.push(
+              checked_mismatch(
+                "pow_nat(" + a + ", " + n.to_string() + ")",
+                context,
+                nat,
+                expected,
+              ),
             )
-            cases += 1
-            if actual != expected {
-              failures.push(
-                checked_mismatch(
-                  "pow_int(" + a + ", " + n.to_string() + ")",
-                  context,
-                  actual,
-                  expected,
-                ),
-              )
-            }
-            if n >= 0 {
-              let nat = checked_render(
-                @lf_arith.PowNatChecked::pow_nat_checked(
-                  x,
-                  n.reinterpret_as_uint(),
-                  context,
-                ),
-              )
-              cases += 1
-              if nat != expected {
-                failures.push(
-                  checked_mismatch(
-                    "pow_nat(" + a + ", " + n.to_string() + ")",
-                    context,
-                    nat,
-                    expected,
-                  ),
-                )
-              }
-            }
           }
         }
       }
     }
   }
   assert_eq(failures, [])
-  // 30 contexts x (100 div + 10 sqrt + 68 pow_int + 38 pow_nat) cases.
-  assert_eq(cases, 30 * (100 + 10 + 68 + 38))
+  // 30 contexts x (100 div + 10 sqrt + 70 pow_int + 40 pow_nat) cases.
+  assert_eq(cases, 30 * (100 + 10 + 70 + 40))
 }
 
 ///|
@@ -359,17 +358,11 @@ test "inherent checked operations follow the IEEE special-value table" {
         failures.push("sqrt(" + a + "): " + sqrt_actual)
       }
       for n in -3..<=3 {
-        match checked_expected_pown(a, n) {
-          None => ()
-          Some(expected) => {
-            let pow_int = checked_render(x.pow_int(n))
-            let pown = checked_render(x.pown(n))
-            if pow_int != expected || pown != expected {
-              failures.push(
-                "pow_int(" + a + ", " + n.to_string() + "): " + pow_int,
-              )
-            }
-          }
+        let expected = checked_expected_pown(a, n)
+        let pow_int = checked_render(x.pow_int(n))
+        let pown = checked_render(x.pown(n))
+        if pow_int != expected || pown != expected {
+          failures.push("pow_int(" + a + ", " + n.to_string() + "): " + pow_int)
         }
       }
     }
@@ -409,5 +402,42 @@ test "checked adapters return range exceptions in Ok" {
     assert_true(
       @lf_arith.PowNatChecked::pow_nat_checked(two, 2000U, ctx) is Ok(_),
     )
+  }
+}
+
+///|
+test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
+  // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
+  // signaling NaN signals invalid (7.2 a) and delivers a quiet NaN that keeps
+  // its payload (6.2).
+  let context = BinaryContext::unbounded(53)
+  let payload = BinCoeff::from_uint64(19UL)
+  for negative in [false, true] {
+    let snan = BinFloat::signaling_nan(payload~, negative~, precision=53)
+    let results = [
+      snan.pow_int_ctx(0, context),
+      snan.pown_ctx(0, context),
+      snan.pow_nat_ctx(0U, context),
+    ]
+    for result in results {
+      let (value, flags) = result
+      assert_true(value.classify() == FpClass::NaN)
+      assert_false(value.is_signaling_nan())
+      assert_eq(value.nan_payload(), payload)
+      assert_eq(value.negative, negative)
+      assert_true(flags.invalid_operation())
+      assert_false(flags.division_by_zero())
+    }
+    let qnan = BinFloat::quiet_nan(payload~, negative~, precision=53)
+    for
+      result in [
+        qnan.pow_int_ctx(0, context),
+        qnan.pown_ctx(0, context),
+        qnan.pow_nat_ctx(0U, context),
+      ] {
+      let (value, flags) = result
+      assert_eq(value, BinFloat::one(precision=53))
+      assert_eq(flags.to_testfloat_bits(), 0)
+    }
   }
 }

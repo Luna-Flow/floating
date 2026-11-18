@@ -326,7 +326,7 @@ pub fn BinFloatResult::pown_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 which `bin_float` maps to an unbounded binary context at that precision with
 nearest-even rounding. `pow_int` and `pown` (the same operation, IEEE name)
 return a `DivisionByZero` error for a zero base with a negative exponent, a
-`DomainError` for a signaling NaN base with a non-zero exponent (as does
+`DomainError` for a signaling NaN base, zero exponent included (as does
 `pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms
 never fail and return $\pm\infty$ for a zero base with a negative exponent.
 
