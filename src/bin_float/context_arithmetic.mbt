@@ -1132,19 +1132,23 @@ fn binary_pow_interval(
   }
   let lower = approximation.coefficient_.sub_checked(radius).unwrap()
   let upper = approximation.coefficient_.add(radius)
+  // The endpoints keep the precision of the approximation: built at their own
+  // bit length, an endpoint in the implementation subnormal range would be
+  // flushed to zero or to the smallest value of that width.
+  let precision = approximation.precision_
   Some(
     (
       finite_from_parts(
         false,
         lower,
         approximation.exponent2,
-        lower.bit_length(),
+        Int32::max(precision, lower.bit_length()),
       ),
       finite_from_parts(
         false,
         upper,
         approximation.exponent2,
-        upper.bit_length(),
+        Int32::max(precision, upper.bit_length()),
       ),
     ),
   )
