@@ -115,8 +115,8 @@ class Protocol:
 
 
 PRESETS: dict[str, Protocol] = {
-    # Reported numbers: 5 AB/BA rounds of 20 confirmatory blocks of ~20 ms.
-    "standard": Protocol(3, 5000.0, 20000.0, 1, 1000000, 500000.0, 3, 20, 5, 2000),
+    # Reported numbers: 7 AB/BA rounds of 12 confirmatory blocks of ~20 ms.
+    "standard": Protocol(3, 5000.0, 20000.0, 1, 1000000, 500000.0, 3, 12, 7, 2000),
     # A smoke run: enough to exercise every path, not to publish.
     "quick": Protocol(1, 1000.0, 3000.0, 1, 1000000, 100000.0, 1, 4, 2, 200),
 }
@@ -647,6 +647,52 @@ def summary_document(
     }
 
 
+@dataclass(frozen=True)
+class Change:
+    case: str
+    old: float
+    new: float
+    verdict: str  # "slower", "faster" or "same"
+
+    @property
+    def change_pct(self) -> float:
+        return 100.0 * (self.new / self.old - 1.0)
+
+
+def compare_summaries(old: dict[str, object], new: dict[str, object]) -> list[Change]:
+    """Compare the floating/reference ratios of two summaries, case by case.
+
+    A case is "slower" (floating lost ground to the library) only when the 95%
+    interval of the new ratio lies entirely above that of the old one, and
+    "faster" when it lies entirely below; overlapping intervals are "same".
+    """
+    old_cases = {c["case"]: c["ratio"] for c in old["cases"]}  # type: ignore[index, union-attr]
+    changes = []
+    for case in new["cases"]:  # type: ignore[union-attr]
+        before = old_cases.get(case["case"])
+        if before is None:
+            continue
+        after = case["ratio"]
+        if after["ci_low"] > before["ci_high"]:
+            verdict = "slower"
+        elif after["ci_high"] < before["ci_low"]:
+            verdict = "faster"
+        else:
+            verdict = "same"
+        changes.append(Change(case["case"], before["ratio"], after["ratio"], verdict))
+    return changes
+
+
+def render_changes(changes: Sequence[Change]) -> str:
+    lines = ["| case | old ratio | new ratio | change | verdict |", "| --- | ---: | ---: | ---: | --- |"]
+    for change in changes:
+        lines.append(
+            f"| `{change.case}` | {format_ratio(change.old)} | {format_ratio(change.new)} "
+            f"| {change.change_pct:+.1f}% | {change.verdict} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
 # ---------------------------------------------------------------------------
 # Execution (impure)
 # ---------------------------------------------------------------------------
@@ -862,6 +908,8 @@ def command_run(args: argparse.Namespace) -> int:
                     print(f"WARNING: floating output differs from the reference in round {plan.index}: see {log}")
             print(f"round {plan.index} {side}: {time.monotonic() - started:.0f} s", flush=True)
     meta["load_average_end"] = os.getloadavg()
+    if platform.system() == "Darwin":
+        meta["power_end"] = capture(["pmset", "-g", "batt"]).splitlines()[:1]
     (out_dir / "machine.json").write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return finish(collected, protocol, args.seed, meta, out_dir)
 
@@ -898,14 +946,40 @@ def command_report(args: argparse.Namespace) -> int:
     return finish(collected, protocol, int(meta["order_seed"]), meta, out_dir)
 
 
+def module_version() -> str:
+    for line in (REPO_ROOT / "moon.mod").read_text(encoding="utf-8").splitlines():
+        if line.startswith("version"):
+            return line.split("=", 1)[1].strip().strip('"')
+    raise RuntimeError("moon.mod declares no version")
+
+
 def command_publish(args: argparse.Namespace) -> int:
-    """Copy the small summary of a run into testdata/ (raw JSONL stays in .tmp)."""
+    """Copy the summary of a run into testdata/ (raw JSONL stays in .tmp).
+
+    One `summary-<version>.json` is kept per release, so the ratios can be
+    tracked from release to release with `compare`; `summary.md` is the latest.
+    """
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
     document = json.loads((args.out / "results.json").read_text(encoding="utf-8"))
-    target = SUMMARY_DIR / "summary.json"
+    raw = sorted(args.out.glob("round-*/*.jsonl")) + sorted(args.out.glob("round-*/*.log"))
+    document["raw_sha256"] = {str(path.relative_to(args.out)): sha256_file(path) for path in raw}
+    document["raw_bytes"] = sum(path.stat().st_size for path in raw)
+    target = SUMMARY_DIR / f"summary-{module_version()}.json"
     target.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (SUMMARY_DIR / "summary.md").write_text((args.out / "results.md").read_text(encoding="utf-8"), encoding="utf-8")
     print(f"published {target}")
+    return 0
+
+
+def command_compare(args: argparse.Namespace) -> int:
+    """Print how the ratios of NEW moved against OLD."""
+    old = json.loads(args.old.read_text(encoding="utf-8"))
+    new = json.loads(args.new.read_text(encoding="utf-8"))
+    changes = compare_summaries(old, new)
+    print(render_changes(changes), end="")
+    slower = [c.case for c in changes if c.verdict == "slower"]
+    if slower:
+        print("slower than the library by more than the intervals: " + ", ".join(slower))
     return 0
 
 
@@ -943,6 +1017,11 @@ def build_parser() -> argparse.ArgumentParser:
     publish = sub.add_parser("publish", help="copy the summary of a run into testdata/external_baseline")
     publish.add_argument("--out", type=Path, default=DEFAULT_OUT)
     publish.set_defaults(func=command_publish)
+
+    compare = sub.add_parser("compare", help="compare the ratios of two published summaries")
+    compare.add_argument("old", type=Path)
+    compare.add_argument("new", type=Path)
+    compare.set_defaults(func=command_compare)
     return parser
 
 

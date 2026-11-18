@@ -198,6 +198,23 @@ class ReductionTests(unittest.TestCase):
         self.assertEqual(eb.format_ratio(1234.5), "1234")
 
 
+class ComparisonTests(unittest.TestCase):
+    @staticmethod
+    def summary(ratios: dict[str, tuple[float, float, float]]) -> dict[str, object]:
+        return {"cases": [{"case": c, "ratio": {"ratio": r, "ci_low": lo, "ci_high": hi}} for c, (r, lo, hi) in ratios.items()]}
+
+    def test_verdicts_follow_interval_overlap(self) -> None:
+        old = self.summary({"a": (10.0, 9.0, 11.0), "b": (10.0, 9.0, 11.0), "c": (10.0, 9.0, 11.0), "d": (1.0, 1.0, 1.0)})
+        new = self.summary({"a": (15.0, 14.0, 16.0), "b": (5.0, 4.0, 6.0), "c": (10.5, 9.8, 11.5), "e": (1.0, 1.0, 1.0)})
+        changes = {c.case: c for c in eb.compare_summaries(old, new)}
+        self.assertEqual(set(changes), {"a", "b", "c"})
+        self.assertEqual(changes["a"].verdict, "slower")
+        self.assertEqual(changes["b"].verdict, "faster")
+        self.assertEqual(changes["c"].verdict, "same")
+        self.assertAlmostEqual(changes["a"].change_pct, 50.0)
+        self.assertIn("| `a` | 10.00 | 15.00 | +50.0% | slower |", eb.render_changes(list(changes.values())))
+
+
 class ProtocolTests(unittest.TestCase):
     def test_both_sides_receive_the_same_numbers(self) -> None:
         protocol = eb.PRESETS["standard"]
