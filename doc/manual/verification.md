@@ -527,7 +527,7 @@ or the page that documents the decision.
 | IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
-| IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `bin_float` and `decimal` | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
+| IEEE 754-2019 §9.2 | Missing `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi` in `bin_float`, and all of those and `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `decimal` | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
 | IEEE 754-2019 §5.4.1 | `decimal` has no convertToInteger | [#226](https://github.com/Luna-Flow/floating/issues/226) |

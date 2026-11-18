@@ -164,8 +164,8 @@ pub fn MpfrPowDocument::case_count(Self) -> Int
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 ```
 
-`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`,
-`log1p`, `sqrt`, `rootn`, `pown`, `pow`, `hypot`, `sin`, `cos`, `tan`,
+`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`,
+`log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rootn`, `pown`, `pow`, `hypot`, `sin`, `cos`, `tan`,
 `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`,
 `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits
 (`y` is `-` when unused), `n` is the integer argument of `rootn` and `pown`,

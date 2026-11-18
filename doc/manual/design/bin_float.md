@@ -389,6 +389,26 @@ $\circ_{p,\infty}$ with no exponent range at all, not an unbounded context,
 which still has gradual underflow at the implementation limit
 $2^{e_{\min}}$.
 
+**One layer for the new recommended functions.** The defects of the range
+audit (an exact power of two flushed by a one-bit `BinFloat::make`, a shortcut
+returning before a signaling NaN is seen, an unbounded context used as a
+range-free rounding) were each a pattern that a function could write again.
+`exp2m1`, `exp10m1`, `log2p1` and `log10p1`, and the families that follow in
+[#235](https://github.com/Luna-Flow/floating/issues/235), therefore take four
+decisions from one internal file (`elementary_range.mbt`): the NaN and pole
+results (`binary_nan_unary`, `binary_pole_result`, a signaling NaN first); an
+exact result rounded as a dyadic by the finalizer, never built as a
+`BinFloat` (`binary_integer_result`, `binary_pow2_minus_one_integer`); the
+overflow decision of $b^x - 1$ from certified bounds of $\log_2 b$
+(`binary_positive_exp_minus_one_overflow`, including the window
+$x \log_2 b \in [e_{\max} + 1, e_{\max} + 2)$ and, for base 2,
+$x > e_{\max} + 1$ with $x - (e_{\max} + 1) \ge 2^{-(e_{\max} + 1) + 1}$);
+and one Ziv driver (`binary_ziv_round`). For an integer $n$ with $n \ge p + 2$
+the value $2^n - 1$ lies in the open interval between the midpoint under $2^n$
+and $2^n$, where every value rounds alike in each direction, so a
+representative of the same binade stands for it and the huge integer is never
+formed; below $p + 2$ bits it is exact or a tie and is rounded as it is.
+
 ### Signed zeros and NaNs
 
 An exact zero sum $a + b = 0$ with $a, b$ of opposite sign is $+0$ in every

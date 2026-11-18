@@ -1485,6 +1485,41 @@ $x \le -(p+3)\ln 2$ the value lies within $2^{-(p+3)}$ above $-1$, and the
 result is decided from the rounding direction alone: $-1$, or
 $-(1 - 2^{-p})$ when rounding toward zero or $+\infty$, always inexact.
 
+### `BinFloat::exp2m1`, `BinFloat::exp2m1_ctx`, `BinFloat::try_exp2m1_ctx`
+
+$2^x - 1$ without the cancellation of `exp2(x) - 1` near zero.
+
+```mbti
+pub fn BinFloat::exp2m1(Self) -> Self
+pub fn BinFloat::exp2m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_exp2m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+IEEE 754-2019 §9.2: $\operatorname{exp2m1}(\pm 0) = \pm 0$,
+$\operatorname{exp2m1}(-\infty) = -1$ and $\operatorname{exp2m1}(+\infty) = +\infty$,
+with no exception. An integral $x$ gives the exact integer $2^x - 1$ (or
+$-(1 - 2^{x})$ for $x < 0$), rounded as a dyadic: exact or a rounding tie while
+it has at most $p + 1$ bits, and otherwise the neighbour of $2^x$ chosen by the
+rounding direction without forming $2^x - 1$. For $x \le -(p + 3)$ the value
+lies within $2^{-(p+3)}$ above $-1$ and the rounding direction alone decides
+(as for `expm1`). A result certainly beyond the exponent range is decided before
+the main loop, so $x$ near $e_{\max} + 1$ overflows with the correct flags.
+
+### `BinFloat::exp10m1`, `BinFloat::exp10m1_ctx`, `BinFloat::try_exp10m1_ctx`
+
+$10^x - 1$ without the cancellation of `exp10(x) - 1` near zero.
+
+```mbti
+pub fn BinFloat::exp10m1(Self) -> Self
+pub fn BinFloat::exp10m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_exp10m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer
+$x \le \max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic.
+Saturation towards $-1$ and the overflow decision follow `exp2m1`, with
+$\log_2 10$ in place of 1.
+
 ### `BinFloat::exp2`, `BinFloat::exp2_ctx`, `BinFloat::try_exp2_ctx`
 
 The power of two $2^x$.
@@ -1544,6 +1579,35 @@ The domain is $x > -1$. $\operatorname{log1p}(\pm 0) = \pm 0$,
 $\operatorname{log1p}(-1) = -\infty$ with `division_by_zero`, a finite
 $x < -1$ is a `domain_error`, and $-\infty$ gives a quiet NaN with
 `invalid_operation`.
+
+### `BinFloat::log2p1`, `BinFloat::log2p1_ctx`, `BinFloat::try_log2p1_ctx`
+
+$\log_2(1 + x)$ without the rounding of `1 + x`.
+
+```mbti
+pub fn BinFloat::log2p1(Self) -> Self
+pub fn BinFloat::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_log2p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $x \ge -1$ (Table 9.1). $\operatorname{log2p1}(\pm 0) = \pm 0$,
+$\operatorname{log2p1}(+\infty) = +\infty$, $\operatorname{log2p1}(-1) = -\infty$
+with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\infty$
+gives a quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and
+$x = -(1 - 2^{-k})$) gives the exact integer $k$ (and $-k$).
+
+### `BinFloat::log10p1`, `BinFloat::log10p1_ctx`, `BinFloat::try_log10p1_ctx`
+
+$\log_{10}(1 + x)$ without the rounding of `1 + x`.
+
+```mbti
+pub fn BinFloat::log10p1(Self) -> Self
+pub fn BinFloat::log10p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_log10p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The special values of `log2p1`. $x = 10^k - 1$ for an integer $k \ge 1$ gives
+the exact integer $k$.
 
 ### `BinFloat::log2`, `BinFloat::log2_ctx`, `BinFloat::try_log2_ctx`
 
@@ -2314,8 +2378,12 @@ pub fn BinFloat::equal_signaling(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::exp(Self) -> Self
 pub fn BinFloat::exp10(Self) -> Self
 pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp10m1(Self) -> Self
+pub fn BinFloat::exp10m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp2(Self) -> Self
 pub fn BinFloat::exp2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp2m1(Self) -> Self
+pub fn BinFloat::exp2m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::exp_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp_ln(Self) -> Self
@@ -2349,10 +2417,14 @@ pub fn BinFloat::ln(Self) -> Self
 pub fn BinFloat::ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log10(Self) -> Self
 pub fn BinFloat::log10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log10p1(Self) -> Self
+pub fn BinFloat::log10p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log1p(Self) -> Self
 pub fn BinFloat::log1p_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log2(Self) -> Self
 pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log2p1(Self) -> Self
+pub fn BinFloat::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::max(Self, Self) -> Self
@@ -2441,15 +2513,19 @@ pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp10m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp2m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_expm1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log10p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log2p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_rootn_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]

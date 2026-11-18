@@ -432,6 +432,28 @@ pub fn BinFloatResult::expm1(Self) -> Self
 pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
+### `BinFloatResult::exp2m1`, `BinFloatResult::exp2m1_ctx`
+
+$2^x - 1$, delegated to [`BinFloat::try_exp2m1_ctx`](bin_float.md#binfloatexp2m1-binfloatexp2m1_ctx-binfloattry_exp2m1_ctx).
+
+```mbti
+pub fn BinFloatResult::exp2m1(Self) -> Self
+pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a signaling NaN is a `DomainError`; $-\infty$ gives $-1$.
+
+### `BinFloatResult::exp10m1`, `BinFloatResult::exp10m1_ctx`
+
+$10^x - 1$, delegated to [`BinFloat::try_exp10m1_ctx`](bin_float.md#binfloatexp10m1-binfloatexp10m1_ctx-binfloattry_exp10m1_ctx).
+
+```mbti
+pub fn BinFloatResult::exp10m1(Self) -> Self
+pub fn BinFloatResult::exp10m1_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: as `exp2m1`.
+
 ### `BinFloatResult::exp2`, `BinFloatResult::exp2_ctx`
 
 $2^x$, delegated to [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx).
@@ -471,6 +493,28 @@ pub fn BinFloatResult::log1p_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
 Errors: a `DomainError` below $-1$, $-\infty$ included; a `DivisionByZero` error for $\operatorname{log1p}(-1)$.
+
+### `BinFloatResult::log2p1`, `BinFloatResult::log2p1_ctx`
+
+$\log_2(1 + x)$, delegated to [`BinFloat::try_log2p1_ctx`](bin_float.md#binfloatlog2p1-binfloatlog2p1_ctx-binfloattry_log2p1_ctx).
+
+```mbti
+pub fn BinFloatResult::log2p1(Self) -> Self
+pub fn BinFloatResult::log2p1_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` below $-1$, $-\infty$ included, and for a signaling NaN; a `DivisionByZero` error for $\operatorname{log2p1}(-1)$.
+
+### `BinFloatResult::log10p1`, `BinFloatResult::log10p1_ctx`
+
+$\log_{10}(1 + x)$, delegated to [`BinFloat::try_log10p1_ctx`](bin_float.md#binfloatlog10p1-binfloatlog10p1_ctx-binfloattry_log10p1_ctx).
+
+```mbti
+pub fn BinFloatResult::log10p1(Self) -> Self
+pub fn BinFloatResult::log10p1_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: as `log2p1`.
 
 ### `BinFloatResult::log2`, `BinFloatResult::log2_ctx`
 
@@ -776,8 +820,12 @@ pub fn BinFloatResult::err(@arithmetic.ArithmeticError) -> Self
 pub fn BinFloatResult::exp(Self) -> Self
 pub fn BinFloatResult::exp10(Self) -> Self
 pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp10m1(Self) -> Self
+pub fn BinFloatResult::exp10m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp2(Self) -> Self
 pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp2m1(Self) -> Self
+pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ln(Self) -> Self
 pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
@@ -798,10 +846,14 @@ pub fn BinFloatResult::ln(Self) -> Self
 pub fn BinFloatResult::ln_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::log10(Self) -> Self
 pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log10p1(Self) -> Self
+pub fn BinFloatResult::log10p1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::log1p(Self) -> Self
 pub fn BinFloatResult::log1p_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::log2(Self) -> Self
 pub fn BinFloatResult::log2_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log2p1(Self) -> Self
+pub fn BinFloatResult::log2p1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::map(Self, (@bin_float.BinFloat) -> @bin_float.BinFloat) -> Self
 pub fn BinFloatResult::max(Self, Self) -> Self
 pub fn BinFloatResult::min(Self, Self) -> Self
