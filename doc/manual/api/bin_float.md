@@ -527,14 +527,18 @@ bit of `y`.
 
 ### `BinFloat::div_checked`
 
-Divides, returning an error for a zero divisor.
+Divides, returning an error for an invalid operation or a division by zero.
 
 ```mbti
 pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-A finite zero divisor (including $0/0$) gives a `division_by_zero` error.
-Otherwise the result is that of `div`.
+The result is that of `div`, except for the two IEEE 754-2019 exceptions
+without a usable value: an invalid operation (§7.2: $0/0$, $\infty/\infty$
+or a signaling NaN operand) is a `domain_error`, and a finite non-zero
+dividend over a signed zero (§7.3) is a `division_by_zero` error. A quiet NaN
+operand gives `Ok` of a quiet NaN (§6.2), and $\pm\infty/0$ gives `Ok` of the
+signed infinity.
 
 ### `BinFloat::sqrt`, `sqrt_for_precision`, `sqrt_bounds_for_precision`
 
@@ -548,9 +552,9 @@ pub fn sqrt_bounds_for_precision(BinFloat, Int) -> Result[(BinFloat, BinFloat), 
 
 `x.sqrt()` rounds $\sqrt{x}$ to nearest-even at the precision of `x`;
 `sqrt_for_precision(x, p)` does the same at precision `p`. Both return a
-`domain_error` for a negative nonzero argument (including $-\infty$ and a
-NaN with its sign bit set); $\sqrt{-0} = -0$, and a positive NaN gives `Ok`
-of a quiet NaN.
+`domain_error` for an invalid operation: a negative nonzero argument
+(including $-\infty$) or a signaling NaN. $\sqrt{-0} = -0$, and a quiet NaN
+of either sign gives `Ok` of a quiet NaN.
 `sqrt_bounds_for_precision(x, p)` returns $(\operatorname{RD}_p(\sqrt x),
 \operatorname{RU}_p(\sqrt x))$, an enclosure of width at most one unit in the
 last place that collapses to a point when the root is exact. It needs a finite
@@ -568,8 +572,9 @@ pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 
 The two names are the same function. The result is $x^n$ correctly rounded to
 nearest-even at the precision of `x`, computed as in `pow_int_ctx`. A zero
-base with a negative exponent is a `division_by_zero` error; $x^0 = 1$ for
-every $x$, NaN included (a signaling NaN too, without an error).
+base with a negative exponent is a `division_by_zero` error, and a signaling
+NaN base with a non-zero exponent a `domain_error`; $x^0 = 1$ for every $x$,
+NaN included (a signaling NaN too, without an error).
 
 ### `BinFloat::fma`
 
@@ -2039,12 +2044,18 @@ pub fn BinFloat::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Re
 
 Each converts the `ArithmeticContext` with
 `BinaryContext::from_arithmetic_context` (which aborts for a precision above
-`binary_precision_max`), runs the contextual operation and drops the flags.
-`sqrt_checked` is a `domain_error` for a negative nonzero argument (as for
-`sqrt`, this includes $-\infty$ and a NaN with its sign bit set);
-`DivChecked::div_checked` is a `division_by_zero` error for a finite zero
-divisor; `pow_int_checked` is a `division_by_zero` error for a zero base with
-a negative exponent; `pow_nat_checked` never fails. The trait's
+`binary_precision_max`) and runs the contextual operation. The invalid flag
+becomes a `domain_error` and the division-by-zero flag a `division_by_zero`
+error; the other flags are dropped, so a NaN, an infinity, an overflow or an
+underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double`
+instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a
+negative nonzero argument (including $-\infty$) and a signaling NaN; a quiet
+NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error`
+for $0/0$, $\infty/\infty$ and a signaling NaN operand, and a
+`division_by_zero` error for a finite non-zero dividend over a signed zero;
+NaN$/0$ and $\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero`
+error for a zero base with a negative exponent, and both powers are a
+`domain_error` for a signaling NaN base with a non-zero exponent. The trait's
 `div_checked(x, y, ctx)` takes a context; the inherent
 [`BinFloat::div_checked`](#binfloatdiv_checked) does not.
 `CompareChecked::compare_checked` is the inherent
