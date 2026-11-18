@@ -2619,7 +2619,7 @@ msgid "The real $n$-th root $x^{1/n}$."
 msgstr ""
 
 #: manual/api/bin_float.md:1654
-msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
 msgstr ""
 
 #: manual/api/bin_float.md:1657
@@ -3048,7 +3048,7 @@ msgid "`rootn(n)` computes the real $n$-th root with `BinFloat::try_rootn_ctx`."
 msgstr ""
 
 #: manual/api/bin_float_checked.md:344
-msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$, for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
+msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
 msgstr ""
 
 #: manual/api/bin_float_checked.md:354
