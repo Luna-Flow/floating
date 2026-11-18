@@ -979,6 +979,89 @@ def command_run(args: argparse.Namespace) -> int:
     return finish(collected, protocol, args.seed, meta, out_dir)
 
 
+# ---------------------------------------------------------------------------
+# Quick check (floating side only, against the stored reference medians)
+# ---------------------------------------------------------------------------
+
+STORED_SUMMARY = SUMMARY_DIR / "summary-0.10.2.json"
+QUICK_TARGET_RATIO = 10.0
+
+
+def stored_medians(summary: dict[str, object]) -> dict[str, tuple[float, float]]:
+    """`case id -> (reference median ns, floating median ns)` of a published summary."""
+    medians: dict[str, tuple[float, float]] = {}
+    for entry in summary["cases"]:  # type: ignore[attr-defined]
+        medians[str(entry["case"])] = (
+            float(entry["reference"]["median_ns"]),
+            float(entry["floating"]["median_ns"]),
+        )
+    return medians
+
+
+def quick_rows(
+    floating: dict[str, float], stored: dict[str, tuple[float, float]], target: float
+) -> list[list[str]]:
+    """Table rows `case, floating ns, reference ns, ratio, ratio of the stored run, flag`."""
+    rows = []
+    for case_id in sorted(floating, key=_case_sort_key):
+        if case_id not in stored:
+            continue
+        reference_ns, stored_floating_ns = stored[case_id]
+        ratio = floating[case_id] / reference_ns
+        before = stored_floating_ns / reference_ns
+        rows.append([
+            case_id, format_ns(floating[case_id]), format_ns(reference_ns),
+            f"{ratio:.1f}", f"{before:.1f}", ">" + f"{target:g}x" if ratio > target else "ok",
+        ])  # fmt: skip
+    return rows
+
+
+def render_quick(rows: Sequence[Sequence[str]]) -> str:
+    header = ["case", "floating", "reference (stored)", "ratio", "ratio (stored run)", f"vs {QUICK_TARGET_RATIO:g}x"]
+    table = [header, *rows]
+    widths = [max(len(row[i]) for row in table) for i in range(len(header))]
+    return "\n".join(
+        "  ".join(cell.ljust(widths[i]) if i == 0 else cell.rjust(widths[i]) for i, cell in enumerate(row))
+        for row in table
+    )
+
+
+def floating_medians(collected: Collected) -> dict[str, float]:
+    return {
+        case: median(pooled(samples))
+        for case, samples in collected.floating.items()
+        if not case.split("/")[1] == "null"
+    }
+
+
+def command_quick(args: argparse.Namespace) -> int:
+    """Floating side only: a few rounds, the reference medians come from a stored summary.
+
+    The MPFR and libmpdec medians do not change between runs, so this skips the C
+    harness and the quiet-machine gate. The numbers are for finding gaps and for
+    paired comparisons of two builds, not for publishing: the machine state of
+    the stored run differs from today's.
+    """
+    protocol = PRESETS["quick"]
+    protocol = Protocol(**{**asdict(protocol), "rounds": args.rounds})
+    stored = stored_medians(json.loads(args.stored.read_text(encoding="utf-8")))
+    out_dir: Path = args.out
+    out_dir.mkdir(parents=True, exist_ok=True)
+    inputs, cases = prepare_inputs(args, out_dir)
+    case_ids = [c.id for c in cases]
+    collected = Collected()
+    for round_index in range(protocol.rounds):
+        output = run_floating(inputs, None, case_ids, protocol, args.seed, round_index)
+        (out_dir / f"quick-round-{round_index}.log").write_text(output, encoding="utf-8")
+        add_floating_events(collected, round_index, parse_jsonl(output, EVENT_MARKER))
+        print(f"round {round_index} done", flush=True)
+    rows = quick_rows(floating_medians(collected), stored, args.target)
+    print(render_quick(rows))
+    if args.json is not None:
+        args.json.write_text(json.dumps({row[0]: row[1:] for row in rows}, indent=1) + "\n", encoding="utf-8")
+    return 0
+
+
 def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, object], out_dir: Path) -> int:
     results = reduce_results(collected, protocol, seed)
     overhead = overhead_results(collected, protocol, seed)
@@ -1075,6 +1158,15 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--cc", default=os.environ.get("CC", "cc"))
     run.add_argument("--cflags", default=os.environ.get("EXTBENCH_CFLAGS", "-O2"))
     run.set_defaults(func=command_run)
+
+    quick = sub.add_parser("quick", help="floating side only, against the stored reference medians")
+    common(quick)
+    quick.add_argument("--rounds", type=int, default=2)
+    quick.add_argument("--seed", type=int, default=INPUT_SEED)
+    quick.add_argument("--stored", type=Path, default=STORED_SUMMARY, help="published summary giving the reference medians")
+    quick.add_argument("--target", type=float, default=QUICK_TARGET_RATIO, help="ratio above which a cell is flagged")
+    quick.add_argument("--json", type=Path, default=None, help="also write the rows as JSON")
+    quick.set_defaults(func=command_quick)
 
     report = sub.add_parser("report", help="reduce the raw rounds of an earlier run again")
     report.add_argument("--out", type=Path, default=DEFAULT_OUT)

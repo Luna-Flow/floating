@@ -9,6 +9,7 @@ toolkit and the statistics are in the [bench tutorial](../bench.md).
 | --- | --- |
 | run the baseline | [`just bench external run`](#quick-start) |
 | try it quickly before a real run | [`just bench external run --preset quick`](#quick-start) |
+| see the gaps without the C side, a few rounds | [`just bench external quick`](#check-the-gaps-quickly) |
 | restrict the matrix | [`--ops`, `--binary-precisions`, `--decimal-digits`](#restrict-the-matrix) |
 | re-reduce raw rounds without measuring | [`just bench external report`](#re-reduce-and-publish) |
 | keep a summary in the repository | [`just bench external publish`](#re-reduce-and-publish) |
@@ -61,6 +62,24 @@ just bench external run --preset quick --ops add sqrt
 
 The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path
 but is not a measurement to publish.
+
+### Check the gaps quickly
+
+```bash
+just bench external quick --ops exp ln --binary-precisions 53 512
+```
+
+`quick` times only `floating`, in two rounds with short batches, and divides by
+the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json`
+(`--stored` names another summary). Those reference timings do not change, so
+the C side is not built or run, and the runner does not wait for a quiet
+machine. The table shows the time of `floating`, the stored reference time, the
+ratio, the ratio of the stored run and a flag for ratios above `--target`
+(10 by default). The machine state of the stored run differs from today's, so
+read a single absolute ratio as a guide and decide a change by timing the old
+and the new build alternately on the same machine. The floating results are
+checked against an untimed pass of the same function, not against the C library;
+only `run` validates against MPFR and libmpdec.
 
 ### Re-reduce and publish
 

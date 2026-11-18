@@ -3556,13 +3556,13 @@ msgid "Test files"
 msgstr ""
 
 #: manual/api/consistency.md:40
-#: manual/tutorial/bench/external.md:38
+#: manual/tutorial/bench/external.md:39
 msgid "File"
 msgstr ""
 
 #: manual/api/consistency.md:40
 #: manual/api/differential.md:65
-#: manual/tutorial/bench/external.md:38
+#: manual/tutorial/bench/external.md:39
 msgid "Content"
 msgstr ""
 
@@ -19230,7 +19230,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
 #: manual/tutorial/bench/decimal_gda.md:16
-#: manual/tutorial/bench/external.md:18
+#: manual/tutorial/bench/external.md:19
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
@@ -19290,7 +19290,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
-#: manual/tutorial/bench/external.md:46
+#: manual/tutorial/bench/external.md:47
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
@@ -19463,7 +19463,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:97
+#: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
@@ -19534,7 +19534,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:106
+#: manual/tutorial/bench/external.md:125
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
@@ -20171,118 +20171,130 @@ msgid "try it quickly before a real run"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:12
-msgid "restrict the matrix"
+msgid "see the gaps without the C side, a few rounds"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:13
-msgid "re-reduce raw rounds without measuring"
+msgid "restrict the matrix"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:14
-msgid "keep a summary in the repository"
+msgid "re-reduce raw rounds without measuring"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:15
+msgid "keep a summary in the repository"
+msgstr ""
+
+#: manual/tutorial/bench/external.md:16
 msgid "see how the ratios moved since a release"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:16
+#: manual/tutorial/bench/external.md:17
 msgid "understand what is timed"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:16
+#: manual/tutorial/bench/external.md:17
 msgid "[performance page](../../performance/bench/external.md#what-is-timed)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:20
+#: manual/tutorial/bench/external.md:21
 msgid "The baseline needs a C compiler and the headers and libraries of MPFR, GMP and mpdecimal. The runner looks for them under `/opt/homebrew`; set `--prefix` or `EXTBENCH_PREFIX` for another location. From the repository root:"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:28
+#: manual/tutorial/bench/external.md:29
 msgid "The run builds `tools/external_baseline.c`, writes the operand file, asks the C harness for the reference results, checks `floating` against them while it is timed, and alternates the two sides over seven rounds, waiting before each side until the machine is quiet (under 150% CPU used by other processes; `--no-gate` turns this off). It takes about 40 minutes on the machine of the reported run, because the slowest cases (elementary functions at 8192 bits and 1000 digits) run for hundreds of milliseconds per operation. Run it on AC power and close other heavy work: the load of other processes is the main source of noise. The files land in `.tmp/external`:"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:40
+#: manual/tutorial/bench/external.md:41
 msgid "the operands both sides read"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:41
+#: manual/tutorial/bench/external.md:42
 msgid "MPFR and libmpdec results for those operands"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:42
+#: manual/tutorial/bench/external.md:43
 msgid "CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:43
+#: manual/tutorial/bench/external.md:44
 msgid "raw observations of each round"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:44
+#: manual/tutorial/bench/external.md:45
 msgid "medians, intervals, ratios"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:48
+#: manual/tutorial/bench/external.md:49
 msgid "Restrict the matrix"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:54
+#: manual/tutorial/bench/external.md:55
 msgid "A restricted run writes its own directory, so it never mixes with a full run."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:56
+#: manual/tutorial/bench/external.md:57
 msgid "Try a run quickly"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:62
+#: manual/tutorial/bench/external.md:63
 msgid "The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path but is not a measurement to publish."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:65
-msgid "Re-reduce and publish"
+#: manual/tutorial/bench/external.md:66
+msgid "Check the gaps quickly"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:72
-msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring. `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION.json`, one file per release, and refreshes `summary.md`; the raw JSONL stays out of the repository."
-msgstr ""
-
-#: manual/tutorial/bench/external.md:78
-msgid "Compare two releases"
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
 msgstr ""
 
 #: manual/tutorial/bench/external.md:84
-msgid "prints the ratio of every case in both files, the change in percent, and a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
+msgid "Re-reduce and publish"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:90
-msgid "Read a ratio"
+#: manual/tutorial/bench/external.md:91
+msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring. `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION.json`, one file per release, and refreshes `summary.md`; the raw JSONL stays out of the repository."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:92
-msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divided by the median time of the reference library, with a 95% bootstrap interval. Above 1 means `floating` is slower. An asterisk marks a cell whose measurements spread more than the dispersion thresholds on the performance page."
-msgstr ""
-
-#: manual/tutorial/bench/external.md:99
-msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
-msgstr ""
-
-#: manual/tutorial/bench/external.md:101
-msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
+#: manual/tutorial/bench/external.md:97
+msgid "Compare two releases"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:103
-msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
-msgstr ""
-
-#: manual/tutorial/bench/external.md:108
-msgid "[bench/external API](../../api/bench/external.md)"
+msgid "prints the ratio of every case in both files, the change in percent, and a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
 msgstr ""
 
 #: manual/tutorial/bench/external.md:109
+msgid "Read a ratio"
+msgstr ""
+
+#: manual/tutorial/bench/external.md:111
+msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divided by the median time of the reference library, with a 95% bootstrap interval. Above 1 means `floating` is slower. An asterisk marks a cell whose measurements spread more than the dispersion thresholds on the performance page."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:118
+msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:120
+msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:122
+msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:127
+msgid "[bench/external API](../../api/bench/external.md)"
+msgstr ""
+
+#: manual/tutorial/bench/external.md:128
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:110
+#: manual/tutorial/bench/external.md:129
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr ""
 

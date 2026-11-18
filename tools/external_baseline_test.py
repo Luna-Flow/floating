@@ -244,5 +244,40 @@ class ProtocolTests(unittest.TestCase):
             os.environ["PATH"] = old
 
 
+class QuickCheckTests(unittest.TestCase):
+    def test_stored_medians_read_a_published_summary(self) -> None:
+        summary = {"cases": [
+            {"case": "binary/add/53", "reference": {"median_ns": 4.0}, "floating": {"median_ns": 100.0}},
+            {"case": "decimal/ln/16", "reference": {"median_ns": 10000.0}, "floating": {"median_ns": 200000.0}},
+        ]}  # fmt: skip
+        self.assertEqual(
+            eb.stored_medians(summary),
+            {"binary/add/53": (4.0, 100.0), "decimal/ln/16": (10000.0, 200000.0)},
+        )
+
+    def test_rows_flag_cells_above_the_target_and_order_by_case(self) -> None:
+        stored = {"binary/add/53": (4.0, 100.0), "binary/exp/53": (500.0, 30000.0), "binary/add/128": (6.0, 120.0)}
+        floating = {"binary/exp/53": 2500.0, "binary/add/53": 50.0, "binary/add/128": 30.0, "binary/ln/53": 1.0}
+        rows = eb.quick_rows(floating, stored, 10.0)
+        self.assertEqual([row[0] for row in rows], ["binary/add/53", "binary/add/128", "binary/exp/53"])
+        by_case = {row[0]: row for row in rows}
+        self.assertEqual(by_case["binary/add/53"][3:], ["12.5", "25.0", ">10x"])
+        self.assertEqual(by_case["binary/add/128"][3:], ["5.0", "20.0", "ok"])
+        self.assertEqual(by_case["binary/exp/53"][3:], ["5.0", "60.0", "ok"])
+
+    def test_render_aligns_columns(self) -> None:
+        text = eb.render_quick(eb.quick_rows({"binary/add/53": 50.0}, {"binary/add/53": (4.0, 100.0)}, 10.0))
+        lines = text.splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(lines[0].startswith("case"))
+        self.assertIn("binary/add/53", lines[1])
+
+    def test_overhead_cases_are_left_out_of_the_medians(self) -> None:
+        collected = eb.Collected()
+        collected.floating["binary/null/53"] = {0: [9.0]}
+        collected.floating["binary/add/53"] = {0: [100.0, 120.0, 110.0]}
+        self.assertEqual(eb.floating_medians(collected), {"binary/add/53": 110.0})
+
+
 if __name__ == "__main__":
     unittest.main()

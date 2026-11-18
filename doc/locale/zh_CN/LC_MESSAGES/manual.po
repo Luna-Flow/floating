@@ -3570,13 +3570,13 @@ msgid "Test files"
 msgstr "测试文件"
 
 #: manual/api/consistency.md:40
-#: manual/tutorial/bench/external.md:38
+#: manual/tutorial/bench/external.md:39
 msgid "File"
 msgstr "文件"
 
 #: manual/api/consistency.md:40
 #: manual/api/differential.md:65
-#: manual/tutorial/bench/external.md:38
+#: manual/tutorial/bench/external.md:39
 msgid "Content"
 msgstr "内容"
 
@@ -19336,7 +19336,7 @@ msgstr "报告多步计算中的第一个失败"
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
 #: manual/tutorial/bench/decimal_gda.md:16
-#: manual/tutorial/bench/external.md:18
+#: manual/tutorial/bench/external.md:19
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
@@ -19396,7 +19396,7 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
-#: manual/tutorial/bench/external.md:46
+#: manual/tutorial/bench/external.md:47
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
@@ -19569,7 +19569,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:97
+#: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
@@ -19640,7 +19640,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:106
+#: manual/tutorial/bench/external.md:125
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
@@ -20277,118 +20277,130 @@ msgid "try it quickly before a real run"
 msgstr "在正式运行前先快速试跑"
 
 #: manual/tutorial/bench/external.md:12
+msgid "see the gaps without the C side, a few rounds"
+msgstr "不含 C 一侧、几轮即可看到差距"
+
+#: manual/tutorial/bench/external.md:13
 msgid "restrict the matrix"
 msgstr "限制矩阵范围"
 
-#: manual/tutorial/bench/external.md:13
+#: manual/tutorial/bench/external.md:14
 msgid "re-reduce raw rounds without measuring"
 msgstr "不重新测量，重新归约原始轮次数据"
 
-#: manual/tutorial/bench/external.md:14
+#: manual/tutorial/bench/external.md:15
 msgid "keep a summary in the repository"
 msgstr "在仓库中保存摘要"
 
-#: manual/tutorial/bench/external.md:15
+#: manual/tutorial/bench/external.md:16
 msgid "see how the ratios moved since a release"
 msgstr "查看自某个版本以来比值如何变化"
 
-#: manual/tutorial/bench/external.md:16
+#: manual/tutorial/bench/external.md:17
 msgid "understand what is timed"
 msgstr "了解计时的内容"
 
-#: manual/tutorial/bench/external.md:16
+#: manual/tutorial/bench/external.md:17
 msgid "[performance page](../../performance/bench/external.md#what-is-timed)"
 msgstr "[性能页面](../../performance/bench/external.md#what-is-timed)"
 
-#: manual/tutorial/bench/external.md:20
+#: manual/tutorial/bench/external.md:21
 msgid "The baseline needs a C compiler and the headers and libraries of MPFR, GMP and mpdecimal. The runner looks for them under `/opt/homebrew`; set `--prefix` or `EXTBENCH_PREFIX` for another location. From the repository root:"
 msgstr "基线需要 C 编译器以及 MPFR、GMP 和 mpdecimal 的头文件和库。运行器在 `/opt/homebrew` 下查找它们；对其他位置请设置 `--prefix` 或 `EXTBENCH_PREFIX`。在仓库根目录执行："
 
-#: manual/tutorial/bench/external.md:28
+#: manual/tutorial/bench/external.md:29
 msgid "The run builds `tools/external_baseline.c`, writes the operand file, asks the C harness for the reference results, checks `floating` against them while it is timed, and alternates the two sides over seven rounds, waiting before each side until the machine is quiet (under 150% CPU used by other processes; `--no-gate` turns this off). It takes about 40 minutes on the machine of the reported run, because the slowest cases (elementary functions at 8192 bits and 1000 digits) run for hundreds of milliseconds per operation. Run it on AC power and close other heavy work: the load of other processes is the main source of noise. The files land in `.tmp/external`:"
 msgstr "该运行会构建 `tools/external_baseline.c`，写入操作数文件，向 C 测试程序索取参考结果，在计时的同时对照参考结果检查 `floating`，并在七轮中交替运行两侧，每一侧开始之前等待机器安静（其他进程使用的 CPU 低于 150%；`--no-gate` 可关闭这一等待）。在所报告运行的机器上大约需要 40 分钟，因为最慢的用例（8192 位和 1000 位数字的初等函数）每次操作要运行数百毫秒。请使用交流电运行，并关闭其他重负载的工作：其他进程的负载是噪声的主要来源。文件写入 `.tmp/external`："
 
-#: manual/tutorial/bench/external.md:40
+#: manual/tutorial/bench/external.md:41
 msgid "the operands both sides read"
 msgstr "两侧读取的操作数"
 
-#: manual/tutorial/bench/external.md:41
+#: manual/tutorial/bench/external.md:42
 msgid "MPFR and libmpdec results for those operands"
 msgstr "这些操作数的 MPFR 和 libmpdec 结果"
 
-#: manual/tutorial/bench/external.md:42
+#: manual/tutorial/bench/external.md:43
 msgid "CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above"
 msgstr "CPU、操作系统、编译器、库、`moon` 和 `moonc` 的版本，修订版本，以及上面两个文件的校验和"
 
-#: manual/tutorial/bench/external.md:43
+#: manual/tutorial/bench/external.md:44
 msgid "raw observations of each round"
 msgstr "每一轮的原始观测值"
 
-#: manual/tutorial/bench/external.md:44
+#: manual/tutorial/bench/external.md:45
 msgid "medians, intervals, ratios"
 msgstr "中位数、区间、比值"
 
-#: manual/tutorial/bench/external.md:48
+#: manual/tutorial/bench/external.md:49
 msgid "Restrict the matrix"
 msgstr "限制矩阵范围"
 
-#: manual/tutorial/bench/external.md:54
+#: manual/tutorial/bench/external.md:55
 msgid "A restricted run writes its own directory, so it never mixes with a full run."
 msgstr "受限的运行写入它自己的目录，因此绝不会与完整运行混在一起。"
 
-#: manual/tutorial/bench/external.md:56
+#: manual/tutorial/bench/external.md:57
 msgid "Try a run quickly"
 msgstr "快速试跑"
 
-#: manual/tutorial/bench/external.md:62
+#: manual/tutorial/bench/external.md:63
 msgid "The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path but is not a measurement to publish."
 msgstr "`quick` 预设使用较短的批次和两轮，噪声远大于 `standard` 预设。它会走遍每条路径，但不是可以发布的测量。"
 
-#: manual/tutorial/bench/external.md:65
+#: manual/tutorial/bench/external.md:66
+msgid "Check the gaps quickly"
+msgstr "快速检查差距"
+
+#: manual/tutorial/bench/external.md:72
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
+msgstr "`quick` 只对 `floating` 计时，用较短的批次跑两轮，并除以保存在 `testdata/external_baseline/summary-0.10.2.json` 中的 MPFR 与 libmpdec 中位数（`--stored` 可指定另一个汇总）。这些参考时间不会变化，所以不构建也不运行 C 一侧，运行器也不会等待机器安静。表中给出 `floating` 的时间、保存的参考时间、比值、保存的那次运行的比值，以及对超过 `--target`（默认 10）的比值的标记。保存的那次运行与今天的机器状态不同，因此单个绝对比值只能作参考；判断一项改动应在同一台机器上交替计时旧构建与新构建。`floating` 的结果与同一函数的一次不计时运行比对，而不是与 C 库比对；只有 `run` 才会与 MPFR 和 libmpdec 校验。"
+
+#: manual/tutorial/bench/external.md:84
 msgid "Re-reduce and publish"
 msgstr "重新归约与发布"
 
-#: manual/tutorial/bench/external.md:72
+#: manual/tutorial/bench/external.md:91
 msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring. `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION.json`, one file per release, and refreshes `summary.md`; the raw JSONL stays out of the repository."
 msgstr "`report` 重新归约 `.tmp/external` 中的原始轮次数据，例如在统计方法变化之后，无需重新测量。`publish` 把精简摘要作为 `summary-VERSION.json` 复制到 `testdata/external_baseline`，每个版本一个文件，并刷新 `summary.md`；原始 JSONL 不进入仓库。"
 
-#: manual/tutorial/bench/external.md:78
+#: manual/tutorial/bench/external.md:97
 msgid "Compare two releases"
 msgstr "比较两个版本"
 
-#: manual/tutorial/bench/external.md:84
+#: manual/tutorial/bench/external.md:103
 msgid "prints the ratio of every case in both files, the change in percent, and a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
 msgstr "打印两个文件中每个用例的比值、以百分比表示的变化，以及一个结论：新比值的区间完全高于旧区间时为 `slower`，完全低于旧区间时为 `faster`，否则为 `same`。比较的是比值而不是绝对时间，因此更快的机器不会掩盖退化；两次运行仍应来自同一类机器。"
 
-#: manual/tutorial/bench/external.md:90
+#: manual/tutorial/bench/external.md:109
 msgid "Read a ratio"
 msgstr "阅读比值"
 
-#: manual/tutorial/bench/external.md:92
+#: manual/tutorial/bench/external.md:111
 msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divided by the median time of the reference library, with a 95% bootstrap interval. Above 1 means `floating` is slower. An asterisk marks a cell whose measurements spread more than the dispersion thresholds on the performance page."
 msgstr "形如 `37.5 [36.9, 38.2]` 的单元格是 `floating` 的中位数时间除以参考库的中位数时间，附 95% 自助法区间。大于 1 表示 `floating` 更慢。星号标记测量离散超过性能页面上所述离散度阈值的单元格。"
 
-#: manual/tutorial/bench/external.md:99
+#: manual/tutorial/bench/external.md:118
 msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
 msgstr "只有当 `machine.json` 在 CPU、编译器和库版本上一致时，才比较不同的运行。"
 
-#: manual/tutorial/bench/external.md:101
+#: manual/tutorial/bench/external.md:120
 msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
 msgstr "验证失败会被报告，但不会中止计时：请查看 `WARNING` 行和 `results.json` 中的 `validation_failed_cases`。"
 
-#: manual/tutorial/bench/external.md:103
+#: manual/tutorial/bench/external.md:122
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr "测量期间不要运行其他重负载的工作；平均负载只在开始时记录。"
 
-#: manual/tutorial/bench/external.md:108
+#: manual/tutorial/bench/external.md:127
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr "[bench/external API](../../api/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:109
+#: manual/tutorial/bench/external.md:128
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr "[bench/external 设计](../../design/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:110
+#: manual/tutorial/bench/external.md:129
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr "[外部基线结果](../../performance/bench/external.md)"
 
