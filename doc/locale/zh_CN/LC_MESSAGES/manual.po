@@ -18458,7 +18458,7 @@ msgstr "只有在 target、toolchain、workload 和 benchmark protocol 相同的
 
 #: manual/performance/ball_float.md:36
 #: manual/performance/decimal.md:46
-#: manual/performance/decimal_gda.md:47
+#: manual/performance/decimal_gda.md:53
 msgid "Semantic gate"
 msgstr "语义门禁"
 
@@ -19544,7 +19544,19 @@ msgstr "`MAREMARK_JSONL` 是原始事件流，`MAREMARK_HOTSPOT` 报告 core 与
 msgid "Use the same target and toolchain when comparing artifacts. Normal benchmark tests compile their plans but skip timing, so an explicit benchmark command is required for measurement."
 msgstr "比较 artifact 时保持 target 和 toolchain 相同。普通 benchmark test 只编译 plan 而跳过计时，因此必须显式运行 benchmark command 才会产生测量。"
 
+#: manual/performance/decimal_gda.md:47
+msgid "Small-coefficient fast paths and the exponential"
+msgstr "小系数快速路径与指数函数"
+
 #: manual/performance/decimal_gda.md:49
+msgid "`add`, `subtract`, `multiply` and `divide` on operands whose coefficients are single-limb values (below 10^18) in an extended context of at most 18 digits (17 for `divide`) compute the exact sum, product or guarded quotient on `UInt64` pairs, round once to the precision with the context's rounding mode, and build the result and its flags directly, instead of going through the operand preparation, the normalization chain and the finalizer. The functions decline (and the general path answers) a NaN, an infinity, a zero, a wider coefficient or precision, a non-extended context, `ZeroFiveUp`, an exact zero sum, an exact quotient (whose preferred exponent the general path settles), exponents more than 19 places apart or near the implementation limits, and any result that would be clamped, subnormal, or beyond the exponent range of the context; the value, the flags and the next context are those of the general path. White-box tests compare 60,000 random operand pairs per operation over twelve precisions from 1 to 34, all eight rounding modes, narrow and wide exponent ranges, clamping, extended and basic contexts, all-nines and tie coefficients, cancelling sums and power-of-two and power-of-five divisors with the general path. Paired native runs at 16 digits: `add` 4.6 times, `multiply` 4.0 and `divide` 8.2 times faster; Wasm-GC 9.3, 10.2 and 7.8 times."
+msgstr "在扩展上下文中，精度至多 18 位（`divide` 为 17 位）、系数为单 limb 值（小于 10^18）的 `add`、`subtract`、`multiply` 与 `divide`，在 `UInt64` 对上计算精确的和、积或带保护位的商，按上下文的舍入模式一次舍入到该精度，并直接构造结果及其标志，而不经过操作数准备、规范化链与收尾函数。这些函数拒绝并交由通用路径处理：NaN、无穷、零、更宽的系数或精度、非扩展上下文、`ZeroFiveUp`、精确为零的和、精确的商（其优选指数由通用路径确定）、相距超过 19 位或接近实现极限的指数，以及任何会被钳制、次正规或超出上下文指数范围的结果；值、标志与下一个上下文都与通用路径相同。白盒测试对每种运算用 60,000 组随机操作数，覆盖 1 到 34 之间的十二种精度、全部八种舍入模式、窄与宽指数范围、钳制、扩展与基本上下文、全 9 与平局系数、相消的和以及 2 的幂与 5 的幂除数，与通用路径比较。Native 上 16 位的成对运行：`add` 快 4.6 倍，`multiply` 快 4.0 倍，`divide` 快 8.2 倍；Wasm-GC 上分别为 9.3、10.2 和 7.8 倍。"
+
+#: manual/performance/decimal_gda.md:51
+msgid "The certified exponential of an argument below 1000 in magnitude, in a context that holds every result (extended, not clamped, `e_min` at most -999,999 and `e_max` at least 999,999), starts from the binary enclosure alone: its midpoint, converted to decimal and padded to `precision + 8` digits, picks the rounding cell, and the enclosure at about 3.33 bits per digit plus 12 guard bits and 4 per decade of the argument certifies it. Previously only arguments in [1, 10) took this attempt, and every other argument evaluated the Taylor series in decimal arithmetic at four bits per digit plus 64, which dominated the cost. A hard case (an enclosure that straddles a cell boundary) falls back to the conservative precision and the decimal series, as before. White-box tests compare the result with that of the former procedure for 400 random arguments of 1 to 40 digits and adjusted exponents from -40 to 3 and for 150 arguments chosen so that the exponential lies within 10^-60 of a rounding midpoint (6,000 and 2,000 in a one-off run): the value, flags and cohort are the same. Paired native runs of `exp`: 3.9 times faster at 16 digits, 8.2 at 34, 22 at 100 and 305 at 1,000 digits."
+msgstr "在能容纳所有结果的上下文（扩展、不钳制、`e_min` 不大于 -999,999、`e_max` 不小于 999,999）中，模小于 1000 的参数的认证 `exp` 仅从二进制包络开始：其中点转换为十进制并补足到 `precision + 8` 位，选出舍入单元，每位约 3.33 比特加 12 个保护位、参数每个十进制量级再加 4 比特的包络对其进行认证。此前只有 [1, 10) 内的参数使用这一尝试，其余参数都按每位 4 比特加 64 在十进制算术中计算泰勒级数，那是主要开销。难例（包络跨越单元边界）仍回到保守精度与十进制级数，与以前一样。白盒测试把结果与以前的流程比较：400 个 1 到 40 位、调整指数从 -40 到 3 的随机参数，以及 150 个使指数值落在舍入中点 10^-60 之内的参数（一次性运行中为 6,000 与 2,000 个）：值、标志与同类（cohort）都相同。Native 上 `exp` 的成对运行：16 位快 3.9 倍，34 位快 8.2 倍，100 位快 22 倍，1,000 位快 305 倍。"
+
+#: manual/performance/decimal_gda.md:55
 msgid "The timing path is accepted only alongside the independent GDA state model and the pinned legal scalar corpus: 64,986/64,986 current rows and 16,124/16,124 legacy rows pass in the 0.7.1 audit. See [Conformance](../conformance/decimal_gda.md), [Design](../design/decimal_gda.md), and the [0.7.1 performance and semantic audit](../performance_audit.md)."
 msgstr "计时路径只有与独立的 GDA 状态模型和固定合法标量语料一起验证后才可接受：0.7.1 审计中的当前 64,986/64,986 行与 legacy 16,124/16,124 行全部通过。参见[一致性说明](../conformance/decimal_gda.md)、 [设计](../design/decimal_gda.md)和[0.7.1 性能与语义审计](../performance_audit.md)。"
 

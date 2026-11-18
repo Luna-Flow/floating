@@ -18458,7 +18458,7 @@ msgstr "artifact を比較する場合は target、toolchain、workload、benchm
 
 #: manual/performance/ball_float.md:36
 #: manual/performance/decimal.md:46
-#: manual/performance/decimal_gda.md:47
+#: manual/performance/decimal_gda.md:53
 msgid "Semantic gate"
 msgstr "意味論ゲート"
 
@@ -19544,7 +19544,19 @@ msgstr "`MAREMARK_JSONL` は raw event stream、`MAREMARK_HOTSPOT` は core と 
 msgid "Use the same target and toolchain when comparing artifacts. Normal benchmark tests compile their plans but skip timing, so an explicit benchmark command is required for measurement."
 msgstr "artifact を比較する場合は target と toolchain を固定します。通常の benchmark test は plan を compile するだけで timing を skip するため、測定には明示的な benchmark command が必要です。"
 
+#: manual/performance/decimal_gda.md:47
+msgid "Small-coefficient fast paths and the exponential"
+msgstr "小さい係数の高速経路と指数関数"
+
 #: manual/performance/decimal_gda.md:49
+msgid "`add`, `subtract`, `multiply` and `divide` on operands whose coefficients are single-limb values (below 10^18) in an extended context of at most 18 digits (17 for `divide`) compute the exact sum, product or guarded quotient on `UInt64` pairs, round once to the precision with the context's rounding mode, and build the result and its flags directly, instead of going through the operand preparation, the normalization chain and the finalizer. The functions decline (and the general path answers) a NaN, an infinity, a zero, a wider coefficient or precision, a non-extended context, `ZeroFiveUp`, an exact zero sum, an exact quotient (whose preferred exponent the general path settles), exponents more than 19 places apart or near the implementation limits, and any result that would be clamped, subnormal, or beyond the exponent range of the context; the value, the flags and the next context are those of the general path. White-box tests compare 60,000 random operand pairs per operation over twelve precisions from 1 to 34, all eight rounding modes, narrow and wide exponent ranges, clamping, extended and basic contexts, all-nines and tie coefficients, cancelling sums and power-of-two and power-of-five divisors with the general path. Paired native runs at 16 digits: `add` 4.6 times, `multiply` 4.0 and `divide` 8.2 times faster; Wasm-GC 9.3, 10.2 and 7.8 times."
+msgstr "拡張コンテキストで精度が 18 桁まで（`divide` は 17 桁）、係数が 1 リムの値（10^18 未満）の `add`、`subtract`、`multiply`、`divide` は、厳密な和、積、またはガード桁付きの商を `UInt64` の組で計算し、コンテキストの丸めモードで精度へ 1 回だけ丸めて、結果とそのフラグを直接作ります。オペランドの準備、正規化の連鎖、最終処理は通りません。次のものは扱わず、一般経路が答えます。NaN、無限大、ゼロ、より広い係数や精度、非拡張コンテキスト、`ZeroFiveUp`、厳密にゼロになる和、厳密な商（優先指数は一般経路が決めます）、19 桁を超えて離れた、または実装の限界に近い指数、そしてクランプされる、非正規化数になる、またはコンテキストの指数範囲を超える結果です。値、フラグ、次のコンテキストは一般経路と同じです。ホワイトボックステストは、演算ごとに 60,000 組のランダムなオペランドを、1 から 34 の間の 12 種類の精度、8 つの丸めモードすべて、狭い・広い指数範囲、クランプ、拡張と基本のコンテキスト、全て 9 と同値の係数、相殺する和、2 の冪と 5 の冪の除数にわたって一般経路と比較します。Native の 16 桁でのペア実行では、`add` が 4.6 倍、`multiply` が 4.0 倍、`divide` が 8.2 倍速く、Wasm-GC ではそれぞれ 9.3、10.2、7.8 倍です。"
+
+#: manual/performance/decimal_gda.md:51
+msgid "The certified exponential of an argument below 1000 in magnitude, in a context that holds every result (extended, not clamped, `e_min` at most -999,999 and `e_max` at least 999,999), starts from the binary enclosure alone: its midpoint, converted to decimal and padded to `precision + 8` digits, picks the rounding cell, and the enclosure at about 3.33 bits per digit plus 12 guard bits and 4 per decade of the argument certifies it. Previously only arguments in [1, 10) took this attempt, and every other argument evaluated the Taylor series in decimal arithmetic at four bits per digit plus 64, which dominated the cost. A hard case (an enclosure that straddles a cell boundary) falls back to the conservative precision and the decimal series, as before. White-box tests compare the result with that of the former procedure for 400 random arguments of 1 to 40 digits and adjusted exponents from -40 to 3 and for 150 arguments chosen so that the exponential lies within 10^-60 of a rounding midpoint (6,000 and 2,000 in a one-off run): the value, flags and cohort are the same. Paired native runs of `exp`: 3.9 times faster at 16 digits, 8.2 at 34, 22 at 100 and 305 at 1,000 digits."
+msgstr "すべての結果を保持できるコンテキスト（拡張、クランプなし、`e_min` が -999,999 以下、`e_max` が 999,999 以上）で、絶対値が 1000 未満の引数の認証付き `exp` は、2 進の包含区間だけから始めます。その中点を 10 進に変換して `precision + 8` 桁まで補い、丸めセルを選びます。1 桁あたり約 3.33 ビットに 12 ビットのガード、引数の 10 進の桁ごとに 4 ビットを加えた区間がそれを認証します。以前この試行を使うのは [1, 10) の引数だけで、ほかの引数はすべて 1 桁あたり 4 ビットに 64 を加えた精度で 10 進演算によるテイラー級数を計算しており、それが費用の大半でした。難しい場合（区間がセルの境界をまたぐ）は、従来どおり保守的な精度と 10 進の級数に戻ります。ホワイトボックステストは結果を従来の手順と比較します。1 から 40 桁、調整指数が -40 から 3 のランダムな引数 400 個と、指数の値が丸めの中点から 10^-60 以内になる引数 150 個（一度きりの実行では 6,000 個と 2,000 個）で、値、フラグ、コホートは同じです。Native の `exp` のペア実行では、16 桁で 3.9 倍、34 桁で 8.2 倍、100 桁で 22 倍、1,000 桁で 305 倍速くなります。"
+
+#: manual/performance/decimal_gda.md:55
 msgid "The timing path is accepted only alongside the independent GDA state model and the pinned legal scalar corpus: 64,986/64,986 current rows and 16,124/16,124 legacy rows pass in the 0.7.1 audit. See [Conformance](../conformance/decimal_gda.md), [Design](../design/decimal_gda.md), and the [0.7.1 performance and semantic audit](../performance_audit.md)."
 msgstr "timing path は独立した GDA state model と pinned legal scalar corpus と合わせて受け入れます。 0.7.1 audit では current 64,986/64,986 row と legacy 16,124/16,124 row が通過しています。 [Conformance](../conformance/decimal_gda.md)、[Design](../design/decimal_gda.md)、[0.7.1 Performance And Semantic Audit](../performance_audit.md)を参照してください。"
 
