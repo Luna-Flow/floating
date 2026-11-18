@@ -615,6 +615,13 @@ fn decimal_power_integer_bounded_result(
     let (reciprocal, reciprocal_flags) = decimal_div_finite_work(
       one, acc, work_ctx,
     )
+    // A tiny positive power has a reciprocal beyond the working range: the
+    // overflow of the result (IEEE 754-2019 7.4), with the sign of x^n, not a
+    // finite value to round to the context.
+    guard reciprocal.class == FpClass::Finite else {
+      let negative = base.negative && (abs_int(count) & 1) == 1
+      return decimal_overflow_result(negative, ctx)
+    }
     (reciprocal, flags.combine(reciprocal_flags))
   } else {
     (acc, flags)
@@ -711,6 +718,9 @@ fn decimal_power_large_integer_coeff_result(
     let (reciprocal, reciprocal_flags) = decimal_div_finite_work(
       one, acc, work_ctx,
     )
+    guard reciprocal.class == FpClass::Finite else {
+      return Some(decimal_overflow_result(base.negative && odd, ctx))
+    }
     (reciprocal, flags.combine(reciprocal_flags))
   } else {
     (acc, flags)

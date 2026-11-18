@@ -8653,7 +8653,7 @@ msgstr "reverse interval operation、選択 phase 外の全 decoration rule、�
 
 #: manual/conformance/ball_float.md:71
 #: manual/conformance/decimal.md:88
-#: manual/conformance/decimal_gda.md:84
+#: manual/conformance/decimal_gda.md:96
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -9545,19 +9545,31 @@ msgstr "コーパスへの合格は有限の主張にすぎません。実装の
 msgid "Integer `power` is accurate to about 0.55 units in the last place (0.6 for negative exponents), not correctly rounded, as the specification allows."
 msgstr "整数の `power` の精度は最終桁の単位で約 0.55（負の指数では 0.6）であり、正しく丸められてはいませんが、これは仕様で許されています。"
 
-#: manual/conformance/decimal_gda.md:73
+#: manual/conformance/decimal_gda.md:72
+msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
+msgstr "`power` の指数が 10 桁以上のときは計算されません。結果は Invalid operation を伴う NaN で、decNumber の設計上の制限です (仕様にはこの制限はありません)。Python `decimal` (libmpdec) と IEEE `decimal` パッケージはこれらのべき乗を計算します。"
+
+#: manual/conformance/decimal_gda.md:76
+msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
+msgstr "方向付き丸めモードでは、不正確な `power` は最後の桁が libmpdec と異なることがあります。仕様は不正確な `power` が正しく丸めた結果から最大 1 ulp ずれることを許しており、libmpdec もそこでは正しい丸めではないためです。"
+
+#: manual/conformance/decimal_gda.md:80
+msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
+msgstr "ゼロの底と負の指数の `power` は無限大で、条件は立ちません (libmpdec と同じ)。仕様の Division by zero は「被除数がゼロでない」場合に当てはまります。IEEE `decimal` パッケージはこれに divideByZero を立てます (IEEE 754-2019 §9.2.1)。"
+
+#: manual/conformance/decimal_gda.md:85
 msgid "Isolation and native benchmark"
 msgstr "分離とネイティブベンチマーク"
 
-#: manual/conformance/decimal_gda.md:75
+#: manual/conformance/decimal_gda.md:87
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "Production dependency scan は `decimal_gda`、`decimal_gda_checked`、 `frontend/gda_expr` に IEEE `decimal` import または GDA profile bridge がないことを要求します。IEEE test と independent conformance corpus は別に実行します。"
 
-#: manual/conformance/decimal_gda.md:79
+#: manual/conformance/decimal_gda.md:91
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "Quick benchmark は current engine だけを isolated snapshot で build し、cell ごとに 3 native sample を実行します。Arithmetic、parser、context、elementary の timing を観測しますが、performance を conformance requirement にせず、historical adapter とも比較しません。"
 
-#: manual/conformance/decimal_gda.md:93
+#: manual/conformance/decimal_gda.md:105
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、filter、phase、JSON output、failure triage は[decimal data guide](../../../testdata/decimal/README.md)を参照してください。"
 
