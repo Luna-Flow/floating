@@ -2631,8 +2631,8 @@ msgid "The real $n$-th root $x^{1/n}$."
 msgstr "实数 $n$ 次方根 $x^{1/n}$。"
 
 #: manual/api/bin_float.md:1654
-msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
-msgstr "$n = 0$ 为 `domain_error`。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
+msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+msgstr "$n = 0$ 为 `domain_error`，即无效操作，对任意 $x$ 都成立，安静 NaN 与 $\\pm 0$ 也不例外（IEEE 754-2019 表 9.1：“n = 0: invalid operation”）；它不是 `division_by_zero`，后者按 §7.3 只留给有限操作数上的精确无穷结果，这里即 $n < 0$ 的 $\\operatorname{rootn}(\\pm 0, n)$。此时 `rootn_ctx` 返回带 `invalid` 的安静 NaN。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
 
 #: manual/api/bin_float.md:1657
 msgid "odd $n > 0$"
@@ -3062,8 +3062,8 @@ msgid "`rootn(n)` computes the real $n$-th root with `BinFloat::try_rootn_ctx`."
 msgstr "`rootn(n)` 用 `BinFloat::try_rootn_ctx` 计算实数 $n$ 次方根。"
 
 #: manual/api/bin_float_checked.md:344
-msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$, for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
-msgstr "`rootn` 使用操作数精度下的无界上下文；`rootn_ctx` 使用给定的上下文。二者在次数为 $0$、对负数（包括 $-\\infty$）开偶次方根以及遇到信号 NaN 时报告 `DomainError`，对 $n < 0$ 的 $\\operatorname{rootn}(\\pm 0, n)$ 报告 `DivisionByZero` 错误（IEEE 754-2019 §9.2.1），并且可能报告 `CertificationFailure`。负数的奇次方根为负：`rootn(-8, 3)` 为 $-2$。完整的特殊值表见 [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)。"
+msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
+msgstr "`rootn` 使用操作数精度下的无界上下文；`rootn_ctx` 使用给定的上下文。二者在次数为 $0$（对任意操作数，安静 NaN 与 $\\pm 0$ 也包括在内，且绝不是 `DivisionByZero`：IEEE 754-2019 表 9.1，“n = 0: invalid operation”）、对负数（包括 $-\\infty$）开偶次方根以及遇到信号 NaN 时报告 `DomainError`，对 $n < 0$ 的 $\\operatorname{rootn}(\\pm 0, n)$ 报告 `DivisionByZero` 错误（IEEE 754-2019 §9.2.1），并且可能报告 `CertificationFailure`。负数的奇次方根为负：`rootn(-8, 3)` 为 $-2$。完整的特殊值表见 [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)。"
 
 #: manual/api/bin_float_checked.md:354
 msgid "`pow(y)` computes $x^{y}$ for a binary exponent with `BinFloat::try_pow_ctx`."
@@ -24844,6 +24844,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:538
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+#~ msgstr "$n = 0$ 为 `domain_error`。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
 
 #~ msgid "TestFloat gate (before and after rounding)"
 #~ msgstr "TestFloat 门禁 (舍入前与舍入后)"

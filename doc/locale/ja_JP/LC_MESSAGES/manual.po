@@ -2631,8 +2631,8 @@ msgid "The real $n$-th root $x^{1/n}$."
 msgstr "実数の $n$ 乗根 $x^{1/n}$。"
 
 #: manual/api/bin_float.md:1654
-msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
-msgstr "$n = 0$ は `domain_error` です。それ以外のすべての `Int` 次数を `Int.min` も含めてサポートします。NaN は伝播します。負の $n$ は $x^{-1/|n|}$ を与えます。"
+msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+msgstr "$n = 0$ は `domain_error`、つまり無効操作であり、静かな NaN や $\\pm 0$ を含むすべての $x$ で成り立ちます（IEEE 754-2019 表 9.1「n = 0: invalid operation」）。これは `division_by_zero` ではありません。§7.3 はそれを有限オペランドに対する厳密な無限大の結果、ここでは $n < 0$ の $\\operatorname{rootn}(\\pm 0, n)$ のためにとってあります。このとき `rootn_ctx` は `invalid` を伴う静かな NaN を返します。そのほかの `Int` の次数はすべて、`Int.min` を含めて扱えます。NaN は伝播します。負の $n$ は $x^{-1/|n|}$ を与えます。"
 
 #: manual/api/bin_float.md:1657
 msgid "odd $n > 0$"
@@ -3062,8 +3062,8 @@ msgid "`rootn(n)` computes the real $n$-th root with `BinFloat::try_rootn_ctx`."
 msgstr "`rootn(n)` は `BinFloat::try_rootn_ctx` で実数の $n$ 乗根を計算します。"
 
 #: manual/api/bin_float_checked.md:344
-msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$, for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
-msgstr "`rootn` はオペランドの精度の無制限コンテキストを、`rootn_ctx` は与えられたコンテキストを使用します。どちらも次数 $0$、$-\\infty$ を含む負の数の偶数乗根、signaling NaN に対して `DomainError` を、$n < 0$ の $\\operatorname{rootn}(\\pm 0, n)$ に対して `DivisionByZero` エラーを報告し（IEEE 754-2019 §9.2.1）、`CertificationFailure` を報告することもあります。負数の奇数乗根は負になります。`rootn(-8, 3)` は $-2$ です。特殊値の完全な表は [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx) にあります。"
+msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
+msgstr "`rootn` はオペランドの精度の無制限コンテキストを、`rootn_ctx` は与えられたコンテキストを使用します。どちらも次数 $0$（どのオペランドでも、静かな NaN と $\\pm 0$ を含み、`DivisionByZero` にはなりません。IEEE 754-2019 表 9.1「n = 0: invalid operation」）、$-\\infty$ を含む負の数の偶数乗根、signaling NaN に対して `DomainError` を、$n < 0$ の $\\operatorname{rootn}(\\pm 0, n)$ に対して `DivisionByZero` エラーを報告し（IEEE 754-2019 §9.2.1）、`CertificationFailure` を報告することもあります。負数の奇数乗根は負になります。`rootn(-8, 3)` は $-2$ です。特殊値の完全な表は [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx) にあります。"
 
 #: manual/api/bin_float_checked.md:354
 msgid "`pow(y)` computes $x^{y}$ for a binary exponent with `BinFloat::try_pow_ctx`."
@@ -24844,6 +24844,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:538
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "$n = 0$ is a `domain_error`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
+#~ msgstr "$n = 0$ は `domain_error` です。それ以外のすべての `Int` 次数を `Int.min` も含めてサポートします。NaN は伝播します。負の $n$ は $x^{-1/|n|}$ を与えます。"
 
 #~ msgid "TestFloat gate (before and after rounding)"
 #~ msgstr "TestFloat ゲート (丸め前と丸め後)"
