@@ -695,6 +695,72 @@ pub fn BinFloatResult::pow_ctx(
 }
 
 ///|
+pub fn BinFloatResult::rsqrt(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_rsqrt_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::rsqrt_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_rsqrt_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::compound(
+  self : BinFloatResult,
+  degree : Int32,
+) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_compound_ctx(degree, context)
+  })
+}
+
+///|
+pub fn BinFloatResult::compound_ctx(
+  self : BinFloatResult,
+  degree : Int32,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_compound_ctx(degree, ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::powr(
+  self : BinFloatResult,
+  exponent : BinFloatResult,
+) -> BinFloatResult {
+  BinFloatResult::from_result(
+    bin_result_lift2_checked(self.inner, exponent.inner, fn(base, power) {
+      let context = @bin_float.BinaryContext::unbounded(
+        Int32::max(base.precision(), power.precision()),
+      )
+      base.try_powr_ctx(power, context).bind(bin_result_checked_flags)
+    }),
+  )
+}
+
+///|
+pub fn BinFloatResult::powr_ctx(
+  self : BinFloatResult,
+  exponent : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  BinFloatResult::from_result(
+    bin_result_lift2_checked(self.inner, exponent.inner, fn(base, power) {
+      base.try_powr_ctx(power, context).bind(bin_result_checked_flags)
+    }),
+  )
+}
+
+///|
 pub fn BinFloatResult::sinh(self : BinFloatResult) -> BinFloatResult {
   bin_result_try_elementary(self, fn(value, context) {
     value.try_sinh_ctx(context)

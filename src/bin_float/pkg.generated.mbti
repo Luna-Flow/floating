@@ -101,6 +101,8 @@ pub fn BinFloat::compare(Self, Self) -> Int32
 pub fn BinFloat::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
+pub fn BinFloat::compound(Self, Int32) -> Self
+pub fn BinFloat::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::copy_sign(Self, Self) -> Self
 pub fn BinFloat::cos(Self) -> Self
 pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
@@ -194,6 +196,8 @@ pub fn BinFloat::pow_int_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::powr(Self, Self) -> Self
+pub fn BinFloat::powr_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::precision(Self) -> Int32
 pub fn BinFloat::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
 pub fn BinFloat::remainder(Self, Self) -> Self
@@ -203,6 +207,8 @@ pub fn BinFloat::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round(Self) -> Self
 pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ties_even(Self) -> Self
+pub fn BinFloat::rsqrt(Self) -> Self
+pub fn BinFloat::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::scaleb_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sign(Self) -> @def.Sign
 pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
@@ -249,6 +255,7 @@ pub fn BinFloat::try_asinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::try_atan2_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_compound_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
@@ -267,7 +274,9 @@ pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 pub fn BinFloat::try_log2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log2p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_powr_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_rootn_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_rsqrt_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]

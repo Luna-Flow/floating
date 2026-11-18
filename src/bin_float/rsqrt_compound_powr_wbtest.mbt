@@ -1,0 +1,347 @@
+// `rsqrt` (rSqrt), `compound` and `powr` (IEEE 754-2019 9.2, Table 9.1).
+//
+// Clauses, quoted from the text of IEEE Std 754-2019 (pdftotext of the PDF):
+//
+//   [9.2.1] "rSqrt(+∞) is +0 with no exception. rSqrt(±0) is ±∞ and signals the
+//           divideByZero exception." Table 9.1: rSqrt 1/√x, domain [0, +∞],
+//           "x < 0: invalid operation; x is ±0: divideByZero".
+//   [9.2.1] compound: "compound (x, 0) is 1 for x ≥ −1 or quiet NaN"; "compound
+//           (−1, n) is +∞ and signals the divideByZero exception for n < 0";
+//           "compound (−1, n) is +0 for n > 0"; "compound (±0, n) is 1";
+//           "compound (+∞, n) is +∞ for n > 0"; "compound (+∞, n) is +0 for
+//           n < 0"; "compound (x, n) is qNaN and signals the invalid operation
+//           exception for x < −1"; "compound (qNaN, n) is qNaN for n ≠ 0".
+//   [9.2.1] powr: "powr (x, ±0) is 1 for finite x > 0"; "powr (±0, y) is +∞ and
+//           signals the divideByZero exception for finite y < 0"; "powr (±0,
+//           −∞) is +∞"; "powr (±0, y) is +0 for y > 0"; "powr (+1, y) is 1 for
+//           finite y"; "powr (x, y) signals the invalid operation exception for
+//           x < 0"; "powr (±0, ±0) signals the invalid operation exception";
+//           "powr (+∞, ±0) signals the invalid operation exception"; "powr (+1,
+//           ±∞) signals the invalid operation exception"; "powr (x, qNaN) is
+//           qNaN for x ≥ 0"; "powr (qNaN, y) is qNaN." The unlisted infinite
+//           cases follow the definition of 9.2.1, "powr (x, y) is defined by
+//           considering exp(y × log(x))" (continuous limits, no exception), so a
+//           negative x is invalid for every y, a quiet NaN y included.
+//   [9.2]   "A conforming operation shall return results correctly rounded for
+//           the applicable rounding direction for all operands in its domain."
+//           and the signaling NaN rules of 7.2 a) and 6.2.
+
+///|
+fn rcp_contexts() -> Array[BinaryContext] {
+  [
+    BinaryContext::unbounded(53),
+    BinaryContext::unbounded(2),
+    BinaryContext::binary64(),
+    BinaryContext::new(24, e_min=-6, e_max=7),
+  ]
+}
+
+///|
+fn rcp_inf(negative : Bool) -> BinFloat {
+  BinFloat::inf(if negative { Sign::Negative } else { Sign::Positive })
+}
+
+///|
+/// Renders a `try_` result as `value flags` (invalid inputs as `err`).
+fn rcp_show(
+  result : Result[(BinFloat, BinaryFlags), @def.ArithmeticError],
+) -> String {
+  match result {
+    Ok((value, flags)) =>
+      "\{value} \{e2s_flags(flags)}\{if flags.division_by_zero() { "Z" } else { "" }}"
+    Err(_) => "err"
+  }
+}
+
+///|
+test "rsqrt special values" {
+  for ctx in rcp_contexts() {
+    // rSqrt(+0) = +inf and rSqrt(-0) = -inf with divideByZero
+    let (value, flags) = BinFloat::zero().rsqrt_ctx(ctx)
+    assert_eq("\{value}", "inf")
+    assert_true(flags.division_by_zero() && !flags.invalid_operation())
+    let (value, flags) = BinFloat::negative_zero().rsqrt_ctx(ctx)
+    assert_eq("\{value}", "-inf")
+    assert_true(flags.division_by_zero() && !flags.invalid_operation())
+    // rSqrt(+inf) = +0 with no exception
+    let (value, flags) = rcp_inf(false).rsqrt_ctx(ctx)
+    assert_eq("\{value}", "0")
+    assert_eq(flags, BinaryFlags::new())
+    // x < 0, -inf: invalid
+    for
+      below in [
+        BinFloat::from_int(-4),
+        rcp_inf(true),
+        BinFloat::make(BinCoeff::one(), -1000, 53, negative=true),
+      ] {
+      let (value, flags) = below.rsqrt_ctx(ctx)
+      assert_true(value.is_quiet_nan() && flags.invalid_operation())
+      assert_true(below.try_rsqrt_ctx(ctx) is Err(_))
+    }
+    // NaNs
+    let (value, flags) = BinFloat::quiet_nan(negative=true).rsqrt_ctx(ctx)
+    assert_true(value.is_quiet_nan() && value.is_negative())
+    assert_eq(flags, BinaryFlags::new())
+    let (value, flags) = BinFloat::signaling_nan().rsqrt_ctx(ctx)
+    assert_true(value.is_quiet_nan() && flags.invalid_operation())
+  }
+}
+
+///|
+test "rsqrt of a power of four is exact, other values are correctly rounded" {
+  let mut cases = 0
+  for p in [2, 3, 24, 53] {
+    for mode in e2s_modes() {
+      let ctx = BinaryContext::new(p, rounding=mode)
+      // 4^k: exact 2^-k
+      for k in -30..<31 {
+        let x = BinFloat::make(BinCoeff::one(), 2 * k, 64)
+        let (value, flags) = x.rsqrt_ctx(ctx)
+        assert_eq("\{value} \{e2s_flags(flags)}", "1p\{-k} ---")
+        cases += 1
+      }
+      // 1 / sqrt(x) agrees with the 200-bit result rounded into the context
+      for numerator in [3, 5, 7, 9, 11, 13, 100001] {
+        for exponent in [-5, 0, 3, 20] {
+          let x = BinFloat::make(
+            BinCoeff::from_uint64(numerator.to_uint64()),
+            exponent,
+            64,
+          )
+          let reference = x.rsqrt_ctx(BinaryContext::unbounded(p + 150)).0
+          let (value, flags) = x.rsqrt_ctx(ctx)
+          let (expected, expected_flags) = reference.round_ctx(ctx)
+          let exact = numerator == 9 && exponent % 2 == 0
+          if !exact {
+            assert_eq(
+              "rsqrt(\{x}) p=\{p} \{e2s_mode_name(mode)} => \{value} \{e2s_flags(flags)}",
+              "rsqrt(\{x}) p=\{p} \{e2s_mode_name(mode)} => \{expected} \{e2s_flags({ ..expected_flags, inexact: true })}",
+            )
+            cases += 1
+          }
+        }
+      }
+    }
+  }
+  assert_true(cases > 1000)
+}
+
+///|
+test "compound special values" {
+  for ctx in rcp_contexts() {
+    let one = "1p0 ---"
+    let render = fn(x : BinFloat, n : Int32) {
+      rcp_show(x.try_compound_ctx(n, ctx))
+    }
+    // compound(x, 0) = 1 for x >= -1 and for a quiet NaN
+    for
+      x in [
+        BinFloat::from_int(-1),
+        BinFloat::zero(),
+        BinFloat::from_int(3),
+        rcp_inf(false),
+        BinFloat::quiet_nan(),
+      ] {
+      assert_eq(render(x, 0), one)
+    }
+    // compound(-1, n): +inf with divideByZero for n < 0, +0 for n > 0
+    assert_eq(render(BinFloat::from_int(-1), -3), "inf ---Z")
+    assert_eq(render(BinFloat::from_int(-1), 3), "0 ---")
+    // compound(+-0, n) = 1
+    for zero in [BinFloat::zero(), BinFloat::negative_zero()] {
+      for n in [-5, 1, 7] {
+        assert_eq(render(zero, n), one)
+      }
+    }
+    // compound(+inf, n)
+    assert_eq(render(rcp_inf(false), 4), "inf ---")
+    assert_eq(render(rcp_inf(false), -4), "0 ---")
+    // x < -1 (and -inf): invalid
+    for
+      below in [
+        BinFloat::from_int(-2),
+        BinFloat::make(BinCoeff::from_uint64(9UL), -3, 53, negative=true),
+        rcp_inf(true),
+      ] {
+      for n in [-3, 0, 3] {
+        assert_eq(render(below, n), "err")
+        let (value, flags) = below.compound_ctx(n, ctx)
+        assert_true(value.is_quiet_nan() && flags.invalid_operation())
+      }
+    }
+    // compound(qNaN, n) = qNaN for n != 0; a signaling NaN is invalid
+    let (value, flags) = BinFloat::quiet_nan().compound_ctx(5, ctx)
+    assert_true(value.is_quiet_nan())
+    assert_eq(flags, BinaryFlags::new())
+    for n in [0, 5] {
+      let (value, flags) = BinFloat::signaling_nan().compound_ctx(n, ctx)
+      assert_true(value.is_quiet_nan() && flags.invalid_operation())
+    }
+  }
+}
+
+///|
+test "compound is the correctly rounded (1 + x)^n" {
+  let mut cases = 0
+  for p in [2, 8, 24, 53] {
+    for mode in e2s_modes() {
+      for
+        tininess in [
+          TininessDetection::AfterRounding,
+          TininessDetection::BeforeRounding,
+        ] {
+        let ctx = BinaryContext::new(
+          p,
+          rounding=mode,
+          e_min=-60,
+          e_max=60,
+          tininess~,
+        )
+        for numerator in [-7, -3, -1, 1, 3, 5, 9, 21] {
+          for exponent in [-8, -3, -1, 1, 4] {
+            for n in [-9, -3, -2, -1, 1, 2, 3, 5, 13, 40] {
+              let x = BinFloat::make(
+                BinCoeff::from_uint64(numerator.abs().to_uint64()),
+                exponent,
+                64,
+                negative=numerator < 0,
+              )
+              if x.compare(BinFloat::from_int(-1)) > 0 {
+                // exact rational reference: 1 + x is exact, then pown
+                let exact = BinFloat::one(precision=200).add_ctx(
+                    x,
+                    BinaryContext::unbounded(200),
+                  ).0
+                let (expected, expected_flags) = exact.pown_ctx(n, ctx)
+                let (value, flags) = x.compound_ctx(n, ctx)
+                assert_eq(
+                  "compound(\{x}, \{n}) p=\{p} \{e2s_mode_name(mode)} => \{value} \{e2s_flags(flags)}",
+                  "compound(\{x}, \{n}) p=\{p} \{e2s_mode_name(mode)} => \{expected} \{e2s_flags(expected_flags)}",
+                )
+                cases += 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  assert_true(cases > 3000)
+}
+
+///|
+test "compound of a tiny x is the neighbour of 1 chosen by the direction" {
+  // (1 + x)^n = 1 + n x with |n x| far below a quarter of the spacing at 1
+  for mode in e2s_modes() {
+    let ctx = BinaryContext::new(24, rounding=mode)
+    let tiny = BinFloat::make(BinCoeff::one(), -400, 64)
+    for n in [3, 1000000] {
+      for negative in [false, true] {
+        let x = if negative { tiny.neg() } else { tiny }
+        let (value, flags) = x.compound_ctx(n, ctx)
+        let positive_delta = !negative
+        let up = match mode {
+          RoundTowardPositive | RoundAwayFromZero => true
+          _ => false
+        }
+        let expected = if positive_delta && up {
+          "8388609p-23"
+        } else if !positive_delta &&
+          (mode == RoundTowardZero || mode == RoundTowardNegative) {
+          "16777215p-24"
+        } else {
+          "1p0"
+        }
+        assert_eq(value.to_string(), expected)
+        assert_true(flags.inexact() && !flags.underflow())
+      }
+    }
+  }
+}
+
+///|
+test "powr special values" {
+  for ctx in rcp_contexts() {
+    let render = fn(x : BinFloat, y : BinFloat) {
+      rcp_show(x.try_powr_ctx(y, ctx))
+    }
+    let two = BinFloat::from_int(2)
+    let zero = BinFloat::zero()
+    let minus_zero = BinFloat::negative_zero()
+    let one = BinFloat::one()
+    let inf = rcp_inf(false)
+    // powr(x, +-0) = 1 for finite x > 0
+    assert_eq(render(two, zero), "1p0 ---")
+    assert_eq(render(two, minus_zero), "1p0 ---")
+    // powr(+-0, y): divideByZero for finite y < 0, -inf gives +inf with no
+    // exception, y > 0 (and +inf) gives +0
+    for z in [zero, minus_zero] {
+      assert_eq(render(z, BinFloat::from_int(-3)), "inf ---Z")
+      assert_eq(render(z, rcp_inf(true)), "inf ---")
+      assert_eq(render(z, BinFloat::from_int(3)), "0 ---")
+      assert_eq(render(z, inf), "0 ---")
+      assert_eq(render(z, zero), "err")
+      assert_eq(render(z, minus_zero), "err")
+    }
+    // powr(+1, y) = 1 for finite y; powr(+1, +-inf) is invalid
+    assert_eq(render(one, BinFloat::from_int(-7)), "1p0 ---")
+    assert_eq(render(one, BinFloat::quiet_nan()), "nan ---")
+    assert_eq(render(one, inf), "err")
+    assert_eq(render(one, rcp_inf(true)), "err")
+    // x < 0 (and -inf) is invalid, whatever y
+    for below in [BinFloat::from_int(-2), rcp_inf(true)] {
+      for y in [two, zero, inf, BinFloat::quiet_nan()] {
+        assert_eq(render(below, y), "err")
+      }
+    }
+    // powr(+inf, y)
+    assert_eq(render(inf, zero), "err")
+    assert_eq(render(inf, two), "inf ---")
+    assert_eq(render(inf, BinFloat::from_int(-2)), "0 ---")
+    // quiet NaNs: powr(x, qNaN) and powr(qNaN, y) are qNaN, no exception
+    assert_eq(render(two, BinFloat::quiet_nan()), "nan ---")
+    assert_eq(render(BinFloat::quiet_nan(), two), "nan ---")
+    assert_eq(render(BinFloat::quiet_nan(), zero), "nan ---")
+    // signaling NaNs are invalid
+    for snan in [BinFloat::signaling_nan()] {
+      assert_true(snan.powr_ctx(two, ctx).1.invalid_operation())
+      assert_true(two.powr_ctx(snan, ctx).1.invalid_operation())
+      assert_true(one.powr_ctx(snan, ctx).1.invalid_operation())
+      assert_true(snan.powr_ctx(zero, ctx).1.invalid_operation())
+    }
+  }
+}
+
+///|
+test "powr of a positive x is pow, exact and correctly rounded" {
+  let mut cases = 0
+  for p in [2, 24, 53] {
+    for mode in e2s_modes() {
+      let ctx = BinaryContext::new(p, rounding=mode)
+      for
+        x in [
+          BinFloat::from_int(2),
+          BinFloat::from_int(3),
+          BinFloat::make(BinCoeff::one(), -3, 53),
+          BinFloat::make(BinCoeff::from_uint64(5UL), -1, 53),
+        ] {
+        for
+          y in [
+            BinFloat::from_int(-3),
+            BinFloat::from_int(5),
+            BinFloat::make(BinCoeff::one(), -1, 53),
+            BinFloat::make(BinCoeff::from_uint64(7UL), -2, 53),
+          ] {
+          let (value, flags) = x.powr_ctx(y, ctx)
+          let (expected, expected_flags) = x.pow_ctx(y, ctx)
+          assert_eq(
+            "\{value} \{e2s_flags(flags)}",
+            "\{expected} \{e2s_flags(expected_flags)}",
+          )
+          cases += 1
+        }
+      }
+    }
+  }
+  assert_eq(cases, 3 * 6 * 16)
+}

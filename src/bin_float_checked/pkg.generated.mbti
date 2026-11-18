@@ -33,6 +33,8 @@ pub fn BinFloatResult::atanh(Self) -> Self
 pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::bind(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BinFloatResult::compound(Self, Int32) -> Self
+pub fn BinFloatResult::compound_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::cos(Self) -> Self
 pub fn BinFloatResult::cos_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::cosh(Self) -> Self
@@ -94,9 +96,13 @@ pub fn BinFloatResult::pow_int_ctx(Self, Int32, @bin_float.BinaryContext) -> Sel
 pub fn BinFloatResult::pow_nat(Self, UInt32) -> Self
 pub fn BinFloatResult::pown(Self, Int32) -> Self
 pub fn BinFloatResult::pown_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::powr(Self, Self) -> Self
+pub fn BinFloatResult::powr_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::result(Self) -> Result[@bin_float.BinFloat, @arithmetic.ArithmeticError]
 pub fn BinFloatResult::rootn(Self, Int32) -> Self
 pub fn BinFloatResult::rootn_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::rsqrt(Self) -> Self
+pub fn BinFloatResult::rsqrt_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::sin(Self) -> Self
 pub fn BinFloatResult::sin_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::sinh(Self) -> Self
