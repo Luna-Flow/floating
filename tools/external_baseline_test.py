@@ -215,6 +215,15 @@ class ComparisonTests(unittest.TestCase):
         self.assertIn("| `a` | 10.00 | 15.00 | +50.0% | slower |", eb.render_changes(list(changes.values())))
 
 
+class QuietGateTests(unittest.TestCase):
+    def test_foreign_cpu_excludes_own_process_tree(self) -> None:
+        rows = [(10, 1, 1.0), (11, 10, 99.0), (12, 11, 98.0), (20, 1, 40.0), (21, 20, 30.0)]
+        self.assertEqual(eb.foreign_cpu_pct(rows, 10), 1.0 + 40.0 + 30.0 - 1.0)
+
+    def test_sampling_runs(self) -> None:
+        self.assertGreaterEqual(eb.sample_foreign_cpu(), 0.0)
+
+
 class ProtocolTests(unittest.TestCase):
     def test_both_sides_receive_the_same_numbers(self) -> None:
         protocol = eb.PRESETS["standard"]

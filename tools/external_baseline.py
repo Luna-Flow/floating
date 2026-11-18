@@ -712,6 +712,62 @@ def capture(command: Sequence[str], **kwargs: object) -> str:
     return completed.stdout.strip()
 
 
+QUIET_CPU_PCT = 150.0  # other processes may use at most 1.5 cores before a timed side starts
+QUIET_POLLS = 3
+QUIET_POLL_SECONDS = 5.0
+QUIET_MAX_WAIT_SECONDS = 3600.0
+
+
+def foreign_cpu_pct(process_rows: Iterable[tuple[int, int, float]], root: int) -> float:
+    """Total %CPU of the processes that are not `root` or one of its descendants.
+
+    Rows are `(pid, ppid, pcpu)`.  The gate uses it to tell whether something
+    else is competing for the cores while a side is timed.
+    """
+    rows = list(process_rows)
+    children: dict[int, list[int]] = {}
+    for pid, ppid, _ in rows:
+        children.setdefault(ppid, []).append(pid)
+    own = {root}
+    stack = [root]
+    while stack:
+        for child in children.get(stack.pop(), []):
+            if child not in own:
+                own.add(child)
+                stack.append(child)
+    return sum(pcpu for pid, _, pcpu in rows if pid not in own)
+
+
+def sample_foreign_cpu() -> float:
+    text = capture(["ps", "-Ao", "pid=,ppid=,pcpu="])
+    rows = []
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) == 3:
+            try:
+                rows.append((int(parts[0]), int(parts[1]), float(parts[2])))
+            except ValueError:
+                continue
+    return foreign_cpu_pct(rows, os.getpid())
+
+
+def wait_until_quiet() -> float:
+    """Block until other processes use little CPU for several polls; return the last sample.
+
+    Gives up after QUIET_MAX_WAIT_SECONDS and measures anyway, with the busy
+    sample recorded so the report can say so.
+    """
+    started = time.monotonic()
+    quiet = 0
+    sample = sample_foreign_cpu()
+    while True:
+        quiet = quiet + 1 if sample < QUIET_CPU_PCT else 0
+        if quiet >= QUIET_POLLS or time.monotonic() - started > QUIET_MAX_WAIT_SECONDS:
+            return sample
+        time.sleep(QUIET_POLL_SECONDS)
+        sample = sample_foreign_cpu()
+
+
 def moon_environment() -> dict[str, str]:
     """The environment for moon: the stale /tmp/qed-moon-latest shadow is stripped from PATH."""
     env = dict(os.environ)
@@ -883,12 +939,19 @@ def command_run(args: argparse.Namespace) -> int:
     (out_dir / "machine.json").write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     collected = Collected()
     plans = plan_rounds(args.seed, protocol.rounds, case_ids + overhead_ids)
+    contention: list[dict[str, object]] = []
     for plan in plans:
         round_dir = out_dir / f"round-{plan.index}"
         round_dir.mkdir(exist_ok=True)
         c_order = [case for case in plan.case_order if case in case_ids]
         for side in (plan.first, "floating" if plan.first == "reference" else "reference"):
             started = time.monotonic()
+            if not args.no_gate and not args.resume:
+                before = wait_until_quiet()
+                if before >= QUIET_CPU_PCT:
+                    print(f"WARNING: machine still busy ({before:.0f}% other CPU) before round {plan.index} {side}")
+            else:
+                before = -1.0
             if side == "reference":
                 path = round_dir / "reference.jsonl"
                 if not (args.resume and path.exists()):
@@ -906,7 +969,9 @@ def command_run(args: argparse.Namespace) -> int:
                 failed = [line for line in log.read_text(encoding="utf-8").splitlines() if line.startswith("EXTBENCH_FAILED=")]
                 if failed and failed[-1] != "EXTBENCH_FAILED=0":
                     print(f"WARNING: floating output differs from the reference in round {plan.index}: see {log}")
-            print(f"round {plan.index} {side}: {time.monotonic() - started:.0f} s", flush=True)
+            contention.append({"round": plan.index, "side": side, "other_cpu_pct_before": before, "other_cpu_pct_after": sample_foreign_cpu()})
+            print(f"round {plan.index} {side}: {time.monotonic() - started:.0f} s, other CPU {contention[-1]['other_cpu_pct_after']:.0f}%", flush=True)
+    meta["contention"] = contention
     meta["load_average_end"] = os.getloadavg()
     if platform.system() == "Darwin":
         meta["power_end"] = capture(["pmset", "-g", "batt"]).splitlines()[:1]
@@ -1005,6 +1070,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--seed", type=int, default=INPUT_SEED, help="seed of the round order and of the bootstrap")
     run.add_argument("--prefix", type=Path, default=Path(os.environ.get("EXTBENCH_PREFIX", "/opt/homebrew")),
                      help="prefix holding include/ and lib/ of MPFR, GMP and mpdecimal")  # fmt: skip
+    run.add_argument("--no-gate", action="store_true", help="do not wait for a quiet machine before each timed side")
     run.add_argument("--resume", action="store_true", help="reuse finished sides of an interrupted run in --out")
     run.add_argument("--cc", default=os.environ.get("CC", "cc"))
     run.add_argument("--cflags", default=os.environ.get("EXTBENCH_CFLAGS", "-O2"))
