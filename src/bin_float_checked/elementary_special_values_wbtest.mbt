@@ -367,14 +367,15 @@ test "BinFloatResult pow maps poles and invalid operations" {
 ///|
 /// Expected `rootn(x, n)` from 9.2.1 and Table 9.1.
 fn elementary_expected_rootn(name : String, x : Double, n : Int32) -> String {
-  if elementary_is_snan(name) {
+  // n = 0 is outside the domain [-inf, +inf] x Z \ {0} of Table 9.1
+  // ("n = 0: invalid operation"), so it is invalid for every x, a quiet NaN
+  // included (9.2: "Outside its domain an operation shall return a quiet NaN
+  // and signal the invalid operation exception").
+  if elementary_is_snan(name) || n == 0 {
     return "err:invalid"
   }
   if elementary_is_nan(name) {
     return "ok:nan"
-  }
-  if n == 0 {
-    return "err:invalid" // n = 0: invalid operation
   }
   if x == 0.0 && n < 0 {
     return "err:div0" // rootn(+-0, n) signals divideByZero for n < 0
@@ -392,11 +393,6 @@ test "BinFloatResult rootn maps poles and invalid operations" {
     for operand in elementary_operands() {
       let (name, x) = operand
       for n in -3..<=3 {
-        // rootn(qNaN, 0) raises invalid in `try_rootn_ctx`, against 6.2
-        // (quiet NaN operands signal no exception); reported separately.
-        if n == 0 && elementary_is_nan(name) && !elementary_is_snan(name) {
-          continue
-        }
         let value = BinFloatResult::ok(elementary_value(name, x))
         let result = match ctx {
           None => value.rootn(n)
