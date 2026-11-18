@@ -290,10 +290,16 @@ fn decimal_certified_exp_minimum_result(
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let minimum_exponent = etiny(ctx)
+  // Only values with exp(x) below 10^(etiny - 2) reach this function (x <=
+  // -3 (1 - etiny)). Rounded to the precision with an unbounded exponent range
+  // such a value stays below 10^(etiny - 1) <= 10^(e_min - 1), so it is tiny
+  // under both tininess options of the context (before rounding, the rule of
+  // IEEE 754-2019 7.5 for decimal formats, and the non-standard
+  // `AfterRounding`), also when `precision = 1` and etiny equals e_min (#333).
   let tiny = tiny_for_underflow(
     ctx,
     (minimum_exponent - 1).to_int64(),
-    minimum_exponent.to_int64(),
+    (minimum_exponent - 1).to_int64(),
   )
   (
     finite_with_exponent_repr(

@@ -456,8 +456,14 @@ test "Decimal extreme exp honors before and after rounding tininess" {
   assert_eq(after_value.to_string(), "0.01")
   assert_eq(before_value.to_string(), "0.01")
   assert_true(after_flags.rounded && after_flags.inexact)
-  assert_false(after_flags.underflow)
-  assert_false(after_flags.subnormal)
+  // `AfterRounding` is the library's non-standard option (IEEE 754-2019 7.5
+  // requires tininess before rounding for decimal formats). By its own rule,
+  // the unbounded-exponent-range result rounded to one digit, 1E-435, is below
+  // 10^e_min = 0.01, so the result is tiny after rounding as well, although the
+  // bounded result is 10^e_min (#333; this test used to expect no underflow
+  // here).
+  assert_true(after_flags.underflow)
+  assert_true(after_flags.subnormal)
   assert_true(before_flags.underflow)
   assert_true(before_flags.subnormal)
 }
