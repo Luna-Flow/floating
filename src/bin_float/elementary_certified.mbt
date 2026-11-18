@@ -129,10 +129,20 @@ fn binary_inexact_inner_endpoint(
   } else {
     scaled.sub_checked(BinCoeff::one()).unwrap()
   }
+  // Built wide enough to be kept: a BinFloat of width w stores nothing below
+  // 2^(e_min - (w - 1)), so an endpoint within a few bits of the implementation
+  // subnormal limit would be flushed at its own bit length.
+  let moved_top = (endpoint.exponent2() - shift).to_int64() +
+    (moved.bit_length() - 1).to_int64()
+  let width = Int64::max(
+    moved.bit_length().to_int64(),
+    binary_implementation_e_min.to_int64() - moved_top + 2L,
+  )
+  guard width <= 1073741824L else { return endpoint }
   BinFloat::make(
     moved,
     endpoint.exponent2() - shift,
-    Int32::max(1, moved.bit_length()),
+    Int32::max(1, width.to_int()),
     negative=endpoint.is_negative(),
   )
 }
@@ -154,12 +164,24 @@ fn binary_tiny_argument_result(
     (anchor.coefficient().bit_length() - 1).to_int64()
   let precision = context.precision.to_int64()
   guard scale < anchor_top - precision - 3L else { return None }
+  let offset_exponent = Int64::max(scale, anchor_top - precision - 8L)
+  // A BinFloat of width w stores nothing below 2^(e_min - (w - 1)): the offset
+  // 2^k is built wide enough to be kept, not flushed to zero or to 2^e_min
+  // when the anchor is within a few bits of the implementation subnormal limit.
+  let offset_width = Int64::max(
+    1L,
+    binary_implementation_e_min.to_int64() - offset_exponent + 2L,
+  )
+  guard offset_width <= 1073741824L else { return None }
   let offset = BinFloat::make(
     BinCoeff::one(),
-    Int64::max(scale, anchor_top - precision - 8L).to_int(),
-    1,
+    offset_exponent.to_int(),
+    offset_width.to_int(),
   )
-  let work = Int32::max(context.precision, anchor.precision()) + 8
+  // The sum keeps its bits below the subnormal grid of the working precision.
+  let work = Int32::max(context.precision, anchor.precision()) +
+    8 +
+    offset_width.to_int()
   let (lower, upper) = if above {
     (
       anchor,
