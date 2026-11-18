@@ -1,0 +1,1101 @@
+# Changelog
+
+All notable repository-release changes are tracked here. The main
+[README.md](./README.md) describes the current baseline; historical release
+notes live in this file.
+
+## Unreleased
+
+### Added
+
+- `bin_float`: `asinpi`, `acospi`, `atanpi` and `atan2pi` of IEEE 754-2019 §9.2 (`*_ctx`, `try_*_ctx`, the plain form, and the `BinFloatResult` wrappers), the last of the recommended functions: `bin_float` now has all of §9.2 ([#235](https://github.com/Luna-Flow/floating/issues/235)). They are the certified enclosures of the angle divided by π, with the exact constants of §9.2.1 (`atan2Pi` of 0 and ∞, `acosPi(1) = +0`, `atanPi(±∞) = ±1/2`, `atanPi(±1) = ±1/4`, `atan2Pi(±a, ±a) = ±1/4, ±3/4`), the invalid domain, and decisions from a certified distance to the anchors ±1/2 and ±1 for huge, tiny and extreme-ratio arguments (`atanPi` of a huge argument, `acosPi` of a tiny one, `atan2Pi` whose ratio exponent exceeds the range), so that no value is built below the subnormal limit. The oracle generator gains the family `elem4`; 1,000,000 native and 100,000 Wasm, JavaScript and Wasm-GC cases and 1,654,315 range-boundary rows agree with MPFR 4.2.2 (`mpfr_atan2pi` is too slow beyond 100,000 binades of exponent difference, and those rows are skipped and covered by white-box tests). A handover note on the range layer and the oracle findings is in `doc/manual/design/bin_float.md`.
+- `bin_float`: `rsqrt`, `compound` and `powr` of IEEE 754-2019 §9.2 (`*_ctx`, `try_*_ctx`, the plain form, and the `BinFloatResult` wrappers) with the special values of §9.2.1 (`rSqrt(±0) = ±∞` with `divideByZero`, `compound(-1, n)`, the invalid pairs of `powr`), exact cases (`rsqrt` of a power of four, `compound` and `powr` through `pown` and `pow`), a tiny-`x` rule for `compound` and certified Ziv rounding, on the range layer of `elementary_range.mbt`; the second step of [#235](https://github.com/Luna-Flow/floating/issues/235) (the π-scaled inverses follow). The oracle generator gains the family `elem3` (the rows of every other family are unchanged) and the boundary sweeper the three functions; 1,000,000 native and 100,000 Wasm, JavaScript and Wasm-GC cases and 718,824 range-boundary rows agree with MPFR 4.2.2 once the oracle is corrected for two MPFR 4.2.2 findings: `mpfr_compound_si` is not correctly rounded for a negative `n` in the directed modes (the generator rounds the exact rational instead) and `mpfr_rec_sqrt(-0)` is +∞ where §9.2.1 says -∞.
+- Random differential testing of the IEEE `decimal` elementary functions against MPFR 4.2.2 ([#236](https://github.com/Luna-Flow/floating/issues/236)): `tools/generate_mpfr_decimal_random.py` and `tools/mpfr_decimal_enclosure.c` generate rows whose expected value is the rounding of a certified enclosure (2048-bit operand bounds, 768-bit directed results, one ulp of slack) in random decimal32/64/128 and small, medium and wide contexts, all eight rounding modes, clamp on and off, both tininess rules; the new `mpfr-decimal-random-v1` row kind of `frontend/mpfr_expr` (`parse_decimal_random_data`, `execute_decimal_random_data`) runs them through the `try_*_ctx` forms and compares value, cohort and flags; `just random-diff run --decm` (one `decm-<function>` family per function, opt-in), `replay`, `minimize`, `smoke` and a committed sample of 336 rows (`testdata/decimal/random/mpfr-decimal-random.txt`) cover the 28 existing functions, ready for the IEEE 754 §9.2 functions that `decimal` does not have yet.
+- `bin_float`: `exp2m1`, `exp10m1`, `log2p1` and `log10p1` of IEEE 754-2019 §9.2 (`*_ctx`, `try_*_ctx`, the plain form, and the `BinFloatResult` wrappers), correctly rounded in every direction and both tininess modes, with the special values of §9.2.1, exact cases (`2^n - 1`, `10^n - 1`, `log2(2^k)`, `log10(10^k)`) and certain overflow and saturation decided before the Ziv loop. They take their range decisions from a new internal layer (`elementary_range.mbt`), the first step of [#235](https://github.com/Luna-Flow/floating/issues/235) (`rSqrt`, `compound`, `powr` and the π-scaled inverses follow). The oracle generator gains the family `elem2` for them (the rows of `elem` and every other family are unchanged); the verification page records 1,000,000 native and 100,000 Wasm, JavaScript and Wasm-GC cases and a 303,108-row range-boundary sweep, without a disagreement with MPFR 4.2.2.
+- Seeded random differential testing against MPFR 4.2.2 (binary) and libmpdec 4.0.0 (decimal), run through the mare_mark harness: `tools/generate_mpfr_random_oracle.c` and `tools/generate_libmpdec_random.py` generate rows (precisions 2 to 10,000, mixed operand widths, all rounding directions, exponent limits, halfway inputs, string conversion, elementary functions); the new `mpfr-random-v1` row kind of `frontend/mpfr_expr` and the `src/differential` executable validate them in batches, record JSONL and delta-debug failures; `just random-diff` runs, replays, minimizes and smoke-tests; committed samples and `xfail`-annotated regression fixtures are part of `just pr`. A campaign of 37,090,000 cases (native, Wasm, JavaScript, Wasm-GC) found five `decimal_gda` disagreements ([#264](https://github.com/Luna-Flow/floating/issues/264) to [#268](https://github.com/Luna-Flow/floating/issues/268)) and no binary arithmetic disagreement ([#16](https://github.com/Luna-Flow/floating/issues/16)).
+- `just bench external quick`: the floating side of the external baseline only, a few rounds without the quiet-machine gate, divided by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json`, with a flag for ratios above 10 ([#20](https://github.com/Luna-Flow/floating/issues/20)).
+- `tools/range_boundary_rows.py` writes `mpfr-random-v1` rows that put the arguments of `exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown` and `rootn` on their underflow and overflow thresholds, for every precision of a range, six contexts and both tininess rules. Its 1,269,554 rows of precisions 2 to 300 found [#272](https://github.com/Luna-Flow/floating/issues/272), [#273](https://github.com/Luna-Flow/floating/issues/273), [#274](https://github.com/Luna-Flow/floating/issues/274) and [#278](https://github.com/Luna-Flow/floating/issues/278) beside [#271](https://github.com/Luna-Flow/floating/issues/271).
+- `tools/check_imports.py`, part of `just pr`: fails if `decimal` imports `decimal_gda` or the reverse (test and white-box imports included), or if `internal/decimal_kernel` imports any module package other than `internal`. The `decimal_gda` design page already claimed such a scan; none existed ([#17](https://github.com/Luna-Flow/floating/issues/17)).
+
+### Changed
+
+- `decimal` and `decimal_gda` share one coefficient kernel, the new internal package `internal/decimal_kernel` ([#17](https://github.com/Luna-Flow/floating/issues/17)). The limb representation (`Small(UInt64)` below 10^18, base-10^9 limbs above), addition, subtraction, comparison, shifts by powers of ten, trimming, division by a limb, Knuth, Burnikel-Ziegler and Newton division, schoolbook, Karatsuba, Toom-3 and NTT multiplication, the per-target thresholds and `SignedDecCoeff` existed twice with 1,552 differing lines in `coeff_kernel.mbt` alone, so a fix or tuning in one package did not reach the other. The shared package is the union of both copies on the `decimal_gda` representation; `decimal` gains the small-value fast paths, the numerator-aware division dispatch, the allocation-free scaled comparison and the 10^5-digit NTT (the bound `2^22 * 99999^2 < p1 * p2` is in the design page), and `decimal_gda` gains `gcd`, `mod` and the whole-limb `trim`. It contains integer functions only: no rounding mode, context, flag or condition, and it imports neither decimal package. The finalizers, flags, traps, `Decimal` types and the DPD codec stay in each package, and the public interfaces of `decimal` and `decimal_gda` are unchanged. Results are bit-identical: a differential harness against copies of both previous kernels (162,109 checks over every kernel function, sizes from 1 to 2,000 digits, forced multiplication and division algorithms) found no difference, the 200,000-row `just random-diff` sweep gives the same failures before and after, and both gates pass.
+- `decimal` and `decimal_gda` share their rounding-direction decisions and the pure coefficient helpers that existed twice, in `internal/decimal_kernel` ([#17](https://github.com/Luna-Flow/floating/issues/17)): the increment decision for the eight directions behind a `DecCoeffRounding` enum that each package converts its own rounding mode into, division and rounding to a digit count, the half-ulp addend step, the square-root increment, finite-magnitude comparison, integer square and n-th roots, the finite-decimal-expansion test, the atanh series of `ln`, scaled floor division and the digit-wise logical, shift and rotate helpers. Each package keeps thin wrappers with its own types; flags, clamp, subnormal and overflow handling stay in the finalizers. Results are bit-identical: a differential harness against copies of both previous implementations (159,556 checks over every moved function, all eight directions, sizes from 1 to 120 digits) found no difference.
+
+### Performance
+
+- `decimal_gda`: `add`, `subtract`, `multiply` and `divide` on single-limb coefficients (below 10^18) in an extended context of at most 18 digits (17 for `divide`) round the exact sum, product or guarded quotient once on `UInt64` pairs and build the result and flags directly, with the general path as the exact fallback for everything else (zeros, special values, exact quotients, clamped, subnormal or out-of-range results). At 16 digits `add` is 4.6 times, `multiply` 4.0 and `divide` 8.2 times faster on Native (paired medians; 9.3, 10.2 and 7.8 on Wasm-GC); values, flags and next contexts are unchanged, checked against the general path on 60,000 random operand pairs per operation ([#20](https://github.com/Luna-Flow/floating/issues/20)).
+- `decimal_gda`: the certified `exp` of an argument below 1000 in magnitude in a context that holds every result starts from the binary enclosure alone (its midpoint, converted to decimal, picks the rounding cell; about 3.33 bits per digit plus guard bits certify it) instead of evaluating the Taylor series in decimal arithmetic at four bits per digit plus 64, which only arguments in [1, 10) avoided; a hard case falls back to the former procedure. Paired native runs: 3.9 times faster at 16 digits, 8.2 at 34, 22 at 100 and 305 at 1,000 digits; results, flags and cohorts are unchanged, compared with the former procedure on random and near-midpoint arguments ([#20](https://github.com/Luna-Flow/floating/issues/20)).
+- `decimal`: the finalizer rounds with the limb-based division by a power of ten of `decimal_gda` (shared in `internal/decimal_kernel`) instead of a full coefficient division. Instructions retired per operation fall by 11 to 59 % for `add` and `mul` at 16 to 1,000 digits (`mul` at 100 digits 2.1 times cheaper) and 18 % for `sqrt` at 16 digits; division and larger square roots are unchanged, and `decimal_gda` runs 0.0 to 0.2 % more instructions for the wrapper ([#17](https://github.com/Luna-Flow/floating/issues/17)).
+- `decimal`: the shared coefficient kernel gives `decimal` the small-value fast paths, the numerator-aware division dispatch and the 10^5-digit NTT of `decimal_gda`, and its division no longer pays for batched factor counting. Instructions retired per operation (random signed operands, paired old/new builds) fall by 4 to 62 % for `add`, `mul`, `div` and `sqrt` at 16 and 34 digits, 3 to 14 % at 100 digits and 0 to 10 % at 1,000 digits (`div` at 16 digits 2.6 times cheaper); `decimal_gda` executes the same instructions as before for `add`, `mul` and `sqrt` and 1 to 11 % fewer for `div` ([#17](https://github.com/Luna-Flow/floating/issues/17)).
+- `bin_float`: the certified elementary functions memoize their `ln 2`, `ln 10` and `pi` enclosures per working precision (six precisions each, up to 65,536 bits) instead of recomputing them in every call. `ln` is 2.4 to 2.6 times and `sin` 2.4 to 3.7 times faster on Native at 53 to 512 bits (paired medians), decimal `ln` 2.5 times; results, flags and certification failures are unchanged ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the `exp` enclosure evaluates its Taylor series once instead of twice when the argument is exact at the working precision, and the sine/cosine enclosure skips the series that the requested function and quadrant do not read. `exp` is 1.8 to 2.0 times faster on Native at 53 to 512 bits (paired medians), decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times; enclosures, results, flags and certification failures are unchanged, checked against copies of the previous code ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the divide-and-conquer integer square root now ends its recursion in the fixed-width kernels (256 bits on Native/LLVM, 512 bits on Wasm/Wasm-GC) instead of a restoring loop over heap integers at 128 bits, so a 512-bit `BinFloat::sqrt` is about 3.4 times faster on Native (paired medians; 2,048 bits 1.7 times). Results, flags and encodings are unchanged and checked against a BigInt oracle at every cutoff ([#20](https://github.com/Luna-Flow/floating/issues/20)).
+- `bin_float`: the certified `exp` enclosure bounds the Taylor series of the reduced argument in fixed point (16 guard bits, a proven per-term error bound) when the argument is exact at the working precision, instead of one rounded floating-point operation per term. `exp` is 9 to 10 times faster on Native at 53 to 2,048 bits (paired medians), 7 to 11 times on Wasm and Wasm-GC, decimal `exp` 1.7 to 2.2 times; refinement attempts, results, flags and certification failures are unchanged, checked against the previous series in white-box tests ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: `BinFloat::add`, `mul`, `div` and `sqrt` on operands with one-word coefficients and a precision of at most 62 bits (60 for `div` and `sqrt`) run on `UInt64` pairs and allocate only the result instead of going through the general path, with the general path as the exact fallback. At 53 bits `add` is 2.9 times, `mul` 3.0, `div` 4.9 and `sqrt` 2.8 times faster on Native (paired medians), 3 to 8 times on Wasm and Wasm-GC; results, flags and encodings are unchanged, checked against the general path on 40,000 random operand pairs per operation ([#20](https://github.com/Luna-Flow/floating/issues/20)).
+- `bin_float`: `BinFloat::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words (a 192-bit aligned sum, a 256-bit product), and `add`, `mul`, `div` and `sqrt` on wider operands go through coefficient-level paths that skip the context, flags record and result tuple and round once, with the general path as the exact fallback. At 128 bits `add` is 3.3 times and `mul` 3.5 times faster on Native (paired medians; 2.5 and 3.7 on Wasm-GC), `sqrt` 1.4 times, `div` 1.1 times, and `add`/`mul` 1.5 to 1.9 times at 512 bits; results, flags and encodings are unchanged, checked against the general path on tens of thousands of operand sets per operation on Native, Wasm and Wasm-GC ([#20](https://github.com/Luna-Flow/floating/issues/20)).
+- `bin_float`: `pi`, `ln 2` and `ln 10` are computed by binary splitting (the Chudnovsky series for `pi`, `ln 2 = 18 artanh(1/26) - 2 artanh(1/4801) + 8 artanh(1/8749)`, `ln 10 = 3 ln 2 + 2 artanh(1/9)`) from a working precision of 64 bits, instead of the arctangent and artanh series with a rounded operation per term. This only changes the cost of a cache miss: a first call at 8,192 bits takes 0.67 ms for `pi` (449 ms before), 1.3 ms for `ln 2` (178 ms) and 1.0 ms for `ln 10` (89 ms, `ln 2` cached), 7 to 670 times less on Native (512 to 8,192 bits) (single enclosures at `p + 64` bits, `moon bench`; 2,048 bits: 71 us, 156 us and 114 us against 14 ms, 5.6 ms and 2.8 ms), and also 3 to 19 times at 64 bits and on Wasm-GC and JavaScript. Calls that find the constant in the cache, which is what the steady-state external benchmark measures, are unchanged, so `just bench external` does not show this change. The enclosures are no wider than before and contain the old ones (white-box tests against the old series at 256 more bits), and every enclosure from 64 to 100,000 bits agrees with MPFR 4.2.2 (`mpfr_const_pi`, `mpfr_const_log2`, `mpfr_log(10)`), one to two units in the last place wide; the error bounds are paper arguments in the design page ([#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the certified `ln` series on the normalized argument (and the `ln 2` and `ln 10` constants) is summed in fixed point when the argument is exact at the working precision, with guard bits that follow the size of `z` and a proven error bound per term. `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits (paired medians, without the constant cache), 5.5 to 7.5 times on Wasm and Wasm-GC, decimal `ln` 6 times; refinement attempts, results, flags and certification failures are unchanged, checked against the previous series in white-box tests ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the certified `exp` enclosure uses argument reduction with `ln 2` and a bit-burst evaluation (the reduced argument is cut into chunks of 16, 48, 192, ... bits; each chunk's exponential is bounded in integers by the fixed-point series or, when it has 40 terms or more, by binary splitting, and the chunks are multiplied) from a per-target working precision: 1,024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on JavaScript. Paired alternating timings of `just bench external quick --ops exp` against the previous build on Native: 8,192 bits 20.2 and 20.4 ms against 1.78 and 1.69 ms (9.1 to 12.1 times), 2,048 bits 508 and 517 us against 187 and 196 us (2.1 to 2.7 times), 53 and 512 bits unchanged within the noise of the machine; the two noisy earlier rounds gave 9.1 and 9.5 times at 8,192 bits. The kernel is slower than the series below about 1,000 bits on Native and 600 on Wasm-GC, hence the thresholds. Every enclosure it returns is an integer-bound argument on paper (design page), contains the series enclosure at 256 more bits and is no wider than it in the white-box tests, and three deliberately wrong variants of the kernel fail those tests; 35,040 `exp` rows of 256 to 4,096 bits in four rounding directions (arguments from 2^-60 to 2^28 and next to multiples of `ln 2`) agree with MPFR 4.2.2 and are byte-identical on Native, Wasm, Wasm-GC and JavaScript, and 100,000 random `elem` cases on Native and 20,000 on each other target agree. Results, flags and certification failures of `exp` are unchanged; `exp2`, `exp10`, `sinh`, `cosh`, `tanh`, `pow` and `rootn` use the same enclosure. The ratio to MPFR of `exp` at 8,192 bits is about 5.6 times on the drift-corrected scale of the tools (about 66 before) and still limited by the multiplication kernel ([#18](https://github.com/Luna-Flow/floating/issues/18)).
+
+- `bin_float`: the sine and cosine Taylor series of the certified `sin`, `cos` and `tan` are summed in fixed point when the reduced argument is exact at the working precision (20 guard bits, extra bits for a small sine argument, a proven error bound per term). On top of the memoized constants `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits (paired medians), 4.6 times on Wasm-GC; on its own against the previous release 1.3 to 1.4 times. Refinement attempts, results, flags and certification failures are unchanged: sin, cos and tan results are bit-identical to the previous build on 1,350 random arguments at 24 to 512 bits, and white-box tests check the enclosures ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+
+- `bin_float`: `BinCoeff` stores values above 128 bits in 64-bit limbs instead of 32-bit limbs on every non-JavaScript target (stage 1 of [#19](https://github.com/Luna-Flow/floating/issues/19)): addition, subtraction, comparison, shifts, schoolbook multiplication and squaring, Karatsuba and Toom-3 work on 64-bit limbs, the other kernels read a 32-bit view of the same storage. Native paired medians: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times; Wasm and Wasm-GC are faster below about 6,000 bits and up to 1.8 times slower above about 9,000 bits until the next stage. Results are unchanged, checked by regression digests recorded with the 32-bit implementation (identical on native, Wasm, Wasm-GC and the JavaScript backend).
+- `bin_float`: the Karatsuba multiplication of `BinCoeff` runs on limb arrays instead of wrapping every intermediate value in a `BinCoeff` (stage 2 of [#19](https://github.com/Luna-Flow/floating/issues/19)), with the schoolbook/Karatsuba cutoff measured per target (32 64-bit limbs). On Wasm and Wasm-GC, where a 64-bit limb product costs four `i64.mul`, multiplication from 160 limbs and squaring from 80 limbs run on 32-bit limbs and pack the result back, so that no size is slower than before. Native paired medians against the 32-bit implementation: coefficient multiplication 2 to 3 times faster from 1,024 to 32,768 bits, `BinFloat` `mul` 1.6/2.5/2.9 times at 512/2,048/8,192 bits, `sqrt` 1.5/2.0 times at 2,048/8,192 bits; Wasm-GC 1.1 to 2.2 times and Wasm 1.1 to 2.1 times on coefficient multiplication. Results are unchanged (the regression digests pass on all four targets).
+- `bin_float`: Knuth division runs on 64-bit digits (stage 3 of [#19](https://github.com/Luna-Flow/floating/issues/19)); the Burnikel-Ziegler cutoffs move to 192 divisor limbs with Knuth leaves up to 128, and Newton reciprocal division, which had become 3 to 12 times slower than Burnikel-Ziegler from 32,768 bits, is no longer selected. Native paired medians: `div` 1.5/2.3/2.9 times faster at 512/2,048/8,192 bits, `sqrt` of 8,192 bits 1.5 times; Wasm-GC `div` 1.9/3.3 times at 2,048/8,192 bits, Wasm 1.3/3.3 times. Native switches multiplication to the NTT at 8,192 limbs (was 2,048). Results are unchanged (the #308 digests pass; new tests compare 64-bit-digit Knuth with the 32-bit one on random and adversarial operands and divisions of up to 134,000 bits with the multiplication).
+- `bin_float`: the working precision from which the certified `exp` uses the bit-burst enclosure is 1,088 on Wasm (was 640, shared with Wasm-GC). After the 64-bit limb multiplication the series wins on Wasm up to about 1,000 bits: paired runs of `exp` are 1.4 to 1.7 times faster at 576 to 768 bits and equal at 1,024 bits and above. Wasm-GC (640) and Native (1,024) were re-measured against the never-burst and always-burst builds and keep their values; results are unchanged ([#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the certified `ln` of a number in `(1, 2]` (the unit enclosure behind `ln`, `log2`, `log10`, `log1p`, `pow`, `rootn` and the inverse hyperbolic functions) uses a verified Newton step on the bit-burst `exp` from a per-target working precision: 1,152 bits on Native and LLVM, 1,280 on Wasm and JavaScript, 576 on Wasm-GC. A start value of half the precision comes from the same function one level down; `exp` of it is enclosed, the quotient `v / exp(y0)` is bounded with directed division, and `(q - 1) - (q - 1)^2 <= ln q <= q - 1` for `|q - 1| <= 1/2` closes the enclosure, so the correctness of the enclosure does not depend on the quality of the start value. Paired alternating timings of `just bench external quick --ops ln` against the previous build on Native (after the 64-bit limbs, Karatsuba and division kernels, on a loaded machine): 8,192 bits 27.0, 25.6, 25.6 and 28.0 ms against 2.43, 2.40, 2.57 and 2.44 ms (paired ratios 10.0 to 11.5), 2,048 bits 565 to 856 us against 295 to 378 us (1.7 to 2.35 times); 53 and 512 bits are on the old path. The raw ratio to the stored MPFR medians (floating of the day over the stored MPFR median) at 8,192 bits goes from 221 to 243 to 21 to 22, at 2,048 bits from 37 to 57 to 20 to 25; MPFR re-measured on the machine at that time reads about 1.95 times slower than the stored run at 8,192 bits and 1.65 times at 2,048, so the drift-corrected ratios are about 10.7 to 11.4 and 12 to 15 (an earlier run on a quiet machine gave 11.5 to 13.6 at 8,192 bits). The enclosure contains the series enclosure at 256 more bits and is no wider than it in the white-box tests, two deliberately wrong variants fail those tests, and 13,200 `ln` rows of 256 to 4,096 bits in four rounding directions (arguments from `2^-1000` to `2^100000`, near 1 and near powers of two, every row through the kernel) agree with MPFR 4.2.2 and are byte-identical on Native, Wasm, Wasm-GC and JavaScript. Results, flags and certification failures of `ln` are unchanged ([#18](https://github.com/Luna-Flow/floating/issues/18)).
+- `bin_float`: the certified `sin` and `cos` use argument reduction with `pi / 2` in integers (one Euclidean division, an exact reduced argument and a 2-unit bound from the Lipschitz property) and a bit-burst evaluation of `exp(i y)`: the reduced argument is cut into chunks of 16, 48, 192, ... bits, each chunk's sine and cosine is bounded as a midpoint-radius ball by the fixed-point series or, from 40 terms, by binary splitting with a complex state, and the balls are folded by rotation, from a per-target working precision: 1,536 bits on Native and LLVM, 2,112 on Wasm, 640 on Wasm-GC, 256 on JavaScript. `tan` and the argument-reduction path below the thresholds are unchanged. Paired alternating timings of `just bench external quick --ops sin` against the previous build on Native: 8,192 bits 6.92, 6.66, 6.73 and 6.66 ms against 1.47, 1.32, 1.29 and 1.38 ms (paired ratios 4.7 to 5.2), 2,048 bits 268 to 288 us against 183 to 204 us (1.3 to 1.5 times); 53 and 512 bits unchanged. The raw ratio to the stored MPFR medians (floating of the day over the stored MPFR median) at 8,192 bits goes from 34 to 35 to 6.5 to 7.4, at 2,048 bits from 19 to 20 to 13 to 14; the machine reads about 1.45 times slower than the stored run, so the drift-corrected ratios are about 4.5 to 5.1 and 9 to 10. The enclosure contains the series enclosure at 256 more bits and is no wider than it in the white-box tests, three deliberately wrong variants fail those tests, and 23,424 `sin` and 23,424 `cos` rows of 256 to 4,096 bits in four rounding directions (arguments from `2^-60` to `2^1000` and next to multiples of `pi / 2`, every row through the kernel) agree with MPFR 4.2.2 and are byte-identical on Native, Wasm, Wasm-GC and JavaScript. Results, flags and certification failures of `sin` and `cos` are unchanged ([#18](https://github.com/Luna-Flow/floating/issues/18)).
+
+### Fixed
+
+<<<<<<< HEAD
+- `Decimal::exp_ctx` raised neither underflow nor subnormal for a result far below the range when `precision = 1`, the non-standard `AfterRounding` tininess option is selected and the direction is `Up`, `Ceiling` or `ZeroFiveUp` (`exp(-8E+4)` with `e_min = -10004` gave `1E-10004` with inexact and rounded only): the smallest subnormal equals the smallest normal number then, and the coarse underflow path compared the wrong adjusted exponent. By the option's own rule the result is tiny because it is below `10^e_min` with an unbounded exponent range; tininess before rounding, the rule of IEEE 754-2019 §7.5 for decimal formats and the default, was correct (found by the MPFR decimal random oracle, 22 of 20,000 rows; [#333](https://github.com/Luna-Flow/floating/issues/333)).
+=======
+- `decimal_gda`: `power_ctx` with an integer exponent raises `Underflow` for an inexact subnormal result whose working value already fits the context: `power 10.000000000000000000000000001 -9` at precision 23, Emin -1, Emax 1 is `1.00000000000000E-9 Inexact Rounded Subnormal Underflow`, no longer without `Underflow`. The exact power `9.99999999999999999999999991E-10` has 27 digits, its 26-digit working value is already `1.00000000000000000000000E-9`, so the final rounding to the context was exact and added no inexactness; the inexactness of the working arithmetic was not used for the Underflow of a delivered value below `10^emin`. Underflow is Subnormal with an inexact result (GDA 1.70, Exceptional conditions, Subnormal and Underflow; IEEE 754-2019 §7.5). Positive exponents and the `-9.E+0` spelling take the same path; `decimal` already delivered these rows and gets regression rows. Found by the seeded random differential (seed 20261119, case `d20261119.power.12658`); Python `decimal` (libmpdec 4.0.0) is the oracle, not the specification ([#342](https://github.com/Luna-Flow/floating/issues/342)).
+>>>>>>> d743c73 (fix(decimal_gda): raise Underflow for an inexact subnormal integer power)
+- `Decimal::atan2_ctx` returned a zero of exponent 0 when the result underflows to zero (`atan2(1E-500, 9)` in decimal64 gave `0`); the zero now has the least exponent `e_min - p + 1`, as for every other function, with the sign of the ordinate (IEEE 754-2019 §5.2; found by the MPFR decimal random oracle, 54 of 20,000 rows; [#332](https://github.com/Luna-Flow/floating/issues/332)).
+- `BinFloat::sinpi_ctx`, `tanpi_ctx` and `cospi_ctx` of a tiny argument within about `p + 8` bits of the implementation subnormal limit returned a certification failure (`sinpi`), `-0` with no flags (`tanpi`) and exactly `1` with no `inexact` (`cospi`; round down gave `1` instead of `1 - 2^-p`): the periodic reduction rebuilt the argument with a `BinFloat::make` at the width of its residue, which flushes a value that small. It is rebuilt at the argument's own width ([#316](https://github.com/Luna-Flow/floating/issues/316)).
+- `BinFloat::hypot_ctx` returned `0` or `+inf` with no flags, or failed to certify, for operands whose exponent is beyond `2^29` in magnitude, and `0` for an operand beside a much smaller one near the implementation subnormal limit: the exact sum of squares was built with a doubled exponent, which leaves the range of `BinFloat::make` (and of the 32-bit exponent). The sum is now kept at the operands' own scale and rounded by a square root of `T * 2^(2 m)` that never forms the doubled exponent; the power-of-two stand-in for a negligible operand is built wide enough not to be flushed ([#275](https://github.com/Luna-Flow/floating/issues/275)).
+- `BinFloat::expm1_ctx`, `log1p_ctx`, `sinh_ctx`, `tanh_ctx`, `asinh_ctx`, `atanh_ctx`, `sin_ctx`, `tan_ctx` and `asin_ctx` returned the argument itself with no flags, in every rounding direction, for a tiny argument within about `p + 8` bits of the implementation subnormal limit (`expm1(2^-1073741860)` at `p = 53`), and `expm1` returned NaN for such an argument at `p = 2`: the offset and the inner endpoint of the tiny-argument enclosure were built with a `BinFloat::make` at their own width, which flushes a value that small, so the enclosure collapsed to the exact argument. Both are now built wide enough to be kept; the correctly rounded result and its `inexact` and `underflow` flags follow ([#315](https://github.com/Luna-Flow/floating/issues/315)).
+- `decimal_gda`: an inexact integer `power_ctx` result that rounds to a power of ten no longer raises `Clamped` under `clamp`: `power 0.9999999 -1` at precision 4, Emax 0 is `1.000 Inexact Rounded`. The final rounding trims the zeros (`1000` to `1`), the trimmed exponent is above Etop, and the fold-down was flagged although the full-precision form of an inexact result, with the exponent adjusted - precision + 1, is at most Etop and nothing is altered to fit (GDA 1.70, Exceptional conditions, Clamped). #282 only took the flag back when padding changed the coefficient. Found as rows .1081 and .1129 of the seeded random differential; `decimal` is not affected and gets regression rows ([#305](https://github.com/Luna-Flow/floating/issues/305)).
+- `decimal_gda`: the power of a base of value 1 to a non-integer exponent is `1` with `precision` digits, `Inexact` and `Rounded`, whatever Emax is: `power 1 1.03` at precision 5, Emax 0 is `1.0000 Inexact Rounded`, where it was the exact `1` (and `Clamped` under clamp). A shortcut for exponents whose adjusted exponent is at least Emax, meant for astronomically large exponents, also caught 1.03 when Emax is 0. GDA 1.70 *power*: "the result will be inexact unless the right-hand side has an integral value and the result is finite and can be expressed exactly within precision digits"; the official corpus agrees (`power 1 1.01 -> 1.00 Inexact Rounded`). `decimal` is not affected: IEEE 754-2019 §9.2.1 gives `pow(+1, y)` the exact value 1 for any y. Found as row .3705 of the seeded random differential ([#306](https://github.com/Luna-Flow/floating/issues/306)).
+- `BinFloat::exp2_ctx` of an integer `n` below `e_min = 1 - 2^30` (for example `exp2(-2^30)` at `p = 2`, where `2^n` is an exactly representable subnormal) returned `+0` with no flags, because the exact power was built by a one-bit `BinFloat::make`, which flushes below `2^e_min` before the context rounds it; it now returns `2^n` with no flags, or the rounded neighbour with `inexact` and `underflow` below the smallest subnormal, in every rounding direction (IEEE 754-2019 §9.2, §7.5). The interval `BallFloat::try_exp2_interval` enclosed `{0}` for the same arguments and now contains the value ([#271](https://github.com/Luna-Flow/floating/issues/271)).
+- `BinFloat::pow_ctx` returned `+0` with no flags for an exact power of two below `2^e_min`, such as `(1/4)^(2^29 + 1/2)`, through the same one-bit `make` ([#272](https://github.com/Luna-Flow/floating/issues/272)).
+- `BinFloat::pown_ctx` omitted `underflow` under after-rounding tininess when the `p`-bit rounding of a result near the implementation limit `2^(1 - 2^30)` is tiny but the subnormal grid delivers `2^e_min`: the unbounded rounding of the tininess test still had the implementation subnormal range ([#273](https://github.com/Luna-Flow/floating/issues/273)).
+- `BinFloat::pown_ctx` rounded a result between half and the whole smallest subnormal (for example `3^-677455689` toward negative at `p = 40`) to the wrong neighbour: the endpoints of its Ziv enclosure were built at the bit length of their coefficients and flushed to zero or to the smallest value of that width ([#278](https://github.com/Luna-Flow/floating/issues/278)).
+- `BinFloat::try_hypot_ctx` returned `+inf` for `hypot(±inf, sNaN)`; IEEE 754-2019 §9.2 gives `+inf` only beside a quiet NaN, and a signaling NaN operand is an invalid operation whose result is a quiet NaN (payload and sign kept). The `invalid` flag was already raised ([#293](https://github.com/Luna-Flow/floating/issues/293)).
+- `BinFloat::try_pow_ctx` (and `pow_ctx`, `pow`) returned `1` with no flags for `pow(sNaN, 0)` and `pow(+1, sNaN)`, because the two shortcuts of IEEE 754-2019 §9.2.1 ran before the NaN handling; a signaling NaN operand now gives a quiet NaN with the payload and sign kept and `invalid`, and `pow(qNaN, 0)` and `pow(+1, qNaN)` still give `1` without a flag ([#289](https://github.com/Luna-Flow/floating/issues/289)).
+- `BinFloat::expm1_ctx` returned NaN with `invalid` instead of overflowing when `x log2(e)` lies in `[e_max + 1, e_max + 2)`: the overflow pre-check left that window to a loop that cannot certify an out-of-range enclosure ([#274](https://github.com/Luna-Flow/floating/issues/274)).
+- `bin_float_checked`: the elementary `BinFloatResult` methods (`exp` ... `tanpi` and their `_ctx` forms) and `pow`, `pow_ctx`, `rootn`, `rootn_ctx`, `hypot`, `hypot_ctx`, `atan2`, `atan2_ctx` no longer drop the exception flags of the `try_*_ctx` operation. As for `div` and `pow_int` (#262), the invalid operation exception (IEEE 754-2019 §7.2, §9.2: a signaling NaN operand or an argument outside the Table 9.1 domain) is a `DomainError` and divideByZero (a §9.2 pole) a `DivisionByZero` error: `ln(0)`, `log1p(-1)`, `atanh(1)`, `tanpi(0.5)`, `rootn(0, -2)` and `pow(0, -1.5)` were `Ok(±inf)`, `ln(-inf)` and every signaling NaN operand `Ok(NaN)`. Overflow, underflow and inexact are still dropped; the arithmetic `_ctx` methods (`add_ctx` ... `pown_ctx`) still keep the IEEE default value. The design page now states the two contracts ([#290](https://github.com/Luna-Flow/floating/issues/290)).
+- `bin_float`: `pow_int_ctx`, `pown_ctx` and the natural-exponent power behind `PowNatChecked` no longer return 1 for a signaling NaN base with a zero exponent. IEEE 754-2019 §9.2.1 gives `pown(x, 0) = 1` only for an `x` that is not a signaling NaN, so the result is now the quieted NaN (payload kept, §6.2) with the invalid flag (§7.2 a), and the checked tier (`pow_int`, `pown`, `pow_int_checked`, `pow_nat_checked`, `BinFloatResult`) returns `DomainError`. A quiet NaN with a zero exponent still gives 1 without a flag ([#286](https://github.com/Luna-Flow/floating/issues/286)).
+- `bin_float` and `bin_float_checked`: the checked division, square root and integer powers (`DivChecked`, `SqrtChecked`, `PowNatChecked`, `PowIntChecked`, `BinFloat::div_checked`, `sqrt`, `sqrt_for_precision`, `pow_int`, `pown` and the `BinFloatResult` methods built on them) now derive their error from the flags of the contextual operation instead of guarding on the operands. The checked result is the IEEE 754-2019 default result, with the invalid operation exception (§7.2) as `DomainError` and divideByZero (§7.3) as `DivisionByZero`, as the `Double` instances of Luna-Flow/arithmetic and both `Decimal` instances do: `NaN / 0` is `Ok(NaN)` and `inf / 0` is `Ok(inf)` (both were `DivisionByZero`), `0 / 0` is `DomainError` (was `DivisionByZero`), `inf / inf` is `DomainError` (was `Ok(NaN)`), `sqrt(-NaN)` is `Ok(NaN)` (was `DomainError`), and a signaling NaN operand is `DomainError` (§7.2 a; was `Ok(NaN)` or `DivisionByZero`). A clause-annotated table covers every special-value combination in five rounding directions at precisions 24, 53 and 113 ([#262](https://github.com/Luna-Flow/floating/issues/262)).
+- `decimal_gda` and `decimal`: `power_ctx` with a negative integer exponent in a non-extended context (`extended = false`, the subset arithmetic) no longer aborts with `decimal_apply_finite_ctx expects a finite operand` when the reciprocal of a tiny positive power leaves the working range. That is the overflow of the result (GDA 1.70, Exceptional conditions, Overflow; IEEE 754-2019 §7.4), now delivered as the overflow result of the context with the sign of `x^n`. 71 of 20,000 random subset rows aborted before; the other 19,929 rows give the same results and flags as before. The `Known deviations` list of the `decimal_gda` conformance page now records the exponent limit of nine digits, the last-digit differences in the directed modes and the zero base with a negative exponent ([#283](https://github.com/Luna-Flow/floating/issues/283)).
+- `decimal_gda` and `decimal`: `power_ctx` with an integer exponent no longer raises `Clamped` (or the `Rounded` that the padding behind it caused) for a result whose exponent was not altered: `power 6E-1 2` at precision 1, Emin -1, Emax 0 with `clamp` is `0.4 Inexact Rounded`, not also `Clamped`. The working-precision multiplications inherited `clamp`, folded an intermediate product down to the working Etop and let its flag and padded coefficient reach the result; the working context no longer clamps, so only the delivered result is folded and flagged (GDA 1.70, Exceptional conditions, Clamped). In `decimal`, `clamped` and `rounded` are conditions of the package's own contract, for which IEEE 754 has no clause. Python `decimal` (libmpdec 4.0.0) is the oracle, not the specification ([#267](https://github.com/Luna-Flow/floating/issues/267)).
+- `decimal_gda` and `decimal`: an exact negative integer power keeps the cohort of repeated multiplication from the reciprocal. Without `clamp`, the exact reciprocal that starts the power was padded towards exponent 0 (`1 / 5E-2` gave `20`, not `2E+1`), so `power 0.05 -8` at precision 5 was `2.5600E+10` (not `2.56E+10`) and at precision 3 raised `Rounded` for an exact result; `power 0.05 -3` at precision 2 was `8.0E+3`, not `8E+3` (GDA 1.70 *power*: the exponent of an unrounded result is the one repeated multiplication gives; IEEE 754-2019 §5.2 and §9.2.2 for `decimal`). The reciprocal now keeps the cohort of the division, as it already did under `clamp`. 50 of 12,288 rows of an exact-reciprocal grid failed in each package, none now ([#284](https://github.com/Luna-Flow/floating/issues/284)).
+- `decimal_gda` and `decimal`: `power_ctx` with an integer exponent signals `Subnormal` and `Underflow` for an inexact power whose exact value is just below `10^emin` but whose delivered result is `10^emin`: `1 / 1.00000000000000000001` at precision 1 and Emin 0 is `1` with `Underflow Subnormal Inexact Rounded`. Tininess is judged on the exact result before rounding (GDA 1.70, Exceptional conditions, Subnormal and Underflow; IEEE 754-2019 §7.5 for decimal formats). The working arithmetic only knew the rounded power; `decimal_gda` now decides the side of the exact power by repeating the multiplication at a doubled precision with a proven error bound, and the `decimal` enclosure is refined while it straddles `10^emin`. The side of the exact power in the new rows comes from exact rational arithmetic; Python `decimal` (libmpdec 4.0.0) supplies the rest and is an oracle, not the specification ([#268](https://github.com/Luna-Flow/floating/issues/268)).
+- `decimal_gda` and `decimal`: `power_ctx` of a power of ten under `clamp` folds an exponent above Etop down and signals `Clamped`: `(-1E+998)^1` at precision 7, Emax 999 is `-1.00000E+998 Clamped`, `(-1E+1)^-1` at precision 3, Emax 0 is `-0.10 Clamped`. The exact power-of-ten shortcut (`decimal_power_ten_cohort_result`) returned the preferred cohort without the fold-down (GDA 1.70, Exceptional conditions, Clamped). The value 1 keeps its cohort, as it does in libmpdec; whether `x^0` and the powers of 1 should fold is an open question on the issue. 94 of 31,284 rows of a powers-of-ten grid failed, none new now. In `decimal` the `clamped` condition is the package's own contract, for which IEEE 754 has no clause ([#287](https://github.com/Luna-Flow/floating/issues/287)).
+- `decimal_gda` and `decimal`: `add_ctx`, `sub_ctx` and `fma_ctx` no longer report `Overflow` when an operand (or the exact product) would round past the largest finite number on its own but the rounded sum is in range, as in `9.5 + -0.5` at precision 1 and Emax 0, which is `9`. Overflow is judged on the result after rounding (GDA 1.70, Exceptional conditions, Overflow; IEEE 754-2019 §7.4); non-extended contexts are unchanged. The oracle for the new rows is Python `decimal` (libmpdec 4.0.0), which is evidence, not the specification ([#264](https://github.com/Luna-Flow/floating/issues/264)).
+- `decimal_gda` and `decimal`: `power_ctx` of a negative base and an even negative integer exponent that overflows now returns `+Infinity` (or the largest finite number in the directed modes), not `-Infinity`. The reciprocal that overflowed the working context carried the sign of the base into the result; GDA 1.70 *power* gives the result sign 1 only for an odd integral exponent and a negative base, and IEEE 754-2019 §7.4 gives an overflow the sign of the intermediate result. Odd exponents, signed zeros and underflow signs have tests. Python `decimal` (libmpdec 4.0.0) is the oracle, not the specification ([#265](https://github.com/Luna-Flow/floating/issues/265)).
+- `decimal_gda`: an inexact `power_ctx` result with an integer exponent keeps `precision` digits, trailing zeros included: `99999E-1 ^ -1` at precision 2 is `0.00010`, not `0.0001`. GDA 1.70 rounds a result with more digits than the precision "to exactly precision digits", IEEE 754-2019 §5.2 uses the cohort member of least possible exponent for an inexact result, the official decTest corpus has 126 inexact `power` rows with a trailing zero and none that is shorter than the precision, and Python `decimal` (libmpdec 4.0.0) agrees. The non-integer power already padded; a subset context (`extended = false`) still strips the zeros (GDA 1.70, Appendix A). Padding also takes back a `Clamped` that the trimmed coefficient had caused (the padded coefficient is at most Etop, so nothing was altered to fit). `decimal` already returned the padded result and gets regression rows only ([#266](https://github.com/Luna-Flow/floating/issues/266)).
+- `BinFloat::from_hex` reads the whole IEEE 754-2019 §5.12.3 hexSequence grammar: a hexadecimal significand with a point (`0x1.8p0`, `0x.8p1`, `0x1.p0`) was rejected before, the exponent is read as decimal digits only, and `snan` in any case (§5.12.1) gives a signaling NaN. Every production has accepting and rejecting tests and a round trip; the signature is unchanged. The missing rounding direction and flags are tracked in [#256](https://github.com/Luna-Flow/floating/issues/256) ([#225](https://github.com/Luna-Flow/floating/issues/225)).
+
+### Verified
+
+- `rootn(x, 0)` is pinned as an invalid operation for every `x`, a quiet NaN and `±0` included, and not `divideByZero` (IEEE 754-2019 Table 9.1 "n = 0: invalid operation"; §7.3 keeps divideByZero for `rootn(±0, n)` with `n < 0`): a contextual test, the checked-tier rows, and a sentence in both API pages ([#294](https://github.com/Luna-Flow/floating/issues/294)).
+- IEEE 1788-2015 §12.10: the `ball_float` conformance page documents the tightness of every interval operation with its range and evidence (§12.10.3). The ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result, so the arithmetic, `abs`/`minimum`/`maximum`, `pown`, trigonometric, `atan2` and power phases are tightness evidence; the page said containment before. The forward-operation row is now partial, because the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)) ([#229](https://github.com/Luna-Flow/floating/issues/229)).
+- IEEE 754-2019 §5.10 totalOrder and totalOrderMag for `decimal` are checked against an independent corpus: a transcription of §5.10 cross-checked with libmpdec, every ordered pair of cohorts, signed zeros, subnormals, infinities and NaNs with payloads in decimal32/64/128 (18,816 pairs) on four targets ([#227](https://github.com/Luna-Flow/floating/issues/227)).
+- General Decimal Arithmetic Appendix A (subset arithmetic) is conforming: the `DECIMAL_GDA` gate runs the pinned subset corpus `dectest0.zip` (16,124/16,124 executable rows); the clause row and checklist now say so ([#228](https://github.com/Luna-Flow/floating/issues/228)).
+
+## 0.10.2 - 2026-11-12
+
+### Changed
+
+- Dependencies: `Luna-Flow/arithmetic` 0.5.2 (was 0.5.1), `Luna-Flow/type_theory` 0.4.1 (was 0.4.0), `Luna-Flow/mare_mark` 0.4.2 (was 0.4.1).
+- Require MoonBit `moonc` 0.10.20 or later, verified with `moon 0.1.20261104` and `moonc v0.10.20`: `derive(...)` clauses are now `#derive(...)` attributes, which older 0.10 compilers ignore. No public API changed.
+- Replace the deprecated `String::view(start_offset~, end_offset~)` with `exact_view(start~, end~)`, which keeps the same bounds check.
+- Bump `moonbitlang/async` from 0.22.5 to 0.22.9. It has no wasm-gc runtime ([moonbitlang/core#4584](https://github.com/moonbitlang/core/issues/4584)), so the skipped `async test` benchmarks in `bench/*` now live in files built only for native, JS and wasm instead of relying on the old pin.
+- Sync the API snapshots in `doc/manual/api` with the regenerated interfaces.
+
+## 0.10.1 - 2026-10-31
+
+- Documentation: the known-limitations list of the `ball_float` design page and the known-gaps table no longer claim that decorated `rootn` with a negative degree keeps its decoration when 0 is in the argument. The decoration has been lowered to `trv` since the pole fix (`e008dd1`), and `src/ball_float/ball_float_decorated_wbtest.mbt` checks it; issue [#233](https://github.com/Luna-Flow/floating/issues/233) was opened from the stale text and is closed.
+- Documentation: the "Known gaps and deviations" table of `doc/manual/verification.md` now links the issue that tracks each gap (roadmap [#245](https://github.com/Luna-Flow/floating/issues/245)).
+
+### Changed
+
+- Dependencies: Luna-Flow/mare_mark 0.4.1, moonbitlang/x 0.5.7, moonbitlang/async 0.22.5. async 0.22.6 and later make moonc v0.10.18 emit invalid wasm-gc for the `bench` tests, so async stays at 0.22.5. Interfaces regenerated with moon 0.1.20261028.
+
+
+## 0.10.0 - 2026-10-13
+
+### Added
+
+- **Required versus recommended:** each clause row of the IEEE 754-2019 and 1788-2015 conformance tables now has a `Level` (`required`, `recommended`, `optional`), the checklist counts required gaps separately from recommended ones, and the §9.5 decimal row now says augmented arithmetic is recommended for binary formats only.
+- **Conformance checklist:** `doc/manual/verification.md` has a task-list checklist and per-standard counts (IEEE 754-2019 for `bin_float` and `decimal`, General Decimal Arithmetic 1.70, IEEE 1788-2015) generated from the clause traceability tables by `tools/conformance_checklist.py`; `just docs` fails when it is stale.
+- **Standards conformance statement ([#157](https://github.com/Luna-Flow/floating/issues/157); Closes #157):** each conformance page now has a clause traceability table (IEEE 754-2019 for `bin_float` and `decimal`, General Decimal Arithmetic 1.70 for `decimal_gda`, IEEE 1788-2015 for `ball_float`: clause, public API, evidence, status), and `verification.md` lists the implementation-defined choices (tininess, NaN payload and sign, exponent ranges, accuracy, interval flavor) and the known gaps with their issues. `tools/doc_quality.py` fails when a cited `src/`, `testdata/` or `tools/` path does not exist. The decimal IEEE matrix (`testdata/decimal/ieee/conformance_matrix.json`) now lists the trigonometric, hyperbolic, exp/log and power families as covered, which the MPFR-certified oracle has long exercised. Writing the tables found that `decimal` defaults to after-rounding tininess although IEEE 754-2019 §7.5 requires before rounding for decimal formats: issue [#217](https://github.com/Luna-Flow/floating/issues/217).
+- **MPFR differential corpora for decimal character conversion ([#11](https://github.com/Luna-Flow/floating/issues/11), [#12](https://github.com/Luna-Flow/floating/issues/12); Closes #11, Closes #12):** two hash-pinned MPFR 4.2.2 fixtures generated by `tools/generate_mpfr_decimal_string_oracle.c` and run by `frontend/mpfr_expr`, the `mpfr-expr` CLI, the committed binary smoke and the binary gate: 1,716 `mpfr_strtofr` rows (decimal text to binary at 11 to 200 bits under all six roundings, including exact halfway points, one-unit-off-halfway strings, 400-digit mantissas, exponents up to ±3·10^8 and the exponent limits) and 3,300 `mpfr_get_str` rows (fixed digit counts, exact ties, and the shortest round-trip digit count of 1,200 values). All rows pass. The binary smoke grows from 2,451 to 7,467 rows.
+
+### Fixed
+
+- **Caller-visible, behavior change ([#217](https://github.com/Luna-Flow/floating/issues/217); Closes #217):** `DecimalContext` (`new`, `try_new`, `decimal32/64/128`, `from_arithmetic_context`, `exact`) now defaults to `DecimalTininessDetection::BeforeRounding`, as IEEE 754-2019 §7.5 requires for decimal formats ("For decimal formats, tininess is detected before rounding"). A result whose exact value is below `10^e_min` but rounds up to `10^e_min` (decimal64 `0.99951` at `p = 3`, `e_min = 0`) now raises `underflow` and `subnormal` when inexact. Values and every other flag are unchanged. `AfterRounding` stays available as an explicit non-standard option (`tininess=` or `with_tininess`).
+- **Caller-visible ([#196](https://github.com/Luna-Flow/floating/issues/196); Closes #196):** `decimal` `power_ctx` and `pown`-style integral exponents with more than 4,096 digits no longer give NaN with `invalid_context` for a base other than `±1`, `±0` and `±inf`: `pow(2, 1E+4100)` is `inf` with `overflow`, `pow(0.5, 1E+400000)` underflows to zero or the smallest subnormal by the rounding direction. The result is decided from `|y ln|x||` (at least `10^(digits(y) - 2 + min(q, 0))` for a base with exponent `q`) without exponent-sized work.
+- **Caller-visible ([#185](https://github.com/Luna-Flow/floating/issues/185); Closes #185):** `BinFloat::tanh_ctx` and `try_tanh_ctx` no longer fail for a finite argument beyond about `2^30` (`Err`, NaN with empty flags): for `|x| > (p + 4) ln 2 / 2` the result is `±1` or the adjacent value `±(1 - 2^-p)` by the rounding direction, with `inexact`, as `expm1` already did at negative saturation. `sinh`, `cosh`, `asinh`, `acosh` and `expm1` were checked at `2^30` to `2^1000` and are unaffected.
+- `BinFloat::from_string_ctx` no longer aborts ("precision exceeds binary_precision_max") for a literal whose value lies within a few binades of the exponent limit, such as `1e323228497`. `10^k` left the exponent range before `D * 10^k` did, so the certified rounding retried at ever higher precision; the working enclosure now uses `5^k` and applies `2^k` after rounding, in the context with its exponent range shifted by `k`.
+- Documentation: the implementation exponent range `[1 - 2^30, 2^30 - 1]` for the leading bit is one binade higher at both ends than MPFR's (`emax = 2^30 - 1` in MPFR's `0.1xxx * 2^e` convention gives the leading bit `2^30 - 2`); the conformance notes now say so.
+- **Caller-visible ([#187](https://github.com/Luna-Flow/floating/issues/187); Closes #187):** `decimal` and `decimal_gda` no longer abort or return wrong values for operands whose exponents are near the `Int` limits. Fixed: `sqrt` of a tiny operand (`5E-2147483648` aborted, `5E-2147483647` gave `inf`; both now underflow like any value below `Etiny`), `remainder`/`remainder_near` quotient-length checks (the exponent difference wrapped; `remainder(7, 9E-2147483648)` is NaN with `division_impossible`, and the IEEE `decimal` `remainder_near` forms its exact remainder with the power of ten reduced in chunks), `rescale` with an exponent operand beyond `Int`, `add`/`sub`/`fma` with a zero operand at a very low exponent in `decimal_gda` (negative shift abort, extra `clamped`), `fma`/`mul` whose product exponent exceeds `Int` (overflow, not underflow) or whose tiny result takes the sign of the larger operand, the nearest-quotient comparison (adjusted exponent of the doubled dividend), and a rounding carry at `Int` max (`add(10E100, 99E2147483646)` at precision 1 returned `1E-999999999`, now overflows). 2,000+ extreme-operand cases per package agree with Python `decimal`, apart from two documented semantic differences (see the PR): the `decimal` `sqrt` tininess rule (IEEE after rounding) and a zero `quantize` result above `e_max - p + 1` with `clamp`.
+- **Caller-visible ([#211](https://github.com/Luna-Flow/floating/issues/211); Closes #211):** `decimal_gda` `power_ctx` keeps the exponent of repeated multiplication (General Decimal Arithmetic, *power*) for integer powers of `1`, `-1` and of `1E+q`: precision 16 `power(1.00, 2)` is `1.0000` (was `1`), `power(-1.0, 3)` is `-1.000`, `power(1E+5, 2)` is `1E+10` (was `10000000000`) and `power(-1E+5, 5)` is `-1E+25` without `rounded`. 828 integer-power cases agree with Python `decimal` (215 differed).
+- **Caller-visible ([#194](https://github.com/Luna-Flow/floating/issues/194); Closes #194):** `decimal` `pown_ctx` and `power_ctx` deliver an exact result in the cohort member closest to the IEEE 754-2019 §9.2.2 preferred exponent, `floor(n * Q(x))` for `pown` and `floor(y * Q(x))` for `pow`: decimal64 `pown(1.00, 2)` is `1.0000` (was `1`), `pown(-1.0, 3)` is `-1.000`, `power(1.00, 1.5)` is `1.000`, `power(4.00, 1.5)` is `8.000`, and `pown(-1E+5, 5)` is `-1E+25` without `rounded` (was `-1.000000000000000E+25|rounded`). `decimal_gda` is not changed here.
+- **Caller-visible ([#60](https://github.com/Luna-Flow/floating/issues/60); Closes #60):** `bench.tune_dataset` gives `@tune.select_best` a real secondary criterion, the interquartile range of the candidate's samples, so `practical_delta_pct` now has an effect: candidates within the threshold of the smallest median are decided by the smaller IQR, then the smaller candidate id, independent of `candidate_ids` order. The `paired_hotspot` confidence argument was already fixed by [#80](https://github.com/Luna-Flow/floating/pull/80).
+- **Caller-visible ([#150](https://github.com/Luna-Flow/floating/issues/150); Closes #150):** `Decimal::from_int`, `from_bigint`, `from_double`, `from_float` and `from_bin_float` (`decimal` and `decimal_gda`) return the IEEE 754-2019 preferred cohort instead of the reduced member. An integer of at most `precision` digits keeps exponent 0 (`from_int(1000)` is `1000`, was `1E+3`); an exact binary value takes the exponent closest to 0 (`from_double(0.5)` is `0.5`, `from_double(100.0)` is `100`); an inexact or too long value is rounded to exactly `precision` digits (`from_double(0.1, precision=16)` is `0.1000000000000000`, was `0.1`). `Decimal::make` is unchanged and still returns the reduced member.
+- **Caller-visible ([#151](https://github.com/Luna-Flow/floating/issues/151), [#152](https://github.com/Luna-Flow/floating/issues/152); Closes #151, Closes #152):** `decimal` and `decimal_gda` NaN payloads follow IEEE 754-2019. `get_payload` returns `-1` for a non-NaN (§9.7); `set_payload` and `set_payload_signaling` return a NaN with the payload only for a non-negative integer of at most `precision - 1` digits and `+0` otherwise, whatever the receiver is (a negative payload used to give NaN with its absolute value, and a non-NaN receiver was returned unchanged). A NaN propagated through a `clamp` (interchange-shaped) context keeps at most `p - 1` payload digits, as `from_string_ctx` does: decimal64 `NaN1234567890123456 + 1` is `NaN234567890123456`.
+- **Caller-visible ([#180](https://github.com/Luna-Flow/floating/issues/180); Closes #180):** `decimal_gda` `Decimal::parse` and `from_string` no longer return the reduced cohort member for a literal with more digits than the precision. Following the General Decimal Arithmetic to-number conversion, the coefficient is shortened to exactly `precision` digits and keeps its trailing zeros: at precision 3, `1.0001` is `1.00` (was `1`), `10001` is `1.00E+4`, `99999` is `1.00E+5` and `9.9999` is `10.0`. The shared rounding helper also keeps `precision` digits after a carry into `10^p`, as `decimal` does since #178.
+- **Caller-visible ([#168](https://github.com/Luna-Flow/floating/issues/168); Closes #168):** `decimal` and `decimal_gda` integer powers (`pown_ctx`, `power_ctx`, `exp10_ctx`) whose exact value lies below the smallest subnormal now round in the rounding direction (IEEE 754-2019 §4.3, §7.5) instead of returning zero in every mode: `pown(9.9E-200, 2)` is `1E-398` to nearest (it is `9.801E-399`), and `pow(0.1, 400)` is `1E-398` rounding up, as `mul_ctx` already was. The bound shortcut no longer fires when the adjusted exponent is `Etiny - 1`, and an exact power of ten with a non-unit coefficient (`10`, not `1E+1`) takes the same overflow/underflow route, so `decimal_gda` `power(10, -1E+30)` no longer returns NaN.
+- **Caller-visible ([#171](https://github.com/Luna-Flow/floating/issues/171); Closes #171):** Decimal and binary `rootn` now handle every nonzero `Int` degree. Decimal exact-root detection skips impossible high-degree probes using a coefficient-size bound, avoiding degree-sized integer powers; binary certification handles the full signed `Int` range, including `Int.min`.
+
+## 0.9.0 - 2026-10-13
+
+### Added
+
+- Added the remaining IEEE 754-2019 binary operations to `BinFloat`, each
+  correctly rounded under a `BinaryContext` and returning `BinaryFlags`:
+  - `fma` and `fma_ctx` (fusedMultiplyAdd), which round `x * y + z` once;
+    NaN handling follows SoftFloat 3e.
+  - `remainder` and `remainder_ctx` (IEEE remainder, quotient rounded to
+    nearest-even), without materializing huge scaled dividends.
+  - `to_integral_value_ctx`, `to_integral_exact_ctx`, `floor`, `ceil`,
+    `trunc`, `round` (ties away) and `round_ties_even` (roundToIntegral).
+  - `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx`
+    (convertToInteger, with `exact=true` for convertToIntegerExact); invalid
+    conversions return `None` with *invalid*.
+  - `next_up_ctx` and `next_down_ctx` (nextUp, nextDown).
+  - `scaleb_ctx` and `logb_ctx` (scaleB, logB).
+  - `copy_sign`, `total_order`, `total_order_compare` and `total_order_mag`
+    (copySign, totalOrder, totalOrderMag), and the comparison predicates
+    `compare_quiet`, `compare_signaling`, `equal_quiet`, `equal_signaling`,
+    `less_quiet`, `less_signaling`, `less_equal_quiet`,
+    `less_equal_signaling` and `unordered_quiet`.
+  - `from_string` and `from_string_ctx` (convertFromDecimalCharacter),
+    correctly rounded for any precision and exponent, including huge
+    exponents decided without expansion.
+  - `to_decimal_string_ctx` (convertToDecimalCharacter with a fixed digit
+    count) and `to_shortest_string` / `to_shortest_string_ctx` (the fewest
+    digits that read back to the same value).
+- Added the binary implementation exponent range `binary_implementation_e_min`
+  and `binary_implementation_e_max` ($[1 - 2^{30}, 2^{30} - 1]$ for the leading
+  bit, as in MPFR) and the precision cap `binary_precision_max` ($2^{28}$
+  bits).
+- Extended the TestFloat frontend (`TestFloatOperation`, `TestFloatSpec::exact`,
+  `TestFloatSpec::parse(..., exact?)`) and the binary gate to mulAdd, rem,
+  roundToInt, the four integer conversions and the six comparison predicates:
+  `just gate binary` now covers 254,227,872 TestFloat vectors, and the binary
+  smoke fixture has 2,451 rows.
+- Added a nightly workflow that runs the `quick`, `decimal`, `decimal_gda`,
+  `binary` and `interval` gates in parallel with cached, hash-verified corpora
+  and uploads each summary.
+- Added `tools/check_doc_examples.py`, which compiles and runs the manual's
+  MoonBit examples against the current branch. `doc/manual` lives outside `src`
+  and its examples use plain `moonbit` fences, which `moon` does not compile, so
+  none of them were covered by a gate before; `just docs` now checks 236
+  examples across 48 pages.
+
+### Changed
+
+- Builds with the latest MoonBit toolchain (moon 0.1.20261012, moonc 0.10.15):
+  the dependencies are raised to `Luna-Flow/arithmetic` 0.5.1,
+  `Luna-Flow/type_theory` 0.4.0 and `Luna-Flow/mare_mark` 0.4.0 (their earlier
+  releases depend on packages that ship the legacy `moon.mod.json`, which the new
+  toolchain rejects), the four decimal cache cells use `@ref.Ref(...)` instead
+  of the deprecated `@ref.new(...)`, and the sources follow the formatter of that
+  toolchain.
+
+- **Caller-visible:** `decimal_gda`'s `Decimal::exp_contextual` (and any other
+  `*_contextual` adapter that meets the condition), `pow_int_checked` and
+  `pow_nat_checked` now report a GDA `Invalid_context` as
+  `Err(unsupported)` with an `invalid context:` message instead of
+  `Err(domain_error)`. Code that matched `is_domain_error()` for this case must
+  match `is_unsupported()` instead; `Luna-Flow/arithmetic` 0.5.0 has no
+  invalid-context error kind (#111).
+- `BinFloat::compare` and the IEEE and GDA `Decimal::compare` no longer abort
+  on NaN. They keep the numeric order for other operands (`-0 == +0`) and
+  order every NaN equal to every other NaN and above every number, so
+  `Compare`, `<`, `<=` and sorting form a total preorder. IEEE semantics remain
+  available through `compare_checked`, the quiet and signaling predicates and
+  the total-order functions.
+- Results outside the binary implementation exponent range are classified as
+  overflow or underflow according to the rounding mode instead of being stored
+  with a saturated exponent, and context precision is capped at
+  `binary_precision_max`.
+- The non-`try` elementary functions of `bin_float`, `decimal` and
+  `decimal_gda` return defined results instead of aborting when certification
+  fails: binary returns a quiet NaN with *invalid operation*, decimal and GDA
+  return their invalid result so that flags and traps apply. `try_*` functions
+  still report the failure detail.
+- Migrated to the MoonBit 0.10 toolchain. Trait-implementation methods are no
+  longer promoted implicitly, so every promoted method is declared with
+  `pub extend` and the generated interfaces now list them (`equal`,
+  `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`, `output`, `to_repr`, the
+  `*_contextual` and `*_checked` methods of `BinFloat`, `Decimal` and
+  `BallFloat`, and `Decimal::from_integral` / `from_nat`). Call sites that
+  relied on implicit promotion keep working; the public API is otherwise
+  unchanged. The tree builds cleanly
+  with `--deny-warn` under moonc 0.10.14 (core packages imported explicitly,
+  black-box test names qualified) and is formatted with the moonc 0.10.11
+  formatter.
+- Split the generated IEEE decimal public-API fixture into files of 400 tests,
+  which moonc 0.10.14 requires.
+- Raised `moonbitlang/x` from 0.4.46 to 0.5.5 and `moonbitlang/async` from
+  0.20.1 to 0.22.4.
+- **Breaking:** raised `Luna-Flow/luna-generic` from 0.3.3 to 0.4.0, which
+  deprecates the `NatHomomorphism` and `IntegralHomomorphism` traits because
+  they compose a lift with a canonical map, which is not a homomorphism for
+  fixed-width types. `Decimal::from_nat` and `Decimal::from_integral`, in the
+  IEEE and GDA packages, are replaced by `Decimal::from_natural` and
+  `Decimal::from_integer`, which take the `BigInt` representative directly.
+  Callers that passed another Luna-Flow integer type pick its representative
+  with `Integral::normalize` first, or use `lift_to`.
+- Moved the documentation to the gettext layout: English pages in
+  `doc/manual` with one `api/`, `tutorial/` and `design/` page per package,
+  translations as catalogs in `doc/locale`, and Typst attachments in
+  `doc/attachments`. A `Docs` workflow runs `lunadoc check`, and
+  `tools/doc_quality.py` checks the new layout.
+- Rewrote the documentation (API, tutorial and design pages for every package,
+  the overview and the guides) with Chinese and Japanese translations. API
+  snapshots use the `mbti` fence, which `tools/doc_quality.py` accepts.
+- Ignored local AI-agent state (`.claude/`, `.codex/`, `.cursor/` and similar)
+  in `.gitignore`.
+- Moved every workflow to the `ubuntu-26.04` runner ahead of the `ubuntu-latest`
+  migration that GitHub rolls out between 2026-10-19 and 2026-11-19, and raised
+  the actions that still targeted the deprecated Node 20 runtime:
+  `actions/checkout` to v7, `actions/cache` to v6, `actions/upload-artifact` to
+  v7 and `extractions/setup-just` to v4.
+- Brought the manual to the Luna-Flow documentation standard: the overview
+  has one Pages table per package group and a Validation section; every API
+  page has Purpose and Importing sections and a heading for every public item
+  of `pkg.generated.mbti`; every tutorial maps tasks to items in an
+  "I want to / Use" table; every design page ends with its boundaries. The
+  derivations were reviewed against the code: wrong steps were corrected (for
+  example the decimal ideal exponent of an exact quotient, the interval
+  product sign cases, Moore's single-occurrence theorem and the integer-power
+  error bounds), missing arguments were added (termination of the certified
+  refinement loop, the `ZeroFiveUp` division lemma, the shortest-digits
+  bisection), and known deviations of the implementation are documented next
+  to the affected operations. The Chinese and Japanese catalogs follow.
+
+### Fixed
+
+- **Caller-visible ([#183](https://github.com/Luna-Flow/floating/issues/183); Closes #183):** `decimal_gda` `remainder` and `remainder_near` now use the exact integer quotient and report only the flags of the delivered remainder, so extended contexts no longer leak the quotient's Division impossible/Clamped flags or return wrong results for large quotients; zero dividends are handled (GDA 1.70 `remainder`, `remainder-near`). `divide_integer` of a zero dividend no longer reports Division impossible or Clamped, and the subset zero is `+0`.
+
+- **Caller-visible ([#192](https://github.com/Luna-Flow/floating/issues/192); Closes #192):** Interval `pow` and `atan2` now treat `-0` and `+0` endpoints as the real zero. This changes results for intervals with a signed-zero endpoint.
+
+- **Caller-visible ([#170](https://github.com/Luna-Flow/floating/issues/170); Closes #170):** Tiny arguments to decimal elementary functions, `hypot` and `atan2` in wide formats now return correctly rounded results promptly instead of NaN or taking minutes to certify.
+
+- **Caller-visible ([#193](https://github.com/Luna-Flow/floating/issues/193)):** IEEE decimal `power_ctx` no longer aborts or performs unbounded work for fractional bases with very large negative integral exponents. The result now follows the context's overflow direction, including finite values on both sides of the overflow boundary.
+
+- **Caller-visible ([#167](https://github.com/Luna-Flow/floating/issues/167)):** IEEE `Decimal::power_ctx` now accepts finite integral exponents above the decNumber count bound in the default context. Previously those inputs returned `invalid_context`; powers within the bounded work path now return their correctly rounded finite, overflow, or underflow result. Exponent coefficient expansion is capped at 4,096 decimal digits; larger coefficients return NaN with `invalid_context` without entering an exponent-sized loop. `decimal_gda` keeps its GDA compatibility behavior.
+
+- **Caller-visible ([#166](https://github.com/Luna-Flow/floating/issues/166)):** IEEE `Decimal::power_ctx` and `pown_ctx` now
+  return 1 for $0^0$, signed zero for positive integer powers of zero, and
+  signed infinity with `division_by_zero` for a zero base and negative integer
+  exponent. `pow(1, y)` and `pow(-1, ±inf)` are 1. The checked integer-power
+  routes return `Ok(1)` for a zero or quiet-NaN base with exponent zero and
+  `Err(division_by_zero)` for a zero base with a negative exponent. Signaling
+  NaN operands still produce a quiet NaN with `invalid_operation`; `decimal_gda`
+  retains its distinct GDA behavior.
+
+- **Breaking:** Decimal and GDA context constructors now return `Result` and
+  reject precision outside `1..=999,999,999`, `e_min` outside
+  `-999,999,999..=0`, or `e_max` outside `0..=999,999,999`; positive `e_min`
+  and negative `e_max` are rejected. These sign constraints imply
+  `e_min <= e_max`, so the former separate ordering check is redundant. The
+  exponent limits adopt decNumber's `decContext.h`; GDA 1.70 specifies no fixed
+  limit and requires a balanced range, which this library does not enforce. The
+  changed signatures also include `DecimalContext::from_arithmetic_context`
+  and `decimal_gda::context()`; callers must handle the returned domain error.
+  Both decimal implementations use the same checked Etiny/Etop bounds and
+  FMA exponent-gap handling (#145, #186, #188).
+- Fused multiply-add no longer materializes an exponent-sized alignment for
+  operands inside the supported context range. Far-gap products use a sticky
+  addend, while an opposite-sign addend at the `e_max + 1` boundary can round
+  back to the largest finite value without a false `Overflow` signal (#145).
+- Fixed decimal and GDA engineering-string formatting at the `Int` exponent
+  endpoints: engineering exponents are now calculated in `Int64`, so the
+  output exponent keeps its sign and value instead of wrapping (#153).
+
+- Fixed `Decimal::tanh_ctx` and `Decimal::expm1_ctx` returning NaN when large
+  finite inputs made the certified loop unable to distinguish a result from
+  its saturation limit. IEEE 754-2019 §9.2 now returns the correctly rounded
+  limit or adjacent value with `Rounded` and `Inexact`
+  ([#169](https://github.com/Luna-Flow/floating/issues/169)).
+- Fixed `decimal_gda::Decimal::divide_integer` zero quotients in clamped
+  extended contexts: the preferred exponent is folded to the clamp limit and
+  `Clamped` is raised for finite and infinite divisors (#179).
+- **Caller-visible:** Fixed `Decimal::parse` and `Decimal::from_string`
+  reducing the cohort of a literal rounded to `precision`: `"1.0001"` at
+  precision 3 came back as `1` and `"99999"` as `1E+5`. IEEE 754-2019 §5.2
+  keeps all $p$ digits of an inexact conversion, so they are now `1.00` and
+  `1.00E+5`; an exact literal keeps the member closest to its own exponent
+  (#149).
+- Fixed `Decimal::divide_integer` returning a zero integer quotient with
+  exponent 0 and no `clamped` flag in a clamped extended context, both for a
+  finite zero quotient such as `-8.95E-6 // 2.40E-5` and for `x // Inf`. The
+  preferred exponent 0 is now folded down to $e_{\max}-p+1$ and `clamped` is
+  raised (#147).
+- Fixed IEEE and GDA `Decimal::parse_checked` using only the context precision.
+  Parsing now uses the context's rounding direction, exponent bounds and clamp
+  setting through `from_string_ctx`; invalid syntax still returns
+  `Err(parse_error)` (#154).
+- Fixed `Decimal::rootn_ctx` missing the exact results for degree `1` and
+  `-1`: `rootn(5, -1)` came back as `0.2` with `inexact` and the directed
+  modes failed certification with NaN. `rootn(x, 1)` and `rootn(x, -1)` are
+  now decided exactly like the other degrees (#165).
+- Fixed `Decimal::hypot_ctx` returning `+Infinity` for an infinity and a
+  signaling NaN. Only a quiet NaN leaves `hypot(+-inf, y)` at `+Infinity`; a
+  signaling NaN signals `invalid_operation` and the result is a quiet NaN
+  (#172).
+- Fixed `Decimal::rootn_ctx` returning `-0` for `rootn(-0, n)` with an even
+  `n > 0`; IEEE 754-2019 9.2.1 makes it `+0` (odd `n` keeps the sign) (#164).
+- Fixed `Decimal::tanpi_ctx` returning the zero with the argument's sign at
+  every integer. `tanPi(n)` is `sinPi(n) / cosPi(n)`, so it is `-0` at
+  positive odd `n` and `+0` at negative odd `n` (IEEE 754-2019 9.2.1), as
+  `BinFloat::tanpi` has done since #81 (#163).
+- Fixed `Decimal::to_bin_float` (in `decimal` and `decimal_gda`) rounding
+  twice under `ToNearestEven`: the scaled quotient was first rounded to an
+  integer in the target mode and then to the binary precision, so a value
+  just above a binary midpoint, such as `0.0003` or `0.00001` at 53 bits,
+  was rounded onto the midpoint and then the wrong way. The quotient is now
+  truncated with a sticky bit (round to odd) and rounded once (#148).
+- Fixed `Decimal::div_ctx` deciding `underflow`, `subnormal` and `clamped`
+  for an inexact quotient from the delivered value instead of from rounding
+  the quotient. A tiny quotient that rounds up to `10^e_min`, such as
+  `9.999998E-96 / 0.9999999` in decimal32, lost `underflow`, and a quotient
+  rounded to zero below Etiny lost `clamped`. The flags now come from the
+  rounding of the guarded quotient, under either tininess rule (#140).
+- Fixed `Decimal::sqrt_ctx` raising `underflow` and `subnormal` for an
+  inexact root below `10^e_min` regardless of the context's tininess rule.
+  Under `AfterRounding` a root whose rounding to `p` digits with an unbounded
+  exponent range reaches `10^e_min` is not tiny, so `sqrt(0.9999999)` at
+  precision 7, `e_min = 0` raises only `inexact` and `rounded` under `Up` and
+  `Ceiling` (#141).
+- Fixed `Decimal::remainder` reporting the flags of its internal integer
+  quotient: an exact remainder such as `6E-6 rem -9.99999999E-15` at
+  precision 9 and `e_max = 4` came back with `inexact`, `rounded` and
+  `overflow`, and a spurious `clamped` appeared when `e_max - p + 1 < 0`. In a
+  subset context the remainder was even taken with a quotient that had
+  overflowed to infinity, so `123456789 rem 7` with `e_max = 4` returned
+  infinity. The remainder now uses the exact integer quotient and reports only
+  its own flags. A remainder with a zero quotient (also in `remainder_near`)
+  is likewise clamped only at its result, not at the dividend's exponent
+  (#144).
+- Fixed `Decimal::add_ctx`, `sub_ctx` and `fma_ctx` raising `clamped` when
+  one operand of the sum is zero and the other one, at its own exponent,
+  would need clamping, although the delivered result does not: `fma(1E+90,
+  1E+1, -0E+80)` in decimal32 now raises only `rounded`. The nonzero operand
+  is moved towards the ideal exponent first and normalized once (#146).
+- Fixed `Decimal::divide_integer`, `remainder` and `remainder_near`
+  returning NaN with `division_impossible` for a zero dividend whose exponent
+  exceeds the divisor's by at least the precision, such as `0E+10 / 3` in
+  decimal32. The integer quotient of a zero dividend is zero and always fits,
+  so they now return zeros with no flags (#143).
+- Fixed `Decimal::plus_ctx` and `Decimal::minus_ctx` returning `+0` for
+  `plus(-0)` and `minus(+0)` under `Floor` (`TowardNegative`). They are
+  `0 + x` and `0 - x`, so a zero result now follows the sign rule of addition
+  like `add_ctx`: `-0` under `Floor` when the zeros have opposite signs, `+0`
+  otherwise (#142).
+- Fixed `Decimal::power_ctx`, `Decimal::try_power_ctx` and `decimal_gda`
+  `power` for an exact non-integral power whose base raised to `p` passes 1024
+  digits, such as `(2^1200 * 10^-1200)^1.5 = 2^1800 * 10^-1800` at precision
+  1000. The exactness test gave up on such a power, so it came back with
+  `inexact` in the half modes and, after minutes of refinement, as an invalid
+  NaN in the directed modes. The test now takes the `q`-th root of the base
+  first and only then raises it to `p` (the root's reciprocal for a negative
+  exponent), so no intermediate is longer than the result, and it covers every
+  exact result of at most `precision + 1` digits — the only ones that sit on a
+  rounding boundary. A longer exact value lies inside its rounding cell and is
+  rounded by the enclosure. The reduced exponent `p / q` is no longer capped
+  at `q <= 1000` and `p <= 4096` either: `q` is bounded by the base (a root of
+  at least 2 needs `q < digits * log2(10)`) and `p` by the result, so
+  `(5^1024)^(2^-10) = 5` and `0.25^4096.5 = 0.5^8193` are decided too. The
+  integer root takes exact square roots for the factors of two and Newton
+  steps from a leading-digit estimate, as `bin_float` does (#138).
+- Fixed `Decimal::power_ctx` and `Decimal::try_power_ctx` for an exact
+  non-integral power whose value is not a binary fraction. The enclosure
+  decides such a power only when it is a point interval, which needs the exact
+  value to be representable in binary, so `4^1.5` was returned as `8` while
+  `power_ctx(0.0016, 0.25)`, `power_ctx(32, 0.2)` and `power_ctx(0.04, 1.5)`
+  came back padded to the full precision with `inexact` in the half modes and
+  failed certification with an invalid NaN in the directed modes. The exponent
+  is now reduced to `p / q` in lowest terms before the loop — a decimal
+  exponent is `c * 10^-k`, so `q` keeps only the twos and fives the
+  coefficient cannot cancel — and the power is decided exactly when the base
+  raised to `p` is a perfect `q`-th power, which a bisection over the root's
+  digit count tests. The search is bounded by that digit count rather than by
+  the context, because the enclosure cannot round an exactly representable
+  value however coarse the decimal target is; a power past the bound is left
+  to the enclosure as before (#53).
+- Fixed the `decimal_gda` contextual and checked adapters for operations that
+  need exponent bounds (`exp`, `ln`, `log10` and non-integral `power` accept
+  precision, `e_max` and `-e_min` of at most 999,999). An `ArithmeticContext`
+  without `e_min` or `e_max` is no longer given any default bounds: such calls
+  now fail with an explicit `invalid context:` error that names the missing
+  bounds, and the GDA forms keep raising `Invalid_context` (decTest
+  `expx901`–`905`, `lnx901`–`905`, `logx901`–`905`, `powx4001`–`4006`, now
+  covered by unit tests) (#111).
+- Fixed the sign of a zero result of `decimal_gda` `plus` and `minus`
+  (`Decimal::plus_ctx`, `Decimal::minus_ctx`, `GdaDecimalChecked::plus` and
+  `GdaDecimalChecked::minus`), which was always `+0`. GDA defines `plus(x)` as
+  `add('0', x)` and `minus(x)` as `subtract('0', x)`, and a zero sum of
+  operands with opposite signs is `-0` under round-floor, so `plus(-0)` and
+  `minus(0)` are now `-0` under `Floor` (#58).
+- Fixed `frontend/itl_expr::execute_case` with a `precision` other than 53:
+  operands and expected values were read at `precision` bits but interval and
+  `mid` results were rounded to binary64. Results are now rounded with
+  `BallContext::new(precision=precision)` (binary64 exponent range), so the
+  default 53 is unchanged. Decimal bounds stay rounded to nearest, which is
+  the ITF1788 convention for `[l,u]` (#62).
+- Fixed the decTest tokenizer of `frontend/gda_expr`, which ended a quoted
+  token at the next matching quote. A doubled delimiter inside a quoted token
+  (`'1E''1'`, `"1E"""""`) is now one literal quote character, as the decTest
+  format specifies, so such an operand is no longer split into several (#63).
+- Fixed two decorations that claimed `dac` for an argument reaching outside
+  the domain. Decorated `rootn` with a negative degree now gives `trv` when the
+  argument contains 0, where `x^(-1/n)` has a pole (#45), and decorated
+  `tanpi_interval` gives `trv` whenever its result is unbounded, which
+  includes a pole at an endpoint such as `tanpi([1/2, 1]) = [-inf, 0]`, not only
+  an Entire result (#86).
+- Fixed `BinCoeff::gcd` on the non-JS targets, which did not finish for some
+  operands of different lengths: the Lehmer loop took each operand's own top
+  limb as its leading digit, so the quotient estimate ignored the length
+  difference and each round removed only a small multiple of the smaller
+  operand. The leading digits now come from the same bit window, with a
+  division step when the smaller operand has no bits in it. This made
+  `BallFloat::ln_interval` hang for values just above 1 at high precision
+  (`1 + 2^-243` at 245 bits) and `asinh_interval` and `atanh_interval` hang for
+  tiny arguments at 53 bits (#85).
+- Fixed `BallFloat::exp2_interval` for integer endpoints outside the binary
+  exponent range. The exact power `2^n` was built rounded to nearest, so
+  `exp2([-1073742000, -1073742000])` returned `{0}`, which excludes the true
+  value, and `n >= 2^30` aborted with an infinite lower bound. Such endpoints
+  now keep the series enclosure (#84).
+- Fixed the signed-zero special cases of `BinFloat::atan2`, `atan2_ctx` and
+  `try_atan2_ctx` (#48). `atan2(±0, +0)` returned $\pm\pi/2$ instead of $\pm 0$,
+  `atan2(±0, -0)` returned $\pm\pi/2$ instead of $\pm\pi$, and
+  `atan2(-0, x < 0)` returned $+\pi$ instead of $-\pi$; a zero ordinate now
+  keeps its sign and the sign of the abscissa picks $\pm 0$ or $\pm\pi$, as
+  IEEE 754-2019 §9.2.1 requires.
+- Fixed the sign of `BinFloat::tanpi` at odd integers (#81): `tanpi(1)` returned
+  $+0$ and `tanpi(-1)` returned $-0$. Zeros now take the sign of
+  $\operatorname{sinPi}(n) / \operatorname{cosPi}(n)$ (IEEE 754-2019 §9.2.1, C23
+  Annex F): $-0$ for positive odd and negative even $n$, $+0$ otherwise.
+  `BallFloat::tanpi_interval` inherits the sign at such an endpoint, so
+  $[1/2, 1]$ now prints as `[-inf, -0.00000e+0]`.
+- Fixed `BinFloat::pow`, `pow_ctx` and `try_pow_ctx` on IEEE 754-2019 §9.2.1
+  inputs they rejected or got wrong (#49, #89). A negative base with an integer
+  exponent of magnitude at least $2^{31}$ was a domain error, and so was a
+  negative base with an infinite exponent (`(-1)^inf` is now 1,
+  `(-0.5)^inf` is $+0$); `(-0)^0.75` was a domain error instead of $+0$;
+  `(-inf)^(2^31 + 1)` returned $+\infty$ instead of $-\infty$; and
+  `pow(±0, -inf)` raised *division_by_zero*. Integrality and parity of the
+  exponent are now read from its representation, and a negative base with an
+  integer exponent is evaluated as $\pm|x|^y$ with mirrored directed rounding.
+- Fixed exact `pow` results with a non-integer exponent (#49): `16^0.75`
+  returned 8 with *inexact* under round-to-nearest and a certification failure
+  under a directed mode. For $x = c \cdot 2^e$ and $y = m / 2^k$, a dyadic
+  result exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th
+  power; it is now computed and rounded once before the Ziv loop.
+- Fixed `BinFloat::rootn` for exact roots with a negative degree or a degree
+  above 64 (#90): `rootn(8, -3)` returned $1/2$ with *inexact*, and in a directed
+  mode `rootn(8, -3)`, `rootn(2^130, 65)` and `pow(4, -0.5)` failed to certify.
+  An exact root $r$ is now returned as $r$, or as the correctly rounded $1/r$.
+- Fixed `BinFloat::rootn(-inf, n)` for even `n` (#90), which returned
+  $+\infty$ (or $+0$ for negative `n`); like a finite negative argument it is
+  now a domain error (*invalid* in `rootn_ctx`).
+- Fixed certification failures of the `BinFloat` elementary functions for tiny
+  arguments (#102): `sin`/`atan` of $2^{-6000}$ at 53 bits, `sin` of
+  $2^{-8000}$ in binary128 and `exp`/`expm1`/`exp2` of $2^{-20000}$ returned
+  `certification_failure` (NaN from the non-`try` APIs), as did `cos`, `tan`,
+  `asin`, `sinh`, `cosh`, `tanh`, `asinh`, `atanh`, `log1p` and `cospi` in
+  some rounding modes. An enclosure endpoint that is itself a rounding
+  breakpoint now moves just inside the enclosure when the result is known to
+  be irrational, and `sin`, `cos`, `tan`, `asin`, `sinh`, `cosh`, `tanh`,
+  `asinh`, `atanh`, `expm1` and `log1p` decide arguments far below the target
+  spacing from rigorous $O(x^2)$ and $O(x^3)$ bounds before the Ziv loop.
+- Fixed `exp10` and `log10` exact results past $10^{4096}$: `exp10(n)` for an
+  integer $n \ge 0$ and `log10(10^k)` are now computed exactly whenever the
+  precision can hold them, instead of going through the Ziv loop.
+- Fixed `BinFloat::hypot` for operands whose exponents differ by more than
+  about 500,000 (#103), which returned `certification_failure`:
+  `hypot(1, 2^-600000)` is now 1 (*inexact*). An operand too small to reach a
+  rounding breakpoint is replaced by a power of two of the same effect before
+  the exact sum of squares is formed.
+- Fixed `BinFloat::rootn` and `pow` for exact roots of coefficients wider than
+  4096 bits (#129). The exact-root check gave up above that width, so at 3001
+  bits `rootn((2^3000 + 1)^2, 2)`, `pow((2^3000 + 1)^2, 0.5)` and
+  `rootn((2^3000 + 1)^3, 3)` returned the root with *inexact* under
+  round-to-nearest and `certification_failure` under the directed modes. The
+  integer root now takes exact square roots for the even part of the degree
+  and integer Newton steps from the root of the leading bits for the odd part,
+  so there is no width limit and wide coefficients no longer cost one power per
+  root bit.
+- Fixed `BinFloat::pow`, `pow_ctx` and `try_pow_ctx` for tiny non-integer
+  exponents (#128): `pow(2, 2^-16000)` in binary128 and `pow(3, 3 * 2^-20000)`
+  at 53 bits returned `certification_failure` (NaN from the non-`try` APIs),
+  because the lower end of the enclosure stayed exactly 1 and never rounded
+  like the upper end. When the exact-result check shows that `x^y` is not a
+  rounding breakpoint (irrational, not dyadic, or wider than the precision),
+  the Ziv loop now moves a breakpoint endpoint inside the enclosure, as the
+  other elementary functions do since #102.
+- Fixed `tools/doc_quality.py`, which treated every package as generated when
+  the checkout itself lived under an underscore-prefixed directory.
+- Fixed `BinFloat::acos`, `acos_ctx` and `try_acos_ctx`, which recursed through
+  the certified `asin` bounds until the stack overflowed (SIGSEGV on native, a
+  `RangeError` on wasm-gc) for a NaN, an infinity or a finite `|x| > 1`. They
+  now match `asin`: a quiet NaN for a NaN input and a domain error otherwise.
+- Fixed `Decimal` integer powers (`power_ctx` with an integer exponent,
+  `pown_ctx`, and `exp2_ctx`/`exp10_ctx` at integers), which used decNumber's
+  repeated rounding at `p + digits(n) + 2` digits and could round to the wrong
+  side of a midpoint: `3.339434^3` in decimal32 gave `37.24076` instead of
+  `37.24077`. In extended contexts the exact power is now rounded once when it
+  is short enough to form, and otherwise directed-rounding bounds are refined
+  until they round alike (#104). `pown_ctx` also built its exponent at the
+  context precision, so `(-1)^12345679` at seven digits was `1` (#51).
+- Fixed `pow_int_checked` and `pow_nat_checked` for `Decimal` in `decimal` and
+  `decimal_gda`, which still built the integer exponent at the context
+  precision: an exponent longer than the precision was rounded first, so
+  `(-1)^12345679` at seven digits was `1`. The exponent is now exact (#123).
+- Fixed `Decimal::hypot_ctx` and `rootn_ctx`, which returned exactly
+  representable results such as `hypot(0.3, 0.4)` and `rootn(0.008, 3)` padded
+  to full precision with `inexact`, or failed certification in the directed
+  modes. Exact norms and roots are now detected first and returned exactly
+  (#105).
+- Fixed `BallFloat::from_int` and `BallFloat::from_coefficient`, which rounded
+  the value to the requested precision and wrapped the rounded result as a
+  singleton, so the interval could exclude its own input
+  (`BallFloat::from_int(100001)` at the default 16 bits returned exactly
+  100000). They now build the value exactly and let the interval round outward.
+- Fixed `BallFloat::with_precision`, which rebuilt a bounded interval from
+  `center()` and `radius()`. The center adds the endpoints in round-to-nearest
+  mode, which replaces an addend more than 65536 bits below the larger one by a
+  sticky surrogate, while the radius drops that addend; once the new precision
+  stored the surrogate exactly the result no longer contained the original
+  lower endpoint. Both branches now round the endpoints outward, as the
+  unbounded branch already did, which also makes the result the tightest
+  representable enclosure instead of widening ordinary intervals. The
+  rounding-mode argument is kept for signature compatibility and cannot narrow
+  an enclosure. `normalized()` uses the same surrogate but is not affected: it
+  keeps the interval's own precision, where the center error always folds the
+  surrogate back into the radius.
+- Fixed `BallFloat::normalized`, which rebuilt a bounded interval from its
+  normalized center and radius and so rounded outward a second time:
+  `[1, 1 + 2^-52]` at 53 bits came back as `[1 - 2^-52, 1 + 2^-52]`, breaking
+  the `Floating` law that `normalized` keeps the value. It now normalizes the
+  endpoints themselves. With the `with_precision` fix above, `convex_hull` with
+  an Empty operand and the checked capabilities (`pow_int_checked`,
+  `pow_nat_checked`, `div_checked`) no longer widen representable intervals
+  either (#69).
+- Fixed `BallFloat::midpoint_ctx`, which rounded a subnormal center to nearest
+  twice (first to the context precision, then to the subnormal grid) and
+  returned 0 instead of `2^-5` for `2^-6 + 2^-20` at 4 bits with
+  `e_min = -2` (#70), and which ignored `e_max`. It now rounds once onto the
+  grid the result lives on and overflows to an infinity with `overflow` and
+  `inexact`, as round to nearest does in IEEE 754 (#46). It also follows the
+  remaining cases of the IEEE 1788-2015 `mid` operation (12.12.8) instead of
+  aborting: NaN for Empty, the context's largest finite value with the sign of
+  the unbounded side for a half-bounded interval, and +0 for a zero center.
+- Fixed `BallFloat::apply_ctx` and the `*_ctx` operations, which raised
+  `underflow` only when the step onto the subnormal grid was inexact. An
+  endpoint that is tiny after rounding and inexact in either step now raises
+  it, as IEEE 754 defines (#71).
+- Fixed `BallFloat::pow_nat_checked` and `BallFloatResult::pow_nat`, which
+  returned `{1}` for an Empty base and exponent 0; they now return Empty, like
+  `pown` (#72).
+- Fixed `DecimalFlags::has_error` in the IEEE and GDA packages, which omitted
+  `conversion_syntax`. Since `from_string_ctx` reports invalid text with only
+  that flag, a failed parse did not count as an error.
+- Fixed `Decimal::atan2_ctx`, `try_atan2_ctx` and `DecimalChecked::atan2`
+  for zero and infinite operands. An infinite operand aborted the process
+  inside the certified ball evaluation, `atan2(+-0, -0)` returned NaN with
+  `invalid_operation`, and `atan2(-0, x < 0)` returned `+pi`. They now follow
+  IEEE 754-2019 §9.2.1: an exact signed zero or a correctly rounded multiple
+  of pi/4 with the ordinate's sign (#92).
+- Fixed `Decimal::cosh_ctx(-inf)`, `log2_ctx(+inf)` and `log1p_ctx(+inf)`
+  (and their `try_` forms), which returned NaN with `invalid_operation`
+  instead of `+inf` (#93).
+- Fixed double rounding in every guarded decimal division path. The guarded
+  quotient was rounded with the target mode, which can manufacture an exact tie
+  the exact quotient had already decided; the final rounding then applied the
+  tie rule to it. `15 / 83294` at five digits returned `0.00018008` instead of
+  `0.00018009`, and GDA `divide(1, 2222)` at one digit returned `0.0004`
+  instead of `0.0005`. The guarded quotient is now rounded with `ZeroFiveUp`,
+  which keeps the retained low digit off 0 and 5 whenever the remainder is
+  nonzero, as decNumber's `DEC_ROUND_05UP` does. This covers the context-free
+  `/` operator and the contextual divide of both decimal packages, including
+  their subnormal and non-extended paths, and the two division helpers behind
+  the GDA elementary functions.
+- Fixed double rounding of `Decimal` context results whose exact exponent is
+  below Etiny but whose magnitude is normal. Finalization rounded them to the
+  subnormal grid first and then to the context precision, so
+  `3.000001E-45 * 1.500001E-45` in decimal32 returned `4.500004E-90` instead
+  of `4.500005E-90`. The same path served `mul_ctx`, `fma_ctx`, `apply_ctx`,
+  `plus_ctx` and the elementary functions (`exp_ctx(-215.35)` in decimal32).
+  The subnormal rounding now applies only to results that are subnormal. The
+  fallback path of `div_ctx` also rounded a subnormal quotient to the context
+  precision before rounding it to Etiny (`1 / 1.9999999999998E+101` in
+  decimal32 gave `0E-101`, not `1E-101`); it now rounds the guarded quotient
+  once (#87).
+- Fixed `Decimal::add_ctx` when one operand lies far below the other's
+  rounding position. The shortcut rounded the larger operand alone and moved
+  the result by one unit at most, deciding the direction from that operand
+  only. This was wrong when the larger operand had digits below the rounding
+  position, when it was a midpoint, and for `ZeroFiveUp` with an addend that
+  lowers the magnitude (`1598618 - 9.9E-11` at seven digits returned
+  `1598618`). Extended contexts now replace the small operand with a sticky
+  unit below every rounding boundary and round the sum once (#88).
+- Fixed `Decimal::scaleb_ctx` finalization. Overflow returned an infinity in
+  every rounding mode; it now follows the rounding direction, so toward zero
+  gives the largest finite number (#52). A zero result kept an exponent outside
+  the context range (`0 scaleb 700` in decimal64 gave `0E+700`; now
+  `0E+369` with `clamped`), and a coefficient longer than the precision was
+  left unrounded or, below Etiny, rounded to the subnormal grid and flagged
+  `subnormal` although its magnitude was normal. The scaled value is now
+  rounded once like any other context result (#95).
+- Fixed `decimal_gda` `add` and `subtract` when one operand lies far below
+  the other's rounding position, as for `Decimal` in #88. The shortcut rounded
+  the larger operand alone and moved the result by one unit at most, so
+  `1598618 - 9.9E-11` at seven digits with `ZeroFiveUp` returned `1598618` and
+  `1598618.5 + 1E-20` with `HalfEven` returned `1598618`. Extended contexts now
+  replace the small operand with a sticky unit and round the sum once (#120).
+- Fixed double rounding in `decimal_gda` of results whose exact exponent is
+  below Etiny but whose magnitude is normal, as for `Decimal` in #87.
+  `3.000001E-45 * 1.500001E-45` in decimal32 returned `4.500004E-90` instead
+  of `4.500005E-90` (also `fma`, `plus` and `exp`). The inexact path of
+  `divide` rounded a subnormal quotient to the precision before rounding it to
+  Etiny (`1 / 1.9999999999998E+101` in decimal32 gave `0E-101`, not
+  `1E-101`), and its exact-quotient shortcuts rounded a normal quotient below
+  Etiny to Etiny only, leaving more digits than the precision (`77223 /
+  16E+21` at precision 5 gave `4.82644E-18`). Each is now rounded once (#121).
+- Fixed `decimal_gda` `scaleb` finalization, as for `Decimal` in #52 and #95.
+  Overflow now follows the rounding direction instead of always returning an
+  infinity, a zero result has its exponent clamped into the context range
+  (`0E+300 scaleb 400` in decimal64 gives `0E+369` with `Clamped`), and a
+  coefficient longer than the precision is rounded once to the precision
+  (#122).
+- Fixed `Decimal::div_ctx` by a power of ten when the exact quotient's
+  exponent is below Etiny but its magnitude is normal. The quotient was
+  rounded to Etiny only and kept more digits than the precision
+  (`4826437 / 1E+24` at precision 5 with `Up` gave `4.82644E-18`, not
+  `4.8265E-18`); it is now rounded once to the precision. The division
+  helpers behind the elementary functions had the same shortcut (#126).
+- Fixed `to_integral_exact` and `to_integral_value` in `decimal_gda` (the GDA
+  functions and the `Decimal` methods) for operands longer than the context
+  precision. An operand with a non-negative exponent was rounded to the
+  precision (`12345` at precision 3 gave `1.23E+4` with `Inexact`), and one
+  with a negative exponent was quantized at the context precision, so
+  `12345.6` gave NaN with `InvalidOperation`. As in decNumber, an operand with
+  a non-negative exponent is now returned unchanged and the quantization to
+  exponent 0 uses a working precision of at least the operand's length
+  (`12345.6` gives `12346`, with `Inexact` and `Rounded` for the exact form).
+- Fixed `DecimalTininessDetection::AfterRounding` in the IEEE and GDA decimal
+  packages. It decided tininess from the result rounded on the subnormal grid
+  (at `Etiny`), which keeps fewer digits than the precision, so a value just
+  below $10^{e_{\min}}$ whose rounding to $p$ digits stays below it counted as
+  not tiny: `0.9951` at precision 3 and $e_{\min} = 0$ rounded to `1.00`
+  without `underflow`. Tininess after rounding now uses the value rounded to
+  $p$ digits with an unbounded exponent range, as IEEE 754 §7.5 and the
+  package documentation define it.
+- Fixed `bench::paired_hotspot`, which passed the bootstrap confidence as
+  `0.95` where Maremark expects a percentage, so its `interval` was a 0.95 %
+  interval (a single point) instead of a 95 % one.
+- Fixed `bench::TuneDecision::valid_samples`, which counted the negative and
+  non-finite samples the median discards.
+- Fixed `frontend/gda_expr::execute_documents`, which aborted on a context
+  with `precision: 0` (or a negative precision, or `minexponent` above
+  `maxexponent`) because it built a `DecimalContext` before classifying the
+  row. Such rows are now `Diagnostic` with the reason
+  `diagnostic invalid context: …`.
+- Fixed `frontend/gda_expr` operand decoding, which read plain decimal
+  operands at $\max(64, p)$ digits and so rounded longer operands before the
+  operation rounded again: at precision 9 the 67-digit operand
+  `1000000014` followed by 56 nines and a 5 gave `add … 0 -> 1.00000002E+66`
+  instead of `1.00000001E+66`. Operands are now read exactly, as GDA requires.
+- Fixed `frontend/itl_expr::execute_case`, which read the operands of the
+  generic binary dispatch before checking the operation, so an unknown
+  operation with a non-interval operand (`nums2interval 1.0 2.0`,
+  `rootn [1.0,8.0] 3`) was a `Diagnostic` and made `success()` false. Unknown
+  operations, including unknown boolean predicates, are now `Unsupported`.
+- Fixed `frontend/itl_expr::parse_itl`, which recognized `//` comments only at
+  the start of a line, so a statement followed by `; // note` did not end and
+  silently swallowed the next statement. A `//` comment now ends the line.
+- Fixed `frontend/mpfr_expr` elementary rows: a `pow`, `hypot` or `atan2` row
+  whose second operand is `-` is now the parse diagnostic
+  `invalid MPFR elementary field` instead of aborting the run, and a zero
+  result must have the expected sign (`compare` identifies `-0` and `+0`).
+- Fixed `cli/gda_expr_cli`, which silently skipped a named file that does not
+  end in `.decTest`, so a mistyped path ran zero cases and exited with 0. The
+  shared `internal/runner_cli::collect_files` now reports
+  `not a .decTest file: PATH` for such a file, lists a file named twice (or
+  named and inside a named directory) once, and no longer lists
+  subdirectories whose names end in the suffix.
+- Fixed `internal/runner_cli::parse_common_options`, which took the next
+  option as the value of `--shard-count` or `--shard-index`
+  (`--shard-count --json` reported `invalid shard count: --json`); it now
+  reports `--shard-count requires a value`.
+- Fixed the `cli` dispatcher, where an empty `--backend=` slipped past the
+  at-most-once check, so `--backend= --backend gda` was accepted. An empty
+  value is now the error `--backend requires a value`.
+- Fixed `decimal_gda` `power` and `Decimal::power_ctx` for a non-integral
+  exponent whose exact result is representable, in the directed rounding
+  modes. `power(4, 1.5)` returned `8.0000` at once under `HalfEven` but did not
+  return under `Down`, `Up`, `Ceiling` or `Floor`: the exact value 8 is an
+  endpoint of the directed rounding cell, so the certified loop could never
+  accept it. An exponent `a/q` with a small reduced denominator is now tested
+  for an exact power (`x^a` a perfect `q`-th power) before the loop; the exact
+  value is rounded once in the context mode and, as GDA requires for
+  non-integral powers, reported as Inexact and Rounded.
+- Fixed decimal literals with exponents beyond $\pm 1.5 \cdot 10^9$ and
+  results with extreme exponents in the IEEE and GDA decimal packages (#108).
+  The literal splitter saturated the written exponent at
+  $\pm 1\,500\,000\,000$, so `Decimal::from_string("1e1600000000")` returned
+  `1E+1500000000` and a context with `e_max = 2e9` raised no overflow; the
+  `Int` exponent sums of `*`, `mul_ctx`, `fma_ctx` and `div_ctx` wrapped, so
+  `1E+1500000000 * 1E+1500000000` gave `1E-1294967296` and GDA `multiply`
+  underflowed instead of overflowing, and a rounding carry at the top of the
+  exponent range wrapped as well. Exponents are now read and combined in
+  `Int64`: context conversions and operations overflow or underflow as the
+  exponent range requires. Without a context the limits of the
+  representation apply (adjusted exponent at most $2^{31}-1$, stored exponent
+  at least $-2^{31}$), and, as IEEE 754 §5.12, §7.4 and §7.5 and the GDA
+  to-number conversion require, a valid literal or a result beyond them is
+  not rejected: `parse`/`from_string`, `+`, `-`, `*` and `/` give a signed
+  infinity when it is too large and round it once, half-even, to the exponent
+  $-2^{31}$ when it is too small (`"1e3000000000"` is `inf`,
+  `"15e-2147483649"` is `2E-2147483648`). `internal` gains
+  `split_decimal_string_wide`; `split_decimal_string` now returns `None` for
+  an exponent outside `Int` instead of a saturated one. The `gda_expr`
+  decTest frontend reads operand exponents beyond $\pm 2 \cdot 10^9$ as
+  $\pm 2 \cdot 10^9$, the range that the decTest rule "sufficient precision
+  under the directives' exponent limits" gives with the reference
+  implementation's maximum precision, so rows such as
+  `quantize 0 1e3000000000` and the subset `qua531` keep their expected
+  results.
+- Fixed `Decimal::to_integral_exact` and `to_integral_value` in `decimal` for
+  operands longer than the context precision. An operand with a non-negative
+  exponent was rounded to the precision (`12345` at precision 3 gave `1.23E+4`
+  with `inexact`, even from `to_integral_value`), and one with a negative
+  exponent was quantized at the context precision, so `12345.6` gave NaN with
+  `invalid_operation`. IEEE 754-2019 §5.9 defines roundToIntegral for an
+  operand in the destination format (at most p digits), where the old and new
+  results agree; an operand longer than the precision is outside §5.9, so its
+  result is implementation-defined. The package now chooses the GDA-style
+  behaviour (General Decimal Arithmetic rounds at the operand's own
+  precision): an integer longer than the precision is returned unchanged, and
+  a fraction is quantized to exponent 0 at a working precision of
+  max(p, its digit count) (`12345.6` at precision 3 gives `12346`) (#118).
+- Fixed `just gate <scope>` on a clean checkout: every scope now installs the
+  module dependencies first. `moon update` only refreshes the registry index, so
+  the first `--frozen` command failed with "`frozen` is set, so the build system
+  cannot change the modules directory". This broke the nightly `decimal_gda`
+  job, the only nightly scope whose first command is `--frozen`.
+- Fixed three tutorial pages that showed `moon add Luna-Flow/floating` without
+  the version the other install snippets pin.
+- Fixed exponent arithmetic that saturated at the 32-bit limits:
+  `2^2e9 * 2^2e9` returned a finite value with no flag, and interval endpoints
+  could stop enclosing the exact value.
+- Fixed `exp`, `expm1`, `exp2`, `exp10`, `sinh`, `cosh` and `pow`, which could
+  fail to certify results whose enclosures overflowed; they now decide
+  overflow and underflow from certified bounds on $\log_2$ of the result.
+- Fixed `ball_float` endpoint helpers that built exact values beyond the
+  exponent range: `exp([1e9, 1e9])` aborted and `exp([-1e9, -1e9])` returned
+  `[0, 0]`. Lower endpoints now clamp toward $-\infty$, upper endpoints toward
+  $+\infty$, and `exp` of very large arguments returns
+  `[max finite, +inf]` or `[0, smallest positive]`.
+- Fixed interval addition of operands with a huge exponent gap, which built a
+  two-billion-bit coefficient; an addend far below one ulp is replaced by a
+  directed sticky term.
+- Fixed the decimal certified bridge, which expanded binary endpoints near
+  $2^{2^{30}}$ into hundreds of millions of digits (`sinh(1e300)` used several
+  GB), and decimal power results far outside the exponent range, which are now
+  decided before certification.
+- Fixed `Decimal::ln_ctx` and `log10_ctx` (and their `try_` forms) of a zero
+  in the IEEE `decimal` package, which returned $-\infty$ without
+  `division_by_zero`. IEEE 754-2019 §9.2.1 defines $\log(\pm 0) = -\infty$
+  with divideByZero, as `log2_ctx`, `log1p_ctx(-1)` and `logb_ctx` already
+  did; the flag is now raised (#94). `decimal_gda` keeps the General Decimal
+  Arithmetic rule, which raises no condition.
+- Fixed NaN payloads in the BID encoder of the IEEE `decimal` package. It
+  wrote the payload with as many digits as the value's precision field and
+  kept the leading $p-1$ of them, so a payload survived only when that field
+  equalled the format precision: `Decimal::quiet_nan(payload=123)` (precision
+  34) encoded to decimal64 BID with payload 0, and a decimal32 payload 256
+  became $256 \cdot 10^{27}$ in decimal128. IEEE 754-2019 §3.5.2 defines the
+  BID payload as the integer value of the trailing significand field (and
+  §9.7 the payload as an integer), so the encoder now stores the payload
+  integer, keeping its low $p-1$ digits when it is longer, as the DPD encoder
+  does (#54).
+- Fixed `Decimal::from_bin_float` and `Decimal::to_bin_float` in the IEEE
+  `decimal` package, which mapped every zero to $+0$, so a binary $-0$ became
+  $+0$ and a decimal $-0$ became a binary $+0$. IEEE 754-2019 §5.4.2 and §6.3
+  make conversions keep the sign of zero; both directions now do (#55).
+
+## 0.8.0 - 2026-09-06
+
+### Added
+
+- Added `AddContextual`, `SubContextual`, `MulContextual`, `DivContextual`,
+  `AbsContextual`, `SqrtContextual`, and `ExpContextual` implementations for
+  `BinFloat`, so the binary stack participates in the contextual trait surface
+  already provided by the decimal stacks.
+- Exposed `to_string` as an explicit public method on `BinFloat`, `BinCoeff`,
+  `Decimal` (IEEE and GDA), `BallFloat`, `BallFloatDecorated`, and `Decoration`
+  through `extend` declarations.
+
+### Changed
+
+- Raised the `Luna-Flow/arithmetic` dependency to `0.5.0`, whose
+  `ArithmeticContext` carries exponent bounds and clamping.
+- Changed `BinaryContext::from_arithmetic_context`, and the IEEE and GDA
+  `DecimalContext::from_arithmetic_context`, to propagate `e_min`, `e_max`, and
+  `clamp` from the arithmetic context instead of discarding them. Contextual and
+  checked operations that previously ran unbounded now honour the caller's
+  exponent range.
+- Changed `BinaryContext::new` and `BinaryContext::try_new` to accept a
+  one-sided exponent bound. `try_new` now fails only when `e_min` exceeds
+  `e_max`; passing `e_min` or `e_max` alone previously aborted or returned an
+  error.
+- Changed the decimal `PowNatChecked` and `PowIntChecked` implementations to
+  derive their context from the supplied arithmetic context instead of fixed
+  `+/-999_999` exponent bounds.
+- Renamed `BinCoeff::to_string(radix~)` to `BinCoeff::to_radix_string(Int)` so
+  that `BinCoeff::to_string` denotes the `Show` implementation, consistent with
+  the other numeric types. Callers that passed a radix must use the new name;
+  radix-10 callers are unaffected.
+- Declared `Show::to_string` explicitly with `extend` instead of relying on the
+  implicit promotion of `impl Show` methods, which the MoonBit 0.10.4 toolchain
+  deprecated. The repository now checks clean under `moon check --deny-warn` on
+  all five backends.
+- Replaced `StringBuilder::new()` with the `StringBuilder()` custom
+  constructor, which MoonBit 0.10.11 requires; the previous spelling fails the
+  `--deny-warn` publish gate.
+
+### Fixed
+
+- Fixed the native link failure of the `cli` conformance dispatcher by reading
+  process arguments through `moonbitlang/core/env` instead of
+  `moonbitlang/x/sys`. The `x` intrinsic still lowers to the pre-rename runtime
+  symbol `moonbit_get_cli_args`, which the current split `libruntime.a` no
+  longer exports; `@env.args` uses the current `moonbit_rt_get_cli_args`.
+
+### Verified
+
+- Passed the complete `just pr` gate: format, localized documentation, native
+  check and test, IEEE 754 smoke 6,897/6,897, binary smoke 2,271/2,271, GDA
+  TestFloat 3e 60/60, and interval smoke 10/10.
+- Passed `moon check --deny-warn --target all` and `moon test src/bin_float
+  --target all` across wasm, wasm-gc, js, and native.
+- Retained the 0.7.1 performance and semantic audit unchanged; this release
+  contains no new numerical measurements.
+
+## 0.7.1 - 2026-07-16
+
+### Changed
+
+- Audited and retained the decimal GDA coefficient fast paths, IEEE decimal
+  exact/bounded division paths, binary exact-top arithmetic paths, and interval
+  endpoint dispatch introduced after the 0.7.0 release.
+- Added a directed-rounding and monotonicity proof boundary to the interval
+  design: every endpoint candidate is rounded outward, and negative-half-axis
+  integer powers use the correct reversed endpoint order.
+- Kept target-specific crossover tuning as implementation evidence only; noisy
+  or non-monotonic observations are not promoted into public performance claims.
+- Added package-level GDA and interval performance entry points and aligned the
+  decimal performance instructions with the current Maremark runner.
+
+### Fixed
+
+- Removed stale decimal baseline and threshold commands from the published
+  performance documentation and corrected the localized release-date record.
+- Corrected `BallFloat::pown` for even powers on negative intervals and for even
+  negative powers on the negative half-axis. The previous optimization could
+  construct an interval with a lower bound above its upper bound or lose one
+  outward-rounded ulp across zero.
+- Completed the GDA half-power-of-ten coefficient comparison used by the
+  optimized rounding path and covered its exact, below-half, and above-half
+  boundaries.
+
+### Verified
+
+- Passed the native IEEE 1788 strict aggregate at 4,656/4,656 after the
+  interval regression fix, including 174/174 integer-power cases.
+- Passed the pinned binary, IEEE decimal, and GDA suites: 7,464,503 binary
+  cases, 15,763 IEEE decimal cases, 64,986 current GDA cases, and 16,124
+  legacy GDA cases.
+- Completed native Maremark `all` and `auto-tune` artifacts; auto-tune output
+  is retained as calibration evidence and is not treated as a universal
+  crossover guarantee.
+- Added a localized performance audit and semantic-proof matrix for the
+  `en_US`, `zh_CN`, and `ja_JP` documentation trees.
+
+## 0.7.0 - 2026-07-15
+
+### Added
+
+- Added a shared certified dyadic/interval kernel and bounded Ziv refinement
+  for `BinFloat`, `Decimal`, and `BallFloat`; acceptance requires both enclosure
+  endpoints to round to the same target value and flags.
+- Added the complete 0.7.0 elementary families, pi-scaled functions, contextual
+  and `try_*` entry points, and checked mirrors without extending the GDA
+  surface beyond `exp`, `ln`, `log10`, `power`, and `sqrt`.
+- Added structured certification-failure details and a unified `bench` package
+  hierarchy using Maremark 0.3.0 for kernel, core, checked full-path,
+  elementary, hotspot, and auto-tune measurements.
+
+### Changed
+
+- Exhausted certification budgets now fail explicitly instead of accepting
+  repeated-approximation results.
+- Decimal elementary evaluation now bridges MPFR-directed dyadic enclosures to
+  exact decimal endpoint rounding; GDA `sqrt`/`exp`/`ln`/`log10` retain fixed
+  HalfEven semantics while `power` follows the active GDA context.
+- Aligned the GDA public context surface with Arithmetic Specification 1.70:
+  the Basic context uses HalfUp and standard error traps, invalid subconditions
+  signal `InvalidOperation`, and decTest execution now traverses
+  `GdaContext`/`GdaOutcome` instead of bypassing the public state model.
+- BallFloat checked elementary functions now preserve proof failures, while
+  unchecked trigonometric functions retain only mathematically conservative
+  interval fallbacks. Pi-scaled range reduction operates directly in x-space.
+- Native `BinCoeff::square` now enters recursive multiplication at 512 limbs;
+  Maremark auto-tune confirms a stable square policy from 8 limbs upward.
+
+### Verified
+
+- Passed the fixed MPFR 4.2.2 binary elementary corpus at 2,088/2,088 and the
+  optional generated stress run at 966,744/966,744; only the fixed corpus is
+  part of the reproducible release aggregate.
+- Passed the Decimal elementary oracle at 2,784/2,784, the complete four-target
+  Decimal gate at 15,735/15,735, GDA `official` at 64,986/64,986, and
+  `official0` at 16,124/16,124.
+- Passed the pinned ITF1788 strict aggregate at 4,656/4,656 with zero
+  unsupported selected cases.
+- Passed all 12 shared 0.6.1/0.7.0 native performance cells using ten
+  alternating paired samples and the Maremark 95% bootstrap/3% release rule.
+  New 0.7.0 elementary APIs intentionally have no fabricated 0.6.1 baseline.
+
+## 0.6.1 - 2026-07-14
+
+### Changed
+
+- Reworked `decimal_checked` into an IEEE context-and-flags pipeline and added
+  `decimal_gda_checked` for sticky-context composition, trap short-circuiting,
+  defined results, and explicit recovery.
+- Consolidated public tooling under parameterized `just conformance`, `just
+  gate`, and `just bench` commands and removed the backend-specific aliases.
+
+## 0.6.0 - 2026-07-14
+
+### Changed
+
+- Rebuilt the package documentation matrix across English, Simplified Chinese,
+  and Japanese. Every package now has API, tutorial, design, and package README
+  coverage; numerical cores have explicit conformance and performance evidence
+  pages, and superseded research notes have been consolidated.
+- Split IEEE tininess policy from GDA status handling; IEEE contexts default to
+  after-rounding and expose an explicit before-rounding choice.
+- Reject non-positive public precision and reserve zero-precision arithmetic for
+  private exact work contexts.
+- Added GDA contexts with radix, sticky flags, trap sets, signal precedence, and
+  `GdaOutcome` defined results.
+- Removed implementation-specific IEEE oracle and full-vector download paths;
+  checked-in DPD/BID fixtures are validated from IEEE encoding formulas.
+
+## 0.5.0 - 2026-07-12
+
+### Added
+
+- Added `BinCoeff`, the non-negative public coefficient boundary for binary
+  floating-point, IEEE interchange bits, and ball arithmetic. It provides
+  explicit integer/byte parsing, arithmetic, bit operations, division, and
+  conversion without exposing MoonBit `BigInt`.
+- Added a pure inline/limb coefficient kernel for non-JS targets and a hidden
+  host `bigint` adapter for JavaScript behind the same `BinCoeff` API.
+
+### Changed
+
+- Reworked contextual integer powers around a single approximation with a
+  conservative dyadic error enclosure and exact can-round checks, retaining
+  the exact coefficient-power implementation as the permanent fallback.
+- Added leading-bit coefficient exponentiation, small addition chains,
+  power-of-two and bounded exact-result dispatches, and 120 fixed MPFR 4.2.2
+  `pow_si` witnesses without changing the public rounding semantics.
+- Changed `BinFloat`, `BinFloatResult`, `BallFloat`, and `BallFloatResult`
+  constructors and accessors to use `BinCoeff` plus an independent sign.
+- Changed `BinaryInterchange::bits` and `from_bits` to use `BinCoeff`.
+- Renamed the checked-composition wrapper packages with the `_checked` suffix
+  to align package paths with the checked arithmetic trait naming.
+- Kept the existing Decimal and Semantic `BigInt` APIs unchanged; the migration
+  applies only to the binary and ball stacks.
+
+### Removed
+
+- Removed binary-stack `from_bigint` constructors, `BinFloat::significand`, and
+  the `NatHomomorphism` / `IntegralHomomorphism` implementations whose public
+  boundary depended on `BigInt`. Use `from_coefficient`, `coefficient`, and
+  explicit `negative?` arguments instead.
+
+## 0.4.1 - 2026-07-11
+
+### Fixed
+
+- Refreshed the published package README and current-baseline entry points so
+  Mooncakes displays the 0.4 release documentation and installation version.
+- Recorded verified full-corpus results for both the current and legacy GDA
+  suites: 81,110 executable cases passed with zero failures.
+
+### Changed
+
+- Moved `Decoration` and `BallFloatDecorated` into the `ball_float` package so
+  bare and decorated IEEE 1788 interval APIs share one package boundary.
+
+## 0.4.0 - 2026-07-11
+
+Feature baseline for Decimal contexts and GDA conformance.
+
+### Added
+
+- Added `DecimalContext`, `DecimalFlags`, decimal-specific rounding modes, and
+  context-aware arithmetic, classification, formatting, unary, extrema,
+  adjacent-value, logical-digit, quantize/rescale, and elementary operations.
+- Added decimal32, decimal64, and decimal128 interchange encoding through
+  `DecimalInterchange` and `DecimalInterchangeFormat`.
+- Added signed-zero, quiet/signaling NaN, payload, total-order, quantum, normal,
+  and subnormal Decimal observers.
+- Added `numeric_expr`, a private expression representation with callback-driven
+  evaluation and source spans.
+- Added `gda_expr` and `gda_expr_cli` for runtime parsing and execution of GDA
+  `.decTest` documents, deterministic sharding, case filtering, structured
+  summaries, and native CLI execution.
+- Added `semantic`, which projects concrete numeric values and arithmetic errors
+  into representation-independent scalar, interval, and error values.
+- Added pinned external conformance-corpus metadata, a checked-in smoke fixture,
+  staged interpreter tooling, and focused CI coverage.
+
+### Changed
+
+- Decimal parsing can preserve exponent/quantum; canonicalization is now an
+  explicit `normalized()` or context reduction step.
+- Repository validation now separates the focused CI white-box gate from the
+  full local/release GDA conformance gate.
+- Documentation now follows the package-oriented, current-baseline structure of
+  `linear-algebra`, with aligned English, Chinese, and Japanese file sets.
+
+## 0.3.0 - 2026-06-12
+
+### Highlights
+
+- Added `bin_float_result`, `decimal_result`, and `ball_float_result` as closed
+  checked-composition wrappers around concrete numeric values.
+- Added the first semantic projection layer.
+- Integrated shared checked arithmetic capabilities from `Luna-Flow/arithmetic`
+  and shared algebraic abstractions from `Luna-Flow/luna-generic`.
+- Narrowed `Floating` to classification, sign, precision, precision retuning,
+  and normalization; arithmetic capabilities remain separate.
+
+## 0.2.0 - 2026-06-07
+
+### Highlights
+
+- Introduced the shared arithmetic capability boundary.
+- Added the first explicit dependency on `Luna-Flow/arithmetic`.
+
+## 0.1.1 - 2026-06-07
+
+### Highlights
+
+- Added the initial ecosystem dependencies needed by the floating-point types.
+- Prepared the first maintenance release of the original API line.
+
+## 0.1.0 - 2026-06-06
+
+### Highlights
+
+- Established the MoonBit module and the first arbitrary-precision binary,
+  decimal, and ball arithmetic packages.
