@@ -10,6 +10,10 @@ notes live in this file.
 
 - Seeded random differential testing against MPFR 4.2.2 (binary) and libmpdec 4.0.0 (decimal), run through the mare_mark harness: `tools/generate_mpfr_random_oracle.c` and `tools/generate_libmpdec_random.py` generate rows (precisions 2 to 10,000, mixed operand widths, all rounding directions, exponent limits, halfway inputs, string conversion, elementary functions); the new `mpfr-random-v1` row kind of `frontend/mpfr_expr` and the `src/differential` executable validate them in batches, record JSONL and delta-debug failures; `just random-diff` runs, replays, minimizes and smoke-tests; committed samples and `xfail`-annotated regression fixtures are part of `just pr`. A campaign of 37,090,000 cases (native, Wasm, JavaScript, Wasm-GC) found five `decimal_gda` disagreements ([#264](https://github.com/Luna-Flow/floating/issues/264) to [#268](https://github.com/Luna-Flow/floating/issues/268)) and no binary arithmetic disagreement ([#16](https://github.com/Luna-Flow/floating/issues/16)).
 
+### Performance
+
+- `bin_float`: the certified elementary functions memoize their `ln 2`, `ln 10` and `pi` enclosures per working precision (six precisions each, up to 65,536 bits) instead of recomputing them in every call. `ln` is 2.4 to 2.6 times and `sin` 2.4 to 3.7 times faster on Native at 53 to 512 bits (paired medians), decimal `ln` 2.5 times; results, flags and certification failures are unchanged ([#20](https://github.com/Luna-Flow/floating/issues/20), [#18](https://github.com/Luna-Flow/floating/issues/18)).
+
 ### Fixed
 
 - `BinFloat::from_hex` reads the whole IEEE 754-2019 §5.12.3 hexSequence grammar: a hexadecimal significand with a point (`0x1.8p0`, `0x.8p1`, `0x1.p0`) was rejected before, the exponent is read as decimal digits only, and `snan` in any case (§5.12.1) gives a signaling NaN. Every production has accepting and rejecting tests and a round trip; the signature is unchanged. The missing rounding direction and flags are tracked in [#256](https://github.com/Luna-Flow/floating/issues/256) ([#225](https://github.com/Luna-Flow/floating/issues/225)).

@@ -18564,23 +18564,31 @@ msgid "Division uses a one-limb path, Knuth below 48 divisor limbs, Burnikel–Z
 msgstr "除法使用单 limb 路径，除数少于 48 个 limb 时使用 Knuth，从 48 起使用 Burnikel–Ziegler，从 1,024 起使用 Newton 倒数除法。平方根在 512 位以内使用定宽内核，超过则使用分治法。大数 GCD 在两个操作数共同的 63 位窗口上使用 Lehmer 批处理；当较短的操作数在该窗口中没有任何位时，执行一次除法步骤，因此长度相差很大的操作数会被一次性约简。"
 
 #: manual/performance/bin_float.md:22
+msgid "Certified constants"
+msgstr "认证常数"
+
+#: manual/performance/bin_float.md:24
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgstr "认证初等函数按工作精度缓存其所需的常数包络（`ln 2`、`ln 10` 与 `pi`），每个常数一个小缓存，保存六个精度，最高 65,536 位。缓存中的包络就是重新计算会得到的值，因此结果绝不依赖缓存状态或调用顺序。此前每次 `ln`、`log2`、`log10`、`sin`、`cos`、`tan` 与 `atan2` 调用都会重新运行一次 `ln 2` 级数或 `atan(1)` 求值，其代价与函数本身相当。在 Native 上的成对运行中：53 至 512 位的 `ln` 快 2.4 至 2.6 倍，`sin` 快 2.4 至 3.7 倍，十进制 `ln` 快 2.5 倍；在 Wasm 与 Wasm-GC 上 `ln` 和 `sin` 快 1.7 至 2.2 倍。`exp` 没有这类常数，保持不变。"
+
+#: manual/performance/bin_float.md:26
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "测量"
 
-#: manual/performance/bin_float.md:24
+#: manual/performance/bin_float.md:28
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "统一的 `bench/bin_float` Maremark harness 使用平衡 block 比较系数核、数值核心、checked 全路径与语义等价的平方候选。auto-tune 输出版本化的逐尺度 policy，并且只把阈值应用到实际测量的 target；所有阈值变更仍须通过全 target 正确性测试。"
 
-#: manual/performance/bin_float.md:26
+#: manual/performance/bin_float.md:30
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary 发布门禁会分别归档不可变的 `0.6.1` commit 与当前 dirty candidate，向两者注入完全相同的 add/mul/div/sqrt workload，并在 53、128、512 bit 收集十组交替 AB/BA native 配对样本。只有 candidate 至少慢 3%，且 Maremark 95% bootstrap 区间下界为正时才阻断发布。`0.7.1` 首次新增的函数只运行 candidate workload；本版本将成为它们的首个合法 baseline，不能为 `0.6.1` 中不存在的 API 伪造耗时。"
 
-#: manual/performance/bin_float.md:35
+#: manual/performance/bin_float.md:39
 msgid "Trade-offs"
 msgstr "取舍"
 
-#: manual/performance/bin_float.md:37
+#: manual/performance/bin_float.md:41
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook 降低初始化和分配，递归算法减少渐近工作，NTT 改善超大平衡输入但需要 transform 与临时存储。所有快路径保留精确 fallback，因此性能调度不能改变语义。"
 

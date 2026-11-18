@@ -417,8 +417,7 @@ let binary_range_check_precision : Int32 = 128
 /// Certified bounds on `log2(e) = 1 / ln 2`.
 fn binary_log2_e_bounds() -> (BinFloat, BinFloat)? {
   let work = binary_range_check_precision
-  let two = BinFloat::from_int(2, precision=work)
-  guard binary_ln_unit_bounds(two, work) is Some((ln2_low, ln2_high)) else {
+  guard binary_ln2_bounds(work) is Some((ln2_low, ln2_high)) else {
     return None
   }
   let one = BinFloat::one(precision=work)
@@ -440,8 +439,7 @@ fn binary_log2_e_bounds() -> (BinFloat, BinFloat)? {
 /// Certified bounds on `log2(10) = ln 10 / ln 2`.
 fn binary_log2_10_bounds() -> (BinFloat, BinFloat)? {
   let work = binary_range_check_precision
-  let two = BinFloat::from_int(2, precision=work)
-  guard binary_ln_unit_bounds(two, work) is Some((ln2_low, ln2_high)) &&
+  guard binary_ln2_bounds(work) is Some((ln2_low, ln2_high)) &&
     binary_ln10_bounds(work) is Some((ln10_low, ln10_high)) else {
     return None
   }
@@ -538,10 +536,7 @@ fn binary_expm1_negative_saturation(
   if value.neg().compare(limit.mul(half)) < 0 {
     return None
   }
-  let two = BinFloat::from_int(2, precision=work)
-  guard binary_ln_unit_bounds(two, work) is Some((_, ln2_high)) else {
-    return None
-  }
+  guard binary_ln2_bounds(work) is Some((_, ln2_high)) else { return None }
   let threshold = limit.mul_ctx(
     ln2_high,
     BinaryContext::unbounded(work, rounding=RoundTowardPositive),
@@ -590,10 +585,7 @@ fn binary_tanh_saturation(
   if magnitude.compare(limit.mul(quarter)) < 0 {
     return None
   }
-  let two = BinFloat::from_int(2, precision=work)
-  guard binary_ln_unit_bounds(two, work) is Some((_, ln2_high)) else {
-    return None
-  }
+  guard binary_ln2_bounds(work) is Some((_, ln2_high)) else { return None }
   let half = BinFloat::make(BinCoeff::one(), -1, work)
   let threshold = limit
     .mul(half)
@@ -633,8 +625,7 @@ fn binary_tanh_saturation(
 }
 
 ///|
-fn binary_ln10_bounds(work_precision : Int32) -> (BinFloat, BinFloat)? {
-  let two = BinFloat::from_int(2, precision=work_precision)
+fn binary_ln10_bounds_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
   let five_quarters = BinFloat::make(
     BinCoeff::from_uint64(5UL),
     -2,
@@ -642,7 +633,7 @@ fn binary_ln10_bounds(work_precision : Int32) -> (BinFloat, BinFloat)? {
   )
   match
     (
-      binary_ln_unit_bounds(two, work_precision),
+      binary_ln2_bounds(work_precision),
       binary_ln_unit_bounds(five_quarters, work_precision),
     ) {
     (Some(two_bounds), Some(part_bounds)) => {
@@ -686,10 +677,7 @@ fn binary_ln_bounds(
   match
     (
       binary_ln_unit_bounds(normalized, work_precision),
-      binary_ln_unit_bounds(
-        BinFloat::from_int(2, precision=work_precision),
-        work_precision,
-      ),
+      binary_ln2_bounds(work_precision),
     ) {
     (Some(unit), Some(ln2)) => {
       let downward = BinaryContext::unbounded(
@@ -3670,7 +3658,7 @@ fn binary_atan_finite_bounds(
 }
 
 ///|
-fn binary_pi_bounds(work_precision : Int32) -> (BinFloat, BinFloat)? {
+fn binary_pi_bounds_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
   match
     binary_atan_finite_bounds(
       BinFloat::one(precision=work_precision),
