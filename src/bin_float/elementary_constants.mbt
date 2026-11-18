@@ -50,7 +50,7 @@ fn binary_cached_constant(
 }
 
 ///|
-fn binary_ln2_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
+fn binary_ln2_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
   binary_ln_unit_bounds(
     BinFloat::from_int(2, precision=work_precision),
     work_precision,

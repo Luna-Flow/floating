@@ -634,7 +634,7 @@ fn binary_tanh_saturation(
 }
 
 ///|
-fn binary_ln10_bounds_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
+fn binary_ln10_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
   let five_quarters = BinFloat::make(
     BinCoeff::from_uint64(5UL),
     -2,
@@ -3698,7 +3698,7 @@ fn binary_atan_finite_bounds(
 }
 
 ///|
-fn binary_pi_bounds_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
+fn binary_pi_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
   match
     binary_atan_finite_bounds(
       BinFloat::one(precision=work_precision),
