@@ -265,10 +265,13 @@ test "LegacyBigIntBinFloat adapts signed zero and NaN metadata" {
     positive_infinity.sub(signaling_nan),
     legacy_positive_infinity.sub(legacy_signaling_nan),
   )
+  // The quiet NaN result is the same; the checked `sqrt` reports the invalid
+  // operation of a signaling NaN (IEEE 754-2019 section 7.2 a), #262).
   legacy_shadow_assert_equal(
-    signaling_nan.sqrt().unwrap(),
+    signaling_nan.sqrt_ctx(BinaryContext::unbounded(17)).0,
     legacy_signaling_nan.sqrt().unwrap(),
   )
+  assert_true(signaling_nan.sqrt() is Err(_))
   legacy_shadow_assert_equal(
     negative_zero.sqrt().unwrap(),
     legacy_negative_zero.sqrt().unwrap(),

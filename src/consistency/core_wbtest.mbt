@@ -2283,6 +2283,141 @@ test "decimal generic checked division projects context flags to arithmetic erro
 }
 
 ///|
+fn[T] checked_special_render(
+  result : Result[T, ArithmeticError],
+  is_nan : (T) -> Bool,
+  is_infinite : (T) -> Bool,
+  is_zero : (T) -> Bool,
+  is_negative : (T) -> Bool,
+) -> String {
+  match result {
+    Err(err) =>
+      if err.is_division_by_zero() {
+        "err:div0"
+      } else if err.is_domain_error() {
+        "err:invalid"
+      } else {
+        "err:other"
+      }
+    Ok(value) => {
+      let sign = if is_negative(value) { "-" } else { "+" }
+      if is_nan(value) {
+        "ok:nan"
+      } else if is_infinite(value) {
+        "ok:" + sign + "inf"
+      } else if is_zero(value) {
+        "ok:" + sign + "0"
+      } else {
+        "ok:" + sign + "fin"
+      }
+    }
+  }
+}
+
+///|
+/// The issue 262 rows: dividend, divisor and the IEEE 754-2019 outcome.
+fn checked_special_division_rows() -> Array[(String, String, String)] {
+  [
+    ("NaN", "0", "ok:nan"), // 6.2
+    ("0", "0", "err:invalid"), // 7.2 e)
+    ("Infinity", "0", "ok:+inf"), // 7.3 needs a finite dividend
+    ("Infinity", "Infinity", "err:invalid"), // 7.2 e)
+    ("1", "0", "err:div0"), // 7.3
+    ("-1", "-0", "err:div0"), // 7.3
+    ("sNaN", "1", "err:invalid"), // 7.2 a)
+  ]
+}
+
+///|
+fn checked_special_bin(text : String) -> @bin_float.BinFloat {
+  match text {
+    "NaN" => @bin_float.BinFloat::nan(precision=24)
+    "-NaN" => @bin_float.BinFloat::quiet_nan(negative=true, precision=24)
+    "sNaN" => @bin_float.BinFloat::signaling_nan(precision=24)
+    "Infinity" => @bin_float.BinFloat::inf(@def.Sign::Positive, precision=24)
+    "-0" => @bin_float.BinFloat::negative_zero(precision=24)
+    "0" => @bin_float.BinFloat::zero(precision=24)
+    "1" => @bin_float.BinFloat::from_int(1, precision=24)
+    "-1" => @bin_float.BinFloat::from_int(-1, precision=24)
+    _ => abort("unknown operand " + text)
+  }
+}
+
+///|
+test "binary and decimal checked instances agree on special values (#262)" {
+  let bin_render = fn(result) {
+    checked_special_render(
+      result,
+      fn(x : @bin_float.BinFloat) { x.classify() == @def.FpClass::NaN },
+      fn(x) { x.classify() == @def.FpClass::Infinity },
+      fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
+      fn(x) { x.is_negative() },
+    )
+  }
+  let dec_render = fn(result) {
+    checked_special_render(
+      result,
+      fn(x : @decimal.Decimal) { x.classify() == @def.FpClass::NaN },
+      fn(x) { x.classify() == @def.FpClass::Infinity },
+      fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
+      fn(x) { x.is_negative() },
+    )
+  }
+  let gda_render = fn(result) {
+    checked_special_render(
+      result,
+      fn(x : @decimal_gda.Decimal) { x.classify() == @def.FpClass::NaN },
+      fn(x) { x.classify() == @def.FpClass::Infinity },
+      fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
+      fn(x) { x.is_negative() },
+    )
+  }
+  let dec = fn(text) {
+    @decimal.Decimal::from_string(text, precision=20).unwrap()
+  }
+  let gda = fn(text) {
+    @decimal_gda.Decimal::from_string(text, precision=20).unwrap()
+  }
+  for row in checked_special_division_rows() {
+    let (a, b, expected) = row
+    let label = a + " / " + b
+    assert_eq(
+      label +
+      " " +
+      bin_render(
+        div_checked_generic(
+          checked_special_bin(a),
+          checked_special_bin(b),
+          checked_ctx,
+        ),
+      ),
+      label + " " + expected,
+    )
+    assert_eq(
+      label + " " + dec_render(div_checked_generic(dec(a), dec(b), checked_ctx)),
+      label + " " + expected,
+    )
+    assert_eq(
+      label + " " + gda_render(div_checked_generic(gda(a), gda(b), checked_ctx)),
+      label + " " + expected,
+    )
+  }
+  // sqrt(-NaN): the sign bit of a quiet NaN does not make it negative (6.2).
+  assert_eq(
+    bin_render(sqrt_checked_generic(checked_special_bin("-NaN"), checked_ctx)),
+    "ok:nan",
+  )
+  assert_eq(
+    dec_render(sqrt_checked_generic(dec("-NaN"), checked_ctx)),
+    "ok:nan",
+  )
+  assert_eq(
+    gda_render(sqrt_checked_generic(gda("-NaN"), checked_ctx)),
+    "ok:nan",
+  )
+}
+
+///|
 test "decimal conversion preserves dyadics exactly" {
   let d = @decimal.Decimal::from_string("0.375", precision=20).unwrap()
   let x = d.to_bin_float(precision=20)

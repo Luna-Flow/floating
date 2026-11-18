@@ -352,12 +352,30 @@ pub fn sqrt_for_precision(
   x : BinFloat,
   precision : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
-  guard !(x.is_negative() && !x.is_zero()) else {
-    return Err(
-      @def.ArithmeticError::domain_error("sqrt requires a non-negative value"),
-    )
+  binary_checked_result(
+    x.sqrt_ctx(BinaryContext::unbounded(precision)),
+    "sqrt requires a non-negative value",
+  )
+}
+
+///|
+/// Maps a contextual result to the checked tier: the invalid operation
+/// exception (IEEE 754-2019 section 7.2) becomes `DomainError`, the
+/// divideByZero exception (section 7.3) becomes `DivisionByZero`, and every
+/// other result, NaN and range exceptions included, is returned in `Ok` (#262).
+fn binary_checked_result(
+  result : (BinFloat, BinaryFlags),
+  invalid_message : String,
+  division_by_zero_message~ : String = "division by zero",
+) -> Result[BinFloat, @def.ArithmeticError] {
+  let (value, flags) = result
+  if flags.division_by_zero() {
+    Err(@def.ArithmeticError::division_by_zero(division_by_zero_message))
+  } else if flags.invalid_operation() {
+    Err(@def.ArithmeticError::domain_error(invalid_message))
+  } else {
+    Ok(value)
   }
-  Ok(x.sqrt_ctx(BinaryContext::unbounded(precision)).0)
 }
 
 ///|
@@ -810,10 +828,10 @@ pub fn BinFloat::div_checked(
   self : BinFloat,
   other : BinFloat,
 ) -> Result[BinFloat, @def.ArithmeticError] {
-  guard !(other.classify() == FpClass::Finite && other.is_zero()) else {
-    return Err(@def.ArithmeticError::division_by_zero("division by zero"))
-  }
-  Ok(div_bin_impl(self, other))
+  binary_checked_result(
+    self.div_ctx(other, BinaryContext::unbounded(max_precision(self, other))),
+    "invalid division",
+  )
 }
 
 ///|
@@ -833,32 +851,27 @@ pub fn BinFloat::pow_int(
   self : BinFloat,
   exponent : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
-  guard !(exponent < 0 && self.is_zero()) else {
-    return Err(
-      @def.ArithmeticError::division_by_zero(
-        "negative exponent requires a non-zero base",
-      ),
-    )
-  }
-  Ok(self.pow_int_ctx(exponent, BinaryContext::unbounded(self.precision_)).0)
+  binary_checked_result(
+    self.pow_int_ctx(exponent, BinaryContext::unbounded(self.precision_)),
+    "invalid power",
+    division_by_zero_message="negative exponent requires a non-zero base",
+  )
 }
 
 ///|
 pub impl @lf_arith.SqrtChecked for BinFloat with fn sqrt_checked(self, ctx) {
-  guard !(self.is_negative() && !self.is_zero()) else {
-    return Err(
-      @def.ArithmeticError::domain_error("sqrt requires a non-negative value"),
-    )
-  }
-  Ok(self.sqrt_ctx(BinaryContext::from_arithmetic_context(ctx)).0)
+  binary_checked_result(
+    self.sqrt_ctx(BinaryContext::from_arithmetic_context(ctx)),
+    "sqrt requires a non-negative value",
+  )
 }
 
 ///|
 pub impl @lf_arith.DivChecked for BinFloat with fn div_checked(self, other, ctx) {
-  guard !(other.classify() == FpClass::Finite && other.is_zero()) else {
-    return Err(@def.ArithmeticError::division_by_zero("division by zero"))
-  }
-  Ok(self.div_ctx(other, BinaryContext::from_arithmetic_context(ctx)).0)
+  binary_checked_result(
+    self.div_ctx(other, BinaryContext::from_arithmetic_context(ctx)),
+    "invalid division",
+  )
 }
 
 ///|
@@ -875,7 +888,11 @@ pub impl @lf_arith.PowNatChecked for BinFloat with fn pow_nat_checked(
   exponent,
   ctx,
 ) {
-  Ok(self.pow_nat_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)).0)
+  binary_checked_result(
+    self.pow_nat_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)),
+    "invalid power",
+    division_by_zero_message="negative exponent requires a non-zero base",
+  )
 }
 
 ///|
@@ -884,14 +901,11 @@ pub impl @lf_arith.PowIntChecked for BinFloat with fn pow_int_checked(
   exponent,
   ctx,
 ) {
-  guard !(exponent < 0 && self.is_zero()) else {
-    return Err(
-      @def.ArithmeticError::division_by_zero(
-        "negative exponent requires a non-zero base",
-      ),
-    )
-  }
-  Ok(self.pow_int_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)).0)
+  binary_checked_result(
+    self.pow_int_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)),
+    "invalid power",
+    division_by_zero_message="negative exponent requires a non-zero base",
+  )
 }
 
 ///|

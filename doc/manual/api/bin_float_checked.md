@@ -199,16 +199,18 @@ never fail: invalid cases such as $\infty - \infty$ produce a successful NaN.
 
 ### `BinFloatResult::div`
 
-`div` divides two wrappers and reports division by a zero.
+`div` divides two wrappers and reports invalid divisions and division by zero.
 
 ```mbti
 pub fn BinFloatResult::div(Self, Self) -> Self
 ```
 
 After the operand errors (left first), the result is
-`BinFloat::div_checked(lhs, rhs)`: a `DivisionByZero` error when the divisor is
-a finite zero ($\pm 0$), whatever the dividend (including $0/0$ and NaN$/0$),
-and the rounded quotient otherwise.
+`BinFloat::div_checked(lhs, rhs)`: a `DomainError` for $0/0$, $\infty/\infty$
+or a signaling NaN operand, a `DivisionByZero` error for a finite non-zero
+dividend over a zero divisor ($\pm 0$), and the IEEE 754-2019 result
+otherwise: a quiet NaN for a quiet NaN operand (NaN$/0$ included),
+$\pm\infty$ for $\infty/0$, and the rounded quotient.
 
 ### `BinFloatResult::min`, `BinFloatResult::max`
 
@@ -302,8 +304,8 @@ pub fn BinFloatResult::sqrt_ctx(Self, @bin_float.BinaryContext) -> Self
 ```
 
 `sqrt` is `BinFloat::sqrt`, which returns a `DomainError` for a negative
-non-zero argument, including $-\infty$ and a NaN whose sign bit is set;
-$\sqrt{-0} = -0$ and a positive NaN gives a successful NaN. `sqrt_ctx` never
+non-zero argument, including $-\infty$, and for a signaling NaN;
+$\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` never
 fails: a negative argument gives a successful NaN (the invalid flag is
 dropped).
 
@@ -323,8 +325,9 @@ pub fn BinFloatResult::pown_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 `PowNatChecked::pow_nat_checked` with `ArithmeticContext::new(x.precision())`,
 which `bin_float` maps to an unbounded binary context at that precision with
 nearest-even rounding. `pow_int` and `pown` (the same operation, IEEE name)
-return a `DivisionByZero` error for a zero base with a negative exponent and
-the rounded power otherwise, at the operand's precision. The `_ctx` forms
+return a `DivisionByZero` error for a zero base with a negative exponent, a
+`DomainError` for a signaling NaN base with a non-zero exponent (as does
+`pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms
 never fail and return $\pm\infty$ for a zero base with a negative exponent.
 
 ### `BinFloatResult::rootn`, `BinFloatResult::rootn_ctx`
