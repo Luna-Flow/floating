@@ -422,6 +422,93 @@ result is $1$ or its neighbour by direction alone and equals the rounding of
 the surrogate $1 \pm 2^{-(p+3)}$, which `binary_round_dyadic` takes through
 the same finalizer as any exact value.
 
+`asinpi`, `acospi`, `atanpi` and `atan2pi` (third and last family of
+[#235](https://github.com/Luna-Flow/floating/issues/235)) are
+$\operatorname{asin}(x)/\pi$, $\operatorname{acos}(x)/\pi$,
+$\operatorname{atan}(x)/\pi$ and $\operatorname{atan2}(y, x)/\pi$: the existing
+certified enclosures of the angle divided by a certified enclosure of $\pi$,
+rounded by the Ziv driver. By Niven's theorem the only exact (dyadic) values are
+the constants of §9.2.1 and $\operatorname{atanPi}(\pm 1) = \pm 1/4$,
+$\operatorname{atan2Pi}(\pm a, \pm a) = \pm 1/4, \pm 3/4$, which are rounded as
+dyadics; $1/6$, $1/3$ and $2/3$ are rational but not breakpoints, so the loop
+terminates on them. The range hazards are anchors, decided before the loop by
+`binary_tiny_argument_result` from a certified distance: $\operatorname{atanPi}(x)
+= \pm(1/2 - \delta)$ with $\delta < 2^{-t}$ for $|x| \ge 2^t$, $t \ge p + 8$;
+$\operatorname{acosPi}(x) = 1/2 \mp \delta$ with $\delta < |x|/2$ for a tiny
+$|x|$; and $\operatorname{atan2Pi}(y, x)$ at $\pm 1/2$ ($D \ge p + 8$) and $\pm 1$
+($D \le -(p + 8)$, $x < 0$), where $D$ is the difference of the leading-bit
+exponents, so that the ratio $y/x$ (whose exponent can be $\pm 2^{31}$) is never
+formed. For $x > 0$ and a ratio so small that $t/\pi$ lies below a quarter of the
+smallest subnormal the result is the tiny nonzero result of the direction.
+Everything else is the enclosure $\operatorname{atan}(t)/\pi$ (or
+$1 - \operatorname{atan}(t)/\pi$) at a working precision above the operands'.
+
+### Handover: the range layer and how to add a function
+
+The recommended functions of §9.2 were added in three families on one layer
+(`src/bin_float/elementary_range.mbt`) and the helpers it builds on
+(`binary_round_dyadic` and `binary_round_precision_only` in
+`context_arithmetic.mbt`; `binary_certified_inexact_target_rounding`,
+`binary_inexact_inner_endpoint` and `binary_tiny_argument_result` in
+`elementary_certified.mbt`). Their purpose is to make the defect class of the
+range audit ([#271](https://github.com/Luna-Flow/floating/issues/271) to
+[#316](https://github.com/Luna-Flow/floating/issues/316)) impossible to write
+again: `BinFloat::make(c, e, w)` at a width $w$ flushes every value below
+$2^{e_{\min} - (w - 1)}$, so a result or a helper value must never be built that
+way; exact results are rounded as dyadics, and a value that clusters at a
+representable anchor is decided by its certified distance to it.
+
+The layer exposes (all internal):
+
+| name | use |
+| --- | --- |
+| `binary_nan_unary(value, context)` | NaN operand: quiet NaN, `invalid` for a signaling one; call first |
+| `binary_pole_result(negative, context)` | $\pm\infty$ with `divideByZero` |
+| `binary_integer_result(n, context)` | an integer result rounded as a dyadic |
+| `binary_pow2_minus_one_integer(n, context)` | $2^n - 1$ for any integer $n \ne 0$ |
+| `binary_saturated_minus_one(context)` | $-1 + \varepsilon$ decided by direction |
+| `binary_positive_exp_minus_one_overflow(...)` | certain overflow of $b^x - 1$ from certified $\log_2 b$ |
+| `binary_ziv_round(operation, context, bounds_at)` | the Ziv driver: `bounds_at(work)` returns a certified enclosure of an inexact result |
+| `binary_round_dyadic(negative, coefficient, exponent, context)` | an exact value, both tininess rules, overflow, subnormals |
+| `binary_round_precision_only(...)` | the $p$-bit rounding with no range (for after-rounding tininess) |
+| `binary_tiny_argument_result(anchor, above, scale, context)` | a result within $2^{scale}$ of a representable anchor, above or below it, decided by direction |
+| `binary_tiny_nonzero_result(negative, context)` | a nonzero result below a quarter of the smallest subnormal |
+
+To add a function: (1) write the special-value table of §9.2.1 and Table 9.1
+from the PDF text and quote it in the file header and the tests; (2) check a
+NaN first (`binary_nan_unary`), a signaling NaN before any shortcut; (3) list the
+exact results (by Niven-type arguments or direct algebra) and return them
+through `binary_round_dyadic`; (4) find the anchors and the ranges that cluster
+(a tiny or huge argument, an extreme ratio) and decide them with
+`binary_tiny_argument_result` with a proved bound on the distance; (5) write the
+enclosure for `binary_ziv_round`, with the working precision at least the
+operand precision plus 16 and the operation known to be inexact; (6) add the
+`try_*_ctx`, `*_ctx` and plain forms, the `BinFloatResult` wrappers and the
+`mpfr_expr` operation; (7) test against a model that does not use the code under
+test (an exact rational, an anchor table, the result at precision $p + 150$), at
+the subnormal limit of the implementation and of a few bounded formats, in every
+rounding direction and both tininess modes; (8) add the MPFR operation to
+`tools/generate_mpfr_random_oracle.c` as a new family appended after the existing
+operations (the rows of older families stay byte for byte), generate range
+boundary rows in `tools/range_boundary_rows.py`, run 1,000,000 native and 100,000
+cases on each other backend and the boundary sweep, and add a few boundary rows
+to `testdata/bin_float/random-regressions.txt`; (9) document the function, its
+evidence and, for a defect of the oracle, the finding.
+
+The oracle is not the specification. Findings about MPFR 4.2.2 (Homebrew bottle,
+arm64) made while doing this, each documented in `testdata/bin_float/README.md`:
+`mpfr_sqrt` returns a wrong ternary value or a result on the wrong side for some
+odd-exponent operands near the output precision (the generator checks every
+`sqrt` row with an exact product and draws again); `mpfr_compound_si` is not
+correctly rounded for a negative $n$ in the directed modes nor near the ends of
+the exponent range (the generator rounds the exact rational with
+`mpfr_set_q`; the library was right in every one of 2,017 rows proved by
+independent rational arithmetic); `mpfr_rec_sqrt(-0)` is $+\infty$ by MPFR's own
+convention where §9.2.1 says $-\infty$ (the expected value follows the standard);
+`mpfr_atan2pi` takes time that grows with the exponent difference of its
+operands (not a wrong answer: rows over 100,000 binades apart are not
+generated).
+
 ### Signed zeros and NaNs
 
 An exact zero sum $a + b = 0$ with $a, b$ of opposite sign is $+0$ in every

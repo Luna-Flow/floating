@@ -407,6 +407,54 @@ a `DomainError` for a negative base, for a signaling NaN, and for the invalid
 pairs $(\pm 0, \pm 0)$, $(+\infty, \pm 0)$ and $(1, \pm\infty)$, and a
 `DivisionByZero` error for $(\pm 0, y)$ with a finite $y < 0$.
 
+### `BinFloatResult::asinpi`, `BinFloatResult::asinpi_ctx`
+
+$\operatorname{asin}(x)/\pi$, delegated to [`BinFloat::try_asinpi_ctx`](bin_float.md#binfloatasinpi-binfloatasinpi_ctx-binfloattry_asinpi_ctx).
+
+```mbti
+pub fn BinFloatResult::asinpi(Self) -> Self
+pub fn BinFloatResult::asinpi_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for $|x| > 1$ ($\pm\infty$ included) and for a signaling NaN.
+
+### `BinFloatResult::acospi`, `BinFloatResult::acospi_ctx`
+
+$\operatorname{acos}(x)/\pi$, delegated to [`BinFloat::try_acospi_ctx`](bin_float.md#binfloatacospi-binfloatacospi_ctx-binfloattry_acospi_ctx).
+
+```mbti
+pub fn BinFloatResult::acospi(Self) -> Self
+pub fn BinFloatResult::acospi_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: as `asinpi`.
+
+### `BinFloatResult::atanpi`, `BinFloatResult::atanpi_ctx`
+
+$\operatorname{atan}(x)/\pi$, delegated to [`BinFloat::try_atanpi_ctx`](bin_float.md#binfloatatanpi-binfloatatanpi_ctx-binfloattry_atanpi_ctx).
+
+```mbti
+pub fn BinFloatResult::atanpi(Self) -> Self
+pub fn BinFloatResult::atanpi_ctx(Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors: a `DomainError` for a signaling NaN only; $\pm\infty$ gives $\pm 1/2$.
+
+### `BinFloatResult::atan2pi`, `BinFloatResult::atan2pi_ctx`
+
+The angle of the point $(\text{abscissa}, \text{self})$ in half-revolutions, delegated to
+[`BinFloat::try_atan2pi_ctx`](bin_float.md#binfloatatan2pi-binfloatatan2pi_ctx-binfloattry_atan2pi_ctx).
+
+```mbti
+pub fn BinFloatResult::atan2pi(Self, Self) -> Self
+pub fn BinFloatResult::atan2pi_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+```
+
+Errors are taken in the order ordinate, abscissa, operation. `atan2pi` uses
+`BinaryContext::unbounded` at the larger operand precision. Zero and infinite
+operands give exact constants with no exception; a signaling NaN operand is a
+`DomainError`.
+
 ### `BinFloatResult::hypot`, `BinFloatResult::hypot_ctx`
 
 `hypot(y)` computes $\sqrt{x^2 + y^2}$ without intermediate overflow, with
@@ -832,18 +880,26 @@ pub fn BinFloatResult::acos(Self) -> Self
 pub fn BinFloatResult::acos_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::acosh(Self) -> Self
 pub fn BinFloatResult::acosh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::acospi(Self) -> Self
+pub fn BinFloatResult::acospi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::add(Self, Self) -> Self
 pub fn BinFloatResult::add_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::asin(Self) -> Self
 pub fn BinFloatResult::asin_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::asinh(Self) -> Self
 pub fn BinFloatResult::asinh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::asinpi(Self) -> Self
+pub fn BinFloatResult::asinpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::atan(Self) -> Self
 pub fn BinFloatResult::atan2(Self, Self) -> Self
 pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atan2pi(Self, Self) -> Self
+pub fn BinFloatResult::atan2pi_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::atan_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::atanh(Self) -> Self
 pub fn BinFloatResult::atanh_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::atanpi(Self) -> Self
+pub fn BinFloatResult::atanpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::bind(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloatResult::compound(Self, Int32) -> Self

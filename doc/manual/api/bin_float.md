@@ -2005,6 +2005,100 @@ A NaN operand propagates. Multiples of $\pi$ are correctly rounded and
 `inexact`. So $\operatorname{atan2}(-0, -0) = -\pi$ and
 $\operatorname{atan2}(-0, +0) = -0$.
 
+### `BinFloat::asinpi`, `BinFloat::asinpi_ctx`, `BinFloat::try_asinpi_ctx`
+
+$\operatorname{asin}(x)/\pi$, the angle in half-revolutions (`asinPi` of IEEE 754-2019 §9.2).
+
+```mbti
+pub fn BinFloat::asinpi(Self) -> Self
+pub fn BinFloat::asinpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_asinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\pm\infty$ are a
+`domain_error` (a quiet NaN with `invalid_operation` from `asinpi_ctx`).
+$\operatorname{asinPi}(\pm 0) = \pm 0$ with no exception, and
+$\operatorname{asinPi}(\pm 1) = \pm 1/2$ exactly. $\operatorname{asinPi}(\pm 1/2)
+= \pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every
+other argument (by Niven's theorem these are the only rational values).
+For a tiny $x$ the result is $x/\pi$ up to a relative error of order $x^2$ and
+is rounded from a certified enclosure whatever the exponent range, down to the
+implementation subnormal limit.
+
+### `BinFloat::acospi`, `BinFloat::acospi_ctx`, `BinFloat::try_acospi_ctx`
+
+$\operatorname{acos}(x)/\pi$.
+
+```mbti
+pub fn BinFloat::acospi(Self) -> Self
+pub fn BinFloat::acospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_acospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The domain is $[-1, 1]$ as for `asinpi`. $\operatorname{acosPi}(1) = +0$,
+$\operatorname{acosPi}(-1) = 1$ and $\operatorname{acosPi}(\pm 0) = 1/2$,
+exact and without exception (§9.2.1). For a tiny $|x|$ the result is $1/2 \mp
+\delta$ with $0 < \delta < |x|/2$, so it clusters at the representable $1/2$:
+when $|x| < 2^{-(p + 4)}$ the rounding direction alone decides between $1/2$ and
+its neighbour on that side (below for $x > 0$, above for $x < 0$), before the
+main loop, and the result is always `inexact`.
+
+### `BinFloat::atanpi`, `BinFloat::atanpi_ctx`, `BinFloat::try_atanpi_ctx`
+
+$\operatorname{atan}(x)/\pi$.
+
+```mbti
+pub fn BinFloat::atanpi(Self) -> Self
+pub fn BinFloat::atanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_atanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+Defined on all of $\mathbb{R}$. $\operatorname{atanPi}(\pm 0) = \pm 0$ with no
+exception, $\operatorname{atanPi}(\pm\infty) = \pm 1/2$ with no exception (§9.2.1)
+and $\operatorname{atanPi}(\pm 1) = \pm 1/4$ exactly. For $|x| \ge 2^{p + 8}$ the
+result is $\pm(1/2 - \delta)$ with $0 < \delta < 2^{-t}$ for $2^t \le |x|$, so
+the rounding direction alone decides between $\pm 1/2$ and its neighbour inside,
+without forming a value that close to $1/2$. A tiny $x$ gives $x/\pi$ rounded
+from a certified enclosure (underflow with the flags of §7.5 and §7.6).
+
+### `BinFloat::atan2pi`, `BinFloat::atan2pi_ctx`, `BinFloat::try_atan2pi_ctx`
+
+$\operatorname{atan2}(y, x)/\pi$ for `y.atan2pi(x)`, in $[-1, 1]$.
+
+```mbti
+pub fn BinFloat::atan2pi(Self, Self) -> Self
+pub fn BinFloat::atan2pi_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::try_atan2pi_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+```
+
+The receiver is the ordinate $y$. Every special case of §9.2.1 is an exact
+constant that signals no exception:
+
+| $y$ | $x$ | result |
+| --- | --- | --- |
+| $\pm 0$ | $x \ge +0$ | $\pm 0$ |
+| $\pm 0$ | $x \le -0$ | $\pm 1$ |
+| $\pm\infty$ | $+\infty$ | $\pm 1/4$ |
+| $\pm\infty$ | $-\infty$ | $\pm 3/4$ |
+| $\pm\infty$ | finite | $\pm 1/2$ |
+| finite $y \ne 0$ | $\pm 0$ | $\pm 1/2$ (sign of $y$) |
+| finite $y \ne 0$ | $+\infty$ | $\pm 0$ (sign of $y$) |
+| finite $y \ne 0$ | $-\infty$ | $\pm 1$ (sign of $y$) |
+
+For finite nonzero operands $\operatorname{atan2Pi}(y, x)$ is
+$\operatorname{atan}(|y/x|)/\pi$ for $x > 0$ and $1 - \operatorname{atan}(|y/x|)/\pi$
+for $x < 0$, with the sign of $y$. $|y| = |x|$ gives the exact $\pm 1/4$ or
+$\pm 3/4$. With $D$ the difference of the leading-bit exponents of $y$ and $x$
+(so $2^{D-1} < |y/x| < 2^{D+1}$), an extreme ratio is decided from the anchors
+before the main loop, from $|D| \ge p + 8$: $D \ge p + 8$ gives $1/2 - \delta$
+($1/2 + \delta$ for $x < 0$) with $0 < \delta < 2^{-D}$, and $D \le -(p + 8)$
+with $x < 0$ gives $1 - \delta$ with $0 < \delta < 2^{D}$, each rounded by
+direction alone. With $x > 0$ and a tiny ratio the result is $\approx t/\pi$;
+when $D$ is below a quarter of the smallest subnormal ($D \le e_{\min} - p - 1$)
+it is the tiny nonzero result of the direction with `underflow` and `inexact`.
+The ratio $y/x$ itself is never formed outside the range where it is
+representable, so operands at the two ends of the exponent range are handled.
+
 ### `BinFloat::sinh`, `BinFloat::sinh_ctx`, `BinFloat::try_sinh_ctx`
 
 The hyperbolic sine.
@@ -2421,6 +2515,8 @@ pub fn BinFloat::acos(Self) -> Self
 pub fn BinFloat::acos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::acosh(Self) -> Self
 pub fn BinFloat::acosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::acospi(Self) -> Self
+pub fn BinFloat::acospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::add(Self, Self) -> Self
 pub fn BinFloat::add_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::add_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
@@ -2428,12 +2524,18 @@ pub fn BinFloat::asin(Self) -> Self
 pub fn BinFloat::asin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::asinh(Self) -> Self
 pub fn BinFloat::asinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::asinpi(Self) -> Self
+pub fn BinFloat::asinpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::atan(Self) -> Self
 pub fn BinFloat::atan2(Self, Self) -> Self
 pub fn BinFloat::atan2_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::atan2pi(Self, Self) -> Self
+pub fn BinFloat::atan2pi_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::atan_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::atanh(Self) -> Self
 pub fn BinFloat::atanh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::atanpi(Self) -> Self
+pub fn BinFloat::atanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::ceil(Self) -> Self
 pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -2592,11 +2694,15 @@ pub fn BinFloat::total_order_mag(Self, Self) -> Bool
 pub fn BinFloat::trunc(Self) -> Self
 pub fn BinFloat::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_acospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_asinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_asinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atan2_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_atan2pi_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_atanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_atanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_compound_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
