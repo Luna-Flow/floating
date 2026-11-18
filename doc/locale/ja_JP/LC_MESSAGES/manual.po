@@ -18601,10 +18601,18 @@ msgid "The elementary release gate separately archives the immutable `0.6.1` com
 msgstr "elementary release gate は immutable `0.6.1` commit と dirty candidate tree を別々に archive し、同一 add/mul/div/sqrt workload を注入して、53/128/512 bit の alternating AB/BA native pair を十組収集します。candidate が 3% 以上遅く、かつ Maremark 95% bootstrap interval の下限が正の場合だけ release を阻止します。 `0.7.1` で初めて追加された function は candidate workload として測定し、この release を最初の正当な baseline とします。`0.6.1` に存在しない API の timing を捏造しません。"
 
 #: manual/performance/bin_float.md:39
+msgid "Certified series"
+msgstr "認証済み級数"
+
+#: manual/performance/bin_float.md:41
+msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
+msgstr "引数が作業精度で正確に表せる場合（通常はそうです）、`exp` の包含区間はテイラー級数を 2 回ではなく 1 回だけ評価します。このとき下端と上端は同じ値であり、各級数が読むのはその一方の界だけだからです。三角関数の包含区間は、要求された関数と象限が実際に読む正弦または余弦の級数だけを評価し、`sin` と `cos` では 4 つの級数が 2 つになります。どちらの省略も以前とまったく同じ包含区間を返し、ホワイトボックステストで以前のコードの複製と比較しています。Native でのペア実行では、53〜512 ビットの `exp` が 1.8〜2.0 倍、10 進の `exp` が 1.3〜1.4 倍、`sin` はこれ単独で 1.15〜1.2 倍速くなり、Wasm と Wasm-GC では `exp` が 1.7〜1.9 倍速くなります。"
+
+#: manual/performance/bin_float.md:43
 msgid "Trade-offs"
 msgstr "Trade-off"
 
-#: manual/performance/bin_float.md:41
+#: manual/performance/bin_float.md:45
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
 

@@ -36,6 +36,10 @@ in `0.7.1` run as a candidate workload; this release becomes their first valid
 baseline, because inventing `0.6.1` timings for APIs that did not exist would
 be meaningless.
 
+## Certified series
+
+The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster.
+
 ## Trade-offs
 
 Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics.
