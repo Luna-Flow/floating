@@ -2587,6 +2587,15 @@ pub fn BinFloat::try_pow_ctx(
   exponent : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
+  // IEEE 754-2019 9.2.1: pow(x, +-0) is 1 "if x is not a signaling NaN", and
+  // pow(+1, y) is 1 for any y, which does not cover a signaling NaN: a
+  // signaling NaN operand is an invalid operation (7.2 a) before the shortcuts.
+  if self.is_signaling_nan() || exponent.is_signaling_nan() {
+    match binary_nan_pair(self, exponent, context.precision) {
+      Some(result) => return Ok(result)
+      None => ()
+    }
+  }
   if exponent.classify() == FpClass::Finite && exponent.is_zero() {
     return Ok((BinFloat::one(precision=context.precision), BinaryFlags::new()))
   }
