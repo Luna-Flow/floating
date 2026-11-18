@@ -573,7 +573,11 @@ fn decimal_power_integer_bounded_result(
     (base, DecimalFlags::new())
   }
   guard factor0.class == FpClass::Finite else {
-    return (factor0, initial_flags)
+    // The reciprocal can only be infinite by overflowing in the work context.
+    // Its sign is the sign of the base, not that of the power: GDA 1.70 power
+    // gives the result sign 1 only for an odd integral exponent and a negative
+    // base, so (-0.07)^-8 overflows to +Infinity and (-0.07)^-7 to -Infinity.
+    return decimal_power_terminal_result(base, count, initial_flags, ctx)
   }
   let mut flags = initial_flags
   let mut acc = one
@@ -658,7 +662,15 @@ fn decimal_power_large_integer_coeff_result(
     (base, DecimalFlags::new())
   }
   guard factor0.class == FpClass::Finite else {
-    return Some((factor0, initial_flags))
+    // The reciprocal can only be infinite by overflowing in the work context.
+    // Its sign is the sign of the base, not that of the power: GDA 1.70 power
+    // gives the result sign 1 only for an odd integral exponent and a negative
+    // base, so (-0.07)^-8 overflows to +Infinity and (-0.07)^-7 to -Infinity.
+    return Some(
+      decimal_power_large_integer_terminal_result(
+        base, negative_exponent, odd, initial_flags, ctx,
+      ),
+    )
   }
   let mut remaining = magnitude
   let mut factor = factor0
