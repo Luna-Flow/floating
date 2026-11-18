@@ -296,17 +296,26 @@ fn compare_finite(a : BinFloat, b : BinFloat) -> Int32 {
 
 ///|
 fn add_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
-  a.add_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+  match binary_fast_add(a, b) {
+    Some(result) => result
+    None => a.add_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+  }
 }
 
 ///|
 fn mul_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
-  a.mul_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+  match binary_fast_mul(a, b) {
+    Some(result) => result
+    None => a.mul_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+  }
 }
 
 ///|
 fn div_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
-  a.div_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+  match binary_fast_div(a, b) {
+    Some(result) => result
+    None => a.div_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+  }
 }
 
 ///|
@@ -843,7 +852,10 @@ pub fn BinFloat::div(self : BinFloat, other : BinFloat) -> BinFloat {
 pub fn BinFloat::sqrt(
   self : BinFloat,
 ) -> Result[BinFloat, @def.ArithmeticError] {
-  sqrt_for_precision(self, self.precision_)
+  match binary_fast_sqrt(self) {
+    Some(result) => Ok(result)
+    None => sqrt_for_precision(self, self.precision_)
+  }
 }
 
 ///|
