@@ -4515,6 +4515,10 @@ fn binary_sin_cos_series(
   cosine : Bool,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  match binary_sin_cos_fixed_series(value, cosine, work_precision) {
+    Some(bounds) => return Some(bounds)
+    None => ()
+  }
   let downward = BinaryContext::unbounded(
     work_precision,
     rounding=RoundTowardNegative,
