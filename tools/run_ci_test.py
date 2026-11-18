@@ -48,11 +48,12 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 19)
+        self.assertEqual(len(stages), 20)
         self.assertEqual(
             [stage.name.split(" · ")[0] for stage in stages],
             [
                 "DEPENDENCIES",
+                "IMPORTS",
                 "FORMAT",
                 "DOCS",
                 "CHECK",
@@ -80,6 +81,7 @@ class RunCiTests(unittest.TestCase):
             [stage.name.split(" · ")[0] for stage in stages],
             [
                 "DEPENDENCIES",
+                "IMPORTS",
                 "FORMAT",
                 "DOCS",
                 "CHECK",
@@ -93,18 +95,19 @@ class RunCiTests(unittest.TestCase):
             ],
         )
         commands = [stage.command for stage in stages]
-        self.assertEqual(commands[2][1], "tools/run_docs.py")
-        self.assertNotIn("just", commands[2])
-        self.assertIn("native", commands[4])
-        self.assertIn("--deny-warn", commands[3])
-        self.assertIn("unittest", commands[6])
+        self.assertEqual(commands[1][1], "tools/check_imports.py")
+        self.assertEqual(commands[3][1], "tools/run_docs.py")
+        self.assertNotIn("just", commands[3])
+        self.assertIn("native", commands[5])
+        self.assertIn("--deny-warn", commands[4])
+        self.assertIn("unittest", commands[7])
         self.assertEqual(
-            [command[command.index("--backend") + 1] for command in commands[7:9]],
+            [command[command.index("--backend") + 1] for command in commands[8:10]],
             ["decimal_gda", "binary"],
         )
-        self.assertEqual(commands[9][1], "tools/random_differential.py")
-        self.assertEqual(commands[9][2], "smoke")
-        self.assertEqual(commands[10][commands[10].index("--backend") + 1], "interval")
+        self.assertEqual(commands[10][1], "tools/random_differential.py")
+        self.assertEqual(commands[10][2], "smoke")
+        self.assertEqual(commands[11][commands[11].index("--backend") + 1], "interval")
         self.assertIn("--strict-supported", commands[-1])
 
     def test_repository_scopes_exclude_performance_comparisons(self) -> None:
