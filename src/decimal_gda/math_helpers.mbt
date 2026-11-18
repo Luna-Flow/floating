@@ -404,10 +404,16 @@ fn decimal_power_integer_work_ctx(
   let precision = finite_precision_for_coeff(gda_coeff_from_int(1), ctx)
   let extra_digits = gda_coeff_from_int_magnitude(count).digits10() +
     (if ctx.extended { 2 } else { 1 })
+  // The working context does not clamp. GDA 1.70, Exceptional conditions,
+  // Clamped: the condition is signaled when the exponent of a result "has been
+  // altered in order to fit"; a fold-down of an intermediate product at the
+  // working precision is not the result's, and the final rounding to `ctx`
+  // clamps the delivered value and raises Clamped when it does.
   {
     ..ctx,
     precision: precision + extra_digits,
     decimal_rounding: DecimalRoundingMode::HalfEven,
+    clamp: false,
   }
 }
 

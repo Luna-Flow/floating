@@ -60,7 +60,7 @@ maxexponent: 97
 minexponent: -97
 clamp: 1
 reg.power.trailing-zeros-clamp power 999.99999999 -8 -> 1.00E-24 Inexact Rounded
--- xfail #267 F4
+-- regression #267 F4 (fixed)
 precision: 1
 rounding: half_even
 maxexponent: 0

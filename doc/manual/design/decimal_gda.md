@@ -603,6 +603,12 @@ $2 \times 10^{1}$, not $20$), because the exponent of an exact power is the one
 repeated multiplication gives: $0.05^{-8}$ is $2.56 \times 10^{10}$ with three
 digits and no `Rounded`.
 
+The working context never clamps. `Clamped` and `Rounded` therefore come from two
+places only: an intermediate rounding that discards non-zero digits makes the
+result inexact, and the final rounding to the context folds down an exponent
+above $E_{\mathrm{top}}$ and raises `Clamped` when it does. An exact result such
+as $(-0.5)^{-2} = 4$ at precision 1 and $e_{\max} = 0$ raises neither.
+
 Write $\mathbf u_w = \frac12 10^{1-w}$ and let the accumulator hold
 $x^k(1 + \theta_k)$. A squaring gives
 $x^{2k}(1+\theta_k)^2(1+\delta)$ and a multiplication by $x$ gives
