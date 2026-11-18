@@ -3570,13 +3570,13 @@ msgid "Test files"
 msgstr "テストファイル"
 
 #: manual/api/consistency.md:40
-#: manual/tutorial/bench/external.md:38
+#: manual/tutorial/bench/external.md:39
 msgid "File"
 msgstr "ファイル"
 
 #: manual/api/consistency.md:40
 #: manual/api/differential.md:65
-#: manual/tutorial/bench/external.md:38
+#: manual/tutorial/bench/external.md:39
 msgid "Content"
 msgstr "内容"
 
@@ -19324,7 +19324,7 @@ msgstr "複数ステップの計算で最初の失敗を報告する"
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
 #: manual/tutorial/bench/decimal_gda.md:16
-#: manual/tutorial/bench/external.md:18
+#: manual/tutorial/bench/external.md:19
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
@@ -19384,7 +19384,7 @@ msgstr "53 ビットの `BinFloat` で $1/3$ に等しいものはないので�
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
-#: manual/tutorial/bench/external.md:46
+#: manual/tutorial/bench/external.md:47
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
@@ -19557,7 +19557,7 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:97
+#: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
@@ -19628,7 +19628,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:106
+#: manual/tutorial/bench/external.md:125
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
@@ -20265,118 +20265,130 @@ msgid "try it quickly before a real run"
 msgstr "本番の実行の前に素早く試す"
 
 #: manual/tutorial/bench/external.md:12
+msgid "see the gaps without the C side, a few rounds"
+msgstr "C 側なしで数ラウンドで差を見る"
+
+#: manual/tutorial/bench/external.md:13
 msgid "restrict the matrix"
 msgstr "マトリクスを絞る"
 
-#: manual/tutorial/bench/external.md:13
+#: manual/tutorial/bench/external.md:14
 msgid "re-reduce raw rounds without measuring"
 msgstr "測定せずに生のラウンドを再集計する"
 
-#: manual/tutorial/bench/external.md:14
+#: manual/tutorial/bench/external.md:15
 msgid "keep a summary in the repository"
 msgstr "サマリをリポジトリに残す"
 
-#: manual/tutorial/bench/external.md:15
+#: manual/tutorial/bench/external.md:16
 msgid "see how the ratios moved since a release"
 msgstr "あるリリース以降に比がどう動いたかを見る"
 
-#: manual/tutorial/bench/external.md:16
+#: manual/tutorial/bench/external.md:17
 msgid "understand what is timed"
 msgstr "計時されるものを理解する"
 
-#: manual/tutorial/bench/external.md:16
+#: manual/tutorial/bench/external.md:17
 msgid "[performance page](../../performance/bench/external.md#what-is-timed)"
 msgstr "[性能ページ](../../performance/bench/external.md#what-is-timed)"
 
-#: manual/tutorial/bench/external.md:20
+#: manual/tutorial/bench/external.md:21
 msgid "The baseline needs a C compiler and the headers and libraries of MPFR, GMP and mpdecimal. The runner looks for them under `/opt/homebrew`; set `--prefix` or `EXTBENCH_PREFIX` for another location. From the repository root:"
 msgstr "ベースラインには、C コンパイラと、MPFR、GMP、mpdecimal のヘッダーとライブラリが必要です。ランナーは `/opt/homebrew` の下を探します。別の場所なら `--prefix` または `EXTBENCH_PREFIX` を設定してください。リポジトリのルートから次を実行します。"
 
-#: manual/tutorial/bench/external.md:28
+#: manual/tutorial/bench/external.md:29
 msgid "The run builds `tools/external_baseline.c`, writes the operand file, asks the C harness for the reference results, checks `floating` against them while it is timed, and alternates the two sides over seven rounds, waiting before each side until the machine is quiet (under 150% CPU used by other processes; `--no-gate` turns this off). It takes about 40 minutes on the machine of the reported run, because the slowest cases (elementary functions at 8192 bits and 1000 digits) run for hundreds of milliseconds per operation. Run it on AC power and close other heavy work: the load of other processes is the main source of noise. The files land in `.tmp/external`:"
 msgstr "この実行は `tools/external_baseline.c` をビルドし、オペランドファイルを書き出し、C ハーネスに参照結果を求め、計時しながら `floating` をそれと照合し、7 ラウンドにわたって両側を交互に実行します。各側の前に、マシンが静かになるまで（他のプロセスの CPU 使用率が 150% 未満。`--no-gate` で無効化）待ちます。報告した実行のマシンでは約 40 分かかります。最も遅いケース（8192 ビットと 1000 桁の初等関数）は 1 演算あたり数百ミリ秒かかるためです。AC 電源で実行し、他の重い作業は閉じてください。他のプロセスの負荷がノイズの主な原因です。ファイルは `.tmp/external` に置かれます。"
 
-#: manual/tutorial/bench/external.md:40
+#: manual/tutorial/bench/external.md:41
 msgid "the operands both sides read"
 msgstr "両側が読むオペランド"
 
-#: manual/tutorial/bench/external.md:41
+#: manual/tutorial/bench/external.md:42
 msgid "MPFR and libmpdec results for those operands"
 msgstr "それらのオペランドに対する MPFR と libmpdec の結果"
 
-#: manual/tutorial/bench/external.md:42
+#: manual/tutorial/bench/external.md:43
 msgid "CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above"
 msgstr "CPU、OS、コンパイラ、ライブラリ、`moon` と `moonc` のバージョン、リビジョン、上の 2 つのファイルのチェックサム"
 
-#: manual/tutorial/bench/external.md:43
+#: manual/tutorial/bench/external.md:44
 msgid "raw observations of each round"
 msgstr "各ラウンドの生の観測値"
 
-#: manual/tutorial/bench/external.md:44
+#: manual/tutorial/bench/external.md:45
 msgid "medians, intervals, ratios"
 msgstr "中央値、区間、比"
 
-#: manual/tutorial/bench/external.md:48
+#: manual/tutorial/bench/external.md:49
 msgid "Restrict the matrix"
 msgstr "マトリクスを絞る"
 
-#: manual/tutorial/bench/external.md:54
+#: manual/tutorial/bench/external.md:55
 msgid "A restricted run writes its own directory, so it never mixes with a full run."
 msgstr "絞った実行は独自のディレクトリに書き込むので、完全な実行と混ざることはありません。"
 
-#: manual/tutorial/bench/external.md:56
+#: manual/tutorial/bench/external.md:57
 msgid "Try a run quickly"
 msgstr "素早く試す"
 
-#: manual/tutorial/bench/external.md:62
+#: manual/tutorial/bench/external.md:63
 msgid "The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path but is not a measurement to publish."
 msgstr "`quick` プリセットは短いバッチと 2 ラウンドを使い、`standard` よりはるかにノイズが多くなります。すべての経路を通りますが、公開できる測定ではありません。"
 
-#: manual/tutorial/bench/external.md:65
+#: manual/tutorial/bench/external.md:66
+msgid "Check the gaps quickly"
+msgstr "差を手早く確認する"
+
+#: manual/tutorial/bench/external.md:72
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
+msgstr "`quick` は `floating` だけを短いバッチで 2 ラウンド計測し、`testdata/external_baseline/summary-0.10.2.json` に保存された MPFR と libmpdec の中央値で割ります（`--stored` で別の要約を指定できます）。これらの参照時間は変わらないため、C 側はビルドも実行もせず、実行器は静かなマシンを待ちません。表には `floating` の時間、保存された参照時間、比、保存された実行の比、`--target`（既定は 10）を超える比の印が出ます。保存された実行とは今日のマシンの状態が違うので、単独の絶対的な比は目安として読み、変更の可否は同じマシンで古いビルドと新しいビルドを交互に計時して決めてください。`floating` の結果は、C ライブラリではなく同じ関数の計時しない 1 回の実行と照合します。MPFR と libmpdec に対して検証するのは `run` だけです。"
+
+#: manual/tutorial/bench/external.md:84
 msgid "Re-reduce and publish"
 msgstr "再集計と公開"
 
-#: manual/tutorial/bench/external.md:72
+#: manual/tutorial/bench/external.md:91
 msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring. `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION.json`, one file per release, and refreshes `summary.md`; the raw JSONL stays out of the repository."
 msgstr "`report` は `.tmp/external` の生のラウンドを、たとえば統計処理を変更した後に、測定せずに再集計します。`publish` は簡潔なサマリを `summary-VERSION.json` として `testdata/external_baseline` にコピーし（リリースごとに 1 ファイル）、`summary.md` を更新します。生の JSONL はリポジトリに入りません。"
 
-#: manual/tutorial/bench/external.md:78
+#: manual/tutorial/bench/external.md:97
 msgid "Compare two releases"
 msgstr "2 つのリリースを比較する"
 
-#: manual/tutorial/bench/external.md:84
+#: manual/tutorial/bench/external.md:103
 msgid "prints the ratio of every case in both files, the change in percent, and a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
 msgstr "両方のファイルにあるすべてのケースの比、パーセントでの変化、および判定を出力します。判定は、新しい比の区間が古い区間より完全に上にあれば `slower`、完全に下にあれば `faster`、それ以外は `same` です。比べるのは絶対時間ではなく比なので、速いマシンが退行を隠すことはありません。それでも、2 つの実行は同じ種類のマシンで行うべきです。"
 
-#: manual/tutorial/bench/external.md:90
+#: manual/tutorial/bench/external.md:109
 msgid "Read a ratio"
 msgstr "比を読む"
 
-#: manual/tutorial/bench/external.md:92
+#: manual/tutorial/bench/external.md:111
 msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divided by the median time of the reference library, with a 95% bootstrap interval. Above 1 means `floating` is slower. An asterisk marks a cell whose measurements spread more than the dispersion thresholds on the performance page."
 msgstr "`37.5 [36.9, 38.2]` のようなセルは、`floating` の中央値の時間を参照ライブラリの中央値の時間で割ったもので、95% ブートストラップ区間が付きます。1 より大きければ `floating` が遅いことを意味します。アスタリスクは、測定の散らばりが性能ページのしきい値を超えたセルを示します。"
 
-#: manual/tutorial/bench/external.md:99
+#: manual/tutorial/bench/external.md:118
 msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
 msgstr "実行同士は、`machine.json` が CPU、コンパイラ、ライブラリのバージョンで一致しているときにだけ比較してください。"
 
-#: manual/tutorial/bench/external.md:101
+#: manual/tutorial/bench/external.md:120
 msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
 msgstr "検証の失敗は報告されますが、計時は止まりません。`WARNING` の行と、`results.json` の `validation_failed_cases` を確認してください。"
 
-#: manual/tutorial/bench/external.md:103
+#: manual/tutorial/bench/external.md:122
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr "測定中は他の重い作業を実行しないでください。平均負荷は開始時にのみ記録されます。"
 
-#: manual/tutorial/bench/external.md:108
+#: manual/tutorial/bench/external.md:127
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr "[bench/external API](../../api/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:109
+#: manual/tutorial/bench/external.md:128
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr "[bench/external 設計](../../design/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:110
+#: manual/tutorial/bench/external.md:129
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr "[外部ベースラインの結果](../../performance/bench/external.md)"
 

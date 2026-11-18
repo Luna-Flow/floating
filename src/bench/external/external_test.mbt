@@ -237,7 +237,17 @@ fn binary_spec(
       op,
       [size],
       bits => bits.to_string() + "bit",
-      _ => binary_case(size, inputs, references),
+      _ => {
+        let prepared = binary_case(size, inputs, references)
+        if references.is_empty() {
+          // No reference file (the quick check): the validation compares the
+          // timed pass with this untimed pass of the same function.
+          for i in 0..<prepared.count {
+            prepared.expected[i] = f(prepared.a[i], prepared.b[i])
+          }
+        }
+        prepared
+      },
       input => op + ":" + input.size.to_string() + ":" + input.count.to_string(),
       [
         @runner.Implementation::stateless("floating", "0.10.2", input => {
@@ -358,7 +368,19 @@ fn decimal_spec(
       op,
       [size],
       digits => digits.to_string() + "digit",
-      _ => decimal_case(size, inputs, references),
+      _ => {
+        let prepared = decimal_case(size, inputs, references)
+        if references.is_empty() {
+          for i in 0..<prepared.count {
+            prepared.expected[i] = f(
+              prepared.a[i],
+              prepared.b[i],
+              prepared.context,
+            )
+          }
+        }
+        prepared
+      },
       input => op + ":" + input.size.to_string() + ":" + input.count.to_string(),
       [
         @runner.Implementation::stateless("floating", "0.10.2", input => {

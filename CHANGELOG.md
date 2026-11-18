@@ -9,6 +9,7 @@ notes live in this file.
 ### Added
 
 - Seeded random differential testing against MPFR 4.2.2 (binary) and libmpdec 4.0.0 (decimal), run through the mare_mark harness: `tools/generate_mpfr_random_oracle.c` and `tools/generate_libmpdec_random.py` generate rows (precisions 2 to 10,000, mixed operand widths, all rounding directions, exponent limits, halfway inputs, string conversion, elementary functions); the new `mpfr-random-v1` row kind of `frontend/mpfr_expr` and the `src/differential` executable validate them in batches, record JSONL and delta-debug failures; `just random-diff` runs, replays, minimizes and smoke-tests; committed samples and `xfail`-annotated regression fixtures are part of `just pr`. A campaign of 37,090,000 cases (native, Wasm, JavaScript, Wasm-GC) found five `decimal_gda` disagreements ([#264](https://github.com/Luna-Flow/floating/issues/264) to [#268](https://github.com/Luna-Flow/floating/issues/268)) and no binary arithmetic disagreement ([#16](https://github.com/Luna-Flow/floating/issues/16)).
+- `just bench external quick`: the floating side of the external baseline only, a few rounds without the quiet-machine gate, divided by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json`, with a flag for ratios above 10 ([#20](https://github.com/Luna-Flow/floating/issues/20)).
 
 ### Performance
 
