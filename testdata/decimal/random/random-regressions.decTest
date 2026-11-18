@@ -46,14 +46,14 @@ maxexponent: 0
 minexponent: 0
 clamp: 0
 reg.power.overflow-sign power -7E-2 -8 -> Infinity Inexact Overflow Rounded
--- xfail #266 F3
+-- regression #266 F3 (fixed)
 precision: 2
 rounding: half_even
 maxexponent: 0
 minexponent: -5
 clamp: 0
 reg.power.trailing-zeros power 99999E-1 -1 -> 0.00010 Inexact Rounded
--- xfail #266 F3
+-- regression #266 F3 (fixed)
 precision: 3
 rounding: half_even
 maxexponent: 97
