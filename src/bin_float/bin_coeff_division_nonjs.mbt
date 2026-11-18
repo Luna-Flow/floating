@@ -73,7 +73,7 @@ fn bin_coeff_bz_div_2n_1n(
   if numerator.compare(denominator) < 0 {
     return (BinCoeff::zero(), numerator)
   }
-  if divisor_limbs <= 32 {
+  if divisor_limbs <= bin_coeff_bz_leaf_limbs {
     return bin_coeff_div_rem_knuth(numerator, denominator)
   }
   let half_limbs = divisor_limbs / 2
