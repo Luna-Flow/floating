@@ -950,8 +950,9 @@ replacement it needs a precision near $500\,000$ bits.
 ### Asymptotically fast elementary kernels (proposed)
 
 *Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18).
-The constants (`pi`, `ln 2`, `ln 10` by binary splitting) and the `exp`
-enclosure are implemented; the rest of this section is design. The measured figures are baselines or
+The constants (`pi`, `ln 2`, `ln 10` by binary splitting), the `exp`
+enclosure and the `ln` enclosure are implemented; the rest of this section is
+design. The measured figures are baselines or
 results of the implemented part; the figures marked "projection" come from a
 cost model fitted to them and are replaced by measurements as each step
 lands.*
@@ -1165,6 +1166,65 @@ cost is that of one `exp` at $w$ plus the recursive call at about $w/2$
 (about $1.5$ times one `exp` in total) plus two divisions. Projection at
 8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point
 branch).
+
+*Implementation of the `ln` step (`elementary_burst_ln.mbt`).*
+`binary_ln_unit_burst_bounds` encloses $\ln v$ for $1 + 2^{-16} < v \le 2$
+(the unit enclosure that `binary_ln_bounds` adds $k \ln 2$ to). With
+$\mathrm{inner} = w + \max(0, 2 - \operatorname{top}(v - 1))$ bits, so that an
+argument near 1 keeps $w$ significant bits of the result, $y_0$ is the lower
+end of the enclosure of $\ln v'$ at $\mathrm{inner}/2 + 16$ bits, where $v'$ is
+$v$ rounded to that many bits (the same function one level down, so the
+recursion ends in the series below the threshold); $[E_\ell, E_u]$ is the `exp`
+kernel at $\mathrm{inner} + 8$ bits; the two divisions and the final
+operations use $\mathrm{inner} + 24$ bits with directed rounding, and the result
+is rounded outward to $w$ bits. It declines (and the series runs) for
+$v \le 1 + 2^{-16}$ or $v > 2$, when $|q - 1| > 1/2$, and when the width of the
+result exceeds 8 units of $2^{-\mathrm{inner}}$. The thresholds, kept with the
+other coefficient-kernel thresholds, are 1152 bits on Native and LLVM, 1280 on
+plain Wasm and on JavaScript and 576 on Wasm-GC (the kernel is slower than the
+fixed-point series below roughly 1000 bits on Native, 500 on Wasm-GC and 1200 on
+Wasm and JavaScript).
+
+*Evidence for the `ln` step.* White-box tests
+(`elementary_burst_ln_wbtest.mbt`): for every argument of a corpus of 158
+values in $(1, 2]$ (random, near 1 down to $2^{-100}$, near 2, 3/2, 5/4) that the
+kernel accepts, the enclosure at $w$ contains the series enclosure at $w + 256$;
+it is no wider than the series enclosure at $w$; `ln_ctx` returns the same value
+and flags as the Ziv loop on the series alone in four rounding directions; and
+the kernel declines out of range. Two deliberately wrong variants are caught:
+a bias of 8 units in the lower end, and a poor start value (about $w/8$ bits)
+with the quadratic term dropped. A poor start value with the quadratic term
+kept only widens the enclosure and the test checks that it is still valid. One
+obligation is not reached by the tests: dropping the quadratic term with the
+real start value is not detected, because $u^2 \approx 2^{-(w+26)}$ is below the
+width of the `exp` enclosure; its justification is the paper argument
+($u - u^2 \le \ln(1+u)$ for $u \ge -1/2$), not the tests. MPFR 4.2.2
+comparison: 13,200 rows (precisions 256 to 4096, four rounding directions,
+arguments with binary exponents from $-1000$ to $10^5$, near 1 and near
+powers of two; the threshold was set to 256 for this run so that every row used
+the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC
+and JavaScript.
+
+*Measured for the `ln` step (native, release, this machine, on the 64-bit limbs,
+the Karatsuba and the division of #324, #326 and #328).* Kernel only,
+$w = p + 64$ bits, $v$ random in $[1, 2)$, against the fixed-point series of #319
+(the machine was loaded, the ratios are the figure): 23.0 ms to 2.24 ms at 8256
+bits (10.3 times), 3.27 ms to 0.75 ms at 4160 (4.4), 581 to 309 µs at 2112 (1.9),
+equal at 1024; slower below about 1000 bits (0.5 to 0.8 times at 384 to 768).
+End to end, `just bench external quick --ops ln` paired and alternating with
+`origin/main`, four rounds on a loaded machine (load average about 10), the
+floating time per call: 8192 bits 27.0, 25.6, 25.6 and 28.0 ms against 2.43,
+2.40, 2.57 and 2.44 ms (paired ratios 11.1, 10.7, 10.0 and 11.5), 2048 bits 695,
+565, 639 and 856 µs against 300, 295, 378 and 365 µs (2.3, 1.9, 1.7 and 2.35),
+512 and 53 bits unchanged (0.98 to 1.07 at 53 bits, 0.99 to 1.36 at 512 bits,
+where the code path is the old one and the machine was noisy). The raw ratio to the
+stored MPFR medians (floating time of the day over the stored MPFR median) of the
+8192-bit call goes from 221 to 243 to 21 to 22, and of the 2048-bit call from 37
+to 57 to 20 to 25. MPFR re-measured on the machine at that time reads 1.9 to 2.0
+times slower than the stored run at 8192 bits and 1.65 times at 2048 bits (the
+load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and
+about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave
+11.5 to 13.6 at 8192 bits (on the previous division kernel).
 
 *AGM alternative.* $\ln s = \pi / (2\, \mathrm{AGM}(1, 4/s)) - m \ln 2$ for
 $s = v\, 2^{m} > 2^{w/2}$ costs about $\log_2 w$ iterations of one product and
