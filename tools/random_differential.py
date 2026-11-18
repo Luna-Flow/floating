@@ -35,6 +35,7 @@ from collections import Counter
 from pathlib import Path
 
 import generate_libmpdec_random as decimal_oracle
+import generate_mpfr_decimal_random as decm_oracle
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RUN_ROOT = REPO_ROOT / ".tmp/random-diff"
@@ -57,10 +58,17 @@ BINARY_FAMILIES = (
 )
 DECIMAL_PREFIX = "dec-"
 DECIMAL_FAMILIES = tuple(DECIMAL_PREFIX + name for name in decimal_oracle.FAMILIES)
-ALL_FAMILIES = BINARY_FAMILIES + DECIMAL_FAMILIES
+# `decm-<op>`: IEEE decimal elementary functions against certified MPFR
+# enclosures (`tools/generate_mpfr_decimal_random.py`); case ids `m<seed>.<op>.<i>`.
+DECM_PREFIX = "decm-"
+DECM_FAMILIES = tuple(DECM_PREFIX + name for name in decm_oracle.OPERATIONS)
+ALL_FAMILIES = BINARY_FAMILIES + DECIMAL_FAMILIES + DECM_FAMILIES
 # `dec-*wide` samples contexts beyond the decNumber elementary limit, where the
-# library answers Invalid_context by design; they are opt-in.
-DEFAULT_FAMILIES = tuple(f for f in ALL_FAMILIES if not f.endswith("wide"))
+# library answers Invalid_context by design; they are opt-in, and so are the
+# `decm-*` families (one per function, selected with `--family` or `--decm`).
+DEFAULT_FAMILIES = tuple(
+    f for f in ALL_FAMILIES if not f.endswith("wide") and not f.startswith(DECM_PREFIX)
+)
 TARGETS = ("native", "wasm", "js", "wasm-gc", "llvm")
 HARNESS_TARGETS = ("native", "wasm", "js", "llvm")
 DEFAULT_COUNT = 100_000
@@ -71,6 +79,8 @@ FIXTURES = {
     "binary-regression": REPO_ROOT / "testdata/bin_float/random-regressions.txt",
     "decimal": REPO_ROOT / "testdata/decimal/random/libmpdec-random.decTest",
     "decimal-regression": REPO_ROOT / "testdata/decimal/random/random-regressions.decTest",
+    "decm": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random.txt",
+    "decm-regression": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random-regressions.txt",
 }
 
 class ToolError(RuntimeError):
@@ -79,6 +89,15 @@ class ToolError(RuntimeError):
 
 def is_binary(family: str) -> bool:
     return family in BINARY_FAMILIES
+
+
+def is_decm(family: str) -> bool:
+    return family in DECM_FAMILIES
+
+
+def uses_mpfr_rows(family: str) -> bool:
+    """Families whose rows are `mpfr-*` corpora (one row per line, no directives)."""
+    return is_binary(family) or is_decm(family)
 
 
 def run_command(
@@ -184,6 +203,11 @@ def generate_rows(family: str, seed: int, start: int, count: int, path: Path) ->
         if result.returncode != 0:
             raise ToolError(f"MPFR generator failed for {family}:\n{result.stderr}")
         path.write_text(result.stdout, encoding="utf-8")
+    elif is_decm(family):
+        operation = family.removeprefix(DECM_PREFIX)
+        rows = decm_oracle.generate(operation, seed, start, count)
+        header = f"{decm_oracle.HEADER} seed={seed} op={operation} start={start} count={count}"
+        path.write_text("\n".join([header, decm_oracle.COLUMNS, *rows]) + "\n", encoding="utf-8")
     else:
         with path.open("w", encoding="utf-8") as stream:
             for line in decimal_oracle.generate(family.removeprefix(DECIMAL_PREFIX), seed, start, count):
@@ -193,6 +217,11 @@ def generate_rows(family: str, seed: int, start: int, count: int, path: Path) ->
 def parse_case_id(text: str) -> tuple[str, int, str, int]:
     """`<seed>.<family>.<index>` or `d<seed>.<family>.<index>`."""
     prefix, family, index = text.split(".")
+    if prefix.startswith("m"):
+        family = DECM_PREFIX + family
+        if family not in DECM_FAMILIES:
+            raise ToolError(f"unknown decimal elementary family in {text}")
+        return ("decm", int(prefix.removeprefix("m")), family, int(index))
     decimal = prefix.startswith("d")
     seed = int(prefix.removeprefix("d"))
     if decimal:
@@ -242,7 +271,7 @@ def operation_counts(family: str, path: Path) -> Counter[str]:
         if not line or line.startswith(("#", "--")):
             continue
         tokens = line.split()
-        if is_binary(family):
+        if uses_mpfr_rows(family):
             counts[tokens[1]] += 1
         elif len(tokens) > 1 and tokens[0].startswith("d") and "->" in tokens:
             counts[tokens[1]] += 1
@@ -291,7 +320,7 @@ def run_sync_shard(
     keep: bool,
 ) -> ShardResult:
     """Wasm-GC has no mare_mark runtime: run the synchronous CLI, record no JSONL."""
-    backend = "mpfr" if is_binary(family) else "gda"
+    backend = "mpfr" if uses_mpfr_rows(family) else "gda"
     result = run_command([*cli, "--backend", backend, "--json", str(rows)])
     if not keep:
         rows.unlink(missing_ok=True)
@@ -328,7 +357,7 @@ def run_shard(
     keep: bool,
 ) -> ShardResult:
     started = time.monotonic()
-    rows = work / f"{family}.{seed}.{start}.{'rows' if is_binary(family) else 'decTest'}"
+    rows = work / f"{family}.{seed}.{start}.{'rows' if uses_mpfr_rows(family) else 'decTest'}"
     generate_rows(family, seed, start, count, rows)
     operations = dict(operation_counts(family, rows))
     run_id = f"{family}.{seed}.{start}.{target}"
@@ -377,13 +406,18 @@ def run_shard(
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    families = args.family or list(DEFAULT_FAMILIES)
+    # `--decm` alone means the decimal elementary families only.
+    families = args.family or ([] if args.decm else list(DEFAULT_FAMILIES))
     for family in families:
         if family not in ALL_FAMILIES:
             raise ToolError(f"unknown family {family}")
     targets = args.target or ["native"]
+    if args.decm:
+        families = [*families, *(f for f in DECM_FAMILIES if f not in families)]
     if any(is_binary(family) for family in families):
         build_generator(args.mpfr_prefix)
+    if any(is_decm(family) for family in families):
+        decm_oracle.build_enclosure(args.mpfr_prefix)
     executables = {
         target: (conformance_cli(target) if target == "wasm-gc" else build_harness(target)) for target in targets
     }
@@ -509,13 +543,15 @@ def rows_for_cases(cases: list[tuple[str, int, str, int]], work: Path) -> list[t
         path = work / f"replay-{index}.rows"
         if kind == "binary":
             build_generator()
+        if kind == "decm":
+            decm_oracle.build_enclosure()
         generate_rows(family, seed, number, 1, path)
         files.append((kind, path))
     return files
 
 
 def merge_rows(files: list[tuple[str, Path]], work: Path) -> list[tuple[str, Path]]:
-    merged: dict[str, list[str]] = {"binary": [], "decimal": []}
+    merged: dict[str, list[str]] = {"binary": [], "decimal": [], "decm": []}
     for kind, path in files:
         merged[kind].extend(
             line
@@ -527,14 +563,17 @@ def merge_rows(files: list[tuple[str, Path]], work: Path) -> list[tuple[str, Pat
         if not lines:
             continue
         path = work / f"replay-{kind}.rows"
-        header = "# mpfr-random-v1 replay" if kind == "binary" else "-- libmpdec-random-v1 replay\nversion: 2.62\nextended: 1"
+        header = {
+            "binary": "# mpfr-random-v1 replay",
+            "decm": "# mpfr-decimal-random-v1 replay",
+        }.get(kind, "-- libmpdec-random-v1 replay\nversion: 2.62\nextended: 1")
         path.write_text(header + "\n" + "\n".join(lines) + "\n", encoding="utf-8")
         outputs.append((kind, path))
     return outputs
 
 
 def execute_rows(target: str, kind: str, rows: Path) -> subprocess.CompletedProcess[str]:
-    backend = "mpfr" if kind == "binary" else "gda"
+    backend = "mpfr" if kind in ("binary", "decm") else "gda"
     cli = conformance_cli(target)
     return run_command([*cli, "--backend", backend, str(rows)])
 
@@ -557,6 +596,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
 
 FIXTURE_SEED = 20261118
 FIXTURE_COUNT = 50
+DECM_FIXTURE_COUNT = 12  # rows per function of the committed decm sample
 XFAIL_MARKERS = ("# xfail", "-- xfail")
 
 
@@ -581,7 +621,7 @@ def xfail_ids(path: Path) -> dict[str, str]:
 
 
 def fixture_report(name: str, path: Path, cli: list[str]) -> tuple[bool, str]:
-    backend = "mpfr" if name.startswith("binary") else "gda"
+    backend = "mpfr" if name.startswith(("binary", "decm")) else "gda"
     result = run_command([*cli, "--backend", backend, "--json", str(path)])
     if result.returncode not in (0, 1):
         return False, f"{name}: runner failed\n{result.stderr}{result.stdout}"
@@ -660,7 +700,18 @@ def cmd_fixtures(args: argparse.Namespace) -> int:
                     decimal_oracle.format_row(decimal_oracle.evaluate(decimal_oracle.generate_case(family, FIXTURE_SEED, index)))
                 )
         FIXTURES["decimal"].write_text("\n".join(decimal_lines) + "\n", encoding="utf-8")
-    for name in ("binary", "decimal"):
+        decm_oracle.build_enclosure(args.mpfr_prefix)
+        helper = run_command([str(decm_oracle.ENCLOSURE_BINARY)], stdin="").stdout.splitlines()[1]
+        decm_lines = [
+            f"{decm_oracle.HEADER} mpfr={helper.split('mpfr=')[1].split()[0]} seed={FIXTURE_SEED} "
+            f"ops={','.join(decm_oracle.OPERATIONS)} cases-per-op={DECM_FIXTURE_COUNT}",
+            "# Expected results: rounding of a certified MPFR enclosure (tools/generate_mpfr_decimal_random.py).",
+            decm_oracle.COLUMNS,
+        ]
+        for operation in decm_oracle.OPERATIONS:
+            decm_lines.extend(decm_oracle.generate(operation, FIXTURE_SEED, 0, DECM_FIXTURE_COUNT))
+        FIXTURES["decm"].write_text("\n".join(decm_lines) + "\n", encoding="utf-8")
+    for name in ("binary", "decimal", "decm"):
         print(f"{FIXTURES[name].relative_to(REPO_ROOT)}: {FIXTURES[name].stat().st_size:,} bytes")
     return 0
 
@@ -706,6 +757,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--name", help="run directory name below .tmp/random-diff")
     run.add_argument("--mpfr-prefix", help="MPFR/GMP install prefix (default /opt/homebrew)")
     run.add_argument("--keep-rows", action="store_true", help="keep the generated rows")
+    run.add_argument("--decm", action="store_true", help="add every decm-<function> family")
     run.set_defaults(handler=cmd_run)
 
     plan = commands.add_parser("plan", help="print the run plan")

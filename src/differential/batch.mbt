@@ -7,6 +7,7 @@
 /// row per case, produced by `tools/generate_libmpdec_random.py`).
 priv enum CorpusKind {
   MpfrRandom
+  MpfrDecimalRandom
   Decimal
 }
 
@@ -84,6 +85,7 @@ fn corpus_label(text : String) -> String {
   for line in text.split("\n") {
     let line = line.to_owned()
     if line.has_prefix("# mpfr-random-v1") ||
+      line.has_prefix("# mpfr-decimal-random-v1") ||
       line.has_prefix("-- libmpdec-random-v1") {
       return line
     }
@@ -94,7 +96,9 @@ fn corpus_label(text : String) -> String {
 ///|
 /// Splits a corpus file into batches of at most `size` cases.
 fn split_corpus(text : String, size : Int32) -> Result[Array[Batch], String] {
-  let kind = if text.contains("mpfr-random-v1") {
+  let kind = if text.contains("mpfr-decimal-random-v1") {
+    CorpusKind::MpfrDecimalRandom
+  } else if text.contains("mpfr-random-v1") {
     CorpusKind::MpfrRandom
   } else if text.contains("libmpdec-random-v1") {
     CorpusKind::Decimal
@@ -104,6 +108,7 @@ fn split_corpus(text : String, size : Int32) -> Result[Array[Batch], String] {
   let label = corpus_label(text)
   let header = match kind {
     MpfrRandom => "# mpfr-random-v1\n"
+    MpfrDecimalRandom => "# mpfr-decimal-random-v1\n"
     Decimal => "version: 2.62\nextended: 1\n"
   }
   let ids : Array[String] = []
@@ -115,7 +120,7 @@ fn split_corpus(text : String, size : Int32) -> Result[Array[Batch], String] {
       continue
     }
     match kind {
-      MpfrRandom => {
+      MpfrRandom | MpfrDecimalRandom => {
         ids.push(first_token(line))
         texts.push(line)
       }
@@ -171,6 +176,32 @@ fn execute_batch(batch : Batch) -> Result[Array[String], String] {
           )
         Ok(document) => {
           let summary = @mpfr_expr.execute_random_data(document)
+          let results = summary.results()
+          if results.length() != batch.length() {
+            return Err("frontend returned a different number of results")
+          }
+          Ok(
+            results.map(result => {
+              if result.passed() {
+                ""
+              } else {
+                result.message()
+              }
+            }),
+          )
+        }
+      }
+    MpfrDecimalRandom =>
+      match @mpfr_expr.parse_decimal_random_data(batch.label, source) {
+        Err(diagnostics) =>
+          Err(
+            "parse failure at line " +
+            diagnostics[0].line().to_string() +
+            ": " +
+            diagnostics[0].message(),
+          )
+        Ok(document) => {
+          let summary = @mpfr_expr.execute_decimal_random_data(document)
           let results = summary.results()
           if results.length() != batch.length() {
             return Err("frontend returned a different number of results")

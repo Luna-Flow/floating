@@ -14,6 +14,21 @@ class CaseIdTests(unittest.TestCase):
             ("decimal", 7, "dec-squareroot", 5),
         )
 
+    def test_decimal_elementary_ids_parse(self) -> None:
+        self.assertEqual(tool.parse_case_id("m20261118.exp.42"), ("decm", 20261118, "decm-exp", 42))
+        self.assertEqual(
+            tool.expand_ids(["m1.atan2.3..m1.atan2.4"]),
+            [("decm", 1, "decm-atan2", 3), ("decm", 1, "decm-atan2", 4)],
+        )
+        with self.assertRaises(tool.ToolError):
+            tool.parse_case_id("m1.nope.3")
+
+    def test_decimal_elementary_families_are_opt_in(self) -> None:
+        self.assertTrue(all(tool.is_decm(f) for f in tool.DECM_FAMILIES))
+        self.assertFalse(any(tool.is_decm(f) for f in tool.DEFAULT_FAMILIES))
+        self.assertTrue(all(tool.uses_mpfr_rows(f) for f in tool.DECM_FAMILIES))
+        self.assertIn("decm-pow", tool.ALL_FAMILIES)
+
     def test_unknown_families_are_rejected(self) -> None:
         with self.assertRaises(tool.ToolError):
             tool.parse_case_id("1.nope.3")

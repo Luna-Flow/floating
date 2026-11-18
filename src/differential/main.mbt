@@ -215,6 +215,7 @@ fn make_spec(
       @model.CaseDescriptor::new(
         match batch.kind {
           MpfrRandom => "mpfr-random"
+          MpfrDecimalRandom => "mpfr-decimal-random"
           Decimal => "libmpdec-random"
         },
         if batch.length() == 0 {
