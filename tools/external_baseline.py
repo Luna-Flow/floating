@@ -594,8 +594,10 @@ def _ratio_cell(result: CaseResult) -> str:
     )
 
 
-def render_markdown(results: Sequence[CaseResult]) -> str:
-    """Ratio and absolute-time tables, one pair per domain."""
+def render_markdown(
+    results: Sequence[CaseResult], overhead: Sequence[dict[str, object]] = ()
+) -> str:
+    """Ratio and absolute-time tables, one pair per domain, and the harness overhead."""
     out: list[str] = []
     titles = {
         "binary": ("Binary: floating `bin_float` against MPFR", "MPFR"),
@@ -611,6 +613,13 @@ def render_markdown(results: Sequence[CaseResult]) -> str:
         out += _table(kind, results, lambda r: format_ns(r.reference.median_ns))
         out += ["", "Median ns per operation, floating", ""]
         out += _table(kind, results, lambda r: format_ns(r.floating.median_ns))
+        out += [""]
+    if overhead:
+        out += ["### Harness overhead of the floating side", ""]
+        out += ["| case | ns per operation (loop and result store only) |", "| --- | ---: |"]
+        for row in overhead:
+            low, high = row["ci"]  # type: ignore[misc]
+            out.append(f"| `{row['case']}` | {format_ns(float(row['ns_per_op']))} [{format_ns(low)}, {format_ns(high)}] |")  # type: ignore[arg-type]
         out += [""]
     noisy = [r.case for r in results if r.noisy]
     if noisy:
@@ -665,6 +674,19 @@ def moon_environment() -> dict[str, str]:
     return env
 
 
+def moon_cc_flags() -> str:
+    """The C compiler flags moon uses for the native release build of the floating side."""
+    text = capture(
+        ["moon", "test", "src/bench/external", "--release", "--include-skipped", "--target", "native", "--dry-run"],
+        env=moon_environment(), cwd=REPO_ROOT,
+    )  # fmt: skip
+    for line in text.splitlines():
+        if line.startswith("/usr/bin/cc") and " -c " in line and "external.internal_test.c" in line:
+            flags = [t.strip("'") for t in line.split() if t.strip("'").startswith(("-O", "-f", "-W", "-D"))]
+            return " ".join(flags)
+    return "unknown"
+
+
 def machine_description(c_info: dict[str, object], cc: str) -> dict[str, object]:
     system = platform.system()
     if system == "Darwin":
@@ -688,7 +710,7 @@ def machine_description(c_info: dict[str, object], cc: str) -> dict[str, object]
     return {
         "cpu": cpu,
         "logical_cpus": os.cpu_count(),
-        "performance_efficiency_cores": perf,
+        "performance_cores_efficiency_cores": perf,
         "memory_bytes": memory,
         "os": f"{system} {os_text}",
         "kernel": platform.release(),
@@ -699,6 +721,7 @@ def machine_description(c_info: dict[str, object], cc: str) -> dict[str, object]
         "moon": moon.splitlines()[0] if moon else "unknown",
         "moonc": moonc.splitlines()[0] if moonc else "unknown",
         "libraries": c_info,
+        "moon_native_cc_flags": moon_cc_flags(),
         "git_revision": capture(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT),
         "git_dirty": bool(capture(["git", "status", "--porcelain", "--untracked-files=no"], cwd=REPO_ROOT)),
         "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -785,8 +808,9 @@ def command_run(args: argparse.Namespace) -> int:
         protocol = Protocol(**{**asdict(protocol), "rounds": args.rounds})
     out_dir: Path = args.out
     out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in out_dir.glob("round-*"):
-        shutil.rmtree(stale)
+    if not args.resume:
+        for stale in out_dir.glob("round-*"):
+            shutil.rmtree(stale)
     binary = build_harness(out_dir, args.prefix, args.cc, args.cflags)
     info = json.loads(capture([str(binary), "info"]))
     inputs, cases = prepare_inputs(args, out_dir)
@@ -821,20 +845,24 @@ def command_run(args: argparse.Namespace) -> int:
             started = time.monotonic()
             if side == "reference":
                 path = round_dir / "reference.jsonl"
-                run_reference(binary, inputs, path, c_order, protocol, plan.index)
+                if not (args.resume and path.exists()):
+                    run_reference(binary, inputs, path, c_order, protocol, plan.index)
                 add_reference_events(collected, plan.index, parse_jsonl(path.read_text(encoding="utf-8")))
             else:
-                output = run_floating(inputs, reference, list(plan.case_order), protocol, args.seed, plan.index)
-                (round_dir / "floating.log").write_text(output, encoding="utf-8")
-                events = parse_jsonl(output, EVENT_MARKER)
-                (round_dir / "floating.jsonl").write_text(
-                    "".join(json.dumps(e, sort_keys=True) + "\n" for e in events), encoding="utf-8"
-                )
-                add_floating_events(collected, plan.index, events)
-                failed = [line for line in output.splitlines() if line.startswith("EXTBENCH_FAILED=")]
+                log = round_dir / "floating.log"
+                jsonl = round_dir / "floating.jsonl"
+                if not (args.resume and jsonl.exists() and log.exists()):
+                    output = run_floating(inputs, reference, list(plan.case_order), protocol, args.seed, plan.index)
+                    log.write_text(output, encoding="utf-8")
+                    events = parse_jsonl(output, EVENT_MARKER)
+                    jsonl.write_text("".join(json.dumps(e, sort_keys=True) + "\n" for e in events), encoding="utf-8")
+                add_floating_events(collected, plan.index, parse_jsonl(jsonl.read_text(encoding="utf-8")))
+                failed = [line for line in log.read_text(encoding="utf-8").splitlines() if line.startswith("EXTBENCH_FAILED=")]
                 if failed and failed[-1] != "EXTBENCH_FAILED=0":
-                    print(f"WARNING: floating output differs from the reference in round {plan.index}: see {round_dir / 'floating.log'}")
+                    print(f"WARNING: floating output differs from the reference in round {plan.index}: see {log}")
             print(f"round {plan.index} {side}: {time.monotonic() - started:.0f} s", flush=True)
+    meta["load_average_end"] = os.getloadavg()
+    (out_dir / "machine.json").write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return finish(collected, protocol, args.seed, meta, out_dir)
 
 
@@ -849,8 +877,9 @@ def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, 
     if invalid:
         print("WARNING: floating differs from the MPFR/libmpdec reference in: " + ", ".join(sorted(invalid)))
     (out_dir / "results.json").write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (out_dir / "results.md").write_text(render_markdown(results), encoding="utf-8")
-    print(render_markdown(results))
+    markdown = render_markdown(results, overhead)
+    (out_dir / "results.md").write_text(markdown, encoding="utf-8")
+    print(markdown)
     print(f"summary: {out_dir / 'results.json'}")
     return 0
 
@@ -902,6 +931,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--seed", type=int, default=INPUT_SEED, help="seed of the round order and of the bootstrap")
     run.add_argument("--prefix", type=Path, default=Path(os.environ.get("EXTBENCH_PREFIX", "/opt/homebrew")),
                      help="prefix holding include/ and lib/ of MPFR, GMP and mpdecimal")  # fmt: skip
+    run.add_argument("--resume", action="store_true", help="reuse finished sides of an interrupted run in --out")
     run.add_argument("--cc", default=os.environ.get("CC", "cc"))
     run.add_argument("--cflags", default=os.environ.get("EXTBENCH_CFLAGS", "-O2"))
     run.set_defaults(func=command_run)
