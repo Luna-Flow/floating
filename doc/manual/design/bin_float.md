@@ -951,8 +951,9 @@ replacement it needs a precision near $500\,000$ bits.
 
 *Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18).
 The constants (`pi`, `ln 2`, `ln 10` by binary splitting), the `exp`
-enclosure and the `ln` enclosure are implemented; the rest of this section is
-design. The measured figures are baselines or
+enclosure, the `ln` enclosure and the `sin` and `cos` enclosures are
+implemented; the rest of this section is design. The measured figures are
+baselines or
 results of the implemented part; the figures marked "projection" come from a
 cost model fitted to them and are replaced by measurements as each step
 lands.*
@@ -1263,6 +1264,87 @@ stage computes only the requested one of the two values. For $|R| < 2^{-16}$
 the existing series stays. Projection at 8192 bits: 4 to 6 ms, against 64 ms
 today (16 ms projected for the fixed-point branch); `tan` and the
 $\pi$-scaled functions follow.
+
+*Implementation of the `sin` and `cos` step (`elementary_burst_trig.mbt`).*
+`binary_trig_bounds_burst` (hooked into `binary_trigonometric_bounds` for `sin`
+and `cos`; `tan` keeps the series) follows the construction above for
+$2^{-64} \le |x| < 2^{4096}$. With $F_0 = w + 112$ and
+$G = F_0 + \max(1, \operatorname{top}(x)) + 2$, the nearest integer $n$ to
+$|x| / H$, $H = \lfloor 2^{G} \pi/2 \rfloor / 2^{G}$, comes from one Euclidean
+division of integers, $R = |x| - nH$ is exact with $|R| \le H/2$, and the
+true reduced argument $r = |x| - n\pi/2$ satisfies
+$|r - R| \le n\, 2^{1-G} \le 2^{-(F_0+1)}$. The working scale is
+$F = w + 48 + \mathrm{lz}$ with $\mathrm{lz} = \max(0, 2 - \operatorname{top}(R))$
+(declined above 64, so $R$ near a multiple of $\pi/2$ keeps $w$ significant
+bits of a sine), and $R_t = \lfloor 2^{F} |R| \rfloor / 2^{F}$ satisfies
+$|r - \operatorname{sign}(R) R_t| \le 1.5 \cdot 2^{-F}$, so by the Lipschitz
+bound the sine and cosine of $r$ are within 2 units of those of
+$\operatorname{sign}(R) R_t$. $R_t$ is cut into chunks at 16, 64, 256, ... bits as
+for `exp`. A chunk is a *ball*: a midpoint and a radius in units of $2^{-F}$.
+The fixed-point stage sums the even terms of the series of $e^{iy}$ for the
+cosine and the odd ones for the sine, with signs $+ - + - \dots$ in each, from
+the same sequence $t_i$ as in the `exp` stage (deficit below 3); each of the two
+alternating series decreases in size, so each sum is within $3n + t_n + 3$ of
+its value. The binary-splitting stage keeps a complex state: the leaf of an index
+$i \ge 1$ is $(0, N)$ (the factor $i N$), $p = N^{\mathrm{leaves}}$,
+$q = \prod i$, and
+$t = t_L q_R 2^{s\,\mathrm{len}_R} + i^{\mathrm{leaves}_L} p_L t_R$, where
+multiplying by $i^m$ only permutes and negates the two components; the partial
+sums are exact rationals, the floors lose less than 1 unit, and the omitted
+terms are below 2 units, so each part is a ball of radius 2. The product of two
+balls with midpoints $a, b$ and radii $\alpha, \beta$ has midpoint
+$\lfloor a b / 2^F \rfloor$ and radius
+$\lceil (a \beta + b \alpha + \alpha \beta)/2^F \rceil + 2$, and the stages are
+folded by rotation, $C' = C c - S s$ and $S' = S c + C s$ (four ball products;
+the first stage is not multiplied at all), with the midpoint of the difference
+required to be non-negative. The quadrant $n \bmod 4$ and the signs of $x$ and
+$R$ select which component is the result. It declines for $|x| < 2^{-64}$,
+$|x| \ge 2^{4096}$, when the reduced argument is smaller than $2^{-62}$, and
+when the width exceeds $2^{-(w+5)}$ of the value. The thresholds are 1536 bits on
+Native and LLVM, 2112 on plain Wasm, 640 on Wasm-GC and 256 on JavaScript (the
+kernel is slower than the series below roughly 1500 bits on Native, 2000 on
+Wasm and 600 on Wasm-GC; on JavaScript it wins from 256).
+
+*Evidence for the `sin` and `cos` step.* White-box tests
+(`elementary_burst_trig_wbtest.mbt`): for every argument the kernel accepts
+in a corpus of 354 values (60 to 2000 bits, $|x|$ from $2^{-60}$ to $2^{100}$,
+both signs, and the neighbourhood of nine multiples of $\pi/2$ for four
+precisions) and for both functions, the enclosure at $w$ contains the series
+enclosure at a precision 256 bits higher (and high enough for the series to
+certify the quadrant); it is no wider than the series enclosure; `sin_ctx` and
+`cos_ctx` return the value and flags of the series enclosure rounded at twice
+the precision, in four rounding directions; and the kernel declines out of its
+range. Three deliberately wrong variants are caught: a bias of $2^{64}$ units in
+every stage, 40 terms fewer in the binary-splitting stages, and $\pi$ taken with
+200 bits fewer for an argument near $2^{40}$. A bias below about $2^{40}$ units
+is absorbed by the 48 guard bits and the final rounding, so the tests cannot see
+it; likewise the radius of the fixed-point stages and the 2 units of the angle
+error are dominated by worst-case terms elsewhere, so removing them leaves an
+enclosure that still contains the value: their justification is the paper
+argument above, not the tests. MPFR 4.2.2 comparison: 23,424 rows for each of
+`sin` and `cos` (precisions 256 to 4096, four rounding directions, arguments from
+$2^{-60}$ to $2^{1000}$, and neighbours of multiples of $\pi/2$; the thresholds
+were set to 256 for this run so that every row used the kernel) all match, and
+the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript.
+
+*Measured for the `sin` and `cos` step (native, release, this machine, with the
+Karatsuba limbs and the division of #326 and #328).* Kernel only, $w = p + 40$
+bits, $x \approx 0.7$ for the sine and $x \approx 16$ to $32$ for the cosine, against the
+reduction and fixed-point series of #321: sine 8.37 ms to 1.39 ms at 8256 bits,
+1.58 ms to 0.57 ms at 4160, 338 to 239 µs at 2112, equal at 1536; cosine
+5.31 ms to 1.20 ms at 8256, 1.01 ms to 0.47 ms at 4160; slower below about
+1500 bits (0.5 to 0.9 times at 256 to 1280). End to end,
+`just bench external quick --ops sin` paired and alternating with
+`origin/main`, four rounds on a quiet machine, floating time per call: 8192 bits
+6.92, 6.66, 6.73 and 6.66 ms against 1.47, 1.32, 1.29 and 1.38 ms (paired
+ratios 4.7, 5.1, 5.2 and 4.8), 2048 bits 282, 288, 276 and 268 µs against 203,
+195, 183 and 204 µs (1.4, 1.5, 1.5 and 1.3), and 512 and 53 bits unchanged
+(0.89 to 1.12, the old code path). The raw ratio to the stored MPFR medians
+(floating time of the day over the stored MPFR median) of the 8192-bit call goes
+from 34 to 35 to 6.5 to 7.4, and of the 2048-bit call from 19 to 20 to 13 to 14;
+the machine reads about 1.45 times slower than the stored run (MPFR re-measured on
+it), so the drift-corrected ratios are about 4.5 to 5.1 at 8192 bits and about
+9 to 10 at 2048 bits.
 
 **Constants by binary splitting.** `pi`, `ln 2` and `ln 10` are computed once
 per working precision and cached, but a first call pays the cold cost above.
