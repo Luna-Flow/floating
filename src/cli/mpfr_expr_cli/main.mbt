@@ -23,16 +23,39 @@ pub fn run(arguments : Array[String]) -> Int32 {
       return 2
     }
   }
-  let is_random = text.contains("mpfr-random-v1")
-  let is_strtofr = !is_random && text.contains("mpfr-strtofr-v1")
-  let is_decimal_output = !is_random && text.contains("mpfr-decimal-output-v1")
-  let is_elementary = !is_random && text.contains("mpfr-elementary-v1")
+  let is_decimal_random = text.contains("mpfr-decimal-random-v1")
+  let is_random = !is_decimal_random && text.contains("mpfr-random-v1")
+  let is_strtofr = !is_random &&
+    !is_decimal_random &&
+    text.contains("mpfr-strtofr-v1")
+  let is_decimal_output = !is_random &&
+    !is_decimal_random &&
+    text.contains("mpfr-decimal-output-v1")
+  let is_elementary = !is_random &&
+    !is_decimal_random &&
+    text.contains("mpfr-elementary-v1")
   let is_pow = !is_random &&
+    !is_decimal_random &&
     !is_elementary &&
     !is_strtofr &&
     !is_decimal_output &&
     text.contains("input_coefficient_hex")
-  let summary = if is_random {
+  let summary = if is_decimal_random {
+    match @mpfr_expr.parse_decimal_random_data(path, text) {
+      Ok(document) => @mpfr_expr.execute_decimal_random_data(document)
+      Err(diagnostics) => {
+        let first = diagnostics[0]
+        println(
+          @runner_cli.format_diagnostic_at(
+            first.source(),
+            first.line(),
+            first.message(),
+          ),
+        )
+        return 2
+      }
+    }
+  } else if is_random {
     match @mpfr_expr.parse_random_data(path, text) {
       Ok(document) => @mpfr_expr.execute_random_data(document)
       Err(diagnostics) => {
@@ -136,7 +159,9 @@ pub fn run(arguments : Array[String]) -> Int32 {
           (
             "corpus",
             @runner_cli.json_string(
-              if is_random {
+              if is_decimal_random {
+                "mpfr-4.2.2-decimal-random"
+              } else if is_random {
                 "mpfr-4.2.2-random"
               } else if is_strtofr {
                 "mpfr-4.2.2-strtofr"
@@ -160,7 +185,9 @@ pub fn run(arguments : Array[String]) -> Int32 {
     )
   } else {
     println(
-      if is_random {
+      if is_decimal_random {
+        "MPFR decimal random differential summary"
+      } else if is_random {
         "MPFR random differential summary"
       } else if is_strtofr {
         "MPFR strtofr summary"

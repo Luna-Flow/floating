@@ -8,6 +8,8 @@ import {
 // Values
 pub fn execute_decimal_output_data(MpfrDecimalOutputDocument) -> RunSummary
 
+pub fn execute_decimal_random_data(MpfrDecimalRandomDocument) -> RunSummary
+
 pub fn execute_elementary_data(MpfrElementaryDocument) -> RunSummary
 
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
@@ -19,6 +21,8 @@ pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary
 
 pub fn parse_decimal_output_data(String, String) -> Result[MpfrDecimalOutputDocument, Array[ParseDiagnostic]]
+
+pub fn parse_decimal_random_data(String, String) -> Result[MpfrDecimalRandomDocument, Array[ParseDiagnostic]]
 
 pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, Array[ParseDiagnostic]]
 
@@ -49,6 +53,13 @@ pub struct MpfrDecimalOutputDocument {
 }
 pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int32
 pub fn MpfrDecimalOutputDocument::source(Self) -> String
+
+pub struct MpfrDecimalRandomDocument {
+  // private fields
+}
+pub fn MpfrDecimalRandomDocument::case_count(Self) -> Int32
+pub fn MpfrDecimalRandomDocument::case_ids(Self) -> Array[String]
+pub fn MpfrDecimalRandomDocument::source(Self) -> String
 
 pub struct MpfrDocument {
   // private fields

@@ -109,7 +109,7 @@ def evaluate_binary(rows: list[list[str]]) -> list[str]:
 
 
 def failing_ids(target: str, kind: str, path: Path) -> set[str]:
-    backend = "mpfr" if kind == "binary" else "gda"
+    backend = "mpfr" if kind in ("binary", "decm") else "gda"
     result = tool.run_command([*tool.conformance_cli(target), "--backend", backend, "--json", str(path)])
     if result.returncode not in (0, 1):
         raise tool.ToolError(result.stderr + result.stdout)
@@ -227,7 +227,24 @@ def main(args: argparse.Namespace) -> int:
     binary_out: list[str] = []
     decimal_out: list[str] = []
     for kind, seed, family, index in cases:
-        if kind == "binary":
+        if kind == "decm":
+            # A decimal elementary row is already one operation on one operand
+            # set: keep the row as the regression fixture, nothing to shrink.
+            tool.decm_oracle.build_enclosure()
+            rows = tool.decm_oracle.generate(family.removeprefix(tool.DECM_PREFIX), seed, index, 1)
+            if not rows:
+                print(f"m{seed}.{family.removeprefix(tool.DECM_PREFIX)}.{index}: the case never certifies")
+                continue
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "row.txt"
+                path.write_text("# mpfr-decimal-random-v1 minimize\n" + rows[0] + "\n", encoding="utf-8")
+                if not failing_ids(args.target, "decm", path):
+                    print(f"{rows[0].split()[0]}: passes, nothing to minimize")
+                    continue
+            decimal_out.append(f"# minimized from {rows[0].split()[0]}")
+            decimal_out.append(rows[0])
+            print("row:", rows[0][:400])
+        elif kind == "binary":
             tool.build_generator()
             result = tool.run_command([str(tool.GENERATOR_BINARY), family, str(seed), str(index), "1"])
             row = next(line for line in result.stdout.splitlines() if not line.startswith("#"))
