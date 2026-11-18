@@ -39,7 +39,7 @@ maxexponent: 18
 minexponent: 0
 clamp: 0
 reg.fma.overflow-product-rounds fma 100000.00000000000000000000000000000000000001 -9999.9E+10 1E+0 -> -9.9999E+18 Inexact Rounded
--- xfail #265 F2
+-- regression #265 F2 (fixed)
 precision: 1
 rounding: half_even
 maxexponent: 0

@@ -593,7 +593,11 @@ exponent $n e$; otherwise binary powering runs at working precision
 $w = p + d(|n|) + 2$ (one digit fewer in subset contexts) with half-even
 rounding after every product, and the final product is rounded to the
 context. A negative $n$ starts from a rounded $1/x$ in extended contexts and
-takes the reciprocal at the end in subset contexts.
+takes the reciprocal at the end in subset contexts. If that reciprocal already
+overflows the working context, the power overflows, and the sign of the result
+is the sign of $x^n$ (negative only for a negative $x$ and an odd $n$), not the
+sign of $x$: $(-0.07)^{-8}$ overflows to $+\infty$ and $(-0.07)^{-7}$ to
+$-\infty$.
 
 Write $\mathbf u_w = \frac12 10^{1-w}$ and let the accumulator hold
 $x^k(1 + \theta_k)$. A squaring gives
