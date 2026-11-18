@@ -1151,6 +1151,33 @@ fn binary_pow_interval(
 }
 
 ///|
+/// Magnitude and exponent of the nonzero finite `value` rounded to
+/// `context.precision` bits in `context.rounding` with no exponent range at all,
+/// the coefficient made odd so that equal values compare equal.
+fn binary_round_precision_only(
+  value : BinFloat,
+  context : BinaryContext,
+) -> (BinCoeff, Int32) {
+  let shift = Int32::max(0, value.coefficient_.bit_length() - context.precision)
+  let (retained, round_bit, sticky) = binary_split_shift(
+    value.coefficient_,
+    shift,
+  )
+  let rounded = binary_apply_round_bits(
+    retained,
+    round_bit,
+    sticky,
+    value.negative,
+    context.rounding,
+  )
+  let trailing = rounded.ctz()
+  (
+    rounded.shift_right(trailing),
+    binary_add_sat(binary_add_sat(value.exponent2, shift), trailing),
+  )
+}
+
+///|
 fn binary_pow_can_round_interval(
   lower_magnitude : BinFloat,
   upper_magnitude : BinFloat,
@@ -1175,24 +1202,26 @@ fn binary_pow_can_round_interval(
   if lower_rounded.1.overflow() != upper_rounded.1.overflow() {
     return None
   }
-  let unbounded_context = BinaryContext::unbounded(
-    context.precision,
-    rounding=context.rounding,
+  // The p-bit rounding as though the exponent range were unbounded (IEEE 754
+  // 7.5): a `BinaryContext::unbounded` still has the implementation subnormal
+  // range, which would round values near 2^e_min onto its grid.
+  let (lower_unbounded, lower_unbounded_exponent) = binary_round_precision_only(
+    lower, context,
   )
-  let lower_unbounded = lower.round_ctx(unbounded_context).0
-  let upper_unbounded = upper.round_ctx(unbounded_context).0
-  if lower_unbounded != upper_unbounded {
+  let (upper_unbounded, upper_unbounded_exponent) = binary_round_precision_only(
+    upper, context,
+  )
+  if lower_unbounded != upper_unbounded ||
+    lower_unbounded_exponent != upper_unbounded_exponent {
     return None
   }
   if lower_rounded.1.overflow() {
     return Some((lower_rounded.0, binary_overflow_flags()))
   }
   let rounded = lower_rounded.0
-  let unbounded_top = if lower_unbounded.is_zero() {
-    lower_top
-  } else {
-    binary_exact_top(lower_unbounded.coefficient_, lower_unbounded.exponent2)
-  }
+  let unbounded_top = binary_exact_top(
+    lower_unbounded, lower_unbounded_exponent,
+  )
   Some(
     binary_finalize_rounded(
       rounded.negative,

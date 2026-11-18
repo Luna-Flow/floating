@@ -7952,7 +7952,7 @@ msgid "Crossover points are private, target-specific policy. They are measured w
 msgstr "切换点是私有的、特定于目标平台的策略。它们通过 Maremark 基准测试层次（`bench/*`）在稠密、稀疏、平方、平衡和不平衡数据上测量，边界测试则在每个阈值之下、之上以及恰好处比较精确结果。因此 Native、LLVM、Wasm、Wasm-GC 和 JavaScript 可以选择不同的算法，但必须返回相同的公开结果。"
 
 #: manual/architecture.md:110
-#: manual/design/bin_float.md:579
+#: manual/design/bin_float.md:582
 #: manual/design/decimal.md:691
 msgid "Certified elementary functions"
 msgstr "经认证的初等函数"
@@ -9330,7 +9330,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:992
+#: manual/design/bin_float.md:995
 #: manual/design/bin_float_checked.md:317
 #: manual/design/cli.md:69
 #: manual/design/cli/gda_expr_cli.md:67
@@ -10348,7 +10348,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:920
+#: manual/design/bin_float.md:923
 #: manual/design/bin_float_checked.md:187
 #: manual/design/cli.md:50
 #: manual/design/cli/gda_expr_cli.md:50
@@ -10425,7 +10425,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:967
+#: manual/design/bin_float.md:970
 #: manual/design/bin_float_checked.md:304
 #: manual/design/cli.md:60
 #: manual/design/cli/gda_expr_cli.md:60
@@ -11459,54 +11459,54 @@ msgid "**Far below the range.** A result certainly smaller than $\\eta/2$ in mag
 msgstr "**远低于范围。** 绝对值必然小于 $\\eta/2$ 的结果（由指数界判定，无需构造它，例如 $2^{-10^9} \\cdot 2^{-10^9}$）根据舍入方向舍入为 $\\pm 0$ 或 $\\pm\\eta$，并伴随 `underflow` 和 `inexact`。必然高于范围的结果则取上溢结果。"
 
 #: manual/design/bin_float.md:381
-msgid "**Exact results in the subnormal range.** An elementary function whose exact result is the dyadic $m \\cdot 2^{n}$ ($2^{n}$ for `exp2` of an integer, the exact power of `pow` with a dyadic result) passes it to the finalizer as the pair $(m, n)$. It does not build a `BinFloat` first: a `BinFloat` made from $(1, n)$ at one bit has its smallest value at $2^{e_{\\min}}$, so $2^{n}$ with $n < e_{\\min}$ was flushed to zero before any context could round it, although it is exactly representable at $p \\ge 2$."
-msgstr "**次正规范围内的精确结果。** 若某个初等函数的精确结果是二进有理数 $m \\cdot 2^{n}$（对整数做 `exp2` 得到的 $2^{n}$，或 `pow` 得到二进有理数结果的精确幂），它会把这一对 $(m, n)$ 直接交给终结器，而不是先构造一个 `BinFloat`：由 $(1, n)$ 以 1 位精度构造的 `BinFloat`，其最小值是 $2^{e_{\\min}}$，因此 $n < e_{\\min}$ 的 $2^{n}$ 会在任何上下文对它舍入之前就被冲刷为零，尽管它在 $p \\ge 2$ 时是精确可表示的。"
+msgid "**Exact results in the subnormal range.** An elementary function whose exact result is the dyadic $m \\cdot 2^{n}$ ($2^{n}$ for `exp2` of an integer, the exact power of `pow` with a dyadic result) passes it to the finalizer as the pair $(m, n)$. It does not build a `BinFloat` first: a `BinFloat` made from $(1, n)$ at one bit has its smallest value at $2^{e_{\\min}}$, so $2^{n}$ with $n < e_{\\min}$ was flushed to zero before any context could round it, although it is exactly representable at $p \\ge 2$. The after-rounding rule uses $\\circ_{p,\\infty}$ with no exponent range at all, not an unbounded context, which still has gradual underflow at the implementation limit $2^{e_{\\min}}$."
+msgstr "**次正规范围内的精确结果。** 若某个初等函数的精确结果是二进有理数 $m \\cdot 2^{n}$（对整数做 `exp2` 得到的 $2^{n}$，或 `pow` 得到二进有理数结果的精确幂），它会把这一对 $(m, n)$ 直接交给终结器，而不是先构造一个 `BinFloat`：由 $(1, n)$ 以 1 位精度构造的 `BinFloat`，其最小值是 $2^{e_{\\min}}$，因此 $n < e_{\\min}$ 的 $2^{n}$ 会在任何上下文对它舍入之前就被冲刷为零，尽管它在 $p \\ge 2$ 时是精确可表示的。舍入后规则使用完全没有指数范围的 $\\circ_{p,\\infty}$，而不是无界上下文，因为后者在实现极限 $2^{e_{\\min}}$ 处仍有渐进下溢。"
 
-#: manual/design/bin_float.md:389
+#: manual/design/bin_float.md:392
 msgid "Signed zeros and NaNs"
 msgstr "带符号零与 NaN"
 
-#: manual/design/bin_float.md:391
+#: manual/design/bin_float.md:394
 msgid "An exact zero sum $a + b = 0$ with $a, b$ of opposite sign is $+0$ in every direction except RD, where it is $-0$; $(-0) + (-0) = -0$ (clause 6.3). Products and quotients take the exclusive-or of the signs. A NaN operand yields the first NaN operand, quieted, with its sign and payload (clause 6.2.3 allows any input NaN), and `invalid_operation` is raised exactly when an operand is a signaling NaN or the operation is invalid on its own ($\\infty - \\infty$, $0 \\cdot \\infty$, $0/0$, $\\infty/\\infty$, $\\sqrt{x<0}$, $\\operatorname{remainder}(\\infty, y)$, $\\operatorname{remainder}(x, 0)$). Flags are values: `combine` is the bitwise OR, so the flags of a computation form a commutative idempotent monoid and can be accumulated in any order, which a global sticky register cannot offer to concurrent code."
 msgstr "$a, b$ 符号相反时的精确零和 $a + b = 0$ 在除 RD 以外的所有方向下均为 $+0$，在 RD 下为 $-0$；$(-0) + (-0) = -0$（第 6.3 条）。积与商取两符号的异或。NaN 操作数产生第一个 NaN 操作数经静默化后的结果，保留其符号和载荷（第 6.2.3 条允许任一输入 NaN），并且当且仅当某个操作数是信号 NaN 或该运算本身无效（$\\infty - \\infty$、$0 \\cdot \\infty$、$0/0$、$\\infty/\\infty$、$\\sqrt{x<0}$、$\\operatorname{remainder}(\\infty, y)$、$\\operatorname{remainder}(x, 0)$）时引发 `invalid_operation`。标志是值：`combine` 是按位或，因此一次计算的标志构成一个交换幂等幺半群，可以按任意顺序累积，而全局粘滞寄存器无法为并发代码提供这一点。"
 
-#: manual/design/bin_float.md:404
+#: manual/design/bin_float.md:407
 msgid "The elementary functions take the signs of their special values from IEEE 754-2019 §9.2.1, which reads the sign of a zero operand: for example $\\operatorname{atan2}(\\pm 0, -0) = \\pm\\pi$ but $\\operatorname{atan2}(\\pm 0, +0) = \\pm 0$, $\\operatorname{tanpi}(n)$ has the sign of $\\operatorname{sinpi}(n)/\\operatorname{cospi}(n)$, and $(-0)^y$ and $(-\\infty)^y$ are negative exactly for an odd integral $y$."
 msgstr "初等函数的特殊值符号取自 IEEE 754-2019 §9.2.1，该条款会读取零操作数的符号：例如 $\\operatorname{atan2}(\\pm 0, -0) = \\pm\\pi$，但 $\\operatorname{atan2}(\\pm 0, +0) = \\pm 0$；$\\operatorname{tanpi}(n)$ 的符号与 $\\operatorname{sinpi}(n)/\\operatorname{cospi}(n)$ 相同；$(-0)^y$ 与 $(-\\infty)^y$ 恰在 $y$ 为奇整数时为负。"
 
-#: manual/design/bin_float.md:411
+#: manual/design/bin_float.md:414
 msgid "Far-apart operands in addition"
 msgstr "加法中相距很远的操作数"
 
-#: manual/design/bin_float.md:413
+#: manual/design/bin_float.md:416
 msgid "**Problem.** $2^{10^9} + 2^{-10^9}$ is exact as a dyadic number, but forming it needs a two-billion-bit coefficient."
 msgstr "**问题。** $2^{10^9} + 2^{-10^9}$ 作为二进有理数是精确的，但构造它需要一个二十亿位的系数。"
 
-#: manual/design/bin_float.md:416
+#: manual/design/bin_float.md:419
 msgid "**Choice.** When the leading exponents differ by more than $p + 3$, the sum is formed on the grid with unit $\\upsilon = 2^{e(\\text{high}) - p - 3}$, where $e(\\text{high})$ is the exponent of the last bit of the larger operand, so $\\upsilon \\le 2^{\\operatorname{top}(\\text{high}) - p - 3}$. The larger operand $H\\upsilon$ is exact on that grid; of the smaller operand only the integer part $L$ of its value in units $\\upsilon$ enters, and if anything below $\\upsilon$ was discarded the magnitude becomes $2(H \\pm L) + 1$ (for subtraction $2(H - L - 1) + 1$) in units of $\\upsilon/2$, that is, one sticky bit at the half unit."
 msgstr "**选择。** 当两个操作数的首位指数相差超过 $p + 3$ 时，和在单位为 $\\upsilon = 2^{e(\\text{high}) - p - 3}$ 的网格上构成，其中 $e(\\text{high})$ 是较大操作数最低位的指数，因此 $\\upsilon \\le 2^{\\operatorname{top}(\\text{high}) - p - 3}$。较大操作数 $H\\upsilon$ 在该网格上是精确的；较小操作数只有其值以 $\\upsilon$ 为单位的整数部分 $L$ 参与运算，若有任何低于 $\\upsilon$ 的部分被丢弃，则以 $\\upsilon/2$ 为单位，幅值变为 $2(H \\pm L) + 1$（减法时为 $2(H - L - 1) + 1$），即在半个单位处放置一个粘滞位。"
 
-#: manual/design/bin_float.md:426
+#: manual/design/bin_float.md:429
 msgid "**Why it is exact for rounding.** The result has $\\operatorname{top} \\ge \\operatorname{top}(\\text{high}) - 1$, because the smaller operand is below $2^{\\operatorname{top}(\\text{high}) - p - 2}$. The last retained bit of the rounded result therefore has position at least $\\operatorname{top}(\\text{high}) - p$ (more on the subnormal grid), and its round bit at least $\\operatorname{top}(\\text{high}) - p - 1$. The true sum and the substitute both lie strictly inside the same open interval $\\bigl((H \\pm L)\\upsilon, (H \\pm L + 1)\\upsilon\\bigr)$ (or are equal when nothing was discarded), and that interval lies between two consecutive multiples of $\\upsilon \\le 2^{\\operatorname{top}(\\text{high}) - p - 3}$, at least two bit positions below the round bit. So $q$ and $g$ agree, and $t$ is set in both cases exactly when something nonzero was discarded. The argument does not need the larger operand to have at most $p$ bits. For subtraction, $H - (L + \\varepsilon) = (H - L - 1) + (1 - \\varepsilon)$ with $0 < 1 - \\varepsilon < 1$, so the same substitution applies to the borrowed form. The complete argument, including the subnormal shift, is in the attachment below."
 msgstr "**为何对舍入而言是精确的。** 结果满足 $\\operatorname{top} \\ge \\operatorname{top}(\\text{high}) - 1$，因为较小操作数低于 $2^{\\operatorname{top}(\\text{high}) - p - 2}$。因此舍入结果保留的最低位的位置至少为 $\\operatorname{top}(\\text{high}) - p$（在次正规网格上更高），其舍入位至少为 $\\operatorname{top}(\\text{high}) - p - 1$。真实的和与替代值都严格位于同一个开区间 $\\bigl((H \\pm L)\\upsilon, (H \\pm L + 1)\\upsilon\\bigr)$ 之内（若没有丢弃任何内容则二者相等），而该区间位于 $\\upsilon \\le 2^{\\operatorname{top}(\\text{high}) - p - 3}$ 的两个相邻倍数之间，比舍入位至少低两个位位置。因此 $q$ 和 $g$ 一致，且在两种情况下 $t$ 都恰在丢弃了非零内容时被置位。该论证不要求较大操作数至多有 $p$ 位。对于减法，$H - (L + \\varepsilon) = (H - L - 1) + (1 - \\varepsilon)$ 且 $0 < 1 - \\varepsilon < 1$，因此同样的替换也适用于借位形式。包括次正规移位在内的完整论证见下方附件。"
 
-#: manual/design/bin_float.md:444
+#: manual/design/bin_float.md:447
 msgid "Fused multiply-add"
 msgstr "融合乘加"
 
-#: manual/design/bin_float.md:446
+#: manual/design/bin_float.md:449
 msgid "`fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose precision equals its own bit length, and passes it to the addition finalizer, so $x y + z$ is rounded once (clause 5.4.1). The difference from two roundings is the point of the operation: for $a = \\operatorname{RN}(0.1)$ in binary64, the rounding error $a \\cdot a - \\operatorname{RN}(a \\cdot a)$ is lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers) but `fma_ctx(a, a, -RN(a·a))` returns it exactly, $-8.33\\ldots \\cdot 10^{-19}$. That the result is exact is Dekker's theorem: the error of a rounded-to-nearest product is itself in $F$ when no underflow occurs (precisely, when $e_a + e_b \\ge e_{\\min} - p + 1$ for the exponents of the last bits of $a$ and $b$, so the exact product lies on the grid of $F$).[^dekker] If the product exponent leaves the `Int` range, the product either certainly overflows, or it is so small that it acts as a sticky bit next to a nonzero addend; the code places a single bit $p + 9$ positions below the addend's last bit, which by the far-operand argument above rounds identically. With a zero addend such a product is the tiny result of the underflow rule."
 msgstr "`fma_ctx` 将乘积 $c_x c_y 2^{e_x + e_y}$ 精确地构造为一个精度等于其自身位长的值，并将其交给加法终结器，因此 $x y + z$ 只舍入一次（第 5.4.1 条）。与两次舍入的区别正是该运算的意义所在：对于 binary64 中的 $a = \\operatorname{RN}(0.1)$，先 `mul_ctx` 再 `sub_ctx` 会丢失舍入误差 $a \\cdot a - \\operatorname{RN}(a \\cdot a)$（第二次运算看到的是两个相等的数），而 `fma_ctx(a, a, -RN(a·a))` 精确地返回它，$-8.33\\ldots \\cdot 10^{-19}$。结果是精确的，这就是 Dekker 定理：在不发生下溢时（确切地说，当 $a$ 和 $b$ 最低位的指数满足 $e_a + e_b \\ge e_{\\min} - p + 1$，从而精确乘积位于 $F$ 的网格上时），就近舍入乘积的误差本身属于 $F$。[^dekker] 若乘积指数超出 `Int` 范围，则乘积要么必然上溢，要么小到相对非零加数而言只相当于一个粘滞位；代码在加数最低位以下 $p + 9$ 个位置处放置一个单独的位，根据上文关于远距操作数的论证，其舍入结果相同。当加数为零时，这样的乘积就是下溢规则下的微小结果。"
 
-#: manual/design/bin_float.md:464
+#: manual/design/bin_float.md:467
 msgid "T. J. Dekker, \"A floating-point technique for extending the available precision\", *Numerische Mathematik* 18, 1971; Muller et al., §4.4."
 msgstr "T. J. Dekker，\"A floating-point technique for extending the available precision\"，*Numerische Mathematik* 18，1971；Muller 等，§4.4。"
 
-#: manual/design/bin_float.md:468
+#: manual/design/bin_float.md:471
 msgid "IEEE remainder is exact"
 msgstr "IEEE 余数是精确的"
 
-#: manual/design/bin_float.md:470
+#: manual/design/bin_float.md:473
 msgid ""
 "**Claim.** If $x, y \\in F$ (same precision $p$, same range) and $y \\n"
 "e 0$, then $r = x - n y$ with $n = \\operatorname{RNE}_{\\mathbb{Z}}(x/y)$ lies in $F$."
@@ -11514,43 +11514,43 @@ msgstr ""
 "**断言。** 若 $x, y \\in F$（精度 $p$ 相同，范围相同）且 $y \\n"
 "e 0$，则满足 $n = \\operatorname{RNE}_{\\mathbb{Z}}(x/y)$ 的 $r = x - n y$ 属于 $F$。"
 
-#: manual/design/bin_float.md:474
+#: manual/design/bin_float.md:477
 msgid "**Proof.** Write $x = M_x 2^{q_x}$, $y = M_y 2^{q_y}$ with $|M_x|, |M_y| < 2^p$ and $q_x, q_y \\ge e_{\\min} - p + 1$. By the choice of $n$, $|r| \\le |y|/2$. If $n = 0$ then $r = x$. Otherwise $|x/y| \\ge \\frac12$, so $|r| \\le |y|/2 \\le |x|$. Now $r$ is an integer multiple of $2^{\\min(q_x, q_y)}$."
 msgstr "**证明。** 记 $x = M_x 2^{q_x}$、$y = M_y 2^{q_y}$，其中 $|M_x|, |M_y| < 2^p$ 且 $q_x, q_y \\ge e_{\\min} - p + 1$。由 $n$ 的选取，$|r| \\le |y|/2$。若 $n = 0$ 则 $r = x$。否则 $|x/y| \\ge \\frac12$，因此 $|r| \\le |y|/2 \\le |x|$。此时 $r$ 是 $2^{\\min(q_x, q_y)}$ 的整数倍。"
 
-#: manual/design/bin_float.md:480
+#: manual/design/bin_float.md:483
 msgid "If $q_x \\ge q_y$: $r = k 2^{q_y}$ with $|k| 2^{q_y} \\le |M_y| 2^{q_y}/2$, so $|k| < 2^{p-1}$."
 msgstr "若 $q_x \\ge q_y$：$r = k 2^{q_y}$，其中 $|k| 2^{q_y} \\le |M_y| 2^{q_y}/2$，因此 $|k| < 2^{p-1}$。"
 
-#: manual/design/bin_float.md:482
+#: manual/design/bin_float.md:485
 msgid "If $q_x < q_y$: $r = k 2^{q_x}$ with $|k| 2^{q_x} \\le |x| = |M_x| 2^{q_x}$, so $|k| < 2^{p}$."
 msgstr "若 $q_x < q_y$：$r = k 2^{q_x}$，其中 $|k| 2^{q_x} \\le |x| = |M_x| 2^{q_x}$，因此 $|k| < 2^{p}$。"
 
-#: manual/design/bin_float.md:485
+#: manual/design/bin_float.md:488
 msgid "In both cases $|k| < 2^p$, the exponent is at least $e_{\\min} - p + 1$, and $|r| \\le \\max(|x|, |y|) \\le \\Omega$, so $r \\in F$. $\\square$"
 msgstr "两种情形下均有 $|k| < 2^p$，指数至少为 $e_{\\min} - p + 1$，且 $|r| \\le \\max(|x|, |y|) \\le \\Omega$，因此 $r \\in F$。$\\square$"
 
-#: manual/design/bin_float.md:488
+#: manual/design/bin_float.md:491
 msgid "The implementation never forms $n$, which can have $2^{30}$ bits. With $X = |x| 2^{-m}$, $Y = |y| 2^{-m}$, $m = \\min(q_x, q_y)$ (integers), it computes $X \\bmod 2Y$ by modular exponentiation of $2^{q_x - q_y}$ when $q_x > q_y$. Writing $X = Q (2Y) + R$, $0 \\le R < 2Y$, gives $\\lfloor X/Y \\rfloor = 2Q + [R \\ge Y]$, so $R$ alone yields both $X \\bmod Y$ and the parity of $\\lfloor X/Y \\rfloor$, which is all the ties-to-even choice of $n$ needs. The exact $r$ then goes through the usual finalizer; by the claim, no rounding happens for operands of the context's format."
 msgstr "实现从不构造 $n$，它可能有 $2^{30}$ 位。设 $X = |x| 2^{-m}$、$Y = |y| 2^{-m}$、$m = \\min(q_x, q_y)$（均为整数），当 $q_x > q_y$ 时它通过 $2^{q_x - q_y}$ 的模幂计算 $X \\bmod 2Y$。记 $X = Q (2Y) + R$、$0 \\le R < 2Y$，得到 $\\lfloor X/Y \\rfloor = 2Q + [R \\ge Y]$，因此仅凭 $R$ 即可同时得到 $X \\bmod Y$ 和 $\\lfloor X/Y \\rfloor$ 的奇偶性，而这正是 $n$ 的偶数优先选择所需的全部信息。精确的 $r$ 随后经由通常的终结器处理；由上述断言，对上下文格式的操作数不会发生舍入。"
 
-#: manual/design/bin_float.md:498
+#: manual/design/bin_float.md:501
 msgid "Neighbours, scaling and integral values"
 msgstr "邻值、缩放与整数值"
 
-#: manual/design/bin_float.md:500
+#: manual/design/bin_float.md:503
 msgid "`next_up_ctx(x)` adds a positive step $2^{\\pi - 2}$ to $x$ and rounds toward $+\\infty$, where $\\pi = \\min(e_{\\min} - p,\\ e(x),\\ \\operatorname{top}(x) - p)$. Every gap between consecutive points of $F$ next to $x$ is at least $2^{\\min(e_{\\min} - p + 1,\\ \\operatorname{top}(x) - p)}$ and $x$ itself is a multiple of $2^{e(x)}$, so $x < x + 2^{\\pi - 2} < x^{+}$ for $x \\in F$, and by the definition of RU the result is the least point of $F$ above $x$. The same argument works for an $x$ with more than $p$ bits, which is why such operands are accepted. The flags of this internal addition are discarded, because `nextUp` is quiet (clause 5.3.1) even when it steps from $\\Omega$ to $+\\infty$."
 msgstr "`next_up_ctx(x)` 将正步长 $2^{\\pi - 2}$ 加到 $x$ 上并朝 $+\\infty$ 舍入，其中 $\\pi = \\min(e_{\\min} - p,\\ e(x),\\ \\operatorname{top}(x) - p)$。$x$ 旁 $F$ 中相邻点之间的每个间隙都至少为 $2^{\\min(e_{\\min} - p + 1,\\ \\operatorname{top}(x) - p)}$，且 $x$ 本身是 $2^{e(x)}$ 的倍数，因此对 $x \\in F$ 有 $x < x + 2^{\\pi - 2} < x^{+}$，再由 RU 的定义，结果是 $F$ 中高于 $x$ 的最小点。同样的论证对多于 $p$ 位的 $x$ 也成立，这就是此类操作数被接受的原因。这次内部加法的标志被丢弃，因为 `nextUp` 是静默的（第 5.3.1 条），即使它从 $\\Omega$ 步进到 $+\\infty$ 亦然。"
 
-#: manual/design/bin_float.md:511
+#: manual/design/bin_float.md:514
 msgid "`scaleb_ctx(x, n)` is the finalizer applied to $(c, e + n)$: exact in the normal range, correctly rounded with underflow and overflow outside it. `logb_ctx` returns $\\operatorname{top}(x)$, which is exact and correct for subnormal $x$ because $\\operatorname{top}$ is computed on the integer coefficient. The integral roundings use the same round and sticky bits with $\\sigma = -e$ (the bits below the binary point); `to_int_ctx` and its siblings round first and then compare the integer with the target range, reporting `invalid_operation` instead of returning an implementation-defined sentinel."
 msgstr "`scaleb_ctx(x, n)` 是对 $(c, e + n)$ 应用终结器：在正规范围内精确，在范围之外以下溢和上溢正确舍入。`logb_ctx` 返回 $\\operatorname{top}(x)$，它是精确的，并且对次正规的 $x$ 也正确，因为 $\\operatorname{top}$ 是在整数系数上计算的。取整舍入使用相同的舍入位和粘滞位，取 $\\sigma = -e$（即二进制小数点以下的位）；`to_int_ctx` 及其同类先舍入，再将整数与目标范围比较，报告 `invalid_operation` 而非返回由实现定义的哨兵值。"
 
-#: manual/design/bin_float.md:521
+#: manual/design/bin_float.md:524
 msgid "Decimal conversion"
 msgstr "十进制转换"
 
-#: manual/design/bin_float.md:523
+#: manual/design/bin_float.md:526
 msgid ""
 "**Parsing.** `from_string_ctx` reads $D \\cdot 10^{k}$ exactly ($D$ an integer without trailing zeros). For $|k|$ up to $\\max\\bigl(400, \\lfloor (3n + p)/2 \\rfloor + 64\\bigr)$ ($n$ the number of digits) it is rounded exactly: $D \\cdot 5^{k} \\cdot 2^{k}$ by the dyadic finalizer for $k \\ge 0$, and $D / 5^{|k|} \\cdot 2^{k}$ by the division finalizer for $k < 0$. Beyond that bound it uses directed enclosures $[\\operatorname{RD}_w(D)\\operatorname{RD}_w(10^k), \\operatorname{RU}_w(D)\\operatorname{RU}_w(10^k)]$ at a working precision $w$, doubled until both ends round to the same value with the same flags. The bound makes the loop terminate. The rounding breakpoints of a direction are the points of $F$ (directed modes) or the midpoints between them (nearest modes); both are dyadic with at most $p + 1$ significant bits. For $k \\ge 0$ the odd part of $D 10^{k}$ is a multiple of $5^{k}$, and $5^{k} > 2^{2.32 k} > 2^{p+2}$ beyond the bound, so the value is no breakpoint: $k > \\lfloor (3n+p)/2 \\rfloor + 64 > (p+2)/2.32$. For $k < 0$, $|k| > 1.5n$ gives $5^{|k|} > 10^{n} > D$, so $5^{|k|} \\n"
 "mid D$ and $D/10^{|k|}$ is not even dyadic. The points where a flag changes (the overflow threshold, $2^{e_{\\min}}$ for tininess, the points of $F$ for inexactness) are dyadic with at most $p + 1$ significant bits as well. A value that is none of these has a positive distance to all of them, and the enclosure, whose relative width is $O(2^{-w})$, eventually lies strictly between two of them, so some $w$ certifies it; the loop has no attempt limit. Values whose binary logarithm is certainly beyond the range, estimated with $\\log_2 10$ and a safety margin, overflow or underflow without any arithmetic, so `1e100000000` costs nothing."
@@ -11558,27 +11558,27 @@ msgstr ""
 "**解析。** `from_string_ctx` 精确读取 $D \\cdot 10^{k}$（$D$ 为不带末尾零的整数）。对于至多 $\\max\\bigl(400, \\lfloor (3n + p)/2 \\rfloor + 64\\bigr)$ 的 $|k|$（$n$ 为数字位数），它被精确舍入：$k \\ge 0$ 时由二进有理终结器处理 $D \\cdot 5^{k} \\cdot 2^{k}$，$k < 0$ 时由除法终结器处理 $D / 5^{|k|} \\cdot 2^{k}$。超出该界后，它在工作精度 $w$ 下使用定向包络 $[\\operatorname{RD}_w(D)\\operatorname{RD}_w(10^k), \\operatorname{RU}_w(D)\\operatorname{RU}_w(10^k)]$，并将精度加倍，直到两端舍入到相同的值且标志相同。该界保证循环终止。某一方向的舍入断点是 $F$ 中的点（定向模式）或它们之间的中点（就近模式）；二者都是至多有 $p + 1$ 位有效位的二进有理数。对于 $k \\ge 0$，$D 10^{k}$ 的奇数部分是 $5^{k}$ 的倍数，且超出该界后 $5^{k} > 2^{2.32 k} > 2^{p+2}$，因此该值不是断点：$k > \\lfloor (3n+p)/2 \\rfloor + 64 > (p+2)/2.32$。对于 $k < 0$，$|k| > 1.5n$ 给出 $5^{|k|} > 10^{n} > D$，因此 $5^{|k|} \\n"
 "mid D$，而 $D/10^{|k|}$ 甚至不是二进有理数。标志发生变化的点（上溢阈值、微小性的 $2^{e_{\\min}}$、不精确性的 $F$ 中的点）同样是至多有 $p + 1$ 位有效位的二进有理数。不属于其中任何一类的值到它们都有正的距离，而相对宽度为 $O(2^{-w})$ 的包络最终会严格落在其中两个点之间，因此某个 $w$ 必能完成认证；该循环没有尝试次数上限。以 $\\log_2 10$ 和安全余量估计、其二进制对数必然超出范围的值，无需任何算术即直接上溢或下溢，因此 `1e100000000` 不产生任何开销。"
 
-#: manual/design/bin_float.md:549
+#: manual/design/bin_float.md:552
 msgid "**Fixed digits.** `to_decimal_string_ctx(x, d)` needs $\\operatorname{round}(x / 10^{E - d + 1})$ with $E = \\lfloor \\log_{10}|x| \\rfloor$. $E$ starts from $\\lfloor \\operatorname{top}(x) \\log_{10} 2 \\rfloor$, which is within one of the answer, and is corrected by comparing $|x|$ with $10^{E+1}$, first through directed bounds of the power and, when they straddle, exactly. The quotient is formed exactly as an integer division when its operands have at most $2^{20}$ bits, so ties and exact results are recognised; otherwise directed enclosures are widened until both ends round to the same integer, which terminates because such a quotient is neither an integer nor a half-integer. A carry into a new leading digit ($9.99 \\to 10.0$) increments $E$ and repeats."
 msgstr "**定点位数。** `to_decimal_string_ctx(x, d)` 需要满足 $E = \\lfloor \\log_{10}|x| \\rfloor$ 的 $\\operatorname{round}(x / 10^{E - d + 1})$。$E$ 从 $\\lfloor \\operatorname{top}(x) \\log_{10} 2 \\rfloor$ 开始，它与答案相差不超过一，再通过比较 $|x|$ 与 $10^{E+1}$ 加以校正，先使用幂的定向界，当它们跨越边界时再精确比较。当操作数至多有 $2^{20}$ 位时，商以整数除法精确构成，因此能识别平局和精确结果；否则就加宽定向包络，直到两端舍入到同一个整数，由于这样的商既不是整数也不是半整数，该过程必然终止。进位产生新的最高位数字（$9.99 \\to 10.0$）时，$E$ 加一并重复。"
 
-#: manual/design/bin_float.md:561
+#: manual/design/bin_float.md:564
 msgid "**Shortest output.** Let $I(x)$ be the set of reals that round to $x$ under RNE in the context; it is an interval containing $x$. For each digit count $n$, the two $n$-digit decimals next to $x$ (truncated and rounded away from zero) are candidates, and a candidate is accepted when parsing it returns $x$, that is when it lies in $I(x)$. Acceptance is monotone in $n$: if the $n$-digit truncation $d_n$ lies in $I(x)$, the $(n+1)$-digit truncation satisfies $d_n \\le d_{n+1} \\le x$ (in magnitude), so it lies in the interval too, and likewise for the upper neighbour. So the least accepted $n$ is found by bisection on $[1, \\lceil p \\log_{10} 2 \\rceil + 2]$, an upper bound at which a candidate is always accepted.[^shortest] If both candidates are accepted, the nearer one is chosen, then the even one, which is the nearest decimal of that length. For binary64 this reproduces the host formatter on every value tested."
 msgstr "**最短输出。** 设 $I(x)$ 为在该上下文中以 RNE 舍入到 $x$ 的实数集合；它是一个包含 $x$ 的区间。对每个位数 $n$，$x$ 旁的两个 $n$ 位十进制数（截断的和远离零舍入的）是候选值，若解析某候选值返回 $x$，即它位于 $I(x)$ 中，则接受该候选值。接受性关于 $n$ 是单调的：若 $n$ 位截断 $d_n$ 位于 $I(x)$ 中，则 $(n+1)$ 位截断满足 $d_n \\le d_{n+1} \\le x$（按绝对值），因此它也位于该区间内，上侧邻值同理。所以最小的可接受 $n$ 可以通过在 $[1, \\lceil p \\log_{10} 2 \\rceil + 2]$（一个候选值总能被接受的上界）上二分查找得到。[^shortest] 若两个候选值都被接受，则选择较近的那个，再选偶数的那个，这就是该长度下最接近的十进制数。对于 binary64，在所有测试过的值上它都与宿主格式化器的输出一致。"
 
-#: manual/design/bin_float.md:575
+#: manual/design/bin_float.md:578
 msgid "The digit count $\\lceil p \\log_{10} 2 \\rceil + 1$ suffices for round trip (Matula 1968; Goldberg 1991, Theorem 15); the extra digit is a margin for the bisection's upper end."
 msgstr "位数 $\\lceil p \\log_{10} 2 \\rceil + 1$ 足以保证往返转换（Matula 1968；Goldberg 1991，定理 15）；多出的一位是为二分查找上端留的余量。"
 
-#: manual/design/bin_float.md:581
+#: manual/design/bin_float.md:584
 msgid "**Problem.** For $f = \\exp, \\ln, \\sin, \\ldots$ the value $f(x)$ is transcendental and must be rounded correctly without knowing it."
 msgstr "**问题。** 对于 $f = \\exp, \\ln, \\sin, \\ldots$，值 $f(x)$ 是超越数，必须在不知道其值的情况下正确舍入。"
 
-#: manual/design/bin_float.md:584
+#: manual/design/bin_float.md:587
 msgid "**Options.** Fixed polynomial approximations with a proven error bound (fast, but tied to one precision); Ziv's strategy of evaluating with an a priori error bound and retrying at a higher precision when the rounding is ambiguous;[^ziv] or interval evaluation."
 msgstr "**可选方案。** 具有已证明误差界的固定多项式逼近（速度快，但绑定于单一精度）；Ziv 策略，即以先验误差界求值，在舍入有歧义时以更高精度重试；[^ziv] 或区间求值。"
 
-#: manual/design/bin_float.md:589
+#: manual/design/bin_float.md:592
 msgid ""
 "**Choice.** A Ziv loop whose error bound is not estimated but computed: every elementary function evaluates an enclosure $[L, U] \\n"
 "i f(x)$ in which every internal operation is rounded downward for $L$ and upward for $U$ at a working precision $w$. If"
@@ -11586,31 +11586,31 @@ msgstr ""
 "**选择。** 采用误差界经计算而非估计的 Ziv 循环：每个初等函数在工作精度 $w$ 下求出一个包络 $[L, U] \\n"
 "i f(x)$，其中每个内部运算对 $L$ 向下舍入，对 $U$ 向上舍入。若"
 
-#: manual/design/bin_float.md:598
+#: manual/design/bin_float.md:601
 msgid "the common value is returned, otherwise $w$ grows. **The value is sound by (R2):** $L \\le f(x) \\le U$ implies $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$, so equal ends force $\\circ(f(x)) = \\circ(L)$."
 msgstr "则返回该公共值，否则增大 $w$。**由 (R2) 可知该值是可靠的：** $L \\le f(x) \\le U$ 蕴含 $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$，因此两端相等必然得到 $\\circ(f(x)) = \\circ(L)$。"
 
-#: manual/design/bin_float.md:602
+#: manual/design/bin_float.md:605
 msgid "The flags need a separate argument. Overflow and tininess (under either rule) depend only on $|r|$ through a threshold, so on one side of zero they are monotone: if $L$ and $U$ (which have the same sign once they round to the same nonzero value) agree, every $r \\in [L, U]$ agrees with them. Inexactness is not monotone: it is false exactly on $F$. If $L < U$ round to the same value $v$ with `inexact`, then $f(x)$ is inexact *unless* $f(x) = v \\in F$. The loop cannot tell these apart, so the flags are right only if every input whose exact result lies in $F$ is caught before the loop. That is why the exact cases below are filtered, and why an exact case that is missed shows up as a spurious `inexact` (nearest rounding) or as a budget failure (directed rounding, where $L$ and $U$ round to different neighbours of $v$)."
 msgstr "标志需要单独论证。上溢和微小性（无论采用哪种规则）只通过某个阈值依赖于 $|r|$，因此在零的同一侧它们是单调的：若 $L$ 和 $U$（一旦舍入到同一个非零值，它们就同号）一致，则每个 $r \\in [L, U]$ 都与它们一致。不精确性不是单调的：它恰在 $F$ 上为假。若 $L < U$ 带 `inexact` 舍入到同一个值 $v$，则 $f(x)$ 是不精确的，*除非* $f(x) = v \\in F$。循环无法区分这两种情况，因此只有当每个精确结果位于 $F$ 中的输入都在循环之前被捕获时，标志才是正确的。这就是下文的精确情形要被过滤的原因，也是漏掉的精确情形会表现为虚假的 `inexact`（就近舍入）或预算失败（定向舍入，此时 $L$ 和 $U$ 舍入到 $v$ 的不同相邻值）的原因。"
 
-#: manual/design/bin_float.md:615
+#: manual/design/bin_float.md:618
 msgid "The enclosures come from series with rigorous tails and from monotone reductions. For $\\exp$ on $[0, 1/8]$, the terms $t_k = x^k/k!$ satisfy $t_{k+1}/t_k = x/(k+1) \\le 1/8$, so after the last summed term $t_n$"
 msgstr "包络来自具有严格尾项界的级数以及单调的约简。对于 $[0, 1/8]$ 上的 $\\exp$，各项 $t_k = x^k/k!$ 满足 $t_{k+1}/t_k = x/(k+1) \\le 1/8$，因此在最后一个求和项 $t_n$ 之后"
 
-#: manual/design/bin_float.md:623
+#: manual/design/bin_float.md:626
 msgid "and the code stops once $t_n < 2^{-(w+8)}$ and adds $2 t_n$ (rounded upward) to the upper sum; the lower sum of positive terms is already a lower bound. Larger arguments are halved $r$ times and the result squared $r$ times, which is monotone on positive numbers and therefore keeps the enclosure; $e^{-x} = 1/e^{x}$ handles negative arguments. For $\\ln v$ with $v \\in [1, 2]$ the series is"
 msgstr "一旦 $t_n < 2^{-(w+8)}$，代码即停止，并将 $2 t_n$（向上舍入）加到上和中；正项的下和本身已是下界。较大的参数先减半 $r$ 次，结果再平方 $r$ 次，平方在正数上是单调的，因此保持包络；$e^{-x} = 1/e^{x}$ 处理负参数。对于满足 $v \\in [1, 2]$ 的 $\\ln v$，级数为"
 
-#: manual/design/bin_float.md:634
+#: manual/design/bin_float.md:637
 msgid "with tail $\\sum_{k \\ge m} z^{2k+1}/(2k+1) \\le \\frac{z^{2m+1}}{2m+1} \\cdot \\frac{1}{1 - z^2}$, the bound the code adds. The trigonometric functions reduce $x$ by an enclosure of $\\pi/2$ (from $\\pi = 4 \\arctan 1$, itself enclosed by the arctangent series after argument halving) at $w \\ge p + \\max(0, \\operatorname{top}(x) + 1) + 96$ bits, so the quadrant $k = \\operatorname{round}(x / (\\pi/2))$ is the same integer at both ends of the enclosure; otherwise the attempt is repeated at a higher precision. This is the Payne–Hanek idea realised by brute precision instead of a stored table of $2/\\pi$; its cost grows with $\\log_2|x|$, so inputs needing more than $10^6$ bits are refused with `ResourceLimit` rather than run for minutes."
 msgstr "其尾项为 $\\sum_{k \\ge m} z^{2k+1}/(2k+1) \\le \\frac{z^{2m+1}}{2m+1} \\cdot \\frac{1}{1 - z^2}$，即代码所加的界。三角函数在 $w \\ge p + \\max(0, \\operatorname{top}(x) + 1) + 96$ 位下用 $\\pi/2$ 的包络（来自 $\\pi = 4 \\arctan 1$，而它本身由参数减半后的反正切级数包络）约简 $x$，使象限 $k = \\operatorname{round}(x / (\\pi/2))$ 在包络两端是同一个整数；否则以更高精度重试。这是以暴力提高精度而非存储 $2/\\pi$ 表格的方式实现的 Payne–Hanek 思想；其代价随 $\\log_2|x|$ 增长，因此需要超过 $10^6$ 位的输入会以 `ResourceLimit` 被拒绝，而不是运行数分钟。"
 
-#: manual/design/bin_float.md:645
+#: manual/design/bin_float.md:648
 msgid "**Budget.** The loop starts at $w_0 = p + 64$ (for some functions at the operand precision plus 16 when that is larger) and steps $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$, at most 12 attempts. For binary64 the sequence is $117, 175, 262, \\ldots, 10053$ bits."
 msgstr "**预算。** 循环从 $w_0 = p + 64$ 开始（对某些函数，若操作数精度加 16 更大则取后者），按 $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ 递增，至多尝试 12 次。对于 binary64，该序列为 $117, 175, 262, \\ldots, 10053$ 位。"
 
-#: manual/design/bin_float.md:650
+#: manual/design/bin_float.md:653
 msgid ""
 "**Termination.** Ziv's argument has two parts. First, $f(x)$ must not be a breakpoint of $\\circ$ (a point of $F$, a midpoint, or a flag threshold), all of which are dyadic. For a nonzero dyadic $x$, $e^{x}$, $\\sin x$, $\\cos x$, $\\tan x$, the hyperbolic functions, their inverses and $\\ln x$ ($x \\n"
 "e 1$) are transcendental by Lindemann–Weierstrass. For $2^x$, $10^x$, $\\log_2 x$ and $\\log_{10} x$ irrationality is enough and elementary: $2^{a/b}$ with $b \\n"
@@ -11620,23 +11620,23 @@ msgstr ""
 "e 1$）都是超越数。对于 $2^x$、$10^x$、$\\log_2 x$ 和 $\\log_{10} x$，无理性就足够了，而且论证是初等的：当 $b \\n"
 "mid a$ 时 $2^{a/b}$ 是无理数，因此 $2^x$ 仅在 $x$ 为整数时是二进有理数，而 $\\log_2 x = a/b$ 迫使 $x = 2^{a/b}$ 为 2 的幂；同理，$10^x$ 和 $\\log_{10} x$ 仅在整数 $x \\ge 0$ 和 $x = 10^k$ 处是二进有理数。对于以 $\\pi$ 缩放的函数，Niven 定理表明整数、半整数以及（对 `tanpi`）四分之一整数参数是仅有的二进有理例外。[^niven] 对于 `pow` 和 `rootn`，例外情形在下文*精确幂与根*中刻画。这些例外在循环之前被过滤：$e^0 = 1$、$\\ln 1 = 0$、$\\log_2 2^k = k$、整数 $|n| < 2^{31}$ 的 $2^n$、$\\sin(\\pm 0)$、以 $\\pi$ 缩放的情形、整数 $0 \\le n \\le \\max(4096, p)$ 时的 $10^n$（超出此范围时奇数部分 $5^n$ 多于 $p + 1$ 位，因此 $10^n$ 不是断点）、每个 $n \\ge 1$ 的 $\\log_{10} 10^n$、二进有理数幂和精确根，等等。"
 
-#: manual/design/bin_float.md:669
+#: manual/design/bin_float.md:672
 msgid "Second, the enclosure must shrink onto $f(x)$ fast enough. The series stop when the next term is below $2^{-(w+8)}$ or $2^{-(w+12)}$ in *absolute* value, which is fine for arguments of moderate size; the width then is $O(2^{-w})$ relative to $f(x)$, a non-breakpoint has a positive distance to every breakpoint, and some $w$ certifies it. Tiny arguments need the two measures under *Tiny arguments* below. How large $w$ must be is the table maker's dilemma: no useful a priori bound is known for arbitrary $p$, so the budget is a resource limit, not a correctness condition. When it runs out the `try_*` form reports a `CertificationFailure` with the stage, the reason and the last $w$, and the total forms return a quiet NaN with `invalid_operation`; neither returns an uncertified value. The pinned MPFR corpus never exhausts it."
 msgstr "第二，包络必须足够快地收缩到 $f(x)$ 上。当下一项的*绝对*值低于 $2^{-(w+8)}$ 或 $2^{-(w+12)}$ 时级数停止，这对中等大小的参数没有问题；此时宽度相对于 $f(x)$ 为 $O(2^{-w})$，非断点到每个断点都有正的距离，因此某个 $w$ 能完成认证。微小参数需要下文*微小参数*中的两项措施。$w$ 必须多大，就是制表者困境：对任意 $p$ 都没有已知有用的先验界，因此预算是资源限制，而不是正确性条件。预算耗尽时，`try_*` 形式报告一个 `CertificationFailure`，包含阶段、原因和最后的 $w$，全函数形式则返回带 `invalid_operation` 的静默 NaN；两者都不会返回未经认证的值。固定的 MPFR 语料从未耗尽预算。"
 
-#: manual/design/bin_float.md:682
+#: manual/design/bin_float.md:685
 msgid "**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to `pown`. A larger integral $y$ needs no filter: for $x = c \\cdot 2^e$ with $c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two $2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every other exponent is $y = m / 2^k$ with $m$ odd and $k \\ge 1$. If $x^y$ is rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the exponents of $2$ and of each odd prime gives $q = a \\cdot 2^f$ with $a$ odd, $e|m| = f \\cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd, $2^k \\mid e$ and every prime exponent of $c$ is divisible by $2^k$, so $c = r^{2^k}$ and $q = r^{|m|} \\cdot 2^{e|m|/2^k}$. Conversely these values are exact. So a rational `pow` result exists exactly under these two divisibility conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$, which is dyadic only when $r = 1$. Every other `pow` result is irrational. `binary_pow_exact_dyadic` computes the dyadic results and rounds them once, unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has more than $p + 1$ significant bits and is not a breakpoint). The same argument with $1/|n|$ in place of $|y|$ shows that $\\operatorname{rootn}(x, n)$ is rational exactly when $|n| \\mid e$ and $c = r^{|n|}$; `rootn` returns $\\pm r \\cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly rounded quotient $1 / (\\pm r \\cdot 2^{e/|n|})$, which division decides with the right `inexact` flag although it need not be dyadic. The perfect-power test has no size limit. It first takes square roots with remainder for every factor $2$ of the degree, stopping at the first nonzero remainder, and then the floor of the remaining odd root: by bisection while the root has at most 64 bits, otherwise by integer Newton steps $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$ started just above the root, which decrease monotonically to $\\lfloor c^{1/d} \\rfloor$; one power $r^d$ then decides exactness. A coefficient with at most $d$ bits other than $1$ is rejected at once, because $r \\ge 2$ gives $r^d \\ge 2^d$."
 msgstr "**精确幂与根。** $|y| < 2^{31}$ 的整数指数交给 `pown` 处理。更大的整数 $y$ 无需过滤：对 $x = c \\cdot 2^e$（$c > 1$ 为奇数），$c^{|y|}$ 多于 $2^{31} > p + 1$ 位，而 2 的幂 $2^{ey}$ 位于任何指数范围之外，因此两者都不是断点。其余每个指数都可写成 $y = m / 2^k$，其中 $m$ 为奇数且 $k \\ge 1$。若 $x^y$ 是有理数，则 $q = x^{|y|}$ 也是，并且 $x^{|m|} = q^{2^k}$；比较 $2$ 及每个奇素数的指数可得 $q = a \\cdot 2^f$，其中 $a$ 为奇数，$e|m| = f \\cdot 2^k$ 且 $c^{|m|} = a^{2^k}$。由于 $|m|$ 是奇数，$2^k \\mid e$，且 $c$ 的每个素数指数都能被 $2^k$ 整除，因此 $c = r^{2^k}$ 且 $q = r^{|m|} \\cdot 2^{e|m|/2^k}$。反之，这些值都是精确的。所以有理的 `pow` 结果恰在这两个整除条件下存在；当 $m > 0$ 时它是二进有理数 $q$，当 $m < 0$ 时它是 $1/q$，后者仅在 $r = 1$ 时是二进有理数。其余每个 `pow` 结果都是无理数。`binary_pow_exact_dyadic` 计算这些二进有理结果并只舍入一次，除非奇数部分 $r^m$ 需要多于 $2p + 64$ 位（此时它有多于 $p + 1$ 个有效位，不是断点）。用 $1/|n|$ 代替 $|y|$ 作同样的论证可知，$\\operatorname{rootn}(x, n)$ 恰在 $|n| \\mid e$ 且 $c = r^{|n|}$ 时是有理数；对 $n > 0$，`rootn` 返回只舍入一次的 $\\pm r \\cdot 2^{e/|n|}$，对 $n < 0$ 则返回正确舍入的商 $1 / (\\pm r \\cdot 2^{e/|n|})$——该商未必是二进有理数，但除法会以正确的 `inexact` 标志判定它。完全幂检测没有大小限制。它先对次数中的每个因子 $2$ 求带余数的平方根，遇到第一个非零余数即停止，然后求剩余奇数次根的下取整：根至多 64 位时用二分法，否则用从略高于根处开始的整数牛顿迭代 $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$，它单调递减到 $\\lfloor c^{1/d} \\rfloor$；随后由一次幂运算 $r^d$ 判定是否精确。除 $1$ 之外至多 $d$ 位的系数会被立即拒绝，因为 $r \\ge 2$ 给出 $r^d \\ge 2^d$。"
 
-#: manual/design/bin_float.md:712
+#: manual/design/bin_float.md:715
 msgid "A negative base with an integral exponent beyond the `pown` range is evaluated as $\\pm|x|^y$. Negation is an exact symmetry of $\\circ$ that swaps the two directed modes, $\\circ_{\\mathrm{RD}}(-v) = -\\circ_{\\mathrm{RU}}(v)$, so for an odd $y$ the code rounds $|x|^y$ with RD and RU exchanged and negates."
 msgstr "底数为负、整数指数超出 `pown` 范围时，按 $\\pm|x|^y$ 求值。取负是 $\\circ$ 的一个精确对称，它交换两种定向模式：$\\circ_{\\mathrm{RD}}(-v) = -\\circ_{\\mathrm{RU}}(v)$，因此对奇数 $y$，代码交换 RD 与 RU 来舍入 $|x|^y$，再取负。"
 
-#: manual/design/bin_float.md:717
+#: manual/design/bin_float.md:720
 msgid "**Tiny arguments.** For small enough $|x|$ (about $2^{-p/2}$ for the odd functions, $2^{-p}$ for $e^x$) the result lies closer to a representable number $a$ than the target spacing: $a = x$ for the odd functions, $a = 1$ for $e^x$, $\\cos$, $\\cosh$. An enclosure whose series stops after its first term then has $a$ itself as one end ($U = x$ for $\\sin$, $L = 1$ for $e^x$), and that end rounds without `inexact` while the other end rounds with it, so the acceptance test alone would only pass once $w$ separates $f(x)$ from $a$, at $w \\approx \\log_2(1/|x|)$ or more. Two measures remove the dependence on $|x|$."
 msgstr "**微小参数。** 对足够小的 $|x|$（奇函数约为 $2^{-p/2}$，$e^x$ 约为 $2^{-p}$），结果到某个可表示数 $a$ 的距离小于目标间距：对奇函数 $a = x$，对 $e^x$、$\\cos$、$\\cosh$ 则 $a = 1$。级数在第一项后即停止的包络于是以 $a$ 本身为一端（对 $\\sin$ 为 $U = x$，对 $e^x$ 为 $L = 1$），该端舍入时不带 `inexact`，而另一端舍入时带有它，因此仅靠接受测试，要等到 $w$ 把 $f(x)$ 与 $a$ 区分开时才能通过，即 $w \\approx \\log_2(1/|x|)$ 或更大。两项措施消除了对 $|x|$ 的依赖。"
 
-#: manual/design/bin_float.md:726
+#: manual/design/bin_float.md:729
 msgid ""
 "*Inner endpoints.* Every result that reaches the loop is known not to be a breakpoint. For every function other than `pow` and `rootn`, `binary_certified_inexact_target_rounding` replaces an end $E$ that could be a breakpoint (an odd coefficient of at most $p + 1$ bits) by $E' = E \\pm 2^{e_E - s}$ toward the inside of the enclosure, with $s = \\max(1, p + 3 - \\operatorname{bits}(c_E))$. If the leading bit of $E$ is $2^t$, breakpoints near $E$ are at least $2^{t - p - 1}$ apart and the offset is at most $2^{t - p - 2}$, so no breakpoint lies in $(E, E']$. Since $f(x) \\n"
 "e E$, either $f(x)$ lies beyond $E'$ or between $E$ and $E'$, and in the second case it shares the open cell between breakpoints with $E'$ and rounds like it. So $\\circ(E') = \\circ(U')$ with equal flags still forces $\\circ(f(x))$ and its flags, and the test passes as soon as the enclosure is narrower than the spacing, independently of $|x|$. `pow` uses inner endpoints whenever its exactness test (above) has shown that the result is irrational, not dyadic, or wider than $p + 1$ bits, so a tiny exponent with $x^y$ closer to $1$ than the target spacing is certified too ($2^{2^{-16000}}$ in binary128 is $1$ with `inexact`). The test leaves a few cases with a power-of-two base undecided (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range); those keep the plain acceptance test."
@@ -11644,11 +11644,11 @@ msgstr ""
 "*内端点。* 每个进入循环的结果都已知不是断点。对除 `pow` 和 `rootn` 之外的每个函数，`binary_certified_inexact_target_rounding` 把可能是断点的端点 $E$（至多 $p + 1$ 位的奇数系数）替换为朝包络内侧移动的 $E' = E \\pm 2^{e_E - s}$，其中 $s = \\max(1, p + 3 - \\operatorname{bits}(c_E))$。若 $E$ 的最高位为 $2^t$，则 $E$ 附近的断点间隔至少为 $2^{t - p - 1}$，而偏移至多为 $2^{t - p - 2}$，因此 $(E, E']$ 中没有断点。由于 $f(x) \\n"
 "e E$，$f(x)$ 要么位于 $E'$ 之外，要么位于 $E$ 与 $E'$ 之间；在后一种情况下，它与 $E'$ 处于断点之间的同一开单元中，舍入结果与之相同。所以标志相同的 $\\circ(E') = \\circ(U')$ 仍然确定 $\\circ(f(x))$ 及其标志，并且只要包络窄于间距测试就会通过，与 $|x|$ 无关。只要 `pow` 的精确性检测（见上文）已表明结果是无理数、不是二进有理数或宽于 $p + 1$ 位，`pow` 就使用内端点，因此 $x^y$ 距 $1$ 比目标间距还近的极小指数也能得到认证（binary128 中的 $2^{2^{-16000}}$ 为 $1$ 并触发 `inexact`）。该检测会留下少数底数为 2 的幂的情形无法判定（指数的绝对值至少为 $2^{31}$，或缩放超出 32 位范围）；这些情形保留普通的接受测试。"
 
-#: manual/design/bin_float.md:747
+#: manual/design/bin_float.md:750
 msgid "*Tiny-argument bounds.* Some enclosures (for $\\sinh$, $\\tanh$ via $e^x - e^{-x}$, and for $\\operatorname{asinh}$, $\\operatorname{atanh}$, $\\operatorname{asin}$, $\\tan$, `expm1`, `log1p`) straddle the neighbour of $a$ until $w \\approx 3\\log_2(1/|x|)$. For $|x| \\le 1/2$ the series give one-sided bounds with a known side: $0 < x - \\sin x$, $0 < \\tan x - x$, $0 < \\operatorname{asin} x - x$, $0 < \\sinh x - x$, $0 < x - \\tanh x$, $0 < x - \\operatorname{asinh} x$, $0 < \\operatorname{atanh} x - x$, each at most $|x|^3$ (for $x > 0$, mirrored for $x < 0$), and $0 < 1 - \\cos x$, $0 < \\cosh x - 1$, $0 < \\operatorname{expm1}(x) - x$, $0 < x - \\operatorname{log1p}(x)$, each at most $x^2$. With $|x| < 2^T$, `binary_tiny_argument_result` uses the enclosure $[a, a + 2^{\\sigma}]$ or $[a - 2^{\\sigma}, a]$ with $\\sigma = 3T$ (respectively $2T$), raised to at least $t_a - p - 8$, when $\\sigma < t_a - p - 3$ ($2^{t_a}$ the leading bit of $a$), and rounds it with inner endpoints. The condition implies $|x| < 2^{-(p+3)/2} \\le 1/2$, so the bounds apply, and the enclosure is at most a quarter of the breakpoint spacing at $a$ wide. When $a$ is a breakpoint, both ends lie in the cell next to $a$ and the result is decided before the loop; otherwise (an argument wider than $p + 1$ bits) the loop runs as usual. With both measures `sin` and `atan` of $2^{-6000}$ at 53 bits and $e^{2^{-20000}}$ are certified in every rounding mode."
 msgstr "*微小参数界。* 某些包络（$\\sinh$、经由 $e^x - e^{-x}$ 的 $\\tanh$，以及 $\\operatorname{asinh}$、$\\operatorname{atanh}$、$\\operatorname{asin}$、$\\tan$、`expm1`、`log1p`）在 $w \\approx 3\\log_2(1/|x|)$ 之前会跨越 $a$ 的相邻值。对 $|x| \\le 1/2$，级数给出方向已知的单侧界：$0 < x - \\sin x$、$0 < \\tan x - x$、$0 < \\operatorname{asin} x - x$、$0 < \\sinh x - x$、$0 < x - \\tanh x$、$0 < x - \\operatorname{asinh} x$、$0 < \\operatorname{atanh} x - x$，各自至多为 $|x|^3$（对 $x > 0$；$x < 0$ 时对称），以及 $0 < 1 - \\cos x$、$0 < \\cosh x - 1$、$0 < \\operatorname{expm1}(x) - x$、$0 < x - \\operatorname{log1p}(x)$，各自至多为 $x^2$。设 $|x| < 2^T$，当 $\\sigma < t_a - p - 3$（$2^{t_a}$ 为 $a$ 的最高位）时，`binary_tiny_argument_result` 使用包络 $[a, a + 2^{\\sigma}]$ 或 $[a - 2^{\\sigma}, a]$，其中 $\\sigma = 3T$（相应地为 $2T$），并提升到至少 $t_a - p - 8$，再用内端点对其舍入。该条件蕴含 $|x| < 2^{-(p+3)/2} \\le 1/2$，因此上述界适用，并且包络宽度至多为 $a$ 处断点间距的四分之一。当 $a$ 是断点时，两端都位于紧邻 $a$ 的单元中，结果在循环之前即已确定；否则（参数宽于 $p + 1$ 位）循环照常运行。借助这两项措施，53 位下 $2^{-6000}$ 的 `sin` 与 `atan` 以及 $e^{2^{-20000}}$ 在每种舍入模式下都能得到认证。"
 
-#: manual/design/bin_float.md:768
+#: manual/design/bin_float.md:771
 msgid ""
 "`rootn` keeps the plain test, and `pow` uses it only for the few results its exactness test cannot classify. For `rootn` it suffices: its enclosure is $e^{\\ln(x)/n}$ at a working precision above the operand precision $q$, and $|\\ln x| / |n| > 2^{-(q + 31)}$ for $x \\n"
 "e 1$ and $|n| \\le 10^9$, so an end at $1$ disappears after an attempt or two. `pow` evaluates $e^{y \\ln x}$, where $y$ can be arbitrarily small: an exponent so small that $x^y$ lies closer to $1$ than the target spacing gives an enclosure with $L = 1$ at every affordable $w$. That is why `pow` moves such an end inward once its exactness test has excluded a breakpoint, as described under inner endpoints; for example $2^{2^{-16000}}$ in binary128 is then $1$ with `inexact`."
@@ -11656,121 +11656,121 @@ msgstr ""
 "`rootn` 保留普通测试，`pow` 仅对其精确性检测无法分类的少数结果使用普通测试。对 `rootn` 这已足够：其包络是以高于操作数精度 $q$ 的工作精度计算的 $e^{\\ln(x)/n}$，而对 $x \\n"
 "e 1$ 和 $|n| \\le 10^9$ 有 $|\\ln x| / |n| > 2^{-(q + 31)}$，因此位于 $1$ 的端点在一两次尝试后就会消失。`pow` 计算 $e^{y \\ln x}$，其中 $y$ 可以任意小：当指数小到使 $x^y$ 到 $1$ 的距离小于目标间距时，在任何可承受的 $w$ 下包络都有 $L = 1$。正因如此，如内端点部分所述，`pow` 在其精确性检测排除断点之后会把这样的端点向内移动；例如 binary128 中的 $2^{2^{-16000}}$ 由此为 $1$ 并触发 `inexact`。"
 
-#: manual/design/bin_float.md:779
+#: manual/design/bin_float.md:782
 msgid "I. Niven, *Irrational Numbers*, 1956, Corollary 3.12: if $r$ is rational and $\\sin(\\pi r)$ is rational, then $\\sin(\\pi r) \\in \\{0, \\pm\\frac12, \\pm 1\\}$; similarly for $\\cos$, and $\\tan(\\pi r) \\in \\{0, \\pm 1\\}$. The value $\\pm\\frac12$ needs $r$ with denominator 6 or 3, which is not dyadic."
 msgstr "I. Niven，*Irrational Numbers*，1956，推论 3.12：若 $r$ 为有理数且 $\\sin(\\pi r)$ 为有理数，则 $\\sin(\\pi r) \\in \\{0, \\pm\\frac12, \\pm 1\\}$；$\\cos$ 同理，以及 $\\tan(\\pi r) \\in \\{0, \\pm 1\\}$。值 $\\pm\\frac12$ 需要分母为 6 或 3 的 $r$，而这不是二进有理数。"
 
-#: manual/design/bin_float.md:785
+#: manual/design/bin_float.md:788
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; for interval evaluation see W. Tucker, *Validated Numerics*, Princeton 2011, and F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr "A. Ziv，\"Fast evaluation of elementary mathematical functions with correctly rounded last bit\"，*ACM TOMS* 17(3)，1991；区间求值参见 W. Tucker，*Validated Numerics*，Princeton 2011，以及 F. Johansson，\"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\"，*IEEE Trans. Computers* 66(8)，2017。"
 
-#: manual/design/bin_float.md:791
+#: manual/design/bin_float.md:794
 msgid "**Integer powers.** `pow_int_ctx` computes $x^n$ by an addition chain at $w = p + \\operatorname{bits}(n) + \\operatorname{bits}(p) + 4$ bits with round-to-nearest. Each chain step $a_k = a_i + a_j$ multiplies two approximations; if $x^{a} \\prod (1 + \\delta)^{E(a)}$ describes the error structure, then $E(a_k) = E(a_i) + E(a_j) + 1$ and $E(1) = 0$, so by induction $E(a) \\le a - 1$. The computed value is therefore $x^n (1 + \\theta)$ with $|\\theta| \\le \\gamma_{n-1} = (n-1)u_w/(1 - (n-1)u_w)$ in Higham's notation, which is below $2^{\\operatorname{bits}(n)}$ units in the last place of the $w$-bit result. The code uses the radius $2^{\\operatorname{bits}(n) + 2}$ units (one more factor of two for a negative power, whose reciprocal adds $n$ further factors), builds the interval, and accepts when both ends round alike, by the same (R2) argument. When 12 attempts (with $w$ doubled between them) do not certify, the exact power $c^n 2^{ne}$ is formed and rounded, so the result is correctly rounded in every case. A power certainly outside the range is decided first from certified $\\log_2$ bounds; powers of two and powers whose exact value fits in $p$ bits are computed exactly. The Ziv path therefore only sees $c^n$ with $c > 1$ odd and more than $p$ bits, or $1/c^n$, which is not dyadic: neither is in $F$, so the `inexact` it reports is right (the flag argument above). A $c^n$ with exactly $p + 1$ bits is a midpoint; the enclosure then never certifies under nearest rounding and the exact fallback decides it."
 msgstr "**整数幂。** `pow_int_ctx` 在 $w = p + \\operatorname{bits}(n) + \\operatorname{bits}(p) + 4$ 位下以就近舍入通过加法链计算 $x^n$。每个链步 $a_k = a_i + a_j$ 将两个近似值相乘；若 $x^{a} \\prod (1 + \\delta)^{E(a)}$ 描述了误差结构，则 $E(a_k) = E(a_i) + E(a_j) + 1$ 且 $E(1) = 0$，由归纳得 $E(a) \\le a - 1$。因此计算值为 $x^n (1 + \\theta)$，用 Higham 的记号即 $|\\theta| \\le \\gamma_{n-1} = (n-1)u_w/(1 - (n-1)u_w)$，它小于 $w$ 位结果的 $2^{\\operatorname{bits}(n)}$ 个末位单位。代码使用半径 $2^{\\operatorname{bits}(n) + 2}$ 个单位（对负幂再多一个因子 2，其倒数还会再增加 $n$ 个因子），构建区间，并在两端舍入相同时接受，依据同样的 (R2) 论证。若 12 次尝试（每次之间 $w$ 加倍）仍无法认证，则构造精确幂 $c^n 2^{ne}$ 并舍入，因此结果在任何情况下都是正确舍入的。必然超出范围的幂会先依据经认证的 $\\log_2$ 界判定；2 的幂以及精确值能放入 $p$ 位的幂会被精确计算。因此 Ziv 路径只会遇到 $c > 1$ 为奇数且多于 $p$ 位的 $c^n$，或者不是二进有理数的 $1/c^n$：两者都不在 $F$ 中，所以它报告的 `inexact` 是正确的（见上文关于标志的论证）。恰好有 $p + 1$ 位的 $c^n$ 是中点；此时包络在就近舍入下永远无法完成认证，由精确回退来判定。"
 
-#: manual/design/bin_float.md:813
+#: manual/design/bin_float.md:816
 msgid "**hypot.** `hypot` forms $a^2 + b^2$ exactly from the coefficients and takes one correctly rounded square root, so it needs no loop; the cost is the alignment shift between the two squares. For $|a| \\ge |b| > 0$, $|a| < \\sqrt{a^2 + b^2} \\le |a| + b^2 / (2|a|)$. Write $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = 2^{\\min(e,\\, t - p - 1)}$: $|a|$ and every rounding breakpoint near it are multiples of $g$, so when $b^2 < 2|a|g$ no breakpoint lies in $(|a|, |a| + b^2/(2|a|)]$ and every such $b$ gives the same rounded result and flags. $|b| < g/8$ is enough, and `binary_hypot_negligible_operand` then replaces $b$ by $g/8$, which keeps the shift at about twice the operand and target precisions however far apart the exponents are ($\\operatorname{hypot}(1, 2^{-600000}) = 1$ with `inexact`). A shift above $10^6$ bits is still refused as a `certification_failure`; after the replacement it needs a precision near $500\\,000$ bits."
 msgstr "**hypot。** `hypot` 由系数精确构成 $a^2 + b^2$，并做一次正确舍入的平方根，因此不需要循环；代价是两个平方之间的对齐移位。对 $|a| \\ge |b| > 0$，有 $|a| < \\sqrt{a^2 + b^2} \\le |a| + b^2 / (2|a|)$。记 $|a| = c \\cdot 2^e$，其最高位为 $2^t$，并令 $g = 2^{\\min(e,\\, t - p - 1)}$：$|a|$ 及其附近的每个舍入断点都是 $g$ 的倍数，因此当 $b^2 < 2|a|g$ 时，$(|a|, |a| + b^2/(2|a|)]$ 中没有断点，每个这样的 $b$ 都给出相同的舍入结果和标志。$|b| < g/8$ 就足够了，此时 `binary_hypot_negligible_operand` 将 $b$ 替换为 $g/8$，这样无论两个指数相距多远，移位都保持在操作数精度与目标精度的约两倍（$\\operatorname{hypot}(1, 2^{-600000}) = 1$，带 `inexact`）。超过 $10^6$ 位的移位仍会作为 `certification_failure` 被拒绝；替换之后，这需要接近 $500\\,000$ 位的精度。"
 
-#: manual/design/bin_float.md:827
+#: manual/design/bin_float.md:830
 msgid "The coefficient kernel"
 msgstr "系数内核"
 
-#: manual/design/bin_float.md:829
+#: manual/design/bin_float.md:832
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr "**问题。** 精度的代价来自 $p$ 位数的整数乘法和除法，而 $p$ 的范围从 1 到 $2^{28}$。"
 
-#: manual/design/bin_float.md:832
+#: manual/design/bin_float.md:835
 msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 32-bit limbs (a host `bigint` on JavaScript), and dispatches on the shorter operand length $n$ in limbs:"
 msgstr "**选择。** `BinCoeff` 将至多 128 位的值内联存储，更大的值存储为小端序的 32 位 limb（在 JavaScript 上为宿主 `bigint`），并按较短操作数的 limb 长度 $n$ 进行分派："
 
-#: manual/design/bin_float.md:836
+#: manual/design/bin_float.md:839
 msgid "Product"
 msgstr "乘积"
 
-#: manual/design/bin_float.md:836
+#: manual/design/bin_float.md:839
 msgid "Native"
 msgstr "Native"
 
-#: manual/design/bin_float.md:836
+#: manual/design/bin_float.md:839
 #: manual/design/decimal.md:891
 #: manual/design/decimal_gda.md:770
 msgid "LLVM"
 msgstr "LLVM"
 
-#: manual/design/bin_float.md:836
+#: manual/design/bin_float.md:839
 msgid "Wasm, Wasm-GC"
 msgstr "Wasm、Wasm-GC"
 
-#: manual/design/bin_float.md:838
+#: manual/design/bin_float.md:841
 msgid "schoolbook below"
 msgstr "低于此值用竖式乘法"
 
-#: manual/design/bin_float.md:839
+#: manual/design/bin_float.md:842
 msgid "Karatsuba from"
 msgstr "从此值起用 Karatsuba"
 
-#: manual/design/bin_float.md:840
+#: manual/design/bin_float.md:843
 msgid "Toom-3 from"
 msgstr "从此值起用 Toom-3"
 
-#: manual/design/bin_float.md:841
+#: manual/design/bin_float.md:844
 msgid "two-prime NTT multiply from"
 msgstr "从此值起用双素数 NTT 乘法"
 
-#: manual/design/bin_float.md:842
+#: manual/design/bin_float.md:845
 msgid "NTT square from"
 msgstr "从此值起用 NTT 平方"
 
-#: manual/design/bin_float.md:843
+#: manual/design/bin_float.md:846
 msgid "recursive square from"
 msgstr "从此值起用递归平方"
 
-#: manual/design/bin_float.md:845
+#: manual/design/bin_float.md:848
 msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
 msgstr "稀疏操作数（非零 limb 很少）使用稀疏乘积，具有 $m > 2n$ 个 limb 的操作数被切分为 $n$ limb 的块。除法使用单 limb 循环，除数少于 48 个 limb 时使用 Knuth 算法 D，从 48 起使用 Burnikel–Ziegler 递归，从 1024 起使用 Newton 倒数；GCD 在超过四个 limb 时从二进制（Stein）算法切换为 Lehmer 批处理。这些阈值由基准测试套件针对每个目标实测得出；它们是策略，而非语义。"
 
-#: manual/design/bin_float.md:852
+#: manual/design/bin_float.md:855
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr "只有当 Lehmer 轮的单字数字取自两个操作数的同一比特窗口时，该轮才有效：从各操作数自身最高 limb 取出的数字尺度互不相关，由它们产生的余因子每轮只能减去较小操作数的一个小倍数。因此每一轮都保持 $a \\ge b$，对 $a$ 的前 63 位以及 $b$ 在同一窗口中的位运行 Euclid 算法；当 $b$ 在该窗口中没有位（此时 $a / b \\ge 2^{62}$），或余因子矩阵会使某个操作数变为负数、或两者都不缩小时，改为执行一步除法 $a \\bmod b$。所施加的每个矩阵的行列式都是 $\\pm 1$，因此 gcd 不变；无论长度相差多少，长的 $a$ 都会在一步内对短的 $b$ 取模约化；当 $b$ 少于八个 limb 时，循环以普通 Euclid 算法结束。"
 
-#: manual/design/bin_float.md:864
+#: manual/design/bin_float.md:867
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr "**为何能保持精确性。** 竖式乘法、Karatsuba 和 Toom-3 计算的是整数多项式恒等式，例如"
 
-#: manual/design/bin_float.md:871
+#: manual/design/bin_float.md:874
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr "而 Toom-3（在 $0, 1, -1, 2, \\infty$ 处求值）在插值时对已知为倍数的带符号中间量做精确的除以 2 和除以 3，因此它们都是精确的整数计算。NTT 是唯一的模运算步骤。它将每个操作数拆分为 16 位数字，因此数字卷积的每个系数至多为"
 
-#: manual/design/bin_float.md:880
+#: manual/design/bin_float.md:883
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr "这对至多 $2^{23}$ 的变换长度成立。它对素数 $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ 和 $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$ 取模计算卷积，两者都有 $2^{23}$ 次单位根，再用中国剩余定理重组，该重组在 $[0, p_1 p_2)$ 中唯一，其中 $p_1 p_2 \\approx 2^{59.4} > 2^{55}$。因此重组得到的系数就是精确的整数。每次变换之前都会先做长度检查；更长的乘积使用长度可接受的重叠块，或回退到 Toom-3。除法路径按构造返回满足 $n = qd + r$ 和 $0 \\le r < d$ 的 $(q, r)$；Newton 路径用余数校正其近似商，若需要超过两次校正则中止，因为这意味着存在缺陷，而非数值现象。由于所有路径计算的是同样的整数，算法的选择不会改变任何舍入结果、标志或编码。"
 
-#: manual/design/bin_float.md:894
+#: manual/design/bin_float.md:897
 msgid "Ordering NaN in `compare`"
 msgstr "`compare` 中 NaN 的排序"
 
-#: manual/design/bin_float.md:896
+#: manual/design/bin_float.md:899
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr "**问题。** MoonBit 的 `Compare` trait 要求一个可供排序和有序映射依赖的三路比较。IEEE 比较是偏序：NaN 与任何值（包括它自身）都是无序的。"
 
-#: manual/design/bin_float.md:900
+#: manual/design/bin_float.md:903
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr "**可选方案。** (1) 遇到 NaN 时中止，早期版本即是如此；这样一来，对任何可能含有 NaN 的数据排序都会崩溃。(2) 使用 IEEE `totalOrder`，它是全序，但区分 $-0 < +0$，并把负 NaN 排在 $-\\infty$ 之下，因此 `compare` 在零上会与数值相等不一致。(3) 在数上保持数值顺序，并将所有 NaN 归为位于其上方的同一类。"
 
-#: manual/design/bin_float.md:907
+#: manual/design/bin_float.md:910
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr "**选择。** 方案 (3)。对数定义键 $\\kappa(x) = (0, x)$，对 NaN 定义 $\\kappa(\\mathrm{NaN}) = (1, 0)$，按字典序排列；`compare(x, y)` 是 $\\kappa(x)$ 与 $\\kappa(y)$ 的比较，$-0$ 和 $+0$ 映射为同一个数。在全序集中比较键是自反、传递且完全的，因此 `compare` 是一个全预序；它不是反对称的（$-0$ 与 $+0$，或两个载荷不同的 NaN，比较结果相等但却是不同的值），而 `Compare` 并不要求反对称性。代价是在 `<` 下 `nan > 1` 为真，因此需要 IEEE 语义的代码必须使用 `compare_checked`（遇 NaN 报错）、`compare_quiet` / `compare_signaling`（四值，带标志）或 `total_order`。结构性的 `==` 仍是派生的 `Eq`，因为它是对每个方法（包括精度和载荷）都构成同余关系的唯一相等。"
 
-#: manual/design/bin_float.md:922
+#: manual/design/bin_float.md:925
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**规范形式。** API 产生的每个有限值都满足 $c$ 为奇数或 $c = 0, e = 0$，且 $\\operatorname{bits}(c) \\le$ 为其精度；存储的指数从不饱和（饱和的指数会先被归类为上溢或下溢）。"
 
-#: manual/design/bin_float.md:926
+#: manual/design/bin_float.md:929
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr "**正确舍入。** 对每个算术运算、转换和初等函数以及每个上下文，返回的有限值都等于精确实数结果 $r$ 的 $\\circ(r)$，并遵循上述范围规则。由 (R1)，每当 $r \\in F$ 时有 $\\circ(r) = r$ 且不引发任何标志；`round_ctx` 是幂等的。"
 
-#: manual/design/bin_float.md:931
+#: manual/design/bin_float.md:934
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
@@ -11778,83 +11778,83 @@ msgstr ""
 "**标志。** `inexact` 当且仅当 $\\circ(r) \\n"
 "e r$；`overflow` 蕴含 `inexact`；`underflow` 当且仅当结果微小（按上下文规则）且不精确；`division_by_zero` 仅用于有限操作数产生精确无穷结果的情形；`invalid_operation` 当且仅当由非 NaN 操作数产生了静默 NaN，或消耗了信号 NaN。最后一条规则的例外：`min`、`max`、$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$ 和 $\\operatorname{pow}(1, y)$ 接受信号 NaN 而不设置该标志。`combine` 满足结合律、交换律和幂等律。"
 
-#: manual/design/bin_float.md:940
+#: manual/design/bin_float.md:943
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**误差模型。** 因此，在正规范围内，就近舍入有 $|\\circ(r) - r| \\le u|r|$，定向舍入有 $< 2u|r|$，在 $2^{e_{\\min}}$ 以下另有绝对项 $\\eta/2$（相应地 $\\eta$），而次正规的和与差是精确的。"
 
-#: manual/design/bin_float.md:944
+#: manual/design/bin_float.md:947
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr "**单调性。** 只要实函数在某个参数上单调，相应运算在该参数上也单调，因为它是 $\\circ \\circ f$ 且 $\\circ$ 单调；特别地，RD 和 RU 的结果夹住精确值，`ball_float` 和 `sqrt_bounds_for_precision` 正依赖于这一点。"
 
-#: manual/design/bin_float.md:948
+#: manual/design/bin_float.md:951
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**精确性定理。** `remainder`、正规范围内的 `scaleb`、`copy_sign`、`neg`、`abs`、`logb` 以及解码都是精确的；取整运算从不需要第二次舍入；`fma(a, b, -RN(ab))` 在无下溢时是精确的。"
 
-#: manual/design/bin_float.md:952
+#: manual/design/bin_float.md:955
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**复杂度。** 加法与操作数长度呈线性关系（且由远距操作数规则，与指数差无关）；乘法遵循内核表格，从 $O(n^2)$ 到 $O(n \\log n)$；在较大的 $n$ 下，除法和平方根的代价为常数次同等规模的乘法；`remainder` 的代价为 $O(\\log(q_x - q_y))$ 次模乘；初等函数在工作精度 $w$ 下对其级数求值，且由于 $w$ 按几何级数增长，所有尝试的总代价不超过最后一次尝试的常数倍。"
 
-#: manual/design/bin_float.md:961
+#: manual/design/bin_float.md:964
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "较长的证明（远距操作数加法规则、`nextUp`、余数约简、Ziv 接受测试以及 NTT 界）收录于附件中。"
 
-#: manual/design/bin_float.md:965
+#: manual/design/bin_float.md:968
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr "[bin_float 的舍入与精确性证明](../../attachments/design_bin_float_rounding_proofs.typ)"
 
-#: manual/design/bin_float.md:969
+#: manual/design/bin_float.md:972
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**对 `from_double` 以外的格式使用宿主 `Double`。** 让 binary16、binary32 或 binary128 经由 `Double` 会导致双重舍入，在某些目标上丢失信号 NaN，而且根本无法表示 binary128。因此交换编码改为在 `BinCoeff` 位模式上完成。"
 
-#: manual/design/bin_float.md:973
+#: manual/design/bin_float.md:976
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数量的保护位。** 三个保护位足以完成两个 $p$ 位操作数的加法，但不足以应对除法、平方根、从十进制的转换或宽于上下文的操作数。依据精确的整数数据（舍入位、粘滞位、余数符号、中点比较）进行判定，则可以用一个终结器处理所有这些情形。"
 
-#: manual/design/bin_float.md:978
+#: manual/design/bin_float.md:981
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**先舍入到 $p$ 位，再舍入到次正规网格。** 这种双重舍入会产生错误的次正规结果；终结器只做一次移位，移到两个位置中较粗的那个。"
 
-#: manual/design/bin_float.md:981
+#: manual/design/bin_float.md:984
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**使用估计误差界的 Ziv 方法。** 它需要对每个函数和每种约简单独做误差分析，而其中的错误会悄无声息地返回错误的最后一位。向外舍入的包络使误差界成为计算得出的量，代价是每个运算都要求值两次。"
 
-#: manual/design/bin_float.md:985
+#: manual/design/bin_float.md:988
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**全局标志与舍入状态。** IEEE 754 将标志描述为粘滞的全局状态。返回的 `BinaryFlags` 值可以与纯代码、并发代码以及 `@lf_arith` 的 `Result` 风格组合，而 `combine` 可在需要时恢复粘滞行为。"
 
-#: manual/design/bin_float.md:989
+#: manual/design/bin_float.md:992
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**`compare` 遇到 NaN 时中止，或以 `compare` 作为 `totalOrder`。** 参见[`compare` 中 NaN 的排序](#ordering-nan-in-compare)。"
 
-#: manual/design/bin_float.md:994
+#: manual/design/bin_float.md:997
 msgid "`bin_float` deliberately does not:"
 msgstr "`bin_float` 有意不做以下事情："
 
-#: manual/design/bin_float.md:996
+#: manual/design/bin_float.md:999
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr "提供区间或球算术：包络只在认证循环内部使用；`ball_float` 在 `BinFloat` 之上构建中点–半径算术；"
 
-#: manual/design/bin_float.md:999
+#: manual/design/bin_float.md:1002
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "实现 IEEE 754 替代异常处理（陷阱、替换）或粘滞的全局标志：标志是返回值；"
 
-#: manual/design/bin_float.md:1001
+#: manual/design/bin_float.md:1004
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "实现十进制浮点（`decimal`、`decimal_gda`）或其上的非二进制 IEEE 运算；"
 
-#: manual/design/bin_float.md:1003
+#: manual/design/bin_float.md:1006
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "为新生成的 NaN 承诺任何特定的 NaN 载荷（它使用载荷 0），或传播多于一个输入的载荷；"
 
-#: manual/design/bin_float.md:1005
+#: manual/design/bin_float.md:1008
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "保证初等函数对每个输入都能在一定时间内完成：认证有预算，预算耗尽会被报告，而不会被隐藏；"
 
-#: manual/design/bin_float.md:1008
+#: manual/design/bin_float.md:1011
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "暴露 limb 布局、阈值或变换参数：只要每个结果、标志和编码保持不变，它们可能随时更改而不另行通知；"
 
-#: manual/design/bin_float.md:1010
+#: manual/design/bin_float.md:1013
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr "声称超出[符合性](../conformance/bin_float.md)中所记录的有限语料之外的符合性。"
 
