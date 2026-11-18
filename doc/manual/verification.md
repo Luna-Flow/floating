@@ -231,10 +231,12 @@ range.
   nearest-away, in the executor) fails 0.15% to 2.8% of the rows, so the rows
   that decide those cases are present.
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and
-  300,000 on the other backends): `exp2` of exactly −2^30 returns +0 with no
-  flags where the result 2^−1073741824 is an exact subnormal (13 cases). It is
-  recorded as the known failure `B1` of
-  `testdata/bin_float/random-regressions.txt` until its issue number is known.
+  300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
+  flags where the result 2^−1073741824 is an exact subnormal (13 cases,
+  [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and
+  its rows are regression rows of `testdata/bin_float/random-regressions.txt`.
+  After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000
+  native `elem` cases each.
 - *Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and
   `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`,
   `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an

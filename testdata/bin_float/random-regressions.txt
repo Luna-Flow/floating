@@ -1,8 +1,15 @@
 # mpfr-random-v1 regression rows for disagreements found by the random differential campaign
 # id op rounding precision emin emax tininess a b c n expected flags
-# Each row is annotated with the finding it reproduces (xfail #TBD until the issue
-# number is known). The smoke run requires exactly the xfail rows to fail.
-# xfail #TBD B1 exp2 of an exactly representable subnormal returns +0 (unbounded context)
+# Each row is annotated with the finding it reproduces. A row annotated
+# `xfail #N` is a known failure; the smoke run requires exactly the xfail rows
+# to fail, so a fixed row loses its marker and stays as a regression test.
+# #271 exp2 of an exactly representable subnormal returned +0 (unbounded context)
 reg.exp2.exact-subnormal exp2 n 2 - - - -0x1p30 - - 0 0x1p-1073741824 -
-# xfail #TBD B1 the same with the argument below -2^30
+# #271 the same with the argument below -2^30
 reg.exp2.exact-subnormal-below exp2 z 28 - - - -0x40000001p0 - - 0 0x1p-1073741825 -
+# #272 pow of an exact power of two below 2^e_min: (1/4)^(2^29 + 1/2) = 2^-1073741825
+reg.pow.exact-subnormal pow n 3 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741825 -
+# #272 the same at p = 2, where 2^-1073741825 is half the smallest subnormal (tie to even)
+reg.pow.exact-subnormal-tie pow n 2 - - - 0x1p-2 0x40000001p-1 - 0 0x0p0 xu
+# #272 and rounded up
+reg.pow.exact-subnormal-up pow u 2 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741824 xu

@@ -1400,10 +1400,12 @@ pub fn BinFloat::try_exp2_ctx(
         return Ok(result)
       }
       match binary_exact_bounded_int(self) {
-        Some(exponent) => {
-          let exact = BinFloat::make(BinCoeff::one(), exponent, 1)
-          return Ok(exact.round_ctx(context))
-        }
+        Some(exponent) =>
+          // Round the dyadic 2^n directly: a one-bit BinFloat::make would
+          // flush 2^n below 2^e_min to zero before the context sees it.
+          return Ok(
+            binary_round_dyadic(false, BinCoeff::one(), exponent, context),
+          )
         None => ()
       }
       let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
@@ -2551,12 +2553,9 @@ fn binary_pow_exactness(
   let scale = (base.exponent2() / degree).to_int64() *
     (if exponent.is_negative() { -numerator } else { numerator })
   guard scale >= -2147483648L && scale <= 2147483647L else { return Undecided }
-  let exact = BinFloat::make(
-    power,
-    scale.to_int(),
-    Int32::max(1, power.bit_length()),
-  )
-  Exact(exact.round_ctx(context))
+  // Rounded as a dyadic: a BinFloat::make of power * 2^scale would flush it to
+  // zero when it lies below 2^e_min, before the context rounds it.
+  Exact(binary_round_dyadic(false, power, scale.to_int(), context))
 }
 
 ///|
