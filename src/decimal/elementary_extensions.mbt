@@ -1192,8 +1192,11 @@ pub fn Decimal::try_atan2_ctx(
   decimal_certified_binary_result(ordinate, x, ctx, "atan2", fn(y, x_interval) {
     y.try_atan2_interval(x_interval)
   }).map(fn(result) {
+    // A result that rounds to zero keeps the exponent of the rounding (the
+    // cohort member of least possible exponent, IEEE 754-2019 5.2, as for
+    // every other function); only the sign of the ordinate is imposed (#332).
     let value = if result.0.is_zero() {
-      decimal_elementary_zero(ordinate.negative, ctx).0
+      { ..result.0, negative: ordinate.negative, }
     } else {
       result.0
     }
