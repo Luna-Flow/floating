@@ -19320,63 +19320,71 @@ msgid "`BinFloat::add`, `mul`, `div` and `sqrt` on operands whose coefficients f
 msgstr ""
 
 #: manual/performance/bin_float.md:26
-msgid "Fixed-point sine and cosine"
+msgid "Two-word and coefficient fast paths"
 msgstr ""
 
 #: manual/performance/bin_float.md:28
-msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 28)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that the guard bits would exceed four times the working precision, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities. Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series): `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits and 4.6 times on Wasm-GC; on its own the change gives 1.3 to 1.4 times, because the series is about nine tenths of the time only once `pi` is cached."
+msgid "Above the single-word range, `BinFloat::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words as well: a 192-bit aligned sum or difference and a 256-bit product (four word products, the high halves by 32-bit pieces), rounded to nearest even from the words with the round and sticky bits, and only the result is allocated. Wider operands, and `div` and `sqrt` at any size, go through coefficient-level paths that do the same exact integer arithmetic as the general path but skip its context, flags record, result tuple and repeated rounding decisions: the sum is built in one array (up to 24 words, then whole-coefficient shifts and one addition), the product is the existing `BinCoeff` product, the quotient carries at least two bits more than the precision plus a sticky bit from the remainder, the square root rounds from the integer root and its remainder (`remainder > root` decides, there are no ties), and the kept bits are copied once into the array that becomes the coefficient. Each path declines a NaN, an infinity, a zero, an exact zero sum, coefficients or precisions above 2^20 bits, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare tens of thousands of random, all-ones, sparse, tie, exact-quotient, perfect-square and cancelling operand sets per operation with the general path on Native, Wasm and Wasm-GC (JavaScript keeps the general path). Paired runs against the previous build: `add` 3.3 times and `mul` 3.5 times faster at 128 bits on Native (2.5 and 3.7 on Wasm-GC, 3.5 and 3.0 on Wasm), 1.9 to 2.2 times at 256 bits, 1.5 to 1.9 times at 512 bits and 1.2 times at 1,024 bits; `sqrt` 1.4 times at 128 bits (1.9 on Wasm-GC) and 1.1 at 512 and 2,048 bits; `div` 1.1 to 1.2 times at 128 to 512 bits, where the Knuth division dominates."
 msgstr ""
 
 #: manual/performance/bin_float.md:30
-msgid "Division, square root and GCD"
+msgid "Fixed-point sine and cosine"
 msgstr ""
 
 #: manual/performance/bin_float.md:32
-msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) up to 128 32-bit divisor limbs, and Burnikel–Ziegler from 192. Newton reciprocal division is no longer selected: once multiplication was 2 to 3 times faster it was 3 to 12 times slower than Burnikel–Ziegler from 32,768 bits (4.4 ms against 0.37 ms at 32,768 bits), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Paired runs against the previous kernels: `div` is 1.5, 2.3 and 2.9 times faster on Native at 512, 2,048 and 8,192 bits, 1.9 and 3.3 times on Wasm-GC and 1.3 and 3.3 times on Wasm at 2,048 and 8,192 bits, and the `sqrt` of 8,192 bits 1.5 to 1.8 times faster on all three; native multiplication switches to the NTT at 8,192 limbs instead of 2,048 now that the Karatsuba is faster. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that; the recursion stops at the same fixed-width kernels once a block is at most 256 bits on Native/LLVM and 512 bits on Wasm/Wasm-GC (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) about 3.4 times faster on Native and 3.1 to 3.3 times on Wasm in paired runs. The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
+msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 28)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that the guard bits would exceed four times the working precision, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities. Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series): `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits and 4.6 times on Wasm-GC; on its own the change gives 1.3 to 1.4 times, because the series is about nine tenths of the time only once `pi` is cached."
 msgstr ""
 
 #: manual/performance/bin_float.md:34
-msgid "Certified constants"
+msgid "Division, square root and GCD"
 msgstr ""
 
 #: manual/performance/bin_float.md:36
-msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) up to 128 32-bit divisor limbs, and Burnikel–Ziegler from 192. Newton reciprocal division is no longer selected: once multiplication was 2 to 3 times faster it was 3 to 12 times slower than Burnikel–Ziegler from 32,768 bits (4.4 ms against 0.37 ms at 32,768 bits), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Paired runs against the previous kernels: `div` is 1.5, 2.3 and 2.9 times faster on Native at 512, 2,048 and 8,192 bits, 1.9 and 3.3 times on Wasm-GC and 1.3 and 3.3 times on Wasm at 2,048 and 8,192 bits, and the `sqrt` of 8,192 bits 1.5 to 1.8 times faster on all three; native multiplication switches to the NTT at 8,192 limbs instead of 2,048 now that the Karatsuba is faster. Square root uses fixed-width kernels through 512 bits and divide-and-conquer above that; the recursion stops at the same fixed-width kernels once a block is at most 256 bits on Native/LLVM and 512 bits on Wasm/Wasm-GC (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) about 3.4 times faster on Native and 3.1 to 3.3 times on Wasm in paired runs. The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
 msgstr ""
 
 #: manual/performance/bin_float.md:38
+msgid "Certified constants"
+msgstr ""
+
+#: manual/performance/bin_float.md:40
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgstr ""
+
+#: manual/performance/bin_float.md:42
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr ""
 
-#: manual/performance/bin_float.md:40
+#: manual/performance/bin_float.md:44
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr ""
 
-#: manual/performance/bin_float.md:42
+#: manual/performance/bin_float.md:46
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr ""
 
-#: manual/performance/bin_float.md:51
+#: manual/performance/bin_float.md:55
 msgid "Certified series"
 msgstr ""
 
-#: manual/performance/bin_float.md:53
+#: manual/performance/bin_float.md:57
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr ""
 
-#: manual/performance/bin_float.md:55
+#: manual/performance/bin_float.md:59
 msgid "Trade-offs"
 msgstr ""
 
-#: manual/performance/bin_float.md:57
+#: manual/performance/bin_float.md:61
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr ""
 
-#: manual/performance/bin_float.md:59
+#: manual/performance/bin_float.md:63
 msgid "Fixed-point logarithm"
 msgstr ""
 
-#: manual/performance/bin_float.md:61
+#: manual/performance/bin_float.md:65
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr ""
 
