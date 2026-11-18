@@ -289,6 +289,10 @@ fn binary_exp_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  match binary_exp_bounds_fixed(value, work_precision) {
+    Some(bounds) => return Some(bounds)
+    None => ()
+  }
   let downward = BinaryContext::unbounded(
     work_precision,
     rounding=RoundTowardNegative,
