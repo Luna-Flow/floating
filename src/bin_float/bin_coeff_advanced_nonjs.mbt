@@ -102,11 +102,50 @@ fn bin_coeff_slice(value : BinCoeff, start : Int32, length : Int32) -> BinCoeff 
     return BinCoeff::zero()
   }
   let len = Int32::min(length, source_len - start)
-  let limbs = FixedArray::make(len, 0U)
-  for index in 0..<len {
-    limbs.unsafe_set(index, bin_coeff_limb(value, start + index))
+  match value.repr {
+    Heap(source, word_len) => {
+      // `len` 32-bit limbs from limb `start`, assembled from whole words
+      let out_words = (len + 1) / 2
+      let words = FixedArray::make(out_words, 0UL)
+      let first = start / 2
+      if start % 2 == 0 {
+        for index in 0..<out_words {
+          if first + index < word_len {
+            words.unsafe_set(index, source.unsafe_get(first + index))
+          }
+        }
+      } else {
+        for index in 0..<out_words {
+          let position = first + index
+          let low = if position < word_len {
+            source.unsafe_get(position) >> 32
+          } else {
+            0UL
+          }
+          let high = if position + 1 < word_len {
+            source.unsafe_get(position + 1) << 32
+          } else {
+            0UL
+          }
+          words.unsafe_set(index, low | high)
+        }
+      }
+      if len % 2 == 1 {
+        words.unsafe_set(
+          out_words - 1,
+          words.unsafe_get(out_words - 1) & bin_coeff_limb_mask,
+        )
+      }
+      bin_coeff_from_words(words, out_words)
+    }
+    _ => {
+      let limbs = FixedArray::make(len, 0U)
+      for index in 0..<len {
+        limbs.unsafe_set(index, bin_coeff_limb(value, start + index))
+      }
+      bin_coeff_from_limbs(limbs, len)
+    }
   }
-  bin_coeff_from_limbs(limbs, len)
 }
 
 ///|
@@ -211,82 +250,6 @@ fn bin_coeff_add_word_shifted_into(
 }
 
 ///|
-priv struct BinCoeffScratchArena {
-  slots : FixedArray[BinCoeff]
-  mut used : Int32
-}
-
-///|
-fn bin_coeff_scratch_arena_new(capacity : Int32) -> BinCoeffScratchArena {
-  {
-    slots: FixedArray::make(Int32::max(1, capacity), BinCoeff::zero()),
-    used: 0,
-  }
-}
-
-///|
-fn BinCoeffScratchArena::mark(self : BinCoeffScratchArena) -> Int32 {
-  self.used
-}
-
-///|
-fn BinCoeffScratchArena::save(
-  self : BinCoeffScratchArena,
-  value : BinCoeff,
-) -> BinCoeff {
-  if self.used < self.slots.length() {
-    self.slots.unsafe_set(self.used, value)
-    self.used += 1
-  }
-  value
-}
-
-///|
-fn BinCoeffScratchArena::rewind(
-  self : BinCoeffScratchArena,
-  mark : Int32,
-) -> Unit {
-  self.used = Int32::max(0, mark)
-}
-
-///|
-fn bin_coeff_mul_karatsuba_scratch(
-  left : BinCoeff,
-  right : BinCoeff,
-  arena : BinCoeffScratchArena,
-) -> BinCoeff {
-  let mark = arena.mark()
-  let result = arena.save(bin_coeff_mul_karatsuba(left, right))
-  arena.rewind(mark)
-  result
-}
-
-///|
-fn bin_coeff_mul_karatsuba(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  let maximum_len = Int32::max(
-    bin_coeff_word_len(left),
-    bin_coeff_word_len(right),
-  )
-  let split = (maximum_len + 1) / 2
-  let left_low = bin_coeff_word_slice(left, 0, split)
-  let left_high = bin_coeff_word_slice(left, split, maximum_len - split)
-  let right_low = bin_coeff_word_slice(right, 0, split)
-  let right_high = bin_coeff_word_slice(right, split, maximum_len - split)
-  let low_product = left_low.mul(right_low)
-  let high_product = left_high.mul(right_high)
-  let middle = left_low
-    .add(left_high)
-    .mul(right_low.add(right_high))
-    .sub_checked(low_product)
-    .unwrap()
-    .sub_checked(high_product)
-    .unwrap()
-  low_product
-  .add(middle.shift_left(split * 64))
-  .add(high_product.shift_left(2 * split * 64))
-}
-
-///|
 fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let maximum_len = Int32::max(
     bin_coeff_word_len(left),
@@ -384,8 +347,7 @@ fn bin_coeff_mul_large_dispatch(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   } else if shorter_len >= bin_coeff_toom3_threshold {
     bin_coeff_mul_toom3(left, right)
   } else {
-    let arena = bin_coeff_scratch_arena_new(16)
-    bin_coeff_mul_karatsuba_scratch(left, right, arena)
+    bin_coeff_mul_words(left, right)
   }
 }
 
@@ -395,13 +357,17 @@ fn bin_coeff_square_large_dispatch(value : BinCoeff) -> BinCoeff {
   if len >= bin_coeff_ntt_square_threshold && bin_coeff_ntt_fits(value, value) {
     bin_coeff_square_ntt(value)
   } else if len < bin_coeff_square_recursive_threshold {
-    bin_coeff_square_schoolbook(value)
+    if bin_coeff_word_len(value) >= bin_coeff_limb32_min_words / 2 {
+      bin_coeff_square_limb32(value)
+    } else {
+      bin_coeff_square_schoolbook(value)
+    }
   } else if len < 768 {
     bin_coeff_mul_large_dispatch(value, value)
   } else if len >= 96 {
     bin_coeff_mul_toom3(value, value)
   } else {
-    bin_coeff_mul_karatsuba(value, value)
+    bin_coeff_mul_words(value, value)
   }
 }
 

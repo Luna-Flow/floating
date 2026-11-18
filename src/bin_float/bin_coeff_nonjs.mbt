@@ -907,7 +907,8 @@ pub fn BinCoeff::mul(self : BinCoeff, other : BinCoeff) -> BinCoeff {
       None => ()
     }
   }
-  if Int32::min(self_len, other_len) >= bin_coeff_karatsuba_threshold {
+  if Int32::min(bin_coeff_word_len(self), bin_coeff_word_len(other)) >=
+    bin_coeff_words_karatsuba_cutoff {
     bin_coeff_mul_large_dispatch(self, other)
   } else {
     bin_coeff_mul_schoolbook(self, other)
