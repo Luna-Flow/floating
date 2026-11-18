@@ -947,16 +947,18 @@ and target precisions however far apart the exponents are
 $10^6$ bits is still refused as a `certification_failure`; after the
 replacement it needs a precision near $500\,000$ bits.
 
-### Asymptotically fast elementary kernels (proposed)
+### Asymptotically fast elementary kernels (implemented, with open items)
 
-*Status: design for [#18](https://github.com/Luna-Flow/floating/issues/18).
+*Status: design and results for [#18](https://github.com/Luna-Flow/floating/issues/18).
 The constants (`pi`, `ln 2`, `ln 10` by binary splitting), the `exp`
 enclosure, the `ln` enclosure and the `sin` and `cos` enclosures are
-implemented; the rest of this section is design. The measured figures are
-baselines or
-results of the implemented part; the figures marked "projection" come from a
-cost model fitted to them and are replaced by measurements as each step
-lands.*
+implemented and merged; the AGM alternative, `tan`, and the further
+reductions listed at the end of the section are design only. The measured
+figures are baselines or results of the implemented part; the figures marked
+"projection" come from a cost model fitted to them and are replaced by
+measurements as each step lands. The final measurement of the merged kernels is
+in "Measured result" below. All arguments in this section are paper arguments;
+none is mechanized.*
 
 **Problem.** Every enclosure above is built from a Taylor or artanh series
 whose terms are $w$-bit numbers, so one evaluation costs
@@ -1234,8 +1236,9 @@ one square root. With today's kernels (`sqrt_ctx` 128 µs, product 43 µs at
 model's error, because our square root is 29 times and our product 13 times
 slower than MPFR's (4.4 and 3.2 µs on the same machine, secondary evidence).
 It also needs a rigorous bound for the truncation error of the formula (the
-$O(s^{-2})$ term, derived from Jacobi's identity
-$\ln(1/q) = \pi / \mathrm{AGM}(\theta_2^2(q), \theta_3^2(q))$[^brent-agm]),
+$O(s^{-2})$ term, derived from the theta-function formula
+$\ln(1/q) = \pi / \mathrm{AGM}(\theta_2^2(q), \theta_3^2(q))$, attributed to
+Sasaki and Kanada, see the evidence note at the end of this section[^brent-agm]),
 which this page does not yet provide. It is therefore the second choice,
 taken up only if the Newton step measures slower than the projection.
 
@@ -1471,14 +1474,40 @@ today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17
 to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is
 therefore within reach for `exp` only if the product kernel also improves.
 
-**Evidence still to confirm.** The reference to Brent (1976) in the footnote
-below, for bit-burst and the AGM logarithm, and the statement of the Jacobi
-identity for the nome, were written from memory and have not been checked
-against the sources; the owner will check them, and nothing in the design or
-in the code depends on them (the AGM is not used until its truncation bound
-is derived and proved here). The 1-ulp and 2-ulp widths quoted above come from
-the MPFR comparison, which is secondary evidence for the enclosures; the
-proof is the integer-bound argument in this section.
+**Measured result.** On main `8badc55` (all four kernels merged), Apple M4,
+native, release, load average 1.3 to 3, three runs of
+`just bench external quick --ops exp ln sin --binary-precisions 2048 8192` agreeing within
+1 to 10 %, and a second check on `952600f` within 3 %: floating time over the
+stored MPFR median is 6.0 to 6.6 (`exp`), 12.5 (`ln`) and 12.2 (`sin`) at 2048
+bits, and 3.2 (`exp`), 10.6 (`ln`) and 5.8 (`sin`) at 8192 bits. The MPFR time
+measured on the same machine at the same moment was within 6 % of the stored
+one, so raw and drift-corrected ratios differ by at most 6 %. Two cells are
+below 10 times MPFR; `ln` at 2048 and 8192 bits and `sin` at 2048 bits are above
+it. This is one machine and the native target only: the Wasm, Wasm-GC and
+JavaScript targets were not compared with MPFR. The projections above are
+superseded by these numbers; the remaining gap is the multiplication and
+division kernel and allocation, not the algorithm.
+
+**Evidence checked and still to confirm.** The references were checked against
+the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited,
+but it contains the AGM and ascending Landen transformation methods with cost
+$O(M(n)\log n)$ (the logarithm by Landen transformations of incomplete elliptic
+integrals); it contains neither bit-burst nor theta functions, nor the nome, and
+it credits the $O(M(n)\log^2 n)$ bound to Brent, "The complexity of
+multiple-precision arithmetic" (Proc. Seminar on Complexity of Computational
+Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below
+supports the AGM logarithm only, and the bit-burst attribution is to be
+replaced by that 1975 paper (not yet read). The formula with the theta
+functions, $\ln(1/q) = \pi / \mathrm{AGM}(\theta_2^2(q), \theta_3^2(q))$, is
+attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the
+authority of later notes by Brent (secondary sources); its normalization of the
+nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the
+Borwein book) and its truncation bound have not been checked against the
+original, which the owner will obtain. Nothing in the design or in the code
+depends on them (the AGM is not used until its truncation bound is derived and
+proved here). The 1-ulp and 2-ulp widths quoted above come from the MPFR
+comparison, which is secondary evidence for the enclosures; the proof is the
+integer-bound argument in this section.
 
 [^brent-agm]: R. P. Brent, "Fast multiple-precision evaluation of elementary
     functions", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation
