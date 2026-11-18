@@ -139,11 +139,12 @@ wrapper goes through the Luna-Flow/arithmetic trait, and `bin_float` maps the
 `unbounded`). The `clamp` field of `ArithmeticContext` has no binary meaning
 and is not used.
 
-### Contextual operations keep the value and drop the flags
+### Contextual arithmetic keeps the value and drops the flags
 
 `BinFloat::*_ctx` operations return $(v, \phi) \in V \times F$ where $F$ is the
-set of `BinaryFlags`. The `_ctx` methods of the wrapper compose them with the
-projection $\pi_1(v, \phi) = v$:
+set of `BinaryFlags`. The arithmetic `_ctx` methods of the wrapper (`add_ctx`,
+`sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pow_int_ctx`, `pown_ctx`)
+compose them with the projection $\pi_1(v, \phi) = v$:
 
 $$
 \texttt{add\_ctx}(a, b, c) = \operatorname{lift}_{\eta \circ \pi_1 \circ \oplus_c}(a, b).
@@ -158,6 +159,30 @@ because IEEE decimal arithmetic is usually audited by its flags; see the
 exceptional cases of the `_ctx` methods are successes: `div_ctx` by zero
 yields $\pm\infty$, while `div` (which calls `div_checked`) fails. The two
 names make the two contracts visible at the call site.
+
+### Elementary functions map the exceptions
+
+The elementary functions, `pow`, `rootn`, `hypot` and `atan2` are different:
+`bin_float` offers them as `try_*_ctx` returning
+$\mathrm{Result}[V \times F, E]$, so both the plain and the `_ctx` method are
+already partial. Both compose the operation with the map $\kappa$ that the
+checked arithmetic uses (`div_checked`, `pow_int`):
+
+$$
+\kappa(v, \phi) =
+\begin{cases}
+\mathrm{Err}(\texttt{DivisionByZero}) & \text{if } \phi \text{ has divideByZero},\\
+\mathrm{Err}(\texttt{DomainError}) & \text{else if } \phi \text{ has invalid operation},\\
+\mathrm{Ok}(v) & \text{otherwise.}
+\end{cases}
+$$
+
+A pole such as $\ln(\pm 0)$, $\operatorname{atanh}(\pm 1)$ or
+$\operatorname{pow}(\pm 0, y)$ with $y < 0$ (IEEE 754-2019 §9.2, Table 9.1)
+is therefore a `DivisionByZero` error and a signaling NaN operand a
+`DomainError`, in the plain and in the `_ctx` form alike. Overflow, underflow
+and inexact are still dropped: their default results are the values the
+wrapper returns.
 
 ## Correctness and invariants
 

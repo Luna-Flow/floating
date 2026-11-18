@@ -248,7 +248,10 @@ test "carry flags next to the wrapper" {
   `pow_int_ctx` and `sqrt` versus `sqrt_ctx`.
 - **Only the first error survives.** In `a + b` with both operands failing,
   the error of `a` is reported. Errors are not collected.
-- **The `_ctx` methods drop flags.** Use `bin_float` directly for flags.
+- **The `_ctx` methods drop flags.** The arithmetic `_ctx` methods drop all of
+  them; the elementary `_ctx` methods, like their plain forms, turn invalid
+  operation and division by zero into errors and drop the others. Use
+  `bin_float` directly for flags.
 - **Precision of mixed operands.** Binary operations use the larger operand
   precision; `from_float` defaults to 24 bits, so mixing it with
   `from_double` values gives 53-bit results.
