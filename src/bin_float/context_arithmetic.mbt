@@ -1484,7 +1484,9 @@ pub fn BinFloat::pow_int_ctx(
   exponent : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  if exponent == 0 {
+  // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
+  // signaling NaN is an invalid operation (7.2 a), handled below (#286).
+  if exponent == 0 && !self.signaling_nan {
     return (BinFloat::one(precision=context.precision), BinaryFlags::new())
   }
   if self.class == FpClass::NaN {
@@ -1571,7 +1573,9 @@ fn BinFloat::pow_nat_ctx(
   exponent : UInt32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  if exponent == 0U {
+  // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
+  // signaling NaN is an invalid operation (7.2 a), handled below (#286).
+  if exponent == 0U && !self.signaling_nan {
     return (BinFloat::one(precision=context.precision), BinaryFlags::new())
   }
   if self.class == FpClass::NaN {

@@ -573,8 +573,9 @@ pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 The two names are the same function. The result is $x^n$ correctly rounded to
 nearest-even at the precision of `x`, computed as in `pow_int_ctx`. A zero
 base with a negative exponent is a `division_by_zero` error, and a signaling
-NaN base with a non-zero exponent a `domain_error`; $x^0 = 1$ for every $x$,
-NaN included (a signaling NaN too, without an error).
+NaN base a `domain_error` for every exponent, zero included (IEEE 754-2019
+§9.2.1 excludes it from $x^0 = 1$); $x^0 = 1$ for every other $x$, a quiet NaN
+included.
 
 ### `BinFloat::fma`
 
@@ -902,8 +903,10 @@ pub fn BinFloat::pow_int_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pown_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 ```
 
-The two names are the same function, IEEE 754 `pown`. $x^0 = 1$ for every $x$
-(NaN included, and a signaling NaN raises no flag); $(\pm 0)^{n<0} = \pm\infty$ (sign for odd $n$) with
+The two names are the same function, IEEE 754 `pown`. $x^0 = 1$ without a
+flag for every $x$ except a signaling NaN (a quiet NaN included); a signaling
+NaN base gives a quiet NaN with its payload and `invalid_operation` for every
+exponent, zero included (§9.2.1, §7.2 a); $(\pm 0)^{n<0} = \pm\infty$ (sign for odd $n$) with
 `division_by_zero`; $(\pm\infty)^n$ is an infinity or zero with the sign of an
 odd power. Small powers are computed exactly; otherwise a Ziv loop rounds an
 enclosure, with an exact fallback, so the result is always correctly rounded.
@@ -2055,7 +2058,7 @@ for $0/0$, $\infty/\infty$ and a signaling NaN operand, and a
 `division_by_zero` error for a finite non-zero dividend over a signed zero;
 NaN$/0$ and $\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero`
 error for a zero base with a negative exponent, and both powers are a
-`domain_error` for a signaling NaN base with a non-zero exponent. The trait's
+`domain_error` for a signaling NaN base, zero exponent included. The trait's
 `div_checked(x, y, ctx)` takes a context; the inherent
 [`BinFloat::div_checked`](#binfloatdiv_checked) does not.
 `CompareChecked::compare_checked` is the inherent

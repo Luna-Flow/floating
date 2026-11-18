@@ -102,25 +102,29 @@ fn wrapper_expected_sqrt(a : String) -> String {
 }
 
 ///|
-/// 9.2.1 pown; `None` for pown(sNaN, 0), tracked outside #262.
-fn wrapper_expected_pown(a : String, n : Int32) -> String? {
+/// 9.2.1 pown; pown(sNaN, 0) is an invalid operation (7.2 a), #286).
+fn wrapper_expected_pown(a : String, n : Int32) -> String {
   let negative = a.has_prefix("-") && n % 2 != 0
   if n == 0 {
     if a.has_suffix("snan") {
-      None
+      "err:invalid"
     } else {
-      Some("ok:+fin")
+      "ok:+fin"
     }
   } else if a.has_suffix("snan") {
-    Some("err:invalid")
+    "err:invalid"
   } else if a.has_suffix("nan") {
-    Some("ok:nan")
+    "ok:nan"
   } else if a.has_suffix("0") {
-    Some(if n < 0 { "err:div0" } else { wrapper_signed(negative, "0") })
+    if n < 0 {
+      "err:div0"
+    } else {
+      wrapper_signed(negative, "0")
+    }
   } else if a.has_suffix("inf") {
-    Some(wrapper_signed(negative, if n < 0 { "0" } else { "inf" }))
+    wrapper_signed(negative, if n < 0 { "0" } else { "inf" })
   } else {
-    Some(wrapper_signed(negative, "fin"))
+    wrapper_signed(negative, "fin")
   }
 }
 
@@ -150,38 +154,25 @@ test "BinFloatResult follows the IEEE special-value table" {
         failures.push("sqrt(" + a + "): " + sqrt)
       }
       for n in -3..<=3 {
-        match wrapper_expected_pown(a, n) {
-          None => ()
-          Some(expected) => {
-            let pow_int = wrapper_render(x.pow_int(n))
-            let pown = wrapper_render(x.pown(n))
-            cases += 2
-            if pow_int != expected || pown != expected {
-              failures.push(
-                "pow_int(" +
-                a +
-                ", " +
-                n.to_string() +
-                "): " +
-                pow_int +
-                " " +
-                pown,
-              )
-            }
-            if n >= 0 {
-              let nat = wrapper_render(x.pow_nat(n.reinterpret_as_uint()))
-              cases += 1
-              if nat != expected {
-                failures.push(
-                  "pow_nat(" + a + ", " + n.to_string() + "): " + nat,
-                )
-              }
-            }
+        let expected = wrapper_expected_pown(a, n)
+        let pow_int = wrapper_render(x.pow_int(n))
+        let pown = wrapper_render(x.pown(n))
+        cases += 2
+        if pow_int != expected || pown != expected {
+          failures.push(
+            "pow_int(" + a + ", " + n.to_string() + "): " + pow_int + " " + pown,
+          )
+        }
+        if n >= 0 {
+          let nat = wrapper_render(x.pow_nat(n.reinterpret_as_uint()))
+          cases += 1
+          if nat != expected {
+            failures.push("pow_nat(" + a + ", " + n.to_string() + "): " + nat)
           }
         }
       }
     }
   }
   assert_eq(failures, [])
-  assert_eq(cases, 3 * (200 + 10 + 136 + 38))
+  assert_eq(cases, 3 * (200 + 10 + 140 + 40))
 }
