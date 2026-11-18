@@ -169,13 +169,14 @@ pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, A
 `op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`,
 `log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rsqrt`, `rootn`, `pown`, `compound`, `pow`, `powr`,
 `hypot`, `sin`, `cos`, `tan`,
-`sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`,
+`sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`,
+`atanpi`, `atan2pi`, `sinh`, `cosh`,
 `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits
 (`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`,
 `expected` is read at `precision` bits, and the last three fields are `0` or
 `1`. Row ids are `op:LINE`.
 
-A row of the two-operand functions `pow`, `powr`, `hypot` and `atan2` whose `y` is
+A row of the two-operand functions `pow`, `powr`, `hypot`, `atan2` and `atan2pi` whose `y` is
 `-` is the diagnostic `"invalid MPFR elementary field"`.
 
 ### `execute_elementary_data`

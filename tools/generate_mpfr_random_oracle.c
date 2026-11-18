@@ -139,11 +139,15 @@ static const op_t operations[] = {
     {"log2p1", K_ELEM, 1},  {"log10p1", K_ELEM, 1},
     // The family "elem3".
     {"rsqrt", K_ELEM, 1},   {"compound", K_ELEM, 1}, {"powr", K_ELEM, 2},
+    // The family "elem4".
+    {"asinpi", K_ELEM, 1},  {"acospi", K_ELEM, 1},   {"atanpi", K_ELEM, 1},
+    {"atan2pi", K_ELEM, 2},
 };
 #define OP_COUNT (sizeof(operations) / sizeof(operations[0]))
 #define FIRST_ELEM 9
 #define LEGACY_OP_COUNT 37
 #define ELEM2_END 41
+#define ELEM3_END 44
 
 static const char *rounding_names[] = {"n", "na", "z", "u", "d", "a"};
 static const mpfr_rnd_t rounding_modes[] = {
@@ -387,6 +391,10 @@ static int apply_op(const row_t *row, mpfr_t y, mpfr_rnd_t rnd) {
   if (!strcmp(name, "acos")) return mpfr_acos(y, *a, rnd);
   if (!strcmp(name, "atan")) return mpfr_atan(y, *a, rnd);
   if (!strcmp(name, "atan2")) return mpfr_atan2(y, *a, *b, rnd);
+  if (!strcmp(name, "asinpi")) return mpfr_asinpi(y, *a, rnd);
+  if (!strcmp(name, "acospi")) return mpfr_acospi(y, *a, rnd);
+  if (!strcmp(name, "atanpi")) return mpfr_atanpi(y, *a, rnd);
+  if (!strcmp(name, "atan2pi")) return mpfr_atan2pi(y, *a, *b, rnd);
   if (!strcmp(name, "sinh")) return mpfr_sinh(y, *a, rnd);
   if (!strcmp(name, "cosh")) return mpfr_cosh(y, *a, rnd);
   if (!strcmp(name, "tanh")) return mpfr_tanh(y, *a, rnd);
@@ -536,7 +544,26 @@ static void check_sqrt(row_t *row) {
   if (bad) oracle_defect = 1;
 }
 
+// mpfr_atan2pi of MPFR 4.2.2 takes time that grows with the exponent difference
+// of its operands (5 s at a ratio of 2^(2*10^7), more than 30 s from 2^(2*10^8)
+// on, where mpfr_atan2 and mpfr_atanpi answer at once), so a row whose operands
+// differ by more than 100,000 binades is not an oracle row: it is counted in
+// `oracle-defects-skipped` and not emitted. The library's decision for the
+// extreme ratios (the anchors +-1/2 and +-1) is checked against `atanpi` of an
+// exact power of two and against the thresholds just inside this limit.
+static int atan2pi_too_slow(const row_t *row) {
+  return strcmp(row->op->name, "atan2pi") == 0 && mpfr_regular_p(row->a) &&
+         mpfr_regular_p(row->b) &&
+         labs((long)mpfr_get_exp(row->a) - (long)mpfr_get_exp(row->b)) > 100000;
+}
+
 static void compute_row_real(row_t *row) {
+  if (atan2pi_too_slow(row)) {
+    oracle_defect = 1;
+    mpfr_set_nan(row->y);
+    row->flags = 0;
+    return;
+  }
   if (compute_real(row)) {
     row->rounding = 0;
     compute_real(row);
@@ -1424,8 +1451,13 @@ static void gen_elem(rng_t *rng, row_t *row, const op_t *op) {
       mpfr_set_ui_2exp(row->a, 1, -e, MPFR_RNDN);
       mpfr_add_ui(row->a, row->a, 1, MPFR_RNDN);
     }
-  } else if (!strcmp(name, "asin") || !strcmp(name, "acos") || !strcmp(name, "atanh")) {
+  } else if (!strcmp(name, "asin") || !strcmp(name, "acos") || !strcmp(name, "atanh") ||
+             !strcmp(name, "asinpi") || !strcmp(name, "acospi")) {
     long e = rnd_range(rng, -30, -1);
+    // acosPi clusters at 1/2 for a tiny |x| and asinPi/acosPi flush for the
+    // smallest ones: reach |x| below 2^-(p + 4) as well
+    if ((!strcmp(name, "asinpi") || !strcmp(name, "acospi")) && chance(rng, 1, 5))
+      e = -(p + rnd_range(rng, 2, 40));
     make_dyadic(rng, row->a, pa, e, neg);
     if (chance(rng, 1, 8)) {  // near +-1
       long k = rnd_range(rng, 2, 40);
@@ -1483,12 +1515,17 @@ static void gen_elem(rng_t *rng, row_t *row, const op_t *op) {
       long k = rnd_range(rng, -40, 40);
       mpfr_set_si(row->b, k, MPFR_RNDN);
     }
-  } else if (!strcmp(name, "hypot") || !strcmp(name, "atan2")) {
+  } else if (!strcmp(name, "hypot") || !strcmp(name, "atan2") || !strcmp(name, "atan2pi")) {
     long la = rnd_range(rng, -8, 8);
     make_dyadic(rng, row->a, pa, la, neg);
-    long lb = la + rnd_range(rng, -p - 4, p + 4);
+    // atan2Pi anchors at +-1/2 and +-1 for |y/x| beyond 2^(+-(p + 8)): reach it
+    long reach = !strcmp(name, "atan2pi") ? p + 40 : p + 4;
+    long lb = la + rnd_range(rng, -reach, reach);
     if (chance(rng, 1, 3)) lb = rnd_range(rng, -8, 8);
     make_dyadic(rng, row->b, pb, lb, chance(rng, 1, 2));
+  } else if (!strcmp(name, "atanpi")) {
+    if (chance(rng, 1, 5)) lead = p + rnd_range(rng, 2, 40);  // atanPi(x) next to +-1/2
+    make_dyadic(rng, row->a, pa, lead, neg);
   } else {  // atan, asinh
     make_dyadic(rng, row->a, pa, lead, neg);
   }
@@ -1536,7 +1573,10 @@ static const op_t *pick_family_op(const char *family, rng_t *rng) {
     return &operations[LEGACY_OP_COUNT + rnd_range(rng, 0, (long)ELEM2_END - LEGACY_OP_COUNT - 1)];
   }
   if (!strcmp(family, "elem3")) {
-    return &operations[ELEM2_END + rnd_range(rng, 0, (long)OP_COUNT - ELEM2_END - 1)];
+    return &operations[ELEM2_END + rnd_range(rng, 0, (long)ELEM3_END - ELEM2_END - 1)];
+  }
+  if (!strcmp(family, "elem4")) {
+    return &operations[ELEM3_END + rnd_range(rng, 0, (long)OP_COUNT - ELEM3_END - 1)];
   }
   if (!strcmp(family, "arith")) return &operations[rnd_range(rng, 0, 5)];
   return find_op(family);
@@ -1617,6 +1657,7 @@ static void parse_operand(mpfr_t x, int *present, const char *text) {
 }
 
 static void eval_rows(void) {
+  long skipped = 0;
   char *line = NULL;
   size_t capacity = 0;
   mpfr_set_emin(mpfr_get_emin_min());
@@ -1662,12 +1703,18 @@ static void eval_rows(void) {
     parse_operand(row.b, &row.has_b, tokens[8]);
     parse_operand(row.c, &row.has_c, tokens[9]);
     row.n = atol(tokens[10]);
+    oracle_defect = 0;
     compute_row(&row);
-    print_row(stdout, &row);
+    if (oracle_defect) {
+      ++skipped;
+    } else {
+      print_row(stdout, &row);
+    }
     row_clear(&row);
     free(copy);
   }
   free(line);
+  if (skipped) fprintf(stderr, "# oracle-defects-skipped %ld\n", skipped);
 }
 
 int main(int argc, char **argv) {

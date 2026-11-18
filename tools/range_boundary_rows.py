@@ -25,6 +25,15 @@ x = 2^(-2 level), `compound` at 1 + x = 2^(level / n) for n in
 {-100, -7, -3, 3, 7, 100} and `powr` as `pow` with positive bases. The 718,824
 rows of precisions 2 to 300 that these three give were compared with MPFR
 (`mpfr_compound_si` needs the exact-rational correction of the generator).
+
+`asinpi`, `atanpi` and `atan2pi` also take the underflow thresholds (the
+argument at pi 2^level, or the ratio y / x at pi 2^level); once per context
+they place `atanpi` at 1.5 2^t, `acospi` at 1.5 2^-t and `atan2pi` at a
+leading-exponent difference D, for t and |D| from p + 4 to p + 12 around the
+anchor rules at p + 8, and `asinpi` and `acospi` next to +-1. The 1,654,315
+rows of precisions 2 to 300 compared with MPFR; `atan2pi` rows whose operands
+differ by more than 100,000 binades are skipped by the generator (MPFR is too
+slow there).
 """
 
 from __future__ import annotations
@@ -49,7 +58,7 @@ CONTEXTS: list[tuple[int | None, int | None]] = [
     (-6, 7),
 ]
 MODES = ["n", "na", "z", "u", "d", "a"]
-OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1", "rsqrt", "compound", "powr")
+OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1", "rsqrt", "compound", "powr", "asinpi", "acospi", "atanpi", "atan2pi")
 RELATIVE_OFFSETS = (20, 24, 30, 40, 52, 64)
 ROOT_DEGREES = (-3, -7, 100, -1000)
 COMPOUND_DEGREES = (-3, -7, 3, 7, -100, 100)
@@ -101,6 +110,10 @@ def around(center: Fraction) -> Iterator[Fraction]:
 
 
 LN10 = decimal_to_dyadic(decimal.Decimal(10).ln(), 200)
+PI = decimal_to_dyadic(
+    decimal.Decimal("3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651"),
+    200,
+)
 
 
 def floor_log2(value: Fraction) -> int:
@@ -244,6 +257,58 @@ def rows(p_min: int, p_max: int, operations: tuple[str, ...], tag: str = "tgt") 
                         for base in bases:
                             for y in around(level / base_logs[base]):
                                 yield row(op, p, context, base_hex[base], hexfmt(y))
+                    elif op in ("asinpi", "atanpi"):
+                        # tiny results: f(x) ~ x / pi, so x ~ pi 2^level
+                        if level <= e_min:
+                            for x in around(PI):
+                                if floor_log2(x) + level >= q:
+                                    yield row(op, p, context, scaled_hex(x, level))
+                        if level == e_max:
+                            # (once per context) the exact constants and the anchors
+                            if op == "atanpi":
+                                # atanPi(x) = +-1/2 -+ delta for a huge |x|: the rule starts at 2^(p + 8)
+                                for top in (p + 4, p + 6, p + 7, p + 8, p + 9, p + 12, e_max - 2):
+                                    for x in around(Fraction(3, 2)):
+                                        for sign in (1, -1):
+                                            if q <= floor_log2(x) + top <= e_max:
+                                                yield row(op, p, context, scaled_hex(sign * x, top))
+                            else:
+                                # near +-1 (and +-1/2, where asinPi is 1/6)
+                                for k in (1, 2, 3, 4, p - 1, p, p + 1, p + 2, p + 8):
+                                    if k >= 1:
+                                        for sign in (1, -1):
+                                            yield row(op, p, context, hexfmt(sign * (1 - Fraction(1, 1 << k))))
+                    elif op == "acospi":
+                        if level == e_max:
+                            # acosPi(x) = 1/2 - asin(x)/pi clusters at 1/2 for a tiny |x| (2^-(p + 3) is
+                            # where the rule starts), and at 0 and 1 next to +-1
+                            for top in (-(p + 1), -(p + 2), -(p + 3), -(p + 4), -(p + 5), -(p + 8), -(p + 12), -2 * p, q + 2):
+                                for x in around(Fraction(3, 2)):
+                                    for sign in (1, -1):
+                                        if q <= floor_log2(x) + top <= e_max:
+                                            yield row(op, p, context, scaled_hex(sign * x, top))
+                            for k in (1, 2, 3, 4, p - 1, p, p + 1, p + 2, p + 8):
+                                if k >= 1:
+                                    for sign in (1, -1):
+                                        yield row(op, p, context, hexfmt(sign * (1 - Fraction(1, 1 << k))))
+                    elif op == "atan2pi":
+                        # x > 0 and a tiny ratio: atan2Pi ~ y / (pi x), a result on the underflow thresholds
+                        if level <= e_min:
+                            shift = max(0, IMPL_EMIN + 8 - level)
+                            if shift <= IMPL_EMAX - 10:
+                                for x in around(PI):
+                                    if q <= floor_log2(x) + level + shift <= e_max and shift <= e_max:
+                                        yield row(op, p, context, scaled_hex(x, level + shift), f"0x1p{shift}")
+                        if level == e_max:
+                            # (once per context) the anchors +-1/2 and +-1 for the extreme ratios: with
+                            # D = top(y) - top(x), the rule starts at |D| = p + 8
+                            for distance in (p + 4, p + 6, p + 7, p + 8, p + 9, p + 12, -(p + 4), -(p + 6), -(p + 7), -(p + 8), -(p + 9), -(p + 12)):
+                                for x in around(Fraction(3, 2)):
+                                    for x_sign in (1, -1):
+                                        for y_sign in (1, -1):
+                                            # the ordinate at 2^D and the abscissa at 1.x
+                                            if q <= distance <= e_max:
+                                                yield row(op, p, context, scaled_hex(y_sign * Fraction(1), distance), hexfmt(x_sign * x))
                     else:
                         raise ValueError(f"unknown operation {op}")
 
