@@ -31,13 +31,7 @@ fn huge_shift_rounded_unit_repr(
   negative : Bool,
   mode : DecimalRoundingMode,
 ) -> DecCoeff {
-  guard !coefficient.is_zero() else { return dec_coeff_zero() }
-  match mode {
-    Down | HalfEven | HalfUp | HalfDown => dec_coeff_zero()
-    Up | ZeroFiveUp => dec_coeff_from_int(1)
-    Ceiling => if negative { dec_coeff_zero() } else { dec_coeff_from_int(1) }
-    Floor => if negative { dec_coeff_from_int(1) } else { dec_coeff_zero() }
-  }
+  dec_coeff_huge_shift_rounded_unit(coefficient, negative, mode.kernel())
 }
 
 ///|

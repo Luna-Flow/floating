@@ -67,45 +67,6 @@ fn make_special_repr(
 }
 
 ///|
-fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
-  if dec_coeff_small_value(n) is Some(small) {
-    if small <= 1UL {
-      return (n, dec_coeff_zero())
-    }
-    let mut approximation = dec_coeff_small_powers10[(n.digits10() + 1) / 2]
-    while true {
-      let next = (approximation + small / approximation) / 2UL
-      if next >= approximation {
-        let square = approximation * approximation
-        return (DecCoeff::Small(approximation), DecCoeff::Small(small - square))
-      }
-      approximation = next
-    } nobreak {
-      abort("small coefficient square-root iteration must terminate")
-    }
-  }
-  if dec_coeff_compare_repr(n, dec_coeff_from_int(1)) <= 0 {
-    return (n, dec_coeff_zero())
-  }
-  // Exact-integer specialization of GDA SquareRoot's Newton step
-  // a = 0.5 * (a + f/a), using the same decimal Unit primitives
-  // (decNumber.c lines 2965-2978).
-  let mut approximation = dec_coeff_power10_repr((n.digits10() + 1) / 2)
-  while true {
-    let (quotient, _) = dec_coeff_div_rem_repr(n, approximation)
-    let sum = dec_coeff_magnitude_add_repr(approximation, quotient)
-    let next = dec_coeff_div_rem_by_unit_repr(sum, 2).0
-    if dec_coeff_compare_repr(next, approximation) >= 0 {
-      let square = dec_coeff_square_repr(approximation)
-      return (approximation, dec_coeff_magnitude_sub_repr(n, square))
-    }
-    approximation = next
-  } nobreak {
-    (approximation, dec_coeff_zero())
-  }
-}
-
-///|
 fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
   guard value.class == FpClass::Finite else { return None }
   if value.coefficient.is_zero() {
@@ -199,23 +160,6 @@ fn exact_result_is_subnormal(
   !value.coefficient.is_zero() &&
   value.exponent10 + Int32::max(0, value.coefficient.digits10() - precision) <
   etiny(ctx)
-}
-
-///|
-fn has_finite_decimal_expansion_repr(
-  numerator : DecCoeff,
-  denominator : DecCoeff,
-) -> Bool {
-  guard !denominator.is_zero() else {
-    abort("has_finite_decimal_expansion_repr expects denominator > 0")
-  }
-  let (without_tens, _, _) = trim_trailing_decimal_zeros_repr(denominator, 0)
-  let without_twos = dec_coeff_remove_factor_unit_repr(without_tens, 2)
-  let without_fives = dec_coeff_remove_factor_unit_repr(without_twos, 5)
-  if dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 {
-    return true
-  }
-  dec_coeff_div_rem_repr(numerator, without_fives).1.is_zero()
 }
 
 ///|
@@ -374,14 +318,6 @@ fn is_finite_decimal_one(value : Decimal) -> Bool {
 ///|
 fn is_finite_decimal_negative_one(value : Decimal) -> Bool {
   value.negative && has_finite_decimal_unit_magnitude(value)
-}
-
-///|
-fn decimal_small_pow10(shift : Int32) -> Int32 {
-  guard shift >= 0 && shift < dec_coeff_dpun else {
-    abort("decimal_small_pow10 shift exceeds one coefficient limb")
-  }
-  dec_coeff_powers[shift]
 }
 
 ///|
@@ -773,12 +709,6 @@ fn exact_units_at_quantum_repr(value : Decimal, quantum : Int32) -> DecCoeff {
 }
 
 ///|
-fn is_power_of_ten_coeff(coeff : DecCoeff) -> Bool {
-  let (reduced, _, dropped) = trim_trailing_decimal_zeros_repr(coeff, 0)
-  dropped > 0 && dec_coeff_compare_repr(reduced, dec_coeff_from_int(1)) == 0
-}
-
-///|
 fn exact_base_small_addend_step(
   base_is_odd : Bool,
   base_ends_zero_or_five : Bool,
@@ -787,56 +717,14 @@ fn exact_base_small_addend_step(
   cmp_half : Int32,
   mode : DecimalRoundingMode,
 ) -> Int32 {
-  let delta_direction = if low_negative { -1 } else { 1 }
-  let away_from_zero_direction = if base_negative { -1 } else { 1 }
-  let toward_zero_direction = -away_from_zero_direction
-  match mode {
-    HalfEven =>
-      if cmp_half > 0 {
-        delta_direction
-      } else if cmp_half < 0 {
-        0
-      } else if !base_is_odd {
-        0
-      } else {
-        delta_direction
-      }
-    HalfUp =>
-      if cmp_half > 0 {
-        delta_direction
-      } else if cmp_half < 0 {
-        0
-      } else if low_negative == base_negative {
-        delta_direction
-      } else {
-        0
-      }
-    HalfDown =>
-      if cmp_half > 0 {
-        delta_direction
-      } else if cmp_half < 0 {
-        0
-      } else if low_negative != base_negative {
-        delta_direction
-      } else {
-        0
-      }
-    Ceiling => if delta_direction > 0 { 1 } else { 0 }
-    Floor => if delta_direction < 0 { -1 } else { 0 }
-    Up =>
-      if low_negative == base_negative {
-        away_from_zero_direction
-      } else {
-        0
-      }
-    Down =>
-      if low_negative != base_negative {
-        toward_zero_direction
-      } else {
-        0
-      }
-    ZeroFiveUp => if base_ends_zero_or_five { delta_direction } else { 0 }
-  }
+  dec_coeff_addend_rounding_step(
+    base_is_odd,
+    base_ends_zero_or_five,
+    base_negative,
+    low_negative,
+    cmp_half,
+    mode.kernel(),
+  )
 }
 
 ///|
@@ -1669,23 +1557,6 @@ fn decimal_exact_integer_quotient_repr(
       dec_coeff_div_rem_repr(numerator, denominator).0
     }
   }
-}
-
-///|
-/// `coeff * 10^shift mod modulus` for a shift beyond `Int`, reduced in chunks.
-fn dec_coeff_shift_power10_mod_wide_repr(
-  coeff : DecCoeff,
-  shift : Int64,
-  modulus : DecCoeff,
-) -> DecCoeff {
-  let mut value = dec_coeff_shift_power10_mod_repr(coeff, 0, modulus)
-  let mut remaining = shift
-  while remaining > 0L {
-    let step = Int64::min(remaining, 1073741824L)
-    value = dec_coeff_shift_power10_mod_repr(value, step.to_int(), modulus)
-    remaining = remaining - step
-  }
-  value
 }
 
 ///|

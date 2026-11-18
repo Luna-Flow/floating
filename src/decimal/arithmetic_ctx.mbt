@@ -932,18 +932,12 @@ fn decimal_sqrt_should_increment(
   inexact : Bool,
   mode : DecimalRoundingMode,
 ) -> Bool {
-  guard inexact else { return false }
-  match mode {
-    Down | Floor => false
-    Up | Ceiling => true
-    HalfUp => midpoint_cmp >= 0
-    HalfDown => midpoint_cmp > 0
-    HalfEven =>
-      midpoint_cmp > 0 || (midpoint_cmp == 0 && dec_coeff_is_odd(quotient))
-    ZeroFiveUp =>
-      dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 0 ||
-      dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10 == 5
-  }
+  dec_coeff_sqrt_should_increment(
+    quotient,
+    midpoint_cmp,
+    inexact,
+    mode.kernel(),
+  )
 }
 
 ///|
