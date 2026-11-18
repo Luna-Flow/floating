@@ -12,6 +12,7 @@ notes live in this file.
 
 ### Fixed
 
+- `decimal_gda` and `decimal`: `add_ctx`, `sub_ctx` and `fma_ctx` no longer report `Overflow` when an operand (or the exact product) would round past the largest finite number on its own but the rounded sum is in range, as in `9.5 + -0.5` at precision 1 and Emax 0, which is `9`. Overflow is judged on the result after rounding (GDA 1.70, Exceptional conditions, Overflow; IEEE 754-2019 §7.4); non-extended contexts are unchanged. The oracle for the new rows is Python `decimal` (libmpdec 4.0.0), which is evidence, not the specification ([#264](https://github.com/Luna-Flow/floating/issues/264)).
 - `BinFloat::from_hex` reads the whole IEEE 754-2019 §5.12.3 hexSequence grammar: a hexadecimal significand with a point (`0x1.8p0`, `0x.8p1`, `0x1.p0`) was rejected before, the exponent is read as decimal digits only, and `snan` in any case (§5.12.1) gives a signaling NaN. Every production has accepting and rejecting tests and a round trip; the signature is unchanged. The missing rounding direction and flags are tracked in [#256](https://github.com/Luna-Flow/floating/issues/256) ([#225](https://github.com/Luna-Flow/floating/issues/225)).
 
 ### Verified

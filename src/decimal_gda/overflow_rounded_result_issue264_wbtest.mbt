@@ -1,0 +1,926 @@
+///|
+fn issue264_flags_text(flags : DecimalFlags) -> String {
+  (if flags.inexact { "x" } else { "." }) +
+  (if flags.rounded { "r" } else { "." }) +
+  (if flags.invalid_operation { "i" } else { "." }) +
+  (if flags.division_by_zero { "z" } else { "." }) +
+  (if flags.overflow { "o" } else { "." }) +
+  (if flags.underflow { "u" } else { "." }) +
+  (if flags.subnormal { "s" } else { "." }) +
+  (if flags.clamped { "c" } else { "." })
+}
+
+///|
+fn issue264_gda_flags_text(flags : GdaFlags) -> String {
+  (if flags.inexact { "x" } else { "." }) +
+  (if flags.rounded { "r" } else { "." }) +
+  (if flags.invalid_operation { "i" } else { "." }) +
+  (if flags.division_by_zero { "z" } else { "." }) +
+  (if flags.overflow { "o" } else { "." }) +
+  (if flags.underflow { "u" } else { "." }) +
+  (if flags.subnormal { "s" } else { "." }) +
+  (if flags.clamped { "c" } else { "." })
+}
+
+///|
+fn issue264_mode_name(mode : DecimalRoundingMode) -> String {
+  match mode {
+    HalfEven => "half_even"
+    HalfUp => "half_up"
+    HalfDown => "half_down"
+    Down => "down"
+    Ceiling => "ceiling"
+    Floor => "floor"
+    Up => "up"
+    ZeroFiveUp => "05up"
+  }
+}
+
+///|
+fn issue264_gda_mode(mode : DecimalRoundingMode) -> GdaRoundingMode {
+  match mode {
+    HalfEven => GdaRoundingMode::HalfEven
+    HalfUp => GdaRoundingMode::HalfUp
+    HalfDown => GdaRoundingMode::HalfDown
+    Down => GdaRoundingMode::Down
+    Ceiling => GdaRoundingMode::Ceiling
+    Floor => GdaRoundingMode::Floor
+    Up => GdaRoundingMode::Up
+    ZeroFiveUp => GdaRoundingMode::ZeroFiveUp
+  }
+}
+
+///|
+/// Runs one row through `Decimal::*_ctx` and through the `GdaContext` adapter
+/// of the same operation, returning `(value, flags)` text for each path.
+fn issue264_run(
+  op : String,
+  args : Array[String],
+  precision : Int32,
+  e_min : Int32,
+  e_max : Int32,
+  clamp : Bool,
+  extended : Bool,
+  mode : DecimalRoundingMode,
+) -> ((String, String), (String, String)) {
+  let ctx = DecimalContext::new(
+    precision~,
+    decimal_rounding=mode,
+    e_min~,
+    e_max~,
+    clamp~,
+    extended~,
+  ).unwrap()
+  let gda = GdaContext::new(
+    precision~,
+    rounding=issue264_gda_mode(mode),
+    e_min~,
+    e_max~,
+    clamp~,
+    extended~,
+  ).unwrap()
+  let x = Decimal::from_string(args[0]).unwrap()
+  let y = if args.length() > 1 {
+    Decimal::from_string(args[1]).unwrap()
+  } else {
+    x
+  }
+  let z = if args.length() > 2 {
+    Decimal::from_string(args[2]).unwrap()
+  } else {
+    x
+  }
+  let (value, flags) = match op {
+    "add" => x.add_ctx(y, ctx)
+    "subtract" => x.sub_ctx(y, ctx)
+    "multiply" => x.mul_ctx(y, ctx)
+    "divide" => x.div_ctx(y, ctx)
+    "fma" => x.fma_ctx(y, z, ctx)
+    "power" => x.power_ctx(y, ctx)
+    "plus" => x.plus_ctx(ctx)
+    _ => abort("unexpected operation \{op}")
+  }
+  let outcome = match op {
+    "add" => add(x, y, gda)
+    "subtract" => subtract(x, y, gda)
+    "multiply" => multiply(x, y, gda)
+    "divide" => divide(x, y, gda)
+    "fma" => fma(x, y, z, gda)
+    "power" => power(x, y, gda)
+    "plus" => plus(x, gda)
+    _ => abort("unexpected operation \{op}")
+  }
+  (
+    (issue264_value_text(value), issue264_flags_text(flags)),
+    (
+      issue264_value_text(outcome.value()),
+      issue264_gda_flags_text(outcome.raised()),
+    ),
+  )
+}
+
+///|
+fn issue264_value_text(value : Decimal) -> String {
+  if value.is_infinite() {
+    if value.is_negative() {
+      "-Infinity"
+    } else {
+      "Infinity"
+    }
+  } else {
+    value.to_string()
+  }
+}
+
+///|
+fn issue264_check(
+  rows : Array[
+    (
+      String,
+      Array[String],
+      Int32,
+      Int32,
+      Int32,
+      Bool,
+      DecimalRoundingMode,
+      String,
+      String,
+    ),
+  ],
+  extended~ : Bool = true,
+) -> Unit raise {
+  for row in rows {
+    let (
+      op,
+      args,
+      precision,
+      e_min,
+      e_max,
+      clamp,
+      mode,
+      expected,
+      expected_flags,
+    ) = row
+    let args_text = args.join(" ")
+    let id = "\{op} \{args_text} p=\{precision} emin=\{e_min} emax=\{e_max} clamp=\{clamp} \{issue264_mode_name(mode)}"
+    let (by_ctx, by_gda) = issue264_run(
+      op, args, precision, e_min, e_max, clamp, extended, mode,
+    )
+    assert_eq((id, by_ctx), (id, (expected, expected_flags)))
+    assert_eq((id, by_gda), (id, (expected, expected_flags)))
+  }
+}
+
+///|
+/// Overflow is judged on the adjusted exponent of the result after rounding
+/// (GDA 1.70, *Exceptional conditions*, Overflow), not on an operand that would
+/// round past Emax on its own. Expected values: Python `decimal` (libmpdec 4.0.0) as
+/// oracle, checked against the clause by hand; the oracle is not the specification.
+test "add, subtract and fma judge overflow on the rounded result (#264)" {
+  let rows : Array[
+    (
+      String,
+      Array[String],
+      Int32,
+      Int32,
+      Int32,
+      Bool,
+      DecimalRoundingMode,
+      String,
+      String,
+    ),
+  ] = [
+    // GDA 1.70, Exceptional conditions, Overflow: the condition is judged on the adjusted
+    // exponent of the result after rounding. The operand 9.5 alone would round to 10 at
+    // precision 1 (adjusted exponent 1 > Emax 0); the sum 9.5 - 0.5 = 9.0 does not.
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, HalfEven, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, HalfUp, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, HalfDown, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, Down, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, Ceiling, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, Floor, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, Up, "9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, false, ZeroFiveUp, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, HalfEven, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, HalfUp, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, HalfDown, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, Down, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, Ceiling, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, Floor, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, Up, "9", ".r......"),
+    ("add", ["-0.5", "9.5"], 1, -5, 0, false, ZeroFiveUp, "9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, HalfEven, "-9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, HalfUp, "-9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, HalfDown, "-9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, Down, "-9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, Ceiling, "-9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, Floor, "-9", ".r......"),
+    ("subtract", ["-9.5", "-0.5"], 1, -5, 0, false, Up, "-9", ".r......"),
+    (
+      "subtract",
+      ["-9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      ZeroFiveUp,
+      "-9",
+      ".r......",
+    ),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, HalfEven, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, HalfUp, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, HalfDown, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, Down, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, Ceiling, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, Floor, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, Up, "-9", ".r......"),
+    ("add", ["-9.5", "0.5"], 1, -5, 0, false, ZeroFiveUp, "-9", ".r......"),
+    ("add", ["9.5", "-0.5"], 1, -5, 0, true, HalfEven, "9", ".r......"),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, HalfEven, "9.9", "xr......"),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, HalfUp, "9.9", "xr......"),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, HalfDown, "9.9", "xr......"),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, Down, "9.9", "xr......"),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, Ceiling, "Infinity", "xr..o..."),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, Floor, "9.9", "xr......"),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, Up, "Infinity", "xr..o..."),
+    ("add", ["9.99", "-0.07"], 2, -5, 0, false, ZeroFiveUp, "9.9", "xr......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, HalfEven, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, HalfUp, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, HalfDown, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, Down, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, Ceiling, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, Floor, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, Up, "-9", ".r......"),
+    ("add", ["0.1", "-9.1"], 1, 0, 0, false, ZeroFiveUp, "-9", ".r......"),
+    // Cancellation of a power of ten at precision 1 (rounding to one digit moves the
+    // sum by many decades): the operand is beyond Emax, the exact sum is not.
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, HalfEven, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, HalfUp, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, HalfDown, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, Down, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, Ceiling, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, Floor, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, Up, "-1E+4", "........"),
+    ("add", ["999E4", "-1E7"], 1, -1, 5, false, ZeroFiveUp, "-1E+4", "........"),
+    (
+      "subtract",
+      ["100E6", "99E6"],
+      1,
+      -3,
+      6,
+      true,
+      HalfEven,
+      "1E+6",
+      "........",
+    ),
+    ("subtract", ["100E6", "99E6"], 1, -3, 6, true, HalfUp, "1E+6", "........"),
+    (
+      "subtract",
+      ["100E6", "99E6"],
+      1,
+      -3,
+      6,
+      true,
+      HalfDown,
+      "1E+6",
+      "........",
+    ),
+    ("subtract", ["100E6", "99E6"], 1, -3, 6, true, Down, "1E+6", "........"),
+    ("subtract", ["100E6", "99E6"], 1, -3, 6, true, Ceiling, "1E+6", "........"),
+    ("subtract", ["100E6", "99E6"], 1, -3, 6, true, Floor, "1E+6", "........"),
+    ("subtract", ["100E6", "99E6"], 1, -3, 6, true, Up, "1E+6", "........"),
+    (
+      "subtract",
+      ["100E6", "99E6"],
+      1,
+      -3,
+      6,
+      true,
+      ZeroFiveUp,
+      "1E+6",
+      "........",
+    ),
+    ("add", ["-95E1", "3E-5"], 1, -3, 2, false, HalfEven, "-9E+2", "xr......"),
+    ("add", ["-95E1", "3E-5"], 1, -3, 2, false, Ceiling, "-9E+2", "xr......"),
+    ("add", ["-95E1", "3E-5"], 1, -3, 2, false, Floor, "-Infinity", "xr..o..."),
+    // fma: the exact product is the first summand of the sum, and the sum is what is
+    // rounded (GDA 1.70, fused-multiply-add). The product rounds past Emax on its own.
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      HalfEven,
+      "9.99",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      HalfUp,
+      "9.99",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      HalfDown,
+      "9.99",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      Down,
+      "9.98",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      Ceiling,
+      "9.99",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      Floor,
+      "9.98",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      Up,
+      "9.99",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-4", "1000E-3", "99995E-4"],
+      3,
+      0,
+      0,
+      true,
+      ZeroFiveUp,
+      "9.98",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      HalfEven,
+      "9E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      HalfUp,
+      "9E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      HalfDown,
+      "9E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      Down,
+      "8E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      Ceiling,
+      "9E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      Floor,
+      "8E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      Up,
+      "9E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["-99E-1", "-999E-1", "-9E1"],
+      1,
+      0,
+      2,
+      false,
+      ZeroFiveUp,
+      "8E+2",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      HalfEven,
+      "-9",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      HalfUp,
+      "-9",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      HalfDown,
+      "-9",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      Down,
+      "-9",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      Ceiling,
+      "-9",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      Floor,
+      "-Infinity",
+      "xr..o...",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      Up,
+      "-Infinity",
+      "xr..o...",
+    ),
+    (
+      "fma",
+      ["594E-1", "1E-4", "-95E-1"],
+      1,
+      -1,
+      0,
+      true,
+      ZeroFiveUp,
+      "-9",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      HalfEven,
+      "-9.9999E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      HalfUp,
+      "-9.9999E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      HalfDown,
+      "-9.9999E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      Down,
+      "-9.9998E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      Ceiling,
+      "-9.9998E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      Floor,
+      "-9.9999E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      Up,
+      "-9.9999E+18",
+      "xr......",
+    ),
+    (
+      "fma",
+      ["100000.00000000000000000000000000000000000001", "-9999.9E+10", "1E+0"],
+      5,
+      0,
+      18,
+      false,
+      ZeroFiveUp,
+      "-9.9998E+18",
+      "xr......",
+    ),
+    // Overflow still happens when the sum itself rounds beyond Emax, in every mode
+    // (the result is Infinity or the largest finite number, GDA 1.70, Overflow).
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, HalfEven, "Infinity", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, HalfUp, "Infinity", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, HalfDown, "Infinity", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, Down, "9", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, Ceiling, "Infinity", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, Floor, "9", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, Up, "Infinity", "xr..o..."),
+    ("add", ["9.5", "0.5"], 1, -5, 0, false, ZeroFiveUp, "9", "xr..o..."),
+    (
+      "subtract",
+      ["9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfEven,
+      "Infinity",
+      "xr..o...",
+    ),
+    (
+      "subtract",
+      ["9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfUp,
+      "Infinity",
+      "xr..o...",
+    ),
+    (
+      "subtract",
+      ["9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfDown,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("subtract", ["9.5", "-0.5"], 1, -5, 0, false, Down, "9", "xr..o..."),
+    (
+      "subtract",
+      ["9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      Ceiling,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("subtract", ["9.5", "-0.5"], 1, -5, 0, false, Floor, "9", "xr..o..."),
+    ("subtract", ["9.5", "-0.5"], 1, -5, 0, false, Up, "Infinity", "xr..o..."),
+    ("subtract", ["9.5", "-0.5"], 1, -5, 0, false, ZeroFiveUp, "9", "xr..o..."),
+    (
+      "add",
+      ["-9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfEven,
+      "-Infinity",
+      "xr..o...",
+    ),
+    ("add", ["-9.5", "-0.5"], 1, -5, 0, false, HalfUp, "-Infinity", "xr..o..."),
+    (
+      "add",
+      ["-9.5", "-0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfDown,
+      "-Infinity",
+      "xr..o...",
+    ),
+    ("add", ["-9.5", "-0.5"], 1, -5, 0, false, Down, "-9", "xr..o..."),
+    ("add", ["-9.5", "-0.5"], 1, -5, 0, false, Ceiling, "-9", "xr..o..."),
+    ("add", ["-9.5", "-0.5"], 1, -5, 0, false, Floor, "-Infinity", "xr..o..."),
+    ("add", ["-9.5", "-0.5"], 1, -5, 0, false, Up, "-Infinity", "xr..o..."),
+    ("add", ["-9.5", "-0.5"], 1, -5, 0, false, ZeroFiveUp, "-9", "xr..o..."),
+    (
+      "add",
+      ["1E+3", "-1E+1"],
+      1,
+      -5,
+      0,
+      false,
+      HalfEven,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["1E+3", "-1E+1"], 1, -5, 0, false, HalfUp, "Infinity", "xr..o..."),
+    (
+      "add",
+      ["1E+3", "-1E+1"],
+      1,
+      -5,
+      0,
+      false,
+      HalfDown,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["1E+3", "-1E+1"], 1, -5, 0, false, Down, "9", "xr..o..."),
+    ("add", ["1E+3", "-1E+1"], 1, -5, 0, false, Ceiling, "Infinity", "xr..o..."),
+    ("add", ["1E+3", "-1E+1"], 1, -5, 0, false, Floor, "9", "xr..o..."),
+    ("add", ["1E+3", "-1E+1"], 1, -5, 0, false, Up, "Infinity", "xr..o..."),
+    ("add", ["1E+3", "-1E+1"], 1, -5, 0, false, ZeroFiveUp, "9", "xr..o..."),
+    (
+      "add",
+      ["1E+3", "-1E-5"],
+      2,
+      -6,
+      1,
+      false,
+      HalfEven,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["1E+3", "-1E-5"], 2, -6, 1, false, HalfUp, "Infinity", "xr..o..."),
+    (
+      "add",
+      ["1E+3", "-1E-5"],
+      2,
+      -6,
+      1,
+      false,
+      HalfDown,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["1E+3", "-1E-5"], 2, -6, 1, false, Down, "99", "xr..o..."),
+    ("add", ["1E+3", "-1E-5"], 2, -6, 1, false, Ceiling, "Infinity", "xr..o..."),
+    ("add", ["1E+3", "-1E-5"], 2, -6, 1, false, Floor, "99", "xr..o..."),
+    ("add", ["1E+3", "-1E-5"], 2, -6, 1, false, Up, "Infinity", "xr..o..."),
+    ("add", ["1E+3", "-1E-5"], 2, -6, 1, false, ZeroFiveUp, "99", "xr..o..."),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, HalfEven, "99", "xr......"),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, HalfUp, "99", "xr......"),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, HalfDown, "99", "xr......"),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, Down, "99", "xr......"),
+    (
+      "add",
+      ["9.9E+1", "1E-9"],
+      2,
+      -6,
+      1,
+      false,
+      Ceiling,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, Floor, "99", "xr......"),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, Up, "Infinity", "xr..o..."),
+    ("add", ["9.9E+1", "1E-9"], 2, -6, 1, false, ZeroFiveUp, "99", "xr......"),
+    (
+      "add",
+      ["99.9", "-0.01"],
+      2,
+      -6,
+      1,
+      false,
+      HalfEven,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["99.9", "-0.01"], 2, -6, 1, false, HalfUp, "Infinity", "xr..o..."),
+    (
+      "add",
+      ["99.9", "-0.01"],
+      2,
+      -6,
+      1,
+      false,
+      HalfDown,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("add", ["99.9", "-0.01"], 2, -6, 1, false, Down, "99", "xr......"),
+    ("add", ["99.9", "-0.01"], 2, -6, 1, false, Ceiling, "Infinity", "xr..o..."),
+    ("add", ["99.9", "-0.01"], 2, -6, 1, false, Floor, "99", "xr......"),
+    ("add", ["99.9", "-0.01"], 2, -6, 1, false, Up, "Infinity", "xr..o..."),
+    ("add", ["99.9", "-0.01"], 2, -6, 1, false, ZeroFiveUp, "99", "xr......"),
+    (
+      "fma",
+      ["9.5", "1", "0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfEven,
+      "Infinity",
+      "xr..o...",
+    ),
+    (
+      "fma",
+      ["9.5", "1", "0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfUp,
+      "Infinity",
+      "xr..o...",
+    ),
+    (
+      "fma",
+      ["9.5", "1", "0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfDown,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("fma", ["9.5", "1", "0.5"], 1, -5, 0, false, Down, "9", "xr..o..."),
+    (
+      "fma",
+      ["9.5", "1", "0.5"],
+      1,
+      -5,
+      0,
+      false,
+      Ceiling,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("fma", ["9.5", "1", "0.5"], 1, -5, 0, false, Floor, "9", "xr..o..."),
+    ("fma", ["9.5", "1", "0.5"], 1, -5, 0, false, Up, "Infinity", "xr..o..."),
+    ("fma", ["9.5", "1", "0.5"], 1, -5, 0, false, ZeroFiveUp, "9", "xr..o..."),
+    (
+      "fma",
+      ["5", "3", "0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfEven,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("fma", ["5", "3", "0.5"], 1, -5, 0, false, HalfUp, "Infinity", "xr..o..."),
+    (
+      "fma",
+      ["5", "3", "0.5"],
+      1,
+      -5,
+      0,
+      false,
+      HalfDown,
+      "Infinity",
+      "xr..o...",
+    ),
+    ("fma", ["5", "3", "0.5"], 1, -5, 0, false, Down, "9", "xr..o..."),
+    ("fma", ["5", "3", "0.5"], 1, -5, 0, false, Ceiling, "Infinity", "xr..o..."),
+    ("fma", ["5", "3", "0.5"], 1, -5, 0, false, Floor, "9", "xr..o..."),
+    ("fma", ["5", "3", "0.5"], 1, -5, 0, false, Up, "Infinity", "xr..o..."),
+    ("fma", ["5", "3", "0.5"], 1, -5, 0, false, ZeroFiveUp, "9", "xr..o..."),
+  ]
+  issue264_check(rows)
+}

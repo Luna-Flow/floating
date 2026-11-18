@@ -15,9 +15,9 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | Operation | API | Evidence | Status |
 | --- | --- | --- | --- |
 | abs, minus, plus | `abs_ctx`, `minus_ctx`, `plus_ctx` | `abs.decTest`, `minus.decTest`, `plus.decTest` | conforming |
-| add, subtract, multiply | `add_ctx`, `sub_ctx`, `mul_ctx` | `add.decTest`, `subtract.decTest`, `multiply.decTest` | conforming |
+| add, subtract, multiply | `add_ctx`, `sub_ctx`, `mul_ctx` | `add.decTest`, `subtract.decTest`, `multiply.decTest`; `src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum) | conforming |
 | divide, divide-integer, remainder, remainder-near | `div_ctx`, `divide_integer`, `remainder`, `remainder_near` | `divide.decTest`, `divideint.decTest`, `remainder.decTest`, `remaindernear.decTest` | conforming |
-| fused-multiply-add | `fma_ctx` | `fma.decTest` | conforming |
+| fused-multiply-add | `fma_ctx` | `fma.decTest`; `src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` | conforming |
 | square-root | `sqrt_ctx` | `squareroot.decTest`, `powersqrt.decTest` | conforming |
 | power | `power_ctx` | `power.decTest`; `src/decimal_gda/power_cohort_issue211_wbtest.mbt` | conforming; integer powers are within about 0.55 units in the last place (0.6 for negative exponents), as the specification allows |
 | exp, ln, log10 | `exp_ctx`, `ln_ctx`, `log10_ctx` | `exp.decTest`, `ln.decTest`, `log10.decTest` | conforming |
