@@ -45,8 +45,12 @@ pub fn BinFloatResult::err(@arithmetic.ArithmeticError) -> Self
 pub fn BinFloatResult::exp(Self) -> Self
 pub fn BinFloatResult::exp10(Self) -> Self
 pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp10m1(Self) -> Self
+pub fn BinFloatResult::exp10m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp2(Self) -> Self
 pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::exp2m1(Self) -> Self
+pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ln(Self) -> Self
 pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
@@ -67,10 +71,14 @@ pub fn BinFloatResult::ln(Self) -> Self
 pub fn BinFloatResult::ln_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::log10(Self) -> Self
 pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log10p1(Self) -> Self
+pub fn BinFloatResult::log10p1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::log1p(Self) -> Self
 pub fn BinFloatResult::log1p_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::log2(Self) -> Self
 pub fn BinFloatResult::log2_ctx(Self, @bin_float.BinaryContext) -> Self
+pub fn BinFloatResult::log2p1(Self) -> Self
+pub fn BinFloatResult::log2p1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::map(Self, (@bin_float.BinFloat) -> @bin_float.BinFloat) -> Self
 pub fn BinFloatResult::max(Self, Self) -> Self
 pub fn BinFloatResult::min(Self, Self) -> Self

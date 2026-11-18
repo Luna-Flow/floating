@@ -460,6 +460,74 @@ pub fn BinFloatResult::log1p_ctx(
 }
 
 ///|
+pub fn BinFloatResult::exp2m1(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_exp2m1_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::exp2m1_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_exp2m1_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::exp10m1(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_exp10m1_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::exp10m1_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_exp10m1_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::log2p1(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_log2p1_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::log2p1_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_log2p1_ctx(ctx)
+  })
+}
+
+///|
+pub fn BinFloatResult::log10p1(self : BinFloatResult) -> BinFloatResult {
+  bin_result_try_elementary(self, fn(value, context) {
+    value.try_log10p1_ctx(context)
+  })
+}
+
+///|
+pub fn BinFloatResult::log10p1_ctx(
+  self : BinFloatResult,
+  context : @bin_float.BinaryContext,
+) -> BinFloatResult {
+  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
+    value.try_log10p1_ctx(ctx)
+  })
+}
+
+///|
 pub fn BinFloatResult::log2(self : BinFloatResult) -> BinFloatResult {
   bin_result_try_elementary(self, fn(value, context) {
     value.try_log2_ctx(context)

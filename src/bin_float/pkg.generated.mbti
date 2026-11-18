@@ -118,8 +118,12 @@ pub fn BinFloat::equal_signaling(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::exp(Self) -> Self
 pub fn BinFloat::exp10(Self) -> Self
 pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp10m1(Self) -> Self
+pub fn BinFloat::exp10m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp2(Self) -> Self
 pub fn BinFloat::exp2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::exp2m1(Self) -> Self
+pub fn BinFloat::exp2m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::exp_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp_ln(Self) -> Self
@@ -153,10 +157,14 @@ pub fn BinFloat::ln(Self) -> Self
 pub fn BinFloat::ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log10(Self) -> Self
 pub fn BinFloat::log10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log10p1(Self) -> Self
+pub fn BinFloat::log10p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log1p(Self) -> Self
 pub fn BinFloat::log1p_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log2(Self) -> Self
 pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::log2p1(Self) -> Self
+pub fn BinFloat::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::max(Self, Self) -> Self
@@ -245,15 +253,19 @@ pub fn BinFloat::try_cos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 pub fn BinFloat::try_cosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_cospi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp10m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp2m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_expm1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log10p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_log2p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_rootn_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
