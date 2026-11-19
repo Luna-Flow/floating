@@ -610,7 +610,7 @@ pub struct DecimalFlags {
 | `rounded` | digits were discarded, even if they were all zero |
 | `lost_digits` | a subset-mode operand longer than $p$ lost non-zero digits |
 | `invalid_operation` | the operation is invalid (signaling NaN, $\infty-\infty$, $0\times\infty$, bad quantize, domain error) |
-| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$) |
+| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$) |
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `underflow` | the result is tiny and inexact |
 | `subnormal` | the result is tiny |
@@ -1530,6 +1530,57 @@ pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags
 pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
+### `Decimal::exp2m1_ctx`, `exp10m1_ctx`, `log2p1_ctx`, `log10p1_ctx`, `try_exp2m1_ctx`, `try_exp10m1_ctx`, `try_log2p1_ctx`, `try_log10p1_ctx`
+
+These functions are $2^x - 1$, $10^x - 1$, $\log_2(1 + x)$ and
+$\log_{10}(1 + x)$ of IEEE 754-2019 §9.2, without the cancellation of
+`exp2(x) - 1` or the rounding of `1 + x` near zero. Each has the
+`f_ctx`/`try_f_ctx` shape described at the start of this section.
+
+```mbti
+pub fn Decimal::exp2m1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::exp10m1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::log2p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::log10p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::try_exp2m1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_exp10m1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log10p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+```
+
+The special values are those of §9.2.1: $f(\pm 0) = \pm 0$ and
+$f(+\infty) = +\infty$ for all four, $-\infty \mapsto -1$ for `exp2m1` and
+`exp10m1`, and $-1 \mapsto -\infty$ with `division_by_zero` for `log2p1` and
+`log10p1`, whose domain is $[-1, +\infty]$ ($x < -1$, including $-\infty$, is
+invalid). The exact results are $2^n - 1$ and $10^n - 1$ for an integer $n$
+and the integer $k$ when $1 + x = 2^k$ (resp. $10^k$); they take the
+preferred exponent 0 of §9.2.2, so in decimal64 `exp2m1_ctx(4)` is `15`,
+`exp2m1_ctx(-1)` is `-0.5`, `exp10m1_ctx(-2.0)` is `-0.99` and
+`log2p1_ctx(-0.50)` is `-1`, all without flags. A context that cannot hold an
+exact value rounds it with its flags: `log2p1_ctx(32767)` at precision 1 is
+`2E+1` (a midpoint, `inexact`). $\operatorname{log2p1}(1) = 1$ exactly and
+$\operatorname{log10p1}(1) = \log_{10} 2$; the rule $f(1) = +0$ of §9.2.1
+belongs to `log`, `log2` and `log10` only. Results below the subnormal range
+are rounded, never replaced, so they keep the sign of $x$
+(`exp2m1_ctx(-1E-500)` is `-0E-398` in decimal64, `-1E-398` when rounding
+toward $-\infty$), and the same restricted contexts as `exp_ctx` give
+`invalid_context`.
+
+```moonbit
+///|
+test "decimal exp2m1 exp10m1 log2p1 log10p1" {
+  let c64 = @decimal.DecimalContext::decimal64()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  inspect(d("4").exp2m1_ctx(c64).0, content="15")
+  inspect(d("-2.0").exp10m1_ctx(c64).0, content="-0.99")
+  inspect(d("1E-10").exp2m1_ctx(c64).0, content="6.931471805839680E-11")
+  inspect(d("-0.50").log2p1_ctx(c64).0, content="-1")
+  let (pole, flags) = d("-1").log10p1_ctx(c64)
+  inspect(pole, content="-inf")
+  inspect(flags.division_by_zero, content="true")
+}
+```
+
 ### `Decimal::sin_ctx`, `cos_ctx`, `tan_ctx`, `sinpi_ctx`, `cospi_ctx`, `tanpi_ctx`, `try_sin_ctx`, `try_cos_ctx`, `try_tan_ctx`, `try_sinpi_ctx`, `try_cospi_ctx`, `try_tanpi_ctx`
 
 These functions are the trigonometric functions of $x$ and of $\pi x$. Each has the `f_ctx`/`try_f_ctx` shape described
@@ -1594,6 +1645,8 @@ Domain and special values of the functions in these four groups:
 | `expm1` | none | none | $\pm0 \mapsto \pm0$, $-\infty\mapsto -1$, $+\infty \mapsto +\infty$ |
 | `log2` | $x<0$, $-\infty$ | $\pm 0 \mapsto -\infty$ | $1 \mapsto 0$, exact binary powers ($0.125 \mapsto -3$), $+\infty \mapsto +\infty$ |
 | `log1p` | $x<-1$, $-\infty$ | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$, $+\infty \mapsto +\infty$ |
+| `exp2m1`, `exp10m1` | none | none | $\pm0 \mapsto \pm0$, $-\infty\mapsto -1$, $+\infty \mapsto +\infty$; integer $n$: $2^n - 1$, $10^n - 1$ |
+| `log2p1`, `log10p1` | $x<-1$, $-\infty$ | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$, $+\infty \mapsto +\infty$; $1 + x = 2^k$ (resp. $10^k$) $\mapsto k$ |
 | `sin`, `cos`, `tan` | $\pm\infty$ | none | $\sin(\pm 0)=\pm 0$, $\tan(\pm 0)=\pm 0$, $\cos 0 = 1$ |
 | `sinpi`, `cospi`, `tanpi` | $\pm\infty$ | `tanpi` at odd half-integers | integers, half-integers, `tanpi` at odd quarter-integers ($\pm 1$) |
 | `asin`, `acos` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asin}(\pm0)=\pm0$, $\operatorname{acos}(1) = 0$ |
@@ -2080,7 +2133,9 @@ pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlag
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::exp10m1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::exp2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::exp2m1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::exp_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::expm1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2116,8 +2171,10 @@ pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::ln_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::log10p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log1p_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::log2p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2225,14 +2282,18 @@ pub fn Decimal::try_cos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags)
 pub fn Decimal::try_cosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_exp10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_exp10m1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_exp2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_exp2m1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_exp_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_expm1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_hypot_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_ln_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log10p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_rootn_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

@@ -27,7 +27,7 @@ binary: 650/650 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
 binary-regression: 163/163 passed (testdata/bin_float/random-regressions.txt)
 decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
 decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
-decm: 336/336 passed (testdata/decimal/random/mpfr-decimal-random.txt)
+decm: 384/384 passed (testdata/decimal/random/mpfr-decimal-random.txt)
 ```
 
 `smoke` builds the synchronous `floating-conformance` executable for the
@@ -41,7 +41,8 @@ unexpected pass.
 ### Decimal elementary functions against MPFR
 
 The IEEE `decimal` package's elementary functions have one family each,
-`decm-<function>` (`decm-exp`, `decm-atan2`, `decm-pown`, ...), checked against
+`decm-<function>` (`decm-exp`, `decm-atan2`, `decm-pown`, `decm-exp2m1`,
+`decm-log10p1`, ...), checked against
 certified MPFR enclosures instead of libmpdec. They are not in the default set
 (there are as many families as functions); name them with `--family`, or add
 all of them with `--decm`. A case id reads `m<seed>.<function>.<index>`.

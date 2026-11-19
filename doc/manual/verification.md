@@ -84,7 +84,7 @@ and `testdata/interval/README.md`.
 - **IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover
   encoding, special values, flags, core arithmetic and all 1,024 DPD declets on
   native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed
-  elementary oracle adds 2,784 rows computed from 768-bit MPFR enclosures under
+  elementary oracle adds 3,552 rows computed from 768-bit MPFR enclosures under
   all eight decimal rounding modes.
 - **Interval.** The strict ITF1788 phases pass 4,656/4,656 selected cases:
   sets, relations, numeric observations, cancellation, arithmetic,
@@ -261,6 +261,16 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   then, and the library's own after-rounding rule says the result is tiny; the
   standard rule for decimal formats, tininess before rounding, was correct).
   Both are reported separately and become regression rows when fixed.
+- *Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`*
+  ([#236](https://github.com/Luna-Flow/floating/issues/236)): families
+  `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed
+  20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in
+  value, cohort and all eight flags. Exact results are not sampled here; they,
+  the clusters near the integers and near -1, the tiny arguments and the
+  tininess and clamp boundaries are the 10,673 rows of
+  `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and
+  certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass
+  on native, Wasm, Wasm-GC and JavaScript.
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and
   300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
   flags where the result 2^−1073741824 is an exact subnormal (13 cases,
@@ -585,7 +595,7 @@ or the page that documents the decision.
 | IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
-| IEEE 754-2019 §9.2 | Missing `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `rSqrt`, `compound`, `powr`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1` in `decimal` (`bin_float` has all of §9.2) | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
+| IEEE 754-2019 §9.2 | Missing `asinPi`, `acosPi`, `atanPi`, `atan2Pi`, `rSqrt`, `compound`, `powr` in `decimal` (`bin_float` has all of §9.2; `decimal` has `exp2m1`, `exp10m1`, `log2p1`, `log10p1`) | [#235](https://github.com/Luna-Flow/floating/issues/235), [#236](https://github.com/Luna-Flow/floating/issues/236) |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
 | IEEE 754-2019 §5.4.1 | `decimal` has no convertToInteger | [#226](https://github.com/Luna-Flow/floating/issues/226) |
