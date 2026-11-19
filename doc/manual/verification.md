@@ -265,7 +265,11 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   ([#236](https://github.com/Luna-Flow/floating/issues/236)): families
   `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed
   20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in
-  value, cohort and all eight flags. Exact results are not sampled here; they,
+  value, cohort and all eight flags, and so do 100,000 cases each on Wasm,
+  Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated
+  batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1
+  --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count
+  100000 --seed 20261118 --target wasm --target wasm-gc --target js`). Exact results are not sampled here; they,
   the clusters near the integers and near -1, the tiny arguments and the
   tininess and clamp boundaries are the 10,673 rows of
   `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and
