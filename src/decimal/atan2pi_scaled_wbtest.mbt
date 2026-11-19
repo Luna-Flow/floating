@@ -116,5 +116,5 @@ test "atan2pi generated rows: both sides of the scaled condition, all signs and 
     }
   }
   inspect(failures.to_string(), content="")
-  assert_true(rows.length() > 4000)
+  assert_true(rows.length() > 7000)
 }
