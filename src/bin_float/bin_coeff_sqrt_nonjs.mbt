@@ -372,6 +372,11 @@ fn bin_coeff_sqrt_rem_kernel(value : BinCoeff) -> (BinCoeff, BinCoeff) {
       } else {
         bin_coeff_sqrt_rem_u256(value)
       }
-    Heap(_, _) => bin_coeff_sqrt_rem_divide_conquer(value)
+    Heap(_, _) =>
+      if bin_coeff_sqrt_array_enabled {
+        bin_coeff_sqrt_rem_words_recursive(value)
+      } else {
+        bin_coeff_sqrt_rem_divide_conquer(value)
+      }
   }
 }
