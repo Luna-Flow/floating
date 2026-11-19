@@ -196,6 +196,18 @@ def conformance_cli(target: str) -> list[str]:
     path = BUILD_ROOT / f"cli-{target}" / target / f"release/build/cli/cli.{suffix}"
     if result.returncode != 0 or not path.is_file():
         raise ToolError(f"cannot build the conformance CLI for {target}:\n{result.stdout}{result.stderr}")
+    return cli_launcher(target, path)
+
+
+def cli_launcher(target: str, path: Path) -> list[str]:
+    """Command prefix for the `floating-conformance` executable.
+
+    Under Node the program's argument list starts with `[node, script]`, so the
+    CLI would read the script path as its first operand. Importing the module
+    from `node -e` leaves `[node, <arguments>]`, the shape of the other targets.
+    """
+    if target == "js":
+        return ["node", "--input-type=module", "-e", f"import {json.dumps(path.resolve().as_uri())}", "--"]
     return launcher(target, path)
 
 

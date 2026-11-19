@@ -13,7 +13,7 @@ result.
 | Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `src/doc_examples` tests |
 | Formatting | `just fmt` | the MoonBit formatter |
 | Pull request | `just pr [jobs]` | format check, docs, native check and tests with `--deny-warn`, Python tool tests, and the four committed smoke corpora |
-| IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript |
+| IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 19,134-row π-inverse table, read at run time by the release-built conformance CLI on each target |
 | GDA decimal | `just gate decimal_gda [jobs]` | package and frontend tests, then the pinned `official` and `official0` `.decTest` corpora |
 | Binary | `just gate binary [jobs]` | the pinned TestFloat level-1 matrix and the MPFR witnesses |
 | Interval | `just gate interval [jobs]` | every strict ITF1788 phase |
@@ -36,6 +36,47 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 - `docs.yml` runs the organization's `lunadoc check` workflow.
 - `publish.yml` builds, runs the documentation gate, the format check, an
   all-target `--deny-warn` check and the tests, then publishes to mooncakes.
+
+## Quick-gate sample of the π-inverse rows
+
+The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
+of the repository and the slowest to execute: in a debug build a full run of
+`testdata/decimal/ieee/rows/pi_inverse.txt` takes about 466 s on one core, 90 % of it in
+about 50 `atan2pi` rows whose operand is `1E-1999996`. The quick gate (`just pr`,
+the native test stage of CI) therefore compiles only a sample of the table
+into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`, while the full table
+is data (`mpfr-decimal-random-v1` rows, see `src/frontend/mpfr_expr`) that
+`just gate decimal` and the nightly run feed to the release-built conformance
+CLI on native, Wasm, Wasm-GC and JavaScript, comparing value, cohort
+(`compare_total`) and all flags exactly as the sampled test does.
+
+The sampling rule is deterministic and part of the generator
+(`tools/generate_decimal_pi_inverse_rows.py`, `SAMPLE_STEP`):
+
+1. Every row that is not the rounding of an MPFR enclosure is kept: the exact
+   Niven values and the other cases decided by exact rational arithmetic.
+2. The MPFR rows are stratified by (operation, rounding mode) and one row in
+   `SAMPLE_STEP` (8) is kept in each stratum, taken equidistantly in generation
+   order (positions 4, 12, 20, …); a stratum shorter than that keeps its middle row.
+3. Rows with an operand of adjusted exponent beyond ±1,000,000 (the
+   `1E-1999996` rows, each about a second in a release build) form one stratum
+   per operation, of which a single row is kept.
+
+| Operation | Exact rows (all kept) | MPFR rows | MPFR rows sampled |
+| --- | ---: | ---: | ---: |
+| `asinpi` | 203 | 2,481 | 305 |
+| `acospi` | 203 | 1,465 | 184 |
+| `atanpi` | 203 | 3,037 | 377 |
+| `atan2pi` | 1,716 | 9,826 | 1,225 |
+| Total | 2,325 | 16,809 | 2,091 |
+
+`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either
+table is stale or if the sample is not a subset of the full table, and
+`--strata` prints the counts of every stratum. The sample runs in about
+20 s of a debug native build. The quick gate returns to the full table when
+the optimized `atan2pi` and `atan`/`asin` kernels bring the debug run of the
+full table to about that time (the condition is measured, not assumed: rerun the
+debug run of `pi_inverse_rows` and compare with the 466 s above).
 
 ## Shared conformance runner
 
@@ -311,12 +352,14 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   100000 --seed 20261118 --target native` and the same with `--count 20000
   --target wasm --target wasm-gc --target js`, in agreement with MPFR in
   value, cohort and all eight flags. The 19,134 rows of
-  `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
+  `testdata/decimal/ieee/rows/pi_inverse.txt`
   (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at
   the preferred exponent 0, the clusters next to $\pm\tfrac12$ and $\pm 1$ in
   all eight rounding modes on both sides, operands down to
   $10^{-1\,999\,996}$ and the range limits of decimal32/64/128 under both
-  tininess rules.
+  tininess rules. They run in the full gate and the nightly run on all four
+  targets, and a deterministic sample of them runs in the quick gate (see
+  [Quick-gate sample of the π-inverse rows](#quick-gate-sample-of-the-π-inverse-rows)).
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and
   300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
   flags where the result 2^−1073741824 is an exact subnormal (13 cases,

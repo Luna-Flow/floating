@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import decimal_oracles
+import decimal_row_table
 import generate_decimal_elementary_oracle
 import generate_decimal_total_order
 import generate_ieee_decimal_vectors
@@ -879,6 +880,35 @@ def run_targets(
     return results
 
 
+def run_row_tables(targets: list[str]) -> list[dict[str, Any]]:
+    """Run the elementary row tables on each target with the release-built CLI.
+
+    The tables are data (`testdata/decimal/ieee/rows/*.txt`), read at run time by
+    `floating-conformance --backend mpfr`, so a row change never recompiles the
+    `decimal` test module.
+    """
+    import random_differential  # builds and launches `src/cli` per target
+
+    results: list[dict[str, Any]] = []
+    for target in selected_targets(targets):
+        cli = random_differential.conformance_cli(target)
+        for table in decimal_row_table.TABLES:
+            path = decimal_row_table.table_path(table)
+            expected = decimal_row_table.count_rows(path.read_text(encoding="utf-8"))
+            process = subprocess.run(
+                [*cli, "--backend", "mpfr", "--json", str(path)],
+                cwd=ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            outcome = decimal_row_table.evaluate_run(
+                table, expected, process.returncode, process.stdout, process.stderr
+            )
+            results.append({"target": target, **outcome})
+    return results
+
+
 def _plan(targets: list[str]) -> dict[str, Any]:
     manifest = load_json(MANIFEST_PATH)
     vector_plan = generate_ieee_decimal_vectors.load_plan()
@@ -918,6 +948,7 @@ def _report(
     targets: list[dict[str, Any]],
     capabilities: dict[str, dict[str, Any]],
     elapsed: float,
+    tables: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     rows = [
         {"name": "interchange cases", "passedCases": checks["cases"], "totalCases": checks["cases"], "failedCases": 0},
@@ -938,11 +969,22 @@ def _report(
         }
         for target in targets
     )
+    tables = tables or []
+    rows.extend(
+        {
+            "name": f"elementary rows: {item['table']} on {item['target']}",
+            "passedCases": item["passedCases"],
+            "totalCases": item["totalCases"],
+            "failedCases": item["failedCases"],
+        }
+        for item in tables
+    )
     summary = {
         "totalCases": sum(row["totalCases"] for row in rows),
         "passedCases": sum(row["passedCases"] for row in rows),
         "failedCases": sum(row["failedCases"] for row in rows),
-        "failedIds": [target["target"] for target in targets if target["failedCases"]],
+        "failedIds": [target["target"] for target in targets if target["failedCases"]]
+        + [f"{item['table']}@{item['target']}" for item in tables if item["failedCases"]],
         "elapsedSeconds": round(elapsed, 3),
     }
     return {
@@ -952,6 +994,7 @@ def _report(
         "checks": checks,
         "excerptCases": excerpt_cases,
         "targets": targets,
+        "rowTables": tables,
         "oracles": capabilities,
         "summary": summary,
     }
@@ -1024,6 +1067,15 @@ def _print_report(report: dict[str, Any]) -> None:
             }
             for target in report["targets"]
         ]
+        + [
+            {
+                "name": f"elementary rows: {item['table']} on {item['target']}",
+                "passedCases": item["passedCases"],
+                "totalCases": item["totalCases"],
+                "failedCases": item["failedCases"],
+            }
+            for item in report.get("rowTables", [])
+        ]
     ]
     summary = report["summary"]
     print_summary(
@@ -1068,7 +1120,12 @@ def main(argv: list[str] | None = None) -> int:
         excerpt_cases = check_standard_excerpt()
         capabilities = decimal_oracles.probe()
         target_results = run_targets(targets, generated_only=args.smoke)
-        report = _report(checks, excerpt_cases, target_results, capabilities, time.monotonic() - started)
+        # The full pi-inverse table is data run by the release CLI; the quick
+        # gate (`--smoke`) runs only the sample compiled into the test module.
+        table_results = [] if args.smoke else run_row_tables(targets)
+        report = _report(
+            checks, excerpt_cases, target_results, capabilities, time.monotonic() - started, table_results
+        )
         args.output.resolve().mkdir(parents=True, exist_ok=True)
         report_path = args.output.resolve() / "summary.json"
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
