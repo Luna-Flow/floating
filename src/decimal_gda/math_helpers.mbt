@@ -1504,6 +1504,9 @@ fn decimal_finite_to_scaled_repr(
   let shift = value.exponent10 + scale
   let magnitude = if shift >= 0 {
     dec_coeff_shift_power10_repr(value.coefficient, shift)
+  } else if value.coefficient.digits10() <= -shift {
+    // fewer digits than the divisor 10^(-shift) has zeros: the quotient is 0
+    dec_coeff_zero()
   } else {
     dec_coeff_div_rem_repr(value.coefficient, dec_coeff_power10_repr(-shift)).0
   }
