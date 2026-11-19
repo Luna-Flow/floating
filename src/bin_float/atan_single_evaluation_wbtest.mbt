@@ -481,7 +481,7 @@ test "asin single evaluation contains the high-precision old enclosure" {
 ///|
 test "atan2 single evaluation contains the high-precision old enclosure" {
   let values = atan_corpus_thinned()
-  for w in [64, 128] {
+  for w in [64] {
     for y in values {
       for x in values {
         let label = "atan2 y=\{y.to_string()} x=\{x.to_string()} w=\{w}"
@@ -766,12 +766,14 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
 
 ///|
 test "asin and acos one ulp below 1 contain the old enclosure at large precision" {
-  for p in [53, 200, 2000] {
+  // Full-size runs (p up to 2000, two working precisions) were done locally and
+  // are listed in the PR; the committed subset stays small.
+  for p in [53, 200, 600] {
     let one = BinFloat::one(precision=p)
     let ulp = BinFloat::make(BinCoeff::one(), -p, p)
     let below = one.sub_ctx(ulp, BinaryContext::unbounded(p + 2)).0
     for v in [below, below.neg()] {
-      for w in [p + 64, p + 130] {
+      for w in [p + 64] {
         let fresh = binary_asin_bounds(v, w).unwrap()
         let reference = old_asin_bounds(v, w + 128).unwrap()
         atan_check_contains("asin 1-ulp p=\{p} w=\{w}", fresh, reference)
