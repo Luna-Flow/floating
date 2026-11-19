@@ -1,0 +1,22 @@
+import {
+  "Luna-Flow/floating-tools/bench" @benchkit,
+  "Luna-Flow/floating-tools/frontend/gda_expr",
+  "Luna-Flow/floating-tools/frontend/mpfr_expr",
+  "Luna-Flow/floating-tools/internal/runner_cli",
+  "Luna-Flow/mare_mark/event",
+  "Luna-Flow/mare_mark/experiment",
+  "Luna-Flow/mare_mark/fixture",
+  "Luna-Flow/mare_mark/generator",
+  "Luna-Flow/mare_mark/model",
+  "Luna-Flow/mare_mark/runner",
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+  "moonbitlang/x/sys",
+}
+
+// `moonbitlang/async` has no wasm-gc runtime (moonbitlang/core#4584), so the
+// executable is built for native, JavaScript, Wasm and LLVM only.
+
+supported_targets = "all-wasm-gc"
+
+pkgtype(kind: "executable")

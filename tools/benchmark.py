@@ -32,19 +32,19 @@ class BenchmarkCommand:
 
 
 BENCHMARKS: dict[str, tuple[BenchmarkCommand, ...]] = {
-    "bin-float": (BenchmarkCommand("src/bench/bin_float"),),
-    "decimal": (BenchmarkCommand("src/bench/decimal"),),
-    "decimal-gda": (BenchmarkCommand("src/bench/decimal_gda"),),
-    "ball-float": (BenchmarkCommand("src/bench/ball_float"),),
+    "bin-float": (BenchmarkCommand("tooling/src/bench/bin_float"),),
+    "decimal": (BenchmarkCommand("tooling/src/bench/decimal"),),
+    "decimal-gda": (BenchmarkCommand("tooling/src/bench/decimal_gda"),),
+    "ball-float": (BenchmarkCommand("tooling/src/bench/ball_float"),),
     "auto-tune": (
         BenchmarkCommand(
-            "src/bench/bin_float",
+            "tooling/src/bench/bin_float",
             "auto tune binary square crossover",
         ),
     ),
     "elementary": (
         BenchmarkCommand(
-            "src/bench/bin_float",
+            "tooling/src/bench/bin_float",
             "binary elementary core and full paths",
         ),
     ),

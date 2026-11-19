@@ -102,6 +102,16 @@ class DocumentationQualityTests(unittest.TestCase):
             use_repo(stack, root)
             self.assertEqual(doc_quality.package_paths(), {"core", "nested/leaf"})
 
+    def test_package_paths_cover_the_library_and_the_tools_module(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory)
+            for relative in ("src/core", "tooling/src/bench/leaf"):
+                (root / relative).mkdir(parents=True)
+                (root / relative / "moon.pkg").write_text("", encoding="utf-8")
+            use_repo(stack, root)
+            self.assertEqual(doc_quality.package_paths(), {"core", "bench/leaf"})
+            self.assertEqual(doc_quality.package_directory("bench/leaf"), root / "tooling/src/bench/leaf")
+
     def test_orphan_pages_need_a_moon_package(self) -> None:
         with patch.object(doc_quality, "package_paths", return_value={"example"}):
             with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
@@ -114,7 +124,7 @@ class DocumentationQualityTests(unittest.TestCase):
                 self.assertEqual(
                     doc_quality.check_orphan_pages(),
                     [
-                        "doc/manual/api/gone.md: no src/gone/moon.pkg package",
+                        "doc/manual/api/gone.md: no gone/moon.pkg package below src or tooling/src",
                         "doc/manual/drafts/x.md: drafts/ is not a chapter",
                         "doc/manual/notes.md: unlisted guide",
                     ],

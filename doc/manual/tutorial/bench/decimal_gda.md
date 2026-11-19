@@ -23,7 +23,7 @@ root:
 just bench decimal-gda
 ```
 
-The runner executes the skipped performance tests of `src/bench/decimal_gda` on the
+The runner executes the skipped performance tests of `tooling/src/bench/decimal_gda` on the
 native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all
 observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where
 `SUITE` is the name given to `just bench`.
@@ -42,7 +42,7 @@ checked path is slower.
 ### Check the plans without measuring
 
 ```bash
-sh tools/run_moon_clean_exec.sh test src/bench/decimal_gda --target native
+sh tools/run_moon_clean_exec.sh test tooling/src/bench/decimal_gda --target native
 ```
 
 runs only the plan tests, which compile every specification.

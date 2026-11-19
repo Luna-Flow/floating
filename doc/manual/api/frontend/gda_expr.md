@@ -19,7 +19,7 @@ Add the package to the `import` block of your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/frontend/gda_expr",
+  "Luna-Flow/floating-tools/frontend/gda_expr",
 }
 ```
 
@@ -512,10 +512,10 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/frontend/gda_expr"
+package "Luna-Flow/floating-tools/frontend/gda_expr"
 
 import {
-  "Luna-Flow/floating/numeric_expr",
+  "Luna-Flow/floating-tools/numeric_expr",
   "moonbitlang/core/debug",
 }
 

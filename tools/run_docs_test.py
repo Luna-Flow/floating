@@ -26,7 +26,7 @@ class RunDocsTests(unittest.TestCase):
                 with patch.object(run_docs.subprocess, "run") as run:
                     run.return_value.returncode = 5
                     self.assertEqual(run_docs.main([]), 5)
-        self.assertIn("src/doc_examples", run.call_args.args[0])
+        self.assertIn("tooling/src/doc_examples", run.call_args.args[0])
         self.assertNotIn("--frozen", run.call_args.args[0])
 
     def test_gate_skips_the_package_tests_the_native_test_stage_runs(self) -> None:

@@ -162,7 +162,7 @@ class SharedBuildTests(unittest.TestCase):
         ) as own_build:
             self.assertEqual(tool.conformance_cli("native"), ["/x/mpfr-conformance.exe"])
         build.assert_called_once_with("mpfr")
-        own_build.assert_not_called()  # no second release compile of src/cli
+        own_build.assert_not_called()  # no second release compile of tooling/src/cli
 
     def test_build_failure_is_a_tool_error(self) -> None:
         from unittest.mock import patch

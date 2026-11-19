@@ -5,7 +5,7 @@
 ## Measurement boundary
 
 `just bench decimal-gda --target native` runs the current Maremark suite in
-`src/bench/decimal_gda` and writes `.tmp/bench/decimal-gda.jsonl` plus its
+`tooling/src/bench/decimal_gda` and writes `.tmp/bench/decimal-gda.jsonl` plus its
 analysis file. The independent quick fixture can be run with
 `python3 tools/run_gda_benchmark.py`; it writes `.tmp/bench/gda-quick-native.json`
 and uses three native runs per cell. Neither artifact is a universal speed

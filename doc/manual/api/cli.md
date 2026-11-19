@@ -18,10 +18,10 @@ imported. Its `moon.pkg` imports the four runners and the process helpers:
 import {
   "moonbitlang/core/env",
   "moonbitlang/x/sys",
-  "Luna-Flow/floating/cli/gda_expr_cli",
-  "Luna-Flow/floating/cli/itl_expr_cli",
-  "Luna-Flow/floating/cli/mpfr_expr_cli",
-  "Luna-Flow/floating/cli/testfloat_expr_cli",
+  "Luna-Flow/floating-tools/cli/gda_expr_cli",
+  "Luna-Flow/floating-tools/cli/itl_expr_cli",
+  "Luna-Flow/floating-tools/cli/mpfr_expr_cli",
+  "Luna-Flow/floating-tools/cli/testfloat_expr_cli",
 }
 ```
 
@@ -70,10 +70,10 @@ The executable is built by the conformance tooling:
 
 ```bash
 just conformance build decimal_gda    # or binary, interval
-sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help
+sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help
 ```
 
-`tools/conformance_cli.py` builds `src/cli` once per backend into
+`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into
 `_build/conformance/<backend>/` and copies it to
 `<backend>-conformance.exe`, so parallel builds for different backends do not
 share a target directory.
@@ -85,7 +85,7 @@ The package exports no MoonBit items.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/cli"
+package "Luna-Flow/floating-tools/cli"
 
 // Values
 

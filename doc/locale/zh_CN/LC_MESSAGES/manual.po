@@ -1327,8 +1327,8 @@ msgid "Import the package in `moon.pkg`. The Maremark packages are needed only t
 msgstr "在 `moon.pkg` 中导入该包。只有在构建规格和观测数据时才需要 Maremark 的包；归约函数接受普通数组和观测数据："
 
 #: manual/api/bench.md:32
-msgid "The examples on this page use the alias `@bench`. The benchmark suites import the same package under the alias `@benchkit` (`\"Luna-Flow/floating/bench\" @benchkit`). Types prefixed `@model`, `@runner`, `@event` and `@stats` belong to `Luna-Flow/mare_mark`. An `@model.Observation` records one timed batch: case, implementation, dataset, repetition and block ids, phase (exploratory or confirmatory), `raw_elapsed_us` (batch time divided by the batch's iteration count, so the mean time of one call in microseconds), and a `valid` flag."
-msgstr "本页示例使用别名 `@bench`。基准测试套件以别名 `@benchkit`（`\"Luna-Flow/floating/bench\" @benchkit`）导入同一个包。带 `@model`、`@runner`、`@event` 和 `@stats` 前缀的类型属于 `Luna-Flow/mare_mark`。一个 `@model.Observation` 记录一次计时批次：用例、实现、数据集、重复编号和区块编号、阶段（探索性或确认性）、`raw_elapsed_us`（批次耗时除以该批次的迭代次数，即单次调用的平均耗时，单位为微秒），以及一个 `valid` 标志。"
+msgid "The examples on this page use the alias `@bench`. The benchmark suites import the same package under the alias `@benchkit` (`\"Luna-Flow/floating-tools/bench\" @benchkit`). Types prefixed `@model`, `@runner`, `@event` and `@stats` belong to `Luna-Flow/mare_mark`. An `@model.Observation` records one timed batch: case, implementation, dataset, repetition and block ids, phase (exploratory or confirmatory), `raw_elapsed_us` (batch time divided by the batch's iteration count, so the mean time of one call in microseconds), and a `valid` flag."
+msgstr "本页示例使用别名 `@bench`。基准测试套件以别名 `@benchkit`（`\"Luna-Flow/floating-tools/bench\" @benchkit`）导入同一个包。带 `@model`、`@runner`、`@event` 和 `@stats` 前缀的类型属于 `Luna-Flow/mare_mark`。一个 `@model.Observation` 记录一次计时批次：用例、实现、数据集、重复编号和区块编号、阶段（探索性或确认性）、`raw_elapsed_us`（批次耗时除以该批次的迭代次数，即单次调用的平均耗时，单位为微秒），以及一个 `valid` 标志。"
 
 #: manual/api/bench.md:40
 msgid "Building and running benchmarks"
@@ -3566,8 +3566,8 @@ msgid "The executable is built by the conformance tooling:"
 msgstr "该可执行文件由符合性工具链构建："
 
 #: manual/api/cli.md:76
-msgid "`tools/conformance_cli.py` builds `src/cli` once per backend into `_build/conformance/<backend>/` and copies it to `<backend>-conformance.exe`, so parallel builds for different backends do not share a target directory."
-msgstr "`tools/conformance_cli.py` 为每个后端构建一次 `src/cli`，输出到 `_build/conformance/<backend>/`，并将其复制为 `<backend>-conformance.exe`，从而使不同后端的并行构建不共享目标目录。"
+msgid "`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into `_build/conformance/<backend>/` and copies it to `<backend>-conformance.exe`, so parallel builds for different backends do not share a target directory."
+msgstr "`tools/conformance_cli.py` 为每个后端构建一次 `tooling/src/cli`，输出到 `_build/conformance/<backend>/`，并将其复制为 `<backend>-conformance.exe`，从而使不同后端的并行构建不共享目标目录。"
 
 #: manual/api/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli API"
@@ -6322,8 +6322,8 @@ msgid "doc_examples API"
 msgstr "doc_examples API"
 
 #: manual/api/doc_examples.md:5
-msgid "`doc_examples` is a test-only package. Its only source is `src/doc_examples/README.mbt.md`, whose `moonbit check` blocks are compiled and run as tests; it exports no MoonBit items. The blocks are short, executable versions of the main workflows of the public packages (binary contexts and interchange, GDA sticky status, IEEE decimal flags, intervals and decorations, checked pipelines, semantic comparison, `numeric_expr`, and the four conformance frontends). See the [tutorial](../tutorial/doc_examples.md) and the [design page](../design/doc_examples.md)."
-msgstr "`doc_examples` 是一个仅用于测试的包。它唯一的源文件是 `src/doc_examples/README.mbt.md`，其中的 `moonbit check` 代码块会作为测试被编译和运行；它不导出任何 MoonBit 项。这些代码块是各公开包主要工作流程的简短可执行版本（二进制上下文与交换格式、GDA 粘滞状态、IEEE 十进制标志、区间与装饰（decoration）、checked 流水线、语义比较、`numeric_expr`，以及四个符合性前端）。参见[教程](../tutorial/doc_examples.md)和[设计页面](../design/doc_examples.md)。"
+msgid "`doc_examples` is a test-only package. Its only source is `tooling/src/doc_examples/README.mbt.md`, whose `moonbit check` blocks are compiled and run as tests; it exports no MoonBit items. The blocks are short, executable versions of the main workflows of the public packages (binary contexts and interchange, GDA sticky status, IEEE decimal flags, intervals and decorations, checked pipelines, semantic comparison, `numeric_expr`, and the four conformance frontends). See the [tutorial](../tutorial/doc_examples.md) and the [design page](../design/doc_examples.md)."
+msgstr "`doc_examples` 是一个仅用于测试的包。它唯一的源文件是 `tooling/src/doc_examples/README.mbt.md`，其中的 `moonbit check` 代码块会作为测试被编译和运行；它不导出任何 MoonBit 项。这些代码块是各公开包主要工作流程的简短可执行版本（二进制上下文与交换格式、GDA 粘滞状态、IEEE 十进制标志、区间与装饰（decoration）、checked 流水线、语义比较、`numeric_expr`，以及四个符合性前端）。参见[教程](../tutorial/doc_examples.md)和[设计页面](../design/doc_examples.md)。"
 
 #: manual/api/doc_examples.md:16
 msgid "Nothing can be imported from `doc_examples`. Its `moon.pkg` imports the packages its examples use, for tests only:"
@@ -8289,293 +8289,301 @@ msgid "Package boundaries come from `moon.pkg`; files inside a package organize 
 msgstr "包边界由 `moon.pkg` 决定；包内的文件只用于组织实现，不会创建命名空间。依赖关系自上而下：每个数值包都依赖 `def` 和 `internal`，`ball_float` 构建在 `bin_float` 之上，`decimal` 和 `decimal_gda` 借助 `bin_float` 与 `ball_float` 实现其经认证的初等函数，checked 包封装各自的数值域，而任何数值部分都不依赖前端、CLI 或基准测试。"
 
 #: manual/architecture.md:31
+msgid "Two modules"
+msgstr "两个模块"
+
+#: manual/architecture.md:33
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, not published) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgstr "本仓库是由两个模块组成的 `moon.work` 工作区。已发布的库 `Luna-Flow/floating` 包含共享词汇、标量域与区间域、checked 层、`semantic` 和 `consistency`，只依赖 `Luna-Flow/arithmetic` 和 `Luna-Flow/luna-generic`。工具模块 `Luna-Flow/floating-tools`（目录 `tooling/`，不发布）包含 `numeric_expr`、各格式前端、运行时适配器 `internal/conformance` 和 `internal/runner_cli`、`cli`、`differential`、`bench` 以及 `doc_examples`：凡是需要 `mare_mark`、`async`、`x` 或 `type_theory` 的内容都放在这里。工具模块从同一个工作树导入库，因此对数值包的改动会在同一次提交中被工具测试。"
+
+#: manual/architecture.md:45
 msgid "Standard boundaries"
 msgstr "标准边界"
 
-#: manual/architecture.md:33
+#: manual/architecture.md:47
 msgid "There is no universal \"floating value\". Each standard keeps its own observable state:"
 msgstr "不存在通用的“浮点值”。每个标准都保有自己的可观察状态："
 
-#: manual/architecture.md:36
+#: manual/architecture.md:50
 #: manual/performance_audit.md:93
 msgid "Domain"
 msgstr "数值域"
 
-#: manual/architecture.md:36
+#: manual/architecture.md:50
 msgid "Normative model"
 msgstr "规范模型"
 
-#: manual/architecture.md:36
+#: manual/architecture.md:50
 msgid "Operation result"
 msgstr "操作结果"
 
-#: manual/architecture.md:38
+#: manual/architecture.md:52
 msgid "IEEE 754-2019 binary arithmetic at any precision, binary16/32/64/128 interchange"
 msgstr "任意精度的 IEEE 754-2019 二进制算术，binary16/32/64/128 交换格式"
 
-#: manual/architecture.md:38
+#: manual/architecture.md:52
 msgid "value + `BinaryFlags`"
 msgstr "值 + `BinaryFlags`"
 
-#: manual/architecture.md:39
+#: manual/architecture.md:53
 msgid "IEEE 754-2019 decimal arithmetic, decimal32/64/128 DPD and BID interchange"
 msgstr "IEEE 754-2019 十进制算术，decimal32/64/128 DPD 与 BID 交换格式"
 
-#: manual/architecture.md:39
+#: manual/architecture.md:53
 msgid "value + `DecimalFlags`"
 msgstr "值 + `DecimalFlags`"
 
-#: manual/architecture.md:40
+#: manual/architecture.md:54
 msgid "General Decimal Arithmetic Specification 1.70, scalar operations"
 msgstr "General Decimal Arithmetic Specification 1.70，标量运算"
 
-#: manual/architecture.md:40
+#: manual/architecture.md:54
 msgid "`GdaOutcome` with raised flags, sticky next context, optional trap"
 msgstr "含 raised flags、sticky next context、可选 trap 的 `GdaOutcome`"
 
-#: manual/architecture.md:41
+#: manual/architecture.md:55
 msgid "IEEE 1788-2015 bare and decorated intervals, for the declared operation set"
 msgstr "IEEE 1788-2015 裸区间与带装饰区间，限于声明的运算集合"
 
-#: manual/architecture.md:41
+#: manual/architecture.md:55
 msgid "enclosure, decoration or NaI, optional `BallFlags`"
 msgstr "包络、装饰（decoration）或 NaI，可选的 `BallFlags`"
 
-#: manual/architecture.md:43
+#: manual/architecture.md:57
 msgid "The separation prevents lossy conversions such as treating a GDA trap as an IEEE flag, an IEEE infinity as a generic error, or Empty, Entire and NaI as interchangeable interval failures. [Numeric semantics](./numeric_semantics.md) defines each of these states."
 msgstr "这种分离避免了有损转换，例如把 GDA 陷阱当作 IEEE 标志，把 IEEE 无穷大当作通用错误，或把 Empty、Entire 与 NaI 当作可互换的区间失败。[数值语义](./numeric_semantics.md)定义了上述每一种状态。"
 
-#: manual/architecture.md:48
+#: manual/architecture.md:62
 msgid "Numeric core pipeline"
 msgstr "数值核心流水线"
 
-#: manual/architecture.md:50
+#: manual/architecture.md:64
 msgid "All scalar cores share one decomposition, even though their representations and standards differ:"
 msgstr "所有标量核心都采用同一种分解方式，尽管它们的表示和标准各不相同："
 
-#: manual/architecture.md:61
+#: manual/architecture.md:75
 msgid "`BinFloat` stores a class, a sign, a non-negative binary coefficient with no trailing zero bits, an exponent, a precision, and NaN state (signaling bit and payload). `Decimal` and the GDA `Decimal` each store a sign, a package-owned base-$10^9$ coefficient, an exponent that is the quantum, a precision and the special state. `BallFloat` stores two `BinFloat` endpoints, a precision and an Empty marker; `BallFloatDecorated` adds a decoration without changing the bare representation."
 msgstr "`BinFloat` 存储类别、符号、不含末尾零比特的非负二进制系数、指数、精度以及 NaN 状态（signaling 位与 payload）。`Decimal` 与 GDA `Decimal` 各自存储符号、由包自身管理的以 $10^9$ 为基数的系数、作为量子（quantum）的指数、精度以及特殊状态。`BallFloat` 存储两个 `BinFloat` 端点、精度以及 Empty 标记；`BallFloatDecorated` 在此基础上增加装饰，但不改变裸区间的表示。"
 
-#: manual/architecture.md:69
+#: manual/architecture.md:83
 msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[1 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
 msgstr "最终化（finalization）是语义防火墙。计算内核可以计算精确的和、积、商、根或保护位与粘滞位，但只有最终化器决定舍入后的值、同值类（cohort）、标志、陷阱、装饰以及区间端点的方向。它还对首位比特强制实施二进制实现的指数范围 $[1 - 2^{30},\\ 2^{30} - 1]$：超出该范围的结果会按舍入方向被归类为上溢或下溢，而不是以饱和指数存储。"
 
-#: manual/architecture.md:77
+#: manual/architecture.md:91
 msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums drop an addend that lies more than $\\max(65536, p)$ bits below the other to a directed sticky term. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
 msgstr "精确值极其庞大的运算从不将其实际展开。相距很远的加数会折叠为一个粘滞位；IEEE 余数运算通过对 $2^k$ 平方再相乘，将巨大的被除数对 $2y$ 取模来约化；舍入到整数时通过移位拆分系数；区间端点求和时，若某个加数比另一个低超过 $\\max(65536, p)$ 比特，则将其舍弃为一个定向粘滞项。每种捷径都恰好向最终化器提供与完整计算相同的舍入位和粘滞信息。"
 
-#: manual/architecture.md:85
+#: manual/architecture.md:99
 msgid "Algorithm selection"
 msgstr "算法选择"
 
-#: manual/architecture.md:87
+#: manual/architecture.md:101
 msgid "Large-integer kernels use a staged selector rather than one algorithm:"
 msgstr "大整数内核使用分阶段选择器，而非单一算法："
 
-#: manual/architecture.md:98
+#: manual/architecture.md:112
 msgid "Division likewise moves from word division and Knuth's algorithm D to Burnikel–Ziegler and reciprocal Newton iteration where target measurements justify it. Sparse and unbalanced operands have their own paths, because an algorithm chosen only by the larger length can waste more on padding than it saves asymptotically."
 msgstr "除法同样会在目标测量结果支持的情况下，从字除法和 Knuth 算法 D 过渡到 Burnikel–Ziegler 算法与倒数 Newton 迭代。稀疏和不平衡的操作数有各自的路径，因为仅按较长长度选择的算法，在填充上的浪费可能超过其渐近意义上的节省。"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:118
 msgid "Crossover points are private, target-specific policy. They are measured with the Maremark benchmark hierarchy (`bench/*`) on dense, sparse, square, balanced and unbalanced data, and boundary tests compare exact results below, at and above every cutoff. Native, LLVM, Wasm, Wasm-GC and JavaScript may therefore pick different algorithms but must return the same public result."
 msgstr "切换点是私有的、特定于目标平台的策略。它们通过 Maremark 基准测试层次（`bench/*`）在稠密、稀疏、平方、平衡和不平衡数据上测量，边界测试则在每个阈值之下、之上以及恰好处比较精确结果。因此 Native、LLVM、Wasm、Wasm-GC 和 JavaScript 可以选择不同的算法，但必须返回相同的公开结果。"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:124
 #: manual/design/bin_float.md:704
 #: manual/design/decimal.md:691
 msgid "Certified elementary functions"
 msgstr "经认证的初等函数"
 
-#: manual/architecture.md:112
+#: manual/architecture.md:126
 msgid "Elementary functions (exponentials, logarithms, powers, roots, trigonometric, hyperbolic and inverse functions) follow one proof contract across the binary, decimal and interval stacks, in the style of Ziv's strategy:[^ziv]"
 msgstr "初等函数（指数、对数、幂、根、三角函数、双曲函数及其反函数）在二进制、十进制和区间三套实现中遵循同一份证明契约，采用 Ziv 策略的风格：[^ziv]"
 
-#: manual/architecture.md:116
+#: manual/architecture.md:130
 msgid "Decide results that are certainly outside the context range (overflow, underflow) from certified bounds on $\\log_2$ of the result, before any refinement."
 msgstr "在任何细化之前，先根据结果 $\\log_2$ 的认证界判定那些必然超出上下文范围的结果（上溢、下溢）。"
 
-#: manual/architecture.md:119
+#: manual/architecture.md:133
 msgid "Compute directed lower and upper enclosures $[\\ell, h]$ of the exact value at a working precision $w = p + 64$."
 msgstr "在工作精度 $w = p + 64$ 下，计算精确值的定向下包络与上包络 $[\\ell, h]$。"
 
-#: manual/architecture.md:121
+#: manual/architecture.md:135
 msgid "Round both endpoints to the target. Because rounding is monotone, if $\\operatorname{rnd}(\\ell) = \\operatorname{rnd}(h)$ with the same flags, every value in $[\\ell, h]$, including the exact one, rounds to that result."
 msgstr "将两个端点舍入到目标精度。由于舍入是单调的，若 $\\operatorname{rnd}(\\ell) = \\operatorname{rnd}(h)$ 且标志相同，则 $[\\ell, h]$ 中的每个值（包括精确值）都会舍入到该结果。"
 
-#: manual/architecture.md:124
+#: manual/architecture.md:138
 msgid "Otherwise increase $w$ by $\\max(32, \\lfloor w/2 \\rfloor)$ and repeat, at most 12 times."
 msgstr "否则将 $w$ 增加 $\\max(32, \\lfloor w/2 \\rfloor)$ 并重复，至多 12 次。"
 
-#: manual/architecture.md:126
+#: manual/architecture.md:140
 msgid "If no attempt agrees, `try_*` functions return a `CertificationFailure` with the stage, reason, precision, working precision and attempt count; the non-`try` functions return a defined invalid result (a quiet NaN with *invalid operation* in binary) and never abort."
 msgstr "如果所有尝试都无法达成一致，`try_*` 函数返回一个 `CertificationFailure`，其中包含阶段、原因、精度、工作精度和尝试次数；非 `try` 函数则返回一个有定义的无效结果（在二进制中为带 *invalid operation* 的静默 NaN），且从不中止。"
 
-#: manual/architecture.md:131
+#: manual/architecture.md:145
 msgid "Step 3 needs only monotonicity: $\\ell \\le x \\le h$ gives $\\operatorname{rnd}(\\ell) \\le \\operatorname{rnd}(x) \\le \\operatorname{rnd}(h)$, so equal outer values force the middle one. The loop can only succeed if the exact value $x$ is not a *breakpoint* of the rounding function: a representable number under directed rounding, or a midpoint between two neighbours under rounding to nearest. At a breakpoint every enclosure $\\ell < x < h$ straddles a jump of $\\operatorname{rnd}$, at every working precision. The functions therefore decide their exact cases before the loop: $e^0 = 1$, $\\log_2 2^k = k$, $2^n$ and $10^n$ for integers $n$, powers and roots that are exact, $\\operatorname{sinpi}$ and $\\operatorname{cospi}$ at multiples of $\\tfrac12$, $\\operatorname{tanpi}$ at multiples of $\\tfrac14$, and so on. Elsewhere the exact value is not a dyadic number. For example, by the Lindemann–Weierstrass theorem $e^x$ is transcendental for every nonzero algebraic $x$, so $\\exp$ and $\\ln$ never return a breakpoint at a dyadic argument other than $0$ and $1$; by Niven's theorem $\\sin \\pi x$ at a rational $x$ is rational only when it is $0$, $\\pm\\tfrac12$ or $\\pm 1$, and at a dyadic $x$ only $0$ and $\\pm 1$ occur. A non-dyadic value has a positive distance $\\delta$ to the nearest breakpoint, so the loop succeeds as soon as the enclosure is narrower than $\\delta$. The budget is still finite: once $w \\ge 64$ each refinement multiplies $w$ by $1.5$, so twelve refinements reach about $1.5^{12} \\approx 130$ times the starting precision. For binary64 the hardest known cases of $\\exp$ and $\\ln$ need a little more than $2p$ bits, far below that, but no such bound is known for every precision, so a failure remains possible in principle and is reported rather than hidden."
 msgstr "第 3 步只需要单调性：由 $\\ell \\le x \\le h$ 可得 $\\operatorname{rnd}(\\ell) \\le \\operatorname{rnd}(x) \\le \\operatorname{rnd}(h)$，因此外侧的两个值相等就迫使中间的值与之相同。只有当精确值 $x$ 不是舍入函数的*断点*时，循环才可能成功：断点在定向舍入下是可表示数，在就近舍入下是两个相邻可表示数之间的中点。在断点处，无论工作精度如何，每个包络 $\\ell < x < h$ 都跨越 $\\operatorname{rnd}$ 的一个跳跃。因此各函数在循环之前先判定其精确情形：$e^0 = 1$、$\\log_2 2^k = k$、整数 $n$ 的 $2^n$ 和 $10^n$、结果精确的幂和根、$\\tfrac12$ 的倍数处的 $\\operatorname{sinpi}$ 和 $\\operatorname{cospi}$、$\\tfrac14$ 的倍数处的 $\\operatorname{tanpi}$，等等。在其他地方，精确值不是二进有理数。例如，由 Lindemann–Weierstrass 定理，对每个非零代数数 $x$，$e^x$ 都是超越数，因此 $\\exp$ 和 $\\ln$ 在 $0$ 和 $1$ 以外的二进有理数参数处从不返回断点；由 Niven 定理，有理数 $x$ 处的 $\\sin \\pi x$ 仅当其为 $0$、$\\pm\\tfrac12$ 或 $\\pm 1$ 时才是有理数，而在二进有理数 $x$ 处只会出现 $0$ 和 $\\pm 1$。非二进有理数的值到最近断点的距离 $\\delta$ 为正，因此一旦包络比 $\\delta$ 更窄，循环就会成功。但预算仍然是有限的：一旦 $w \\ge 64$，每次细化都将 $w$ 乘以 $1.5$，因此十二次细化大约达到起始精度的 $1.5^{12} \\approx 130$ 倍。对于 binary64，$\\exp$ 和 $\\ln$ 已知最难的情形只需要略多于 $2p$ 位，远低于该值；但并不知道对每种精度都成立的这种界，因此原则上仍可能失败，而失败会被报告，而不是被隐藏。"
 
-#: manual/architecture.md:157
+#: manual/architecture.md:171
 msgid "`bin_float` owns the scalar dyadic certificates. `ball_float` lifts them over endpoints, critical points, poles and domain boundaries. `decimal` and `decimal_gda` convert exact decimal inputs to directed dyadic bounds, run the binary certificate, and convert the certified endpoints back through exact integer arithmetic; endpoints far outside the decimal range are replaced by representatives that round identically, so no huge decimal is expanded. Total interval functions may widen to a safe set such as $[-1, 1]$ or Entire, while their checked forms expose the failure. No path substitutes a host `Double` approximation."
 msgstr "`bin_float` 负责标量二进数（dyadic）证书。`ball_float` 将其提升到端点、临界点、极点和定义域边界上。`decimal` 和 `decimal_gda` 将精确的十进制输入转换为定向的二进数界，运行二进制证书，再通过精确整数算术把认证后的端点转换回来；远超十进制范围的端点会被替换为舍入结果相同的代表值，因此不会展开任何巨大的十进制数。全函数形式的区间函数可以放宽到 $[-1, 1]$ 或 Entire 之类的安全集合，而其 checked 形式会暴露失败。任何路径都不会用宿主的 `Double` 近似值来替代。"
 
-#: manual/architecture.md:167
+#: manual/architecture.md:181
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, ch. 10, discusses the table-maker's dilemma this loop resolves."
 msgstr "A. Ziv，\"Fast evaluation of elementary mathematical functions with correctly rounded last bit\"，*ACM TOMS* 17(3)，1991。Muller 等，*Handbook of Floating-Point Arithmetic*，第 2 版，2018，第 10 章讨论了这一循环所解决的制表者困境（table-maker's dilemma）。"
 
-#: manual/architecture.md:172
+#: manual/architecture.md:186
 msgid "Decimal text conversion"
 msgstr "十进制文本转换"
 
-#: manual/architecture.md:174
+#: manual/architecture.md:188
 msgid "`BinFloat::from_string_ctx` and `to_decimal_string_ctx` are correctly rounded for every precision and exponent without expanding $10^{k}$ when $k$ is huge. Parsing first decides certain overflow or underflow from a logarithmic estimate; for small exponents it rounds the exact rational $D \\cdot 10^{k}$; for large ones it encloses $D \\cdot 10^{k}$ with directed powers of ten and widens the working precision until both ends round alike, which terminates because no tie is possible there. Formatting finds the leading decimal exponent from a binary estimate corrected by directed powers of ten, and `to_shortest_string_ctx` bisects on the digit count. Bisection is valid because the test it bisects on is monotone in the number of digits $n$. The test asks whether one of the two $n$-digit decimals that bracket $x$ reads back to $x$. The values that read back to $x$ form an interval $I(x)$ around $x$. If some $n$-digit decimal $d$ lies in $I(x)$, then $d$ is also an $(n+1)$-digit decimal, and the $(n+1)$-digit neighbour of $x$ on the side of $d$ lies between $x$ and $d$, hence in $I(x)$ as well."
 msgstr "`BinFloat::from_string_ctx` 和 `to_decimal_string_ctx` 对任意精度和指数都是正确舍入的，且在 $k$ 极大时不会展开 $10^{k}$。解析时先根据对数估计判定必然的上溢或下溢；对较小的指数，直接舍入精确有理数 $D \\cdot 10^{k}$；对较大的指数，则用定向的十的幂包络 $D \\cdot 10^{k}$，并不断增大工作精度直到两端舍入结果一致——由于此处不可能出现平局，该过程必然终止。格式化时先由二进制估计求出首位十进制指数，再用定向的十的幂加以修正；`to_shortest_string_ctx` 对数字位数做二分搜索。二分搜索之所以成立，是因为它所依据的判定关于位数 $n$ 是单调的。该判定询问夹住 $x$ 的两个 $n$ 位十进制数中是否有一个能回读为 $x$。能回读为 $x$ 的值构成 $x$ 周围的一个区间 $I(x)$。若某个 $n$ 位十进制数 $d$ 位于 $I(x)$ 中，则 $d$ 也是一个 $(n+1)$ 位十进制数，而 $x$ 在 $d$ 一侧的 $(n+1)$ 位相邻数位于 $x$ 与 $d$ 之间，因此也在 $I(x)$ 中。"
 
-#: manual/architecture.md:190
+#: manual/architecture.md:204
 msgid "Context and status flow"
 msgstr "上下文与状态的流动"
 
-#: manual/architecture.md:192
+#: manual/architecture.md:206
 msgid "No numerical package relies on an ambient rounding mode."
 msgstr "任何数值包都不依赖环境中的舍入模式。"
 
-#: manual/architecture.md:194
+#: manual/architecture.md:208
 msgid "Binary and IEEE decimal contexts are immutable inputs; flags are explicit outputs that callers `combine`."
 msgstr "二进制和 IEEE 十进制上下文是不可变的输入；标志是显式输出，由调用者自行 `combine`。"
 
-#: manual/architecture.md:196
+#: manual/architecture.md:210
 msgid "`decimal_gda` returns a new context whose status includes the raised flags, then selects at most one trap by fixed precedence."
 msgstr "`decimal_gda` 返回一个新的上下文，其状态包含已触发的标志，然后按固定优先级至多选择一个陷阱。"
 
-#: manual/architecture.md:198
+#: manual/architecture.md:212
 msgid "`BallContext` fixes the endpoint precision and exponent bounds and returns `BallFlags`."
 msgstr "`BallContext` 确定端点精度和指数界，并返回 `BallFlags`。"
 
-#: manual/architecture.md:200
+#: manual/architecture.md:214
 msgid "`BinFloat`, `Decimal` and GDA `Decimal` implement the contextual traits of `Luna-Flow/arithmetic` (`AddContextual`, …, `ExpContextual`), so generic code can run all three under one `ArithmeticContext`; `BinaryContext::from_arithmetic_context` and the decimal equivalents carry its precision, rounding, exponent bounds and clamp."
 msgstr "`BinFloat`、`Decimal` 和 GDA `Decimal` 实现了 `Luna-Flow/arithmetic` 的 contextual trait（`AddContextual`、…、`ExpContextual`），因此泛型代码可以在同一个 `ArithmeticContext` 下运行这三者；`BinaryContext::from_arithmetic_context` 及其十进制对应函数会携带该上下文的精度、舍入方式、指数界和 clamp。"
 
-#: manual/architecture.md:205
+#: manual/architecture.md:219
 msgid "`BinFloatResult` and `BallFloatResult` keep the first `ArithmeticError`."
 msgstr "`BinFloatResult` 和 `BallFloatResult` 保留第一个 `ArithmeticError`。"
 
-#: manual/architecture.md:206
+#: manual/architecture.md:220
 msgid "`DecimalChecked` keeps defined IEEE results, accumulates flags, and keeps certification errors separately."
 msgstr "`DecimalChecked` 保留有定义的 IEEE 结果，累积标志，并单独保存认证错误。"
 
-#: manual/architecture.md:208
+#: manual/architecture.md:222
 msgid "`GdaDecimalChecked` threads one outcome, stops on `Trapped`, and resumes only through the explicit `resume_defined` transition."
 msgstr "`GdaDecimalChecked` 串联传递单一结果，在遇到 `Trapped` 时停止，且只能通过显式的 `resume_defined` 转换恢复。"
 
-#: manual/architecture.md:211
+#: manual/architecture.md:225
 msgid "These wrappers compose existing semantics; they add no arithmetic of their own and never merge incompatible status channels."
 msgstr "这些包装器只是组合已有语义；它们自身不添加任何算术，也从不合并互不兼容的状态通道。"
 
-#: manual/architecture.md:214
+#: manual/architecture.md:228
 msgid "Public surface and trait methods"
 msgstr "公开接口与 trait 方法"
 
-#: manual/architecture.md:216
+#: manual/architecture.md:230
 msgid "The generated `pkg.generated.mbti` of each package is the authority for what is public. With MoonBit 0.10, methods of a trait implementation are no longer promoted to the type automatically: a method such as `BinFloat::to_string`, `Decimal::add_contextual` or `BinFloat::sqrt_checked` is callable with dot syntax only because the package declares it with `pub extend`, and the `.mbti` then lists it as `pub fn Type::name`. A trait method that is not listed that way is still reachable through the trait (for example `@def.is_finite(x)` over `Floating`), but not as `x.method()`."
 msgstr "每个包生成的 `pkg.generated.mbti` 是判断哪些内容公开的权威依据。自 MoonBit 0.10 起，trait 实现中的方法不再自动提升为该类型的方法：像 `BinFloat::to_string`、`Decimal::add_contextual` 或 `BinFloat::sqrt_checked` 这样的方法之所以能用点语法调用，只是因为包用 `pub extend` 声明了它，随后 `.mbti` 会将其列为 `pub fn Type::name`。未以这种方式列出的 trait 方法仍可通过 trait 访问（例如基于 `Floating` 的 `@def.is_finite(x)`），但不能写作 `x.method()`。"
 
-#: manual/architecture.md:225
+#: manual/architecture.md:239
 msgid "Parsing and execution"
 msgstr "解析与执行"
 
-#: manual/architecture.md:227
+#: manual/architecture.md:241
 msgid "`numeric_expr` holds syntax data and post-order callback evaluation. It performs no IO and selects no numeric backend."
 msgstr "`numeric_expr` 保存语法数据并提供后序回调求值。它不执行任何 IO，也不选择数值后端。"
 
-#: manual/architecture.md:230
+#: manual/architecture.md:244
 msgid "Each `frontend/*` package owns one external grammar:"
 msgstr "每个 `frontend/*` 包负责一种外部语法："
 
-#: manual/architecture.md:232
+#: manual/architecture.md:246
 msgid "`gda_expr` parses `.decTest` directives and cases and executes GDA outcomes;"
 msgstr "`gda_expr` 解析 `.decTest` 指令与用例，并执行 GDA 结果；"
 
-#: manual/architecture.md:233
+#: manual/architecture.md:247
 msgid "`testfloat_expr` parses Berkeley TestFloat vectors and binds format, operation, rounding, tininess and exactness;"
 msgstr "`testfloat_expr` 解析 Berkeley TestFloat 向量，并绑定格式、运算、舍入、微小性（tininess）和精确性；"
 
-#: manual/architecture.md:235
+#: manual/architecture.md:249
 msgid "`mpfr_expr` parses the pinned MPFR square-root, integer-power and elementary witnesses;"
 msgstr "`mpfr_expr` 解析固定版本的 MPFR 平方根、整数幂和初等函数见证数据；"
 
-#: manual/architecture.md:237
+#: manual/architecture.md:251
 msgid "`itl_expr` parses ITF1788 interval rows and classifies the declared support set."
 msgstr "`itl_expr` 解析 ITF1788 区间测试行，并对声明的支持集合进行分类。"
 
-#: manual/architecture.md:240
+#: manual/architecture.md:254
 msgid "Frontends return typed summaries. The `cli` packages own files, filters, shards, rendering and exit codes, on top of `internal/conformance` (shards, case dispositions, summaries) and `internal/runner_cli` (options, files, JSON). Python tools under `tools/` fetch checksum-pinned data, plan tasks, run isolated targets and processes, and aggregate results; they never replace the MoonBit implementation."
 msgstr "前端返回带类型的汇总。`cli` 包在 `internal/conformance`（分片、用例处置、汇总）和 `internal/runner_cli`（选项、文件、JSON）之上，负责文件、过滤、分片、渲染和退出码。`tools/` 下的 Python 工具负责获取经校验和固定的数据、规划任务、运行隔离的目标平台与进程并汇总结果；它们从不替代 MoonBit 实现。"
 
-#: manual/architecture.md:247
+#: manual/architecture.md:261
 msgid "Stability boundaries"
 msgstr "稳定性边界"
 
-#: manual/architecture.md:249
+#: manual/architecture.md:263
 msgid "The application surface is `def`, the four numeric packages and the four checked wrappers. `semantic` and `numeric_expr` are provisional integration surfaces. Frontends are public so that repository runners can compose them, but their compatibility promise is limited to the declared corpora."
 msgstr "应用接口包括 `def`、四个数值包和四个 checked 包装器。`semantic` 和 `numeric_expr` 是暂定的集成接口。前端之所以公开，是为了让仓库中的运行器能够组合它们，但其兼容性承诺仅限于声明的语料。"
 
-#: manual/architecture.md:254
+#: manual/architecture.md:268
 msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `consistency` and `doc_examples` are implementation and verification infrastructure. A symbol may appear in `pkg.generated.mbti` without becoming a long-term application contract; read the package's design page before depending on it."
 msgstr "`internal` 与 `internal/*`、`cli` 与 `cli/*`、`bench` 与 `bench/*`、`consistency` 以及 `doc_examples` 属于实现与验证基础设施。某个符号出现在 `pkg.generated.mbti` 中，并不意味着它成为长期的应用契约；依赖它之前请先阅读该包的设计页面。"
 
-#: manual/architecture.md:260
+#: manual/architecture.md:274
 msgid "Invariants"
 msgstr "不变量"
 
-#: manual/architecture.md:262
+#: manual/architecture.md:276
 msgid "The sign of a value is independent of its non-negative coefficient."
 msgstr "值的符号独立于其非负系数。"
 
-#: manual/architecture.md:263
+#: manual/architecture.md:277
 msgid "Finite binary normalization removes only factors of two."
 msgstr "有限二进制值的规范化只移除因子 2。"
 
-#: manual/architecture.md:264
+#: manual/architecture.md:278
 msgid "Decimal parsing preserves the quantum until a normalizing or reducing operation is called explicitly."
 msgstr "十进制解析会保留量子（quantum），直到显式调用规范化或约简运算。"
 
-#: manual/architecture.md:266
+#: manual/architecture.md:280
 msgid "Context finalization is the only place where a bounded result is rounded and status is decided."
 msgstr "上下文最终化是唯一对有界结果进行舍入并决定状态的地方。"
 
-#: manual/architecture.md:268
+#: manual/architecture.md:282
 msgid "Interval lower endpoints round toward $-\\infty$ and upper endpoints toward $+\\infty$."
 msgstr "区间下端点向 $-\\infty$ 舍入，上端点向 $+\\infty$ 舍入。"
 
-#: manual/architecture.md:270
+#: manual/architecture.md:284
 msgid "Empty, Entire, NaI, NaN, signed zero and the infinities stay explicit states."
 msgstr "Empty、Entire、NaI、NaN、带符号零和无穷大都保持为显式状态。"
 
-#: manual/architecture.md:272
+#: manual/architecture.md:286
 msgid "A finite result never carries an exponent outside the implementation range."
 msgstr "有限结果的指数绝不会超出实现范围。"
 
-#: manual/architecture.md:273
+#: manual/architecture.md:287
 msgid "Fast paths and fallbacks cannot change public values or status."
 msgstr "快速路径与回退路径不能改变公开的值或状态。"
 
-#: manual/architecture.md:274
+#: manual/architecture.md:288
 msgid "Conformance summaries partition the selected cases, and sharding is deterministic."
 msgstr "符合性汇总对所选用例构成划分，且分片是确定性的。"
 
-#: manual/architecture.md:276
+#: manual/architecture.md:290
 msgid "IO, downloads, process state and parallel scheduling stay in the tooling."
 msgstr "IO、下载、进程状态和并行调度都留在工具链中。"
 
-#: manual/architecture.md:278
+#: manual/architecture.md:292
 msgid "Extension rule"
 msgstr "扩展规则"
 
-#: manual/architecture.md:280
+#: manual/architecture.md:294
 msgid "Add behaviour to the package that owns its semantics. Reuse the capability traits of `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` before creating an umbrella trait. Keep kernels private, contexts and status explicit, and external-format parsing outside the numeric types unless the format is a stable interchange contract. Promote a new trait method to dot syntax with `pub extend` when it belongs to the type's public surface."
 msgstr "把行为添加到拥有其语义的包中。在创建总括性的 trait 之前，先复用 `Luna-Flow/arithmetic` 和 `Luna-Flow/luna-generic` 的能力 trait。保持内核私有、上下文与状态显式；除非外部格式本身是稳定的交换契约，否则其解析应放在数值类型之外。当新的 trait 方法属于该类型的公开接口时，用 `pub extend` 将其提升为点语法可调用的方法。"
 
-#: manual/architecture.md:287
+#: manual/architecture.md:301
 msgid "Extending a conformance surface needs coordinated changes to the parser, executor, support classification, CLI schema, corpus manifest, tests, generated interfaces and documentation. Parsing a new operation is not support until strict execution has a defined comparison and reproducible evidence; see [verification](./verification.md)."
 msgstr "扩展符合性测试范围需要协同修改解析器、执行器、支持分类、CLI 模式、语料清单、测试、生成的接口以及文档。能解析一个新运算并不等于支持它，除非严格执行具有明确定义的比较方式和可复现的证据；参见[验证](./verification.md)。"
 
@@ -10227,8 +10235,8 @@ msgid "Compile and run every changed example (`moonbit` blocks) against the curr
 msgstr "针对当前分支编译并运行每个有改动的示例（`moonbit` 代码块）。"
 
 #: manual/conventions.md:136
-msgid "Run `just docs`: `tools/doc_quality.py`, the manual examples and the `src/doc_examples` tests."
-msgstr "运行 `just docs`：它会运行 `tools/doc_quality.py`、手册示例以及 `src/doc_examples` 测试。"
+msgid "Run `just docs`: `tools/doc_quality.py`, the manual examples and the `tooling/src/doc_examples` tests."
+msgstr "运行 `just docs`：它会运行 `tools/doc_quality.py`、手册示例以及 `tooling/src/doc_examples` 测试。"
 
 #: manual/conventions.md:138
 msgid "Run `lunadoc update` to refresh `doc/locale/manual.pot` and merge the catalogs, translate new and fuzzy entries, then check `lunadoc status` (coverage per locale) and `lunadoc check --compile` (layout, catalogs, links and Typst attachments)."
@@ -13149,8 +13157,8 @@ msgid "One binary, copied per backend"
 msgstr "一个二进制文件，按后端复制"
 
 #: manual/design/cli.md:38
-msgid "`tools/conformance_cli.py` builds `src/cli` into a backend-specific target directory and copies it to `<backend>-conformance.exe`. Parallel builds for different backends therefore never share a `_build` directory or lock, and tools always invoke an executable whose name says what it runs."
-msgstr "`tools/conformance_cli.py` 将 `src/cli` 构建到特定于后端的目标目录中，并将其复制为 `<backend>-conformance.exe`。因此，不同后端的并行构建永远不会共享 `_build` 目录或锁，工具调用的可执行文件名也总能说明它运行的是什么。"
+msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target directory and copies it to `<backend>-conformance.exe`. Parallel builds for different backends therefore never share a `_build` directory or lock, and tools always invoke an executable whose name says what it runs."
+msgstr "`tools/conformance_cli.py` 将 `tooling/src/cli` 构建到特定于后端的目标目录中，并将其复制为 `<backend>-conformance.exe`。因此，不同后端的并行构建永远不会共享 `_build` 目录或锁，工具调用的可执行文件名也总能说明它运行的是什么。"
 
 #: manual/design/cli.md:43
 msgid "Dispatcher help wins"
@@ -18925,8 +18933,8 @@ msgid "Measurement boundary"
 msgstr "测量边界"
 
 #: manual/performance/ball_float.md:7
-msgid "`just bench ball-float --target native` runs the current Maremark suite in `src/bench/ball_float` and writes `.tmp/bench/ball-float.jsonl` plus its analysis file. The artifact measures layer cost on the current target; it is not an IEEE 1788 completeness claim or a release-wide latency guarantee."
-msgstr "`just bench ball-float --target native` 运行 `src/bench/ball_float` 中当前的 Maremark suite，并写入 `.tmp/bench/ball-float.jsonl` 及其 analysis 文件。artifact 测量当前 target 上的分层成本，不是 IEEE 1788 完整性声明，也不是 release-wide latency guarantee。"
+msgid "`just bench ball-float --target native` runs the current Maremark suite in `tooling/src/bench/ball_float` and writes `.tmp/bench/ball-float.jsonl` plus its analysis file. The artifact measures layer cost on the current target; it is not an IEEE 1788 completeness claim or a release-wide latency guarantee."
+msgstr "`just bench ball-float --target native` 运行 `tooling/src/bench/ball_float` 中当前的 Maremark suite，并写入 `.tmp/bench/ball-float.jsonl` 及其 analysis 文件。artifact 测量当前 target 上的分层成本，不是 IEEE 1788 完整性声明，也不是 release-wide latency guarantee。"
 
 #: manual/performance/ball_float.md:12
 #: manual/performance/decimal.md:13
@@ -20005,8 +20013,8 @@ msgid "decimal performance"
 msgstr "decimal 性能"
 
 #: manual/performance/decimal.md:7
-msgid "`just bench decimal --target native` runs the current Maremark suite in `src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
-msgstr "`just bench decimal --target native` 运行 `src/bench/decimal` 中当前的 Maremark 基准套件，并写入 `.tmp/bench/decimal.jsonl` 及其分析文件。这是一个可复现的测量产物，而不是不可变的发布门槛。当前分支没有签入的十进制性能清单或阈值流程；测量使用下面的 Maremark 套件。"
+msgid "`just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
+msgstr "`just bench decimal --target native` 运行 `tooling/src/bench/decimal` 中当前的 Maremark 基准套件，并写入 `.tmp/bench/decimal.jsonl` 及其分析文件。这是一个可复现的测量产物，而不是不可变的发布门槛。当前分支没有签入的十进制性能清单或阈值流程；测量使用下面的 Maremark 套件。"
 
 #: manual/performance/decimal.md:15
 msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell compares a `BigInt` coefficient baseline (`kernel/coefficient`), the contextual `Decimal` path (`core/decimal`, the `*_ctx` operations) and the full `DecimalChecked` path (`full/checked`), and validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
@@ -20033,8 +20041,8 @@ msgid "decimal_gda performance"
 msgstr "decimal_gda 性能"
 
 #: manual/performance/decimal_gda.md:7
-msgid "`just bench decimal-gda --target native` runs the current Maremark suite in `src/bench/decimal_gda` and writes `.tmp/bench/decimal-gda.jsonl` plus its analysis file. The independent quick fixture can be run with `python3 tools/run_gda_benchmark.py`; it writes `.tmp/bench/gda-quick-native.json` and uses three native runs per cell. Neither artifact is a universal speed claim or a substitute for the conformance gate."
-msgstr "`just bench decimal-gda --target native` 运行 `src/bench/decimal_gda` 中当前的 Maremark suite，并写入 `.tmp/bench/decimal-gda.jsonl` 及其 analysis 文件。独立 quick fixture 可用 `python3 tools/run_gda_benchmark.py` 运行，写入 `.tmp/bench/gda-quick-native.json`，每个 cell 使用三个 native run。两个 artifact 都不是通用速度声明，也不能替代 conformance gate。"
+msgid "`just bench decimal-gda --target native` runs the current Maremark suite in `tooling/src/bench/decimal_gda` and writes `.tmp/bench/decimal-gda.jsonl` plus its analysis file. The independent quick fixture can be run with `python3 tools/run_gda_benchmark.py`; it writes `.tmp/bench/gda-quick-native.json` and uses three native runs per cell. Neither artifact is a universal speed claim or a substitute for the conformance gate."
+msgstr "`just bench decimal-gda --target native` 运行 `tooling/src/bench/decimal_gda` 中当前的 Maremark suite，并写入 `.tmp/bench/decimal-gda.jsonl` 及其 analysis 文件。独立 quick fixture 可用 `python3 tools/run_gda_benchmark.py` 运行，写入 `.tmp/bench/gda-quick-native.json`，每个 cell 使用三个 native run。两个 artifact 都不是通用速度声明，也不能替代 conformance gate。"
 
 #: manual/performance/decimal_gda.md:16
 msgid "The Maremark suite measures add, subtract, multiply, divide, FMA, and parse at 1, 9, 18, 34, and 128 decimal digits. It compares the core `GdaContext` path with the full checked path and validates both against the core result before reporting layer overhead."
@@ -20364,8 +20372,8 @@ msgid "interval endpoint dispatch"
 msgstr "区间端点分派"
 
 #: manual/performance_audit.md:113
-msgid "`src/bench/ball_float` and strict ITF1788"
-msgstr "`src/bench/ball_float` 与 strict ITF1788"
+msgid "`tooling/src/bench/ball_float` and strict ITF1788"
+msgstr "`tooling/src/bench/ball_float` 与 strict ITF1788"
 
 #: manual/performance_audit.md:113
 msgid "lower cost is acceptable only with ordered, outward-rounded enclosures"
@@ -21269,8 +21277,8 @@ msgid "The `floating` suites themselves run from a checkout of the repository. R
 msgstr "`floating` 自身的基准套件需要从仓库的检出副本运行。在仓库根目录下运行一个套件："
 
 #: manual/tutorial/bench.md:58
-msgid "The command runs the skipped performance tests of `src/bench/bin_float` in release mode on the native target, then writes"
-msgstr "该命令以 release 模式在 native 目标上运行 `src/bench/bin_float` 中被跳过的性能测试，然后写出"
+msgid "The command runs the skipped performance tests of `tooling/src/bench/bin_float` in release mode on the native target, then writes"
+msgstr "该命令以 release 模式在 native 目标上运行 `tooling/src/bench/bin_float` 中被跳过的性能测试，然后写出"
 
 #: manual/tutorial/bench.md:66
 msgid "The `.jsonl` file holds one versioned (`mmka_1`) event per line: every observation, the environment and the run summary. The `.analysis.txt` file holds the reduced results, one line per comparison, for example"
@@ -21293,8 +21301,8 @@ msgid "Runs"
 msgstr "运行内容"
 
 #: manual/tutorial/bench.md:85
-msgid "all tests of `src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
-msgstr "`src/bench/bin_float` 的全部测试（算术、初等函数、平方自动调优）"
+msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
+msgstr "`tooling/src/bench/bin_float` 的全部测试（算术、初等函数、平方自动调优）"
 
 #: manual/tutorial/bench.md:86
 msgid "only the binary elementary-function benchmark"
@@ -21456,8 +21464,8 @@ msgid "The suite runs from a checkout of the repository; it is not part of the p
 msgstr "该套件从仓库的检出副本运行；它不属于已发布的包，因此无需 `moon add` 任何东西。在仓库根目录下："
 
 #: manual/tutorial/bench/ball_float.md:26
-msgid "The runner executes the skipped performance tests of `src/bench/ball_float` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
-msgstr "运行器以 release 模式在 native 目标上执行 `src/bench/ball_float` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测）和 `.tmp/bench/SUITE.analysis.txt`（精简后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
+msgid "The runner executes the skipped performance tests of `tooling/src/bench/ball_float` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
+msgstr "运行器以 release 模式在 native 目标上执行 `tooling/src/bench/ball_float` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测）和 `.tmp/bench/SUITE.analysis.txt`（精简后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
 
 #: manual/tutorial/bench/ball_float.md:33
 #: manual/tutorial/bench/bin_float.md:36
@@ -21547,8 +21555,8 @@ msgid "run only the elementary functions or the auto-tune"
 msgstr "只运行初等函数或自动调优"
 
 #: manual/tutorial/bench/bin_float.md:29
-msgid "The runner executes the skipped performance tests of `src/bench/bin_float` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
-msgstr "运行器在 native 目标上以 release 模式执行 `src/bench/bin_float` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
+msgid "The runner executes the skipped performance tests of `tooling/src/bench/bin_float` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
+msgstr "运行器在 native 目标上以 release 模式执行 `tooling/src/bench/bin_float` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
 
 #: manual/tutorial/bench/bin_float.md:38
 msgid "The analysis file contains `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment. A `core_pct` value is the median paired difference between the core path and the kernel, in percent of the kernel's median time; `full_pct` is the same for the checked path against the core path. Positive values mean the higher layer is slower."
@@ -21571,8 +21579,8 @@ msgid "This page shows how to run the IEEE decimal arithmetic benchmarks and how
 msgstr "本页介绍如何运行 IEEE 十进制算术基准测试，并说明如何解读其输出。该套件在相同输入上以配对测量比较不同的实现路径；工具集与产物格式见 [bench 教程](../bench.md)。"
 
 #: manual/tutorial/bench/decimal.md:26
-msgid "The runner executes the skipped performance tests of `src/bench/decimal` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
-msgstr "运行器在 native 目标上以 release 模式执行 `src/bench/decimal` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
+msgid "The runner executes the skipped performance tests of `tooling/src/bench/decimal` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
+msgstr "运行器在 native 目标上以 release 模式执行 `tooling/src/bench/decimal` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
 
 #: manual/tutorial/bench/decimal.md:35
 msgid "The analysis file contains `MAREMARK_HOTSPOT=decimal/OP/DATASET core_pct=… full_pct=…`. A `core_pct` value is the median paired difference between the core path and the kernel, in percent of the kernel's median time; `full_pct` is the same for the checked path against the core path. Positive values mean the higher layer is slower."
@@ -21595,8 +21603,8 @@ msgid "This page shows how to run the General Decimal Arithmetic benchmarks and 
 msgstr "本页介绍如何运行 General Decimal Arithmetic 基准测试，并说明如何解读其输出。该套件在相同输入上以配对测量比较不同的实现路径；工具集与产物格式见 [bench 教程](../bench.md)。"
 
 #: manual/tutorial/bench/decimal_gda.md:26
-msgid "The runner executes the skipped performance tests of `src/bench/decimal_gda` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
-msgstr "运行器在 native 目标上以 release 模式执行 `src/bench/decimal_gda` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
+msgid "The runner executes the skipped performance tests of `tooling/src/bench/decimal_gda` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
+msgstr "运行器在 native 目标上以 release 模式执行 `tooling/src/bench/decimal_gda` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
 
 #: manual/tutorial/bench/decimal_gda.md:35
 msgid "The analysis file contains `MAREMARK_HOTSPOT=decimal-gda/OP/DATASET full_pct=…`, where `DATASET` is the index 0 to 4 of the digit counts 1, 9, 18, 34 and 128. This suite has no kernel path, so there is no `core_pct`: `full_pct` is the median paired difference between the checked path and the core path, in percent of the core path's median per-call time. Positive values mean the checked path is slower."
@@ -22450,8 +22458,8 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr "不给路径时，运行器执行 `testdata/interval/smoke.itl` 并打印一个 JSON 对象，例如"
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
-msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/itl_expr_cli\"`，并以参数向量（程序名在前）调用 `run`："
+msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"`，并以参数向量（程序名在前）调用 `run`："
 
 #: manual/tutorial/cli/itl_expr_cli.md:43
 msgid "Run files"
@@ -22543,8 +22551,8 @@ msgid "run all binary corpora"
 msgstr "运行所有二进制语料"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
-msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/mpfr_expr_cli\"` 并调用 `run`："
+msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` 并调用 `run`："
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:43
 msgid "Run each format"
@@ -22632,8 +22640,8 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr "用 TestFloat 的 `testfloat_gen` 生成向量并运行它们。`just conformance fetch binary` 下载固定版本的 SoftFloat 和 TestFloat 源码；`just conformance run binary` 用这些源码把 `testfloat_gen` 构建到 `.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/` 中。"
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
-msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating/cli/testfloat_expr_cli\"`，并以相同的参数调用 `run`："
+msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"`，并以相同的参数调用 `run`："
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:57
 msgid "Match the generator options"
@@ -23850,8 +23858,8 @@ msgid "doc_examples tutorial"
 msgstr "doc_examples 教程"
 
 #: manual/tutorial/doc_examples.md:3
-msgid "The goal of this page is to show maintainers how to run and extend the executable examples in `src/doc_examples/README.mbt.md`."
-msgstr "本页的目标是向维护者展示如何运行和扩展 `src/doc_examples/README.mbt.md` 中的可执行示例。"
+msgid "The goal of this page is to show maintainers how to run and extend the executable examples in `tooling/src/doc_examples/README.mbt.md`."
+msgstr "本页的目标是向维护者展示如何运行和扩展 `tooling/src/doc_examples/README.mbt.md` 中的可执行示例。"
 
 #: manual/tutorial/doc_examples.md:8
 msgid "run the whole documentation gate"
@@ -23878,20 +23886,20 @@ msgid "[Going further](#going-further)"
 msgstr "[深入了解](#going-further)"
 
 #: manual/tutorial/doc_examples.md:19
-msgid "runs `tools/run_docs.py`, which performs three steps and stops at the first failure: `tools/doc_quality.py` (links, snapshots, versions), `tools/check_doc_examples.py` (the runnable examples of every manual page), and `moon test src/doc_examples --target native --deny-warn`, which compiles and runs every `moonbit check` block of the README as a test."
-msgstr "会运行 `tools/run_docs.py`，它执行三个步骤并在第一个失败处停止：`tools/doc_quality.py`（检查链接、快照、版本）、`tools/check_doc_examples.py`（检查每个手册页面中的可运行示例），以及 `moon test src/doc_examples --target native --deny-warn`，后者会把 README 中的每个 `moonbit check` 代码块作为测试编译并运行。"
+msgid "runs `tools/run_docs.py`, which performs three steps and stops at the first failure: `tools/doc_quality.py` (links, snapshots, versions), `tools/check_doc_examples.py` (the runnable examples of every manual page), and `moon test tooling/src/doc_examples --target native --deny-warn`, which compiles and runs every `moonbit check` block of the README as a test."
+msgstr "会运行 `tools/run_docs.py`，它执行三个步骤并在第一个失败处停止：`tools/doc_quality.py`（检查链接、快照、版本）、`tools/check_doc_examples.py`（检查每个手册页面中的可运行示例），以及 `moon test tooling/src/doc_examples --target native --deny-warn`，后者会把 README 中的每个 `moonbit check` 代码块作为测试编译并运行。"
 
 #: manual/tutorial/doc_examples.md:27
 msgid "Add an example"
 msgstr "添加示例"
 
 #: manual/tutorial/doc_examples.md:29
-msgid "Append a block to `src/doc_examples/README.mbt.md`:"
-msgstr "在 `src/doc_examples/README.mbt.md` 末尾追加一个代码块："
+msgid "Append a block to `tooling/src/doc_examples/README.mbt.md`:"
+msgstr "在 `tooling/src/doc_examples/README.mbt.md` 末尾追加一个代码块："
 
 #: manual/tutorial/doc_examples.md:41
-msgid "Use packages listed in `src/doc_examples/moon.pkg` (add an import there if needed), give the test a unique name, and show results with `inspect`."
-msgstr "使用 `src/doc_examples/moon.pkg` 中列出的包（如有需要，在那里添加导入），为测试取一个唯一的名字，并用 `inspect` 展示结果。"
+msgid "Use packages listed in `tooling/src/doc_examples/moon.pkg` (add an import there if needed), give the test a unique name, and show results with `inspect`."
+msgstr "使用 `tooling/src/doc_examples/moon.pkg` 中列出的包（如有需要，在那里添加导入），为测试取一个唯一的名字，并用 `inspect` 展示结果。"
 
 #: manual/tutorial/doc_examples.md:44
 msgid "Run only this package"
@@ -24675,8 +24683,8 @@ msgid "Public frontends do not expose these types directly: `gda_expr`, `mpfr_ex
 msgstr "公开的前端不会直接暴露这些类型：`gda_expr`、`mpfr_expr` 和 `testfloat_expr` 将 `CaseResult` 和 `RunSummary` 包装在各自的结构体中，并转发它们想要公开的访问器。请遵循同样的模式，这样内部模型的变化就不会破坏前端 API。"
 
 #: manual/tutorial/internal/conformance.md:111
-msgid "Run the package tests from a workspace that contains the module: `moon test -p Luna-Flow/floating/internal/conformance`."
-msgstr "在包含该模块的工作区中运行该包的测试：`moon test -p Luna-Flow/floating/internal/conformance`。"
+msgid "Run the package tests from a workspace that contains the module: `moon test -p Luna-Flow/floating-tools/internal/conformance`."
+msgstr "在包含该模块的工作区中运行该包的测试：`moon test -p Luna-Flow/floating-tools/internal/conformance`。"
 
 #: manual/tutorial/internal/conformance.md:113
 msgid "[internal/runner_cli](runner_cli.md) parses the shared command-line options (`--json`, `--shard-count`, `--shard-index`) into a `ShardSpec`."
@@ -24895,12 +24903,12 @@ msgid "The four runners in `cli/` are complete examples: [gda_expr_cli](../cli/g
 msgstr "`cli/` 中的四个运行器都是完整的示例：[gda_expr_cli](../cli/gda_expr_cli.md)、[itl_expr_cli](../cli/itl_expr_cli.md)、[mpfr_expr_cli](../cli/mpfr_expr_cli.md) 和 [testfloat_expr_cli](../cli/testfloat_expr_cli.md)。"
 
 #: manual/tutorial/internal/runner_cli.md:133
-msgid "Build the native dispatcher with `sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help`."
-msgstr "用 `sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help` 构建 native 分发器。"
+msgid "Build the native dispatcher with `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help`."
+msgstr "用 `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help` 构建 native 分发器。"
 
 #: manual/tutorial/internal/runner_cli.md:135
-msgid "Run the helper tests from a workspace that contains the module: `moon test -p Luna-Flow/floating/internal/runner_cli`."
-msgstr "在包含该模块的工作区中运行辅助函数的测试：`moon test -p Luna-Flow/floating/internal/runner_cli`。"
+msgid "Run the helper tests from a workspace that contains the module: `moon test -p Luna-Flow/floating-tools/internal/runner_cli`."
+msgstr "在包含该模块的工作区中运行辅助函数的测试：`moon test -p Luna-Flow/floating-tools/internal/runner_cli`。"
 
 #: manual/tutorial/internal/runner_cli.md:140
 msgid "**Program name.** `parse_common_options` skips `arguments[0]`. Pass the full vector, not a slice without the program name, or the first real argument is lost."
@@ -25251,8 +25259,8 @@ msgid "Documentation"
 msgstr "文档"
 
 #: manual/verification.md:13
-msgid "`tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `src/doc_examples` tests"
-msgstr "`tools/doc_quality.py`（页面覆盖、API 快照、链接与锚点、版本与 GDA 相关声明、各包的 `README.mbt.md` 文件），然后是 `tools/check_doc_examples.py`（手册中每个可运行的示例），最后运行 `src/doc_examples` 测试"
+msgid "`tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `tooling/src/doc_examples` tests"
+msgstr "`tools/doc_quality.py`（页面覆盖、API 快照、链接与锚点、版本与 GDA 相关声明、各包的 `README.mbt.md` 文件），然后是 `tools/check_doc_examples.py`（手册中每个可运行的示例），最后运行 `tooling/src/doc_examples` 测试"
 
 #: manual/verification.md:14
 msgid "Formatting"
@@ -25347,8 +25355,8 @@ msgid "Quick-gate table of the π-inverse rows"
 msgstr "π 反函数行的快速门禁表"
 
 #: manual/verification.md:42
-msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
-msgstr "`asinpi`、`acospi`、`atanpi` 与 `atan2pi` 的行是仓库中最大的表。快速门禁（`just pr`，即 CI 的原生测试阶段）把全部 19,134 行编译进 `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（2.2 MB 源码）；同样的行也是数据（`testdata/decimal/ieee/rows/pi_inverse.txt`，`mpfr-decimal-random-v1` 行，见 `src/frontend/mpfr_expr`），由 `just gate decimal` 和夜间运行交给 release 构建的一致性 CLI，在原生、Wasm、Wasm-GC 和 JavaScript 上执行。两者都精确比较值、同类（`compare_total`）和全部标志。"
+msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
+msgstr "`asinpi`、`acospi`、`atanpi` 与 `atan2pi` 的行是仓库中最大的表。快速门禁（`just pr`，即 CI 的原生测试阶段）把全部 19,134 行编译进 `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（2.2 MB 源码）；同样的行也是数据（`testdata/decimal/ieee/rows/pi_inverse.txt`，`mpfr-decimal-random-v1` 行，见 `tooling/src/frontend/mpfr_expr`），由 `just gate decimal` 和夜间运行交给 release 构建的一致性 CLI，在原生、Wasm、Wasm-GC 和 JavaScript 上执行。两者都精确比较值、同类（`compare_total`）和全部标志。"
 
 #: manual/verification.md:51
 msgid "This was not always so. While about 50 `atan2pi` rows with an operand of `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a deterministic sample. After the `atan2pi` path for tiny operands was fixed the full table runs in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and adds about 1.4 s to the build, under the 5 s the quick gate allows it, so the sample was dropped. The mechanism stays in the generator (`tools/generate_decimal_pi_inverse_rows.py`) as an option: `--sample-step N` compiles every row that is not the rounding of an MPFR enclosure (the exact Niven values and the other cases decided by exact rational arithmetic) and, of the MPFR rows stratified by (operation, rounding mode), one row in N, taken equidistantly in generation order (a stratum shorter than N keeps its middle row). The data file is always the full table."

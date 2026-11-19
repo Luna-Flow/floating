@@ -28,13 +28,45 @@ trait design, and test coverage are especially valuable.
   moon fmt
   ```
 
-- Run `moon fmt` before committing to keep the repository consistent.
+- Run `moon fmt` before committing to keep the repository consistent. It formats both
+  modules of the workspace (see [Two modules](#two-modules)).
 - The repository targets the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20)
   and builds with `--deny-warn`. Promote a trait-implementation method to
   dot syntax explicitly with `pub extend`; implicit promotion is deprecated.
 - Prefer `using`-imported names over repeated fully-qualified package references when the imported names are used repeatedly in a file.
 - Keep public APIs explicit about numeric semantics. If a function normalizes, rounds, or widens an enclosure, document that behavior.
 - Prefer small helper functions for normalization and rounding logic over repeating low-level integer manipulation inline.
+
+### Two modules
+
+The repository is a `moon.work` workspace of two modules:
+
+| Module | Directory | Contents | Dependencies |
+| --- | --- | --- | --- |
+| `Luna-Flow/floating` (published) | `.` (`moon.mod`, `src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers, `semantic`, `consistency` | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
+| `Luna-Flow/floating-tools` (not published) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
+
+A library package must never import the tools module or one of the tooling
+dependencies; `tools/check_imports.py` (stage "IMPORTS: package independence"
+of `just pr`) enforces it. The tools module resolves the library as the
+workspace member, never as a published version.
+
+Every `moon` command run anywhere in the workspace acts on both modules and uses
+one `_build` directory at the root: `moon check --target all --deny-warn`,
+`moon fmt`, `moon info` and `moon test` cover the library and `tooling/`.
+`cd` and `-C` do not narrow a command. To narrow it, name a package with
+`-p` or a package path:
+
+```bash
+moon test -p Luna-Flow/floating/decimal_gda --target native   # one library package
+moon test src/bin_float --target native                       # a package path works too
+moon test -p Luna-Flow/floating-tools/frontend/gda_expr       # one tools package
+moon check --target native --deny-warn tooling/src/bench      # one directory
+```
+
+`moon tree` and `moon package` act on one module: run them in the directory of
+that module (the repository root for the library, `tooling/` for the tools). `tools/*.py` and `justfile`
+use these forms wherever a stage means one package.
 
 ## 2. Naming Conventions
 
@@ -71,7 +103,7 @@ trait design, and test coverage are especially valuable.
 
 ### 4.0 Documentation Matrix
 
-- Every `src/<path>/moon.pkg` package has matching `doc/manual/api/<path>.md`,
+- Every `src/<path>/moon.pkg` and `tooling/src/<path>/moon.pkg` package has matching `doc/manual/api/<path>.md`,
   `doc/manual/tutorial/<path>.md`, and `doc/manual/design/<path>.md` pages.
 - English pages in `doc/manual` are the only source. Translations live in the
   gettext catalogs under `doc/locale`; run `lunadoc update` after editing
@@ -84,13 +116,13 @@ trait design, and test coverage are especially valuable.
   coverage, generated API snapshots, links and anchors, current-version and
   GDA claims, package `README.mbt.md` coverage, and a guard against the retired
   `doc/<locale>` trees), then `tools/check_doc_examples.py`, and then the
-  `src/doc_examples` tests. Catalog
+  `tooling/src/doc_examples` tests. Catalog
   freshness is checked separately by `lunadoc check` and the `Docs` workflow.
 - API pages end with a `## Complete public interface` snapshot of
   `pkg.generated.mbti`, fenced as `mbti`. Runnable `moonbit` examples must
   compile against the current branch, which `tools/check_doc_examples.py`
   enforces: it generates one throwaway package per manual page under
-  `src/_generated_doc_examples`, re-fences the examples so `moon` compiles them,
+  `_generated_doc_examples` (in `tooling/src`, or in `src` for pages that use only the library), re-fences the examples so `moon` compiles them,
   runs them and removes the tree. Mark an example that cannot run with
   `moonbit nocheck`, and if a page introduces a new package alias, add it to
   `alias_map()` in that tool. See

@@ -1,0 +1,19 @@
+import {
+  "Luna-Flow/floating/ball_float" @ball,
+  "Luna-Flow/floating/ball_float_checked" @checked,
+  "Luna-Flow/floating-tools/bench" @benchkit,
+  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/mare_mark/event",
+  "Luna-Flow/mare_mark/model",
+  "Luna-Flow/mare_mark/runner",
+  "moonbitlang/async",
+} for "test"
+
+// `moonbitlang/async` has no wasm-gc runtime (moonbitlang/core#4584), so the
+// async tests are not built there and its test import is unused on wasm-gc.
+
+warnings = "-unused_package"
+
+options(
+  targets: { "arithmetic_async_test.mbt": [ "native", "js", "wasm", "llvm" ] },
+)

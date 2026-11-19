@@ -28,6 +28,50 @@ class ImportsOfTests(unittest.TestCase):
             self.assertEqual(check_imports.imports_of(path), ["a/b", "e/f", "g/h"])
 
 
+def write_library(root: Path, manifest_imports: tuple[str, ...], package_imports: tuple[str, ...]) -> None:
+    body = "".join(f'  "{name}",\n' for name in manifest_imports)
+    (root / "moon.mod").write_text(f'name = "{MODULE}"\n\nimport {{\n{body}}}\n', encoding="utf-8")
+    body = "".join(f'  "{name}",\n' for name in package_imports)
+    write_pkg(root / "src", "bin_float", f"import {{\n{body}}}\n")
+
+
+class ModuleViolationsTests(unittest.TestCase):
+    def test_library_with_its_two_dependencies_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_library(
+                root,
+                ("Luna-Flow/arithmetic@0.5.2", "Luna-Flow/luna-generic@0.4.0"),
+                ("Luna-Flow/arithmetic", "moonbitlang/core/bigint", f"{MODULE}/def"),
+            )
+            self.assertEqual(check_imports.module_violations(root), [])
+
+    def test_a_tooling_dependency_in_moon_mod_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_library(root, ("Luna-Flow/arithmetic@0.5.2", "Luna-Flow/mare_mark@0.4.2"), ())
+            self.assertEqual(
+                check_imports.module_violations(root),
+                ["moon.mod must not depend on Luna-Flow/mare_mark"],
+            )
+
+    def test_a_package_importing_the_tools_module_or_a_foreign_module_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_library(
+                root,
+                ("Luna-Flow/arithmetic@0.5.2",),
+                ("Luna-Flow/floating-tools/bench", "moonbitlang/async"),
+            )
+            self.assertEqual(
+                check_imports.module_violations(root),
+                [
+                    "src/bin_float/moon.pkg must not import Luna-Flow/floating-tools/bench",
+                    "src/bin_float/moon.pkg must not import moonbitlang/async",
+                ],
+            )
+
+
 class ViolationsTests(unittest.TestCase):
     def setUp(self) -> None:
         # The restricted packages of the real repository do not exist in the

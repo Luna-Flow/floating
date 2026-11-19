@@ -35,7 +35,7 @@ own executable.
 
 ### One binary, copied per backend
 
-`tools/conformance_cli.py` builds `src/cli` into a backend-specific target
+`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target
 directory and copies it to `<backend>-conformance.exe`. Parallel builds for
 different backends therefore never share a `_build` directory or lock, and
 tools always invoke an executable whose name says what it runs.

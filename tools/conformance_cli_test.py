@@ -8,7 +8,7 @@ class ConformanceCliTests(unittest.TestCase):
     def test_cli_build_uses_release_optimizations(self) -> None:
         command = conformance_cli.build_command()
         self.assertIn("--release", command)
-        self.assertEqual(command[-1], "src/cli")
+        self.assertEqual(command[-1], "tooling/src/cli")
 
     def test_backend_artifacts_are_named_and_isolated(self) -> None:
         gda = conformance_cli.executable_path("gda")

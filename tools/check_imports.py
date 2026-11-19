@@ -5,6 +5,10 @@ The IEEE 754 package `decimal` and the GDA package `decimal_gda` must stay
 independent of each other (doc/manual/design/decimal_gda.md, section "A GDA
 package independent of `decimal`"), and the status-free coefficient kernel
 `internal/decimal_kernel` that both build on must not know either of them.
+The library module (`moon.mod`) may depend on `Luna-Flow/arithmetic` and
+`Luna-Flow/luna-generic` only, and none of its packages may import the tools
+module `Luna-Flow/floating-tools` (`tooling/`): benchmarks, command-line
+frontends and the differential harness live there (#22).
 Every import in a package's `moon.pkg` counts, including `for "test"` and
 `for "wbtest"` blocks, because a test-only edge couples the packages as well.
 
@@ -31,6 +35,10 @@ ALLOWED_MODULE_IMPORTS: dict[str, tuple[str, ...]] = {
     # `internal` holds BigInt helpers that the white-box tests use as oracles.
     "internal/decimal_kernel": (f"{MODULE}/internal",),
 }
+
+# The only external modules the library module may import (names without version).
+LIBRARY_DEPENDENCIES = frozenset({"Luna-Flow/arithmetic", "Luna-Flow/luna-generic"})
+TOOLS_MODULE = "Luna-Flow/floating-tools"
 
 IMPORT_PATH = re.compile(r'"([^"\s]+)"')
 
@@ -70,11 +78,34 @@ def violations(src: Path) -> list[str]:
     return found
 
 
+def manifest_dependencies(manifest: Path) -> list[str]:
+    """Module names (versions stripped) of the `import { ... }` block of a `moon.mod`."""
+    return [path.split("@", 1)[0] for path in imports_of(manifest)]
+
+
+def module_violations(root: Path) -> list[str]:
+    """Violations of the two-module split: the library's dependencies and imports."""
+    found: list[str] = []
+    manifest = root / "moon.mod"
+    for dependency in manifest_dependencies(manifest):
+        if dependency not in LIBRARY_DEPENDENCIES:
+            found.append(f"moon.mod must not depend on {dependency}")
+    for pkg_file in sorted((root / "src").rglob("moon.pkg")):
+        for path in imports_of(pkg_file):
+            if path == TOOLS_MODULE or path.startswith(TOOLS_MODULE + "/"):
+                found.append(f"{pkg_file.relative_to(root)} must not import {path}")
+            elif not is_module_path(path) and "/" in path:
+                module = "/".join(path.split("/")[:2])
+                if module not in LIBRARY_DEPENDENCIES and not path.startswith("moonbitlang/core"):
+                    found.append(f"{pkg_file.relative_to(root)} must not import {path}")
+    return found
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", type=Path, default=REPO_ROOT, help="repository root")
     args = parser.parse_args(argv)
-    found = violations(args.root / "src")
+    found = violations(args.root / "src") + module_violations(args.root)
     for line in found:
         print(f"check_imports: {line}", file=sys.stderr)
     if not found:

@@ -887,7 +887,7 @@ def run_row_tables(targets: list[str]) -> list[dict[str, Any]]:
     `floating-conformance --backend mpfr`, so a row change never recompiles the
     `decimal` test module.
     """
-    import random_differential  # builds and launches `src/cli` per target
+    import random_differential  # builds and launches `tooling/src/cli` per target
 
     results: list[dict[str, Any]] = []
     for target in selected_targets(targets):

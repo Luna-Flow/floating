@@ -18,7 +18,7 @@ Inside the module, add the package to `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/internal/conformance",
+  "Luna-Flow/floating-tools/internal/conformance",
 }
 ```
 
@@ -357,7 +357,7 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/internal/conformance"
+package "Luna-Flow/floating-tools/internal/conformance"
 
 import {
   "moonbitlang/core/debug",

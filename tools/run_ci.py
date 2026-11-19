@@ -101,7 +101,7 @@ NATIVE_TEST_WARN_SECONDS = 150.0
 # Front-end check of the other targets, errors only: a change to a target-specific
 # file (`*_wasm_gc.mbt`, `bin_coeff_js.mbt`, per-target thresholds) must not
 # wait for the nightly run. `--deny-warn` on every target is not possible yet,
-# `src/bench/external/external_test.mbt` has two unused functions (#22); native
+# `tooling/src/bench/external/external_test.mbt` has two unused functions (#22); native
 # keeps `--deny-warn` in the dependency stage.
 OTHER_TARGETS_STAGE_NAME = "CHECK: other targets"
 
@@ -111,7 +111,7 @@ DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 # Quick gate lanes (see `ci_schedule`). Stages of the "moon" lane share the
 # default target directory `_build`, and `run_moon_clean_exec.sh` clears the
 # lock files of that directory, so they stay in order in one lane. The
-# "conformance" lane builds `src/cli` into `_build/conformance/cli` (its own
+# "conformance" lane builds `tooling/src/cli` (module `Luna-Flow/floating-tools`) into `_build/conformance/cli` (its own
 # target directory) and starts after the manual examples, the only stage that
 # writes throwaway packages under `src`, so that no moon command in the other
 # lane sees them. The "python" lane never calls moon.
@@ -175,7 +175,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "tools/run_moon_clean_exec.sh",
                     "test",
                     "-p",
-                    "Luna-Flow/floating/frontend/gda_expr",
+                    "Luna-Flow/floating-tools/frontend/gda_expr",
                     "--target",
                     "native",
                     "--deny-warn",
@@ -208,7 +208,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "tools/run_moon_clean_exec.sh",
                     "test",
                     "-p",
-                    "Luna-Flow/floating/bench/bin_float",
+                    "Luna-Flow/floating-tools/bench/bin_float",
                     "--target",
                     "native",
                     "--deny-warn",

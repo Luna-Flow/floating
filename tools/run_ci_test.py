@@ -25,7 +25,7 @@ class RunCiTests(unittest.TestCase):
         stages = run_ci.stages_for("decimal_gda", 3)
         self.assertEqual(len(stages), 5)
         self.assertIn("Luna-Flow/floating/decimal_gda", stages[1].command)
-        self.assertIn("Luna-Flow/floating/frontend/gda_expr", stages[2].command)
+        self.assertIn("Luna-Flow/floating-tools/frontend/gda_expr", stages[2].command)
         self.assertIn("tools/conformance.py", stages[3].command)
         backend_index = stages[3].command.index("--backend") + 1
         self.assertEqual(stages[3].command[backend_index], "decimal_gda")
@@ -249,7 +249,7 @@ class RunCiTests(unittest.TestCase):
     def test_elementary_gate_pairs_correctness_and_performance(self) -> None:
         stages = run_ci.stages_for("elementary", 2)
         self.assertEqual(len(stages), 4)
-        self.assertIn("Luna-Flow/floating/bench/bin_float", stages[1].command)
+        self.assertIn("Luna-Flow/floating-tools/bench/bin_float", stages[1].command)
         self.assertNotIn("--include-skipped", stages[1].command)
         self.assertEqual(
             stages[2].command[-1], "tools/run_elementary_performance_gate.py"

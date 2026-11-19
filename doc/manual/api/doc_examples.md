@@ -3,7 +3,7 @@
 ## Purpose
 
 `doc_examples` is a test-only package. Its only source is
-`src/doc_examples/README.mbt.md`, whose `moonbit check` blocks are compiled
+`tooling/src/doc_examples/README.mbt.md`, whose `moonbit check` blocks are compiled
 and run as tests; it exports no MoonBit items. The blocks are short,
 executable versions of the main workflows of the public packages (binary
 contexts and interchange, GDA sticky status, IEEE decimal flags, intervals and
@@ -27,11 +27,11 @@ import {
   "Luna-Flow/floating/decimal_gda_checked",
   "Luna-Flow/floating/decimal_checked",
   "Luna-Flow/floating/semantic",
-  "Luna-Flow/floating/numeric_expr",
-  "Luna-Flow/floating/frontend/gda_expr",
-  "Luna-Flow/floating/frontend/itl_expr",
-  "Luna-Flow/floating/frontend/mpfr_expr",
-  "Luna-Flow/floating/frontend/testfloat_expr",
+  "Luna-Flow/floating-tools/numeric_expr",
+  "Luna-Flow/floating-tools/frontend/gda_expr",
+  "Luna-Flow/floating-tools/frontend/itl_expr",
+  "Luna-Flow/floating-tools/frontend/mpfr_expr",
+  "Luna-Flow/floating-tools/frontend/testfloat_expr",
 } for "test"
 ```
 
@@ -50,7 +50,7 @@ The package exports no MoonBit items.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/doc_examples"
+package "Luna-Flow/floating-tools/doc_examples"
 
 // Values
 

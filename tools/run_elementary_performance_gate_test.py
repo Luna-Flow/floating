@@ -73,7 +73,7 @@ class ElementaryPerformanceGateTests(unittest.TestCase):
     def test_generated_gate_uses_maremark_significance(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "src/bench").mkdir(parents=True)
+            (root / "tooling/src/bench").mkdir(parents=True)
             path = gate.write_maremark_gate(
                 root,
                 {

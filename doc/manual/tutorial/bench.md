@@ -26,7 +26,7 @@ moon add Luna-Flow/floating@0.10.2
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bench",
+  "Luna-Flow/floating-tools/bench",
 }
 ```
 
@@ -55,7 +55,7 @@ one suite from the repository root:
 just bench bin-float
 ```
 
-The command runs the skipped performance tests of `src/bench/bin_float` in
+The command runs the skipped performance tests of `tooling/src/bench/bin_float` in
 release mode on the native target, then writes
 
 ```text
@@ -82,12 +82,12 @@ faster), and `full_pct` is the same for the checked path against the core.
 
 | Suite | Runs |
 | --- | --- |
-| `just bench bin-float` | all tests of `src/bench/bin_float` (arithmetic, elementary functions, square auto-tune) |
+| `just bench bin-float` | all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune) |
 | `just bench elementary` | only the binary elementary-function benchmark |
 | `just bench auto-tune` | only the `mul(x, x)` versus `square(x)` crossover |
-| `just bench decimal` | `src/bench/decimal` |
-| `just bench decimal-gda` | `src/bench/decimal_gda` |
-| `just bench ball-float` | `src/bench/ball_float` |
+| `just bench decimal` | `tooling/src/bench/decimal` |
+| `just bench decimal-gda` | `tooling/src/bench/decimal_gda` |
+| `just bench ball-float` | `tooling/src/bench/ball_float` |
 | `just bench all` | the four package suites |
 
 Add `--output PATH` to choose the artifact path or `--dry-run` to print the

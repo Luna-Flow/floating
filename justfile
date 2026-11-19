@@ -6,18 +6,24 @@ default:
 fmt:
     @sh tools/run_moon_clean_exec.sh fmt
 
+# Refresh the registry, then upgrade the dependencies of both workspace modules
+# (the library and `tooling`; the library itself is a workspace member, not a
+# registry dependency of `tooling`).
 update:
     sh tools/run_moon_clean_exec.sh update
-    awk ' \
-      $1 == "import" && $2 == "{" { in_import = 1; next } \
-      in_import && $1 == "}" { in_import = 0; next } \
-      in_import { \
-        gsub(/[",]/, "", $1); \
-        sub(/@.*/, "", $1); \
-        if ($1 != "") print $1; \
-      } \
-    ' moon.mod | while IFS= read -r dep; do \
-      sh tools/run_moon_clean_exec.sh add --upgrade --no-update "$dep"; \
+    for manifest in moon.mod tooling/moon.mod; do \
+      directory=$(dirname "$manifest"); \
+      awk ' \
+        $1 == "import" && $2 == "{" { in_import = 1; next } \
+        in_import && $1 == "}" { in_import = 0; next } \
+        in_import { \
+          gsub(/[",]/, "", $1); \
+          sub(/@.*/, "", $1); \
+          if ($1 != "" && $1 != "Luna-Flow/floating") print $1; \
+        } \
+      ' "$manifest" | while IFS= read -r dep; do \
+        sh tools/run_moon_clean_exec.sh -C "$directory" add --upgrade --no-update "$dep"; \
+      done; \
     done
     sh tools/run_moon_clean_exec.sh build
 

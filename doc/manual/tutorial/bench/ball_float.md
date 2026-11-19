@@ -23,7 +23,7 @@ root:
 just bench ball-float
 ```
 
-The runner executes the skipped performance tests of `src/bench/ball_float` on the
+The runner executes the skipped performance tests of `tooling/src/bench/ball_float` on the
 native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all
 observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where
 `SUITE` is the name given to `just bench`.
@@ -40,7 +40,7 @@ core path. Positive values mean the higher layer is slower.
 ### Check the plans without measuring
 
 ```bash
-sh tools/run_moon_clean_exec.sh test src/bench/ball_float --target native
+sh tools/run_moon_clean_exec.sh test tooling/src/bench/ball_float --target native
 ```
 
 runs only the plan tests, which compile every specification.

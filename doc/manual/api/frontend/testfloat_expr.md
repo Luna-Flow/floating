@@ -19,7 +19,7 @@ as well when you compare the format or rounding mode of a specification:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/frontend/testfloat_expr",
+  "Luna-Flow/floating-tools/frontend/testfloat_expr",
   "Luna-Flow/floating/bin_float",
 }
 ```
@@ -408,7 +408,7 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/frontend/testfloat_expr"
+package "Luna-Flow/floating-tools/frontend/testfloat_expr"
 
 import {
   "Luna-Flow/floating/bin_float",

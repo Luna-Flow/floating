@@ -18,7 +18,7 @@ Add the package to the `import` block of your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/frontend/mpfr_expr",
+  "Luna-Flow/floating-tools/frontend/mpfr_expr",
 }
 ```
 
@@ -533,7 +533,7 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/frontend/mpfr_expr"
+package "Luna-Flow/floating-tools/frontend/mpfr_expr"
 
 import {
   "moonbitlang/core/debug",

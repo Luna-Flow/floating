@@ -23,14 +23,14 @@ There is nothing to install: the package ships inside `Luna-Flow/floating`.
 Run its tests from the repository:
 
 ```bash
-sh tools/run_moon_clean_exec.sh test src/internal/conformance --target native
+sh tools/run_moon_clean_exec.sh test tooling/src/internal/conformance --target native
 ```
 
 In a frontend package of the module, import it in `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/internal/conformance",
+  "Luna-Flow/floating-tools/internal/conformance",
 }
 ```
 
@@ -109,7 +109,7 @@ pattern so the internal model can change without breaking the frontend API.
 ## Going further
 
 - Run the package tests from a workspace that contains the module:
-  `moon test -p Luna-Flow/floating/internal/conformance`.
+  `moon test -p Luna-Flow/floating-tools/internal/conformance`.
 - [internal/runner_cli](runner_cli.md) parses the shared command-line options
   (`--json`, `--shard-count`, `--shard-index`) into a `ShardSpec`.
 

@@ -5,7 +5,7 @@
 ## Measurement boundary
 
 `just bench ball-float --target native` runs the current Maremark suite in
-`src/bench/ball_float` and writes `.tmp/bench/ball-float.jsonl` plus its
+`tooling/src/bench/ball_float` and writes `.tmp/bench/ball-float.jsonl` plus its
 analysis file. The artifact measures layer cost on the current target; it is
 not an IEEE 1788 completeness claim or a release-wide latency guarantee.
 

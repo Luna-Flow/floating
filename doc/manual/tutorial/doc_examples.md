@@ -1,7 +1,7 @@
 # doc_examples tutorial
 
 The goal of this page is to show maintainers how to run and extend the
-executable examples in `src/doc_examples/README.mbt.md`.
+executable examples in `tooling/src/doc_examples/README.mbt.md`.
 
 | I want to | Use |
 | --- | --- |
@@ -19,14 +19,14 @@ just docs
 runs `tools/run_docs.py`, which performs three steps and stops at the first
 failure: `tools/doc_quality.py` (links, snapshots, versions),
 `tools/check_doc_examples.py` (the runnable examples of every manual page),
-and `moon test src/doc_examples --target native --deny-warn`, which compiles
+and `moon test tooling/src/doc_examples --target native --deny-warn`, which compiles
 and runs every `moonbit check` block of the README as a test.
 
 ## Everyday tasks
 
 ### Add an example
 
-Append a block to `src/doc_examples/README.mbt.md`:
+Append a block to `tooling/src/doc_examples/README.mbt.md`:
 
 ````text
 ```moonbit check
@@ -38,7 +38,7 @@ test "a unique, descriptive name" {
 ```
 ````
 
-Use packages listed in `src/doc_examples/moon.pkg` (add an import there if
+Use packages listed in `tooling/src/doc_examples/moon.pkg` (add an import there if
 needed), give the test a unique name, and show results with `inspect`.
 
 ### Run only this package
@@ -46,7 +46,7 @@ needed), give the test a unique name, and show results with `inspect`.
 From the repository root:
 
 ```bash
-sh tools/run_moon_clean_exec.sh test src/doc_examples --target native --deny-warn
+sh tools/run_moon_clean_exec.sh test tooling/src/doc_examples --target native --deny-warn
 ```
 
 ## Going further

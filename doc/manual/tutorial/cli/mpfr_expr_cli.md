@@ -32,7 +32,7 @@ failed cases: 0
 ### From MoonBit code
 
 After `moon add Luna-Flow/floating@0.10.2`, import
-`"Luna-Flow/floating/cli/mpfr_expr_cli"` in `moon.pkg` and call `run`:
+`"Luna-Flow/floating-tools/cli/mpfr_expr_cli"` in `moon.pkg` and call `run`:
 
 ```moonbit nocheck
 let status = @mpfr_expr_cli.run(["mpfr", "--json", "data/sqrt"])

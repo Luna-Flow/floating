@@ -13,10 +13,10 @@ import benchmark
 class BenchmarkDispatcherTests(unittest.TestCase):
     def test_command_targets_unified_bench_package(self) -> None:
         command = benchmark.benchmark_command(
-            benchmark.BenchmarkCommand("src/bench/bin_float", "auto tune"),
+            benchmark.BenchmarkCommand("tooling/src/bench/bin_float", "auto tune"),
             "native",
         )
-        self.assertEqual(command[:4], ["sh", "tools/run_moon_clean_exec.sh", "test", "src/bench/bin_float"])
+        self.assertEqual(command[:4], ["sh", "tools/run_moon_clean_exec.sh", "test", "tooling/src/bench/bin_float"])
         self.assertIn("--release", command)
         self.assertEqual(command[-2:], ["--filter", "auto tune"])
 

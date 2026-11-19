@@ -31,7 +31,7 @@ JSON object such as
 ### From MoonBit code
 
 After `moon add Luna-Flow/floating@0.10.2`, import
-`"Luna-Flow/floating/cli/itl_expr_cli"` in `moon.pkg` and call `run` with the
+`"Luna-Flow/floating-tools/cli/itl_expr_cli"` in `moon.pkg` and call `run` with the
 argument vector, program name first:
 
 ```moonbit nocheck

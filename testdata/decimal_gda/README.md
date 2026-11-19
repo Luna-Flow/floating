@@ -156,11 +156,11 @@ Use the interpreter CLI when file isolation matters more than the standard
 pre-PR checks:
 
 ```sh
-sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- \
+sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- \
   --backend gda \
   testdata/decimal_gda/official/quantize.decTest
 
-sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- \
+sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- \
   --backend gda --cases quax1010..quax1015 --json \
   testdata/decimal_gda/official/quantize.decTest
 ```
@@ -244,7 +244,7 @@ just conformance run decimal_gda --jobs 1 --phase arithmetic --cases quax1010,qu
 `.decTest` file whose expected results and conditions come from Python's
 `decimal` module (libmpdec 4.0.0), and `tools/random_differential.py`
 (`just random-diff`) runs it through the GDA interpreter and records the run
-through the mare_mark harness in `src/differential`. The oracle is an
+through the mare_mark harness in `tooling/src/differential`. The oracle is an
 implementation of the General Decimal Arithmetic specification, not the
 specification: a disagreement is triaged against the GDA text
 (<https://speleotrove.com/decimal/>) before it is called a bug. The

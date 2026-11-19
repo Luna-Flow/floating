@@ -1,0 +1,23 @@
+import {
+  "Luna-Flow/floating-tools/bench" @benchkit,
+  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/floating/decimal_gda" @gda,
+  "Luna-Flow/mare_mark/env_detect",
+  "Luna-Flow/mare_mark/event",
+  "Luna-Flow/mare_mark/model",
+  "Luna-Flow/mare_mark/runner",
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/x/fs",
+} for "test"
+
+// `moonbitlang/async` has no wasm-gc runtime (moonbitlang/core#4584), so the
+// async test is built on native only: it reads files and environment
+// variables of the external-baseline runner (tools/external_baseline.py).
+
+warnings = "-unused_package"
+
+options(
+  targets: { "external_async_test.mbt": [ "native" ] },
+)
