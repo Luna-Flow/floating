@@ -4678,11 +4678,11 @@ msgstr ""
 #: manual/conformance/bin_float.md:97
 #: manual/conformance/bin_float.md:98
 #: manual/conformance/bin_float.md:99
-#: manual/conformance/decimal.md:53
-#: manual/conformance/decimal.md:63
+#: manual/conformance/decimal.md:56
 #: manual/conformance/decimal.md:66
-#: manual/conformance/decimal.md:67
-#: manual/conformance/decimal.md:68
+#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:70
+#: manual/conformance/decimal.md:71
 #: manual/design/frontend/mpfr_expr.md:50
 msgid "none"
 msgstr ""
@@ -8245,7 +8245,7 @@ msgstr ""
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/ball_float.md:42
 #: manual/conformance/bin_float.md:71
-#: manual/conformance/decimal.md:39
+#: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:56
 #: manual/performance_audit.md:155
@@ -8570,7 +8570,7 @@ msgstr ""
 
 #: manual/conformance/ball_float.md:7
 #: manual/conformance/bin_float.md:67
-#: manual/conformance/decimal.md:35
+#: manual/conformance/decimal.md:38
 #: manual/conformance/decimal_gda.md:11
 msgid "Clause traceability"
 msgstr ""
@@ -8581,7 +8581,7 @@ msgstr ""
 
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
-#: manual/conformance/decimal.md:39
+#: manual/conformance/decimal.md:42
 #: manual/design/bin_float_checked.md:176
 #: manual/verification.md:671
 msgid "Clause"
@@ -8589,13 +8589,13 @@ msgstr ""
 
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
-#: manual/conformance/decimal.md:39
+#: manual/conformance/decimal.md:42
 msgid "Level"
 msgstr ""
 
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
-#: manual/conformance/decimal.md:39
+#: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:56
 #: manual/index.md:65
@@ -8608,7 +8608,7 @@ msgstr ""
 
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
-#: manual/conformance/decimal.md:39
+#: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
 #: manual/performance_audit.md:155
 msgid "Status"
@@ -8651,10 +8651,7 @@ msgstr ""
 #: manual/conformance/bin_float.md:91
 #: manual/conformance/bin_float.md:92
 #: manual/conformance/bin_float.md:93
-#: manual/conformance/decimal.md:41
-#: manual/conformance/decimal.md:43
 #: manual/conformance/decimal.md:44
-#: manual/conformance/decimal.md:45
 #: manual/conformance/decimal.md:46
 #: manual/conformance/decimal.md:47
 #: manual/conformance/decimal.md:48
@@ -8672,6 +8669,9 @@ msgstr ""
 #: manual/conformance/decimal.md:60
 #: manual/conformance/decimal.md:61
 #: manual/conformance/decimal.md:62
+#: manual/conformance/decimal.md:63
+#: manual/conformance/decimal.md:64
+#: manual/conformance/decimal.md:65
 msgid "required"
 msgstr ""
 
@@ -8697,8 +8697,8 @@ msgstr ""
 #: manual/conformance/bin_float.md:97
 #: manual/conformance/bin_float.md:98
 #: manual/conformance/bin_float.md:99
-#: manual/conformance/decimal.md:63
-#: manual/conformance/decimal.md:67
+#: manual/conformance/decimal.md:66
+#: manual/conformance/decimal.md:70
 msgid "not implemented"
 msgstr ""
 
@@ -8756,25 +8756,25 @@ msgstr ""
 #: manual/conformance/bin_float.md:92
 #: manual/conformance/bin_float.md:93
 #: manual/conformance/bin_float.md:95
-#: manual/conformance/decimal.md:41
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:44
 #: manual/conformance/decimal.md:45
-#: manual/conformance/decimal.md:46
-#: manual/conformance/decimal.md:47
 #: manual/conformance/decimal.md:48
 #: manual/conformance/decimal.md:49
 #: manual/conformance/decimal.md:50
+#: manual/conformance/decimal.md:51
 #: manual/conformance/decimal.md:52
+#: manual/conformance/decimal.md:53
 #: manual/conformance/decimal.md:55
-#: manual/conformance/decimal.md:56
-#: manual/conformance/decimal.md:57
 #: manual/conformance/decimal.md:58
 #: manual/conformance/decimal.md:59
+#: manual/conformance/decimal.md:60
 #: manual/conformance/decimal.md:61
+#: manual/conformance/decimal.md:62
 #: manual/conformance/decimal.md:64
-#: manual/conformance/decimal.md:65
-#: manual/conformance/decimal.md:69
-#: manual/conformance/decimal.md:70
+#: manual/conformance/decimal.md:67
+#: manual/conformance/decimal.md:68
+#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:73
 #: manual/conformance/decimal_gda.md:17
 #: manual/conformance/decimal_gda.md:18
 #: manual/conformance/decimal_gda.md:19
@@ -8845,14 +8845,14 @@ msgstr ""
 #: manual/conformance/bin_float.md:98
 #: manual/conformance/bin_float.md:99
 #: manual/conformance/bin_float.md:100
-#: manual/conformance/decimal.md:42
-#: manual/conformance/decimal.md:63
-#: manual/conformance/decimal.md:64
-#: manual/conformance/decimal.md:65
+#: manual/conformance/decimal.md:45
+#: manual/conformance/decimal.md:66
 #: manual/conformance/decimal.md:67
 #: manual/conformance/decimal.md:68
-#: manual/conformance/decimal.md:69
 #: manual/conformance/decimal.md:70
+#: manual/conformance/decimal.md:71
+#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:73
 msgid "recommended"
 msgstr ""
 
@@ -8865,8 +8865,8 @@ msgstr ""
 #: manual/conformance/bin_float.md:87
 #: manual/conformance/bin_float.md:90
 #: manual/conformance/bin_float.md:100
-#: manual/conformance/decimal.md:53
-#: manual/conformance/decimal.md:54
+#: manual/conformance/decimal.md:56
+#: manual/conformance/decimal.md:57
 msgid "partial"
 msgstr ""
 
@@ -9060,7 +9060,7 @@ msgid "Reverse interval operations, every decoration rule outside the selected p
 msgstr ""
 
 #: manual/conformance/ball_float.md:71
-#: manual/conformance/decimal.md:89
+#: manual/conformance/decimal.md:92
 #: manual/conformance/decimal_gda.md:96
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:35
@@ -9165,7 +9165,7 @@ msgid "TestFloat gate; `src/bin_float/ieee754_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:74
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:45
 msgid "§3.7 extendable precisions"
 msgstr ""
 
@@ -9174,7 +9174,7 @@ msgid "MPFR elementary fixture; `src/bin_float/exponent_range_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:75
-#: manual/conformance/decimal.md:43
+#: manual/conformance/decimal.md:46
 msgid "§4.3 rounding-direction attributes"
 msgstr ""
 
@@ -9187,7 +9187,7 @@ msgid "conforming; `RoundAwayFromZero` is an extension"
 msgstr ""
 
 #: manual/conformance/bin_float.md:76
-#: manual/conformance/decimal.md:45
+#: manual/conformance/decimal.md:48
 msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot"
 msgstr ""
 
@@ -9196,7 +9196,7 @@ msgid "TestFloat gate (7,461,360 vectors); `src/bin_float/ieee754_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:77
-#: manual/conformance/decimal.md:46
+#: manual/conformance/decimal.md:49
 msgid "§5.3.1 fusedMultiplyAdd"
 msgstr ""
 
@@ -9205,7 +9205,7 @@ msgid "TestFloat gate (245,329,920 mulAdd vectors); `src/bin_float/fma_wbtest.mb
 msgstr ""
 
 #: manual/conformance/bin_float.md:78
-#: manual/conformance/decimal.md:47
+#: manual/conformance/decimal.md:50
 msgid "§5.3.1 remainder"
 msgstr ""
 
@@ -9222,7 +9222,7 @@ msgid "TestFloat gate (roundToInt, exact and inexact); `src/bin_float/integral_w
 msgstr ""
 
 #: manual/conformance/bin_float.md:80
-#: manual/conformance/decimal.md:49
+#: manual/conformance/decimal.md:52
 msgid "§5.3.1 nextUp, nextDown"
 msgstr ""
 
@@ -9231,7 +9231,7 @@ msgid "`src/bin_float/next_wbtest.mbt` (no external corpus)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:81
-#: manual/conformance/decimal.md:50
+#: manual/conformance/decimal.md:53
 msgid "§5.3.1 scaleB, logB"
 msgstr ""
 
@@ -9240,7 +9240,7 @@ msgid "`src/bin_float/scale_wbtest.mbt` (no external corpus)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:82
-#: manual/conformance/decimal.md:52
+#: manual/conformance/decimal.md:55
 msgid "§5.4.1 convertFromInt"
 msgstr ""
 
@@ -9258,7 +9258,7 @@ msgid "TestFloat gate (32- and 64-bit conversions); `src/bin_float/to_integer_wb
 msgstr ""
 
 #: manual/conformance/bin_float.md:84
-#: manual/conformance/decimal.md:54
+#: manual/conformance/decimal.md:57
 msgid "§5.4.2 convertFormat"
 msgstr ""
 
@@ -9267,7 +9267,7 @@ msgid "`src/bin_float/ieee754_wbtest.mbt`; TestFloat format-to-format conversion
 msgstr ""
 
 #: manual/conformance/bin_float.md:85
-#: manual/conformance/decimal.md:55
+#: manual/conformance/decimal.md:58
 msgid "§5.5 copy, negate, abs, copySign"
 msgstr ""
 
@@ -9288,7 +9288,7 @@ msgid "`src/bin_float/contextual_traits_wbtest.mbt`; the ten-way `class` of §5.
 msgstr ""
 
 #: manual/conformance/bin_float.md:88
-#: manual/conformance/decimal.md:58
+#: manual/conformance/decimal.md:61
 msgid "§5.10 totalOrder, totalOrderMag"
 msgstr ""
 
@@ -9309,12 +9309,12 @@ msgid "every production of the §5.12.3 grammar and the §5.12.1 words, accepted
 msgstr ""
 
 #: manual/conformance/bin_float.md:91
-#: manual/conformance/decimal.md:60
+#: manual/conformance/decimal.md:63
 msgid "§6.1–§6.3 infinities, NaNs, sign bit"
 msgstr ""
 
 #: manual/conformance/bin_float.md:91
-#: manual/conformance/decimal.md:60
+#: manual/conformance/decimal.md:63
 msgid "every `*_ctx` operation"
 msgstr ""
 
@@ -9323,7 +9323,7 @@ msgid "TestFloat gate (a NaN result is compared by class only); `src/bin_float/c
 msgstr ""
 
 #: manual/conformance/bin_float.md:91
-#: manual/conformance/decimal.md:60
+#: manual/conformance/decimal.md:63
 msgid "conforming; payload choice in [Implementation-defined choices](../verification.md#implementation-defined-choices)"
 msgstr ""
 
@@ -9348,7 +9348,7 @@ msgid "TestFloat gate (before and after rounding); the exact-subnormal and range
 msgstr ""
 
 #: manual/conformance/bin_float.md:94
-#: manual/conformance/decimal.md:63
+#: manual/conformance/decimal.md:66
 msgid "§8 alternate exception handling"
 msgstr ""
 
@@ -9357,7 +9357,7 @@ msgid "not implemented (flags are values; no traps, no resumption)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:95
-#: manual/conformance/decimal.md:64
+#: manual/conformance/decimal.md:67
 msgid "§9.2 recommended mathematical functions"
 msgstr ""
 
@@ -9366,32 +9366,32 @@ msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified
 msgstr ""
 
 #: manual/conformance/bin_float.md:96
-#: manual/conformance/decimal.md:66
+#: manual/conformance/decimal.md:69
 msgid "§9.3 dynamic mode operations"
 msgstr ""
 
 #: manual/conformance/bin_float.md:96
-#: manual/conformance/decimal.md:66
+#: manual/conformance/decimal.md:69
 msgid "recommended (required only where a language defines dynamic modes)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:96
-#: manual/conformance/decimal.md:66
+#: manual/conformance/decimal.md:69
 msgid "none (contexts are explicit values)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:96
-#: manual/conformance/decimal.md:66
+#: manual/conformance/decimal.md:69
 msgid "not implemented by design"
 msgstr ""
 
 #: manual/conformance/bin_float.md:97
-#: manual/conformance/decimal.md:67
+#: manual/conformance/decimal.md:70
 msgid "§9.4 reduction operations"
 msgstr ""
 
 #: manual/conformance/bin_float.md:98
-#: manual/conformance/decimal.md:68
+#: manual/conformance/decimal.md:71
 msgid "§9.5 augmented arithmetic"
 msgstr ""
 
@@ -9404,7 +9404,7 @@ msgid "none (`BinFloat::min` and `BinFloat::max` are plain helpers)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:100
-#: manual/conformance/decimal.md:70
+#: manual/conformance/decimal.md:73
 msgid "§9.7 NaN payload operations"
 msgstr ""
 
@@ -9618,170 +9618,170 @@ msgid "Mandatory operation vectors use exact integer/rational construction and t
 msgstr ""
 
 #: manual/conformance/decimal.md:15
-msgid "The committed elementary layer contains 4,896 certified rows. MPFR 4.2.2 produces directed 768-bit dyadic endpoints; exact integer conversion rounds both endpoints into decimal32/64/128 under every `DecimalRoundingMode`, and the generator rejects a row unless result and flags are unique. Native, Wasm, Wasm-GC, and JavaScript each pass 516/516 tests after these rows are materialized (one test per MPFR interval, holding its 24 rows: a Wasm test module cannot register one test per row); the full gate is 26,931/26,931. RDFP and Arb remain optional secondary routes and are not counted when unavailable."
+msgid "The committed elementary layer contains 4,896 certified rows. MPFR 4.2.2 produces directed 768-bit dyadic endpoints; exact integer conversion rounds both endpoints into decimal32/64/128 under every `DecimalRoundingMode`, and the generator rejects a row unless result and flags are unique. Native, Wasm, Wasm-GC, and JavaScript each pass 531/531 public API tests after these rows are materialized (one test per MPFR interval, holding its 24 rows: a Wasm test module cannot register one test per row). The full gate, `just gate decimal 3`, is 103,527/103,527: the 24,867 target-independent checks, the 531 public API tests on each of the four targets, and the 19,134 rows of the `pi_inverse` table on each of the four targets. RDFP and Arb remain optional secondary routes and are not counted when unavailable."
 msgstr ""
 
-#: manual/conformance/decimal.md:24
+#: manual/conformance/decimal.md:27
 msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
 msgstr ""
 
-#: manual/conformance/decimal.md:37
+#: manual/conformance/decimal.md:40
 msgid "IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. `Level` is `required` for clauses the standard states with \"shall\", `recommended` for those it states with \"should\" (and for the optional parts), `optional` for features a flavor may leave out. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
 msgstr ""
 
-#: manual/conformance/decimal.md:41
+#: manual/conformance/decimal.md:44
 msgid "§3.5 decimal32/64/128 interchange, DPD and BID"
 msgstr ""
 
-#: manual/conformance/decimal.md:41
+#: manual/conformance/decimal.md:44
 msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `src/decimal/interchange_wbtest.mbt`"
 msgstr ""
 
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:45
 msgid "`DecimalContext::new` (precision up to 999,999,999)"
 msgstr ""
 
-#: manual/conformance/decimal.md:43
+#: manual/conformance/decimal.md:46
 msgid "IEEE decimal corpus (five directions); `src/decimal/subnormal_rounding_wbtest.mbt`"
 msgstr ""
 
-#: manual/conformance/decimal.md:43
+#: manual/conformance/decimal.md:46
 msgid "conforming; `HalfDown`, `Up` and `ZeroFiveUp` are extensions"
 msgstr ""
 
-#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:47
 msgid "§5.2 preferred exponents"
 msgstr ""
 
-#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:47
 msgid "every `*_ctx` operation, `power_ctx`, `pown_ctx`"
 msgstr ""
 
-#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:47
 msgid "conforming; `pow(1, ±inf)` has no defined exponent and returns `1`"
 msgstr ""
 
-#: manual/conformance/decimal.md:45
+#: manual/conformance/decimal.md:48
 msgid "IEEE decimal corpus (authoritative operations); `src/decimal/exponent_limits_issue187_wbtest.mbt`"
 msgstr ""
 
-#: manual/conformance/decimal.md:46
+#: manual/conformance/decimal.md:49
 msgid "IEEE decimal corpus; `src/decimal/exponent_limits_issue187_wbtest.mbt`"
 msgstr ""
 
-#: manual/conformance/decimal.md:47
+#: manual/conformance/decimal.md:50
 msgid "`remainder_ctx` (IEEE remainder; `remainder` and `remainder_near` are the GDA forms)"
 msgstr ""
 
-#: manual/conformance/decimal.md:47
+#: manual/conformance/decimal.md:50
 msgid "`src/decimal/remainder_wbtest.mbt` (no external corpus)"
 msgstr ""
 
-#: manual/conformance/decimal.md:48
+#: manual/conformance/decimal.md:51
 msgid "§5.3.1 roundToIntegral (all five, exact)"
 msgstr ""
 
-#: manual/conformance/decimal.md:51
+#: manual/conformance/decimal.md:54
 msgid "§5.3.2 quantize, quantum, sameQuantum"
 msgstr ""
 
-#: manual/conformance/decimal.md:51
+#: manual/conformance/decimal.md:54
 msgid "conforming; a zero result above `e_max - p + 1` under `clamp` is not folded down"
 msgstr ""
 
-#: manual/conformance/decimal.md:53
+#: manual/conformance/decimal.md:56
 msgid "§5.4.1 convertToInteger"
 msgstr ""
 
-#: manual/conformance/decimal.md:53
+#: manual/conformance/decimal.md:56
 msgid "none (`to_integral_*` return a `Decimal`)"
 msgstr ""
 
-#: manual/conformance/decimal.md:56
+#: manual/conformance/decimal.md:59
 msgid "§5.6, §5.11 comparison, quiet and signaling"
 msgstr ""
 
-#: manual/conformance/decimal.md:57
+#: manual/conformance/decimal.md:60
 msgid "§5.7 class, isCanonical, radix"
 msgstr ""
 
-#: manual/conformance/decimal.md:58
+#: manual/conformance/decimal.md:61
 msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
 msgstr ""
 
-#: manual/conformance/decimal.md:59
+#: manual/conformance/decimal.md:62
 msgid "§5.12 decimal character conversion (decimal to decimal)"
 msgstr ""
 
-#: manual/conformance/decimal.md:59
+#: manual/conformance/decimal.md:62
 msgid "`src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
 msgstr ""
 
-#: manual/conformance/decimal.md:60
+#: manual/conformance/decimal.md:63
 msgid "IEEE decimal corpus; `src/decimal/nan_payload_issue151_152_wbtest.mbt`"
 msgstr ""
 
-#: manual/conformance/decimal.md:61
+#: manual/conformance/decimal.md:64
 msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact"
 msgstr ""
 
-#: manual/conformance/decimal.md:61
+#: manual/conformance/decimal.md:64
 msgid "`DecimalFlags` returned by every `*_ctx` operation"
 msgstr ""
 
-#: manual/conformance/decimal.md:61
+#: manual/conformance/decimal.md:64
 msgid "IEEE decimal corpus (flags recorded independently of values); `src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum, not on an operand)"
 msgstr ""
 
-#: manual/conformance/decimal.md:62
+#: manual/conformance/decimal.md:65
 msgid "§7.5 underflow and tininess"
 msgstr ""
 
-#: manual/conformance/decimal.md:62
+#: manual/conformance/decimal.md:65
 msgid "`src/decimal/tininess_after_rounding_wbtest.mbt`; `src/decimal/sqrt_tininess_wbtest.mbt`; `src/decimal/elementary_extensions_wbtest.mbt`; `src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (an integer power just below 10^emin); `src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (underflow of an inexact subnormal integer power)"
 msgstr ""
 
-#: manual/conformance/decimal.md:62
+#: manual/conformance/decimal.md:65
 msgid "conforming (the default is before rounding; `AfterRounding` is a non-standard option)"
 msgstr ""
 
-#: manual/conformance/decimal.md:64
+#: manual/conformance/decimal.md:67
 msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows and 11 operations × 192 rows = 4,896); `src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding modes, both tininess rules): `src/decimal/elementary_pm1_wbtest.mbt` and the generated `src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `src/decimal/elementary_rcp_wbtest.mbt` and the generated `src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding modes on both sides, tiny and extreme operands, underflow): `src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all eight rounding directions): `src/decimal/exp_range_wbtest.mbt` and the generated `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
 msgstr ""
 
-#: manual/conformance/decimal.md:65
+#: manual/conformance/decimal.md:68
 msgid "§9.2.2 preferred exponents of pow and pown"
 msgstr ""
 
-#: manual/conformance/decimal.md:65
+#: manual/conformance/decimal.md:68
 msgid "`src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (the `clamped` condition of integer powers); `src/decimal/power_ten_clamp_issue287_wbtest.mbt` (the `clamped` condition of a power of ten); `src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (no `clamped` on an inexact result)"
 msgstr ""
 
-#: manual/conformance/decimal.md:68
+#: manual/conformance/decimal.md:71
 msgid "none (§9.5 recommends it for binary formats only; no decimal requirement)"
 msgstr ""
 
-#: manual/conformance/decimal.md:68
+#: manual/conformance/decimal.md:71
 msgid "not applicable"
 msgstr ""
 
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:72
 msgid "§9.6 minimum and maximum, eight variants"
 msgstr ""
 
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:72
 msgid "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` and the `*_magnitude_ctx` forms"
 msgstr ""
 
-#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:75
 msgid "Targets"
 msgstr ""
 
-#: manual/conformance/decimal.md:74
+#: manual/conformance/decimal.md:77
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr ""
 
-#: manual/conformance/decimal.md:76
+#: manual/conformance/decimal.md:79
 #: manual/conformance/decimal_gda.md:61
 #: manual/design/ball_float.md:879
 #: manual/design/ball_float_checked.md:170
@@ -9818,19 +9818,19 @@ msgstr ""
 msgid "Boundaries"
 msgstr ""
 
-#: manual/conformance/decimal.md:78
+#: manual/conformance/decimal.md:81
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr ""
 
-#: manual/conformance/decimal.md:80
+#: manual/conformance/decimal.md:83
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr ""
 
-#: manual/conformance/decimal.md:85
+#: manual/conformance/decimal.md:88
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr ""
 
-#: manual/conformance/decimal.md:97
+#: manual/conformance/decimal.md:100
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr ""
 
