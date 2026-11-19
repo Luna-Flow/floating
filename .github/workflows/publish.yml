@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-26.04
     environment: mooncakes
     steps:
+      # actions/checkout runs `git init`; naming the initial branch keeps git's
+      # "default branch name" hint out of the log.
+      - name: git initial branch
+        run: git config --global init.defaultBranch main
+
       - name: checkout
         uses: actions/checkout@v7
 
