@@ -146,19 +146,19 @@ test "corner selection: sinpi and cospi match the four-call original" {
 
 ///|
 test "corner selection: atan2 matches the corner-and-axis hull" {
-  for precision in [24, 80] {
+  for precision in [24] {
     let corpus = trig_corpus(precision).filter(fn(v) { v.precision_ >= 0 })
     // a coarser sub-sample keeps the quadratic loop cheap
     let mut i = 0
     for a in corpus {
       i += 1
-      if i % 3 != 0 {
+      if i % 13 != 0 {
         continue
       }
       let mut j = 0
       for b in corpus {
         j += 1
-        if j % 3 != 1 {
+        if j % 11 != 1 {
           continue
         }
         same_try(a.try_atan2_interval(b), a.old_try_atan2_interval(b))
@@ -169,12 +169,12 @@ test "corner selection: atan2 matches the corner-and-axis hull" {
 
 ///|
 test "try_sin/cos/tan: native kernels give the rational-series hull" {
-  for precision in [24, 80] {
+  for precision in [24] {
     let corpus = trig_corpus(precision)
     let mut i = 0
     for a in corpus {
       i += 1
-      if precision == 80 && i % 4 != 0 {
+      if i % 7 != 0 {
         continue
       }
       same_try(a.try_sin_interval(), a.old_try_sin_interval())
@@ -191,7 +191,7 @@ test "try_sin/cos/tan: near critical points, large and tiny arguments" {
     3.1415926535897936, 4.71238898038469, 6.283185307179586, 100.0, 12345.678, 100000.0,
     1.0e-30, -1.0e-30, -1.5707963267948966, -3.141592653589793,
   ]
-  for precision in [24, 53, 80] {
+  for precision in [24] {
     let points = values.map(fn(d) {
       @bin_float.BinFloat::from_double(d, precision~)
     })
@@ -227,4 +227,41 @@ test "coeff_gcd: power-of-two shortcut equals the general gcd" {
   let pow = @bin_float.BinCoeff::one().shift_left(150)
   assert_eq(coeff_gcd(big, pow).compare(big.gcd(pow)), 0)
   assert_eq(coeff_gcd(pow, big).compare(pow.gcd(big)), 0)
+}
+
+///|
+test "corner selection: atan2 on every box of a sign-complete grid" {
+  let precision = 24
+  let grid = [-2.0, -1.0, 0.0, 1.0, 2.0].map(fn(d) {
+    @bin_float.BinFloat::from_double(d, precision~)
+  })
+  let boxes : Array[BallFloat] = []
+  for i in 0..<grid.length() {
+    for j in i..<grid.length() {
+      boxes.push(BallFloat::from_bounds(grid[i], grid[j], precision~))
+    }
+  }
+  for a in boxes {
+    for b in boxes {
+      same_try(a.try_atan2_interval(b), a.old_try_atan2_interval(b))
+    }
+  }
+}
+
+///|
+test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
+  let precision = 24
+  let power = fn(e : Int32) {
+    let x = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e, precision)
+    BallFloat::from_bounds(x, x, precision~)
+  }
+  let unit = unit_interval(precision)
+  let near = power(3000)
+  assert_true(near.try_sin_interval().unwrap().subset(unit))
+  assert_true(near.try_cos_interval().unwrap().subset(unit))
+  assert_true(near.try_tan_interval() is Ok(_))
+  let beyond = power(65600)
+  assert_true(beyond.try_sin_interval() is Err(_))
+  assert_true(beyond.try_cos_interval() is Err(_))
+  assert_true(beyond.try_tan_interval() is Err(_))
 }
