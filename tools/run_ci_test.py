@@ -155,7 +155,7 @@ class RunCiTests(unittest.TestCase):
         first = next(stage for stage in stages if stage.lane == "conformance")
         self.assertEqual(first.after, "DOCS: manual examples")
 
-    def test_other_targets_are_checked_for_errors_in_the_quick_gate(self) -> None:
+    def test_other_targets_are_checked_with_deny_warn_in_the_quick_gate(self) -> None:
         command = next(
             stage.command
             for stage in run_ci.stages_for("quick", 4)
@@ -163,7 +163,7 @@ class RunCiTests(unittest.TestCase):
         )
         self.assertEqual(command[command.index("--target") + 1], "wasm,wasm-gc,js")
         self.assertIn("--frozen", command)
-        self.assertNotIn("--deny-warn", command)  # external_test.mbt warns, #22
+        self.assertIn("--deny-warn", command)
 
     def test_pure_python_lane_never_runs_moon(self) -> None:
         for stage in run_ci.stages_for("quick", 4):
