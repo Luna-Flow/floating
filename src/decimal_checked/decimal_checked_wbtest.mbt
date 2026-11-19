@@ -98,3 +98,33 @@ test "decimal checked exp2m1 exp10m1 log2p1 log10p1 mirror the try forms" {
     ten_pole.raised().contains(@decimal.DecimalSignal::DivisionByZero),
   )
 }
+
+///|
+test "decimal checked rsqrt compound powr mirror the try forms" {
+  // IEEE 754-2019 9.2: the checked methods record the result and flags of
+  // Decimal::try_*_ctx; rSqrt(+-0) and compound(-1, n < 0) are poles (9.2.1).
+  let context = @decimal.DecimalContext::decimal64()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  inspect(
+    DecimalChecked::from_decimal(d("0.25"), context).rsqrt().value(),
+    content="2",
+  )
+  inspect(
+    DecimalChecked::from_decimal(d("0.1"), context).compound(2).value(),
+    content="1.21",
+  )
+  inspect(
+    DecimalChecked::from_int(8, context).powr(d("0.5")).value(),
+    content="2.828427124746190",
+  )
+  let pole = DecimalChecked::from_int(0, context).rsqrt()
+  assert_true(pole.raised().contains(@decimal.DecimalSignal::DivisionByZero))
+  let compound_pole = DecimalChecked::from_int(-1, context).compound(-2)
+  assert_true(
+    compound_pole.raised().contains(@decimal.DecimalSignal::DivisionByZero),
+  )
+  let invalid = DecimalChecked::from_int(0, context).powr(d("0"))
+  assert_true(
+    invalid.raised().contains(@decimal.DecimalSignal::InvalidOperation),
+  )
+}

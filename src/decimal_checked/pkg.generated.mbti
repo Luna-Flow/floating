@@ -26,6 +26,7 @@ pub fn DecimalChecked::atan(Self) -> Self
 pub fn DecimalChecked::atan2(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
 pub fn DecimalChecked::clear_flags(Self) -> Self
+pub fn DecimalChecked::compound(Self, Int32) -> Self
 pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext
 pub fn DecimalChecked::cos(Self) -> Self
 pub fn DecimalChecked::cosh(Self) -> Self
@@ -67,12 +68,14 @@ pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::plus(Self) -> Self
 pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
+pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
 pub fn DecimalChecked::rootn(Self, Int32) -> Self
+pub fn DecimalChecked::rsqrt(Self) -> Self
 pub fn DecimalChecked::sin(Self) -> Self
 pub fn DecimalChecked::sinh(Self) -> Self
 pub fn DecimalChecked::sinpi(Self) -> Self
