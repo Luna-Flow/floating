@@ -121,6 +121,9 @@ fn decimal_elementary_zero(
 }
 
 ///|
+let decimal_half_constant : Decimal = Decimal::from_string("0.5").unwrap()
+
+///|
 fn decimal_certified_saturated_unary_result(
   value : Decimal,
   operation : DecimalUnaryElementary,
@@ -171,9 +174,7 @@ fn decimal_tiny_unary_result(
     return None
   }
   let magnitude = { ..value, negative: false, }
-  guard magnitude.compare(Decimal::from_string("0.5").unwrap()) < 0 else {
-    return None
-  }
+  guard magnitude.compare(decimal_half_constant) < 0 else { return None }
   let top = value.exponent10.to_int64() +
     value.coefficient.digits10().to_int64()
   let (anchor, above, order) = match operation {
@@ -1186,11 +1187,19 @@ pub fn Decimal::try_atan2_ctx(
       ).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
     None => ()
   }
-  if !x.negative && !ordinate.coefficient.is_zero() && !x.coefficient.is_zero() {
+  // The tiny-argument decision below needs `3 top < adjusted(ratio) - p - 3`,
+  // with top = adjusted(ratio) + 1 and adjusted(ratio) >= D - 1 for
+  // D = adjusted(y) - adjusted(x): that is `2 D < -(p + 4)` at the most, so no
+  // other ratio is formed (the exact division costs a gcd and two powers).
+  let distance = adjusted_exponent64(ordinate) - adjusted_exponent64(x)
+  if !x.negative &&
+    !ordinate.coefficient.is_zero() &&
+    !x.coefficient.is_zero() &&
+    2L * distance < -(ctx.precision.to_int64() + 4L) {
     match exact_decimal_division_result(ordinate, x, DecimalContext::exact()) {
       Some((ratio, _)) => {
         let magnitude = { ..ratio, negative: false, }
-        if magnitude.compare(Decimal::from_string("0.5").unwrap()) < 0 {
+        if magnitude.compare(decimal_half_constant) < 0 {
           let top = ratio.exponent10.to_int64() +
             ratio.coefficient.digits10().to_int64()
           match

@@ -94,8 +94,11 @@ fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
   } else {
     (dec_coeff_multiply_by_unit_repr(normalized_coeff0, 10), normalized_exp - 1)
   }
-  let root = dec_coeff_integer_sqrt_floor_repr(radicand)
-  if dec_coeff_compare_repr(dec_coeff_square_repr(root), radicand) == 0 {
+  // The floor root and its remainder radicand - root^2 come from one Newton
+  // iteration: the radicand is a square exactly when the remainder is zero, so
+  // the root is not squared again.
+  let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(radicand)
+  if remainder.is_zero() {
     let exact = finite_with_exponent_repr(
       false,
       root,

@@ -92,9 +92,16 @@ test "atan2pi generated rows: both sides of the scaled condition, all signs and 
   let mut count = 0
   let rows = atan2pi_scaled_rows()
   for row in rows {
-    let (rounding, precision, e_min, e_max, clamp, y, x, expected, flags) = row
+    let (op, rounding, precision, e_min, e_max, clamp, y, x, expected, flags) = row
     let ctx = pm1_ctx(precision, rounding, e_min, e_max, clamp, "b")
-    let got = pii_call("atan2pi", y, x, ctx)
+    let got = if op == "atan2" {
+      match pm1_exact(y).try_atan2_ctx(pm1_exact(x), ctx) {
+        Ok((value, f)) => "\{value} \{pm1_flags_text(f)}"
+        Err(_) => "certification-failure"
+      }
+    } else {
+      pii_call("atan2pi", y, x, ctx)
+    }
     let parts = got.split(" ").map(fn(s) { s.to_owned() }).collect()
     let ok = parts.length() == 2 &&
       pm1_exact(parts[0]).compare_total(pm1_exact(expected)) == 0 &&
@@ -103,7 +110,7 @@ test "atan2pi generated rows: both sides of the scaled condition, all signs and 
       count += 1
       if count <= 20 {
         failures.write_string(
-          "\{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} y=\{y} x=\{x}: want \{expected} \{flags}, got \{got}\n",
+          "\{op} \{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} y=\{y} x=\{x}: want \{expected} \{flags}, got \{got}\n",
         )
       }
     }

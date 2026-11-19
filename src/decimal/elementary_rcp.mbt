@@ -358,6 +358,24 @@ fn decimal_compound_exact_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   let target = decimal_math_target_precision(ctx).to_int64()
+  // Decided before 1 + x is formed (its exact sum has about |adjusted(x)|
+  // digits). With a = adjusted(x) and n != 0:
+  // - x an integer multiple of 10 (exponent10 > 0) with a >= target + 2: 1 + x
+  //   has a + 1 digits and ends in 1, so it is not a power of 2 (odd and
+  //   above 1), of 5 (those end in 5) or of 10, and for n > 0 the guard
+  //   `(digits - 1) n <= target + 1` below fails anyway: no exact result.
+  // - n > 0 and a < -(target + 2): 1 + x lies in (1, 1 + 10^-(target + 2)),
+  //   so c = its coefficient without trailing zeros has more than target + 2
+  //   digits and is not 1 (the sum is no power of ten): the same guard fails.
+  if !value.coefficient.is_zero() && n != 0 {
+    let a = adjusted_exponent64(value)
+    if value.exponent10 > 0 && a >= target + 2L {
+      return None
+    }
+    if n > 0 && a < -(target + 2L) {
+      return None
+    }
+  }
   let sum = value.add_ctx(Decimal::one(precision=1), DecimalContext::exact()).0
   let (coefficient, exponent) = remove_factor10_repr(
     sum.coefficient,

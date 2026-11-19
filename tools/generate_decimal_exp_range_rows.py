@@ -136,8 +136,8 @@ def true_value(op: str, x: Decimal, y: Decimal | None, n: int | None) -> Decimal
         return exp_of(W.multiply(y, LN2))
     if op == "pown":  # 1.5^n
         return exp_of(W.multiply(Decimal(n), LN15))
-    if op == "compound":  # (1 + 0.25)^n
-        return exp_of(W.multiply(Decimal(n), LN125))
+    if op == "compound":  # (1 + x)^n
+        return exp_of(W.multiply(Decimal(n), W.ln(1 + x)))
     if op == "rsqrt":
         return exp_of(-W.ln(x) / 2)
     raise ValueError(op)
@@ -363,6 +363,17 @@ def all_rows() -> list[tuple]:
                         r = row(spec, rounding, op, x, None, None)
                         if r:
                             rows.append(r)
+            # compound around the cheap decisions made before 1 + x is formed:
+            # exponent10 > 0 with adjusted(x) >= p + 2, and n > 0 with
+            # adjusted(x) < -(p + 2) (p being the precision of the context).
+            p = spec[1]
+            for x in [Decimal(f"1E{p + 1}"), Decimal(f"1E{p + 2}"), Decimal(f"1E{p + 3}"),
+                      Decimal(f"1E-{p + 1}"), Decimal(f"1E-{p + 2}"), Decimal(f"1E-{p + 3}"),
+                      Decimal("3E+300"), Decimal("3E-300")]:
+                for count in (2, -2, 3):
+                    r = row(spec, rounding, "compound", x, None, count)
+                    if r:
+                        rows.append(r)
             if spec in TINY_CONTEXTS:
                 for x, count in ROOTN_ARGS:
                     r = row(spec, rounding, "rootn", x, None, count)
