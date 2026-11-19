@@ -16,7 +16,7 @@ def page(slug: str) -> tool.Page:
 
 class DocExamplesTests(unittest.TestCase):
     def test_one_moon_call_covers_every_page(self) -> None:
-        directories = [tool.GENERATED_ROOT / "a", tool.GENERATED_ROOT / "b"]
+        directories = [tool.LIBRARY_GENERATED_ROOT / "a", tool.LIBRARY_GENERATED_ROOT / "b"]
         command = tool.moon_test_command(directories, "native")
         self.assertEqual(command.count("test"), 1)
         self.assertEqual(
@@ -24,6 +24,18 @@ class DocExamplesTests(unittest.TestCase):
             ("src/_generated_doc_examples/a", "src/_generated_doc_examples/b"),
         )
         self.assertEqual(command[-2:], ("--target", "native"))
+
+    def test_pages_using_a_tools_package_are_compiled_in_the_tools_module(self) -> None:
+        library_page = page("internal")
+        tools_page = page("cli")
+        tools_page = tool.Page(
+            tools_page.path, tools_page.slug, tools_page.blocks, ("gda_expr", "decimal"), ()
+        )
+        self.assertEqual(tool.generated_root(library_page), tool.LIBRARY_GENERATED_ROOT)
+        self.assertEqual(tool.generated_root(tools_page), tool.TOOLS_GENERATED_ROOT)
+        aliases = tool.alias_map()
+        self.assertEqual(aliases["gda_expr"], "Luna-Flow/floating-tools/frontend/gda_expr")
+        self.assertEqual(aliases["decimal"], "Luna-Flow/floating/decimal")
 
     def test_totals_come_from_the_last_summary_line(self) -> None:
         output = "Total tests: 1, passed: 1, failed: 0.\nTotal tests: 271, passed: 270, failed: 1.\n"

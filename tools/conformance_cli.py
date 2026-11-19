@@ -8,7 +8,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BUILD_ROOT = REPO_ROOT / "_build/conformance"
 BACKENDS = ("gda", "testfloat", "mpfr", "itl")
-# Every backend runs the same `src/cli` program, so it is built once into one
+# Every backend runs the same `tooling/src/cli` program, so it is built once into one
 # shared target directory; only the copied executables are named per backend.
 SHARED_TARGET_DIR = BUILD_ROOT / "cli"
 
@@ -33,7 +33,7 @@ def build_command() -> list[str]:
         "--target",
         "native",
         "--build-only",
-        "src/cli",
+        "tooling/src/cli",
     ]
 
 
@@ -49,7 +49,7 @@ def build_backend(backend: str) -> Path:
         text=True,
         capture_output=True,
     )
-    generated = target_dir / "native/release/build/cli/cli.exe"
+    generated = target_dir / "native/release/build/Luna-Flow/floating-tools/cli/cli.exe"
     if result.returncode != 0 or not generated.is_file():
         raise RuntimeError(
             f"failed to build {backend} conformance interpreter:\n"

@@ -16,7 +16,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--skip-package-tests",
         action="store_true",
-        help="do not run the src/doc_examples tests (the repository gate's native "
+        help="do not run the tooling/src/doc_examples tests (the repository gate's native "
         "test stage runs that package with --deny-warn)",
     )
     parser.add_argument(
@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
             "sh",
             "tools/run_moon_clean_exec.sh",
             "test",
-            "src/doc_examples",
+            "tooling/src/doc_examples",
             "--target",
             "native",
             "--deny-warn",

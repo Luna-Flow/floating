@@ -128,9 +128,9 @@ literals near the underflow threshold are not compared.
 
 ## Interpreter Boundary
 
-`src/frontend/testfloat_expr` parses TestFloat rows into typed binary interchange
+`tooling/src/frontend/testfloat_expr` parses TestFloat rows into typed binary interchange
 values, creates the requested `BinaryContext`, and runs `BinFloat` directly.
-`src/frontend/mpfr_expr` parses MPFR hexadecimal `data_check` sqrt rows, the
+`tooling/src/frontend/mpfr_expr` parses MPFR hexadecimal `data_check` sqrt rows, the
 committed `pow_si` rows, the elementary matrix, and the two decimal conversion
 corpora. The elementary generator
 uses MPFR's required `mpfr_round_nearest_away_begin/end` wrapper rather than
@@ -153,7 +153,7 @@ campaign adds precisions from 2 to 10,000, mixed operand widths, all six
 rounding directions, bounded and unbounded exponent ranges, and inputs built to
 sit on the edges of rounding, against GNU MPFR 4.2.2. It is driven by
 `tools/random_differential.py` (`just random-diff`) and recorded through the
-mare_mark harness in `src/differential`; see the
+mare_mark harness in `tooling/src/differential`; see the
 [tutorial](../../doc/manual/tutorial/differential.md) and
 [design](../../doc/manual/design/differential.md) pages and
 [verification](../../doc/manual/verification.md) for the counts.

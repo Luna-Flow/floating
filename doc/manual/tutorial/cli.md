@@ -6,7 +6,7 @@ run the four conformance runners through it, either directly or through the
 
 | I want to | Use |
 | --- | --- |
-| build the executable and see its usage | [`run … src/cli -- --help`](#quick-start) |
+| build the executable and see its usage | [`run … tooling/src/cli -- --help`](#quick-start) |
 | run decTest, ITL, MPFR or TestFloat data | [`--backend gda`, `itl`, `mpfr`, `testfloat`](#choose-a-backend) |
 | run whole pinned corpora in parallel | [`just conformance …`](#use-the-tooling-instead-of-raw-invocations) |
 | use the result in a script | [the exit code and `--json`](#read-the-exit-code) |
@@ -19,7 +19,7 @@ repository, not installed with `moon add`. From the repository root, build it
 and print the usage line:
 
 ```bash
-sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help
+sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help
 ```
 
 ```text
@@ -29,7 +29,7 @@ usage: floating-conformance --backend <gda|testfloat|mpfr|itl> [backend options]
 Run the committed GDA smoke file (the default path of the `gda` runner):
 
 ```bash
-sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --backend gda
+sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --backend gda
 ```
 
 The runner prints a summary and the process exits with `0` when every

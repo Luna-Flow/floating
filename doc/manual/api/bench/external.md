@@ -20,7 +20,7 @@ runtime:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bench" @benchkit,
+  "Luna-Flow/floating-tools/bench" @benchkit,
   "Luna-Flow/floating/bin_float" @binary,
   "Luna-Flow/floating/decimal_gda" @gda,
   "Luna-Flow/mare_mark/env_detect",
@@ -72,7 +72,7 @@ The package exports no MoonBit items.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/bench/external"
+package "Luna-Flow/floating-tools/bench/external"
 
 // Values
 

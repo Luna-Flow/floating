@@ -3,7 +3,7 @@
 
 One seeded generator writes the operands to a file that both sides read: the C
 harness (tools/external_baseline.c, MPFR for binary and libmpdec for `decimal_gda`)
-and the floating benchmarks (src/bench/external, run by Maremark on native in
+and the floating benchmarks (tooling/src/bench/external, run by Maremark on native in
 release mode).  The runner alternates the two sides in seeded AB/BA order over
 several rounds, collects raw JSONL, and reduces it to median ns per operation
 with two-level bootstrap intervals and floating/reference ratios.
@@ -779,7 +779,7 @@ def moon_environment() -> dict[str, str]:
 def moon_cc_flags() -> str:
     """The C compiler flags moon uses for the native release build of the floating side."""
     text = capture(
-        ["moon", "test", "src/bench/external", "--release", "--include-skipped", "--target", "native", "--dry-run"],
+        ["moon", "test", "tooling/src/bench/external", "--release", "--include-skipped", "--target", "native", "--dry-run"],
         env=moon_environment(), cwd=REPO_ROOT,
     )  # fmt: skip
     for line in text.splitlines():
@@ -849,7 +849,7 @@ def build_harness(out_dir: Path, prefix: Path, cc: str, cflags: str) -> Path:
 
 def moon_command(release: bool = True) -> list[str]:
     command = [
-        "sh", "tools/run_moon_clean_exec.sh", "test", "src/bench/external",
+        "sh", "tools/run_moon_clean_exec.sh", "test", "tooling/src/bench/external",
         "--include-skipped", "--no-parallelize", "--target", "native",
         "--filter", "external baseline floating",
     ]  # fmt: skip

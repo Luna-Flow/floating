@@ -152,7 +152,7 @@ left as `?`:
 ```bash
 python3 tools/range_boundary_rows.py --p-min 2 --p-max 300 --out .tmp/boundary.in
 (head -n 1 .tmp/boundary.in; .tmp/random-diff/bin/generate_mpfr_random_oracle eval < .tmp/boundary.in) > .tmp/boundary.rows
-moon run src/cli --target native --release -- --backend mpfr .tmp/boundary.rows
+moon run tooling/src/cli --target native --release -- --backend mpfr .tmp/boundary.rows
 ```
 
 The generator binary is built by any `just random-diff run`. A failing row is

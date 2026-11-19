@@ -110,7 +110,7 @@ unsupported reverse operations.
 | binary, decimal, GDA and interval kernels | `just bench all --target native` | all four Maremark suites produced valid artifacts |
 | binary square policy | `just bench auto-tune --target native` | a target-specific policy artifact; raw observations can be non-monotonic and are not a universal threshold |
 | IEEE and GDA fast paths | benchmark package tests plus the conformance gates | a fast route is admissible only while the semantic oracle stays green |
-| interval endpoint dispatch | `src/bench/ball_float` and strict ITF1788 | lower cost is acceptable only with ordered, outward-rounded enclosures |
+| interval endpoint dispatch | `tooling/src/bench/ball_float` and strict ITF1788 | lower cost is acceptable only with ordered, outward-rounded enclosures |
 | external comparison | `just bench external run` ([results](performance/bench/external.md)) | `floating` timed against MPFR and libmpdec on the same operands; slower in every measured cell, by 1.8 to 2554 times |
 
 Generated artifacts live under `.tmp/bench/` and are not published as API data.

@@ -10,7 +10,7 @@ result.
 
 | Layer | Command | Purpose |
 | --- | --- | --- |
-| Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `src/doc_examples` tests |
+| Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `tooling/src/doc_examples` tests |
 | Formatting | `just fmt` | the MoonBit formatter |
 | Pull request | `just pr [jobs]` | format check, docs, native check and tests with `--deny-warn`, Python tool tests, and the four committed smoke corpora |
 | IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 19,134-row π-inverse table, read at run time by the release-built conformance CLI on each target |
@@ -44,7 +44,7 @@ of the repository. The quick gate (`just pr`, the native test stage of CI)
 compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
 (2.2 MB of source), and the same rows are data
 (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
-`src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
+`tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
 release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare
 value, cohort (`compare_total`) and all flags exactly.
 

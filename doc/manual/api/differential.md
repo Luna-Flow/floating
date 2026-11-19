@@ -26,9 +26,9 @@ mare_mark packages and the shared benchmark toolkit:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bench" @benchkit,
-  "Luna-Flow/floating/frontend/gda_expr",
-  "Luna-Flow/floating/frontend/mpfr_expr",
+  "Luna-Flow/floating-tools/bench" @benchkit,
+  "Luna-Flow/floating-tools/frontend/gda_expr",
+  "Luna-Flow/floating-tools/frontend/mpfr_expr",
   "Luna-Flow/mare_mark/runner",
 }
 ```
@@ -86,7 +86,7 @@ replayed by the mare_mark command line:
 
 ```bash
 # in a mare_mark checkout
-moon run src/cli --target native -- replay records.jsonl --dry-run
+moon run tooling/src/cli --target native -- replay records.jsonl --dry-run
 ```
 
 The command it prints is
@@ -101,7 +101,7 @@ The package exports no MoonBit items.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/differential"
+package "Luna-Flow/floating-tools/differential"
 
 // Values
 

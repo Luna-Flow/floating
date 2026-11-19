@@ -41,20 +41,35 @@ PO_STRING_RE = re.compile(r'"((?:[^"\\]|\\.)*)"')
 PO_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}
 
 
+# MoonBit sources of the two modules: the library (`moon.mod`) and the tools
+# module (`tooling/moon.mod`). A package keeps the name it has below its source
+# root, and the manual pages are named after it.
+def source_roots() -> tuple[Path, Path]:
+    return (REPO_ROOT / "src", REPO_ROOT / "tooling" / "src")
+
+
 def package_paths() -> set[str]:
     # `tools/check_doc_examples.py` writes throwaway packages under an
     # underscore-prefixed directory and removes them again; they are not part of
     # the documented package set even if an interrupted run leaves them behind.
-    # Only the parts below `src` count: the checkout itself may live under an
-    # underscore-prefixed directory.
-    source_root = REPO_ROOT / "src"
+    # Only the parts below a source root count: the checkout itself may live
+    # under an underscore-prefixed directory.
     return {
         str(path.parent.relative_to(source_root))
+        for source_root in source_roots()
         for path in source_root.rglob("moon.pkg")
         if not any(
             part.startswith("_") for part in path.parent.relative_to(source_root).parts
         )
     }
+
+
+def package_directory(package: str) -> Path:
+    """The directory of a documented package, in whichever module holds it."""
+    for source_root in source_roots():
+        if (source_root / package / "moon.pkg").exists():
+            return source_root / package
+    raise FileNotFoundError(f"no package {package} below {source_roots()}")
 
 
 def manual_pages() -> set[str]:
@@ -195,6 +210,7 @@ def check_current_versions() -> list[str]:
     candidates = [REPO_ROOT / "README.md", REPO_ROOT / "CONTRIBUTING.md"]
     candidates.extend(MANUAL_ROOT.rglob("*.md"))
     candidates.extend(REPO_ROOT.glob("src/**/README.mbt.md"))
+    candidates.extend(REPO_ROOT.glob("tooling/src/**/README.mbt.md"))
     for path in candidates:
         text = path.read_text(encoding="utf-8")
         allowed_historical = set(HISTORICAL_BASELINE_RE.findall(text))
@@ -254,21 +270,22 @@ def check_orphan_pages() -> list[str]:
             continue
         package = page.removesuffix(".md")
         if package not in packages:
-            errors.append(f"doc/manual/{relative}: no src/{package}/moon.pkg package")
+            errors.append(f"doc/manual/{relative}: no {package}/moon.pkg package below src or tooling/src")
     return errors
 
 
 def check_package_readme_coverage() -> list[str]:
     errors: list[str] = []
     for package in sorted(package_paths()):
-        path = REPO_ROOT / "src" / package / "README.mbt.md"
+        directory = package_directory(package)
+        path = directory / "README.mbt.md"
         if not path.exists():
-            errors.append(f"src/{package}: missing README.mbt.md")
+            errors.append(f"{directory.relative_to(REPO_ROOT)}: missing README.mbt.md")
     return errors
 
 
 def generated_interface(package: str) -> str:
-    return (REPO_ROOT / "src" / package / "pkg.generated.mbti").read_text(
+    return (package_directory(package) / "pkg.generated.mbti").read_text(
         encoding="utf-8"
     ).strip()
 
@@ -291,7 +308,7 @@ def check_api_snapshots() -> list[str]:
     return errors
 
 
-EVIDENCE_PATH_RE = re.compile(r"`((?:src|testdata|tools)/[^`\s]+)`")
+EVIDENCE_PATH_RE = re.compile(r"`((?:src|tooling|testdata|tools)/[^`\s]+)`")
 
 
 def check_evidence_paths() -> list[str]:

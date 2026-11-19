@@ -27,7 +27,7 @@ moon add Luna-Flow/floating@0.10.2
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/frontend/gda_expr",
+  "Luna-Flow/floating-tools/frontend/gda_expr",
 }
 ```
 

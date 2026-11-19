@@ -18,7 +18,7 @@ and Maremark:
 import {
   "Luna-Flow/floating/ball_float" @ball,
   "Luna-Flow/floating/ball_float_checked" @checked,
-  "Luna-Flow/floating/bench" @benchkit,
+  "Luna-Flow/floating-tools/bench" @benchkit,
   "Luna-Flow/floating/bin_float" @binary,
   "Luna-Flow/mare_mark/event",
   "Luna-Flow/mare_mark/model",
@@ -47,7 +47,7 @@ The package exports no MoonBit items.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/bench/ball_float"
+package "Luna-Flow/floating-tools/bench/ball_float"
 
 // Values
 

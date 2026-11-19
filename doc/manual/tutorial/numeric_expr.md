@@ -26,7 +26,7 @@ Add the package to `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/numeric_expr",
+  "Luna-Flow/floating-tools/numeric_expr",
 }
 ```
 

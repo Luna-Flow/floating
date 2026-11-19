@@ -5,7 +5,7 @@
 ## Measurement boundary
 
 `just bench decimal --target native` runs the current Maremark suite in
-`src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis
+`tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis
 file. This is a reproducible measurement artifact, not an immutable release
 gate. The current branch has no checked-in decimal performance manifest or
 threshold workflow; measurements use the Maremark suite below.

@@ -3,7 +3,7 @@
 
 The English manual lives in `doc/manual` as plain Markdown, outside the module's
 `src` tree, so `moon` never sees its fenced examples. This tool generates one
-throwaway package per manual page under `src/<GENERATED_ROOT>`, re-fences the
+throwaway package per manual page under `_generated_doc_examples` of a module, re-fences the
 examples as `moonbit check` so `moon` compiles them, runs the resulting
 black-box tests, and removes the tree again.
 
@@ -23,13 +23,20 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANUAL_ROOT = REPO_ROOT / "doc" / "manual"
-GENERATED_ROOT = REPO_ROOT / "src" / "_generated_doc_examples"
+# A page whose examples use a tools package (`TOOLS_ALIASES`) is compiled in the
+# tools module, which imports the library and the tools packages alike. Every
+# other page is compiled in the library module, so that the examples of the
+# library-internal `@internal` package keep working: a package of the tools
+# module cannot import it.
+LIBRARY_GENERATED_ROOT = REPO_ROOT / "src" / "_generated_doc_examples"
+TOOLS_GENERATED_ROOT = REPO_ROOT / "tooling" / "src" / "_generated_doc_examples"
+GENERATED_ROOTS = (LIBRARY_GENERATED_ROOT, TOOLS_GENERATED_ROOT)
+GENERATED_NAME = LIBRARY_GENERATED_ROOT.name
 FENCE_RE = re.compile(r"^```moonbit(?P<attributes>[a-z ]*)$")
 
 FLOATING_PACKAGES = (
     "ball_float",
     "ball_float_checked",
-    "bench",
     "bin_float",
     "bin_float_checked",
     "consistency",
@@ -39,11 +46,19 @@ FLOATING_PACKAGES = (
     "decimal_gda_checked",
     "def",
     "internal",
-    "numeric_expr",
     "semantic",
 )
+TOOLS_PACKAGES = ("bench", "numeric_expr")
 FRONTEND_PACKAGES = ("gda_expr", "itl_expr", "mpfr_expr", "testfloat_expr")
 CLI_PACKAGES = ("gda_expr_cli", "itl_expr_cli", "mpfr_expr_cli", "testfloat_expr_cli")
+TOOLS_ALIASES = frozenset((*TOOLS_PACKAGES, *FRONTEND_PACKAGES, *CLI_PACKAGES))
+
+
+def generated_root(page: "Page") -> Path:
+    """The generated-package root of the module that compiles the page."""
+    if set(page.aliases) & TOOLS_ALIASES:
+        return TOOLS_GENERATED_ROOT
+    return LIBRARY_GENERATED_ROOT
 
 
 def alias_map() -> dict[str, str]:
@@ -59,10 +74,12 @@ def alias_map() -> dict[str, str]:
     }
     for name in FLOATING_PACKAGES:
         aliases[name] = f"Luna-Flow/floating/{name}"
+    for name in TOOLS_PACKAGES:
+        aliases[name] = f"Luna-Flow/floating-tools/{name}"
     for name in FRONTEND_PACKAGES:
-        aliases[name] = f"Luna-Flow/floating/frontend/{name}"
+        aliases[name] = f"Luna-Flow/floating-tools/frontend/{name}"
     for name in CLI_PACKAGES:
-        aliases[name] = f"Luna-Flow/floating/cli/{name}"
+        aliases[name] = f"Luna-Flow/floating-tools/cli/{name}"
     return aliases
 
 
@@ -123,7 +140,7 @@ def collect_pages() -> list[Page]:
 
 def write_package(page: Page) -> Path:
     known = alias_map()
-    directory = GENERATED_ROOT / page.slug
+    directory = generated_root(page) / page.slug
     directory.mkdir(parents=True, exist_ok=True)
     imports = "".join(f'  "{known[alias]}" @{alias},\n' for alias in page.aliases)
     # A package with no imports still needs a well-formed manifest.
@@ -171,7 +188,7 @@ def parse_totals(output: str) -> tuple[int, int, int] | None:
 
 def failing_pages(output: str, pages: list[Page]) -> list[Page]:
     """The pages whose generated package directory the output mentions."""
-    return [page for page in pages if f"{GENERATED_ROOT.name}/{page.slug}/" in output]
+    return [page for page in pages if f"{GENERATED_NAME}/{page.slug}/" in output]
 
 
 def run_pages(
@@ -199,7 +216,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     arguments = parser.parse_args(argv)
 
-    shutil.rmtree(GENERATED_ROOT, ignore_errors=True)
+    for root in GENERATED_ROOTS:
+        shutil.rmtree(root, ignore_errors=True)
     pages = collect_pages()
     if not pages:
         print("no manual examples found", file=sys.stderr)
@@ -235,7 +253,8 @@ def main(argv: list[str] | None = None) -> int:
                 )
     finally:
         if not arguments.keep:
-            shutil.rmtree(GENERATED_ROOT, ignore_errors=True)
+            for root in GENERATED_ROOTS:
+                shutil.rmtree(root, ignore_errors=True)
 
     if failures:
         for failure in failures:

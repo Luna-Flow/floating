@@ -134,7 +134,7 @@ Typst attachments live in `doc/attachments/` and are shared by all locales.
 3. Compile and run every changed example (`moonbit` blocks) against the
    current branch.
 4. Run `just docs`: `tools/doc_quality.py`, the manual examples and the
-   `src/doc_examples` tests.
+   `tooling/src/doc_examples` tests.
 5. Run `lunadoc update` to refresh `doc/locale/manual.pot` and merge the
    catalogs, translate new and fuzzy entries, then check `lunadoc status`
    (coverage per locale) and `lunadoc check --compile` (layout, catalogs,

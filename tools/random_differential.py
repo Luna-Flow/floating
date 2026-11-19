@@ -14,7 +14,7 @@ disagreement is a lead that is triaged against IEEE 754-2019 / the General
 Decimal Arithmetic text before anyone calls it a bug.
 
 Python only generates, schedules and aggregates; the arithmetic under test runs
-in MoonBit (`src/differential`, built on the mare_mark harness) and the
+in MoonBit (`tooling/src/differential`, built on the mare_mark harness) and the
 reference arithmetic runs in MPFR / libmpdec.
 """
 
@@ -165,7 +165,7 @@ def build_generator(mpfr_prefix: str | None = None, force: bool = False) -> Path
 
 
 def artifact_path(target: str) -> Path:
-    base = BUILD_ROOT / target / target / "release/build/differential"
+    base = BUILD_ROOT / target / target / "release/build/Luna-Flow/floating-tools/differential"
     suffix = {"native": "exe", "wasm": "wasm", "js": "js", "llvm": "exe"}[target]
     return base / f"differential.{suffix}"
 
@@ -176,7 +176,7 @@ def build_harness(target: str) -> Path:
     environment = dict(os.environ)
     environment["CODEX_MOON_TARGET_DIR"] = str(BUILD_ROOT / target)
     result = run_command(
-        ["sh", "tools/run_moon_clean_exec.sh", "build", "--release", "--target", target, "src/differential"],
+        ["sh", "tools/run_moon_clean_exec.sh", "build", "--release", "--target", target, "tooling/src/differential"],
         env=environment,
     )
     path = artifact_path(target)
@@ -189,9 +189,9 @@ def conformance_cli(target: str) -> list[str]:
     """The shared `floating-conformance` executable (sync); used for wasm-gc.
 
     On native the build options are those of `conformance_cli.py` (release,
-    `src/cli`), so the executable comes from the directory that the TestFloat,
+    `tooling/src/cli`), so the executable comes from the directory that the TestFloat,
     MPFR and ITL conformance smokes already built (`_build/conformance/cli`)
-    instead of a second release compile of `src/cli`.
+    instead of a second release compile of `tooling/src/cli`.
     """
     if target == "native":
         try:
@@ -201,11 +201,11 @@ def conformance_cli(target: str) -> list[str]:
     environment = dict(os.environ)
     environment["CODEX_MOON_TARGET_DIR"] = str(BUILD_ROOT / f"cli-{target}")
     result = run_command(
-        ["sh", "tools/run_moon_clean_exec.sh", "build", "--release", "--target", target, "src/cli"],
+        ["sh", "tools/run_moon_clean_exec.sh", "build", "--release", "--target", target, "tooling/src/cli"],
         env=environment,
     )
     suffix = {"native": "exe", "wasm": "wasm", "wasm-gc": "wasm", "js": "js", "llvm": "exe"}[target]
-    path = BUILD_ROOT / f"cli-{target}" / target / f"release/build/cli/cli.{suffix}"
+    path = BUILD_ROOT / f"cli-{target}" / target / f"release/build/Luna-Flow/floating-tools/cli/cli.{suffix}"
     if result.returncode != 0 or not path.is_file():
         raise ToolError(f"cannot build the conformance CLI for {target}:\n{result.stdout}{result.stderr}")
     return cli_launcher(target, path)

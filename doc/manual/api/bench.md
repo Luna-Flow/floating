@@ -22,7 +22,7 @@ arrays and observations:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bench",
+  "Luna-Flow/floating-tools/bench",
   "Luna-Flow/mare_mark/model",
   "Luna-Flow/mare_mark/runner",
   "Luna-Flow/mare_mark/event",
@@ -31,7 +31,7 @@ import {
 
 The examples on this page use the alias `@bench`. The benchmark suites import
 the same package under the alias `@benchkit`
-(`"Luna-Flow/floating/bench" @benchkit`). Types prefixed `@model`, `@runner`, `@event` and `@stats` belong to
+(`"Luna-Flow/floating-tools/bench" @benchkit`). Types prefixed `@model`, `@runner`, `@event` and `@stats` belong to
 `Luna-Flow/mare_mark`. An `@model.Observation` records one timed batch: case,
 implementation, dataset, repetition and block ids, phase (exploratory or
 confirmatory), `raw_elapsed_us` (batch time divided by the batch's iteration
@@ -218,7 +218,7 @@ test "no observations, no decision" {
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/bench"
+package "Luna-Flow/floating-tools/bench"
 
 import {
   "Luna-Flow/mare_mark/event",

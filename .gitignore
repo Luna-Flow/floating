@@ -61,3 +61,4 @@ CLAUDE.local.md
 
 # Throwaway packages written by tools/check_doc_examples.py
 src/_generated_doc_examples/
+tooling/src/_generated_doc_examples/

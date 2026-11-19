@@ -3,7 +3,7 @@
 The tables used to be MoonBit source (`src/decimal/elementary_*_rows_wbtest.mbt`,
 about 5 MB) compiled into the debug test build of the `decimal` package. They
 are now plain `mpfr-decimal-random-v1` rows (see
-`src/frontend/mpfr_expr/decimal_random.mbt`) that the release-built
+`tooling/src/frontend/mpfr_expr/decimal_random.mbt`) that the release-built
 `floating-conformance --backend mpfr` executable reads at run time and checks
 with `compare_total` (value, sign, cohort and exponent) and exact flag letters.
 

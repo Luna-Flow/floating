@@ -271,7 +271,7 @@ def write_maremark_gate(
             ]
         )
     lines.extend(["}", ""])
-    path = candidate / "src/bench/immutable_baseline_gate_wbtest.mbt"
+    path = candidate / "tooling/src/bench/immutable_baseline_gate_wbtest.mbt"
     path.write_text("\n".join(lines), encoding="utf-8")
     return path
 
@@ -282,7 +282,7 @@ def run_maremark_gate(candidate: Path) -> None:
             "sh",
             "tools/run_moon_clean_exec.sh",
             "test",
-            "src/bench/immutable_baseline_gate_wbtest.mbt",
+            "tooling/src/bench/immutable_baseline_gate_wbtest.mbt",
             "--target",
             "native",
             "--deny-warn",

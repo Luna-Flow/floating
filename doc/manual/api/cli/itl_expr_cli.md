@@ -16,7 +16,7 @@ through the dispatcher. Add it to the `import` block of your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/cli/itl_expr_cli",
+  "Luna-Flow/floating-tools/cli/itl_expr_cli",
 }
 ```
 
@@ -73,7 +73,7 @@ test "itl runner usage errors" {
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/cli/itl_expr_cli"
+package "Luna-Flow/floating-tools/cli/itl_expr_cli"
 
 // Values
 pub fn run(Array[String]) -> Int32

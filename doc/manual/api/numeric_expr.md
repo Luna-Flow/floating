@@ -19,7 +19,7 @@ Add the package to your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/numeric_expr",
+  "Luna-Flow/floating-tools/numeric_expr",
 }
 ```
 
@@ -343,7 +343,7 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/numeric_expr"
+package "Luna-Flow/floating-tools/numeric_expr"
 
 import {
   "moonbitlang/core/debug",

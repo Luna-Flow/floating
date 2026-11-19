@@ -23,15 +23,15 @@ There is nothing to install: the package ships inside `Luna-Flow/floating`.
 Run its tests from the repository:
 
 ```bash
-sh tools/run_moon_clean_exec.sh test src/internal/runner_cli --target native
+sh tools/run_moon_clean_exec.sh test tooling/src/internal/runner_cli --target native
 ```
 
 Inside the module, import the helpers and a frontend:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/internal/runner_cli",
-  "Luna-Flow/floating/frontend/gda_expr",
+  "Luna-Flow/floating-tools/internal/runner_cli",
+  "Luna-Flow/floating-tools/frontend/gda_expr",
 }
 ```
 
@@ -131,9 +131,9 @@ with `json_object` so the key order is the order you list, and use
   [mpfr_expr_cli](../cli/mpfr_expr_cli.md) and
   [testfloat_expr_cli](../cli/testfloat_expr_cli.md).
 - Build the native dispatcher with
-  `sh tools/run_moon_clean_exec.sh run --release --target native src/cli -- --help`.
+  `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help`.
 - Run the helper tests from a workspace that contains the module:
-  `moon test -p Luna-Flow/floating/internal/runner_cli`.
+  `moon test -p Luna-Flow/floating-tools/internal/runner_cli`.
 
 ## Common pitfalls
 

@@ -44,7 +44,7 @@ import it and pass the argument vector, program name first:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/cli/gda_expr_cli",
+  "Luna-Flow/floating-tools/cli/gda_expr_cli",
 }
 ```
 
