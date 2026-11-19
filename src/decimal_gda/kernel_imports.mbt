@@ -37,6 +37,7 @@ using @decimal_kernel {
   dec_coeff_multiply_by_unit_repr,
   dec_coeff_multiply_repr,
   dec_coeff_pow_unit_repr,
+  dec_coeff_small_digits,
   dec_coeff_power10_repr,
   dec_coeff_round_div,
   dec_coeff_round_div_bigint,

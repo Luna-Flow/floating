@@ -39,13 +39,29 @@ pub let dec_coeff_small_powers10 : Array[UInt64] = [
 ]
 
 ///|
+/// `10^0` to `10^19`: every power of ten that fits one 64-bit word.
+let dec_coeff_word_powers10 : FixedArray[UInt64] = [
+  1UL, 10UL, 100UL, 1000UL, 10000UL, 100000UL, 1000000UL, 10000000UL, 100000000UL,
+  1000000000UL, 10000000000UL, 100000000000UL, 1000000000000UL, 10000000000000UL,
+  100000000000000UL, 1000000000000000UL, 10000000000000000UL, 100000000000000000UL,
+  1000000000000000000UL, 10000000000000000000UL,
+]
+
+///|
+/// Number of decimal digits of a word (zero has one digit): the leading-zero
+/// count gives `floor(bits * log10(2))` as an estimate that is one too small
+/// at most, and one comparison with a power of ten corrects it.
 pub fn dec_coeff_small_digits(value : UInt64) -> Int32 {
-  let mut digits = 1
-  while digits < dec_coeff_small_powers10.length() &&
-        value >= dec_coeff_small_powers10[digits] {
-    digits += 1
+  // `| 1` keeps the digit count (an even value cannot be `10^k - 1`) and maps
+  // zero to one
+  let value = value | 1UL
+  let bits = 64 - value.reinterpret_as_int64().clz()
+  let estimate = (bits * 1233) >> 12
+  if value >= dec_coeff_word_powers10.unsafe_get(estimate) {
+    estimate + 1
+  } else {
+    estimate
   }
-  digits
 }
 
 ///|

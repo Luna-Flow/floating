@@ -898,3 +898,33 @@ test "NTT product of all-nines operands equals the BigInt product" {
     )
   }
 }
+
+///|
+fn small_digits_reference(value : UInt64) -> Int32 {
+  let mut digits = 1
+  while digits < dec_coeff_word_powers10.length() &&
+        value >= dec_coeff_word_powers10[digits] {
+    digits += 1
+  }
+  digits
+}
+
+///|
+test "word digit count matches the table scan at every power of ten boundary" {
+  assert_eq(dec_coeff_small_digits(0UL), 1)
+  assert_eq(dec_coeff_small_digits(0xFFFFFFFFFFFFFFFFUL), 20)
+  for power in dec_coeff_word_powers10 {
+    for delta in [-2L, -1L, 0L, 1L, 2L] {
+      let value = (power.reinterpret_as_int64() + delta).reinterpret_as_uint64()
+      if power > 2UL || delta >= 0L {
+        assert_eq(dec_coeff_small_digits(value), small_digits_reference(value))
+      }
+    }
+  }
+  let mut state = 0x9E3779B97F4A7C15UL
+  for _ in 0..<2000 {
+    state = state * 6364136223846793005UL + 1442695040888963407UL
+    let value = state >> (state % 64UL).to_int()
+    assert_eq(dec_coeff_small_digits(value), small_digits_reference(value))
+  }
+}
