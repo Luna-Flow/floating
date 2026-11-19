@@ -806,7 +806,37 @@ def split_fixture_test(source: str, per_file: int = GENERATED_TESTS_PER_FILE) ->
     return chunks or [prelude + "\n"]
 
 
-def run_targets(targets: list[str], fixture: str = "") -> list[dict[str, Any]]:
+def count_generated_tests(chunks: list[str]) -> int:
+    """Number of `test` blocks in the generated chunks (what a target must run)."""
+    return sum(len(re.findall(r"^test ", chunk, re.MULTILINE)) for chunk in chunks)
+
+
+def check_executed_count(result: dict[str, Any], expected: int) -> dict[str, Any]:
+    """Fail a target whose executed test count differs from the generated count.
+
+    The gate runs only its own generated files, so a silent filter or a
+    skipped file would otherwise shrink the evidence unnoticed.
+    """
+    if result["totalCases"] == expected:
+        return result
+    return {
+        **result,
+        "failedCases": max(result["failedCases"], 1),
+        "exitCode": result["exitCode"] or 1,
+        "countMismatch": {"expected": expected, "executed": result["totalCases"]},
+    }
+
+
+def run_targets(
+    targets: list[str], fixture: str = "", generated_only: bool = False
+) -> list[dict[str, Any]]:
+    """Run the generated corpus tests on each target.
+
+    `generated_only` (the quick-gate smoke) runs just the generated files: the
+    ordinary `decimal` tests already run in the repository gate's native TEST
+    stage. The full gate (`just gate decimal`) still runs the whole package on
+    every target, so cross-target coverage of the ordinary tests is kept.
+    """
     requested = selected_targets(targets)
     existing = sorted((ROOT / "src/decimal").glob(GENERATED_FIXTURE_GLOB))
     if existing:
@@ -814,19 +844,35 @@ def run_targets(targets: list[str], fixture: str = "") -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     generated_paths: list[Path] = []
     try:
-        for index, chunk in enumerate(split_fixture_test(render_moon_fixture_test())):
+        chunks = split_fixture_test(render_moon_fixture_test())
+        expected = count_generated_tests(chunks)
+        for index, chunk in enumerate(chunks):
             path = ROOT / "src/decimal" / f"ieee_corpus_generated_{index:02d}_wbtest.mbt"
             path.write_text(chunk, encoding="utf-8")
             generated_paths.append(path)
         for target in requested:
             result = subprocess.run(
-                ["moon", "test", "src/decimal", "--target", target, "--no-parallelize"],
+                [
+                    "moon",
+                    "test",
+                    *(
+                        [str(path.relative_to(ROOT)) for path in generated_paths]
+                        if generated_only
+                        else ["src/decimal"]
+                    ),
+                    "--target",
+                    target,
+                    "--no-parallelize",
+                ],
                 cwd=ROOT,
                 check=False,
                 capture_output=True,
                 text=True,
             )
-            results.append(_target_result(target, result))
+            outcome = _target_result(target, result)
+            results.append(
+                check_executed_count(outcome, expected) if generated_only else outcome
+            )
     finally:
         for path in generated_paths:
             path.unlink(missing_ok=True)
@@ -1021,7 +1067,7 @@ def main(argv: list[str] | None = None) -> int:
         checks = collect_corpus_checks()
         excerpt_cases = check_standard_excerpt()
         capabilities = decimal_oracles.probe()
-        target_results = run_targets(targets)
+        target_results = run_targets(targets, generated_only=args.smoke)
         report = _report(checks, excerpt_cases, target_results, capabilities, time.monotonic() - started)
         args.output.resolve().mkdir(parents=True, exist_ok=True)
         report_path = args.output.resolve() / "summary.json"

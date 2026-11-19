@@ -104,6 +104,58 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         self.assertEqual(result["failedCases"], 1)
         self.assertEqual(result["totalCases"], 3)
 
+    def test_generated_count_survives_splitting(self) -> None:
+        source = run_ieee_decimal.render_moon_fixture_test()
+        chunks = run_ieee_decimal.split_fixture_test(source)
+        self.assertGreater(len(chunks), 1)
+        self.assertEqual(
+            run_ieee_decimal.count_generated_tests(chunks),
+            source.count("\ntest ") + source.startswith("test "),
+        )
+
+    def test_executed_count_must_equal_generated_count(self) -> None:
+        ok = {"target": "js", "totalCases": 288, "passedCases": 288, "failedCases": 0, "exitCode": 0}
+        self.assertEqual(run_ieee_decimal.check_executed_count(ok, 288), ok)
+        for executed in (287, 289):
+            short = {**ok, "totalCases": executed, "passedCases": executed}
+            checked = run_ieee_decimal.check_executed_count(short, 288)
+            self.assertEqual(checked["failedCases"], 1)
+            self.assertNotEqual(checked["exitCode"], 0)
+
+    def test_run_targets_runs_only_generated_files(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+            calls.append(command)
+            total = run_ieee_decimal.count_generated_tests(
+                run_ieee_decimal.split_fixture_test(run_ieee_decimal.render_moon_fixture_test())
+            )
+            return subprocess.CompletedProcess(
+                command, 0, stdout=f"Total tests: {total}, passed: {total}, failed: 0.\n", stderr=""
+            )
+
+        with patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+            results = run_ieee_decimal.run_targets(["native"], generated_only=True)
+        self.assertEqual(results[0]["failedCases"], 0)
+        paths = [item for item in calls[0] if item.endswith(".mbt")]
+        self.assertTrue(paths)
+        self.assertTrue(all("ieee_corpus_generated_" in item for item in paths))
+        self.assertNotIn("src/decimal", calls[0])
+
+    def test_full_run_keeps_whole_package_on_every_target(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+            calls.append(command)
+            return subprocess.CompletedProcess(
+                command, 0, stdout="Total tests: 518, passed: 518, failed: 0.\n", stderr=""
+            )
+
+        with patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+            results = run_ieee_decimal.run_targets(["native", "js"])
+        self.assertEqual([r["totalCases"] for r in results], [518, 518])
+        self.assertTrue(all("src/decimal" in call for call in calls))
+
     def test_format_context_uses_normal_exponent_bounds(self) -> None:
         self.assertEqual(run_ieee_decimal.decimal_context("decimal32").Emin, -95)
         self.assertEqual(run_ieee_decimal.decimal_context("decimal64").Emin, -383)
