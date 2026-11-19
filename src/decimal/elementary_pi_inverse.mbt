@@ -29,7 +29,8 @@ fn decimal_pi_ball(precision : Int32) -> @ball_float.BallFloat {
     None => ()
   }
   let value = @ball_float.BallFloat::from_int(1, precision~)
-    .atan_interval()
+    .try_atan_interval()
+    .unwrap()
     .mul(@ball_float.BallFloat::from_int(4, precision~))
   // The Ziv schedule visits a few precisions per target precision; keep the
   // table small for long-running programs with many precisions.
@@ -218,8 +219,12 @@ fn Decimal::pi_asin_like(
     }
   }
   decimal_certified_unary_result(value, ctx, name, fn(input) {
-    let angle = if acos { input.acos_interval() } else { input.asin_interval() }
-    Ok(angle.div(decimal_pi_ball(input.precision())))
+    let angle = if acos {
+      input.try_acos_interval()
+    } else {
+      input.try_asin_interval()
+    }
+    angle.map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
   }).map(finish)
 }
 
@@ -312,7 +317,9 @@ pub fn Decimal::try_atanpi_ctx(
     }).map(finish)
   }
   decimal_certified_unary_result(value, ctx, "atanpi", fn(input) {
-    Ok(input.atan_interval().div(decimal_pi_ball(input.precision())))
+    input
+    .try_atan_interval()
+    .map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
   }).map(finish)
 }
 
