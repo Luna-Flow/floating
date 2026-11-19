@@ -134,8 +134,8 @@ def true_value(op: str, x: Decimal, y: Decimal | None, n: int | None) -> Decimal
         return exp_of(W.multiply(y, LN3))
     if op == "powr":  # 2^y (y not an integer)
         return exp_of(W.multiply(y, LN2))
-    if op == "pown":  # 1.5^n
-        return exp_of(W.multiply(Decimal(n), LN15))
+    if op == "pown":  # x^n, x > 0
+        return exp_of(W.multiply(Decimal(n), W.ln(x)))
     if op == "compound":  # (1 + x)^n
         return exp_of(W.multiply(Decimal(n), W.ln(1 + x)))
     if op == "rsqrt":
@@ -366,6 +366,25 @@ def all_rows() -> list[tuple]:
             # compound around the cheap decisions made before 1 + x is formed:
             # exponent10 > 0 with adjusted(x) >= p + 2, and n > 0 with
             # adjusted(x) < -(p + 2) (p being the precision of the context).
+            # pown with a negative degree (#375): around the decisions on the
+            # adjusted exponent of the power (underflow when n lb >= 2 - etiny,
+            # overflow when n ub > e_max for the reciprocal) and for the operand
+            # and degree of the issue.
+            etiny_spec = spec[2] - spec[1] + 1
+            for base, lb in (("3E+3", 3), ("3E-3", -3)):
+                if lb > 0:
+                    edge = -(-(2 - etiny_spec) // lb)  # smallest m with m lb >= 2 - etiny
+                else:
+                    edge = spec[3] // 2  # m ub' > e_max with ub = -2: 2 m > e_max
+                for m in (edge - 2, edge - 1, edge, edge + 1, edge + 2):
+                    if m >= 1:
+                        r = row(spec, rounding, "pown", Decimal(base), None, -m)
+                        if r:
+                            rows.append(r)
+            for count in (-2000000000, 2000000000, -3, 3):
+                r = row(spec, rounding, "pown", Decimal("1E+999999"), None, count)
+                if r:
+                    rows.append(r)
             p = spec[1]
             for x in [Decimal(f"1E{p + 1}"), Decimal(f"1E{p + 2}"), Decimal(f"1E{p + 3}"),
                       Decimal(f"1E-{p + 1}"), Decimal(f"1E-{p + 2}"), Decimal(f"1E-{p + 3}"),
