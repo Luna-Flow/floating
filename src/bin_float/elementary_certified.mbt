@@ -4810,6 +4810,22 @@ pub fn BinFloat::try_atan2_ctx(
       ),
     )
   }
+  // x > 0 and a quotient far below the exponent range. With D = top(y) -
+  // top(x), 2^(D - 1) < |y/x| < 2^(D + 1), and atan(t) = t (1 - e) with
+  // 0 < e < t^2 / 3, so 0 < |atan2(y, x)| < |y/x| < 2^(D + 1). The directed
+  // quotient of the enclosure would flush to zero there and the Ziv loop would
+  // never separate the result from 0. When 2^(D + 1) is at most a quarter of the
+  // smallest subnormal 2^(e_min - p + 1) of the context, the result lies
+  // strictly between 0 and a quarter of it, which rounds exactly as the
+  // quotient `y / x` does: zero or the smallest subnormal, inexact and
+  // underflow (the sign is that of y).
+  if !abscissa.is_negative() {
+    let distance = binary_pi_top(self) - binary_pi_top(abscissa)
+    if distance <=
+      context.range_e_min().to_int64() - context.precision.to_int64() - 2L {
+      return Ok(binary_tiny_nonzero_result(self.is_negative(), context))
+    }
+  }
   let mut work = Int32::max(
     context.precision + 64,
     Int32::max(self.precision(), abscissa.precision()) + 16,
