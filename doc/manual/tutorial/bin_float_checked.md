@@ -239,19 +239,19 @@ test "carry flags next to the wrapper" {
 
 ## Common pitfalls
 
-- **NaN is a success.** `BinFloatResult` reports what `bin_float` reports as an
-  error. Operations that IEEE defines with a NaN or infinite result
-  ($\infty - \infty$, `sqrt_ctx` of a negative number, `div_ctx` by zero) are
-  successful values. Test `@def.is_nan` on the final value if that matters.
-- **`div` and `div_ctx` differ.** `div` (and `/`) fails on a zero divisor;
-  `div_ctx` returns an infinity. The same holds for `pow_int` versus
-  `pow_int_ctx` and `sqrt` versus `sqrt_ctx`.
+- **A quiet NaN is a success.** `BinFloatResult` reports an invalid operation
+  ($\infty - \infty$, `sqrt_ctx` of a negative number, a signaling NaN) as
+  `DomainError` and a division by zero as `DivisionByZero`, with or without a
+  context. A quiet NaN operand is not an exception and stays a successful NaN;
+  test `@def.is_nan` on the final value if that matters.
+- **`x` and `x_ctx` have one error contract.** `x_ctx` is `x` with an explicit
+  context; `div_ctx` by zero fails like `div`. Overflow, underflow and inexact
+  are not errors in either form.
 - **Only the first error survives.** In `a + b` with both operands failing,
   the error of `a` is reported. Errors are not collected.
-- **The `_ctx` methods drop flags.** The arithmetic `_ctx` methods drop all of
-  them; the elementary `_ctx` methods, like their plain forms, turn invalid
-  operation and division by zero into errors and drop the others. Use
-  `bin_float` directly for flags.
+- **The `_ctx` methods drop the range flags.** Overflow, underflow and inexact
+  are dropped; use `bin_float` directly for flags and for the raw default
+  result of an invalid operation or a division by zero.
 - **Precision of mixed operands.** Binary operations use the larger operand
   precision; `from_float` defaults to 24 bits, so mixing it with
   `from_double` values gives 53-bit results.

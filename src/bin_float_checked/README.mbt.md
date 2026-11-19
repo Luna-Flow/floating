@@ -8,3 +8,7 @@ retain the first error from left to right.
 It adds no IEEE context, flags, interchange, or recovery policy. Use
 `bin_float` directly for those concerns and use `BinFloatResult` for pipelines
 whose failure channel must remain explicit.
+
+Every `_ctx` method is its plain method with an explicit context and the same
+error map: an invalid operation is a `DomainError`, a division by zero a
+`DivisionByZero`, and overflow, underflow and inexact are dropped.

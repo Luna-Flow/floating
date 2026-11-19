@@ -165,7 +165,7 @@ pub fn BinFloatResult::add_ctx(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(lhs, rhs) {
-      Ok(lhs.add_ctx(rhs, context).0)
+      bin_result_checked_flags(lhs.add_ctx(rhs, context))
     }),
   )
 }
@@ -188,7 +188,7 @@ pub fn BinFloatResult::sub_ctx(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(lhs, rhs) {
-      Ok(lhs.sub_ctx(rhs, context).0)
+      bin_result_checked_flags(lhs.sub_ctx(rhs, context))
     }),
   )
 }
@@ -211,7 +211,7 @@ pub fn BinFloatResult::mul_ctx(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(lhs, rhs) {
-      Ok(lhs.mul_ctx(rhs, context).0)
+      bin_result_checked_flags(lhs.mul_ctx(rhs, context))
     }),
   )
 }
@@ -236,7 +236,7 @@ pub fn BinFloatResult::div_ctx(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(lhs, rhs) {
-      lhs.div_ctx(rhs, context).0 |> Ok
+      bin_result_checked_flags(lhs.div_ctx(rhs, context))
     }),
   )
 }
@@ -286,7 +286,11 @@ pub fn BinFloatResult::sqrt_ctx(
   self : BinFloatResult,
   context : @bin_float.BinaryContext,
 ) -> BinFloatResult {
-  self.bind(fn(value) { BinFloatResult::ok(value.sqrt_ctx(context).0) })
+  self.bind(fn(value) {
+    BinFloatResult::from_result(
+      bin_result_checked_flags(value.sqrt_ctx(context)),
+    )
+  })
 }
 
 ///|
@@ -617,7 +621,9 @@ pub fn BinFloatResult::pow_int_ctx(
   context : @bin_float.BinaryContext,
 ) -> BinFloatResult {
   self.bind(fn(value) {
-    BinFloatResult::ok(value.pow_int_ctx(exponent, context).0)
+    BinFloatResult::from_result(
+      bin_result_checked_flags(value.pow_int_ctx(exponent, context)),
+    )
   })
 }
 
@@ -636,7 +642,9 @@ pub fn BinFloatResult::pown_ctx(
   context : @bin_float.BinaryContext,
 ) -> BinFloatResult {
   self.bind(fn(value) {
-    BinFloatResult::ok(value.pown_ctx(exponent, context).0)
+    BinFloatResult::from_result(
+      bin_result_checked_flags(value.pown_ctx(exponent, context)),
+    )
   })
 }
 

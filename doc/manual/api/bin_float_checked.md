@@ -275,21 +275,27 @@ pub fn BinFloatResult::div_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 ```
 
 The result has the context's precision, rounding direction and exponent range,
-with IEEE overflow, underflow and subnormal handling. The `BinaryFlags` of the
-step are **discarded**, and IEEE exceptional cases are successful values:
-`div_ctx` by zero returns $\pm\infty$ (or NaN for $0/0$) where `div` returns an
-error. Use `bin_float` directly when the flags matter.
+with IEEE overflow, underflow and subnormal handling. The flags of the step are
+mapped as in `add`, `div` and the elementary methods: invalid operation is a
+`DomainError` and divideByZero a `DivisionByZero`; overflow, underflow and
+inexact are dropped. So `div_ctx` by a zero divisor is `DivisionByZero`, and
+$0/0$, $\infty/\infty$, $\infty - \infty$ and $0 \cdot \infty$ are
+`DomainError`, exactly as without a context; a quiet NaN operand is still a
+successful NaN. The full table is in the
+[design page](../design/bin_float_checked.md). Use `BinFloat::div_ctx` and its
+siblings when the raw default result and the flags matter.
 
 ```moonbit
 ///|
-test "context arithmetic rounds to the context and drops flags" {
+test "context arithmetic rounds to the context and maps the flags" {
   let binary32 = @bin_float.BinaryContext::binary32()
   let tenth = @bin_float_checked.BinFloatResult::from_double(0.1)
   let zero = @bin_float_checked.BinFloatResult::from_int(0)
   inspect(show(tenth.add_ctx(zero, binary32)), content="13421773p-27")
   let one = @bin_float_checked.BinFloatResult::from_int(1)
-  inspect(show(one.div_ctx(zero, binary32)), content="inf")
+  inspect(show(one.div_ctx(zero, binary32)), content="error: division by zero")
   inspect(show(one.div(zero)), content="error: division by zero")
+  inspect(show(zero.div_ctx(zero, binary32)), content="error: invalid operation")
 }
 ```
 
@@ -307,9 +313,8 @@ pub fn BinFloatResult::sqrt_ctx(Self, @bin_float.BinaryContext) -> Self
 
 `sqrt` is `BinFloat::sqrt`, which returns a `DomainError` for a negative
 non-zero argument, including $-\infty$, and for a signaling NaN;
-$\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` never
-fails: a negative argument gives a successful NaN (the invalid flag is
-dropped).
+$\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` does the same
+under a context: a negative argument is a `DomainError`.
 
 ### `BinFloatResult::pow_nat`, `BinFloatResult::pow_int`, `BinFloatResult::pow_int_ctx`, `BinFloatResult::pown`, `BinFloatResult::pown_ctx`
 
@@ -330,7 +335,8 @@ nearest-even rounding. `pow_int` and `pown` (the same operation, IEEE name)
 return a `DivisionByZero` error for a zero base with a negative exponent, a
 `DomainError` for a signaling NaN base, zero exponent included (as does
 `pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms
-never fail and return $\pm\infty$ for a zero base with a negative exponent.
+map the flags the same way: a `DivisionByZero` error for a zero base with a
+negative exponent and a `DomainError` for a signaling NaN base.
 
 ### `BinFloatResult::rootn`, `BinFloatResult::rootn_ctx`
 
