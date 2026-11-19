@@ -30,8 +30,10 @@ test "separated shard options do not take the next option as their value" {
 
 ///|
 test "collect_files rejects a named file without the suffix" {
-  match collect_files(["README.md"], ".decTest") {
-    Err(message) => assert_eq(message, "not a .decTest file: README.md")
+  // Tests run in the module directory `tooling/`: `moon.mod` is a file there and
+  // the repository's `testdata/` is one level up.
+  match collect_files(["moon.mod"], ".decTest") {
+    Err(message) => assert_eq(message, "not a .decTest file: moon.mod")
     Ok(files) => fail("expected an error, got " + files.join(","))
   }
 }
@@ -39,10 +41,10 @@ test "collect_files rejects a named file without the suffix" {
 ///|
 test "collect_files lists each file once and skips directories" {
   let files = collect_files(
-    ["testdata/decimal", "testdata/decimal_gda/smoke.decTest"],
+    ["../testdata/decimal", "../testdata/decimal_gda/smoke.decTest"],
     ".decTest",
   ).unwrap()
-  assert_eq(files, ["testdata/decimal_gda/smoke.decTest"])
-  // `testdata/decimal` is a directory whose name ends in the suffix.
-  assert_eq(collect_files(["testdata"], "decimal").unwrap(), [])
+  assert_eq(files, ["../testdata/decimal_gda/smoke.decTest"])
+  // `../testdata/decimal` is a directory whose name ends in the suffix.
+  assert_eq(collect_files(["../testdata"], "decimal").unwrap(), [])
 }
