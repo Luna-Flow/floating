@@ -450,9 +450,29 @@ pub fn Decimal::try_atan2pi_ctx(
     y,
     x_interval,
   ) {
+    // atan2(y, x) / pi from the ratio: atan(|y/x|) / pi for x > 0 and
+    // 1 - atan(|y/x|) / pi for x < 0, with the sign of y; the operands are
+    // exact nonzero decimals, so the signs are known and the enclosure of the
+    // ratio never contains zero.
     y
-    .try_atan2_interval(x_interval)
-    .map(fn(angle) { angle.div(decimal_pi_ball(angle.precision())) })
+    .abs()
+    .div(x_interval.abs())
+    .try_atan_interval()
+    .map(fn(angle) {
+      let fraction = angle.div(decimal_pi_ball(angle.precision()))
+      let magnitude = if behind {
+        @ball_float.BallFloat::from_int(1, precision=angle.precision()).sub(
+          fraction,
+        )
+      } else {
+        fraction
+      }
+      if negative {
+        magnitude.neg()
+      } else {
+        magnitude
+      }
+    })
   }).map(fn(result) {
     // A result that rounds to zero keeps the exponent of the rounding; only the
     // sign of the ordinate is imposed (as for atan2, #332).
