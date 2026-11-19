@@ -430,6 +430,12 @@ fn BallFloat::try_sine_like_hull(
   let increasing = has_min ||
     has_max ||
     trig_arc_increasing(indices.0, indices.1, shift)
+  // For [+-0, +-0] the previous code took the value of the lower endpoint for
+  // both bounds (ties of min and max keep the first argument); keep the sign
+  // of that zero.
+  let both_zero = self.lo_.is_zero() && self.hi_.is_zero()
+  let lower_source = if both_zero || increasing { self.lo_ } else { self.hi_ }
+  let upper_source = if both_zero || !increasing { self.lo_ } else { self.hi_ }
   let lower = if has_min {
     @bin_float.BinFloat::from_int(-1, precision~)
   } else if has_max {
@@ -442,7 +448,7 @@ fn BallFloat::try_sine_like_hull(
       Err(e) => return Err(e)
     }
   } else {
-    match evaluate(if increasing { self.lo_ } else { self.hi_ }, downward) {
+    match evaluate(lower_source, downward) {
       Ok(a) => a.0
       Err(e) => return Err(e)
     }
@@ -459,10 +465,23 @@ fn BallFloat::try_sine_like_hull(
       Err(e) => return Err(e)
     }
   } else {
-    match evaluate(if increasing { self.hi_ } else { self.lo_ }, upward) {
+    match evaluate(upper_source, upward) {
       Ok(a) => a.0
       Err(e) => return Err(e)
     }
   }
   Ok(store_interval(lower, upper, precision))
+}
+
+///|
+/// The rational-series path produced `+0` for every zero endpoint (the dyadic
+/// conversion of the rational 0); the binary kernels keep the sign of a zero
+/// argument. Interval endpoints identify both zeros, and this keeps the stored
+/// endpoint identical to the previous result.
+fn BallFloat::with_canonical_zero_endpoints(self : BallFloat) -> BallFloat {
+  store_interval(
+    canonical_interval_endpoint(self.lo_, self.precision_),
+    canonical_interval_endpoint(self.hi_, self.precision_),
+    self.precision_,
+  )
 }

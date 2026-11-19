@@ -1066,9 +1066,11 @@ pub fn BallFloat::try_sin_interval(
       ball_range_resource_failure("sin", self.precision_, initial_work),
     )
   }
-  self.try_sine_like_hull(trig_critical_indices(self), 0, fn(value, context) {
+  self
+  .try_sine_like_hull(trig_critical_indices(self), 0, fn(value, context) {
     value.try_sin_ctx(context)
   })
+  .map(BallFloat::with_canonical_zero_endpoints)
 }
 
 ///|
@@ -1090,9 +1092,11 @@ pub fn BallFloat::try_cos_interval(
       ball_range_resource_failure("cos", self.precision_, initial_work),
     )
   }
-  self.try_sine_like_hull(trig_critical_indices(self), 1, fn(value, context) {
+  self
+  .try_sine_like_hull(trig_critical_indices(self), 1, fn(value, context) {
     value.try_cos_ctx(context)
   })
+  .map(BallFloat::with_canonical_zero_endpoints)
 }
 
 ///|
@@ -1134,7 +1138,13 @@ pub fn BallFloat::try_tan_interval(
   .bind(fn(lower) {
     self.hi_
     .try_tan_ctx(upward)
-    .map(fn(upper) { store_interval(lower.0, upper.0, self.precision_) })
+    .map(fn(upper) {
+      store_interval(
+        canonical_interval_endpoint(lower.0, self.precision_),
+        canonical_interval_endpoint(upper.0, self.precision_),
+        self.precision_,
+      )
+    })
   })
 }
 
