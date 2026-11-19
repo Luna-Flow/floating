@@ -866,6 +866,19 @@ $\ln b$ and $1/\ln b$ are irrational. Before the loop:
   for its endpoints. The result is that rounding, decided without converting
   $x$ to binary (the conversion of $10^{-1\,999\,997}$ alone costs about a
   second).
+- *Tiny arguments within the range.* For $|x| < 10^{-(p+11)}$, write
+  $x = m\,10^{q}$; then $f(x) = c\,x\,(1 + d)$ with $c = \ln b$ or $1/\ln b$
+  and $|d| \le 2.31|x|$, so $f(x)/10^{q}$ lies in
+  $c\,m\,[1 - 2^{k}, 1 + 2^{k}]$ for $2^{k} \ge 4|x|$. The endpoints of that
+  enclosure have a few dozen digits, where the binary endpoints of $f(x)$
+  itself would expand to about $0.7|q|$ digits; scaled back by $10^{q}$ they
+  are rounded with the context and accepted under the same agreement test as
+  the loop, which decides the rare value too close to a rounding boundary.
+  The certified $\ln 2$ and $\ln 10$ intervals are kept per working
+  precision. Both only change the cost: on 10,000 random rows of each function
+  the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14
+  (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the
+  level of `exp` (13) and `log1p` (18).
 - *Poles and domain.* $x = -1$ is $-\infty$ with `division_by_zero` and
   $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an
   operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0 = 4\max(D,p)+64$
