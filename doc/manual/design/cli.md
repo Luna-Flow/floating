@@ -22,7 +22,9 @@ arguments and the files it reads (see
 Parsing and execution of corpora live in pure `frontend/*` packages; argument
 handling, file access and output live in `cli/*_expr_cli` runners, each a
 library with `run(arguments) -> Int`; the process boundary (`@env.args()`,
-`@sys.exit`) lives only in `cli`. Because runners are libraries, their usage
+`@sys.exit`) lives only in `cli`, and the argument scanning that picks the
+runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has
+tests and the main package holds no test inputs. Because runners are libraries, their usage
 paths are unit-testable without spawning processes, and the frontends stay
 usable on every target.
 

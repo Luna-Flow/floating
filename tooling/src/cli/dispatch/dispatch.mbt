@@ -1,0 +1,66 @@
+///|
+fn usage() -> String {
+  "usage: floating-conformance --backend <gda|testfloat|mpfr|itl> [backend options]"
+}
+
+///|
+/// Runs the backend named by `--backend` on the remaining arguments and returns the
+/// process exit code (2 for a missing, repeated or unknown backend).
+pub fn dispatch(arguments : Array[String]) -> Int32 {
+  let forwarded : Array[String] = [arguments[0]]
+  let mut backend = ""
+  // Tracked separately: an empty `--backend=` must still count as given.
+  let mut backend_given = false
+  let mut index = 1
+  while index < arguments.length() {
+    let argument = arguments[index]
+    if argument == "--backend" {
+      guard index + 1 < arguments.length() else {
+        println("--backend requires a value")
+        println(usage())
+        return 2
+      }
+      guard !backend_given else {
+        println("--backend may only be specified once")
+        return 2
+      }
+      index += 1
+      backend = arguments[index]
+      backend_given = true
+    } else if argument.has_prefix("--backend=") {
+      guard !backend_given else {
+        println("--backend may only be specified once")
+        return 2
+      }
+      backend = argument[10:].to_owned()
+      backend_given = true
+      guard backend.length() > 0 else {
+        println("--backend requires a value")
+        println(usage())
+        return 2
+      }
+    } else if argument == "--help" || argument == "-h" {
+      println(usage())
+      return 0
+    } else {
+      forwarded.push(argument)
+    }
+    index += 1
+  }
+  match backend {
+    "gda" => @gda_expr_cli.run(forwarded)
+    "testfloat" => @testfloat_expr_cli.run(forwarded)
+    "mpfr" => @mpfr_expr_cli.run(forwarded)
+    "itl" => @itl_expr_cli.run(forwarded)
+    "" => {
+      println("--backend is required")
+      println(usage())
+      2
+    }
+    name => {
+      println("unknown backend: " + name)
+      println(usage())
+      2
+    }
+  }
+}

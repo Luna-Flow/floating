@@ -112,6 +112,28 @@ class DocumentationQualityTests(unittest.TestCase):
             self.assertEqual(doc_quality.package_paths(), {"core", "bench/leaf"})
             self.assertEqual(doc_quality.package_directory("bench/leaf"), root / "tooling/src/bench/leaf")
 
+    def test_a_main_package_keeps_a_plain_readme_and_no_mbt_md(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory)
+            for relative, pkg in (
+                ("src/lib", ""),
+                ("tooling/src/main", 'pkgtype(kind: "executable")\n'),
+            ):
+                (root / relative).mkdir(parents=True)
+                (root / relative / "moon.pkg").write_text(pkg, encoding="utf-8")
+            (root / "src/lib/README.mbt.md").write_text("x", encoding="utf-8")
+            use_repo(stack, root)
+            self.assertEqual(
+                doc_quality.check_package_readme_coverage(),
+                ["tooling/src/main: missing README.md"],
+            )
+            (root / "tooling/src/main/README.md").write_text("x", encoding="utf-8")
+            (root / "tooling/src/main/README.mbt.md").write_text("x", encoding="utf-8")
+            self.assertEqual(
+                doc_quality.check_package_readme_coverage(),
+                ["tooling/src/main: a main package must not hold .mbt.md files"],
+            )
+
     def test_orphan_pages_need_a_moon_package(self) -> None:
         with patch.object(doc_quality, "package_paths", return_value={"example"}):
             with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:

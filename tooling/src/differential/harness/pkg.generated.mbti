@@ -1,0 +1,13 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating-tools/differential/harness"
+
+// Values
+pub async fn run(Array[String]) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

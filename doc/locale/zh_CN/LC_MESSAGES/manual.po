@@ -26,6 +26,7 @@ msgstr "ball_float API"
 #: manual/api/bin_float.md:3
 #: manual/api/bin_float_checked.md:3
 #: manual/api/cli.md:3
+#: manual/api/cli/dispatch.md:3
 #: manual/api/cli/gda_expr_cli.md:3
 #: manual/api/cli/itl_expr_cli.md:3
 #: manual/api/cli/mpfr_expr_cli.md:3
@@ -37,6 +38,7 @@ msgstr "ball_float API"
 #: manual/api/decimal_gda_checked.md:3
 #: manual/api/def.md:3
 #: manual/api/differential.md:3
+#: manual/api/differential/harness.md:3
 #: manual/api/doc_examples.md:3
 #: manual/api/frontend/gda_expr.md:3
 #: manual/api/frontend/itl_expr.md:3
@@ -95,6 +97,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/bin_float.md:21
 #: manual/api/bin_float_checked.md:16
 #: manual/api/cli.md:12
+#: manual/api/cli/dispatch.md:14
 #: manual/api/cli/gda_expr_cli.md:14
 #: manual/api/cli/itl_expr_cli.md:12
 #: manual/api/cli/mpfr_expr_cli.md:12
@@ -106,6 +109,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/decimal_gda_checked.md:18
 #: manual/api/def.md:16
 #: manual/api/differential.md:19
+#: manual/api/differential/harness.md:15
 #: manual/api/doc_examples.md:14
 #: manual/api/frontend/gda_expr.md:16
 #: manual/api/frontend/itl_expr.md:12
@@ -165,8 +169,8 @@ msgstr "构造子"
 #: manual/api/ball_float.md:144
 #: manual/api/bench.md:52
 #: manual/api/bench/external.md:53
-#: manual/api/cli.md:39
-#: manual/api/cli.md:59
+#: manual/api/cli.md:38
+#: manual/api/cli.md:58
 #: manual/api/cli/gda_expr_cli.md:39
 #: manual/api/cli/itl_expr_cli.md:37
 #: manual/api/cli/testfloat_expr_cli.md:38
@@ -1087,7 +1091,8 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/bench/external.md:68
 #: manual/api/bin_float.md:2433
 #: manual/api/bin_float_checked.md:862
-#: manual/api/cli.md:81
+#: manual/api/cli.md:80
+#: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
@@ -1099,6 +1104,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/decimal_gda_checked.md:281
 #: manual/api/def.md:435
 #: manual/api/differential.md:97
+#: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
@@ -1339,7 +1345,7 @@ msgid "`immutable_bench(id, operation, scales, scale_text, generate, fingerprint
 msgstr "`immutable_bench(id, operation, scales, scale_text, generate, fingerprint, implementations, reference, comparator, input_text, output_text)` 构建一个基准测试，其输入在每个规模下只生成一次，且从不被修改。"
 
 #: manual/api/bench.md:52
-#: manual/api/cli.md:39
+#: manual/api/cli.md:38
 msgid "Argument"
 msgstr "参数"
 
@@ -1530,7 +1536,7 @@ msgstr "每个规格都有一个计划测试，它在常规测试运行中执行
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
-#: manual/api/cli.md:83
+#: manual/api/cli.md:82
 #: manual/api/consistency.md:51
 #: manual/api/differential.md:99
 #: manual/api/doc_examples.md:48
@@ -3496,78 +3502,100 @@ msgid "`cli` is the native executable `floating-conformance`. It dispatches its 
 msgstr "`cli` 是原生可执行文件 `floating-conformance`。它将参数分派给四个符合性运行器（`gda`、`testfloat`、`mpfr`、`itl`）之一，并以该运行器的返回码退出。该包没有公开的 MoonBit 项；本页记录其命令行接口。[教程](../tutorial/cli.md)展示典型的调用方式，[设计页面](../design/cli.md)解释其分层结构。"
 
 #: manual/api/cli.md:14
-msgid "`cli` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. Its `moon.pkg` imports the four runners and the process helpers:"
-msgstr "`cli` 是一个可执行包（`pkgtype(kind: \"executable\")`），无法被导入。它的 `moon.pkg` 导入四个运行器和进程辅助函数："
+msgid "`cli` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It is only the entry point: its `moon.pkg` imports the dispatcher [`cli/dispatch`](cli/dispatch.md), which holds the behaviour described below, and the process helpers:"
+msgstr "`cli` 是可执行包（`pkgtype(kind: \"executable\")`），不能被导入。它只是入口：其 `moon.pkg` 导入调度器 [`cli/dispatch`](cli/dispatch.md)（下文描述的行为都在其中）和进程辅助包："
 
-#: manual/api/cli.md:28
+#: manual/api/cli.md:27
 msgid "To run a corpus from your own MoonBit code, import a runner such as [`cli/gda_expr_cli`](cli/gda_expr_cli.md) and call its `run`, or call a frontend directly."
 msgstr "要从你自己的 MoonBit 代码运行语料，请导入一个运行器（例如 [`cli/gda_expr_cli`](cli/gda_expr_cli.md)）并调用其 `run`，或者直接调用某个前端。"
 
-#: manual/api/cli.md:32
+#: manual/api/cli.md:31
 #: manual/api/differential.md:36
 msgid "Command line"
 msgstr "命令行"
 
-#: manual/api/cli.md:41
+#: manual/api/cli.md:40
 msgid "selects the runner; required, non-empty, at most once (an empty `--backend=` is an error)"
 msgstr "选择运行器；必需，非空，至多出现一次（空的 `--backend=` 是错误）"
 
-#: manual/api/cli.md:42
+#: manual/api/cli.md:41
 msgid "prints the usage line and exits with 0 when reached, even after `--backend` (the runners' own `--help` is therefore not reachable through the dispatcher)"
 msgstr "一旦遇到即打印用法行并以 0 退出，即使出现在 `--backend` 之后也是如此（因此无法通过分派器使用运行器自身的 `--help`）"
 
-#: manual/api/cli.md:43
+#: manual/api/cli.md:42
 msgid "anything else"
 msgstr "其他任何参数"
 
-#: manual/api/cli.md:43
+#: manual/api/cli.md:42
 msgid "forwarded, in order, to the runner"
 msgstr "按顺序转发给运行器"
 
-#: manual/api/cli.md:45
+#: manual/api/cli.md:44
 msgid "Arguments are scanned from left to right and the first error ends the scan: `--backend` without a value, or a second `--backend`, exits with 2 before a later `--help` is seen. The value after `--backend` is taken as is, so `--backend --help` asks for a backend named `--help` (exit 2). An empty `--backend=` is the error `--backend requires a value` (exit 2), or the at-most-once error when a backend was already given."
 msgstr "参数从左到右扫描，遇到第一个错误即结束扫描：没有值的 `--backend` 或第二个 `--backend` 会在看到后面的 `--help` 之前以 2 退出。`--backend` 之后的值按原样采用，因此 `--backend --help` 请求一个名为 `--help` 的后端（退出码 2）。空的 `--backend=` 是错误 `--backend requires a value`（退出码 2）；若此前已给出后端，则是至多一次的错误。"
 
-#: manual/api/cli.md:52
+#: manual/api/cli.md:51
 msgid "The runner receives the program name followed by the forwarded arguments and interprets them as documented in [gda_expr_cli](cli/gda_expr_cli.md), [testfloat_expr_cli](cli/testfloat_expr_cli.md), [mpfr_expr_cli](cli/mpfr_expr_cli.md) and [itl_expr_cli](cli/itl_expr_cli.md)."
 msgstr "运行器接收程序名及其后转发的参数，并按 [gda_expr_cli](cli/gda_expr_cli.md)、[testfloat_expr_cli](cli/testfloat_expr_cli.md)、[mpfr_expr_cli](cli/mpfr_expr_cli.md) 和 [itl_expr_cli](cli/itl_expr_cli.md) 中的说明解释它们。"
 
-#: manual/api/cli.md:57
+#: manual/api/cli.md:56
 msgid "Exit status"
 msgstr "退出状态"
 
-#: manual/api/cli.md:59
+#: manual/api/cli.md:58
 #: manual/tutorial/internal/runner_cli.md:106
 msgid "Code"
 msgstr "代码"
 
-#: manual/api/cli.md:61
+#: manual/api/cli.md:60
 msgid "`--help`, or the runner reported success"
 msgstr "`--help`，或运行器报告成功"
 
-#: manual/api/cli.md:62
+#: manual/api/cli.md:61
 msgid "the runner found failing cases; for `itl` also diagnostic cases; with `--strict-supported` (`gda`, `itl`) also unsupported cases, and for `gda` legacy ones"
 msgstr "运行器发现了失败的用例；对 `itl` 还包括诊断用例；指定 `--strict-supported`（`gda`、`itl`）时还包括不支持的用例，对 `gda` 还包括遗留用例"
 
-#: manual/api/cli.md:63
+#: manual/api/cli.md:62
 msgid "a missing, repeated or unknown `--backend`, or a runner usage, file or parse error"
 msgstr "缺少、重复或未知的 `--backend`，或者运行器的用法、文件或解析错误"
 
-#: manual/api/cli.md:65
+#: manual/api/cli.md:64
 msgid "Messages go to standard output."
 msgstr "消息输出到标准输出。"
 
-#: manual/api/cli.md:67
+#: manual/api/cli.md:66
 msgid "Build"
 msgstr "构建"
 
-#: manual/api/cli.md:69
+#: manual/api/cli.md:68
 msgid "The executable is built by the conformance tooling:"
 msgstr "该可执行文件由符合性工具链构建："
 
-#: manual/api/cli.md:76
+#: manual/api/cli.md:75
 msgid "`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into `_build/conformance/<backend>/` and copies it to `<backend>-conformance.exe`, so parallel builds for different backends do not share a target directory."
 msgstr "`tools/conformance_cli.py` 为每个后端构建一次 `tooling/src/cli`，输出到 `_build/conformance/<backend>/`，并将其复制为 `<backend>-conformance.exe`，从而使不同后端的并行构建不共享目标目录。"
+
+#: manual/api/cli/dispatch.md:1
+msgid "cli/dispatch API"
+msgstr "cli/dispatch API"
+
+#: manual/api/cli/dispatch.md:5
+msgid "`cli/dispatch` holds the behaviour of the `floating-conformance` executable: it scans the program arguments for `--backend`, forwards the rest to one of the four conformance runners and returns the process exit code. The package `cli` is only the entry point that passes `@env.args()` to it and exits with the result, so that the dispatcher is a library with its own tests. The command line is documented on the [`cli` page](../cli.md); the [tutorial](../../tutorial/cli/dispatch.md) calls it from a test and the [design page](../../design/cli/dispatch.md) explains the split."
+msgstr "`cli/dispatch` 承载可执行文件 `floating-conformance` 的行为：它在程序参数中扫描 `--backend`，把其余参数转发给四个一致性运行器之一，并返回进程退出码。包 `cli` 只是入口，把 `@env.args()` 交给它并以其结果退出，因此调度器是一个带有自己测试的库。命令行见 [`cli` 页面](../cli.md)；[教程](../../tutorial/cli/dispatch.md)在测试中调用它，[设计页](../../design/cli/dispatch.md)解释这一拆分。"
+
+#: manual/api/cli/dispatch.md:22
+msgid "The examples use the alias `@dispatch`."
+msgstr "示例使用别名 `@dispatch`。"
+
+#: manual/api/cli/dispatch.md:24
+#: manual/api/differential/harness.md:26
+#: manual/api/frontend/testfloat_expr.md:29
+msgid "Function specification"
+msgstr "函数规格"
+
+#: manual/api/cli/dispatch.md:32
+msgid "`dispatch(arguments)` expects the program name at index 0, followed by the command line. It returns `0` after `--help`, `2` for a missing, repeated, empty or unknown `--backend`, and otherwise the return value of the runner (`0`, `1` or `2`). Messages go to standard output. It never exits the process; the caller does."
+msgstr "`dispatch(arguments)` 要求下标 0 为程序名，其后是命令行。`--help` 之后返回 `0`；`--backend` 缺失、重复、为空或未知时返回 `2`；其余情况返回运行器的返回值（`0`、`1` 或 `2`）。消息输出到标准输出。它从不退出进程，由调用方退出。"
 
 #: manual/api/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli API"
@@ -6217,8 +6245,8 @@ msgid "`differential` is the executable of the seeded random differential campai
 msgstr "`differential` 是带种子的随机差分测试活动（`random-diff`）的可执行程序。它读取生成的 MPFR（二进制、IEEE `decimal`）或 libmpdec（`decimal_gda`）行语料，通过 [mare_mark](https://lunaflow.cn/en/mare_mark/) 运行器按批对 `floating` 进行验证，并把本次运行的追加式 JSONL 记录打印到标准输出。该包没有公开的 MoonBit 项；本页记录它的命令行和记录格式。[教程](../tutorial/differential.md)完整演示一次测试活动，[设计页](../design/differential.md)解释为何按批验证以及失败批如何被最小化。行格式与预言机程序见 [`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md) 、[`testdata/decimal/README.md`](../../../testdata/decimal/README.md)（IEEE `decimal`）和 [`testdata/decimal_gda/README.md`](../../../testdata/decimal_gda/README.md)（`decimal_gda`）。"
 
 #: manual/api/differential.md:21
-msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. Its `moon.pkg` imports the two frontends, the mare_mark packages and the shared benchmark toolkit:"
-msgstr "`differential` 是可执行包（`pkgtype(kind: \"executable\")`），不能被导入。它可在 native、JavaScript、Wasm 和 LLVM 上构建；由于 mare_mark 运行器使用 `moonbitlang/async`，而它没有 Wasm-GC 运行时，所以不在 Wasm-GC 上构建。它的 `moon.pkg` 导入两个前端、mare_mark 的各个包以及共享的基准测试工具包："
+msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg` imports the library [`differential/harness`](differential/harness.md), which holds the behaviour described below, and the async runtime:"
+msgstr "`differential` 是可执行包（`pkgtype(kind: \"executable\")`），不能被导入。它可为 native、JavaScript、Wasm 和 LLVM 构建；因 mare_mark 运行器使用没有 Wasm-GC 运行时的 `moonbitlang/async`，所以不为 Wasm-GC 构建。它只是入口：其 `moon.pkg` 导入库 [`differential/harness`](differential/harness.md)（下文描述的行为都在其中）和异步运行时："
 
 #: manual/api/differential.md:46
 msgid "the corpus: `mpfr-random-v1` rows, `mpfr-decimal-random-v1` rows or a `.decTest` file whose header says `libmpdec-random-v1`; the format is detected from the text"
@@ -6316,6 +6344,22 @@ msgstr "`validation_failure` 事件携带重放命令，因此可以用 mare_mar
 #: manual/api/differential.md:92
 msgid "The command it prints is `python3 tools/random_differential.py replay --target native <id or range>`, which regenerates the rows and runs them through the frontends. Without mare_mark, run that command directly or `just random-diff replay <id>`."
 msgstr "它打印出的命令是 `python3 tools/random_differential.py replay --target native <id 或范围>`，它会重新生成行并通过前端运行。没有 mare_mark 时，可直接运行该命令或 `just random-diff replay <id>`。"
+
+#: manual/api/differential/harness.md:1
+msgid "differential/harness API"
+msgstr "differential/harness API"
+
+#: manual/api/differential/harness.md:5
+msgid "`differential/harness` holds the behaviour of the seeded random differential executable: it parses the command line, splits a corpus into batches, runs each batch through the matching frontend under the mare_mark runner and writes the JSONL record. The package `differential` is only the entry point that calls `run` with `@env.args()`. The command line and the workflow are documented on the [`differential` page](../differential.md); the [tutorial](../../tutorial/differential/harness.md) shows what the package is for and the [design page](../../design/differential/harness.md) explains the split."
+msgstr "`differential/harness` 承载带种子随机差分可执行文件的行为：它解析命令行，把语料拆分成批，让每一批在 mare_mark 运行器下经相应前端执行，并写出 JSONL 记录。包 `differential` 只是入口，以 `@env.args()` 调用 `run`。命令行与工作流见 [`differential` 页面](../differential.md)；[教程](../../tutorial/differential/harness.md)说明本包的用途，[设计页](../../design/differential/harness.md)解释这一拆分。"
+
+#: manual/api/differential/harness.md:23
+msgid "The package needs `moonbitlang/async` and is built for native, JavaScript, Wasm and LLVM, not for wasm-gc."
+msgstr "本包需要 `moonbitlang/async`，为 native、JavaScript、Wasm 和 LLVM 构建，不为 wasm-gc 构建。"
+
+#: manual/api/differential/harness.md:34
+msgid "`run(args)` takes the program arguments (the program name, and under Node.js the script path too, come first). It exits the process with `2` for a bad command line or corpus and with `1` when a batch disagrees with its oracle; otherwise it returns after the record is written."
+msgstr "`run(args)` 接收程序参数（程序名在最前，在 Node.js 下脚本路径也在前）。命令行或语料有误时以 `2` 退出进程，某一批与其预言不一致时以 `1` 退出；否则在记录写完后返回。"
 
 #: manual/api/doc_examples.md:1
 msgid "doc_examples API"
@@ -7066,10 +7110,6 @@ msgstr "将该包添加到你的 `moon.pkg` 的 `import` 块中；若要比较�
 #: manual/api/frontend/testfloat_expr.md:27
 msgid "The examples use the aliases `@testfloat_expr` and `@bin_float`."
 msgstr "示例使用别名 `@testfloat_expr` 和 `@bin_float`。"
-
-#: manual/api/frontend/testfloat_expr.md:29
-msgid "Function specification"
-msgstr "函数规格"
 
 #: manual/api/frontend/testfloat_expr.md:33
 msgid "`TestFloatOperation` lists the TestFloat functions the executor supports."
@@ -9825,7 +9865,8 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/external.md:124
 #: manual/design/bin_float.md:1954
 #: manual/design/bin_float_checked.md:329
-#: manual/design/cli.md:69
+#: manual/design/cli.md:71
+#: manual/design/cli/dispatch.md:32
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
@@ -9837,6 +9878,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:127
+#: manual/design/differential/harness.md:26
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:166
@@ -10269,6 +10311,7 @@ msgstr "`ball_float` 以实数集合而非单个近似值进行计算。本页�
 #: manual/design/bin_float.md:13
 #: manual/design/bin_float_checked.md:3
 #: manual/design/cli.md:3
+#: manual/design/cli/dispatch.md:3
 #: manual/design/cli/gda_expr_cli.md:3
 #: manual/design/cli/itl_expr_cli.md:3
 #: manual/design/cli/mpfr_expr_cli.md:3
@@ -10280,6 +10323,7 @@ msgstr "`ball_float` 以实数集合而非单个近似值进行计算。本页�
 #: manual/design/decimal_gda_checked.md:3
 #: manual/design/def.md:3
 #: manual/design/differential.md:3
+#: manual/design/differential/harness.md:3
 #: manual/design/doc_examples.md:3
 #: manual/design/frontend/gda_expr.md:3
 #: manual/design/frontend/itl_expr.md:3
@@ -10795,6 +10839,7 @@ msgstr "集合关系（`subset`、`interior`、`disjoint`、`set_equal`）和 IE
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
+#: manual/design/cli/dispatch.md:12
 #: manual/design/cli/gda_expr_cli.md:21
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
@@ -10806,6 +10851,7 @@ msgstr "集合关系（`subset`、`interior`、`disjoint`、`set_equal`）和 IE
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:54
+#: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
@@ -10954,7 +11000,8 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/external.md:105
 #: manual/design/bin_float.md:1882
 #: manual/design/bin_float_checked.md:199
-#: manual/design/cli.md:50
+#: manual/design/cli.md:52
+#: manual/design/cli/dispatch.md:25
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
@@ -10966,6 +11013,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:104
+#: manual/design/differential/harness.md:20
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:133
@@ -11032,7 +11080,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/external.md:114
 #: manual/design/bin_float.md:1929
 #: manual/design/bin_float_checked.md:316
-#: manual/design/cli.md:60
+#: manual/design/cli.md:62
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
@@ -13141,72 +13189,108 @@ msgid "Three layers"
 msgstr "三层结构"
 
 #: manual/design/cli.md:22
-msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
-msgstr "语料的解析和执行位于纯的 `frontend/*` 包中；参数处理、文件访问和输出位于 `cli/*_expr_cli` 运行器中，每个运行器都是一个带有 `run(arguments) -> Int` 的库；进程边界（`@env.args()`、`@sys.exit`）只存在于 `cli` 中。由于运行器是库，其用法路径无需启动进程即可进行单元测试，而前端在每个目标上都保持可用。"
+msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`, and the argument scanning that picks the runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has tests and the main package holds no test inputs. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
+msgstr "语料的解析与执行位于纯 `frontend/*` 包中；参数处理、文件访问和输出位于 `cli/*_expr_cli` 运行器中，每个运行器是带有 `run(arguments) -> Int` 的库；进程边界（`@env.args()`、`@sys.exit`）只在 `cli` 中，而选择运行器的参数扫描位于库 [`cli/dispatch`](cli/dispatch.md) 中，因此它有测试，主包也不含测试输入。由于运行器是库，它们的用法路径无需启动进程即可单元测试，前端也能在所有目标上使用。"
 
-#: manual/design/cli.md:29
+#: manual/design/cli.md:31
 msgid "Forward the program name"
 msgstr "转发程序名"
 
-#: manual/design/cli.md:31
+#: manual/design/cli.md:33
 msgid "The dispatcher removes `--backend` and its value and forwards `[program, rest…]`. Every runner skips element 0, so a runner behaves the same when called from the dispatcher, from a test, or (in principle) as its own executable."
 msgstr "分发器移除 `--backend` 及其值，并转发 `[program, rest…]`。每个运行器都跳过第 0 个元素，因此无论是从分发器调用、从测试调用，还是（原则上）作为独立的可执行文件，运行器的行为都相同。"
 
-#: manual/design/cli.md:36
+#: manual/design/cli.md:38
 msgid "One binary, copied per backend"
 msgstr "一个二进制文件，按后端复制"
 
-#: manual/design/cli.md:38
+#: manual/design/cli.md:40
 msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target directory and copies it to `<backend>-conformance.exe`. Parallel builds for different backends therefore never share a `_build` directory or lock, and tools always invoke an executable whose name says what it runs."
 msgstr "`tools/conformance_cli.py` 将 `tooling/src/cli` 构建到特定于后端的目标目录中，并将其复制为 `<backend>-conformance.exe`。因此，不同后端的并行构建永远不会共享 `_build` 目录或锁，工具调用的可执行文件名也总能说明它运行的是什么。"
 
-#: manual/design/cli.md:43
+#: manual/design/cli.md:45
 msgid "Dispatcher help wins"
 msgstr "分发器的帮助优先"
 
-#: manual/design/cli.md:45
+#: manual/design/cli.md:47
 msgid "`--help` is handled while scanning arguments, before the backend is known, so it prints the dispatcher usage and exits with `0` whatever backend is named. The scan stops at the first error, so a malformed `--backend` before `--help` still exits with `2`. Runner options are documented on their pages instead."
 msgstr "`--help` 在扫描参数时处理，此时后端尚未确定，因此无论指定了哪个后端，它都会打印分发器的用法并以 `0` 退出。扫描在遇到第一个错误时停止，因此出现在 `--help` 之前的格式错误的 `--backend` 仍会以 `2` 退出。运行器选项则在各自的页面上说明。"
 
-#: manual/design/cli.md:52
+#: manual/design/cli.md:54
 msgid "Exactly one runner is called per invocation, or none when the arguments are invalid (exit `2`) or `--help` is given (exit `0`)."
 msgstr "每次调用恰好调用一个运行器；当参数无效时（退出码 `2`）或给出 `--help` 时（退出码 `0`）则一个也不调用。"
 
-#: manual/design/cli.md:54
+#: manual/design/cli.md:56
 msgid "The exit status equals the runner's return value: `0`, `1` or `2`."
 msgstr "退出状态等于运行器的返回值：`0`、`1` 或 `2`。"
 
-#: manual/design/cli.md:55
+#: manual/design/cli.md:57
 msgid "Arguments other than `--backend`, its value and `--help`/`-h` reach the runner unchanged and in order."
 msgstr "除 `--backend`、其值以及 `--help`/`-h` 之外的参数会原样按顺序传给运行器。"
 
-#: manual/design/cli.md:57
+#: manual/design/cli.md:59
 msgid "\"At most once\" is checked on whether `--backend` was given, not on its value, and an empty `--backend=` is itself an error (exit `2`)."
 msgstr "“至多一次”检查的是是否给出了 `--backend`，而不是它的值；空的 `--backend=` 本身就是错误（退出码 `2`）。"
 
-#: manual/design/cli.md:62
+#: manual/design/cli.md:64
 msgid "**Four executables.** Four packages with identical `main` functions and four link steps for no behavioural gain."
 msgstr "**四个可执行文件。** 四个 `main` 函数完全相同的包和四次链接，却没有任何行为上的收益。"
 
-#: manual/design/cli.md:64
+#: manual/design/cli.md:66
 msgid "**Subcommands (`floating-conformance gda …`).** A positional backend would collide with runner paths; an explicit option is unambiguous."
 msgstr "**子命令（`floating-conformance gda …`）。** 位置参数形式的后端会与运行器的路径冲突；显式选项则没有歧义。"
 
-#: manual/design/cli.md:66
+#: manual/design/cli.md:68
 msgid "**Exit codes from runners.** Calling `exit` inside a runner would make it untestable as a library."
 msgstr "**由运行器给出退出码。** 在运行器内部调用 `exit` 会使其无法作为库进行测试。"
 
-#: manual/design/cli.md:71
+#: manual/design/cli.md:73
 msgid "Native target only (file access through `moonbitlang/x/fs`, exit through `moonbitlang/x/sys`)."
 msgstr "仅限 native 目标（通过 `moonbitlang/x/fs` 访问文件，通过 `moonbitlang/x/sys` 退出）。"
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:75
 msgid "No corpus download, planning, parallelism or aggregation: those are in `tools/conformance.py` and the `tools/run_*_interpreter.py` scripts."
 msgstr "不负责语料下载、规划、并行或汇总：这些位于 `tools/conformance.py` 和 `tools/run_*_interpreter.py` 脚本中。"
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:77
 msgid "No public MoonBit API."
 msgstr "没有公共 MoonBit API。"
+
+#: manual/design/cli/dispatch.md:1
+msgid "cli/dispatch design"
+msgstr "cli/dispatch 设计"
+
+#: manual/design/cli/dispatch.md:5
+msgid "The dispatcher has behaviour worth testing (argument scanning, the at-most-once rule, the empty value, `--help`), so it lives in a library package. The main package `cli` keeps only the process boundary: it reads `@env.args()` and calls `@sys.exit` with the returned code. A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain: main packages will stop generating blackbox tests."
+msgstr "调度器的行为值得测试（参数扫描、至多一次规则、空值、`--help`），所以它放在库包中。主包 `cli` 只保留进程边界：读取 `@env.args()`，并以返回的代码调用 `@sys.exit`。工具链已弃用在主包中放置测试输入（`.mbt.md` 文件）：主包将不再生成黑盒测试。"
+
+#: manual/design/cli/dispatch.md:14
+msgid "Return the exit code"
+msgstr "返回退出码"
+
+#: manual/design/cli/dispatch.md:16
+msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
+msgstr "`dispatch` 返回 `Int32` 且从不调用 `@sys.exit`，因此白盒测试无需启动进程即可检查一次调用。选项的语义与 `cli` 页面相同，拆分不改变它们。"
+
+#: manual/design/cli/dispatch.md:20
+msgid "Runners stay libraries"
+msgstr "运行器仍是库"
+
+#: manual/design/cli/dispatch.md:22
+msgid "The four runners (`cli/gda_expr_cli` and its siblings) are imported here and nowhere else; `cli` itself imports only this package and the process helpers."
+msgstr "四个运行器（`cli/gda_expr_cli` 及其同类）只在此处导入；`cli` 自身只导入本包和进程辅助包。"
+
+#: manual/design/cli/dispatch.md:27
+msgid "Exactly one runner is called per invocation, or none for invalid arguments or `--help`."
+msgstr "每次调用恰好调用一个运行器；参数无效或给出 `--help` 时一个也不调用。"
+
+#: manual/design/cli/dispatch.md:29
+msgid "The result equals the runner's return value, or `2` for an argument error, or `0` for `--help`."
+msgstr "结果等于运行器的返回值；参数错误时为 `2`；`--help` 时为 `0`。"
+
+#: manual/design/cli/dispatch.md:34
+msgid "No process exit, no file access of its own: those are in the runners and in `cli`."
+msgstr "不退出进程，自身也不访问文件：这些在运行器和 `cli` 中。"
 
 #: manual/design/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli design"
@@ -15819,6 +15903,34 @@ msgstr "十进制初等函数只在指数范围低于 decNumber 限制 10^6 的�
 #: manual/design/differential.md:138
 msgid "Wasm-GC cannot run the harness (no async runtime); it runs the same corpora through the synchronous `floating-conformance` runner without the mare_mark record."
 msgstr "Wasm-GC 无法运行本运行器（没有 async 运行时）；它通过同步的 `floating-conformance` 运行器运行同样的语料，但没有 mare_mark 记录。"
+
+#: manual/design/differential/harness.md:1
+msgid "differential/harness design"
+msgstr "differential/harness 设计"
+
+#: manual/design/differential/harness.md:5
+msgid "The harness has behaviour worth testing (batch splitting, directive handling, failure text), so it lives in a library package with white-box tests. The main package `differential` keeps only the entry point: it calls `run` with `@env.args()`. A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain: main packages will stop generating blackbox tests."
+msgstr "该工具的行为值得测试（批的拆分、指令处理、失败文本），所以它放在带白盒测试的库包中。主包 `differential` 只保留入口：以 `@env.args()` 调用 `run`。工具链已弃用在主包中放置测试输入（`.mbt.md` 文件）：主包将不再生成黑盒测试。"
+
+#: manual/design/differential/harness.md:13
+msgid "One public function"
+msgstr "一个公开函数"
+
+#: manual/design/differential/harness.md:15
+msgid "`run` is the only public item; the options, batches and the experiment specification stay private to the package. The behaviour, the command line and the record are those of the [`differential` design page](../../design/differential.md) and are unchanged by the split."
+msgstr "`run` 是唯一的公开项；选项、批和实验规格对本包保持私有。行为、命令行和记录与 [`differential` 设计页](../../design/differential.md)相同，拆分不改变它们。"
+
+#: manual/design/differential/harness.md:22
+msgid "The exit status is `2` for a bad command line or corpus, `1` when a batch disagrees with its oracle, and `0` otherwise."
+msgstr "命令行或语料有误时退出状态为 `2`，某一批与其预言不一致时为 `1`，否则为 `0`。"
+
+#: manual/design/differential/harness.md:24
+msgid "It does not implement or alter arithmetic: every row goes through a frontend."
+msgstr "它不实现也不改变算术：每一行都经过前端。"
+
+#: manual/design/differential/harness.md:28
+msgid "Native, JavaScript, Wasm and LLVM only (`moonbitlang/async`)."
+msgstr "仅限 native、JavaScript、Wasm 和 LLVM（`moonbitlang/async`）。"
 
 #: manual/design/doc_examples.md:1
 msgid "doc_examples design"
@@ -20558,6 +20670,7 @@ msgstr "本教程教你使用有保证的包络进行计算：构造一个已知
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
+#: manual/tutorial/cli/dispatch.md:6
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20569,6 +20682,7 @@ msgstr "本教程教你使用有保证的包络进行计算：构造一个已知
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
+#: manual/tutorial/differential/harness.md:6
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20594,6 +20708,7 @@ msgstr "我想要"
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
+#: manual/tutorial/cli/dispatch.md:6
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20605,6 +20720,7 @@ msgstr "我想要"
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
+#: manual/tutorial/differential/harness.md:6
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20931,6 +21047,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
+#: manual/tutorial/cli/dispatch.md:21
 #: manual/tutorial/cli/gda_expr_cli.md:108
 #: manual/tutorial/cli/itl_expr_cli.md:78
 #: manual/tutorial/cli/mpfr_expr_cli.md:71
@@ -20942,6 +21059,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/decimal_gda_checked.md:234
 #: manual/tutorial/def.md:246
 #: manual/tutorial/differential.md:184
+#: manual/tutorial/differential/harness.md:22
 #: manual/tutorial/doc_examples.md:58
 #: manual/tutorial/frontend/gda_expr.md:241
 #: manual/tutorial/frontend/itl_expr.md:166
@@ -21002,6 +21120,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
+#: manual/tutorial/cli/dispatch.md:27
 #: manual/tutorial/cli/gda_expr_cli.md:120
 #: manual/tutorial/cli/itl_expr_cli.md:89
 #: manual/tutorial/cli/mpfr_expr_cli.md:80
@@ -21013,6 +21132,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/decimal_gda_checked.md:248
 #: manual/tutorial/def.md:270
 #: manual/tutorial/differential.md:195
+#: manual/tutorial/differential/harness.md:27
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
 #: manual/tutorial/frontend/itl_expr.md:180
@@ -22289,6 +22409,50 @@ msgstr "[cli 设计](../design/cli.md)：分层结构。"
 #: manual/tutorial/cli.md:100
 msgid "[verification](../verification.md) for the published corpus claims."
 msgstr "[验证](../verification.md)：已发布的语料声明。"
+
+#: manual/tutorial/cli/dispatch.md:1
+msgid "cli/dispatch tutorial"
+msgstr "cli/dispatch 教程"
+
+#: manual/tutorial/cli/dispatch.md:3
+msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable."
+msgstr "本教程在 MoonBit 代码中调用 `floating-conformance` 的调度器，而不启动可执行文件。"
+
+#: manual/tutorial/cli/dispatch.md:8
+msgid "get the exit code of an invocation"
+msgstr "取得一次调用的退出码"
+
+#: manual/tutorial/cli/dispatch.md:9
+msgid "run the executable itself"
+msgstr "运行可执行文件本身"
+
+#: manual/tutorial/cli/dispatch.md:9
+msgid "[the `cli` tutorial](../cli.md)"
+msgstr "[`cli` 教程](../cli.md)"
+
+#: manual/tutorial/cli/dispatch.md:11
+msgid "Call the dispatcher"
+msgstr "调用调度器"
+
+#: manual/tutorial/cli/dispatch.md:13
+msgid "The first element is the program name, as in `@env.args()`:"
+msgstr "第一个元素是程序名，与 `@env.args()` 相同："
+
+#: manual/tutorial/cli/dispatch.md:23
+msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
+msgstr "**下标 0 会被跳过。** 即使测试里没有程序名，也要传一个。"
+
+#: manual/tutorial/cli/dispatch.md:24
+msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints the usage line and returns `0` without running a runner."
+msgstr "**`--help` 优先。** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` 会打印用法行并返回 `0`，不运行任何运行器。"
+
+#: manual/tutorial/cli/dispatch.md:29
+msgid "[cli/dispatch API](../../api/cli/dispatch.md) for the exact contract."
+msgstr "[cli/dispatch API](../../api/cli/dispatch.md)给出准确的约定。"
+
+#: manual/tutorial/cli/dispatch.md:30
+msgid "[cli tutorial](../cli.md) for the executable."
+msgstr "可执行文件见 [cli 教程](../cli.md)。"
 
 #: manual/tutorial/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli tutorial"
@@ -23714,6 +23878,7 @@ msgid "check the committed fixtures"
 msgstr "检查已提交的固定样例"
 
 #: manual/tutorial/differential.md:11
+#: manual/tutorial/differential/harness.md:8
 msgid "run a campaign"
 msgstr "运行一次测试活动"
 
@@ -23852,6 +24017,42 @@ msgstr "**把不一致当作缺陷。** 预言机只是实现。请先阅读条�
 #: manual/tutorial/differential.md:197
 msgid "Run a longer campaign on every backend, then read [verification](../verification.md) for how the published counts were produced."
 msgstr "在每个后端上运行更长的测试活动，然后阅读[验证](../verification.md)了解公布的计数是如何得出的。"
+
+#: manual/tutorial/differential/harness.md:1
+msgid "differential/harness tutorial"
+msgstr "differential/harness 教程"
+
+#: manual/tutorial/differential/harness.md:3
+msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
+msgstr "该工具通过 `just random-diff` 工具运行；本页只说明它的代码在哪里。"
+
+#: manual/tutorial/differential/harness.md:8
+msgid "[the `differential` tutorial](../differential.md)"
+msgstr "[`differential` 教程](../differential.md)"
+
+#: manual/tutorial/differential/harness.md:9
+msgid "change the batching or the record"
+msgstr "修改批的拆分或记录"
+
+#: manual/tutorial/differential/harness.md:11
+msgid "Where the code is"
+msgstr "代码在哪里"
+
+#: manual/tutorial/differential/harness.md:13
+msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
+msgstr "文件 `batch.mbt`（语料拆分与批执行）和 `harness.mbt`（选项、实验规格与 `run`）位于 `tooling/src/differential/harness`，其白盒测试在 `differential_wbtest.mbt` 中。用以下命令测试："
+
+#: manual/tutorial/differential/harness.md:24
+msgid "**No wasm-gc build.** `moonbitlang/async` has no wasm-gc runtime, so the package declares `supported_targets = \"all-wasm-gc\"`."
+msgstr "**没有 wasm-gc 构建。** `moonbitlang/async` 没有 wasm-gc 运行时，所以本包声明 `supported_targets = \"all-wasm-gc\"`。"
+
+#: manual/tutorial/differential/harness.md:29
+msgid "[differential/harness API](../../api/differential/harness.md)."
+msgstr "[differential/harness API](../../api/differential/harness.md)。"
+
+#: manual/tutorial/differential/harness.md:30
+msgid "[differential tutorial](../differential.md) for the workflow."
+msgstr "工作流见 [differential 教程](../differential.md)。"
 
 #: manual/tutorial/doc_examples.md:1
 msgid "doc_examples tutorial"

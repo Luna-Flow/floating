@@ -26,6 +26,7 @@ msgstr "ball_float API"
 #: manual/api/bin_float.md:3
 #: manual/api/bin_float_checked.md:3
 #: manual/api/cli.md:3
+#: manual/api/cli/dispatch.md:3
 #: manual/api/cli/gda_expr_cli.md:3
 #: manual/api/cli/itl_expr_cli.md:3
 #: manual/api/cli/mpfr_expr_cli.md:3
@@ -37,6 +38,7 @@ msgstr "ball_float API"
 #: manual/api/decimal_gda_checked.md:3
 #: manual/api/def.md:3
 #: manual/api/differential.md:3
+#: manual/api/differential/harness.md:3
 #: manual/api/doc_examples.md:3
 #: manual/api/frontend/gda_expr.md:3
 #: manual/api/frontend/itl_expr.md:3
@@ -95,6 +97,7 @@ msgstr "現在のコードが入力集合の一部を失う、不必要に広げ
 #: manual/api/bin_float.md:21
 #: manual/api/bin_float_checked.md:16
 #: manual/api/cli.md:12
+#: manual/api/cli/dispatch.md:14
 #: manual/api/cli/gda_expr_cli.md:14
 #: manual/api/cli/itl_expr_cli.md:12
 #: manual/api/cli/mpfr_expr_cli.md:12
@@ -106,6 +109,7 @@ msgstr "現在のコードが入力集合の一部を失う、不必要に広げ
 #: manual/api/decimal_gda_checked.md:18
 #: manual/api/def.md:16
 #: manual/api/differential.md:19
+#: manual/api/differential/harness.md:15
 #: manual/api/doc_examples.md:14
 #: manual/api/frontend/gda_expr.md:16
 #: manual/api/frontend/itl_expr.md:12
@@ -165,8 +169,8 @@ msgstr "コンストラクタ"
 #: manual/api/ball_float.md:144
 #: manual/api/bench.md:52
 #: manual/api/bench/external.md:53
-#: manual/api/cli.md:39
-#: manual/api/cli.md:59
+#: manual/api/cli.md:38
+#: manual/api/cli.md:58
 #: manual/api/cli/gda_expr_cli.md:39
 #: manual/api/cli/itl_expr_cli.md:37
 #: manual/api/cli/testfloat_expr_cli.md:38
@@ -1087,7 +1091,8 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/bench/external.md:68
 #: manual/api/bin_float.md:2433
 #: manual/api/bin_float_checked.md:862
-#: manual/api/cli.md:81
+#: manual/api/cli.md:80
+#: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
@@ -1099,6 +1104,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/decimal_gda_checked.md:281
 #: manual/api/def.md:435
 #: manual/api/differential.md:97
+#: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
@@ -1339,7 +1345,7 @@ msgid "`immutable_bench(id, operation, scales, scale_text, generate, fingerprint
 msgstr "`immutable_bench(id, operation, scales, scale_text, generate, fingerprint, implementations, reference, comparator, input_text, output_text)` は、入力をスケールごとに一度だけ生成し、以後変更しないベンチマークを構築します。"
 
 #: manual/api/bench.md:52
-#: manual/api/cli.md:39
+#: manual/api/cli.md:38
 msgid "Argument"
 msgstr "引数"
 
@@ -1530,7 +1536,7 @@ msgstr "各仕様には、通常のテスト実行で走り仕様がコンパイ
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
-#: manual/api/cli.md:83
+#: manual/api/cli.md:82
 #: manual/api/consistency.md:51
 #: manual/api/differential.md:99
 #: manual/api/doc_examples.md:48
@@ -3496,78 +3502,100 @@ msgid "`cli` is the native executable `floating-conformance`. It dispatches its 
 msgstr "`cli` はネイティブ実行ファイル `floating-conformance` です。引数を 4 つの適合性ランナー（`gda`、`testfloat`、`mpfr`、`itl`）のいずれかに振り分け、ランナーの終了コードで終了します。このパッケージには公開された MoonBit の項目がないため、このページではコマンドラインインターフェースを説明します。典型的な呼び出し方は[チュートリアル](../tutorial/cli.md)で示し、階層構造の説明は[設計ページ](../design/cli.md)で行います。"
 
 #: manual/api/cli.md:14
-msgid "`cli` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. Its `moon.pkg` imports the four runners and the process helpers:"
-msgstr "`cli` は実行可能パッケージ（`pkgtype(kind: \"executable\")`）であり、インポートできません。その `moon.pkg` は 4 つのランナーとプロセス用のヘルパーをインポートします。"
+msgid "`cli` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It is only the entry point: its `moon.pkg` imports the dispatcher [`cli/dispatch`](cli/dispatch.md), which holds the behaviour described below, and the process helpers:"
+msgstr "`cli` は実行可能パッケージ（`pkgtype(kind: \"executable\")`）であり、インポートできません。これはエントリポイントにすぎず、その `moon.pkg` は、以下で説明する動作を持つディスパッチャー [`cli/dispatch`](cli/dispatch.md) とプロセス用ヘルパーをインポートします："
 
-#: manual/api/cli.md:28
+#: manual/api/cli.md:27
 msgid "To run a corpus from your own MoonBit code, import a runner such as [`cli/gda_expr_cli`](cli/gda_expr_cli.md) and call its `run`, or call a frontend directly."
 msgstr "自分の MoonBit コードからコーパスを実行するには、[`cli/gda_expr_cli`](cli/gda_expr_cli.md) などのランナーをインポートしてその `run` を呼び出すか、フロントエンドを直接呼び出します。"
 
-#: manual/api/cli.md:32
+#: manual/api/cli.md:31
 #: manual/api/differential.md:36
 msgid "Command line"
 msgstr "コマンドライン"
 
-#: manual/api/cli.md:41
+#: manual/api/cli.md:40
 msgid "selects the runner; required, non-empty, at most once (an empty `--backend=` is an error)"
 msgstr "ランナーを選択する。必須で、空でなく、指定は最大 1 回（空の `--backend=` はエラー）"
 
-#: manual/api/cli.md:42
+#: manual/api/cli.md:41
 msgid "prints the usage line and exits with 0 when reached, even after `--backend` (the runners' own `--help` is therefore not reachable through the dispatcher)"
 msgstr "到達した時点で使用法の行を出力し、0 で終了する（`--backend` の後でも同様。そのため、ランナー自身の `--help` にはディスパッチャ経由では到達できない）"
 
-#: manual/api/cli.md:43
+#: manual/api/cli.md:42
 msgid "anything else"
 msgstr "その他すべて"
 
-#: manual/api/cli.md:43
+#: manual/api/cli.md:42
 msgid "forwarded, in order, to the runner"
 msgstr "順序どおりランナーへ転送される"
 
-#: manual/api/cli.md:45
+#: manual/api/cli.md:44
 msgid "Arguments are scanned from left to right and the first error ends the scan: `--backend` without a value, or a second `--backend`, exits with 2 before a later `--help` is seen. The value after `--backend` is taken as is, so `--backend --help` asks for a backend named `--help` (exit 2). An empty `--backend=` is the error `--backend requires a value` (exit 2), or the at-most-once error when a backend was already given."
 msgstr "引数は左から右へ走査され、最初のエラーで走査が終わります。値のない `--backend`、または 2 つ目の `--backend` は、後ろにある `--help` が見られる前に 2 で終了します。`--backend` の後の値はそのまま採用されるため、`--backend --help` は `--help` という名前のバックエンドを要求します（終了コード 2）。空の `--backend=` はエラー `--backend requires a value`（終了コード 2）になり、すでにバックエンドが指定されていた場合は最大 1 回の制約に関するエラーになります。"
 
-#: manual/api/cli.md:52
+#: manual/api/cli.md:51
 msgid "The runner receives the program name followed by the forwarded arguments and interprets them as documented in [gda_expr_cli](cli/gda_expr_cli.md), [testfloat_expr_cli](cli/testfloat_expr_cli.md), [mpfr_expr_cli](cli/mpfr_expr_cli.md) and [itl_expr_cli](cli/itl_expr_cli.md)."
 msgstr "ランナーはプログラム名とそれに続く転送された引数を受け取り、[gda_expr_cli](cli/gda_expr_cli.md)、[testfloat_expr_cli](cli/testfloat_expr_cli.md)、[mpfr_expr_cli](cli/mpfr_expr_cli.md)、[itl_expr_cli](cli/itl_expr_cli.md) に記載されたとおりに解釈します。"
 
-#: manual/api/cli.md:57
+#: manual/api/cli.md:56
 msgid "Exit status"
 msgstr "終了ステータス"
 
-#: manual/api/cli.md:59
+#: manual/api/cli.md:58
 #: manual/tutorial/internal/runner_cli.md:106
 msgid "Code"
 msgstr "コード"
 
-#: manual/api/cli.md:61
+#: manual/api/cli.md:60
 msgid "`--help`, or the runner reported success"
 msgstr "`--help`、またはランナーが成功を報告した"
 
-#: manual/api/cli.md:62
+#: manual/api/cli.md:61
 msgid "the runner found failing cases; for `itl` also diagnostic cases; with `--strict-supported` (`gda`, `itl`) also unsupported cases, and for `gda` legacy ones"
 msgstr "ランナーが失敗したケースを検出した。`itl` では診断ケースも、`--strict-supported`（`gda`、`itl`）指定時はサポートされないケースも、`gda` ではレガシーのケースも含む"
 
-#: manual/api/cli.md:63
+#: manual/api/cli.md:62
 msgid "a missing, repeated or unknown `--backend`, or a runner usage, file or parse error"
 msgstr "`--backend` の欠落・重複・不明な値、またはランナーの使用法エラー、ファイルエラー、構文解析エラー"
 
-#: manual/api/cli.md:65
+#: manual/api/cli.md:64
 msgid "Messages go to standard output."
 msgstr "メッセージは標準出力に出力されます。"
 
-#: manual/api/cli.md:67
+#: manual/api/cli.md:66
 msgid "Build"
 msgstr "ビルド"
 
-#: manual/api/cli.md:69
+#: manual/api/cli.md:68
 msgid "The executable is built by the conformance tooling:"
 msgstr "実行ファイルは適合性ツールによってビルドされます。"
 
-#: manual/api/cli.md:76
+#: manual/api/cli.md:75
 msgid "`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into `_build/conformance/<backend>/` and copies it to `<backend>-conformance.exe`, so parallel builds for different backends do not share a target directory."
 msgstr "`tools/conformance_cli.py` は `tooling/src/cli` をバックエンドごとに一度ずつ `_build/conformance/<backend>/` へビルドし、`<backend>-conformance.exe` にコピーします。これにより、異なるバックエンドの並列ビルドがターゲットディレクトリを共有しません。"
+
+#: manual/api/cli/dispatch.md:1
+msgid "cli/dispatch API"
+msgstr "cli/dispatch API"
+
+#: manual/api/cli/dispatch.md:5
+msgid "`cli/dispatch` holds the behaviour of the `floating-conformance` executable: it scans the program arguments for `--backend`, forwards the rest to one of the four conformance runners and returns the process exit code. The package `cli` is only the entry point that passes `@env.args()` to it and exits with the result, so that the dispatcher is a library with its own tests. The command line is documented on the [`cli` page](../cli.md); the [tutorial](../../tutorial/cli/dispatch.md) calls it from a test and the [design page](../../design/cli/dispatch.md) explains the split."
+msgstr "`cli/dispatch` は実行ファイル `floating-conformance` の動作を担います。プログラム引数から `--backend` を探し、残りを 4 つの適合性ランナーのいずれかに転送し、プロセスの終了コードを返します。パッケージ `cli` はエントリポイントにすぎず、`@env.args()` を渡してその結果で終了するため、ディスパッチャーは独自のテストを持つライブラリになっています。コマンドラインは [`cli` のページ](../cli.md)にあり、[チュートリアル](../../tutorial/cli/dispatch.md)ではテストから呼び出し、[設計ページ](../../design/cli/dispatch.md)でこの分割を説明します。"
+
+#: manual/api/cli/dispatch.md:22
+msgid "The examples use the alias `@dispatch`."
+msgstr "例では別名 `@dispatch` を使います。"
+
+#: manual/api/cli/dispatch.md:24
+#: manual/api/differential/harness.md:26
+#: manual/api/frontend/testfloat_expr.md:29
+msgid "Function specification"
+msgstr "関数の指定"
+
+#: manual/api/cli/dispatch.md:32
+msgid "`dispatch(arguments)` expects the program name at index 0, followed by the command line. It returns `0` after `--help`, `2` for a missing, repeated, empty or unknown `--backend`, and otherwise the return value of the runner (`0`, `1` or `2`). Messages go to standard output. It never exits the process; the caller does."
+msgstr "`dispatch(arguments)` は、インデックス 0 にプログラム名、その後にコマンドラインが並ぶことを想定します。`--help` の後は `0` を返し、`--backend` が欠けている、重複している、空である、または未知の場合は `2` を返し、それ以外はランナーの戻り値（`0`、`1`、`2`）を返します。メッセージは標準出力に出ます。プロセスを終了することはなく、終了は呼び出し側が行います。"
 
 #: manual/api/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli API"
@@ -6217,8 +6245,8 @@ msgid "`differential` is the executable of the seeded random differential campai
 msgstr "`differential` は、シード付きランダム差分テストキャンペーン（`random-diff`）の実行ファイルです。生成された MPFR（2 進、IEEE `decimal`）または libmpdec（`decimal_gda`）の行のコーパスを読み込み、[mare_mark](https://lunaflow.cn/en/mare_mark/) ランナーを通してバッチ単位で `floating` を検証し、実行の追記専用 JSONL 記録を標準出力に出力します。このパッケージに公開される MoonBit の項目はありません。このページはコマンドラインと記録形式を説明します。[チュートリアル](../tutorial/differential.md)はキャンペーンを最初から最後まで示し、[設計ページ](../design/differential.md)はバッチ単位で検証する理由と失敗したバッチの最小化方法を説明します。行形式とオラクルプログラムは [`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md) 、[`testdata/decimal/README.md`](../../../testdata/decimal/README.md)（IEEE `decimal`）、[`testdata/decimal_gda/README.md`](../../../testdata/decimal_gda/README.md)（`decimal_gda`）にあります。"
 
 #: manual/api/differential.md:21
-msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. Its `moon.pkg` imports the two frontends, the mare_mark packages and the shared benchmark toolkit:"
-msgstr "`differential` は実行可能パッケージ（`pkgtype(kind: \"executable\")`）で、インポートできません。native、JavaScript、Wasm、LLVM 向けにビルドされます。mare_mark のランナーが `moonbitlang/async` を使い、これに Wasm-GC ランタイムがないため、Wasm-GC は対象外です。その `moon.pkg` は 2 つのフロントエンド、mare_mark の各パッケージ、共有ベンチマークツールキットをインポートします。"
+msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg` imports the library [`differential/harness`](differential/harness.md), which holds the behaviour described below, and the async runtime:"
+msgstr "`differential` は実行可能パッケージ（`pkgtype(kind: \"executable\")`）であり、インポートできません。native、JavaScript、Wasm、LLVM 向けにビルドされ、mare_mark ランナーが Wasm-GC ランタイムを持たない `moonbitlang/async` を使うため Wasm-GC は除外されます。これはエントリポイントにすぎず、その `moon.pkg` は、以下で説明する動作を持つライブラリ [`differential/harness`](differential/harness.md) と非同期ランタイムをインポートします："
 
 #: manual/api/differential.md:46
 msgid "the corpus: `mpfr-random-v1` rows, `mpfr-decimal-random-v1` rows or a `.decTest` file whose header says `libmpdec-random-v1`; the format is detected from the text"
@@ -6316,6 +6344,22 @@ msgstr "`validation_failure` イベントには再生コマンドが含まれる
 #: manual/api/differential.md:92
 msgid "The command it prints is `python3 tools/random_differential.py replay --target native <id or range>`, which regenerates the rows and runs them through the frontends. Without mare_mark, run that command directly or `just random-diff replay <id>`."
 msgstr "表示されるコマンドは `python3 tools/random_differential.py replay --target native <ID または範囲>` で、行を再生成してフロントエンドで実行します。mare_mark がなくても、このコマンドまたは `just random-diff replay <id>` を直接実行できます。"
+
+#: manual/api/differential/harness.md:1
+msgid "differential/harness API"
+msgstr "differential/harness API"
+
+#: manual/api/differential/harness.md:5
+msgid "`differential/harness` holds the behaviour of the seeded random differential executable: it parses the command line, splits a corpus into batches, runs each batch through the matching frontend under the mare_mark runner and writes the JSONL record. The package `differential` is only the entry point that calls `run` with `@env.args()`. The command line and the workflow are documented on the [`differential` page](../differential.md); the [tutorial](../../tutorial/differential/harness.md) shows what the package is for and the [design page](../../design/differential/harness.md) explains the split."
+msgstr "`differential/harness` はシード付きランダム差分実行ファイルの動作を担います。コマンドラインを解析し、コーパスをバッチに分割し、各バッチを mare_mark ランナーの下で対応するフロントエンドに通し、JSONL の記録を書き出します。パッケージ `differential` はエントリポイントにすぎず、`@env.args()` で `run` を呼び出します。コマンドラインとワークフローは [`differential` のページ](../differential.md)にあり、[チュートリアル](../../tutorial/differential/harness.md)でこのパッケージの役割を示し、[設計ページ](../../design/differential/harness.md)でこの分割を説明します。"
+
+#: manual/api/differential/harness.md:23
+msgid "The package needs `moonbitlang/async` and is built for native, JavaScript, Wasm and LLVM, not for wasm-gc."
+msgstr "このパッケージは `moonbitlang/async` を必要とし、native、JavaScript、Wasm、LLVM 向けにビルドされ、wasm-gc 向けにはビルドされません。"
+
+#: manual/api/differential/harness.md:34
+msgid "`run(args)` takes the program arguments (the program name, and under Node.js the script path too, come first). It exits the process with `2` for a bad command line or corpus and with `1` when a batch disagrees with its oracle; otherwise it returns after the record is written."
+msgstr "`run(args)` はプログラム引数を受け取ります（先頭にプログラム名、Node.js ではスクリプトのパスも続きます）。コマンドラインまたはコーパスが不正なら `2`、バッチがオラクルと食い違うなら `1` でプロセスを終了し、それ以外は記録を書き終えて戻ります。"
 
 #: manual/api/doc_examples.md:1
 msgid "doc_examples API"
@@ -7066,10 +7110,6 @@ msgstr "`moon.pkg` の `import` ブロックにパッケージを追加します
 #: manual/api/frontend/testfloat_expr.md:27
 msgid "The examples use the aliases `@testfloat_expr` and `@bin_float`."
 msgstr "例では別名 `@testfloat_expr` と `@bin_float` を使います。"
-
-#: manual/api/frontend/testfloat_expr.md:29
-msgid "Function specification"
-msgstr "関数の指定"
 
 #: manual/api/frontend/testfloat_expr.md:33
 msgid "`TestFloatOperation` lists the TestFloat functions the executor supports."
@@ -9825,7 +9865,8 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/bench/external.md:124
 #: manual/design/bin_float.md:1954
 #: manual/design/bin_float_checked.md:329
-#: manual/design/cli.md:69
+#: manual/design/cli.md:71
+#: manual/design/cli/dispatch.md:32
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
@@ -9837,6 +9878,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:127
+#: manual/design/differential/harness.md:26
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:166
@@ -10269,6 +10311,7 @@ msgstr "`ball_float` は単一の近似値ではなく、実数の集合を用�
 #: manual/design/bin_float.md:13
 #: manual/design/bin_float_checked.md:3
 #: manual/design/cli.md:3
+#: manual/design/cli/dispatch.md:3
 #: manual/design/cli/gda_expr_cli.md:3
 #: manual/design/cli/itl_expr_cli.md:3
 #: manual/design/cli/mpfr_expr_cli.md:3
@@ -10280,6 +10323,7 @@ msgstr "`ball_float` は単一の近似値ではなく、実数の集合を用�
 #: manual/design/decimal_gda_checked.md:3
 #: manual/design/def.md:3
 #: manual/design/differential.md:3
+#: manual/design/differential/harness.md:3
 #: manual/design/doc_examples.md:3
 #: manual/design/frontend/gda_expr.md:3
 #: manual/design/frontend/itl_expr.md:3
@@ -10795,6 +10839,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
+#: manual/design/cli/dispatch.md:12
 #: manual/design/cli/gda_expr_cli.md:21
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
@@ -10806,6 +10851,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:54
+#: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
@@ -10954,7 +11000,8 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/bench/external.md:105
 #: manual/design/bin_float.md:1882
 #: manual/design/bin_float_checked.md:199
-#: manual/design/cli.md:50
+#: manual/design/cli.md:52
+#: manual/design/cli/dispatch.md:25
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
@@ -10966,6 +11013,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:104
+#: manual/design/differential/harness.md:20
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:133
@@ -11032,7 +11080,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/bench/external.md:114
 #: manual/design/bin_float.md:1929
 #: manual/design/bin_float_checked.md:316
-#: manual/design/cli.md:60
+#: manual/design/cli.md:62
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
@@ -13141,72 +13189,108 @@ msgid "Three layers"
 msgstr "3 つの層"
 
 #: manual/design/cli.md:22
-msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
-msgstr "コーパスの解析と実行は純粋な `frontend/*` パッケージに、引数処理、ファイルアクセス、出力は `cli/*_expr_cli` ランナー（それぞれ `run(arguments) -> Int` を持つライブラリ）にあります。プロセス境界（`@env.args()`、`@sys.exit`）は `cli` にのみ存在します。ランナーがライブラリであるため、その使用経路はプロセスを起動せずに単体テストでき、フロントエンドはすべてのターゲットで利用可能なままです。"
+msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`, and the argument scanning that picks the runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has tests and the main package holds no test inputs. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
+msgstr "コーパスの解析と実行は純粋な `frontend/*` パッケージにあり、引数処理、ファイルアクセス、出力は `cli/*_expr_cli` ランナー（それぞれ `run(arguments) -> Int` を持つライブラリ）にあります。プロセスの境界（`@env.args()`、`@sys.exit`）は `cli` にだけあり、ランナーを選ぶ引数の走査はライブラリ [`cli/dispatch`](cli/dispatch.md) にあるため、テストを持ち、メインパッケージはテスト入力を持ちません。ランナーはライブラリなので、プロセスを起動せずに使い方の経路を単体テストでき、フロントエンドはすべてのターゲットで使えます。"
 
-#: manual/design/cli.md:29
+#: manual/design/cli.md:31
 msgid "Forward the program name"
 msgstr "プログラム名を転送する"
 
-#: manual/design/cli.md:31
+#: manual/design/cli.md:33
 msgid "The dispatcher removes `--backend` and its value and forwards `[program, rest…]`. Every runner skips element 0, so a runner behaves the same when called from the dispatcher, from a test, or (in principle) as its own executable."
 msgstr "ディスパッチャは `--backend` とその値を取り除き、`[program, rest…]` を転送します。どのランナーも要素 0 をスキップするため、ランナーはディスパッチャから呼ばれても、テストから呼ばれても、（原理的には）単独の実行ファイルとして呼ばれても同じように動作します。"
 
-#: manual/design/cli.md:36
+#: manual/design/cli.md:38
 msgid "One binary, copied per backend"
 msgstr "1 つのバイナリをバックエンドごとにコピー"
 
-#: manual/design/cli.md:38
+#: manual/design/cli.md:40
 msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target directory and copies it to `<backend>-conformance.exe`. Parallel builds for different backends therefore never share a `_build` directory or lock, and tools always invoke an executable whose name says what it runs."
 msgstr "`tools/conformance_cli.py` は `tooling/src/cli` をバックエンド固有のターゲットディレクトリにビルドし、`<backend>-conformance.exe` にコピーします。したがって異なるバックエンドの並列ビルドが `_build` ディレクトリやロックを共有することはなく、ツールは常に、何を実行するかが名前からわかる実行ファイルを呼び出します。"
 
-#: manual/design/cli.md:43
+#: manual/design/cli.md:45
 msgid "Dispatcher help wins"
 msgstr "ディスパッチャのヘルプが優先"
 
-#: manual/design/cli.md:45
+#: manual/design/cli.md:47
 msgid "`--help` is handled while scanning arguments, before the backend is known, so it prints the dispatcher usage and exits with `0` whatever backend is named. The scan stops at the first error, so a malformed `--backend` before `--help` still exits with `2`. Runner options are documented on their pages instead."
 msgstr "`--help` はバックエンドが決まる前、引数の走査中に処理されるため、どのバックエンドが指定されていてもディスパッチャの使い方を表示して `0` で終了します。走査は最初のエラーで止まるので、`--help` より前にある不正な `--backend` は依然として `2` で終了します。ランナーのオプションはそれぞれのページで説明されています。"
 
-#: manual/design/cli.md:52
+#: manual/design/cli.md:54
 msgid "Exactly one runner is called per invocation, or none when the arguments are invalid (exit `2`) or `--help` is given (exit `0`)."
 msgstr "1 回の呼び出しで呼ばれるランナーはちょうど 1 つです。ただし引数が無効な場合（終了コード `2`）や `--help` が指定された場合（終了コード `0`）は 1 つも呼ばれません。"
 
-#: manual/design/cli.md:54
+#: manual/design/cli.md:56
 msgid "The exit status equals the runner's return value: `0`, `1` or `2`."
 msgstr "終了ステータスはランナーの戻り値 `0`、`1`、`2` のいずれかに等しくなります。"
 
-#: manual/design/cli.md:55
+#: manual/design/cli.md:57
 msgid "Arguments other than `--backend`, its value and `--help`/`-h` reach the runner unchanged and in order."
 msgstr "`--backend`、その値、`--help`/`-h` 以外の引数は、変更されず順序どおりにランナーに渡されます。"
 
-#: manual/design/cli.md:57
+#: manual/design/cli.md:59
 msgid "\"At most once\" is checked on whether `--backend` was given, not on its value, and an empty `--backend=` is itself an error (exit `2`)."
 msgstr "「高々 1 回」の検査は `--backend` が指定されたかどうかに対して行われ、その値は問いません。空の `--backend=` はそれ自体がエラーです（終了コード `2`）。"
 
-#: manual/design/cli.md:62
+#: manual/design/cli.md:64
 msgid "**Four executables.** Four packages with identical `main` functions and four link steps for no behavioural gain."
 msgstr "**4 つの実行ファイル。** 同一の `main` 関数を持つ 4 つのパッケージと 4 回のリンクが必要になり、動作上の利点はありません。"
 
-#: manual/design/cli.md:64
+#: manual/design/cli.md:66
 msgid "**Subcommands (`floating-conformance gda …`).** A positional backend would collide with runner paths; an explicit option is unambiguous."
 msgstr "**サブコマンド（`floating-conformance gda …`）。** 位置引数によるバックエンド指定はランナーのパスと衝突します。明示的なオプションなら曖昧さがありません。"
 
-#: manual/design/cli.md:66
+#: manual/design/cli.md:68
 msgid "**Exit codes from runners.** Calling `exit` inside a runner would make it untestable as a library."
 msgstr "**ランナーからの終了コード。** ランナー内で `exit` を呼ぶと、ライブラリとしてテストできなくなります。"
 
-#: manual/design/cli.md:71
+#: manual/design/cli.md:73
 msgid "Native target only (file access through `moonbitlang/x/fs`, exit through `moonbitlang/x/sys`)."
 msgstr "native ターゲットのみ（ファイルアクセスは `moonbitlang/x/fs`、終了は `moonbitlang/x/sys` 経由）。"
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:75
 msgid "No corpus download, planning, parallelism or aggregation: those are in `tools/conformance.py` and the `tools/run_*_interpreter.py` scripts."
 msgstr "コーパスのダウンロード、計画、並列化、集計は行いません。それらは `tools/conformance.py` と `tools/run_*_interpreter.py` スクリプトにあります。"
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:77
 msgid "No public MoonBit API."
 msgstr "公開 MoonBit API はありません。"
+
+#: manual/design/cli/dispatch.md:1
+msgid "cli/dispatch design"
+msgstr "cli/dispatch 設計"
+
+#: manual/design/cli/dispatch.md:5
+msgid "The dispatcher has behaviour worth testing (argument scanning, the at-most-once rule, the empty value, `--help`), so it lives in a library package. The main package `cli` keeps only the process boundary: it reads `@env.args()` and calls `@sys.exit` with the returned code. A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain: main packages will stop generating blackbox tests."
+msgstr "ディスパッチャーにはテストする価値のある動作（引数の走査、最大 1 回の規則、空の値、`--help`）があるため、ライブラリパッケージに置かれています。メインパッケージ `cli` はプロセスの境界だけを持ち、`@env.args()` を読み、返されたコードで `@sys.exit` を呼びます。メインパッケージにテスト入力（`.mbt.md` ファイル）を置くことはツールチェーンで非推奨であり、メインパッケージはブラックボックステストを生成しなくなります。"
+
+#: manual/design/cli/dispatch.md:14
+msgid "Return the exit code"
+msgstr "終了コードを返す"
+
+#: manual/design/cli/dispatch.md:16
+msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
+msgstr "`dispatch` は `Int32` を返し、`@sys.exit` を呼びません。そのためホワイトボックステストはプロセスを起動せずに呼び出しを検証できます。オプションの意味は `cli` のページと同じで、この分割では変わりません。"
+
+#: manual/design/cli/dispatch.md:20
+msgid "Runners stay libraries"
+msgstr "ランナーはライブラリのまま"
+
+#: manual/design/cli/dispatch.md:22
+msgid "The four runners (`cli/gda_expr_cli` and its siblings) are imported here and nowhere else; `cli` itself imports only this package and the process helpers."
+msgstr "4 つのランナー（`cli/gda_expr_cli` とその仲間）はここでのみインポートされ、`cli` 自身はこのパッケージとプロセス用ヘルパーだけをインポートします。"
+
+#: manual/design/cli/dispatch.md:27
+msgid "Exactly one runner is called per invocation, or none for invalid arguments or `--help`."
+msgstr "呼び出しごとにランナーはちょうど 1 つ呼ばれます。引数が不正な場合や `--help` の場合は 1 つも呼ばれません。"
+
+#: manual/design/cli/dispatch.md:29
+msgid "The result equals the runner's return value, or `2` for an argument error, or `0` for `--help`."
+msgstr "結果はランナーの戻り値に等しく、引数エラーのときは `2`、`--help` のときは `0` です。"
+
+#: manual/design/cli/dispatch.md:34
+msgid "No process exit, no file access of its own: those are in the runners and in `cli`."
+msgstr "プロセスの終了も独自のファイルアクセスもありません。それらはランナーと `cli` にあります。"
 
 #: manual/design/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli design"
@@ -15819,6 +15903,34 @@ msgstr "10 進の初等関数は、指数範囲が decNumber の上限 10^6 未�
 #: manual/design/differential.md:138
 msgid "Wasm-GC cannot run the harness (no async runtime); it runs the same corpora through the synchronous `floating-conformance` runner without the mare_mark record."
 msgstr "Wasm-GC はハーネスを実行できません（async ランタイムがない）。同じコーパスを同期の `floating-conformance` ランナーで、mare_mark の記録なしに実行します。"
+
+#: manual/design/differential/harness.md:1
+msgid "differential/harness design"
+msgstr "differential/harness 設計"
+
+#: manual/design/differential/harness.md:5
+msgid "The harness has behaviour worth testing (batch splitting, directive handling, failure text), so it lives in a library package with white-box tests. The main package `differential` keeps only the entry point: it calls `run` with `@env.args()`. A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain: main packages will stop generating blackbox tests."
+msgstr "ハーネスにはテストする価値のある動作（バッチの分割、ディレクティブの処理、失敗メッセージ）があるため、ホワイトボックステストを持つライブラリパッケージに置かれています。メインパッケージ `differential` はエントリポイントだけを持ち、`@env.args()` で `run` を呼びます。メインパッケージにテスト入力（`.mbt.md` ファイル）を置くことはツールチェーンで非推奨であり、メインパッケージはブラックボックステストを生成しなくなります。"
+
+#: manual/design/differential/harness.md:13
+msgid "One public function"
+msgstr "公開関数は 1 つ"
+
+#: manual/design/differential/harness.md:15
+msgid "`run` is the only public item; the options, batches and the experiment specification stay private to the package. The behaviour, the command line and the record are those of the [`differential` design page](../../design/differential.md) and are unchanged by the split."
+msgstr "`run` が唯一の公開項目で、オプション、バッチ、実験仕様はパッケージ内に閉じています。動作、コマンドライン、記録は [`differential` の設計ページ](../../design/differential.md)と同じで、この分割では変わりません。"
+
+#: manual/design/differential/harness.md:22
+msgid "The exit status is `2` for a bad command line or corpus, `1` when a batch disagrees with its oracle, and `0` otherwise."
+msgstr "終了ステータスは、コマンドラインまたはコーパスが不正なら `2`、バッチがオラクルと食い違うなら `1`、それ以外は `0` です。"
+
+#: manual/design/differential/harness.md:24
+msgid "It does not implement or alter arithmetic: every row goes through a frontend."
+msgstr "算術を実装も変更もしません。すべての行はフロントエンドを通ります。"
+
+#: manual/design/differential/harness.md:28
+msgid "Native, JavaScript, Wasm and LLVM only (`moonbitlang/async`)."
+msgstr "native、JavaScript、Wasm、LLVM のみ（`moonbitlang/async`）。"
 
 #: manual/design/doc_examples.md:1
 msgid "doc_examples design"
@@ -20558,6 +20670,7 @@ msgstr "このチュートリアルでは、保証付きの包含区間を使っ
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
+#: manual/tutorial/cli/dispatch.md:6
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20569,6 +20682,7 @@ msgstr "このチュートリアルでは、保証付きの包含区間を使っ
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
+#: manual/tutorial/differential/harness.md:6
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20594,6 +20708,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
+#: manual/tutorial/cli/dispatch.md:6
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20605,6 +20720,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
+#: manual/tutorial/differential/harness.md:6
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20931,6 +21047,7 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
+#: manual/tutorial/cli/dispatch.md:21
 #: manual/tutorial/cli/gda_expr_cli.md:108
 #: manual/tutorial/cli/itl_expr_cli.md:78
 #: manual/tutorial/cli/mpfr_expr_cli.md:71
@@ -20942,6 +21059,7 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 #: manual/tutorial/decimal_gda_checked.md:234
 #: manual/tutorial/def.md:246
 #: manual/tutorial/differential.md:184
+#: manual/tutorial/differential/harness.md:22
 #: manual/tutorial/doc_examples.md:58
 #: manual/tutorial/frontend/gda_expr.md:241
 #: manual/tutorial/frontend/itl_expr.md:166
@@ -21002,6 +21120,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
+#: manual/tutorial/cli/dispatch.md:27
 #: manual/tutorial/cli/gda_expr_cli.md:120
 #: manual/tutorial/cli/itl_expr_cli.md:89
 #: manual/tutorial/cli/mpfr_expr_cli.md:80
@@ -21013,6 +21132,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/decimal_gda_checked.md:248
 #: manual/tutorial/def.md:270
 #: manual/tutorial/differential.md:195
+#: manual/tutorial/differential/harness.md:27
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
 #: manual/tutorial/frontend/itl_expr.md:180
@@ -22289,6 +22409,50 @@ msgstr "層構造については [cli 設計](../design/cli.md)。"
 #: manual/tutorial/cli.md:100
 msgid "[verification](../verification.md) for the published corpus claims."
 msgstr "公開されているコーパスに関する主張については [検証](../verification.md)。"
+
+#: manual/tutorial/cli/dispatch.md:1
+msgid "cli/dispatch tutorial"
+msgstr "cli/dispatch チュートリアル"
+
+#: manual/tutorial/cli/dispatch.md:3
+msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable."
+msgstr "このチュートリアルでは、実行ファイルを起動せず、MoonBit のコードから `floating-conformance` のディスパッチャーを呼び出します。"
+
+#: manual/tutorial/cli/dispatch.md:8
+msgid "get the exit code of an invocation"
+msgstr "呼び出しの終了コードを得る"
+
+#: manual/tutorial/cli/dispatch.md:9
+msgid "run the executable itself"
+msgstr "実行ファイル自体を実行する"
+
+#: manual/tutorial/cli/dispatch.md:9
+msgid "[the `cli` tutorial](../cli.md)"
+msgstr "[`cli` のチュートリアル](../cli.md)"
+
+#: manual/tutorial/cli/dispatch.md:11
+msgid "Call the dispatcher"
+msgstr "ディスパッチャーを呼び出す"
+
+#: manual/tutorial/cli/dispatch.md:13
+msgid "The first element is the program name, as in `@env.args()`:"
+msgstr "最初の要素は `@env.args()` と同じくプログラム名です："
+
+#: manual/tutorial/cli/dispatch.md:23
+msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
+msgstr "**インデックス 0 は読み飛ばされます。** テストにプログラム名がなくても、何か渡してください。"
+
+#: manual/tutorial/cli/dispatch.md:24
+msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints the usage line and returns `0` without running a runner."
+msgstr "**`--help` が優先されます。** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` は使い方の行を表示して `0` を返し、ランナーは実行されません。"
+
+#: manual/tutorial/cli/dispatch.md:29
+msgid "[cli/dispatch API](../../api/cli/dispatch.md) for the exact contract."
+msgstr "正確な契約は [cli/dispatch API](../../api/cli/dispatch.md) を参照してください。"
+
+#: manual/tutorial/cli/dispatch.md:30
+msgid "[cli tutorial](../cli.md) for the executable."
+msgstr "実行ファイルについては [cli チュートリアル](../cli.md) を参照してください。"
 
 #: manual/tutorial/cli/gda_expr_cli.md:1
 msgid "cli/gda_expr_cli tutorial"
@@ -23714,6 +23878,7 @@ msgid "check the committed fixtures"
 msgstr "コミット済みのフィクスチャを確認する"
 
 #: manual/tutorial/differential.md:11
+#: manual/tutorial/differential/harness.md:8
 msgid "run a campaign"
 msgstr "キャンペーンを実行する"
 
@@ -23852,6 +24017,42 @@ msgstr "**食い違いをバグとみなすこと。** オラクルは実装で�
 #: manual/tutorial/differential.md:197
 msgid "Run a longer campaign on every backend, then read [verification](../verification.md) for how the published counts were produced."
 msgstr "すべてのバックエンドでより長いキャンペーンを実行し、公表された件数がどう得られたかは[検証](../verification.md)を読んでください。"
+
+#: manual/tutorial/differential/harness.md:1
+msgid "differential/harness tutorial"
+msgstr "differential/harness チュートリアル"
+
+#: manual/tutorial/differential/harness.md:3
+msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
+msgstr "ハーネスは `just random-diff` ツールから実行されます。このページでは、そのコードがどこにあるかだけを説明します。"
+
+#: manual/tutorial/differential/harness.md:8
+msgid "[the `differential` tutorial](../differential.md)"
+msgstr "[`differential` のチュートリアル](../differential.md)"
+
+#: manual/tutorial/differential/harness.md:9
+msgid "change the batching or the record"
+msgstr "バッチ分割や記録を変更する"
+
+#: manual/tutorial/differential/harness.md:11
+msgid "Where the code is"
+msgstr "コードの場所"
+
+#: manual/tutorial/differential/harness.md:13
+msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
+msgstr "ファイル `batch.mbt`（コーパスの分割とバッチの実行）と `harness.mbt`（オプション、実験仕様、`run`）は `tooling/src/differential/harness` にあり、そのホワイトボックステストは `differential_wbtest.mbt` にあります。次のコマンドでテストします："
+
+#: manual/tutorial/differential/harness.md:24
+msgid "**No wasm-gc build.** `moonbitlang/async` has no wasm-gc runtime, so the package declares `supported_targets = \"all-wasm-gc\"`."
+msgstr "**wasm-gc ビルドはありません。** `moonbitlang/async` には wasm-gc ランタイムがないため、このパッケージは `supported_targets = \"all-wasm-gc\"` を宣言しています。"
+
+#: manual/tutorial/differential/harness.md:29
+msgid "[differential/harness API](../../api/differential/harness.md)."
+msgstr "[differential/harness API](../../api/differential/harness.md)。"
+
+#: manual/tutorial/differential/harness.md:30
+msgid "[differential tutorial](../differential.md) for the workflow."
+msgstr "ワークフローについては [differential チュートリアル](../differential.md) を参照してください。"
 
 #: manual/tutorial/doc_examples.md:1
 msgid "doc_examples tutorial"
