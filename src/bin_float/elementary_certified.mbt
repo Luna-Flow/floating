@@ -2654,7 +2654,7 @@ pub fn BinFloat::try_rootn_ctx(
           )
         None => ()
       }
-      if magnitude_degree <= binary_rootn_integer_max_degree.to_int64() {
+      if binary_rootn_integer_enabled(magnitude_degree, context.precision) {
         return Ok(binary_rootn_integer(self, degree, context))
       }
       binary_rootn_certified_loop(

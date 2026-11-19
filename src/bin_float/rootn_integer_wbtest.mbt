@@ -316,3 +316,57 @@ test "rootn of large degrees keeps the certified loop" {
     assert_true(fresh.0 == reference.0 && fresh.1 == reference.1)
   }
 }
+
+///|
+test "rootn gate: both sides of every precision bound agree with the certified loop" {
+  // degree <= 12 at any precision, 13..32 up to 1024 bits, the loop above:
+  // the public result equals the loop on both sides of each bound.
+  assert_true(binary_rootn_integer_enabled(12L, 32768))
+  assert_true(binary_rootn_integer_enabled(13L, 1024))
+  assert_true(!binary_rootn_integer_enabled(13L, 1025))
+  assert_true(binary_rootn_integer_enabled(32L, 1024))
+  assert_true(!binary_rootn_integer_enabled(32L, 1025))
+  assert_true(!binary_rootn_integer_enabled(33L, 53))
+  for
+    item in [
+      (12, 4096),
+      (13, 1024),
+      (13, 1025),
+      (16, 1024),
+      (16, 2048),
+      (32, 1024),
+      (32, 1025),
+      (32, 2048),
+      (-13, 1024),
+      (-13, 1025),
+      (-32, 1024),
+      (-32, 1025),
+    ] {
+    let (degree, precision) = item
+    let magnitude = if degree < 0 { -degree } else { degree }
+    let value = BinFloat::make(
+      BinCoeff::one().shift_left(precision).add(BinCoeff::from_uint64(12345UL)),
+      -precision - 3,
+      precision + 1,
+    )
+    for
+      mode in [
+        BinaryRoundingMode::RoundTiesToEven,
+        BinaryRoundingMode::RoundTowardPositive,
+      ] {
+      let context = BinaryContext::unbounded(precision, rounding=mode)
+      let fresh = value.try_rootn_ctx(degree, context).unwrap()
+      let reference = binary_rootn_certified_loop(
+        value,
+        value,
+        degree,
+        magnitude.to_int64(),
+        context,
+      ).unwrap()
+      assert_true(
+        fresh.0 == reference.0 && fresh.1 == reference.1,
+        msg="gate n=\{degree} p=\{precision}",
+      )
+    }
+  }
+}
