@@ -370,6 +370,8 @@ pub fn dec_coeff_round_div(DecCoeff, DecCoeff, Bool, DecCoeffRounding) -> DecCoe
 
 pub fn dec_coeff_round_div_bigint(@bigint.BigInt, @bigint.BigInt, Bool, DecCoeffRounding) -> @bigint.BigInt
 
+pub fn dec_coeff_round_div_expansion(DecCoeff, DecCoeff, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
+
 pub fn dec_coeff_round_div_pow10(DecCoeff, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
 
 pub fn dec_coeff_round_to_digits(DecCoeff, Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool, Bool)
