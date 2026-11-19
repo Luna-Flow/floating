@@ -188,6 +188,17 @@ class RunCiTests(unittest.TestCase):
         outcome = run_ci.run_captured(stage, children)
         self.assertEqual((outcome.returncode, outcome.output.strip()), (4, "x"))
 
+    def test_native_test_stage_over_the_budget_warns_and_names_the_tool(self) -> None:
+        stage = run_ci.Stage(run_ci.NATIVE_TEST_STAGE_NAME, ("true",))
+        self.assertEqual(run_ci.NATIVE_TEST_WARN_SECONDS, 150.0)
+        self.assertIsNone(run_ci.slow_stage_warning(stage, 150.0))
+        warning = run_ci.slow_stage_warning(stage, 151.0)
+        assert warning is not None
+        self.assertIn("native_test_timing.py", warning)
+        self.assertIn("2m 31s", warning)
+        other = run_ci.Stage("TEST: Python tooling", ("true",))
+        self.assertIsNone(run_ci.slow_stage_warning(other, 1000.0))
+
     def test_other_scopes_stay_sequential(self) -> None:
         for scope in ("all", "decimal", "binary", "interval", "elementary", "decimal_gda"):
             self.assertEqual({stage.lane for stage in run_ci.stages_for(scope, 2)}, {"main"}, scope)

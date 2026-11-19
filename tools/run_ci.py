@@ -90,6 +90,14 @@ DEPENDENCY_STAGE = Stage(
 )
 
 
+# The native test stage is the longest of the quick gate and grows with every
+# white-box test that keeps an old implementation next to the new one. Above
+# this many seconds the gate prints a warning (it does not fail) that names the
+# tool listing the slowest test files. The maintainer decides later whether the
+# threshold becomes a failure.
+NATIVE_TEST_STAGE_NAME = "TEST: native"
+NATIVE_TEST_WARN_SECONDS = 150.0
+
 DOCS_STAGE_NAME = "DOCS: manual quality and examples"
 DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 
@@ -413,6 +421,18 @@ def run_captured(stage: Stage, children: Children) -> Outcome:
     return Outcome(process.returncode, output, time.monotonic() - started)
 
 
+def slow_stage_warning(stage: Stage, seconds: float) -> str | None:
+    """The warning for a native test stage over the threshold, else None."""
+    if stage.name != NATIVE_TEST_STAGE_NAME or seconds <= NATIVE_TEST_WARN_SECONDS:
+        return None
+    return (
+        f"WARNING  {stage.name} took {format_duration(seconds)}, over the "
+        f"{format_duration(NATIVE_TEST_WARN_SECONDS)} budget. List the slowest test "
+        "files with: python3 tools/native_test_timing.py --top 20 "
+        "(run it in a heavy slot), then slim the largest."
+    )
+
+
 def run_parallel(stages: list[Stage], console: Console) -> int:
     children = Children()
     started = time.monotonic()
@@ -428,6 +448,9 @@ def run_parallel(stages: list[Stage], console: Console) -> int:
             stage.name,
             f"{format_duration(outcome.seconds)}, lane {stage.lane}",
         )
+        warning = slow_stage_warning(stage, outcome.seconds)
+        if warning:
+            print(warning, file=console.stream, flush=True)
 
     code, failed = execute(
         stages,
@@ -466,6 +489,9 @@ def run(scope: str, jobs: int, dry_run: bool = False) -> int:
             progress.finish(False, f"{stage.name}, {elapsed}")
             return result.returncode
         console.status(True, stage.name, elapsed)
+        warning = slow_stage_warning(stage, time.monotonic() - stage_started)
+        if warning:
+            print(warning, file=console.stream, flush=True)
         completed += 1
         progress.update(completed, stage.name)
     progress.finish(True, format_duration(time.monotonic() - started))
