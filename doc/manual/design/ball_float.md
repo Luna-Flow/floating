@@ -432,14 +432,29 @@ better of the two endpoints.
 rounded value of the binary kernel in the directed mode, which is the value
 the exact-rational series produced (it rounded an enclosure that rounded
 uniquely). The enclosure of $\pi$ is needed only for the index range $K$ (the
-critical points and the poles) and is computed once at the initial working
-precision instead of on every refinement round. A range that is too large
-(an endpoint within $2^{-w}$ of a multiple of $\pi/2$ at working precision
-$w$) widens the result to $\pm 1$ or an unbounded tangent, which keeps the
-inclusion property. The non-`try` `sin_interval`, `cos_interval` and
-`tan_interval` stay on the exact-rational path: they return a conservative
-result for an argument the series cannot certify, which the `try_` forms
-report as an error.
+critical points and the poles); it is taken once from `certified_pi_interval`
+with $w + 48$ bits, where $w = p + m + 96$ is the working precision of the
+first refinement round ($p$ the precision of the interval, $m$ the binade of
+the larger endpoint). Its width, about $2^{-(w + 47)}$, is smaller than that of
+the rational enclosure of the old refinement loop (about $2^{-(w + 19)}$), so
+$K$ is contained in the first-round range of the old code. The old code
+decided a pole at its first round too, so `try_tan_interval` returns the whole
+line only where the old code did. What is identical by construction: every
+endpoint value, and the result whenever the old code needed no refinement
+round. What is not: when the old code refined (an endpoint within about
+$2^{-w}$ of a multiple of $\pi/2$) it used a narrower $K$ of a later round, and
+the new $K$ can then hold a spurious index, only for
+$|\xi - k\pi/2| < 2^{-(p + 140)}$ (an absolute bound that does not depend on
+the number of bits of the endpoint). A spurious extremum does not change a
+sine or cosine bound, since that close to an extremum the directed value
+already rounds to $\pm 1$; a spurious pole makes the tangent the whole line,
+which keeps the inclusion property. The tests compare old and new bit for bit
+on the binary64 number closest to a multiple of $\pi/2$
+($6381956970095103 \cdot 2^{797}$) and on the correctly rounded $\pi/2$ and
+$3\pi/2$ with their neighbours at 24, 53 and 113 bits, and no input differs.
+The non-`try` `sin_interval`, `cos_interval` and `tan_interval` stay on the
+exact-rational path: they return a conservative result for an argument the
+series cannot certify, which the `try_` forms report as an error.
 
 ### Certified evaluation of transcendental endpoints
 

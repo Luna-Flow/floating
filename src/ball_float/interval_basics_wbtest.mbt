@@ -258,3 +258,87 @@ test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
   assert_true(beyond.try_cos_interval() is Err(_))
   assert_true(beyond.try_tan_interval() is Err(_))
 }
+
+///|
+fn adversarial_trig_points() -> Array[(Int32, @bin_float.BinFloat)] {
+  let out : Array[(Int32, @bin_float.BinFloat)] = []
+  // The binary64 number closest to a multiple of pi/2 (index 2^797 scale).
+  for p in [53, 113] {
+    out.push(
+      (
+        p,
+        @bin_float.BinFloat::make(
+          @bin_float.BinCoeff::from_uint64(6381956970095103UL),
+          797,
+          p,
+        ),
+      ),
+    )
+  }
+  // Correctly rounded pi/2 and 3 pi/2 with their neighbours.
+  let pi = certified_pi_interval(400)
+  for p in [24, 53, 113] {
+    let half_pi = pi.lo_.with_precision(p, RoundingMode::ToNearestEven)
+    let half = @bin_float.BinFloat::make(
+      half_pi.coefficient(),
+      half_pi.exponent2() - 1,
+      p,
+    )
+    let three = @bin_float.BinFloat::from_int(3, precision=400)
+      .mul(pi.lo_)
+      .with_precision(p, RoundingMode::ToNearestEven)
+    let three_half = @bin_float.BinFloat::make(
+      three.coefficient(),
+      three.exponent2() - 1,
+      p,
+    )
+    let up = @bin_float.BinaryContext::unbounded(p)
+    for x in [half, three_half] {
+      out.push((p, x))
+      out.push((p, x.next_up_ctx(up).0))
+      out.push((p, x.next_down_ctx(up).0))
+    }
+  }
+  out
+}
+
+///|
+test "try_sin/cos/tan: adversarial points near multiples of pi/2" {
+  let points = adversarial_trig_points()
+  for item in points {
+    let (p, x) = item
+    let one = @bin_float.BinFloat::from_int(1, precision=p)
+    let top = @bin_float.BinFloat::make(
+      @bin_float.BinCoeff::one(),
+      x.exponent2() + x.coefficient().bit_length() + 1,
+      p,
+    )
+    let intervals = [
+      BallFloat::from_bounds(x, x, precision=p),
+      BallFloat::from_bounds(one, x, precision=p),
+      BallFloat::from_bounds(x, top, precision=p),
+    ]
+    for v in intervals {
+      same_try(v.try_sin_interval(), v.old_try_sin_interval())
+      same_try(v.try_cos_interval(), v.old_try_cos_interval())
+      same_try(v.try_tan_interval(), v.old_try_tan_interval())
+    }
+  }
+}
+
+///|
+test "trig_critical_indices: contained in the first-round range of the old code" {
+  for item in adversarial_trig_points() {
+    let (p, x) = item
+    let v = BallFloat::from_bounds(x, x, precision=p)
+    let work = Int32::max(
+      trig_initial_work(v.lo_, v.precision_),
+      trig_initial_work(v.hi_, v.precision_),
+    )
+    let (pl, pu) = certified_pi_rational(work + 16)
+    let old = critical_index_range_at_work(v, pl, pu).unwrap()
+    let now = trig_critical_indices(v)
+    assert_true(signed_coeff_compare(now.0, old.0) >= 0)
+    assert_true(signed_coeff_compare(now.1, old.1) <= 0)
+  }
+}
