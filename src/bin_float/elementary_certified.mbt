@@ -3741,6 +3741,68 @@ fn binary_atan_small_positive_pair_bounds(
 }
 
 ///|
+/// A bound of the reduction `r(x) = x / (1 + sqrt(1 + x^2))` for finite
+/// `x > 1/2` at `work_precision`: a lower bound when `upper` is false, an upper
+/// bound when it is true (the caller passes `x` rounded in the matching
+/// direction; `r` is increasing).
+///
+/// Moderate `x`: `x` divided by a directed `1 + sqrt(1 + x^2)` (directed
+/// squares, sums and square roots, each monotone on nonnegative numbers).
+/// When the leading bit of `x` is at least `2 w + 2` the square is not formed:
+/// it could leave the implementation exponent range (it does for
+/// `x >= 2^(2^29)`, and an enclosing `x + 2` overflows near the top of the
+/// range). Dividing numerator and denominator by `x`, with `y = 1/x <= 2^-(2w+2)`,
+/// `r(x) = 1 / (y + sqrt(1 + y^2))`, and `1 <= sqrt(1 + y^2) <= 1 + y^2/2
+/// <= 1 + y^2`, so `1 + y <= y + sqrt(1 + y^2) <= 1 + y + y^2`, hence
+/// `1 / (1 + y + y^2) <= r(x) <= 1 / (1 + y)`. With `y` bounded by directed
+/// reciprocals (`y_down <= y <= y_up`) the lower bound is `1 / (1 + y_up + y_up^2)`
+/// rounded down and the upper bound `1 / (1 + y_down)` rounded up; their
+/// relative gap is below `2 y`, far under the working precision, and `1/x`
+/// cannot overflow.
+fn binary_atan_reduction_ratio(
+  x : BinFloat,
+  upper : Bool,
+  work_precision : Int32,
+) -> BinFloat {
+  let downward = BinaryContext::unbounded(
+    work_precision,
+    rounding=RoundTowardNegative,
+  )
+  let upward = BinaryContext::unbounded(
+    work_precision,
+    rounding=RoundTowardPositive,
+  )
+  let one = BinFloat::one(precision=work_precision)
+  let top = binary_exact_top(x.coefficient_, x.exponent2).to_int64()
+  if top >= 2L * work_precision.to_int64() + 2L {
+    return if upper {
+      let y_down = one.div_ctx(x, downward).0
+      one.div_ctx(one.add_ctx(y_down, downward).0, upward).0
+    } else {
+      let y_up = one.div_ctx(x, upward).0
+      let denominator = one.add_ctx(
+          y_up.add_ctx(y_up.mul_ctx(y_up, upward).0, upward).0,
+          upward,
+        ).0
+      one.div_ctx(denominator, downward).0
+    }
+  }
+  if upper {
+    let denominator = one.add_ctx(
+        one.add_ctx(x.mul_ctx(x, downward).0, downward).0.sqrt_ctx(downward).0,
+        downward,
+      ).0
+    x.div_ctx(denominator, upward).0
+  } else {
+    let denominator = one.add_ctx(
+        one.add_ctx(x.mul_ctx(x, upward).0, upward).0.sqrt_ctx(upward).0,
+        upward,
+      ).0
+    x.div_ctx(denominator, downward).0
+  }
+}
+
+///|
 /// Enclosure of `atan` over the nonnegative pair `[lo, hi]` by one evaluation
 /// chain. For `x > 1/2` it uses `atan x = 2 atan(r(x))` with
 /// `r(x) = x / (1 + sqrt(1 + x^2))`. `r` is increasing on `x >= 0` (the
@@ -3761,6 +3823,28 @@ fn binary_atan_positive_pair_bounds(
   if hi.compare(half) <= 0 {
     return binary_atan_small_positive_pair_bounds(lo, hi, work_precision)
   }
+  // An infinite end comes from a quotient that overflowed (`atan2` with
+  // exponents far apart): atan(+inf) = pi/2, so that end is bounded by pi/2
+  // rounded in the matching direction; a finite lower end is evaluated alone.
+  if hi.classify() == FpClass::Infinity {
+    guard binary_pi_bounds(work_precision) is Some(pi) else { return None }
+    let half_pi_upper = pi.1.mul_ctx(
+        half,
+        BinaryContext::unbounded(work_precision, rounding=RoundTowardPositive),
+      ).0
+    let half_pi_lower = pi.0.mul_ctx(
+        half,
+        BinaryContext::unbounded(work_precision, rounding=RoundTowardNegative),
+      ).0
+    if lo.classify() == FpClass::Infinity {
+      return Some((half_pi_lower, half_pi_upper))
+    }
+    guard binary_atan_positive_pair_bounds(lo, lo, work_precision)
+      is Some(lower_pair) else {
+      return None
+    }
+    return Some((lower_pair.0, half_pi_upper))
+  }
   let downward = BinaryContext::unbounded(
     work_precision,
     rounding=RoundTowardNegative,
@@ -3769,7 +3853,6 @@ fn binary_atan_positive_pair_bounds(
     work_precision,
     rounding=RoundTowardPositive,
   )
-  let one = BinFloat::one(precision=work_precision)
   let lower_value = lo.with_precision(
     work_precision,
     RoundingMode::TowardNegative,
@@ -3778,22 +3861,12 @@ fn binary_atan_positive_pair_bounds(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  // Upper bound of 1 + sqrt(1 + lo^2) and lower bound of 1 + sqrt(1 + hi^2),
-  // from directed squares, sums and square roots (all monotone on >= 0).
-  let denominator_upper = one.add_ctx(
-      one.add_ctx(lower_value.mul_ctx(lower_value, upward).0, upward).0.sqrt_ctx(
-        upward,
-      ).0,
-      upward,
-    ).0
-  let denominator_lower = one.add_ctx(
-      one.add_ctx(upper_value.mul_ctx(upper_value, downward).0, downward).0.sqrt_ctx(
-        downward,
-      ).0,
-      downward,
-    ).0
-  let ratio_lower = lower_value.div_ctx(denominator_upper, downward).0
-  let ratio_upper = upper_value.div_ctx(denominator_lower, upward).0
+  let ratio_lower = binary_atan_reduction_ratio(
+    lower_value, false, work_precision,
+  )
+  let ratio_upper = binary_atan_reduction_ratio(
+    upper_value, true, work_precision,
+  )
   match
     binary_atan_positive_pair_bounds(ratio_lower, ratio_upper, work_precision) {
     Some(reduced) => {
