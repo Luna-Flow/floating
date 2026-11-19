@@ -128,6 +128,8 @@ def true_value(op: str, x: Decimal, y: Decimal | None, n: int | None) -> Decimal
             small = W.divide(exp_of(-abs(x)), Decimal(2))
             value = half - small if op == "sinh" else half + small
         return -value if (op == "sinh" and x < 0) else value
+    if op == "rootn":  # x^(1/n), x > 0
+        return exp_of(W.ln(x) / n)
     if op == "pow":  # 3^y
         return exp_of(W.multiply(y, LN3))
     if op == "powr":  # 2^y (y not an integer)
@@ -239,6 +241,19 @@ def args_for(op: str, spec) -> list[Decimal]:
     return xs
 
 
+# rootn arguments of #376: no exact root (the coefficient has no trailing zero, so
+# `shift = exponent mod n` must be 0) and the large degrees that did not finish.
+ROOTN_ARGS = [
+    (Decimal("1E+7"), 3),
+    (Decimal("1E+999999"), 1000000),
+    (Decimal("7.5E+400000"), 1000000),
+    (Decimal("2.5E-30"), 1000000),
+    (Decimal("2.5E-30"), 2000000000),
+    (Decimal("2.5E-30"), -2000000000),
+    (Decimal("1E+999999"), 2000000000),
+    (Decimal("3E+7"), 3),
+    (Decimal("1E+11"), 1000000),
+]
 TINY_OPS = ("exp", "exp2", "exp10", "expm1", "log1p")
 TINY_CONTEXTS = [CONTEXTS[0], CONTEXTS[1], CONTEXTS[3]]
 
@@ -348,6 +363,11 @@ def all_rows() -> list[tuple]:
                         r = row(spec, rounding, op, x, None, None)
                         if r:
                             rows.append(r)
+            if spec in TINY_CONTEXTS:
+                for x, count in ROOTN_ARGS:
+                    r = row(spec, rounding, "rootn", x, None, count)
+                    if r:
+                        rows.append(r)
             for op in BINARY:
                 for x, y, n in binary_args(op, spec):
                     key = (spec[0], rounding, op, fmt(x), fmt(y) if y is not None else n)

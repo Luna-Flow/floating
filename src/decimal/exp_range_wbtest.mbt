@@ -59,6 +59,7 @@ fn exp_range_call(
     "exp2m1" => a.try_exp2m1_ctx(ctx)
     "exp10m1" => a.try_exp10m1_ctx(ctx)
     "log1p" => a.try_log1p_ctx(ctx)
+    "rootn" => a.try_rootn_ctx(exp_range_int(y), ctx)
     "sinh" => a.try_sinh_ctx(ctx)
     "cosh" => a.try_cosh_ctx(ctx)
     "pow" => pm1_exact("3").try_power_ctx(pm1_exact(y), ctx)
@@ -126,5 +127,39 @@ test "exp2 and exp10 of an argument beyond the binary exponent range (#363)" {
       "999999999999.999999999999999999999999999999999999999 xro",
     )
     assert_eq(exp_range_call(op, "6773329072.88", "", ctx), "inf xro")
+  }
+}
+
+///|
+test "rootn exact roots need the exponent to be a multiple of the degree (#376)" {
+  // x = c 10^e with c not a multiple of 10: c 10^shift, 0 < shift < n, is an
+  // n-th power only if n divides shift (the factors 2 and 5 of 10^shift are the
+  // only ones that can raise v2 and v5 to a multiple of n). On both sides:
+  // shift 0 gives the exact root, shift 1 or n - 1 does not.
+  let ctx = pm1_ctx(34, "half_even", -6143, 6144, true, "b")
+  for
+    entry in [
+      ("1E+6", 3, "100"),
+      ("8E+3", 3, "20"),
+      ("27E-6", 3, "0.03"),
+      ("64E+6", 6, "20"),
+      ("1E+0", 1000000, "1"),
+      ("1E+999000", 1000, "1E+999"),
+    ] {
+    let (x, n, want) = entry
+    let ctx = if x == "1E+999000" {
+      pm1_ctx(34, "half_even", -999999, 999999, false, "b")
+    } else {
+      ctx
+    }
+    let got = pm1_exact(x).try_rootn_ctx(n, ctx).unwrap()
+    assert_true(got.0.compare(pm1_exact(want)) == 0, msg="\{x} \{n}: \{got.0}")
+    assert_true(!got.1.inexact && !got.1.rounded, msg="\{x} \{n}: flags")
+  }
+  for
+    entry in [("1E+7", 3), ("1E+8", 3), ("8E+4", 3), ("27E-5", 3), ("64E+5", 6)] {
+    let (x, n) = entry
+    let got = pm1_exact(x).try_rootn_ctx(n, ctx).unwrap()
+    assert_true(got.1.inexact, msg="\{x} \{n}: should be inexact")
   }
 }
