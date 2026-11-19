@@ -72,10 +72,14 @@ def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
 
 
 # Since moon 0.1.20261028 `moon install` without a source installs a binary
-# package; dependencies are fetched by an unfrozen build command instead.
+# package; dependencies are fetched by an unfrozen build command instead. The
+# command is the native check with `--deny-warn`: it fetches, and it is the
+# only front-end pass over the native sources before the test build (which
+# repeats the warning check on the same sources), so no separate native CHECK
+# stage follows. The later stages stay `--frozen`.
 DEPENDENCY_STAGE = Stage(
     "DEPENDENCIES · fetch",
-    ("sh", "tools/run_moon_clean_exec.sh", "check"),
+    ("sh", "tools/run_moon_clean_exec.sh", "check", "--target", "native", "--deny-warn"),
 )
 
 
@@ -179,21 +183,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         ),
     ]
     if scope == "quick":
-        repository_stages = [
-            *common_repository_stages,
-            Stage(
-                "CHECK · native",
-                (
-                    "sh",
-                    "tools/run_moon_clean_exec.sh",
-                    "check",
-                    "--target",
-                    "native",
-                    "--deny-warn",
-                    "--frozen",
-                ),
-            ),
-        ]
+        repository_stages = [*common_repository_stages]
         return [
             *repository_stages,
             Stage(
@@ -285,6 +275,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             )
             for target in SUPPORTED_TARGETS
+            if target != "native"  # checked, with --deny-warn, by the dependency stage
         ],
     ]
     return [

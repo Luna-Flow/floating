@@ -48,7 +48,7 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 20)
+        self.assertEqual(len(stages), 19)
         self.assertEqual(
             [stage.name.split(" · ")[0] for stage in stages],
             [
@@ -56,7 +56,6 @@ class RunCiTests(unittest.TestCase):
                 "IMPORTS",
                 "FORMAT",
                 "DOCS",
-                "CHECK",
                 "CHECK",
                 "CHECK",
                 "CHECK",
@@ -75,6 +74,24 @@ class RunCiTests(unittest.TestCase):
             ],
         )
 
+    def test_dependency_stage_is_the_denying_native_check(self) -> None:
+        command = run_ci.DEPENDENCY_STAGE.command
+        self.assertEqual(command[2:], ("check", "--target", "native", "--deny-warn"))
+        self.assertNotIn("--frozen", command)  # it fetches; later stages are frozen
+
+    def test_native_is_checked_once_and_the_test_stage_stays_frozen(self) -> None:
+        for scope in ("quick", "all"):
+            stages = run_ci.stages_for(scope, 4)
+            native_checks = [
+                stage.name
+                for stage in stages
+                if stage.command[2:3] == ("check",) and "native" in stage.command
+            ]
+            self.assertEqual(native_checks, ["DEPENDENCIES · fetch"], scope)
+            test = next(stage for stage in stages if stage.name == "TEST · native")
+            self.assertIn("--frozen", test.command)
+            self.assertIn("--deny-warn", test.command)
+
     def test_quick_scope_runs_native_tools_and_four_smokes(self) -> None:
         stages = run_ci.stages_for("quick", 4)
         self.assertEqual(
@@ -84,7 +101,6 @@ class RunCiTests(unittest.TestCase):
                 "IMPORTS",
                 "FORMAT",
                 "DOCS",
-                "CHECK",
                 "TEST",
                 "SMOKE",
                 "TEST",
@@ -98,16 +114,16 @@ class RunCiTests(unittest.TestCase):
         self.assertEqual(commands[1][1], "tools/check_imports.py")
         self.assertEqual(commands[3][1], "tools/run_docs.py")
         self.assertNotIn("just", commands[3])
-        self.assertIn("native", commands[5])
+        self.assertIn("native", commands[4])
         self.assertIn("--deny-warn", commands[4])
-        self.assertIn("unittest", commands[7])
+        self.assertIn("unittest", commands[6])
         self.assertEqual(
-            [command[command.index("--backend") + 1] for command in commands[8:10]],
+            [command[command.index("--backend") + 1] for command in commands[7:9]],
             ["decimal_gda", "binary"],
         )
-        self.assertEqual(commands[10][1], "tools/random_differential.py")
-        self.assertEqual(commands[10][2], "smoke")
-        self.assertEqual(commands[11][commands[11].index("--backend") + 1], "interval")
+        self.assertEqual(commands[9][1], "tools/random_differential.py")
+        self.assertEqual(commands[9][2], "smoke")
+        self.assertEqual(commands[10][commands[10].index("--backend") + 1], "interval")
         self.assertIn("--strict-supported", commands[-1])
 
     def test_repository_scopes_exclude_performance_comparisons(self) -> None:
