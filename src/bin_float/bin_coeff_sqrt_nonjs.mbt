@@ -29,6 +29,11 @@ fn bin_coeff_sqrt_rem_u128(
 ) -> (BinCoeff, BinCoeff) {
   let value = bin_coeff_inline(value_high, value_low)
   let pair_count = (value.bit_length() + 1) / 2
+  // Zero has no digit pair: without this the loop below counts `pair_index`
+  // down from -1 through the whole Int32 range (about a minute in a debug build).
+  if pair_count == 0 {
+    return (BinCoeff::zero(), BinCoeff::zero())
+  }
   let mut root = 0UL
   let mut remainder_high = 0UL
   let mut remainder_low = 0UL
@@ -73,6 +78,9 @@ fn bin_coeff_sqrt_rem_u256(value : BinCoeff) -> (BinCoeff, BinCoeff) {
     )
   }
   let pair_count = (value.bit_length() + 1) / 2
+  if pair_count == 0 {
+    return (BinCoeff::zero(), BinCoeff::zero())
+  }
   let mut root_high = 0UL
   let mut root_low = 0UL
   let mut remainder2 = 0UL
