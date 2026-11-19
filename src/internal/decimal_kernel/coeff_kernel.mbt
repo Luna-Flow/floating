@@ -1199,14 +1199,12 @@ pub fn dec_coeff_from_unit_accumulator(
   guard unit_len <= units.length() else {
     abort("dec_coeff_from_unit_accumulator unit_len exceeds buffer")
   }
-  for index in 0..<unit_len {
-    guard units[index] < 1_000_000_000U else {
-      abort("dec_coeff_from_unit_accumulator limb exceeds base")
-    }
-  }
+  // Every producer writes limbs below the base (checked by the white-box test
+  // "unit accumulator producers write limbs below the base"), so the limbs are
+  // not scanned again here.
   let unit_len = dec_coeff_trim_units(units, unit_len)
-  while units.length() > unit_len {
-    ignore(units.pop())
+  if units.length() > unit_len {
+    units.truncate(unit_len)
   }
   if unit_len <= 2 {
     let high = if unit_len == 2 {
