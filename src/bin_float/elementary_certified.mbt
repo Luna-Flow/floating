@@ -1112,10 +1112,7 @@ fn binary_exp2_bounds(
   )
   match
     (
-      binary_ln_bounds(
-        BinFloat::from_int(2, precision=work_precision),
-        work_precision,
-      ),
+      binary_ln2_bounds(work_precision),
       Some(
         (
           value.with_precision(work_precision, RoundingMode::TowardNegative),
@@ -1154,13 +1151,7 @@ fn binary_log2_bounds(
     rounding=RoundTowardPositive,
   )
   match
-    (
-      binary_ln_bounds(value, work_precision),
-      binary_ln_bounds(
-        BinFloat::from_int(2, precision=work_precision),
-        work_precision,
-      ),
-    ) {
+    (binary_ln_bounds(value, work_precision), binary_ln2_bounds(work_precision)) {
     (Some(numerator), Some(denominator)) =>
       binary_quotient_bounds(numerator, denominator, downward, upward)
     _ => None
