@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -81,6 +82,29 @@ def copy_dependencies(destination: Path) -> None:
         shutil.copy2(lock, destination / ".moon-lock")
 
 
+IMPORT_BLOCK = re.compile(r"^import \{.*?^\}\n", re.DOTALL | re.MULTILINE)
+
+
+def align_baseline_dependencies(destination: Path, source: Path = ROOT) -> None:
+    """Pin the baseline snapshot to the dependency versions of this checkout.
+
+    The measured baseline is the floating source tree of the pinned commit,
+    byte for byte. Its own dependency pins (the 0.3.x arithmetic stack) pull
+    in packages that ship the legacy `moon.mod.json` and no longer build with
+    the current toolchain (`moon.mod.json` is not supported any more), so only
+    the `import { ... }` block of the snapshot's `moon.mod` is replaced by the
+    one of this checkout; no source file of the snapshot changes.
+    """
+    wanted = IMPORT_BLOCK.search((source / "moon.mod").read_text(encoding="utf-8"))
+    manifest = destination / "moon.mod"
+    text = manifest.read_text(encoding="utf-8")
+    if wanted is None or IMPORT_BLOCK.search(text) is None:
+        raise ValueError("moon.mod has no import block to align")
+    manifest.write_text(
+        IMPORT_BLOCK.sub(lambda _: wanted.group(0), text, count=1), encoding="utf-8"
+    )
+
+
 def create_baseline(destination: Path, commit: str) -> None:
     archive = destination.parent / "baseline.tar"
     with archive.open("wb") as stream:
@@ -100,6 +124,7 @@ def create_baseline(destination: Path, commit: str) -> None:
         except TypeError:
             bundle.extractall(destination)
     archive.unlink()
+    align_baseline_dependencies(destination)
     copy_dependencies(destination)
 
 
@@ -112,6 +137,32 @@ def create_candidate(destination: Path) -> None:
     copy_dependencies(destination)
 
 
+BENCH_IMPORT = '"moonbitlang/core/bench"'
+WBTEST_IMPORTS = re.compile(r"(^import \{\n)(.*?)(^\} for \"wbtest\")", re.DOTALL | re.MULTILINE)
+
+
+def require_bench_import(package_file: Path) -> None:
+    """Make `@bench` visible to the injected fixture (white-box test scope).
+
+    The current toolchain no longer resolves core packages that a package does
+    not import, so the fixture's `@bench` needs an explicit import; the file is
+    patched in the snapshot only, and only when the import is missing.
+    """
+    text = package_file.read_text(encoding="utf-8")
+    if BENCH_IMPORT in text:
+        return
+    match = WBTEST_IMPORTS.search(text)
+    if match is None:
+        text = text.rstrip("\n") + f'\n\nimport {{\n  {BENCH_IMPORT},\n}} for "wbtest"\n'
+    else:
+        text = (
+            text[: match.start(3)]
+            + f"  {BENCH_IMPORT},\n"
+            + text[match.start(3) :]
+        )
+    package_file.write_text(text, encoding="utf-8")
+
+
 def inject_fixture(root: Path, manifest: dict[str, Any]) -> None:
     benchmark = manifest["benchmark"]
     package = root / "src/bin_float"
@@ -119,6 +170,7 @@ def inject_fixture(root: Path, manifest: dict[str, Any]) -> None:
         for path in package.glob(pattern):
             path.unlink()
     copy_path(ROOT / benchmark["fixture"], root / benchmark["destination"])
+    require_bench_import(package / "moon.pkg")
 
 
 def parse_records(output: str, checksum: str) -> list[dict[str, Any]]:
