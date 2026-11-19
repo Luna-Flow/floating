@@ -202,8 +202,7 @@ fn decimal_pm1_tiny_scaled(
   // The scaled endpoints are moderate: convert them in the widest math
   // context, so that no range representative replaces them.
   let wide = DecimalContext::new(precision=1, e_min=-999_999, e_max=999_999).unwrap()
-  let lower = decimal_exact_dyadic_endpoint(scaled.lower_bound(), wide)
-  let upper = decimal_exact_dyadic_endpoint(scaled.upper_bound(), wide)
+  let (lower, upper) = decimal_certified_endpoints(scaled, wide)
   guard lower is Some(lower) &&
     upper is Some(upper) &&
     lower.class == FpClass::Finite &&
