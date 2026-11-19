@@ -3014,20 +3014,30 @@ fn binary_hyperbolic_bounds(
   operation : BinaryHyperbolicOperation,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  match
-    (
-      binary_exp_bounds(value, work_precision),
-      binary_exp_bounds(value.neg(), work_precision),
-    ) {
-    (Some(positive_exp), Some(negative_exp)) => {
-      let downward = BinaryContext::unbounded(
-        work_precision,
-        rounding=RoundTowardNegative,
-      )
-      let upward = BinaryContext::unbounded(
-        work_precision,
-        rounding=RoundTowardPositive,
-      )
+  let downward = BinaryContext::unbounded(
+    work_precision,
+    rounding=RoundTowardNegative,
+  )
+  let upward = BinaryContext::unbounded(
+    work_precision,
+    rounding=RoundTowardPositive,
+  )
+  match binary_exp_bounds(value, work_precision) {
+    Some(positive_exp) => {
+      // exp(-x) = 1 / exp(x): [1 / U, 1 / L] when 0 < L (the enclosure of exp
+      // of a finite argument is positive); otherwise the kernel on -x.
+      let negative_exp = if positive_exp.0.compare(BinFloat::zero()) > 0 {
+        let one = BinFloat::one(precision=work_precision)
+        Some(
+          (
+            one.div_ctx(positive_exp.1, downward).0,
+            one.div_ctx(positive_exp.0, upward).0,
+          ),
+        )
+      } else {
+        binary_exp_bounds(value.neg(), work_precision)
+      }
+      guard negative_exp is Some(negative_exp) else { return None }
       let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
       let sinh = (
         positive_exp.0.sub_ctx(negative_exp.1, downward).0.mul_ctx(
@@ -3045,35 +3055,29 @@ fn binary_hyperbolic_bounds(
         BinaryHyperbolicOperation::Sinh => Some(sinh)
         BinaryHyperbolicOperation::Cosh => Some(cosh)
         BinaryHyperbolicOperation::Tanh => {
-          let lower_candidates = [
-            sinh.0.div_ctx(cosh.0, downward).0,
-            sinh.0.div_ctx(cosh.1, downward).0,
-            sinh.1.div_ctx(cosh.0, downward).0,
-            sinh.1.div_ctx(cosh.1, downward).0,
-          ]
-          let upper_candidates = [
-            sinh.0.div_ctx(cosh.0, upward).0,
-            sinh.0.div_ctx(cosh.1, upward).0,
-            sinh.1.div_ctx(cosh.0, upward).0,
-            sinh.1.div_ctx(cosh.1, upward).0,
-          ]
-          let mut lower = lower_candidates[0]
-          let mut upper = upper_candidates[0]
-          for candidate in lower_candidates[1:] {
-            if candidate.compare(lower) < 0 {
-              lower = candidate
-            }
+          // tanh = sinh / cosh with cosh >= 1 > 0 on the enclosure (cosh.0 is a
+          // lower bound of cosh >= 1, positive at any working precision), so
+          // for s in [s0, s1], c in [c0, c1] with 0 < c0 <= c1 the quotient s / c
+          // is increasing in s and, for s >= 0, decreasing in c (the reverse
+          // for s < 0): the extremes sit at
+          //   lower = s0 >= 0 ? s0 / c1 : s0 / c0,
+          //   upper = s1 >= 0 ? s1 / c0 : s1 / c1.
+          let zero = BinFloat::zero()
+          let lower = if sinh.0.compare(zero) >= 0 {
+            sinh.0.div_ctx(cosh.1, downward).0
+          } else {
+            sinh.0.div_ctx(cosh.0, downward).0
           }
-          for candidate in upper_candidates[1:] {
-            if candidate.compare(upper) > 0 {
-              upper = candidate
-            }
+          let upper = if sinh.1.compare(zero) >= 0 {
+            sinh.1.div_ctx(cosh.0, upward).0
+          } else {
+            sinh.1.div_ctx(cosh.1, upward).0
           }
           Some((lower, upper))
         }
       }
     }
-    _ => None
+    None => None
   }
 }
 
