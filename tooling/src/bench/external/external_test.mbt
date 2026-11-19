@@ -84,61 +84,6 @@ fn all_equal(count : Int32, same : (Int32) -> Bool) -> Bool {
   true
 }
 
-///|
-/// The measurement protocol, the same numbers the C harness receives.
-struct ExternalProtocol {
-  warmup_iterations : Int32
-  warmup_time_us : Double
-  target_batch_time_us : Double
-  min_batch_iterations : Int32
-  max_batch_iterations : Int32
-  max_sample_time_us : Double
-  exploratory : Int32
-  confirmatory : Int32
-}
-
-///|
-fn ExternalProtocol::default() -> ExternalProtocol {
-  {
-    warmup_iterations: 3,
-    warmup_time_us: 5000.0,
-    target_batch_time_us: 20000.0,
-    min_batch_iterations: 1,
-    max_batch_iterations: 1000000,
-    max_sample_time_us: 500000.0,
-    exploratory: 3,
-    confirmatory: 20,
-  }
-}
-
-///|
-fn ExternalProtocol::run_protocol(
-  self : ExternalProtocol,
-) -> @runner.ValidatedProtocol {
-  let protocol = @model.RunProtocol::new(
-    @model.ExperimentDesign::FixedDatasetRepeatedMeasurements,
-    self.warmup_iterations,
-    Some(self.warmup_time_us),
-    @model.CalibrationProtocol::new(
-      self.target_batch_time_us,
-      self.min_batch_iterations,
-      self.max_batch_iterations,
-      self.max_sample_time_us,
-      @model.BatchPolicy::PerImplementation,
-    ),
-    1.0,
-    @model.OrderPolicy::BalancedBlocks(1),
-    @model.OutlierPolicy::ReportOnly,
-    @model.ValidationCoverage::EveryDataset,
-    self.exploratory,
-    self.confirmatory,
-  )
-  match @runner.validate_protocol(protocol) {
-    Ok(validated) => validated
-    Err(errors) => abort("invalid protocol: " + errors.length().to_string())
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Binary cases
 // ---------------------------------------------------------------------------

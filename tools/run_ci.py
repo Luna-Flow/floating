@@ -98,11 +98,11 @@ DEPENDENCY_STAGE = Stage(
 NATIVE_TEST_STAGE_NAME = "TEST: native"
 NATIVE_TEST_WARN_SECONDS = 150.0
 
-# Front-end check of the other targets, errors only: a change to a target-specific
-# file (`*_wasm_gc.mbt`, `bin_coeff_js.mbt`, per-target thresholds) must not
-# wait for the nightly run. `--deny-warn` on every target is not possible yet,
-# `tooling/src/bench/external/external_test.mbt` has two unused functions (#22); native
-# keeps `--deny-warn` in the dependency stage.
+# Front-end check of the other targets with `--deny-warn`: a change to a
+# target-specific file (`*_wasm_gc.mbt`, `bin_coeff_js.mbt`, per-target
+# thresholds) must not wait for the nightly run. Native keeps its own
+# `--deny-warn` check in the dependency stage. Every `moon check` run from the
+# repository root covers both workspace modules (library and `tooling`).
 OTHER_TARGETS_STAGE_NAME = "CHECK: other targets"
 
 DOCS_STAGE_NAME = "DOCS: manual quality and examples"
@@ -259,6 +259,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "sh",
                     "tools/run_moon_clean_exec.sh",
                     "check",
+                    "--deny-warn",
                     "--frozen",
                     "--target",
                     ",".join(target for target in SUPPORTED_TARGETS if target != "native"),
