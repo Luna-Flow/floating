@@ -9,7 +9,13 @@ fn decimal_certified_work_precision(
     1
   }
   let target = decimal_math_target_precision(ctx)
-  Int32::max(128, Int32::max(digits, target) * 4 + 64)
+  let need = Int32::max(digits, target)
+  // `need` decimal digits are `need log2 10 < 3.3219281 need` bits; 31 bits of
+  // guard cover the loss of one evaluation. The schedule grows the precision by
+  // a factor of 1.5 when an enclosure does not decide, so a start that is too low
+  // costs an attempt, not a result: the results are those of correct rounding at
+  // any starting precision.
+  Int32::max(64, (need.to_int64() * 3_321_929L / 1_000_000L).to_int() + 31)
 }
 
 ///|
