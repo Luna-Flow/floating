@@ -57,11 +57,7 @@ fn decimal_certified_scaled_loop(
         let decided = if interval.is_empty() {
           None
         } else {
-          match
-            (
-              decimal_exact_dyadic_endpoint(interval.lower_bound(), wide),
-              decimal_exact_dyadic_endpoint(interval.upper_bound(), wide),
-            ) {
+          match decimal_certified_endpoints(interval, wide) {
             (Some(lower), Some(upper)) if lower.class == FpClass::Finite &&
               upper.class == FpClass::Finite => {
               let scale = fn(endpoint : Decimal) -> Decimal {

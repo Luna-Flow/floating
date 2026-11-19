@@ -125,7 +125,7 @@ fn decimal_exact_dyadic_endpoint(
       value.is_negative(),
       magnitude,
       exponent10,
-      magnitude.to_string().length(),
+      digits10(magnitude),
     ),
   )
 }
@@ -243,39 +243,51 @@ fn decimal_outward_dyadic_endpoint(
 }
 
 ///|
+/// The endpoints of a non-empty enclosure as decimals for the rounding
+/// comparison: exact for a degenerate (binary-exact) interval, otherwise
+/// rounded outward (the lower down, the upper up) to about `digits` digits,
+/// `digits` following the width of the binary coefficients, so a refined
+/// interval is never widened beyond about one binary unit in its last place
+/// and the cost does not depend on the size of the binary exponents. Rounding
+/// the endpoints outward keeps the enclosure, and so its rounding to the
+/// context, sound by monotonicity. `ctx` decides which endpoints are out of
+/// range and replaced by representatives.
+fn decimal_certified_endpoints(
+  interval : @ball_float.BallFloat,
+  ctx : DecimalContext,
+) -> (Decimal?, Decimal?) {
+  let lower_bound = interval.lower_bound()
+  let upper_bound = interval.upper_bound()
+  if lower_bound == upper_bound {
+    // A degenerate (binary-exact) interval stays exact: rounding it outward
+    // could only lose a certification.
+    return (
+      decimal_exact_dyadic_endpoint(lower_bound, ctx),
+      decimal_exact_dyadic_endpoint(upper_bound, ctx),
+    )
+  }
+  let bits = Int32::max(
+    lower_bound.coefficient().bit_length(),
+    upper_bound.coefficient().bit_length(),
+  )
+  let digits = Int32::max(
+    decimal_math_target_precision(ctx) + 12,
+    bits * 3 / 10 + 4,
+  )
+  (
+    decimal_outward_dyadic_endpoint(lower_bound, ctx, digits, false),
+    decimal_outward_dyadic_endpoint(upper_bound, ctx, digits, true),
+  )
+}
+
+///|
 fn decimal_certified_target(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard !interval.is_empty() else { return None }
   let target_ctx = decimal_math_result_ctx(ctx)
-  let lower_bound = interval.lower_bound()
-  let upper_bound = interval.upper_bound()
-  let (lower, upper) = if lower_bound == upper_bound {
-    // A degenerate (binary-exact) interval stays exact: rounding it outward
-    // could only lose a certification.
-    (
-      decimal_exact_dyadic_endpoint(lower_bound, target_ctx),
-      decimal_exact_dyadic_endpoint(upper_bound, target_ctx),
-    )
-  } else {
-    // Rounding the endpoints outward to `digits` digits keeps the enclosure
-    // and its rounding to the context sound by monotonicity. `digits` follows
-    // the width of the binary coefficients, so a refined interval is never
-    // widened beyond about one binary unit in its last place.
-    let bits = Int32::max(
-      lower_bound.coefficient().bit_length(),
-      upper_bound.coefficient().bit_length(),
-    )
-    let digits = Int32::max(
-      decimal_math_target_precision(target_ctx) + 12,
-      bits * 3 / 10 + 4,
-    )
-    (
-      decimal_outward_dyadic_endpoint(lower_bound, target_ctx, digits, false),
-      decimal_outward_dyadic_endpoint(upper_bound, target_ctx, digits, true),
-    )
-  }
+  let (lower, upper) = decimal_certified_endpoints(interval, target_ctx)
   guard lower is Some(lower) && upper is Some(upper) else { return None }
   let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
   let upper_result = decimal_apply_finite_ctx(upper, target_ctx)
