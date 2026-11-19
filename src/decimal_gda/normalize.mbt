@@ -196,12 +196,12 @@ fn finite_precision_for_default(ctx : DecimalContext) -> Int32 {
 }
 
 ///|
+/// The smallest exponent of the context, `e_min - precision + 1` clamped to
+/// `Int32`: the `etiny` of `DecimalExponentBounds`, without building one.
 fn etiny(ctx : DecimalContext) -> Int32 {
-  @internal.DecimalExponentBounds::new(
-    finite_precision_for_default(ctx),
-    ctx.e_min,
-    ctx.e_max,
-  ).etiny()
+  decimal_int_from_int64_clamped(
+    ctx.e_min.to_int64() - finite_precision_for_default(ctx).to_int64() + 1L,
+  )
 }
 
 ///|
@@ -216,8 +216,12 @@ fn decimal_int_from_int64_clamped(value : Int64) -> Int32 {
 }
 
 ///|
+/// `e_max - precision + 1` clamped to `Int32`: the `etop` of
+/// `DecimalExponentBounds`, without building one.
 fn etop(ctx : DecimalContext, precision : Int32) -> Int32 {
-  @internal.DecimalExponentBounds::new(precision, ctx.e_min, ctx.e_max).etop()
+  decimal_int_from_int64_clamped(
+    ctx.e_max.to_int64() - precision.to_int64() + 1L,
+  )
 }
 
 ///|
@@ -358,10 +362,10 @@ fn finalize_finite_ctx(
   }
   let mut value = value
   let mut flags = flags
-  if ctx.precision > 0 && value.exponent10 < etiny(ctx) {
-    let tiny = etiny(ctx)
+  let tiny_limit = etiny(ctx)
+  if ctx.precision > 0 && value.exponent10 < tiny_limit {
     let shift = decimal_int_from_int64_clamped(
-      tiny.to_int64() - value.exponent10.to_int64(),
+      tiny_limit.to_int64() - value.exponent10.to_int64(),
     )
     let target_digits = value.coefficient.digits10() - shift
     let (magnitude, next_exponent, _, inexact) = decimal_round_coeff_to_digits_repr(
@@ -437,6 +441,8 @@ fn normalize_decimal_parts_ctx_repr(
   let mut flags = DecimalFlags::new()
   let mut magnitude = magnitude
   let mut exponent10 = exponent10
+  let tiny_limit = etiny(ctx)
+  let initial_digits = magnitude.digits10()
   // Round to the subnormal grid only when the exact value is itself below the
   // normal range. A longer coefficient whose exponent is below Etiny but whose
   // magnitude is normal is rounded once, to `precision` digits, below; rounding
@@ -444,16 +450,15 @@ fn normalize_decimal_parts_ctx_repr(
   if apply_etiny &&
     ctx.precision > 0 &&
     !magnitude.is_zero() &&
-    exponent10.to_int64() +
-    Int32::max(0, magnitude.digits10() - precision).to_int64() <
-    etiny(ctx).to_int64() {
+    exponent10.to_int64() + Int32::max(0, initial_digits - precision).to_int64() <
+    tiny_limit.to_int64() {
     let unrounded_adjusted = exponent10.to_int64() +
-      (magnitude.digits10() - 1).to_int64()
-    let etiny_value = etiny(ctx)
+      (initial_digits - 1).to_int64()
+    let etiny_value = tiny_limit
     let shift = decimal_int_from_int64_clamped(
       etiny_value.to_int64() - exponent10.to_int64(),
     )
-    let target_digits = magnitude.digits10() - shift
+    let target_digits = initial_digits - shift
     let (rounded_magnitude0, next_exponent0, _, inexact) = decimal_round_coeff_to_digits_repr(
       magnitude,
       exponent10,
@@ -499,54 +504,46 @@ fn normalize_decimal_parts_ctx_repr(
     }
     exponent10 = next_exponent
   }
-  let magnitude = if ctx.precision > 0 && !magnitude.is_zero() {
-    let digits = magnitude.digits10()
-    if digits > precision {
-      let max_drop = digits - precision
-      let (trimmed, trimmed_exp, dropped) = trim_trailing_decimal_zeros_repr(
-        magnitude,
-        exponent10,
-        max_drop~,
-      )
-      if dropped > 0 {
-        exponent10 = trimmed_exp
-        flags = { ..flags, rounded: true, }
-      }
-      trimmed
-    } else {
-      magnitude
-    }
-  } else {
-    magnitude
-  }
-  let magnitude = if ctx.precision > 0 && !magnitude.is_zero() {
-    let digits = magnitude.digits10()
-    if digits > precision {
-      let (rounded_magnitude, next_exponent, _, inexact) = decimal_round_coeff_to_digits_repr(
-        magnitude,
-        exponent10,
-        precision,
-        negative,
-        ctx.decimal_rounding,
-      )
-      exponent10 = next_exponent
+  let mut digits = magnitude.digits10()
+  let magnitude = if ctx.precision > 0 &&
+    !magnitude.is_zero() &&
+    digits > precision {
+    let max_drop = digits - precision
+    let (trimmed, trimmed_exp, dropped) = trim_trailing_decimal_zeros_repr(
+      magnitude,
+      exponent10,
+      max_drop~,
+    )
+    if dropped > 0 {
+      exponent10 = trimmed_exp
       flags = { ..flags, rounded: true, }
-      if inexact {
-        flags = { ..flags, inexact: true, }
-      }
-      rounded_magnitude
-    } else {
-      magnitude
+      digits = trimmed.digits10()
     }
+    trimmed
   } else {
     magnitude
   }
-  let final_digits = if ctx.precision > 0 && !magnitude.is_zero() {
-    magnitude.digits10()
+  let magnitude = if ctx.precision > 0 &&
+    !magnitude.is_zero() &&
+    digits > precision {
+    let (rounded_magnitude, next_exponent, _, inexact) = decimal_round_coeff_to_digits_repr(
+      magnitude,
+      exponent10,
+      precision,
+      negative,
+      ctx.decimal_rounding,
+    )
+    exponent10 = next_exponent
+    flags = { ..flags, rounded: true, }
+    if inexact {
+      flags = { ..flags, inexact: true, }
+    }
+    digits = rounded_magnitude.digits10()
+    rounded_magnitude
   } else {
-    1
+    magnitude
   }
-  let magnitude = if ctx.precision > 0 && final_digits > precision {
+  let magnitude = if ctx.precision > 0 && digits > precision {
     // The carry into 10^p moves the exponent up by one; at the top of `Int` it
     // would wrap, and such a value is beyond e_max anyway.
     if exponent10 == 2147483647 {

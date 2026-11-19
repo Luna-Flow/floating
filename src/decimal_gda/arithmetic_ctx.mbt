@@ -282,23 +282,15 @@ fn add_finite_values_ctx(
       return (value, flags)
     }
   }
-  let zero_target = if exact_magnitude.is_zero() &&
+  let tiny_limit = etiny(ctx)
+  let zero_below_tiny = exact_magnitude.is_zero() &&
     ctx.precision > 0 &&
-    target < etiny(ctx) {
-    etiny(ctx)
-  } else {
-    target
-  }
+    target < tiny_limit
+  let zero_target = if zero_below_tiny { tiny_limit } else { target }
   let (value, flags) = normalize_decimal_parts_ctx_repr(
     negative, exact_magnitude, zero_target, ctx,
   )
-  let flags = if exact_magnitude.is_zero() &&
-    ctx.precision > 0 &&
-    target < etiny(ctx) {
-    { ..flags, clamped: true, }
-  } else {
-    flags
-  }
+  let flags = if zero_below_tiny { { ..flags, clamped: true, } } else { flags }
   if exact_adjusted < ctx.e_min.to_int64() && flags.inexact {
     (value, { ..flags, subnormal: true, underflow: true, })
   } else {

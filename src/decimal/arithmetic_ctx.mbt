@@ -25,7 +25,7 @@ fn add_finite_values_ctx(
     abort("add_finite_ctx expects finite operands")
   }
   if lhs_value.is_zero() && rhs_value.is_zero() {
-    let precision = finite_precision_for(bigint_zero(), ctx)
+    let precision = finite_precision_for_default(ctx)
     let negative = if ctx.decimal_rounding == DecimalRoundingMode::Floor {
       lhs_value.negative || rhs_value.negative
     } else {
@@ -127,7 +127,7 @@ fn add_finite_values_ctx(
   if ctx.precision > 0 && allow_shortcuts {
     let self_adjusted = adjusted_exponent(lhs_value)
     let other_adjusted = adjusted_exponent(rhs_value)
-    let precision = finite_precision_for(bigint_one(), ctx)
+    let precision = finite_precision_for_default(ctx)
     let (high, high_adjusted, low_adjusted) = if self_adjusted >= other_adjusted {
       (lhs_value, self_adjusted, other_adjusted)
     } else {
@@ -282,23 +282,15 @@ fn add_finite_values_ctx(
       return (value, flags)
     }
   }
-  let zero_target = if exact_magnitude.is_zero() &&
+  let tiny_limit = etiny(ctx)
+  let zero_below_tiny = exact_magnitude.is_zero() &&
     ctx.precision > 0 &&
-    target < etiny(ctx) {
-    etiny(ctx)
-  } else {
-    target
-  }
+    target < tiny_limit
+  let zero_target = if zero_below_tiny { tiny_limit } else { target }
   let (value, flags) = normalize_decimal_parts_ctx_repr(
     negative, exact_magnitude, zero_target, ctx,
   )
-  let flags = if exact_magnitude.is_zero() &&
-    ctx.precision > 0 &&
-    target < etiny(ctx) {
-    { ..flags, clamped: true, }
-  } else {
-    flags
-  }
+  let flags = if zero_below_tiny { { ..flags, clamped: true, } } else { flags }
   if exact_adjusted.to_int64() < ctx.e_min.to_int64() && flags.inexact {
     (value, { ..flags, subnormal: true, underflow: true, })
   } else {
@@ -327,30 +319,24 @@ pub fn Decimal::add_ctx(
   let result = match (lhs.class, rhs.class) {
     (FpClass::Infinity, FpClass::Infinity) if lhs.negative != rhs.negative =>
       (
-        Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
     (FpClass::Infinity, _) =>
       (
-        lhs.with_precision(
-          finite_precision_for(bigint_zero(), ctx),
-          ctx.rounding,
-        ),
+        lhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     (_, FpClass::Infinity) =>
       (
-        rhs.with_precision(
-          finite_precision_for(bigint_zero(), ctx),
-          ctx.rounding,
-        ),
+        rhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => add_finite_values_ctx(lhs, rhs, ctx)
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       // Covered by quiet_nan_pair; keep the match total if the enum grows.
       (
-        Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -398,14 +384,14 @@ fn Decimal::decimal_mul_ctx_impl(
   match (self.class, other.class) {
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       (
-        Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+        Decimal::nan(precision=finite_precision_for_default(ctx)),
         nan_operand_flags(self, other),
       )
     (FpClass::Infinity, FpClass::Finite)
     | (FpClass::Finite, FpClass::Infinity) =>
       if self.is_zero() || other.is_zero() {
         (
-          Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
+          Decimal::nan(precision=finite_precision_for_default(ctx)),
           invalid_flags(),
         )
       } else {
@@ -416,7 +402,7 @@ fn Decimal::decimal_mul_ctx_impl(
             } else {
               Sign::Negative
             },
-            precision=finite_precision_for(bigint_zero(), ctx),
+            precision=finite_precision_for_default(ctx),
           ),
           DecimalFlags::new(),
         )
@@ -429,7 +415,7 @@ fn Decimal::decimal_mul_ctx_impl(
           } else {
             Sign::Negative
           },
-          precision=finite_precision_for(bigint_zero(), ctx),
+          precision=finite_precision_for_default(ctx),
         ),
         DecimalFlags::new(),
       )
@@ -441,7 +427,7 @@ fn Decimal::decimal_mul_ctx_impl(
           scaleb_int64_to_int(
             self.exponent10.to_int64() + other.exponent10.to_int64(),
           ),
-          finite_precision_for(bigint_zero(), ctx),
+          finite_precision_for_default(ctx),
         ),
         DecimalFlags::new(),
         ctx,
@@ -483,7 +469,7 @@ fn division_beyond_exponent_range(
 ) -> (Decimal, DecimalFlags)? {
   let difference = dividend.exponent10.to_int64() -
     divisor.exponent10.to_int64()
-  let guard_digits = (finite_precision_for(bigint_one(), ctx) +
+  let guard_digits = (finite_precision_for_default(ctx) +
   divisor.coefficient.digits10() +
   2).to_int64()
   guard difference > 2147483647L || difference - guard_digits < -2147483648L else {
@@ -515,7 +501,7 @@ fn Decimal::decimal_div_ctx_impl(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   match quiet_nan_pair(self, other, ctx) {
     Some(result) => return result
     None => ()
@@ -680,7 +666,7 @@ fn Decimal::decimal_fma_ctx_impl(
   addend : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   if !ctx.extended {
     return (Decimal::nan(precision~), invalid_flags())
   }
@@ -1098,7 +1084,7 @@ pub fn Decimal::sqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
+  let precision = finite_precision_for_default(ctx)
   let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
   let result = match operand.class {
     FpClass::NaN => quiet_nan_operand(operand, ctx)
