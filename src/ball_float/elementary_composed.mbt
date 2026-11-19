@@ -1,9 +1,21 @@
 ///|
+/// `[RD(pi), RU(pi)]` at `precision` bits from the cached binary-splitting
+/// constant of `bin_float`: `atan(+inf)` is `pi/2` served from that cache, and
+/// scaling by 2 is exact (unbounded exponent range).
 fn certified_pi_interval(precision : Int32) -> BallFloat {
-  let (lower, upper) = certified_pi_rational(precision + 64)
+  let infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
+  let exact = @bin_float.BinaryContext::unbounded(precision)
+  let two = @bin_float.BinFloat::from_int(2, precision=2)
+  let bound = fn(rounding) {
+    let context = @bin_float.BinaryContext::unbounded(precision, rounding~)
+    match infinity.try_atan_ctx(context) {
+      Ok(result) => result.0.mul_ctx(two, exact).0
+      Err(error) => abort(error.message)
+    }
+  }
   store_interval(
-    rat_dyadic_bounds(lower, precision).0,
-    rat_dyadic_bounds(upper, precision).1,
+    bound(@bin_float.BinaryRoundingMode::RoundTowardNegative),
+    bound(@bin_float.BinaryRoundingMode::RoundTowardPositive),
     precision,
   )
 }
