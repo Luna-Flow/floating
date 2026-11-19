@@ -49,6 +49,10 @@ CONTEXTS = [
     (16, -383, 384, True),
     (34, -6143, 6144, True),
 ]
+# Rows with an operand exponent of 300 digits or more (the slow ones) use four
+# directions, the rest all eight (the condition and the signs, not the direction,
+# decide which path is taken).
+FEW_ROUNDINGS = ("half_even", "ceiling", "floor", "up")
 W = decimal.Context(prec=PREC, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
 decimal.setcontext(W)
 EPS = Decimal(10) ** -(PREC - 10)
@@ -171,6 +175,10 @@ def operands(spec) -> list[tuple[str, str]]:
     return rows
 
 
+def abs_exp(text: str) -> int:
+    return abs(int(text.split("E")[1])) if "E" in text else 0
+
+
 def atan2_operands(spec) -> list[tuple[str, str]]:
     """Ratios on both sides of the gate `2 D < -(p + 4)` of the exact ratio of atan2."""
     precision = spec[0]
@@ -191,9 +199,15 @@ def all_rows() -> list[tuple]:
     for spec in CONTEXTS:
         for rounding in ROUNDINGS:
             for ytext, xtext in operands(spec):
+                if rounding not in FEW_ROUNDINGS and max(abs_exp(ytext), abs_exp(xtext)) >= 300:
+                    continue
                 y, x = Decimal(ytext), Decimal(xtext)
                 text, flags = rounded(true_value(y, x), spec, rounding)
                 rows.append(("atan2pi", rounding, *spec, ytext, xtext, text, flags))
+            # atan2 (plain) rows are the slow ones (the ordinary loop next to the gate):
+            # two formats and four directions are enough for both sides of the gate.
+            if spec[0] not in (7, 51) or rounding not in FEW_ROUNDINGS:
+                continue
             for ytext, xtext in atan2_operands(spec):
                 y, x = Decimal(ytext), Decimal(xtext)
                 text, flags = rounded(true_atan2(y, x), spec, rounding)

@@ -138,3 +138,48 @@ test "decimal_to_certified_ball bounds are the two directed conversions" {
     }
   }
 }
+
+///|
+fn to_bin_float_mode(name : String) -> RoundingMode {
+  match name {
+    "ToNearestEven" => RoundingMode::ToNearestEven
+    "TowardZero" => RoundingMode::TowardZero
+    "AwayFromZero" => RoundingMode::AwayFromZero
+    "TowardNegative" => RoundingMode::TowardNegative
+    "TowardPositive" => RoundingMode::TowardPositive
+    _ => abort("unknown mode " + name)
+  }
+}
+
+///|
+test "to_bin_float at large exponents equals exact integer arithmetic (not the old code)" {
+  // Expected values: tools/generate_decimal_to_bin_rows.py (Python integers):
+  // exponents about +-2e5 and +-2e6, +-4096 and 4097 around the switch to
+  // bounds of 5^e, every direction and sign, and values exactly representable
+  // or exactly halfway between two numbers (the round-to-odd sticky bit; the
+  // bounds of 5^e straddle them, so the exact conversion decides).
+  let rows = to_bin_float_rows()
+  for row in rows {
+    let (text, precision, mode, coefficient, exponent) = row
+    let value = Decimal::from_string(
+      text,
+      precision=Int32::max(40, text.length()),
+    ).unwrap()
+    let got = value.to_bin_float(precision~, mode=to_bin_float_mode(mode))
+    let expected_value = BigInt::from_string(coefficient)
+    let negative = expected_value < BigInt::from_int(0)
+    let magnitude = abs_bigint(expected_value)
+    let expected = @bin_float.BinFloat::make(
+      @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
+      exponent,
+      magnitude.bit_length() + 2,
+      negative~,
+      mode=RoundingMode::ToNearestEven,
+    )
+    assert_true(
+      got.compare(expected) == 0 && got.is_negative() == negative,
+      msg="\{text[:Int32::min(40, text.length())].to_string()} p=\{precision} \{mode}",
+    )
+  }
+  assert_true(rows.length() > 500)
+}
