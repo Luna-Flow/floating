@@ -19,6 +19,11 @@ let bin_coeff_sqrt_dc_base_bits = 512
 let binary_exp_burst_min_precision = 1088
 
 ///|
+/// Working precision up to which the table-based `exp` kernel is the first choice
+/// (measured crossover against the bit-burst and series paths on this target).
+let binary_exp_table_max_precision = 2048
+
+///|
 /// Limb count (64-bit limbs) below which the schoolbook product beats the
 /// Karatsuba step of the word-range multiplication.
 let bin_coeff_words_karatsuba_cutoff : Int32 = 32

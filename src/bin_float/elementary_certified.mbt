@@ -311,6 +311,12 @@ fn binary_exp_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  if work_precision <= binary_exp_table_max_precision {
+    match binary_exp_bounds_table(value, work_precision) {
+      Some(bounds) => return Some(bounds)
+      None => ()
+    }
+  }
   if work_precision >= binary_exp_burst_min_precision {
     match binary_exp_bounds_burst(value, work_precision) {
       Some(bounds) => return Some(bounds)

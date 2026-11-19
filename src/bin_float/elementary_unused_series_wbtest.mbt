@@ -186,7 +186,9 @@ test "exp enclosure skips the duplicate series without changing a bit" {
   ]
   for work in [20, 53, 64, 117, 128, 200] {
     for value in values {
-      let actual = binary_exp_bounds(value, work)
+      // The series path itself: `binary_exp_bounds` may answer from the
+      // table kernel, whose enclosure differs but is covered by its own tests.
+      let actual = binary_exp_bounds_series(value, work)
       let reference = binary_exp_bounds_reference(value, work)
       let exact = value
         .with_precision(work, RoundingMode::TowardNegative)
