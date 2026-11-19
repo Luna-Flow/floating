@@ -269,7 +269,12 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated
   batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1
   --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count
-  100000 --seed 20261118 --target wasm --target wasm-gc --target js`). Exact results are not sampled here; they,
+  100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the
+  final code the native 1,000,000 cases of seed 20261118 were run again
+  (1,000 validated batches) and a second seed, 20261202, with 100,000 cases
+  per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target,
+  1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both
+  without a disagreement. Exact results are not sampled here; they,
   the clusters near the integers and near -1, the tiny arguments and the
   tininess and clamp boundaries are the 10,673 rows of
   `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and
