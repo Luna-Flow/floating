@@ -902,6 +902,7 @@ msgstr ""
 
 #: manual/api/ball_float.md:1451
 #: manual/conformance/decimal_gda.md:15
+#: manual/design/ball_float.md:374
 #: manual/design/bin_float_checked.md:122
 #: manual/design/decimal_gda.md:129
 #: manual/verification.md:65
@@ -9780,7 +9781,7 @@ msgstr ""
 
 #: manual/conformance/decimal.md:76
 #: manual/conformance/decimal_gda.md:61
-#: manual/design/ball_float.md:773
+#: manual/design/ball_float.md:857
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:244
 #: manual/design/bench/ball_float.md:67
@@ -10513,118 +10514,220 @@ msgid "**Poles.** $\\tan$ is continuous and increasing between consecutive poles
 msgstr ""
 
 #: manual/design/ball_float.md:347
-msgid "`pow_interval(x, y)` on the domain $\\xi > 0$ (and $\\xi = 0$, $\\eta > 0$) writes $\\xi^\\eta = \\exp(\\eta u)$ with $u = \\ln \\xi$. The map $(u, \\eta) \\mapsto \\eta u$ is bilinear, so by the corner argument used for products its extrema over the box $[\\ln \\underline{x}, \\ln \\overline{x}] \\times \\boldsymbol{y}$ are at the corners, and $\\exp$ is increasing: the extrema of $\\xi^\\eta$ are among the four corner values. When $\\underline{x} = 0$, $u \\to -\\infty$ and the corner values become the limits $0$ (for $\\eta > 0$) and $+\\infty$ (for $\\eta < 0$). The code also adds the value 1 when the box crosses $\\xi = 1$ or $\\eta = 0$; such a box contains a point where $\\eta u = 0$, so $e^0 = 1$ already lies between the extreme corner values and the extra candidate is redundant but harmless. `atan2` is handled the same way with the axis crossings as additional candidates, and with the result $[-\\pi, \\pi]$ when the box crosses the branch cut on the negative $\\xi$ axis."
+msgid "`pow_interval(x, y)` on the domain $\\xi > 0$ (and $\\xi = 0$, $\\eta > 0$) writes $\\xi^\\eta = \\exp(\\eta u)$ with $u = \\ln \\xi$. The map $(u, \\eta) \\mapsto \\eta u$ is bilinear, so by the corner argument used for products its extrema over the box $[\\ln \\underline{x}, \\ln \\overline{x}] \\times \\boldsymbol{y}$ are at the corners, and $\\exp$ is increasing: the extrema of $\\xi^\\eta$ are among the four corner values. When $\\underline{x} = 0$, $u \\to -\\infty$ and the corner values become the limits $0$ (for $\\eta > 0$) and $+\\infty$ (for $\\eta < 0$). The code also adds the value 1 when the box crosses $\\xi = 1$ or $\\eta = 0$; such a box contains a point where $\\eta u = 0$, so $e^0 = 1$ already lies between the extreme corner values and the extra candidate is redundant but harmless."
 msgstr ""
 
-#: manual/design/ball_float.md:360
-msgid "Certified evaluation of transcendental endpoints"
+#: manual/design/ball_float.md:358
+msgid "`atan2` is handled the same way: the result is $[-\\pi, \\pi]$ when the box crosses the branch cut on the negative $\\xi$ axis, and otherwise the extrema over the box are at corners, as the next section shows."
 msgstr ""
 
 #: manual/design/ball_float.md:362
-msgid "$e^{\\underline{x}}$ is not a dyadic number, so an endpoint needs a rational enclosure $L \\le f(a) \\le U$ of the exact value, after which $\\operatorname{RD}_p(L)$ is a valid lower endpoint by property (i). The kernels of this package build $L$ and $U$ with exact rational arithmetic and directed `BinFloat` operations at a work precision $w > p$:"
+msgid "One evaluation per bound"
 msgstr ""
 
-#: manual/design/ball_float.md:368
-msgid "**exp.** For $2^{e} \\le |a| < 2^{e+1}$ the argument is halved $k = \\max(0, e + 4)$ times so that $a' = |a|/2^k < 2^{-3}$, the Taylor series $\\sum_j t_j$, $t_j = a'^j/j!$, is summed with directed rounding, and the result is squared $k$ times in interval arithmetic, $e^{a} = (e^{a/2^k})^{2^k}$. If the enclosure of $e^{a'}$ has relative width $\\varepsilon$, its square has relative width $(1+\\varepsilon)^2 - 1 \\approx 2\\varepsilon$, so the $k$ squarings cost about $k$ bits; the code reserves $w = p + 64 + 2k$. The series is cut after a term $t_n$ with $n \\ge 1$; every later ratio is $t_{j+1}/t_j = a'/(j+1) \\le \\tfrac18 \\cdot \\tfrac12 = \\tfrac1{16}$, so"
+#: manual/design/ball_float.md:364
+msgid "A bound of an interval result needs one directed evaluation, not the two (down and up) of which half used to be discarded, and often not even a second endpoint. Directed rounding is monotone: if $a \\ge b$ then $\\mathrm{RD}(a) \\ge \\mathrm{RD}(b)$ and $\\mathrm{RU}(a) \\ge \\mathrm{RU}(b)$. So the lower bound $\\min_i \\mathrm{RD}(f(c_i))$ over candidate points $c_i$ equals $\\mathrm{RD}(f(c^*))$ where $c^*$ minimises $f$ itself, and likewise for the upper bound. The results are therefore bit-identical to the evaluation of every candidate in both directions; only the argument that $c^*$ is the minimiser has to be written down, once per case."
+msgstr ""
+
+#: manual/design/ball_float.md:374
+msgid "Evaluations before"
+msgstr ""
+
+#: manual/design/ball_float.md:374
+msgid "After"
+msgstr ""
+
+#: manual/design/ball_float.md:376
+msgid "interval division"
+msgstr ""
+
+#: manual/design/ball_float.md:376
+msgid "2 (one directed quotient per bound)"
+msgstr ""
+
+#: manual/design/ball_float.md:378
+msgid "product, one factor straddling zero, the other sign-definite"
+msgstr ""
+
+#: manual/design/ball_float.md:378
+msgid "4 products"
+msgstr ""
+
+#: manual/design/ball_float.md:379
+msgid "product with an unbounded factor"
+msgstr ""
+
+#: manual/design/ball_float.md:379
+msgid "8 products"
+msgstr ""
+
+#: manual/design/ball_float.md:379
+msgid "4 (the coefficient product of a finite pair is shared by both directions)"
+msgstr ""
+
+#: manual/design/ball_float.md:380
+msgid "`pown`, even exponent, negative or zero-containing interval"
+msgstr ""
+
+#: manual/design/ball_float.md:380
+msgid "4 or 3 `pow_int_ctx`"
 msgstr ""
 
 #: manual/design/ball_float.md:381
-msgid "and $2t_{n+1}$ is added to the upper sum. Negative arguments use $e^{-a} = 1/e^{a}$. Arguments with $|a| < 2^{-(p+16)}$ give $[1, 1 + 2^{-p}]$ or $[1 - 2^{-p}, 1]$ before rounding, since $0 < e^{|a|} - 1 < 2|a|$ and $0 < 1 - e^{-|a|} < |a|$. For $|a| \\ge 2^{30}$ the result is $[\\text{largest finite}, +\\infty)$ or $[0, \\text{smallest positive}]$ directly: the largest finite `BinFloat` is below $2^{e_{\\max}+1} = 2^{2^{30}}$, and $e^{2^{30}} = 2^{2^{30}/\\ln 2} \\approx 2^{1.44 \\cdot 2^{30}}$ exceeds it; the smallest positive value at precision $p \\le 2^{28}$ is at least $2^{-(2^{30} + 2^{28})}$, which exceeds $e^{-2^{30}}$."
+msgid "8 to 16 `try_atan2_ctx`"
 msgstr ""
 
-#: manual/design/ball_float.md:391
-msgid "**ln.** For $a = m \\cdot 2^{e}$ with $m \\in [1, 2)$, $\\ln a = \\ln m + e \\ln 2$, and $\\ln m = 2\\operatorname{artanh} z = 2\\sum_k z^{2k+1}/(2k+1)$ with $z = (m-1)/(m+1) \\in [0, 1/3]$; $\\ln 2$ is the same series at $m = 2$. The ratio of consecutive terms is $z^2 (2k+1)/(2k+3) \\le z^2 \\le 1/9$, so the omitted tail is at most $t' \\sum_{i \\ge 0} 9^{-i} = \\tfrac98 t'$ for the first omitted term $t'$, and after doubling at most $\\tfrac94 t' \\le 3t'$, which is what the code adds."
+#: manual/design/ball_float.md:382
+msgid "2 (also 2 with one extremum inside, 0 with an extremum of each kind)"
+msgstr ""
+
+#: manual/design/ball_float.md:383
+msgid "8 exact-rational series per refinement round, plus $\\pi$ per round"
+msgstr ""
+
+#: manual/design/ball_float.md:383
+msgid "2 correctly rounded binary evaluations, and one $\\pi$ enclosure"
+msgstr ""
+
+#: manual/design/ball_float.md:384
+msgid "8 series per round, plus $\\pi$ per round"
+msgstr ""
+
+#: manual/design/ball_float.md:384
+msgid "2 evaluations, and one $\\pi$ enclosure"
+msgstr ""
+
+#: manual/design/ball_float.md:386
+msgid "**Division and square root.** The lower bound of $\\boldsymbol{x} / \\boldsymbol{y}$ is one quotient of two endpoints (chosen by the signs, see the corner argument above) rounded down, the upper bound one quotient rounded up. The square root needs $\\sqrt{\\underline{x}}$ rounded down and $\\sqrt{\\overline{x}}$ rounded up."
+msgstr ""
+
+#: manual/design/ball_float.md:392
+msgid ""
+"**Products.** If $\\boldsymbol{a}$ straddles zero and $\\boldsymbol{b} \\ge 0$ ($\\boldsymbol{b} \\n"
+"e [0, 0]$), then $a \\mapsto ab$ is nondecreasing for each $b \\ge 0$ and $b \\mapsto ab$ is nondecreasing for $a \\ge 0$ and nonincreasing for $a \\le 0$, so the minimum is $\\underline{a}\\,\\overline{b}$ and the maximum $\\overline{a}\\,\\overline{b}$ (the other three sign cases are mirror images). Two factors that both straddle zero keep the four products."
 msgstr ""
 
 #: manual/design/ball_float.md:399
+msgid "**`atan2`.** Away from the origin and the branch cut, $\\partial \\theta / \\partial y = x / r^2$ and $\\partial \\theta / \\partial x = -y / r^2$. For $y \\ge 0$ the angle is nonincreasing in $x$, so the minimum has $x = \\overline{x}$ and the maximum $x = \\underline{x}$; at that $x$ the angle is nondecreasing in $y$ if $x > 0$, nonincreasing if $x < 0$, and constant ($\\pi/2$) at $x = 0$. For $y \\le 0$ (with $\\underline{y} < 0$) the angle is nondecreasing in $x$ and the same rule applies to $y$. If $\\boldsymbol{y}$ straddles zero the branch-cut case has been excluded, so $\\underline{x} \\ge 0$ and both bounds sit at $x = \\underline{x}$ (the minimum at $\\underline{y}$, the maximum at $\\overline{y}$). A zero endpoint of $\\boldsymbol{y}$ belongs to the side of the other endpoint: $\\mathrm{atan2}(+0, x < 0) = \\pi$ is the limit from $y > 0$ and $\\mathrm{atan2}(0, x > 0) = 0$ the limit from $y < 0$. Every edge of the box is therefore monotone and the extrema over a box are at corners, also when the origin is a corner or lies on an edge, since the angles seen near the origin are those of the neighbouring corners. The axis points that earlier versions added are between these two extremes. A box whose extreme corner is the origin (a degenerate box) uses the general corner hull."
+msgstr ""
+
+#: manual/design/ball_float.md:419
+msgid "**`sinpi`, `cospi`, `sin`, `cos`.** With the index range $K$ of the previous section, an extremum of each kind inside gives $\\pm 1$ without evaluation. Without any extremum inside, $\\boldsymbol{x}$ lies in one arc between two consecutive extrema and the function is monotone there: sine increases through an index $\\equiv 0 \\pmod 4$ and decreases through $\\equiv 2$ (when $K$ contains an index), and otherwise the arc is $k = \\lceil q^- \\rceil - 1$, increasing for $k \\equiv 0, 3$ and decreasing for $k \\equiv 1, 2$. Cosine is sine shifted by one index. The lower bound is then the endpoint value rounded down at the lower end of the arc direction and the upper bound the other endpoint rounded up; with one extremum inside, the opposite bound is the better of the two endpoints."
+msgstr ""
+
+#: manual/design/ball_float.md:431
+msgid "**`sin`, `cos`, `tan` (`try_` forms).** Each endpoint value is the correctly rounded value of the binary kernel in the directed mode, which is the value the exact-rational series produced (it rounded an enclosure that rounded uniquely). The enclosure of $\\pi$ is needed only for the index range $K$ (the critical points and the poles) and is computed once at the initial working precision instead of on every refinement round. A range that is too large (an endpoint within $2^{-w}$ of a multiple of $\\pi/2$ at working precision $w$) widens the result to $\\pm 1$ or an unbounded tangent, which keeps the inclusion property. The non-`try` `sin_interval`, `cos_interval` and `tan_interval` stay on the exact-rational path: they return a conservative result for an argument the series cannot certify, which the `try_` forms report as an error."
+msgstr ""
+
+#: manual/design/ball_float.md:444
+msgid "Certified evaluation of transcendental endpoints"
+msgstr ""
+
+#: manual/design/ball_float.md:446
+msgid "$e^{\\underline{x}}$ is not a dyadic number, so an endpoint needs a rational enclosure $L \\le f(a) \\le U$ of the exact value, after which $\\operatorname{RD}_p(L)$ is a valid lower endpoint by property (i). The kernels of this package build $L$ and $U$ with exact rational arithmetic and directed `BinFloat` operations at a work precision $w > p$:"
+msgstr ""
+
+#: manual/design/ball_float.md:452
+msgid "**exp.** For $2^{e} \\le |a| < 2^{e+1}$ the argument is halved $k = \\max(0, e + 4)$ times so that $a' = |a|/2^k < 2^{-3}$, the Taylor series $\\sum_j t_j$, $t_j = a'^j/j!$, is summed with directed rounding, and the result is squared $k$ times in interval arithmetic, $e^{a} = (e^{a/2^k})^{2^k}$. If the enclosure of $e^{a'}$ has relative width $\\varepsilon$, its square has relative width $(1+\\varepsilon)^2 - 1 \\approx 2\\varepsilon$, so the $k$ squarings cost about $k$ bits; the code reserves $w = p + 64 + 2k$. The series is cut after a term $t_n$ with $n \\ge 1$; every later ratio is $t_{j+1}/t_j = a'/(j+1) \\le \\tfrac18 \\cdot \\tfrac12 = \\tfrac1{16}$, so"
+msgstr ""
+
+#: manual/design/ball_float.md:465
+msgid "and $2t_{n+1}$ is added to the upper sum. Negative arguments use $e^{-a} = 1/e^{a}$. Arguments with $|a| < 2^{-(p+16)}$ give $[1, 1 + 2^{-p}]$ or $[1 - 2^{-p}, 1]$ before rounding, since $0 < e^{|a|} - 1 < 2|a|$ and $0 < 1 - e^{-|a|} < |a|$. For $|a| \\ge 2^{30}$ the result is $[\\text{largest finite}, +\\infty)$ or $[0, \\text{smallest positive}]$ directly: the largest finite `BinFloat` is below $2^{e_{\\max}+1} = 2^{2^{30}}$, and $e^{2^{30}} = 2^{2^{30}/\\ln 2} \\approx 2^{1.44 \\cdot 2^{30}}$ exceeds it; the smallest positive value at precision $p \\le 2^{28}$ is at least $2^{-(2^{30} + 2^{28})}$, which exceeds $e^{-2^{30}}$."
+msgstr ""
+
+#: manual/design/ball_float.md:475
+msgid "**ln.** For $a = m \\cdot 2^{e}$ with $m \\in [1, 2)$, $\\ln a = \\ln m + e \\ln 2$, and $\\ln m = 2\\operatorname{artanh} z = 2\\sum_k z^{2k+1}/(2k+1)$ with $z = (m-1)/(m+1) \\in [0, 1/3]$; $\\ln 2$ is the same series at $m = 2$. The ratio of consecutive terms is $z^2 (2k+1)/(2k+3) \\le z^2 \\le 1/9$, so the omitted tail is at most $t' \\sum_{i \\ge 0} 9^{-i} = \\tfrac98 t'$ for the first omitted term $t'$, and after doubling at most $\\tfrac94 t' \\le 3t'$, which is what the code adds."
+msgstr ""
+
+#: manual/design/ball_float.md:483
 msgid "**π.** Machin's formula $\\pi = 16\\arctan\\tfrac15 - 4\\arctan\\tfrac1{239}$ with alternating series, whose truncation error is bounded by the first omitted term."
 msgstr ""
 
-#: manual/design/ball_float.md:402
+#: manual/design/ball_float.md:486
 msgid "**sin, cos.** The argument is reduced by the quadrant $q = \\lfloor 2a/\\pi + 1/2 \\rfloor$, computed with both $\\pi^-$ and $\\pi^+$; if the two disagree the work precision is raised. The reduced argument $r = a - q\\pi/2 \\in [-\\pi/4, \\pi/4]$ (as a rational interval) is fed to Taylor series, and the quadrant maps $(\\sin r, \\cos r)$ to $(\\sin a, \\cos a)$. The initial work precision is $p + 96$ plus the number of integer bits of $|a|$, so that reducing a huge argument keeps enough bits.[^reduction]"
 msgstr ""
 
-#: manual/design/ball_float.md:411
+#: manual/design/ball_float.md:495
 msgid "Payne–Hanek reduction would avoid the extra bits; this package instead raises the work precision and caps it with the resource cutoff described under the total and `try_` forms."
 msgstr ""
 
-#: manual/design/ball_float.md:415
+#: manual/design/ball_float.md:499
 msgid "The trigonometric and arctangent kernels add a Ziv-style acceptance test.[^ziv] Since $\\operatorname{RD}_p$ is monotone,"
 msgstr ""
 
-#: manual/design/ball_float.md:423
+#: manual/design/ball_float.md:507
 msgid "so when both $\\operatorname{RD}$ and $\\operatorname{RU}$ of $L$ and $U$ agree, the endpoints are the correctly directed roundings of $f(a)$. Otherwise the work precision $w$ grows to $w + \\max(32, w/2)$; at most 12 work precisions are tried (`CertifiedRefinementBudget`). The exp and log kernels skip the test and keep $\\operatorname{RD}_p(L)$, $\\operatorname{RU}_p(U)$, which are always valid and, with their guard bits ($p + 64 + 2k$ for `exp`, $p + 24$ for `ln`, $p + 32$ for `log2`), almost always tight. The `try_` forms, and the total forms of `expm1`, `log1p`, `sinpi`, `cospi`, `tanpi`, `pow_interval`, `hypot` and `atan2` (which try them first), delegate the endpoints to the certified `try_*_ctx` functions of [`bin_float`](bin_float.md), evaluated in unbounded contexts rounded toward $-\\infty$ and $+\\infty$. The total hyperbolic functions and `asin`/`acos` evaluate their defining formulas in interval arithmetic at 64 to 192 extra bits, which is valid by the fundamental theorem. Validity is not tightness: $(e^{\\xi} - e^{-\\xi})/2$ subtracts two enclosures of numbers near 1, each about $2^{-w}$ wide, so for $|\\xi| \\ll 2^{-w+p}$ the relative width of the result is about $2^{-w}/|\\xi|$, far above $2^{-p}$. The same cancellation affects `tanh`, `asinh` and `atanh` near 0."
 msgstr ""
 
-#: manual/design/ball_float.md:441
+#: manual/design/ball_float.md:525
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser, 2018, §10."
 msgstr ""
 
-#: manual/design/ball_float.md:445
+#: manual/design/ball_float.md:529
 msgid "The IEEE 1788 decoration model"
 msgstr ""
 
-#: manual/design/ball_float.md:447
+#: manual/design/ball_float.md:531
 msgid "A bare interval result says where the values lie, not whether the function was defined. IEEE 1788 attaches a *decoration* to each result of evaluating $f$ on a box $\\boldsymbol{x}$:"
 msgstr ""
 
-#: manual/design/ball_float.md:451
+#: manual/design/ball_float.md:535
 msgid "Decoration"
 msgstr ""
 
-#: manual/design/ball_float.md:451
+#: manual/design/ball_float.md:535
 msgid "Property $p_d(f, \\boldsymbol{x})$"
 msgstr ""
 
-#: manual/design/ball_float.md:453
+#: manual/design/ball_float.md:537
 msgid "$\\boldsymbol{x}$ is non-empty and bounded, $\\boldsymbol{x} \\subseteq D_f$, $f$ is continuous at each point of $\\boldsymbol{x}$, and the result is bounded"
 msgstr ""
 
-#: manual/design/ball_float.md:454
+#: manual/design/ball_float.md:538
 msgid "$\\boldsymbol{x}$ is non-empty, $\\boldsymbol{x} \\subseteq D_f$ and $f \\vert_{\\boldsymbol{x}}$ is continuous"
 msgstr ""
 
-#: manual/design/ball_float.md:455
+#: manual/design/ball_float.md:539
 msgid "$\\boldsymbol{x}$ is non-empty and $\\boldsymbol{x} \\subseteq D_f$"
 msgstr ""
 
-#: manual/design/ball_float.md:456
+#: manual/design/ball_float.md:540
 msgid "always true"
 msgstr ""
 
-#: manual/design/ball_float.md:457
+#: manual/design/ball_float.md:541
 msgid "the value is NaI, not an interval"
 msgstr ""
 
-#: manual/design/ball_float.md:459
+#: manual/design/ball_float.md:543
 msgid "The decorations are totally ordered by strength, $\\text{com} > \\text{dac} > \\text{def} > \\text{trv} > \\text{ill}$, because each property implies the next (continuity of $f$ at each point of $\\boldsymbol{x}$ implies continuity of the restriction, but not conversely: `atan2` restricted to a box lying on its branch cut from above is continuous, while `atan2` is not). A decorated operation $g$ applied to decorated inputs $(\\boldsymbol{y}_j, d_j)$ returns"
 msgstr ""
 
-#: manual/design/ball_float.md:471
+#: manual/design/ball_float.md:555
 msgid "*Why the minimum is sound.* Suppose $\\boldsymbol{y}_j$ was produced by $f_j$ on $\\boldsymbol{x}$ with property $p_{d_j}$, and $g$ has $p_{d_g}$ on the box of the $\\boldsymbol{y}_j$. If $d \\ge \\text{def}$, each $f_j$ is defined on $\\boldsymbol{x}$ with values in $\\boldsymbol{y}_j$ (inclusion property), and $g$ is defined on those values, so $g \\circ (f_1, \\dots, f_k)$ is defined on $\\boldsymbol{x}$. If $d \\ge \\text{dac}$, the same holds for continuity, because a composition of continuous functions is continuous. Boundedness for `com` is a property of the final result and is checked on it. By induction the decoration of a whole expression is a true statement about the expression on the input box. This is what interval existence proofs need: for example, if $\\boldsymbol{x}$ is bounded and $F(\\boldsymbol{x}) \\subseteq \\boldsymbol{x}$ with decoration at least `dac`, the function is continuous on the compact non-empty interval $\\boldsymbol{x}$ and maps it into itself, so Brouwer's theorem gives a fixed point in $\\boldsymbol{x}$. Boundedness matters: $\\xi \\mapsto \\xi + 1$ maps Entire into itself, continuously, without a fixed point. Without the decoration, $\\sqrt{[-1, 4]} = [0, 2]$ would wrongly suggest that $\\sqrt{\\cdot}$ is defined on $[-1, 4]$."
 msgstr ""
 
-#: manual/design/ball_float.md:490
+#: manual/design/ball_float.md:574
 msgid "The package computes $d_g$ from the operands by the domain tests listed in the [API reference](../api/ball_float.md#decorated-intervals): division by an interval containing 0, a logarithm reaching $\\xi \\le 0$, `sqrt` below 0, a pole of `tanpi` or of a negative-degree `rootn` in the argument and so on give `trv`; `atan2` across its branch cut gives `def` (defined but discontinuous) and touching the cut from above gives `dac`. Set operations (`intersection`, `convex_hull`, `cancel_*`) are not point functions and always give `trv`. The result is made canonical: an empty result is always `trv` (the properties above require a non-empty box), and `com` on an unbounded result becomes `dac` (this is how overflow is reported). NaI, the result of an invalid decorated construction, absorbs every operation, and is distinct from $\\emptyset$, which is a valid set."
 msgstr ""
 
-#: manual/design/ball_float.md:503
+#: manual/design/ball_float.md:587
 msgid "Relations: certainly and possibly"
 msgstr ""
 
-#: manual/design/ball_float.md:505
+#: manual/design/ball_float.md:589
 msgid "An interval stands for an unknown point, so a comparison of two intervals asks a quantified question. Two quantifiers give the useful relations:"
 msgstr ""
 
-#: manual/design/ball_float.md:519
+#: manual/design/ball_float.md:603
 msgid "For the first line, \"$\\Leftarrow$\" is $\\xi \\le \\overline{x} < \\underline{y} \\le \\eta$. For \"$\\Rightarrow$\": if $\\overline{x}$ and $\\underline{y}$ are finite they are elements, so $\\overline{x} < \\underline{y}$; if $\\overline{x} = +\\infty$ or $\\underline{y} = -\\infty$, a large $\\xi$ or a small $\\eta$ violates $\\xi < \\eta$, and the endpoint test is false as well. The second line is the nonempty intersection of two intervals. \"Possibly less\" is the negation of \"certainly not less\", so the two families are dual: `definitely_lt(x, y)` is false exactly when some pair satisfies $\\xi \\ge \\eta$. With empty operands the universal statements would be vacuously true, which would let a caller prove anything from an empty enclosure; the `definitely_*` relations therefore return false for empty operands, whereas the IEEE 1788 relation `precedes` ($\\forall\\xi\\,\\forall\\eta: \\xi \\le \\eta$) is defined to be vacuously true."
 msgstr ""
 
-#: manual/design/ball_float.md:532
+#: manual/design/ball_float.md:616
 msgid "The set relations (`subset`, `interior`, `disjoint`, `set_equal`) and the IEEE 1788 orders (`less`: $\\forall\\xi\\,\\exists\\eta\\, \\xi \\le \\eta$ and $\\forall\\eta\\,\\exists\\xi\\, \\xi \\le \\eta$, which reduces to comparing both endpoint pairs) are evaluated by endpoint comparisons in the same way. None of these relations is a total order, and the trait method `@lf_arith.Contains::contains(x, y)` is set inclusion $\\boldsymbol{y} \\subseteq \\boldsymbol{x}$, matching the enclosure reading of the [`arithmetic`](https://lunaflow.cn/en/arithmetic/) traits."
 msgstr ""
 
-#: manual/design/ball_float.md:541
+#: manual/design/ball_float.md:625
 #: manual/design/ball_float_checked.md:60
 #: manual/design/bench.md:156
 #: manual/design/bench/ball_float.md:29
@@ -10660,131 +10763,131 @@ msgstr ""
 msgid "Design decisions"
 msgstr ""
 
-#: manual/design/ball_float.md:543
+#: manual/design/ball_float.md:627
 msgid "Endpoints, not midpoint and radius"
 msgstr ""
 
-#: manual/design/ball_float.md:545
+#: manual/design/ball_float.md:629
 msgid "*Problem.* A ball can be stored as endpoints $[\\underline{x}, \\overline{x}]$ (inf–sup) or as a midpoint and radius $\\langle m, r\\rangle$, as in Arb.[^arb]"
 msgstr ""
 
-#: manual/design/ball_float.md:548
+#: manual/design/ball_float.md:632
 msgid "*Midpoint–radius arithmetic.* With $x = m_x + \\delta_x$, $|\\delta_x| \\le r_x$ and likewise for $y$:"
 msgstr ""
 
-#: manual/design/ball_float.md:558
+#: manual/design/ball_float.md:642
 msgid "With a rounded midpoint $m = \\operatorname{RN}_p(m_x \\circ m_y)$, the rounding error $|m - m_x \\circ m_y| \\le 2^{-p}|m|$ is added, so"
 msgstr ""
 
-#: manual/design/ball_float.md:566
+#: manual/design/ball_float.md:650
 msgid "These are cheap (the radius needs only a few bits), but the product radius overestimates: for $\\boldsymbol{x} = \\boldsymbol{y} = \\langle 1, 1\\rangle = [0, 2]$ it gives $\\langle 1, 3\\rangle = [-2, 4]$ while the exact product is $[0, 4]$. Rump showed that the width can grow by a factor up to $1.5$ per multiplication compared to inf–sup.[^rump]"
 msgstr ""
 
-#: manual/design/ball_float.md:572
+#: manual/design/ball_float.md:656
 msgid "*Options.* (a) midpoint–radius storage with low-precision radii; (b) endpoint storage with full-precision endpoints; (c) both."
 msgstr ""
 
-#: manual/design/ball_float.md:575
+#: manual/design/ball_float.md:659
 msgid "*Chosen: (b).* IEEE 1788 is defined on endpoints, half-unbounded and empty sets have no midpoint–radius form, and the hulls in the [endpoint formulas](#endpoint-formulas) are exact before rounding, so inf–sup results are as tight as the precision allows. The cost is that both endpoints carry $p$ bits, so wide intervals at high precision store many useless bits. The midpoint–radius *view* (`new`, `center`, `radius`, `with_precision`) is kept for users who reason in $c \\pm r$, with exact conversions derived [above](#from-midpointradius-to-endpoints)."
 msgstr ""
 
-#: manual/design/ball_float.md:584
+#: manual/design/ball_float.md:668
 msgid "J. van der Hoeven, \"Ball arithmetic\", 2009; F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr ""
 
-#: manual/design/ball_float.md:588
+#: manual/design/ball_float.md:672
 msgid "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999."
 msgstr ""
 
-#: manual/design/ball_float.md:591
+#: manual/design/ball_float.md:675
 msgid "Exact candidates, one directed rounding"
 msgstr ""
 
-#: manual/design/ball_float.md:593
+#: manual/design/ball_float.md:677
 msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
 msgstr ""
 
-#: manual/design/ball_float.md:596
+#: manual/design/ball_float.md:680
 msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
 msgstr ""
 
-#: manual/design/ball_float.md:605
+#: manual/design/ball_float.md:689
 msgid "Far addends: bound endpoint sums by precision"
 msgstr ""
 
-#: manual/design/ball_float.md:607
+#: manual/design/ball_float.md:691
 msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
 msgstr ""
 
-#: manual/design/ball_float.md:611
+#: manual/design/ball_float.md:695
 msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
 msgstr ""
 
-#: manual/design/ball_float.md:619
+#: manual/design/ball_float.md:703
 msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
 msgstr ""
 
-#: manual/design/ball_float.md:623
+#: manual/design/ball_float.md:707
 msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
 msgstr ""
 
-#: manual/design/ball_float.md:629
+#: manual/design/ball_float.md:713
 msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside `center`, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
 msgstr ""
 
-#: manual/design/ball_float.md:634
+#: manual/design/ball_float.md:718
 msgid "Outward clamping at the exponent range"
 msgstr ""
 
-#: manual/design/ball_float.md:636
+#: manual/design/ball_float.md:720
 msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
 msgstr ""
 
-#: manual/design/ball_float.md:643
+#: manual/design/ball_float.md:727
 msgid "Contexts and double rounding"
 msgstr ""
 
-#: manual/design/ball_float.md:645
+#: manual/design/ball_float.md:729
 msgid "`BallContext` carries a target precision $q$ and exponent range; `apply_ctx` rounds endpoints outward into it and the `*_ctx` operations compute at the operands' precision $p$ and then apply the context. Rounding twice is harmless for directed rounding when $q \\le p$:"
 msgstr ""
 
-#: manual/design/ball_float.md:654
+#: manual/design/ball_float.md:738
 msgid "because $F_q \\subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with zeros): every $f \\in F_q$ below $a$ is in $F_p$, hence below $\\operatorname{RD}_p(a)$, and conversely. So `x.add_ctx(y, ctx)` equals a single outward rounding of the exact sum into the context whenever the operands are at least as precise as the context. Overflow is resolved in the enclosing direction: an upper endpoint above the range becomes $+\\infty$, a positive lower endpoint becomes the largest finite number (still below the true value). Underflow rounds outward on the subnormal grid, so a tiny positive upper bound becomes the smallest subnormal and never 0. The flags are returned, never stored globally."
 msgstr ""
 
-#: manual/design/ball_float.md:665
+#: manual/design/ball_float.md:749
 msgid "Total and `try_` forms"
 msgstr ""
 
-#: manual/design/ball_float.md:667
+#: manual/design/ball_float.md:751
 msgid "*Problem.* Certified evaluation can fail: the refinement budget may run out, or an argument may be too large to reduce. Aborting would break long computations; returning a silent wide interval hides a lost guarantee of tightness."
 msgstr ""
 
-#: manual/design/ball_float.md:672
+#: manual/design/ball_float.md:756
 msgid "*Chosen.* Both. The total forms return a valid fallback enclosure ($[-1, 1]$ for `sin`/`cos`, Entire for `tan`, $[-\\pi, \\pi]$ for `atan2`, the composed formula for `pow`, `hypot` and `rootn`, the range bounds $[-1, +\\infty)$ for `expm1`), which keeps the inclusion property; the `try_` forms return an `ArithmeticError` with a certification detail (operation, stage, reason, precision). Trigonometric reduction is capped: when the larger endpoint magnitude is at least $2^{\\max(65536, 4p)+1}$, reduction would need more than that many bits, so the total forms return the fallback immediately and the `try_` forms report a resource limit."
 msgstr ""
 
-#: manual/design/ball_float.md:682
+#: manual/design/ball_float.md:766
 msgid "Decorations in a separate type"
 msgstr ""
 
-#: manual/design/ball_float.md:684
+#: manual/design/ball_float.md:768
 msgid "*Problem.* Decorations cost a field and a minimum per operation, and most users do not need them."
 msgstr ""
 
-#: manual/design/ball_float.md:687
+#: manual/design/ball_float.md:771
 msgid "*Chosen.* `BallFloat` is the bare set; `BallFloatDecorated` wraps it with a decoration and the NaI state. Bare operations stay cheap and simple, and the decorated type cannot be mixed with bare values by accident."
 msgstr ""
 
-#: manual/design/ball_float.md:691
+#: manual/design/ball_float.md:775
 msgid "Precision as a tag"
 msgstr ""
 
-#: manual/design/ball_float.md:693
+#: manual/design/ball_float.md:777
 msgid "Each interval carries a precision tag; binary operations use the larger tag. This keeps a sequence of operations at the precision of its most precise input without a context argument, which is what a set-valued type needs to compose with operators (`x + y`). A `BallContext` is used when a specific format must be imposed."
 msgstr ""
 
-#: manual/design/ball_float.md:699
+#: manual/design/ball_float.md:783
 #: manual/design/ball_float_checked.md:137
 #: manual/design/bench.md:218
 #: manual/design/bench/ball_float.md:51
@@ -10820,46 +10923,46 @@ msgstr ""
 msgid "Correctness and invariants"
 msgstr ""
 
-#: manual/design/ball_float.md:701
+#: manual/design/ball_float.md:785
 msgid ""
 "**Representation invariant.** A non-empty `BallFloat` has non-NaN endpoints, $\\underline{x} \\le \\overline{x}$, $\\underline{x} \\n"
 "e +\\infty$, $\\overline{x} \\n"
 "e -\\infty$ and precision $\\ge 1$; every construction path ends in `store_interval`, which checks this and aborts otherwise. Empty is a flag with endpoints $(+\\infty, -\\infty)$."
 msgstr ""
 
-#: manual/design/ball_float.md:707
+#: manual/design/ball_float.md:791
 msgid "**Inclusion.** Each public operation $F$ of `BallFloat` satisfies $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$, by the endpoint formulas and Corollary 2 for arithmetic, by the critical-point analysis and certified endpoint enclosures for elementary functions, and by the fallbacks for uncertified cases (the exceptions are listed under known limitations). By the fundamental theorem, so does every composition."
 msgstr ""
 
-#: manual/design/ball_float.md:714
+#: manual/design/ball_float.md:798
 msgid "**Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`, `maximum`, `intersection`, `convex_hull` of non-empty operands and `sqrt_interval` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire); the total hyperbolic functions for $|\\xi| \\lesssim 2^{-190}$ (cancellation, see above). `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either, and the `Floating` law \"normalizing keeps the value\" holds for `BallFloat` as set equality."
 msgstr ""
 
-#: manual/design/ball_float.md:728
+#: manual/design/ball_float.md:812
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr ""
 
-#: manual/design/ball_float.md:731
+#: manual/design/ball_float.md:815
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions sum series of $O(w)$ terms at work precision $w = p + O(1)$ (plus the integer bits of the argument for trigonometric reduction), with up to 12 refinements growing $w$ geometrically."
 msgstr ""
 
-#: manual/design/ball_float.md:738
+#: manual/design/ball_float.md:822
 msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 4,656 cases in strict mode (see [conformance](../conformance/ball_float.md))."
 msgstr ""
 
-#: manual/design/ball_float.md:742
+#: manual/design/ball_float.md:826
 msgid "Known limitations"
 msgstr ""
 
-#: manual/design/ball_float.md:744
+#: manual/design/ball_float.md:828
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr ""
 
-#: manual/design/ball_float.md:749
+#: manual/design/ball_float.md:833
 msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr ""
 
-#: manual/design/ball_float.md:754
+#: manual/design/ball_float.md:838
 #: manual/design/ball_float_checked.md:157
 #: manual/design/bench.md:235
 #: manual/design/bench/ball_float.md:60
@@ -10894,51 +10997,51 @@ msgstr ""
 msgid "Alternatives rejected"
 msgstr ""
 
-#: manual/design/ball_float.md:756
+#: manual/design/ball_float.md:840
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr ""
 
-#: manual/design/ball_float.md:759
+#: manual/design/ball_float.md:843
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr ""
 
-#: manual/design/ball_float.md:762
+#: manual/design/ball_float.md:846
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr ""
 
-#: manual/design/ball_float.md:766
+#: manual/design/ball_float.md:850
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr ""
 
-#: manual/design/ball_float.md:769
+#: manual/design/ball_float.md:853
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr ""
 
-#: manual/design/ball_float.md:775
+#: manual/design/ball_float.md:859
 msgid "The package deliberately does not:"
 msgstr ""
 
-#: manual/design/ball_float.md:777
+#: manual/design/ball_float.md:861
 msgid "provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or two-output division;"
 msgstr ""
 
-#: manual/design/ball_float.md:779
+#: manual/design/ball_float.md:863
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr ""
 
-#: manual/design/ball_float.md:781
+#: manual/design/ball_float.md:865
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr ""
 
-#: manual/design/ball_float.md:782
+#: manual/design/ball_float.md:866
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr ""
 
-#: manual/design/ball_float.md:785
+#: manual/design/ball_float.md:869
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr ""
 
-#: manual/design/ball_float.md:787
+#: manual/design/ball_float.md:871
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr ""
 

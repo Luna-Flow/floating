@@ -353,9 +353,93 @@ corner values. When $\underline{x} = 0$, $u \to -\infty$ and the corner values
 become the limits $0$ (for $\eta > 0$) and $+\infty$ (for $\eta < 0$). The
 code also adds the value 1 when the box crosses $\xi = 1$ or $\eta = 0$; such
 a box contains a point where $\eta u = 0$, so $e^0 = 1$ already lies between
-the extreme corner values and the extra candidate is redundant but harmless. `atan2` is handled the same way with the axis crossings as
-additional candidates, and with the result $[-\pi, \pi]$ when the box crosses
-the branch cut on the negative $\xi$ axis.
+the extreme corner values and the extra candidate is redundant but harmless.
+
+`atan2` is handled the same way: the result is $[-\pi, \pi]$ when the box
+crosses the branch cut on the negative $\xi$ axis, and otherwise the extrema
+over the box are at corners, as the next section shows.
+
+### One evaluation per bound
+
+A bound of an interval result needs one directed evaluation, not the two
+(down and up) of which half used to be discarded, and often not even a second
+endpoint. Directed rounding is monotone: if $a \ge b$ then
+$\mathrm{RD}(a) \ge \mathrm{RD}(b)$ and $\mathrm{RU}(a) \ge \mathrm{RU}(b)$.
+So the lower bound $\min_i \mathrm{RD}(f(c_i))$ over candidate points $c_i$
+equals $\mathrm{RD}(f(c^*))$ where $c^*$ minimises $f$ itself, and likewise
+for the upper bound. The results are therefore bit-identical to the
+evaluation of every candidate in both directions; only the argument that
+$c^*$ is the minimiser has to be written down, once per case.
+
+| Operation | Evaluations before | After |
+| --- | --- | --- |
+| interval division | 4 `div_ctx` | 2 (one directed quotient per bound) |
+| `sqrt_interval` | 4 `sqrt_ctx` | 2 |
+| product, one factor straddling zero, the other sign-definite | 4 products | 2 |
+| product with an unbounded factor | 8 products | 4 (the coefficient product of a finite pair is shared by both directions) |
+| `pown`, even exponent, negative or zero-containing interval | 4 or 3 `pow_int_ctx` | 2 |
+| `try_atan2_interval` | 8 to 16 `try_atan2_ctx` | 2 |
+| `try_sinpi_interval`, `try_cospi_interval` | 4 | 2 (also 2 with one extremum inside, 0 with an extremum of each kind) |
+| `try_sin_interval`, `try_cos_interval` | 8 exact-rational series per refinement round, plus $\pi$ per round | 2 correctly rounded binary evaluations, and one $\pi$ enclosure |
+| `try_tan_interval` | 8 series per round, plus $\pi$ per round | 2 evaluations, and one $\pi$ enclosure |
+
+**Division and square root.** The lower bound of $\boldsymbol{x} /
+\boldsymbol{y}$ is one quotient of two endpoints (chosen by the signs, see
+the corner argument above) rounded down, the upper bound one quotient rounded
+up. The square root needs $\sqrt{\underline{x}}$ rounded down and
+$\sqrt{\overline{x}}$ rounded up.
+
+**Products.** If $\boldsymbol{a}$ straddles zero and $\boldsymbol{b} \ge 0$
+($\boldsymbol{b} \ne [0, 0]$), then $a \mapsto ab$ is nondecreasing for each
+$b \ge 0$ and $b \mapsto ab$ is nondecreasing for $a \ge 0$ and
+nonincreasing for $a \le 0$, so the minimum is $\underline{a}\,\overline{b}$
+and the maximum $\overline{a}\,\overline{b}$ (the other three sign cases are
+mirror images). Two factors that both straddle zero keep the four products.
+
+**`atan2`.** Away from the origin and the branch cut,
+$\partial \theta / \partial y = x / r^2$ and
+$\partial \theta / \partial x = -y / r^2$. For $y \ge 0$ the angle is
+nonincreasing in $x$, so the minimum has $x = \overline{x}$ and the maximum
+$x = \underline{x}$; at that $x$ the angle is nondecreasing in $y$ if
+$x > 0$, nonincreasing if $x < 0$, and constant ($\pi/2$) at $x = 0$. For
+$y \le 0$ (with $\underline{y} < 0$) the angle is nondecreasing in $x$ and the
+same rule applies to $y$. If $\boldsymbol{y}$ straddles zero the branch-cut
+case has been excluded, so $\underline{x} \ge 0$ and both bounds sit at
+$x = \underline{x}$ (the minimum at $\underline{y}$, the maximum at
+$\overline{y}$). A zero endpoint of $\boldsymbol{y}$ belongs to the side of
+the other endpoint: $\mathrm{atan2}(+0, x < 0) = \pi$ is the limit from
+$y > 0$ and $\mathrm{atan2}(0, x > 0) = 0$ the limit from $y < 0$. Every
+edge of the box is therefore monotone and the extrema over a box are at
+corners, also when the origin is a corner or lies on an edge, since the
+angles seen near the origin are those of the neighbouring corners. The axis
+points that earlier versions added are between these two extremes. A box
+whose extreme corner is the origin (a degenerate box) uses the general
+corner hull.
+
+**`sinpi`, `cospi`, `sin`, `cos`.** With the index range $K$ of the previous
+section, an extremum of each kind inside gives $\pm 1$ without evaluation.
+Without any extremum inside, $\boldsymbol{x}$ lies in one arc between two
+consecutive extrema and the function is monotone there: sine increases
+through an index $\equiv 0 \pmod 4$ and decreases through $\equiv 2$ (when
+$K$ contains an index), and otherwise the arc is $k = \lceil q^- \rceil - 1$,
+increasing for $k \equiv 0, 3$ and decreasing for $k \equiv 1, 2$. Cosine is
+sine shifted by one index. The lower bound is then the endpoint value rounded
+down at the lower end of the arc direction and the upper bound the other
+endpoint rounded up; with one extremum inside, the opposite bound is the
+better of the two endpoints.
+
+**`sin`, `cos`, `tan` (`try_` forms).** Each endpoint value is the correctly
+rounded value of the binary kernel in the directed mode, which is the value
+the exact-rational series produced (it rounded an enclosure that rounded
+uniquely). The enclosure of $\pi$ is needed only for the index range $K$ (the
+critical points and the poles) and is computed once at the initial working
+precision instead of on every refinement round. A range that is too large
+(an endpoint within $2^{-w}$ of a multiple of $\pi/2$ at working precision
+$w$) widens the result to $\pm 1$ or an unbounded tangent, which keeps the
+inclusion property. The non-`try` `sin_interval`, `cos_interval` and
+`tan_interval` stay on the exact-rational path: they return a conservative
+result for an argument the series cannot certify, which the `try_` forms
+report as an error.
 
 ### Certified evaluation of transcendental endpoints
 
