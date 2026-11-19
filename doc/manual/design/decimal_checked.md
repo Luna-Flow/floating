@@ -149,19 +149,22 @@ predefined `ArithmeticContext::decimal64()` maps exactly to
 `DecimalContext::ieee754()`, the hook that selects the IEEE profile; on the
 current branch it returns the context unchanged.
 
-The mathematical functions restrict their context as the General Decimal
-Arithmetic specification does for `exp`, `ln`, `log10` and `power`: precision
-and both exponent limits must lie within $999\,999$ in magnitude, otherwise the
-result is NaN with `invalid_context` (private check `math_context_is_restricted`
-in `src/decimal`).[^gda] The default unbounded exponent range therefore
+The mathematical functions `exp`, `ln`, `log10` and `power` restrict their
+context to decNumber's range: precision and both exponent limits must lie
+within $999\,999$ in magnitude, otherwise the result is NaN with
+`invalid_context` (private check `math_context_is_restricted` in
+`src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not
+a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001
+to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid
+context condition permits it.[^gda] The default unbounded exponent range therefore
 disables them, which the API page and tutorial point out. `power` and `pown`
 with an integral exponent, and `power` with the exponent $0.5$ (a square
 root), are the exceptions: like the arithmetic operations they accept
 contexts up to $\pm 999\,999\,999$.
 
 [^gda]: M. Cowlishaw, *General Decimal Arithmetic Specification*, version
-    1.70, "Arithmetic operations: exp, ln, log10, power" (restrictions on
-    the context).
+    1.70, "Context" (the Invalid context condition under "Exceptional
+    conditions") and the decTest rows named above.
 
 ### From flags to arithmetic diagnostics
 

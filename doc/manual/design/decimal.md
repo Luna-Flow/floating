@@ -1123,7 +1123,8 @@ distance below $10^{-D}$ relative is refused one step earlier, and the next
 refinement widens $D$ with the binary precision.
 
 The elementary functions refuse contexts with $p$ or $|e|$ above 999,999
-(`invalid_context`), which bounds the size of the exact endpoint conversions.
+(`invalid_context`; the decNumber limit, see the `decimal_gda` design page),
+which bounds the size of the exact endpoint conversions.
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
 correctly rounded last bit", *ACM TOMS* 17(3), 1991; J.-M. Muller et al.,

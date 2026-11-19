@@ -453,7 +453,7 @@ that would be subnormal are drawn in nearest-even) and its range is one binade
 narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the
 row's own range, so those limits are compared); NaN payloads are not compared;
 the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin|
-reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts; opt-in
+reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts as a deliberate implementation limit, which decTest requires and GDA 1.70's Invalid context condition permits, but which the operation text does not state; opt-in
 `decimal_gda-*wide` families sample those contexts); libmpdec decides Subnormal and
 Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before
 any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN

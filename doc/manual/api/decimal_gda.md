@@ -433,8 +433,15 @@ zeros and some results are normalized, and `fma` is invalid.
 
 > [!NOTE]
 > `exp`, `ln`, `log10` and `power` with a non-integer exponent require
-> $p \le 999\,999$, $e_{\max} \le 999\,999$ and $e_{\min} \ge -999\,999$, as the
-> GDA specification does for its mathematical functions. With the default
+> $p \le 999\,999$, $e_{\max} \le 999\,999$ and $e_{\min} \ge -999\,999$. This is a
+> deliberate implementation limit, not a rule of the GDA operation text: it is
+> decNumber's `DEC_MAX_MATH`, the official decTest suite requires it
+> (`power.decTest` rows powx4001 to powx4005; the matching rows expx901 to
+> expx906, lnx901 to lnx906 and logx901 to logx906 of `exp.decTest`,
+> `ln.decTest` and `log10.decTest`, in a section that decTest labels
+> decNumber's restricted range for the mathematical functions), and GDA 1.70
+> permits it through its Invalid context condition (the precision "exceeds the
+> capability of the underlying concrete representation"). With the default
 > exponent range they return NaN and raise `InvalidContext`.
 
 ### `GdaContext::basic`, `GdaContext::default`, `GdaContext::decimal32`, `GdaContext::decimal64`, `GdaContext::decimal128`

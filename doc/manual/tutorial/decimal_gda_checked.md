@@ -188,7 +188,8 @@ test "a malformed literal" {
 
 ### Mathematical functions need bounded contexts
 
-`exp`, `ln`, `log10` and `power` follow the GDA restriction to precision and
+`exp`, `ln`, `log10` and `power` keep decNumber's restriction (an implementation
+limit that decTest requires) to precision and
 exponent limits within $\pm 999\,999$. The interchange contexts satisfy it;
 `GdaContext::new` with its default unbounded range does not, and the functions
 return NaN with `invalid_context` (which traps under `InvalidOperation`):
