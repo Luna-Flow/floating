@@ -420,14 +420,6 @@ fn decimal_ln_candidate(value : Decimal, work_precision : Int32) -> Decimal {
 }
 
 ///|
-fn decimal_exp_candidate(value : Decimal, work_precision : Int32) -> Decimal {
-  let work_ctx = decimal_math_work_ctx(Int32::max(work_precision + 24, 96))
-  let constant_scale = work_ctx.precision + 12
-  let (_, _, ln10_scaled) = decimal_transcendental_ln_constants(constant_scale)
-  _decimal_exp_finite_work_result_with_ln10(value, work_ctx, ln10_scaled).0
-}
-
-///|
 fn decimal_ball_candidate(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
@@ -439,20 +431,47 @@ fn decimal_ball_candidate(
 }
 
 ///|
-/// `decimal_ball_candidate` padded to at least `precision + 8` digits, as the
-/// decimal series candidate always is: a midpoint with a short expansion (the
-/// exponential of a tiny argument is within the enclosure of 1) would
+/// The candidate of the certified exponential: the midpoint of the enclosure
+/// converted to decimal, padded to at least `precision + 8` digits, as the
+/// decimal series candidate always was (a midpoint with a short expansion, the
+/// exponential of a tiny argument being within the enclosure of 1, would
 /// otherwise round to a coefficient shorter than the precision, a different
-/// cohort of the same value.
+/// cohort of the same value).
+///
+/// The candidate is only a guess that `decimal_certified_half_even_candidate`
+/// then certifies: the result is the rounding of the candidate, returned only
+/// when the whole enclosure lies strictly inside the rounding cell of that
+/// rounding. An enclosure inside one cell contains its midpoint, so the
+/// midpoint rounds into that cell and the result is the same as for any other
+/// point of the enclosure. The conversion keeps `work_precision * 0.31 + 4`
+/// digits (10^-digits is below 2^-(work_precision + 3), under the radius of the
+/// enclosure) so that the conversion error cannot carry the candidate across a
+/// boundary of the cell, or onto it, when the enclosure itself does not.
 fn decimal_exp_ball_candidate(
+  value : Decimal,
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
+  work_precision : Int32,
 ) -> Decimal {
-  let candidate = decimal_ball_candidate(interval, ctx)
+  let wanted = Int32::max(
+    decimal_math_target_precision(ctx) + 8,
+    work_precision * 31 / 100 + 4,
+  )
+  // The midpoint of the enclosure of exp(x) for a large |x| is a binary float
+  // of exponent about 1.44 * x: converting it exactly costs a division by a
+  // power of two of that size (exp(-3E+6) in a context of 10^6 exponents
+  // never finishes). The decimal series costs the same for every argument.
+  // Measured (instructions retired, precision 16): the midpoint is 20% faster
+  // than the series up to |x| = 500 and still faster at 1000 (-7% for
+  // negative x), but slower at -2000 (+10%), 7000 (+4%) and 10^4 (+24%),
+  // and 5 times slower at -10^4, so the series takes |x| >= 10^3.
+  if value.coefficient.digits10() + value.exponent10 > 3 {
+    return decimal_exp_series_candidate(value, wanted)
+  }
+  let candidate = Decimal::from_bin_float(interval.midpoint(), precision=wanted)
   guard candidate.class == FpClass::Finite && !candidate.coefficient.is_zero() else {
     return candidate
   }
-  let wanted = decimal_math_target_precision(ctx) + 8
   let shift = wanted - candidate.coefficient.digits10()
   if shift <= 0 {
     candidate
@@ -464,6 +483,15 @@ fn decimal_exp_ball_candidate(
       candidate.precision_,
     )
   }
+}
+
+///|
+/// The decimal series candidate of `exp(value)` with `digits` digits.
+fn decimal_exp_series_candidate(value : Decimal, digits : Int32) -> Decimal {
+  let work_ctx = decimal_math_work_ctx(Int32::max(digits + 24, 96))
+  let constant_scale = work_ctx.precision + 12
+  let (_, _, ln10_scaled) = decimal_transcendental_ln_constants(constant_scale)
+  _decimal_exp_finite_work_result_with_ln10(value, work_ctx, ln10_scaled).0
 }
 
 ///|
@@ -943,11 +971,12 @@ fn decimal_certified_exp_result(
     let input = decimal_to_certified_ball(value, budget.precision())
     match input.try_exp_interval() {
       Ok(interval) => {
-        let candidate = if fast_attempt {
-          decimal_exp_ball_candidate(interval, ctx)
-        } else {
-          decimal_exp_candidate(value, budget.precision())
-        }
+        let candidate = decimal_exp_ball_candidate(
+          value,
+          interval,
+          ctx,
+          budget.precision(),
+        )
         match
           decimal_certified_half_even_candidate(
             interval,
