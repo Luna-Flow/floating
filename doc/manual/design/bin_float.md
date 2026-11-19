@@ -1095,7 +1095,7 @@ correction loop. The kernel declines (`None`, and the series runs) for
 $|x| < 2^{-65}$ or $|x| \ge 2^{30}$, when $|n| \ge 2^{29}$ (the result
 exponent would approach the limit of the exponent range), when $x$ has bits
 below $2^{-G}$, and when the computed width exceeds $2^{-(w+6)}$ of the value.
-It is used from a per-target working precision, kept with the coefficient
+(Below the table kernel's ceiling, next section, the table kernel is tried first.) It is used from a per-target working precision, kept with the coefficient
 thresholds: 1024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on
 JavaScript (the kernel is slower than the series below roughly 1000 bits on
 Native, 600 on Wasm-GC; on JavaScript it wins already at 256). The three
@@ -1145,6 +1145,117 @@ unchanged, a first estimate (not measured) is 0.6 to 0.8 ms at 8192 bits and
 60 to 80 µs at 2048 bits, which is about 3 to 4 times the MPFR reference
 (213 µs and 17 µs). The remaining gap would be allocation and the small-integer
 steps of the fixed-point stages.
+
+**`exp`, by tables and rectangular splitting (medium precision).** Below
+a per-target working precision (1536 to 3072 bits, see below) the enclosure of
+$e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the
+scheme of Johansson, *Efficient implementation of elementary functions in the
+medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer
+arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64
+($\ge 128$; multiples of 256 above 1024), so $g \ge 16$. The reduction to
+$R_t = \lfloor 2^F R \rfloor / 2^F \in [0, \ln 2)$ and the residual factor
+$e^{\delta}$ are those of the bit-burst kernel above (3 units below, 6 above
+in units of $2^{-F}$, valid because $e^{R_t} < 3$). Then, with
+$K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \le 256$, $(6,6)$ up to 1024,
+$(6,5)$ above),
+
+$$
+R_t = \frac{j_1}{2^{k_1}} + \frac{j_2}{2^{K}} + r,\qquad
+j_1 = \lfloor 2^{k_1} R_t \rfloor,\quad
+j_2 = \Bigl\lfloor 2^{K}\bigl(R_t - \tfrac{j_1}{2^{k_1}}\bigr)\Bigr\rfloor,\quad
+0 \le r < 2^{-K},
+$$
+
+all three parts exact multiples of $2^{-F}$, so $e^{R_t} = T_1[j_1]\, T_2[j_2]\,
+e^{r}$ with $T_1[j] = e^{j/2^{k_1}}$ ($j \le \lfloor 2^{k_1} \ln 2 \rfloor$) and
+$T_2[j] = e^{j/2^{K}}$ ($j < 2^{k_2}$).
+
+*Tables.* Built lazily, one set per value of $F$ (at most 24 sets are kept),
+each entry an integer enclosure $L \le 2^{F} e^{j/2^k} \le H$ taken from the
+certified kernels already in the library (`binary_exp_bounds_untabled`, the
+bit-burst or series path, at $F + 8$ bits): $L = \lfloor 2^F \cdot \mathrm{low}
+\rfloor$, $H = \lfloor 2^F \cdot \mathrm{high} \rfloor + 1$. A table is therefore
+as certified as the kernels it comes from, and a test recomputes every entry of
+two table sets from the series at $F + 256$ bits. The tables are not hard-coded.
+
+*Taylor series of $r$.* Write $r = a / 2^F$, $0 \le a < 2^{F-K}$ (so
+$r < 2^{-K}$, $K \ge 11$ in the shapes above). The number of terms $N$ is the
+least with $K N + \sum_{i \le N} (\operatorname{bits}(i) - 1) \ge F + 1$; as
+$N! \ge 2^{\sum (\operatorname{bits}(i)-1)}$ and the ratio of consecutive terms
+is below $1/2$, the tail satisfies $\sum_{i \ge N} r^i/i! \le 2 r^N/N! \le
+2^{-F}$: at most one unit. The sum is evaluated by rectangular
+(Paterson–Stockmeyer) splitting: $N$ is rounded up to $N' = b m$, the block size
+$m$ minimises a small cost model, and
+
+1. powers $p_0 = 2^F$, $p_1 = a$, $p_j = \lfloor p_{\lceil j/2 \rceil}
+   p_{\lfloor j/2 \rfloor} / 2^F \rfloor$, $j \le m$. By induction $p_j \le 2^F r^j$
+   and $e_j := 2^F r^j - p_j < 1 + (e_u + e_v) 2^{-K} + e_u e_v 2^{-F} < 2$
+   (every product loses less than one unit, the factors' errors are scaled by
+   $r^u, r^v < 2^{-K}$);
+2. integer coefficients $C_i = N'!/i!$ (computed once per $N'$);
+   $P_\beta = \sum_{j<m} C_{\beta m + j}\, p_j$ for blocks $\beta = 0 .. b-1$;
+3. Horner in $y = p_m$: $\mathrm{Acc}_{b-1} = P_{b-1}$,
+   $\mathrm{Acc}_\beta = P_\beta + \lfloor p_m \mathrm{Acc}_{\beta+1} / 2^F \rfloor$;
+4. one division, $E = \lfloor \mathrm{Acc}_0 / N'! \rfloor$.
+
+*Error of the series.* The exact counterpart is $\mathrm{Acc}^*_0 = N'!\, 2^F
+\sum_{i<N'} r^i/i!$, and every computed quantity is a lower bound of its exact
+counterpart. Let $\varepsilon_\beta = \mathrm{Acc}^*_\beta - \mathrm{Acc}_\beta$
+in units of $N'!$. The deficit of $P_\beta$ is $\sum_{j\ge 2} C_{\beta m+j}
+e_j / N'! < 2 \sum_{j \ge 2} 1/(\beta m + j)! \le 2(e - 2) < 1.44$ ($e_0 = e_1
+= 0$). In the Horner step the error of $p_m$ contributes $e_m
+\mathrm{Acc}^*_{\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$ (because
+$\mathrm{Acc}^*_{\beta+1} \le N'!\, 2^F e^{r}$), the propagated error
+$p_m \varepsilon_{\beta+1} / 2^F < \varepsilon_{\beta+1}/16$, and the floor less
+than one unit. So $\varepsilon_\beta < 1.44 + 3.4 + 1 + \varepsilon_{\beta+1}/16$,
+whence $\varepsilon < 6.2 \cdot 16/15 < 7$ for every block. The final floor
+loses less than one more unit, and the tail at most one:
+
+$$
+E \;\le\; 2^F e^{r} \;<\; E + 10 .
+$$
+
+*Assembly.* With the table entries (already in units of $2^{-F}$),
+$\mathrm{low} = \lfloor \lfloor L_1 L_2 / 2^F \rfloor E / 2^F \rfloor - 3$ and
+$\mathrm{high} = \lfloor \lfloor H_1 H_2 / 2^F \rfloor + 1) (E + 10) / 2^F
+\rfloor + 1 + 6$. All factors are positive, so the floor-and-add-one products
+are monotone enclosures; the final enclosure is then rounded outward to $w$
+bits. The kernel declines (the older paths run) in the same cases as the
+bit-burst kernel ($|x| < 2^{-65}$, $|x| \ge 2^{30}$, $|n| \ge 2^{29}$, $x$ with
+bits below $2^{-G}$) and when the width exceeds $2^{-(w+6)}$ of the value. The
+width of the enclosure is a few dozen units of $2^{-F}$ (the series 10, the
+tables 2 each, the reduction 9, the products another factor up to 2), far
+below the $2^{F-w-6}$ units the check allows.
+
+*Why results are bit-identical.* The kernel only supplies an enclosure of $e^x$
+to the Ziv loop of `exp_ctx` and of the functions built on it (`exp2`, `exp10`,
+`expm1`, `pow`, `compound`, `powr`, the hyperbolic functions, the decimal
+elementary functions). Correct rounding is unique, so any valid enclosure gives
+the same value and flags; a different enclosure can only change how many
+precision steps the loop takes. The proof obligation is therefore exactly the
+validity of the enclosure, which the analysis above establishes and the
+white-box tests check against the series at $w + 256$ bits.
+
+*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series
+enclosure at $w + 256$ for up to 256 arguments of $2^{-60}$ to $2^{30}$ at working
+precisions 53 to 1000, positive and negative; arguments equal to table nodes
+$j/2^{k_1}$, $j/2^K$ and one unit below and above them (remainder at or
+just off a table boundary); multiples of $\ln 2$ up to $n = 10^6$;
+the Taylor stage on $a \in \{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \text{random}\}$ at
+$F$ from 80 to 2100 with its width at most 10 units; every entry of two table
+sets; declined arguments. 
+
+*Measured (release, this machine, kernel only, $x \approx 0.7$).* Native:
+53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits
+4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits
+94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table
+kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC,
+3072 on JavaScript) are per-target constants beside the bit-burst threshold.
+Above them the bit-burst kernel (from its own threshold) and the series
+are unchanged. The cost of the table kernel is dominated by a few
+dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the
+size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it
+loses there.
 
 **`ln`, by verified Newton step.** Write $v = m\, 2^{k}$ with
 $m \in [2^{-1/2}, 2^{1/2})$, so $\ln v = k \ln 2 + \ln m$. Take any dyadic
