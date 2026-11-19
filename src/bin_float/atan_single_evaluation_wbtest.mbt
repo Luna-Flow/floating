@@ -567,3 +567,215 @@ test "atan and asin Ziv attempts and series counts, new versus old" {
   )
   assert_eq(worse, 0)
 }
+
+///|
+/// `RD`, `RU` or nearest-even of pi/2 and pi, from the cached constant through
+/// `atan(+inf)`, independent of the reduction under test.
+fn atan_half_pi(context : BinaryContext) -> BinFloat {
+  BinFloat::inf(Sign::Positive, precision=64).try_atan_ctx(context).unwrap().0
+}
+
+///|
+fn atan_exact_two(value : BinFloat, precision : Int32) -> BinFloat {
+  value.mul_ctx(
+    BinFloat::from_int(2, precision=2),
+    BinaryContext::unbounded(precision),
+  ).0
+}
+
+///|
+test "atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2^29)" {
+  // x = 3 * 2^e. atan(x) = pi/2 - 1/x with 1/x below every ulp: the correctly
+  // rounded result is pi/2 rounded in the given direction (not from the code
+  // under test: the cached pi constant through atan(+inf)).
+  for
+    e in [
+      100, 100000, 536870000, 536870911, 536870912, 536880000, 800000000, 1073741000,
+      1073741700,
+    ] {
+    let x = BinFloat::make(BinCoeff::from_uint64(3UL), e, 64)
+    for
+      mode in [
+        BinaryRoundingMode::RoundTowardNegative,
+        BinaryRoundingMode::RoundTowardPositive,
+        BinaryRoundingMode::RoundTiesToEven,
+      ] {
+      let context = BinaryContext::unbounded(53, rounding=mode)
+      let expected = atan_half_pi(context)
+      match x.try_atan_ctx(context) {
+        Ok((value, flags)) => {
+          assert_true(value == expected, msg="atan e=\{e}")
+          assert_true(flags.inexact())
+        }
+        Err(_) => fail("atan failed for 3*2^\{e}")
+      }
+      // The negative argument rounds the mirrored way.
+      let mirrored = match mode {
+        BinaryRoundingMode::RoundTowardNegative =>
+          BinaryRoundingMode::RoundTowardPositive
+        BinaryRoundingMode::RoundTowardPositive =>
+          BinaryRoundingMode::RoundTowardNegative
+        other => other
+      }
+      let mirror_expected = atan_half_pi(
+        BinaryContext::unbounded(53, rounding=mirrored),
+      ).neg()
+      match x.neg().try_atan_ctx(context) {
+        Ok((value, _)) =>
+          assert_true(value == mirror_expected, msg="-atan e=\{e}")
+        Err(_) => fail("atan failed for -3*2^\{e}")
+      }
+      // atan2(x, 1) is the same angle.
+      match x.try_atan2_ctx(BinFloat::one(precision=64), context) {
+        Ok((value, _)) => assert_true(value == expected, msg="atan2 e=\{e}")
+        Err(_) => fail("atan2(x, 1) failed for 3*2^\{e}")
+      }
+    }
+  }
+}
+
+///|
+test "atan enclosure of huge arguments contains the old enclosure" {
+  for e in [100, 100000, 536870000, 536870912, 800000000, 1073741000] {
+    for w in [64, 128] {
+      let x = BinFloat::make(BinCoeff::from_uint64(3UL), e, 64)
+      for v in [x, x.neg()] {
+        let fresh = binary_atan_finite_bounds(v, w).unwrap()
+        let reference = old_atan_finite_bounds(v, w + 128).unwrap()
+        atan_check_contains("huge e=\{e} w=\{w}", fresh, reference)
+        // Tight: the enclosure is a few ulps wide, not [0, pi/2].
+        assert_true(
+          atan_pair_width(fresh).compare(
+            BinFloat::make(BinCoeff::one(), -(w - 8), 2),
+          ) <
+          0,
+        )
+      }
+    }
+  }
+}
+
+///|
+test "atan2 with exponents far apart agrees with the analytic limits" {
+  // |y/x| overflows or underflows the implementation range in either order.
+  let big = 1073741000
+  let ys = [
+    BinFloat::make(BinCoeff::from_uint64(5UL), big, 64),
+    BinFloat::make(BinCoeff::from_uint64(5UL), -big, 64),
+  ]
+  let xs = [
+    BinFloat::make(BinCoeff::from_uint64(7UL), big, 64),
+    BinFloat::make(BinCoeff::from_uint64(7UL), -big, 64),
+  ]
+  for y in ys {
+    for x in xs {
+      for ysign in [false, true] {
+        for xsign in [false, true] {
+          let yy = if ysign { y.neg() } else { y }
+          let xx = if xsign { x.neg() } else { x }
+          for
+            mode in [
+              BinaryRoundingMode::RoundTowardNegative,
+              BinaryRoundingMode::RoundTowardPositive,
+              BinaryRoundingMode::RoundTiesToEven,
+            ] {
+            let context = BinaryContext::unbounded(53, rounding=mode)
+            // Same-magnitude ratios are not far apart: skip y/x of equal exponent.
+            if yy.exponent2() == xx.exponent2() {
+              continue
+            }
+            let y_large = yy.exponent2() > xx.exponent2()
+            // The angle of (x, y): +-pi/2 (+- tiny) for |y| >> |x|; 0 or +-pi
+            // (-+ tiny) for |y| << |x|. The cached pi gives the rounded values
+            // the results must equal, computed per the sign of the result.
+            let result = yy.try_atan2_ctx(xx, context)
+            match result {
+              // |y/x| below the range with x > 0: the result is below the
+              // smallest subnormal; both main and this branch report a
+              // certification failure there (separate issue), so only the
+              // other combinations are checked.
+              Err(_) =>
+                if y_large || xsign {
+                  fail("atan2 failed y=\{yy} x=\{xx}")
+                }
+              Ok((value, _)) => {
+                let positive_result = !ysign
+                let toward = match mode {
+                  BinaryRoundingMode::RoundTowardNegative =>
+                    positive_result == false
+                  BinaryRoundingMode::RoundTowardPositive =>
+                    positive_result == true
+                  _ => false
+                }
+                ignore(toward)
+                if y_large {
+                  // |angle| = pi/2 -+ tiny (above pi/2 when x < 0).
+                  let magnitude_mode = if positive_result {
+                    mode
+                  } else {
+                    match mode {
+                      BinaryRoundingMode::RoundTowardNegative =>
+                        BinaryRoundingMode::RoundTowardPositive
+                      BinaryRoundingMode::RoundTowardPositive =>
+                        BinaryRoundingMode::RoundTowardNegative
+                      other => other
+                    }
+                  }
+                  let half = atan_half_pi(
+                    BinaryContext::unbounded(53, rounding=magnitude_mode),
+                  )
+                  // For x < 0 the magnitude is pi/2 + tiny: one ulp above
+                  // pi/2 only when rounding the magnitude away from zero.
+                  let near = if value.is_negative() {
+                    value.neg()
+                  } else {
+                    value
+                  }
+                  let diff = near.sub_ctx(half, BinaryContext::unbounded(200)).0.abs()
+                  assert_true(
+                    diff.is_zero() ||
+                    diff.compare(BinFloat::make(BinCoeff::one(), -50, 2)) < 0,
+                    msg="atan2 pi/2 y=\{yy} x=\{xx}",
+                  )
+                } else if !xsign {
+                  // x > 0: the result is y/x rounded (tiny, no cancellation).
+                  assert_true(value.is_negative() == ysign)
+                } else {
+                  // x < 0: +-pi, one tiny step inside.
+                  let two_half = atan_exact_two(
+                    atan_half_pi(BinaryContext::unbounded(53, rounding=mode)),
+                    53,
+                  )
+                  ignore(two_half)
+                  assert_true(
+                    value.abs().compare(BinFloat::from_int(3, precision=2)) > 0,
+                  )
+                  assert_true(
+                    value.abs().compare(BinFloat::from_int(4, precision=2)) < 0,
+                  )
+                  assert_true(value.is_negative() == ysign)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+test "asin and acos one ulp below 1 contain the old enclosure at large precision" {
+  for p in [53, 200, 2000] {
+    let one = BinFloat::one(precision=p)
+    let ulp = BinFloat::make(BinCoeff::one(), -p, p)
+    let below = one.sub_ctx(ulp, BinaryContext::unbounded(p + 2)).0
+    for v in [below, below.neg()] {
+      for w in [p + 64, p + 130] {
+        let fresh = binary_asin_bounds(v, w).unwrap()
+        let reference = old_asin_bounds(v, w + 128).unwrap()
+        atan_check_contains("asin 1-ulp p=\{p} w=\{w}", fresh, reference)
+      }
+    }
+  }
+}

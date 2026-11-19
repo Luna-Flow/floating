@@ -970,6 +970,19 @@ for $|x| \le 1/2$, twice up to $4/3$ and four times above (a lower and an upper
 call per reduction level); a point argument now costs one series at every
 size.
 
+**Large arguments.** The square $x^2$ of the reduction leaves the exponent range
+for $|x| \ge 2^{2^{29}}$, so for a leading bit of $x$ of at least $2w + 2$ the
+reduction is formed without it: with $y = 1/x$,
+$r(x) = 1 / (y + \sqrt{1 + y^2})$ and
+$1 + y \le y + \sqrt{1 + y^2} \le 1 + y + y^2$, hence
+$1/(1 + y + y^2) \le r(x) \le 1/(1 + y)$, evaluated with directed reciprocals
+of $x$; the relative gap is below $2y \le 2^{-2w-1}$. An infinite end of a pair
+(a quotient of `atan2` that overflowed) is bounded by $\pi/2$ rounded in the
+matching direction. The test `atan_single_evaluation_wbtest.mbt` covers
+$3 \cdot 2^e$ for $e$ on both sides of $2^{29}$ and near $2^{30}$, both signs and
+three rounding directions, against $\pi/2$ from the cached constant; the public
+results equal those of the previous code there.
+
 For $\operatorname{asin}$ the pair is the ratio $f(x) = x / \sqrt{1 - x^2}$,
 increasing on $(-1, 1)$. With $\sqrt{1 - x^2} \in [\rho^-, \rho^+]$ on the
 operand pair (directed roots of directed $1 - x^2$), the lower end is
