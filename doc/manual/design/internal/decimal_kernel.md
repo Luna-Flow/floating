@@ -114,6 +114,24 @@ value. Functions on the hot path of the `decimal` greatest-common-divisor loop
 `decimal` division at 34 and 100 digits showed the allocation; matching
 removed it.
 
+### Digit counts, accumulators and exact quotients
+
+`dec_coeff_small_digits` counts the digits of a one-word value with the
+leading-zero count (`floor(bits * 1233 / 4096)` is the digit count or one
+less) and one comparison with a power of ten; `value | 1` maps zero to one
+digit and never changes the count of another value. Both packages use it, as
+`digits10` of every `Small` coefficient. `dec_coeff_from_unit_accumulator`
+trims leading zero limbs and truncates the buffer in one step and does not scan
+the limbs for values at or above the base: every producer writes limbs below
+the base, which the white-box test "unit accumulator producers write limbs
+below the base" checks over shifts, sums, products and quotients. A division
+that must also say whether the exact quotient has a finite decimal expansion
+uses `dec_coeff_round_div_expansion`: with $d = 2^a 5^b u$, $u$ prime to 10,
+the expansion of $n/d$ is finite exactly when $u \mid n$, and as 10 is
+invertible modulo $u$ that is equivalent to $u$ dividing the remainder of
+$n\,10^k$ by $d$, so the one division that produces the quotient also decides
+it.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least

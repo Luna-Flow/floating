@@ -715,7 +715,16 @@ refinement loop.[^ziv] For $f(x)$:
    $[L, U] \ni f(x)$ (for `log10`, $\ln$ divided by a cached enclosure of
    $\ln 10$; for `power`, $\exp(y \ln x)$ through enclosures of $\ln x$).
 4. **Certify a candidate.** A decimal approximation $\tilde y$ (the ball
-   midpoint, or a decimal series evaluation) is rounded to $r$. Let $(a, b)$
+   midpoint; `power` may use a decimal series evaluation) is rounded to $r$.
+   The candidate is only a guess that the test below certifies: the result
+   is $r$ when the whole enclosure lies strictly inside the rounding cell of
+   $r$, and then the midpoint of the enclosure, which belongs to it, rounds to
+   the same cell. `exp` therefore takes the midpoint (the series with the same number of
+   digits when $|x| \ge 10^3$, where the midpoint is a binary float of enormous
+   exponent), converted to
+   $\max(p + 8, \lfloor 0.31\,w \rfloor + 4)$ digits so that the conversion
+   error is below the radius of the enclosure and cannot carry the candidate
+   onto a cell boundary that the enclosure itself avoids. Let $(a, b)$
    be the open interval of reals around $r$ that round to $r$: the two
    midpoints with the neighbours for the half modes, $(r, r^+)$ or $(r^-, r)$
    for the directed ones (the real rounding cell of a directed mode is
