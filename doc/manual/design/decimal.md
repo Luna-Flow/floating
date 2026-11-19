@@ -1018,7 +1018,28 @@ enclosure divided by it (error: the angle, $\pi$ and the division, about
   what $10^{-300}$ costs, where the exact decimal endpoints of a binary
   number near $2^{-6.6\cdot 10^6}$ have about two million digits (an
   unscaled `asinpi(7E-9999)` took more than a minute in a debug build before
-  this path existed).
+  this path existed). For $\operatorname{atan2Pi}(y, x)$ with $x > 0$ the
+  derivation is: $\operatorname{atan2Pi}(y, x) = \operatorname{sign}(y)
+  \operatorname{atan}(r)/\pi$ with $r = |y/x| = (s_y/s_x)\,10^{D}$, where
+  $s_y, s_x \in [1, 10)$ are the operands scaled by their adjusted exponents
+  and $D = \operatorname{adj}(y) - \operatorname{adj}(x)$, so
+  $r < 10^{D+1}$; for $r \le 1$, $\operatorname{atan}(r)/r \in [1 - r^2, 1]$,
+  hence $\operatorname{atan}(r)/\pi = (s_y/(s_x \pi))\,10^{D}(1 - e)$ with
+  $0 \le e \le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the
+  moderate factor $(s_y/(s_x\pi))(1 - 2^{-k})$, $k \le 3.32\,t$, and shifts
+  it by $D$. The path is taken when $3t \ge 8\max(D_{\text{digits}}, p) + 400$,
+  where it is decidable; the derivation itself needs only $t > 0$.
+  The operands of every other case are first multiplied by
+  $10^{-\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged),
+  so operands with exponents of millions of digits and a moderate ratio cost
+  what moderate operands cost. `src/decimal/atan2pi_scaled_wbtest.mbt` and the
+  generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python
+  `decimal` at 450 digits, a cross-check only) cover ratios on both sides of
+  the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is
+  $\pm(1 - \operatorname{atan}(r)/\pi)$, next to $\pm 1$, and takes the other
+  anchored path), the four formats and all eight rounding directions;
+  replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes
+  rows fail (checked by mutation).
 
 #### Outward-rounded endpoints
 

@@ -470,6 +470,56 @@ pub fn Decimal::try_atan2pi_ctx(
       None => ()
     }
   }
+  // atan2 depends on the ratio only: scaling both operands by 10^-adjusted(x)
+  // keeps it, leaves x in [1, 10) and spares the conversion of operands with
+  // exponents of millions of digits (`1E-1999996` against `1`).
+  let x_shift = adjusted_exponent64(x).to_int()
+  let ordinate = { ..ordinate, exponent10: ordinate.exponent10 - x_shift, }
+  let x = { ..x, exponent10: x.exponent10 - x_shift, }
+  let finalize = fn(result : (Decimal, DecimalFlags)) {
+    // A result that rounds to zero keeps the exponent of the rounding; only the
+    // sign of the ordinate is imposed (as for atan2, #332).
+    let value = if result.0.is_zero() {
+      { ..result.0, negative, }
+    } else {
+      result.0
+    }
+    finish((value, result.1))
+  }
+  // Small ratio with x > 0: atan2(y, x) / pi = (r / pi) (1 - e) with
+  // r = |y / x| = (sy / sx) 10^D, sy and sx the operands scaled to [1, 10),
+  // D = adjusted(y) - adjusted(x), and 0 <= e <= r^2 < 10^(2 D + 2) (atan r / r
+  // lies in [1 - r^2, 1] for r <= 1). The loop encloses the moderate value
+  // sy / (sx pi) (1 - e) and shifts it by D, so the exact decimal endpoints of a
+  // result near 10^-2,000,000 are never formed (as for atanpi).
+  if !behind {
+    let t = -(2L * distance + 2L)
+    let digits = Int32::max(
+      ordinate.coefficient.digits10(),
+      x.coefficient.digits10(),
+    )
+    if decimal_pi_tiny_enough(t, digits, ctx) {
+      let (scaled_y, _) = decimal_pi_scale_to_unit(ordinate)
+      let (scaled_x, _) = decimal_pi_scale_to_unit(x)
+      return decimal_certified_scaled_loop(
+        Int32::max(
+          decimal_certified_work_precision(scaled_y, ctx),
+          decimal_certified_work_precision(scaled_x, ctx),
+        ),
+        distance.to_int(),
+        ctx,
+        "atan2pi",
+        fn(precision) {
+          let magnitude = decimal_to_certified_ball(scaled_y, precision)
+            .abs()
+            .div(decimal_to_certified_ball(scaled_x, precision).abs())
+            .div(decimal_pi_ball(precision))
+            .mul(decimal_pi_tiny_factor(false, t, precision))
+          Ok(if negative { magnitude.neg() } else { magnitude })
+        },
+      ).map(finalize)
+    }
+  }
   decimal_certified_binary_result(ordinate, x, ctx, "atan2pi", fn(
     y,
     x_interval,
@@ -497,16 +547,7 @@ pub fn Decimal::try_atan2pi_ctx(
         magnitude
       }
     })
-  }).map(fn(result) {
-    // A result that rounds to zero keeps the exponent of the rounding; only the
-    // sign of the ordinate is imposed (as for atan2, #332).
-    let value = if result.0.is_zero() {
-      { ..result.0, negative, }
-    } else {
-      result.0
-    }
-    finish((value, result.1))
-  })
+  }).map(finalize)
 }
 
 ///|
