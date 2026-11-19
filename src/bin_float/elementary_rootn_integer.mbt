@@ -1,8 +1,38 @@
 ///|
 /// Largest `|degree|` that `rootn` (and `rsqrt`, `pow` with a unit-fraction
-/// exponent) rounds with one integer root. The integer is `n (p + 2)` bits
-/// wide; above this the certified `exp(ln(x) / n)` loop is used.
+/// exponent) may round with one integer root.
 let binary_rootn_integer_max_degree : Int32 = 32
+
+///|
+/// Up to this degree the integer root is used at every precision. Instructions
+/// retired, certified loop divided by integer root, measured from 53 to 32768
+/// bits: degree 2 about 50 to 300, 3 about 15 to 33, 5 about 7 to 21, 10 about
+/// 2.5 to 14, 12 about 2.4 to 49.
+let binary_rootn_integer_any_precision_degree : Int32 = 12
+
+///|
+/// Above that degree (13 to 32) the integer root is used up to this context
+/// precision: its Newton steps raise a number of `n (p + 2)` bits to the power
+/// `n - 1`, while the loop gets the fast `exp` and `ln` kernels from about
+/// 1500 bits on. Measured ratios (loop / integer): degree 16 is 30 at 512 bits
+/// and 20 at 1024 bits, then 1.6 at 2048 and 1.1 at 4096; degree 20 is 12 at
+/// 1024 and 1.1 at 2048; degrees 24 and 32 are 9.9 and 6.7 at 1024 bits and
+/// 0.8 and 0.45 (slower) at 2048.
+let binary_rootn_integer_wide_degree_max_precision : Int32 = 1024
+
+///|
+/// Whether `rootn` of degree `magnitude_degree` at `precision` takes the
+/// integer root (otherwise the certified loop).
+fn binary_rootn_integer_enabled(
+  magnitude_degree : Int64,
+  precision : Int32,
+) -> Bool {
+  magnitude_degree <= binary_rootn_integer_any_precision_degree.to_int64() ||
+  (
+    magnitude_degree <= binary_rootn_integer_max_degree.to_int64() &&
+    precision <= binary_rootn_integer_wide_degree_max_precision
+  )
+}
 
 ///|
 fn binary_floor_div_int32(value : Int32, divisor : Int32) -> Int32 {
