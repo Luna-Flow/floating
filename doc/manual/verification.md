@@ -290,7 +290,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   cases per function (750,000) and 100,000 per function on each of Wasm,
   Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on
   native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all
-  in agreement in value, cohort and flags. The 14,128 rows of
+  in agreement in value, cohort and flags. The 14,267 rows of
   `src/decimal/elementary_rcp_rows_wbtest.mbt`
   (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred
   exponents, the `Int32` minimum of `compound`, operands down to
