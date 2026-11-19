@@ -9,41 +9,6 @@ fn certified_pi_interval(precision : Int32) -> BallFloat {
 }
 
 ///|
-fn BallFloat::try_pi_scaled_endpoint_bounds(
-  self : BallFloat,
-  evaluate : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
-    (@bin_float.BinFloat, @bin_float.BinaryFlags),
-    @def.ArithmeticError,
-  ],
-) -> Result[
-  (
-    @bin_float.BinFloat,
-    @bin_float.BinFloat,
-    @bin_float.BinFloat,
-    @bin_float.BinFloat,
-  ),
-  @def.ArithmeticError,
-] {
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
-  )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
-  )
-  evaluate(self.lo_, downward).bind(fn(lower_down) {
-    evaluate(self.lo_, upward).bind(fn(lower_up) {
-      evaluate(self.hi_, downward).bind(fn(upper_down) {
-        evaluate(self.hi_, upward).map(fn(upper_up) {
-          (lower_down.0, lower_up.0, upper_down.0, upper_up.0)
-        })
-      })
-    })
-  })
-}
-
-///|
 fn pi_scaled_index_range(value : BallFloat) -> (SignedBinCoeff, SignedBinCoeff) {
   let lower = rat_mul_int(rat_from_finite_bin(value.lo_), 2)
   let upper = rat_mul_int(rat_from_finite_bin(value.hi_), 2)
@@ -376,23 +341,8 @@ pub fn BallFloat::try_sinpi_interval(
   if !self.is_bounded() {
     return Ok(unit_interval(self.precision_))
   }
-  self
-  .try_pi_scaled_endpoint_bounds(fn(value, context) {
+  self.try_sine_like_hull(pi_scaled_index_range(self), 0, fn(value, context) {
     value.try_sinpi_ctx(context)
-  })
-  .map(fn(bounds) {
-    let indices = pi_scaled_index_range(self)
-    let lower = if index_range_contains_residue(indices.0, indices.1, 3) {
-      @bin_float.BinFloat::from_int(-1, precision=self.precision_)
-    } else {
-      bin_min(bounds.0, bounds.2)
-    }
-    let upper = if index_range_contains_residue(indices.0, indices.1, 1) {
-      @bin_float.BinFloat::one(precision=self.precision_)
-    } else {
-      bin_max(bounds.1, bounds.3)
-    }
-    store_interval(lower, upper, self.precision_)
   })
 }
 
@@ -406,23 +356,8 @@ pub fn BallFloat::try_cospi_interval(
   if !self.is_bounded() {
     return Ok(unit_interval(self.precision_))
   }
-  self
-  .try_pi_scaled_endpoint_bounds(fn(value, context) {
+  self.try_sine_like_hull(pi_scaled_index_range(self), 1, fn(value, context) {
     value.try_cospi_ctx(context)
-  })
-  .map(fn(bounds) {
-    let indices = pi_scaled_index_range(self)
-    let lower = if index_range_contains_residue(indices.0, indices.1, 2) {
-      @bin_float.BinFloat::from_int(-1, precision=self.precision_)
-    } else {
-      bin_min(bounds.0, bounds.2)
-    }
-    let upper = if index_range_contains_residue(indices.0, indices.1, 0) {
-      @bin_float.BinFloat::one(precision=self.precision_)
-    } else {
-      bin_max(bounds.1, bounds.3)
-    }
-    store_interval(lower, upper, self.precision_)
   })
 }
 
