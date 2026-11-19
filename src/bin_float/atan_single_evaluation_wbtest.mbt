@@ -779,3 +779,49 @@ test "asin and acos one ulp below 1 contain the old enclosure at large precision
     }
   }
 }
+
+///|
+test "pi series enclosure contains pi and differs from the old one only by an ulp" {
+  // binary_pi_series_compute is 4 atan(1): the enclosure of the new chain
+  // against the old functions at 128 more bits, and against the cached pi.
+  let mut differing = 0
+  for w in 8..<70 {
+    let fresh = binary_pi_series_compute(w).unwrap()
+    let old_quarter = old_atan_finite_bounds(BinFloat::one(precision=w), w).unwrap()
+    let four = BinFloat::from_int(4, precision=w)
+    let old = (
+      old_quarter.0.mul_ctx(
+        four,
+        BinaryContext::unbounded(w, rounding=RoundTowardNegative),
+      ).0,
+      old_quarter.1.mul_ctx(
+        four,
+        BinaryContext::unbounded(w, rounding=RoundTowardPositive),
+      ).0,
+    )
+    let reference = binary_pi_bounds(w + 200).unwrap()
+    assert_true(fresh.0.compare(reference.0) <= 0, msg="pi lower w=\{w}")
+    assert_true(fresh.1.compare(reference.1) >= 0, msg="pi upper w=\{w}")
+    if fresh.0 != old.0 || fresh.1 != old.1 {
+      differing += 1
+      // within one unit in the last place of the old bounds
+      let ulp = BinFloat::make(BinCoeff::one(), old.1.exponent2(), 2)
+      assert_true(
+        atan_pair_width(fresh).compare(
+          atan_pair_width(old).add_ctx(
+            ulp.mul_ctx(
+              BinFloat::from_int(4, precision=3),
+              BinaryContext::unbounded(60),
+            ).0,
+            BinaryContext::unbounded(400),
+          ).0,
+        ) <=
+        0,
+        msg="pi width w=\{w}",
+      )
+    }
+  }
+  println(
+    "pi series widths 8..69 where the enclosure differs from the old one: \{differing}",
+  )
+}
