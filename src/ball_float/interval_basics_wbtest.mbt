@@ -85,3 +85,84 @@ test "interval basics: pown matches the original powers" {
     }
   }
 }
+
+///|
+fn trig_corpus(precision : Int32) -> Array[BallFloat] {
+  let values : Array[@bin_float.BinFloat] = []
+  for
+    d in [
+      -5.3, -3.0, -2.5, -1.5, -1.0, -0.75, -0.5, -0.1, -0.0, 0.0, 0.2, 0.5, 0.6,
+      1.0, 1.25, 1.5, 1.75, 2.0, 2.4, 3.0, 3.5, 4.5, 7.0,
+    ] {
+    values.push(@bin_float.BinFloat::from_double(d, precision~))
+  }
+  let out : Array[BallFloat] = [empty_interval(precision)]
+  for i in 0..<values.length() {
+    for j in i..<values.length() {
+      match BallFloat::try_from_bounds(values[i], values[j], precision~) {
+        Ok(v) => out.push(v)
+        Err(_) => ()
+      }
+    }
+  }
+  out
+}
+
+///|
+fn same_try(
+  a : Result[BallFloat, @def.ArithmeticError],
+  b : Result[BallFloat, @def.ArithmeticError],
+) -> Unit raise {
+  // Endpoints are compared as numbers: interval endpoints identify -0 and +0
+  // (see `canonical_interval_endpoint`); a zero endpoint can come from either
+  // end of a monotone range and keep the sign of its source.
+  match (a, b) {
+    (Ok(x), Ok(y)) => {
+      assert_eq(x.lo_.compare(y.lo_), 0)
+      assert_eq(x.hi_.compare(y.hi_), 0)
+      if !x.lo_.is_zero() {
+        assert_eq(x.lo_.to_string(), y.lo_.to_string())
+      }
+      if !x.hi_.is_zero() {
+        assert_eq(x.hi_.to_string(), y.hi_.to_string())
+      }
+      assert_eq(x.precision_, y.precision_)
+      assert_eq(x.is_empty(), y.is_empty())
+    }
+    (Err(_), Err(_)) => ()
+    _ => fail("result kinds differ")
+  }
+}
+
+///|
+test "corner selection: sinpi and cospi match the four-call original" {
+  for precision in [24, 80] {
+    for a in trig_corpus(precision) {
+      same_try(a.try_sinpi_interval(), a.old_try_sinpi_interval())
+      same_try(a.try_cospi_interval(), a.old_try_cospi_interval())
+    }
+  }
+}
+
+///|
+test "corner selection: atan2 matches the corner-and-axis hull" {
+  for precision in [24, 80] {
+    let corpus = trig_corpus(precision).filter(fn(v) { v.precision_ >= 0 })
+    // a coarser sub-sample keeps the quadratic loop cheap
+    let mut i = 0
+    for a in corpus {
+      i += 1
+      if i % 3 != 0 {
+        continue
+      }
+      let mut j = 0
+      for b in corpus {
+        j += 1
+        if j % 3 != 1 {
+          continue
+        }
+        same_try(a.try_atan2_interval(b), a.old_try_atan2_interval(b))
+      }
+    }
+  }
+}
