@@ -83,6 +83,26 @@ def exp_of(y: Decimal) -> Decimal:
 
 
 def true_value(op: str, x: Decimal, y: Decimal | None, n: int | None) -> Decimal:
+    if op in ("exp", "exp2", "exp10") and abs(x) < Decimal("1E-150"):
+        # 1 + c x with c = 1, ln 2, ln 10: next to 1 on the side of x, and the
+        # exact decimal is far beyond the 400 digits of the working context.
+        c = {"exp": Decimal(1), "exp2": LN2, "exp10": LN10}[op]
+        if abs(x) > Decimal("1E-390"):
+            return Decimal(1) + c * x
+        # An exact literal of 440 digits (the constructor does not round): 1
+        # plus or minus 10^-439 lies on the side of x, and any target
+        # precision rounds it as it rounds the true value.
+        return Decimal("1." + "0" * 438 + "1") if x > 0 else Decimal("0." + "9" * 439)
+    if op in ("expm1", "log1p") and abs(x) < Decimal("1E-150"):
+        # f(x) = x (1 + e) with e = x / 2 (expm1) or -x / 2 (log1p), |e| < 10^-150:
+        # on the side of x or of -x, by far less than a unit of any target
+        # precision. The relative correction is taken as 10^-440 with that sign,
+        # in an exact context (the operands have few digits).
+        sign = (1 if x > 0 else -1) * (1 if op == "expm1" else -1)
+        exact = decimal.Context(prec=1200, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+        return exact.multiply(x, exact.add(Decimal(1), Decimal(sign) * Decimal("1E-440")))
+    if op == "log1p":
+        return W.ln(1 + x)
     if op == "exp":
         return exp_of(x)
     if op == "exp2":
@@ -219,6 +239,30 @@ def args_for(op: str, spec) -> list[Decimal]:
     return xs
 
 
+TINY_OPS = ("exp", "exp2", "exp10", "expm1", "log1p")
+TINY_CONTEXTS = [CONTEXTS[0], CONTEXTS[1], CONTEXTS[3]]
+
+
+def tiny_args(op: str, spec) -> list[Decimal]:
+    """Tiny arguments on both sides of the thresholds of the tiny-argument decisions.
+
+    exp, exp2, exp10: `top + 1 < -(p + 3)` with `|x| < 10^top` (one-sided next
+    to 1); expm1, log1p: `adjusted(x) <= -(p + 12)` (scaled enclosure), and
+    below the subnormal range for results under `10^(etiny - 2)`.
+    """
+    _, precision, e_min, _, _ = spec
+    etiny = e_min - precision + 1
+    edge = -(precision + 5) if op in ("exp", "exp2", "exp10") else -(precision + 12)
+    exponents = [edge - 40, edge - 3, edge - 1, edge, edge + 1, edge + 3, edge + 25,
+                 etiny - 3, etiny - 2, -1999996, -5000, -300]
+    out = []
+    for d in exponents:
+        for mant in ("3", "7.5"):
+            for sign in ("", "-"):
+                out.append(Decimal(f"{sign}{mant}E{d}"))
+    return out
+
+
 def binary_args(op: str, spec) -> list[tuple]:
     """(x, y, n) triples for the binary operations."""
     _, precision, e_min, e_max, _ = spec
@@ -294,6 +338,16 @@ def all_rows() -> list[tuple]:
                     r = row(spec, rounding, op, x, None, None)
                     if r:
                         rows.append(r)
+            if spec in TINY_CONTEXTS:
+                for op in TINY_OPS:
+                    for x in tiny_args(op, spec):
+                        key = (spec[0], rounding, op, fmt(x))
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        r = row(spec, rounding, op, x, None, None)
+                        if r:
+                            rows.append(r)
             for op in BINARY:
                 for x, y, n in binary_args(op, spec):
                     key = (spec[0], rounding, op, fmt(x), fmt(y) if y is not None else n)

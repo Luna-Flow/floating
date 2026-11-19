@@ -185,6 +185,11 @@ fn decimal_tiny_unary_result(
     Tanh => (value, value.negative, 3L)
     Asinh => (value, value.negative, 3L)
     Atanh => (value, !value.negative, 3L)
+    // expm1(x) - x = x^2 / 2 + x^3 / 6 + ... > 0 and x - log1p(x) = x^2 / 2 -
+    // x^3 / 3 + ... > 0, both below x^2 < 10^(2 top) for 0 < |x| < 1/2: expm1
+    // lies above x and log1p below it, for either sign of x.
+    Expm1 => (value, true, 2L)
+    Log1p => (value, false, 2L)
     Cos => (Decimal::from_int(1, precision=ctx.precision), false, 2L)
     Cosh => (Decimal::from_int(1, precision=ctx.precision), true, 2L)
     _ => return None
@@ -517,6 +522,15 @@ fn Decimal::try_unary_elementary_ctx(
   match decimal_tiny_unary_result(value, operation, ctx) {
     Some(result) => return Ok(finish(result))
     None => ()
+  }
+  // exp2(x) = 1 + c x (1 + d) and exp10(x), exp(x) likewise (c = ln 2, ln 10,
+  // 1): for |x| < 10^top, |f(x) - 1| < 10^(top + 1) with the sign of x, so a
+  // tiny x puts f(x) next to the representable 1 on one side.
+  if operation == Exp2 || operation == Exp10 {
+    match decimal_exp_tiny_result(value, ctx) {
+      Some(result) => return Ok(finish(result))
+      None => ()
+    }
   }
   if operation == Log1p && value.compare(minus_one) == 0 {
     return Ok(finish(decimal_elementary_division_by_zero(Sign::Negative, ctx)))
