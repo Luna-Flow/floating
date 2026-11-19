@@ -62,6 +62,7 @@ using @decimal_kernel {
   decimal_round_scaled_coeff,
   decimal_small_pow10,
   exact_divide_by_power_of_ten_repr,
+  dec_coeff_round_div_expansion,
   has_finite_decimal_expansion_repr,
   is_power_of_ten_coeff,
   logical_binary_digits_repr,

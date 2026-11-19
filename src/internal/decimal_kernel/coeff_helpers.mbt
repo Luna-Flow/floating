@@ -104,6 +104,47 @@ pub fn has_finite_decimal_expansion_repr(
 }
 
 ///|
+/// `numerator / denominator` rounded to an integer in the given direction,
+/// and whether the exact quotient has a finite decimal expansion (the same
+/// answer as `has_finite_decimal_expansion_repr(numerator, denominator)`),
+/// from one division.
+///
+/// Write `denominator = 2^a 5^b u` with `u` prime to 10. The expansion is
+/// finite iff `u` divides `numerator`, and since 10 is invertible modulo `u`
+/// that holds iff `u` divides `numerator * 10^k` for any `k`. The division
+/// here runs on `numerator`, a caller's `coefficient * 10^k`, so `u` divides
+/// the numerator exactly when it divides the remainder: `u` divides the
+/// denominator, and the remainder is the numerator modulo the denominator.
+pub fn dec_coeff_round_div_expansion(
+  numerator : DecCoeff,
+  denominator : DecCoeff,
+  negative : Bool,
+  mode : DecCoeffRounding,
+) -> (DecCoeff, Bool) {
+  guard !denominator.is_zero() else {
+    abort("dec_coeff_round_div_expansion expects denominator > 0")
+  }
+  let (quotient, remainder) = dec_coeff_div_rem_repr(numerator, denominator)
+  let finite = if remainder.is_zero() {
+    true
+  } else {
+    let (without_tens, _, _) = trim_trailing_decimal_zeros_repr(denominator, 0)
+    let without_twos = dec_coeff_remove_factor_unit_repr(without_tens, 2)
+    let without_fives = dec_coeff_remove_factor_unit_repr(without_twos, 5)
+    dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 ||
+    dec_coeff_div_rem_repr(remainder, without_fives).1.is_zero()
+  }
+  let rounded = if dec_coeff_should_increment(
+      quotient, remainder, denominator, negative, mode,
+    ) {
+    dec_coeff_magnitude_add_unit(quotient, 1)
+  } else {
+    quotient
+  }
+  (rounded, finite)
+}
+
+///|
 pub fn decimal_small_pow10(shift : Int32) -> Int32 {
   guard shift >= 0 && shift < dec_coeff_dpun else {
     abort("decimal_small_pow10 shift exceeds one coefficient limb")

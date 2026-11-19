@@ -657,20 +657,18 @@ fn Decimal::decimal_div_ctx_impl(
       let denominator = other.coefficient
       let extra = precision + denominator.digits10() + 2
       let numerator = dec_coeff_shift_power10_repr(self.coefficient, extra)
-      let exact = has_finite_decimal_expansion_repr(
-        self.coefficient,
-        other.coefficient,
-      )
       // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
       // remainder always leaves the retained low digit off 0 and 5. Rounding it
       // with the target mode here could manufacture an exact tie that the exact
       // quotient had already decided, and the final rounding would then apply
       // the tie rule to it (decNumber uses DEC_ROUND_05UP for the same reason).
-      let q = round_positive_decimal_div_repr(
+      // The same division tells whether the expansion of the quotient is
+      // finite (`exact`), so no second division is needed.
+      let (q, exact) = dec_coeff_round_div_expansion(
         numerator,
         denominator,
         self.negative != other.negative,
-        DecimalRoundingMode::ZeroFiveUp,
+        DecimalRoundingMode::ZeroFiveUp.kernel(),
       )
       let (value, round_flags) = if exact {
         let exact_unrounded = normalize_decimal_parts_gda_repr(
