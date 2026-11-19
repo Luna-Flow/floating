@@ -2481,6 +2481,61 @@ fn binary_exact_rootn_int64(value : BinFloat, degree : Int64) -> BinFloat? {
 }
 
 ///|
+/// The certified Ziv loop of `rootn` through `exp(ln(x) / n)`: the path for
+/// degrees too large for the integer root, and the reference of its tests.
+fn binary_rootn_certified_loop(
+  original : BinFloat,
+  positive : BinFloat,
+  degree : Int32,
+  magnitude_degree : Int64,
+  context : BinaryContext,
+) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
+  let mut work = Int32::max(context.precision + 64, positive.precision() + 16)
+  let mut attempt = 0
+  while attempt < 12 {
+    match binary_rootn_positive_bounds(positive, magnitude_degree, work) {
+      Some(bounds) => {
+        let signed_bounds = if original.negative {
+          (bounds.1.neg(), bounds.0.neg())
+        } else {
+          bounds
+        }
+        let adjusted = if degree < 0 {
+          let downward = BinaryContext::unbounded(
+            work,
+            rounding=RoundTowardNegative,
+          )
+          let upward = BinaryContext::unbounded(
+            work,
+            rounding=RoundTowardPositive,
+          )
+          let one = BinFloat::one(precision=work)
+          (
+            one.div_ctx(signed_bounds.1, downward).0,
+            one.div_ctx(signed_bounds.0, upward).0,
+          )
+        } else {
+          signed_bounds
+        }
+        let (result, unique, flags) = binary_certified_target_rounding(
+          adjusted.0,
+          adjusted.1,
+          context,
+        )
+        if unique {
+          return Ok((result, flags))
+        }
+      }
+      None =>
+        return Err(binary_range_failure_state("rootn", context, work, attempt))
+    }
+    work += Int32::max(32, work / 2)
+    attempt += 1
+  }
+  Err(binary_refinement_failure_state("rootn", context, work, attempt))
+}
+
+///|
 pub fn BinFloat::try_rootn_ctx(
   self : BinFloat,
   degree : Int32,
@@ -2599,54 +2654,12 @@ pub fn BinFloat::try_rootn_ctx(
           )
         None => ()
       }
-      let mut work = Int32::max(
-        context.precision + 64,
-        positive.precision() + 16,
-      )
-      let mut attempt = 0
-      while attempt < 12 {
-        match binary_rootn_positive_bounds(positive, magnitude_degree, work) {
-          Some(bounds) => {
-            let signed_bounds = if self.negative {
-              (bounds.1.neg(), bounds.0.neg())
-            } else {
-              bounds
-            }
-            let adjusted = if degree < 0 {
-              let downward = BinaryContext::unbounded(
-                work,
-                rounding=RoundTowardNegative,
-              )
-              let upward = BinaryContext::unbounded(
-                work,
-                rounding=RoundTowardPositive,
-              )
-              let one = BinFloat::one(precision=work)
-              (
-                one.div_ctx(signed_bounds.1, downward).0,
-                one.div_ctx(signed_bounds.0, upward).0,
-              )
-            } else {
-              signed_bounds
-            }
-            let (result, unique, flags) = binary_certified_target_rounding(
-              adjusted.0,
-              adjusted.1,
-              context,
-            )
-            if unique {
-              return Ok((result, flags))
-            }
-          }
-          None =>
-            return Err(
-              binary_range_failure_state("rootn", context, work, attempt),
-            )
-        }
-        work += Int32::max(32, work / 2)
-        attempt += 1
+      if magnitude_degree <= binary_rootn_integer_max_degree.to_int64() {
+        return Ok(binary_rootn_integer(self, degree, context))
       }
-      Err(binary_refinement_failure_state("rootn", context, work, attempt))
+      binary_rootn_certified_loop(
+        self, positive, degree, magnitude_degree, context,
+      )
     }
   }
 }
