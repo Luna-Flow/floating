@@ -1041,6 +1041,61 @@ enclosure divided by it (error: the angle, $\pi$ and the division, about
   replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes
   rows fail (checked by mutation).
 
+#### Operands of extreme exponent and the cost of a first attempt
+
+Four changes of issue [#378](https://github.com/Luna-Flow/floating/issues/378)
+keep the cost of a call independent of the size of its operands' exponents
+while the results stay those of correct rounding.
+
+- *Conversion to binary.* For $x = c\,10^{-s}$ the quotient $\lfloor c\,2^{u} /
+  10^{s} \rfloor$ is formed once, with $u = p + 3 + \lceil s \log_2 10 \rceil$
+  (so $10^s < 2^{u-p-3}$ and the quotient keeps at least $p + 3$ bits: two bits
+  below the target position and a sticky bit), made odd when the remainder is
+  not zero; the remainder test is a multiplication, not a second division, and
+  the lower and upper bound of a ball come from the same quotient. For
+  $|{\rm exponent}_{10}| \ge 4096$ the exact $5^s$ (rebuilt on every call above
+  the power cache) is replaced by a lower and an upper bound $m\,2^{k}$ with
+  $m$ of $p + \text{bits}(c) + 80$ bits, made by binary powering with a
+  directed trim after every product; the two bounds are rounded in the
+  requested mode and the result is kept only if they agree (monotonicity of
+  rounding), otherwise the exact conversion decides, so the result is the exact
+  conversion bit for bit. For a negative exponent the quotient of the bounds is
+  used only when $2 s > 4\,\text{bits}(c)$, where $5^s > c$ guarantees that the
+  division is inexact (the sticky bit is set).
+- *First working precision.* $\max(64, \lceil 3.3219281\,\max(D, p) \rceil +
+  31)$ bits instead of $\max(128, 4 \max(D, p) + 64)$: the schedule grows by a
+  factor of 1.5 when an enclosure does not decide, so a low start costs an
+  attempt and never a result. On 16,536 rows (exp, exp2, exp10, expm1, the
+  inverse functions of $\pi$ and atan2Pi, five formats) the number of operand
+  conversions was 14,489 before and 14,490 after.
+- *Tiny arguments of exp, exp2, exp10, expm1 and log1p.* For $|x| < 10^{t}$,
+  $t \le -1$: $|b^x - 1| \le |x|\ln b\,e^{|x| \ln b} < 10^{t+1}$ for
+  $b \in \{e, 2, 10\}$ ($\ln b < 2.31$, $e^{0.231} < 1.3$) with the sign of $x$, so
+  the result is $1$ plus or minus less than $10^{t+1}$, one-sided next to the
+  representable 1 and decided by `decimal_tiny_argument_result` once
+  $t + 1 < -(p + 3)$; and $\operatorname{expm1}(x) - x = x^2/2 + \dots > 0$,
+  $x - \operatorname{log1p}(x) = x^2/2 - \dots > 0$, both below $x^2$ for
+  $0 < |x| < 1/2$, so expm1 lies above $x$ and log1p below it, within
+  $10^{2t}$. Rows on both sides of the thresholds, both signs, three formats and
+  all eight directions have independently computed expected values; flipping a
+  side makes rows fail.
+- *Exact tests before the loop.* An exact $n$-th root of a decimal needs
+  $\text{exponent} \bmod n = 0$ once trailing zeros are removed ($c\,10^{\text{shift}}$
+  with $0 < \text{shift} < n$ and $\min(v_2(c), v_5(c)) = 0$ has $v_2$ or $v_5$
+  equal to the shift, not a multiple of $n$), and the root comes from the kernel
+  (square roots first for even degrees, Newton from the root of the leading
+  digits); `atan2` forms the exact ratio only when $2D < -(p + 4)$ with
+  $D = \operatorname{adj}(y) - \operatorname{adj}(x)$, the necessary condition of the
+  tiny-argument decision; `compound` does not form $1 + x$ when $x$ is an
+  integer multiple of 10 with $\operatorname{adj}(x) \ge p + 2$ (the sum ends in 1:
+  no power of 2, 5 or 10) or for $n > 0$ when $\operatorname{adj}(x) < -(p + 2)$
+  (more than $p + 2$ digits); `sqrt` reuses the remainder of the integer root.
+- *Negative integer power (#375).* For $n = |{\rm count}|$, $|b|^n \in [10^{n\,lb},
+  10^{n\,ub})$ with $lb = \operatorname{adj}(b)$, $ub = lb + 1$, hence
+  $1/|b|^n \in (10^{-n\,ub}, 10^{-n\,lb}]$: it overflows when $-n\,ub > e_{\max}$ and
+  lies below half of the smallest subnormal when $-n\,lb \le E_{\text{tiny}} - 2$;
+  the exponent product of the exact path is formed in 64 bits.
+
 #### Outward-rounded endpoints
 
 The Ziv driver turns the two binary endpoints $L \le U$ of an enclosure into
