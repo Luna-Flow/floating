@@ -458,17 +458,67 @@ fn decimal_certified_exp_minimum_result(
 }
 
 ///|
-fn decimal_certified_exp_coarse_extreme_result(
+/// The base `b` of the exponentials `b^x` whose far-out-of-range results are
+/// decided by `decimal_exponential_coarse_extreme_result`.
+priv enum DecimalExponentialBase {
+  Natural
+  Two
+  Ten
+}
+
+///|
+/// An integer `k >= 1/log10(b)`: `b^x < 10^-n` for `x <= -k n` and
+/// `b^x >= 10^n` for `x >= k n` (`n >= 0`), since `b^x = 10^(x log10 b)`.
+/// `1/log10(e) = 2.3026`, `1/log10(2) = 3.3220` and `1/log10(10) = 1`.
+fn DecimalExponentialBase::range_factor(self : DecimalExponentialBase) -> Int32 {
+  match self {
+    Natural => 3
+    Two => 4
+    Ten => 1
+  }
+}
+
+///|
+/// Decides `b^x` (`b = e`, 2 or 10, `x` finite and nonzero) when the result is
+/// certainly out of the representable range, before the certified loop. The
+/// enclosure of such a result is `[0, tiny]` (or `[huge, inf]`) once its binary
+/// exponent leaves the exponent range of the ball arithmetic, and the two
+/// endpoints then round differently (an exact 0 without flags against the
+/// smallest subnormal with the underflow flags), so the loop could never
+/// agree (#363). One function serves `exp`, `exp2` and `exp10`.
+///
+/// Proof. Let `k = range_factor(b)`, so `k >= 1 / log10 b`.
+/// - Underflow. For `x <= -k (1 - etiny)` we have `b^x = 10^(x log10 b) <=
+///   10^(etiny - 1)`, which is below half of the smallest subnormal
+///   `10^etiny`. Rounded to the precision with an unbounded exponent range it
+///   stays at most `10^(etiny - 1) <= 10^(e_min - 1)` (etiny <= e_min), so the
+///   result is tiny before and after rounding, IEEE 754-2019 7.5. Every
+///   rounding direction then gives 0 (towards zero, to nearest) or the
+///   smallest subnormal (away from zero, ZeroFiveUp, IEEE 754-2019 4.3 and
+///   7.5: the rounded result is inexact, so underflow and inexact are raised).
+/// - Overflow. For `x >= k (e_max + 1)`, `b^x >= 10^(e_max + 1)`, which is
+///   above the largest finite number `(10^p - 1) 10^(e_max - p + 1) <
+///   10^(e_max + 1)` in every rounding direction, so the overflow result of
+///   IEEE 754-2019 7.4 applies.
+/// The comparison is exact (decimal against decimal), so the margin to the true
+/// boundary (`k` against `1 / log10 b`) is the whole slack; arguments between
+/// the true boundary and the threshold fall through (`None`) to the loop. The
+/// threshold is at most `4 (1 - etiny)` with `etiny >= -1999998` (the math
+/// context limit), far below the ball exponent limit, so the loop is sound on
+/// the undecided range.
+fn decimal_exponential_coarse_extreme_result(
+  base : DecimalExponentialBase,
   value : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
     return None
   }
+  let factor = base.range_factor()
   if value.negative && etiny(ctx) <= 0 {
     let guard_coefficient = dec_coeff_multiply_repr(
       dec_coeff_from_nonnegative_int(abs_int(etiny(ctx) - 1)),
-      dec_coeff_from_int(3),
+      dec_coeff_from_int(factor),
     )
     let guard_value = finite_with_exponent_repr(
       true,
@@ -494,7 +544,7 @@ fn decimal_certified_exp_coarse_extreme_result(
   if !value.negative && ctx.e_max >= 0 {
     let guard_coefficient = dec_coeff_multiply_repr(
       dec_coeff_from_nonnegative_int(ctx.e_max + 1),
-      dec_coeff_from_int(3),
+      dec_coeff_from_int(factor),
     )
     let guard_value = finite_with_exponent_repr(
       false,
@@ -514,7 +564,7 @@ fn decimal_certified_exp_result(
   value : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  match decimal_certified_exp_coarse_extreme_result(value, ctx) {
+  match decimal_exponential_coarse_extreme_result(Natural, value, ctx) {
     Some(result) => return Ok(result)
     None => ()
   }

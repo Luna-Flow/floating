@@ -476,6 +476,20 @@ fn Decimal::try_unary_elementary_ctx(
       None => ()
     }
   }
+  // exp2 and exp10 far outside the representable range (#363).
+  match operation {
+    Exp2 =>
+      match decimal_exponential_coarse_extreme_result(Two, value, ctx) {
+        Some(result) => return Ok(finish(result))
+        None => ()
+      }
+    Exp10 =>
+      match decimal_exponential_coarse_extreme_result(Ten, value, ctx) {
+        Some(result) => return Ok(finish(result))
+        None => ()
+      }
+    _ => ()
+  }
   let invalid_domain = match operation {
     Log2 => value.compare(zero) <= 0
     Log1p => value.compare(minus_one) < 0
