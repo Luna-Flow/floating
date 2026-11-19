@@ -16,9 +16,12 @@ The committed elementary layer contains 4,896 certified rows. MPFR 4.2.2
 produces directed 768-bit dyadic endpoints; exact integer conversion rounds
 both endpoints into decimal32/64/128 under every `DecimalRoundingMode`, and the
 generator rejects a row unless result and flags are unique. Native, Wasm,
-Wasm-GC, and JavaScript each pass 516/516 tests after these rows are
+Wasm-GC, and JavaScript each pass 531/531 public API tests after these rows are
 materialized (one test per MPFR interval, holding its 24 rows: a Wasm test
-module cannot register one test per row); the full gate is 26,931/26,931. RDFP and Arb remain optional
+module cannot register one test per row). The full gate,
+`just gate decimal 3`, is 103,527/103,527: the 24,867 target-independent checks,
+the 531 public API tests on each of the four targets, and the 19,134 rows of the
+`pi_inverse` table on each of the four targets. RDFP and Arb remain optional
 secondary routes and are not counted when unavailable.
 
 IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and
