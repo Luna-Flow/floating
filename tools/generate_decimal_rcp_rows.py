@@ -283,14 +283,15 @@ def build() -> Rows:
                     rows.add("compound", c, Decimal(text), None, n)
     # powr: exact cases with their preferred exponents, the pow domain, and
     # inexact rows.
-    # Not here: exact powers of ten with a non-integer exponent such as
-    # (1E-300)^1.2 = 1E-360, which pow (and so powr) does not yet detect as
-    # exact (issue draft in the PR 2 report), and 1E+4^0.25, where pow raises
-    # the GDA-only Rounded flag for an exact result at its preferred exponent.
+    # Exact powers of ten with a non-integer exponent ((1E-300)^1.2 = 1E-360,
+    # issue #349) are included. Not here: 1E+4^0.25, where pow raises the
+    # GDA-only Rounded flag for an exact result at its preferred exponent.
     pairs = [("4", "0.5"), ("4.00", "0.5"), ("32", "0.2"), ("0.25", "-0.5"), ("1.00", "2"), ("1.00", "-2"),
              ("1", "1E+10"), ("1.0", "0.5"), ("8", "1.5"), ("2", "10"), ("10", "-3"),
              ("0.0016", "0.25"), ("2", "0.5"), ("10", "1.5"), ("0.5", "-7.25"), ("3", "2.5"), ("2E-300", "1.2"),
-             ("9.99E+200", "1.9"), ("7", "-123.456"), ("1.0000001", "1E+7"), ("2.5", "-2")]
+             ("9.99E+200", "1.9"), ("7", "-123.456"), ("1.0000001", "1E+7"), ("2.5", "-2"),
+             ("1E-300", "1.2"), ("1E-5", "1.2"), ("1E-5", "-1.2"), ("1E+10", "0.5"), ("1E-4", "-0.25"),
+             ("1000E-8", "1.2")]
     for precision in (1, 3, 7, 16, 34):
         spec = (precision, -999999, 999999, 0)
         for mode in ROUNDINGS if precision in (1, 16) else ("half_even", "ceiling", "05up"):
