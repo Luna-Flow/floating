@@ -928,3 +928,54 @@ test "word digit count matches the table scan at every power of ten boundary" {
     assert_eq(dec_coeff_small_digits(value), small_digits_reference(value))
   }
 }
+
+///|
+fn limbs_are_canonical(coeff : DecCoeff) -> Bool {
+  match coeff {
+    Small(value) => value < dec_coeff_small_limit
+    Limbs(units, digits) => {
+      let mut ok = units.length() >= 3 || units.length() >= 1
+      for unit in units {
+        if unit >= 1_000_000_000U {
+          ok = false
+        }
+      }
+      ok = ok && units[units.length() - 1] != 0U
+      ok && digits == dec_coeff_get_digits(units, units.length())
+    }
+  }
+}
+
+///|
+test "unit accumulator producers write limbs below the base" {
+  let mut state = 0x5DEECE66DUL
+  let next = fn() {
+    state = state * 6364136223846793005UL + 1442695040888963407UL
+    state >> 11
+  }
+  let random_coeff = fn() {
+    let digits = 1 + (next() % 80UL).to_int()
+    let buf = StringBuilder()
+    buf.write_string("\{1 + (next() % 9UL).to_int()}")
+    for _ in 1..<digits {
+      buf.write_string("\{(next() % 10UL).to_int()}")
+    }
+    dec_coeff_from_decimal_digits_repr(buf.to_string()).unwrap()
+  }
+  for _ in 0..<300 {
+    let a = random_coeff()
+    let b = random_coeff()
+    let shift = (next() % 40UL).to_int()
+    assert_true(limbs_are_canonical(a))
+    assert_true(limbs_are_canonical(dec_coeff_multiply_repr(a, b)))
+    assert_true(limbs_are_canonical(dec_coeff_magnitude_add_repr(a, b)))
+    assert_true(limbs_are_canonical(dec_coeff_shift_power10_repr(a, shift)))
+    let (quotient, remainder) = dec_coeff_div_rem_repr(a, b)
+    assert_true(limbs_are_canonical(quotient))
+    assert_true(limbs_are_canonical(remainder))
+    assert_true(limbs_are_canonical(dec_coeff_power10_repr(shift)))
+    assert_true(
+      limbs_are_canonical(dec_coeff_multiply_by_unit_repr(a, 999_999_999)),
+    )
+  }
+}
