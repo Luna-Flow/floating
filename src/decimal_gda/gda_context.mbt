@@ -75,6 +75,9 @@ pub struct GdaContext {
   priv extended_ : Bool
   priv status_ : GdaFlags
   priv traps_ : GdaTrapSet
+  // derived from the fields above, built once by `GdaContext::new`
+  priv decimal_ : DecimalContext
+  priv mathematical_ : DecimalContext
 }
 
 ///|
@@ -269,27 +272,36 @@ fn arithmetic_rounding(mode : GdaRoundingMode) -> @lf_arith.RoundingMode {
 
 ///|
 fn GdaContext::decimal_context(self : GdaContext) -> DecimalContext {
-  DecimalContext::new(
-    precision=self.precision_,
-    rounding=arithmetic_rounding(self.rounding_),
-    decimal_rounding=decimal_rounding(self.rounding_),
-    e_min=self.e_min_,
-    e_max=self.e_max_,
-    clamp=self.clamp_,
-    extended=self.extended_,
-    tininess=DecimalTininessDetection::BeforeRounding,
-  ).unwrap()
+  self.decimal_
 }
 
 ///|
 fn GdaContext::mathematical_decimal_context(
   self : GdaContext,
 ) -> DecimalContext {
-  {
-    ..self.decimal_context(),
-    rounding: @lf_arith.RoundingMode::ToNearestEven,
-    decimal_rounding: DecimalRoundingMode::HalfEven,
-  }
+  self.mathematical_
+}
+
+///|
+/// The `DecimalContext` of the GDA parameters, validated once.
+fn gda_build_decimal_context(
+  precision : Int32,
+  rounding : GdaRoundingMode,
+  e_min : Int32,
+  e_max : Int32,
+  clamp : Bool,
+  extended : Bool,
+) -> DecimalContext {
+  DecimalContext::new(
+    precision~,
+    rounding=arithmetic_rounding(rounding),
+    decimal_rounding=decimal_rounding(rounding),
+    e_min~,
+    e_max~,
+    clamp~,
+    extended~,
+    tininess=DecimalTininessDetection::BeforeRounding,
+  ).unwrap()
 }
 
 ///|
@@ -315,6 +327,9 @@ pub fn GdaContext::new(
     }
     return Err(@def.ArithmeticError::domain_error(message))
   }
+  let decimal_ = gda_build_decimal_context(
+    precision, rounding, e_min, e_max, clamp, extended,
+  )
   Ok({
     precision_: precision,
     rounding_: rounding,
@@ -324,6 +339,12 @@ pub fn GdaContext::new(
     extended_: extended,
     status_: GdaFlags::none(),
     traps_: traps,
+    decimal_,
+    mathematical_: {
+      ..decimal_,
+      rounding: @lf_arith.RoundingMode::ToNearestEven,
+      decimal_rounding: DecimalRoundingMode::HalfEven,
+    },
   })
 }
 
