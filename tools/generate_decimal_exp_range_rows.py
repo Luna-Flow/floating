@@ -353,8 +353,15 @@ def main() -> int:
     text = render(all_rows())
     if args.check:
         current = OUTPUT.read_text() if OUTPUT.exists() else ""
-        # moon fmt rewrites the layout: compare after normalising whitespace.
-        if "".join(current.split()).replace(",)", ")") != "".join(text.split()).replace(",)", ")"):
+        # moon fmt rewrites the layout: compare without whitespace and without
+        # trailing commas.
+        def norm(text: str) -> str:
+            squeezed = "".join(text.split())
+            for closer in (")", "]", "}"):
+                squeezed = squeezed.replace("," + closer, closer)
+            return squeezed
+
+        if norm(current) != norm(text):
             print(f"{OUTPUT} is stale: run tools/generate_decimal_exp_range_rows.py")
             return 1
         return 0

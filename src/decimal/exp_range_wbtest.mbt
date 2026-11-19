@@ -26,7 +26,7 @@
 // cross-checks, the clauses above decide.
 
 ///|
-fn exp_range_int(text : String) -> Int {
+fn exp_range_int(text : String) -> Int32 {
   let mut value = 0
   let mut negative = false
   for c in text {
@@ -115,7 +115,7 @@ test "exp2 and exp10 of an argument beyond the binary exponent range (#363)" {
   let nearest = pm1_ctx(51, "half_even", -14, 11, false, "b")
   for op in ["exp", "exp2", "exp10"] {
     let got = exp_range_call(op, "-6773329072.88", "", nearest)
-    assert_eq(got.substring(end=7), "0E-64 x")
+    assert_true(got.has_prefix("0E-64 x"))
   }
   // 7.4: the symmetric overflow, by rounding direction.
   let down = pm1_ctx(51, "down", -14, 11, false, "b")

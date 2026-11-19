@@ -806,10 +806,28 @@ Three kinds of inputs are decided outside the agreement test:
   $\le 10^{E_{\text{tiny}}-2} < \tfrac12 10^{E_{\text{tiny}}}$ rounds identically (to zero or to the
   smallest subnormal, depending only on the mode and sign), so far endpoints
   are replaced by such representatives; the binary test uses $3.322 >
-  \log_2 10$ so the replacement is conservative. For `exp`, $x \ge
-  3(e_{\max}+1)$ overflows because
-  $x \log_{10} e \ge 3 \cdot 0.434\,(e_{\max}+1) > e_{\max}+1$, and $x \le -3\,|E_{\text{tiny}} - 1|$ underflows below
-  $10^{E_{\text{tiny}}-1}$ by the same estimate. `power` bounds $y \log_2 x$
+  \log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10`
+  share one decision (`decimal_exponential_coarse_extreme_result`, issue
+  [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with
+  $b \in \{e, 2, 10\}$ let $k \ge 1/\log_{10} b$ be the integer 3, 4 or 1.
+  Then $x \ge k\,(e_{\max}+1)$ gives
+  $b^x = 10^{x \log_{10} b} \ge 10^{e_{\max}+1}$, above the largest finite
+  number $(10^p - 1)\,10^{e_{\max}-p+1}$, so the overflow result of the
+  rounding direction applies (IEEE 754-2019 §7.4); and $x \le -k\,(1 -
+  E_{\text{tiny}})$ gives $b^x \le 10^{E_{\text{tiny}}-1}$, below half of
+  the smallest subnormal and, as $E_{\text{tiny}} \le e_{\min}$, tiny before
+  and after rounding, so the result is zero or the smallest subnormal by
+  direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison
+  is exact and the margin is the whole slack between $k$ and $1/\log_{10} b$:
+  an argument between the true boundary and the threshold is not decided here
+  but by the Ziv loop, which is sound there because the threshold is at most
+  $4\,(1 - E_{\text{tiny}})$ with $E_{\text{tiny}} \ge -1999997$, far below
+  the exponent range of the binary enclosure. Without the decision a very
+  negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure
+  $[0, \text{tiny}]$ and never certifies. The decision is tested on both sides
+  of each threshold and at results just inside and outside the range, in all
+  eight rounding directions, by `src/decimal/exp_range_wbtest.mbt` and its
+  generated rows. `power` bounds $y \log_2 x$
   with directed 128-bit arithmetic for the same purpose.
 - **Enclosure of a non-integral power.** For a positive base the Ziv loop
   evaluates $x^y = \exp(y \ln x)$ in interval arithmetic: one `ln` enclosure,
