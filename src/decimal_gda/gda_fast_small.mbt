@@ -70,21 +70,10 @@ fn gda_fast_bits(value : UInt64) -> Int32 {
 }
 
 ///|
-/// Number of decimal digits of a nonzero word.
-fn gda_fast_digits64(value : UInt64) -> Int32 {
-  let estimate = (gda_fast_bits(value) * 1233) >> 12
-  if value >= gda_fast_pow10.unsafe_get(estimate) {
-    estimate + 1
-  } else {
-    estimate
-  }
-}
-
-///|
 /// Number of decimal digits of the nonzero `high * 2^64 + low`.
 fn gda_fast_digits128(high : UInt64, low : UInt64) -> Int32 {
   if high == 0UL {
-    return gda_fast_digits64(low)
+    return dec_coeff_small_digits(low)
   }
   let estimate = ((64 + gda_fast_bits(high)) * 1233) >> 12
   let power_high = gda_fast_pow10_high.unsafe_get(estimate)
@@ -378,8 +367,8 @@ fn gda_fast_quotient(
     return None
   }
   let precision = ctx.precision_
-  let dividend_digits = gda_fast_digits64(dividend)
-  let divisor_digits = gda_fast_digits64(divisor)
+  let dividend_digits = dec_coeff_small_digits(dividend)
+  let divisor_digits = dec_coeff_small_digits(divisor)
   let scale = Int32::max(0, precision + 1 + divisor_digits - dividend_digits)
   guard scale <= 19 else { return None }
   let power = gda_fast_pow10.unsafe_get(scale)
