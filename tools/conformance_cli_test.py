@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import conformance_cli
 
@@ -15,6 +16,19 @@ class ConformanceCliTests(unittest.TestCase):
         self.assertEqual(gda.name, "gda-conformance.exe")
         self.assertEqual(itl.name, "itl-conformance.exe")
         self.assertNotEqual(gda.parent, itl.parent)
+
+    def test_backends_share_one_build_directory(self) -> None:
+        seen = []
+
+        def fake_run(command, cwd, env, text, capture_output):
+            seen.append(env["CODEX_MOON_TARGET_DIR"])
+            raise RuntimeError("stop after recording the target dir")
+
+        with patch.object(conformance_cli.subprocess, "run", side_effect=fake_run):
+            for backend in conformance_cli.BACKENDS:
+                with self.assertRaisesRegex(RuntimeError, "stop after"):
+                    conformance_cli.build_backend(backend)
+        self.assertEqual(set(seen), {str(conformance_cli.SHARED_TARGET_DIR)})
 
     def test_unknown_backend_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "unknown CLI backend"):

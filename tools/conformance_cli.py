@@ -8,6 +8,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BUILD_ROOT = REPO_ROOT / "_build/conformance"
 BACKENDS = ("gda", "testfloat", "mpfr", "itl")
+# Every backend runs the same `src/cli` program, so it is built once into one
+# shared target directory; only the copied executables are named per backend.
+SHARED_TARGET_DIR = BUILD_ROOT / "cli"
 
 
 def executable_path(backend: str) -> Path:
@@ -36,7 +39,7 @@ def build_command() -> list[str]:
 
 def build_backend(backend: str) -> Path:
     destination = executable_path(backend)
-    target_dir = BUILD_ROOT / backend
+    target_dir = SHARED_TARGET_DIR
     environment = os.environ.copy()
     environment["CODEX_MOON_TARGET_DIR"] = str(target_dir)
     result = subprocess.run(
