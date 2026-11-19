@@ -697,3 +697,52 @@ fn pm1_call_power(
   let (value, flags) = base.power_ctx(pm1_exact(exponent), ctx)
   "\{value} \{pm1_flags_text(flags)}"
 }
+
+///|
+test "pm1 the tiny-argument shortcut gives the Ziv loop's result" {
+  // `decimal_pm1_tiny_scaled` is a cheaper enclosure of the same value; when
+  // it decides, its result and flags must be those of the certified loop.
+  let ops : Array[DecimalPm1] = [Exp2m1, Exp10m1, Log2p1, Log10p1]
+  let mut decided = 0
+  for mode in pm1_modes {
+    for
+      spec in [
+        (7, -95, 96, true),
+        (16, -383, 384, true),
+        (16, -3000, 3000, false),
+        (34, -6143, 6144, true),
+      ] {
+      let (precision, e_min, e_max, clamp) = spec
+      for tininess in ["b", "a"] {
+        let ctx = pm1_ctx(precision, mode, e_min, e_max, clamp, tininess)
+        for
+          text in [
+            "1E-50", "-7.25E-100", "3.14159E-390", "-9.999999E-401", "1.2345678901234567E-2990",
+            "-6E-6170", "4.4E-6176",
+          ] {
+          let x = pm1_exact(text)
+          for op in ops {
+            match decimal_pm1_tiny_scaled(x, op, ctx) {
+              None => ()
+              Some(fast) => {
+                decided += 1
+                let slow = decimal_certified_unary_result(x, ctx, op.name(), fn(
+                  input,
+                ) {
+                  op.evaluate(input)
+                }).unwrap()
+                assert_eq(
+                  fast.0.compare_total(slow.0),
+                  0,
+                  msg="\{op.name()} \{mode} \{text}",
+                )
+                assert_eq(pm1_flags_text(fast.1), pm1_flags_text(slow.1))
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  assert_true(decided > 500)
+}

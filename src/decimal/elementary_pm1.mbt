@@ -35,6 +35,37 @@ fn DecimalPm1::is_exp(self : DecimalPm1) -> Bool {
 }
 
 ///|
+/// Certified `ln 2` and `ln 10` intervals by working precision. The interval
+/// of a precision is a pure function of it, so a cached one is the interval
+/// the evaluation would compute again (the results do not change, only the
+/// cost of every Ziv step and every call).
+let decimal_pm1_ln_cache : Map[Int64, @ball_float.BallFloat] = Map([])
+
+///|
+fn decimal_pm1_ln_base(
+  base : Int32,
+  precision : Int32,
+) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+  let key = precision.to_int64() * 16L + base.to_int64()
+  match decimal_pm1_ln_cache.get(key) {
+    Some(value) => return Ok(value)
+    None => ()
+  }
+  match @ball_float.BallFloat::from_int(base, precision~).try_ln_interval() {
+    Ok(value) => {
+      // The Ziv schedule visits a few precisions per target precision; keep
+      // the table small for long-running programs with many precisions.
+      if decimal_pm1_ln_cache.length() >= 64 {
+        decimal_pm1_ln_cache.clear()
+      }
+      decimal_pm1_ln_cache.set(key, value)
+      Ok(value)
+    }
+    Err(error) => Err(error)
+  }
+}
+
+///|
 /// The certified enclosure: `expm1(x ln b)` or `log1p(x) / ln b`. Both
 /// primitives are series in `x`, so the relative width stays that of the
 /// working precision near zero (no cancellation).
@@ -43,8 +74,7 @@ fn DecimalPm1::evaluate(
   input : @ball_float.BallFloat,
 ) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
   let precision = input.precision()
-  match
-    @ball_float.BallFloat::from_int(self.base(), precision~).try_ln_interval() {
+  match decimal_pm1_ln_base(self.base(), precision) {
     Err(error) => Err(error)
     Ok(ln_base) =>
       if self.is_exp() {
@@ -96,6 +126,102 @@ fn decimal_pm1_below_subnormal_range(
       decimal_math_result_ctx(ctx),
     ),
   )
+}
+
+///|
+/// The certified constant `ln b` (exp2m1, exp10m1) or `1 / ln b` (log2p1,
+/// log10p1) at `precision` bits: the slope of `f` at 0.
+fn DecimalPm1::slope(
+  self : DecimalPm1,
+  precision : Int32,
+) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+  match decimal_pm1_ln_base(self.base(), precision) {
+    Err(error) => Err(error)
+    Ok(ln_base) =>
+      if self.is_exp() {
+        Ok(ln_base)
+      } else {
+        Ok(@ball_float.BallFloat::from_int(1, precision~).div(ln_base))
+      }
+  }
+}
+
+///|
+/// A tiny argument, `|x| < 10^-(p + 11)`, decided on its coefficient. With
+/// `x = m 10^q` and `c` the slope (`ln b` or `1 / ln b`), `f(x) = c x (1 + d)`
+/// with `|d| <= 2.31 |x|` for all four functions (the series of `expm1` and
+/// `log1p`), so `f(x) / 10^q` lies in `c m [1 - 2^k, 1 + 2^k]` for any
+/// `2^k >= 4 |x|`. That enclosure has endpoints of a few dozen digits, while
+/// the binary endpoints of `f(x)` itself would be expanded to an exact decimal
+/// with about `0.7 |q|` digits (the cost of a tiny argument in a wide context).
+/// Its endpoints, scaled back by `10^q`, are rounded with the context; the
+/// result is accepted only when both round to one representation with one
+/// flag set, which then is the correctly rounded `f(x)` with its flags (the
+/// argument of `decimal_certified_unary_result`; `f(x)` is irrational).
+/// Otherwise `None`, and the Ziv loop decides: the results are those of the
+/// loop, only cheaper.
+fn decimal_pm1_tiny_scaled(
+  value : Decimal,
+  operation : DecimalPm1,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.precision > 0 else { return None }
+  let adjusted = adjusted_exponent64(value)
+  guard adjusted <= -(ctx.precision.to_int64() + 12L) else { return None }
+  let work = decimal_certified_work_precision(value, ctx)
+  // |x| < 10^(adjusted + 1) <= 2^t with t = ceil(3.3 (adjusted + 1)), as
+  // 3.3 < log2 10 and adjusted + 1 < 0; 2^(t + 2) >= 4 |x|, capped at the
+  // working precision (a larger bound is still a bound).
+  let t = 33L * (adjusted + 1L) / 10L
+  let k = Int64::max(t + 2L, -(work.to_int64() + 8L)).to_int()
+  let exact = @bin_float.BinaryContext::unbounded(
+    -k + 4,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let one = @bin_float.BinFloat::from_int(1, precision=2)
+  let bound = one.scaleb_ctx(k, exact).0
+  let factor = @ball_float.BallFloat::from_bounds(
+    one.sub_ctx(bound, exact).0,
+    one.add_ctx(bound, exact).0,
+    precision=work,
+  )
+  let coefficient = finite_with_exponent_repr(
+    value.negative,
+    value.coefficient,
+    0,
+    Int32::max(1, value.coefficient.digits10()),
+  )
+  let slope = match operation.slope(work) {
+    Ok(slope) => slope
+    Err(_) => return None
+  }
+  let scaled = decimal_to_certified_ball(coefficient, work)
+    .mul(slope)
+    .mul(factor)
+  guard !scaled.is_empty() && !scaled.contains_zero() else { return None }
+  // The scaled endpoints are moderate: convert them in the widest math
+  // context, so that no range representative replaces them.
+  let wide = DecimalContext::new(precision=1, e_min=-999_999, e_max=999_999).unwrap()
+  let lower = decimal_exact_dyadic_endpoint(scaled.lower_bound(), wide)
+  let upper = decimal_exact_dyadic_endpoint(scaled.upper_bound(), wide)
+  guard lower is Some(lower) &&
+    upper is Some(upper) &&
+    lower.class == FpClass::Finite &&
+    upper.class == FpClass::Finite else {
+    return None
+  }
+  let shift = fn(endpoint : Decimal) -> Decimal {
+    { ..endpoint, exponent10: endpoint.exponent10 + value.exponent10, }
+  }
+  let target_ctx = decimal_math_result_ctx(ctx)
+  let lower_result = decimal_apply_finite_ctx(shift(lower), target_ctx)
+  let upper_result = decimal_apply_finite_ctx(shift(upper), target_ctx)
+  if lower_result.0.compare_total(upper_result.0) == 0 &&
+    lower_result.1 == upper_result.1 {
+    Some(lower_result)
+  } else {
+    None
+  }
 }
 
 ///|
@@ -347,6 +473,10 @@ fn Decimal::try_pm1_ctx(
     return Ok(finish(decimal_elementary_zero(value.negative, ctx)))
   }
   match decimal_pm1_below_subnormal_range(value, ctx) {
+    Some(result) => return Ok(finish(result))
+    None => ()
+  }
+  match decimal_pm1_tiny_scaled(value, operation, ctx) {
     Some(result) => return Ok(finish(result))
     None => ()
   }
