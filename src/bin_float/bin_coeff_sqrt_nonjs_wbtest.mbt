@@ -25,6 +25,11 @@ fn bin_coeff_sqrt_test_check(value_big : BigInt) -> Unit raise {
     bin_coeff_sqrt_rem_divide_conquer(value),
     bin_coeff_sqrt_rem_restoring(value),
   ]
+  if value.bit_length() > 256 {
+    let array = bin_coeff_sqrt_rem_words_recursive(value)
+    bin_coeff_test_assert_matches(array.0, root_big)
+    bin_coeff_test_assert_matches(array.1, remainder_big)
+  }
   for path in paths {
     bin_coeff_test_assert_matches(path.0, root_big)
     bin_coeff_test_assert_matches(path.1, remainder_big)
@@ -41,7 +46,8 @@ test "BinCoeff sqrt divide-and-conquer around the base-case and kernel cutoffs" 
   let sizes = [
     65, 127, 128, 129, 191, 192, 193, 255, 256, 257, 258, 383, 384, 385, 511, 512,
     513, 514, 515, 767, 768, 769, 1023, 1024, 1025, 1026, 1500, 2047, 2048, 2049,
-    2050, 4095, 4096, 4097,
+    2050, 4095, 4096, 4097, 320, 321, 448, 449, 576, 577, 640, 641, 1087, 1088, 1089,
+    1151, 1152, 1153, 1279, 1280, 1281,
   ]
   for bits in sizes {
     for seed in 1..<4 {
@@ -76,4 +82,47 @@ test "BinCoeff sqrt divide-and-conquer random data" {
 test "BinCoeff sqrt cutoffs are inside the fixed-width kernel range" {
   assert_true(bin_coeff_sqrt_dc_base_bits >= 128)
   assert_true(bin_coeff_sqrt_dc_base_bits <= 512)
+}
+
+///|
+/// Large radicands, checked by the defining inequalities
+/// `root^2 <= value < (root + 1)^2` and `remainder = value - root^2` (no
+/// second implementation involved) and against the `BinCoeff` recursion.
+fn bin_coeff_sqrt_test_check_large(value : BinCoeff) -> Unit raise {
+  let (root, remainder) = bin_coeff_sqrt_rem_words_recursive(value)
+  let (reference_root, reference_remainder) = bin_coeff_sqrt_rem_divide_conquer(
+    value,
+  )
+  assert_true(root == reference_root)
+  assert_true(remainder == reference_remainder)
+  assert_true(root.square().add(remainder) == value)
+  assert_true(remainder.compare(root.shift_left(1)) <= 0)
+}
+
+///|
+test "BinCoeff sqrt word recursion on large and adversarial radicands" {
+  let sizes = [
+    1537, 1600, 2049, 3000, 4097, 5000, 8191, 8192, 8193, 12289, 16385, 33000,
+  ]
+  for bits in sizes {
+    bin_coeff_sqrt_test_check_large(
+      bin_coeff_test_from_bigint(bin_coeff_sqrt_test_value(bits, 5UL)),
+    )
+    bin_coeff_sqrt_test_check_large(
+      bin_coeff_test_from_bigint((1N << bits) - 1N),
+    )
+    bin_coeff_sqrt_test_check_large(
+      bin_coeff_test_from_bigint(1N << (bits - 1)),
+    )
+    // zero limbs inside the value
+    let sparse = (1N << (bits - 1)) | (1N << (bits / 2)) | 1N
+    bin_coeff_sqrt_test_check_large(bin_coeff_test_from_bigint(sparse))
+    let root = bin_coeff_sqrt_test_value((bits + 1) / 2, 9UL)
+    let square = root * root
+    bin_coeff_sqrt_test_check_large(bin_coeff_test_from_bigint(square))
+    bin_coeff_sqrt_test_check_large(bin_coeff_test_from_bigint(square - 1N))
+    bin_coeff_sqrt_test_check_large(
+      bin_coeff_test_from_bigint(square + 2N * root),
+    )
+  }
 }

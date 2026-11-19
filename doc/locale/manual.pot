@@ -19955,47 +19955,51 @@ msgid "The integer square root of a value of up to 256 bits (a 128-bit root, the
 msgstr ""
 
 #: manual/performance/bin_float.md:40
-msgid "Certified constants"
+msgid "Above 256 bits the integer square root on Native and LLVM runs Zimmermann's `SqrtRem` on word arrays instead of the `BinCoeff` divide-and-conquer root, which built about twenty-five temporaries per level (a `BinCoeff` operation on a few limbs costs 600 to 700 instructions, more than the division it surrounds). The radicand is shifted left by an even number of bits, below 128, to an even number $n$ of 64-bit limbs with the top two bits not both zero; each level cuts it into blocks of $n/4$ limbs, takes the root and remainder of the upper part from the recursion, one division by twice that root and one squaring of the quotient through the coefficient dispatch, and corrects the root by at most one; a quotient of a whole block is capped one below, which is the root. The remainder of the original radicand comes back from the normalized one with a one-limb product, $(r' + e(2s' - e)) \\gg 2t$ with $e = s' \\bmod 2^t$ for the shift $2t$. The recursion ends in the fixed-width kernels at 256 bits. Retired instructions of one root on Native (release, radicand of twice the root width, paired with the previous build): 2.0 times fewer for a 512-bit root, 1.85 for 2,048 bits, 1.3 for 8,192 bits and 1.04 for 65,536 bits, where the division and the squaring of the recursion dominate; a root of 256 bits (a 512-bit radicand) 1.8 times. Wasm and Wasm-GC keep the previous recursion until paired wall-clock runs decide; the word recursion is compiled and tested on every target except JavaScript. White-box tests compare it with the previous recursion, the restoring loop and a BigInt oracle from 129 to 4,097 bits (random, all ones, single bits, zero limbs inside the value, the neighbours of exact squares), and with the defining inequalities up to 33,000 bits."
 msgstr ""
 
 #: manual/performance/bin_float.md:42
-msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgid "Certified constants"
 msgstr ""
 
 #: manual/performance/bin_float.md:44
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgstr ""
+
+#: manual/performance/bin_float.md:46
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr ""
 
-#: manual/performance/bin_float.md:46
+#: manual/performance/bin_float.md:48
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr ""
 
-#: manual/performance/bin_float.md:48
+#: manual/performance/bin_float.md:50
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr ""
 
-#: manual/performance/bin_float.md:57
+#: manual/performance/bin_float.md:59
 msgid "Certified series"
 msgstr ""
 
-#: manual/performance/bin_float.md:59
+#: manual/performance/bin_float.md:61
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr ""
 
-#: manual/performance/bin_float.md:61
+#: manual/performance/bin_float.md:63
 msgid "Trade-offs"
 msgstr ""
 
-#: manual/performance/bin_float.md:63
+#: manual/performance/bin_float.md:65
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr ""
 
-#: manual/performance/bin_float.md:65
+#: manual/performance/bin_float.md:67
 msgid "Fixed-point logarithm"
 msgstr ""
 
-#: manual/performance/bin_float.md:67
+#: manual/performance/bin_float.md:69
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr ""
 
