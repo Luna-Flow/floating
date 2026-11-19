@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 import urllib.request
 import zipfile
 from contextlib import contextmanager
@@ -54,7 +55,35 @@ def archive_path(filename: str) -> PurePosixPath:
     return path
 
 
-def download(url: str, expected_hash: str, destination: Path) -> None:
+DOWNLOAD_ATTEMPTS = 4
+RETRY_DELAY_SECONDS = 2.0
+
+
+class IncompleteDownload(OSError):
+    """The transfer ended before the advertised Content-Length was received."""
+
+
+def check_complete(expected_length: int | None, received: int) -> None:
+    """Pure check: raise IncompleteDownload if the body is shorter than advertised.
+
+    http.client's chunked ``read(n)`` returns short data (no exception) when the
+    peer resets the connection mid-body, so a truncated archive otherwise shows
+    up only as a confusing SHA-256 mismatch (issue #361). A hash mismatch on a
+    *complete* body is a real integrity failure and is never retried.
+    """
+    if expected_length is not None and received != expected_length:
+        raise IncompleteDownload(
+            f"truncated download: received {received} of {expected_length} bytes"
+        )
+
+
+def content_length(response: object) -> int | None:
+    headers = getattr(response, "headers", None)
+    value = headers.get("Content-Length") if headers is not None else None
+    return int(value) if value is not None and str(value).isdigit() else None
+
+
+def _download_once(url: str, expected_hash: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         dir=destination.parent, delete=False
@@ -63,8 +92,10 @@ def download(url: str, expected_hash: str, destination: Path) -> None:
         try:
             with urllib.request.urlopen(url) as response:
                 shutil.copyfileobj(response, stream)
+                expected_length = content_length(response)
             stream.flush()
             os.fsync(stream.fileno())
+            check_complete(expected_length, temporary.stat().st_size)
             actual_hash = sha256(temporary)
             if actual_hash != expected_hash:
                 raise ValueError(
@@ -74,6 +105,29 @@ def download(url: str, expected_hash: str, destination: Path) -> None:
             temporary.replace(destination)
         finally:
             temporary.unlink(missing_ok=True)
+
+
+def download(
+    url: str,
+    expected_hash: str,
+    destination: Path,
+    *,
+    attempts: int = DOWNLOAD_ATTEMPTS,
+    delay: float = RETRY_DELAY_SECONDS,
+) -> None:
+    """Download and verify; retry only transport failures, never hash mismatches."""
+    for attempt in range(1, attempts + 1):
+        try:
+            _download_once(url, expected_hash, destination)
+            return
+        except OSError as error:  # includes IncompleteDownload, resets, timeouts
+            if attempt == attempts:
+                raise
+            print(
+                f"download attempt {attempt}/{attempts} failed ({error}); retrying",
+                file=sys.stderr,
+            )
+            time.sleep(delay)
 
 
 def ensure_artifact(
