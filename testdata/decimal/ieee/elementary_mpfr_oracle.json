@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "standard": "IEEE 754-2019",
   "oracle": "MPFR 4.2.2 directed dyadic enclosure plus exact decimal endpoint rounding",
-  "inputSha256": "6b5a1f8072dc661b8c91910506f6f2774bc2c93858cae294acd90c0093cbf6fa",
+  "inputSha256": "21c22f5221b0a1c6a138b7ff8e02ff88ca8c9edf55297ee2225937f53915a990",
   "rows": [
     {
       "id": "mpfr-0000-decimal32-half_even",
@@ -46323,6 +46323,7494 @@
         "Inexact",
         "Rounded"
       ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613835",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613835",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613835",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613835",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613835",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080025",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080025",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788457",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788457",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788457",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788457",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788458",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788457",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788458",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0148-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "14.63671875",
+      "integer": 0,
+      "result": "0.2613834802080024039218795025788457",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610310",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0149-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "1.7890625",
+      "integer": 0,
+      "result": "0.7476309016255963877118708719610309",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401178",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401178",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985092",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985092",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985092",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985092",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985092",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639999",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639999",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639999",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639998",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639999",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639998",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639999",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0150-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "8.64453125",
+      "integer": 0,
+      "result": "0.3401177329985091905340907094639998",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834862",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834862",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734088",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734088",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734088",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734088",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734088",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111604",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111604",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111604",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111603",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111604",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111603",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111604",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0151-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "2.140625",
+      "integer": 0,
+      "result": "0.6834861261734087654950130379111603",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629319",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629319",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107668",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107668",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107668",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107668",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107668",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455166",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455166",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455166",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455165",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455166",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455165",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455166",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0152-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "14.46484375",
+      "integer": 0,
+      "result": "0.2629318073107667667579245469455166",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064005",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064005",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006097",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006097",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032005",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032005",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0153-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "6.0546875",
+      "integer": 0,
+      "result": "0.4064004064006096010160017780032004",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663713",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663713",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632712",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690114",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690114",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690114",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690114",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690115",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690114",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690115",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0154-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "4.59765625",
+      "integer": 0,
+      "result": "0.4663712298632711744759419603690114",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-half_even",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528649",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-half_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528649",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-half_down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528649",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-down",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528649",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-floor",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528649",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal32-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-half_even",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-half_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-half_down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-down",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129848",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-floor",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129848",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal64-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-half_even",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439145",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-half_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439145",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-half_down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439145",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-down",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439144",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-ceiling",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439145",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-floor",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439144",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439145",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0155-decimal128-zero_five_up",
+      "operation": "rsqrt",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "8.03125",
+      "integer": 0,
+      "result": "0.3528648731129847126263184153439144",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45026",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45026",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45026",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45026",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45026",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45026",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0156-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0156-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "7.5703125",
+      "integer": 2,
+      "result": "73.45025634765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0994",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0994",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.0993156433106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0157-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0157-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "5.171875",
+      "integer": 3,
+      "result": "235.099315643310546875",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6679",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6679",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508803",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508803",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508803",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508803",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508803",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0158-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0158-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "4.3359375",
+      "integer": 4,
+      "result": "810.6678244508802890777587890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.375",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.375",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796936",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796936",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796936",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796936",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796937",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796936",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796937",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.374077796936",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0159-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0159-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "4.5625",
+      "integer": 5,
+      "result": "5325.37407779693603515625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0160-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.373",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.373",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134913",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134913",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134913",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134913",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134913",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373143",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373143",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0160-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "2.3515625",
+      "integer": 6,
+      "result": "1417.372281134912782363244332373142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47876",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47876",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47876",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47875",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47876",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47875",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47876",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.47876",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0161-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0161-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "5.203125",
+      "integer": 2,
+      "result": "38.478759765625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0162-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.6",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.6",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.6",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609160",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609160",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528298",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528298",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528298",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528298",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528299",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528298",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528299",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0162-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "6.6171875",
+      "integer": 6,
+      "result": "195329.5170609159470131999114528298",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-half_even",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-half_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-half_down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-down",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-ceiling",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.824",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-floor",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.824",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal32-zero_five_up",
+      "operation": "compound",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-half_even",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-half_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-half_down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-down",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-ceiling",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414790",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-floor",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414790",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal64-zero_five_up",
+      "operation": "compound",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ]
+    },
+    {
+      "id": "mpfr-0163-decimal128-half_even",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-half_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-half_down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-down",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-ceiling",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-floor",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0163-decimal128-zero_five_up",
+      "operation": "compound",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "3.09375",
+      "integer": 6,
+      "result": "4706.823401414789259433746337890625",
+      "flags": []
+    },
+    {
+      "id": "mpfr-0164-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611383",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611383",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200209",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200209",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682143",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682143",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0164-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "4.35546875",
+      "integer": 0,
+      "result": "2.611382109200208298799453721682142",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "0.65234375"
+    },
+    {
+      "id": "mpfr-0165-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091359",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091359",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091359",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091359",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091359",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799702",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799702",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212105",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0165-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "5.11328125",
+      "integer": 0,
+      "result": "8.091358926799701209739824035212106",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.28125"
+    },
+    {
+      "id": "mpfr-0166-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99127",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99127",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99127",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99127",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99127",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540964",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844916",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844916",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844916",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844915",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844916",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844915",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844916",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0166-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "7.68359375",
+      "integer": 0,
+      "result": "25.99126934540963977658685070844916",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.59765625"
+    },
+    {
+      "id": "mpfr-0167-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840325",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840325",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240640",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240640",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090501",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090501",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090501",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090500",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090501",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090500",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090501",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0167-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "0.56640625",
+      "integer": 0,
+      "result": "0.3840324349240639005268259992090501",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "1.68359375"
+    },
+    {
+      "id": "mpfr-0168-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50862",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50862",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608724",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608724",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169992",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169992",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169992",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169991",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169992",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169991",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169992",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0168-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "0.26171875",
+      "integer": 0,
+      "result": "21.50861483608723223935026436169991",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.2890625"
+    },
+    {
+      "id": "mpfr-0169-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72760",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72760",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72760",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72760",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72760",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734806",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734806",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734806",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734806",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734806",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734806",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116718",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116718",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116718",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116718",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116719",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116718",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116719",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0169-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "3.26953125",
+      "integer": 0,
+      "result": "22.72759831734805970304319626116718",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.63671875"
+    },
+    {
+      "id": "mpfr-0170-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347909",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347909",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654519",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654519",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654519",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654519",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654519",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720688",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720688",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720688",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720688",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720689",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720688",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720689",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0170-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "2.08984375",
+      "integer": 0,
+      "result": "8.347908258654518511523084665720688",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "2.87890625"
+    },
+    {
+      "id": "mpfr-0171-decimal32-half_even",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_even",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-half_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-half_down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "half_down",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-down",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "down",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-ceiling",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "ceiling",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401673",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-floor",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "floor",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401673",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal32-zero_five_up",
+      "operation": "powr",
+      "format": "decimal32",
+      "rounding": "zero_five_up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-half_even",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_even",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-half_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-half_down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "half_down",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-down",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "down",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-ceiling",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "ceiling",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149661",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-floor",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "floor",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149661",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal64-zero_five_up",
+      "operation": "powr",
+      "format": "decimal64",
+      "rounding": "zero_five_up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149661",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-half_even",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_even",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112124",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-half_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112124",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-half_down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "half_down",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112124",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-down",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "down",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112124",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-ceiling",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "ceiling",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112125",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-floor",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "floor",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112124",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112125",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
+    },
+    {
+      "id": "mpfr-0171-decimal128-zero_five_up",
+      "operation": "powr",
+      "format": "decimal128",
+      "rounding": "zero_five_up",
+      "left": "1.22265625",
+      "integer": 0,
+      "result": "0.6401672081149660253420188088112124",
+      "flags": [
+        "Inexact",
+        "Rounded"
+      ],
+      "right": "-2.21875"
     }
   ]
 }

@@ -82,7 +82,15 @@ static void make_operands(
       numerator = 1;
     }
     set_dyadic(left, numerator);
-  } else if (strcmp(operation, "pow") == 0) {
+  } else if (strcmp(operation, "rsqrt") == 0) {
+    set_dyadic(left, positive_numerator(state, 4096));
+  } else if (strcmp(operation, "compound") == 0) {
+    /* n > 0 only: mpfr_compound_si 4.2.2 is not correctly rounded for n < 0
+       in the directed modes (the decimal rows cover n < 0 exactly). */
+    *integer = 1 + (long)(next_random(state) % 7);
+    set_dyadic(left, -255 + (long)(next_random(state) % 2304));
+  } else if (strcmp(operation, "pow") == 0 ||
+             strcmp(operation, "powr") == 0) {
     set_dyadic(left, positive_numerator(state, 2048));
     set_dyadic(right, signed_numerator(state, 768));
   } else if (strcmp(operation, "hypot") == 0 ||
@@ -176,6 +184,12 @@ static int evaluate(
     return mpfr_log2p1(output, left, rounding);
   if (strcmp(operation, "log10p1") == 0)
     return mpfr_log10p1(output, left, rounding);
+  if (strcmp(operation, "rsqrt") == 0)
+    return mpfr_rec_sqrt(output, left, rounding);
+  if (strcmp(operation, "compound") == 0)
+    return mpfr_compound_si(output, left, integer, rounding);
+  if (strcmp(operation, "powr") == 0)
+    return mpfr_powr(output, left, right, rounding);
   fprintf(stderr, "unsupported operation: %s\n", operation);
   exit(2);
 }
