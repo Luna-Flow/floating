@@ -517,8 +517,8 @@ def print_text(report: dict) -> None:
     )
     summary = report["summary"]
     print_summary(
-        "BINARY · TestFloat + MPFR",
-        "Berkeley TestFloat 3e · GNU MPFR 4.2.2",
+        "BINARY: TestFloat + MPFR",
+        "Berkeley TestFloat 3e, GNU MPFR 4.2.2",
         rows,
         summary["passedCases"],
         summary["totalCases"],

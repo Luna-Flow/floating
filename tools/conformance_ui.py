@@ -131,12 +131,12 @@ def print_summary(
     for row in rows:
         detail = f"{row.passed:,}/{row.total:,} passed"
         if row.detail:
-            detail += f" · {row.detail}"
+            detail += f", {row.detail}"
         console.status(row.failed == 0, row.label, detail)
     console.status(
         failed == 0,
         "TOTAL",
-        f"{passed:,}/{total:,} passed · {format_duration(elapsed)}",
+        f"{passed:,}/{total:,} passed, {format_duration(elapsed)}",
     )
     if failed_ids:
         print("failed ids: " + ", ".join(failed_ids), file=sys.stdout)

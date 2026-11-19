@@ -9728,8 +9728,8 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr "§5.7 class, isCanonical, radix"
 
 #: manual/conformance/decimal.md:58
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL · IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
-msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL · IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
+msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:59
 msgid "§5.12 decimal character conversion (decimal to decimal)"
@@ -9981,8 +9981,8 @@ msgid "`extended = false` contexts"
 msgstr "`extended = false` contexts"
 
 #: manual/conformance/decimal_gda.md:36
-msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA · official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
-msgstr "门禁阶段 `DECIMAL_GDA · official0 decTest` 中固定的子集语料 `dectest0.zip`（32 个文件，其中 31 个为 `extended: 0`）；`src/decimal_gda/` 白盒测试"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
+msgstr "门禁阶段 `DECIMAL_GDA: official0 decTest` 中固定的子集语料 `dectest0.zip`（32 个文件，其中 31 个为 `extended: 0`）；`src/decimal_gda/` 白盒测试"
 
 #: manual/conformance/decimal_gda.md:38
 msgid "Legacy corpus"
@@ -12178,8 +12178,8 @@ msgid "Fused multiply-add"
 msgstr "融合乘加"
 
 #: manual/design/bin_float.md:571
-msgid "`fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose precision equals its own bit length, and passes it to the addition finalizer, so $x y + z$ is rounded once (clause 5.4.1). The difference from two roundings is the point of the operation: for $a = \\operatorname{RN}(0.1)$ in binary64, the rounding error $a \\cdot a - \\operatorname{RN}(a \\cdot a)$ is lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers) but `fma_ctx(a, a, -RN(a·a))` returns it exactly, $-8.33\\ldots \\cdot 10^{-19}$. That the result is exact is Dekker's theorem: the error of a rounded-to-nearest product is itself in $F$ when no underflow occurs (precisely, when $e_a + e_b \\ge e_{\\min} - p + 1$ for the exponents of the last bits of $a$ and $b$, so the exact product lies on the grid of $F$).[^dekker] If the product exponent leaves the `Int` range, the product either certainly overflows, or it is so small that it acts as a sticky bit next to a nonzero addend; the code places a single bit $p + 9$ positions below the addend's last bit, which by the far-operand argument above rounds identically. With a zero addend such a product is the tiny result of the underflow rule."
-msgstr "`fma_ctx` 将乘积 $c_x c_y 2^{e_x + e_y}$ 精确地构造为一个精度等于其自身位长的值，并将其交给加法终结器，因此 $x y + z$ 只舍入一次（第 5.4.1 条）。与两次舍入的区别正是该运算的意义所在：对于 binary64 中的 $a = \\operatorname{RN}(0.1)$，先 `mul_ctx` 再 `sub_ctx` 会丢失舍入误差 $a \\cdot a - \\operatorname{RN}(a \\cdot a)$（第二次运算看到的是两个相等的数），而 `fma_ctx(a, a, -RN(a·a))` 精确地返回它，$-8.33\\ldots \\cdot 10^{-19}$。结果是精确的，这就是 Dekker 定理：在不发生下溢时（确切地说，当 $a$ 和 $b$ 最低位的指数满足 $e_a + e_b \\ge e_{\\min} - p + 1$，从而精确乘积位于 $F$ 的网格上时），就近舍入乘积的误差本身属于 $F$。[^dekker] 若乘积指数超出 `Int` 范围，则乘积要么必然上溢，要么小到相对非零加数而言只相当于一个粘滞位；代码在加数最低位以下 $p + 9$ 个位置处放置一个单独的位，根据上文关于远距操作数的论证，其舍入结果相同。当加数为零时，这样的乘积就是下溢规则下的微小结果。"
+msgid "`fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose precision equals its own bit length, and passes it to the addition finalizer, so $x y + z$ is rounded once (clause 5.4.1). The difference from two roundings is the point of the operation: for $a = \\operatorname{RN}(0.1)$ in binary64, the rounding error $a \\cdot a - \\operatorname{RN}(a \\cdot a)$ is lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers) but `fma_ctx(a, a, -RN(a*a))` returns it exactly, $-8.33\\ldots \\cdot 10^{-19}$. That the result is exact is Dekker's theorem: the error of a rounded-to-nearest product is itself in $F$ when no underflow occurs (precisely, when $e_a + e_b \\ge e_{\\min} - p + 1$ for the exponents of the last bits of $a$ and $b$, so the exact product lies on the grid of $F$).[^dekker] If the product exponent leaves the `Int` range, the product either certainly overflows, or it is so small that it acts as a sticky bit next to a nonzero addend; the code places a single bit $p + 9$ positions below the addend's last bit, which by the far-operand argument above rounds identically. With a zero addend such a product is the tiny result of the underflow rule."
+msgstr "`fma_ctx` 将乘积 $c_x c_y 2^{e_x + e_y}$ 精确地构造为一个精度等于其自身位长的值，并将其交给加法终结器，因此 $x y + z$ 只舍入一次（第 5.4.1 条）。与两次舍入的区别正是该运算的意义所在：对于 binary64 中的 $a = \\operatorname{RN}(0.1)$，先 `mul_ctx` 再 `sub_ctx` 会丢失舍入误差 $a \\cdot a - \\operatorname{RN}(a \\cdot a)$（第二次运算看到的是两个相等的数），而 `fma_ctx(a, a, -RN(a*a))` 精确地返回它，$-8.33\\ldots \\cdot 10^{-19}$。结果是精确的，这就是 Dekker 定理：在不发生下溢时（确切地说，当 $a$ 和 $b$ 最低位的指数满足 $e_a + e_b \\ge e_{\\min} - p + 1$，从而精确乘积位于 $F$ 的网格上时），就近舍入乘积的误差本身属于 $F$。[^dekker] 若乘积指数超出 `Int` 范围，则乘积要么必然上溢，要么小到相对非零加数而言只相当于一个粘滞位；代码在加数最低位以下 $p + 9$ 个位置处放置一个单独的位，根据上文关于远距操作数的论证，其舍入结果相同。当加数为零时，这样的乘积就是下溢规则下的微小结果。"
 
 #: manual/design/bin_float.md:589
 msgid "T. J. Dekker, \"A floating-point technique for extending the available precision\", *Numerische Mathematik* 18, 1971; Muller et al., §4.4."
@@ -17612,8 +17612,8 @@ msgid "[design](design/bin_float.md)"
 msgstr "[设计](design/bin_float.md)"
 
 #: manual/index.md:58
-msgid "[conformance](conformance/bin_float.md) · [performance](performance/bin_float.md)"
-msgstr "[符合性](conformance/bin_float.md) · [性能](performance/bin_float.md)"
+msgid "[conformance](conformance/bin_float.md), [performance](performance/bin_float.md)"
+msgstr "[符合性](conformance/bin_float.md), [性能](performance/bin_float.md)"
 
 #: manual/index.md:59
 msgid "`decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange"
@@ -17632,8 +17632,8 @@ msgid "[design](design/decimal.md)"
 msgstr "[设计](design/decimal.md)"
 
 #: manual/index.md:59
-msgid "[conformance](conformance/decimal.md) · [performance](performance/decimal.md)"
-msgstr "[符合性](conformance/decimal.md) · [性能](performance/decimal.md)"
+msgid "[conformance](conformance/decimal.md), [performance](performance/decimal.md)"
+msgstr "[符合性](conformance/decimal.md), [性能](performance/decimal.md)"
 
 #: manual/index.md:60
 msgid "`decimal_gda`: General Decimal Arithmetic with sticky status and traps"
@@ -17652,8 +17652,8 @@ msgid "[design](design/decimal_gda.md)"
 msgstr "[设计](design/decimal_gda.md)"
 
 #: manual/index.md:60
-msgid "[conformance](conformance/decimal_gda.md) · [performance](performance/decimal_gda.md)"
-msgstr "[符合性](conformance/decimal_gda.md) · [性能](performance/decimal_gda.md)"
+msgid "[conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md)"
+msgstr "[符合性](conformance/decimal_gda.md), [性能](performance/decimal_gda.md)"
 
 #: manual/index.md:61
 msgid "`ball_float`: outward-rounded bare and decorated intervals (IEEE 1788)"
@@ -17672,8 +17672,8 @@ msgid "[design](design/ball_float.md)"
 msgstr "[设计](design/ball_float.md)"
 
 #: manual/index.md:61
-msgid "[conformance](conformance/ball_float.md) · [performance](performance/ball_float.md)"
-msgstr "[符合性](conformance/ball_float.md) · [性能](performance/ball_float.md)"
+msgid "[conformance](conformance/ball_float.md), [performance](performance/ball_float.md)"
+msgstr "[符合性](conformance/ball_float.md), [性能](performance/ball_float.md)"
 
 #: manual/index.md:63
 msgid "Composition and shared vocabulary"
@@ -18152,8 +18152,8 @@ msgid "[API](api/bench/external.md)"
 msgstr "[API](api/bench/external.md)"
 
 #: manual/index.md:110
-msgid "[design](design/bench/external.md) · [performance](performance/bench/external.md)"
-msgstr "[设计](design/bench/external.md) · [性能](performance/bench/external.md)"
+msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
+msgstr "[设计](design/bench/external.md), [性能](performance/bench/external.md)"
 
 #: manual/index.md:112
 msgid "Guides"
@@ -27508,98 +27508,98 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Package map"
 #~ msgstr "包地图"
 
-#~ msgid "[tutorial](./tutorial/bin_float.md) · [API](./api/bin_float.md) · [design](./design/bin_float.md) · [conformance](./conformance/bin_float.md) · [performance](./performance/bin_float.md)"
-#~ msgstr "[教程](./tutorial/bin_float.md) · [API](./api/bin_float.md) · [设计](./design/bin_float.md) · [符合性](./conformance/bin_float.md) · [性能](./performance/bin_float.md)"
+#~ msgid "[tutorial](./tutorial/bin_float.md, [API](./api/bin_float.md, [design](./design/bin_float.md, [conformance](./conformance/bin_float.md, [performance](./performance/bin_float.md)"
+#~ msgstr "[教程](./tutorial/bin_float.md, [API](./api/bin_float.md, [设计](./design/bin_float.md, [符合性](./conformance/bin_float.md, [性能](./performance/bin_float.md)"
 
-#~ msgid "[tutorial](./tutorial/decimal.md) · [API](./api/decimal.md) · [design](./design/decimal.md) · [conformance](./conformance/decimal.md) · [performance](./performance/decimal.md)"
-#~ msgstr "[教程](./tutorial/decimal.md) · [API](./api/decimal.md) · [设计](./design/decimal.md) · [符合性](./conformance/decimal.md) · [性能](./performance/decimal.md)"
+#~ msgid "[tutorial](./tutorial/decimal.md, [API](./api/decimal.md, [design](./design/decimal.md, [conformance](./conformance/decimal.md, [performance](./performance/decimal.md)"
+#~ msgstr "[教程](./tutorial/decimal.md, [API](./api/decimal.md, [设计](./design/decimal.md, [符合性](./conformance/decimal.md, [性能](./performance/decimal.md)"
 
-#~ msgid "[tutorial](./tutorial/decimal_gda.md) · [API](./api/decimal_gda.md) · [design](./design/decimal_gda.md) · [conformance](./conformance/decimal_gda.md) · [performance](./performance/decimal_gda.md)"
-#~ msgstr "[教程](./tutorial/decimal_gda.md) · [API](./api/decimal_gda.md) · [设计](./design/decimal_gda.md) · [符合性](./conformance/decimal_gda.md) · [性能](./performance/decimal_gda.md)"
+#~ msgid "[tutorial](./tutorial/decimal_gda.md, [API](./api/decimal_gda.md, [design](./design/decimal_gda.md, [conformance](./conformance/decimal_gda.md, [performance](./performance/decimal_gda.md)"
+#~ msgstr "[教程](./tutorial/decimal_gda.md, [API](./api/decimal_gda.md, [设计](./design/decimal_gda.md, [符合性](./conformance/decimal_gda.md, [性能](./performance/decimal_gda.md)"
 
-#~ msgid "[tutorial](./tutorial/ball_float.md) · [API](./api/ball_float.md) · [design](./design/ball_float.md) · [conformance](./conformance/ball_float.md) · [performance](./performance/ball_float.md)"
-#~ msgstr "[教程](./tutorial/ball_float.md) · [API](./api/ball_float.md) · [设计](./design/ball_float.md) · [符合性](./conformance/ball_float.md) · [性能](./performance/ball_float.md)"
+#~ msgid "[tutorial](./tutorial/ball_float.md, [API](./api/ball_float.md, [design](./design/ball_float.md, [conformance](./conformance/ball_float.md, [performance](./performance/ball_float.md)"
+#~ msgstr "[教程](./tutorial/ball_float.md, [API](./api/ball_float.md, [设计](./design/ball_float.md, [符合性](./conformance/ball_float.md, [性能](./performance/ball_float.md)"
 
-#~ msgid "[tutorial](./tutorial/def.md) · [API](./api/def.md) · [design](./design/def.md)"
-#~ msgstr "[教程](./tutorial/def.md) · [API](./api/def.md) · [设计](./design/def.md)"
+#~ msgid "[tutorial](./tutorial/def.md, [API](./api/def.md, [design](./design/def.md)"
+#~ msgstr "[教程](./tutorial/def.md, [API](./api/def.md, [设计](./design/def.md)"
 
-#~ msgid "[tutorial](./tutorial/bin_float_checked.md) · [API](./api/bin_float_checked.md) · [design](./design/bin_float_checked.md)"
-#~ msgstr "[教程](./tutorial/bin_float_checked.md) · [API](./api/bin_float_checked.md) · [设计](./design/bin_float_checked.md)"
+#~ msgid "[tutorial](./tutorial/bin_float_checked.md, [API](./api/bin_float_checked.md, [design](./design/bin_float_checked.md)"
+#~ msgstr "[教程](./tutorial/bin_float_checked.md, [API](./api/bin_float_checked.md, [设计](./design/bin_float_checked.md)"
 
-#~ msgid "[tutorial](./tutorial/decimal_checked.md) · [API](./api/decimal_checked.md) · [design](./design/decimal_checked.md)"
-#~ msgstr "[教程](./tutorial/decimal_checked.md) · [API](./api/decimal_checked.md) · [设计](./design/decimal_checked.md)"
+#~ msgid "[tutorial](./tutorial/decimal_checked.md, [API](./api/decimal_checked.md, [design](./design/decimal_checked.md)"
+#~ msgstr "[教程](./tutorial/decimal_checked.md, [API](./api/decimal_checked.md, [设计](./design/decimal_checked.md)"
 
-#~ msgid "[tutorial](./tutorial/decimal_gda_checked.md) · [API](./api/decimal_gda_checked.md) · [design](./design/decimal_gda_checked.md)"
-#~ msgstr "[教程](./tutorial/decimal_gda_checked.md) · [API](./api/decimal_gda_checked.md) · [设计](./design/decimal_gda_checked.md)"
+#~ msgid "[tutorial](./tutorial/decimal_gda_checked.md, [API](./api/decimal_gda_checked.md, [design](./design/decimal_gda_checked.md)"
+#~ msgstr "[教程](./tutorial/decimal_gda_checked.md, [API](./api/decimal_gda_checked.md, [设计](./design/decimal_gda_checked.md)"
 
-#~ msgid "[tutorial](./tutorial/ball_float_checked.md) · [API](./api/ball_float_checked.md) · [design](./design/ball_float_checked.md)"
-#~ msgstr "[教程](./tutorial/ball_float_checked.md) · [API](./api/ball_float_checked.md) · [设计](./design/ball_float_checked.md)"
+#~ msgid "[tutorial](./tutorial/ball_float_checked.md, [API](./api/ball_float_checked.md, [design](./design/ball_float_checked.md)"
+#~ msgstr "[教程](./tutorial/ball_float_checked.md, [API](./api/ball_float_checked.md, [设计](./design/ball_float_checked.md)"
 
 #~ msgid "exact, representation-independent projection for cross-package comparison"
 #~ msgstr "用于跨包比较的精确且与表示无关的投影"
 
-#~ msgid "[tutorial](./tutorial/semantic.md) · [API](./api/semantic.md) · [design](./design/semantic.md)"
-#~ msgstr "[教程](./tutorial/semantic.md) · [API](./api/semantic.md) · [设计](./design/semantic.md)"
+#~ msgid "[tutorial](./tutorial/semantic.md, [API](./api/semantic.md, [design](./design/semantic.md)"
+#~ msgstr "[教程](./tutorial/semantic.md, [API](./api/semantic.md, [设计](./design/semantic.md)"
 
-#~ msgid "[tutorial](./tutorial/numeric_expr.md) · [API](./api/numeric_expr.md) · [design](./design/numeric_expr.md)"
-#~ msgstr "[教程](./tutorial/numeric_expr.md) · [API](./api/numeric_expr.md) · [设计](./design/numeric_expr.md)"
+#~ msgid "[tutorial](./tutorial/numeric_expr.md, [API](./api/numeric_expr.md, [design](./design/numeric_expr.md)"
+#~ msgstr "[教程](./tutorial/numeric_expr.md, [API](./api/numeric_expr.md, [设计](./design/numeric_expr.md)"
 
-#~ msgid "[tutorial](./tutorial/frontend/gda_expr.md) · [API](./api/frontend/gda_expr.md) · [design](./design/frontend/gda_expr.md)"
-#~ msgstr "[教程](./tutorial/frontend/gda_expr.md) · [API](./api/frontend/gda_expr.md) · [设计](./design/frontend/gda_expr.md)"
+#~ msgid "[tutorial](./tutorial/frontend/gda_expr.md, [API](./api/frontend/gda_expr.md, [design](./design/frontend/gda_expr.md)"
+#~ msgstr "[教程](./tutorial/frontend/gda_expr.md, [API](./api/frontend/gda_expr.md, [设计](./design/frontend/gda_expr.md)"
 
-#~ msgid "[tutorial](./tutorial/frontend/itl_expr.md) · [API](./api/frontend/itl_expr.md) · [design](./design/frontend/itl_expr.md)"
-#~ msgstr "[教程](./tutorial/frontend/itl_expr.md) · [API](./api/frontend/itl_expr.md) · [设计](./design/frontend/itl_expr.md)"
+#~ msgid "[tutorial](./tutorial/frontend/itl_expr.md, [API](./api/frontend/itl_expr.md, [design](./design/frontend/itl_expr.md)"
+#~ msgstr "[教程](./tutorial/frontend/itl_expr.md, [API](./api/frontend/itl_expr.md, [设计](./design/frontend/itl_expr.md)"
 
-#~ msgid "[tutorial](./tutorial/frontend/mpfr_expr.md) · [API](./api/frontend/mpfr_expr.md) · [design](./design/frontend/mpfr_expr.md)"
-#~ msgstr "[教程](./tutorial/frontend/mpfr_expr.md) · [API](./api/frontend/mpfr_expr.md) · [设计](./design/frontend/mpfr_expr.md)"
+#~ msgid "[tutorial](./tutorial/frontend/mpfr_expr.md, [API](./api/frontend/mpfr_expr.md, [design](./design/frontend/mpfr_expr.md)"
+#~ msgstr "[教程](./tutorial/frontend/mpfr_expr.md, [API](./api/frontend/mpfr_expr.md, [设计](./design/frontend/mpfr_expr.md)"
 
-#~ msgid "[tutorial](./tutorial/frontend/testfloat_expr.md) · [API](./api/frontend/testfloat_expr.md) · [design](./design/frontend/testfloat_expr.md)"
-#~ msgstr "[教程](./tutorial/frontend/testfloat_expr.md) · [API](./api/frontend/testfloat_expr.md) · [设计](./design/frontend/testfloat_expr.md)"
+#~ msgid "[tutorial](./tutorial/frontend/testfloat_expr.md, [API](./api/frontend/testfloat_expr.md, [design](./design/frontend/testfloat_expr.md)"
+#~ msgstr "[教程](./tutorial/frontend/testfloat_expr.md, [API](./api/frontend/testfloat_expr.md, [设计](./design/frontend/testfloat_expr.md)"
 
-#~ msgid "[tutorial](./tutorial/cli.md) · [API](./api/cli.md) · [design](./design/cli.md)"
-#~ msgstr "[教程](./tutorial/cli.md) · [API](./api/cli.md) · [设计](./design/cli.md)"
+#~ msgid "[tutorial](./tutorial/cli.md, [API](./api/cli.md, [design](./design/cli.md)"
+#~ msgstr "[教程](./tutorial/cli.md, [API](./api/cli.md, [设计](./design/cli.md)"
 
-#~ msgid "[tutorial](./tutorial/cli/gda_expr_cli.md) · [API](./api/cli/gda_expr_cli.md) · [design](./design/cli/gda_expr_cli.md)"
-#~ msgstr "[教程](./tutorial/cli/gda_expr_cli.md) · [API](./api/cli/gda_expr_cli.md) · [设计](./design/cli/gda_expr_cli.md)"
+#~ msgid "[tutorial](./tutorial/cli/gda_expr_cli.md, [API](./api/cli/gda_expr_cli.md, [design](./design/cli/gda_expr_cli.md)"
+#~ msgstr "[教程](./tutorial/cli/gda_expr_cli.md, [API](./api/cli/gda_expr_cli.md, [设计](./design/cli/gda_expr_cli.md)"
 
-#~ msgid "[tutorial](./tutorial/cli/itl_expr_cli.md) · [API](./api/cli/itl_expr_cli.md) · [design](./design/cli/itl_expr_cli.md)"
-#~ msgstr "[教程](./tutorial/cli/itl_expr_cli.md) · [API](./api/cli/itl_expr_cli.md) · [设计](./design/cli/itl_expr_cli.md)"
+#~ msgid "[tutorial](./tutorial/cli/itl_expr_cli.md, [API](./api/cli/itl_expr_cli.md, [design](./design/cli/itl_expr_cli.md)"
+#~ msgstr "[教程](./tutorial/cli/itl_expr_cli.md, [API](./api/cli/itl_expr_cli.md, [设计](./design/cli/itl_expr_cli.md)"
 
-#~ msgid "[tutorial](./tutorial/cli/mpfr_expr_cli.md) · [API](./api/cli/mpfr_expr_cli.md) · [design](./design/cli/mpfr_expr_cli.md)"
-#~ msgstr "[教程](./tutorial/cli/mpfr_expr_cli.md) · [API](./api/cli/mpfr_expr_cli.md) · [设计](./design/cli/mpfr_expr_cli.md)"
+#~ msgid "[tutorial](./tutorial/cli/mpfr_expr_cli.md, [API](./api/cli/mpfr_expr_cli.md, [design](./design/cli/mpfr_expr_cli.md)"
+#~ msgstr "[教程](./tutorial/cli/mpfr_expr_cli.md, [API](./api/cli/mpfr_expr_cli.md, [设计](./design/cli/mpfr_expr_cli.md)"
 
-#~ msgid "[tutorial](./tutorial/cli/testfloat_expr_cli.md) · [API](./api/cli/testfloat_expr_cli.md) · [design](./design/cli/testfloat_expr_cli.md)"
-#~ msgstr "[教程](./tutorial/cli/testfloat_expr_cli.md) · [API](./api/cli/testfloat_expr_cli.md) · [设计](./design/cli/testfloat_expr_cli.md)"
+#~ msgid "[tutorial](./tutorial/cli/testfloat_expr_cli.md, [API](./api/cli/testfloat_expr_cli.md, [design](./design/cli/testfloat_expr_cli.md)"
+#~ msgstr "[教程](./tutorial/cli/testfloat_expr_cli.md, [API](./api/cli/testfloat_expr_cli.md, [设计](./design/cli/testfloat_expr_cli.md)"
 
-#~ msgid "[tutorial](./tutorial/internal.md) · [API](./api/internal.md) · [design](./design/internal.md)"
-#~ msgstr "[教程](./tutorial/internal.md) · [API](./api/internal.md) · [设计](./design/internal.md)"
+#~ msgid "[tutorial](./tutorial/internal.md, [API](./api/internal.md, [design](./design/internal.md)"
+#~ msgstr "[教程](./tutorial/internal.md, [API](./api/internal.md, [设计](./design/internal.md)"
 
-#~ msgid "[tutorial](./tutorial/internal/conformance.md) · [API](./api/internal/conformance.md) · [design](./design/internal/conformance.md)"
-#~ msgstr "[教程](./tutorial/internal/conformance.md) · [API](./api/internal/conformance.md) · [设计](./design/internal/conformance.md)"
+#~ msgid "[tutorial](./tutorial/internal/conformance.md, [API](./api/internal/conformance.md, [design](./design/internal/conformance.md)"
+#~ msgstr "[教程](./tutorial/internal/conformance.md, [API](./api/internal/conformance.md, [设计](./design/internal/conformance.md)"
 
-#~ msgid "[tutorial](./tutorial/internal/runner_cli.md) · [API](./api/internal/runner_cli.md) · [design](./design/internal/runner_cli.md)"
-#~ msgstr "[教程](./tutorial/internal/runner_cli.md) · [API](./api/internal/runner_cli.md) · [设计](./design/internal/runner_cli.md)"
+#~ msgid "[tutorial](./tutorial/internal/runner_cli.md, [API](./api/internal/runner_cli.md, [design](./design/internal/runner_cli.md)"
+#~ msgstr "[教程](./tutorial/internal/runner_cli.md, [API](./api/internal/runner_cli.md, [设计](./design/internal/runner_cli.md)"
 
-#~ msgid "[tutorial](./tutorial/consistency.md) · [API](./api/consistency.md) · [design](./design/consistency.md)"
-#~ msgstr "[教程](./tutorial/consistency.md) · [API](./api/consistency.md) · [设计](./design/consistency.md)"
+#~ msgid "[tutorial](./tutorial/consistency.md, [API](./api/consistency.md, [design](./design/consistency.md)"
+#~ msgstr "[教程](./tutorial/consistency.md, [API](./api/consistency.md, [设计](./design/consistency.md)"
 
-#~ msgid "[tutorial](./tutorial/doc_examples.md) · [API](./api/doc_examples.md) · [design](./design/doc_examples.md)"
-#~ msgstr "[教程](./tutorial/doc_examples.md) · [API](./api/doc_examples.md) · [设计](./design/doc_examples.md)"
+#~ msgid "[tutorial](./tutorial/doc_examples.md, [API](./api/doc_examples.md, [design](./design/doc_examples.md)"
+#~ msgstr "[教程](./tutorial/doc_examples.md, [API](./api/doc_examples.md, [设计](./design/doc_examples.md)"
 
-#~ msgid "[tutorial](./tutorial/bench.md) · [API](./api/bench.md) · [design](./design/bench.md)"
-#~ msgstr "[教程](./tutorial/bench.md) · [API](./api/bench.md) · [设计](./design/bench.md)"
+#~ msgid "[tutorial](./tutorial/bench.md, [API](./api/bench.md, [design](./design/bench.md)"
+#~ msgstr "[教程](./tutorial/bench.md, [API](./api/bench.md, [设计](./design/bench.md)"
 
-#~ msgid "[tutorial](./tutorial/bench/bin_float.md) · [API](./api/bench/bin_float.md) · [design](./design/bench/bin_float.md)"
-#~ msgstr "[教程](./tutorial/bench/bin_float.md) · [API](./api/bench/bin_float.md) · [设计](./design/bench/bin_float.md)"
+#~ msgid "[tutorial](./tutorial/bench/bin_float.md, [API](./api/bench/bin_float.md, [design](./design/bench/bin_float.md)"
+#~ msgstr "[教程](./tutorial/bench/bin_float.md, [API](./api/bench/bin_float.md, [设计](./design/bench/bin_float.md)"
 
-#~ msgid "[tutorial](./tutorial/bench/decimal.md) · [API](./api/bench/decimal.md) · [design](./design/bench/decimal.md)"
-#~ msgstr "[教程](./tutorial/bench/decimal.md) · [API](./api/bench/decimal.md) · [设计](./design/bench/decimal.md)"
+#~ msgid "[tutorial](./tutorial/bench/decimal.md, [API](./api/bench/decimal.md, [design](./design/bench/decimal.md)"
+#~ msgstr "[教程](./tutorial/bench/decimal.md, [API](./api/bench/decimal.md, [设计](./design/bench/decimal.md)"
 
-#~ msgid "[tutorial](./tutorial/bench/decimal_gda.md) · [API](./api/bench/decimal_gda.md) · [design](./design/bench/decimal_gda.md)"
-#~ msgstr "[教程](./tutorial/bench/decimal_gda.md) · [API](./api/bench/decimal_gda.md) · [设计](./design/bench/decimal_gda.md)"
+#~ msgid "[tutorial](./tutorial/bench/decimal_gda.md, [API](./api/bench/decimal_gda.md, [design](./design/bench/decimal_gda.md)"
+#~ msgstr "[教程](./tutorial/bench/decimal_gda.md, [API](./api/bench/decimal_gda.md, [设计](./design/bench/decimal_gda.md)"
 
-#~ msgid "[tutorial](./tutorial/bench/ball_float.md) · [API](./api/bench/ball_float.md) · [design](./design/bench/ball_float.md)"
-#~ msgstr "[教程](./tutorial/bench/ball_float.md) · [API](./api/bench/ball_float.md) · [设计](./design/bench/ball_float.md)"
+#~ msgid "[tutorial](./tutorial/bench/ball_float.md, [API](./api/bench/ball_float.md, [design](./design/bench/ball_float.md)"
+#~ msgstr "[教程](./tutorial/bench/ball_float.md, [API](./api/bench/ball_float.md, [设计](./design/bench/ball_float.md)"
 
 #~ msgid "Reading paths"
 #~ msgstr "阅读路径"

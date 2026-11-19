@@ -9704,7 +9704,7 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr ""
 
 #: manual/conformance/decimal.md:58
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL · IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:59
@@ -9957,7 +9957,7 @@ msgid "`extended = false` contexts"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:36
-msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA · official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:38
@@ -12117,7 +12117,7 @@ msgid "Fused multiply-add"
 msgstr ""
 
 #: manual/design/bin_float.md:571
-msgid "`fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose precision equals its own bit length, and passes it to the addition finalizer, so $x y + z$ is rounded once (clause 5.4.1). The difference from two roundings is the point of the operation: for $a = \\operatorname{RN}(0.1)$ in binary64, the rounding error $a \\cdot a - \\operatorname{RN}(a \\cdot a)$ is lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers) but `fma_ctx(a, a, -RN(a·a))` returns it exactly, $-8.33\\ldots \\cdot 10^{-19}$. That the result is exact is Dekker's theorem: the error of a rounded-to-nearest product is itself in $F$ when no underflow occurs (precisely, when $e_a + e_b \\ge e_{\\min} - p + 1$ for the exponents of the last bits of $a$ and $b$, so the exact product lies on the grid of $F$).[^dekker] If the product exponent leaves the `Int` range, the product either certainly overflows, or it is so small that it acts as a sticky bit next to a nonzero addend; the code places a single bit $p + 9$ positions below the addend's last bit, which by the far-operand argument above rounds identically. With a zero addend such a product is the tiny result of the underflow rule."
+msgid "`fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose precision equals its own bit length, and passes it to the addition finalizer, so $x y + z$ is rounded once (clause 5.4.1). The difference from two roundings is the point of the operation: for $a = \\operatorname{RN}(0.1)$ in binary64, the rounding error $a \\cdot a - \\operatorname{RN}(a \\cdot a)$ is lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal numbers) but `fma_ctx(a, a, -RN(a*a))` returns it exactly, $-8.33\\ldots \\cdot 10^{-19}$. That the result is exact is Dekker's theorem: the error of a rounded-to-nearest product is itself in $F$ when no underflow occurs (precisely, when $e_a + e_b \\ge e_{\\min} - p + 1$ for the exponents of the last bits of $a$ and $b$, so the exact product lies on the grid of $F$).[^dekker] If the product exponent leaves the `Int` range, the product either certainly overflows, or it is so small that it acts as a sticky bit next to a nonzero addend; the code places a single bit $p + 9$ positions below the addend's last bit, which by the far-operand argument above rounds identically. With a zero addend such a product is the tiny result of the underflow rule."
 msgstr ""
 
 #: manual/design/bin_float.md:589
@@ -17491,7 +17491,7 @@ msgid "[design](design/bin_float.md)"
 msgstr ""
 
 #: manual/index.md:58
-msgid "[conformance](conformance/bin_float.md) · [performance](performance/bin_float.md)"
+msgid "[conformance](conformance/bin_float.md), [performance](performance/bin_float.md)"
 msgstr ""
 
 #: manual/index.md:59
@@ -17511,7 +17511,7 @@ msgid "[design](design/decimal.md)"
 msgstr ""
 
 #: manual/index.md:59
-msgid "[conformance](conformance/decimal.md) · [performance](performance/decimal.md)"
+msgid "[conformance](conformance/decimal.md), [performance](performance/decimal.md)"
 msgstr ""
 
 #: manual/index.md:60
@@ -17531,7 +17531,7 @@ msgid "[design](design/decimal_gda.md)"
 msgstr ""
 
 #: manual/index.md:60
-msgid "[conformance](conformance/decimal_gda.md) · [performance](performance/decimal_gda.md)"
+msgid "[conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md)"
 msgstr ""
 
 #: manual/index.md:61
@@ -17551,7 +17551,7 @@ msgid "[design](design/ball_float.md)"
 msgstr ""
 
 #: manual/index.md:61
-msgid "[conformance](conformance/ball_float.md) · [performance](performance/ball_float.md)"
+msgid "[conformance](conformance/ball_float.md), [performance](performance/ball_float.md)"
 msgstr ""
 
 #: manual/index.md:63
@@ -18031,7 +18031,7 @@ msgid "[API](api/bench/external.md)"
 msgstr ""
 
 #: manual/index.md:110
-msgid "[design](design/bench/external.md) · [performance](performance/bench/external.md)"
+msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
 msgstr ""
 
 #: manual/index.md:112

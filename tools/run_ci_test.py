@@ -37,7 +37,7 @@ class RunCiTests(unittest.TestCase):
         for scope in ("all", "quick", "decimal", "decimal_gda", "binary", "interval", "elementary"):
             with self.subTest(scope=scope):
                 first = run_ci.stages_for(scope, 2)[0]
-                self.assertEqual(first.name, "DEPENDENCIES · fetch")
+                self.assertEqual(first.name, "DEPENDENCIES: fetch")
                 self.assertIn("check", first.command)
                 self.assertNotIn("install", first.command)
                 self.assertNotIn("--frozen", first.command)
@@ -51,7 +51,7 @@ class RunCiTests(unittest.TestCase):
         stages = run_ci.stages_for("all", 5)
         self.assertEqual(len(stages), 19)
         self.assertEqual(
-            [stage.name.split(" · ")[0] for stage in stages],
+            [stage.name.split(": ")[0] for stage in stages],
             [
                 "DEPENDENCIES",
                 "IMPORTS",
@@ -88,8 +88,8 @@ class RunCiTests(unittest.TestCase):
                 for stage in stages
                 if stage.command[2:3] == ("check",) and "native" in stage.command
             ]
-            self.assertEqual(native_checks, ["DEPENDENCIES · fetch"], scope)
-            test = next(stage for stage in stages if stage.name == "TEST · native")
+            self.assertEqual(native_checks, ["DEPENDENCIES: fetch"], scope)
+            test = next(stage for stage in stages if stage.name == "TEST: native")
             self.assertIn("--frozen", test.command)
             self.assertIn("--deny-warn", test.command)
 
@@ -97,7 +97,7 @@ class RunCiTests(unittest.TestCase):
         stages = run_ci.stages_for("quick", 4)
         names = [stage.name for stage in stages]
         self.assertEqual(
-            sorted(name.split(" · ")[0] for name in names),
+            sorted(name.split(": ")[0] for name in names),
             sorted(
                 [
                     "DEPENDENCIES",
@@ -116,18 +116,18 @@ class RunCiTests(unittest.TestCase):
             ),
         )
         by_name = {stage.name: stage.command for stage in stages}
-        self.assertEqual(by_name["IMPORTS · package independence"][1], "tools/check_imports.py")
-        self.assertIn("--quality-only", by_name["DOCS · manual quality"])
-        self.assertIn("--examples-only", by_name["DOCS · manual examples"])
-        self.assertIn("--skip-package-tests", by_name["DOCS · manual examples"])
-        self.assertIn("native", by_name["TEST · native"])
-        self.assertIn("--deny-warn", by_name["TEST · native"])
-        self.assertIn("unittest", by_name["TEST · Python tooling"])
-        self.assertEqual(by_name["SMOKE · DecimalGDA"][-1], "decimal_gda")
-        self.assertEqual(by_name["SMOKE · Binary"][-1], "binary")
-        self.assertEqual(by_name["SMOKE · Random differential"][1], "tools/random_differential.py")
-        self.assertEqual(by_name["SMOKE · Random differential"][2], "smoke")
-        self.assertEqual(by_name["SMOKE · Interval"][-2:], ("interval", "--strict-supported"))
+        self.assertEqual(by_name["IMPORTS: package independence"][1], "tools/check_imports.py")
+        self.assertIn("--quality-only", by_name["DOCS: manual quality"])
+        self.assertIn("--examples-only", by_name["DOCS: manual examples"])
+        self.assertIn("--skip-package-tests", by_name["DOCS: manual examples"])
+        self.assertIn("native", by_name["TEST: native"])
+        self.assertIn("--deny-warn", by_name["TEST: native"])
+        self.assertIn("unittest", by_name["TEST: Python tooling"])
+        self.assertEqual(by_name["SMOKE: DecimalGDA"][-1], "decimal_gda")
+        self.assertEqual(by_name["SMOKE: Binary"][-1], "binary")
+        self.assertEqual(by_name["SMOKE: Random differential"][1], "tools/random_differential.py")
+        self.assertEqual(by_name["SMOKE: Random differential"][2], "smoke")
+        self.assertEqual(by_name["SMOKE: Interval"][-2:], ("interval", "--strict-supported"))
 
     def test_quick_lanes_keep_moon_stages_in_one_lane_in_order(self) -> None:
         stages = run_ci.stages_for("quick", 4)
@@ -137,21 +137,21 @@ class RunCiTests(unittest.TestCase):
         self.assertEqual(
             lanes["moon"],
             [
-                "DEPENDENCIES · fetch",
-                "DOCS · manual examples",
-                "FORMAT · MoonBit sources",
-                "TEST · native",
-                "SMOKE · IEEE 754",
+                "DEPENDENCIES: fetch",
+                "DOCS: manual examples",
+                "FORMAT: MoonBit sources",
+                "TEST: native",
+                "SMOKE: IEEE 754",
             ],
         )
         self.assertEqual(
             lanes["python"],
-            ["IMPORTS · package independence", "DOCS · manual quality", "TEST · Python tooling"],
+            ["IMPORTS: package independence", "DOCS: manual quality", "TEST: Python tooling"],
         )
-        self.assertEqual(lanes["conformance"][0], "SMOKE · DecimalGDA")
+        self.assertEqual(lanes["conformance"][0], "SMOKE: DecimalGDA")
         ci_schedule.validate_plan(stages)
         first = next(stage for stage in stages if stage.lane == "conformance")
-        self.assertEqual(first.after, "DOCS · manual examples")
+        self.assertEqual(first.after, "DOCS: manual examples")
 
     def test_pure_python_lane_never_runs_moon(self) -> None:
         for stage in run_ci.stages_for("quick", 4):
@@ -160,7 +160,7 @@ class RunCiTests(unittest.TestCase):
 
     def test_every_quick_stage_has_a_lane_and_the_plan_is_complete(self) -> None:
         with self.assertRaises(ValueError):
-            run_ci.assign_lanes([run_ci.Stage("UNKNOWN · stage", ("true",))])
+            run_ci.assign_lanes([run_ci.Stage("UNKNOWN: stage", ("true",))])
 
     def test_children_terminate_stops_a_running_stage_and_its_group(self) -> None:
         import subprocess
