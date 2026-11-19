@@ -24,6 +24,25 @@ fn decimal_exact_constant(
   preferred : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  // Start from the member at the preferred exponent when it lies below the
+  // given one (trailing zeros appended): if that member needs more digits than
+  // the precision, the rounding drops zeros and raises Rounded, as for every
+  // other exact result whose preferred member does not fit. A few zeros beyond
+  // the precision are enough for that; the value is unchanged.
+  let target = decimal_math_target_precision(ctx).to_int64()
+  let digits = coefficient.digits10().to_int64()
+  let pad = Int64::min(
+    exponent10.to_int64() - preferred,
+    Int64::max(0L, target + 2L - digits),
+  )
+  let (coefficient, exponent10) = if pad > 0L && !coefficient.is_zero() {
+    (
+      dec_coeff_shift_power10_repr(coefficient, pad.to_int()),
+      exponent10 - pad.to_int(),
+    )
+  } else {
+    (coefficient, exponent10)
+  }
   let exact = finite_with_exponent_repr(
     negative,
     coefficient,
@@ -170,4 +189,48 @@ fn decimal_coeff_is_ten_minus_five_power(value : DecCoeff, m : Int32) -> Bool {
     dec_coeff_pow_unit_repr(5, m),
   )
   dec_coeff_compare_repr(candidate, value) == 0
+}
+
+///|
+/// The `b` with `value = 5^b`, if any; the analogue of
+/// `decimal_coeff_power_of_two_exponent` (a lowest-unit comparison first).
+fn decimal_coeff_power_of_five_exponent(value : DecCoeff) -> Int64? {
+  guard !value.is_zero() else { return None }
+  let digits = value.digits10()
+  if digits <= 9 {
+    let mut small = dec_coeff_limb_at(value, 0).to_int64()
+    let mut b = 0L
+    while small % 5L == 0L {
+      small = small / 5L
+      b = b + 1L
+    }
+    return if small == 1L { Some(b) } else { None }
+  }
+  let low = dec_coeff_limb_at(value, 0).to_int64()
+  // 5^b has D digits for (D - 1) / log10(5) <= b < D / log10(5).
+  let log5_10 = 1.4306765580733931
+  let first = ((digits - 1).to_double() * log5_10).to_int64() - 2L
+  let last = (digits.to_double() * log5_10).to_int64() + 2L
+  for b = Int64::max(13L, first); b <= last; b = b + 1L {
+    if decimal_pow5_mod_1e9(b) != low {
+      continue
+    }
+    guard b <= 2147483647L else { return None }
+    let power = dec_coeff_pow_unit_repr(5, b.to_int())
+    if dec_coeff_compare_repr(power, value) == 0 {
+      return Some(b)
+    }
+  }
+  None
+}
+
+///|
+/// `floor(a / b)` for `b > 0`.
+fn decimal_floor_div64(a : Int64, b : Int64) -> Int64 {
+  let q = a / b
+  if a % b != 0L && a < 0L {
+    q - 1L
+  } else {
+    q
+  }
 }

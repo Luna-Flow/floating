@@ -323,6 +323,27 @@ pub fn DecimalChecked::log10p1(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
+pub fn DecimalChecked::rsqrt(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_rsqrt_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::compound(
+  self : DecimalChecked,
+  n : Int32,
+) -> DecimalChecked {
+  self.record_result(self.value_.try_compound_ctx(n, self.context_))
+}
+
+///|
+pub fn DecimalChecked::powr(
+  self : DecimalChecked,
+  exponent : @decimal.Decimal,
+) -> DecimalChecked {
+  self.record_result(self.value_.try_powr_ctx(exponent, self.context_))
+}
+
+///|
 pub fn DecimalChecked::rootn(
   self : DecimalChecked,
   degree : Int32,
