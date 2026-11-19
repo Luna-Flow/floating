@@ -166,3 +166,49 @@ test "corner selection: atan2 matches the corner-and-axis hull" {
     }
   }
 }
+
+///|
+test "try_sin/cos/tan: native kernels give the rational-series hull" {
+  for precision in [24, 80] {
+    let corpus = trig_corpus(precision)
+    let mut i = 0
+    for a in corpus {
+      i += 1
+      if precision == 80 && i % 4 != 0 {
+        continue
+      }
+      same_try(a.try_sin_interval(), a.old_try_sin_interval())
+      same_try(a.try_cos_interval(), a.old_try_cos_interval())
+      same_try(a.try_tan_interval(), a.old_try_tan_interval())
+    }
+  }
+}
+
+///|
+test "try_sin/cos/tan: near critical points, large and tiny arguments" {
+  let values = [
+    1.5707963267948966, 1.5707963267948968, 1.5707963267948963, 3.141592653589793,
+    3.1415926535897936, 4.71238898038469, 6.283185307179586, 100.0, 12345.678, 100000.0,
+    1.0e-30, -1.0e-30, -1.5707963267948966, -3.141592653589793,
+  ]
+  for precision in [24, 53, 80] {
+    let points = values.map(fn(d) {
+      @bin_float.BinFloat::from_double(d, precision~)
+    })
+    for i in 0..<points.length() {
+      for j in i..<points.length() {
+        if j - i > 2 && j != points.length() - 1 {
+          continue
+        }
+        match BallFloat::try_from_bounds(points[i], points[j], precision~) {
+          Ok(v) => {
+            same_try(v.try_sin_interval(), v.old_try_sin_interval())
+            same_try(v.try_cos_interval(), v.old_try_cos_interval())
+            same_try(v.try_tan_interval(), v.old_try_tan_interval())
+          }
+          Err(_) => ()
+        }
+      }
+    }
+  }
+}
