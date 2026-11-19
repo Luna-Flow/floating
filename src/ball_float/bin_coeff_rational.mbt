@@ -41,6 +41,18 @@ fn coeff_gcd(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
 ) -> @bin_float.BinCoeff {
+  // gcd(a, 2^k) = 2^min(v2(a), k): a trailing-zero count instead of a
+  // general big-integer gcd. Rationals built from binary floats have
+  // power-of-two denominators, so this is the common case.
+  if coeff_is_zero(left) || coeff_is_zero(right) {
+    return left.gcd(right)
+  }
+  if right.ctz() == right.bit_length() - 1 {
+    return coeff_one().shift_left(Int32::min(left.ctz(), right.ctz()))
+  }
+  if left.ctz() == left.bit_length() - 1 {
+    return coeff_one().shift_left(Int32::min(left.ctz(), right.ctz()))
+  }
   left.gcd(right)
 }
 
