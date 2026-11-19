@@ -811,6 +811,20 @@ Three kinds of inputs are decided outside the agreement test:
   $x \log_{10} e \ge 3 \cdot 0.434\,(e_{\max}+1) > e_{\max}+1$, and $x \le -3\,|E_{\text{tiny}} - 1|$ underflows below
   $10^{E_{\text{tiny}}-1}$ by the same estimate. `power` bounds $y \log_2 x$
   with directed 128-bit arithmetic for the same purpose.
+- **Enclosure of a non-integral power.** For a positive base the Ziv loop
+  evaluates $x^y = \exp(y \ln x)$ in interval arithmetic: one `ln` enclosure,
+  one interval product and one `exp` enclosure, instead of the four corners
+  times two directions (eight correctly rounded binary powers) of
+  `ball_float`'s `try_pow_interval`. The loop needs an enclosure, not tight
+  endpoints, and correct rounding makes the delivered value independent of
+  the enclosure's width, so the result, cohort and flags are those of the
+  tighter evaluation. The composition loses about
+  $\lceil \log_2 |y \ln x| \rceil$ bits of relative accuracy, because the
+  relative error of $\exp(t)$ is the absolute error of $t$. The initial
+  working precision therefore grows by a bound of that quantity, taken from
+  the adjusted exponents of $x$ and $y$ ($|\ln x| \le \ln 10\,(|\operatorname{adjusted}(x)| + 1)$
+  and $|y| < 10^{\operatorname{adjusted}(y)+1}$), so the first attempt usually
+  decides ([#352](https://github.com/Luna-Flow/floating/issues/352)).
 
 **One layer for the newer §9.2 functions.** `exp2m1`, `exp10m1`, `log2p1`
 and `log10p1`, and the families that follow in
