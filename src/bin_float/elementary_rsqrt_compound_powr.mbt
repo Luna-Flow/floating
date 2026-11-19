@@ -152,11 +152,9 @@ fn binary_compound_general(
       downward,
       upward,
     )
-    match
-      (binary_exp_bounds(scaled.0, work), binary_exp_bounds(scaled.1, work)) {
-      (Some(lower), Some(upper)) => Some((lower.0, upper.1))
-      _ => None
-    }
+    binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
+      binary_exp_bounds(point, work)
+    })
   })
 }
 
