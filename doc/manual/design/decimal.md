@@ -948,6 +948,57 @@ extreme power of ten.
   `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its
   odd-integer sign rule).
 
+**`asinPi`, `acosPi`, `atanPi` and `atan2Pi`.** The four evaluate
+$\operatorname{asin}(x)/\pi$, $\operatorname{acos}(x)/\pi$,
+$\operatorname{atan}(x)/\pi$ and $\operatorname{atan2}(y, x)/\pi$ in the
+existing Ziv driver, with $\pi = 4\operatorname{atan}(1)$ and the angle
+enclosure divided by it (error: the angle, $\pi$ and the division, about
+4 ulp relative).
+
+- *Exact results.* By Niven's theorem a rational $x$ has a rational
+  $\operatorname{asin}(x)/\pi$ or $\operatorname{acos}(x)/\pi$ only at
+  $0, \pm\tfrac12, \pm 1$ and a rational $\operatorname{atan}(x)/\pi$ only at
+  $0, \pm 1$, so the dyadic exact results are those of §9.2.1 and
+  $\operatorname{atanPi}(\pm 1) = \pm\tfrac14$,
+  $\operatorname{atan2Pi}(\pm a, \pm a) = \pm\tfrac14, \pm\tfrac34$. They are
+  built by `decimal_exact_constant` at the preferred exponent 0 (§9.2.2).
+  $\pm\tfrac16$, $\tfrac13$ and $\tfrac23$ do not terminate, so they sit
+  strictly inside a rounding cell and the loop decides them. No Pi function
+  is anchored at a tiny argument: $x/\pi$ is irrational and nowhere near a
+  representable value.
+- *Clusters next to $\pm\tfrac12$ and $\pm 1$.* These are the only inexact
+  results that approach a representable value, and the distance does not
+  depend on the digits of the operand, so $w_0 = 4D + 64$ cannot cover it.
+  Each is decided by `decimal_tiny_argument_result` from a bound on the
+  distance, one-sided: $\operatorname{atanPi}(x) = \pm(\tfrac12 - \delta)$ with
+  $0 < \delta < 1/(\pi|x|) < 10^{-\operatorname{adj}(x)}$ for a large $|x|$;
+  $\operatorname{acosPi}(x) = \tfrac12 - \operatorname{asin}(x)/\pi$ with
+  distance at most $|x|/2 < 10^{\operatorname{adj}(x)+1}$ for a tiny $|x|$ (the
+  easy one to miss: $\operatorname{acos}$ of a tiny $x$ is near the irrational
+  $\pi/2$, but $\operatorname{acosPi}$ is near the representable $\tfrac12$,
+  below it for $x > 0$ and above for $x < 0$); $\operatorname{atan2Pi}(y, x)$
+  with $D = \operatorname{adj}(y) - \operatorname{adj}(x)$ is
+  $\pm(\tfrac12 \mp \delta)$ with $\delta < 10^{1-D}$ for a large ratio
+  (below $\tfrac12$ in magnitude for $x > 0$, above for $x < 0$), and
+  $\pm(1 - \delta)$ with $\delta < 10^{D+1}$ for $x < 0$ and a small ratio.
+  The guard of `decimal_tiny_argument_result` (error exponent below the
+  anchor's adjusted exponent minus $p + 3$) picks the threshold; between it and
+  the moderate range the enclosure resolves the gap at the working precision.
+  The tests compare every anchored result with the plain loop in all eight
+  rounding modes, on both sides.
+- *Tiny results.* For $|x| \le 10^{-4}$, $\operatorname{asin}(x)/x \in
+  [1, 1 + x^2]$ and $\operatorname{atan}(x)/x \in [1 - x^2, 1]$, and the same
+  holds for $\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$.
+  Once $x^2 < 2^{-(8\max(D,p)+400)}$ the loop encloses the moderate value
+  $(s/\pi)(1 \pm 2^{-k})$ with $s = x\,10^{-\operatorname{adj}(x)}$ (or the
+  quotient of the two scaled mantissas) and shifts the endpoints by
+  $10^{\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt`
+  (`decimal_certified_scaled_result`): an operand $10^{-1\,999\,996}$ costs
+  what $10^{-300}$ costs, where the exact decimal endpoints of a binary
+  number near $2^{-6.6\cdot 10^6}$ have about two million digits (an
+  unscaled `asinpi(7E-9999)` took more than a minute in a debug build before
+  this path existed).
+
 #### Outward-rounded endpoints
 
 The Ziv driver turns the two binary endpoints $L \le U$ of an enclosure into

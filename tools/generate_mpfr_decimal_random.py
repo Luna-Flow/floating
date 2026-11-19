@@ -91,6 +91,9 @@ ARITY = {
     # (mpfr_compound_si 4.2.2 is wrong for n < 0 in the directed modes): its
     # value is the exact rational (1 + x)^n, bracketed to 900 digits.
     "rsqrt": (POSITIVE,), "compound": (LOG1P,), "powr": ("pow_base", "pow_exponent"),
+    # asinPi, acosPi, atanPi and atan2Pi (#236 PR 3), enclosed by mpfr_asinpi,
+    # mpfr_acospi, mpfr_atanpi and mpfr_atan2pi (MPFR 4.2.2).
+    "asinpi": (UNIT,), "acospi": (UNIT,), "atanpi": (REAL,), "atan2pi": (REAL, REAL),
 }
 INTEGER_OPERATIONS = ("rootn", "pown", "compound")
 OPERATIONS = tuple(ARITY)

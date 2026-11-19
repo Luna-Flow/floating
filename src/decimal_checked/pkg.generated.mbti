@@ -18,13 +18,17 @@ pub struct DecimalChecked {
 pub fn DecimalChecked::abs(Self) -> Self
 pub fn DecimalChecked::acos(Self) -> Self
 pub fn DecimalChecked::acosh(Self) -> Self
+pub fn DecimalChecked::acospi(Self) -> Self
 pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::apply(Self) -> Self
 pub fn DecimalChecked::asin(Self) -> Self
 pub fn DecimalChecked::asinh(Self) -> Self
+pub fn DecimalChecked::asinpi(Self) -> Self
 pub fn DecimalChecked::atan(Self) -> Self
 pub fn DecimalChecked::atan2(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::atan2pi(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
+pub fn DecimalChecked::atanpi(Self) -> Self
 pub fn DecimalChecked::clear_flags(Self) -> Self
 pub fn DecimalChecked::compound(Self, Int32) -> Self
 pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext

@@ -24,15 +24,19 @@ pub fn Decimal::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@a
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::acos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::acosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::acospi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::add(Self, Self) -> Self
 pub fn Decimal::add_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::add_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::asin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::asinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::asinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atan2_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atan2pi_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::class_name(Self, DecimalContext) -> String
@@ -205,11 +209,15 @@ pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_acospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_asin_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_asinh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_asinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atan2_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atan2pi_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atanpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_compound_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

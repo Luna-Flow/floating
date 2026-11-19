@@ -1670,6 +1670,65 @@ pub fn Decimal::try_atan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags
 pub fn Decimal::try_atan2_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
+### `Decimal::asinpi_ctx`, `acospi_ctx`, `atanpi_ctx`, `atan2pi_ctx`, `try_asinpi_ctx`, `try_acospi_ctx`, `try_atanpi_ctx`, `try_atan2pi_ctx`
+
+These functions are the inverse circular functions measured in
+half-revolutions of IEEE 754-2019 §9.2: $\operatorname{asin}(x)/\pi$,
+$\operatorname{acos}(x)/\pi$, $\operatorname{atan}(x)/\pi$ and
+$\operatorname{atan2}(y, x)/\pi$, the last with the ordinate as the receiver
+(`y.atan2pi_ctx(x, ctx)`) and a result in $[-1, 1]$. Each has the
+`f_ctx`/`try_f_ctx` shape described at the start of this section.
+
+```mbti
+pub fn Decimal::asinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::acospi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atan2pi_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::try_asinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_acospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atanpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atan2pi_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+```
+
+The exact results are those of §9.2.1, and by Niven's theorem the only ones:
+$\operatorname{asinPi}(\pm 0) = \pm 0$, $\operatorname{asinPi}(\pm 1) = \pm\tfrac12$;
+$\operatorname{acosPi}(1) = +0$, $\operatorname{acosPi}(-1) = 1$,
+$\operatorname{acosPi}(\pm 0) = \tfrac12$; $\operatorname{atanPi}(\pm 0) = \pm 0$,
+$\operatorname{atanPi}(\pm 1) = \pm\tfrac14$ and
+$\operatorname{atanPi}(\pm\infty) = \pm\tfrac12$ with no exception; and the
+eleven rows of $\operatorname{atan2Pi}$ for zero and infinite operands
+($\pm 0$, $\pm 1$, $\pm\tfrac12$, $\pm\tfrac14$, $\pm\tfrac34$, the sign
+bit of a zero abscissa choosing the half-plane), plus $\lvert y\rvert =
+\lvert x\rvert$ for finite nonzero operands ($\pm\tfrac14$ for $x > 0$,
+$\pm\tfrac34$ for $x < 0$). None of them signals an exception. They take the
+preferred exponent 0 of §9.2.2, so $\tfrac12$ is `0.5`, $\tfrac14$ is
+`0.25`, $\tfrac34$ is `0.75` and 1 is `1`, whatever the cohort of the operand;
+a context too narrow for the constant (precision 1) rounds it, with `inexact`.
+$\lvert x\rvert > 1$ (also $\pm\infty$) is invalid for `asinpi` and `acospi`.
+Every other result is inexact ($\operatorname{asinPi}(\pm\tfrac12) = \pm\tfrac16$
+and $\operatorname{acosPi}(\pm\tfrac12) = \tfrac13, \tfrac23$ are not
+terminating decimals) and is correctly rounded, also next to the representable
+values $\pm\tfrac12$ and $\pm 1$ that `atanpi` (large $\lvert x\rvert$),
+`acospi` (tiny $\lvert x\rvert$) and `atan2pi` (extreme ratios) approach from
+one side: there the rounding mode decides between the anchor and its
+neighbour.
+
+```moonbit
+///|
+test "decimal inverse circular functions in half-revolutions" {
+  let c64 = @decimal.DecimalContext::decimal64()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  inspect(d("1").atanpi_ctx(c64).0, content="0.25")
+  inspect(d("-1").atan2pi_ctx(d("-1"), c64).0, content="-0.75")
+  inspect(d("-0").atan2pi_ctx(d("-0"), c64).0, content="-1")
+  inspect(d("0.5").asinpi_ctx(c64).0, content="0.1666666666666667")
+  inspect(d("0.5").acospi_ctx(c64).0, content="0.3333333333333333")
+  let (value, flags) = d("2").asinpi_ctx(c64)
+  inspect(value, content="nan")
+  inspect(flags.invalid_operation, content="true")
+}
+```
+
 ### `Decimal::sinh_ctx`, `cosh_ctx`, `tanh_ctx`, `asinh_ctx`, `acosh_ctx`, `atanh_ctx`, `try_sinh_ctx`, `try_cosh_ctx`, `try_tanh_ctx`, `try_asinh_ctx`, `try_acosh_ctx`, `try_atanh_ctx`
 
 These functions are the hyperbolic functions and their inverses. Each has the `f_ctx`/`try_f_ctx` shape described
@@ -1707,6 +1766,9 @@ Domain and special values of the functions in these four groups:
 | `sinpi`, `cospi`, `tanpi` | $\pm\infty$ | `tanpi` at odd half-integers | integers, half-integers, `tanpi` at odd quarter-integers ($\pm 1$) |
 | `asin`, `acos` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asin}(\pm0)=\pm0$, $\operatorname{acos}(1) = 0$ |
 | `atan` | none | none | $\pm 0$; $\pm\infty \mapsto \pm\pi/2$ (certified) |
+| `asinpi`, `acospi` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asinPi}(\pm0)=\pm0$, $\operatorname{asinPi}(\pm1)=\pm\tfrac12$, $\operatorname{acosPi}(1)=+0$, $\operatorname{acosPi}(-1)=1$, $\operatorname{acosPi}(\pm0)=\tfrac12$ |
+| `atanpi` | none | none | $\pm 0$; $\pm 1 \mapsto \pm\tfrac14$; $\pm\infty \mapsto \pm\tfrac12$ (no exception) |
+| `atan2pi(y, x)` | none | none | the eleven exact rows of §9.2.1 ($\pm0$, $\pm\tfrac12$, $\pm\tfrac14$, $\pm\tfrac34$, $\pm1$) and $\lvert y\rvert = \lvert x\rvert \mapsto \pm\tfrac14, \pm\tfrac34$ |
 | `atan2(y, x)` | none | none | $\operatorname{atan2}(\pm 0, x) = \pm 0$ for $x = +0$ or $x > 0$, and $\operatorname{atan2}(y, +\infty) = \pm 0$ for finite $y$; any other zero or infinite operand gives $\pi$, $\pi/2$, $\pi/4$ or $3\pi/4$ with the sign of $y$ (certified) |
 | `sinh`, `tanh`, `asinh` | none | none | $\pm0\mapsto\pm0$; $\sinh$, $\operatorname{asinh}$ keep $\pm\infty$; $\tanh(\pm\infty)=\pm 1$ |
 | `cosh` | none | none | $\cosh(\pm 0) = 1$, $\cosh(\pm\infty)=+\infty$ |
@@ -2151,15 +2213,19 @@ pub fn Decimal::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@a
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::acos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::acosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::acospi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::add(Self, Self) -> Self
 pub fn Decimal::add_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::add_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::asin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::asinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::asinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atan2_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atan2pi_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::class_name(Self, DecimalContext) -> String
@@ -2332,11 +2398,15 @@ pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_acospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_asin_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_asinh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_asinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atan2_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atan2pi_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_atanpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_compound_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

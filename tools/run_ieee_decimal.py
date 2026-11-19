@@ -379,85 +379,99 @@ def render_moon_fixture_test() -> str:
         "decimal64": (16, -383, 384),
         "decimal128": (34, -6143, 6144),
     }
+    # One test per MPFR interval (its 24 format and rounding rows) instead of one
+    # per row: the debug Wasm module registers every test in `_moonbit_init`,
+    # whose local count V8 caps at 50,000, and 4,896 per-row tests exceed it.
+    # Every assertion still carries the id of its row.
+    groups: dict[str, list[dict[str, Any]]] = {}
     for row in load_json(ELEMENTARY_ORACLE_PATH)["rows"]:
-        operation = row["operation"]
-        precision, e_min, e_max = format_parameters[row["format"]]
-        ctx = (
-            "DecimalContext::new("
-            f"precision={precision}, e_min={e_min}, e_max={e_max}, clamp=true, "
-            f"decimal_rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]}).unwrap()"
-        )
-        rhs = (
-            f"Decimal::from_string({_moon_string(row['right'])}).unwrap()"
-            if "right" in row
-            else None
-        )
-        unary = {
-            "exp": "try_exp_ctx",
-            "exp2": "try_exp2_ctx",
-            "exp10": "try_exp10_ctx",
-            "expm1": "try_expm1_ctx",
-            "ln": "try_ln_ctx",
-            "log2": "try_log2_ctx",
-            "log10": "try_log10_ctx",
-            "log1p": "try_log1p_ctx",
-            "sin": "try_sin_ctx",
-            "cos": "try_cos_ctx",
-            "tan": "try_tan_ctx",
-            "sinpi": "try_sinpi_ctx",
-            "cospi": "try_cospi_ctx",
-            "tanpi": "try_tanpi_ctx",
-            "asin": "try_asin_ctx",
-            "acos": "try_acos_ctx",
-            "atan": "try_atan_ctx",
-            "sinh": "try_sinh_ctx",
-            "cosh": "try_cosh_ctx",
-            "tanh": "try_tanh_ctx",
-            "asinh": "try_asinh_ctx",
-            "acosh": "try_acosh_ctx",
-            "atanh": "try_atanh_ctx",
-            "exp2m1": "try_exp2m1_ctx",
-            "exp10m1": "try_exp10m1_ctx",
-            "log2p1": "try_log2p1_ctx",
-            "log10p1": "try_log10p1_ctx",
-            "rsqrt": "try_rsqrt_ctx",
-        }
-        if operation == "sqrt":
-            call = "lhs.sqrt_ctx(ctx)"
-        elif operation == "rootn":
-            call = f"lhs.try_rootn_ctx({row['integer']}, ctx).unwrap()"
-        elif operation == "pown":
-            call = f"lhs.try_pown_ctx({row['integer']}, ctx).unwrap()"
-        elif operation == "pow":
-            call = f"lhs.try_power_ctx({rhs}, ctx).unwrap()"
-        elif operation == "powr":
-            call = f"lhs.try_powr_ctx({rhs}, ctx).unwrap()"
-        elif operation == "compound":
-            call = f"lhs.try_compound_ctx({row['integer']}, ctx).unwrap()"
-        elif operation == "hypot":
-            call = f"lhs.try_hypot_ctx({rhs}, ctx).unwrap()"
-        elif operation == "atan2":
-            call = f"lhs.try_atan2_ctx({rhs}, ctx).unwrap()"
-        elif operation in unary:
-            call = f"lhs.{unary[operation]}(ctx).unwrap()"
-        else:
-            raise CorpusError(f"unsupported Decimal elementary oracle operation: {operation}")
-        expected_flags = ", ".join(
-            f"DecimalSignal::{SIGNAL_VARIANTS[item]}" for item in row["flags"]
-        )
-        source.extend(
-            [
-                f"test {_moon_string('IEEE elementary oracle ' + row['id'])} {{",
-                f"  let ctx = {ctx}",
-                f"  let lhs = Decimal::from_string({_moon_string(row['left'])}).unwrap()",
-                f"  let (actual, flags) = {call}",
-                f"  let expected = Decimal::from_string({_moon_string(row['result'])}).unwrap()",
-                f"  assert_eq(actual.compare(expected), 0, msg={_moon_string(row['id'])})",
-                f"  assert_ieee_fixture_flags({_moon_string(row['id'])}, flags, [{expected_flags}])",
-                "}",
-                "",
-            ]
-        )
+        groups.setdefault(row["id"].rsplit("-", 2)[0], []).append(row)
+    for group_id, group_rows in groups.items():
+        source.append(f"test {_moon_string('IEEE elementary oracle ' + group_id)} {{")
+        for row in group_rows:
+            operation = row["operation"]
+            precision, e_min, e_max = format_parameters[row["format"]]
+            ctx = (
+                "DecimalContext::new("
+                f"precision={precision}, e_min={e_min}, e_max={e_max}, clamp=true, "
+                f"decimal_rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]}).unwrap()"
+            )
+            rhs = (
+                f"Decimal::from_string({_moon_string(row['right'])}).unwrap()"
+                if "right" in row
+                else None
+            )
+            unary = {
+                "exp": "try_exp_ctx",
+                "exp2": "try_exp2_ctx",
+                "exp10": "try_exp10_ctx",
+                "expm1": "try_expm1_ctx",
+                "ln": "try_ln_ctx",
+                "log2": "try_log2_ctx",
+                "log10": "try_log10_ctx",
+                "log1p": "try_log1p_ctx",
+                "sin": "try_sin_ctx",
+                "cos": "try_cos_ctx",
+                "tan": "try_tan_ctx",
+                "sinpi": "try_sinpi_ctx",
+                "cospi": "try_cospi_ctx",
+                "tanpi": "try_tanpi_ctx",
+                "asin": "try_asin_ctx",
+                "acos": "try_acos_ctx",
+                "atan": "try_atan_ctx",
+                "sinh": "try_sinh_ctx",
+                "cosh": "try_cosh_ctx",
+                "tanh": "try_tanh_ctx",
+                "asinh": "try_asinh_ctx",
+                "acosh": "try_acosh_ctx",
+                "atanh": "try_atanh_ctx",
+                "exp2m1": "try_exp2m1_ctx",
+                "exp10m1": "try_exp10m1_ctx",
+                "log2p1": "try_log2p1_ctx",
+                "log10p1": "try_log10p1_ctx",
+                "rsqrt": "try_rsqrt_ctx",
+                "asinpi": "try_asinpi_ctx",
+                "acospi": "try_acospi_ctx",
+                "atanpi": "try_atanpi_ctx",
+            }
+            if operation == "sqrt":
+                call = "lhs.sqrt_ctx(ctx)"
+            elif operation == "rootn":
+                call = f"lhs.try_rootn_ctx({row['integer']}, ctx).unwrap()"
+            elif operation == "pown":
+                call = f"lhs.try_pown_ctx({row['integer']}, ctx).unwrap()"
+            elif operation == "pow":
+                call = f"lhs.try_power_ctx({rhs}, ctx).unwrap()"
+            elif operation == "powr":
+                call = f"lhs.try_powr_ctx({rhs}, ctx).unwrap()"
+            elif operation == "compound":
+                call = f"lhs.try_compound_ctx({row['integer']}, ctx).unwrap()"
+            elif operation == "hypot":
+                call = f"lhs.try_hypot_ctx({rhs}, ctx).unwrap()"
+            elif operation == "atan2pi":
+                call = f"lhs.try_atan2pi_ctx({rhs}, ctx).unwrap()"
+            elif operation == "atan2":
+                call = f"lhs.try_atan2_ctx({rhs}, ctx).unwrap()"
+            elif operation in unary:
+                call = f"lhs.{unary[operation]}(ctx).unwrap()"
+            else:
+                raise CorpusError(f"unsupported Decimal elementary oracle operation: {operation}")
+            expected_flags = ", ".join(
+                f"DecimalSignal::{SIGNAL_VARIANTS[item]}" for item in row["flags"]
+            )
+            source.extend(
+                [
+                    "  {",
+                    f"    let ctx = {ctx}",
+                    f"    let lhs = Decimal::from_string({_moon_string(row['left'])}).unwrap()",
+                    f"    let (actual, flags) = {call}",
+                    f"    let expected = Decimal::from_string({_moon_string(row['result'])}).unwrap()",
+                    f"    assert_eq(actual.compare(expected), 0, msg={_moon_string(row['id'])})",
+                    f"    assert_ieee_fixture_flags({_moon_string(row['id'])}, flags, [{expected_flags}])",
+                    "  }",
+                ]
+            )
+        source.extend(["}", ""])
     total_order = load_json(TOTAL_ORDER_PATH)
     for format_name, entry in total_order["formats"].items():
         operands = ", ".join(_moon_string(item) for item in entry["operands"])
@@ -776,8 +790,10 @@ def selected_targets(targets: list[str]) -> list[str]:
 
 GENERATED_FIXTURE_GLOB = "ieee_corpus_generated_*_wbtest.mbt"
 # moonc 0.10.14 reports spurious labelled-argument syntax errors in a single
-# ~25k-line test file; files of a few thousand lines compile normally.
-GENERATED_TESTS_PER_FILE = 400
+# ~25k-line test file; files of a few thousand lines compile normally. An
+# elementary-oracle test holds the 24 rows of one MPFR interval, so a file
+# takes far fewer tests than the single-row interchange tests need.
+GENERATED_TESTS_PER_FILE = 25
 
 
 def split_fixture_test(source: str, per_file: int = GENERATED_TESTS_PER_FILE) -> list[str]:
