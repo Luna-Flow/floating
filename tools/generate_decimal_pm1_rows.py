@@ -438,16 +438,18 @@ def render(rows: Rows) -> str:
     ]
     chunks = [rows.rows[i : i + CHUNK_ROWS] for i in range(0, len(rows.rows), CHUNK_ROWS)]
     for index, chunk in enumerate(chunks):
-        lines += ["", "///|", f"let pm1_rows_{index} : Array[", f"  {ROW_TYPE},", "] = ["]
+        # Functions, not top-level lets: a top-level value is constructed when
+        # the test process starts, for every test of the package.
+        lines += ["", "///|", f"fn pm1_rows_{index}() -> Array[", f"  {ROW_TYPE},", "] {", "  ["]
         for op, c, x, expected, flags in chunk:
             clamp = "true" if c.clamp else "false"
             lines.append(
                 f'  ("{op}", "{c.rounding}", {c.precision}, {c.emin}, {c.emax}, {clamp}, "{c.tininess}", "{x}", "{expected}", "{flags}"),'
             )
-        lines.append("]")
+        lines += ["  ]", "}"]
     lines += ["", "///|", f"fn pm1_rows() -> Array[{ROW_TYPE}] {{", "  let rows = []"]
     for index in range(len(chunks)):
-        lines.append(f"  rows.append(pm1_rows_{index})")
+        lines.append(f"  rows.append(pm1_rows_{index}())")
     lines += ["  rows", "}"]
     return "\n".join(lines) + "\n"
 

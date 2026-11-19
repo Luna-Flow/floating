@@ -5,21 +5,30 @@
 // rows.
 
 ///|
-fn pii_call(
+fn pii_try(
   op : String,
   x : String,
   y : String,
   ctx : DecimalContext,
-) -> String {
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let a = pm1_exact(x)
-  let result = match op {
+  match op {
     "asinpi" => a.try_asinpi_ctx(ctx)
     "acospi" => a.try_acospi_ctx(ctx)
     "atanpi" => a.try_atanpi_ctx(ctx)
     "atan2pi" => a.try_atan2pi_ctx(pm1_exact(y), ctx)
     _ => abort("unknown operation " + op)
   }
-  match result {
+}
+
+///|
+fn pii_call(
+  op : String,
+  x : String,
+  y : String,
+  ctx : DecimalContext,
+) -> String {
+  match pii_try(op, x, y, ctx) {
     Ok((value, flags)) => "\{value} \{pm1_flags_text(flags)}"
     Err(_) => "certification-failure"
   }
@@ -44,17 +53,20 @@ test "pi inverse generated rows: exact and certified results, cohort and flags" 
       expected,
       flags,
     ) = row
-    let ctx = pm1_ctx(precision, rounding, e_min, e_max, clamp, tininess)
-    let got = pii_call(op, x, y, ctx)
-    let parts = got.split(" ").map(fn(s) { s.to_owned() }).collect()
-    let ok = parts.length() == 2 &&
-      pm1_exact(parts[0]).compare_total(pm1_exact(expected)) == 0 &&
-      parts[1] == flags
+    let ctx = pm1_ctx_cached(precision, rounding, e_min, e_max, clamp, tininess)
+    // Value (cohort included) and flags are compared directly; the result is
+    // formatted only to describe a failure.
+    let ok = match pii_try(op, x, y, ctx) {
+      Ok((value, actual_flags)) =>
+        value.compare_total(pm1_exact(expected)) == 0 &&
+        pm1_flags_text(actual_flags) == flags
+      Err(_) => false
+    }
     if !ok {
       count += 1
       if count <= 20 {
         failures.write_string(
-          "\{op} \{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} \{tininess} x=\{x} y=\{y}: want \{expected} \{flags}, got \{got}\n",
+          "\{op} \{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} \{tininess} x=\{x} y=\{y}: want \{expected} \{flags}, got \{pii_call(op, x, y, ctx)}\n",
         )
       }
     }
