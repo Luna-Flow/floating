@@ -43,7 +43,7 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, String] {
     index += 1
   }
   if paths.length() == 0 {
-    paths.push("testdata/decimal/smoke.decTest")
+    paths.push("testdata/decimal_gda/smoke.decTest")
   }
   Ok({
     paths,

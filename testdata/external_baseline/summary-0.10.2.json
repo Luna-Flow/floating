@@ -1156,7 +1156,7 @@
       "size": 8192
     },
     {
-      "case": "decimal/add/16",
+      "case": "decimal_gda/add/16",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 307.8630528255528,
@@ -1167,7 +1167,7 @@
         "round_spread_pct": 2.0825493230847076,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "add",
       "ratio": {
@@ -1189,7 +1189,7 @@
       "size": 16
     },
     {
-      "case": "decimal/add/34",
+      "case": "decimal_gda/add/34",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 275.20362576453556,
@@ -1200,7 +1200,7 @@
         "round_spread_pct": 3.275243575142682,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "add",
       "ratio": {
@@ -1222,7 +1222,7 @@
       "size": 34
     },
     {
-      "case": "decimal/add/100",
+      "case": "decimal_gda/add/100",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 376.33317490494295,
@@ -1233,7 +1233,7 @@
         "round_spread_pct": 4.766222416780175,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "add",
       "ratio": {
@@ -1255,7 +1255,7 @@
       "size": 100
     },
     {
-      "case": "decimal/add/1000",
+      "case": "decimal_gda/add/1000",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 1078.8542566983579,
@@ -1266,7 +1266,7 @@
         "round_spread_pct": 2.7215954133150912,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "add",
       "ratio": {
@@ -1288,7 +1288,7 @@
       "size": 1000
     },
     {
-      "case": "decimal/mul/16",
+      "case": "decimal_gda/mul/16",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 297.1557878101145,
@@ -1299,7 +1299,7 @@
         "round_spread_pct": 3.124180605559982,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "mul",
       "ratio": {
@@ -1321,7 +1321,7 @@
       "size": 16
     },
     {
-      "case": "decimal/mul/34",
+      "case": "decimal_gda/mul/34",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 304.83325542258785,
@@ -1332,7 +1332,7 @@
         "round_spread_pct": 3.049729298485102,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "mul",
       "ratio": {
@@ -1354,7 +1354,7 @@
       "size": 34
     },
     {
-      "case": "decimal/mul/100",
+      "case": "decimal_gda/mul/100",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 450.3460158862884,
@@ -1365,7 +1365,7 @@
         "round_spread_pct": 3.3071564482985822,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "mul",
       "ratio": {
@@ -1387,7 +1387,7 @@
       "size": 100
     },
     {
-      "case": "decimal/mul/1000",
+      "case": "decimal_gda/mul/1000",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 17212.78018707483,
@@ -1398,7 +1398,7 @@
         "round_spread_pct": 2.107903255207253,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "mul",
       "ratio": {
@@ -1420,7 +1420,7 @@
       "size": 1000
     },
     {
-      "case": "decimal/div/16",
+      "case": "decimal_gda/div/16",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 670.3067800928688,
@@ -1431,7 +1431,7 @@
         "round_spread_pct": 3.643653239697066,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "div",
       "ratio": {
@@ -1453,7 +1453,7 @@
       "size": 16
     },
     {
-      "case": "decimal/div/34",
+      "case": "decimal_gda/div/34",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 972.8328137178488,
@@ -1464,7 +1464,7 @@
         "round_spread_pct": 4.948617646971952,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "div",
       "ratio": {
@@ -1486,7 +1486,7 @@
       "size": 34
     },
     {
-      "case": "decimal/div/100",
+      "case": "decimal_gda/div/100",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 1631.385006236675,
@@ -1497,7 +1497,7 @@
         "round_spread_pct": 1.7064857690312005,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "div",
       "ratio": {
@@ -1519,7 +1519,7 @@
       "size": 100
     },
     {
-      "case": "decimal/div/1000",
+      "case": "decimal_gda/div/1000",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 48061.51650943396,
@@ -1530,7 +1530,7 @@
         "round_spread_pct": 1.2761756856144582,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "div",
       "ratio": {
@@ -1552,7 +1552,7 @@
       "size": 1000
     },
     {
-      "case": "decimal/sqrt/16",
+      "case": "decimal_gda/sqrt/16",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 1730.821358115093,
@@ -1563,7 +1563,7 @@
         "round_spread_pct": 2.5399275281283797,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "sqrt",
       "ratio": {
@@ -1585,7 +1585,7 @@
       "size": 16
     },
     {
-      "case": "decimal/sqrt/34",
+      "case": "decimal_gda/sqrt/34",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 4762.77157598499,
@@ -1596,7 +1596,7 @@
         "round_spread_pct": 4.646732306516437,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "sqrt",
       "ratio": {
@@ -1618,7 +1618,7 @@
       "size": 34
     },
     {
-      "case": "decimal/sqrt/100",
+      "case": "decimal_gda/sqrt/100",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 11476.833144796381,
@@ -1629,7 +1629,7 @@
         "round_spread_pct": 1.3129355335944888,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "sqrt",
       "ratio": {
@@ -1651,7 +1651,7 @@
       "size": 100
     },
     {
-      "case": "decimal/sqrt/1000",
+      "case": "decimal_gda/sqrt/1000",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 447556.8541666666,
@@ -1662,7 +1662,7 @@
         "round_spread_pct": 1.9615593216276006,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "sqrt",
       "ratio": {
@@ -1684,7 +1684,7 @@
       "size": 1000
     },
     {
-      "case": "decimal/exp/16",
+      "case": "decimal_gda/exp/16",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 248654.44090909095,
@@ -1695,7 +1695,7 @@
         "round_spread_pct": 2.2352824612454114,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "exp",
       "ratio": {
@@ -1717,7 +1717,7 @@
       "size": 16
     },
     {
-      "case": "decimal/exp/34",
+      "case": "decimal_gda/exp/34",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 295552.9513888889,
@@ -1728,7 +1728,7 @@
         "round_spread_pct": 10.360133979895611,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": true,
       "op": "exp",
       "ratio": {
@@ -1750,7 +1750,7 @@
       "size": 34
     },
     {
-      "case": "decimal/exp/100",
+      "case": "decimal_gda/exp/100",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 1695085.16484375,
@@ -1761,7 +1761,7 @@
         "round_spread_pct": 1.366013365400418,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "exp",
       "ratio": {
@@ -1783,7 +1783,7 @@
       "size": 100
     },
     {
-      "case": "decimal/exp/1000",
+      "case": "decimal_gda/exp/1000",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 327556296.875,
@@ -1794,7 +1794,7 @@
         "round_spread_pct": 1.1520128455660195,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "exp",
       "ratio": {
@@ -1816,7 +1816,7 @@
       "size": 1000
     },
     {
-      "case": "decimal/ln/16",
+      "case": "decimal_gda/ln/16",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 222571.1317708333,
@@ -1827,7 +1827,7 @@
         "round_spread_pct": 2.8483719137661905,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "ln",
       "ratio": {
@@ -1849,7 +1849,7 @@
       "size": 16
     },
     {
-      "case": "decimal/ln/34",
+      "case": "decimal_gda/ln/34",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 355762.32589285716,
@@ -1860,7 +1860,7 @@
         "round_spread_pct": 2.4378681918344034,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "ln",
       "ratio": {
@@ -1882,7 +1882,7 @@
       "size": 34
     },
     {
-      "case": "decimal/ln/100",
+      "case": "decimal_gda/ln/100",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 1004467.0208333334,
@@ -1893,7 +1893,7 @@
         "round_spread_pct": 1.6927691108568168,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "ln",
       "ratio": {
@@ -1915,7 +1915,7 @@
       "size": 100
     },
     {
-      "case": "decimal/ln/1000",
+      "case": "decimal_gda/ln/1000",
       "floating": {
         "blocks": 84,
         "ci_high_ns": 89716293.75,
@@ -1926,7 +1926,7 @@
         "round_spread_pct": 0.860640841189769,
         "rounds": 7
       },
-      "kind": "decimal",
+      "kind": "decimal_gda",
       "noisy": false,
       "op": "ln",
       "ratio": {
@@ -2104,7 +2104,7 @@
       "ns_per_op": 9.281855425977305
     },
     {
-      "case": "decimal/null/16",
+      "case": "decimal_gda/null/16",
       "ci": [
         9.275506480805774,
         9.475172737926655
@@ -2295,103 +2295,103 @@
       7,
       7
     ],
-    "decimal/add/100": [
+    "decimal_gda/add/100": [
       7,
       7
     ],
-    "decimal/add/1000": [
+    "decimal_gda/add/1000": [
       7,
       7
     ],
-    "decimal/add/16": [
+    "decimal_gda/add/16": [
       7,
       7
     ],
-    "decimal/add/34": [
+    "decimal_gda/add/34": [
       7,
       7
     ],
-    "decimal/div/100": [
+    "decimal_gda/div/100": [
       7,
       7
     ],
-    "decimal/div/1000": [
+    "decimal_gda/div/1000": [
       7,
       7
     ],
-    "decimal/div/16": [
+    "decimal_gda/div/16": [
       7,
       7
     ],
-    "decimal/div/34": [
+    "decimal_gda/div/34": [
       7,
       7
     ],
-    "decimal/exp/100": [
+    "decimal_gda/exp/100": [
       7,
       7
     ],
-    "decimal/exp/1000": [
+    "decimal_gda/exp/1000": [
       7,
       7
     ],
-    "decimal/exp/16": [
+    "decimal_gda/exp/16": [
       7,
       7
     ],
-    "decimal/exp/34": [
+    "decimal_gda/exp/34": [
       7,
       7
     ],
-    "decimal/ln/100": [
+    "decimal_gda/ln/100": [
       7,
       7
     ],
-    "decimal/ln/1000": [
+    "decimal_gda/ln/1000": [
       7,
       7
     ],
-    "decimal/ln/16": [
+    "decimal_gda/ln/16": [
       7,
       7
     ],
-    "decimal/ln/34": [
+    "decimal_gda/ln/34": [
       7,
       7
     ],
-    "decimal/mul/100": [
+    "decimal_gda/mul/100": [
       7,
       7
     ],
-    "decimal/mul/1000": [
+    "decimal_gda/mul/1000": [
       7,
       7
     ],
-    "decimal/mul/16": [
+    "decimal_gda/mul/16": [
       7,
       7
     ],
-    "decimal/mul/34": [
+    "decimal_gda/mul/34": [
       7,
       7
     ],
-    "decimal/null/16": [
+    "decimal_gda/null/16": [
       7,
       7
     ],
-    "decimal/sqrt/100": [
+    "decimal_gda/sqrt/100": [
       7,
       7
     ],
-    "decimal/sqrt/1000": [
+    "decimal_gda/sqrt/1000": [
       7,
       7
     ],
-    "decimal/sqrt/16": [
+    "decimal_gda/sqrt/16": [
       7,
       7
     ],
-    "decimal/sqrt/34": [
+    "decimal_gda/sqrt/34": [
       7,
       7
     ]

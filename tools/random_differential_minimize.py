@@ -109,7 +109,7 @@ def evaluate_binary(rows: list[list[str]]) -> list[str]:
 
 
 def failing_ids(target: str, kind: str, path: Path) -> set[str]:
-    backend = "mpfr" if kind in ("binary", "decm") else "gda"
+    backend = "mpfr" if kind in ("binary", "decimal") else "gda"
     result = tool.run_command([*tool.conformance_cli(target), "--backend", backend, "--json", str(path)])
     if result.returncode not in (0, 1):
         raise tool.ToolError(result.stderr + result.stdout)
@@ -211,7 +211,7 @@ def minimize_decimal(case: decimal_oracle.Case, target: str) -> decimal_oracle.C
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "candidates.decTest"
             path.write_text(decimal_text(candidates), encoding="utf-8")
-            failures = failing_ids(target, "decimal", path)
+            failures = failing_ids(target, "decimal_gda", path)
         chosen = next((c for c in candidates if c.case_id in failures), None)
         if chosen is None:
             break
@@ -227,7 +227,7 @@ def main(args: argparse.Namespace) -> int:
     binary_out: list[str] = []
     decimal_out: list[str] = []
     for kind, seed, family, index in cases:
-        if kind == "decm":
+        if kind == "decimal":
             # A decimal elementary row is already one operation on one operand
             # set: keep the row as the regression fixture, nothing to shrink.
             tool.decm_oracle.build_enclosure()
@@ -238,7 +238,7 @@ def main(args: argparse.Namespace) -> int:
             with tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / "row.txt"
                 path.write_text("# mpfr-decimal-random-v1 minimize\n" + rows[0] + "\n", encoding="utf-8")
-                if not failing_ids(args.target, "decm", path):
+                if not failing_ids(args.target, "decimal", path):
                     print(f"{rows[0].split()[0]}: passes, nothing to minimize")
                     continue
             decimal_out.append(f"# minimized from {rows[0].split()[0]}")
@@ -264,7 +264,7 @@ def main(args: argparse.Namespace) -> int:
             with tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / "row.decTest"
                 path.write_text(decimal_text([case]), encoding="utf-8")
-                if not failing_ids(args.target, "decimal", path):
+                if not failing_ids(args.target, "decimal_gda", path):
                     print(f"{case.case_id}: passes, nothing to minimize")
                     continue
             minimal_case = minimize_decimal(case, args.target)

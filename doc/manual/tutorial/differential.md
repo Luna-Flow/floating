@@ -1,7 +1,7 @@
 # differential tutorial
 
 This tutorial runs a randomized differential campaign: it generates seeded
-rows with MPFR (binary) and libmpdec (decimal), validates `floating` against
+rows with MPFR (binary, IEEE `decimal`) and libmpdec (`decimal_gda`), validates `floating` against
 them through the mare_mark runner, reads the JSONL record, and replays and
 minimizes a failure.
 
@@ -25,9 +25,9 @@ just random-diff smoke
 ```text
 binary: 650/650 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
 binary-regression: 163/163 passed (testdata/bin_float/random-regressions.txt)
-decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
-decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
-decm: 420/420 passed (testdata/decimal/random/mpfr-decimal-random.txt)
+decimal_gda: 650/650 passed (testdata/decimal_gda/random/libmpdec-random.decTest)
+decimal_gda-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal_gda/random/random-regressions.decTest)
+decimal: 420/420 passed (testdata/decimal/random/mpfr-decimal-random.txt)
 ```
 
 `smoke` builds the synchronous `floating-conformance` executable for the
@@ -41,14 +41,14 @@ unexpected pass.
 ### Decimal elementary functions against MPFR
 
 The IEEE `decimal` package's elementary functions have one family each,
-`decm-<function>` (`decm-exp`, `decm-atan2`, `decm-pown`, `decm-exp2m1`,
-`decm-log10p1`, ...), checked against
+`decimal-<function>` (`decimal-exp`, `decimal-atan2`, `decimal-pown`, `decimal-exp2m1`,
+`decimal-log10p1`, ...), checked against
 certified MPFR enclosures instead of libmpdec. They are not in the default set
 (there are as many families as functions); name them with `--family`, or add
-all of them with `--decm`. A case id reads `m<seed>.<function>.<index>`.
+all of them with `--decimal`. A case id reads `m<seed>.<function>.<index>`.
 
 ```bash
-just random-diff run --family decm-exp --family decm-atan2 --count 100000 --target native
+just random-diff run --family decimal-exp --family decimal-atan2 --count 100000 --target native
 just random-diff replay m20261118.atan2.137
 ```
 
@@ -64,16 +64,16 @@ them in `/opt/homebrew`; pass `--mpfr-prefix` elsewhere) for the binary
 families, and Python 3 with the `decimal` module for the decimal families.
 
 ```bash
-just random-diff run --family add --family dec-add --count 100000 --target native
+just random-diff run --family add --family decimal_gda-add --count 100000 --target native
 ```
 
 ```text
 2 shards, 100000 cases per family, seed 20261118, targets native
 [1/2] native add            0+100000  ok    4.3s
-[2/2] native dec-add        0+100000  ok   46.6s
+[2/2] native decimal_gda-add  0+100000  ok   46.6s
 native: 200,000 cases
     add               100,000
-    dec-add           100,000
+    decimal_gda-add   100,000
 batches validated 200, invalid 0
 records and summary: .tmp/random-diff/run-20261118-120000
 ```
@@ -81,11 +81,14 @@ records and summary: .tmp/random-diff/run-20261118-120000
 `--family` is repeatable and defaults to every family. The binary families
 are `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3 elem4` (`elem2` holds
 `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, `elem3` holds `rsqrt`, `compound` and
-`powr`, `elem4` holds `asinpi`, `acospi`, `atanpi` and `atan2pi`, which `elem` does not draw); the decimal
-ones are `dec-add dec-subtract dec-multiply dec-divide dec-squareroot dec-fma
-dec-apply dec-tosci dec-toeng dec-exp dec-ln dec-log10 dec-power`. The
-`dec-*wide` families sample the contexts on which the elementary functions
-refuse by design and are opt-in. `--count` is per family, `--shard` bounds the
+`powr`, `elem4` holds `asinpi`, `acospi`, `atanpi` and `atan2pi`, which `elem` does not draw); the `decimal_gda`
+families (General Decimal Arithmetic against libmpdec) are `decimal_gda-add decimal_gda-subtract decimal_gda-multiply decimal_gda-divide decimal_gda-squareroot decimal_gda-fma
+decimal_gda-apply decimal_gda-tosci decimal_gda-toeng decimal_gda-exp decimal_gda-ln decimal_gda-log10 decimal_gda-power`. The
+`decimal_gda-*wide` families sample the contexts on which the elementary functions
+refuse by design and are opt-in. The `decimal-<function>` families belong to
+the IEEE `decimal` package (see above). The former prefixes `dec-` (now
+`decimal_gda-`) and `decm-` (now `decimal-`), and the option `--decm` (now
+`--decimal`), are deprecated aliases and still accepted. `--count` is per family, `--shard` bounds the
 rows generated per file, `--batch` the cases validated together, `--jobs` the
 parallel shards.
 
@@ -130,7 +133,7 @@ printed with the expected and the actual value and flags.
 ### Minimize a failure
 
 ```bash
-just random-diff minimize d20261118.add.7352 --output testdata/decimal/random/random-regressions.decTest
+just random-diff minimize d20261118.add.7352 --output testdata/decimal_gda/random/random-regressions.decTest
 ```
 
 The minimizer tries simpler variants (smaller precision, plain rounding, no
@@ -173,7 +176,8 @@ just random-diff replay 20261118.add.1234 --target wasm-gc
 - [Design](../design/differential.md): the oracle reductions and the batch
   validation.
 - [Binary test data](../../../testdata/bin_float/README.md) and
-  [decimal test data](../../../testdata/decimal/README.md): row formats,
+  [decimal (IEEE) test data](../../../testdata/decimal/README.md) and
+  [decimal_gda test data](../../../testdata/decimal_gda/README.md): row formats,
   coverage, the intentional differences and the regression fixtures.
 - [Verification](../verification.md): what has been run, with exact counts.
 

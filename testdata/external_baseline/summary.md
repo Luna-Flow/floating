@@ -36,7 +36,7 @@ Median ns per operation, floating
 | ln | 54.7 us | 118 us | 536 us | 8.47 ms | 286 ms |
 | sin | 218 us | 348 us | 1.29 ms | 17.3 ms | 507 ms |
 
-### Decimal: floating `decimal_gda` against libmpdec
+### Decimal GDA: floating `decimal_gda` against libmpdec
 
 Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means floating is slower)
 
@@ -76,6 +76,6 @@ Median ns per operation, floating
 | case | ns per operation (loop and result store only) |
 | --- | ---: |
 | `binary/null/53` | 9.28 ns [9.23 ns, 9.4 ns] |
-| `decimal/null/16` | 9.36 ns [9.28 ns, 9.48 ns] |
+| `decimal_gda/null/16` | 9.36 ns [9.28 ns, 9.48 ns] |
 
-Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `decimal/exp/34`.
+Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `decimal_gda/exp/34`.

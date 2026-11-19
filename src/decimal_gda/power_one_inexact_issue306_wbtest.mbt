@@ -195,7 +195,7 @@ test "the power of 1 to a non-integer exponent is inexact whatever Emax is (#306
     // official corpus: powx2017 `power 1 1.01 -> 1.00 Inexact Rounded`). The shortcut for a huge exponent
     // took any exponent whose adjusted exponent is at least Emax, and with a small Emax (here 0) that is
     // 1.03: the result was the exact 1 (and Clamped under clamp). Row .3705 of the random differential
-    // (seed 20261118, dec-power) is the last row of the group.
+    // (seed 20261118, decimal_gda-power) is the last row of the group.
     ("power", ["1", "1.03"], 5, -1, 0, true, HalfEven, "1.0000", "xr......"),
     ("power", ["1", "1.03"], 5, -1, 0, true, HalfUp, "1.0000", "xr......"),
     ("power", ["1", "1.03"], 5, -1, 0, true, HalfDown, "1.0000", "xr......"),

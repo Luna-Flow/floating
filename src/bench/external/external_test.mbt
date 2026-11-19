@@ -364,7 +364,7 @@ fn decimal_spec(
   guard function is Some(f) else { return None }
   Some(
     @benchkit.immutable_bench(
-      "external/decimal/" + op,
+      "external/decimal_gda/" + op,
       op,
       [size],
       digits => digits.to_string() + "digit",
@@ -404,19 +404,19 @@ test "external input rows group by case" {
     #|# external-baseline inputs
     #|binary add 53 1 0x1fp-3 -0x15p-2
     #|binary add 53 0 0x13p-3 0x11p-2
-    #|decimal sqrt 16 0 1234567890123456E-14
+    #|decimal_gda sqrt 16 0 1234567890123456E-14
   let cases = parse_cases(text)
   assert_eq(cases.length(), 2)
   let add = cases.get("binary/add/53").unwrap()
   assert_eq(add.map(row => row.index), [0, 1])
   assert_eq(add[1].b, "-0x15p-2")
-  assert_eq(cases.get("decimal/sqrt/16").unwrap()[0].b, "")
+  assert_eq(cases.get("decimal_gda/sqrt/16").unwrap()[0].b, "")
   assert_eq(parse_case_id("binary/add/53"), Some(("binary", "add", 53)))
   assert_eq(parse_case_id("binary/add"), None)
 }
 
 ///|
-test "external binary and decimal plans compile" {
+test "external binary and decimal_gda plans compile" {
   let binary = parse_cases(
       (
         #|binary add 8 0 0xa5p0 0x93p-1
@@ -428,8 +428,8 @@ test "external binary and decimal plans compile" {
   ignore(binary_spec("add", 8, binary, []).unwrap().compile().unwrap())
   assert_true(binary_spec("sin", 8, binary, []) is Some(_))
   assert_true(binary_spec("nope", 8, binary, []) is None)
-  let decimal = parse_cases("decimal mul 4 0 1234E-3 5678E-2")
-    .get("decimal/mul/4")
+  let decimal = parse_cases("decimal_gda mul 4 0 1234E-3 5678E-2")
+    .get("decimal_gda/mul/4")
     .unwrap()
   ignore(decimal_spec("mul", 4, decimal, []).unwrap().compile().unwrap())
   assert_true(decimal_spec("sin", 4, decimal, []) is None)

@@ -10,7 +10,7 @@ toolkit and the statistics are in the [bench tutorial](../bench.md).
 | run the baseline | [`just bench external run`](#quick-start) |
 | try it quickly before a real run | [`just bench external run --preset quick`](#quick-start) |
 | see the gaps without the C side, a few rounds | [`just bench external quick`](#check-the-gaps-quickly) |
-| restrict the matrix | [`--ops`, `--binary-precisions`, `--decimal-digits`](#restrict-the-matrix) |
+| restrict the matrix | [`--ops`, `--binary-precisions`, `--decimal-gda-digits`](#restrict-the-matrix) |
 | re-reduce raw rounds without measuring | [`just bench external report`](#re-reduce-and-publish) |
 | keep a summary in the repository | [`just bench external publish`](#re-reduce-and-publish) |
 | see how the ratios moved since a release | [`just bench external compare OLD NEW`](#compare-two-releases) |
@@ -49,7 +49,7 @@ files land in `.tmp/external`:
 ### Restrict the matrix
 
 ```bash
-just bench external run --ops add mul --binary-precisions 53 512 --decimal-digits 34 --out .tmp/external-small
+just bench external run --ops add mul --binary-precisions 53 512 --decimal-gda-digits 34 --out .tmp/external-small
 ```
 
 A restricted run writes its own directory, so it never mixes with a full run.

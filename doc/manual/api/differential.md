@@ -3,8 +3,8 @@
 ## Purpose
 
 `differential` is the executable of the seeded random differential campaign
-(`random-diff`). It reads a generated corpus of MPFR (binary) or libmpdec
-(decimal) rows, validates them against `floating` in batches through the
+(`random-diff`). It reads a generated corpus of MPFR (binary, IEEE `decimal`) or libmpdec
+(`decimal_gda`) rows, validates them against `floating` in batches through the
 [mare_mark](https://lunaflow.cn/en/mare_mark/) runner and prints the
 append-only JSONL record of the run on standard output. The package has no
 public MoonBit items; this page documents its command line and its record. The
@@ -13,7 +13,8 @@ public MoonBit items; this page documents its command line and its record. The
 batches and how a failing batch is minimized. The row formats and the oracle
 programs are described in
 [`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md) and
-[`testdata/decimal/README.md`](../../../testdata/decimal/README.md).
+[`testdata/decimal/README.md`](../../../testdata/decimal/README.md) (IEEE `decimal`) and
+[`testdata/decimal_gda/README.md`](../../../testdata/decimal_gda/README.md) (`decimal_gda`).
 
 ## Importing
 

@@ -1,7 +1,7 @@
 /*
  * External performance baseline harness (issue #20).
  *
- * Times MPFR (binary) and libmpdec (decimal) on the exact operand file that
+ * Times MPFR (binary) and libmpdec (`decimal_gda`) on the exact operand file that
  * the floating benchmarks read, with the measurement protocol of the
  * Maremark harness (warm-up, calibrated batches, exploratory then
  * confirmatory blocks) so that both sides are measured the same way.
@@ -13,7 +13,7 @@
  *   extbench reference --inputs FILE --out FILE [--cases LIST]
  *   extbench time --inputs FILE --out FILE [--cases LIST] [protocol options]
  *
- * A case is `kind/op/size` (for example `binary/add/53`, `decimal/ln/34`).
+ * A case is `kind/op/size` (for example `binary/add/53`, `decimal_gda/ln/34`).
  */
 #define _POSIX_C_SOURCE 200809L
 #include <errno.h>

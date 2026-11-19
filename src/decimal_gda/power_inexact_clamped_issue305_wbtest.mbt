@@ -195,7 +195,7 @@ test "an inexact integer power that rounds to a power of ten is not Clamped (#30
     // An inexact result has `precision` digits (GDA 1.70, Arithmetic operations: rounded "to exactly precision
     // digits"), and its exponent adj - p + 1 is at most Emax - p + 1 = Etop, so nothing is altered to fit: no
     // Clamped, although the rounding trims 1000 to 1 and the trimmed exponent is above Etop.
-    // Rows .1081 and .1129 of the random differential (seed 20261118, dec-power).
+    // Rows .1081 and .1129 of the random differential (seed 20261118, decimal_gda-power).
     (
       "power",
       ["0.9999999", "-1"],

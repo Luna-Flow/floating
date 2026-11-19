@@ -57,16 +57,21 @@ BINARY_FAMILIES = (
     "elem3",
     "elem4",
 )
-DECIMAL_PREFIX = "dec-"
+# `decimal_gda-<op>`: the `decimal_gda` package (General Decimal Arithmetic)
+# against libmpdec. Row ids are `d<seed>.<op>.<index>`.
+DECIMAL_PREFIX = "decimal_gda-"
 DECIMAL_FAMILIES = tuple(DECIMAL_PREFIX + name for name in decimal_oracle.FAMILIES)
-# `decm-<op>`: IEEE decimal elementary functions against certified MPFR
-# enclosures (`tools/generate_mpfr_decimal_random.py`); case ids `m<seed>.<op>.<i>`.
-DECM_PREFIX = "decm-"
+# `decimal-<function>`: the `decimal` package (IEEE 754-2019) elementary
+# functions against certified MPFR enclosures
+# (`tools/generate_mpfr_decimal_random.py`); case ids `m<seed>.<function>.<i>`.
+DECM_PREFIX = "decimal-"
+# Deprecated spellings from before the packages were named apart; still accepted.
+DEPRECATED_PREFIXES = {"dec-": DECIMAL_PREFIX, "decm-": DECM_PREFIX}
 DECM_FAMILIES = tuple(DECM_PREFIX + name for name in decm_oracle.OPERATIONS)
 ALL_FAMILIES = BINARY_FAMILIES + DECIMAL_FAMILIES + DECM_FAMILIES
-# `dec-*wide` samples contexts beyond the decNumber elementary limit, where the
+# `decimal_gda-*wide` samples contexts beyond the decNumber elementary limit, where the
 # library answers Invalid_context by design; they are opt-in, and so are the
-# `decm-*` families (one per function, selected with `--family` or `--decm`).
+# `decimal-*` families (one per function, selected with `--family` or `--decimal`).
 DEFAULT_FAMILIES = tuple(
     f for f in ALL_FAMILIES if not f.endswith("wide") and not f.startswith(DECM_PREFIX)
 )
@@ -78,14 +83,23 @@ DEFAULT_BATCH = 1000
 FIXTURES = {
     "binary": REPO_ROOT / "testdata/bin_float/mpfr-4.2.2-random.txt",
     "binary-regression": REPO_ROOT / "testdata/bin_float/random-regressions.txt",
-    "decimal": REPO_ROOT / "testdata/decimal/random/libmpdec-random.decTest",
-    "decimal-regression": REPO_ROOT / "testdata/decimal/random/random-regressions.decTest",
-    "decm": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random.txt",
-    "decm-regression": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random-regressions.txt",
+    "decimal_gda": REPO_ROOT / "testdata/decimal_gda/random/libmpdec-random.decTest",
+    "decimal_gda-regression": REPO_ROOT / "testdata/decimal_gda/random/random-regressions.decTest",
+    "decimal": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random.txt",
+    "decimal-regression": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random-regressions.txt",
 }
 
 class ToolError(RuntimeError):
     pass
+
+
+def canonical_family(name: str) -> str:
+    """Maps the deprecated `dec-` / `decm-` prefixes to the package-named ones."""
+    for old, new in DEPRECATED_PREFIXES.items():
+        if name.startswith(old):
+            print(f"warning: family prefix `{old}` is deprecated, use `{new}`", file=sys.stderr)
+            return new + name.removeprefix(old)
+    return name
 
 
 def is_binary(family: str) -> bool:
@@ -198,7 +212,7 @@ def launcher(target: str, path: Path) -> list[str]:
 
 
 def generate_rows(family: str, seed: int, start: int, count: int, path: Path) -> None:
-    """Writes the rows of `family`; decimal families are named `dec-<name>`."""
+    """Writes the rows of `family`; `decimal_gda` families are named `decimal_gda-<name>`."""
     if is_binary(family):
         result = run_command([str(GENERATOR_BINARY), family, str(seed), str(start), str(count)])
         if result.returncode != 0:
@@ -222,7 +236,7 @@ def parse_case_id(text: str) -> tuple[str, int, str, int]:
         family = DECM_PREFIX + family
         if family not in DECM_FAMILIES:
             raise ToolError(f"unknown decimal elementary family in {text}")
-        return ("decm", int(prefix.removeprefix("m")), family, int(index))
+        return ("decimal", int(prefix.removeprefix("m")), family, int(index))
     decimal = prefix.startswith("d")
     seed = int(prefix.removeprefix("d"))
     if decimal:
@@ -231,7 +245,7 @@ def parse_case_id(text: str) -> tuple[str, int, str, int]:
         raise ToolError(f"unknown decimal family in {text}")
     if not decimal and family not in BINARY_FAMILIES:
         raise ToolError(f"unknown binary family in {text}")
-    return ("decimal" if decimal else "binary", seed, family, int(index))
+    return ("decimal_gda" if decimal else "binary", seed, family, int(index))
 
 
 def expand_ids(items: list[str]) -> list[tuple[str, int, str, int]]:
@@ -407,13 +421,13 @@ def run_shard(
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    # `--decm` alone means the decimal elementary families only.
-    families = args.family or ([] if args.decm else list(DEFAULT_FAMILIES))
+    # `--decimal` alone means the IEEE `decimal` elementary families only.
+    families = args.family or ([] if args.decimal_ieee else list(DEFAULT_FAMILIES))
     for family in families:
         if family not in ALL_FAMILIES:
             raise ToolError(f"unknown family {family}")
     targets = args.target or ["native"]
-    if args.decm:
+    if args.decimal_ieee:
         families = [*families, *(f for f in DECM_FAMILIES if f not in families)]
     if any(is_binary(family) for family in families):
         build_generator(args.mpfr_prefix)
@@ -544,7 +558,7 @@ def rows_for_cases(cases: list[tuple[str, int, str, int]], work: Path) -> list[t
         path = work / f"replay-{index}.rows"
         if kind == "binary":
             build_generator()
-        if kind == "decm":
+        if kind == "decimal":
             decm_oracle.build_enclosure()
         generate_rows(family, seed, number, 1, path)
         files.append((kind, path))
@@ -552,7 +566,7 @@ def rows_for_cases(cases: list[tuple[str, int, str, int]], work: Path) -> list[t
 
 
 def merge_rows(files: list[tuple[str, Path]], work: Path) -> list[tuple[str, Path]]:
-    merged: dict[str, list[str]] = {"binary": [], "decimal": [], "decm": []}
+    merged: dict[str, list[str]] = {"binary": [], "decimal_gda": [], "decimal": []}
     for kind, path in files:
         merged[kind].extend(
             line
@@ -563,10 +577,10 @@ def merge_rows(files: list[tuple[str, Path]], work: Path) -> list[tuple[str, Pat
     for kind, lines in merged.items():
         if not lines:
             continue
-        path = work / f"replay-{kind}.rows"
+        path = work / (f"replay-{kind}.decTest" if kind == "decimal_gda" else f"replay-{kind}.rows")
         header = {
             "binary": "# mpfr-random-v1 replay",
-            "decm": "# mpfr-decimal-random-v1 replay",
+            "decimal": "# mpfr-decimal-random-v1 replay",
         }.get(kind, "-- libmpdec-random-v1 replay\nversion: 2.62\nextended: 1")
         path.write_text(header + "\n" + "\n".join(lines) + "\n", encoding="utf-8")
         outputs.append((kind, path))
@@ -574,7 +588,7 @@ def merge_rows(files: list[tuple[str, Path]], work: Path) -> list[tuple[str, Pat
 
 
 def execute_rows(target: str, kind: str, rows: Path) -> subprocess.CompletedProcess[str]:
-    backend = "mpfr" if kind in ("binary", "decm") else "gda"
+    backend = "mpfr" if kind in ("binary", "decimal") else "gda"
     cli = conformance_cli(target)
     return run_command([*cli, "--backend", backend, str(rows)])
 
@@ -597,7 +611,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
 
 FIXTURE_SEED = 20261118
 FIXTURE_COUNT = 50
-DECM_FIXTURE_COUNT = 12  # rows per function of the committed decm sample
+DECM_FIXTURE_COUNT = 12  # rows per function of the committed `decimal` (IEEE) sample
 XFAIL_MARKERS = ("# xfail", "-- xfail")
 
 
@@ -622,7 +636,7 @@ def xfail_ids(path: Path) -> dict[str, str]:
 
 
 def fixture_report(name: str, path: Path, cli: list[str]) -> tuple[bool, str]:
-    backend = "mpfr" if name.startswith(("binary", "decm")) else "gda"
+    backend = "mpfr" if name.startswith("binary") or (name.startswith("decimal") and not name.startswith("decimal_gda")) else "gda"
     result = run_command([*cli, "--backend", backend, "--json", str(path)])
     if result.returncode not in (0, 1):
         return False, f"{name}: runner failed\n{result.stderr}{result.stdout}"
@@ -700,7 +714,7 @@ def cmd_fixtures(args: argparse.Namespace) -> int:
                 decimal_lines.extend(
                     decimal_oracle.format_row(decimal_oracle.evaluate(decimal_oracle.generate_case(family, FIXTURE_SEED, index)))
                 )
-        FIXTURES["decimal"].write_text("\n".join(decimal_lines) + "\n", encoding="utf-8")
+        FIXTURES["decimal_gda"].write_text("\n".join(decimal_lines) + "\n", encoding="utf-8")
         decm_oracle.build_enclosure(args.mpfr_prefix)
         helper = run_command([str(decm_oracle.ENCLOSURE_BINARY)], stdin="").stdout.splitlines()[1]
         decm_lines = [
@@ -711,8 +725,8 @@ def cmd_fixtures(args: argparse.Namespace) -> int:
         ]
         for operation in decm_oracle.OPERATIONS:
             decm_lines.extend(decm_oracle.generate(operation, FIXTURE_SEED, 0, DECM_FIXTURE_COUNT))
-        FIXTURES["decm"].write_text("\n".join(decm_lines) + "\n", encoding="utf-8")
-    for name in ("binary", "decimal", "decm"):
+        FIXTURES["decimal"].write_text("\n".join(decm_lines) + "\n", encoding="utf-8")
+    for name in ("binary", "decimal_gda", "decimal"):
         print(f"{FIXTURES[name].relative_to(REPO_ROOT)}: {FIXTURES[name].stat().st_size:,} bytes")
     return 0
 
@@ -744,7 +758,13 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
 
     def common(sub: argparse.ArgumentParser) -> None:
-        sub.add_argument("--family", action="append", choices=ALL_FAMILIES, help="family to run (repeatable; default: all)")
+        sub.add_argument(
+            "--family",
+            action="append",
+            type=canonical_family,
+            choices=ALL_FAMILIES,
+            help="family to run (repeatable; default: all; dec-*/decm-* are deprecated aliases)",
+        )
         sub.add_argument("--count", type=int, default=DEFAULT_COUNT, help="cases per family")
         sub.add_argument("--seed", type=int, default=20261118)
         sub.add_argument("--target", action="append", choices=TARGETS)
@@ -758,7 +778,13 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--name", help="run directory name below .tmp/random-diff")
     run.add_argument("--mpfr-prefix", help="MPFR/GMP install prefix (default /opt/homebrew)")
     run.add_argument("--keep-rows", action="store_true", help="keep the generated rows")
-    run.add_argument("--decm", action="store_true", help="add every decm-<function> family")
+    run.add_argument(
+        "--decimal",
+        "--decm",
+        dest="decimal_ieee",
+        action="store_true",
+        help="add every decimal-<function> family (IEEE 754 `decimal` vs MPFR); --decm is a deprecated alias",
+    )
     run.set_defaults(handler=cmd_run)
 
     plan = commands.add_parser("plan", help="print the run plan")

@@ -17,7 +17,7 @@ result.
 | GDA decimal | `just gate decimal_gda [jobs]` | package and frontend tests, then the pinned `official` and `official0` `.decTest` corpora |
 | Binary | `just gate binary [jobs]` | the pinned TestFloat level-1 matrix and the MPFR witnesses |
 | Interval | `just gate interval [jobs]` | every strict ITF1788 phase |
-| Random differential | `just random-diff run …` | seeded random cases against MPFR (binary) and libmpdec (decimal), recorded through mare_mark; `just random-diff smoke` runs the committed sample in `just pr` |
+| Random differential | `just random-diff run …` | seeded random cases against MPFR (binary and IEEE `decimal`) and libmpdec (`decimal_gda`), recorded through mare_mark; `just random-diff smoke` runs the committed sample in `just pr` |
 | Complete | `just ci [jobs]` | format, docs, `--deny-warn` checks and tests on all four targets, generated interfaces, and every conformance gate |
 
 Run the narrowest relevant check first, then broaden before a release.
@@ -54,8 +54,8 @@ uses ITF1788.
 the deterministic task list. `fetch` verifies pinned provenance before
 installing ignored data below `.tmp/`. `run` executes the chosen suite.
 Backend-specific filters, phases, targets, strict mode, sharding and JSON output
-are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md`
-and `testdata/interval/README.md`.
+are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (IEEE `decimal`),
+`testdata/decimal_gda/README.md` and `testdata/interval/README.md`.
 
 ## Published claims
 
@@ -118,8 +118,8 @@ The fixed corpora above check rows someone chose. The randomized campaign
 (`just random-diff`, [tutorial](./tutorial/differential.md),
 [design](./design/differential.md)) generates seeded cases and compares the
 library with two independent implementations: GNU MPFR 4.2.2 (GMP 6.3.0) for
-`bin_float` and libmpdec 4.0.0 (Python 3.13 `decimal`) for the decimal cores
-(`decimal` formats through the GDA frontend). Both are oracles, not
+`bin_float` and libmpdec 4.0.0 (Python 3.13 `decimal`) for `decimal_gda`
+(the IEEE `decimal` package is checked against MPFR, below). Both are oracles, not
 specifications: every disagreement was read against IEEE 754-2019 or the
 General Decimal Arithmetic 1.70 text before it was called a bug.
 
@@ -152,7 +152,7 @@ executed, counting 2,000,000 `sqrt` cases made before the MPFR defect filter);
 Wasm, JavaScript and Wasm-GC: 2,730,000 each. Wasm-GC has no mare_mark runtime
 (the runner needs `moonbitlang/async`), so it ran the same corpora through the
 synchronous `floating-conformance` runner without the JSONL record. The three
-other backends ran the first 200,000 (binary) or 100,000 (decimal) cases of each
+other backends ran the first 200,000 (binary) or 100,000 (`decimal_gda`) cases of each
 family of the native run, so their failing batches can be compared with it:
 Wasm and JavaScript fail on exactly the same batches as native within that
 range.
@@ -200,7 +200,7 @@ range.
 | `tanpi (elementary)` | 36,030 | 3,547 | 3,547 | 3,547 |
 | **total** | **17,500,000** | **1,750,000** | **1,750,000** | **1,750,000** |
 
-**libmpdec (decimal)**
+**libmpdec (`decimal_gda`)**
 
 | Operation | native | Wasm | JavaScript | Wasm-GC |
 | --- | ---: | ---: | ---: | ---: |
@@ -221,8 +221,13 @@ range.
 
 (`sqrt` on native: the table counts the 2,000,000 cases of the final run; the first run of 2,000,000 `sqrt` cases, made before the MPFR defect filter, is not counted: 2,000,000.)
 
+**Names.** The family prefixes `dec-` (`decimal_gda` against libmpdec) and
+`decm-` (IEEE `decimal` against MPFR), and the option `--decm`, are now
+`decimal_gda-`, `decimal-` and `--decimal`; the old spellings are deprecated
+aliases. The run logs below quote the commands as they were run.
+
 **MPFR enclosures (decimal elementary functions)**, a third corpus
-(`mpfr-decimal-random-v1`, `just random-diff run --decm`). The IEEE `decimal`
+(`mpfr-decimal-random-v1`, `just random-diff run --decimal`). The IEEE `decimal`
 package's elementary functions are checked against MPFR through certified
 enclosures, not single results: 2048-bit directed operand bounds, 768-bit
 directed results on every corner, one ulp of slack, both endpoints rounded to
@@ -376,7 +381,7 @@ narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the
 row's own range, so those limits are compared); NaN payloads are not compared;
 the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin|
 reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts; opt-in
-`dec-*wide` families sample those contexts); libmpdec decides Subnormal and
+`decimal_gda-*wide` families sample those contexts); libmpdec decides Subnormal and
 Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before
 any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN
 is not specified; `tosci` and `toeng` apply the context precision as decTest

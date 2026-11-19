@@ -3,7 +3,7 @@
 /// integral value and the result is finite and can be expressed exactly within
 /// precision digits" (issue 306). 1^1.03 is `1.0000 Inexact Rounded` at precision 5
 /// whatever Emax is; row .3705 of the random differential (seed 20261118,
-/// dec-power). Expected values: Python `decimal` (libmpdec 4.0.0) as oracle,
+/// decimal_gda-power). Expected values: Python `decimal` (libmpdec 4.0.0) as oracle,
 /// checked against the clause by hand.
 test "gda interpreter signals Inexact for the power of 1 to a non-integer exponent in a small context" {
   let source =

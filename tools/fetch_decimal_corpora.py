@@ -15,7 +15,7 @@ from corpus_common import (
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_MANIFEST = REPO_ROOT / "testdata/decimal/corpora.json"
+DEFAULT_MANIFEST = REPO_ROOT / "testdata/decimal_gda/corpora.json"
 
 
 def validate_archive(archive: Path, spec: dict) -> list[zipfile.ZipInfo]:
