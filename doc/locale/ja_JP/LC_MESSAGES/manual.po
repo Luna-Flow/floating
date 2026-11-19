@@ -9805,7 +9805,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 
 #: manual/conformance/decimal.md:76
 #: manual/conformance/decimal_gda.md:61
-#: manual/design/ball_float.md:857
+#: manual/design/ball_float.md:872
 #: manual/design/ball_float_checked.md:170
 #: manual/design/bench.md:244
 #: manual/design/bench/ball_float.md:67
@@ -10659,118 +10659,118 @@ msgid "**`sinpi`, `cospi`, `sin`, `cos`.** With the index range $K$ of the previ
 msgstr "**`sinpi`、`cospi`、`sin`、`cos`。** 前節の指数範囲 $K$ を用いて、各種の極値が内部にあれば評価なしで $\\pm 1$ となる。内部に極値がなければ $\\boldsymbol{x}$ は連続する 2 つの極値の間の 1 つの弧にあり、関数はそこで単調である。正弦は指数 $\\equiv 0 \\pmod 4$ を通るとき増加、$\\equiv 2$ を通るとき減少する($K$ が指数を含む場合)。そうでなければ弧は $k = \\lceil q^- \\rceil - 1$ で、$k \\equiv 0, 3$ なら増加、$k \\equiv 1, 2$ なら減少する。余弦は指数を 1 つずらした正弦である。下端は弧の方向で低い側の端点値を下向きに丸めたもの、上端は他方の端点を上向きに丸めたものとなり、極値が 1 つ内部にあるときは反対側の端は 2 つの端点のうち良い方である。"
 
 #: manual/design/ball_float.md:431
-msgid "**`sin`, `cos`, `tan` (`try_` forms).** Each endpoint value is the correctly rounded value of the binary kernel in the directed mode, which is the value the exact-rational series produced (it rounded an enclosure that rounded uniquely). The enclosure of $\\pi$ is needed only for the index range $K$ (the critical points and the poles) and is computed once at the initial working precision instead of on every refinement round. A range that is too large (an endpoint within $2^{-w}$ of a multiple of $\\pi/2$ at working precision $w$) widens the result to $\\pm 1$ or an unbounded tangent, which keeps the inclusion property. The non-`try` `sin_interval`, `cos_interval` and `tan_interval` stay on the exact-rational path: they return a conservative result for an argument the series cannot certify, which the `try_` forms report as an error."
-msgstr "**`sin`、`cos`、`tan`(`try_` 形式)。** 各端点値は 2 進カーネルを方向付きモードで使った正しく丸められた値であり、これは厳密有理数級数が与えていた値(一意に丸まる包含を丸めたもの)と同じである。$\\pi$ の包含は指数範囲 $K$(臨界点と極)にのみ必要で、精密化のたびではなく初期の作業精度で 1 回だけ計算する。範囲が大きすぎる場合(端点が作業精度 $w$ で $\\pi/2$ の倍数から $2^{-w}$ 以内にある)、結果は $\\pm 1$ や非有界の正接に広がるが、包含性は保たれる。`try` でない `sin_interval`、`cos_interval`、`tan_interval` は厳密有理数の経路のままで、級数が認証できない引数には保守的な結果を返し、`try_` 形式はエラーを報告する。"
+msgid "**`sin`, `cos`, `tan` (`try_` forms).** Each endpoint value is the correctly rounded value of the binary kernel in the directed mode, which is the value the exact-rational series produced (it rounded an enclosure that rounded uniquely). The enclosure of $\\pi$ is needed only for the index range $K$ (the critical points and the poles); it is taken once from `certified_pi_interval` with $w + 48$ bits, where $w = p + m + 96$ is the working precision of the first refinement round ($p$ the precision of the interval, $m$ the binade of the larger endpoint). Its width, about $2^{-(w + 47)}$, is smaller than that of the rational enclosure of the old refinement loop (about $2^{-(w + 19)}$), so $K$ is contained in the first-round range of the old code. The old code decided a pole at its first round too, so `try_tan_interval` returns the whole line only where the old code did. What is identical by construction: every endpoint value, and the result whenever the old code needed no refinement round. What is not: when the old code refined (an endpoint within about $2^{-w}$ of a multiple of $\\pi/2$) it used a narrower $K$ of a later round, and the new $K$ can then hold a spurious index, only for $|\\xi - k\\pi/2| < 2^{-(p + 140)}$ (an absolute bound that does not depend on the number of bits of the endpoint). A spurious extremum does not change a sine or cosine bound, since that close to an extremum the directed value already rounds to $\\pm 1$; a spurious pole makes the tangent the whole line, which keeps the inclusion property. The tests compare old and new bit for bit on the binary64 number closest to a multiple of $\\pi/2$ ($6381956970095103 \\cdot 2^{797}$) and on the correctly rounded $\\pi/2$ and $3\\pi/2$ with their neighbours at 24, 53 and 113 bits, and no input differs. The non-`try` `sin_interval`, `cos_interval` and `tan_interval` stay on the exact-rational path: they return a conservative result for an argument the series cannot certify, which the `try_` forms report as an error."
+msgstr "**`sin`、`cos`、`tan`(`try_` 形式)。** 各端点値は 2 進カーネルを方向付きモードで使った正しく丸められた値であり、これは厳密有理数級数が与えていた値(一意に丸まる包含を丸めたもの)と同じである。$\\pi$ の包含は指数範囲 $K$(臨界点と極)にのみ必要で、`certified_pi_interval` から $w + 48$ ビットで 1 回だけ取る。ここで $w = p + m + 96$ は最初の精密化ラウンドの作業精度($p$ は区間の精度、$m$ は大きい方の端点の 2 進区間)である。その幅は約 $2^{-(w + 47)}$ で、旧精密化ループの有理数包含の幅(約 $2^{-(w + 19)}$)より小さく、したがって $K$ は旧コードの最初のラウンドの範囲に含まれる。旧コードも最初のラウンドで極を判定したので、`try_tan_interval` が全実数直線を返すのは旧コードがそうした場合に限る。構成上同一なのは、すべての端点値と、旧コードが精密化ラウンドを必要としなかったときの結果全体である。同一でないのは、旧コードが精密化した場合(端点が $\\pi/2$ の倍数から約 $2^{-w}$ 以内)で、後のラウンドのより狭い $K$ を使っていたため、新しい $K$ は余分な指数を含むことがあり、それは $|\\xi - k\\pi/2| < 2^{-(p + 140)}$ のときだけである(端点のビット数に依存しない絶対的な限界)。余分な極値は正弦・余弦の端を変えない(極値にこれだけ近いと方向付きの値は元から $\\pm 1$ に丸まる)。余分な極は正接を全実数直線にするが、包含性は保たれる。テストは $\\pi/2$ の倍数に最も近い binary64 の数($6381956970095103 \\cdot 2^{797}$)と、24、53、113 ビットで正しく丸めた $\\pi/2$、$3\\pi/2$ およびその隣の数について新旧をビット単位で比較し、異なる入力はない。`try` でない `sin_interval`、`cos_interval`、`tan_interval` は厳密有理数の経路のままで、級数が認証できない引数には保守的な結果を返し、`try_` 形式はエラーを報告する。"
 
-#: manual/design/ball_float.md:444
+#: manual/design/ball_float.md:459
 msgid "Certified evaluation of transcendental endpoints"
 msgstr "超越関数の端点の認証付き評価"
 
-#: manual/design/ball_float.md:446
+#: manual/design/ball_float.md:461
 msgid "$e^{\\underline{x}}$ is not a dyadic number, so an endpoint needs a rational enclosure $L \\le f(a) \\le U$ of the exact value, after which $\\operatorname{RD}_p(L)$ is a valid lower endpoint by property (i). The kernels of this package build $L$ and $U$ with exact rational arithmetic and directed `BinFloat` operations at a work precision $w > p$:"
 msgstr "$e^{\\underline{x}}$ は 2 進有理数ではないので、端点には厳密な値の有理数による包含 $L \\le f(a) \\le U$ が必要です。そうすれば性質 (i) により $\\operatorname{RD}_p(L)$ は有効な下端になります。このパッケージのカーネルは、作業精度 $w > p$ のもとで、厳密な有理数演算と方向付きの `BinFloat` 演算によって $L$ と $U$ を構築します。"
 
-#: manual/design/ball_float.md:452
+#: manual/design/ball_float.md:467
 msgid "**exp.** For $2^{e} \\le |a| < 2^{e+1}$ the argument is halved $k = \\max(0, e + 4)$ times so that $a' = |a|/2^k < 2^{-3}$, the Taylor series $\\sum_j t_j$, $t_j = a'^j/j!$, is summed with directed rounding, and the result is squared $k$ times in interval arithmetic, $e^{a} = (e^{a/2^k})^{2^k}$. If the enclosure of $e^{a'}$ has relative width $\\varepsilon$, its square has relative width $(1+\\varepsilon)^2 - 1 \\approx 2\\varepsilon$, so the $k$ squarings cost about $k$ bits; the code reserves $w = p + 64 + 2k$. The series is cut after a term $t_n$ with $n \\ge 1$; every later ratio is $t_{j+1}/t_j = a'/(j+1) \\le \\tfrac18 \\cdot \\tfrac12 = \\tfrac1{16}$, so"
 msgstr "**exp.** $2^{e} \\le |a| < 2^{e+1}$ のとき、引数を $k = \\max(0, e + 4)$ 回半分にして $a' = |a|/2^k < 2^{-3}$ とし、テイラー級数 $\\sum_j t_j$（$t_j = a'^j/j!$）を方向付き丸めで総和し、その結果を区間演算で $k$ 回 2 乗します（$e^{a} = (e^{a/2^k})^{2^k}$）。$e^{a'}$ の包含区間の相対幅が $\\varepsilon$ なら、その 2 乗の相対幅は $(1+\\varepsilon)^2 - 1 \\approx 2\\varepsilon$ なので、$k$ 回の 2 乗でおよそ $k$ ビットが失われます。コードは $w = p + 64 + 2k$ を確保します。級数は $n \\ge 1$ である項 $t_n$ の後で打ち切られます。以降の比はすべて $t_{j+1}/t_j = a'/(j+1) \\le \\tfrac18 \\cdot \\tfrac12 = \\tfrac1{16}$ を満たすので、"
 
-#: manual/design/ball_float.md:465
+#: manual/design/ball_float.md:480
 msgid "and $2t_{n+1}$ is added to the upper sum. Negative arguments use $e^{-a} = 1/e^{a}$. Arguments with $|a| < 2^{-(p+16)}$ give $[1, 1 + 2^{-p}]$ or $[1 - 2^{-p}, 1]$ before rounding, since $0 < e^{|a|} - 1 < 2|a|$ and $0 < 1 - e^{-|a|} < |a|$. For $|a| \\ge 2^{30}$ the result is $[\\text{largest finite}, +\\infty)$ or $[0, \\text{smallest positive}]$ directly: the largest finite `BinFloat` is below $2^{e_{\\max}+1} = 2^{2^{30}}$, and $e^{2^{30}} = 2^{2^{30}/\\ln 2} \\approx 2^{1.44 \\cdot 2^{30}}$ exceeds it; the smallest positive value at precision $p \\le 2^{28}$ is at least $2^{-(2^{30} + 2^{28})}$, which exceeds $e^{-2^{30}}$."
 msgstr "そして $2t_{n+1}$ を上側の和に加えます。負の引数には $e^{-a} = 1/e^{a}$ を用います。$|a| < 2^{-(p+16)}$ の引数は、$0 < e^{|a|} - 1 < 2|a|$ かつ $0 < 1 - e^{-|a|} < |a|$ なので、丸めの前に $[1, 1 + 2^{-p}]$ または $[1 - 2^{-p}, 1]$ を与えます。$|a| \\ge 2^{30}$ では結果は直接 $[\\text{largest finite}, +\\infty)$ または $[0, \\text{smallest positive}]$ になります。最大の有限の `BinFloat` は $2^{e_{\\max}+1} = 2^{2^{30}}$ 未満であり、$e^{2^{30}} = 2^{2^{30}/\\ln 2} \\approx 2^{1.44 \\cdot 2^{30}}$ はそれを超えます。また精度 $p \\le 2^{28}$ での最小の正の値は少なくとも $2^{-(2^{30} + 2^{28})}$ であり、これは $e^{-2^{30}}$ より大きいからです。"
 
-#: manual/design/ball_float.md:475
+#: manual/design/ball_float.md:490
 msgid "**ln.** For $a = m \\cdot 2^{e}$ with $m \\in [1, 2)$, $\\ln a = \\ln m + e \\ln 2$, and $\\ln m = 2\\operatorname{artanh} z = 2\\sum_k z^{2k+1}/(2k+1)$ with $z = (m-1)/(m+1) \\in [0, 1/3]$; $\\ln 2$ is the same series at $m = 2$. The ratio of consecutive terms is $z^2 (2k+1)/(2k+3) \\le z^2 \\le 1/9$, so the omitted tail is at most $t' \\sum_{i \\ge 0} 9^{-i} = \\tfrac98 t'$ for the first omitted term $t'$, and after doubling at most $\\tfrac94 t' \\le 3t'$, which is what the code adds."
 msgstr "**ln.** $m \\in [1, 2)$ として $a = m \\cdot 2^{e}$ のとき $\\ln a = \\ln m + e \\ln 2$ であり、$z = (m-1)/(m+1) \\in [0, 1/3]$ として $\\ln m = 2\\operatorname{artanh} z = 2\\sum_k z^{2k+1}/(2k+1)$ です。$\\ln 2$ は $m = 2$ における同じ級数です。連続する項の比は $z^2 (2k+1)/(2k+3) \\le z^2 \\le 1/9$ なので、最初に省略された項 $t'$ について省略された剰余は高々 $t' \\sum_{i \\ge 0} 9^{-i} = \\tfrac98 t'$ であり、2 倍した後は高々 $\\tfrac94 t' \\le 3t'$ です。これがコードの加える量です。"
 
-#: manual/design/ball_float.md:483
+#: manual/design/ball_float.md:498
 msgid "**π.** Machin's formula $\\pi = 16\\arctan\\tfrac15 - 4\\arctan\\tfrac1{239}$ with alternating series, whose truncation error is bounded by the first omitted term."
 msgstr "**π.** Machin の公式 $\\pi = 16\\arctan\\tfrac15 - 4\\arctan\\tfrac1{239}$ を交代級数で用います。その打ち切り誤差は最初に省略された項で抑えられます。"
 
-#: manual/design/ball_float.md:486
+#: manual/design/ball_float.md:501
 msgid "**sin, cos.** The argument is reduced by the quadrant $q = \\lfloor 2a/\\pi + 1/2 \\rfloor$, computed with both $\\pi^-$ and $\\pi^+$; if the two disagree the work precision is raised. The reduced argument $r = a - q\\pi/2 \\in [-\\pi/4, \\pi/4]$ (as a rational interval) is fed to Taylor series, and the quadrant maps $(\\sin r, \\cos r)$ to $(\\sin a, \\cos a)$. The initial work precision is $p + 96$ plus the number of integer bits of $|a|$, so that reducing a huge argument keeps enough bits.[^reduction]"
 msgstr "**sin, cos.** 引数は象限 $q = \\lfloor 2a/\\pi + 1/2 \\rfloor$ によって還元されます。象限は $\\pi^-$ と $\\pi^+$ の両方で計算され、両者が一致しなければ作業精度を引き上げます。還元された引数 $r = a - q\\pi/2 \\in [-\\pi/4, \\pi/4]$（有理数区間として）はテイラー級数に渡され、象限によって $(\\sin r, \\cos r)$ が $(\\sin a, \\cos a)$ に対応付けられます。初期作業精度は $p + 96$ に $|a|$ の整数部のビット数を加えたもので、巨大な引数を還元しても十分なビットが残るようにしています。[^reduction]"
 
-#: manual/design/ball_float.md:495
+#: manual/design/ball_float.md:510
 msgid "Payne–Hanek reduction would avoid the extra bits; this package instead raises the work precision and caps it with the resource cutoff described under the total and `try_` forms."
 msgstr "Payne–Hanek 還元を使えば余分なビットは不要になりますが、このパッケージでは代わりに作業精度を引き上げ、total 形式と `try_` 形式の項で述べるリソース上限によってそれを制限しています。"
 
-#: manual/design/ball_float.md:499
+#: manual/design/ball_float.md:514
 msgid "The trigonometric and arctangent kernels add a Ziv-style acceptance test.[^ziv] Since $\\operatorname{RD}_p$ is monotone,"
 msgstr "三角関数と逆正接のカーネルは、Ziv 方式の受理判定を追加します。[^ziv] $\\operatorname{RD}_p$ は単調なので、"
 
-#: manual/design/ball_float.md:507
+#: manual/design/ball_float.md:522
 msgid "so when both $\\operatorname{RD}$ and $\\operatorname{RU}$ of $L$ and $U$ agree, the endpoints are the correctly directed roundings of $f(a)$. Otherwise the work precision $w$ grows to $w + \\max(32, w/2)$; at most 12 work precisions are tried (`CertifiedRefinementBudget`). The exp and log kernels skip the test and keep $\\operatorname{RD}_p(L)$, $\\operatorname{RU}_p(U)$, which are always valid and, with their guard bits ($p + 64 + 2k$ for `exp`, $p + 24$ for `ln`, $p + 32$ for `log2`), almost always tight. The `try_` forms, and the total forms of `expm1`, `log1p`, `sinpi`, `cospi`, `tanpi`, `pow_interval`, `hypot` and `atan2` (which try them first), delegate the endpoints to the certified `try_*_ctx` functions of [`bin_float`](bin_float.md), evaluated in unbounded contexts rounded toward $-\\infty$ and $+\\infty$. The total hyperbolic functions and `asin`/`acos` evaluate their defining formulas in interval arithmetic at 64 to 192 extra bits, which is valid by the fundamental theorem. Validity is not tightness: $(e^{\\xi} - e^{-\\xi})/2$ subtracts two enclosures of numbers near 1, each about $2^{-w}$ wide, so for $|\\xi| \\ll 2^{-w+p}$ the relative width of the result is about $2^{-w}/|\\xi|$, far above $2^{-p}$. The same cancellation affects `tanh`, `asinh` and `atanh` near 0."
 msgstr "したがって $L$ と $U$ の $\\operatorname{RD}$ と $\\operatorname{RU}$ がともに一致すれば、端点は $f(a)$ の正しい方向付き丸めです。そうでなければ作業精度 $w$ を $w + \\max(32, w/2)$ に増やします。試す作業精度は最大 12 個です（`CertifiedRefinementBudget`）。exp と log のカーネルはこの判定を省略して $\\operatorname{RD}_p(L)$、$\\operatorname{RU}_p(U)$ を保持します。これらは常に有効であり、それぞれのガードビット（`exp` では $p + 64 + 2k$、`ln` では $p + 24$、`log2` では $p + 32$）によってほぼ常に緊密です。`try_` 形式、および `expm1`、`log1p`、`sinpi`、`cospi`、`tanpi`、`pow_interval`、`hypot`、`atan2` の全域形式（まずそちらを試みます）は、端点の計算を [`bin_float`](bin_float.md) の認証付き `try_*_ctx` 関数に委ね、$-\\infty$ 方向と $+\\infty$ 方向に丸める非有界なコンテキストで評価します。全域形式の双曲線関数と `asin`/`acos` は、その定義式を 64 から 192 ビットの追加精度で区間演算により評価します。これは基本定理により有効です。有効であることは緊密であることを意味しません。$(e^{\\xi} - e^{-\\xi})/2$ は、それぞれ幅が約 $2^{-w}$ の、1 に近い 2 つの数の包含区間を引き算するので、$|\\xi| \\ll 2^{-w+p}$ では結果の相対幅は約 $2^{-w}/|\\xi|$ となり、$2^{-p}$ をはるかに上回ります。同じ桁落ちは 0 付近の `tanh`、`asinh`、`atanh` にも影響します。"
 
-#: manual/design/ball_float.md:525
+#: manual/design/ball_float.md:540
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser, 2018, §10."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser, 2018, §10。"
 
-#: manual/design/ball_float.md:529
+#: manual/design/ball_float.md:544
 msgid "The IEEE 1788 decoration model"
 msgstr "IEEE 1788 の装飾モデル"
 
-#: manual/design/ball_float.md:531
+#: manual/design/ball_float.md:546
 msgid "A bare interval result says where the values lie, not whether the function was defined. IEEE 1788 attaches a *decoration* to each result of evaluating $f$ on a box $\\boldsymbol{x}$:"
 msgstr "単なる区間の結果は、値がどこにあるかを示すだけで、関数が定義されていたかどうかは示しません。IEEE 1788 は、ボックス $\\boldsymbol{x}$ 上で $f$ を評価した各結果に*装飾*（decoration）を付加します。"
 
-#: manual/design/ball_float.md:535
+#: manual/design/ball_float.md:550
 msgid "Decoration"
 msgstr "装飾"
 
-#: manual/design/ball_float.md:535
+#: manual/design/ball_float.md:550
 msgid "Property $p_d(f, \\boldsymbol{x})$"
 msgstr "性質 $p_d(f, \\boldsymbol{x})$"
 
-#: manual/design/ball_float.md:537
+#: manual/design/ball_float.md:552
 msgid "$\\boldsymbol{x}$ is non-empty and bounded, $\\boldsymbol{x} \\subseteq D_f$, $f$ is continuous at each point of $\\boldsymbol{x}$, and the result is bounded"
 msgstr "$\\boldsymbol{x}$ は空でなく有界、$\\boldsymbol{x} \\subseteq D_f$、$f$ は $\\boldsymbol{x}$ の各点で連続、かつ結果は有界"
 
-#: manual/design/ball_float.md:538
+#: manual/design/ball_float.md:553
 msgid "$\\boldsymbol{x}$ is non-empty, $\\boldsymbol{x} \\subseteq D_f$ and $f \\vert_{\\boldsymbol{x}}$ is continuous"
 msgstr "$\\boldsymbol{x}$ は空でなく、$\\boldsymbol{x} \\subseteq D_f$ かつ $f \\vert_{\\boldsymbol{x}}$ が連続"
 
-#: manual/design/ball_float.md:539
+#: manual/design/ball_float.md:554
 msgid "$\\boldsymbol{x}$ is non-empty and $\\boldsymbol{x} \\subseteq D_f$"
 msgstr "$\\boldsymbol{x}$ は空でなく、かつ $\\boldsymbol{x} \\subseteq D_f$"
 
-#: manual/design/ball_float.md:540
+#: manual/design/ball_float.md:555
 msgid "always true"
 msgstr "常に真"
 
-#: manual/design/ball_float.md:541
+#: manual/design/ball_float.md:556
 msgid "the value is NaI, not an interval"
 msgstr "値は NaI であり、区間ではない"
 
-#: manual/design/ball_float.md:543
+#: manual/design/ball_float.md:558
 msgid "The decorations are totally ordered by strength, $\\text{com} > \\text{dac} > \\text{def} > \\text{trv} > \\text{ill}$, because each property implies the next (continuity of $f$ at each point of $\\boldsymbol{x}$ implies continuity of the restriction, but not conversely: `atan2` restricted to a box lying on its branch cut from above is continuous, while `atan2` is not). A decorated operation $g$ applied to decorated inputs $(\\boldsymbol{y}_j, d_j)$ returns"
 msgstr "各性質は次の性質を含意するので、装飾は強さによって $\\text{com} > \\text{dac} > \\text{def} > \\text{trv} > \\text{ill}$ と全順序付けられます（$\\boldsymbol{x}$ の各点での $f$ の連続性は制限の連続性を含意しますが、逆は成り立ちません。上側から分枝切断上にあるボックスに制限した `atan2` は連続ですが、`atan2` 自体は連続ではありません）。装飾付きの入力 $(\\boldsymbol{y}_j, d_j)$ に適用された装飾付き演算 $g$ は次を返します。"
 
-#: manual/design/ball_float.md:555
+#: manual/design/ball_float.md:570
 msgid "*Why the minimum is sound.* Suppose $\\boldsymbol{y}_j$ was produced by $f_j$ on $\\boldsymbol{x}$ with property $p_{d_j}$, and $g$ has $p_{d_g}$ on the box of the $\\boldsymbol{y}_j$. If $d \\ge \\text{def}$, each $f_j$ is defined on $\\boldsymbol{x}$ with values in $\\boldsymbol{y}_j$ (inclusion property), and $g$ is defined on those values, so $g \\circ (f_1, \\dots, f_k)$ is defined on $\\boldsymbol{x}$. If $d \\ge \\text{dac}$, the same holds for continuity, because a composition of continuous functions is continuous. Boundedness for `com` is a property of the final result and is checked on it. By induction the decoration of a whole expression is a true statement about the expression on the input box. This is what interval existence proofs need: for example, if $\\boldsymbol{x}$ is bounded and $F(\\boldsymbol{x}) \\subseteq \\boldsymbol{x}$ with decoration at least `dac`, the function is continuous on the compact non-empty interval $\\boldsymbol{x}$ and maps it into itself, so Brouwer's theorem gives a fixed point in $\\boldsymbol{x}$. Boundedness matters: $\\xi \\mapsto \\xi + 1$ maps Entire into itself, continuously, without a fixed point. Without the decoration, $\\sqrt{[-1, 4]} = [0, 2]$ would wrongly suggest that $\\sqrt{\\cdot}$ is defined on $[-1, 4]$."
 msgstr "*最小値が健全である理由。* $\\boldsymbol{y}_j$ が $\\boldsymbol{x}$ 上の $f_j$ によって性質 $p_{d_j}$ を伴って生成され、$g$ が $\\boldsymbol{y}_j$ のボックス上で $p_{d_g}$ を持つとします。$d \\ge \\text{def}$ ならば、各 $f_j$ は $\\boldsymbol{x}$ 上で定義され、その値は $\\boldsymbol{y}_j$ に属し（包含性）、$g$ はそれらの値の上で定義されるので、$g \\circ (f_1, \\dots, f_k)$ は $\\boldsymbol{x}$ 上で定義されます。$d \\ge \\text{dac}$ ならば、連続関数の合成は連続なので、連続性についても同じことが成り立ちます。`com` の有界性は最終結果の性質であり、最終結果に対して検査されます。帰納法により、式全体の装飾は入力ボックス上の式についての真の命題になります。これは区間による存在証明が必要とするものです。たとえば $\\boldsymbol{x}$ が有界で、装飾が `dac` 以上で $F(\\boldsymbol{x}) \\subseteq \\boldsymbol{x}$ ならば、関数はコンパクトで空でない区間 $\\boldsymbol{x}$ 上で連続かつそれをそれ自身の中へ写すので、Brouwer の定理により $\\boldsymbol{x}$ 内に不動点が存在します。有界性は重要です。$\\xi \\mapsto \\xi + 1$ は Entire を連続的にそれ自身へ写しますが、不動点を持ちません。装飾がなければ、$\\sqrt{[-1, 4]} = [0, 2]$ は $\\sqrt{\\cdot}$ が $[-1, 4]$ 上で定義されていると誤って示唆してしまいます。"
 
-#: manual/design/ball_float.md:574
+#: manual/design/ball_float.md:589
 msgid "The package computes $d_g$ from the operands by the domain tests listed in the [API reference](../api/ball_float.md#decorated-intervals): division by an interval containing 0, a logarithm reaching $\\xi \\le 0$, `sqrt` below 0, a pole of `tanpi` or of a negative-degree `rootn` in the argument and so on give `trv`; `atan2` across its branch cut gives `def` (defined but discontinuous) and touching the cut from above gives `dac`. Set operations (`intersection`, `convex_hull`, `cancel_*`) are not point functions and always give `trv`. The result is made canonical: an empty result is always `trv` (the properties above require a non-empty box), and `com` on an unbounded result becomes `dac` (this is how overflow is reported). NaI, the result of an invalid decorated construction, absorbs every operation, and is distinct from $\\emptyset$, which is a valid set."
 msgstr "パッケージは、[API リファレンス](../api/ball_float.md#decorated-intervals)に列挙された定義域判定によって、オペランドから $d_g$ を計算します。0 を含む区間による除算、$\\xi \\le 0$ に達する対数、0 未満での `sqrt`、引数に `tanpi` や負の次数の `rootn` の極が含まれる場合などは `trv` を与えます。分枝切断をまたぐ `atan2` は `def`（定義されているが不連続）を与え、上側から切断に接する場合は `dac` を与えます。集合演算（`intersection`、`convex_hull`、`cancel_*`）は点関数ではないので、常に `trv` を与えます。結果は正準化されます。空の結果は常に `trv` であり（上記の性質はいずれも空でないボックスを必要とします）、非有界な結果の `com` は `dac` になります（オーバーフローはこのようにして報告されます）。不正な装飾付き構築の結果である NaI はすべての演算を吸収し、有効な集合である $\\emptyset$ とは区別されます。"
 
-#: manual/design/ball_float.md:587
+#: manual/design/ball_float.md:602
 msgid "Relations: certainly and possibly"
 msgstr "関係：確実に（certainly）と可能性として（possibly）"
 
-#: manual/design/ball_float.md:589
+#: manual/design/ball_float.md:604
 msgid "An interval stands for an unknown point, so a comparison of two intervals asks a quantified question. Two quantifiers give the useful relations:"
 msgstr "区間は未知の点を表すので、2 つの区間の比較は量化された問いになります。2 つの量化子から有用な関係が得られます。"
 
-#: manual/design/ball_float.md:603
+#: manual/design/ball_float.md:618
 msgid "For the first line, \"$\\Leftarrow$\" is $\\xi \\le \\overline{x} < \\underline{y} \\le \\eta$. For \"$\\Rightarrow$\": if $\\overline{x}$ and $\\underline{y}$ are finite they are elements, so $\\overline{x} < \\underline{y}$; if $\\overline{x} = +\\infty$ or $\\underline{y} = -\\infty$, a large $\\xi$ or a small $\\eta$ violates $\\xi < \\eta$, and the endpoint test is false as well. The second line is the nonempty intersection of two intervals. \"Possibly less\" is the negation of \"certainly not less\", so the two families are dual: `definitely_lt(x, y)` is false exactly when some pair satisfies $\\xi \\ge \\eta$. With empty operands the universal statements would be vacuously true, which would let a caller prove anything from an empty enclosure; the `definitely_*` relations therefore return false for empty operands, whereas the IEEE 1788 relation `precedes` ($\\forall\\xi\\,\\forall\\eta: \\xi \\le \\eta$) is defined to be vacuously true."
 msgstr "1 行目について、「$\\Leftarrow$」は $\\xi \\le \\overline{x} < \\underline{y} \\le \\eta$ から従います。「$\\Rightarrow$」について：$\\overline{x}$ と $\\underline{y}$ が有限ならそれらは要素なので $\\overline{x} < \\underline{y}$ です。$\\overline{x} = +\\infty$ または $\\underline{y} = -\\infty$ なら、大きな $\\xi$ または小さな $\\eta$ が $\\xi < \\eta$ を破り、端点の判定も偽になります。2 行目は 2 つの区間の共通部分が空でないことです。「可能性として小さい」は「確実に小さくない」の否定なので、2 つの族は双対です。`definitely_lt(x, y)` が偽になるのは、ある組が $\\xi \\ge \\eta$ を満たすときに限ります。空のオペランドでは全称命題は空虚に真となり、呼び出し側が空の包含区間から何でも証明できてしまいます。そのため `definitely_*` の関係は空のオペランドに対して偽を返します。一方、IEEE 1788 の関係 `precedes`（$\\forall\\xi\\,\\forall\\eta: \\xi \\le \\eta$）は空虚に真となるよう定義されています。"
 
-#: manual/design/ball_float.md:616
+#: manual/design/ball_float.md:631
 msgid "The set relations (`subset`, `interior`, `disjoint`, `set_equal`) and the IEEE 1788 orders (`less`: $\\forall\\xi\\,\\exists\\eta\\, \\xi \\le \\eta$ and $\\forall\\eta\\,\\exists\\xi\\, \\xi \\le \\eta$, which reduces to comparing both endpoint pairs) are evaluated by endpoint comparisons in the same way. None of these relations is a total order, and the trait method `@lf_arith.Contains::contains(x, y)` is set inclusion $\\boldsymbol{y} \\subseteq \\boldsymbol{x}$, matching the enclosure reading of the [`arithmetic`](https://lunaflow.cn/en/arithmetic/) traits."
 msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と IEEE 1788 の順序（`less`：$\\forall\\xi\\,\\exists\\eta\\, \\xi \\le \\eta$ かつ $\\forall\\eta\\,\\exists\\xi\\, \\xi \\le \\eta$ で、両方の端点の組を比較することに帰着します）も、同様に端点の比較によって評価されます。これらの関係はいずれも全順序ではありません。またトレイトメソッド `@lf_arith.Contains::contains(x, y)` は集合の包含 $\\boldsymbol{y} \\subseteq \\boldsymbol{x}$ であり、[`arithmetic`](https://lunaflow.cn/en/arithmetic/) のトレイトにおける包含区間としての解釈と一致します。"
 
-#: manual/design/ball_float.md:625
+#: manual/design/ball_float.md:640
 #: manual/design/ball_float_checked.md:60
 #: manual/design/bench.md:156
 #: manual/design/bench/ball_float.md:29
@@ -10806,131 +10806,131 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 msgid "Design decisions"
 msgstr "設計上の判断"
 
-#: manual/design/ball_float.md:627
+#: manual/design/ball_float.md:642
 msgid "Endpoints, not midpoint and radius"
 msgstr "中点と半径ではなく端点"
 
-#: manual/design/ball_float.md:629
+#: manual/design/ball_float.md:644
 msgid "*Problem.* A ball can be stored as endpoints $[\\underline{x}, \\overline{x}]$ (inf–sup) or as a midpoint and radius $\\langle m, r\\rangle$, as in Arb.[^arb]"
 msgstr "*問題。* ボールは端点 $[\\underline{x}, \\overline{x}]$（inf–sup）として保存することも、Arb のように中点と半径 $\\langle m, r\\rangle$ として保存することもできます。[^arb]"
 
-#: manual/design/ball_float.md:632
+#: manual/design/ball_float.md:647
 msgid "*Midpoint–radius arithmetic.* With $x = m_x + \\delta_x$, $|\\delta_x| \\le r_x$ and likewise for $y$:"
 msgstr "*中点・半径演算。* $x = m_x + \\delta_x$、$|\\delta_x| \\le r_x$ とし、$y$ も同様とすると、"
 
-#: manual/design/ball_float.md:642
+#: manual/design/ball_float.md:657
 msgid "With a rounded midpoint $m = \\operatorname{RN}_p(m_x \\circ m_y)$, the rounding error $|m - m_x \\circ m_y| \\le 2^{-p}|m|$ is added, so"
 msgstr "中点を丸めて $m = \\operatorname{RN}_p(m_x \\circ m_y)$ とすると、丸め誤差 $|m - m_x \\circ m_y| \\le 2^{-p}|m|$ が加わるので、"
 
-#: manual/design/ball_float.md:650
+#: manual/design/ball_float.md:665
 msgid "These are cheap (the radius needs only a few bits), but the product radius overestimates: for $\\boldsymbol{x} = \\boldsymbol{y} = \\langle 1, 1\\rangle = [0, 2]$ it gives $\\langle 1, 3\\rangle = [-2, 4]$ while the exact product is $[0, 4]$. Rump showed that the width can grow by a factor up to $1.5$ per multiplication compared to inf–sup.[^rump]"
 msgstr "これらは安価です（半径は数ビットしか必要としません）が、積の半径は過大評価になります。$\\boldsymbol{x} = \\boldsymbol{y} = \\langle 1, 1\\rangle = [0, 2]$ に対しては $\\langle 1, 3\\rangle = [-2, 4]$ を与えますが、厳密な積は $[0, 4]$ です。Rump は、inf–sup と比べて乗算 1 回あたり最大 $1.5$ 倍まで幅が増大しうることを示しました。[^rump]"
 
-#: manual/design/ball_float.md:656
+#: manual/design/ball_float.md:671
 msgid "*Options.* (a) midpoint–radius storage with low-precision radii; (b) endpoint storage with full-precision endpoints; (c) both."
 msgstr "*選択肢。* (a) 低精度の半径を伴う中点・半径による保存、(b) 完全な精度の端点による保存、(c) その両方。"
 
-#: manual/design/ball_float.md:659
+#: manual/design/ball_float.md:674
 msgid "*Chosen: (b).* IEEE 1788 is defined on endpoints, half-unbounded and empty sets have no midpoint–radius form, and the hulls in the [endpoint formulas](#endpoint-formulas) are exact before rounding, so inf–sup results are as tight as the precision allows. The cost is that both endpoints carry $p$ bits, so wide intervals at high precision store many useless bits. The midpoint–radius *view* (`new`, `center`, `radius`, `with_precision`) is kept for users who reason in $c \\pm r$, with exact conversions derived [above](#from-midpointradius-to-endpoints)."
 msgstr "*採用：(b)。* IEEE 1788 は端点に基づいて定義されており、片側非有界な集合や空集合には中点・半径形式が存在せず、[端点の公式](#endpoint-formulas)における包は丸める前は厳密なので、inf–sup の結果は精度が許す限り緊密です。代償として両方の端点が $p$ ビットを持つため、高精度の広い区間では無駄なビットを多く保存することになります。$c \\pm r$ で考える利用者のために中点・半径の*ビュー*（`new`、`center`、`radius`、`with_precision`）を残しており、その厳密な変換は[上記](#from-midpointradius-to-endpoints)で導いています。"
 
-#: manual/design/ball_float.md:668
+#: manual/design/ball_float.md:683
 msgid "J. van der Hoeven, \"Ball arithmetic\", 2009; F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr "J. van der Hoeven, \"Ball arithmetic\", 2009; F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017。"
 
-#: manual/design/ball_float.md:672
+#: manual/design/ball_float.md:687
 msgid "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999."
 msgstr "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999。"
 
-#: manual/design/ball_float.md:675
+#: manual/design/ball_float.md:690
 msgid "Exact candidates, one directed rounding"
 msgstr "厳密な候補と、一度だけの方向付き丸め"
 
-#: manual/design/ball_float.md:677
+#: manual/design/ball_float.md:692
 msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
 msgstr "*問題。* 端点の候補は、各ステップで方向付き丸めを行って計算することも、厳密に計算して一度だけ丸めることもできます。"
 
-#: manual/design/ball_float.md:680
+#: manual/design/ball_float.md:695
 msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
 msgstr "*採用。* `BinFloat` の端点の和と積は厳密に作られ（係数はそれを保持できるまで大きくなります）、`quantize_interval` が最後に $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ を一度だけ適用します。性質 (iii) により、結果は厳密な包の最も緊密な $p$ ビット包含区間になります。厳密な結果が 2 進有理数にならない除算と平方根は、精度 $p$ の方向付き丸めで直接計算されます。この規則には、次に述べる 2 つの安全策が必要です。大きく離れた加数の桁合わせの制限と、指数範囲の端での外向きクランプです。"
 
-#: manual/design/ball_float.md:689
+#: manual/design/ball_float.md:704
 msgid "Far addends: bound endpoint sums by precision"
 msgstr "離れた加数：端点の和を精度で抑える"
 
-#: manual/design/ball_float.md:691
+#: manual/design/ball_float.md:706
 msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
 msgstr "*問題。* $A = 2^{10^9}$ と $s = 2^{-10^9}$ を厳密に加算すると、2 つの係数の桁を合わせて 20 億ビットの数を作ることになります（区間の加算 1 回で約 750 MB、issue #24）。"
 
-#: manual/design/ball_float.md:695
+#: manual/design/ball_float.md:710
 msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
 msgstr "*採用。* $t(v)$ を $v$ の先頭ビットの指数、$e(A)$ を大きい方の加数 $A$ の最終ビットの指数とし、$M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$、$c = \\min(e(A), t(A) - M)$ とします。$t(s) < c - 2$ ならば、小さい方の加数を置き換えます。$s$ が計算中の端点の丸め方向に和を押す場合はスティッキーな代理値 $s' = \\operatorname{sign}(s)\\,2^{c-2}$ に、そうでない場合は $s' = 0$ にします。すると次が成り立ちます。"
 
-#: manual/design/ball_float.md:703
+#: manual/design/ball_float.md:718
 msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
 msgstr "**任意の精度での健全性。** $|s| < 2^{t(s)+1} \\le 2^{c-2}$ です。$s > 0$ の上端は $A + 2^{c-2} > A + s$ を得て、$s < 0$ の上端は $A > A + s$ を得ます。下端は対称です。したがって方向付きの和は厳密な和に対して必要な側にとどまり、包含性に必要なのはこれだけです。"
 
-#: manual/design/ball_float.md:707
+#: manual/design/ball_float.md:722
 msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
 msgstr "**$p \\le M$ のとき緊密さを失わないこと。** $A$ 付近の $p$ ビット数は $2^{t(A) - p}$ の倍数であり、$t(A) - p \\ge t(A) - M \\ge c$ なので、$A$ と $A \\pm 2^c$ の間に真に挟まる $p$ ビット数は存在しません。$A + s$ と $A + s'$ はどちらも同じ隙間に入り、同じ端点に丸められます（添付資料の補題 7）。"
 
-#: manual/design/ball_float.md:713
+#: manual/design/ball_float.md:728
 msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside `center`, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
 msgstr "桁合わせのコストは、指数の差によらず、$A$ の幅を超えて高々約 $M$ ビットになります。この代理値は `center` 内部の最近接丸めの和にも用いられますが、そこでは厳密ではありません。これが[正しさ](#known-limitations)で述べる制限の原因です。"
 
-#: manual/design/ball_float.md:718
+#: manual/design/ball_float.md:733
 msgid "Outward clamping at the exponent range"
 msgstr "指数範囲での外向きクランプ"
 
-#: manual/design/ball_float.md:720
+#: manual/design/ball_float.md:735
 msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
 msgstr "`BinFloat` は有限の（非常に広い）指数範囲を持ちます。それを超える厳密な候補は保存できないので、厳密計算のヘルパーは構築中の端点の方向をとります。下端は $-\\infty$ 方向へ、上端は $+\\infty$ 方向へクランプし、半径は切り上げ、指数の和は 64 ビットで計算して飽和させます。これにより、たとえば $\\exp([10^9, 10^9])$ は潰れることなく包含区間 $[\\text{largest finite}, +\\infty)$ に保たれます。"
 
-#: manual/design/ball_float.md:727
+#: manual/design/ball_float.md:742
 msgid "Contexts and double rounding"
 msgstr "コンテキストと二重丸め"
 
-#: manual/design/ball_float.md:729
+#: manual/design/ball_float.md:744
 msgid "`BallContext` carries a target precision $q$ and exponent range; `apply_ctx` rounds endpoints outward into it and the `*_ctx` operations compute at the operands' precision $p$ and then apply the context. Rounding twice is harmless for directed rounding when $q \\le p$:"
 msgstr "`BallContext` は対象の精度 $q$ と指数範囲を保持します。`apply_ctx` は端点をその中へ外向きに丸め、`*_ctx` 演算はオペランドの精度 $p$ で計算してからコンテキストを適用します。$q \\le p$ のとき、方向付き丸めでは 2 回丸めても害はありません。"
 
-#: manual/design/ball_float.md:738
+#: manual/design/ball_float.md:753
 msgid "because $F_q \\subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with zeros): every $f \\in F_q$ below $a$ is in $F_p$, hence below $\\operatorname{RD}_p(a)$, and conversely. So `x.add_ctx(y, ctx)` equals a single outward rounding of the exact sum into the context whenever the operands are at least as precise as the context. Overflow is resolved in the enclosing direction: an upper endpoint above the range becomes $+\\infty$, a positive lower endpoint becomes the largest finite number (still below the true value). Underflow rounds outward on the subnormal grid, so a tiny positive upper bound becomes the smallest subnormal and never 0. The flags are returned, never stored globally."
 msgstr "なぜなら $F_q \\subseteq F_p$（$q$ ビットの仮数は $p$ ビットの仮数をゼロで埋めたもの）だからです。$a$ 以下のすべての $f \\in F_q$ は $F_p$ に属し、したがって $\\operatorname{RD}_p(a)$ 以下であり、逆も成り立ちます。よってオペランドがコンテキストと同等以上の精度を持つ限り、`x.add_ctx(y, ctx)` は厳密な和をコンテキストへ一度だけ外向きに丸めたものに等しくなります。オーバーフローは包含する方向に解決されます。範囲を超える上端は $+\\infty$ になり、正の下端は最大の有限数（依然として真の値以下）になります。アンダーフローでは非正規化数の格子上で外向きに丸めるため、極小の正の上界は最小の非正規化数になり、決して 0 にはなりません。フラグは返されるのであり、大域的に保存されることはありません。"
 
-#: manual/design/ball_float.md:749
+#: manual/design/ball_float.md:764
 msgid "Total and `try_` forms"
 msgstr "total 形式と `try_` 形式"
 
-#: manual/design/ball_float.md:751
+#: manual/design/ball_float.md:766
 msgid "*Problem.* Certified evaluation can fail: the refinement budget may run out, or an argument may be too large to reduce. Aborting would break long computations; returning a silent wide interval hides a lost guarantee of tightness."
 msgstr "*問題。* 認証付き評価は失敗することがあります。精緻化の予算が尽きることもあれば、引数が大きすぎて還元できないこともあります。中断すれば長い計算が台無しになり、黙って広い区間を返せば、緊密さの保証が失われたことが隠されてしまいます。"
 
-#: manual/design/ball_float.md:756
+#: manual/design/ball_float.md:771
 msgid "*Chosen.* Both. The total forms return a valid fallback enclosure ($[-1, 1]$ for `sin`/`cos`, Entire for `tan`, $[-\\pi, \\pi]$ for `atan2`, the composed formula for `pow`, `hypot` and `rootn`, the range bounds $[-1, +\\infty)$ for `expm1`), which keeps the inclusion property; the `try_` forms return an `ArithmeticError` with a certification detail (operation, stage, reason, precision). Trigonometric reduction is capped: when the larger endpoint magnitude is at least $2^{\\max(65536, 4p)+1}$, reduction would need more than that many bits, so the total forms return the fallback immediately and the `try_` forms report a resource limit."
 msgstr "*採用：両方。* total 形式は有効なフォールバックの包含区間を返し（`sin`/`cos` には $[-1, 1]$、`tan` には Entire、`atan2` には $[-\\pi, \\pi]$、`pow`、`hypot`、`rootn` には合成した式、`expm1` には値域の範囲 $[-1, +\\infty)$）、包含性を保ちます。`try_` 形式は認証の詳細（演算、段階、理由、精度）を伴う `ArithmeticError` を返します。三角関数の還元には上限があります。大きい方の端点の絶対値が $2^{\\max(65536, 4p)+1}$ 以上になると、還元にはそれ以上のビット数が必要になるため、total 形式は直ちにフォールバックを返し、`try_` 形式はリソース上限を報告します。"
 
-#: manual/design/ball_float.md:766
+#: manual/design/ball_float.md:781
 msgid "Decorations in a separate type"
 msgstr "装飾は別の型に"
 
-#: manual/design/ball_float.md:768
+#: manual/design/ball_float.md:783
 msgid "*Problem.* Decorations cost a field and a minimum per operation, and most users do not need them."
 msgstr "*問題。* 装飾には演算ごとにフィールド 1 つと最小値の計算 1 回のコストがかかり、ほとんどの利用者はそれを必要としません。"
 
-#: manual/design/ball_float.md:771
+#: manual/design/ball_float.md:786
 msgid "*Chosen.* `BallFloat` is the bare set; `BallFloatDecorated` wraps it with a decoration and the NaI state. Bare operations stay cheap and simple, and the decorated type cannot be mixed with bare values by accident."
 msgstr "*採用。* `BallFloat` は装飾なしの集合であり、`BallFloatDecorated` はそれを装飾と NaI 状態でラップします。装飾なしの演算は安価で単純なままであり、装飾付きの型が誤って装飾なしの値と混ざることはありません。"
 
-#: manual/design/ball_float.md:775
+#: manual/design/ball_float.md:790
 msgid "Precision as a tag"
 msgstr "タグとしての精度"
 
-#: manual/design/ball_float.md:777
+#: manual/design/ball_float.md:792
 msgid "Each interval carries a precision tag; binary operations use the larger tag. This keeps a sequence of operations at the precision of its most precise input without a context argument, which is what a set-valued type needs to compose with operators (`x + y`). A `BallContext` is used when a specific format must be imposed."
 msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグを用います。これにより、一連の演算はコンテキスト引数なしで、最も精度の高い入力の精度に保たれます。これは集合値の型が演算子（`x + y`）と組み合わせて使えるために必要なことです。特定の形式を課す必要がある場合は `BallContext` を用います。"
 
-#: manual/design/ball_float.md:783
+#: manual/design/ball_float.md:798
 #: manual/design/ball_float_checked.md:137
 #: manual/design/bench.md:218
 #: manual/design/bench/ball_float.md:51
@@ -10966,7 +10966,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 msgid "Correctness and invariants"
 msgstr "正しさと不変条件"
 
-#: manual/design/ball_float.md:785
+#: manual/design/ball_float.md:800
 msgid ""
 "**Representation invariant.** A non-empty `BallFloat` has non-NaN endpoints, $\\underline{x} \\le \\overline{x}$, $\\underline{x} \\n"
 "e +\\infty$, $\\overline{x} \\n"
@@ -10976,39 +10976,39 @@ msgstr ""
 "e +\\infty$、$\\overline{x} \\n"
 "e -\\infty$、精度 $\\ge 1$ を満たします。すべての構築経路は `store_interval` で終わり、これがこの条件を検査し、満たさなければ中断します。空は端点 $(+\\infty, -\\infty)$ を持つフラグです。"
 
-#: manual/design/ball_float.md:791
+#: manual/design/ball_float.md:806
 msgid "**Inclusion.** Each public operation $F$ of `BallFloat` satisfies $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$, by the endpoint formulas and Corollary 2 for arithmetic, by the critical-point analysis and certified endpoint enclosures for elementary functions, and by the fallbacks for uncertified cases (the exceptions are listed under known limitations). By the fundamental theorem, so does every composition."
 msgstr "**包含性。** `BallFloat` の各公開演算 $F$ は $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$ を満たします。算術については端点の公式と系 2 により、初等関数については臨界点の解析と認証付きの端点の包含区間により、認証できない場合についてはフォールバックによります（例外は既知の制限に列挙しています）。基本定理により、すべての合成も同様です。"
 
-#: manual/design/ball_float.md:798
+#: manual/design/ball_float.md:813
 msgid "**Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`, `maximum`, `intersection`, `convex_hull` of non-empty operands and `sqrt_interval` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire); the total hyperbolic functions for $|\\xi| \\lesssim 2^{-190}$ (cancellation, see above). `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either, and the `Floating` law \"normalizing keeps the value\" holds for `BallFloat` as set equality."
 msgstr "**緊密さ。** 基本演算、`square`、`pown`、`fma`、`abs`、`minimum`、`maximum`、空でないオペランドに対する `intersection` と `convex_hull`、および `sqrt_interval` は厳密な包を外向きに丸めたものを返すので、各端点は最適値から 1 ulp 以内です。三角関数と逆正接の端点は、認証された場合には正しい方向付き丸めです。その他の初等関数は通常数 ulp 以内です。緊密でないものは、フォールバック、$n < -4096$ で 0 が内部にある場合の `pown`（Entire）、$|\\xi| \\lesssim 2^{-190}$ での全域形式の双曲線関数（桁落ち。上記参照）です。`with_precision` と `normalized` は端点を外向きに丸めます。これは最も狭い包含であり、目標の精度ですでに表現可能な区間に対しては恒等なので、Empty のオペランドを伴う `convex_hull` や checked の機能も区間を広げず、`Floating` の法則「正規化は値を保つ」は `BallFloat` について集合の等しさとして成り立ちます。"
 
-#: manual/design/ball_float.md:812
+#: manual/design/ball_float.md:827
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr "**装飾。** 上記の帰納法の議論により、結果の装飾は評価された関数についての真の命題です。"
 
-#: manual/design/ball_float.md:815
+#: manual/design/ball_float.md:830
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions sum series of $O(w)$ terms at work precision $w = p + O(1)$ (plus the integer bits of the argument for trigonometric reduction), with up to 12 refinements growing $w$ geometrically."
 msgstr "**計算量。** 算術は高々 4 つの端点の積または 2 つの和を計算し、乗算コストを $M(p)$ とすると $p$ ビットの端点に対して $O(M(p))$ であり、和の場合はさらに高々約 $65536 + p$ ビットの桁合わせが加わります。初等関数は作業精度 $w = p + O(1)$（三角関数の還元では引数の整数部のビット数が加わります）で $O(w)$ 項の級数を総和し、最大 12 回の精緻化で $w$ を幾何級数的に増やします。"
 
-#: manual/design/ball_float.md:822
+#: manual/design/ball_float.md:837
 msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 4,656 cases in strict mode (see [conformance](../conformance/ball_float.md))."
 msgstr "**根拠。** パッケージのテストは、方向付きの端点、離れた加数と指数範囲のケース、装飾、関係を検査します。固定された ITF1788 コーパスは strict モードで 4,656 ケースを実行します（[適合性](../conformance/ball_float.md)を参照）。"
 
-#: manual/design/ball_float.md:826
+#: manual/design/ball_float.md:841
 msgid "Known limitations"
 msgstr "既知の制限"
 
-#: manual/design/ball_float.md:828
+#: manual/design/ball_float.md:843
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr "以下の入力は現在、入力集合の一部を失う、結果の丸めやフラグを誤る、または規定とは異なる集合を返すものです。それぞれ issue で追跡されており、まだマージされていない修正の提案があります。呼び出し側が回避できるようここに記載しています。"
 
-#: manual/design/ball_float.md:833
+#: manual/design/ball_float.md:848
 msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr "現時点で未解決の制限はありません。負の次数の装飾付き `rootn` は、引数に 0 を含むとき装飾を `trv` に下げます。これは IEEE 1788-2015 §11 の装飾規則が求めるとおりで、`src/ball_float/ball_float_decorated_wbtest.mbt` が次数 `-1`、`-2`、`-3` を検査しています。"
 
-#: manual/design/ball_float.md:838
+#: manual/design/ball_float.md:853
 #: manual/design/ball_float_checked.md:157
 #: manual/design/bench.md:235
 #: manual/design/bench/ball_float.md:60
@@ -11043,51 +11043,51 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 msgid "Alternatives rejected"
 msgstr "却下した代替案"
 
-#: manual/design/ball_float.md:840
+#: manual/design/ball_float.md:855
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr "**中点・半径による保存**（Arb 方式）：半径は安価ですが、積を過大評価し、片側非有界な集合を表現できません。[上記](#endpoints-not-midpoint-and-radius)を参照してください。"
 
-#: manual/design/ball_float.md:843
+#: manual/design/ball_float.md:858
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr "**丸めモードを切り替えたハードウェアの `Double` 端点：** 精度が固定され、プロセス全体の大域状態となり、しかも丸めモードの制御はすべての MoonBit ターゲットで利用できるわけではありません。"
 
-#: manual/design/ball_float.md:846
+#: manual/design/ball_float.md:861
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr "**最近接に丸めて 1 ulp 膨らませる**（「イプシロン膨張」）：より単純ですが、方向付き丸めより端点ごとに約 1 ulp 広くなり、最近接丸めの結果が 1 ulp 以内であることがわかっている演算でしか有効でないため、初等関数のカーネルの大半が除外されます。"
 
-#: manual/design/ball_float.md:850
+#: manual/design/ball_float.md:865
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr "**認証できない初等関数で中断すること：** 難しい引数が 1 つあるだけで計算全体が止まってしまいます。失敗を知る必要がある呼び出し側には `try_` 形式があります。"
 
-#: manual/design/ball_float.md:853
+#: manual/design/ball_float.md:868
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr "**ゼロを含む区間による除算をエラーとして扱うこと：** IEEE 1788 はこれらの結果を集合（Entire、片側非有界、または空）として定義しており、拡張された除算こそが区間ニュートン法を機能させるものです。"
 
-#: manual/design/ball_float.md:859
+#: manual/design/ball_float.md:874
 msgid "The package deliberately does not:"
 msgstr "このパッケージは意図的に以下を行いません。"
 
-#: manual/design/ball_float.md:861
+#: manual/design/ball_float.md:876
 msgid "provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or two-output division;"
 msgstr "IEEE 1788 の逆演算（`sqrRev`、`mulRevToPair`、…）や 2 出力の除算を提供すること。"
 
-#: manual/design/ball_float.md:863
+#: manual/design/ball_float.md:878
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr "緊密な結果を約束すること。フォールバックと依存性問題によって包含区間は任意に広がりえます。"
 
-#: manual/design/ball_float.md:865
+#: manual/design/ball_float.md:880
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr "区間上の全順序を定義すること、あるいは `Eq` を集合の等価性として扱うこと。"
 
-#: manual/design/ball_float.md:866
+#: manual/design/ball_float.md:881
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr "10 進データを独自に外向き変換すること。`from_double` と `exact` は 2 進の値を包含するものであり、10 進リテラルを包含するのは呼び出し側の役割です（[チュートリアル](../tutorial/ball_float.md#enclose-a-decimal-constant)を参照）。"
 
-#: manual/design/ball_float.md:869
+#: manual/design/ball_float.md:884
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr "10 進の端点による区間、複素ボール、区間ベクトルや区間行列、テイラーモデルを実装すること。"
 
-#: manual/design/ball_float.md:871
+#: manual/design/ball_float.md:886
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr "ステータスを大域フラグで報告すること。フラグは `*_ctx` 呼び出しから返され、装飾は値とともに受け渡されます。"
 
@@ -26215,6 +26215,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:709
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "**`sin`, `cos`, `tan` (`try_` forms).** Each endpoint value is the correctly rounded value of the binary kernel in the directed mode, which is the value the exact-rational series produced (it rounded an enclosure that rounded uniquely). The enclosure of $\\pi$ is needed only for the index range $K$ (the critical points and the poles) and is computed once at the initial working precision instead of on every refinement round. A range that is too large (an endpoint within $2^{-w}$ of a multiple of $\\pi/2$ at working precision $w$) widens the result to $\\pm 1$ or an unbounded tangent, which keeps the inclusion property. The non-`try` `sin_interval`, `cos_interval` and `tan_interval` stay on the exact-rational path: they return a conservative result for an argument the series cannot certify, which the `try_` forms report as an error."
+#~ msgstr "**`sin`、`cos`、`tan`(`try_` 形式)。** 各端点値は 2 進カーネルを方向付きモードで使った正しく丸められた値であり、これは厳密有理数級数が与えていた値(一意に丸まる包含を丸めたもの)と同じである。$\\pi$ の包含は指数範囲 $K$(臨界点と極)にのみ必要で、精密化のたびではなく初期の作業精度で 1 回だけ計算する。範囲が大きすぎる場合(端点が作業精度 $w$ で $\\pi/2$ の倍数から $2^{-w}$ 以内にある)、結果は $\\pm 1$ や非有界の正接に広がるが、包含性は保たれる。`try` でない `sin_interval`、`cos_interval`、`tan_interval` は厳密有理数の経路のままで、級数が認証できない引数には保守的な結果を返し、`try_` 形式はエラーを報告する。"
 
 #~ msgid "powers $p_0 = 2^F$, $p_1 = a$, $p_j = \\lfloor p_{\\lceil j/2 \\rceil} p_{\\lfloor j/2 \\rfloor} / 2^F \\rfloor$, $j \\le m$. By induction $p_j \\le 2^F r^j$ and $e_j := 2^F r^j - p_j < 1 + (e_u + e_v) 2^{-K} + e_u e_v 2^{-F} < 2$ (every product loses less than one unit, the factors' errors are scaled by $r^u, r^v < 2^{-K}$);"
 #~ msgstr "冪 $p_0 = 2^F$、$p_1 = a$、$p_j = \\lfloor p_{\\lceil j/2 \\rceil} p_{\\lfloor j/2 \\rfloor} / 2^F \\rfloor$、$j \\le m$。帰納法により $p_j \\le 2^F r^j$ かつ $e_j := 2^F r^j - p_j < 1 + (e_u + e_v) 2^{-K} + e_u e_v 2^{-F} < 2$（積ごとの損失は 1 単位未満で、因子の誤差は $r^u, r^v < 2^{-K}$ で縮められる）；"
