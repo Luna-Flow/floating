@@ -884,6 +884,55 @@ $\ln b$ and $1/\ln b$ are irrational. Before the loop:
   operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0 = 4\max(D,p)+64$
   bits resolve, as for `log1p`.
 
+**`rSqrt`, `compound` and `powr`.** The three take their exact results from
+`decimal_exact_constant` and none of them expands a binary endpoint near an
+extreme power of ten.
+
+- *`rsqrt`.* $1/\sqrt{x}$ terminates exactly when $x = 2^{2i}5^{2j}$: with
+  $c$ the coefficient stripped of trailing zeros and $e$ its exponent, $c$ is
+  $2^a$ or $5^b$ with $a$ (or $b$) and $e$ even, and the value is
+  $5^{a/2}10^{-(e+a)/2}$ or $2^{b/2}10^{-(e+b)/2}$. It is formed when it has
+  at most $p + 1$ digits and given the preferred exponent
+  $-\lfloor Q(x)/2 \rfloor$ (§9.2.2); a longer one ends in a 5 or a non-zero
+  even digit beyond the $(p+1)$-th place, so it is neither representable nor a
+  midpoint, and the enclosure decides it. Every other $x$ is written
+  $x = s\,10^{2k}$ with $s \in [1, 100)$: the Ziv loop encloses
+  $1/\sqrt{s}$, whose endpoints are moderate, and multiplies them by
+  $10^{-k}$ (an exponent shift) before the context rounds them, under the same
+  agreement test. An operand $10^{-1\,999\,997}$ costs what $1$ costs.
+- *`compound`.* The special values are the list of §9.2.1 (with $x < -1$
+  invalid also for $n = 0$, Table 9.1). For a tiny $x$,
+  $(1+x)^n - 1$ has the sign of $nx$ and
+  $|(1+x)^n - 1| \le |nx|\,e^{|nx|} < 10^{\operatorname{adj}(x) + 12}$ for
+  $|n| \le 2^{31}$, so `decimal_tiny_argument_result` decides a one-sided
+  neighbour of 1 and $1 + x$ (up to two million digits) is never formed.
+  Otherwise $1 + x = c\,10^{e}$ is formed exactly ($c$ without trailing
+  zeros, $d$ digits, exponent $\min(0, Q(x))$ before stripping). For $n > 0$,
+  $c^n$ has more than $\max((d-1)n, 0.301n)$ digits and no trailing zero, so
+  beyond $p + 1$ digits it is neither representable nor a midpoint; shorter
+  powers are formed and rounded once with the preferred exponent
+  $\lfloor n \min(0, Q(x)) \rfloor$. For $n < 0$, $c^{n}$ terminates only
+  for $c = 2^a$ or $5^b$ (the values $5^{a|n|}10^{-(a+e)|n|}$ and
+  $2^{b|n|}10^{-(b+e)|n|}$), formed while they have at most $p + 2$ digits.
+  Every other case is the Ziv loop on $\exp(n \operatorname{log1p}(x))$
+  ($\operatorname{log1p}$ of $x$ itself, so $1 + x$ is never rounded), after
+  `decimal_range_from_log2_bracket` on $n \operatorname{log1p}(x)/\ln 2$
+  whenever $|n| \max(\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already
+  keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an
+  `Int64`. `pown(1 + x, n)` is not used: its exponents beyond the
+  machine count and some negative ones raise wrong values or a spurious
+  `Clamped` for a base near 1 (reproduced while this function was written).
+- *`powr`.* §9.2.1 lists the invalid pairs $(\pm 0, \pm 0)$,
+  $(+\infty, \pm 0)$, $(1, \pm\infty)$ and $x < 0$, and a NaN result for a NaN
+  operand even when $y = \pm 0$. Two cases are not stated and are read as
+  follows [ambiguous]: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is
+  stated "for $x \ge 0$"), and $+\infty^{y}$ for $y \ne 0$ and $x^{\pm\infty}$
+  for $x \notin \{0, 1\}$ follow $e^{y \ln x}$ by continuity. Every remaining
+  pair has $x \ge 0$, where $x^y$ is the same function as `pow`, and the
+  preferred exponents agree ($\lfloor y Q(x) \rfloor$), so the result is
+  `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its
+  odd-integer sign rule).
+
 The elementary functions refuse contexts with $p$ or $|e|$ above 999,999
 (`invalid_context`), which bounds the size of the exact endpoint conversions.
 
