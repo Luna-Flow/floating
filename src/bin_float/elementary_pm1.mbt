@@ -31,14 +31,9 @@ fn binary_exp_base_minus_one_bounds(
     value.with_precision(work_precision, RoundingMode::TowardPositive),
   )
   let scaled = binary_product_bounds(value_bounds, ln_base, downward, upward)
-  match
-    (
-      binary_expm1_bounds(scaled.0, work_precision),
-      binary_expm1_bounds(scaled.1, work_precision),
-    ) {
-    (Some(lower), Some(upper)) => Some((lower.0, upper.1))
-    _ => None
-  }
+  binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
+    binary_expm1_bounds(point, work_precision)
+  })
 }
 
 ///|

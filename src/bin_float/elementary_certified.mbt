@@ -956,6 +956,25 @@ fn binary_quotient_bounds(
 }
 
 ///|
+/// The enclosure of a monotone increasing `f` over `[lower, upper]` from the
+/// lower end of `f(lower)` and the upper end of `f(upper)`; a point (`lower`
+/// equal to `upper`) is evaluated once. `evaluate` is deterministic, so the
+/// result is bit-identical to evaluating both ends.
+fn binary_bounds_at_ends(
+  lower : BinFloat,
+  upper : BinFloat,
+  evaluate : (BinFloat) -> (BinFloat, BinFloat)?,
+) -> (BinFloat, BinFloat)? {
+  if lower.compare(upper) == 0 {
+    return evaluate(lower)
+  }
+  match (evaluate(lower), evaluate(upper)) {
+    (Some(low), Some(high)) => Some((low.0, high.1))
+    _ => None
+  }
+}
+
+///|
 fn binary_expm1_bounds(
   value : BinFloat,
   work_precision : Int32,
@@ -1182,14 +1201,9 @@ fn binary_log1p_bounds(
   let lower_argument = one.add_ctx(lower_input, downward).0
   let upper_argument = one.add_ctx(upper_input, upward).0
   guard lower_argument.compare(BinFloat::zero()) > 0 else { return None }
-  match
-    (
-      binary_ln_bounds(lower_argument, work_precision),
-      binary_ln_bounds(upper_argument, work_precision),
-    ) {
-    (Some(lower), Some(upper)) => Some((lower.0, upper.1))
-    _ => None
-  }
+  binary_bounds_at_ends(lower_argument, upper_argument, fn(point) {
+    binary_ln_bounds(point, work_precision)
+  })
 }
 
 ///|
@@ -1219,14 +1233,9 @@ fn binary_exp2_bounds(
       let scaled = binary_product_bounds(
         value_bounds, log_two, downward, upward,
       )
-      match
-        (
-          binary_exp_bounds(scaled.0, work_precision),
-          binary_exp_bounds(scaled.1, work_precision),
-        ) {
-        (Some(lower), Some(upper)) => Some((lower.0, upper.1))
-        _ => None
-      }
+      binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
+        binary_exp_bounds(point, work_precision)
+      })
     }
     _ => None
   }
@@ -1790,18 +1799,20 @@ pub fn BinFloat::try_exp10_ctx(
               }
             }
             match
-              (binary_exp_bounds(lower, work), binary_exp_bounds(upper, work)) {
-              (Some(lower_bounds), Some(upper_bounds)) => {
+              binary_bounds_at_ends(lower, upper, fn(point) {
+                binary_exp_bounds(point, work)
+              }) {
+              Some(exp_bounds) => {
                 let (result, unique, flags) = binary_certified_inexact_target_rounding(
-                  lower_bounds.0,
-                  upper_bounds.1,
+                  exp_bounds.0,
+                  exp_bounds.1,
                   context,
                 )
                 if unique {
                   return Ok((result, flags))
                 }
               }
-              _ =>
+              None =>
                 return Err(
                   binary_range_failure_state("exp10", context, work, attempt),
                 )
@@ -2348,14 +2359,9 @@ fn binary_rootn_positive_bounds(
           upper = candidate
         }
       }
-      match
-        (
-          binary_exp_bounds(lower, work_precision),
-          binary_exp_bounds(upper, work_precision),
-        ) {
-        (Some(lower_exp), Some(upper_exp)) => Some((lower_exp.0, upper_exp.1))
-        _ => None
-      }
+      binary_bounds_at_ends(lower, upper, fn(point) {
+        binary_exp_bounds(point, work_precision)
+      })
     }
   }
 }
@@ -3027,18 +3033,21 @@ pub fn BinFloat::try_pow_ctx(
             upper = candidate
           }
         }
-        match (binary_exp_bounds(lower, work), binary_exp_bounds(upper, work)) {
-          (Some(lower_exp), Some(upper_exp)) => {
+        match
+          binary_bounds_at_ends(lower, upper, fn(point) {
+            binary_exp_bounds(point, work)
+          }) {
+          Some(exp_bounds) => {
             let (result, unique, flags) = if inexact_result {
               binary_certified_inexact_target_rounding(
-                lower_exp.0,
-                upper_exp.1,
+                exp_bounds.0,
+                exp_bounds.1,
                 context,
               )
             } else {
               binary_certified_target_rounding(
-                lower_exp.0,
-                upper_exp.1,
+                exp_bounds.0,
+                exp_bounds.1,
                 context,
               )
             }
@@ -3046,7 +3055,7 @@ pub fn BinFloat::try_pow_ctx(
               return Ok((result, flags))
             }
           }
-          _ =>
+          None =>
             return Err(
               binary_range_failure_state("pow", context, work, attempt),
             )
@@ -3417,14 +3426,9 @@ fn binary_asinh_positive_bounds(
     (Ok(lower_hypot), Ok(upper_hypot)) => {
       let lower_argument = lower_value.add_ctx(lower_hypot.0, downward).0
       let upper_argument = upper_value.add_ctx(upper_hypot.0, upward).0
-      match
-        (
-          binary_ln_bounds(lower_argument, work_precision),
-          binary_ln_bounds(upper_argument, work_precision),
-        ) {
-        (Some(lower_log), Some(upper_log)) => Some((lower_log.0, upper_log.1))
-        _ => None
-      }
+      binary_bounds_at_ends(lower_argument, upper_argument, fn(point) {
+        binary_ln_bounds(point, work_precision)
+      })
     }
     _ => None
   }
@@ -3466,14 +3470,9 @@ fn binary_acosh_bounds(
     ).0
   let lower_argument = lower_value.add_ctx(lower_product, downward).0
   let upper_argument = upper_value.add_ctx(upper_product, upward).0
-  match
-    (
-      binary_ln_bounds(lower_argument, work_precision),
-      binary_ln_bounds(upper_argument, work_precision),
-    ) {
-    (Some(lower_log), Some(upper_log)) => Some((lower_log.0, upper_log.1))
-    _ => None
-  }
+  binary_bounds_at_ends(lower_argument, upper_argument, fn(point) {
+    binary_ln_bounds(point, work_precision)
+  })
 }
 
 ///|
@@ -3506,17 +3505,11 @@ fn binary_atanh_bounds(
   let lower_ratio = lower_numerator.div_ctx(upper_denominator, downward).0
   let upper_ratio = upper_numerator.div_ctx(lower_denominator, upward).0
   match
-    (
-      binary_ln_bounds(lower_ratio, work_precision),
-      binary_ln_bounds(upper_ratio, work_precision),
-    ) {
-    (Some(lower_log), Some(upper_log)) =>
-      Some(
-        (
-          lower_log.0.mul_ctx(half, downward).0,
-          upper_log.1.mul_ctx(half, upward).0,
-        ),
-      )
+    binary_bounds_at_ends(lower_ratio, upper_ratio, fn(point) {
+      binary_ln_bounds(point, work_precision)
+    }) {
+    Some(logs) =>
+      Some((logs.0.mul_ctx(half, downward).0, logs.1.mul_ctx(half, upward).0))
     _ => None
   }
 }
