@@ -73,14 +73,16 @@ fn decimal_range_from_log2_bracket(
   let overflow_log2 = (huge * 3322L + 999L) / 1000L
   let tiny_log2 = (tiny * 3322L - 999L) / 1000L
   let one = BigInt::from_int(1)
-  let overflow_bound = @bin_float.BinFloat::from_string(
-    overflow_log2.to_string(),
+  // |overflow_log2| and |tiny_log2| are below 2^23 for the contexts the math
+  // functions accept, so they are exact Int values (no decimal text round trip).
+  let overflow_bound = @bin_float.BinFloat::from_int(
+    overflow_log2.to_int(),
     precision=work,
-  ).unwrap()
-  let tiny_bound = @bin_float.BinFloat::from_string(
-    tiny_log2.to_string(),
+  )
+  let tiny_bound = @bin_float.BinFloat::from_int(
+    tiny_log2.to_int(),
     precision=work,
-  ).unwrap()
+  )
   if low.compare(overflow_bound) >= 0 {
     return Some(
       decimal_apply_finite_ctx(
