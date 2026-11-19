@@ -9779,7 +9779,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:1115
+#: manual/design/decimal.md:1141
 #: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:845
 #: manual/design/decimal_gda_checked.md:247
@@ -10783,7 +10783,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:36
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:56
-#: manual/design/decimal.md:1045
+#: manual/design/decimal.md:1071
 #: manual/design/decimal_checked.md:193
 #: manual/design/decimal_gda.md:800
 #: manual/design/decimal_gda_checked.md:190
@@ -10858,7 +10858,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:1094
+#: manual/design/decimal.md:1120
 #: manual/design/decimal_checked.md:265
 #: manual/design/decimal_gda.md:829
 #: manual/design/decimal_gda_checked.md:238
@@ -12392,7 +12392,7 @@ msgid "Native"
 msgstr ""
 
 #: manual/design/bin_float.md:1639
-#: manual/design/decimal.md:1034
+#: manual/design/decimal.md:1060
 #: manual/design/decimal_gda.md:793
 msgid "LLVM"
 msgstr ""
@@ -13773,283 +13773,295 @@ msgid ""
 msgstr ""
 
 #: manual/design/decimal.md:951
+msgid "Outward-rounded endpoints"
+msgstr ""
+
+#: manual/design/decimal.md:953
+msgid "The Ziv driver turns the two binary endpoints $L \\le U$ of an enclosure into decimals and rounds both to the context. Expanding $c \\cdot 2^{-s}$ exactly costs $c \\cdot 5^{s}$, about $0.7 s$ digits, which is quadratic in the decimal exponent of the argument under a wide-range context (`1E-999990` took more than 80 s in `expm1`). For a non-degenerate enclosure the driver instead rounds $L$ down and $U$ up to $D = \\max(p + 12,\\ 0.3\\,b + 4)$ digits, $b$ being the bit length of the endpoint coefficients (so a refined enclosure is never widened beyond about one binary ulp). The powers $5^{s}$ and $2^{s}$ are computed by binary powering with a directed trim to $D + 4$ digits after every product: $O(\\log s)$ products of $D$-digit numbers, independent of $s$."
+msgstr ""
+
+#: manual/design/decimal.md:964
+msgid "*Soundness.* Every trim moves towards the chosen side (down for the lower magnitude bound, up for the upper one, with signs swapped for negative endpoints), and products of positive bounds are bounds, so by induction the computed power brackets the exact power, and $L' \\le L \\le U \\le U'$. Rounding to the context is monotone, so $\\mathrm{rnd}(L') = \\mathrm{rnd}(U')$ implies $\\mathrm{rnd}(x)$ is that value for every $x \\in [L, U]$, and the flags are compared as before. The guard digits only affect tightness, not soundness. A degenerate enclosure ($L = U$, binary-exact) keeps the exact expansion, and infinite, zero and out-of-range endpoints are converted as before. A certified result is unchanged; only an enclosure that straddles a rounding boundary at a distance below $10^{-D}$ relative is refused one step earlier, and the next refinement widens $D$ with the binary precision."
+msgstr ""
+
+#: manual/design/decimal.md:977
 msgid "The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 (`invalid_context`), which bounds the size of the exact endpoint conversions."
 msgstr ""
 
-#: manual/design/decimal.md:954
+#: manual/design/decimal.md:980
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser 2018, ch. 12; J. van der Hoeven, \"Ball arithmetic\", 2009, for the enclosure model."
 msgstr ""
 
-#: manual/design/decimal.md:959
+#: manual/design/decimal.md:985
 msgid "Coefficient kernels"
 msgstr ""
 
-#: manual/design/decimal.md:961
+#: manual/design/decimal.md:987
 msgid "**Problem.** Rounding at decimal positions needs fast division by powers of ten and fast digit counts; large precisions need sub-quadratic multiplication and division."
 msgstr ""
 
-#: manual/design/decimal.md:965
+#: manual/design/decimal.md:991
 msgid "**Choice.** `DecCoeff`, defined in the internal package `internal/decimal_kernel` that `decimal` shares with `decimal_gda` (neither package exposes it), is either a `Small(UInt64)` below $10^{18}$ or a little-endian array of base-$10^{9}$ limbs with no leading zero limb and a cached digit count. The package holds only status-free integer arithmetic; the finalizer, flags and contexts stay in each decimal package (see [the shared kernel](decimal_gda.md#a-gda-package-independent-of-decimal)). Base $10^9$ is the largest power of ten below $2^{30}$, so a limb product is below $10^{18} < 2^{60}$; shifting by a multiple of nine digits moves limbs, and `digits10` is a limb count plus the digits of the top limb. `BigInt` appears only at the public boundary."
 msgstr ""
 
-#: manual/design/decimal.md:976
+#: manual/design/decimal.md:1002
 msgid "Multiplication dispatch:"
 msgstr ""
 
-#: manual/design/decimal.md:978
+#: manual/design/decimal.md:1004
 msgid "Shape"
 msgstr ""
 
-#: manual/design/decimal.md:978
+#: manual/design/decimal.md:1004
 msgid "Algorithm"
 msgstr ""
 
-#: manual/design/decimal.md:978
+#: manual/design/decimal.md:1004
 #: manual/design/decimal_checked.md:260
 #: manual/design/decimal_gda_checked.md:233
 #: manual/design/def.md:317
 msgid "Cost"
 msgstr ""
 
-#: manual/design/decimal.md:980
+#: manual/design/decimal.md:1006
 msgid "one limb each"
 msgstr ""
 
-#: manual/design/decimal.md:980
+#: manual/design/decimal.md:1006
 msgid "inline"
 msgstr ""
 
-#: manual/design/decimal.md:981
+#: manual/design/decimal.md:1007
 msgid "many zero limbs ($n_a' n_b' \\cdot 4 < n_a n_b$ non-zero limbs)"
 msgstr ""
 
-#: manual/design/decimal.md:981
+#: manual/design/decimal.md:1007
 msgid "sparse products"
 msgstr ""
 
-#: manual/design/decimal.md:982
+#: manual/design/decimal.md:1008
 msgid "balanced blocks of the short length"
 msgstr ""
 
-#: manual/design/decimal.md:983
+#: manual/design/decimal.md:1009
 msgid "small"
 msgstr ""
 
-#: manual/design/decimal.md:983
+#: manual/design/decimal.md:1009
 msgid "Comba columns / schoolbook"
 msgstr ""
 
-#: manual/design/decimal.md:984
+#: manual/design/decimal.md:1010
 msgid "from the Karatsuba threshold"
 msgstr ""
 
-#: manual/design/decimal.md:984
+#: manual/design/decimal.md:1010
 msgid "Karatsuba"
 msgstr ""
 
-#: manual/design/decimal.md:985
+#: manual/design/decimal.md:1011
 msgid "from the Toom-3 threshold"
 msgstr ""
 
-#: manual/design/decimal.md:985
-#: manual/design/decimal.md:1031
+#: manual/design/decimal.md:1011
+#: manual/design/decimal.md:1057
 #: manual/design/decimal_gda.md:790
 msgid "Toom-3"
 msgstr ""
 
-#: manual/design/decimal.md:986
+#: manual/design/decimal.md:1012
 msgid "from the NTT threshold"
 msgstr ""
 
-#: manual/design/decimal.md:986
+#: manual/design/decimal.md:1012
 msgid "two-prime NTT"
 msgstr ""
 
-#: manual/design/decimal.md:988
+#: manual/design/decimal.md:1014
 msgid "The Comba kernel accumulates a column of $n$ limb products in a `UInt64` only when $\\min(n_a,n_b) \\le 18$: a column sum plus incoming carry is at most $18(10^{9}-1)^{2} + 2\\cdot 10^{10} < 1.8\\cdot 10^{19} < 2^{64}$, while 19 products could exceed $2^{64} \\approx 1.845\\cdot 10^{19}$."
 msgstr ""
 
-#: manual/design/decimal.md:993
+#: manual/design/decimal.md:1019
 msgid "The NTT splits the coefficients into base-$10^5$ digits and convolves them modulo the primes $p_1 = 998\\,244\\,353 = 119\\cdot 2^{23} + 1$ and $p_2 = 754\\,974\\,721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, so transforms up to length $2^{23}$ exist. A convolution coefficient is a sum of at most $m = \\min(n_a, n_b)$ products of digits below $10^{5}$, hence below $m \\cdot 99999^{2}$; it is recovered exactly from its residues by the Chinese remainder theorem,"
 msgstr ""
 
-#: manual/design/decimal.md:1005
+#: manual/design/decimal.md:1031
 msgid "as long as $m \\cdot 99999^{2} < p_1 p_2 = 753\\,649\\,251\\,896\\,000\\,513$, i.e. $m < 7.5 \\cdot 10^{7}$. The transform limit $2^{23}$ allows at most $m = 2^{22}$, and $2^{22} \\cdot 99999^{2} = 41\\,942\\,201\\,143\\,394\\,304 < p_1 p_2$, so the bound always holds below the transform limit (the kernel checks it before every transform). Base $10^{9}$ digits would need $m\\cdot 10^{18} < p_1p_2$, impossible for any $m \\ge 1$, which is why the NTT uses smaller digits. When the bounds do not hold the kernel falls back to Toom-3."
 msgstr ""
 
-#: manual/design/decimal.md:1014
+#: manual/design/decimal.md:1040
 msgid "Division uses one-limb division, Knuth's Algorithm D,[^knuth] Burnikel–Ziegler recursive division, or Newton reciprocal division. Newton computes $r \\approx S/d$ for $S = B^{n+1}$ by $r_{k+1} = \\lfloor r_k (2S - d r_k)/S \\rfloor$: with $r_k = S/d - \\varepsilon_k$ one gets $S/d - r_{k+1} \\approx d\\,\\varepsilon_k^{2}/S$, so the number of correct limbs doubles per step. The iteration must increase monotonically from below; if it does not, or the final quotient correction takes more than $2n+8$ steps, the routine falls back to Burnikel–Ziegler, which itself falls back to Algorithm D on unsupported shapes."
 msgstr ""
 
-#: manual/design/decimal.md:1024
+#: manual/design/decimal.md:1050
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1 (Algorithm D) and §4.3.3; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4 (NTT); C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998."
 msgstr ""
 
-#: manual/design/decimal.md:1029
+#: manual/design/decimal.md:1055
 msgid "The crossovers are measured per target and stored in target-specific files:"
 msgstr ""
 
-#: manual/design/decimal.md:1031
+#: manual/design/decimal.md:1057
 #: manual/design/decimal_gda.md:790
 msgid "Target"
 msgstr ""
 
-#: manual/design/decimal.md:1031
+#: manual/design/decimal.md:1057
 #: manual/design/decimal_gda.md:790
 msgid "Karatsuba mul / square"
 msgstr ""
 
-#: manual/design/decimal.md:1031
+#: manual/design/decimal.md:1057
 #: manual/design/decimal_gda.md:790
 msgid "first NTT mul / square"
 msgstr ""
 
-#: manual/design/decimal.md:1031
+#: manual/design/decimal.md:1057
 #: manual/design/decimal_gda.md:790
 msgid "Burnikel–Ziegler"
 msgstr ""
 
-#: manual/design/decimal.md:1031
+#: manual/design/decimal.md:1057
 msgid "Newton"
 msgstr ""
 
-#: manual/design/decimal.md:1033
+#: manual/design/decimal.md:1059
 #: manual/design/decimal_gda.md:792
 #: manual/verification.md:162
 #: manual/verification.md:205
 msgid "native"
 msgstr ""
 
-#: manual/design/decimal.md:1033
+#: manual/design/decimal.md:1059
 #: manual/design/decimal_gda.md:792
 msgid "from 2,816"
 msgstr ""
 
-#: manual/design/decimal.md:1033
+#: manual/design/decimal.md:1059
 msgid "disabled"
 msgstr ""
 
-#: manual/design/decimal.md:1035
+#: manual/design/decimal.md:1061
 msgid "Wasm / Wasm-GC / JS"
 msgstr ""
 
-#: manual/design/decimal.md:1037
+#: manual/design/decimal.md:1063
 msgid "(limbs of nine digits). On native the NTT threshold also depends on the transform length — 1,728, 2,816, 4,608, 7,680, then 8,192 limbs for multiplication and 640, 1,040, 1,824, 3,648, 7,296, then 8,192 for squaring — and the Burnikel–Ziegler entry moves to 5,120 and 10,240 limbs for larger block lengths. These are dispatch boundaries: they change cost, never results. The native Newton path is implemented and tested but disabled, because native measurements do not show a crossover."
 msgstr ""
 
-#: manual/design/decimal.md:1047
+#: manual/design/decimal.md:1073
 msgid "**Representation.** A finite `Decimal` has $c \\ge 0$; `DecCoeff` limbs are canonical (no leading zero limb, exact digit count). A zero's sign is kept in the sign bit; `coefficient()` never carries a sign."
 msgstr ""
 
-#: manual/design/decimal.md:1050
+#: manual/design/decimal.md:1076
 msgid "**Single rounding.** Every context result of `+`, `-`, `×`, `/`, `fma`, `sqrt`, `scaleb`, quantize and the conversions is the exact result rounded once, in the normal and in the subnormal range; integer powers are correctly rounded in extended contexts; certified elementary results are correctly rounded whenever they are returned, and a failure is reported, never approximated. The exceptions are listed under [known deviations](#known-deviations)."
 msgstr ""
 
-#: manual/design/decimal.md:1057
+#: manual/design/decimal.md:1083
 msgid "**Error bound.** For normal results of those operations, $\\operatorname{fl}(x) = x(1+\\delta)$ with $|\\delta| \\le \\tfrac12 10^{1-p}$ in the half modes and $|\\delta| < 10^{1-p}$ in the directed modes."
 msgstr ""
 
-#: manual/design/decimal.md:1060
+#: manual/design/decimal.md:1086
 msgid "**Exactness is visible.** `inexact` is raised if and only if the returned value differs from the exact result; `rounded` whenever digits were dropped. Exact decimal results of non-integral powers violate the \"only if\" direction."
 msgstr ""
 
-#: manual/design/decimal.md:1064
+#: manual/design/decimal.md:1090
 msgid "**Cohort preservation.** An exact result that fits is returned at the preferred exponent; `quantize` either returns exponent $q_y$ or fails."
 msgstr ""
 
-#: manual/design/decimal.md:1066
+#: manual/design/decimal.md:1092
 msgid "**Flags.** `combine` is associative, commutative and idempotent with identity `new()`."
 msgstr ""
 
-#: manual/design/decimal.md:1068
+#: manual/design/decimal.md:1094
 msgid "**Ordering.** `compare` is a total preorder (NaNs equal to each other and above every number, $-0 = +0$); `compare_total` is a total order on representations and refines `compare` on non-NaN values."
 msgstr ""
 
-#: manual/design/decimal.md:1071
+#: manual/design/decimal.md:1097
 msgid "**Encodings.** Decoding then encoding canonical bits is the identity; encoding then decoding a value that fits the format is the identity, including cohort, sign of zero and NaN payload (DPD and BID)."
 msgstr ""
 
-#: manual/design/decimal.md:1074
+#: manual/design/decimal.md:1100
 msgid "**Complexity.** Comparison, addition, shifts and one-limb division are $O(n)$ in limbs; multiplication and division follow the dispatch table."
 msgstr ""
 
-#: manual/design/decimal.md:1077
+#: manual/design/decimal.md:1103
 msgid "Known deviations"
 msgstr ""
 
-#: manual/design/decimal.md:1079
+#: manual/design/decimal.md:1105
 msgid "No behaviour of the current branch contradicts the goals above. A deviation found later is listed here, reproduced in the [API reference](../api/decimal.md) next to the operation, and tracked in a GitHub issue together with the pull request that proposes a fix."
 msgstr ""
 
-#: manual/design/decimal.md:1084
+#: manual/design/decimal.md:1110
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr ""
 
-#: manual/design/decimal.md:1088
+#: manual/design/decimal.md:1114
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr ""
 
-#: manual/design/decimal.md:1090
+#: manual/design/decimal.md:1116
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr ""
 
-#: manual/design/decimal.md:1096
+#: manual/design/decimal.md:1122
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr ""
 
-#: manual/design/decimal.md:1100
+#: manual/design/decimal.md:1126
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr ""
 
-#: manual/design/decimal.md:1102
+#: manual/design/decimal.md:1128
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_ctx`, `compare_signal_ctx` and `compare_total`."
 msgstr ""
 
-#: manual/design/decimal.md:1106
+#: manual/design/decimal.md:1132
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr ""
 
-#: manual/design/decimal.md:1110
+#: manual/design/decimal.md:1136
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr ""
 
-#: manual/design/decimal.md:1112
+#: manual/design/decimal.md:1138
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr ""
 
-#: manual/design/decimal.md:1117
+#: manual/design/decimal.md:1143
 msgid "`decimal` deliberately does not:"
 msgstr ""
 
-#: manual/design/decimal.md:1119
+#: manual/design/decimal.md:1145
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr ""
 
-#: manual/design/decimal.md:1120
+#: manual/design/decimal.md:1146
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr ""
 
-#: manual/design/decimal.md:1122
+#: manual/design/decimal.md:1148
 msgid "guarantee correct rounding of integer powers longer than $p$ digits in a context that is not extended, or the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr ""
 
-#: manual/design/decimal.md:1125
+#: manual/design/decimal.md:1151
 msgid "guarantee that elementary-function certification succeeds: after the refinement budget (which, at its last steps, works with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr ""
 
-#: manual/design/decimal.md:1129
+#: manual/design/decimal.md:1155
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr ""
 
-#: manual/design/decimal.md:1131
+#: manual/design/decimal.md:1157
 msgid "preserve NaN payloads through binary conversions;"
 msgstr ""
 
-#: manual/design/decimal.md:1132
+#: manual/design/decimal.md:1158
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr ""
 
-#: manual/design/decimal.md:1133
+#: manual/design/decimal.md:1159
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr ""
 
