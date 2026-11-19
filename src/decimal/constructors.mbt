@@ -134,6 +134,49 @@ pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
+/// `ceil(log2 10 * 10^6)`: `2^(scale * 3.321929) > 10^scale` for `scale >= 1`.
+let decimal_log2_10_ceil_ppm : Int64 = 3_321_929L
+
+///|
+/// The finite nonzero `self` as `(odd-sticky quotient, binary exponent)`, with
+/// `|self| = quotient * 2^exponent` up to the sticky bit: `BinFloat::make`
+/// rounds the exact value once from it, in every mode. A positive decimal
+/// exponent gives the exact integer `c 5^e` at the binary exponent `e`. A
+/// negative one, `c / 10^scale`, is the quotient of `c 2^shift` by `10^scale`
+/// truncated and made odd when the division is inexact, with
+/// `shift = precision + 3 + ceil(log2 10^scale)`: since `10^scale < 2^(shift -
+/// precision - 3)` the quotient keeps at least `precision + 3` bits, which
+/// leaves two bits below the target position and a sticky bit. Rounding the
+/// quotient in the target mode first would round a value just above a binary
+/// midpoint onto it, and ties-to-even would then go the wrong way. One
+/// division decides the quotient; the sticky bit comes from multiplying it
+/// back, not from a second division.
+fn decimal_to_binary_parts(
+  value : Decimal,
+  precision : Int32,
+) -> (BigInt, Int32) {
+  if value.exponent10 >= 0 {
+    return (
+      coeff_bigint(value.coefficient) * pow5(value.exponent10),
+      value.exponent10,
+    )
+  }
+  let scale = -value.exponent10
+  let log2_ten_scale = (scale.to_int64() * decimal_log2_10_ceil_ppm + 999_999L) /
+    1_000_000L
+  let binary_shift = precision + 3 + log2_ten_scale.to_int()
+  let numerator = abs_bigint(coeff_bigint(value.coefficient)) << binary_shift
+  let denominator = pow10(scale)
+  let truncated = numerator / denominator
+  let quotient = if truncated * denominator == numerator {
+    truncated
+  } else {
+    truncated | bigint_one()
+  }
+  (quotient, -binary_shift)
+}
+
+///|
 pub fn Decimal::to_bin_float(
   self : Decimal,
   precision~ : Int32 = self.precision_,
@@ -151,42 +194,50 @@ pub fn Decimal::to_bin_float(
           @bin_float.BinFloat::zero(precision~)
         }
       }
-      if self.exponent10 >= 0 {
-        let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
-        return @bin_float.BinFloat::make(
-          @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
-          self.exponent10,
-          precision,
-          negative=self.negative,
-          mode~,
-        )
-      }
-      let scale = -self.exponent10
-      // 10^scale < 2^(4 * scale), so the quotient keeps at least precision + 3
-      // bits. Truncating it and setting its last bit when the division is
-      // inexact (round to odd) leaves two bits below the target position and a
-      // sticky bit, so BinFloat::make rounds the exact value once, in every
-      // mode; rounding the quotient in the target mode first would round a
-      // value just above a binary midpoint onto it, and ties-to-even would
-      // then go the wrong way.
-      let binary_shift = precision + scale * 4 + 2
-      let numerator = abs_bigint(coeff_bigint(self.coefficient)) << binary_shift
-      let denominator = pow10(scale)
-      let truncated = numerator / denominator
-      let q = if (numerator % denominator).is_zero() {
-        truncated
-      } else {
-        truncated | bigint_one()
-      }
+      let (magnitude, exponent) = decimal_to_binary_parts(self, precision)
       @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
-        -binary_shift,
+        @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
+        exponent,
         precision,
         negative=self.sign() == Sign::Negative,
         mode~,
       )
     }
   }
+}
+
+///|
+/// `to_bin_float` in the two directed modes from one conversion: the lower and
+/// the upper bound of the value at `precision` bits (equal when it is exact).
+fn Decimal::to_bin_float_bounds(
+  self : Decimal,
+  precision : Int32,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  if self.class != FpClass::Finite || self.coefficient.is_zero() {
+    return (
+      self.to_bin_float(precision~, mode=RoundingMode::TowardNegative),
+      self.to_bin_float(precision~, mode=RoundingMode::TowardPositive),
+    )
+  }
+  let (magnitude, exponent) = decimal_to_binary_parts(self, precision)
+  let coefficient = @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets())
+  let negative = self.sign() == Sign::Negative
+  (
+    @bin_float.BinFloat::make(
+      coefficient,
+      exponent,
+      precision,
+      negative~,
+      mode=RoundingMode::TowardNegative,
+    ),
+    @bin_float.BinFloat::make(
+      coefficient,
+      exponent,
+      precision,
+      negative~,
+      mode=RoundingMode::TowardPositive,
+    ),
+  )
 }
 
 ///|
