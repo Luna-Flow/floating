@@ -248,6 +248,60 @@ fn binary_tiny_nonzero_result(
 }
 
 ///|
+/// The finite value `magnitude * 2^exponent2` known to fit `precision` bits and
+/// to lie inside the implementation range (checked by the caller): stores it in
+/// normal form (odd coefficient) without the general normalization chain.
+fn binary_finite_in_range(
+  negative : Bool,
+  magnitude : BinCoeff,
+  exponent2 : Int32,
+  precision : Int32,
+) -> BinFloat {
+  if magnitude.is_odd() {
+    finite_normalized(negative, magnitude, exponent2, precision)
+  } else {
+    let strip = magnitude.ctz()
+    finite_normalized(
+      negative,
+      magnitude.shift_right(strip),
+      binary_add_sat(exponent2, strip),
+      precision,
+    )
+  }
+}
+
+///|
+/// Finishes a rounded result whose top bit `rounded_top` is already known.
+fn binary_finalize_known_top(
+  negative : Bool,
+  magnitude : BinCoeff,
+  exponent2 : Int32,
+  inexact : Bool,
+  exact_top : Int32,
+  unbounded_rounded_top : Int32,
+  rounded_top : Int32,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  if !magnitude.is_zero() && rounded_top > context.range_e_max() {
+    return binary_overflow_result(negative, context)
+  }
+  let value = if magnitude.is_zero() {
+    finite_from_parts(negative, magnitude, exponent2, context.precision)
+  } else {
+    binary_finite_in_range(negative, magnitude, exponent2, context.precision)
+  }
+  if !inexact {
+    return (value, BinaryFlags::new())
+  }
+  let e_min = context.range_e_min()
+  let tiny = match context.tininess {
+    BeforeRounding => exact_top < e_min
+    AfterRounding => unbounded_rounded_top < e_min
+  }
+  (value, binary_inexact_flags(tiny))
+}
+
+///|
 fn binary_finalize_rounded(
   negative : Bool,
   magnitude : BinCoeff,
@@ -262,24 +316,10 @@ fn binary_finalize_rounded(
   } else {
     binary_exact_top(magnitude, exponent2)
   }
-  if !magnitude.is_zero() && rounded_top > context.range_e_max() {
-    return binary_overflow_result(negative, context)
-  }
-  let value = finite_from_parts(
-    negative,
-    magnitude,
-    exponent2,
-    context.precision,
+  binary_finalize_known_top(
+    negative, magnitude, exponent2, inexact, exact_top, unbounded_rounded_top, rounded_top,
+    context,
   )
-  if !inexact {
-    return (value, BinaryFlags::new())
-  }
-  let e_min = context.range_e_min()
-  let tiny = match context.tininess {
-    BeforeRounding => exact_top < e_min
-    AfterRounding => unbounded_rounded_top < e_min
-  }
-  (value, binary_inexact_flags(tiny))
 }
 
 ///|
@@ -324,18 +364,25 @@ fn binary_round_dyadic(
     )
   }
   let bits = magnitude.bit_length()
-  let exact_top = binary_exact_top(magnitude, exponent2)
+  let exact_top = binary_add_sat(bits - 1, exponent2)
+  // A value of at most `precision` bits whose top bit lies in the range is
+  // exactly representable (also in a bounded context): no rounding, no flags.
   if bits <= context.precision &&
-    context.e_min is None &&
-    context.e_max is None &&
-    exact_top >= binary_implementation_e_min &&
-    exact_top <= binary_implementation_e_max {
+    exact_top >= context.range_e_min() &&
+    exact_top <= context.range_e_max() {
     return (
-      finite_from_parts(negative, magnitude, exponent2, context.precision),
+      binary_finite_in_range(negative, magnitude, exponent2, context.precision),
       BinaryFlags::new(),
     )
   }
   let precision_shift = Int32::max(0, bits - context.precision)
+  let range_shift = Int32::max(
+    0,
+    binary_sub_sat(
+      binary_sub_sat(context.range_e_min(), context.precision - 1),
+      exponent2,
+    ),
+  )
   let (precision_retained, precision_guard, precision_sticky) = binary_split_shift(
     magnitude, precision_shift,
   )
@@ -350,25 +397,26 @@ fn binary_round_dyadic(
     precision_rounded,
     binary_add_sat(exponent2, precision_shift),
   )
-  let range_shift = Int32::max(
-    0,
-    binary_sub_sat(
-      binary_sub_sat(context.range_e_min(), context.precision - 1),
-      exponent2,
-    ),
-  )
-  let shift = Int32::max(precision_shift, range_shift)
-  let (retained, round_bit, sticky) = if shift == precision_shift {
-    (precision_retained, precision_guard, precision_sticky)
-  } else {
-    binary_split_shift(magnitude, shift)
+  if range_shift <= precision_shift {
+    // The precision rounding is the final rounding: round once.
+    return binary_finalize_known_top(
+      negative,
+      precision_rounded,
+      binary_add_sat(exponent2, precision_shift),
+      precision_guard || precision_sticky,
+      exact_top,
+      unbounded_rounded_top,
+      unbounded_rounded_top,
+      context,
+    )
   }
+  let (retained, round_bit, sticky) = binary_split_shift(magnitude, range_shift)
   binary_round_pack(
     negative,
     retained,
     round_bit,
     sticky,
-    binary_add_sat(exponent2, shift),
+    binary_add_sat(exponent2, range_shift),
     exact_top,
     unbounded_rounded_top,
     context,
