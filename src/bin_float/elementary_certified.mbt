@@ -792,23 +792,34 @@ fn binary_ln_bounds(
 }
 
 ///|
-fn binary_product_bounds(
+/// Enclosure of the product of two intervals. Each end is one directed
+/// product, not a minimum over four: with `a` nonnegative the minimum over
+/// `a in [a0, a1]`, `b in [b0, b1]` of `a b` is `a0 b0` if `b0 >= 0` and
+/// `a1 b0` otherwise (the smallest `b` is the best choice, then the best `a`
+/// for the sign of that `b`), and the maximum is `a1 b1` if `b1 >= 0` and
+/// `a0 b1` otherwise. A nonpositive `a` is `-|a|`; a mixed `a` with a
+/// sign-definite `b` swaps the roles; two mixed intervals take the four
+/// corners. Directed rounding is monotone, so rounding the chosen exact
+/// product equals the minimum or maximum of the four rounded products.
+fn binary_product_bounds_general(
   left : (BinFloat, BinFloat),
   right : (BinFloat, BinFloat),
   downward : BinaryContext,
   upward : BinaryContext,
 ) -> (BinFloat, BinFloat) {
+  let (a0, a1) = left
+  let (b0, b1) = right
   let lower_candidates = [
-    left.0.mul_ctx(right.0, downward).0,
-    left.0.mul_ctx(right.1, downward).0,
-    left.1.mul_ctx(right.0, downward).0,
-    left.1.mul_ctx(right.1, downward).0,
+    a0.mul_ctx(b0, downward).0,
+    a0.mul_ctx(b1, downward).0,
+    a1.mul_ctx(b0, downward).0,
+    a1.mul_ctx(b1, downward).0,
   ]
   let upper_candidates = [
-    left.0.mul_ctx(right.0, upward).0,
-    left.0.mul_ctx(right.1, upward).0,
-    left.1.mul_ctx(right.0, upward).0,
-    left.1.mul_ctx(right.1, upward).0,
+    a0.mul_ctx(b0, upward).0,
+    a0.mul_ctx(b1, upward).0,
+    a1.mul_ctx(b0, upward).0,
+    a1.mul_ctx(b1, upward).0,
   ]
   let mut lower = lower_candidates[0]
   let mut upper = upper_candidates[0]
@@ -826,13 +837,62 @@ fn binary_product_bounds(
 }
 
 ///|
-fn binary_quotient_bounds(
+fn binary_product_bounds(
+  left : (BinFloat, BinFloat),
+  right : (BinFloat, BinFloat),
+  downward : BinaryContext,
+  upward : BinaryContext,
+) -> (BinFloat, BinFloat) {
+  let zero = BinFloat::zero()
+  let (a0, a1) = left
+  let (b0, b1) = right
+  let a_nonneg = a0.compare(zero) >= 0
+  let a_nonpos = a1.compare(zero) <= 0
+  let b_nonneg = b0.compare(zero) >= 0
+  let b_nonpos = b1.compare(zero) <= 0
+  let result = if a_nonneg {
+    (
+      (if b_nonneg { a0 } else { a1 }).mul_ctx(b0, downward).0,
+      (if b1.compare(zero) >= 0 { a1 } else { a0 }).mul_ctx(b1, upward).0,
+    )
+  } else if a_nonpos {
+    (
+      (if b1.compare(zero) >= 0 { a0 } else { a1 }).mul_ctx(b1, downward).0,
+      (if b_nonneg { a1 } else { a0 }).mul_ctx(b0, upward).0,
+    )
+  } else if b_nonneg {
+    (
+      (if a0.compare(zero) >= 0 { b0 } else { b1 }).mul_ctx(a0, downward).0,
+      (if a1.compare(zero) >= 0 { b1 } else { b0 }).mul_ctx(a1, upward).0,
+    )
+  } else if b_nonpos {
+    (
+      (if a1.compare(zero) >= 0 { b0 } else { b1 }).mul_ctx(a1, downward).0,
+      (if a0.compare(zero) >= 0 { b1 } else { b0 }).mul_ctx(a0, upward).0,
+    )
+  } else {
+    return binary_product_bounds_general(left, right, downward, upward)
+  }
+  // The sign of a zero end depends on which of several equal candidates the
+  // four-candidate form picked; keep that exact choice (a zero end is rare).
+  if result.0.is_zero() || result.1.is_zero() {
+    return binary_product_bounds_general(left, right, downward, upward)
+  }
+  result
+}
+
+///|
+/// Enclosure of the quotient of an interval by a strictly positive interval.
+/// For `d` in `[d0, d1]` with `0 < d0`, `n / d` is increasing in `n`, and for
+/// `n >= 0` decreasing in `d` (increasing for `n < 0`): the minimum is
+/// `n0 / d1` if `n0 >= 0` and `n0 / d0` otherwise; the maximum is `n1 / d0` if
+/// `n1 >= 0` and `n1 / d1` otherwise.
+fn binary_quotient_bounds_general(
   numerator : (BinFloat, BinFloat),
   denominator : (BinFloat, BinFloat),
   downward : BinaryContext,
   upward : BinaryContext,
-) -> (BinFloat, BinFloat)? {
-  guard denominator.0.compare(BinFloat::zero()) > 0 else { return None }
+) -> (BinFloat, BinFloat) {
   let lower_candidates = [
     numerator.0.div_ctx(denominator.0, downward).0,
     numerator.0.div_ctx(denominator.1, downward).0,
@@ -856,6 +916,41 @@ fn binary_quotient_bounds(
     if candidate.compare(upper) > 0 {
       upper = candidate
     }
+  }
+  (lower, upper)
+}
+
+///|
+fn binary_quotient_bounds(
+  numerator : (BinFloat, BinFloat),
+  denominator : (BinFloat, BinFloat),
+  downward : BinaryContext,
+  upward : BinaryContext,
+) -> (BinFloat, BinFloat)? {
+  let zero = BinFloat::zero()
+  guard denominator.0.compare(zero) > 0 else { return None }
+  let lower = numerator.0.div_ctx(
+      if numerator.0.compare(zero) >= 0 {
+        denominator.1
+      } else {
+        denominator.0
+      },
+      downward,
+    ).0
+  let upper = numerator.1.div_ctx(
+      if numerator.1.compare(zero) >= 0 {
+        denominator.0
+      } else {
+        denominator.1
+      },
+      upward,
+    ).0
+  // The sign of a zero end depends on which of several equal candidates the
+  // four-candidate form picked; keep that exact choice (a zero end is rare).
+  if lower.is_zero() || upper.is_zero() {
+    return Some(
+      binary_quotient_bounds_general(numerator, denominator, downward, upward),
+    )
   }
   Some((lower, upper))
 }
