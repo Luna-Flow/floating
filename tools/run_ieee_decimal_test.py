@@ -29,7 +29,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         self.assertEqual(plan["runner"], "ieee-decimal-oracles")
         self.assertEqual(plan["targets"], ["wasm"])
         self.assertEqual(plan["checks"]["dpdDeclets"], 1024)
-        self.assertEqual(plan["checks"]["certifiedElementaryOracle"], 3552)
+        self.assertEqual(plan["checks"]["certifiedElementaryOracle"], 4128)
 
     def test_json_report_uses_unified_summary_shape(self) -> None:
         checks = {

@@ -420,6 +420,7 @@ def render_moon_fixture_test() -> str:
             "exp10m1": "try_exp10m1_ctx",
             "log2p1": "try_log2p1_ctx",
             "log10p1": "try_log10p1_ctx",
+            "rsqrt": "try_rsqrt_ctx",
         }
         if operation == "sqrt":
             call = "lhs.sqrt_ctx(ctx)"
@@ -429,6 +430,10 @@ def render_moon_fixture_test() -> str:
             call = f"lhs.try_pown_ctx({row['integer']}, ctx).unwrap()"
         elif operation == "pow":
             call = f"lhs.try_power_ctx({rhs}, ctx).unwrap()"
+        elif operation == "powr":
+            call = f"lhs.try_powr_ctx({rhs}, ctx).unwrap()"
+        elif operation == "compound":
+            call = f"lhs.try_compound_ctx({row['integer']}, ctx).unwrap()"
         elif operation == "hypot":
             call = f"lhs.try_hypot_ctx({rhs}, ctx).unwrap()"
         elif operation == "atan2":

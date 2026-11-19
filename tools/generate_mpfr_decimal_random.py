@@ -38,9 +38,12 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 
 import generate_libmpdec_random as base
+
+sys.set_int_max_str_digits(0)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 C_SOURCE = REPO_ROOT / "tools/mpfr_decimal_enclosure.c"
@@ -84,8 +87,12 @@ ARITY = {
     # entries, so the rows of every earlier operation are unchanged).
     "exp2m1": (EXP2,), "exp10m1": (EXP10,),
     "log2p1": (LOG1P,), "log10p1": (LOG1P,),
+    # rSqrt, compound and powr (#236 PR 2). compound is not enclosed by MPFR
+    # (mpfr_compound_si 4.2.2 is wrong for n < 0 in the directed modes): its
+    # value is the exact rational (1 + x)^n, bracketed to 900 digits.
+    "rsqrt": (POSITIVE,), "compound": (LOG1P,), "powr": ("pow_base", "pow_exponent"),
 }
-INTEGER_OPERATIONS = ("rootn", "pown")
+INTEGER_OPERATIONS = ("rootn", "pown", "compound")
 OPERATIONS = tuple(ARITY)
 IEEE_CONTEXTS = base.IEEE_CONTEXTS
 
@@ -308,6 +315,9 @@ def make_candidate(op: str, seed: int, index: int, attempt: int) -> Candidate | 
             integer += 1
     elif op == "pown":
         integer = rng.range(1, 40) * (-1 if rng.chance(1, 3) else 1)
+    elif op == "compound":
+        integer = rng.range(1, 40) if rng.chance(4, 5) else rng.range(41, 400)
+        integer *= -1 if rng.chance(1, 3) else 1
     return Candidate(index, op, context, tuple(operands), integer)
 
 
@@ -404,6 +414,94 @@ def flag_names(context: decimal.Context) -> set[str]:
 def certify(candidate: Candidate, enclosure: tuple[int, int, int, int]) -> str | None:
     lower = dyadic_bound(enclosure[0], enclosure[1], False, candidate.context)
     upper = dyadic_bound(enclosure[2], enclosure[3], True, candidate.context)
+    return certify_bounds(candidate, lower, upper)
+
+
+def rational_bound(value: Fraction, upper: bool, context: Context) -> Decimal:
+    """A 900-digit decimal >= (upper) or <= the rational `value`."""
+    if value == 0:
+        return Decimal(0)
+    negative = value < 0
+    magnitude = -value if negative else value
+    round_up = upper != negative
+    top = len(str(magnitude.numerator)) - len(str(magnitude.denominator)) + 1
+    if top > context.emax + 10:
+        return Decimal((1 if negative else 0, (1,), context.emax + 10))
+    if top < context.etiny - 10:
+        return Decimal((1 if negative else 0, (1,), context.etiny - 10))
+    shift = top - WORK_DIGITS
+    numerator, denominator = magnitude.numerator, magnitude.denominator
+    if shift >= 0:
+        denominator *= 10**shift
+    else:
+        numerator *= 10 ** (-shift)
+    quotient, remainder = divmod(numerator, denominator)
+    if round_up and remainder:
+        quotient += 1
+    return Decimal((1 if negative else 0, tuple(int(c) for c in str(quotient)), shift))
+
+
+def certify_exact_compound(candidate: Candidate) -> str | None:
+    """compound(x, n) from exact rational arithmetic on (1 + x)^n.
+
+    Far outside the range both bounds are the range representative; for
+    |x| < 10^-150, 1 + n x +- 2 (n x)^2 encloses the value (|n x| < 10^-147:
+    |n log1p(x) - n x| <= |n| x^2 and |e^u - 1 - u| <= 0.6 u^2);
+    otherwise the rational (1 + x)^n itself is bracketed."""
+    x = candidate.operands[0]
+    n = candidate.integer
+    context = candidate.context
+    with decimal.localcontext() as local:
+        local.prec = 40
+        local.Emax = decimal.MAX_EMAX
+        local.Emin = decimal.MIN_EMIN
+        local.traps[decimal.Inexact] = False
+        local.traps[decimal.Rounded] = False
+        estimate = n * (1 + x).log10()
+    if estimate > context.emax + 12:
+        top = Decimal((0, (1,), context.emax + 10))
+        return certify_bounds(candidate, top, top)
+    if estimate < context.etiny - 12:
+        bottom = Decimal((0, (1,), context.etiny - 10))
+        return certify_bounds(candidate, bottom, bottom)
+    if x.adjusted() < -150:
+        # Exact decimal arithmetic: a 900-digit bracket would swallow a
+        # deviation below 10^-900 and reject the row.
+        with decimal.localcontext() as exact:
+            exact.prec = decimal.MAX_PREC
+            exact.Emax = decimal.MAX_EMAX
+            exact.Emin = decimal.MIN_EMIN
+            exact.traps[decimal.Inexact] = True
+            linear = 1 + n * x
+            error = 2 * (n * x) * (n * x)
+            lower = linear - error
+            upper = linear + error
+        return certify_bounds(candidate, lower, upper)
+    if abs(n) > 2000 or abs(x.adjusted()) > 150:
+        # exp(n ln(1 + x)) by libmpdec at P digits (its ln and exp are
+        # correctly rounded); u = n ln(1 + x) carries an absolute error below
+        # |u| 10^(1-P) and 1 + x is exact, so the value is within a relative
+        # (|u| + 2) 10^(2-P) of the computed one.
+        digits = 3 * context.precision + 60
+        with decimal.localcontext() as local:
+            local.prec = digits
+            local.Emax = decimal.MAX_EMAX
+            local.Emin = decimal.MIN_EMIN
+            local.traps[decimal.Inexact] = False
+            local.traps[decimal.Rounded] = False
+            u = n * decimal.Context(prec=decimal.MAX_PREC, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN).add(1, x).ln(local)
+            value = u.exp()
+            slack = (abs(u) + 2) * Decimal((0, (1,), 2 - digits))
+            lower = value * (1 - slack)
+            upper = value * (1 + slack)
+        return certify_bounds(candidate, lower, upper)
+    value = (1 + Fraction(x)) ** n
+    lower = rational_bound(value, False, context)
+    upper = rational_bound(value, True, context)
+    return certify_bounds(candidate, lower, upper)
+
+
+def certify_bounds(candidate: Candidate, lower: Decimal, upper: Decimal) -> str | None:
     if lower > upper or lower.is_zero() or upper.is_zero() or (lower < 0) != (upper < 0):
         return None
     context = candidate.context
@@ -484,6 +582,12 @@ def generate(op: str, seed: int, start: int, count: int, mpfr_prefix: str | None
             candidate = make_candidate(op, seed, index, attempt)
             if candidate is not None:
                 candidates.append(candidate)
+        if op == "compound":
+            for candidate in candidates:
+                row = certify_exact_compound(candidate)
+                if row is not None:
+                    rows[candidate.index] = row
+            candidates = []
         for offset in range(0, len(candidates), CHUNK):
             chunk = candidates[offset : offset + CHUNK]
             for candidate, enclosure in zip(chunk, enclose(chunk, binary)):
