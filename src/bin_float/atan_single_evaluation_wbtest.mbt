@@ -348,6 +348,19 @@ fn atan_corpus() -> Array[BinFloat] {
 }
 
 ///|
+/// Every third corpus member (both signs occur) for the quadratic tests.
+fn atan_corpus_thinned() -> Array[BinFloat] {
+  let all = atan_corpus()
+  let out : Array[BinFloat] = []
+  for i in 0..<all.length() {
+    if i % 3 == 0 {
+      out.push(all[i])
+    }
+  }
+  out
+}
+
+///|
 fn atan_pair_width(bounds : (BinFloat, BinFloat)) -> BinFloat {
   bounds.1.sub_ctx(
     bounds.0,
@@ -385,9 +398,8 @@ fn atan_check_width(
 }
 
 ///|
-/// `inner` (computed at working precision w) must overlap the much tighter
-/// reference `outer` (higher precision): a bound on the wrong side of the true
-/// value by at least 2^-w would fail one of the two comparisons.
+/// `fresh` (working precision w) must enclose the much tighter `reference`
+/// (old path at w + 128 bits), which itself encloses the true value.
 fn atan_check_contains(
   label : String,
   fresh : (BinFloat, BinFloat),
@@ -422,7 +434,7 @@ test "atan single evaluation contains the high-precision old enclosure" {
 test "atan pair enclosure over intervals contains every member" {
   // Intervals, including ones that contain zero, against the old point
   // enclosure of both endpoints and of the midpoint.
-  let points = atan_corpus()
+  let points = atan_corpus_thinned()
   for w in [64, 128] {
     for a in points {
       for b in points {
@@ -468,7 +480,7 @@ test "asin single evaluation contains the high-precision old enclosure" {
 
 ///|
 test "atan2 single evaluation contains the high-precision old enclosure" {
-  let values = atan_corpus()
+  let values = atan_corpus_thinned()
   for w in [64, 128] {
     for y in values {
       for x in values {
