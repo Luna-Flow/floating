@@ -455,34 +455,36 @@ fn whole_real(precision : Int32) -> BallFloat {
 }
 
 ///|
-fn division_bounds(
+/// One directed quotient: `upper` selects round-toward-positive, otherwise
+/// round-toward-negative. An interval division needs exactly one directed
+/// quotient per bound, so this performs one `div_ctx` instead of the two
+/// (down and up) of which half used to be discarded.
+fn directed_division(
   numerator : @bin_float.BinFloat,
   denominator : @bin_float.BinFloat,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let downward = @bin_float.BinaryContext::unbounded(
-    precision,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
-  )
-  let upward = @bin_float.BinaryContext::unbounded(
-    precision,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
-  )
-  (
-    numerator.div_ctx(denominator, downward).0,
-    numerator.div_ctx(denominator, upward).0,
-  )
+  upper : Bool,
+) -> @bin_float.BinFloat {
+  let rounding = if upper {
+    @bin_float.BinaryRoundingMode::RoundTowardPositive
+  } else {
+    @bin_float.BinaryRoundingMode::RoundTowardNegative
+  }
+  numerator.div_ctx(
+    denominator,
+    @bin_float.BinaryContext::unbounded(precision, rounding~),
+  ).0
 }
 
 ///|
-fn extended_division_bounds(
+fn extended_division_bound(
   numerator : @bin_float.BinFloat,
   denominator : @bin_float.BinFloat,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  upper : Bool,
+) -> @bin_float.BinFloat {
   if numerator.is_zero() || denominator.classify() == FpClass::Infinity {
-    let zero = @bin_float.BinFloat::zero(precision~)
-    return (zero, zero)
+    return @bin_float.BinFloat::zero(precision~)
   }
   if numerator.classify() == FpClass::Infinity {
     let sign = if numerator.sign() == denominator.sign() {
@@ -490,10 +492,9 @@ fn extended_division_bounds(
     } else {
       Sign::Negative
     }
-    let infinity = @bin_float.BinFloat::inf(sign, precision~)
-    return (infinity, infinity)
+    return @bin_float.BinFloat::inf(sign, precision~)
   }
-  division_bounds(numerator, denominator, precision)
+  directed_division(numerator, denominator, precision, upper)
 }
 
 ///|
@@ -509,7 +510,7 @@ fn quotient_interval_nonzero_denominator(
   let denominator_positive = denominator.lo_.sign() == Sign::Positive
   let lower = if denominator_positive {
     if numerator_nonnegative || numerator_nonpositive {
-      extended_division_bounds(
+      extended_division_bound(
         numerator.lo_,
         if numerator_nonnegative {
           denominator.hi_
@@ -517,31 +518,32 @@ fn quotient_interval_nonzero_denominator(
           denominator.lo_
         },
         precision,
-      ).0
+        false,
+      )
     } else {
-      extended_division_bounds(numerator.lo_, denominator.lo_, precision).0
+      extended_division_bound(numerator.lo_, denominator.lo_, precision, false)
     }
   } else if numerator_nonnegative {
-    extended_division_bounds(numerator.hi_, denominator.hi_, precision).0
+    extended_division_bound(numerator.hi_, denominator.hi_, precision, false)
   } else if numerator_nonpositive {
-    extended_division_bounds(numerator.hi_, denominator.lo_, precision).0
+    extended_division_bound(numerator.hi_, denominator.lo_, precision, false)
   } else {
-    extended_division_bounds(numerator.hi_, denominator.hi_, precision).0
+    extended_division_bound(numerator.hi_, denominator.hi_, precision, false)
   }
   let upper = if denominator_positive {
     if numerator_nonnegative {
-      extended_division_bounds(numerator.hi_, denominator.lo_, precision).1
+      extended_division_bound(numerator.hi_, denominator.lo_, precision, true)
     } else if numerator_nonpositive {
-      extended_division_bounds(numerator.hi_, denominator.hi_, precision).1
+      extended_division_bound(numerator.hi_, denominator.hi_, precision, true)
     } else {
-      extended_division_bounds(numerator.hi_, denominator.lo_, precision).1
+      extended_division_bound(numerator.hi_, denominator.lo_, precision, true)
     }
   } else if numerator_nonnegative {
-    extended_division_bounds(numerator.lo_, denominator.lo_, precision).1
+    extended_division_bound(numerator.lo_, denominator.lo_, precision, true)
   } else if numerator_nonpositive {
-    extended_division_bounds(numerator.lo_, denominator.hi_, precision).1
+    extended_division_bound(numerator.lo_, denominator.hi_, precision, true)
   } else {
-    extended_division_bounds(numerator.lo_, denominator.hi_, precision).1
+    extended_division_bound(numerator.lo_, denominator.hi_, precision, true)
   }
   quantize_interval(lower, upper, precision)
 }
@@ -673,6 +675,46 @@ fn extended_mul(
 }
 
 ///|
+/// Both directed products of `extended_mul` with one coefficient product.
+fn extended_mul_both(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  if a.is_zero() ||
+    b.is_zero() ||
+    a.classify() == FpClass::Infinity ||
+    b.classify() == FpClass::Infinity {
+    let r = extended_mul(a, b, precision, RoundingMode::TowardNegative)
+    return (r, r)
+  }
+  let exponent = a.exponent2().to_int64() + b.exponent2().to_int64()
+  let exponent = if exponent > 2147483647L {
+    2147483647
+  } else if exponent < -2147483648L {
+    -2147483648
+  } else {
+    exponent.to_int()
+  }
+  let coefficient = a.coefficient().mul(b.coefficient())
+  let negative = a.is_negative() != b.is_negative()
+  (
+    exact_make(
+      coefficient,
+      exponent,
+      negative~,
+      mode=RoundingMode::TowardNegative,
+    ),
+    exact_make(
+      coefficient,
+      exponent,
+      negative~,
+      mode=RoundingMode::TowardPositive,
+    ),
+  )
+}
+
+///|
 fn extended_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
@@ -722,6 +764,36 @@ fn multiplication_bounds(
         extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardPositive),
       )
     }
+    // One operand straddles zero, the other is sign-definite and not [0, 0]:
+    // the extreme products are fixed by the signs, 2 products instead of 4.
+    let a_straddles = !a_nonnegative && !a_nonpositive
+    let b_straddles = !b_nonnegative && !b_nonpositive
+    let a_zero = a.lo_.is_zero() && a.hi_.is_zero()
+    let b_zero = b.lo_.is_zero() && b.hi_.is_zero()
+    if a_straddles && b_nonnegative && !b_zero {
+      return (
+        extended_mul(a.lo_, b.hi_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.hi_, b.hi_, precision, RoundingMode::TowardPositive),
+      )
+    }
+    if a_straddles && b_nonpositive && !b_zero {
+      return (
+        extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.lo_, b.lo_, precision, RoundingMode::TowardPositive),
+      )
+    }
+    if b_straddles && a_nonnegative && !a_zero {
+      return (
+        extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.hi_, b.hi_, precision, RoundingMode::TowardPositive),
+      )
+    }
+    if b_straddles && a_nonpositive && !a_zero {
+      return (
+        extended_mul(a.lo_, b.hi_, precision, RoundingMode::TowardNegative),
+        extended_mul(a.lo_, b.lo_, precision, RoundingMode::TowardPositive),
+      )
+    }
     let lower_left = extended_mul(
       a.lo_,
       b.hi_,
@@ -748,20 +820,26 @@ fn multiplication_bounds(
     )
     return (bin_min(lower_left, lower_right), bin_max(upper_left, upper_right))
   }
-  let products = fn(mode) {
-    (
-      extended_mul(a.lo_, b.lo_, precision, mode),
-      extended_mul(a.lo_, b.hi_, precision, mode),
-      extended_mul(a.hi_, b.lo_, precision, mode),
-      extended_mul(a.hi_, b.hi_, precision, mode),
-    )
+  // Unbounded operand: every corner is needed in both directions, but the
+  // coefficient product of a finite pair is shared between them (the
+  // direction only matters when the exponent clamps), so each corner costs
+  // one big-integer product instead of two.
+  let corners = [(a.lo_, b.lo_), (a.lo_, b.hi_), (a.hi_, b.lo_), (a.hi_, b.hi_)]
+  let mut lower : @bin_float.BinFloat? = None
+  let mut upper : @bin_float.BinFloat? = None
+  for corner in corners {
+    let (x, y) = corner
+    let (d, u) = extended_mul_both(x, y, precision)
+    lower = match lower {
+      None => Some(d)
+      Some(m) => Some(bin_min(m, d))
+    }
+    upper = match upper {
+      None => Some(u)
+      Some(m) => Some(bin_max(m, u))
+    }
   }
-  let (d1, d2, d3, d4) = products(RoundingMode::TowardNegative)
-  let (u1, u2, u3, u4) = products(RoundingMode::TowardPositive)
-  (
-    bin_min(bin_min(d1, d2), bin_min(d3, d4)),
-    bin_max(bin_max(u1, u2), bin_max(u3, u4)),
-  )
+  (lower.unwrap(), upper.unwrap())
 }
 
 ///|
@@ -1215,52 +1293,37 @@ fn pown_positive(
   exponent : Int32,
   precision : Int32,
 ) -> BallFloat {
-  let lo_power = pown_endpoint(
-    value.lo_,
-    exponent,
-    precision,
-    @bin_float.BinaryRoundingMode::RoundTowardNegative,
-  )
-  let hi_power = pown_endpoint(
-    value.hi_,
-    exponent,
-    precision,
-    @bin_float.BinaryRoundingMode::RoundTowardPositive,
-  )
+  let down = @bin_float.BinaryRoundingMode::RoundTowardNegative
+  let up = @bin_float.BinaryRoundingMode::RoundTowardPositive
   if pown_exponent_is_odd(exponent) {
-    return quantize_interval(lo_power, hi_power, precision)
+    return quantize_interval(
+      pown_endpoint(value.lo_, exponent, precision, down),
+      pown_endpoint(value.hi_, exponent, precision, up),
+      precision,
+    )
   }
   if value.contains_zero() {
-    let lo_power_upper = pown_endpoint(
-      value.lo_,
-      exponent,
-      precision,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
-    )
     return quantize_interval(
       @bin_float.BinFloat::zero(precision~),
-      bin_max(lo_power_upper, hi_power),
+      bin_max(
+        pown_endpoint(value.lo_, exponent, precision, up),
+        pown_endpoint(value.hi_, exponent, precision, up),
+      ),
       precision,
     )
   }
   if value.hi_.sign() == Sign::Negative {
     quantize_interval(
-      pown_endpoint(
-        value.hi_,
-        exponent,
-        precision,
-        @bin_float.BinaryRoundingMode::RoundTowardNegative,
-      ),
-      pown_endpoint(
-        value.lo_,
-        exponent,
-        precision,
-        @bin_float.BinaryRoundingMode::RoundTowardPositive,
-      ),
+      pown_endpoint(value.hi_, exponent, precision, down),
+      pown_endpoint(value.lo_, exponent, precision, up),
       precision,
     )
   } else {
-    quantize_interval(lo_power, hi_power, precision)
+    quantize_interval(
+      pown_endpoint(value.lo_, exponent, precision, down),
+      pown_endpoint(value.hi_, exponent, precision, up),
+      precision,
+    )
   }
 }
 
@@ -1423,6 +1486,23 @@ pub fn BallFloat::maximum(self : BallFloat, other : BallFloat) -> BallFloat {
 }
 
 ///|
+/// One directed square root of a non-negative endpoint (one `sqrt_ctx`
+/// instead of the down/up pair of `sqrt_bounds_for_precision`, half of which
+/// was discarded).
+fn directed_sqrt(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+  upper : Bool,
+) -> @bin_float.BinFloat {
+  let rounding = if upper {
+    @bin_float.BinaryRoundingMode::RoundTowardPositive
+  } else {
+    @bin_float.BinaryRoundingMode::RoundTowardNegative
+  }
+  x.sqrt_ctx(@bin_float.BinaryContext::unbounded(precision, rounding~)).0
+}
+
+///|
 pub fn BallFloat::sqrt_interval(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
@@ -1433,12 +1513,12 @@ pub fn BallFloat::sqrt_interval(self : BallFloat) -> BallFloat {
   let lower = if self.lo_.sign() == Sign::Negative || self.lo_.is_zero() {
     @bin_float.BinFloat::zero(precision=self.precision_)
   } else {
-    @bin_float.sqrt_bounds_for_precision(self.lo_, self.precision_).unwrap().0
+    directed_sqrt(self.lo_, self.precision_, false)
   }
   let upper = if is_pos_inf(self.hi_) {
     pos_inf(self.precision_)
   } else {
-    @bin_float.sqrt_bounds_for_precision(self.hi_, self.precision_).unwrap().1
+    directed_sqrt(self.hi_, self.precision_, true)
   }
   quantize_interval(lower, upper, self.precision_)
 }
