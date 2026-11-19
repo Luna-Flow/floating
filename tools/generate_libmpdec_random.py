@@ -23,6 +23,7 @@ import decimal
 import sys
 from dataclasses import dataclass, field
 from decimal import Context, Decimal
+from fractions import Fraction
 from typing import Callable, Iterator, Sequence
 
 MASK = (1 << 64) - 1
@@ -163,6 +164,9 @@ class Row:
     case: Case
     result: str
     conditions: tuple[str, ...]
+    # An expected difference from libmpdec (see `power_of_ten_difference`):
+    # the libmpdec result and conditions, written as a comment before the row.
+    libmpdec: str = ""
 
 
 # ---------------------------------------------------------------- operands ---
@@ -597,7 +601,39 @@ def gen_power(rng: Rng, family: str) -> tuple[Ctx, list[str]]:
         exponent = make_number(rng, rng.range(1, 20), rng.range(-4, 2))
     if rng.chance(1, 15):
         base = Number(0, base.digits, base.exponent)
-    return context, maybe_special(rng, [format_operand(rng, base), format_operand(rng, exponent)])
+    operands = maybe_special(rng, [format_operand(rng, base), format_operand(rng, exponent)])
+    # Drawn after everything above, so every other row of a case keeps its value.
+    if base_family(family) == "power" and not family.endswith("wide") and rng.chance(1, 25):
+        return power_of_ten_case(rng, context)
+    return context, operands
+
+
+# `k` of the powers of ten `10^k` whose non-integral powers have an integral
+# exponent: `|k|` has no prime factor besides 2 and 5, so `n / |k|` terminates.
+POWER_OF_TEN_EXPONENTS = (2, 4, 5, 8, 10, 16, 20, 25, 40, 50)
+
+
+def power_of_ten_case(rng: Rng, context: Ctx) -> tuple[Ctx, list[str]]:
+    """`power(10^k, y)` with a non-integral `y` and an integral `k*y` (issue 351),
+    in any rounding mode: the class in which this library returns the exact value
+    and libmpdec may be one unit in the last place away in a directed mode. The
+    base is written in one of several cohorts."""
+    k = POWER_OF_TEN_EXPONENTS[rng.range(0, len(POWER_OF_TEN_EXPONENTS) - 1)]
+    sign = -1 if rng.chance(1, 2) else 1
+    k *= sign
+    n = rng.range(1, 3 * abs(k) - 1)
+    if 2 * n == abs(k):
+        # y = 0.5 takes the square-root path, which raises an extra Clamped in
+        # a clamped context (issue 397); it is not the path of issue 351.
+        n += 1
+    if n % abs(k) == 0:
+        n += 1
+    y = Decimal(n) / Decimal(abs(k))
+    y = -y if rng.chance(1, 2) else y
+    zeros = rng.range(0, 2)
+    base = Decimal((0, (1,) + (0,) * zeros, k - zeros))
+    rounding = ROUNDINGS[rng.range(0, 7)][0]
+    return Ctx(context.precision, rounding, context.emin, context.emax, context.clamp), [str(base), str(y)]
 
 
 GENERATORS: dict[str, Callable[[Rng, str], tuple[Ctx, list[str]]]] = {
@@ -632,6 +668,75 @@ def undefined_division(operands: Sequence[Decimal]) -> bool:
     """GDA 0/0 (and Inf/Inf) is Division_undefined only for zero by zero."""
     left, right = operands
     return left.is_zero() and right.is_zero() and left.is_finite() and right.is_finite()
+
+
+# Largest precision and exponent magnitude of the contexts in which `exp`, `ln`,
+# `log10` and non-integral `power` are defined (decNumber's DEC_MAX_MATH).
+MATH_LIMIT = 999999
+POWER_OF_TEN_MARKER = "expected-difference power-of-ten #351"
+
+
+def power_of_ten_exponent(base: Decimal, exponent: Decimal) -> int | None:
+    """`k*y` when `base` is a positive power of ten `10^k` (`k != 0`, any cohort)
+    and `exponent` a non-integral finite `y` with `k*y` an integer, else None."""
+    if not (base.is_finite() and exponent.is_finite()) or base <= 0 or exponent == exponent.to_integral_value():
+        return None
+    if base.adjusted() == 0 or base.scaleb(-base.adjusted()) != 1:
+        return None
+    product = Fraction(exponent) * base.adjusted()
+    return int(product) if product.denominator == 1 else None
+
+
+def power_of_ten_result(context: Ctx, exponent: int) -> tuple[Decimal, tuple[str, ...]]:
+    """The result this library gives for `10^exponent` as a non-integral power
+    (GDA 1.70, power: the result "will be inexact", and an inexact finite result
+    should be correctly rounded; the correctly rounded value of a representable
+    number is that number in every rounding mode). The exact value is rounded
+    to the context by libmpdec only as an arithmetic helper; a value inside the
+    exponent range is written with `precision` digits, a subnormal one down to
+    Etiny, with Inexact and Rounded (and Underflow when subnormal), and the
+    full-precision form never raises Clamped (issue 305)."""
+    python = context.python()
+    rounded = python.plus(Decimal((0, (1,), exponent)))
+    raised = {name for signal, name in CONDITIONS if python.flags[signal]}
+    if "Inexact" not in raised:
+        etiny = context.emin - context.precision + 1
+        padded = max(exponent - (context.precision - 1), etiny)
+        if padded <= exponent:
+            rounded = Decimal((0, (1,) + (0,) * (exponent - padded), padded))
+        raised.discard("Clamped")
+        raised |= {"Inexact", "Rounded"}
+        if "Subnormal" in raised:
+            raised.add("Underflow")
+    return rounded, tuple(name for _, name in CONDITIONS if name in raised)
+
+
+def power_of_ten_difference(case: Case, libmpdec: Decimal) -> tuple[str, tuple[str, ...]] | None:
+    """The result and conditions this library gives for `power(10^k, y)` with a
+    non-integral `y` and an integral `k*y` (issue 351), when libmpdec's result
+    `libmpdec` differs from them.
+
+    libmpdec returns the exact value or a neighbour of it in a directed mode
+    (`power 1E-5 1.2` in ceiling is `0.000001000000000000001`), which GDA 1.70
+    allows ("may be up to 1 ulp in error"); this library returns the exact value
+    in every mode (the maintainer's decision on issue 351). The class is
+    checked, not skipped: the row expects this library's result, and the
+    generator refuses a row whose libmpdec result is farther than 1 ulp from it.
+    Contexts beyond decNumber's elementary limit answer Invalid_context and are
+    the business of the `...wide` families."""
+    context = case.context
+    if case.op != "power" or max(context.precision, context.emax, -context.emin) > MATH_LIMIT:
+        return None
+    base, exponent = (Decimal(text) for text in case.operands)
+    product = power_of_ten_exponent(base, exponent)
+    if product is None:
+        return None
+    expected, conditions = power_of_ten_result(context, product)
+    if expected.is_finite() and libmpdec.is_finite():
+        ulp = Decimal((0, (1,), max(expected.as_tuple().exponent, libmpdec.as_tuple().exponent)))
+        if abs(expected - libmpdec) > ulp:
+            raise ValueError(f"{case.case_id}: libmpdec result {libmpdec} is more than 1 ulp from {expected}")
+    return str(expected), conditions
 
 
 def evaluate(case: Case) -> Row:
@@ -673,6 +778,10 @@ def evaluate(case: Case) -> Row:
     if op == "divide" and "Invalid_operation" in names and undefined_division(values):
         names.append("Division_undefined")
     text = str(result)
+    if op == "power":
+        difference = power_of_ten_difference(case, result)
+        if difference is not None and (difference[0], difference[1]) != (text, tuple(names)):
+            return Row(case, difference[0], difference[1], f"{text} {' '.join(names)}".strip())
     return Row(case, text, tuple(names))
 
 
@@ -701,6 +810,8 @@ def generate_case(family: str, seed: int, index: int) -> Case:
 
 def format_row(row: Row) -> list[str]:
     lines = row.case.context.directives()
+    if row.libmpdec:
+        lines.append(f"-- {POWER_OF_TEN_MARKER}: libmpdec gives {row.libmpdec}")
     conditions = " ".join(row.conditions)
     operands = " ".join(quote(text) for text in row.case.operands)
     suffix = f" {conditions}" if conditions else ""

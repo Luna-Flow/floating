@@ -249,6 +249,18 @@ pub fn Decimal::try_power_ctx(
       // its rounding cell in the directed modes, and an exact midpoint does in
       // the half modes, so the certified loop below can never accept it.
       // Decide it exactly first; GDA still reports it as rounded and inexact.
+      // A power of ten (a coefficient of 1) has no exact root of a higher
+      // order than the digits allow, so `10^(k*y)` is decided separately.
+      match decimal_power_ten_noninteger_result(base, rounded_exponent, ctx) {
+        Some(result) => {
+          let finalized = decimal_power_finalize_result(
+            decimal_power_noninteger_gda_result(result, ctx),
+            ctx,
+          )
+          return Ok((finalized.0, operand_flags.combine(finalized.1)))
+        }
+        None => ()
+      }
       match decimal_power_exact_rational_result(base, rounded_exponent, ctx) {
         Some(result) => {
           let finalized = decimal_power_finalize_result(

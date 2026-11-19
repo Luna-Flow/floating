@@ -704,7 +704,9 @@ refinement loop.[^ziv] For $f(x)$:
    ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or
    underflow, and exact rational powers: $y = a/q$ in lowest terms with $x$
    a perfect $q$-th power, such as $4^{1.5} = 8$, the root taken before the
-   power so no intermediate is longer than the result) never
+   power so no intermediate is longer than the result; and $10^k$ to a
+   non-integral $y$ with $ky$ an integer, which is the exact $10^{ky}$ in every
+   rounding mode, `decimal_power_ten_noninteger_result`) never
    reach the loop. An exact result is a boundary of its rounding cell in the
    directed modes (and an exact midpoint is one in the half modes), which the
    loop could never certify.
@@ -769,7 +771,11 @@ with `HalfEven` rounding, because the specification defines these functions as
 correctly rounded with round-half-even regardless of the context mode; `power`
 uses the context's mode, as the specification and its test vectors require,
 and reports non-integer powers as `Inexact` with $p$ digits even when the
-power happens to be exact (`decimal_power_noninteger_gda_result`). Two more
+power happens to be exact (`decimal_power_noninteger_gda_result`). The exact
+value is the correctly rounded one in every direction, so a directed mode never
+adds a unit in the last place: `power(1E-5, 1.2)` is `1E-6` padded to $p$ digits
+with `Inexact` and `Rounded` in every mode, as `power.decTest` rows powx2039
+and powx2040 show for `1^y` in `ceiling`. Two more
 rules are implemented. First, these functions accept only contexts with $p$,
 $e_{\max}$ and $-e_{\min}$ at most 999,999 (`math_context_is_restricted`,
 raising `InvalidContext` otherwise). That is a deliberate implementation limit,

@@ -223,6 +223,89 @@ fn decimal_power_positive_noninteger_result(
 }
 
 ///|
+/// `power(10^k, y)` for a positive power of ten `10^k` (`k != 0`, any cohort)
+/// and a non-integral finite `y` (issue 351). `10^(k*y)` is exact exactly when
+/// `k*y` is an integer, and irrational otherwise, so no refinement loop can
+/// decide the exact case: the enclosure straddles the exact value and the
+/// directed modes never converge. GDA 1.70, *power*: the result of a
+/// non-integral exponent "will be inexact", and an inexact finite result should
+/// be correctly rounded; the correctly rounded value of the representable
+/// `10^(k*y)` is that value in every rounding mode, padded to `precision`
+/// digits like any inexact power (the caller adds Inexact and Rounded and the
+/// padding, as for `decimal_power_exact_rational_result`; `power.decTest`
+/// powx2039 and powx2040 expect the same shape in a directed mode). A result
+/// outside the exponent range overflows or underflows through the ordinary
+/// rounding of the exact value. `None` when `k*y` is not an integer or the
+/// context is not extended.
+fn decimal_power_ten_noninteger_result(
+  base : Decimal,
+  exponent : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.extended && !base.negative else { return None }
+  guard exponent.class == FpClass::Finite && exponent.exponent10 < 0 else {
+    return None
+  }
+  let base_power = match decimal_power_of_ten_exponent(base) {
+    Some(value) => value
+    None => return None
+  }
+  guard base_power != 0 else { return None }
+  let numerator = dec_coeff_multiply_repr(
+    exponent.coefficient,
+    dec_coeff_from_nonnegative_int(abs_int(base_power)),
+  )
+  // `|c * k| < 10^scale` makes `0 < |k * y| < 1`, and a numerator without
+  // `scale` trailing zeros is not a multiple of `10^scale`: not an integer.
+  let scale = -exponent.exponent10.to_int64()
+  guard scale <= coeff_trailing_decimal_zeros(numerator).to_int64() else {
+    return None
+  }
+  let quotient = match
+    exact_divide_by_power_of_ten_repr(numerator, scale.to_int()) {
+    Some(value) => value
+    None => return None
+  }
+  // Every exponent of the context lies far inside +-2^31; a longer quotient
+  // behaves like the clamp in the direction of its sign.
+  let limit = 2_000_000_000
+  let magnitude = match dec_coeff_to_bounded_int(quotient, limit) {
+    Some(value) => value
+    None => limit
+  }
+  let result_negative = exponent.negative != (base_power < 0)
+  let result_exponent = if result_negative { -magnitude } else { magnitude }
+  // Between Etiny and Emax the exact value is first written with `precision`
+  // digits (down to Etiny for a subnormal one): the full-precision form of an
+  // inexact result has an exponent of at most `e_max - precision + 1`, so a
+  // clamped context folds nothing down and raises no Clamped (GDA 1.70,
+  // Exceptional conditions, Clamped; issue 305). Above `e_max` (overflow) and
+  // below Etiny (underflow to zero or the least subnormal) the exact value is
+  // rounded as it is.
+  let digits = Int32::max(ctx.precision, 1)
+  let tiny = etiny(ctx)
+  if result_exponent >= tiny && result_exponent <= ctx.e_max {
+    let padded = Int32::max(result_exponent - (digits - 1), tiny)
+    return Some(
+      normalize_decimal_parts_ctx_repr(
+        false,
+        dec_coeff_power10_repr(result_exponent - padded),
+        padded,
+        ctx,
+      ),
+    )
+  }
+  Some(
+    normalize_decimal_parts_ctx_repr(
+      false,
+      dec_coeff_from_int(1),
+      result_exponent,
+      ctx,
+    ),
+  )
+}
+
+///|
 fn decimal_power_adjacent_one_directed_result(
   base : Decimal,
   exponent : Decimal,
@@ -2261,7 +2344,8 @@ fn decimal_power_exact_rational_result(
   // Write base = coefficient * 10^exponent10 without trailing zeros. A root
   // r >= 2 has r^q >= 2^q, so a coefficient of d digits has no exact q-th
   // root for q >= d * log2(10), and 3.3220 > log2(10). A coefficient of 1 is
-  // a power of ten, which `decimal_power_exact_ten_result` decides.
+  // a power of ten, which `decimal_power_exact_ten_result` (integral
+  // exponents) and `decimal_power_ten_noninteger_result` (issue 351) decide.
   let (coefficient, exponent10) = remove_factor10_repr(
     base.coefficient,
     base.exponent10,
