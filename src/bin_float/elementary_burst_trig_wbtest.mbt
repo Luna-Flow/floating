@@ -204,16 +204,18 @@ test "sin and cos results equal the rounded series enclosure at high precision" 
       for negative in [false, true] {
         seed += 1UL
         let value = burst_test_value(bits, top, negative, seed)
-        for mode in modes {
-          let context = BinaryContext::unbounded(bits, rounding=mode)
-          for cosine in [false, true] {
-            let reference_bounds = burst_trig_test_reference(
-              value,
-              cosine,
-              2 * bits + 200,
-            )
-            match reference_bounds {
-              Some((low, high)) => {
+        // The reference enclosure does not depend on the rounding mode: compute
+        // it once per value and function (it was recomputed for each mode).
+        for cosine in [false, true] {
+          let reference_bounds = burst_trig_test_reference(
+            value,
+            cosine,
+            2 * bits + 200,
+          )
+          match reference_bounds {
+            Some((low, high)) =>
+              for mode in modes {
+                let context = BinaryContext::unbounded(bits, rounding=mode)
                 let (expected, unique, expected_flags) = binary_certified_inexact_target_rounding(
                   low, high, context,
                 )
@@ -228,8 +230,7 @@ test "sin and cos results equal the rounded series enclosure at high precision" 
                   compared += 1
                 }
               }
-              None => ()
-            }
+            None => ()
           }
         }
       }
