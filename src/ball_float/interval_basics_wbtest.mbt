@@ -212,3 +212,19 @@ test "try_sin/cos/tan: near critical points, large and tiny arguments" {
     }
   }
 }
+
+///|
+test "coeff_gcd: power-of-two shortcut equals the general gcd" {
+  let nums = [1, 2, 3, 4, 6, 8, 12, 40, 96, 1024, 1536, 65536, 1000003]
+  for a in nums {
+    for b in nums {
+      let x = @bin_float.BinCoeff::from_uint64(a.to_uint64())
+      let y = @bin_float.BinCoeff::from_uint64(b.to_uint64())
+      assert_eq(coeff_gcd(x, y).compare(x.gcd(y)), 0)
+    }
+  }
+  let big = @bin_float.BinCoeff::from_uint64(3UL).shift_left(200)
+  let pow = @bin_float.BinCoeff::one().shift_left(150)
+  assert_eq(coeff_gcd(big, pow).compare(big.gcd(pow)), 0)
+  assert_eq(coeff_gcd(pow, big).compare(pow.gcd(big)), 0)
+}

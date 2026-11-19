@@ -407,8 +407,7 @@ fn certified_exp_series(
     precision,
     @bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
-  let argument_lower = rat_dyadic_bounds(argument, precision).0
-  let argument_upper = rat_dyadic_bounds(argument, precision).1
+  let (argument_lower, argument_upper) = rat_dyadic_bounds(argument, precision)
   let one_bin = @bin_float.BinFloat::one(precision~)
   let two_bin = @bin_float.BinFloat::from_int(2, precision~)
   let mut sum_lower = one_bin
@@ -421,6 +420,9 @@ fn certified_exp_series(
     precision,
   )
   let mut index = 0
+  // The upper term of the next iteration is the tail estimate of this one:
+  // it is computed once and carried over.
+  let mut carried_upper : @bin_float.BinFloat? = None
   while index < 10000 {
     index += 1
     let index_bin = @bin_float.BinFloat::from_int(index, precision~)
@@ -429,11 +431,15 @@ fn certified_exp_series(
       index_bin,
       downward,
     )
-    term_upper = directed_div(
-      directed_mul(term_upper, argument_upper, upward),
-      index_bin,
-      upward,
-    )
+    term_upper = match carried_upper {
+      Some(carried) => carried
+      None =>
+        directed_div(
+          directed_mul(term_upper, argument_upper, upward),
+          index_bin,
+          upward,
+        )
+    }
     sum_lower = directed_add(sum_lower, term_lower, downward)
     sum_upper = directed_add(sum_upper, term_upper, upward)
     let next_index = @bin_float.BinFloat::from_int(index + 1, precision~)
@@ -442,6 +448,7 @@ fn certified_exp_series(
       next_index,
       upward,
     )
+    carried_upper = Some(next_upper)
     let tail_upper = directed_mul(next_upper, two_bin, upward)
     if tail_upper.compare(threshold) < 0 {
       return (
@@ -476,8 +483,7 @@ fn certified_log_unit_series(
     precision,
     @bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
-  let value_lower = rat_dyadic_bounds(value, precision).0
-  let value_upper = rat_dyadic_bounds(value, precision).1
+  let (value_lower, value_upper) = rat_dyadic_bounds(value, precision)
   let one_bin = @bin_float.BinFloat::one(precision~)
   let two_bin = @bin_float.BinFloat::from_int(2, precision~)
   let three_bin = @bin_float.BinFloat::from_int(3, precision~)
@@ -721,7 +727,12 @@ fn exp_interval_at_precision(value : BallFloat, precision : Int32) -> BallFloat 
     return empty_interval(precision)
   }
   let lower = certified_exp_endpoint(value.lo_, precision)
-  let upper = certified_exp_endpoint(value.hi_, precision)
+  // A point interval evaluates the same endpoint once.
+  let upper = if value.lo_.compare(value.hi_) == 0 {
+    lower
+  } else {
+    certified_exp_endpoint(value.hi_, precision)
+  }
   store_interval(lower.lo_, upper.hi_, precision)
 }
 

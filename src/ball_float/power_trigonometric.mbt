@@ -243,8 +243,7 @@ fn certified_sin_series(
     precision,
     @bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
-  let argument_lower = rat_dyadic_bounds(argument, precision).0
-  let argument_upper = rat_dyadic_bounds(argument, precision).1
+  let (argument_lower, argument_upper) = rat_dyadic_bounds(argument, precision)
   let squared_lower = directed_mul(argument_lower, argument_lower, downward)
   let squared_upper = directed_mul(argument_upper, argument_upper, upward)
   let mut term_lower = argument_lower
@@ -329,8 +328,7 @@ fn certified_cos_series(
     precision,
     @bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
-  let argument_lower = rat_dyadic_bounds(magnitude, precision).0
-  let argument_upper = rat_dyadic_bounds(magnitude, precision).1
+  let (argument_lower, argument_upper) = rat_dyadic_bounds(magnitude, precision)
   let squared_lower = directed_mul(argument_lower, argument_lower, downward)
   let squared_upper = directed_mul(argument_upper, argument_upper, upward)
   let one = @bin_float.BinFloat::one(precision~)
@@ -503,10 +501,8 @@ fn unique_directed_bounds(
   upper : CertifiedRat,
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
-  let lower_from_lower = rat_dyadic_bounds(lower, precision).0
-  let lower_from_upper = rat_dyadic_bounds(upper, precision).0
-  let upper_from_lower = rat_dyadic_bounds(lower, precision).1
-  let upper_from_upper = rat_dyadic_bounds(upper, precision).1
+  let (lower_from_lower, upper_from_lower) = rat_dyadic_bounds(lower, precision)
+  let (lower_from_upper, upper_from_upper) = rat_dyadic_bounds(upper, precision)
   if lower_from_lower.compare(lower_from_upper) == 0 &&
     upper_from_lower.compare(upper_from_upper) == 0 {
     Some((lower_from_lower, upper_from_upper))
