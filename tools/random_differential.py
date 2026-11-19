@@ -34,6 +34,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
+import conformance_cli as shared_cli
 import generate_libmpdec_random as decimal_oracle
 import generate_mpfr_decimal_random as decm_oracle
 
@@ -185,7 +186,18 @@ def build_harness(target: str) -> Path:
 
 
 def conformance_cli(target: str) -> list[str]:
-    """The shared `floating-conformance` executable (sync); used for wasm-gc."""
+    """The shared `floating-conformance` executable (sync); used for wasm-gc.
+
+    On native the build options are those of `conformance_cli.py` (release,
+    `src/cli`), so the executable comes from the directory that the TestFloat,
+    MPFR and ITL conformance smokes already built (`_build/conformance/cli`)
+    instead of a second release compile of `src/cli`.
+    """
+    if target == "native":
+        try:
+            return [str(shared_cli.build_backend("mpfr"))]
+        except RuntimeError as error:
+            raise ToolError(str(error)) from error
     environment = dict(os.environ)
     environment["CODEX_MOON_TARGET_DIR"] = str(BUILD_ROOT / f"cli-{target}")
     result = run_command(
