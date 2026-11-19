@@ -5,7 +5,7 @@
 // (compared with compare_total), flags.
 
 ///|
-fn atan2pi_scaled_rows() -> Array[
+fn atan2pi_scaled_rows_0() -> Array[
   (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
 ] {
   [
@@ -1558,6 +1558,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2", "half_even", 51, -14, 11, false, "-7.5E-9", "-2", "-3.14159264983979323846264340085762788419716925105968",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_1() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2", "half_even", 51, -14, 11, false, "3E-8", "1", "2.99999999999999910000000000000048599999999999968757E-8",
       "xr",
@@ -3032,6 +3040,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "down", 51, -14, 11, false, "-7.5E-139", "-2", "-0.999999999999999999999999999999999999999999999999999",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_2() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "down", 51, -14, 11, false, "9.99E-139", "1.01", "0E-64", "xrsuc",
     ),
@@ -4465,6 +4481,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2", "ceiling", 51, -14, 11, false, "-3E-24", "-1", "-3.14159265358979323846264038327950288419716939937510",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_3() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2", "ceiling", 51, -14, 11, false, "7.5E-24", "2", "3.7500000000000000000000000000000000000000E-24",
       "xrsu",
@@ -5932,6 +5956,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "floor", 51, -14, 11, false, "1E-1999996", "-1", "0.999999999999999999999999999999999999999999999999999",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_4() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "floor", 51, -14, 11, false, "3E-1999996", "-2E-1999996", "0.687167041810998816186252747564778552334757575088366",
       "xr",
@@ -7404,6 +7436,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "up", 51, -14, 11, false, "-7.5E-1999996", "-2", "-1.00000000000000000000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_5() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "up", 51, -14, 11, false, "9.99E-1999996", "1.01", "1E-64", "xrsu",
     ),
@@ -8960,6 +9000,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2", "up", 51, -14, 11, false, "3E-300", "-1", "3.14159265358979323846264338327950288419716939937511",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_6() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("atan2pi", "05up", 51, -14, 11, false, "3E-176", "1", "1E-64", "xrsu"),
     (
       "atan2pi", "05up", 51, -14, 11, false, "3E-176", "-1", "0.999999999999999999999999999999999999999999999999999",
@@ -10158,6 +10206,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2", "half_even", 7, -95, 96, true, "-7.5E-5", "2", "-0.00003750000", "xr",
     ),
     ("atan2", "half_even", 7, -95, 96, true, "-7.5E-5", "-2", "-3.141555", "xr"),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_7() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("atan2", "half_even", 7, -95, 96, true, "3E-4", "1", "0.0003000000", "xr"),
     ("atan2", "half_even", 7, -95, 96, true, "3E-4", "-1", "3.141293", "xr"),
     (
@@ -11122,6 +11178,14 @@ fn atan2pi_scaled_rows() -> Array[
     ("atan2pi", "down", 7, -95, 96, true, "3E-76", "-1", "0.9999999", "xr"),
     ("atan2pi", "down", 7, -95, 96, true, "-3E-76", "1", "-9.549296E-77", "xr"),
     ("atan2pi", "down", 7, -95, 96, true, "-3E-76", "-1", "-0.9999999", "xr"),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_8() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("atan2pi", "down", 7, -95, 96, true, "7.5E-76", "2", "1.193662E-76", "xr"),
     ("atan2pi", "down", 7, -95, 96, true, "7.5E-76", "-2", "0.9999999", "xr"),
     (
@@ -11916,6 +11980,14 @@ fn atan2pi_scaled_rows() -> Array[
     ("atan2", "ceiling", 7, -95, 96, true, "3E2", "-1", "1.574130", "xr"),
     ("atan2", "ceiling", 7, -95, 96, true, "-3E2", "1", "-1.567463", "xr"),
     ("atan2", "ceiling", 7, -95, 96, true, "-3E2", "-1", "-1.574129", "xr"),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_9() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("atan2", "ceiling", 7, -95, 96, true, "7.5E2", "2", "1.568130", "xr"),
     ("atan2", "ceiling", 7, -95, 96, true, "7.5E2", "-2", "1.573463", "xr"),
     ("atan2", "ceiling", 7, -95, 96, true, "-7.5E2", "2", "-1.568129", "xr"),
@@ -12533,6 +12605,14 @@ fn atan2pi_scaled_rows() -> Array[
     ("atan2pi", "up", 7, -95, 96, true, "3E-37", "-1", "1.000000", "xr"),
     ("atan2pi", "up", 7, -95, 96, true, "-3E-37", "1", "-9.549297E-38", "xr"),
     ("atan2pi", "up", 7, -95, 96, true, "-3E-37", "-1", "-1.000000", "xr"),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_10() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("atan2pi", "up", 7, -95, 96, true, "7.5E-37", "2", "1.193663E-37", "xr"),
     ("atan2pi", "up", 7, -95, 96, true, "7.5E-37", "-2", "1.000000", "xr"),
     ("atan2pi", "up", 7, -95, 96, true, "-7.5E-37", "2", "-1.193663E-37", "xr"),
@@ -13141,6 +13221,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "half_even", 16, -383, 384, true, "-3E-92", "-1", "-1.000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_11() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "half_even", 16, -383, 384, true, "7.5E-92", "2", "1.193662073189215E-92",
       "xr",
@@ -14736,6 +14824,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "half_down", 16, -383, 384, true, "-7.5E-49", "-2", "-1.000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_12() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "half_down", 16, -383, 384, true, "9.99E-49", "1.01", "3.148431448491157E-49",
       "xr",
@@ -16326,6 +16422,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "ceiling", 16, -383, 384, true, "-5E-5000", "-4E-5000", "-0.7147767125227227",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_13() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "floor", 16, -383, 384, true, "3E-129", "1", "9.549296585513720E-130",
       "xr",
@@ -17874,6 +17978,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "05up", 16, -383, 384, true, "-3E-92", "-1", "-0.9999999999999999",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_14() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "05up", 16, -383, 384, true, "7.5E-92", "2", "1.193662073189216E-92",
       "xr",
@@ -19473,6 +19585,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "half_up", 34, -6143, 6144, true, "-7.5E-73", "-2", "-1.000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_15() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "half_up", 34, -6143, 6144, true, "9.99E-73", "1.01", "3.148431448491157236299304546715680E-73",
       "xr",
@@ -21073,6 +21193,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "ceiling", 34, -6143, 6144, true, "-9.99E-113", "-1.01", "-0.9999999999999999999999999999999999",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_16() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "ceiling", 34, -6143, 6144, true, "3E-112", "1", "9.549296585513720146133025802350862E-113",
       "xr",
@@ -22671,6 +22799,14 @@ fn atan2pi_scaled_rows() -> Array[
       "atan2pi", "up", 34, -6143, 6144, true, "-3E-110", "-1", "-1.000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn atan2pi_scaled_rows_17() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "atan2pi", "up", 34, -6143, 6144, true, "7.5E-110", "2", "1.193662073189215018266628225293858E-110",
       "xr",
@@ -23754,4 +23890,68 @@ fn atan2pi_scaled_rows() -> Array[
       "xr",
     ),
   ]
+}
+
+///|
+fn atan2pi_scaled_rows() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  let rows : Array[
+    (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+  ] = []
+  for row in atan2pi_scaled_rows_0() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_1() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_2() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_3() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_4() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_5() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_6() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_7() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_8() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_9() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_10() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_11() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_12() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_13() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_14() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_15() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_16() {
+    rows.push(row)
+  }
+  for row in atan2pi_scaled_rows_17() {
+    rows.push(row)
+  }
+  rows
 }

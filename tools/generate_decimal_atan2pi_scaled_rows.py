@@ -32,6 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src/decimal/atan2pi_scaled_rows_wbtest.mbt"
 ROW_TYPE = "(String, String, Int32, Int32, Int32, Bool, String, String, String, String)"
+CHUNK_ROWS = 400
 PREC = 450
 ROUNDINGS = {
     "half_even": decimal.ROUND_HALF_EVEN,
@@ -227,17 +228,25 @@ def render(rows: list[tuple]) -> str:
         "// Columns: op, rounding, precision, e_min, e_max, clamp, y, x, expected",
         "// (compared with compare_total), flags.",
         "",
-        "///|",
-        f"fn atan2pi_scaled_rows() -> Array[{ROW_TYPE}] {{",
-        "  [",
     ]
-    for r in rows:
-        op, rounding, p, lo, hi, clamp, y, x, expected, flags = r
-        out.append(
-            f"    ({quote(op)}, {quote(rounding)}, {p}, {lo}, {hi}, {'true' if clamp else 'false'}, "
-            f"{quote(y)}, {quote(x)}, {quote(expected)}, {quote(flags)}),"
-        )
-    out += ["  ]", "}", ""]
+    chunks = [rows[i : i + CHUNK_ROWS] for i in range(0, len(rows), CHUNK_ROWS)]
+    for index, chunk in enumerate(chunks):
+        out.append("///|")
+        out.append(f"fn atan2pi_scaled_rows_{index}() -> Array[{ROW_TYPE}] {{")
+        out.append("  [")
+        for r in chunk:
+            op, rounding, p, lo, hi, clamp, y, x, expected, flags = r
+            out.append(
+                f"    ({quote(op)}, {quote(rounding)}, {p}, {lo}, {hi}, {'true' if clamp else 'false'}, "
+                f"{quote(y)}, {quote(x)}, {quote(expected)}, {quote(flags)}),"
+            )
+        out += ["  ]", "}", ""]
+    out.append("///|")
+    out.append(f"fn atan2pi_scaled_rows() -> Array[{ROW_TYPE}] {{")
+    out.append(f"  let rows : Array[{ROW_TYPE}] = []")
+    for index in range(len(chunks)):
+        out.append(f"  for row in atan2pi_scaled_rows_{index}() {{ rows.push(row) }}")
+    out += ["  rows", "}", ""]
     return "\n".join(out)
 
 

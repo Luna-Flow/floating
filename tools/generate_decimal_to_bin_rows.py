@@ -28,6 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src/decimal/to_bin_float_rows_wbtest.mbt"
 MODES = ["ToNearestEven", "TowardZero", "AwayFromZero", "TowardNegative", "TowardPositive"]
+CHUNK_ROWS = 100
 ROW_TYPE = "(String, Int32, String, String, Int32)"
 
 
@@ -131,13 +132,21 @@ def render(rows: list[tuple]) -> str:
         "// Columns: decimal, precision, mode, signed coefficient C, exponent2 k",
         "// (the expected value is C * 2^k).",
         "",
-        "///|",
-        f"fn to_bin_float_rows() -> Array[{ROW_TYPE}] {{",
-        "  [",
     ]
-    for text, precision, mode, coefficient, exponent in rows:
-        out.append(f"    ({quote(text)}, {precision}, {quote(mode)}, {quote(coefficient)}, {exponent}),")
-    out += ["  ]", "}", ""]
+    chunks = [rows[i : i + CHUNK_ROWS] for i in range(0, len(rows), CHUNK_ROWS)]
+    for index, chunk in enumerate(chunks):
+        out.append("///|")
+        out.append(f"fn to_bin_float_rows_{index}() -> Array[{ROW_TYPE}] {{")
+        out.append("  [")
+        for text, precision, mode, coefficient, exponent in chunk:
+            out.append(f"    ({quote(text)}, {precision}, {quote(mode)}, {quote(coefficient)}, {exponent}),")
+        out += ["  ]", "}", ""]
+    out.append("///|")
+    out.append(f"fn to_bin_float_rows() -> Array[{ROW_TYPE}] {{")
+    out.append(f"  let rows : Array[{ROW_TYPE}] = []")
+    for index in range(len(chunks)):
+        out.append(f"  for row in to_bin_float_rows_{index}() {{ rows.push(row) }}")
+    out += ["  rows", "}", ""]
     return "\n".join(out)
 
 
