@@ -979,3 +979,71 @@ test "unit accumulator producers write limbs below the base" {
     )
   }
 }
+
+///|
+test "one-division expansion test agrees with the second division" {
+  let mut state = 0xC0FFEE123UL
+  let next = fn() {
+    state = state * 6364136223846793005UL + 1442695040888963407UL
+    state >> 11
+  }
+  let modes : Array[DecCoeffRounding] = [
+    DecCoeffRounding::HalfEven,
+    DecCoeffRounding::ZeroFiveUp,
+    DecCoeffRounding::Down,
+    DecCoeffRounding::Up,
+  ]
+  // denominators: random, 2^a 5^b, 2^a 5^b u with a small u, and multiples of 10
+  let denominators : Array[DecCoeff] = []
+  for _ in 0..<60 {
+    let mut d = dec_coeff_from_int(1 + (next() % 999999UL).to_int())
+    d = dec_coeff_multiply_repr(
+      d,
+      dec_coeff_from_int(1 + (next() % 999UL).to_int()),
+    )
+    denominators.push(d)
+  }
+  for a in [0, 1, 5, 20, 70] {
+    for b in [0, 1, 7, 30] {
+      let p = dec_coeff_multiply_repr(
+        dec_coeff_pow_unit_repr(2, a),
+        dec_coeff_pow_unit_repr(5, b),
+      )
+      denominators.push(p)
+      for u in [3, 7, 21, 999983] {
+        denominators.push(dec_coeff_multiply_by_unit_repr(p, u))
+      }
+    }
+  }
+  denominators.push(dec_coeff_from_int(1))
+  denominators.push(dec_coeff_shift_power10_repr(dec_coeff_from_int(7), 25))
+  let mut finite_count = 0
+  for d in denominators {
+    for _ in 0..<6 {
+      // numerators that are and are not multiples of the odd part of d
+      let base = dec_coeff_from_int(1 + (next() % 999999UL).to_int())
+      let numerator = if next() % 2UL == 0UL {
+        dec_coeff_multiply_repr(base, d)
+      } else {
+        base
+      }
+      let extra = (next() % 60UL).to_int()
+      let shifted = dec_coeff_shift_power10_repr(numerator, extra)
+      let mode = modes[(next() % 4UL).to_int()]
+      let (rounded, finite) = dec_coeff_round_div_expansion(
+        shifted, d, false, mode,
+      )
+      assert_eq(finite, has_finite_decimal_expansion_repr(numerator, d))
+      assert_eq(
+        rounded.to_string(),
+        dec_coeff_round_div(shifted, d, false, mode).to_string(),
+      )
+      if finite {
+        finite_count += 1
+      }
+    }
+  }
+  assert_true(
+    finite_count > 50 && finite_count < denominators.length() * 6 - 50,
+  )
+}
