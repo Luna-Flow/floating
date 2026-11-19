@@ -104,8 +104,11 @@ fn decimal_random_shape(op : String) -> Int32? {
     | "exp10m1"
     | "log2p1"
     | "log10p1"
-    | "rsqrt" => Some(0)
-    "pow" | "hypot" | "atan2" | "powr" => Some(1)
+    | "rsqrt"
+    | "asinpi"
+    | "acospi"
+    | "atanpi" => Some(0)
+    "pow" | "hypot" | "atan2" | "powr" | "atan2pi" => Some(1)
     "rootn" | "pown" | "compound" => Some(2)
     _ => None
   }
@@ -322,6 +325,10 @@ fn run_decimal_random_operation(
     "rootn" => a.try_rootn_ctx(case.n, ctx)
     "pown" => a.try_pown_ctx(case.n, ctx)
     "rsqrt" => a.try_rsqrt_ctx(ctx)
+    "asinpi" => a.try_asinpi_ctx(ctx)
+    "acospi" => a.try_acospi_ctx(ctx)
+    "atanpi" => a.try_atanpi_ctx(ctx)
+    "atan2pi" => a.try_atan2pi_ctx(case.b.unwrap(), ctx)
     "powr" => a.try_powr_ctx(case.b.unwrap(), ctx)
     "compound" => a.try_compound_ctx(case.n, ctx)
     _ => abort("unreachable decimal random operation " + case.op)

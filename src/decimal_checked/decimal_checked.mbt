@@ -413,6 +413,29 @@ pub fn DecimalChecked::atan(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
+pub fn DecimalChecked::asinpi(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_asinpi_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::acospi(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_acospi_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::atanpi(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_atanpi_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::atan2pi(
+  self : DecimalChecked,
+  abscissa : @decimal.Decimal,
+) -> DecimalChecked {
+  self.record_result(self.value_.try_atan2pi_ctx(abscissa, self.context_))
+}
+
+///|
 pub fn DecimalChecked::atan2(
   self : DecimalChecked,
   abscissa : @decimal.Decimal,
