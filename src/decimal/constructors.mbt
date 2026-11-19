@@ -138,6 +138,144 @@ pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
 let decimal_log2_10_ceil_ppm : Int64 = 3_321_929L
 
 ///|
+/// `m 2^k` with `m` of at most `bits` bits, rounded down (or, with `up`, up) from
+/// `m 2^k`: one trim step of `decimal_directed_binary_power5`.
+fn decimal_binary_directed_trim(
+  m : BigInt,
+  k : Int32,
+  bits : Int32,
+  up : Bool,
+) -> (BigInt, Int32) {
+  let length = m.bit_length()
+  if length <= bits {
+    return (m, k)
+  }
+  let drop = length - bits
+  let mut q = m >> drop
+  if up && q << drop != m {
+    q = q + bigint_one()
+  }
+  (q, k + drop)
+}
+
+///|
+/// A lower bound (or, with `up`, an upper bound) `m 2^k` of `5^count`, `m` of
+/// at most `bits` bits, by binary powering with a directed trim after every
+/// product: `O(log count)` products of `bits`-bit numbers. Each trim moves
+/// towards the chosen side by less than one unit of the `bits`-th bit (a
+/// relative error below `2^(1 - bits)`), and the product of two bounds on the
+/// same side is a bound on that side, so the result is a bound with a relative
+/// error below `2^(5 - bits)` for `count < 2^30` (at most 30 squarings and 30
+/// multiplications by 5, each adding less than `2^(1 - bits)`, doubled by every
+/// later squaring: the sum is below `2^(1 - bits) 2^31 / 2^30 * 30` once the
+/// later squarings are counted, and `bits >= 64` keeps it below `2^(8 - bits)`).
+fn decimal_directed_binary_power5(
+  count : Int32,
+  bits : Int32,
+  up : Bool,
+) -> (BigInt, Int32) {
+  let mut result = (bigint_one(), 0)
+  let mut bit = 30
+  while bit >= 0 && count >> bit == 0 {
+    bit = bit - 1
+  }
+  while bit >= 0 {
+    result = decimal_binary_directed_trim(
+      result.0 * result.0,
+      result.1 + result.1,
+      bits,
+      up,
+    )
+    if ((count >> bit) & 1) == 1 {
+      result = decimal_binary_directed_trim(
+        result.0 * BigInt::from_int(5),
+        result.1,
+        bits,
+        up,
+      )
+    }
+    bit = bit - 1
+  }
+  result
+}
+
+///|
+/// The exponent from which a conversion uses directed powers of 5 instead of the
+/// exact power: the exact `5^e` has `2.32 e` bits and is rebuilt on every call
+/// above the cache (4096).
+let decimal_directed_conversion_exponent : Int32 = 4096
+
+///|
+/// `to_bin_float(mode)` of a finite nonzero `value` with a decimal exponent of
+/// magnitude at least `decimal_directed_conversion_exponent`, from bounds of
+/// `5^|exponent10|` instead of the exact power: `None` when the two bounds do
+/// not give one result (a rounding boundary lies between them, or the value is
+/// representable), so that every answer is the exact conversion, bit for bit.
+/// Rounding is monotone, so equal roundings of a lower and an upper bound of the
+/// value are the rounding of the value.
+fn decimal_to_bin_float_directed(
+  value : Decimal,
+  precision : Int32,
+  mode : RoundingMode,
+) -> @bin_float.BinFloat? {
+  let e = value.exponent10
+  let magnitude = if e >= 0 { e } else { -e }
+  guard magnitude >= decimal_directed_conversion_exponent else { return None }
+  let c = abs_bigint(coeff_bigint(value.coefficient))
+  let c_bits = c.bit_length()
+  // The bounds must be tight enough that the roundings agree almost always:
+  // relative error 2^(8 - bits) against a rounding unit of 2^-precision.
+  let bits = precision + c_bits + 80
+  let negative = value.sign() == Sign::Negative
+  let (lo_m, lo_k) = decimal_directed_binary_power5(magnitude, bits, false)
+  let (hi_m, hi_k) = decimal_directed_binary_power5(magnitude, bits, true)
+  if e >= 0 {
+    let low = @bin_float.BinFloat::make(
+      @bin_float.BinCoeff::from_bytes_be((c * lo_m).to_octets()),
+      lo_k + e,
+      precision,
+      negative~,
+      mode~,
+    )
+    let high = @bin_float.BinFloat::make(
+      @bin_float.BinCoeff::from_bytes_be((c * hi_m).to_octets()),
+      hi_k + e,
+      precision,
+      negative~,
+      mode~,
+    )
+    return if low.compare(high) == 0 &&
+      low.exponent2() == high.exponent2() &&
+      low.coefficient() == high.coefficient() {
+      Some(low)
+    } else {
+      None
+    }
+  }
+  // c / 10^s = c / (5^s 2^s) never has a finite binary expansion here
+  // (5^s > c once 2 s > 3.33 digits, checked below), so the quotient is
+  // inexact and its sticky bit is set. Quotients of `c 2^u` by the bounds,
+  // truncated, give a lower and an upper bound of floor(c 2^u / (5^s 2^k)).
+  guard 2 * magnitude > 4 * c_bits else { return None }
+  let f = magnitude + Int32::max(hi_k, lo_k) + bits + precision + 4 - c_bits
+  let upper_quotient = (c << (f - magnitude - lo_k)) / lo_m
+  let lower_quotient = (c << (f - magnitude - hi_k)) / hi_m
+  if upper_quotient != lower_quotient {
+    return None
+  }
+  let quotient = lower_quotient | bigint_one()
+  Some(
+    @bin_float.BinFloat::make(
+      @bin_float.BinCoeff::from_bytes_be(quotient.to_octets()),
+      -f,
+      precision,
+      negative~,
+      mode~,
+    ),
+  )
+}
+
+///|
 /// The finite nonzero `self` as `(odd-sticky quotient, binary exponent)`, with
 /// `|self| = quotient * 2^exponent` up to the sticky bit: `BinFloat::make`
 /// rounds the exact value once from it, in every mode. A positive decimal
@@ -194,6 +332,10 @@ pub fn Decimal::to_bin_float(
           @bin_float.BinFloat::zero(precision~)
         }
       }
+      match decimal_to_bin_float_directed(self, precision, mode) {
+        Some(result) => return result
+        None => ()
+      }
       let (magnitude, exponent) = decimal_to_binary_parts(self, precision)
       @bin_float.BinFloat::make(
         @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
@@ -218,6 +360,22 @@ fn Decimal::to_bin_float_bounds(
       self.to_bin_float(precision~, mode=RoundingMode::TowardNegative),
       self.to_bin_float(precision~, mode=RoundingMode::TowardPositive),
     )
+  }
+  match
+    (
+      decimal_to_bin_float_directed(
+        self,
+        precision,
+        RoundingMode::TowardNegative,
+      ),
+      decimal_to_bin_float_directed(
+        self,
+        precision,
+        RoundingMode::TowardPositive,
+      ),
+    ) {
+    (Some(lower), Some(upper)) => return (lower, upper)
+    _ => ()
   }
   let (magnitude, exponent) = decimal_to_binary_parts(self, precision)
   let coefficient = @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets())
