@@ -113,21 +113,14 @@ fn same_try(
   a : Result[BallFloat, @def.ArithmeticError],
   b : Result[BallFloat, @def.ArithmeticError],
 ) -> Unit raise {
-  // Endpoints are compared as numbers: interval endpoints identify -0 and +0
-  // (see `canonical_interval_endpoint`); a zero endpoint can come from either
-  // end of a monotone range and keep the sign of its source.
+  // Bit for bit, including the sign of a zero endpoint.
   match (a, b) {
     (Ok(x), Ok(y)) => {
-      assert_eq(x.lo_.compare(y.lo_), 0)
-      assert_eq(x.hi_.compare(y.hi_), 0)
-      if !x.lo_.is_zero() {
-        assert_eq(x.lo_.to_string(), y.lo_.to_string())
-      }
-      if !x.hi_.is_zero() {
-        assert_eq(x.hi_.to_string(), y.hi_.to_string())
-      }
-      assert_eq(x.precision_, y.precision_)
-      assert_eq(x.is_empty(), y.is_empty())
+      assert_eq(x, y)
+      assert_eq(x.lo_.to_string(), y.lo_.to_string())
+      assert_eq(x.hi_.to_string(), y.hi_.to_string())
+      assert_eq(x.lo_.is_negative(), y.lo_.is_negative())
+      assert_eq(x.hi_.is_negative(), y.hi_.is_negative())
     }
     (Err(_), Err(_)) => ()
     _ => fail("result kinds differ")
