@@ -919,9 +919,10 @@ extreme power of ten.
   `decimal_range_from_log2_bracket` on $n \operatorname{log1p}(x)/\ln 2$
   whenever $|n| \max(\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already
   keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an
-  `Int64`. `pown(1 + x, n)` is not used: its exponents beyond the
-  machine count and some negative ones raise wrong values or a spurious
-  `Clamped` for a base near 1 (reproduced while this function was written).
+  `Int64`. `pown(1 + x, n)` is not used: when this function was written, its
+  exponents beyond the machine count gave wrong values and some negative ones
+  a spurious `Clamped` for a base near 1 (issues 348 and 350, since fixed),
+  and the Ziv loop never forms $1 + x$.
 - *`powr`.* §9.2.1 lists the invalid pairs $(\pm 0, \pm 0)$,
   $(+\infty, \pm 0)$, $(1, \pm\infty)$ and $x < 0$, and a NaN result for a NaN
   operand even when $y = \pm 0$. Two cases are not stated and are read as
