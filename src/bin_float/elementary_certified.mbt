@@ -3762,10 +3762,15 @@ pub fn BinFloat::atanh(self : BinFloat) -> BinFloat {
 }
 
 ///|
-/// Series enclosure of `atan` on a nonnegative pair: the lower track runs on
-/// `lo` (rounded down) and the upper track on `hi` (rounded up), so the result
-/// `(l, u)` satisfies `l <= atan(x) <= u` for every `x` in `[lo, hi]`.
-/// Requires `0 <= lo <= hi <= 1/2` after rounding to `work_precision`.
+/// Series enclosure of `atan` on a nonnegative pair, `l <= atan(x) <= u` for
+/// every `x` in `[lo, hi]`, with `0 <= lo <= hi <= 1/2` after rounding to
+/// `work_precision`: `atan x = x - R(x)` with `R(x) = x^3/3 - x^5/5 + x^7/7 - ...`
+/// increasing in `x`, so `l = lo - Rup` and `u = hi - Rlow` for bounds
+/// `Rlow <= R(lo)` and `R(hi) <= Rup`. `R` is computed in fixed point (integers
+/// of `F` fractional bits, no `BinFloat` operation per term), see
+/// `binary_atan_fixed_remainder`; for an argument below `2^-(w/2 + 7)` the
+/// remainder is bounded by its first term. `None` when the fixed-point series
+/// does not stop (never for these arguments) or the arguments are out of range.
 fn binary_atan_small_positive_pair_bounds(
   lo : BinFloat,
   hi : BinFloat,
@@ -3796,40 +3801,143 @@ fn binary_atan_small_positive_pair_bounds(
   if upper_value.is_zero() {
     return Some((lower_value, upper_value))
   }
-  let square_lower = lower_value.mul_ctx(lower_value, downward).0
-  let square_upper = upper_value.mul_ctx(upper_value, upward).0
-  let mut power_lower = lower_value
-  let mut power_upper = upper_value
-  let mut sum_lower = lower_value
-  let mut sum_upper = upper_value
-  let mut bracket_lower = BinFloat::zero(precision=work_precision)
-  let mut bracket_upper = upper_value
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
-    -(work_precision + 12),
-    work_precision,
+  let q = -binary_exact_top(upper_value.coefficient_, upper_value.exponent2)
+  if q.to_int64() >= (work_precision / 2 + 8).to_int64() {
+    // R(x) <= x^3/3 (alternating series with decreasing terms) and, for
+    // x < 2^-(w/2 + 7), R(x) >= 0: the bounds are lo - hi^3/3 and hi.
+    let cube = upper_value.mul_ctx(upper_value, upward).0.mul_ctx(
+        upper_value, upward,
+      ).0
+    let third = BinFloat::from_int(3, precision=work_precision)
+    let remainder_up = cube.div_ctx(third, upward).0
+    return Some((lower_value.sub_ctx(remainder_up, downward).0, upper_value))
+  }
+  let fraction = work_precision + q + 20 + bit_length_int(work_precision)
+  match binary_atan_fixed_remainder(lower_value, upper_value, fraction) {
+    None => None
+    Some((remainder_low, remainder_up)) => {
+      let lower = if remainder_up.is_zero() {
+        lower_value
+      } else {
+        lower_value.sub_ctx(
+          BinFloat::make(
+            remainder_up,
+            -fraction,
+            Int32::max(1, remainder_up.bit_length()),
+          ),
+          downward,
+        ).0
+      }
+      let upper = if remainder_low.is_zero() {
+        upper_value
+      } else {
+        upper_value.sub_ctx(
+          BinFloat::make(
+            remainder_low,
+            -fraction,
+            Int32::max(1, remainder_low.bit_length()),
+          ),
+          upward,
+        ).0
+      }
+      Some((lower, upper))
+    }
+  }
+}
+
+///|
+/// `ceil(value * 2^shift)` of an integer, for a shift of either sign.
+fn fixed_ceil_shift(value : BinCoeff, shift : Int32) -> BinCoeff {
+  if shift >= 0 {
+    return value.shift_left(shift)
+  }
+  let quotient = value.shift_right(-shift)
+  if quotient.shift_left(-shift).compare(value) == 0 {
+    quotient
+  } else {
+    quotient.add(BinCoeff::one())
+  }
+}
+
+///|
+/// Bounds `(low, up)`, in units of `2^-fraction`, with `low <= R(lo)` and
+/// `R(hi) <= up` for `R(x) = x^3/3 - x^5/5 + x^7/7 - ...`, `0 <= lo <= hi <= 1/2`.
+///
+/// Two integer chains: `P_low(k) <= lo^(2k+1) 2^F` by floors (`P(k) =
+/// floor(P(k-1) S / 2^F)` with `S = floor(lo^2 2^F)` and `P(0) = floor(lo 2^F)`;
+/// a floor never exceeds the exact product of lower bounds), and `P_up(k) >=
+/// hi^(2k+1) 2^F` by ceilings. Their terms `T_low(k) = floor(P_low(k)/(2k+1))`
+/// and `T_up(k) = ceil(P_up(k)/(2k+1))` bound `t_k(lo)` from below and `t_k(hi)`
+/// from above (`t_k` is increasing in `x`). For the alternating series with
+/// decreasing terms the partial sum after an odd number of terms is at least
+/// `R` and after an even number at most `R`, so with
+/// `A = sum_{odd} T_up`, `B = sum_{even} T_low`, `C = sum_{odd} T_low` and
+/// `D = sum_{even} T_up`: `R(hi) <= A - B` (odd partial sum, upper terms added,
+/// lower terms subtracted) and `R(lo) >= C' - D` (even partial sum, with `C'`
+/// the odd terms before the last one). The series stops at an odd `k` whose
+/// `T_up` is below 2 units. Each floor or ceiling loses at most one unit; with
+/// `a^2 <= 1/4` the chain errors stay below 2 units, so each term is within 3
+/// units and the whole enclosure within `1.5 F` units, covered by the 20 and
+/// `bit_length(w)` guard bits of `fraction`.
+fn binary_atan_fixed_remainder(
+  lo : BinFloat,
+  hi : BinFloat,
+  fraction : Int32,
+) -> (BinCoeff, BinCoeff)? {
+  let (low_scaled, low_square) = if lo.is_zero() {
+    (BinCoeff::zero(), BinCoeff::zero())
+  } else {
+    (
+      fixed_scaled_floor(lo, fraction),
+      fixed_shift(
+        lo.coefficient_.mul(lo.coefficient_),
+        2 * lo.exponent2 + fraction,
+      ),
+    )
+  }
+  let up_scaled = match fixed_scaled_exact(hi, fraction) {
+    Some(exact) => exact
+    None => fixed_scaled_floor(hi, fraction).add(BinCoeff::one())
+  }
+  let up_square = fixed_ceil_shift(
+    hi.coefficient_.mul(hi.coefficient_),
+    2 * hi.exponent2 + fraction,
   )
+  let mut power_low = low_scaled
+  let mut power_up = up_scaled
+  let mut odd_up = BinCoeff::zero()
+  let mut odd_low = BinCoeff::zero()
+  let mut even_low = BinCoeff::zero()
+  let mut even_up = BinCoeff::zero()
+  let two = BinCoeff::from_uint64(2UL)
   let mut index = 1
   while index < 20000 {
-    power_lower = power_lower.mul_ctx(square_lower, downward).0
-    power_upper = power_upper.mul_ctx(square_upper, upward).0
-    let denominator = BinFloat::from_int(
-      2 * index + 1,
-      precision=work_precision,
-    )
-    let piece_lower = power_lower.div_ctx(denominator, downward).0
-    let piece_upper = power_upper.div_ctx(denominator, upward).0
-    if index % 2 == 1 {
-      sum_lower = sum_lower.sub_ctx(piece_upper, downward).0
-      sum_upper = sum_upper.sub_ctx(piece_lower, upward).0
-      bracket_lower = sum_lower
+    power_low = power_low.mul(low_square).shift_right(fraction)
+    power_up = fixed_ceil_shift(power_up.mul(up_square), -fraction)
+    let divisor = BinCoeff::from_uint64((2 * index + 1).to_uint64())
+    let term_low = bin_coeff_short_div_rem(power_low, divisor).0
+    let (quotient, remainder) = bin_coeff_short_div_rem(power_up, divisor)
+    let term_up = if remainder.is_zero() {
+      quotient
     } else {
-      sum_lower = sum_lower.add_ctx(piece_lower, downward).0
-      sum_upper = sum_upper.add_ctx(piece_upper, upward).0
-      bracket_upper = sum_upper
+      quotient.add(BinCoeff::one())
     }
-    if index % 2 == 1 && piece_upper.compare(threshold) < 0 {
-      return Some((bracket_lower, bracket_upper))
+    if index % 2 == 1 {
+      if term_up.compare(two) < 0 {
+        // Stop: R(hi) <= A - B, R(lo) >= (C before this term) - D.
+        let up = odd_up.add(term_up).sub_checked(even_low)
+        let low = odd_low.sub_checked(even_up)
+        match (up, low) {
+          (Ok(up_value), Ok(low_value)) => return Some((low_value, up_value))
+          (Ok(up_value), Err(_)) => return Some((BinCoeff::zero(), up_value))
+          _ => return None
+        }
+      }
+      odd_up = odd_up.add(term_up)
+      odd_low = odd_low.add(term_low)
+    } else {
+      even_low = even_low.add(term_low)
+      even_up = even_up.add(term_up)
     }
     index += 1
   }
