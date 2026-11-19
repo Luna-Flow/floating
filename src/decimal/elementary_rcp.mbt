@@ -27,14 +27,32 @@ fn decimal_certified_scaled_result(
     @def.ArithmeticError,
   ],
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  decimal_certified_scaled_loop(
+    decimal_certified_work_precision(scaled, ctx),
+    shift,
+    ctx,
+    operation,
+    fn(precision) { evaluate(decimal_to_certified_ball(scaled, precision)) },
+  )
+}
+
+///|
+/// The loop of `decimal_certified_scaled_result` for a function of any number
+/// of moderate decimal operands: `evaluate` converts them at the given working
+/// precision and returns the enclosure of `g`, and `initial` is the first
+/// working precision.
+fn decimal_certified_scaled_loop(
+  initial : Int32,
+  shift : Int32,
+  ctx : DecimalContext,
+  operation : String,
+  evaluate : (Int32) -> Result[@ball_float.BallFloat, @def.ArithmeticError],
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let wide = decimal_rcp_wide_ctx()
   let target_ctx = decimal_math_result_ctx(ctx)
-  let mut budget = CertifiedRefinementBudget::new(
-    decimal_certified_work_precision(scaled, ctx),
-  )
+  let mut budget = CertifiedRefinementBudget::new(initial)
   while budget.available() {
-    let input = decimal_to_certified_ball(scaled, budget.precision())
-    match evaluate(input) {
+    match evaluate(budget.precision()) {
       Ok(interval) => {
         let decided = if interval.is_empty() {
           None
