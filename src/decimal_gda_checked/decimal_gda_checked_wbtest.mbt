@@ -29,3 +29,32 @@ test "gda checked traps short circuit and preserve defined results" {
   assert_false(resumed.is_trapped())
   assert_true(resumed.status().contains(@decimal_gda.GdaSignal::DivisionByZero))
 }
+
+///|
+test "gda checked power of a power of ten with an integral k*y is exact in the directed modes (issue 351)" {
+  for
+    mode in [
+      @decimal_gda.GdaRoundingMode::Floor,
+      @decimal_gda.GdaRoundingMode::Ceiling,
+      @decimal_gda.GdaRoundingMode::Down,
+      @decimal_gda.GdaRoundingMode::Up,
+    ] {
+    let context = @decimal_gda.GdaContext::new(
+      precision=16,
+      rounding=mode,
+      e_min=-383,
+      e_max=384,
+      clamp=true,
+    ).unwrap()
+    let base = @decimal_gda.Decimal::from_string("1E-5").unwrap()
+    let exponent = @decimal_gda.Decimal::from_string("1.2").unwrap()
+    let result = GdaDecimalChecked::from_decimal(base, context).power(exponent)
+    assert_false(result.is_trapped())
+    assert_eq(result.value().to_string(), "0.000001000000000000000")
+    assert_true(result.raised().contains(@decimal_gda.GdaSignal::Inexact))
+    assert_true(result.raised().contains(@decimal_gda.GdaSignal::Rounded))
+    assert_false(
+      result.raised().contains(@decimal_gda.GdaSignal::InvalidOperation),
+    )
+  }
+}

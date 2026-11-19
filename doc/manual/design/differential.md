@@ -31,7 +31,20 @@ Both oracles are implementations, not specifications.
   text. Two things differ and are handled in the generator, not by ignoring
   rows: libmpdec lumps `Division_undefined` into `Invalid_operation`, and the
   GDA `tosci` and `toeng` rows apply the context precision to their operand
-  (dtfile.html, "Processing of a test case line").
+  (dtfile.html, "Processing of a test case line"). A third difference is
+  registered as an expected difference of the `decimal_gda-power` family:
+  `power(10^k, y)` with a non-integral `y` and an integral `k*y`. GDA 1.70
+  allows an inexact result to be up to one unit in the last place in error and
+  the library returns the exact value $10^{ky}$ in every rounding mode, while
+  libmpdec can be one unit in the last place away in a directed mode (and flags
+  Subnormal for an exact result at the smallest normal number). The generator
+  does not skip those rows: it computes the library's result from the rule,
+  checks that libmpdec's result is the exact value or within one unit in the
+  last place of it (an error otherwise), writes the row with the library's
+  result and a comment line `expected-difference power-of-ten #351` that
+  names libmpdec's result. The family draws about one case in 25 from this
+  class, with a random rounding mode, because its other rows are nearest-even
+  only.
 - **IEEE decimal elementary functions.** The IEEE `decimal` package has
   functions (`exp`, `atan2`, `pown`, ...) that libmpdec either lacks or answers
   only to nearest-even, so their oracle is MPFR through its *enclosure*, not

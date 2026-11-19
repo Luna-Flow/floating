@@ -78,7 +78,28 @@ class CaseTests(unittest.TestCase):
                 context = generator.generate_case(family, 5, index).context
                 self.assertLess(context.emax, 1_000_000)
                 self.assertGreater(context.emin, -1_000_000)
+                if family == "power" and self.in_power_of_ten_class(generator.generate_case(family, 5, index)):
+                    # The only rows in a mode other than nearest-even: the class
+                    # of issue 351, whose expected result is this library's own
+                    # (checked against libmpdec within one unit in the last place).
+                    continue
                 self.assertEqual(context.rounding, "half_even")
+
+    @staticmethod
+    def in_power_of_ten_class(case: generator.Case) -> bool:
+        try:
+            base, exponent = (Decimal(text) for text in case.operands)
+        except decimal.InvalidOperation:
+            return False
+        return generator.power_of_ten_exponent(base, exponent) is not None
+
+    def test_the_power_of_ten_class_is_drawn_in_every_rounding_mode(self) -> None:
+        modes = set()
+        for index in range(3000):
+            case = generator.generate_case("power", 5, index)
+            if self.in_power_of_ten_class(case):
+                modes.add(case.context.rounding)
+        self.assertEqual(modes, {name for name, _ in generator.ROUNDINGS})
 
 
 class OperandTests(unittest.TestCase):
@@ -162,6 +183,70 @@ class OracleTests(unittest.TestCase):
                 "d1.add.0 add 1.20 3.40 -> 4.60",
             ],
         )
+
+
+class PowerOfTenDifferenceTests(unittest.TestCase):
+    """Issue 351: `power(10^k, y)` with a non-integral `y` and an integral `k*y`
+    is the exact value in every rounding mode; libmpdec differs by 1 ulp in some
+    modes. The class is checked, and the row expects this library's result."""
+
+    @staticmethod
+    def case(rounding: str, base: str, exponent: str, precision: int = 16, emin: int = -383, emax: int = 384) -> object:
+        context = generator.Ctx(precision, rounding, emin, emax, 1)
+        return generator.Case("d1.power.0", "power", context, (base, exponent))
+
+    def test_the_class_is_recognised_in_every_cohort(self) -> None:
+        find = generator.power_of_ten_exponent
+        self.assertEqual(find(Decimal("1E-5"), Decimal("1.2")), -6)
+        self.assertEqual(find(Decimal("100"), Decimal("1.5")), 3)
+        self.assertEqual(find(Decimal("1.0E+2"), Decimal("-1.5")), -3)
+        self.assertEqual(find(Decimal("1E+5"), Decimal("-1.2")), -6)
+        # k*y not an integer, y integral, k = 0, not a power of ten, negative.
+        self.assertIsNone(find(Decimal("1E-5"), Decimal("1.5")))
+        self.assertIsNone(find(Decimal("1E-5"), Decimal("2")))
+        self.assertIsNone(find(Decimal("1"), Decimal("1.5")))
+        self.assertIsNone(find(Decimal("2E+5"), Decimal("1.2")))
+        self.assertIsNone(find(Decimal("-1E+5"), Decimal("1.2")))
+        self.assertIsNone(find(Decimal("Infinity"), Decimal("1.5")))
+
+    def test_the_result_is_the_exact_value_padded_in_every_mode(self) -> None:
+        for rounding, _ in generator.ROUNDINGS:
+            case = self.case(rounding, "1E-5", "1.2")
+            value, conditions = generator.power_of_ten_result(case.context, -6)
+            self.assertEqual(str(value), "0.000001000000000000000", rounding)
+            self.assertEqual(conditions, ("Inexact", "Rounded"), rounding)
+
+    def test_the_directed_modes_differ_from_libmpdec_and_are_registered(self) -> None:
+        for rounding in ("ceiling", "up"):
+            case = self.case(rounding, "1E-5", "1.2")
+            row = generator.evaluate(case)
+            self.assertEqual(row.result, "0.000001000000000000000")
+            self.assertEqual(row.libmpdec, "0.000001000000000000001 Inexact Rounded")
+            self.assertTrue(any(generator.POWER_OF_TEN_MARKER in line for line in generator.format_row(row)))
+        for rounding in ("half_even", "floor", "down"):
+            row = generator.evaluate(self.case(rounding, "1E-5", "1.2"))
+            self.assertEqual(row.libmpdec, "", rounding)
+
+    def test_a_result_beyond_one_ulp_is_refused(self) -> None:
+        case = self.case("half_even", "1E-5", "1.2")
+        with self.assertRaises(ValueError):
+            generator.power_of_ten_difference(case, Decimal("0.000001000000000000003"))
+
+    def test_overflow_and_underflow_follow_the_rounding_of_the_exact_value(self) -> None:
+        context = generator.Ctx(16, "ceiling", -383, 384, 0)
+        value, conditions = generator.power_of_ten_result(context, 385)
+        self.assertTrue(value.is_infinite())
+        self.assertEqual(conditions, ("Inexact", "Overflow", "Rounded"))
+        context = generator.Ctx(16, "half_even", -383, 384, 0)
+        value, conditions = generator.power_of_ten_result(context, -385)
+        self.assertEqual(str(value), "1.0000000000000E-385")
+        self.assertEqual(conditions, ("Inexact", "Rounded", "Subnormal", "Underflow"))
+        value, conditions = generator.power_of_ten_result(context, -399)
+        self.assertEqual(str(value), "0E-398")
+
+    def test_wide_contexts_are_not_in_the_class(self) -> None:
+        case = self.case("ceiling", "1E-5", "1.2", emin=-999999999, emax=999999999)
+        self.assertIsNone(generator.power_of_ten_difference(case, Decimal("0.000001000000000000001")))
 
 
 if __name__ == "__main__":
