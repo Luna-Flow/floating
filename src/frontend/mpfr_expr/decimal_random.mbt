@@ -99,7 +99,11 @@ fn decimal_random_shape(op : String) -> Int32? {
     | "tanh"
     | "asinh"
     | "acosh"
-    | "atanh" => Some(0)
+    | "atanh"
+    | "exp2m1"
+    | "exp10m1"
+    | "log2p1"
+    | "log10p1" => Some(0)
     "pow" | "hypot" | "atan2" => Some(1)
     "rootn" | "pown" => Some(2)
     _ => None
@@ -307,6 +311,10 @@ fn run_decimal_random_operation(
     "asinh" => a.try_asinh_ctx(ctx)
     "acosh" => a.try_acosh_ctx(ctx)
     "atanh" => a.try_atanh_ctx(ctx)
+    "exp2m1" => a.try_exp2m1_ctx(ctx)
+    "exp10m1" => a.try_exp10m1_ctx(ctx)
+    "log2p1" => a.try_log2p1_ctx(ctx)
+    "log10p1" => a.try_log10p1_ctx(ctx)
     "pow" => a.try_power_ctx(case.b.unwrap(), ctx)
     "hypot" => a.try_hypot_ctx(case.b.unwrap(), ctx)
     "atan2" => a.try_atan2_ctx(case.b.unwrap(), ctx)

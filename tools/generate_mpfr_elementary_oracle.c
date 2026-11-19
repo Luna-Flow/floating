@@ -58,7 +58,9 @@ static void make_operands(
   if (strcmp(operation, "ln") == 0 || strcmp(operation, "log2") == 0 ||
       strcmp(operation, "log10") == 0 || strcmp(operation, "sqrt") == 0) {
     set_dyadic(left, positive_numerator(state, 4096));
-  } else if (strcmp(operation, "log1p") == 0) {
+  } else if (strcmp(operation, "log1p") == 0 ||
+             strcmp(operation, "log2p1") == 0 ||
+             strcmp(operation, "log10p1") == 0) {
     set_dyadic(left, signed_numerator(state, 2048));
     if (mpfr_cmp_si(left, -1) <= 0) {
       set_dyadic(left, -255 + (long)(next_random(state) % 2304));
@@ -164,6 +166,16 @@ static int evaluate(
     return mpfr_acosh(output, left, rounding);
   if (strcmp(operation, "atanh") == 0)
     return mpfr_atanh(output, left, rounding);
+  /* IEEE 754-2019 9.2 functions of the decimal interval oracle (#236); not
+     in the binary operation table above. */
+  if (strcmp(operation, "exp2m1") == 0)
+    return mpfr_exp2m1(output, left, rounding);
+  if (strcmp(operation, "exp10m1") == 0)
+    return mpfr_exp10m1(output, left, rounding);
+  if (strcmp(operation, "log2p1") == 0)
+    return mpfr_log2p1(output, left, rounding);
+  if (strcmp(operation, "log10p1") == 0)
+    return mpfr_log10p1(output, left, rounding);
   fprintf(stderr, "unsupported operation: %s\n", operation);
   exit(2);
 }

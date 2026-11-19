@@ -416,6 +416,10 @@ def render_moon_fixture_test() -> str:
             "asinh": "try_asinh_ctx",
             "acosh": "try_acosh_ctx",
             "atanh": "try_atanh_ctx",
+            "exp2m1": "try_exp2m1_ctx",
+            "exp10m1": "try_exp10m1_ctx",
+            "log2p1": "try_log2p1_ctx",
+            "log10p1": "try_log10p1_ctx",
         }
         if operation == "sqrt":
             call = "lhs.sqrt_ctx(ctx)"
