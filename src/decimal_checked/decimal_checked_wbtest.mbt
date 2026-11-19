@@ -71,3 +71,30 @@ test "decimal checked atan2 accepts infinite operands" {
   inspect(result.value(), content="2.356194490192345")
   assert_false(result.flags().has_error())
 }
+
+///|
+test "decimal checked exp2m1 exp10m1 log2p1 log10p1 mirror the try forms" {
+  // IEEE 754-2019 9.2: the checked methods record the result and the flags of
+  // Decimal::try_*_ctx; log2p1(-1) and log10p1(-1) are poles (9.2.1).
+  let context = @decimal.DecimalContext::decimal64()
+  inspect(DecimalChecked::from_int(4, context).exp2m1().value(), content="15")
+  inspect(DecimalChecked::from_int(2, context).exp10m1().value(), content="99")
+  inspect(
+    DecimalChecked::from_int(1023, context).log2p1().value(),
+    content="10",
+  )
+  inspect(DecimalChecked::from_int(999, context).log10p1().value(), content="3")
+  let half = DecimalChecked::from_decimal(
+    @decimal.Decimal::from_string("0.5").unwrap(),
+    context,
+  ).exp2m1()
+  inspect(half.value(), content="0.4142135623730950")
+  assert_true(half.raised().contains(@decimal.DecimalSignal::Inexact))
+  let pole = DecimalChecked::from_int(-1, context).log2p1()
+  assert_true(pole.value().is_infinite())
+  assert_true(pole.raised().contains(@decimal.DecimalSignal::DivisionByZero))
+  let ten_pole = DecimalChecked::from_int(-1, context).log10p1()
+  assert_true(
+    ten_pole.raised().contains(@decimal.DecimalSignal::DivisionByZero),
+  )
+}

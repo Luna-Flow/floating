@@ -293,6 +293,16 @@ pub fn DecimalChecked::expm1(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
+pub fn DecimalChecked::exp2m1(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_exp2m1_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::exp10m1(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_exp10m1_ctx(self.context_))
+}
+
+///|
 pub fn DecimalChecked::log2(self : DecimalChecked) -> DecimalChecked {
   self.record_result(self.value_.try_log2_ctx(self.context_))
 }
@@ -300,6 +310,16 @@ pub fn DecimalChecked::log2(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::log1p(self : DecimalChecked) -> DecimalChecked {
   self.record_result(self.value_.try_log1p_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::log2p1(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_log2p1_ctx(self.context_))
+}
+
+///|
+pub fn DecimalChecked::log10p1(self : DecimalChecked) -> DecimalChecked {
+  self.record_result(self.value_.try_log10p1_ctx(self.context_))
 }
 
 ///|

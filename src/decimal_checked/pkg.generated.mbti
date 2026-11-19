@@ -34,7 +34,9 @@ pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::error(Self) -> @arithmetic.ArithmeticError?
 pub fn DecimalChecked::exp(Self) -> Self
 pub fn DecimalChecked::exp10(Self) -> Self
+pub fn DecimalChecked::exp10m1(Self) -> Self
 pub fn DecimalChecked::exp2(Self) -> Self
+pub fn DecimalChecked::exp2m1(Self) -> Self
 pub fn DecimalChecked::expm1(Self) -> Self
 pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
@@ -49,8 +51,10 @@ pub fn DecimalChecked::is_err(Self) -> Bool
 pub fn DecimalChecked::is_ok(Self) -> Bool
 pub fn DecimalChecked::ln(Self) -> Self
 pub fn DecimalChecked::log10(Self) -> Self
+pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
 pub fn DecimalChecked::log2(Self) -> Self
+pub fn DecimalChecked::log2p1(Self) -> Self
 pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self
