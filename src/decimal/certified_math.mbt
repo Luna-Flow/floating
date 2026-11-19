@@ -132,14 +132,151 @@ fn decimal_exact_dyadic_endpoint(
 }
 
 ///|
+/// Truncates `magnitude * 10^exponent10` to at most `digits` digits, towards
+/// zero, or away from zero when `up` is set. The result brackets the input on
+/// the chosen side.
+fn decimal_directed_trim(
+  magnitude : BigInt,
+  exponent10 : Int64,
+  digits : Int32,
+  up : Bool,
+) -> (BigInt, Int64) {
+  let present = digits10(magnitude)
+  if present <= digits {
+    return (magnitude, exponent10)
+  }
+  let drop = present - digits
+  let divisor = pow10(drop)
+  let mut quotient = magnitude / divisor
+  if up && !(magnitude % divisor).is_zero() {
+    quotient = quotient + BigInt::from_int(1)
+  }
+  (quotient, exponent10 + drop.to_int64())
+}
+
+///|
+/// `base^count` as a `digits`-digit decimal that is a lower bound (or, with
+/// `up`, an upper bound) of the exact power, by binary powering with a directed
+/// trim after every product: O(log count) products of `digits`-digit numbers.
+fn decimal_directed_power(
+  base : Int32,
+  count : Int32,
+  digits : Int32,
+  up : Bool,
+) -> (BigInt, Int64) {
+  let mut result = (BigInt::from_int(1), 0L)
+  let mut bit = 30
+  while bit >= 0 && count >> bit == 0 {
+    bit = bit - 1
+  }
+  while bit >= 0 {
+    let squared = decimal_directed_trim(
+      result.0 * result.0,
+      result.1 + result.1,
+      digits,
+      up,
+    )
+    result = squared
+    if ((count >> bit) & 1) == 1 {
+      result = decimal_directed_trim(
+        result.0 * BigInt::from_int(base),
+        result.1,
+        digits,
+        up,
+      )
+    }
+    bit = bit - 1
+  }
+  result
+}
+
+///|
+/// Like `decimal_exact_dyadic_endpoint`, but a finite in-range endpoint is
+/// rounded outward (`upper`: up, otherwise down) to about `digits` digits, so
+/// the cost does not depend on the size of its binary exponent. Special,
+/// zero and out-of-range endpoints are converted as before.
+fn decimal_outward_dyadic_endpoint(
+  value : @bin_float.BinFloat,
+  ctx : DecimalContext,
+  digits : Int32,
+  upper : Bool,
+) -> Decimal? {
+  if value.classify() != FpClass::Finite ||
+    value.is_zero() ||
+    decimal_out_of_range_endpoint(value, ctx) is Some(_) {
+    return decimal_exact_dyadic_endpoint(value, ctx)
+  }
+  // Magnitude direction: the upper endpoint grows away from zero when positive,
+  // the lower one when negative.
+  let up = upper != value.is_negative()
+  let coefficient = BigInt::from_octets(value.coefficient().to_bytes_be())
+  let exponent2 = value.exponent2()
+  // Four guard digits keep the accumulated trimming error far below `digits`.
+  let work = digits + 4
+  let (magnitude, exponent10) = if exponent2 >= 0 {
+    let (factor, factor_exponent) = decimal_directed_power(
+      2, exponent2, work, up,
+    )
+    (coefficient * factor, factor_exponent)
+  } else {
+    let (factor, factor_exponent) = decimal_directed_power(
+      5,
+      -exponent2,
+      work,
+      up,
+    )
+    (coefficient * factor, factor_exponent - (-exponent2).to_int64())
+  }
+  let (magnitude, exponent10) = decimal_directed_trim(
+    magnitude, exponent10, digits, up,
+  )
+  guard exponent10 >= -2147483647L && exponent10 <= 2147483647L else {
+    return decimal_exact_dyadic_endpoint(value, ctx)
+  }
+  Some(
+    finite_with_exponent(
+      value.is_negative(),
+      magnitude,
+      exponent10.to_int(),
+      digits10(magnitude),
+    ),
+  )
+}
+
+///|
 fn decimal_certified_target(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard !interval.is_empty() else { return None }
   let target_ctx = decimal_math_result_ctx(ctx)
-  let lower = decimal_exact_dyadic_endpoint(interval.lower_bound(), target_ctx)
-  let upper = decimal_exact_dyadic_endpoint(interval.upper_bound(), target_ctx)
+  let lower_bound = interval.lower_bound()
+  let upper_bound = interval.upper_bound()
+  let (lower, upper) = if lower_bound == upper_bound {
+    // A degenerate (binary-exact) interval stays exact: rounding it outward
+    // could only lose a certification.
+    (
+      decimal_exact_dyadic_endpoint(lower_bound, target_ctx),
+      decimal_exact_dyadic_endpoint(upper_bound, target_ctx),
+    )
+  } else {
+    // Rounding the endpoints outward to `digits` digits keeps the enclosure
+    // and its rounding to the context sound by monotonicity. `digits` follows
+    // the width of the binary coefficients, so a refined interval is never
+    // widened beyond about one binary unit in its last place.
+    let bits = Int32::max(
+      lower_bound.coefficient().bit_length(),
+      upper_bound.coefficient().bit_length(),
+    )
+    let digits = Int32::max(
+      decimal_math_target_precision(target_ctx) + 12,
+      bits * 3 / 10 + 4,
+    )
+    (
+      decimal_outward_dyadic_endpoint(lower_bound, target_ctx, digits, false),
+      decimal_outward_dyadic_endpoint(upper_bound, target_ctx, digits, true),
+    )
+  }
   guard lower is Some(lower) && upper is Some(upper) else { return None }
   let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
   let upper_result = decimal_apply_finite_ctx(upper, target_ctx)

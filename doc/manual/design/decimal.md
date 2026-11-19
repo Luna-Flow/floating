@@ -948,6 +948,32 @@ extreme power of ten.
   `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its
   odd-integer sign rule).
 
+#### Outward-rounded endpoints
+
+The Ziv driver turns the two binary endpoints $L \le U$ of an enclosure into
+decimals and rounds both to the context. Expanding $c \cdot 2^{-s}$ exactly
+costs $c \cdot 5^{s}$, about $0.7 s$ digits, which is quadratic in the decimal
+exponent of the argument under a wide-range context (`1E-999990` took more than
+80 s in `expm1`). For a non-degenerate enclosure the driver instead rounds $L$
+down and $U$ up to $D = \max(p + 12,\ 0.3\,b + 4)$ digits, $b$ being the bit
+length of the endpoint coefficients (so a refined enclosure is never widened
+beyond about one binary ulp). The powers $5^{s}$ and $2^{s}$ are computed by
+binary powering with a directed trim to $D + 4$ digits after every product:
+$O(\log s)$ products of $D$-digit numbers, independent of $s$.
+
+*Soundness.* Every trim moves towards the chosen side (down for the lower
+magnitude bound, up for the upper one, with signs swapped for negative
+endpoints), and products of positive bounds are bounds, so by induction the
+computed power brackets the exact power, and $L' \le L \le U \le U'$. Rounding
+to the context is monotone, so $\mathrm{rnd}(L') = \mathrm{rnd}(U')$ implies
+$\mathrm{rnd}(x)$ is that value for every $x \in [L, U]$, and the flags are
+compared as before. The guard digits only affect tightness, not soundness.
+A degenerate enclosure ($L = U$, binary-exact) keeps the exact expansion, and
+infinite, zero and out-of-range endpoints are converted as before. A certified
+result is unchanged; only an enclosure that straddles a rounding boundary at a
+distance below $10^{-D}$ relative is refused one step earlier, and the next
+refinement widens $D$ with the binary precision.
+
 The elementary functions refuse contexts with $p$ or $|e|$ above 999,999
 (`invalid_context`), which bounds the size of the exact endpoint conversions.
 
