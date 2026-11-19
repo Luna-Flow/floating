@@ -9,7 +9,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 from corpus_common import (
+    IncompleteDownload,
     archive_path,
+    check_complete,
+    download,
     ensure_artifact,
     repo_path,
     run_fetcher,
@@ -56,6 +59,61 @@ class CorpusCommonTests(unittest.TestCase):
                     destination,
                     verify_only=True,
                 )
+
+    def test_check_complete_flags_truncation(self) -> None:
+        check_complete(None, 5)
+        check_complete(10, 10)
+        with self.assertRaises(IncompleteDownload):
+            check_complete(10, 9)
+
+    def test_truncated_download_is_retried_then_succeeds(self) -> None:
+        payload = b"pinned corpus payload"
+        expected_hash = hashlib.sha256(payload).hexdigest()
+
+        def response(body: bytes) -> io.BytesIO:
+            stream = io.BytesIO(body)
+            stream.headers = {"Content-Length": str(len(payload))}  # type: ignore[attr-defined]
+            return stream
+
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "a.zip"
+            with patch(
+                "urllib.request.urlopen",
+                side_effect=[response(payload[:5]), response(payload)],
+            ) as opener, redirect_stderr(StringIO()):
+                download("https://example.invalid/a", expected_hash, destination, delay=0)
+            self.assertEqual(opener.call_count, 2)
+            self.assertEqual(destination.read_bytes(), payload)
+
+    def test_persistent_truncation_fails_without_installing(self) -> None:
+        payload = b"pinned corpus payload"
+        expected_hash = hashlib.sha256(payload).hexdigest()
+
+        def short() -> io.BytesIO:
+            stream = io.BytesIO(payload[:5])
+            stream.headers = {"Content-Length": str(len(payload))}  # type: ignore[attr-defined]
+            return stream
+
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "a.zip"
+            with patch(
+                "urllib.request.urlopen", side_effect=[short(), short()]
+            ), redirect_stderr(StringIO()):
+                with self.assertRaises(IncompleteDownload):
+                    download("u", expected_hash, destination, attempts=2, delay=0)
+            self.assertFalse(destination.exists())
+
+    def test_hash_mismatch_on_complete_body_is_not_retried(self) -> None:
+        payload = b"tampered body"
+        stream = io.BytesIO(payload)
+        stream.headers = {"Content-Length": str(len(payload))}  # type: ignore[attr-defined]
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory) / "a.zip"
+            with patch("urllib.request.urlopen", return_value=stream) as opener:
+                with self.assertRaises(ValueError):
+                    download("u", "0" * 64, destination, attempts=3, delay=0)
+            self.assertEqual(opener.call_count, 1)
+            self.assertFalse(destination.exists())
 
     def test_staged_directory_replaces_only_after_success(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
