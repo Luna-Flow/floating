@@ -60,7 +60,9 @@ test "certified constant caches stay bounded and skip very large precisions" {
     binary_ln2_cache.length() <= binary_constant_cache_entries.to_int(),
   )
   // Above the cache limit a constant is computed but not kept.
-  let cache : Array[BinaryConstantEntry] = []
+  let cache : BoundedCache[BinaryConstantEntry] = BoundedCache::new(
+    binary_constant_cache_entries.to_int(),
+  )
   let first = binary_cached_constant(
     cache,
     117,

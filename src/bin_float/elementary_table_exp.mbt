@@ -26,7 +26,9 @@ priv struct BinaryExpTable {
 }
 
 ///|
-let binary_exp_table_cache : Array[BinaryExpTable] = []
+let binary_exp_table_cache : BoundedCache[BinaryExpTable] = BoundedCache::new(
+  binary_exp_table_cache_entries.to_int(),
+)
 
 ///|
 /// The enclosure the tables are built from: the bit-burst kernel at and above
@@ -92,8 +94,8 @@ fn binary_exp_table_entry(
   }
   Some(
     (
-      burst_scaled_floor(low, precision),
-      burst_scaled_floor(high, precision).add(BinCoeff::one()),
+      fixed_scaled_floor(low, precision),
+      fixed_scaled_floor(high, precision).add(BinCoeff::one()),
     ),
   )
 }
@@ -107,7 +109,7 @@ fn binary_exp_table_build(
   let ln2 = binary_ln2_bounds(precision + 8)
   guard ln2 is Some((_, ln2_high)) else { return None }
   // j <= floor(2^k1 R) with R < ln 2 <= ln2_high.
-  let first_count = burst_scaled_floor(ln2_high, k1)
+  let first_count = fixed_scaled_floor(ln2_high, k1)
     .to_uint64()
     .unwrap()
     .to_int() +
@@ -139,91 +141,18 @@ fn binary_exp_table_get(
   k1 : Int32,
   k2 : Int32,
 ) -> BinaryExpTable? {
-  for table in binary_exp_table_cache {
-    if table.precision == precision && table.k1 == k1 && table.k2 == k2 {
-      return Some(table)
-    }
+  match
+    binary_exp_table_cache.find(fn(table) {
+      table.precision == precision && table.k1 == k1 && table.k2 == k2
+    }) {
+    Some(table) => return Some(table)
+    None => ()
   }
   guard binary_exp_table_build(precision, k1, k2) is Some(table) else {
     return None
   }
-  if binary_exp_table_cache.length() >= binary_exp_table_cache_entries.to_int() {
-    ignore(binary_exp_table_cache.remove(0))
-  }
-  binary_exp_table_cache.push(table)
+  binary_exp_table_cache.insert(table)
   Some(table)
-}
-
-///|
-/// Number of Taylor terms `N` (before rounding up to whole blocks) so that
-/// `K N + sum_{i <= N} (bits(i) - 1) >= f + 1`, which gives
-/// `2 r^N / N! <= 2^-f` for `0 <= r < 2^-K`.
-fn binary_exp_taylor_terms(k : Int32, f : Int32) -> Int32 {
-  let mut n = 1
-  let mut log_factorial = 0
-  while k * n + log_factorial < f + 1 {
-    n += 1
-    log_factorial += bit_length_int(n) - 1
-  }
-  n
-}
-
-///|
-/// Block size `m` of the rectangular splitting for `needed` terms: the one with
-/// the lowest estimated cost, `2 N'` for the small-coefficient products and
-/// `3 + f / 256` for each full-size product (`m - 1` powers, `b - 1` Horner
-/// steps), where `N' = b m >= needed` is the number of terms actually summed.
-fn binary_exp_block_size(needed : Int32, f : Int32) -> Int32 {
-  let weight = 3 + f / 256
-  let mut best = 1
-  let mut best_cost = 2147483647
-  for m in 1..<=needed {
-    let blocks = (needed + m - 1) / m
-    let cost = 2 * blocks * m + (m - 1 + blocks - 1) * weight
-    if cost < best_cost {
-      best_cost = cost
-      best = m
-    }
-  }
-  best
-}
-
-///|
-/// `N! / i!` for `i < N`, and `N!`, memoized per `N`.
-priv struct BinaryExpTaylorCoefficients {
-  terms : Int32
-  coefficients : Array[BinCoeff]
-  factorial : BinCoeff
-}
-
-///|
-let binary_exp_taylor_cache : Array[BinaryExpTaylorCoefficients] = []
-
-///|
-fn binary_exp_taylor_coefficients(terms : Int32) -> BinaryExpTaylorCoefficients {
-  for entry in binary_exp_taylor_cache {
-    if entry.terms == terms {
-      return entry
-    }
-  }
-  let coefficients : Array[BinCoeff] = Array::make(
-    terms.to_int(),
-    BinCoeff::one(),
-  )
-  let mut running = BinCoeff::one()
-  let mut i = terms - 1
-  while i >= 0 {
-    // running = N! / (i + 1)!  ->  N! / i!
-    running = running.mul(BinCoeff::from_uint64((i + 1).to_uint64()))
-    coefficients[i.to_int()] = running
-    i -= 1
-  }
-  let entry = { terms, coefficients, factorial: running, }
-  if binary_exp_taylor_cache.length() >= 64 {
-    ignore(binary_exp_taylor_cache.remove(0))
-  }
-  binary_exp_taylor_cache.push(entry)
-  entry
 }
 
 ///|
@@ -249,32 +178,10 @@ fn binary_exp_taylor_fixed(
   f : Int32,
   k : Int32,
 ) -> (BinCoeff, BinCoeff) {
-  let needed = binary_exp_taylor_terms(k, f)
-  let m = binary_exp_block_size(needed, f)
-  let blocks = (needed + m - 1) / m
-  let terms = blocks * m
-  let table = binary_exp_taylor_coefficients(terms)
-  let powers : Array[BinCoeff] = [BinCoeff::one().shift_left(f), a]
-  for j in 2..<=m {
-    let u = (j + 1) / 2
-    let v = j / 2
-    powers.push(powers[u.to_int()].mul(powers[v.to_int()]).shift_right(f))
-  }
-  let mut acc = BinCoeff::zero()
-  let mut beta = blocks - 1
-  while beta >= 0 {
-    let base = (beta * m).to_int()
-    let mut block = table.coefficients[base].mul(powers[0])
-    for j in 1..<m.to_int() {
-      block = block.add(table.coefficients[base + j].mul(powers[j]))
-    }
-    if beta == blocks - 1 {
-      acc = block
-    } else {
-      acc = block.add(powers[m.to_int()].mul(acc).shift_right(f))
-    }
-    beta -= 1
-  }
+  let plan = rect_plan(rect_factorial_terms(k, f), f)
+  let table = rect_inverse_factorials(plan.terms)
+  let powers = rect_powers(a, f, plan.block)
+  let acc = rect_sum(table.coefficients, powers, plan, f)
   let low = acc.div_rem_checked(table.factorial).unwrap().0
   (low, low.add(BinCoeff::from_uint64(10UL)))
 }
@@ -297,37 +204,9 @@ fn binary_exp_bounds_table(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  guard value.classify() == FpClass::Finite && !value.is_zero() else {
-    return None
-  }
-  let top = binary_top_bound(value)
-  guard top <= 30L && top >= -64L else { return None }
-  let top_bits = top.to_int()
   let f = binary_exp_table_fixed_precision(work_precision)
-  let n_bits = Int32::max(1, top_bits + 2)
-  let g = f + n_bits + 2
-  guard binary_ln2_bounds((g + 2 + 63) / 64 * 64) is Some((ln2_low, _)) else {
-    return None
-  }
-  let ln2_int = burst_scaled_floor(ln2_low, g)
-  guard burst_scaled_exact(value.abs(), g) is Some(magnitude) else {
-    return None
-  }
-  let (quotient, remainder) = magnitude.div_rem_checked(ln2_int).unwrap()
-  let negative = value.is_negative()
-  guard quotient.to_uint64() is Some(quotient_value) &&
-    quotient_value < 536870912UL else {
-    return None
-  }
-  let (n_magnitude, n_negative, residual) = if !negative {
-    (quotient_value, false, remainder)
-  } else if remainder.is_zero() {
-    (quotient_value, true, remainder)
-  } else {
-    (quotient_value + 1UL, true, ln2_int.sub_checked(remainder).unwrap())
-  }
-  guard bit_length_int(n_magnitude.to_int()) <= n_bits else { return None }
-  let reduced = residual.shift_right(g - f)
+  guard fixed_exp_reduce(value, f) is Some(reduction) else { return None }
+  let reduced = reduction.reduced
   let (k1, k2) = binary_exp_table_shape(f)
   let k = k1 + k2
   guard f > k + 8 else { return None }
@@ -359,31 +238,5 @@ fn binary_exp_bounds_table(
     .mul(series_high)
     .shift_right(f)
     .add(BinCoeff::one())
-  let lower_final = low.sub_checked(BinCoeff::from_uint64(3UL)).unwrap()
-  let upper_final = high.add(BinCoeff::from_uint64(6UL))
-  guard upper_final.sub_checked(lower_final) is Ok(width) &&
-    width.bit_length() <= f - work_precision - 6 else {
-    return None
-  }
-  let exponent = if n_negative {
-    -n_magnitude.to_int() - f
-  } else {
-    n_magnitude.to_int() - f
-  }
-  Some(
-    (
-      BinFloat::make(
-        lower_final,
-        exponent,
-        work_precision,
-        mode=RoundingMode::TowardNegative,
-      ),
-      BinFloat::make(
-        upper_final,
-        exponent,
-        work_precision,
-        mode=RoundingMode::TowardPositive,
-      ),
-    ),
-  )
+  fixed_exp_finish(low, high, reduction, f, work_precision)
 }

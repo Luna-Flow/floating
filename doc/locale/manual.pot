@@ -9788,7 +9788,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:1795
+#: manual/design/bin_float.md:1878
 #: manual/design/bin_float_checked.md:317
 #: manual/design/cli.md:69
 #: manual/design/cli/gda_expr_cli.md:67
@@ -10792,7 +10792,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:1723
+#: manual/design/bin_float.md:1806
 #: manual/design/bin_float_checked.md:187
 #: manual/design/cli.md:50
 #: manual/design/cli/gda_expr_cli.md:50
@@ -10867,7 +10867,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:1770
+#: manual/design/bin_float.md:1853
 #: manual/design/bin_float_checked.md:304
 #: manual/design/cli.md:60
 #: manual/design/cli/gda_expr_cli.md:60
@@ -12199,376 +12199,392 @@ msgid "*Integer enclosures.* All new kernels work on non-negative integers in un
 msgstr ""
 
 #: manual/design/bin_float.md:1014
+msgid "**Shared fixed-point toolkit.** The kernels below share one private layer, `elementary_toolkit.mbt` (issue [#368](https://github.com/Luna-Flow/floating/issues/368)); each piece states its error bound once, and the kernel sections add only what is specific to their series. The extraction is a pure refactor: every kernel returns the same enclosure $(L, U)$ as before, bit for bit and `None` in the same cases, which `elementary_toolkit_digest_wbtest.mbt` checks with one digest per kernel and working precision (a corpus around every per-target threshold, the multiples of $\\ln 2$ and $\\pi/2$, tiny and large arguments) against a table generated on the kernels before the extraction."
+msgstr ""
+
+#: manual/design/bin_float.md:1025
+msgid "*Directed conversion* (`fixed_scaled_floor`, `fixed_scaled_exact`, `fixed_shift`, `fixed_enclosure`). A fixed-point integer $N$ stands for $N / 2^{F}$. `fixed_scaled_floor` rounds toward $-\\infty$ and loses less than one unit; `fixed_scaled_exact` is `None` unless the scaling is exact; `fixed_enclosure` turns an integer pair $(\\ell, u)$ into floats rounded outward (lower end `TowardNegative`, upper end `TowardPositive`), swapping the ends for a negative result."
+msgstr ""
+
+#: manual/design/bin_float.md:1032
+msgid "*Bounded cache* (`BoundedCache[V]`: `find`, `insert`, capacity as a parameter, oldest entry dropped first). It replaces the three ad-hoc caches (constants, 6 entries per constant; `exp` tables, 24 sets; factorial coefficients, 64 entries). A cached value is a pure function of its key, so a hit returns the value a recomputation returns."
+msgstr ""
+
+#: manual/design/bin_float.md:1037
+msgid "*Term-by-term stage* (`fixed_series_step`, `fixed_exp_series`). With $y = N / 2^{s} < 1$, $t_0 = 2^{F}$ and $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$, the exact term $\\tau_i = 2^{F} y^i / i!$ satisfies $t_i \\le \\tau_i < t_i + 3$ (the deficit $d_i$ obeys $d_i < d_{i-1} y / i + 1/i + 1$). `fixed_exp_series` sums until a term is below $2^{8}$ and returns the sum, the last term and its index; the exact value is within $t_n + 3n + 3$ above the sum. The fixed `exp` stage and the bit-burst `exp` stage use it with their own slack constants (4 and 3), and the burst `sin`/`cos` stage uses the step for the real and imaginary parts of $e^{iy}$. `binary_ln_unit_fixed_bounds` and `binary_sin_cos_fixed_series` stay apart: their recurrences are in $z^2$ and $x^2$ with different divisors and different tail proofs (an artanh series with ratio $z^2 \\le 1/9$, an alternating series), not the recurrence above."
+msgstr ""
+
+#: manual/design/bin_float.md:1050
+msgid "*Binary splitting* (`SplitState`, `split_combine`, `split_combine_t`). A state on $[from, to)$ is $(p, q, q\\_shift, t)$ with $p = \\prod p(k)$, $q = \\prod q'(k)$, the power of two of $q(k) = q'(k) 2^{e(k)}$ kept apart in $q\\_shift = \\sum e(k)$, and $t = q\\, 2^{q\\_shift} \\cdot$ (partial sum), merged as $t = t_{\\mathrm{left}}\\, q_{\\mathrm{right}} 2^{q\\_shift_{\\mathrm{right}}} + p_{\\mathrm{left}}\\, t_{\\mathrm{right}}$. The constants (artanh and Chudnovsky series) use $q\\_shift = 0$, the series of $e^{N/2^s}$ uses $q\\_shift = s$ per index from 1 (`split_exp_state`). All of it is exact integer arithmetic, so the partial sum is the exact rational $t / (q\\, 2^{q\\_shift})$ and the error bound of a kernel is the bound of its omitted tail alone. The complex stage of `sin`/`cos` (`SplitComplexState`) keeps its own type because it carries two components and rotates the right component by $i^{\\mathrm{leaves}_{\\mathrm{left}}}$ before the merge; it shares `split_combine_t` and the products of $p$, $q$ and $q\\_shift$. `fixed_split_terms` gives the number of terms for which the omitted tail of $\\sum N^k / (k!\\, 2^{sk})$ is below two units (the proof is in its comment)."
+msgstr ""
+
+#: manual/design/bin_float.md:1067
+msgid "*Rectangular splitting* (`rect_plan`, `rect_powers`, `rect_sum`, `rect_inverse_factorials`). For a series $\\sum_{i<N} c_i r^i$ with nonnegative integer coefficients, $r = a / 2^{F} < 2^{-k}$, $k \\ge 4$, and $N = b m$ terms, the powers $p_j = \\lfloor p_u p_v / 2^{F} \\rfloor$ ($u + v = j$) satisfy $p_j \\le 2^{F} r^j < p_j + 2$. With $P_\\beta = \\sum_{j<m} c_{\\beta m + j} p_j$, $\\mathrm{Acc}_{b-1} = P_{b-1}$ and $\\mathrm{Acc}_\\beta = P_\\beta + \\lfloor p_m \\mathrm{Acc}_{\\beta+1} / 2^{F} \\rfloor$, the sum satisfies $\\mathrm{Acc}_0 \\le 2^{F} \\sum c_i r^i$ and its deficit $\\varepsilon_\\beta$, in the units of the common denominator of the $c_i$, obeys $\\varepsilon_\\beta < 2 \\sum_j c_{\\beta m + j} + 2\\,\\mathrm{Acc}_{\\beta+1} / 2^{F} + 1 + r^m \\varepsilon_{\\beta+1}$. The coefficient sequence is the parameter: `rect_inverse_factorials` gives $c_i = N!/i!$ for $e^r$ (deficit below 8 units of $N!$, the constant 10 of `binary_exp_taylor_fixed`); the next kernels pass $c_i = D/(2i+1)$ with a common multiple $D$ (the odd reciprocals of $\\ln$ and $\\arctan$) or $N!/(2i)!$ and $N!/(2i+1)!$ (sine and cosine, whose alternating signs the caller splits into a positive and a negative series in $r^2$ with nonnegative coefficients). The block size minimizes a cost estimate (`rect_block_size`) and never changes a result bound; `rect_factorial_terms` is the term count for factorial decay."
+msgstr ""
+
+#: manual/design/bin_float.md:1087
+msgid "*Reduction by $\\ln 2$* (`fixed_exp_reduce`, `fixed_exp_finish`), the integer reduction and the closing units of the bit-burst and the table `exp`, described in the next two sections, and the chunk schedule of the bit-burst (`fixed_burst_chunks`), used by the `exp` and the `sin`/`cos` kernels."
+msgstr ""
+
+#: manual/design/bin_float.md:1093
+msgid "The guard-bit constants (`binary_exp_fixed_guard_bits` 16, `binary_exp_table_guard_bits` 16, `binary_exp_burst_guard_bits` 48 and the 64 extra bits of the `sin`/`cos` burst) stay separate on purpose: they are tuned per kernel (they set the width of the final enclosure, which the width checks compare with the working precision), and changing one changes the enclosure, which this refactor must not do. The mutation hooks (`BurstMutation`, `BurstLnMutation`, `BurstTrigMutation`) stay in the kernels, since they name the kernel's own proof obligations."
+msgstr ""
+
+#: manual/design/bin_float.md:1102
 msgid ""
 "**`exp`, by ln 2 reduction and bit-burst.** For finite $x \\n"
 "eq 0$ with $|x| < 2^{30}$ (larger magnitudes are decided before the loop or fall back), let $n = \\lfloor x / \\ln 2 \\rfloor$, found from the cached enclosure of $\\ln 2$ at $G = F + \\operatorname{bits}(n) + 2$ bits. Let $L = \\lfloor 2^{G} \\ln 2 \\rfloor / 2^{G}$ (a dyadic lower bound with $0 \\le \\ln 2 - L \\le 2^{1-G}$) and $R = x - nL$, computed exactly. If $R < 0$ or $R \\ge 1$ the integer $n$ is corrected by one and $R$ recomputed. Put $R_t = \\lfloor 2^{F} R \\rfloor / 2^{F}$ and $\\delta = (x - n \\ln 2) - R_t$. Then $-|n|\\,2^{1-G} \\le \\delta \\le 2^{-F}$ for $n \\ge 0$ (mirrored for $n < 0$), so $|\\delta| \\le 2^{-F}$ by the choice of $G$, and since $0 \\le R_t < 1$"
 msgstr ""
 
-#: manual/design/bin_float.md:1030
+#: manual/design/bin_float.md:1118
 msgid "The factor $e^\\delta$ costs at most $2 \\cdot 3 = 6$ units at the end (because $e^{R_t} < 3$), and no sign handling or reciprocal is needed because $R_t \\ge 0$."
 msgstr ""
 
-#: manual/design/bin_float.md:1034
+#: manual/design/bin_float.md:1122
 msgid "Write $R_t = \\sum_j y_j$ with $y_j = N_j / 2^{b_{j+1}}$ the bits of $R_t$ at positions $(b_j, b_{j+1}]$ after the binary point, $0 = b_0 < b_1 < \\dots$, and $b$ growing geometrically (factor about 4, first chunk about 16 bits; the constants are tuned per target). Then $y_j < 2^{-b_j}$, $N_j < 2^{b_{j+1} - b_j}$, and $e^{R_t} = \\prod_j e^{y_j}$."
 msgstr ""
 
-#: manual/design/bin_float.md:1040
+#: manual/design/bin_float.md:1128
 msgid "*Stage kernel.* For $y = N / 2^{s} < 1$ let $t_0 = 2^{F}$ and $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$ (the second floor is absent for $i = 1$), and let $\\tau_i = 2^{F} y^i / i!$ be the exact terms. By induction $t_i \\le \\tau_i$ (both floors round down), and the deficit $d_i = \\tau_i - t_i$ satisfies $d_1 < 1$ and $d_i < (d_{i-1}\\, y + 1)/i + 1$, hence $d_2 < 2$ and $d_i < 4/3 + 1 < 3$ for $i \\ge 3$ (this is the argument of the fixed-point series already in `elementary_fixed_exp.mbt`, with $y < 1$ in place of $y \\le 1/8$). Stop at the first $n$ with $t_n < 2^{8}$. For $n \\ge 1$ the ratio of consecutive exact terms is at most $y/(n+1) \\le 1/2$, so $\\sum_{i > n} \\tau_i \\le \\tau_n \\cdot \\frac{1/2}{1 - 1/3} < \\tau_n < t_n + 3$. With $S = \\sum_{i=0}^{n} t_i$,"
 msgstr ""
 
-#: manual/design/bin_float.md:1058
+#: manual/design/bin_float.md:1146
 msgid "Then $(\\ell, u) \\mapsto (\\lfloor \\ell\\, S / 2^{F} \\rfloor,\\; \\lceil u\\,(S + e_y) / 2^{F} \\rceil)$ folds the stage into the running product: $e^{y}$ and the partial product are in the stated intervals, both are non-negative, and multiplication is monotone on non-negative numbers, so the new pair satisfies the invariant. Each stage adds at most $e_y + 2$ units of relative width, so with at most $J$ stages the final width is below $J (2^{8} + 3 n_{\\max} + 5) + 6$ units, about $2^{15}$ units for $w = 8192$; $g = 48$ guard bits therefore keep the enclosure within $2^{-(w+7)}$ relative width, which is the width of the current series. The kernel computes the true width and returns `None` when it exceeds that bound."
 msgstr ""
 
-#: manual/design/bin_float.md:1069
+#: manual/design/bin_float.md:1157
 msgid "*Cost.* A stage with $m$-bit numerator at position $b$ needs $n_b \\approx F / (b + \\log_2 n_b)$ terms, each a product of the shrinking term by an $m$-bit integer, a shift and a division by a one-limb integer. For $w = 8192$ the first chunk (16 bits) needs about 880 terms, the chunk at 65 to 261 bits about 120, the chunk at 261 to 1045 bits about 31, and the last chunks fewer than 10. The early chunks have too many terms for the fixed-point loop; they are evaluated by **binary splitting** of $\\sum_{i<n} N^i / (i!\\, 2^{si})$ with exact integers $(P, Q, T)$, $T = T_L Q_R 2^{s\\,|R|} + P_L T_R$, $P = P_L P_R$, $Q = Q_L Q_R$. The enclosure then has no accumulated rounding: $\\ell = \\lfloor 2^{F} T / (Q 2^{sn}) \\rfloor$, $u = \\ell + 3$ once $n$ is large enough that $N^n 2^{F} < n!\\, 2^{sn}$ (an integer comparison on bit lengths), because then the tail is at most $2\\, \\tau_n < 2$ units. A stage is estimated (not yet measured) at 8 to 14 full products independent of $N$, a fixed-point stage with $n$ terms costs $n$ unbalanced products, so the crossover per stage is at $n$ of a few tens of terms."
 msgstr ""
 
-#: manual/design/bin_float.md:1085
+#: manual/design/bin_float.md:1173
 msgid "*Implementation (`elementary_burst_exp.mbt`).* The kernel `binary_exp_bounds_burst` follows the construction above with these choices: $g = 48$ guard bits; chunk boundaries at $16, 64, 256, \\dots$ (first chunk 16 bits, factor 4); a chunk is evaluated by binary splitting when its term count (from the integer bound on $2^F N^n < n!\\, 2^{sn}$, using $\\log_2 n! \\ge \\sum_{i \\le n} (\\operatorname{bits}(i) - 1)$) is at least 40, and by the fixed-point series otherwise; `ln 2` is requested at the next multiple of 64 above $G + 2$. The reduced argument comes from one Euclidean division of $x 2^G$ by $\\lfloor 2^G \\ln 2 \\rfloor$, so $0 \\le R < \\ln 2$ with no correction loop. The kernel declines (`None`, and the series runs) for $|x| < 2^{-65}$ or $|x| \\ge 2^{30}$, when $|n| \\ge 2^{29}$ (the result exponent would approach the limit of the exponent range), when $x$ has bits below $2^{-G}$, and when the computed width exceeds $2^{-(w+6)}$ of the value. (Below the table kernel's ceiling, next section, the table kernel is tried first.) It is used from a per-target working precision, kept with the coefficient thresholds: 1024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on JavaScript (the kernel is slower than the series below roughly 1000 bits on Native, 600 on Wasm-GC; on JavaScript it wins already at 256). The three chunk constants were swept on Native; in a repeat on a quiet machine the chosen point (16, factor 4, split at 40 terms) was the fastest at 8256 bits (1.5 ms against 1.6 to 2.3 ms for the other tried settings) and within about 15 % of the fastest at 2112 bits."
 msgstr ""
 
-#: manual/design/bin_float.md:1107
+#: manual/design/bin_float.md:1195
 msgid "*Evidence for the `exp` kernel.* White-box tests (`elementary_burst_exp_wbtest.mbt`): the enclosure at $w$ contains the series enclosure at $w + 256$ for every argument the kernel accepts in a corpus of 224 values of 60 to 2000 bits with $|x|$ from $2^{-60}$ to $2^{30}$, and for arguments next to multiples of $\\ln 2$, to $2^{29} - 1$ and to $1 - 2^{-k}$; it is no wider than the series enclosure at $w$; and `exp_ctx` returns the same value and flags as the Ziv loop run on the series alone, in four rounding directions. Three deliberately wrong variants are caught by the containment test: a bias of 64 units in every stage, 40 terms fewer in the binary-splitting stages, and `ln 2` taken with 128 bits fewer for an argument near $2^{27}$. Two obligations are not exercised by such tests: the slack of the fixed-point stages and the units for $\\delta$ are dominated by the much larger worst-case terms of the other stages, so an enclosure without them still contains the value; their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 35,040 rows (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{28}$ and next to multiples of $\\ln 2$) all match; the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript; the random differential run (`elem`) agrees on 100,000 cases on Native and 20,000 on each other target."
 msgstr ""
 
-#: manual/design/bin_float.md:1127
+#: manual/design/bin_float.md:1215
 msgid "*Measured (native, release, this machine).* Kernel only, $w = p + 64$ bits, $x \\approx 0.7$: 20 ms to 1.97 ms at 8256 bits, 3.3 ms to 0.67 ms at 4160, 594 to 220 µs at 2112, 112 to 87 µs at 1088; below 1000 bits it is slower (37 to 41 µs at 576). End to end, `just bench external quick --ops exp` paired and alternating with `origin/main` (four rounds, the quiet ones last), floating time per call: 8192 bits 20.2 and 20.4 ms against 1.78 and 1.69 ms (paired ratios 9.1 to 12.1), 2048 bits 508 and 517 µs against 187 and 196 µs (2.1 to 2.7), and 53 and 512 bits unchanged within the noise of the machine (0.92 to 1.19). Against the stored MPFR reference of that tool the ratio of the 8192-bit call moves from about 95 to about 8 on the machine of the run (the machine reads about 1.4 times slower than the stored run, so the drift corrected values are about 66 and 5.6)."
 msgstr ""
 
-#: manual/design/bin_float.md:1140
+#: manual/design/bin_float.md:1228
 msgid "*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size products (43 µs each) and spends most of it in products and divisions of $w$-bit numbers. With a multiplication and division kernel three times faster, and everything else unchanged, a first estimate (not measured) is 0.6 to 0.8 ms at 8192 bits and 60 to 80 µs at 2048 bits, which is about 3 to 4 times the MPFR reference (213 µs and 17 µs). The remaining gap would be allocation and the small-integer steps of the fixed-point stages."
 msgstr ""
 
-#: manual/design/bin_float.md:1149
-msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$). Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
-msgstr ""
-
-#: manual/design/bin_float.md:1169
-msgid "all three parts exact multiples of $2^{-F}$, so $e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$ with $T_1[j] = e^{j/2^{k_1}}$ ($j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$) and $T_2[j] = e^{j/2^{K}}$ ($j < 2^{k_2}$)."
-msgstr ""
-
-#: manual/design/bin_float.md:1173
-msgid "*Tables.* Built lazily, one set per value of $F$ (at most 24 sets are kept), each entry an integer enclosure $L \\le 2^{F} e^{j/2^k} \\le H$ taken from the certified kernels already in the library (`binary_exp_bounds_untabled`, the bit-burst or series path, at $F + 8$ bits): $L = \\lfloor 2^F \\cdot \\mathrm{low} \\rfloor$, $H = \\lfloor 2^F \\cdot \\mathrm{high} \\rfloor + 1$. A table is therefore as certified as the kernels it comes from, and a test recomputes every entry of two table sets from the series at $F + 256$ bits. The tables are not hard-coded."
-msgstr ""
-
-#: manual/design/bin_float.md:1181
-msgid "*Taylor series of $r$.* Write $r = a / 2^F$, $0 \\le a < 2^{F-K}$ (so $r < 2^{-K}$, $K \\ge 11$ in the shapes above). The number of terms $N$ is the least with $K N + \\sum_{i \\le N} (\\operatorname{bits}(i) - 1) \\ge F + 1$; as $N! \\ge 2^{\\sum (\\operatorname{bits}(i)-1)}$ and the ratio of consecutive terms is below $1/2$, the tail satisfies $\\sum_{i \\ge N} r^i/i! \\le 2 r^N/N! \\le 2^{-F}$: at most one unit. The sum is evaluated by rectangular (Paterson–Stockmeyer) splitting: $N$ is rounded up to $N' = b m$, the block size $m$ minimises a small cost model, and"
-msgstr ""
-
-#: manual/design/bin_float.md:1190
-msgid "powers $p_0 = 2^F$, $p_1 = a$, $p_j = \\lfloor p_{\\lceil j/2 \\rceil} p_{\\lfloor j/2 \\rfloor} / 2^F \\rfloor$, $j \\le m$. By induction $p_j \\le 2^F r^j$ and $e_j := 2^F r^j - p_j < 1 + (e_u + e_v) 2^{-K} + e_u e_v 2^{-F} < 2$ (every product loses less than one unit, the factors' errors are scaled by $r^u, r^v < 2^{-K}$);"
-msgstr ""
-
-#: manual/design/bin_float.md:1195
-msgid "integer coefficients $C_i = N'!/i!$ (computed once per $N'$); $P_\\beta = \\sum_{j<m} C_{\\beta m + j}\\, p_j$ for blocks $\\beta = 0 .. b-1$;"
-msgstr ""
-
-#: manual/design/bin_float.md:1197
-msgid "Horner in $y = p_m$: $\\mathrm{Acc}_{b-1} = P_{b-1}$, $\\mathrm{Acc}_\\beta = P_\\beta + \\lfloor p_m \\mathrm{Acc}_{\\beta+1} / 2^F \\rfloor$;"
-msgstr ""
-
-#: manual/design/bin_float.md:1199
-msgid "one division, $E = \\lfloor \\mathrm{Acc}_0 / N'! \\rfloor$."
-msgstr ""
-
-#: manual/design/bin_float.md:1201
-msgid "*Error of the series.* The exact counterpart is $\\mathrm{Acc}^*_0 = N'!\\, 2^F \\sum_{i<N'} r^i/i!$, and every computed quantity is a lower bound of its exact counterpart. Let $\\varepsilon_\\beta = \\mathrm{Acc}^*_\\beta - \\mathrm{Acc}_\\beta$ in units of $N'!$. The deficit of $P_\\beta$ is $\\sum_{j\\ge 2} C_{\\beta m+j} e_j / N'! < 2 \\sum_{j \\ge 2} 1/(\\beta m + j)! \\le 2(e - 2) < 1.44$ ($e_0 = e_1 = 0$). In the Horner step the error of $p_m$ contributes $e_m \\mathrm{Acc}^*_{\\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$ (because $\\mathrm{Acc}^*_{\\beta+1} \\le N'!\\, 2^F e^{r}$), the propagated error $p_m \\varepsilon_{\\beta+1} / 2^F < \\varepsilon_{\\beta+1}/16$, and the floor less than one unit. So $\\varepsilon_\\beta < 1.44 + 3.4 + 1 + \\varepsilon_{\\beta+1}/16$, whence $\\varepsilon < 6.2 \\cdot 16/15 < 7$ for every block. The final floor loses less than one more unit, and the tail at most one:"
-msgstr ""
-
-#: manual/design/bin_float.md:1218
-msgid "*Assembly.* With the table entries (already in units of $2^{-F}$), $\\mathrm{low} = \\lfloor \\lfloor L_1 L_2 / 2^F \\rfloor E / 2^F \\rfloor - 3$ and $\\mathrm{high} = \\lfloor \\lfloor H_1 H_2 / 2^F \\rfloor + 1) (E + 10) / 2^F \\rfloor + 1 + 6$. All factors are positive, so the floor-and-add-one products are monotone enclosures; the final enclosure is then rounded outward to $w$ bits. The kernel declines (the older paths run) in the same cases as the bit-burst kernel ($|x| < 2^{-65}$, $|x| \\ge 2^{30}$, $|n| \\ge 2^{29}$, $x$ with bits below $2^{-G}$) and when the width exceeds $2^{-(w+6)}$ of the value. The width of the enclosure is a few dozen units of $2^{-F}$ (the series 10, the tables 2 each, the reduction 9, the products another factor up to 2), far below the $2^{F-w-6}$ units the check allows."
-msgstr ""
-
-#: manual/design/bin_float.md:1230
-msgid "*Why results are bit-identical.* The kernel only supplies an enclosure of $e^x$ to the Ziv loop of `exp_ctx` and of the functions built on it (`exp2`, `exp10`, `expm1`, `pow`, `compound`, `powr`, the hyperbolic functions, the decimal elementary functions). Correct rounding is unique, so any valid enclosure gives the same value and flags; a different enclosure can only change how many precision steps the loop takes. The proof obligation is therefore exactly the validity of the enclosure, which the analysis above establishes and the white-box tests check against the series at $w + 256$ bits."
-msgstr ""
-
-#: manual/design/bin_float.md:1239
-msgid "*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series enclosure at $w + 256$ for up to 256 arguments of $2^{-60}$ to $2^{30}$ at working precisions 53 to 1000, positive and negative; arguments equal to table nodes $j/2^{k_1}$, $j/2^K$ and one unit below and above them (remainder at or just off a table boundary); multiples of $\\ln 2$ up to $n = 10^6$; the Taylor stage on $a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{random}\\}$ at $F$ from 80 to 2100 with its width at most 10 units; every entry of two table sets; declined arguments."
-msgstr ""
-
-#: manual/design/bin_float.md:1248
-msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
+#: manual/design/bin_float.md:1237
+msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
 msgstr ""
 
 #: manual/design/bin_float.md:1260
-msgid "**`ln`, by verified Newton step.** Write $v = m\\, 2^{k}$ with $m \\in [2^{-1/2}, 2^{1/2})$, so $\\ln v = k \\ln 2 + \\ln m$. Take any dyadic $y_0$ with about $w/2 + 16$ bits (from the same function at half the precision, recursively, down to the existing series). Correctness does not depend on how good $y_0$ is, only the speed does. Let $[E_\\ell, E_u]$ be the enclosure of $e^{y_0}$ from the kernel above and $q_\\ell = m / E_u$, $q_u = m / E_\\ell$ (directed divisions). Since $\\ln$ is monotone, $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$, and for $|u| \\le 1/2$ one has $u - u^2 \\le \\ln(1 + u) \\le u$, so"
+msgid "all three parts exact multiples of $2^{-F}$, so $e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$ with $T_1[j] = e^{j/2^{k_1}}$ ($j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$) and $T_2[j] = e^{j/2^{K}}$ ($j < 2^{k_2}$)."
 msgstr ""
 
-#: manual/design/bin_float.md:1274
-msgid "whenever $|q_\\ell - 1|, |q_u - 1| \\le 1/2$ (checked at run time, else `None`). If $|\\ln m - y_0| \\le 2^{-(w/2+8)}$ the quadratic term is below $2^{-(w+14)}$ and the width is that of $E$. Adding $k \\ln 2$ uses the exact integer product of $k$ with the dyadic bounds of $\\ln 2$. For $|m - 1| < 2^{-16}$ the existing artanh series has $O(w/16)$ terms and stays in use. The cost is that of one `exp` at $w$ plus the recursive call at about $w/2$ (about $1.5$ times one `exp` in total) plus two divisions. Projection at 8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point branch)."
+#: manual/design/bin_float.md:1264
+msgid "*Tables.* Built lazily, one set per value of $F$ (at most 24 sets are kept), each entry an integer enclosure $L \\le 2^{F} e^{j/2^k} \\le H$ taken from the certified kernels already in the library (`binary_exp_bounds_untabled`, the bit-burst or series path, at $F + 8$ bits): $L = \\lfloor 2^F \\cdot \\mathrm{low} \\rfloor$, $H = \\lfloor 2^F \\cdot \\mathrm{high} \\rfloor + 1$. A table is therefore as certified as the kernels it comes from, and a test recomputes every entry of two table sets from the series at $F + 256$ bits. The tables are not hard-coded."
+msgstr ""
+
+#: manual/design/bin_float.md:1272
+msgid "*Taylor series of $r$.* Write $r = a / 2^F$, $0 \\le a < 2^{F-K}$ (so $r < 2^{-K}$, $K \\ge 11$ in the shapes above). The number of terms $N$ is the least with $K N + \\sum_{i \\le N} (\\operatorname{bits}(i) - 1) \\ge F + 1$; as $N! \\ge 2^{\\sum (\\operatorname{bits}(i)-1)}$ and the ratio of consecutive terms is below $1/2$, the tail satisfies $\\sum_{i \\ge N} r^i/i! \\le 2 r^N/N! \\le 2^{-F}$: at most one unit. The sum is evaluated by the rectangular (Paterson–Stockmeyer) splitting of toolkit piece 5, with $N$ rounded up to $N' = b m$, the integer coefficients $C_i = N'!/i!$ (computed once per $N'$) and one final division, $E = \\lfloor \\mathrm{Acc}_0 / N'! \\rfloor$; the powers $p_j$ and the recurrence for $\\mathrm{Acc}_\\beta$ are those defined there, with $e_j := 2^F r^j - p_j < 2$ (so $e_0 = e_1 = 0$)."
 msgstr ""
 
 #: manual/design/bin_float.md:1284
-msgid "*Implementation of the `ln` step (`elementary_burst_ln.mbt`).* `binary_ln_unit_burst_bounds` encloses $\\ln v$ for $1 + 2^{-16} < v \\le 2$ (the unit enclosure that `binary_ln_bounds` adds $k \\ln 2$ to). With $\\mathrm{inner} = w + \\max(0, 2 - \\operatorname{top}(v - 1))$ bits, so that an argument near 1 keeps $w$ significant bits of the result, $y_0$ is the lower end of the enclosure of $\\ln v'$ at $\\mathrm{inner}/2 + 16$ bits, where $v'$ is $v$ rounded to that many bits (the same function one level down, so the recursion ends in the series below the threshold); $[E_\\ell, E_u]$ is the `exp` kernel at $\\mathrm{inner} + 8$ bits; the two divisions and the final operations use $\\mathrm{inner} + 24$ bits with directed rounding, and the result is rounded outward to $w$ bits. It declines (and the series runs) for $v \\le 1 + 2^{-16}$ or $v > 2$, when $|q - 1| > 1/2$, and when the width of the result exceeds 8 units of $2^{-\\mathrm{inner}}$. The thresholds, kept with the other coefficient-kernel thresholds, are 1152 bits on Native and LLVM, 1280 on plain Wasm and on JavaScript and 576 on Wasm-GC (the kernel is slower than the fixed-point series below roughly 1000 bits on Native, 500 on Wasm-GC and 1200 on Wasm and JavaScript)."
+msgid "*Error of the series.* The exact counterpart is $\\mathrm{Acc}^*_0 = N'!\\, 2^F \\sum_{i<N'} r^i/i!$, and every computed quantity is a lower bound of its exact counterpart. Let $\\varepsilon_\\beta = \\mathrm{Acc}^*_\\beta - \\mathrm{Acc}_\\beta$ in units of $N'!$. The deficit of $P_\\beta$ is $\\sum_{j\\ge 2} C_{\\beta m+j} e_j / N'! < 2 \\sum_{j \\ge 2} 1/(\\beta m + j)! \\le 2(e - 2) < 1.44$ ($e_0 = e_1 = 0$). In the Horner step the error of $p_m$ contributes $e_m \\mathrm{Acc}^*_{\\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$ (because $\\mathrm{Acc}^*_{\\beta+1} \\le N'!\\, 2^F e^{r}$), the propagated error $p_m \\varepsilon_{\\beta+1} / 2^F < \\varepsilon_{\\beta+1}/16$, and the floor less than one unit. So $\\varepsilon_\\beta < 1.44 + 3.4 + 1 + \\varepsilon_{\\beta+1}/16$, whence $\\varepsilon < 6.2 \\cdot 16/15 < 7$ for every block. The final floor loses less than one more unit, and the tail at most one:"
 msgstr ""
 
-#: manual/design/bin_float.md:1302
-msgid "*Evidence for the `ln` step.* White-box tests (`elementary_burst_ln_wbtest.mbt`): for every argument of a corpus of 158 values in $(1, 2]$ (random, near 1 down to $2^{-100}$, near 2, 3/2, 5/4) that the kernel accepts, the enclosure at $w$ contains the series enclosure at $w + 256$; it is no wider than the series enclosure at $w$; `ln_ctx` returns the same value and flags as the Ziv loop on the series alone in four rounding directions; and the kernel declines out of range. Two deliberately wrong variants are caught: a bias of 8 units in the lower end, and a poor start value (about $w/8$ bits) with the quadratic term dropped. A poor start value with the quadratic term kept only widens the enclosure and the test checks that it is still valid. One obligation is not reached by the tests: dropping the quadratic term with the real start value is not detected, because $u^2 \\approx 2^{-(w+26)}$ is below the width of the `exp` enclosure; its justification is the paper argument ($u - u^2 \\le \\ln(1+u)$ for $u \\ge -1/2$), not the tests. MPFR 4.2.2 comparison: 13,200 rows (precisions 256 to 4096, four rounding directions, arguments with binary exponents from $-1000$ to $10^5$, near 1 and near powers of two; the threshold was set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
+#: manual/design/bin_float.md:1301
+msgid "*Assembly.* With the table entries (already in units of $2^{-F}$), $\\mathrm{low} = \\lfloor \\lfloor L_1 L_2 / 2^F \\rfloor E / 2^F \\rfloor - 3$ and $\\mathrm{high} = \\lfloor \\lfloor H_1 H_2 / 2^F \\rfloor + 1) (E + 10) / 2^F \\rfloor + 1 + 6$. All factors are positive, so the floor-and-add-one products are monotone enclosures; the final enclosure is then rounded outward to $w$ bits. The kernel declines (the older paths run) in the same cases as the bit-burst kernel ($|x| < 2^{-65}$, $|x| \\ge 2^{30}$, $|n| \\ge 2^{29}$, $x$ with bits below $2^{-G}$) and when the width exceeds $2^{-(w+6)}$ of the value. The width of the enclosure is a few dozen units of $2^{-F}$ (the series 10, the tables 2 each, the reduction 9, the products another factor up to 2), far below the $2^{F-w-6}$ units the check allows."
+msgstr ""
+
+#: manual/design/bin_float.md:1313
+msgid "*Why results are bit-identical.* The kernel only supplies an enclosure of $e^x$ to the Ziv loop of `exp_ctx` and of the functions built on it (`exp2`, `exp10`, `expm1`, `pow`, `compound`, `powr`, the hyperbolic functions, the decimal elementary functions). Correct rounding is unique, so any valid enclosure gives the same value and flags; a different enclosure can only change how many precision steps the loop takes. The proof obligation is therefore exactly the validity of the enclosure, which the analysis above establishes and the white-box tests check against the series at $w + 256$ bits."
 msgstr ""
 
 #: manual/design/bin_float.md:1322
-msgid "*Measured for the `ln` step (native, release, this machine, on the 64-bit limbs, the Karatsuba and the division of #324, #326 and #328).* Kernel only, $w = p + 64$ bits, $v$ random in $[1, 2)$, against the fixed-point series of #319 (the machine was loaded, the ratios are the figure): 23.0 ms to 2.24 ms at 8256 bits (10.3 times), 3.27 ms to 0.75 ms at 4160 (4.4), 581 to 309 µs at 2112 (1.9), equal at 1024; slower below about 1000 bits (0.5 to 0.8 times at 384 to 768). End to end, `just bench external quick --ops ln` paired and alternating with `origin/main`, four rounds on a loaded machine (load average about 10), the floating time per call: 8192 bits 27.0, 25.6, 25.6 and 28.0 ms against 2.43, 2.40, 2.57 and 2.44 ms (paired ratios 11.1, 10.7, 10.0 and 11.5), 2048 bits 695, 565, 639 and 856 µs against 300, 295, 378 and 365 µs (2.3, 1.9, 1.7 and 2.35), 512 and 53 bits unchanged (0.98 to 1.07 at 53 bits, 0.99 to 1.36 at 512 bits, where the code path is the old one and the machine was noisy). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 221 to 243 to 21 to 22, and of the 2048-bit call from 37 to 57 to 20 to 25. MPFR re-measured on the machine at that time reads 1.9 to 2.0 times slower than the stored run at 8192 bits and 1.65 times at 2048 bits (the load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave 11.5 to 13.6 at 8192 bits (on the previous division kernel)."
+msgid "*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series enclosure at $w + 256$ for up to 256 arguments of $2^{-60}$ to $2^{30}$ at working precisions 53 to 1000, positive and negative; arguments equal to table nodes $j/2^{k_1}$, $j/2^K$ and one unit below and above them (remainder at or just off a table boundary); multiples of $\\ln 2$ up to $n = 10^6$; the Taylor stage on $a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{random}\\}$ at $F$ from 80 to 2100 with its width at most 10 units; every entry of two table sets; declined arguments."
+msgstr ""
+
+#: manual/design/bin_float.md:1331
+msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
 msgstr ""
 
 #: manual/design/bin_float.md:1343
+msgid "**`ln`, by verified Newton step.** Write $v = m\\, 2^{k}$ with $m \\in [2^{-1/2}, 2^{1/2})$, so $\\ln v = k \\ln 2 + \\ln m$. Take any dyadic $y_0$ with about $w/2 + 16$ bits (from the same function at half the precision, recursively, down to the existing series). Correctness does not depend on how good $y_0$ is, only the speed does. Let $[E_\\ell, E_u]$ be the enclosure of $e^{y_0}$ from the kernel above and $q_\\ell = m / E_u$, $q_u = m / E_\\ell$ (directed divisions). Since $\\ln$ is monotone, $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$, and for $|u| \\le 1/2$ one has $u - u^2 \\le \\ln(1 + u) \\le u$, so"
+msgstr ""
+
+#: manual/design/bin_float.md:1357
+msgid "whenever $|q_\\ell - 1|, |q_u - 1| \\le 1/2$ (checked at run time, else `None`). If $|\\ln m - y_0| \\le 2^{-(w/2+8)}$ the quadratic term is below $2^{-(w+14)}$ and the width is that of $E$. Adding $k \\ln 2$ uses the exact integer product of $k$ with the dyadic bounds of $\\ln 2$. For $|m - 1| < 2^{-16}$ the existing artanh series has $O(w/16)$ terms and stays in use. The cost is that of one `exp` at $w$ plus the recursive call at about $w/2$ (about $1.5$ times one `exp` in total) plus two divisions. Projection at 8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point branch)."
+msgstr ""
+
+#: manual/design/bin_float.md:1367
+msgid "*Implementation of the `ln` step (`elementary_burst_ln.mbt`).* `binary_ln_unit_burst_bounds` encloses $\\ln v$ for $1 + 2^{-16} < v \\le 2$ (the unit enclosure that `binary_ln_bounds` adds $k \\ln 2$ to). With $\\mathrm{inner} = w + \\max(0, 2 - \\operatorname{top}(v - 1))$ bits, so that an argument near 1 keeps $w$ significant bits of the result, $y_0$ is the lower end of the enclosure of $\\ln v'$ at $\\mathrm{inner}/2 + 16$ bits, where $v'$ is $v$ rounded to that many bits (the same function one level down, so the recursion ends in the series below the threshold); $[E_\\ell, E_u]$ is the `exp` kernel at $\\mathrm{inner} + 8$ bits; the two divisions and the final operations use $\\mathrm{inner} + 24$ bits with directed rounding, and the result is rounded outward to $w$ bits. It declines (and the series runs) for $v \\le 1 + 2^{-16}$ or $v > 2$, when $|q - 1| > 1/2$, and when the width of the result exceeds 8 units of $2^{-\\mathrm{inner}}$. The thresholds, kept with the other coefficient-kernel thresholds, are 1152 bits on Native and LLVM, 1280 on plain Wasm and on JavaScript and 576 on Wasm-GC (the kernel is slower than the fixed-point series below roughly 1000 bits on Native, 500 on Wasm-GC and 1200 on Wasm and JavaScript)."
+msgstr ""
+
+#: manual/design/bin_float.md:1385
+msgid "*Evidence for the `ln` step.* White-box tests (`elementary_burst_ln_wbtest.mbt`): for every argument of a corpus of 158 values in $(1, 2]$ (random, near 1 down to $2^{-100}$, near 2, 3/2, 5/4) that the kernel accepts, the enclosure at $w$ contains the series enclosure at $w + 256$; it is no wider than the series enclosure at $w$; `ln_ctx` returns the same value and flags as the Ziv loop on the series alone in four rounding directions; and the kernel declines out of range. Two deliberately wrong variants are caught: a bias of 8 units in the lower end, and a poor start value (about $w/8$ bits) with the quadratic term dropped. A poor start value with the quadratic term kept only widens the enclosure and the test checks that it is still valid. One obligation is not reached by the tests: dropping the quadratic term with the real start value is not detected, because $u^2 \\approx 2^{-(w+26)}$ is below the width of the `exp` enclosure; its justification is the paper argument ($u - u^2 \\le \\ln(1+u)$ for $u \\ge -1/2$), not the tests. MPFR 4.2.2 comparison: 13,200 rows (precisions 256 to 4096, four rounding directions, arguments with binary exponents from $-1000$ to $10^5$, near 1 and near powers of two; the threshold was set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
+msgstr ""
+
+#: manual/design/bin_float.md:1405
+msgid "*Measured for the `ln` step (native, release, this machine, on the 64-bit limbs, the Karatsuba and the division of #324, #326 and #328).* Kernel only, $w = p + 64$ bits, $v$ random in $[1, 2)$, against the fixed-point series of #319 (the machine was loaded, the ratios are the figure): 23.0 ms to 2.24 ms at 8256 bits (10.3 times), 3.27 ms to 0.75 ms at 4160 (4.4), 581 to 309 µs at 2112 (1.9), equal at 1024; slower below about 1000 bits (0.5 to 0.8 times at 384 to 768). End to end, `just bench external quick --ops ln` paired and alternating with `origin/main`, four rounds on a loaded machine (load average about 10), the floating time per call: 8192 bits 27.0, 25.6, 25.6 and 28.0 ms against 2.43, 2.40, 2.57 and 2.44 ms (paired ratios 11.1, 10.7, 10.0 and 11.5), 2048 bits 695, 565, 639 and 856 µs against 300, 295, 378 and 365 µs (2.3, 1.9, 1.7 and 2.35), 512 and 53 bits unchanged (0.98 to 1.07 at 53 bits, 0.99 to 1.36 at 512 bits, where the code path is the old one and the machine was noisy). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 221 to 243 to 21 to 22, and of the 2048-bit call from 37 to 57 to 20 to 25. MPFR re-measured on the machine at that time reads 1.9 to 2.0 times slower than the stored run at 8192 bits and 1.65 times at 2048 bits (the load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave 11.5 to 13.6 at 8192 bits (on the previous division kernel)."
+msgstr ""
+
+#: manual/design/bin_float.md:1426
 msgid "*AGM alternative.* $\\ln s = \\pi / (2\\, \\mathrm{AGM}(1, 4/s)) - m \\ln 2$ for $s = v\\, 2^{m} > 2^{w/2}$ costs about $\\log_2 w$ iterations of one product and one square root. With today's kernels (`sqrt_ctx` 128 µs, product 43 µs at 8192 bits) this is 2.7 to 3.2 ms, no better than the Newton step within the model's error, because our square root is 29 times and our product 13 times slower than MPFR's (4.4 and 3.2 µs on the same machine, secondary evidence). It also needs a rigorous bound for the truncation error of the formula (the $O(s^{-2})$ term, derived from the theta-function formula $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, attributed to Sasaki and Kanada, see the evidence note at the end of this section[^brent-agm]), which this page does not yet provide. It is therefore the second choice, taken up only if the Newton step measures slower than the projection."
 msgstr ""
 
-#: manual/design/bin_float.md:1356
+#: manual/design/bin_float.md:1439
 msgid "**`sin` and `cos`, by complex bit-burst.** With $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, $G = F + \\operatorname{bits}(n) + 2$, the quadrant integer $n = \\operatorname{round}(x / H)$ and $R = x - nH$ (exact, $|R| \\le 0.8$ after a correction of $n$), the true reduced argument $r = x - n \\pi/2$ satisfies $|r - R| \\le |n|\\,2^{1-G} \\le 2^{-F}$. Sine and cosine are 1-Lipschitz, so $\\sin r \\in \\sin R \\pm 2^{-F}$ and likewise for the cosine; truncating $|R|$ to $F$ bits costs one more unit. The quadrant $n \\bmod 4$ maps $(\\sin r, \\cos r)$ to the result, as in `binary_reduced_trigonometric_bounds`. For $y = N/2^s < 1$ the real and imaginary parts of the series of $e^{iy}$ are the even and odd terms of the same sequence $t_i$ as above, with signs $(-1)^{\\lfloor i/2 \\rfloor}$, so a stage costs the same as an `exp` stage and gives both $\\cos y$ and $\\sin y$. The deficits satisfy the same bound $d_i < 3$, and each of the two alternating series has terms that decrease in size ($y^2 / ((i+1)(i+2)) < 1$), so the tail after $t_n < 2^{8}$ is at most $t_n + 3$ in size and the enclosure is $S_{\\mathrm{cos}}$ or $S_{\\mathrm{sin}} \\pm (t_n + 3n + 3)$. Stages are folded by rotation, $(C, S) \\leftarrow (C c - S s,\\; S c + C s)$, with four products and interval bounds on non-negative integers; all partial angles lie in $[0, 0.8]$, so all four factors are non-negative and the difference of bounds is checked to be non-negative. Because the merge costs four full products per stage, the stages are fewer than for `exp` (factor 4 to 8 between chunk boundaries), and the last stage computes only the requested one of the two values. For $|R| < 2^{-16}$ the existing series stays. Projection at 8192 bits: 4 to 6 ms, against 64 ms today (16 ms projected for the fixed-point branch); `tan` and the $\\pi$-scaled functions follow."
 msgstr ""
 
-#: manual/design/bin_float.md:1382
+#: manual/design/bin_float.md:1465
 msgid "*Implementation of the `sin` and `cos` step (`elementary_burst_trig.mbt`).* `binary_trig_bounds_burst` (hooked into `binary_trigonometric_bounds` for `sin` and `cos`; `tan` keeps the series) follows the construction above for $2^{-64} \\le |x| < 2^{4096}$. With $F_0 = w + 112$ and $G = F_0 + \\max(1, \\operatorname{top}(x)) + 2$, the nearest integer $n$ to $|x| / H$, $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, comes from one Euclidean division of integers, $R = |x| - nH$ is exact with $|R| \\le H/2$, and the true reduced argument $r = |x| - n\\pi/2$ satisfies $|r - R| \\le n\\, 2^{1-G} \\le 2^{-(F_0+1)}$. The working scale is $F = w + 48 + \\mathrm{lz}$ with $\\mathrm{lz} = \\max(0, 2 - \\operatorname{top}(R))$ (declined above 64, so $R$ near a multiple of $\\pi/2$ keeps $w$ significant bits of a sine), and $R_t = \\lfloor 2^{F} |R| \\rfloor / 2^{F}$ satisfies $|r - \\operatorname{sign}(R) R_t| \\le 1.5 \\cdot 2^{-F}$, so by the Lipschitz bound the sine and cosine of $r$ are within 2 units of those of $\\operatorname{sign}(R) R_t$. $R_t$ is cut into chunks at 16, 64, 256, ... bits as for `exp`. A chunk is a *ball*: a midpoint and a radius in units of $2^{-F}$. The fixed-point stage sums the even terms of the series of $e^{iy}$ for the cosine and the odd ones for the sine, with signs $+ - + - \\dots$ in each, from the same sequence $t_i$ as in the `exp` stage (deficit below 3); each of the two alternating series decreases in size, so each sum is within $3n + t_n + 3$ of its value. The binary-splitting stage keeps a complex state: the leaf of an index $i \\ge 1$ is $(0, N)$ (the factor $i N$), $p = N^{\\mathrm{leaves}}$, $q = \\prod i$, and $t = t_L q_R 2^{s\\,\\mathrm{len}_R} + i^{\\mathrm{leaves}_L} p_L t_R$, where multiplying by $i^m$ only permutes and negates the two components; the partial sums are exact rationals, the floors lose less than 1 unit, and the omitted terms are below 2 units, so each part is a ball of radius 2. The product of two balls with midpoints $a, b$ and radii $\\alpha, \\beta$ has midpoint $\\lfloor a b / 2^F \\rfloor$ and radius $\\lceil (a \\beta + b \\alpha + \\alpha \\beta)/2^F \\rceil + 2$, and the stages are folded by rotation, $C' = C c - S s$ and $S' = S c + C s$ (four ball products; the first stage is not multiplied at all), with the midpoint of the difference required to be non-negative. The quadrant $n \\bmod 4$ and the signs of $x$ and $R$ select which component is the result. It declines for $|x| < 2^{-64}$, $|x| \\ge 2^{4096}$, when the reduced argument is smaller than $2^{-62}$, and when the width exceeds $2^{-(w+5)}$ of the value. The thresholds are 1536 bits on Native and LLVM, 2112 on plain Wasm, 640 on Wasm-GC and 256 on JavaScript (the kernel is slower than the series below roughly 1500 bits on Native, 2000 on Wasm and 600 on Wasm-GC; on JavaScript it wins from 256)."
 msgstr ""
 
-#: manual/design/bin_float.md:1422
+#: manual/design/bin_float.md:1505
 msgid "*Evidence for the `sin` and `cos` step.* White-box tests (`elementary_burst_trig_wbtest.mbt`): for every argument the kernel accepts in a corpus of 354 values (60 to 2000 bits, $|x|$ from $2^{-60}$ to $2^{100}$, both signs, and the neighbourhood of nine multiples of $\\pi/2$ for four precisions) and for both functions, the enclosure at $w$ contains the series enclosure at a precision 256 bits higher (and high enough for the series to certify the quadrant); it is no wider than the series enclosure; `sin_ctx` and `cos_ctx` return the value and flags of the series enclosure rounded at twice the precision, in four rounding directions; and the kernel declines out of its range. Three deliberately wrong variants are caught: a bias of $2^{64}$ units in every stage, 40 terms fewer in the binary-splitting stages, and $\\pi$ taken with 200 bits fewer for an argument near $2^{40}$. A bias below about $2^{40}$ units is absorbed by the 48 guard bits and the final rounding, so the tests cannot see it; likewise the radius of the fixed-point stages and the 2 units of the angle error are dominated by worst-case terms elsewhere, so removing them leaves an enclosure that still contains the value: their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 23,424 rows for each of `sin` and `cos` (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{1000}$, and neighbours of multiples of $\\pi/2$; the thresholds were set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
 msgstr ""
 
-#: manual/design/bin_float.md:1444
+#: manual/design/bin_float.md:1527
 msgid "*Measured for the `sin` and `cos` step (native, release, this machine, with the Karatsuba limbs and the division of #326 and #328).* Kernel only, $w = p + 40$ bits, $x \\approx 0.7$ for the sine and $x \\approx 16$ to $32$ for the cosine, against the reduction and fixed-point series of #321: sine 8.37 ms to 1.39 ms at 8256 bits, 1.58 ms to 0.57 ms at 4160, 338 to 239 µs at 2112, equal at 1536; cosine 5.31 ms to 1.20 ms at 8256, 1.01 ms to 0.47 ms at 4160; slower below about 1500 bits (0.5 to 0.9 times at 256 to 1280). End to end, `just bench external quick --ops sin` paired and alternating with `origin/main`, four rounds on a quiet machine, floating time per call: 8192 bits 6.92, 6.66, 6.73 and 6.66 ms against 1.47, 1.32, 1.29 and 1.38 ms (paired ratios 4.7, 5.1, 5.2 and 4.8), 2048 bits 282, 288, 276 and 268 µs against 203, 195, 183 and 204 µs (1.4, 1.5, 1.5 and 1.3), and 512 and 53 bits unchanged (0.89 to 1.12, the old code path). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 34 to 35 to 6.5 to 7.4, and of the 2048-bit call from 19 to 20 to 13 to 14; the machine reads about 1.45 times slower than the stored run (MPFR re-measured on it), so the drift-corrected ratios are about 4.5 to 5.1 at 8192 bits and about 9 to 10 at 2048 bits."
 msgstr ""
 
-#: manual/design/bin_float.md:1463
+#: manual/design/bin_float.md:1546
 msgid "**Constants by binary splitting.** `pi`, `ln 2` and `ln 10` are computed once per working precision and cached, but a first call pays the cold cost above. Binary splitting gives $O(M(w) \\log^2 w)$ with rigorous bounds:"
 msgstr ""
 
-#: manual/design/bin_float.md:1474
+#: manual/design/bin_float.md:1557
 msgid "where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46 bits per term) and $\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$."
 msgstr ""
 
-#: manual/design/bin_float.md:1477
+#: manual/design/bin_float.md:1560
 msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `BinCoeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
 msgstr ""
 
-#: manual/design/bin_float.md:1490
+#: manual/design/bin_float.md:1573
 msgid "*Tail bounds.* For $\\operatorname{artanh}(1/k)$ with $K = k^2$ take $N$ terms with $K^N \\ge 2^{F+9}$, $F = w + 16$ (using $\\lfloor \\log_2 K \\rfloor$): the first omitted term is at most $2^{-(F+9)}$ and the omitted terms are positive and shrink by at least $1/K \\le 1/4$, so they sum to less than $2^{-(F+8)}$, which is added to the upper end. For Chudnovsky the ratio of the factorial parts of consecutive terms is $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$, the linear factor grows by at most 41.11 from $k = 0$ to $1$ and by less than 2 after that, and $640320^3 > 2^{57.8}$, so the ratios are below $2^{-41.7}$ and then $2^{-46.1}$, the terms decrease in size, alternate in sign, and the first is below $2^{24}$. The omitted sum from index $N$ is therefore at most the size of term $N$, below $2^{-17 - 46(N-1)}$, which is at most $2^{-(F+4)}$ for $N = \\lfloor F/46 \\rfloor + 3$. Then $S \\in [(t - e)/q, (t + e)/q]$ for the integer $e = \\lfloor q / 2^{F+4} \\rfloor + 1$, and $\\pi$ is enclosed by dividing $426880 \\sqrt{10005}\\, q$ by $t \\pm e$ with directed rounding. The identities were checked numerically to 60 digits."
 msgstr ""
 
-#: manual/design/bin_float.md:1507
+#: manual/design/bin_float.md:1590
 msgid "*Evidence.* Tests (`elementary_constants_split_wbtest.mbt`): the new enclosure at $w$ contains the old series enclosure at $w + 256$ (an independent computation) for $w$ from 64 to 1024; it is no wider than the old enclosure at $w$ up to 2048; enclosures at $w$ and $w + 300$ nest up to 20000 bits; and removing terms (a test hook) makes the containment test fail, so the tail count is checked and not just assumed. A one-off comparison against MPFR 4.2.2 (`mpfr_const_pi`, `mpfr_const_log2`, `mpfr_log(10)` at $2w + 64$ bits) at 64, 100, 257, 1000, 4096, 8192, 30000 and 100000 bits found every enclosure containing the MPFR value, one to two units of the last place wide. All `bin_float` tests pass on native, wasm, wasm-gc and js, `just pr` passes, and 30000 (native) and 10000 (each of wasm, wasm-gc, js) random `elem` cases agree with MPFR."
 msgstr ""
 
-#: manual/design/bin_float.md:1520
+#: manual/design/bin_float.md:1603
 msgid "*Measured (native, release, cold enclosure at $w = p + 64$, this machine).* `pi` 449 ms to 0.67 ms at $p = 8192$, 14 ms to 71 µs at 2048, 0.93 ms to 15 µs at 512; `ln 2` 178 ms to 1.33 ms, 5.6 ms to 156 µs, 0.36 ms to 32 µs; `ln 10` (with `ln 2` cached) 89 ms to 0.99 ms, 2.8 ms to 114 µs, 0.18 ms to 26 µs. At $p = 64$ the splitting is already 3 to 19 times faster, on wasm-gc and js as well (js at 8192 bits: `pi` 0.63 ms, `ln 2` 0.67 ms), so the threshold `binary_constants_split_min_precision` is 64 on every target. Warm (cached) calls are unchanged. A first `sin` or `ln` at 8192 bits used to pay the series cost on top of the warm time (about 450 ms for `pi`, about 180 ms for `ln 2`); now a cold call costs at most about 7 ms more than a warm one (`sin` 53.4 ms cold against 53.6 ms warm, `ln` 101.9 ms against 94.3 ms at 8192 bits)."
 msgstr ""
 
-#: manual/design/bin_float.md:1533
+#: manual/design/bin_float.md:1616
 msgid "The cache itself is unchanged. The design asks for requests for `ln 2` at a canonical precision (the next multiple of 64 above $F + \\operatorname{bits}(n) + 2$) so that `exp`, `ln` and the trigonometric reduction share entries instead of evicting each other; that belongs to the `exp` kernel, which is the first caller with such an irregular precision, and is not part of the constants step."
 msgstr ""
 
-#: manual/design/bin_float.md:1540
+#: manual/design/bin_float.md:1623
 msgid "**Working-precision schedule and the Ziv loop.** The attempt precisions $w_0 = p + 64$, $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ and the budget of 12 attempts are unchanged. Each attempt picks the old or the new kernel by comparing $w$ with a per-target constant and, for `ln` and the sine, by the argument (the near-1 and tiny-argument cases above); a kernel that returns `None` or an enclosure wider than the old series' falls through to the old kernel at the same $w$. So an attempt never certifies less than before, and the exact cases, the tiny-argument measures, the inner-endpoint rounding and the flag argument of the loop are untouched. The result of a call is the correctly rounded value whenever either path certifies, hence identical to the current result; they can differ only in which inputs exhaust the budget, which the corpus comparison below counts. The faster attempts make a longer budget affordable, which is the point of [#15](https://github.com/Luna-Flow/floating/issues/15): the limit is a policy of the loop and does not interact with the kernels."
 msgstr ""
 
-#: manual/design/bin_float.md:1556
+#: manual/design/bin_float.md:1639
 msgid "**Allocation and targets.** `BinCoeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). A fused in-place multiply-shift-divide loop on a mutable limb array would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `BinCoeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
 msgstr ""
 
-#: manual/design/bin_float.md:1569
+#: manual/design/bin_float.md:1652
 msgid "**Evidence the new path must produce.** Each kernel carries its own invariant tests: containment of the enclosure of the old path at $w + 256$ bits in the new enclosure at $w$ (an independent computation), the width bound, and boundary cases (arguments at chunk boundaries, $R$ near $0$ and $1$, the corrections of $n$, huge $|n|$, tiny and near-1 arguments). The end-to-end check compares every result bit for bit with the old path and with MPFR on a seeded random corpus plus the existing boundary corpus on all four targets, and a deliberately biased kernel (one unit too narrow) must make the tests fail."
 msgstr ""
 
-#: manual/design/bin_float.md:1578
+#: manual/design/bin_float.md:1661
 msgid "**Limits of the speed-up.** The model reaches algorithmic parity with MPFR (`exp` at 8192 bits is about 65 to 100 products in MPFR and, projected, about 50 to 80 here), so the remaining gap is the product kernel: 43 µs against 3.2 µs at 8192 bits, a factor 13 (4 µs against 0.31 µs, a factor 12, at 2048 bits). Ratios to MPFR at 8192 bits in the same run (MPFR: `exp` 326 µs, `ln` 177 µs, `sin` 291 µs): today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17 to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is therefore within reach for `exp` only if the product kernel also improves."
 msgstr ""
 
-#: manual/design/bin_float.md:1588
+#: manual/design/bin_float.md:1671
 msgid "**Measured result.** On main `8badc55` (all four kernels merged), Apple M4, native, release, load average 1.3 to 3, three runs of `just bench external quick --ops exp ln sin --binary-precisions 2048 8192` agreeing within 1 to 10 %, and a second check on `952600f` within 3 %: floating time over the stored MPFR median is 6.0 to 6.6 (`exp`), 12.5 (`ln`) and 12.2 (`sin`) at 2048 bits, and 3.2 (`exp`), 10.6 (`ln`) and 5.8 (`sin`) at 8192 bits. The MPFR time measured on the same machine at the same moment was within 6 % of the stored one, so raw and drift-corrected ratios differ by at most 6 %. Two cells are below 10 times MPFR; `ln` at 2048 and 8192 bits and `sin` at 2048 bits are above it. This is one machine and the native target only: the Wasm, Wasm-GC and JavaScript targets were not compared with MPFR. The projections above are superseded by these numbers; the remaining gap is the multiplication and division kernel and allocation, not the algorithm."
 msgstr ""
 
-#: manual/design/bin_float.md:1602
+#: manual/design/bin_float.md:1685
 msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on them (the AGM is not used until its truncation bound is derived and proved here). The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
 msgstr ""
 
-#: manual/design/bin_float.md:1623
+#: manual/design/bin_float.md:1706
 msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The sharp truncation bound has to be derived from the theta series before the AGM is used. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
 msgstr ""
 
-#: manual/design/bin_float.md:1630
+#: manual/design/bin_float.md:1713
 msgid "The coefficient kernel"
 msgstr ""
 
-#: manual/design/bin_float.md:1632
+#: manual/design/bin_float.md:1715
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr ""
 
-#: manual/design/bin_float.md:1635
+#: manual/design/bin_float.md:1718
 msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 32-bit limbs (a host `bigint` on JavaScript), and dispatches on the shorter operand length $n$ in limbs:"
 msgstr ""
 
-#: manual/design/bin_float.md:1639
+#: manual/design/bin_float.md:1722
 msgid "Product"
 msgstr ""
 
-#: manual/design/bin_float.md:1639
+#: manual/design/bin_float.md:1722
 msgid "Native"
 msgstr ""
 
-#: manual/design/bin_float.md:1639
+#: manual/design/bin_float.md:1722
 #: manual/design/decimal.md:1129
 #: manual/design/decimal_gda.md:793
 msgid "LLVM"
 msgstr ""
 
-#: manual/design/bin_float.md:1639
+#: manual/design/bin_float.md:1722
 msgid "Wasm, Wasm-GC"
 msgstr ""
 
-#: manual/design/bin_float.md:1641
+#: manual/design/bin_float.md:1724
 msgid "schoolbook below"
 msgstr ""
 
-#: manual/design/bin_float.md:1642
+#: manual/design/bin_float.md:1725
 msgid "Karatsuba from"
 msgstr ""
 
-#: manual/design/bin_float.md:1643
+#: manual/design/bin_float.md:1726
 msgid "Toom-3 from"
 msgstr ""
 
-#: manual/design/bin_float.md:1644
+#: manual/design/bin_float.md:1727
 msgid "two-prime NTT multiply from"
 msgstr ""
 
-#: manual/design/bin_float.md:1645
+#: manual/design/bin_float.md:1728
 msgid "NTT square from"
 msgstr ""
 
-#: manual/design/bin_float.md:1646
+#: manual/design/bin_float.md:1729
 msgid "recursive square from"
 msgstr ""
 
-#: manual/design/bin_float.md:1648
+#: manual/design/bin_float.md:1731
 msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
 msgstr ""
 
-#: manual/design/bin_float.md:1655
+#: manual/design/bin_float.md:1738
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr ""
 
-#: manual/design/bin_float.md:1667
+#: manual/design/bin_float.md:1750
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr ""
 
-#: manual/design/bin_float.md:1674
+#: manual/design/bin_float.md:1757
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr ""
 
-#: manual/design/bin_float.md:1683
+#: manual/design/bin_float.md:1766
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr ""
 
-#: manual/design/bin_float.md:1697
+#: manual/design/bin_float.md:1780
 msgid "Ordering NaN in `compare`"
 msgstr ""
 
-#: manual/design/bin_float.md:1699
+#: manual/design/bin_float.md:1782
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr ""
 
-#: manual/design/bin_float.md:1703
+#: manual/design/bin_float.md:1786
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr ""
 
-#: manual/design/bin_float.md:1710
+#: manual/design/bin_float.md:1793
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr ""
 
-#: manual/design/bin_float.md:1725
+#: manual/design/bin_float.md:1808
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr ""
 
-#: manual/design/bin_float.md:1729
+#: manual/design/bin_float.md:1812
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:1734
+#: manual/design/bin_float.md:1817
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:1743
+#: manual/design/bin_float.md:1826
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr ""
 
-#: manual/design/bin_float.md:1747
+#: manual/design/bin_float.md:1830
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr ""
 
-#: manual/design/bin_float.md:1751
+#: manual/design/bin_float.md:1834
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr ""
 
-#: manual/design/bin_float.md:1755
+#: manual/design/bin_float.md:1838
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr ""
 
-#: manual/design/bin_float.md:1764
+#: manual/design/bin_float.md:1847
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr ""
 
-#: manual/design/bin_float.md:1768
+#: manual/design/bin_float.md:1851
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr ""
 
-#: manual/design/bin_float.md:1772
+#: manual/design/bin_float.md:1855
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr ""
 
-#: manual/design/bin_float.md:1776
+#: manual/design/bin_float.md:1859
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr ""
 
-#: manual/design/bin_float.md:1781
+#: manual/design/bin_float.md:1864
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr ""
 
-#: manual/design/bin_float.md:1784
+#: manual/design/bin_float.md:1867
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr ""
 
-#: manual/design/bin_float.md:1788
+#: manual/design/bin_float.md:1871
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr ""
 
-#: manual/design/bin_float.md:1792
+#: manual/design/bin_float.md:1875
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr ""
 
-#: manual/design/bin_float.md:1797
+#: manual/design/bin_float.md:1880
 msgid "`bin_float` deliberately does not:"
 msgstr ""
 
-#: manual/design/bin_float.md:1799
+#: manual/design/bin_float.md:1882
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr ""
 
-#: manual/design/bin_float.md:1802
+#: manual/design/bin_float.md:1885
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr ""
 
-#: manual/design/bin_float.md:1804
+#: manual/design/bin_float.md:1887
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr ""
 
-#: manual/design/bin_float.md:1806
+#: manual/design/bin_float.md:1889
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr ""
 
-#: manual/design/bin_float.md:1808
+#: manual/design/bin_float.md:1891
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr ""
 
-#: manual/design/bin_float.md:1811
+#: manual/design/bin_float.md:1894
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr ""
 
-#: manual/design/bin_float.md:1813
+#: manual/design/bin_float.md:1896
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr ""
 

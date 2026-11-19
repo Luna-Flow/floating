@@ -6,62 +6,6 @@
 let binary_constants_split_min_precision : Int32 = 64
 
 ///|
-/// A signed integer as sign and magnitude, which is all the splitting
-/// recurrence of the Chudnovsky series needs: `BinCoeff` is unsigned.
-priv struct SplitInt {
-  negative : Bool
-  magnitude : BinCoeff
-}
-
-///|
-fn SplitInt::make(negative : Bool, magnitude : BinCoeff) -> SplitInt {
-  { negative: negative && !magnitude.is_zero(), magnitude, }
-}
-
-///|
-fn SplitInt::add(self : SplitInt, other : SplitInt) -> SplitInt {
-  if self.negative == other.negative {
-    return SplitInt::make(self.negative, self.magnitude.add(other.magnitude))
-  }
-  if self.magnitude.compare(other.magnitude) >= 0 {
-    SplitInt::make(
-      self.negative,
-      self.magnitude.sub_checked(other.magnitude).unwrap(),
-    )
-  } else {
-    SplitInt::make(
-      other.negative,
-      other.magnitude.sub_checked(self.magnitude).unwrap(),
-    )
-  }
-}
-
-///|
-fn SplitInt::mul_coeff(self : SplitInt, factor : BinCoeff) -> SplitInt {
-  SplitInt::make(self.negative, self.magnitude.mul(factor))
-}
-
-///|
-/// Binary splitting state of a series `sum_n prod_{k<=n} p(k) / q(k)` on the
-/// index range `[from, to)`: `p = prod p(k)`, `q = prod q(k)` and
-/// `t = q * (partial sum)`, so that the partial sums of two adjacent ranges
-/// combine as `t = q_right * t_left + p_left * t_right`.
-priv struct SplitState {
-  p : BinCoeff
-  q : BinCoeff
-  t : SplitInt
-}
-
-///|
-fn split_combine(left : SplitState, right : SplitState) -> SplitState {
-  {
-    p: left.p.mul(right.p),
-    q: left.q.mul(right.q),
-    t: left.t.mul_coeff(right.q).add(right.t.mul_coeff(left.p)),
-  }
-}
-
-///|
 /// `sum_{j < terms} 1 / ((2j+1) K^j)` as `t / q`: the factors
 /// `p(j) = 2j - 1` and `q(j) = (2j + 1) K` telescope to `1 / ((2j+1) K^j)`.
 /// `artanh(1 / k) = (1 / k) * sum` with `K = k^2`.
@@ -75,7 +19,9 @@ fn split_artanh_state(
       return {
         p: BinCoeff::one(),
         q: BinCoeff::one(),
-        t: SplitInt::make(false, BinCoeff::one()),
+        q_shift: 0,
+        t_negative: false,
+        t: BinCoeff::one(),
       }
     }
     let odd = from.to_uint64() * 2UL
@@ -83,7 +29,9 @@ fn split_artanh_state(
     return {
       p,
       q: BinCoeff::from_uint64(odd + 1UL).mul(square),
-      t: SplitInt::make(false, p),
+      q_shift: 0,
+      t_negative: false,
+      t: p,
     }
   }
   let middle = from + (to - from) / 2
@@ -122,9 +70,9 @@ fn split_artanh_sum_bounds(
   )
   let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
   let numerator = BinFloat::make(
-    state.t.magnitude,
+    state.t,
     0,
-    Int32::max(1, state.t.magnitude.bit_length()),
+    Int32::max(1, state.t.bit_length()),
   )
   let denominator = BinFloat::make(
     state.q,
@@ -234,7 +182,9 @@ fn split_chudnovsky_state(from : Int32, to : Int32) -> SplitState {
       return {
         p: BinCoeff::one(),
         q: BinCoeff::one(),
-        t: SplitInt::make(false, BinCoeff::from_uint64(chudnovsky_a)),
+        q_shift: 0,
+        t_negative: false,
+        t: BinCoeff::from_uint64(chudnovsky_a),
       }
     }
     let k = from.to_uint64()
@@ -247,7 +197,7 @@ fn split_chudnovsky_state(from : Int32, to : Int32) -> SplitState {
       .mul(k_coeff)
       .mul(BinCoeff::from_uint64(chudnovsky_c3_over_24))
     let linear = BinCoeff::from_uint64(chudnovsky_a + chudnovsky_b * k)
-    return { p, q, t: SplitInt::make(from % 2 == 1, p.mul(linear)), }
+    return { p, q, q_shift: 0, t_negative: from % 2 == 1, t: p.mul(linear), }
   }
   let middle = from + (to - from) / 2
   split_combine(
@@ -280,11 +230,11 @@ fn binary_pi_split_bounds(
   let precision = work_precision + 16
   let terms = Int32::max(1, precision / 46 + 3 - reduce_terms)
   let state = split_chudnovsky_state(0, terms)
-  guard !state.t.negative else { return None }
+  guard !state.t_negative else { return None }
   let slack = state.q.shift_right(precision + 4).add(BinCoeff::one())
-  guard state.t.magnitude.compare(slack) > 0 else { return None }
-  let t_low = state.t.magnitude.sub_checked(slack).unwrap()
-  let t_high = state.t.magnitude.add(slack)
+  guard state.t.compare(slack) > 0 else { return None }
+  let t_low = state.t.sub_checked(slack).unwrap()
+  let t_high = state.t.add(slack)
   let downward = BinaryContext::unbounded(
     precision,
     rounding=RoundTowardNegative,

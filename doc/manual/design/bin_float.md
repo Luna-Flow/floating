@@ -1011,6 +1011,94 @@ not an estimate. The last step converts to
 `BinFloat::make(coeff, exp, w, mode=TowardNegative / TowardPositive)`, which is
 what the existing fixed-point series already does.
 
+**Shared fixed-point toolkit.** The kernels below share one private layer,
+`elementary_toolkit.mbt` (issue
+[#368](https://github.com/Luna-Flow/floating/issues/368)); each piece states its
+error bound once, and the kernel sections add only what is specific to their
+series. The extraction is a pure refactor: every kernel returns the same
+enclosure $(L, U)$ as before, bit for bit and `None` in the same cases, which
+`elementary_toolkit_digest_wbtest.mbt` checks with one digest per kernel and
+working precision (a corpus around every per-target threshold, the multiples of
+$\ln 2$ and $\pi/2$, tiny and large arguments) against a table generated on
+the kernels before the extraction.
+
+1. *Directed conversion* (`fixed_scaled_floor`, `fixed_scaled_exact`,
+   `fixed_shift`, `fixed_enclosure`). A fixed-point integer $N$ stands for
+   $N / 2^{F}$. `fixed_scaled_floor` rounds toward $-\infty$ and loses less
+   than one unit; `fixed_scaled_exact` is `None` unless the scaling is exact;
+   `fixed_enclosure` turns an integer pair $(\ell, u)$ into floats rounded
+   outward (lower end `TowardNegative`, upper end `TowardPositive`), swapping
+   the ends for a negative result.
+2. *Bounded cache* (`BoundedCache[V]`: `find`, `insert`, capacity as a
+   parameter, oldest entry dropped first). It replaces the three ad-hoc caches
+   (constants, 6 entries per constant; `exp` tables, 24 sets; factorial
+   coefficients, 64 entries). A cached value is a pure function of its key, so
+   a hit returns the value a recomputation returns.
+3. *Term-by-term stage* (`fixed_series_step`, `fixed_exp_series`). With
+   $y = N / 2^{s} < 1$, $t_0 = 2^{F}$ and
+   $t_i = \lfloor \lfloor t_{i-1} N / 2^{s} \rfloor / i \rfloor$, the exact
+   term $\tau_i = 2^{F} y^i / i!$ satisfies $t_i \le \tau_i < t_i + 3$ (the
+   deficit $d_i$ obeys $d_i < d_{i-1} y / i + 1/i + 1$). `fixed_exp_series`
+   sums until a term is below $2^{8}$ and returns the sum, the last term and
+   its index; the exact value is within $t_n + 3n + 3$ above the sum. The
+   fixed `exp` stage and the bit-burst `exp` stage use it with their own slack
+   constants (4 and 3), and the burst `sin`/`cos` stage uses the step for the
+   real and imaginary parts of $e^{iy}$. `binary_ln_unit_fixed_bounds` and
+   `binary_sin_cos_fixed_series` stay apart: their recurrences are in $z^2$ and
+   $x^2$ with different divisors and different tail proofs (an artanh series
+   with ratio $z^2 \le 1/9$, an alternating series), not the recurrence above.
+4. *Binary splitting* (`SplitState`, `split_combine`, `split_combine_t`). A
+   state on $[from, to)$ is $(p, q, q\_shift, t)$ with $p = \prod p(k)$,
+   $q = \prod q'(k)$, the power of two of $q(k) = q'(k) 2^{e(k)}$ kept apart in
+   $q\_shift = \sum e(k)$, and $t = q\, 2^{q\_shift} \cdot$ (partial sum), merged as
+   $t = t_{\mathrm{left}}\, q_{\mathrm{right}} 2^{q\_shift_{\mathrm{right}}} +
+   p_{\mathrm{left}}\, t_{\mathrm{right}}$. The constants (artanh and
+   Chudnovsky series) use $q\_shift = 0$, the series of $e^{N/2^s}$ uses
+   $q\_shift = s$ per index from 1 (`split_exp_state`). All of it is exact
+   integer arithmetic, so the partial sum is the exact rational
+   $t / (q\, 2^{q\_shift})$ and the error bound of a kernel is the bound of its
+   omitted tail alone. The complex stage of `sin`/`cos` (`SplitComplexState`)
+   keeps its own type because it carries two components and rotates the right
+   component by $i^{\mathrm{leaves}_{\mathrm{left}}}$ before the merge; it
+   shares `split_combine_t` and the products of $p$, $q$ and $q\_shift$.
+   `fixed_split_terms` gives the number of terms for which the omitted tail of
+   $\sum N^k / (k!\, 2^{sk})$ is below two units (the proof is in its
+   comment).
+5. *Rectangular splitting* (`rect_plan`, `rect_powers`, `rect_sum`,
+   `rect_inverse_factorials`). For a series $\sum_{i<N} c_i r^i$ with
+   nonnegative integer coefficients, $r = a / 2^{F} < 2^{-k}$, $k \ge 4$, and
+   $N = b m$ terms, the powers $p_j = \lfloor p_u p_v / 2^{F} \rfloor$
+   ($u + v = j$) satisfy $p_j \le 2^{F} r^j < p_j + 2$. With
+   $P_\beta = \sum_{j<m} c_{\beta m + j} p_j$, $\mathrm{Acc}_{b-1} = P_{b-1}$ and
+   $\mathrm{Acc}_\beta = P_\beta + \lfloor p_m \mathrm{Acc}_{\beta+1} / 2^{F}
+   \rfloor$, the sum satisfies $\mathrm{Acc}_0 \le 2^{F} \sum c_i r^i$ and
+   its deficit $\varepsilon_\beta$, in the units of the common denominator of
+   the $c_i$, obeys
+   $\varepsilon_\beta < 2 \sum_j c_{\beta m + j} + 2\,\mathrm{Acc}_{\beta+1} / 2^{F} +
+   1 + r^m \varepsilon_{\beta+1}$. The coefficient sequence is the parameter:
+   `rect_inverse_factorials` gives $c_i = N!/i!$ for $e^r$ (deficit below 8
+   units of $N!$, the constant 10 of `binary_exp_taylor_fixed`); the next
+   kernels pass $c_i = D/(2i+1)$ with a common multiple $D$ (the odd
+   reciprocals of $\ln$ and $\arctan$) or $N!/(2i)!$ and $N!/(2i+1)!$ (sine
+   and cosine, whose alternating signs the caller splits into a positive and a
+   negative series in $r^2$ with nonnegative coefficients). The block size
+   minimizes a cost estimate (`rect_block_size`) and never changes a result
+   bound; `rect_factorial_terms` is the term count for factorial decay.
+6. *Reduction by $\ln 2$* (`fixed_exp_reduce`, `fixed_exp_finish`), the
+   integer reduction and the closing units of the bit-burst and the table
+   `exp`, described in the next two sections, and the chunk schedule of the
+   bit-burst (`fixed_burst_chunks`), used by the `exp` and the `sin`/`cos`
+   kernels.
+
+The guard-bit constants (`binary_exp_fixed_guard_bits` 16,
+`binary_exp_table_guard_bits` 16, `binary_exp_burst_guard_bits` 48 and the
+64 extra bits of the `sin`/`cos` burst) stay separate on purpose: they are
+tuned per kernel (they set the width of the final enclosure, which the width
+checks compare with the working precision), and changing one changes the
+enclosure, which this refactor must not do. The mutation hooks (`BurstMutation`, `BurstLnMutation`,
+`BurstTrigMutation`) stay in the kernels, since they name the kernel's own
+proof obligations.
+
 **`exp`, by ln 2 reduction and bit-burst.** For finite $x \neq 0$ with
 $|x| < 2^{30}$ (larger magnitudes are decided before the loop or fall back),
 let $n = \lfloor x / \ln 2 \rfloor$, found from the cached enclosure of
@@ -1155,7 +1243,10 @@ arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64
 ($\ge 128$; multiples of 256 above 1024), so $g \ge 16$. The reduction to
 $R_t = \lfloor 2^F R \rfloor / 2^F \in [0, \ln 2)$ and the residual factor
 $e^{\delta}$ are those of the bit-burst kernel above (3 units below, 6 above
-in units of $2^{-F}$, valid because $e^{R_t} < 3$). Then, with
+in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of
+`fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series
+of the remainder is the rectangular splitting of toolkit piece 5 with the
+coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with
 $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \le 256$, $(6,6)$ up to 1024,
 $(6,5)$ above),
 
@@ -1183,20 +1274,12 @@ $r < 2^{-K}$, $K \ge 11$ in the shapes above). The number of terms $N$ is the
 least with $K N + \sum_{i \le N} (\operatorname{bits}(i) - 1) \ge F + 1$; as
 $N! \ge 2^{\sum (\operatorname{bits}(i)-1)}$ and the ratio of consecutive terms
 is below $1/2$, the tail satisfies $\sum_{i \ge N} r^i/i! \le 2 r^N/N! \le
-2^{-F}$: at most one unit. The sum is evaluated by rectangular
-(Paterson–Stockmeyer) splitting: $N$ is rounded up to $N' = b m$, the block size
-$m$ minimises a small cost model, and
-
-1. powers $p_0 = 2^F$, $p_1 = a$, $p_j = \lfloor p_{\lceil j/2 \rceil}
-   p_{\lfloor j/2 \rfloor} / 2^F \rfloor$, $j \le m$. By induction $p_j \le 2^F r^j$
-   and $e_j := 2^F r^j - p_j < 1 + (e_u + e_v) 2^{-K} + e_u e_v 2^{-F} < 2$
-   (every product loses less than one unit, the factors' errors are scaled by
-   $r^u, r^v < 2^{-K}$);
-2. integer coefficients $C_i = N'!/i!$ (computed once per $N'$);
-   $P_\beta = \sum_{j<m} C_{\beta m + j}\, p_j$ for blocks $\beta = 0 .. b-1$;
-3. Horner in $y = p_m$: $\mathrm{Acc}_{b-1} = P_{b-1}$,
-   $\mathrm{Acc}_\beta = P_\beta + \lfloor p_m \mathrm{Acc}_{\beta+1} / 2^F \rfloor$;
-4. one division, $E = \lfloor \mathrm{Acc}_0 / N'! \rfloor$.
+2^{-F}$: at most one unit. The sum is evaluated by the rectangular
+(Paterson–Stockmeyer) splitting of toolkit piece 5, with $N$ rounded up to
+$N' = b m$, the integer coefficients $C_i = N'!/i!$ (computed once per $N'$) and
+one final division, $E = \lfloor \mathrm{Acc}_0 / N'! \rfloor$; the powers
+$p_j$ and the recurrence for $\mathrm{Acc}_\beta$ are those defined there, with
+$e_j := 2^F r^j - p_j < 2$ (so $e_0 = e_1 = 0$).
 
 *Error of the series.* The exact counterpart is $\mathrm{Acc}^*_0 = N'!\, 2^F
 \sum_{i<N'} r^i/i!$, and every computed quantity is a lower bound of its exact
