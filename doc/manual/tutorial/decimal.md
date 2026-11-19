@@ -214,6 +214,25 @@ the refinement budget; `ln_ctx` turns that case into NaN with
 `invalid_operation`. Exact results such as $\log_{10} 1000 = 3$ come back
 without `inexact`.
 
+For a small rate or a small exponent, use the functions that keep the part
+near zero instead of computing `exp2(x) - 1` or `log2(1 + x)`: those lose the
+digits of $x$ when $1 + x$ is rounded. `exp2m1_ctx`, `exp10m1_ctx`,
+`log2p1_ctx` and `log10p1_ctx` compute $2^x - 1$, $10^x - 1$,
+$\log_2(1 + x)$ and $\log_{10}(1 + x)$ from $x$ itself:
+
+```moonbit
+///|
+test "decimal growth near zero" {
+  let ctx = @decimal.DecimalContext::decimal64()
+  let rate = @decimal.Decimal::from_string("1E-12").unwrap()
+  // log10(1 + 1E-12): 1 + 1E-12 would need 13 digits of a 16-digit result.
+  inspect(rate.log10p1_ctx(ctx).0, content="4.342944819030347E-13")
+  inspect(rate.exp10m1_ctx(ctx).0, content="2.302585092996697E-12")
+  // An integer argument gives an exact result.
+  inspect(@decimal.Decimal::from_int(10).exp2m1_ctx(ctx).0, content="1023")
+}
+```
+
 ## Going further
 
 ### Generic code over the algebra traits

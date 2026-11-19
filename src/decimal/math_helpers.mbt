@@ -2405,35 +2405,35 @@ fn decimal_power_ten_cohort_result(
 }
 
 ///|
-/// IEEE 754-2019 §9.2.2 and §5.2: an exact result of `pow` takes the cohort
-/// member whose exponent is closest to the preferred exponent
-/// `floor(y * Q(x))` among those that represent the value within the
+/// Whether `decimal_power_adjust_exact_cohort` may move `result` within its
+/// cohort: a finite nonzero exact result without an exceptional flag.
+fn decimal_exact_cohort_adjustable(result : (Decimal, DecimalFlags)) -> Bool {
+  let (value, flags) = result
+  value.class == FpClass::Finite &&
+  !value.coefficient.is_zero() &&
+  !flags.inexact &&
+  !flags.overflow &&
+  !flags.underflow &&
+  !flags.subnormal &&
+  !flags.clamped &&
+  !flags.invalid_operation &&
+  !flags.invalid_context
+}
+
+///|
+/// IEEE 754-2019 §9.2.2 and §5.2: an exact result takes the cohort member
+/// whose exponent is closest to the preferred exponent (`floor(y * Q(x))` for
+/// `pow`, 0 for most of 9.2) among those that represent the value within the
 /// precision (trailing zeros may be dropped, zeros may be added up to
 /// `precision` digits). Inexact, exceptional, zero and non-finite results are
 /// returned unchanged.
 fn decimal_power_adjust_exact_cohort(
   result : (Decimal, DecimalFlags),
-  base : Decimal,
-  exponent : Decimal,
+  preferred : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  guard decimal_exact_cohort_adjustable(result) else { return result }
   let (value, flags) = result
-  guard value.class == FpClass::Finite &&
-    !value.coefficient.is_zero() &&
-    !flags.inexact &&
-    !flags.overflow &&
-    !flags.underflow &&
-    !flags.subnormal &&
-    !flags.clamped &&
-    !flags.invalid_operation &&
-    !flags.invalid_context else {
-    return result
-  }
-  let preferred = match
-    decimal_power_preferred_exponent(base.exponent10, exponent) {
-    Some(value) => value
-    None => return result
-  }
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
   let digits = value.coefficient.digits10()
   let (_, stripped_exponent) = remove_factor10_repr(

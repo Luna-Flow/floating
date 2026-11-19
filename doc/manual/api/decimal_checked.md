@@ -319,7 +319,7 @@ test "exceptional results are values" {
 
 ## Operations that can record an error
 
-### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
+### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
 
 These methods apply the certified `Decimal::try_*_ctx` functions of the same
 name.
@@ -329,10 +329,14 @@ pub fn DecimalChecked::exp(Self) -> Self
 pub fn DecimalChecked::exp2(Self) -> Self
 pub fn DecimalChecked::exp10(Self) -> Self
 pub fn DecimalChecked::expm1(Self) -> Self
+pub fn DecimalChecked::exp2m1(Self) -> Self
+pub fn DecimalChecked::exp10m1(Self) -> Self
 pub fn DecimalChecked::ln(Self) -> Self
 pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::log10(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
+pub fn DecimalChecked::log2p1(Self) -> Self
+pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int) -> Self
 pub fn DecimalChecked::rootn(Self, Int) -> Self
@@ -437,7 +441,9 @@ pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::error(Self) -> @arithmetic.ArithmeticError?
 pub fn DecimalChecked::exp(Self) -> Self
 pub fn DecimalChecked::exp10(Self) -> Self
+pub fn DecimalChecked::exp10m1(Self) -> Self
 pub fn DecimalChecked::exp2(Self) -> Self
+pub fn DecimalChecked::exp2m1(Self) -> Self
 pub fn DecimalChecked::expm1(Self) -> Self
 pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
@@ -452,8 +458,10 @@ pub fn DecimalChecked::is_err(Self) -> Bool
 pub fn DecimalChecked::is_ok(Self) -> Bool
 pub fn DecimalChecked::ln(Self) -> Self
 pub fn DecimalChecked::log10(Self) -> Self
+pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
 pub fn DecimalChecked::log2(Self) -> Self
+pub fn DecimalChecked::log2p1(Self) -> Self
 pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self

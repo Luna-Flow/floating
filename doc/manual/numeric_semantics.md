@@ -315,7 +315,8 @@ The five IEEE exceptions[^ieee-exceptions] are reported as booleans on
   a quiet NaN.
 - *division by zero*: an exact infinite result from finite operands
   ($1/{-0} = -\infty$, $\log 0 = -\infty$). `bin_float` and `decimal` raise
-  it for every logarithm of zero and for $\operatorname{log1p}(-1)$;
+  it for every logarithm of zero and for $\operatorname{log1p}(-1)$,
+  $\operatorname{log2p1}(-1)$ and $\operatorname{log10p1}(-1)$;
   `decimal_gda` follows General Decimal Arithmetic, whose `ln` and `log10` of
   zero return $-\infty$ without a condition.
 - *overflow*: the rounded result with an unbounded exponent would exceed the

@@ -812,6 +812,78 @@ Three kinds of inputs are decided outside the agreement test:
   $10^{E_{\text{tiny}}-1}$ by the same estimate. `power` bounds $y \log_2 x$
   with directed 128-bit arithmetic for the same purpose.
 
+**One layer for the newer §9.2 functions.** `exp2m1`, `exp10m1`, `log2p1`
+and `log10p1`, and the families that follow in
+[#236](https://github.com/Luna-Flow/floating/issues/236), take three
+decisions from one internal file (`elementary_range.mbt`) instead of writing
+them again: an exact result is formed as an exact decimal, rounded once by the
+context and then moved to the cohort member nearest the preferred exponent
+(`decimal_exact_constant`, which uses the cohort step of `power` with the
+preferred exponent as an argument), so a context that cannot hold the value
+rounds it with its own flags; a result whose certified bracket of $\log_2$
+lies above $\log_2 10\,(e_{\max}+2)$ or below
+$\log_2 10\,(E_{\text{tiny}}-2)$ rounds like the representative
+$10^{e_{\max}+2}$ or $10^{E_{\text{tiny}}-2}$
+(`decimal_range_from_log2_bracket`, the former tail of the `power` range
+test); and every other result comes from the Ziv loop above. No result is a
+zero or an infinity chosen because the argument is small or large: a tiny
+result is the rounding of its certified endpoints, so subnormals, `Underflow`
+under either tininess rule, `Clamped` and the sign of a zero are those of the
+context.
+
+The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the
+input interval ($\ln 2$ and $\ln 10$ as certified `ball_float` intervals).
+Both primitives are series in $x$, so the relative width of the enclosure is a
+few units of the working precision for every legal operand, down to
+$x = 10^{-1\,999\,996}$; no tiny-argument anchor is needed because the slopes
+$\ln b$ and $1/\ln b$ are irrational. Before the loop:
+
+- *Exact cases.* $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$
+  are irrational for a non-integer rational $r$), and $\log_b(1+x)$ is
+  rational only when $1+x = b^k$. For $0 < |n| \le 4(p+2)$ the value $2^n-1$,
+  $10^n-1$, $-(1-2^{-m})$ or $-(1-10^{-m})$ is formed and rounded once; $k$
+  is found from $x$ without forming $1+x$ ($x+1$ a power of two, compared
+  first on its lowest nine digits; all nines; a coefficient $10^m - 5^m$ or
+  $10^m - 1$ with $m$ fraction digits). The preferred exponent is 0
+  (IEEE 754-2019 §9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`.
+- *Clusters.* For an integer $n > 4(p+2)$, $2^n$ has $D \ge p+3$ digits and
+  every rounding boundary of a $D$-digit integer is a multiple of the even
+  number $5 \cdot 10^{D-p-1}$; neither $2^n$ (no factor 5) nor the odd
+  $2^n - 1$ is one, so both lie in one open rounding cell and `exp2m1(n)` is
+  `exp2(n)`. $10^n - 1$ lies above the midpoint $10^n - 5 \cdot 10^{n-p-1}$
+  and below $10^n$, where an enclosure can never separate it from the
+  representable $10^n$; the representative $10^n - 10^{n-p-2}$ has the same
+  rounding and is formed instead of a number of $n$ digits. Towards $-1$,
+  for $x \le -(p+2)$ (base 10) or $x \le -(4p+8)$ (base 2) the value is
+  $-1 + \delta$ with $0 < \delta \le 10^{-(p+2)}$ and rounds like
+  $-(1 - 10^{-(p+2)})$, as for `expm1`.
+- *Overflow.* $x \ge \lceil 3.322\,(e_{\max}+2) \rceil$ (base 2) or
+  $x \ge e_{\max}+2$ (base 10) gives the overflow result of the context.
+- *Below the subnormal range.* For $|x| \le 10^{-5}$ all four satisfy
+  $0 < |f(x)| < 3|x|$ with the sign of $x$, so $|x| < 10^{E_{\text{tiny}}-3}$
+  puts $f(x)$ below $10^{E_{\text{tiny}}-2}$, where it rounds like the
+  representative $\pm 10^{E_{\text{tiny}}-2}$ that the enclosure would use
+  for its endpoints. The result is that rounding, decided without converting
+  $x$ to binary (the conversion of $10^{-1\,999\,997}$ alone costs about a
+  second).
+- *Tiny arguments within the range.* For $|x| < 10^{-(p+11)}$, write
+  $x = m\,10^{q}$; then $f(x) = c\,x\,(1 + d)$ with $c = \ln b$ or $1/\ln b$
+  and $|d| \le 2.31|x|$, so $f(x)/10^{q}$ lies in
+  $c\,m\,[1 - 2^{k}, 1 + 2^{k}]$ for $2^{k} \ge 4|x|$. The endpoints of that
+  enclosure have a few dozen digits, where the binary endpoints of $f(x)$
+  itself would expand to about $0.7|q|$ digits; scaled back by $10^{q}$ they
+  are rounded with the context and accepted under the same agreement test as
+  the loop, which decides the rare value too close to a rounding boundary.
+  The certified $\ln 2$ and $\ln 10$ intervals are kept per working
+  precision. Both only change the cost: on 10,000 random rows of each function
+  the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14
+  (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the
+  level of `exp` (13) and `log1p` (18).
+- *Poles and domain.* $x = -1$ is $-\infty$ with `division_by_zero` and
+  $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an
+  operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0 = 4\max(D,p)+64$
+  bits resolve, as for `log1p`.
+
 The elementary functions refuse contexts with $p$ or $|e|$ above 999,999
 (`invalid_context`), which bounds the size of the exact endpoint conversions.
 

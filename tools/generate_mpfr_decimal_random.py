@@ -58,6 +58,8 @@ COLUMNS = "# id op rounding precision emin emax clamp tininess a b n expected fl
 
 # Operand profiles: how the operands of an operation are drawn.
 EXP = "exp"  # growth like exp: |x| up to the overflow threshold
+EXP2 = "exp2_growth"  # growth like 2^x: overflow near x = 3.32 (emax + 1)
+EXP10 = "exp10_growth"  # growth like 10^x: overflow near x = emax + 1
 POSITIVE = "positive"  # x > 0
 LOG1P = "log1p"  # x > -1
 UNIT = "unit"  # |x| <= 1
@@ -78,6 +80,10 @@ ARITY = {
     "atan2": (REAL, REAL),
     "rootn": ("root_base",),
     "pown": ("root_base",),
+    # IEEE 754-2019 9.2 functions added by #236 (after the first campaign's
+    # entries, so the rows of every earlier operation are unchanged).
+    "exp2m1": (EXP2,), "exp10m1": (EXP10,),
+    "log2p1": (LOG1P,), "log10p1": (LOG1P,),
 }
 INTEGER_OPERATIONS = ("rootn", "pown")
 OPERATIONS = tuple(ARITY)
@@ -180,10 +186,12 @@ def adjusted_target(rng: base.Rng, context: Context, profile: str) -> int:
     """The adjusted exponent (decimal order of magnitude) of an operand."""
     precision = context.precision
     kind = rng.range(0, 99)
-    if profile == EXP:
-        # The overflow threshold of exp is x ~ 2.4 * (emax + 2); 10% of the
-        # samples sit there, 15% near zero where the result is near 1.
-        limit = max(1, int((context.emax + 2) * 2.4))
+    if profile in (EXP, EXP2, EXP10):
+        # The overflow threshold of exp is x ~ 2.4 * (emax + 2) (3.33 for
+        # 2^x, 1 for 10^x); 10% of the samples sit there, 15% near zero where
+        # the result is near 1.
+        scale = {EXP: 2.4, EXP2: 3.33, EXP10: 1.0}[profile]
+        limit = max(1, int((context.emax + 2) * scale))
         order = len(str(limit)) - 1
         if kind < 25:
             return rng.range(-(precision + 3), 0)

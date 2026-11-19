@@ -489,35 +489,7 @@ fn decimal_power_out_of_range(
       result_high = value
     }
   }
-  // log2(10) < 3.322, so these bounds are conservative on both sides.
-  let overflow_log2 = (huge * 3322L + 999L) / 1000L
-  let tiny_log2 = (tiny * 3322L - 999L) / 1000L
-  let one = BigInt::from_int(1)
-  let overflow_bound = @bin_float.BinFloat::from_string(
-    overflow_log2.to_string(),
-    precision=work,
-  ).unwrap()
-  let tiny_bound = @bin_float.BinFloat::from_string(
-    tiny_log2.to_string(),
-    precision=work,
-  ).unwrap()
-  if result_low.compare(overflow_bound) >= 0 {
-    return Some(
-      decimal_apply_finite_ctx(
-        finite_with_exponent(false, one, huge.to_int(), 1),
-        decimal_math_result_ctx(ctx),
-      ),
-    )
-  }
-  if result_high.compare(tiny_bound) <= 0 {
-    return Some(
-      decimal_apply_finite_ctx(
-        finite_with_exponent(false, one, tiny.to_int(), 1),
-        decimal_math_result_ctx(ctx),
-      ),
-    )
-  }
-  None
+  decimal_range_from_log2_bracket(result_low, result_high, ctx)
 }
 
 ///|
