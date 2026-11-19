@@ -610,7 +610,7 @@ pub struct DecimalFlags {
 | `rounded` | digits were discarded, even if they were all zero |
 | `lost_digits` | a subset-mode operand longer than $p$ lost non-zero digits |
 | `invalid_operation` | the operation is invalid (signaling NaN, $\infty-\infty$, $0\times\infty$, bad quantize, domain error) |
-| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$) |
+| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `underflow` | the result is tiny and inexact |
 | `subnormal` | the result is tiny |
@@ -1581,6 +1581,59 @@ test "decimal exp2m1 exp10m1 log2p1 log10p1" {
 }
 ```
 
+### `Decimal::rsqrt_ctx`, `compound_ctx`, `powr_ctx`, `try_rsqrt_ctx`, `try_compound_ctx`, `try_powr_ctx`
+
+These functions are $1/\sqrt{x}$, $(1 + x)^n$ for an `Int32` $n$ and
+$x^y = e^{y \ln x}$ of IEEE 754-2019 §9.2. Each has the `f_ctx`/`try_f_ctx`
+shape described at the start of this section.
+
+```mbti
+pub fn Decimal::rsqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::try_rsqrt_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_compound_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_powr_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+```
+
+`rsqrt_ctx` has domain $[0, +\infty]$: $x < 0$ (including $-\infty$) is
+invalid, $\pm 0 \mapsto \pm\infty$ with `division_by_zero` and
+$+\infty \mapsto +0$ (§9.2.1). It is exact when $x = 2^{2i}5^{2j}$; the
+result then takes the preferred exponent $-\lfloor Q(x)/2 \rfloor$ of §9.2.2,
+so in decimal64 `rsqrt_ctx(4.00)` is `0.5`, `rsqrt_ctx(1E+2)` is `0.1` and
+`rsqrt_ctx(1E-400)` is `1E+200`.
+
+`compound_ctx(x, n)` follows the list of §9.2.1: `compound(x, 0)` is 1 for
+$x \ge -1$ and for a quiet NaN, $x < -1$ (also with $n = 0$) is invalid,
+`compound(-1, n)` is $+\infty$ with `division_by_zero` for $n < 0$ and $+0$
+for $n > 0$, `compound(±0, n)` is 1 and `compound(+∞, n)` is $+\infty$ or
+$+0$. An exact result takes the preferred exponent
+$\lfloor n \min(0, Q(x)) \rfloor$: `compound_ctx(0.10, 2)` is `1.2100` and
+`compound_ctx(0.00, 3)` is `1.000000`. Every $n$ of `Int32` is accepted, also
+the `Int32` minimum $-2^{31}$.
+
+`powr_ctx(x, y)` is $e^{y \ln x}$, so its domain excludes $x < 0$ (invalid,
+also when $y$ is a quiet NaN). It returns a quiet NaN for a NaN operand even
+when $y = \pm 0$, is invalid for `powr(±0, ±0)`, `powr(+∞, ±0)` and
+`powr(1, ±∞)`, and otherwise equals `power_ctx` on $|x|$ (results, cohort and
+flags): `powr_ctx(-0, 3)` is `0` where `power_ctx` gives `-0`.
+
+```moonbit
+///|
+test "decimal rsqrt compound powr" {
+  let c64 = @decimal.DecimalContext::decimal64()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  inspect(d("6.25").rsqrt_ctx(c64).0, content="0.4")
+  inspect(d("2").rsqrt_ctx(c64).0, content="0.7071067811865475")
+  inspect(d("0.05").compound_ctx(3, c64).0, content="1.157625")
+  inspect(d("0.05").compound_ctx(-3, c64).0, content="0.8638375985314761")
+  inspect(d("4").powr_ctx(d("0.5"), c64).0, content="2")
+  let (invalid, flags) = d("-2").powr_ctx(d("2"), c64)
+  inspect(invalid, content="nan")
+  inspect(flags.invalid_operation, content="true")
+}
+```
+
 ### `Decimal::sin_ctx`, `cos_ctx`, `tan_ctx`, `sinpi_ctx`, `cospi_ctx`, `tanpi_ctx`, `try_sin_ctx`, `try_cos_ctx`, `try_tan_ctx`, `try_sinpi_ctx`, `try_cospi_ctx`, `try_tanpi_ctx`
 
 These functions are the trigonometric functions of $x$ and of $\pi x$. Each has the `f_ctx`/`try_f_ctx` shape described
@@ -1647,6 +1700,9 @@ Domain and special values of the functions in these four groups:
 | `log1p` | $x<-1$, $-\infty$ | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$, $+\infty \mapsto +\infty$ |
 | `exp2m1`, `exp10m1` | none | none | $\pm0 \mapsto \pm0$, $-\infty\mapsto -1$, $+\infty \mapsto +\infty$; integer $n$: $2^n - 1$, $10^n - 1$ |
 | `log2p1`, `log10p1` | $x<-1$, $-\infty$ | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$, $+\infty \mapsto +\infty$; $1 + x = 2^k$ (resp. $10^k$) $\mapsto k$ |
+| `rsqrt` | $x<0$, $-\infty$ | $\pm 0 \mapsto \pm\infty$ | $+\infty \mapsto +0$; $x = 2^{2i}5^{2j}$ |
+| `compound(x, n)` | $x<-1$, $-\infty$ (any $n$) | $(-1, n<0) \mapsto +\infty$ | $(x, 0) \mapsto 1$, $(\pm 0, n) \mapsto 1$, $(-1, n>0) \mapsto +0$, $+\infty$ by the sign of $n$; exact powers |
+| `powr(x, y)` | $x<0$, $(\pm0, \pm0)$, $(+\infty, \pm0)$, $(1, \pm\infty)$ | $(\pm 0, y<0) \mapsto +\infty$ | NaN for a NaN operand; otherwise as `power` on $\lvert x\rvert$ |
 | `sin`, `cos`, `tan` | $\pm\infty$ | none | $\sin(\pm 0)=\pm 0$, $\tan(\pm 0)=\pm 0$, $\cos 0 = 1$ |
 | `sinpi`, `cospi`, `tanpi` | $\pm\infty$ | `tanpi` at odd half-integers | integers, half-integers, `tanpi` at odd quarter-integers ($\pm 1$) |
 | `asin`, `acos` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asin}(\pm0)=\pm0$, $\operatorname{acos}(1) = 0$ |
@@ -2118,6 +2174,7 @@ pub fn Decimal::compare_total(Self, Self) -> Int32
 pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
 pub fn Decimal::compare_total_magnitude(Self, Self) -> Int32
 pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
+pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
 pub fn Decimal::copy_abs(Self) -> Self
 pub fn Decimal::copy_negate(Self) -> Self
@@ -2230,6 +2287,7 @@ pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> R
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
@@ -2241,6 +2299,7 @@ pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlag
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rsqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
@@ -2278,6 +2337,7 @@ pub fn Decimal::try_asinh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 pub fn Decimal::try_atan2_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_compound_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_cospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -2296,7 +2356,9 @@ pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags
 pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_powr_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_rootn_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_rsqrt_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_sin_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_sinh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_sinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

@@ -233,6 +233,21 @@ test "decimal growth near zero" {
 }
 ```
 
+Compound interest is `compound_ctx`: $(1 + r)^n$ for an integer number of
+periods, computed from the rate itself, exact when the power is a short
+decimal and keeping the scale of the rate:
+
+```moonbit
+///|
+test "decimal compound interest" {
+  let ctx = @decimal.DecimalContext::decimal64()
+  let rate = @decimal.Decimal::from_string("0.05").unwrap()
+  inspect(rate.compound_ctx(3, ctx).0, content="1.157625")
+  // Present value of one unit due in 3 periods.
+  inspect(rate.compound_ctx(-3, ctx).0, content="0.8638375985314761")
+}
+```
+
 ## Going further
 
 ### Generic code over the algebra traits

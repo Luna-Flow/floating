@@ -27,7 +27,7 @@ binary: 650/650 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
 binary-regression: 163/163 passed (testdata/bin_float/random-regressions.txt)
 decimal: 650/650 passed (testdata/decimal/random/libmpdec-random.decTest)
 decimal-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal/random/random-regressions.decTest)
-decm: 384/384 passed (testdata/decimal/random/mpfr-decimal-random.txt)
+decm: 420/420 passed (testdata/decimal/random/mpfr-decimal-random.txt)
 ```
 
 `smoke` builds the synchronous `floating-conformance` executable for the

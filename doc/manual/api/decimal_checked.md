@@ -319,7 +319,7 @@ test "exceptional results are values" {
 
 ## Operations that can record an error
 
-### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
+### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `rsqrt`, `compound`, `powr`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
 
 These methods apply the certified `Decimal::try_*_ctx` functions of the same
 name.
@@ -337,6 +337,9 @@ pub fn DecimalChecked::log10(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
 pub fn DecimalChecked::log2p1(Self) -> Self
 pub fn DecimalChecked::log10p1(Self) -> Self
+pub fn DecimalChecked::rsqrt(Self) -> Self
+pub fn DecimalChecked::compound(Self, Int32) -> Self
+pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int) -> Self
 pub fn DecimalChecked::rootn(Self, Int) -> Self
@@ -433,6 +436,7 @@ pub fn DecimalChecked::atan(Self) -> Self
 pub fn DecimalChecked::atan2(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
 pub fn DecimalChecked::clear_flags(Self) -> Self
+pub fn DecimalChecked::compound(Self, Int32) -> Self
 pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext
 pub fn DecimalChecked::cos(Self) -> Self
 pub fn DecimalChecked::cosh(Self) -> Self
@@ -474,12 +478,14 @@ pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::plus(Self) -> Self
 pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
+pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
 pub fn DecimalChecked::rootn(Self, Int32) -> Self
+pub fn DecimalChecked::rsqrt(Self) -> Self
 pub fn DecimalChecked::sin(Self) -> Self
 pub fn DecimalChecked::sinh(Self) -> Self
 pub fn DecimalChecked::sinpi(Self) -> Self
