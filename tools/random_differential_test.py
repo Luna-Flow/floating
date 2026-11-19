@@ -153,5 +153,24 @@ class CliLauncherTests(unittest.TestCase):
             self.assertEqual(tool.cli_launcher(target, path), tool.launcher(target, path))
 
 
+class SharedBuildTests(unittest.TestCase):
+    def test_native_cli_comes_from_the_shared_conformance_build(self) -> None:
+        from unittest.mock import patch
+
+        with patch.object(tool.shared_cli, "build_backend", return_value=Path("/x/mpfr-conformance.exe")) as build, patch.object(
+            tool, "run_command"
+        ) as own_build:
+            self.assertEqual(tool.conformance_cli("native"), ["/x/mpfr-conformance.exe"])
+        build.assert_called_once_with("mpfr")
+        own_build.assert_not_called()  # no second release compile of src/cli
+
+    def test_build_failure_is_a_tool_error(self) -> None:
+        from unittest.mock import patch
+
+        with patch.object(tool.shared_cli, "build_backend", side_effect=RuntimeError("boom")):
+            with self.assertRaises(tool.ToolError):
+                tool.conformance_cli("native")
+
+
 if __name__ == "__main__":
     unittest.main()
