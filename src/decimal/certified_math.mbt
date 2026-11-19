@@ -257,12 +257,14 @@ fn decimal_certified_binary_result(
     @ball_float.BallFloat,
     @def.ArithmeticError,
   ],
+  guard_bits~ : Int32 = 0,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let mut budget = CertifiedRefinementBudget::new(
     Int32::max(
       decimal_certified_work_precision(left, ctx),
       decimal_certified_work_precision(right, ctx),
-    ),
+    ) +
+    guard_bits,
   )
   while budget.available() {
     let left_interval = decimal_to_certified_ball(left, budget.precision())
@@ -509,10 +511,52 @@ fn decimal_certified_power_result(
     Some(result) => return Ok(result)
     None => ()
   }
-  decimal_certified_binary_result(base, exponent, ctx, "power", fn(
-    left,
-    right,
-  ) {
-    left.try_pow_interval(right)
-  })
+  // x^y = exp(y ln x) for x > 0, composed in interval arithmetic: one `ln`, one
+  // product and one `exp` enclosure instead of the eight correctly rounded
+  // binary powers of `try_pow_interval` (#352). The composition loses about
+  // log2 |y ln x| bits of relative accuracy, added as guard bits so the
+  // refinement loop starts at a sufficient precision. Correct rounding makes
+  // the delivered result independent of the enclosure's width.
+  guard !base.negative && !base.coefficient.is_zero() else {
+    return decimal_certified_binary_result(base, exponent, ctx, "power", fn(
+      left,
+      right,
+    ) {
+      left.try_pow_interval(right)
+    })
+  }
+  decimal_certified_binary_result(
+    base,
+    exponent,
+    ctx,
+    "power",
+    fn(left, right) {
+      left.try_ln_interval().bind(fn(log) { right.mul(log).try_exp_interval() })
+    },
+    guard_bits=decimal_power_guard_bits(base, exponent),
+  )
+}
+
+///|
+/// Bound of `ceil(log2 |exponent * ln base|)` from the adjusted exponents:
+/// |ln base| <= ln(10) (|adjusted(base)| + 1) and |exponent| < 10^(adjusted + 1).
+fn decimal_power_guard_bits(base : Decimal, exponent : Decimal) -> Int32 {
+  let base_adjusted = adjusted_exponent64(base)
+  let base_adjusted = if base_adjusted < 0L {
+    -base_adjusted
+  } else {
+    base_adjusted
+  }
+  let exponent_adjusted = adjusted_exponent64(exponent)
+  // log2(10) < 3.33, log2(ln 10 * (a + 1)) < 2 + bit_length(a + 1)
+  let exponent_bits = (exponent_adjusted + 1L) * 10L / 3L + 1L
+  let base_bits = 2L + 64L - (base_adjusted + 1L).clz().to_int64()
+  let total = exponent_bits + base_bits
+  if total < 0L {
+    0
+  } else if total > 100000L {
+    100000
+  } else {
+    total.to_int()
+  }
 }
