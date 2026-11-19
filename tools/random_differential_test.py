@@ -1,3 +1,5 @@
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -30,14 +32,22 @@ class CaseIdTests(unittest.TestCase):
         self.assertIn("decimal-pow", tool.ALL_FAMILIES)
 
     def test_deprecated_family_prefixes_are_aliases(self) -> None:
-        self.assertEqual(tool.canonical_family("dec-add"), "decimal_gda-add")
-        self.assertEqual(tool.canonical_family("dec-powerwide"), "decimal_gda-powerwide")
-        self.assertEqual(tool.canonical_family("decm-exp"), "decimal-exp")
-        self.assertEqual(tool.canonical_family("decimal_gda-add"), "decimal_gda-add")
-        self.assertEqual(tool.canonical_family("decimal-exp"), "decimal-exp")
-        self.assertEqual(tool.canonical_family("add"), "add")
-        args = tool.build_parser().parse_args(["plan", "--family", "dec-add", "--family", "decm-exp"])
+        # The deprecated aliases print a warning on standard error; capture it so
+        # that the log of the test run stays free of warnings.
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            self.assertEqual(tool.canonical_family("dec-add"), "decimal_gda-add")
+            self.assertEqual(tool.canonical_family("dec-powerwide"), "decimal_gda-powerwide")
+            self.assertEqual(tool.canonical_family("decm-exp"), "decimal-exp")
+            self.assertEqual(tool.canonical_family("decimal_gda-add"), "decimal_gda-add")
+            self.assertEqual(tool.canonical_family("decimal-exp"), "decimal-exp")
+            self.assertEqual(tool.canonical_family("add"), "add")
+            args = tool.build_parser().parse_args(["plan", "--family", "dec-add", "--family", "decm-exp"])
         self.assertEqual(args.family, ["decimal_gda-add", "decimal-exp"])
+        warnings = stderr.getvalue().splitlines()
+        self.assertEqual(warnings.count("warning: family prefix `dec-` is deprecated, use `decimal_gda-`"), 3)
+        self.assertEqual(warnings.count("warning: family prefix `decm-` is deprecated, use `decimal-`"), 2)
+        self.assertEqual(len(warnings), 5)
 
     def test_unknown_families_are_rejected(self) -> None:
         with self.assertRaises(tool.ToolError):
