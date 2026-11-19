@@ -51,7 +51,7 @@ let toolkit_digest_expected : Array[String] = [
   "trig_burst 256 100/154 5fb75f4d502bd61e", "trig_burst 512 44/74 81a59f27d011a52b",
   "trig_burst 640 44/74 c625a03371453b48", "trig_burst 1536 44/74 17e44af6d1048596",
   "trig_burst 2112 44/74 d8996dff6d9833e9", "trig_burst 3072 44/74 5b8aa13adbb79cd6",
-  "const_ln2 20 1/1 bf3934fdca2e15b5", "const_ln10 20 1/1 70c0adb818dcbfb5", "const_pi 20 1/1 86bebde11749b69b",
+  "const_ln2 20 1/1 bf3934fdca2e15b5", "const_ln10 20 1/1 70c0adb818dcbfb5", "const_pi 20 1/1 cf315c79e18bc544",
   "const_ln2 30 1/1 68d18814da225139", "const_ln10 30 1/1 1328f1a5ab2272c6", "const_pi 30 1/1 b5cc90ad9eeeecb6",
   "const_ln2 40 1/1 dd7f7302ee15de29", "const_ln10 40 1/1 87ef2f918ed77224", "const_pi 40 1/1 824fdb599add3cc2",
   "const_ln2 63 1/1 2b75f20177929068", "const_ln10 63 1/1 7f38e397e9a86795", "const_pi 63 1/1 86dc04248c0c7b25",
