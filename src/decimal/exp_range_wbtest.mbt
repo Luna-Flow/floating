@@ -1,0 +1,129 @@
+///|
+// White-box tests of the exponential-type operations at the limits of the
+// representable range (issue #363). Clauses are from IEEE Std 754-2019.
+//
+// Expectation table (b^x with b = e, 2, 10; etiny = e_min - p + 1; the context
+// of the issue is p = 51, e_min = -14, e_max = 11, so etiny = -64):
+//
+// | result                                  | direction                  | delivered result              | flags                         | clause |
+// |-----------------------------------------|----------------------------|-------------------------------|-------------------------------|--------|
+// | 0 < b^x < half of 10^etiny              | to nearest, toward zero    | +0 (exponent etiny)           | inexact, rounded, underflow,  | 9.2,   |
+// |                                         |                            |                               | subnormal (clamped)           | 7.5, 4.3 |
+// | 0 < b^x < half of 10^etiny              | toward +inf, away (Up),    | 10^etiny, the least positive  | inexact, rounded, underflow,  | 9.2,   |
+// |                                         | ZeroFiveUp                 | subnormal                     | subnormal                     | 7.5, 4.3 |
+// | b^x >= 10^(e_max + 1) > largest finite  | to nearest, toward +inf,   | +inf                          | overflow, inexact, rounded    | 7.4 a, d |
+// |                                         | away (Up)                  |                               |                               |        |
+// | b^x >= 10^(e_max + 1) > largest finite  | toward zero, toward -inf   | the largest finite number     | overflow, inexact, rounded    | 7.4 b, c |
+// | just representable results              | all                        | the correctly rounded value   | inexact, rounded (+ subnormal | 9.2, 4.3 |
+// | (10^etiny, half of it, largest finite)  |                            | (the table rows below)        | and underflow below 10^e_min) |        |
+//
+// The generated table `exp_range_rows_wbtest.mbt` holds the rows for the
+// narrow context of the issue, decimal32, decimal64, decimal128 and a wide
+// context (e_max = 999999), in all eight rounding directions, at results
+// just inside and outside the range, at the thresholds `x = +-k (1 - etiny)`,
+// `+-k (e_max + 1)` of the coarse decision `+-1`, `+-0.5` and for the
+// arguments of the issue. Python decimal (libmpdec) computed them; it only
+// cross-checks, the clauses above decide.
+
+///|
+fn exp_range_int(text : String) -> Int {
+  let mut value = 0
+  let mut negative = false
+  for c in text {
+    if c == '-' {
+      negative = true
+    } else {
+      value = value * 10 + (c.to_int() - '0'.to_int())
+    }
+  }
+  if negative {
+    -value
+  } else {
+    value
+  }
+}
+
+///|
+fn exp_range_call(
+  op : String,
+  x : String,
+  y : String,
+  ctx : DecimalContext,
+) -> String {
+  let a = pm1_exact(x)
+  let result = match op {
+    "exp" => a.try_exp_ctx(ctx)
+    "exp2" => a.try_exp2_ctx(ctx)
+    "exp10" => a.try_exp10_ctx(ctx)
+    "expm1" => a.try_expm1_ctx(ctx)
+    "exp2m1" => a.try_exp2m1_ctx(ctx)
+    "exp10m1" => a.try_exp10m1_ctx(ctx)
+    "sinh" => a.try_sinh_ctx(ctx)
+    "cosh" => a.try_cosh_ctx(ctx)
+    "pow" => pm1_exact("3").try_power_ctx(pm1_exact(y), ctx)
+    "powr" => pm1_exact("2").try_powr_ctx(pm1_exact(y), ctx)
+    "pown" => a.try_pown_ctx(exp_range_int(y), ctx)
+    "compound" => a.try_compound_ctx(exp_range_int(y), ctx)
+    "rsqrt" => a.try_rsqrt_ctx(ctx)
+    _ => abort("unknown operation " + op)
+  }
+  match result {
+    Ok((value, flags)) => "\{value} \{pm1_flags_text(flags)}"
+    Err(_) => "certification-failure"
+  }
+}
+
+///|
+test "exp range generated rows: results just inside and outside the range" {
+  let failures = StringBuilder()
+  let mut count = 0
+  let rows = exp_range_rows()
+  for row in rows {
+    let (op, rounding, precision, e_min, e_max, clamp, x, y, expected, flags) = row
+    let ctx = pm1_ctx(precision, rounding, e_min, e_max, clamp, "b")
+    let got = exp_range_call(op, x, y, ctx)
+    let parts = got.split(" ").map(fn(s) { s.to_owned() }).collect()
+    let ok = parts.length() == 2 &&
+      pm1_exact(parts[0]).compare_total(pm1_exact(expected)) == 0 &&
+      parts[1] == flags
+    if !ok {
+      count += 1
+      if count <= 20 {
+        failures.write_string(
+          "\{op} \{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} x=\{x} y=\{y}: want \{expected} \{flags}, got \{got}\n",
+        )
+      }
+    }
+  }
+  inspect(failures.to_string(), content="")
+  assert_true(rows.length() > 5000)
+}
+
+///|
+test "exp2 and exp10 of an argument beyond the binary exponent range (#363)" {
+  // The issue's table: p = 51, Ceiling, e_min = -14, e_max = 11 (etiny = -64).
+  // 9.2: the result is the correctly rounded value, here the least subnormal
+  // 1E-64 (below half of it, rounding toward +inf); 7.5: the rounded result is
+  // inexact, so underflow and inexact are raised.
+  let ctx = pm1_ctx(51, "ceiling", -14, 11, false, "b")
+  for op in ["exp", "exp2", "exp10"] {
+    for x in ["-1000", "-100000", "-6773329072.88", "-1E+12"] {
+      assert_eq(exp_range_call(op, x, "", ctx), "1E-64 xrsu")
+    }
+  }
+  // Rounding to nearest gives +0 with the same flags (7.5, 9.2).
+  let nearest = pm1_ctx(51, "half_even", -14, 11, false, "b")
+  for op in ["exp", "exp2", "exp10"] {
+    let got = exp_range_call(op, "-6773329072.88", "", nearest)
+    assert_eq(got.substring(end=7), "0E-64 x")
+  }
+  // 7.4: the symmetric overflow, by rounding direction.
+  let down = pm1_ctx(51, "down", -14, 11, false, "b")
+  for op in ["exp", "exp2", "exp10"] {
+    assert_eq(
+      exp_range_call(op, "6773329072.88", "", down),
+      "999999999999.999999999999999999999999999999999999999 xro",
+    )
+    assert_eq(exp_range_call(op, "6773329072.88", "", ctx), "inf xro")
+  }
+}
