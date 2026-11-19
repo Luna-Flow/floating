@@ -5,6 +5,7 @@
 static const operation_spec decimal_operations[] = {
     {"exp2m1", 1}, {"exp10m1", 1}, {"log2p1", 1}, {"log10p1", 1},
     {"rsqrt", 1},  {"compound", 1}, {"powr", 2},
+    {"asinpi", 1}, {"acospi", 1},   {"atanpi", 1}, {"atan2pi", 2},
 };
 
 int main(int argc, char **argv) {

@@ -15,8 +15,8 @@ class DecimalElementaryOracleTests(unittest.TestCase):
             / "testdata/decimal/ieee/mpfr-4.2.2-elementary-interval.txt"
         )
         rows = oracle.generate_rows(intervals)
-        self.assertEqual(len(intervals), 172)
-        self.assertEqual(len(rows), 4128)
+        self.assertEqual(len(intervals), 204)
+        self.assertEqual(len(rows), 4896)
 
     def test_non_unique_interval_is_rejected(self) -> None:
         interval = {

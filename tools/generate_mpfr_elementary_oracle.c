@@ -94,17 +94,21 @@ static void make_operands(
     set_dyadic(left, positive_numerator(state, 2048));
     set_dyadic(right, signed_numerator(state, 768));
   } else if (strcmp(operation, "hypot") == 0 ||
-             strcmp(operation, "atan2") == 0) {
+             strcmp(operation, "atan2") == 0 ||
+             strcmp(operation, "atan2pi") == 0) {
     long left_numerator = signed_numerator(state, 2048);
     long right_numerator = signed_numerator(state, 2048);
-    if (strcmp(operation, "atan2") == 0 && left_numerator == 0 &&
+    if ((strcmp(operation, "atan2") == 0 ||
+         strcmp(operation, "atan2pi") == 0) && left_numerator == 0 &&
         right_numerator == 0) {
       right_numerator = 1;
     }
     set_dyadic(left, left_numerator);
     set_dyadic(right, right_numerator);
   } else if (strcmp(operation, "asin") == 0 ||
-             strcmp(operation, "acos") == 0) {
+             strcmp(operation, "acos") == 0 ||
+             strcmp(operation, "asinpi") == 0 ||
+             strcmp(operation, "acospi") == 0) {
     set_dyadic(left, signed_numerator(state, 256));
   } else if (strcmp(operation, "atanh") == 0) {
     set_dyadic(left, signed_numerator(state, 255));
@@ -190,6 +194,14 @@ static int evaluate(
     return mpfr_compound_si(output, left, integer, rounding);
   if (strcmp(operation, "powr") == 0)
     return mpfr_powr(output, left, right, rounding);
+  if (strcmp(operation, "asinpi") == 0)
+    return mpfr_asinpi(output, left, rounding);
+  if (strcmp(operation, "acospi") == 0)
+    return mpfr_acospi(output, left, rounding);
+  if (strcmp(operation, "atanpi") == 0)
+    return mpfr_atanpi(output, left, rounding);
+  if (strcmp(operation, "atan2pi") == 0)
+    return mpfr_atan2pi(output, left, right, rounding);
   fprintf(stderr, "unsupported operation: %s\n", operation);
   exit(2);
 }
