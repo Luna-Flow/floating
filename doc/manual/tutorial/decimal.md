@@ -248,6 +248,22 @@ test "decimal compound interest" {
 }
 ```
 
+Angles measured in half-revolutions avoid the rounded value of $\pi$:
+`atan2pi_ctx` gives the direction of a point as a fraction of a half turn, and
+the quarter turns are exact.
+
+```moonbit
+///|
+test "decimal angles in half-revolutions" {
+  let ctx = @decimal.DecimalContext::decimal64()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  // The point (-2, 2) is 3/4 of a half turn from the positive x-axis.
+  inspect(d("2").atan2pi_ctx(d("-2"), ctx).0, content="0.75")
+  // The point (-1, 3) is not on a quarter turn: the result is rounded.
+  inspect(d("3").atan2pi_ctx(d("-1"), ctx).0, content="0.6024163823495667")
+}
+```
+
 ## Going further
 
 ### Generic code over the algebra traits
