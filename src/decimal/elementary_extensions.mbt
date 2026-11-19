@@ -933,39 +933,13 @@ pub fn Decimal::atanh_ctx(
 }
 
 ///|
-/// The integer `degree`-th root of `value` if `value` is a perfect power.
+/// The exact `degree`-th root of `value`, or `None`: even degrees take exact
+/// square roots first, then integer Newton steps from the root of the leading
+/// digits (`dec_coeff_exact_nth_root_repr` of the kernel). The previous
+/// iteration started at `10^ceil(d / degree)`, up to ten times the root, and
+/// needed about `2.3 degree` linear steps (#376).
 fn dec_coeff_exact_root_repr(value : DecCoeff, degree : Int32) -> DecCoeff? {
-  guard degree >= 2 && !value.is_zero() else { return None }
-  let radicand = coeff_bigint(value)
-  let n = BigInt::from_int(degree)
-  let n_minus_one = BigInt::from_int(degree - 1)
-  // Newton's iteration from above converges monotonically to floor(root).
-  let mut root = coeff_bigint(
-    dec_coeff_shift_power10_repr(
-      dec_coeff_from_int(1),
-      (value.digits10() + degree - 1) / degree,
-    ),
-  )
-  while true {
-    let below = coeff_bigint(
-      dec_coeff_exact_power_repr(coeff_from_bigint(root), degree - 1),
-    )
-    let next = (n_minus_one * root + radicand / below) / n
-    if next >= root {
-      break
-    }
-    root = next
-  }
-  let candidate = coeff_from_bigint(root)
-  if dec_coeff_compare_repr(
-      dec_coeff_exact_power_repr(candidate, degree),
-      value,
-    ) ==
-    0 {
-    Some(candidate)
-  } else {
-    None
-  }
+  dec_coeff_exact_nth_root_repr(value, degree)
 }
 
 ///|
@@ -1000,6 +974,11 @@ fn decimal_rootn_exact_result(
   )
   // Write |x| = radicand * 10^(n * root_exponent) with 0 <= shift < n.
   let shift = (exponent % n + n) % n
+  // `coefficient` has no trailing zero, so `coefficient 10^shift` with
+  // `0 < shift < n` has 2 and 5 adjusted by the same `shift` in the exponents of
+  // the factorization, and `min(v2, v5)` of `coefficient` is 0: such a number is
+  // an n-th power only if `n` divides `shift`. An exact root needs `shift == 0`.
+  guard shift == 0 else { return None }
   let root_exponent = (exponent - shift) / n
   let radicand_digits = coefficient.digits10().to_int64() + shift.to_int64()
   // If r >= 2, then r^n >= 2^n. A d-digit radicand is less than
