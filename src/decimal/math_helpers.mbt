@@ -450,9 +450,52 @@ fn decimal_power_large_integer_exponent_bound_result(
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
     return None
   }
-  guard count > 0 else { return None }
-  let negative = base.negative && (count & 1) == 1
   let digits = base.coefficient.digits10()
+  if count < 0 {
+    // |base|^n lies in [10^(n lb), 10^(n ub)) with lb = adjusted(base) and
+    // ub = lb + 1, n = |count|, so 1 / |base|^n lies in (10^-(n ub),
+    // 10^-(n lb)]: its adjusted exponent is at least -n ub (overflow when that
+    // exceeds e_max) and it is at most 10^(-n lb), below half of 10^etiny once
+    // -n lb <= etiny - 2 (the same margin as the positive count below). The
+    // exponent product `exponent10 * n` of the exact path wraps around Int32
+    // for 1E+999999 and n = 2E+9 (#375), so a result decided here never
+    // reaches it.
+    let negative = base.negative && (count & 1) == 1
+    let upper_base = base.exponent10 + digits
+    let upper_product = signed_dec_coeff(
+      upper_base < 0,
+      dec_coeff_multiply_repr(
+        dec_coeff_from_int_magnitude(count),
+        dec_coeff_from_int_magnitude(upper_base),
+      ),
+    )
+    if dec_coeff_signed_compare_int_repr(
+        upper_product.negative,
+        upper_product.magnitude,
+        -ctx.e_max,
+      ) <
+      0 {
+      return Some(decimal_overflow_result(negative, ctx))
+    }
+    let lower_base = base.exponent10 + digits - 1
+    let lower_product = signed_dec_coeff(
+      lower_base < 0,
+      dec_coeff_multiply_repr(
+        dec_coeff_from_int_magnitude(count),
+        dec_coeff_from_int_magnitude(lower_base),
+      ),
+    )
+    if dec_coeff_signed_compare_int_repr(
+        lower_product.negative,
+        lower_product.magnitude,
+        2 - etiny(ctx),
+      ) >=
+      0 {
+      return Some(decimal_power_tiny_result(negative, ctx))
+    }
+    return None
+  }
+  let negative = base.negative && (count & 1) == 1
   let lower_base = base.exponent10 + digits - 1
   let lower_product = signed_dec_coeff(
     (count < 0) != (lower_base < 0),
@@ -517,10 +560,13 @@ fn decimal_power_integer_exact_result(
   // GDA's integer-power path keeps both the repeated-multiply accumulator
   // and the optional 1/x result as decNumber Unit coefficients
   // (decNumber.c lines 2167-2215); retain the same representation here.
+  // `exponent10 * n` is formed in Int64: in Int32 it wraps around (#375).
+  let product = base.exponent10.to_int64() * n.to_int64()
+  guard product >= -2147483647L && product <= 2147483647L else { return None }
   let exact = finite_with_exponent_repr(
     negative,
     magnitude,
-    base.exponent10 * n,
+    product.to_int(),
     precision,
   )
   if count > 0 {
@@ -528,7 +574,7 @@ fn decimal_power_integer_exact_result(
       normalize_decimal_parts_ctx_repr(
         negative,
         magnitude,
-        base.exponent10 * n,
+        product.to_int(),
         ctx,
       ),
     )

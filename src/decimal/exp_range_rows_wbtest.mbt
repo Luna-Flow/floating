@@ -1124,6 +1124,36 @@ fn exp_range_rows_0() -> Array[
     (
       "log1p", "half_even", 51, -14, 11, false, "-7.5E-300", "", "-0E-64", "xrsuc",
     ),
+    ("pown", "half_even", 51, -14, 11, false, "3000", "-20", "0E-64", "xrsuc"),
+    ("pown", "half_even", 51, -14, 11, false, "3000", "-21", "0E-64", "xrsuc"),
+    ("pown", "half_even", 51, -14, 11, false, "3000", "-22", "0E-64", "xrsuc"),
+    ("pown", "half_even", 51, -14, 11, false, "3000", "-23", "0E-64", "xrsuc"),
+    ("pown", "half_even", 51, -14, 11, false, "3000", "-24", "0E-64", "xrsuc"),
+    (
+      "pown", "half_even", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370370",
+      "xr",
+    ),
+    (
+      "pown", "half_even", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123457",
+      "xr",
+    ),
+    ("pown", "half_even", 51, -14, 11, false, "0.003", "-5", "Infinity", "xro"),
+    ("pown", "half_even", 51, -14, 11, false, "0.003", "-6", "Infinity", "xro"),
+    ("pown", "half_even", 51, -14, 11, false, "0.003", "-7", "Infinity", "xro"),
+    (
+      "pown", "half_even", 51, -14, 11, false, "1E+999999", "-2000000000", "0E-64",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 51, -14, 11, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 51, -14, 11, false, "1E+999999", "-3", "0E-64", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 51, -14, 11, false, "1E+999999", "3", "Infinity", "xro",
+    ),
     (
       "compound", "half_even", 51, -14, 11, false, "1E+52", "2", "Infinity", "xro",
     ),
@@ -1503,6 +1533,14 @@ fn exp_range_rows_0() -> Array[
     ("exp10", "half_up", 51, -14, 11, false, "-64.5", "", "0E-64", "xrsuc"),
     ("exp10", "half_up", 51, -14, 11, false, "12.5", "", "Infinity", "xro"),
     ("exp10", "half_up", 51, -14, 11, false, "-65", "", "0E-64", "xrsuc"),
+  ]
+}
+
+///|
+fn exp_range_rows_1() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("exp10", "half_up", 51, -14, 11, false, "12", "", "Infinity", "xro"),
     ("exp10", "half_up", 51, -14, 11, false, "-65.5", "", "0E-64", "xrsuc"),
     (
@@ -1537,14 +1575,6 @@ fn exp_range_rows_0() -> Array[
       "expm1", "half_up", 51, -14, 11, false, "28.32416829648849351763312957767054705929",
       "", "Infinity", "xro",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_1() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "expm1", "half_up", 51, -14, 11, false, "43.74911676688686799634183763900291994442",
       "", "Infinity", "xro",
@@ -2402,6 +2432,32 @@ fn exp_range_rows_1() -> Array[
     ("log1p", "half_up", 51, -14, 11, false, "-3E-300", "", "-0E-64", "xrsuc"),
     ("log1p", "half_up", 51, -14, 11, false, "7.5E-300", "", "0E-64", "xrsuc"),
     ("log1p", "half_up", 51, -14, 11, false, "-7.5E-300", "", "-0E-64", "xrsuc"),
+    ("pown", "half_up", 51, -14, 11, false, "3000", "-20", "0E-64", "xrsuc"),
+    ("pown", "half_up", 51, -14, 11, false, "3000", "-21", "0E-64", "xrsuc"),
+    ("pown", "half_up", 51, -14, 11, false, "3000", "-22", "0E-64", "xrsuc"),
+    ("pown", "half_up", 51, -14, 11, false, "3000", "-23", "0E-64", "xrsuc"),
+    ("pown", "half_up", 51, -14, 11, false, "3000", "-24", "0E-64", "xrsuc"),
+    (
+      "pown", "half_up", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370370",
+      "xr",
+    ),
+    (
+      "pown", "half_up", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123457",
+      "xr",
+    ),
+    ("pown", "half_up", 51, -14, 11, false, "0.003", "-5", "Infinity", "xro"),
+    ("pown", "half_up", 51, -14, 11, false, "0.003", "-6", "Infinity", "xro"),
+    ("pown", "half_up", 51, -14, 11, false, "0.003", "-7", "Infinity", "xro"),
+    (
+      "pown", "half_up", 51, -14, 11, false, "1E+999999", "-2000000000", "0E-64",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 51, -14, 11, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    ("pown", "half_up", 51, -14, 11, false, "1E+999999", "-3", "0E-64", "xrsuc"),
+    ("pown", "half_up", 51, -14, 11, false, "1E+999999", "3", "Infinity", "xro"),
     ("compound", "half_up", 51, -14, 11, false, "1E+52", "2", "Infinity", "xro"),
     ("compound", "half_up", 51, -14, 11, false, "1E+52", "-2", "0E-64", "xrsuc"),
     ("compound", "half_up", 51, -14, 11, false, "1E+52", "3", "Infinity", "xro"),
@@ -2997,6 +3053,14 @@ fn exp_range_rows_1() -> Array[
       "exp", "half_down", 51, -14, 11, false, "-3E-56", "", "1.00000000000000000000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_2() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp", "half_down", 51, -14, 11, false, "7.5E-56", "", "1.00000000000000000000000000000000000000000000000000",
       "xr",
@@ -3109,14 +3173,6 @@ fn exp_range_rows_1() -> Array[
       "exp", "half_down", 51, -14, 11, false, "-3E-5000", "", "1.00000000000000000000000000000000000000000000000000",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_2() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp", "half_down", 51, -14, 11, false, "7.5E-5000", "", "1.00000000000000000000000000000000000000000000000000",
       "xr",
@@ -3712,6 +3768,36 @@ fn exp_range_rows_2() -> Array[
     ("log1p", "half_down", 51, -14, 11, false, "7.5E-300", "", "0E-64", "xrsuc"),
     (
       "log1p", "half_down", 51, -14, 11, false, "-7.5E-300", "", "-0E-64", "xrsuc",
+    ),
+    ("pown", "half_down", 51, -14, 11, false, "3000", "-20", "0E-64", "xrsuc"),
+    ("pown", "half_down", 51, -14, 11, false, "3000", "-21", "0E-64", "xrsuc"),
+    ("pown", "half_down", 51, -14, 11, false, "3000", "-22", "0E-64", "xrsuc"),
+    ("pown", "half_down", 51, -14, 11, false, "3000", "-23", "0E-64", "xrsuc"),
+    ("pown", "half_down", 51, -14, 11, false, "3000", "-24", "0E-64", "xrsuc"),
+    (
+      "pown", "half_down", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370370",
+      "xr",
+    ),
+    (
+      "pown", "half_down", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123457",
+      "xr",
+    ),
+    ("pown", "half_down", 51, -14, 11, false, "0.003", "-5", "Infinity", "xro"),
+    ("pown", "half_down", 51, -14, 11, false, "0.003", "-6", "Infinity", "xro"),
+    ("pown", "half_down", 51, -14, 11, false, "0.003", "-7", "Infinity", "xro"),
+    (
+      "pown", "half_down", 51, -14, 11, false, "1E+999999", "-2000000000", "0E-64",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 51, -14, 11, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 51, -14, 11, false, "1E+999999", "-3", "0E-64", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 51, -14, 11, false, "1E+999999", "3", "Infinity", "xro",
     ),
     (
       "compound", "half_down", 51, -14, 11, false, "1E+52", "2", "Infinity", "xro",
@@ -4661,6 +4747,14 @@ fn exp_range_rows_2() -> Array[
       "exp2", "down", 51, -14, 11, false, "7.5E-66", "", "1.00000000000000000000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_3() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp2", "down", 51, -14, 11, false, "-7.5E-66", "", "0.999999999999999999999999999999999999999999999999999",
       "xr",
@@ -4829,14 +4923,6 @@ fn exp_range_rows_2() -> Array[
       "exp10", "down", 51, -14, 11, false, "3E-67", "", "1.00000000000000000000000000000000000000000000000000",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_3() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp10", "down", 51, -14, 11, false, "-3E-67", "", "0.999999999999999999999999999999999999999999999999999",
       "xr",
@@ -5029,6 +5115,43 @@ fn exp_range_rows_3() -> Array[
     ("log1p", "down", 51, -14, 11, false, "-3E-300", "", "-0E-64", "xrsuc"),
     ("log1p", "down", 51, -14, 11, false, "7.5E-300", "", "0E-64", "xrsuc"),
     ("log1p", "down", 51, -14, 11, false, "-7.5E-300", "", "-0E-64", "xrsuc"),
+    ("pown", "down", 51, -14, 11, false, "3000", "-20", "0E-64", "xrsuc"),
+    ("pown", "down", 51, -14, 11, false, "3000", "-21", "0E-64", "xrsuc"),
+    ("pown", "down", 51, -14, 11, false, "3000", "-22", "0E-64", "xrsuc"),
+    ("pown", "down", 51, -14, 11, false, "3000", "-23", "0E-64", "xrsuc"),
+    ("pown", "down", 51, -14, 11, false, "3000", "-24", "0E-64", "xrsuc"),
+    (
+      "pown", "down", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370370",
+      "xr",
+    ),
+    (
+      "pown", "down", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123456",
+      "xr",
+    ),
+    (
+      "pown", "down", 51, -14, 11, false, "0.003", "-5", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 51, -14, 11, false, "0.003", "-6", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 51, -14, 11, false, "0.003", "-7", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 51, -14, 11, false, "1E+999999", "-2000000000", "0E-64", "xrsuc",
+    ),
+    (
+      "pown", "down", 51, -14, 11, false, "1E+999999", "2000000000", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    ("pown", "down", 51, -14, 11, false, "1E+999999", "-3", "0E-64", "xrsuc"),
+    (
+      "pown", "down", 51, -14, 11, false, "1E+999999", "3", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
     (
       "compound", "down", 51, -14, 11, false, "1E+52", "2", "999999999999.999999999999999999999999999999999999999",
       "xro",
@@ -6169,6 +6292,14 @@ fn exp_range_rows_3() -> Array[
     ("expm1", "ceiling", 51, -14, 11, false, "-3E-66", "", "-0E-64", "xrsuc"),
     ("expm1", "ceiling", 51, -14, 11, false, "7.5E-66", "", "1E-64", "xrsu"),
     ("expm1", "ceiling", 51, -14, 11, false, "-7.5E-66", "", "-0E-64", "xrsuc"),
+  ]
+}
+
+///|
+fn exp_range_rows_4() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("expm1", "ceiling", 51, -14, 11, false, "3E-64", "", "4E-64", "xrsu"),
     ("expm1", "ceiling", 51, -14, 11, false, "-3E-64", "", "-2E-64", "xrsu"),
     ("expm1", "ceiling", 51, -14, 11, false, "7.5E-64", "", "8E-64", "xrsu"),
@@ -6255,14 +6386,6 @@ fn exp_range_rows_3() -> Array[
     (
       "log1p", "ceiling", 51, -14, 11, false, "-7.5E-62", "", "-7.50E-62", "xrsu",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_4() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("log1p", "ceiling", 51, -14, 11, false, "3E-60", "", "3.0000E-60", "xrsu"),
     (
       "log1p", "ceiling", 51, -14, 11, false, "-3E-60", "", "-3.0000E-60", "xrsu",
@@ -6313,6 +6436,32 @@ fn exp_range_rows_4() -> Array[
     ("log1p", "ceiling", 51, -14, 11, false, "-3E-300", "", "-0E-64", "xrsuc"),
     ("log1p", "ceiling", 51, -14, 11, false, "7.5E-300", "", "1E-64", "xrsu"),
     ("log1p", "ceiling", 51, -14, 11, false, "-7.5E-300", "", "-0E-64", "xrsuc"),
+    ("pown", "ceiling", 51, -14, 11, false, "3000", "-20", "1E-64", "xrsu"),
+    ("pown", "ceiling", 51, -14, 11, false, "3000", "-21", "1E-64", "xrsu"),
+    ("pown", "ceiling", 51, -14, 11, false, "3000", "-22", "1E-64", "xrsu"),
+    ("pown", "ceiling", 51, -14, 11, false, "3000", "-23", "1E-64", "xrsu"),
+    ("pown", "ceiling", 51, -14, 11, false, "3000", "-24", "1E-64", "xrsu"),
+    (
+      "pown", "ceiling", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370371",
+      "xr",
+    ),
+    (
+      "pown", "ceiling", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123457",
+      "xr",
+    ),
+    ("pown", "ceiling", 51, -14, 11, false, "0.003", "-5", "Infinity", "xro"),
+    ("pown", "ceiling", 51, -14, 11, false, "0.003", "-6", "Infinity", "xro"),
+    ("pown", "ceiling", 51, -14, 11, false, "0.003", "-7", "Infinity", "xro"),
+    (
+      "pown", "ceiling", 51, -14, 11, false, "1E+999999", "-2000000000", "1E-64",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 51, -14, 11, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    ("pown", "ceiling", 51, -14, 11, false, "1E+999999", "-3", "1E-64", "xrsu"),
+    ("pown", "ceiling", 51, -14, 11, false, "1E+999999", "3", "Infinity", "xro"),
     ("compound", "ceiling", 51, -14, 11, false, "1E+52", "2", "Infinity", "xro"),
     ("compound", "ceiling", 51, -14, 11, false, "1E+52", "-2", "1E-64", "xrsu"),
     ("compound", "ceiling", 51, -14, 11, false, "1E+52", "3", "Infinity", "xro"),
@@ -7586,6 +7735,14 @@ fn exp_range_rows_4() -> Array[
     ("log1p", "floor", 51, -14, 11, false, "7.5E-67", "", "0E-64", "xrsuc"),
     ("log1p", "floor", 51, -14, 11, false, "-7.5E-67", "", "-1E-64", "xrsu"),
     ("log1p", "floor", 51, -14, 11, false, "3E-1999996", "", "0E-64", "xrsuc"),
+  ]
+}
+
+///|
+fn exp_range_rows_5() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("log1p", "floor", 51, -14, 11, false, "-3E-1999996", "", "-1E-64", "xrsu"),
     ("log1p", "floor", 51, -14, 11, false, "7.5E-1999996", "", "0E-64", "xrsuc"),
     (
@@ -7599,6 +7756,43 @@ fn exp_range_rows_4() -> Array[
     ("log1p", "floor", 51, -14, 11, false, "-3E-300", "", "-1E-64", "xrsu"),
     ("log1p", "floor", 51, -14, 11, false, "7.5E-300", "", "0E-64", "xrsuc"),
     ("log1p", "floor", 51, -14, 11, false, "-7.5E-300", "", "-1E-64", "xrsu"),
+    ("pown", "floor", 51, -14, 11, false, "3000", "-20", "0E-64", "xrsuc"),
+    ("pown", "floor", 51, -14, 11, false, "3000", "-21", "0E-64", "xrsuc"),
+    ("pown", "floor", 51, -14, 11, false, "3000", "-22", "0E-64", "xrsuc"),
+    ("pown", "floor", 51, -14, 11, false, "3000", "-23", "0E-64", "xrsuc"),
+    ("pown", "floor", 51, -14, 11, false, "3000", "-24", "0E-64", "xrsuc"),
+    (
+      "pown", "floor", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370370",
+      "xr",
+    ),
+    (
+      "pown", "floor", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123456",
+      "xr",
+    ),
+    (
+      "pown", "floor", 51, -14, 11, false, "0.003", "-5", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 51, -14, 11, false, "0.003", "-6", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 51, -14, 11, false, "0.003", "-7", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 51, -14, 11, false, "1E+999999", "-2000000000", "0E-64", "xrsuc",
+    ),
+    (
+      "pown", "floor", 51, -14, 11, false, "1E+999999", "2000000000", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    ("pown", "floor", 51, -14, 11, false, "1E+999999", "-3", "0E-64", "xrsuc"),
+    (
+      "pown", "floor", 51, -14, 11, false, "1E+999999", "3", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
     (
       "compound", "floor", 51, -14, 11, false, "1E+52", "2", "999999999999.999999999999999999999999999999999999999",
       "xro",
@@ -7805,14 +7999,6 @@ fn exp_range_rows_4() -> Array[
       "rsqrt", "floor", 51, -14, 11, false, "2.500000000000000000000000000000000000000E-25",
       "", "999999999999.999999999999999999999999999999999999999", "xro",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_5() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "rsqrt", "floor", 51, -14, 11, false, "1.000000000000000000000000000000000000000E-38",
       "", "999999999999.999999999999999999999999999999999999999", "xro",
@@ -8818,6 +9004,30 @@ fn exp_range_rows_5() -> Array[
     ("log1p", "up", 51, -14, 11, false, "-3E-300", "", "-1E-64", "xrsu"),
     ("log1p", "up", 51, -14, 11, false, "7.5E-300", "", "1E-64", "xrsu"),
     ("log1p", "up", 51, -14, 11, false, "-7.5E-300", "", "-1E-64", "xrsu"),
+    ("pown", "up", 51, -14, 11, false, "3000", "-20", "1E-64", "xrsu"),
+    ("pown", "up", 51, -14, 11, false, "3000", "-21", "1E-64", "xrsu"),
+    ("pown", "up", 51, -14, 11, false, "3000", "-22", "1E-64", "xrsu"),
+    ("pown", "up", 51, -14, 11, false, "3000", "-23", "1E-64", "xrsu"),
+    ("pown", "up", 51, -14, 11, false, "3000", "-24", "1E-64", "xrsu"),
+    (
+      "pown", "up", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370371",
+      "xr",
+    ),
+    (
+      "pown", "up", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123457",
+      "xr",
+    ),
+    ("pown", "up", 51, -14, 11, false, "0.003", "-5", "Infinity", "xro"),
+    ("pown", "up", 51, -14, 11, false, "0.003", "-6", "Infinity", "xro"),
+    ("pown", "up", 51, -14, 11, false, "0.003", "-7", "Infinity", "xro"),
+    (
+      "pown", "up", 51, -14, 11, false, "1E+999999", "-2000000000", "1E-64", "xrsu",
+    ),
+    (
+      "pown", "up", 51, -14, 11, false, "1E+999999", "2000000000", "Infinity", "xro",
+    ),
+    ("pown", "up", 51, -14, 11, false, "1E+999999", "-3", "1E-64", "xrsu"),
+    ("pown", "up", 51, -14, 11, false, "1E+999999", "3", "Infinity", "xro"),
     ("compound", "up", 51, -14, 11, false, "1E+52", "2", "Infinity", "xro"),
     ("compound", "up", 51, -14, 11, false, "1E+52", "-2", "1E-64", "xrsu"),
     ("compound", "up", 51, -14, 11, false, "1E+52", "3", "Infinity", "xro"),
@@ -8958,6 +9168,14 @@ fn exp_range_rows_5() -> Array[
       "powr", "up", 51, -14, 11, false, "2", "40.86313713864834817444383315387268211038",
       "Infinity", "xro",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_6() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "powr", "up", 51, -14, 11, false, "2", "63.11663380285988460953606916029841334143",
       "Infinity", "xro",
@@ -9224,14 +9442,6 @@ fn exp_range_rows_5() -> Array[
       "expm1", "05up", 51, -14, 11, false, "27.62097078007504676703234859865382278513",
       "", "989999999999.000000000000000000000000002274172688061", "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_6() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "expm1", "05up", 51, -14, 11, false, "26.93787393536860289879866533475419392314",
       "", "499999999999.000000000000000000000000001141135407489", "xr",
@@ -10092,6 +10302,43 @@ fn exp_range_rows_6() -> Array[
     ("log1p", "05up", 51, -14, 11, false, "-3E-300", "", "-1E-64", "xrsu"),
     ("log1p", "05up", 51, -14, 11, false, "7.5E-300", "", "1E-64", "xrsu"),
     ("log1p", "05up", 51, -14, 11, false, "-7.5E-300", "", "-1E-64", "xrsu"),
+    ("pown", "05up", 51, -14, 11, false, "3000", "-20", "1E-64", "xrsu"),
+    ("pown", "05up", 51, -14, 11, false, "3000", "-21", "1E-64", "xrsu"),
+    ("pown", "05up", 51, -14, 11, false, "3000", "-22", "1E-64", "xrsu"),
+    ("pown", "05up", 51, -14, 11, false, "3000", "-23", "1E-64", "xrsu"),
+    ("pown", "05up", 51, -14, 11, false, "3000", "-24", "1E-64", "xrsu"),
+    (
+      "pown", "05up", 51, -14, 11, false, "0.003", "-3", "37037037.0370370370370370370370370370370370370370371",
+      "xr",
+    ),
+    (
+      "pown", "05up", 51, -14, 11, false, "0.003", "-4", "12345679012.3456790123456790123456790123456790123456",
+      "xr",
+    ),
+    (
+      "pown", "05up", 51, -14, 11, false, "0.003", "-5", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 51, -14, 11, false, "0.003", "-6", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 51, -14, 11, false, "0.003", "-7", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 51, -14, 11, false, "1E+999999", "-2000000000", "1E-64", "xrsu",
+    ),
+    (
+      "pown", "05up", 51, -14, 11, false, "1E+999999", "2000000000", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
+    ("pown", "05up", 51, -14, 11, false, "1E+999999", "-3", "1E-64", "xrsu"),
+    (
+      "pown", "05up", 51, -14, 11, false, "1E+999999", "3", "999999999999.999999999999999999999999999999999999999",
+      "xro",
+    ),
     (
       "compound", "05up", 51, -14, 11, false, "1E+52", "2", "999999999999.999999999999999999999999999999999999999",
       "xro",
@@ -10374,6 +10621,14 @@ fn exp_range_rows_6() -> Array[
     (
       "exp2", "half_even", 7, -95, 96, true, "-2147483647.5", "", "0E-101", "xrsuc",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_7() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp2", "half_even", 7, -95, 96, true, "-3000000000", "", "0E-101", "xrsuc",
     ),
@@ -10564,14 +10819,6 @@ fn exp_range_rows_6() -> Array[
     (
       "exp", "half_even", 7, -95, 96, true, "-7.5E-1999996", "", "1.000000", "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_7() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("exp", "half_even", 7, -95, 96, true, "3E-5000", "", "1.000000", "xr"),
     ("exp", "half_even", 7, -95, 96, true, "-3E-5000", "", "1.000000", "xr"),
     ("exp", "half_even", 7, -95, 96, true, "7.5E-5000", "", "1.000000", "xr"),
@@ -10915,6 +11162,28 @@ fn exp_range_rows_7() -> Array[
     (
       "log1p", "half_even", 7, -95, 96, true, "-7.5E-300", "", "-0E-101", "xrsuc",
     ),
+    ("pown", "half_even", 7, -95, 96, true, "3000", "-33", "0E-101", "xrsuc"),
+    ("pown", "half_even", 7, -95, 96, true, "3000", "-34", "0E-101", "xrsuc"),
+    ("pown", "half_even", 7, -95, 96, true, "3000", "-35", "0E-101", "xrsuc"),
+    ("pown", "half_even", 7, -95, 96, true, "3000", "-36", "0E-101", "xrsuc"),
+    ("pown", "half_even", 7, -95, 96, true, "3000", "-37", "0E-101", "xrsuc"),
+    ("pown", "half_even", 7, -95, 96, true, "0.003", "-46", "Infinity", "xro"),
+    ("pown", "half_even", 7, -95, 96, true, "0.003", "-47", "Infinity", "xro"),
+    ("pown", "half_even", 7, -95, 96, true, "0.003", "-48", "Infinity", "xro"),
+    ("pown", "half_even", 7, -95, 96, true, "0.003", "-49", "Infinity", "xro"),
+    ("pown", "half_even", 7, -95, 96, true, "0.003", "-50", "Infinity", "xro"),
+    (
+      "pown", "half_even", 7, -95, 96, true, "1E+999999", "-2000000000", "0E-101",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 7, -95, 96, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 7, -95, 96, true, "1E+999999", "-3", "0E-101", "xrsuc",
+    ),
+    ("pown", "half_even", 7, -95, 96, true, "1E+999999", "3", "Infinity", "xro"),
     (
       "compound", "half_even", 7, -95, 96, true, "100000000", "2", "1.000000E+16",
       "xr",
@@ -11231,6 +11500,14 @@ fn exp_range_rows_7() -> Array[
     ("sinh", "half_up", 7, -95, 96, true, "-1E+12", "", "-Infinity", "xro"),
     ("cosh", "half_up", 7, -95, 96, true, "224.0339", "", "9.900486E+96", "xr"),
     ("cosh", "half_up", 7, -95, 96, true, "223.3508", "", "5.000230E+96", "xr"),
+  ]
+}
+
+///|
+fn exp_range_rows_8() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("cosh", "half_up", 7, -95, 96, true, "224.7370", "", "Infinity", "xro"),
     ("cosh", "half_up", 7, -95, 96, true, "240.1620", "", "Infinity", "xro"),
     (
@@ -11379,14 +11656,6 @@ fn exp_range_rows_7() -> Array[
     (
       "exp10", "half_up", 7, -95, 96, true, "-0.0000000075", "", "1.000000", "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_8() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("exp10", "half_up", 7, -95, 96, true, "3E+13", "", "Infinity", "xro"),
     ("exp10", "half_up", 7, -95, 96, true, "-3E+13", "", "0E-101", "xrsuc"),
     ("exp10", "half_up", 7, -95, 96, true, "7.5E+13", "", "Infinity", "xro"),
@@ -11543,6 +11812,26 @@ fn exp_range_rows_8() -> Array[
     ("log1p", "half_up", 7, -95, 96, true, "-3E-300", "", "-0E-101", "xrsuc"),
     ("log1p", "half_up", 7, -95, 96, true, "7.5E-300", "", "0E-101", "xrsuc"),
     ("log1p", "half_up", 7, -95, 96, true, "-7.5E-300", "", "-0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "3000", "-33", "0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "3000", "-34", "0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "3000", "-35", "0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "3000", "-36", "0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "3000", "-37", "0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "0.003", "-46", "Infinity", "xro"),
+    ("pown", "half_up", 7, -95, 96, true, "0.003", "-47", "Infinity", "xro"),
+    ("pown", "half_up", 7, -95, 96, true, "0.003", "-48", "Infinity", "xro"),
+    ("pown", "half_up", 7, -95, 96, true, "0.003", "-49", "Infinity", "xro"),
+    ("pown", "half_up", 7, -95, 96, true, "0.003", "-50", "Infinity", "xro"),
+    (
+      "pown", "half_up", 7, -95, 96, true, "1E+999999", "-2000000000", "0E-101",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 7, -95, 96, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    ("pown", "half_up", 7, -95, 96, true, "1E+999999", "-3", "0E-101", "xrsuc"),
+    ("pown", "half_up", 7, -95, 96, true, "1E+999999", "3", "Infinity", "xro"),
     (
       "compound", "half_up", 7, -95, 96, true, "100000000", "2", "1.000000E+16",
       "xr",
@@ -11948,6 +12237,14 @@ fn exp_range_rows_8() -> Array[
     ("exp2", "half_down", 7, -95, 96, true, "-3E-13", "", "1.000000", "xr"),
     ("exp2", "half_down", 7, -95, 96, true, "7.5E-13", "", "1.000000", "xr"),
     ("exp2", "half_down", 7, -95, 96, true, "-7.5E-13", "", "1.000000", "xr"),
+  ]
+}
+
+///|
+fn exp_range_rows_9() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("exp2", "half_down", 7, -95, 96, true, "3E-12", "", "1.000000", "xr"),
     ("exp2", "half_down", 7, -95, 96, true, "-3E-12", "", "1.000000", "xr"),
     ("exp2", "half_down", 7, -95, 96, true, "7.5E-12", "", "1.000000", "xr"),
@@ -12193,14 +12490,6 @@ fn exp_range_rows_8() -> Array[
     (
       "log1p", "half_down", 7, -95, 96, true, "-7.5E-22", "", "-7.500000E-22", "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_9() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("log1p", "half_down", 7, -95, 96, true, "3E-20", "", "3.000000E-20", "xr"),
     (
       "log1p", "half_down", 7, -95, 96, true, "-3E-20", "", "-3.000000E-20", "xr",
@@ -12279,6 +12568,28 @@ fn exp_range_rows_9() -> Array[
     (
       "log1p", "half_down", 7, -95, 96, true, "-7.5E-300", "", "-0E-101", "xrsuc",
     ),
+    ("pown", "half_down", 7, -95, 96, true, "3000", "-33", "0E-101", "xrsuc"),
+    ("pown", "half_down", 7, -95, 96, true, "3000", "-34", "0E-101", "xrsuc"),
+    ("pown", "half_down", 7, -95, 96, true, "3000", "-35", "0E-101", "xrsuc"),
+    ("pown", "half_down", 7, -95, 96, true, "3000", "-36", "0E-101", "xrsuc"),
+    ("pown", "half_down", 7, -95, 96, true, "3000", "-37", "0E-101", "xrsuc"),
+    ("pown", "half_down", 7, -95, 96, true, "0.003", "-46", "Infinity", "xro"),
+    ("pown", "half_down", 7, -95, 96, true, "0.003", "-47", "Infinity", "xro"),
+    ("pown", "half_down", 7, -95, 96, true, "0.003", "-48", "Infinity", "xro"),
+    ("pown", "half_down", 7, -95, 96, true, "0.003", "-49", "Infinity", "xro"),
+    ("pown", "half_down", 7, -95, 96, true, "0.003", "-50", "Infinity", "xro"),
+    (
+      "pown", "half_down", 7, -95, 96, true, "1E+999999", "-2000000000", "0E-101",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 7, -95, 96, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 7, -95, 96, true, "1E+999999", "-3", "0E-101", "xrsuc",
+    ),
+    ("pown", "half_down", 7, -95, 96, true, "1E+999999", "3", "Infinity", "xro"),
     (
       "compound", "half_down", 7, -95, 96, true, "100000000", "2", "1.000000E+16",
       "xr",
@@ -12712,6 +13023,14 @@ fn exp_range_rows_9() -> Array[
     ("exp10", "down", 7, -95, 96, true, "-7.5E+13", "", "0E-101", "xrsuc"),
     ("exp10", "down", 7, -95, 96, true, "3E-104", "", "1.000000", "xr"),
     ("exp10", "down", 7, -95, 96, true, "-3E-104", "", "0.9999999", "xr"),
+  ]
+}
+
+///|
+fn exp_range_rows_10() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("exp10", "down", 7, -95, 96, true, "7.5E-104", "", "1.000000", "xr"),
     ("exp10", "down", 7, -95, 96, true, "-7.5E-104", "", "0.9999999", "xr"),
     ("exp10", "down", 7, -95, 96, true, "3E-103", "", "1.000000", "xr"),
@@ -12824,6 +13143,25 @@ fn exp_range_rows_9() -> Array[
     ("log1p", "down", 7, -95, 96, true, "-3E-300", "", "-0E-101", "xrsuc"),
     ("log1p", "down", 7, -95, 96, true, "7.5E-300", "", "0E-101", "xrsuc"),
     ("log1p", "down", 7, -95, 96, true, "-7.5E-300", "", "-0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "3000", "-33", "0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "3000", "-34", "0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "3000", "-35", "0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "3000", "-36", "0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "3000", "-37", "0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "0.003", "-46", "9.999999E+96", "xro"),
+    ("pown", "down", 7, -95, 96, true, "0.003", "-47", "9.999999E+96", "xro"),
+    ("pown", "down", 7, -95, 96, true, "0.003", "-48", "9.999999E+96", "xro"),
+    ("pown", "down", 7, -95, 96, true, "0.003", "-49", "9.999999E+96", "xro"),
+    ("pown", "down", 7, -95, 96, true, "0.003", "-50", "9.999999E+96", "xro"),
+    (
+      "pown", "down", 7, -95, 96, true, "1E+999999", "-2000000000", "0E-101", "xrsuc",
+    ),
+    (
+      "pown", "down", 7, -95, 96, true, "1E+999999", "2000000000", "9.999999E+96",
+      "xro",
+    ),
+    ("pown", "down", 7, -95, 96, true, "1E+999999", "-3", "0E-101", "xrsuc"),
+    ("pown", "down", 7, -95, 96, true, "1E+999999", "3", "9.999999E+96", "xro"),
     (
       "compound", "down", 7, -95, 96, true, "100000000", "2", "1.000000E+16", "xr",
     ),
@@ -12907,14 +13245,6 @@ fn exp_range_rows_9() -> Array[
     ("powr", "down", 7, -95, 96, true, "2", "-335.3772", "1E-101", "xrsu"),
     ("powr", "down", 7, -95, 96, true, "2", "-337.2517", "0E-101", "xrsuc"),
     ("powr", "down", 7, -95, 96, true, "2", "-358.7682", "0E-101", "xrsuc"),
-  ]
-}
-
-///|
-fn exp_range_rows_10() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("powr", "down", 7, -95, 96, true, "2", "322.2125", "9.899824E+96", "xr"),
     ("powr", "down", 7, -95, 96, true, "2", "323.2270", "9.999999E+96", "xro"),
     ("powr", "down", 7, -95, 96, true, "2", "345.4805", "9.999999E+96", "xro"),
@@ -13338,6 +13668,14 @@ fn exp_range_rows_10() -> Array[
     ("expm1", "ceiling", 7, -95, 96, true, "-3E-300", "", "-0E-101", "xrsuc"),
     ("expm1", "ceiling", 7, -95, 96, true, "7.5E-300", "", "1E-101", "xrsu"),
     ("expm1", "ceiling", 7, -95, 96, true, "-7.5E-300", "", "-0E-101", "xrsuc"),
+  ]
+}
+
+///|
+fn exp_range_rows_11() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("log1p", "ceiling", 7, -95, 96, true, "3E-59", "", "3.000000E-59", "xr"),
     ("log1p", "ceiling", 7, -95, 96, true, "-3E-59", "", "-3.000000E-59", "xr"),
     ("log1p", "ceiling", 7, -95, 96, true, "7.5E-59", "", "7.500000E-59", "xr"),
@@ -13400,6 +13738,26 @@ fn exp_range_rows_10() -> Array[
     ("log1p", "ceiling", 7, -95, 96, true, "-3E-300", "", "-0E-101", "xrsuc"),
     ("log1p", "ceiling", 7, -95, 96, true, "7.5E-300", "", "1E-101", "xrsu"),
     ("log1p", "ceiling", 7, -95, 96, true, "-7.5E-300", "", "-0E-101", "xrsuc"),
+    ("pown", "ceiling", 7, -95, 96, true, "3000", "-33", "1E-101", "xrsu"),
+    ("pown", "ceiling", 7, -95, 96, true, "3000", "-34", "1E-101", "xrsu"),
+    ("pown", "ceiling", 7, -95, 96, true, "3000", "-35", "1E-101", "xrsu"),
+    ("pown", "ceiling", 7, -95, 96, true, "3000", "-36", "1E-101", "xrsu"),
+    ("pown", "ceiling", 7, -95, 96, true, "3000", "-37", "1E-101", "xrsu"),
+    ("pown", "ceiling", 7, -95, 96, true, "0.003", "-46", "Infinity", "xro"),
+    ("pown", "ceiling", 7, -95, 96, true, "0.003", "-47", "Infinity", "xro"),
+    ("pown", "ceiling", 7, -95, 96, true, "0.003", "-48", "Infinity", "xro"),
+    ("pown", "ceiling", 7, -95, 96, true, "0.003", "-49", "Infinity", "xro"),
+    ("pown", "ceiling", 7, -95, 96, true, "0.003", "-50", "Infinity", "xro"),
+    (
+      "pown", "ceiling", 7, -95, 96, true, "1E+999999", "-2000000000", "1E-101",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 7, -95, 96, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    ("pown", "ceiling", 7, -95, 96, true, "1E+999999", "-3", "1E-101", "xrsu"),
+    ("pown", "ceiling", 7, -95, 96, true, "1E+999999", "3", "Infinity", "xro"),
     (
       "compound", "ceiling", 7, -95, 96, true, "100000000", "2", "1.000001E+16",
       "xr",
@@ -13591,14 +13949,6 @@ fn exp_range_rows_10() -> Array[
     ("exp10", "floor", 7, -95, 96, true, "96.69897", "", "4.999999E+96", "xr"),
     ("exp10", "floor", 7, -95, 96, true, "97.30103", "", "9.999999E+96", "xro"),
     ("exp10", "floor", 7, -95, 96, true, "104.0000", "", "9.999999E+96", "xro"),
-  ]
-}
-
-///|
-fn exp_range_rows_11() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("exp10", "floor", 7, -95, 96, true, "-101", "", "1E-101", "s"),
     ("exp10", "floor", 7, -95, 96, true, "98", "", "9.999999E+96", "xro"),
     ("exp10", "floor", 7, -95, 96, true, "-101.5", "", "0E-101", "xrsuc"),
@@ -13932,6 +14282,25 @@ fn exp_range_rows_11() -> Array[
     ("log1p", "floor", 7, -95, 96, true, "-3E-300", "", "-1E-101", "xrsu"),
     ("log1p", "floor", 7, -95, 96, true, "7.5E-300", "", "0E-101", "xrsuc"),
     ("log1p", "floor", 7, -95, 96, true, "-7.5E-300", "", "-1E-101", "xrsu"),
+    ("pown", "floor", 7, -95, 96, true, "3000", "-33", "0E-101", "xrsuc"),
+    ("pown", "floor", 7, -95, 96, true, "3000", "-34", "0E-101", "xrsuc"),
+    ("pown", "floor", 7, -95, 96, true, "3000", "-35", "0E-101", "xrsuc"),
+    ("pown", "floor", 7, -95, 96, true, "3000", "-36", "0E-101", "xrsuc"),
+    ("pown", "floor", 7, -95, 96, true, "3000", "-37", "0E-101", "xrsuc"),
+    ("pown", "floor", 7, -95, 96, true, "0.003", "-46", "9.999999E+96", "xro"),
+    ("pown", "floor", 7, -95, 96, true, "0.003", "-47", "9.999999E+96", "xro"),
+    ("pown", "floor", 7, -95, 96, true, "0.003", "-48", "9.999999E+96", "xro"),
+    ("pown", "floor", 7, -95, 96, true, "0.003", "-49", "9.999999E+96", "xro"),
+    ("pown", "floor", 7, -95, 96, true, "0.003", "-50", "9.999999E+96", "xro"),
+    (
+      "pown", "floor", 7, -95, 96, true, "1E+999999", "-2000000000", "0E-101", "xrsuc",
+    ),
+    (
+      "pown", "floor", 7, -95, 96, true, "1E+999999", "2000000000", "9.999999E+96",
+      "xro",
+    ),
+    ("pown", "floor", 7, -95, 96, true, "1E+999999", "-3", "0E-101", "xrsuc"),
+    ("pown", "floor", 7, -95, 96, true, "1E+999999", "3", "9.999999E+96", "xro"),
     (
       "compound", "floor", 7, -95, 96, true, "100000000", "2", "1.000000E+16", "xr",
     ),
@@ -13951,6 +14320,14 @@ fn exp_range_rows_11() -> Array[
     (
       "compound", "floor", 7, -95, 96, true, "1000000000", "3", "1.000000E+27", "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_12() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "compound", "floor", 7, -95, 96, true, "10000000000", "2", "1.000000E+20",
       "xr",
@@ -14196,14 +14573,6 @@ fn exp_range_rows_11() -> Array[
     ("exp", "up", 7, -95, 96, true, "-0.00000000003", "", "1.000000", "xr"),
     ("exp", "up", 7, -95, 96, true, "0.000000000075", "", "1.000001", "xr"),
     ("exp", "up", 7, -95, 96, true, "-0.000000000075", "", "1.000000", "xr"),
-  ]
-}
-
-///|
-fn exp_range_rows_12() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("exp", "up", 7, -95, 96, true, "0.000000003", "", "1.000001", "xr"),
     ("exp", "up", 7, -95, 96, true, "-0.000000003", "", "1.000000", "xr"),
     ("exp", "up", 7, -95, 96, true, "0.0000000075", "", "1.000001", "xr"),
@@ -14422,6 +14791,24 @@ fn exp_range_rows_12() -> Array[
     ("log1p", "up", 7, -95, 96, true, "-3E-300", "", "-1E-101", "xrsu"),
     ("log1p", "up", 7, -95, 96, true, "7.5E-300", "", "1E-101", "xrsu"),
     ("log1p", "up", 7, -95, 96, true, "-7.5E-300", "", "-1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "3000", "-33", "1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "3000", "-34", "1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "3000", "-35", "1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "3000", "-36", "1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "3000", "-37", "1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "0.003", "-46", "Infinity", "xro"),
+    ("pown", "up", 7, -95, 96, true, "0.003", "-47", "Infinity", "xro"),
+    ("pown", "up", 7, -95, 96, true, "0.003", "-48", "Infinity", "xro"),
+    ("pown", "up", 7, -95, 96, true, "0.003", "-49", "Infinity", "xro"),
+    ("pown", "up", 7, -95, 96, true, "0.003", "-50", "Infinity", "xro"),
+    (
+      "pown", "up", 7, -95, 96, true, "1E+999999", "-2000000000", "1E-101", "xrsu",
+    ),
+    (
+      "pown", "up", 7, -95, 96, true, "1E+999999", "2000000000", "Infinity", "xro",
+    ),
+    ("pown", "up", 7, -95, 96, true, "1E+999999", "-3", "1E-101", "xrsu"),
+    ("pown", "up", 7, -95, 96, true, "1E+999999", "3", "Infinity", "xro"),
     ("compound", "up", 7, -95, 96, true, "100000000", "2", "1.000001E+16", "xr"),
     (
       "compound", "up", 7, -95, 96, true, "100000000", "-2", "1.000000E-16", "xr",
@@ -14516,6 +14903,14 @@ fn exp_range_rows_12() -> Array[
     ("exp", "05up", 7, -95, 96, true, "292", "", "9.999999E+96", "xro"),
     ("exp", "05up", 7, -95, 96, true, "-305.5", "", "1E-101", "xrsu"),
     ("exp", "05up", 7, -95, 96, true, "291.5", "", "9.999999E+96", "xro"),
+  ]
+}
+
+///|
+fn exp_range_rows_13() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     ("exp", "05up", 7, -95, 96, true, "-306", "", "1E-101", "xrsu"),
     ("exp", "05up", 7, -95, 96, true, "291", "", "9.999999E+96", "xro"),
     ("exp", "05up", 7, -95, 96, true, "-306.5", "", "1E-101", "xrsu"),
@@ -14752,14 +15147,6 @@ fn exp_range_rows_12() -> Array[
     ("exp10", "05up", 7, -95, 96, true, "-3E-52", "", "0.9999999", "xr"),
     ("exp10", "05up", 7, -95, 96, true, "7.5E-52", "", "1.000001", "xr"),
     ("exp10", "05up", 7, -95, 96, true, "-7.5E-52", "", "0.9999999", "xr"),
-  ]
-}
-
-///|
-fn exp_range_rows_13() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     ("exp10", "05up", 7, -95, 96, true, "3E-15", "", "1.000001", "xr"),
     ("exp10", "05up", 7, -95, 96, true, "-3E-15", "", "0.9999999", "xr"),
     ("exp10", "05up", 7, -95, 96, true, "7.5E-15", "", "1.000001", "xr"),
@@ -14900,6 +15287,25 @@ fn exp_range_rows_13() -> Array[
     ("log1p", "05up", 7, -95, 96, true, "-3E-300", "", "-1E-101", "xrsu"),
     ("log1p", "05up", 7, -95, 96, true, "7.5E-300", "", "1E-101", "xrsu"),
     ("log1p", "05up", 7, -95, 96, true, "-7.5E-300", "", "-1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "3000", "-33", "1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "3000", "-34", "1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "3000", "-35", "1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "3000", "-36", "1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "3000", "-37", "1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "0.003", "-46", "9.999999E+96", "xro"),
+    ("pown", "05up", 7, -95, 96, true, "0.003", "-47", "9.999999E+96", "xro"),
+    ("pown", "05up", 7, -95, 96, true, "0.003", "-48", "9.999999E+96", "xro"),
+    ("pown", "05up", 7, -95, 96, true, "0.003", "-49", "9.999999E+96", "xro"),
+    ("pown", "05up", 7, -95, 96, true, "0.003", "-50", "9.999999E+96", "xro"),
+    (
+      "pown", "05up", 7, -95, 96, true, "1E+999999", "-2000000000", "1E-101", "xrsu",
+    ),
+    (
+      "pown", "05up", 7, -95, 96, true, "1E+999999", "2000000000", "9.999999E+96",
+      "xro",
+    ),
+    ("pown", "05up", 7, -95, 96, true, "1E+999999", "-3", "1E-101", "xrsu"),
+    ("pown", "05up", 7, -95, 96, true, "1E+999999", "3", "9.999999E+96", "xro"),
     (
       "compound", "05up", 7, -95, 96, true, "100000000", "2", "1.000001E+16", "xr",
     ),
@@ -15205,6 +15611,14 @@ fn exp_range_rows_13() -> Array[
       "exp10", "half_even", 16, -383, 384, true, "-3000000000", "", "0E-398", "xrsuc",
     ),
     ("exp10", "half_even", 16, -383, 384, true, "-75000", "", "0E-398", "xrsuc"),
+  ]
+}
+
+///|
+fn exp_range_rows_14() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "expm1", "half_even", 16, -383, 384, true, "886.4852104668541", "", "9.900000000000130E+384",
       "xr",
@@ -15362,6 +15776,50 @@ fn exp_range_rows_13() -> Array[
       "xro",
     ),
     ("cosh", "half_even", 16, -383, 384, true, "-1E+12", "", "Infinity", "xro"),
+    (
+      "pown", "half_even", 16, -383, 384, true, "3000", "-132", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "3000", "-133", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "3000", "-134", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "3000", "-135", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "3000", "-136", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "0.003", "-190", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "0.003", "-191", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "0.003", "-192", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "0.003", "-193", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "0.003", "-194", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "1E+999999", "-2000000000", "0E-398",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "1E+999999", "-3", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 16, -383, 384, true, "1E+999999", "3", "Infinity", "xro",
+    ),
     (
       "compound", "half_even", 16, -383, 384, true, "1E+17", "2", "1.000000000000000E+34",
       "xr",
@@ -15886,6 +16344,30 @@ fn exp_range_rows_13() -> Array[
       "cosh", "half_up", 16, -383, 384, true, "-6773329072.88", "", "Infinity", "xro",
     ),
     ("cosh", "half_up", 16, -383, 384, true, "-1E+12", "", "Infinity", "xro"),
+    ("pown", "half_up", 16, -383, 384, true, "3000", "-132", "0E-398", "xrsuc"),
+    ("pown", "half_up", 16, -383, 384, true, "3000", "-133", "0E-398", "xrsuc"),
+    ("pown", "half_up", 16, -383, 384, true, "3000", "-134", "0E-398", "xrsuc"),
+    ("pown", "half_up", 16, -383, 384, true, "3000", "-135", "0E-398", "xrsuc"),
+    ("pown", "half_up", 16, -383, 384, true, "3000", "-136", "0E-398", "xrsuc"),
+    ("pown", "half_up", 16, -383, 384, true, "0.003", "-190", "Infinity", "xro"),
+    ("pown", "half_up", 16, -383, 384, true, "0.003", "-191", "Infinity", "xro"),
+    ("pown", "half_up", 16, -383, 384, true, "0.003", "-192", "Infinity", "xro"),
+    ("pown", "half_up", 16, -383, 384, true, "0.003", "-193", "Infinity", "xro"),
+    ("pown", "half_up", 16, -383, 384, true, "0.003", "-194", "Infinity", "xro"),
+    (
+      "pown", "half_up", 16, -383, 384, true, "1E+999999", "-2000000000", "0E-398",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 16, -383, 384, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 16, -383, 384, true, "1E+999999", "-3", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 16, -383, 384, true, "1E+999999", "3", "Infinity", "xro",
+    ),
     (
       "compound", "half_up", 16, -383, 384, true, "1E+17", "2", "1.000000000000000E+34",
       "xr",
@@ -15914,14 +16396,6 @@ fn exp_range_rows_13() -> Array[
       "compound", "half_up", 16, -383, 384, true, "1E+19", "2", "1.000000000000000E+38",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_14() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "compound", "half_up", 16, -383, 384, true, "1E+19", "-2", "1.000000000000000E-38",
       "xr",
@@ -16424,6 +16898,50 @@ fn exp_range_rows_14() -> Array[
     ),
     ("cosh", "half_down", 16, -383, 384, true, "-1E+12", "", "Infinity", "xro"),
     (
+      "pown", "half_down", 16, -383, 384, true, "3000", "-132", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "3000", "-133", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "3000", "-134", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "3000", "-135", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "3000", "-136", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "0.003", "-190", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "0.003", "-191", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "0.003", "-192", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "0.003", "-193", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "0.003", "-194", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "1E+999999", "-2000000000", "0E-398",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "1E+999999", "-3", "0E-398", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 16, -383, 384, true, "1E+999999", "3", "Infinity", "xro",
+    ),
+    (
       "compound", "half_down", 16, -383, 384, true, "1E+17", "2", "1.000000000000000E+34",
       "xr",
     ),
@@ -16652,6 +17170,14 @@ fn exp_range_rows_14() -> Array[
       "xro",
     ),
     ("exp", "down", 16, -383, 384, true, "-1198", "", "0E-398", "xrsuc"),
+  ]
+}
+
+///|
+fn exp_range_rows_15() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp", "down", 16, -383, 384, true, "1154", "", "9.999999999999999E+384", "xro",
     ),
@@ -16992,6 +17518,44 @@ fn exp_range_rows_14() -> Array[
     ),
     (
       "cosh", "down", 16, -383, 384, true, "-1E+12", "", "9.999999999999999E+384",
+      "xro",
+    ),
+    ("pown", "down", 16, -383, 384, true, "3000", "-132", "0E-398", "xrsuc"),
+    ("pown", "down", 16, -383, 384, true, "3000", "-133", "0E-398", "xrsuc"),
+    ("pown", "down", 16, -383, 384, true, "3000", "-134", "0E-398", "xrsuc"),
+    ("pown", "down", 16, -383, 384, true, "3000", "-135", "0E-398", "xrsuc"),
+    ("pown", "down", 16, -383, 384, true, "3000", "-136", "0E-398", "xrsuc"),
+    (
+      "pown", "down", 16, -383, 384, true, "0.003", "-190", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "down", 16, -383, 384, true, "0.003", "-191", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "down", 16, -383, 384, true, "0.003", "-192", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "down", 16, -383, 384, true, "0.003", "-193", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "down", 16, -383, 384, true, "0.003", "-194", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "down", 16, -383, 384, true, "1E+999999", "-2000000000", "0E-398",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 16, -383, 384, true, "1E+999999", "2000000000", "9.999999999999999E+384",
+      "xro",
+    ),
+    ("pown", "down", 16, -383, 384, true, "1E+999999", "-3", "0E-398", "xrsuc"),
+    (
+      "pown", "down", 16, -383, 384, true, "1E+999999", "3", "9.999999999999999E+384",
       "xro",
     ),
     (
@@ -17476,14 +18040,6 @@ fn exp_range_rows_14() -> Array[
       "sinh", "ceiling", 16, -383, 384, true, "-886.4952608027076", "", "-5.000000000000058E+384",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_15() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "sinh", "ceiling", 16, -383, 384, true, "-887.8815551638275", "", "-9.999999999999999E+384",
       "xro",
@@ -17524,6 +18080,30 @@ fn exp_range_rows_15() -> Array[
       "cosh", "ceiling", 16, -383, 384, true, "-6773329072.88", "", "Infinity", "xro",
     ),
     ("cosh", "ceiling", 16, -383, 384, true, "-1E+12", "", "Infinity", "xro"),
+    ("pown", "ceiling", 16, -383, 384, true, "3000", "-132", "1E-398", "xrsu"),
+    ("pown", "ceiling", 16, -383, 384, true, "3000", "-133", "1E-398", "xrsu"),
+    ("pown", "ceiling", 16, -383, 384, true, "3000", "-134", "1E-398", "xrsu"),
+    ("pown", "ceiling", 16, -383, 384, true, "3000", "-135", "1E-398", "xrsu"),
+    ("pown", "ceiling", 16, -383, 384, true, "3000", "-136", "1E-398", "xrsu"),
+    ("pown", "ceiling", 16, -383, 384, true, "0.003", "-190", "Infinity", "xro"),
+    ("pown", "ceiling", 16, -383, 384, true, "0.003", "-191", "Infinity", "xro"),
+    ("pown", "ceiling", 16, -383, 384, true, "0.003", "-192", "Infinity", "xro"),
+    ("pown", "ceiling", 16, -383, 384, true, "0.003", "-193", "Infinity", "xro"),
+    ("pown", "ceiling", 16, -383, 384, true, "0.003", "-194", "Infinity", "xro"),
+    (
+      "pown", "ceiling", 16, -383, 384, true, "1E+999999", "-2000000000", "1E-398",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 16, -383, 384, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 16, -383, 384, true, "1E+999999", "-3", "1E-398", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 16, -383, 384, true, "1E+999999", "3", "Infinity", "xro",
+    ),
     (
       "compound", "ceiling", 16, -383, 384, true, "1E+17", "2", "1.000000000000001E+34",
       "xr",
@@ -18100,6 +18680,44 @@ fn exp_range_rows_15() -> Array[
       "cosh", "floor", 16, -383, 384, true, "-1E+12", "", "9.999999999999999E+384",
       "xro",
     ),
+    ("pown", "floor", 16, -383, 384, true, "3000", "-132", "0E-398", "xrsuc"),
+    ("pown", "floor", 16, -383, 384, true, "3000", "-133", "0E-398", "xrsuc"),
+    ("pown", "floor", 16, -383, 384, true, "3000", "-134", "0E-398", "xrsuc"),
+    ("pown", "floor", 16, -383, 384, true, "3000", "-135", "0E-398", "xrsuc"),
+    ("pown", "floor", 16, -383, 384, true, "3000", "-136", "0E-398", "xrsuc"),
+    (
+      "pown", "floor", 16, -383, 384, true, "0.003", "-190", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "floor", 16, -383, 384, true, "0.003", "-191", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "floor", 16, -383, 384, true, "0.003", "-192", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "floor", 16, -383, 384, true, "0.003", "-193", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "floor", 16, -383, 384, true, "0.003", "-194", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "floor", 16, -383, 384, true, "1E+999999", "-2000000000", "0E-398",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 16, -383, 384, true, "1E+999999", "2000000000", "9.999999999999999E+384",
+      "xro",
+    ),
+    ("pown", "floor", 16, -383, 384, true, "1E+999999", "-3", "0E-398", "xrsuc"),
+    (
+      "pown", "floor", 16, -383, 384, true, "1E+999999", "3", "9.999999999999999E+384",
+      "xro",
+    ),
     (
       "compound", "floor", 16, -383, 384, true, "1E+17", "2", "1.000000000000000E+34",
       "xr",
@@ -18128,6 +18746,14 @@ fn exp_range_rows_15() -> Array[
       "compound", "floor", 16, -383, 384, true, "1E+19", "2", "1.000000000000000E+38",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_16() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "compound", "floor", 16, -383, 384, true, "1E+19", "-2", "9.999999999999999E-39",
       "xr",
@@ -18556,6 +19182,24 @@ fn exp_range_rows_15() -> Array[
     ("cosh", "up", 16, -383, 384, true, "1E+12", "", "Infinity", "xro"),
     ("cosh", "up", 16, -383, 384, true, "-6773329072.88", "", "Infinity", "xro"),
     ("cosh", "up", 16, -383, 384, true, "-1E+12", "", "Infinity", "xro"),
+    ("pown", "up", 16, -383, 384, true, "3000", "-132", "1E-398", "xrsu"),
+    ("pown", "up", 16, -383, 384, true, "3000", "-133", "1E-398", "xrsu"),
+    ("pown", "up", 16, -383, 384, true, "3000", "-134", "1E-398", "xrsu"),
+    ("pown", "up", 16, -383, 384, true, "3000", "-135", "1E-398", "xrsu"),
+    ("pown", "up", 16, -383, 384, true, "3000", "-136", "1E-398", "xrsu"),
+    ("pown", "up", 16, -383, 384, true, "0.003", "-190", "Infinity", "xro"),
+    ("pown", "up", 16, -383, 384, true, "0.003", "-191", "Infinity", "xro"),
+    ("pown", "up", 16, -383, 384, true, "0.003", "-192", "Infinity", "xro"),
+    ("pown", "up", 16, -383, 384, true, "0.003", "-193", "Infinity", "xro"),
+    ("pown", "up", 16, -383, 384, true, "0.003", "-194", "Infinity", "xro"),
+    (
+      "pown", "up", 16, -383, 384, true, "1E+999999", "-2000000000", "1E-398", "xrsu",
+    ),
+    (
+      "pown", "up", 16, -383, 384, true, "1E+999999", "2000000000", "Infinity", "xro",
+    ),
+    ("pown", "up", 16, -383, 384, true, "1E+999999", "-3", "1E-398", "xrsu"),
+    ("pown", "up", 16, -383, 384, true, "1E+999999", "3", "Infinity", "xro"),
     (
       "compound", "up", 16, -383, 384, true, "1E+17", "2", "1.000000000000001E+34",
       "xr",
@@ -18961,14 +19605,6 @@ fn exp_range_rows_15() -> Array[
       "exp2m1", "05up", 16, -383, 384, true, "6773329072.88", "", "9.999999999999999E+384",
       "xro",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_16() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp2m1", "05up", 16, -383, 384, true, "1E+12", "", "9.999999999999999E+384",
       "xro",
@@ -19091,6 +19727,44 @@ fn exp_range_rows_16() -> Array[
     ),
     (
       "cosh", "05up", 16, -383, 384, true, "-1E+12", "", "9.999999999999999E+384",
+      "xro",
+    ),
+    ("pown", "05up", 16, -383, 384, true, "3000", "-132", "1E-398", "xrsu"),
+    ("pown", "05up", 16, -383, 384, true, "3000", "-133", "1E-398", "xrsu"),
+    ("pown", "05up", 16, -383, 384, true, "3000", "-134", "1E-398", "xrsu"),
+    ("pown", "05up", 16, -383, 384, true, "3000", "-135", "1E-398", "xrsu"),
+    ("pown", "05up", 16, -383, 384, true, "3000", "-136", "1E-398", "xrsu"),
+    (
+      "pown", "05up", 16, -383, 384, true, "0.003", "-190", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "05up", 16, -383, 384, true, "0.003", "-191", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "05up", 16, -383, 384, true, "0.003", "-192", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "05up", 16, -383, 384, true, "0.003", "-193", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "05up", 16, -383, 384, true, "0.003", "-194", "9.999999999999999E+384",
+      "xro",
+    ),
+    (
+      "pown", "05up", 16, -383, 384, true, "1E+999999", "-2000000000", "1E-398",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 16, -383, 384, true, "1E+999999", "2000000000", "9.999999999999999E+384",
+      "xro",
+    ),
+    ("pown", "05up", 16, -383, 384, true, "1E+999999", "-3", "1E-398", "xrsu"),
+    (
+      "pown", "05up", 16, -383, 384, true, "1E+999999", "3", "9.999999999999999E+384",
       "xro",
     ),
     (
@@ -19537,6 +20211,14 @@ fn exp_range_rows_16() -> Array[
       "expm1", "half_even", 34, -6143, 6144, true, "14165.50349209936904807868342921821",
       "", "Infinity", "xro",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_17() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "expm1", "half_even", 34, -6143, 6144, true, "6773329072.88", "", "Infinity",
       "xro",
@@ -20633,6 +21315,50 @@ fn exp_range_rows_16() -> Array[
       "xr",
     ),
     (
+      "pown", "half_even", 34, -6143, 6144, true, "3000", "-2058", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "3000", "-2059", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "3000", "-2060", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "3000", "-2061", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "3000", "-2062", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "0.003", "-3070", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "0.003", "-3071", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "0.003", "-3072", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "0.003", "-3073", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "0.003", "-3074", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "1E+999999", "-2000000000", "0E-6176",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "1E+999999", "-3", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -6143, 6144, true, "1E+999999", "3", "Infinity", "xro",
+    ),
+    (
       "compound", "half_even", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000000E+70",
       "xr",
     ),
@@ -20850,14 +21576,6 @@ fn exp_range_rows_16() -> Array[
       "compound", "half_even", 34, -6143, 6144, true, "0.25", "63412", "Infinity",
       "xro",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_17() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "compound", "half_even", 34, -6143, 6144, true, "0.25", "63482", "Infinity",
       "xro",
@@ -21337,6 +22055,14 @@ fn exp_range_rows_17() -> Array[
       "exp", "half_up", 34, -6143, 6144, true, "-7.5E-36", "", "1.000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_18() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp", "half_up", 34, -6143, 6144, true, "3E-14", "", "1.000000000000030000000000000450000",
       "xr",
@@ -22180,6 +22906,50 @@ fn exp_range_rows_17() -> Array[
       "xr",
     ),
     (
+      "pown", "half_up", 34, -6143, 6144, true, "3000", "-2058", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "3000", "-2059", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "3000", "-2060", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "3000", "-2061", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "3000", "-2062", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "0.003", "-3070", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "0.003", "-3071", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "0.003", "-3072", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "0.003", "-3073", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "0.003", "-3074", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "1E+999999", "-2000000000", "0E-6176",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "1E+999999", "-3", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -6143, 6144, true, "1E+999999", "3", "Infinity", "xro",
+    ),
+    (
       "compound", "half_up", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000000E+70",
       "xr",
     ),
@@ -22650,14 +23420,6 @@ fn exp_range_rows_17() -> Array[
     (
       "exp10", "half_down", 34, -6143, 6144, true, "-1E+12", "", "0E-6176", "xrsuc",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_18() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp10", "half_down", 34, -6143, 6144, true, "1E+12", "", "Infinity", "xro",
     ),
@@ -23189,6 +23951,14 @@ fn exp_range_rows_18() -> Array[
       "exp2", "half_down", 34, -6143, 6144, true, "-7.5E-1999996", "", "1.000000000000000000000000000000000",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_19() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp2", "half_down", 34, -6143, 6144, true, "3E-5000", "", "1.000000000000000000000000000000000",
       "xr",
@@ -23782,6 +24552,50 @@ fn exp_range_rows_18() -> Array[
     (
       "log1p", "half_down", 34, -6143, 6144, true, "-7.5E-300", "", "-7.500000000000000000000000000000000E-300",
       "xr",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "3000", "-2058", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "3000", "-2059", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "3000", "-2060", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "3000", "-2061", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "3000", "-2062", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "0.003", "-3070", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "0.003", "-3071", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "0.003", "-3072", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "0.003", "-3073", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "0.003", "-3074", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "1E+999999", "-2000000000", "0E-6176",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "1E+999999", "-3", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -6143, 6144, true, "1E+999999", "3", "Infinity", "xro",
     ),
     (
       "compound", "half_down", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000000E+70",
@@ -24553,14 +25367,6 @@ fn exp_range_rows_18() -> Array[
       "exp", "down", 34, -6143, 6144, true, "-3E-6179", "", "0.9999999999999999999999999999999999",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_19() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp", "down", 34, -6143, 6144, true, "7.5E-6179", "", "1.000000000000000000000000000000000",
       "xr",
@@ -25049,6 +25855,14 @@ fn exp_range_rows_19() -> Array[
       "expm1", "down", 34, -6143, 6144, true, "-7.5E-49", "", "-7.499999999999999999999999999999999E-49",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_20() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "expm1", "down", 34, -6143, 6144, true, "3E-47", "", "3.000000000000000000000000000000000E-47",
       "xr",
@@ -25368,6 +26182,46 @@ fn exp_range_rows_19() -> Array[
     (
       "log1p", "down", 34, -6143, 6144, true, "-7.5E-300", "", "-7.500000000000000000000000000000000E-300",
       "xr",
+    ),
+    ("pown", "down", 34, -6143, 6144, true, "3000", "-2058", "0E-6176", "xrsuc"),
+    ("pown", "down", 34, -6143, 6144, true, "3000", "-2059", "0E-6176", "xrsuc"),
+    ("pown", "down", 34, -6143, 6144, true, "3000", "-2060", "0E-6176", "xrsuc"),
+    ("pown", "down", 34, -6143, 6144, true, "3000", "-2061", "0E-6176", "xrsuc"),
+    ("pown", "down", 34, -6143, 6144, true, "3000", "-2062", "0E-6176", "xrsuc"),
+    (
+      "pown", "down", 34, -6143, 6144, true, "0.003", "-3070", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "0.003", "-3071", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "0.003", "-3072", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "0.003", "-3073", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "0.003", "-3074", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "1E+999999", "-2000000000", "0E-6176",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "1E+999999", "2000000000", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "1E+999999", "-3", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -6143, 6144, true, "1E+999999", "3", "9.999999999999999999999999999999999E+6144",
+      "xro",
     ),
     (
       "compound", "down", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000000E+70",
@@ -26391,14 +27245,6 @@ fn exp_range_rows_19() -> Array[
       "exp10", "ceiling", 34, -6143, 6144, true, "-7.5E-40", "", "1.000000000000000000000000000000000",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_20() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp10", "ceiling", 34, -6143, 6144, true, "3E-39", "", "1.000000000000000000000000000000001",
       "xr",
@@ -26820,6 +27666,14 @@ fn exp_range_rows_20() -> Array[
       "log1p", "ceiling", 34, -6143, 6144, true, "-7.5E-43", "", "-7.500000000000000000000000000000000E-43",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_21() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "log1p", "ceiling", 34, -6143, 6144, true, "3E-21", "", "2.999999999999999999995500000000001E-21",
       "xr",
@@ -26904,6 +27758,50 @@ fn exp_range_rows_20() -> Array[
     (
       "log1p", "ceiling", 34, -6143, 6144, true, "-7.5E-300", "", "-7.500000000000000000000000000000000E-300",
       "xr",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "3000", "-2058", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "3000", "-2059", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "3000", "-2060", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "3000", "-2061", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "3000", "-2062", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "0.003", "-3070", "Infinity", "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "0.003", "-3071", "Infinity", "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "0.003", "-3072", "Infinity", "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "0.003", "-3073", "Infinity", "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "0.003", "-3074", "Infinity", "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "1E+999999", "-2000000000", "1E-6176",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "1E+999999", "-3", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -6143, 6144, true, "1E+999999", "3", "Infinity", "xro",
     ),
     (
       "compound", "ceiling", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000001E+70",
@@ -28280,14 +29178,6 @@ fn exp_range_rows_20() -> Array[
       "expm1", "floor", 34, -6143, 6144, true, "-3E-5000", "", "-3.000000000000000000000000000000000E-5000",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_21() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "expm1", "floor", 34, -6143, 6144, true, "7.5E-5000", "", "7.500000000000000000000000000000000E-5000",
       "xr",
@@ -28489,6 +29379,56 @@ fn exp_range_rows_21() -> Array[
       "xr",
     ),
     (
+      "pown", "floor", 34, -6143, 6144, true, "3000", "-2058", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "3000", "-2059", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "3000", "-2060", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "3000", "-2061", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "3000", "-2062", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "0.003", "-3070", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "0.003", "-3071", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "0.003", "-3072", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "0.003", "-3073", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "0.003", "-3074", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "1E+999999", "-2000000000", "0E-6176",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "1E+999999", "2000000000", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "1E+999999", "-3", "0E-6176", "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -6143, 6144, true, "1E+999999", "3", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
       "compound", "floor", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000000E+70",
       "xr",
     ),
@@ -28592,6 +29532,14 @@ fn exp_range_rows_21() -> Array[
       "rootn", "floor", 34, -6143, 6144, true, "1E+999999", "1000000", "9.999976974175579529748777599749594",
       "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_22() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "rootn", "floor", 34, -6143, 6144, true, "7.5E+400000", "1000000", "2.511891492722237143491464817271320",
       "xr",
@@ -29947,6 +30895,26 @@ fn exp_range_rows_21() -> Array[
       "log1p", "up", 34, -6143, 6144, true, "-7.5E-300", "", "-7.500000000000000000000000000000001E-300",
       "xr",
     ),
+    ("pown", "up", 34, -6143, 6144, true, "3000", "-2058", "1E-6176", "xrsu"),
+    ("pown", "up", 34, -6143, 6144, true, "3000", "-2059", "1E-6176", "xrsu"),
+    ("pown", "up", 34, -6143, 6144, true, "3000", "-2060", "1E-6176", "xrsu"),
+    ("pown", "up", 34, -6143, 6144, true, "3000", "-2061", "1E-6176", "xrsu"),
+    ("pown", "up", 34, -6143, 6144, true, "3000", "-2062", "1E-6176", "xrsu"),
+    ("pown", "up", 34, -6143, 6144, true, "0.003", "-3070", "Infinity", "xro"),
+    ("pown", "up", 34, -6143, 6144, true, "0.003", "-3071", "Infinity", "xro"),
+    ("pown", "up", 34, -6143, 6144, true, "0.003", "-3072", "Infinity", "xro"),
+    ("pown", "up", 34, -6143, 6144, true, "0.003", "-3073", "Infinity", "xro"),
+    ("pown", "up", 34, -6143, 6144, true, "0.003", "-3074", "Infinity", "xro"),
+    (
+      "pown", "up", 34, -6143, 6144, true, "1E+999999", "-2000000000", "1E-6176",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -6143, 6144, true, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    ("pown", "up", 34, -6143, 6144, true, "1E+999999", "-3", "1E-6176", "xrsu"),
+    ("pown", "up", 34, -6143, 6144, true, "1E+999999", "3", "Infinity", "xro"),
     (
       "compound", "up", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000001E+70",
       "xr",
@@ -30043,14 +31011,6 @@ fn exp_range_rows_21() -> Array[
       "compound", "up", 34, -6143, 6144, true, "3E-300", "3", "1.000000000000000000000000000000001",
       "xr",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_22() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "rootn", "up", 34, -6143, 6144, true, "10000000", "3", "215.4434690031883721759293566519351",
       "xr",
@@ -30266,6 +31226,14 @@ fn exp_range_rows_22() -> Array[
       "exp2", "05up", 34, -6143, 6144, true, "-20520.54984211923722279496311595596",
       "", "1E-6176", "xrsu",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_23() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp2", "05up", 34, -6143, 6144, true, "-20539.48141068856139688218503253290",
       "", "1E-6176", "xrsu",
@@ -31498,6 +32466,46 @@ fn exp_range_rows_22() -> Array[
       "log1p", "05up", 34, -6143, 6144, true, "-7.5E-300", "", "-7.500000000000000000000000000000001E-300",
       "xr",
     ),
+    ("pown", "05up", 34, -6143, 6144, true, "3000", "-2058", "1E-6176", "xrsu"),
+    ("pown", "05up", 34, -6143, 6144, true, "3000", "-2059", "1E-6176", "xrsu"),
+    ("pown", "05up", 34, -6143, 6144, true, "3000", "-2060", "1E-6176", "xrsu"),
+    ("pown", "05up", 34, -6143, 6144, true, "3000", "-2061", "1E-6176", "xrsu"),
+    ("pown", "05up", 34, -6143, 6144, true, "3000", "-2062", "1E-6176", "xrsu"),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "0.003", "-3070", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "0.003", "-3071", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "0.003", "-3072", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "0.003", "-3073", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "0.003", "-3074", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "1E+999999", "-2000000000", "1E-6176",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "1E+999999", "2000000000", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "1E+999999", "-3", "1E-6176", "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -6143, 6144, true, "1E+999999", "3", "9.999999999999999999999999999999999E+6144",
+      "xro",
+    ),
     (
       "compound", "05up", 34, -6143, 6144, true, "1E+35", "2", "1.000000000000000000000000000000001E+70",
       "xr",
@@ -31893,14 +32901,6 @@ fn exp_range_rows_22() -> Array[
       "exp2", "half_even", 34, -999999, 999999, false, "-4000132.5", "", "0E-1000032",
       "xrsuc",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_23() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp2", "half_even", 34, -999999, 999999, false, "3999999.5", "", "Infinity",
       "xro",
@@ -32108,6 +33108,14 @@ fn exp_range_rows_23() -> Array[
       "exp10m1", "half_even", 34, -999999, 999999, false, "999999.9956351945975499153402557778",
       "", "9.900000000000000000000000001065583E+999999", "xr",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_24() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp10m1", "half_even", 34, -999999, 999999, false, "999999.6989700043360188047862611053",
       "", "5.000000000000000000000000000281986E+999999", "xr",
@@ -32212,6 +33220,62 @@ fn exp_range_rows_23() -> Array[
     ),
     (
       "cosh", "half_even", 34, -999999, 999999, false, "-1E+12", "", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "3000", "-333343", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "3000", "-333344", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "3000", "-333345", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "3000", "-333346", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "3000", "-333347", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "0.003", "-499997", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "0.003", "-499998", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "0.003", "-499999", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "0.003", "-500000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "0.003", "-500001", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "1E+999999", "-2000000000",
+      "0E-1000032", "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "1E+999999", "2000000000",
+      "Infinity", "xro",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "1E+999999", "-3", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_even", 34, -999999, 999999, false, "1E+999999", "3", "Infinity",
       "xro",
     ),
     (
@@ -32885,6 +33949,62 @@ fn exp_range_rows_23() -> Array[
     ),
     (
       "cosh", "half_up", 34, -999999, 999999, false, "-1E+12", "", "Infinity", "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "3000", "-333343", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "3000", "-333344", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "3000", "-333345", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "3000", "-333346", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "3000", "-333347", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "0.003", "-499997", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "0.003", "-499998", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "0.003", "-499999", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "0.003", "-500000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "0.003", "-500001", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "1E+999999", "-2000000000",
+      "0E-1000032", "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "1E+999999", "-3", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_up", 34, -999999, 999999, false, "1E+999999", "3", "Infinity",
+      "xro",
     ),
     (
       "compound", "half_up", 34, -999999, 999999, false, "1E+35", "2", "1.000000000000000000000000000000000E+70",
@@ -33571,6 +34691,62 @@ fn exp_range_rows_23() -> Array[
       "xro",
     ),
     (
+      "pown", "half_down", 34, -999999, 999999, false, "3000", "-333343", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "3000", "-333344", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "3000", "-333345", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "3000", "-333346", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "3000", "-333347", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "0.003", "-499997", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "0.003", "-499998", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "0.003", "-499999", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "0.003", "-500000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "0.003", "-500001", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "1E+999999", "-2000000000",
+      "0E-1000032", "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "1E+999999", "2000000000",
+      "Infinity", "xro",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "1E+999999", "-3", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "half_down", 34, -999999, 999999, false, "1E+999999", "3", "Infinity",
+      "xro",
+    ),
+    (
       "compound", "half_down", 34, -999999, 999999, false, "1E+35", "2", "1.000000000000000000000000000000000E+70",
       "xr",
     ),
@@ -33874,14 +35050,6 @@ fn exp_range_rows_23() -> Array[
       "exp2", "down", 34, -999999, 999999, false, "-3322034.259082874993530542950667517",
       "", "1E-1000032", "xrsu",
     ),
-  ]
-}
-
-///|
-fn exp_range_rows_24() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp2", "down", 34, -999999, 999999, false, "-3322035.133551992909671617696291619",
       "", "0E-1000032", "xrsuc",
@@ -33921,6 +35089,14 @@ fn exp_range_rows_24() -> Array[
     (
       "exp2", "down", 34, -999999, 999999, false, "-4000131", "", "0E-1000032", "xrsuc",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_25() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "exp2", "down", 34, -999999, 999999, false, "4000001", "", "9.999999999999999999999999999999999E+999999",
       "xro",
@@ -34255,6 +35431,62 @@ fn exp_range_rows_24() -> Array[
     ),
     (
       "cosh", "down", 34, -999999, 999999, false, "-1E+12", "", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "3000", "-333343", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "3000", "-333344", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "3000", "-333345", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "3000", "-333346", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "3000", "-333347", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "0.003", "-499997", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "0.003", "-499998", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "0.003", "-499999", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "0.003", "-500000", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "0.003", "-500001", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "1E+999999", "-2000000000", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "1E+999999", "2000000000", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "1E+999999", "-3", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "down", 34, -999999, 999999, false, "1E+999999", "3", "9.999999999999999999999999999999999E+999999",
       "xro",
     ),
     (
@@ -34929,6 +36161,62 @@ fn exp_range_rows_24() -> Array[
     ),
     (
       "cosh", "ceiling", 34, -999999, 999999, false, "-1E+12", "", "Infinity", "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "3000", "-333343", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "3000", "-333344", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "3000", "-333345", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "3000", "-333346", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "3000", "-333347", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "0.003", "-499997", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "0.003", "-499998", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "0.003", "-499999", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "0.003", "-500000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "0.003", "-500001", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "1E+999999", "-2000000000",
+      "1E-1000032", "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "1E+999999", "-3", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "ceiling", 34, -999999, 999999, false, "1E+999999", "3", "Infinity",
+      "xro",
     ),
     (
       "compound", "ceiling", 34, -999999, 999999, false, "1E+35", "2", "1.000000000000000000000000000000001E+70",
@@ -35612,6 +36900,62 @@ fn exp_range_rows_24() -> Array[
       "xro",
     ),
     (
+      "pown", "floor", 34, -999999, 999999, false, "3000", "-333343", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "3000", "-333344", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "3000", "-333345", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "3000", "-333346", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "3000", "-333347", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "0.003", "-499997", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "0.003", "-499998", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "0.003", "-499999", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "0.003", "-500000", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "0.003", "-500001", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "1E+999999", "-2000000000", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "1E+999999", "2000000000", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "1E+999999", "-3", "0E-1000032",
+      "xrsuc",
+    ),
+    (
+      "pown", "floor", 34, -999999, 999999, false, "1E+999999", "3", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
       "compound", "floor", 34, -999999, 999999, false, "1E+35", "2", "1.000000000000000000000000000000000E+70",
       "xr",
     ),
@@ -35727,6 +37071,14 @@ fn exp_range_rows_24() -> Array[
       "pow", "floor", 34, -999999, 999999, false, "3", "2095903.905219138175754004621548516",
       "9.999999999999999999999999999999999E+999999", "xro",
     ),
+  ]
+}
+
+///|
+fn exp_range_rows_26() -> Array[
+  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
+] {
+  [
     (
       "pow", "floor", 34, -999999, 999999, false, "3", "2095917.945612304629988797597994055",
       "9.999999999999999999999999999999999E+999999", "xro",
@@ -35851,14 +37203,6 @@ fn exp_range_rows_24() -> Array[
       "exp", "up", 34, -999999, 999999, false, "-3000098", "", "1E-1000032", "xrsu",
     ),
     ("exp", "up", 34, -999999, 999999, false, "3000001", "", "Infinity", "xro"),
-  ]
-}
-
-///|
-fn exp_range_rows_25() -> Array[
-  (String, String, Int32, Int32, Int32, Bool, String, String, String, String),
-] {
-  [
     (
       "exp", "up", 34, -999999, 999999, false, "-3000098.5", "", "1E-1000032", "xrsu",
     ),
@@ -36236,6 +37580,56 @@ fn exp_range_rows_25() -> Array[
       "xro",
     ),
     ("cosh", "up", 34, -999999, 999999, false, "-1E+12", "", "Infinity", "xro"),
+    (
+      "pown", "up", 34, -999999, 999999, false, "3000", "-333343", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "3000", "-333344", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "3000", "-333345", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "3000", "-333346", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "3000", "-333347", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "0.003", "-499997", "Infinity", "xro",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "0.003", "-499998", "Infinity", "xro",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "0.003", "-499999", "Infinity", "xro",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "0.003", "-500000", "Infinity", "xro",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "0.003", "-500001", "Infinity", "xro",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "1E+999999", "-2000000000", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "1E+999999", "2000000000", "Infinity",
+      "xro",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "1E+999999", "-3", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "up", 34, -999999, 999999, false, "1E+999999", "3", "Infinity", "xro",
+    ),
     (
       "compound", "up", 34, -999999, 999999, false, "1E+35", "2", "1.000000000000000000000000000000001E+70",
       "xr",
@@ -36913,6 +38307,62 @@ fn exp_range_rows_25() -> Array[
       "xro",
     ),
     (
+      "pown", "05up", 34, -999999, 999999, false, "3000", "-333343", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "3000", "-333344", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "3000", "-333345", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "3000", "-333346", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "3000", "-333347", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "0.003", "-499997", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "0.003", "-499998", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "0.003", "-499999", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "0.003", "-500000", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "0.003", "-500001", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "1E+999999", "-2000000000", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "1E+999999", "2000000000", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "1E+999999", "-3", "1E-1000032",
+      "xrsu",
+    ),
+    (
+      "pown", "05up", 34, -999999, 999999, false, "1E+999999", "3", "9.999999999999999999999999999999999E+999999",
+      "xro",
+    ),
+    (
       "compound", "05up", 34, -999999, 999999, false, "1E+35", "2", "1.000000000000000000000000000000001E+70",
       "xr",
     ),
@@ -37194,6 +38644,9 @@ fn exp_range_rows() -> Array[
     rows.push(row)
   }
   for row in exp_range_rows_25() {
+    rows.push(row)
+  }
+  for row in exp_range_rows_26() {
     rows.push(row)
   }
   rows
