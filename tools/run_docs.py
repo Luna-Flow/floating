@@ -13,13 +13,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run documentation manual gates")
-    parser.parse_args(argv)
+    parser.add_argument(
+        "--skip-package-tests",
+        action="store_true",
+        help="do not run the src/doc_examples tests (the repository gate's native "
+        "test stage runs that package with --deny-warn)",
+    )
+    arguments = parser.parse_args(argv)
     quality_result = doc_quality.main([])
     if quality_result != 0:
         return quality_result
     examples_result = check_doc_examples.main([])
     if examples_result != 0:
         return examples_result
+    if arguments.skip_package_tests:
+        return 0
     return subprocess.run(
         [
             "sh",

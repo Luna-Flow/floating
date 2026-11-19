@@ -29,6 +29,13 @@ class RunDocsTests(unittest.TestCase):
         self.assertIn("src/doc_examples", run.call_args.args[0])
         self.assertNotIn("--frozen", run.call_args.args[0])
 
+    def test_gate_skips_the_package_tests_the_native_test_stage_runs(self) -> None:
+        with patch.object(run_docs.doc_quality, "main", return_value=0):
+            with patch.object(run_docs.check_doc_examples, "main", return_value=0):
+                with patch.object(run_docs.subprocess, "run") as run:
+                    self.assertEqual(run_docs.main(["--skip-package-tests"]), 0)
+        run.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

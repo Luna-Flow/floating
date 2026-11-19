@@ -175,7 +175,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         ),
         Stage(
             "DOCS · manual quality and examples",
-            (sys.executable, "tools/run_docs.py"),
+            (sys.executable, "tools/run_docs.py", "--skip-package-tests"),
         ),
     ]
     if scope == "quick":

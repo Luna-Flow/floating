@@ -140,21 +140,51 @@ def write_package(page: Page) -> Path:
     return directory
 
 
-def run_page(page: Page, directory: Path, target: str) -> tuple[bool, str]:
+TOTAL_RE = re.compile(r"Total tests:\s*(\d+),\s*passed:\s*(\d+),\s*failed:\s*(\d+)")
+
+
+def moon_test_command(directories: list[Path], target: str) -> tuple[str, ...]:
+    """One `moon test` call over every generated page package.
+
+    `moon test` takes several package paths, so the workspace is resolved and
+    the test executables are linked in one invocation instead of one per page
+    (about 50).
+    """
+    return (
+        "sh",
+        "tools/run_moon_clean_exec.sh",
+        "test",
+        *(str(directory.relative_to(REPO_ROOT)) for directory in directories),
+        "--target",
+        target,
+    )
+
+
+def parse_totals(output: str) -> tuple[int, int, int] | None:
+    """(total, passed, failed) of the last `Total tests:` line, if any."""
+    found = list(TOTAL_RE.finditer(output))
+    if not found:
+        return None
+    total, passed, failed = (int(value) for value in found[-1].groups())
+    return total, passed, failed
+
+
+def failing_pages(output: str, pages: list[Page]) -> list[Page]:
+    """The pages whose generated package directory the output mentions."""
+    return [page for page in pages if f"{GENERATED_ROOT.name}/{page.slug}/" in output]
+
+
+def run_pages(
+    pages: list[Page], directories: list[Path], target: str
+) -> tuple[bool, str, tuple[int, int, int] | None]:
     completed = subprocess.run(
-        (
-            "sh",
-            "tools/run_moon_clean_exec.sh",
-            "test",
-            str(directory.relative_to(REPO_ROOT)),
-            "--target",
-            target,
-        ),
+        moon_test_command(directories, target),
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
     )
-    return completed.returncode == 0, completed.stdout + completed.stderr
+    output = completed.stdout + completed.stderr
+    return completed.returncode == 0, output, parse_totals(output)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -177,6 +207,9 @@ def main(argv: list[str] | None = None) -> int:
 
     failures: list[str] = []
     examples = 0
+    tests = 0
+    runnable: list[Page] = []
+    directories: list[Path] = []
     try:
         for page in pages:
             relative = page.path.relative_to(REPO_ROOT)
@@ -188,12 +221,18 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 continue
             examples += len(page.blocks)
-            directory = write_package(page)
-            passed, output = run_page(page, directory, arguments.target)
-            if not passed:
-                failures.append(f"{relative}: examples failed\n{output.rstrip()}")
-            if not arguments.keep:
-                shutil.rmtree(directory, ignore_errors=True)
+            directories.append(write_package(page))
+            runnable.append(page)
+        if runnable:
+            passed, output, totals = run_pages(runnable, directories, arguments.target)
+            if totals is not None:
+                tests = totals[0]
+            if not passed or totals is None or totals[2] != 0:
+                blamed = failing_pages(output, runnable)
+                names = ", ".join(str(page.path.relative_to(REPO_ROOT)) for page in blamed)
+                failures.append(
+                    f"manual examples failed{f' (output names {names})' if names else ''}\n{output.rstrip()}"
+                )
     finally:
         if not arguments.keep:
             shutil.rmtree(GENERATED_ROOT, ignore_errors=True)
@@ -206,7 +245,10 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 1
-    print(f"manual examples: {examples} across {len(pages)} pages compile and pass")
+    print(
+        f"manual examples: {examples} blocks across {len(pages)} pages compile, "
+        f"{tests} tests pass"
+    )
     return 0
 
 
