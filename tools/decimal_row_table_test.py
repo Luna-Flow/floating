@@ -87,31 +87,18 @@ class SamplingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             table.sample_positions(5, 0)
 
-    def test_extreme_exponent_detection(self) -> None:
-        self.assertEqual(table.adjusted_exponent("1E-1999996"), -1999996)
-        self.assertEqual(table.adjusted_exponent("0.001"), -3)
-        self.assertEqual(table.adjusted_exponent("-12.5"), 1)
-        self.assertEqual(table.adjusted_exponent("Infinity"), 0)
-        self.assertEqual(table.adjusted_exponent("0E+5"), 0)
-        self.assertTrue(table.is_extreme(row(a="1", b="1E-1999996")))
-        self.assertTrue(table.is_extreme(row(a="3E+1000000")))
-        self.assertFalse(table.is_extreme(row(a="1E-999")))
-
     def test_sample_keeps_exact_rows_and_strata(self) -> None:
         rows = (
             [row(a=str(i)) for i in range(4)]  # exact rows: all kept
             + [row(a=str(i), rounding="down") for i in range(20)]
             + [row(a=str(i), rounding="up") for i in range(3)]
             + [row(op="exp", a=str(i), rounding="up") for i in range(3)]
-            + [row(a="1", b="1E-1999996", rounding="down"), row(a="1", b="1E-1999997", rounding="up")]
         )
         certified = [False] * 4 + [True] * (len(rows) - 4)
         kept = table.stratified_sample(rows, certified, 8)
         self.assertEqual(kept[:4], [0, 1, 2, 3])
         self.assertEqual([rows[i].a for i in kept if rows[i].rounding == "down" and rows[i].b is None], ["4", "12"])
         self.assertEqual(sum(1 for i in kept if rows[i].op == "exp"), 1)  # short stratum keeps its middle
-        extreme = [i for i in kept if table.is_extreme(rows[i])]
-        self.assertEqual(len(extreme), 1)  # one extreme row per operation
         self.assertEqual(kept, sorted(set(kept)))
         self.assertEqual(kept, table.stratified_sample(rows, certified, 8))  # deterministic
 

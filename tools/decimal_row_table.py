@@ -141,27 +141,9 @@ def sample_positions(count: int, step: int) -> list[int]:
     return positions or [count // 2]
 
 
-EXTREME_EXPONENT = 1_000_000
-
-
-def adjusted_exponent(token: str) -> int:
-    """Adjusted exponent (position of the leading digit) of a decimal token; 0 if none."""
-    try:
-        value = Decimal(token)
-    except InvalidOperation:
-        return 0
-    return value.adjusted() if value.is_finite() and not value.is_zero() else 0
-
-
-def is_extreme(row: TableRow) -> bool:
-    """A row with an operand of adjusted exponent beyond +-EXTREME_EXPONENT."""
-    operands = [row.a] + ([] if row.b is None else [row.b])
-    return any(abs(adjusted_exponent(item)) >= EXTREME_EXPONENT for item in operands)
-
-
 def stratum_key(row: TableRow) -> tuple[str, str]:
-    """(operation, rounding), or (operation, "extreme") for an extreme-exponent row."""
-    return (row.op, "extreme" if is_extreme(row) else row.rounding)
+    """(operation, rounding)."""
+    return (row.op, row.rounding)
 
 
 def stratified_sample(
@@ -173,9 +155,6 @@ def stratified_sample(
     values, special values, rows computed by exact rational arithmetic) are all
     kept. MPFR rows are stratified by (operation, rounding mode) and sampled
     equidistantly inside each stratum in generation order, every `step`-th row.
-    Rows with an operand of adjusted exponent beyond +-EXTREME_EXPONENT (each
-    costs about a second in a release build, together most of the table's run
-    time) form one stratum per operation of which a single row is kept.
     """
     if len(rows) != len(certified):
         raise ValueError("rows and certified flags differ in length")
@@ -184,9 +163,8 @@ def stratified_sample(
     for index, row in enumerate(rows):
         if certified[index]:
             strata.setdefault(stratum_key(row), []).append(index)
-    for (_, kind), members in strata.items():
-        stride = len(members) if kind == "extreme" else step
-        kept.update(members[position] for position in sample_positions(len(members), stride))
+    for members in strata.values():
+        kept.update(members[position] for position in sample_positions(len(members), step))
     return sorted(kept)
 
 

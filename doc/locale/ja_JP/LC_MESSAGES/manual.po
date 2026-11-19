@@ -911,9 +911,9 @@ msgstr "算術演算は装飾なしの演算を適用します。演算の装飾
 #: manual/design/ball_float.md:374
 #: manual/design/bin_float_checked.md:122
 #: manual/design/decimal_gda.md:129
-#: manual/verification.md:65
-#: manual/verification.md:203
-#: manual/verification.md:246
+#: manual/verification.md:64
+#: manual/verification.md:201
+#: manual/verification.md:244
 msgid "Operation"
 msgstr "演算"
 
@@ -8604,7 +8604,7 @@ msgstr "`ball_float` の IEEE Std 1788-2015（集合ベースの flavor）。 �
 #: manual/conformance/ball_float.md:11
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:39
-#: manual/verification.md:673
+#: manual/verification.md:671
 msgid "Clause"
 msgstr "条項"
 
@@ -14245,8 +14245,8 @@ msgstr "Newton"
 
 #: manual/design/decimal.md:1207
 #: manual/design/decimal_gda.md:792
-#: manual/verification.md:203
-#: manual/verification.md:246
+#: manual/verification.md:201
+#: manual/verification.md:244
 msgid "native"
 msgstr "native"
 
@@ -25268,1025 +25268,1028 @@ msgid "`publish.yml` builds, runs the documentation gate, the format check, an a
 msgstr "`publish.yml` はビルドし、ドキュメントゲート、フォーマットチェック、全ターゲットでの `--deny-warn` チェック、テストを実行した後、mooncakes に公開します。"
 
 #: manual/verification.md:40
-msgid "Quick-gate sample of the π-inverse rows"
-msgstr "π 逆関数行のクイックゲート用サンプル"
+msgid "Quick-gate table of the π-inverse rows"
+msgstr "π 逆関数行のクイックゲート用テーブル"
 
 #: manual/verification.md:42
-msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository and the slowest to execute: in a debug build a full run of `testdata/decimal/ieee/rows/pi_inverse.txt` takes about 466 s on one core, 90 % of it in about 50 `atan2pi` rows whose operand is `1E-1999996`. The quick gate (`just pr`, the native test stage of CI) therefore compiles only a sample of the table into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`, while the full table is data (`mpfr-decimal-random-v1` rows, see `src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript, comparing value, cohort (`compare_total`) and all flags exactly as the sampled test does."
-msgstr "`asinpi`、`acospi`、`atanpi`、`atan2pi` の行はリポジトリで最大かつ実行が最も遅い表です。debug ビルドで `testdata/decimal/ieee/rows/pi_inverse.txt` を全件実行すると 1 コアで約 466 秒かかり、その 90 % は被演算子が `1E-1999996` の約 50 件の `atan2pi` 行に費やされます。そのためクイックゲート（`just pr`、CI の native テストステージ）は表のサンプルだけを `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` にコンパイルします。全件の表はデータ（`mpfr-decimal-random-v1` 行、`src/frontend/mpfr_expr` を参照）で、`just gate decimal` と夜間実行が release ビルドの適合性 CLI に渡して native、Wasm、Wasm-GC、JavaScript で実行し、値、コホート（`compare_total`）、すべてのフラグをサンプルのテストと同じ厳密さで比較します。"
+msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
+msgstr "`asinpi`、`acospi`、`atanpi`、`atan2pi` の行はリポジトリ最大のテーブルです。クイックゲート（`just pr`、CI のネイティブテスト段階）は 19,134 行すべてを `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（ソース 2.2 MB）にコンパイルします。同じ行はデータ（`testdata/decimal/ieee/rows/pi_inverse.txt`、`mpfr-decimal-random-v1` 行、`src/frontend/mpfr_expr` を参照）でもあり、`just gate decimal` と夜間実行がリリースビルドの適合性 CLI にネイティブ、Wasm、Wasm-GC、JavaScript で実行させます。どちらも値、コホート（`compare_total`）、すべてのフラグを厳密に比較します。"
 
-#: manual/verification.md:53
-msgid "The sampling rule is deterministic and part of the generator (`tools/generate_decimal_pi_inverse_rows.py`, `SAMPLE_STEP`):"
-msgstr "サンプリング規則は決定的で、ジェネレータ（`tools/generate_decimal_pi_inverse_rows.py`、`SAMPLE_STEP`）の一部です。"
+#: manual/verification.md:51
+msgid "This was not always so. While about 50 `atan2pi` rows with an operand of `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a deterministic sample. After the `atan2pi` path for tiny operands was fixed the full table runs in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and adds about 1.4 s to the build, under the 5 s the quick gate allows it, so the sample was dropped. The mechanism stays in the generator (`tools/generate_decimal_pi_inverse_rows.py`) as an option: `--sample-step N` compiles every row that is not the rounding of an MPFR enclosure (the exact Niven values and the other cases decided by exact rational arithmetic) and, of the MPFR rows stratified by (operation, rounding mode), one row in N, taken equidistantly in generation order (a stratum shorter than N keeps its middle row). The data file is always the full table."
+msgstr "以前はそうではありませんでした。オペランドが `1E-1999996` の約 50 個の `atan2pi` 行が 466 秒のデバッグ実行の 90 % を占めていたため、クイックゲートは決定的なサンプルだけをコンパイルしていました。`atan2pi` の極小オペランドの経路を修正した後は、全テーブルがデバッグのネイティブビルドで 2.4 秒で実行でき（4,416 行のサンプルは 0.5 秒）、ビルドは約 1.4 秒増えるだけで、クイックゲートが許す 5 秒を下回るため、サンプルは廃止されました。この仕組みはジェネレータ（`tools/generate_decimal_pi_inverse_rows.py`）のオプションとして残ります。`--sample-step N` は、MPFR 包含の丸めではない行（厳密な Niven 値と厳密な有理数演算で決まるその他の場合）をすべてコンパイルし、（演算、丸めモード）で層別した MPFR 行から生成順に等間隔で N 行に 1 行を取ります（N より短い層は中央の行を残します）。データファイルは常に全テーブルです。"
 
-#: manual/verification.md:56
-msgid "Every row that is not the rounding of an MPFR enclosure is kept: the exact Niven values and the other cases decided by exact rational arithmetic."
-msgstr "MPFR の包含区間の丸めではない行はすべて残します。厳密な Niven 値と、厳密な有理数演算で決まるその他のケースです。"
+#: manual/verification.md:64
+msgid "Exact rows"
+msgstr "厳密な行"
 
-#: manual/verification.md:58
-msgid "The MPFR rows are stratified by (operation, rounding mode) and one row in `SAMPLE_STEP` (8) is kept in each stratum, taken equidistantly in generation order (positions 4, 12, 20, …); a stratum shorter than that keeps its middle row."
-msgstr "MPFR 行は（演算、丸めモード）で層別し、各層で生成順に等間隔に `SAMPLE_STEP`（8）行に 1 行を残します（位置 4、12、20、…）。それより短い層は中央の 1 行を残します。"
-
-#: manual/verification.md:61
-msgid "Rows with an operand of adjusted exponent beyond ±1,000,000 (the `1E-1999996` rows, each about a second in a release build) form one stratum per operation, of which a single row is kept."
-msgstr "被演算子の調整指数が ±1,000,000 を超える行（`1E-1999996` の行。release ビルドで 1 行あたり約 1 秒）は演算ごとに 1 つの層とし、その層から 1 行だけを残します。"
-
-#: manual/verification.md:65
-msgid "Exact rows (all kept)"
-msgstr "厳密行（すべて保持）"
-
-#: manual/verification.md:65
+#: manual/verification.md:64
 msgid "MPFR rows"
 msgstr "MPFR 行"
 
-#: manual/verification.md:65
-msgid "MPFR rows sampled"
-msgstr "サンプルした MPFR 行"
-
-#: manual/verification.md:71
+#: manual/verification.md:64
+#: manual/verification.md:70
 msgid "Total"
 msgstr "合計"
 
-#: manual/verification.md:73
-msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the sample is not a subset of the full table, and `--strata` prints the counts of every stratum. The sample runs in about 20 s of a debug native build. The quick gate returns to the full table when the optimized `atan2pi` and `atan`/`asin` kernels bring the debug run of the full table to about that time (the condition is measured, not assumed: rerun the debug run of `pi_inverse_rows` and compare with the 466 s above)."
-msgstr "`python3 tools/generate_decimal_pi_inverse_rows.py --check` は、どちらかの表が古い場合、またはサンプルが全件の表の部分集合でない場合に失敗します。`--strata` は各層の行数を表示します。サンプルは debug の native ビルドで約 20 秒で実行されます。最適化された `atan2pi` と `atan`/`asin` のカーネルによって全件の表の debug 実行がこの時間程度になったら、クイックゲートは全件の表に戻します（この条件は仮定ではなく実測します。`pi_inverse_rows` の debug 実行を測り直し、上記の 466 秒と比較します）。"
+#: manual/verification.md:72
+msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the compiled table is not a subset of the full table, and `--strata` prints the counts of every stratum. Go back to a sample (start with `--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run of the `pi inverse generated rows` test exceeds about 5 s again: measure it with `python3 tools/native_test_timing.py --package src/decimal`, not by assumption."
+msgstr "どちらかのテーブルが古い場合、またはコンパイルされたテーブルが全テーブルの部分集合でない場合、`python3 tools/generate_decimal_pi_inverse_rows.py --check` は失敗し、`--strata` はすべての層の行数を表示します。`pi inverse generated rows` テストのデバッグネイティブ実行が再び約 5 秒を超えたらサンプルに戻します（まず `--sample-step 8` を使い、ジェネレータの `SAMPLE_STEP` を設定）。仮定ではなく `python3 tools/native_test_timing.py --package src/decimal` で測定してください。"
 
-#: manual/verification.md:81
+#: manual/verification.md:79
 msgid "Shared conformance runner"
 msgstr "共有の適合性ランナー"
 
-#: manual/verification.md:83
+#: manual/verification.md:81
 msgid "All suites use one dispatcher:"
 msgstr "全 suite は一つの dispatcher を使います。"
 
-#: manual/verification.md:90
+#: manual/verification.md:88
 msgid "`decimal` is the independent IEEE decimal corpus; `decimal_gda` is the GDA `.decTest` corpus; `binary` combines TestFloat and MPFR sources; `interval` uses ITF1788."
 msgstr "`decimal` は独立した IEEE 十進コーパス、`decimal_gda` は GDA の `.decTest` コーパスです。`binary` は TestFloat と MPFR のソースを組み合わせ、`interval` は ITF1788 を使います。"
 
-#: manual/verification.md:94
+#: manual/verification.md:92
 msgid "`smoke` runs committed fixtures without downloading anything. `plan` prints the deterministic task list. `fetch` verifies pinned provenance before installing ignored data below `.tmp/`. `run` executes the chosen suite. Backend-specific filters, phases, targets, strict mode, sharding and JSON output are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (IEEE `decimal`), `testdata/decimal_gda/README.md` and `testdata/interval/README.md`."
 msgstr "`smoke` は何もダウンロードせずにコミット済みのフィクスチャを実行します。`plan` は決定的なタスクリストを出力します。`fetch` は無視対象のデータを `.tmp/` 以下にインストールする前に、固定された出所を検証します。`run` は選択したスイートを実行します。バックエンド固有のフィルタ、フェーズ、ターゲット、strict モード、シャーディング、JSON 出力については `testdata/bin_float/README.md`、`testdata/decimal/README.md`（IEEE `decimal`）、`testdata/decimal_gda/README.md`、`testdata/interval/README.md` に記載されています。"
 
-#: manual/verification.md:101
+#: manual/verification.md:99
 msgid "Published claims"
 msgstr "公開された主張"
 
-#: manual/verification.md:103
+#: manual/verification.md:101
 msgid "**GDA.** All 64,986 legal executable scalar rows of the 144-file `official` corpus pass, and all 16,124 legal rows of `official0`. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions, not unsupported legal behaviour."
 msgstr "**GDA。** 144 ファイルからなる `official` コーパスの実行可能で正当なスカラー行 64,986 件すべてと、`official0` の正当な行 16,124 件すべてが合格します。141 件の `#` プレースホルダ行または非スカラー行は診断上の除外であり、サポートされていない正当な挙動ではありません。"
 
-#: manual/verification.md:107
+#: manual/verification.md:105
 msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,227,872 vectors in 468 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations and mulAdd, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The MPFR part adds the 1,055 executable rows of the pinned square-root data, 2,088 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under all six `BinaryRoundingMode` values, and the decimal character conversions of IEEE 754-2019 §5.12: 1,716 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits, including exact halfway points and the exponent limits) and 3,300 `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest round-trip digit count)."
 msgstr "**二進。** TestFloat レベル 1 マトリクス（シード 1）は、binary16/32/64/128 にわたる 468 タスクで 254,227,872 個のベクタを持ちます。内訳は、加算、減算、乗算、除算、平方根で 7,461,360 個、IEEE 演算の mulAdd（うち 245,329,920 個）、rem、roundToInt、32 ビットおよび 64 ビットの符号付き・符号なし整数への変換、比較 eq、le、lt、eq_signaling、le_quiet、lt_quiet で 246,766,512 個です。演算が丸め方向を用いる場合は 5 つの丸め方向で、算術演算と mulAdd では両方の極小性モードで、roundToInt と変換では exact と inexact の両方の変種で実行します。無効な整数変換はフラグのみで比較します。API が `None` を返す箇所で SoftFloat はプラットフォーム固有の番兵値を返すためです。MPFR の部分は、固定された平方根データの実行可能な 1,055 行と、6 つの `BinaryRoundingMode` 値すべての下で binary32/64/128 精度の 29 個の初等演算を網羅する、ハッシュで固定された 2,088 個の証拠値を追加します。MPFR 部分にはさらに十進文字変換（IEEE 754-2019 §5.12）が加わります。1,716 件の `mpfr_strtofr` の証人（11〜200 ビットの十進テキストから二進へ。ちょうどの中点と指数の限界を含む）と、3,300 件の `mpfr_get_str` の証人（固定桁数、ちょうどのタイ、最短往復桁数）です。"
 
-#: manual/verification.md:125
+#: manual/verification.md:123
 msgid "**IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover encoding, special values, flags, core arithmetic and all 1,024 DPD declets on native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed elementary oracle adds 4,896 rows computed from 768-bit MPFR enclosures under all eight decimal rounding modes."
 msgstr "**IEEE 十進。** コミット済みの decimal32/64/128 DPD および BID フィクスチャは、ネイティブ、Wasm、Wasm-GC、JavaScript 上で、エンコーディング、特殊値、フラグ、コア算術、および 1,024 個すべての DPD declet を網羅します。LLVM はこのゲートの対象外です。コミット済みの初等関数オラクルは、8 つの十進丸めモードすべての下で 768 ビットの MPFR 包含区間から計算された 4,896 行を追加します。"
 
-#: manual/verification.md:130
+#: manual/verification.md:128
 msgid "**Interval.** The strict ITF1788 phases pass 4,656/4,656 selected cases: sets, relations, numeric observations, cancellation, arithmetic, elementary-core, exponentials and logarithms, general power, trigonometric, hyperbolic, inverse trigonometric, `atan2`, FMA, integer power and extrema. Reverse operations remain unsupported."
 msgstr "**区間。** strict ITF1788 の各フェーズは、選択された 4,656/4,656 件のケースに合格します：集合、関係、数値の観測、相殺、算術、初等関数コア、指数と対数、一般のべき乗、三角関数、双曲線関数、逆三角関数、`atan2`、FMA、整数べき、極値。逆演算は引き続きサポートされていません。"
 
-#: manual/verification.md:136
+#: manual/verification.md:134
 msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses, 2,088 elementary witnesses, 1,716 `strtofr` witnesses and 3,300 decimal output witnesses)."
 msgstr "`just pr` が実行するコミット済みスモークフィクスチャは、これらの部分集合です。たとえば二進のスモークは 7,467 行（TestFloat ベクトル 240、平方根の証人 3、整数べきの証人 120、初等関数の証人 2,088、`strtofr` の証人 1,716、十進出力の証人 3,300）です。"
 
-#: manual/verification.md:141
+#: manual/verification.md:139
 msgid "These are finite claims. They do not imply every IEEE 754 or IEEE 1788 operation, arbitrary resource sizes, every NaN payload policy, or future corpus revisions. The per-package [binary](./conformance/bin_float.md), [IEEE decimal](./conformance/decimal.md), [GDA](./conformance/decimal_gda.md) and [interval](./conformance/ball_float.md) conformance pages state the exact matrix and its exclusions."
 msgstr "これらは有限の主張です。すべての IEEE 754 や IEEE 1788 の演算、任意のリソースサイズ、あらゆる NaN ペイロードのポリシー、将来のコーパスのリビジョンを含意するものではありません。パッケージごとの[二進](./conformance/bin_float.md)、[IEEE 十進](./conformance/decimal.md)、[GDA](./conformance/decimal_gda.md)、[区間](./conformance/ball_float.md)の適合性ページに、正確なマトリクスとその除外事項が記載されています。"
 
-#: manual/verification.md:148
+#: manual/verification.md:146
 msgid "External performance baseline"
 msgstr "外部性能ベースライン"
 
-#: manual/verification.md:150
+#: manual/verification.md:148
 msgid "`just bench external run` times `floating` against MPFR and libmpdec on the same operands and records the ratios; every `floating` result is first compared with the result of the reference library for the same operand. The method, machine and results are on the [external baseline page](./performance/bench/external.md). It is evidence about speed, not a conformance gate, and is not part of `just pr`."
 msgstr "`just bench external run` は、同じオペランドで `floating` を MPFR と libmpdec と比べて計時し、比を記録します。すべての `floating` の結果は、まず同じオペランドに対する参照ライブラリの結果と比較されます。手法、マシン、結果は[外部ベースラインのページ](./performance/bench/external.md)にあります。これは速度についての証拠であり、適合性のゲートではなく、`just pr` の一部でもありません。"
 
-#: manual/verification.md:156
+#: manual/verification.md:154
 msgid "Randomized differential testing"
 msgstr "ランダム差分テスト"
 
-#: manual/verification.md:158
+#: manual/verification.md:156
 msgid "The fixed corpora above check rows someone chose. The randomized campaign (`just random-diff`, [tutorial](./tutorial/differential.md), [design](./design/differential.md)) generates seeded cases and compares the library with two independent implementations: GNU MPFR 4.2.2 (GMP 6.3.0) for `bin_float` and libmpdec 4.0.0 (Python 3.13 `decimal`) for `decimal_gda` (the IEEE `decimal` package is checked against MPFR, below). Both are oracles, not specifications: every disagreement was read against IEEE 754-2019 or the General Decimal Arithmetic 1.70 text before it was called a bug."
 msgstr "上の固定コーパスは、誰かが選んだ行を検査します。ランダムなキャンペーン（`just random-diff`、[チュートリアル](./tutorial/differential.md)、[設計](./design/differential.md)）は、シード付きのケースを生成し、ライブラリを 2 つの独立した実装と比較します。`bin_float` には GNU MPFR 4.2.2（GMP 6.3.0）、`decimal_gda` には libmpdec 4.0.0（Python 3.13 の `decimal`）を使います（IEEE `decimal` パッケージは MPFR と照合します。後述）。どちらもオラクルであり仕様ではありません。どの食い違いも、バグと呼ぶ前に IEEE 754-2019 または General Decimal Arithmetic 1.70 の文面に照らして読みました。"
 
-#: manual/verification.md:167
+#: manual/verification.md:165
 msgid "**What is varied.** Binary: output precisions 2 to 10,000 (a mix of small, format-sized, log-uniform and large), operand widths independent of the output precision, all five MPFR directions plus the nearest-away wrapper, unbounded contexts and bounded ones (binary16/32/64/128 ranges and random ranges) with both tininess rules, operand exponents at the overflow threshold, the smallest normal number and in the subnormal range, exact halfway and near-halfway results (precision one bit below the exact result), cancellation, alignment gaps around the precision, zeros, infinities and NaNs, decimal text in both directions (`strtofr` with exact halfway literals, `getstr` with 1 to 1,200 digits, the shortest round-trip form) and 28 elementary functions (including `pow`, `pown`, `rootn`, `hypot` and `atan2`). Decimal: decimal32/64/128 contexts and random GDA contexts (precision up to 5,000, Emax up to 999,999,999, all eight rounding modes, clamp on and off), the same structured operands, string conversion (`apply`, `tosci`, `toeng`) and `exp`, `ln`, `log10`, `power`. Every value and every flag (inexact, overflow, underflow, invalid, division by zero; the GDA conditions for decimal) is compared."
 msgstr "**何を変化させるか。** 2 進：出力精度 2 から 10,000（小さい値、フォーマット相当、対数一様、大きい値の混合）、出力精度と独立なオペランド幅、MPFR の 5 方向すべてと最近接遠方のラッパー、無制限コンテキストと有界コンテキスト（binary16/32/64/128 の範囲とランダムな範囲）および両方の tininess 規則、オーバーフローの閾値・最小正規数・非正規範囲にあるオペランド指数、正確な同点と近同点の結果（精度は正確な結果より 1 ビット少ない）、桁落ち、精度の周辺の整列ギャップ、ゼロ・無限大・NaN、両方向の 10 進テキスト（正確な同点のリテラルを持つ `strtofr`、1 から 1,200 桁の `getstr`、最短ラウンドトリップ形式）、28 の初等関数（`pow`、`pown`、`rootn`、`hypot`、`atan2` を含む）。10 進：decimal32/64/128 のコンテキストとランダムな GDA コンテキスト（精度は最大 5,000、Emax は最大 999,999,999、8 つの丸めモードすべて、clamp あり・なし）、同じ構造化オペランド、文字列変換（`apply`、`tosci`、`toeng`）、`exp`、`ln`、`log10`、`power`。すべての値とすべてのフラグ（inexact、overflow、underflow、invalid、ゼロ除算。10 進では GDA の条件）が比較されます。"
 
-#: manual/verification.md:185
+#: manual/verification.md:183
 msgid "**Reproducibility.** Case `I` of family `F` under seed `S` is a pure function of `(S, F, I)`; the seed of every run below is 20261118. Each run is recorded as mare_mark JSONL (validations per batch of 1,000 cases, delta-debugged failures, replay commands) and summarized in `summary.json` next to it. The record of a backend stays in `.tmp/random-diff/<run>/records-<backend>.jsonl`."
 msgstr "**再現性。** シード `S` の下での族 `F` のケース `I` は `(S, F, I)` の純関数です。以下のすべての実行のシードは 20261118 です。各実行は mare_mark JSONL（1,000 ケースのバッチごとの検証、差分デバッグされた失敗、再生コマンド）として記録され、隣の `summary.json` に集計されます。バックエンドごとの記録は `.tmp/random-diff/<run>/records-<backend>.jsonl` に残ります。"
 
-#: manual/verification.md:191
+#: manual/verification.md:189
 msgid "**Cases run, per operation and backend.** Native: 26,900,000 cases (28,900,000 executed, counting 2,000,000 `sqrt` cases made before the MPFR defect filter); Wasm, JavaScript and Wasm-GC: 2,730,000 each. Wasm-GC has no mare_mark runtime (the runner needs `moonbitlang/async`), so it ran the same corpora through the synchronous `floating-conformance` runner without the JSONL record. The three other backends ran the first 200,000 (binary) or 100,000 (`decimal_gda`) cases of each family of the native run, so their failing batches can be compared with it: Wasm and JavaScript fail on exactly the same batches as native within that range."
 msgstr "**演算とバックエンドごとの実行ケース数。** native：26,900,000 ケース（MPFR の欠陥フィルター前に行った 2,000,000 の `sqrt` ケースを含めると 28,900,000 を実行）。Wasm、JavaScript、Wasm-GC：各 2,730,000。Wasm-GC には mare_mark のランタイムがない（ランナーが `moonbitlang/async` を必要とする）ため、同じコーパスを同期の `floating-conformance` ランナーで JSONL 記録なしに実行しました。他の 3 つのバックエンドは、native の実行の各族の最初の 200,000（2 進）または 100,000（10 進）ケースを実行したので、その失敗バッチを native と比較できます。この範囲では Wasm と JavaScript は native とまったく同じバッチで失敗します。"
 
-#: manual/verification.md:201
+#: manual/verification.md:199
 msgid "**MPFR (binary)**"
 msgstr "**MPFR（2 進）**"
 
-#: manual/verification.md:203
-#: manual/verification.md:246
+#: manual/verification.md:201
+#: manual/verification.md:244
 msgid "Wasm"
 msgstr "Wasm"
 
-#: manual/verification.md:203
-#: manual/verification.md:246
+#: manual/verification.md:201
+#: manual/verification.md:244
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: manual/verification.md:203
-#: manual/verification.md:246
+#: manual/verification.md:201
+#: manual/verification.md:244
 msgid "Wasm-GC"
 msgstr "Wasm-GC"
 
-#: manual/verification.md:242
-#: manual/verification.md:261
+#: manual/verification.md:240
+#: manual/verification.md:259
 msgid "**total**"
 msgstr "**合計**"
 
-#: manual/verification.md:244
+#: manual/verification.md:242
 msgid "**libmpdec (`decimal_gda`)**"
 msgstr "**libmpdec（10 進）**"
 
-#: manual/verification.md:263
+#: manual/verification.md:261
 msgid "(`sqrt` on native: the table counts the 2,000,000 cases of the final run; the first run of 2,000,000 `sqrt` cases, made before the MPFR defect filter, is not counted: 2,000,000.)"
 msgstr "（native の `sqrt`：表は最終実行の 2,000,000 ケースを数えています。MPFR の欠陥フィルター前の最初の 2,000,000 の `sqrt` ケースの実行は数えていません：2,000,000。）"
 
-#: manual/verification.md:265
+#: manual/verification.md:263
 msgid "**Names.** The family prefixes `dec-` (`decimal_gda` against libmpdec) and `decm-` (IEEE `decimal` against MPFR), and the option `--decm`, are now `decimal_gda-`, `decimal-` and `--decimal`; the old spellings are deprecated aliases. The run logs below quote the commands as they were run."
 msgstr "**名称。** ファミリーのプレフィックス `dec-`（`decimal_gda` を libmpdec と照合）と `decm-`（IEEE `decimal` を MPFR と照合）、およびオプション `--decm` は、それぞれ `decimal_gda-`、`decimal-`、`--decimal` になりました。旧表記は非推奨のエイリアスです。以下の実行ログは、実行当時のコマンドをそのまま引用しています。"
 
-#: manual/verification.md:270
+#: manual/verification.md:268
 msgid "**MPFR enclosures (decimal elementary functions)**, a third corpus (`mpfr-decimal-random-v1`, `just random-diff run --decimal`). The IEEE `decimal` package's elementary functions are checked against MPFR through certified enclosures, not single results: 2048-bit directed operand bounds, 768-bit directed results on every corner, one ulp of slack, both endpoints rounded to the context with Python `decimal`; a row exists only if the endpoints agree and the rounded value lies outside the enclosure (so exact results are not sampled here). Contexts are decimal32/64/128 and random ones (precision 1 to 120, exponent range up to ±20,000, all eight rounding modes, clamp on and off, both tininess rules); operands are drawn so that results reach overflow, underflow and the subnormal range. Native: 559,979 cases, 20,000 for each of 28 functions (`exp exp2 exp10 expm1 sinh cosh ln log2 log10 log1p sin cos tan sinpi cospi tanpi atan tanh asinh asin acos atanh acosh pow hypot atan2 rootn pown`; `cospi` and `tanh` have a few candidates that never certify within eight attempts); Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function)."
 msgstr "**MPFR 包含区間（十進の初等関数）**。3 つ目のコーパス（`mpfr-decimal-random-v1`、`just random-diff run --decimal`）です。IEEE `decimal` パッケージの初等関数は、単一の結果ではなく認証済みの包含区間を通して MPFR と照合します。2048 ビットの方向付きオペランド境界、各頂点での 768 ビットの方向付き結果、1 ulp の余裕を取り、両端点を Python `decimal` でコンテキストに丸めます。両端点が一致し、丸めた値が区間の外にある場合にだけ行が作られます（そのためここでは正確な結果を抽出しません）。コンテキストは decimal32/64/128 とランダムなもの（精度 1 から 120、指数範囲は ±20,000 まで、8 つの丸めモード、clamp の有無、両方の tininess 規則）で、結果がオーバーフロー、アンダーフロー、非正規数の範囲に届くようにオペランドを選びます。Native：559,979 ケース、28 関数（`exp exp2 exp10 expm1 sinh cosh ln log2 log10 log1p sin cos tan sinpi cospi tanpi atan tanh asinh asin acos atanh acosh pow hypot atan2 rootn pown`）で各 20,000 ケース（`cospi` と `tanh` には 8 回の試行でも認証できない候補が少数あります）。Wasm、JavaScript、Wasm-GC は各 55,996 ケース（各関数の最初の 2,000 ケース）です。"
 
-#: manual/verification.md:286
+#: manual/verification.md:284
 msgid "**Outcome.**"
 msgstr "**結果。**"
 
-#: manual/verification.md:288
+#: manual/verification.md:286
 msgid "*Binary arithmetic, string conversion and `shortest`*: no disagreement in 16,500,000 native cases (plus 1,650,000 on each of the other three backends) apart from the MPFR defect below. Every one of the 5 rounding directions, both tininess rules, the exponent limits and the subnormal range were exercised; a mutation check (swapping the two tininess rules, or nearest-even with nearest-away, in the executor) fails 0.15% to 2.8% of the rows, so the rows that decide those cases are present."
 msgstr "*2 進の算術、文字列変換、`shortest`*：16,500,000 の native ケース（他の 3 バックエンドでは各 1,650,000 ケース）で食い違いなし。下記の MPFR の欠陥を除きます。5 つすべての丸め方向、両方の tininess 規則、指数の限界、非正規範囲が試されました。ミューテーション検査（エグゼキューターで 2 つの tininess 規則、または最近接偶数と最近接遠方を入れ替える）は行の 0.15% から 2.8% を失敗させるので、これらのケースを決める行は存在します。"
 
-#: manual/verification.md:295
+#: manual/verification.md:293
 msgid "*Decimal elementary functions against MPFR*: 26 of the 28 functions agree with MPFR in value, cohort and all eight flags in every one of their 20,000 native cases, and the same rows pass on Wasm, JavaScript and Wasm-GC. Two disagreements, with the identical failing ids on all four backends: `atan2` returns the zero of an underflowed result with exponent 0 instead of the least exponent `e_min - p + 1` (54 of 20,000 rows, e.g. `atan2(1E-500, 9)` in decimal64 gives `0`, not `0E-398`; IEEE 754-2019 §5.2: an inexact result uses the cohort member of least possible exponent), and `exp` raises no Underflow and Subnormal for a result that underflows to the smallest subnormal when `precision = 1`, the non-standard `AfterRounding` tininess option is selected and the direction is `Up`, `Ceiling` or `ZeroFiveUp` (22 of 20,000 rows; the smallest subnormal equals the smallest normal number then, and the library's own after-rounding rule says the result is tiny; the standard rule for decimal formats, tininess before rounding, was correct). Both are reported separately and become regression rows when fixed."
 msgstr "*十進の初等関数と MPFR*：28 関数のうち 26 は、各 20,000 の native ケースすべてで値、cohort、8 つのフラグすべてが MPFR と一致し、同じ行は Wasm、JavaScript、Wasm-GC でも合格します。不一致は 2 件で、失敗する id は 4 つのバックエンドで同一です。`atan2` はアンダーフローした結果のゼロを、最小の指数 `e_min - p + 1` ではなく指数 0 で返します（20,000 行中 54 行。たとえば decimal64 の `atan2(1E-500, 9)` は `0E-398` ではなく `0` を返します。IEEE 754-2019 §5.2：不正確な結果は、指数が最小の cohort メンバーを使う）。もう 1 件は、`precision = 1`、非標準の `AfterRounding` tininess オプション、方向が `Up`、`Ceiling`、`ZeroFiveUp` のとき、最小の非正規数にアンダーフローする `exp` の結果で Underflow と Subnormal が立たないことです（20,000 行中 22 行。この場合、最小の非正規数は最小の正規数に等しく、ライブラリ自身の丸め後の規則はこの結果を tiny と見なします。十進形式の標準の規則である丸め前の tininess 検出は正しく動作していました）。どちらも別途報告し、修正後に回帰行になります。"
 
-#: manual/verification.md:310
+#: manual/verification.md:308
 msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 10,673 rows of `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
 msgstr "*十進 `exp2m1`、`exp10m1`、`log2p1`、`log10p1`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：ファミリー `decm-exp2m1`、`decm-exp10m1`、`decm-log2p1`、`decm-log10p1`、シード 20261118、各 250,000 件のネイティブのケース（計 1,000,000 件）が、値、コホート、8 つのフラグすべてで MPFR と一致し、Wasm、Wasm-GC、JavaScript での各 100,000 件（ターゲットごとに 400,000 件、計 1,200,000 件、検証済みバッチ 804）も同様に一致します。2026-11-19 に `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js` で実行しました。最終コードでは、シード 20261118 のネイティブ 1,000,000 件を再実行し（検証済みバッチ 1,000）、さらに 2 つ目のシード 20261202 でネイティブ、Wasm、Wasm-GC、JavaScript の各関数 100,000 件（ターゲットごとに 400,000 件、計 1,600,000 件、検証済みバッチ 1,204）を実行しました。どちらも 2026-11-19 に実行し、不一致はありません。ここでは厳密な結果は抽出しません。厳密な結果、整数付近と -1 付近のクラスタ、微小な引数、微小性と clamp の境界は `src/decimal/elementary_pm1_rows_wbtest.mbt` の 10,673 行（厳密な有理数演算と認証済み MPFR 包含区間、`tools/generate_decimal_pm1_rows.py`）が扱い、ネイティブ、Wasm、Wasm-GC、JavaScript で通過します。"
 
-#: manual/verification.md:329
+#: manual/verification.md:327
 msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 14,267 rows of `src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
 msgstr "*十進 `rsqrt`、`compound`、`powr`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：ファミリー `decm-rsqrt`、`decm-compound`、`decm-powr`。`compound` の行は厳密な演算で認証します（有理数 $(1+x)^n$、$|x| < 10^{-150}$ では厳密な 10 進数 $1 + nx \\pm 2(nx)^2$、または証明済みの余裕を持つ libmpdec の $\\exp(n\\ln(1+x))$）。MPFR 4.2.2 は方向付き丸めで $n < 0$ を誤って丸めるため、`mpfr_compound_si` は使いません。シード 20261118：ネイティブで各関数 250,000 件（計 750,000 件）、Wasm、Wasm-GC、JavaScript で各関数 100,000 件ずつ（計 900,000 件）。シード 20261202：ネイティブ、Wasm、Wasm-GC、JavaScript で各関数 100,000 件ずつ（計 1,200,000 件）。いずれも 2026-11-19 に実行し、値、コホート、フラグのすべてで一致しました。`src/decimal/elementary_rcp_rows_wbtest.mbt` の 14,267 行（`tools/generate_decimal_rcp_rows.py`）が、厳密な場合、優先指数、`compound` の `Int32` 最小値、$10^{-1\\,999\\,997}$ までのオペランド、範囲の限界を 4 つのターゲットすべてで補います。"
 
-#: manual/verification.md:344
+#: manual/verification.md:342
 msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, all eight rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
 msgstr "*範囲の限界での十進 `exp`、`exp2`、`exp10`*（[#363](https://github.com/Luna-Flow/floating/issues/363)）：ファミリー `decimal-exp`、`decimal-exp2`、`decimal-exp10`。シード 334 とシード 20261120 で native 上に関数ごと 100,000 件（計 600,000 件）、シード 334 で Wasm、Wasm-GC、JavaScript 上に関数ごと 20,000 件（計 180,000 件）を 2026-11-20 に実行し、値、コホート、フラグが MPFR と一致しました。ジェネレーターが失敗する引数を出すのはまれで（ケース `m334.exp2.30728` がその 1 つ）、境界は決定的な行で補います。`src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`、400 桁の Python `decimal`、照合のみ）には 5,976 行があり、その issue のコンテキスト、decimal32、decimal64、decimal128、広いコンテキストについて、全 8 つの丸め方向で、範囲の内側・外側すれすれの結果と判定のしきい値を扱います。`expm1`、`exp2m1`、`exp10m1`、`sinh`、`cosh`、`pow`、`powr`、`pown`、`compound`、`rsqrt` も含み、これらは変更前から失敗していませんでした。"
 
-#: manual/verification.md:359
-msgid "*Decimal `asinPi`, `acosPi`, `atanPi` and `atan2Pi`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decimal-asinpi`, `decimal-acospi`, `decimal-atanpi` and `decimal-atan2pi`, certified by `mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi` and `mpfr_atan2pi`. Seed 20261118: 100,000 native cases per function (400,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript (240,000), 564 validated batches, run on 2026-11-19 with `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native` and the same with `--count 20000 --target wasm --target wasm-gc --target js`, in agreement with MPFR in value, cohort and all eight flags. The 19,134 rows of `testdata/decimal/ieee/rows/pi_inverse.txt` (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at the preferred exponent 0, the clusters next to $\\pm\\tfrac12$ and $\\pm 1$ in all eight rounding modes on both sides, operands down to $10^{-1\\,999\\,996}$ and the range limits of decimal32/64/128 under both tininess rules. They run in the full gate and the nightly run on all four targets, and a deterministic sample of them runs in the quick gate (see [Quick-gate sample of the π-inverse rows](#quick-gate-sample-of-the-π-inverse-rows))."
-msgstr "*十進 `asinPi`、`acosPi`、`atanPi`、`atan2Pi`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：ファミリ `decimal-asinpi`、`decimal-acospi`、`decimal-atanpi`、`decimal-atan2pi` を、それぞれ `mpfr_asinpi`、`mpfr_acospi`、`mpfr_atanpi`、`mpfr_atan2pi` で認証しています。シード 20261118：native で関数ごとに 100,000 件（計 400,000）、Wasm、Wasm-GC、JavaScript でそれぞれ関数ごとに 20,000 件（計 240,000）、検証済みバッチ 564 件を 2026-11-19 に実行しました。コマンドは `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native` と、同じものの `--count 20000 --target wasm --target wasm-gc --target js` で、値・コホート・8 つのフラグすべてで MPFR と一致しました。`testdata/decimal/ieee/rows/pi_inverse.txt` の 19,134 行（`tools/generate_decimal_pi_inverse_rows.py`）は、優先指数 0 の厳密な Niven 値、$\\pm\\tfrac12$ と $\\pm 1$ の近くのクラスタ（8 つの丸めモードの両側）、$10^{-1\\,999\\,996}$ までのオペランド、decimal32/64/128 の範囲限界（2 つの微小性規則）を追加します。これらの行は完全ゲートと夜間実行で 4 つのターゲットすべてで実行され、クイックゲートはその決定的なサンプルを実行します（[π 逆関数行のクイックゲート用サンプル](#quick-gate-sample-of-the-π-inverse-rows) を参照）。"
+#: manual/verification.md:357
+msgid "*Decimal `asinPi`, `acosPi`, `atanPi` and `atan2Pi`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decimal-asinpi`, `decimal-acospi`, `decimal-atanpi` and `decimal-atan2pi`, certified by `mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi` and `mpfr_atan2pi`. Seed 20261118: 100,000 native cases per function (400,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript (240,000), 564 validated batches, run on 2026-11-19 with `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native` and the same with `--count 20000 --target wasm --target wasm-gc --target js`, in agreement with MPFR in value, cohort and all eight flags. The 19,134 rows of `testdata/decimal/ieee/rows/pi_inverse.txt` (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at the preferred exponent 0, the clusters next to $\\pm\\tfrac12$ and $\\pm 1$ in all eight rounding modes on both sides, operands down to $10^{-1\\,999\\,996}$ and the range limits of decimal32/64/128 under both tininess rules. They run in the full gate and the nightly run on all four targets, and all of them run in the quick gate (see [Quick-gate table of the π-inverse rows](#quick-gate-table-of-the-π-inverse-rows))."
+msgstr "*十進 `asinPi`、`acosPi`、`atanPi`、`atan2Pi`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：ファミリ `decimal-asinpi`、`decimal-acospi`、`decimal-atanpi`、`decimal-atan2pi` を、それぞれ `mpfr_asinpi`、`mpfr_acospi`、`mpfr_atanpi`、`mpfr_atan2pi` で認証しています。シード 20261118：native で関数ごとに 100,000 件（計 400,000）、Wasm、Wasm-GC、JavaScript でそれぞれ関数ごとに 20,000 件（計 240,000）、検証済みバッチ 564 件を 2026-11-19 に実行しました。コマンドは `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native` と、同じものの `--count 20000 --target wasm --target wasm-gc --target js` で、値・コホート・8 つのフラグすべてで MPFR と一致しました。`testdata/decimal/ieee/rows/pi_inverse.txt` の 19,134 行（`tools/generate_decimal_pi_inverse_rows.py`）は、優先指数 0 の厳密な Niven 値、$\\\\pm\\\\tfrac12$ と $\\\\pm 1$ の近くのクラスタ（8 つの丸めモードの両側）、$10^{-1\\\\,999\\\\,996}$ までのオペランド、decimal32/64/128 の範囲限界（2 つの微小性規則）を追加します。これらの行は完全ゲートと夜間実行で 4 つのターゲットすべてで実行され、クイックゲートはそれらすべてを実行します（[π 逆関数行のクイックゲート用テーブル](#quick-gate-table-of-the-π-inverse-rows) を参照）。"
 
-#: manual/verification.md:378
+#: manual/verification.md:376
 msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and 300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no flags where the result 2^−1073741824 is an exact subnormal (13 cases, [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and its rows are regression rows of `testdata/bin_float/random-regressions.txt`. After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000 native `elem` cases each. The random sample reaches the range limits rarely, so `tools/range_boundary_rows.py` generates the thresholds directly: for every precision from 2 to 300, six contexts (unbounded, the binary16, 32, 64 and 128 ranges, `e_min = -6`) and the thresholds log2(result) in {q − 1, q, e_min, e_max, e_max + 1}, the arguments of `exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown` and `rootn` are placed on each threshold and at relative offsets of 2^−20 to 2^−64, rounding direction and tininess rule cycling (1,269,554 rows). That sweep found four more disagreements, all fixed with regression rows or tests: `pow` of an exact power of two below 2^e_min ([#272](https://github.com/Luna-Flow/floating/issues/272)), the underflow flag of `pown` under after-rounding tininess near the implementation limit ([#273](https://github.com/Luna-Flow/floating/issues/273)), `expm1` just past its overflow threshold ([#274](https://github.com/Luna-Flow/floating/issues/274)) and `pown` of a value between half and the whole smallest subnormal, rounded to the wrong neighbour ([#278](https://github.com/Luna-Flow/floating/issues/278)); after the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity without flags ([#275](https://github.com/Luna-Flow/floating/issues/275), open): the random generator does not draw such operands and the sweep does not include that function."
 msgstr "*二進の初等関数*: 1,000,000 件の native ケース（ほかのバックエンドは各 300,000 件）で 1 件の発見がありました。−2^30 の整数に対する `exp2` は、結果 2^−1073741824 が厳密な非正規数であるにもかかわらず、フラグなしの +0 を返しました（13 件、[#271](https://github.com/Luna-Flow/floating/issues/271)）。これは修正済みで、その行は `testdata/bin_float/random-regressions.txt` の回帰行になっています。修正後は、2 つのシード（20261118 と 20261201）が、それぞれ 1,000,000 件の native `elem` ケースで MPFR と一致しました。ランダムなサンプルが範囲の限界に当たることはまれなので、`tools/range_boundary_rows.py` が閾値を直接生成します。2 から 300 までのすべての精度、6 つのコンテキスト（無制限、binary16・32・64・128 の範囲、`e_min = -6`）、閾値 log2(結果) ∈ {q − 1, q, e_min, e_max, e_max + 1} について、`exp`、`exp2`、`exp10`、`expm1`、`pow`、`pown`、`rootn` の引数を各閾値上と相対オフセット 2^−20 から 2^−64 に置き、丸め方向と tininess 規則を循環させます（1,269,554 行）。この掃引はさらに 4 件の不一致を見つけ、いずれも回帰行またはテストとともに修正されました。2^e_min より下の厳密な 2 のべきに対する `pow`（[#272](https://github.com/Luna-Flow/floating/issues/272)）、実装限界付近の丸め後 tininess における `pown` の underflow フラグ（[#273](https://github.com/Luna-Flow/floating/issues/273)）、オーバーフロー閾値を越えた直後の `expm1`（[#274](https://github.com/Luna-Flow/floating/issues/274)）、最小の非正規数の半分と最小の非正規数の間にある値を誤った隣接値に丸めた `pown`（[#278](https://github.com/Luna-Flow/floating/issues/278)）です。修正後は 1,269,554 行すべてで MPFR と一致します。隣接する `hypot` の調査では、指数が ±2^29 を超えるオペランドでフラグなしの 0 または無限大が返ることが分かりました（[#275](https://github.com/Luna-Flow/floating/issues/275)、未修正）。ランダムジェネレータはそのようなオペランドを作らず、掃引もこの関数を含みません。"
 
-#: manual/verification.md:406
+#: manual/verification.md:404
 msgid "*`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2, and so do 718,824 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules; the thresholds of $1/\\sqrt{x}$, $(1 + x)^n$ for $n \\in \\{\\pm 3, \\pm 7, \\pm 100\\}$ and $x^y$ with $y$ placed on $\\log_2$ of each threshold). The comparison needed two corrections of the oracle, both documented in `testdata/bin_float/README.md`: `mpfr_compound_si` is wrong for a negative `n` in the directed modes and near the range limits (proved with exact rational arithmetic on all 2,017 boundary rows; the rows use the exact rational instead), and `mpfr_rec_sqrt(-0)` is +inf where the standard says -inf. The library had no disagreement in either case."
 msgstr "*`rSqrt`、`compound`、`powr`*（ジェネレーターの `elem3` ファミリー）: ネイティブ 1,000,000 ケース、Wasm・JavaScript・Wasm-GC 各 100,000 ケースが MPFR 4.2.2 と一致し、718,824 行の範囲境界の行も一致しました（精度 2 から 300、六つのコンテキスト、両方の tininess 規則。$1/\\sqrt{x}$ のしきい値、$n \\in \\{\\pm 3, \\pm 7, \\pm 100\\}$ の $(1 + x)^n$ のしきい値、各しきい値の $\\log_2$ に $y$ を置いた $x^y$）。比較にはオラクルの 2 か所の修正が必要で、どちらも `testdata/bin_float/README.md` に記録しています。`mpfr_compound_si` は $n$ が負の方向付き丸めと範囲限界付近で誤りです（境界の 2,017 行すべてを厳密な有理数演算で証明し、これらの行は厳密な有理数を使います）。`mpfr_rec_sqrt(-0)` は標準が -inf と定めるところで +inf を返します。どちらの場合もライブラリに不一致はありませんでした。"
 
-#: manual/verification.md:417
+#: manual/verification.md:415
 msgid "*`asinPi`, `acosPi`, `atanPi` and `atan2Pi`* (family `elem4` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2 (`mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi`, `mpfr_atan2pi`), and so do 1,654,315 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules): the underflow thresholds ($\\operatorname{asinPi}(x) \\approx x/\\pi$ at $x = \\pi 2^{k}$), the anchors $\\pm 1/2$ and $\\pm 1$ for $\\operatorname{atanPi}$ of a huge argument, $\\operatorname{acosPi}$ of a tiny one and $\\operatorname{atan2Pi}$ of an extreme ratio (leading-exponent difference $D$ from $\\pm(p + 4)$ to $\\pm(p + 12)$, around the point $|D| = p + 8$ where the library switches to the anchor rule), and arguments next to $\\pm 1$. 11,661 `atan2pi` rows with operands more than 100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2 slows down with the exponent difference (5 s at 2^(2*10^7)), so they are skipped and covered by `src/bin_float/pi_inverse_wbtest.mbt` against an independent model and against `atanpi` of an exact power of two. The library had no disagreement."
 msgstr "*`asinPi`、`acosPi`、`atanPi`、`atan2Pi`*（ジェネレーターの `elem4` ファミリー）: ネイティブ 1,000,000 ケース、Wasm・JavaScript・Wasm-GC 各 100,000 ケースが MPFR 4.2.2（`mpfr_asinpi`、`mpfr_acospi`、`mpfr_atanpi`、`mpfr_atan2pi`）と一致し、1,654,315 行の範囲境界の行も一致しました（精度 2 から 300、六つのコンテキスト、両方の tininess 規則）。アンダーフローのしきい値（$x = \\pi 2^{k}$ での $\\operatorname{asinPi}(x) \\approx x/\\pi$）、巨大な引数の $\\operatorname{atanPi}$、微小な引数の $\\operatorname{acosPi}$、極端な比の $\\operatorname{atan2Pi}$ の $\\pm 1/2$ と $\\pm 1$ のアンカー（最上位ビットの指数の差 $D$ が $\\pm(p + 4)$ から $\\pm(p + 12)$。ライブラリがアンカー規則に切り替わる $|D| = p + 8$ の前後を含む）と、$\\pm 1$ の近くの引数です。オペランドが 100,000 バイナリ桁より離れた 11,661 行の `atan2pi` はオラクル行ではありません。MPFR 4.2.2 の `mpfr_atan2pi` は指数の差で遅くなる（2^(2*10^7) で 5 秒）ためスキップし、`src/bin_float/pi_inverse_wbtest.mbt` が独立したモデルと、厳密な 2 のべきの `atanpi` との比較で担います。ライブラリに不一致はありませんでした。"
 
-#: manual/verification.md:433
+#: manual/verification.md:431
 msgid "*Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`, `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an operand rounds past Nmax: [#264](https://github.com/Luna-Flow/floating/issues/264)). The campaign's first run had 10 further disagreements whose operand was above Emax; decTest converts operands subject to the directives, so they are a property of the rows, not findings (the generator now keeps operands within Emax)."
 msgstr "*10 進の算術*：`multiply`、`divide`、`squareroot`、`apply`、`tosci`、`toeng` は、native の 6,000,000 ケースすべてで libmpdec と一致しました。`add`、`subtract`、`fma` は 3,000,000 のうち 83 で食い違いました（オペランドが丸めで Nmax を超えるときにオーバーフローが報告される：[#264](https://github.com/Luna-Flow/floating/issues/264)）。キャンペーンの最初の実行には、オペランドが Emax を超える食い違いがさらに 10 件ありました。decTest は指示に従ってオペランドを変換するので、これらは行の性質であって発見ではありません（ジェネレーターはオペランドを Emax 以内に保つようになりました）。"
 
-#: manual/verification.md:441
+#: manual/verification.md:439
 msgid "*Decimal `power`*: 100,000 native cases disagreed with libmpdec in at least 300 of them; four defects are filed: the sign of an overflowing result ([#265](https://github.com/Luna-Flow/floating/issues/265)), trailing zeros of inexact results ([#266](https://github.com/Luna-Flow/floating/issues/266)), a spurious Clamped ([#267](https://github.com/Luna-Flow/floating/issues/267)) and missing Subnormal and Underflow ([#268](https://github.com/Luna-Flow/floating/issues/268)). One more symptom (the exact result `power(0.05, -8) = 2.56E+10` raises Rounded) is not filed yet. `exp`, `ln` and `log10` agreed in all 300,000 native cases."
 msgstr "*10 進の `power`*：native の 100,000 ケースのうち少なくとも 300 が libmpdec と食い違いました。4 つの欠陥を報告済みです。オーバーフロー結果の符号（[#265](https://github.com/Luna-Flow/floating/issues/265)）、不正確な結果の末尾のゼロ（[#266](https://github.com/Luna-Flow/floating/issues/266)）、余分な Clamped（[#267](https://github.com/Luna-Flow/floating/issues/267)）、Subnormal と Underflow の欠落（[#268](https://github.com/Luna-Flow/floating/issues/268)）。もう 1 つの症状（正確な結果 `power(0.05, -8) = 2.56E+10` が Rounded を上げる）は未報告です。`exp`、`ln`、`log10` は native の 300,000 ケースすべてで一致しました。"
 
-#: manual/verification.md:451
+#: manual/verification.md:449
 msgid "**Known intentional differences, filtered where the rows are generated.** The numbers above exclude, and the test-data READMEs document, these cases: MPFR has no subnormals (emulated with `mpfr_subnormalize`; nearest-away rows that would be subnormal are drawn in nearest-even) and its range is one binade narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the row's own range, so those limits are compared); NaN payloads are not compared; the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin| reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts; opt-in `decimal_gda-*wide` families sample those contexts); libmpdec decides Subnormal and Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN is not specified; `tosci` and `toeng` apply the context precision as decTest specifies."
 msgstr "**既知の意図的な差異。行の生成時にフィルターします。** 上の数値はこれらのケースを除外しており、テストデータの README に文書化されています。MPFR には非正規数がありません（`mpfr_subnormalize` でエミュレートします。非正規数になる最近接遠方の行は最近接偶数で引き直します）。また、その範囲は極限で BinFloat より 1 つ狭い 2 進区間になります（行は MPFR の範囲をその行自身の範囲に設定するので、これらの極限は比較されます）。NaN のペイロードは比較しません。10 進の初等関数は |Emax| または |Emin| が 10^6 に達すると `Invalid_context` を返します（パッケージが採用している decNumber の `DEC_MAX_MATH` の上限。オプトインの `decimal_gda-*wide` 族がそれらのコンテキストをサンプルします）。libmpdec は `exp`、`ln`、`log10` の Subnormal と Underflow を丸めの後で判定しますが、GDA 1.70 は丸めの前と言うので、初等関数の行は Emin を 0 より小さく保ちます。signaling NaN の `apply` は規定されていません。`tosci` と `toeng` は decTest の規定どおりコンテキストの精度を適用します。"
 
-#: manual/verification.md:465
+#: manual/verification.md:463
 msgid "**An oracle defect.** `mpfr_sqrt` of MPFR 4.2.2 (Homebrew bottle, arm64) reports an exact result, or a result on the wrong side of the root, for some operands with an odd binary exponent whose precision is near the output precision (`tools/mpfr_sqrt_ternary_repro.c` is a standalone reproducer). The first run of 2,000,000 `sqrt` cases had 22 failing batches from it; the generator now checks each `sqrt` row with exact arithmetic and draws the case again when MPFR is wrong, and the final run of 2,000,000 `sqrt` cases agreed in all cases. This is a claim about the Homebrew build I used, not about every MPFR release."
 msgstr "**オラクルの欠陥。** MPFR 4.2.2（Homebrew のボトル、arm64）の `mpfr_sqrt` は、2 進指数が奇数で精度が出力精度に近い一部のオペランドについて、正確な結果、または根の誤った側の結果を報告します（`tools/mpfr_sqrt_ternary_repro.c` は単体の再現プログラムです）。最初の 2,000,000 の `sqrt` ケースの実行ではこれによる失敗バッチが 22 ありました。ジェネレーターは現在、各 `sqrt` 行を正確な算術で検査し、MPFR が誤っていればそのケースを引き直します。最終実行の 2,000,000 の `sqrt` ケースはすべて一致しました。これは私が使った Homebrew ビルドについての主張であり、すべての MPFR リリースについてのものではありません。"
 
-#: manual/verification.md:474
+#: manual/verification.md:472
 msgid "**Not covered.** Operations the oracles lack (`rem`, `roundToIntegral`, the integer conversions, `scaleB`/`logB`, decimal operations other than the thirteen families); NaN payload policy; nearest-away results in the subnormal range; decimal contexts with |Emax| or |Emin| of 10^6 or more for the elementary functions; precisions above 700 for the binary elementary functions; the LLVM backend; interval arithmetic. The campaign samples a finite space with fixed seeds: the counts are what was run, not a proof of absence."
 msgstr "**対象外。** オラクルにない演算（`rem`、`roundToIntegral`、整数変換、`scaleB`/`logB`、13 の族以外の 10 進演算）、NaN ペイロードのポリシー、非正規範囲での最近接遠方の結果、初等関数で |Emax| または |Emin| が 10^6 以上の 10 進コンテキスト、2 進の初等関数での 700 を超える精度、LLVM バックエンド、区間演算。このキャンペーンは固定シードで有限の空間をサンプルします。件数は実行した量であり、欠陥がないことの証明ではありません。"
 
-#: manual/verification.md:482
+#: manual/verification.md:480
 msgid "Reproducibility"
 msgstr "再現性"
 
-#: manual/verification.md:484
+#: manual/verification.md:482
 msgid "External artifacts are pinned by revision and SHA-256 in each corpus manifest (`testdata/*/corpora.json`). Builds use backend-named outputs and isolated target directories so that parallel jobs do not overwrite each other. Shards select deterministic case indices, and merged summaries keep exact totals and failed IDs. Large generated fixtures are split across files (the IEEE decimal public-API fixture is written 400 tests per file) so that every toolchain compiles them."
 msgstr "外部の成果物は、各コーパスのマニフェスト（`testdata/*/corpora.json`）でリビジョンと SHA-256 によって固定されています。ビルドはバックエンド名を付けた出力と分離されたターゲットディレクトリを使い、並列ジョブが互いに上書きしないようにしています。シャードは決定的なケースのインデックスを選択し、マージされたサマリは正確な合計と失敗した ID を保持します。大きな生成フィクスチャは複数のファイルに分割されており（IEEE 十進の公開 API フィクスチャは 1 ファイルあたり 400 テストで書き出されます）、どのツールチェーンでもコンパイルできるようになっています。"
 
-#: manual/verification.md:492
+#: manual/verification.md:490
 msgid "The MoonBit frontends parse and execute numeric rows. Python orchestrates downloads, task planning, subprocesses, target selection and aggregation. An optional oracle is never silently replaced by a weaker one; a missing requirement is reported explicitly."
 msgstr "MoonBit のフロントエンドが数値の行をパースして実行します。Python はダウンロード、タスク計画、サブプロセス、ターゲット選択、集計を統括します。省略可能なオラクルが、より弱いものに黙って置き換えられることはありません。満たされない要件は明示的に報告されます。"
 
-#: manual/verification.md:497
+#: manual/verification.md:495
 msgid "Performance evidence is separate from semantic conformance. Benchmark manifests pin the baseline source, dependencies, toolchain, target, schedule, sample count and dispersion limits, and a performance threshold never changes correctness. See [performance audit](./performance_audit.md) and the per-package performance pages."
 msgstr "性能の証拠はセマンティクスの適合性とは別物です。ベンチマークのマニフェストは、ベースラインのソース、依存関係、ツールチェーン、ターゲット、スケジュール、サンプル数、ばらつきの上限を固定しており、性能のしきい値が正しさを変えることはありません。[性能監査](./performance_audit.md)とパッケージごとの性能ページを参照してください。"
 
-#: manual/verification.md:503
+#: manual/verification.md:501
 msgid "Failure triage"
 msgstr "失敗のトリアージ"
 
-#: manual/verification.md:505
+#: manual/verification.md:503
 msgid "Re-run the failing backend with the smallest case, ID filter, phase or shard that reproduces it."
 msgstr "失敗したバックエンドを、それを再現する最小のケース、ID フィルタ、フェーズ、シャードで再実行します。"
 
-#: manual/verification.md:507
+#: manual/verification.md:505
 msgid "Distinguish parse diagnostics, unsupported cases, legacy classifications, executable mismatches and infrastructure failures."
 msgstr "パース時の診断、サポート外のケース、レガシーな分類、実行可能な不一致、インフラの障害を区別します。"
 
-#: manual/verification.md:509
+#: manual/verification.md:507
 msgid "Record the expected value, actual value, flags, context, target, corpus revision and command."
 msgstr "期待値、実際の値、フラグ、コンテキスト、ターゲット、コーパスのリビジョン、コマンドを記録します。"
 
-#: manual/verification.md:511
+#: manual/verification.md:509
 msgid "Run the matching white-box package test to decide whether the defect is in parsing, arithmetic, interchange or aggregation."
 msgstr "対応するホワイトボックスのパッケージテストを実行し、欠陥がパース、算術、交換形式、集計のどこにあるかを判断します。"
 
-#: manual/verification.md:513
+#: manual/verification.md:511
 msgid "After a fix, run the focused case, the committed smoke fixture, the backend gate, and finally `just pr` or `just ci`."
 msgstr "修正後は、対象のケース、コミット済みのスモークフィクスチャ、バックエンドのゲートを実行し、最後に `just pr` または `just ci` を実行します。"
 
-#: manual/verification.md:516
+#: manual/verification.md:514
 msgid "Do not weaken strict support, discard flags, or change the denominator to make a failing gate pass."
 msgstr "Strict support を弱める、flags を捨てる、denominator を変えることで gate を通してはいけません。"
 
-#: manual/verification.md:519
+#: manual/verification.md:517
 msgid "Release gate"
 msgstr "リリースゲート"
 
-#: manual/verification.md:521
+#: manual/verification.md:519
 msgid "Before publishing:"
 msgstr "Publish 前に次を行います。"
 
-#: manual/verification.md:523
+#: manual/verification.md:521
 msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
 msgstr "`moon.mod`、`README.md`、マニュアル、`CHANGELOG.md` の内容を揃える。"
 
-#: manual/verification.md:524
+#: manual/verification.md:522
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
 msgstr "`just docs` と `lunadoc check` を実行し、生成されたインターフェースの差分を確認する。"
 
-#: manual/verification.md:526
+#: manual/verification.md:524
 msgid "run `just pr` while iterating;"
 msgstr "反復作業中は `just pr` を実行する。"
 
-#: manual/verification.md:527
+#: manual/verification.md:525
 msgid "run `just ci` on the release candidate;"
 msgstr "リリース候補に対して `just ci` を実行する。"
 
-#: manual/verification.md:528
+#: manual/verification.md:526
 msgid "publish through the repository's `publish.yml` GitHub Actions workflow."
 msgstr "リポジトリの `publish.yml` GitHub Actions ワークフローを通じて公開する。"
 
-#: manual/verification.md:530
+#: manual/verification.md:528
 msgid "Local `moon publish` is not the Luna-Flow release path, because the organization's credentials are supplied by the workflow."
 msgstr "ローカルでの `moon publish` は Luna-Flow のリリース手順ではありません。組織の認証情報はワークフローによって提供されるためです。"
 
-#: manual/verification.md:533
+#: manual/verification.md:531
 msgid "Conformance checklist"
 msgstr "適合性チェックリスト"
 
-#: manual/verification.md:535
+#: manual/verification.md:533
 msgid "One line per row of the clause traceability tables of the conformance pages ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability)). A checked box is a `conforming` row; an unchecked box names its state (`partial`, `not implemented`, `not applicable`) and carries the clause level in brackets: `required` (the standard says \"shall\"), `recommended` (\"should\") or `optional`. The counts separate gaps in required clauses from gaps in recommended or optional ones. The block is generated by `tools/conformance_checklist.py` and `just docs` fails when it is stale."
 msgstr "各適合性ページの条項トレーサビリティ表の 1 行につき 1 行です。チェック済みのボックスは `conforming` の行で、未チェックのボックスにはその状態（`partial`、`not implemented`、`not applicable`）と、角括弧で条項レベル（`required`＝標準が “shall”、`recommended`＝“should”、`optional`）を書きます。件数では必須条項の不足と、推奨または任意条項の不足を分けています。このブロックは `tools/conformance_checklist.py` が生成し、古くなると `just docs` が失敗します。 ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability))"
 
-#: manual/verification.md:548
-#: manual/verification.md:697
+#: manual/verification.md:546
+#: manual/verification.md:695
 msgid "Standard"
 msgstr "規格"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Rows"
 msgstr "行数"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Conforming"
 msgstr "準拠"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Partial"
 msgstr "部分準拠"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Not implemented"
 msgstr "未実装"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Not applicable"
 msgstr "適用外"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Required gaps"
 msgstr "必須条項の不足"
 
-#: manual/verification.md:548
+#: manual/verification.md:546
 msgid "Recommended or optional gaps"
 msgstr "推奨または任意条項の不足"
 
-#: manual/verification.md:550
+#: manual/verification.md:548
 msgid "IEEE 754-2019: bin_float"
 msgstr "IEEE 754-2019: bin_float"
 
-#: manual/verification.md:551
+#: manual/verification.md:549
 msgid "IEEE 754-2019: decimal"
 msgstr "IEEE 754-2019: decimal"
 
-#: manual/verification.md:552
+#: manual/verification.md:550
 msgid "General Decimal Arithmetic 1.70: decimal_gda"
 msgstr "General Decimal Arithmetic 1.70: decimal_gda"
 
-#: manual/verification.md:553
+#: manual/verification.md:551
 msgid "IEEE 1788-2015: ball_float"
 msgstr "IEEE 1788-2015: ball_float"
 
-#: manual/verification.md:555
+#: manual/verification.md:553
 msgid "**IEEE 754-2019: bin_float**"
 msgstr "**IEEE 754-2019: bin_float**"
 
-#: manual/verification.md:557
+#: manual/verification.md:555
 msgid "§3.3–§3.6 binary16/32/64/128 interchange formats [required]"
 msgstr "§3.3–§3.6 binary16/32/64/128 交換形式 [必須]"
 
-#: manual/verification.md:558
-#: manual/verification.md:589
+#: manual/verification.md:556
+#: manual/verification.md:587
 msgid "§3.7 extendable precisions [recommended]"
 msgstr "§3.7 拡張可能な精度 [推奨]"
 
-#: manual/verification.md:559
-#: manual/verification.md:590
+#: manual/verification.md:557
+#: manual/verification.md:588
 msgid "§4.3 rounding-direction attributes [required]"
 msgstr "§4.3 丸め方向属性 [必須]"
 
-#: manual/verification.md:560
-#: manual/verification.md:592
+#: manual/verification.md:558
+#: manual/verification.md:590
 msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot [required]"
 msgstr "§5.3.1 加算、減算、乗算、除算、squareRoot [必須]"
 
-#: manual/verification.md:561
-#: manual/verification.md:593
+#: manual/verification.md:559
+#: manual/verification.md:591
 msgid "§5.3.1 fusedMultiplyAdd [required]"
 msgstr "§5.3.1 fusedMultiplyAdd [必須]"
 
-#: manual/verification.md:562
-#: manual/verification.md:594
+#: manual/verification.md:560
+#: manual/verification.md:592
 msgid "§5.3.1 remainder [required]"
 msgstr "§5.3.1 remainder [必須]"
 
-#: manual/verification.md:563
+#: manual/verification.md:561
 msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact) [required]"
 msgstr "§5.3.1, §5.9 roundToIntegral (5 方向、exact 版を含む) [必須]"
 
-#: manual/verification.md:564
-#: manual/verification.md:596
+#: manual/verification.md:562
+#: manual/verification.md:594
 msgid "§5.3.1 nextUp, nextDown [required]"
 msgstr "§5.3.1 nextUp, nextDown [必須]"
 
-#: manual/verification.md:565
-#: manual/verification.md:597
+#: manual/verification.md:563
+#: manual/verification.md:595
 msgid "§5.3.1 scaleB, logB [required]"
 msgstr "§5.3.1 scaleB, logB [必須]"
 
-#: manual/verification.md:566
-#: manual/verification.md:599
+#: manual/verification.md:564
+#: manual/verification.md:597
 msgid "§5.4.1 convertFromInt [required]"
 msgstr "§5.4.1 convertFromInt [必須]"
 
-#: manual/verification.md:567
+#: manual/verification.md:565
 msgid "§5.4.1, §5.8 convertToInteger (exact and inexact) [required]"
 msgstr "§5.4.1, §5.8 convertToInteger （exact と inexact） [必須]"
 
-#: manual/verification.md:568
-#: manual/verification.md:601
+#: manual/verification.md:566
+#: manual/verification.md:599
 msgid "§5.4.2 convertFormat [required] (partial)"
 msgstr "§5.4.2 convertFormat [必須] （部分準拠）"
 
-#: manual/verification.md:569
-#: manual/verification.md:602
+#: manual/verification.md:567
+#: manual/verification.md:600
 msgid "§5.5 copy, negate, abs, copySign [required]"
 msgstr "§5.5 copy, negate, abs, copySign [必須]"
 
-#: manual/verification.md:570
+#: manual/verification.md:568
 msgid "§5.6, §5.11 comparison predicates, quiet and signaling [required]"
 msgstr "§5.6, §5.11 比較述語（quiet と signaling） [必須]"
 
-#: manual/verification.md:571
+#: manual/verification.md:569
 msgid "§5.7 class and sign predicates [required] (partial)"
 msgstr "§5.7 class と符号の述語 [必須] （部分準拠）"
 
-#: manual/verification.md:572
-#: manual/verification.md:605
+#: manual/verification.md:570
+#: manual/verification.md:603
 msgid "§5.10 totalOrder, totalOrderMag [required]"
 msgstr "§5.10 totalOrder, totalOrderMag [必須]"
 
-#: manual/verification.md:573
+#: manual/verification.md:571
 msgid "§5.12 decimal character conversion, both directions [required]"
 msgstr "§5.12 十進文字変換（両方向） [必須]"
 
-#: manual/verification.md:574
+#: manual/verification.md:572
 msgid "§5.12 hexadecimal character conversion [required] (partial)"
 msgstr "§5.12 十六進文字変換 [必須] （部分準拠）"
 
-#: manual/verification.md:575
-#: manual/verification.md:607
+#: manual/verification.md:573
+#: manual/verification.md:605
 msgid "§6.1–§6.3 infinities, NaNs, sign bit [required]"
 msgstr "§6.1–§6.3 無限大、NaN、符号ビット [必須]"
 
-#: manual/verification.md:576
+#: manual/verification.md:574
 msgid "§7.2–§7.6 exceptions and default handling [required]"
 msgstr "§7.2–§7.6 例外と既定の処理 [必須]"
 
-#: manual/verification.md:577
+#: manual/verification.md:575
 msgid "§7.5 tininess detection [required]"
 msgstr "§7.5 tininess の検出 [必須]"
 
-#: manual/verification.md:578
-#: manual/verification.md:610
+#: manual/verification.md:576
+#: manual/verification.md:608
 msgid "§8 alternate exception handling [recommended] (not implemented)"
 msgstr "§8 代替例外処理 [推奨] （未実装）"
 
-#: manual/verification.md:579
-#: manual/verification.md:611
+#: manual/verification.md:577
+#: manual/verification.md:609
 msgid "§9.2 recommended mathematical functions [recommended]"
 msgstr "§9.2 推奨される数学関数 [推奨]"
 
-#: manual/verification.md:580
-#: manual/verification.md:613
+#: manual/verification.md:578
+#: manual/verification.md:611
 msgid "§9.3 dynamic mode operations [recommended] (not implemented)"
 msgstr "§9.3 動的モード演算 [推奨] （未実装）"
 
-#: manual/verification.md:581
-#: manual/verification.md:614
+#: manual/verification.md:579
+#: manual/verification.md:612
 msgid "§9.4 reduction operations [recommended] (not implemented)"
 msgstr "§9.4 リダクション演算 [推奨] （未実装）"
 
-#: manual/verification.md:582
+#: manual/verification.md:580
 msgid "§9.5 augmented arithmetic [recommended] (not implemented)"
 msgstr "§9.5 拡張算術 [推奨] （未実装）"
 
-#: manual/verification.md:583
+#: manual/verification.md:581
 msgid "§9.6 minimum, maximum and magnitude variants [recommended] (not implemented)"
 msgstr "§9.6 minimum、maximum と絶対値の変種 [推奨] （未実装）"
 
-#: manual/verification.md:584
+#: manual/verification.md:582
 msgid "§9.7 NaN payload operations [recommended] (partial)"
 msgstr "§9.7 NaN ペイロード演算 [推奨] （部分準拠）"
 
-#: manual/verification.md:586
+#: manual/verification.md:584
 msgid "**IEEE 754-2019: decimal**"
 msgstr "**IEEE 754-2019: decimal**"
 
-#: manual/verification.md:588
+#: manual/verification.md:586
 msgid "§3.5 decimal32/64/128 interchange, DPD and BID [required]"
 msgstr "§3.5 decimal32/64/128 交換形式、DPD と BID [必須]"
 
-#: manual/verification.md:591
+#: manual/verification.md:589
 msgid "§5.2 preferred exponents [required]"
 msgstr "§5.2 優先指数 [必須]"
 
-#: manual/verification.md:595
+#: manual/verification.md:593
 msgid "§5.3.1 roundToIntegral (all five, exact) [required]"
 msgstr "§5.3.1 roundToIntegral (5 種すべて、exact 版を含む) [必須]"
 
-#: manual/verification.md:598
+#: manual/verification.md:596
 msgid "§5.3.2 quantize, quantum, sameQuantum [required]"
 msgstr "§5.3.2 quantize, quantum, sameQuantum [必須]"
 
-#: manual/verification.md:600
+#: manual/verification.md:598
 msgid "§5.4.1 convertToInteger [required] (partial)"
 msgstr "§5.4.1 convertToInteger [必須] （部分準拠）"
 
-#: manual/verification.md:603
+#: manual/verification.md:601
 msgid "§5.6, §5.11 comparison, quiet and signaling [required]"
 msgstr "§5.6, §5.11 比較（quiet と signaling） [必須]"
 
-#: manual/verification.md:604
+#: manual/verification.md:602
 msgid "§5.7 class, isCanonical, radix [required]"
 msgstr "§5.7 class, isCanonical, radix [必須]"
 
-#: manual/verification.md:606
+#: manual/verification.md:604
 msgid "§5.12 decimal character conversion (decimal to decimal) [required]"
 msgstr "§5.12 十進文字変換（十進から十進） [必須]"
 
-#: manual/verification.md:608
+#: manual/verification.md:606
 msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact [required]"
 msgstr "§7.2–§7.4, §7.6 無効演算、ゼロ除算、オーバーフロー、inexact [必須]"
 
-#: manual/verification.md:609
+#: manual/verification.md:607
 msgid "§7.5 underflow and tininess [required]"
 msgstr "§7.5 アンダーフローと tininess [必須]"
 
-#: manual/verification.md:612
+#: manual/verification.md:610
 msgid "§9.2.2 preferred exponents of pow and pown [recommended]"
 msgstr "§9.2.2 pow と pown の優先指数 [推奨]"
 
-#: manual/verification.md:615
+#: manual/verification.md:613
 msgid "§9.5 augmented arithmetic [recommended] (not applicable)"
 msgstr "§9.5 拡張算術 [推奨] （適用外）"
 
-#: manual/verification.md:616
+#: manual/verification.md:614
 msgid "§9.6 minimum and maximum, eight variants [recommended]"
 msgstr "§9.6 minimum と maximum（8 種の変種） [推奨]"
 
-#: manual/verification.md:617
+#: manual/verification.md:615
 msgid "§9.7 NaN payload operations [recommended]"
 msgstr "§9.7 NaN ペイロード演算 [推奨]"
 
-#: manual/verification.md:619
+#: manual/verification.md:617
 msgid "**General Decimal Arithmetic 1.70: decimal_gda**"
 msgstr "**General Decimal Arithmetic 1.70: decimal_gda**"
 
-#: manual/verification.md:621
+#: manual/verification.md:619
 msgid "abs, minus, plus [required]"
 msgstr "abs, minus, plus [必須]"
 
-#: manual/verification.md:622
+#: manual/verification.md:620
 msgid "add, subtract, multiply [required]"
 msgstr "add, subtract, multiply [必須]"
 
-#: manual/verification.md:623
+#: manual/verification.md:621
 msgid "divide, divide-integer, remainder, remainder-near [required]"
 msgstr "divide, divide-integer, remainder, remainder-near [必須]"
 
-#: manual/verification.md:624
+#: manual/verification.md:622
 msgid "fused-multiply-add [required]"
 msgstr "fused-multiply-add [必須]"
 
-#: manual/verification.md:625
+#: manual/verification.md:623
 msgid "square-root [required]"
 msgstr "square-root [必須]"
 
-#: manual/verification.md:626
+#: manual/verification.md:624
 msgid "power [required]"
 msgstr "power [必須]"
 
-#: manual/verification.md:627
+#: manual/verification.md:625
 msgid "exp, ln, log10 [required]"
 msgstr "exp, ln, log10 [必須]"
 
-#: manual/verification.md:628
+#: manual/verification.md:626
 msgid "compare, compare-signal, compare-total, compare-total-mag [required]"
 msgstr "compare, compare-signal, compare-total, compare-total-mag [必須]"
 
-#: manual/verification.md:629
+#: manual/verification.md:627
 msgid "max, max-magnitude, min, min-magnitude [required]"
 msgstr "max, max-magnitude, min, min-magnitude [必須]"
 
-#: manual/verification.md:630
+#: manual/verification.md:628
 msgid "next-minus, next-plus, next-toward [required]"
 msgstr "next-minus, next-plus, next-toward [必須]"
 
-#: manual/verification.md:631
+#: manual/verification.md:629
 msgid "quantize, rescale, same-quantum, reduce, trim [required]"
 msgstr "quantize, rescale, same-quantum, reduce, trim [必須]"
 
-#: manual/verification.md:632
+#: manual/verification.md:630
 msgid "round-to-integral-exact, round-to-integral-value [required]"
 msgstr "round-to-integral-exact, round-to-integral-value [必須]"
 
-#: manual/verification.md:633
+#: manual/verification.md:631
 msgid "scaleb, logb, rotate, shift [required]"
 msgstr "scaleb, logb, rotate, shift [必須]"
 
-#: manual/verification.md:634
+#: manual/verification.md:632
 msgid "and, or, xor, invert [required]"
 msgstr "and, or, xor, invert [必須]"
 
-#: manual/verification.md:635
+#: manual/verification.md:633
 msgid "class, copy, copy-abs, copy-negate, copy-sign [required]"
 msgstr "class, copy, copy-abs, copy-negate, copy-sign [必須]"
 
-#: manual/verification.md:636
+#: manual/verification.md:634
 msgid "to-number, to-scientific-string, to-engineering-string [required]"
 msgstr "to-number, to-scientific-string, to-engineering-string [必須]"
 
-#: manual/verification.md:637
+#: manual/verification.md:635
 msgid "canonical [required]"
 msgstr "canonical [必須]"
 
-#: manual/verification.md:638
+#: manual/verification.md:636
 msgid "context: precision, rounding, clamp, exponent limits [required]"
 msgstr "コンテキスト：精度、丸め、clamp、指数の限界 [必須]"
 
-#: manual/verification.md:639
+#: manual/verification.md:637
 msgid "status flags and traps (Appendix and Exceptional conditions) [required]"
 msgstr "ステータスフラグとトラップ（付録と例外条件） [必須]"
 
-#: manual/verification.md:640
+#: manual/verification.md:638
 msgid "subset arithmetic (Appendix A) [required]"
 msgstr "サブセット算術（付録 A） [必須]"
 
-#: manual/verification.md:642
+#: manual/verification.md:640
 msgid "**IEEE 1788-2015: ball_float**"
 msgstr "**IEEE 1788-2015: ball_float**"
 
-#: manual/verification.md:644
+#: manual/verification.md:642
 msgid "§4.2 set-based interval arithmetic flavor [required]"
 msgstr "§4.2 集合ベースの区間算術 flavor [必須]"
 
-#: manual/verification.md:645
+#: manual/verification.md:643
 msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemented)"
 msgstr "§4.2.2 圧縮された装飾付き区間算術 [任意] （未実装）"
 
-#: manual/verification.md:646
+#: manual/verification.md:644
 msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
 msgstr "§9.1、§10.5.3 前進モードの算術と初等関数 [必須] （部分準拠）"
 
-#: manual/verification.md:647
+#: manual/verification.md:645
 msgid "§10.5.4 reverse-mode elementary functions [required] (not implemented)"
 msgstr "§10.5.4 逆方向モードの初等関数 [必須] （未実装）"
 
-#: manual/verification.md:648
+#: manual/verification.md:646
 msgid "§10.5.5 two-output division [required] (not implemented)"
 msgstr "§10.5.5 2 出力除算 [必須] （未実装）"
 
-#: manual/verification.md:649
+#: manual/verification.md:647
 msgid "§9.2, §10.5.6 cancellative addition and subtraction [required]"
 msgstr "§9.2, §10.5.6 相殺的な加算と減算 [必須]"
 
-#: manual/verification.md:650
+#: manual/verification.md:648
 msgid "§9.3, §10.5.7 set operations [required]"
 msgstr "§9.3, §10.5.7 集合演算 [必須]"
 
-#: manual/verification.md:651
+#: manual/verification.md:649
 msgid "§9.8, §10.5.8 constructors [required] (partial)"
 msgstr "§9.8, §10.5.8 構築関数 [必須] （部分準拠）"
 
-#: manual/verification.md:652
+#: manual/verification.md:650
 msgid "§9.4, §10.5.9 numeric functions of intervals [required]"
 msgstr "§9.4, §10.5.9 区間の数値関数 [必須]"
 
-#: manual/verification.md:653
+#: manual/verification.md:651
 msgid "§9.5, §10.5.10 boolean functions of intervals [required]"
 msgstr "§9.5, §10.5.10 区間の真偽値関数 [必須]"
 
-#: manual/verification.md:654
+#: manual/verification.md:652
 msgid "§10.6.2 slope functions [recommended] (not implemented)"
 msgstr "§10.6.2 傾き関数 [推奨] （未実装）"
 
-#: manual/verification.md:655
+#: manual/verification.md:653
 msgid "§10.6.4 extended interval comparisons [recommended] (partial)"
 msgstr "§10.6.4 拡張された区間比較 [推奨] （部分準拠）"
 
-#: manual/verification.md:656
+#: manual/verification.md:654
 msgid "§9.6, §11 decoration system [required]"
 msgstr "§9.6, §11 デコレーションシステム [必須]"
 
-#: manual/verification.md:657
+#: manual/verification.md:655
 msgid "§9.7, §12.11 interval and number literals [required] (not implemented)"
 msgstr "§9.7, §12.11 区間と数値のリテラル [必須] （未実装）"
 
-#: manual/verification.md:658
+#: manual/verification.md:656
 msgid "§12.10 accuracy of operations [required]"
 msgstr "§12.10 演算の精度 [必須]"
 
-#: manual/verification.md:659
+#: manual/verification.md:657
 msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
 msgstr "§12.6 区間型の 754 準拠 [必須] （未実装）"
 
-#: manual/verification.md:662
+#: manual/verification.md:660
 msgid "Implementation-defined choices"
 msgstr "実装定義の選択"
 
-#: manual/verification.md:664
+#: manual/verification.md:662
 msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
 msgstr "IEEE 754-2019 と IEEE 1788-2015 は、次の点を実装に委ねており、IEEE 754 はそれを文書化するよう求めています。各項目に、選択の余地を残す条項と採用した選択を書きます。 [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability)、[interval](./conformance/ball_float.md#clause-traceability) 適合性ページの条項表がこれらを引用します。"
 
-#: manual/verification.md:673
+#: manual/verification.md:671
 msgid "Choice left open"
 msgstr "実装に委ねられた事項"
 
-#: manual/verification.md:673
+#: manual/verification.md:671
 msgid "Choice made"
 msgstr "採用した選択"
 
-#: manual/verification.md:675
+#: manual/verification.md:673
 msgid "IEEE 754 §7.5"
 msgstr "IEEE 754 §7.5"
 
-#: manual/verification.md:675
+#: manual/verification.md:673
 msgid "Tininess detection for binary formats"
 msgstr "二進形式の tininess 検出"
 
-#: manual/verification.md:675
+#: manual/verification.md:673
 msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
 msgstr "`BinaryContext` の既定は丸め後の検出です。丸め前も選択でき、TestFloat ゲートは両方を実行します。十進では規格が丸め前を要求し、`DecimalContext` の既定もそうです。丸め後は明示的な非標準オプションです。"
 
-#: manual/verification.md:676
+#: manual/verification.md:674
 msgid "IEEE 754 §6.2"
 msgstr "IEEE 754 §6.2"
 
-#: manual/verification.md:676
+#: manual/verification.md:674
 msgid "Which NaN payload a NaN result carries"
 msgstr "NaN の結果がどの NaN ペイロードを持つか"
 
-#: manual/verification.md:676
+#: manual/verification.md:674
 msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
 msgstr "`bin_float`：選ばれた NaN オペランドのペイロードと符号を保ち、signaling NaN は quiet にします。`decimal`：最初の NaN オペランドの符号とペイロードを、下位 `p` 桁（`clamp` では交換形式のペイロード欄の幅である `p - 1` 桁）に切り詰めます。"
 
-#: manual/verification.md:677
+#: manual/verification.md:675
 msgid "IEEE 754 §9.7"
 msgstr "IEEE 754 §9.7"
 
-#: manual/verification.md:677
+#: manual/verification.md:675
 msgid "Admissible payloads of `setPayload`"
 msgstr "`setPayload` が受け付けるペイロード"
 
-#: manual/verification.md:677
+#: manual/verification.md:675
 msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
 msgstr "`decimal`：レシーバーの `precision - 1` 桁以下の非負整数。それ以外は `+0` になります。`bin_float` に setPayload はありません。"
 
-#: manual/verification.md:678
+#: manual/verification.md:676
 msgid "IEEE 754 §3.7"
 msgstr "IEEE 754 §3.7"
 
-#: manual/verification.md:678
+#: manual/verification.md:676
 msgid "Exponent range and precision of an extendable format"
 msgstr "拡張可能な形式の指数範囲と精度"
 
-#: manual/verification.md:678
+#: manual/verification.md:676
 msgid "`bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
 msgstr "`bin_float`：先頭ビットの指数は `[1 - 2^30, 2^30 - 1]`、精度は最大 `2^28` ビット（両端とも MPFR より 1 binade 上）。`decimal`：`e_min` と `e_max` は ±999,999,999 以内、精度は `1..999,999,999`。"
 
-#: manual/verification.md:679
+#: manual/verification.md:677
 msgid "IEEE 754 §4.3"
 msgstr "IEEE 754 §4.3"
 
-#: manual/verification.md:679
+#: manual/verification.md:677
 msgid "Rounding directions beyond the five required"
 msgstr "必須の 5 つ以外の丸め方向"
 
-#: manual/verification.md:679
+#: manual/verification.md:677
 msgid "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
 msgstr "`RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal)."
 
-#: manual/verification.md:680
+#: manual/verification.md:678
 msgid "IEEE 754 §4.1, §9.3"
 msgstr "IEEE 754 §4.1, §9.3"
 
-#: manual/verification.md:680
+#: manual/verification.md:678
 msgid "How attributes are specified"
 msgstr "属性の指定方法"
 
-#: manual/verification.md:680
+#: manual/verification.md:678
 msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
 msgstr "静的：各演算にコンテキスト値を渡します。動的モードもグローバル状態もありません。"
 
-#: manual/verification.md:681
+#: manual/verification.md:679
 msgid "IEEE 754 §7"
 msgstr "IEEE 754 §7"
 
-#: manual/verification.md:681
+#: manual/verification.md:679
 msgid "How flags are exposed"
 msgstr "フラグの公開方法"
 
-#: manual/verification.md:681
+#: manual/verification.md:679
 msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
 msgstr "演算ごとに返され（`BinaryFlags`、`DecimalFlags`）、呼び出し側が合成します。IEEE のパッケージに環境のスティッキーフラグはありません。"
 
-#: manual/verification.md:682
+#: manual/verification.md:680
 msgid "IEEE 754 §9.2"
 msgstr "IEEE 754 §9.2"
 
-#: manual/verification.md:682
+#: manual/verification.md:680
 msgid "Accuracy of recommended functions"
 msgstr "推奨関数の精度"
 
-#: manual/verification.md:682
+#: manual/verification.md:680
 msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
 msgstr "すべての丸め方向で正しく丸められます（認証した包含を、丸めが一意になるまで精密化します）。精密化の予算を使い切ると `try_*_ctx` は `Err` を返し、通常の形式は NaN を返します。精度または指数の限界の絶対値が 999,999 を超える十進コンテキストは `invalid_context` を返します。"
 
-#: manual/verification.md:683
+#: manual/verification.md:681
 msgid "IEEE 754 §9.2.2"
 msgstr "IEEE 754 §9.2.2"
 
-#: manual/verification.md:683
+#: manual/verification.md:681
 msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
 msgstr "優先指数が未定義のとき（`pow` の `y` が無限大または NaN）"
 
-#: manual/verification.md:683
+#: manual/verification.md:681
 msgid "`decimal`: `pow(+1, y)` is the plain `1`."
 msgstr "`decimal`：`pow(+1, y)` は素の `1` です。"
 
-#: manual/verification.md:684
+#: manual/verification.md:682
 msgid "IEEE 754 §5.12"
 msgstr "IEEE 754 §5.12"
 
-#: manual/verification.md:684
+#: manual/verification.md:682
 msgid "Character sequences accepted and produced (`bin_float`)"
 msgstr "受理および生成する文字列（`bin_float`）"
 
-#: manual/verification.md:684
+#: manual/verification.md:682
 msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
 msgstr "十進：`[+-]digits[.digits][e[+-]digits]`、`inf`、`infinity`、`nan`、`snan`（大文字小文字を区別しない）。出力は `d.ddde±x`、最短形式は ECMAScript の `Number#toString` と同じ書式で `-0` を保ちます。十六進：`0x<hex>p<exp>`。"
 
-#: manual/verification.md:685
+#: manual/verification.md:683
 msgid "IEEE 754 §6.3"
 msgstr "IEEE 754 §6.3"
 
-#: manual/verification.md:685
+#: manual/verification.md:683
 msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr "`remainder` の結果がゼロのときの符号（`decimal`）"
 
-#: manual/verification.md:685
+#: manual/verification.md:683
 msgid "The sign of the dividend, kept in extended contexts."
 msgstr "被除数の符号。拡張コンテキストで保たれます。"
 
-#: manual/verification.md:686
+#: manual/verification.md:684
 msgid "IEEE 1788 §7, §4.2"
 msgstr "IEEE 1788 §7, §4.2"
 
-#: manual/verification.md:686
+#: manual/verification.md:684
 msgid "Flavor"
 msgstr "Flavor"
 
-#: manual/verification.md:686
+#: manual/verification.md:684
 msgid "Set-based."
 msgstr "集合ベース。"
 
-#: manual/verification.md:687
+#: manual/verification.md:685
 msgid "IEEE 1788 §12.10"
 msgstr "IEEE 1788 §12.10"
 
-#: manual/verification.md:687
+#: manual/verification.md:685
 msgid "Accuracy of the elementary functions"
 msgstr "初等関数の精度"
 
-#: manual/verification.md:687
+#: manual/verification.md:685
 msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr "[区間の精度表](./conformance/ball_float.md#accuracy-of-operations)で演算ごとに文書化しています。基本算術、`abs`、`minimum`、`maximum`、`pown` は最緊です。認証された三角関数、逆正接、べき乗の端点は最緊です。その他の初等関数は有効で、ITF1788 のすべてのケースで最緊でした。引数還元を認証できないとき、`sin` と `cos` は `[-1, 1]`、`tan` は Entire を返します。"
 
-#: manual/verification.md:688
+#: manual/verification.md:686
 msgid "IEEE 1788 §12.5"
 msgstr "IEEE 1788 §12.5"
 
-#: manual/verification.md:688
+#: manual/verification.md:686
 msgid "Interval types"
 msgstr "区間型"
 
-#: manual/verification.md:688
+#: manual/verification.md:686
 msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
 msgstr "任意精度の `BinFloat` を端点とする inf-sup 区間（binary32 と binary64 の名前付き形式あり）。mid-rad 型はありません。"
 
-#: manual/verification.md:689
+#: manual/verification.md:687
 msgid "General Decimal Arithmetic"
 msgstr "General Decimal Arithmetic"
 
-#: manual/verification.md:689
+#: manual/verification.md:687
 msgid "Exponent limit"
 msgstr "指数の限界"
 
-#: manual/verification.md:689
+#: manual/verification.md:687
 msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
 msgstr "±999,999,999 と最大 999,999,999 の精度で、decNumber の限界です。仕様自体は `5 × mlength` を超える限界だけを要求します。"
 
-#: manual/verification.md:691
+#: manual/verification.md:689
 msgid "Known gaps and deviations"
 msgstr "既知のギャップと逸脱"
 
-#: manual/verification.md:693
+#: manual/verification.md:691
 msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
 msgstr "規格が求めていることをこのパッケージが提供していない、または異なる形で提供している場合に、ここに載せます。各項目は、それを追跡する issue か、判断を記録したページにリンクします。"
 
-#: manual/verification.md:697
+#: manual/verification.md:695
 msgid "Gap"
 msgstr "ギャップ"
 
-#: manual/verification.md:697
+#: manual/verification.md:695
 msgid "Tracking"
 msgstr "追跡"
 
-#: manual/verification.md:699
+#: manual/verification.md:697
 msgid "IEEE 754-2019 §7.5"
 msgstr "IEEE 754-2019 §7.5"
 
-#: manual/verification.md:699
+#: manual/verification.md:697
 msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
 msgstr "`decimal` は丸め後の極小性判定を非標準オプションとして提供する（既定は §7.5 が要求する丸め前の判定）"
 
-#: manual/verification.md:699
+#: manual/verification.md:697
 msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
 msgstr "なし。issue [#217](https://github.com/Luna-Flow/floating/issues/217) で解消"
 
-#: manual/verification.md:700
+#: manual/verification.md:698
 msgid "IEEE 754-2019 §8"
 msgstr "IEEE 754-2019 §8"
 
-#: manual/verification.md:700
+#: manual/verification.md:698
 msgid "No alternate exception handling"
 msgstr "代替例外処理はない"
 
-#: manual/verification.md:700
+#: manual/verification.md:698
 msgid "by design (flags are values)"
 msgstr "設計どおり（フラグは値）"
 
-#: manual/verification.md:701
+#: manual/verification.md:699
 msgid "IEEE 754-2019 §9.3"
 msgstr "IEEE 754-2019 §9.3"
 
-#: manual/verification.md:701
+#: manual/verification.md:699
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr "コアパッケージには動的モード演算がない（context は明示的な値）"
 
-#: manual/verification.md:701
+#: manual/verification.md:699
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr "設計どおり。任意のラッパーパッケージ：[#247](https://github.com/Luna-Flow/floating/issues/247)"
 
-#: manual/verification.md:702
+#: manual/verification.md:700
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr "IEEE 754-2019 §9.4, §9.6"
 
-#: manual/verification.md:702
+#: manual/verification.md:700
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr "リダクション演算はない。`bin_float` に minimum/maximum 系はない"
 
-#: manual/verification.md:703
+#: manual/verification.md:701
 msgid "IEEE 754-2019 §9.5"
 msgstr "IEEE 754-2019 §9.5"
 
-#: manual/verification.md:703
+#: manual/verification.md:701
 msgid "No augmented arithmetic for `bin_float`"
 msgstr "`bin_float` に拡張算術はない"
 
-#: manual/verification.md:704
+#: manual/verification.md:702
 msgid "IEEE 754-2019 §5.4.1"
 msgstr "IEEE 754-2019 §5.4.1"
 
-#: manual/verification.md:704
+#: manual/verification.md:702
 msgid "`decimal` has no convertToInteger"
 msgstr "`decimal` に convertToInteger はない"
 
-#: manual/verification.md:705
+#: manual/verification.md:703
 msgid "IEEE 754-2019 §5.3.2"
 msgstr "IEEE 754-2019 §5.3.2"
 
-#: manual/verification.md:705
+#: manual/verification.md:703
 msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
 msgstr "`clamp` で `e_max - p + 1` を超えるゼロの `quantize` 結果は折り返されず、`clamped` も立たない（General Decimal Arithmetic では立つ）"
 
-#: manual/verification.md:705
+#: manual/verification.md:703
 msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
 msgstr "決定済み：オプトインの GDA 風折り畳み、既定は変更なし。[#234](https://github.com/Luna-Flow/floating/issues/234)。issue #187 のプルリクエストも参照"
 
-#: manual/verification.md:706
+#: manual/verification.md:704
 msgid "IEEE 754-2019 §3.7"
 msgstr "IEEE 754-2019 §3.7"
 
-#: manual/verification.md:706
+#: manual/verification.md:704
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr "実装の指数範囲は両端とも MPFR より 1 binade 上"
 
-#: manual/verification.md:706
+#: manual/verification.md:704
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr "`testdata/bin_float/README.md` に記載"
 
-#: manual/verification.md:707
+#: manual/verification.md:705
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 
-#: manual/verification.md:707
+#: manual/verification.md:705
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr "逆方向モードの演算も区間リテラル（テキストの入出力）もない"
 
-#: manual/verification.md:707
+#: manual/verification.md:705
 msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr "[#230](https://github.com/Luna-Flow/floating/issues/230)（逆方向モード）、[#21](https://github.com/Luna-Flow/floating/issues/21)（テキスト）"
 
-#: manual/verification.md:708
+#: manual/verification.md:706
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr "IEEE 1788-2015 §10.5.5, §10.6.2"
 
-#: manual/verification.md:708
+#: manual/verification.md:706
 msgid "No two-output division, no slope functions"
 msgstr "2 出力除算も傾き関数もない"
 
-#: manual/verification.md:709
+#: manual/verification.md:707
 msgid "Public API"
 msgstr "公開 API"
 
-#: manual/verification.md:709
+#: manual/verification.md:707
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公開 API を絞ると、条項から API への対応が変わることがある"
 
-#: manual/verification.md:709
+#: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "The sampling rule is deterministic and part of the generator (`tools/generate_decimal_pi_inverse_rows.py`, `SAMPLE_STEP`):"
+#~ msgstr "サンプリング規則は決定的で、ジェネレータ（`tools/generate_decimal_pi_inverse_rows.py`、`SAMPLE_STEP`）の一部です。"
+
+#~ msgid "Every row that is not the rounding of an MPFR enclosure is kept: the exact Niven values and the other cases decided by exact rational arithmetic."
+#~ msgstr "MPFR の包含区間の丸めではない行はすべて残します。厳密な Niven 値と、厳密な有理数演算で決まるその他のケースです。"
+
+#~ msgid "The MPFR rows are stratified by (operation, rounding mode) and one row in `SAMPLE_STEP` (8) is kept in each stratum, taken equidistantly in generation order (positions 4, 12, 20, …); a stratum shorter than that keeps its middle row."
+#~ msgstr "MPFR 行は（演算、丸めモード）で層別し、各層で生成順に等間隔に `SAMPLE_STEP`（8）行に 1 行を残します（位置 4、12、20、…）。それより短い層は中央の 1 行を残します。"
+
+#~ msgid "Rows with an operand of adjusted exponent beyond ±1,000,000 (the `1E-1999996` rows, each about a second in a release build) form one stratum per operation, of which a single row is kept."
+#~ msgstr "被演算子の調整指数が ±1,000,000 を超える行（`1E-1999996` の行。release ビルドで 1 行あたり約 1 秒）は演算ごとに 1 つの層とし、その層から 1 行だけを残します。"
+
+#~ msgid "MPFR rows sampled"
+#~ msgstr "サンプルした MPFR 行"
+
+#~ msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the sample is not a subset of the full table, and `--strata` prints the counts of every stratum. The sample runs in about 20 s of a debug native build. The quick gate returns to the full table when the optimized `atan2pi` and `atan`/`asin` kernels bring the debug run of the full table to about that time (the condition is measured, not assumed: rerun the debug run of `pi_inverse_rows` and compare with the 466 s above)."
+#~ msgstr "`python3 tools/generate_decimal_pi_inverse_rows.py --check` は、どちらかの表が古い場合、またはサンプルが全件の表の部分集合でない場合に失敗します。`--strata` は各層の行数を表示します。サンプルは debug の native ビルドで約 20 秒で実行されます。最適化された `atan2pi` と `atan`/`asin` のカーネルによって全件の表の debug 実行がこの時間程度になったら、クイックゲートは全件の表に戻します（この条件は仮定ではなく実測します。`pi_inverse_rows` の debug 実行を測り直し、上記の 466 秒と比較します）。"
 
 #~ msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed)."
 #~ msgstr "*微小な結果。* $|x| \\le 10^{-4}$ では $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$、$\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$ で、$x > 0$ の $\\operatorname{atan2Pi}(y, x)$ でも比 $y/x$ について同じことが成り立ちます。$x^2 < 2^{-(8\\max(D,p)+400)}$ になると、ループは中程度の大きさの値 $(s/\\pi)(1 \\pm 2^{-k})$（$s = x\\,10^{-\\operatorname{adj}(x)}$、または 2 つのスケール済み仮数の商）を包絡し、コンテキストで丸める前に端点を $10^{\\operatorname{adj}(x)}$ だけシフトします。`rsqrt` と同じ方法です（`decimal_certified_scaled_result`）。オペランド $10^{-1\\,999\\,996}$ のコストは $10^{-300}$ と同程度で、$2^{-6.6\\cdot 10^6}$ 付近の二進数の厳密な十進端点は約 200 万桁になります（この経路ができる前は、スケールしない `asinpi(7E-9999)` がデバッグビルドで 1 分以上かかりました）。"
