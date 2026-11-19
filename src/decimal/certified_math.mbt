@@ -577,11 +577,41 @@ fn decimal_exponential_coarse_extreme_result(
 }
 
 ///|
+/// `exp(x)`, `exp2(x)` or `exp10(x)` of a tiny `x`: with `|x| < 10^top`
+/// (`top = exponent10 + digits10 <= 0`), `b^x - 1` has the sign of `x` and
+/// `|b^x - 1| <= |x| ln b e^(|x| ln b) < 10^(top + 1)` for `b <= 10` and
+/// `|x| < 10^-1` (`ln b < 2.31`, `e^0.231 < 1.3`, `2.31 * 1.3 < 10`), so the result is `1` plus or minus
+/// less than `10^(top + 1)`, one-sided next to the representable 1. The
+/// one-sided rounding of `decimal_tiny_argument_result` applies once
+/// `top + 1` is below `-(p + 3)`; otherwise `None` and the loop decides.
+fn decimal_exp_tiny_result(
+  value : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
+    return None
+  }
+  let top = value.exponent10.to_int64() +
+    value.coefficient.digits10().to_int64()
+  guard top <= -1L else { return None }
+  decimal_tiny_argument_result(
+    Decimal::from_int(1, precision=ctx.precision),
+    !value.negative,
+    top + 1L,
+    ctx,
+  )
+}
+
+///|
 fn decimal_certified_exp_result(
   value : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   match decimal_exponential_coarse_extreme_result(Natural, value, ctx) {
+    Some(result) => return Ok(result)
+    None => ()
+  }
+  match decimal_exp_tiny_result(value, ctx) {
     Some(result) => return Ok(result)
     None => ()
   }

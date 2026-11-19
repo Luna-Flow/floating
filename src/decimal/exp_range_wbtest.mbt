@@ -58,6 +58,7 @@ fn exp_range_call(
     "expm1" => a.try_expm1_ctx(ctx)
     "exp2m1" => a.try_exp2m1_ctx(ctx)
     "exp10m1" => a.try_exp10m1_ctx(ctx)
+    "log1p" => a.try_log1p_ctx(ctx)
     "sinh" => a.try_sinh_ctx(ctx)
     "cosh" => a.try_cosh_ctx(ctx)
     "pow" => pm1_exact("3").try_power_ctx(pm1_exact(y), ctx)
