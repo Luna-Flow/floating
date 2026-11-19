@@ -16,35 +16,37 @@ let binary_constant_cache_max_precision : Int32 = 65536
 let binary_constant_cache_entries : Int32 = 6
 
 ///|
-let binary_ln2_cache : Array[BinaryConstantEntry] = []
+let binary_ln2_cache : BoundedCache[BinaryConstantEntry] = BoundedCache::new(
+  binary_constant_cache_entries.to_int(),
+)
 
 ///|
-let binary_ln10_cache : Array[BinaryConstantEntry] = []
+let binary_ln10_cache : BoundedCache[BinaryConstantEntry] = BoundedCache::new(
+  binary_constant_cache_entries.to_int(),
+)
 
 ///|
-let binary_pi_cache : Array[BinaryConstantEntry] = []
+let binary_pi_cache : BoundedCache[BinaryConstantEntry] = BoundedCache::new(
+  binary_constant_cache_entries.to_int(),
+)
 
 ///|
 /// Memoizes `compute` per working precision. `compute` is a pure function of
 /// its argument, so a cached enclosure is the very value a recomputation
 /// returns; only the time changes.
 fn binary_cached_constant(
-  cache : Array[BinaryConstantEntry],
+  cache : BoundedCache[BinaryConstantEntry],
   work_precision : Int32,
   compute : (Int32) -> (BinFloat, BinFloat)?,
   max_precision~ : Int32 = binary_constant_cache_max_precision,
 ) -> (BinFloat, BinFloat)? {
-  for entry in cache {
-    if entry.work_precision == work_precision {
-      return entry.bounds
-    }
+  match cache.find(fn(entry) { entry.work_precision == work_precision }) {
+    Some(entry) => return entry.bounds
+    None => ()
   }
   let bounds = compute(work_precision)
   if work_precision <= max_precision {
-    if cache.length() >= binary_constant_cache_entries.to_int() {
-      ignore(cache.remove(0))
-    }
-    cache.push({ work_precision, bounds, })
+    cache.insert({ work_precision, bounds, })
   }
   bounds
 }

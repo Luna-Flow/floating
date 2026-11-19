@@ -42,7 +42,7 @@ priv struct BurstRotation {
 /// series of `exp(i y)`. With `t_0 = 2^f`, `t_i = floor(floor(t_{i-1} N / 2^s) / i)`
 /// (no second floor for `i = 1`), the cosine series sums the even terms with
 /// signs `+ - + ...` and the sine series the odd ones with signs `+ - + ...`.
-/// As for `exp`, `t_i <= tau_i`, the deficit is below 3, and the first omitted
+/// As for `exp` (`fixed_series_step`), `t_i <= tau_i`, the deficit is below 3, and the first omitted
 /// term of each of the two alternating series, which decrease in size, is at
 /// most `tau_n < t_n + 3`; so each sum is within `3n + t_n + 3` of its value.
 fn burst_trig_fixed_stage(
@@ -60,12 +60,7 @@ fn burst_trig_fixed_stage(
   let mut index = 0
   while index < 20000 {
     index += 1
-    term = term.mul(numerator).shift_right(s)
-    if index > 1 {
-      term = term
-        .div_rem_checked(BinCoeff::from_uint64(index.to_uint64()))
-        .unwrap().0
-    }
+    term = fixed_series_step(term, numerator, s, index)
     match index % 4 {
       0 => cos_positive = cos_positive.add(term)
       1 => sin_positive = sin_positive.add(term)
@@ -108,10 +103,17 @@ fn burst_trig_rotate(value : SplitInt, quarter_turns : Int32) -> SplitInt {
 }
 
 ///|
-priv struct BurstTrigSplit {
+/// Binary splitting state of the series of `exp(i y)`, `y = N / 2^s`: the
+/// real-valued state of `SplitState` (`p`, `q`, `q_shift`) with two components
+/// `t = (re, im)` and the number of `i` factors `leaves`. The merge of each
+/// component is `split_combine_t`, applied to the right component rotated by
+/// `i^leaves_left`; this rotation is the only difference from `SplitState`, and
+/// the reason the state is not shared with it.
+priv struct SplitComplexState {
   p : BinCoeff
   leaves : Int32
   q : BinCoeff
+  q_shift : Int32
   re : SplitInt
   im : SplitInt
 }
@@ -119,21 +121,22 @@ priv struct BurstTrigSplit {
 ///|
 /// Binary splitting of `sum_{k<n} prod_{i<=k} (i N) / (i 2^s)` on `[from, to)`
 /// (the series of `exp(i y)` with `i` the imaginary unit and the factor `i`
-/// written as the leaf `(0, N)`): `p = N^leaves`, `q = prod i`, `t = (re, im)`
-/// with `t = q 2^(s len) sum`, merged as
-/// `t = t_left q_right 2^(s len_right) + i^leaves_left p_left t_right`.
-fn burst_trig_split_state(
+/// written as the leaf `(0, N)`): `p = N^leaves`, `q = prod i`,
+/// `q_shift = s` per index from 1, `t = (re, im)` with `t = q 2^q_shift sum`,
+/// merged as `t = t_left q_right 2^q_shift_right + i^leaves_left p_left t_right`.
+fn split_trig_state(
   from : Int32,
   to : Int32,
   numerator : BinCoeff,
   s : Int32,
-) -> BurstTrigSplit {
+) -> SplitComplexState {
   if to - from == 1 {
     if from == 0 {
       return {
         p: BinCoeff::one(),
         leaves: 0,
         q: BinCoeff::one(),
+        q_shift: 0,
         re: SplitInt::make(false, BinCoeff::one()),
         im: SplitInt::make(false, BinCoeff::zero()),
       }
@@ -142,22 +145,14 @@ fn burst_trig_split_state(
       p: numerator,
       leaves: 1,
       q: BinCoeff::from_uint64(from.to_uint64()),
+      q_shift: s,
       re: SplitInt::make(false, BinCoeff::zero()),
       im: SplitInt::make(false, numerator),
     }
   }
   let middle = from + (to - from) / 2
-  let left = burst_trig_split_state(from, middle, numerator, s)
-  let right = burst_trig_split_state(middle, to, numerator, s)
-  let shift = s * (to - middle)
-  let scaled_re = SplitInt::make(
-    left.re.negative,
-    left.re.magnitude.mul(right.q).shift_left(shift),
-  )
-  let scaled_im = SplitInt::make(
-    left.im.negative,
-    left.im.magnitude.mul(right.q).shift_left(shift),
-  )
+  let left = split_trig_state(from, middle, numerator, s)
+  let right = split_trig_state(middle, to, numerator, s)
   // i^m (a + b i) = (a + b i), (-b + a i), (-a - b i), (b - a i) for m = 0..3.
   let (rotated_re, rotated_im) = match left.leaves % 4 {
     0 => (right.re, right.im)
@@ -169,8 +164,9 @@ fn burst_trig_split_state(
     p: left.p.mul(right.p),
     leaves: left.leaves + right.leaves,
     q: left.q.mul(right.q),
-    re: scaled_re.add(rotated_re.mul_coeff(left.p)),
-    im: scaled_im.add(rotated_im.mul_coeff(left.p)),
+    q_shift: left.q_shift + right.q_shift,
+    re: split_combine_t(left.re, left.p, rotated_re, right.q, right.q_shift),
+    im: split_combine_t(left.im, left.p, rotated_im, right.q, right.q_shift),
   }
 }
 
@@ -188,18 +184,13 @@ fn burst_trig_split_stage(
 ) -> BurstRotation? {
   let terms = Int32::max(
     2,
-    burst_split_terms(numerator, s, f) - mutation.split_reduce_terms,
+    fixed_split_terms(numerator, s, f) - mutation.split_reduce_terms,
   )
-  let state = burst_trig_split_state(0, terms, numerator, s)
+  let state = split_trig_state(0, terms, numerator, s)
   guard !state.re.negative && !state.im.negative else { return None }
-  let shift = s * (terms - 1) - f
   let bias = burst_trig_bias(mutation)
   let ball = fn(value : BinCoeff) -> BurstBall {
-    let scaled = if shift >= 0 {
-      value.shift_right(shift)
-    } else {
-      value.shift_left(-shift)
-    }
+    let scaled = fixed_shift(value, f - state.q_shift)
     {
       mid: scaled.div_rem_checked(state.q).unwrap().0
       .add(BinCoeff::one())
@@ -289,8 +280,8 @@ fn binary_trig_bounds_burst(
     is Some((pi_low, _)) else {
     return None
   }
-  let half_pi = burst_scaled_floor(pi_low, g - 1)
-  guard burst_scaled_exact(value.abs(), g) is Some(magnitude) else {
+  let half_pi = fixed_scaled_floor(pi_low, g - 1)
+  guard fixed_scaled_exact(value.abs(), g) is Some(magnitude) else {
     return None
   }
   let (quotient, remainder) = magnitude.div_rem_checked(half_pi).unwrap()
@@ -319,36 +310,29 @@ fn binary_trig_bounds_burst(
   }
   // The first stage is folded into the identity rotation: it is the stage.
   let mut identity = true
-  let mut previous_bits = 0
-  let mut previous_prefix = BinCoeff::zero()
-  let mut boundary = Int32::min(first_chunk, f)
-  while previous_bits < f {
-    let prefix = fraction.shift_right(f - boundary)
-    let chunk = prefix
-      .sub_checked(previous_prefix.shift_left(boundary - previous_bits))
-      .unwrap()
-    if !chunk.is_zero() {
-      let terms = burst_split_terms(chunk, boundary, f)
-      let stage = if terms >= split_min_terms {
-        burst_trig_split_stage(chunk, boundary, f, mutation)
-      } else {
-        burst_trig_fixed_stage(chunk, boundary, f, mutation)
-      }
-      guard stage is Some(stage_rotation) else { return None }
-      if identity {
-        running = stage_rotation
-        identity = false
-      } else {
-        match burst_trig_fold(running, stage_rotation, f) {
-          Some(folded) => running = folded
-          None => return None
-        }
+  let chunks_ok = fixed_burst_chunks(fraction, f, first_chunk, chunk_factor, fn(
+    chunk,
+    boundary,
+  ) {
+    let terms = fixed_split_terms(chunk, boundary, f)
+    let stage = if terms >= split_min_terms {
+      burst_trig_split_stage(chunk, boundary, f, mutation)
+    } else {
+      burst_trig_fixed_stage(chunk, boundary, f, mutation)
+    }
+    guard stage is Some(stage_rotation) else { return false }
+    if identity {
+      running = stage_rotation
+      identity = false
+    } else {
+      match burst_trig_fold(running, stage_rotation, f) {
+        Some(folded) => running = folded
+        None => return false
       }
     }
-    previous_bits = boundary
-    previous_prefix = prefix
-    boundary = Int32::min(f, boundary * chunk_factor)
-  }
+    true
+  })
+  guard chunks_ok else { return None }
   // Map the sine and cosine of the reduced argument to the result.
   let quarter = (if n.test_bit(0) { 1 } else { 0 }) +
     (if n.test_bit(1) { 2 } else { 0 })
@@ -385,30 +369,5 @@ fn binary_trig_bounds_burst(
     width.bit_length() <= f - lz - work_precision - 6 else {
     return None
   }
-  Some(
-    (
-      BinFloat::make(
-        if negative {
-          high
-        } else {
-          low
-        },
-        -f,
-        work_precision,
-        negative~,
-        mode=RoundingMode::TowardNegative,
-      ),
-      BinFloat::make(
-        if negative {
-          low
-        } else {
-          high
-        },
-        -f,
-        work_precision,
-        negative~,
-        mode=RoundingMode::TowardPositive,
-      ),
-    ),
-  )
+  Some(fixed_enclosure(low, high, -f, work_precision, negative~))
 }

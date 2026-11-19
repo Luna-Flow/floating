@@ -32,58 +32,39 @@ fn binary_exp_small_fixed_bounds(
   let magnitude = value.coefficient()
   guard magnitude.bit_length() <= shift - 2 else { return None }
   let fractional = work_precision + binary_exp_fixed_guard_bits
-  let stop = BinCoeff::one().shift_left(8)
-  let mut term = BinCoeff::one().shift_left(fractional)
-  let mut sum = term
-  let mut index = 0
-  while index < 10000 {
-    index += 1
-    term = term.mul(magnitude).shift_right(shift)
-    if index > 1 {
-      term = term
-        .div_rem_checked(BinCoeff::from_uint64(index.to_uint64()))
-        .unwrap().0
-    }
-    sum = sum.add(term)
-    if term.compare(stop) < 0 {
-      let slack = BinCoeff::from_uint64((3 * index + 4).to_uint64())
-      let lower = BinFloat::make(
-        sum,
-        -fractional,
-        work_precision,
-        mode=RoundingMode::TowardNegative,
-      )
-      let upper = BinFloat::make(
-        sum.add(term).add(slack),
-        -fractional,
-        work_precision,
-        mode=RoundingMode::TowardPositive,
-      )
-      if !value.is_negative() {
-        return Some((lower, upper))
-      }
-      let one = BinFloat::one(precision=work_precision)
-      return Some(
-        (
-          one.div_ctx(
-            upper,
-            BinaryContext::unbounded(
-              work_precision,
-              rounding=RoundTowardNegative,
-            ),
-          ).0,
-          one.div_ctx(
-            lower,
-            BinaryContext::unbounded(
-              work_precision,
-              rounding=RoundTowardPositive,
-            ),
-          ).0,
-        ),
-      )
-    }
+  guard fixed_exp_series(magnitude, shift, fractional, 10000)
+    is Some((sum, term, index)) else {
+    return None
   }
-  None
+  let slack = BinCoeff::from_uint64((3 * index + 4).to_uint64())
+  let lower = BinFloat::make(
+    sum,
+    -fractional,
+    work_precision,
+    mode=RoundingMode::TowardNegative,
+  )
+  let upper = BinFloat::make(
+    sum.add(term).add(slack),
+    -fractional,
+    work_precision,
+    mode=RoundingMode::TowardPositive,
+  )
+  if !value.is_negative() {
+    return Some((lower, upper))
+  }
+  let one = BinFloat::one(precision=work_precision)
+  Some(
+    (
+      one.div_ctx(
+        upper,
+        BinaryContext::unbounded(work_precision, rounding=RoundTowardNegative),
+      ).0,
+      one.div_ctx(
+        lower,
+        BinaryContext::unbounded(work_precision, rounding=RoundTowardPositive),
+      ).0,
+    ),
+  )
 }
 
 ///|
