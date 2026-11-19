@@ -37,46 +37,44 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 - `publish.yml` builds, runs the documentation gate, the format check, an
   all-target `--deny-warn` check and the tests, then publishes to mooncakes.
 
-## Quick-gate sample of the π-inverse rows
+## Quick-gate table of the π-inverse rows
 
 The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
-of the repository and the slowest to execute: in a debug build a full run of
-`testdata/decimal/ieee/rows/pi_inverse.txt` takes about 466 s on one core, 90 % of it in
-about 50 `atan2pi` rows whose operand is `1E-1999996`. The quick gate (`just pr`,
-the native test stage of CI) therefore compiles only a sample of the table
-into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`, while the full table
-is data (`mpfr-decimal-random-v1` rows, see `src/frontend/mpfr_expr`) that
-`just gate decimal` and the nightly run feed to the release-built conformance
-CLI on native, Wasm, Wasm-GC and JavaScript, comparing value, cohort
-(`compare_total`) and all flags exactly as the sampled test does.
+of the repository. The quick gate (`just pr`, the native test stage of CI)
+compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
+(2.2 MB of source), and the same rows are data
+(`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
+`src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
+release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare
+value, cohort (`compare_total`) and all flags exactly.
 
-The sampling rule is deterministic and part of the generator
-(`tools/generate_decimal_pi_inverse_rows.py`, `SAMPLE_STEP`):
+This was not always so. While about 50 `atan2pi` rows with an operand of
+`1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a
+deterministic sample. After the `atan2pi` path for tiny operands was fixed the
+full table runs in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and
+adds about 1.4 s to the build, under the 5 s the quick gate allows it, so the
+sample was dropped. The mechanism stays in the generator
+(`tools/generate_decimal_pi_inverse_rows.py`) as an option:
+`--sample-step N` compiles every row that is not the rounding of an MPFR
+enclosure (the exact Niven values and the other cases decided by exact rational
+arithmetic) and, of the MPFR rows stratified by (operation, rounding mode), one
+row in N, taken equidistantly in generation order (a stratum shorter than N keeps
+its middle row). The data file is always the full table.
 
-1. Every row that is not the rounding of an MPFR enclosure is kept: the exact
-   Niven values and the other cases decided by exact rational arithmetic.
-2. The MPFR rows are stratified by (operation, rounding mode) and one row in
-   `SAMPLE_STEP` (8) is kept in each stratum, taken equidistantly in generation
-   order (positions 4, 12, 20, …); a stratum shorter than that keeps its middle row.
-3. Rows with an operand of adjusted exponent beyond ±1,000,000 (the
-   `1E-1999996` rows, each about a second in a release build) form one stratum
-   per operation, of which a single row is kept.
-
-| Operation | Exact rows (all kept) | MPFR rows | MPFR rows sampled |
+| Operation | Exact rows | MPFR rows | Total |
 | --- | ---: | ---: | ---: |
-| `asinpi` | 203 | 2,481 | 305 |
-| `acospi` | 203 | 1,465 | 184 |
-| `atanpi` | 203 | 3,037 | 377 |
-| `atan2pi` | 1,716 | 9,826 | 1,225 |
-| Total | 2,325 | 16,809 | 2,091 |
+| `asinpi` | 203 | 2,481 | 2,684 |
+| `acospi` | 203 | 1,465 | 1,668 |
+| `atanpi` | 203 | 3,037 | 3,240 |
+| `atan2pi` | 1,716 | 9,826 | 11,542 |
+| Total | 2,325 | 16,809 | 19,134 |
 
 `python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either
-table is stale or if the sample is not a subset of the full table, and
-`--strata` prints the counts of every stratum. The sample runs in about
-20 s of a debug native build. The quick gate returns to the full table when
-the optimized `atan2pi` and `atan`/`asin` kernels bring the debug run of the
-full table to about that time (the condition is measured, not assumed: rerun the
-debug run of `pi_inverse_rows` and compare with the 466 s above).
+table is stale or if the compiled table is not a subset of the full table, and
+`--strata` prints the counts of every stratum. Go back to a sample (start with
+`--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run
+of the `pi inverse generated rows` test exceeds about 5 s again: measure it with
+`python3 tools/native_test_timing.py --package src/decimal`, not by assumption.
 
 ## Shared conformance runner
 
@@ -373,8 +371,8 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   all eight rounding modes on both sides, operands down to
   $10^{-1\,999\,996}$ and the range limits of decimal32/64/128 under both
   tininess rules. They run in the full gate and the nightly run on all four
-  targets, and a deterministic sample of them runs in the quick gate (see
-  [Quick-gate sample of the π-inverse rows](#quick-gate-sample-of-the-π-inverse-rows)).
+  targets, and all of them run in the quick gate (see
+  [Quick-gate table of the π-inverse rows](#quick-gate-table-of-the-π-inverse-rows)).
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and
   300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
   flags where the result 2^−1073741824 is an exact subnormal (13 cases,
