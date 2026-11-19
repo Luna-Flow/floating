@@ -4936,6 +4936,18 @@ fn binary_trigonometric_reduction(
     value.with_precision(work_precision, RoundingMode::TowardNegative),
     value.with_precision(work_precision, RoundingMode::TowardPositive),
   )
+  // Both ends strictly inside (-pi/4, pi/4) (the lower bound of pi/4 is half the
+  // lower bound of pi/2, exact): x / (pi/2) lies in (-1/2, 1/2) at both ends,
+  // so the nearest integer is 0 for both, the product 0 * (pi/2) is 0 and the
+  // reduced argument is the input itself. Same result as the general path.
+  let quarter_lower = half_pi.0.mul_ctx(
+      BinFloat::make(BinCoeff::one(), -1, work_precision),
+      downward,
+    ).0
+  if input_bounds.0.compare(quarter_lower.neg()) > 0 &&
+    input_bounds.1.compare(quarter_lower) < 0 {
+    return Some((input_bounds, 0))
+  }
   let quotient = binary_quotient_bounds(input_bounds, half_pi, downward, upward)
   guard quotient is Some((quotient_lower, quotient_upper)) else { return None }
   let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
@@ -5078,7 +5090,11 @@ fn binary_reduced_trigonometric_bounds(
   }
   let sin_bounds = if need_sin {
     let sin_lower = binary_sin_cos_series(lower, false, work_precision).unwrap()
-    let sin_upper = binary_sin_cos_series(upper, false, work_precision).unwrap()
+    let sin_upper = if lower.compare(upper) == 0 {
+      sin_lower
+    } else {
+      binary_sin_cos_series(upper, false, work_precision).unwrap()
+    }
     (sin_lower.0, sin_upper.1)
   } else {
     (zero, zero)
@@ -5087,7 +5103,11 @@ fn binary_reduced_trigonometric_bounds(
     (zero, zero)
   } else {
     let cos_lower = binary_sin_cos_series(lower, true, work_precision).unwrap()
-    let cos_upper = binary_sin_cos_series(upper, true, work_precision).unwrap()
+    let cos_upper = if lower.compare(upper) == 0 {
+      cos_lower
+    } else {
+      binary_sin_cos_series(upper, true, work_precision).unwrap()
+    }
     if lower.compare(zero) <= 0 && upper.compare(zero) >= 0 {
       (
         if cos_lower.0.compare(cos_upper.0) < 0 {
@@ -5123,31 +5143,25 @@ fn binary_reduced_trigonometric_bounds(
         mapped.1.1.compare(BinFloat::zero()) >= 0) else {
         return None
       }
-      let candidates = [
-        mapped.0.0.div_ctx(mapped.1.0, downward).0,
-        mapped.0.0.div_ctx(mapped.1.1, downward).0,
-        mapped.0.1.div_ctx(mapped.1.0, downward).0,
-        mapped.0.1.div_ctx(mapped.1.1, downward).0,
-      ]
-      let upper_candidates = [
-        mapped.0.0.div_ctx(mapped.1.0, upward).0,
-        mapped.0.0.div_ctx(mapped.1.1, upward).0,
-        mapped.0.1.div_ctx(mapped.1.0, upward).0,
-        mapped.0.1.div_ctx(mapped.1.1, upward).0,
-      ]
-      let mut result_lower = candidates[0]
-      let mut result_upper = upper_candidates[0]
-      for candidate in candidates[1:] {
-        if candidate.compare(result_lower) < 0 {
-          result_lower = candidate
-        }
+      // The cosine enclosure has a definite sign here. For a negative cosine
+      // n / d = (-n) / (-d) with -d positive.
+      if mapped.1.0.compare(BinFloat::zero()) > 0 {
+        return binary_quotient_bounds(mapped.0, mapped.1, downward, upward)
       }
-      for candidate in upper_candidates[1:] {
-        if candidate.compare(result_upper) > 0 {
-          result_upper = candidate
-        }
+      // A zero end of the numerator: its sign depends on the candidate order of
+      // the four-candidate form, so keep that form (rare: only for an exact
+      // zero argument).
+      if mapped.0.0.is_zero() || mapped.0.1.is_zero() {
+        return Some(
+          binary_quotient_bounds_general(mapped.0, mapped.1, downward, upward),
+        )
       }
-      Some((result_lower, result_upper))
+      return binary_quotient_bounds(
+        (mapped.0.1.neg(), mapped.0.0.neg()),
+        (mapped.1.1.neg(), mapped.1.0.neg()),
+        downward,
+        upward,
+      )
     }
   }
 }
