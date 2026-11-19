@@ -495,9 +495,16 @@ directed `BinFloat` operations at a work precision $w > p$:
   $t' \sum_{i \ge 0} 9^{-i} = \tfrac98 t'$ for the first omitted term $t'$,
   and after doubling at most $\tfrac94 t' \le 3t'$, which is what the code
   adds.
-- **π.** Machin's formula $\pi = 16\arctan\tfrac15 - 4\arctan\tfrac1{239}$ with
-  alternating series, whose truncation error is bounded by the first omitted
-  term.
+- **π.** The interval functions that need $\pi$ itself (`atan2_interval`, the
+  inverse trigonometric functions at $\pm 1$) take
+  $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$ at the working precision
+  from the cached binary-splitting constant of `bin_float`: `atan(+inf)` is
+  $\pi/2$ correctly rounded in each direction, and the scaling by 2 is exact.
+  The earlier per-call Machin evaluation produced the same intervals at every
+  precision tested (2 to 400 bits, `pi_source_wbtest.mbt`). The rational sine
+  and cosine series still use Machin's formula
+  $\pi = 16\arctan\tfrac15 - 4\arctan\tfrac1{239}$ with alternating series,
+  whose truncation error is bounded by the first omitted term.
 - **sin, cos.** The argument is reduced by the quadrant
   $q = \lfloor 2a/\pi + 1/2 \rfloor$, computed with both $\pi^-$ and $\pi^+$;
   if the two disagree the work precision is raised. The reduced argument

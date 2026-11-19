@@ -969,7 +969,10 @@ extreme power of ten.
 **`asinPi`, `acosPi`, `atanPi` and `atan2Pi`.** The four evaluate
 $\operatorname{asin}(x)/\pi$, $\operatorname{acos}(x)/\pi$,
 $\operatorname{atan}(x)/\pi$ and $\operatorname{atan2}(y, x)/\pi$ in the
-existing Ziv driver, with $\pi = 4\operatorname{atan}(1)$ and the angle
+existing Ziv driver, with $\pi$ enclosed as $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$
+taken from the cached binary-splitting constant of `bin_float` (twice the
+correctly rounded $\pi/2$ of `atan(+inf)`, the same interval as
+$4\operatorname{atan}(1)$ bit for bit) and the angle
 enclosure divided by it (error: the angle, $\pi$ and the division, about
 4 ulp relative).
 
