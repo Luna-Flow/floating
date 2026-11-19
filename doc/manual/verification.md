@@ -341,6 +341,21 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred
   exponents, the `Int32` minimum of `compound`, operands down to
   $10^{-1\,999\,997}$ and the range limits, on all four targets.
+- *Decimal `exp`, `exp2` and `exp10` at the range limits*
+  ([#363](https://github.com/Luna-Flow/floating/issues/363)): families
+  `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per
+  function for seed 334 and for seed 20261120 (600,000) and 20,000 per
+  function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run
+  on 2026-11-20, in agreement with MPFR in value, cohort and flags. The
+  generator reaches the failing arguments only rarely (case `m334.exp2.30728`
+  is one of them), so the boundaries are covered by deterministic rows:
+  `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`,
+  Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for
+  the context of the issue, decimal32, decimal64, decimal128 and a wide
+  context, all eight rounding directions, at results just inside and outside
+  the range and at the thresholds of the decision; they also cover `expm1`,
+  `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and
+  `rsqrt`, none of which failed before the change.
 - *Decimal `asinPi`, `acosPi`, `atanPi` and `atan2Pi`*
   ([#236](https://github.com/Luna-Flow/floating/issues/236)): families
   `decimal-asinpi`, `decimal-acospi`, `decimal-atanpi` and `decimal-atan2pi`, certified
