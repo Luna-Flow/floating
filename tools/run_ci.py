@@ -98,6 +98,13 @@ DEPENDENCY_STAGE = Stage(
 NATIVE_TEST_STAGE_NAME = "TEST: native"
 NATIVE_TEST_WARN_SECONDS = 150.0
 
+# Front-end check of the other targets, errors only: a change to a target-specific
+# file (`*_wasm_gc.mbt`, `bin_coeff_js.mbt`, per-target thresholds) must not
+# wait for the nightly run. `--deny-warn` on every target is not possible yet,
+# `src/bench/external/external_test.mbt` has two unused functions (#22); native
+# keeps `--deny-warn` in the dependency stage.
+OTHER_TARGETS_STAGE_NAME = "CHECK: other targets"
+
 DOCS_STAGE_NAME = "DOCS: manual quality and examples"
 DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 
@@ -110,6 +117,7 @@ DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 # lane sees them. The "python" lane never calls moon.
 QUICK_LANES: dict[str, tuple[str, str | None]] = {
     "DEPENDENCIES: fetch": ("moon", None),
+    OTHER_TARGETS_STAGE_NAME: ("moon", None),
     DOCS_EXAMPLES_STAGE_NAME: ("moon", None),
     "FORMAT: MoonBit sources": ("moon", None),
     "TEST: native": ("moon", None),
@@ -245,6 +253,17 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         ]
         return assign_lanes([
             *repository_stages,
+            Stage(
+                OTHER_TARGETS_STAGE_NAME,
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "check",
+                    "--frozen",
+                    "--target",
+                    ",".join(target for target in SUPPORTED_TARGETS if target != "native"),
+                ),
+            ),
             Stage(
                 "DOCS: manual quality",
                 (sys.executable, "tools/run_docs.py", "--quality-only"),
