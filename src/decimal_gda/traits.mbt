@@ -18,7 +18,9 @@ fn contextual_diagnostics(
 /// The error for a GDA `Invalid_context` condition raised under a context
 /// translated from `context` (#111). The mathematical functions (`exp`, and
 /// `power` with a non-integral or very large exponent) are only defined for
-/// precision, `e_max` and `-e_min` of at most 999,999; every other operation
+/// precision, `e_max` and `-e_min` of at most 999,999 (decNumber's
+/// `DEC_MAX_MATH`, an implementation limit that decTest requires; not a rule of
+/// the GDA operation text); every other operation
 /// for at most 999,999,999. `from_arithmetic_context` keeps the default
 /// decNumber-limit range
 /// (±999,999,999) when the `ArithmeticContext` sets no exponent bounds, so the

@@ -201,8 +201,10 @@ test "overflow and underflow in decimal32" {
 `sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to
 even, whatever the context's rounding mode says. `power` with a non-integer
 exponent is also correctly rounded, but under the context's own rounding mode.
-As the GDA specification requires, `exp`, `ln`, `log10` and non-integer `power`
-only accept contexts with precision, `e_max` and `-e_min` at most 999,999; the
+`exp`, `ln`, `log10` and non-integer `power` only accept contexts with
+precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the
+decTest suite requires and GDA's Invalid context condition permits; the
+operation text of the specification states no such bound); the
 decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
 `context` (exponent range ±999,999,999) do not:
 
@@ -374,7 +376,7 @@ test "decimal64 interchange round trip" {
   They always round half to even; only `power` follows the context.
 - **Calling `exp`, `ln`, `log10` or non-integer `power` with a default
   context.** `GdaContext::new()` and `context()` allow exponents up to
-  ±999,999,999, which is outside the range these functions are defined for, so
+  ±999,999,999, which is outside the range these functions accept, so
   they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a
   preset or pass `e_min=-999_999, e_max=999_999`. The same holds for an
   `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in for

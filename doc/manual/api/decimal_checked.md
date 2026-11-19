@@ -379,8 +379,9 @@ within the refinement budget). On error the new state is
 $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 
 > [!IMPORTANT]
-> Following the General Decimal Arithmetic rules for the mathematical
-> functions, these operations require a context with precision and exponent
+> As an implementation limit (decNumber's `DEC_MAX_MATH`, required by the
+> decTest suite and permitted by the GDA Invalid context condition), these
+> operations require a context with precision and exponent
 > limits within $\pm 999\,999$. The default `DecimalContext::new` range
 > ($\pm 999\,999\,999$), and any context built by `from_arithmetic_context`
 > from an `ArithmeticContext` without exponent bounds, makes them return NaN

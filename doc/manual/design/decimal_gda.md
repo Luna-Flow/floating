@@ -770,10 +770,14 @@ correctly rounded with round-half-even regardless of the context mode; `power`
 uses the context's mode, as the specification and its test vectors require,
 and reports non-integer powers as `Inexact` with $p$ digits even when the
 power happens to be exact (`decimal_power_noninteger_gda_result`). Two more
-GDA rules are implemented literally: these functions are defined only for
-contexts with $p$, $e_{\max}$ and $-e_{\min}$ at most 999,999
-(`math_context_is_restricted`, raising `InvalidContext` otherwise), and in
-subset arithmetic `ln` reproduces the result of the classic reference
+rules are implemented. First, these functions accept only contexts with $p$,
+$e_{\max}$ and $-e_{\min}$ at most 999,999 (`math_context_is_restricted`,
+raising `InvalidContext` otherwise). That is a deliberate implementation limit,
+decNumber's `DEC_MAX_MATH`, not a rule of the GDA operation text: the official
+decTest suite requires it (`power.decTest` powx4001 to powx4005 and the
+matching rows of `exp.decTest`, `ln.decTest` and `log10.decTest`), and GDA 1.70
+permits it through the Invalid context condition, which covers a precision that
+exceeds the capability of the implementation. Second, in subset arithmetic `ln` reproduces the result of the classic reference
 algorithm, which can be one unit in the last place above the correctly rounded
 one (`decimal_ln_subset_result`), because the legacy subset test vectors
 encode that result.
