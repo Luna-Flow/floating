@@ -101,6 +101,7 @@ class RunCiTests(unittest.TestCase):
             sorted(
                 [
                     "DEPENDENCIES",
+                    "CHECK",
                     "IMPORTS",
                     "FORMAT",
                     "DOCS",
@@ -138,6 +139,7 @@ class RunCiTests(unittest.TestCase):
             lanes["moon"],
             [
                 "DEPENDENCIES: fetch",
+                "CHECK: other targets",
                 "DOCS: manual examples",
                 "FORMAT: MoonBit sources",
                 "TEST: native",
@@ -152,6 +154,16 @@ class RunCiTests(unittest.TestCase):
         ci_schedule.validate_plan(stages)
         first = next(stage for stage in stages if stage.lane == "conformance")
         self.assertEqual(first.after, "DOCS: manual examples")
+
+    def test_other_targets_are_checked_for_errors_in_the_quick_gate(self) -> None:
+        command = next(
+            stage.command
+            for stage in run_ci.stages_for("quick", 4)
+            if stage.name == "CHECK: other targets"
+        )
+        self.assertEqual(command[command.index("--target") + 1], "wasm,wasm-gc,js")
+        self.assertIn("--frozen", command)
+        self.assertNotIn("--deny-warn", command)  # external_test.mbt warns, #22
 
     def test_pure_python_lane_never_runs_moon(self) -> None:
         for stage in run_ci.stages_for("quick", 4):
