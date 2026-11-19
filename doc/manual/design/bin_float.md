@@ -756,8 +756,8 @@ $$
 
 with tail $\sum_{k \ge m} z^{2k+1}/(2k+1) \le \frac{z^{2m+1}}{2m+1} \cdot
 \frac{1}{1 - z^2}$, the bound the code adds. The trigonometric functions
-reduce $x$ by an enclosure of $\pi/2$ (from $\pi = 4 \arctan 1$, itself
-enclosed by the arctangent series after argument halving) at
+reduce $x$ by an enclosure of $\pi/2$ (the cached binary-splitting $\pi$, see
+"Where $\pi$ comes from" below) at
 $w \ge p + \max(0, \operatorname{top}(x) + 1) + 96$ bits, so the quadrant
 $k = \operatorname{round}(x / (\pi/2))$ is the same integer at both ends of
 the enclosure; otherwise the attempt is repeated at a higher precision. This
@@ -946,6 +946,55 @@ and target precisions however far apart the exponents are
 ($\operatorname{hypot}(1, 2^{-600000}) = 1$ with `inexact`). A shift above
 $10^6$ bits is still refused as a `certification_failure`; after the
 replacement it needs a precision near $500\,000$ bits.
+
+**`atan`, `asin`, `acos` and `atan2`: one evaluation chain for the pair.** The
+enclosure of $\operatorname{atan}$ over a pair $[a, b]$ is computed by one
+chain, not by one chain per endpoint. $\operatorname{atan}$ is odd and
+increasing, so $L = \operatorname{lower}(\operatorname{atan}\,a)$ and
+$U = \operatorname{upper}(\operatorname{atan}\,b)$ enclose $\operatorname{atan}$ on
+the whole pair. For $0 \le a \le b$ and $b > 1/2$ the reduction is
+$\operatorname{atan}\,x = 2 \operatorname{atan}\, r(x)$ with
+$r(x) = x / (1 + \sqrt{1 + x^2}) = \tan(\operatorname{atan}(x)/2)$, which is
+increasing on $x \ge 0$ (it is a composition of increasing maps). Hence
+$[r^-(a), r^+(b)] \ni r(x)$ for every $x \in [a, b]$, where $r^-(a)$ divides
+$a$ rounded down by an upper bound of $1 + \sqrt{1 + a^2}$ and $r^+(b)$ divides
+$b$ rounded up by a lower bound of $1 + \sqrt{1 + b^2}$; the bounds of the
+denominator are directed squares, sums and square roots, each monotone on
+nonnegative numbers. The reduced pair is again nonnegative and ordered, so the
+recursion is a chain (two levels at most, because $r(x) < 1$ and
+$r(1) < 1/2$), and the Taylor series runs once, with its lower track on the
+lower end and its upper track on the upper end. A negative pair $[a, b]$ is
+$-[-b, -a]$; a pair that contains zero is widened to $[-m, m]$ with
+$m = \max(-a, b)$, which contains it. The old code evaluated the series once
+for $|x| \le 1/2$, twice up to $4/3$ and four times above (a lower and an upper
+call per reduction level); a point argument now costs one series at every
+size.
+
+For $\operatorname{asin}$ the pair is the ratio $f(x) = x / \sqrt{1 - x^2}$,
+increasing on $(-1, 1)$. With $\sqrt{1 - x^2} \in [\rho^-, \rho^+]$ on the
+operand pair (directed roots of directed $1 - x^2$), the lower end is
+$a / \rho^-$ if $a < 0$ and $a / \rho^+$ if $a \ge 0$, the upper end is
+$b / \rho^-$ if $b \ge 0$ and $b / \rho^+$ if $b < 0$, which replaces the
+eight directed quotients and the search for their minimum and maximum. For
+$\operatorname{atan2}$ and $\operatorname{atan2Pi}$ the ratio $y / x$ of a
+rectangle with $x$ of one strict sign takes its extremes at the corners
+selected by the signs of the ends of $y$ (four directed divisions replace the
+eight of the previous search). The soundness of the new evaluation is tested
+against the previous functions, kept as test-only copies, evaluated at 128 more
+bits (`atan_single_evaluation_wbtest.mbt`); the Ziv loops take the same number
+of attempts on that corpus. A pair that is wide because the operand is (`asin`
+close to $1$) can come out up to about 1.4 times wider than before, because the
+alternating-series bracket pairs the lower track with the terms of the other
+end; narrow pairs differ by a few units in the last place.
+
+**Where $\pi$ comes from.** The binary-splitting $\pi$ of this package is
+cached per working precision. `BinFloat` $+\infty$ `.try_atan_ctx` returns the
+correctly rounded $\pi/2$ from that cache, so `decimal` and `ball_float` obtain
+$[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$ from two calls (rounding
+downward and upward) and a scaling by $2$, which is exact: the same interval,
+bit for bit, as $4\,[\operatorname{RD}(\operatorname{atan} 1),
+\operatorname{RU}(\operatorname{atan} 1)]$, since scaling by a power of two
+commutes with directed rounding. No public function was added for it.
 
 ### Asymptotically fast elementary kernels (implemented, with open items)
 
