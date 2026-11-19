@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 
+import ci_schedule
 import run_ci
 
 
@@ -94,37 +95,102 @@ class RunCiTests(unittest.TestCase):
 
     def test_quick_scope_runs_native_tools_and_four_smokes(self) -> None:
         stages = run_ci.stages_for("quick", 4)
+        names = [stage.name for stage in stages]
         self.assertEqual(
-            [stage.name.split(" · ")[0] for stage in stages],
+            sorted(name.split(" · ")[0] for name in names),
+            sorted(
+                [
+                    "DEPENDENCIES",
+                    "IMPORTS",
+                    "FORMAT",
+                    "DOCS",
+                    "DOCS",
+                    "TEST",
+                    "SMOKE",
+                    "TEST",
+                    "SMOKE",
+                    "SMOKE",
+                    "SMOKE",
+                    "SMOKE",
+                ]
+            ),
+        )
+        by_name = {stage.name: stage.command for stage in stages}
+        self.assertEqual(by_name["IMPORTS · package independence"][1], "tools/check_imports.py")
+        self.assertIn("--quality-only", by_name["DOCS · manual quality"])
+        self.assertIn("--examples-only", by_name["DOCS · manual examples"])
+        self.assertIn("--skip-package-tests", by_name["DOCS · manual examples"])
+        self.assertIn("native", by_name["TEST · native"])
+        self.assertIn("--deny-warn", by_name["TEST · native"])
+        self.assertIn("unittest", by_name["TEST · Python tooling"])
+        self.assertEqual(by_name["SMOKE · DecimalGDA"][-1], "decimal_gda")
+        self.assertEqual(by_name["SMOKE · Binary"][-1], "binary")
+        self.assertEqual(by_name["SMOKE · Random differential"][1], "tools/random_differential.py")
+        self.assertEqual(by_name["SMOKE · Random differential"][2], "smoke")
+        self.assertEqual(by_name["SMOKE · Interval"][-2:], ("interval", "--strict-supported"))
+
+    def test_quick_lanes_keep_moon_stages_in_one_lane_in_order(self) -> None:
+        stages = run_ci.stages_for("quick", 4)
+        lanes: dict[str, list[str]] = {}
+        for stage in stages:
+            lanes.setdefault(stage.lane, []).append(stage.name)
+        self.assertEqual(
+            lanes["moon"],
             [
-                "DEPENDENCIES",
-                "IMPORTS",
-                "FORMAT",
-                "DOCS",
-                "TEST",
-                "SMOKE",
-                "TEST",
-                "SMOKE",
-                "SMOKE",
-                "SMOKE",
-                "SMOKE",
+                "DEPENDENCIES · fetch",
+                "DOCS · manual examples",
+                "FORMAT · MoonBit sources",
+                "TEST · native",
+                "SMOKE · IEEE 754",
             ],
         )
-        commands = [stage.command for stage in stages]
-        self.assertEqual(commands[1][1], "tools/check_imports.py")
-        self.assertEqual(commands[3][1], "tools/run_docs.py")
-        self.assertNotIn("just", commands[3])
-        self.assertIn("native", commands[4])
-        self.assertIn("--deny-warn", commands[4])
-        self.assertIn("unittest", commands[6])
         self.assertEqual(
-            [command[command.index("--backend") + 1] for command in commands[7:9]],
-            ["decimal_gda", "binary"],
+            lanes["python"],
+            ["IMPORTS · package independence", "DOCS · manual quality", "TEST · Python tooling"],
         )
-        self.assertEqual(commands[9][1], "tools/random_differential.py")
-        self.assertEqual(commands[9][2], "smoke")
-        self.assertEqual(commands[10][commands[10].index("--backend") + 1], "interval")
-        self.assertIn("--strict-supported", commands[-1])
+        self.assertEqual(lanes["conformance"][0], "SMOKE · DecimalGDA")
+        ci_schedule.validate_plan(stages)
+        first = next(stage for stage in stages if stage.lane == "conformance")
+        self.assertEqual(first.after, "DOCS · manual examples")
+
+    def test_pure_python_lane_never_runs_moon(self) -> None:
+        for stage in run_ci.stages_for("quick", 4):
+            if stage.lane == "python":
+                self.assertNotIn("run_moon_clean_exec.sh", " ".join(stage.command))
+
+    def test_every_quick_stage_has_a_lane_and_the_plan_is_complete(self) -> None:
+        with self.assertRaises(ValueError):
+            run_ci.assign_lanes([run_ci.Stage("UNKNOWN · stage", ("true",))])
+
+    def test_children_terminate_stops_a_running_stage_and_its_group(self) -> None:
+        import subprocess
+        import sys
+        import time as _time
+
+        children = run_ci.Children()
+        process = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(60)"],
+            start_new_session=True,
+        )
+        children.add(process)
+        children.terminate()
+        deadline = _time.monotonic() + 10
+        while process.poll() is None and _time.monotonic() < deadline:
+            _time.sleep(0.05)
+        self.assertIsNotNone(process.poll())
+        self.assertNotEqual(process.returncode, 0)
+
+    def test_run_captured_returns_output_and_status(self) -> None:
+        import sys
+
+        children = run_ci.Children()
+        stage = run_ci.Stage("t", (sys.executable, "-c", "print('x'); raise SystemExit(4)"))
+        outcome = run_ci.run_captured(stage, children)
+        self.assertEqual((outcome.returncode, outcome.output.strip()), (4, "x"))
+
+    def test_other_scopes_stay_sequential(self) -> None:
+        for scope in ("all", "decimal", "binary", "interval", "elementary", "decimal_gda"):
+            self.assertEqual({stage.lane for stage in run_ci.stages_for(scope, 2)}, {"main"}, scope)
 
     def test_repository_scopes_exclude_performance_comparisons(self) -> None:
         for scope in ("quick", "all"):

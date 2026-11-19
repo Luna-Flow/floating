@@ -2,12 +2,15 @@
 
 import argparse
 import os
+import signal
 import subprocess
 import sys
+import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
+from ci_schedule import Outcome, execute
 from conformance_ui import Console, Progress, format_duration
 from conformance_runtime import BackendName
 
@@ -38,6 +41,10 @@ SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 class Stage:
     name: str
     command: tuple[str, ...]
+    # Stages of one lane run in order; lanes run concurrently (`ci_schedule`).
+    # `after` is a stage of another lane that must have passed first.
+    lane: str = "main"
+    after: str | None = None
 
 
 def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
@@ -81,6 +88,46 @@ DEPENDENCY_STAGE = Stage(
     "DEPENDENCIES · fetch",
     ("sh", "tools/run_moon_clean_exec.sh", "check", "--target", "native", "--deny-warn"),
 )
+
+
+DOCS_STAGE_NAME = "DOCS · manual quality and examples"
+DOCS_EXAMPLES_STAGE_NAME = "DOCS · manual examples"
+
+# Quick gate lanes (see `ci_schedule`). Stages of the "moon" lane share the
+# default target directory `_build`, and `run_moon_clean_exec.sh` clears the
+# lock files of that directory, so they stay in order in one lane. The
+# "conformance" lane builds `src/cli` into `_build/conformance/cli` (its own
+# target directory) and starts after the manual examples, the only stage that
+# writes throwaway packages under `src`, so that no moon command in the other
+# lane sees them. The "python" lane never calls moon.
+QUICK_LANES: dict[str, tuple[str, str | None]] = {
+    "DEPENDENCIES · fetch": ("moon", None),
+    DOCS_EXAMPLES_STAGE_NAME: ("moon", None),
+    "FORMAT · MoonBit sources": ("moon", None),
+    "TEST · native": ("moon", None),
+    "SMOKE · IEEE 754": ("moon", None),
+    "IMPORTS · package independence": ("python", None),
+    "DOCS · manual quality": ("python", None),
+    "TEST · Python tooling": ("python", None),
+    "SMOKE · DecimalGDA": ("conformance", DOCS_EXAMPLES_STAGE_NAME),
+    "SMOKE · Binary": ("conformance", None),
+    "SMOKE · Random differential": ("conformance", None),
+    "SMOKE · Interval": ("conformance", None),
+}
+
+
+def assign_lanes(stages: list[Stage]) -> list[Stage]:
+    """Quick-gate plan: the stages in lane order with their lanes set."""
+    unknown = [stage.name for stage in stages if stage.name not in QUICK_LANES]
+    if unknown:
+        raise ValueError(f"stages without a lane: {', '.join(unknown)}")
+    placed = [
+        replace(stage, lane=QUICK_LANES[stage.name][0], after=QUICK_LANES[stage.name][1])
+        for stage in stages
+    ]
+    order = {name: index for index, name in enumerate(("moon", "python", "conformance"))}
+    position = {name: index for index, name in enumerate(QUICK_LANES)}
+    return sorted(placed, key=lambda stage: (order[stage.lane], position[stage.name]))
 
 
 def stages_for(scope: str, jobs: int) -> list[Stage]:
@@ -178,14 +225,31 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
         ),
         Stage(
-            "DOCS · manual quality and examples",
+            DOCS_STAGE_NAME,
             (sys.executable, "tools/run_docs.py", "--skip-package-tests"),
         ),
     ]
     if scope == "quick":
-        repository_stages = [*common_repository_stages]
-        return [
+        repository_stages = [
+            stage
+            for stage in common_repository_stages
+            if stage.name != DOCS_STAGE_NAME
+        ]
+        return assign_lanes([
             *repository_stages,
+            Stage(
+                "DOCS · manual quality",
+                (sys.executable, "tools/run_docs.py", "--quality-only"),
+            ),
+            Stage(
+                DOCS_EXAMPLES_STAGE_NAME,
+                (
+                    sys.executable,
+                    "tools/run_docs.py",
+                    "--examples-only",
+                    "--skip-package-tests",
+                ),
+            ),
             Stage(
                 "TEST · native",
                 (
@@ -258,7 +322,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "--strict-supported",
                 ),
             ),
-        ]
+        ])
     repository_stages = [
         *common_repository_stages,
         *[
@@ -305,14 +369,90 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
     ]
 
 
+class Children:
+    """The stage processes that are running, so a failure can stop them."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._running: set[subprocess.Popen[str]] = set()
+
+    def add(self, process: "subprocess.Popen[str]") -> None:
+        with self._lock:
+            self._running.add(process)
+
+    def discard(self, process: "subprocess.Popen[str]") -> None:
+        with self._lock:
+            self._running.discard(process)
+
+    def terminate(self) -> None:
+        with self._lock:
+            running = [process for process in self._running if process.poll() is None]
+        for process in running:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)  # each stage is its own group
+            except (ProcessLookupError, PermissionError):
+                pass
+
+
+def run_captured(stage: Stage, children: Children) -> Outcome:
+    started = time.monotonic()
+    process = subprocess.Popen(
+        stage.command,
+        cwd=REPO_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        errors="replace",
+        start_new_session=True,
+    )
+    children.add(process)
+    try:
+        output, _ = process.communicate()
+    finally:
+        children.discard(process)
+    return Outcome(process.returncode, output, time.monotonic() - started)
+
+
+def run_parallel(stages: list[Stage], console: Console) -> int:
+    children = Children()
+    started = time.monotonic()
+
+    def report(stage: Stage, outcome: Outcome) -> None:
+        # Called under the scheduler's lock: the output of a stage is written in
+        # one piece, preceded by its name, so concurrent stages do not interleave.
+        if outcome.output.strip():
+            print(f"--- output of {stage.name} (lane {stage.lane})", file=console.stream)
+            print(outcome.output.rstrip("\n"), file=console.stream, flush=True)
+        console.status(
+            outcome.returncode == 0,
+            stage.name,
+            f"{format_duration(outcome.seconds)}, lane {stage.lane}",
+        )
+
+    code, failed = execute(
+        stages,
+        lambda stage: run_captured(stage, children),  # type: ignore[arg-type]
+        report,  # type: ignore[arg-type]
+        cancel=children.terminate,
+    )
+    elapsed = format_duration(time.monotonic() - started)
+    if failed is not None:
+        console.status(False, "repository gate", f"{failed}, {elapsed}")
+        return code or 1
+    console.status(True, "repository gate", elapsed)
+    return 0
+
+
 def run(scope: str, jobs: int, dry_run: bool = False) -> int:
     stages = stages_for(scope, jobs)
     console = Console()
     console.heading("LUNAFLOW CI", f"scope={scope} · workers={jobs}")
     if dry_run:
         for stage in stages:
-            print(stage.name + ": " + " ".join(stage.command))
+            print(f"{stage.name}: [{stage.lane}] " + " ".join(stage.command))
         return 0
+    if len({stage.lane for stage in stages}) > 1:
+        return run_parallel(stages, console)
     progress = Progress("repository gate", len(stages), console)
     started = time.monotonic()
     completed = 0
