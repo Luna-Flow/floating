@@ -618,6 +618,12 @@ fn decimal_power_integer_bounded_result(
   } else {
     (acc, flags)
   }
+  // An inexact work value is rounded from a full-length member (issue 350).
+  let powered = if ctx.extended && power_flags.inexact {
+    decimal_pad_coefficient_digits(powered, work_ctx.precision)
+  } else {
+    powered
+  }
   let (result, finalize_flags) = decimal_apply_finite_ctx(powered, ctx)
   (result, power_flags.combine(finalize_flags))
 }
@@ -718,8 +724,27 @@ fn decimal_power_large_integer_coeff_result(
   } else {
     (acc, flags)
   }
+  let powered = if ctx.extended && power_flags.inexact {
+    decimal_pad_coefficient_digits(powered, work_ctx.precision)
+  } else {
+    powered
+  }
   let (result, finalize_flags) = decimal_apply_finite_ctx(powered, ctx)
-  Some((result, power_flags.combine(finalize_flags)))
+  let rounded = (result, power_flags.combine(finalize_flags))
+  // The single HalfEven evaluation above is within a small fraction of an ulp
+  // but not correctly rounded: a power close to a representable number (a
+  // base near 1, issue 348) can land on the wrong side of it. Refine an
+  // inexact result with directed bounds like the `Int` exponent path does.
+  if !rounded.1.inexact {
+    return Some(rounded)
+  }
+  match
+    decimal_power_coeff_correctly_rounded_result(
+      base, negative_exponent, magnitude, ctx,
+    ) {
+    Some(result) => Some(result)
+    None => Some(rounded)
+  }
 }
 
 ///|
@@ -842,65 +867,125 @@ fn decimal_same_representation(left : Decimal, right : Decimal) -> Bool {
 }
 
 ///|
+/// A finite nonzero `value` written with at least `digits` coefficient digits
+/// (trailing zeros appended, exponent lowered). Rounding an inexact work value
+/// to a context must start from a full-length member: a short exact member
+/// such as `1` (exponent 0) is folded down by a clamped context and raises
+/// `clamped`, which never belongs to an inexact result, whose `p`-digit
+/// coefficient always has an exponent of at most `e_max - p + 1` (issue 350).
+fn decimal_pad_coefficient_digits(value : Decimal, digits : Int32) -> Decimal {
+  guard value.class == FpClass::Finite && !value.coefficient.is_zero() else {
+    return value
+  }
+  let have = value.coefficient.digits10()
+  guard have < digits else { return value }
+  let shift = digits - have
+  guard value.exponent10.to_int64() - shift.to_int64() >= -2_100_000_000L else {
+    return value
+  }
+  finite_with_exponent_repr(
+    value.negative,
+    dec_coeff_shift_power10_repr(value.coefficient, shift),
+    value.exponent10 - shift,
+    Int32::max(value.precision_, digits),
+  )
+}
+
+///|
 /// Correctly rounded `base^count`, for an extended context with a bounded
-/// precision, when the exact power is known to be inexact. With the stripped
-/// coefficient `c`, if `|count| * digits(c) <= max(4p, 64)` the exact power is
-/// formed and rounded once. Otherwise `c^|count|` has more than `p + 1`
-/// significant digits and no trailing zero, so it is never a rounding
-/// boundary. Lower and upper bounds are then computed with directed rounding
-/// at a growing working precision until both round to the same result.
-/// Returns `None` when the bounds leave the working exponent range, so the
-/// caller keeps its own result.
+/// precision, when the exact power is known to be inexact. See
+/// `decimal_power_coeff_correctly_rounded_result`.
 fn decimal_power_integer_correctly_rounded_result(
   base : Decimal,
   count : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  guard ctx.extended && ctx.precision > 0 && count != 0 else { return None }
+  guard count != 0 else { return None }
+  decimal_power_coeff_correctly_rounded_result(
+    base,
+    count < 0,
+    dec_coeff_from_int_magnitude(count),
+    ctx,
+  )
+}
+
+///|
+/// Correctly rounded `base^(+-magnitude)` (IEEE 754-2019 §9.2), for an
+/// extended context with a bounded precision, when the exact power is known
+/// to be inexact. The integer exponent is a coefficient, so exponents beyond
+/// the `Int` range (issue 348) take the same route as small ones. With the
+/// stripped coefficient `c`, if `n * digits(c) <= max(4p, 64)` the exact power
+/// is formed and rounded once. Otherwise `c^n` has more than `p + 1`
+/// significant digits and no trailing zero, so it is never a rounding
+/// boundary. Lower and upper bounds are then computed with directed rounding
+/// at a growing working precision until both round to the same result.
+/// Returns `None` when the bounds leave the working exponent range, so the
+/// caller keeps its own result.
+fn decimal_power_coeff_correctly_rounded_result(
+  base : Decimal,
+  negative_exponent : Bool,
+  magnitude : DecCoeff,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard ctx.extended && ctx.precision > 0 && !magnitude.is_zero() else {
+    return None
+  }
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
     return None
   }
   let precision = ctx.precision
-  let n = abs_int(count)
-  let negative = base.negative && (n & 1) == 1
+  let negative = base.negative && dec_coeff_is_odd(magnitude)
   let (coefficient, exponent) = remove_factor10_repr(
     base.coefficient,
     base.exponent10,
   )
-  let exponent64 = exponent.to_int64() * n.to_int64()
+  // A power of ten is exact; it is never "known to be inexact".
+  guard !dec_coeff_matches_unit_repr(coefficient, 1) else { return None }
   let exact_limit = Int32::max(4 * precision, 64)
-  if n.to_int64() * coefficient.digits10().to_int64() <= exact_limit.to_int64() {
-    guard exponent64 >= -2_000_000_000L && exponent64 <= 2_000_000_000L else {
-      return None
-    }
-    let power = dec_coeff_exact_power_repr(coefficient, n)
-    if count > 0 {
-      return Some(
-        normalize_decimal_parts_ctx_repr(
-          negative,
-          power,
-          exponent64.to_int(),
-          ctx,
-        ),
+  match dec_coeff_to_bounded_int(magnitude, exact_limit) {
+    Some(n) if n.to_int64() * coefficient.digits10().to_int64() <=
+      exact_limit.to_int64() => {
+      let exponent64 = exponent.to_int64() * n.to_int64()
+      guard exponent64 >= -2_000_000_000L && exponent64 <= 2_000_000_000L else {
+        return None
+      }
+      let power = dec_coeff_exact_power_repr(coefficient, n)
+      if !negative_exponent {
+        return Some(
+          normalize_decimal_parts_ctx_repr(
+            negative,
+            power,
+            exponent64.to_int(),
+            ctx,
+          ),
+        )
+      }
+      let divisor = finite_with_exponent_repr(
+        negative,
+        power,
+        exponent64.to_int(),
+        power.digits10(),
       )
+      return Some(Decimal::one(precision~).div_ctx(divisor, ctx))
     }
-    let divisor = finite_with_exponent_repr(
-      negative,
-      power,
-      exponent64.to_int(),
-      power.digits10(),
-    )
-    return Some(Decimal::one(precision~).div_ctx(divisor, ctx))
+    _ => ()
   }
-  let magnitude = finite_with_exponent_repr(
+  // The binary digits of the exponent, least significant first. The
+  // coefficient is halved in place, so the work is proportional to its
+  // length, never to its value.
+  let bits : Array[Bool] = []
+  let mut remaining = magnitude
+  while !remaining.is_zero() {
+    bits.push(dec_coeff_is_odd(remaining))
+    remaining = dec_coeff_div_rem_by_unit_repr(remaining, 2).0
+  }
+  let base_magnitude = finite_with_exponent_repr(
     false,
     coefficient,
     exponent,
     coefficient.digits10(),
   )
-  let mut work_precision = precision +
-    dec_coeff_from_int_magnitude(n).digits10() +
-    8
+  let mut work_precision = precision + magnitude.digits10() + 8
   for _attempt in 0..<24 {
     let work = fn(mode : DecimalRoundingMode) {
       DecimalContext::{
@@ -917,12 +1002,8 @@ fn decimal_power_integer_correctly_rounded_result(
     let mut lower = Decimal::one(precision=work_precision)
     let mut upper = Decimal::one(precision=work_precision)
     let mut work_flags = DecimalFlags::new()
-    let mut bit_mask = 1
-    while bit_mask <= n / 2 {
-      bit_mask = bit_mask << 1
-    }
     let mut seen_bit = false
-    while bit_mask > 0 {
+    for index = bits.length() - 1; index >= 0; index = index - 1 {
       if seen_bit {
         let (next_lower, lower_flags) = lower.mul_ctx(lower, lower_ctx)
         let (next_upper, upper_flags) = upper.mul_ctx(upper, upper_ctx)
@@ -930,17 +1011,23 @@ fn decimal_power_integer_correctly_rounded_result(
         upper = next_upper
         work_flags = work_flags.combine(lower_flags).combine(upper_flags)
       }
-      if (n & bit_mask) != 0 {
+      if bits[index] {
         seen_bit = true
-        let (next_lower, lower_flags) = lower.mul_ctx(magnitude, lower_ctx)
-        let (next_upper, upper_flags) = upper.mul_ctx(magnitude, upper_ctx)
+        let (next_lower, lower_flags) = lower.mul_ctx(base_magnitude, lower_ctx)
+        let (next_upper, upper_flags) = upper.mul_ctx(base_magnitude, upper_ctx)
         lower = next_lower
         upper = next_upper
         work_flags = work_flags.combine(lower_flags).combine(upper_flags)
       }
-      bit_mask = bit_mask >> 1
+      if work_flags.overflow ||
+        work_flags.underflow ||
+        work_flags.subnormal ||
+        lower.class != FpClass::Finite ||
+        upper.class != FpClass::Finite {
+        return None
+      }
     }
-    if count < 0 {
+    if negative_exponent {
       let one = Decimal::one(precision=work_precision)
       let (next_lower, lower_flags) = one.div_ctx(upper, lower_ctx)
       let (next_upper, upper_flags) = one.div_ctx(lower, upper_ctx)
@@ -977,6 +1064,9 @@ fn decimal_power_integer_correctly_rounded_result(
       work_precision = work_precision * 2
       continue
     }
+    // Both bounds are rounded from a full-length member (issue 350).
+    let lower = decimal_pad_coefficient_digits(lower, work_precision)
+    let upper = decimal_pad_coefficient_digits(upper, work_precision)
     let (rounded_lower, _) = normalize_decimal_parts_ctx_repr(
       negative,
       lower.coefficient,
@@ -2570,7 +2660,10 @@ fn decimal_power_exact_ten_result(
   let (count_negative, count_magnitude) = match
     decimal_exact_integer_coeff(exponent) {
     Some(value) => value
-    None => return None
+    None =>
+      return decimal_power_ten_noninteger_result(
+        base, base_power, exponent, ctx,
+      )
   }
   let negative = match decimal_power_integer_is_odd(exponent) {
     Some(odd) => base.negative && odd
@@ -2631,6 +2724,70 @@ fn decimal_power_exact_ten_result(
   }
   Some(
     decimal_power_ten_cohort_result(negative, result_exponent, preferred, ctx),
+  )
+}
+
+///|
+/// `pow(10^k, y)` for a positive power of ten `10^k` (`k != 0`, any cohort)
+/// and a non-integral finite `y` (issue 349). `10^(k*y)` is exact exactly when
+/// `k*y` is an integer, and irrational otherwise, so no refinement loop can
+/// decide the exact case: its enclosure straddles the exact value. An exact
+/// result takes the cohort of the preferred exponent `floor(y * Q(x))`
+/// (IEEE 754-2019 §9.2.2) and signals no inexact (§9.2); one beyond the
+/// exponent range overflows or underflows like an integral power of ten.
+/// `None` when `k*y` is not an integer.
+fn decimal_power_ten_noninteger_result(
+  base : Decimal,
+  base_power : Int32,
+  exponent : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags)? {
+  guard !base.negative && base_power != 0 else { return None }
+  guard exponent.class == FpClass::Finite && exponent.exponent10 < 0 else {
+    return None
+  }
+  let scale = -exponent.exponent10
+  let numerator = coeff_bigint(exponent.coefficient) *
+    BigInt::from_int(abs_int(base_power))
+  // |c * k| < 10^scale makes 0 < |k*y| < 1: not an integer.
+  guard scale.to_int64() <= numerator.to_string().length().to_int64() else {
+    return None
+  }
+  let divisor = pow10(scale)
+  guard (numerator % divisor).is_zero() else { return None }
+  let quotient = numerator / divisor
+  let result_negative = exponent.negative != (base_power < 0)
+  // Every context exponent lies within +-2^31; a longer quotient is far
+  // outside the range in the direction of its sign.
+  if quotient.to_string().length() > 12 {
+    return Some(
+      if result_negative {
+        decimal_power_tiny_result(false, ctx)
+      } else {
+        decimal_overflow_result(false, ctx)
+      },
+    )
+  }
+  let magnitude = quotient.to_int64()
+  let result_exponent = if result_negative { -magnitude } else { magnitude }
+  if result_exponent > ctx.e_max.to_int64() {
+    return Some(decimal_overflow_result(false, ctx))
+  }
+  if result_exponent < etiny(ctx).to_int64() {
+    return Some(decimal_power_tiny_result(false, ctx))
+  }
+  let preferred = match
+    decimal_power_preferred_exponent(base.exponent10, exponent) {
+    Some(value) => value
+    None => return None
+  }
+  Some(
+    decimal_power_ten_cohort_result(
+      false,
+      result_exponent.to_int(),
+      preferred,
+      ctx,
+    ),
   )
 }
 
