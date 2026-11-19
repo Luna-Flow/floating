@@ -1,6 +1,6 @@
-# `differential`
+# `differential/harness`
 
-The seeded random differential harness: an executable that validates batches
+The seeded random differential harness, run by the `differential` executable: it validates batches
 of generated MPFR and libmpdec rows against `floating` through the
 [mare_mark](https://lunaflow.cn/en/mare_mark/) runner and writes the append-only
 JSONL record of the run.
@@ -23,5 +23,5 @@ just random-diff run --family add --family decimal_gda-add --count 20000 --targe
 ## Detailed Documentation
 
 The synchronized English, Simplified Chinese, and Japanese references live under
-`doc/*/differential`. Read `api.md` for the command line, `tutorial.md` for the
+`doc/*/differential/harness`. Read `api.md` for the command line, `tutorial.md` for the
 shortest workflow, and `design.md` for invariants and trade-offs.

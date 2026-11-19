@@ -12,16 +12,15 @@ items; this page documents its command-line interface. The
 ## Importing
 
 `cli` is an executable package (`pkgtype(kind: "executable")`) and cannot be
-imported. Its `moon.pkg` imports the four runners and the process helpers:
+imported. It is only the entry point: its `moon.pkg` imports the dispatcher
+[`cli/dispatch`](cli/dispatch.md), which holds the behaviour described below,
+and the process helpers:
 
 ```moonbit nocheck
 import {
+  "Luna-Flow/floating-tools/cli/dispatch",
   "moonbitlang/core/env",
   "moonbitlang/x/sys",
-  "Luna-Flow/floating-tools/cli/gda_expr_cli",
-  "Luna-Flow/floating-tools/cli/itl_expr_cli",
-  "Luna-Flow/floating-tools/cli/mpfr_expr_cli",
-  "Luna-Flow/floating-tools/cli/testfloat_expr_cli",
 }
 ```
 

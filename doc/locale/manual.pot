@@ -26,6 +26,7 @@ msgstr ""
 #: manual/api/bin_float.md:3
 #: manual/api/bin_float_checked.md:3
 #: manual/api/cli.md:3
+#: manual/api/cli/dispatch.md:3
 #: manual/api/cli/gda_expr_cli.md:3
 #: manual/api/cli/itl_expr_cli.md:3
 #: manual/api/cli/mpfr_expr_cli.md:3
@@ -37,6 +38,7 @@ msgstr ""
 #: manual/api/decimal_gda_checked.md:3
 #: manual/api/def.md:3
 #: manual/api/differential.md:3
+#: manual/api/differential/harness.md:3
 #: manual/api/doc_examples.md:3
 #: manual/api/frontend/gda_expr.md:3
 #: manual/api/frontend/itl_expr.md:3
@@ -95,6 +97,7 @@ msgstr ""
 #: manual/api/bin_float.md:21
 #: manual/api/bin_float_checked.md:16
 #: manual/api/cli.md:12
+#: manual/api/cli/dispatch.md:14
 #: manual/api/cli/gda_expr_cli.md:14
 #: manual/api/cli/itl_expr_cli.md:12
 #: manual/api/cli/mpfr_expr_cli.md:12
@@ -106,6 +109,7 @@ msgstr ""
 #: manual/api/decimal_gda_checked.md:18
 #: manual/api/def.md:16
 #: manual/api/differential.md:19
+#: manual/api/differential/harness.md:15
 #: manual/api/doc_examples.md:14
 #: manual/api/frontend/gda_expr.md:16
 #: manual/api/frontend/itl_expr.md:12
@@ -165,8 +169,8 @@ msgstr ""
 #: manual/api/ball_float.md:144
 #: manual/api/bench.md:52
 #: manual/api/bench/external.md:53
-#: manual/api/cli.md:39
-#: manual/api/cli.md:59
+#: manual/api/cli.md:38
+#: manual/api/cli.md:58
 #: manual/api/cli/gda_expr_cli.md:39
 #: manual/api/cli/itl_expr_cli.md:37
 #: manual/api/cli/testfloat_expr_cli.md:38
@@ -1081,7 +1085,8 @@ msgstr ""
 #: manual/api/bench/external.md:68
 #: manual/api/bin_float.md:2433
 #: manual/api/bin_float_checked.md:862
-#: manual/api/cli.md:81
+#: manual/api/cli.md:80
+#: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
@@ -1093,6 +1098,7 @@ msgstr ""
 #: manual/api/decimal_gda_checked.md:281
 #: manual/api/def.md:435
 #: manual/api/differential.md:97
+#: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
@@ -1333,7 +1339,7 @@ msgid "`immutable_bench(id, operation, scales, scale_text, generate, fingerprint
 msgstr ""
 
 #: manual/api/bench.md:52
-#: manual/api/cli.md:39
+#: manual/api/cli.md:38
 msgid "Argument"
 msgstr ""
 
@@ -1524,7 +1530,7 @@ msgstr ""
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
-#: manual/api/cli.md:83
+#: manual/api/cli.md:82
 #: manual/api/consistency.md:51
 #: manual/api/differential.md:99
 #: manual/api/doc_examples.md:48
@@ -3482,77 +3488,99 @@ msgid "`cli` is the native executable `floating-conformance`. It dispatches its 
 msgstr ""
 
 #: manual/api/cli.md:14
-msgid "`cli` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. Its `moon.pkg` imports the four runners and the process helpers:"
+msgid "`cli` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It is only the entry point: its `moon.pkg` imports the dispatcher [`cli/dispatch`](cli/dispatch.md), which holds the behaviour described below, and the process helpers:"
 msgstr ""
 
-#: manual/api/cli.md:28
+#: manual/api/cli.md:27
 msgid "To run a corpus from your own MoonBit code, import a runner such as [`cli/gda_expr_cli`](cli/gda_expr_cli.md) and call its `run`, or call a frontend directly."
 msgstr ""
 
-#: manual/api/cli.md:32
+#: manual/api/cli.md:31
 #: manual/api/differential.md:36
 msgid "Command line"
 msgstr ""
 
-#: manual/api/cli.md:41
+#: manual/api/cli.md:40
 msgid "selects the runner; required, non-empty, at most once (an empty `--backend=` is an error)"
 msgstr ""
 
-#: manual/api/cli.md:42
+#: manual/api/cli.md:41
 msgid "prints the usage line and exits with 0 when reached, even after `--backend` (the runners' own `--help` is therefore not reachable through the dispatcher)"
 msgstr ""
 
-#: manual/api/cli.md:43
+#: manual/api/cli.md:42
 msgid "anything else"
 msgstr ""
 
-#: manual/api/cli.md:43
+#: manual/api/cli.md:42
 msgid "forwarded, in order, to the runner"
 msgstr ""
 
-#: manual/api/cli.md:45
+#: manual/api/cli.md:44
 msgid "Arguments are scanned from left to right and the first error ends the scan: `--backend` without a value, or a second `--backend`, exits with 2 before a later `--help` is seen. The value after `--backend` is taken as is, so `--backend --help` asks for a backend named `--help` (exit 2). An empty `--backend=` is the error `--backend requires a value` (exit 2), or the at-most-once error when a backend was already given."
 msgstr ""
 
-#: manual/api/cli.md:52
+#: manual/api/cli.md:51
 msgid "The runner receives the program name followed by the forwarded arguments and interprets them as documented in [gda_expr_cli](cli/gda_expr_cli.md), [testfloat_expr_cli](cli/testfloat_expr_cli.md), [mpfr_expr_cli](cli/mpfr_expr_cli.md) and [itl_expr_cli](cli/itl_expr_cli.md)."
 msgstr ""
 
-#: manual/api/cli.md:57
+#: manual/api/cli.md:56
 msgid "Exit status"
 msgstr ""
 
-#: manual/api/cli.md:59
+#: manual/api/cli.md:58
 #: manual/tutorial/internal/runner_cli.md:106
 msgid "Code"
 msgstr ""
 
-#: manual/api/cli.md:61
+#: manual/api/cli.md:60
 msgid "`--help`, or the runner reported success"
 msgstr ""
 
-#: manual/api/cli.md:62
+#: manual/api/cli.md:61
 msgid "the runner found failing cases; for `itl` also diagnostic cases; with `--strict-supported` (`gda`, `itl`) also unsupported cases, and for `gda` legacy ones"
 msgstr ""
 
-#: manual/api/cli.md:63
+#: manual/api/cli.md:62
 msgid "a missing, repeated or unknown `--backend`, or a runner usage, file or parse error"
 msgstr ""
 
-#: manual/api/cli.md:65
+#: manual/api/cli.md:64
 msgid "Messages go to standard output."
 msgstr ""
 
-#: manual/api/cli.md:67
+#: manual/api/cli.md:66
 msgid "Build"
 msgstr ""
 
-#: manual/api/cli.md:69
+#: manual/api/cli.md:68
 msgid "The executable is built by the conformance tooling:"
 msgstr ""
 
-#: manual/api/cli.md:76
+#: manual/api/cli.md:75
 msgid "`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into `_build/conformance/<backend>/` and copies it to `<backend>-conformance.exe`, so parallel builds for different backends do not share a target directory."
+msgstr ""
+
+#: manual/api/cli/dispatch.md:1
+msgid "cli/dispatch API"
+msgstr ""
+
+#: manual/api/cli/dispatch.md:5
+msgid "`cli/dispatch` holds the behaviour of the `floating-conformance` executable: it scans the program arguments for `--backend`, forwards the rest to one of the four conformance runners and returns the process exit code. The package `cli` is only the entry point that passes `@env.args()` to it and exits with the result, so that the dispatcher is a library with its own tests. The command line is documented on the [`cli` page](../cli.md); the [tutorial](../../tutorial/cli/dispatch.md) calls it from a test and the [design page](../../design/cli/dispatch.md) explains the split."
+msgstr ""
+
+#: manual/api/cli/dispatch.md:22
+msgid "The examples use the alias `@dispatch`."
+msgstr ""
+
+#: manual/api/cli/dispatch.md:24
+#: manual/api/differential/harness.md:26
+#: manual/api/frontend/testfloat_expr.md:29
+msgid "Function specification"
+msgstr ""
+
+#: manual/api/cli/dispatch.md:32
+msgid "`dispatch(arguments)` expects the program name at index 0, followed by the command line. It returns `0` after `--help`, `2` for a missing, repeated, empty or unknown `--backend`, and otherwise the return value of the runner (`0`, `1` or `2`). Messages go to standard output. It never exits the process; the caller does."
 msgstr ""
 
 #: manual/api/cli/gda_expr_cli.md:1
@@ -6201,7 +6229,7 @@ msgid "`differential` is the executable of the seeded random differential campai
 msgstr ""
 
 #: manual/api/differential.md:21
-msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. Its `moon.pkg` imports the two frontends, the mare_mark packages and the shared benchmark toolkit:"
+msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg` imports the library [`differential/harness`](differential/harness.md), which holds the behaviour described below, and the async runtime:"
 msgstr ""
 
 #: manual/api/differential.md:46
@@ -6299,6 +6327,22 @@ msgstr ""
 
 #: manual/api/differential.md:92
 msgid "The command it prints is `python3 tools/random_differential.py replay --target native <id or range>`, which regenerates the rows and runs them through the frontends. Without mare_mark, run that command directly or `just random-diff replay <id>`."
+msgstr ""
+
+#: manual/api/differential/harness.md:1
+msgid "differential/harness API"
+msgstr ""
+
+#: manual/api/differential/harness.md:5
+msgid "`differential/harness` holds the behaviour of the seeded random differential executable: it parses the command line, splits a corpus into batches, runs each batch through the matching frontend under the mare_mark runner and writes the JSONL record. The package `differential` is only the entry point that calls `run` with `@env.args()`. The command line and the workflow are documented on the [`differential` page](../differential.md); the [tutorial](../../tutorial/differential/harness.md) shows what the package is for and the [design page](../../design/differential/harness.md) explains the split."
+msgstr ""
+
+#: manual/api/differential/harness.md:23
+msgid "The package needs `moonbitlang/async` and is built for native, JavaScript, Wasm and LLVM, not for wasm-gc."
+msgstr ""
+
+#: manual/api/differential/harness.md:34
+msgid "`run(args)` takes the program arguments (the program name, and under Node.js the script path too, come first). It exits the process with `2` for a bad command line or corpus and with `1` when a batch disagrees with its oracle; otherwise it returns after the record is written."
 msgstr ""
 
 #: manual/api/doc_examples.md:1
@@ -7045,10 +7089,6 @@ msgstr ""
 
 #: manual/api/frontend/testfloat_expr.md:27
 msgid "The examples use the aliases `@testfloat_expr` and `@bin_float`."
-msgstr ""
-
-#: manual/api/frontend/testfloat_expr.md:29
-msgid "Function specification"
 msgstr ""
 
 #: manual/api/frontend/testfloat_expr.md:33
@@ -9801,7 +9841,8 @@ msgstr ""
 #: manual/design/bench/external.md:124
 #: manual/design/bin_float.md:1954
 #: manual/design/bin_float_checked.md:329
-#: manual/design/cli.md:69
+#: manual/design/cli.md:71
+#: manual/design/cli/dispatch.md:32
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
@@ -9813,6 +9854,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:127
+#: manual/design/differential/harness.md:26
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:166
@@ -10245,6 +10287,7 @@ msgstr ""
 #: manual/design/bin_float.md:13
 #: manual/design/bin_float_checked.md:3
 #: manual/design/cli.md:3
+#: manual/design/cli/dispatch.md:3
 #: manual/design/cli/gda_expr_cli.md:3
 #: manual/design/cli/itl_expr_cli.md:3
 #: manual/design/cli/mpfr_expr_cli.md:3
@@ -10256,6 +10299,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:3
 #: manual/design/def.md:3
 #: manual/design/differential.md:3
+#: manual/design/differential/harness.md:3
 #: manual/design/doc_examples.md:3
 #: manual/design/frontend/gda_expr.md:3
 #: manual/design/frontend/itl_expr.md:3
@@ -10752,6 +10796,7 @@ msgstr ""
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
+#: manual/design/cli/dispatch.md:12
 #: manual/design/cli/gda_expr_cli.md:21
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
@@ -10763,6 +10808,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:54
+#: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
@@ -10911,7 +10957,8 @@ msgstr ""
 #: manual/design/bench/external.md:105
 #: manual/design/bin_float.md:1882
 #: manual/design/bin_float_checked.md:199
-#: manual/design/cli.md:50
+#: manual/design/cli.md:52
+#: manual/design/cli/dispatch.md:25
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
@@ -10923,6 +10970,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:104
+#: manual/design/differential/harness.md:20
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:133
@@ -10986,7 +11034,7 @@ msgstr ""
 #: manual/design/bench/external.md:114
 #: manual/design/bin_float.md:1929
 #: manual/design/bin_float_checked.md:316
-#: manual/design/cli.md:60
+#: manual/design/cli.md:62
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
@@ -13059,71 +13107,107 @@ msgid "Three layers"
 msgstr ""
 
 #: manual/design/cli.md:22
-msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
-msgstr ""
-
-#: manual/design/cli.md:29
-msgid "Forward the program name"
+msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`, and the argument scanning that picks the runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has tests and the main package holds no test inputs. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
 msgstr ""
 
 #: manual/design/cli.md:31
+msgid "Forward the program name"
+msgstr ""
+
+#: manual/design/cli.md:33
 msgid "The dispatcher removes `--backend` and its value and forwards `[program, rest…]`. Every runner skips element 0, so a runner behaves the same when called from the dispatcher, from a test, or (in principle) as its own executable."
 msgstr ""
 
-#: manual/design/cli.md:36
+#: manual/design/cli.md:38
 msgid "One binary, copied per backend"
 msgstr ""
 
-#: manual/design/cli.md:38
+#: manual/design/cli.md:40
 msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target directory and copies it to `<backend>-conformance.exe`. Parallel builds for different backends therefore never share a `_build` directory or lock, and tools always invoke an executable whose name says what it runs."
 msgstr ""
 
-#: manual/design/cli.md:43
+#: manual/design/cli.md:45
 msgid "Dispatcher help wins"
 msgstr ""
 
-#: manual/design/cli.md:45
+#: manual/design/cli.md:47
 msgid "`--help` is handled while scanning arguments, before the backend is known, so it prints the dispatcher usage and exits with `0` whatever backend is named. The scan stops at the first error, so a malformed `--backend` before `--help` still exits with `2`. Runner options are documented on their pages instead."
 msgstr ""
 
-#: manual/design/cli.md:52
+#: manual/design/cli.md:54
 msgid "Exactly one runner is called per invocation, or none when the arguments are invalid (exit `2`) or `--help` is given (exit `0`)."
 msgstr ""
 
-#: manual/design/cli.md:54
+#: manual/design/cli.md:56
 msgid "The exit status equals the runner's return value: `0`, `1` or `2`."
 msgstr ""
 
-#: manual/design/cli.md:55
+#: manual/design/cli.md:57
 msgid "Arguments other than `--backend`, its value and `--help`/`-h` reach the runner unchanged and in order."
 msgstr ""
 
-#: manual/design/cli.md:57
+#: manual/design/cli.md:59
 msgid "\"At most once\" is checked on whether `--backend` was given, not on its value, and an empty `--backend=` is itself an error (exit `2`)."
 msgstr ""
 
-#: manual/design/cli.md:62
+#: manual/design/cli.md:64
 msgid "**Four executables.** Four packages with identical `main` functions and four link steps for no behavioural gain."
 msgstr ""
 
-#: manual/design/cli.md:64
+#: manual/design/cli.md:66
 msgid "**Subcommands (`floating-conformance gda …`).** A positional backend would collide with runner paths; an explicit option is unambiguous."
 msgstr ""
 
-#: manual/design/cli.md:66
+#: manual/design/cli.md:68
 msgid "**Exit codes from runners.** Calling `exit` inside a runner would make it untestable as a library."
 msgstr ""
 
-#: manual/design/cli.md:71
+#: manual/design/cli.md:73
 msgid "Native target only (file access through `moonbitlang/x/fs`, exit through `moonbitlang/x/sys`)."
 msgstr ""
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:75
 msgid "No corpus download, planning, parallelism or aggregation: those are in `tools/conformance.py` and the `tools/run_*_interpreter.py` scripts."
 msgstr ""
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:77
 msgid "No public MoonBit API."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:1
+msgid "cli/dispatch design"
+msgstr ""
+
+#: manual/design/cli/dispatch.md:5
+msgid "The dispatcher has behaviour worth testing (argument scanning, the at-most-once rule, the empty value, `--help`), so it lives in a library package. The main package `cli` keeps only the process boundary: it reads `@env.args()` and calls `@sys.exit` with the returned code. A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain: main packages will stop generating blackbox tests."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:14
+msgid "Return the exit code"
+msgstr ""
+
+#: manual/design/cli/dispatch.md:16
+msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:20
+msgid "Runners stay libraries"
+msgstr ""
+
+#: manual/design/cli/dispatch.md:22
+msgid "The four runners (`cli/gda_expr_cli` and its siblings) are imported here and nowhere else; `cli` itself imports only this package and the process helpers."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:27
+msgid "Exactly one runner is called per invocation, or none for invalid arguments or `--help`."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:29
+msgid "The result equals the runner's return value, or `2` for an argument error, or `0` for `--help`."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:34
+msgid "No process exit, no file access of its own: those are in the runners and in `cli`."
 msgstr ""
 
 #: manual/design/cli/gda_expr_cli.md:1
@@ -15703,6 +15787,34 @@ msgstr ""
 
 #: manual/design/differential.md:138
 msgid "Wasm-GC cannot run the harness (no async runtime); it runs the same corpora through the synchronous `floating-conformance` runner without the mare_mark record."
+msgstr ""
+
+#: manual/design/differential/harness.md:1
+msgid "differential/harness design"
+msgstr ""
+
+#: manual/design/differential/harness.md:5
+msgid "The harness has behaviour worth testing (batch splitting, directive handling, failure text), so it lives in a library package with white-box tests. The main package `differential` keeps only the entry point: it calls `run` with `@env.args()`. A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain: main packages will stop generating blackbox tests."
+msgstr ""
+
+#: manual/design/differential/harness.md:13
+msgid "One public function"
+msgstr ""
+
+#: manual/design/differential/harness.md:15
+msgid "`run` is the only public item; the options, batches and the experiment specification stay private to the package. The behaviour, the command line and the record are those of the [`differential` design page](../../design/differential.md) and are unchanged by the split."
+msgstr ""
+
+#: manual/design/differential/harness.md:22
+msgid "The exit status is `2` for a bad command line or corpus, `1` when a batch disagrees with its oracle, and `0` otherwise."
+msgstr ""
+
+#: manual/design/differential/harness.md:24
+msgid "It does not implement or alter arithmetic: every row goes through a frontend."
+msgstr ""
+
+#: manual/design/differential/harness.md:28
+msgid "Native, JavaScript, Wasm and LLVM only (`moonbitlang/async`)."
 msgstr ""
 
 #: manual/design/doc_examples.md:1
@@ -20437,6 +20549,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
+#: manual/tutorial/cli/dispatch.md:6
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20448,6 +20561,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
+#: manual/tutorial/differential/harness.md:6
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20473,6 +20587,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
+#: manual/tutorial/cli/dispatch.md:6
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20484,6 +20599,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
+#: manual/tutorial/differential/harness.md:6
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20810,6 +20926,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
+#: manual/tutorial/cli/dispatch.md:21
 #: manual/tutorial/cli/gda_expr_cli.md:108
 #: manual/tutorial/cli/itl_expr_cli.md:78
 #: manual/tutorial/cli/mpfr_expr_cli.md:71
@@ -20821,6 +20938,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:234
 #: manual/tutorial/def.md:246
 #: manual/tutorial/differential.md:184
+#: manual/tutorial/differential/harness.md:22
 #: manual/tutorial/doc_examples.md:58
 #: manual/tutorial/frontend/gda_expr.md:241
 #: manual/tutorial/frontend/itl_expr.md:166
@@ -20881,6 +20999,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
+#: manual/tutorial/cli/dispatch.md:27
 #: manual/tutorial/cli/gda_expr_cli.md:120
 #: manual/tutorial/cli/itl_expr_cli.md:89
 #: manual/tutorial/cli/mpfr_expr_cli.md:80
@@ -20892,6 +21011,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:248
 #: manual/tutorial/def.md:270
 #: manual/tutorial/differential.md:195
+#: manual/tutorial/differential/harness.md:27
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:259
 #: manual/tutorial/frontend/itl_expr.md:180
@@ -22165,6 +22285,50 @@ msgstr ""
 
 #: manual/tutorial/cli.md:100
 msgid "[verification](../verification.md) for the published corpus claims."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:1
+msgid "cli/dispatch tutorial"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:3
+msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:8
+msgid "get the exit code of an invocation"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:9
+msgid "run the executable itself"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:9
+msgid "[the `cli` tutorial](../cli.md)"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:11
+msgid "Call the dispatcher"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:13
+msgid "The first element is the program name, as in `@env.args()`:"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:23
+msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:24
+msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints the usage line and returns `0` without running a runner."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:29
+msgid "[cli/dispatch API](../../api/cli/dispatch.md) for the exact contract."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:30
+msgid "[cli tutorial](../cli.md) for the executable."
 msgstr ""
 
 #: manual/tutorial/cli/gda_expr_cli.md:1
@@ -23591,6 +23755,7 @@ msgid "check the committed fixtures"
 msgstr ""
 
 #: manual/tutorial/differential.md:11
+#: manual/tutorial/differential/harness.md:8
 msgid "run a campaign"
 msgstr ""
 
@@ -23728,6 +23893,42 @@ msgstr ""
 
 #: manual/tutorial/differential.md:197
 msgid "Run a longer campaign on every backend, then read [verification](../verification.md) for how the published counts were produced."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:1
+msgid "differential/harness tutorial"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:3
+msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:8
+msgid "[the `differential` tutorial](../differential.md)"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:9
+msgid "change the batching or the record"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:11
+msgid "Where the code is"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:13
+msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:24
+msgid "**No wasm-gc build.** `moonbitlang/async` has no wasm-gc runtime, so the package declares `supported_targets = \"all-wasm-gc\"`."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:29
+msgid "[differential/harness API](../../api/differential/harness.md)."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:30
+msgid "[differential tutorial](../differential.md) for the workflow."
 msgstr ""
 
 #: manual/tutorial/doc_examples.md:1

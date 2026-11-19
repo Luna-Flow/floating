@@ -72,6 +72,11 @@ def package_directory(package: str) -> Path:
     raise FileNotFoundError(f"no package {package} below {source_roots()}")
 
 
+def is_executable(directory: Path) -> bool:
+    text = (directory / "moon.pkg").read_text(encoding="utf-8")
+    return re.search(r'pkgtype\(\s*kind:\s*"executable"', text) is not None
+
+
 def manual_pages() -> set[str]:
     return {str(path.relative_to(MANUAL_ROOT)) for path in MANUAL_ROOT.rglob("*.md")}
 
@@ -278,9 +283,14 @@ def check_package_readme_coverage() -> list[str]:
     errors: list[str] = []
     for package in sorted(package_paths()):
         directory = package_directory(package)
-        path = directory / "README.mbt.md"
-        if not path.exists():
-            errors.append(f"{directory.relative_to(REPO_ROOT)}: missing README.mbt.md")
+        # A main package holds no `.mbt.md` file: the toolchain deprecates
+        # blackbox test inputs in main packages, so an executable package keeps a
+        # plain README.md and its behaviour lives in a library package.
+        name = "README.md" if is_executable(directory) else "README.mbt.md"
+        if not (directory / name).exists():
+            errors.append(f"{directory.relative_to(REPO_ROOT)}: missing {name}")
+        if is_executable(directory) and list(directory.glob("*.mbt.md")):
+            errors.append(f"{directory.relative_to(REPO_ROOT)}: a main package must not hold .mbt.md files")
     return errors
 
 

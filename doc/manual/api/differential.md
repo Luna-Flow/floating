@@ -21,15 +21,15 @@ programs are described in
 `differential` is an executable package (`pkgtype(kind: "executable")`) and
 cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is
 excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`,
-which has no Wasm-GC runtime. Its `moon.pkg` imports the two frontends, the
-mare_mark packages and the shared benchmark toolkit:
+which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg`
+imports the library [`differential/harness`](differential/harness.md), which
+holds the behaviour described below, and the async runtime:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating-tools/bench" @benchkit,
-  "Luna-Flow/floating-tools/frontend/gda_expr",
-  "Luna-Flow/floating-tools/frontend/mpfr_expr",
-  "Luna-Flow/mare_mark/runner",
+  "Luna-Flow/floating-tools/differential/harness",
+  "moonbitlang/async",
+  "moonbitlang/core/env",
 }
 ```
 
