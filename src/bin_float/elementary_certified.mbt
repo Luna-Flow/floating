@@ -3666,8 +3666,13 @@ pub fn BinFloat::atanh(self : BinFloat) -> BinFloat {
 }
 
 ///|
-fn binary_atan_small_positive_bounds(
-  value : BinFloat,
+/// Series enclosure of `atan` on a nonnegative pair: the lower track runs on
+/// `lo` (rounded down) and the upper track on `hi` (rounded up), so the result
+/// `(l, u)` satisfies `l <= atan(x) <= u` for every `x` in `[lo, hi]`.
+/// Requires `0 <= lo <= hi <= 1/2` after rounding to `work_precision`.
+fn binary_atan_small_positive_pair_bounds(
+  lo : BinFloat,
+  hi : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let downward = BinaryContext::unbounded(
@@ -3678,16 +3683,18 @@ fn binary_atan_small_positive_bounds(
     work_precision,
     rounding=RoundTowardPositive,
   )
-  let lower_value = value.with_precision(
-    work_precision,
-    RoundingMode::TowardNegative,
-  )
-  let upper_value = value.with_precision(
+  let lower_value = if lo.is_zero() {
+    BinFloat::zero(precision=work_precision)
+  } else {
+    lo.with_precision(work_precision, RoundingMode::TowardNegative)
+  }
+  let upper_value = hi.with_precision(
     work_precision,
     RoundingMode::TowardPositive,
   )
   let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
-  guard lower_value.sign() == Sign::Positive && upper_value.compare(half) <= 0 else {
+  guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
+    upper_value.compare(half) <= 0 else {
     return None
   }
   if upper_value.is_zero() {
@@ -3734,17 +3741,106 @@ fn binary_atan_small_positive_bounds(
 }
 
 ///|
-fn binary_atan_small_bounds(
-  value : BinFloat,
+/// Enclosure of `atan` over the nonnegative pair `[lo, hi]` by one evaluation
+/// chain. For `x > 1/2` it uses `atan x = 2 atan(r(x))` with
+/// `r(x) = x / (1 + sqrt(1 + x^2))`. `r` is increasing on `x >= 0` (the
+/// numerator grows and the denominator is positive and grows slower in
+/// relative terms: `r(x) = tan(atan(x) / 2)`), and so is `atan`. Hence
+/// `atan(x) >= 2 atan(r(lo))` and `atan(x) <= 2 atan(r(hi))` for every `x` in
+/// `[lo, hi]`, and `r(lo)` needs a lower bound of `r` at `lo` (numerator
+/// rounded down, denominator bound rounded up) and `r(hi)` an upper bound
+/// (numerator rounded up, denominator bound rounded down). The reduced pair
+/// is again nonnegative and ordered, so the recursion is a single chain
+/// (at most two levels for any finite argument: `r(x) <= 1`, `r(1) < 1/2`).
+fn binary_atan_positive_pair_bounds(
+  lo : BinFloat,
+  hi : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  if value.is_negative() {
-    match binary_atan_small_positive_bounds(value.neg(), work_precision) {
-      Some(positive) => Some((positive.1.neg(), positive.0.neg()))
-      None => None
+  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  if hi.compare(half) <= 0 {
+    return binary_atan_small_positive_pair_bounds(lo, hi, work_precision)
+  }
+  let downward = BinaryContext::unbounded(
+    work_precision,
+    rounding=RoundTowardNegative,
+  )
+  let upward = BinaryContext::unbounded(
+    work_precision,
+    rounding=RoundTowardPositive,
+  )
+  let one = BinFloat::one(precision=work_precision)
+  let lower_value = lo.with_precision(
+    work_precision,
+    RoundingMode::TowardNegative,
+  )
+  let upper_value = hi.with_precision(
+    work_precision,
+    RoundingMode::TowardPositive,
+  )
+  // Upper bound of 1 + sqrt(1 + lo^2) and lower bound of 1 + sqrt(1 + hi^2),
+  // from directed squares, sums and square roots (all monotone on >= 0).
+  let denominator_upper = one.add_ctx(
+      one.add_ctx(lower_value.mul_ctx(lower_value, upward).0, upward).0.sqrt_ctx(
+        upward,
+      ).0,
+      upward,
+    ).0
+  let denominator_lower = one.add_ctx(
+      one.add_ctx(upper_value.mul_ctx(upper_value, downward).0, downward).0.sqrt_ctx(
+        downward,
+      ).0,
+      downward,
+    ).0
+  let ratio_lower = lower_value.div_ctx(denominator_upper, downward).0
+  let ratio_upper = upper_value.div_ctx(denominator_lower, upward).0
+  match
+    binary_atan_positive_pair_bounds(ratio_lower, ratio_upper, work_precision) {
+    Some(reduced) => {
+      let two = BinFloat::from_int(2, precision=work_precision)
+      Some(
+        (reduced.0.mul_ctx(two, downward).0, reduced.1.mul_ctx(two, upward).0),
+      )
+    }
+    None => None
+  }
+}
+
+///|
+/// Enclosure of `atan` over `[lo, hi]` (`lo <= hi`, finite) by one chain.
+/// `atan` is odd and increasing: a negative pair maps to `[-hi, -lo]`; a pair
+/// that contains zero is widened to `[-m, m]` with `m = max(-lo, hi)`, which
+/// contains it, and `atan(-m) = -atan(m)`.
+fn binary_atan_pair_bounds(
+  lo : BinFloat,
+  hi : BinFloat,
+  work_precision : Int32,
+) -> (BinFloat, BinFloat)? {
+  if hi.is_zero() && lo.is_zero() {
+    let zero = BinFloat::zero(precision=work_precision)
+    return Some((zero, zero))
+  }
+  if lo.is_negative() && !lo.is_zero() {
+    if hi.is_negative() || hi.is_zero() {
+      match
+        binary_atan_positive_pair_bounds(hi.neg(), lo.neg(), work_precision) {
+        Some(positive) => Some((positive.1.neg(), positive.0.neg()))
+        None => None
+      }
+    } else {
+      let magnitude = if lo.neg().compare(hi) > 0 { lo.neg() } else { hi }
+      match
+        binary_atan_positive_pair_bounds(
+          BinFloat::zero(precision=work_precision),
+          magnitude,
+          work_precision,
+        ) {
+        Some(positive) => Some((positive.1.neg(), positive.1))
+        None => None
+      }
     }
   } else {
-    binary_atan_small_positive_bounds(value, work_precision)
+    binary_atan_positive_pair_bounds(lo, hi, work_precision)
   }
 }
 
@@ -3757,70 +3853,11 @@ fn binary_atan_finite_bounds(
     let zero = value.with_precision(work_precision, RoundingMode::ToNearestEven)
     return Some((zero, zero))
   }
-  let downward = BinaryContext::unbounded(
+  binary_atan_pair_bounds(
+    value.with_precision(work_precision, RoundingMode::TowardNegative),
+    value.with_precision(work_precision, RoundingMode::TowardPositive),
     work_precision,
-    rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
-    rounding=RoundTowardPositive,
-  )
-  let one = BinFloat::one(precision=work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
-  if value.abs().compare(half) <= 0 {
-    return binary_atan_small_bounds(value, work_precision)
-  }
-  let lower_value = value.with_precision(
-    work_precision,
-    RoundingMode::TowardNegative,
-  )
-  let upper_value = value.with_precision(
-    work_precision,
-    RoundingMode::TowardPositive,
-  )
-  match
-    (
-      lower_value.try_hypot_ctx(one, downward),
-      upper_value.try_hypot_ctx(one, upward),
-    ) {
-    (Ok(lower_hypot), Ok(upper_hypot)) => {
-      let lower_denominator = one.add_ctx(lower_hypot.0, downward).0
-      let upper_denominator = one.add_ctx(upper_hypot.0, upward).0
-      let lower_ratio = lower_value.div_ctx(
-          if lower_value.is_negative() {
-            lower_denominator
-          } else {
-            upper_denominator
-          },
-          downward,
-        ).0
-      let upper_ratio = upper_value.div_ctx(
-          if upper_value.is_negative() {
-            upper_denominator
-          } else {
-            lower_denominator
-          },
-          upward,
-        ).0
-      match
-        (
-          binary_atan_finite_bounds(lower_ratio, work_precision),
-          binary_atan_finite_bounds(upper_ratio, work_precision),
-        ) {
-        (Some(lower_atan), Some(upper_atan)) => {
-          let two = BinFloat::from_int(2, precision=work_precision)
-          Some(
-            (
-              lower_atan.0.mul_ctx(two, downward).0,
-              upper_atan.1.mul_ctx(two, upward).0,
-            ),
-          )
-        }
-        _ => None
-      }
-    }
-    _ => None
-  }
 }
 
 ///|
@@ -3997,37 +4034,35 @@ fn binary_asin_bounds(
   let upper_argument = one.sub_ctx(lower_square, upward).0
   let lower_root = lower_argument.sqrt_ctx(downward).0
   let upper_root = upper_argument.sqrt_ctx(upward).0
-  let lower_candidates = [
-    lower_value.div_ctx(lower_root, downward).0,
-    lower_value.div_ctx(upper_root, downward).0,
-    upper_value.div_ctx(lower_root, downward).0,
-    upper_value.div_ctx(upper_root, downward).0,
-  ]
-  let upper_candidates = [
-    lower_value.div_ctx(lower_root, upward).0,
-    lower_value.div_ctx(upper_root, upward).0,
-    upper_value.div_ctx(lower_root, upward).0,
-    upper_value.div_ctx(upper_root, upward).0,
-  ]
-  let mut ratio_lower = lower_candidates[0]
-  let mut ratio_upper = upper_candidates[0]
-  for candidate in lower_candidates[1:] {
-    if candidate.compare(ratio_lower) < 0 {
-      ratio_lower = candidate
-    }
-  }
-  for candidate in upper_candidates[1:] {
-    if candidate.compare(ratio_upper) > 0 {
-      ratio_upper = candidate
-    }
-  }
-  match
-    (
-      binary_atan_finite_bounds(ratio_lower, work_precision),
-      binary_atan_finite_bounds(ratio_upper, work_precision),
-    ) {
-    (Some(lower_atan), Some(upper_atan)) => Some((lower_atan.0, upper_atan.1))
-    _ => None
+  // f(x) = x / sqrt(1 - x^2) is increasing on (-1, 1) (numerator increasing,
+  // and for x >= 0 the denominator shrinks as x grows). For x in [lo, hi],
+  // sqrt(1 - x^2) lies in [lower_root, upper_root], so
+  //   lo <  0: f(x) >= f(lo) >= lo / lower_root (negative over a smaller
+  //            positive number is more negative),
+  //   lo >= 0: f(x) >= f(lo) >= lo / upper_root,
+  //   hi >= 0: f(x) <= f(hi) <= hi / lower_root,
+  //   hi <  0: f(x) <= f(hi) <= hi / upper_root.
+  // Both roots are positive for |x| < 1 at this working precision.
+  guard lower_root.compare(BinFloat::zero()) > 0 else { return None }
+  let ratio_lower = lower_value.div_ctx(
+      if lower_value.compare(BinFloat::zero()) < 0 {
+        lower_root
+      } else {
+        upper_root
+      },
+      downward,
+    ).0
+  let ratio_upper = upper_value.div_ctx(
+      if upper_value.compare(BinFloat::zero()) >= 0 {
+        lower_root
+      } else {
+        upper_root
+      },
+      upward,
+    ).0
+  match binary_atan_pair_bounds(ratio_lower, ratio_upper, work_precision) {
+    Some(bounds) => Some(bounds)
+    None => None
   }
 }
 
@@ -4349,60 +4384,69 @@ fn binary_atan2_finite_bounds(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  let lower_candidates = [
-    ordinate_lower.div_ctx(abscissa_lower, downward).0,
-    ordinate_lower.div_ctx(abscissa_upper, downward).0,
-    ordinate_upper.div_ctx(abscissa_lower, downward).0,
-    ordinate_upper.div_ctx(abscissa_upper, downward).0,
-  ]
-  let upper_candidates = [
-    ordinate_lower.div_ctx(abscissa_lower, upward).0,
-    ordinate_lower.div_ctx(abscissa_upper, upward).0,
-    ordinate_upper.div_ctx(abscissa_lower, upward).0,
-    ordinate_upper.div_ctx(abscissa_upper, upward).0,
-  ]
-  let mut ratio_lower = lower_candidates[0]
-  let mut ratio_upper = upper_candidates[0]
-  for candidate in lower_candidates[1:] {
-    if candidate.compare(ratio_lower) < 0 {
-      ratio_lower = candidate
-    }
-  }
-  for candidate in upper_candidates[1:] {
-    if candidate.compare(ratio_upper) > 0 {
-      ratio_upper = candidate
-    }
-  }
-  match
+  // y / x over [y_lo, y_hi] x [x_lo, x_hi] with x of one strict sign
+  // (zero abscissas are handled before this function). For x > 0 the ratio
+  // is increasing in y and, for y >= 0, decreasing in x (the reverse for
+  // y < 0); for x < 0 it is decreasing in y and the x-dependence flips.
+  // Choosing the extreme corner per sign case gives the exact range:
+  //   x > 0: lower = y_lo >= 0 ? y_lo / x_hi : y_lo / x_lo
+  //          upper = y_hi >= 0 ? y_hi / x_lo : y_hi / x_hi
+  //   x < 0: lower = y_hi >= 0 ? y_hi / x_hi : y_hi / x_lo
+  //          upper = y_lo >= 0 ? y_lo / x_lo : y_lo / x_hi
+  let zero = BinFloat::zero()
+  let (ratio_lower, ratio_upper) = if abscissa.sign() == Sign::Positive {
     (
-      binary_atan_finite_bounds(ratio_lower, work_precision),
-      binary_atan_finite_bounds(ratio_upper, work_precision),
-    ) {
-    (Some(lower_atan), Some(upper_atan)) =>
+      if ordinate_lower.compare(zero) >= 0 {
+        ordinate_lower.div_ctx(abscissa_upper, downward).0
+      } else {
+        ordinate_lower.div_ctx(abscissa_lower, downward).0
+      },
+      if ordinate_upper.compare(zero) >= 0 {
+        ordinate_upper.div_ctx(abscissa_lower, upward).0
+      } else {
+        ordinate_upper.div_ctx(abscissa_upper, upward).0
+      },
+    )
+  } else {
+    (
+      if ordinate_upper.compare(zero) >= 0 {
+        ordinate_upper.div_ctx(abscissa_upper, downward).0
+      } else {
+        ordinate_upper.div_ctx(abscissa_lower, downward).0
+      },
+      if ordinate_lower.compare(zero) >= 0 {
+        ordinate_lower.div_ctx(abscissa_lower, upward).0
+      } else {
+        ordinate_lower.div_ctx(abscissa_upper, upward).0
+      },
+    )
+  }
+  match binary_atan_pair_bounds(ratio_lower, ratio_upper, work_precision) {
+    Some(angle) =>
       if abscissa.sign() == Sign::Positive {
-        Some((lower_atan.0, upper_atan.1))
+        Some(angle)
       } else {
         match binary_pi_bounds(work_precision) {
           Some(pi) =>
             if ordinate.sign() == Sign::Negative {
               Some(
                 (
-                  lower_atan.0.sub_ctx(pi.1, downward).0,
-                  upper_atan.1.sub_ctx(pi.0, upward).0,
+                  angle.0.sub_ctx(pi.1, downward).0,
+                  angle.1.sub_ctx(pi.0, upward).0,
                 ),
               )
             } else {
               Some(
                 (
-                  lower_atan.0.add_ctx(pi.0, downward).0,
-                  upper_atan.1.add_ctx(pi.1, upward).0,
+                  angle.0.add_ctx(pi.0, downward).0,
+                  angle.1.add_ctx(pi.1, upward).0,
                 ),
               )
             }
           None => None
         }
       }
-    _ => None
+    None => None
   }
 }
 

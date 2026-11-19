@@ -401,16 +401,11 @@ pub fn BinFloat::try_atan2pi_ctx(
     let ratio_upper = ordinate_magnitude.div_ctx(abscissa_magnitude, upward).0
     match
       (
-        binary_atan_finite_bounds(ratio_lower, w),
-        binary_atan_finite_bounds(ratio_upper, w),
+        binary_atan_pair_bounds(ratio_lower, ratio_upper, w),
         binary_pi_bounds(w),
       ) {
-      (Some(lower_angle), Some(upper_angle), Some(pi)) => {
-        let fraction = binary_pi_scaled_enclosure(
-          (lower_angle.0, upper_angle.1),
-          pi,
-          w,
-        )
+      (Some(angle), Some(pi)) => {
+        let fraction = binary_pi_scaled_enclosure(angle, pi, w)
         let magnitude = if behind {
           let one = BinFloat::one(precision=w)
           (
