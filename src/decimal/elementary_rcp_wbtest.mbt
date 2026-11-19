@@ -4,6 +4,23 @@
 // `elementary_rcp_rows_wbtest.mbt` holds the exact and certified rows.
 
 ///|
+fn rcp_try(
+  op : String,
+  x : String,
+  y : String,
+  n : Int32,
+  ctx : DecimalContext,
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  let a = pm1_exact(x)
+  match op {
+    "rsqrt" => a.try_rsqrt_ctx(ctx)
+    "compound" => a.try_compound_ctx(n, ctx)
+    "powr" => a.try_powr_ctx(pm1_exact(y), ctx)
+    _ => abort("unknown operation " + op)
+  }
+}
+
+///|
 fn rcp_call(
   op : String,
   x : String,
@@ -11,14 +28,7 @@ fn rcp_call(
   n : Int32,
   ctx : DecimalContext,
 ) -> String {
-  let a = pm1_exact(x)
-  let result = match op {
-    "rsqrt" => a.try_rsqrt_ctx(ctx)
-    "compound" => a.try_compound_ctx(n, ctx)
-    "powr" => a.try_powr_ctx(pm1_exact(y), ctx)
-    _ => abort("unknown operation " + op)
-  }
-  match result {
+  match rcp_try(op, x, y, n, ctx) {
     Ok((value, flags)) => "\{value} \{pm1_flags_text(flags)}"
     Err(_) => "certification-failure"
   }
@@ -44,18 +54,20 @@ test "rcp generated rows: exact and certified results, cohort and flags" {
       expected,
       flags,
     ) = row
-    let ctx = pm1_ctx(precision, rounding, e_min, e_max, clamp, tininess)
-    let got = rcp_call(op, x, y, n, ctx)
-    let want_value = pm1_exact(expected)
-    let parts = got.split(" ").map(fn(s) { s.to_owned() }).collect()
-    let ok = parts.length() == 2 &&
-      pm1_exact(parts[0]).compare_total(want_value) == 0 &&
-      parts[1] == flags
+    let ctx = pm1_ctx_cached(precision, rounding, e_min, e_max, clamp, tininess)
+    // Value (cohort included) and flags are compared directly; the result is
+    // formatted only to describe a failure.
+    let ok = match rcp_try(op, x, y, n, ctx) {
+      Ok((value, actual_flags)) =>
+        value.compare_total(pm1_exact(expected)) == 0 &&
+        pm1_flags_text(actual_flags) == flags
+      Err(_) => false
+    }
     if !ok {
       count += 1
       if count <= 20 {
         failures.write_string(
-          "\{op} \{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} \{tininess} x=\{x} y=\{y} n=\{n}: want \{expected} \{flags}, got \{got}\n",
+          "\{op} \{rounding} p=\{precision} [\{e_min},\{e_max}] clamp=\{clamp} \{tininess} x=\{x} y=\{y} n=\{n}: want \{expected} \{flags}, got \{rcp_call(op, x, y, n, ctx)}\n",
         )
       }
     }

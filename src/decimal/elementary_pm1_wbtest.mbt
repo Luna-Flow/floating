@@ -109,6 +109,39 @@ fn pm1_ctx(
 }
 
 ///|
+/// The context of the previous row: consecutive rows of the generated tables
+/// share it, so it is rebuilt only when a parameter changes.
+let pm1_ctx_last : Ref[
+  (Int32, String, Int32, Int32, Bool, String, DecimalContext)?,
+] = Ref(None)
+
+///|
+fn pm1_ctx_cached(
+  precision : Int32,
+  rounding : String,
+  e_min : Int32,
+  e_max : Int32,
+  clamp : Bool,
+  tininess : String,
+) -> DecimalContext {
+  match pm1_ctx_last.val {
+    Some((p, r, lo, hi, c, t, ctx)) if p == precision &&
+      r == rounding &&
+      lo == e_min &&
+      hi == e_max &&
+      c == clamp &&
+      t == tininess => ctx
+    _ => {
+      let ctx = pm1_ctx(precision, rounding, e_min, e_max, clamp, tininess)
+      pm1_ctx_last.val = Some(
+        (precision, rounding, e_min, e_max, clamp, tininess, ctx),
+      )
+      ctx
+    }
+  }
+}
+
+///|
 let pm1_ops : Array[String] = ["exp2m1", "exp10m1", "log2p1", "log10p1"]
 
 ///|
@@ -129,7 +162,7 @@ test "pm1 generated rows: exact and MPFR-certified results, cohort and flags" {
       expected,
       flags,
     ) = row
-    let ctx = pm1_ctx(precision, rounding, e_min, e_max, clamp, tininess)
+    let ctx = pm1_ctx_cached(precision, rounding, e_min, e_max, clamp, tininess)
     let want = pm1_exact(expected)
     match pm1_try(op, pm1_exact(x), ctx) {
       Ok((value, actual_flags)) =>
