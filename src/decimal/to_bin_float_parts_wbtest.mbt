@@ -166,7 +166,7 @@ test "to_bin_float at large exponents equals exact integer arithmetic (not the o
       precision=Int32::max(40, text.length()),
     ).unwrap()
     let got = value.to_bin_float(precision~, mode=to_bin_float_mode(mode))
-    let expected_value = BigInt::from_string(coefficient)
+    let expected_value = bigint_from_text(coefficient)
     let negative = expected_value < BigInt::from_int(0)
     let magnitude = abs_bigint(expected_value)
     let expected = @bin_float.BinFloat::make(
@@ -178,7 +178,7 @@ test "to_bin_float at large exponents equals exact integer arithmetic (not the o
     )
     assert_true(
       got.compare(expected) == 0 && got.is_negative() == negative,
-      msg="\{text[:Int32::min(40, text.length())].to_string()} p=\{precision} \{mode}",
+      msg="\{text[:Int32::min(40, text.length())].to_owned()} p=\{precision} \{mode}",
     )
   }
   assert_true(rows.length() > 500)

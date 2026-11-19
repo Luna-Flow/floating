@@ -26,7 +26,6 @@ using @decimal_kernel {
   dec_coeff_from_unit_accumulator,
   dec_coeff_gcd_repr,
   dec_coeff_huge_shift_rounded_unit,
-  dec_coeff_integer_sqrt_floor_repr,
   dec_coeff_integer_sqrt_rem_repr,
   dec_coeff_is_odd,
   dec_coeff_limb_at,
