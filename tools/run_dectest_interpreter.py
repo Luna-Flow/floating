@@ -224,13 +224,13 @@ def print_text(report: dict) -> None:
             phase["executableCases"],
             phase["failedCases"]
             + (phase["unsupportedCases"] + phase["legacyConditionCases"] if strict else 0),
-            f"{phase['files']} files · {phase['skippedCases']} skipped",
+            f"{phase['files']} files, {phase['skippedCases']} skipped",
         )
         for phase in report["phases"]
     ]
     summary = report["summary"]
     print_summary(
-        "DECIMAL_GDA · official decTest",
+        "DECIMAL_GDA: official decTest",
         f"official corpus={report['corpus']['name']}",
         rows,
         summary["passedCases"],

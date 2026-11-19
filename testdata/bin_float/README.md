@@ -100,7 +100,7 @@ files and digests are pinned in `corpora.json`).
 the `mpfr_strtofr` result as `[-]0x<hex>p<exp>` (or `inf`, `-0x0p0`). Per
 precision (11, 24, 53, 113, 200) and rounding (`n`, `na`, `z`, `u`, `d`, `a`;
 `na` is MPFR's nearest-away wrapper) it holds random literals with 1 to 22
-mantissa digits and exponents up to ±3·10^8, 60 to 400 digit mantissas, exact
+mantissa digits and exponents up to ±3*10^8, 60 to 400 digit mantissas, exact
 halfway points between adjacent values of the precision and the decimal strings
 one unit above and below them, `0`, `-0`, `+5`, `0e999999999`, values next to
 the largest binade and literals beyond the exponent range. The runner parses

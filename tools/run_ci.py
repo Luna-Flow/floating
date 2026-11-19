@@ -85,13 +85,13 @@ def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
 # repeats the warning check on the same sources), so no separate native CHECK
 # stage follows. The later stages stay `--frozen`.
 DEPENDENCY_STAGE = Stage(
-    "DEPENDENCIES · fetch",
+    "DEPENDENCIES: fetch",
     ("sh", "tools/run_moon_clean_exec.sh", "check", "--target", "native", "--deny-warn"),
 )
 
 
-DOCS_STAGE_NAME = "DOCS · manual quality and examples"
-DOCS_EXAMPLES_STAGE_NAME = "DOCS · manual examples"
+DOCS_STAGE_NAME = "DOCS: manual quality and examples"
+DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 
 # Quick gate lanes (see `ci_schedule`). Stages of the "moon" lane share the
 # default target directory `_build`, and `run_moon_clean_exec.sh` clears the
@@ -101,18 +101,18 @@ DOCS_EXAMPLES_STAGE_NAME = "DOCS · manual examples"
 # writes throwaway packages under `src`, so that no moon command in the other
 # lane sees them. The "python" lane never calls moon.
 QUICK_LANES: dict[str, tuple[str, str | None]] = {
-    "DEPENDENCIES · fetch": ("moon", None),
+    "DEPENDENCIES: fetch": ("moon", None),
     DOCS_EXAMPLES_STAGE_NAME: ("moon", None),
-    "FORMAT · MoonBit sources": ("moon", None),
-    "TEST · native": ("moon", None),
-    "SMOKE · IEEE 754": ("moon", None),
-    "IMPORTS · package independence": ("python", None),
-    "DOCS · manual quality": ("python", None),
-    "TEST · Python tooling": ("python", None),
-    "SMOKE · DecimalGDA": ("conformance", DOCS_EXAMPLES_STAGE_NAME),
-    "SMOKE · Binary": ("conformance", None),
-    "SMOKE · Random differential": ("conformance", None),
-    "SMOKE · Interval": ("conformance", None),
+    "FORMAT: MoonBit sources": ("moon", None),
+    "TEST: native": ("moon", None),
+    "SMOKE: IEEE 754": ("moon", None),
+    "IMPORTS: package independence": ("python", None),
+    "DOCS: manual quality": ("python", None),
+    "TEST: Python tooling": ("python", None),
+    "SMOKE: DecimalGDA": ("conformance", DOCS_EXAMPLES_STAGE_NAME),
+    "SMOKE: Binary": ("conformance", None),
+    "SMOKE: Random differential": ("conformance", None),
+    "SMOKE: Interval": ("conformance", None),
 }
 
 
@@ -133,12 +133,12 @@ def assign_lanes(stages: list[Stage]) -> list[Stage]:
 def stages_for(scope: str, jobs: int) -> list[Stage]:
     suites = {
         "decimal": Stage(
-            "DECIMAL · IEEE 754",
+            "DECIMAL: IEEE 754",
             conformance_command(BackendName.DECIMAL, 1),
         ),
         "decimal_gda": [
             Stage(
-                "DECIMAL_GDA · package tests",
+                "DECIMAL_GDA: package tests",
                 (
                     "sh",
                     "tools/run_moon_clean_exec.sh",
@@ -153,7 +153,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "DECIMAL_GDA · frontend tests",
+                "DECIMAL_GDA: frontend tests",
                 (
                     "sh",
                     "tools/run_moon_clean_exec.sh",
@@ -168,25 +168,25 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "DECIMAL_GDA · official decTest",
+                "DECIMAL_GDA: official decTest",
                 conformance_command(BackendName.DECIMAL_GDA, jobs),
             ),
             Stage(
-                "DECIMAL_GDA · official0 decTest",
+                "DECIMAL_GDA: official0 decTest",
                 (*conformance_command(BackendName.DECIMAL_GDA, jobs), "--corpus", "official0"),
             ),
         ],
         "binary": Stage(
-            "BINARY · TestFloat + MPFR",
+            "BINARY: TestFloat + MPFR",
             conformance_command(BackendName.BINARY, jobs),
         ),
         "interval": Stage(
-            "INTERVAL · IEEE 1788",
+            "INTERVAL: IEEE 1788",
             conformance_command(BackendName.INTERVAL, jobs),
         ),
         "elementary": [
             Stage(
-                "ELEMENTARY · correctness and candidate workload",
+                "ELEMENTARY: correctness and candidate workload",
                 (
                     "sh",
                     "tools/run_moon_clean_exec.sh",
@@ -201,11 +201,11 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "ELEMENTARY · immutable baseline mare_mark gate",
+                "ELEMENTARY: immutable baseline mare_mark gate",
                 (sys.executable, "tools/run_elementary_performance_gate.py"),
             ),
             Stage(
-                "ELEMENTARY · candidate mare_mark workload",
+                "ELEMENTARY: candidate mare_mark workload",
                 (sys.executable, "tools/benchmark.py", "elementary"),
             ),
         ],
@@ -217,11 +217,11 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
     common_repository_stages = [
         DEPENDENCY_STAGE,
         Stage(
-            "IMPORTS · package independence",
+            "IMPORTS: package independence",
             (sys.executable, "tools/check_imports.py"),
         ),
         Stage(
-            "FORMAT · MoonBit sources",
+            "FORMAT: MoonBit sources",
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
         ),
         Stage(
@@ -238,7 +238,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         return assign_lanes([
             *repository_stages,
             Stage(
-                "DOCS · manual quality",
+                "DOCS: manual quality",
                 (sys.executable, "tools/run_docs.py", "--quality-only"),
             ),
             Stage(
@@ -251,7 +251,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "TEST · native",
+                "TEST: native",
                 (
                     "sh",
                     "tools/run_moon_clean_exec.sh",
@@ -265,7 +265,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "SMOKE · IEEE 754",
+                "SMOKE: IEEE 754",
                 (
                     sys.executable,
                     "tools/conformance.py",
@@ -275,7 +275,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "TEST · Python tooling",
+                "TEST: Python tooling",
                 (
                     sys.executable,
                     "-m",
@@ -288,7 +288,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "SMOKE · DecimalGDA",
+                "SMOKE: DecimalGDA",
                 (
                     sys.executable,
                     "tools/conformance.py",
@@ -298,7 +298,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "SMOKE · Binary",
+                "SMOKE: Binary",
                 (
                     sys.executable,
                     "tools/conformance.py",
@@ -308,11 +308,11 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 ),
             ),
             Stage(
-                "SMOKE · Random differential",
+                "SMOKE: Random differential",
                 (sys.executable, "tools/random_differential.py", "smoke"),
             ),
             Stage(
-                "SMOKE · Interval",
+                "SMOKE: Interval",
                 (
                     sys.executable,
                     "tools/conformance.py",
@@ -327,7 +327,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         *common_repository_stages,
         *[
             Stage(
-                f"CHECK · {target}",
+                f"CHECK: {target}",
                 (
                     "sh",
                     "tools/run_moon_clean_exec.sh",
@@ -344,10 +344,10 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
     ]
     return [
         *repository_stages,
-        Stage("INFO · generated interfaces", ("sh", "tools/run_moon_clean_exec.sh", "info")),
+        Stage("INFO: generated interfaces", ("sh", "tools/run_moon_clean_exec.sh", "info")),
         *[
             Stage(
-                f"TEST · {target}",
+                f"TEST: {target}",
                 (
                     "sh",
                     "tools/run_moon_clean_exec.sh",
@@ -446,7 +446,7 @@ def run_parallel(stages: list[Stage], console: Console) -> int:
 def run(scope: str, jobs: int, dry_run: bool = False) -> int:
     stages = stages_for(scope, jobs)
     console = Console()
-    console.heading("LUNAFLOW CI", f"scope={scope} · workers={jobs}")
+    console.heading("LUNAFLOW CI", f"scope={scope}, workers={jobs}")
     if dry_run:
         for stage in stages:
             print(f"{stage.name}: [{stage.lane}] " + " ".join(stage.command))
@@ -463,7 +463,7 @@ def run(scope: str, jobs: int, dry_run: bool = False) -> int:
         result = subprocess.run(stage.command, cwd=REPO_ROOT)
         elapsed = format_duration(time.monotonic() - stage_started)
         if result.returncode != 0:
-            progress.finish(False, f"{stage.name} · {elapsed}")
+            progress.finish(False, f"{stage.name}, {elapsed}")
             return result.returncode
         console.status(True, stage.name, elapsed)
         completed += 1

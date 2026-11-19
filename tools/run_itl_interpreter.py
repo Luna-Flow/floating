@@ -211,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             summary = report["summary"]
             print_summary(
-                "INTERVAL · IEEE 1788",
+                "INTERVAL: IEEE 1788",
                 f"ITF1788 revision={revision}",
                 [
                     SummaryRow(

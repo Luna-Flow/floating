@@ -574,7 +574,7 @@ so $x y + z$ is rounded once (clause 5.4.1). The difference from two
 roundings is the point of the operation: for $a = \operatorname{RN}(0.1)$ in
 binary64, the rounding error $a \cdot a - \operatorname{RN}(a \cdot a)$ is
 lost by `mul_ctx` followed by `sub_ctx` (the second operation sees two equal
-numbers) but `fma_ctx(a, a, -RN(a·a))` returns it exactly,
+numbers) but `fma_ctx(a, a, -RN(a*a))` returns it exactly,
 $-8.33\ldots \cdot 10^{-19}$. That the result is exact is Dekker's theorem:
 the error of a rounded-to-nearest product is itself in $F$ when no underflow
 occurs (precisely, when $e_a + e_b \ge e_{\min} - p + 1$ for the exponents of

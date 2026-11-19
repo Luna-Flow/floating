@@ -33,7 +33,7 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | canonical | `canonical`, `is_canonical` | no decTest file; `src/consistency/api_audit_wbtest.mbt` | conforming |
 | context: precision, rounding, clamp, exponent limits | `GdaContext`, `DecimalContext` | `clamp.decTest`, `rounding.decTest`, `inexact.decTest`, `randoms.decTest` | conforming |
 | status flags and traps (Appendix and Exceptional conditions) | `GdaOutcome`, `GdaContext::with_traps` | every decTest row checks the flag set; trap enablement is covered by the runner's directive handling | conforming |
-| subset arithmetic (Appendix A) | `extended = false` contexts | pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA · official0 decTest` gate stage; `src/decimal_gda/` white-box tests | conforming |
+| subset arithmetic (Appendix A) | `extended = false` contexts | pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `src/decimal_gda/` white-box tests | conforming |
 
 ## Legacy corpus
 

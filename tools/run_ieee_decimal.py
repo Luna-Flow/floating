@@ -962,7 +962,7 @@ def _report(
     ]
     rows.extend(
         {
-            "name": f"public API · {target['target']}",
+            "name": f"public API: {target['target']}",
             "passedCases": target["passedCases"],
             "totalCases": target["totalCases"],
             "failedCases": target["failedCases"],
@@ -1060,7 +1060,7 @@ def _print_report(report: dict[str, Any]) -> None:
         ]
         + [
             {
-                "name": f"public API · {target['target']}",
+                "name": f"public API: {target['target']}",
                 "passedCases": target["passedCases"],
                 "totalCases": target["totalCases"],
                 "failedCases": target["failedCases"],
@@ -1079,8 +1079,8 @@ def _print_report(report: dict[str, Any]) -> None:
     ]
     summary = report["summary"]
     print_summary(
-        "DECIMAL · IEEE 754",
-        "checked-in interchange corpus · independent Oracle routes",
+        "DECIMAL: IEEE 754",
+        "checked-in interchange corpus, independent Oracle routes",
         rows,
         summary["passedCases"],
         summary["totalCases"],

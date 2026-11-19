@@ -55,10 +55,10 @@ verified, and how) and a performance page (measurements and their method).
 
 | Part | Tutorial | API | Design | Evidence |
 | --- | --- | --- | --- | --- |
-| `bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | [tutorial](tutorial/bin_float.md) | [API](api/bin_float.md) | [design](design/bin_float.md) | [conformance](conformance/bin_float.md) · [performance](performance/bin_float.md) |
-| `decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange | [tutorial](tutorial/decimal.md) | [API](api/decimal.md) | [design](design/decimal.md) | [conformance](conformance/decimal.md) · [performance](performance/decimal.md) |
-| `decimal_gda`: General Decimal Arithmetic with sticky status and traps | [tutorial](tutorial/decimal_gda.md) | [API](api/decimal_gda.md) | [design](design/decimal_gda.md) | [conformance](conformance/decimal_gda.md) · [performance](performance/decimal_gda.md) |
-| `ball_float`: outward-rounded bare and decorated intervals (IEEE 1788) | [tutorial](tutorial/ball_float.md) | [API](api/ball_float.md) | [design](design/ball_float.md) | [conformance](conformance/ball_float.md) · [performance](performance/ball_float.md) |
+| `bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | [tutorial](tutorial/bin_float.md) | [API](api/bin_float.md) | [design](design/bin_float.md) | [conformance](conformance/bin_float.md), [performance](performance/bin_float.md) |
+| `decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange | [tutorial](tutorial/decimal.md) | [API](api/decimal.md) | [design](design/decimal.md) | [conformance](conformance/decimal.md), [performance](performance/decimal.md) |
+| `decimal_gda`: General Decimal Arithmetic with sticky status and traps | [tutorial](tutorial/decimal_gda.md) | [API](api/decimal_gda.md) | [design](design/decimal_gda.md) | [conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md) |
+| `ball_float`: outward-rounded bare and decorated intervals (IEEE 1788) | [tutorial](tutorial/ball_float.md) | [API](api/ball_float.md) | [design](design/ball_float.md) | [conformance](conformance/ball_float.md), [performance](performance/ball_float.md) |
 
 ### Composition and shared vocabulary
 
@@ -107,7 +107,7 @@ verified, and how) and a performance page (measurements and their method).
 | `bench/decimal`: IEEE decimal benchmarks | [tutorial](tutorial/bench/decimal.md) | [API](api/bench/decimal.md) | [design](design/bench/decimal.md) |
 | `bench/decimal_gda`: GDA decimal benchmarks | [tutorial](tutorial/bench/decimal_gda.md) | [API](api/bench/decimal_gda.md) | [design](design/bench/decimal_gda.md) |
 | `bench/ball_float`: interval arithmetic benchmarks | [tutorial](tutorial/bench/ball_float.md) | [API](api/bench/ball_float.md) | [design](design/bench/ball_float.md) |
-| `bench/external`: timing against MPFR and libmpdec on shared operands | [tutorial](tutorial/bench/external.md) | [API](api/bench/external.md) | [design](design/bench/external.md) · [performance](performance/bench/external.md) |
+| `bench/external`: timing against MPFR and libmpdec on shared operands | [tutorial](tutorial/bench/external.md) | [API](api/bench/external.md) | [design](design/bench/external.md), [performance](performance/bench/external.md) |
 
 ### Guides
 

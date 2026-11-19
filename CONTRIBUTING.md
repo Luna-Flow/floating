@@ -126,6 +126,14 @@ trait design, and test coverage are especially valuable.
 - Keep commits small and focused.
 - Avoid combining unrelated documentation, trait, and numeric behavior changes in one commit unless they are tightly coupled.
 
+### 5.3 Separators in gate output and documentation
+
+- Do not use the middle dot (U+00B7) as a separator in gate output, tool output, documentation or pull request text. It stays only where it is required, for example inside a transliterated personal name or in text quoted verbatim from another source.
+- Stage and suite names are written `CATEGORY: detail`, for example `TEST: native`, `SMOKE: IEEE 754`, `DECIMAL_GDA: official decTest`.
+- Facts joined in one line use a comma, for example `25,385/25,385 passed, 12m 00s` or `scope=quick, workers=4`.
+- A product in prose or code text is written `*` in code and `\cdot` or `\times` inside `$...$` formulas. The katakana middle dot (U+30FB) inside a katakana compound is normal Japanese orthography and is left alone.
+- Anything that parses a label (tests, scripts, the CI workflow) is updated in the same change.
+
 ## 6. Release Checklist
 
 - Before publishing to Mooncakes, make sure `moon.mod` has already been bumped to the intended release version.
