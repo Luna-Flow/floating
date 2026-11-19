@@ -637,6 +637,19 @@ fn certified_sin_cos_interval_bounds(
 }
 
 ///|
+/// Range of quarter-turn indices `k` with `k pi/2` inside `value`, from one
+/// exact-rational enclosure of `pi` computed once (the quotient bounds are
+/// conservative, so the range can only be too large, never too small).
+fn trig_critical_indices(value : BallFloat) -> (SignedBinCoeff, SignedBinCoeff) {
+  let work = Int32::max(
+    trig_initial_work(value.lo_, value.precision_),
+    trig_initial_work(value.hi_, value.precision_),
+  )
+  let (pi_lower, pi_upper) = certified_pi_rational(work + 16)
+  critical_index_range_at_work(value, pi_lower, pi_upper).unwrap()
+}
+
+///|
 fn index_range_contains_residue(
   lower : SignedBinCoeff,
   upper : SignedBinCoeff,

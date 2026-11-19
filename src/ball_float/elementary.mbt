@@ -908,25 +908,6 @@ pub fn BallFloat::ln_ctx(
 }
 
 ///|
-fn ball_certification_failure(
-  operation : String,
-  precision : Int32,
-  initial_work_precision : Int32,
-) -> @def.ArithmeticError {
-  let mut budget = certified_refinement_budget(initial_work_precision)
-  while budget.available() {
-    budget = budget.next()
-  }
-  @internal.certified_failure(
-    operation,
-    @def.CertificationStage::TargetRounding,
-    @def.CertificationFailureReason::RefinementBudgetExhausted,
-    precision,
-    budget,
-  )
-}
-
-///|
 fn ball_range_resource_failure(
   operation : String,
   precision : Int32,
@@ -1074,23 +1055,9 @@ pub fn BallFloat::try_sin_interval(
       ball_range_resource_failure("sin", self.precision_, initial_work),
     )
   }
-  match certified_sin_cos_interval_bounds(self) {
-    Some(bounds) => {
-      let lower = if index_range_contains_residue(bounds.8, bounds.9, 3) {
-        @bin_float.BinFloat::from_int(-1, precision=self.precision_)
-      } else {
-        bin_min(bounds.0, bounds.4)
-      }
-      let upper = if index_range_contains_residue(bounds.8, bounds.9, 1) {
-        @bin_float.BinFloat::one(precision=self.precision_)
-      } else {
-        bin_max(bounds.1, bounds.5)
-      }
-      Ok(store_interval(lower, upper, self.precision_))
-    }
-    None =>
-      Err(ball_certification_failure("sin", self.precision_, initial_work))
-  }
+  self.try_sine_like_hull(trig_critical_indices(self), 0, fn(value, context) {
+    value.try_sin_ctx(context)
+  })
 }
 
 ///|
@@ -1112,23 +1079,9 @@ pub fn BallFloat::try_cos_interval(
       ball_range_resource_failure("cos", self.precision_, initial_work),
     )
   }
-  match certified_sin_cos_interval_bounds(self) {
-    Some(bounds) => {
-      let lower = if index_range_contains_residue(bounds.8, bounds.9, 2) {
-        @bin_float.BinFloat::from_int(-1, precision=self.precision_)
-      } else {
-        bin_min(bounds.2, bounds.6)
-      }
-      let upper = if index_range_contains_residue(bounds.8, bounds.9, 0) {
-        @bin_float.BinFloat::one(precision=self.precision_)
-      } else {
-        bin_max(bounds.3, bounds.7)
-      }
-      Ok(store_interval(lower, upper, self.precision_))
-    }
-    None =>
-      Err(ball_certification_failure("cos", self.precision_, initial_work))
-  }
+  self.try_sine_like_hull(trig_critical_indices(self), 1, fn(value, context) {
+    value.try_cos_ctx(context)
+  })
 }
 
 ///|
@@ -1150,12 +1103,28 @@ pub fn BallFloat::try_tan_interval(
       ball_range_resource_failure("tan", self.precision_, initial_work),
     )
   }
-  match certified_tan_interval_bounds(self) {
-    Bounds(lower, upper) => Ok(store_interval(lower, upper, self.precision_))
-    Pole => Ok(whole_real(self.precision_))
-    Failure =>
-      Err(ball_certification_failure("tan", self.precision_, initial_work))
+  // A pole `pi/2 + k pi` (odd quarter-turn index) inside the interval makes
+  // the hull the whole line; otherwise tangent is increasing on the arc.
+  let indices = trig_critical_indices(self)
+  if index_range_contains_residue(indices.0, indices.1, 1) ||
+    index_range_contains_residue(indices.0, indices.1, 3) {
+    return Ok(whole_real(self.precision_))
   }
+  let downward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  self.lo_
+  .try_tan_ctx(downward)
+  .bind(fn(lower) {
+    self.hi_
+    .try_tan_ctx(upward)
+    .map(fn(upper) { store_interval(lower.0, upper.0, self.precision_) })
+  })
 }
 
 ///|
