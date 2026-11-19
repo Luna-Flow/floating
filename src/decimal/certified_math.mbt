@@ -17,8 +17,7 @@ fn decimal_to_certified_ball(
   value : Decimal,
   precision : Int32,
 ) -> @ball_float.BallFloat {
-  let lower = value.to_bin_float(precision~, mode=RoundingMode::TowardNegative)
-  let upper = value.to_bin_float(precision~, mode=RoundingMode::TowardPositive)
+  let (lower, upper) = value.to_bin_float_bounds(precision)
   @ball_float.BallFloat::from_bounds(lower, upper, precision~)
 }
 
