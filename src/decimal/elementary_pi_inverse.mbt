@@ -22,16 +22,40 @@
 let decimal_pi_cache : Map[Int32, @ball_float.BallFloat] = Map([])
 
 ///|
-/// `pi` enclosed at `precision` bits as `4 atan(1)`.
+/// The tightest `precision`-bit enclosure `[RD(pi), RU(pi)]`, taken from the
+/// cached binary-splitting constant: `atan(+inf) = pi/2` is served from that
+/// cache by `bin_float`, and the scaling by 2 is exact (unbounded exponent
+/// range), so `[2 RD(pi/2), 2 RU(pi/2)] = [RD(pi), RU(pi)]`. This is the same
+/// interval, bit for bit, as `4 [RD(atan 1), RU(atan 1)]` (scaling by powers of
+/// two commutes with directed rounding).
+fn decimal_pi_enclosure(
+  precision : Int32,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  let infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
+  let exact = @bin_float.BinaryContext::unbounded(precision)
+  let two = @bin_float.BinFloat::from_int(2, precision=2)
+  let bound = fn(rounding) {
+    let context = @bin_float.BinaryContext::unbounded(precision, rounding~)
+    match infinity.try_atan_ctx(context) {
+      Ok(result) => result.0.mul_ctx(two, exact).0
+      Err(error) => abort(error.message)
+    }
+  }
+  (
+    bound(@bin_float.BinaryRoundingMode::RoundTowardNegative),
+    bound(@bin_float.BinaryRoundingMode::RoundTowardPositive),
+  )
+}
+
+///|
+/// `pi` enclosed at `precision` bits.
 fn decimal_pi_ball(precision : Int32) -> @ball_float.BallFloat {
   match decimal_pi_cache.get(precision) {
     Some(value) => return value
     None => ()
   }
-  let value = @ball_float.BallFloat::from_int(1, precision~)
-    .try_atan_interval()
-    .unwrap()
-    .mul(@ball_float.BallFloat::from_int(4, precision~))
+  let bounds = decimal_pi_enclosure(precision)
+  let value = @ball_float.BallFloat::from_bounds(bounds.0, bounds.1, precision~)
   // The Ziv schedule visits a few precisions per target precision; keep the
   // table small for long-running programs with many precisions.
   if decimal_pi_cache.length() >= 64 {
