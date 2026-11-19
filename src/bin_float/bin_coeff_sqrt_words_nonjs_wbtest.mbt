@@ -1,27 +1,53 @@
 ///|
+fn bin_coeff_sqrt_big(value : BinCoeff) -> BigInt raise {
+  @string.parse_bigint(value.to_string())
+}
+
+///|
+/// The definition of the integer square root, independent of the code under
+/// test (BigInt products and comparisons only): `root^2 <= n < (root + 1)^2`.
+fn bin_coeff_sqrt_assert_floor(value_big : BigInt, root : BigInt) -> Unit raise {
+  assert_true(root * root <= value_big)
+  assert_true(value_big < (root + 1N) * (root + 1N))
+}
+
+///|
+/// `root^2 + remainder == n` and `remainder <= 2 root` (equivalent to the
+/// floor property together with the remainder being `n - root^2`).
+fn bin_coeff_sqrt_assert_pair(
+  value_big : BigInt,
+  root : BigInt,
+  remainder : BigInt,
+) -> Unit raise {
+  assert_true(root * root + remainder == value_big)
+  assert_true(remainder <= 2N * root)
+}
+
+///|
 fn bin_coeff_sqrt_words_check(value_big : BigInt) -> Unit raise {
   let value = bin_coeff_test_from_bigint(value_big)
-  let root_big = bin_coeff_test_integer_sqrt_floor(value_big)
-  let remainder_big = value_big - root_big * root_big
   let bits = value.bit_length()
   if bits <= 128 {
     let words = bin_coeff_sqrt_rem_u128_words(
       bin_coeff_word(value, 1),
       bin_coeff_word(value, 0),
     )
-    bin_coeff_test_assert_matches(words.0, root_big)
-    bin_coeff_test_assert_matches(words.1, remainder_big)
+    let root = bin_coeff_sqrt_big(words.0)
+    bin_coeff_sqrt_assert_pair(value_big, root, bin_coeff_sqrt_big(words.1))
     let reference = bin_coeff_sqrt_rem_u128(
       bin_coeff_word(value, 1),
       bin_coeff_word(value, 0),
     )
-    bin_coeff_test_assert_matches(reference.0, root_big)
+    // The two entries agree with each other and with the definition.
+    assert_eq(reference.0.to_string(), words.0.to_string())
+    bin_coeff_sqrt_assert_floor(value_big, bin_coeff_sqrt_big(reference.0))
   } else if bits <= 256 {
     let words = bin_coeff_sqrt_rem_u256_words(value)
-    bin_coeff_test_assert_matches(words.0, root_big)
-    bin_coeff_test_assert_matches(words.1, remainder_big)
+    let root = bin_coeff_sqrt_big(words.0)
+    bin_coeff_sqrt_assert_pair(value_big, root, bin_coeff_sqrt_big(words.1))
     let reference = bin_coeff_sqrt_rem_u256(value)
-    bin_coeff_test_assert_matches(reference.0, root_big)
+    assert_eq(reference.0.to_string(), words.0.to_string())
+    bin_coeff_sqrt_assert_floor(value_big, bin_coeff_sqrt_big(reference.0))
   }
 }
 
@@ -78,9 +104,17 @@ test "word square root of a word" {
       0xffff_ffff_0000_0000UL,
     ] {
     let root = bin_coeff_isqrt64(value)
-    let big = BigInt::from_uint64(value)
-    assert_true(
-      BigInt::from_uint64(root) == bin_coeff_test_integer_sqrt_floor(big),
+    bin_coeff_sqrt_assert_floor(
+      BigInt::from_uint64(value),
+      BigInt::from_uint64(root),
     )
   }
+}
+
+///|
+test "fixed-width restoring square roots return zero for zero at once" {
+  let (root, remainder) = bin_coeff_sqrt_rem_u128(0UL, 0UL)
+  assert_true(root.is_zero() && remainder.is_zero())
+  let (root256, remainder256) = bin_coeff_sqrt_rem_u256(BinCoeff::zero())
+  assert_true(root256.is_zero() && remainder256.is_zero())
 }
