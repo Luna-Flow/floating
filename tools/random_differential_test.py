@@ -137,5 +137,21 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(arguments.family, ["add"])
 
 
+class CliLauncherTests(unittest.TestCase):
+    def test_javascript_cli_is_imported_so_arguments_start_after_node(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "some dir" / "cli.js"
+            command = tool.cli_launcher("js", path)
+            self.assertEqual(command[:3], ["node", "--input-type=module", "-e"])
+            self.assertEqual(command[3], "import " + json.dumps(path.resolve().as_uri()))
+            self.assertIn("some%20dir", command[3])
+        self.assertEqual(command[-1], "--")
+
+    def test_other_targets_keep_the_shared_launcher(self) -> None:
+        path = Path("/tmp/cli.wasm")
+        for target in ("native", "wasm", "wasm-gc"):
+            self.assertEqual(tool.cli_launcher(target, path), tool.launcher(target, path))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -50,6 +50,8 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
             run_ieee_decimal, "decimal_oracles"
         ) as oracles, patch.object(
             run_ieee_decimal, "run_targets", return_value=targets
+        ), patch.object(
+            run_ieee_decimal, "run_row_tables", return_value=[]
         ):
             oracles.probe.return_value = {"exact-gmp-rational": {"available": True}}
             output = StringIO()
@@ -62,6 +64,41 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
             self.assertEqual(report["runner"], "ieee-decimal-oracles")
             self.assertEqual(report["summary"]["failedCases"], 0)
             self.assertTrue((Path(directory) / "summary.json").exists())
+
+    def test_smoke_skips_the_full_row_table_and_full_gate_runs_it(self) -> None:
+        checks = {"cases": 23, "operations": 36, "declets": 1024, "encodingBridge": 11,
+                  "staticExamples": 19, "elementaryOracle": 4896, "totalOrderPairs": 18816}
+        targets = [{"target": "native", "totalCases": 2, "passedCases": 2, "failedCases": 0, "exitCode": 0}]
+        table = [{"target": "native", "table": "pi_inverse", "totalCases": 19134,
+                  "passedCases": 19134, "failedCases": 0, "failedIds": []}]
+        for smoke, expected_calls in ((True, 0), (False, 1)):
+            with tempfile.TemporaryDirectory() as directory, patch.object(
+                run_ieee_decimal, "collect_corpus_checks", return_value=checks
+            ), patch.object(run_ieee_decimal, "check_standard_excerpt", return_value=42), patch.object(
+                run_ieee_decimal, "decimal_oracles"
+            ) as oracles, patch.object(
+                run_ieee_decimal, "run_targets", return_value=targets
+            ), patch.object(
+                run_ieee_decimal, "run_row_tables", return_value=table
+            ) as runner:
+                oracles.probe.return_value = {}
+                arguments = ["--json", "--output", directory] + (["--smoke"] if smoke else [])
+                output = StringIO()
+                with redirect_stdout(output):
+                    self.assertEqual(run_ieee_decimal.main(arguments), 0)
+                self.assertEqual(runner.call_count, expected_calls)
+                report = json.loads(output.getvalue())
+                self.assertEqual(len(report["rowTables"]), expected_calls)
+
+    def test_failed_row_table_fails_the_gate(self) -> None:
+        checks = {"cases": 1, "operations": 1, "declets": 1, "encodingBridge": 1,
+                  "staticExamples": 1, "elementaryOracle": 1, "totalOrderPairs": 1}
+        targets = [{"target": "native", "totalCases": 2, "passedCases": 2, "failedCases": 0, "exitCode": 0}]
+        table = [{"target": "js", "table": "pi_inverse", "totalCases": 10,
+                  "passedCases": 9, "failedCases": 1, "failedIds": ["pi_inverse-00003"]}]
+        report = run_ieee_decimal._report(checks, 42, targets, {}, 1.0, table)
+        self.assertEqual(report["summary"]["failedCases"], 1)
+        self.assertEqual(report["summary"]["failedIds"], ["pi_inverse@js"])
 
     def test_checked_in_corpus(self) -> None:
         cases, operations, declets = run_ieee_decimal.check_corpus()
