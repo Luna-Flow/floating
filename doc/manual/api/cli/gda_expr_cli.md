@@ -43,7 +43,7 @@ pub fn run(Array[String]) -> Int
 | `--strict-supported` | also fail when a selected row is unsupported or legacy |
 | `--cases SPEC`, `--cases=SPEC` | row filter: comma-separated ids or `first..last` ranges (see `RunOptions::new`) |
 | `--help`, `-h` | print the usage line and return `2` |
-| `PATH …` | `.decTest` files or directories (direct file entries ending in `.decTest`); default `testdata/decimal/smoke.decTest` |
+| `PATH …` | `.decTest` files or directories (direct file entries ending in `.decTest`); default `testdata/decimal_gda/smoke.decTest` |
 
 Any other argument starting with `-` is an error `unknown option: …`. A
 directory contributes its direct file entries whose names end in `.decTest`

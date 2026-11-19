@@ -26,7 +26,7 @@ Both oracles are implementations, not specifications.
   using the ternary value of the first rounding, so no double rounding occurs;
   and it derives the underflow flag from the definition instead of reading
   MPFR's own flag, once for each tininess rule.
-- **Decimal.** libmpdec (Python `decimal`) implements the General Decimal
+- **`decimal_gda`.** libmpdec (Python `decimal`) implements the General Decimal
   Arithmetic specification, and the library's GDA package implements the same
   text. Two things differ and are handled in the generator, not by ignoring
   rows: libmpdec lumps `Division_undefined` into `Invalid_operation`, and the

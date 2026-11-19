@@ -2,7 +2,7 @@
 """External performance baseline: floating against MPFR and libmpdec (issue #20).
 
 One seeded generator writes the operands to a file that both sides read: the C
-harness (tools/external_baseline.c, MPFR for binary and libmpdec for decimal)
+harness (tools/external_baseline.c, MPFR for binary and libmpdec for `decimal_gda`)
 and the floating benchmarks (src/bench/external, run by Maremark on native in
 release mode).  The runner alternates the two sides in seeded AB/BA order over
 several rounds, collects raw JSONL, and reduces it to median ns per operation
@@ -45,9 +45,9 @@ BINARY_PRECISIONS: tuple[int, ...] = (53, 128, 512, 2048, 8192)
 DECIMAL_DIGITS: tuple[int, ...] = (16, 34, 100, 1000)
 # The "null" operation runs floating's timed loop without arithmetic: it
 # measures what the harness itself costs per pass, so it can be read off.
-OVERHEAD_CASES: tuple[tuple[str, int], ...] = (("binary", 53), ("decimal", 16))
+OVERHEAD_CASES: tuple[tuple[str, int], ...] = (("binary", 53), ("decimal_gda", 16))
 
-REFERENCE_TOOL = {"binary": "mpfr", "decimal": "libmpdec"}
+REFERENCE_TOOL = {"binary": "mpfr", "decimal_gda": "libmpdec"}
 
 
 # ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ REFERENCE_TOOL = {"binary": "mpfr", "decimal": "libmpdec"}
 
 @dataclass(frozen=True)
 class Case:
-    kind: str  # "binary" or "decimal"
+    kind: str  # "binary" or "decimal_gda"
     op: str
     size: int  # bits or decimal digits
 
@@ -85,7 +85,7 @@ def benchmark_cases(
         if wanted is None or op in wanted
     ]
     cases += [
-        Case("decimal", op, digits)
+        Case("decimal_gda", op, digits)
         for op in DECIMAL_OPS
         for digits in decimal_digits
         if wanted is None or op in wanted
@@ -601,7 +601,7 @@ def render_markdown(
     out: list[str] = []
     titles = {
         "binary": ("Binary: floating `bin_float` against MPFR", "MPFR"),
-        "decimal": ("Decimal: floating `decimal_gda` against libmpdec", "libmpdec"),
+        "decimal_gda": ("Decimal GDA: floating `decimal_gda` against libmpdec", "libmpdec"),
     }
     for kind, (title, library) in titles.items():
         if not any(r.kind == kind for r in results):
@@ -1139,7 +1139,7 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--out", type=Path, default=DEFAULT_OUT, help="working directory for inputs and raw rounds")
         p.add_argument("--input-seed", type=int, default=INPUT_SEED)
         p.add_argument("--binary-precisions", type=int, nargs="+", default=list(BINARY_PRECISIONS))
-        p.add_argument("--decimal-digits", type=int, nargs="+", default=list(DECIMAL_DIGITS))
+        p.add_argument("--decimal-gda-digits", "--decimal-digits", dest="decimal_digits", type=int, nargs="+", default=list(DECIMAL_DIGITS))
         p.add_argument("--ops", nargs="+", default=None, help="restrict to these operation names")
 
     gen = sub.add_parser("gen", help="write the shared operand file")

@@ -126,7 +126,8 @@ just conformance run interval --phase trigonometric --strict-supported
 
 Corpus provenance and options are described in
 [`testdata/bin_float`](./testdata/bin_float/README.md),
-[`testdata/decimal`](./testdata/decimal/README.md) and
+[`testdata/decimal`](./testdata/decimal/README.md) (IEEE 754),
+[`testdata/decimal_gda`](./testdata/decimal_gda/README.md) (GDA) and
 [`testdata/interval`](./testdata/interval/README.md).
 
 ## Contributing

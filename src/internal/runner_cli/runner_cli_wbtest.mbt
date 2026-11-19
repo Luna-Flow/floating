@@ -39,10 +39,10 @@ test "collect_files rejects a named file without the suffix" {
 ///|
 test "collect_files lists each file once and skips directories" {
   let files = collect_files(
-    ["testdata/decimal", "testdata/decimal/smoke.decTest"],
+    ["testdata/decimal", "testdata/decimal_gda/smoke.decTest"],
     ".decTest",
   ).unwrap()
-  assert_eq(files, ["testdata/decimal/smoke.decTest"])
+  assert_eq(files, ["testdata/decimal_gda/smoke.decTest"])
   // `testdata/decimal` is a directory whose name ends in the suffix.
   assert_eq(collect_files(["testdata"], "decimal").unwrap(), [])
 }

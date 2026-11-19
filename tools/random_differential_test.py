@@ -11,14 +11,14 @@ class CaseIdTests(unittest.TestCase):
         self.assertEqual(tool.parse_case_id("20261118.add.42"), ("binary", 20261118, "add", 42))
         self.assertEqual(
             tool.parse_case_id("d7.squareroot.5"),
-            ("decimal", 7, "dec-squareroot", 5),
+            ("decimal_gda", 7, "decimal_gda-squareroot", 5),
         )
 
     def test_decimal_elementary_ids_parse(self) -> None:
-        self.assertEqual(tool.parse_case_id("m20261118.exp.42"), ("decm", 20261118, "decm-exp", 42))
+        self.assertEqual(tool.parse_case_id("m20261118.exp.42"), ("decimal", 20261118, "decimal-exp", 42))
         self.assertEqual(
             tool.expand_ids(["m1.atan2.3..m1.atan2.4"]),
-            [("decm", 1, "decm-atan2", 3), ("decm", 1, "decm-atan2", 4)],
+            [("decimal", 1, "decimal-atan2", 3), ("decimal", 1, "decimal-atan2", 4)],
         )
         with self.assertRaises(tool.ToolError):
             tool.parse_case_id("m1.nope.3")
@@ -27,7 +27,17 @@ class CaseIdTests(unittest.TestCase):
         self.assertTrue(all(tool.is_decm(f) for f in tool.DECM_FAMILIES))
         self.assertFalse(any(tool.is_decm(f) for f in tool.DEFAULT_FAMILIES))
         self.assertTrue(all(tool.uses_mpfr_rows(f) for f in tool.DECM_FAMILIES))
-        self.assertIn("decm-pow", tool.ALL_FAMILIES)
+        self.assertIn("decimal-pow", tool.ALL_FAMILIES)
+
+    def test_deprecated_family_prefixes_are_aliases(self) -> None:
+        self.assertEqual(tool.canonical_family("dec-add"), "decimal_gda-add")
+        self.assertEqual(tool.canonical_family("dec-powerwide"), "decimal_gda-powerwide")
+        self.assertEqual(tool.canonical_family("decm-exp"), "decimal-exp")
+        self.assertEqual(tool.canonical_family("decimal_gda-add"), "decimal_gda-add")
+        self.assertEqual(tool.canonical_family("decimal-exp"), "decimal-exp")
+        self.assertEqual(tool.canonical_family("add"), "add")
+        args = tool.build_parser().parse_args(["plan", "--family", "dec-add", "--family", "decm-exp"])
+        self.assertEqual(args.family, ["decimal_gda-add", "decimal-exp"])
 
     def test_unknown_families_are_rejected(self) -> None:
         with self.assertRaises(tool.ToolError):
@@ -43,7 +53,7 @@ class CaseIdTests(unittest.TestCase):
                 ("binary", 1, "mul", 3),
                 ("binary", 1, "mul", 4),
                 ("binary", 1, "mul", 5),
-                ("decimal", 2, "dec-add", 9),
+                ("decimal_gda", 2, "decimal_gda-add", 9),
             ],
         )
 
@@ -90,7 +100,7 @@ class CountingTests(unittest.TestCase):
                 "-- c\nversion: 2.62\nprecision: 3\nd1.add.0 add 1 2 -> 3\nd1.add.1 add 1 2 -> 3\n",
                 encoding="utf-8",
             )
-            self.assertEqual(dict(tool.operation_counts("dec-add", decimal)), {"add": 2})
+            self.assertEqual(dict(tool.operation_counts("decimal_gda-add", decimal)), {"add": 2})
 
 
 class SummaryTests(unittest.TestCase):

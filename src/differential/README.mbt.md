@@ -17,7 +17,7 @@ the replay command. It does not implement or alter arithmetic.
 
 ```sh
 just random-diff smoke
-just random-diff run --family add --family dec-add --count 20000 --target native
+just random-diff run --family add --family decimal_gda-add --count 20000 --target native
 ```
 
 ## Detailed Documentation

@@ -21,10 +21,10 @@ coverage_summary.txt
 
 # Fetched conformance corpora and archives
 # Keep their manifests, smoke fixtures, and pinned oracle data tracked.
-testdata/decimal/official/
-testdata/decimal/official0/
-testdata/decimal/dectest.zip
-testdata/decimal/dectest0.zip
+testdata/decimal_gda/official/
+testdata/decimal_gda/official0/
+testdata/decimal_gda/dectest.zip
+testdata/decimal_gda/dectest0.zip
 testdata/interval/itf1788/
 testdata/interval/itf1788.zip
 

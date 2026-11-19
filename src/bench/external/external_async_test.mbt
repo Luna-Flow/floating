@@ -96,7 +96,7 @@ async test "external baseline floating" {
             @benchkit.run(spec, detected.snapshot, stream, seed, protocol)
           None => abort("unknown binary operation " + op)
         }
-      "decimal" =>
+      "decimal_gda" =>
         match decimal_spec(op, size, rows, reference_rows) {
           Some(spec) =>
             @benchkit.run(spec, detected.snapshot, stream, seed, protocol)

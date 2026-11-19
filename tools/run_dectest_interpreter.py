@@ -16,8 +16,8 @@ from conformance_ui import Console, Progress, SummaryRow, print_summary
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_CONFIG = REPO_ROOT / "testdata/decimal/interpreter_stages.json"
-DEFAULT_MANIFEST = REPO_ROOT / "testdata/decimal/corpora.json"
+DEFAULT_CONFIG = REPO_ROOT / "testdata/decimal_gda/interpreter_stages.json"
+DEFAULT_MANIFEST = REPO_ROOT / "testdata/decimal_gda/corpora.json"
 DEFAULT_OUTPUT = REPO_ROOT / ".tmp/dectest-interpreter"
 DEFAULT_EXECUTABLE = executable_path("gda")
 
@@ -281,7 +281,7 @@ def main(argv: list[str] | None = None) -> int:
                 command.append("--strict-supported")
             if args.cases:
                 command.extend(("--cases", args.cases))
-            command.append(str(REPO_ROOT / "testdata/decimal/smoke.decTest"))
+            command.append(str(REPO_ROOT / "testdata/decimal_gda/smoke.decTest"))
             return subprocess.run(command, cwd=REPO_ROOT).returncode
         config = load_json(args.config.resolve())
         manifest = load_json(args.manifest.resolve())

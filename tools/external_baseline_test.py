@@ -33,11 +33,11 @@ class GenerationTests(unittest.TestCase):
     def test_unary_and_positive_domains(self) -> None:
         sqrt_rows = eb.generate_rows(1, 32, [eb.Case("binary", "sqrt", 53)])
         self.assertTrue(all(r.b is None and not r.a.startswith("-") for r in sqrt_rows))
-        ln_rows = eb.generate_rows(1, 32, [eb.Case("decimal", "ln", 16)])
+        ln_rows = eb.generate_rows(1, 32, [eb.Case("decimal_gda", "ln", 16)])
         self.assertTrue(all(r.b is None and not r.a.startswith("-") for r in ln_rows))
 
     def test_decimal_operands_have_exact_digits(self) -> None:
-        for row in eb.generate_rows(1, 16, [eb.Case("decimal", "div", 34)]):
+        for row in eb.generate_rows(1, 16, [eb.Case("decimal_gda", "div", 34)]):
             for text in (row.a, row.b):
                 assert text is not None
                 coefficient, exponent = text.lstrip("-").split("E")
@@ -57,7 +57,7 @@ class GenerationTests(unittest.TestCase):
     def test_cases_cover_the_specified_matrix(self) -> None:
         cases = eb.benchmark_cases()
         binary = {c for c in cases if c.kind == "binary"}
-        decimal = {c for c in cases if c.kind == "decimal"}
+        decimal = {c for c in cases if c.kind == "decimal_gda"}
         self.assertEqual(len(binary), 7 * 5)
         self.assertEqual(len(decimal), 6 * 4)
         self.assertNotIn("sin", {c.op for c in decimal})
@@ -151,7 +151,7 @@ class ReductionTests(unittest.TestCase):
         events = [
             {"type": "observation", "case": "external/binary/add", "scale": "53bit",
              "phase": "confirmatory", "iterations": 2000, "elapsed_us": 1.6, "valid": True},
-            {"type": "observation", "case": "external/decimal/ln", "scale": "16digit",
+            {"type": "observation", "case": "external/decimal_gda/ln", "scale": "16digit",
              "phase": "exploratory", "iterations": 5, "elapsed_us": 9.0, "valid": True},
             {"type": "validation", "case": "external/binary/add", "scale": "53bit", "status": "valid"},
             {"type": "validation", "case": "external/binary/add", "scale": "53bit", "status": "invalid"},
@@ -248,11 +248,11 @@ class QuickCheckTests(unittest.TestCase):
     def test_stored_medians_read_a_published_summary(self) -> None:
         summary = {"cases": [
             {"case": "binary/add/53", "reference": {"median_ns": 4.0}, "floating": {"median_ns": 100.0}},
-            {"case": "decimal/ln/16", "reference": {"median_ns": 10000.0}, "floating": {"median_ns": 200000.0}},
+            {"case": "decimal_gda/ln/16", "reference": {"median_ns": 10000.0}, "floating": {"median_ns": 200000.0}},
         ]}  # fmt: skip
         self.assertEqual(
             eb.stored_medians(summary),
-            {"binary/add/53": (4.0, 100.0), "decimal/ln/16": (10000.0, 200000.0)},
+            {"binary/add/53": (4.0, 100.0), "decimal_gda/ln/16": (10000.0, 200000.0)},
         )
 
     def test_rows_flag_cells_above_the_target_and_order_by_case(self) -> None:

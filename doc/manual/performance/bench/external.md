@@ -5,7 +5,7 @@
 This page records how much slower or faster `floating` is than the established
 C libraries on the same machine, with the same operands and the same
 measurement protocol: `bin_float` against MPFR for binary arithmetic and
-`decimal_gda` against libmpdec for decimal arithmetic. It makes no API promise,
+`decimal_gda` against libmpdec for GDA decimal arithmetic. It makes no API promise,
 and the numbers are evidence about one machine, one toolchain and one operand
 distribution, not a speed claim for every environment. Where `floating` is
 slower, the tables say so as measured; nothing here is tuned for the
@@ -48,11 +48,11 @@ iterations and by eight.
   `mpfr_sin` with `MPFR_RNDN`. `floating`: the `BinFloat` methods `add`, `mul`,
   `div`, `sqrt`, `exp`, `ln`, `sin` on operands of that precision (round to
   nearest even, unbounded exponent range).
-- **Decimal.** Operands and results have the case digit count, rounding half
+- **`decimal_gda`.** Operands and results have the case digit count, rounding half
   even, exponent range ±999999. libmpdec: `mpd_qadd`, `mpd_qmul`, `mpd_qdiv`,
   `mpd_qsqrt`, `mpd_qexp`, `mpd_qln` with `allcr = 1`. `floating`:
   `decimal_gda` `add`, `multiply`, `divide`, `sqrt`, `exp`, `ln` in a context of
-  that precision. libmpdec has no `sin`, so decimal has six operations.
+  that precision. libmpdec has no `sin`, so `decimal_gda` has six operations.
 - **Included in the time.** The library call itself, with whatever temporary
   storage it allocates internally. For `floating` this includes constructing
   the immutable result value and the Maremark per-iteration bookkeeping; the
@@ -125,7 +125,7 @@ Median ns per operation, floating
 | ln | 54.7 us | 118 us | 536 us | 8.47 ms | 286 ms |
 | sin | 218 us | 348 us | 1.29 ms | 17.3 ms | 507 ms |
 
-### Decimal: floating `decimal_gda` against libmpdec
+### Decimal GDA: floating `decimal_gda` against libmpdec
 
 Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means floating is slower)
 
@@ -165,9 +165,9 @@ Median ns per operation, floating
 | case | ns per operation (loop and result store only) |
 | --- | ---: |
 | `binary/null/53` | 9.28 ns [9.23 ns, 9.4 ns] |
-| `decimal/null/16` | 9.36 ns [9.28 ns, 9.48 ns] |
+| `decimal_gda/null/16` | 9.36 ns [9.28 ns, 9.48 ns] |
 
-Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `decimal/exp/34`.
+Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `decimal_gda/exp/34`.
 
 ## What the numbers say
 
@@ -175,7 +175,7 @@ Everything below is read from the tables above; ratios are rounded and the
 intervals are in the tables.
 
 **`floating` is slower than both C libraries in every one of the 59 cells.**
-The smallest ratio is 1.77 (decimal multiplication at 1000 digits) and the
+The smallest ratio is 1.77 (`decimal_gda` multiplication at 1000 digits) and the
 largest 2554 (binary `sin` at 8192 bits).
 
 **Basic binary arithmetic: roughly 6 to 40 times slower.** Addition costs
@@ -204,7 +204,7 @@ faster than MPFR's with the precision. `exp` at 8192 bits (87 ms against
 213 us) and `ln` and `sin` at 8192 bits (286 ms and 507 ms) are among the
 slowest operations measured.
 
-**Decimal: closer, but still slower everywhere.** Against libmpdec, addition is
+**`decimal_gda`: closer, but still slower everywhere.** Against libmpdec, addition is
 6.7 to 16 times slower, multiplication 1.8 to 16, division 3.1 to 22 and square
 root 2.1 to 6.0. The gap narrows with the digit count for these four
 operations: at 1000 digits multiplication is 1.8 times, square root 2.1 and
@@ -224,7 +224,7 @@ median absolute deviation 1.9% for `floating` and 2.9% for the references). Betw
 cell spread by at most 8.7% for the references and 10.4% for `floating`; the
 bootstrap intervals therefore cover whole-process variation, and their
 half-widths are at most 1.9% of the median. One cell exceeds a dispersion
-threshold (marked in the table): `decimal/exp/34`, whose round medians for
+threshold (marked in the table): `decimal_gda/exp/34`, whose round medians for
 `floating` spread by 10.4%.
 
 **Measurement history.** A first five-round run was discarded, not selected
@@ -232,7 +232,7 @@ against: the machine switched from battery to AC power during it and another
 session on the same machine kept about six processes at full CPU, and round medians of
 one cell differed by up to a factor of two, so every cell was marked noisy.
 Its ratios differ from this run's by 21% in the median cell and by up to 49%
-(`decimal/ln/16`), and its intervals are 7 to 250 times wider (median 62 times). The reported run added the
+(`decimal_gda/ln/16`), and its intervals are 7 to 250 times wider (median 62 times). The reported run added the
 quiet-machine gate, the power-source check, and a larger number of shorter
 rounds.
 
@@ -256,8 +256,8 @@ profile) shows the following. No library code was changed for this baseline.
   suggests the divide-and-conquer threshold is too low, or its base case too
   slow, at this size.
 - **Elementary functions.** The start precision of the certification loop is
-  at least 128 bits (`max(128, 4D + 64)` for decimal), which puts a floor of
-  roughly 220 to 350 us on decimal `exp` and `ln` at 16 and 34 digits and 36 to 55 us
+  at least 128 bits (`max(128, 4D + 64)` for `decimal_gda`), which puts a floor of
+  roughly 220 to 350 us on `decimal_gda` `exp` and `ln` at 16 and 34 digits and 36 to 55 us
   on binary `exp` and `ln` at 53 bits, where MPFR needs 0.4 to 0.6 us. A
   cheaper first attempt at the target precision plus a few guard bits, falling
   back to the existing loop, would address the low-precision end. The growth
