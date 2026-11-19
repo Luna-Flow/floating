@@ -139,34 +139,13 @@ wrapper goes through the Luna-Flow/arithmetic trait, and `bin_float` maps the
 `unbounded`). The `clamp` field of `ArithmeticContext` has no binary meaning
 and is not used.
 
-### Contextual arithmetic keeps the value and drops the flags
+### One flag rule for every `_ctx` method
 
 `BinFloat::*_ctx` operations return $(v, \phi) \in V \times F$ where $F$ is the
-set of `BinaryFlags`. The arithmetic `_ctx` methods of the wrapper (`add_ctx`,
-`sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pow_int_ctx`, `pown_ctx`)
-compose them with the projection $\pi_1(v, \phi) = v$:
-
-$$
-\texttt{add\_ctx}(a, b, c) = \operatorname{lift}_{\eta \circ \pi_1 \circ \oplus_c}(a, b).
-$$
-
-This is a deliberate loss. Keeping the flags would make the wrapper a
-combination of the exception monad with the writer monad on $F$, and the
-binary flags would then have to be combined with operations that report none
-(`map`, the plain operators). The decimal pipeline makes the opposite choice
-because IEEE decimal arithmetic is usually audited by its flags; see the
-[`decimal_checked` design](decimal_checked.md). As a consequence, IEEE
-exceptional cases of the `_ctx` methods are successes: `div_ctx` by zero
-yields $\pm\infty$, while `div` (which calls `div_checked`) fails. The two
-names make the two contracts visible at the call site.
-
-### Elementary functions map the exceptions
-
-The elementary functions, `pow`, `rootn`, `hypot` and `atan2` are different:
-`bin_float` offers them as `try_*_ctx` returning
-$\mathrm{Result}[V \times F, E]$, so both the plain and the `_ctx` method are
-already partial. Both compose the operation with the map $\kappa$ that the
-checked arithmetic uses (`div_checked`, `pow_int`):
+set of `BinaryFlags`. Every `_ctx` method of the wrapper, the seven arithmetic
+ones (`add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pow_int_ctx`,
+`pown_ctx`) and the elementary ones alike, is the plain method with an explicit
+context and the same map $\kappa$:
 
 $$
 \kappa(v, \phi) =
@@ -177,12 +156,45 @@ $$
 \end{cases}
 $$
 
-A pole such as $\ln(\pm 0)$, $\operatorname{atanh}(\pm 1)$ or
-$\operatorname{pow}(\pm 0, y)$ with $y < 0$ (IEEE 754-2019 §9.2, Table 9.1)
-is therefore a `DivisionByZero` error and a signaling NaN operand a
-`DomainError`, in the plain and in the `_ctx` form alike. Overflow, underflow
-and inexact are still dropped: their default results are the values the
-wrapper returns.
+$$
+\texttt{add\_ctx}(a, b, c) = \operatorname{lift}_{\kappa \circ \oplus_c}(a, b).
+$$
+
+Overflow, underflow and inexact are dropped: their default results are the
+values the wrapper returns. The map is one private function
+(`bin_result_checked_flags`); the wrapper does not recompute the exceptional
+cases, it reads the flags that `BinFloat::*_ctx` returns. Keeping the flags
+would make the wrapper a combination of the exception monad with the writer
+monad on $F$; the decimal pipeline makes that choice because IEEE decimal
+arithmetic is usually audited by its flags (see the
+[`decimal_checked` design](decimal_checked.md)). Use the unwrapped
+`BinFloat::*_ctx` when the flags, or the raw default result of an exceptional
+case, matter.
+
+The exceptional cases of the arithmetic methods (IEEE 754-2019):
+
+| Case | Clause | Result |
+| --- | --- | --- |
+| a signaling NaN operand, any method | 6.2, 7.2 a) | `Err(DomainError)` |
+| a quiet NaN operand, no signaling NaN | 6.2: signals nothing | `Ok(NaN)` |
+| `mul_ctx(0, inf)`, `mul_ctx(inf, 0)`, signs arbitrary | 7.2 b) | `Err(DomainError)` |
+| `add_ctx(+inf, -inf)`, `add_ctx(-inf, +inf)` | 7.2 d) | `Err(DomainError)` |
+| `sub_ctx(inf, inf)`, `sub_ctx(-inf, -inf)` | 7.2 d) | `Err(DomainError)` |
+| `div_ctx(0, 0)`, `div_ctx(inf, inf)`, signs arbitrary | 7.2 e) | `Err(DomainError)` |
+| `div_ctx(x, +-0)`, `x` finite and nonzero | 7.3 | `Err(DivisionByZero)` |
+| `sqrt_ctx(x)`, `x < 0` including $-\infty$ | 7.2 g) | `Err(DomainError)` |
+| `sqrt_ctx(-0)`, `sqrt_ctx(+inf)` | 9.2.1 | `Ok(-0)`, `Ok(+inf)` |
+| `pown_ctx(+-0, n)`, `pow_int_ctx(+-0, n)`, `n < 0` | 9.2.1, 7.3 | `Err(DivisionByZero)` |
+| `pown_ctx(x, 0)` for `x` not a signaling NaN | 9.2.1 | `Ok(1)` |
+| `div_ctx(inf, +-0)`, `div_ctx(x, inf)` | 7.3 needs finite operands | `Ok(inf)`, `Ok(0)` |
+| overflow, underflow, inexact | 7.4, 7.5, 7.6 | `Ok(default result)` |
+
+The elementary functions, `pow`, `rootn`, `hypot` and `atan2` follow the same
+map. A pole such as $\ln(\pm 0)$, $\operatorname{atanh}(\pm 1)$ or
+$\operatorname{pow}(\pm 0, y)$ with $y < 0$ (§9.2, Table 9.1) is a
+`DivisionByZero` error and a signaling NaN operand a `DomainError`, in the
+plain and in the `_ctx` form alike. Before this rule the seven arithmetic
+`_ctx` methods dropped every flag ([#371](https://github.com/Luna-Flow/floating/issues/371)).
 
 ## Correctness and invariants
 

@@ -6,6 +6,17 @@ notes live in this file.
 
 ## Unreleased
 
+### Breaking
+
+- `bin_float_checked`: one flag rule for all 46 `BinFloatResult::*_ctx` methods ([#371](https://github.com/Luna-Flow/floating/issues/371)). `x_ctx` is `x` with an explicit context and the same map: invalid operation is `Err(DomainError)`, divideByZero is `Err(DivisionByZero)`, overflow, underflow and inexact are dropped. The 39 elementary methods already followed it; the seven arithmetic methods `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pow_int_ctx` and `pown_ctx` changed. No signature changes. Migration: for the raw IEEE default result together with its flags, call the unwrapped `BinFloat::div_ctx` and its siblings, which still return `(value, flags)`.
+
+  | case | before | after |
+  | --- | --- | --- |
+  | `div_ctx(x, +-0)`, `x` finite nonzero; `pown_ctx(+-0, n)` and `pow_int_ctx(+-0, n)` with `n < 0` | `Ok(+-inf)` | `Err(DivisionByZero)` |
+  | `div_ctx(0, 0)`, `div_ctx(inf, inf)`, `add_ctx(+inf, -inf)`, `sub_ctx(inf, inf)`, `mul_ctx(0, inf)`, `sqrt_ctx(x < 0)` | `Ok(NaN)` | `Err(DomainError)` |
+  | a signaling NaN operand | `Ok(NaN)` | `Err(DomainError)` |
+  | quiet NaN operand, overflow, underflow, inexact | unchanged | unchanged |
+
 ### Added
 
 - `decimal`: `asinpi`, `acospi`, `atanpi` and `atan2pi` of IEEE 754-2019 §9.2 (`*_ctx`, `try_*_ctx` and the `DecimalChecked` methods), the last of the recommended functions: `decimal` now has all of §9.2, which closes [#236](https://github.com/Luna-Flow/floating/issues/236). They are the certified enclosures of the angle divided by π in the existing Ziv driver, with the exact constants of §9.2.1 and Niven's other exact values (`atanpi(±1)`, `atan2pi(±a, ±a)`) at the preferred exponent 0, `|x| > 1` invalid, the one-sided clusters next to ±1/2 and ±1 (`atanpi` of a large `|x|`, `acospi` of a tiny `|x|`, `atan2pi` at extreme ratios) decided from a bound on the distance, and tiny results enclosed as a moderate value and shifted, so an operand `1E-1999996` costs what `1E-300` costs. Evidence: 19,134 generated white-box rows (exact arithmetic and certified MPFR 4.2.2 enclosures), 768 new rows of the certified elementary oracle, and `decimal-*` random cases without a disagreement: 400,000 native and 240,000 Wasm, Wasm-GC and JavaScript cases of seed 20261118.
