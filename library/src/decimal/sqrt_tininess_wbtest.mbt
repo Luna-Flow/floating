@@ -7,19 +7,18 @@
 /// on the subnormal grid, is 1.000000.
 test "sqrt detects tininess per the context's rule" {
   let check = (
-    mode : DecimalRoundingMode,
+    mode : DecimalRound,
     tininess : DecimalTininessDetection,
     expected : String,
     tiny : Bool,
   ) => {
     let ctx = DecimalContext::new(
       precision=7,
-      decimal_rounding=mode,
       e_min=0,
       e_max=1,
       clamp=true,
       tininess~,
-    )
+    ).with_round(mode)
     let (value, flags) = Decimal::from_string("0.9999999")
       .unwrap()
       .sqrt_ctx(ctx)

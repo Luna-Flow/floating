@@ -15,8 +15,25 @@ pub struct Decimal {
 ///|
 
 ///|
+/// The rounding-direction attribute of a decimal context (IEEE 754-2019 4.3):
+/// the two to-nearest attributes of 4.3.1 and the three directed ones of 4.3.2.
 #derive(Eq)
 pub(all) enum DecimalRoundingMode {
+  RoundTiesToEven
+  RoundTiesToAway
+  RoundTowardZero
+  RoundTowardPositive
+  RoundTowardNegative
+}
+
+///|
+/// The eight rounding algorithms of the kernels (GDA 1.70 names). Not public:
+/// IEEE 754-2019 4.3 has five attributes, and the other three (`HalfDown`, `Up`,
+/// `ZeroFiveUp`) are working modes of the certified functions and of the
+/// division guard digit.
+#derive(Eq)
+#warnings("-unused_constructor")
+priv enum DecimalRound {
   HalfEven
   HalfUp
   HalfDown
@@ -78,8 +95,7 @@ pub struct DecimalInterchange {
 #derive(Eq)
 pub struct DecimalContext {
   priv precision : Int32
-  priv rounding : RoundingMode
-  priv decimal_rounding : DecimalRoundingMode
+  priv decimal_rounding : DecimalRound
   priv e_min : Int32
   priv e_max : Int32
   priv clamp : Bool
@@ -323,8 +339,7 @@ pub let decimal_precision_max : Int32 = @internal.decimal_exponent_limit
 ///|
 fn DecimalContext::build(
   precision~ : Int32 = 34,
-  rounding~ : RoundingMode = RoundingMode::ToNearestEven,
-  decimal_rounding? : DecimalRoundingMode,
+  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
   e_min~ : Int32 = decimal_implementation_e_min,
   e_max~ : Int32 = decimal_implementation_e_max,
   clamp~ : Bool = false,
@@ -344,14 +359,9 @@ fn DecimalContext::build(
     }
     return Err(reason)
   }
-  let decimal_rounding = match decimal_rounding {
-    Some(mode) => mode
-    None => DecimalRoundingMode::from_arithmetic(rounding)
-  }
   Ok({
     precision,
-    rounding,
-    decimal_rounding,
+    decimal_rounding: rounding.round(),
     e_min,
     e_max,
     clamp,
@@ -368,8 +378,7 @@ fn DecimalContext::build(
 /// an `Err` instead.
 pub fn DecimalContext::new(
   precision~ : Int32 = 34,
-  rounding~ : RoundingMode = RoundingMode::ToNearestEven,
-  decimal_rounding? : DecimalRoundingMode,
+  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
   e_min~ : Int32 = decimal_implementation_e_min,
   e_max~ : Int32 = decimal_implementation_e_max,
   clamp~ : Bool = false,
@@ -380,7 +389,6 @@ pub fn DecimalContext::new(
     DecimalContext::build(
       precision~,
       rounding~,
-      decimal_rounding?,
       e_min~,
       e_max~,
       clamp~,
@@ -395,8 +403,7 @@ pub fn DecimalContext::new(
 ///|
 pub fn DecimalContext::try_new(
   precision~ : Int32 = 34,
-  rounding~ : RoundingMode = RoundingMode::ToNearestEven,
-  decimal_rounding? : DecimalRoundingMode,
+  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
   e_min~ : Int32 = decimal_implementation_e_min,
   e_max~ : Int32 = decimal_implementation_e_max,
   clamp~ : Bool = false,
@@ -407,7 +414,6 @@ pub fn DecimalContext::try_new(
     DecimalContext::build(
       precision~,
       rounding~,
-      decimal_rounding?,
       e_min~,
       e_max~,
       clamp~,
@@ -425,32 +431,39 @@ pub fn DecimalContext::precision(self : DecimalContext) -> Int32 {
 }
 
 ///|
-pub fn DecimalContext::rounding(self : DecimalContext) -> RoundingMode {
-  self.rounding
+pub fn DecimalContext::rounding(self : DecimalContext) -> DecimalRoundingMode {
+  match self.decimal_rounding.public() {
+    Some(mode) => mode
+    None => abort("DecimalContext::rounding: internal working rounding mode")
+  }
 }
 
 ///|
 pub fn DecimalContext::with_rounding(
   self : DecimalContext,
-  rounding : RoundingMode,
+  rounding : DecimalRoundingMode,
 ) -> DecimalContext {
-  {
-    ..self,
-    rounding,
-    decimal_rounding: DecimalRoundingMode::from_arithmetic(rounding),
+  { ..self, decimal_rounding: rounding.round(), }
+}
+
+///|
+/// The same context with another precision. Aborts when the precision is
+/// outside `1..=decimal_precision_max`, like `new`.
+pub fn DecimalContext::with_precision(
+  self : DecimalContext,
+  precision : Int32,
+) -> DecimalContext {
+  guard precision >= 1 && precision <= decimal_precision_max else {
+    abort(
+      "DecimalContext::with_precision: precision must be within 1..=\{decimal_precision_max}",
+    )
   }
+  { ..self, precision, }
 }
 
 ///|
 pub fn DecimalContext::is754version2019(_self : DecimalContext) -> Bool {
   true
-}
-
-///|
-pub fn DecimalContext::decimal_rounding(
-  self : DecimalContext,
-) -> DecimalRoundingMode {
-  self.decimal_rounding
 }
 
 ///|
@@ -541,8 +554,7 @@ pub fn DecimalContext::ieee754(self : DecimalContext) -> DecimalContext {
 fn decimal_exact_work_context() -> DecimalContext {
   {
     precision: 0,
-    rounding: RoundingMode::ToNearestEven,
-    decimal_rounding: DecimalRoundingMode::HalfEven,
+    decimal_rounding: DecimalRound::HalfEven,
     e_min: decimal_implementation_e_min,
     e_max: decimal_implementation_e_max,
     clamp: false,
@@ -559,21 +571,19 @@ pub fn DecimalContext::exact() -> DecimalContext {
 }
 
 ///|
-pub fn DecimalContext::decimal32() -> DecimalContext {
-  DecimalContext::new(
-    precision=7,
-    rounding=RoundingMode::ToNearestEven,
-    e_min=-95,
-    e_max=96,
-    clamp=true,
-  )
+pub fn DecimalContext::decimal32(
+  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
+) -> DecimalContext {
+  DecimalContext::new(precision=7, rounding~, e_min=-95, e_max=96, clamp=true)
 }
 
 ///|
-pub fn DecimalContext::decimal64() -> DecimalContext {
+pub fn DecimalContext::decimal64(
+  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
+) -> DecimalContext {
   DecimalContext::new(
     precision=16,
-    rounding=RoundingMode::ToNearestEven,
+    rounding~,
     e_min=-383,
     e_max=384,
     clamp=true,
@@ -581,10 +591,12 @@ pub fn DecimalContext::decimal64() -> DecimalContext {
 }
 
 ///|
-pub fn DecimalContext::decimal128() -> DecimalContext {
+pub fn DecimalContext::decimal128(
+  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
+) -> DecimalContext {
   DecimalContext::new(
     precision=34,
-    rounding=RoundingMode::ToNearestEven,
+    rounding~,
     e_min=-6143,
     e_max=6144,
     clamp=true,
@@ -595,9 +607,18 @@ pub fn DecimalContext::decimal128() -> DecimalContext {
 pub fn DecimalContext::from_arithmetic_context(
   ctx : @lf_arith.ArithmeticContext,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
+  let rounding = match DecimalRoundingMode::from_arithmetic(ctx.rounding) {
+    Some(mode) => mode
+    None =>
+      return Err(
+        @def.ArithmeticError::domain_error(
+          "AwayFromZero is not a rounding-direction attribute of IEEE 754-2019 4.3",
+        ),
+      )
+  }
   DecimalContext::try_new(
     precision=ctx.precision,
-    rounding=ctx.rounding,
+    rounding~,
     e_min=ctx.e_min.unwrap_or(decimal_implementation_e_min),
     e_max=ctx.e_max.unwrap_or(decimal_implementation_e_max),
     clamp=ctx.clamp,
@@ -616,29 +637,54 @@ pub fn DecimalInterchangeFormat::context(
 }
 
 ///|
+/// The IEEE rounding attribute for an `@arithmetic` mode; `None` for
+/// `AwayFromZero`, which IEEE 754-2019 4.3 does not define.
 pub fn DecimalRoundingMode::from_arithmetic(
   mode : RoundingMode,
-) -> DecimalRoundingMode {
+) -> DecimalRoundingMode? {
   match mode {
-    RoundingMode::ToNearestEven => HalfEven
-    RoundingMode::TowardZero => Down
-    RoundingMode::TowardPositive => Ceiling
-    RoundingMode::TowardNegative => Floor
-    RoundingMode::AwayFromZero => Up
+    RoundingMode::ToNearestEven => Some(RoundTiesToEven)
+    RoundingMode::TowardZero => Some(RoundTowardZero)
+    RoundingMode::TowardPositive => Some(RoundTowardPositive)
+    RoundingMode::TowardNegative => Some(RoundTowardNegative)
+    RoundingMode::AwayFromZero => None
   }
 }
 
 ///|
+/// The `@arithmetic` mode for an attribute; `None` for `RoundTiesToAway`.
 pub fn DecimalRoundingMode::to_arithmetic(
   self : DecimalRoundingMode,
 ) -> RoundingMode? {
   match self {
-    HalfEven => Some(RoundingMode::ToNearestEven)
-    Down => Some(RoundingMode::TowardZero)
-    Ceiling => Some(RoundingMode::TowardPositive)
-    Floor => Some(RoundingMode::TowardNegative)
-    Up => Some(RoundingMode::AwayFromZero)
-    HalfUp | HalfDown | ZeroFiveUp => None
+    RoundTiesToEven => Some(RoundingMode::ToNearestEven)
+    RoundTowardZero => Some(RoundingMode::TowardZero)
+    RoundTowardPositive => Some(RoundingMode::TowardPositive)
+    RoundTowardNegative => Some(RoundingMode::TowardNegative)
+    RoundTiesToAway => None
+  }
+}
+
+///|
+fn DecimalRoundingMode::round(self : DecimalRoundingMode) -> DecimalRound {
+  match self {
+    RoundTiesToEven => HalfEven
+    RoundTiesToAway => HalfUp
+    RoundTowardZero => Down
+    RoundTowardPositive => Ceiling
+    RoundTowardNegative => Floor
+  }
+}
+
+///|
+fn DecimalRound::public(self : DecimalRound) -> DecimalRoundingMode? {
+  match self {
+    HalfEven => Some(RoundTiesToEven)
+    HalfUp => Some(RoundTiesToAway)
+    Down => Some(RoundTowardZero)
+    Ceiling => Some(RoundTowardPositive)
+    Floor => Some(RoundTowardNegative)
+    HalfDown | Up | ZeroFiveUp => None
   }
 }
 
@@ -669,7 +715,7 @@ pub extend DecimalFlags with Eq::{not_equal, equal}
 ///|
 // The kernel's rounding enum has the same eight directions; it is a different
 // type so that the kernel does not depend on this package.
-fn DecimalRoundingMode::kernel(self : DecimalRoundingMode) -> DecCoeffRounding {
+fn DecimalRound::kernel(self : DecimalRound) -> DecCoeffRounding {
   match self {
     HalfEven => DecCoeffRounding::HalfEven
     HalfUp => DecCoeffRounding::HalfUp

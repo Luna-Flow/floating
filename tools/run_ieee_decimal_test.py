@@ -33,7 +33,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         self.assertEqual(plan["runner"], "ieee-decimal-oracles")
         self.assertEqual(plan["targets"], ["wasm"])
         self.assertEqual(plan["checks"]["dpdDeclets"], 1024)
-        self.assertEqual(plan["checks"]["certifiedElementaryOracle"], 4896)
+        self.assertEqual(plan["checks"]["certifiedElementaryOracle"], 3060)
 
     def test_json_report_uses_unified_summary_shape(self) -> None:
         checks = {
@@ -71,10 +71,10 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
 
     def test_smoke_skips_the_full_row_table_and_full_gate_runs_it(self) -> None:
         checks = {"cases": 23, "operations": 36, "declets": 1024, "encodingBridge": 11,
-                  "staticExamples": 19, "elementaryOracle": 4896, "totalOrderPairs": 18816}
+                  "staticExamples": 19, "elementaryOracle": 3060, "totalOrderPairs": 18816}
         targets = [{"target": "native", "totalCases": 2, "passedCases": 2, "failedCases": 0, "exitCode": 0}]
-        table = [{"target": "native", "table": "pi_inverse", "totalCases": 19134,
-                  "passedCases": 19134, "failedCases": 0, "failedIds": []}]
+        table = [{"target": "native", "table": "pi_inverse", "totalCases": 12753,
+                  "passedCases": 12753, "failedCases": 0, "failedIds": []}]
         for smoke, expected_calls in ((True, 0), (False, 1)):
             with tempfile.TemporaryDirectory() as directory, patch.object(
                 run_ieee_decimal, "collect_corpus_checks", return_value=checks

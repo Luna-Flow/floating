@@ -367,15 +367,13 @@ def render_moon_fixture_test() -> str:
             "}",
             "",
         ])
+    # The five rounding-direction attributes of IEEE 754-2019 4.3.
     rounding_variants = {
-        "half_even": "HalfEven",
-        "half_up": "HalfUp",
-        "half_down": "HalfDown",
-        "down": "Down",
-        "ceiling": "Ceiling",
-        "floor": "Floor",
-        "up": "Up",
-        "zero_five_up": "ZeroFiveUp",
+        "half_even": "RoundTiesToEven",
+        "half_up": "RoundTiesToAway",
+        "down": "RoundTowardZero",
+        "ceiling": "RoundTowardPositive",
+        "floor": "RoundTowardNegative",
     }
     format_parameters = {
         "decimal32": (7, -95, 96),
@@ -384,7 +382,7 @@ def render_moon_fixture_test() -> str:
     }
     # One test per MPFR interval (its 24 format and rounding rows) instead of one
     # per row: the debug Wasm module registers every test in `_moonbit_init`,
-    # whose local count V8 caps at 50,000, and 4,896 per-row tests exceed it.
+    # whose local count V8 caps at 50,000, and 3,060 per-row tests exceed it.
     # Every assertion still carries the id of its row.
     groups: dict[str, list[dict[str, Any]]] = {}
     for row in load_json(ELEMENTARY_ORACLE_PATH)["rows"]:
@@ -397,7 +395,7 @@ def render_moon_fixture_test() -> str:
             ctx = (
                 "DecimalContext::new("
                 f"precision={precision}, e_min={e_min}, e_max={e_max}, clamp=true, "
-                f"decimal_rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]})"
+                f"rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]})"
             )
             rhs = (
                 f"Decimal::from_string({_moon_string(row['right'])}).unwrap()"

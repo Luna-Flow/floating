@@ -74,9 +74,9 @@ fn decimal_shift_rotate(
           match lhs.class {
             FpClass::Infinity =>
               (
-                lhs.with_precision(
+                lhs.with_precision_round(
                   finite_precision_for(bigint_zero(), ctx),
-                  ctx.rounding,
+                  ctx.decimal_rounding,
                 ),
                 DecimalFlags::new(),
               )

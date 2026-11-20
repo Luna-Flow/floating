@@ -184,12 +184,12 @@ NaN.
 rounding it to a precision.
 
 ```mbti
-pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : DecimalRoundingMode) -> Self
 ```
 
 `Decimal::make(c, q, p, mode~)` represents $c \cdot 10^{q}$; the sign comes
 from `c`. Trailing zeros are removed first, the coefficient is then rounded to
-`p` digits with `mode` (default `ToNearestEven`) if it is longer, and trailing
+`p` digits with `mode` (default `RoundTiesToEven`) if it is longer, and trailing
 zeros are removed again. The result is therefore always in the *reduced*
 member of its cohort, and `make(0, q, p)` is $+0$ with exponent `0`. No
 exponent range applies.
@@ -265,7 +265,9 @@ to exactly `precision` digits; a binary zero keeps its sign ($-0$ becomes
 $-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a quiet
 NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact decimal value
 to a `BinFloat` of `precision` bits (default: the decimal's precision field)
-with `mode` (default `ToNearestEven`). Most decimal fractions are not dyadic,
+with `mode` (default `ToNearestEven`; `to_bin_float` still takes the shared
+`@arithmetic.RoundingMode` until the conversions get their required precision).
+Most decimal fractions are not dyadic,
 so this direction is usually inexact; converting with `TowardNegative` and
 `TowardPositive` gives a binary enclosure of the decimal value. Zeros keep
 their sign and NaN payloads are not kept.
@@ -414,8 +416,8 @@ pub struct DecimalContext {
 } derive(Eq)
 ```
 
-A context holds a precision $p$, a shared Luna-Flow `rounding` mode, a
-decimal rounding mode (`decimal_rounding`, the one the arithmetic uses), the
+A context holds a precision $p$, one rounding-direction attribute (`rounding`,
+a `DecimalRoundingMode`, the one the arithmetic uses), the
 adjusted-exponent limits $e_{\min} \le e_{\max}$, the `clamp` switch, the
 `extended` switch and a tininess rule. No operation reads ambient state: every
 context operation receives its context as an argument.
@@ -445,15 +447,14 @@ documented in [Elementary functions](#elementary-functions).
 `try_new` takes the same parameters and returns a `Result`.
 
 ```mbti
-pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
-pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int, rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::try_new(precision? : Int, rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 | Parameter | Default | Meaning |
 | --- | --- | --- |
 | `precision` | 34 | coefficient digits $p$ |
-| `rounding` | `ToNearestEven` | shared rounding mode |
-| `decimal_rounding` | from `rounding` | rounding mode used by the arithmetic |
+| `rounding` | `RoundTiesToEven` | rounding-direction attribute (IEEE 754-2019 §4.3) |
 | `e_min`, `e_max` | $-999\,999\,999$, $999\,999\,999$ | adjusted-exponent range |
 | `clamp` | `false` | fold large exponents down to $e_{\max}-p+1$ |
 | `extended` | `true` | IEEE/extended arithmetic; `false` selects the GDA subset |
@@ -469,9 +470,12 @@ exponent arithmetic within `Int`. GDA 1.70 specifies no fixed exponent limit
 and requires a balanced range; this library does not enforce that balance
 rule.
 
-When `decimal_rounding` is omitted it is
-`DecimalRoundingMode::from_arithmetic(rounding)`; pass it explicitly to use
-`HalfUp`, `HalfDown` or `ZeroFiveUp`.
+There is one rounding parameter: finite results, infinities and every other
+use of the context round by it, and `rounding()` reports exactly the mode that
+is applied. The commercial rounding of GDA (`round-half-up`) is
+`RoundTiesToAway`; the GDA modes `round-half-down`, `round-up` and
+`round-05up` are not attributes of an IEEE 754-2019 decimal format and exist
+only in [`decimal_gda`](decimal_gda.md).
 
 > [!IMPORTANT]
 > The default exponent range is wider than the range the elementary
@@ -490,9 +494,9 @@ These constructors return the interchange-format contexts and an exact
 working context.
 
 ```mbti
-pub fn DecimalContext::decimal32() -> Self
-pub fn DecimalContext::decimal64() -> Self
-pub fn DecimalContext::decimal128() -> Self
+pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::decimal128(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::exact() -> Self
 ```
 
@@ -502,8 +506,8 @@ pub fn DecimalContext::exact() -> Self
 | `decimal64` | 16 | $-383$ | 384 | yes |
 | `decimal128` | 34 | $-6143$ | 6144 | yes |
 
-All three use `ToNearestEven` (`HalfEven`), extended arithmetic and
-before-rounding tininess. `exact()` has precision 0, which means "unlimited":
+All three use `RoundTiesToEven` by default (pass `rounding~` for another
+attribute), extended arithmetic and before-rounding tininess. `exact()` has precision 0, which means "unlimited":
 results keep every digit and no rounding by precision happens; its exponent
 range is the default one. It is the only way to obtain precision 0.
 
@@ -523,14 +527,13 @@ The conversion returns `Err(domain_error)` if precision is outside
 1.70 itself sets no fixed limits and its separate balanced-range rule is not
 enforced here.
 
-### `DecimalContext::precision`, `rounding`, `decimal_rounding`, `e_min`, `e_max`, `clamp`, `extended`, `tininess`
+### `DecimalContext::precision`, `rounding`, `e_min`, `e_max`, `clamp`, `extended`, `tininess`
 
 These accessors return the fields of a context.
 
 ```mbti
 pub fn DecimalContext::precision(Self) -> Int
-pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
-pub fn DecimalContext::decimal_rounding(Self) -> DecimalRoundingMode
+pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
 pub fn DecimalContext::e_min(Self) -> Int
 pub fn DecimalContext::e_max(Self) -> Int
 pub fn DecimalContext::clamp(Self) -> Bool
@@ -613,19 +616,21 @@ test "a refinement limit makes a hard-to-round result fail" {
 }
 ```
 
-### `DecimalContext::with_rounding`, `with_tininess`, `ieee754`, `is754version2019`
+### `DecimalContext::with_precision`, `with_rounding`, `with_tininess`, `ieee754`, `is754version2019`
 
 These functions derive a context or describe its standard.
 
 ```mbti
-pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
+pub fn DecimalContext::with_precision(Self, Int) -> Self
+pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 pub fn DecimalContext::ieee754(Self) -> Self
 pub fn DecimalContext::is754version2019(Self) -> Bool
 ```
 
-`with_rounding` replaces both rounding fields (the decimal mode becomes
-`from_arithmetic(rounding)`). `with_tininess` replaces the tininess rule.
+`with_precision` replaces the precision (it aborts outside
+`1..=decimal_precision_max`, like `new`). `with_rounding` replaces the
+rounding-direction attribute. `with_tininess` replaces the tininess rule.
 `ieee754` returns the context unchanged: every context already follows the
 IEEE 754-2019 semantics of this package. `is754version2019` always returns
 `true`.
@@ -634,51 +639,50 @@ IEEE 754-2019 semantics of this package. `is754version2019` always returns
 
 ### `DecimalRoundingMode`
 
-`DecimalRoundingMode` lists the eight decimal rounding directions.
+`DecimalRoundingMode` lists the five rounding-direction attributes of IEEE
+754-2019 §4.3 that a decimal format has, in the spelling of `BinaryRoundingMode`.
 
 ```mbti
 pub(all) enum DecimalRoundingMode {
-  HalfEven
-  HalfUp
-  HalfDown
-  Down
-  Ceiling
-  Floor
-  Up
-  ZeroFiveUp
+  RoundTiesToEven
+  RoundTiesToAway
+  RoundTowardZero
+  RoundTowardPositive
+  RoundTowardNegative
 }
 ```
 
 Let $x>0$ lie strictly between two adjacent representable coefficients $c$
-and $c+1$ (in units of the last place). `Down` returns $c$, `Up` $c+1$;
-`Ceiling` and `Floor` round toward $+\infty$ and $-\infty$ (so they depend on
-the sign); `HalfEven`, `HalfUp` and `HalfDown` return the nearer of the two
-and break an exact tie toward the even coefficient, away from zero, and
-toward zero respectively; `ZeroFiveUp` returns $c+1$ when the last digit of
-$c$ is 0 or 5 and $c$ otherwise. IEEE 754 calls `HalfEven`
-roundTiesToEven, `HalfUp` roundTiesToAway, `Down` roundTowardZero, `Ceiling`
-roundTowardPositive and `Floor` roundTowardNegative.
+and $c+1$ (in units of the last place). `RoundTowardZero` returns $c$;
+`RoundTowardPositive` and `RoundTowardNegative` round toward $+\infty$ and
+$-\infty$ (so they depend on the sign); `RoundTiesToEven` and
+`RoundTiesToAway` return the nearer of the two and break an exact tie toward
+the even coefficient and away from zero respectively. The kernels also have
+three working modes that no context can select (`HalfDown`, `Up` and
+`ZeroFiveUp`: the double-rounding guard digit of division and the directed
+bounds of the certified functions); they are internal.
 
 ### `DecimalRoundingMode::from_arithmetic`, `to_arithmetic`
 
-These functions map between decimal modes and the shared
+These functions map between the attributes and the shared
 `@arithmetic.RoundingMode`.
 
 ```mbti
-pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 ```
 
 | `@arithmetic.RoundingMode` | `DecimalRoundingMode` |
 | --- | --- |
-| `ToNearestEven` | `HalfEven` |
-| `TowardZero` | `Down` |
-| `TowardPositive` | `Ceiling` |
-| `TowardNegative` | `Floor` |
-| `AwayFromZero` | `Up` |
+| `ToNearestEven` | `RoundTiesToEven` |
+| `TowardZero` | `RoundTowardZero` |
+| `TowardPositive` | `RoundTowardPositive` |
+| `TowardNegative` | `RoundTowardNegative` |
+| `AwayFromZero` | none (`from_arithmetic` returns `None`) |
 
-`to_arithmetic` returns `None` for `HalfUp`, `HalfDown` and `ZeroFiveUp`,
-which the shared enum does not have.
+`to_arithmetic` returns `None` for `RoundTiesToAway`, which the shared enum
+does not have. `DecimalContext::from_arithmetic_context` and the `_contextual`
+forms return `Err` for `AwayFromZero`.
 
 ### `DecimalTininessDetection`
 
@@ -880,7 +884,7 @@ These functions change the cohort member or the precision field.
 ```mbti
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::trim(Self) -> Self
-pub fn Decimal::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int, DecimalRoundingMode) -> Self
 ```
 
 `normalized` returns the reduced member of the cohort (all trailing zeros
@@ -975,7 +979,7 @@ test "decimal context results are rounded once" {
   let (q, flags) = d("1").div_ctx(d("1.9999999999998E+101"), c32)
   inspect(q, content="1E-101")
   inspect(flags.underflow() && flags.subnormal(), content="true")
-  let down = @decimal.DecimalContext::new(precision=7, decimal_rounding=@decimal.DecimalRoundingMode::Down)
+  let down = @decimal.DecimalContext::new(precision=7, rounding=@decimal.DecimalRoundingMode::RoundTowardZero)
   inspect(
     d("1598617.000000000001").add_ctx(d("-0.000000000002"), down).0,
     content="1598616",
@@ -1207,10 +1211,9 @@ pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, 
 ```
 
 They have the shape of the `BinFloat` functions of the same names. The value
-is rounded to an integer with `decimal_rounding` of the context: ties to even,
+is rounded to an integer with the `rounding` of the context: ties to even,
 toward zero, toward positive, toward negative and ties to away are the five
-directions of §5.8, and half-down, away from zero and round-05up round as they
-round a decimal result. A NaN (quiet or signaling), an infinity and a value
+directions of §5.8. A NaN (quiet or signaling), an infinity and a value
 outside the range of the integer type give `None` with `invalid_operation`;
 the result of a negative value that rounds to zero is `0` (also for the
 unsigned types), and any other negative value is out of range for them. With
@@ -1248,7 +1251,7 @@ down. A zero keeps its sign and has its exponent clamped into the range with
 test "decimal scaleb rounds like other context results" {
   let c64 = @decimal.DecimalContext::decimal64()
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
-  let toward_zero = c64.with_rounding(@def.RoundingMode::TowardZero)
+  let toward_zero = c64.with_rounding(@decimal.DecimalRoundingMode::RoundTowardZero)
   inspect(d("9E+384").scaleb_ctx(d("1"), toward_zero).0, content="9.999999999999999E+384")
   inspect(d("9E+384").scaleb_ctx(d("1"), c64).0, content="inf")
   let (zero, flags) = d("0").scaleb_ctx(d("700"), c64)
@@ -1922,7 +1925,7 @@ test "decimal certified elementary functions" {
   inspect(d("1").exp_ctx(ctx).0, content="2.718281828459045")
   inspect(d("1000").log10_ctx(ctx).0, content="3")
   inspect(d("0.5").sinpi_ctx(ctx).0, content="1")
-  let down = ctx.with_rounding(@def.RoundingMode::TowardZero)
+  let down = ctx.with_rounding(@decimal.DecimalRoundingMode::RoundTowardZero)
   inspect(d("2").ln_ctx(down).0, content="0.6931471805599453")
   match d("2").try_ln_ctx(@decimal.DecimalContext::new()) {
     Ok((value, flags)) => {
@@ -2413,7 +2416,7 @@ pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFla
 pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2542,7 +2545,7 @@ pub fn Decimal::try_sinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 pub fn Decimal::try_tan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_tanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_tanpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
-pub fn Decimal::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int32, DecimalRoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int32) -> Self
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self
 pub impl @arithmetic.AbsContextual for Decimal
@@ -2584,10 +2587,9 @@ pub struct DecimalContext {
 }
 pub fn DecimalContext::clamp(Self) -> Bool
 pub fn DecimalContext::clamp_fold(Self) -> Bool
-pub fn DecimalContext::decimal128() -> Self
-pub fn DecimalContext::decimal32() -> Self
-pub fn DecimalContext::decimal64() -> Self
-pub fn DecimalContext::decimal_rounding(Self) -> DecimalRoundingMode
+pub fn DecimalContext::decimal128(rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::e_max(Self) -> Int32
 pub fn DecimalContext::e_min(Self) -> Int32
 pub fn DecimalContext::equal(Self, Self) -> Bool
@@ -2596,16 +2598,17 @@ pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::ieee754(Self) -> Self
 pub fn DecimalContext::is754version2019(Self) -> Bool
-pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::refinement_limit(Self) -> Int32?
-pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
+pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
 pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
-pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::try_new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
+pub fn DecimalContext::with_precision(Self, Int32) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
-pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
+pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
@@ -2671,17 +2674,14 @@ pub fn DecimalInterchangeFormat::not_equal(Self, Self) -> Bool
 
 #derive(Eq)
 pub(all) enum DecimalRoundingMode {
-  HalfEven
-  HalfUp
-  HalfDown
-  Down
-  Ceiling
-  Floor
-  Up
-  ZeroFiveUp
+  RoundTiesToEven
+  RoundTiesToAway
+  RoundTowardZero
+  RoundTowardPositive
+  RoundTowardNegative
 }
 pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
-pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 

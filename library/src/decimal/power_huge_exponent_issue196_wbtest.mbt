@@ -19,7 +19,7 @@ fn issue196_flags(flags : DecimalFlags) -> String {
 /// directed rounding mode that distinguishes the results.
 test "integral exponents beyond 4096 digits overflow or underflow (#196)" {
   let context = DecimalContext::decimal64()
-  let rows : Array[(String, String, DecimalRoundingMode, String, String)] = [
+  let rows : Array[(String, String, DecimalRound, String, String)] = [
     ("2", "1E+4100", HalfEven, "inf", "xr..o..."),
     ("2", "1E+4100", Floor, "9.999999999999999E+384", "xr..o..."),
     ("2", "1E+4100", Ceiling, "inf", "xr..o..."),
@@ -399,7 +399,7 @@ test "integral exponents beyond 4096 digits overflow or underflow (#196)" {
   ]
   for row in rows {
     let (base, exponent, mode, expected, expected_flags) = row
-    let ctx = { ..context, decimal_rounding: mode, rounding: context.rounding, }
+    let ctx = { ..context, decimal_rounding: mode, }
     let (value, flags) = Decimal::from_string(base)
       .unwrap()
       .pow_ctx(Decimal::from_string(exponent).unwrap(), ctx)

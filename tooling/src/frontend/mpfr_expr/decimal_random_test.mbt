@@ -4,7 +4,7 @@ test "decimal random rows compare value, cohort and flags under a context" {
     #|# mpfr-decimal-random-v1
     #|t.1 exp half_even 7 -95 96 1 b 1 - 0 2.718282 xr
     #|t.2 ln half_even 7 -95 96 1 b 2 - 0 0.6931472 xr
-    #|t.3 exp up 2 -10004 10001 0 b -8E+4 - 0 1E-10005 xrsu
+    #|t.3 exp ceiling 2 -10004 10001 0 b -8E+4 - 0 1E-10005 xrsu
     #|t.4 exp half_even 3 -9 9 0 b 30 - 0 Infinity xro
     #|t.5 atan2 half_even 7 -95 96 1 b 1 1 0 0.7853982 xr
     #|t.6 rootn half_even 7 -95 96 1 b 2 - 2 1.414214 xr
@@ -50,10 +50,11 @@ test "decimal random parser rejects malformed rows" {
   for
     row in [
       "t exp half_even 7 -95 96 1 b 1 - 0 2.7", "t nope half_even 7 -95 96 1 b 1 - 0 2.7 xr",
-      "t exp sideways 7 -95 96 1 b 1 - 0 2.7 xr", "t exp half_even 0 -95 96 1 b 1 - 0 2.7 xr",
-      "t exp half_even 7 -95 96 2 b 1 - 0 2.7 xr", "t exp half_even 7 -95 96 1 c 1 - 0 2.7 xr",
-      "t exp half_even 7 -95 96 1 b one - 0 2.7 xr", "t exp half_even 7 -95 96 1 b 1 - 0 2.7 q",
-      "t pow half_even 7 -95 96 1 b 1 - 0 2.7 xr", "t exp half_even 7 5 96 1 b 1 - 0 2.7 xr",
+      "t exp sideways 7 -95 96 1 b 1 - 0 2.7 xr", "t exp up 7 -95 96 1 b 1 - 0 2.7 xr",
+      "t exp half_even 0 -95 96 1 b 1 - 0 2.7 xr", "t exp half_even 7 -95 96 2 b 1 - 0 2.7 xr",
+      "t exp half_even 7 -95 96 1 c 1 - 0 2.7 xr", "t exp half_even 7 -95 96 1 b one - 0 2.7 xr",
+      "t exp half_even 7 -95 96 1 b 1 - 0 2.7 q", "t pow half_even 7 -95 96 1 b 1 - 0 2.7 xr",
+      "t exp half_even 7 5 96 1 b 1 - 0 2.7 xr",
     ] {
     match @mpfr_expr.parse_decimal_random_data("bad", row) {
       Err([_]) => ()

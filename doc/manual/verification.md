@@ -13,7 +13,7 @@ result.
 | Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `tooling/src/doc_examples` tests |
 | Formatting | `just fmt` | the MoonBit formatter |
 | Pull request | `just pr [jobs]` | format check, docs, native check and tests with `--deny-warn`, Python tool tests, and the four committed smoke corpora |
-| IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 19,134-row π-inverse table, read at run time by the release-built conformance CLI on each target |
+| IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 12,753-row π-inverse table, read at run time by the release-built conformance CLI on each target |
 | GDA decimal | `just gate decimal_gda [jobs]` | package and frontend tests, then the pinned `official` and `official0` `.decTest` corpora |
 | Binary | `just gate binary [jobs]` | the pinned TestFloat level-1 matrix and the MPFR witnesses |
 | Interval | `just gate interval [jobs]` | every strict ITF1788 phase |
@@ -41,7 +41,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 
 The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
 of the repository. The quick gate (`just pr`, the native test stage of CI)
-compiles all 19,134 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
+compiles all 12,753 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
 (2.2 MB of source), and the same rows are data
 (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
 `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
@@ -63,11 +63,11 @@ its middle row). The data file is always the full table.
 
 | Operation | Exact rows | MPFR rows | Total |
 | --- | ---: | ---: | ---: |
-| `asinpi` | 203 | 2,481 | 2,684 |
-| `acospi` | 203 | 1,465 | 1,668 |
-| `atanpi` | 203 | 3,037 | 3,240 |
-| `atan2pi` | 1,716 | 9,826 | 11,542 |
-| Total | 2,325 | 16,809 | 19,134 |
+| `asinpi` | 148 | 1,666 | 1,814 |
+| `acospi` | 148 | 1,031 | 1,179 |
+| `atanpi` | 148 | 2,060 | 2,208 |
+| `atan2pi` | 1,248 | 6,304 | 7,552 |
+| Total | 1,692 | 11,061 | 12,753 |
 
 `python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either
 table is stale or if the compiled table is not a subset of the full table, and
@@ -124,8 +124,8 @@ are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (
 - **IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover
   encoding, special values, flags, core arithmetic and all 1,024 DPD declets on
   native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed
-  elementary oracle adds 4,896 rows computed from 768-bit MPFR enclosures under
-  all eight decimal rounding modes.
+  elementary oracle adds 3,060 rows computed from 768-bit MPFR enclosures under
+  the five IEEE decimal rounding-direction attributes.
 - **Interval.** The strict ITF1788 phases pass 4,656/4,656 selected cases:
   sets, relations, numeric observations, cancellation, arithmetic,
   elementary-core, exponentials and logarithms, general power, trigonometric,
@@ -365,7 +365,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count
   100000 --seed 20261118 --target native` and the same with `--count 20000
   --target wasm --target wasm-gc --target js`, in agreement with MPFR in
-  value, cohort and all eight flags. The 19,134 rows of
+  value, cohort and all eight flags. The 12,753 rows of
   `testdata/decimal/ieee/rows/pi_inverse.txt`
   (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at
   the preferred exponent 0, the clusters next to $\pm\tfrac12$ and $\pm 1$ in
@@ -675,7 +675,7 @@ cite them.
 | IEEE 754 §6.2 | Which NaN payload a NaN result carries | `bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field). |
 | IEEE 754 §9.7 | Admissible payloads of `setPayload` | `decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload. |
 | IEEE 754 §3.7 | Exponent range and precision of an extendable format | `bin_float`: leading-bit exponents in `[1 - 2^30, 2^30 - 1]`, precision at most `2^28` bits (one binade above MPFR at both ends). `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`. |
-| IEEE 754 §4.3 | Rounding directions beyond the five required | `RoundAwayFromZero` (binary); `HalfDown`, `Up`, `ZeroFiveUp` (decimal). |
+| IEEE 754 §4.3 | Rounding directions beyond the five required | `RoundAwayFromZero` (binary); none in `decimal` (the GDA modes `HalfDown`, `Up`, `ZeroFiveUp` are in `decimal_gda`). |
 | IEEE 754 §4.1, §9.3 | How attributes are specified | Static: a context value passed to each operation; there are no dynamic modes and no global state. |
 | IEEE 754 §7 | How flags are exposed | Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages. |
 | IEEE 754 §9.2 | Accuracy of recommended functions | Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`. |

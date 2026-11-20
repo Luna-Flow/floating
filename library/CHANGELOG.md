@@ -6,10 +6,6 @@ notes live in this file.
 
 ## Unreleased
 
-### Performance
-
-- `bin_float`: `div` and `sqrt` at precision 53 form the quotient or root of the two coefficients (at most 53 bits, exact in binary64) with one binary64 division or square root, which IEEE 754 rounds to nearest even exactly as the general path does. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
-
 ### Breaking
 
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
@@ -45,6 +41,7 @@ notes live in this file.
   | `GdaInterchange::from_decimal(v, f)` returning `(Self, DecimalFlags)` | returns `(Self, GdaFlags)` | |
   | `GdaInterchange::to_decimal_ctx()` | `i.to_decimal()`, plus `is_subnormal(v, f.context())` | the old method only added the subnormal flag |
   | `Decimal::to_interchange_hex(f)`, `from_interchange_hex(s, f)` | `GdaInterchange::from_decimal(v, f).0.to_hex()`, `GdaInterchange::from_hex(s, f)` | one spelling |
+
 - `def`: `Floating::with_precision` has no rounding parameter ([#438](https://github.com/Luna-Flow/floating/issues/438), item A3b and section 1.3 of the shared decisions). A trait method that cannot return an error would have to abort on a valid rounding mode once `RoundAwayFromZero` leaves `bin_float` and `decimal` has the five IEEE modes, so the trait rounds to nearest, ties to even (IEEE 754-2019 4.3.1). The inherent `with_precision` of `BinFloat`, `BallFloat` and both `Decimal` types is unchanged for now and keeps its mode.
 
   | before | after |
@@ -53,14 +50,6 @@ notes live in this file.
   | `@def.Floating::with_precision(x, p, @arithmetic.RoundingMode::ToNearestEven)` | `@def.Floating::with_precision(x, p)` |
   | `@def.Floating::with_precision(x, p, mode)` with another mode | the inherent `T::with_precision(x, p, mode)` of the concrete type |
 
-### Performance
-
-- `bin_float`: `sqrt` of a coefficient above 256 bits (precisions from about 128 bits up) runs the Karatsuba square root on limb arrays: the divisor of each level is the root of the upper part, used without a copy or a shift, the quotient, remainder and square are formed on arrays, and the radicand is shifted once instead of twice. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
-- `bin_float`: the schoolbook loops of the 64-bit coefficient kernel (product, square, Karatsuba leaves) hoist the halves of the left limb out of the inner loop, compute the high word of the limb product with two operations fewer, and fold the two carries without a branch. About 7 percent fewer instructions for products and divisions of 2048 bits and more; results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
-### Fixed
-
-- `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.
-- `ball_float`: `try_atanh_interval` (and so `atanh_interval`) aborted ("ball lower bound must not be positive infinity") for an interval whose only point in the closure of the domain is `1` or `-1` (`[1, 1]`, `[1, +inf]`, `[-inf, -1]`). The open domain leaves nothing, so the result is Empty.
 - `bin_float`, `bin_float_checked`: the precision of a value is checked where the value is made ([#442](https://github.com/Luna-Flow/floating/issues/442); step S5 of [#438](https://github.com/Luna-Flow/floating/issues/438)). A precision outside `1..=binary_precision_max` was replaced by 1 in most constructors, accepted above the limit (later operations aborted), and aborted inside `BinFloat::from_string`. A value-returning constructor now aborts with a message naming the constructor, the range and the value; `from_string`, `from_hex` and the constructors of `BinFloatResult` return an `Err`.
 
   | before | after | note |
@@ -76,6 +65,40 @@ notes live in this file.
   | --- | --- | --- |
   | `quiet_nan(payload=wide)` accepted any width | aborts when the payload needs more than `p - 2` bits | `signaling_nan` also aborts below `p = 3`, where no signaling NaN exists |
   | `with_precision`, `from_double`, `from_hex` and every operation under a context copied the whole payload | the payload keeps its low `p - 2` bits | a signaling NaN whose payload does not survive becomes quiet; a context of precision 2 or less gives payload 0 |
+
+- `decimal`: one rounding parameter per context, and it is an IEEE 754-2019 attribute ([#438](https://github.com/Luna-Flow/floating/issues/438), A2, N7, first step of A4). `DecimalContext` took two rounding parameters, `rounding` (the shared `@arithmetic.RoundingMode`) and `decimal_rounding`; finite results rounded by `decimal_rounding`, `rounding` only tagged infinities, and `rounding()` could report a mode that was not applied. A context now has one `rounding`, of the type `DecimalRoundingMode`, which has the five rounding-direction attributes of IEEE 754-2019 4.3 in the spelling of `BinaryRoundingMode`. The three GDA algorithms `HalfDown`, `Up` and `ZeroFiveUp` are not attributes of an IEEE decimal format: a context cannot select them any more (they stay in `decimal_gda`, and as working modes inside the library). The old variant names are removed without an alias.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `DecimalRoundingMode::HalfEven` | `DecimalRoundingMode::RoundTiesToEven` | the type keeps its name; every old variant name stops compiling |
+  | `DecimalRoundingMode::HalfUp` | `DecimalRoundingMode::RoundTiesToAway` | GDA `round-half-up` is IEEE `roundTiesToAway` |
+  | `DecimalRoundingMode::Down`, `Ceiling`, `Floor` | `RoundTowardZero`, `RoundTowardPositive`, `RoundTowardNegative` | |
+  | `DecimalRoundingMode::HalfDown`, `Up`, `ZeroFiveUp` | none | use `decimal_gda` (`GdaContext`) for these algorithms |
+  | `DecimalContext::new(rounding=@arithmetic.RoundingMode::X)`, `try_new` | `DecimalContext::new(rounding=DecimalRoundingMode::Y)` | `AwayFromZero` has no counterpart |
+  | `DecimalContext::new(decimal_rounding=m)`, `try_new` | `DecimalContext::new(rounding=m)` | the parameter `decimal_rounding` is removed |
+  | `ctx.decimal_rounding()` | `ctx.rounding()` | `rounding()` returns `DecimalRoundingMode` |
+  | `ctx.with_rounding(@arithmetic.RoundingMode::X)` | `ctx.with_rounding(DecimalRoundingMode::Y)` | |
+  | `DecimalContext::decimal32()`, `decimal64()`, `decimal128()` | the same, with an optional `rounding~` | |
+  | (new) | `DecimalContext::with_precision(Int)` | aborts outside `1..=decimal_precision_max` |
+  | `Decimal::make(.., mode=@arithmetic.RoundingMode::X)`, `Decimal::with_precision(p, @arithmetic.RoundingMode::X)` | `mode=DecimalRoundingMode::Y` | the inherent forms take the package's own type |
+  | `DecimalRoundingMode::from_arithmetic(m) -> DecimalRoundingMode`, `to_arithmetic` | `from_arithmetic(m) -> DecimalRoundingMode?`, `to_arithmetic` | `None` for `AwayFromZero` and for `RoundTiesToAway` respectively |
+  | `DecimalContext::from_arithmetic_context`, the `_contextual` and `_checked` trait forms with `AwayFromZero` | `Err(domain_error)` | `AwayFromZero` is not an attribute of IEEE 754-2019 4.3 |
+
+  The `Floating` trait still passes an `@arithmetic.RoundingMode` to `with_precision`; the implementation maps all five of its modes as before. `Decimal::to_bin_float` keeps its `@arithmetic.RoundingMode` parameter until the cross-radix conversions get their required precision. Data: the IEEE elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`) has 3,060 rows (was 4,896: the rows of the three removed algorithms are gone), and the rows of the three removed algorithms are removed from `pi_inverse.txt`, `huge_trig.txt` and the two `mpfr-decimal-random` files; they are regenerated by the generators once those emit IEEE contexts only (the next step of #438, A3).
+
+### Fixed
+
+- `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.
+
+- `ball_float`: `try_atanh_interval` (and so `atanh_interval`) aborted ("ball lower bound must not be positive infinity") for an interval whose only point in the closure of the domain is `1` or `-1` (`[1, 1]`, `[1, +inf]`, `[-inf, -1]`). The open domain leaves nothing, so the result is Empty.
+
+### Performance
+
+- `bin_float`: `div` and `sqrt` at precision 53 form the quotient or root of the two coefficients (at most 53 bits, exact in binary64) with one binary64 division or square root, which IEEE 754 rounds to nearest even exactly as the general path does. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
+- `bin_float`: `sqrt` of a coefficient above 256 bits (precisions from about 128 bits up) runs the Karatsuba square root on limb arrays: the divisor of each level is the root of the upper part, used without a copy or a shift, the quotient, remainder and square are formed on arrays, and the radicand is shifted once instead of twice. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
+- `bin_float`: the schoolbook loops of the 64-bit coefficient kernel (product, square, Karatsuba leaves) hoist the halves of the left limb out of the inner loop, compute the high word of the limb product with two operations fewer, and fold the two carries without a branch. About 7 percent fewer instructions for products and divisions of 2048 bits and more; results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 ## 0.11.0 - 2026-11-20
 

@@ -296,25 +296,25 @@ fn decimal_power_adjacent_one_directed_result(
   guard exponent.compare(one) < 0 else { return None }
   let flags = { ..DecimalFlags::new(), rounded: true, inexact: true, }
   if base.compare(one) > 0 {
-    guard ctx.decimal_rounding == DecimalRoundingMode::Ceiling ||
-      ctx.decimal_rounding == DecimalRoundingMode::Floor else {
+    guard ctx.decimal_rounding == DecimalRound::Ceiling ||
+      ctx.decimal_rounding == DecimalRound::Floor else {
       return None
     }
     let next = decimal_next(one, ctx, true).0
     guard base.total_order_compare(next) == 0 else { return None }
-    if ctx.decimal_rounding == DecimalRoundingMode::Ceiling {
+    if ctx.decimal_rounding == DecimalRound::Ceiling {
       Some((base, flags))
     } else {
       Some(decimal_power_one_limit_result(ctx))
     }
   } else if base.compare(one) < 0 {
-    guard ctx.decimal_rounding == DecimalRoundingMode::Ceiling ||
-      ctx.decimal_rounding == DecimalRoundingMode::Floor else {
+    guard ctx.decimal_rounding == DecimalRound::Ceiling ||
+      ctx.decimal_rounding == DecimalRound::Floor else {
       return None
     }
     let previous = decimal_next(one, ctx, false).0
     guard base.total_order_compare(previous) == 0 else { return None }
-    if ctx.decimal_rounding == DecimalRoundingMode::Floor {
+    if ctx.decimal_rounding == DecimalRound::Floor {
       Some((base, flags))
     } else {
       Some(decimal_power_one_limit_result(ctx))
@@ -436,7 +436,7 @@ fn decimal_power_integer_work_ctx(
   {
     ..ctx,
     precision: precision + extra_digits,
-    decimal_rounding: DecimalRoundingMode::HalfEven,
+    decimal_rounding: DecimalRound::HalfEven,
     clamp: false,
   }
 }
@@ -702,7 +702,7 @@ fn decimal_power_large_integer_coeff_result(
   let work_ctx = {
     ..ctx,
     precision: precision + extra_digits,
-    decimal_rounding: DecimalRoundingMode::HalfEven,
+    decimal_rounding: DecimalRound::HalfEven,
     clamp: false,
   }
   let one = Decimal::one(
@@ -1033,7 +1033,7 @@ fn decimal_power_coeff_correctly_rounded_result(
   )
   let mut work_precision = precision + magnitude.digits10() + 8
   for _attempt in 0..<24 {
-    let work = fn(mode : DecimalRoundingMode) {
+    let work = fn(mode : DecimalRound) {
       DecimalContext::{
         ..ctx,
         precision: work_precision,
@@ -1043,8 +1043,8 @@ fn decimal_power_coeff_correctly_rounded_result(
         clamp: false,
       }
     }
-    let lower_ctx = work(DecimalRoundingMode::Down)
-    let upper_ctx = work(DecimalRoundingMode::Up)
+    let lower_ctx = work(DecimalRound::Down)
+    let upper_ctx = work(DecimalRound::Up)
     let mut lower = Decimal::one(precision=work_precision)
     let mut upper = Decimal::one(precision=work_precision)
     let mut work_flags = DecimalFlags::new()
@@ -1195,7 +1195,6 @@ fn decimal_math_target_precision(ctx : DecimalContext) -> Int32 {
 fn decimal_math_work_ctx(precision : Int32) -> DecimalContext {
   DecimalContext::new(
     precision=Int32::max(precision, 1),
-    decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999_999,
     e_max=999_999,
   )
@@ -2134,18 +2133,8 @@ fn decimal_power_large_integer_result(
   let magnitude = base.abs()
   let magnitude_ctx = if negative {
     match ctx.decimal_rounding {
-      Ceiling =>
-        {
-          ..ctx,
-          rounding: RoundingMode::TowardNegative,
-          decimal_rounding: DecimalRoundingMode::Floor,
-        }
-      Floor =>
-        {
-          ..ctx,
-          rounding: RoundingMode::TowardPositive,
-          decimal_rounding: DecimalRoundingMode::Ceiling,
-        }
+      Ceiling => { ..ctx, decimal_rounding: DecimalRound::Floor, }
+      Floor => { ..ctx, decimal_rounding: DecimalRound::Ceiling, }
       _ => ctx
     }
   } else {

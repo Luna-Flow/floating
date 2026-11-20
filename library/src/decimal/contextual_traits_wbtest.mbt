@@ -73,8 +73,8 @@ test "Decimal checked parsing uses the arithmetic context" {
 test "IEEE context exposes 2019 semantics and explicit rounding updates" {
   let ctx = DecimalContext::decimal64()
   assert_true(ctx.is754version2019())
-  let directed = ctx.with_rounding(@lf_arith.RoundingMode::TowardPositive)
-  assert_true(directed.rounding() == @lf_arith.RoundingMode::TowardPositive)
+  let directed = ctx.with_rounding(DecimalRoundingMode::RoundTowardPositive)
+  assert_true(directed.rounding() == DecimalRoundingMode::RoundTowardPositive)
   assert_true(directed.is754version2019())
 }
 

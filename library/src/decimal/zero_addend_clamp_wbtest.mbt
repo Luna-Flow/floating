@@ -6,7 +6,7 @@
 /// `decimal` in the same contexts.
 test "a zero addend does not leak a clamp of the other operand" {
   let cases : Array[
-    (Int32, Int32, Int32, DecimalRoundingMode, String, String, String, String),
+    (Int32, Int32, Int32, DecimalRound, String, String, String, String),
   ] = [
     (3, -5, 5, HalfUp, "7E+4", "-0E-20", "", "7.00E+4"),
     (9, -20, 20, ZeroFiveUp, "-0E+8", "-5E+19", "", "-5.00000000E+19"),
@@ -16,12 +16,8 @@ test "a zero addend does not leak a clamp of the other operand" {
   ]
   for entry in cases {
     let (precision, e_min, e_max, mode, left, right, addend, expected) = entry
-    let ctx = DecimalContext::new(
-      precision~,
-      decimal_rounding=mode,
-      e_min~,
-      e_max~,
-      clamp=true,
+    let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp=true).with_round(
+      mode,
     )
     let x = Decimal::from_string(left).unwrap()
     let y = Decimal::from_string(right).unwrap()

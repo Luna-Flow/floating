@@ -11,7 +11,7 @@ fn issue264_flags_text(flags : DecimalFlags) -> String {
 }
 
 ///|
-fn issue264_mode_name(mode : DecimalRoundingMode) -> String {
+fn issue264_mode_name(mode : DecimalRound) -> String {
   match mode {
     HalfEven => "half_even"
     HalfUp => "half_up"
@@ -34,15 +34,10 @@ fn issue264_run(
   e_max : Int32,
   clamp : Bool,
   extended : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> (String, String) {
-  let ctx = DecimalContext::new(
-    precision~,
-    decimal_rounding=mode,
-    e_min~,
-    e_max~,
-    clamp~,
-    extended~,
+  let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp~, extended~).with_round(
+    mode,
   )
   let x = Decimal::from_string(args[0]).unwrap()
   let y = if args.length() > 1 {
@@ -91,7 +86,7 @@ fn issue264_check(
       Int32,
       Int32,
       Bool,
-      DecimalRoundingMode,
+      DecimalRound,
       String,
       String,
     ),
@@ -133,7 +128,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       Int32,
       Int32,
       Bool,
-      DecimalRoundingMode,
+      DecimalRound,
       String,
       String,
     ),

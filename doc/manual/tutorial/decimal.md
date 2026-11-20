@@ -112,8 +112,7 @@ application cares about them.
 ### Round money with `quantize_ctx`
 
 `quantize_ctx` gives a value the exponent of a template value. Choose the rounding
-mode in the context; commercial rounding is `HalfUp`, which the shared
-`RoundingMode` enum does not have, so pass `decimal_rounding`:
+mode in the context; commercial rounding is `RoundTiesToAway`:
 
 ```moonbit
 ///|
@@ -125,7 +124,7 @@ test "decimal round to cents" {
     precision=16,
     e_min=-383,
     e_max=384,
-    decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
+    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   inspect(d("2.345").quantize_ctx(cents, bankers).0, content="2.34")
   inspect(d("2.345").quantize_ctx(cents, commercial).0, content="2.35")
@@ -198,8 +197,8 @@ test "decimal directed rounding brackets the exact quotient" {
   let ctx = @decimal.DecimalContext::decimal32()
   let one = @decimal.Decimal::one()
   let seven = @decimal.Decimal::from_int(7)
-  let down = ctx.with_rounding(@def.RoundingMode::TowardNegative)
-  let up = ctx.with_rounding(@def.RoundingMode::TowardPositive)
+  let down = ctx.with_rounding(@decimal.DecimalRoundingMode::RoundTowardNegative)
+  let up = ctx.with_rounding(@decimal.DecimalRoundingMode::RoundTowardPositive)
   inspect(one.div_ctx(seven, down).0, content="0.1428571")
   inspect(one.div_ctx(seven, up).0, content="0.1428572")
 }
@@ -419,8 +418,9 @@ test "decimal total order separates cohorts" {
   `Decimal` with the context precision, so an exponent with more digits than
   the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or
   call `pown_ctx`, which converts the exponent exactly.
-- **`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.**
-  Build the context with `DecimalContext::new(decimal_rounding=...)`.
+- **A context has the five rounding-direction attributes of IEEE 754-2019
+  §4.3 and no more.** `HalfDown`, `Up` and `ZeroFiveUp` of GDA are in
+  `decimal_gda` only; commercial rounding is `RoundTiesToAway`.
 - **Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact
   binary value `0.1000000000000000055511151231257827` (rounded to 34 digits),
   not `0.1`; parse text instead.

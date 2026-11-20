@@ -352,8 +352,8 @@ is the first field of the row.
 one row per case for the IEEE decimal elementary functions (`exp exp2 exp10
 expm1 ln log2 log10 log1p sin cos tan sinpi cospi tanpi asin acos atan sinh cosh
 tanh asinh acosh atanh pow hypot atan2 rootn pown`), with a decimal context
-(precision, exponent range, clamp, tininess rule, one of the eight rounding
-modes), exact decimal operands and the expected value with its flags. The
+(precision, exponent range, clamp, tininess rule, one of the five IEEE rounding
+directions: `half_even`, `half_up`, `down`, `ceiling`, `floor`), exact decimal operands and the expected value with its flags. The
 expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one
 MPFR result, and a row exists only when both enclosure endpoints round alike and
 the rounded value lies outside the enclosure (the true value is not

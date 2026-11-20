@@ -191,10 +191,10 @@ test "decimal large negative-base powers mirror directed rounding" {
   let base = d("-1.000000000000001")
   let exponent = d("12345678901234567")
   let down = DecimalContext::decimal64().with_rounding(
-    RoundingMode::TowardNegative,
+    DecimalRoundingMode::RoundTowardNegative,
   )
   let up = DecimalContext::decimal64().with_rounding(
-    RoundingMode::TowardPositive,
+    DecimalRoundingMode::RoundTowardPositive,
   )
   assert_eq(
     base.pow_ctx(exponent, up).0.to_string(),
@@ -287,18 +287,21 @@ test "decimal large integer powers honor all rounding modes" {
     ),
   ]
   for (mode, expected) in modes {
-    let (value, flags) = d("2").pow_ctx(d("1E+9"), context.with_rounding(mode))
+    let (value, flags) = d("2").pow_ctx(
+      d("1E+9"),
+      context.with_round(DecimalRound::from_arithmetic(mode)),
+    )
     assert_eq(value.to_string(), expected)
     assert_true(flags.inexact)
     assert_true(flags.rounded)
   }
   let (ceiling, _) = d("-1.000001").pow_ctx(
     d("1000000001"),
-    context.with_rounding(RoundingMode::TowardPositive),
+    context.with_rounding(DecimalRoundingMode::RoundTowardPositive),
   )
   let (floor, _) = d("-1.000001").pow_ctx(
     d("1000000001"),
-    context.with_rounding(RoundingMode::TowardNegative),
+    context.with_rounding(DecimalRoundingMode::RoundTowardNegative),
   )
   assert_eq(ceiling.to_string(), "-1.969088294420576654510139814956394E+434")
   assert_eq(floor.to_string(), "-1.969088294420576654510139814956395E+434")
@@ -314,11 +317,11 @@ test "decimal large integer negative powers match directed oracle values" {
   let context = DecimalContext::new()
   let (ceiling, ceiling_flags) = base.pow_ctx(
     exponent,
-    context.with_rounding(RoundingMode::TowardPositive),
+    context.with_rounding(DecimalRoundingMode::RoundTowardPositive),
   )
   let (floor, floor_flags) = base.pow_ctx(
     exponent,
-    context.with_rounding(RoundingMode::TowardNegative),
+    context.with_rounding(DecimalRoundingMode::RoundTowardNegative),
   )
   assert_eq(ceiling.to_string(), "-1.969088294420576654510139814956394E+434")
   assert_eq(floor.to_string(), "-1.969088294420576654510139814956395E+434")

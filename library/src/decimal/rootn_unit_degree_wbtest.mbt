@@ -17,7 +17,9 @@ test "rootn of degree 1 and -1 is exact" {
     ("-7.5", 1, "-7.5"),
   ]
   for mode in modes {
-    let ctx = DecimalContext::decimal64().with_rounding(mode)
+    let ctx = DecimalContext::decimal64().with_round(
+      DecimalRound::from_arithmetic(mode),
+    )
     for entry in cases {
       let (text, degree, expected) = entry
       let (value, flags) = Decimal::from_string(text)

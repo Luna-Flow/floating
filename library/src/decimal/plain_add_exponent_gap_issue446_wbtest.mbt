@@ -67,7 +67,7 @@ fn exact_plain_sum(a : Decimal, b : Decimal, precision : Int32) -> Decimal {
     magnitude,
     target,
     precision,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
 }
 

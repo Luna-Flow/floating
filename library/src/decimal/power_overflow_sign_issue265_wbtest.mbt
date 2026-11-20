@@ -11,7 +11,7 @@ fn issue265_flags_text(flags : DecimalFlags) -> String {
 }
 
 ///|
-fn issue265_mode_name(mode : DecimalRoundingMode) -> String {
+fn issue265_mode_name(mode : DecimalRound) -> String {
   match mode {
     HalfEven => "half_even"
     HalfUp => "half_up"
@@ -34,15 +34,10 @@ fn issue265_run(
   e_max : Int32,
   clamp : Bool,
   extended : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> (String, String) {
-  let ctx = DecimalContext::new(
-    precision~,
-    decimal_rounding=mode,
-    e_min~,
-    e_max~,
-    clamp~,
-    extended~,
+  let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp~, extended~).with_round(
+    mode,
   )
   let x = Decimal::from_string(args[0]).unwrap()
   let y = if args.length() > 1 {
@@ -91,7 +86,7 @@ fn issue265_check(
       Int32,
       Int32,
       Bool,
-      DecimalRoundingMode,
+      DecimalRound,
       String,
       String,
     ),
@@ -134,7 +129,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       Int32,
       Int32,
       Bool,
-      DecimalRoundingMode,
+      DecimalRound,
       String,
       String,
     ),

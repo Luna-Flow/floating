@@ -1,5 +1,5 @@
 ///|
-fn issue348_mode(name : String) -> DecimalRoundingMode {
+fn issue348_mode(name : String) -> DecimalRound {
   match name {
     "half_even" => HalfEven
     "half_up" => HalfUp
@@ -26,13 +26,9 @@ fn issue348_flags_text(flags : DecimalFlags) -> String {
 }
 
 ///|
-fn issue348_decimal64(mode : DecimalRoundingMode) -> DecimalContext {
-  DecimalContext::new(
-    precision=16,
-    decimal_rounding=mode,
-    e_min=-383,
-    e_max=384,
-    clamp=true,
+fn issue348_decimal64(mode : DecimalRound) -> DecimalContext {
+  DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true).with_round(
+    mode,
   )
 }
 
@@ -248,12 +244,8 @@ test "issue 350: no clamped for an inexact pown result near 1" {
   let x = Decimal::from_string("1.000000000000000006354").unwrap()
   for row in rows {
     let (mode, expected) = row
-    let ctx = DecimalContext::new(
-      precision=4,
-      decimal_rounding=issue348_mode(mode),
-      e_min=-10,
-      e_max=0,
-      clamp=true,
+    let ctx = DecimalContext::new(precision=4, e_min=-10, e_max=0, clamp=true).with_round(
+      issue348_mode(mode),
     )
     let (value, flags) = x.pown_ctx(-40, ctx)
     assert_eq(

@@ -58,9 +58,9 @@ test "decimal power keeps inexact non-integral results inexact" {
 test "decimal power rounds exact non-integral results beyond the precision" {
   let coarse = DecimalContext::new(
     precision=1,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999,
     e_max=999,
+    rounding=DecimalRoundingMode::RoundTiesToEven,
   ).ieee754()
   let (coarse_value, coarse_flags) = Decimal::from_string("4096")
     .unwrap()
@@ -77,7 +77,7 @@ test "decimal power rounds exact non-integral results beyond the precision" {
 }
 
 ///|
-let all_decimal_roundings : Array[DecimalRoundingMode] = [
+let all_decimal_roundings : Array[DecimalRound] = [
   HalfEven,
   HalfUp,
   HalfDown,
@@ -110,11 +110,8 @@ test "decimal power rounds long exact non-integral results in every mode" {
   for entry in cases {
     let (left, right, precision, expected) = entry
     for i, mode in all_decimal_roundings {
-      let context = DecimalContext::new(
-        precision~,
-        decimal_rounding=mode,
-        e_min=-999,
-        e_max=999,
+      let context = DecimalContext::new(precision~, e_min=-999, e_max=999).with_round(
+        mode,
       )
       let (value, flags) = Decimal::from_string(left)
         .unwrap()
@@ -145,10 +142,9 @@ test "decimal power decides exact non-integral results past base^p's size (#138)
     for mode in all_decimal_roundings {
       let context = DecimalContext::new(
         precision=1000,
-        decimal_rounding=mode,
         e_min=-999_999,
         e_max=999_999,
-      )
+      ).with_round(mode)
       let (value, flags) = base.pow_ctx(exponent, context)
       assert_eq(
         value.total_order_compare(
@@ -198,10 +194,9 @@ test "decimal power decides exact powers with large reduced exponents" {
     for mode in all_decimal_roundings {
       let context = DecimalContext::new(
         precision~,
-        decimal_rounding=mode,
         e_min=-999_999,
         e_max=999_999,
-      )
+      ).with_round(mode)
       let (value, flags) = base.pow_ctx(exponent, context)
       assert_eq(value.total_order_compare(want), 0)
       assert_false(flags.inexact)

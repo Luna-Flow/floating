@@ -19,7 +19,7 @@ fn normalize_decimal_parts_ctx(
 fn huge_shift_rounded_unit(
   coefficient : BigInt,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> BigInt {
   guard !coefficient.is_zero() else { return bigint_zero() }
   match mode {
@@ -39,7 +39,7 @@ fn normalize_decimal_parts_math_ctx(
 ) -> (Decimal, DecimalFlags) {
   normalize_decimal_parts_ctx(negative, magnitude, exponent10, {
     ..ctx,
-    decimal_rounding: DecimalRoundingMode::HalfEven,
+    decimal_rounding: DecimalRound::HalfEven,
   })
 }
 
@@ -89,7 +89,7 @@ fn reference_ln_atanh_scaled(
     total,
     pow10(extra_digits),
     negative,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
   if negative {
     -rounded
@@ -139,7 +139,7 @@ test "BigInt-free ln constants preserve the old scaled integers" {
       high.2.to_bigint(),
       pow10(223),
       false,
-      DecimalRoundingMode::HalfEven,
+      DecimalRound::HalfEven,
     ),
   )
   decimal_math_constant_cache.val = saved_cache
@@ -150,7 +150,7 @@ fn reference_round_positive_decimal_div_pow10(
   numerator : BigInt,
   shift : Int32,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> (BigInt, Bool) {
   guard numerator >= bigint_zero() else {
     abort("reference rounding expects a non-negative numerator")
@@ -298,31 +298,31 @@ test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
       numerator,
       denominator,
       false,
-      DecimalRoundingMode::HalfEven,
+      DecimalRound::HalfEven,
     ).to_bigint(),
-    round_positive_decimal_div(125N, 10N, false, DecimalRoundingMode::HalfEven),
+    round_positive_decimal_div(125N, 10N, false, DecimalRound::HalfEven),
   )
   assert_eq(
     round_positive_decimal_div_repr(
       numerator,
       denominator,
       false,
-      DecimalRoundingMode::HalfUp,
+      DecimalRound::HalfUp,
     ).to_bigint(),
-    round_positive_decimal_div(125N, 10N, false, DecimalRoundingMode::HalfUp),
+    round_positive_decimal_div(125N, 10N, false, DecimalRound::HalfUp),
   )
   assert_eq(
     round_positive_decimal_div_repr(
       dec_coeff_from_bigint_repr(123456789012345678901N),
       dec_coeff_from_bigint_repr(97N),
       true,
-      DecimalRoundingMode::Floor,
+      DecimalRound::Floor,
     ).to_bigint(),
     round_positive_decimal_div(
       123456789012345678901N,
       97N,
       true,
-      DecimalRoundingMode::Floor,
+      DecimalRound::Floor,
     ),
   )
 }
@@ -379,7 +379,7 @@ test "decimal subset operand rounding stays coefficient-native" {
   let ctx = DecimalContext::new(
     precision=5,
     extended=false,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
+    rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let (exact, exact_flags) = round_operand_for_subset(
     Decimal::from_string("1234500", precision=16).unwrap(),
@@ -422,13 +422,13 @@ test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
     dec_coeff_from_bigint_repr(12345N),
     2,
     false,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
   let (big_half, big_half_inexact) = reference_round_positive_decimal_div_pow10(
     12345N,
     2,
     false,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
   assert_eq(repr_half.to_bigint(), big_half)
   assert_eq(repr_half_inexact, big_half_inexact)
@@ -437,13 +437,13 @@ test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
     dec_coeff_from_bigint_repr(5N),
     1,
     false,
-    DecimalRoundingMode::HalfUp,
+    DecimalRound::HalfUp,
   )
   let (big_tiny, big_tiny_inexact) = reference_round_positive_decimal_div_pow10(
     5N,
     1,
     false,
-    DecimalRoundingMode::HalfUp,
+    DecimalRound::HalfUp,
   )
   assert_eq(repr_tiny.to_bigint(), big_tiny)
   assert_eq(repr_tiny_inexact, big_tiny_inexact)
@@ -578,9 +578,9 @@ test "decimal integer parity helper rejects fractional values and tracks signles
 test "scaleb count extracts exponent-zero integers from coeff repr" {
   let ctx = DecimalContext::new(
     precision=9,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999,
     e_max=999,
+    rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let positive = Decimal::from_string("123", precision=16).unwrap()
   let negative = Decimal::from_string("-45", precision=16).unwrap()
@@ -1109,10 +1109,10 @@ test "decimal logical invert and digit motion helpers match bigint formulas" {
 test "decimal div_ctx repr pipeline matches bigint divide normalization" {
   let ctx = DecimalContext::new(
     precision=6,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-20,
     e_max=20,
     clamp=false,
+    rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
   let exact_rhs = Decimal::from_string("16", precision=8).unwrap()
@@ -1132,10 +1132,10 @@ test "decimal div_ctx repr pipeline matches bigint divide normalization" {
 test "decimal math small-int division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
-    decimal_rounding=DecimalRoundingMode::HalfUp,
     e_min=-12,
     e_max=12,
     clamp=true,
+    rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let exact = Decimal::from_string("7.50", precision=8).unwrap()
   let inexact = Decimal::from_string("-2", precision=8).unwrap()
@@ -1153,10 +1153,10 @@ test "decimal math small-int division repr pipeline matches bigint divide normal
 test "decimal math finite division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-15,
     e_max=15,
     clamp=false,
+    rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
   let exact_rhs = Decimal::from_string("16", precision=8).unwrap()
@@ -1176,10 +1176,10 @@ test "decimal math finite division repr pipeline matches bigint divide normaliza
 test "decimal repr math normalization and multiplication match bigint path" {
   let work_ctx = DecimalContext::new(
     precision=6,
-    decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-20,
     e_max=20,
     clamp=false,
+    rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
   assert_decimal_and_flags_eq(
@@ -1213,10 +1213,10 @@ test "decimal repr math normalization and multiplication match bigint path" {
 test "decimal scaleb repr construction matches bigint path" {
   let ctx = DecimalContext::new(
     precision=4,
-    decimal_rounding=DecimalRoundingMode::HalfUp,
     e_min=-6,
     e_max=6,
     clamp=true,
+    rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let regular = Decimal::from_string("12.34", precision=8).unwrap()
   let tiny = Decimal::from_string("12.34", precision=8).unwrap()
@@ -1234,10 +1234,10 @@ test "decimal scaleb repr construction matches bigint path" {
 test "decimal repr normalization matches bigint normalization on finite values" {
   let ctx = DecimalContext::new(
     precision=7,
-    decimal_rounding=DecimalRoundingMode::HalfUp,
     e_min=-20,
     e_max=20,
     clamp=true,
+    rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
   let expected = normalize_decimal_parts_ctx(
@@ -1270,14 +1270,14 @@ test "decimal repr gda normalization matches bigint normalization" {
     coeff_bigint(finite.coefficient),
     finite.exponent10,
     5,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
   let actual = normalize_decimal_parts_gda_repr(
     finite.negative,
     finite.coefficient,
     finite.exponent10,
     5,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
   assert_eq(actual.total_order_compare(expected), 0)
 }

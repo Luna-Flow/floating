@@ -42,7 +42,8 @@ import generate_mpfr_decimal_random as decm
 sys.set_int_max_str_digits(0)
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "library/src/decimal/elementary_pm1_rows_wbtest.mbt"
-ROUNDINGS = ("half_even", "half_up", "half_down", "down", "ceiling", "floor", "up", "05up")
+# The five rounding-direction attributes of IEEE 754-2019 4.3 (half_up is roundTiesToAway).
+ROUNDINGS = ("half_even", "half_up", "down", "ceiling", "floor")
 OPS = ("exp2m1", "exp10m1", "log2p1", "log10p1")
 DECIMAL32 = (7, -95, 96, 1)
 DECIMAL64 = (16, -383, 384, 1)
@@ -265,7 +266,7 @@ def build() -> Rows:
     for precision in (1, 2, 3, 5, 7, 16, 34):
         spec = (precision, -999999, 999999, 0)
         bound = 4 * (precision + 2)
-        modes = ROUNDINGS if precision in (1, 7) else ("half_even", "floor", "05up")
+        modes = ROUNDINGS if precision in (1, 7) else ("half_even", "floor", "half_up")
         for mode in modes:
             c = ctx(spec, mode)
             ns = sorted({*range(1, 6), bound - 1, bound, bound + 1, 3 * bound})

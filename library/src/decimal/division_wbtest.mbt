@@ -33,7 +33,7 @@ test "exact division honors decimal tie rounding" {
   let half_even = DecimalContext::new(precision=2)
   let half_up = DecimalContext::new(
     precision=2,
-    decimal_rounding=DecimalRoundingMode::HalfUp,
+    rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let (even_value, even_flags) = dividend.div_ctx(divisor, half_even)
   let (up_value, up_flags) = dividend.div_ctx(divisor, half_up)

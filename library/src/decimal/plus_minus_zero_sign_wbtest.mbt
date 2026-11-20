@@ -4,18 +4,18 @@
 /// opposite signs -0 under roundTowardNegative (Floor) and +0 otherwise.
 test "plus and minus of a zero follow the addition sign rule" {
   let modes = [
-    DecimalRoundingMode::HalfEven,
-    DecimalRoundingMode::HalfUp,
-    DecimalRoundingMode::HalfDown,
-    DecimalRoundingMode::Down,
-    DecimalRoundingMode::Up,
-    DecimalRoundingMode::Ceiling,
-    DecimalRoundingMode::Floor,
-    DecimalRoundingMode::ZeroFiveUp,
+    DecimalRound::HalfEven,
+    DecimalRound::HalfUp,
+    DecimalRound::HalfDown,
+    DecimalRound::Down,
+    DecimalRound::Up,
+    DecimalRound::Ceiling,
+    DecimalRound::Floor,
+    DecimalRound::ZeroFiveUp,
   ]
   for mode in modes {
-    let ctx = DecimalContext::new(precision=16, decimal_rounding=mode)
-    let floor = mode == DecimalRoundingMode::Floor
+    let ctx = DecimalContext::new(precision=16).with_round(mode)
+    let floor = mode == DecimalRound::Floor
     let check = (
       op : (Decimal, DecimalContext) -> (Decimal, DecimalFlags),
       operand : String,

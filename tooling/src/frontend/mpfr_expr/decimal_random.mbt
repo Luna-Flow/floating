@@ -58,15 +58,15 @@ pub fn MpfrDecimalRandomDocument::case_ids(
 
 ///|
 fn parse_decimal_rounding(source : String) -> @decimal.DecimalRoundingMode? {
+  // The five rounding-direction attributes of IEEE 754-2019 4.3 in the names
+  // of the row format (the GDA names of `decimal_gda`); `half_down`, `up` and
+  // `05up` are not attributes of an IEEE decimal context.
   match source {
-    "half_even" => Some(@decimal.DecimalRoundingMode::HalfEven)
-    "half_up" => Some(@decimal.DecimalRoundingMode::HalfUp)
-    "half_down" => Some(@decimal.DecimalRoundingMode::HalfDown)
-    "down" => Some(@decimal.DecimalRoundingMode::Down)
-    "ceiling" => Some(@decimal.DecimalRoundingMode::Ceiling)
-    "floor" => Some(@decimal.DecimalRoundingMode::Floor)
-    "up" => Some(@decimal.DecimalRoundingMode::Up)
-    "05up" => Some(@decimal.DecimalRoundingMode::ZeroFiveUp)
+    "half_even" => Some(@decimal.DecimalRoundingMode::RoundTiesToEven)
+    "half_up" => Some(@decimal.DecimalRoundingMode::RoundTiesToAway)
+    "down" => Some(@decimal.DecimalRoundingMode::RoundTowardZero)
+    "ceiling" => Some(@decimal.DecimalRoundingMode::RoundTowardPositive)
+    "floor" => Some(@decimal.DecimalRoundingMode::RoundTowardNegative)
     _ => None
   }
 }
@@ -192,7 +192,7 @@ fn parse_decimal_random_row(
   let context = match
     @decimal.DecimalContext::try_new(
       precision~,
-      decimal_rounding=rounding,
+      rounding~,
       e_min~,
       e_max~,
       clamp~,

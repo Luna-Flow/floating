@@ -16,7 +16,7 @@ class DecimalElementaryOracleTests(unittest.TestCase):
         )
         rows = oracle.generate_rows(intervals)
         self.assertEqual(len(intervals), 204)
-        self.assertEqual(len(rows), 4896)
+        self.assertEqual(len(rows), 3060)
 
     def test_non_unique_interval_is_rejected(self) -> None:
         interval = {

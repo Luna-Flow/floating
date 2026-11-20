@@ -5,9 +5,9 @@ pub fn Decimal::make(
   coefficient : BigInt,
   exponent10 : Int32,
   precision : Int32,
-  mode~ : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> Decimal {
-  normalize_decimal(coefficient, exponent10, precision, mode)
+  normalize_decimal(coefficient, exponent10, precision, mode.round())
 }
 
 ///|
@@ -22,7 +22,7 @@ pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
     bigint_zero(),
     0,
     precision,
-    RoundingMode::ToNearestEven,
+    DecimalRound::HalfEven,
   )
 }
 
@@ -99,7 +99,7 @@ fn decimal_from_integer_parts(
     precision,
     round_to_precision=true,
     reduce=false,
-    mode=DecimalRoundingMode::HalfEven,
+    mode=DecimalRound::HalfEven,
   )
 }
 
@@ -485,7 +485,7 @@ fn decimal_from_bin_float_surrogate(
     precision,
     round_to_precision=true,
     reduce=false,
-    mode=DecimalRoundingMode::HalfEven,
+    mode=DecimalRound::HalfEven,
   )
 }
 

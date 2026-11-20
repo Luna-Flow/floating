@@ -74,20 +74,17 @@ test "sinpi, cospi, tanpi of a huge even integer are exact without expanding it"
 
 ///|
 test "cospi next to zero is decided before the loop in every direction" {
-  let rows : Array[(DecimalRoundingMode, String)] = [
-    (DecimalRoundingMode::HalfEven, "1.000000000000000 x"),
-    (DecimalRoundingMode::Floor, "0.9999999999999999 x"),
-    (DecimalRoundingMode::Down, "0.9999999999999999 x"),
-    (DecimalRoundingMode::Ceiling, "1.000000000000000 x"),
-    (DecimalRoundingMode::Up, "1.000000000000000 x"),
+  let rows : Array[(DecimalRound, String)] = [
+    (DecimalRound::HalfEven, "1.000000000000000 x"),
+    (DecimalRound::Floor, "0.9999999999999999 x"),
+    (DecimalRound::Down, "0.9999999999999999 x"),
+    (DecimalRound::Ceiling, "1.000000000000000 x"),
+    (DecimalRound::Up, "1.000000000000000 x"),
   ]
   for x in ["1E-999999", "-3E-999999", "1E-1999996", "9E-1999997"] {
     for row in rows {
-      let ctx = DecimalContext::new(
-        precision=16,
-        decimal_rounding=row.0,
-        e_min=-383,
-        e_max=384,
+      let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384).with_round(
+        row.0,
       )
       assert_eq(
         "cospi(\{x}): " +

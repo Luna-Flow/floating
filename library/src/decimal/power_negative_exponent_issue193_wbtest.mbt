@@ -3,14 +3,14 @@ test "decimal power handles large negative exponents for fractional bases" {
   let base = Decimal::from_string("0.5").unwrap()
   let exponent = Decimal::from_string("-999999998").unwrap()
   let expected = [
-    (DecimalRoundingMode::HalfEven, "inf"),
-    (DecimalRoundingMode::HalfUp, "inf"),
-    (DecimalRoundingMode::HalfDown, "inf"),
-    (DecimalRoundingMode::Down, "9.999999999999999E+384"),
-    (DecimalRoundingMode::Floor, "9.999999999999999E+384"),
-    (DecimalRoundingMode::Ceiling, "inf"),
-    (DecimalRoundingMode::Up, "inf"),
-    (DecimalRoundingMode::ZeroFiveUp, "9.999999999999999E+384"),
+    (DecimalRound::HalfEven, "inf"),
+    (DecimalRound::HalfUp, "inf"),
+    (DecimalRound::HalfDown, "inf"),
+    (DecimalRound::Down, "9.999999999999999E+384"),
+    (DecimalRound::Floor, "9.999999999999999E+384"),
+    (DecimalRound::Ceiling, "inf"),
+    (DecimalRound::Up, "inf"),
+    (DecimalRound::ZeroFiveUp, "9.999999999999999E+384"),
   ]
   for (mode, expected_value) in expected {
     let context = DecimalContext::{
@@ -59,11 +59,11 @@ test "decimal power large fractional bases cover interchange formats and modes" 
     "-1000000001.0",
   ]
   let modes = [
-    DecimalRoundingMode::HalfEven,
-    DecimalRoundingMode::HalfUp,
-    DecimalRoundingMode::HalfDown,
-    DecimalRoundingMode::Down,
-    DecimalRoundingMode::Floor,
+    DecimalRound::HalfEven,
+    DecimalRound::HalfUp,
+    DecimalRound::HalfDown,
+    DecimalRound::Down,
+    DecimalRound::Floor,
   ]
   let contexts = [
     DecimalContext::decimal32(),
@@ -108,14 +108,14 @@ test "decimal power keeps finite values below overflow boundaries" {
 ///|
 test "decimal power checks both sides across all rounding modes" {
   let modes = [
-    DecimalRoundingMode::HalfEven,
-    DecimalRoundingMode::HalfUp,
-    DecimalRoundingMode::HalfDown,
-    DecimalRoundingMode::Down,
-    DecimalRoundingMode::Floor,
-    DecimalRoundingMode::Ceiling,
-    DecimalRoundingMode::Up,
-    DecimalRoundingMode::ZeroFiveUp,
+    DecimalRound::HalfEven,
+    DecimalRound::HalfUp,
+    DecimalRound::HalfDown,
+    DecimalRound::Down,
+    DecimalRound::Floor,
+    DecimalRound::Ceiling,
+    DecimalRound::Up,
+    DecimalRound::ZeroFiveUp,
   ]
   let p9 = DecimalContext::new(precision=9, e_min=-383, e_max=384)
   for mode in modes {
@@ -124,7 +124,7 @@ test "decimal power checks both sides across all rounding modes" {
       .unwrap()
       .pow_ctx(Decimal::from_string("-1000").unwrap(), context)
     assert_true(finite.is_finite() && !finite_flags.overflow)
-    if mode == DecimalRoundingMode::HalfEven {
+    if mode == DecimalRound::HalfEven {
       assert_eq(finite.to_string(), "5.72124519E+45")
       let (negative, negative_flags) = Decimal::from_string("-0.9")
         .unwrap()

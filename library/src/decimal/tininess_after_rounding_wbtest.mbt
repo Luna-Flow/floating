@@ -48,8 +48,7 @@ test "after-rounding tininess rounds to the precision with unbounded exponent" {
     precision=3,
     e_min=0,
     e_max=10,
-    decimal_rounding=DecimalRoundingMode::Up,
     tininess=DecimalTininessDetection::AfterRounding,
-  )
+  ).with_round(DecimalRound::Up)
   inspect(tininess_after_rounding_show("0.9991", up), content="1.00 [inexact]")
 }

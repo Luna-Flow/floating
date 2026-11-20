@@ -14,9 +14,9 @@ fn issue187_flags(flags : DecimalFlags) -> String {
 fn issue187_context(
   precision : Int32,
   clamp : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> DecimalContext {
-  DecimalContext::new(precision~, decimal_rounding=mode, clamp~)
+  DecimalContext::new(precision~, clamp~).with_round(mode)
 }
 
 ///|
@@ -29,7 +29,7 @@ fn issue187_context(
 /// clamped).
 test "operands with exponents near the Int limits give the specified results (#187)" {
   let rows : Array[
-    (String, Array[String], Int32, Bool, DecimalRoundingMode, String, String),
+    (String, Array[String], Int32, Bool, DecimalRound, String, String),
   ] = [
     (
       "remainder",
@@ -239,7 +239,7 @@ test "operands with exponents near the Int limits give the specified results (#1
 /// operand; a value that is not an integer, or that is out of range, is an
 /// invalid operation instead of an abort.
 test "rescale with an exponent operand beyond Int is invalid (#187)" {
-  let ctx = issue187_context(34, false, DecimalRoundingMode::HalfEven)
+  let ctx = issue187_context(34, false, DecimalRound::HalfEven)
   let cases = [
     ("9E999999999", "-5E2147483646"),
     ("1E0", "1E-2147483648"),
@@ -262,7 +262,7 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
     .unwrap()
     .remainder_ctx(
       Decimal::from_string("9E-2147483648").unwrap(),
-      issue187_context(34, false, DecimalRoundingMode::HalfEven),
+      issue187_context(34, false, DecimalRound::HalfEven),
     )
   assert_eq(
     (near.to_string(), issue187_flags(near_flags)),

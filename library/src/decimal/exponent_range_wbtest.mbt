@@ -98,7 +98,7 @@ test "products and quotients of extreme exponents do not wrap" {
   let big = Decimal::from_string("1E+1500000000").unwrap()
   let small = Decimal::from_string("1E-1500000000").unwrap()
   let ctx = DecimalContext::new()
-  let up = DecimalContext::new(rounding=RoundingMode::AwayFromZero)
+  let up = DecimalContext::new().with_round(DecimalRound::Up)
   inspect(
     exponent_range_show(big.mul_ctx(big, ctx)),
     content="inf [overflow,inexact,rounded]",
@@ -148,9 +148,9 @@ test "products and quotients of extreme exponents do not wrap" {
   )
   // Rounding at the top of the range overflows according to the mode.
   let top = d("9999E+2147483644")
-  inspect(top.with_precision(2, RoundingMode::AwayFromZero), content="inf")
+  inspect(top.with_precision_round(2, DecimalRound::Up), content="inf")
   inspect(
-    top.with_precision(2, RoundingMode::TowardZero),
+    top.with_precision(2, DecimalRoundingMode::RoundTowardZero),
     content="9.9E+2147483647",
   )
 }

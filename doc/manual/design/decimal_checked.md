@@ -139,7 +139,7 @@ converts it with `DecimalContext::from_arithmetic_context`, which maps
 | `ArithmeticContext` | `DecimalContext` |
 | --- | --- |
 | `precision` | `precision` |
-| `rounding` | `rounding`, and `decimal_rounding = DecimalRoundingMode::from_arithmetic(rounding)` |
+| `rounding` | `rounding` (`DecimalRoundingMode::from_arithmetic`; `AwayFromZero` is an `Err`) |
 | `e_min`, `e_max` | the same, or $\mp 999\,999\,999$ when absent |
 | `clamp` | `clamp` |
 
