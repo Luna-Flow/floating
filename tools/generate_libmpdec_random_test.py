@@ -222,7 +222,7 @@ class PowerOfTenDifferenceTests(unittest.TestCase):
             row = generator.evaluate(case)
             self.assertEqual(row.result, "0.000001000000000000000")
             self.assertEqual(row.libmpdec, "0.000001000000000000001 Inexact Rounded")
-            self.assertTrue(any(generator.POWER_OF_TEN_MARKER in line for line in generator.format_row(row)))
+            self.assertTrue(any("expected-difference power-of-ten #351" in line for line in generator.format_row(row)))
         for rounding in ("half_even", "floor", "down"):
             row = generator.evaluate(self.case(rounding, "1E-5", "1.2"))
             self.assertEqual(row.libmpdec, "", rounding)
@@ -247,6 +247,83 @@ class PowerOfTenDifferenceTests(unittest.TestCase):
     def test_wide_contexts_are_not_in_the_class(self) -> None:
         case = self.case("ceiling", "1E-5", "1.2", emin=-999999999, emax=999999999)
         self.assertIsNone(generator.power_of_ten_difference(case, Decimal("0.000001000000000000001")))
+
+
+class PowerExpectedDifferenceTests(unittest.TestCase):
+    """The named expected differences of `power` besides the power of ten (issue
+    402): each row expects this library's result and a row outside the shapes
+    keeps libmpdec's result (so it fails when the libraries differ)."""
+
+    @staticmethod
+    def case(operands: tuple[str, str], precision: int, emin: int, emax: int, clamp: int = 0) -> generator.Case:
+        context = generator.Ctx(precision, "half_even", emin, emax, clamp)
+        return generator.Case("d1.power.0", "power", context, operands)
+
+    def test_integer_power_accuracy_expects_the_decnumber_result(self) -> None:
+        case = self.case(("87569.437524405", "-9.000000000"), 16, -383, 384, 1)
+        row = generator.evaluate(case)
+        self.assertEqual(row.classes, (generator.INTEGER_POWER_CLASS,))
+        self.assertEqual(row.result, "3.302379339563823E-45")
+        self.assertEqual(row.libmpdec, "3.302379339563822E-45 Inexact Rounded")
+        self.assertIn(
+            "-- expected-difference integer-power-accuracy: libmpdec gives 3.302379339563822E-45 Inexact Rounded",
+            generator.format_row(row),
+        )
+
+    def test_integer_power_accuracy_needs_the_bounds(self) -> None:
+        case = self.case(("87569.437524405", "-9.000000000"), 16, -383, 384, 1)
+        near = Decimal("3.302379339563822E-45")
+        self.assertEqual(generator.integer_power_difference(case, near), "3.302379339563823E-45")
+        # libmpdec's value two units away from the exact one is not within 1 ulp.
+        far = Decimal("3.302379339563820E-45")
+        self.assertIsNone(generator.integer_power_difference(case, far))
+        # Equal to the modelled value: not a difference at all.
+        self.assertIsNone(generator.integer_power_difference(case, Decimal("3.302379339563823E-45")))
+
+    def test_the_decnumber_model_reproduces_the_library_result(self) -> None:
+        case = self.case(("-82391.41599594693", "-342"), 24, -6143, 6144, 1)
+        modelled = generator.decnumber_integer_power(Decimal(case.operands[0]), -342, case.context)
+        self.assertEqual(str(modelled), "5.86634169367643020590569E-1682")
+
+    def test_noninteger_power_rounding_expects_the_correct_rounding(self) -> None:
+        case = self.case(("+999999999999999999999999999999.E-30", "1.01"), 64, -1, 0)
+        row = generator.evaluate(case)
+        self.assertEqual(row.classes, (generator.NONINTEGER_POWER_CLASS,))
+        self.assertEqual(row.result, "0.9999999999999999999999999999989900000000000000000000000000000051")
+        # More than 1 ulp from the correct rounding: not registered.
+        far = Decimal("0.9999999999999999999999999999989900000000000000000000000000000048")
+        self.assertIsNone(generator.noninteger_power_difference(case, far))
+
+    def test_underflow_follows_an_inexact_subnormal_result(self) -> None:
+        case = self.case(("-0.009999999999999999999999", "5.0e+1"), 7, -95, 96)
+        row = generator.evaluate(case)
+        self.assertEqual(row.classes, (generator.UNDERFLOW_CLASS,))
+        self.assertEqual(row.conditions, ("Inexact", "Rounded", "Subnormal", "Underflow"))
+        names = ("Inexact", "Rounded", "Subnormal")
+        self.assertEqual(generator.condition_difference(case, Decimal("1E-100"), names)[1], generator.UNDERFLOW_CLASS)
+        # An exact result, or one that already carries Underflow, is not in the class.
+        self.assertIsNone(generator.condition_difference(case, Decimal("1E-100"), ("Rounded", "Subnormal")))
+        self.assertIsNone(generator.condition_difference(case, Decimal("1E-100"), (*names, "Underflow")))
+
+    def test_subnormal_is_judged_before_rounding(self) -> None:
+        case = self.case(("0.0099999999999999999999999999", "8"), 1, -16, 10, 1)
+        row = generator.evaluate(case)
+        self.assertEqual(row.classes, (generator.SUBNORMAL_CLASS,))
+        self.assertEqual(row.conditions, ("Inexact", "Rounded", "Subnormal", "Underflow"))
+        # The exact value 0.01^8 = 1E-16 is not below 10^emin: no class.
+        exact = self.case(("0.01", "8"), 1, -16, 10, 1)
+        self.assertIsNone(generator.condition_difference(exact, Decimal("1E-16"), ("Inexact", "Rounded")))
+
+    def test_a_row_outside_every_shape_keeps_the_libmpdec_result(self) -> None:
+        case = self.case(("2", "3"), 5, -99, 99)
+        self.assertIsNone(generator.power_expected_difference(case, Decimal("8"), ()))
+        # Three units in the last place from the exact 8: libmpdec's value is too far.
+        self.assertIsNone(generator.power_expected_difference(case, Decimal("8.0003"), ("Inexact", "Rounded")))
+
+    def test_every_class_of_the_difference_comment_is_named(self) -> None:
+        case = self.case(("-0.009999999999999999999999", "5.0e+1"), 7, -95, 96)
+        text = "\n".join(generator.format_row(generator.evaluate(case)))
+        self.assertIn("-- expected-difference underflow-with-inexact-subnormal: libmpdec gives", text)
 
 
 if __name__ == "__main__":
