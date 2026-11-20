@@ -19,9 +19,10 @@
 #include "moonbit.h"
 #include <stdint.h>
 #include <stdlib.h>
-/* The assembly tier is enabled only where its code has been compiled and run (Apple arm64);
+/* The assembly tier is enabled only where its code has been compiled and run (Apple arm64, clang or
+ * gcc; tcc defines __GNUC__ but has no AArch64 inline assembly, so it takes the C rows);
  * -DLUNA_NO_ASM turns it off for a test build. */
-#if defined(__aarch64__) && defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__)) && !defined(LUNA_NO_ASM)
+#if defined(__aarch64__) && defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__)) && !defined(__TINYC__) && !defined(LUNA_NO_ASM)
 #define LUNA_ASM_ARM64 1
 #endif
 #if (defined(__x86_64__) || defined(__i386__)) && (defined(__GNUC__) || defined(__clang__)) && !defined(__TINYC__)
@@ -58,7 +59,7 @@ MOONBIT_FFI_EXPORT int32_t luna_limbs_tier(void) {
 /* 1 when this build is Apple arm64 with clang or gcc, i.e. where the tier is expected to be
  * compiled in (independent of -DLUNA_NO_ASM, so that a build that lost it is visible). */
 MOONBIT_FFI_EXPORT int32_t luna_limbs_expects_asm(void) {
-#if defined(__aarch64__) && defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__))
+#if defined(__aarch64__) && defined(__APPLE__) && (defined(__clang__) || defined(__GNUC__)) && !defined(__TINYC__)
   return 1;
 #else
   return 0;
