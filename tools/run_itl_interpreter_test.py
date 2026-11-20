@@ -7,6 +7,43 @@ import itl_refinements
 import run_itl_interpreter
 
 
+class ItlGeneratedPhaseTest(unittest.TestCase):
+    def test_a_phase_with_a_directory_runs_files_of_the_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            corpus = root / "corpus"
+            corpus.mkdir()
+            (corpus / "sets.itl").touch()
+            generated = root / "generated"
+            generated.mkdir()
+            (generated / "extra.itl").touch()
+            config = {
+                "phases": [
+                    {"name": "sets", "include": ["sets.itl"]},
+                    {
+                        "name": "extra",
+                        "directory": "generated",
+                        "include": ["extra.itl"],
+                        "operations": ["op"],
+                    },
+                ]
+            }
+            with mock.patch.object(run_itl_interpreter, "CONFIG", root / "stages.json"):
+                phases = run_itl_interpreter.planned_phases(config, corpus, set())
+        self.assertEqual([phase["name"] for phase in phases], ["sets", "extra"])
+        self.assertEqual([path.name for path in phases[1]["files"]], ["extra.itl"])
+
+    def test_the_official_aggregate_ignores_a_generated_phase(self) -> None:
+        aggregate = {"phases": ["sets"], "expectedCases": 3}
+        reports = [
+            {"phase": "sets", "totalCases": 3},
+            {"phase": "extra", "totalCases": 10},
+        ]
+        self.assertEqual(
+            run_itl_interpreter.validate_official_aggregate(aggregate, reports), 3
+        )
+
+
 class ItlInterpreterPlanTest(unittest.TestCase):
     def make_corpus(self, root: Path, names: list[str]) -> Path:
         corpus = root / "corpus"

@@ -581,7 +581,9 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
     case.operation_ == "mulRevTen" ||
     case.operation_ == "mulRevToPair" ||
     case.operation_ == "powRev1" ||
-    case.operation_ == "powRev2" {
+    case.operation_ == "powRev2" ||
+    case.operation_ == "atan2Rev1" ||
+    case.operation_ == "atan2Rev2" {
     return execute_mul_rev_case(case, precision)
   }
   if case.operation_ == "pown" {
@@ -861,7 +863,9 @@ fn execute_algebraic_reverse_case(
 fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
   let ternary = case.operation_ == "mulRevTen" ||
     case.operation_ == "powRev1" ||
-    case.operation_ == "powRev2"
+    case.operation_ == "powRev2" ||
+    case.operation_ == "atan2Rev1" ||
+    case.operation_ == "atan2Rev2"
   let operands : Array[@ball_float.BallFloatDecorated] = []
   for src in case.operands_ {
     match parse_interval(src, precision) {
@@ -914,6 +918,10 @@ fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
     [operands[0].pow_rev1(operands[1], x=operands[2]).apply_ctx(ctx).0]
   } else if case.operation_ == "powRev2" {
     [operands[0].pow_rev2(operands[1], x=operands[2]).apply_ctx(ctx).0]
+  } else if case.operation_ == "atan2Rev1" {
+    [operands[0].atan2_rev1(operands[1], x=operands[2]).apply_ctx(ctx).0]
+  } else if case.operation_ == "atan2Rev2" {
+    [operands[0].atan2_rev2(operands[1], x=operands[2]).apply_ctx(ctx).0]
   } else if ternary {
     [operands[0].mul_rev(operands[1], x=operands[2]).apply_ctx(ctx).0]
   } else if want == 1 {

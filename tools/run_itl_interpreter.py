@@ -62,12 +62,22 @@ def planned_phases(config: dict, corpus: Path, selected: set[str]) -> list[dict]
     routes: dict[Path, list[tuple[str, set[str]]]] = {}
     planned = []
     for phase in configured:
+        # a phase with a "directory" runs files of this repository (testdata/interval/<directory>),
+        # not of the pinned corpus: generated cases of our own, counted apart from the corpus
+        directory = phase.get("directory")
+        candidates = (
+            sorted((CONFIG.parent / directory).glob("*.itl")) if directory else files
+        )
         matched = [
             path
-            for path in files
+            for path in candidates
             if any(fnmatch.fnmatch(path.name, pattern) for pattern in phase["include"])
         ]
-        assigned.update(matched)
+        if directory:
+            if not matched:
+                raise ValueError(f"phase {phase['name']} matches no file in {directory}")
+        else:
+            assigned.update(matched)
         operations = phase_operations(phase)
         for path in matched:
             routes.setdefault(path, []).append((phase["name"], operations))
@@ -165,10 +175,12 @@ def validate_official_aggregate(
         or expected_cases <= 0
     ):
         raise ValueError("invalid officialAggregate configuration")
-    selected = {report["phase"] for report in reports}
+    # the generated phases (with a directory of their own) are not part of the aggregate
+    official = [report for report in reports if report["phase"] in set(phases)]
+    selected = {report["phase"] for report in official}
     if selected != set(phases):
         return None
-    actual_cases = sum(report["totalCases"] for report in reports)
+    actual_cases = sum(report["totalCases"] for report in official)
     if actual_cases != expected_cases:
         raise ValueError(
             "official ITF1788 aggregate mismatch: "

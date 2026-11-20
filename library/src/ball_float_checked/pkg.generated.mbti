@@ -24,6 +24,8 @@ pub fn BallFloatResult::asin(Self) -> Self
 pub fn BallFloatResult::asinh(Self) -> Self
 pub fn BallFloatResult::atan(Self) -> Self
 pub fn BallFloatResult::atan2(Self, Self) -> Self
+pub fn BallFloatResult::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::atan2_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatResult::atanh(Self) -> Self
 pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
 pub fn BallFloatResult::cancel_minus(Self, Self) -> Self

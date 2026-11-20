@@ -815,6 +815,75 @@ certainly in the set is in the result, that a point a quarter of a float outside
 piece is not in the set, and that the float one step inside is not certainly outside while the next one is
 certainly inside. A sample runs in every test run; the long run is an interval gate stage.
 
+#### Reverse arctangent of two arguments
+
+`atan2_rev1(b, c, x)` and `atan2_rev2(a, c, x)` (IEEE 1788-2015 10.5.4, equations (6) and (7), Table 10.1; see
+the [API page](../api/ball_float.md#ballfloatatan2_rev1-and-ballfloatatan2_rev2)). With
+$\Theta = \boldsymbol{c} \cap (-\pi, \pi]$ the set is the projection of the sector
+$\{\, r(\cos t, \sin t) : r > 0,\ t \in \Theta \,\}$ on the axis of the unknown (the ordinate for Rev1, the
+abscissa for Rev2), cut by the strip of the given operand: a point of the ray at the angle $t$ has the
+ordinate $r \sin t$ and the abscissa $r \cos t$. Away from the axis directions this is the product
+$y = b_0 \tan t$ (Rev1) or $x_0 = a_0 \cot t$ (Rev2) of an operand point and the trigonometric value, so each
+piece is an interval product, and the hull is taken over the pieces inside the prior as for `pow_rev1`. Write
+$b^+ = \boldsymbol{b} \cap (0, \infty)$ and $b^- = \boldsymbol{b} \cap (-\infty, 0)$ (likewise $a^\pm$).
+
+| Operation | Piece | Angles $t$ | Needs | Set |
+| --- | --- | --- | --- | --- |
+| Rev1 | right | $\Theta \cap (-\pi/2, \pi/2)$ | $b^+ \ne \emptyset$ | $b^+ \cdot \tan(\Theta_r)$ |
+| Rev1 | upper-left | $\Theta \cap (\pi/2, \pi]$ | $b^- \ne \emptyset$ | $b^- \cdot \tan(\Theta_{ul})$, a subset of $[0, \infty)$; $\tan \pi = 0$ is attained |
+| Rev1 | lower-left | $\Theta \cap (-\pi, -\pi/2)$ | $b^- \ne \emptyset$ | $b^- \cdot \tan(\Theta_{ll})$, a subset of $(-\infty, 0)$; the end at $-\pi$ is open |
+| Rev1 | up, down | $t = \pi/2$ or $t = -\pi/2$ in $\Theta$ | $0 \in \boldsymbol{b}$ | $(0, +\infty)$ or $(-\infty, 0)$ |
+| Rev2 | upper half-plane | $\Theta \cap (0, \pi)$ | $a^+ \ne \emptyset$ | $a^+ \cdot \cot(\Theta_u)$ ($\cot$ decreases from $+\infty$ to $-\infty$) |
+| Rev2 | lower half-plane | $\Theta \cap (-\pi, 0)$ | $a^- \ne \emptyset$ | $a^- \cdot \cot(\Theta_l)$; the end at $-\pi$ is open |
+| Rev2 | right, left | $t = 0$ or $t = \pi$ in $\Theta$ | $0 \in \boldsymbol{a}$ | $(0, +\infty)$ or $(-\infty, 0)$ |
+
+The tangent (cotangent) interval of a piece has one end per end of $\Theta_r$: the tangent of an end of
+$\boldsymbol{c}$ inside the region, or the limit at a boundary of the region: $\pm\infty$ at $\pm\pi/2$ for
+the tangent (at $0$ and $\pi$ for the cotangent), 0 at $-\pi$, 0 and $\pi$ for the tangent. Whether an end of
+$\boldsymbol{c}$ is below or above $-\pi$, $-\pi/2$, $0$, $\pi/2$ or $\pi$ is decided exactly, in seven zones
+(`atan2_zone`): $\pi$ is irrational, so a float is never equal to a multiple of it, and only $0$ is an exact
+angle; the enclosure of $\pi$ is refined until the float is separated. The product of the operand part with
+the trigonometric interval is monotone in each variable, so each extreme is the product of two ends, chosen by the
+signs of the ends of the trigonometric interval (no numerical comparison between corners is needed), and an end
+is attained only if both factors are: the limit 0 of $b^+$ (when $0 \in \boldsymbol{b}$) and the infinities are
+not attained, $\tan 0 = 0$ and $\tan \pi = 0$ are, and $\tan(-\pi) = 0$ is not.
+
+*Branch cut and origin.* The angle $\pi$ is attained and $-\pi$ never, so $\pi \in \boldsymbol{c}$ puts $y = 0$
+into the Rev1 set when $b^- \ne \emptyset$ (an end of the upper-left piece, attained) and $x_0 < 0$ into the Rev2 set
+when $0 \in \boldsymbol{a}$, while a $\boldsymbol{c}$ with lower end $\le -\pi$ gives a lower-left piece whose end
+at $-\pi$ (the limit of $\tan$ at $-\pi$) is open. The origin is excluded: for $\boldsymbol{b} = \{0\}$ there are
+only the up and down pieces, so $y = 0$ is not reachable and $\operatorname{atan2Rev1}(\{0\}, \{0\})$ is Empty;
+for $\boldsymbol{a} = \{0\}$ there are only the angles $0$ and $\pi$, so $x_0 = 0$ is not in the set.
+
+*Exactness of an end.* The exact ends are $0$ and the infinities. Every other end is
+$b_\text{end} \tan(c_\text{end})$ (Rev1) or $a_\text{end} / \tan(c_\text{end})$ (Rev2) with a nonzero float
+operand end and a nonzero float angle, which is irrational: $\tan$ of a nonzero algebraic number is transcendental
+(Lindemann-Weierstrass) and a nonzero rational times a transcendental number is transcendental, so the end differs from
+every float, comparisons with a prior end are strict, and the loop of `pow_rev1` (the working precision doubles up
+to the cap of 12; an undecided comparison counts as met and the prior's own end is written) terminates. No integer
+test and no budget are involved. The first working precision is $p + 96$: the forward `tan` of a point has a relative
+error of about $2^{-w}$ also next to $\pi/2$, $0$ and $\pi$ (the argument reduction runs at the working precision),
+and the loop needs the value to a relative $2^{-(p+2)}$. An angle one float from $\pi$ gives a cotangent of order
+$2^{p}$ (the tests check the result is two adjacent floats that contain the 200-bit reference).
+
+*Evidence.* The ITF1788 corpus has no `atan2Rev` case, so the evidence is ours.
+`tools/itl_atan2_reverse_oracle.py` (pure Python, 260 digits, no `ball_float` code) derives the exact hull by
+polar rectangles (an angle interval times an operand part of one sign, with corner limits) and validates every
+expected hull by the forward definition of the operation, which shares nothing with the case analysis. For a fixed
+ordinate $y$, $\operatorname{atan2}(y, b_0)$ is monotone and continuous in $b_0$ on each side of 0
+(decreasing for $y > 0$, increasing for $y < 0$; for $y = 0$ it is 0 for $b_0 > 0$ and $\pi$ for $b_0 < 0$), so
+its image over $\boldsymbol{b}$ is an interval decided from the ends of $\boldsymbol{b}$, and $y$ is a member iff
+the image meets $\boldsymbol{c}$ (Rev2 likewise, with the ordinate part split at 0). The validation tests an
+attained end, three points a geometric step inside each piece end ($10^{-9}$, $10^{-15}$, $10^{-30}$ relative) and six
+points beyond each end of the hull, inside the prior ($10^{-30}$, $10^{-15}$, $10^{-9}$, $10^{-3}$, 1 and 100 relative). The
+generated file `testdata/interval/generated/atan2_rev.itl` (see its README) has 16,260 cases, run as the
+`atan2-reverse` phase, counted apart from the ITF1788 total. The reference test
+(`atan2_reverse_reference_wbtest.mbt`) evaluates membership of a float with the forward `BallFloat::atan2` of points at
+200 bits (the same monotone image, with the cut treated explicitly) and checks, at precisions 24, 53 and 113, that
+every float certainly in the set is in the result, that a point a quarter of a float outside an end that comes from a
+piece is not in the set, and that the float one step inside is not certainly outside while the next one is certainly
+inside. The maximum working precision on the generated corpus is 149 bits (the first working precision, $p + 96$ at $p = 53$; none of the 6,813 evaluations of the loop doubled it) bits.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -1103,9 +1172,8 @@ checks degrees `-1`, `-2` and `-3`.
 
 The package deliberately does not:
 
-- provide the IEEE 1788 reverse operations other than `mulRev` and
-  `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and
-  `tanRev`, `powRev1` and `powRev2` (`atan2Rev1`, `atan2Rev2`; issue 230);
+- provide reverse versions of division and reciprocal (Table 10.1 does not require them: change
+  `z = x / y` to `x = y z` and use `mul_rev`);
 - promise tight results: fallbacks and the dependency problem may widen
   enclosures arbitrarily;
 - define a total order on intervals, or treat `Eq` as set equality;
