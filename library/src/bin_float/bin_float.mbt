@@ -335,9 +335,14 @@ fn div_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
   match binary_fast_div(a, b) {
     Some(result) => result
     None =>
-      match binary_coeff_fast_div(a, b) {
+      match binary_pair_div(a, b) {
         Some(result) => result
-        None => a.div_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+        None =>
+          match binary_coeff_fast_div(a, b) {
+            Some(result) => result
+            None =>
+              a.div_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+          }
       }
   }
 }
