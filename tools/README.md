@@ -53,4 +53,5 @@ SHA-256.
 | --- | --- |
 | `benchmark.py` | `just bench <suite>`: the Maremark suites of `tooling/src/bench` and the external baseline |
 | `external_baseline.py`, `external_baseline.c` | floating against MPFR and libmpdec on the same operands (`just bench external ...`) |
+| `external_stats.py` | pure statistics of the external baseline: paired net times, bootstrap intervals, the verdict on the net ratio |
 | `run_elementary_performance_gate.py`, `run_gda_benchmark.py`, `decimal_dispatch_model.py`, `fixtures/` | the immutable baseline gate, the quick GDA benchmark and the dispatch calibration model, with the white-box fixtures they inject |
