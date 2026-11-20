@@ -63,6 +63,13 @@ The inputs of the test are environment variables set by the runner:
 | `EXTBENCH_SEED`, `EXTBENCH_ROUND` | Maremark seed and the round number copied to the log |
 | `EXTBENCH_WARMUP_ITERATIONS`, `EXTBENCH_WARMUP_US`, `EXTBENCH_TARGET_BATCH_US`, `EXTBENCH_MIN_BATCH`, `EXTBENCH_MAX_BATCH`, `EXTBENCH_MAX_SAMPLE_US`, `EXTBENCH_EXPLORATORY`, `EXTBENCH_CONFIRMATORY` | the measurement protocol, the same numbers the C harness receives |
 
+The performance test is built for native, wasm (run by `moonrun`) and js (run by
+node), which is how the runner measures the floating side on those runtimes
+(`--target`). It is not built for wasm-gc: the module initialiser of the
+`moonbitlang/async` dependency (a cast between two struct types) is rejected by the
+runtime at validation there. The environment variables and the files are read the
+same way on the three targets.
+
 Three plan tests run in normal test runs (`external input rows group by case`,
 `external binary and decimal_gda plans compile`, `external operand parsing is
 exact`). The performance test `external baseline floating` is marked

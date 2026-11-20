@@ -1036,7 +1036,7 @@ msgstr ""
 #: manual/api/bench/bin_float.md:44
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
-#: manual/api/bench/external.md:73
+#: manual/api/bench/external.md:80
 #: manual/api/bin_float.md:2489
 #: manual/api/bin_float_checked.md:837
 #: manual/api/cli.md:80
@@ -1483,7 +1483,7 @@ msgstr ""
 #: manual/api/bench/bin_float.md:46
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
-#: manual/api/bench/external.md:75
+#: manual/api/bench/external.md:82
 #: manual/api/cli.md:82
 #: manual/api/consistency.md:52
 #: manual/api/differential.md:99
@@ -1656,6 +1656,10 @@ msgid "the measurement protocol, the same numbers the C harness receives"
 msgstr ""
 
 #: manual/api/bench/external.md:66
+msgid "The performance test is built for native, wasm (run by `moonrun`) and js (run by node), which is how the runner measures the floating side on those runtimes (`--target`). It is not built for wasm-gc: the module initialiser of the `moonbitlang/async` dependency (a cast between two struct types) is rejected by the runtime at validation there. The environment variables and the files are read the same way on the three targets."
+msgstr ""
+
+#: manual/api/bench/external.md:73
 msgid "Three plan tests run in normal test runs (`external input rows group by case`, `external binary and decimal_gda plans compile`, `external operand parsing is exact`). The performance test `external baseline floating` is marked `#skip(\"performance benchmark\")` and builds on native only; the runner prints a `MAREMARK_JSONL=` line for every event, `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F` for every case, and `EXTBENCH_FAILED=N` at the end."
 msgstr ""
 
@@ -3744,13 +3748,13 @@ msgid "Test files"
 msgstr ""
 
 #: manual/api/consistency.md:41
-#: manual/tutorial/bench/external.md:42
+#: manual/tutorial/bench/external.md:44
 msgid "File"
 msgstr ""
 
 #: manual/api/consistency.md:41
 #: manual/api/differential.md:66
-#: manual/tutorial/bench/external.md:42
+#: manual/tutorial/bench/external.md:44
 msgid "Content"
 msgstr ""
 
@@ -9641,7 +9645,7 @@ msgstr ""
 #: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
-#: manual/design/bench/external.md:235
+#: manual/design/bench/external.md:296
 #: manual/design/bin_float.md:2128
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
@@ -10789,7 +10793,7 @@ msgstr ""
 #: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
-#: manual/design/bench/external.md:215
+#: manual/design/bench/external.md:276
 #: manual/design/bin_float.md:2056
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
@@ -10866,7 +10870,7 @@ msgstr ""
 #: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
-#: manual/design/bench/external.md:225
+#: manual/design/bench/external.md:286
 #: manual/design/bin_float.md:2103
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
@@ -11646,66 +11650,122 @@ msgid "A regression of the time on the number of operations per block was consid
 msgstr ""
 
 #: manual/design/bench/external.md:203
-msgid "Two configurations of the floating side"
+msgid "Configurations of the floating side"
 msgstr ""
 
 #: manual/design/bench/external.md:205
-msgid "The floating side is built and published in named configurations, recorded as `floating_configuration` in the protocol block of the summary and in the names of the published files: `native` (the native limb primitives where the build has them) and `portable` (the portable path forced). The target of the baseline has to be reached by the portable path as well. The runner passes the name and the environment variables that select a configuration (`--configuration`, `--moon-env KEY=VALUE`); how a configuration is selected is defined by the kernel work, not by the benchmark. One summary, one samples file and one section of the manual page exist per configuration."
+msgid "The floating side is built and published in named configurations, recorded as `floating_configuration` in the protocol block of the summary and in the names of the published files: `native` (the native limb primitives where the build has them), `native-portable` (the portable path forced), and the runtimes `wasm` and `js`. The target of the baseline has to be reached by the portable path as well. The runner passes the name and the environment variables that select a configuration (`--configuration`, `--moon-env KEY=VALUE`); how the portable path is selected is defined by the kernel work, not by the benchmark. One summary, one samples file and one section of the manual page exist per configuration."
+msgstr ""
+
+#: manual/design/bench/external.md:215
+msgid "Runtimes other than native"
 msgstr ""
 
 #: manual/design/bench/external.md:217
-msgid "The operand file and the reference file are checksummed in `machine.json`."
+msgid "`--target native|wasm|js` chooses the `moon` target the floating side is built and run for (`wasm` runs under `moonrun`, `js` under node; the versions are recorded in `meta.runtime`). The reference side is always the native C process of MPFR and libmpdec, run in every round of the same run, so the number of a cell on another runtime is the library on that runtime against the native reference. That mixes two differences, the library and the runtime. The second ratio separates them: the net time of `floating` on the runtime over the net time of the same case in `native-portable`, which runs the same code path. It is computed at publishing time from the two samples files of the same release (they must have read the same operand file and used the same protocol; each has its own configuration in the seed of every draw, so the two resamplings are independent) and has an interval and no verdict. `wasm-gc` is not a target: the module initialiser of the `moonbitlang/async` dependency, which the driver links, casts between two struct types of the runtime's scheduler and is rejected by the runtime at validation (it reproduces with that package alone)."
 msgstr ""
 
-#: manual/design/bench/external.md:218
-msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
-msgstr ""
-
-#: manual/design/bench/external.md:220
-msgid "A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees."
-msgstr ""
-
-#: manual/design/bench/external.md:221
-msgid "A pair is used only when both of its blocks were measured; exploratory pairs are never used."
-msgstr ""
-
-#: manual/design/bench/external.md:222
-msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the samples; the timings themselves are not."
-msgstr ""
-
-#: manual/design/bench/external.md:227
-msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
-msgstr ""
-
-#: manual/design/bench/external.md:229
-msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
-msgstr ""
-
-#: manual/design/bench/external.md:231
-msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
-msgstr ""
-
-#: manual/design/bench/external.md:237
-msgid "Native target only; no claims for JavaScript or WebAssembly."
+#: manual/design/bench/external.md:233
+msgid "The criterion of 3 is defined for the native configurations. For `wasm` and `js` the summary says `criterion_applies: false` and the status of every case is `not_applicable`; the page reports the two ratios and sets no target, and whether a criterion applies there is for the maintainer to decide."
 msgstr ""
 
 #: manual/design/bench/external.md:238
-msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
+msgid "What the method does differently on a runtime that compiles while it runs:"
 msgstr ""
 
 #: manual/design/bench/external.md:240
+msgid "**Warm-up.** The code of a case may still be compiled during the first blocks. The warm-up time is a number of the method, fixed per runtime before any cell is measured, from the calibration experiment below. A flag `w` is reported when the median net of the first third of the pairs of every round differs from that of the last third by more than 5% of the net; it removes no data."
+msgstr ""
+
+#: manual/design/bench/external.md:246
+msgid "**The floor differs per runtime** and is measured in every pair, so the net handles it. A call site of the null's closure can be inlined where that of the case cannot, which makes the null cheaper than the harness part of the case and the net slightly larger; it errs against the library, and nothing corrects it."
+msgstr ""
+
+#: manual/design/bench/external.md:250
+msgid "**Calibration** of the batch size follows the warm-up, so it is done on warm code."
+msgstr ""
+
+#: manual/design/bench/external.md:252
+msgid "The calibration experiment of the warm-up"
+msgstr ""
+
+#: manual/design/bench/external.md:254
+msgid "Fixed here before it is run. One experiment per runtime (`wasm`, `js`), in the bench window of the measurement, with `just bench external warmup --target T`:"
+msgstr ""
+
+#: manual/design/bench/external.md:257
+msgid "Cases: `binary/add/53`, `binary/mul/512`, `binary/ln/2048` and `decimal_gda/add/34` (a fast case, a mid-size case, an elementary function and a decimal case; the same operand file as the measurement)."
+msgstr ""
+
+#: manual/design/bench/external.md:260
+msgid "Warm-up times: 5, 50, 200, 1000 and 3000 ms. Each (warm-up, case) is run three times, each in its own process, with no exploratory blocks and 60 confirmatory pairs, the standard calibration target of 20 ms per block."
+msgstr ""
+
+#: manual/design/bench/external.md:263
+msgid "Statistic of a run: the warm-up drift `w` of the design above, the difference of the median net of the first and of the last third of the 60 pairs, in percent of the net."
+msgstr ""
+
+#: manual/design/bench/external.md:266
+msgid "Rule: the smallest warm-up for which every run (every case and every repeat) has a drift of at most 2%; the warm-up of the runtime is twice that value, rounded up to a whole 100 ms. If no warm-up reaches 2%, the experiment is reported and the runtime is measured only with the `w` flag on and the longest warm-up, with the result stated as not resolved by the method."
+msgstr ""
+
+#: manual/design/bench/external.md:271
+msgid "The value, the table of drifts and the versions of the runtime are published with the first summary of the runtime and written into the `protocol` block of every later one. The native value is the preset's 5 ms and is not part of the experiment."
+msgstr ""
+
+#: manual/design/bench/external.md:278
+msgid "The operand file and the reference file are checksummed in `machine.json`."
+msgstr ""
+
+#: manual/design/bench/external.md:279
+msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
+msgstr ""
+
+#: manual/design/bench/external.md:281
+msgid "A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees."
+msgstr ""
+
+#: manual/design/bench/external.md:282
+msgid "A pair is used only when both of its blocks were measured; exploratory pairs are never used."
+msgstr ""
+
+#: manual/design/bench/external.md:283
+msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the samples; the timings themselves are not."
+msgstr ""
+
+#: manual/design/bench/external.md:288
+msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
+msgstr ""
+
+#: manual/design/bench/external.md:290
+msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
+msgstr ""
+
+#: manual/design/bench/external.md:292
+msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
+msgstr ""
+
+#: manual/design/bench/external.md:298
+msgid "Native target only; no claims for JavaScript or WebAssembly."
+msgstr ""
+
+#: manual/design/bench/external.md:299
+msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
+msgstr ""
+
+#: manual/design/bench/external.md:301
 msgid "Elementary functions are measured on a few well-conditioned argument ranges; huge arguments and arguments near singularities are not measured."
 msgstr ""
 
-#: manual/design/bench/external.md:242
+#: manual/design/bench/external.md:303
 msgid "The library caches of MPFR (for $\\pi$ and $\\log 2$) and the corresponding caches of `floating` are warm during timing; cold-start cost is not measured."
 msgstr ""
 
-#: manual/design/bench/external.md:244
+#: manual/design/bench/external.md:305
 msgid "Only a single thread is used; memory use is not measured."
 msgstr ""
 
-#: manual/design/bench/external.md:245
+#: manual/design/bench/external.md:306
 msgid "The correction for the loop floor moves few verdicts. Computed from the 0.11.0 medians with the floating floor then measured (9.21 ns) and a reference floor between 0.4 and 1.1 ns, 43 of 59 cases are above 3 on the raw ratio and 42 on the net ratio: only `decimal_gda` multiplication at 100 digits (3.03) changes side. The method makes the number honest; it does not move the target."
 msgstr ""
 
@@ -19714,783 +19774,808 @@ msgid "Configurations and results"
 msgstr ""
 
 #: manual/performance/bench/external.md:116
-msgid "The floating side is measured in two configurations of the native build, each published as its own summary and shown in its own section: `native`, with the native limb primitives where the build has them, and `portable`, with the portable path forced. The target has to be reached by the portable path too. The configuration is chosen when the run starts (`--configuration NAME`, `--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by `just bench external publish` between the marker comments below and copied without editing."
+msgid "The floating side is measured in two configurations of the native build, each published as its own summary and shown in its own section: `native`, with the native limb primitives where the build has them, and `native-portable`, with the portable path forced. The target has to be reached by the portable path too. It is also measured on two other runtimes, `wasm` and `js`, where the target of 3 is not defined: their sections report ratios and no verdict. The configuration is chosen when the run starts (`--target`, `--configuration NAME`, `--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by `just bench external publish` between the marker comments below and copied without editing."
 msgstr ""
 
-#: manual/performance/bench/external.md:125
+#: manual/performance/bench/external.md:127
 msgid "Configuration `native`"
 msgstr ""
 
-#: manual/performance/bench/external.md:129
+#: manual/performance/bench/external.md:131
 msgid "Not measured yet with the net-ratio method. The first measurement with it is published with the next release; until then the results below are those of 0.11.0, measured with the raw method."
 msgstr ""
 
-#: manual/performance/bench/external.md:135
-msgid "Configuration `portable`"
+#: manual/performance/bench/external.md:137
+msgid "Configuration `native-portable`"
 msgstr ""
 
-#: manual/performance/bench/external.md:139
+#: manual/performance/bench/external.md:141
 msgid "Not measured yet with the net-ratio method."
 msgstr ""
 
-#: manual/performance/bench/external.md:143
-msgid "Results of 0.11.0 (raw method)"
-msgstr ""
-
 #: manual/performance/bench/external.md:145
-msgid "These are the tables of the release 0.11.0, measured before the net-ratio method existed: the ratio is the median of the case blocks of `floating` over that of the reference, without a null, and the single floor known then was the 9.21 ns of the floating loop. They are kept as the record of that release (`testdata/external_baseline/summary-0.11.0.json`, schema v1) and are replaced by the sections above as the new measurements are published. The tables are the output of `just bench external publish` for that run, copied without editing."
+msgid "Runtime `wasm`"
 msgstr ""
 
-#: manual/performance/bench/external.md:153
-msgid "Binary: floating `bin_float` against MPFR"
+#: manual/performance/bench/external.md:147
+msgid "The target of 3 is defined for the native configurations. For `wasm` the page reports two ratios and sets no target: the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run, which mixes the library and the runtime, and the ratio to the same case in `native-portable`, which attributes the difference to the runtime. Whether a criterion applies is for the maintainer to decide."
 msgstr ""
 
-#: manual/performance/bench/external.md:155
-msgid "Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)"
-msgstr ""
-
-#: manual/performance/bench/external.md:157
-#: manual/performance/bench/external.md:169
-#: manual/performance/bench/external.md:181
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:217
-msgid "op"
-msgstr ""
-
-#: manual/performance/bench/external.md:157
-#: manual/performance/bench/external.md:169
-#: manual/performance/bench/external.md:181
-msgid "53 bits"
-msgstr ""
-
-#: manual/performance/bench/external.md:157
-#: manual/performance/bench/external.md:169
-#: manual/performance/bench/external.md:181
-msgid "128 bits"
-msgstr ""
-
-#: manual/performance/bench/external.md:157
-#: manual/performance/bench/external.md:169
-#: manual/performance/bench/external.md:181
-msgid "512 bits"
-msgstr ""
-
-#: manual/performance/bench/external.md:157
-#: manual/performance/bench/external.md:169
-#: manual/performance/bench/external.md:181
-msgid "2048 bits"
-msgstr ""
-
-#: manual/performance/bench/external.md:157
-#: manual/performance/bench/external.md:169
-#: manual/performance/bench/external.md:181
-msgid "8192 bits"
-msgstr ""
-
-#: manual/performance/bench/external.md:159
-#: manual/performance/bench/external.md:171
-#: manual/performance/bench/external.md:183
-#: manual/performance/bench/external.md:197
-#: manual/performance/bench/external.md:208
-#: manual/performance/bench/external.md:219
-msgid "add"
+#: manual/performance/bench/external.md:156
+#: manual/performance/bench/external.md:167
+msgid "Not measured yet."
 msgstr ""
 
 #: manual/performance/bench/external.md:160
-#: manual/performance/bench/external.md:172
-#: manual/performance/bench/external.md:184
-#: manual/performance/bench/external.md:198
-#: manual/performance/bench/external.md:209
-#: manual/performance/bench/external.md:220
-msgid "mul"
-msgstr ""
-
-#: manual/performance/bench/external.md:161
-#: manual/performance/bench/external.md:173
-#: manual/performance/bench/external.md:185
-#: manual/performance/bench/external.md:199
-#: manual/performance/bench/external.md:210
-#: manual/performance/bench/external.md:221
-msgid "div"
+msgid "Runtime `js`"
 msgstr ""
 
 #: manual/performance/bench/external.md:162
-#: manual/performance/bench/external.md:174
-#: manual/performance/bench/external.md:186
-#: manual/performance/bench/external.md:200
-#: manual/performance/bench/external.md:211
-#: manual/performance/bench/external.md:222
+msgid "As for `wasm`: two ratios, no target. The runtime is node; its versions are in the summary."
+msgstr ""
+
+#: manual/performance/bench/external.md:173
+msgid "Not measured, and not measurable at present: the module initialiser of the `moonbitlang/async` dependency of the benchmark driver is rejected by the runtime at validation (see the [design page](../../design/bench/external.md#runtimes-other-than-native))."
+msgstr ""
+
+#: manual/performance/bench/external.md:178
+msgid "Results of 0.11.0 (raw method)"
+msgstr ""
+
+#: manual/performance/bench/external.md:180
+msgid "These are the tables of the release 0.11.0, measured before the net-ratio method existed: the ratio is the median of the case blocks of `floating` over that of the reference, without a null, and the single floor known then was the 9.21 ns of the floating loop. They are kept as the record of that release (`testdata/external_baseline/summary-0.11.0.json`, schema v1) and are replaced by the sections above as the new measurements are published. The tables are the output of `just bench external publish` for that run, copied without editing."
+msgstr ""
+
+#: manual/performance/bench/external.md:188
+msgid "Binary: floating `bin_float` against MPFR"
+msgstr ""
+
+#: manual/performance/bench/external.md:190
+msgid "Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)"
+msgstr ""
+
+#: manual/performance/bench/external.md:192
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
+msgid "op"
+msgstr ""
+
+#: manual/performance/bench/external.md:192
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+msgid "53 bits"
+msgstr ""
+
+#: manual/performance/bench/external.md:192
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+msgid "128 bits"
+msgstr ""
+
+#: manual/performance/bench/external.md:192
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+msgid "512 bits"
+msgstr ""
+
+#: manual/performance/bench/external.md:192
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+msgid "2048 bits"
+msgstr ""
+
+#: manual/performance/bench/external.md:192
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+msgid "8192 bits"
+msgstr ""
+
+#: manual/performance/bench/external.md:194
+#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:232
+#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:254
+msgid "add"
+msgstr ""
+
+#: manual/performance/bench/external.md:195
+#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:233
+#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:255
+msgid "mul"
+msgstr ""
+
+#: manual/performance/bench/external.md:196
+#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:234
+#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:256
+msgid "div"
+msgstr ""
+
+#: manual/performance/bench/external.md:197
+#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:235
+#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:257
 msgid "sqrt"
 msgstr ""
 
-#: manual/performance/bench/external.md:163
-#: manual/performance/bench/external.md:175
-#: manual/performance/bench/external.md:187
-#: manual/performance/bench/external.md:201
-#: manual/performance/bench/external.md:212
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:198
+#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:236
+#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:258
 msgid "exp"
 msgstr ""
 
-#: manual/performance/bench/external.md:164
-#: manual/performance/bench/external.md:176
-#: manual/performance/bench/external.md:188
-#: manual/performance/bench/external.md:202
-#: manual/performance/bench/external.md:213
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "ln"
 msgstr ""
 
-#: manual/performance/bench/external.md:165
-#: manual/performance/bench/external.md:177
-#: manual/performance/bench/external.md:189
+#: manual/performance/bench/external.md:200
+#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:224
 msgid "sin"
 msgstr ""
 
-#: manual/performance/bench/external.md:167
+#: manual/performance/bench/external.md:202
 msgid "Median ns per operation, MPFR"
 msgstr ""
 
-#: manual/performance/bench/external.md:171
+#: manual/performance/bench/external.md:206
 msgid "4.59 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:171
+#: manual/performance/bench/external.md:206
 msgid "6 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:171
+#: manual/performance/bench/external.md:206
 msgid "12.4 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:171
+#: manual/performance/bench/external.md:206
 msgid "21.7 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:171
+#: manual/performance/bench/external.md:206
 msgid "85.6 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:172
+#: manual/performance/bench/external.md:207
 msgid "5 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:172
+#: manual/performance/bench/external.md:207
 msgid "10.1 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:172
+#: manual/performance/bench/external.md:207
 msgid "32 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:172
+#: manual/performance/bench/external.md:207
 msgid "231 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:172
-#: manual/performance/bench/external.md:187
+#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:222
 msgid "2.13 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:173
+#: manual/performance/bench/external.md:208
 msgid "5.38 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:173
+#: manual/performance/bench/external.md:208
 msgid "26.3 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:173
+#: manual/performance/bench/external.md:208
 msgid "106 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:173
+#: manual/performance/bench/external.md:208
 msgid "498 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:173
+#: manual/performance/bench/external.md:208
 msgid "4 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:174
+#: manual/performance/bench/external.md:209
 msgid "5.64 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:174
+#: manual/performance/bench/external.md:209
 msgid "62.3 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:174
+#: manual/performance/bench/external.md:209
 msgid "162 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:174
+#: manual/performance/bench/external.md:209
 msgid "509 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:174
+#: manual/performance/bench/external.md:209
 msgid "2.83 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:175
+#: manual/performance/bench/external.md:210
 msgid "557 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:175
+#: manual/performance/bench/external.md:210
 msgid "846 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:175
+#: manual/performance/bench/external.md:210
 msgid "2.35 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:175
+#: manual/performance/bench/external.md:210
 msgid "16.8 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:175
+#: manual/performance/bench/external.md:210
 msgid "208 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:176
+#: manual/performance/bench/external.md:211
 msgid "388 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:176
+#: manual/performance/bench/external.md:211
 msgid "1.09 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:176
+#: manual/performance/bench/external.md:211
 msgid "3.41 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:176
+#: manual/performance/bench/external.md:211
 msgid "14.9 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:176
+#: manual/performance/bench/external.md:211
 msgid "116 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:177
+#: manual/performance/bench/external.md:212
 msgid "496 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:177
+#: manual/performance/bench/external.md:212
 msgid "792 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:177
+#: manual/performance/bench/external.md:212
 msgid "2.22 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:177
+#: manual/performance/bench/external.md:212
 msgid "14.1 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:177
+#: manual/performance/bench/external.md:212
 msgid "197 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:179
-#: manual/performance/bench/external.md:215
+#: manual/performance/bench/external.md:214
+#: manual/performance/bench/external.md:250
 msgid "Median ns per operation, floating"
 msgstr ""
 
-#: manual/performance/bench/external.md:183
+#: manual/performance/bench/external.md:218
 msgid "40.1 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:183
+#: manual/performance/bench/external.md:218
 msgid "38.5 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:183
+#: manual/performance/bench/external.md:218
 msgid "86.2 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:183
+#: manual/performance/bench/external.md:218
 msgid "138 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:183
+#: manual/performance/bench/external.md:218
 msgid "441 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:184
+#: manual/performance/bench/external.md:219
 msgid "37.9 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:184
+#: manual/performance/bench/external.md:219
 msgid "40 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:184
+#: manual/performance/bench/external.md:219
 msgid "121 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:184
+#: manual/performance/bench/external.md:219
 msgid "910 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:184
+#: manual/performance/bench/external.md:219
 msgid "8.34 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:185
+#: manual/performance/bench/external.md:220
 msgid "42.8 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:185
+#: manual/performance/bench/external.md:220
 msgid "154 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:185
+#: manual/performance/bench/external.md:220
 msgid "340 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:185
+#: manual/performance/bench/external.md:220
 msgid "1.84 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:185
+#: manual/performance/bench/external.md:220
 msgid "19 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:186
+#: manual/performance/bench/external.md:221
 msgid "57.1 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:186
+#: manual/performance/bench/external.md:221
 msgid "119 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:186
+#: manual/performance/bench/external.md:221
 msgid "745 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:186
+#: manual/performance/bench/external.md:221
 msgid "2.1 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:186
+#: manual/performance/bench/external.md:221
 msgid "12.1 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:187
+#: manual/performance/bench/external.md:222
 msgid "1.72 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:187
+#: manual/performance/bench/external.md:222
 msgid "5.89 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:187
+#: manual/performance/bench/external.md:222
 msgid "87.7 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:187
+#: manual/performance/bench/external.md:222
 msgid "619 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:223
 msgid "2.69 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:223
 msgid "4.99 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:223
 msgid "21.2 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:223
 msgid "162 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:223
 msgid "1.11 ms"
 msgstr ""
 
-#: manual/performance/bench/external.md:189
+#: manual/performance/bench/external.md:224
 msgid "4.38 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:189
+#: manual/performance/bench/external.md:224
 msgid "6.1 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:189
+#: manual/performance/bench/external.md:224
 msgid "16.1 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:189
+#: manual/performance/bench/external.md:224
 msgid "143 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:189
+#: manual/performance/bench/external.md:224
 msgid "1.03 ms"
 msgstr ""
 
-#: manual/performance/bench/external.md:191
+#: manual/performance/bench/external.md:226
 msgid "Decimal GDA: floating `decimal_gda` against libmpdec"
 msgstr ""
 
-#: manual/performance/bench/external.md:193
+#: manual/performance/bench/external.md:228
 msgid "Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means floating is slower)"
 msgstr ""
 
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:217
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
 msgid "16 digits"
 msgstr ""
 
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:217
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
 msgid "34 digits"
 msgstr ""
 
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:217
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
 msgid "100 digits"
 msgstr ""
 
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:217
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
 msgid "1000 digits"
 msgstr ""
 
-#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:239
 msgid "Median ns per operation, libmpdec"
 msgstr ""
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:243
 msgid "20 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:243
 msgid "21.9 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:243
 msgid "35.1 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:243
 msgid "171 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:244
 msgid "19.4 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:244
 msgid "48.7 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:244
 msgid "136 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:244
 msgid "9.05 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:245
 msgid "31.6 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:245
 msgid "122 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:245
 msgid "328 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:245
 msgid "14.5 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:246
 msgid "307 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:246
 msgid "1.07 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:246
 msgid "4.03 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:246
 msgid "213 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:247
 msgid "2.97 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:247
 msgid "7.97 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:247
 msgid "17.5 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:247
 msgid "4.69 ms"
 msgstr ""
 
-#: manual/performance/bench/external.md:213
+#: manual/performance/bench/external.md:248
 msgid "9.94 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:213
+#: manual/performance/bench/external.md:248
 msgid "18 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:213
+#: manual/performance/bench/external.md:248
 msgid "43.2 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:213
+#: manual/performance/bench/external.md:248
 msgid "5.24 ms"
 msgstr ""
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:254
 msgid "72.5 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:254
 msgid "249 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:254
 msgid "306 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:254
 msgid "1.03 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:255
 msgid "82.6 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:255
 msgid "264 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:255
 msgid "413 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:255
 msgid "15.7 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:256
 msgid "93.3 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:256
 msgid "750 ns"
 msgstr ""
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:256
 msgid "1.42 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:256
 msgid "44.8 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:257
 msgid "1.63 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:257
 msgid "4.55 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:257
 msgid "11.2 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:257
 msgid "451 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:258
 msgid "8.67 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:258
 msgid "12.2 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:258
 msgid "24.3 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:258
 msgid "523 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:259
 msgid "12.7 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:259
 msgid "17.4 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:259
 msgid "50.4 us"
 msgstr ""
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:259
 msgid "1.45 ms"
 msgstr ""
 
-#: manual/performance/bench/external.md:226
+#: manual/performance/bench/external.md:261
 msgid "Harness overhead of the floating side"
 msgstr ""
 
-#: manual/performance/bench/external.md:228
+#: manual/performance/bench/external.md:263
 msgid "case"
 msgstr ""
 
-#: manual/performance/bench/external.md:228
+#: manual/performance/bench/external.md:263
 msgid "ns per operation (loop and result store only)"
 msgstr ""
 
-#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:265
 msgid "9.21 ns [9.15 ns, 9.26 ns]"
 msgstr ""
 
-#: manual/performance/bench/external.md:231
+#: manual/performance/bench/external.md:266
 msgid "9.21 ns [9.14 ns, 9.32 ns]"
 msgstr ""
 
-#: manual/performance/bench/external.md:233
+#: manual/performance/bench/external.md:268
 msgid "Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `binary/mul/512`."
 msgstr ""
 
-#: manual/performance/bench/external.md:235
+#: manual/performance/bench/external.md:270
 msgid "What the numbers say"
 msgstr ""
 
-#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:272
 msgid "Everything below is read from the tables above; ratios are rounded and the intervals are in the tables."
 msgstr ""
 
-#: manual/performance/bench/external.md:240
+#: manual/performance/bench/external.md:275
 msgid "**`floating` is slower than the reference in 56 of the 59 cells and faster in three, all `decimal_gda`.** Excluding those, the smallest ratio is 1.28 (`decimal_gda` `ln` at 16 digits) and the largest 11.4 (`decimal_gda` addition at 34 digits). Four cells are above 10: binary `sqrt` at 53 bits (10.1), binary `ln` and `sin` at 2048 bits (10.9 and 10.1), and `decimal_gda` addition at 34 digits (11.4). Where `floating` is faster, it is `exp` at 1000 digits (0.11, that is 9 times faster: 523 us against 4.69 ms), `ln` at 1000 digits (0.28, 3.6 times faster: 1.45 ms against 5.24 ms) and `ln` at 34 digits (0.96, a difference of 4%, with the interval [0.96, 0.98] below 1)."
 msgstr ""
 
-#: manual/performance/bench/external.md:250
+#: manual/performance/bench/external.md:285
 msgid "**Basic binary arithmetic: roughly 3 to 9 times slower.** Addition costs 5.2 to 8.7 times MPFR's time at every precision, multiplication 3.8 to 7.6, division 3.2 to 7.9. The gap is widest at 53 bits, where MPFR needs 4.6 ns for an addition and `floating` 40.1 ns; about 9.2 ns of that is the harness (see the `null` row), the rest is allocation and normalisation of an immutable result. At 128 bits and above multiplication stays at 3.8 to 4.0 times (8192 bits: 8.34 us against 2.13 us)."
 msgstr ""
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:293
 msgid "**Square root is not smooth in precision.** The ratio is 10.1 at 53 bits, 1.9 at 128 bits, 4.6 at 512 bits and 4.1 to 4.3 at 2048 and 8192 bits. From 128 to 512 bits, 4 times the width, the time of `floating` grows from 119 ns to 745 ns (6.3 times) and MPFR's from 62.3 ns to 162 ns (2.6 times)."
 msgstr ""
 
-#: manual/performance/bench/external.md:263
+#: manual/performance/bench/external.md:298
 msgid "**Elementary functions: 2.5 to 11 times slower than MPFR in binary.** `exp` is 2.5 to 5.2 times slower at every precision (3.1 at 53 bits, 5.2 at 2048 bits, 3.0 at 8192 bits), `ln` 4.6 to 10.9 times and `sin` 5.2 to 10.1 times. These three have their largest ratios at 2048 bits (5.2, 10.9, 10.1), not at 8192 bits (3.0, 9.5, 5.2); the cost is not a smooth function of the precision. Both libraries are correctly rounded, so the work is equal in specification but not in method. The slowest binary operations measured are `ln` and `sin` at 8192 bits (1.11 ms and 1.03 ms against 116 us and 197 us in MPFR)."
 msgstr ""
 
-#: manual/performance/bench/external.md:272
+#: manual/performance/bench/external.md:307
 msgid "**`decimal_gda`: slower for the four basic operations, at par or faster for `exp` and `ln` from about 34 digits.** Against libmpdec, addition is 3.6 to 11.4 times slower, multiplication 1.7 to 5.4, division 3.0 to 6.2 and square root 2.1 to 5.3. Multiplication, division and square root narrow towards the large size: at 1000 digits they are 1.7, 3.1 and 2.1 times libmpdec. `exp` is 2.9, 1.5 and 1.4 times slower at 16, 34 and 100 digits and 0.11 at 1000 digits; `ln` is 1.28, 0.96, 1.17 and 0.28. This comes from libmpdec's side: from 100 to 1000 digits its `exp` time grows 268 times (17.5 us to 4.69 ms) and its `ln` time 121 times (43.2 us to 5.24 ms), against 21.5 times (24.3 us to 523 us) and 29 times (50.4 us to 1.45 ms) for `floating`. These are the measured times; the cause in libmpdec was not investigated here. For scale, against MPFR at binary sizes near 1000 decimal digits (2048 and 8192 bits), the binary `floating` `exp` is 5.2 and 3.0 times slower and `ln` 10.9 and 9.5 times slower, so the `floating` advantage over libmpdec at 1000 digits is not an advantage over a binary library of the same size class."
 msgstr ""
 
-#: manual/performance/bench/external.md:288
+#: manual/performance/bench/external.md:323
 msgid "**Harness overhead.** The `null` rows show that the timed loop of the `floating` side costs 9.2 ns per operation with the arithmetic removed. That is 23% of the 40.1 ns of a 53-bit addition and 16% of the 57.1 ns of a 53-bit square root, about 1% of 1 us and less above it; it is not subtracted in these tables. The loop of the C side was not measured in that run."
 msgstr ""
 
-#: manual/performance/bench/external.md:294
+#: manual/performance/bench/external.md:329
 msgid "**Dispersion.** Within a process the 20 ms batches vary by under 3.1% (largest median absolute deviation 1.5% for `floating` and 3.1% for the references). Between the seven rounds the medians of one cell spread by at most 6.0% for `floating` and 25.3% for the references (the reference side of `binary/mul/512`, the one cell marked in the table); the bootstrap intervals therefore cover whole-process variation, and the half-widths of the medians are at most 1.7% for `floating` and 3.1% for the references, and at most 3.3% for a ratio."
 msgstr ""
 
-#: manual/performance/bench/external.md:302
+#: manual/performance/bench/external.md:337
 msgid "**Repeatability.** The run was repeated once on the same commit `4a052ed` with a different round-order seed. The run published here is the first one, with the quieter machine: the other processes used 8% to 34% of the CPU before the timed sides (once 122%), against 26% to 110% in the second run. Over the 59 cases the medians of `floating` moved by 0.43% in the median and 2.1% at most, and the ratios by 0.72% in the median. Two ratios moved by more than 3%: `binary/mul/8192` (3.92 to 3.41, entirely on the MPFR side, which was 15% slower in the second run) and `decimal_gda/mul/34` (5.41 to 5.59). Neither run had a validation failure. The second run is not published."
 msgstr ""
 
-#: manual/performance/bench/external.md:312
+#: manual/performance/bench/external.md:347
 msgid "Follow-ups (not fixed here)"
 msgstr ""
 
-#: manual/performance/bench/external.md:314
+#: manual/performance/bench/external.md:349
 msgid "No profile was taken for this run, so the list is read from the ratios only and names where the largest gaps are, not their cause."
 msgstr ""
 
-#: manual/performance/bench/external.md:317
+#: manual/performance/bench/external.md:352
 msgid "**Small binary cases.** At 53 bits `floating` takes 38 to 57 ns for add, mul, div and `sqrt`, 7.6 to 10.1 times MPFR, with 9.2 ns of the harness included; `sqrt` at 53 bits (10.1) stands out against 1.9 at 128 bits."
 msgstr ""
 
-#: manual/performance/bench/external.md:320
+#: manual/performance/bench/external.md:355
 msgid "**`ln` and `sin` at 2048 bits and 8192 bits.** Ratios of 10.9 and 10.1 at 2048 bits and 9.5 at 8192 bits for `ln`, the largest elementary ratios; `exp` is at 2.5 to 5.2 at all sizes."
 msgstr ""
 
-#: manual/performance/bench/external.md:323
+#: manual/performance/bench/external.md:358
 msgid "**`sqrt` at 512 bits.** 4.6 times MPFR against 1.9 at 128 bits."
 msgstr ""
 
-#: manual/performance/bench/external.md:324
+#: manual/performance/bench/external.md:359
 msgid "**`decimal_gda` addition at 34 and 100 digits.** 11.4 and 8.7 times, against 3.6 at 16 digits; the largest basic-operation ratios of the decimal side."
 msgstr ""
 
-#: manual/performance/bench/external.md:327
+#: manual/performance/bench/external.md:362
 msgid "What is not measured"
 msgstr ""
 
-#: manual/performance/bench/external.md:329
+#: manual/performance/bench/external.md:364
 msgid "**Other targets.** JavaScript, WebAssembly and LLVM builds are not measured; the C libraries have no counterpart there."
 msgstr ""
 
-#: manual/performance/bench/external.md:331
+#: manual/performance/bench/external.md:366
 msgid "**Other machines and compilers.** One Apple M4 laptop on AC power, with no frequency or core pinning and some background desktop load; absolute times will differ on other hardware, and ratios shift with the memory system and the CPU's multiplier and SIMD units."
 msgstr ""
 
-#: manual/performance/bench/external.md:335
+#: manual/performance/bench/external.md:370
 msgid "**Tuned library builds.** The MPFR and GMP in use are Homebrew bottles built with `-O2 -march=armv8-a`; a GMP configured for the exact CPU, or a libmpdec with other build options, can be faster."
 msgstr ""
 
-#: manual/performance/bench/external.md:338
+#: manual/performance/bench/external.md:373
 msgid "**Large and special arguments.** Elementary functions are timed on well-conditioned arguments of modest magnitude; argument reduction of huge arguments, arguments near zeros and singularities, subnormal results, overflow, and exceptional values are not timed."
 msgstr ""
 
-#: manual/performance/bench/external.md:342
+#: manual/performance/bench/external.md:377
 msgid "**Cold start.** Warm caches only; the cost of the first call at a precision is excluded."
 msgstr ""
 
-#: manual/performance/bench/external.md:344
+#: manual/performance/bench/external.md:379
 msgid "**Other operations.** `fma`, `pow`, `hypot`, `cos`, `tan`, the hyperbolic and inverse functions, remainders, conversions, and parsing and printing are not compared. Interval (`ball_float`) arithmetic has no counterpart in MPFR and is not compared (MPFI is not part of this baseline)."
 msgstr ""
 
-#: manual/performance/bench/external.md:348
+#: manual/performance/bench/external.md:383
 msgid "**Memory and threads.** Peak memory and multi-threaded behaviour are not measured."
 msgstr ""
 
-#: manual/performance/bench/external.md:350
+#: manual/performance/bench/external.md:385
 msgid "**Other rounding modes.** Only round to nearest even."
 msgstr ""
 
-#: manual/performance/bench/external.md:352
+#: manual/performance/bench/external.md:387
 msgid "Reproduce"
 msgstr ""
 
-#: manual/performance/bench/external.md:359
+#: manual/performance/bench/external.md:394
 msgid "`run` writes the inputs, the reference results, the raw rounds, the summary and the samples under `.tmp/external`; `publish` copies the compact summary to `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`, the samples (the pairs of every case) to `samples-VERSION-CONFIGURATION.json.gz`, the tables to `summary-CONFIGURATION.md`, and regenerates the tables of that configuration on this page. The raw JSONL (about 12 MB) is not committed; its checksums and the checksums of the operand and reference files are in the published summary. `just bench external recompute SUMMARY SAMPLES` recomputes a summary from its samples; `just bench external compare OLD NEW` compares two summaries (net ratios when both are resolved, raw ratios otherwise); see the [tutorial](../../tutorial/bench/external.md) for the commands and the [API page](../../api/bench/external.md) for the benchmark cases."
 msgstr ""
 
@@ -21303,7 +21388,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
 #: manual/tutorial/bench/decimal_gda.md:16
-#: manual/tutorial/bench/external.md:21
+#: manual/tutorial/bench/external.md:23
 #: manual/tutorial/bin_float.md:26
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
@@ -21365,7 +21450,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:33
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
-#: manual/tutorial/bench/external.md:51
+#: manual/tutorial/bench/external.md:53
 #: manual/tutorial/bin_float.md:64
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
@@ -21470,7 +21555,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:50
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
-#: manual/tutorial/bench/external.md:155
+#: manual/tutorial/bench/external.md:174
 #: manual/tutorial/bin_float.md:260
 #: manual/tutorial/bin_float_checked.md:177
 #: manual/tutorial/cli.md:73
@@ -21543,7 +21628,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:58
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:168
+#: manual/tutorial/bench/external.md:187
 #: manual/tutorial/bin_float.md:394
 #: manual/tutorial/bin_float_checked.md:235
 #: manual/tutorial/cli.md:82
@@ -21612,7 +21697,7 @@ msgstr ""
 #: manual/tutorial/bench/bin_float.md:64
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:177
+#: manual/tutorial/bench/external.md:196
 #: manual/tutorial/bin_float.md:422
 #: manual/tutorial/bin_float_checked.md:258
 #: manual/tutorial/cli.md:94
@@ -22250,146 +22335,162 @@ msgid "check a summary against its samples"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:18
+msgid "measure the floating side on wasm or js"
+msgstr ""
+
+#: manual/tutorial/bench/external.md:19
+msgid "fix the warm-up of a runtime"
+msgstr ""
+
+#: manual/tutorial/bench/external.md:20
 msgid "see how the ratios moved since a release"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:19
+#: manual/tutorial/bench/external.md:21
 msgid "understand what is timed"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:19
+#: manual/tutorial/bench/external.md:21
 msgid "[performance page](../../performance/bench/external.md#what-is-timed)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:23
+#: manual/tutorial/bench/external.md:25
 msgid "The baseline needs a C compiler and the headers and libraries of MPFR, GMP and mpdecimal. The runner looks for them under `/opt/homebrew`; set `--prefix` or `EXTBENCH_PREFIX` for another location. From the repository root:"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:31
+#: manual/tutorial/bench/external.md:33
 msgid "The run builds `tools/external_baseline.c`, writes the operand file, asks the C harness for the reference results, checks `floating` against them while it is timed, and alternates the two sides over seven rounds, waiting before each side until the machine is quiet (under 150% CPU used by other processes; `--no-gate` turns this off). Every block is a pair of the case and its null, so a run takes about twice as long as it did before the net-ratio method (about 40 minutes then), because the slowest cases (elementary functions at 8192 bits and 1000 digits) run for hundreds of milliseconds per operation. Run it on AC power and close other heavy work: the load of other processes is the main source of noise. The files land in `.tmp/external`:"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:44
+#: manual/tutorial/bench/external.md:46
 msgid "the operands both sides read"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:45
+#: manual/tutorial/bench/external.md:47
 msgid "MPFR and libmpdec results for those operands"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:46
+#: manual/tutorial/bench/external.md:48
 msgid "CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:47
+#: manual/tutorial/bench/external.md:49
 msgid "raw observations of each round"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:48
+#: manual/tutorial/bench/external.md:50
 msgid "raw and net times, null times, intervals, ratios, verdicts (schema `external-baseline-v2`)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:49
+#: manual/tutorial/bench/external.md:51
 msgid "the pairs of case and null blocks of every case, per side and round: everything `results.json` is computed from"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:53
+#: manual/tutorial/bench/external.md:55
 msgid "Restrict the matrix"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:59
+#: manual/tutorial/bench/external.md:61
 msgid "A restricted run writes its own directory, so it never mixes with a full run."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:61
+#: manual/tutorial/bench/external.md:63
 msgid "Try a run quickly"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:67
+#: manual/tutorial/bench/external.md:69
 msgid "The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path but is not a measurement to publish."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:70
+#: manual/tutorial/bench/external.md:72
 msgid "Check the gaps quickly"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:76
-msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
+#: manual/tutorial/bench/external.md:78
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--flag-above` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:88
+#: manual/tutorial/bench/external.md:90
 msgid "Re-reduce and publish"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:95
+#: manual/tutorial/bench/external.md:97
 msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring (the rounds must come from a harness that writes null blocks). `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION-CONFIGURATION.json`, one file per release and configuration, the samples as `samples-VERSION-CONFIGURATION.json.gz`, the tables as `summary-CONFIGURATION.md`, and regenerates the tables of that configuration in the [performance page](../../performance/bench/external.md); the raw JSONL stays out of the repository. The summaries of earlier releases (schema v1) keep their names."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:105
+#: manual/tutorial/bench/external.md:107
 msgid "Choose a configuration"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:111
-msgid "`--configuration` names the build configuration of the floating side (lower-case letters, digits and hyphens; `native` by default) and is recorded in the summary and in the names of the published files. `--moon-env` passes an environment variable to the `moon` process that builds and runs the floating side and can be repeated; how a configuration is selected, for example how the portable path is forced, is defined by the kernel work, not by the benchmark."
+#: manual/tutorial/bench/external.md:115
+msgid "`--target` chooses the `moon` target the floating side is built and run for (`native`, `wasm` under `moonrun`, `js` under node; the reference side stays the native C process), `--warmup-us` overrides the warm-up time, and `--configuration` names the build configuration of the floating side (lower-case letters, digits and hyphens; `native` for the native target and the target's name otherwise) and is recorded in the summary and in the names of the published files. `--moon-env` passes an environment variable to the `moon` process that builds and runs the floating side and can be repeated; how a configuration is selected, for example how the portable path is forced, is defined by the kernel work, not by the benchmark."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:118
+#: manual/tutorial/bench/external.md:125
+msgid "Calibrate the warm-up of a runtime"
+msgstr ""
+
+#: manual/tutorial/bench/external.md:131
+msgid "runs the calibration experiment of the [design page](../../design/bench/external.md#the-calibration-experiment-of-the-warm-up) on the floating side only (nothing is published): the warm-up drift of every case, warm-up time and repeat, and the smallest warm-up within the limit. It writes `warmup-<target>.json` under `--out`. It is run once per runtime, before any cell is measured, in the same bench window as the measurement."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:137
 msgid "Recompute a summary"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:124
+#: manual/tutorial/bench/external.md:143
 msgid "recomputes every case from the samples and the protocol of the summary and says how many cases agree with the stored numbers (the exit status is 1 when one differs)."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:128
+#: manual/tutorial/bench/external.md:147
 msgid "Compare two releases"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:134
+#: manual/tutorial/bench/external.md:153
 msgid "prints the ratio of every case in both files, the change in percent, a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise, and which ratio was compared: the net ratios when both summaries are resolved v2 results of the case, the raw ratios otherwise (a v1 summary has only raw ratios). A line says when the two summaries are of different configurations. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:143
+#: manual/tutorial/bench/external.md:162
 msgid "Read a ratio"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:145
+#: manual/tutorial/bench/external.md:164
 msgid "A cell of the net table such as `2.80 [2.71, 2.93] met` is the net time of `floating` divided by the net time of the reference library, with a 95% bootstrap interval; above 1 means `floating` is slower. `met` says the upper end is at most 3. `unresolved, raw 3.77 not met` says the net ratio could not be resolved (the reason is listed under the tables) and the raw ratio, shown in its own table, decides. `d` and `o` after a cell flag a drift of the null time between rounds and an order effect; an asterisk after a net ratio says the interval contains the target, after a raw ratio that the cell spread more than the dispersion thresholds on the performance page."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:157
+#: manual/tutorial/bench/external.md:176
 msgid "Add a case: extend the matrix constants of `tools/external_baseline.py` (for example `BINARY_PRECISIONS`) and the matching benchmark of `tooling/src/bench/external`; the operand file is read by both sides, so the new case is measured on the same inputs."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:161
+#: manual/tutorial/bench/external.md:180
 msgid "Understand the protocol: [bench/external design](../../design/bench/external.md) states why the sides alternate and defines the net ratio, the null and the rules of the verdict."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:164
+#: manual/tutorial/bench/external.md:183
 msgid "Read the numbers: [external baseline](../../performance/bench/external.md) records the machine, the method and the ratios of the latest published release."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:170
+#: manual/tutorial/bench/external.md:189
 msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:172
+#: manual/tutorial/bench/external.md:191
 msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:174
+#: manual/tutorial/bench/external.md:193
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:179
+#: manual/tutorial/bench/external.md:198
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:180
+#: manual/tutorial/bench/external.md:199
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:181
+#: manual/tutorial/bench/external.md:200
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr ""
 

@@ -70,15 +70,15 @@ class NetTimeTests(unittest.TestCase):
             st.net_replicates({}, "t", 4)
 
     def test_constant_data_gives_a_degenerate_interval(self) -> None:
-        side = st.side_net(constant_pairs(40.0, 9.0), 1, "c", "floating", 200)
+        side = st.side_net(constant_pairs(40.0, 9.0), 1, "native", "c", "floating", 200)
         self.assertEqual((side.net_ns, side.ci_low_ns, side.ci_high_ns), (31.0, 31.0, 31.0))
         self.assertEqual(side.pairs, 84)
         self.assertEqual(side.drift_pct, 0.0)
         self.assertEqual(side.order_pct, 0.0)
 
     def test_interval_brackets_the_net_and_narrows_with_less_noise(self) -> None:
-        loud = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.05), 1, "a", "floating", 400)
-        quiet = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.005), 1, "a", "floating", 400)
+        loud = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.05), 1, "native", "a", "floating", 400)
+        quiet = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.005), 1, "native", "a", "floating", 400)
         for side in (loud, quiet):
             self.assertLess(side.ci_low_ns, side.net_ns)
             self.assertGreater(side.ci_high_ns, side.net_ns)
@@ -93,35 +93,58 @@ class NetTimeTests(unittest.TestCase):
 
 
 class SeedTests(unittest.TestCase):
-    def test_derived_seeds_differ_by_run_case_side_and_purpose_and_reproduce(self) -> None:
-        seed = st.derive_seed(1, "binary/add/53", "floating", "net")
-        self.assertEqual(seed, st.derive_seed(1, "binary/add/53", "floating", "net"))
+    def test_derived_seeds_differ_by_run_configuration_case_side_and_purpose_and_reproduce(self) -> None:
+        seed = st.derive_seed(1, "native", "binary/add/53", "floating", "net")
+        self.assertEqual(seed, st.derive_seed(1, "native", "binary/add/53", "floating", "net"))
         variants = {
-            st.derive_seed(2, "binary/add/53", "floating", "net"),
-            st.derive_seed(1, "binary/mul/53", "floating", "net"),
-            st.derive_seed(1, "binary/add/53", "reference", "net"),
-            st.derive_seed(1, "binary/add/53", "floating", "raw"),
-            st.derive_seed(1, "binary/add/53", "both", "raw-ratio"),
+            st.derive_seed(2, "native", "binary/add/53", "floating", "net"),
+            st.derive_seed(1, "wasm", "binary/add/53", "floating", "net"),
+            st.derive_seed(1, "native", "binary/mul/53", "floating", "net"),
+            st.derive_seed(1, "native", "binary/add/53", "reference", "net"),
+            st.derive_seed(1, "native", "binary/add/53", "floating", "raw"),
+            st.derive_seed(1, "native", "binary/add/53", "both", "raw-ratio"),
         }
-        self.assertEqual(len(variants | {seed}), 6)
-        for bad in (("c", "left", "net"), ("c", "floating", "other")):
+        self.assertEqual(len(variants | {seed}), 7)
+        for bad in (("native", "c", "left", "net"), ("native", "c", "floating", "other"), ("", "c", "floating", "net")):
             with self.assertRaises(ValueError):
                 st.derive_seed(1, *bad)
         with self.assertRaises(ValueError):
-            st.side_net(constant_pairs(2.0, 1.0), 1, "c", "both", 10)
+            st.side_net(constant_pairs(2.0, 1.0), 1, "native", "c", "both", 10)
 
     def test_two_sides_with_identical_data_get_different_draws_and_one_side_reproduces(self) -> None:
         pairs = noisy_pairs(7, 100.0, 10.0, 0.05)
-        floating = st.side_net(pairs, 5, "case", "floating", 200)
-        reference = st.side_net(pairs, 5, "case", "reference", 200)
-        again = st.side_net(pairs, 5, "case", "floating", 200)
-        self.assertEqual(floating.replicates, again.replicates)  # same run seed, case and side: exactly the same draws
-        self.assertNotEqual(floating.replicates, reference.replicates)  # same data, same run seed and case: other draws
+        floating = st.side_net(pairs, 5, "native", "case", "floating", 200)
+        reference = st.side_net(pairs, 5, "native", "case", "reference", 200)
+        again = st.side_net(pairs, 5, "native", "case", "floating", 200)
+        self.assertEqual(floating.replicates, again.replicates)  # same run seed, configuration, case and side: the same draws
+        self.assertNotEqual(floating.replicates, reference.replicates)  # same data, other side: other draws
         self.assertEqual(floating.net_ns, reference.net_ns)  # the point estimate is the same data's median
-        # not even the order of the drawn rounds is shared: the sorted replicates match far less often than chance of a copy
         self.assertLess(sum(a == b for a, b in zip(floating.replicates, reference.replicates)), 100)
-        changed = st.side_net(pairs, 6, "case", "floating", 200)
-        self.assertNotEqual(floating.replicates, changed.replicates)
+        self.assertNotEqual(floating.replicates, st.side_net(pairs, 6, "native", "case", "floating", 200).replicates)
+
+    def test_the_same_case_in_two_configurations_gets_different_draws(self) -> None:
+        pairs = noisy_pairs(8, 100.0, 10.0, 0.05)
+        native = st.side_net(pairs, 5, "native-portable", "case", "floating", 200)
+        wasm = st.side_net(pairs, 5, "wasm", "case", "floating", 200)
+        self.assertNotEqual(native.replicates, wasm.replicates)
+        self.assertEqual(native.replicates, st.side_net(pairs, 5, "native-portable", "case", "floating", 200).replicates)
+
+
+class BetweenTests(unittest.TestCase):
+    def test_ratio_between_two_configurations_recovers_a_known_ratio_and_has_no_verdict(self) -> None:
+        wasm = st.side_net(noisy_pairs(2, 130.0, 10.0, 0.01), 1, "wasm", "case", "floating", 400)
+        portable = st.side_net(noisy_pairs(3, 50.0, 10.0, 0.01), 1, "native-portable", "case", "floating", 400)
+        between = st.ratio_between(wasm, portable)
+        self.assertAlmostEqual(between.ratio, 3.0, delta=0.05)
+        self.assertLess(between.ci_low, between.ratio)
+        self.assertGreater(between.ci_high, between.ratio)
+        self.assertLess(between.ci_high - between.ci_low, 0.2)
+
+    def test_a_denominator_at_or_below_zero_gives_an_infinite_ratio(self) -> None:
+        zero = st.side_net(constant_pairs(5.0, 5.0), 1, "native-portable", "case", "floating", 50)
+        positive = st.side_net(constant_pairs(40.0, 9.0), 1, "wasm", "case", "floating", 50)
+        between = st.ratio_between(positive, zero)
+        self.assertTrue(math.isinf(between.ratio) and math.isinf(between.ci_high))
 
 
 class RatioTests(unittest.TestCase):
@@ -132,16 +155,18 @@ class RatioTests(unittest.TestCase):
             st.ratio_replicates([1.0], [1.0, 2.0])
 
     def test_interval_of_a_known_ratio(self) -> None:
-        floating = st.side_net(noisy_pairs(2, 310.0, 10.0, 0.01), 1, "x", "floating", 400)
-        reference = st.side_net(noisy_pairs(3, 105.0, 5.0, 0.01), 1, "x", "reference", 400)
+        floating = st.side_net(noisy_pairs(2, 310.0, 10.0, 0.01), 1, "native", "x", "floating", 400)
+        reference = st.side_net(noisy_pairs(3, 105.0, 5.0, 0.01), 1, "native", "x", "reference", 400)
         verdict = st.judge(floating, reference, raw_ci_high=3.2)
         self.assertLess(verdict.ci_low, 3.0)
         self.assertGreater(verdict.ci_high, 3.0)
         self.assertAlmostEqual(verdict.ratio, 3.0, delta=0.1)
 
 
-def side(net: float, low: float, high: float, replicates: tuple[float, ...], drift: float = 0.0, order: float = 0.0) -> st.SideNet:
-    return st.SideNet(net, low, high, 84, drift, order, replicates)
+def side(
+    net: float, low: float, high: float, replicates: tuple[float, ...], drift: float = 0.0, order: float = 0.0, warm: float = 0.0
+) -> st.SideNet:
+    return st.SideNet(net, low, high, 84, drift, order, warm, replicates)
 
 
 class VerdictTests(unittest.TestCase):
@@ -209,7 +234,36 @@ class VerdictTests(unittest.TestCase):
         self.assertEqual((edge.drift, edge.order), (False, False))  # at the threshold is not above it
 
 
+class CriterionTests(unittest.TestCase):
+    F = (30.0,) * 100
+    R = (10.0,) * 100
+
+    def test_without_a_criterion_the_ratio_is_computed_and_the_status_is_not_applicable(self) -> None:
+        v = st.judge(side(30.0, 30.0, 30.0, self.F), side(10.0, 10.0, 10.0, self.R), raw_ci_high=9.0, criterion_applies=False)
+        self.assertEqual((v.status, v.reason, v.raw_status, v.borderline), (st.NOT_APPLICABLE,) * 1 + ("", st.NOT_APPLICABLE, False))
+        self.assertEqual((v.ratio, v.ci_low, v.ci_high), (3.0, 3.0, 3.0))
+
+    def test_without_a_criterion_an_unresolved_case_is_still_not_applicable(self) -> None:
+        v = st.judge(side(30.0, 30.0, 30.0, self.F), side(0.0, 0.0, 0.0, (0.0,) * 100), raw_ci_high=9.0, criterion_applies=False)
+        self.assertEqual((v.status, v.reason), (st.NOT_APPLICABLE, ""))
+        self.assertTrue(math.isinf(v.ratio))
+
+    def test_the_warm_flag_follows_its_threshold(self) -> None:
+        for warm, flagged in ((5.0, False), (5.5, True)):
+            v = st.judge(side(30.0, 30.0, 30.0, self.F, warm=warm), side(10.0, 10.0, 10.0, self.R), raw_ci_high=9.0)
+            self.assertEqual(v.warm, flagged)
+        v = st.judge(side(30.0, 30.0, 30.0, self.F), side(10.0, 10.0, 10.0, self.R, warm=9.0), raw_ci_high=9.0)
+        self.assertTrue(v.warm)  # either side
+
+
 class FlagTests(unittest.TestCase):
+    def test_warm_pct_compares_the_first_and_the_last_third_of_every_round(self) -> None:
+        cooling = {r: [st.Pair(30.0 + 6.0 * (2 - j // 4), 10.0, False) for j in range(12)] for r in range(3)}
+        # nets 32 (first third), 26 (middle), 20 (last third): the median net is 26, the gap 12
+        self.assertAlmostEqual(st.warm_pct(cooling), 100.0 * 12.0 / 26.0)
+        self.assertEqual(st.warm_pct(constant_pairs(40.0, 9.0)), 0.0)
+        self.assertEqual(st.warm_pct({0: [st.Pair(5.0, 1.0, True), st.Pair(6.0, 1.0, False)]}), 0.0)  # too few pairs for thirds
+
     def test_drift_pct_is_the_worst_round_against_the_median_round(self) -> None:
         pairs = {r: [st.Pair(10.0, n, True)] * 4 for r, n in enumerate([9.0, 10.0, 10.0, 10.0, 11.0])}
         self.assertAlmostEqual(st.drift_pct(pairs), 10.0)

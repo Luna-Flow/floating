@@ -15,6 +15,8 @@ toolkit and the statistics are in the [bench tutorial](../bench.md).
 | keep a summary in the repository | [`just bench external publish`](#re-reduce-and-publish) |
 | measure a build configuration of the floating side | [`--configuration`, `--moon-env`](#choose-a-configuration) |
 | check a summary against its samples | [`just bench external recompute`](#recompute-a-summary) |
+| measure the floating side on wasm or js | [`--target wasm`, `--target js`](#choose-a-configuration) |
+| fix the warm-up of a runtime | [`just bench external warmup`](#calibrate-the-warm-up-of-a-runtime) |
 | see how the ratios moved since a release | [`just bench external compare OLD NEW`](#compare-two-releases) |
 | understand what is timed | [performance page](../../performance/bench/external.md#what-is-timed) |
 
@@ -78,7 +80,7 @@ the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11
 (`--stored` names another summary). Those reference timings do not change, so
 the C side is not built or run, and the runner does not wait for a quiet
 machine. The table shows the time of `floating`, the stored reference time, the
-ratio, the ratio of the stored run and a flag for ratios above `--target`
+ratio, the ratio of the stored run and a flag for ratios above `--flag-above`
 (10 by default). The machine state of the stored run differs from today's, so
 read a single absolute ratio as a guide and decide a change by timing the old
 and the new build alternately on the same machine. The floating results are
@@ -105,15 +107,32 @@ the raw JSONL stays out of the repository. The summaries of earlier releases
 ### Choose a configuration
 
 ```bash
-just bench external run --configuration portable --moon-env KEY=VALUE
+just bench external run --configuration native-portable --moon-env KEY=VALUE
+just bench external run --target wasm
+just bench external run --target js
 ```
 
-`--configuration` names the build configuration of the floating side (lower-case
-letters, digits and hyphens; `native` by default) and is recorded in the summary
-and in the names of the published files. `--moon-env` passes an environment
+`--target` chooses the `moon` target the floating side is built and run for
+(`native`, `wasm` under `moonrun`, `js` under node; the reference side stays the
+native C process), `--warmup-us` overrides the warm-up time, and `--configuration`
+names the build configuration of the floating side (lower-case letters, digits and
+hyphens; `native` for the native target and the target's name otherwise) and is
+recorded in the summary and in the names of the published files. `--moon-env` passes an environment
 variable to the `moon` process that builds and runs the floating side and can be
 repeated; how a configuration is selected, for example how the portable path is
 forced, is defined by the kernel work, not by the benchmark.
+
+### Calibrate the warm-up of a runtime
+
+```bash
+just bench external warmup --target js
+```
+
+runs the calibration experiment of the [design page](../../design/bench/external.md#the-calibration-experiment-of-the-warm-up)
+on the floating side only (nothing is published): the warm-up drift of every case,
+warm-up time and repeat, and the smallest warm-up within the limit. It writes
+`warmup-<target>.json` under `--out`. It is run once per runtime, before any cell
+is measured, in the same bench window as the measurement.
 
 ### Recompute a summary
 
