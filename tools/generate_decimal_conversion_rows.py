@@ -138,6 +138,29 @@ def decimal_round(value: Fraction, p: int, emin: int, emax: int, mode: str):
     return ("finite", -c if negative else c, target, inexact, False, underflow)
 
 
+def exact_cohort(coefficient: int, exponent: int, p: int):
+    """The cohort member of the exact decimal value `coefficient * 10^exponent` that an
+    exact binary to decimal conversion returns in a context of precision `p`
+    (IEEE 754-2019 5.4.2, preferred exponent 0; 5.2, the member whose exponent is
+    closest to the preferred one when that one does not exist): the exponent in
+    `[exponent + digits - p, exponent]` (trailing zeros stripped first) that is
+    closest to 0, and whether digits were dropped (`rounded`, only zeros).
+    Returns (coefficient, exponent, rounded)."""
+    stripped = coefficient
+    while stripped % 10 == 0 and stripped != 0:
+        stripped //= 10
+        exponent += 1
+    digits = len(str(stripped))
+    low = exponent + digits - p  # smallest exponent that keeps at most p digits
+    high = exponent  # largest exponent at which the value is an integer
+    if high - low < 3000:
+        best = min(range(low, high + 1), key=lambda e: (abs(e), e))
+    else:  # closest to 0 in [low, high], in closed form
+        best = 0 if low <= 0 <= high else (high if high < 0 else low)
+    rounded = exponent >= 0 and digits + exponent > p
+    return stripped * 10 ** (exponent - best), best, rounded
+
+
 def hex_literal(c: int, k: int) -> str:
     sign = "-" if c < 0 else ""
     return f"{sign}0x{abs(c):x}p{k}"
@@ -167,7 +190,15 @@ def mpfr_rows() -> tuple[list[tuple], list[tuple]]:
         key = (digits, precision, rounding)
         cell[key] = cell.get(key, 0) + 1
         if cell[key] % STRIDE == 1:
-            getstr.append((int(digits), int(precision), rounding, value, expected_digits, int(expected_exponent), inexact == "1"))
+            cohort = ("", 0, False)
+            if inexact == "0":
+                # MPFR's digits are padded to n; the exact cohort member is derived from
+                # the value with the rule of IEEE 754-2019 5.4.2 and 5.2
+                digit_string = expected_digits.rstrip("0") or "0"
+                exponent10 = int(expected_exponent) - len(expected_digits) + 1 + (len(expected_digits) - len(digit_string))
+                cohort_coefficient, cohort_exponent, cohort_rounded = exact_cohort(int(digit_string), exponent10, int(digits))
+                cohort = (str(cohort_coefficient), cohort_exponent, cohort_rounded)
+            getstr.append((int(digits), int(precision), rounding, value, expected_digits, int(expected_exponent), inexact == "1", *cohort))
     return strtofr, getstr
 
 
@@ -194,6 +225,73 @@ def decimal_value(text: str) -> Fraction:
     return Fraction(Decimal(text))
 
 
+LARGE_MODES = ["half_even", "half_up", "down", "ceiling", "floor", "up"]
+LARGE_EXPONENTS = [4_194_305, 5_000_000, 8_388_608, 16_777_216, 100_000_000, 1_000_000_000, -4_194_305, -5_000_000, -8_388_608, -100_000_000, -1_000_000_000]
+LARGE_MANTISSAS = [1, 3, 0x1FFFFFFFFFFFFF, 0x10000000000001, 0xABCDEF123456789]
+
+
+def large_binary_rows() -> list[str]:
+    """Binary values far beyond a binary exponent of 2^22, converted to a wide decimal
+    context (exponent range of +-999,999,999): the correctly rounded digits computed
+    with Python `decimal` at `precision + 80` digits (independent of the library),
+    used only when the digits after the kept ones are neither all zero nor all nine,
+    so that the rounding of the high precision value is the rounding of the exact one."""
+    import decimal
+
+    rows = []
+    for mantissa in LARGE_MANTISSAS:
+        for exponent in LARGE_EXPONENTS:
+            for negative in (False, True):
+                for p in (16, 34):
+                    work = decimal.Context(prec=p + 80, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+                    value = work.multiply(Decimal(mantissa), work.power(Decimal(2), Decimal(exponent)))
+                    digits = value.as_tuple().digits
+                    tail = digits[p : p + 40]
+                    if all(d == 0 for d in tail) or all(d == 9 for d in tail):
+                        continue
+                    for mode in LARGE_MODES:
+                        decimal_mode = {
+                            "half_even": decimal.ROUND_HALF_EVEN,
+                            "half_up": decimal.ROUND_HALF_UP,
+                            "down": decimal.ROUND_DOWN,
+                            "ceiling": decimal.ROUND_CEILING,
+                            "floor": decimal.ROUND_FLOOR,
+                            "up": decimal.ROUND_UP,
+                        }[mode]
+                        signed = work.minus(value) if negative else value
+                        context = decimal.Context(prec=p, rounding=decimal_mode, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+                        result = context.plus(signed)
+                        sign, rdigits, rexponent = result.as_tuple()
+                        coefficient = "".join(map(str, rdigits))
+                        hexa = ("-" if negative else "") + f"0x{mantissa:x}p{exponent}"
+                        rows.append(f"({q(hexa)}, {p}, {q(mode)}, {q(coefficient)}, {rexponent}, {'true' if negative else 'false'})")
+    return rows
+
+
+COHORT_PRECISIONS = [7, 16, 34]
+COHORT_VALUES = [
+    (1, 20), (1, 22), (4, 17), (1, 16), (1, 15), (1, 6), (3, 9), (12, 7), (1, 7), (1, 0), (96, 0), (5, 0), (1, 1), (1, 2), (25, 3),
+    (1, 30), (7, 40), (123, 50), (1, 300), (3, 300), (1, 5000), (7, 5000),
+]
+
+
+def exact_cohort_rows() -> list[str]:
+    """Exact binary values `c * 10^k` (built as `c * 5^k` times `2^k`, exactly) converted
+    to decimal contexts of precision 7, 16 and 34 (exponent range +-999,999): the whole
+    cohort member, coefficient, exponent and the `rounded` flag, compared without stripping.
+    The expected member comes from `exact_cohort`, a search over the exponents (the rule of
+    IEEE 754-2019 5.4.2 and 5.2) in Python integers."""
+    rows = []
+    for coefficient, k in COHORT_VALUES:
+        for negative in (False, True):
+            for p in COHORT_PRECISIONS:
+                c, e, rounded = exact_cohort(coefficient, k, p)
+                mantissa = coefficient * 5**k
+                hexa = ("-" if negative else "") + f"0x{mantissa:x}p{k}"
+                rows.append(f"({q(hexa)}, {p}, {q(str(c))}, {e}, {'true' if negative else 'false'}, {'true' if rounded else 'false'})")
+    return rows
+
+
 def emit(rows_name: str, row_type: str, rows: list[str]) -> list[str]:
     out = [f"///|\nlet {rows_name} : Array[{row_type}] = ["]
     out += [f"  {row}," for row in rows]
@@ -214,8 +312,11 @@ def all_rows() -> list[str]:
     )
     out += emit(
         "mpfr_getstr_rows",
-        "(Int32, Int32, String, String, String, Int32, Bool)",
-        [f"({d}, {p}, {q(r)}, {q(v)}, {q(e)}, {x}, {'true' if i else 'false'})" for d, p, r, v, e, x, i in getstr],
+        "(Int32, Int32, String, String, String, Int32, Bool, String, Int32, Bool)",
+        [
+            f"({d}, {p}, {q(r)}, {q(v)}, {q(e)}, {x}, {'true' if i else 'false'}, {q(c)}, {ce}, {'true' if cr else 'false'})"
+            for d, p, r, v, e, x, i, c, ce, cr in getstr
+        ],
     )
     d2b = []
     for text in DECIMAL_VALUES:
@@ -245,6 +346,8 @@ def all_rows() -> list[str]:
                     f"{'true' if inexact else 'false'}, {'true' if overflow else 'false'}, {'true' if underflow else 'false'})"
                 )
     out += emit("binary_to_decimal_rows", "(String, String, String, String, String, Int32, Bool, Bool, Bool, Bool)", b2d)
+    out += emit("exact_cohort_rows", "(String, Int32, String, Int32, Bool, Bool)", exact_cohort_rows())
+    out += emit("large_binary_rows", "(String, Int32, String, String, Int32, Bool)", large_binary_rows())
     d2d = []
     for text in DEC_FORMAT_VALUES:
         d = Decimal(text)

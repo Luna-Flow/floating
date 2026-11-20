@@ -70,12 +70,15 @@ fn decimal_exact_from_bin_float(x : @bin_float.BinFloat) -> Decimal {
 /// with the flags of that rounding; an exact result keeps the exponent closest
 /// to 0 (`0.5` is `5E-1`, `96` is `96`), an inexact one has `p` digits. A value
 /// beyond the exponent range, or far below it, overflows or underflows without
-/// the digits being formed. The sign of a zero and of a NaN is kept; a
-/// signaling NaN gives a quiet NaN and the invalid operation exception; the
-/// payload is kept when the destination holds it (§6.2.3). A binary exponent
-/// beyond 2^22 in magnitude with a context that does not take the value out of
-/// range by itself is outside the work bound of the exact expansion and gives
-/// NaN with `invalid_context`.
+/// the digits being formed. The digits of an inexact conversion come from the
+/// correctly rounded digit string of `BinFloat::to_decimal_string_ctx` at any
+/// binary exponent, with one rounding (`decimal_surrogate_from_bin_float`), so
+/// every in-range value is converted at a cost that does not grow with the
+/// exponent. The sign of a zero and of a NaN is kept; a signaling NaN gives a
+/// quiet NaN and the invalid operation exception; the payload is kept when the
+/// destination holds it (§6.2.3). Only an unlimited precision (`exact()`) needs
+/// the whole expansion, and a binary exponent beyond 2^22 in magnitude is then
+/// not computed: NaN with `invalid_context`.
 pub fn Decimal::from_bin_float_ctx(
   x : @bin_float.BinFloat,
   ctx : DecimalContext,
@@ -121,6 +124,11 @@ pub fn Decimal::from_bin_float_ctx(
             ctx,
           )
         }
+        if ctx.precision > 0 {
+          return decimal_surrogate_from_bin_float(x, ctx).apply_ctx(ctx)
+        }
+        // An unlimited precision needs the whole expansion; beyond a binary
+        // exponent of 2^22 it is not computed.
         let exponent = x.exponent2().to_int64()
         if exponent > 4_194_304L || exponent < -4_194_304L {
           return (
@@ -131,6 +139,81 @@ pub fn Decimal::from_bin_float_ctx(
         decimal_exact_from_bin_float(x).apply_ctx(ctx)
       }
   }
+}
+
+///|
+/// A decimal that rounds under `ctx` exactly like the binary value `x` does,
+/// from the correctly rounded digits of `to_decimal_string_ctx`, at any exponent
+/// and without the expansion `c * 5^k` (issue 423). The digits are the first
+/// `p + 1` significant digits of `|x|` truncated, with the inexact flag of the
+/// truncation as a sticky digit `1` appended when digits were dropped. Every
+/// rounding of a decimal depends on its digits beyond the kept ones only through
+/// "zero, below half, a tie, above half" (and the last kept digit), and `p + 1`
+/// digits plus the sticky digit keep exactly that for every kept length up to
+/// `p`: the surrogate lies strictly inside the unit of the digit after the
+/// truncated ones, as `x` does, so one rounding of it, by `apply_ctx` at the
+/// precision or at Etiny for a subnormal result (nothing is rounded twice), gives
+/// the correctly rounded result with its flags, and the tininess of the unrounded
+/// value is the one of `x` (same leading digit). An exact value keeps the
+/// preferred exponent 0 of IEEE 754-2019 §5.4.2, or the member closest to it
+/// (§5.2): trailing zeros of a fraction are dropped, an integer takes exponent 0,
+/// and an integer of more than `p` digits is padded to `p + 1` digits so that the
+/// zero `apply_ctx` rounds away leaves the `p`-digit member closest to exponent 0.
+fn decimal_surrogate_from_bin_float(
+  x : @bin_float.BinFloat,
+  ctx : DecimalContext,
+) -> Decimal {
+  let digits = ctx.precision + 1
+  let (text, flags) = x.to_decimal_string_ctx(
+    digits,
+    @bin_float.BinaryContext::unbounded(
+      53,
+      rounding=@bin_float.BinaryRoundingMode::RoundTowardZero,
+    ),
+  )
+  let sticky = flags.inexact()
+  let negative = text[0] == '-'
+  let body = if negative { text[1:].to_owned() } else { text }
+  // d.ddd...e+x
+  let split = body.find("e").unwrap()
+  let mantissa = body[0:split].to_owned()
+  let exponent_text = body[split + 1:].to_owned()
+  let magnitude = @string.parse_int(exponent_text[1:]) catch {
+    _ => abort("unexpected decimal exponent text \{exponent_text}")
+  }
+  let leading = if exponent_text[0] == '-' { -magnitude } else { magnitude }
+  let mut coefficient = mantissa.replace(old=".", new="")
+  let mut exponent = leading - digits + 1
+  if sticky {
+    coefficient = coefficient + "1"
+    exponent = exponent - 1
+  } else {
+    // exact: drop the trailing zeros, then prefer the exponent 0
+    let mut end = coefficient.length()
+    while end > 1 && coefficient[end - 1] == '0' {
+      end = end - 1
+    }
+    exponent = exponent + (coefficient.length() - end)
+    coefficient = coefficient[0:end].to_owned()
+    if exponent > 0 {
+      // The member closest to the preferred exponent 0 (IEEE 754-2019 §5.2):
+      // exponent 0 when the value fits in `precision` digits. Otherwise zeros
+      // are appended up to `precision + 1` digits, and the one `apply_ctx`
+      // rounds away is a zero: the `precision`-digit member with the exponent
+      // closest to 0, flagged rounded, with no second rounding.
+      let pad = Int32::min(exponent, ctx.precision + 1 - coefficient.length())
+      if pad > 0 {
+        coefficient = coefficient + "0".repeat(pad)
+        exponent = exponent - pad
+      }
+    }
+  }
+  finite_with_exponent_repr(
+    negative,
+    coeff_from_bigint(bigint_from_text(coefficient)),
+    exponent,
+    Int32::max(1, coefficient.length()),
+  )
 }
 
 ///|

@@ -305,9 +305,11 @@ of the rounding: an exact conversion has the preferred exponent 0 (the
 exponent closest to 0 that holds the digits: `0.5` is `5E-1`, `96` is `96`), an
 inexact one has `precision` digits ("the preferred exponent is the least
 possible"). A value beyond the exponent range, or far below it, overflows or
-underflows without its digits being formed; a binary exponent beyond $2^{22}$
-that the context does not take out of range by itself is refused with NaN and
-`invalid_context`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
+underflows without its digits being formed. An in-range value is converted at
+any binary exponent, correctly rounded, at a cost that does not grow with the
+exponent; only the unlimited precision of `DecimalContext::exact()` needs the
+whole expansion, and a binary exponent beyond $2^{22}$ is then refused with NaN
+and `invalid_context`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
 under a `BinaryContext` (binary16 to binary128, or any precision and range)
 and returns the `BinaryFlags` (inexact, overflow, underflow); it is the
 conversion of `BinFloat::from_string_ctx`, correctly rounded for any exponent.
