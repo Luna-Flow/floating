@@ -348,10 +348,22 @@ fn quantize_center_radius(
   }
   let precision = checked_precision(precision)
   let rounded_center = center.with_precision(precision, mode)
-  let center_error = outward_round(
-    exact_sub(center, rounded_center).abs(),
-    precision,
+  // The error of rounding the center, rounded upward once to `precision` bits:
+  // the difference is taken in the order that makes it non-negative, so the
+  // upward direction is the outward one. (`exact_sub` made the difference at
+  // its own bit length in the nearest mode, and below the normal range a
+  // difference of a few bits rounded to zero: the interval then missed the
+  // center.)
+  let upward = @bin_float.BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
   )
+  let difference = if center.compare(rounded_center) >= 0 {
+    center.sub_ctx(rounded_center, upward).0
+  } else {
+    rounded_center.sub_ctx(center, upward).0
+  }
+  let center_error = difference.abs()
   let rounded_radius = outward_round(radius, precision)
   let total_radius = outward_sum(rounded_radius, center_error, precision)
   let lo = exact_sub(
