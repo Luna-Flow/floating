@@ -292,6 +292,15 @@ fn bin_coeff_knuth_words_core(
 }
 
 ///|
+/// Longest divisor, in limbs, that the exact packed Knuth division
+/// (`bin_coeff_div_scaled_quotient`) handles, exclusive. It was the threshold of
+/// the Burnikel-Ziegler division (96 limbs) and is kept at that value on its
+/// own: the packed quotient `2q + s` has only ever run below it. Raising it
+/// needs a measurement against what those operands take otherwise and a
+/// differential test over the new range.
+let bin_coeff_div_scaled_max_words : Int32 = 96
+
+///|
 /// Whether `bin_coeff_div_scaled_quotient` handles `dividend * 2^scale` over
 /// `divisor`: a divisor of 2 to 95 limbs (Knuth's algorithm; a one-limb divisor
 /// or the Burnikel-Ziegler range goes to the general division) and a numerator
@@ -303,7 +312,7 @@ pub fn bin_coeff_div_scaled_ok(
 ) -> Bool {
   let denominator_len = bin_coeff_word_len(divisor)
   denominator_len >= 2 &&
-  denominator_len < bin_coeff_bz_division_min_words &&
+  denominator_len < bin_coeff_div_scaled_max_words &&
   scale >= 0 &&
   !dividend.is_zero() &&
   dividend.bit_length() + scale >= divisor.bit_length()

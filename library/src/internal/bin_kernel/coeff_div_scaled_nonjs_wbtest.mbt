@@ -32,7 +32,7 @@ fn div_scaled_check(
   } else {
     assert_true(
       limbs < 2 ||
-      limbs >= bin_coeff_bz_division_min_words ||
+      limbs >= bin_coeff_div_scaled_max_words ||
       numerator_big.bit_length() < divisor_big.bit_length(),
     )
   }
