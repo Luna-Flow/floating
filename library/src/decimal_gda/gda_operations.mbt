@@ -303,22 +303,22 @@ pub fn max(
 }
 
 ///|
-pub fn min_mag(
+pub fn min_magnitude(
   lhs : Decimal,
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.min_mag_ctx(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.min_magnitude_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
-pub fn max_mag(
+pub fn max_magnitude(
   lhs : Decimal,
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.max_mag_ctx(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.max_magnitude_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
