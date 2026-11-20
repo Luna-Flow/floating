@@ -9899,7 +9899,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:316
-#: manual/design/bin_float.md:2134
+#: manual/design/bin_float.md:2136
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -11207,7 +11207,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:296
-#: manual/design/bin_float.md:2062
+#: manual/design/bin_float.md:2064
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -11287,7 +11287,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:306
-#: manual/design/bin_float.md:2109
+#: manual/design/bin_float.md:2111
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -12432,8 +12432,8 @@ msgid "RZ"
 msgstr "RZ"
 
 #: manual/design/bin_float.md:224
-#: manual/design/bin_float.md:1969
 #: manual/design/bin_float.md:1971
+#: manual/design/bin_float.md:1973
 #: manual/design/decimal.md:200
 msgid "never"
 msgstr "しない"
@@ -13229,311 +13229,315 @@ msgid "The sweep was repeated after the binary-splitting trees and the fold beca
 msgstr "二分割の木と折り込みが安くなった後で、この掃引をやり直した（36 の設定、精度 1024 から 8192 ビット、`exp` と `sin`、各サイズ 3 つの引数、2 回計数法による命令数）。定数 (16, 4, 40) は 8192 ビットでは引き続き最良だが、それより低いところでは、大きい最初のチャンクと少ない分割段が勝つ。同じ設定でも引数ごとの差が 25 から 30 パーセントあるので、設定は同じ引数での旧設定との比で判断する。そのため Native では定数は作業精度 `w` の関数とする。`w <= 3000` では最初のチャンクは 24 ビット、係数 8、80 項から分割し、`3000 < w <= 6000` では同じで係数 4、6000 を超えると上の定数を使う。(16, 4, 40) と比べた 1 回の呼び出しあたりの命令数は、作業精度 4160 以下で `sin` が 0.69 から 0.99、`exp` が 0.81 から 0.98 で、6000 を超えると二つの設定は同じコードである。ほかのターゲットはどの精度でも (16, 4, 40) のまま（未測定）。チャンクの分け方が違えば別の有効な包囲になるので、これらのカーネルのダイジェスト行は旧定数を明示して固定し、新しい行が作業精度の定数を使うカーネルを固定する。"
 
 #: manual/design/bin_float.md:1424
+msgid "The sweep for `exp` alone was repeated after the assembly limb rows became the Native default, in both native states (the default rows and `LUNA_FLOATING_LIMBS=c`), on five arguments per size (three random values in [1, 2), one near $2^{-9}$, one at 0.69) and by the same executable with explicit settings, so that the comparison is not across builds (two builds of identical code differ by up to 3.5 percent in instruction counts). The setting (24, 8, 80) loses 6 to 15 percent on random arguments from 2300 bits of precision on, although it gains up to 2048 bits, and (24, 4, 80) loses 4 to 8 percent up to 2300 bits; so `exp` has its own constants on Native: for `w <= 2200` (24, 8, 80), for `2200 < w <= 2700` (24, 8, 120), for `2700 < w <= 6000` (24, 4, 80), above 6000 (16, 4, 40). Against (16, 4, 40), no argument at any measured size (1024, 1536, 2048, 2304, 2560, 2816, 3072, 3584, 4096, 5120, 6144 bits) is above 1.00 in the default state or above 1.01 in the C state. `sin` and `cos` keep the constants above."
+msgstr "アセンブリのリム行が Native の既定になった後で、`exp` だけについて掃引をやり直した。二つのネイティブ状態（既定の行と `LUNA_FLOATING_LIMBS=c`）で、各サイズ 5 つの引数（[1, 2) の乱数 3 つ、$2^{-9}$ の近く 1 つ、0.69 が 1 つ）を使い、同じ実行ファイルで設定を明示して、ビルドをまたぐ比較にならないようにした（同じコードの二つのビルドでも命令数は最大 3.5 パーセント違う）。設定 (24, 8, 80) は 2048 ビットまでは得だが、精度 2300 ビット以上では乱数の引数で 6 から 15 パーセント損をし、(24, 4, 80) は 2300 ビットまでで 4 から 8 パーセント損をする。そのため Native では `exp` に専用の定数を与える。`w <= 2200` では (24, 8, 80)、`2200 < w <= 2700` では (24, 8, 120)、`2700 < w <= 6000` では (24, 4, 80)、6000 を超えると (16, 4, 40) である。(16, 4, 40) と比べて、測定したどのサイズ（精度 1024、1536、2048、2304、2560、2816、3072、3584、4096、5120、6144 ビット）でも、既定の状態で 1.00 を超える引数も、C の状態で 1.01 を超える引数もない。`sin` と `cos` は上の定数のままである。"
+
+#: manual/design/bin_float.md:1426
 msgid "*Evidence for the `exp` kernel.* White-box tests (`elementary_burst_exp_wbtest.mbt`): the enclosure at $w$ contains the series enclosure at $w + 256$ for every argument the kernel accepts in a corpus of 224 values of 60 to 2000 bits with $|x|$ from $2^{-60}$ to $2^{30}$, and for arguments next to multiples of $\\ln 2$, to $2^{29} - 1$ and to $1 - 2^{-k}$; it is no wider than the series enclosure at $w$; and `exp_ctx` returns the same value and flags as the Ziv loop run on the series alone, in four rounding directions. Three deliberately wrong variants are caught by the containment test: a bias of 64 units in every stage, 40 terms fewer in the binary-splitting stages, and `ln 2` taken with 128 bits fewer for an argument near $2^{27}$. Two obligations are not exercised by such tests: the slack of the fixed-point stages and the units for $\\delta$ are dominated by the much larger worst-case terms of the other stages, so an enclosure without them still contains the value; their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 35,040 rows (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{28}$ and next to multiples of $\\ln 2$) all match; the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript; the random differential run (`elem`) agrees on 100,000 cases on Native and 20,000 on each other target."
 msgstr "*`exp` カーネルの根拠。* ホワイトボックステスト（`elementary_burst_exp_wbtest.mbt`）：224 個の値（60 から 2000 ビット、$|x|$ は $2^{-60}$ から $2^{30}$）のコーパスのうちカーネルが受け入れるすべての引数と、$\\ln 2$ の倍数、$2^{29} - 1$、$1 - 2^{-k}$ の近くの引数について、$w$ での包絡は $w + 256$ での級数の包絡を含む。$w$ での級数の包絡より広くない。また `exp_ctx` は 4 つの丸め方向で、級数だけで回した Ziv ループと同じ値とフラグを返す。故意に誤らせた 3 つの変種は包含テストで検出される：すべての段で 64 単位のずれ、二進分割の段で 40 項少ない、$2^{27}$ 付近の引数に対して `ln 2` を 128 ビット少なく取る。次の 2 つの義務はこの種のテストでは検査できない：固定小数点の段の余裕と $\\delta$ のための単位は、他の段のはるかに大きい最悪ケースの項に隠れてしまうので、それらを欠いた包絡でも値を含む。その根拠は上の紙の上の議論であってテストではない。MPFR 4.2.2 との比較：35,040 行（精度 256 から 4096、4 つの丸め方向、引数は $2^{-60}$ から $2^{28}$ と $\\ln 2$ の倍数の近く）がすべて一致した。出力は Native、Wasm、Wasm-GC、JavaScript でバイト単位で同一であり、ランダム差分実行（`elem`）は Native で 100,000 件、他の各ターゲットで 20,000 件が一致した。"
 
-#: manual/design/bin_float.md:1444
+#: manual/design/bin_float.md:1446
 msgid "*Measured (native, release, this machine).* Kernel only, $w = p + 64$ bits, $x \\approx 0.7$: 20 ms to 1.97 ms at 8256 bits, 3.3 ms to 0.67 ms at 4160, 594 to 220 µs at 2112, 112 to 87 µs at 1088; below 1000 bits it is slower (37 to 41 µs at 576). End to end, `just bench external quick --ops exp` paired and alternating with `origin/main` (four rounds, the quiet ones last), floating time per call: 8192 bits 20.2 and 20.4 ms against 1.78 and 1.69 ms (paired ratios 9.1 to 12.1), 2048 bits 508 and 517 µs against 187 and 196 µs (2.1 to 2.7), and 53 and 512 bits unchanged within the noise of the machine (0.92 to 1.19). Against the stored MPFR reference of that tool the ratio of the 8192-bit call moves from about 95 to about 8 on the machine of the run (the machine reads about 1.4 times slower than the stored run, so the drift corrected values are about 66 and 5.6)."
 msgstr "*測定（ネイティブ、release、この機械）。* カーネルのみ、$w = p + 64$ ビット、$x \\approx 0.7$：8256 ビットで 20 ms から 1.97 ms、4160 ビットで 3.3 ms から 0.67 ms、2112 ビットで 594 から 220 µs、1088 ビットで 112 から 87 µs。1000 ビット未満では遅い（576 ビットで 37 から 41 µs）。エンドツーエンドでは、`just bench external quick --ops exp` を `origin/main` と対にして交互に実行し（4 ラウンド、静かなものを後に）、呼び出しあたりの floating の時間は、8192 ビットで 20.2 と 20.4 ms に対して 1.78 と 1.69 ms（対の比 9.1 から 12.1）、2048 ビットで 508 と 517 µs に対して 187 と 196 µs（2.1 から 2.7）、53 と 512 ビットは機械の雑音の範囲で変わらない（0.92 から 1.19）。そのツールの保存済み MPFR 基準に対する 8192 ビット呼び出しの比は、実行した機械では約 95 から約 8 に動く（この機械は保存された実行より約 1.4 倍遅く読めるので、ドリフト補正後の値は約 66 と 5.6）。"
 
-#: manual/design/bin_float.md:1457
+#: manual/design/bin_float.md:1459
 msgid "*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size products (43 µs each) and spends most of it in products and divisions of $w$-bit numbers. With a multiplication and division kernel three times faster, and everything else unchanged, a first estimate (not measured) is 0.6 to 0.8 ms at 8192 bits and 60 to 80 µs at 2048 bits, which is about 3 to 4 times the MPFR reference (213 µs and 17 µs). The remaining gap would be allocation and the small-integer steps of the fixed-point stages."
 msgstr "*上限。* 8192 ビットでカーネルは完全な積 35 から 45 回分（各 43 µs）の時間がかかり、そのほとんどを $w$ ビットの数の積と除算に費やす。乗算と除算のカーネルが 3 倍速くなり、他が変わらないとすると、最初の見積もり（未測定）は 8192 ビットで 0.6 から 0.8 ms、2048 ビットで 60 から 80 µs で、MPFR 基準（213 µs と 17 µs）の約 3 から 4 倍である。残る差はメモリ確保と固定小数点の段の小整数のステップによる。"
 
-#: manual/design/bin_float.md:1466
+#: manual/design/bin_float.md:1468
 msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
 msgstr "**`exp`：表と矩形分割（中精度）。** ターゲットごとの作業精度（1536 から 3072 ビット、下記参照）以下では、$e^x$ の包含は `binary_exp_bounds_table`（`elementary_table_exp.mbt`）が与える。方式は Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22（2015）, arXiv:1410.7176 のもので、`BinCoeff` の整数算術の上に実装している。$F = w + g$ を 64 の倍数に切り上げたもの（$\\ge 128$、1024 を超えると 256 の倍数）とし、$g \\ge 16$ とする。$R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ への縮約と剰余の因子 $e^{\\delta}$ は上の bit-burst カーネルと同じである（$2^{-F}$ を単位として下側 3、上側 6。$e^{R_t} < 3$ のため）。実際に `fixed_exp_reduce` と `fixed_exp_finish`（ツールキットの部品 6）のコードそのものである。剰余のテイラー級数は、係数を $N!/i!$ としたツールキットの部品 5 の矩形分割であり、その誤差上界はそこで述べ、以下では繰り返さない。このとき $K = k_1 + k_2$（$(k_1,k_2) = (7,7)$ は $F \\le 256$、$(6,6)$ は 1024 まで、それ以上は $(6,5)$）として、"
 
-#: manual/design/bin_float.md:1489
+#: manual/design/bin_float.md:1491
 msgid "all three parts exact multiples of $2^{-F}$, so $e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$ with $T_1[j] = e^{j/2^{k_1}}$ ($j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$) and $T_2[j] = e^{j/2^{K}}$ ($j < 2^{k_2}$)."
 msgstr "3 つの部分はいずれも $2^{-F}$ の整数倍なので、$e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$ であり、$T_1[j] = e^{j/2^{k_1}}$（$j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$）、$T_2[j] = e^{j/2^{K}}$（$j < 2^{k_2}$）である。"
 
-#: manual/design/bin_float.md:1493
+#: manual/design/bin_float.md:1495
 msgid "*Tables.* Built lazily, one set per value of $F$ (at most 24 sets are kept), each entry an integer enclosure $L \\le 2^{F} e^{j/2^k} \\le H$ taken from the certified kernels already in the library (`binary_exp_bounds_untabled`, the bit-burst or series path, at $F + 8$ bits): $L = \\lfloor 2^F \\cdot \\mathrm{low} \\rfloor$, $H = \\lfloor 2^F \\cdot \\mathrm{high} \\rfloor + 1$. A table is therefore as certified as the kernels it comes from, and a test recomputes every entry of two table sets from the series at $F + 256$ bits. The tables are not hard-coded."
 msgstr "*表。* 遅延構築で、$F$ の値ごとに 1 組（最大 24 組を保持）。各エントリは整数の包含 $L \\le 2^{F} e^{j/2^k} \\le H$ で、ライブラリに既にある認証済みカーネル（`binary_exp_bounds_untabled`、すなわち bit-burst または級数の経路、精度 $F + 8$ ビット）から取る：$L = \\lfloor 2^F \\cdot \\mathrm{low} \\rfloor$、$H = \\lfloor 2^F \\cdot \\mathrm{high} \\rfloor + 1$。したがって表は元のカーネルと同じだけ認証されており、テストが 2 組の表の全エントリを精度 $F + 256$ ビットの級数で再計算する。表は直書きしていない。"
 
-#: manual/design/bin_float.md:1501
+#: manual/design/bin_float.md:1503
 msgid "*Taylor series of $r$.* Write $r = a / 2^F$, $0 \\le a < 2^{F-K}$ (so $r < 2^{-K}$, $K \\ge 11$ in the shapes above). The number of terms $N$ is the least with $K N + \\sum_{i \\le N} (\\operatorname{bits}(i) - 1) \\ge F + 1$; as $N! \\ge 2^{\\sum (\\operatorname{bits}(i)-1)}$ and the ratio of consecutive terms is below $1/2$, the tail satisfies $\\sum_{i \\ge N} r^i/i! \\le 2 r^N/N! \\le 2^{-F}$: at most one unit. The sum is evaluated by the rectangular (Paterson–Stockmeyer) splitting of toolkit piece 5, with $N$ rounded up to $N' = b m$, the integer coefficients $C_i = N'!/i!$ (computed once per $N'$) and one final division, $E = \\lfloor \\mathrm{Acc}_0 / N'! \\rfloor$; the powers $p_j$ and the recurrence for $\\mathrm{Acc}_\\beta$ are those defined there, with $e_j := 2^F r^j - p_j < 2$ (so $e_0 = e_1 = 0$)."
 msgstr "*$r$ のテイラー級数。* $r = a / 2^F$、$0 \\le a < 2^{F-K}$ とする（よって $r < 2^{-K}$ で、上の形状では $K \\ge 11$）。項数 $N$ は $K N + \\sum_{i \\le N} (\\operatorname{bits}(i) - 1) \\ge F + 1$ を満たす最小の値とする。$N! \\ge 2^{\\sum (\\operatorname{bits}(i)-1)}$ であり隣り合う項の比が $1/2$ 未満なので、尾部は $\\sum_{i \\ge N} r^i/i! \\le 2 r^N/N! \\le 2^{-F}$ を満たす。高々 1 単位である。和はツールキットの部品 5 の矩形（Paterson–Stockmeyer）分割で求める。$N$ を $N' = b m$ に切り上げ、整数係数 $C_i = N'!/i!$（$N'$ ごとに一度だけ計算する）を使い、最後に除算 $E = \\lfloor \\mathrm{Acc}_0 / N'! \\rfloor$ を一回行う。冪 $p_j$ と $\\mathrm{Acc}_\\beta$ の漸化式はそこで定義したもので、$e_j := 2^F r^j - p_j < 2$（よって $e_0 = e_1 = 0$）である。"
 
-#: manual/design/bin_float.md:1513
+#: manual/design/bin_float.md:1515
 msgid "*Error of the series.* The exact counterpart is $\\mathrm{Acc}^*_0 = N'!\\, 2^F \\sum_{i<N'} r^i/i!$, and every computed quantity is a lower bound of its exact counterpart. Let $\\varepsilon_\\beta = \\mathrm{Acc}^*_\\beta - \\mathrm{Acc}_\\beta$ in units of $N'!$. The deficit of $P_\\beta$ is $\\sum_{j\\ge 2} C_{\\beta m+j} e_j / N'! < 2 \\sum_{j \\ge 2} 1/(\\beta m + j)! \\le 2(e - 2) < 1.44$ ($e_0 = e_1 = 0$). In the Horner step the error of $p_m$ contributes $e_m \\mathrm{Acc}^*_{\\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$ (because $\\mathrm{Acc}^*_{\\beta+1} \\le N'!\\, 2^F e^{r}$), the propagated error $p_m \\varepsilon_{\\beta+1} / 2^F < \\varepsilon_{\\beta+1}/16$, and the floor less than one unit. So $\\varepsilon_\\beta < 1.44 + 3.4 + 1 + \\varepsilon_{\\beta+1}/16$, whence $\\varepsilon < 6.2 \\cdot 16/15 < 7$ for every block. The final floor loses less than one more unit, and the tail at most one:"
 msgstr "*級数の誤差。* 厳密な対応物は $\\mathrm{Acc}^*_0 = N'!\\, 2^F \\sum_{i<N'} r^i/i!$ で、計算される量はすべてその厳密な対応物の下界である。$\\varepsilon_\\beta = \\mathrm{Acc}^*_\\beta - \\mathrm{Acc}_\\beta$ を $N'!$ を単位として表す。$P_\\beta$ の不足は $\\sum_{j\\ge 2} C_{\\beta m+j} e_j / N'! < 2 \\sum_{j \\ge 2} 1/(\\beta m + j)! \\le 2(e - 2) < 1.44$（$e_0 = e_1 = 0$）。Horner の段では $p_m$ の誤差が $e_m \\mathrm{Acc}^*_{\\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$（$\\mathrm{Acc}^*_{\\beta+1} \\le N'!\\, 2^F e^{r}$ より）、伝播する誤差が $p_m \\varepsilon_{\\beta+1} / 2^F < \\varepsilon_{\\beta+1}/16$、さらに 1 単位未満の切り捨てを加える。よって $\\varepsilon_\\beta < 1.44 + 3.4 + 1 + \\varepsilon_{\\beta+1}/16$、したがってすべてのブロックで $\\varepsilon < 6.2 \\cdot 16/15 < 7$。最後の切り捨てはさらに 1 単位未満を失い、残りは高々 1 単位である："
 
-#: manual/design/bin_float.md:1530
+#: manual/design/bin_float.md:1532
 msgid "*Assembly.* With the table entries (already in units of $2^{-F}$), $\\mathrm{low} = \\lfloor \\lfloor L_1 L_2 / 2^F \\rfloor E / 2^F \\rfloor - 3$ and $\\mathrm{high} = \\lfloor \\lfloor H_1 H_2 / 2^F \\rfloor + 1) (E + 10) / 2^F \\rfloor + 1 + 6$. All factors are positive, so the floor-and-add-one products are monotone enclosures; the final enclosure is then rounded outward to $w$ bits. The kernel declines (the older paths run) in the same cases as the bit-burst kernel ($|x| < 2^{-65}$, $|x| \\ge 2^{30}$, $|n| \\ge 2^{29}$, $x$ with bits below $2^{-G}$) and when the width exceeds $2^{-(w+6)}$ of the value. The width of the enclosure is a few dozen units of $2^{-F}$ (the series 10, the tables 2 each, the reduction 9, the products another factor up to 2), far below the $2^{F-w-6}$ units the check allows."
 msgstr "*組み立て。* 表のエントリ（既に $2^{-F}$ を単位とする）を用いて、$\\mathrm{low} = \\lfloor \\lfloor L_1 L_2 / 2^F \\rfloor E / 2^F \\rfloor - 3$、$\\mathrm{high} = \\lfloor \\lfloor H_1 H_2 / 2^F \\rfloor + 1) (E + 10) / 2^F \\rfloor + 1 + 6$。因子はすべて正なので、「切り捨てて 1 を足す」積は単調な包含であり、最終の包含はさらに $w$ ビットへ外向きに丸められる。カーネルは bit-burst カーネルと同じ場合に辞退し（古い経路が引き継ぐ）（$|x| < 2^{-65}$、$|x| \\ge 2^{30}$、$|n| \\ge 2^{29}$、$x$ が $2^{-G}$ より下にビットを持つとき）、幅が値の $2^{-(w+6)}$ を超えるときにも辞退する。包含の幅は $2^{-F}$ の数十単位（級数 10、表は各 2、縮約 9、積でさらに高々 2 倍）で、検査が許す $2^{F-w-6}$ 単位をはるかに下回る。"
 
-#: manual/design/bin_float.md:1542
+#: manual/design/bin_float.md:1544
 msgid "*Why results are bit-identical.* The kernel only supplies an enclosure of $e^x$ to the Ziv loop of `exp_ctx` and of the functions built on it (`exp2`, `exp10`, `expm1`, `pow`, `compound`, `powr`, the hyperbolic functions, the decimal elementary functions). Correct rounding is unique, so any valid enclosure gives the same value and flags; a different enclosure can only change how many precision steps the loop takes. The proof obligation is therefore exactly the validity of the enclosure, which the analysis above establishes and the white-box tests check against the series at $w + 256$ bits."
 msgstr "*結果がビット単位で同一である理由。* カーネルが `exp_ctx` とそれを土台とする関数（`exp2`、`exp10`、`expm1`、`pow`、`compound`、`powr`、双曲線関数、十進の初等関数）の Ziv ループに与えるのは $e^x$ の包含だけである。正しい丸めは一意なので、有効な包含であれば同じ値とフラグを与える。別の包含はループの精度段数を変えうるだけである。したがって証明すべきことはちょうど包含の有効性であり、上の解析がそれを確立し、ホワイトボックステストが精度 $w + 256$ ビットの級数と照らして確かめる。"
 
-#: manual/design/bin_float.md:1551
+#: manual/design/bin_float.md:1553
 msgid "*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series enclosure at $w + 256$ for up to 256 arguments of $2^{-60}$ to $2^{30}$ at working precisions 53 to 1000, positive and negative; arguments equal to table nodes $j/2^{k_1}$, $j/2^K$ and one unit below and above them (remainder at or just off a table boundary); multiples of $\\ln 2$ up to $n = 10^6$; the Taylor stage on $a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{random}\\}$ at $F$ from 80 to 2100 with its width at most 10 units; every entry of two table sets; declined arguments."
 msgstr "*証拠。* `elementary_table_exp_wbtest.mbt`：作業精度 53 から 1000、正負の両方、$2^{-60}$ から $2^{30}$ の最大 256 個の引数で、精度 $w + 256$ の級数の包含が含まれること；表の節点 $j/2^{k_1}$、$j/2^K$ に等しい引数とその上下 1 単位（剰余が表の境界上、またはそのすぐ外）；$n = 10^6$ までの $\\ln 2$ の倍数；$a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{乱数}\\}$ に対するテイラー段で、$F$ は 80 から 2100、幅は高々 10 単位；2 組の表の全エントリ；辞退される引数。"
 
-#: manual/design/bin_float.md:1560
+#: manual/design/bin_float.md:1562
 msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
 msgstr "*測定（release、この機械、カーネルのみ、$x \\approx 0.7$）。* Native：53 ビットで 7 µs（級数は 10 µs）；100 ビットで 2.5 対 5.6；300 ビットで 4.9 対 12.6（bit-burst 24）；1000 ビットで 20 対 42（burst 69）；2000 ビットで 94 対 111（burst 143）；3000 ビットで 245 対 208。交差点（表カーネルを優先するのは Native と LLVM で 1792 ビット、Wasm で 2048、Wasm-GC で 1536、JavaScript で 3072 まで）は bit-burst のしきい値の隣に置いたターゲットごとの定数である。それを超えると bit-burst カーネル（その自身のしきい値から）と級数は変わらない。表カーネルのコストは、この規模で 1 回 100 から 250 ns の `BinCoeff` 演算が数十回あることと、2000 ビット以上での整数係数 $N'!/i!$ の大きさが支配的で、そこで遅くなる理由でもある。"
 
-#: manual/design/bin_float.md:1572
+#: manual/design/bin_float.md:1574
 msgid "**`ln`, by verified Newton step.** Write $v = m\\, 2^{k}$ with $m \\in [2^{-1/2}, 2^{1/2})$, so $\\ln v = k \\ln 2 + \\ln m$. Take any dyadic $y_0$ with about $w/2 + 16$ bits (from the same function at half the precision, recursively, down to the existing series). Correctness does not depend on how good $y_0$ is, only the speed does. Let $[E_\\ell, E_u]$ be the enclosure of $e^{y_0}$ from the kernel above and $q_\\ell = m / E_u$, $q_u = m / E_\\ell$ (directed divisions). Since $\\ln$ is monotone, $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$, and for $|u| \\le 1/2$ one has $u - u^2 \\le \\ln(1 + u) \\le u$, so"
 msgstr "**`ln`：検証付きニュートン法の 1 ステップ。** $v = m\\, 2^{k}$（$m \\in [2^{-1/2}, 2^{1/2})$）と書くと $\\ln v = k \\ln 2 + \\ln m$。約 $w/2 + 16$ ビットの二進有理数 $y_0$ を任意に取る（半分の精度での同じ関数から、再帰的に、既存の級数に至るまで）。正しさは $y_0$ がどれほど良いかには依存せず、速度だけが依存する。$[E_\\ell, E_u]$ を上記カーネルによる $e^{y_0}$ の包絡とし、$q_\\ell = m / E_u$、$q_u = m / E_\\ell$（方向付き除算）とする。$\\ln$ は単調なので $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$、また $|u| \\le 1/2$ では $u - u^2 \\le \\ln(1 + u) \\le u$ が成り立つから、"
 
-#: manual/design/bin_float.md:1586
+#: manual/design/bin_float.md:1588
 msgid "whenever $|q_\\ell - 1|, |q_u - 1| \\le 1/2$ (checked at run time, else `None`). If $|\\ln m - y_0| \\le 2^{-(w/2+8)}$ the quadratic term is below $2^{-(w+14)}$ and the width is that of $E$. Adding $k \\ln 2$ uses the exact integer product of $k$ with the dyadic bounds of $\\ln 2$. For $|m - 1| < 2^{-16}$ the existing artanh series has $O(w/16)$ terms and stays in use. The cost is that of one `exp` at $w$ plus the recursive call at about $w/2$ (about $1.5$ times one `exp` in total) plus two divisions. Projection at 8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point branch)."
 msgstr "$|q_\\ell - 1|, |q_u - 1| \\le 1/2$ である限り（実行時に検査し、そうでなければ `None`）。$|\\ln m - y_0| \\le 2^{-(w/2+8)}$ なら 2 次の項は $2^{-(w+14)}$ 未満で、幅は $E$ の幅になる。$k \\ln 2$ の加算には、$k$ と $\\ln 2$ の二進有理数の界との厳密な整数積を使う。$|m - 1| < 2^{-16}$ では既存の artanh 級数は $O(w/16)$ 項で、そのまま使う。コストは $w$ での `exp` 1 回と、約 $w/2$ での再帰呼び出し（合計で `exp` の約 $1.5$ 倍）に 2 回の除算を加えたものである。8192 ビットでの予測：3 から 6 ms。現状は 164 ms（固定小数点ブランチの予測は 41 ms）。"
 
-#: manual/design/bin_float.md:1596
+#: manual/design/bin_float.md:1598
 msgid "*Implementation of the `ln` step (`elementary_burst_ln.mbt`).* `binary_ln_unit_burst_bounds` encloses $\\ln v$ for $1 + 2^{-16} < v \\le 2$ (the unit enclosure that `binary_ln_bounds` adds $k \\ln 2$ to). With $\\mathrm{inner} = w + \\max(0, 2 - \\operatorname{top}(v - 1))$ bits, so that an argument near 1 keeps $w$ significant bits of the result, $y_0$ is the lower end of the enclosure of $\\ln v'$ at $\\mathrm{inner}/2 + 16$ bits, where $v'$ is $v$ rounded to that many bits (the same function one level down, so the recursion ends in the series below the threshold); $[E_\\ell, E_u]$ is the `exp` kernel at $\\mathrm{inner} + 8$ bits; the two divisions and the final operations use $\\mathrm{inner} + 24$ bits with directed rounding, and the result is rounded outward to $w$ bits. It declines (and the series runs) for $v \\le 1 + 2^{-16}$ or $v > 2$, when $|q - 1| > 1/2$, and when the width of the result exceeds 8 units of $2^{-\\mathrm{inner}}$. The thresholds, kept with the other coefficient-kernel thresholds, are 1152 bits on Native and LLVM, 1280 on plain Wasm and on JavaScript and 576 on Wasm-GC (the kernel is slower than the fixed-point series below roughly 1000 bits on Native, 500 on Wasm-GC and 1200 on Wasm and JavaScript)."
 msgstr "*`ln` のステップの実装（`elementary_burst_ln.mbt`）。* `binary_ln_unit_burst_bounds` は $1 + 2^{-16} < v \\le 2$ に対する $\\ln v$ の包絡を与える（`binary_ln_bounds` が $k \\ln 2$ を加える単位包絡）。$\\mathrm{inner} = w + \\max(0, 2 - \\operatorname{top}(v - 1))$ ビットを使い、1 に近い引数でも結果が $w$ ビットの有効桁を保つようにする。$y_0$ は $\\ln v'$ の包絡の $\\mathrm{inner}/2 + 16$ ビットでの下端で、$v'$ は $v$ をそのビット数に丸めたものである（同じ関数を 1 段下で呼ぶので、再帰はしきい値未満では級数で終わる）。$[E_\\ell, E_u]$ は $\\mathrm{inner} + 8$ ビットでの `exp` カーネルで、2 回の除算と最後の演算は $\\mathrm{inner} + 24$ ビットで方向付き丸めを使い、結果は $w$ ビットへ外向きに丸める。$v \\le 1 + 2^{-16}$ または $v > 2$ のとき、$|q - 1| > 1/2$ のとき、および結果の幅が $2^{-\\mathrm{inner}}$ の 8 単位を超えるときは辞退する（級数が動く）。しきい値は他の係数カーネルのしきい値と一緒に置かれ、Native と LLVM は 1152 ビット、通常の Wasm と JavaScript は 1280 ビット、Wasm-GC は 576 ビットである（カーネルが固定小数点級数より遅いのは Native で約 1000 ビット未満、Wasm-GC で約 500 ビット未満、Wasm と JavaScript で約 1200 ビット未満）。"
 
-#: manual/design/bin_float.md:1614
+#: manual/design/bin_float.md:1616
 msgid "*Evidence for the `ln` step.* White-box tests (`elementary_burst_ln_wbtest.mbt`): for every argument of a corpus of 158 values in $(1, 2]$ (random, near 1 down to $2^{-100}$, near 2, 3/2, 5/4) that the kernel accepts, the enclosure at $w$ contains the series enclosure at $w + 256$; it is no wider than the series enclosure at $w$; `ln_ctx` returns the same value and flags as the Ziv loop on the series alone in four rounding directions; and the kernel declines out of range. Two deliberately wrong variants are caught: a bias of 8 units in the lower end, and a poor start value (about $w/8$ bits) with the quadratic term dropped. A poor start value with the quadratic term kept only widens the enclosure and the test checks that it is still valid. One obligation is not reached by the tests: dropping the quadratic term with the real start value is not detected, because $u^2 \\approx 2^{-(w+26)}$ is below the width of the `exp` enclosure; its justification is the paper argument ($u - u^2 \\le \\ln(1+u)$ for $u \\ge -1/2$), not the tests. MPFR 4.2.2 comparison: 13,200 rows (precisions 256 to 4096, four rounding directions, arguments with binary exponents from $-1000$ to $10^5$, near 1 and near powers of two; the threshold was set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
 msgstr "*`ln` のステップの根拠。* ホワイトボックステスト（`elementary_burst_ln_wbtest.mbt`）：$(1, 2]$ の 158 個の値のコーパス（ランダム、1 に近い値で $2^{-100}$ まで、2 に近い値、3/2、5/4）のうちカーネルが受け入れるすべての引数で、$w$ での包絡は $w + 256$ での級数の包絡を含む。$w$ での級数の包絡より広くない。`ln_ctx` は 4 つの丸め方向で、級数だけで回した Ziv ループと同じ値とフラグを返す。範囲外ではカーネルは辞退する。故意に誤らせた 2 つの変種が検出される：下端に 8 単位のずれ、および開始値が悪く（約 $w/8$ ビット）二次の項を落としたもの。開始値が悪くても二次の項を残せば包絡が広がるだけで、テストはそれでも有効であることを確かめる。テストが届かない義務が 1 つある：本物の開始値で二次の項を落としても検出されない。$u^2 \\approx 2^{-(w+26)}$ が `exp` の包絡の幅より小さいからで、その根拠は紙の上の議論（$u \\ge -1/2$ に対する $u - u^2 \\le \\ln(1+u)$）であってテストではない。MPFR 4.2.2 との比較：13,200 行（精度 256 から 4096、4 つの丸め方向、二進指数が $-1000$ から $10^5$ の引数、1 の近くと 2 のべきの近く。この実行ではすべての行がカーネルを使うようにしきい値を 256 にした）がすべて一致し、出力は Native、Wasm、Wasm-GC、JavaScript でバイト単位で同一だった。"
 
-#: manual/design/bin_float.md:1634
+#: manual/design/bin_float.md:1636
 msgid "*Measured for the `ln` step (native, release, this machine, on the 64-bit limbs, the Karatsuba and the division of #324, #326 and #328).* Kernel only, $w = p + 64$ bits, $v$ random in $[1, 2)$, against the fixed-point series of #319 (the machine was loaded, the ratios are the figure): 23.0 ms to 2.24 ms at 8256 bits (10.3 times), 3.27 ms to 0.75 ms at 4160 (4.4), 581 to 309 µs at 2112 (1.9), equal at 1024; slower below about 1000 bits (0.5 to 0.8 times at 384 to 768). End to end, `just bench external quick --ops ln` paired and alternating with `origin/main`, four rounds on a loaded machine (load average about 10), the floating time per call: 8192 bits 27.0, 25.6, 25.6 and 28.0 ms against 2.43, 2.40, 2.57 and 2.44 ms (paired ratios 11.1, 10.7, 10.0 and 11.5), 2048 bits 695, 565, 639 and 856 µs against 300, 295, 378 and 365 µs (2.3, 1.9, 1.7 and 2.35), 512 and 53 bits unchanged (0.98 to 1.07 at 53 bits, 0.99 to 1.36 at 512 bits, where the code path is the old one and the machine was noisy). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 221 to 243 to 21 to 22, and of the 2048-bit call from 37 to 57 to 20 to 25. MPFR re-measured on the machine at that time reads 1.9 to 2.0 times slower than the stored run at 8192 bits and 1.65 times at 2048 bits (the load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave 11.5 to 13.6 at 8192 bits (on the previous division kernel)."
 msgstr "*`ln` のステップの測定（ネイティブ、release、この機械、#324、#326、#328 の 64 ビットリム、Karatsuba、除算の上）。* カーネルのみ、$w = p + 64$ ビット、$v$ は $[1, 2)$ でランダム、#319 の固定小数点級数との比較（機械の負荷が高かったので比を見ること）：8256 ビットで 23.0 ms から 2.24 ms（10.3 倍）、4160 ビットで 3.27 ms から 0.75 ms（4.4 倍）、2112 ビットで 581 から 309 µs（1.9 倍）、1024 ビットでは同等。約 1000 ビット未満では遅い（384 から 768 ビットで 0.5 から 0.8 倍）。エンドツーエンドでは、`just bench external quick --ops ln` を `origin/main` と対にして交互に実行し、負荷の高い機械で 4 ラウンド（負荷平均は約 10）、呼び出しあたりの floating の時間は、8192 ビットで 27.0、25.6、25.6、28.0 ms に対して 2.43、2.40、2.57、2.44 ms（対の比 11.1、10.7、10.0、11.5）、2048 ビットで 695、565、639、856 µs に対して 300、295、378、365 µs（2.3、1.9、1.7、2.35）、512 と 53 ビットは変わらない（53 ビットで 0.98 から 1.07、512 ビットで 0.99 から 1.36。旧経路を通り、機械の雑音が大きかった）。保存された MPFR の中央値に対する生の比（その日の floating の時間を保存された MPFR の中央値で割ったもの）は、8192 ビット呼び出しで 221 から 243 だったものが 21 から 22、2048 ビット呼び出しで 37 から 57 だったものが 20 から 25 になる。その時点でその機械で測り直した MPFR は保存された実行より 8192 ビットで 1.9 から 2.0 倍、2048 ビットで 1.65 倍遅く（負荷のため）、ドリフト補正後の比は 8192 ビットで約 10.7 から 11.4、2048 ビットで約 12 から 15 である。静かな機械での以前の実行（以前の除算カーネル）は 8192 ビットで 11.5 から 13.6 だった。"
 
-#: manual/design/bin_float.md:1655
+#: manual/design/bin_float.md:1657
 msgid "**`ln`, by the arithmetic-geometric mean.** For the outermost `ln` call (never for the constants, which the mean needs) and for $1 + 2^{-16} < v \\le 2$ the enclosure of $\\ln v$ is built from $\\ln s = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ up to a model term, with $s = v\\, 2^{m}$, $m = \\lceil p/2 \\rceil + 2$ (so $s > 2^{p/2 + 2}$ and $4/s^2 < 2^{-(p+2)}$), $\\ln v = \\ln s - m \\ln 2$. Every step below has a stated bound; none uses MPFR's constants."
 msgstr "**`ln`：算術幾何平均による方法。** 最外側の `ln` 呼び出し（定数の計算には使わない。平均が定数を必要とするため）で $1 + 2^{-16} < v \\le 2$ のとき、$\\ln v$ の包囲は $\\ln s = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ とモデル項から作る。$s = v\\, 2^{m}$、$m = \\lceil p/2 \\rceil + 2$（したがって $s > 2^{p/2 + 2}$、$4/s^2 < 2^{-(p+2)}$）、$\\ln v = \\ln s - m \\ln 2$。以下の各ステップには明示した上界があり、MPFR の定数は使わない。"
 
-#: manual/design/bin_float.md:1657
+#: manual/design/bin_float.md:1659
 msgid "*The argument.* $x = 4/s = (4/v)\\, 2^{-m}$: one division rounded to nearest at $p$ bits, relative error at most $2^{-p}$, then an exact shift. $\\mathrm{AG}$ is increasing in each argument and homogeneous of degree one (both maps $(a, b) \\mapsto ((a+b)/2, \\sqrt{ab})$ are), so for $\\theta \\ge 0$: $\\mathrm{AG}(1, x) \\le \\mathrm{AG}(1, x(1+\\theta)) \\le \\mathrm{AG}(1+\\theta, x(1+\\theta)) = (1+\\theta)\\, \\mathrm{AG}(1, x)$, and symmetrically for $\\theta < 0$: the relative error of $x$ moves $\\mathrm{AG}$ by at most as much."
 msgstr "*引数。* $x = 4/s = (4/v)\\, 2^{-m}$：$p$ ビットで最近接に丸めた除算が 1 回、相対誤差は高々 $2^{-p}$、続いて厳密なシフト。$\\mathrm{AG}$ は各引数について単調増加で、1 次同次である（写像 $(a, b) \\mapsto ((a+b)/2, \\sqrt{ab})$ がどちらも持つ性質）。そのため $\\theta \\ge 0$ では $\\mathrm{AG}(1, x) \\le \\mathrm{AG}(1, x(1+\\theta)) \\le \\mathrm{AG}(1+\\theta, x(1+\\theta)) = (1+\\theta)\\, \\mathrm{AG}(1, x)$、$\\theta < 0$ でも対称に成り立ち、$x$ の相対誤差が $\\mathrm{AG}$ を動かす量はそれ以下である。"
 
-#: manual/design/bin_float.md:1658
+#: manual/design/bin_float.md:1660
 msgid "*The iteration.* $u' = \\sqrt{u v}$, $v' = (u+v)/2$ from $(x, 1)$, every product, square root and sum rounded to nearest at $p$ bits (relative error $\\delta = 2^{-p}$ each). The halving of the sum is exact and is made by changing the exponent of the already normalized coefficient, and the root is the correctly rounded one, taken from the limb-array kernel of the public square root (the context form gives the same value and costs 39 percent more at 2140 bits); neither changes a value, so the induction below is that of the plain iteration. With the exact sequence $(U_k, V_k)$ and $u_k = U_k (1 + a_k)$, $v_k = V_k (1 + b_k)$, $|a_k|, |b_k| \\le \\varepsilon_k$: the product has $(1+a)(1+b)(1+\\eta_1)$, the root halves the exponent of that factor and adds one rounding, the sum is bounded by $(1 + \\varepsilon)(1 + \\eta_3)$ and halving is exact, so $\\varepsilon_{k+1} \\le \\varepsilon_k + 2\\delta + O(\\delta\\, \\varepsilon_k)$, and $\\varepsilon_n \\le (3 n + 4)\\delta$ for $n < 64$ (MPFR's analysis of the same iteration, with the Higham calculus, gives $3n/2$; ours is looser by 2)."
 msgstr "*反復。* $(x, 1)$ から $u' = \\sqrt{u v}$、$v' = (u+v)/2$ とし、積、平方根、和をすべて $p$ ビットで最近接に丸める（それぞれ相対誤差 $\\delta = 2^{-p}$）。和の半分にする操作は厳密で、すでに正規化された係数の指数を変えるだけで行い、平方根は正しく丸められたもので、公開の平方根のリム配列カーネルから取る（コンテキスト形式は同じ値を与えるが 2140 ビットで 39 パーセント遅い）。どちらも値を変えないので、下の帰納法は素朴な反復のものである。厳密な列を $(U_k, V_k)$、$u_k = U_k (1 + a_k)$、$v_k = V_k (1 + b_k)$、$|a_k|, |b_k| \\le \\varepsilon_k$ とすると、積は $(1+a)(1+b)(1+\\eta_1)$ を持ち、平方根はその因子の指数を半分にして丸めを 1 回加え、和は $(1 + \\varepsilon)(1 + \\eta_3)$ で抑えられ、半分にする操作は厳密なので、$\\varepsilon_{k+1} \\le \\varepsilon_k + 2\\delta + O(\\delta\\, \\varepsilon_k)$、$n < 64$ で $\\varepsilon_n \\le (3 n + 4)\\delta$ となる（MPFR は同じ反復を Higham の計算法で解析して $3n/2$ を得ており、ここでの上界は 2 倍ゆるい）。"
 
-#: manual/design/bin_float.md:1659
+#: manual/design/bin_float.md:1661
 msgid "*Stopping.* After each iteration stop when $|u - v| < 2^{\\operatorname{top}(v) - p + 3} \\le 16\\,\\delta v$ (tested on exponents; when the exponents of $u$ and $v$ differ by 2 or more the two differ by more than half of the larger, which is not below $16\\,\\delta v$, so the difference is formed only when they differ by at most 1). A tolerance of one unit would never stop: two nearest-rounded means can stay one unit apart. $\\mathrm{AG}(U_n, V_n)$ lies between $U_n$ and $V_n$, which differ by at most $16\\,\\delta v + 2 \\varepsilon_n v (1 + \\varepsilon_n)$, so $|\\mathrm{AG}(1, 4/s) - v_n| \\le e\\, v_n$ with $e = (9 n + 30)\\delta$ (the $+1$ from step 1 included). The code forms $v_n (1 \\pm e)$ with directed products."
 msgstr "*停止。* 各反復の後、$|u - v| < 2^{\\operatorname{top}(v) - p + 3} \\le 16\\,\\delta v$ になったら止める（指数で判定する。$u$ と $v$ の指数が 2 以上違うとき、両者の差は大きい方の半分より大きく、それは $16\\,\\delta v$ 未満ではないので、差を作るのは指数の差が高々 1 のときだけである）。許容を 1 単位にすると決して止まらない。最近接に丸めた二つの平均が 1 単位離れたままになりうるからである。$\\mathrm{AG}(U_n, V_n)$ は $U_n$ と $V_n$ の間にあり、両者の差は高々 $16\\,\\delta v + 2 \\varepsilon_n v (1 + \\varepsilon_n)$ なので、$|\\mathrm{AG}(1, 4/s) - v_n| \\le e\\, v_n$、$e = (9 n + 30)\\delta$（ステップ 1 の $+1$ を含む）。コードは方向付きの積で $v_n (1 \\pm e)$ を作る。"
 
-#: manual/design/bin_float.md:1660
+#: manual/design/bin_float.md:1662
 msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. Both follow from two equations of the NIST Digital Library of Mathematical Functions, for $0 < k < 1$ and $k' = \\sqrt{1 - k^2}$: DLMF 19.8.5, $K(k) = \\pi / (2\\, \\mathrm{AG}(1, k'))$, and DLMF 19.9.2, $1 + k'^2/8 < K(k) / \\ln(4/k') < 1 + k'^2/4$. Put $k' = 4/s$ with $s > 4$ (so $0 < k' < 1$ and $\\ln(4/k') = \\ln s$): $F = K(k)$ by 19.8.5 and 19.9.2 reads $(1 + 2/s^2) \\ln s < F < (1 + 4/s^2) \\ln s$. Hence $\\ln s < F$, and $\\ln s > F / (1 + 4/s^2) > F (1 - 4/s^2)$ since $1/(1 + x) > 1 - x$ for $x > 0$. The same inequality gives the lower bound $F - \\ln s > 2 \\ln s / s^2$ as a by-product. The range is $s > 4$, and the kernel's $s > 2^{p/2 + 2}$ with $p \\ge 64$ satisfies it. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$) the ratio $(F - \\ln s) / (4 \\ln s / s^2)$ is between 0.532 and 0.964, inside the interval $(0.5, 1)$ that 19.9.2 predicts (the values for $k = 1, 2$, that is $s \\le 4$, are also inside, though DLMF does not cover them). The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the term $4/s^2 < 2^{-(p+2)}$ that the lemma needs, and the error margin $e F$ of step 3 is more than a hundred times that term: the factor is slack, not a need, and is kept as it is."
 msgstr "*モデル項。* $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ として、下端には $\\ln s \\ge F (1 - 4/s^2)$、上端には $\\ln s \\le F$ を使う。どちらも NIST 数学関数ディジタルライブラリ（DLMF）の二つの等式から出る。$0 < k < 1$、$k' = \\sqrt{1 - k^2}$ として、DLMF 19.8.5 は $K(k) = \\pi / (2\\, \\mathrm{AG}(1, k'))$、DLMF 19.9.2 は $1 + k'^2/8 < K(k) / \\ln(4/k') < 1 + k'^2/4$ である。$k' = 4/s$、$s > 4$ とおく（すると $0 < k' < 1$、$\\ln(4/k') = \\ln s$）。19.8.5 から $F = K(k)$ で、19.9.2 は $(1 + 2/s^2) \\ln s < F < (1 + 4/s^2) \\ln s$ となる。したがって $\\ln s < F$ であり、$x > 0$ では $1/(1 + x) > 1 - x$ なので $\\ln s > F / (1 + 4/s^2) > F (1 - 4/s^2)$ である。同じ不等式から下界 $F - \\ln s > 2 \\ln s / s^2$ も副産物として得られる。範囲は $s > 4$ で、カーネルの $s > 2^{p/2 + 2}$（$p \\ge 64$）はこれを満たす。数値では（厳密な十進演算、$s = 2^k$、$k = 1 \\ldots 40$）比 $(F - \\ln s) / (4 \\ln s / s^2)$ は 0.532 から 0.964 の間にあり、19.9.2 が予告する区間 $(0.5, 1)$ の内側にある（$k = 1, 2$、つまり $s \\le 4$ の値も内側だが、DLMF はそこを扱っていない）。コードは $F\\, 2^{-(p-2)}$ を引く。これは補題が必要とする項 $4/s^2 < 2^{-(p+2)}$ の 16 倍であり、ステップ 3 の誤差の余裕 $e F$ はその項の 100 倍以上ある。この係数は必要ではなく余裕であり、そのまま残す。"
 
-#: manual/design/bin_float.md:1661
+#: manual/design/bin_float.md:1663
 msgid "*The constants and the result.* $\\pi_l \\le \\pi \\le \\pi_u$ at $p + 8$ bits and $\\ln 2$ at $p + 16$ bits (the cached enclosures), $F_l = \\pi_l / (2 v_n (1 + e))$ and $F_u = \\pi_u / (2 v_n (1 - e))$ by directed divisions, $m \\ln 2$ by directed products with the integer $m < 2^{\\lceil \\log_2 p \\rceil}$, and the subtraction directed. Cancellation: $F$ and $m \\ln 2$ are about $0.35 p$ and the result about $2^{\\mathrm{lead}}$ with $\\mathrm{lead} \\ge -16$, so about $\\log_2(0.35 p) + 16 \\le 28$ bits are lost; they are paid once in the working precision $p = w + (2 - \\mathrm{lead}) + \\operatorname{bits}(w) + 16$ (no restart, as MPFR does). The width of the result is at most $2^{-(w + 3)}$ by this choice and is checked (as in the Newton step): a wider result returns `None` and the Newton step or the series runs."
 msgstr "*定数と結果。* $\\pi_l \\le \\pi \\le \\pi_u$ は $p + 8$ ビット、$\\ln 2$ は $p + 16$ ビット（キャッシュした包囲）、$F_l = \\pi_l / (2 v_n (1 + e))$ と $F_u = \\pi_u / (2 v_n (1 - e))$ は方向付きの除算、$m \\ln 2$ は整数 $m < 2^{\\lceil \\log_2 p \\rceil}$ との方向付きの積、減算も方向付きにする。桁落ち：$F$ と $m \\ln 2$ は約 $0.35 p$、結果は約 $2^{\\mathrm{lead}}$（$\\mathrm{lead} \\ge -16$）なので、約 $\\log_2(0.35 p) + 16 \\le 28$ ビットが失われる。これは作業精度 $p = w + (2 - \\mathrm{lead}) + \\operatorname{bits}(w) + 16$ で一度だけ払う（MPFR のようにやり直さない）。この選び方で結果の幅は高々 $2^{-(w + 3)}$ になり、ニュートンステップと同様に検査される。幅が大きければ `None` を返し、ニュートンステップか級数が走る。"
 
-#: manual/design/bin_float.md:1663
+#: manual/design/bin_float.md:1665
 msgid "*Cost.* $n$ iterations of one product, one square root and one sum: $n = 18$ at 2112 bits and 22 at 8256 bits (exact decimal AGM of $(1, 4/2^{p/2+1})$, 14 at 512), about $2 \\log_2 p - 4$. Per call: $n$ products, $n$ square roots, 3 divisions (one for $4/v$, two for $F$), about 5 products by short numbers, the two cached constants. In multiplication units ($M$ of the same side, the 0.11.0 baseline) this is about 66 at 2048 bits and 61 at 8192 against 178 and 133 for the Newton step and 65 and 55 for MPFR: the count equals MPFR's, so the ratio to MPFR stays at the ratio of the product and square-root kernels (about 4)."
 msgstr "*コスト。* $n$ 回の反復で、各回に積 1 回、平方根 1 回、和 1 回：2112 ビットで $n = 18$、8256 ビットで $n = 22$（$(1, 4/2^{p/2+1})$ の厳密な十進 AGM。512 ビットでは 14）、およそ $2 \\log_2 p - 4$。1 回の呼び出しあたり：積 $n$ 回、平方根 $n$ 回、除算 3 回（$4/v$ に 1 回、$F$ に 2 回）、短い数との積が約 5 回、キャッシュした定数 2 つ。乗算単位（同じ側の $M$、0.11.0 のベースライン）では 2048 ビットで約 66、8192 ビットで約 61 で、ニュートンステップは 178 と 133、MPFR は 65 と 55 である。回数は MPFR と同じなので、MPFR との比は積と平方根のカーネルの比（約 4）のままである。"
 
-#: manual/design/bin_float.md:1665
+#: manual/design/bin_float.md:1667
 msgid "*Choice of path.* The mean costs the same for every argument in $(1 + 2^{-16}, 2]$, the series of an argument $1 + d$ with $|d| \\approx 2^{-k}$ needs about $p/(2k)$ terms: they meet at $k \\approx 16$ at 2048 bits, which is the existing bound `binary_ln_burst_near_one_bits`, so the argument ranges of the Newton step and of the mean are the same, and below $1 + 2^{-16}$ the series remains. The threshold `binary_ln_agm_min_precision` (native: 640 working bits, per target) is chosen from the instruction counts below; the other targets are not measured and keep the kernel off (the constant is $2^{30}$ there), so their results are unchanged. The Newton step stays for working precisions below the threshold and as the fallback of the width check."
 msgstr "*経路の選択。* 平均のコストは $(1 + 2^{-16}, 2]$ のどの引数でも同じで、引数 $1 + d$、$|d| \\approx 2^{-k}$ の級数は約 $p/(2k)$ 項が必要である。両者は 2048 ビットで $k \\approx 16$ で一致し、これは既存の境界 `binary_ln_burst_near_one_bits` である。したがってニュートンステップと平均の引数の範囲は同じで、$1 + 2^{-16}$ より下では級数が残る。しきい値 `binary_ln_agm_min_precision`（native：作業精度 640 ビット、ターゲットごと）は下の命令数から選んだ。ほかのターゲットは測定しておらず、カーネルを無効にしてある（そこでは定数が $2^{30}$）ので結果は変わらない。しきい値より低い作業精度と、幅の検査が失敗したときには、ニュートンステップを使う。"
 
-#: manual/design/bin_float.md:1667
+#: manual/design/bin_float.md:1669
 msgid "*Result* (native, instructions retired per call, Newton step before and mean after):"
 msgstr "*結果*（native、1 回の呼び出しあたりの退役命令数。ニュートンステップが前、平均が後）："
 
-#: manual/design/bin_float.md:1669
+#: manual/design/bin_float.md:1671
 msgid "`ln` precision (bits)"
 msgstr "`ln` の精度（ビット）"
 
-#: manual/design/bin_float.md:1669
+#: manual/design/bin_float.md:1671
 msgid "Newton step"
 msgstr "ニュートンステップ"
 
-#: manual/design/bin_float.md:1669
+#: manual/design/bin_float.md:1671
 msgid "mean"
 msgstr "平均"
 
-#: manual/design/bin_float.md:1669
+#: manual/design/bin_float.md:1671
 msgid "ratio"
 msgstr "比"
 
-#: manual/design/bin_float.md:1678
+#: manual/design/bin_float.md:1680
 msgid "The enclosure is verified by the same tests as the Newton step (containment of the exact value shown by the series at 256 bits more, no wider than the Newton enclosure, declined outside its range, mutated kernels caught). The results of `ln`, `log2`, `log10` and the inverse hyperbolic functions are correctly rounded from either enclosure, so they do not depend on which one ran."
 msgstr "この包囲はニュートンステップと同じテストで検証する（256 ビット多い級数が示す厳密な値を含むこと、ニュートンの包囲より広くないこと、範囲外を断ること、変異させたカーネルを検出すること）。`ln`、`log2`、`log10` と逆双曲線関数の結果はどちらの包囲からも正しく丸められるので、どちらが動いたかには依存しない。"
 
-#: manual/design/bin_float.md:1680
+#: manual/design/bin_float.md:1682
 msgid "**`sin` and `cos`, by complex bit-burst.** With $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, $G = F + \\operatorname{bits}(n) + 2$, the quadrant integer $n = \\operatorname{round}(x / H)$ and $R = x - nH$ (exact, $|R| \\le 0.8$ after a correction of $n$), the true reduced argument $r = x - n \\pi/2$ satisfies $|r - R| \\le |n|\\,2^{1-G} \\le 2^{-F}$. Sine and cosine are 1-Lipschitz, so $\\sin r \\in \\sin R \\pm 2^{-F}$ and likewise for the cosine; truncating $|R|$ to $F$ bits costs one more unit. The quadrant $n \\bmod 4$ maps $(\\sin r, \\cos r)$ to the result, as in `binary_reduced_trigonometric_bounds`. For $y = N/2^s < 1$ the real and imaginary parts of the series of $e^{iy}$ are the even and odd terms of the same sequence $t_i$ as above, with signs $(-1)^{\\lfloor i/2 \\rfloor}$, so a stage costs the same as an `exp` stage and gives both $\\cos y$ and $\\sin y$. The deficits satisfy the same bound $d_i < 3$, and each of the two alternating series has terms that decrease in size ($y^2 / ((i+1)(i+2)) < 1$), so the tail after $t_n < 2^{8}$ is at most $t_n + 3$ in size and the enclosure is $S_{\\mathrm{cos}}$ or $S_{\\mathrm{sin}} \\pm (t_n + 3n + 3)$. Stages are folded by rotation, $(C, S) \\leftarrow (C c - S s,\\; S c + C s)$, with four products and interval bounds on non-negative integers; all partial angles lie in $[0, 0.8]$, so all four factors are non-negative and the difference of bounds is checked to be non-negative. Because the merge costs four full products per stage, the stages are fewer than for `exp` (factor 4 to 8 between chunk boundaries), and the last stage computes only the requested one of the two values. For $|R| < 2^{-16}$ the existing series stays. Projection at 8192 bits: 4 to 6 ms, against 64 ms today (16 ms projected for the fixed-point branch); `tan` and the $\\pi$-scaled functions follow."
 msgstr "**`sin` と `cos`：複素 bit-burst。** $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$、$G = F + \\operatorname{bits}(n) + 2$、象限整数 $n = \\operatorname{round}(x / H)$、および $R = x - nH$（正確。$n$ の修正後 $|R| \\le 0.8$）に対して、真の縮約引数 $r = x - n \\pi/2$ は $|r - R| \\le |n|\\,2^{1-G} \\le 2^{-F}$ を満たす。正弦と余弦は 1-Lipschitz なので $\\sin r \\in \\sin R \\pm 2^{-F}$、余弦も同様である。$|R|$ を $F$ ビットに切り捨てるとさらに 1 単位かかる。象限 $n \\bmod 4$ が $(\\sin r, \\cos r)$ を結果に対応づけるのは `binary_reduced_trigonometric_bounds` と同じである。$y = N/2^s < 1$ に対して、$e^{iy}$ の級数の実部と虚部は、前と同じ列 $t_i$ の偶数項と奇数項で、符号は $(-1)^{\\lfloor i/2 \\rfloor}$ なので、1 つの段のコストは `exp` の段と同じで、$\\cos y$ と $\\sin y$ の両方が得られる。不足分は同じ界 $d_i < 3$ を満たし、2 つの交代級数はどちらも項の大きさが減少する（$y^2 / ((i+1)(i+2)) < 1$）ので、$t_n < 2^{8}$ の後の尾部の大きさは高々 $t_n + 3$ で、包絡は $S_{\\mathrm{cos}}$ または $S_{\\mathrm{sin}} \\pm (t_n + 3n + 3)$ である。段は回転 $(C, S) \\leftarrow (C c - S s,\\; S c + C s)$ で折り込み、4 回の積と非負整数上の区間の界を使う。部分角はすべて $[0, 0.8]$ にあるので 4 つの因子はすべて非負であり、界の差が非負であることを検査する。合併に段ごと 4 回の完全な積を要するので、段の数は `exp` より少なくし（塊の境界間で 4 から 8 倍）、最後の段は要求された 2 つの値の一方だけを計算する。$|R| < 2^{-16}$ では既存の級数がそのまま使われる。8192 ビットでの予測：4 から 6 ms。現状は 64 ms（固定小数点ブランチの予測は 16 ms）。`tan` と $\\pi$ でスケールした関数が続く。"
 
-#: manual/design/bin_float.md:1706
+#: manual/design/bin_float.md:1708
 msgid "*Implementation of the `sin` and `cos` step (`elementary_burst_trig.mbt`).* `binary_trig_bounds_burst` (hooked into `binary_trigonometric_bounds` for `sin` and `cos`; `tan` keeps the series) follows the construction above for $2^{-64} \\le |x| < 2^{4096}$. With $F_0 = w + 112$ and $G = F_0 + \\max(1, \\operatorname{top}(x)) + 2$, the nearest integer $n$ to $|x| / H$, $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, comes from one Euclidean division of integers, $R = |x| - nH$ is exact with $|R| \\le H/2$, and the true reduced argument $r = |x| - n\\pi/2$ satisfies $|r - R| \\le n\\, 2^{1-G} \\le 2^{-(F_0+1)}$. The working scale is $F = w + 48 + \\mathrm{lz}$ with $\\mathrm{lz} = \\max(0, 2 - \\operatorname{top}(R))$ (declined above 64, so $R$ near a multiple of $\\pi/2$ keeps $w$ significant bits of a sine), and $R_t = \\lfloor 2^{F} |R| \\rfloor / 2^{F}$ satisfies $|r - \\operatorname{sign}(R) R_t| \\le 1.5 \\cdot 2^{-F}$, so by the Lipschitz bound the sine and cosine of $r$ are within 2 units of those of $\\operatorname{sign}(R) R_t$. $R_t$ is cut into chunks at 16, 64, 256, ... bits as for `exp`. A chunk is a *ball*: a midpoint and a radius in units of $2^{-F}$. The fixed-point stage sums the even terms of the series of $e^{iy}$ for the cosine and the odd ones for the sine, with signs $+ - + - \\dots$ in each, from the same sequence $t_i$ as in the `exp` stage (deficit below 3); each of the two alternating series decreases in size, so each sum is within $3n + t_n + 3$ of its value. The binary-splitting stage keeps a complex state: the leaf of an index $i \\ge 1$ is $(0, N)$ (the factor $i N$), $p = N^{\\mathrm{leaves}}$, $q = \\prod i$, and $t = t_L q_R 2^{s\\,\\mathrm{len}_R} + i^{\\mathrm{leaves}_L} p_L t_R$, where multiplying by $i^m$ only permutes and negates the two components; the partial sums are exact rationals, the floors lose less than 1 unit, and the omitted terms are below 2 units, so each part is a ball of radius 2. The product of two balls with midpoints $a, b$ and radii $\\alpha, \\beta$ has midpoint $\\lfloor a b / 2^F \\rfloor$ and radius $\\lceil (a \\beta + b \\alpha + \\alpha \\beta)/2^F \\rceil + 2$, and the stages are folded by rotation, $C' = C c - S s$ and $S' = S c + C s$ (four ball products; the first stage is not multiplied at all, and the last fold forms only the component the result reads, two ball products), with the midpoint of the difference required to be non-negative. The quadrant $n \\bmod 4$ and the signs of $x$ and $R$ select which component is the result. It declines for $|x| < 2^{-64}$, $|x| \\ge 2^{4096}$, when the reduced argument is smaller than $2^{-62}$, and when the width exceeds $2^{-(w+5)}$ of the value. The thresholds are 1536 bits on Native and LLVM, 2112 on plain Wasm, 640 on Wasm-GC and 256 on JavaScript (the kernel is slower than the series below roughly 1500 bits on Native, 2000 on Wasm and 600 on Wasm-GC; on JavaScript it wins from 256)."
 msgstr "*`sin` と `cos` のステップの実装（`elementary_burst_trig.mbt`）。* `binary_trig_bounds_burst`（`sin` と `cos` のために `binary_trigonometric_bounds` にフックされる。`tan` は級数のまま）は $2^{-64} \\le |x| < 2^{4096}$ に対して上の構成に従う。$F_0 = w + 112$ と $G = F_0 + \\max(1, \\operatorname{top}(x)) + 2$ を取り、$|x| / H$ に最も近い整数 $n$（$H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$）は整数の 1 回のユークリッド除算から得られ、$R = |x| - nH$ は正確で $|R| \\le H/2$、真の縮約引数 $r = |x| - n\\pi/2$ は $|r - R| \\le n\\, 2^{1-G} \\le 2^{-(F_0+1)}$ を満たす。作業スケールは $F = w + 48 + \\mathrm{lz}$ で、$\\mathrm{lz} = \\max(0, 2 - \\operatorname{top}(R))$（64 を超えると辞退するので、$R$ が $\\pi/2$ の倍数に近くても正弦は $w$ ビットの有効桁を保つ）、$R_t = \\lfloor 2^{F} |R| \\rfloor / 2^{F}$ は $|r - \\operatorname{sign}(R) R_t| \\le 1.5 \\cdot 2^{-F}$ を満たすので、Lipschitz の界により $r$ の正弦と余弦は $\\operatorname{sign}(R) R_t$ のものから 2 単位以内にある。$R_t$ は `exp` と同様に 16、64、256、… ビットで塊に分ける。塊は*ボール*、すなわち $2^{-F}$ を単位とする中点と半径である。固定小数点の段は、余弦では $e^{iy}$ の級数の偶数項を、正弦では奇数項を、それぞれ符号 $+ - + - \\dots$ で足し上げる。項は `exp` の段と同じ列 $t_i$（不足分は 3 未満）から取る。2 つの交代級数はどちらも項の大きさが減少するので、各和はその値から $3n + t_n + 3$ 以内にある。二進分割の段は複素数の状態を持つ：添字 $i \\ge 1$ の葉は $(0, N)$（因子 $i N$）、$p = N^{\\mathrm{leaves}}$、$q = \\prod i$、そして $t = t_L q_R 2^{s\\,\\mathrm{len}_R} + i^{\\mathrm{leaves}_L} p_L t_R$ で、$i^m$ を掛けることは 2 つの成分の入れ替えと符号反転にすぎない。部分和は正確な有理数で、切り捨ては 1 単位未満しか失わず、省かれた項は 2 単位未満なので、各部分は半径 2 のボールである。中点 $a, b$、半径 $\\alpha, \\beta$ の 2 つのボールの積は中点 $\\lfloor a b / 2^F \\rfloor$、半径 $\\lceil (a \\beta + b \\alpha + \\alpha \\beta)/2^F \\rceil + 2$ を持ち、各段は回転 $C' = C c - S s$ と $S' = S c + C s$ で折り込む（ボールの積 4 回。最初の段は掛けず、最後の折り込みは結果が読む成分だけを作るのでボールの積 2 回）。差の中点が非負であることを要求する。象限 $n \\bmod 4$ と $x$ および $R$ の符号が、どの成分が結果かを選ぶ。$|x| < 2^{-64}$、$|x| \\ge 2^{4096}$、縮約引数が $2^{-62}$ より小さいとき、および幅が値の $2^{-(w+5)}$ を超えるときは辞退する。しきい値は Native と LLVM で 1536 ビット、通常の Wasm で 2112、Wasm-GC で 640、JavaScript で 256 である（カーネルが級数より遅いのは Native で約 1500 ビット未満、Wasm で約 2000 ビット未満、Wasm-GC で約 600 ビット未満。JavaScript では 256 ビットから速い）。"
 
-#: manual/design/bin_float.md:1746
+#: manual/design/bin_float.md:1748
 msgid "*Evidence for the `sin` and `cos` step.* White-box tests (`elementary_burst_trig_wbtest.mbt`): for every argument the kernel accepts in a corpus of 354 values (60 to 2000 bits, $|x|$ from $2^{-60}$ to $2^{100}$, both signs, and the neighbourhood of nine multiples of $\\pi/2$ for four precisions) and for both functions, the enclosure at $w$ contains the series enclosure at a precision 256 bits higher (and high enough for the series to certify the quadrant); it is no wider than the series enclosure; `sin_ctx` and `cos_ctx` return the value and flags of the series enclosure rounded at twice the precision, in four rounding directions; and the kernel declines out of its range. Three deliberately wrong variants are caught: a bias of $2^{64}$ units in every stage, 40 terms fewer in the binary-splitting stages, and $\\pi$ taken with 200 bits fewer for an argument near $2^{40}$. A bias below about $2^{40}$ units is absorbed by the 48 guard bits and the final rounding, so the tests cannot see it; likewise the radius of the fixed-point stages and the 2 units of the angle error are dominated by worst-case terms elsewhere, so removing them leaves an enclosure that still contains the value: their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 23,424 rows for each of `sin` and `cos` (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{1000}$, and neighbours of multiples of $\\pi/2$; the thresholds were set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
 msgstr "*`sin` と `cos` のステップの根拠。* ホワイトボックステスト（`elementary_burst_trig_wbtest.mbt`）：354 個の値のコーパス（60 から 2000 ビット、$|x|$ は $2^{-60}$ から $2^{100}$、両方の符号、4 つの精度での $\\pi/2$ の 9 つの倍数の近傍）のうちカーネルが受け入れるすべての引数と両方の関数について、$w$ での包絡は 256 ビット高い精度での級数の包絡（かつ級数が象限を認証できるだけの精度）を含む。級数の包絡より広くない。`sin_ctx` と `cos_ctx` は、2 倍の精度で丸めた級数の包絡の値とフラグを 4 つの丸め方向で返す。範囲外ではカーネルは辞退する。故意に誤らせた 3 つの変種が包含テストで検出される：すべての段で $2^{64}$ 単位のずれ、二進分割の段で 40 項少ない、$2^{40}$ 付近の引数に対して $\\pi$ を 200 ビット少なく取る。約 $2^{40}$ 単位より小さいずれは 48 ビットの保護ビットと最後の丸めに吸収されるので、テストでは見えない。同様に、固定小数点の段の半径と角度誤差の 2 単位は、他の場所のはるかに大きい最悪ケースの項に隠れてしまうので、それらを取り除いても包絡は値を含んだままである。その根拠は上の紙の上の議論であり、テストではない。MPFR 4.2.2 との比較：`sin` と `cos` のそれぞれ 23,424 行（精度 256 から 4096、4 つの丸め方向、引数は $2^{-60}$ から $2^{1000}$ と $\\pi/2$ の倍数の近傍。この実行ではすべての行がカーネルを使うようにしきい値を 256 にした）がすべて一致し、出力は Native、Wasm、Wasm-GC、JavaScript でバイト単位で同一だった。"
 
-#: manual/design/bin_float.md:1768
+#: manual/design/bin_float.md:1770
 msgid "*Measured for the `sin` and `cos` step (native, release, this machine, with the Karatsuba limbs and the division of #326 and #328).* Kernel only, $w = p + 40$ bits, $x \\approx 0.7$ for the sine and $x \\approx 16$ to $32$ for the cosine, against the reduction and fixed-point series of #321: sine 8.37 ms to 1.39 ms at 8256 bits, 1.58 ms to 0.57 ms at 4160, 338 to 239 µs at 2112, equal at 1536; cosine 5.31 ms to 1.20 ms at 8256, 1.01 ms to 0.47 ms at 4160; slower below about 1500 bits (0.5 to 0.9 times at 256 to 1280). End to end, `just bench external quick --ops sin` paired and alternating with `origin/main`, four rounds on a quiet machine, floating time per call: 8192 bits 6.92, 6.66, 6.73 and 6.66 ms against 1.47, 1.32, 1.29 and 1.38 ms (paired ratios 4.7, 5.1, 5.2 and 4.8), 2048 bits 282, 288, 276 and 268 µs against 203, 195, 183 and 204 µs (1.4, 1.5, 1.5 and 1.3), and 512 and 53 bits unchanged (0.89 to 1.12, the old code path). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 34 to 35 to 6.5 to 7.4, and of the 2048-bit call from 19 to 20 to 13 to 14; the machine reads about 1.45 times slower than the stored run (MPFR re-measured on it), so the drift-corrected ratios are about 4.5 to 5.1 at 8192 bits and about 9 to 10 at 2048 bits."
 msgstr "*`sin` と `cos` のステップの測定（ネイティブ、release、この機械、#326 と #328 の Karatsuba リムと除算の上）。* カーネルのみ、$w = p + 40$ ビット、正弦は $x \\approx 0.7$、余弦は $x \\approx 16$ から $32$、#321 の縮約と固定小数点級数との比較：正弦は 8256 ビットで 8.37 ms から 1.39 ms、4160 ビットで 1.58 ms から 0.57 ms、2112 ビットで 338 から 239 µs、1536 ビットでは同等。余弦は 8256 ビットで 5.31 ms から 1.20 ms、4160 ビットで 1.01 ms から 0.47 ms。約 1500 ビット未満では遅い（256 から 1280 ビットで 0.5 から 0.9 倍）。エンドツーエンドでは、`just bench external quick --ops sin` を `origin/main` と対にして交互に実行し、静かな機械で 4 ラウンド、呼び出しあたりの floating の時間は、8192 ビットで 6.92、6.66、6.73、6.66 ms に対して 1.47、1.32、1.29、1.38 ms（対の比 4.7、5.1、5.2、4.8）、2048 ビットで 282、288、276、268 µs に対して 203、195、183、204 µs（1.4、1.5、1.5、1.3）、512 と 53 ビットは変わらない（0.89 から 1.12。旧経路を通る）。保存された MPFR の中央値に対する生の比（その日の floating の時間を保存された MPFR の中央値で割ったもの）は、8192 ビット呼び出しで 34 から 35 だったものが 6.5 から 7.4、2048 ビット呼び出しで 19 から 20 だったものが 13 から 14 になる。この機械は保存された実行より約 1.45 倍遅く読める（その機械で MPFR を測り直した）ので、ドリフト補正後の比は 8192 ビットで約 4.5 から 5.1、2048 ビットで約 9 から 10 である。"
 
-#: manual/design/bin_float.md:1787
+#: manual/design/bin_float.md:1789
 msgid "**Constants by binary splitting.** `pi`, `ln 2` and `ln 10` are computed once per working precision and cached, but a first call pays the cold cost above. Binary splitting gives $O(M(w) \\log^2 w)$ with rigorous bounds:"
 msgstr "**二進分割による定数。** `pi`、`ln 2`、`ln 10` は作業精度ごとに 1 回計算されてキャッシュされるが、最初の呼び出しは上記のコールドコストを払う。二進分割は厳密な界とともに $O(M(w) \\log^2 w)$ を与える："
 
-#: manual/design/bin_float.md:1798
+#: manual/design/bin_float.md:1800
 msgid "where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46 bits per term) and $\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$."
 msgstr "ここで $(P, Q, T)$ は Chudnovsky 級数（交代、1 項あたり約 46 ビット）から得られ、$\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$。"
 
-#: manual/design/bin_float.md:1801
+#: manual/design/bin_float.md:1803
 msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `BinCoeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
 msgstr "*実装（`elementary_constants_split.mbt`）。* 添字区間上の級数の状態は $(p, q, t)$ で、$p = \\prod p(k)$、$q = \\prod q(k)$、$t = q \\cdot (\\text{partial sum})$ であり、$t = q_R t_L + p_L t_R$ のように結合される。`artanh` 級数は $p(j) = 2j - 1$ と $q(j) = (2j + 1) k^2$ を持ち、これらは約分されて $1/((2j+1) k^{2j})$ になる。Chudnovsky 級数は $p(k) = (6k-5)(2k-1)(6k-1)$、$q(k) = k^3\\, 640320^3 / 24$、葉は $t = \\pm p(k)(A + Bk)$ である。符号付きなのは Chudnovsky の $t$ だけなので、符号なしの `BinCoeff` の上に符号と絶対値のラッパーを置けば足り、コードはすべてのターゲットで同じである。部分和 $t/q$ は正確で、丸めは最後の方向付き除算と $\\sqrt{10005}$（方向付き `sqrt_ctx`）だけであり、$w + 16$ ビットで行い、結果は $w$ ビットへ外向きに丸める。"
 
-#: manual/design/bin_float.md:1814
+#: manual/design/bin_float.md:1816
 msgid "*Tail bounds.* For $\\operatorname{artanh}(1/k)$ with $K = k^2$ take $N$ terms with $K^N \\ge 2^{F+9}$, $F = w + 16$ (using $\\lfloor \\log_2 K \\rfloor$): the first omitted term is at most $2^{-(F+9)}$ and the omitted terms are positive and shrink by at least $1/K \\le 1/4$, so they sum to less than $2^{-(F+8)}$, which is added to the upper end. For Chudnovsky the ratio of the factorial parts of consecutive terms is $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$, the linear factor grows by at most 41.11 from $k = 0$ to $1$ and by less than 2 after that, and $640320^3 > 2^{57.8}$, so the ratios are below $2^{-41.7}$ and then $2^{-46.1}$, the terms decrease in size, alternate in sign, and the first is below $2^{24}$. The omitted sum from index $N$ is therefore at most the size of term $N$, below $2^{-17 - 46(N-1)}$, which is at most $2^{-(F+4)}$ for $N = \\lfloor F/46 \\rfloor + 3$. Then $S \\in [(t - e)/q, (t + e)/q]$ for the integer $e = \\lfloor q / 2^{F+4} \\rfloor + 1$, and $\\pi$ is enclosed by dividing $426880 \\sqrt{10005}\\, q$ by $t \\pm e$ with directed rounding. The identities were checked numerically to 60 digits."
 msgstr "*尾部の界。* $\\operatorname{artanh}(1/k)$（$K = k^2$）について $K^N \\ge 2^{F+9}$ となる $N$ 項を取る。$F = w + 16$（$\\lfloor \\log_2 K \\rfloor$ を使用）：最初に省かれる項は高々 $2^{-(F+9)}$ で、省かれる項は正で少なくとも $1/K \\le 1/4$ ずつ縮むので、その和は $2^{-(F+8)}$ 未満であり、これを上端に加える。Chudnovsky では、連続する項の階乗部分の比は $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$、線形因子は $k = 0$ から $1$ で高々 41.11 倍、その後は 2 倍未満しか増えず、$640320^3 > 2^{57.8}$ なので、比は $2^{-41.7}$ 未満、その後 $2^{-46.1}$ 未満となり、項の大きさは減少し符号は交代し、最初の項は $2^{24}$ 未満である。したがって添字 $N$ 以降の省かれた和は高々第 $N$ 項の大きさで、$2^{-17 - 46(N-1)}$ 未満であり、$N = \\lfloor F/46 \\rfloor + 3$ のとき高々 $2^{-(F+4)}$ である。すると整数 $e = \\lfloor q / 2^{F+4} \\rfloor + 1$ に対して $S \\in [(t - e)/q, (t + e)/q]$ であり、$\\pi$ は $426880 \\sqrt{10005}\\, q$ を $t \\pm e$ で方向付き丸めで割って囲まれる。これらの恒等式は数値的に 60 桁まで確認した。"
 
-#: manual/design/bin_float.md:1831
+#: manual/design/bin_float.md:1833
 msgid "*Evidence.* Tests (`elementary_constants_split_wbtest.mbt`): the new enclosure at $w$ contains the old series enclosure at $w + 256$ (an independent computation) for $w$ from 64 to 1024; it is no wider than the old enclosure at $w$ up to 2048; enclosures at $w$ and $w + 300$ nest up to 20000 bits; and removing terms (a test hook) makes the containment test fail, so the tail count is checked and not just assumed. A one-off comparison against MPFR 4.2.2 (`mpfr_const_pi`, `mpfr_const_log2`, `mpfr_log(10)` at $2w + 64$ bits) at 64, 100, 257, 1000, 4096, 8192, 30000 and 100000 bits found every enclosure containing the MPFR value, one to two units of the last place wide. All `bin_float` tests pass on native, wasm, wasm-gc and js, `just pr` passes, and 30000 (native) and 10000 (each of wasm, wasm-gc, js) random `elem` cases agree with MPFR."
 msgstr "*根拠。* テスト（`elementary_constants_split_wbtest.mbt`）：$w$ が 64 から 1024 のとき、$w$ での新しい包絡は $w + 256$ での旧級数の包絡（独立な計算）を含む。$w$ での旧包絡より広くない（2048 まで）。$w$ と $w + 300$ での包絡は 20000 ビットまで入れ子になる。また項を削る（テスト用フック）と包含テストが失敗するので、尾部の項数は仮定ではなく検査されている。MPFR 4.2.2（`mpfr_const_pi`、`mpfr_const_log2`、`mpfr_log(10)`、$2w + 64$ ビット）との一回限りの比較を 64、100、257、1000、4096、8192、30000、100000 ビットで行い、すべての包絡が MPFR の値を含み、幅は最終桁の 1 から 2 単位だった。`bin_float` のテストはすべて native、wasm、wasm-gc、js で通り、`just pr` も通り、ランダムな `elem` ケース 30000 件（native）と 10000 件（wasm、wasm-gc、js それぞれ）が MPFR と一致した。"
 
-#: manual/design/bin_float.md:1844
+#: manual/design/bin_float.md:1846
 msgid "*Measured (native, release, cold enclosure at $w = p + 64$, this machine).* `pi` 449 ms to 0.67 ms at $p = 8192$, 14 ms to 71 µs at 2048, 0.93 ms to 15 µs at 512; `ln 2` 178 ms to 1.33 ms, 5.6 ms to 156 µs, 0.36 ms to 32 µs; `ln 10` (with `ln 2` cached) 89 ms to 0.99 ms, 2.8 ms to 114 µs, 0.18 ms to 26 µs. At $p = 64$ the splitting is already 3 to 19 times faster, on wasm-gc and js as well (js at 8192 bits: `pi` 0.63 ms, `ln 2` 0.67 ms), so the threshold `binary_constants_split_min_precision` is 64 on every target. Warm (cached) calls are unchanged. A first `sin` or `ln` at 8192 bits used to pay the series cost on top of the warm time (about 450 ms for `pi`, about 180 ms for `ln 2`); now a cold call costs at most about 7 ms more than a warm one (`sin` 53.4 ms cold against 53.6 ms warm, `ln` 101.9 ms against 94.3 ms at 8192 bits)."
 msgstr "*測定（ネイティブ、release、$w = p + 64$ でのコールドな包絡、この機械）。* `pi` は $p = 8192$ で 449 ms から 0.67 ms、2048 ビットで 14 ms から 71 µs、512 ビットで 0.93 ms から 15 µs。`ln 2` は 178 ms から 1.33 ms、5.6 ms から 156 µs、0.36 ms から 32 µs。`ln 10`（`ln 2` はキャッシュ済み）は 89 ms から 0.99 ms、2.8 ms から 114 µs、0.18 ms から 26 µs。$p = 64$ では二進分割がすでに 3 から 19 倍速く、wasm-gc と js でも同様である（js の 8192 ビット：`pi` 0.63 ms、`ln 2` 0.67 ms）ので、しきい値 `binary_constants_split_min_precision` はすべてのターゲットで 64 である。ウォーム（キャッシュ済み）の呼び出しは変わらない。8192 ビットでの最初の `sin` または `ln` は、ウォームの時間に加えて級数のコストを払っていた（`pi` で約 450 ms、`ln 2` で約 180 ms）。現在はコールドな呼び出しでもウォームより高々約 7 ms 多いだけである（8192 ビットで `sin` はコールド 53.4 ms 対ウォーム 53.6 ms、`ln` は 101.9 ms 対 94.3 ms）。"
 
-#: manual/design/bin_float.md:1857
+#: manual/design/bin_float.md:1859
 msgid "The cache itself is unchanged. The design asks for requests for `ln 2` at a canonical precision (the next multiple of 64 above $F + \\operatorname{bits}(n) + 2$) so that `exp`, `ln` and the trigonometric reduction share entries instead of evicting each other; that belongs to the `exp` kernel, which is the first caller with such an irregular precision, and is not part of the constants step."
 msgstr "キャッシュ自体は変わらない。設計では、`ln 2` を規準精度（$F + \\operatorname{bits}(n) + 2$ より大きい次の 64 の倍数）で要求し、`exp`、`ln` と三角関数の縮約が互いを追い出さずにエントリを共有できるようにする。これは、そのような不規則な精度を使う最初の呼び出し側である `exp` カーネルに属し、定数の段階には含まれない。"
 
-#: manual/design/bin_float.md:1864
+#: manual/design/bin_float.md:1866
 msgid "**Working-precision schedule and the Ziv loop.** The attempt precisions $w_0 = p + 64$, $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ and the budget of 12 attempts are unchanged. Each attempt picks the old or the new kernel by comparing $w$ with a per-target constant and, for `ln` and the sine, by the argument (the near-1 and tiny-argument cases above); a kernel that returns `None` or an enclosure wider than the old series' falls through to the old kernel at the same $w$. So an attempt never certifies less than before, and the exact cases, the tiny-argument measures, the inner-endpoint rounding and the flag argument of the loop are untouched. The result of a call is the correctly rounded value whenever either path certifies, hence identical to the current result; they can differ only in which inputs exhaust the budget, which the corpus comparison below counts. The faster attempts make a longer budget affordable, which is the point of [#15](https://github.com/Luna-Flow/floating/issues/15): the limit is a policy of the loop and does not interact with the kernels."
 msgstr "**作業精度のスケジュールと Ziv ループ。** 試行の精度 $w_0 = p + 64$、$w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ と 12 回の試行という予算は変わらない。各試行は $w$ をターゲットごとの定数と比較して旧カーネルか新カーネルかを選び、`ln` と正弦では引数（上記の 1 に近い場合と極小引数の場合）によっても選ぶ。カーネルが `None` を返すか、旧級数より広い包絡を返した場合は、同じ $w$ で旧カーネルに戻る。したがって試行が以前より認証できなくなることはなく、厳密な場合、極小引数の処理、内側端点の丸め、ループのフラグの議論は変更されない。どちらの経路が認証しても呼び出しの結果は正しく丸められた値であり、したがって現在の結果と同一である。違いが出るのはどの入力が予算を使い果たすかだけで、後述のコーパス比較がそれを数える。試行が速くなれば長い予算も負担できるようになり、これが [#15](https://github.com/Luna-Flow/floating/issues/15) の要点である：この上限はループの方針であり、カーネルとは相互作用しない。"
 
-#: manual/design/bin_float.md:1880
+#: manual/design/bin_float.md:1882
 msgid "**Allocation and targets.** `BinCoeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). A fused in-place multiply-shift-divide loop on a mutable limb array would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `BinCoeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
 msgstr "**メモリ確保とターゲット。** `BinCoeff` の値は不変なので、固定小数点の段の各項は最大 $w/32$ リムの配列を 4 つ（積、シフト、商、和）確保する。ネイティブではこれらは上記の測定した単位コストに含まれている（8192 ビットでシフト 0.2 µs、1 リム除算 1.5 µs、加算 0.3 µs）。可変リム配列上の融合した in-place の乗算-シフト-除算ループがあれば、JavaScript 以外のターゲットでこの大部分を除けるが、それは同じ関数の背後での後の最適化であり、設計の一部ではない。JavaScript では `BinCoeff` は `bigint` で、積、シフト、除算は処理系のものであり、演算ごとの定数は大きいが積は漸近的に速いので、段の境界とすべてのしきい値は、ネイティブ、LLVM、Wasm、Wasm-GC、JavaScript で別々に測定し、係数カーネルのしきい値の隣に置く。カーネルのソースは共通で、定数だけが異なる。"
 
-#: manual/design/bin_float.md:1893
+#: manual/design/bin_float.md:1895
 msgid "**Evidence the new path must produce.** Each kernel carries its own invariant tests: containment of the enclosure of the old path at $w + 256$ bits in the new enclosure at $w$ (an independent computation), the width bound, and boundary cases (arguments at chunk boundaries, $R$ near $0$ and $1$, the corrections of $n$, huge $|n|$, tiny and near-1 arguments). The end-to-end check compares every result bit for bit with the old path and with MPFR on a seeded random corpus plus the existing boundary corpus on all four targets, and a deliberately biased kernel (one unit too narrow) must make the tests fail."
 msgstr "**新しい経路が示すべき根拠。** 各カーネルは独自の不変条件テストを持つ：$w + 256$ ビットでの旧経路の包絡が $w$ での新しい包絡に含まれること（独立な計算）、幅の界、境界の場合（塊の境界にある引数、$R$ が $0$ と $1$ に近い場合、$n$ の修正、大きな $|n|$、極小および 1 に近い引数）。エンドツーエンドの検査は、種付きのランダムなコーパスと既存の境界コーパスで、4 つのターゲットすべてにおいてすべての結果を旧経路および MPFR とビット単位で比較し、故意に狭くしたカーネル（1 単位狭い）ではテストが失敗しなければならない。"
 
-#: manual/design/bin_float.md:1902
+#: manual/design/bin_float.md:1904
 msgid "**Limits of the speed-up.** The model reaches algorithmic parity with MPFR (`exp` at 8192 bits is about 65 to 100 products in MPFR and, projected, about 50 to 80 here), so the remaining gap is the product kernel: 43 µs against 3.2 µs at 8192 bits, a factor 13 (4 µs against 0.31 µs, a factor 12, at 2048 bits). Ratios to MPFR at 8192 bits in the same run (MPFR: `exp` 326 µs, `ln` 177 µs, `sin` 291 µs): today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17 to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is therefore within reach for `exp` only if the product kernel also improves."
 msgstr "**高速化の限界。** このモデルはアルゴリズムとしては MPFR と同等に達する（8192 ビットの `exp` は MPFR で約 65 から 100 回の積、予測ではこちらで約 50 から 80 回）ので、残る差は積カーネルである：8192 ビットで 43 µs 対 3.2 µs の 13 倍（2048 ビットでは 4 µs 対 0.31 µs の 12 倍）。同じ実行での 8192 ビットの MPFR との比（MPFR：`exp` 326 µs、`ln` 177 µs、`sin` 291 µs）：現状は 55、930、220。この設計からの予測では、`exp` は約 6 から 11、`ln` は 17 から 34、`sin` は 14 から 21 である。したがって 8192 ビットで比が 10 を下回ることは、積カーネルも改善された場合にのみ `exp` で手が届く。"
 
-#: manual/design/bin_float.md:1912
+#: manual/design/bin_float.md:1914
 msgid "**Measured result.** On main `8badc55` (all four kernels merged), Apple M4, native, release, load average 1.3 to 3, three runs of `just bench external quick --ops exp ln sin --binary-precisions 2048 8192` agreeing within 1 to 10 %, and a second check on `952600f` within 3 %: floating time over the stored MPFR median is 6.0 to 6.6 (`exp`), 12.5 (`ln`) and 12.2 (`sin`) at 2048 bits, and 3.2 (`exp`), 10.6 (`ln`) and 5.8 (`sin`) at 8192 bits. The MPFR time measured on the same machine at the same moment was within 6 % of the stored one, so raw and drift-corrected ratios differ by at most 6 %. Two cells are below 10 times MPFR; `ln` at 2048 and 8192 bits and `sin` at 2048 bits are above it. This is one machine and the native target only: the Wasm, Wasm-GC and JavaScript targets were not compared with MPFR. The projections above are superseded by these numbers; the remaining gap is the multiplication and division kernel and allocation, not the algorithm."
 msgstr "**実測結果。** main `8badc55`（4 つのカーネルがすべてマージ済み）で、Apple M4、native、release、ロードアベレージ 1.3〜3、`just bench external quick --ops exp ln sin --binary-precisions 2048 8192` を 3 回実行して互いに 1〜10 % 以内、さらに `952600f` で再確認して 3 % 以内でした。floating の時間を保存済みの MPFR 中央値で割った値は、2048 ビットで 6.0〜6.6（`exp`）、12.5（`ln`）、12.2（`sin`）、8192 ビットで 3.2（`exp`）、10.6（`ln`）、5.8（`sin`）です。同じ機器で同時刻に測った MPFR の時間は保存値の 6 % 以内だったので、生の比とドリフト補正後の比の差は最大 6 % です。MPFR の 10 倍未満のセルは 2 つで、`ln` の 2048 ビットと 8192 ビット、および `sin` の 2048 ビットは 10 倍を超えています。これは 1 台の機器、native ターゲットのみの結果で、Wasm、Wasm-GC、JavaScript ターゲットは MPFR と比較していません。上の予測はこれらの数値に置き換わります。残る差は乗算・除算カーネルとメモリ確保にあり、アルゴリズムにはありません。"
 
-#: manual/design/bin_float.md:1926
+#: manual/design/bin_float.md:1928
 msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on the theta-function formula; the `ln` enclosure by the AGM depends on the model bound $F (1 - 4/s^2) \\le \\ln s \\le F$ only (see \"`ln`, by the arithmetic-geometric mean\" above), which follows from DLMF 19.8.5 and 19.9.2. The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
 msgstr "**確認済みの根拠と、なお確認が必要な根拠。** 参照文献は 2026-11-19 に原典と照合しました。Brent, *J. ACM* 23(2), 1976, 242-251 は引用どおり存在しますが、そこにあるのは AGM と ascending Landen 変換による方法（コストは $O(M(n)\\log n)$、対数は不完全楕円積分の Landen 変換による）で、bit-burst も theta 関数も nome も含まれておらず、$O(M(n)\\log^2 n)$ の上界は Brent の “The complexity of multiple-precision arithmetic”（Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165、未読）によるものとされています。したがって下の脚注が支えるのは AGM による対数だけで、bit-burst の出典はその 1975 年の論文（未読）に差し替えるべきです。theta 関数を使う式 $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$ は Sasaki と Kanada, *J. Inf. Process.* 5(4), 1982, 247-250 に帰され、その根拠は Brent の後年のノート（二次的な資料）です。nome の正規化（Brent のノートは $q^4$ を使い、Borwein の本の $q$ 形式に誤りがあると指摘している）と打ち切り上界は原典と照合しておらず、所有者が原典を入手します。設計にもコードにも theta 関数の式への依存はありません。AGM による `ln` の包囲が依存するのはモデルの上下界 $F (1 - 4/s^2) \\le \\ln s \\le F$ だけで（上の「`ln`：算術幾何平均による方法」を参照）、これは DLMF 19.8.5 と 19.9.2 から導かれます。上で引いた 1 ulp と 2 ulp の幅は MPFR との比較から得たもので、包囲に対しては二次的な根拠です。証明は本節の整数上界の議論です。"
 
-#: manual/design/bin_float.md:1948
+#: manual/design/bin_float.md:1950
 msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The truncation bound of the AGM kernel is taken from DLMF 19.8.5 and 19.9.2 (see \"`ln`, by the arithmetic-geometric mean\"), not from this paper. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
 msgstr "R. P. Brent, “Fast multiple-precision evaluation of elementary functions”, *J. ACM* 23(2), 1976（bit-burst と AGM 対数。引用は論文と照合して確認する）。AGM カーネルの打ち切りの界は、この論文ではなく DLMF 19.8.5 と 19.9.2 から取る（「`ln`：算術幾何平均による方法」を参照）。MPFR の `log.c` は同じアルゴリズムを記述しており、二次的な証拠にすぎない。"
 
-#: manual/design/bin_float.md:1955
+#: manual/design/bin_float.md:1957
 msgid "The coefficient kernel"
 msgstr "係数カーネル"
 
-#: manual/design/bin_float.md:1957
+#: manual/design/bin_float.md:1959
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr "**問題。** 精度のコストは $p$ ビットの数の整数乗算と整数除算であり、$p$ は 1 から $2^{28}$ までの範囲をとります。"
 
-#: manual/design/bin_float.md:1960
+#: manual/design/bin_float.md:1962
 msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
 msgstr "**選択。** カーネルは内部パッケージ [`internal/bin_kernel`](internal/bin_kernel.md) で、`BinCoeff` はその `Coeff` 上の newtype です。`Coeff` は 128 ビットまでをインラインで、それより大きい値をリトルエンディアン 64 ビットリム（JavaScript ではホストの `bigint`）として格納し、オペランド長 $n$（64 ビットリム単位）で振り分けます。以下のしきい値はすべて 64 ビットリム単位です。"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1967
 msgid "Product or square"
 msgstr "積または二乗"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1967
 msgid "Native, LLVM"
 msgstr "Native、LLVM"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1967
 msgid "Wasm, Wasm-GC"
 msgstr "Wasm、Wasm-GC"
 
-#: manual/design/bin_float.md:1967
+#: manual/design/bin_float.md:1969
 msgid "schoolbook product below"
 msgstr "素朴な積、未満"
 
-#: manual/design/bin_float.md:1968
+#: manual/design/bin_float.md:1970
 msgid "Karatsuba product from"
 msgstr "Karatsuba 積、以上"
 
-#: manual/design/bin_float.md:1969
+#: manual/design/bin_float.md:1971
 msgid "Karatsuba product on 32-bit limbs from"
 msgstr "32 ビット limb 上の Karatsuba 積、以上"
 
-#: manual/design/bin_float.md:1970
+#: manual/design/bin_float.md:1972
 msgid "Karatsuba square from"
 msgstr "Karatsuba 二乗、以上"
 
-#: manual/design/bin_float.md:1970
+#: manual/design/bin_float.md:1972
 #: manual/design/decimal_gda.md:877
 msgid "off"
 msgstr "無効"
 
-#: manual/design/bin_float.md:1971
+#: manual/design/bin_float.md:1973
 msgid "square on 32-bit limbs from"
 msgstr "32 ビット limb 上の二乗、以上"
 
-#: manual/design/bin_float.md:1972
+#: manual/design/bin_float.md:1974
 msgid "Toom-3 product from (balanced, where the NTT does not fit)"
 msgstr "Toom-3 積、以上（均衡した場合、NTT が収まらないとき）"
 
-#: manual/design/bin_float.md:1973
+#: manual/design/bin_float.md:1975
 msgid "two-prime NTT product from"
 msgstr "2 素数 NTT 積、以上"
 
-#: manual/design/bin_float.md:1974
+#: manual/design/bin_float.md:1976
 msgid "NTT square from"
 msgstr "NTT 2 乗（以上）"
 
-#: manual/design/bin_float.md:1976
+#: manual/design/bin_float.md:1978
 msgid "LLVM takes the Native values, which are unmeasured there. A product with $m > 2n$ limbs is cut inside the Karatsuba into $n$-limb blocks; a short operand against a long one beyond the NTT cutoff uses the NTT overlap-add. Squaring is a word-range Karatsuba square (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) on Native and LLVM, and the NTT square above its cutoff; Wasm keeps the 32-bit-limb route from 80 limbs, where a 64-bit product costs four `i64.mul`."
 msgstr "LLVM は Native の値を使い、そこでは未測定です。$m > 2n$ limb の積は Karatsuba の内部で $n$ limb のブロックに切られ、NTT のカットオフを超える場合、短いオペランドと長いオペランドには NTT の重ね加算を使います。二乗は Native と LLVM ではワード範囲の Karatsuba 二乗（3 つの積の代わりに 3 つの半サイズの二乗 $a_0^2$、$a_1^2$、$(a_0 - a_1)^2$）で、そのカットオフを超えると NTT 二乗です。Wasm では 64 ビットの積が `i64.mul` 4 回になるため、80 limb から 32 ビット limb の経路を保ちます。"
 
-#: manual/design/bin_float.md:1984
+#: manual/design/bin_float.md:1986
 msgid "Operands with at least 4 limbs of which at most one eighth are nonzero use a sparse product of the nonzero limbs. Division uses a loop over half-limbs for a divisor below $2^{32}$, Knuth's algorithm D on 64-bit digits (32-bit digits on Wasm) below 96 divisor limbs, Burnikel–Ziegler recursion from 96 with leaves of up to 64 limbs, and never the Newton reciprocal (the routine stays for tests); GCD switches from the binary (Stein) algorithm to Lehmer batches above two limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics. The 32-bit view of the storage exists only for the Wasm routes above."
 msgstr "少なくとも 4 limb あり、非ゼロ limb が 8 分の 1 以下のオペランドは、非ゼロ limb だけの疎な積を使います。除算は、除数が $2^{32}$ 未満なら半 limb 単位のループ、除数が 96 limb 未満なら 64 ビット桁の Knuth アルゴリズム D（Wasm では 32 ビット桁）、96 limb からは葉が最大 64 limb の Burnikel–Ziegler 再帰を使い、Newton 逆数は選ばれません（ルーチンはテスト用に残します）。GCD は 2 limb を超えるとバイナリ（Stein）アルゴリズムから Lehmer バッチに切り替わります。しきい値はベンチマークスイートでターゲットごとに実測したもので、方針であって意味論ではありません。記憶域の 32 ビットビューは上記の Wasm 経路のためだけに存在します。"
 
-#: manual/design/bin_float.md:1994
+#: manual/design/bin_float.md:1996
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr "Lehmer のラウンドが有効なのは、その 1 ワードの桁が両方のオペランドの同じビット窓から取られる場合だけです。各オペランド自身の最上位リムから取った桁は互いに無関係なスケールを持ち、それらから得られる余因子は 1 ラウンドあたり小さい方のオペランドの小さな倍数しか引けません。そのため各ラウンドは $a \\ge b$ を保ち、$a$ の上位 63 ビットと同じ窓にある $b$ のビットに対して Euclid の互除法を実行します。$b$ がその窓にビットを持たない場合（このとき $a / b \\ge 2^{62}$）や、余因子行列がいずれかのオペランドを負にするか、どちらも縮めない場合は、代わりに除算 $a \\bmod b$ を 1 ステップ行います。適用される行列の行列式はすべて $\\pm 1$ なので gcd は変わらず、長い $a$ は、長さがどれほど違っても短い $b$ を法として 1 ステップで縮約されます。$b$ が 8 リム未満になると、ループは通常の Euclid の互除法で終わります。"
 
-#: manual/design/bin_float.md:2006
+#: manual/design/bin_float.md:2008
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr "**厳密性が保たれる理由。** 筆算法、Karatsuba、Toom-3 は整数の多項式恒等式を評価します。たとえば"
 
-#: manual/design/bin_float.md:2013
+#: manual/design/bin_float.md:2015
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr "そして Toom-3（$0, 1, -1, 2, \\infty$ での評価）は、倍数であることがわかっている符号付き中間値を 2 と 3 で厳密に割って補間するので、これらは厳密な整数計算です。剰余演算を行うステップは NTT だけです。NTT は各オペランドを 16 ビットの桁に分割するので、桁の畳み込みの各係数は高々"
 
-#: manual/design/bin_float.md:2022
+#: manual/design/bin_float.md:2024
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr "です（変換長が $2^{23}$ までの場合）。NTT は素数 $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ と $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$ を法として畳み込みを計算します。どちらも $2^{23}$ 乗根の 1 を持ちます。そして中国剰余定理によって再結合しますが、これは $p_1 p_2 \\approx 2^{59.4} > 2^{55}$ なので $[0, p_1 p_2)$ において一意です。したがって再結合された係数は厳密な整数です。長さの検査はすべての変換に先立って行われ、より長い積は許容される長さの重なり合うブロックを用いるか、Toom-3 にフォールバックします。除算の経路は、構成上 $n = qd + r$ かつ $0 \\le r < d$ を満たす $(q, r)$ を返します。Newton の経路は近似的な商を剰余で補正し、2 回を超える補正が必要になる場合は中断します。そのような事態は数値的な現象ではなくバグを示すものだからです。すべての経路が同じ整数を計算するので、アルゴリズムの選択によって丸められた結果、フラグ、エンコーディングが変わることはありません。"
 
-#: manual/design/bin_float.md:2036
+#: manual/design/bin_float.md:2038
 msgid "Ordering NaN in `compare`"
 msgstr "`compare` における NaN の順序付け"
 
-#: manual/design/bin_float.md:2038
+#: manual/design/bin_float.md:2040
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr "**問題。** MoonBit の `Compare` トレイトは、ソートや順序付きマップが依拠できる 3 通りの比較を要求します。IEEE の比較は半順序であり、NaN は自分自身を含むあらゆるものと順序付けられません。"
 
-#: manual/design/bin_float.md:2042
+#: manual/design/bin_float.md:2044
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr "**選択肢。** (1) 以前のバージョンのように NaN で中断する。この場合、NaN を含みうるデータのソートはすべてクラッシュになります。(2) IEEE の `totalOrder` を用いる。これは全順序ですが $-0 < +0$ を区別し、負の NaN を $-\\infty$ より下に置くので、`compare` がゼロについて数値的な等価性と食い違ってしまいます。(3) 数については数値的な順序を保ち、すべての NaN をその上の 1 つのクラスに置く。"
 
-#: manual/design/bin_float.md:2049
+#: manual/design/bin_float.md:2051
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr "**選択。** 選択肢 (3) です。数に対してキー $\\kappa(x) = (0, x)$、$\\kappa(\\mathrm{NaN}) = (1, 0)$ を定義し、辞書式に順序付けます。`compare(x, y)` は $\\kappa(x)$ と $\\kappa(y)$ の比較であり、$-0$ と $+0$ は同じ数に対応付けられます。全順序集合におけるキーの比較は反射的、推移的、全域的なので、`compare` は全前順序です。反対称ではありません（$-0$ と $+0$、あるいはペイロードの異なる 2 つの NaN は等しいと比較されますが、異なる値です）が、`Compare` はそれを要求しません。代償として `<` のもとで `nan > 1` が真になるので、IEEE の意味論を必要とするコードは `compare_checked`（NaN でエラー）、`compare_quiet` / `compare_signaling`（4 値、フラグ付き）、または `total_order` を使わなければなりません。構造的な `==` は導出された `Eq` のままです。それが（精度とペイロードを含め）すべてのメソッドについて合同関係となる唯一の等価性だからです。"
 
-#: manual/design/bin_float.md:2064
+#: manual/design/bin_float.md:2066
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**正準形。** API が生成するすべての有限値は、$c$ が奇数または $c = 0, e = 0$ であり、$\\operatorname{bits}(c) \\le$ その精度を満たします。保存される指数が飽和することはありません（飽和する指数は、先にオーバーフローまたはアンダーフローとして分類されます）。"
 
-#: manual/design/bin_float.md:2068
+#: manual/design/bin_float.md:2070
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr "**正しい丸め。** すべての算術演算、変換、初等関数、すべてのコンテキストについて、返される有限値は、上記の範囲規則のもとで厳密な実数の結果 $r$ に対する $\\circ(r)$ に等しくなります。(R1) により、$r \\in F$ のときは常に $\\circ(r) = r$ であり、フラグは発生しません。`round_ctx` は冪等です。"
 
-#: manual/design/bin_float.md:2073
+#: manual/design/bin_float.md:2075
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
@@ -13541,83 +13545,83 @@ msgstr ""
 "**フラグ。** `inexact` は $\\circ(r) \\n"
 "e r$ のときに限り立ちます。`overflow` は `inexact` を含意します。`underflow` は（コンテキストの規則で）極小かつ不正確のときに限り立ちます。`division_by_zero` は有限のオペランドから厳密な無限大の結果が得られた場合にのみ立ちます。`invalid_operation` は、NaN でないオペランドから quiet NaN が生成されたか、signaling NaN が消費されたときに限り立ちます。最後の規則の例外として、`min`、`max`、$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$、$\\operatorname{pow}(1, y)$ はフラグを立てずに signaling NaN を受け入れます。`combine` は結合的、可換、冪等です。"
 
-#: manual/design/bin_float.md:2082
+#: manual/design/bin_float.md:2084
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**誤差モデル。** したがって正規化範囲では、最近接丸めで $|\\circ(r) - r| \\le u|r|$、方向付き丸めで $< 2u|r|$ が成り立ち、$2^{e_{\\min}}$ 未満では絶対誤差項 $\\eta/2$（方向付き丸めでは $\\eta$）となり、非正規化数の和と差は厳密です。"
 
-#: manual/design/bin_float.md:2086
+#: manual/design/bin_float.md:2088
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and the directed square roots of `sqrt_ctx` rely on."
 msgstr "**単調性。** 実関数がある引数について単調であれば、対応する演算もその引数について単調です。演算は $\\circ \\circ f$ で、$\\circ$ が単調だからです。特に RD と RU の結果は厳密な値を挟み、`ball_float` と `sqrt_ctx` の方向付き平方根はこれに依存しています。"
 
-#: manual/design/bin_float.md:2090
+#: manual/design/bin_float.md:2092
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**厳密性の定理。** `remainder`、正規化範囲での `scaleb`、`copy_sign`、`neg`、`abs`、`logb`、デコードは厳密です。整数への丸めは 2 回目の丸めを必要としません。`fma(a, b, -RN(ab))` はアンダーフローがなければ厳密です。"
 
-#: manual/design/bin_float.md:2094
+#: manual/design/bin_float.md:2096
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**計算量。** 加算はオペランドの長さに対して線形です（大きく離れたオペランドの規則により、指数の差には依存しません）。乗算はカーネルの表に従い、$O(n^2)$ から $O(n \\log n)$ です。除算と平方根は、$n$ が大きいとき同じサイズの乗算の定数回分のコストです。`remainder` は $O(\\log(q_x - q_y))$ 回の剰余乗算のコストです。初等関数は作業精度 $w$ で級数を評価し、$w$ は幾何級数的に増加するので、すべての試行の総コストは最後の試行の定数倍以内に収まります。"
 
-#: manual/design/bin_float.md:2103
+#: manual/design/bin_float.md:2105
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "より長い証明（大きく離れたオペランドの加算規則、`nextUp`、剰余の還元、Ziv の受理判定、NTT の上界）は添付資料にまとめてあります。"
 
-#: manual/design/bin_float.md:2107
+#: manual/design/bin_float.md:2109
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr "[bin_float の丸めと厳密性の証明](../../attachments/design_bin_float_rounding_proofs.typ)"
 
-#: manual/design/bin_float.md:2111
+#: manual/design/bin_float.md:2113
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**`from_double` 以外でのホストの `Double` の使用。** binary16、binary32、binary128 を `Double` 経由で扱うと二重丸めが起き、一部のターゲットでは signaling NaN が失われ、binary128 はまったく表現できません。代わりに交換形式のエンコーディングは `BinCoeff` のビットパターン上で行います。"
 
-#: manual/design/bin_float.md:2115
+#: manual/design/bin_float.md:2117
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数のガードビット。** 2 つの $p$ ビットのオペランドの加算には 3 つのガードビットで十分ですが、除算、平方根、10 進からの変換、コンテキストより広いオペランドには不十分です。厳密な整数データ（ラウンドビット、スティッキービット、剰余の符号、中点との比較）から判定する方法なら、1 つの最終処理関数でそのすべてに対応できます。"
 
-#: manual/design/bin_float.md:2120
+#: manual/design/bin_float.md:2122
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**$p$ ビットに丸めてから非正規化数の格子に丸めること。** この二重丸めは誤った非正規化数の結果を生みます。最終処理関数は、2 つの位置のうち粗い方へ一度だけシフトします。"
 
-#: manual/design/bin_float.md:2123
+#: manual/design/bin_float.md:2125
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**見積もった誤差限界による Ziv。** 関数ごと、還元ごとに個別の誤差解析が必要になり、その誤りは黙って誤った最終ビットを返すことにつながります。外向きに丸めた包含区間を用いれば、すべての演算を 2 回評価するコストと引き換えに、限界は計算される量になります。"
 
-#: manual/design/bin_float.md:2127
+#: manual/design/bin_float.md:2129
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**大域的なフラグと丸め状態。** IEEE 754 はフラグをスティッキーな大域状態として記述しています。返される `BinaryFlags` の値は、純粋なコード、並行コード、`@lf_arith` の `Result` スタイルと組み合わせられ、必要な場合は `combine` によってスティッキーな振る舞いを再現できます。"
 
-#: manual/design/bin_float.md:2131
+#: manual/design/bin_float.md:2133
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**NaN で中断する `compare`、あるいは `totalOrder` としての `compare`。** [`compare` における NaN の順序付け](#ordering-nan-in-compare)を参照してください。"
 
-#: manual/design/bin_float.md:2136
+#: manual/design/bin_float.md:2138
 msgid "`bin_float` deliberately does not:"
 msgstr "`bin_float` は意図的に以下を行いません。"
 
-#: manual/design/bin_float.md:2138
+#: manual/design/bin_float.md:2140
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr "区間演算やボール演算を提供すること。包含区間は認証ループの内部でのみ用いられます。`ball_float` は `BinFloat` の上に中点・半径演算を構築しています。"
 
-#: manual/design/bin_float.md:2141
+#: manual/design/bin_float.md:2143
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "IEEE 754 の代替例外処理（トラップ、置換）やスティッキーな大域フラグを実装すること。フラグは返り値です。"
 
-#: manual/design/bin_float.md:2143
+#: manual/design/bin_float.md:2145
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "10 進浮動小数点（`decimal`、`decimal_gda`）や、それに対する 2 進以外の IEEE 演算を実装すること。"
 
-#: manual/design/bin_float.md:2145
+#: manual/design/bin_float.md:2147
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "新たに生成された NaN に特定のペイロードを約束すること（ペイロード 0 を用います）、あるいは複数の入力のペイロードを伝播すること。"
 
-#: manual/design/bin_float.md:2147
+#: manual/design/bin_float.md:2149
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "すべての入力について、初等関数が一定時間内に完了することを保証すること。認証には予算があり、予算が尽きた場合は隠されずに報告されます。"
 
-#: manual/design/bin_float.md:2150
+#: manual/design/bin_float.md:2152
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "リムの配置、しきい値、変換のパラメータを公開すること。すべての結果、フラグ、エンコーディングが変わらない限り、これらは予告なく変更される可能性があります。"
 
-#: manual/design/bin_float.md:2152
+#: manual/design/bin_float.md:2154
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr "[適合性](../conformance/bin_float.md)に記録された有限のコーパスを超える適合性を主張すること。"
 

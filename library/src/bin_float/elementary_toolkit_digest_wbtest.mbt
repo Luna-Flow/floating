@@ -488,7 +488,7 @@ fn toolkit_digest_rows() -> Array[String] {
     rows.push(agm.row("ln_agm", work))
   }
   // the bit-burst kernels with the chunk constants of the working precision
-  for work in [1088, 2112, 3072, 4160, 6208] {
+  for work in [1088, 2112, 2368, 2624, 3072, 4160, 6208] {
     let burst = ToolkitDigest::new()
     for value in toolkit_digest_exp_values(work) {
       burst.add(binary_exp_bounds_burst(value, work))

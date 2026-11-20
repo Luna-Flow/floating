@@ -69,3 +69,51 @@ fn binary_burst_split_min_terms(work : Int32) -> Int32 {
     binary_exp_burst_split_min_terms
   }
 }
+
+///|
+/// Chunk constants of the `exp` bit-burst kernel alone, as functions of the working
+/// precision `w`, from a sweep of 24 settings at precisions 1024 to 6144 bits on
+/// five arguments per size (three random values in [1, 2), one near 2^-9, one near
+/// the top of the reduced range), by instruction counts of one executable with
+/// explicit settings, in both native states (the default assembly rows and
+/// `LUNA_FLOATING_LIMBS=c`): no argument above 1.00 of (16, 4, 40) in the default
+/// state and none above 1.01 in the C state at any measured size. `w <= 2200`:
+/// (24, 8, 80); `2200 < w <= 2700`: (24, 8, 120); `2700 < w <= 6000`: (24, 4, 80);
+/// above: (16, 4, 40). `sin` and `cos` keep the functions above.
+let binary_exp_small_work_max : Int32 = 2200
+
+///|
+let binary_exp_gap_work_max : Int32 = 2700
+
+///|
+fn binary_exp_first_chunk_for(work : Int32) -> Int32 {
+  if work <= binary_burst_mid_work_max {
+    24
+  } else {
+    binary_exp_burst_first_chunk
+  }
+}
+
+///|
+fn binary_exp_chunk_factor_for(work : Int32) -> Int32 {
+  if work <= binary_exp_gap_work_max {
+    8
+  } else if work <= binary_burst_mid_work_max {
+    4
+  } else {
+    binary_exp_burst_chunk_factor
+  }
+}
+
+///|
+fn binary_exp_split_min_terms_for(work : Int32) -> Int32 {
+  if work <= binary_exp_small_work_max {
+    80
+  } else if work <= binary_exp_gap_work_max {
+    120
+  } else if work <= binary_burst_mid_work_max {
+    80
+  } else {
+    binary_exp_burst_split_min_terms
+  }
+}
