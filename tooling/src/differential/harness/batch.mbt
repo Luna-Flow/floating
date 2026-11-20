@@ -85,7 +85,7 @@ fn corpus_label(text : String) -> String {
   for line in text.split("\n") {
     let line = line.to_owned()
     if line.has_prefix("# mpfr-random-v1") ||
-      line.has_prefix("# mpfr-decimal-random-v1") ||
+      line.has_prefix("# mpfr-decimal-random-v2") ||
       line.has_prefix("-- libmpdec-random-v1") {
       return line
     }
@@ -96,7 +96,7 @@ fn corpus_label(text : String) -> String {
 ///|
 /// Splits a corpus file into batches of at most `size` cases.
 fn split_corpus(text : String, size : Int32) -> Result[Array[Batch], String] {
-  let kind = if text.contains("mpfr-decimal-random-v1") {
+  let kind = if text.contains("mpfr-decimal-random-v2") {
     CorpusKind::MpfrDecimalRandom
   } else if text.contains("mpfr-random-v1") {
     CorpusKind::MpfrRandom
@@ -108,7 +108,7 @@ fn split_corpus(text : String, size : Int32) -> Result[Array[Batch], String] {
   let label = corpus_label(text)
   let header = match kind {
     MpfrRandom => "# mpfr-random-v1\n"
-    MpfrDecimalRandom => "# mpfr-decimal-random-v1\n"
+    MpfrDecimalRandom => "# mpfr-decimal-random-v2\n"
     Decimal => "version: 2.62\nextended: 1\n"
   }
   let ids : Array[String] = []

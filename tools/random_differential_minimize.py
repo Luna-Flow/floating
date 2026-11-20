@@ -237,7 +237,7 @@ def main(args: argparse.Namespace) -> int:
                 continue
             with tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / "row.txt"
-                path.write_text("# mpfr-decimal-random-v1 minimize\n" + rows[0] + "\n", encoding="utf-8")
+                path.write_text("# mpfr-decimal-random-v2 minimize\n" + rows[0] + "\n", encoding="utf-8")
                 if not failing_ids(args.target, "decimal", path):
                     print(f"{rows[0].split()[0]}: passes, nothing to minimize")
                     continue

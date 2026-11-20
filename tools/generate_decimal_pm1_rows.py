@@ -18,10 +18,9 @@ library under test:
   b^x - 1 with x so far below zero that 768 bits cannot separate the value
   from -1, a libmpdec enclosure at 40 + 4p digits takes its place.
 
-Flags use the letters of the `mpfr-decimal-random-v1` rows (x inexact,
-r rounded, o overflow, s subnormal, u underflow, c clamped), with Subnormal =
-tiny and Underflow = tiny and inexact under the row's tininess rule (b: before
-rounding, IEEE 754-2019 7.5 for decimal; a: after rounding).
+Flags use the letters of the `mpfr-decimal-random-v2` rows (x inexact,
+o overflow, u underflow), with Underflow = tiny and inexact (tininess before
+rounding, IEEE 754-2019 7.5 for decimal).
 
     python3 tools/generate_decimal_pm1_rows.py && moon fmt
     python3 tools/generate_decimal_pm1_rows.py --check
@@ -126,16 +125,10 @@ def letters(flags: set[str], inexact: bool, tiny: bool, infinite: bool) -> str:
     out = ""
     if inexact:
         out += "x"
-    if "Rounded" in flags:
-        out += "r"
     if "Overflow" in flags:
         out += "o"
-    if tiny and not infinite:
-        out += "s"
-        if inexact:
-            out += "u"
-    if "Clamped" in flags:
-        out += "c"
+    if tiny and not infinite and inexact:
+        out += "u"
     return out or "-"
 
 
@@ -198,8 +191,8 @@ def libmpdec_certify(candidate: decm.Candidate) -> str | None:
         return None
     text = letters(low_flags, True, low_tiny, low.is_infinite())
     return " ".join([
-        "fallback", candidate.op, context.rounding, str(context.precision), str(context.emin),
-        str(context.emax), str(context.clamp), context.tininess, str(x), "-", "0", str(low), text,
+        "fallback", candidate.op, context.rounding, str(context.precision),
+        str(context.emax), str(x), "-", "0", str(low), text,
     ])
 
 
@@ -248,7 +241,7 @@ class Rows:
                     self.dropped += 1
                     continue
                 fields = row.split()
-                self.rows.append((candidate.op, candidate.context, fields[8], fields[11], fields[12]))
+                self.rows.append((candidate.op, candidate.context, fields[5], fields[8], fields[9]))
         self.pending = []
 
 

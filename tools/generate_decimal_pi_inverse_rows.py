@@ -3,7 +3,7 @@
 
 Writes two tables (`x` is the operand, or the ordinate of atan2Pi, whose
 abscissa is `y`): the full one, `testdata/decimal/ieee/rows/pi_inverse.txt`, as
-`mpfr-decimal-random-v1` rows (`decimal_row_table`) that the release-built
+`mpfr-decimal-random-v2` rows (`decimal_row_table`) that the release-built
 conformance CLI executes at run time on every target in the full gate; and a
 copy of it, `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`,
 compiled into the `decimal` test module for the quick gate (the full table by
@@ -113,7 +113,7 @@ class Rows:
                     self.dropped += 1
                     continue
                 fields = row.split()
-                self.rows.append((candidate.op, candidate.context, fields[8], fields[9], fields[11], fields[12]))
+                self.rows.append((candidate.op, candidate.context, fields[5], fields[6], fields[8], fields[9]))
                 self.certified.append(True)
         self.pending = []
 
@@ -245,7 +245,7 @@ def sampled_indices(rows: Rows, step: int = SAMPLE_STEP) -> list[int]:
 
 
 def render(rows: Rows) -> str:
-    """The full table, as `mpfr-decimal-random-v1` rows."""
+    """The full table, as `mpfr-decimal-random-v2` rows."""
     return table.render_table("pi_inverse", "tools/generate_decimal_pi_inverse_rows.py", table_rows(rows))
 
 

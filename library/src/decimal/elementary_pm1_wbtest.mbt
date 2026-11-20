@@ -6,32 +6,20 @@
 ///|
 fn pm1_flags_text(flags : DecimalFlags) -> String {
   let builder = StringBuilder()
-  if flags.contains(Inexact) {
+  if flags.inexact() {
     builder.write_char('x')
   }
-  if flags.contains(Rounded) {
-    builder.write_char('r')
-  }
-  if flags.contains(Overflow) {
+  if flags.overflow() {
     builder.write_char('o')
   }
-  if flags.contains(Subnormal) {
-    builder.write_char('s')
-  }
-  if flags.contains(Underflow) {
+  if flags.underflow() {
     builder.write_char('u')
   }
-  if flags.contains(Clamped) {
-    builder.write_char('c')
-  }
-  if flags.contains(InvalidOperation) {
+  if flags.invalid_operation() {
     builder.write_char('v')
   }
-  if flags.contains(DivisionByZero) {
+  if flags.division_by_zero() {
     builder.write_char('z')
-  }
-  if flags.contains(InvalidContext) {
-    builder.write_string("C")
   }
   let text = builder.to_string()
   if text.length() == 0 {
@@ -366,10 +354,10 @@ test "pm1 restricted contexts and operands give invalid_context" {
   inspect(
     out.to_string(),
     content=(
-      #|exp2m1 nan C nan C nan C -0E-1000013 xrsuc
-      #|exp10m1 nan C nan C nan C -0E-1000013 xrsuc
-      #|log2p1 nan C nan C nan C -0E-1000013 xrsuc
-      #|log10p1 nan C nan C nan C -0E-1000013 xrsuc
+      #|exp2m1 nan v nan v nan v -0E-1000013 xu
+      #|exp10m1 nan v nan v nan v -0E-1000013 xu
+      #|log2p1 nan v nan v nan v -0E-1000013 xu
+      #|log10p1 nan v nan v nan v -0E-1000013 xu
       #|
     ),
   )
@@ -448,7 +436,12 @@ test "pm1 log of 1 is not a special rule: log2p1(1) = 1, log10p1(1) inexact" {
   // log10p1).
   let ctx = DecimalContext::decimal32()
   inspect(pm1_call("log2p1", pm1_exact("1"), ctx), content="1 -")
-  inspect(pm1_call("log10p1", pm1_exact("1"), ctx), content="0.3010300 xr")
+  inspect(
+    pm1_call("log10p1", pm1_exact("1"), ctx),
+    content=(
+      #|0.3010300 x
+    ),
+  )
 }
 
 ///|
@@ -471,38 +464,38 @@ test "pm1 zero results keep the sign of the operand in every mode" {
   inspect(
     out.to_string(),
     content=(
-      #|half_even exp2m1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_even exp10m1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_even log2p1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_even log10p1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_up exp2m1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_up exp10m1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_up log2p1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_up log10p1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_down exp2m1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_down exp10m1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_down log2p1 0E-398 xrsuc -0E-398 xrsuc
-      #|half_down log10p1 0E-398 xrsuc -0E-398 xrsuc
-      #|down exp2m1 0E-398 xrsuc -0E-398 xrsuc
-      #|down exp10m1 0E-398 xrsuc -0E-398 xrsuc
-      #|down log2p1 0E-398 xrsuc -0E-398 xrsuc
-      #|down log10p1 0E-398 xrsuc -0E-398 xrsuc
-      #|ceiling exp2m1 1E-398 xrsu -0E-398 xrsuc
-      #|ceiling exp10m1 1E-398 xrsu -0E-398 xrsuc
-      #|ceiling log2p1 1E-398 xrsu -0E-398 xrsuc
-      #|ceiling log10p1 1E-398 xrsu -0E-398 xrsuc
-      #|floor exp2m1 0E-398 xrsuc -1E-398 xrsu
-      #|floor exp10m1 0E-398 xrsuc -1E-398 xrsu
-      #|floor log2p1 0E-398 xrsuc -1E-398 xrsu
-      #|floor log10p1 0E-398 xrsuc -1E-398 xrsu
-      #|up exp2m1 1E-398 xrsu -1E-398 xrsu
-      #|up exp10m1 1E-398 xrsu -1E-398 xrsu
-      #|up log2p1 1E-398 xrsu -1E-398 xrsu
-      #|up log10p1 1E-398 xrsu -1E-398 xrsu
-      #|05up exp2m1 1E-398 xrsu -1E-398 xrsu
-      #|05up exp10m1 1E-398 xrsu -1E-398 xrsu
-      #|05up log2p1 1E-398 xrsu -1E-398 xrsu
-      #|05up log10p1 1E-398 xrsu -1E-398 xrsu
+      #|half_even exp2m1 0E-398 xu -0E-398 xu
+      #|half_even exp10m1 0E-398 xu -0E-398 xu
+      #|half_even log2p1 0E-398 xu -0E-398 xu
+      #|half_even log10p1 0E-398 xu -0E-398 xu
+      #|half_up exp2m1 0E-398 xu -0E-398 xu
+      #|half_up exp10m1 0E-398 xu -0E-398 xu
+      #|half_up log2p1 0E-398 xu -0E-398 xu
+      #|half_up log10p1 0E-398 xu -0E-398 xu
+      #|half_down exp2m1 0E-398 xu -0E-398 xu
+      #|half_down exp10m1 0E-398 xu -0E-398 xu
+      #|half_down log2p1 0E-398 xu -0E-398 xu
+      #|half_down log10p1 0E-398 xu -0E-398 xu
+      #|down exp2m1 0E-398 xu -0E-398 xu
+      #|down exp10m1 0E-398 xu -0E-398 xu
+      #|down log2p1 0E-398 xu -0E-398 xu
+      #|down log10p1 0E-398 xu -0E-398 xu
+      #|ceiling exp2m1 1E-398 xu -0E-398 xu
+      #|ceiling exp10m1 1E-398 xu -0E-398 xu
+      #|ceiling log2p1 1E-398 xu -0E-398 xu
+      #|ceiling log10p1 1E-398 xu -0E-398 xu
+      #|floor exp2m1 0E-398 xu -1E-398 xu
+      #|floor exp10m1 0E-398 xu -1E-398 xu
+      #|floor log2p1 0E-398 xu -1E-398 xu
+      #|floor log10p1 0E-398 xu -1E-398 xu
+      #|up exp2m1 1E-398 xu -1E-398 xu
+      #|up exp10m1 1E-398 xu -1E-398 xu
+      #|up log2p1 1E-398 xu -1E-398 xu
+      #|up log10p1 1E-398 xu -1E-398 xu
+      #|05up exp2m1 1E-398 xu -1E-398 xu
+      #|05up exp10m1 1E-398 xu -1E-398 xu
+      #|05up log2p1 1E-398 xu -1E-398 xu
+      #|05up log10p1 1E-398 xu -1E-398 xu
       #|
     ),
   )
@@ -558,8 +551,8 @@ test "pm1 log poles: operands with D digits just above -1 at D = 52, 500, 5000" 
     let two = x.try_log2p1_ctx(ctx).unwrap()
     let ten = x.try_log10p1_ctx(ctx).unwrap()
     // log2(10^-D * 1.0...) ~ -3.3219 D and log10 ~ -D.
-    assert_true(two.0.negative && two.1.contains(Inexact))
-    assert_true(ten.0.negative && ten.1.contains(Inexact))
+    assert_true(two.0.negative && two.1.inexact())
+    assert_true(ten.0.negative && ten.1.inexact())
     // 1 + x = 9 * 10^-D: log10p1(x) = -D + log10(9) lies in (-D, -D + 1).
     let low = Decimal::from_int(-digits, precision=16)
     let high = Decimal::from_int(1 - digits, precision=16)
@@ -584,14 +577,14 @@ test "pm1 the 10^n - 1 cluster is decided without forming 10^n" {
   inspect(
     out.to_string(),
     content=(
-      #|half_even 1.000000000000000E+999999 xr inf xro
-      #|half_up 1.000000000000000E+999999 xr inf xro
-      #|half_down 1.000000000000000E+999999 xr inf xro
-      #|down 9.999999999999999E+999998 xr 9.999999999999999E+999999 xr
-      #|ceiling 1.000000000000000E+999999 xr inf xro
-      #|floor 9.999999999999999E+999998 xr 9.999999999999999E+999999 xr
-      #|up 1.000000000000000E+999999 xr inf xro
-      #|05up 9.999999999999999E+999998 xr 9.999999999999999E+999999 xr
+      #|half_even 1.000000000000000E+999999 x inf xo
+      #|half_up 1.000000000000000E+999999 x inf xo
+      #|half_down 1.000000000000000E+999999 x inf xo
+      #|down 9.999999999999999E+999998 x 9.999999999999999E+999999 x
+      #|ceiling 1.000000000000000E+999999 x inf xo
+      #|floor 9.999999999999999E+999998 x 9.999999999999999E+999999 x
+      #|up 1.000000000000000E+999999 x inf xo
+      #|05up 9.999999999999999E+999998 x 9.999999999999999E+999999 x
       #|
     ),
   )
@@ -615,7 +608,7 @@ test "pm1 2^n - 1 beyond the exact gate rounds like 2^n" {
           msg="\{mode} \{precision} \{n}",
         )
         assert_eq(pm1_flags_text(m1.1), pm1_flags_text(plain.1))
-        assert_true(m1.1.contains(Inexact))
+        assert_true(m1.1.inexact())
       }
     }
   }
@@ -634,7 +627,9 @@ test "pm1 log2p1 decides 2^k - 1 for a long operand by its lowest unit" {
   let near = Decimal::from_bigint(BigInt::from_int(2).pow(3000), precision=1000)
   inspect(
     pm1_call("log2p1", near, ctx),
-    content="3000.000000000000000000000000000000 xr",
+    content=(
+      #|3000.000000000000000000000000000000 x
+    ),
   )
   let tiny = decimal_coeff_power_of_two_exponent(
     coeff_from_bigint(BigInt::from_int(2).pow(40)),
@@ -678,14 +673,14 @@ test "pm1 exact results are rounded with the flags of the context" {
   inspect(
     out.to_string(),
     content=(
-      #|half_even 2E+1 xr 1E+1 r 63.0 c inf xro
-      #|half_up 2E+1 xr 1E+1 r 63.0 c inf xro
-      #|half_down 1E+1 xr 1E+1 r 63.0 c inf xro
-      #|down 1E+1 xr 1E+1 r 63.0 c 99.9 xro
-      #|ceiling 2E+1 xr 1E+1 r 63.0 c inf xro
-      #|floor 1E+1 xr 1E+1 r 63.0 c 99.9 xro
-      #|up 2E+1 xr 1E+1 r 63.0 c inf xro
-      #|05up 1E+1 xr 1E+1 r 63.0 c 99.9 xro
+      #|half_even 2E+1 x 1E+1 - 63.0 - inf xo
+      #|half_up 2E+1 x 1E+1 - 63.0 - inf xo
+      #|half_down 1E+1 x 1E+1 - 63.0 - inf xo
+      #|down 1E+1 x 1E+1 - 63.0 - 99.9 xo
+      #|ceiling 2E+1 x 1E+1 - 63.0 - inf xo
+      #|floor 1E+1 x 1E+1 - 63.0 - 99.9 xo
+      #|up 2E+1 x 1E+1 - 63.0 - inf xo
+      #|05up 1E+1 x 1E+1 - 63.0 - 99.9 xo
       #|
     ),
   )
@@ -700,13 +695,20 @@ test "pm1 the power range refactor keeps pow results" {
   inspect(
     pm1_call_power(two, "1E+300", ctx),
     content=(
-      #|inf xro
+      #|inf xo
     ),
   )
-  inspect(pm1_call_power(two, "-1E+300", ctx), content="0E-398 xrsuc")
+  inspect(
+    pm1_call_power(two, "-1E+300", ctx),
+    content=(
+      #|0E-398 xu
+    ),
+  )
   inspect(
     pm1_call_power(Decimal::from_string("0.5").unwrap(), "1E+5", ctx),
-    content="0E-398 xrsuc",
+    content=(
+      #|0E-398 xu
+    ),
   )
 }
 

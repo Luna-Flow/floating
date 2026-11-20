@@ -1,13 +1,10 @@
 ///|
 fn issue265_flags_text(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -137,54 +134,14 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
     // side is 1. In all other cases, the sign of the result will be 0." A negative base
     // with an even negative exponent overflows to +Infinity (or the largest finite
     // number in the directed modes, GDA 1.70, Overflow), not to -Infinity.
-    ("power", ["-7E-2", "-8"], 3, -1, 2, true, HalfEven, "Infinity", "xr..o..."),
-    ("power", ["-7E-2", "-8"], 3, -1, 2, true, Down, "999", "xr..o..."),
-    ("power", ["-7E-2", "-8"], 3, -1, 2, true, Ceiling, "Infinity", "xr..o..."),
-    ("power", ["-7E-2", "-8"], 3, -1, 2, true, Floor, "999", "xr..o..."),
-    (
-      "power",
-      ["-1E-20", "-6"],
-      7,
-      -95,
-      96,
-      true,
-      HalfEven,
-      "Infinity",
-      "xr..o...",
-    ),
-    (
-      "power",
-      ["-1E-20", "-6"],
-      7,
-      -95,
-      96,
-      true,
-      HalfUp,
-      "Infinity",
-      "xr..o...",
-    ),
-    (
-      "power",
-      ["-1E-20", "-6"],
-      7,
-      -95,
-      96,
-      true,
-      Down,
-      "9.999999E+96",
-      "xr..o...",
-    ),
-    (
-      "power",
-      ["-1E-20", "-6"],
-      7,
-      -95,
-      96,
-      true,
-      Ceiling,
-      "Infinity",
-      "xr..o...",
-    ),
+    ("power", ["-7E-2", "-8"], 3, -1, 2, true, HalfEven, "Infinity", "x..o."),
+    ("power", ["-7E-2", "-8"], 3, -1, 2, true, Down, "999", "x..o."),
+    ("power", ["-7E-2", "-8"], 3, -1, 2, true, Ceiling, "Infinity", "x..o."),
+    ("power", ["-7E-2", "-8"], 3, -1, 2, true, Floor, "999", "x..o."),
+    ("power", ["-1E-20", "-6"], 7, -95, 96, true, HalfEven, "Infinity", "x..o."),
+    ("power", ["-1E-20", "-6"], 7, -95, 96, true, HalfUp, "Infinity", "x..o."),
+    ("power", ["-1E-20", "-6"], 7, -95, 96, true, Down, "9.999999E+96", "x..o."),
+    ("power", ["-1E-20", "-6"], 7, -95, 96, true, Ceiling, "Infinity", "x..o."),
     (
       "power",
       ["-1E-20", "-6"],
@@ -194,7 +151,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Floor,
       "9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -205,7 +162,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       HalfEven,
       "Infinity",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -216,7 +173,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Floor,
       "9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     // An odd negative exponent keeps the sign of a negative base: the overflow is
     // -Infinity (or -Nmax). A positive base never gives a negative result.
@@ -229,19 +186,9 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       HalfEven,
       "-Infinity",
-      "xr..o...",
+      "x..o.",
     ),
-    (
-      "power",
-      ["-1E-20", "-5"],
-      7,
-      -95,
-      96,
-      true,
-      HalfUp,
-      "-Infinity",
-      "xr..o...",
-    ),
+    ("power", ["-1E-20", "-5"], 7, -95, 96, true, HalfUp, "-Infinity", "x..o."),
     (
       "power",
       ["-1E-20", "-5"],
@@ -251,7 +198,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Down,
       "-9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -262,87 +209,27 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Ceiling,
       "-9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
-    (
-      "power",
-      ["-1E-20", "-5"],
-      7,
-      -95,
-      96,
-      true,
-      Floor,
-      "-Infinity",
-      "xr..o...",
-    ),
+    ("power", ["-1E-20", "-5"], 7, -95, 96, true, Floor, "-Infinity", "x..o."),
     // Positive exponents and underflow: the zero or tiny result carries the sign of the
     // power (GDA 1.70, power; Underflow: "with the sign of the intermediate result").
     // Nearest modes and Down only: the directed-away modes are covered by
     // power_underflow_rounding_issue168_wbtest.mbt.
-    (
-      "power",
-      ["-1E+20", "5"],
-      7,
-      -95,
-      96,
-      true,
-      HalfEven,
-      "-Infinity",
-      "xr..o...",
-    ),
-    (
-      "power",
-      ["-1E+20", "5"],
-      7,
-      -95,
-      96,
-      true,
-      HalfUp,
-      "-Infinity",
-      "xr..o...",
-    ),
-    (
-      "power",
-      ["-1E+20", "5"],
-      7,
-      -95,
-      96,
-      true,
-      Down,
-      "-9.999999E+96",
-      "xr..o...",
-    ),
-    (
-      "power",
-      ["-1E+20", "6"],
-      7,
-      -95,
-      96,
-      true,
-      HalfEven,
-      "Infinity",
-      "xr..o...",
-    ),
-    ("power", ["-1E+20", "6"], 7, -95, 96, true, HalfUp, "Infinity", "xr..o..."),
-    (
-      "power",
-      ["-1E+20", "6"],
-      7,
-      -95,
-      96,
-      true,
-      Down,
-      "9.999999E+96",
-      "xr..o...",
-    ),
+    ("power", ["-1E+20", "5"], 7, -95, 96, true, HalfEven, "-Infinity", "x..o."),
+    ("power", ["-1E+20", "5"], 7, -95, 96, true, HalfUp, "-Infinity", "x..o."),
+    ("power", ["-1E+20", "5"], 7, -95, 96, true, Down, "-9.999999E+96", "x..o."),
+    ("power", ["-1E+20", "6"], 7, -95, 96, true, HalfEven, "Infinity", "x..o."),
+    ("power", ["-1E+20", "6"], 7, -95, 96, true, HalfUp, "Infinity", "x..o."),
+    ("power", ["-1E+20", "6"], 7, -95, 96, true, Down, "9.999999E+96", "x..o."),
     // Zero base: "If the left-hand operand is a zero, the result will be exact and will be
     // infinite if the right-hand side is negative or 0 if the right-hand side is positive";
     // the sign is 1 for an odd power of -0 (IEEE 754-2019 9.2.1, pown).
-    ("power", ["-0", "-2"], 5, -95, 96, true, HalfEven, "Infinity", "...z...."),
-    ("power", ["-0", "-3"], 5, -95, 96, true, HalfEven, "-Infinity", "...z...."),
-    ("power", ["0", "-3"], 5, -95, 96, true, HalfEven, "Infinity", "...z...."),
-    ("power", ["-0", "2"], 5, -95, 96, true, HalfEven, "0", "........"),
-    ("power", ["-0", "3"], 5, -95, 96, true, HalfEven, "-0", "........"),
+    ("power", ["-0", "-2"], 5, -95, 96, true, HalfEven, "Infinity", "..z.."),
+    ("power", ["-0", "-3"], 5, -95, 96, true, HalfEven, "-Infinity", "..z.."),
+    ("power", ["0", "-3"], 5, -95, 96, true, HalfEven, "Infinity", "..z.."),
+    ("power", ["-0", "2"], 5, -95, 96, true, HalfEven, "0", "....."),
+    ("power", ["-0", "3"], 5, -95, 96, true, HalfEven, "-0", "....."),
     // An exponent beyond the nine digits of the repeated-multiplication path takes the
     // large-coefficient route of the decimal package; its overflowing reciprocal has to give the
     // same sign by parity (IEEE 754-2019 7.4, 9.2.1: pow behaves as pown for an integral y).
@@ -355,7 +242,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       HalfEven,
       "Infinity",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -366,7 +253,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Down,
       "9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -377,7 +264,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Ceiling,
       "Infinity",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -388,7 +275,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Floor,
       "9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -399,7 +286,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       HalfEven,
       "-Infinity",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -410,7 +297,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Down,
       "-9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -421,7 +308,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Ceiling,
       "-9.999999E+96",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "power",
@@ -432,7 +319,7 @@ test "power overflows with the sign of the power, not of the reciprocal (#265)" 
       true,
       Floor,
       "-Infinity",
-      "xr..o...",
+      "x..o.",
     ),
   ]
   issue265_check(rows)

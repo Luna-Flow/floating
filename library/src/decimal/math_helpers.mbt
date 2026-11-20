@@ -228,7 +228,7 @@ fn decimal_power_one_limit_result(
       -zeros,
       precision,
     ),
-    { ..DecimalFlags::new(), inexact: true, rounded: true, },
+    { ..DecimalFlags::new(), inexact: true, },
   )
 }
 
@@ -294,7 +294,7 @@ fn decimal_power_adjacent_one_directed_result(
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let one = Decimal::one(precision~)
   guard exponent.compare(one) < 0 else { return None }
-  let flags = { ..DecimalFlags::new(), rounded: true, inexact: true, }
+  let flags = { ..DecimalFlags::new(), inexact: true, }
   if base.compare(one) > 0 {
     guard ctx.decimal_rounding == DecimalRound::Ceiling ||
       ctx.decimal_rounding == DecimalRound::Floor else {
@@ -1006,7 +1006,8 @@ fn decimal_power_coeff_correctly_rounded_result(
       }
       if work_flags.overflow ||
         work_flags.underflow ||
-        work_flags.subnormal ||
+        lower.is_subnormal(lower_ctx) ||
+        upper.is_subnormal(upper_ctx) ||
         lower.class != FpClass::Finite ||
         upper.class != FpClass::Finite {
         return None
@@ -1022,7 +1023,8 @@ fn decimal_power_coeff_correctly_rounded_result(
     }
     guard !work_flags.overflow &&
       !work_flags.underflow &&
-      !work_flags.subnormal &&
+      !lower.is_subnormal(lower_ctx) &&
+      !upper.is_subnormal(upper_ctx) &&
       lower.class == FpClass::Finite &&
       upper.class == FpClass::Finite &&
       !lower.coefficient.is_zero() else {
@@ -1070,8 +1072,7 @@ fn decimal_power_coeff_correctly_rounded_result(
           {
             ..upper_flags,
             inexact: true,
-            rounded: true,
-            underflow: upper_flags.underflow || upper_flags.subnormal,
+            underflow: upper_flags.underflow || rounded_upper.is_subnormal(ctx),
           },
         ),
       )
@@ -1088,14 +1089,7 @@ fn decimal_exp_underflow_zero_result(
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = (
     finite_with_exponent_repr(false, dec_coeff_zero(), etiny(ctx), precision),
-    {
-      ..DecimalFlags::new(),
-      underflow: true,
-      inexact: true,
-      rounded: true,
-      clamped: true,
-      subnormal: true,
-    },
+    { ..DecimalFlags::new(), underflow: true, inexact: true, },
   )
   result
 }
@@ -1193,7 +1187,7 @@ fn decimal_div_finite_by_small_int_work(
       q.digits10(),
       work_ctx.decimal_rounding,
     )
-    let exact_rounding = exact_result_rounding_flags(
+    let (exact_discards, exact_rounding) = exact_result_rounding_flags(
       exact_unrounded,
       value.exponent10,
       work_ctx,
@@ -1205,7 +1199,7 @@ fn decimal_div_finite_by_small_int_work(
       precision,
       work_ctx.decimal_rounding,
     )
-    if exact_rounding.rounded {
+    if exact_discards {
       let prefinal = if exact_result_is_subnormal(
           exact_unrounded, precision, work_ctx,
         ) {
@@ -1261,7 +1255,7 @@ fn decimal_div_finite_by_small_int_work(
       result,
       with_underflow_for_inexact_subnormal(
         result,
-        { ..flags, rounded: true, inexact: true, },
+        { ..flags, inexact: true, },
         work_ctx,
       ),
     )
@@ -1319,7 +1313,7 @@ fn decimal_div_finite_work(
       q.digits10(),
       work_ctx.decimal_rounding,
     )
-    let exact_rounding = exact_result_rounding_flags(
+    let (exact_discards, exact_rounding) = exact_result_rounding_flags(
       exact_unrounded,
       lhs.exponent10 - rhs.exponent10,
       work_ctx,
@@ -1331,7 +1325,7 @@ fn decimal_div_finite_work(
       precision,
       work_ctx.decimal_rounding,
     )
-    if exact_rounding.rounded {
+    if exact_discards {
       let prefinal = if exact_result_is_subnormal(
           exact_unrounded, precision, work_ctx,
         ) {
@@ -1387,7 +1381,7 @@ fn decimal_div_finite_work(
       value,
       with_underflow_for_inexact_subnormal(
         value,
-        { ..round_flags, rounded: true, inexact: true, },
+        { ..round_flags, inexact: true, },
         work_ctx,
       ),
     )
@@ -1718,7 +1712,7 @@ fn decimal_ln_lookaside_work_result_with_ln10(
       } else {
         result
       },
-      { ..DecimalFlags::new(), rounded: true, inexact: true, },
+      { ..DecimalFlags::new(), inexact: true, },
     ),
   )
 }
@@ -2267,14 +2261,7 @@ fn decimal_underflow_zero_result(
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   (
     finite_with_exponent_repr(negative, dec_coeff_zero(), etiny(ctx), precision),
-    {
-      ..DecimalFlags::new(),
-      underflow: true,
-      inexact: true,
-      rounded: true,
-      clamped: true,
-      subnormal: true,
-    },
+    { ..DecimalFlags::new(), underflow: true, inexact: true, },
   )
 }
 
@@ -2375,8 +2362,7 @@ fn decimal_power_preferred_exponent(
 /// §5.2 selects for a preferred exponent: the exponent closest to `preferred`
 /// among those at most `value_exponent` whose coefficient `10^(value_exponent -
 /// exponent)` has at most `precision` digits and that stay above `Etiny`.
-/// `rounded` is raised when the preferred exponent is out of reach on the
-/// high side, i.e. zeros had to be dropped to fit the precision.
+/// The result is exact, so no flag is raised.
 fn decimal_power_ten_cohort_result(
   negative : Bool,
   value_exponent : Int32,
@@ -2410,30 +2396,24 @@ fn decimal_power_ten_cohort_result(
     exponent,
     precision,
   )
-  let flags = if ctx.precision != 0 && chosen > preferred && chosen == low {
-    { ..DecimalFlags::new(), rounded: true, }
-  } else if value_exponent < ctx.e_min {
-    { ..DecimalFlags::new(), subnormal: true, }
-  } else {
-    DecimalFlags::new()
-  }
-  (result, if chosen < unclamped { { ..flags, clamped: true, } } else { flags })
+  (result, DecimalFlags::new())
 }
 
 ///|
 /// Whether `decimal_power_adjust_exact_cohort` may move `result` within its
 /// cohort: a finite nonzero exact result without an exceptional flag.
-fn decimal_exact_cohort_adjustable(result : (Decimal, DecimalFlags)) -> Bool {
+fn decimal_exact_cohort_adjustable(
+  result : (Decimal, DecimalFlags),
+  ctx : DecimalContext,
+) -> Bool {
   let (value, flags) = result
   value.class == FpClass::Finite &&
   !value.coefficient.is_zero() &&
   !flags.inexact &&
   !flags.overflow &&
   !flags.underflow &&
-  !flags.subnormal &&
-  !flags.clamped &&
-  !flags.invalid_operation &&
-  !flags.invalid_context
+  !value.is_subnormal(ctx) &&
+  !flags.invalid_operation
 }
 
 ///|
@@ -2448,7 +2428,7 @@ fn decimal_power_adjust_exact_cohort(
   preferred : Int64,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  guard decimal_exact_cohort_adjustable(result) else { return result }
+  guard decimal_exact_cohort_adjustable(result, ctx) else { return result }
   let (value, flags) = result
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
   let digits = value.coefficient.digits10()
@@ -2540,7 +2520,7 @@ fn decimal_power_simple_ten_result(
             result_exponent - precision + 1,
             precision,
           ),
-          { ..DecimalFlags::new(), rounded: true, },
+          DecimalFlags::new(),
           ctx,
         ),
       )

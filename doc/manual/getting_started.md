@@ -134,7 +134,7 @@ test "contextual arithmetic" {
     decimal_ctx,
   )
   inspect(q, content="0.3333333333333333")
-  inspect(decimal_flags.contains(@decimal.Inexact), content="true")
+  inspect(decimal_flags.inexact(), content="true")
 }
 ```
 
@@ -174,8 +174,8 @@ test "pipelines" {
     .mul(@decimal.Decimal::from_int(3))
   inspect(total.value(), content="0.9999999999999999")
   // Accumulated over the pipeline versus raised by the last step.
-  inspect(total.flags().contains(@decimal.Inexact), content="true")
-  inspect(total.raised().contains(@decimal.Inexact), content="false")
+  inspect(total.flags().inexact(), content="true")
+  inspect(total.raised().inexact(), content="false")
 }
 ```
 

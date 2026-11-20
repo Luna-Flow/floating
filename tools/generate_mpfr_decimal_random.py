@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Seeded random rows for the IEEE decimal elementary functions, certified by MPFR.
 
-Row format `mpfr-decimal-random-v1` (executed by `frontend/mpfr_expr`)::
+Row format `mpfr-decimal-random-v2` (executed by `frontend/mpfr_expr`)::
 
-    id op rounding precision emin emax clamp tininess a b n expected flags
+    id op rounding precision emax a b n expected flags
 
 Case ``I`` of operation ``F`` under seed ``S`` is a pure function of
 ``(S, F, I)``. The expected value is never one MPFR result: it is the rounding
@@ -15,15 +15,13 @@ only if
 * the rounded value lies outside the enclosure (so the true value is not
   representable: exact results are not sampled here, they are the subject of
   the white-box tests), and
-* for the tininess rule of the row, both endpoints agree on "tiny".
+* both endpoints agree on "tiny" (tininess before rounding, IEEE 754-2019 7.5
+  for decimal formats).
 
-Underflow and Subnormal follow the library's convention (Subnormal = tiny,
-Underflow = tiny and inexact) and are computed here for both tininess rules
-because Python's `decimal` knows only one: before rounding is the rule of IEEE
-754-2019 7.5 for decimal formats; after rounding is the library's non-standard
-`AfterRounding` option, which applies the rule that 7.5 states for binary
-formats (the result computed with an unbounded exponent range and precision p). Rounded, Clamped and
-Overflow come from libmpdec. MPFR and libmpdec are oracles, not authorities.
+The row context is the IEEE format of `precision` and `emax` (`emin = 1 -
+emax`). Underflow is tiny and inexact; the flags of a row are a subset of
+`xouvz` (inexact, overflow, underflow, invalid operation, division by zero).
+Overflow comes from libmpdec. MPFR and libmpdec are oracles, not authorities.
 
 A candidate that does not certify is replaced by the next attempt of the same
 index (at most ``MAX_ATTEMPTS``), so the sequence stays a function of the index.
@@ -57,8 +55,8 @@ MAX_ATTEMPTS = 8
 # (`doc/manual/verification.md`); the boundary sweeps probe the wide ones.
 WIDE_EXPONENT = 20_000
 CHUNK = 20_000
-HEADER = "# mpfr-decimal-random-v1"
-COLUMNS = "# id op rounding precision emin emax clamp tininess a b n expected flags"
+HEADER = "# mpfr-decimal-random-v2"
+COLUMNS = "# id op rounding precision emax a b n expected flags"
 
 # Operand profiles: how the operands of an operation are drawn.
 EXP = "exp"  # growth like exp: |x| up to the overflow threshold
@@ -531,16 +529,12 @@ def certify_bounds(candidate: Candidate, lower: Decimal, upper: Decimal) -> str 
     if low_result.is_finite() and lower <= low_result <= upper:
         return None
     letters = "x"
-    if "Rounded" in low_flags:
-        letters += "r"
     if "Overflow" in low_flags:
         letters += "o"
     is_tiny = tiny[0] and not low_result.is_infinite()
     if is_tiny:
-        letters += "su"
-    if "Clamped" in low_flags:
-        letters += "c"
-    order = "xrosucvz"
+        letters += "u"
+    order = "xouvz"
     letters = "".join(sorted(set(letters), key=order.index))
     operands = candidate.operands
     return " ".join(
@@ -549,10 +543,7 @@ def certify_bounds(candidate: Candidate, lower: Decimal, upper: Decimal) -> str 
             candidate.op,
             context.rounding,
             str(context.precision),
-            str(context.emin),
             str(context.emax),
-            str(context.clamp),
-            context.tininess,
             str(operands[0]),
             str(operands[1]) if len(operands) > 1 else "-",
             str(candidate.integer),

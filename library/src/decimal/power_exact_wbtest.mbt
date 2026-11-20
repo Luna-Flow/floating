@@ -26,7 +26,6 @@ test "decimal power decides exact non-integral results" {
     let (value, flags) = base.pow_ctx(exponent, context)
     assert_eq(value.to_string(), expected)
     assert_false(flags.inexact)
-    assert_false(flags.rounded)
     assert_false(flags.invalid_operation)
   }
 }
@@ -47,7 +46,6 @@ test "decimal power keeps inexact non-integral results inexact" {
     let (value, flags) = base.pow_ctx(exponent, context)
     assert_eq(value.to_string(), expected)
     assert_true(flags.inexact)
-    assert_true(flags.rounded)
   }
 }
 
@@ -66,7 +64,6 @@ test "decimal power rounds exact non-integral results beyond the precision" {
     .pow_ctx(Decimal::from_string("1.5").unwrap(), coarse)
   assert_eq(coarse_value.to_string(), "3E+5")
   assert_true(coarse_flags.inexact)
-  assert_true(coarse_flags.rounded)
   let context = DecimalContext::decimal64()
   let (wide_value, wide_flags) = Decimal::from_string("4")
     .unwrap()
@@ -115,7 +112,6 @@ test "decimal power rounds long exact non-integral results in every mode" {
         .pow_ctx(Decimal::from_string(right).unwrap(), context)
       assert_eq(value.to_string(), expected[i])
       assert_true(flags.inexact)
-      assert_true(flags.rounded)
       assert_false(flags.invalid_operation)
     }
   }
@@ -148,7 +144,6 @@ test "decimal power decides exact non-integral results past base^p's size (#138)
         0,
       )
       assert_false(flags.inexact)
-      assert_false(flags.rounded)
       assert_false(flags.invalid_operation)
     }
   }

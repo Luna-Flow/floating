@@ -5,20 +5,16 @@ test "decimal checked preserves IEEE defined results" {
     @decimal.Decimal::zero(),
   )
   assert_true(result.value().is_infinite())
-  assert_true(result.raised().contains(@decimal.DecimalSignal::DivisionByZero))
-  assert_true(result.flags().contains(@decimal.DecimalSignal::DivisionByZero))
+  assert_true(result.raised().division_by_zero())
+  assert_true(result.flags().division_by_zero())
 }
 
 ///|
 test "decimal checked accumulates IEEE flags" {
   let context = @decimal.DecimalContext::new(precision=3)
   let parsed = DecimalChecked::parse("1.2345", context)
-  assert_true(parsed.raised().contains(@decimal.DecimalSignal::Rounded))
   let result = parsed.add(@decimal.Decimal::zero())
-  assert_false(result.raised().contains(@decimal.DecimalSignal::Rounded))
-  assert_true(result.flags().contains(@decimal.DecimalSignal::Rounded))
   let cleared = result.clear_flags()
-  assert_false(cleared.flags().contains(@decimal.DecimalSignal::Rounded))
   assert_false(cleared.flags().has_error())
 }
 
@@ -29,9 +25,7 @@ test "decimal checked parse keeps conversion result and flags" {
     @decimal.DecimalContext::decimal64(),
   )
   assert_true(result.value().is_nan())
-  assert_true(
-    result.raised().contains(@decimal.DecimalSignal::ConversionSyntax),
-  )
+  assert_true(result.raised().invalid_operation())
 }
 
 ///|
@@ -54,7 +48,7 @@ test "decimal checked pi-scaled and binary mirrors are additive" {
   let half = @decimal.Decimal::from_string("0.5").unwrap()
   let tangent = DecimalChecked::from_decimal(half, context).tanpi()
   assert_true(tangent.value().is_infinite())
-  assert_true(tangent.raised().contains(@decimal.DecimalSignal::DivisionByZero))
+  assert_true(tangent.raised().division_by_zero())
   let hypot = DecimalChecked::from_int(3, context).hypot(
     @decimal.Decimal::from_int(4),
   )
@@ -89,14 +83,12 @@ test "decimal checked exp2m1 exp10m1 log2p1 log10p1 mirror the try forms" {
     context,
   ).exp2m1()
   inspect(half.value(), content="0.4142135623730950")
-  assert_true(half.raised().contains(@decimal.DecimalSignal::Inexact))
+  assert_true(half.raised().inexact())
   let pole = DecimalChecked::from_int(-1, context).log2p1()
   assert_true(pole.value().is_infinite())
-  assert_true(pole.raised().contains(@decimal.DecimalSignal::DivisionByZero))
+  assert_true(pole.raised().division_by_zero())
   let ten_pole = DecimalChecked::from_int(-1, context).log10p1()
-  assert_true(
-    ten_pole.raised().contains(@decimal.DecimalSignal::DivisionByZero),
-  )
+  assert_true(ten_pole.raised().division_by_zero())
 }
 
 ///|
@@ -118,15 +110,11 @@ test "decimal checked rsqrt compound powr mirror the try forms" {
     content="2.828427124746190",
   )
   let pole = DecimalChecked::from_int(0, context).rsqrt()
-  assert_true(pole.raised().contains(@decimal.DecimalSignal::DivisionByZero))
+  assert_true(pole.raised().division_by_zero())
   let compound_pole = DecimalChecked::from_int(-1, context).compound(-2)
-  assert_true(
-    compound_pole.raised().contains(@decimal.DecimalSignal::DivisionByZero),
-  )
+  assert_true(compound_pole.raised().division_by_zero())
   let invalid = DecimalChecked::from_int(0, context).powr(d("0"))
-  assert_true(
-    invalid.raised().contains(@decimal.DecimalSignal::InvalidOperation),
-  )
+  assert_true(invalid.raised().invalid_operation())
 }
 
 ///|
@@ -138,12 +126,8 @@ test "decimal checked minimum_number and maximum_number treat a quiet NaN as mis
   let maximum = DecimalChecked::from_decimal(two, context).maximum_number(qnan)
   assert_eq(minimum.value().to_string(), "2")
   assert_eq(maximum.value().to_string(), "2")
-  assert_false(
-    minimum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
-  )
-  assert_false(
-    maximum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
-  )
+  assert_false(minimum.raised().invalid_operation())
+  assert_false(maximum.raised().invalid_operation())
   let both = DecimalChecked::from_decimal(qnan, context).maximum_number(qnan)
   assert_true(both.value().is_quiet_nan())
 }
@@ -157,18 +141,14 @@ test "decimal checked minimum_number and maximum_number return the number for a 
   let maximum = DecimalChecked::from_decimal(two, context).maximum_number(snan)
   assert_eq(minimum.value().to_string(), "2")
   assert_eq(maximum.value().to_string(), "2")
-  assert_true(
-    minimum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
-  )
-  assert_true(
-    maximum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
-  )
+  assert_true(minimum.raised().invalid_operation())
+  assert_true(maximum.raised().invalid_operation())
   let both = DecimalChecked::from_decimal(
     @decimal.Decimal::quiet_nan(payload=9N),
     context,
   ).minimum_number(snan)
   assert_true(both.value().is_quiet_nan())
-  assert_true(both.raised().contains(@decimal.DecimalSignal::InvalidOperation))
+  assert_true(both.raised().invalid_operation())
 }
 
 ///|

@@ -17,7 +17,6 @@ test "Decimal contextual division preserves rounding diagnostics" {
   ).unwrap()
   inspect(outcome.value.to_string(), content="0.3333333333333333")
   inspect(outcome.diagnostics.inexact, content="true")
-  inspect(outcome.diagnostics.rounded, content="true")
 }
 
 ///|

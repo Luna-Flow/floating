@@ -134,22 +134,23 @@ fn exact_result_rounding_flags(
   value : Decimal,
   preferred_exponent : Int32,
   ctx : DecimalContext,
-) -> DecimalFlags {
-  guard value.class == FpClass::Finite else { return DecimalFlags::new() }
+) -> (Bool, DecimalFlags) {
+  guard value.class == FpClass::Finite else {
+    return (false, DecimalFlags::new())
+  }
   guard ctx.precision > 0 && !value.coefficient.is_zero() else {
-    return DecimalFlags::new()
+    return (false, DecimalFlags::new())
   }
   let shift = Int32::max(0, value.exponent10 - preferred_exponent)
   let effective_digits = value.coefficient.digits10() + shift
   let extra_digits = effective_digits - ctx.precision
-  guard extra_digits > 0 else { return DecimalFlags::new() }
+  guard extra_digits > 0 else { return (false, DecimalFlags::new()) }
   let trailing_zeros = coeff_trailing_decimal_zeros(value.coefficient)
   let effective_trailing_zeros = trailing_zeros + shift
-  {
-    ..DecimalFlags::new(),
-    rounded: true,
-    inexact: effective_trailing_zeros < extra_digits,
-  }
+  (
+    true,
+    { ..DecimalFlags::new(), inexact: effective_trailing_zeros < extra_digits, },
+  )
 }
 
 ///|
@@ -332,7 +333,7 @@ fn bounded_inexact_decimal_division_result(
   let value = expand_inexact_division_cohort(value, ctx, pad_precision=true)
   let flags = with_underflow_for_inexact_subnormal(
     value,
-    { ..normalize_flags, rounded: true, inexact: true, },
+    { ..normalize_flags, inexact: true, },
     ctx,
   )
   Some((value, flags))
@@ -369,7 +370,7 @@ fn exact_division_by_power_of_ten_result(
     dividend.coefficient.digits10(),
     ctx.decimal_rounding,
   )
-  let exact_rounding = exact_result_rounding_flags(
+  let (exact_discards, exact_rounding) = exact_result_rounding_flags(
     exact_unrounded, preferred_exponent, ctx,
   )
   let rounded_value = normalize_decimal_parts_gda_repr(
@@ -379,7 +380,7 @@ fn exact_division_by_power_of_ten_result(
     precision,
     ctx.decimal_rounding,
   )
-  if exact_rounding.rounded {
+  if exact_discards {
     let prefinal = if exact_result_is_subnormal(exact_unrounded, precision, ctx) {
       exact_unrounded
     } else if !exact_rounding.inexact {
@@ -397,49 +398,6 @@ fn exact_division_by_power_of_ten_result(
     )
     Some(finalize_finite_ctx(exact_value, DecimalFlags::new(), ctx))
   }
-}
-
-///|
-// GDA decDivideOp keeps the integer quotient in its Unit accumulator `acc`
-// and tracks its width with `accdigits`; no binary-integer materialization is
-// part of the algorithm (libdecnumber/decNumber.c lines 4394-4406, 4564-4607).
-fn integer_quotient_by_power_of_ten_repr(
-  dividend : Decimal,
-  divisor : Decimal,
-  nearest : Bool,
-) -> DecCoeff? {
-  guard dividend.class == FpClass::Finite &&
-    divisor.class == FpClass::Finite &&
-    !dividend.coefficient.is_zero() &&
-    !divisor.coefficient.is_zero() else {
-    return None
-  }
-  let power = match decimal_power_of_ten_exponent(divisor) {
-    Some(value) => value
-    None => return None
-  }
-  let shift = dividend.exponent10 - power
-  if shift >= 0 {
-    return Some(dec_coeff_shift_power10_repr(dividend.coefficient, shift))
-  }
-  match exact_divide_by_power_of_ten_repr(dividend.coefficient, -shift) {
-    Some(exact) if !nearest => return Some(exact)
-    _ => ()
-  }
-  if !nearest {
-    let (quotient0, _) = dec_coeff_div_rem_repr(
-      dividend.coefficient,
-      dec_coeff_power10_repr(-shift),
-    )
-    return Some(quotient0)
-  }
-  let (quotient0, _) = round_positive_decimal_div_pow10_repr(
-    dividend.coefficient,
-    -shift,
-    false,
-    DecimalRound::HalfEven,
-  )
-  Some(quotient0)
 }
 
 ///|
@@ -980,15 +938,11 @@ fn exact_base_small_addend_result(
   let (value, adjust_flags) = normalize_decimal_parts_ctx_repr(
     negative, magnitude, ulp_exponent, ctx,
   )
-  let mut flags = adjust_flags.combine({
-    ..DecimalFlags::new(),
-    rounded: true,
-    inexact: true,
-  })
+  let mut flags = adjust_flags.combine({ ..DecimalFlags::new(), inexact: true, })
   if low.negative != base.negative &&
     adjusted_exponent(base) == ctx.e_min &&
     is_power_of_ten_coeff(base_units_repr) {
-    flags = { ..flags, subnormal: true, underflow: true, }
+    flags = { ..flags, underflow: true, }
   }
   (value, flags)
 }
@@ -1009,7 +963,7 @@ fn invalid_flags() -> DecimalFlags {
 
 ///|
 fn invalid_context_flags() -> DecimalFlags {
-  { ..DecimalFlags::new(), invalid_context: true, }
+  { ..DecimalFlags::new(), invalid_operation: true, }
 }
 
 ///|
@@ -1040,19 +994,10 @@ fn decimal_compare_result(value : Int32, ctx : DecimalContext) -> Decimal {
 ///|
 fn div_zero_flags(division_undefined : Bool) -> DecimalFlags {
   if division_undefined {
-    {
-      ..DecimalFlags::new(),
-      invalid_operation: true,
-      division_undefined: true,
-    }
+    { ..DecimalFlags::new(), invalid_operation: true, }
   } else {
     { ..DecimalFlags::new(), division_by_zero: true, }
   }
-}
-
-///|
-fn div_impossible_flags() -> DecimalFlags {
-  { ..DecimalFlags::new(), invalid_operation: true, division_impossible: true, }
 }
 
 ///|
@@ -1085,53 +1030,6 @@ fn abs_int(value : Int32) -> Int32 {
 }
 
 ///|
-fn integer_quotient_digit_lower_bound(
-  dividend : Decimal,
-  divisor : Decimal,
-) -> Int32 {
-  // (digits of the dividend + exponent) - (digits of the divisor + exponent),
-  // formed in Int64: the exponent difference alone can exceed `Int`.
-  decimal_int_from_int64_clamped(
-    dividend.exponent10.to_int64() +
-    dividend.coefficient.digits10().to_int64() -
-    divisor.exponent10.to_int64() -
-    divisor.coefficient.digits10().to_int64(),
-  )
-}
-
-///|
-fn integer_quotient_digit_count(dividend : Decimal, divisor : Decimal) -> Int32 {
-  let lower = integer_quotient_digit_lower_bound(dividend, divisor)
-  let scale64 = dividend.exponent10.to_int64() - divisor.exponent10.to_int64()
-  // No precision reaches 10^9 digits, so a longer quotient is already too
-  // long and its exact digit count is not needed.
-  if lower > 999_999_999 || scale64 > 2147483647L || scale64 < -2147483647L {
-    return decimal_int_from_int64_clamped(lower.to_int64() + 1L)
-  }
-  let scale = scale64.to_int()
-  let boundary_cmp = if scale >= 0 {
-    compare_finite_magnitude_repr(
-      dividend.coefficient,
-      scale,
-      divisor.coefficient,
-      lower,
-    )
-  } else {
-    compare_finite_magnitude_repr(
-      dividend.coefficient,
-      0,
-      divisor.coefficient,
-      -scale + lower,
-    )
-  }
-  if boundary_cmp >= 0 {
-    lower + 1
-  } else {
-    lower
-  }
-}
-
-///|
 fn prepare_operand_for_context(
   value : Decimal,
   _ctx : DecimalContext,
@@ -1153,27 +1051,6 @@ fn prepare_binary_operands_for_context(
 ///|
 fn divide_integer_zero_quotient_flags() -> DecimalFlags {
   DecimalFlags::new()
-}
-
-///|
-fn decimal_division_common_magnitude_units(
-  dividend : Decimal,
-  divisor : Decimal,
-) -> (DecCoeff, DecCoeff, Int32) {
-  let scale = dividend.exponent10 - divisor.exponent10
-  if scale >= 0 {
-    (
-      dec_coeff_shift_power10_repr(dividend.coefficient, scale),
-      divisor.coefficient,
-      divisor.exponent10,
-    )
-  } else {
-    (
-      dividend.coefficient,
-      dec_coeff_shift_power10_repr(divisor.coefficient, -scale),
-      dividend.exponent10,
-    )
-  }
 }
 
 ///|
@@ -1224,26 +1101,6 @@ fn decimal_nearest_remainder_parts(
 }
 
 ///|
-fn finite_integer_quotient_is_zero(
-  dividend : Decimal,
-  divisor : Decimal,
-) -> Bool {
-  guard dividend.class == FpClass::Finite && divisor.class == FpClass::Finite else {
-    return false
-  }
-  guard !divisor.coefficient.is_zero() else { return false }
-  // A zero dividend has a zero integer quotient whatever the exponents.
-  guard !dividend.coefficient.is_zero() else { return true }
-  compare_finite_magnitude_repr(
-    dividend.coefficient,
-    dividend.exponent10,
-    divisor.coefficient,
-    divisor.exponent10,
-  ) <
-  0
-}
-
-///|
 fn compare_twice_dividend_to_divisor(
   dividend : Decimal,
   divisor : Decimal,
@@ -1271,135 +1128,6 @@ fn finite_nearest_integer_quotient_is_zero(
     return false
   }
   compare_twice_dividend_to_divisor(dividend, divisor) <= 0
-}
-
-///|
-/// Zero integer quotient of an extended context: preferred exponent 0, folded
-/// down to e_max - p + 1 (raising `clamped`) when clamping applies. The value
-/// is unchanged, so `rounded` and `inexact` are never raised.
-fn divide_integer_zero_result(
-  negative : Bool,
-  flags : DecimalFlags,
-  ctx : DecimalContext,
-  clamp_zero~ : Bool = true,
-) -> (Decimal, DecimalFlags) {
-  let quotient = finite_with_exponent_repr(
-    negative,
-    dec_coeff_zero(),
-    0,
-    finite_precision_for(bigint_one(), ctx),
-  )
-  if clamp_zero && ctx.clamp && ctx.precision > 0 {
-    finalize_finite_ctx(quotient, flags, ctx)
-  } else {
-    (quotient, flags)
-  }
-}
-
-///|
-fn decimal_integer_quotient(
-  dividend : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-  clamp_zero~ : Bool = true,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for(bigint_one(), ctx)
-  match (dividend.class, other.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) =>
-      (Decimal::nan(precision~), nan_operand_flags(dividend, other))
-    (_, FpClass::Finite) if other.is_zero() =>
-      if dividend.is_zero() {
-        (Decimal::nan(precision~), div_zero_flags(true))
-      } else {
-        (
-          Decimal::inf(
-            if dividend.negative != other.negative {
-              Sign::Negative
-            } else {
-              Sign::Positive
-            },
-            precision~,
-          ),
-          div_zero_flags(false),
-        )
-      }
-    (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
-      if dividend.class == FpClass::Finite && other.class == FpClass::Infinity {
-        divide_integer_zero_result(
-          dividend.negative != other.negative,
-          DecimalFlags::new(),
-          ctx,
-          clamp_zero~,
-        )
-      } else {
-        (Decimal::nan(precision~), invalid_flags())
-      }
-    (FpClass::Finite, FpClass::Finite) => {
-      if finite_integer_quotient_is_zero(dividend, other) {
-        let flags = divide_integer_zero_quotient_flags()
-
-        return divide_integer_zero_result(
-          dividend.negative != other.negative,
-          flags,
-          ctx,
-          clamp_zero~,
-        )
-      }
-      if ctx.precision > 0 &&
-        integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
-      }
-      let quotient = decimal_exact_integer_quotient_repr(dividend, other)
-      if ctx.precision > 0 &&
-        !quotient.is_zero() &&
-        quotient.digits10() > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
-      }
-      let (value, flags) = finalize_finite_ctx(
-        finite_with_exponent_repr(
-          dividend.negative != other.negative,
-          quotient,
-          0,
-          precision,
-        ),
-        DecimalFlags::new(),
-        ctx,
-      )
-      if quotient.is_zero() &&
-        !dividend.coefficient.is_zero() &&
-        dividend.exponent10 >= 0 {
-        (value, { ..flags, rounded: true, inexact: true, })
-      } else {
-        (value, flags)
-      }
-    }
-  }
-}
-
-///|
-/// The magnitude of the integer quotient of two finite operands, truncated
-/// towards zero and not rounded to any context. The divisor is nonzero.
-fn decimal_exact_integer_quotient_repr(
-  dividend : Decimal,
-  divisor : Decimal,
-) -> DecCoeff {
-  match integer_quotient_by_power_of_ten_repr(dividend, divisor, false) {
-    Some(value) => value
-    None => {
-      let scale = dividend.exponent10 - divisor.exponent10
-      let numerator = if scale >= 0 {
-        dec_coeff_shift_power10_repr(dividend.coefficient, scale)
-      } else {
-        dividend.coefficient
-      }
-      let denominator = if scale >= 0 {
-        divisor.coefficient
-      } else {
-        dec_coeff_shift_power10_repr(divisor.coefficient, -scale)
-      }
-      dec_coeff_div_rem_repr(numerator, denominator).0
-    }
-  }
 }
 
 ///|
@@ -1461,15 +1189,7 @@ fn zero_quotient_remainder_result(
         base.exponent10 - actual_shift,
         base.precision_,
       )
-      let shifted_flags = if actual_shift < wanted_shift {
-        { ..base_flags, rounded: true, }
-      } else {
-        base_flags
-      }
-      return finalize_finite_ctx(shifted, shifted_flags, ctx)
-    }
-    if wanted_shift > 0 {
-      return (base, { ..base_flags, rounded: true, })
+      return finalize_finite_ctx(shifted, base_flags, ctx)
     }
   }
   (base, base_flags)

@@ -1,6 +1,6 @@
 ///|
 /// `decimal` and `decimal_gda`
-/// agree on a zero `quantize` and `rescale` result under `clamp`: the exponent
+/// agree on a zero `quantize` result under `clamp`: the exponent
 /// asked for is folded down to `e_max - precision + 1` with `clamped` when it is
 /// above it, and kept otherwise, and a target above `e_max` is invalid in both
 /// (issue 234; `decimal_gda` folds since issue 419).
@@ -16,23 +16,17 @@ let clamp_fold_contexts : Array[(String, Int32, Int32, Int32)] = [
 ///|
 fn clamp_fold_flags(f : @decimal.DecimalFlags) -> String {
   (if f.inexact() { "x" } else { "." }) +
-  (if f.rounded() { "r" } else { "." }) +
   (if f.invalid_operation() { "i" } else { "." }) +
   (if f.overflow() { "o" } else { "." }) +
-  (if f.underflow() { "u" } else { "." }) +
-  (if f.subnormal() { "s" } else { "." }) +
-  (if f.clamped() { "c" } else { "." })
+  (if f.underflow() { "u" } else { "." })
 }
 
 ///|
 fn clamp_fold_gda_flags(f : @decimal_gda.GdaFlags) -> String {
   (if f.inexact() { "x" } else { "." }) +
-  (if f.rounded() { "r" } else { "." }) +
   (if f.invalid_operation() { "i" } else { "." }) +
   (if f.overflow() { "o" } else { "." }) +
-  (if f.underflow() { "u" } else { "." }) +
-  (if f.subnormal() { "s" } else { "." }) +
-  (if f.clamped() { "c" } else { "." })
+  (if f.underflow() { "u" } else { "." })
 }
 
 ///|
@@ -45,7 +39,7 @@ fn clamp_fold_text(is_nan : Bool, text : String) -> String {
 }
 
 ///|
-test "decimal and decimal_gda agree on a zero quantize and rescale" {
+test "decimal and decimal_gda agree on a zero quantize" {
   for entry in clamp_fold_contexts {
     let (name, precision, e_min, e_max) = entry
     let top = e_max - precision + 1
@@ -97,26 +91,6 @@ test "decimal and decimal_gda agree on a zero quantize and rescale" {
             label,
             clamp_fold_text(b.value().is_nan(), b.value().to_string()),
             clamp_fold_gda_flags(b.raised()),
-          ),
-        )
-        let c = @decimal.Decimal::from_string(zero)
-          .unwrap()
-          .rescale_ctx(@decimal.Decimal::from_int(target), ieee)
-        let d = @decimal_gda.rescale(
-          @decimal_gda.Decimal::from_string(zero).unwrap(),
-          @decimal_gda.Decimal::from_int(target),
-          gda,
-        )
-        assert_eq(
-          (
-            label + " rescale",
-            clamp_fold_text(c.0.is_nan(), c.0.to_string()),
-            clamp_fold_flags(c.1),
-          ),
-          (
-            label + " rescale",
-            clamp_fold_text(d.value().is_nan(), d.value().to_string()),
-            clamp_fold_gda_flags(d.raised()),
           ),
         )
       }

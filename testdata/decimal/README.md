@@ -14,8 +14,7 @@ arithmetic/flag rows, and a compact exhaustive 1,024-code DPD declet fixture.
 no implementation-specific source archive is downloaded during a test run.
 
 IEEE 754-2019 §7.5 requires tininess to be detected before rounding for decimal
-formats, so the public context defaults to before-rounding (as GDA always
-does); after-rounding remains an explicit, non-standard option. NaN payload and sign selection follow the public API contract.
+formats, so every context detects it before rounding (as GDA always does). NaN payload and sign selection follow the public API contract.
 
 The checked-in runner validates all 1,024 DPD declets and the fixed-width BID
 and DPD cases directly from the IEEE formulas, then executes the same public
@@ -61,7 +60,7 @@ of this gate) with `just gate decimal`. The `decimal_gda` backend and
 ### IEEE decimal elementary functions against MPFR
 
 The `decimal` package (IEEE 754-2019) has no GDA counterpart for most of its
-elementary functions, so they have their own corpus, `mpfr-decimal-random-v1`
+elementary functions, so they have their own corpus, `mpfr-decimal-random-v2`
 (`tools/generate_mpfr_decimal_random.py`, `tools/mpfr_decimal_enclosure.c`),
 with one opt-in family `decimal-<function>` per function and row ids
 `m<seed>.<function>.<index>`:
@@ -77,8 +76,8 @@ only if the enclosure certifies an inexact result, and the filters are the
 generator's, not the oracle's: exact results are not sampled (an enclosure that
 contains the rounded value cannot certify them), wide exponent ranges stay
 within ±20,000 (the exact endpoint conversion costs minutes beyond that), and
-Underflow and Subnormal are recomputed for both tininess rules from the
-endpoints because libmpdec knows only one. See
+Underflow is recomputed from the
+endpoints (tininess before rounding, IEEE 754-2019 7.5). See
 [verification](../../doc/manual/verification.md) for the counts.
 
 - `random/mpfr-decimal-random.txt`: 12 rows per function of seed 20261118 (468

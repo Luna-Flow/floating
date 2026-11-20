@@ -1,13 +1,10 @@
 ///|
 fn issue266_flags_text(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -148,7 +145,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "1.00E-24",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -159,7 +156,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.00E-24",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -170,7 +167,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       Down,
       "1.00E-24",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -181,7 +178,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       Floor,
       "1.00E-24",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -192,7 +189,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "1.00E-24",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -203,7 +200,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.00E-24",
-      "xr......",
+      "x....",
     ),
     // The same for integer powers of other signs and sizes: 1 / 9999.9 rounded to two digits is
     // 0.00010, not 0.0001. Positive and negative exponents, one to six digits of precision.
@@ -216,7 +213,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "0.00007000",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -227,7 +224,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "0.00007000",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -238,7 +235,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "1.20E-10",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -249,7 +246,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.20E-10",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -260,41 +257,11 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "2.8970",
-      "xr......",
+      "x....",
     ),
-    (
-      "power",
-      ["87550E-5", "-8"],
-      5,
-      -998,
-      999,
-      true,
-      HalfUp,
-      "2.8970",
-      "xr......",
-    ),
-    (
-      "power",
-      ["49790E-5", "-3"],
-      3,
-      -998,
-      999,
-      true,
-      HalfEven,
-      "8.10",
-      "xr......",
-    ),
-    (
-      "power",
-      ["49790E-5", "-3"],
-      3,
-      -998,
-      999,
-      true,
-      HalfUp,
-      "8.10",
-      "xr......",
-    ),
+    ("power", ["87550E-5", "-8"], 5, -998, 999, true, HalfUp, "2.8970", "x...."),
+    ("power", ["49790E-5", "-3"], 3, -998, 999, true, HalfEven, "8.10", "x...."),
+    ("power", ["49790E-5", "-3"], 3, -998, 999, true, HalfUp, "8.10", "x...."),
     (
       "power",
       ["62964E-1", "-8"],
@@ -304,7 +271,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "4.0E-31",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -315,7 +282,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "4.0E-31",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -326,19 +293,9 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "1.0E-14",
-      "xr......",
+      "x....",
     ),
-    (
-      "power",
-      ["97973E2", "-2"],
-      2,
-      -998,
-      999,
-      true,
-      HalfUp,
-      "1.0E-14",
-      "xr......",
-    ),
+    ("power", ["97973E2", "-2"], 2, -998, 999, true, HalfUp, "1.0E-14", "x...."),
     (
       "power",
       ["1170E-2", "-4"],
@@ -348,7 +305,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "0.0000533650",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -359,30 +316,10 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "0.0000533650",
-      "xr......",
+      "x....",
     ),
-    (
-      "power",
-      ["71272E-4", "3"],
-      4,
-      -998,
-      999,
-      true,
-      HalfEven,
-      "362.0",
-      "xr......",
-    ),
-    (
-      "power",
-      ["71272E-4", "3"],
-      4,
-      -998,
-      999,
-      true,
-      HalfUp,
-      "362.0",
-      "xr......",
-    ),
+    ("power", ["71272E-4", "3"], 4, -998, 999, true, HalfEven, "362.0", "x...."),
+    ("power", ["71272E-4", "3"], 4, -998, 999, true, HalfUp, "362.0", "x...."),
     (
       "power",
       ["26843E-3", "7"],
@@ -392,7 +329,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "1.00E+10",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -403,7 +340,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.00E+10",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -414,7 +351,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "-6.4E-35",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -425,7 +362,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "-6.4E-35",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -436,7 +373,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "3.23240E+29",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -447,7 +384,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "3.23240E+29",
-      "xr......",
+      "x....",
     ),
     // Padding with clamp: the coefficient trimmed by the rounding sits above Etop = 369 and would
     // be folded down, but the padded coefficient of 16 digits has exponent 363 and nothing was
@@ -461,7 +398,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfEven,
       "1.000000000000000E+378",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -472,7 +409,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.000000000000000E+378",
-      "xr......",
+      "x....",
     ),
     // Rows of the official decTest corpus (power.decTest powx028, powx706, powx1186) whose
     // inexact results carry trailing zeros: they pass in the corpus and keep doing so.
@@ -485,7 +422,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "4.29496730E+9",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -496,7 +433,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.23456790E+9",
-      "xr......",
+      "x....",
     ),
     (
       "power",
@@ -507,7 +444,7 @@ test "an inexact integer power keeps precision digits, trailing zeros included (
       true,
       HalfUp,
       "1.38243630E-845098041",
-      "xr......",
+      "x....",
     ),
   ]
   issue266_check(rows)

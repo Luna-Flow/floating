@@ -34,14 +34,10 @@ flags with this helper:
 fn flags(f : @decimal.DecimalFlags) -> String {
   let named = [
     ("inexact", f.inexact()),
-    ("rounded", f.rounded()),
     ("invalid_operation", f.invalid_operation()),
     ("division_by_zero", f.division_by_zero()),
     ("overflow", f.overflow()),
     ("underflow", f.underflow()),
-    ("subnormal", f.subnormal()),
-    ("conversion_syntax", f.conversion_syntax()),
-    ("invalid_context", f.invalid_context()),
   ]
   [ for p in named if p.1 => p.0 ].join(",")
 }
@@ -100,8 +96,8 @@ and accumulated.
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 ```
 
-It uses `Decimal::from_string_ctx`. Extra digits are rounded (`inexact`,
-`rounded`); an invalid string gives a NaN value with `conversion_syntax` raised,
+It uses `Decimal::from_string_ctx`. Extra digits are rounded (`inexact`);
+an invalid string gives a NaN value with `invalid_operation` raised,
 not an error.
 
 ### `DecimalChecked::from_int`, `from_bigint`, `from_double`, `from_float`
@@ -120,7 +116,7 @@ longer than the precision are rounded with flags. `from_double` first converts
 the binary value to a decimal of 17 significant digits and `from_float` to 9
 digits (enough to identify the binary value), then rounds into the context with
 `from_decimal`. So `from_double(0.1, decimal64)` is `0.1000000000000000` with
-`inexact` and `rounded` raised.
+`inexact` raised.
 
 This is a conversion in two roundings, not the correctly rounded value of the
 binary number. With a context precision above 17 (decimal128) the result keeps
@@ -138,12 +134,12 @@ test "construction records conversion flags" {
   let ctx = @decimal.DecimalContext::new(precision=5)
   let parsed = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
   inspect(parsed.value().to_string(), content="1.2346")
-  inspect(flags(parsed.raised()), content="inexact,rounded")
+  inspect(flags(parsed.raised()), content="inexact")
   let bad = @decimal_checked.DecimalChecked::parse("abc", ctx)
   inspect(bad.value().to_string(), content="nan")
   inspect(bad.is_ok(), content="true")
   inspect(
-    flags(bad.raised()).contains("conversion_syntax"),
+    flags(bad.raised()).contains("invalid_operation"),
     content="true",
   )
   let tenth = @decimal_checked.DecimalChecked::from_double(
@@ -236,11 +232,11 @@ test "raised versus accumulated flags" {
   let start = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
   let step = start.add(@decimal.Decimal::from_int(1))
   inspect(flags(step.raised()), content="")
-  inspect(flags(step.flags()), content="inexact,rounded")
+  inspect(flags(step.flags()), content="inexact")
   let infinite = step.div(@decimal.Decimal::zero())
   inspect(infinite.value().to_string(), content="inf")
   inspect(flags(infinite.raised()), content="division_by_zero")
-  inspect(flags(infinite.flags()), content="inexact,rounded,division_by_zero")
+  inspect(flags(infinite.flags()), content="inexact,division_by_zero")
   inspect(flags(infinite.clear_flags().flags()), content="")
   let wider = @decimal_checked.DecimalChecked::parse(
     "1.234567",
@@ -252,14 +248,12 @@ test "raised versus accumulated flags" {
 
 ## Operations that cannot fail
 
-### `DecimalChecked::plus`, `minus`, `abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `reduce`, `minimum_number`, `maximum_number`, `next_down`, `next_up`, `next_toward`
+### `DecimalChecked::abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_down`, `next_up`, `next_toward`
 
 These methods apply the IEEE decimal operation of the same meaning to the
 current value and a plain `Decimal` operand under the stored context.
 
 ```mbti
-pub fn DecimalChecked::plus(Self) -> Self
-pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::abs(Self) -> Self
 pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::sub(Self, @decimal.Decimal) -> Self
@@ -269,7 +263,6 @@ pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
 pub fn DecimalChecked::sqrt(Self) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_down(Self) -> Self
@@ -279,13 +272,12 @@ pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 
 | Method | Delegates to | Result |
 | --- | --- | --- |
-| `plus`, `minus`, `abs` | `plus_ctx`, `minus_ctx`, `abs_ctx` | $+v$, $-v$, $\lvert v\rvert$ rounded into the context |
+| `abs` | `abs_ctx` | $\lvert v\rvert$ rounded into the context |
 | `add`, `sub`, `mul`, `div` | `add_ctx`, … | $v \circ y$ correctly rounded |
 | `fma(m, a)` | `fma_ctx` | $v \cdot m + a$ with one rounding |
 | `sqrt` | `sqrt_ctx` | $\sqrt{v}$ correctly rounded |
 | `quantize(q)` | `quantize_ctx` | $v$ rounded to the exponent of `q` |
 | `remainder(d)` | `remainder_ctx` | IEEE remainder $v - d \cdot n$, $n$ = $v/d$ rounded to nearest, ties to even |
-| `reduce` | `reduce_ctx` | $v$ with trailing zeros removed |
 | `minimum_number`, `maximum_number` | `minimum_number_ctx`, `maximum_number_ctx` | IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`) |
 | `next_down`, `next_up`, `next_toward(t)` | `next_down_ctx`, `next_up_ctx`, `next_toward_ctx` | adjacent representable value |
 
@@ -294,7 +286,7 @@ the step $(v', r') = \mathrm{op}(v, c)$ gives the new state $(v', c, r',
 F \lor r', \text{none})$. Invalid operations produce NaN with
 `invalid_operation`, division by zero produces an infinity with
 `division_by_zero`, overflow produces an infinity or the largest finite number
-with `overflow`, `inexact` and `rounded`, as in IEEE 754 decimal arithmetic.
+with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic.
 
 ```moonbit
 ///|
@@ -308,7 +300,7 @@ test "exceptional results are values" {
     @decimal.Decimal::from_int(10),
   )
   inspect(big.value().to_string(), content="inf")
-  inspect(flags(big.raised()), content="inexact,rounded,overflow")
+  inspect(flags(big.raised()), content="inexact,overflow")
   let cents = @decimal_checked.DecimalChecked::parse("2.675", ctx).quantize(
     @decimal.Decimal::from_string("0.01").unwrap(),
   )
@@ -383,7 +375,7 @@ $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 > operations require a context with precision and exponent
 > limits within 999,999. A context with a larger `e_max`, or with a precision of
 > 1000 digits or more and no explicit `e_max`, makes them return NaN with
-> `invalid_context`. Use `decimal32()`, `decimal64()`, `decimal128()` or an
+> `invalid_operation`. Use `decimal32()`, `decimal64()`, `decimal128()` or an
 > explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent,
 > and `pow` with the exponent `0.5`, are not restricted.
 
@@ -393,13 +385,13 @@ test "elementary functions under a bounded context" {
   let ctx = @decimal.DecimalContext::decimal64()
   let ln2 = @decimal_checked.DecimalChecked::from_int(2, ctx).ln()
   inspect(ln2.value().to_string(), content="0.6931471805599453")
-  inspect(flags(ln2.raised()), content="inexact,rounded")
+  inspect(flags(ln2.raised()), content="inexact")
   let unbounded = @decimal_checked.DecimalChecked::from_int(
     2,
     @decimal.DecimalContext::new(precision=16, e_max=999_999_999),
   ).ln()
   inspect(unbounded.value().to_string(), content="nan")
-  inspect(flags(unbounded.raised()), content="invalid_context")
+  inspect(flags(unbounded.raised()), content="invalid_operation")
   let pole = @decimal_checked.DecimalChecked::parse("0.5", ctx).tanpi()
   inspect(flags(pole.raised()), content="division_by_zero")
 }
@@ -475,20 +467,17 @@ pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::log2p1(Self) -> Self
 pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_down(Self) -> Self
 pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_up(Self) -> Self
 pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
-pub fn DecimalChecked::plus(Self) -> Self
 pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
-pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
 pub fn DecimalChecked::rootn(Self, Int32) -> Self

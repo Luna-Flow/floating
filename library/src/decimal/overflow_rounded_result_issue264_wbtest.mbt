@@ -1,13 +1,10 @@
 ///|
 fn issue264_flags_text(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -136,29 +133,19 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
     // precision 1 (adjusted exponent 1 > Emax 0); the sum 9.5 - 0.5 = 9.0 does not.
     // Cancellation of a power of ten at precision 1 (rounding to one digit moves the
     // sum by many decades): the operand is beyond Emax, the exact sum is not.
-    ("add", ["999E4", "-1E7"], 1, -4, 5, true, HalfEven, "-1E+4", "........"),
-    ("add", ["999E4", "-1E7"], 1, -4, 5, true, HalfUp, "-1E+4", "........"),
-    ("add", ["999E4", "-1E7"], 1, -4, 5, true, Down, "-1E+4", "........"),
-    ("add", ["999E4", "-1E7"], 1, -4, 5, true, Ceiling, "-1E+4", "........"),
-    ("add", ["999E4", "-1E7"], 1, -4, 5, true, Floor, "-1E+4", "........"),
-    (
-      "subtract",
-      ["100E6", "99E6"],
-      1,
-      -5,
-      6,
-      true,
-      HalfEven,
-      "1E+6",
-      "........",
-    ),
-    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, HalfUp, "1E+6", "........"),
-    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, Down, "1E+6", "........"),
-    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, Ceiling, "1E+6", "........"),
-    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, Floor, "1E+6", "........"),
-    ("add", ["-95E1", "3E-5"], 1, -1, 2, true, HalfEven, "-9E+2", "xr......"),
-    ("add", ["-95E1", "3E-5"], 1, -1, 2, true, Ceiling, "-9E+2", "xr......"),
-    ("add", ["-95E1", "3E-5"], 1, -1, 2, true, Floor, "-Infinity", "xr..o..."),
+    ("add", ["999E4", "-1E7"], 1, -4, 5, true, HalfEven, "-1E+4", "....."),
+    ("add", ["999E4", "-1E7"], 1, -4, 5, true, HalfUp, "-1E+4", "....."),
+    ("add", ["999E4", "-1E7"], 1, -4, 5, true, Down, "-1E+4", "....."),
+    ("add", ["999E4", "-1E7"], 1, -4, 5, true, Ceiling, "-1E+4", "....."),
+    ("add", ["999E4", "-1E7"], 1, -4, 5, true, Floor, "-1E+4", "....."),
+    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, HalfEven, "1E+6", "....."),
+    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, HalfUp, "1E+6", "....."),
+    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, Down, "1E+6", "....."),
+    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, Ceiling, "1E+6", "....."),
+    ("subtract", ["100E6", "99E6"], 1, -5, 6, true, Floor, "1E+6", "....."),
+    ("add", ["-95E1", "3E-5"], 1, -1, 2, true, HalfEven, "-9E+2", "x...."),
+    ("add", ["-95E1", "3E-5"], 1, -1, 2, true, Ceiling, "-9E+2", "x...."),
+    ("add", ["-95E1", "3E-5"], 1, -1, 2, true, Floor, "-Infinity", "x..o."),
     // fma: the exact product is the first summand of the sum, and the sum is what is
     // rounded (GDA 1.70, fused-multiply-add). The product rounds past Emax on its own.
     (
@@ -170,7 +157,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       HalfEven,
       "9E+2",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -181,7 +168,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       HalfUp,
       "9E+2",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -192,7 +179,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       Down,
       "8E+2",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -203,7 +190,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       Ceiling,
       "9E+2",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -214,7 +201,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       Floor,
       "8E+2",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -225,7 +212,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       HalfEven,
       "-9.9999E+18",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -236,7 +223,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       HalfUp,
       "-9.9999E+18",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -247,7 +234,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       Down,
       "-9.9998E+18",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -258,7 +245,7 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       Ceiling,
       "-9.9998E+18",
-      "xr......",
+      "x....",
     ),
     (
       "fma",
@@ -269,25 +256,25 @@ test "add, subtract and fma judge overflow on the rounded result (#264)" {
       true,
       Floor,
       "-9.9999E+18",
-      "xr......",
+      "x....",
     ),
     // Overflow still happens when the sum itself rounds beyond Emax, in every mode
     // (the result is Infinity or the largest finite number, GDA 1.70, Overflow).
-    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, HalfEven, "Infinity", "xr..o..."),
-    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, HalfUp, "Infinity", "xr..o..."),
-    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, Down, "99", "xr..o..."),
-    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, Ceiling, "Infinity", "xr..o..."),
-    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, Floor, "99", "xr..o..."),
-    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, HalfEven, "99", "xr......"),
-    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, HalfUp, "99", "xr......"),
-    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, Down, "99", "xr......"),
-    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, Ceiling, "Infinity", "xr..o..."),
-    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, Floor, "99", "xr......"),
-    ("add", ["99.9", "-0.01"], 2, 0, 1, true, HalfEven, "Infinity", "xr..o..."),
-    ("add", ["99.9", "-0.01"], 2, 0, 1, true, HalfUp, "Infinity", "xr..o..."),
-    ("add", ["99.9", "-0.01"], 2, 0, 1, true, Down, "99", "xr......"),
-    ("add", ["99.9", "-0.01"], 2, 0, 1, true, Ceiling, "Infinity", "xr..o..."),
-    ("add", ["99.9", "-0.01"], 2, 0, 1, true, Floor, "99", "xr......"),
+    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, HalfEven, "Infinity", "x..o."),
+    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, HalfUp, "Infinity", "x..o."),
+    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, Down, "99", "x..o."),
+    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, Ceiling, "Infinity", "x..o."),
+    ("add", ["1E+3", "-1E-5"], 2, 0, 1, true, Floor, "99", "x..o."),
+    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, HalfEven, "99", "x...."),
+    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, HalfUp, "99", "x...."),
+    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, Down, "99", "x...."),
+    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, Ceiling, "Infinity", "x..o."),
+    ("add", ["9.9E+1", "1E-9"], 2, 0, 1, true, Floor, "99", "x...."),
+    ("add", ["99.9", "-0.01"], 2, 0, 1, true, HalfEven, "Infinity", "x..o."),
+    ("add", ["99.9", "-0.01"], 2, 0, 1, true, HalfUp, "Infinity", "x..o."),
+    ("add", ["99.9", "-0.01"], 2, 0, 1, true, Down, "99", "x...."),
+    ("add", ["99.9", "-0.01"], 2, 0, 1, true, Ceiling, "Infinity", "x..o."),
+    ("add", ["99.9", "-0.01"], 2, 0, 1, true, Floor, "99", "x...."),
   ]
   issue264_check(rows)
 }

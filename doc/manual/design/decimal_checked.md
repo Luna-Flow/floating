@@ -16,13 +16,13 @@ flags, while keeping the IEEE rule that exceptional results are values. The
 
 ### The flag monoid
 
-`DecimalFlags` has thirteen Boolean fields (`inexact`, `rounded`, `overflow`,
-…), so a flag set is an element of $\mathbb{F} = \{0, 1\}^{13}$, or
-equivalently a subset of the set $\Sigma$ of the thirteen signals.
+`DecimalFlags` has six Boolean fields (`inexact`, `underflow`, `overflow`,
+…), so a flag set is an element of $\mathbb{F} = \{0, 1\}^{6}$, or
+equivalently a subset of the set $\Sigma$ of the six flags.
 `DecimalFlags::combine` is the field-wise OR:
 
 $$
-(a \lor b)_i = a_i \lor b_i \qquad (i = 1, \dots, 13),
+(a \lor b)_i = a_i \lor b_i \qquad (i = 1, \dots, 6),
 \qquad \mathbf{0} = \texttt{DecimalFlags::new()}.
 $$
 
@@ -40,7 +40,7 @@ $$
 
 So $(\mathbb{F}, \lor, \mathbf{0})$ is a commutative idempotent monoid, a
 *bounded join-semilattice*; under the subset reading, $\lor$ is union.
-`DecimalFlags::contains(s)` reads coordinate $s$, and it is a monoid
+The accessor of a flag $s$ (`inexact`, `underflow`, …) reads coordinate $s$, and it is a monoid
 homomorphism to $(\{0,1\}, \lor, 0)$:
 $\texttt{contains}(a \lor b, s) = \texttt{contains}(a, s) \lor
 \texttt{contains}(b, s)$.
@@ -150,7 +150,7 @@ predefined `ArithmeticContext::decimal64()` maps exactly to
 The mathematical functions `exp`, `ln`, `log10` and `power` restrict their
 context to decNumber's range: precision and both exponent limits must lie
 within $999\,999$ in magnitude, otherwise the result is NaN with
-`invalid_context` (private check `math_context_is_restricted` in
+`invalid_operation` (private check `math_context_is_restricted` in
 `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not
 a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001
 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid
@@ -260,7 +260,7 @@ monad's output.
 
 ### Cost
 
-A step costs the delegated decimal operation plus one 13-field OR and a
+A step costs the delegated decimal operation plus one 6-field OR and a
 constant-size state copy.
 
 ## Alternatives rejected

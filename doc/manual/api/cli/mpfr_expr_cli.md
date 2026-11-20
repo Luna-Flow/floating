@@ -45,7 +45,7 @@ The format is chosen from the file content:
 
 | Content contains | Format | Parser and executor | JSON `corpus` |
 | --- | --- | --- | --- |
-| `mpfr-decimal-random-v1` | seeded random decimal differential rows | `parse_decimal_random_data`, `execute_decimal_random_data` | `mpfr-4.2.2-decimal-random` |
+| `mpfr-decimal-random-v2` | seeded random decimal differential rows | `parse_decimal_random_data`, `execute_decimal_random_data` | `mpfr-4.2.2-decimal-random` |
 | `mpfr-random-v1` | seeded random differential rows | `parse_random_data`, `execute_random_data` | `mpfr-4.2.2-random` |
 | `mpfr-elementary-v1` | elementary matrix | `parse_elementary_data`, `execute_elementary_data` | `mpfr-4.2.2-elementary` |
 | `input_coefficient_hex` (and not the above) | integer powers | `parse_pow_data`, `execute_pow_data` | `mpfr-4.2.2-pow-si` |

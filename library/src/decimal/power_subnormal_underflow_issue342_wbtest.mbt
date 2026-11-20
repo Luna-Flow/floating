@@ -1,13 +1,10 @@
 ///|
 fn issue342_flags_text(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -143,7 +140,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -154,7 +151,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfUp,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -165,7 +162,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       Ceiling,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -176,7 +173,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -187,7 +184,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -198,7 +195,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "-1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -209,7 +206,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "1.000000000000000E-8",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -220,7 +217,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -231,7 +228,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfUp,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -242,7 +239,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       Down,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -253,7 +250,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       Ceiling,
       "0.00001",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -264,7 +261,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       Floor,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -275,7 +272,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -286,7 +283,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfUp,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -297,7 +294,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       Ceiling,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -308,7 +305,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -319,7 +316,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "1.00000000000000E-9",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -330,7 +327,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -341,7 +338,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "0.00000",
-      "xr...usc",
+      "x...u",
     ),
     (
       "power",
@@ -352,7 +349,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "4.8569E-15",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -363,7 +360,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       Ceiling,
       "4.8570E-15",
-      "xr...us.",
+      "x...u",
     ),
     (
       "power",
@@ -374,7 +371,7 @@ test "an inexact subnormal integer power raises Underflow (#342)" {
       true,
       HalfEven,
       "2.058911321E+14",
-      "xr......",
+      "x....",
     ),
   ]
   issue342_check(rows)

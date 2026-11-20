@@ -136,7 +136,7 @@ test "binary to decimal: the MPFR mpfr_get_str rows" {
       inexact,
       cohort_coefficient,
       cohort_exponent,
-      cohort_rounded,
+      _cohort_rounded,
     ) = row
     let x = @bin_float.BinFloat::from_hex(value, precision).unwrap()
     let context = DecimalContext::new(precision=digits, e_max=999_999_999).with_round(
@@ -157,14 +157,14 @@ test "binary to decimal: the MPFR mpfr_get_str rows" {
     }
     // MPFR pads the digits to n: compare the digits with the zeros stripped and
     // the adjusted exponent; for an exact row also the cohort member itself
-    // (coefficient, exponent and the rounded flag), which MPFR's padding hides.
+    // (coefficient and exponent), which MPFR's padding hides.
     assert_eq((label, strip(text)), (label, strip(expected_digits)))
     assert_eq((label, adjusted), (label, expected_exponent))
     assert_eq((label, flags.inexact), (label, inexact))
     if !inexact {
       assert_eq(
-        (label, text, actual.exponent10, flags.rounded),
-        (label, cohort_coefficient, cohort_exponent, cohort_rounded),
+        (label, text, actual.exponent10),
+        (label, cohort_coefficient, cohort_exponent),
       )
     }
     assert_eq((label, actual.negative), (label, x.is_negative()))
@@ -359,7 +359,7 @@ test "convertFormat of infinities and zeros keeps the sign" {
 ///|
 test "binary to decimal: an exact conversion returns the cohort member closest to the preferred exponent 0 (IEEE 754-2019 5.4.2, 5.2)" {
   for row in exact_cohort_rows {
-    let (hexa, precision, coefficient, exponent, negative, rounded) = row
+    let (hexa, precision, coefficient, exponent, negative, _rounded) = row
     let x = @bin_float.BinFloat::from_hex(hexa, 20000).unwrap()
     let context = DecimalContext::new(precision~, e_max=999_999)
     let (actual, flags) = Decimal::from_bin_float_ctx(x, context)
@@ -378,15 +378,11 @@ test "binary to decimal: an exact conversion returns the cohort member closest t
       (
         label,
         flags.inexact,
-        flags.rounded,
         flags.overflow,
         flags.underflow,
-        flags.subnormal,
-        flags.clamped,
         flags.invalid_operation,
-        flags.invalid_context,
       ),
-      (label, false, rounded, false, false, false, false, false, false),
+      (label, false, false, false, false),
     )
   }
 }
@@ -464,7 +460,6 @@ test "binary to decimal: values beyond a binary exponent of 2^22 are correctly r
       (label, coefficient, exponent, negative),
     )
     assert_true(flags.inexact, msg=label)
-    assert_false(flags.invalid_context, msg=label)
   }
 }
 
@@ -478,7 +473,7 @@ test "binary to decimal: 2^5000000 in a wide context, and the work bound of an u
   let wide = DecimalContext::new(precision=16, e_max=999_999_999)
   let (value, flags) = Decimal::from_bin_float_ctx(huge, wide)
   assert_eq(value.to_string(), "9.513052773090666E+1505149")
-  assert_true(flags.inexact && flags.rounded)
+  assert_true(flags.inexact)
   // beyond the range of decimal64 the value overflows without its digits
   let (result, flags) = Decimal::from_bin_float_ctx(
     huge,

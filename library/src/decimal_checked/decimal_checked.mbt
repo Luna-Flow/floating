@@ -194,16 +194,6 @@ pub fn DecimalChecked::apply(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
-pub fn DecimalChecked::plus(self : DecimalChecked) -> DecimalChecked {
-  self.record(self.value_.plus_ctx(self.context_))
-}
-
-///|
-pub fn DecimalChecked::minus(self : DecimalChecked) -> DecimalChecked {
-  self.record(self.value_.minus_ctx(self.context_))
-}
-
-///|
 pub fn DecimalChecked::abs(self : DecimalChecked) -> DecimalChecked {
   self.record(self.value_.abs_ctx(self.context_))
 }
@@ -487,11 +477,6 @@ pub fn DecimalChecked::remainder(
   divisor : @decimal.Decimal,
 ) -> DecimalChecked {
   self.record(self.value_.remainder_ctx(divisor, self.context_))
-}
-
-///|
-pub fn DecimalChecked::reduce(self : DecimalChecked) -> DecimalChecked {
-  self.record(self.value_.reduce_ctx(self.context_))
 }
 
 ///|
