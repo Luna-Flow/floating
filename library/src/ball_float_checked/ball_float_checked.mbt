@@ -332,6 +332,23 @@ pub fn BallFloatResult::tan_rev(
 }
 
 ///|
+/// `powRev1(b, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
+/// passed on. The prior `x` is optional (default Entire).
+pub fn BallFloatResult::pow_rev1(
+  self : BallFloatResult,
+  c : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) =>
+      self.bind(fn(b) {
+        c.bind(fn(cc) { prior.map(fn(p) { b.pow_rev1(cc, x=p) }) })
+      })
+    None => self.bind(fn(b) { c.map(fn(cc) { b.pow_rev1(cc) }) })
+  }
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }

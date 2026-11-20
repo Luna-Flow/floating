@@ -194,7 +194,7 @@ fn ref_check(
   seed : UInt64,
   cap? : Int32,
 ) -> Unit raise {
-  let rng = { state: seed, }
+  let rng : RefRng = { state: seed, }
   let mut checked = 0
   let mut nonempty = 0
   for _ in 0..<cases {

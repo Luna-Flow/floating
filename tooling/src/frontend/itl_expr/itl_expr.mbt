@@ -579,7 +579,8 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
   }
   if case.operation_ == "mulRev" ||
     case.operation_ == "mulRevTen" ||
-    case.operation_ == "mulRevToPair" {
+    case.operation_ == "mulRevToPair" ||
+    case.operation_ == "powRev1" {
     return execute_mul_rev_case(case, precision)
   }
   if case.operation_ == "pown" {
@@ -857,7 +858,7 @@ fn execute_algebraic_reverse_case(
 /// `mulRev(b, c)`, `mulRevTen(b, c, x)` (the ternary form of the corpus) and
 /// `mulRevToPair(b, c)`, whose result is two intervals.
 fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
-  let ternary = case.operation_ == "mulRevTen"
+  let ternary = case.operation_ == "mulRevTen" || case.operation_ == "powRev1"
   let operands : Array[@ball_float.BallFloatDecorated] = []
   for src in case.operands_ {
     match parse_interval(src, precision) {
@@ -905,7 +906,10 @@ fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
     }
   }
   let ctx = result_context(precision)
-  let actual : Array[@ball_float.BallFloatDecorated] = if ternary {
+  let actual : Array[@ball_float.BallFloatDecorated] = if case.operation_ ==
+    "powRev1" {
+    [operands[0].pow_rev1(operands[1], x=operands[2]).apply_ctx(ctx).0]
+  } else if ternary {
     [operands[0].mul_rev(operands[1], x=operands[2]).apply_ctx(ctx).0]
   } else if want == 1 {
     [operands[0].mul_rev(operands[1]).apply_ctx(ctx).0]

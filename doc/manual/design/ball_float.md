@@ -706,6 +706,58 @@ to a piece end. Six distinct corpus cases (twelve with the decorated copies) hav
 expected value that is one or two ulps wider than the hull; they are listed on the
 [conformance page](../conformance/ball_float.md).
 
+#### Reverse power with an interval exponent
+
+`pow_rev1(b, c, x)` (IEEE 1788-2015 10.5.4) reduces to the set division of `mul_rev` in logarithm
+coordinates (see the [API page](../api/ball_float.md#ballfloatpow_rev1)): the pieces of
+$\exp(L /_{\text{set}} \boldsymbol{b})$ come from the same case split as $c /_{\text{set}} b$
+(whether $0 \in L$, that is $1 \in \boldsymbol{c}$, and whether $0 \in \boldsymbol{b}$), with the
+sign of an end of $L$ decided by comparing the end of $\boldsymbol{c}$ with 1. The end $x = 0$ of
+a piece is open (it comes from $\ln x \to -\infty$); the zero part $\{0\}$ is a piece of its own;
+$x = 1$ is open when it is the limit of a quotient by an unbounded $\boldsymbol{b}$ and attained when
+$c_\text{end} = 1$; every other finite end is attained.
+
+*Exactness of an end* $x = c^{1/\beta}$, $c > 0$, $\beta \ne 0$ finite. Write $\beta = s\,u\,2^j$
+and $c = C\,2^\gamma$ with $u$ and $C$ odd, $p = 2^{\max(-j, 0)}$ and $q = u\,2^{\max(j, 0)}$. Then
+$x = c^{s p / q}$ with $\gcd(p, q) = 1$, and $x$ is rational iff $c$ is a perfect $q$-th power in
+$\mathbb{Q}$, that is $C = m^q$ and $q \mid \gamma$ (for $C > 1$ this needs $q \le \operatorname{bitlen}(C)$,
+a comparison, and then one integer root; for $C = 1$ it needs $q \mid \gamma$, a divisibility test; no
+power of $c$ is formed). The value is then $(m\,2^{\gamma/q})^{s p}$. There are three classes of end and
+each has its own line in the procedure:
+
+| Class | When | Comparison with a prior end | Rounding |
+| --- | --- | --- | --- |
+| dyadic | $s = +1$ or $m = 1$ | exact (it is $m^p 2^{\ldots}$) | exact `with_precision` |
+| rational, not dyadic | $s = -1$ and $m > 1$, for example $9^{1/(-2)} = 1/3$ | exact cross-multiplication | integer division with directed rounding |
+| irrational | otherwise | the loop below | the loop below |
+
+A rational that is not dyadic is never a float, so its comparisons are strict without any refinement. An
+irrational value is not rational, so it differs from every float, and the loop terminates: the
+working precision starts at $p + 64 + e_t$, with $e_t$ the exponent of $t = \ln(c)/\beta$ (the result
+needs the absolute error of $t$ below $2^{-p}$), and doubles up to the cap of 12 as in `sin_rev`; at the
+cap an undecided comparison counts as met in both conditions and the end written for that piece is
+the prior's own end. The sign of $t$ is exact, so $\exp(t) > 1$ iff $t > 0$: the enclosure is strict
+at the float 1, and an exponent such as $\beta = 2^{10^9}$, where $x = 1 + 2^{-10^9}\ln c$, is decided at
+once ($\operatorname{RD} = 1$, $\operatorname{RU} = 1 + \text{ulp}$). The stored range is decided with a certified upper bound of $\ln 2$, by a test that is sufficient and never wrong. Above: every finite float is below $2^{e_{\max}+1}$ ($e_{\max}$ is the exponent of the leading bit), so if the enclosure of $t$ lies wholly at or above $(e_{\max}+1)\ln 2$ the enclosure of the value is [largest finite float at $w$ bits, $+\infty$], built explicitly, and a lower end then rounds down to the largest finite float of the result precision; the top binade $[2^{e_{\max}}, 2^{e_{\max}+1})$ is finite and goes through $\exp$. Below: the stored values at $w$ bits go down to the leading bit $e_{\min}-w+1$, so if the enclosure of $t$ lies wholly at or below $(e_{\min}-w)\ln 2$ the enclosure is $[0, 2^{e_{\min}-w+1}]$, the smallest positive stored value at $w$ bits, and an upper end rounds up to the smallest positive stored value of the result precision. Between the limits $\exp$ is used, with gradual underflow (the enclosure is at most one quantum $2^{e_{\min}-w+1}$ wide). `BallFloat::exp` of an interval with an end past the range returns the range of the function $[0, +\infty]$ at some precisions (issue [#569](https://github.com/Luna-Flow/floating/issues/569)); the point `exp` of the lower end is a tight bound, so the two ends give the enclosure. If the enclosure of $t$ straddles the upper limit, $\exp$ returns an infinite upper end; the loops stop with it only if its lower end is checked to be at least $2^{e_{\max}+1}(1 - 2^{-(w-64)})$ (the largest finite float at $w - 64$ bits), which says exactly that the upper end is $+\infty$ and the lower end rounds down to the largest finite float of the result at every precision $p \le w - 64$, hence at every further precision; otherwise the loops go on to their cap. If it straddles the lower limit the loops go on and terminate, since the quantum shrinks with $w$ while the value is fixed. An exact dyadic end in the subnormal range is kept exact, at a datum precision of at least $e_{\min} - \text{low} + 1$ bits within `pow_value_budget`, where $\text{low}$ is the exponent of the coefficient's lowest bit (the stored values at $P$ bits are the multiples of $2^{e_{\min}-P+1}$; the leading-bit formula is too small for a coefficient of more than one bit), and the datum built is checked to carry the value asked (an exact class never carries a rounded value) (for example $2^{-2^{30}}$ is the stored value $2^{e_{\min}-2}$, and $3 \cdot 2^{e_{\min}-5}$ needs 6 bits; the result for a point set is $[v, v]$ for every prior that contains it, in about 0.2 s); an exact end above $2^{e_{\max}+1}$ (for example $2^{(2^{30})}$), a rational end in the subnormal range, and a dyadic end below the budget are decided by the loop, which clamps at the limits (a rational is never a float, so its separation terminates at the first precision).
+
+*Budgets*, in bits and not in terms of 53: the exactness test runs only for $C$ and $q$ within
+`pow_int_budget` = 65,536 bits (an exact 65,535-bit square takes about 80 ms, against about 20 ms for
+the forward `sqrt` of the same operand) and an exact value is materialised only within
+`pow_value_budget` = 262,144 bits (a value of millions of bits would be built only to be rounded to
+$p$ bits). Above a budget the end goes to the loop with its documented fallback. The corpus needs none of
+this: its 429 cases need the first working precision of the loop at most ($w = p + 64 = 117$ at
+$p = 53$, measured), and the oracle reproduces all of them.
+
+*Tests.* The definition tests cover the classes (including a 2000-bit perfect square and a $\beta$ with 500
+fractional bits), the open ends at 0 and 1 against a prior that touches them from both sides, and exponents
+and prior ends of magnitude $2^{\pm 10^9}$. The reference test
+(`pow_reverse_reference_wbtest.mbt`) does not use the pieces: it evaluates the condition for a float $x$
+with the forward `BallFloat::pow` at 200 bits, since $\beta \mapsto x^\beta$ is monotone and its range
+over $\boldsymbol{b}$ is the interval `pow(x, b)`, and checks, at precisions 24, 53 and 113, that every float
+certainly in the set is in the result, that a point a quarter of a float outside either end that comes from
+a piece is not in the set, and that the float one step inside is not certainly outside while the next one
+is certainly inside. A sample runs in every test run; the long run is an interval gate stage.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -957,7 +1009,7 @@ trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
-runs 5,828 cases in strict mode (see [conformance](../conformance/ball_float.md)).
+runs 6,257 cases in strict mode (see [conformance](../conformance/ball_float.md)).
 
 ### Known limitations
 
@@ -996,7 +1048,7 @@ The package deliberately does not:
 
 - provide the IEEE 1788 reverse operations other than `mulRev` and
   `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and
-  `tanRev` (`powRev1`, `powRev2`, …; issue 230);
+  `tanRev`, `powRev1` (`powRev2`, …; issue 230);
 - promise tight results: fallbacks and the dependency problem may widen
   enclosures arbitrarily;
 - define a total order on intervals, or treat `Eq` as set equality;

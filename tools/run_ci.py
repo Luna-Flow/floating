@@ -37,6 +37,7 @@ INTERVAL_PHASES = (
     "multiplicative-reverse",
     "algebraic-reverse",
     "trigonometric-reverse",
+    "power-reverse-1",
 )
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 
@@ -224,8 +225,8 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 "INTERVAL: IEEE 1788",
                 conformance_command(BackendName.INTERVAL, jobs),
             ),
-            # The long run of the reverse trigonometric reference test (4,200
-            # cases, about 40 s): marked `#skip` so a plain `moon test` runs only
+            # The long runs of the reverse trigonometric reference test (4,200
+            # cases, about 40 s) and of the pow_rev1 reference test (2,100 cases): marked `#skip` so a plain `moon test` runs only
             # its sample, and run here with `--include-skipped`.
             Stage(
                 "INTERVAL: reverse trigonometric reference",
@@ -234,6 +235,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "tools/run_moon_clean_exec.sh",
                     "test",
                     "library/src/ball_float/trig_reverse_reference_wbtest.mbt",
+                    "library/src/ball_float/pow_reverse_reference_wbtest.mbt",
                     "--include-skipped",
                     "--target",
                     "native",
