@@ -60,8 +60,8 @@ pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
 pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::log2p1(Self) -> Self
-pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_minus(Self) -> Self

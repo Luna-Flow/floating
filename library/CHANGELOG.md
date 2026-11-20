@@ -15,6 +15,22 @@ notes live in this file.
   | `decimal_gda::max_mag`, `decimal_gda::min_mag` (free functions) | `decimal_gda::max_magnitude`, `decimal_gda::min_magnitude` |
   | `Decimal::max_mag_ctx`, `Decimal::min_mag_ctx` | `Decimal::max_magnitude_ctx`, `Decimal::min_magnitude_ctx` |
 
+- `decimal`, `decimal_checked`: one spelling per operation ([#22](https://github.com/Luna-Flow/floating/issues/22), rows D01 to D03, D05 to D09, D12 and D17 of the naming decisions). `decimal` is named after IEEE 754-2019; the General Decimal Arithmetic spellings and operations are removed and live in `decimal_gda`. There are no aliases. The calls in this release's library, tooling, tools and manual are migrated.
+
+  | removed | use instead | note |
+  | --- | --- | --- |
+  | `Decimal::is_signed` | `is_negative` | same predicate |
+  | `Decimal::is_qnan`, `is_snan` | `is_quiet_nan`, `is_signaling_nan` | same predicates |
+  | `Decimal::magnitude` | `coefficient` | same value |
+  | `Decimal::from_integer`, `from_natural` (inherent methods) | `Decimal::from_bigint(n).normalized()`, or `from_bigint(n)` | the `FromInteger` and `FromNat` trait implementations stay and return `from_bigint(n).normalized()`, so trailing zeros are removed (`100` is `1E+2`); plain `from_bigint(n)` keeps exponent 0 |
+  | `Decimal::normalize_ctx` | `reduce_ctx` | same operation |
+  | `Decimal::copy_abs`, `copy_negate` | `abs`, `neg` | same operations (`DecimalInterchange::copy_abs` and `copy_negate` are unchanged) |
+  | `Decimal::minimum_mag_ctx`, `maximum_mag_ctx`, `minimum_number_mag_ctx`, `maximum_number_mag_ctx` | `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` | same operations |
+  | `Decimal::min_ctx`, `max_ctx`, `min_mag_ctx`, `max_mag_ctx` | `decimal_gda` `Decimal::min_ctx` and its siblings for the GDA operation; `minimum_number_ctx`, `maximum_number_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` for the IEEE one | not the same: a signaling NaN with a number gives the number and `invalid_operation` (GDA: a quiet NaN and `invalid_operation`), and there is no subset-mode left-operand tie rule |
+  | `DecimalChecked::min`, `max` | `minimum_number`, `maximum_number` | wrappers of `minimum_number_ctx` and `maximum_number_ctx`; a signaling NaN with a number gives the number and `invalid_operation`, equal operands give either member without a total-order choice; the GDA `min` and `max` are in `decimal_gda_checked` |
+  | `Decimal::remainder_near` | `remainder_ctx` | the IEEE remainder; `remainder_ctx` now holds the implementation, no change of result |
+  | `Decimal::class_name` | `class_of` | returns an `IeeeClass`; there is no text form, match on the class |
+
 - `decimal_gda`: one spelling per operation ([#22](https://github.com/Luna-Flow/floating/issues/22), naming rows G01 to G06, G08 and G09; the name of an operation follows GDA 1.70 and there is no alias). Twenty-three methods of `Decimal` are removed; `decimal_gda_checked` had none of them. The `decimal` package is not affected. Migration:
 
   | row | removed | use instead |
@@ -46,6 +62,9 @@ notes live in this file.
 ### Added
 
 - `decimal`: the public constants `decimal_implementation_e_max` (999,999,999), `decimal_implementation_e_min` (-999,999,999) and `decimal_precision_max` (999,999,999), the counterpart of `binary_implementation_e_max`, `binary_implementation_e_min` and `binary_precision_max` ([#22](https://github.com/Luna-Flow/floating/issues/22)). They are the limits `DecimalContext::try_new` (and `new`) already enforced, now named, and the validation uses them, so the values cannot drift. The certified elementary functions keep their own lower limit (`|e| <= 999999`, `p <= 999999`), described in the manual. No behaviour changes.
+
+- `decimal_gda`: `GdaOutcome::resume_defined(Self) -> Self`, the GDA continuation of a trapped operation with its defined result: `Completed` is unchanged, `Trapped(s, v, C, R)` becomes `Completed(v, C, none)`. It was added with the read-only `GdaOutcome` of step B ([#22](https://github.com/Luna-Flow/floating/issues/22)); `GdaDecimalChecked::resume_defined` calls it.
+- `decimal_checked`: `DecimalChecked::minimum_number` and `maximum_number`, the checked wrappers of `minimum_number_ctx` and `maximum_number_ctx` (they replace `min` and `max`, see Breaking).
 
 - `def`, `bin_float`, `decimal`: the ten-valued `IeeeClass` of IEEE 754-2019 §5.7.2 (`SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`, `NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`, `PositiveNormal`, `PositiveInfinity`) in `def`, with `BinFloat::class_of(Self, BinaryContext) -> IeeeClass` and `Decimal::class_of(Self, DecimalContext) -> IeeeClass` ([#224](https://github.com/Luna-Flow/floating/issues/224)). `BinFloat` also gets the predicates `is_normal(Self, BinaryContext)`, `is_subnormal(Self, BinaryContext)`, `is_finite`, `is_infinite` and `is_nan`, as `Decimal` has them. Normal and subnormal compare the leading-bit exponent with the context's `e_min`. `classify`, `is_negative` and `Decimal::class_name` are unchanged, and `class_name` is the text of `class_of`.
 

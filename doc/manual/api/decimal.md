@@ -75,20 +75,19 @@ encoding.
 The derived `Debug` implementation is promoted as `Decimal::to_repr`; see
 [Trait implementations](#trait-implementations).
 
-### `Decimal::precision`, `coefficient`, `magnitude`, `exponent10`, `quantum`
+### `Decimal::precision`, `coefficient`, `exponent10`, `quantum`
 
 These observers return the stored representation of a value.
 
 ```mbti
 pub fn Decimal::precision(Self) -> Int
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
-pub fn Decimal::magnitude(Self) -> @bigint.BigInt
 pub fn Decimal::exponent10(Self) -> Int
 pub fn Decimal::quantum(Self) -> Int
 ```
 
 `precision` is the working precision stored in the value (at least 1).
-`coefficient` and `magnitude` both return the non-negative coefficient $c$;
+`coefficient` returns the non-negative coefficient $c$;
 for a NaN they return the payload and for an infinity `0`. The sign is never
 part of the coefficient: use `is_negative`. `exponent10` and `quantum` both
 return the stored exponent $q$; for special values it is `0`.
@@ -104,42 +103,35 @@ test "decimal representation observers" {
 }
 ```
 
-### `Decimal::sign`, `is_negative`, `is_signed`
+### `Decimal::sign`, `is_negative`
 
 These observers report the sign of a value.
 
 ```mbti
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::is_negative(Self) -> Bool
-pub fn Decimal::is_signed(Self) -> Bool
 ```
 
 `sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and
-`Negative`/`Positive` otherwise. `is_negative` and `is_signed` are the same
-predicate: they return the stored sign bit, so they are `true` for $-0$, for
-$-\infty$ and for a negative NaN.
+`Negative`/`Positive` otherwise. `is_negative` returns the stored sign bit, so it
+is `true` for $-0$, for $-\infty$ and for a negative NaN.
 
-### `Decimal::classify`, `class_of`, `class_name`
+### `Decimal::classify`, `class_of`
 
 `classify` returns the coarse class of a value; `class_of` returns the ten-valued
-class of IEEE 754-2019 clause 5.7.2 under a context; `class_name` returns the
-General Decimal Arithmetic class string under a context.
+class of IEEE 754-2019 clause 5.7.2 under a context.
 
 ```mbti
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
-pub fn Decimal::class_name(Self, DecimalContext) -> String
 ```
 
-`classify` returns `Finite`, `Infinity` or `NaN`. `class_name` returns one of
-`"sNaN"`, `"NaN"`, `"-Infinity"`, `"+Infinity"`, `"-Zero"`, `"+Zero"`,
-`"-Subnormal"`, `"+Subnormal"`, `"-Normal"` or `"+Normal"`; the
-normal/subnormal split uses the context's $e_{\min}$. `class_of` makes the
-same split and returns the matching [`IeeeClass`](def.md#ieeeclass); `class_name`
-is its text (`SignalingNaN` is `"sNaN"`, `QuietNaN` is `"NaN"`, `PositiveZero` is
-`"+Zero"`, and so on).
+`classify` returns `Finite`, `Infinity` or `NaN`. `class_of` returns one of the
+ten [`IeeeClass`](def.md#ieeeclass) values; the normal/subnormal split uses the
+context's $e_{\min}$. It has no text form: `match` on the `IeeeClass` (the
+former `class_name` strings were `"sNaN"`, `"NaN"`, `"+Zero"` and so on).
 
-### `Decimal::is_finite`, `is_infinite`, `is_nan`, `is_zero`, `is_negative_zero`, `is_quiet_nan`, `is_qnan`, `is_signaling_nan`, `is_snan`, `is_canonical`, `is_normal`, `is_subnormal`
+### `Decimal::is_finite`, `is_infinite`, `is_nan`, `is_zero`, `is_negative_zero`, `is_quiet_nan`, `is_signaling_nan`, `is_canonical`, `is_normal`, `is_subnormal`
 
 These predicates test the class of a value.
 
@@ -150,16 +142,13 @@ pub fn Decimal::is_nan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::is_negative_zero(Self) -> Bool
 pub fn Decimal::is_quiet_nan(Self) -> Bool
-pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_signaling_nan(Self) -> Bool
-pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_normal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 ```
 
-`is_qnan` and `is_snan` are the General Decimal Arithmetic spellings of
-`is_quiet_nan` and `is_signaling_nan`. `is_canonical` always returns `true`:
+`is_canonical` always returns `true`:
 a `Decimal` has no non-canonical form; non-canonical *encodings* are a
 property of [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex). A value is normal
 under a context when it is finite, non-zero and its adjusted exponent is at
@@ -319,19 +308,16 @@ payload when the destination holds it (§6.2.3): `p - 1` digits for the decimal
 formats and `p - 2` bits for a binary format, otherwise the low digits or bits.
 `from_bin_float` and `to_bin_float` are unchanged.
 
-### `Decimal::from_natural`, `from_integer`
+### The `FromNat` and `FromInteger` implementations
 
-These functions are the canonical maps out of the naturals and the integers.
+`Decimal` implements the `luna-generic` traits `FromNat` and `FromInteger`, the
+canonical maps out of the naturals and the integers. There are no `Decimal::from_natural`
+or `Decimal::from_integer` methods: call `Decimal::from_bigint(n)` (exponent 0,
+the cohort of the integer) or the trait functions.
 
-```mbti
-pub fn Decimal::from_natural(@bigint.BigInt) -> Self
-pub fn Decimal::from_integer(@bigint.BigInt) -> Self
-```
-
-They return `from_bigint(n).normalized()` with precision 34. They are the
-`FromNat` and `FromInteger` implementations. To convert another Luna-Flow
-integer type, pick its representative with `Integral::normalize` first, or use
-`lift_to`.
+The trait functions return `from_bigint(n).normalized()` with precision 34, that
+is, with the trailing zeros removed. To convert another Luna-Flow integer type,
+pick its representative with `Integral::normalize` first, or use `lift_to`.
 
 ## Parsing and formatting
 
@@ -885,20 +871,18 @@ test "decimal plain operators" {
 }
 ```
 
-### `Decimal::abs`, `copy`, `copy_abs`, `copy_negate`, `copy_sign`
+### `Decimal::abs`, `neg`, `copy`, `copy_sign`
 
 These functions change only the sign bit.
 
 ```mbti
 pub fn Decimal::abs(Self) -> Self
 pub fn Decimal::copy(Self) -> Self
-pub fn Decimal::copy_abs(Self) -> Self
-pub fn Decimal::copy_negate(Self) -> Self
 pub fn Decimal::copy_sign(Self, Self) -> Self
 ```
 
 They never round, never raise flags and keep exponent, payload and NaN kind.
-`abs` and `copy_abs` clear the sign, `copy_negate` flips it, `copy_sign`
+`abs` clears the sign, `neg` flips it, `copy_sign`
 copies the sign bit of the second operand and `copy` returns its argument.
 
 ### `Decimal::normalized`, `trim`, `with_precision`
@@ -1074,14 +1058,13 @@ when the zeros have opposite signs (`plus_ctx(-0)`, `minus_ctx(+0)`) and $+0$
 otherwise. `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
 `invalid_operation`.
 
-### `Decimal::divide_integer`, `remainder`, `remainder_near`, `remainder_ctx`
+### `Decimal::divide_integer`, `remainder`, `remainder_ctx`
 
 These functions compute integer quotients and remainders.
 
 ```mbti
 pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
@@ -1089,9 +1072,9 @@ pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags
 the integer quotient needs more than $p$ digits, the result is NaN with
 `division_impossible` and `invalid_operation`. `remainder(x, y)` is
 $x - y\cdot\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal
-Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\cdot n$ where $n$ is
-$x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*);
-`remainder_ctx` is the same operation. The remainder is exact when it fits,
+Arithmetic *remainder*). `remainder_ctx(x, y)` is $x - y\cdot n$ where $n$ is
+$x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*; the
+GDA name of it is `remainder-near`, which `decimal_gda` keeps). The remainder is exact when it fits,
 with preferred exponent $\min(q_x, q_y)$, and its sign is that of $x$ when it
 is zero. $x \operatorname{rem} 0$ and $\infty \operatorname{rem} y$ are invalid
 ($0 \operatorname{rem} 0$ also raises `division_undefined`);
@@ -1114,7 +1097,7 @@ test "decimal remainders" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   inspect(d("10").divide_integer(d("3"), ctx).0, content="3")
   inspect(d("10").remainder(d("3"), ctx).0, content="1")
-  inspect(d("10").remainder_near(d("6"), ctx).0, content="-2")
+  inspect(d("10").remainder_ctx(d("6"), ctx).0, content="-2")
   inspect(d("-7.5").remainder(d("2"), ctx).0, content="-1.5")
 }
 ```
@@ -1181,20 +1164,18 @@ Two finite values have the same quantum when their exponents are equal; two
 infinities, and two NaNs, always have the same quantum; any other pair does
 not. It never raises flags.
 
-### `Decimal::reduce_ctx`, `normalize_ctx`
+### `Decimal::reduce_ctx`
 
 These functions round a value to the context and remove trailing zeros.
 
 ```mbti
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::normalize_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `reduce_ctx` applies the context, then removes trailing zeros while the
 exponent stays at most $e_{\max}$ (with `clamp`, at most $e_{\max}-p+1$). A
 zero becomes a zero with exponent 0 (keeping its sign in an extended
-context). `normalize_ctx` is the same operation under its older General
-Decimal Arithmetic name.
+context).
 
 ### `Decimal::to_integral_exact`, `to_integral_value`
 
@@ -1428,27 +1409,11 @@ ties. `clamp` returns `min` below the range, `max` above it, and the value
 (including a NaN) otherwise; it aborts when a bound is NaN or `min > max`.
 `clamp_checked` returns `Err(domain_error)` in those cases.
 
-### `Decimal::min_ctx`, `max_ctx`, `min_mag_ctx`, `max_mag_ctx`
+### `Decimal::minimum_ctx`, `maximum_ctx`, `minimum_number_ctx`, `maximum_number_ctx`, `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx`
 
-These functions are the General Decimal Arithmetic `min`, `max`, `min-magnitude`
-and `max-magnitude` operations.
-
-```mbti
-pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-```
-
-A quiet NaN loses to a number; two NaNs give the first quieted; a signaling
-NaN gives a quiet NaN with `invalid_operation`. Numerically equal operands are
-separated by `compare_total` (so `min_ctx(1.0, 1.00)` is `1.00` and
-`min_ctx(-0, 0)` is `-0`). The selected value is rounded to the context.
-
-### `Decimal::minimum_ctx`, `maximum_ctx`, `minimum_number_ctx`, `maximum_number_ctx`, `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx`, `minimum_mag_ctx`, `maximum_mag_ctx`, `minimum_number_mag_ctx`, `maximum_number_mag_ctx`
-
-These twelve functions are the IEEE 754-2019 §9.6 minimum and maximum
-operations.
+These eight functions are the IEEE 754-2019 §9.6 minimum and maximum
+operations. The General Decimal Arithmetic `min`, `max`, `min-magnitude` and
+`max-magnitude` are in `decimal_gda`.
 
 ```mbti
 pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -1459,18 +1424,13 @@ pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, Deci
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `minimum_ctx` and `maximum_ctx` propagate NaN: any NaN operand gives a quiet
 NaN. The `_number_` variants return the number when exactly one operand is a
 NaN. In both, a signaling NaN raises `invalid_operation`. The magnitude
 variants compare $|x|$ and $|y|$ and fall back to the signed order on equal
-magnitudes. Ties are broken by `compare_total`, so $-0 < +0$. The `_mag_`
-spellings are aliases of the `_magnitude_` ones. The selected value is rounded
+magnitudes. Ties are broken by `compare_total`, so $-0 < +0$. The selected value is rounded
 to the context.
 
 ## Digit-wise operations
@@ -2176,8 +2136,8 @@ pub impl Compare for Decimal
 The ring laws hold exactly for `+`, `-` and `*` as long as no sum is rounded
 (sums whose exact coefficient fits the operand precision, and every
 product, since `*` is exact); a rounded sum is only approximately associative.
-`from_natural` and `from_integer` are documented under
-[construction](#decimalfrom_natural-from_integer).
+`FromNat` and `FromInteger` are documented under
+[construction](#the-fromnat-and-frominteger-implementations).
 
 ### `@def.Floating`
 
@@ -2398,7 +2358,6 @@ pub fn Decimal::atanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::class_name(Self, DecimalContext) -> String
 pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::classify_contextual(Self) -> @arithmetic.FpClass
@@ -2414,8 +2373,6 @@ pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int3
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
-pub fn Decimal::copy_abs(Self) -> Self
-pub fn Decimal::copy_negate(Self) -> Self
 pub fn Decimal::copy_sign(Self, Self) -> Self
 pub fn Decimal::cos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::cosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2442,10 +2399,8 @@ pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
-pub fn Decimal::from_integer(@bigint.BigInt) -> Self
 pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
 pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
-pub fn Decimal::from_natural(@bigint.BigInt) -> Self
 pub fn Decimal::from_string(String, precision? : Int32) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -2458,11 +2413,8 @@ pub fn Decimal::is_nan(Self) -> Bool
 pub fn Decimal::is_negative(Self) -> Bool
 pub fn Decimal::is_negative_zero(Self) -> Bool
 pub fn Decimal::is_normal(Self, DecimalContext) -> Bool
-pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_quiet_nan(Self) -> Bool
 pub fn Decimal::is_signaling_nan(Self) -> Bool
-pub fn Decimal::is_signed(Self) -> Bool
-pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::ln_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2476,27 +2428,18 @@ pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::magnitude(Self) -> @bigint.BigInt
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
-pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
-pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min(Self, Self) -> Self
-pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
@@ -2509,7 +2452,6 @@ pub fn Decimal::negative_zero(precision? : Int32) -> Self
 pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::normalize_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool
 pub fn Decimal::one(precision? : Int32) -> Self
@@ -2534,7 +2476,6 @@ pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)

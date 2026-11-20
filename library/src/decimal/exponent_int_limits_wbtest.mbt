@@ -58,7 +58,7 @@ test "quantize with extreme exponent distance returns invalid operation" {
   let value = Decimal::make(1N, 1_999_999_996, 5)
   let quantum = Decimal::make(1N, -2_000_000_003, 5)
   let (result, flags) = value.quantize(quantum, ctx)
-  assert_true(result.is_qnan())
+  assert_true(result.is_quiet_nan())
   assert_true(flags == { ..DecimalFlags::new(), invalid_operation: true, })
 }
 

@@ -128,7 +128,7 @@ pub fn Decimal::abs_ctx(
   let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
   let result = match operand.class {
     FpClass::NaN => quiet_nan_operand(operand, ctx)
-    _ => operand.copy_abs().plus_ctx(ctx)
+    _ => operand.abs().plus_ctx(ctx)
   }
   (result.0, operand_flags.combine(result.1))
 }

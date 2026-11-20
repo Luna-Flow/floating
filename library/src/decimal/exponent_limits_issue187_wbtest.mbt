@@ -260,7 +260,7 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
   // 9 - 7 = 2), which is tiny and rounds to -0 at Etiny.
   let (near, near_flags) = Decimal::from_string("7")
     .unwrap()
-    .remainder_near(
+    .remainder_ctx(
       Decimal::from_string("9E-2147483648").unwrap(),
       issue187_context(34, false, DecimalRoundingMode::HalfEven),
     )

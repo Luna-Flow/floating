@@ -183,22 +183,12 @@ pub fn Decimal::coefficient(self : Decimal) -> BigInt {
 }
 
 ///|
-pub fn Decimal::magnitude(self : Decimal) -> BigInt {
-  self.coefficient.to_bigint()
-}
-
-///|
 pub fn Decimal::exponent10(self : Decimal) -> Int32 {
   self.exponent10
 }
 
 ///|
 pub fn Decimal::is_negative(self : Decimal) -> Bool {
-  self.negative
-}
-
-///|
-pub fn Decimal::is_signed(self : Decimal) -> Bool {
   self.negative
 }
 
@@ -238,18 +228,8 @@ pub fn Decimal::is_quiet_nan(self : Decimal) -> Bool {
 }
 
 ///|
-pub fn Decimal::is_qnan(self : Decimal) -> Bool {
-  self.is_quiet_nan()
-}
-
-///|
 pub fn Decimal::is_signaling_nan(self : Decimal) -> Bool {
   self.class == FpClass::NaN && self.signaling_nan
-}
-
-///|
-pub fn Decimal::is_snan(self : Decimal) -> Bool {
-  self.is_signaling_nan()
 }
 
 ///|
@@ -330,32 +310,6 @@ pub fn Decimal::is_normal(self : Decimal, ctx : DecimalContext) -> Bool {
 }
 
 ///|
-pub fn Decimal::class_name(self : Decimal, ctx : DecimalContext) -> String {
-  match self.class {
-    FpClass::NaN => if self.signaling_nan { "sNaN" } else { "NaN" }
-    FpClass::Infinity => if self.negative { "-Infinity" } else { "+Infinity" }
-    FpClass::Finite =>
-      if self.coefficient.is_zero() {
-        if self.negative {
-          "-Zero"
-        } else {
-          "+Zero"
-        }
-      } else if self.is_subnormal(ctx) {
-        if self.negative {
-          "-Subnormal"
-        } else {
-          "+Subnormal"
-        }
-      } else if self.negative {
-        "-Normal"
-      } else {
-        "+Normal"
-      }
-  }
-}
-
-///|
 /// The ten-valued class of IEEE 754-2019 clause 5.7.2; `class_name` is its
 /// textual form.
 pub fn Decimal::class_of(self : Decimal, ctx : DecimalContext) -> IeeeClass {
@@ -405,16 +359,6 @@ pub fn Decimal::abs(self : Decimal) -> Decimal {
 ///|
 pub fn Decimal::copy(self : Decimal) -> Decimal {
   self
-}
-
-///|
-pub fn Decimal::copy_abs(self : Decimal) -> Decimal {
-  { ..self, negative: false, }
-}
-
-///|
-pub fn Decimal::copy_negate(self : Decimal) -> Decimal {
-  { ..self, negative: !self.negative, }
 }
 
 ///|

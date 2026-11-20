@@ -269,10 +269,10 @@ test "decimal interchange facade decodes specials through to_decimal" {
 
   assert_true(inf.classify() == @lf_arith.FpClass::Infinity)
   assert_false(inf.is_negative())
-  assert_true(qnan.is_qnan())
+  assert_true(qnan.is_quiet_nan())
   assert_true(qnan.is_negative())
   assert_eq(qnan.nan_payload(), 12345N)
-  assert_true(snan.is_snan())
+  assert_true(snan.is_signaling_nan())
   assert_true(snan.is_negative())
   assert_eq(snan.nan_payload(), 12345N)
 }
@@ -291,7 +291,7 @@ test "decimal interchange facade exposes decimal32 non-canonical qnan witness" {
   assert_false(raw.is_canonical())
   assert_true(canonical.is_canonical())
   assert_eq(raw.canonical().to_hex(), "#7C00006E")
-  assert_true(raw.to_decimal().is_qnan())
+  assert_true(raw.to_decimal().is_quiet_nan())
 }
 
 ///|
@@ -325,7 +325,7 @@ test "decimal interchange facade sign transforms preserve observable special mea
   let qnan32_positive = neg_qnan32.copy_abs().to_decimal()
   let inf32_negative = pos_inf32.copy_negate().to_decimal()
 
-  assert_true(qnan32_positive.is_qnan())
+  assert_true(qnan32_positive.is_quiet_nan())
   assert_false(qnan32_positive.is_negative())
   assert_eq(qnan32_positive.nan_payload(), 12345N)
   assert_true(inf32_negative.is_infinite())
@@ -465,12 +465,12 @@ test "decimal interchange facade copy preserves special raw bits and format" {
 
   assert_eq(copied32.to_hex(), "#7C00016E")
   assert_true(copied32.format() == @decimal.DecimalInterchangeFormat::Decimal32)
-  assert_true(copied32.to_decimal().is_qnan())
+  assert_true(copied32.to_decimal().is_quiet_nan())
   assert_eq(copied128.to_hex(), "#7E000000000000000000000000003039")
   assert_true(
     copied128.format() == @decimal.DecimalInterchangeFormat::Decimal128,
   )
-  assert_true(copied128.to_decimal().is_snan())
+  assert_true(copied128.to_decimal().is_signaling_nan())
 }
 
 ///|

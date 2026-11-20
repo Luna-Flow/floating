@@ -44,7 +44,6 @@ pub fn Decimal::atanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::class_name(Self, DecimalContext) -> String
 pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::classify_contextual(Self) -> @arithmetic.FpClass
@@ -60,8 +59,6 @@ pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int3
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
-pub fn Decimal::copy_abs(Self) -> Self
-pub fn Decimal::copy_negate(Self) -> Self
 pub fn Decimal::copy_sign(Self, Self) -> Self
 pub fn Decimal::cos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::cosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -88,10 +85,8 @@ pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
-pub fn Decimal::from_integer(@bigint.BigInt) -> Self
 pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
 pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
-pub fn Decimal::from_natural(@bigint.BigInt) -> Self
 pub fn Decimal::from_string(String, precision? : Int32) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -104,11 +99,8 @@ pub fn Decimal::is_nan(Self) -> Bool
 pub fn Decimal::is_negative(Self) -> Bool
 pub fn Decimal::is_negative_zero(Self) -> Bool
 pub fn Decimal::is_normal(Self, DecimalContext) -> Bool
-pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_quiet_nan(Self) -> Bool
 pub fn Decimal::is_signaling_nan(Self) -> Bool
-pub fn Decimal::is_signed(Self) -> Bool
-pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::ln_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -122,27 +114,18 @@ pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::magnitude(Self) -> @bigint.BigInt
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
-pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
-pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min(Self, Self) -> Self
-pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_number_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
@@ -155,7 +138,6 @@ pub fn Decimal::negative_zero(precision? : Int32) -> Self
 pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::normalize_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool
 pub fn Decimal::one(precision? : Int32) -> Self
@@ -180,7 +162,6 @@ pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)

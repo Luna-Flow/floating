@@ -942,14 +942,6 @@ pub fn Decimal::reduce_ctx(
 }
 
 ///|
-pub fn Decimal::normalize_ctx(
-  self : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  self.reduce_ctx(ctx)
-}
-
-///|
 pub fn Decimal::with_precision(
   self : Decimal,
   precision : Int32,

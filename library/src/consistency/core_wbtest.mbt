@@ -529,7 +529,7 @@ test "decimal parse accepts special values and rejects malformed special payload
 
   match @decimal.Decimal::parse("NaN0012", precision=4) {
     Ok(value) => {
-      assert_true(value.is_qnan())
+      assert_true(value.is_quiet_nan())
       assert_eq(value.nan_payload(), 12N)
     }
     Err(_) => fail("expected quiet NaN parse to succeed")
@@ -537,7 +537,7 @@ test "decimal parse accepts special values and rejects malformed special payload
 
   match @decimal.Decimal::parse("-sNaN9", precision=8) {
     Ok(value) => {
-      assert_true(value.is_snan())
+      assert_true(value.is_signaling_nan())
       assert_true(value.is_negative())
       assert_eq(value.nan_payload(), 9N)
     }
@@ -647,10 +647,10 @@ test "decimal observers distinguish sign from signedness on specials" {
   assert_true(neg_inf.sign() == @def.Sign::Negative)
   assert_true(qnan.sign() == @def.Sign::Zero)
   assert_true(snan.sign() == @def.Sign::Zero)
-  assert_true(qnan.is_signed())
-  assert_true(snan.is_signed())
-  assert_eq(qnan.class_name(ctx), "NaN")
-  assert_eq(snan.class_name(ctx), "sNaN")
+  assert_true(qnan.is_negative())
+  assert_true(snan.is_negative())
+  assert_true(qnan.class_of(ctx) == @def.IeeeClass::QuietNaN)
+  assert_true(snan.class_of(ctx) == @def.IeeeClass::SignalingNaN)
 }
 
 ///|
@@ -2413,11 +2413,11 @@ test "decimal from_double and from_float preserve nan sign bit" {
     Float::from_double(negative_nan),
     precision=20,
   )
-  assert_true(from_double_pos.is_qnan())
+  assert_true(from_double_pos.is_quiet_nan())
   assert_false(from_double_pos.is_negative())
-  assert_true(from_double_neg.is_qnan())
+  assert_true(from_double_neg.is_quiet_nan())
   assert_true(from_double_neg.is_negative())
-  assert_true(from_float_neg.is_qnan())
+  assert_true(from_float_neg.is_quiet_nan())
   assert_true(from_float_neg.is_negative())
 }
 
@@ -2899,16 +2899,16 @@ test "decimal interchange decodes multi-format special encodings directly" {
     "#FE0000000000000000000000000049C5",
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
-  assert_true(qnan32.is_qnan())
+  assert_true(qnan32.is_quiet_nan())
   assert_false(qnan32.is_negative())
   assert_eq(qnan32.nan_payload(), 12345N)
-  assert_true(neg_qnan32.is_qnan())
+  assert_true(neg_qnan32.is_quiet_nan())
   assert_true(neg_qnan32.is_negative())
   assert_eq(neg_qnan32.nan_payload(), 12345N)
-  assert_true(snan128.is_snan())
+  assert_true(snan128.is_signaling_nan())
   assert_false(snan128.is_negative())
   assert_eq(snan128.nan_payload(), 12345N)
-  assert_true(neg_snan128.is_snan())
+  assert_true(neg_snan128.is_signaling_nan())
   assert_true(neg_snan128.is_negative())
   assert_eq(neg_snan128.nan_payload(), 12345N)
 }
@@ -2976,9 +2976,9 @@ test "decimal interchange special roundtrips preserve class sign and payload acr
     qnan128_bits,
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
-  assert_true(qnan32.is_qnan())
-  assert_true(qnan64.is_qnan())
-  assert_true(qnan128.is_qnan())
+  assert_true(qnan32.is_quiet_nan())
+  assert_true(qnan64.is_quiet_nan())
+  assert_true(qnan128.is_quiet_nan())
   assert_true(qnan32.is_negative())
   assert_true(qnan64.is_negative())
   assert_true(qnan128.is_negative())
@@ -3007,9 +3007,9 @@ test "decimal interchange special roundtrips preserve class sign and payload acr
     snan128_bits,
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
-  assert_true(snan32.is_snan())
-  assert_true(snan64.is_snan())
-  assert_true(snan128.is_snan())
+  assert_true(snan32.is_signaling_nan())
+  assert_true(snan64.is_signaling_nan())
+  assert_true(snan128.is_signaling_nan())
   assert_true(snan32.is_negative())
   assert_true(snan64.is_negative())
   assert_true(snan128.is_negative())
@@ -3208,10 +3208,10 @@ test "decimal interchange wrapper decodes special values through to_decimal" {
   ).unwrap()
   let qnan = raw_qnan.to_decimal()
   let snan = raw_snan.to_decimal()
-  assert_true(qnan.is_qnan())
+  assert_true(qnan.is_quiet_nan())
   assert_true(qnan.is_negative())
   assert_eq(qnan.nan_payload(), 999999999999999N)
-  assert_true(snan.is_snan())
+  assert_true(snan.is_signaling_nan())
   assert_true(snan.is_negative())
   assert_eq(snan.nan_payload(), 999999999999999N)
 
@@ -3235,16 +3235,16 @@ test "decimal interchange wrapper decodes special values through to_decimal" {
   let snan32 = raw_snan32.to_decimal()
   let qnan128 = raw_qnan128.to_decimal()
   let snan128 = raw_snan128.to_decimal()
-  assert_true(qnan32.is_qnan())
+  assert_true(qnan32.is_quiet_nan())
   assert_true(qnan32.is_negative())
   assert_eq(qnan32.nan_payload(), 12345N)
-  assert_true(snan32.is_snan())
+  assert_true(snan32.is_signaling_nan())
   assert_true(snan32.is_negative())
   assert_eq(snan32.nan_payload(), 12345N)
-  assert_true(qnan128.is_qnan())
+  assert_true(qnan128.is_quiet_nan())
   assert_true(qnan128.is_negative())
   assert_eq(qnan128.nan_payload(), 12345N)
-  assert_true(snan128.is_snan())
+  assert_true(snan128.is_signaling_nan())
   assert_true(snan128.is_negative())
   assert_eq(snan128.nan_payload(), 12345N)
 }
@@ -3291,7 +3291,7 @@ test "decimal interchange sign transforms preserve special payload bits" {
     @decimal.DecimalInterchangeFormat::Decimal32,
   ).unwrap()
   let qnan32_abs = neg_qnan32.copy_abs().to_decimal()
-  assert_true(qnan32_abs.is_qnan())
+  assert_true(qnan32_abs.is_quiet_nan())
   assert_false(qnan32_abs.is_negative())
   assert_eq(qnan32_abs.nan_payload(), 12345N)
 
@@ -3304,7 +3304,7 @@ test "decimal interchange sign transforms preserve special payload bits" {
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
   let snan128_signed = neg_snan128.copy_sign(pos_inf128).to_decimal()
-  assert_true(snan128_signed.is_snan())
+  assert_true(snan128_signed.is_signaling_nan())
   assert_false(snan128_signed.is_negative())
   assert_eq(snan128_signed.nan_payload(), 12345N)
 }
@@ -3343,7 +3343,7 @@ test "decimal interchange sign transforms preserve bits across decimal32 and dec
     finite32_negative.compare_total(expected32_negative).to_string(),
     "0",
   )
-  assert_true(qnan32_positive.is_qnan())
+  assert_true(qnan32_positive.is_quiet_nan())
   assert_false(qnan32_positive.is_negative())
   assert_eq(qnan32_positive.nan_payload(), 12345N)
   assert_true(inf32_negative.is_infinite())
@@ -3386,7 +3386,7 @@ test "decimal interchange sign transforms preserve bits across decimal32 and dec
     finite128_negative.compare_total(expected128_negative).to_string(),
     "0",
   )
-  assert_true(qnan128_positive.is_qnan())
+  assert_true(qnan128_positive.is_quiet_nan())
   assert_false(qnan128_positive.is_negative())
   assert_eq(qnan128_positive.nan_payload(), 12345N)
   assert_true(inf128_negative.is_infinite())
@@ -3469,7 +3469,7 @@ test "decimal interchange wrapper copy preserves raw bits and format" {
   let copied32 = raw32.copy()
   assert_eq(copied32.to_hex(), "#7C00016E")
   assert_true(copied32.format() == @decimal.DecimalInterchangeFormat::Decimal32)
-  assert_true(copied32.to_decimal().is_qnan())
+  assert_true(copied32.to_decimal().is_quiet_nan())
 
   let finite32 = @decimal.DecimalInterchange::from_hex(
     "#77FFFF3F",
@@ -3490,7 +3490,7 @@ test "decimal interchange wrapper copy preserves raw bits and format" {
   assert_true(
     copied128.format() == @decimal.DecimalInterchangeFormat::Decimal128,
   )
-  assert_true(copied128.to_decimal().is_snan())
+  assert_true(copied128.to_decimal().is_signaling_nan())
 
   let finite128 = @decimal.DecimalInterchange::from_hex(
     "#77FFFFF3FCFF3FCFF3FCFF3FCFF3FCFF",
@@ -4209,7 +4209,7 @@ test "decimal quotient and remainder avoid huge scaling when quotient is zero" {
   let huge = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let (quotient, quotient_flags) = tiny.divide_integer(huge, ctx)
   let (remainder, remainder_flags) = tiny.remainder(huge, ctx)
-  let (near_remainder, near_remainder_flags) = tiny.remainder_near(huge, ctx)
+  let (near_remainder, near_remainder_flags) = tiny.remainder_ctx(huge, ctx)
   assert_eq(quotient.compare_total(@decimal.Decimal::zero(precision=16)), 0)
   assert_false(quotient_flags.has_error())
   assert_eq(remainder.compare_total(tiny), 0)
@@ -4234,7 +4234,7 @@ test "decimal quotient and remainder avoid huge scaling when quotient is zero" {
       precision=64,
     )
     .unwrap()
-    .remainder_near(
+    .remainder_ctx(
       @decimal.Decimal::from_string("9.100", precision=64).unwrap(),
       ctx,
     )
@@ -4282,7 +4282,7 @@ test "decimal divide_integer by zero returns signed infinity or division undefin
   assert_true(negative_flags.division_by_zero)
   assert_true(flipped_flags.division_by_zero)
   assert_false(positive_flags.invalid_operation)
-  assert_true(undefined_result.is_qnan())
+  assert_true(undefined_result.is_quiet_nan())
   assert_true(undefined_flags.invalid_operation)
   assert_true(undefined_flags.division_undefined)
 }
@@ -4307,10 +4307,10 @@ test "decimal divide_integer handles huge exponent boundaries without overflow" 
   let (tiny_scale, tiny_scale_flags) = tenth.divide_integer(tiny_divisor, ctx)
   assert_eq(under_one.compare_total(@decimal.Decimal::zero(precision=8)), 0)
   assert_false(under_one_flags.has_error())
-  assert_true(too_wide.is_qnan())
+  assert_true(too_wide.is_quiet_nan())
   assert_true(too_wide_flags.invalid_operation)
   assert_true(too_wide_flags.division_impossible)
-  assert_true(tiny_scale.is_qnan())
+  assert_true(tiny_scale.is_quiet_nan())
   assert_true(tiny_scale_flags.invalid_operation)
   assert_true(tiny_scale_flags.division_impossible)
 }
@@ -4516,7 +4516,7 @@ test "decimal divide_integer matches official0 huge impossible representative" {
       @decimal.Decimal::from_string("0.23456789012345", precision=64).unwrap(),
       huge_ctx,
     )
-  assert_true(too_wide.is_qnan())
+  assert_true(too_wide.is_quiet_nan())
   assert_true(too_wide_flags.invalid_operation)
   assert_true(too_wide_flags.division_impossible)
 }
@@ -4552,22 +4552,20 @@ test "decimal remainder zero-divisor flags follow gda classification" {
   let (remainder_undefined, remainder_undefined_flags) = zero.remainder(
     zero, ctx,
   )
-  let (near_invalid, near_invalid_flags) = nonzero.remainder_near(neg_zero, ctx)
-  let (near_undefined, near_undefined_flags) = zero.remainder_near(
-    neg_zero, ctx,
-  )
-  assert_true(remainder_invalid.is_qnan())
+  let (near_invalid, near_invalid_flags) = nonzero.remainder_ctx(neg_zero, ctx)
+  let (near_undefined, near_undefined_flags) = zero.remainder_ctx(neg_zero, ctx)
+  assert_true(remainder_invalid.is_quiet_nan())
   assert_true(remainder_invalid_flags.invalid_operation)
   assert_false(remainder_invalid_flags.division_by_zero)
   assert_false(remainder_invalid_flags.division_undefined)
-  assert_true(remainder_undefined.is_qnan())
+  assert_true(remainder_undefined.is_quiet_nan())
   assert_true(remainder_undefined_flags.invalid_operation)
   assert_true(remainder_undefined_flags.division_undefined)
-  assert_true(near_invalid.is_qnan())
+  assert_true(near_invalid.is_quiet_nan())
   assert_true(near_invalid_flags.invalid_operation)
   assert_false(near_invalid_flags.division_by_zero)
   assert_false(near_invalid_flags.division_undefined)
-  assert_true(near_undefined.is_qnan())
+  assert_true(near_undefined.is_quiet_nan())
   assert_true(near_undefined_flags.invalid_operation)
   assert_true(near_undefined_flags.division_undefined)
 }
@@ -4580,8 +4578,8 @@ test "decimal remainder preserves preferred exponent when quotient is zero" {
   let mills = @decimal.Decimal::from_string("2.001", precision=8).unwrap()
   let (remainder_cents, remainder_cents_flags) = value.remainder(cents, ctx)
   let (remainder_mills, remainder_mills_flags) = value.remainder(mills, ctx)
-  let (near_cents, near_cents_flags) = value.remainder_near(cents, ctx)
-  let (near_mills, near_mills_flags) = value.remainder_near(mills, ctx)
+  let (near_cents, near_cents_flags) = value.remainder_ctx(cents, ctx)
+  let (near_mills, near_mills_flags) = value.remainder_ctx(mills, ctx)
   assert_eq(remainder_cents.to_string(), "0.50")
   assert_eq(remainder_mills.to_string(), "0.500")
   assert_eq(near_cents.to_string(), "0.50")
@@ -4604,7 +4602,7 @@ test "decimal subset remainder zero-quotient preserves nonzero sign" {
   let negative = @decimal.Decimal::from_string("-0.5", precision=16).unwrap()
   let divisor = @decimal.Decimal::from_string("2.01", precision=16).unwrap()
   let (remainder, remainder_flags) = negative.remainder(divisor, subset_ctx)
-  let (near, near_flags) = negative.remainder_near(divisor, subset_ctx)
+  let (near, near_flags) = negative.remainder_ctx(divisor, subset_ctx)
   assert_eq(remainder.to_string(), "-0.50")
   assert_eq(near.to_string(), "-0.50")
   assert_false(remainder_flags.has_error())
@@ -4617,7 +4615,7 @@ test "decimal remainder preserves preferred exponent with nonzero quotient" {
   let five = @decimal.Decimal::from_string("5", precision=16).unwrap()
   let divisor = @decimal.Decimal::from_string("2.000", precision=16).unwrap()
   let (remainder, remainder_flags) = five.remainder(divisor, ctx)
-  let (near, near_flags) = five.remainder_near(divisor, ctx)
+  let (near, near_flags) = five.remainder_ctx(divisor, ctx)
   assert_eq(remainder.to_string(), "1.000")
   assert_eq(near.to_string(), "1.000")
   assert_false(remainder_flags.has_error())
@@ -4636,7 +4634,7 @@ test "decimal subset remainder canonicalizes negative zero zero-quotient results
   let neg_zero = @decimal.Decimal::from_string("-0.00", precision=16).unwrap()
   let one = @decimal.Decimal::one(precision=16)
   let (remainder, remainder_flags) = neg_zero.remainder(one, subset_ctx)
-  let (near, near_flags) = neg_zero.remainder_near(one, subset_ctx)
+  let (near, near_flags) = neg_zero.remainder_ctx(one, subset_ctx)
   assert_eq(remainder.to_string(), "0")
   assert_false(remainder.is_negative_zero())
   assert_false(remainder_flags.has_error())
@@ -4652,9 +4650,9 @@ test "decimal remainder_near respects special values and context-rounded zero qu
   let exact = @decimal.Decimal::from_string("1.23456789012345", precision=32).unwrap()
   let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=32)
   let snan = @decimal.Decimal::signaling_nan(payload=91N, precision=32)
-  let (finite_over_inf, finite_over_inf_flags) = exact.remainder_near(inf, ctx)
-  let (inf_over_finite, inf_over_finite_flags) = inf.remainder_near(exact, ctx)
-  let (snan_result, snan_flags) = inf.remainder_near(snan, ctx)
+  let (finite_over_inf, finite_over_inf_flags) = exact.remainder_ctx(inf, ctx)
+  let (inf_over_finite, inf_over_finite_flags) = inf.remainder_ctx(exact, ctx)
+  let (snan_result, snan_flags) = inf.remainder_ctx(snan, ctx)
   assert_eq(
     finite_over_inf.compare_total(
       @decimal.Decimal::from_string("1.2345679", precision=32).unwrap(),
@@ -4663,9 +4661,9 @@ test "decimal remainder_near respects special values and context-rounded zero qu
   )
   assert_true(finite_over_inf_flags.rounded)
   assert_true(finite_over_inf_flags.inexact)
-  assert_true(inf_over_finite.is_qnan())
+  assert_true(inf_over_finite.is_quiet_nan())
   assert_true(inf_over_finite_flags.invalid_operation)
-  assert_true(snan_result.is_qnan())
+  assert_true(snan_result.is_quiet_nan())
   assert_eq(snan_result.nan_payload(), 91N)
   assert_true(snan_flags.invalid_operation)
   let (tiny_over_huge, tiny_over_huge_flags) = @decimal.Decimal::from_string(
@@ -4673,7 +4671,7 @@ test "decimal remainder_near respects special values and context-rounded zero qu
       precision=32,
     )
     .unwrap()
-    .remainder_near(huge, ctx)
+    .remainder_ctx(huge, ctx)
   assert_eq(
     tiny_over_huge.compare_total(
       @decimal.Decimal::from_string("9E-999999999", precision=32).unwrap(),
@@ -4719,7 +4717,7 @@ test "decimal remainder_near matches official0 huge lost-digits representative" 
       precision=64,
     )
     .unwrap()
-    .remainder_near(huge_divisor, huge_ctx)
+    .remainder_ctx(huge_divisor, huge_ctx)
   assert_eq(huge_near.to_string(), "1.23456789")
   assert_true(huge_near_flags.rounded)
   assert_true(huge_near_flags.inexact)
@@ -4749,16 +4747,16 @@ test "Decimal huge remainder separates GDA quotient limits from IEEE remainderNe
   let (remainder_negative, remainder_negative_flags) = huge.remainder(
     negative_small, huge_ctx,
   )
-  let (near_positive, near_positive_flags) = huge.remainder_near(
+  let (near_positive, near_positive_flags) = huge.remainder_ctx(
     positive_small, huge_ctx,
   )
-  let (near_negative, near_negative_flags) = huge.remainder_near(
+  let (near_negative, near_negative_flags) = huge.remainder_ctx(
     negative_small, huge_ctx,
   )
-  assert_true(remainder_positive.is_qnan())
+  assert_true(remainder_positive.is_quiet_nan())
   assert_true(remainder_positive_flags.invalid_operation)
   assert_true(remainder_positive_flags.division_impossible)
-  assert_true(remainder_negative.is_qnan())
+  assert_true(remainder_negative.is_quiet_nan())
   assert_true(remainder_negative_flags.invalid_operation)
   assert_true(remainder_negative_flags.division_impossible)
   assert_decimal_total_eq(
@@ -4802,7 +4800,7 @@ test "decimal remainder matches official0 lost-digits zero representatives" {
       precision=32,
     )
     .unwrap()
-    .remainder_near(ten, lostdigits_ctx)
+    .remainder_ctx(ten, lostdigits_ctx)
   assert_eq(decimal_coeff_signed(lost_remainder), 0N)
   assert_true(lost_remainder_flags.rounded)
   assert_true(lost_remainder_flags.inexact)
@@ -5707,37 +5705,6 @@ test "decimal gda compare operations return decimal result and flags" {
 }
 
 ///|
-test "decimal minmax preserves preferred nan diagnostics" {
-  let ctx = @decimal.DecimalContext::new(precision=4)
-  let finite = @decimal.Decimal::from_int(2, precision=8)
-  let left_qnan = @decimal.Decimal::quiet_nan(payload=11N, precision=8)
-  let right_qnan = @decimal.Decimal::quiet_nan(
-    payload=54N,
-    negative=true,
-    precision=8,
-  )
-  let left_snan = @decimal.Decimal::signaling_nan(payload=7N, precision=8)
-  let right_snan = @decimal.Decimal::signaling_nan(
-    payload=93N,
-    negative=true,
-    precision=8,
-  )
-  let (max_snan, max_snan_flags) = left_snan.max_ctx(finite, ctx)
-  let (min_two_nan, min_two_nan_flags) = left_qnan.min_ctx(right_qnan, ctx)
-  let (max_qnan_snan, max_qnan_snan_flags) = left_qnan.max_ctx(right_snan, ctx)
-  assert_eq(max_snan.to_string(), "nan7")
-  assert_eq(max_snan.nan_payload(), 7N)
-  assert_true(max_snan_flags.invalid_operation)
-  assert_eq(min_two_nan.to_string(), "nan11")
-  assert_eq(min_two_nan.nan_payload(), 11N)
-  assert_false(min_two_nan_flags.invalid_operation)
-  assert_eq(max_qnan_snan.to_string(), "-nan93")
-  assert_true(max_qnan_snan.is_negative())
-  assert_eq(max_qnan_snan.nan_payload(), 93N)
-  assert_true(max_qnan_snan_flags.invalid_operation)
-}
-
-///|
 test "plain decimal minmax follows IEEE operand-order nan propagation" {
   let finite = @decimal.Decimal::from_int(9, precision=8)
   let qnan_left = @decimal.Decimal::quiet_nan(
@@ -5887,11 +5854,11 @@ test "decimal quantize propagates special operands with quieting semantics" {
   let (snan_result, snan_flags) = finite.quantize(snan, ctx)
   let (inf_result, inf_flags) = pos_inf.quantize(pos_inf, ctx)
   let (neg_quantum_inf, neg_quantum_inf_flags) = pos_inf.quantize(neg_inf, ctx)
-  assert_true(qnan_result.is_qnan())
+  assert_true(qnan_result.is_quiet_nan())
   assert_true(qnan_result.is_negative())
   assert_eq(qnan_result.nan_payload(), 2345N)
   assert_false(qnan_flags.invalid_operation)
-  assert_true(snan_result.is_qnan())
+  assert_true(snan_result.is_quiet_nan())
   assert_true(snan_result.is_negative())
   assert_eq(snan_result.nan_payload(), 67890N)
   assert_true(snan_flags.invalid_operation)
@@ -6083,11 +6050,11 @@ test "decimal rescale validates rhs integrality and infinity rules" {
   let (finite_over_inf, finite_over_inf_flags) = finite.rescale(inf, ctx)
   let (pos_inf_rescaled, pos_inf_flags) = inf.rescale(neg_inf, ctx)
   let (neg_inf_rescaled, neg_inf_flags) = neg_inf.rescale(inf, ctx)
-  assert_true(bad_fraction.is_qnan())
+  assert_true(bad_fraction.is_quiet_nan())
   assert_true(bad_fraction_flags.invalid_operation)
-  assert_true(bad_range.is_qnan())
+  assert_true(bad_range.is_quiet_nan())
   assert_true(bad_range_flags.invalid_operation)
-  assert_true(finite_over_inf.is_qnan())
+  assert_true(finite_over_inf.is_quiet_nan())
   assert_true(finite_over_inf_flags.invalid_operation)
   assert_true(pos_inf_rescaled.is_infinite())
   assert_false(pos_inf_rescaled.is_negative())
@@ -6164,9 +6131,9 @@ test "decimal quantize and rescale honor etiny fit window" {
   assert_true(quantized_rounded_subnormal_flags.rounded)
   assert_true(quantized_rounded_subnormal_flags.inexact)
   assert_false(quantized_rounded_subnormal_flags.underflow)
-  assert_true(quantized_too_wide.is_qnan())
+  assert_true(quantized_too_wide.is_quiet_nan())
   assert_true(quantized_too_wide_flags.invalid_operation)
-  assert_true(quantized_below_etiny.is_qnan())
+  assert_true(quantized_below_etiny.is_quiet_nan())
   assert_true(quantized_below_etiny_flags.invalid_operation)
   assert_eq(
     rescaled_fit.compare_total(
@@ -6289,9 +6256,9 @@ test "decimal to_integral_value preserves integral cohorts and special payloads"
     ),
     0,
   )
-  assert_true(qnan_integral.is_qnan())
+  assert_true(qnan_integral.is_quiet_nan())
   assert_eq(qnan_integral.nan_payload(), 808N)
-  assert_true(snan_integral.is_qnan())
+  assert_true(snan_integral.is_quiet_nan())
   assert_eq(snan_integral.nan_payload(), 80N)
   assert_false(huge_flags.has_error())
   assert_false(pos_zero_flags.has_error())
@@ -6333,9 +6300,9 @@ test "decimal to_integral_exact preserves integral cohorts and special payloads"
     ),
     0,
   )
-  assert_true(qnan_integral.is_qnan())
+  assert_true(qnan_integral.is_quiet_nan())
   assert_eq(qnan_integral.nan_payload(), 808N)
-  assert_true(snan_integral.is_qnan())
+  assert_true(snan_integral.is_quiet_nan())
   assert_eq(snan_integral.nan_payload(), 80N)
   assert_true(inf_integral.is_infinite())
   assert_false(inf_integral.is_negative())
@@ -6388,7 +6355,7 @@ test "decimal reduce normalizes cohort after context rounding" {
   let snan = @decimal.Decimal::signaling_nan(payload=7N, precision=8)
   let (reduced, exact_flags) = exact.reduce_ctx(exact_ctx)
   let (rounded_reduced, rounded_flags) = rounded.reduce_ctx(rounded_ctx)
-  let (zero_reduced, zero_flags) = neg_zero.normalize_ctx(exact_ctx)
+  let (zero_reduced, zero_flags) = neg_zero.reduce_ctx(exact_ctx)
   let (nan_reduced, nan_flags) = snan.reduce_ctx(exact_ctx)
   assert_eq(reduced.to_string(), "12.34")
   assert_false(exact_flags.rounded)
@@ -6444,11 +6411,11 @@ test "decimal reduce preserves subnormal and special official cohorts" {
   assert_true(reduced_inf.is_infinite())
   assert_false(reduced_inf.is_negative())
   assert_false(inf_flags.has_error())
-  assert_true(reduced_neg_qnan.is_qnan())
+  assert_true(reduced_neg_qnan.is_quiet_nan())
   assert_true(reduced_neg_qnan.is_negative())
   assert_eq(reduced_neg_qnan.nan_payload(), 101N)
   assert_false(neg_qnan_flags.invalid_operation)
-  assert_true(reduced_neg_snan.is_qnan())
+  assert_true(reduced_neg_snan.is_quiet_nan())
   assert_true(reduced_neg_snan.is_negative())
   assert_eq(reduced_neg_snan.nan_payload(), 10N)
   assert_true(neg_snan_flags.invalid_operation)
@@ -7751,7 +7718,7 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
     )
   let (near, near_flags) = @decimal.Decimal::from_string("12345", precision=32)
     .unwrap()
-    .remainder_near(
+    .remainder_ctx(
       @decimal.Decimal::from_string("1E+2", precision=32).unwrap(),
       ctx,
     )
@@ -8375,37 +8342,6 @@ test "decimal integer power keeps large exact powers exact when precision allows
 }
 
 ///|
-test "decimal subset extrema clean selected zero representations" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    decimal_rounding=@decimal.DecimalRoundingMode::HalfEven,
-    e_min=-999_999,
-    e_max=999_999,
-    extended=false,
-  )
-  let negative_zero = decimal_test_operand("-0")
-  let positive_zero = decimal_test_operand("0")
-
-  let (minimum, min_flags) = negative_zero.min_ctx(positive_zero, ctx)
-  let (maximum, max_flags) = negative_zero.max_ctx(positive_zero, ctx)
-  let (minimum_mag, min_mag_flags) = negative_zero.min_mag_ctx(
-    positive_zero, ctx,
-  )
-  let (maximum_mag, max_mag_flags) = negative_zero.max_mag_ctx(
-    positive_zero, ctx,
-  )
-
-  assert_decimal_total_eq(minimum, positive_zero, "min cleans zero")
-  assert_decimal_total_eq(maximum, positive_zero, "max keeps +0")
-  assert_decimal_total_eq(minimum_mag, positive_zero, "min_mag cleans zero")
-  assert_decimal_total_eq(maximum_mag, positive_zero, "max_mag keeps +0")
-  assert_true(min_flags == @decimal.DecimalFlags::new())
-  assert_true(max_flags == @decimal.DecimalFlags::new())
-  assert_true(min_mag_flags == @decimal.DecimalFlags::new())
-  assert_true(max_mag_flags == @decimal.DecimalFlags::new())
-}
-
-///|
 test "decimal official dectest math subsets stay aligned after gda fixes" {
   let exp_ctx9 = @decimal.DecimalContext::new(
     precision=9,
@@ -8516,8 +8452,12 @@ test "decimal official dectest math subsets stay aligned after gda fixes" {
 
   let negative_zero = decimal_test_operand("-0")
   let positive_zero = decimal_test_operand("0")
-  let (min_value, min_flags) = positive_zero.min_ctx(negative_zero, minmax_ctx)
-  let (max_value, max_flags) = positive_zero.max_ctx(negative_zero, minmax_ctx)
+  let (min_value, min_flags) = positive_zero.minimum_number_ctx(
+    negative_zero, minmax_ctx,
+  )
+  let (max_value, max_flags) = positive_zero.maximum_number_ctx(
+    negative_zero, minmax_ctx,
+  )
   assert_decimal_total_eq(min_value, negative_zero, "ddmin031 result")
   assert_decimal_total_eq(max_value, positive_zero, "ddmax031 result")
   assert_true(min_flags == @decimal.DecimalFlags::new())
