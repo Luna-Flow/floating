@@ -98,17 +98,17 @@ the `precision` given, aborts (at precision 1 only the payload 0 exists). A
 signaling NaN raises `InvalidOperation` when an arithmetic operation
 consumes it and is replaced by the quiet NaN with the same sign and payload.
 
-### `gda_implementation_e_max`, `gda_implementation_e_tiny`
+### `gda_value_e_max`, `gda_value_e_tiny`
 
 These are the limits of the exponents a finite `Decimal` can hold.
 
 ```mbti
-pub let gda_implementation_e_max : Int
-pub let gda_implementation_e_tiny : Int
+pub let gda_value_e_max : Int
+pub let gda_value_e_tiny : Int
 ```
 
-`gda_implementation_e_max` is $2^{31}-2 = 2{,}147{,}483{,}646$, a limit on the
-adjusted exponent. `gda_implementation_e_tiny` is $-2^{31}+3 = -2{,}147{,}483{,}645$,
+`gda_value_e_max` is $2^{31}-2 = 2{,}147{,}483{,}646$, a limit on the
+adjusted exponent. `gda_value_e_tiny` is $-2^{31}+3 = -2{,}147{,}483{,}645$,
 a limit on the exponent of the least digit (the `Etiny` of the working context of
 the plain operators, whatever the precision). A finite value, a zero included
 (it has one digit), is stored only if
@@ -139,9 +139,9 @@ the rounded coefficient is not reduced: `make(1000000, 0, 3)` is `1.00E+6`. To
 strip trailing zeros use `Decimal::normalized` or `Decimal::trim`. No flags are
 reported.
 
-The value must be inside the [stored range](#gda_implementation_e_max-gda_implementation_e_tiny)
-after the rounding: an exponent below `gda_implementation_e_tiny`, or an adjusted
-exponent above `gda_implementation_e_max` (a carry of the rounding into the next
+The value must be inside the [stored range](#gda_value_e_max-gda_value_e_tiny)
+after the rounding: an exponent below `gda_value_e_tiny`, or an adjusted
+exponent above `gda_value_e_max` (a carry of the rounding into the next
 power of ten included), is never replaced by a zero or an infinity. `make` then
 aborts with a message that names both limits and the exponent, and `try_make`
 returns `Err` of the domain-error kind with the same message. `try_make` also
@@ -206,9 +206,9 @@ rounded half to even and its trailing zeros are removed. A malformed literal
 gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of
 the domain-error kind) and a NaN whose payload is wider than `precision - 1`
 digits (page 11). No context exponent range applies, only the
-[stored range](#gda_implementation_e_max-gda_implementation_e_tiny): a literal
-whose value (zero included) has an exponent below `gda_implementation_e_tiny`
-after the rounding, or an adjusted exponent above `gda_implementation_e_max`,
+[stored range](#gda_value_e_max-gda_value_e_tiny): a literal
+whose value (zero included) has an exponent below `gda_value_e_tiny`
+after the rounding, or an adjusted exponent above `gda_value_e_max`,
 gives `Err` of the domain-error kind that names both limits and the exponent. It is
 not a malformed literal, and it is no longer folded into an infinity or a zero
 (`"1e3000000000"` and `"1e-3000000000"` are errors). Use the package function
@@ -364,7 +364,7 @@ becomes `7.5`, `1200` stays `1200`); a zero becomes `0` with exponent 0.
 `with_precision(p, mode)` rounds to `p` digits with `mode`, removes trailing
 zeros and sets the precision attribute; special values only get the new
 attribute. None of them report flags. A carry of the rounding at the top of the
-[stored range](#gda_implementation_e_max-gda_implementation_e_tiny) follows the
+[stored range](#gda_value_e_max-gda_value_e_tiny) follows the
 GDA Overflow rule of the working range, so the result is never a finite value above
 the limit: for example `9999E+2147483643` rounded to 2 digits is `inf` in the
 modes that round away from zero or to nearest, and `9.9E+2147483646`, the
@@ -1289,7 +1289,7 @@ zeros that exact quotients allow (`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`),
 and a product or a quotient with more than $P$ digits is rounded to $P$ digits
 (`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality compares values, not members
 of the cohort, and for every stored finite value, because the working range
-below is the [stored range](#gda_implementation_e_max-gda_implementation_e_tiny).
+below is the [stored range](#gda_value_e_max-gda_value_e_tiny).
 
 The working exponent range cannot be built with
 [`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because GDA limits the
@@ -1692,9 +1692,9 @@ pub fn exp(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn fma(Decimal, Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
-pub let gda_implementation_e_max : Int32
+pub let gda_value_e_max : Int32
 
-pub let gda_implementation_e_tiny : Int32
+pub let gda_value_e_tiny : Int32
 
 pub fn is_normal(Decimal, GdaContext) -> GdaOutcome[Bool]
 

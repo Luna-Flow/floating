@@ -422,8 +422,8 @@ fn context_free_round_wide(
   mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
   let precision = Int32::max(1, precision)
-  let min_exponent = gda_implementation_e_tiny.to_int64()
-  let max_exponent = gda_implementation_e_max.to_int64()
+  let min_exponent = gda_value_e_tiny.to_int64()
+  let max_exponent = gda_value_e_max.to_int64()
   if magnitude.is_zero() {
     // A zero keeps its value when its exponent is clamped to `Int`.
     return finite_with_exponent_repr(
@@ -495,7 +495,7 @@ fn context_free_round_wide(
       finite_with_exponent_repr(
         negative,
         dec_coeff_magnitude_sub_unit(dec_coeff_power10_repr(digits), 1),
-        gda_implementation_e_max - digits + 1,
+        gda_value_e_max - digits + 1,
         precision,
       )
     }

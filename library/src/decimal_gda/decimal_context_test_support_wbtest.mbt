@@ -115,8 +115,8 @@ fn bin_mode(
 }
 
 ///|
-/// A finite value beyond the stored range (`gda_implementation_e_tiny`,
-/// `gda_implementation_e_max`), which no public constructor can make. The
+/// A finite value beyond the stored range (`gda_value_e_tiny`,
+/// `gda_value_e_max`), which no public constructor can make. The
 /// engine tests that pin the exponent arithmetic against `Int` overflow still
 /// need such operands, so the value is built from its parts.
 fn decimal_unchecked(

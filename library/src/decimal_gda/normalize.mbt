@@ -48,7 +48,7 @@ fn normalize_decimal_parts_gda_repr(
     return finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision)
   }
   if exponent10.to_int64() + (magnitude.digits10() - 1).to_int64() >=
-    gda_implementation_e_max.to_int64() {
+    gda_value_e_max.to_int64() {
     // At the top of the stored range a carry leaves it: round in `Int64`
     // and overflow as the GDA Overflow condition prescribes for the mode.
     return context_free_round_wide(

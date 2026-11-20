@@ -44,8 +44,8 @@ fn assert_outside_stored_range(
     Ok(value) => fail("\{text} was accepted as \{value}")
     Err(error) => {
       assert_true(error.is_domain_error())
-      assert_true(error.message.contains("gda_implementation_e_tiny"))
-      assert_true(error.message.contains("gda_implementation_e_max"))
+      assert_true(error.message.contains("gda_value_e_tiny"))
+      assert_true(error.message.contains("gda_value_e_max"))
       assert_true(error.message.contains("-2147483645"))
       assert_true(error.message.contains("2147483646"))
     }
