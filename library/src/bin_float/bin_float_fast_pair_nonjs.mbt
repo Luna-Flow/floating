@@ -164,17 +164,29 @@ fn binary_pair_round(
   let mut result_exponent = exponent
   if bits > precision {
     let shift = bits - precision
-    low = binary_pair_shr_word(word3, word2, word1, word0, shift, 0)
-    high = binary_pair_shr_word(word3, word2, word1, word0, shift, 1)
-    // the bit below the kept ones and the sticky bits under it
-    let round_index = shift - 1
-    let round_word = binary_pair_shr_word(
-      word3, word2, word1, word0, round_index, 0,
-    )
-    if (round_word & 1UL) == 1UL {
-      let sticky = binary_pair_low_nonzero(
-        word3, word2, word1, word0, round_index,
-      )
+    let mut round_bit = false
+    let mut sticky = false
+    if word3 == 0UL && shift < 64 {
+      // the common case (a sum or a product that is a few bits or at most a
+      // word too wide): the kept words and the dropped bits from three words
+      let back = 64 - shift
+      low = (word0 >> shift) | (word1 << back)
+      high = (word1 >> shift) | (word2 << back)
+      round_bit = ((word0 >> (shift - 1)) & 1UL) == 1UL
+      sticky = shift > 1 && (word0 & ((1UL << (shift - 1)) - 1UL)) != 0UL
+    } else {
+      low = binary_pair_shr_word(word3, word2, word1, word0, shift, 0)
+      high = binary_pair_shr_word(word3, word2, word1, word0, shift, 1)
+      // the bit below the kept ones and the sticky bits under it
+      let round_index = shift - 1
+      round_bit = (
+          binary_pair_shr_word(word3, word2, word1, word0, round_index, 0) & 1UL
+        ) ==
+        1UL
+      sticky = round_bit &&
+        binary_pair_low_nonzero(word3, word2, word1, word0, round_index)
+    }
+    if round_bit {
       if sticky || (low & 1UL) == 1UL {
         low += 1UL
         if low == 0UL {
@@ -213,7 +225,13 @@ fn binary_pair_round(
 }
 
 ///|
-fn binary_pair_add(left : BinFloat, right : BinFloat) -> BinFloat? {
+fn binary_pair_add_signed(
+  left : BinFloat,
+  right : BinFloat,
+  flip : Bool,
+) -> BinFloat? {
+  // `right` with its sign flipped when `flip` (a subtraction), without a new value
+  let right_negative = right.negative != flip
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= binary_pair_precision_limit else { return None }
   guard binary_pair_is_words(left) && binary_pair_is_words(right) else {
@@ -251,13 +269,41 @@ fn binary_pair_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   guard left_bits + left_shift <= 191 && right_bits + right_shift <= 191 else {
     return None
   }
-  let left2 = binary_pair_shl_word(left_high, left_low, left_shift, 2)
-  let left1 = binary_pair_shl_word(left_high, left_low, left_shift, 1)
-  let left0 = binary_pair_shl_word(left_high, left_low, left_shift, 0)
-  let right2 = binary_pair_shl_word(right_high, right_low, right_shift, 2)
-  let right1 = binary_pair_shl_word(right_high, right_low, right_shift, 1)
-  let right0 = binary_pair_shl_word(right_high, right_low, right_shift, 0)
-  if left.negative == right.negative {
+  // The operand with the smaller exponent has shift 0 and is its two words;
+  // the other is shifted by the exponent difference. A shift below 64 (the
+  // common case: the operands overlap) is three shifts of two words; a
+  // larger one, three words from `binary_pair_shl_word`.
+  let mut left2 = 0UL
+  let mut left1 = left_high
+  let mut left0 = left_low
+  if left_shift != 0 {
+    if left_shift < 64 {
+      let back = 64 - left_shift
+      left2 = left_high >> back
+      left1 = (left_high << left_shift) | (left_low >> back)
+      left0 = left_low << left_shift
+    } else {
+      left2 = binary_pair_shl_word(left_high, left_low, left_shift, 2)
+      left1 = binary_pair_shl_word(left_high, left_low, left_shift, 1)
+      left0 = binary_pair_shl_word(left_high, left_low, left_shift, 0)
+    }
+  }
+  let mut right2 = 0UL
+  let mut right1 = right_high
+  let mut right0 = right_low
+  if right_shift != 0 {
+    if right_shift < 64 {
+      let back = 64 - right_shift
+      right2 = right_high >> back
+      right1 = (right_high << right_shift) | (right_low >> back)
+      right0 = right_low << right_shift
+    } else {
+      right2 = binary_pair_shl_word(right_high, right_low, right_shift, 2)
+      right1 = binary_pair_shl_word(right_high, right_low, right_shift, 1)
+      right0 = binary_pair_shl_word(right_high, right_low, right_shift, 0)
+    }
+  }
+  if left.negative == right_negative {
     let word0 = left0 + right0
     let carry0 = if word0 < left0 { 1UL } else { 0UL }
     let partial1 = left1 + right1
@@ -314,13 +360,7 @@ fn binary_pair_add(left : BinFloat, right : BinFloat) -> BinFloat? {
       let word2 = right2 - left2 - borrow1a - borrow1b
       Some(
         binary_pair_round(
-          right.negative,
-          0UL,
-          word2,
-          word1,
-          word0,
-          target,
-          precision,
+          right_negative, 0UL, word2, word1, word0, target, precision,
         ),
       )
     }

@@ -1,4 +1,11 @@
 ///|
+/// The addition without the sign flip of the subtraction (the production name
+/// carries the flag).
+fn binary_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
+  binary_fast_add_signed(left, right, false)
+}
+
+///|
 struct FastTestRandom {
   mut state : UInt64
 }

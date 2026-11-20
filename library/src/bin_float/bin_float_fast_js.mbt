@@ -1,7 +1,13 @@
 ///|
 /// JavaScript keeps its coefficients in a host `bigint`; the one-word fast
 /// paths of the other targets do not apply there.
-fn binary_fast_add(_left : BinFloat, _right : BinFloat) -> BinFloat? {
+
+///|
+fn binary_fast_add_signed(
+  _left : BinFloat,
+  _right : BinFloat,
+  _flip : Bool,
+) -> BinFloat? {
   None
 }
 
@@ -21,7 +27,11 @@ fn binary_fast_sqrt(_value : BinFloat) -> BinFloat? {
 }
 
 ///|
-fn binary_coeff_fast_add(_left : BinFloat, _right : BinFloat) -> BinFloat? {
+fn binary_coeff_fast_add_signed(
+  _left : BinFloat,
+  _right : BinFloat,
+  _flip : Bool,
+) -> BinFloat? {
   None
 }
 
@@ -41,7 +51,11 @@ fn binary_coeff_fast_sqrt(_value : BinFloat) -> BinFloat? {
 }
 
 ///|
-fn binary_pair_add(_left : BinFloat, _right : BinFloat) -> BinFloat? {
+fn binary_pair_add_signed(
+  _left : BinFloat,
+  _right : BinFloat,
+  _flip : Bool,
+) -> BinFloat? {
   None
 }
 
