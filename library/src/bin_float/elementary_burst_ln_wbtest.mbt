@@ -10,7 +10,7 @@ fn burst_ln_test_corpus() -> Array[BinFloat] {
     }
     // Values close to 1 and to 2.
     for k in [17, 18, 24, 40, 100] {
-      let offset = BinFloat::make(
+      let offset = BinFloat::make_coeff(
         burst_test_coefficient(Int32::min(bits, 60), seed),
         -k - Int32::min(bits, 60),
         Int32::min(bits, 60),
@@ -22,9 +22,9 @@ fn burst_ln_test_corpus() -> Array[BinFloat] {
     }
   }
   values.push(BinFloat::from_int(2, precision=2))
-  values.push(BinFloat::make(BinCoeff::from_uint64(3UL), -1, 2))
-  values.push(BinFloat::make(BinCoeff::from_uint64(5UL), -2, 3))
-  values.push(BinFloat::make(BinCoeff::from_uint64(4097UL), -12, 13))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, 2))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(5UL), -2, 3))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(4097UL), -12, 13))
   values
 }
 
@@ -73,7 +73,7 @@ test "ln Newton step declines outside its range" {
   )
   assert_true(
     binary_ln_unit_burst_bounds(
-      BinFloat::make(BinCoeff::from_uint64(1UL), -1, 1),
+      BinFloat::make_coeff(Coeff::from_uint64(1UL), -1, 1),
       work,
     )
     is None,
@@ -81,8 +81,8 @@ test "ln Newton step declines outside its range" {
   // Closer to 1 than 2^-16.
   assert_true(
     binary_ln_unit_burst_bounds(
-      BinFloat::make(
-        BinCoeff::one().shift_left(30).add(BinCoeff::one()),
+      BinFloat::make_coeff(
+        Coeff::one().shift_left(30).add(Coeff::one()),
         -30,
         31,
       ),

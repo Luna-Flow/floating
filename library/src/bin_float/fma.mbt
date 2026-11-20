@@ -119,7 +119,7 @@ fn binary_exact_product(
   Ok(
     finite_normalized(
       negative,
-      BinCoeff::one(),
+      Coeff::one(),
       addend_top - addend.coefficient_.bit_length() - context.precision - 8,
       1,
     ),

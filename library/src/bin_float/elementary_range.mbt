@@ -65,7 +65,7 @@ fn binary_integer_result(
   let magnitude = if value < 0 { -value.to_int64() } else { value.to_int64() }
   binary_round_dyadic(
     value < 0,
-    BinCoeff::from_uint64(magnitude.reinterpret_as_uint64()),
+    Coeff::from_uint64(magnitude.reinterpret_as_uint64()),
     0,
     context,
   )
@@ -89,9 +89,9 @@ fn binary_saturated_minus_one(
   let result = if toward_zero {
     finite_from_parts(
       true,
-      BinCoeff::one()
+      Coeff::one()
       .shift_left(context.precision)
-      .sub_checked(BinCoeff::one())
+      .sub_checked(Coeff::one())
       .unwrap(),
       -context.precision,
       context.precision,
@@ -116,7 +116,7 @@ fn binary_pow2_minus_one_integer(
 ) -> (BinFloat, BinaryFlags) {
   let p = context.precision
   let all_ones = fn(bits : Int32) {
-    BinCoeff::one().shift_left(bits).sub_checked(BinCoeff::one()).unwrap()
+    Coeff::one().shift_left(bits).sub_checked(Coeff::one()).unwrap()
   }
   if n > 0 {
     if n <= p + 1 {
@@ -167,7 +167,7 @@ fn binary_positive_exp_minus_one_overflow(
     }
     return binary_log2_linear_out_of_range(
       value.sub_ctx(
-        BinFloat::make(BinCoeff::one(), -60, 1),
+        BinFloat::make_coeff(Coeff::one(), -60, 1),
         BinaryContext::unbounded(
           binary_range_check_precision,
           rounding=RoundTowardNegative,

@@ -23,7 +23,7 @@ fn toolkit_digest_mix(hash : UInt64, text : String) -> UInt64 {
 
 ///|
 fn toolkit_digest_float(value : BinFloat) -> String {
-  value.coefficient().to_radix_string(16) +
+  value.coefficient_.to_radix_string(16) +
   "x" +
   value.exponent2().to_string() +
   "p" +
@@ -85,7 +85,7 @@ fn ToolkitDigest::add_text(self : ToolkitDigest, text : String) -> Unit {
 ///|
 fn ToolkitDigest::add_ints(
   self : ToolkitDigest,
-  result : (BinCoeff, BinCoeff)?,
+  result : (Coeff, Coeff)?,
 ) -> Unit {
   match result {
     Some((low, high)) =>
@@ -164,8 +164,8 @@ fn toolkit_digest_multiple(
     scaled
   } else {
     scaled.add_ctx(
-      BinFloat::make(
-        BinCoeff::from_uint64(step.abs().to_uint64()),
+      BinFloat::make_coeff(
+        Coeff::from_uint64(step.abs().to_uint64()),
         scaled.exponent2(),
         64,
         negative=step < 0,
@@ -207,11 +207,11 @@ fn toolkit_digest_exp_values(work : Int32) -> Array[BinFloat] {
   }
   // Powers of two and the smallest and largest accepted magnitudes.
   for exponent in [-64, -10, -3, -1, 0, 4, 29] {
-    values.push(BinFloat::make(BinCoeff::one(), exponent, 8))
-    values.push(BinFloat::make(BinCoeff::one(), exponent, 8, negative=true))
+    values.push(BinFloat::make_coeff(Coeff::one(), exponent, 8))
+    values.push(BinFloat::make_coeff(Coeff::one(), exponent, 8, negative=true))
   }
-  values.push(BinFloat::make(BinCoeff::one(), -65, 8))
-  values.push(BinFloat::make(BinCoeff::one(), 30, 8))
+  values.push(BinFloat::make_coeff(Coeff::one(), -65, 8))
+  values.push(BinFloat::make_coeff(Coeff::one(), 30, 8))
   // Neighbours of multiples of ln 2.
   let ln2 = binary_ln2_bounds(320).unwrap()
   let ks = if full { [1, 2, 3, 50, -7, 40000] } else { [1, -7] }
@@ -240,14 +240,14 @@ fn toolkit_digest_unit_values(work : Int32, near : Bool) -> Array[BinFloat] {
     values.push(toolkit_digest_value(work + 100, 1, false, 901UL))
   }
   values.push(BinFloat::from_int(2, precision=8))
-  values.push(BinFloat::make(BinCoeff::from_uint64(3UL), -1, 2))
-  values.push(BinFloat::make(BinCoeff::from_uint64(0xFFFFFFFFUL), -31, 32))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, 2))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(0xFFFFFFFFUL), -31, 32))
   // 1 + 2^-k around the near-one switch at 2^-16 and tiny differences
   for k in [3, 15, 16, 17, 40, 90] {
     if k < work {
       values.push(
-        BinFloat::make(
-          BinCoeff::one().shift_left(k).add(BinCoeff::one()),
+        BinFloat::make_coeff(
+          Coeff::one().shift_left(k).add(Coeff::one()),
           -k,
           k + 1,
         ),
@@ -255,7 +255,7 @@ fn toolkit_digest_unit_values(work : Int32, near : Bool) -> Array[BinFloat] {
     }
   }
   values.push(BinFloat::one(precision=8))
-  values.push(BinFloat::make(BinCoeff::from_uint64(1UL), -1, 8))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(1UL), -1, 8))
   values
 }
 
@@ -281,14 +281,14 @@ fn toolkit_digest_trig_values(work : Int32) -> Array[BinFloat] {
       )
     }
   }
-  values.push(BinFloat::make(BinCoeff::one(), -65, 8))
-  values.push(BinFloat::make(BinCoeff::one(), 4097, 8))
+  values.push(BinFloat::make_coeff(Coeff::one(), -65, 8))
+  values.push(BinFloat::make_coeff(Coeff::one(), 4097, 8))
   values.push(BinFloat::one(precision=8))
-  values.push(BinFloat::make(BinCoeff::one(), 0, 8, negative=true))
+  values.push(BinFloat::make_coeff(Coeff::one(), 0, 8, negative=true))
   let pi = binary_pi_bounds(448).unwrap()
   let half_pi = (
     pi.0.mul_ctx(
-      BinFloat::make(BinCoeff::one(), -1, 1),
+      BinFloat::make_coeff(Coeff::one(), -1, 1),
       BinaryContext::unbounded(448, rounding=RoundTowardNegative),
     ).0,
     pi.1,
@@ -444,8 +444,8 @@ fn toolkit_digest_rows() -> Array[String] {
         taylor.add(
           Some(
             (
-              BinFloat::make(low, 0, Int32::max(1, low.bit_length())),
-              BinFloat::make(high, 0, Int32::max(1, high.bit_length())),
+              BinFloat::make_coeff(low, 0, Int32::max(1, low.bit_length())),
+              BinFloat::make_coeff(high, 0, Int32::max(1, high.bit_length())),
             ),
           ),
         )

@@ -42,7 +42,7 @@ pub fn BinFloat::next_up_ctx(
       }
       let step = finite_normalized(
         false,
-        BinCoeff::one(),
+        Coeff::one(),
         (position - 2L).to_int(),
         1,
       )

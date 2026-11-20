@@ -6,7 +6,7 @@
 ///|
 fn old_finalize_rounded(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   inexact : Bool,
   exact_top : Int32,
@@ -41,7 +41,7 @@ fn old_finalize_rounded(
 ///|
 fn old_round_pack(
   negative : Bool,
-  retained : BinCoeff,
+  retained : Coeff,
   round_bit : Bool,
   sticky : Bool,
   exponent2 : Int32,
@@ -69,13 +69,13 @@ fn old_round_pack(
 ///|
 fn old_round_dyadic(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   if magnitude.is_zero() {
     return (
-      finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+      finite_from_parts(negative, Coeff::zero(), 0, context.precision),
       BinaryFlags::new(),
     )
   }
@@ -144,17 +144,17 @@ fn RoundCoreRng::next(self : RoundCoreRng) -> UInt64 {
 }
 
 ///|
-fn round_test_magnitude(rng : RoundCoreRng) -> BinCoeff {
+fn round_test_magnitude(rng : RoundCoreRng) -> Coeff {
   let words = (rng.next() % 4UL).to_int() + 1
-  let mut value = BinCoeff::from_uint64(rng.next() | 1UL)
+  let mut value = Coeff::from_uint64(rng.next() | 1UL)
   for _ in 1..<words {
-    value = value.shift_left(40).add(BinCoeff::from_uint64(rng.next()))
+    value = value.shift_left(40).add(Coeff::from_uint64(rng.next()))
   }
   // Random low zeros and a random trim to vary the bit length.
   let trim = (rng.next() % 70UL).to_int()
   let low = (rng.next() % 6UL).to_int()
   let shifted = value.shift_right(trim)
-  let base = if shifted.is_zero() { BinCoeff::one() } else { shifted }
+  let base = if shifted.is_zero() { Coeff::one() } else { shifted }
   base.shift_left(low)
 }
 
@@ -247,9 +247,9 @@ test "binary_round_dyadic boundaries on both sides of the exact early exit" {
         ] {
         for bits in [1, 2, p, p + 1] {
           if bits >= 1 {
-            let magnitude = BinCoeff::one()
+            let magnitude = Coeff::one()
               .shift_left(bits - 1)
-              .add(if bits > 1 { BinCoeff::one() } else { BinCoeff::zero() })
+              .add(if bits > 1 { Coeff::one() } else { Coeff::zero() })
             let exponent2 = top - (bits - 1)
             for negative in [false, true] {
               let fresh = binary_round_dyadic(

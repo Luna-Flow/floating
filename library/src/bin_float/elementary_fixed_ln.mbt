@@ -36,14 +36,14 @@ fn binary_ln_unit_fixed_bounds(
     value.compare(BinFloat::from_int(2, precision=work_precision)) <= 0 else {
     return None
   }
-  let coefficient = value.coefficient()
+  let coefficient = value.coefficient_
   let exponent = value.exponent2()
   let (scaled_value, unit_shift) = if exponent >= 0 {
     (coefficient.shift_left(exponent), 0)
   } else {
     (coefficient, -exponent)
   }
-  let unit = BinCoeff::one().shift_left(unit_shift)
+  let unit = Coeff::one().shift_left(unit_shift)
   let numerator = scaled_value.sub_checked(unit).unwrap()
   let denominator = scaled_value.add(unit)
   // z = numerator / denominator lies in (0, 1/3] and 2^-lz <= 2z.
@@ -52,7 +52,7 @@ fn binary_ln_unit_fixed_bounds(
   let fractional = work_precision + 16 + lz
   let z = numerator.shift_left(fractional).div_rem_checked(denominator).unwrap().0
   let square = z.mul(z).shift_right(fractional)
-  let stop = BinCoeff::one().shift_left(6)
+  let stop = Coeff::one().shift_left(6)
   let mut power = z
   let mut sum = z
   let mut index = 0
@@ -60,14 +60,14 @@ fn binary_ln_unit_fixed_bounds(
     index += 1
     power = power.mul(square).shift_right(fractional)
     if power.compare(stop) < 0 {
-      let slack = BinCoeff::from_uint64((2 * index + 70).to_uint64())
-      let lower = BinFloat::make(
+      let slack = Coeff::from_uint64((2 * index + 70).to_uint64())
+      let lower = BinFloat::make_coeff(
         sum.shift_left(1),
         -fractional,
         work_precision,
         mode=RoundingMode::TowardNegative,
       )
-      let upper = BinFloat::make(
+      let upper = BinFloat::make_coeff(
         sum.add(slack).shift_left(1),
         -fractional,
         work_precision,
@@ -75,7 +75,7 @@ fn binary_ln_unit_fixed_bounds(
       )
       return Some((lower, upper))
     }
-    let divisor = BinCoeff::from_uint64((2 * index + 1).to_uint64())
+    let divisor = Coeff::from_uint64((2 * index + 1).to_uint64())
     sum = sum.add(power.div_rem_checked(divisor).unwrap().0)
   }
   None

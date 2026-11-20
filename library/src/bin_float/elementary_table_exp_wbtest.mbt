@@ -1,13 +1,13 @@
 ///|
 /// `[low, high] / 2^f` as a pair of floats at a generous precision.
 fn table_test_pair(
-  low : BinCoeff,
-  high : BinCoeff,
+  low : Coeff,
+  high : Coeff,
   f : Int32,
 ) -> (BinFloat, BinFloat) {
   (
-    BinFloat::make(low, -f, f + 8, mode=RoundingMode::TowardNegative),
-    BinFloat::make(high, -f, f + 8, mode=RoundingMode::TowardPositive),
+    BinFloat::make_coeff(low, -f, f + 8, mode=RoundingMode::TowardNegative),
+    BinFloat::make_coeff(high, -f, f + 8, mode=RoundingMode::TowardPositive),
   )
 }
 
@@ -42,7 +42,7 @@ test "table exp is within a few ulps" {
     let (low, high) = binary_exp_bounds_table(value, work).unwrap()
     // high - low <= 2^-(w+3) low.
     let width = high.sub(low)
-    let limit = high.mul(BinFloat::make(BinCoeff::one(), -(work - 2), 64))
+    let limit = high.mul(BinFloat::make_coeff(Coeff::one(), -(work - 2), 64))
     assert_true(width.compare(limit) <= 0)
   }
 }
@@ -58,7 +58,7 @@ test "table exp declines out-of-range arguments" {
     is None,
   )
   assert_true(
-    binary_exp_bounds_table(BinFloat::make(BinCoeff::one(), -200, 1), 160)
+    binary_exp_bounds_table(BinFloat::make_coeff(Coeff::one(), -200, 1), 160)
     is None,
   )
 }
@@ -74,12 +74,12 @@ test "table exp near the table boundaries" {
     for j in [1, 2, 3, 7, 11, 15, 16, 17, 21] {
       for (shift, count) in [(k1, 22), (k, 16)] {
         if j < count {
-          let base = BinFloat::make(
-            BinCoeff::from_uint64(j.to_uint64()),
+          let base = BinFloat::make_coeff(
+            Coeff::from_uint64(j.to_uint64()),
             -shift,
             work + 40,
           )
-          let tiny = BinFloat::make(BinCoeff::one(), -(work + 20), 1)
+          let tiny = BinFloat::make_coeff(Coeff::one(), -(work + 20), 1)
           for value in [base, base.add(tiny), base.sub(tiny)] {
             match binary_exp_bounds_table(value, work + 40) {
               Some(bounds) => {
@@ -116,12 +116,12 @@ test "table exp: large n and multiples of ln 2" {
 ///|
 test "taylor kernel encloses exp(a / 2^f) for extreme and random remainders" {
   for (f, k) in [(80, 8), (180, 8), (300, 8), (500, 10), (1100, 11), (2100, 11)] {
-    let limit = BinCoeff::one().shift_left(f - k)
+    let limit = Coeff::one().shift_left(f - k)
     let candidates = [
-      BinCoeff::zero(),
-      BinCoeff::one(),
-      BinCoeff::from_uint64(2UL),
-      limit.sub_checked(BinCoeff::one()).unwrap(),
+      Coeff::zero(),
+      Coeff::one(),
+      Coeff::from_uint64(2UL),
+      limit.sub_checked(Coeff::one()).unwrap(),
       limit.shift_right(1),
       burst_test_coefficient(f - k, 3UL).shift_right(1),
       burst_test_coefficient(f - k, 4UL),
@@ -130,13 +130,13 @@ test "taylor kernel encloses exp(a / 2^f) for extreme and random remainders" {
     for a in candidates {
       guard a.compare(limit) < 0 else { continue }
       let (low, high) = binary_exp_taylor_fixed(a, f, k)
-      let argument = BinFloat::make(a, -f, f + 8)
+      let argument = BinFloat::make_coeff(a, -f, f + 8)
       let reference = binary_exp_bounds_series(argument, f + 256).unwrap()
       let pair = table_test_pair(low, high, f)
       assert_true(burst_test_contains(pair, reference))
       // And it is tight: at most 10 units wide.
       assert_true(
-        high.sub_checked(low).unwrap().compare(BinCoeff::from_uint64(10UL)) <= 0,
+        high.sub_checked(low).unwrap().compare(Coeff::from_uint64(10UL)) <= 0,
       )
     }
   }
@@ -147,7 +147,11 @@ test "table entries enclose exp(j / 2^k)" {
   for precision in [128, 192] {
     let table = binary_exp_table_get(precision, 4, 4).unwrap()
     for j in 0..<table.first_low.length() {
-      let value = BinFloat::make(BinCoeff::from_uint64(j.to_uint64()), -4, 64)
+      let value = BinFloat::make_coeff(
+        Coeff::from_uint64(j.to_uint64()),
+        -4,
+        64,
+      )
       let reference = binary_exp_bounds_series(value, precision + 256).unwrap()
       let pair = table_test_pair(
         table.first_low[j],
@@ -157,7 +161,11 @@ test "table entries enclose exp(j / 2^k)" {
       assert_true(burst_test_contains(pair, reference))
     }
     for j in 0..<table.second_low.length() {
-      let value = BinFloat::make(BinCoeff::from_uint64(j.to_uint64()), -8, 64)
+      let value = BinFloat::make_coeff(
+        Coeff::from_uint64(j.to_uint64()),
+        -8,
+        64,
+      )
       let reference = binary_exp_bounds_series(value, precision + 256).unwrap()
       let pair = table_test_pair(
         table.second_low[j],

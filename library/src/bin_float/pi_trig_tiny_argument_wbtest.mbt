@@ -27,9 +27,9 @@ fn pi_tiny_model(
   kind : Int32,
   ctx : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let base = BinCoeff::one().shift_left(300)
-  let below = base.sub_checked(BinCoeff::one()).unwrap()
-  let above = base.add(BinCoeff::one())
+  let base = Coeff::one().shift_left(300)
+  let below = base.sub_checked(Coeff::one()).unwrap()
+  let above = base.add(Coeff::one())
   if kind == 2 {
     // cosPi: 1 - 2^-300, positive for either sign of x.
     return binary_round_dyadic(false, below, -300, ctx)
@@ -39,7 +39,7 @@ fn pi_tiny_model(
   let factor = if kind == 0 { below } else { above }
   binary_round_dyadic(
     x.is_negative(),
-    product.coefficient().mul(factor),
+    product.coefficient_.mul(factor),
     product.exponent2() - 300,
     ctx,
   )
@@ -60,8 +60,8 @@ test "sinpi, tanpi and cospi of tiny arguments round with their flags" {
     for exponent in [-1073741870, -1073741860, -1073741823, -1073741800] {
       for coefficient in [1UL, 5UL] {
         for negative in [false, true] {
-          let x = BinFloat::make(
-            BinCoeff::from_uint64(coefficient),
+          let x = BinFloat::make_coeff(
+            Coeff::from_uint64(coefficient),
             exponent,
             64,
             negative~,

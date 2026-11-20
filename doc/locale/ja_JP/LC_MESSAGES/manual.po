@@ -45,6 +45,7 @@ msgstr "ball_float API"
 #: manual/api/frontend/mpfr_expr.md:3
 #: manual/api/frontend/testfloat_expr.md:3
 #: manual/api/internal.md:3
+#: manual/api/internal/bin_kernel.md:3
 #: manual/api/internal/conformance.md:3
 #: manual/api/internal/decimal_kernel.md:3
 #: manual/api/internal/runner_cli.md:3
@@ -116,6 +117,7 @@ msgstr "現在のコードが入力集合の一部を失う、不必要に広げ
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
+#: manual/api/internal/bin_kernel.md:20
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -1111,6 +1113,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:552
+#: manual/api/internal/bin_kernel.md:77
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1127,6 +1130,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:554
+#: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -7367,6 +7371,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr "有効な入力では、`etiny` は $e_{\\min} - p + 1$、`etop` は $e_{\\max} - p + 1$ です。無効な入力では `is_valid()` は `false` になります。この内部値をすべての入力に対して定義できるよう、返される端点は必要な場合にのみクランプされます。呼び出し側は端点を使用する前にコンテキストを拒否しなければなりません。"
 
 #: manual/api/internal.md:58
+#: manual/api/internal/bin_kernel.md:22
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -7603,6 +7608,90 @@ msgstr "`certified_failure(operation, stage, reason, target_precision, budget)` 
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr "エラーの詳細には、演算名、段階、理由、目標精度、および予算の現在の作業精度と精緻化回数が記録されます。"
 
+#: manual/api/internal/bin_kernel.md:1
+msgid "internal/bin_kernel API"
+msgstr "internal/bin_kernel API"
+
+#: manual/api/internal/bin_kernel.md:5
+msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` and forwards each of its methods, so `Coeff` never appears in a public interface. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
+msgstr "`internal/bin_kernel` は `BinFloat` の係数に必要な整数演算を提供します。非負の任意精度整数 `Coeff`、その比較、加算、減算、シフト、ビット演算、乗算アルゴリズム（教科書的乗算、Karatsuba、Toom-3、2 素数 NTT）、除算（Knuth のアルゴリズム D と Burnikel-Ziegler）、整数平方根、GCD、バイト列および任意の基数の文字列との相互変換であり、アルゴリズムを選ぶターゲット別のしきい値も含みます。すべての関数は引数の厳密な関数です。このパッケージは状態を送出せず、丸めモード、コンテキスト、フラグの概念も持ちません。それらは `bin_float` に属します。内部パッケージであり、`Luna-Flow/floating` の外のコードからはインポートできません。`bin_float` の公開係数型 `BinCoeff` は `Coeff` 上の newtype で、各メソッドを転送するため、`Coeff` が公開インターフェースに現れることはありません。[チュートリアル](../../tutorial/internal/bin_kernel.md)と[設計ページ](../../design/internal/bin_kernel.md)を参照してください。"
+
+#: manual/api/internal/bin_kernel.md:30
+#: manual/api/internal/decimal_kernel.md:28
+msgid "and bring the names a package uses into scope once, for example in a file of its own:"
+msgstr "そのうえで、パッケージが使う名前を、たとえば専用のファイルで一度だけスコープに入れます。"
+
+#: manual/api/internal/bin_kernel.md:38
+#: manual/api/internal/decimal_kernel.md:40
+msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
+msgstr "本マニュアルのサンプル検査器には内部サブパッケージのエイリアスがないため、これらのサンプルは `nocheck` としています。"
+
+#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/decimal_kernel.md:43
+msgid "The coefficient type"
+msgstr "係数の型"
+
+#: manual/api/internal/bin_kernel.md:45
+msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
+msgstr "非負整数です。Native、LLVM、Wasm、Wasm-GC では `CoeffRepr` 上の newtype、JavaScript ではホストの `bigint` です。値は永続的で、どの関数もオペランドを変更しません。"
+
+#: manual/api/internal/bin_kernel.md:51
+msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `bin_float` pattern-match on them; build values with the functions below."
+msgstr "JavaScript 以外のターゲットでの格納形式です。$2^{64}$ 未満と $2^{128}$ 未満の値には `Inline64(low)` と `Inline128(high, low)`、それより大きい値には `Heap(words, len)` を使い、`len` 個のリトルエンディアン 64 ビットリムを持ち、最上位リムは 0 ではありません。`bin_float` の 1 ワード用高速パスがこれらにパターンマッチするため、コンストラクタは読み取り可能です。値の構築には下の関数を使ってください。"
+
+#: manual/api/internal/bin_kernel.md:58
+#: manual/api/internal/decimal_kernel.md:67
+msgid "Function families"
+msgstr "関数のグループ"
+
+#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/decimal_kernel.md:73
+msgid "Family"
+msgstr "グループ"
+
+#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/decimal_kernel.md:73
+msgid "Functions"
+msgstr "関数"
+
+#: manual/api/internal/bin_kernel.md:62
+#: manual/api/internal/decimal_kernel.md:75
+msgid "build and convert"
+msgstr "構築と変換"
+
+#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/decimal_kernel.md:76
+msgid "shape"
+msgstr "形状の問い合わせ"
+
+#: manual/api/internal/bin_kernel.md:64
+msgid "compare"
+msgstr "比較"
+
+#: manual/api/internal/bin_kernel.md:65
+msgid "add, subtract, shift"
+msgstr "加算、減算、シフト"
+
+#: manual/api/internal/bin_kernel.md:66
+msgid "bit operations"
+msgstr "ビット演算"
+
+#: manual/api/internal/bin_kernel.md:67
+msgid "multiply and divide"
+msgstr "乗算と除算"
+
+#: manual/api/internal/bin_kernel.md:68
+msgid "number theory and roots"
+msgstr "整数論と根"
+
+#: manual/api/internal/bin_kernel.md:69
+msgid "machine words"
+msgstr "マシンワード"
+
+#: manual/api/internal/bin_kernel.md:71
+msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
+msgstr "ターゲット別のしきい値（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）は非公開です。`coeff_thresholds_<target>.mbt` にあり、`moon.pkg` が選びます。前提条件は `abort` で検査されます（負のシフト量、ゼロ除数）。これらは呼び出し側のプログラミング誤りであり、演算の状態ではありません。"
+
 #: manual/api/internal/conformance.md:1
 msgid "internal/conformance API"
 msgstr "internal/conformance API"
@@ -7772,18 +7861,6 @@ msgstr "internal/decimal_kernel API"
 msgid "`internal/decimal_kernel` holds the integer arithmetic on decimal coefficients that `decimal` (IEEE 754) and `decimal_gda` (General Decimal Arithmetic) both need: a persistent coefficient type, addition, subtraction, comparison, shifts by powers of ten, digit counts, trailing-zero trimming, division by a limb, and the multiplication and division algorithms with their per-target thresholds. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to the standard-specific finalizers of the two decimal packages. It is an internal package: code outside `Luna-Flow/floating` cannot import it, and neither decimal package exposes its types. See the [tutorial](../../tutorial/internal/decimal_kernel.md) and the [design page](../../design/internal/decimal_kernel.md)."
 msgstr "`internal/decimal_kernel` は、`decimal`（IEEE 754）と `decimal_gda`（General Decimal Arithmetic）が共に必要とする 10 進係数の整数演算を担います。永続的な係数の型、加算、減算、比較、10 のべきによるシフト、桁数の計算、末尾のゼロの除去、リム単位の除算、そしてターゲットごとの閾値を持つ乗算・除算アルゴリズムです。どの関数も引数の厳密な関数です。このパッケージは条件を一切発生させず、丸めモード、コンテキスト、フラグの概念も持ちません。それらは 2 つの 10 進パッケージそれぞれの、標準に依存する最終化ルーチンの役割です。これは内部パッケージで、`Luna-Flow/floating` の外のコードからはインポートできず、どちらの 10 進パッケージもその型を公開しません。[チュートリアル](../../tutorial/internal/decimal_kernel.md)と[設計ページ](../../design/internal/decimal_kernel.md)も参照してください。"
 
-#: manual/api/internal/decimal_kernel.md:28
-msgid "and bring the names a package uses into scope once, for example in a file of its own:"
-msgstr "そのうえで、パッケージが使う名前を、たとえば専用のファイルで一度だけスコープに入れます。"
-
-#: manual/api/internal/decimal_kernel.md:40
-msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
-msgstr "本マニュアルのサンプル検査器には内部サブパッケージのエイリアスがないため、これらのサンプルは `nocheck` としています。"
-
-#: manual/api/internal/decimal_kernel.md:43
-msgid "The coefficient type"
-msgstr "係数の型"
-
 #: manual/api/internal/decimal_kernel.md:47
 msgid "A non-negative integer, either `Small(UInt64)` for values below $10^{18}$ or `Limbs(units, digits)`: little-endian base-$10^9$ limbs without a leading zero limb, with the digit count cached. The value is persistent; no function mutates the limbs of an operand. The constructors are public because the two decimal packages pattern-match on them in a few fast paths; prefer the functions below."
 msgstr "非負整数で、$10^{18}$ 未満の値には `Small(UInt64)`、それ以外には `Limbs(units, digits)` を使います。後者は基数 $10^9$ のリトルエンディアンのリムで、先頭にゼロのリムを持たず、桁数をキャッシュします。値は永続的で、オペランドのリムを書き換える関数はありません。2 つの 10 進パッケージがいくつかの高速経路でパターンマッチするため、コンストラクタは公開されています。通常は以下の関数を使ってください。"
@@ -7796,29 +7873,9 @@ msgstr "8 つの丸め方向（`HalfEven`、`HalfUp`、`HalfDown`、`Down`、`Ce
 msgid "A sign and a `DecCoeff` magnitude, for algorithms whose intermediate values can be negative (Toom-3, the Newton reciprocal). Zero is never negative. The type is `pub`: its fields can be read, but a value is built only by this package."
 msgstr "符号と `DecCoeff` の大きさの組で、中間値が負になりうるアルゴリズム（Toom-3、Newton 逆数）に使います。ゼロは決して負になりません。この型は `pub` で、フィールドは読めますが、値を作れるのはこのパッケージだけです。"
 
-#: manual/api/internal/decimal_kernel.md:67
-msgid "Function families"
-msgstr "関数のグループ"
-
 #: manual/api/internal/decimal_kernel.md:69
 msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
 msgstr "関数はすべて `dec_coeff_*` という名前です。この接頭辞がないのは `remove_factor10_repr`、`exact_divide_by_power_of_ten_repr`、`trim_trailing_decimal_zeros_repr` です。"
-
-#: manual/api/internal/decimal_kernel.md:73
-msgid "Family"
-msgstr "グループ"
-
-#: manual/api/internal/decimal_kernel.md:73
-msgid "Functions"
-msgstr "関数"
-
-#: manual/api/internal/decimal_kernel.md:75
-msgid "build and convert"
-msgstr "構築と変換"
-
-#: manual/api/internal/decimal_kernel.md:76
-msgid "shape"
-msgstr "形状の問い合わせ"
 
 #: manual/api/internal/decimal_kernel.md:77
 msgid "add, subtract, compare"
@@ -8626,6 +8683,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` と `internal/*`、`cli` と `cli/*`、`bench` と `bench/*`、`consistency`、`doc_examples` は実装および検証のための基盤です。シンボルが `pkg.generated.mbti` に現れていても、長期的なアプリケーション契約になるとは限りません。依存する前にそのパッケージの設計ページを読んでください。"
 
 #: manual/architecture.md:274
+#: manual/design/internal/bin_kernel.md:51
 msgid "Invariants"
 msgstr "Invariant"
 
@@ -8728,7 +8786,7 @@ msgstr "レベル"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -10438,6 +10496,7 @@ msgstr "`ball_float` は単一の近似値ではなく、実数の集合を用�
 #: manual/design/frontend/mpfr_expr.md:3
 #: manual/design/frontend/testfloat_expr.md:3
 #: manual/design/internal.md:3
+#: manual/design/internal/bin_kernel.md:3
 #: manual/design/internal/conformance.md:3
 #: manual/design/internal/decimal_kernel.md:3
 #: manual/design/internal/runner_cli.md:3
@@ -10496,6 +10555,7 @@ msgstr "IEEE Std 1788-2015, *IEEE Standard for Interval Arithmetic*。このパ�
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:25
+#: manual/design/internal/bin_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
 #: manual/design/internal/runner_cli.md:13
@@ -13000,8 +13060,8 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr "**問題。** 精度のコストは $p$ ビットの数の整数乗算と整数除算であり、$p$ は 1 から $2^{28}$ までの範囲をとります。"
 
 #: manual/design/bin_float.md:1906
-msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
-msgstr "**選択。** `BinCoeff` は 128 ビットまでをインラインで保持し、それより大きい値をリトルエンディアンの 64 ビット limb で保持します（JavaScript ではホストの `bigint`）。64 ビット limb 単位のオペランド長 $n$ でディスパッチします。以下のしきい値はすべて 64 ビット limb 単位です。"
+msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgstr "**選択。** カーネルは内部パッケージ [`internal/bin_kernel`](internal/bin_kernel.md) で、`BinCoeff` はその `Coeff` 上の newtype です。`Coeff` は 128 ビットまでをインラインで、それより大きい値をリトルエンディアン 64 ビットリム（JavaScript ではホストの `bigint`）として格納し、オペランド長 $n$（64 ビットリム単位）で振り分けます。以下のしきい値はすべて 64 ビットリム単位です。"
 
 #: manual/design/bin_float.md:1911
 msgid "Product or square"
@@ -17234,6 +17294,143 @@ msgstr "公開の安定性はありません。このパッケージは `Luna-Fl
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "べき乗キャッシュはプロセス全体の可変状態であり、パッケージ内の唯一の状態です。これが結果を変えることはありません。"
 
+#: manual/design/internal/bin_kernel.md:1
+msgid "internal/bin_kernel design"
+msgstr "internal/bin_kernel 設計"
+
+#: manual/design/internal/bin_kernel.md:5
+msgid "`BinFloat` is a rounding layer on top of one arithmetic: non-negative integers of up to $2^{28}$ bits. The integer part should be one package with one contract, so that an algorithm can be measured, replaced and tested without the floating-point layer, and so that the rounding layer cannot reach into it. The package therefore contains only functions from integers to integers."
+msgstr "`BinFloat` は 1 つの算術の上に載った丸め層です。その算術とは最大 $2^{28}$ ビットの非負整数です。整数部分は単一の契約を持つ 1 つのパッケージであるべきで、そうすれば浮動小数点層なしでアルゴリズムを測定、置換、テストでき、丸め層がその内部に踏み込むこともできません。したがってこのパッケージには整数から整数への関数だけが含まれます。"
+
+#: manual/design/internal/bin_kernel.md:13
+msgid ""
+"A coefficient $c \\ge 0$ is stored as $c = \\sum_{i<n} w_i 2^{64 i}$ with $0 \\le w_i < 2^{64}$ and $w_{n-1} \\n"
+"e 0$; values below $2^{128}$ are kept in one or two machine words without an array. Every operation computes an exact result:"
+msgstr ""
+"係数 $c \\ge 0$ は $c = \\sum_{i<n} w_i 2^{64 i}$（$0 \\le w_i < 2^{64}$、$w_{n-1} \\n"
+"e 0$）として格納されます。$2^{128}$ 未満の値は配列なしで 1 つまたは 2 つのマシンワードに保持されます。すべての演算は厳密な結果を計算します。"
+
+#: manual/design/internal/bin_kernel.md:18
+#: manual/design/internal/decimal_kernel.md:22
+msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
+msgstr "$\\operatorname{add}(a,b) = a + b$、$a \\ge b$ のとき $\\operatorname{sub}(a,b) = a - b$、$\\operatorname{mul}(a,b) = ab$。"
+
+#: manual/design/internal/bin_kernel.md:20
+#: manual/design/internal/decimal_kernel.md:24
+msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
+msgstr "$\\operatorname{divrem}(a,b) = (q,r)$。ただし $a = qb + r$ かつ $0 \\le r < b$。"
+
+#: manual/design/internal/bin_kernel.md:21
+msgid "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ and $\\lfloor a / 2^{k} \\rfloor$;"
+msgstr "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ と $\\lfloor a / 2^{k} \\rfloor$。"
+
+#: manual/design/internal/bin_kernel.md:22
+msgid "the integer square root $s = \\lfloor \\sqrt{a} \\rfloor$ with remainder $a - s^2$, the GCD, and the digits of $a$ in any radix."
+msgstr "整数平方根 $s = \\lfloor \\sqrt{a} \\rfloor$ と剰余 $a - s^2$、GCD、および $a$ の任意の基数での桁。"
+
+#: manual/design/internal/bin_kernel.md:25
+msgid "The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT, Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD and the in-place radix conversion), their cutoffs and the argument that they all compute the same integers are in the section [The coefficient kernel](../bin_float.md#the-coefficient-kernel) of the `bin_float` design page. Because every path computes the same integers, the choice of algorithm cannot change a rounded result, a flag or an encoding."
+msgstr "これらを支えるアルゴリズム（教科書的乗算、Karatsuba、Toom-3、2 素数 NTT、Knuth のアルゴリズム D、Burnikel-Ziegler、Zimmermann の平方根、Lehmer GCD、インプレースの基数変換）、その切り替え点、およびすべての経路が同じ整数を計算するという論証は、`bin_float` 設計ページの[係数カーネル](../bin_float.md#the-coefficient-kernel)の節にあります。どの経路も同じ整数を計算するため、アルゴリズムの選択が丸め結果、フラグ、エンコーディングを変えることはありません。"
+
+#: manual/design/internal/bin_kernel.md:33
+msgid "Package boundary"
+msgstr "パッケージ境界"
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Decision"
+msgstr "決定"
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Choice"
+msgstr "選択"
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Reason"
+msgstr "理由"
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "Where the type lives"
+msgstr "型の置き場所"
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "`Coeff` is defined here; `BinCoeff` in `bin_float` is a newtype `struct BinCoeff(@bin_kernel.Coeff)`"
+msgstr "`Coeff` はここで定義され、`bin_float` の `BinCoeff` は newtype `struct BinCoeff(@bin_kernel.Coeff)` です"
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased."
+msgstr "内部型の再エクスポート（`pub using`）では、別のモジュール（ツールモジュール）がその型のメソッドを使えるようになりません。newtype なら使え、しかも消去されます。"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "Why not a record wrapper"
+msgstr "なぜレコードのラッパーにしないか"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
+msgstr "newtype であり、`struct BinCoeff { kernel : Coeff }` ではありません"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
+msgstr "レコードのラッパーは値ごとに 2 つ目のオブジェクトを確保します。使い捨ての測定では、小さな `add` で退役命令数が 49% 増えました。newtype とパッケージ境界を越える呼び出しには測定できるコストがありません。"
+
+#: manual/design/internal/bin_kernel.md:39
+#: manual/performance/bin_float.md:10
+msgid "Representation"
+msgstr "Context、flag、interchange"
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly"
+msgstr "`Coeff` は 3 ケースの列挙（`Inline64`、`Inline128`、`Heap`）上の newtype で、`BinFloat` はそれを直接保持します"
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
+msgstr "係数ごとの確保が 2 回から 1 回になります（53 から 512 ビットで `BinFloat` 演算あたりの命令数が 10 から 15% 減、[#427](https://github.com/Luna-Flow/floating/pull/427)）。"
+
+#: manual/design/internal/bin_kernel.md:40
+#: manual/verification.md:202
+#: manual/verification.md:245
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#: manual/design/internal/bin_kernel.md:40
+msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
+msgstr "`Coeff` はホストの `bigint` です（`coeff_js.mbt`）。カーネルのアルゴリズムはありません"
+
+#: manual/design/internal/bin_kernel.md:40
+msgid "The host's arbitrary-precision integers are the kernel there."
+msgstr "そこではホストの任意精度整数がカーネルです。"
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "Machine words"
+msgstr "マシンワード"
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "`binary_fast_*` live here"
+msgstr "`binary_fast_*` はここにあります"
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`."
+msgstr "ワード幅の `mul_high` と `div_wide` は、カーネルと `bin_float` の 1 ワード用パスの両方が使います。"
+
+#: manual/design/internal/bin_kernel.md:43
+msgid "Thresholds"
+msgstr "しきい値"
+
+#: manual/design/internal/bin_kernel.md:45
+msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
+msgstr "切り替え点は `*_min_words` または `*_words`（64 ビットリム）と名付けられ、ターゲットごとに `coeff_thresholds_<target>.mbt` で選ばれます。これらは意味論ではなく方針です。振り分けテストはすべての切り替え点をちょうど跨ぎ、教科書的乗算の結果と比較します。初等関数の切り替え点はカーネルの方針ではなく、`bin_float` に残ります。"
+
+#: manual/design/internal/bin_kernel.md:53
+msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
+msgstr "`Heap` の係数は `len >= 3` 個のリムを持ち、最上位リムは 0 ではなく、どの関数もオペランドの配列を変更しません。"
+
+#: manual/design/internal/bin_kernel.md:55
+msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
+msgstr "`Inline64` と `Inline128` は $2^{128}$ 未満の値の唯一の表現であり、`bin_coeff_from_words` が正規化します。"
+
+#: manual/design/internal/bin_kernel.md:57
+msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
+msgstr "前提条件の違反（ゼロ除数、負のシフト）を除き、abort する関数はありません。"
+
 #: manual/design/internal/conformance.md:1
 msgid "internal/conformance design"
 msgstr "internal/conformance の設計"
@@ -17363,14 +17560,6 @@ msgstr "係数 $c \\ge 0$ は基数 $B = 10^{9}$ で保持します。これは 
 #: manual/design/internal/decimal_kernel.md:20
 msgid "Every operation computes an exact result:"
 msgstr "どの演算も厳密な結果を計算します。"
-
-#: manual/design/internal/decimal_kernel.md:22
-msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
-msgstr "$\\operatorname{add}(a,b) = a + b$、$a \\ge b$ のとき $\\operatorname{sub}(a,b) = a - b$、$\\operatorname{mul}(a,b) = ab$。"
-
-#: manual/design/internal/decimal_kernel.md:24
-msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
-msgstr "$\\operatorname{divrem}(a,b) = (q,r)$。ただし $a = qb + r$ かつ $0 \\le r < b$。"
 
 #: manual/design/internal/decimal_kernel.md:25
 msgid ""
@@ -18217,7 +18406,7 @@ msgstr "数値コア"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Part"
 msgstr "構成要素"
 
@@ -18226,7 +18415,7 @@ msgstr "構成要素"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Tutorial"
 msgstr "チュートリアル"
 
@@ -18235,7 +18424,7 @@ msgstr "チュートリアル"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Design"
 msgstr "設計"
 
@@ -18672,358 +18861,374 @@ msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[設計](design/internal/decimal_kernel.md)"
 
 #: manual/index.md:116
+msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float`"
+msgstr "`internal/bin_kernel`：`bin_float` の係数に対する厳密な整数演算"
+
+#: manual/index.md:116
+msgid "[tutorial](tutorial/internal/bin_kernel.md)"
+msgstr "[チュートリアル](tutorial/internal/bin_kernel.md)"
+
+#: manual/index.md:116
+msgid "[API](api/internal/bin_kernel.md)"
+msgstr "[API](api/internal/bin_kernel.md)"
+
+#: manual/index.md:116
+msgid "[design](design/internal/bin_kernel.md)"
+msgstr "[設計](design/internal/bin_kernel.md)"
+
+#: manual/index.md:117
 msgid "`consistency`: white-box cross-package laws and API audits"
 msgstr "`consistency`：ホワイトボックスによるパッケージ横断の法則と API 監査"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[tutorial](tutorial/consistency.md)"
 msgstr "[チュートリアル](tutorial/consistency.md)"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[API](api/consistency.md)"
 msgstr "[API](api/consistency.md)"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[design](design/consistency.md)"
 msgstr "[設計](design/consistency.md)"
 
-#: manual/index.md:118
+#: manual/index.md:119
 msgid "Tools module: infrastructure and evidence"
 msgstr "ツールモジュール: インフラと証拠"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr "`internal/conformance`：ソース位置、決定的なシャード、ケースの処理区分、サマリー"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr "[チュートリアル](tutorial/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[API](api/internal/conformance.md)"
 msgstr "[API](api/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[design](design/internal/conformance.md)"
 msgstr "[設計](design/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr "`internal/runner_cli`：共有のコマンドラインオプション、ファイル、診断、JSON"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr "[チュートリアル](tutorial/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[API](api/internal/runner_cli.md)"
 msgstr "[API](api/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[design](design/internal/runner_cli.md)"
 msgstr "[設計](design/internal/runner_cli.md)"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "`doc_examples`: executable documentation examples run by `just docs`"
 msgstr "`doc_examples`：`just docs` で実行される実行可能なドキュメントの例"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[tutorial](tutorial/doc_examples.md)"
 msgstr "[チュートリアル](tutorial/doc_examples.md)"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[API](api/doc_examples.md)"
 msgstr "[API](api/doc_examples.md)"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[design](design/doc_examples.md)"
 msgstr "[設計](design/doc_examples.md)"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "`bench`: shared Maremark benchmark infrastructure"
 msgstr "`bench`：共有の Maremark ベンチマーク基盤"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[tutorial](tutorial/bench.md)"
 msgstr "[チュートリアル](tutorial/bench.md)"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[API](api/bench.md)"
 msgstr "[API](api/bench.md)"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[design](design/bench.md)"
 msgstr "[設計](design/bench.md)"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
 msgstr "`bench/bin_float`：二進算術と初等関数のベンチマーク"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[tutorial](tutorial/bench/bin_float.md)"
 msgstr "[チュートリアル](tutorial/bench/bin_float.md)"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[API](api/bench/bin_float.md)"
 msgstr "[API](api/bench/bin_float.md)"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[design](design/bench/bin_float.md)"
 msgstr "[設計](design/bench/bin_float.md)"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "`bench/decimal`: IEEE decimal benchmarks"
 msgstr "`bench/decimal`：IEEE 十進ベンチマーク"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[tutorial](tutorial/bench/decimal.md)"
 msgstr "[チュートリアル](tutorial/bench/decimal.md)"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[API](api/bench/decimal.md)"
 msgstr "[API](api/bench/decimal.md)"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[design](design/bench/decimal.md)"
 msgstr "[設計](design/bench/decimal.md)"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "`bench/decimal_gda`: GDA decimal benchmarks"
 msgstr "`bench/decimal_gda`：GDA 十進ベンチマーク"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[tutorial](tutorial/bench/decimal_gda.md)"
 msgstr "[チュートリアル](tutorial/bench/decimal_gda.md)"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[API](api/bench/decimal_gda.md)"
 msgstr "[API](api/bench/decimal_gda.md)"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[design](design/bench/decimal_gda.md)"
 msgstr "[設計](design/bench/decimal_gda.md)"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "`bench/ball_float`: interval arithmetic benchmarks"
 msgstr "`bench/ball_float`：区間算術ベンチマーク"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[tutorial](tutorial/bench/ball_float.md)"
 msgstr "[チュートリアル](tutorial/bench/ball_float.md)"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[API](api/bench/ball_float.md)"
 msgstr "[API](api/bench/ball_float.md)"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[design](design/bench/ball_float.md)"
 msgstr "[設計](design/bench/ball_float.md)"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
 msgstr "`bench/external`：共有オペランドでの MPFR・libmpdec との計時比較"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[tutorial](tutorial/bench/external.md)"
 msgstr "[チュートリアル](tutorial/bench/external.md)"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[API](api/bench/external.md)"
 msgstr "[API](api/bench/external.md)"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
 msgstr "[設計](design/bench/external.md), [性能](performance/bench/external.md)"
 
-#: manual/index.md:132
+#: manual/index.md:133
 msgid "Guides"
 msgstr "ガイド"
 
-#: manual/index.md:134
+#: manual/index.md:135
 msgid "Guide"
 msgstr "ガイド"
 
-#: manual/index.md:134
+#: manual/index.md:135
 msgid "Read it for"
 msgstr "読むべき場面"
 
-#: manual/index.md:136
+#: manual/index.md:137
 msgid "[Getting started](getting_started.md)"
 msgstr "[はじめに](getting_started.md)"
 
-#: manual/index.md:136
+#: manual/index.md:137
 msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr "パッケージの選択、インストール、最初の値、コンテキストと失敗モデル"
 
-#: manual/index.md:137
+#: manual/index.md:138
 msgid "[Numeric semantics](numeric_semantics.md)"
 msgstr "[数値意味論](numeric_semantics.md)"
 
-#: manual/index.md:137
+#: manual/index.md:138
 msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
 msgstr "共通の語彙: 厳密値と丸められた結果、丸め関数、ulp と単位丸め誤差、フラグ、量子、符号付きゼロ、NaN、包含区間"
 
-#: manual/index.md:138
+#: manual/index.md:139
 msgid "[Architecture](architecture.md)"
 msgstr "[アーキテクチャ](architecture.md)"
 
-#: manual/index.md:138
+#: manual/index.md:139
 msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr "パッケージのレイヤー、数値コアのパイプライン、認証付き初等関数、不変条件"
 
-#: manual/index.md:139
+#: manual/index.md:140
 msgid "[Verification](verification.md)"
 msgstr "[検証](verification.md)"
 
-#: manual/index.md:139
+#: manual/index.md:140
 msgid "the gates, the published conformance claims and how to reproduce them"
 msgstr "ゲート、公開されている適合性の主張、およびその再現方法"
 
-#: manual/index.md:140
+#: manual/index.md:141
 msgid "[Performance audit](performance_audit.md)"
 msgstr "[性能監査](performance_audit.md)"
 
-#: manual/index.md:140
+#: manual/index.md:141
 msgid "proofs and evidence for the optimized arithmetic paths"
 msgstr "最適化された算術経路に対する証明と証拠"
 
-#: manual/index.md:141
+#: manual/index.md:142
 msgid "[External baseline](performance/bench/external.md)"
 msgstr "[外部ベースライン](performance/bench/external.md)"
 
-#: manual/index.md:141
+#: manual/index.md:142
 msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
 msgstr "`floating` を MPFR と libmpdec と比べた計時：手法、マシン、比"
 
-#: manual/index.md:142
+#: manual/index.md:143
 msgid "[Repository conventions](conventions.md)"
 msgstr "[リポジトリの規約](conventions.md)"
 
-#: manual/index.md:142
+#: manual/index.md:143
 msgid "documentation rules and the review checklist"
 msgstr "ドキュメントの規則とレビューのチェックリスト"
 
-#: manual/index.md:144
+#: manual/index.md:145
 msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr "アプリケーション向けの公開面は、数値コア、`def`、checked ラッパーです。`semantic` と `numeric_expr` は暫定的な統合用の公開面です。その他のパッケージは、リポジトリのツールがそれらを合成するためにインターフェースを公開しており、その設計ページではより限定的な安定性の約束を述べています。"
 
-#: manual/index.md:149
+#: manual/index.md:150
 msgid "Exported types"
 msgstr "エクスポートされる型"
 
-#: manual/index.md:151
+#: manual/index.md:152
 msgid "Binary floating point (`bin_float`)"
 msgstr "二進浮動小数点（`bin_float`）"
 
-#: manual/index.md:153
+#: manual/index.md:154
 msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr "値：`BinFloat`（精度を持つ符号付き二進有理数、符号付きゼロ、無限大、ペイロード付き NaN）とその厳密な係数 `BinCoeff`"
 
-#: manual/index.md:155
+#: manual/index.md:156
 msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr "コンテキストとステータス：`BinaryContext`、`BinaryRoundingMode`、`TininessDetection`、`BinaryFlags`"
 
-#: manual/index.md:157
+#: manual/index.md:158
 msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr "交換形式：`BinaryInterchange`、`BinaryInterchangeFormat`（binary16、32、64、128 およびそれより広い形式）"
 
-#: manual/index.md:159
+#: manual/index.md:160
 msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr "制限値：`binary_implementation_e_min`、`binary_implementation_e_max`、`binary_precision_max`"
 
-#: manual/index.md:162
+#: manual/index.md:163
 msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr "十進浮動小数点（`decimal`、`decimal_gda`）"
 
-#: manual/index.md:164
+#: manual/index.md:165
 msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr "IEEE 754 十進：`Decimal`、`DecimalContext`、`DecimalRoundingMode`、`DecimalTininessDetection`、`DecimalFlags`、`DecimalSignal`、および DPD/BID 交換形式の型 `DecimalInterchange`、`DecimalInterchangeFormat`、`DecimalInterchangeEncoding`"
 
-#: manual/index.md:168
+#: manual/index.md:169
 msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr "General Decimal Arithmetic：`Decimal`、`GdaContext`、`GdaRoundingMode`、`GdaFlags`、`GdaSignal`、`GdaTrapSet`、`GdaOutcome`、`GdaInterchange`、`GdaInterchangeFormat`、および GDA の各演算に一つずつ対応する自由関数（`add`、`divide`、`quantize`、`power` など）"
 
-#: manual/index.md:173
+#: manual/index.md:174
 msgid "Intervals (`ball_float`)"
 msgstr "区間（`ball_float`）"
 
-#: manual/index.md:175
+#: manual/index.md:176
 msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
 msgstr "`BallFloat`（bare 区間）、`Decoration` を伴う `BallFloatDecorated`、`OverlapState`"
 
-#: manual/index.md:177
+#: manual/index.md:178
 msgid "`BallContext` and `BallFlags` for intervals in a target format"
 msgstr "目標形式の区間のための `BallContext` と `BallFlags`"
 
-#: manual/index.md:179
+#: manual/index.md:180
 msgid "Pipelines and shared vocabulary"
 msgstr "パイプラインと共通語彙"
 
-#: manual/index.md:181
+#: manual/index.md:182
 msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr "checked ラッパー：`BinFloatResult`、`DecimalChecked`、`GdaDecimalChecked`、`BallFloatResult`"
 
-#: manual/index.md:183
+#: manual/index.md:184
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` トレイト、`is_finite`、`is_infinite`、`is_nan`、`is_zero`、および `Luna-Flow/arithmetic` から再エクスポートされた `RoundingMode`、`ArithmeticContext`、`ArithmeticError`"
 
-#: manual/index.md:188
+#: manual/index.md:189
 msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr "`numeric_expr`：`Expr`、`Literal`、`Operation`、`SourceSpan`、`EvalError`、`evaluate`"
 
-#: manual/index.md:191
+#: manual/index.md:192
 msgid "Where to read next"
 msgstr "次に読むもの"
 
-#: manual/index.md:193
+#: manual/index.md:194
 msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr "**ライブラリを初めて使う場合。** [はじめに](getting_started.md)を読み、次に選んだパッケージのチュートリアル、たとえば [`bin_float` チュートリアル](tutorial/bin_float.md)や [`decimal` チュートリアル](tutorial/decimal.md)を読んでください。用語については[数値意味論](numeric_semantics.md)を手元に開いておいてください。"
 
-#: manual/index.md:198
+#: manual/index.md:199
 msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr "**アプリケーションやライブラリで使う場合。** [数値意味論](numeric_semantics.md)を一度読み、その後は使用するパッケージの API ページを参照して作業してください。標準の振る舞いに依拠する前に、対応する適合性ページを確認してください。パイプラインについては、checked ラッパーのチュートリアルを読んでください。"
 
-#: manual/index.md:203
+#: manual/index.md:204
 msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr "**コントリビュートする場合。** [アーキテクチャ](architecture.md)、[検証](verification.md)、[リポジトリの規約](conventions.md)を読み、次に変更するパッケージの設計ページを読んでください。最適化された経路を変更する場合は、[性能監査](performance_audit.md)とそのパッケージの性能ページも必要です。"
 
-#: manual/index.md:210
+#: manual/index.md:211
 msgid "Evidence snapshot"
 msgstr "証拠の概要"
 
-#: manual/index.md:212
+#: manual/index.md:213
 msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
 msgstr "固定された GDA の `official` コーパスは **64,986/64,986 件の正当な実行可能スカラー行** をパスし、`official0` は 16,124/16,124 件をパスします。残る 141 件の `#` プレースホルダ行または非スカラー行は診断上の除外対象です。"
 
-#: manual/index.md:215
+#: manual/index.md:216
 msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr "二進の TestFloat レベル 1 マトリクスは、binary16/32/64/128 にわたる 254,227,872 個のベクタをパスします。これには融合積和、剰余、整数値への丸め、整数変換、比較述語が含まれ、さらに固定された MPFR の平方根および初等関数の証拠データもパスします。"
 
-#: manual/index.md:219
+#: manual/index.md:220
 msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
 msgstr "厳密な ITF1788 の集計は、選択された 4,656/4,656 件の区間ケースをパスします。"
 
-#: manual/index.md:220
+#: manual/index.md:221
 msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
 msgstr "IEEE 十進のゲートは、四つのターゲット上で decimal32/64/128 の DPD および BID エンコーディング、フラグ、算術をカバーします。"
 
-#: manual/index.md:223
+#: manual/index.md:224
 msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
 msgstr "これらの有限の結果は、あらゆる演算、将来のあらゆるコーパス改訂、あらゆる実数入力に対するサポートを意味するものではありません。結果を互換性の主張とする前に、そのパッケージの適合性ページを読んでください。"
 
-#: manual/index.md:227
+#: manual/index.md:228
 msgid "Validation"
 msgstr "検証"
 
-#: manual/index.md:229
+#: manual/index.md:230
 msgid "Recommended checks before a release, from the repository root:"
 msgstr "リリース前に、リポジトリのルートから実行することを推奨するチェック："
 
-#: manual/index.md:239
+#: manual/index.md:240
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr "[検証](verification.md)では、各ゲートと、公開された結果を再現する方法を説明しています。"
 
-#: manual/index.md:242
+#: manual/index.md:243
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr "何が公開されているかは `pkg.generated.mbti` が定義し、振る舞いはソースとテストが定義します。ページと生成されたインターフェースが食い違う場合は、インターフェースが優先されます。"
 
@@ -20472,10 +20677,6 @@ msgstr "bin_float 性能"
 msgid "Performance thresholds, limb layout, NTT primes, scratch storage, and fallback selection are implementation details. Public results, flags, and interchange bits must be identical across algorithms and targets."
 msgstr "performance threshold、limb layout、NTT prime、scratch storage、fallback selection は実装詳細です。algorithm/target が異なっても public result、flags、interchange bits は完全に同一でなければなりません。"
 
-#: manual/performance/bin_float.md:10
-msgid "Representation"
-msgstr "Context、flag、interchange"
-
 #: manual/performance/bin_float.md:12
 msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT still read a 32-bit view of the same storage until their stages. A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products on every target; the schoolbook kernel is still 2.7 to 3.7 times faster on Native and 1.7 to 1.9 times on Wasm-GC because it runs a quarter of the limb steps. Paired Native runs of the whole stage: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times. On Wasm and Wasm-GC multiplication below about 6,000 bits is 1.3 to 1.7 times faster; above about 9,000 bits the Karatsuba step, which allocates a coefficient for every intermediate value, is up to 1.8 times slower until the next stage moves it to limb arrays."
 msgstr "非 JS ターゲットは 128 ビットまでの係数をインラインで持ち、それより大きい係数にはリトルエンディアンの 64 ビットリムを使います。JavaScript はホストの `bigint` アダプタを隠して使います。公開の `BinCoeff` 型は、このバックエンドの選択を外から見えないようにします。32 ビットリムから 64 ビットリムへの移行（課題 #19）は段階的です。加算、減算、比較、シフト、スクールブック乗算と二乗、Karatsuba と Toom-3 の各ステップは 64 ビットリムで動き、除算、平方根カーネル、NTT はそれぞれの段階まで同じ記憶域の 32 ビットのビューを読みます。64 ビットリムの積には 64 ビット同士の乗算の上位半分が必要ですが、MoonBit にはその命令がないため、どのターゲットでも 32 ビット同士の積 4 つから計算します。それでもスクールブックのカーネルは、リムのステップが 4 分の 1 で済むため Native で 2.7〜3.7 倍、Wasm-GC で 1.7〜1.9 倍速くなります。この段階全体の Native でのペア実行では、2,048〜8,192 ビットの乗算が 2.2 倍、8,192 ビットの加算が 2.3 倍、2,048 ビットの `exp` と `ln` が 2.0 倍速くなります。Wasm と Wasm-GC では、約 6,000 ビット未満の乗算が 1.3〜1.7 倍速くなり、約 9,000 ビットを超えると、中間値ごとに係数を確保する Karatsuba のステップが、次の段階でリム配列に移すまで最大 1.8 倍遅くなります。"
@@ -21162,6 +21363,7 @@ msgstr "このチュートリアルでは、保証付きの包含区間を使っ
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
+#: manual/tutorial/internal/bin_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -21200,6 +21402,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
+#: manual/tutorial/internal/bin_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -25410,6 +25613,116 @@ msgstr "[internal 設計](../design/internal.md)"
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr "これらのヘルパーを照合するテストについては [consistency チュートリアル](consistency.md)。"
 
+#: manual/tutorial/internal/bin_kernel.md:1
+msgid "internal/bin_kernel tutorial"
+msgstr "internal/bin_kernel チュートリアル"
+
+#: manual/tutorial/internal/bin_kernel.md:3
+msgid "The goal of this page is to show maintainers how to use the coefficient kernel when they add or change a binary operation, and how to keep a change to it safe for every target. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
+msgstr "このページは、保守担当者が二進演算を追加または変更するときに係数カーネルをどう使うか、またその変更をすべてのターゲットで安全に保つ方法を示します。このパッケージは `Luna-Flow/floating` の内部パッケージです。例はモジュール内のコード向けに書かれており、マニュアルのチェッカーではコンパイルされません。"
+
+#: manual/tutorial/internal/bin_kernel.md:11
+msgid "compute with exact coefficients in `bin_float`"
+msgstr "`bin_float` で厳密な係数を使って計算する"
+
+#: manual/tutorial/internal/bin_kernel.md:11
+msgid "[the `Coeff` methods](#use-the-kernel-from-bin_float)"
+msgstr "[`Coeff` のメソッド](#use-the-kernel-from-bin_float)"
+
+#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/decimal_kernel.md:12
+msgid "add an algorithm or a fast path"
+msgstr "アルゴリズムや高速経路を追加する"
+
+#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/decimal_kernel.md:12
+msgid "[change the kernel](#change-the-kernel)"
+msgstr "[カーネルを変更する](#change-the-kernel)"
+
+#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/decimal_kernel.md:13
+msgid "tune a threshold"
+msgstr "閾値を調整する"
+
+#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/decimal_kernel.md:13
+msgid "[per-target thresholds](#tune-a-threshold)"
+msgstr "[ターゲットごとの閾値](#tune-a-threshold)"
+
+#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/decimal_kernel.md:14
+msgid "decide where new code belongs"
+msgstr "新しいコードの置き場所を決める"
+
+#: manual/tutorial/internal/bin_kernel.md:14
+msgid "[kernel or bin_float](#decide-where-new-code-belongs)"
+msgstr "[カーネルか bin_float か](#decide-where-new-code-belongs)"
+
+#: manual/tutorial/internal/bin_kernel.md:15
+#: manual/tutorial/internal/decimal_kernel.md:15
+msgid "run the kernel tests"
+msgstr "カーネルのテストを実行する"
+
+#: manual/tutorial/internal/bin_kernel.md:17
+msgid "Use the kernel from bin_float"
+msgstr "bin_float からカーネルを使う"
+
+#: manual/tutorial/internal/bin_kernel.md:19
+msgid "`bin_float` imports the kernel and brings the names it uses into scope with `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names that exist only where a coefficient has 64-bit limbs):"
+msgstr "`bin_float` はカーネルをインポートし、使う名前を `using` でスコープに入れます（`kernel_imports.mbt` にあり、係数が 64 ビットリムを持つ場合にだけ存在する名前は `kernel_imports_nonjs.mbt` にあります）。"
+
+#: manual/tutorial/internal/bin_kernel.md:28
+msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it, so the kernel type never appears in a public interface, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
+msgstr "`BinFloat` は係数を非公開の `Coeff` フィールドとして保持します。公開型 `BinCoeff` はその上の newtype なので、カーネル型が公開インターフェースに現れることはなく、ラップは確保も呼び出しも増やしません。典型的な使い方は、厳密な商と剰余を計算し、丸めは `bin_float` に任せるものです。"
+
+#: manual/tutorial/internal/bin_kernel.md:42
+#: manual/tutorial/internal/decimal_kernel.md:43
+msgid "Decide where new code belongs"
+msgstr "新しいコードの置き場所を決める"
+
+#: manual/tutorial/internal/bin_kernel.md:44
+msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `bin_float` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `BinFloat`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
+msgstr "コードが係数（と通常の整数）から係数または整数への関数であるなら、カーネルに置きます。丸めモード、精度、指数、クラス、フラグ、`BinFloat` に触れるなら `bin_float` に置きます。判定は簡単です。誰が呼んでも、同じ整数に対して同じ答えを返さなければなりません。`tools/check_imports.py` が規則の依存関係の側面を強制します。カーネルはこのモジュールの何もインポートしません。"
+
+#: manual/tutorial/internal/bin_kernel.md:51
+#: manual/tutorial/internal/decimal_kernel.md:54
+msgid "Change the kernel"
+msgstr "カーネルを変更する"
+
+#: manual/tutorial/internal/bin_kernel.md:53
+msgid "Write the change as an exact integer function."
+msgstr "変更を厳密な整数関数として書きます。"
+
+#: manual/tutorial/internal/bin_kernel.md:54
+msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
+msgstr "パッケージ内の他のテストと並べてホワイトボックステストを追加または拡張します。リムの境界（64、128、192 ビット）、各ターゲットのしきい値の長さ、1 だけのオペランド、2 のべき乗、疎なリムのオペランドで、結果を `BigInt` と比較します。"
+
+#: manual/tutorial/internal/bin_kernel.md:58
+msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
+msgstr "`just bin-kernel-ci` を実行し、続いて `just gate binary 3` と `just gate interval 3` を実行します。"
+
+#: manual/tutorial/internal/bin_kernel.md:59
+msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
+msgstr "プルリクエストのベンチマーク行で、退役命令数を以前のビルドと比較します。ある演算を速くして別の演算を遅くする変更には、プルリクエストで理由が必要です。"
+
+#: manual/tutorial/internal/bin_kernel.md:63
+#: manual/tutorial/internal/decimal_kernel.md:67
+msgid "Tune a threshold"
+msgstr "閾値を調整する"
+
+#: manual/tutorial/internal/bin_kernel.md:65
+msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `bin_float`, in `elementary_thresholds_<target>.mbt`."
+msgstr "教科書的乗算、Karatsuba、Toom-3、NTT、Knuth の除算、Burnikel-Ziegler の切り替え点は `coeff_thresholds_native.mbt`、`_llvm`、`_wasm`、`_wasm_gc` にあり、`moon.pkg` がターゲットでファイルを選びます。JavaScript にはカーネルがなく、その `Coeff` はホストの `bigint` です。しきい値が変えるのはどの厳密アルゴリズムが動くかだけです。ターゲット上で新旧ビルドを対にして変更し、すべてのしきい値をちょうど跨ぐ振り分けテストを維持してください。初等関数の切り替え点（`binary_exp_burst_min_precision` とその仲間）は `bin_float` のしきい値で、`elementary_thresholds_<target>.mbt` にあります。"
+
+#: manual/tutorial/internal/bin_kernel.md:74
+#: manual/tutorial/internal/decimal_kernel.md:76
+msgid "Run the tests"
+msgstr "テストを実行する"
+
+#: manual/tutorial/internal/bin_kernel.md:81
+msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `bin_float`. `bin_float` keeps the tests that need a `BinFloat`."
+msgstr "`internal/bin_kernel` のテストには、以前 `bin_float` にあったアルゴリズムの相互検証、振り分けテスト、回帰ダイジェストが含まれます。`bin_float` には `BinFloat` を必要とするテストが残ります。"
+
 #: manual/tutorial/internal/conformance.md:1
 msgid "internal/conformance tutorial"
 msgstr "internal/conformance チュートリアル"
@@ -25559,33 +25872,9 @@ msgstr "`decimal` または `decimal_gda` で厳密な係数を計算する"
 msgid "[the `dec_coeff_*` functions](#use-the-kernel-from-a-decimal-package)"
 msgstr "[`dec_coeff_*` 関数](#use-the-kernel-from-a-decimal-package)"
 
-#: manual/tutorial/internal/decimal_kernel.md:12
-msgid "add an algorithm or a fast path"
-msgstr "アルゴリズムや高速経路を追加する"
-
-#: manual/tutorial/internal/decimal_kernel.md:12
-msgid "[change the kernel](#change-the-kernel)"
-msgstr "[カーネルを変更する](#change-the-kernel)"
-
-#: manual/tutorial/internal/decimal_kernel.md:13
-msgid "tune a threshold"
-msgstr "閾値を調整する"
-
-#: manual/tutorial/internal/decimal_kernel.md:13
-msgid "[per-target thresholds](#tune-a-threshold)"
-msgstr "[ターゲットごとの閾値](#tune-a-threshold)"
-
-#: manual/tutorial/internal/decimal_kernel.md:14
-msgid "decide where new code belongs"
-msgstr "新しいコードの置き場所を決める"
-
 #: manual/tutorial/internal/decimal_kernel.md:14
 msgid "[kernel or finalizer](#decide-where-new-code-belongs)"
 msgstr "[カーネルかファイナライザか](#decide-where-new-code-belongs)"
-
-#: manual/tutorial/internal/decimal_kernel.md:15
-msgid "run the kernel tests"
-msgstr "カーネルのテストを実行する"
 
 #: manual/tutorial/internal/decimal_kernel.md:17
 msgid "Use the kernel from a decimal package"
@@ -25599,17 +25888,9 @@ msgstr "どちらのパッケージもカーネルをインポートし、使う
 msgid "A `Decimal` stores its coefficient as a private `DecCoeff` field, so the type never appears in the public interface of the package. A typical use builds the exact quotient and remainder, and leaves the rounding decision to the package:"
 msgstr "`Decimal` は係数を非公開の `DecCoeff` フィールドとして保持するので、この型がパッケージの公開インターフェースに現れることはありません。典型的な使い方は、厳密な商と余りを求め、丸めの判断はパッケージ側に任せるものです。"
 
-#: manual/tutorial/internal/decimal_kernel.md:43
-msgid "Decide where new code belongs"
-msgstr "新しいコードの置き場所を決める"
-
 #: manual/tutorial/internal/decimal_kernel.md:45
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers, and when `decimal` and `decimal_gda` would compute it identically. Keep it in the decimal package when it mentions a rounding mode, a precision, an exponent range, a flag, a trap, a `Decimal` or a context, because those are where the two standards differ. The test is simple: the function must give the same answer if the same integers are fed to it from either standard. `tools/check_imports.py` enforces the dependency half of the rule (the kernel cannot import `decimal` or `decimal_gda`)."
 msgstr "コードがカーネルに属するのは、係数（と通常の整数）から係数または整数への関数であり、`decimal` と `decimal_gda` が同じように計算する場合です。丸めモード、精度、指数の範囲、フラグ、トラップ、`Decimal`、コンテキストに触れるなら、2 つの標準が異なる部分なので、10 進パッケージに置きます。判断は単純で、同じ整数をどちらの標準から渡しても、その関数は同じ答えを返さなければなりません。規則のうち依存関係の半分は `tools/check_imports.py` が強制します（カーネルは `decimal` も `decimal_gda` もインポートできません）。"
-
-#: manual/tutorial/internal/decimal_kernel.md:54
-msgid "Change the kernel"
-msgstr "カーネルを変更する"
 
 #: manual/tutorial/internal/decimal_kernel.md:56
 msgid "Write the change as an exact integer function and keep it free of clauses: no `if` on a standard, no hidden state."
@@ -25627,17 +25908,9 @@ msgstr "`just decimal-kernel-ci` を実行し、続けてパッケージのテ�
 msgid "Measure both packages. A change that helps one standard and slows the other needs a reason in the pull request."
 msgstr "両方のパッケージで測定します。一方の標準に有利でもう一方を遅くする変更には、プルリクエストで理由を示す必要があります。"
 
-#: manual/tutorial/internal/decimal_kernel.md:67
-msgid "Tune a threshold"
-msgstr "閾値を調整する"
-
 #: manual/tutorial/internal/decimal_kernel.md:69
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Burnikel–Ziegler and Newton division live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm`, `_wasm_gc` and `_js`; `moon.pkg` selects the file by target. A threshold only changes which exact algorithm runs. Change it with paired old/new builds on the target, for both `decimal` and `decimal_gda`, and keep the dispatch tests that cross every threshold exactly."
 msgstr "筆算、Karatsuba、Toom-3、NTT、Burnikel–Ziegler、Newton 除算の切り替え点は `coeff_thresholds_native.mbt`、`_llvm`、`_wasm`、`_wasm_gc`、`_js` にあり、`moon.pkg` がターゲットごとにファイルを選びます。閾値が変えるのは、どの厳密なアルゴリズムが動くかだけです。変更するときは、そのターゲット上で新旧のビルドを対にして `decimal` と `decimal_gda` の両方で測定し、各閾値をちょうどまたぐディスパッチのテストを残します。"
-
-#: manual/tutorial/internal/decimal_kernel.md:76
-msgid "Run the tests"
-msgstr "テストを実行する"
 
 #: manual/tutorial/internal/decimal_kernel.md:83
 msgid "The `internal/decimal_kernel` tests carry the algorithm cross-checks that used to be duplicated in the two decimal packages. The decimal packages keep the tests that need a `Decimal`."
@@ -26292,11 +26565,6 @@ msgstr "**MPFR（2 進）**"
 #: manual/verification.md:245
 msgid "Wasm"
 msgstr "Wasm"
-
-#: manual/verification.md:202
-#: manual/verification.md:245
-msgid "JavaScript"
-msgstr "JavaScript"
 
 #: manual/verification.md:202
 #: manual/verification.md:245
@@ -27220,9 +27488,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 
 #~ msgid "`result_lift2(Ok(a), Ok(b), f)` is `Ok(f(a, b))`; `result_lift2_checked` returns `f(a, b)` itself. If `left` is `Err`, that error is returned; otherwise an `Err` in `right` is returned. `f` runs only when both are `Ok`."
 #~ msgstr "`result_lift2(Ok(a), Ok(b), f)` は `Ok(f(a, b))` です。`result_lift2_checked` は `f(a, b)` そのものを返します。`left` が `Err` ならそのエラーが返され、そうでなければ `right` の `Err` が返されます。`f` は両方が `Ok` の場合にのみ実行されます。"
-
-#~ msgid "thresholds"
-#~ msgstr "閾値"
 
 #~ msgid "`dec_coeff_karatsuba_threshold` and the other `dec_coeff_*_threshold*` values, chosen per target in `coeff_thresholds_<target>.mbt`"
 #~ msgstr "`dec_coeff_karatsuba_threshold` とそのほかの `dec_coeff_*_threshold*` の値。ターゲットごとに `coeff_thresholds_<target>.mbt` で選ばれます"
@@ -29009,9 +29274,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "`internal` contains shared decimal/semantic implementation helpers: cached powers of 2/5/10, decimal-string splitting, factor removal, digit counting, rounding of positive quotients/shifts, `ExactRat`, and `Result` lifting. Rational construction normalizes the sign and gcd; rounding consumes explicit quotient/remainder facts and a caller-supplied mode."
 #~ msgstr "helper は外部 state を読まず、power cache と rounding は局所 allocation だけを使います。桁数・因子除去・文字列分割は入力長に対して線形で、算術コストは呼び出し側の `BigInt` が決めます。"
 
-#~ msgid "Boundary"
-#~ msgstr "Compatibility 境界"
-
 #~ msgid "The functions are deterministic and effect-free apart from local allocation. They do not own numeric context, flags, parsing policy beyond lexical decimal splitting, or public scalar representations. The package is importable in this module but is not a stable application-facing contract: callers should use `bin_float`, `decimal`, `ball_float`, or `semantic`."
 #~ msgstr "これらの名前は現実装と white-box test のためで、安定契約ではありません。公開利用は concrete numeric package 経由にします。"
 
@@ -29887,9 +30149,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 
 #~ msgid "Selected path"
 #~ msgstr "Path"
-
-#~ msgid "Reason"
-#~ msgstr "理由"
 
 #~ msgid "fixed-width or schoolbook"
 #~ msgstr "inline/schoolbook"

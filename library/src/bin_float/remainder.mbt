@@ -1,14 +1,14 @@
 ///|
-fn bin_coeff_mod(value : BinCoeff, modulus : BinCoeff) -> BinCoeff {
+fn bin_coeff_mod(value : Coeff, modulus : Coeff) -> Coeff {
   value.div_rem_checked(modulus).unwrap().1
 }
 
 ///|
 /// `2^exponent mod modulus` by square-and-multiply, for exponents up to the
 /// Int range without materializing `2^exponent`.
-fn bin_coeff_pow2_mod(exponent : Int32, modulus : BinCoeff) -> BinCoeff {
-  let mut result = bin_coeff_mod(BinCoeff::one(), modulus)
-  let mut base = bin_coeff_mod(BinCoeff::from_uint64(2UL), modulus)
+fn bin_coeff_pow2_mod(exponent : Int32, modulus : Coeff) -> Coeff {
+  let mut result = bin_coeff_mod(Coeff::one(), modulus)
+  let mut base = bin_coeff_mod(Coeff::from_uint64(2UL), modulus)
   let mut remaining = exponent
   while remaining > 0 {
     if remaining % 2 == 1 {

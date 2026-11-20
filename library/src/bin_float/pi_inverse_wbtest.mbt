@@ -39,8 +39,8 @@ fn pi_x(
   exponent : Int32,
   negative~ : Bool = false,
 ) -> BinFloat {
-  BinFloat::make(
-    BinCoeff::from_uint64(numerator.to_uint64()),
+  BinFloat::make_coeff(
+    Coeff::from_uint64(numerator.to_uint64()),
     exponent,
     64,
     negative~,
@@ -426,11 +426,11 @@ fn pi_inverse_tiny_model(
   is_asin : Bool,
   ctx : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let base = BinCoeff::one().shift_left(300)
+  let base = Coeff::one().shift_left(300)
   let factor = if is_asin {
-    base.add(BinCoeff::one())
+    base.add(Coeff::one())
   } else {
-    base.sub_checked(BinCoeff::one()).unwrap()
+    base.sub_checked(Coeff::one()).unwrap()
   }
   let pi = binary_pi_bounds(450).unwrap().0
   let reciprocal = BinFloat::one(precision=450).div_ctx(
@@ -440,7 +440,7 @@ fn pi_inverse_tiny_model(
   let product = x.abs().mul_ctx(reciprocal, BinaryContext::unbounded(900)).0
   binary_round_dyadic(
     x.is_negative(),
-    product.coefficient().mul(factor),
+    product.coefficient_.mul(factor),
     product.exponent2() - 300,
     ctx,
   )
@@ -454,7 +454,7 @@ fn pi_reference(
   is_asin : Bool,
   ctx : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  if x.exponent2().to_int64() + (x.coefficient().bit_length() - 1).to_int64() <
+  if x.exponent2().to_int64() + (x.coefficient_.bit_length() - 1).to_int64() <
     -152L {
     pi_inverse_tiny_model(x, is_asin, ctx)
   } else {

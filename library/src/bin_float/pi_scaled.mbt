@@ -6,14 +6,14 @@ fn binary_scaled_integer_mod4(value : BinFloat, shift : Int32) -> Int32? {
   let magnitude_residue = if value.is_zero() || exponent >= 2 {
     0
   } else if exponent == 1 {
-    if value.coefficient().test_bit(0) {
+    if value.coefficient_.test_bit(0) {
       2
     } else {
       0
     }
   } else {
-    (if value.coefficient().test_bit(0) { 1 } else { 0 }) +
-    (if value.coefficient().test_bit(1) { 2 } else { 0 })
+    (if value.coefficient_.test_bit(0) { 1 } else { 0 }) +
+    (if value.coefficient_.test_bit(1) { 2 } else { 0 })
   }
   Some(
     if value.is_negative() && magnitude_residue != 0 {
@@ -125,7 +125,7 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
     )
   }
   let modulus_shift = 1 - value.exponent2()
-  let magnitude = value.coefficient()
+  let magnitude = value.coefficient_
   let residue = if modulus_shift >= magnitude.bit_length() {
     magnitude
   } else {
@@ -144,7 +144,7 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
   // Built at the width of the argument, not of the residue: a BinFloat of
   // width w stores nothing below 2^(e_min - (w - 1)), so a tiny argument near
   // the implementation subnormal limit would be flushed to zero.
-  let reduced = BinFloat::make(
+  let reduced = BinFloat::make_coeff(
     residue,
     value.exponent2(),
     Int32::max(value.precision(), residue.bit_length()),
@@ -158,19 +158,19 @@ fn binary_pi_scaled_quadrant_reduction(
   work_precision : Int32,
 ) -> (BinFloat, Int32)? {
   let threshold_precision = Int32::max(4, value.precision())
-  let quarter = BinFloat::make(BinCoeff::one(), -2, threshold_precision)
-  let three_quarters = BinFloat::make(
-    BinCoeff::from_uint64(3UL),
+  let quarter = BinFloat::make_coeff(Coeff::one(), -2, threshold_precision)
+  let three_quarters = BinFloat::make_coeff(
+    Coeff::from_uint64(3UL),
     -2,
     threshold_precision,
   )
-  let five_quarters = BinFloat::make(
-    BinCoeff::from_uint64(5UL),
+  let five_quarters = BinFloat::make_coeff(
+    Coeff::from_uint64(5UL),
     -2,
     threshold_precision,
   )
-  let seven_quarters = BinFloat::make(
-    BinCoeff::from_uint64(7UL),
+  let seven_quarters = BinFloat::make_coeff(
+    Coeff::from_uint64(7UL),
     -2,
     threshold_precision,
   )
@@ -196,18 +196,18 @@ fn binary_pi_scaled_quadrant_reduction(
   let half_integer = match quadrant {
     -4 => BinFloat::from_int(-2, precision=work_precision)
     -3 =>
-      BinFloat::make(
-        BinCoeff::from_uint64(3UL),
+      BinFloat::make_coeff(
+        Coeff::from_uint64(3UL),
         -1,
         work_precision,
         negative=true,
       )
     -2 => BinFloat::from_int(-1, precision=work_precision)
-    -1 => BinFloat::make(BinCoeff::one(), -1, work_precision, negative=true)
+    -1 => BinFloat::make_coeff(Coeff::one(), -1, work_precision, negative=true)
     0 => BinFloat::zero(precision=work_precision)
-    1 => BinFloat::make(BinCoeff::one(), -1, work_precision)
+    1 => BinFloat::make_coeff(Coeff::one(), -1, work_precision)
     2 => BinFloat::one(precision=work_precision)
-    3 => BinFloat::make(BinCoeff::from_uint64(3UL), -1, work_precision)
+    3 => BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, work_precision)
     _ => BinFloat::from_int(2, precision=work_precision)
   }
   let (residual, flags) = value.sub_ctx(

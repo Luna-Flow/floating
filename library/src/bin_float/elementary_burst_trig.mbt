@@ -26,8 +26,8 @@ let burst_trig_no_mutation : BurstTrigMutation = {
 /// Enclosure as a midpoint and a radius in units of `2^-F`: the value lies in
 /// `[mid - rad, mid + rad]`.
 priv struct BurstBall {
-  mid : BinCoeff
-  rad : BinCoeff
+  mid : Coeff
+  rad : Coeff
 }
 
 ///|
@@ -46,17 +46,17 @@ priv struct BurstRotation {
 /// term of each of the two alternating series, which decrease in size, is at
 /// most `tau_n < t_n + 3`; so each sum is within `3n + t_n + 3` of its value.
 fn burst_trig_fixed_stage(
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
   f : Int32,
   mutation : BurstTrigMutation,
 ) -> BurstRotation? {
-  let stop = BinCoeff::one().shift_left(8)
-  let mut term = BinCoeff::one().shift_left(f)
+  let stop = Coeff::one().shift_left(8)
+  let mut term = Coeff::one().shift_left(f)
   let mut cos_positive = term
-  let mut cos_negative = BinCoeff::zero()
-  let mut sin_positive = BinCoeff::zero()
-  let mut sin_negative = BinCoeff::zero()
+  let mut cos_negative = Coeff::zero()
+  let mut sin_positive = Coeff::zero()
+  let mut sin_negative = Coeff::zero()
   let mut index = 0
   while index < 20000 {
     index += 1
@@ -72,7 +72,7 @@ fn burst_trig_fixed_stage(
         sin_positive.sub_checked(sin_negative) is Ok(sin_sum) else {
         return None
       }
-      let radius = term.add(BinCoeff::from_uint64((3 * index + 3).to_uint64()))
+      let radius = term.add(Coeff::from_uint64((3 * index + 3).to_uint64()))
       let bias = burst_trig_bias(mutation)
       return Some({
         cos: { mid: cos_sum.add(bias), rad: radius, },
@@ -84,11 +84,11 @@ fn burst_trig_fixed_stage(
 }
 
 ///|
-fn burst_trig_bias(mutation : BurstTrigMutation) -> BinCoeff {
+fn burst_trig_bias(mutation : BurstTrigMutation) -> Coeff {
   if mutation.mid_bias_bits > 0 {
-    BinCoeff::one().shift_left(mutation.mid_bias_bits)
+    Coeff::one().shift_left(mutation.mid_bias_bits)
   } else {
-    BinCoeff::zero()
+    Coeff::zero()
   }
 }
 
@@ -110,9 +110,9 @@ fn burst_trig_rotate(value : SplitInt, quarter_turns : Int32) -> SplitInt {
 /// `i^leaves_left`; this rotation is the only difference from `SplitState`, and
 /// the reason the state is not shared with it.
 priv struct SplitComplexState {
-  p : BinCoeff
+  p : Coeff
   leaves : Int32
-  q : BinCoeff
+  q : Coeff
   q_shift : Int32
   re : SplitInt
   im : SplitInt
@@ -127,26 +127,26 @@ priv struct SplitComplexState {
 fn split_trig_state(
   from : Int32,
   to : Int32,
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
 ) -> SplitComplexState {
   if to - from == 1 {
     if from == 0 {
       return {
-        p: BinCoeff::one(),
+        p: Coeff::one(),
         leaves: 0,
-        q: BinCoeff::one(),
+        q: Coeff::one(),
         q_shift: 0,
-        re: SplitInt::make(false, BinCoeff::one()),
-        im: SplitInt::make(false, BinCoeff::zero()),
+        re: SplitInt::make(false, Coeff::one()),
+        im: SplitInt::make(false, Coeff::zero()),
       }
     }
     return {
       p: numerator,
       leaves: 1,
-      q: BinCoeff::from_uint64(from.to_uint64()),
+      q: Coeff::from_uint64(from.to_uint64()),
       q_shift: s,
-      re: SplitInt::make(false, BinCoeff::zero()),
+      re: SplitInt::make(false, Coeff::zero()),
       im: SplitInt::make(false, numerator),
     }
   }
@@ -177,7 +177,7 @@ fn split_trig_state(
 /// omitted terms of each alternating series are below 2 units in size, and the
 /// floor loses less than 1, so the quotient plus 1 with radius 2 contains each.
 fn burst_trig_split_stage(
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
   f : Int32,
   mutation : BurstTrigMutation,
@@ -189,13 +189,13 @@ fn burst_trig_split_stage(
   let state = split_trig_state(0, terms, numerator, s)
   guard !state.re.negative && !state.im.negative else { return None }
   let bias = burst_trig_bias(mutation)
-  let ball = fn(value : BinCoeff) -> BurstBall {
+  let ball = fn(value : Coeff) -> BurstBall {
     let scaled = fixed_shift(value, f - state.q_shift)
     {
       mid: scaled.div_rem_checked(state.q).unwrap().0
-      .add(BinCoeff::one())
+      .add(Coeff::one())
       .add(bias),
-      rad: BinCoeff::from_uint64(2UL),
+      rad: Coeff::from_uint64(2UL),
     }
   }
   Some({ cos: ball(state.re.magnitude), sin: ball(state.im.magnitude), })
@@ -212,7 +212,7 @@ fn burst_ball_mul(left : BurstBall, right : BurstBall, f : Int32) -> BurstBall {
     .add(left.rad.mul(right.rad))
   {
     mid: left.mid.mul(right.mid).shift_right(f),
-    rad: cross.shift_right(f).add(BinCoeff::from_uint64(2UL)),
+    rad: cross.shift_right(f).add(Coeff::from_uint64(2UL)),
   }
 }
 
@@ -288,11 +288,7 @@ fn binary_trig_bounds_burst(
   // Nearest integer: the remainder above half of H rounds up.
   let round_up = remainder.shift_left(1).compare(half_pi) > 0
   let (n, reduced, reduced_negative) = if round_up {
-    (
-      quotient.add(BinCoeff::one()),
-      half_pi.sub_checked(remainder).unwrap(),
-      true,
-    )
+    (quotient.add(Coeff::one()), half_pi.sub_checked(remainder).unwrap(), true)
   } else {
     (quotient, remainder, false)
   }
@@ -305,8 +301,8 @@ fn binary_trig_bounds_burst(
   guard !fraction.is_zero() else { return None }
   // Chunks of R_t.
   let mut running : BurstRotation = {
-    cos: { mid: BinCoeff::one().shift_left(f), rad: BinCoeff::zero(), },
-    sin: { mid: BinCoeff::zero(), rad: BinCoeff::zero(), },
+    cos: { mid: Coeff::one().shift_left(f), rad: Coeff::zero(), },
+    sin: { mid: Coeff::zero(), rad: Coeff::zero(), },
   }
   // The first stage is folded into the identity rotation: it is the stage.
   let mut identity = true
@@ -360,7 +356,7 @@ fn binary_trig_bounds_burst(
   }
   let ball = if uses_sine { running.sin } else { running.cos }
   // The angle error adds 2 units.
-  let radius = ball.rad.add(BinCoeff::from_uint64(2UL))
+  let radius = ball.rad.add(Coeff::from_uint64(2UL))
   guard ball.mid.sub_checked(radius) is Ok(low) && !low.is_zero() else {
     return None
   }

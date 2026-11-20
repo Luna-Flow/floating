@@ -170,7 +170,7 @@ fn binary_round_decimal(
   if log2_high < (context.range_e_min() - context.precision).to_double() {
     return binary_tiny_nonzero_result(negative, context)
   }
-  let digits = BinCoeff::parse(literal.digits).unwrap()
+  let digits = Coeff::parse(literal.digits).unwrap()
   let scale = if literal.exponent < 0L {
     -literal.exponent
   } else {
@@ -179,7 +179,7 @@ fn binary_round_decimal(
   // Within the range check |exponent| is far below Int's limit.
   let scale_int = scale.to_int()
   if scale <= decimal_exact_limit(literal.digits.length(), context.precision) {
-    let five_power = BinCoeff::from_uint64(5UL).pow_nat(
+    let five_power = Coeff::from_uint64(5UL).pow_nat(
       scale_int.reinterpret_as_uint(),
     )
     return if literal.exponent >= 0L {
@@ -215,13 +215,13 @@ fn binary_round_decimal(
     let five = BinFloat::from_int(5, precision=work)
     let power_low = five.pow_int_ctx(scale_int, down).0
     let power_high = five.pow_int_ctx(scale_int, up).0
-    let digits_low = BinFloat::make(
+    let digits_low = BinFloat::make_coeff(
       digits,
       0,
       work,
       mode=RoundingMode::TowardNegative,
     )
-    let digits_high = BinFloat::make(
+    let digits_high = BinFloat::make_coeff(
       digits,
       0,
       work,

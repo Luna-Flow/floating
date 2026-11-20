@@ -10,18 +10,18 @@ fn exact_root_contexts(precision : Int32) -> Array[BinaryContext] {
 
 ///|
 /// An odd coefficient of `bits` bits with a varied bit pattern.
-fn exact_root_odd_coefficient(bits : Int32, seed : UInt64) -> BinCoeff {
-  let mut value = BinCoeff::one()
+fn exact_root_odd_coefficient(bits : Int32, seed : UInt64) -> Coeff {
+  let mut value = Coeff::one()
   let mut state = seed
   while value.bit_length() < bits {
     state = state * 6364136223846793005UL + 1442695040888963407UL
-    value = value.shift_left(32).add(BinCoeff::from_uint64(state >> 32))
+    value = value.shift_left(32).add(Coeff::from_uint64(state >> 32))
   }
   let trimmed = value.shift_right(value.bit_length() - bits)
   if trimmed.is_odd() {
     trimmed
   } else {
-    trimmed.add(BinCoeff::one())
+    trimmed.add(Coeff::one())
   }
 }
 
@@ -36,16 +36,14 @@ test "binary_floor_nth_root brackets the root" {
       let root = binary_floor_nth_root(value, degree)
       let exponent = degree.reinterpret_as_uint()
       assert_true(root.pow_nat(exponent).compare(value) <= 0)
-      assert_true(
-        root.add(BinCoeff::one()).pow_nat(exponent).compare(value) > 0,
-      )
+      assert_true(root.add(Coeff::one()).pow_nat(exponent).compare(value) > 0)
     }
   }
 }
 
 ///|
 test "binary_exact_nth_root_coefficient detects wide perfect powers" {
-  let one = BinCoeff::one()
+  let one = Coeff::one()
   for degree in [2, 3, 4, 5, 6, 8, 9, 16] {
     for bits in [10, 300, 2049, 5000, 9000] {
       let root = exact_root_odd_coefficient(bits, (bits * degree).to_uint64())
@@ -72,11 +70,11 @@ test "binary_exact_nth_root_coefficient detects wide perfect powers" {
 
 ///|
 test "BinFloat rootn and pow return exact roots of coefficients over 4096 bits" {
-  let root = BinCoeff::one().shift_left(3000).add(BinCoeff::one())
-  let expected = BinFloat::make(root, 0, 3001)
-  let square = BinFloat::make(root.square(), 0, 6002)
-  let cube = BinFloat::make(root.pow_nat(3U), 0, 9003)
-  let fourth = BinFloat::make(root.pow_nat(4U), 0, 12004)
+  let root = Coeff::one().shift_left(3000).add(Coeff::one())
+  let expected = BinFloat::make_coeff(root, 0, 3001)
+  let square = BinFloat::make_coeff(root.square(), 0, 6002)
+  let cube = BinFloat::make_coeff(root.pow_nat(3U), 0, 9003)
+  let fourth = BinFloat::make_coeff(root.pow_nat(4U), 0, 12004)
   for context in exact_root_contexts(3001) {
     assert_exact_result(
       square.try_rootn_ctx(2, context),
@@ -89,12 +87,12 @@ test "BinFloat rootn and pow return exact roots of coefficients over 4096 bits" 
       "rootn(r^3, 3)",
     )
     assert_exact_result(
-      square.try_pow_ctx(BinFloat::make(BinCoeff::one(), -1, 53), context),
+      square.try_pow_ctx(BinFloat::make_coeff(Coeff::one(), -1, 53), context),
       expected,
       "pow(r^2, 1/2)",
     )
     assert_exact_result(
-      fourth.try_pow_ctx(BinFloat::make(BinCoeff::one(), -2, 53), context),
+      fourth.try_pow_ctx(BinFloat::make_coeff(Coeff::one(), -2, 53), context),
       expected,
       "pow(r^4, 1/4)",
     )
@@ -106,10 +104,10 @@ test "BinFloat rootn and pow return exact roots of coefficients over 4096 bits" 
   for context in exact_root_contexts(9003) {
     assert_exact_result(
       square.try_pow_ctx(
-        BinFloat::make(BinCoeff::from_uint64(3), -1, 53),
+        BinFloat::make_coeff(Coeff::from_uint64(3), -1, 53),
         context,
       ),
-      BinFloat::make(root.pow_nat(3U), 0, 9003),
+      BinFloat::make_coeff(root.pow_nat(3U), 0, 9003),
       "pow(r^2, 3/2)",
     )
   }

@@ -24,11 +24,11 @@ test "IEEE 754 interchange preserves observable zero and NaN state" {
   let signaling_nan = binary16_value("FC01")
   assert_true(signaling_nan.is_signaling_nan())
   assert_true(signaling_nan.is_negative())
-  assert_eq(signaling_nan.nan_payload().to_string(), "1")
+  assert_eq(signaling_nan.nan_payload_coeff().to_string(), "1")
 
   let quiet_nan = binary16_value("7E2A")
   assert_true(quiet_nan.is_quiet_nan())
-  assert_eq(quiet_nan.nan_payload().to_string(), "42")
+  assert_eq(quiet_nan.nan_payload_coeff().to_string(), "42")
 }
 
 ///|
@@ -152,11 +152,11 @@ test "pow_int_ctx handles Int min without overflow" {
   )
   assert_eq(binary16_bits(even_power, context), "3C00")
   assert_eq(even_flags.to_testfloat_bits(), 0)
-  let two = BinFloat::make(BinCoeff::one(), 1, 53)
+  let two = BinFloat::make_coeff(Coeff::one(), 1, 53)
   let (tiny, tiny_flags) = two.pow_int_ctx(minimum_exponent, context)
   assert_eq(binary16_bits(tiny, context), "0000")
   assert_eq(tiny_flags.to_testfloat_bits(), 0x03)
-  let half = BinFloat::make(BinCoeff::one(), -1, 53)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, 53)
   let (huge, huge_flags) = half.pow_int_ctx(minimum_exponent, context)
   assert_eq(binary16_bits(huge, context), "7C00")
   assert_eq(huge_flags.to_testfloat_bits(), 0x05)
@@ -168,13 +168,13 @@ test "pow_int_ctx handles Int min without overflow" {
   )
   assert_eq(binary16_bits(upward_tiny, upward_context), "0001")
   assert_eq(upward_tiny_flags.to_testfloat_bits(), 0x03)
-  let three_halves = BinFloat::make(BinCoeff::from_uint64(3UL), -1, 53)
+  let three_halves = BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, 53)
   let (non_power_tiny, non_power_tiny_flags) = three_halves.pow_int_ctx(
     minimum_exponent, context,
   )
   assert_eq(binary16_bits(non_power_tiny, context), "0000")
   assert_eq(non_power_tiny_flags.to_testfloat_bits(), 0x03)
-  let three_quarters = BinFloat::make(BinCoeff::from_uint64(3UL), -2, 53)
+  let three_quarters = BinFloat::make_coeff(Coeff::from_uint64(3UL), -2, 53)
   let (non_power_huge, non_power_huge_flags) = three_quarters.pow_int_ctx(
     minimum_exponent, context,
   )
@@ -193,8 +193,8 @@ test "from_int preserves exact and rounded construction semantics" {
       } else {
         value.to_uint64()
       }
-      let expected = BinFloat::make(
-        BinCoeff::from_uint64(magnitude),
+      let expected = BinFloat::make_coeff(
+        Coeff::from_uint64(magnitude),
         0,
         precision,
         negative~,
@@ -205,19 +205,23 @@ test "from_int preserves exact and rounded construction semantics" {
   let minimum_int = -2147483647 - 1
   assert_eq(
     BinFloat::from_int(minimum_int, precision=64),
-    BinFloat::make(BinCoeff::from_uint64(2147483648UL), 0, 64, negative=true),
+    BinFloat::make_coeff(Coeff::from_uint64(2147483648UL), 0, 64, negative=true),
   )
 }
 
 ///|
 test "context arithmetic keeps extreme exponents classified" {
   let context = BinaryContext::binary16()
-  let minimum = BinFloat::make(
-    BinCoeff::one(),
+  let minimum = BinFloat::make_coeff(
+    Coeff::one(),
     binary_implementation_e_min - 52,
     53,
   )
-  let maximum = BinFloat::make(BinCoeff::one(), binary_implementation_e_max, 53)
+  let maximum = BinFloat::make_coeff(
+    Coeff::one(),
+    binary_implementation_e_max,
+    53,
+  )
   let (tiny, tiny_flags) = minimum.round_ctx(context)
   assert_true(tiny.is_zero())
   assert_eq(tiny_flags.to_testfloat_bits(), 0x03)
@@ -234,32 +238,32 @@ test "context arithmetic keeps extreme exponents classified" {
 
 ///|
 test "finite normalization never wraps extreme exponents" {
-  let maximum = BinFloat::make(
-    BinCoeff::from_uint64(2UL),
+  let maximum = BinFloat::make_coeff(
+    Coeff::from_uint64(2UL),
     binary_implementation_e_max - 1,
     53,
   )
-  assert_eq(maximum.coefficient(), BinCoeff::one())
+  assert_eq(maximum.coefficient_, Coeff::one())
   assert_eq(maximum.exponent2(), binary_implementation_e_max)
-  let minimum = BinFloat::make(
-    BinCoeff::from_uint64(4UL),
+  let minimum = BinFloat::make_coeff(
+    Coeff::from_uint64(4UL),
     binary_implementation_e_min - 54,
     53,
   )
-  assert_eq(minimum.coefficient(), BinCoeff::one())
+  assert_eq(minimum.coefficient_, Coeff::one())
   assert_eq(minimum.exponent2(), binary_implementation_e_min - 52)
   // Beyond the implementation range the value is classified, not wrapped.
-  let over = BinFloat::make(BinCoeff::from_uint64(2UL), 2147483647, 53)
+  let over = BinFloat::make_coeff(Coeff::from_uint64(2UL), 2147483647, 53)
   assert_eq(over.classify(), FpClass::Infinity)
-  let under = BinFloat::make(BinCoeff::from_uint64(4UL), -2147483648, 53)
+  let under = BinFloat::make_coeff(Coeff::from_uint64(4UL), -2147483648, 53)
   assert_true(under.is_zero())
 }
 
 ///|
 test "addition compresses extreme exponent gaps without losing direction" {
   let one = BinFloat::one(precision=53)
-  let tiny = BinFloat::make(
-    BinCoeff::one(),
+  let tiny = BinFloat::make_coeff(
+    Coeff::one(),
     binary_implementation_e_min - 52,
     53,
   )
@@ -272,7 +276,7 @@ test "addition compresses extreme exponent gaps without losing direction" {
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
   let (upward_sum, upward_sum_flags) = one.add_ctx(tiny, upward_context)
-  assert_eq(upward_sum.coefficient(), BinCoeff::from_uint64(5UL))
+  assert_eq(upward_sum.coefficient_, Coeff::from_uint64(5UL))
   assert_eq(upward_sum.exponent2(), -2)
   assert_true(upward_sum_flags.inexact())
   let downward_context = BinaryContext::unbounded(
@@ -282,7 +286,7 @@ test "addition compresses extreme exponent gaps without losing direction" {
   let (downward_difference, downward_difference_flags) = one.sub_ctx(
     tiny, downward_context,
   )
-  assert_eq(downward_difference.coefficient(), BinCoeff::from_uint64(7UL))
+  assert_eq(downward_difference.coefficient_, Coeff::from_uint64(7UL))
   assert_eq(downward_difference.exponent2(), -3)
   assert_true(downward_difference_flags.inexact())
 }
@@ -290,12 +294,12 @@ test "addition compresses extreme exponent gaps without losing direction" {
 ///|
 test "sqrt preserves exact roots when the scaled radicand is fractional" {
   let context = BinaryContext::unbounded(11)
-  let exact_input = BinFloat::make(BinCoeff::from_uint64(9UL), 100, 128)
+  let exact_input = BinFloat::make_coeff(Coeff::from_uint64(9UL), 100, 128)
   let (exact_root, exact_flags) = exact_input.sqrt_ctx(context)
-  assert_eq(exact_root.coefficient(), BinCoeff::from_uint64(3UL))
+  assert_eq(exact_root.coefficient_, Coeff::from_uint64(3UL))
   assert_eq(exact_root.exponent2(), 50)
   assert_eq(exact_flags.to_testfloat_bits(), 0)
-  let inexact_input = BinFloat::make(BinCoeff::from_uint64(10UL), 100, 128)
+  let inexact_input = BinFloat::make_coeff(Coeff::from_uint64(10UL), 100, 128)
   let (inexact_root, inexact_flags) = inexact_input.sqrt_ctx(context)
   assert_true(inexact_root.compare(exact_root) > 0)
   assert_true(inexact_flags.inexact())
@@ -312,10 +316,10 @@ test "fractional sqrt splitting retains exact midpoint information" {
         expected_root += 1UL
       }
       let (root, exact, midpoint_comparison) = binary_sqrt_split(
-        BinCoeff::from_uint64(magnitude64),
+        Coeff::from_uint64(magnitude64),
         -denominator_shift,
       )
-      assert_eq(root, BinCoeff::from_uint64(expected_root))
+      assert_eq(root, Coeff::from_uint64(expected_root))
       assert_eq(
         exact,
         (expected_root * expected_root) << denominator_shift == magnitude64,
@@ -336,7 +340,7 @@ test "fractional sqrt splitting retains exact midpoint information" {
     }
   }
   let (root, exact, midpoint_comparison) = binary_sqrt_split(
-    BinCoeff::one(),
+    Coeff::one(),
     -2147483648,
   )
   assert_true(root.is_zero())

@@ -6,7 +6,7 @@
 /// series. `doc/manual/design/bin_float.md` (section "Shared fixed-point
 /// toolkit") describes the pieces and lists what was kept apart on purpose.
 ///
-/// A fixed-point value is a nonnegative `BinCoeff` `N` standing for
+/// A fixed-point value is a nonnegative `Coeff` `N` standing for
 /// `N / 2^F`, with `F` the number of fractional bits of the kernel. A pair
 /// `(low, high)` of such integers encloses a real `y` when
 /// `low <= 2^F y <= high`.
@@ -15,13 +15,13 @@
 ///
 /// `floor(value * 2^shift)` of a non-negative finite value, `None` when the
 /// scaling is not exact (`value` has bits below `2^-shift`).
-fn fixed_scaled_exact(value : BinFloat, shift : Int32) -> BinCoeff? {
+fn fixed_scaled_exact(value : BinFloat, shift : Int32) -> Coeff? {
   if value.is_zero() {
-    return Some(BinCoeff::zero())
+    return Some(Coeff::zero())
   }
   let total = value.exponent2() + shift
   if total >= 0 {
-    Some(value.coefficient().shift_left(total))
+    Some(value.coefficient_.shift_left(total))
   } else {
     None
   }
@@ -31,16 +31,16 @@ fn fixed_scaled_exact(value : BinFloat, shift : Int32) -> BinCoeff? {
 /// `floor(value * 2^shift)` of a non-negative finite value: rounds toward
 /// negative infinity, so `fixed_scaled_floor(v, F) / 2^F <= v` and the loss is
 /// below one unit.
-fn fixed_scaled_floor(value : BinFloat, shift : Int32) -> BinCoeff {
+fn fixed_scaled_floor(value : BinFloat, shift : Int32) -> Coeff {
   if value.is_zero() {
-    return BinCoeff::zero()
+    return Coeff::zero()
   }
-  fixed_shift(value.coefficient(), value.exponent2() + shift)
+  fixed_shift(value.coefficient_, value.exponent2() + shift)
 }
 
 ///|
 /// `floor(value * 2^shift)` of an integer, for a shift of either sign.
-fn fixed_shift(value : BinCoeff, shift : Int32) -> BinCoeff {
+fn fixed_shift(value : Coeff, shift : Int32) -> Coeff {
   if shift >= 0 {
     value.shift_left(shift)
   } else {
@@ -54,14 +54,14 @@ fn fixed_shift(value : BinCoeff, shift : Int32) -> BinCoeff {
 /// the ends swap), as a pair of floats of `precision` bits rounded outward: the
 /// lower end toward negative infinity, the upper end toward positive infinity.
 fn fixed_enclosure(
-  low : BinCoeff,
-  high : BinCoeff,
+  low : Coeff,
+  high : Coeff,
   exponent : Int32,
   precision : Int32,
   negative~ : Bool = false,
 ) -> (BinFloat, BinFloat) {
   (
-    BinFloat::make(
+    BinFloat::make_coeff(
       if negative {
         high
       } else {
@@ -72,7 +72,7 @@ fn fixed_enclosure(
       negative~,
       mode=RoundingMode::TowardNegative,
     ),
-    BinFloat::make(
+    BinFloat::make_coeff(
       if negative {
         low
       } else {
@@ -147,14 +147,14 @@ fn[V] BoundedCache::insert(self : BoundedCache[V], item : V) -> Unit {
 /// of `exp` (fixed and burst) and of the real and imaginary parts of
 /// `exp(i y)` (burst `sin`/`cos`) all use this step.
 fn fixed_series_step(
-  term : BinCoeff,
-  numerator : BinCoeff,
+  term : Coeff,
+  numerator : Coeff,
   s : Int32,
   index : Int32,
-) -> BinCoeff {
+) -> Coeff {
   let product = term.mul(numerator).shift_right(s)
   if index > 1 {
-    product.div_rem_checked(BinCoeff::from_uint64(index.to_uint64())).unwrap().0
+    product.div_rem_checked(Coeff::from_uint64(index.to_uint64())).unwrap().0
   } else {
     product
   }
@@ -168,13 +168,13 @@ fn fixed_series_step(
 /// so `sum <= 2^F exp(y) <= sum + t_n + 3 n + 3`; the caller adds the slack it
 /// needs (the constants differ by caller and are stated there).
 fn fixed_exp_series(
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
   f : Int32,
   max_index : Int32,
-) -> (BinCoeff, BinCoeff, Int32)? {
-  let stop = BinCoeff::one().shift_left(8)
-  let mut term = BinCoeff::one().shift_left(f)
+) -> (Coeff, Coeff, Int32)? {
+  let stop = Coeff::one().shift_left(8)
+  let mut term = Coeff::one().shift_left(f)
   let mut sum = term
   let mut index = 0
   while index < max_index {
@@ -194,7 +194,7 @@ fn fixed_exp_series(
 /// the tail is below 2 units: `2^f N^n < n! 2^(s n)` follows from
 /// `f + m n <= L(n) + s n` with `m = bits(N)` (so `N < 2^m`) and
 /// `L(n) = sum_{i <= n} (bits(i) - 1) <= log2 n!`.
-fn fixed_split_terms(numerator : BinCoeff, s : Int32, f : Int32) -> Int32 {
+fn fixed_split_terms(numerator : Coeff, s : Int32, f : Int32) -> Int32 {
   let m = numerator.bit_length().to_int64()
   let target = f.to_int64()
   let step = s.to_int64()
@@ -213,14 +213,14 @@ fn fixed_split_terms(numerator : BinCoeff, s : Int32, f : Int32) -> Int32 {
 
 ///|
 /// Piece 4: binary splitting. A signed integer as sign and magnitude, which is
-/// all the splitting recurrences need: `BinCoeff` is unsigned.
+/// all the splitting recurrences need: `Coeff` is unsigned.
 priv struct SplitInt {
   negative : Bool
-  magnitude : BinCoeff
+  magnitude : Coeff
 }
 
 ///|
-fn SplitInt::make(negative : Bool, magnitude : BinCoeff) -> SplitInt {
+fn SplitInt::make(negative : Bool, magnitude : Coeff) -> SplitInt {
   { negative: negative && !magnitude.is_zero(), magnitude, }
 }
 
@@ -236,11 +236,11 @@ fn SplitInt::make(negative : Bool, magnitude : BinCoeff) -> SplitInt {
 /// terms alone. `t` is stored as sign and magnitude in flat fields (not as a
 /// `SplitInt`) because one allocation fewer per tree node is measurable.
 priv struct SplitState {
-  p : BinCoeff
-  q : BinCoeff
+  p : Coeff
+  q : Coeff
   q_shift : Int32
   t_negative : Bool
-  t : BinCoeff
+  t : Coeff
 }
 
 ///|
@@ -251,9 +251,9 @@ priv struct SplitState {
 /// measurable.
 fn split_combine_t(
   left_t : SplitInt,
-  left_p : BinCoeff,
+  left_p : Coeff,
   right_t : SplitInt,
-  right_q : BinCoeff,
+  right_q : Coeff,
   right_q_shift : Int32,
 ) -> SplitInt {
   let scaled = left_t.magnitude.mul(right_q).shift_left(right_q_shift)
@@ -294,22 +294,22 @@ fn split_combine(left : SplitState, right : SplitState) -> SplitState {
 fn split_exp_state(
   from : Int32,
   to : Int32,
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
 ) -> SplitState {
   if to - from == 1 {
     if from == 0 {
       return {
-        p: BinCoeff::one(),
-        q: BinCoeff::one(),
+        p: Coeff::one(),
+        q: Coeff::one(),
         q_shift: 0,
         t_negative: false,
-        t: BinCoeff::one(),
+        t: Coeff::one(),
       }
     }
     return {
       p: numerator,
-      q: BinCoeff::from_uint64(from.to_uint64()),
+      q: Coeff::from_uint64(from.to_uint64()),
       q_shift: s,
       t_negative: false,
       t: numerator,
@@ -387,8 +387,8 @@ fn rect_factorial_terms(k : Int32, f : Int32) -> Int32 {
 /// `u + v = j`, `u = ceil(j / 2)`, for `j <= m`. They satisfy
 /// `p_j <= 2^f r^j` and `2^f r^j - p_j < 2` for `a < 2^(f - k)`, `k >= 4`
 /// (induction: `e_j < 1 + (e_u + e_v) 2^-k + e_u e_v 2^-f < 2`).
-fn rect_powers(a : BinCoeff, f : Int32, m : Int32) -> Array[BinCoeff] {
-  let powers : Array[BinCoeff] = [BinCoeff::one().shift_left(f), a]
+fn rect_powers(a : Coeff, f : Int32, m : Int32) -> Array[Coeff] {
+  let powers : Array[Coeff] = [Coeff::one().shift_left(f), a]
   for j in 2..<=m {
     let u = (j + 1) / 2
     let v = j / 2
@@ -411,13 +411,13 @@ fn rect_powers(a : BinCoeff, f : Int32, m : Int32) -> Array[BinCoeff] {
 /// `eps < 8` in units of `N!`, from `1.44 + 3.4 + 1 + eps / 16`, see
 /// `binary_exp_taylor_fixed`).
 fn rect_sum(
-  coefficients : Array[BinCoeff],
-  powers : Array[BinCoeff],
+  coefficients : Array[Coeff],
+  powers : Array[Coeff],
   plan : RectPlan,
   f : Int32,
-) -> BinCoeff {
+) -> Coeff {
   let m = plan.block
-  let mut acc = BinCoeff::zero()
+  let mut acc = Coeff::zero()
   let mut beta = plan.blocks - 1
   while beta >= 0 {
     let base = (beta * m).to_int()
@@ -440,8 +440,8 @@ fn rect_sum(
 /// with the common denominator `N!`, memoized per `N`.
 priv struct RectFactorialCoefficients {
   terms : Int32
-  coefficients : Array[BinCoeff]
-  factorial : BinCoeff
+  coefficients : Array[Coeff]
+  factorial : Coeff
 }
 
 ///|
@@ -455,15 +455,12 @@ fn rect_inverse_factorials(terms : Int32) -> RectFactorialCoefficients {
     Some(entry) => return entry
     None => ()
   }
-  let coefficients : Array[BinCoeff] = Array::make(
-    terms.to_int(),
-    BinCoeff::one(),
-  )
-  let mut running = BinCoeff::one()
+  let coefficients : Array[Coeff] = Array::make(terms.to_int(), Coeff::one())
+  let mut running = Coeff::one()
   let mut i = terms - 1
   while i >= 0 {
     // running = N! / (i + 1)!  ->  N! / i!
-    running = running.mul(BinCoeff::from_uint64((i + 1).to_uint64()))
+    running = running.mul(Coeff::from_uint64((i + 1).to_uint64()))
     coefficients[i.to_int()] = running
     i -= 1
   }
@@ -492,7 +489,7 @@ priv struct FixedExpReduction {
   n_magnitude : Int32
   n_negative : Bool
   /// `R_t` in units of `2^-F`, `0 <= reduced < 2^F ln 2`.
-  reduced : BinCoeff
+  reduced : Coeff
 }
 
 ///|
@@ -547,8 +544,8 @@ fn fixed_exp_reduce(
 /// width of the series enclosure, is declined (`None`: the caller then runs the
 /// series).
 fn fixed_exp_finish(
-  lower : BinCoeff,
-  upper : BinCoeff,
+  lower : Coeff,
+  upper : Coeff,
   reduction : FixedExpReduction,
   f : Int32,
   work_precision : Int32,
@@ -558,8 +555,8 @@ fn fixed_exp_finish(
     (lower, upper)
   } else {
     (
-      lower.sub_checked(BinCoeff::from_uint64(3UL)).unwrap(),
-      upper.add(BinCoeff::from_uint64(6UL)),
+      lower.sub_checked(Coeff::from_uint64(3UL)).unwrap(),
+      upper.add(Coeff::from_uint64(6UL)),
     )
   }
   guard upper_final.sub_checked(lower_final) is Ok(width) &&
@@ -582,14 +579,14 @@ fn fixed_exp_finish(
 /// `visit(N_j, b_j)` is called for each nonzero chunk in order and returns
 /// `false` to abandon the schedule (the result is then `false`).
 fn fixed_burst_chunks(
-  fraction : BinCoeff,
+  fraction : Coeff,
   f : Int32,
   first_chunk : Int32,
   chunk_factor : Int32,
-  visit : (BinCoeff, Int32) -> Bool,
+  visit : (Coeff, Int32) -> Bool,
 ) -> Bool {
   let mut previous_bits = 0
-  let mut previous_prefix = BinCoeff::zero()
+  let mut previous_prefix = Coeff::zero()
   let mut boundary = Int32::min(first_chunk, f)
   while previous_bits < f {
     let prefix = fraction.shift_right(f - boundary)

@@ -83,17 +83,17 @@ test "exp2m1 and exp10m1 special values" {
       assert_eq(flags, BinaryFlags::new())
       // a quiet NaN propagates with its payload, a signaling NaN is invalid
       let qnan = BinFloat::quiet_nan(
-        payload=BinCoeff::from_uint64(9UL),
+        payload=Coeff::from_uint64(9UL),
         negative=true,
       )
       let (value, flags) = pm1_run(name, qnan, ctx)
       assert_true(value.is_quiet_nan() && value.is_negative())
-      assert_eq(value.nan_payload().to_string(), "9")
+      assert_eq(value.nan_payload_coeff().to_string(), "9")
       assert_eq(flags, BinaryFlags::new())
-      let snan = BinFloat::signaling_nan(payload=BinCoeff::from_uint64(5UL))
+      let snan = BinFloat::signaling_nan(payload=Coeff::from_uint64(5UL))
       let (value, flags) = pm1_run(name, snan, ctx)
       assert_true(value.is_quiet_nan())
-      assert_eq(value.nan_payload().to_string(), "5")
+      assert_eq(value.nan_payload_coeff().to_string(), "5")
       assert_true(flags.invalid_operation())
     }
   }
@@ -122,7 +122,7 @@ test "log2p1 and log10p1 special values and domain" {
       for
         below in [
           BinFloat::from_int(-2),
-          BinFloat::make(BinCoeff::from_uint64(9UL), -3, 53, negative=true),
+          BinFloat::make_coeff(Coeff::from_uint64(9UL), -3, 53, negative=true),
           BinFloat::inf(Sign::Negative),
         ] {
         let (value, flags) = pm1_run(name, below, ctx)
@@ -149,7 +149,7 @@ fn pm1_model_exp2m1(n : Int32, ctx : BinaryContext) -> (BinFloat, BinaryFlags) {
   if n >= 0 {
     binary_round_dyadic(
       false,
-      BinCoeff::one().shift_left(n).sub_checked(BinCoeff::one()).unwrap(),
+      Coeff::one().shift_left(n).sub_checked(Coeff::one()).unwrap(),
       0,
       ctx,
     )
@@ -157,7 +157,7 @@ fn pm1_model_exp2m1(n : Int32, ctx : BinaryContext) -> (BinFloat, BinaryFlags) {
     // 2^n - 1 = -(2^k - 1) * 2^-k with k = -n
     binary_round_dyadic(
       true,
-      BinCoeff::one().shift_left(-n).sub_checked(BinCoeff::one()).unwrap(),
+      Coeff::one().shift_left(-n).sub_checked(Coeff::one()).unwrap(),
       n,
       ctx,
     )
@@ -235,15 +235,15 @@ test "log2p1 and log10p1 are exact at 2^k - 1 and 10^k - 1" {
   for ctx in pm1_contexts() {
     for k in [1, 2, 3, 7, 24, 53] {
       // x = 2^k - 1: log2p1 = k
-      let x = BinFloat::make(
-        BinCoeff::one().shift_left(k).sub_checked(BinCoeff::one()).unwrap(),
+      let x = BinFloat::make_coeff(
+        Coeff::one().shift_left(k).sub_checked(Coeff::one()).unwrap(),
         0,
         64,
       )
       let (value, flags) = x.log2p1_ctx(ctx)
       let (expected, expected_flags) = binary_round_dyadic(
         false,
-        BinCoeff::from_uint64(k.to_uint64()),
+        Coeff::from_uint64(k.to_uint64()),
         0,
         ctx,
       )
@@ -253,8 +253,8 @@ test "log2p1 and log10p1 are exact at 2^k - 1 and 10^k - 1" {
     }
     for k in [1, 2, 3, 10, 22] {
       // x = 2^-k - 1 = -(1 - 2^-k): log2p1 = -k
-      let x = BinFloat::make(
-        BinCoeff::one().shift_left(k).sub_checked(BinCoeff::one()).unwrap(),
+      let x = BinFloat::make_coeff(
+        Coeff::one().shift_left(k).sub_checked(Coeff::one()).unwrap(),
         -k,
         64,
         negative=true,
@@ -262,7 +262,7 @@ test "log2p1 and log10p1 are exact at 2^k - 1 and 10^k - 1" {
       let (value, flags) = x.log2p1_ctx(ctx)
       let (expected, expected_flags) = binary_round_dyadic(
         true,
-        BinCoeff::from_uint64(k.to_uint64()),
+        Coeff::from_uint64(k.to_uint64()),
         0,
         ctx,
       )
@@ -272,10 +272,10 @@ test "log2p1 and log10p1 are exact at 2^k - 1 and 10^k - 1" {
     }
     for k in [1, 2, 3, 9, 15] {
       // x = 10^k - 1: log10p1 = k
-      let x = BinFloat::make(
-        BinCoeff::from_uint64(10UL)
+      let x = BinFloat::make_coeff(
+        Coeff::from_uint64(10UL)
         .pow_nat(k.reinterpret_as_uint())
-        .sub_checked(BinCoeff::one())
+        .sub_checked(Coeff::one())
         .unwrap(),
         0,
         64,
@@ -283,7 +283,7 @@ test "log2p1 and log10p1 are exact at 2^k - 1 and 10^k - 1" {
       let (value, flags) = x.log10p1_ctx(ctx)
       let (expected, expected_flags) = binary_round_dyadic(
         false,
-        BinCoeff::from_uint64(k.to_uint64()),
+        Coeff::from_uint64(k.to_uint64()),
         0,
         ctx,
       )
@@ -306,9 +306,9 @@ test "exp10m1 of a small integer is the correctly rounded 10^n - 1" {
         let (value, flags) = x.exp10m1_ctx(ctx)
         let (expected, expected_flags) = binary_round_dyadic(
           false,
-          BinCoeff::from_uint64(10UL)
+          Coeff::from_uint64(10UL)
           .pow_nat(n.reinterpret_as_uint())
-          .sub_checked(BinCoeff::one())
+          .sub_checked(Coeff::one())
           .unwrap(),
           0,
           ctx,
@@ -364,8 +364,8 @@ test "the four functions decide underflow and overflow like the reference" {
       // tiny results: f(x) ~ x ln 2 or x ln 10, and log2p1, log10p1 ~ x / ln b
       for level in [q - 1, q, e_min, e_min + 1] {
         for numerator in [1024, 1025, 1023, 1536] {
-          let x = BinFloat::make(
-            BinCoeff::from_uint64(numerator.to_uint64()),
+          let x = BinFloat::make_coeff(
+            Coeff::from_uint64(numerator.to_uint64()),
             level - 10,
             64,
           )

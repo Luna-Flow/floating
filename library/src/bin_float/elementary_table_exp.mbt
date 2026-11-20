@@ -19,10 +19,10 @@ priv struct BinaryExpTable {
   precision : Int32
   k1 : Int32
   k2 : Int32
-  first_low : Array[BinCoeff]
-  first_high : Array[BinCoeff]
-  second_low : Array[BinCoeff]
-  second_high : Array[BinCoeff]
+  first_low : Array[Coeff]
+  first_high : Array[Coeff]
+  second_low : Array[Coeff]
+  second_high : Array[Coeff]
 }
 
 ///|
@@ -79,13 +79,13 @@ fn binary_exp_table_entry(
   j : Int32,
   shift : Int32,
   precision : Int32,
-) -> (BinCoeff, BinCoeff)? {
+) -> (Coeff, Coeff)? {
   if j == 0 {
-    let one = BinCoeff::one().shift_left(precision)
+    let one = Coeff::one().shift_left(precision)
     return Some((one, one))
   }
-  let value = BinFloat::make(
-    BinCoeff::from_uint64(j.to_uint64()),
+  let value = BinFloat::make_coeff(
+    Coeff::from_uint64(j.to_uint64()),
     -shift,
     precision + 8,
   )
@@ -95,7 +95,7 @@ fn binary_exp_table_entry(
   Some(
     (
       fixed_scaled_floor(low, precision),
-      fixed_scaled_floor(high, precision).add(BinCoeff::one()),
+      fixed_scaled_floor(high, precision).add(Coeff::one()),
     ),
   )
 }
@@ -114,8 +114,8 @@ fn binary_exp_table_build(
     .unwrap()
     .to_int() +
     1
-  let first_low : Array[BinCoeff] = []
-  let first_high : Array[BinCoeff] = []
+  let first_low : Array[Coeff] = []
+  let first_high : Array[Coeff] = []
   for j in 0..<first_count {
     guard binary_exp_table_entry(j, k1, precision) is Some((low, high)) else {
       return None
@@ -123,8 +123,8 @@ fn binary_exp_table_build(
     first_low.push(low)
     first_high.push(high)
   }
-  let second_low : Array[BinCoeff] = []
-  let second_high : Array[BinCoeff] = []
+  let second_low : Array[Coeff] = []
+  let second_high : Array[Coeff] = []
   for j in 0..<(1 << k2) {
     guard binary_exp_table_entry(j, k1 + k2, precision) is Some((low, high)) else {
       return None
@@ -173,17 +173,13 @@ fn binary_exp_table_get(
 /// with `floor` loses less than one more unit, and the omitted tail is at most
 /// one unit by the choice of `N`, so
 /// `E <= 2^f exp(r) < E + 10` for `E = floor(Acc_0 / N!)`.
-fn binary_exp_taylor_fixed(
-  a : BinCoeff,
-  f : Int32,
-  k : Int32,
-) -> (BinCoeff, BinCoeff) {
+fn binary_exp_taylor_fixed(a : Coeff, f : Int32, k : Int32) -> (Coeff, Coeff) {
   let plan = rect_plan(rect_factorial_terms(k, f), f)
   let table = rect_inverse_factorials(plan.terms)
   let powers = rect_powers(a, f, plan.block)
   let acc = rect_sum(table.coefficients, powers, plan, f)
   let low = acc.div_rem_checked(table.factorial).unwrap().0
-  (low, low.add(BinCoeff::from_uint64(10UL)))
+  (low, low.add(Coeff::from_uint64(10UL)))
 }
 
 ///|
@@ -234,9 +230,9 @@ fn binary_exp_bounds_table(
   let high = first_high
     .mul(second_high)
     .shift_right(f)
-    .add(BinCoeff::one())
+    .add(Coeff::one())
     .mul(series_high)
     .shift_right(f)
-    .add(BinCoeff::one())
+    .add(Coeff::one())
   fixed_exp_finish(low, high, reduction, f, work_precision)
 }

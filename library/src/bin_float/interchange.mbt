@@ -2,7 +2,7 @@
 #derive(Eq)
 pub struct BinaryInterchange {
   priv format : BinaryInterchangeFormat
-  priv bits : BinCoeff
+  priv bits : Coeff
 }
 
 ///|
@@ -42,32 +42,32 @@ pub fn BinaryInterchangeFormat::bias(self : BinaryInterchangeFormat) -> Int32 {
 }
 
 ///|
-fn binary_interchange_mask(format : BinaryInterchangeFormat) -> BinCoeff {
-  BinCoeff::one()
+fn binary_interchange_mask(format : BinaryInterchangeFormat) -> Coeff {
+  Coeff::one()
   .shift_left(format.total_bits())
-  .sub_checked(BinCoeff::one())
+  .sub_checked(Coeff::one())
   .unwrap()
 }
 
 ///|
-fn binary_fraction_mask(format : BinaryInterchangeFormat) -> BinCoeff {
-  BinCoeff::one()
+fn binary_fraction_mask(format : BinaryInterchangeFormat) -> Coeff {
+  Coeff::one()
   .shift_left(format.fraction_bits())
-  .sub_checked(BinCoeff::one())
+  .sub_checked(Coeff::one())
   .unwrap()
 }
 
 ///|
-fn binary_exponent_mask(format : BinaryInterchangeFormat) -> BinCoeff {
-  BinCoeff::one()
+fn binary_exponent_mask(format : BinaryInterchangeFormat) -> Coeff {
+  Coeff::one()
   .shift_left(format.exponent_bits())
-  .sub_checked(BinCoeff::one())
+  .sub_checked(Coeff::one())
   .unwrap()
 }
 
 ///|
-fn binary_sign_mask(format : BinaryInterchangeFormat) -> BinCoeff {
-  BinCoeff::one().shift_left(format.total_bits() - 1)
+fn binary_sign_mask(format : BinaryInterchangeFormat) -> Coeff {
+  Coeff::one().shift_left(format.total_bits() - 1)
 }
 
 ///|
@@ -97,7 +97,7 @@ fn binary_zero_digits(count : Int32) -> String {
 }
 
 ///|
-fn binary_normalize_hex(source : String, digits : Int32) -> BinCoeff? {
+fn binary_normalize_hex(source : String, digits : Int32) -> Coeff? {
   let trimmed = source.trim()
   let body = if trimmed.has_prefix("#") {
     trimmed[1:].to_owned()
@@ -110,7 +110,7 @@ fn binary_normalize_hex(source : String, digits : Int32) -> BinCoeff? {
   for character in body {
     guard character.is_ascii_hexdigit() else { return None }
   }
-  match BinCoeff::parse(body, radix=16) {
+  match Coeff::parse(body, radix=16) {
     Ok(value) => Some(value)
     Err(_) => None
   }
@@ -118,7 +118,7 @@ fn binary_normalize_hex(source : String, digits : Int32) -> BinCoeff? {
 
 ///|
 fn binary_interchange_hex(
-  bits : BinCoeff,
+  bits : Coeff,
   format : BinaryInterchangeFormat,
 ) -> String {
   let digits = format.total_bits() / 4
@@ -151,7 +151,7 @@ pub fn BinaryInterchange::format(
 
 ///|
 pub fn BinaryInterchange::bits(self : BinaryInterchange) -> BinCoeff {
-  self.bits
+  BinCoeff(self.bits)
 }
 
 ///|
@@ -159,7 +159,7 @@ pub fn BinaryInterchange::from_bits(
   bits : BinCoeff,
   format : BinaryInterchangeFormat,
 ) -> BinaryInterchange {
-  { format, bits: bits.bit_and(binary_interchange_mask(format)), }
+  { format, bits: bits.0.bit_and(binary_interchange_mask(format)), }
 }
 
 ///|
@@ -191,13 +191,11 @@ pub fn BinaryInterchange::to_bin_float(self : BinaryInterchange) -> BinFloat {
         precision=format.precision(),
       )
     }
-    let quiet_bit = BinCoeff::one().shift_left(fraction_bits - 1)
-    let payload = fraction.bit_and(
-      quiet_bit.sub_checked(BinCoeff::one()).unwrap(),
-    )
+    let quiet_bit = Coeff::one().shift_left(fraction_bits - 1)
+    let payload = fraction.bit_and(quiet_bit.sub_checked(Coeff::one()).unwrap())
     return if fraction.bit_and(quiet_bit).is_zero() {
       BinFloat::signaling_nan(
-        payload=if payload.is_zero() { BinCoeff::one() } else { payload },
+        payload=if payload.is_zero() { Coeff::one() } else { payload },
         negative~,
         precision=format.precision(),
       )
@@ -222,7 +220,7 @@ pub fn BinaryInterchange::to_bin_float(self : BinaryInterchange) -> BinFloat {
   }
   finite_from_parts(
     negative,
-    BinCoeff::one().shift_left(fraction_bits).add(fraction),
+    Coeff::one().shift_left(fraction_bits).add(fraction),
     exponent_field - format.bias() - fraction_bits,
     format.precision(),
   )
@@ -232,11 +230,11 @@ pub fn BinaryInterchange::to_bin_float(self : BinaryInterchange) -> BinFloat {
 fn binary_encode_rounded(
   value : BinFloat,
   format : BinaryInterchangeFormat,
-) -> BinCoeff {
+) -> Coeff {
   let sign = if value.negative {
     binary_sign_mask(format)
   } else {
-    BinCoeff::zero()
+    Coeff::zero()
   }
   match value.class {
     FpClass::Infinity =>
@@ -244,8 +242,8 @@ fn binary_encode_rounded(
         binary_exponent_mask(format).shift_left(format.fraction_bits()),
       )
     FpClass::NaN => {
-      let quiet_bit = BinCoeff::one().shift_left(format.fraction_bits() - 1)
-      let payload_mask = quiet_bit.sub_checked(BinCoeff::one()).unwrap()
+      let quiet_bit = Coeff::one().shift_left(format.fraction_bits() - 1)
+      let payload_mask = quiet_bit.sub_checked(Coeff::one()).unwrap()
       let payload = value.nan_payload.bit_and(payload_mask)
       sign
       .bit_or(binary_exponent_mask(format).shift_left(format.fraction_bits()))
@@ -263,11 +261,11 @@ fn binary_encode_rounded(
         let coefficient = magnitude.shift_left(
           format.precision() - magnitude.bit_length(),
         )
-        let exponent_field = BinCoeff::from_uint64(
+        let exponent_field = Coeff::from_uint64(
           (top + format.bias()).to_uint64(),
         )
         let fraction = coefficient
-          .sub_checked(BinCoeff::one().shift_left(format.fraction_bits()))
+          .sub_checked(Coeff::one().shift_left(format.fraction_bits()))
           .unwrap()
         sign
         .bit_or(exponent_field.shift_left(format.fraction_bits()))
@@ -321,9 +319,9 @@ pub fn BinFloat::convert_format(
   let (value, flags) = self.round_ctx(format.context(rounding~, tininess~))
   if value.class == FpClass::NaN {
     // The payload field of the format has precision - 2 bits below the quiet bit.
-    let payload_mask = BinCoeff::one()
+    let payload_mask = Coeff::one()
       .shift_left(format.fraction_bits() - 1)
-      .sub_checked(BinCoeff::one())
+      .sub_checked(Coeff::one())
       .unwrap()
     return (
       BinFloat::quiet_nan(

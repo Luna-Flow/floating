@@ -1,0 +1,58 @@
+# internal/bin_kernel design
+
+## Design goal
+
+`BinFloat` is a rounding layer on top of one arithmetic: non-negative integers
+of up to $2^{28}$ bits. The integer part should be one package with one
+contract, so that an algorithm can be measured, replaced and tested without the
+floating-point layer, and so that the rounding layer cannot reach into it. The
+package therefore contains only functions from integers to integers.
+
+## Mathematical background
+
+A coefficient $c \ge 0$ is stored as $c = \sum_{i<n} w_i 2^{64 i}$ with
+$0 \le w_i < 2^{64}$ and $w_{n-1} \ne 0$; values below $2^{128}$ are kept in
+one or two machine words without an array. Every operation computes an exact
+result:
+
+- $\operatorname{add}(a,b) = a + b$, $\operatorname{sub}(a,b) = a - b$ for
+  $a \ge b$, $\operatorname{mul}(a,b) = ab$;
+- $\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \le r < b$;
+- $\operatorname{shift}(a,k) = a \cdot 2^{k}$ and $\lfloor a / 2^{k} \rfloor$;
+- the integer square root $s = \lfloor \sqrt{a} \rfloor$ with remainder
+  $a - s^2$, the GCD, and the digits of $a$ in any radix.
+
+The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT,
+Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD
+and the in-place radix conversion), their cutoffs and the argument that they
+all compute the same integers are in the section
+[The coefficient kernel](../bin_float.md#the-coefficient-kernel) of the
+`bin_float` design page. Because every path computes the same integers, the
+choice of algorithm cannot change a rounded result, a flag or an encoding.
+
+## Package boundary
+
+| Decision | Choice | Reason |
+| --- | --- | --- |
+| Where the type lives | `Coeff` is defined here; `BinCoeff` in `bin_float` is a newtype `struct BinCoeff(@bin_kernel.Coeff)` | A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased. |
+| Why not a record wrapper | A newtype, never `struct BinCoeff { kernel : Coeff }` | A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable. |
+| Representation | `Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly | One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427)). |
+| JavaScript | `Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms | The host's arbitrary-precision integers are the kernel there. |
+| Machine words | `binary_fast_*` live here | The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`. |
+
+## Thresholds
+
+The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per
+target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the
+dispatch tests cross every one of them and compare with the schoolbook result.
+The cutoffs of the elementary functions are not kernel policy and stay in
+`bin_float`.
+
+## Invariants
+
+- A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no
+  function mutates the array of an operand.
+- `Inline64` and `Inline128` are the only representations of values below
+  $2^{128}$; `bin_coeff_from_words` normalizes.
+- No function aborts except on a violated precondition (a zero divisor, a
+  negative shift).

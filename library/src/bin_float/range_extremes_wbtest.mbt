@@ -37,17 +37,14 @@ test "round core agrees with the old one at the exponent limits and carries" {
     let e_max = context.e_max().unwrap_or(highest)
     // Magnitudes: all ones (carry to a power of two), all ones plus one low
     // bit (halfway and just above), a power of two, and a short odd value.
-    let all_ones = BinCoeff::one()
-      .shift_left(p)
-      .sub_checked(BinCoeff::one())
-      .unwrap()
+    let all_ones = Coeff::one().shift_left(p).sub_checked(Coeff::one()).unwrap()
     let magnitudes = [
       all_ones,
-      all_ones.shift_left(1).add(BinCoeff::one()),
-      all_ones.shift_left(3).add(BinCoeff::from_uint64(4UL)),
-      BinCoeff::one().shift_left(p + 2),
-      BinCoeff::from_uint64(3UL),
-      BinCoeff::one(),
+      all_ones.shift_left(1).add(Coeff::one()),
+      all_ones.shift_left(3).add(Coeff::from_uint64(4UL)),
+      Coeff::one().shift_left(p + 2),
+      Coeff::from_uint64(3UL),
+      Coeff::one(),
     ]
     for magnitude in magnitudes {
       let bits = magnitude.bit_length()
@@ -143,13 +140,13 @@ test "hyperbolic bounds agree with the old kernel where exp leaves the range" {
 ///|
 test "trigonometric bounds agree with the old path around pi/4 and at extreme exponents" {
   let pi4 = 0.7853981633974483
-  let tiny = BinFloat::make(BinCoeff::one(), -1073741000, 64)
+  let tiny = BinFloat::make_coeff(Coeff::one(), -1073741000, 64)
   let near_values : Array[BinFloat] = [tiny, tiny.neg()]
   // Around pi/4 at working-precision neighbours, both signs.
   for w in [64, 117, 200] {
     let base = BinFloat::from_double(pi4, precision=w)
     for k in -3..<4 {
-      let ulp = BinFloat::make(BinCoeff::one(), base.exponent2(), w)
+      let ulp = BinFloat::make_coeff(Coeff::one(), base.exponent2(), w)
       let v = base.add_ctx(
           ulp.mul_ctx(
             BinFloat::from_int(k, precision=w),
@@ -184,8 +181,8 @@ test "trigonometric bounds agree with the old path around pi/4 and at extreme ex
 
 ///|
 test "sign-aware corners agree with the old ones when products overflow and quotients underflow" {
-  let huge = BinFloat::make(BinCoeff::from_uint64(3UL), 1073741000, 64)
-  let small = BinFloat::make(BinCoeff::from_uint64(5UL), -1073741000, 64)
+  let huge = BinFloat::make_coeff(Coeff::from_uint64(3UL), 1073741000, 64)
+  let small = BinFloat::make_coeff(Coeff::from_uint64(5UL), -1073741000, 64)
   let values = [
     huge,
     huge.neg(),

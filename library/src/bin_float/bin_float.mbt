@@ -3,11 +3,11 @@
 pub struct BinFloat {
   priv class : FpClass
   priv negative : Bool
-  priv coefficient_ : BinCoeff
+  priv coefficient_ : Coeff
   priv exponent2 : Int32
   priv precision_ : Int32
   priv signaling_nan : Bool
-  priv nan_payload : BinCoeff
+  priv nan_payload : Coeff
 }
 
 ///|
@@ -15,18 +15,18 @@ fn finite_zero(negative : Bool, precision : Int32) -> BinFloat {
   {
     class: FpClass::Finite,
     negative,
-    coefficient_: BinCoeff::zero(),
+    coefficient_: Coeff::zero(),
     exponent2: 0,
     precision_: Int32::max(1, precision),
     signaling_nan: false,
-    nan_payload: BinCoeff::zero(),
+    nan_payload: Coeff::zero(),
   }
 }
 
 ///|
 fn finite_normalized(
   negative : Bool,
-  coefficient : BinCoeff,
+  coefficient : Coeff,
   exponent2 : Int32,
   precision : Int32,
 ) -> BinFloat {
@@ -37,17 +37,17 @@ fn finite_normalized(
     exponent2,
     precision_: Int32::max(1, precision),
     signaling_nan: false,
-    nan_payload: BinCoeff::zero(),
+    nan_payload: Coeff::zero(),
   }
 }
 
 ///|
 fn bin_coeff_round_shift_for_make(
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   shift : Int32,
   negative : Bool,
   mode : RoundingMode,
-) -> BinCoeff {
+) -> Coeff {
   if shift <= 0 || magnitude.is_zero() {
     return magnitude
   }
@@ -66,7 +66,7 @@ fn bin_coeff_round_shift_for_make(
     RoundingMode::ToNearestEven => round_bit && (sticky || quotient.test_bit(0))
   }
   if increment {
-    quotient.add(BinCoeff::one())
+    quotient.add(Coeff::one())
   } else {
     quotient
   }
@@ -74,7 +74,7 @@ fn bin_coeff_round_shift_for_make(
 
 ///|
 fn normalize_finite_odd(
-  coefficient : BinCoeff,
+  coefficient : Coeff,
   exponent2 : Int32,
   precision : Int32,
   negative : Bool,
@@ -144,10 +144,7 @@ fn implementation_overflow(
   } else {
     finite_normalized(
       negative,
-      BinCoeff::one()
-      .shift_left(precision)
-      .sub_checked(BinCoeff::one())
-      .unwrap(),
+      Coeff::one().shift_left(precision).sub_checked(Coeff::one()).unwrap(),
       binary_implementation_e_max - (precision - 1),
       precision,
     )
@@ -173,7 +170,7 @@ fn implementation_underflow(
   if to_smallest {
     finite_normalized(
       negative,
-      BinCoeff::one(),
+      Coeff::one(),
       binary_implementation_e_min - (precision - 1),
       precision,
     )
@@ -184,7 +181,7 @@ fn implementation_underflow(
 
 ///|
 fn normalize_finite(
-  coefficient : BinCoeff,
+  coefficient : Coeff,
   exponent2 : Int32,
   precision : Int32,
   negative : Bool,
@@ -214,7 +211,7 @@ fn normalize_finite(
 ///|
 fn finite_from_parts(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   precision : Int32,
 ) -> BinFloat {
@@ -238,7 +235,7 @@ fn finite_from_uint64(
   precision : Int32,
 ) -> BinFloat {
   let precision = Int32::max(1, precision)
-  let coefficient = BinCoeff::from_uint64(magnitude)
+  let coefficient = Coeff::from_uint64(magnitude)
   if coefficient.is_zero() {
     return finite_zero(negative, precision)
   }
@@ -417,6 +414,17 @@ pub fn BinFloat::make(
   negative~ : Bool = false,
   mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> BinFloat {
+  BinFloat::make_coeff(coefficient.0, exponent2, precision, negative~, mode~)
+}
+
+///|
+fn BinFloat::make_coeff(
+  coefficient : Coeff,
+  exponent2 : Int32,
+  precision : Int32,
+  negative~ : Bool = false,
+  mode~ : RoundingMode = RoundingMode::ToNearestEven,
+) -> BinFloat {
   normalize_finite(coefficient, exponent2, precision, negative, mode)
 }
 
@@ -432,7 +440,7 @@ pub fn BinFloat::negative_zero(precision~ : Int32 = 53) -> BinFloat {
 
 ///|
 pub fn BinFloat::one(precision~ : Int32 = 53) -> BinFloat {
-  finite_normalized(false, BinCoeff::one(), 0, precision)
+  finite_normalized(false, Coeff::one(), 0, precision)
 }
 
 ///|
@@ -441,11 +449,11 @@ pub fn BinFloat::inf(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
   {
     class: FpClass::Infinity,
     negative,
-    coefficient_: BinCoeff::one(),
+    coefficient_: Coeff::one(),
     exponent2: 0,
     precision_: Int32::max(1, precision),
     signaling_nan: false,
-    nan_payload: BinCoeff::zero(),
+    nan_payload: Coeff::zero(),
   }
 }
 
@@ -456,14 +464,18 @@ pub fn BinFloat::nan(precision~ : Int32 = 53) -> BinFloat {
 
 ///|
 pub fn BinFloat::quiet_nan(
-  payload~ : BinCoeff = BinCoeff::zero(),
+  payload? : BinCoeff,
   negative~ : Bool = false,
   precision~ : Int32 = 53,
 ) -> BinFloat {
+  let payload : Coeff = match payload {
+    Some(value) => value.0
+    None => Coeff::zero()
+  }
   {
     class: FpClass::NaN,
     negative,
-    coefficient_: BinCoeff::zero(),
+    coefficient_: Coeff::zero(),
     exponent2: 0,
     precision_: Int32::max(1, precision),
     signaling_nan: false,
@@ -473,19 +485,23 @@ pub fn BinFloat::quiet_nan(
 
 ///|
 pub fn BinFloat::signaling_nan(
-  payload~ : BinCoeff = BinCoeff::one(),
+  payload? : BinCoeff,
   negative~ : Bool = false,
   precision~ : Int32 = 53,
 ) -> BinFloat {
+  let payload : Coeff = match payload {
+    Some(value) => value.0
+    None => Coeff::one()
+  }
   {
     class: FpClass::NaN,
     negative,
-    coefficient_: BinCoeff::zero(),
+    coefficient_: Coeff::zero(),
     exponent2: 0,
     precision_: Int32::max(1, precision),
     signaling_nan: true,
     nan_payload: if payload.is_zero() {
-      BinCoeff::one()
+      Coeff::one()
     } else {
       payload
     },
@@ -509,7 +525,7 @@ pub fn BinFloat::from_coefficient(
   precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> BinFloat {
-  BinFloat::make(coefficient, 0, precision, negative~)
+  BinFloat::make_coeff(coefficient.0, 0, precision, negative~)
 }
 
 ///|
@@ -533,13 +549,13 @@ pub fn BinFloat::from_double(x : Double, precision~ : Int32 = 53) -> BinFloat {
     }
     return if (fraction_bits & quiet_bit) == 0UL {
       BinFloat::signaling_nan(
-        payload=BinCoeff::from_uint64(fraction_bits),
+        payload=Coeff::from_uint64(fraction_bits),
         negative~,
         precision~,
       )
     } else {
       BinFloat::quiet_nan(
-        payload=BinCoeff::from_uint64(fraction_bits & (quiet_bit - 1UL)),
+        payload=Coeff::from_uint64(fraction_bits & (quiet_bit - 1UL)),
         negative~,
         precision~,
       )
@@ -553,15 +569,15 @@ pub fn BinFloat::from_double(x : Double, precision~ : Int32 = 53) -> BinFloat {
         BinFloat::zero(precision~)
       }
     }
-    return BinFloat::make(
-      BinCoeff::from_uint64(fraction_bits),
+    return BinFloat::make_coeff(
+      Coeff::from_uint64(fraction_bits),
       -1074,
       precision,
       negative~,
     )
   }
-  BinFloat::make(
-    BinCoeff::from_uint64((1UL << 52) | fraction_bits),
+  BinFloat::make_coeff(
+    Coeff::from_uint64((1UL << 52) | fraction_bits),
     exponent_bits - 1075,
     precision,
     negative~,
@@ -681,16 +697,21 @@ pub fn BinFloat::is_signaling_nan(self : BinFloat) -> Bool {
 
 ///|
 pub fn BinFloat::nan_payload(self : BinFloat) -> BinCoeff {
+  BinCoeff(self.nan_payload_coeff())
+}
+
+///|
+fn BinFloat::nan_payload_coeff(self : BinFloat) -> Coeff {
   if self.class == FpClass::NaN {
     self.nan_payload
   } else {
-    BinCoeff::zero()
+    Coeff::zero()
   }
 }
 
 ///|
 pub fn BinFloat::coefficient(self : BinFloat) -> BinCoeff {
-  self.coefficient_
+  BinCoeff(self.coefficient_)
 }
 
 ///|
@@ -721,9 +742,9 @@ pub fn BinFloat::with_precision(
   match self.class {
     FpClass::Finite =>
       if self.is_zero() {
-        finite_from_parts(self.negative, BinCoeff::zero(), 0, precision)
+        finite_from_parts(self.negative, Coeff::zero(), 0, precision)
       } else {
-        BinFloat::make(
+        BinFloat::make_coeff(
           self.coefficient_,
           self.exponent2,
           precision,
@@ -893,11 +914,15 @@ pub fn BinFloat::ulp(self : BinFloat) -> BinFloat {
   match self.class {
     FpClass::Finite =>
       if self.coefficient_.is_zero() {
-        BinFloat::make(BinCoeff::one(), -(self.precision_ - 1), self.precision_)
+        BinFloat::make_coeff(
+          Coeff::one(),
+          -(self.precision_ - 1),
+          self.precision_,
+        )
       } else {
         let mag_bits = self.coefficient_.bit_length()
-        BinFloat::make(
-          BinCoeff::one(),
+        BinFloat::make_coeff(
+          Coeff::one(),
           self.exponent2 + mag_bits - self.precision_,
           self.precision_,
         )

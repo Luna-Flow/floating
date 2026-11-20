@@ -45,6 +45,7 @@ msgstr "ball_float API"
 #: manual/api/frontend/mpfr_expr.md:3
 #: manual/api/frontend/testfloat_expr.md:3
 #: manual/api/internal.md:3
+#: manual/api/internal/bin_kernel.md:3
 #: manual/api/internal/conformance.md:3
 #: manual/api/internal/decimal_kernel.md:3
 #: manual/api/internal/runner_cli.md:3
@@ -116,6 +117,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
+#: manual/api/internal/bin_kernel.md:20
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -1111,6 +1113,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:552
+#: manual/api/internal/bin_kernel.md:77
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1127,6 +1130,7 @@ msgstr "完整公共接口"
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:554
+#: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -7367,6 +7371,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr "对于有效输入，`etiny` 为 $e_{\\min} - p + 1$，`etop` 为 $e_{\\max} - p + 1$。对于无效输入，`is_valid()` 返回 `false`；为使此内部值对所有输入都有定义，返回的端点仅会在必要时钳制，调用方必须先拒绝无效上下文，不能使用这些端点。"
 
 #: manual/api/internal.md:58
+#: manual/api/internal/bin_kernel.md:22
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -7603,6 +7608,90 @@ msgstr "`certified_failure(operation, stage, reason, target_precision, budget)` 
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr "该错误的详情记录运算名、阶段、原因、目标精度，以及预算当前的工作精度和细化次数。"
 
+#: manual/api/internal/bin_kernel.md:1
+msgid "internal/bin_kernel API"
+msgstr "internal/bin_kernel API"
+
+#: manual/api/internal/bin_kernel.md:5
+msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` and forwards each of its methods, so `Coeff` never appears in a public interface. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
+msgstr "`internal/bin_kernel` 提供 `BinFloat` 系数所需的整数算术：非负任意精度整数 `Coeff`，及其比较、加法、减法、移位和位运算；乘法算法（朴素乘法、Karatsuba、Toom-3 和双素数 NTT）；除法（Knuth 算法 D 与 Burnikel-Ziegler）；整数平方根；GCD；以及与字节和任意进制文本之间的转换，并带有在各算法之间选择的分目标阈值。每个函数都是其参数的精确函数。本包不抛出任何状况，也没有舍入模式、上下文或标志的概念，这些都属于 `bin_float`。它是内部包：`Luna-Flow/floating` 之外的代码无法导入。`bin_float` 的公共系数类型 `BinCoeff` 是 `Coeff` 之上的 newtype，并转发其每个方法，因此 `Coeff` 不会出现在任何公共接口中。参见[教程](../../tutorial/internal/bin_kernel.md)和[设计页](../../design/internal/bin_kernel.md)。"
+
+#: manual/api/internal/bin_kernel.md:30
+#: manual/api/internal/decimal_kernel.md:28
+msgid "and bring the names a package uses into scope once, for example in a file of its own:"
+msgstr "然后把包用到的名字一次性引入作用域，例如放在单独的文件里："
+
+#: manual/api/internal/bin_kernel.md:38
+#: manual/api/internal/decimal_kernel.md:40
+msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
+msgstr "本手册的示例检查器没有内部子包的别名，所以这些示例标为 `nocheck`。"
+
+#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/decimal_kernel.md:43
+msgid "The coefficient type"
+msgstr "系数类型"
+
+#: manual/api/internal/bin_kernel.md:45
+msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
+msgstr "非负整数。在 Native、LLVM、Wasm 和 Wasm-GC 上它是 `CoeffRepr` 之上的 newtype；在 JavaScript 上它是宿主 `bigint`。值是持久的：没有任何函数会修改操作数。"
+
+#: manual/api/internal/bin_kernel.md:51
+msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `bin_float` pattern-match on them; build values with the functions below."
+msgstr "非 JavaScript 目标上的存储：低于 $2^{64}$ 和 $2^{128}$ 的值分别用 `Inline64(low)` 和 `Inline128(high, low)`，更大的值用 `Heap(words, len)`，其中有 `len` 个小端 64 位肢，最高肢非零。构造器可读是因为 `bin_float` 的单字快速路径会对它们做模式匹配；构造值请使用下面的函数。"
+
+#: manual/api/internal/bin_kernel.md:58
+#: manual/api/internal/decimal_kernel.md:67
+msgid "Function families"
+msgstr "函数族"
+
+#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/decimal_kernel.md:73
+msgid "Family"
+msgstr "族"
+
+#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/decimal_kernel.md:73
+msgid "Functions"
+msgstr "函数"
+
+#: manual/api/internal/bin_kernel.md:62
+#: manual/api/internal/decimal_kernel.md:75
+msgid "build and convert"
+msgstr "构造与转换"
+
+#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/decimal_kernel.md:76
+msgid "shape"
+msgstr "形态查询"
+
+#: manual/api/internal/bin_kernel.md:64
+msgid "compare"
+msgstr "比较"
+
+#: manual/api/internal/bin_kernel.md:65
+msgid "add, subtract, shift"
+msgstr "加、减、移位"
+
+#: manual/api/internal/bin_kernel.md:66
+msgid "bit operations"
+msgstr "位运算"
+
+#: manual/api/internal/bin_kernel.md:67
+msgid "multiply and divide"
+msgstr "乘与除"
+
+#: manual/api/internal/bin_kernel.md:68
+msgid "number theory and roots"
+msgstr "数论与开方"
+
+#: manual/api/internal/bin_kernel.md:69
+msgid "machine words"
+msgstr "机器字"
+
+#: manual/api/internal/bin_kernel.md:71
+msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
+msgstr "分目标阈值（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）是私有的：它们位于 `coeff_thresholds_<target>.mbt`，由 `moon.pkg` 选择。前置条件用 `abort` 检查（负的移位量、零除数）：它们是调用者的编程错误，而不是运算的状况。"
+
 #: manual/api/internal/conformance.md:1
 msgid "internal/conformance API"
 msgstr "internal/conformance API"
@@ -7772,18 +7861,6 @@ msgstr "internal/decimal_kernel API"
 msgid "`internal/decimal_kernel` holds the integer arithmetic on decimal coefficients that `decimal` (IEEE 754) and `decimal_gda` (General Decimal Arithmetic) both need: a persistent coefficient type, addition, subtraction, comparison, shifts by powers of ten, digit counts, trailing-zero trimming, division by a limb, and the multiplication and division algorithms with their per-target thresholds. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to the standard-specific finalizers of the two decimal packages. It is an internal package: code outside `Luna-Flow/floating` cannot import it, and neither decimal package exposes its types. See the [tutorial](../../tutorial/internal/decimal_kernel.md) and the [design page](../../design/internal/decimal_kernel.md)."
 msgstr "`internal/decimal_kernel` 承载 `decimal`（IEEE 754）和 `decimal_gda`（General Decimal Arithmetic）共同需要的十进制系数整数运算：一个持久的系数类型、加法、减法、比较、按十的幂移位、位数计数、去除末尾零、按 limb 的除法，以及带各目标平台阈值的乘法和除法算法。每个函数都是其参数的精确函数。本包不引发任何条件，也没有舍入模式、上下文或标志的概念；这些都属于两个十进制包各自的、与标准相关的最终化例程。它是内部包：`Luna-Flow/floating` 之外的代码不能导入它，两个十进制包也都不公开它的类型。参见[教程](../../tutorial/internal/decimal_kernel.md)和[设计页](../../design/internal/decimal_kernel.md)。"
 
-#: manual/api/internal/decimal_kernel.md:28
-msgid "and bring the names a package uses into scope once, for example in a file of its own:"
-msgstr "然后把包用到的名字一次性引入作用域，例如放在单独的文件里："
-
-#: manual/api/internal/decimal_kernel.md:40
-msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
-msgstr "本手册的示例检查器没有内部子包的别名，所以这些示例标为 `nocheck`。"
-
-#: manual/api/internal/decimal_kernel.md:43
-msgid "The coefficient type"
-msgstr "系数类型"
-
 #: manual/api/internal/decimal_kernel.md:47
 msgid "A non-negative integer, either `Small(UInt64)` for values below $10^{18}$ or `Limbs(units, digits)`: little-endian base-$10^9$ limbs without a leading zero limb, with the digit count cached. The value is persistent; no function mutates the limbs of an operand. The constructors are public because the two decimal packages pattern-match on them in a few fast paths; prefer the functions below."
 msgstr "一个非负整数，要么是用于小于 $10^{18}$ 的值的 `Small(UInt64)`，要么是 `Limbs(units, digits)`：以 $10^9$ 为基数的小端 limb，没有前导零 limb，并缓存位数。该值是持久的，没有任何函数会修改操作数的 limb。构造器是公开的，因为两个十进制包在少数快速路径中会对它们做模式匹配；请优先使用下面的函数。"
@@ -7796,29 +7873,9 @@ msgstr "八种舍入方向（`HalfEven`、`HalfUp`、`HalfDown`、`Down`、`Ceil
 msgid "A sign and a `DecCoeff` magnitude, for algorithms whose intermediate values can be negative (Toom-3, the Newton reciprocal). Zero is never negative. The type is `pub`: its fields can be read, but a value is built only by this package."
 msgstr "符号加一个 `DecCoeff` 绝对值，用于中间值可能为负的算法（Toom-3、Newton 倒数）。零永远不是负的。该类型是 `pub`：字段可以读取，但值只能由本包构造。"
 
-#: manual/api/internal/decimal_kernel.md:67
-msgid "Function families"
-msgstr "函数族"
-
 #: manual/api/internal/decimal_kernel.md:69
 msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
 msgstr "所有函数都以 `dec_coeff_*` 命名；没有这个前缀的是 `remove_factor10_repr`、`exact_divide_by_power_of_ten_repr` 和 `trim_trailing_decimal_zeros_repr`。"
-
-#: manual/api/internal/decimal_kernel.md:73
-msgid "Family"
-msgstr "族"
-
-#: manual/api/internal/decimal_kernel.md:73
-msgid "Functions"
-msgstr "函数"
-
-#: manual/api/internal/decimal_kernel.md:75
-msgid "build and convert"
-msgstr "构造与转换"
-
-#: manual/api/internal/decimal_kernel.md:76
-msgid "shape"
-msgstr "形态查询"
 
 #: manual/api/internal/decimal_kernel.md:77
 msgid "add, subtract, compare"
@@ -8626,6 +8683,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` 与 `internal/*`、`cli` 与 `cli/*`、`bench` 与 `bench/*`、`consistency` 以及 `doc_examples` 属于实现与验证基础设施。某个符号出现在 `pkg.generated.mbti` 中，并不意味着它成为长期的应用契约；依赖它之前请先阅读该包的设计页面。"
 
 #: manual/architecture.md:274
+#: manual/design/internal/bin_kernel.md:51
 msgid "Invariants"
 msgstr "不变量"
 
@@ -8728,7 +8786,7 @@ msgstr "级别"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -10438,6 +10496,7 @@ msgstr "`ball_float` 以实数集合而非单个近似值进行计算。本页�
 #: manual/design/frontend/mpfr_expr.md:3
 #: manual/design/frontend/testfloat_expr.md:3
 #: manual/design/internal.md:3
+#: manual/design/internal/bin_kernel.md:3
 #: manual/design/internal/conformance.md:3
 #: manual/design/internal/decimal_kernel.md:3
 #: manual/design/internal/runner_cli.md:3
@@ -10496,6 +10555,7 @@ msgstr "IEEE Std 1788-2015，*IEEE Standard for Interval Arithmetic*。本包遵
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:25
+#: manual/design/internal/bin_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
 #: manual/design/internal/runner_cli.md:13
@@ -13000,8 +13060,8 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr "**问题。** 精度的代价来自 $p$ 位数的整数乘法和除法，而 $p$ 的范围从 1 到 $2^{28}$。"
 
 #: manual/design/bin_float.md:1906
-msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
-msgstr "**选择。** `BinCoeff` 内联存储至多 128 位，更大的值以小端 64 位 limb 存储（JavaScript 上为宿主 `bigint`），并按以 64 位 limb 计的操作数长度 $n$ 分派。下面所有阈值都以 64 位 limb 为单位："
+msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgstr "**选择。** 内核是内部包 [`internal/bin_kernel`](internal/bin_kernel.md)；`BinCoeff` 是其 `Coeff` 之上的 newtype。`Coeff` 内联存储至多 128 位，更大的值存为小端 64 位肢（在 JavaScript 上为宿主 `bigint`），并按操作数的 64 位肢长度 $n$ 分派。下面的每个阈值都以 64 位肢为单位："
 
 #: manual/design/bin_float.md:1911
 msgid "Product or square"
@@ -17234,6 +17294,143 @@ msgstr "不提供公开的稳定性保证：该包只能在 `Luna-Flow/floating`
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "幂缓存是进程范围的可变状态，也是该包中唯一的状态；它们绝不会改变任何结果。"
 
+#: manual/design/internal/bin_kernel.md:1
+msgid "internal/bin_kernel design"
+msgstr "internal/bin_kernel 设计"
+
+#: manual/design/internal/bin_kernel.md:5
+msgid "`BinFloat` is a rounding layer on top of one arithmetic: non-negative integers of up to $2^{28}$ bits. The integer part should be one package with one contract, so that an algorithm can be measured, replaced and tested without the floating-point layer, and so that the rounding layer cannot reach into it. The package therefore contains only functions from integers to integers."
+msgstr "`BinFloat` 是建立在同一种算术之上的舍入层：至多 $2^{28}$ 位的非负整数。整数部分应当是一个有单一契约的包，这样算法就可以脱离浮点层来测量、替换和测试，舍入层也无法越过它。因此本包只包含从整数到整数的函数。"
+
+#: manual/design/internal/bin_kernel.md:13
+msgid ""
+"A coefficient $c \\ge 0$ is stored as $c = \\sum_{i<n} w_i 2^{64 i}$ with $0 \\le w_i < 2^{64}$ and $w_{n-1} \\n"
+"e 0$; values below $2^{128}$ are kept in one or two machine words without an array. Every operation computes an exact result:"
+msgstr ""
+"系数 $c \\ge 0$ 存为 $c = \\sum_{i<n} w_i 2^{64 i}$，其中 $0 \\le w_i < 2^{64}$，$w_{n-1} \\n"
+"e 0$；低于 $2^{128}$ 的值保存在一个或两个机器字中，不使用数组。每个运算都计算精确结果："
+
+#: manual/design/internal/bin_kernel.md:18
+#: manual/design/internal/decimal_kernel.md:22
+msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
+msgstr "$\\operatorname{add}(a,b) = a + b$，当 $a \\ge b$ 时 $\\operatorname{sub}(a,b) = a - b$，$\\operatorname{mul}(a,b) = ab$；"
+
+#: manual/design/internal/bin_kernel.md:20
+#: manual/design/internal/decimal_kernel.md:24
+msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
+msgstr "$\\operatorname{divrem}(a,b) = (q,r)$，其中 $a = qb + r$ 且 $0 \\le r < b$；"
+
+#: manual/design/internal/bin_kernel.md:21
+msgid "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ and $\\lfloor a / 2^{k} \\rfloor$;"
+msgstr "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ 以及 $\\lfloor a / 2^{k} \\rfloor$；"
+
+#: manual/design/internal/bin_kernel.md:22
+msgid "the integer square root $s = \\lfloor \\sqrt{a} \\rfloor$ with remainder $a - s^2$, the GCD, and the digits of $a$ in any radix."
+msgstr "整数平方根 $s = \\lfloor \\sqrt{a} \\rfloor$ 及余数 $a - s^2$、GCD，以及 $a$ 在任意进制下的数位。"
+
+#: manual/design/internal/bin_kernel.md:25
+msgid "The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT, Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD and the in-place radix conversion), their cutoffs and the argument that they all compute the same integers are in the section [The coefficient kernel](../bin_float.md#the-coefficient-kernel) of the `bin_float` design page. Because every path computes the same integers, the choice of algorithm cannot change a rounded result, a flag or an encoding."
+msgstr "它们背后的算法（朴素乘法、Karatsuba、Toom-3、双素数 NTT、Knuth 算法 D、Burnikel-Ziegler、Zimmermann 平方根、Lehmer GCD 和原地进制转换）、它们的分界点，以及所有路径计算同一整数的论证，都在 `bin_float` 设计页的[系数内核](../bin_float.md#the-coefficient-kernel)一节中。由于每条路径计算的整数相同，算法的选择不会改变任何舍入结果、标志或编码。"
+
+#: manual/design/internal/bin_kernel.md:33
+msgid "Package boundary"
+msgstr "包边界"
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Decision"
+msgstr "决策"
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Choice"
+msgstr "选择"
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Reason"
+msgstr "原因"
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "Where the type lives"
+msgstr "类型的位置"
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "`Coeff` is defined here; `BinCoeff` in `bin_float` is a newtype `struct BinCoeff(@bin_kernel.Coeff)`"
+msgstr "`Coeff` 定义在这里；`bin_float` 中的 `BinCoeff` 是 newtype `struct BinCoeff(@bin_kernel.Coeff)`"
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased."
+msgstr "对内部类型的重新导出（`pub using`）不会让另一个模块（工具模块）获得该类型的方法；newtype 可以，而且它会被擦除。"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "Why not a record wrapper"
+msgstr "为什么不用记录包装"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
+msgstr "使用 newtype，绝不用 `struct BinCoeff { kernel : Coeff }`"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
+msgstr "记录包装会为每个值多分配一个对象：在一次性测量中，一次小数 `add` 多出 49% 的已退休指令。newtype 以及跨包边界的调用没有可测量的开销。"
+
+#: manual/design/internal/bin_kernel.md:39
+#: manual/performance/bin_float.md:10
+msgid "Representation"
+msgstr "Context、flags 与 interchange"
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly"
+msgstr "`Coeff` 是三种情形枚举（`Inline64`、`Inline128`、`Heap`）之上的 newtype；`BinFloat` 直接存储它"
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
+msgstr "每个系数一次分配而不是两次（在 53 到 512 位时每个 `BinFloat` 运算少 10% 到 15% 的指令，[#427](https://github.com/Luna-Flow/floating/pull/427)）。"
+
+#: manual/design/internal/bin_kernel.md:40
+#: manual/verification.md:202
+#: manual/verification.md:245
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#: manual/design/internal/bin_kernel.md:40
+msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
+msgstr "`Coeff` 是宿主 `bigint`（`coeff_js.mbt`）；没有内核算法"
+
+#: manual/design/internal/bin_kernel.md:40
+msgid "The host's arbitrary-precision integers are the kernel there."
+msgstr "宿主的任意精度整数在那里就是内核。"
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "Machine words"
+msgstr "机器字"
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "`binary_fast_*` live here"
+msgstr "`binary_fast_*` 位于此处"
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`."
+msgstr "字宽的 `mul_high` 和 `div_wide` 由内核和 `bin_float` 的单字路径共同使用。"
+
+#: manual/design/internal/bin_kernel.md:43
+msgid "Thresholds"
+msgstr "阈值"
+
+#: manual/design/internal/bin_kernel.md:45
+msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
+msgstr "分界点命名为 `*_min_words` 或 `*_words`（64 位肢），按目标在 `coeff_thresholds_<target>.mbt` 中选择。它们是策略而非语义：分派测试会恰好跨过每一个分界点，并与朴素乘法的结果比较。初等函数的分界点不是内核策略，仍留在 `bin_float`。"
+
+#: manual/design/internal/bin_kernel.md:53
+msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
+msgstr "`Heap` 系数有 `len >= 3` 个肢，最高肢非零，且没有函数会修改操作数的数组。"
+
+#: manual/design/internal/bin_kernel.md:55
+msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
+msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
+
+#: manual/design/internal/bin_kernel.md:57
+msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
+msgstr "除违反前置条件（零除数、负移位）外，没有函数会中止。"
+
 #: manual/design/internal/conformance.md:1
 msgid "internal/conformance design"
 msgstr "internal/conformance 设计"
@@ -17363,14 +17560,6 @@ msgstr "系数 $c \\ge 0$ 以 $B = 10^{9}$ 为基数存储，这是小于 $2^{30
 #: manual/design/internal/decimal_kernel.md:20
 msgid "Every operation computes an exact result:"
 msgstr "每个运算都计算精确的结果："
-
-#: manual/design/internal/decimal_kernel.md:22
-msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
-msgstr "$\\operatorname{add}(a,b) = a + b$，当 $a \\ge b$ 时 $\\operatorname{sub}(a,b) = a - b$，$\\operatorname{mul}(a,b) = ab$；"
-
-#: manual/design/internal/decimal_kernel.md:24
-msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
-msgstr "$\\operatorname{divrem}(a,b) = (q,r)$，其中 $a = qb + r$ 且 $0 \\le r < b$；"
 
 #: manual/design/internal/decimal_kernel.md:25
 msgid ""
@@ -18217,7 +18406,7 @@ msgstr "数值核心"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Part"
 msgstr "组成部分"
 
@@ -18226,7 +18415,7 @@ msgstr "组成部分"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Tutorial"
 msgstr "教程"
 
@@ -18235,7 +18424,7 @@ msgstr "教程"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Design"
 msgstr "设计"
 
@@ -18672,358 +18861,374 @@ msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[设计](design/internal/decimal_kernel.md)"
 
 #: manual/index.md:116
+msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float`"
+msgstr "`internal/bin_kernel`：`bin_float` 系数的精确整数算术"
+
+#: manual/index.md:116
+msgid "[tutorial](tutorial/internal/bin_kernel.md)"
+msgstr "[教程](tutorial/internal/bin_kernel.md)"
+
+#: manual/index.md:116
+msgid "[API](api/internal/bin_kernel.md)"
+msgstr "[API](api/internal/bin_kernel.md)"
+
+#: manual/index.md:116
+msgid "[design](design/internal/bin_kernel.md)"
+msgstr "[设计](design/internal/bin_kernel.md)"
+
+#: manual/index.md:117
 msgid "`consistency`: white-box cross-package laws and API audits"
 msgstr "`consistency`：白盒的跨包定律与 API 审计"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[tutorial](tutorial/consistency.md)"
 msgstr "[教程](tutorial/consistency.md)"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[API](api/consistency.md)"
 msgstr "[API](api/consistency.md)"
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[design](design/consistency.md)"
 msgstr "[设计](design/consistency.md)"
 
-#: manual/index.md:118
+#: manual/index.md:119
 msgid "Tools module: infrastructure and evidence"
 msgstr "工具模块：基础设施与证据"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr "`internal/conformance`：源位置、确定性分片、用例处置与汇总"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr "[教程](tutorial/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[API](api/internal/conformance.md)"
 msgstr "[API](api/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[design](design/internal/conformance.md)"
 msgstr "[设计](design/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr "`internal/runner_cli`：共享的命令行选项、文件、诊断信息与 JSON"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr "[教程](tutorial/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[API](api/internal/runner_cli.md)"
 msgstr "[API](api/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[design](design/internal/runner_cli.md)"
 msgstr "[设计](design/internal/runner_cli.md)"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "`doc_examples`: executable documentation examples run by `just docs`"
 msgstr "`doc_examples`：由 `just docs` 运行的可执行文档示例"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[tutorial](tutorial/doc_examples.md)"
 msgstr "[教程](tutorial/doc_examples.md)"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[API](api/doc_examples.md)"
 msgstr "[API](api/doc_examples.md)"
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[design](design/doc_examples.md)"
 msgstr "[设计](design/doc_examples.md)"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "`bench`: shared Maremark benchmark infrastructure"
 msgstr "`bench`：共享的 Maremark 基准测试基础设施"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[tutorial](tutorial/bench.md)"
 msgstr "[教程](tutorial/bench.md)"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[API](api/bench.md)"
 msgstr "[API](api/bench.md)"
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[design](design/bench.md)"
 msgstr "[设计](design/bench.md)"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
 msgstr "`bench/bin_float`：二进制算术与初等函数基准测试"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[tutorial](tutorial/bench/bin_float.md)"
 msgstr "[教程](tutorial/bench/bin_float.md)"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[API](api/bench/bin_float.md)"
 msgstr "[API](api/bench/bin_float.md)"
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[design](design/bench/bin_float.md)"
 msgstr "[设计](design/bench/bin_float.md)"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "`bench/decimal`: IEEE decimal benchmarks"
 msgstr "`bench/decimal`：IEEE 十进制基准测试"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[tutorial](tutorial/bench/decimal.md)"
 msgstr "[教程](tutorial/bench/decimal.md)"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[API](api/bench/decimal.md)"
 msgstr "[API](api/bench/decimal.md)"
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[design](design/bench/decimal.md)"
 msgstr "[设计](design/bench/decimal.md)"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "`bench/decimal_gda`: GDA decimal benchmarks"
 msgstr "`bench/decimal_gda`：GDA 十进制基准测试"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[tutorial](tutorial/bench/decimal_gda.md)"
 msgstr "[教程](tutorial/bench/decimal_gda.md)"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[API](api/bench/decimal_gda.md)"
 msgstr "[API](api/bench/decimal_gda.md)"
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[design](design/bench/decimal_gda.md)"
 msgstr "[设计](design/bench/decimal_gda.md)"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "`bench/ball_float`: interval arithmetic benchmarks"
 msgstr "`bench/ball_float`：区间算术基准测试"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[tutorial](tutorial/bench/ball_float.md)"
 msgstr "[教程](tutorial/bench/ball_float.md)"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[API](api/bench/ball_float.md)"
 msgstr "[API](api/bench/ball_float.md)"
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[design](design/bench/ball_float.md)"
 msgstr "[设计](design/bench/ball_float.md)"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
 msgstr "`bench/external`：在共用操作数上与 MPFR 和 libmpdec 比较计时"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[tutorial](tutorial/bench/external.md)"
 msgstr "[教程](tutorial/bench/external.md)"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[API](api/bench/external.md)"
 msgstr "[API](api/bench/external.md)"
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
 msgstr "[设计](design/bench/external.md), [性能](performance/bench/external.md)"
 
-#: manual/index.md:132
+#: manual/index.md:133
 msgid "Guides"
 msgstr "指南"
 
-#: manual/index.md:134
+#: manual/index.md:135
 msgid "Guide"
 msgstr "指南"
 
-#: manual/index.md:134
+#: manual/index.md:135
 msgid "Read it for"
 msgstr "阅读目的"
 
-#: manual/index.md:136
+#: manual/index.md:137
 msgid "[Getting started](getting_started.md)"
 msgstr "[快速上手](getting_started.md)"
 
-#: manual/index.md:136
+#: manual/index.md:137
 msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr "选择包、安装、初始值、上下文与失败模型"
 
-#: manual/index.md:137
+#: manual/index.md:138
 msgid "[Numeric semantics](numeric_semantics.md)"
 msgstr "[数值语义](numeric_semantics.md)"
 
-#: manual/index.md:137
+#: manual/index.md:138
 msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
 msgstr "共享术语：精确值与舍入结果、舍入函数、ulp 与单位舍入误差、标志、量子、带符号零、NaN、包络"
 
-#: manual/index.md:138
+#: manual/index.md:139
 msgid "[Architecture](architecture.md)"
 msgstr "[架构](architecture.md)"
 
-#: manual/index.md:138
+#: manual/index.md:139
 msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr "包的分层、数值核心流水线、经认证的初等函数、不变量"
 
-#: manual/index.md:139
+#: manual/index.md:140
 msgid "[Verification](verification.md)"
 msgstr "[验证](verification.md)"
 
-#: manual/index.md:139
+#: manual/index.md:140
 msgid "the gates, the published conformance claims and how to reproduce them"
 msgstr "检查关卡、已发布的符合性声明及其复现方法"
 
-#: manual/index.md:140
+#: manual/index.md:141
 msgid "[Performance audit](performance_audit.md)"
 msgstr "[性能审计](performance_audit.md)"
 
-#: manual/index.md:140
+#: manual/index.md:141
 msgid "proofs and evidence for the optimized arithmetic paths"
 msgstr "优化算术路径的证明与证据"
 
-#: manual/index.md:141
+#: manual/index.md:142
 msgid "[External baseline](performance/bench/external.md)"
 msgstr "[外部基线](performance/bench/external.md)"
 
-#: manual/index.md:141
+#: manual/index.md:142
 msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
 msgstr "`floating` 与 MPFR 和 libmpdec 的计时比较：方法、机器、比值"
 
-#: manual/index.md:142
+#: manual/index.md:143
 msgid "[Repository conventions](conventions.md)"
 msgstr "[仓库约定](conventions.md)"
 
-#: manual/index.md:142
+#: manual/index.md:143
 msgid "documentation rules and the review checklist"
 msgstr "文档规则与评审清单"
 
-#: manual/index.md:144
+#: manual/index.md:145
 msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr "应用接口包括各数值核心、`def` 和 checked 包装器；`semantic` 和 `numeric_expr` 是暂定的集成接口。其他包之所以公开接口，是因为仓库工具需要组合它们，其设计页面会给出范围更窄的稳定性承诺。"
 
-#: manual/index.md:149
+#: manual/index.md:150
 msgid "Exported types"
 msgstr "导出的类型"
 
-#: manual/index.md:151
+#: manual/index.md:152
 msgid "Binary floating point (`bin_float`)"
 msgstr "二进制浮点（`bin_float`）"
 
-#: manual/index.md:153
+#: manual/index.md:154
 msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr "值：`BinFloat`（带精度的有符号二进有理数、有符号零、无穷以及带载荷的 NaN）及其精确系数 `BinCoeff`"
 
-#: manual/index.md:155
+#: manual/index.md:156
 msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr "上下文与状态：`BinaryContext`、`BinaryRoundingMode`、`TininessDetection`、`BinaryFlags`"
 
-#: manual/index.md:157
+#: manual/index.md:158
 msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr "交换格式：`BinaryInterchange`、`BinaryInterchangeFormat`（binary16、32、64、128 及更宽的格式）"
 
-#: manual/index.md:159
+#: manual/index.md:160
 msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr "限值：`binary_implementation_e_min`、`binary_implementation_e_max`、`binary_precision_max`"
 
-#: manual/index.md:162
+#: manual/index.md:163
 msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr "十进制浮点（`decimal`、`decimal_gda`）"
 
-#: manual/index.md:164
+#: manual/index.md:165
 msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr "IEEE 754 十进制：`Decimal`、`DecimalContext`、`DecimalRoundingMode`、`DecimalTininessDetection`、`DecimalFlags`、`DecimalSignal`，以及 DPD/BID 交换格式类型 `DecimalInterchange`、`DecimalInterchangeFormat`、`DecimalInterchangeEncoding`"
 
-#: manual/index.md:168
+#: manual/index.md:169
 msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr "General Decimal Arithmetic：`Decimal`、`GdaContext`、`GdaRoundingMode`、`GdaFlags`、`GdaSignal`、`GdaTrapSet`、`GdaOutcome`、`GdaInterchange`、`GdaInterchangeFormat`，以及每个 GDA 运算对应的一个自由函数（`add`、`divide`、`quantize`、`power`……）"
 
-#: manual/index.md:173
+#: manual/index.md:174
 msgid "Intervals (`ball_float`)"
 msgstr "区间（`ball_float`）"
 
-#: manual/index.md:175
+#: manual/index.md:176
 msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
 msgstr "`BallFloat`（裸区间）、带有 `Decoration` 的 `BallFloatDecorated`、`OverlapState`"
 
-#: manual/index.md:177
+#: manual/index.md:178
 msgid "`BallContext` and `BallFlags` for intervals in a target format"
 msgstr "用于目标格式中区间的 `BallContext` 与 `BallFlags`"
 
-#: manual/index.md:179
+#: manual/index.md:180
 msgid "Pipelines and shared vocabulary"
 msgstr "流水线与共享词汇"
 
-#: manual/index.md:181
+#: manual/index.md:182
 msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr "checked 包装器：`BinFloatResult`、`DecimalChecked`、`GdaDecimalChecked`、`BallFloatResult`"
 
-#: manual/index.md:183
+#: manual/index.md:184
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` trait、`is_finite`、`is_infinite`、`is_nan`、`is_zero`，以及从 `Luna-Flow/arithmetic` 重新导出的 `RoundingMode`、`ArithmeticContext` 和 `ArithmeticError`"
 
-#: manual/index.md:188
+#: manual/index.md:189
 msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr "`numeric_expr`：`Expr`、`Literal`、`Operation`、`SourceSpan`、`EvalError` 和 `evaluate`"
 
-#: manual/index.md:191
+#: manual/index.md:192
 msgid "Where to read next"
 msgstr "接下来读什么"
 
-#: manual/index.md:193
+#: manual/index.md:194
 msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr "**初次接触本库。** 阅读[快速上手](getting_started.md)，然后阅读所选包的教程，例如 [`bin_float` 教程](tutorial/bin_float.md)或 [`decimal` 教程](tutorial/decimal.md)。阅读时可随时查阅[数值语义](numeric_semantics.md)中的术语。"
 
-#: manual/index.md:198
+#: manual/index.md:199
 msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr "**在应用或库中使用。** 先通读一遍[数值语义](numeric_semantics.md)，然后以所用包的 API 页面为依据进行开发。在依赖某项标准行为之前，请查看对应的符合性页面；对于流水线，请阅读相应 checked 包装器的教程。"
 
-#: manual/index.md:203
+#: manual/index.md:204
 msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr "**参与贡献。** 阅读[架构](architecture.md)、[验证](verification.md)和[仓库约定](conventions.md)，然后阅读你要修改的包的设计页面。修改优化路径时，还需阅读[性能审计](performance_audit.md)以及该包的性能页面。"
 
-#: manual/index.md:210
+#: manual/index.md:211
 msgid "Evidence snapshot"
 msgstr "证据快照"
 
-#: manual/index.md:212
+#: manual/index.md:213
 msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
 msgstr "固定版本的 GDA `official` 语料通过了 **64,986/64,986 条合法的可执行标量行**，`official0` 通过了 16,124/16,124 条。其余 141 条 `#` 占位行或非标量行属于诊断性排除项。"
 
-#: manual/index.md:215
+#: manual/index.md:216
 msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr "二进制 TestFloat level-1 矩阵在 binary16/32/64/128 上通过了 254,227,872 个向量，涵盖融合乘加、余数、舍入到整数、整数转换和比较谓词，此外还通过了固定版本的 MPFR 平方根与初等函数见证数据。"
 
-#: manual/index.md:219
+#: manual/index.md:220
 msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
 msgstr "严格的 ITF1788 汇总通过了 4,656/4,656 个选定的区间用例。"
 
-#: manual/index.md:220
+#: manual/index.md:221
 msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
 msgstr "IEEE 十进制检查关卡在四个目标平台上覆盖 decimal32/64/128 的 DPD 与 BID 编码、标志和算术。"
 
-#: manual/index.md:223
+#: manual/index.md:224
 msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
 msgstr "这些有限的结果并不意味着支持每一种运算、每一个未来的语料修订版或每一个实数输入。在将某项结果转化为兼容性声明之前，请先阅读该包的符合性页面。"
 
-#: manual/index.md:227
+#: manual/index.md:228
 msgid "Validation"
 msgstr "校验"
 
-#: manual/index.md:229
+#: manual/index.md:230
 msgid "Recommended checks before a release, from the repository root:"
 msgstr "发布前建议在仓库根目录下运行的检查："
 
-#: manual/index.md:239
+#: manual/index.md:240
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr "[验证](verification.md)解释了每个关卡以及如何复现已发布的结果。"
 
-#: manual/index.md:242
+#: manual/index.md:243
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr "`pkg.generated.mbti` 定义哪些内容是公开的，源码和测试定义行为；如果页面与生成的接口不一致，以接口为准。"
 
@@ -20472,10 +20677,6 @@ msgstr "bin_float 性能"
 msgid "Performance thresholds, limb layout, NTT primes, scratch storage, and fallback selection are implementation details. Public results, flags, and interchange bits must be identical across algorithms and targets."
 msgstr "性能阈值、limb layout、NTT primes、scratch storage 和 fallback 选择都是实现细节。不同算法与 target 必须产生完全相同的公开结果、flags 和 interchange bits。"
 
-#: manual/performance/bin_float.md:10
-msgid "Representation"
-msgstr "Context、flags 与 interchange"
-
 #: manual/performance/bin_float.md:12
 msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT still read a 32-bit view of the same storage until their stages. A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products on every target; the schoolbook kernel is still 2.7 to 3.7 times faster on Native and 1.7 to 1.9 times on Wasm-GC because it runs a quarter of the limb steps. Paired Native runs of the whole stage: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times. On Wasm and Wasm-GC multiplication below about 6,000 bits is 1.3 to 1.7 times faster; above about 9,000 bits the Karatsuba step, which allocates a coefficient for every intermediate value, is up to 1.8 times slower until the next stage moves it to limb arrays."
 msgstr "非 JS 目标把 128 位以内的系数内联存储，更大的系数使用小端 64 位 limb；JavaScript 使用隐藏的宿主 `bigint` 适配器。公开的 `BinCoeff` 类型使后端选择不可观察。从 32 位 limb 到 64 位 limb 的迁移（问题 #19）分阶段进行：加法、减法、比较、移位、schoolbook 乘法与平方，以及 Karatsuba 和 Toom-3 步骤已在 64 位 limb 上工作；除法、平方根内核和 NTT 在各自的阶段之前仍读取同一存储的 32 位视图。64 位 limb 乘积需要 64 乘 64 位乘法的高半部分，MoonBit 没有对应指令，因此在所有目标上都由四个 32 乘 32 位乘积算出；schoolbook 内核因为只执行四分之一的 limb 步骤，在 Native 上仍快 2.7 至 3.7 倍，在 Wasm-GC 上快 1.7 至 1.9 倍。整个阶段在 Native 上的成对运行：2,048 至 8,192 位乘法快 2.2 倍，8,192 位加法快 2.3 倍，2,048 位的 `exp` 与 `ln` 快 2.0 倍。在 Wasm 与 Wasm-GC 上，约 6,000 位以下的乘法快 1.3 至 1.7 倍；约 9,000 位以上，为每个中间值分配一个系数的 Karatsuba 步骤最多慢 1.8 倍，直到下一阶段把它改到 limb 数组上。"
@@ -21162,6 +21363,7 @@ msgstr "本教程教你使用有保证的包络进行计算：构造一个已知
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
+#: manual/tutorial/internal/bin_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -21200,6 +21402,7 @@ msgstr "我想要"
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
+#: manual/tutorial/internal/bin_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -25410,6 +25613,116 @@ msgstr "[internal 设计](../design/internal.md)"
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr "[consistency 教程](consistency.md)：交叉检验这些辅助函数的测试。"
 
+#: manual/tutorial/internal/bin_kernel.md:1
+msgid "internal/bin_kernel tutorial"
+msgstr "internal/bin_kernel 教程"
+
+#: manual/tutorial/internal/bin_kernel.md:3
+msgid "The goal of this page is to show maintainers how to use the coefficient kernel when they add or change a binary operation, and how to keep a change to it safe for every target. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
+msgstr "本页向维护者说明：在添加或修改二进制运算时如何使用系数内核，以及如何让对它的修改在所有目标上保持安全。该包是 `Luna-Flow/floating` 的内部包；示例是为模块内部代码编写的，不会被手册检查器编译。"
+
+#: manual/tutorial/internal/bin_kernel.md:11
+msgid "compute with exact coefficients in `bin_float`"
+msgstr "在 `bin_float` 中用精确系数计算"
+
+#: manual/tutorial/internal/bin_kernel.md:11
+msgid "[the `Coeff` methods](#use-the-kernel-from-bin_float)"
+msgstr "[`Coeff` 的方法](#use-the-kernel-from-bin_float)"
+
+#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/decimal_kernel.md:12
+msgid "add an algorithm or a fast path"
+msgstr "添加算法或快速路径"
+
+#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/decimal_kernel.md:12
+msgid "[change the kernel](#change-the-kernel)"
+msgstr "[修改内核](#change-the-kernel)"
+
+#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/decimal_kernel.md:13
+msgid "tune a threshold"
+msgstr "调整阈值"
+
+#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/decimal_kernel.md:13
+msgid "[per-target thresholds](#tune-a-threshold)"
+msgstr "[各目标平台的阈值](#tune-a-threshold)"
+
+#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/decimal_kernel.md:14
+msgid "decide where new code belongs"
+msgstr "决定新代码该放在哪里"
+
+#: manual/tutorial/internal/bin_kernel.md:14
+msgid "[kernel or bin_float](#decide-where-new-code-belongs)"
+msgstr "[内核还是 bin_float](#decide-where-new-code-belongs)"
+
+#: manual/tutorial/internal/bin_kernel.md:15
+#: manual/tutorial/internal/decimal_kernel.md:15
+msgid "run the kernel tests"
+msgstr "运行内核测试"
+
+#: manual/tutorial/internal/bin_kernel.md:17
+msgid "Use the kernel from bin_float"
+msgstr "在 bin_float 中使用内核"
+
+#: manual/tutorial/internal/bin_kernel.md:19
+msgid "`bin_float` imports the kernel and brings the names it uses into scope with `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names that exist only where a coefficient has 64-bit limbs):"
+msgstr "`bin_float` 导入内核，并用 `using` 把用到的名字带入作用域（在 `kernel_imports.mbt` 中；只在系数有 64 位肢时才存在的名字在 `kernel_imports_nonjs.mbt` 中）："
+
+#: manual/tutorial/internal/bin_kernel.md:28
+msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it, so the kernel type never appears in a public interface, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
+msgstr "`BinFloat` 把系数存为私有的 `Coeff` 字段。公共类型 `BinCoeff` 是其上的 newtype，因此内核类型从不出现在公共接口中，而且包装既不产生分配也不产生调用。典型用法是计算精确的商和余数，把舍入留给 `bin_float`："
+
+#: manual/tutorial/internal/bin_kernel.md:42
+#: manual/tutorial/internal/decimal_kernel.md:43
+msgid "Decide where new code belongs"
+msgstr "决定新代码该放在哪里"
+
+#: manual/tutorial/internal/bin_kernel.md:44
+msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `bin_float` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `BinFloat`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
+msgstr "当代码是从系数（和普通整数）到系数或整数的函数时，放进内核。当它涉及舍入模式、精度、指数、类别、标志或 `BinFloat` 时，留在 `bin_float`。判断很简单：无论谁调用，对相同的整数函数必须给出相同的答案。`tools/check_imports.py` 强制执行规则的依赖部分：内核不导入本模块的任何东西。"
+
+#: manual/tutorial/internal/bin_kernel.md:51
+#: manual/tutorial/internal/decimal_kernel.md:54
+msgid "Change the kernel"
+msgstr "修改内核"
+
+#: manual/tutorial/internal/bin_kernel.md:53
+msgid "Write the change as an exact integer function."
+msgstr "把修改写成精确的整数函数。"
+
+#: manual/tutorial/internal/bin_kernel.md:54
+msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
+msgstr "在包内与其他测试放在一起添加或扩展白盒测试：在肢边界（64、128 和 192 位）、每个目标的阈值长度处，以及全 1、2 的幂和稀疏肢的操作数上，与 `BigInt` 比较结果。"
+
+#: manual/tutorial/internal/bin_kernel.md:58
+msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
+msgstr "运行 `just bin-kernel-ci`，然后运行 `just gate binary 3` 和 `just gate interval 3`。"
+
+#: manual/tutorial/internal/bin_kernel.md:59
+msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
+msgstr "用拉取请求的基准行与之前的构建比较已退休指令数；若修改使一个运算变快而另一个变慢，需要在拉取请求中说明原因。"
+
+#: manual/tutorial/internal/bin_kernel.md:63
+#: manual/tutorial/internal/decimal_kernel.md:67
+msgid "Tune a threshold"
+msgstr "调整阈值"
+
+#: manual/tutorial/internal/bin_kernel.md:65
+msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `bin_float`, in `elementary_thresholds_<target>.mbt`."
+msgstr "朴素乘法、Karatsuba、Toom-3、NTT、Knuth 除法和 Burnikel-Ziegler 之间的分界点位于 `coeff_thresholds_native.mbt`、`_llvm`、`_wasm` 和 `_wasm_gc` 中；`moon.pkg` 按目标选择文件。JavaScript 没有内核：它的 `Coeff` 是宿主 `bigint`。阈值只改变运行哪个精确算法。请在目标上用新旧构建配对来修改，并保留恰好跨过每个阈值的分派测试。初等函数的分界点（`binary_exp_burst_min_precision` 及其同类）是 `bin_float` 的阈值，位于 `elementary_thresholds_<target>.mbt`。"
+
+#: manual/tutorial/internal/bin_kernel.md:74
+#: manual/tutorial/internal/decimal_kernel.md:76
+msgid "Run the tests"
+msgstr "运行测试"
+
+#: manual/tutorial/internal/bin_kernel.md:81
+msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `bin_float`. `bin_float` keeps the tests that need a `BinFloat`."
+msgstr "`internal/bin_kernel` 的测试包含原先位于 `bin_float` 的算法交叉检查、分派测试和回归摘要。`bin_float` 保留需要 `BinFloat` 的测试。"
+
 #: manual/tutorial/internal/conformance.md:1
 msgid "internal/conformance tutorial"
 msgstr "internal/conformance 教程"
@@ -25559,33 +25872,9 @@ msgstr "在 `decimal` 或 `decimal_gda` 中对精确系数做运算"
 msgid "[the `dec_coeff_*` functions](#use-the-kernel-from-a-decimal-package)"
 msgstr "[`dec_coeff_*` 函数](#use-the-kernel-from-a-decimal-package)"
 
-#: manual/tutorial/internal/decimal_kernel.md:12
-msgid "add an algorithm or a fast path"
-msgstr "添加算法或快速路径"
-
-#: manual/tutorial/internal/decimal_kernel.md:12
-msgid "[change the kernel](#change-the-kernel)"
-msgstr "[修改内核](#change-the-kernel)"
-
-#: manual/tutorial/internal/decimal_kernel.md:13
-msgid "tune a threshold"
-msgstr "调整阈值"
-
-#: manual/tutorial/internal/decimal_kernel.md:13
-msgid "[per-target thresholds](#tune-a-threshold)"
-msgstr "[各目标平台的阈值](#tune-a-threshold)"
-
-#: manual/tutorial/internal/decimal_kernel.md:14
-msgid "decide where new code belongs"
-msgstr "决定新代码该放在哪里"
-
 #: manual/tutorial/internal/decimal_kernel.md:14
 msgid "[kernel or finalizer](#decide-where-new-code-belongs)"
 msgstr "[内核还是最终化例程](#decide-where-new-code-belongs)"
-
-#: manual/tutorial/internal/decimal_kernel.md:15
-msgid "run the kernel tests"
-msgstr "运行内核测试"
 
 #: manual/tutorial/internal/decimal_kernel.md:17
 msgid "Use the kernel from a decimal package"
@@ -25599,17 +25888,9 @@ msgstr "两个包都导入内核，并用 `using` 把用到的名字引入作用
 msgid "A `Decimal` stores its coefficient as a private `DecCoeff` field, so the type never appears in the public interface of the package. A typical use builds the exact quotient and remainder, and leaves the rounding decision to the package:"
 msgstr "`Decimal` 把系数存为私有的 `DecCoeff` 字段，所以该类型从不出现在包的公开接口中。典型的用法是构造精确的商和余数，把舍入决策留给包自己："
 
-#: manual/tutorial/internal/decimal_kernel.md:43
-msgid "Decide where new code belongs"
-msgstr "决定新代码该放在哪里"
-
 #: manual/tutorial/internal/decimal_kernel.md:45
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers, and when `decimal` and `decimal_gda` would compute it identically. Keep it in the decimal package when it mentions a rounding mode, a precision, an exponent range, a flag, a trap, a `Decimal` or a context, because those are where the two standards differ. The test is simple: the function must give the same answer if the same integers are fed to it from either standard. `tools/check_imports.py` enforces the dependency half of the rule (the kernel cannot import `decimal` or `decimal_gda`)."
 msgstr "当代码是从系数（以及普通整数）到系数或整数的函数，并且 `decimal` 与 `decimal_gda` 会以相同方式计算它时，把它放进内核。当它涉及舍入模式、精度、指数范围、标志、陷阱、`Decimal` 或上下文时，把它留在十进制包里，因为这些正是两个标准不同的地方。判断很简单：把同样的整数从任何一个标准送进去，这个函数必须给出同样的答案。`tools/check_imports.py` 强制执行规则中关于依赖的那一半（内核不能导入 `decimal` 或 `decimal_gda`）。"
-
-#: manual/tutorial/internal/decimal_kernel.md:54
-msgid "Change the kernel"
-msgstr "修改内核"
 
 #: manual/tutorial/internal/decimal_kernel.md:56
 msgid "Write the change as an exact integer function and keep it free of clauses: no `if` on a standard, no hidden state."
@@ -25627,17 +25908,9 @@ msgstr "运行 `just decimal-kernel-ci`，然后运行包测试和两个门禁�
 msgid "Measure both packages. A change that helps one standard and slows the other needs a reason in the pull request."
 msgstr "在两个包上都做测量。若一次改动对一个标准有利而拖慢另一个，需要在拉取请求中给出理由。"
 
-#: manual/tutorial/internal/decimal_kernel.md:67
-msgid "Tune a threshold"
-msgstr "调整阈值"
-
 #: manual/tutorial/internal/decimal_kernel.md:69
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Burnikel–Ziegler and Newton division live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm`, `_wasm_gc` and `_js`; `moon.pkg` selects the file by target. A threshold only changes which exact algorithm runs. Change it with paired old/new builds on the target, for both `decimal` and `decimal_gda`, and keep the dispatch tests that cross every threshold exactly."
 msgstr "教科书算法、Karatsuba、Toom-3、NTT、Burnikel–Ziegler 与 Newton 除法之间的交叉点位于 `coeff_thresholds_native.mbt`、`_llvm`、`_wasm`、`_wasm_gc` 和 `_js` 中；`moon.pkg` 按目标平台选择文件。阈值只改变运行哪种精确算法。修改时要在目标平台上用成对的新旧构建，对 `decimal` 和 `decimal_gda` 都测量，并保留恰好跨越每个阈值的分派测试。"
-
-#: manual/tutorial/internal/decimal_kernel.md:76
-msgid "Run the tests"
-msgstr "运行测试"
 
 #: manual/tutorial/internal/decimal_kernel.md:83
 msgid "The `internal/decimal_kernel` tests carry the algorithm cross-checks that used to be duplicated in the two decimal packages. The decimal packages keep the tests that need a `Decimal`."
@@ -26292,11 +26565,6 @@ msgstr "**MPFR（二进制）**"
 #: manual/verification.md:245
 msgid "Wasm"
 msgstr "Wasm"
-
-#: manual/verification.md:202
-#: manual/verification.md:245
-msgid "JavaScript"
-msgstr "JavaScript"
 
 #: manual/verification.md:202
 #: manual/verification.md:245
@@ -27220,9 +27488,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 
 #~ msgid "`result_lift2(Ok(a), Ok(b), f)` is `Ok(f(a, b))`; `result_lift2_checked` returns `f(a, b)` itself. If `left` is `Err`, that error is returned; otherwise an `Err` in `right` is returned. `f` runs only when both are `Ok`."
 #~ msgstr "`result_lift2(Ok(a), Ok(b), f)` 为 `Ok(f(a, b))`；`result_lift2_checked` 则直接返回 `f(a, b)`。若 `left` 为 `Err`，则返回该错误；否则返回 `right` 中的 `Err`。只有当两者都为 `Ok` 时才会运行 `f`。"
-
-#~ msgid "thresholds"
-#~ msgstr "阈值"
 
 #~ msgid "`dec_coeff_karatsuba_threshold` and the other `dec_coeff_*_threshold*` values, chosen per target in `coeff_thresholds_<target>.mbt`"
 #~ msgstr "`dec_coeff_karatsuba_threshold` 以及其他 `dec_coeff_*_threshold*` 值，按目标平台在 `coeff_thresholds_<target>.mbt` 中选定"
@@ -29009,9 +29274,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "`internal` contains shared decimal/semantic implementation helpers: cached powers of 2/5/10, decimal-string splitting, factor removal, digit counting, rounding of positive quotients/shifts, `ExactRat`, and `Result` lifting. Rational construction normalizes the sign and gcd; rounding consumes explicit quotient/remainder facts and a caller-supplied mode."
 #~ msgstr "辅助函数不读写外部状态；幂缓存和舍入只在局部分配。位数、因子移除和字符串切分按输入长度线性工作，算术复杂度由调用方的 `BigInt` 运算主导。"
 
-#~ msgid "Boundary"
-#~ msgstr "兼容边界"
-
 #~ msgid "The functions are deterministic and effect-free apart from local allocation. They do not own numeric context, flags, parsing policy beyond lexical decimal splitting, or public scalar representations. The package is importable in this module but is not a stable application-facing contract: callers should use `bin_float`, `decimal`, `ball_float`, or `semantic`."
 #~ msgstr "这些名字服务当前实现与 white-box 测试，不参与稳定性承诺；公开调用应通过 concrete numeric packages。"
 
@@ -30026,14 +30288,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Dispatch depends on operand size, shape, target, and algorithm preconditions; it is not a single size cutoff. For multiplication, `n` is the shorter operand length in 32-bit limbs and `m` is the longer length."
 #~ msgstr "乘法同时依赖短边 limb 数 `n`、长边 `m`、target 与 proof precondition："
 
-#~ msgid "Decision"
-#~ msgstr "决策"
-
 #~ msgid "Selected path"
 #~ msgstr "路径"
-
-#~ msgid "Reason"
-#~ msgstr "原因"
 
 #~ msgid "fixed-width or schoolbook"
 #~ msgstr "inline/schoolbook"

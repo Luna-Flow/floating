@@ -29,21 +29,21 @@ fn binary_exp_small_fixed_bounds(
   }
   let shift = -value.exponent2()
   guard shift >= 3 else { return None }
-  let magnitude = value.coefficient()
+  let magnitude = value.coefficient_
   guard magnitude.bit_length() <= shift - 2 else { return None }
   let fractional = work_precision + binary_exp_fixed_guard_bits
   guard fixed_exp_series(magnitude, shift, fractional, 10000)
     is Some((sum, term, index)) else {
     return None
   }
-  let slack = BinCoeff::from_uint64((3 * index + 4).to_uint64())
-  let lower = BinFloat::make(
+  let slack = Coeff::from_uint64((3 * index + 4).to_uint64())
+  let lower = BinFloat::make_coeff(
     sum,
     -fractional,
     work_precision,
     mode=RoundingMode::TowardNegative,
   )
-  let upper = BinFloat::make(
+  let upper = BinFloat::make_coeff(
     sum.add(term).add(slack),
     -fractional,
     work_precision,
@@ -92,8 +92,8 @@ fn binary_exp_bounds_fixed(
     work_precision,
     rounding=RoundTowardPositive,
   )
-  let eighth = BinFloat::make(BinCoeff::one(), -3, work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let mut reduced = lower
   let mut reductions = 0
   while reduced.abs().compare(eighth) > 0 && reductions < 4096 {

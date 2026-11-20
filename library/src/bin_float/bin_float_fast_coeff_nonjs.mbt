@@ -21,7 +21,7 @@ let binary_coeff_fast_bits_limit : Int32 = 1048576
 
 ///|
 /// Whether any of the lowest `count` bits of `value` is set.
-fn binary_coeff_fast_low_nonzero(value : BinCoeff, count : Int32) -> Bool {
+fn binary_coeff_fast_low_nonzero(value : Coeff, count : Int32) -> Bool {
   let whole = count / 64
   let rest = count % 64
   for index in 0..<whole {
@@ -40,7 +40,7 @@ fn binary_coeff_fast_low_nonzero(value : BinCoeff, count : Int32) -> Bool {
 /// becomes the coefficient.
 fn binary_coeff_fast_finish(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent : Int32,
   precision : Int32,
   inexact : Bool,
@@ -141,7 +141,7 @@ fn binary_coeff_fast_finish(
 ///|
 /// The little-endian words of `value` and their count: the array of a heap
 /// coefficient itself (not to be modified), a fresh small array otherwise.
-fn binary_coeff_fast_words(value : BinCoeff) -> (FixedArray[UInt64], Int32) {
+fn binary_coeff_fast_words(value : Coeff) -> (FixedArray[UInt64], Int32) {
   match value.0 {
     Heap(words, len) => (words, len)
     Inline64(low) => ([low], 1)
@@ -409,9 +409,9 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
 
 ///|
 fn bin_coeff_short_div_rem_checked(
-  numerator : BinCoeff,
-  denominator : BinCoeff,
-) -> (BinCoeff, BinCoeff)? {
+  numerator : Coeff,
+  denominator : Coeff,
+) -> (Coeff, Coeff)? {
   if denominator.is_zero() {
     None
   } else {
@@ -449,7 +449,7 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
     // `sqrt(root^2 + remainder)` is at least `root + 1/2` exactly when
     // `remainder > root`, and never equals it, so there are no ties
     let rounded = if remainder.compare(root) > 0 {
-      root.add(BinCoeff::one())
+      root.add(Coeff::one())
     } else {
       root
     }

@@ -19,24 +19,24 @@ fn FastCoeffRandom::below(self : FastCoeffRandom, limit : Int32) -> Int32 {
 /// A coefficient of exactly `width` bits (`width >= 1`): random, sparse (the
 /// top bit with a few set bits), or all ones, so ties, carries, cancellation
 /// and exact results occur.
-fn fast_coeff_value(random : FastCoeffRandom, width : Int32) -> BinCoeff {
+fn fast_coeff_value(random : FastCoeffRandom, width : Int32) -> Coeff {
   if width == 1 {
-    return BinCoeff::one()
+    return Coeff::one()
   }
-  let top = BinCoeff::one().shift_left(width - 1)
-  let mut body = BinCoeff::zero()
+  let top = Coeff::one().shift_left(width - 1)
+  let mut body = Coeff::zero()
   match random.below(5) {
     0 =>
       for _ in 0..<random.below(3) {
-        body = body.add(BinCoeff::one().shift_left(random.below(width - 1)))
+        body = body.add(Coeff::one().shift_left(random.below(width - 1)))
       }
-    1 => body = top.sub_checked(BinCoeff::one()).unwrap()
+    1 => body = top.sub_checked(Coeff::one()).unwrap()
     _ =>
       for _ in 0..<(width / 64 + 1) {
         body = body
           .shift_left(64)
           .add(
-            BinCoeff::from_uint64(
+            Coeff::from_uint64(
               (random.next() << 13) | (random.next() & 0x1fffUL),
             ),
           )
@@ -45,7 +45,7 @@ fn fast_coeff_value(random : FastCoeffRandom, width : Int32) -> BinCoeff {
   // keep the low `width - 1` bits of `body`, then set the top bit
   let excess = body.bit_length() - (width - 1)
   let kept = if excess > 0 {
-    body.shift_right(excess).add(BinCoeff::zero())
+    body.shift_right(excess).add(Coeff::zero())
   } else {
     body
   }
@@ -66,7 +66,7 @@ fn fast_coeff_operand(
   }
   let exponent = around + random.below(9) - 4
   let negative = random.below(2) == 0
-  BinFloat::make(
+  BinFloat::make_coeff(
     fast_coeff_value(random, width),
     exponent,
     precision,
@@ -151,7 +151,7 @@ test "coefficient add of near-equal and cancelling values" {
     let precision = fast_coeff_precision(random)
     let left = fast_coeff_operand(random, 0, 300, precision)
     // the negated value with a few low bits changed
-    let delta = BinFloat::make(
+    let delta = BinFloat::make_coeff(
       fast_coeff_value(random, 1 + random.below(40)),
       left.exponent2() + random.below(20) - 10,
       precision,
@@ -273,7 +273,7 @@ test "coefficient sqrt equals the general path" {
     // every third radicand is an exact square
     let value = if index % 3 == 0 {
       let square = base.mul_ctx(base, BinaryContext::unbounded(2000)).0
-      BinFloat::make(
+      BinFloat::make_coeff(
         square.coefficient_,
         square.exponent2,
         precision,
@@ -331,8 +331,8 @@ test "coefficient finish equals binary_round_dyadic" {
 ///|
 test "coefficient paths decline what they do not cover" {
   let one = BinFloat::from_int(1, precision=100)
-  let wide = BinFloat::make(
-    BinCoeff::one().shift_left(150).add(BinCoeff::one()),
+  let wide = BinFloat::make_coeff(
+    Coeff::one().shift_left(150).add(Coeff::one()),
     0,
     200,
   )
@@ -349,11 +349,11 @@ test "coefficient paths decline what they do not cover" {
   // exact cancellation is left to the general path
   assert_true(binary_coeff_fast_add(wide, wide.neg()) is None)
   // operands whose exponents are far apart
-  let far = BinFloat::make(BinCoeff::one(), 100000, 100)
+  let far = BinFloat::make_coeff(Coeff::one(), 100000, 100)
   assert_true(binary_coeff_fast_add(wide, far) is None)
   // exponents near the implementation limits
-  let huge = BinFloat::make(
-    BinCoeff::one().shift_left(120).add(BinCoeff::one()),
+  let huge = BinFloat::make_coeff(
+    Coeff::one().shift_left(120).add(Coeff::one()),
     binary_implementation_e_max - 200,
     128,
   )
