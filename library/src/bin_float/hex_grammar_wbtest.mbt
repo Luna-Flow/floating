@@ -79,6 +79,18 @@ test "§5.12.3 accepted hexSequence forms" {
       actual,
       hex_expect(coefficient, exponent, 53, negative),
     )
+    // The same grammar through from_hex_ctx: the value is exact (at most 53
+    // bits), so no flag is raised.
+    let (through, flags) = BinFloat::from_hex_ctx(
+      source,
+      BinaryContext::unbounded(53),
+    ).unwrap()
+    assert_same_value(
+      source,
+      through,
+      hex_expect(coefficient, exponent, 53, negative),
+    )
+    assert_eq(flags, BinaryFlags::new(), msg=source)
   }
 }
 
@@ -121,6 +133,17 @@ test "§5.12.1 infinities and NaNs in any case with an optional sign" {
     let x = BinFloat::from_hex(source, 53).unwrap()
     assert_true(x.is_signaling_nan(), msg=source)
   }
+  // from_hex_ctx gives the same special values without a flag, as
+  // from_string_ctx does (5.12.1: the conversion is exact).
+  let context = BinaryContext::binary64()
+  for source in ["inf", "-Infinity", "nan", "-nan", "snan", "-SNAN"] {
+    let (x, flags) = BinFloat::from_hex_ctx(source, context).unwrap()
+    let (y, _) = BinFloat::from_string_ctx(source, context).unwrap()
+    assert_eq(x.classify() == y.classify(), true, msg=source)
+    assert_eq(x.is_negative(), y.is_negative(), msg=source)
+    assert_eq(x.is_signaling_nan(), y.is_signaling_nan(), msg=source)
+    assert_eq(flags, BinaryFlags::new(), msg=source)
+  }
 }
 
 ///|
@@ -140,6 +163,10 @@ test "§5.12.3 rejected forms" {
   ]
   for source in rejected {
     assert_true(BinFloat::from_hex(source, 53) is Err(_), msg=source)
+    assert_true(
+      BinFloat::from_hex_ctx(source, BinaryContext::unbounded(53)) is Err(_),
+      msg=source,
+    )
   }
 }
 
