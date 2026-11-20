@@ -6,15 +6,6 @@
 /// it decides the rounding, else the exact product is formed as before.
 
 ///|
-/// Longest short product, in limbs of the extended precision (above it the
-/// Karatsuba product is about as cheap as the quadratic short product).
-let bin_coeff_short_product_max_limbs : Int32 = 64
-
-///|
-/// Shortest short product, in limbs (768 bits of precision): below it the setup (two shifted operands and the product array) costs more than the rows save.
-let bin_coeff_short_product_min_limbs : Int32 = 13
-
-///|
 /// Limbs of the operands of a short product at `precision` bits: the limbs of
 /// the precision plus one extra limb that carries the error of the
 /// approximation below the rounding position.
@@ -23,71 +14,11 @@ pub fn bin_coeff_short_product_limbs(precision : Int32) -> Int32 {
 }
 
 ///|
-/// `r[ro ..< ro + n) = a[ao ..< ao + n) * b`, returns the limb above
-/// `r[ro + n - 1]` (not written): the row of the short product that starts it.
-fn bin_short_mul_1(
-  r : FixedArray[UInt64],
-  ro : Int32,
-  a : FixedArray[UInt64],
-  ao : Int32,
-  n : Int32,
-  b : UInt64,
-) -> UInt64 {
-  let b_low = b & bin_coeff_limb_mask
-  let b_high = b >> 32
-  let mut carry = 0UL
-  for index in 0..<n {
-    let word = a.unsafe_get(ao + index)
-    let low = word * b
-    let word_low = word & bin_coeff_limb_mask
-    let word_high = word >> 32
-    let cross = word_high * b_low + ((word_low * b_low) >> 32)
-    let high = word_high * b_high +
-      (cross >> 32) +
-      ((word_low * b_high + (cross & bin_coeff_limb_mask)) >> 32)
-    let total = low + carry
-    r.unsafe_set(ro + index, total)
-    carry = high + (if total < low { 1UL } else { 0UL })
-  }
-  carry
-}
-
-///|
-/// `r[ro ..< ro + n) += a[ao ..< ao + n) * b`, returns the carry limb (not
-/// added to `r[ro + n]`). `r` and `a` are different arrays.
-fn bin_short_addmul_1(
-  r : FixedArray[UInt64],
-  ro : Int32,
-  a : FixedArray[UInt64],
-  ao : Int32,
-  n : Int32,
-  b : UInt64,
-) -> UInt64 {
-  let b_low = b & bin_coeff_limb_mask
-  let b_high = b >> 32
-  let mut carry = 0UL
-  for index in 0..<n {
-    let word = a.unsafe_get(ao + index)
-    let low = word * b
-    let word_low = word & bin_coeff_limb_mask
-    let word_high = word >> 32
-    let cross = word_high * b_low + ((word_low * b_low) >> 32)
-    let high = word_high * b_high +
-      (cross >> 32) +
-      ((word_low * b_high + (cross & bin_coeff_limb_mask)) >> 32)
-    let partial = low + carry
-    let carry_one = if partial < low { 1UL } else { 0UL }
-    let total = partial + r.unsafe_get(ro + index)
-    let carry_two = if total < partial { 1UL } else { 0UL }
-    r.unsafe_set(ro + index, total)
-    carry = high + carry_one + carry_two
-  }
-  carry
-}
-
-///|
 /// Whether `bin_coeff_mul_short` handles the product of `left` and `right` at
-/// `precision` bits: a short product of 13 to 64 limbs, both operands within 64
+/// `precision` bits: a short product of `bin_coeff_short_product_min_limbs` to
+/// `bin_coeff_short_product_max_limbs` limbs (the two limits of the target:
+/// 20 and 192 on native with the C rows, 13 and 64 with the portable rows),
+/// both operands within 64
 /// bits of the precision (a narrower operand makes most of the rows zero, and
 /// the exact product is cheap then).
 pub fn bin_coeff_mul_short_ok(
@@ -113,7 +44,7 @@ pub fn bin_coeff_mul_short_ok(
 ///
 /// Error bound. The operands are shifted left to `m` limbs with the top bit set
 /// (`A = left << (64 m - bits(left))`, likewise `B`; the low limb is zero because
-/// `bits <= precision <= 64 (m - 1)`). The rows of `bin_short_addmul_1`
+/// `bits <= precision <= 64 (m - 1)`). The rows of `bin_limbs_addmul_1`
 /// accumulate every limb product `a_j b_i B^(i+j)` with `i + j >= m - 1`;
 /// the others are dropped. Each dropped term is below `B^(i+j+2)`, and there are
 /// `s + 1` of them with `i + j = s <= m - 2`, so their sum is below
@@ -143,7 +74,7 @@ pub fn bin_coeff_mul_short(
   let b = bin_coeff_words_shifted(right, 64 * limbs - right.bit_length(), limbs)
   let product = FixedArray::make(2 * limbs, 0UL)
   // row 0: the top limb of `a` times `b[0]`
-  let first = bin_short_mul_1(
+  let first = bin_limbs_mul_1(
     product,
     limbs - 1,
     a,
@@ -153,7 +84,7 @@ pub fn bin_coeff_mul_short(
   )
   product.unsafe_set(limbs, first)
   for row in 1..<limbs {
-    let carry = bin_short_addmul_1(
+    let carry = bin_limbs_addmul_1(
       product,
       limbs - 1,
       a,

@@ -92,3 +92,14 @@ let bin_coeff_radix_parse_dc_chunks = 4608
 /// storage (Wasm: measured faster than 64-bit limbs there, 300,000-bit product
 /// on Wasm-GC) instead of on 64-bit limbs.
 let bin_coeff_ntt_limb32_conversion = true
+
+///|
+/// Shortest short product, in limbs of the extended precision: below it the
+/// setup (two shifted operands, the product array, the rounding window) costs
+/// more than the rows save. Measured with the portable rows on Native only (the crossover at 13 limbs and the gain 0.75 at 33 limbs); not measured on this target, and not above 64 limbs with the portable rows.
+let bin_coeff_short_product_min_limbs : Int32 = 13
+
+///|
+/// Longest short product, in limbs: above it the Karatsuba product is as cheap.
+/// See the minimum.
+let bin_coeff_short_product_max_limbs : Int32 = 64
