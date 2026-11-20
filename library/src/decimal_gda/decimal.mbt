@@ -388,6 +388,70 @@ fn decimal_exact_aligned_sum_result(
 }
 
 ///|
+/// The plain sum of two finite non-zero operands when the one with the smaller
+/// adjusted exponent lies more than `precision` digits below the rounding
+/// position of the other (issue 446). Every rounding boundary of the sum and
+/// every digit of `high` lies on the grid of `10^sticky_limit`; a non-zero `low`
+/// below that grid therefore places the exact sum strictly between the same two
+/// neighbours as `high + sign(low) * 10^(sticky_limit - 1)`, so rounding that
+/// value half-even rounds the sum correctly (the absorption `add_ctx` makes).
+/// The exponent gap is taken in `Int64` and the cost does not depend on it.
+/// Returns `None` when the operands are closer, or when the sticky exponent
+/// would leave the `Int32` range.
+fn plain_sticky_sum_result(
+  high : Decimal,
+  low : Decimal,
+  precision : Int32,
+) -> Decimal? {
+  guard high.class == FpClass::Finite &&
+    low.class == FpClass::Finite &&
+    !high.coefficient.is_zero() &&
+    !low.coefficient.is_zero() else {
+    return None
+  }
+  let precision = Int32::max(1, precision)
+  let precision64 = precision.to_int64()
+  let target_exponent = adjusted_exponent64(high) - precision64 + 1L
+  guard adjusted_exponent64(low) < target_exponent - precision64 else {
+    return None
+  }
+  let sticky_limit = Int64::min(
+    high.exponent10.to_int64(),
+    target_exponent - 2L,
+  )
+  guard adjusted_exponent64(low) < sticky_limit else { return None }
+  let sticky_exponent = sticky_limit - 1L
+  let shift = high.exponent10.to_int64() - sticky_exponent
+  guard sticky_exponent >= -2147483648L && shift <= 2147483647L else {
+    return None
+  }
+  let units = dec_coeff_shift_power10_repr(high.coefficient, shift.to_int())
+  let magnitude = if low.negative == high.negative {
+    dec_coeff_magnitude_add_unit(units, 1)
+  } else {
+    dec_coeff_magnitude_sub_unit(units, 1)
+  }
+  Some(
+    normalize_decimal_parts_gda_repr(
+      high.negative,
+      magnitude,
+      sticky_exponent.to_int(),
+      precision,
+      DecimalRoundingMode::HalfEven,
+    ),
+  )
+}
+
+///|
+/// Whether the exact aligned sum of two finite operands would need more than
+/// 2,000,000,000 padding digits: the exponent gap is taken in `Int64`, and the
+/// callers return a NaN instead of letting the `Int32` padding overflow (#446).
+fn exact_aligned_gap_too_large(lhs : Decimal, rhs : Decimal) -> Bool {
+  let gap = lhs.exponent10.to_int64() - rhs.exponent10.to_int64()
+  gap > 2000000000L || gap < -2000000000L
+}
+
+///|
 fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
   match quiet_nan_pair_plain(a, b) {
     Some(value) => return value
@@ -437,6 +501,13 @@ fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
       match plain_absorbed_sum_result(high, low, precision) {
         Some(value) => return value
         None => ()
+      }
+      match plain_sticky_sum_result(high, low, precision) {
+        Some(value) => return value
+        None => ()
+      }
+      if exact_aligned_gap_too_large(a, b) {
+        return Decimal::nan(precision~)
       }
       let target = Int32::min(a.exponent10, b.exponent10)
       // Same Unit padding + decUnitAddSub mapping as GDA decAddOp
