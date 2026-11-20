@@ -9872,7 +9872,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:1956
+#: manual/design/bin_float.md:2002
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -11009,7 +11009,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:1884
+#: manual/design/bin_float.md:1930
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -11089,7 +11089,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:1931
+#: manual/design/bin_float.md:1977
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -12475,62 +12475,222 @@ msgid "**`rootn` and `rsqrt` by one integer root.** For $2 \\le |n| \\le 32$ (wi
 msgstr "**用一次整数开方得到 `rootn` 与 `rsqrt`。** 当 $2 \\le |n| \\le 32$ 时（在下文所述的闸门之内），结果一步舍入，不需要 Ziv 循环。对正数 $x = c 2^{e}$，$2^t \\le x < 2^{t+1}$，$x^{1/n}$ 的最高位为 $k = \\lfloor t/n \\rfloor$（因为 $t < n (k + 1)$ 都是整数，所以 $t + 1 \\le n (k + 1)$）；$x^{-1/n}$ 的最高位为 $-k - 1$，当 $c = 1$（恰好 $x = 2^t$）时为 $-\\lceil t/n \\rceil$，对 $1/x$ 用同一个不等式即可。设 $T$ 为舍入结果末位的指数（包括次正规网格），取 $g = T - 1$（半个单位）和整数 $y = \\lfloor x 2^{-n g} \\rfloor$（对应 $x^{1/n}$）或 $\\lfloor 2^{-n g} / x \\rfloor$（对应 $x^{-1/n}$）；因为对实数 $v \\ge 0$ 有 $\\lfloor v^{1/n} \\rfloor = \\lfloor \\lfloor v \\rfloor^{1/n} \\rfloor$（整数 $r$ 满足 $r^n \\le v$ 当且仅当 $r^n \\le \\lfloor v \\rfloor$），所以 $r_2 = \\lfloor y^{1/n} \\rfloor$（$n = 2$ 用整数平方根内核，其余用整数 Newton 开方）就是 $\\lfloor |x|^{\\pm 1/n} / 2^{g} \\rfloor$。保留部分为 $r_2 \\gg 1$，舍入位是 $r_2$ 的最低位，粘滞位是“根并不恰好等于 $r_2 2^{g}$”，除非 $y$ 是精确的（没有丢弃的位、没有余数）且 $y = r_2^n$，否则它成立：任何舍入方向的边界都是半个单位的整数倍，所以严格位于 $r_2$ 与 $r_2 + 1$ 之间的根与置了粘滞位的 $r_2$ 在每个边界的同一侧。随后 `binary_round_pack` 像平方根那样决定结果和标志，包括次正规范围和舍入后的 tininess 规则（网格不同时在无界网格上再求一次根）。该整数约有 $n (p + 2)$ 位，其 Newton 步要把这么大的数乘到 $n - 1$ 次方，所以只在明显快于经认证的 `exp(ln(x) / n)` 循环的范围内使用，该循环从约 1500 位起可用快速的 `exp` 与 `ln` 内核。指令数，循环除以整数开方：$n \\le 12$ 时在所测的每个精度（53 到 32768 位）整数开方都更快，快 2.4 到 300 倍；$13 \\le n \\le 32$ 时在 1024 位以内快 6.7 到 49 倍，但在 2048 位，$n = 16$ 只快 1.6 倍，$n = 20$ 快 1.1 倍，$n = 24$ 与 $n = 32$ 反而慢 1.3 与 2.2 倍。因此闸门为 $|n| \\le 12$，或 $|n| \\le 32$ 且上下文精度不超过 1024 位，其余用循环；测试在每个界的两侧比较公开结果与循环。完全幂的精确根仍先于两条路径判定。每次调用的指令数（53、128、512 位）：`rsqrt` 少 57、23 和 35 倍，$n = 3$ 的 `rootn` 少 2.1、3.6 和 11 倍。"
 
 #: manual/design/bin_float.md:1026
+msgid "Trigonometric functions of huge arguments"
+msgstr "超大参数的三角函数"
+
+#: manual/design/bin_float.md:1028
+msgid "`sin`, `cos` and `tan` of an argument $x$ with $2^{k-1} \\le |x| < 2^k$ reduce $x$ modulo $\\pi/2$, which cancels the top $k$ bits of $x$: the reduction needs $\\pi$ to $p + k + 96$ bits for a result of $p$ bits. The reduced argument lies in $(-\\pi/4, \\pi/4)$ and the series needs only the precision of the result, so for $k > 256$ the enclosure of the reduced argument is rounded outward to $p + 96$ bits before the series (the reduction and the series are separate precisions). The working precision of the reduction is limited to 8,000,000 bits, so that every argument of the decimal operand range ($10^{999999} < 2^{3321929}$) is evaluated; a larger work size is a `ResourceLimit` certification failure. The `decimal` driver passes a huge integer operand to `BinFloat` exactly (an integer $c \\cdot 10^e$ is a dyadic rational) at the result precision, and `ball_float` evaluates a point interval by two directed evaluations without the rational index computation."
+msgstr "对满足 $2^{k-1} \\le |x| < 2^k$ 的参数 $x$，`sin`、`cos` 和 `tan` 先对 $\\pi/2$ 取模归约 $x$，这会抵消 $x$ 的最高 $k$ 位：对 $p$ 位的结果，归约需要 $p + k + 96$ 位的 $\\pi$。归约后的参数落在 $(-\\pi/4, \\pi/4)$ 内，级数只需要结果的精度，因此当 $k > 256$ 时，归约后参数的包络先向外舍入到 $p + 96$ 位再做级数（归约与级数使用各自的精度）。归约的工作精度上限为 8,000,000 位，使十进制操作数范围内的每个参数（$10^{999999} < 2^{3321929}$）都能求值；更大的工作规模是 `ResourceLimit` 认证失败。`decimal` 驱动把巨大的整数操作数精确地交给 `BinFloat`（整数 $c \\cdot 10^e$ 是二进制有理数），以结果精度求值；`ball_float` 对点区间用两次定向求值，不做有理数下标计算。"
+
+#: manual/design/bin_float.md:1042
+msgid "The cost grows faster than linearly in $k$ because $\\pi$ at $k$ bits is computed by binary splitting with a quasi-linear product (a call recomputes $\\pi$: the cache keeps no entry above 65,536 bits). Native release build, one call of `Decimal::sin_ctx` in decimal64 (`cos` and `tan` cost the same), `p = 53` for the binary rows, on a quiet machine, measured at commit `bdba3fd` (2026-11-20; later multiplication work may lower the numbers by a few percent):"
+msgstr "代价随 $k$ 的增长快于线性，因为 $k$ 位的 $\\pi$ 用二分拆分和拟线性乘法计算（每次调用都重新计算 $\\pi$：缓存不保留超过 65,536 位的条目）。原生 release 构建，decimal64 下一次 `Decimal::sin_ctx` 调用（`cos` 和 `tan` 代价相同），二进制行取 `p = 53`，在安静的机器上、于提交 `bdba3fd` 上测得（2026-11-20；之后的乘法优化可能使数字降低几个百分点）："
+
+#: manual/design/bin_float.md:1049
+msgid "operation"
+msgstr "运算"
+
+#: manual/design/bin_float.md:1049
+msgid "seconds"
+msgstr "秒"
+
+#: manual/design/bin_float.md:1049
+msgid "instructions retired"
+msgstr "退役指令数"
+
+#: manual/design/bin_float.md:1049
+msgid "peak memory"
+msgstr "峰值内存"
+
+#: manual/design/bin_float.md:1051
+msgid "$\\pi$ at 1,000,000 bits"
+msgstr "1,000,000 位的 $\\pi$"
+
+#: manual/design/bin_float.md:1051
+msgid "31.1e9"
+msgstr "31.1e9"
+
+#: manual/design/bin_float.md:1051
+msgid "14.6 MB"
+msgstr "14.6 MB"
+
+#: manual/design/bin_float.md:1052
+msgid "$\\pi$ at 2,000,000 bits"
+msgstr "2,000,000 位的 $\\pi$"
+
+#: manual/design/bin_float.md:1052
+msgid "119.6e9"
+msgstr "119.6e9"
+
+#: manual/design/bin_float.md:1052
+msgid "20.3 MB"
+msgstr "20.3 MB"
+
+#: manual/design/bin_float.md:1053
+msgid "$\\pi$ at 3,400,000 bits"
+msgstr "3,400,000 位的 $\\pi$"
+
+#: manual/design/bin_float.md:1053
+msgid "340.1e9"
+msgstr "340.1e9"
+
+#: manual/design/bin_float.md:1053
+msgid "28.4 MB"
+msgstr "28.4 MB"
+
+#: manual/design/bin_float.md:1054
+msgid "`sin` of `1E+300000`"
+msgstr "`1E+300000` 的 `sin`"
+
+#: manual/design/bin_float.md:1054
+msgid "88.3e9"
+msgstr "88.3e9"
+
+#: manual/design/bin_float.md:1054
+msgid "17.2 MB"
+msgstr "17.2 MB"
+
+#: manual/design/bin_float.md:1055
+msgid "`sin` of `1E+600000`"
+msgstr "`1E+600000` 的 `sin`"
+
+#: manual/design/bin_float.md:1055
+msgid "341.5e9"
+msgstr "341.5e9"
+
+#: manual/design/bin_float.md:1055
+msgid "22.4 MB"
+msgstr "22.4 MB"
+
+#: manual/design/bin_float.md:1056
+msgid "`sin` of `1E+999999`"
+msgstr "`1E+999999` 的 `sin`"
+
+#: manual/design/bin_float.md:1056
+msgid "936.7e9"
+msgstr "936.7e9"
+
+#: manual/design/bin_float.md:1056
+msgid "33.5 MB"
+msgstr "33.5 MB"
+
+#: manual/design/bin_float.md:1058
+msgid "The series change alone, `sin(2^k)` with $p = 53$ (origin/main before and after):"
+msgstr "仅看级数改动，$p = 53$ 时的 `sin(2^k)`（origin/main 修改前后）："
+
+#: manual/design/bin_float.md:1060
+msgid "before, seconds"
+msgstr "修改前，秒"
+
+#: manual/design/bin_float.md:1060
+msgid "before, instructions"
+msgstr "修改前，指令数"
+
+#: manual/design/bin_float.md:1060
+msgid "after, seconds"
+msgstr "修改后，秒"
+
+#: manual/design/bin_float.md:1060
+msgid "after, instructions"
+msgstr "修改后，指令数"
+
+#: manual/design/bin_float.md:1062
+msgid "10.2e9"
+msgstr "10.2e9"
+
+#: manual/design/bin_float.md:1062
+msgid "0.19e9"
+msgstr "0.19e9"
+
+#: manual/design/bin_float.md:1063
+msgid "53.2e9"
+msgstr "53.2e9"
+
+#: manual/design/bin_float.md:1063
+msgid "0.62e9"
+msgstr "0.62e9"
+
+#: manual/design/bin_float.md:1064
+msgid "232.2e9"
+msgstr "232.2e9"
+
+#: manual/design/bin_float.md:1064
+msgid "2.19e9"
+msgstr "2.19e9"
+
+#: manual/design/bin_float.md:1065
+msgid "164 (loaded machine)"
+msgstr "164（机器有负载）"
+
+#: manual/design/bin_float.md:1065
+msgid "not measured"
+msgstr "未测量"
+
+#: manual/design/bin_float.md:1065
+msgid "7.78e9"
+msgstr "7.78e9"
+
+#: manual/design/bin_float.md:1067
+msgid "The expensive rows (`1E+999999`) are in the opt-in table `testdata/decimal/ieee/rows/huge_trig_extreme.txt` (`python3 tools/run_huge_trig_extreme.py`); the `1E+300000` class is in the full gate."
+msgstr "代价高的行（`1E+999999`）在按需运行的表 `testdata/decimal/ieee/rows/huge_trig_extreme.txt` 中（`python3 tools/run_huge_trig_extreme.py`）；`1E+300000` 一类在完整门禁中。"
+
+#: manual/design/bin_float.md:1072
 msgid "Asymptotically fast elementary kernels (implemented, with open items)"
 msgstr "渐近更快的初等函数内核（已实现，仍有未决项）"
 
-#: manual/design/bin_float.md:1028
+#: manual/design/bin_float.md:1074
 msgid "*Status: design and results for [#18](https://github.com/Luna-Flow/floating/issues/18). The constants (`pi`, `ln 2`, `ln 10` by binary splitting), the `exp` enclosure, the `ln` enclosure and the `sin` and `cos` enclosures are implemented and merged; the AGM alternative, `tan`, and the further reductions listed at the end of the section are design only. The measured figures are baselines or results of the implemented part; the figures marked \"projection\" come from a cost model fitted to them and are replaced by measurements as each step lands. The final measurement of the merged kernels is in \"Measured result\" below. All arguments in this section are paper arguments; none is mechanized.*"
 msgstr "*状态：[#18](https://github.com/Luna-Flow/floating/issues/18) 的设计与结果。常数（用二进制拆分计算 `pi`、`ln 2`、`ln 10`）、`exp` 的包络、`ln` 的包络以及 `sin` 与 `cos` 的包络已经实现并合并；AGM 方案、`tan`，以及本节末尾列出的进一步归约仍只是设计。所列实测数字是基线或已实现部分的结果；标为“projection”（预测）的数字来自按它们拟合的成本模型，每完成一步就用实测值替换。已合并内核的最终测量见下面的“实测结果”。本节所有论证都是纸面论证，没有机械化。*"
 
-#: manual/design/bin_float.md:1039
+#: manual/design/bin_float.md:1085
 msgid "**Problem.** Every enclosure above is built from a Taylor or artanh series whose terms are $w$-bit numbers, so one evaluation costs $O(w / \\log w)$ full multiplications, that is $O(w\\, M(w) / \\log w)$. At $w \\approx 8200$ bits on the native target `exp` takes 17.8 ms, `ln` 164 ms and `sin` 64 ms (before the fixed-point `ln` and `sin` branches), while the $8192 \\times 8192$-bit product takes 43 µs: `exp` is about 400 products. The constants are worse when cold: `pi` takes 742 ms, `ln 2` 297 ms and `ln 10` 146 ms at 8192 bits, which a call without a cached constant pays in full (MPFR on the same machine: 0.09 ms for `pi`, 0.29 ms for `ln 2`)."
 msgstr "**问题。** 上文每个包络都由泰勒级数或 artanh 级数构成，级数的项是 $w$ 位数，因此一次求值需要 $O(w / \\log w)$ 次完整乘法，即 $O(w\\, M(w) / \\log w)$。在原生目标上，当 $w \\approx 8200$ 位时，`exp` 耗时 17.8 ms，`ln` 为 164 ms，`sin` 为 64 ms（均在定点 `ln` 与 `sin` 分支合入之前），而 $8192 \\times 8192$ 位乘积只需 43 µs：`exp` 约相当于 400 次乘法。冷启动时常数更糟：8192 位下 `pi` 需 742 ms，`ln 2` 需 297 ms，`ln 10` 需 146 ms，没有缓存常数的调用要全额支付（同一台机器上的 MPFR：`pi` 为 0.09 ms，`ln 2` 为 0.29 ms）。"
 
-#: manual/design/bin_float.md:1049
+#: manual/design/bin_float.md:1095
 msgid "**Options.** (1) Binary splitting of the series of a rational argument, $O(M(w) \\log^2 w)$. (2) Bit-burst: split the argument into chunks of doubling length, evaluate the exponential of each chunk by a series with few terms (the later the chunk, the smaller it is), multiply the results: $O(M(w) \\log^2 w)$ with binary splitting inside and, with the plain fixed-point series inside, one cheap unbalanced product per term (measured: $8192 \\times 64$ bits 1.8 µs, $\\times 1024$ bits 6.9 µs, $\\times 8192$ bits 43 µs). (3) Newton iteration for `ln` on top of `exp`. (4) The arithmetic-geometric mean (AGM) for `ln` and `pi`, $O(M(w) \\log w)$ with large constants. (5) More halving and squaring: the squarings cost one full product each and lose a bit each, so it does not scale."
 msgstr "**可选方案。** (1) 对有理数参数的级数做二进制拆分，$O(M(w) \\log^2 w)$。(2) Bit-burst：把参数切成长度成倍增长的若干块，每一块的指数用项数很少的级数计算（块越靠后越小），再把结果相乘：内部用二进制拆分时为 $O(M(w) \\log^2 w)$；内部用普通定点级数时，每项只需一次廉价的非平衡乘法（实测：$8192 \\times 64$ 位 1.8 µs，$\\times 1024$ 位 6.9 µs，$\\times 8192$ 位 43 µs）。(3) 在 `exp` 之上对 `ln` 做牛顿迭代。(4) 对 `ln` 与 `pi` 用算术-几何平均（AGM），$O(M(w) \\log w)$，常数较大。(5) 增加折半与平方：每次平方要付一次完整乘法并损失一位，因此无法扩展。"
 
-#: manual/design/bin_float.md:1062
+#: manual/design/bin_float.md:1108
 msgid "**Choice.** Keep the Ziv loop, its working precisions and the exact cases untouched (see [Certified elementary functions](#certified-elementary-functions)). Replace only the function that produces the enclosure $[L, U]$ for a given $w$, and only from a per-target precision threshold upward. Every new kernel is a pure function $(x, w) \\mapsto [L, U]$ of exactly the type the loop already consumes (`binary_exp_bounds`, `binary_ln_bounds`, `binary_trigonometric_bounds`, and the constants), so `exp2`, `exp10`, `sinh`, `cosh`, `pow`, `rootn` and the logarithm family inherit the speed-up, and the recommended functions of [#235](https://github.com/Luna-Flow/floating/issues/235) (`compound`, `powr`, `exp2m1`, `exp10m1`, `log2p1`, `log10p1`, `rSqrt`, the $\\pi$-scaled inverses) are written on the same layer. A kernel returns `None` for any precondition it cannot verify, and the caller then runs the existing path, so correctness never depends on the new code covering a case."
 msgstr "**选择。** Ziv 循环、它的工作精度和精确情形都保持不变（见 [Certified elementary functions](#certified-elementary-functions)）。只替换在给定 $w$ 时产生包络 $[L, U]$ 的那个函数，并且只在达到每个目标各自的精度阈值之后。每个新内核都是纯函数 $(x, w) \\mapsto [L, U]$，类型恰好是循环已经在使用的那种（`binary_exp_bounds`、`binary_ln_bounds`、`binary_trigonometric_bounds` 以及常数），因此 `exp2`、`exp10`、`sinh`、`cosh`、`pow`、`rootn` 和对数族都会继承这一加速，[#235](https://github.com/Luna-Flow/floating/issues/235) 中推荐的函数（`compound`、`powr`、`exp2m1`、`exp10m1`、`log2p1`、`log10p1`、`rSqrt`，以及按 $\\pi$ 缩放的反函数）也写在同一层之上。内核遇到无法验证的前置条件就返回 `None`，调用方随后走现有路径，所以正确性从不依赖新代码覆盖了某个情形。"
 
-#: manual/design/bin_float.md:1077
+#: manual/design/bin_float.md:1123
 msgid "*Integer enclosures.* All new kernels work on non-negative integers in units of $2^{-F}$ with $F = w + g$, using only `BinCoeff` operations (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`, `bit_length`), which exist on every target, so the same source runs on native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a pair $(\\ell, u)$ of integers with the invariant $\\ell \\le E \\cdot 2^{F} \\le u$. Every step produces a new pair from the old ones by monotone operations on non-negative numbers, so the invariant is proved step by step, and the final width $u - \\ell$ is a computed integer, not an estimate. The last step converts to `BinFloat::make(coeff, exp, w, mode=TowardNegative / TowardPositive)`, which is what the existing fixed-point series already does."
 msgstr "*整数包络。* 所有新内核都用非负整数，单位为 $2^{-F}$，其中 $F = w + g$，只使用 `BinCoeff` 的操作（`mul`、`add`、`sub_checked`、移位、`div_rem_checked`、`compare`、`bit_length`），这些操作在每个目标上都有，所以同一份源码可在原生、LLVM、Wasm、Wasm-GC 和 JavaScript 上运行。一个量 $E$ 用一对整数 $(\\ell, u)$ 表示，满足不变式 $\\ell \\le E \\cdot 2^{F} \\le u$。每一步都通过对非负数的单调运算由旧的一对得到新的一对，因此不变式是逐步证明的，最终宽度 $u - \\ell$ 是算出来的整数，而不是估计值。最后一步转换为 `BinFloat::make(coeff, exp, w, mode=TowardNegative / TowardPositive)`，这正是现有定点级数已经在做的事。"
 
-#: manual/design/bin_float.md:1090
+#: manual/design/bin_float.md:1136
 msgid "**Shared fixed-point toolkit.** The kernels below share one private layer, `elementary_toolkit.mbt` (issue [#368](https://github.com/Luna-Flow/floating/issues/368)); each piece states its error bound once, and the kernel sections add only what is specific to their series. The extraction is a pure refactor: every kernel returns the same enclosure $(L, U)$ as before, bit for bit and `None` in the same cases, which `elementary_toolkit_digest_wbtest.mbt` checks with one digest per kernel and working precision (a corpus around every per-target threshold, the multiples of $\\ln 2$ and $\\pi/2$, tiny and large arguments) against a table generated on the kernels before the extraction."
 msgstr "**共享的定点工具箱。** 下面各内核共享一个私有层 `elementary_toolkit.mbt`（issue [#368](https://github.com/Luna-Flow/floating/issues/368)）；每个部件只在此处写一次误差界，各内核小节只补充各自级数特有的内容。这次抽取是纯重构：每个内核返回与之前相同的包围 $(L, U)$，逐位一致，并且在相同的情形下返回 `None`；`elementary_toolkit_digest_wbtest.mbt` 对每个内核和每个工作精度各用一个摘要来检验这一点（语料覆盖各目标阈值附近、$\\ln 2$ 与 $\\pi/2$ 的倍数、极小与极大的参数），并与在抽取之前的内核上生成的表比对。"
 
-#: manual/design/bin_float.md:1101
+#: manual/design/bin_float.md:1147
 msgid "*Directed conversion* (`fixed_scaled_floor`, `fixed_scaled_exact`, `fixed_shift`, `fixed_enclosure`). A fixed-point integer $N$ stands for $N / 2^{F}$. `fixed_scaled_floor` rounds toward $-\\infty$ and loses less than one unit; `fixed_scaled_exact` is `None` unless the scaling is exact; `fixed_enclosure` turns an integer pair $(\\ell, u)$ into floats rounded outward (lower end `TowardNegative`, upper end `TowardPositive`), swapping the ends for a negative result."
 msgstr "*定向转换*（`fixed_scaled_floor`、`fixed_scaled_exact`、`fixed_shift`、`fixed_enclosure`）。定点整数 $N$ 表示 $N / 2^{F}$。`fixed_scaled_floor` 向 $-\\infty$ 舍入，损失不到一个单位；`fixed_scaled_exact` 除非缩放是精确的否则为 `None`；`fixed_enclosure` 把整数对 $(\\ell, u)$ 变成向外舍入的浮点数（下端 `TowardNegative`，上端 `TowardPositive`），结果为负时交换两端。"
 
-#: manual/design/bin_float.md:1108
+#: manual/design/bin_float.md:1154
 msgid "*Bounded cache* (`BoundedCache[V]`: `find`, `insert`, capacity as a parameter, oldest entry dropped first). It replaces the three ad-hoc caches (constants, 6 entries per constant; `exp` tables, 24 sets; factorial coefficients, 64 entries). A cached value is a pure function of its key, so a hit returns the value a recomputation returns."
 msgstr "*有界缓存*（`BoundedCache[V]`：`find`、`insert`，容量作为参数，最旧的条目先丢弃）。它取代三个各自为政的缓存（常数，每个常数 6 项；`exp` 的表，24 套；阶乘系数，64 项）。缓存的值是其键的纯函数，所以命中返回的就是重新计算会得到的值。"
 
-#: manual/design/bin_float.md:1113
+#: manual/design/bin_float.md:1159
 msgid "*Term-by-term stage* (`fixed_series_step`, `fixed_exp_series`). With $y = N / 2^{s} < 1$, $t_0 = 2^{F}$ and $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$, the exact term $\\tau_i = 2^{F} y^i / i!$ satisfies $t_i \\le \\tau_i < t_i + 3$ (the deficit $d_i$ obeys $d_i < d_{i-1} y / i + 1/i + 1$). `fixed_exp_series` sums until a term is below $2^{8}$ and returns the sum, the last term and its index; the exact value is within $t_n + 3n + 3$ above the sum. The fixed `exp` stage and the bit-burst `exp` stage use it with their own slack constants (4 and 3), and the burst `sin`/`cos` stage uses the step for the real and imaginary parts of $e^{iy}$. `binary_ln_unit_fixed_bounds` and `binary_sin_cos_fixed_series` stay apart: their recurrences are in $z^2$ and $x^2$ with different divisors and different tail proofs (an artanh series with ratio $z^2 \\le 1/9$, an alternating series), not the recurrence above."
 msgstr "*逐项阶段*（`fixed_series_step`、`fixed_exp_series`）。对 $y = N / 2^{s} < 1$，$t_0 = 2^{F}$ 与 $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$，精确项 $\\tau_i = 2^{F} y^i / i!$ 满足 $t_i \\le \\tau_i < t_i + 3$（亏量 $d_i$ 满足 $d_i < d_{i-1} y / i + 1/i + 1$）。`fixed_exp_series` 一直求和到某一项小于 $2^{8}$，返回和、最后一项及其下标；精确值至多比和大 $t_n + 3n + 3$。定点 `exp` 阶段与 bit-burst `exp` 阶段使用它，各自带自己的余量常数（4 和 3），burst 的 `sin`/`cos` 阶段则用这一步计算 $e^{iy}$ 的实部与虚部。`binary_ln_unit_fixed_bounds` 与 `binary_sin_cos_fixed_series` 保持独立：它们的递推分别是关于 $z^2$ 和 $x^2$ 的，除数不同，尾项证明也不同（比值 $z^2 \\le 1/9$ 的 artanh 级数，以及交错级数），不是上面的递推。"
 
-#: manual/design/bin_float.md:1126
+#: manual/design/bin_float.md:1172
 msgid "*Binary splitting* (`SplitState`, `split_combine`, `split_combine_t`). A state on $[from, to)$ is $(p, q, q\\_shift, t)$ with $p = \\prod p(k)$, $q = \\prod q'(k)$, the power of two of $q(k) = q'(k) 2^{e(k)}$ kept apart in $q\\_shift = \\sum e(k)$, and $t = q\\, 2^{q\\_shift} \\cdot$ (partial sum), merged as $t = t_{\\mathrm{left}}\\, q_{\\mathrm{right}} 2^{q\\_shift_{\\mathrm{right}}} + p_{\\mathrm{left}}\\, t_{\\mathrm{right}}$. The constants (artanh and Chudnovsky series) use $q\\_shift = 0$, the series of $e^{N/2^s}$ uses $q\\_shift = s$ per index from 1 (`split_exp_state`). All of it is exact integer arithmetic, so the partial sum is the exact rational $t / (q\\, 2^{q\\_shift})$ and the error bound of a kernel is the bound of its omitted tail alone. The complex stage of `sin`/`cos` (`SplitComplexState`) keeps its own type because it carries two components and rotates the right component by $i^{\\mathrm{leaves}_{\\mathrm{left}}}$ before the merge; it shares `split_combine_t` and the products of $p$, $q$ and $q\\_shift$. `fixed_split_terms` gives the number of terms for which the omitted tail of $\\sum N^k / (k!\\, 2^{sk})$ is below two units (the proof is in its comment)."
 msgstr "*二分拆分*（`SplitState`、`split_combine`、`split_combine_t`）。区间 $[from, to)$ 上的状态是 $(p, q, q\\_shift, t)$，其中 $p = \\prod p(k)$，$q = \\prod q'(k)$，$q(k) = q'(k) 2^{e(k)}$ 的二的幂单独记在 $q\\_shift = \\sum e(k)$ 里，$t = q\\, 2^{q\\_shift} \\cdot$（部分和），合并为 $t = t_{\\mathrm{left}}\\, q_{\\mathrm{right}} 2^{q\\_shift_{\\mathrm{right}}} + p_{\\mathrm{left}}\\, t_{\\mathrm{right}}$。常数（artanh 与 Chudnovsky 级数）取 $q\\_shift = 0$，$e^{N/2^s}$ 的级数从下标 1 起每项取 $q\\_shift = s$（`split_exp_state`）。全部是精确的整数运算，所以部分和就是精确的有理数 $t / (q\\, 2^{q\\_shift})$，内核的误差界只是被省略尾项的界。`sin`/`cos` 的复数阶段（`SplitComplexState`）保留自己的类型，因为它带两个分量，并在合并前把右分量乘以 $i^{\\mathrm{leaves}_{\\mathrm{left}}}$ 旋转；它与前者共用 `split_combine_t` 以及 $p$、$q$、$q\\_shift$ 的乘积。`fixed_split_terms` 给出使 $\\sum N^k / (k!\\, 2^{sk})$ 的被省略尾项小于两个单位的项数（证明在其注释中）。"
 
-#: manual/design/bin_float.md:1143
+#: manual/design/bin_float.md:1189
 msgid "*Rectangular splitting* (`rect_plan`, `rect_powers`, `rect_sum`, `rect_inverse_factorials`). For a series $\\sum_{i<N} c_i r^i$ with nonnegative integer coefficients, $r = a / 2^{F} < 2^{-k}$, $k \\ge 4$, and $N = b m$ terms, the powers $p_j = \\lfloor p_u p_v / 2^{F} \\rfloor$ ($u + v = j$) satisfy $p_j \\le 2^{F} r^j < p_j + 2$. With $P_\\beta = \\sum_{j<m} c_{\\beta m + j} p_j$, $\\mathrm{Acc}_{b-1} = P_{b-1}$ and $\\mathrm{Acc}_\\beta = P_\\beta + \\lfloor p_m \\mathrm{Acc}_{\\beta+1} / 2^{F} \\rfloor$, the sum satisfies $\\mathrm{Acc}_0 \\le 2^{F} \\sum c_i r^i$ and its deficit $\\varepsilon_\\beta$, in the units of the common denominator of the $c_i$, obeys $\\varepsilon_\\beta < 2 \\sum_j c_{\\beta m + j} + 2\\,\\mathrm{Acc}_{\\beta+1} / 2^{F} + 1 + r^m \\varepsilon_{\\beta+1}$. The coefficient sequence is the parameter: `rect_inverse_factorials` gives $c_i = N!/i!$ for $e^r$ (deficit below 8 units of $N!$, the constant 10 of `binary_exp_taylor_fixed`); the next kernels pass $c_i = D/(2i+1)$ with a common multiple $D$ (the odd reciprocals of $\\ln$ and $\\arctan$) or $N!/(2i)!$ and $N!/(2i+1)!$ (sine and cosine, whose alternating signs the caller splits into a positive and a negative series in $r^2$ with nonnegative coefficients). The block size minimizes a cost estimate (`rect_block_size`) and never changes a result bound; `rect_factorial_terms` is the term count for factorial decay."
 msgstr "*矩形拆分*（`rect_plan`、`rect_powers`、`rect_sum`、`rect_inverse_factorials`）。对系数为非负整数的级数 $\\sum_{i<N} c_i r^i$，$r = a / 2^{F} < 2^{-k}$，$k \\ge 4$，共 $N = b m$ 项，幂 $p_j = \\lfloor p_u p_v / 2^{F} \\rfloor$（$u + v = j$）满足 $p_j \\le 2^{F} r^j < p_j + 2$。取 $P_\\beta = \\sum_{j<m} c_{\\beta m + j} p_j$，$\\mathrm{Acc}_{b-1} = P_{b-1}$ 以及 $\\mathrm{Acc}_\\beta = P_\\beta + \\lfloor p_m \\mathrm{Acc}_{\\beta+1} / 2^{F} \\rfloor$，则和满足 $\\mathrm{Acc}_0 \\le 2^{F} \\sum c_i r^i$，其亏量 $\\varepsilon_\\beta$（以 $c_i$ 的公分母为单位）满足 $\\varepsilon_\\beta < 2 \\sum_j c_{\\beta m + j} + 2\\,\\mathrm{Acc}_{\\beta+1} / 2^{F} + 1 + r^m \\varepsilon_{\\beta+1}$。系数序列是参数：`rect_inverse_factorials` 为 $e^r$ 给出 $c_i = N!/i!$（亏量小于 $N!$ 的 8 个单位，即 `binary_exp_taylor_fixed` 中的常数 10）；后续的内核传入 $c_i = D/(2i+1)$（$D$ 为公倍数，用于 $\\ln$ 与 $\\arctan$ 的奇数倒数），或 $N!/(2i)!$ 与 $N!/(2i+1)!$（正弦与余弦，调用者把其交错的符号拆成关于 $r^2$ 的一个正级数和一个负级数，两者系数均非负）。块大小使一个代价估计最小（`rect_block_size`），从不改变结果的界；`rect_factorial_terms` 是阶乘衰减情形的项数。"
 
-#: manual/design/bin_float.md:1163
+#: manual/design/bin_float.md:1209
 msgid "*Reduction by $\\ln 2$* (`fixed_exp_reduce`, `fixed_exp_finish`), the integer reduction and the closing units of the bit-burst and the table `exp`, described in the next two sections, and the chunk schedule of the bit-burst (`fixed_burst_chunks`), used by the `exp` and the `sin`/`cos` kernels."
 msgstr "*用 $\\ln 2$ 约化*（`fixed_exp_reduce`、`fixed_exp_finish`），即 bit-burst 与表格 `exp` 的整数约化和收尾单位，在接下来的两节中描述；以及 bit-burst 的分块方案（`fixed_burst_chunks`），由 `exp` 和 `sin`/`cos` 内核使用。"
 
-#: manual/design/bin_float.md:1169
+#: manual/design/bin_float.md:1215
 msgid "The guard-bit constants (`binary_exp_fixed_guard_bits` 16, `binary_exp_table_guard_bits` 16, `binary_exp_burst_guard_bits` 48 and the 64 extra bits of the `sin`/`cos` burst) stay separate on purpose: they are tuned per kernel (they set the width of the final enclosure, which the width checks compare with the working precision), and changing one changes the enclosure, which this refactor must not do. The mutation hooks (`BurstMutation`, `BurstLnMutation`, `BurstTrigMutation`) stay in the kernels, since they name the kernel's own proof obligations."
 msgstr "保护位常数（`binary_exp_fixed_guard_bits` 为 16，`binary_exp_table_guard_bits` 为 16，`binary_exp_burst_guard_bits` 为 48，以及 `sin`/`cos` burst 的 64 个额外位）有意保持分开：它们按内核分别调定（它们决定最终包围的宽度，宽度检查把它与工作精度比较），改动其中一个就会改变包围，而这次重构不允许这样。突变钩子（`BurstMutation`、`BurstLnMutation`、`BurstTrigMutation`）留在各内核中，因为它们指向的是内核自己的证明义务。"
 
-#: manual/design/bin_float.md:1178
+#: manual/design/bin_float.md:1224
 msgid ""
 "**`exp`, by ln 2 reduction and bit-burst.** For finite $x \\n"
 "eq 0$ with $|x| < 2^{30}$ (larger magnitudes are decided before the loop or fall back), let $n = \\lfloor x / \\ln 2 \\rfloor$, found from the cached enclosure of $\\ln 2$ at $G = F + \\operatorname{bits}(n) + 2$ bits. Let $L = \\lfloor 2^{G} \\ln 2 \\rfloor / 2^{G}$ (a dyadic lower bound with $0 \\le \\ln 2 - L \\le 2^{1-G}$) and $R = x - nL$, computed exactly. If $R < 0$ or $R \\ge 1$ the integer $n$ is corrected by one and $R$ recomputed. Put $R_t = \\lfloor 2^{F} R \\rfloor / 2^{F}$ and $\\delta = (x - n \\ln 2) - R_t$. Then $-|n|\\,2^{1-G} \\le \\delta \\le 2^{-F}$ for $n \\ge 0$ (mirrored for $n < 0$), so $|\\delta| \\le 2^{-F}$ by the choice of $G$, and since $0 \\le R_t < 1$"
@@ -12538,277 +12698,277 @@ msgstr ""
 "**`exp`：用 ln 2 约化加 bit-burst。** 对有限的 $x \\n"
 "eq 0$ 且 $|x| < 2^{30}$（更大的量级在循环之前判定，或退回旧路径），令 $n = \\lfloor x / \\ln 2 \\rfloor$，由缓存的 $\\ln 2$ 包络在 $G = F + \\operatorname{bits}(n) + 2$ 位下求得。令 $L = \\lfloor 2^{G} \\ln 2 \\rfloor / 2^{G}$（二进制有理下界，满足 $0 \\le \\ln 2 - L \\le 2^{1-G}$）以及 $R = x - nL$，精确计算。若 $R < 0$ 或 $R \\ge 1$，则把整数 $n$ 修正 1，重新计算 $R$。令 $R_t = \\lfloor 2^{F} R \\rfloor / 2^{F}$ 和 $\\delta = (x - n \\ln 2) - R_t$。于是对 $n \\ge 0$ 有 $-|n|\\,2^{1-G} \\le \\delta \\le 2^{-F}$（$n < 0$ 时镜像），由 $G$ 的选取得 $|\\delta| \\le 2^{-F}$，又因为 $0 \\le R_t < 1$"
 
-#: manual/design/bin_float.md:1194
+#: manual/design/bin_float.md:1240
 msgid "The factor $e^\\delta$ costs at most $2 \\cdot 3 = 6$ units at the end (because $e^{R_t} < 3$), and no sign handling or reciprocal is needed because $R_t \\ge 0$."
 msgstr "因子 $e^\\delta$ 在最后至多花 $2 \\cdot 3 = 6$ 个单位（因为 $e^{R_t} < 3$），并且不需要处理符号或取倒数，因为 $R_t \\ge 0$。"
 
-#: manual/design/bin_float.md:1198
+#: manual/design/bin_float.md:1244
 msgid "Write $R_t = \\sum_j y_j$ with $y_j = N_j / 2^{b_{j+1}}$ the bits of $R_t$ at positions $(b_j, b_{j+1}]$ after the binary point, $0 = b_0 < b_1 < \\dots$, and $b$ growing geometrically (factor about 4, first chunk about 16 bits; the constants are tuned per target). Then $y_j < 2^{-b_j}$, $N_j < 2^{b_{j+1} - b_j}$, and $e^{R_t} = \\prod_j e^{y_j}$."
 msgstr "把 $R_t = \\sum_j y_j$ 写成和，其中 $y_j = N_j / 2^{b_{j+1}}$ 是 $R_t$ 在二进制小数点后位置 $(b_j, b_{j+1}]$ 上的那些位，$0 = b_0 < b_1 < \\dots$，且 $b$ 按几何级数增长（约 4 倍，第一块约 16 位；常数按目标调整）。于是 $y_j < 2^{-b_j}$、$N_j < 2^{b_{j+1} - b_j}$，并且 $e^{R_t} = \\prod_j e^{y_j}$。"
 
-#: manual/design/bin_float.md:1204
+#: manual/design/bin_float.md:1250
 msgid "*Stage kernel.* For $y = N / 2^{s} < 1$ let $t_0 = 2^{F}$ and $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$ (the second floor is absent for $i = 1$), and let $\\tau_i = 2^{F} y^i / i!$ be the exact terms. By induction $t_i \\le \\tau_i$ (both floors round down), and the deficit $d_i = \\tau_i - t_i$ satisfies $d_1 < 1$ and $d_i < (d_{i-1}\\, y + 1)/i + 1$, hence $d_2 < 2$ and $d_i < 4/3 + 1 < 3$ for $i \\ge 3$ (this is the argument of the fixed-point series already in `elementary_fixed_exp.mbt`, with $y < 1$ in place of $y \\le 1/8$). Stop at the first $n$ with $t_n < 2^{8}$. For $n \\ge 1$ the ratio of consecutive exact terms is at most $y/(n+1) \\le 1/2$, so $\\sum_{i > n} \\tau_i \\le \\tau_n \\cdot \\frac{1/2}{1 - 1/3} < \\tau_n < t_n + 3$. With $S = \\sum_{i=0}^{n} t_i$,"
 msgstr "*阶段内核。* 对 $y = N / 2^{s} < 1$，令 $t_0 = 2^{F}$ 以及 $t_i = \\lfloor \\lfloor t_{i-1} N / 2^{s} \\rfloor / i \\rfloor$（$i = 1$ 时没有第二次取整），并令 $\\tau_i = 2^{F} y^i / i!$ 为精确的项。由归纳法 $t_i \\le \\tau_i$（两次取整都向下），亏量 $d_i = \\tau_i - t_i$ 满足 $d_1 < 1$ 和 $d_i < (d_{i-1}\\, y + 1)/i + 1$，因此 $d_2 < 2$，并且 $i \\ge 3$ 时 $d_i < 4/3 + 1 < 3$（这就是 `elementary_fixed_exp.mbt` 中已有的定点级数的论证，只是用 $y < 1$ 代替 $y \\le 1/8$）。在第一个满足 $t_n < 2^{8}$ 的 $n$ 处停止。对 $n \\ge 1$，相邻精确项之比至多为 $y/(n+1) \\le 1/2$，所以 $\\sum_{i > n} \\tau_i \\le \\tau_n \\cdot \\frac{1/2}{1 - 1/3} < \\tau_n < t_n + 3$。记 $S = \\sum_{i=0}^{n} t_i$，"
 
-#: manual/design/bin_float.md:1222
+#: manual/design/bin_float.md:1268
 msgid "Then $(\\ell, u) \\mapsto (\\lfloor \\ell\\, S / 2^{F} \\rfloor,\\; \\lceil u\\,(S + e_y) / 2^{F} \\rceil)$ folds the stage into the running product: $e^{y}$ and the partial product are in the stated intervals, both are non-negative, and multiplication is monotone on non-negative numbers, so the new pair satisfies the invariant. Each stage adds at most $e_y + 2$ units of relative width, so with at most $J$ stages the final width is below $J (2^{8} + 3 n_{\\max} + 5) + 6$ units, about $2^{15}$ units for $w = 8192$; $g = 48$ guard bits therefore keep the enclosure within $2^{-(w+7)}$ relative width, which is the width of the current series. The kernel computes the true width and returns `None` when it exceeds that bound."
 msgstr "于是 $(\\ell, u) \\mapsto (\\lfloor \\ell\\, S / 2^{F} \\rfloor,\\; \\lceil u\\,(S + e_y) / 2^{F} \\rceil)$ 把该阶段折入运行中的乘积：$e^{y}$ 与部分乘积都落在所述区间内，二者均非负，而乘法在非负数上是单调的，因此新的一对满足不变式。每个阶段至多增加 $e_y + 2$ 个单位的相对宽度，所以最多 $J$ 个阶段时最终宽度小于 $J (2^{8} + 3 n_{\\max} + 5) + 6$ 个单位，对 $w = 8192$ 约为 $2^{15}$ 个单位；因此 $g = 48$ 个保护位足以使包络的相对宽度保持在 $2^{-(w+7)}$ 以内，这就是当前级数的宽度。内核会计算真实宽度，超过该界时返回 `None`。"
 
-#: manual/design/bin_float.md:1233
+#: manual/design/bin_float.md:1279
 msgid "*Cost.* A stage with $m$-bit numerator at position $b$ needs $n_b \\approx F / (b + \\log_2 n_b)$ terms, each a product of the shrinking term by an $m$-bit integer, a shift and a division by a one-limb integer. For $w = 8192$ the first chunk (16 bits) needs about 880 terms, the chunk at 65 to 261 bits about 120, the chunk at 261 to 1045 bits about 31, and the last chunks fewer than 10. The early chunks have too many terms for the fixed-point loop; they are evaluated by **binary splitting** of $\\sum_{i<n} N^i / (i!\\, 2^{si})$ with exact integers $(P, Q, T)$, $T = T_L Q_R 2^{s\\,|R|} + P_L T_R$, $P = P_L P_R$, $Q = Q_L Q_R$. The enclosure then has no accumulated rounding: $\\ell = \\lfloor 2^{F} T / (Q 2^{sn}) \\rfloor$, $u = \\ell + 3$ once $n$ is large enough that $N^n 2^{F} < n!\\, 2^{sn}$ (an integer comparison on bit lengths), because then the tail is at most $2\\, \\tau_n < 2$ units. A stage is estimated (not yet measured) at 8 to 14 full products independent of $N$, a fixed-point stage with $n$ terms costs $n$ unbalanced products, so the crossover per stage is at $n$ of a few tens of terms."
 msgstr "*成本。* 位置 $b$ 处、分子为 $m$ 位的阶段需要 $n_b \\approx F / (b + \\log_2 n_b)$ 项，每一项是逐渐缩短的项与一个 $m$ 位整数的乘积，加一次移位和一次除以单字整数的除法。当 $w = 8192$ 时，第一块（16 位）约需 880 项，65 到 261 位的块约 120 项，261 到 1045 位的块约 31 项，最后几块不足 10 项。前面的块项数对定点循环来说太多，改用对 $\\sum_{i<n} N^i / (i!\\, 2^{si})$ 的**二进制拆分**，使用精确整数 $(P, Q, T)$、$T = T_L Q_R 2^{s\\,|R|} + P_L T_R$、$P = P_L P_R$、$Q = Q_L Q_R$。这样包络没有累积舍入：$\\ell = \\lfloor 2^{F} T / (Q 2^{sn}) \\rfloor$，当 $n$ 足够大使得 $N^n 2^{F} < n!\\, 2^{sn}$（对位长做整数比较）时 $u = \\ell + 3$，因为此时尾项至多为 $2\\, \\tau_n < 2$ 个单位。一个阶段估计（尚未实测）相当于 8 到 14 次完整乘法，与 $N$ 无关；有 $n$ 项的定点阶段要做 $n$ 次非平衡乘法，所以每个阶段的交叉点在 $n$ 为几十项处。"
 
-#: manual/design/bin_float.md:1249
+#: manual/design/bin_float.md:1295
 msgid "*Implementation (`elementary_burst_exp.mbt`).* The kernel `binary_exp_bounds_burst` follows the construction above with these choices: $g = 48$ guard bits; chunk boundaries at $16, 64, 256, \\dots$ (first chunk 16 bits, factor 4); a chunk is evaluated by binary splitting when its term count (from the integer bound on $2^F N^n < n!\\, 2^{sn}$, using $\\log_2 n! \\ge \\sum_{i \\le n} (\\operatorname{bits}(i) - 1)$) is at least 40, and by the fixed-point series otherwise; `ln 2` is requested at the next multiple of 64 above $G + 2$. The reduced argument comes from one Euclidean division of $x 2^G$ by $\\lfloor 2^G \\ln 2 \\rfloor$, so $0 \\le R < \\ln 2$ with no correction loop. The kernel declines (`None`, and the series runs) for $|x| < 2^{-65}$ or $|x| \\ge 2^{30}$, when $|n| \\ge 2^{29}$ (the result exponent would approach the limit of the exponent range), when $x$ has bits below $2^{-G}$, and when the computed width exceeds $2^{-(w+6)}$ of the value. (Below the table kernel's ceiling, next section, the table kernel is tried first.) It is used from a per-target working precision, kept with the coefficient thresholds: 1024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on JavaScript (the kernel is slower than the series below roughly 1000 bits on Native, 600 on Wasm-GC; on JavaScript it wins already at 256). The three chunk constants were swept on Native; in a repeat on a quiet machine the chosen point (16, factor 4, split at 40 terms) was the fastest at 8256 bits (1.5 ms against 1.6 to 2.3 ms for the other tried settings) and within about 15 % of the fastest at 2112 bits."
 msgstr "*实现（`elementary_burst_exp.mbt`）。* 内核 `binary_exp_bounds_burst` 按上面的构造实现，具体选择如下：$g = 48$ 个保护位；块边界取在 $16, 64, 256, \\dots$（第一块 16 位，倍数 4）；当一个块的项数（由 $2^F N^n < n!\\, 2^{sn}$ 的整数界给出，使用 $\\log_2 n! \\ge \\sum_{i \\le n} (\\operatorname{bits}(i) - 1)$）至少为 40 时用二进制拆分求值，否则用定点级数；`ln 2` 以大于 $G + 2$ 的下一个 64 的倍数请求。约化参数来自对 $x 2^G$ 与 $\\lfloor 2^G \\ln 2 \\rfloor$ 的一次欧几里得除法，因此 $0 \\le R < \\ln 2$，不需要修正循环。内核在以下情况拒绝（返回 `None`，由级数接手）：$|x| < 2^{-65}$ 或 $|x| \\ge 2^{30}$；$|n| \\ge 2^{29}$（结果指数会接近指数范围的上限）；$x$ 在 $2^{-G}$ 以下还有位；以及算出的宽度超过值的 $2^{-(w+6)}$。（在表内核的上限以下（见下一节），先尝试表内核。）它从每个目标各自的工作精度起使用，该精度与系数内核的阈值放在一起：Native 与 LLVM 为 1024 位，Wasm 与 Wasm-GC 为 640 位，JavaScript 为 256 位（在 Native 上低于约 1000 位、在 Wasm-GC 上低于约 600 位时内核比级数慢；在 JavaScript 上 256 位已经更快）。三个分块常数在 Native 上做过扫描；在安静机器上重复测量时，所选的点（16 位、倍数 4、40 项处拆分）在 8256 位下最快（1.5 ms，其他试过的设置为 1.6 到 2.3 ms），在 2112 位下与最快者相差约 15 % 以内。"
 
-#: manual/design/bin_float.md:1271
+#: manual/design/bin_float.md:1317
 msgid "*Evidence for the `exp` kernel.* White-box tests (`elementary_burst_exp_wbtest.mbt`): the enclosure at $w$ contains the series enclosure at $w + 256$ for every argument the kernel accepts in a corpus of 224 values of 60 to 2000 bits with $|x|$ from $2^{-60}$ to $2^{30}$, and for arguments next to multiples of $\\ln 2$, to $2^{29} - 1$ and to $1 - 2^{-k}$; it is no wider than the series enclosure at $w$; and `exp_ctx` returns the same value and flags as the Ziv loop run on the series alone, in four rounding directions. Three deliberately wrong variants are caught by the containment test: a bias of 64 units in every stage, 40 terms fewer in the binary-splitting stages, and `ln 2` taken with 128 bits fewer for an argument near $2^{27}$. Two obligations are not exercised by such tests: the slack of the fixed-point stages and the units for $\\delta$ are dominated by the much larger worst-case terms of the other stages, so an enclosure without them still contains the value; their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 35,040 rows (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{28}$ and next to multiples of $\\ln 2$) all match; the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript; the random differential run (`elem`) agrees on 100,000 cases on Native and 20,000 on each other target."
 msgstr "*`exp` 内核的证据。* 白盒测试（`elementary_burst_exp_wbtest.mbt`）：对于内核接受的、来自 224 个值的语料中的每个参数（60 到 2000 位，$|x|$ 从 $2^{-60}$ 到 $2^{30}$），以及位于 $\\ln 2$ 的倍数、$2^{29} - 1$ 和 $1 - 2^{-k}$ 附近的参数，$w$ 下的包络都包含 $w + 256$ 下的级数包络；它不比 $w$ 下的级数包络更宽；并且 `exp_ctx` 在四个舍入方向上返回的值和标志与只用级数运行的 Ziv 循环相同。三个故意做错的变体会被包含性测试抓到：每个阶段偏差 64 个单位，二进制拆分阶段少 40 项，以及对接近 $2^{27}$ 的参数把 `ln 2` 少取 128 位。有两项义务不是这类测试能检验的：定点阶段的余量和用于 $\\delta$ 的单位，被其他阶段大得多的最坏情形项所掩盖，所以没有它们的包络仍然包含该值；它们的依据是上文的纸面论证，而不是测试。与 MPFR 4.2.2 的对照：35,040 行（精度 256 到 4096，四个舍入方向，参数从 $2^{-60}$ 到 $2^{28}$，以及位于 $\\ln 2$ 的倍数附近）全部一致；输出在 Native、Wasm、Wasm-GC 和 JavaScript 上逐字节相同；随机差分运行（`elem`）在 Native 上 100,000 个用例、其他每个目标上 20,000 个用例都一致。"
 
-#: manual/design/bin_float.md:1291
+#: manual/design/bin_float.md:1337
 msgid "*Measured (native, release, this machine).* Kernel only, $w = p + 64$ bits, $x \\approx 0.7$: 20 ms to 1.97 ms at 8256 bits, 3.3 ms to 0.67 ms at 4160, 594 to 220 µs at 2112, 112 to 87 µs at 1088; below 1000 bits it is slower (37 to 41 µs at 576). End to end, `just bench external quick --ops exp` paired and alternating with `origin/main` (four rounds, the quiet ones last), floating time per call: 8192 bits 20.2 and 20.4 ms against 1.78 and 1.69 ms (paired ratios 9.1 to 12.1), 2048 bits 508 and 517 µs against 187 and 196 µs (2.1 to 2.7), and 53 and 512 bits unchanged within the noise of the machine (0.92 to 1.19). Against the stored MPFR reference of that tool the ratio of the 8192-bit call moves from about 95 to about 8 on the machine of the run (the machine reads about 1.4 times slower than the stored run, so the drift corrected values are about 66 and 5.6)."
 msgstr "*实测（原生，release，本机）。* 仅内核，$w = p + 64$ 位，$x \\approx 0.7$：8256 位时 20 ms 降到 1.97 ms，4160 位时 3.3 ms 降到 0.67 ms，2112 位时 594 降到 220 µs，1088 位时 112 降到 87 µs；低于 1000 位时更慢（576 位时 37 到 41 µs）。端到端，`just bench external quick --ops exp` 与 `origin/main` 成对交替运行（四轮，安静的几轮在后），每次调用的 floating 时间：8192 位 20.2 和 20.4 ms 对 1.78 和 1.69 ms（成对比值 9.1 到 12.1），2048 位 508 和 517 µs 对 187 和 196 µs（2.1 到 2.7），53 位和 512 位在机器噪声范围内不变（0.92 到 1.19）。相对于该工具存档的 MPFR 参考，8192 位调用的比值在本次运行的机器上由约 95 变为约 8（该机器读数比存档运行慢约 1.4 倍，所以漂移修正后的值约为 66 和 5.6）。"
 
-#: manual/design/bin_float.md:1304
+#: manual/design/bin_float.md:1350
 msgid "*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size products (43 µs each) and spends most of it in products and divisions of $w$-bit numbers. With a multiplication and division kernel three times faster, and everything else unchanged, a first estimate (not measured) is 0.6 to 0.8 ms at 8192 bits and 60 to 80 µs at 2048 bits, which is about 3 to 4 times the MPFR reference (213 µs and 17 µs). The remaining gap would be allocation and the small-integer steps of the fixed-point stages."
 msgstr "*上限。* 在 8192 位下，内核耗时相当于 35 到 45 次完整乘法（每次 43 µs），大部分时间花在 $w$ 位数的乘法和除法上。若乘法与除法内核快三倍而其余不变，初步估计（未实测）8192 位下为 0.6 到 0.8 ms，2048 位下为 60 到 80 µs，约为 MPFR 参考（213 µs 和 17 µs）的 3 到 4 倍。剩下的差距来自内存分配和定点阶段中的小整数步骤。"
 
-#: manual/design/bin_float.md:1313
+#: manual/design/bin_float.md:1359
 msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
 msgstr "**`exp`：表与矩形拆分（中等精度）。** 在每个目标各自的工作精度以下（1536 到 3072 位，见下文），$e^x$ 的包围由 `binary_exp_bounds_table`（`elementary_table_exp.mbt`）给出，方案来自 Johansson，*Efficient implementation of elementary functions in the medium-precision range*，ARITH 22（2015），arXiv:1410.7176，运算建立在 `BinCoeff` 的整数算术上。令 $F = w + g$ 向上取整到 64 的倍数（$\\ge 128$；1024 以上取 256 的倍数），故 $g \\ge 16$。到 $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ 的约化以及余因子 $e^{\\delta}$ 与上面的 bit-burst 内核相同（以 $2^{-F}$ 为单位，下界 3、上界 6，因为 $e^{R_t} < 3$），用的正是 `fixed_exp_reduce` 与 `fixed_exp_finish` 的代码（工具箱部件 6）。余项的泰勒级数是工具箱部件 5 的矩形拆分，系数取 $N!/i!$；其误差界在那里陈述，下面不再重复。于是，取 $K = k_1 + k_2$（$(k_1,k_2) = (7,7)$ 用于 $F \\le 256$，$(6,6)$ 用到 1024，其上为 $(6,5)$），"
 
-#: manual/design/bin_float.md:1336
+#: manual/design/bin_float.md:1382
 msgid "all three parts exact multiples of $2^{-F}$, so $e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$ with $T_1[j] = e^{j/2^{k_1}}$ ($j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$) and $T_2[j] = e^{j/2^{K}}$ ($j < 2^{k_2}$)."
 msgstr "三部分都是 $2^{-F}$ 的整数倍，所以 $e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$，其中 $T_1[j] = e^{j/2^{k_1}}$（$j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$），$T_2[j] = e^{j/2^{K}}$（$j < 2^{k_2}$）。"
 
-#: manual/design/bin_float.md:1340
+#: manual/design/bin_float.md:1386
 msgid "*Tables.* Built lazily, one set per value of $F$ (at most 24 sets are kept), each entry an integer enclosure $L \\le 2^{F} e^{j/2^k} \\le H$ taken from the certified kernels already in the library (`binary_exp_bounds_untabled`, the bit-burst or series path, at $F + 8$ bits): $L = \\lfloor 2^F \\cdot \\mathrm{low} \\rfloor$, $H = \\lfloor 2^F \\cdot \\mathrm{high} \\rfloor + 1$. A table is therefore as certified as the kernels it comes from, and a test recomputes every entry of two table sets from the series at $F + 256$ bits. The tables are not hard-coded."
 msgstr "*表。* 惰性构建，每个 $F$ 一套（最多保留 24 套），每个条目是整数包围 $L \\le 2^{F} e^{j/2^k} \\le H$，取自库中已有的经认证内核（`binary_exp_bounds_untabled`，即 bit-burst 或级数路径，精度 $F + 8$ 位）：$L = \\lfloor 2^F \\cdot \\mathrm{low} \\rfloor$，$H = \\lfloor 2^F \\cdot \\mathrm{high} \\rfloor + 1$。因此表与它所取自的内核一样是经认证的，并且有测试用精度 $F + 256$ 位的级数重算两套表的每个条目。表不是写死的。"
 
-#: manual/design/bin_float.md:1348
+#: manual/design/bin_float.md:1394
 msgid "*Taylor series of $r$.* Write $r = a / 2^F$, $0 \\le a < 2^{F-K}$ (so $r < 2^{-K}$, $K \\ge 11$ in the shapes above). The number of terms $N$ is the least with $K N + \\sum_{i \\le N} (\\operatorname{bits}(i) - 1) \\ge F + 1$; as $N! \\ge 2^{\\sum (\\operatorname{bits}(i)-1)}$ and the ratio of consecutive terms is below $1/2$, the tail satisfies $\\sum_{i \\ge N} r^i/i! \\le 2 r^N/N! \\le 2^{-F}$: at most one unit. The sum is evaluated by the rectangular (Paterson–Stockmeyer) splitting of toolkit piece 5, with $N$ rounded up to $N' = b m$, the integer coefficients $C_i = N'!/i!$ (computed once per $N'$) and one final division, $E = \\lfloor \\mathrm{Acc}_0 / N'! \\rfloor$; the powers $p_j$ and the recurrence for $\\mathrm{Acc}_\\beta$ are those defined there, with $e_j := 2^F r^j - p_j < 2$ (so $e_0 = e_1 = 0$)."
 msgstr "*$r$ 的泰勒级数。* 记 $r = a / 2^F$，$0 \\le a < 2^{F-K}$（故 $r < 2^{-K}$，在上述形状中 $K \\ge 11$）。项数 $N$ 取满足 $K N + \\sum_{i \\le N} (\\operatorname{bits}(i) - 1) \\ge F + 1$ 的最小值；由于 $N! \\ge 2^{\\sum (\\operatorname{bits}(i)-1)}$ 且相邻项之比小于 $1/2$，尾项满足 $\\sum_{i \\ge N} r^i/i! \\le 2 r^N/N! \\le 2^{-F}$：至多一个单位。求和用工具箱部件 5 的矩形（Paterson–Stockmeyer）拆分：把 $N$ 向上取整为 $N' = b m$，整数系数 $C_i = N'!/i!$（每个 $N'$ 只计算一次），最后做一次除法 $E = \\lfloor \\mathrm{Acc}_0 / N'! \\rfloor$；幂 $p_j$ 与 $\\mathrm{Acc}_\\beta$ 的递推即那里所定义的，其中 $e_j := 2^F r^j - p_j < 2$（故 $e_0 = e_1 = 0$）。"
 
-#: manual/design/bin_float.md:1360
+#: manual/design/bin_float.md:1406
 msgid "*Error of the series.* The exact counterpart is $\\mathrm{Acc}^*_0 = N'!\\, 2^F \\sum_{i<N'} r^i/i!$, and every computed quantity is a lower bound of its exact counterpart. Let $\\varepsilon_\\beta = \\mathrm{Acc}^*_\\beta - \\mathrm{Acc}_\\beta$ in units of $N'!$. The deficit of $P_\\beta$ is $\\sum_{j\\ge 2} C_{\\beta m+j} e_j / N'! < 2 \\sum_{j \\ge 2} 1/(\\beta m + j)! \\le 2(e - 2) < 1.44$ ($e_0 = e_1 = 0$). In the Horner step the error of $p_m$ contributes $e_m \\mathrm{Acc}^*_{\\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$ (because $\\mathrm{Acc}^*_{\\beta+1} \\le N'!\\, 2^F e^{r}$), the propagated error $p_m \\varepsilon_{\\beta+1} / 2^F < \\varepsilon_{\\beta+1}/16$, and the floor less than one unit. So $\\varepsilon_\\beta < 1.44 + 3.4 + 1 + \\varepsilon_{\\beta+1}/16$, whence $\\varepsilon < 6.2 \\cdot 16/15 < 7$ for every block. The final floor loses less than one more unit, and the tail at most one:"
 msgstr "*级数的误差。* 精确的对应量为 $\\mathrm{Acc}^*_0 = N'!\\, 2^F \\sum_{i<N'} r^i/i!$，每个计算量都是其精确对应量的下界。令 $\\varepsilon_\\beta = \\mathrm{Acc}^*_\\beta - \\mathrm{Acc}_\\beta$，以 $N'!$ 为单位。$P_\\beta$ 的亏量为 $\\sum_{j\\ge 2} C_{\\beta m+j} e_j / N'! < 2 \\sum_{j \\ge 2} 1/(\\beta m + j)! \\le 2(e - 2) < 1.44$（$e_0 = e_1 = 0$）。在 Horner 步中，$p_m$ 的误差贡献 $e_m \\mathrm{Acc}^*_{\\beta+1} / (2^F N'!) < 2 e^{r} < 3.4$（因为 $\\mathrm{Acc}^*_{\\beta+1} \\le N'!\\, 2^F e^{r}$），传播的误差 $p_m \\varepsilon_{\\beta+1} / 2^F < \\varepsilon_{\\beta+1}/16$，再加不到一个单位的取整。于是 $\\varepsilon_\\beta < 1.44 + 3.4 + 1 + \\varepsilon_{\\beta+1}/16$，从而对每个块 $\\varepsilon < 6.2 \\cdot 16/15 < 7$。最后的取整再损失不到一个单位，尾项至多一个单位："
 
-#: manual/design/bin_float.md:1377
+#: manual/design/bin_float.md:1423
 msgid "*Assembly.* With the table entries (already in units of $2^{-F}$), $\\mathrm{low} = \\lfloor \\lfloor L_1 L_2 / 2^F \\rfloor E / 2^F \\rfloor - 3$ and $\\mathrm{high} = \\lfloor \\lfloor H_1 H_2 / 2^F \\rfloor + 1) (E + 10) / 2^F \\rfloor + 1 + 6$. All factors are positive, so the floor-and-add-one products are monotone enclosures; the final enclosure is then rounded outward to $w$ bits. The kernel declines (the older paths run) in the same cases as the bit-burst kernel ($|x| < 2^{-65}$, $|x| \\ge 2^{30}$, $|n| \\ge 2^{29}$, $x$ with bits below $2^{-G}$) and when the width exceeds $2^{-(w+6)}$ of the value. The width of the enclosure is a few dozen units of $2^{-F}$ (the series 10, the tables 2 each, the reduction 9, the products another factor up to 2), far below the $2^{F-w-6}$ units the check allows."
 msgstr "*组装。* 用表条目（已经以 $2^{-F}$ 为单位），$\\mathrm{low} = \\lfloor \\lfloor L_1 L_2 / 2^F \\rfloor E / 2^F \\rfloor - 3$，$\\mathrm{high} = \\lfloor \\lfloor H_1 H_2 / 2^F \\rfloor + 1) (E + 10) / 2^F \\rfloor + 1 + 6$。所有因子为正，所以“取整后加一”的乘积是单调的包围；最终的包围再向外舍入到 $w$ 位。内核在与 bit-burst 内核相同的情形下拒绝（更早的路径接手）（$|x| < 2^{-65}$、$|x| \\ge 2^{30}$、$|n| \\ge 2^{29}$、$x$ 在 $2^{-G}$ 以下还有位），以及宽度超过值的 $2^{-(w+6)}$ 时。包围的宽度是几十个 $2^{-F}$ 单位（级数 10，每个表 2，约化 9，乘积再乘至多 2 倍），远低于检查所允许的 $2^{F-w-6}$ 个单位。"
 
-#: manual/design/bin_float.md:1389
+#: manual/design/bin_float.md:1435
 msgid "*Why results are bit-identical.* The kernel only supplies an enclosure of $e^x$ to the Ziv loop of `exp_ctx` and of the functions built on it (`exp2`, `exp10`, `expm1`, `pow`, `compound`, `powr`, the hyperbolic functions, the decimal elementary functions). Correct rounding is unique, so any valid enclosure gives the same value and flags; a different enclosure can only change how many precision steps the loop takes. The proof obligation is therefore exactly the validity of the enclosure, which the analysis above establishes and the white-box tests check against the series at $w + 256$ bits."
 msgstr "*为什么结果逐位相同。* 内核只向 `exp_ctx` 以及建立在它之上的函数（`exp2`、`exp10`、`expm1`、`pow`、`compound`、`powr`、双曲函数、十进制初等函数）的 Ziv 循环提供 $e^x$ 的包围。正确舍入是唯一的，所以任何有效的包围给出相同的值和标志；不同的包围至多改变循环的精度步数。因此证明义务恰好是包围的有效性，上面的分析确立了它，白盒测试则对照精度 $w + 256$ 位的级数检查它。"
 
-#: manual/design/bin_float.md:1398
+#: manual/design/bin_float.md:1444
 msgid "*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series enclosure at $w + 256$ for up to 256 arguments of $2^{-60}$ to $2^{30}$ at working precisions 53 to 1000, positive and negative; arguments equal to table nodes $j/2^{k_1}$, $j/2^K$ and one unit below and above them (remainder at or just off a table boundary); multiples of $\\ln 2$ up to $n = 10^6$; the Taylor stage on $a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{random}\\}$ at $F$ from 80 to 2100 with its width at most 10 units; every entry of two table sets; declined arguments."
 msgstr "*证据。* `elementary_table_exp_wbtest.mbt`：对工作精度 53 到 1000、正负号皆有、$2^{-60}$ 到 $2^{30}$ 的至多 256 个参数，精度 $w + 256$ 的级数包围被包含；参数等于表节点 $j/2^{k_1}$、$j/2^K$ 及其上下各偏一个单位（余数恰在或略偏离表边界）；$\\ln 2$ 的倍数直到 $n = 10^6$；对 $a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{随机}\\}$ 的泰勒阶段，$F$ 从 80 到 2100，其宽度至多 10 个单位；两套表的每个条目；被拒绝的参数。"
 
-#: manual/design/bin_float.md:1407
+#: manual/design/bin_float.md:1453
 msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
 msgstr "*实测（release，本机，仅内核，$x \\approx 0.7$）。* Native：53 位 7 µs，级数 10 µs；100 位 2.5 对 5.6；300 位 4.9 对 12.6（bit-burst 24）；1000 位 20 对 42（burst 69）；2000 位 94 对 111（burst 143）；3000 位 245 对 208。交叉点（表内核优先，Native 与 LLVM 到 1792 位，Wasm 到 2048，Wasm-GC 到 1536，JavaScript 到 3072）是放在 bit-burst 阈值旁的各目标常数。超过它们时，bit-burst 内核（从其自身的阈值起）与级数不变。表内核的代价主要是几十次 `BinCoeff` 运算（这些规模下每次 100 到 250 ns），以及 2000 位以上整数系数 $N'!/i!$ 的大小，这也是它在那里变慢的原因。"
 
-#: manual/design/bin_float.md:1419
+#: manual/design/bin_float.md:1465
 msgid "**`ln`, by verified Newton step.** Write $v = m\\, 2^{k}$ with $m \\in [2^{-1/2}, 2^{1/2})$, so $\\ln v = k \\ln 2 + \\ln m$. Take any dyadic $y_0$ with about $w/2 + 16$ bits (from the same function at half the precision, recursively, down to the existing series). Correctness does not depend on how good $y_0$ is, only the speed does. Let $[E_\\ell, E_u]$ be the enclosure of $e^{y_0}$ from the kernel above and $q_\\ell = m / E_u$, $q_u = m / E_\\ell$ (directed divisions). Since $\\ln$ is monotone, $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$, and for $|u| \\le 1/2$ one has $u - u^2 \\le \\ln(1 + u) \\le u$, so"
 msgstr "**`ln`：经验证的牛顿步。** 写 $v = m\\, 2^{k}$，其中 $m \\in [2^{-1/2}, 2^{1/2})$，于是 $\\ln v = k \\ln 2 + \\ln m$。取任意约 $w/2 + 16$ 位的二进制有理数 $y_0$（来自同一函数在半精度下的结果，递归直到现有级数）。正确性不取决于 $y_0$ 有多好，只有速度取决于它。令 $[E_\\ell, E_u]$ 为上述内核给出的 $e^{y_0}$ 的包络，并令 $q_\\ell = m / E_u$、$q_u = m / E_\\ell$（方向除法）。由于 $\\ln$ 是单调的，$\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$，而对 $|u| \\le 1/2$ 有 $u - u^2 \\le \\ln(1 + u) \\le u$，所以"
 
-#: manual/design/bin_float.md:1433
+#: manual/design/bin_float.md:1479
 msgid "whenever $|q_\\ell - 1|, |q_u - 1| \\le 1/2$ (checked at run time, else `None`). If $|\\ln m - y_0| \\le 2^{-(w/2+8)}$ the quadratic term is below $2^{-(w+14)}$ and the width is that of $E$. Adding $k \\ln 2$ uses the exact integer product of $k$ with the dyadic bounds of $\\ln 2$. For $|m - 1| < 2^{-16}$ the existing artanh series has $O(w/16)$ terms and stays in use. The cost is that of one `exp` at $w$ plus the recursive call at about $w/2$ (about $1.5$ times one `exp` in total) plus two divisions. Projection at 8192 bits: 3 to 6 ms, against 164 ms today (41 ms projected for the fixed-point branch)."
 msgstr "只要 $|q_\\ell - 1|, |q_u - 1| \\le 1/2$（运行时检查，否则返回 `None`）。若 $|\\ln m - y_0| \\le 2^{-(w/2+8)}$，则二次项小于 $2^{-(w+14)}$，宽度就是 $E$ 的宽度。加上 $k \\ln 2$ 时使用 $k$ 与 $\\ln 2$ 的二进制有理界的精确整数乘积。对 $|m - 1| < 2^{-16}$，现有的 artanh 级数只有 $O(w/16)$ 项，继续沿用。成本是在 $w$ 下一次 `exp`，加上约 $w/2$ 精度下的递归调用（总共约为一次 `exp` 的 $1.5$ 倍），再加两次除法。8192 位下的预测：3 到 6 ms，而现在是 164 ms（定点分支的预测为 41 ms）。"
 
-#: manual/design/bin_float.md:1443
+#: manual/design/bin_float.md:1489
 msgid "*Implementation of the `ln` step (`elementary_burst_ln.mbt`).* `binary_ln_unit_burst_bounds` encloses $\\ln v$ for $1 + 2^{-16} < v \\le 2$ (the unit enclosure that `binary_ln_bounds` adds $k \\ln 2$ to). With $\\mathrm{inner} = w + \\max(0, 2 - \\operatorname{top}(v - 1))$ bits, so that an argument near 1 keeps $w$ significant bits of the result, $y_0$ is the lower end of the enclosure of $\\ln v'$ at $\\mathrm{inner}/2 + 16$ bits, where $v'$ is $v$ rounded to that many bits (the same function one level down, so the recursion ends in the series below the threshold); $[E_\\ell, E_u]$ is the `exp` kernel at $\\mathrm{inner} + 8$ bits; the two divisions and the final operations use $\\mathrm{inner} + 24$ bits with directed rounding, and the result is rounded outward to $w$ bits. It declines (and the series runs) for $v \\le 1 + 2^{-16}$ or $v > 2$, when $|q - 1| > 1/2$, and when the width of the result exceeds 8 units of $2^{-\\mathrm{inner}}$. The thresholds, kept with the other coefficient-kernel thresholds, are 1152 bits on Native and LLVM, 1280 on plain Wasm and on JavaScript and 576 on Wasm-GC (the kernel is slower than the fixed-point series below roughly 1000 bits on Native, 500 on Wasm-GC and 1200 on Wasm and JavaScript)."
 msgstr "*`ln` 步骤的实现（`elementary_burst_ln.mbt`）。* `binary_ln_unit_burst_bounds` 对 $1 + 2^{-16} < v \\le 2$ 的 $\\ln v$ 求包络（`binary_ln_bounds` 在此基础上再加 $k \\ln 2$ 的单位包络）。取 $\\mathrm{inner} = w + \\max(0, 2 - \\operatorname{top}(v - 1))$ 位，使接近 1 的参数的结果仍保留 $w$ 位有效数字；$y_0$ 是 $\\ln v'$ 的包络在 $\\mathrm{inner}/2 + 16$ 位下的下端，其中 $v'$ 是把 $v$ 舍入到那么多位（同一个函数低一层，所以递归在低于阈值时落到级数）；$[E_\\ell, E_u]$ 是 $\\mathrm{inner} + 8$ 位下的 `exp` 内核；两次除法和最后的运算使用 $\\mathrm{inner} + 24$ 位并采用方向舍入，结果再向外舍入到 $w$ 位。在 $v \\le 1 + 2^{-16}$ 或 $v > 2$、$|q - 1| > 1/2$ 时，以及结果宽度超过 8 个 $2^{-\\mathrm{inner}}$ 单位时，它拒绝（改由级数接手）。阈值与其他系数内核阈值放在一起：Native 与 LLVM 为 1152 位，普通 Wasm 与 JavaScript 为 1280 位，Wasm-GC 为 576 位（Native 上低于约 1000 位、Wasm-GC 上低于约 500 位、Wasm 与 JavaScript 上低于约 1200 位时，该内核比定点级数慢）。"
 
-#: manual/design/bin_float.md:1461
+#: manual/design/bin_float.md:1507
 msgid "*Evidence for the `ln` step.* White-box tests (`elementary_burst_ln_wbtest.mbt`): for every argument of a corpus of 158 values in $(1, 2]$ (random, near 1 down to $2^{-100}$, near 2, 3/2, 5/4) that the kernel accepts, the enclosure at $w$ contains the series enclosure at $w + 256$; it is no wider than the series enclosure at $w$; `ln_ctx` returns the same value and flags as the Ziv loop on the series alone in four rounding directions; and the kernel declines out of range. Two deliberately wrong variants are caught: a bias of 8 units in the lower end, and a poor start value (about $w/8$ bits) with the quadratic term dropped. A poor start value with the quadratic term kept only widens the enclosure and the test checks that it is still valid. One obligation is not reached by the tests: dropping the quadratic term with the real start value is not detected, because $u^2 \\approx 2^{-(w+26)}$ is below the width of the `exp` enclosure; its justification is the paper argument ($u - u^2 \\le \\ln(1+u)$ for $u \\ge -1/2$), not the tests. MPFR 4.2.2 comparison: 13,200 rows (precisions 256 to 4096, four rounding directions, arguments with binary exponents from $-1000$ to $10^5$, near 1 and near powers of two; the threshold was set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
 msgstr "*`ln` 步骤的证据。* 白盒测试（`elementary_burst_ln_wbtest.mbt`）：对于 $(1, 2]$ 中 158 个值的语料（随机值、接近 1 直到 $2^{-100}$、接近 2、3/2、5/4）里内核接受的每个参数，$w$ 下的包络都包含 $w + 256$ 下的级数包络；它不比 $w$ 下的级数包络更宽；`ln_ctx` 在四个舍入方向上返回的值和标志与只用级数运行的 Ziv 循环相同；超出范围时内核拒绝。两个故意做错的变体会被抓到：下端偏差 8 个单位，以及起始值很差（约 $w/8$ 位）并去掉二次项。起始值很差但保留二次项只会让包络变宽，测试检查它仍然有效。有一项义务测试无法覆盖：用真实起始值去掉二次项不会被发现，因为 $u^2 \\approx 2^{-(w+26)}$ 小于 `exp` 包络的宽度；它的依据是纸面论证（$u \\ge -1/2$ 时 $u - u^2 \\le \\ln(1+u)$），而不是测试。与 MPFR 4.2.2 的对照：13,200 行（精度 256 到 4096，四个舍入方向，二进制指数从 $-1000$ 到 $10^5$ 的参数，接近 1 和接近 2 的幂；本次运行把阈值设为 256，使每一行都用到内核）全部一致，输出在 Native、Wasm、Wasm-GC 和 JavaScript 上逐字节相同。"
 
-#: manual/design/bin_float.md:1481
+#: manual/design/bin_float.md:1527
 msgid "*Measured for the `ln` step (native, release, this machine, on the 64-bit limbs, the Karatsuba and the division of #324, #326 and #328).* Kernel only, $w = p + 64$ bits, $v$ random in $[1, 2)$, against the fixed-point series of #319 (the machine was loaded, the ratios are the figure): 23.0 ms to 2.24 ms at 8256 bits (10.3 times), 3.27 ms to 0.75 ms at 4160 (4.4), 581 to 309 µs at 2112 (1.9), equal at 1024; slower below about 1000 bits (0.5 to 0.8 times at 384 to 768). End to end, `just bench external quick --ops ln` paired and alternating with `origin/main`, four rounds on a loaded machine (load average about 10), the floating time per call: 8192 bits 27.0, 25.6, 25.6 and 28.0 ms against 2.43, 2.40, 2.57 and 2.44 ms (paired ratios 11.1, 10.7, 10.0 and 11.5), 2048 bits 695, 565, 639 and 856 µs against 300, 295, 378 and 365 µs (2.3, 1.9, 1.7 and 2.35), 512 and 53 bits unchanged (0.98 to 1.07 at 53 bits, 0.99 to 1.36 at 512 bits, where the code path is the old one and the machine was noisy). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 221 to 243 to 21 to 22, and of the 2048-bit call from 37 to 57 to 20 to 25. MPFR re-measured on the machine at that time reads 1.9 to 2.0 times slower than the stored run at 8192 bits and 1.65 times at 2048 bits (the load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave 11.5 to 13.6 at 8192 bits (on the previous division kernel)."
 msgstr "*`ln` 步骤的实测（原生，release，本机，基于 #324、#326 与 #328 的 64 位 limb、Karatsuba 和除法）。* 仅内核，$w = p + 64$ 位，$v$ 在 $[1, 2)$ 中随机，与 #319 的定点级数相比（当时机器负载较高，应看比值）：8256 位时 23.0 ms 降到 2.24 ms（10.3 倍），4160 位时 3.27 ms 降到 0.75 ms（4.4 倍），2112 位时 581 降到 309 µs（1.9 倍），1024 位时持平；低于约 1000 位时更慢（384 到 768 位为 0.5 到 0.8 倍）。端到端，`just bench external quick --ops ln` 与 `origin/main` 成对交替运行，在负载较高的机器上四轮（负载均值约 10），每次调用的 floating 时间：8192 位 27.0、25.6、25.6 和 28.0 ms 对 2.43、2.40、2.57 和 2.44 ms（成对比值 11.1、10.7、10.0 和 11.5），2048 位 695、565、639 和 856 µs 对 300、295、378 和 365 µs（2.3、1.9、1.7 和 2.35），512 位和 53 位不变（53 位为 0.98 到 1.07，512 位为 0.99 到 1.36，走的是旧路径，机器噪声较大）。相对于存档的 MPFR 中位数的原始比值（当天的 floating 时间除以存档的 MPFR 中位数）：8192 位调用由 221 到 243 变为 21 到 22，2048 位调用由 37 到 57 变为 20 到 25。当时在该机器上重新测得的 MPFR 比存档运行慢 1.9 到 2.0 倍（8192 位）和 1.65 倍（2048 位）（负载所致），所以漂移修正后的比值在 8192 位约为 10.7 到 11.4，在 2048 位约为 12 到 15；较早在安静机器上的一次运行（用的是之前的除法内核）在 8192 位给出 11.5 到 13.6。"
 
-#: manual/design/bin_float.md:1502
+#: manual/design/bin_float.md:1548
 msgid "*AGM alternative.* $\\ln s = \\pi / (2\\, \\mathrm{AGM}(1, 4/s)) - m \\ln 2$ for $s = v\\, 2^{m} > 2^{w/2}$ costs about $\\log_2 w$ iterations of one product and one square root. With today's kernels (`sqrt_ctx` 128 µs, product 43 µs at 8192 bits) this is 2.7 to 3.2 ms, no better than the Newton step within the model's error, because our square root is 29 times and our product 13 times slower than MPFR's (4.4 and 3.2 µs on the same machine, secondary evidence). It also needs a rigorous bound for the truncation error of the formula (the $O(s^{-2})$ term, derived from the theta-function formula $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, attributed to Sasaki and Kanada, see the evidence note at the end of this section[^brent-agm]), which this page does not yet provide. It is therefore the second choice, taken up only if the Newton step measures slower than the projection."
 msgstr "*AGM 方案。* 对 $s = v\\, 2^{m} > 2^{w/2}$，$\\ln s = \\pi / (2\\, \\mathrm{AGM}(1, 4/s)) - m \\ln 2$ 约需 $\\log_2 w$ 次迭代，每次一个乘积和一个平方根。用现在的内核（8192 位下 `sqrt_ctx` 128 µs，乘积 43 µs），耗时 2.7 到 3.2 ms，在模型误差范围内并不比牛顿步更好，因为我们的平方根比 MPFR 慢 29 倍、乘积慢 13 倍（同一台机器上 MPFR 为 4.4 和 3.2 µs，二手证据）。它还需要该公式截断误差（$O(s^{-2})$ 项）的严格界，这个界由 theta 函数公式 $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$ 推出，该公式归于 Sasaki 与 Kanada，见本节末尾的证据说明[^brent-agm]，本页尚未给出。因此它是第二选择，只有在牛顿步的实测比预测更慢时才会采用。"
 
-#: manual/design/bin_float.md:1515
+#: manual/design/bin_float.md:1561
 msgid "**`sin` and `cos`, by complex bit-burst.** With $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, $G = F + \\operatorname{bits}(n) + 2$, the quadrant integer $n = \\operatorname{round}(x / H)$ and $R = x - nH$ (exact, $|R| \\le 0.8$ after a correction of $n$), the true reduced argument $r = x - n \\pi/2$ satisfies $|r - R| \\le |n|\\,2^{1-G} \\le 2^{-F}$. Sine and cosine are 1-Lipschitz, so $\\sin r \\in \\sin R \\pm 2^{-F}$ and likewise for the cosine; truncating $|R|$ to $F$ bits costs one more unit. The quadrant $n \\bmod 4$ maps $(\\sin r, \\cos r)$ to the result, as in `binary_reduced_trigonometric_bounds`. For $y = N/2^s < 1$ the real and imaginary parts of the series of $e^{iy}$ are the even and odd terms of the same sequence $t_i$ as above, with signs $(-1)^{\\lfloor i/2 \\rfloor}$, so a stage costs the same as an `exp` stage and gives both $\\cos y$ and $\\sin y$. The deficits satisfy the same bound $d_i < 3$, and each of the two alternating series has terms that decrease in size ($y^2 / ((i+1)(i+2)) < 1$), so the tail after $t_n < 2^{8}$ is at most $t_n + 3$ in size and the enclosure is $S_{\\mathrm{cos}}$ or $S_{\\mathrm{sin}} \\pm (t_n + 3n + 3)$. Stages are folded by rotation, $(C, S) \\leftarrow (C c - S s,\\; S c + C s)$, with four products and interval bounds on non-negative integers; all partial angles lie in $[0, 0.8]$, so all four factors are non-negative and the difference of bounds is checked to be non-negative. Because the merge costs four full products per stage, the stages are fewer than for `exp` (factor 4 to 8 between chunk boundaries), and the last stage computes only the requested one of the two values. For $|R| < 2^{-16}$ the existing series stays. Projection at 8192 bits: 4 to 6 ms, against 64 ms today (16 ms projected for the fixed-point branch); `tan` and the $\\pi$-scaled functions follow."
 msgstr "**`sin` 与 `cos`：复数 bit-burst。** 取 $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$，$G = F + \\operatorname{bits}(n) + 2$，象限整数 $n = \\operatorname{round}(x / H)$ 以及 $R = x - nH$（精确，修正 $n$ 之后 $|R| \\le 0.8$），真实的约化参数 $r = x - n \\pi/2$ 满足 $|r - R| \\le |n|\\,2^{1-G} \\le 2^{-F}$。正弦和余弦都是 1-Lipschitz 的，所以 $\\sin r \\in \\sin R \\pm 2^{-F}$，余弦同理；把 $|R|$ 截断到 $F$ 位再多花一个单位。象限 $n \\bmod 4$ 把 $(\\sin r, \\cos r)$ 映射到结果，与 `binary_reduced_trigonometric_bounds` 中相同。对 $y = N/2^s < 1$，$e^{iy}$ 的级数的实部和虚部分别是同一序列 $t_i$ 的偶数项和奇数项，符号为 $(-1)^{\\lfloor i/2 \\rfloor}$，所以一个阶段的成本与 `exp` 阶段相同，并同时给出 $\\cos y$ 与 $\\sin y$。亏量满足同样的界 $d_i < 3$，两个交错级数的项的大小都递减（$y^2 / ((i+1)(i+2)) < 1$），所以在 $t_n < 2^{8}$ 之后的尾项大小至多为 $t_n + 3$，包络为 $S_{\\mathrm{cos}}$ 或 $S_{\\mathrm{sin}} \\pm (t_n + 3n + 3)$。各阶段通过旋转折叠，$(C, S) \\leftarrow (C c - S s,\\; S c + C s)$，用四次乘法以及对非负整数的区间界；所有部分角都落在 $[0, 0.8]$ 内，所以四个因子都非负，并且会检查界之差非负。因为每个阶段的合并要四次完整乘法，所以阶段比 `exp` 少（块边界之间相差 4 到 8 倍），最后一个阶段只计算所要求的两个值之一。对 $|R| < 2^{-16}$，仍沿用现有级数。8192 位下的预测：4 到 6 ms，而现在是 64 ms（定点分支的预测为 16 ms）；`tan` 以及按 $\\pi$ 缩放的函数随后跟进。"
 
-#: manual/design/bin_float.md:1541
+#: manual/design/bin_float.md:1587
 msgid "*Implementation of the `sin` and `cos` step (`elementary_burst_trig.mbt`).* `binary_trig_bounds_burst` (hooked into `binary_trigonometric_bounds` for `sin` and `cos`; `tan` keeps the series) follows the construction above for $2^{-64} \\le |x| < 2^{4096}$. With $F_0 = w + 112$ and $G = F_0 + \\max(1, \\operatorname{top}(x)) + 2$, the nearest integer $n$ to $|x| / H$, $H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$, comes from one Euclidean division of integers, $R = |x| - nH$ is exact with $|R| \\le H/2$, and the true reduced argument $r = |x| - n\\pi/2$ satisfies $|r - R| \\le n\\, 2^{1-G} \\le 2^{-(F_0+1)}$. The working scale is $F = w + 48 + \\mathrm{lz}$ with $\\mathrm{lz} = \\max(0, 2 - \\operatorname{top}(R))$ (declined above 64, so $R$ near a multiple of $\\pi/2$ keeps $w$ significant bits of a sine), and $R_t = \\lfloor 2^{F} |R| \\rfloor / 2^{F}$ satisfies $|r - \\operatorname{sign}(R) R_t| \\le 1.5 \\cdot 2^{-F}$, so by the Lipschitz bound the sine and cosine of $r$ are within 2 units of those of $\\operatorname{sign}(R) R_t$. $R_t$ is cut into chunks at 16, 64, 256, ... bits as for `exp`. A chunk is a *ball*: a midpoint and a radius in units of $2^{-F}$. The fixed-point stage sums the even terms of the series of $e^{iy}$ for the cosine and the odd ones for the sine, with signs $+ - + - \\dots$ in each, from the same sequence $t_i$ as in the `exp` stage (deficit below 3); each of the two alternating series decreases in size, so each sum is within $3n + t_n + 3$ of its value. The binary-splitting stage keeps a complex state: the leaf of an index $i \\ge 1$ is $(0, N)$ (the factor $i N$), $p = N^{\\mathrm{leaves}}$, $q = \\prod i$, and $t = t_L q_R 2^{s\\,\\mathrm{len}_R} + i^{\\mathrm{leaves}_L} p_L t_R$, where multiplying by $i^m$ only permutes and negates the two components; the partial sums are exact rationals, the floors lose less than 1 unit, and the omitted terms are below 2 units, so each part is a ball of radius 2. The product of two balls with midpoints $a, b$ and radii $\\alpha, \\beta$ has midpoint $\\lfloor a b / 2^F \\rfloor$ and radius $\\lceil (a \\beta + b \\alpha + \\alpha \\beta)/2^F \\rceil + 2$, and the stages are folded by rotation, $C' = C c - S s$ and $S' = S c + C s$ (four ball products; the first stage is not multiplied at all), with the midpoint of the difference required to be non-negative. The quadrant $n \\bmod 4$ and the signs of $x$ and $R$ select which component is the result. It declines for $|x| < 2^{-64}$, $|x| \\ge 2^{4096}$, when the reduced argument is smaller than $2^{-62}$, and when the width exceeds $2^{-(w+5)}$ of the value. The thresholds are 1536 bits on Native and LLVM, 2112 on plain Wasm, 640 on Wasm-GC and 256 on JavaScript (the kernel is slower than the series below roughly 1500 bits on Native, 2000 on Wasm and 600 on Wasm-GC; on JavaScript it wins from 256)."
 msgstr "*`sin` 与 `cos` 步骤的实现（`elementary_burst_trig.mbt`）。* `binary_trig_bounds_burst`（挂在 `binary_trigonometric_bounds` 中，用于 `sin` 和 `cos`；`tan` 仍用级数）按上面的构造处理 $2^{-64} \\le |x| < 2^{4096}$。取 $F_0 = w + 112$ 与 $G = F_0 + \\max(1, \\operatorname{top}(x)) + 2$，与 $|x| / H$ 最接近的整数 $n$（$H = \\lfloor 2^{G} \\pi/2 \\rfloor / 2^{G}$）由一次整数欧几里得除法得到，$R = |x| - nH$ 是精确的且 $|R| \\le H/2$，真实的约化参数 $r = |x| - n\\pi/2$ 满足 $|r - R| \\le n\\, 2^{1-G} \\le 2^{-(F_0+1)}$。工作标度为 $F = w + 48 + \\mathrm{lz}$，其中 $\\mathrm{lz} = \\max(0, 2 - \\operatorname{top}(R))$（超过 64 则拒绝，所以 $R$ 接近 $\\pi/2$ 的倍数时，正弦仍保留 $w$ 位有效数字），而 $R_t = \\lfloor 2^{F} |R| \\rfloor / 2^{F}$ 满足 $|r - \\operatorname{sign}(R) R_t| \\le 1.5 \\cdot 2^{-F}$，因此由 Lipschitz 界，$r$ 的正弦和余弦与 $\\operatorname{sign}(R) R_t$ 的相差不超过 2 个单位。$R_t$ 像 `exp` 那样在 16、64、256、…… 位处切块。一个块是一个*球*：以 $2^{-F}$ 为单位的中点与半径。定点阶段对余弦累加 $e^{iy}$ 级数的偶数项，对正弦累加奇数项，各自的符号为 $+ - + - \\dots$，项来自与 `exp` 阶段相同的序列 $t_i$（亏量小于 3）；两个交错级数的项的大小都递减，所以每个和与其值的距离不超过 $3n + t_n + 3$。二进制拆分阶段保存一个复数状态：下标 $i \\ge 1$ 的叶子是 $(0, N)$（因子 $i N$），$p = N^{\\mathrm{leaves}}$、$q = \\prod i$，以及 $t = t_L q_R 2^{s\\,\\mathrm{len}_R} + i^{\\mathrm{leaves}_L} p_L t_R$，其中乘以 $i^m$ 只是对两个分量做置换和取负；部分和是精确的有理数，取整损失不到 1 个单位，被省略的项小于 2 个单位，所以每个部分是半径为 2 的球。中点为 $a, b$、半径为 $\\alpha, \\beta$ 的两个球的乘积，中点为 $\\lfloor a b / 2^F \\rfloor$，半径为 $\\lceil (a \\beta + b \\alpha + \\alpha \\beta)/2^F \\rceil + 2$；各阶段通过旋转折叠，$C' = C c - S s$ 和 $S' = S c + C s$（四次球乘法；第一个阶段完全不用相乘），并要求差的中点非负。象限 $n \\bmod 4$ 以及 $x$ 与 $R$ 的符号决定哪一个分量是结果。在 $|x| < 2^{-64}$、$|x| \\ge 2^{4096}$、约化参数小于 $2^{-62}$ 以及宽度超过值的 $2^{-(w+5)}$ 时，它拒绝。阈值为：Native 与 LLVM 1536 位，普通 Wasm 2112 位，Wasm-GC 640 位，JavaScript 256 位（Native 上低于约 1500 位、Wasm 上低于约 2000 位、Wasm-GC 上低于约 600 位时内核比级数慢；JavaScript 上从 256 位起就更快）。"
 
-#: manual/design/bin_float.md:1581
+#: manual/design/bin_float.md:1627
 msgid "*Evidence for the `sin` and `cos` step.* White-box tests (`elementary_burst_trig_wbtest.mbt`): for every argument the kernel accepts in a corpus of 354 values (60 to 2000 bits, $|x|$ from $2^{-60}$ to $2^{100}$, both signs, and the neighbourhood of nine multiples of $\\pi/2$ for four precisions) and for both functions, the enclosure at $w$ contains the series enclosure at a precision 256 bits higher (and high enough for the series to certify the quadrant); it is no wider than the series enclosure; `sin_ctx` and `cos_ctx` return the value and flags of the series enclosure rounded at twice the precision, in four rounding directions; and the kernel declines out of its range. Three deliberately wrong variants are caught: a bias of $2^{64}$ units in every stage, 40 terms fewer in the binary-splitting stages, and $\\pi$ taken with 200 bits fewer for an argument near $2^{40}$. A bias below about $2^{40}$ units is absorbed by the 48 guard bits and the final rounding, so the tests cannot see it; likewise the radius of the fixed-point stages and the 2 units of the angle error are dominated by worst-case terms elsewhere, so removing them leaves an enclosure that still contains the value: their justification is the paper argument above, not the tests. MPFR 4.2.2 comparison: 23,424 rows for each of `sin` and `cos` (precisions 256 to 4096, four rounding directions, arguments from $2^{-60}$ to $2^{1000}$, and neighbours of multiples of $\\pi/2$; the thresholds were set to 256 for this run so that every row used the kernel) all match, and the output is byte-identical on Native, Wasm, Wasm-GC and JavaScript."
 msgstr "*`sin` 与 `cos` 步骤的证据。* 白盒测试（`elementary_burst_trig_wbtest.mbt`）：对于 354 个值的语料（60 到 2000 位，$|x|$ 从 $2^{-60}$ 到 $2^{100}$，正负号都有，以及四种精度下九个 $\\pi/2$ 的倍数的邻域）里内核接受的每个参数，对两个函数，$w$ 下的包络都包含高 256 位精度下的级数包络（并且精度足以让级数认证象限）；它不比级数包络更宽；`sin_ctx` 与 `cos_ctx` 在四个舍入方向上返回的值和标志与在两倍精度下舍入的级数包络相同；超出范围时内核拒绝。三个故意做错的变体会被包含性测试抓到：每个阶段偏差 $2^{64}$ 个单位，二进制拆分阶段少 40 项，以及对接近 $2^{40}$ 的参数把 $\\pi$ 少取 200 位。低于约 $2^{40}$ 个单位的偏差会被 48 个保护位和最后的舍入吸收，所以测试看不到；同样，定点阶段的半径和角度误差的 2 个单位被别处大得多的最坏情形项所掩盖，去掉它们得到的包络仍然包含该值：它们的依据是上文的纸面论证，而不是测试。与 MPFR 4.2.2 的对照：`sin` 与 `cos` 各 23,424 行（精度 256 到 4096，四个舍入方向，参数从 $2^{-60}$ 到 $2^{1000}$，以及 $\\pi/2$ 的倍数的邻域；本次运行把阈值设为 256，使每一行都用到内核）全部一致，输出在 Native、Wasm、Wasm-GC 和 JavaScript 上逐字节相同。"
 
-#: manual/design/bin_float.md:1603
+#: manual/design/bin_float.md:1649
 msgid "*Measured for the `sin` and `cos` step (native, release, this machine, with the Karatsuba limbs and the division of #326 and #328).* Kernel only, $w = p + 40$ bits, $x \\approx 0.7$ for the sine and $x \\approx 16$ to $32$ for the cosine, against the reduction and fixed-point series of #321: sine 8.37 ms to 1.39 ms at 8256 bits, 1.58 ms to 0.57 ms at 4160, 338 to 239 µs at 2112, equal at 1536; cosine 5.31 ms to 1.20 ms at 8256, 1.01 ms to 0.47 ms at 4160; slower below about 1500 bits (0.5 to 0.9 times at 256 to 1280). End to end, `just bench external quick --ops sin` paired and alternating with `origin/main`, four rounds on a quiet machine, floating time per call: 8192 bits 6.92, 6.66, 6.73 and 6.66 ms against 1.47, 1.32, 1.29 and 1.38 ms (paired ratios 4.7, 5.1, 5.2 and 4.8), 2048 bits 282, 288, 276 and 268 µs against 203, 195, 183 and 204 µs (1.4, 1.5, 1.5 and 1.3), and 512 and 53 bits unchanged (0.89 to 1.12, the old code path). The raw ratio to the stored MPFR medians (floating time of the day over the stored MPFR median) of the 8192-bit call goes from 34 to 35 to 6.5 to 7.4, and of the 2048-bit call from 19 to 20 to 13 to 14; the machine reads about 1.45 times slower than the stored run (MPFR re-measured on it), so the drift-corrected ratios are about 4.5 to 5.1 at 8192 bits and about 9 to 10 at 2048 bits."
 msgstr "*`sin` 与 `cos` 步骤的实测（原生，release，本机，基于 #326 与 #328 的 Karatsuba limb 和除法）。* 仅内核，$w = p + 40$ 位，正弦取 $x \\approx 0.7$，余弦取 $x \\approx 16$ 到 $32$，与 #321 的约化加定点级数相比：正弦 8256 位时 8.37 ms 降到 1.39 ms，4160 位时 1.58 ms 降到 0.57 ms，2112 位时 338 降到 239 µs，1536 位时持平；余弦 8256 位时 5.31 ms 降到 1.20 ms，4160 位时 1.01 ms 降到 0.47 ms；低于约 1500 位时更慢（256 到 1280 位为 0.5 到 0.9 倍）。端到端，`just bench external quick --ops sin` 与 `origin/main` 成对交替运行，在安静的机器上四轮，每次调用的 floating 时间：8192 位 6.92、6.66、6.73 和 6.66 ms 对 1.47、1.32、1.29 和 1.38 ms（成对比值 4.7、5.1、5.2 和 4.8），2048 位 282、288、276 和 268 µs 对 203、195、183 和 204 µs（1.4、1.5、1.5 和 1.3），512 位和 53 位不变（0.89 到 1.12，走的是旧路径）。相对于存档的 MPFR 中位数的原始比值（当天的 floating 时间除以存档的 MPFR 中位数）：8192 位调用由 34 到 35 变为 6.5 到 7.4，2048 位调用由 19 到 20 变为 13 到 14；该机器读数比存档运行慢约 1.45 倍（在其上重新测量了 MPFR），所以漂移修正后的比值在 8192 位约为 4.5 到 5.1，在 2048 位约为 9 到 10。"
 
-#: manual/design/bin_float.md:1622
+#: manual/design/bin_float.md:1668
 msgid "**Constants by binary splitting.** `pi`, `ln 2` and `ln 10` are computed once per working precision and cached, but a first call pays the cold cost above. Binary splitting gives $O(M(w) \\log^2 w)$ with rigorous bounds:"
 msgstr "**用二进制拆分计算常数。** `pi`、`ln 2` 和 `ln 10` 对每个工作精度只计算一次并缓存，但第一次调用要承担上面的冷启动成本。二进制拆分给出 $O(M(w) \\log^2 w)$，并有严格的界："
 
-#: manual/design/bin_float.md:1633
+#: manual/design/bin_float.md:1679
 msgid "where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46 bits per term) and $\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$."
 msgstr "其中 $(P, Q, T)$ 来自 Chudnovsky 级数（交错，每项约 46 位），并且 $\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$。"
 
-#: manual/design/bin_float.md:1636
+#: manual/design/bin_float.md:1682
 msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `BinCoeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
 msgstr "*实现（`elementary_constants_split.mbt`）。* 一个级数在某个下标区间上的状态为 $(p, q, t)$，其中 $p = \\prod p(k)$、$q = \\prod q(k)$ 以及 $t = q \\cdot (\\text{partial sum})$，合并为 $t = q_R t_L + p_L t_R$；`artanh` 级数有 $p(j) = 2j - 1$ 和 $q(j) = (2j + 1) k^2$，它们逐项约去后得到 $1/((2j+1) k^{2j})$，而 Chudnovsky 级数有 $p(k) = (6k-5)(2k-1)(6k-1)$、$q(k) = k^3\\, 640320^3 / 24$，叶子为 $t = \\pm p(k)(A + Bk)$。只有 Chudnovsky 的 $t$ 带符号，所以在无符号的 `BinCoeff` 之上套一个符号加幅值的包装就够了，代码在所有目标上相同。部分和 $t/q$ 是精确的；仅有的舍入是最后的方向除法和 $\\sqrt{10005}$（方向 `sqrt_ctx`），在 $w + 16$ 位下完成，结果再向外舍入到 $w$ 位。"
 
-#: manual/design/bin_float.md:1649
+#: manual/design/bin_float.md:1695
 msgid "*Tail bounds.* For $\\operatorname{artanh}(1/k)$ with $K = k^2$ take $N$ terms with $K^N \\ge 2^{F+9}$, $F = w + 16$ (using $\\lfloor \\log_2 K \\rfloor$): the first omitted term is at most $2^{-(F+9)}$ and the omitted terms are positive and shrink by at least $1/K \\le 1/4$, so they sum to less than $2^{-(F+8)}$, which is added to the upper end. For Chudnovsky the ratio of the factorial parts of consecutive terms is $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$, the linear factor grows by at most 41.11 from $k = 0$ to $1$ and by less than 2 after that, and $640320^3 > 2^{57.8}$, so the ratios are below $2^{-41.7}$ and then $2^{-46.1}$, the terms decrease in size, alternate in sign, and the first is below $2^{24}$. The omitted sum from index $N$ is therefore at most the size of term $N$, below $2^{-17 - 46(N-1)}$, which is at most $2^{-(F+4)}$ for $N = \\lfloor F/46 \\rfloor + 3$. Then $S \\in [(t - e)/q, (t + e)/q]$ for the integer $e = \\lfloor q / 2^{F+4} \\rfloor + 1$, and $\\pi$ is enclosed by dividing $426880 \\sqrt{10005}\\, q$ by $t \\pm e$ with directed rounding. The identities were checked numerically to 60 digits."
 msgstr "*尾项界。* 对 $\\operatorname{artanh}(1/k)$，其中 $K = k^2$，取 $N$ 项使得 $K^N \\ge 2^{F+9}$，$F = w + 16$（使用 $\\lfloor \\log_2 K \\rfloor$）：第一个被省略的项至多为 $2^{-(F+9)}$，被省略的各项为正，且至少按 $1/K \\le 1/4$ 的比例缩小，所以它们的和小于 $2^{-(F+8)}$，把它加到上端。对 Chudnovsky，相邻项阶乘部分之比为 $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$，线性因子从 $k = 0$ 到 $1$ 至多增长 41.11 倍，之后增长不到 2 倍，并且 $640320^3 > 2^{57.8}$，所以比值先低于 $2^{-41.7}$，之后低于 $2^{-46.1}$，各项大小递减、符号交错，第一项小于 $2^{24}$。因此从下标 $N$ 起被省略的和至多是第 $N$ 项的大小，小于 $2^{-17 - 46(N-1)}$，当 $N = \\lfloor F/46 \\rfloor + 3$ 时它至多为 $2^{-(F+4)}$。于是对整数 $e = \\lfloor q / 2^{F+4} \\rfloor + 1$ 有 $S \\in [(t - e)/q, (t + e)/q]$，用 $t \\pm e$ 去除 $426880 \\sqrt{10005}\\, q$（方向舍入）即得到 $\\pi$ 的包络。这些恒等式已用数值验证到 60 位。"
 
-#: manual/design/bin_float.md:1666
+#: manual/design/bin_float.md:1712
 msgid "*Evidence.* Tests (`elementary_constants_split_wbtest.mbt`): the new enclosure at $w$ contains the old series enclosure at $w + 256$ (an independent computation) for $w$ from 64 to 1024; it is no wider than the old enclosure at $w$ up to 2048; enclosures at $w$ and $w + 300$ nest up to 20000 bits; and removing terms (a test hook) makes the containment test fail, so the tail count is checked and not just assumed. A one-off comparison against MPFR 4.2.2 (`mpfr_const_pi`, `mpfr_const_log2`, `mpfr_log(10)` at $2w + 64$ bits) at 64, 100, 257, 1000, 4096, 8192, 30000 and 100000 bits found every enclosure containing the MPFR value, one to two units of the last place wide. All `bin_float` tests pass on native, wasm, wasm-gc and js, `just pr` passes, and 30000 (native) and 10000 (each of wasm, wasm-gc, js) random `elem` cases agree with MPFR."
 msgstr "*证据。* 测试（`elementary_constants_split_wbtest.mbt`）：对 $w$ 从 64 到 1024，$w$ 下的新包络包含 $w + 256$ 下的旧级数包络（一次独立计算）；在 $w$ 下它不比旧包络更宽，直到 2048；$w$ 与 $w + 300$ 下的包络相互嵌套，直到 20000 位；去掉若干项（测试钩子）会使包含性测试失败，所以尾项项数是被检查过的，而不仅仅是假设。一次性对照 MPFR 4.2.2（`mpfr_const_pi`、`mpfr_const_log2`、`mpfr_log(10)`，在 $2w + 64$ 位下），位数取 64、100、257、1000、4096、8192、30000 和 100000，发现每个包络都包含 MPFR 的值，宽度为一到两个末位单位。所有 `bin_float` 测试在 native、wasm、wasm-gc 和 js 上都通过，`just pr` 通过，并且 30000 个（native）以及各 10000 个（wasm、wasm-gc、js）随机 `elem` 用例与 MPFR 一致。"
 
-#: manual/design/bin_float.md:1679
+#: manual/design/bin_float.md:1725
 msgid "*Measured (native, release, cold enclosure at $w = p + 64$, this machine).* `pi` 449 ms to 0.67 ms at $p = 8192$, 14 ms to 71 µs at 2048, 0.93 ms to 15 µs at 512; `ln 2` 178 ms to 1.33 ms, 5.6 ms to 156 µs, 0.36 ms to 32 µs; `ln 10` (with `ln 2` cached) 89 ms to 0.99 ms, 2.8 ms to 114 µs, 0.18 ms to 26 µs. At $p = 64$ the splitting is already 3 to 19 times faster, on wasm-gc and js as well (js at 8192 bits: `pi` 0.63 ms, `ln 2` 0.67 ms), so the threshold `binary_constants_split_min_precision` is 64 on every target. Warm (cached) calls are unchanged. A first `sin` or `ln` at 8192 bits used to pay the series cost on top of the warm time (about 450 ms for `pi`, about 180 ms for `ln 2`); now a cold call costs at most about 7 ms more than a warm one (`sin` 53.4 ms cold against 53.6 ms warm, `ln` 101.9 ms against 94.3 ms at 8192 bits)."
 msgstr "*实测（原生，release，在 $w = p + 64$ 下的冷包络，本机）。* `pi` 在 $p = 8192$ 时从 449 ms 降到 0.67 ms，2048 位时从 14 ms 降到 71 µs，512 位时从 0.93 ms 降到 15 µs；`ln 2` 从 178 ms 降到 1.33 ms，从 5.6 ms 降到 156 µs，从 0.36 ms 降到 32 µs；`ln 10`（`ln 2` 已缓存）从 89 ms 降到 0.99 ms，从 2.8 ms 降到 114 µs，从 0.18 ms 降到 26 µs。在 $p = 64$ 时二进制拆分已经快 3 到 19 倍，在 wasm-gc 和 js 上同样如此（js 在 8192 位：`pi` 0.63 ms，`ln 2` 0.67 ms），所以阈值 `binary_constants_split_min_precision` 在所有目标上都是 64。暖（命中缓存）的调用不变。8192 位下第一次 `sin` 或 `ln` 过去要在暖时间之上再付级数的成本（`pi` 约 450 ms，`ln 2` 约 180 ms）；现在冷调用至多比暖调用多花约 7 ms（8192 位下 `sin` 冷 53.4 ms 对暖 53.6 ms，`ln` 101.9 ms 对 94.3 ms）。"
 
-#: manual/design/bin_float.md:1692
+#: manual/design/bin_float.md:1738
 msgid "The cache itself is unchanged. The design asks for requests for `ln 2` at a canonical precision (the next multiple of 64 above $F + \\operatorname{bits}(n) + 2$) so that `exp`, `ln` and the trigonometric reduction share entries instead of evicting each other; that belongs to the `exp` kernel, which is the first caller with such an irregular precision, and is not part of the constants step."
 msgstr "缓存本身不变。设计要求以规范精度（大于 $F + \\operatorname{bits}(n) + 2$ 的下一个 64 的倍数）请求 `ln 2`，使 `exp`、`ln` 和三角函数约化共享缓存条目，而不是互相挤掉；这属于 `exp` 内核，它是第一个使用这种不规则精度的调用方，不属于常数这一步。"
 
-#: manual/design/bin_float.md:1699
+#: manual/design/bin_float.md:1745
 msgid "**Working-precision schedule and the Ziv loop.** The attempt precisions $w_0 = p + 64$, $w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ and the budget of 12 attempts are unchanged. Each attempt picks the old or the new kernel by comparing $w$ with a per-target constant and, for `ln` and the sine, by the argument (the near-1 and tiny-argument cases above); a kernel that returns `None` or an enclosure wider than the old series' falls through to the old kernel at the same $w$. So an attempt never certifies less than before, and the exact cases, the tiny-argument measures, the inner-endpoint rounding and the flag argument of the loop are untouched. The result of a call is the correctly rounded value whenever either path certifies, hence identical to the current result; they can differ only in which inputs exhaust the budget, which the corpus comparison below counts. The faster attempts make a longer budget affordable, which is the point of [#15](https://github.com/Luna-Flow/floating/issues/15): the limit is a policy of the loop and does not interact with the kernels."
 msgstr "**工作精度进度表与 Ziv 循环。** 各次尝试的精度 $w_0 = p + 64$、$w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ 以及 12 次尝试的预算都保持不变。每次尝试通过比较 $w$ 与每个目标各自的常数来选择旧内核还是新内核，对 `ln` 和正弦还要依据参数（上文接近 1 和极小参数的情形）；内核返回 `None`，或者包络比旧级数的更宽时，就在同一个 $w$ 下退回旧内核。所以一次尝试能认证的结果不会比以前少，精确情形、极小参数的处理、内端点舍入以及循环的标志论证都不受影响。只要任一路径认证成功，调用结果就是正确舍入的值，因而与当前结果相同；两者只可能在哪些输入耗尽预算上有差别，下面的语料对比会统计这一点。更快的尝试使更长的预算变得负担得起，这正是 [#15](https://github.com/Luna-Flow/floating/issues/15) 的要点：这个上限是循环的策略，与内核无关。"
 
-#: manual/design/bin_float.md:1715
+#: manual/design/bin_float.md:1761
 msgid "**Allocation and targets.** `BinCoeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). A fused in-place multiply-shift-divide loop on a mutable limb array would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `BinCoeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
 msgstr "**分配与目标。** `BinCoeff` 的值是不可变的，所以定点阶段的每一项会分配四个最长 $w/32$ 个 limb 的数组（乘积、移位、商、和）；在原生上，这些已包含在上面的实测单位成本中（8192 位下移位 0.2 µs，单字除法 1.5 µs，加法 0.3 µs）。在可变 limb 数组上做融合的原地乘-移-除循环可以去掉其中大部分开销，适用于非 JavaScript 目标，这是同一函数背后以后的优化，不属于本设计。在 JavaScript 上 `BinCoeff` 是 `bigint`：乘法、移位和除法由引擎完成，每次操作的常数较大，但乘法渐近更快，所以阶段边界和所有阈值都要在原生、LLVM、Wasm、Wasm-GC 和 JavaScript 上分别测量，并与系数内核的阈值放在一起。内核的源码是共享的；只有常数不同。"
 
-#: manual/design/bin_float.md:1728
+#: manual/design/bin_float.md:1774
 msgid "**Evidence the new path must produce.** Each kernel carries its own invariant tests: containment of the enclosure of the old path at $w + 256$ bits in the new enclosure at $w$ (an independent computation), the width bound, and boundary cases (arguments at chunk boundaries, $R$ near $0$ and $1$, the corrections of $n$, huge $|n|$, tiny and near-1 arguments). The end-to-end check compares every result bit for bit with the old path and with MPFR on a seeded random corpus plus the existing boundary corpus on all four targets, and a deliberately biased kernel (one unit too narrow) must make the tests fail."
 msgstr "**新路径必须给出的证据。** 每个内核自带不变式测试：旧路径在 $w + 256$ 位下的包络必须包含于新包络在 $w$ 下的包络之内（一次独立计算），宽度界，以及边界情形（位于块边界的参数、$R$ 接近 $0$ 和 $1$、$n$ 的修正、很大的 $|n|$、极小和接近 1 的参数）。端到端检查在四个目标上，用带种子的随机语料加上现有的边界语料，把每个结果与旧路径和 MPFR 逐位比较，并且故意做得偏窄的内核（窄一个单位）必须使测试失败。"
 
-#: manual/design/bin_float.md:1737
+#: manual/design/bin_float.md:1783
 msgid "**Limits of the speed-up.** The model reaches algorithmic parity with MPFR (`exp` at 8192 bits is about 65 to 100 products in MPFR and, projected, about 50 to 80 here), so the remaining gap is the product kernel: 43 µs against 3.2 µs at 8192 bits, a factor 13 (4 µs against 0.31 µs, a factor 12, at 2048 bits). Ratios to MPFR at 8192 bits in the same run (MPFR: `exp` 326 µs, `ln` 177 µs, `sin` 291 µs): today 55, 930 and 220; projected from this design about 6 to 11 for `exp`, 17 to 34 for `ln` and 14 to 21 for `sin`. A ratio below 10 at 8192 bits is therefore within reach for `exp` only if the product kernel also improves."
 msgstr "**加速的上限。** 该模型在算法层面与 MPFR 持平（8192 位下 `exp` 在 MPFR 中约为 65 到 100 次乘法，预测我们这里约为 50 到 80 次），所以剩下的差距在乘积内核：8192 位下 43 µs 对 3.2 µs，相差 13 倍（2048 位下 4 µs 对 0.31 µs，相差 12 倍）。同一次运行中 8192 位下与 MPFR 的比值（MPFR：`exp` 326 µs，`ln` 177 µs，`sin` 291 µs）：现在为 55、930 和 220；按本设计预测，`exp` 约为 6 到 11，`ln` 为 17 到 34，`sin` 为 14 到 21。因此，8192 位下比值低于 10 对 `exp` 来说只有在乘积内核也得到改进时才可能。"
 
-#: manual/design/bin_float.md:1747
+#: manual/design/bin_float.md:1793
 msgid "**Measured result.** On main `8badc55` (all four kernels merged), Apple M4, native, release, load average 1.3 to 3, three runs of `just bench external quick --ops exp ln sin --binary-precisions 2048 8192` agreeing within 1 to 10 %, and a second check on `952600f` within 3 %: floating time over the stored MPFR median is 6.0 to 6.6 (`exp`), 12.5 (`ln`) and 12.2 (`sin`) at 2048 bits, and 3.2 (`exp`), 10.6 (`ln`) and 5.8 (`sin`) at 8192 bits. The MPFR time measured on the same machine at the same moment was within 6 % of the stored one, so raw and drift-corrected ratios differ by at most 6 %. Two cells are below 10 times MPFR; `ln` at 2048 and 8192 bits and `sin` at 2048 bits are above it. This is one machine and the native target only: the Wasm, Wasm-GC and JavaScript targets were not compared with MPFR. The projections above are superseded by these numbers; the remaining gap is the multiplication and division kernel and allocation, not the algorithm."
 msgstr "**实测结果。** 在 main `8badc55`（四个内核均已合并）上，Apple M4、native、release，负载均值 1.3 到 3，对 `just bench external quick --ops exp ln sin --binary-precisions 2048 8192` 跑三次，彼此相差 1 到 10 %，并在 `952600f` 上复核，相差 3 % 以内：floating 的耗时除以存档的 MPFR 中位数，在 2048 位下为 6.0 到 6.6（`exp`）、12.5（`ln`）和 12.2（`sin`），在 8192 位下为 3.2（`exp`）、10.6（`ln`）和 5.8（`sin`）。同一时刻在同一台机器上测得的 MPFR 耗时与存档相差不到 6 %，所以原始比值和漂移修正后的比值最多相差 6 %。有两格低于 MPFR 的 10 倍；`ln` 在 2048 位和 8192 位，以及 `sin` 在 2048 位，高于 10 倍。这只是一台机器、只是 native 目标：Wasm、Wasm-GC 和 JavaScript 目标没有与 MPFR 对比。上文的预测被这些数字取代；剩下的差距在乘法与除法内核和内存分配，不在算法。"
 
-#: manual/design/bin_float.md:1761
+#: manual/design/bin_float.md:1807
 msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on them (the AGM is not used until its truncation bound is derived and proved here). The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
 msgstr "**已核对与仍需确认的证据。** 这些引用已于 2026-11-19 对照原始文献核对。Brent，*J. ACM* 23(2)，1976，242-251 确如所引存在，但它给出的是 AGM 与 ascending Landen 变换方法，代价为 $O(M(n)\\log n)$（对数用不完全椭圆积分的 Landen 变换）；其中既没有 bit-burst，也没有 theta 函数和 nome，并且把 $O(M(n)\\log^2 n)$ 的界归于 Brent 的 “The complexity of multiple-precision arithmetic”（Proc. Seminar on Complexity of Computational Problem Solving，1975，126-165 页，尚未读过）。所以下面的脚注只支持 AGM 对数，bit-burst 的出处应改为那篇 1975 年的文章（尚未读过）。含 theta 函数的公式 $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$ 归于 Sasaki 与 Kanada，*J. Inf. Process.* 5(4)，1982，247-250，依据是 Brent 后来的笔记（二手来源）；它对 nome 的规范化（Brent 的笔记用 $q^4$，并指出 Borwein 的书中 $q$ 形式有笔误）及其截断界尚未对照原文核对，所有者会去取原文。设计和代码都不依赖它们（在这里推导并证明截断界之前不使用 AGM）。上文给出的 1 ulp 和 2 ulp 宽度来自与 MPFR 的对照，对包络来说它是二手证据；证明是本节中的整数界论证。"
 
-#: manual/design/bin_float.md:1782
+#: manual/design/bin_float.md:1828
 msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The sharp truncation bound has to be derived from the theta series before the AGM is used. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
 msgstr "R. P. Brent，“Fast multiple-precision evaluation of elementary functions”，*J. ACM* 23(2)，1976（bit-burst 与 AGM 对数；引用待对照论文确认）。在使用 AGM 之前，必须从 theta 级数推出其精确的截断界。MPFR 的 `log.c` 记载了同一算法，仅作为二手证据。"
 
-#: manual/design/bin_float.md:1789
+#: manual/design/bin_float.md:1835
 msgid "The coefficient kernel"
 msgstr "系数内核"
 
-#: manual/design/bin_float.md:1791
+#: manual/design/bin_float.md:1837
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr "**问题。** 精度的代价来自 $p$ 位数的整数乘法和除法，而 $p$ 的范围从 1 到 $2^{28}$。"
 
-#: manual/design/bin_float.md:1794
+#: manual/design/bin_float.md:1840
 msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 32-bit limbs (a host `bigint` on JavaScript), and dispatches on the shorter operand length $n$ in limbs:"
 msgstr "**选择。** `BinCoeff` 将至多 128 位的值内联存储，更大的值存储为小端序的 32 位 limb（在 JavaScript 上为宿主 `bigint`），并按较短操作数的 limb 长度 $n$ 进行分派："
 
-#: manual/design/bin_float.md:1798
+#: manual/design/bin_float.md:1844
 msgid "Product"
 msgstr "乘积"
 
-#: manual/design/bin_float.md:1798
+#: manual/design/bin_float.md:1844
 msgid "Native"
 msgstr "Native"
 
-#: manual/design/bin_float.md:1798
+#: manual/design/bin_float.md:1844
 #: manual/design/decimal.md:1209
 #: manual/design/decimal_gda.md:823
 msgid "LLVM"
 msgstr "LLVM"
 
-#: manual/design/bin_float.md:1798
+#: manual/design/bin_float.md:1844
 msgid "Wasm, Wasm-GC"
 msgstr "Wasm、Wasm-GC"
 
-#: manual/design/bin_float.md:1800
+#: manual/design/bin_float.md:1846
 msgid "schoolbook below"
 msgstr "低于此值用竖式乘法"
 
-#: manual/design/bin_float.md:1801
+#: manual/design/bin_float.md:1847
 msgid "Karatsuba from"
 msgstr "从此值起用 Karatsuba"
 
-#: manual/design/bin_float.md:1802
+#: manual/design/bin_float.md:1848
 msgid "Toom-3 from"
 msgstr "从此值起用 Toom-3"
 
-#: manual/design/bin_float.md:1803
+#: manual/design/bin_float.md:1849
 msgid "two-prime NTT multiply from"
 msgstr "从此值起用双素数 NTT 乘法"
 
-#: manual/design/bin_float.md:1804
+#: manual/design/bin_float.md:1850
 msgid "NTT square from"
 msgstr "从此值起用 NTT 平方"
 
-#: manual/design/bin_float.md:1805
+#: manual/design/bin_float.md:1851
 msgid "recursive square from"
 msgstr "从此值起用递归平方"
 
-#: manual/design/bin_float.md:1807
+#: manual/design/bin_float.md:1853
 msgid "On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover)."
 msgstr "在 Native 与 LLVM 上，平方从 36 个 64 位 limb 起运行字范围 Karatsuba 平方（用 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$ 三个半尺寸平方代替三个乘积），并把 NTT 平方保留给 7168 个 32 位 limb 及以上（实测的交叉点）。"
 
-#: manual/design/bin_float.md:1809
+#: manual/design/bin_float.md:1855
 msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
 msgstr "稀疏操作数（非零 limb 很少）使用稀疏乘积，具有 $m > 2n$ 个 limb 的操作数被切分为 $n$ limb 的块。除法使用单 limb 循环，除数少于 48 个 limb 时使用 Knuth 算法 D，从 48 起使用 Burnikel–Ziegler 递归，从 1024 起使用 Newton 倒数；GCD 在超过四个 limb 时从二进制（Stein）算法切换为 Lehmer 批处理。这些阈值由基准测试套件针对每个目标实测得出；它们是策略，而非语义。"
 
-#: manual/design/bin_float.md:1816
+#: manual/design/bin_float.md:1862
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr "只有当 Lehmer 轮的单字数字取自两个操作数的同一比特窗口时，该轮才有效：从各操作数自身最高 limb 取出的数字尺度互不相关，由它们产生的余因子每轮只能减去较小操作数的一个小倍数。因此每一轮都保持 $a \\ge b$，对 $a$ 的前 63 位以及 $b$ 在同一窗口中的位运行 Euclid 算法；当 $b$ 在该窗口中没有位（此时 $a / b \\ge 2^{62}$），或余因子矩阵会使某个操作数变为负数、或两者都不缩小时，改为执行一步除法 $a \\bmod b$。所施加的每个矩阵的行列式都是 $\\pm 1$，因此 gcd 不变；无论长度相差多少，长的 $a$ 都会在一步内对短的 $b$ 取模约化；当 $b$ 少于八个 limb 时，循环以普通 Euclid 算法结束。"
 
-#: manual/design/bin_float.md:1828
+#: manual/design/bin_float.md:1874
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr "**为何能保持精确性。** 竖式乘法、Karatsuba 和 Toom-3 计算的是整数多项式恒等式，例如"
 
-#: manual/design/bin_float.md:1835
+#: manual/design/bin_float.md:1881
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr "而 Toom-3（在 $0, 1, -1, 2, \\infty$ 处求值）在插值时对已知为倍数的带符号中间量做精确的除以 2 和除以 3，因此它们都是精确的整数计算。NTT 是唯一的模运算步骤。它将每个操作数拆分为 16 位数字，因此数字卷积的每个系数至多为"
 
-#: manual/design/bin_float.md:1844
+#: manual/design/bin_float.md:1890
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr "这对至多 $2^{23}$ 的变换长度成立。它对素数 $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ 和 $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$ 取模计算卷积，两者都有 $2^{23}$ 次单位根，再用中国剩余定理重组，该重组在 $[0, p_1 p_2)$ 中唯一，其中 $p_1 p_2 \\approx 2^{59.4} > 2^{55}$。因此重组得到的系数就是精确的整数。每次变换之前都会先做长度检查；更长的乘积使用长度可接受的重叠块，或回退到 Toom-3。除法路径按构造返回满足 $n = qd + r$ 和 $0 \\le r < d$ 的 $(q, r)$；Newton 路径用余数校正其近似商，若需要超过两次校正则中止，因为这意味着存在缺陷，而非数值现象。由于所有路径计算的是同样的整数，算法的选择不会改变任何舍入结果、标志或编码。"
 
-#: manual/design/bin_float.md:1858
+#: manual/design/bin_float.md:1904
 msgid "Ordering NaN in `compare`"
 msgstr "`compare` 中 NaN 的排序"
 
-#: manual/design/bin_float.md:1860
+#: manual/design/bin_float.md:1906
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr "**问题。** MoonBit 的 `Compare` trait 要求一个可供排序和有序映射依赖的三路比较。IEEE 比较是偏序：NaN 与任何值（包括它自身）都是无序的。"
 
-#: manual/design/bin_float.md:1864
+#: manual/design/bin_float.md:1910
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr "**可选方案。** (1) 遇到 NaN 时中止，早期版本即是如此；这样一来，对任何可能含有 NaN 的数据排序都会崩溃。(2) 使用 IEEE `totalOrder`，它是全序，但区分 $-0 < +0$，并把负 NaN 排在 $-\\infty$ 之下，因此 `compare` 在零上会与数值相等不一致。(3) 在数上保持数值顺序，并将所有 NaN 归为位于其上方的同一类。"
 
-#: manual/design/bin_float.md:1871
+#: manual/design/bin_float.md:1917
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr "**选择。** 方案 (3)。对数定义键 $\\kappa(x) = (0, x)$，对 NaN 定义 $\\kappa(\\mathrm{NaN}) = (1, 0)$，按字典序排列；`compare(x, y)` 是 $\\kappa(x)$ 与 $\\kappa(y)$ 的比较，$-0$ 和 $+0$ 映射为同一个数。在全序集中比较键是自反、传递且完全的，因此 `compare` 是一个全预序；它不是反对称的（$-0$ 与 $+0$，或两个载荷不同的 NaN，比较结果相等但却是不同的值），而 `Compare` 并不要求反对称性。代价是在 `<` 下 `nan > 1` 为真，因此需要 IEEE 语义的代码必须使用 `compare_checked`（遇 NaN 报错）、`compare_quiet` / `compare_signaling`（四值，带标志）或 `total_order`。结构性的 `==` 仍是派生的 `Eq`，因为它是对每个方法（包括精度和载荷）都构成同余关系的唯一相等。"
 
-#: manual/design/bin_float.md:1886
+#: manual/design/bin_float.md:1932
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**规范形式。** API 产生的每个有限值都满足 $c$ 为奇数或 $c = 0, e = 0$，且 $\\operatorname{bits}(c) \\le$ 为其精度；存储的指数从不饱和（饱和的指数会先被归类为上溢或下溢）。"
 
-#: manual/design/bin_float.md:1890
+#: manual/design/bin_float.md:1936
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr "**正确舍入。** 对每个算术运算、转换和初等函数以及每个上下文，返回的有限值都等于精确实数结果 $r$ 的 $\\circ(r)$，并遵循上述范围规则。由 (R1)，每当 $r \\in F$ 时有 $\\circ(r) = r$ 且不引发任何标志；`round_ctx` 是幂等的。"
 
-#: manual/design/bin_float.md:1895
+#: manual/design/bin_float.md:1941
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
@@ -12816,83 +12976,83 @@ msgstr ""
 "**标志。** `inexact` 当且仅当 $\\circ(r) \\n"
 "e r$；`overflow` 蕴含 `inexact`；`underflow` 当且仅当结果微小（按上下文规则）且不精确；`division_by_zero` 仅用于有限操作数产生精确无穷结果的情形；`invalid_operation` 当且仅当由非 NaN 操作数产生了静默 NaN，或消耗了信号 NaN。最后一条规则的例外：`min`、`max`、$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$ 和 $\\operatorname{pow}(1, y)$ 接受信号 NaN 而不设置该标志。`combine` 满足结合律、交换律和幂等律。"
 
-#: manual/design/bin_float.md:1904
+#: manual/design/bin_float.md:1950
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**误差模型。** 因此，在正规范围内，就近舍入有 $|\\circ(r) - r| \\le u|r|$，定向舍入有 $< 2u|r|$，在 $2^{e_{\\min}}$ 以下另有绝对项 $\\eta/2$（相应地 $\\eta$），而次正规的和与差是精确的。"
 
-#: manual/design/bin_float.md:1908
+#: manual/design/bin_float.md:1954
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr "**单调性。** 只要实函数在某个参数上单调，相应运算在该参数上也单调，因为它是 $\\circ \\circ f$ 且 $\\circ$ 单调；特别地，RD 和 RU 的结果夹住精确值，`ball_float` 和 `sqrt_bounds_for_precision` 正依赖于这一点。"
 
-#: manual/design/bin_float.md:1912
+#: manual/design/bin_float.md:1958
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**精确性定理。** `remainder`、正规范围内的 `scaleb`、`copy_sign`、`neg`、`abs`、`logb` 以及解码都是精确的；取整运算从不需要第二次舍入；`fma(a, b, -RN(ab))` 在无下溢时是精确的。"
 
-#: manual/design/bin_float.md:1916
+#: manual/design/bin_float.md:1962
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**复杂度。** 加法与操作数长度呈线性关系（且由远距操作数规则，与指数差无关）；乘法遵循内核表格，从 $O(n^2)$ 到 $O(n \\log n)$；在较大的 $n$ 下，除法和平方根的代价为常数次同等规模的乘法；`remainder` 的代价为 $O(\\log(q_x - q_y))$ 次模乘；初等函数在工作精度 $w$ 下对其级数求值，且由于 $w$ 按几何级数增长，所有尝试的总代价不超过最后一次尝试的常数倍。"
 
-#: manual/design/bin_float.md:1925
+#: manual/design/bin_float.md:1971
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "较长的证明（远距操作数加法规则、`nextUp`、余数约简、Ziv 接受测试以及 NTT 界）收录于附件中。"
 
-#: manual/design/bin_float.md:1929
+#: manual/design/bin_float.md:1975
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr "[bin_float 的舍入与精确性证明](../../attachments/design_bin_float_rounding_proofs.typ)"
 
-#: manual/design/bin_float.md:1933
+#: manual/design/bin_float.md:1979
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**对 `from_double` 以外的格式使用宿主 `Double`。** 让 binary16、binary32 或 binary128 经由 `Double` 会导致双重舍入，在某些目标上丢失信号 NaN，而且根本无法表示 binary128。因此交换编码改为在 `BinCoeff` 位模式上完成。"
 
-#: manual/design/bin_float.md:1937
+#: manual/design/bin_float.md:1983
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数量的保护位。** 三个保护位足以完成两个 $p$ 位操作数的加法，但不足以应对除法、平方根、从十进制的转换或宽于上下文的操作数。依据精确的整数数据（舍入位、粘滞位、余数符号、中点比较）进行判定，则可以用一个终结器处理所有这些情形。"
 
-#: manual/design/bin_float.md:1942
+#: manual/design/bin_float.md:1988
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**先舍入到 $p$ 位，再舍入到次正规网格。** 这种双重舍入会产生错误的次正规结果；终结器只做一次移位，移到两个位置中较粗的那个。"
 
-#: manual/design/bin_float.md:1945
+#: manual/design/bin_float.md:1991
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**使用估计误差界的 Ziv 方法。** 它需要对每个函数和每种约简单独做误差分析，而其中的错误会悄无声息地返回错误的最后一位。向外舍入的包络使误差界成为计算得出的量，代价是每个运算都要求值两次。"
 
-#: manual/design/bin_float.md:1949
+#: manual/design/bin_float.md:1995
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**全局标志与舍入状态。** IEEE 754 将标志描述为粘滞的全局状态。返回的 `BinaryFlags` 值可以与纯代码、并发代码以及 `@lf_arith` 的 `Result` 风格组合，而 `combine` 可在需要时恢复粘滞行为。"
 
-#: manual/design/bin_float.md:1953
+#: manual/design/bin_float.md:1999
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**`compare` 遇到 NaN 时中止，或以 `compare` 作为 `totalOrder`。** 参见[`compare` 中 NaN 的排序](#ordering-nan-in-compare)。"
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:2004
 msgid "`bin_float` deliberately does not:"
 msgstr "`bin_float` 有意不做以下事情："
 
-#: manual/design/bin_float.md:1960
+#: manual/design/bin_float.md:2006
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr "提供区间或球算术：包络只在认证循环内部使用；`ball_float` 在 `BinFloat` 之上构建中点–半径算术；"
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:2009
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "实现 IEEE 754 替代异常处理（陷阱、替换）或粘滞的全局标志：标志是返回值；"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:2011
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "实现十进制浮点（`decimal`、`decimal_gda`）或其上的非二进制 IEEE 运算；"
 
-#: manual/design/bin_float.md:1967
+#: manual/design/bin_float.md:2013
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "为新生成的 NaN 承诺任何特定的 NaN 载荷（它使用载荷 0），或传播多于一个输入的载荷；"
 
-#: manual/design/bin_float.md:1969
+#: manual/design/bin_float.md:2015
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "保证初等函数对每个输入都能在一定时间内完成：认证有预算，预算耗尽会被报告，而不会被隐藏；"
 
-#: manual/design/bin_float.md:1972
+#: manual/design/bin_float.md:2018
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "暴露 limb 布局、阈值或变换参数：只要每个结果、标志和编码保持不变，它们可能随时更改而不另行通知；"
 
-#: manual/design/bin_float.md:1974
+#: manual/design/bin_float.md:2020
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr "声称超出[符合性](../conformance/bin_float.md)中所记录的有限语料之外的符合性。"
 
