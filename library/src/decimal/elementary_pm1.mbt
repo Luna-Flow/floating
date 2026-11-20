@@ -179,7 +179,10 @@ fn decimal_pm1_tiny_scaled(
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   let one = @bin_float.BinFloat::from_int(1, precision=2)
-  let bound = one.scaleb_ctx(k, exact).0
+  let bound = one.scaleb_ctx(
+      @bin_float.BinFloat::from_int(k, precision=32),
+      exact,
+    ).0
   let factor = @ball_float.BallFloat::from_bounds(
     one.sub_ctx(bound, exact).0,
     one.add_ctx(bound, exact).0,

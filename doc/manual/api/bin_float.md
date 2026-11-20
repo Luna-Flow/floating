@@ -784,7 +784,7 @@ different.
 test "a refinement limit makes a hard-to-round result fail" {
   let wide = @bin_float.BinaryContext::new(precision=330)
   let one = @bin_float.BinFloat::from_int(1, precision=330)
-  let midpoint = one.add_ctx(one.scaleb_ctx(-53, wide).0, wide).0
+  let midpoint = one.add_ctx(one.scaleb_ctx(@bin_float.BinFloat::from_int(-53), wide).0, wide).0
   // exp(x) is within 2^-330 of the midpoint 1 + 2^-53.
   let x = midpoint.try_ln_ctx(wide).unwrap().0
   let context = @bin_float.BinaryContext::new(precision=53)
@@ -1034,12 +1034,19 @@ context precision is accepted.
 IEEE `scaleB` and `logB`.
 
 ```mbti
-pub fn BinFloat::scaleb_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 ```
 
 `x.scaleb_ctx(n, ctx)` is $\circ(x \cdot 2^n)$ with the usual overflow and
-underflow handling; it is exact unless the result leaves the normal range.
+underflow handling; it is exact unless the result leaves the normal range. The
+count `n` is a `BinFloat`, the kind `logb_ctx` returns, as in `Decimal::scaleb_ctx`
+and `decimal_gda`: it must be an integer value. A NaN count propagates (invalid
+for a signaling NaN); an infinite or non-integer count is a NaN with
+`invalid_operation`, whatever the receiver is (an infinite receiver with a
+finite count is returned as it is); an integer count beyond the `Int` range
+acts as the largest count of its sign, which overflows or underflows every
+finite non-zero value of any format.
 `x.logb_ctx(ctx)` is $\lfloor \log_2 |x| \rfloor$ as an exact integral value
 (also for subnormal $x$): $\operatorname{logB}(0) = -\infty$ with
 `division_by_zero`, $\operatorname{logB}(\pm\infty) = +\infty$, and a NaN
@@ -2695,7 +2702,7 @@ pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ties_even(Self) -> Self
 pub fn BinFloat::rsqrt(Self) -> Self
 pub fn BinFloat::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::scaleb_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sign(Self) -> @def.Sign
 pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
 pub fn BinFloat::sin(Self) -> Self

@@ -71,7 +71,7 @@ fn bin_float_rows() -> Array[@bin_float.BinFloat] {
   let rows = []
   for base in bases {
     for shift in shifts {
-      let value = base.scaleb_ctx(shift, wide).0
+      let value = base.scaleb_ctx(@bin_float.BinFloat::from_int(shift), wide).0
       rows.push(value)
       rows.push(value.neg())
     }
@@ -109,7 +109,7 @@ test "issue 467: the cost does not depend on the binary exponent" {
   let three = @bin_float.BinFloat::from_int(3, precision=53)
   // Before the bounded form these took minutes (quadratic in the exponent).
   for exponent in [-100000000, -1000000, 1000000, 100000000, 1000000000] {
-    let x = three.scaleb_ctx(exponent, wide).0
+    let x = three.scaleb_ctx(@bin_float.BinFloat::from_int(exponent), wide).0
     let value = Decimal::from_bin_float(x, precision=34)
     inspect(value.coefficient().to_string().length() <= 34, content="true")
     inspect(value.is_signed(), content="false")

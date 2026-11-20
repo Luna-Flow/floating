@@ -731,7 +731,7 @@ operands are accepted. The flags of this internal addition are discarded,
 because `nextUp` is quiet (clause 5.3.1) even when it steps from $\Omega$ to
 $+\infty$.
 
-`scaleb_ctx(x, n)` is the finalizer applied to $(c, e + n)$: exact in the
+`scaleb_ctx(x, n)` (with `n` an integer-valued `BinFloat`) is the finalizer applied to $(c, e + n)$: exact in the
 normal range, correctly rounded with underflow and overflow outside it.
 `logb_ctx` returns $\operatorname{top}(x)$, which is exact and correct for
 subnormal $x$ because $\operatorname{top}$ is computed on the integer
