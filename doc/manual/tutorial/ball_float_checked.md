@@ -232,10 +232,9 @@ test "decide with an enclosure" {
 
 ## Common pitfalls
 
-- **Small default precision.** `from_int` and `from_coefficient` default to 16
-  bits. An integer that needs more bits is still enclosed, but by a two-point
-  interval rather than a point. Pass `precision=53` (or more) for large
-  integers.
+- **Default precision.** `from_int` and `from_coefficient` default to 53 bits.
+  A coefficient that needs more bits is still enclosed, but by a two-point
+  interval rather than a point; pass a larger precision for such values.
 - **A product is not a power.** Use `pown` for even powers of an interval
   that contains 0; `x * x` treats the two factors as independent.
 - **Empty and whole are successes.** Test `is_empty` / `is_entire` on the

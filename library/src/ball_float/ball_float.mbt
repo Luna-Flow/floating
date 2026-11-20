@@ -1,5 +1,5 @@
 ///|
-#derive(Eq, Debug)
+#derive(Debug)
 pub struct BallFloat {
   priv lo_ : @bin_float.BinFloat
   priv hi_ : @bin_float.BinFloat
@@ -982,7 +982,7 @@ pub fn BallFloat::try_exact(
 }
 
 ///|
-pub fn BallFloat::from_int(n : Int32, precision~ : Int32 = 16) -> BallFloat {
+pub fn BallFloat::from_int(n : Int32, precision~ : Int32 = 53) -> BallFloat {
   // Build the integer exactly and let the interval round outward. Rounding it
   // to `precision` first produced a singleton that excluded its own input.
   BallFloat::exact(@bin_float.BinFloat::from_int(n, precision=32), precision~)
@@ -991,7 +991,7 @@ pub fn BallFloat::from_int(n : Int32, precision~ : Int32 = 16) -> BallFloat {
 ///|
 pub fn BallFloat::from_coefficient(
   coefficient : @bin_float.BinCoeff,
-  precision~ : Int32 = 16,
+  precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> BallFloat {
   // As in `from_int`: keep the coefficient exact and round the interval
@@ -1534,7 +1534,10 @@ pub fn BallFloat::is_member(self : BallFloat, x : @bin_float.BinFloat) -> Bool {
 }
 
 ///|
-pub fn BallFloat::set_equal(self : BallFloat, other : BallFloat) -> Bool {
+/// `equal` of IEEE 1788-2015 Table 10.3 (12.12.9): the two intervals are the
+/// same set, whatever their precision tags and the representation of their
+/// endpoints; two empty intervals are equal. This is `==`.
+pub impl Eq for BallFloat with fn equal(self, other) {
   (self.is_empty() && other.is_empty()) ||
   (
     !self.is_empty() &&
@@ -1542,6 +1545,13 @@ pub fn BallFloat::set_equal(self : BallFloat, other : BallFloat) -> Bool {
     self.lo_.compare(other.lo_) == 0 &&
     self.hi_.compare(other.hi_) == 0
   )
+}
+
+///|
+/// Identical datums (12.3): the same set and the same precision (the type of
+/// the interval at Level 2).
+pub fn BallFloat::identical(self : BallFloat, other : BallFloat) -> Bool {
+  self == other && self.precision_ == other.precision_
 }
 
 ///|

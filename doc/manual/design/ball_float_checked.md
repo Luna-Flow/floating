@@ -128,7 +128,7 @@ propagation. The same holds for `BallFlags`. Applications that need either use
 
 ### Construction precision
 
-The constructors use the defaults of `ball_float` (16 bits for integers, 53 for
+The constructors use the defaults of `ball_float` (53 bits for integers and for
 `Double`, 24 for `Float`, the source precision for `exact`, the larger bound
 precision for `from_bounds`). All constructors round outward, so the source value is always enclosed:
 `from_int` and `from_coefficient` convert the integer exactly and then round

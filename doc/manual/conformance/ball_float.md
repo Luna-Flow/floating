@@ -12,14 +12,14 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 | --- | --- | --- | --- | --- |
 | §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (4,656 cases) | conforming for the selected phases |
 | §4.2.2 compressed decorated interval arithmetic | optional | none | none | not implemented |
-| §9.1, §10.5.3 forward-mode arithmetic and elementary functions | required | `add`, `sub`, `mul`, `div`, `reciprocal`, `square`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174 | partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations) |
+| §9.1, §10.5.3 forward-mode arithmetic and elementary functions | required | `add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174 | partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations) |
 | §10.5.4 reverse-mode elementary functions | required | none | none | not implemented (issue [#21](https://github.com/Luna-Flow/floating/issues/21)) |
 | §10.5.5 two-output division | required | none | none | not implemented |
 | §9.2, §10.5.6 cancellative addition and subtraction | required | `cancel_plus`, `cancel_minus` | ITF1788 cancellation phase (242 cases) | conforming |
 | §9.3, §10.5.7 set operations | required | `intersection`, `convex_hull` | ITF1788 sets phase (20 cases) | conforming |
 | §9.8, §10.5.8 constructors | required | `from_bounds`, `new`, `exact`, `from_int`, `from_double`, `from_float` | ITF1788 sets phase; `library/src/ball_float/ieee1788_arithmetic_wbtest.mbt` | partial (no text-to-interval constructor) |
 | §9.4, §10.5.9 numeric functions of intervals | required | `lower_bound`, `upper_bound`, `midpoint`, `radius`, `width`, `magnitude`, `mignitude` | ITF1788 numeric observations phase (124 cases) | conforming |
-| §9.5, §10.5.10 boolean functions of intervals | required | `is_empty`, `is_entire`, `is_singleton`, `is_common_interval`, `contains`, `set_equal`, `subset`, `interior`, `disjoint`, `less`, `precedes`, `strictly_less`, `strictly_precedes`, `overlap_state` | ITF1788 relations phase (567 cases); `library/src/ball_float/ieee1788_relations_wbtest.mbt` | conforming |
+| §9.5, §10.5.10 boolean functions of intervals | required | `is_empty`, `is_entire`, `is_singleton`, `is_common_interval`, `is_member`, `==` (`equal`), `subset`, `interior`, `disjoint`, `less`, `precedes`, `strict_less`, `strict_precedes`, `overlap` | ITF1788 relations phase (567 cases); `library/src/ball_float/ieee1788_relations_wbtest.mbt` | conforming |
 | §10.6.2 slope functions | recommended | none | none | not implemented |
 | §10.6.4 extended interval comparisons | recommended | the `DefinitelyLt`, `DefinitelyLe`, `MaybeEq` and `Overlaps` trait implementations | `library/src/ball_float/ieee1788_relations_wbtest.mbt` | partial |
 | §9.6, §11 decoration system | required | `Decoration`, `BallFloatDecorated`, `decoration`, `is_nai` | ITF1788 phases above (every selected case checks the decoration) | conforming for the selected phases; decorated `rootn` with a negative degree can keep a decoration above `trv` (see the [design page](../design/ball_float.md#known-limitations)) |
@@ -41,8 +41,8 @@ evidence for every case it runs, not only containment.
 
 | Operations | Tightness | Range | Evidence |
 | --- | --- | --- | --- |
-| `neg`, `add`, `sub`, `mul`, `div`, `reciprocal`, `square`, `sqrt`, `fma` | tightest | all inputs | outward rounding of the exact hull ([design](../design/ball_float.md#correctness-and-invariants)); ITF1788 add/sub/mul/div (539), elementary core (107), FMA (567) |
-| `abs`, `minimum`, `maximum` | tightest | all inputs | design; ITF1788 elementary core and extrema |
+| `neg`, `add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma` | tightest | all inputs | outward rounding of the exact hull ([design](../design/ball_float.md#correctness-and-invariants)); ITF1788 add/sub/mul/div (539), elementary core (107), FMA (567) |
+| `abs`, `min`, `max` | tightest | all inputs | design; ITF1788 elementary core and extrema |
 | `pown` | tightest | all inputs except a degree below −4096 with 0 inside the input, which gives Entire (valid) | design; ITF1788 integer power (174) |
 | `intersection`, `convex_hull` | tightest | all inputs | ITF1788 sets |
 | `cancel_plus`, `cancel_minus` | as §12.12.5 requires | all inputs | ITF1788 cancellation (242) |

@@ -32,7 +32,7 @@ pub fn BallFloatResult::err(err : @def.ArithmeticError) -> BallFloatResult {
 ///|
 pub fn BallFloatResult::from_int(
   value : Int32,
-  precision~ : Int32 = 16,
+  precision~ : Int32 = 53,
 ) -> BallFloatResult {
   BallFloatResult::ok(@ball_float.BallFloat::from_int(value, precision~))
 }
@@ -40,7 +40,7 @@ pub fn BallFloatResult::from_int(
 ///|
 pub fn BallFloatResult::from_coefficient(
   value : @bin_float.BinCoeff,
-  precision~ : Int32 = 16,
+  precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> BallFloatResult {
   BallFloatResult::ok(

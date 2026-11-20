@@ -293,7 +293,7 @@ is exact for $\boldsymbol{x} = [1, 2]$). The same effect explains $\boldsymbol{x
 ($[-1, 2]\cdot[-1, 2] = [-2, 4]$ but $[-1, 2]^2 = [0, 4]$) and
 *subdistributivity*, $\boldsymbol{x}(\boldsymbol{y} + \boldsymbol{z})
 \subseteq \boldsymbol{x}\boldsymbol{y} + \boldsymbol{x}\boldsymbol{z}$. For
-this reason the package provides single-occurrence operations — `square`,
+this reason the package provides single-occurrence operations — `sqr`,
 `pown`, `fma`, `hypot`, `cancel_minus` and the elementary functions — whose
 results are hulls of the true range (up to rounding) rather than products of
 independent factors. Interval values also do not form a group under addition:
@@ -573,7 +573,7 @@ anything from an empty enclosure; the `DefinitelyLt` and `DefinitelyLe` relation
 return false for empty operands, whereas the IEEE 1788 relation `precedes`
 ($\forall\xi\,\forall\eta: \xi \le \eta$) is defined to be vacuously true.
 
-The set relations (`subset`, `interior`, `disjoint`, `set_equal`) and the
+The set relations (`subset`, `interior`, `disjoint`, `==`) and the
 IEEE 1788 orders (`less`: $\forall\xi\,\exists\eta\, \xi \le \eta$ and
 $\forall\eta\,\exists\xi\, \xi \le \eta$, which reduces to comparing both
 endpoint pairs) are evaluated by endpoint comparisons in the same way. None of
@@ -771,8 +771,8 @@ endpoint enclosures for elementary functions, and by the fallbacks for
 uncertified cases (the exceptions are listed under known limitations). By the
 fundamental theorem, so does every composition.
 
-**Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`,
-`maximum`, `intersection`, `convex_hull` of non-empty operands and
+**Tightness.** Basic arithmetic, `sqr`, `pown`, `fma`, `abs`, `min`,
+`max`, `intersection`, `convex_hull` of non-empty operands and
 `sqrt` return the outward rounding of the exact hull, so each
 endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints
 are correctly directed roundings when certified; the other elementary

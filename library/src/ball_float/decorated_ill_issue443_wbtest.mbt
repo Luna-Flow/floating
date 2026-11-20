@@ -10,7 +10,7 @@ test "new with the decoration ill returns NaI (#443)" {
     let d = BallFloatDecorated::new(x, decoration=Ill)
     assert_true(d.is_nai())
     assert_true(d.decoration() == Ill)
-    assert_true(d == BallFloatDecorated::nai(precision=x.precision()))
+    assert_true(d.identical(BallFloatDecorated::nai(precision=x.precision())))
   }
   // The precision of the interval is kept.
   let p24 = BallFloatDecorated::new(

@@ -37,7 +37,7 @@ test "IEEE 1788 general power follows the nonnegative real domain" {
   )
   let zero = elementary_test_interval(0.0, 0.0)
   assert_true(zero.pow(elementary_test_interval(0.0, 0.0)).is_empty())
-  assert_true(zero.pow(elementary_test_interval(1.0, 2.0)).set_equal(zero))
+  assert_true(zero.pow(elementary_test_interval(1.0, 2.0)).equal(zero))
   assert_true(
     elementary_test_interval(-2.0, -1.0)
     .pow(elementary_test_interval(2.0, 2.0))
@@ -108,13 +108,13 @@ test "trigonometric unbounded and extreme arguments degrade conservatively" {
   assert_true(
     BallFloat::entire(precision=53)
     .sin()
-    .set_equal(elementary_test_interval(-1.0, 1.0)),
+    .equal(elementary_test_interval(-1.0, 1.0)),
   )
   let extreme = BallFloat::exact(
     @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8_100_000, 53),
     precision=53,
   )
-  assert_true(extreme.cos().set_equal(elementary_test_interval(-1.0, 1.0)))
+  assert_true(extreme.cos().equal(elementary_test_interval(-1.0, 1.0)))
   match extreme.try_cos() {
     Err(error) => {
       let detail = error.certification_failure_detail().unwrap()

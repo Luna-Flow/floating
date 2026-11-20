@@ -11,7 +11,7 @@ fn arithmetic_interval(lo : Int32, hi : Int32) -> BallFloat {
 test "IEEE 1788 multiplication is tight for zero and unbounded intervals" {
   let zero = arithmetic_interval(0, 0)
   let entire = BallFloat::entire(precision=53)
-  assert_true((zero * entire).set_equal(zero))
+  assert_true((zero * entire).equal(zero))
   let positive_half = BallFloat::from_bounds(
     @bin_float.BinFloat::one(precision=53),
     @bin_float.BinFloat::inf(Sign::Positive, precision=53),
@@ -43,7 +43,7 @@ test "IEEE 1788 division keeps one-sided zero bounds tight" {
 test "IEEE 1788 division handles zero numerator and zero denominator" {
   let zero = arithmetic_interval(0, 0)
   let spanning = arithmetic_interval(-1, 1)
-  assert_true((zero / spanning).set_equal(zero))
+  assert_true((zero / spanning).equal(zero))
   assert_true((spanning / zero).is_empty())
 }
 
@@ -58,7 +58,7 @@ test "IEEE 1788 division reduces sign-definite quotients to two corners" {
   assert_eq(negative.lower_bound().compare(half.neg()), 0)
   assert_eq(negative.upper_bound().compare(quarter.neg()), 0)
   let crossing = arithmetic_interval(-2, 4) / arithmetic_interval(2, 4)
-  assert_true(crossing.set_equal(arithmetic_interval(-1, 2)))
+  assert_true(crossing.equal(arithmetic_interval(-1, 2)))
   let one_sided = BallFloat::from_bounds(
     @bin_float.BinFloat::one(precision=53),
     @bin_float.BinFloat::inf(Sign::Positive, precision=53),
@@ -119,11 +119,11 @@ test "binary context applies gradual directed underflow" {
 test "IEEE 1788 cancellation contracts compatible widths" {
   let left = arithmetic_interval(-5, 0)
   let right = arithmetic_interval(1, 5)
-  assert_true(left.cancel_plus(right).set_equal(arithmetic_interval(0, 1)))
+  assert_true(left.cancel_plus(right).equal(arithmetic_interval(0, 1)))
   let minuend = arithmetic_interval(-5, 0)
   let subtrahend = arithmetic_interval(-4, 0)
   assert_true(
-    minuend.cancel_minus(subtrahend).set_equal(arithmetic_interval(-1, 0)),
+    minuend.cancel_minus(subtrahend).equal(arithmetic_interval(-1, 0)),
   )
   assert_true(
     arithmetic_interval(-5, -1)
@@ -137,9 +137,7 @@ test "IEEE 1788 fused multiply-add rounds only the final enclosure" {
   let left = arithmetic_interval(-2, 3)
   let multiplier = arithmetic_interval(4, 5)
   let addend = arithmetic_interval(1, 2)
-  assert_true(
-    left.fma(multiplier, addend).set_equal(arithmetic_interval(-9, 17)),
-  )
+  assert_true(left.fma(multiplier, addend).equal(arithmetic_interval(-9, 17)))
   assert_true(left.fma(multiplier, BallFloat::empty(precision=53)).is_empty())
 }
 
@@ -147,23 +145,21 @@ test "IEEE 1788 fused multiply-add rounds only the final enclosure" {
 test "IEEE 1788 finite multiplication keeps sign-partition bounds" {
   let nonnegative = arithmetic_interval(0, 3)
   let nonpositive = arithmetic_interval(-2, 0)
-  assert_true(
-    nonnegative.mul(nonpositive).set_equal(arithmetic_interval(-6, 0)),
-  )
+  assert_true(nonnegative.mul(nonpositive).equal(arithmetic_interval(-6, 0)))
   assert_true(
     arithmetic_interval(-3, -1)
     .mul(arithmetic_interval(2, 4))
-    .set_equal(arithmetic_interval(-12, -2)),
+    .equal(arithmetic_interval(-12, -2)),
   )
 }
 
 ///|
 test "IEEE 1788 pown uses directed endpoints across zero and poles" {
   assert_true(
-    arithmetic_interval(-2, 3).pown(3).set_equal(arithmetic_interval(-8, 27)),
+    arithmetic_interval(-2, 3).pown(3).equal(arithmetic_interval(-8, 27)),
   )
   assert_true(
-    arithmetic_interval(-2, 3).pown(2).set_equal(arithmetic_interval(0, 9)),
+    arithmetic_interval(-2, 3).pown(2).equal(arithmetic_interval(0, 9)),
   )
   let zero = arithmetic_interval(0, 0)
   assert_true(zero.pown(-2).is_empty())
@@ -184,7 +180,7 @@ test "IEEE 1788 pown uses directed endpoints across zero and poles" {
 ///|
 test "IEEE 1788 pown preserves negative-half-axis monotonicity" {
   let negative = arithmetic_interval(-3, -2)
-  assert_true(negative.pown(2).set_equal(arithmetic_interval(4, 9)))
+  assert_true(negative.pown(2).equal(arithmetic_interval(4, 9)))
   let reciprocal = negative.pown(-2)
   assert_true(reciprocal.lower_bound().compare(reciprocal.upper_bound()) <= 0)
   assert_true(reciprocal.lower_bound().sign() == Sign::Positive)
@@ -221,12 +217,12 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   assert_true(
     BallFloat::from_int(1, precision=53)
     .pown(minimum_exponent)
-    .set_equal(BallFloat::from_int(1, precision=53)),
+    .equal(BallFloat::from_int(1, precision=53)),
   )
   assert_true(
     BallFloat::from_int(-1, precision=53)
     .pown(minimum_exponent)
-    .set_equal(BallFloat::from_int(1, precision=53)),
+    .equal(BallFloat::from_int(1, precision=53)),
   )
   // 2^(Int min) is below the binary implementation range, so the enclosure
   // widens outward to [0, smallest positive] instead of wrapping the exponent.

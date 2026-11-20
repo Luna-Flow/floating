@@ -43,7 +43,6 @@ fn canonical_decoration(
 }
 
 ///|
-#derive(Eq)
 pub struct BallFloatDecorated {
   priv interval_ : BallFloat
   priv decoration_ : Decoration
@@ -119,11 +118,26 @@ pub fn BallFloatDecorated::is_member(
 }
 
 ///|
-pub fn BallFloatDecorated::set_equal(
+/// `equal` of IEEE 1788-2015 12.12.9 on decorated intervals: false when either
+/// is NaI (so NaI is not equal to itself under `==`, as NaN is not), and
+/// otherwise the equality of the interval parts; decorations are ignored.
+pub impl Eq for BallFloatDecorated with fn equal(self, other) {
+  !self.is_nai() && !other.is_nai() && self.interval_ == other.interval_
+}
+
+///|
+/// Identical datums (12.3): NaI is identical to NaI; otherwise the same
+/// interval part (set and precision) and the same decoration.
+pub fn BallFloatDecorated::identical(
   self : BallFloatDecorated,
   other : BallFloatDecorated,
 ) -> Bool {
-  !self.is_nai() && !other.is_nai() && self.interval_.set_equal(other.interval_)
+  if self.is_nai() || other.is_nai() {
+    self.is_nai() && other.is_nai()
+  } else {
+    self.interval_.identical(other.interval_) &&
+    self.decoration_ == other.decoration_
+  }
 }
 
 ///|

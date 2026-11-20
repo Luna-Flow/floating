@@ -78,12 +78,12 @@ pub fn BallFloatResult::from_int(Int, precision? : Int) -> Self
 pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
 ```
 
-The default precision is **16 bits**. The integer is converted exactly and
+The default precision is **53 bits**. The integer is converted exactly and
 then rounded outward to the precision, so the result always contains it: a
 singleton when the integer fits in the precision, otherwise the two-point
-interval of its neighbours (for example `from_int(100001)`, a 17-bit odd
-integer, gives an interval of width 2). Pass a precision large enough for the
-integer to get a point.
+interval of its neighbours (for example `from_int(100001, precision=8)`, a
+17-bit odd integer, gives an interval of width 2^9). Pass a precision large
+enough for the integer to get a point.
 
 ### `BallFloatResult::from_double`, `BallFloatResult::from_float`
 

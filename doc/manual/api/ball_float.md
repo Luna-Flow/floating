@@ -104,9 +104,10 @@ A non-empty value satisfies $\underline{x} \le \overline{x}$, has no NaN
 endpoint, never has $\underline{x} = +\infty$ or $\overline{x} = -\infty$, and
 has precision $\ge 1$. The empty set is a separate state. The fields are
 private; construct values with the functions in
-[Construction](#construction). The derived `Eq` compares the stored
-representation (endpoints and precision), not the sets; see
-[`BallFloat::set_equal`](#ballfloatsubset-ballfloatinterior-ballfloatset_equal-ballfloatdisjoint).
+[Construction](#construction). `==` is the `equal` of IEEE 1788-2015 Table 10.3: it compares the sets, not
+the representation; see
+[`BallFloat::equal`](#ballfloatsubset-ballfloatinterior-ballfloatequal-ballfloatdisjoint)
+and [`BallFloat::identical`](#ballfloatidentical).
 
 ### `BallFloatDecorated`
 
@@ -156,7 +157,7 @@ totally ordered; `Decoration` derives `Compare` in that order, so `<`, `<=`,
 
 ### `OverlapState`
 
-`OverlapState` is the result of `overlap_state`: the IEEE 1788 classification
+`OverlapState` is the result of `overlap`: the IEEE 1788 classification
 of the relative position of two intervals.
 
 ```mbti
@@ -303,7 +304,7 @@ pub fn BallFloat::from_int(Int, precision? : Int) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
 ```
 
-The default precision is 16. `from_coefficient` takes a non-negative
+The default precision is 53. `from_coefficient` takes a non-negative
 `BinCoeff` magnitude and a separate sign. The integer is converted to a
 `BinFloat` exactly and then passed to `exact`, so the result is the singleton
 $\{n\}$ when $n$ fits in $p$ bits and the two-point interval
@@ -462,7 +463,7 @@ pub fn BallFloat::is_singleton(Self) -> Bool
 `is_common_interval` holds when the interval is non-empty with two finite
 endpoints (IEEE 1788-2015 10.6.3). `is_singleton` holds when
 $\underline{x} = \overline{x}$. To ask whether an interval contains 0, use
-`contains` with a zero.
+`is_member` with a zero.
 
 ## Precision
 
@@ -505,9 +506,9 @@ test "with_precision keeps the endpoints" {
   let y = x.with_precision(53)
   inspect(y.lower_bound().to_string(), content="1p0")
   inspect(y.upper_bound().to_string(), content="4503599627370497p-52")
-  inspect(y.set_equal(x), content="true")
+  inspect(y.equal(x), content="true")
   // `normalized` keeps the endpoints too.
-  inspect(x.normalized().set_equal(x), content="true")
+  inspect(x.normalized().equal(x), content="true")
 }
 ```
 
@@ -592,7 +593,7 @@ They never abort.
 
 ### `BallFloat::is_member`
 
-`contains` tests whether a point belongs to the interval.
+`is_member` tests whether a point belongs to the interval.
 
 ```mbti
 pub fn BallFloat::is_member(Self, @bin_float.BinFloat) -> Bool
@@ -604,7 +605,7 @@ method `@lf_arith.Contains::contains` instead takes two intervals and tests
 inclusion; see
 [Enclosure relations](#arithmeticcontains-arithmeticoverlaps-arithmeticdefinitelylt-arithmeticdefinitelyle-arithmeticmaybeeq).
 
-### `BallFloat::subset`, `BallFloat::interior`, `BallFloat::set_equal`, `BallFloat::disjoint`
+### `BallFloat::subset`, `BallFloat::interior`, `BallFloat::equal`, `BallFloat::disjoint`
 
 These test inclusion, inclusion in the interior, equality and disjointness of
 sets.
@@ -612,7 +613,7 @@ sets.
 ```mbti
 pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool
-pub fn BallFloat::set_equal(Self, Self) -> Bool
+pub fn BallFloat::equal(Self, Self) -> Bool
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 ```
 
@@ -622,8 +623,24 @@ $\underline{y} \le \underline{x}$ and $\overline{x} \le \overline{y}$.
 \boldsymbol{y}$: each endpoint comparison is strict, except that two equal
 infinite endpoints count as interior (the interior of $[a, +\infty)$ is
 $(a, +\infty)$, so Entire is interior to itself). Empty is a subset of,
-interior to and disjoint from every interval. `set_equal` ignores the
-precision tag and the representation of the endpoints.
+interior to and disjoint from every interval. `equal` is the method of the
+`Eq` implementation, so `x == y` is `x.equal(y)`: the two intervals are the
+same set (two empty intervals are equal), whatever their precision tags and the
+representation of their endpoints (IEEE 1788-2015 12.3 and 12.12.9).
+
+### `BallFloat::identical`
+
+`identical` compares the datum, not only the set (12.3): the same set and the
+same precision tag.
+
+```mbti
+pub fn BallFloat::identical(Self, Self) -> Bool
+```
+
+The same interval at 24 and at 113 bits is `==` and not `identical`; use
+`identical` where the precision matters, for example to check that a result
+has the precision that was asked for. Two empty intervals are identical when
+their precisions are equal.
 
 ### `BallFloat::less`, `BallFloat::strict_less`, `BallFloat::precedes`, `BallFloat::strict_precedes`
 
@@ -641,16 +658,16 @@ For non-empty operands:
 | Relation | Set definition | Condition |
 | --- | --- | --- |
 | `less` | $\forall\xi\,\exists\eta: \xi \le \eta$ and $\forall\eta\,\exists\xi: \xi \le \eta$ | $\underline{x} \le \underline{y}$ and $\overline{x} \le \overline{y}$ |
-| `strictly_less` | the same with $<$ | $\underline{x} < \underline{y}$ (or both $-\infty$) and $\overline{x} < \overline{y}$ (or both $+\infty$) |
+| `strict_less` | the same with $<$ | $\underline{x} < \underline{y}$ (or both $-\infty$) and $\overline{x} < \overline{y}$ (or both $+\infty$) |
 | `precedes` | $\forall\xi\,\forall\eta: \xi \le \eta$ | $\overline{x} \le \underline{y}$ |
-| `strictly_precedes` | $\forall\xi\,\forall\eta: \xi < \eta$ | $\overline{x} < \underline{y}$ |
+| `strict_precedes` | $\forall\xi\,\forall\eta: \xi < \eta$ | $\overline{x} < \underline{y}$ |
 
-With Empty: `less` and `strictly_less` hold only when both are Empty;
-`precedes` and `strictly_precedes` hold when either is Empty.
+With Empty: `less` and `strict_less` hold only when both are Empty;
+`precedes` and `strict_precedes` hold when either is Empty.
 
 ### `BallFloat::overlap`
 
-`overlap_state` classifies the relative position of two intervals.
+`overlap` classifies the relative position of two intervals.
 
 ```mbti
 pub fn BallFloat::overlap(Self, Self) -> OverlapState
@@ -759,7 +776,7 @@ Both are exact. `neg` is also the unary operator `-`.
 
 ### `BallFloat::recip`
 
-`reciprocal` returns $1/\boldsymbol{x}$ with the division rules above.
+`recip` returns $1/\boldsymbol{x}$ with the division rules above.
 
 ```mbti
 pub fn BallFloat::recip(Self) -> Self
@@ -767,7 +784,7 @@ pub fn BallFloat::recip(Self) -> Self
 
 ### `BallFloat::sqr` and `BallFloat::pown`
 
-`square` returns $\{\xi^2\}$ and `pown` returns $\{\xi^n\}$ for an integer
+`sqr` returns $\{\xi^2\}$ and `pown` returns $\{\xi^n\}$ for an integer
 exponent $n$.
 
 ```mbti
@@ -776,7 +793,7 @@ pub fn BallFloat::pown(Self, Int) -> Self
 ```
 
 Unlike `x * x`, these use the same point twice, so `[-1, 2].sqr()` is
-$[0, 4]$ (while `x * x` is $[-2, 4]$): `square` is
+$[0, 4]$ (while `x * x` is $[-2, 4]$): `sqr` is
 $[\operatorname{mig}(\boldsymbol{x})^2, \operatorname{mag}(\boldsymbol{x})^2]$.
 `pown` evaluates the monotone pieces of $\xi^n$ at the endpoints with directed
 rounding: odd positive powers are increasing; even positive powers decrease
@@ -815,7 +832,7 @@ than `x * y + z`.
 
 ### `BallFloat::min` and `BallFloat::max`
 
-`minimum` and `maximum` return $\{\min(\xi, \eta)\}$ and
+`min` and `max` return $\{\min(\xi, \eta)\}$ and
 $\{\max(\xi, \eta)\}$.
 
 ```mbti
@@ -823,8 +840,8 @@ pub fn BallFloat::min(Self, Self) -> Self
 pub fn BallFloat::max(Self, Self) -> Self
 ```
 
-`minimum` is $[\min(\underline{x}, \underline{y}), \min(\overline{x},
-\overline{y})]$ and `maximum` is the analogue with `max`: $\min$ is
+`min` is $[\min(\underline{x}, \underline{y}), \min(\overline{x},
+\overline{y})]$ and `max` is the analogue with `max`: $\min$ is
 increasing in each argument. An Empty operand gives Empty.
 
 ## Elementary functions
@@ -1325,13 +1342,14 @@ pub fn BallFloatDecorated::is_singleton(Self) -> Bool
 pub fn BallFloatDecorated::is_member(Self, @bin_float.BinFloat) -> Bool
 ```
 
-### `BallFloatDecorated::set_equal`, `BallFloatDecorated::subset`, `BallFloatDecorated::interior`, `BallFloatDecorated::disjoint`, `BallFloatDecorated::less`, `BallFloatDecorated::strict_less`, `BallFloatDecorated::precedes`, `BallFloatDecorated::strict_precedes`, `BallFloatDecorated::overlap`
+### `BallFloatDecorated::equal`, `BallFloatDecorated::identical`, `BallFloatDecorated::subset`, `BallFloatDecorated::interior`, `BallFloatDecorated::disjoint`, `BallFloatDecorated::less`, `BallFloatDecorated::strict_less`, `BallFloatDecorated::precedes`, `BallFloatDecorated::strict_precedes`, `BallFloatDecorated::overlap`
 
 These relations apply the bare relation to the intervals and return false
 when an operand is NaI.
 
 ```mbti
-pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
+pub fn BallFloatDecorated::equal(Self, Self) -> Bool
+pub fn BallFloatDecorated::identical(Self, Self) -> Bool
 pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
@@ -1382,7 +1400,7 @@ pub fn BallFloatDecorated::max(Self, Self) -> Self
 
 | Operation | Operation decoration |
 | --- | --- |
-| `div`, `reciprocal` | `Trv` when the divisor contains 0 |
+| `div`, `recip` | `Trv` when the divisor contains 0 |
 | `pown(x, n)` | `Trv` when $n < 0$ and $0 \in \boldsymbol{x}$ |
 | `pos` | identity (IEEE 1788 `pos`) |
 | others | `Com` |
@@ -1573,10 +1591,13 @@ pub fn OverlapState::not_equal(Self, Self) -> Bool
 pub fn OverlapState::to_repr(Self) -> @debug.Repr
 ```
 
-The `Eq` implementations compare representations. For `BallFloat` and
-`BallFloatDecorated` this distinguishes equal sets stored with different
-precision tags or endpoint precisions; use `set_equal` for sets. `to_repr`
-gives the structural `Debug` form.
+The `Eq` implementations of `BallFloat` and `BallFloatDecorated` are the
+`equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation:
+`==` compares sets, ignoring precision tags, and on decorated intervals it is
+false whenever one operand is NaI, so NaI is not equal to itself (as NaN is
+not), and decorations are ignored. `identical` is the equality of the datum.
+`to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and
+`OverlapState` is the equality of the variants.
 
 ### `@arithmetic.Contains`, `@arithmetic.Overlaps`, `@arithmetic.DefinitelyLt`, `@arithmetic.DefinitelyLe`, `@arithmetic.MaybeEq`
 
@@ -1599,12 +1620,12 @@ the same relation read as "the two unknown points may be equal".
 `DefinitelyLe::definitely_le(x, y)` is $\overline{x} \le \underline{y}$: they hold
 when the order holds for every pair of points. All four are false when an
 operand is Empty. This differs from `disjoint`, `precedes` and
-`strictly_precedes`, which are true for an Empty operand (IEEE 1788-2015
+`strict_precedes`, which are true for an Empty operand (IEEE 1788-2015
 Table 10.4): `overlaps` is false where `disjoint` is true, and
-`definitely_lt` is false where `strictly_precedes` is true, so a `true` answer
+`definitely_lt` is false where `strict_precedes` is true, so a `true` answer
 of the traits is always backed by at least one pair of points. These are the
 generic interface of `Luna-Flow/arithmetic`; the interval package spells the
-standard relations `disjoint`, `precedes` and `strictly_precedes`.
+standard relations `disjoint`, `precedes` and `strict_precedes`.
 
 ### `BallFloat::div_checked`, `BallFloat::pow_nat_checked`, `BallFloat::pow_int_checked`
 
@@ -1688,7 +1709,7 @@ pub fn BallFlags::not_equal(Self, Self) -> Bool
 pub fn BallFlags::overflow(Self) -> Bool
 pub fn BallFlags::underflow(Self) -> Bool
 
-#derive(Eq, @debug.Debug)
+#derive(@debug.Debug)
 pub struct BallFloat {
   // private fields
 }
@@ -1727,6 +1748,7 @@ pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloat::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloat::hypot(Self, Self) -> Self
+pub fn BallFloat::identical(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool
 pub fn BallFloat::intersection(Self, Self) -> Self
 pub fn BallFloat::is_common_interval(Self) -> Bool
@@ -1763,7 +1785,6 @@ pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
-pub fn BallFloat::set_equal(Self, Self) -> Bool
 pub fn BallFloat::sin(Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
@@ -1822,12 +1843,12 @@ pub impl @arithmetic.PowIntChecked for BallFloat
 pub impl @arithmetic.PowNatChecked for BallFloat
 pub impl Add for BallFloat
 pub impl Div for BallFloat
+pub impl Eq for BallFloat
 pub impl Mul for BallFloat
 pub impl Neg for BallFloat
 pub impl Show for BallFloat
 pub impl Sub for BallFloat
 
-#derive(Eq)
 pub struct BallFloatDecorated {
   // private fields
 }
@@ -1857,6 +1878,7 @@ pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
+pub fn BallFloatDecorated::identical(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
 pub fn BallFloatDecorated::intersection(Self, Self) -> Self
 pub fn BallFloatDecorated::interval(Self) -> BallFloat
@@ -1886,7 +1908,6 @@ pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
-pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::sin(Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
@@ -1902,6 +1923,7 @@ pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
+pub impl Eq for BallFloatDecorated
 pub impl Mul for BallFloatDecorated
 pub impl Show for BallFloatDecorated
 pub impl Sub for BallFloatDecorated

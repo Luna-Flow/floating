@@ -972,7 +972,7 @@ fn execute_boolean_case(case : ItlCase, precision : Int32) -> ItlResult {
     }
   }
   let actual = match case.operation_ {
-    "equal" => left.set_equal(right)
+    "equal" => left.equal(right)
     "subset" => left.subset(right)
     "interior" => left.interior(right)
     "disjoint" => left.disjoint(right)
