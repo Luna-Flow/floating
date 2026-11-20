@@ -26,6 +26,8 @@ from decimal import Context, Decimal
 from fractions import Fraction
 from typing import Callable, Iterator, Sequence
 
+# Exact integer powers have thousands of digits.
+sys.set_int_max_str_digits(0)
 MASK = (1 << 64) - 1
 FAMILIES = (
     "add",
@@ -167,6 +169,7 @@ class Row:
     # An expected difference from libmpdec (see `power_of_ten_difference`):
     # the libmpdec result and conditions, written as a comment before the row.
     libmpdec: str = ""
+    classes: tuple[str, ...] = ()
 
 
 # ---------------------------------------------------------------- operands ---
@@ -673,7 +676,11 @@ def undefined_division(operands: Sequence[Decimal]) -> bool:
 # Largest precision and exponent magnitude of the contexts in which `exp`, `ln`,
 # `log10` and non-integral `power` are defined (decNumber's DEC_MAX_MATH).
 MATH_LIMIT = 999999
-POWER_OF_TEN_MARKER = "expected-difference power-of-ten #351"
+POWER_OF_TEN_CLASS = "power-of-ten #351"
+INTEGER_POWER_CLASS = "integer-power-accuracy"
+NONINTEGER_POWER_CLASS = "noninteger-power-rounding"
+UNDERFLOW_CLASS = "underflow-with-inexact-subnormal"
+SUBNORMAL_CLASS = "subnormal-before-rounding"
 
 
 def power_of_ten_exponent(base: Decimal, exponent: Decimal) -> int | None:
@@ -739,6 +746,189 @@ def power_of_ten_difference(case: Case, libmpdec: Decimal) -> tuple[str, tuple[s
     return str(expected), conditions
 
 
+# --------------------------------------------- the other power differences ---
+# Each class below is a named expected difference of the `power` family: the
+# row expects what this library returns, derived from the rule of the class,
+# and the generator checks the facts the class stands on. A row that fits no
+# class keeps libmpdec's result and fails when it differs.
+
+# Largest `n * digits(coefficient)` for which the exact integer power is formed
+# by the generator.
+EXACT_POWER_LIMIT = 100000
+# Precision in digits above which the correctly rounded value of a non-integral
+# power is not recomputed by the generator.
+RECOMPUTE_PRECISION_LIMIT = 100
+
+
+def ulp_of(value: Decimal) -> Fraction:
+    return Fraction(Decimal((0, (1,), value.as_tuple().exponent)))
+
+
+def decnumber_integer_power(base: Decimal, count: int, context: Ctx) -> Decimal | None:
+    """The result of the integer-power algorithm of decNumber (`decNumberPower`)
+    for an extended context: working precision `digits + digits(n) + 2` with
+    half-even rounding, the base inverted first for a negative exponent, the
+    binary left-to-right square-and-multiply loop, then one final rounding to
+    the context. This library implements the same algorithm (design/decimal_gda,
+    integer powers), and the 0.55 and 0.6 ulp bounds of the conformance page are
+    those of this algorithm. `None` when the result leaves the exponent range of
+    the context or the working values leave that of Python."""
+    working = decimal.Context(
+        prec=context.precision + len(str(abs(count))) + 2,
+        rounding=decimal.ROUND_HALF_EVEN,
+        Emax=decimal.MAX_EMAX,
+        Emin=decimal.MIN_EMIN,
+        traps=[],
+    )
+    factor = base
+    if count < 0:
+        factor = working.divide(Decimal(1), base)
+    accumulator = Decimal(1)
+    seen = False
+    for bit in bin(abs(count))[2:]:
+        if seen:
+            accumulator = working.multiply(accumulator, accumulator)
+        if bit == "1":
+            seen = True
+            accumulator = working.multiply(accumulator, factor)
+    final = context.python()
+    rounded = final.plus(accumulator)
+    for signal in (decimal.Overflow, decimal.Underflow, decimal.Subnormal, decimal.Clamped):
+        if final.flags[signal]:
+            return None
+    return rounded
+
+
+def integer_power_difference(case: Case, libmpdec: Decimal) -> str | None:
+    """Class `integer-power-accuracy`: `power` with an integral exponent whose
+    result this library delivers one unit in the last place from libmpdec's.
+
+    GDA 1.70, power: "Inexact finite results should be correctly rounded, but
+    may be up to 1 ulp (unit in last place) in error." libmpdec rounds correctly;
+    this library follows the decNumber algorithm, whose error is below 0.55 ulp
+    (0.6 for a negative exponent) in the half modes, and `power.decTest` pins a
+    result that is not within 0.5 ulp (powx1215). The expected value is the one
+    of that algorithm (`decnumber_integer_power`). Checked: this value is within
+    0.6 ulp of the exact power (formed exactly) and libmpdec's within 1 ulp."""
+    context = case.context
+    base, exponent = (Decimal(text) for text in case.operands)
+    if not (base.is_finite() and base != 0 and exponent.is_finite() and exponent == exponent.to_integral_value()):
+        return None
+    count = int(exponent)
+    if count == 0 or abs(count) >= 2**31 or not libmpdec.is_finite():
+        return None
+    coefficient_digits = len(base.as_tuple().digits)
+    if abs(count) * coefficient_digits > EXACT_POWER_LIMIT:
+        return None
+    modelled = decnumber_integer_power(base, count, context)
+    if modelled is None or modelled == libmpdec:
+        return None
+    exact = Fraction(base) ** count
+    if abs(Fraction(modelled) - exact) > Fraction(3, 5) * ulp_of(modelled):
+        return None
+    if abs(Fraction(libmpdec) - exact) > ulp_of(libmpdec):
+        return None
+    return str(modelled)
+
+
+def noninteger_power_difference(case: Case, libmpdec: Decimal) -> str | None:
+    """Class `noninteger-power-rounding`: `power` with a non-integral exponent
+    whose libmpdec result is not the correctly rounded one. libmpdec is within
+    the 1 ulp of GDA 1.70, power; this library rounds correctly (certified
+    interval arithmetic). The expected value is the correctly rounded power,
+    recomputed at `precision + 60` digits and used only when the bounds of that
+    value round alike; libmpdec's must be within 1 ulp of it."""
+    context = case.context
+    base, exponent = (Decimal(text) for text in case.operands)
+    if not (base.is_finite() and base > 0 and exponent.is_finite() and exponent != exponent.to_integral_value()):
+        return None
+    if context.precision > RECOMPUTE_PRECISION_LIMIT or not libmpdec.is_finite() or libmpdec == 0:
+        return None
+    digits = context.precision + 60
+    high = Context(prec=digits, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+    value = high.power(base, exponent)
+    margin = high.multiply(value, Decimal((0, (1,), -(digits - 5))))
+    final = context.python()
+    low, up = final.plus(high.subtract(value, margin)), final.plus(high.add(value, margin))
+    for signal in (decimal.Overflow, decimal.Underflow, decimal.Subnormal, decimal.Clamped):
+        if final.flags[signal]:
+            return None
+    if low != up or low == libmpdec:
+        return None
+    if abs(Fraction(libmpdec) - Fraction(low)) > ulp_of(libmpdec):
+        return None
+    return str(low)
+
+
+def exact_adjusted_exponent(value: Fraction) -> int:
+    adjusted = len(str(value.numerator)) - len(str(value.denominator))
+    if value < Fraction(10) ** adjusted:
+        adjusted -= 1
+    return adjusted
+
+
+def condition_difference(
+    case: Case, libmpdec: Decimal, names: tuple[str, ...]
+) -> tuple[tuple[str, ...], str] | None:
+    """Classes `underflow-with-inexact-subnormal` and `subnormal-before-rounding`.
+
+    GDA 1.70, Underflow: "the result is both inexact and subnormal"; Subnormal:
+    "its adjusted exponent is less than Emin, before any rounding". libmpdec
+    omits Underflow when it reports Inexact and Subnormal (the first class, only
+    then: the flags of this library are libmpdec's plus Underflow), and judges
+    Subnormal on the rounded result (the second class: an integral power whose
+    exact value, formed exactly, has an adjusted exponent below Emin while
+    libmpdec's result does not report Subnormal; this library adds Subnormal and
+    Underflow to the inexact result)."""
+    if "Inexact" not in names:
+        return None
+    if "Subnormal" in names and "Underflow" not in names:
+        return tuple(sorted({*names, "Underflow"})), UNDERFLOW_CLASS
+    # The exact value is below 10^emin while libmpdec's rounded result is not
+    # subnormal: the rounded result is 10^emin itself.
+    if "Subnormal" not in names and libmpdec.is_finite() and libmpdec != 0 and libmpdec.adjusted() == case.context.emin:
+        base, exponent = (Decimal(text) for text in case.operands)
+        if not (base.is_finite() and base != 0 and exponent.is_finite() and exponent == exponent.to_integral_value()):
+            return None
+        count = int(exponent)
+        if count == 0 or abs(count) * len(base.as_tuple().digits) > EXACT_POWER_LIMIT:
+            return None
+        if exact_adjusted_exponent(abs(Fraction(base) ** count)) < case.context.emin:
+            return tuple(sorted({*names, "Subnormal", "Underflow"})), SUBNORMAL_CLASS
+    return None
+
+
+def power_expected_difference(
+    case: Case, libmpdec: Decimal, names: tuple[str, ...]
+) -> tuple[str, tuple[str, ...], tuple[str, ...]] | None:
+    """The row this library's result is expected to match when `power` falls in
+    one or more of the named classes (value, conditions, class names), else
+    None. Conditions are ordered like libmpdec's (`CONDITIONS`)."""
+    text = str(libmpdec)
+    ten = power_of_ten_difference(case, libmpdec)
+    if ten is not None:
+        return (ten[0], ten[1], (POWER_OF_TEN_CLASS,)) if (ten[0], ten[1]) != (text, names) else None
+    classes: list[str] = []
+    expected = text
+    integer = integer_power_difference(case, libmpdec)
+    if integer is not None:
+        expected, classes = integer, [INTEGER_POWER_CLASS]
+    else:
+        other = noninteger_power_difference(case, libmpdec)
+        if other is not None:
+            expected, classes = other, [NONINTEGER_POWER_CLASS]
+    conditions = names
+    flags = condition_difference(case, libmpdec, names)
+    if flags is not None:
+        conditions, name = flags
+        order = [label for _, label in CONDITIONS]
+        conditions = tuple(sorted(conditions, key=order.index))
+        classes.append(name)
+    if not classes:
+        return None
+    return expected, conditions, tuple(classes)
+
+
 def evaluate(case: Case) -> Row:
     context = case.context.python()
     values = [Decimal(text) for text in case.operands]
@@ -779,9 +969,10 @@ def evaluate(case: Case) -> Row:
         names.append("Division_undefined")
     text = str(result)
     if op == "power":
-        difference = power_of_ten_difference(case, result)
-        if difference is not None and (difference[0], difference[1]) != (text, tuple(names)):
-            return Row(case, difference[0], difference[1], f"{text} {' '.join(names)}".strip())
+        difference = power_expected_difference(case, result, tuple(names))
+        if difference is not None:
+            expected, conditions, classes = difference
+            return Row(case, expected, conditions, f"{text} {' '.join(names)}".strip(), classes)
     return Row(case, text, tuple(names))
 
 
@@ -811,7 +1002,7 @@ def generate_case(family: str, seed: int, index: int) -> Case:
 def format_row(row: Row) -> list[str]:
     lines = row.case.context.directives()
     if row.libmpdec:
-        lines.append(f"-- {POWER_OF_TEN_MARKER}: libmpdec gives {row.libmpdec}")
+        lines.append(f"-- expected-difference {', '.join(row.classes)}: libmpdec gives {row.libmpdec}")
     conditions = " ".join(row.conditions)
     operands = " ".join(quote(text) for text in row.case.operands)
     suffix = f" {conditions}" if conditions else ""
