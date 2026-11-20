@@ -758,6 +758,63 @@ certainly in the set is in the result, that a point a quarter of a float outside
 a piece is not in the set, and that the float one step inside is not certainly outside while the next one
 is certainly inside. A sample runs in every test run; the long run is an interval gate stage.
 
+#### Reverse power with an interval base
+
+`pow_rev2(a, c, x)` (IEEE 1788-2015 10.5.4) is the same set division with the roles exchanged
+(see the [API page](../api/ball_float.md#ballfloatpow_rev2)): the unknown is the exponent, and the set is
+$L /_{\text{set}} M$ with $L = \ln(\boldsymbol{c} \cap (0, +\infty))$ and
+$M = \ln(\boldsymbol{a} \cap (0, +\infty))$, plus $(0, +\infty)$ when $0 \in \boldsymbol{a}$ and
+$0 \in \boldsymbol{c}$. The pieces come from the same case split as `pow_rev1` (whether $1 \in \boldsymbol{c}$ and
+whether $1 \in \boldsymbol{a}$, the signs of the logarithms being comparisons with 1), and a piece
+end is the quotient $\ln(c_\text{end}) / \ln(a_\text{end})$, with the infinities and the open 0 as in
+`pow_rev1` (here no value is mapped through $\exp$, so there is no end at 1).
+
+*Exactness of an end* $r = \ln(C)/\ln(A)$ for floats $A \ne 1$ and $C > 0$. Write $A = \alpha\,2^i$ and
+$C = \gamma\,2^j$ with $\alpha$ and $\gamma$ odd and positive (the exponents $i$ and $j$ carry the sign of the
+logarithms). $r$ is rational iff $A$ and $C$ are multiplicatively dependent, and then:
+
+| Case | End |
+| --- | --- |
+| $C = 1$ | $r = 0$ |
+| $\alpha = \gamma = 1$ | $r = j / i$ |
+| exactly one of $\alpha$, $\gamma$ is 1 | irrational ($C \ne 1$) |
+| both exceed 1 | the multiplicative Euclidean algorithm gives $B$ with $\alpha = B^{i'}$, $\gamma = B^{j'}$ and $\gcd(i', j') = 1$; $r = j'/i'$ iff $i\,j' = j\,i'$, else irrational |
+
+The algorithm divides the larger odd integer by a power of the smaller, $y^k$ with
+$k = \lfloor (\operatorname{bitlen}(x) - 1) / \operatorname{bitlen}(y) \rfloor$ (so that $y^k \le x$; it divides $x$ whenever both are
+powers of one base), and an inexact division proves independence; a high power of a small base ($3$ against $3^{40000}$)
+takes a few steps, not one per factor. The exponents of $B$ are recovered by running the steps
+backwards, and the exact check $\alpha = B^{i'}$, $\gamma = B^{j'}$ is made before the value is used. The value
+$j'/i'$ is a float iff the reduced denominator is a power of two (class dyadic), and otherwise a rational that is
+not a float (compared by exact cross-multiplication, rounded by integer division with directed
+rounding, the sign taken into account). An odd part beyond `pow_int_budget` = 65,536 bits gives the class
+Unknown, decided by the loop like an irrational end.
+
+*Working precision.* The first working precision of the loop is $p + 64 + e_r$, with $e_r$ the exponent of the
+quotient: $\ln$ has a relative error of about $2^{-w}$ also for an argument next to 1 (the enclosure of
+$\ln(1 + 2^{-52})$ keeps its full width in bits), so only the integer part of the quotient costs
+bits. A base one unit from 1 gives a quotient of about $2^{51}$, and the tests check that its enclosure is tight (adjacent floats) at precision 53.
+
+*Budgets*, in bits: one call of the exactness test at the budget ($3^{41340}$ against $3$, 65,524 bits) takes
+about 7 ms, against about 6 ms for the forward `pow` of the same operand at 200 bits, so the budget of
+`pow_rev1` is kept. The corpus needs none of it: the oracle finds no irrational piece end among its 375 statements (every end is exact, a float or a rational), so the loop and its fallback are covered by the tests below and not by the corpus.
+
+*Corpus.* Two statements of the corpus expect a value that is valid but wider than the hull
+(`powRev2 [0.25, 0.5] [2, inf]` expects Entire and `powRev2 [0.25, 1] [2, inf]` expects $[-\infty, 0]$, where
+$a_0^\beta \ge 2$ with $a_0 < 1$ needs $\beta \le -1/2$); they are refinements, with the oracle
+(`tools/itl_pow2_reverse_oracle.py`, which derives the set from the corner quotients and shares no code with
+`ball_float`) giving 373 equal and 2 refined of 375 statements.
+
+*Tests.* The definition tests cover the classes (including the Euclid steps, $3$ against $3^{40000}$, and a
+beyond-budget odd part), exact and rounded rational ends with their sign, the examples of the corpus, the open
+ends at 0 against a prior that touches them, a base one unit from 1 on both sides, and bases, results and
+prior ends of magnitude $2^{\pm 10^9}$. The reference test (`pow_reverse2_reference_wbtest.mbt`) evaluates the
+condition for a float $\beta$ with the forward `BallFloat::pow` at 200 bits (the range of $a_0^\beta$ over
+$\boldsymbol{a}$ is the interval `pow(a, beta)`) and checks, at precisions 24, 53 and 113, that every float
+certainly in the set is in the result, that a point a quarter of a float outside an end that comes from a
+piece is not in the set, and that the float one step inside is not certainly outside while the next one is
+certainly inside. A sample runs in every test run; the long run is an interval gate stage.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -1009,7 +1066,7 @@ trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
-runs 6,257 cases in strict mode (see [conformance](../conformance/ball_float.md)).
+runs 6,632 cases in strict mode (see [conformance](../conformance/ball_float.md)).
 
 ### Known limitations
 
@@ -1048,7 +1105,7 @@ The package deliberately does not:
 
 - provide the IEEE 1788 reverse operations other than `mulRev` and
   `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and
-  `tanRev`, `powRev1` (`powRev2`, …; issue 230);
+  `tanRev`, `powRev1` and `powRev2` (`atan2Rev1`, `atan2Rev2`; issue 230);
 - promise tight results: fallbacks and the dependency problem may widen
   enclosures arbitrarily;
 - define a total order on intervals, or treat `Eq` as set equality;

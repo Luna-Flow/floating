@@ -1037,6 +1037,55 @@ test "pow_rev1" {
 }
 ```
 
+### `BallFloat::pow_rev2`
+
+IEEE 1788-2015 Table 10.1. `a.pow_rev2(c, x?)` is the hull of
+$\{\, \beta \in \boldsymbol{x} \mid \exists\, a_0 \in \boldsymbol{a} : a_0^\beta \text{ is defined and in } \boldsymbol{c} \,\}$
+for the optional prior $\boldsymbol{x}$ (default Entire); the receiver is the base interval
+$\boldsymbol{a}$ and the unknown is the exponent. $a_0^\beta$ is defined for $a_0 > 0$ and for
+$a_0 = 0$ with $\beta > 0$ (value 0).
+
+```mbti
+pub fn BallFloat::pow_rev2(Self, Self, x? : Self) -> Self
+```
+
+For $a_0 > 0$, $a_0^\beta \in \boldsymbol{c}$ means $\beta \ln a_0 \in \ln(\boldsymbol{c} \cap (0, +\infty))$, so the
+set is $L /_{\text{set}} M$ with $L = \ln(\boldsymbol{c} \cap (0, +\infty))$ and
+$M = \ln(\boldsymbol{a} \cap (0, +\infty))$, the set division of
+[`mul_rev`](#ballfloatmul_rev_to_pair-and-ballfloatmul_rev) in logarithm coordinates, plus
+$(0, +\infty)$ when $0 \in \boldsymbol{a}$ and $0 \in \boldsymbol{c}$ (the base 0). The base 1 is the
+branch "$0$ in the divisor": if $1 \in \boldsymbol{a}$ and $1 \in \boldsymbol{c}$ every exponent qualifies,
+and if $\boldsymbol{a} = [1, 1]$ and $1 \notin \boldsymbol{c}$ there is none. Every end of a piece is
+$\ln(c_\text{end}) / \ln(a_\text{end})$, 0 or infinite. The ends that are not attained are open: the
+infinities, and 0 when it is the limit of a quotient by an unbounded $M$ (and $0 \notin L$); a prior that
+only touches such an end does not meet the set. For example `pow_rev2([2, +inf), [2, 4])` is
+$(0, 2]$, so with the prior $[-3, 0]$ the result is Empty, while with $\boldsymbol{c} = [1, 4]$ the
+end 0 is attained and the result is $[0, 0]$.
+
+The result is the hull in the type: every comparison of a prior end with a piece end is exact and an
+end written to the result is the exact directed rounding of the piece end. The value
+$r = \ln(C)/\ln(A)$ of an end is classified from the structure of $A$ and $C$: it is rational iff $A$
+and $C$ are multiplicatively dependent, decided by the multiplicative Euclidean algorithm on the odd
+parts (an inexact division proves independence). A rational is a float iff its reduced denominator is
+a power of two, and otherwise it is a rational that is not a float (for example
+$\ln 3 / \ln 27 = 1/3$); every other end is irrational and is decided by a loop that raises the
+working precision as `sin_rev` does. The
+[design page](../design/ball_float.md#reverse-power-with-an-interval-base) has the classes, the
+budgets and their cost. A base one unit from 1 gives a huge quotient, and the first working precision
+follows its magnitude.
+
+```moonbit
+///|
+test "pow_rev2" {
+  // 2^beta in [8, 8] gives beta = 3
+  assert_true(iv(2, 2).pow_rev2(iv(8, 8)) == iv(3, 3))
+  // 2^beta in [1, 1] gives beta = 0
+  assert_true(iv(2, 2).pow_rev2(iv(1, 1)) == iv(0, 0))
+  // a prior restricts the result: 2^beta = 4 has the only solution beta = 2
+  assert_true(iv(2, 2).pow_rev2(iv(4, 4), x=iv(0, 5)) == iv(2, 2))
+}
+```
+
 ### `BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`
 
 IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\boldsymbol{b}$ and
@@ -2134,6 +2183,7 @@ pub fn BallFloat::pow(Self, Self) -> Self
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloat::pow_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloat::pown(Self, Int32) -> Self
 pub fn BallFloat::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
@@ -2276,6 +2326,7 @@ pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatDecorated::pow_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool

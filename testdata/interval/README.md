@@ -44,8 +44,8 @@ cases, the integer-functions phase 143 cases (`sign`, `ceil`, `floor`, `trunc`,
 `roundTiesToEven`, `roundTiesToAway`) and the multiplicative-reverse phase 533 cases
 (`mulRev`, `mulRevTen`, `mulRevToPair`) and the algebraic-reverse phase 360 cases
 (`sqrRev`, `absRev`, `pownRev`, `coshRev` and their `Bin` forms) and the trigonometric-reverse phase 136
-cases (`sinRev`, `cosRev`, `tanRev` and their `Bin` forms) and the power-reverse-1 phase 429 cases (`powRev1`),
-for an official aggregate of 6,257 cases. Every selected case must be executable;
+cases (`sinRev`, `cosRev`, `tanRev` and their `Bin` forms) and the power-reverse-1 phase 429 cases (`powRev1`) and the power-reverse-2 phase 375 cases (`powRev2`),
+for an official aggregate of 6,632 cases. Every selected case must be executable;
 unsupported and diagnostic classifications fail the gate.
 
 Refinements. A few corpus statements expect a value that is valid but wider than the
@@ -71,7 +71,7 @@ The `general-power` phase contains 1,428 `pow` cases and passes all cases on
 the native strict run. The `trigonometric` phase contains 176 `sin`, `cos`, and
 `tan` cases; the disjoint `atan2` phase contains 375 cases from the same pinned
 archive. Both pass the strict baseline. Reverse operations other than the
-multiplicative, algebraic, trigonometric and `powRev1` ones remain unsupported.
+multiplicative, algebraic, trigonometric, `powRev1` and `powRev2` ones remain unsupported (`atan2Rev1` and `atan2Rev2` have no corpus cases).
 
 ## Interpreting Results
 

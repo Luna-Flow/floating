@@ -44,7 +44,10 @@ priv enum PowEnd {
   PZero
   POne
   PInf
+  PNegInf
   PPow(@bin_float.BinFloat, @bin_float.BinFloat, PowClass)
+  // `pow_rev2`: the quotient `ln(c) / ln(a)` of two float ends
+  PQuot(@bin_float.BinFloat, @bin_float.BinFloat, QuotClass)
 }
 
 ///|
@@ -532,6 +535,8 @@ fn pow_end_compare(
     PZero => order_of(@bin_float.BinFloat::zero(precision~).compare(d))
     POne => order_of(@bin_float.BinFloat::one(precision~).compare(d))
     PInf => Above
+    PNegInf => Below
+    PQuot(c, a, cls) => quot_end_compare(c, a, cls, d, precision, cap)
     PPow(c, beta, cls) =>
       match cls {
         Dyadic(value) => order_of(value.compare(d))
@@ -559,6 +564,8 @@ fn pow_end_rounded(
     PZero => @bin_float.BinFloat::zero(precision~)
     POne => @bin_float.BinFloat::one(precision~)
     PInf => pos_inf(precision)
+    PNegInf => neg_inf(precision)
+    PQuot(c, a, cls) => quot_end_rounded(c, a, cls, upper, precision, cap)
     PPow(c, beta, cls) =>
       match cls {
         Dyadic(value) =>

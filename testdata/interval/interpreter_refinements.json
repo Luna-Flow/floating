@@ -97,6 +97,22 @@
       "corpus": "[-0X1.921FB54442D19P+1,0X1.921FB54442D1aP+1]_trv",
       "refined": "[-0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1]_trv",
       "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "pow_rev.itl",
+      "id": "minimal.powRev2_test:64",
+      "operation": "powRev2",
+      "corpus": "[entire]",
+      "refined": "[-infinity,-0x1.0000000000000p-1]",
+      "reason": "the corpus value is valid but wider than the exact hull: a^beta >= 2 for a in (0, 1) needs beta <= ln 2 / ln a, and the largest such value over the base interval is -1/2 (the exact hull, confirmed by tools/itl_pow2_reverse_oracle.py); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "pow_rev.itl",
+      "id": "minimal.powRev2_test:89",
+      "operation": "powRev2",
+      "corpus": "[-infinity, 0.0]",
+      "refined": "[-infinity,-0x1.0000000000000p-1]",
+      "reason": "the corpus value is valid but wider than the exact hull: a^beta >= 2 for a in (0, 1) needs beta <= ln 2 / ln a, and the largest such value over the base interval is -1/2 (the exact hull, confirmed by tools/itl_pow2_reverse_oracle.py); IEEE 1788-2015 12.12.4 asks for an enclosure only"
     }
   ]
 }
