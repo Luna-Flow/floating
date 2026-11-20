@@ -8,9 +8,9 @@ pub struct BallContext {
 ///|
 #derive(Eq)
 pub struct BallFlags {
-  inexact : Bool
-  overflow : Bool
-  underflow : Bool
+  priv inexact : Bool
+  priv overflow : Bool
+  priv underflow : Bool
 }
 
 ///|

@@ -387,7 +387,7 @@ test "a GDA trap keeps the defined result" {
     Trapped(signal, value, next, _) => {
       inspect(signal == @decimal_gda.DivisionByZero, content="true")
       inspect(value, content="inf")
-      inspect(next.status().division_by_zero, content="true")
+      inspect(next.status().division_by_zero(), content="true")
     }
     Completed(_, _, _) => fail("an enabled trap must fire")
   }

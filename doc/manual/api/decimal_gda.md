@@ -228,7 +228,7 @@ test "Decimal construction and printing" {
   let ctx = @decimal_gda.DecimalContext::new(precision=3)
   let (v, flags) = @decimal_gda.Decimal::from_string_ctx("1.2345", ctx)
   inspect(v, content="1.23")
-  inspect(flags.inexact, content="true")
+  inspect(flags.inexact(), content="true")
   let (sci, _) = @decimal_gda.Decimal::to_sci_string("-sNaN12", ctx)
   inspect(sci, content="-sNaN12")
 }
@@ -571,29 +571,21 @@ operation and for the sticky status of a context.
 
 ```mbti
 pub struct GdaFlags {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  // private fields
 } derive(Eq)
 ```
 
-The fields are public for reading, so `raised().inexact` works; there is no
-public constructor, so sets are built only with `none` and `combine`.
+The fields are private. Each of the 13 conditions is read with a method of the
+same name, such as `raised().inexact()` or `status().division_by_zero()`; there
+is no public constructor besides `new`, so sets are built only with `new` and
+`combine`. `GdaTrapSet` reads the same way.
 
 ### `GdaFlags::none`, `GdaFlags::contains`, `GdaFlags::combine`
 
-`none` is the empty set, `combine` the field-wise union and `contains` the
-membership test with the GDA invalid-operation grouping.
+`new` is the empty set, `combine` the field-wise union and `contains` the
+membership test with the GDA invalid-operation grouping. `contains` exists
+because this package has the signal enum `GdaSignal`; the accessor methods
+read one condition each.
 
 ```mbti
 pub fn GdaFlags::none() -> Self
@@ -601,7 +593,7 @@ pub fn GdaFlags::contains(Self, GdaSignal) -> Bool
 pub fn GdaFlags::combine(Self, Self) -> Self
 ```
 
-`combine` is associative, commutative and idempotent with `none` as identity.
+`combine` is associative, commutative and idempotent with `new()` as identity.
 `contains(s)` reads the field for `s`, except that `contains(InvalidOperation)`
 is true when any of `invalid_operation`, `conversion_syntax`,
 `division_impossible`, `division_undefined` or `invalid_context` is set.
@@ -612,19 +604,7 @@ is true when any of `invalid_operation`, `conversion_syntax`,
 
 ```mbti
 pub struct GdaTrapSet {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  // private fields
 } derive(Eq)
 ```
 
@@ -638,7 +618,7 @@ pub fn GdaTrapSet::with_signal(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
 ```
 
-`none` enables no trap. `with_signal(s)` enables one trap (or disables it with
+`new` enables no trap. `with_signal(s)` enables one trap (or disables it with
 `enabled=false`); `contains(s)` reads exactly the field for `s`, with no
 invalid-operation grouping. The grouping happens on the raised side, in
 `GdaFlags::contains`.
@@ -716,14 +696,14 @@ test "GDA context, status and traps" {
   let zero = @decimal_gda.Decimal::zero()
   let out = @decimal_gda.divide(zero, zero, ctx) // 0/0
   inspect(out.value(), content="nan")
-  inspect(out.raised().division_undefined, content="true")
+  inspect(out.raised().division_undefined(), content="true")
   inspect(out.raised().contains(InvalidOperation), content="true")
   match out {
     @decimal_gda.GdaOutcome::Trapped(signal, _, _, _) =>
       inspect(signal == InvalidOperation, content="true")
     @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
   }
-  inspect(out.next_context().status().invalid_operation, content="true")
+  inspect(out.next_context().status().invalid_operation(), content="true")
   inspect(ctx.status() == @decimal_gda.GdaFlags::none(), content="true")
   inspect(ctx.reset().traps() == @decimal_gda.GdaTrapSet::none(), content="true")
 }
@@ -875,9 +855,9 @@ test "to_integral keeps long integral parts" {
   let p3 = @decimal_gda.GdaContext::new(precision=3)
   let exact = @decimal_gda.to_integral_exact(d("12345.6"), p3)
   inspect(exact.value(), content="12346")
-  inspect(exact.raised().inexact, content="true")
+  inspect(exact.raised().inexact(), content="true")
   let value = @decimal_gda.to_integral_value(d("12345.6"), p3)
-  inspect(value.raised().inexact, content="false")
+  inspect(value.raised().inexact(), content="false")
   inspect(@decimal_gda.to_integral_exact(d("12345"), p3).value(), content="12345")
 }
 ```
@@ -1100,7 +1080,7 @@ test "GDA operation sampler" {
   inspect(@decimal_gda.max(d("2.5"), d("2.50"), ctx).value(), content="2.5")
   inspect(@decimal_gda.class_name(d("-0"), ctx).value(), content="-Zero")
   let wide = @decimal_gda.context().unwrap() // exponent range ±999,999,999
-  inspect(@decimal_gda.exp(d("1"), wide).raised().invalid_context, content="true")
+  inspect(@decimal_gda.exp(d("1"), wide).raised().invalid_context(), content="true")
 }
 ```
 
@@ -1451,10 +1431,10 @@ test "after-rounding tininess" {
   )
   let (v, flags) = d("0.9951").plus_ctx(ctx)
   inspect(v, content="1.00")
-  inspect(flags.underflow, content="true")
+  inspect(flags.underflow(), content="true")
   let (w, flags2) = d("0.99951").plus_ctx(ctx)
   inspect(w, content="1.00")
-  inspect(flags2.underflow, content="false")
+  inspect(flags2.underflow(), content="false")
 }
 ```
 
@@ -1487,23 +1467,11 @@ pub(all) enum DecimalSignal {
 
 ```mbti
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  // private fields
 } derive(Eq)
 ```
 
-The fields are public for reading. There is no sticky status in this layer:
+The fields are private; each flag is read with a method of the same name (`flags.inexact()`). There is no sticky status in this layer:
 each call returns only its own flags.
 
 ### `DecimalFlags::new`, `DecimalFlags::combine`, `DecimalFlags::contains`, `DecimalFlags::has_error`
@@ -1676,7 +1644,7 @@ test "status-free layer" {
   let ctx = @decimal_gda.DecimalContext::new(precision=5, decimal_rounding=HalfUp)
   let (q, flags) = d("2").div_ctx(d("3"), ctx)
   inspect(q, content="0.66667")
-  inspect(flags.inexact, content="true")
+  inspect(flags.inexact(), content="true")
   inspect(flags.contains(Rounded), content="true")
   let floor = @decimal_gda.DecimalContext::new(
     precision=3,
@@ -1807,7 +1775,7 @@ test "DPD interchange" {
   let (bits, flags) = @decimal_gda.GdaInterchange::from_decimal(d("1.234567890"), Decimal32)
   inspect(bits.to_hex(), content="#25F4D2E8")
   inspect(bits.to_decimal(), content="1.234568")
-  inspect(flags.inexact, content="true")
+  inspect(flags.inexact(), content="true")
   let back = @decimal_gda.Decimal::from_interchange_hex("#A2300000000003D0", Decimal64).unwrap()
   inspect(back, content="-7.50")
   inspect(bits.copy_negate().to_decimal(), content="-1.234568")
@@ -2336,26 +2304,27 @@ pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  // private fields
 }
+pub fn DecimalFlags::clamped(Self) -> Bool
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
+pub fn DecimalFlags::conversion_syntax(Self) -> Bool
+pub fn DecimalFlags::division_by_zero(Self) -> Bool
+pub fn DecimalFlags::division_impossible(Self) -> Bool
+pub fn DecimalFlags::division_undefined(Self) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
+pub fn DecimalFlags::inexact(Self) -> Bool
+pub fn DecimalFlags::invalid_context(Self) -> Bool
+pub fn DecimalFlags::invalid_operation(Self) -> Bool
+pub fn DecimalFlags::lost_digits(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
+pub fn DecimalFlags::overflow(Self) -> Bool
+pub fn DecimalFlags::rounded(Self) -> Bool
+pub fn DecimalFlags::subnormal(Self) -> Bool
+pub fn DecimalFlags::underflow(Self) -> Bool
 
 #derive(Eq)
 pub(all) enum DecimalRoundingMode {
@@ -2426,25 +2395,26 @@ pub fn GdaContext::with_traps(Self, GdaTrapSet) -> Self
 
 #derive(Eq)
 pub struct GdaFlags {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  // private fields
 }
+pub fn GdaFlags::clamped(Self) -> Bool
 pub fn GdaFlags::combine(Self, Self) -> Self
 pub fn GdaFlags::contains(Self, GdaSignal) -> Bool
+pub fn GdaFlags::conversion_syntax(Self) -> Bool
+pub fn GdaFlags::division_by_zero(Self) -> Bool
+pub fn GdaFlags::division_impossible(Self) -> Bool
+pub fn GdaFlags::division_undefined(Self) -> Bool
 pub fn GdaFlags::equal(Self, Self) -> Bool
+pub fn GdaFlags::inexact(Self) -> Bool
+pub fn GdaFlags::invalid_context(Self) -> Bool
+pub fn GdaFlags::invalid_operation(Self) -> Bool
+pub fn GdaFlags::lost_digits(Self) -> Bool
 pub fn GdaFlags::none() -> Self
 pub fn GdaFlags::not_equal(Self, Self) -> Bool
+pub fn GdaFlags::overflow(Self) -> Bool
+pub fn GdaFlags::rounded(Self) -> Bool
+pub fn GdaFlags::subnormal(Self) -> Bool
+pub fn GdaFlags::underflow(Self) -> Bool
 
 pub struct GdaInterchange {
   // private fields
@@ -2516,24 +2486,25 @@ pub fn GdaSignal::not_equal(Self, Self) -> Bool
 
 #derive(Eq)
 pub struct GdaTrapSet {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  // private fields
 }
+pub fn GdaTrapSet::clamped(Self) -> Bool
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
+pub fn GdaTrapSet::conversion_syntax(Self) -> Bool
+pub fn GdaTrapSet::division_by_zero(Self) -> Bool
+pub fn GdaTrapSet::division_impossible(Self) -> Bool
+pub fn GdaTrapSet::division_undefined(Self) -> Bool
 pub fn GdaTrapSet::equal(Self, Self) -> Bool
+pub fn GdaTrapSet::inexact(Self) -> Bool
+pub fn GdaTrapSet::invalid_context(Self) -> Bool
+pub fn GdaTrapSet::invalid_operation(Self) -> Bool
+pub fn GdaTrapSet::lost_digits(Self) -> Bool
 pub fn GdaTrapSet::none() -> Self
 pub fn GdaTrapSet::not_equal(Self, Self) -> Bool
+pub fn GdaTrapSet::overflow(Self) -> Bool
+pub fn GdaTrapSet::rounded(Self) -> Bool
+pub fn GdaTrapSet::subnormal(Self) -> Bool
+pub fn GdaTrapSet::underflow(Self) -> Bool
 pub fn GdaTrapSet::with_signal(Self, GdaSignal, enabled? : Bool) -> Self
 
 // Type aliases

@@ -6,6 +6,18 @@ notes live in this file.
 
 ## Unreleased
 
+### Breaking
+
+- The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
+
+  | before | after |
+  | --- | --- |
+  | `flags.inexact` (any of the 13 flag names, on `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`) | `flags.inexact()` |
+  | `traps.inexact` (any of the 13 names, on `GdaTrapSet`) | `traps.inexact()` |
+  | `flags.inexact`, `flags.overflow`, `flags.underflow` on `BallFlags` | `flags.inexact()`, `flags.overflow()`, `flags.underflow()` (the methods already existed) |
+  | `GdaFlags::none()` | `GdaFlags::new()` |
+  | `GdaTrapSet::none()` | `GdaTrapSet::new()` |
+
 ## 0.11.0 - 2026-11-20
 
 0.11.0 is the performance round of the binary and decimal cores (64-bit coefficient limbs, the certified elementary functions, the shared decimal kernel), the conformance additions (the remaining IEEE 754-2019 §9.2 functions, `convert_format`, totalOrder, `class_of`, and the fixes that the differential campaigns found), and step B of [#22](https://github.com/Luna-Flow/floating/issues/22): the library module is split from the developer tools, public surfaces are narrowed and operations are named after their standards. The breaking changes come first, with their migration tables; 0.12 completes them ([#438](https://github.com/Luna-Flow/floating/issues/438)).

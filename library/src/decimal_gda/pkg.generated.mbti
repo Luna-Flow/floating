@@ -308,26 +308,27 @@ pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  // private fields
 }
+pub fn DecimalFlags::clamped(Self) -> Bool
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
+pub fn DecimalFlags::conversion_syntax(Self) -> Bool
+pub fn DecimalFlags::division_by_zero(Self) -> Bool
+pub fn DecimalFlags::division_impossible(Self) -> Bool
+pub fn DecimalFlags::division_undefined(Self) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
+pub fn DecimalFlags::inexact(Self) -> Bool
+pub fn DecimalFlags::invalid_context(Self) -> Bool
+pub fn DecimalFlags::invalid_operation(Self) -> Bool
+pub fn DecimalFlags::lost_digits(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
+pub fn DecimalFlags::overflow(Self) -> Bool
+pub fn DecimalFlags::rounded(Self) -> Bool
+pub fn DecimalFlags::subnormal(Self) -> Bool
+pub fn DecimalFlags::underflow(Self) -> Bool
 
 #derive(Eq)
 pub(all) enum DecimalRoundingMode {
@@ -398,25 +399,26 @@ pub fn GdaContext::with_traps(Self, GdaTrapSet) -> Self
 
 #derive(Eq)
 pub struct GdaFlags {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  // private fields
 }
+pub fn GdaFlags::clamped(Self) -> Bool
 pub fn GdaFlags::combine(Self, Self) -> Self
 pub fn GdaFlags::contains(Self, GdaSignal) -> Bool
+pub fn GdaFlags::conversion_syntax(Self) -> Bool
+pub fn GdaFlags::division_by_zero(Self) -> Bool
+pub fn GdaFlags::division_impossible(Self) -> Bool
+pub fn GdaFlags::division_undefined(Self) -> Bool
 pub fn GdaFlags::equal(Self, Self) -> Bool
+pub fn GdaFlags::inexact(Self) -> Bool
+pub fn GdaFlags::invalid_context(Self) -> Bool
+pub fn GdaFlags::invalid_operation(Self) -> Bool
+pub fn GdaFlags::lost_digits(Self) -> Bool
 pub fn GdaFlags::none() -> Self
 pub fn GdaFlags::not_equal(Self, Self) -> Bool
+pub fn GdaFlags::overflow(Self) -> Bool
+pub fn GdaFlags::rounded(Self) -> Bool
+pub fn GdaFlags::subnormal(Self) -> Bool
+pub fn GdaFlags::underflow(Self) -> Bool
 
 pub struct GdaInterchange {
   // private fields
@@ -488,24 +490,25 @@ pub fn GdaSignal::not_equal(Self, Self) -> Bool
 
 #derive(Eq)
 pub struct GdaTrapSet {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  // private fields
 }
+pub fn GdaTrapSet::clamped(Self) -> Bool
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
+pub fn GdaTrapSet::conversion_syntax(Self) -> Bool
+pub fn GdaTrapSet::division_by_zero(Self) -> Bool
+pub fn GdaTrapSet::division_impossible(Self) -> Bool
+pub fn GdaTrapSet::division_undefined(Self) -> Bool
 pub fn GdaTrapSet::equal(Self, Self) -> Bool
+pub fn GdaTrapSet::inexact(Self) -> Bool
+pub fn GdaTrapSet::invalid_context(Self) -> Bool
+pub fn GdaTrapSet::invalid_operation(Self) -> Bool
+pub fn GdaTrapSet::lost_digits(Self) -> Bool
 pub fn GdaTrapSet::none() -> Self
 pub fn GdaTrapSet::not_equal(Self, Self) -> Bool
+pub fn GdaTrapSet::overflow(Self) -> Bool
+pub fn GdaTrapSet::rounded(Self) -> Bool
+pub fn GdaTrapSet::subnormal(Self) -> Bool
+pub fn GdaTrapSet::underflow(Self) -> Bool
 pub fn GdaTrapSet::with_signal(Self, GdaSignal, enabled? : Bool) -> Self
 
 // Type aliases

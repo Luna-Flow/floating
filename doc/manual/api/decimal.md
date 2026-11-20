@@ -374,10 +374,10 @@ test "decimal from_string_ctx rounds and flags" {
   let ctx = @decimal.DecimalContext::decimal32()
   let (x, flags) = @decimal.Decimal::from_string_ctx("3.14159265", ctx)
   inspect(x, content="3.141593")
-  inspect(flags.rounded && flags.inexact, content="true")
+  inspect(flags.rounded() && flags.inexact(), content="true")
   let (bad, bad_flags) = @decimal.Decimal::from_string_ctx("1..2", ctx)
   inspect(bad.is_nan(), content="true")
-  inspect(bad_flags.conversion_syntax, content="true")
+  inspect(bad_flags.conversion_syntax(), content="true")
 }
 ```
 
@@ -568,10 +568,10 @@ test "the clamp fold of a zero quantize_ctx result" {
   let context = @decimal.DecimalContext::decimal64()
   let (plain, flags) = d("0").quantize_ctx(d("1E+380"), context)
   inspect(plain, content="0E+380")
-  assert_false(flags.clamped)
+  assert_false(flags.clamped())
   let (folded, flags) = d("0").quantize_ctx(d("1E+380"), context.with_clamp_fold(true))
   inspect(folded, content="0E+369")
-  assert_true(flags.clamped)
+  assert_true(flags.clamped())
 }
 ```
 
@@ -712,19 +712,7 @@ $0.995 < 1$); `0.99951` rounds to $1.00$ and raises only `inexact`.
 
 ```mbti
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  // private fields
 } derive(Eq)
 ```
 
@@ -744,7 +732,7 @@ pub struct DecimalFlags {
 | `division_undefined` | $0/0$ (raised together with `invalid_operation`) |
 | `invalid_context` | the context is outside the range an elementary function supports |
 
-Fields are public and read-only; the flags never accumulate implicitly.
+The fields are private. Each flag is read with a method of the same name, such as `flags.inexact()` or `flags.division_by_zero()`; the flags never accumulate implicitly.
 
 ### `DecimalFlags::new`, `combine`, `contains`, `has_error`
 
@@ -759,7 +747,7 @@ pub fn DecimalFlags::has_error(Self) -> Bool
 
 `new` has every flag clear. `combine` is the field-wise OR, so it is
 associative, commutative and idempotent with `new()` as identity. `contains`
-reads the flag named by a `DecimalSignal`. `has_error` is
+reads the flag named by a `DecimalSignal` (`contains` exists where a package has a signal enum; `BinaryFlags` and `BallFlags` have only their accessor methods). `has_error` is
 
 $$
 \text{invalid\_operation} \lor \text{conversion\_syntax} \lor
@@ -772,7 +760,7 @@ meaningful number (`conversion_syntax`, `division_impossible` and
 `division_undefined` are conditions of the Invalid operation signal). A failed
 `from_string_ctx`, which raises only `conversion_syntax`, therefore counts as
 an error. `has_error` does not include `overflow`, `underflow`, `inexact`,
-`rounded`, `subnormal`, `clamped` or `lost_digits`.
+`rounded`, `subnormal`, `clamped` or `lost_digits`: those deliver a usable result (IEEE 754-2019 7.4 to 7.6 define it, as 7.3 does for division by zero). `division_by_zero` is in the set only so that the checked forms of `Luna-Flow/arithmetic` can return `Err` for a division by zero.
 
 ```moonbit
 ///|
@@ -785,7 +773,7 @@ test "decimal flags accumulate by combine" {
   let all = f1.combine(f2)
   inspect(third, content="0.3333333333333333")
   inspect(all.contains(@decimal.DecimalSignal::Inexact), content="true")
-  inspect(all.division_by_zero, content="true")
+  inspect(all.division_by_zero(), content="true")
   inspect(all.has_error(), content="true")
 }
 ```
@@ -986,7 +974,7 @@ test "decimal context results are rounded once" {
   inspect(d("3.000001E-45").mul_ctx(d("1.500001E-45"), c32).0, content="4.500005E-90")
   let (q, flags) = d("1").div_ctx(d("1.9999999999998E+101"), c32)
   inspect(q, content="1E-101")
-  inspect(flags.underflow && flags.subnormal, content="true")
+  inspect(flags.underflow() && flags.subnormal(), content="true")
   let down = @decimal.DecimalContext::new(precision=7, decimal_rounding=@decimal.DecimalRoundingMode::Down)
   inspect(
     d("1598617.000000000001").add_ctx(d("-0.000000000002"), down).0,
@@ -1005,7 +993,7 @@ test "decimal context arithmetic keeps preferred exponents" {
   inspect(d("2.400").div_ctx(d("1.2"), ctx).0, content="2.00")
   let (q, flags) = d("2").div_ctx(d("3"), ctx)
   inspect(q, content="0.6666666666666667")
-  inspect(flags.inexact, content="true")
+  inspect(flags.inexact(), content="true")
 }
 ```
 
@@ -1132,11 +1120,11 @@ test "decimal quantize_ctx to cents" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   let (cents, flags) = d("12.3456").quantize_ctx(d("0.01"), ctx)
   inspect(cents, content="12.35")
-  inspect(flags.inexact, content="true")
+  inspect(flags.inexact(), content="true")
   let small = @decimal.DecimalContext::new(precision=3, e_min=-99, e_max=99)
   let (bad, bad_flags) = d("999.9").quantize_ctx(d("0.1"), small)
   inspect(bad.is_nan(), content="true")
-  inspect(bad_flags.invalid_operation, content="true")
+  inspect(bad_flags.invalid_operation(), content="true")
 }
 ```
 
@@ -1265,7 +1253,7 @@ test "decimal scaleb rounds like other context results" {
   inspect(d("9E+384").scaleb_ctx(d("1"), c64).0, content="inf")
   let (zero, flags) = d("0").scaleb_ctx(d("700"), c64)
   inspect(zero, content="0E+369")
-  inspect(flags.clamped, content="true")
+  inspect(flags.clamped(), content="true")
   inspect(d("12345678901234567890").scaleb_ctx(d("0"), c64).0, content="1.234567890123457E+19")
 }
 ```
@@ -1703,7 +1691,7 @@ test "decimal exp2m1 exp10m1 log2p1 log10p1" {
   inspect(d("-0.50").log2p1_ctx(c64).0, content="-1")
   let (pole, flags) = d("-1").log10p1_ctx(c64)
   inspect(pole, content="-inf")
-  inspect(flags.division_by_zero, content="true")
+  inspect(flags.division_by_zero(), content="true")
 }
 ```
 
@@ -1756,7 +1744,7 @@ test "decimal rsqrt compound powr" {
   inspect(d("4").powr_ctx(d("0.5"), c64).0, content="2")
   let (invalid, flags) = d("-2").powr_ctx(d("2"), c64)
   inspect(invalid, content="nan")
-  inspect(flags.invalid_operation, content="true")
+  inspect(flags.invalid_operation(), content="true")
 }
 ```
 
@@ -1851,7 +1839,7 @@ test "decimal inverse circular functions in half-revolutions" {
   inspect(d("0.5").acospi_ctx(c64).0, content="0.3333333333333333")
   let (value, flags) = d("2").asinpi_ctx(c64)
   inspect(value, content="nan")
-  inspect(flags.invalid_operation, content="true")
+  inspect(flags.invalid_operation(), content="true")
 }
 ```
 
@@ -1912,7 +1900,7 @@ test "decimal exact and special elementary results" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   let (norm, flags) = d("0.3").hypot_ctx(d("0.4"), c64)
   inspect(norm, content="0.5")
-  inspect(flags.inexact, content="false")
+  inspect(flags.inexact(), content="false")
   inspect(d("0.008").rootn_ctx(3, c64).0, content="0.2")
   let c32 = @decimal.DecimalContext::decimal32()
   inspect(d("3.339434").pow_ctx(d("3"), c32).0, content="37.24077")
@@ -1939,7 +1927,7 @@ test "decimal certified elementary functions" {
   match d("2").try_ln_ctx(@decimal.DecimalContext::new()) {
     Ok((value, flags)) => {
       inspect(value.is_nan(), content="true")
-      inspect(flags.invalid_context, content="true")
+      inspect(flags.invalid_context(), content="true")
     }
     Err(_) => fail("not a certification failure")
   }
@@ -2622,26 +2610,27 @@ pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  // private fields
 }
+pub fn DecimalFlags::clamped(Self) -> Bool
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
+pub fn DecimalFlags::conversion_syntax(Self) -> Bool
+pub fn DecimalFlags::division_by_zero(Self) -> Bool
+pub fn DecimalFlags::division_impossible(Self) -> Bool
+pub fn DecimalFlags::division_undefined(Self) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
+pub fn DecimalFlags::inexact(Self) -> Bool
+pub fn DecimalFlags::invalid_context(Self) -> Bool
+pub fn DecimalFlags::invalid_operation(Self) -> Bool
+pub fn DecimalFlags::lost_digits(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
+pub fn DecimalFlags::overflow(Self) -> Bool
+pub fn DecimalFlags::rounded(Self) -> Bool
+pub fn DecimalFlags::subnormal(Self) -> Bool
+pub fn DecimalFlags::underflow(Self) -> Bool
 
 pub struct DecimalInterchange {
   // private fields

@@ -32,37 +32,37 @@ pub(all) enum GdaSignal {
 ///|
 #derive(Eq)
 pub struct GdaFlags {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  priv conversion_syntax : Bool
+  priv division_by_zero : Bool
+  priv division_impossible : Bool
+  priv division_undefined : Bool
+  priv invalid_context : Bool
+  priv invalid_operation : Bool
+  priv overflow : Bool
+  priv underflow : Bool
+  priv subnormal : Bool
+  priv inexact : Bool
+  priv rounded : Bool
+  priv clamped : Bool
+  priv lost_digits : Bool
 }
 
 ///|
 #derive(Eq)
 pub struct GdaTrapSet {
-  conversion_syntax : Bool
-  division_by_zero : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
-  invalid_operation : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  inexact : Bool
-  rounded : Bool
-  clamped : Bool
-  lost_digits : Bool
+  priv conversion_syntax : Bool
+  priv division_by_zero : Bool
+  priv division_impossible : Bool
+  priv division_undefined : Bool
+  priv invalid_context : Bool
+  priv invalid_operation : Bool
+  priv overflow : Bool
+  priv underflow : Bool
+  priv subnormal : Bool
+  priv inexact : Bool
+  priv rounded : Bool
+  priv clamped : Bool
+  priv lost_digits : Bool
 }
 
 ///|
@@ -113,6 +113,84 @@ pub fn GdaFlags::none() -> GdaFlags {
     clamped: false,
     lost_digits: false,
   }
+}
+
+///|
+/// Whether the `inexact` status flag is set.
+pub fn GdaFlags::inexact(self : GdaFlags) -> Bool {
+  self.inexact
+}
+
+///|
+/// Whether the `rounded` status flag is set.
+pub fn GdaFlags::rounded(self : GdaFlags) -> Bool {
+  self.rounded
+}
+
+///|
+/// Whether the `lost_digits` status flag is set.
+pub fn GdaFlags::lost_digits(self : GdaFlags) -> Bool {
+  self.lost_digits
+}
+
+///|
+/// Whether the `invalid_operation` status flag is set.
+pub fn GdaFlags::invalid_operation(self : GdaFlags) -> Bool {
+  self.invalid_operation
+}
+
+///|
+/// Whether the `division_by_zero` status flag is set.
+pub fn GdaFlags::division_by_zero(self : GdaFlags) -> Bool {
+  self.division_by_zero
+}
+
+///|
+/// Whether the `overflow` status flag is set.
+pub fn GdaFlags::overflow(self : GdaFlags) -> Bool {
+  self.overflow
+}
+
+///|
+/// Whether the `underflow` status flag is set.
+pub fn GdaFlags::underflow(self : GdaFlags) -> Bool {
+  self.underflow
+}
+
+///|
+/// Whether the `subnormal` status flag is set.
+pub fn GdaFlags::subnormal(self : GdaFlags) -> Bool {
+  self.subnormal
+}
+
+///|
+/// Whether the `clamped` status flag is set.
+pub fn GdaFlags::clamped(self : GdaFlags) -> Bool {
+  self.clamped
+}
+
+///|
+/// Whether the `conversion_syntax` status flag is set.
+pub fn GdaFlags::conversion_syntax(self : GdaFlags) -> Bool {
+  self.conversion_syntax
+}
+
+///|
+/// Whether the `division_impossible` status flag is set.
+pub fn GdaFlags::division_impossible(self : GdaFlags) -> Bool {
+  self.division_impossible
+}
+
+///|
+/// Whether the `division_undefined` status flag is set.
+pub fn GdaFlags::division_undefined(self : GdaFlags) -> Bool {
+  self.division_undefined
+}
+
+///|
+/// Whether the `invalid_context` status flag is set.
+pub fn GdaFlags::invalid_context(self : GdaFlags) -> Bool {
+  self.invalid_context
 }
 
 ///|
@@ -211,6 +289,84 @@ pub fn GdaTrapSet::none() -> GdaTrapSet {
     clamped: false,
     lost_digits: false,
   }
+}
+
+///|
+/// Whether the `inexact` trap is set.
+pub fn GdaTrapSet::inexact(self : GdaTrapSet) -> Bool {
+  self.inexact
+}
+
+///|
+/// Whether the `rounded` trap is set.
+pub fn GdaTrapSet::rounded(self : GdaTrapSet) -> Bool {
+  self.rounded
+}
+
+///|
+/// Whether the `lost_digits` trap is set.
+pub fn GdaTrapSet::lost_digits(self : GdaTrapSet) -> Bool {
+  self.lost_digits
+}
+
+///|
+/// Whether the `invalid_operation` trap is set.
+pub fn GdaTrapSet::invalid_operation(self : GdaTrapSet) -> Bool {
+  self.invalid_operation
+}
+
+///|
+/// Whether the `division_by_zero` trap is set.
+pub fn GdaTrapSet::division_by_zero(self : GdaTrapSet) -> Bool {
+  self.division_by_zero
+}
+
+///|
+/// Whether the `overflow` trap is set.
+pub fn GdaTrapSet::overflow(self : GdaTrapSet) -> Bool {
+  self.overflow
+}
+
+///|
+/// Whether the `underflow` trap is set.
+pub fn GdaTrapSet::underflow(self : GdaTrapSet) -> Bool {
+  self.underflow
+}
+
+///|
+/// Whether the `subnormal` trap is set.
+pub fn GdaTrapSet::subnormal(self : GdaTrapSet) -> Bool {
+  self.subnormal
+}
+
+///|
+/// Whether the `clamped` trap is set.
+pub fn GdaTrapSet::clamped(self : GdaTrapSet) -> Bool {
+  self.clamped
+}
+
+///|
+/// Whether the `conversion_syntax` trap is set.
+pub fn GdaTrapSet::conversion_syntax(self : GdaTrapSet) -> Bool {
+  self.conversion_syntax
+}
+
+///|
+/// Whether the `division_impossible` trap is set.
+pub fn GdaTrapSet::division_impossible(self : GdaTrapSet) -> Bool {
+  self.division_impossible
+}
+
+///|
+/// Whether the `division_undefined` trap is set.
+pub fn GdaTrapSet::division_undefined(self : GdaTrapSet) -> Bool {
+  self.division_undefined
+}
+
+///|
+/// Whether the `invalid_context` trap is set.
+pub fn GdaTrapSet::invalid_context(self : GdaTrapSet) -> Bool {
+  self.invalid_context
 }
 
 ///|

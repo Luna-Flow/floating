@@ -514,7 +514,7 @@ test "design: overflow depends on the rounding direction" {
   let down = ctx.with_rounding(@def.RoundingMode::TowardZero)
   let (sat, flags) = big.mul_ctx(ten, down)
   inspect(sat, content="9.999999999999999E+384")
-  inspect(flags.overflow && flags.inexact, content="true")
+  inspect(flags.overflow() && flags.inexact(), content="true")
 }
 ```
 
@@ -563,7 +563,7 @@ test "design: fold-down in decimal32" {
   let (x, flags) = @decimal.Decimal::from_string_ctx("1E+96", ctx)
   inspect(x.coefficient(), content="1000000")
   inspect(x.exponent10(), content="90")
-  inspect(flags.clamped, content="true")
+  inspect(flags.clamped(), content="true")
 }
 ```
 

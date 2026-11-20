@@ -155,7 +155,7 @@ test "the InvalidOperation trap covers conversion syntax" {
     @decimal_gda.GdaOutcome::Trapped(signal, value, _, raised) => {
       inspect(signal == InvalidOperation, content="true")
       inspect(value, content="nan")
-      inspect(raised.conversion_syntax, content="true")
+      inspect(raised.conversion_syntax(), content="true")
     }
     @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
   }

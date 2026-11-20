@@ -16,24 +16,24 @@ let clamp_fold_contexts : Array[(String, Int32, Int32, Int32)] = [
 
 ///|
 fn clamp_fold_flags(f : @decimal.DecimalFlags) -> String {
-  (if f.inexact { "x" } else { "." }) +
-  (if f.rounded { "r" } else { "." }) +
-  (if f.invalid_operation { "i" } else { "." }) +
-  (if f.overflow { "o" } else { "." }) +
-  (if f.underflow { "u" } else { "." }) +
-  (if f.subnormal { "s" } else { "." }) +
-  (if f.clamped { "c" } else { "." })
+  (if f.inexact() { "x" } else { "." }) +
+  (if f.rounded() { "r" } else { "." }) +
+  (if f.invalid_operation() { "i" } else { "." }) +
+  (if f.overflow() { "o" } else { "." }) +
+  (if f.underflow() { "u" } else { "." }) +
+  (if f.subnormal() { "s" } else { "." }) +
+  (if f.clamped() { "c" } else { "." })
 }
 
 ///|
 fn clamp_fold_gda_flags(f : @decimal_gda.DecimalFlags) -> String {
-  (if f.inexact { "x" } else { "." }) +
-  (if f.rounded { "r" } else { "." }) +
-  (if f.invalid_operation { "i" } else { "." }) +
-  (if f.overflow { "o" } else { "." }) +
-  (if f.underflow { "u" } else { "." }) +
-  (if f.subnormal { "s" } else { "." }) +
-  (if f.clamped { "c" } else { "." })
+  (if f.inexact() { "x" } else { "." }) +
+  (if f.rounded() { "r" } else { "." }) +
+  (if f.invalid_operation() { "i" } else { "." }) +
+  (if f.overflow() { "o" } else { "." }) +
+  (if f.underflow() { "u" } else { "." }) +
+  (if f.subnormal() { "s" } else { "." }) +
+  (if f.clamped() { "c" } else { "." })
 }
 
 ///|
@@ -136,6 +136,6 @@ test "with the clamp fold off decimal keeps the exponent asked for, where decima
   let b = @decimal_gda.Decimal::from_string("0")
     .unwrap()
     .quantize(@decimal_gda.Decimal::from_string("1E+380").unwrap(), gda)
-  assert_eq((a.0.to_string(), a.1.clamped), ("0E+380", false))
-  assert_eq((b.0.to_string(), b.1.clamped), ("0E+369", true))
+  assert_eq((a.0.to_string(), a.1.clamped()), ("0E+380", false))
+  assert_eq((b.0.to_string(), b.1.clamped()), ("0E+369", true))
 }

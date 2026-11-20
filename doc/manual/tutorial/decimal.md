@@ -97,7 +97,7 @@ test "decimal64 pipeline with flags" {
   let flags = f1.combine(f2)
   inspect(total, content="33.33333333333333")
   inspect(scaled, content="99.99999999999999")
-  inspect(flags.inexact, content="true")
+  inspect(flags.inexact(), content="true")
   inspect(flags.has_error(), content="false")
 }
 ```
@@ -152,10 +152,10 @@ test "decimal convert to integer" {
   let bankers = @decimal.DecimalContext::decimal64()
   let (value, flags) = d("2.5").to_int_ctx(bankers, exact=true)
   debug_inspect(value, content="Some(2)")
-  assert_true(flags.inexact)
+  assert_true(flags.inexact())
   let (negative, flags) = d("-1").to_uint_ctx(bankers)
   debug_inspect(negative, content="None")
-  assert_true(flags.invalid_operation)
+  assert_true(flags.invalid_operation())
   debug_inspect(
     d("9223372036854775807").to_int64_ctx(bankers).0,
     content="Some(9223372036854775807)",
@@ -175,7 +175,7 @@ test "decimal convert between formats" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s, precision=34).unwrap() }
   let (narrow, flags) = d("1.2345678901234567").convert_format(Decimal32)
   inspect(narrow, content="1.234568")
-  assert_true(flags.inexact)
+  assert_true(flags.inexact())
   let (bits, flags) = d("0.1").to_bin_float_ctx(@bin_float.BinaryContext::binary32())
   assert_true(flags.inexact())
   inspect(bits.to_hex(), content="0xcccccdp-27")
@@ -250,7 +250,7 @@ test "decimal certified logarithm" {
   match two.try_ln_ctx(ctx) {
     Ok((value, flags)) => {
       inspect(value, content="0.6931471805599453")
-      inspect(flags.inexact, content="true")
+      inspect(flags.inexact(), content="true")
     }
     Err(e) => fail("not certified: \{e.is_certification_failure()}")
   }

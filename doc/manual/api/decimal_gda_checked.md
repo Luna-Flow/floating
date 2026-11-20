@@ -34,14 +34,14 @@ The examples call the packages through the aliases `@decimal_gda.` and
 ///|
 fn gda_flags(f : @decimal_gda.GdaFlags) -> String {
   let named = [
-    ("inexact", f.inexact),
-    ("rounded", f.rounded),
-    ("invalid_operation", f.invalid_operation),
-    ("division_by_zero", f.division_by_zero),
-    ("overflow", f.overflow),
-    ("underflow", f.underflow),
-    ("conversion_syntax", f.conversion_syntax),
-    ("invalid_context", f.invalid_context),
+    ("inexact", f.inexact()),
+    ("rounded", f.rounded()),
+    ("invalid_operation", f.invalid_operation()),
+    ("division_by_zero", f.division_by_zero()),
+    ("overflow", f.overflow()),
+    ("underflow", f.underflow()),
+    ("conversion_syntax", f.conversion_syntax()),
+    ("invalid_context", f.invalid_context()),
   ]
   [ for p in named if p.1 => p.0 ].join(",")
 }

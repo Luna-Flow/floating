@@ -236,8 +236,8 @@ test "accumulated flags are the union of the raised flags" {
   let backward = s3.raised().combine(s2.raised()).combine(s1.raised()).combine(s0.raised())
   inspect(s3.flags() == forward, content="true")
   inspect(forward == backward, content="true")
-  inspect(s3.raised().inexact, content="false")
-  inspect(s3.flags().inexact && s3.flags().division_by_zero, content="true")
+  inspect(s3.raised().inexact(), content="false")
+  inspect(s3.flags().inexact() && s3.flags().division_by_zero(), content="true")
 }
 ```
 
