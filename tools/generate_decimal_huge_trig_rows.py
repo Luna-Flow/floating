@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rows for decimal sin, cos, tan, sinpi, cospi and tanpi at huge and tiny operands (issue #377).
 
-Writes two `mpfr-decimal-random-v1` tables (`decimal_row_table`):
+Writes two `mpfr-decimal-random-v2` tables (`decimal_row_table`):
 
 * `testdata/decimal/ieee/rows/huge_trig.txt`, run by the full gate
   (`just gate decimal`) on every target: operands of up to 10^5 digits

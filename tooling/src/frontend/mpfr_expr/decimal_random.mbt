@@ -1,5 +1,5 @@
 ///|
-// `mpfr-decimal-random-v1`: seeded random differential rows for the IEEE
+// `mpfr-decimal-random-v2`: seeded random differential rows for the IEEE
 // decimal elementary functions, produced by
 // `tools/generate_mpfr_decimal_random.py`. The expected result is the rounding
 // of a certified 768-bit MPFR enclosure (never a single MPFR result): a row
@@ -8,13 +8,13 @@
 // is inexact). One row carries the operation, the decimal context, up to two
 // exact operands and the expected value with its flags:
 //
-//   id op rounding precision emin emax clamp tininess a b n expected flags
+//   id op rounding precision emax a b n expected flags
 //
-// `rounding` is `half_even`, `half_up`, `half_down`, `down`, `ceiling`,
-// `floor`, `up` or `05up`; `clamp` is `0` or `1`; `tininess` is `b` (before
-// rounding) or `a` (after rounding); `-` stands for an absent field. `flags` is
-// `-` or a subset of `xrosucvz` (inexact, rounded, overflow, subnormal,
-// underflow, clamped, invalid operation, division by zero).
+// The context is the IEEE 754-2019 format of `precision` and `emax`
+// (`emin = 1 - emax`, tininess before rounding). `rounding` is one of the five
+// IEEE attributes: `half_even`, `half_up`, `down`, `ceiling` or `floor`; `-`
+// stands for an absent field. `flags` is `-` or a subset of `xouvz` (inexact,
+// overflow, underflow, invalid operation, division by zero).
 
 ///|
 priv struct DecimalRandomCase {
@@ -135,10 +135,10 @@ pub fn parse_decimal_random_data(
       continue
     }
     let tokens = tokenize(line)
-    if tokens.length() != 13 {
+    if tokens.length() != 10 {
       diagnostics.push(
         row_diagnostic(
-          source, line_number, "MPFR decimal random row must contain thirteen fields",
+          source, line_number, "MPFR decimal random row must contain ten fields",
         ),
       )
       continue
@@ -172,64 +172,40 @@ fn parse_decimal_random_row(
     Some(value) if value >= 1 => value
     _ => return Err("invalid decimal precision " + tokens[3])
   }
-  let e_min = match parse_int(tokens[4]) {
+  let e_max = match parse_int(tokens[4]) {
     Some(value) => value
-    None => return Err("invalid decimal e_min " + tokens[4])
-  }
-  let e_max = match parse_int(tokens[5]) {
-    Some(value) => value
-    None => return Err("invalid decimal e_max " + tokens[5])
-  }
-  let clamp = match parse_bool_digit(tokens[6]) {
-    Some(value) => value
-    None => return Err("invalid decimal clamp " + tokens[6])
-  }
-  match tokens[7] {
-    "b" => ()
-    "a" =>
-      return Err(
-        "decimal tininess is detected before rounding (IEEE 754-2019 7.5): use b",
-      )
-    _ => return Err("invalid decimal tininess " + tokens[7])
-  }
-  // A context is the IEEE 754-2019 format of a precision and an `e_max`
-  // (3.3: `e_min = 1 - e_max`, every result a member of the format).
-  if !clamp {
-    return Err("decimal context must be an IEEE format: clamp must be 1")
-  }
-  if e_min != 1 - e_max {
-    return Err("decimal context must be an IEEE format: emin must be 1 - emax")
+    None => return Err("invalid decimal e_max " + tokens[4])
   }
   let context = match
     @decimal.DecimalContext::try_new(precision~, rounding~, e_max~) {
     Ok(context) => context
     Err(_) => return Err("invalid decimal context")
   }
-  let a = match parse_decimal_random_operand(tokens[8]) {
+  let a = match parse_decimal_random_operand(tokens[5]) {
     Some(value) => value
-    None => return Err("invalid decimal operand " + tokens[8])
+    None => return Err("invalid decimal operand " + tokens[5])
   }
-  let b = if tokens[9] == "-" {
+  let b = if tokens[6] == "-" {
     None
   } else {
-    match parse_decimal_random_operand(tokens[9]) {
+    match parse_decimal_random_operand(tokens[6]) {
       Some(value) => Some(value)
-      None => return Err("invalid decimal operand " + tokens[9])
+      None => return Err("invalid decimal operand " + tokens[6])
     }
   }
   if shape == 1 && b is None {
     return Err("operation " + tokens[1] + " needs a second operand")
   }
-  let n = match parse_int(tokens[10]) {
+  let n = match parse_int(tokens[7]) {
     Some(value) => value
-    None => return Err("invalid decimal integer " + tokens[10])
+    None => return Err("invalid decimal integer " + tokens[7])
   }
-  let expected = match parse_decimal_random_operand(tokens[11]) {
+  let expected = match parse_decimal_random_operand(tokens[8]) {
     Some(value) => value
-    None => return Err("invalid decimal expected value " + tokens[11])
+    None => return Err("invalid decimal expected value " + tokens[8])
   }
-  if !valid_decimal_random_flags(tokens[12]) {
-    return Err("invalid decimal flags " + tokens[12])
+  if !valid_decimal_random_flags(tokens[9]) {
+    return Err("invalid decimal flags " + tokens[9])
   }
   Ok({
     id: tokens[0],
@@ -239,7 +215,7 @@ fn parse_decimal_random_row(
     b,
     n,
     expected,
-    flags: tokens[12],
+    flags: tokens[9],
   })
 }
 
@@ -249,34 +225,25 @@ fn valid_decimal_random_flags(flags : String) -> Bool {
     return true
   }
   flags.length() > 0 &&
-  flags.iter().all(character => "xrosucvz".contains_char(character))
+  flags.iter().all(character => "xouvz".contains_char(character))
 }
 
 ///|
 fn decimal_random_flags_text(flags : @decimal.DecimalFlags) -> String {
   let builder = StringBuilder()
-  if flags.contains(Inexact) {
+  if flags.inexact() {
     builder.write_char('x')
   }
-  if flags.contains(Rounded) {
-    builder.write_char('r')
-  }
-  if flags.contains(Overflow) {
+  if flags.overflow() {
     builder.write_char('o')
   }
-  if flags.contains(Subnormal) {
-    builder.write_char('s')
-  }
-  if flags.contains(Underflow) {
+  if flags.underflow() {
     builder.write_char('u')
   }
-  if flags.contains(Clamped) {
-    builder.write_char('c')
-  }
-  if flags.contains(InvalidOperation) {
+  if flags.invalid_operation() {
     builder.write_char('v')
   }
-  if flags.contains(DivisionByZero) {
+  if flags.division_by_zero() {
     builder.write_char('z')
   }
   let text = builder.to_string()

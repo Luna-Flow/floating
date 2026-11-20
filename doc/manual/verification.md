@@ -43,7 +43,7 @@ The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
 of the repository. The quick gate (`just pr`, the native test stage of CI)
 compiles all 9,691 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
 (2.2 MB of source), and the same rows are data
-(`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
+(`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v2` rows, see
 `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
 release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare
 value, cohort (`total_order_compare`) and all flags exactly.
@@ -268,7 +268,7 @@ range.
 aliases. The run logs below quote the commands as they were run.
 
 **MPFR enclosures (decimal elementary functions)**, a third corpus
-(`mpfr-decimal-random-v1`, `just random-diff run --decimal`). The IEEE `decimal`
+(`mpfr-decimal-random-v2`, `just random-diff run --decimal`). The IEEE `decimal`
 package's elementary functions are checked against MPFR through certified
 enclosures, not single results: 2048-bit directed operand bounds, 768-bit
 directed results on every corner, one ulp of slack, both endpoints rounded to
@@ -292,7 +292,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   nearest-away, in the executor) fails 0.15% to 2.8% of the rows, so the rows
   that decide those cases are present.
 - *Decimal elementary functions against MPFR*: 26 of the 28 functions agree
-  with MPFR in value, cohort and all eight flags in every one of their 20,000
+  with MPFR in value, cohort and flags in every one of their 20,000
   native cases, and the same rows pass on Wasm, JavaScript and Wasm-GC. Two
   disagreements, with the identical failing ids on all four backends: `atan2`
   returns the zero of an underflowed result with exponent 0 instead of the
@@ -699,7 +699,7 @@ or the page that documents the decision.
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
-| IEEE 754-2019 §5.3.2 | A zero `quantize` (and `rescale`) result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` by default (decNumber folds it) | default unchanged; `DecimalContext::with_clamp_fold(true)` folds it with `clamped`; [#234](https://github.com/Luna-Flow/floating/issues/234) |
+| IEEE 754-2019 §5.3.2 | decNumber folds a zero `quantize` result above `e_max - p + 1` down; `decimal` does too (every result is a member of the format) | [#234](https://github.com/Luna-Flow/floating/issues/234) |
 | IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/bin_float/README.md` |
 | IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | [#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text) |
 | IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | [#231](https://github.com/Luna-Flow/floating/issues/231), [#242](https://github.com/Luna-Flow/floating/issues/242) |

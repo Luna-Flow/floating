@@ -604,7 +604,7 @@ def merge_rows(files: list[tuple[str, Path]], work: Path) -> list[tuple[str, Pat
         path = work / (f"replay-{kind}.decTest" if kind == "decimal_gda" else f"replay-{kind}.rows")
         header = {
             "binary": "# mpfr-random-v1 replay",
-            "decimal": "# mpfr-decimal-random-v1 replay",
+            "decimal": "# mpfr-decimal-random-v2 replay",
         }.get(kind, "-- libmpdec-random-v1 replay\nversion: 2.62\nextended: 1")
         path.write_text(header + "\n" + "\n".join(lines) + "\n", encoding="utf-8")
         outputs.append((kind, path))

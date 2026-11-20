@@ -364,11 +364,11 @@ fn decimal_tiny_argument_result(
   guard lower_result.0.total_order_compare(upper_result.0) == 0 else {
     return None
   }
-  let lower_status = { ..lower_result.1, rounded: false, inexact: false, }
-  let upper_status = { ..upper_result.1, rounded: false, inexact: false, }
+  let lower_status = { ..lower_result.1, inexact: false, }
+  let upper_status = { ..upper_result.1, inexact: false, }
   guard lower_status == upper_status else { return None }
   let selected = if above { upper_result } else { lower_result }
-  Some((selected.0, { ..selected.1, rounded: true, inexact: true, }))
+  Some((selected.0, { ..selected.1, inexact: true, }))
 }
 
 ///|
@@ -472,13 +472,7 @@ fn decimal_certified_exp_minimum_result(
       minimum_exponent,
       precision,
     ),
-    {
-      ..DecimalFlags::new(),
-      rounded: true,
-      inexact: true,
-      underflow: tiny,
-      subnormal: tiny,
-    },
+    { ..DecimalFlags::new(), inexact: true, underflow: tiny, },
   )
 }
 

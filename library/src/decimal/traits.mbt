@@ -6,11 +6,8 @@ fn contextual_diagnostics(
 ) -> @lf_arith.ArithmeticDiagnostics {
   @lf_arith.ArithmeticDiagnostics::new(
     inexact=flags.inexact,
-    rounded=flags.rounded,
     overflow=flags.overflow,
     underflow=flags.underflow,
-    subnormal=flags.subnormal,
-    clamped=flags.clamped,
   )
 }
 
@@ -202,7 +199,7 @@ pub impl @lf_arith.ParseChecked for Decimal with fn parse_checked(src, ctx) {
     Ok(dctx) => dctx
   }
   let (value, flags) = Decimal::from_string_ctx(src, dctx)
-  if flags.conversion_syntax {
+  if flags.invalid_operation {
     Err(
       @lf_arith.ArithmeticError::parse_error("invalid decimal literal: " + src),
     )
@@ -220,7 +217,7 @@ pub impl @lf_arith.DivChecked for Decimal with fn div_checked(self, other, ctx) 
   let (value, flags) = self.div_ctx(other, dctx)
   if flags.division_by_zero {
     Err(@def.ArithmeticError::division_by_zero("division by zero"))
-  } else if flags.division_undefined || flags.invalid_operation {
+  } else if flags.invalid_operation {
     Err(@def.ArithmeticError::domain_error("invalid decimal division"))
   } else {
     Ok(value)
@@ -288,7 +285,7 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
         "negative exponent requires a non-zero base",
       ),
     )
-  } else if flags.invalid_operation || flags.invalid_context {
+  } else if flags.invalid_operation {
     Err(@def.ArithmeticError::domain_error("invalid decimal power"))
   } else {
     Ok(value)
@@ -323,7 +320,7 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
         "negative exponent requires a non-zero base",
       ),
     )
-  } else if flags.invalid_operation || flags.invalid_context {
+  } else if flags.invalid_operation {
     Err(@def.ArithmeticError::domain_error("invalid decimal power"))
   } else {
     Ok(value)

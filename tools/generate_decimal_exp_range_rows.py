@@ -144,11 +144,8 @@ def letters(flags: dict) -> str:
     out = ""
     for key, letter in (
         (decimal.Inexact, "x"),
-        (decimal.Rounded, "r"),
         (decimal.Overflow, "o"),
-        (decimal.Subnormal, "s"),
         (decimal.Underflow, "u"),
-        (decimal.Clamped, "c"),
     ):
         if flags.get(key):
             out += letter

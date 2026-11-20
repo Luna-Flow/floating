@@ -6,8 +6,8 @@ import decimal_row_table as table
 
 def row(**overrides: object) -> table.TableRow:
     fields: dict[str, object] = dict(
-        op="exp2m1", rounding="half_even", precision=1, emin=-999999, emax=999999,
-        clamp=False, tininess="b", a="1", b=None, n=0, expected="1", flags="-",
+        op="exp2m1", rounding="half_even", precision=1, emin=-999998, emax=999999,
+        clamp=True, tininess="b", a="1", b=None, n=0, expected="1", flags="-",
     )
     fields.update(overrides)
     return table.TableRow(**fields)  # type: ignore[arg-type]
@@ -18,16 +18,19 @@ def cli_output(total: int, failed: list[str]) -> str:
 
 
 class RowFormatTests(unittest.TestCase):
-    def test_row_line_has_the_thirteen_fields_of_the_cli_format(self) -> None:
+    def test_row_line_has_the_ten_fields_of_the_cli_format(self) -> None:
         line = table.format_row("pm1-00000", row())
-        self.assertEqual(
-            line, "pm1-00000 exp2m1 half_even 1 -999999 999999 0 b 1 - 0 1 -"
-        )
-        self.assertEqual(len(line.split()), 13)
+        self.assertEqual(line, "pm1-00000 exp2m1 half_even 1 999999 1 - 0 1 -")
+        self.assertEqual(len(line.split()), 10)
 
-    def test_clamp_and_second_operand_are_written(self) -> None:
-        tokens = table.format_row("t-1", row(clamp=True, b="2.5", n=-3)).split()
-        self.assertEqual((tokens[6], tokens[9], tokens[10]), ("1", "2.5", "-3"))
+    def test_second_operand_is_written(self) -> None:
+        tokens = table.format_row("t-1", row(b="2.5", n=-3)).split()
+        self.assertEqual((tokens[5], tokens[6], tokens[7]), ("1", "2.5", "-3"))
+
+    def test_a_context_that_is_not_an_ieee_format_is_rejected(self) -> None:
+        for bad in (dict(clamp=False), dict(tininess="a"), dict(emin=-5)):
+            with self.assertRaises(ValueError):
+                table.format_row("t-1", row(**bad))
 
     def test_unwritable_tokens_are_rejected(self) -> None:
         for bad in ("a b", ""):
@@ -36,7 +39,7 @@ class RowFormatTests(unittest.TestCase):
 
     def test_render_numbers_rows_and_counts_only_data_lines(self) -> None:
         text = table.render_table("pm1", "gen.py", [row(), row(a="2", expected="3")])
-        self.assertIn("mpfr-decimal-random-v1", text.split("\n")[0])
+        self.assertIn("mpfr-decimal-random-v2", text.split("\n")[0])
         self.assertEqual(table.count_rows(text), 2)
         self.assertIn("\npm1-00001 ", text)
 
@@ -117,7 +120,7 @@ class CheckedInTableTests(unittest.TestCase):
     def test_tables_are_well_formed_cli_rows(self) -> None:
         for name in (*table.TABLES, *table.OPT_IN_TABLES):
             text = table.table_path(name).read_text(encoding="utf-8")
-            self.assertIn("mpfr-decimal-random-v1", text.split("\n")[0])
+            self.assertIn("mpfr-decimal-random-v2", text.split("\n")[0])
             lines = table.data_lines(text)
             if name == "pi_inverse":
                 self.assertGreater(len(lines), 5000, name)
@@ -126,7 +129,7 @@ class CheckedInTableTests(unittest.TestCase):
                 self.assertGreater(len(lines), 3, name)
             ids = [line.split()[0] for line in lines]
             self.assertEqual(len(set(ids)), len(ids), name)
-            self.assertTrue(all(len(line.split()) == 13 for line in lines), name)
+            self.assertTrue(all(len(line.split()) == 10 for line in lines), name)
 
 
 if __name__ == "__main__":

@@ -308,6 +308,23 @@ notes live in this file.
   | --- | --- | --- |
   | none | `c.sqr_rev(x?)`, `c.abs_rev(x?)`, `c.pown_rev(p, x?)`, `c.cosh_rev(x?)` | `BallFloat`, `BallFloatDecorated`, `BallFloatResult`; no `try_` form, no input fails |
 
+- `decimal`, `decimal_checked`: the package exports the operations of IEEE 754-2019 only, and `DecimalFlags` has the flags of 7.2 to 7.6 ([#438](https://github.com/Luna-Flow/floating/issues/438), N7, the strict step). The General Decimal Arithmetic operations that IEEE has no counterpart for leave; `decimal_gda` keeps them. `DecimalFlags` is `inexact`, `underflow`, `overflow`, `division_by_zero`, `invalid_operation` and `not_computed` (added; no operation raises it yet). A text that is not a number, a context an elementary function does not support and `0/0` raise `invalid_operation`. The inherent `normalized` stays: `x.normalized()` does not resolve through the `@def.Floating` trait with dot syntax. The text row format of the decimal corpora is `mpfr-decimal-random-v2`: columns `id op rounding precision emax a b n expected flags`, flags a subset of `xouvz`.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.plus_ctx(ctx)` | `x.apply_ctx(ctx)` | the rounding of one operand into the context |
+  | `x.minus_ctx(ctx)` | `x.neg().apply_ctx(ctx)` or `Decimal::zero().sub_ctx(x, ctx)` | the first keeps the cohort and the zero sign rule of `negate`, the second is the subtraction |
+  | `x.reduce_ctx(ctx)`, `x.trim()` | `x.apply_ctx(ctx).0.normalized()` | IEEE 754-2019 has no operation that strips trailing zeros |
+  | `x.rescale_ctx(n, ctx)` | `x.quantize_ctx(Decimal::make(1, n, 1), ctx)` | the invalid-operand rules of `quantize` apply |
+  | `x.divide_integer_ctx(y, ctx)`, `x.remainder_trunc_ctx(y, ctx)` | none (use `decimal_gda`) | IEEE 754-2019 has `remainder_ctx` (round to nearest) and `to_integral_*` |
+  | `logical_and_ctx`, `logical_or_ctx`, `logical_xor_ctx`, `logical_invert_ctx`, `shift_ctx`, `rotate_ctx` | none (use `decimal_gda`) | digit-wise operations of GDA |
+  | `DecimalChecked::plus`, `minus`, `reduce` | `apply`, or none | as above |
+  | `flags.rounded()`, `subnormal()`, `clamped()`, `lost_digits()` | none | `inexact` and `underflow` carry the IEEE meaning; `x.is_subnormal(ctx)` tests a value |
+  | `flags.conversion_syntax()`, `division_impossible()`, `division_undefined()`, `invalid_context()` | `flags.invalid_operation()` | conditions of the invalid operation signal |
+  | `flags.contains(DecimalSignal::X)`, `DecimalSignal` | the accessor of the flag | `contains` and `DecimalSignal` go |
+  | `flags.has_error()` | the same name, `invalid_operation \|\| not_computed \|\| division_by_zero` | |
+  | `mpfr-decimal-random-v1` rows `id op rounding precision emin emax clamp tininess a b n expected flags` | `mpfr-decimal-random-v2` rows `id op rounding precision emax a b n expected flags` | the flag letters `r`, `s`, `c` go |
+
 ### Fixed
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.

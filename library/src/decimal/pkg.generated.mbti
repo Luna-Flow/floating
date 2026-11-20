@@ -63,7 +63,6 @@ pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -106,10 +105,6 @@ pub fn Decimal::log1p_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
@@ -123,7 +118,6 @@ pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::mul_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -145,7 +139,6 @@ pub fn Decimal::op_lt(Self, Self) -> Bool
 pub fn Decimal::output(Self, &Logger) -> Unit
 pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -155,18 +148,13 @@ pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
-pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rsqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
 pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
-pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::sin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -199,7 +187,6 @@ pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, De
 pub fn Decimal::total_order(Self, Self) -> Bool
 pub fn Decimal::total_order_compare(Self, Self) -> Int32
 pub fn Decimal::total_order_mag(Self, Self) -> Bool
-pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -301,24 +288,16 @@ pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
 pub struct DecimalFlags {
   // private fields
 }
-pub fn DecimalFlags::clamped(Self) -> Bool
 pub fn DecimalFlags::combine(Self, Self) -> Self
-pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
-pub fn DecimalFlags::conversion_syntax(Self) -> Bool
 pub fn DecimalFlags::division_by_zero(Self) -> Bool
-pub fn DecimalFlags::division_impossible(Self) -> Bool
-pub fn DecimalFlags::division_undefined(Self) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
 pub fn DecimalFlags::inexact(Self) -> Bool
-pub fn DecimalFlags::invalid_context(Self) -> Bool
 pub fn DecimalFlags::invalid_operation(Self) -> Bool
-pub fn DecimalFlags::lost_digits(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
+pub fn DecimalFlags::not_computed(Self) -> Bool
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 pub fn DecimalFlags::overflow(Self) -> Bool
-pub fn DecimalFlags::rounded(Self) -> Bool
-pub fn DecimalFlags::subnormal(Self) -> Bool
 pub fn DecimalFlags::underflow(Self) -> Bool
 
 pub struct DecimalInterchange {
@@ -370,25 +349,6 @@ pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
-
-#derive(Eq)
-pub(all) enum DecimalSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
-  Clamped
-  LostDigits
-}
-pub fn DecimalSignal::equal(Self, Self) -> Bool
-pub fn DecimalSignal::not_equal(Self, Self) -> Bool
 
 // Type aliases
 

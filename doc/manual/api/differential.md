@@ -43,7 +43,7 @@ random-diff --rows <corpus> [--batch N] [--seed N] [--run-id ID]
 
 | Option | Meaning |
 | --- | --- |
-| `--rows FILE` | the corpus: `mpfr-random-v1` rows, `mpfr-decimal-random-v1` rows or a `.decTest` file whose header says `libmpdec-random-v1`; the format is detected from the text |
+| `--rows FILE` | the corpus: `mpfr-random-v1` rows, `mpfr-decimal-random-v2` rows or a `.decTest` file whose header says `libmpdec-random-v1`; the format is detected from the text |
 | `--batch N` | cases validated together; default 1000 |
 | `--seed N` | the mare_mark run seed, below 2^31; it seeds the balanced block order and is recorded in every failure |
 | `--run-id ID` | provenance id written into the environment snapshot and the summary |

@@ -8,7 +8,6 @@ test "bounded division rounds a long coefficient at context precision" {
   let ctx = DecimalContext::new(precision=6)
   let (value, flags) = dividend.div_ctx(divisor, ctx)
   assert_eq(value.compare(Decimal::from_string("1.76367E+28").unwrap()), 0)
-  assert_true(flags.rounded)
   assert_true(flags.inexact)
 }
 
@@ -22,7 +21,6 @@ test "exact division preserves the preferred cohort" {
   )
   assert_eq(value.coefficient().to_string(), "120")
   assert_eq(value.exponent10(), -2)
-  assert_false(flags.rounded)
   assert_false(flags.inexact)
 }
 
@@ -39,8 +37,6 @@ test "exact division honors decimal tie rounding" {
   let (up_value, up_flags) = dividend.div_ctx(divisor, half_up)
   assert_eq(even_value.compare(Decimal::from_string("0.12").unwrap()), 0)
   assert_eq(up_value.compare(Decimal::from_string("0.13").unwrap()), 0)
-  assert_true(even_flags.rounded)
   assert_true(even_flags.inexact)
-  assert_true(up_flags.rounded)
   assert_true(up_flags.inexact)
 }

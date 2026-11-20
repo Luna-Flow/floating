@@ -153,7 +153,7 @@ then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 =
 2.00`. An inexact normal result always uses all $p$ digits, which is the
 member with the smallest exponent; an inexact subnormal result ends at
 $E_{\text{tiny}}$. `quantize_ctx` makes the exponent an explicit argument, and
-`reduce_ctx`/`normalized` choose the member with the largest exponent.
+`normalized` chooses the member with the largest exponent.
 
 For conversion from a character sequence, IEEE 754-2019 §5.2 selects the
 least possible exponent for an inexact result. Thus parsing `1.0001` at
@@ -304,7 +304,7 @@ $$
 the first term keeping $p$ digits for a normal result and the second the
 subnormal grid; the result is $\circ(C\,10^{Q-t})\,10^{t}$, followed by the
 overflow check (on the value rounded to $p$ digits with unbounded exponent),
-the subnormal/underflow flags and the fold-down.
+the underflow flag and the fold-down.
 
 The routine rounds to the subnormal grid only when $t = E_{\text{tiny}} > Q$,
 which it tests as $Q + \max(0, D - p) < E_{\text{tiny}}$: the exact value is
@@ -538,10 +538,9 @@ $e_{\min}$, measured on the exact value. IEEE 754-2019 §7.5 requires this for
 decimal formats ("tininess is detected before rounding"); the binary-style rule,
 on the value rounded to $p$ digits with unbounded exponent, was an option of the
 library until 0.12 and is gone. With $p = 3$ and $e_{\min} = 0$, $0.9951$ and
-$0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny result raises
-`subnormal`; a tiny **and** inexact result also raises `underflow`, as IEEE 754
+$0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny **and** inexact result raises `underflow`, as IEEE 754
 §7.5 requires for default exception handling. A result that rounds to zero
-gets exponent $E_{\text{tiny}}$ and `clamped`.
+gets exponent $E_{\text{tiny}}$.
 
 #### Clamping
 
@@ -550,7 +549,7 @@ not representable, because the encoding has room only for
 $E_{\text{top}} - E_{\text{tiny}} + 1$ exponents. A result with $Q' >
 E_{\text{top}}$ that did not overflow is **folded down**: the coefficient is
 multiplied by $10^{Q' - E_{\text{top}}}$ and the exponent set to
-$E_{\text{top}}$, raising `clamped`. This never needs more than $p$ digits:
+$E_{\text{top}}$. This never needs more than $p$ digits:
 
 $$
 \operatorname{digits}(C') + (Q' - E_{\text{top}})
@@ -568,20 +567,20 @@ test "design: fold-down in decimal32" {
   let (x, flags) = @decimal.Decimal::from_string_ctx("1E+96", ctx)
   inspect(x.coefficient(), content="1000000")
   inspect(x.exponent10(), content="90")
-  inspect(flags.clamped(), content="true")
+  inspect(flags.inexact(), content="false")
 }
 ```
 
 Zeros have no digits to pad, so their exponent is simply clamped into
-$[E_{\text{tiny}}, E_{\text{top}}]$, raising `clamped` when it changes.
+$[E_{\text{tiny}}, E_{\text{top}}]$.
 
 A zero is the one result `quantize_ctx` can return above $E_{\text{top}}$: its
 target exponent only has to be at most $e_{\max}$ (a zero has one digit, so
 $e_{\max} - \operatorname{digits} + 1 = e_{\max}$ is the overflow bound of
 decNumber's `decQuantizeOp`). decNumber calls `decFinalize` there, whose clamp
-branch lowers the exponent to $E_{\text{top}}$ and raises `clamped`. A result
+branch lowers the exponent to $E_{\text{top}}$. A result
 of an IEEE format is a member of the format (§3.3), whose exponents stop at
-$E_{\text{top}}$, so `quantize_ctx` and `rescale_ctx` fold a zero like every
+$E_{\text{top}}$, so `quantize_ctx` folds a zero like every
 other operation does through `finalize_finite_ctx`; until 0.12 the fold of these two
 was an option (`with_clamp_fold`).
 
@@ -597,10 +596,11 @@ monoid with identity `DecimalFlags::new()`: accumulating them over a pipeline
 in any grouping gives the same set, which is exactly the sticky-flag
 semantics without the state. `decimal_checked` packages that accumulation;
 `decimal_gda` implements sticky status and traps as a separate model. The
-five IEEE exceptions map to `invalid_operation`, `division_by_zero`,
-`overflow`, `underflow` and `inexact`; the GDA conditions (`rounded`,
-`subnormal`, `clamped`, `lost_digits`, `conversion_syntax`,
-`division_impossible`, `division_undefined`, `invalid_context`) refine them.
+five IEEE exceptions are `invalid_operation`, `division_by_zero`,
+`overflow`, `underflow` and `inexact`; `DecimalFlags` has exactly these and
+`not_computed`. The GDA conditions (`rounded`, `subnormal`, `clamped`,
+`lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined`,
+`invalid_context`) belong to `decimal_gda`.
 
 ### Quantize and same-quantum
 
@@ -620,7 +620,7 @@ result's adjusted exponent must not exceed $e_{\max}$. Otherwise the operation
 is invalid. It never substitutes another exponent, because the exponent is
 the contract (an amount quantized to cents must have two decimal places). The
 only change of exponent is the fold-down of [clamping](#clamping): a target $t \in (E_{\text{top}}, e_{\max}]$ is accepted and the
-result is stored at $E_{\text{top}}$ with `clamped`, exactly like any other
+result is stored at $E_{\text{top}}$, exactly like any other
 result in that range.
 Rounding a coefficient up can add a digit ($9.99 \to 10.0$ at two digits of
 precision), which is why the digit check comes after rounding.
@@ -796,7 +796,7 @@ $L \le f(x) \le U$ implies $\circ(L) \le \circ(f(x)) \le \circ(U)$, and if the
 outer two are the same representation, so is the middle one. The flags
 transfer as well, provided $f(x)$ is not itself representable: then one
 endpoint differs from the common result, so both are inexact, and
-`overflow`, `subnormal` and `underflow` are monotone in $|f(x)|$ on an
+`overflow` and `underflow` are monotone in $|f(x)|$ on an
 interval that does not contain zero. Representable results are therefore
 handled before the loop (below).
 
@@ -892,7 +892,7 @@ Three kinds of inputs are decided outside the agreement test:
   E_{\text{tiny}})$ gives $b^x \le 10^{E_{\text{tiny}}-1}$, below half of
   the smallest subnormal and, as $E_{\text{tiny}} \le e_{\min}$, tiny before
   and after rounding, so the result is zero or the smallest subnormal by
-  direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison
+  direction with `inexact` and `underflow` (§7.5). The comparison
   is exact and the margin is the whole slack between $k$ and $1/\log_{10} b$:
   an argument between the true boundary and the threshold is not decided here
   but by the Ziv loop, which is sound there because the threshold is at most
@@ -935,7 +935,7 @@ $10^{e_{\max}+2}$ or $10^{E_{\text{tiny}}-2}$
 test); and every other result comes from the Ziv loop above. No result is a
 zero or an infinity chosen because the argument is small or large: a tiny
 result is the rounding of its certified endpoints, so subnormals, `Underflow`
-under the before-rounding rule, `Clamped` and the sign of a zero are those of the
+under the before-rounding rule and the sign of a zero are those of the
 context.
 
 The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the
@@ -1198,7 +1198,7 @@ distance below $10^{-D}$ relative is refused one step earlier, and the next
 refinement widens $D$ with the binary precision.
 
 The elementary functions refuse contexts with $p$ or $|e|$ above 999,999
-(`invalid_context`; the decNumber limit, see the `decimal_gda` design page),
+(`invalid_operation`; the decNumber limit, see the `decimal_gda` design page),
 which bounds the size of the exact endpoint conversions.
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with

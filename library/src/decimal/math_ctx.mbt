@@ -196,7 +196,7 @@ pub fn Decimal::try_pow_ctx(
               ),
               operand_flags.combine({
                 ..DecimalFlags::new(),
-                invalid_context: true,
+                invalid_operation: true,
               }),
             ),
           )
@@ -253,7 +253,7 @@ pub fn Decimal::try_pow_ctx(
         result,
       ) {
         let finalized = result
-        let finalized = if decimal_exact_cohort_adjustable(finalized) {
+        let finalized = if decimal_exact_cohort_adjustable(finalized, ctx) {
           match
             decimal_power_preferred_exponent(base.exponent10, rounded_exponent) {
             Some(preferred) =>

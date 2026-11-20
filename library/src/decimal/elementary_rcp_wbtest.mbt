@@ -139,7 +139,7 @@ test "rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)" {
       #|rsqrt(1E+2) = 0.1 -
       #|rsqrt(1.00E+2) = 0.1 -
       #|rsqrt(100) = 0.1 -
-      #|rsqrt(1E+3) = 0.03162277660168379 xr
+      #|rsqrt(1E+3) = 0.03162277660168379 x
       #|rsqrt(1E-6) = 1E+3 -
       #|rsqrt(6.25) = 0.4 -
       #|rsqrt(0.0016) = 25 -
@@ -284,21 +284,21 @@ test "compound at Int32.min_value" {
   inspect(
     out.to_string(),
     content=(
-      #|half_even 1E-30 1.000000000000000 xr
-      #|half_even 1E-7 5.444711000534668E-94 xr
-      #|half_even -1E-20 1.000000000021475 xr
-      #|half_even -0.5 inf xro
-      #|half_even 3 0E-398 xrsuc
-      #|floor 1E-30 0.9999999999999999 xr
-      #|floor 1E-7 5.444711000534667E-94 xr
-      #|floor -1E-20 1.000000000021474 xr
-      #|floor -0.5 9.999999999999999E+384 xro
-      #|floor 3 0E-398 xrsuc
-      #|ceiling 1E-30 1.000000000000000 xr
-      #|ceiling 1E-7 5.444711000534668E-94 xr
-      #|ceiling -1E-20 1.000000000021475 xr
-      #|ceiling -0.5 inf xro
-      #|ceiling 3 1E-398 xrsu
+      #|half_even 1E-30 1.000000000000000 x
+      #|half_even 1E-7 5.444711000534668E-94 x
+      #|half_even -1E-20 1.000000000021475 x
+      #|half_even -0.5 inf xo
+      #|half_even 3 0E-398 xu
+      #|floor 1E-30 0.9999999999999999 x
+      #|floor 1E-7 5.444711000534667E-94 x
+      #|floor -1E-20 1.000000000021474 x
+      #|floor -0.5 9.999999999999999E+384 xo
+      #|floor 3 0E-398 xu
+      #|ceiling 1E-30 1.000000000000000 x
+      #|ceiling 1E-7 5.444711000534668E-94 x
+      #|ceiling -1E-20 1.000000000021475 x
+      #|ceiling -0.5 inf xo
+      #|ceiling 3 1E-398 xu
       #|
     ),
   )
@@ -431,7 +431,7 @@ test "powr special values (9.2.1) and the pow agreement" {
       #|powr(2, -Infinity) = 0 -
       #|powr(4, 0.5) = 2 -
       #|powr(4.00, 1.5) = 8.000 -
-      #|powr(10, 1.5) = 31.62277660168379 xr
+      #|powr(10, 1.5) = 31.62277660168379 x
       #|
     ),
   )

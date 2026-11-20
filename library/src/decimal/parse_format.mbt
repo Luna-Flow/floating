@@ -196,7 +196,7 @@ fn decimal_conversion_syntax_result(
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   (
     make_special_repr(FpClass::NaN, false, dec_coeff_zero(), precision, false),
-    { ..DecimalFlags::new(), conversion_syntax: true, },
+    { ..DecimalFlags::new(), invalid_operation: true, },
   )
 }
 
@@ -217,12 +217,7 @@ fn decimal_overflow_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-  let flags = {
-    ..DecimalFlags::new(),
-    overflow: true,
-    rounded: true,
-    inexact: true,
-  }
+  let flags = { ..DecimalFlags::new(), overflow: true, inexact: true, }
   if overflow_to_infinity(negative, ctx.decimal_rounding) {
     (
       Decimal::inf(
@@ -276,11 +271,7 @@ fn decimal_zero_conversion_result(
       clamped_exponent,
       precision,
     ),
-    if clamped_exponent.to_int64() == exponent10 {
-      DecimalFlags::new()
-    } else {
-      { ..DecimalFlags::new(), clamped: true, }
-    },
+    DecimalFlags::new(),
   )
 }
 
@@ -308,14 +299,7 @@ fn decimal_extreme_tiny_conversion_result(
   Some(
     (
       finite_with_exponent_repr(negative, rounded_magnitude, tiny, precision),
-      {
-        ..DecimalFlags::new(),
-        rounded: true,
-        inexact: true,
-        subnormal,
-        underflow: subnormal,
-        clamped: rounded_magnitude.is_zero(),
-      },
+      { ..DecimalFlags::new(), inexact: true, underflow: subnormal, },
     ),
   )
 }
@@ -427,16 +411,9 @@ fn parse_decimal_string_ctx(
             Some(result) => return result
             None => ()
           }
-          let (value, flags) = normalize_decimal_parts_ctx_wide_repr(
+          normalize_decimal_parts_ctx_wide_repr(
             negative, magnitude, exponent10, ctx,
           )
-          if ctx.precision > 0 &&
-            !magnitude.is_zero() &&
-            original_digits > finite_precision_for_coeff(magnitude, ctx) {
-            (value, { ..flags, rounded: true, })
-          } else {
-            (value, flags)
-          }
         }
         None => decimal_conversion_syntax_result(ctx)
       }
@@ -455,7 +432,7 @@ pub fn Decimal::parse(
   }
   match parse_special_decimal_string_ctx(src, ctx) {
     Some((value, flags)) => {
-      if flags.conversion_syntax {
+      if flags.invalid_operation {
         return Err(
           @def.ArithmeticError::parse_error("invalid decimal literal: " + src),
         )

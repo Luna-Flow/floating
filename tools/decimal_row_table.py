@@ -2,12 +2,14 @@
 
 The tables used to be MoonBit source (`library/src/decimal/elementary_*_rows_wbtest.mbt`,
 about 5 MB) compiled into the debug test build of the `decimal` package. They
-are now plain `mpfr-decimal-random-v1` rows (see
+are now plain `mpfr-decimal-random-v2` rows (see
 `tooling/src/frontend/mpfr_expr/decimal_random.mbt`) that the release-built
 `floating-conformance --backend mpfr` executable reads at run time and checks
 with `total_order_compare` (value, sign, cohort and exponent) and exact flag letters.
 
-Row: `id op rounding precision emin emax clamp tininess a b n expected flags`.
+Row: `id op rounding precision emax a b n expected flags` (the context is the
+IEEE 754-2019 format of `precision` and `emax`: `emin = 1 - emax`, tininess
+before rounding; flags are a subset of `xouvz`).
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-FORMAT = "mpfr-decimal-random-v1"
+FORMAT = "mpfr-decimal-random-v2"
 TABLE_ROOT = Path(__file__).resolve().parent.parent / "testdata/decimal/ieee/rows"
 ABSENT = "-"
 
@@ -40,15 +42,14 @@ class TableRow:
 
 
 def format_row(identifier: str, row: TableRow) -> str:
+    if row.emin != 1 - row.emax or not row.clamp or row.tininess != "b":
+        raise ValueError(f"row context is not an IEEE format: {row!r}")
     fields = [
         identifier,
         row.op,
         row.rounding,
         str(row.precision),
-        str(row.emin),
         str(row.emax),
-        "1" if row.clamp else "0",
-        row.tininess,
         row.a,
         ABSENT if row.b is None else row.b,
         str(row.n),
@@ -66,7 +67,7 @@ def render_table(name: str, generator: str, rows: Iterable[TableRow]) -> str:
         f"# {FORMAT} table={name} generator={generator}",
         "# Generated from exact rational arithmetic and certified MPFR 4.2.2 enclosures",
         "# rounded by libmpdec; do not edit.",
-        "# id op rounding precision emin emax clamp tininess a b n expected flags",
+        "# id op rounding precision emax a b n expected flags",
     ]
     lines.extend(format_row(f"{name}-{index:05d}", row) for index, row in enumerate(rows))
     return "\n".join(lines) + "\n"

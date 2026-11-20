@@ -61,16 +61,10 @@ FLAG_TYPES = {
     "Underflow": decimal.Underflow,
     "DivisionByZero": decimal.DivisionByZero,
 }
-SIGNAL_VARIANTS = {
-    "Clamped": "Clamped",
-    "Inexact": "Inexact",
-    "InvalidOperation": "InvalidOperation",
-    "Overflow": "Overflow",
-    "Rounded": "Rounded",
-    "Subnormal": "Subnormal",
-    "Underflow": "Underflow",
-    "DivisionByZero": "DivisionByZero",
-}
+# The flags of `DecimalFlags` (IEEE 754-2019 7.2 to 7.6). The GDA names of the
+# fixtures (Rounded, Subnormal, Clamped) stay valid in the data; they are not
+# compared.
+IEEE_FLAGS = ("Inexact", "Underflow", "Overflow", "DivisionByZero", "InvalidOperation")
 
 
 class CorpusError(ValueError):
@@ -319,13 +313,13 @@ def render_moon_fixture_test() -> str:
     excerpt = load_json(STANDARD_EXCERPT_PATH)
     for row in excerpt["cases"]:
         rows.append((row["format"], row, "decTest", row["file"]))
-    all_signals = ", ".join(f"DecimalSignal::{name}" for name in SIGNAL_VARIANTS.values())
     source = [
-        "fn assert_ieee_fixture_flags(id : String, actual : DecimalFlags, expected : Array[DecimalSignal]) -> Unit raise {",
-        f"  let all = [{all_signals}]",
-        "  for signal in all {",
-        "    assert_eq(actual.contains(signal), expected.contains(signal), msg=id + \" flag\")",
-        "  }",
+        "fn assert_ieee_fixture_flags(id : String, actual : DecimalFlags, expected : Array[String]) -> Unit raise {",
+        "  assert_eq(actual.inexact(), expected.contains(\"Inexact\"), msg=id + \" inexact\")",
+        "  assert_eq(actual.underflow(), expected.contains(\"Underflow\"), msg=id + \" underflow\")",
+        "  assert_eq(actual.overflow(), expected.contains(\"Overflow\"), msg=id + \" overflow\")",
+        "  assert_eq(actual.division_by_zero(), expected.contains(\"DivisionByZero\"), msg=id + \" division_by_zero\")",
+        "  assert_eq(actual.invalid_operation(), expected.contains(\"InvalidOperation\"), msg=id + \" invalid_operation\")",
         "}",
         "",
     ]
@@ -356,7 +350,7 @@ def render_moon_fixture_test() -> str:
             call = f"lhs.compare_ctx({rhs}, ctx)"
         else:
             raise CorpusError(f"unsupported operation in {path}: {operation}")
-        expected = ", ".join(f"DecimalSignal::{SIGNAL_VARIANTS[item]}" for item in row["flags"])
+        expected = ", ".join(_moon_string(item) for item in row["flags"] if item in IEEE_FLAGS)
         source.extend([
             f"test {_moon_string(name)} {{",
             f"  let ctx = {ctx}",
@@ -458,7 +452,7 @@ def render_moon_fixture_test() -> str:
             else:
                 raise CorpusError(f"unsupported Decimal elementary oracle operation: {operation}")
             expected_flags = ", ".join(
-                f"DecimalSignal::{SIGNAL_VARIANTS[item]}" for item in row["flags"]
+                _moon_string(item) for item in row["flags"] if item in IEEE_FLAGS
             )
             source.extend(
                 [

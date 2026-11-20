@@ -11,7 +11,6 @@ test "sqrt detects tininess before rounding" {
     assert_eq(value.to_string(), expected)
     assert_true(flags.inexact)
     assert_eq(flags.underflow, tiny)
-    assert_eq(flags.subnormal, tiny)
   }
   check(Up, "1.000000", true)
   check(Ceiling, "1.000000", true)

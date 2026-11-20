@@ -163,7 +163,7 @@ and their design pages state narrower stability promises.
 ### Decimal floating point (`decimal`, `decimal_gda`)
 
 - IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`,
-  `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the
+  `DecimalFlags`, and the
   DPD/BID interchange types `DecimalInterchange`,
   `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`
 - General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`,

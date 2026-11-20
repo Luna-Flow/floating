@@ -7,7 +7,7 @@ it against `bin_float`. Six formats are supported: MPFR's square-root
 `data_check` files, integer-power rows, an elementary-function matrix with
 exception flags, two corpora for decimal character conversion
 (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows
-(`mpfr-random-v1`) and their decimal counterpart (`mpfr-decimal-random-v1`). The package does no IO; the runner is
+(`mpfr-random-v1`) and their decimal counterpart (`mpfr-decimal-random-v2`). The package does no IO; the runner is
 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the
 [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the
 [design page](../../design/frontend/mpfr_expr.md) for the pass rules.
@@ -348,7 +348,7 @@ is the first field of the row.
 
 ## Seeded random decimal rows
 
-`mpfr-decimal-random-v1` rows come from `tools/generate_mpfr_decimal_random.py`:
+`mpfr-decimal-random-v2` rows come from `tools/generate_mpfr_decimal_random.py`:
 one row per case for the IEEE decimal elementary functions (`exp exp2 exp10
 expm1 ln log2 log10 log1p sin cos tan sinpi cospi tanpi asin acos atan sinh cosh
 tanh asinh acosh atanh pow hypot atan2 rootn pown`), with a decimal context
@@ -360,7 +360,7 @@ the rounded value lies outside the enclosure (the true value is not
 representable), so exact results are not sampled by this corpus.
 
 ```text
-id op rounding precision emin emax clamp tininess a b n expected flags
+id op rounding precision emax a b n expected flags
 ```
 
 ### `parse_decimal_random_data`
@@ -370,16 +370,15 @@ pub fn parse_decimal_random_data(String, String) -> Result[MpfrDecimalRandomDocu
 ```
 
 Parses the text (the first argument names the source). Blank lines and lines
-starting with `#` are skipped. Every other line must have thirteen fields: a
+starting with `#` are skipped. Every other line must have ten fields: an identifier, a
 known operation, a rounding of `half_even half_up down ceiling floor`
 (the five rounding-direction attributes of IEEE 754-2019 4.3), a positive
-precision, two integers `emin` and `emax` with `emin = 1 - emax` that form a
-valid `DecimalContext`, `clamp` `1`, `tininess` `b` (decimal formats detect
-tininess before rounding; the column is kept so that the row format is stable),
-one operand, a second operand or `-` (required by `pow`,
+precision, an integer `emax` that forms a valid `DecimalContext` (the IEEE
+format of the precision and `emax`: `emin = 1 - emax`, tininess before
+rounding), one operand, a second operand or `-` (required by `pow`,
 `hypot` and `atan2`), an integer (`rootn` and `pown`; `0` otherwise), the
-expected value and `flags` equal to `-` or a subset of `xrosucvz` (inexact,
-rounded, overflow, subnormal, underflow, clamped, invalid operation, division by
+expected value and `flags` equal to `-` or a subset of `xouvz` (inexact,
+overflow, underflow, invalid operation, division by
 zero) in that order. Every digit written in an operand or the expected value is
 kept. Each bad row is one diagnostic.
 
@@ -397,7 +396,7 @@ id is the first field of the row.
 
 ### `MpfrDecimalRandomDocument`, `MpfrDecimalRandomDocument::source`, `MpfrDecimalRandomDocument::case_count`, `MpfrDecimalRandomDocument::case_ids`
 
-`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v1` corpus (IEEE
+`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v2` corpus (IEEE
 `decimal` elementary functions against MPFR); `source` is the label it was
 parsed from, `case_count` the number of rows and `case_ids` their ids in order.
 

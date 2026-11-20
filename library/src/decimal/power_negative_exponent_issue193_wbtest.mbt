@@ -19,7 +19,7 @@ test "decimal power handles large negative exponents for fractional bases" {
     }
     let (value, flags) = base.pow_ctx(exponent, context)
     assert_eq(value.to_string(), expected_value)
-    assert_true(flags.overflow && flags.inexact && flags.rounded)
+    assert_true(flags.overflow && flags.inexact)
   }
 }
 
@@ -32,7 +32,7 @@ test "decimal power bounds extreme negative exponent work" {
       DecimalContext::decimal64(),
     )
     assert_eq(value.to_string(), "inf")
-    assert_true(flags.overflow && flags.inexact && flags.rounded)
+    assert_true(flags.overflow && flags.inexact)
   }
 }
 

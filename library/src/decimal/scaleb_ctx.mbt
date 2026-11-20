@@ -78,10 +78,7 @@ fn scaleb_finite_result_ctx(
         scaleb_int64_to_int(exponent64),
         precision,
       ),
-      {
-        ..DecimalFlags::new(),
-        clamped: ctx.precision > 0 && exponent64 != target_exponent64,
-      },
+      DecimalFlags::new(),
     )
   }
   let adjusted64 = target_exponent64 +
@@ -102,11 +99,8 @@ fn scaleb_finite_result_ctx(
       )
       let flags = {
         ..DecimalFlags::new(),
-        rounded: true,
         inexact: !value.coefficient.is_zero(),
         underflow: !value.coefficient.is_zero(),
-        subnormal: true,
-        clamped: magnitude.is_zero(),
       }
       return (
         finite_with_exponent_repr(value.negative, magnitude, tiny, precision),

@@ -76,10 +76,10 @@ test "atan2pi of a tiny ordinate and abscissa 1 underflows (#378)" {
   // 1E-1999996 / pi is below half of the smallest subnormal: 0 or the least
   // subnormal by direction (IEEE 754-2019 7.5, 9.2), with the sign of y.
   let ctx = pm1_ctx(7, "half_even", -95, 96, true, "b")
-  assert_eq(pii_call("atan2pi", "1E-1999996", "1", ctx), "0E-101 xrsuc")
-  assert_eq(pii_call("atan2pi", "-1E-1999996", "1", ctx), "-0E-101 xrsuc")
+  assert_eq(pii_call("atan2pi", "1E-1999996", "1", ctx), "0E-101 xu")
+  assert_eq(pii_call("atan2pi", "-1E-1999996", "1", ctx), "-0E-101 xu")
   let up = pm1_ctx(7, "up", -95, 96, true, "b")
-  assert_eq(pii_call("atan2pi", "1E-1999996", "1", up), "1E-101 xrsu")
+  assert_eq(pii_call("atan2pi", "1E-1999996", "1", up), "1E-101 xu")
 }
 
 ///|

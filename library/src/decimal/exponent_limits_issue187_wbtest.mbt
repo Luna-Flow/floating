@@ -1,13 +1,10 @@
 ///|
 fn issue187_flags(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -31,90 +28,13 @@ test "operands with exponents near the Int limits give the specified results (#1
   let rows : Array[
     (String, Array[String], Int32, Bool, DecimalRound, String, String),
   ] = [
-    (
-      "remainder",
-      ["7", "9E-2147483648"],
-      34,
-      false,
-      HalfEven,
-      "nan",
-      "..i.....",
-    ),
-    (
-      "remainder",
-      ["10E1000", "50E-2147483647"],
-      2,
-      false,
-      HalfEven,
-      "nan",
-      "..i.....",
-    ),
-    (
-      "remainder",
-      ["9E2147483646", "-1E-1000000000"],
-      34,
-      false,
-      Down,
-      "nan",
-      "..i.....",
-    ),
-    (
-      "remainder",
-      ["1E2147483646", "-9E-2147483648"],
-      34,
-      false,
-      Up,
-      "nan",
-      "..i.....",
-    ),
-    (
-      "remainder",
-      ["7E5", "9E-2147483647"],
-      34,
-      false,
-      Ceiling,
-      "nan",
-      "..i.....",
-    ),
-    (
-      "sqrt",
-      ["5E-2147483648"],
-      34,
-      false,
-      HalfEven,
-      "0E-1000000031",
-      "xr...usc",
-    ),
-    (
-      "sqrt",
-      ["5E-2147483647"],
-      34,
-      false,
-      HalfEven,
-      "0E-1000000031",
-      "xr...usc",
-    ),
-    ("sqrt", ["10E-2147483648"], 7, true, HalfEven, "0E-1000000004", "xr...usc"),
-    ("sqrt", ["0E-2147483648"], 7, true, HalfEven, "0E-1000000004", ".......c"),
-    (
-      "sqrt",
-      ["0E-2147483648"],
-      34,
-      false,
-      HalfEven,
-      "0E-1000000031",
-      ".......c",
-    ),
-    (
-      "sqrt",
-      ["4E-2000000062"],
-      34,
-      false,
-      HalfEven,
-      "2E-1000000031",
-      "......s.",
-    ),
-    ("sqrt", ["5E2147483647"], 34, false, HalfEven, "inf", "xr..o..."),
+    ("sqrt", ["5E-2147483648"], 34, false, HalfEven, "0E-1000000031", "x...u"),
+    ("sqrt", ["5E-2147483647"], 34, false, HalfEven, "0E-1000000031", "x...u"),
+    ("sqrt", ["10E-2147483648"], 7, true, HalfEven, "0E-1000000004", "x...u"),
+    ("sqrt", ["0E-2147483648"], 7, true, HalfEven, "0E-1000000004", "....."),
+    ("sqrt", ["0E-2147483648"], 34, false, HalfEven, "0E-1000000031", "....."),
+    ("sqrt", ["4E-2000000062"], 34, false, HalfEven, "2E-1000000031", "....."),
+    ("sqrt", ["5E2147483647"], 34, false, HalfEven, "inf", "x..o."),
     (
       "fma",
       ["-15E-1999999996", "0E-1999999996", "-9E999999998"],
@@ -122,7 +42,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       true,
       HalfEven,
       "-9.000000000000000000000000000000000E+999999998",
-      ".r......",
+      ".....",
     ),
     (
       "fma",
@@ -131,7 +51,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       true,
       HalfEven,
       "7.000000000000000000000000000000000",
-      ".r......",
+      ".....",
     ),
     (
       "add",
@@ -140,7 +60,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       true,
       HalfEven,
       "1.000000000000000000000000000000000",
-      ".r......",
+      ".....",
     ),
     (
       "fma",
@@ -149,7 +69,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       HalfEven,
       "7.000000000000000000000000000000000",
-      ".r......",
+      ".....",
     ),
     (
       "sub",
@@ -158,7 +78,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       HalfDown,
       "-7.000000E+999999999",
-      ".r......",
+      ".....",
     ),
     (
       "fma",
@@ -167,7 +87,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       HalfEven,
       "-inf",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "mul",
@@ -176,7 +96,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       HalfEven,
       "-inf",
-      "xr..o...",
+      "x..o.",
     ),
     (
       "fma",
@@ -185,7 +105,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       HalfEven,
       "-0E-1000000031",
-      "xr...usc",
+      "x...u",
     ),
     (
       "fma",
@@ -196,12 +116,12 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       Down,
       "0E-1000000031",
-      "xr...usc",
+      "x...u",
     ),
-    ("fma", ["10E0", "1E-1", "1E0"], 2, false, HalfEven, "2.0", "........"),
-    ("fma", ["10E0", "1E-1", "-9E0"], 1, false, HalfEven, "-8", ".r......"),
-    ("add", ["10E100", "99E2147483646"], 1, false, Ceiling, "inf", "xr..o..."),
-    ("add", ["-10E100", "-99E2147483646"], 1, false, Floor, "-inf", "xr..o..."),
+    ("fma", ["10E0", "1E-1", "1E0"], 2, false, HalfEven, "2.0", "....."),
+    ("fma", ["10E0", "1E-1", "-9E0"], 1, false, HalfEven, "-8", "....."),
+    ("add", ["10E100", "99E2147483646"], 1, false, Ceiling, "inf", "x..o."),
+    ("add", ["-10E100", "-99E2147483646"], 1, false, Floor, "-inf", "x..o."),
     (
       "add",
       ["99E2147483646", "99E2147483646"],
@@ -209,7 +129,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       false,
       HalfEven,
       "inf",
-      "xr..o...",
+      "x..o.",
     ),
   ]
   for row in rows {
@@ -224,7 +144,6 @@ test "operands with exponents near the Int limits give the specified results (#1
       "mul" => base.mul_ctx(second(), ctx)
       "fma" => base.fma_ctx(second(), third(), ctx)
       "sqrt" => base.sqrt_ctx(ctx)
-      "remainder" => base.remainder_trunc_ctx(second(), ctx)
       _ => fail("unexpected operation \{op}")
     }
     assert_eq(
@@ -235,26 +154,9 @@ test "operands with exponents near the Int limits give the specified results (#1
 }
 
 ///|
-/// `rescale` takes the target exponent as the integer value of its second
-/// operand; a value that is not an integer, or that is out of range, is an
-/// invalid operation instead of an abort.
-test "rescale with an exponent operand beyond Int is invalid (#187)" {
-  let ctx = issue187_context(34, false, DecimalRound::HalfEven)
-  let cases = [
-    ("9E999999999", "-5E2147483646"),
-    ("1E0", "1E-2147483648"),
-    ("1E-2147483648", "-9E2147483646"),
-  ]
-  for pair in cases {
-    let (value, quantum) = pair
-    let (result, flags) = Decimal::from_string(value)
-      .unwrap()
-      .rescale_ctx(Decimal::from_string(quantum).unwrap(), ctx)
-    assert_eq(
-      (value, quantum, result.to_string(), issue187_flags(flags)),
-      (value, quantum, "nan", "..i....."),
-    )
-  }
+/// `remainder` with an exponent operand beyond the Int range: the exact
+/// result is tiny and rounds to zero at the least exponent, with no abort.
+test "remainder with an exponent operand beyond Int rounds to the least exponent (#187)" {
   // IEEE 754-2019 remainder (nearest quotient, exact): 7 - 9E-2147483648 * n is
   // -2E-2147483648 (7 * 10^2147483648 mod 18 = 16, quotient odd, 16 - 9 = 7 and
   // 9 - 7 = 2), which is tiny and rounds to -0 at Etiny.
@@ -266,6 +168,6 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
     )
   assert_eq(
     (near.to_string(), issue187_flags(near_flags)),
-    ("-0E-1000000031", "xr...usc"),
+    ("-0E-1000000031", "x...u"),
   )
 }

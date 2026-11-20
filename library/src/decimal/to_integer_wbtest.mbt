@@ -36,14 +36,10 @@ fn issue226_text(value : String?) -> String {
 ///|
 fn issue226_flags_text(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
-  (if flags.lost_digits { "l" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -111,7 +107,7 @@ test "convertToInteger ignores the precision and the exponent range of the conte
     .unwrap()
     .to_int_ctx(ctx, exact=true)
   assert_eq(value, Some(123456))
-  assert_eq(issue226_flags_text(flags), ".........")
+  assert_eq(issue226_flags_text(flags), ".....")
 }
 
 ///|

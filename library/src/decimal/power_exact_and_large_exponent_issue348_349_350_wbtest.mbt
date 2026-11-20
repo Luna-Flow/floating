@@ -16,13 +16,10 @@ fn issue348_mode(name : String) -> DecimalRound {
 ///|
 fn issue348_flags_text(flags : DecimalFlags) -> String {
   (if flags.inexact { "x" } else { "." }) +
-  (if flags.rounded { "r" } else { "." }) +
   (if flags.invalid_operation { "i" } else { "." }) +
   (if flags.division_by_zero { "z" } else { "." }) +
   (if flags.overflow { "o" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.subnormal { "s" } else { "." }) +
-  (if flags.clamped { "c" } else { "." })
+  (if flags.underflow { "u" } else { "." })
 }
 
 ///|
@@ -200,7 +197,7 @@ test "issue 348: large integer exponents are correctly rounded" {
       )
     assert_eq(
       (x, y, mode, issue348_text(value), issue348_flags_text(flags)),
-      (x, y, mode, expected, "xr......"),
+      (x, y, mode, expected, "x...."),
     )
   }
 }
@@ -248,12 +245,12 @@ test "issue 350: no clamped for an inexact pown result near 1" {
     let (value, flags) = x.pown_ctx(-40, ctx)
     assert_eq(
       (mode, issue348_text(value), issue348_flags_text(flags)),
-      (mode, expected, "xr......"),
+      (mode, expected, "x...."),
     )
     let (value, flags) = x.pow_ctx(Decimal::from_string("-40").unwrap(), ctx)
     assert_eq(
       (mode, issue348_text(value), issue348_flags_text(flags)),
-      (mode, expected, "xr......"),
+      (mode, expected, "x...."),
     )
   }
 }
@@ -264,16 +261,16 @@ test "issue 350: no clamped for an inexact pown result near 1" {
 /// cohort of `floor(y * Q(x))`; beyond the range it overflows or underflows.
 test "issue 349: exact powers of ten with a non-integral exponent" {
   let rows : Array[(String, String, String, String)] = [
-    ("1E-5", "1.2", "0.000001", "........"),
-    ("1E-5", "-1.2", "1E+6", "........"),
-    ("1E+10", "0.5", "1E+5", "........"),
-    ("1E-4", "-0.25", "1E+1", "........"),
+    ("1E-5", "1.2", "0.000001", "....."),
+    ("1E-5", "-1.2", "1E+6", "....."),
+    ("1E+10", "0.5", "1E+5", "....."),
+    ("1E-4", "-0.25", "1E+1", "....."),
     // Q(x) = -8: floor(1.2 * -8) = -10.
-    ("1000E-8", "1.2", "0.0000010000", "........"),
+    ("1000E-8", "1.2", "0.0000010000", "....."),
     // Q(x) = 0: preferred exponent 0.
-    ("100", "2.5", "100000", "........"),
-    ("1E-300", "1.32", "1E-396", "......s."),
-    ("1E+300", "1.5", "Infinity", "xr..o..."),
+    ("100", "2.5", "100000", "....."),
+    ("1E-300", "1.32", "1E-396", "....."),
+    ("1E+300", "1.5", "Infinity", "x..o."),
   ]
   for
     mode in [
@@ -307,7 +304,7 @@ test "issue 349: non-exact powers of ten are unchanged" {
     .unwrap()
     .pow_ctx(Decimal::from_string("1.3").unwrap(), issue348_decimal64(HalfEven))
   assert_eq(issue348_text(value), "3.162277660168379E-7")
-  assert_eq(issue348_flags_text(flags), "xr......")
+  assert_eq(issue348_flags_text(flags), "x....")
   let (value, flags) = Decimal::from_string("-1E-5")
     .unwrap()
     .pow_ctx(Decimal::from_string("1.2").unwrap(), issue348_decimal64(HalfEven))

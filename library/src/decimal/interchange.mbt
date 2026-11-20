@@ -216,13 +216,7 @@ pub fn DecimalInterchange::to_decimal(self : DecimalInterchange) -> Decimal {
 pub fn DecimalInterchange::to_decimal_ctx(
   self : DecimalInterchange,
 ) -> (Decimal, DecimalFlags) {
-  let value = self.to_decimal()
-  let flags = if value.is_subnormal(self.format.context()) {
-    { ..DecimalFlags::new(), subnormal: true, }
-  } else {
-    DecimalFlags::new()
-  }
-  (value, flags)
+  (self.to_decimal(), DecimalFlags::new())
 }
 
 ///|

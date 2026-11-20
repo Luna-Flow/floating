@@ -23,7 +23,7 @@ pub fn run(arguments : Array[String]) -> Int32 {
       return 2
     }
   }
-  let is_decimal_random = text.contains("mpfr-decimal-random-v1")
+  let is_decimal_random = text.contains("mpfr-decimal-random-v2")
   let is_random = !is_decimal_random && text.contains("mpfr-random-v1")
   let is_strtofr = !is_random &&
     !is_decimal_random &&

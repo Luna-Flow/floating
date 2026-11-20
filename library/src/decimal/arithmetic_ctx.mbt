@@ -47,13 +47,7 @@ fn add_finite_values_ctx(
       zero_exponent,
       precision,
     )
-    let zero_flags = if ctx.precision > 0 &&
-      preferred_zero_exponent < etiny(ctx) {
-      { ..DecimalFlags::new(), clamped: true, }
-    } else {
-      DecimalFlags::new()
-    }
-    return finalize_finite_ctx(zero, zero_flags, ctx)
+    return finalize_finite_ctx(zero, DecimalFlags::new(), ctx)
   }
   if lhs_value.is_zero() || rhs_value.is_zero() {
     let zero = if lhs_value.is_zero() { lhs_value } else { rhs_value }
@@ -110,7 +104,7 @@ fn add_finite_values_ctx(
       } else {
         base
       }
-      return finalize_finite_ctx(shifted, { ..base_flags, rounded: true, }, ctx)
+      return finalize_finite_ctx(shifted, base_flags, ctx)
     }
     return (base, base_flags)
   }
@@ -143,7 +137,12 @@ fn add_finite_values_ctx(
       if base_flags.overflow && overflow_is_certain {
         return (base, base_flags)
       }
+      // `high` is used as it is when applying the context left no trace: no
+      // flag, no rounded or clamped digit (the representation is unchanged) and
+      // no tiny value (a tiny sum raises underflow, which this path does not).
       if base_flags == DecimalFlags::new() &&
+        decimal_same_representation(base, high) &&
+        !base.is_subnormal(ctx) &&
         base.class == FpClass::Finite &&
         !base.coefficient.is_zero() &&
         !(low.negative != base.negative &&
@@ -185,7 +184,7 @@ fn add_finite_values_ctx(
         magnitude.digits10().to_int64() -
         1L
       return if sticky_adjusted < ctx.e_min.to_int64() && flags.inexact {
-        (value, { ..flags, subnormal: true, underflow: true, })
+        (value, { ..flags, underflow: true, })
       } else {
         (value, flags)
       }
@@ -221,9 +220,8 @@ fn add_finite_values_ctx(
   let (value, flags) = normalize_decimal_parts_ctx_repr(
     negative, exact_magnitude, zero_target, ctx,
   )
-  let flags = if zero_below_tiny { { ..flags, clamped: true, } } else { flags }
   if exact_adjusted.to_int64() < ctx.e_min.to_int64() && flags.inexact {
-    (value, { ..flags, subnormal: true, underflow: true, })
+    (value, { ..flags, underflow: true, })
   } else {
     (value, flags)
   }
@@ -496,7 +494,7 @@ fn Decimal::decimal_div_ctx_impl(
           etiny(ctx),
           precision,
         ),
-        { ..DecimalFlags::new(), clamped: true, },
+        DecimalFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) if self.is_zero() =>
       finalize_finite_ctx(
@@ -559,7 +557,7 @@ fn Decimal::decimal_div_ctx_impl(
           self.exponent10 - other.exponent10 - extra,
           ctx,
         )
-        (value, { ..flags, rounded: true, inexact: true, })
+        (value, { ..flags, inexact: true, })
       } else {
         let value = finalize_finite_ctx(
             normalize_decimal_parts_gda_repr(
@@ -576,7 +574,7 @@ fn Decimal::decimal_div_ctx_impl(
           value,
           with_underflow_for_inexact_subnormal(
             value,
-            { ..DecimalFlags::new(), rounded: true, inexact: true, },
+            { ..DecimalFlags::new(), inexact: true, },
             ctx,
           ),
         )
@@ -822,7 +820,7 @@ pub fn Decimal::div_checked(
   let (value, flags) = self.div_ctx(other, ctx)
   if flags.division_by_zero {
     Err(@def.ArithmeticError::division_by_zero("division by zero"))
-  } else if flags.division_undefined || flags.invalid_operation {
+  } else if flags.invalid_operation {
     Err(@def.ArithmeticError::domain_error("invalid decimal division"))
   } else {
     Ok(value)
@@ -956,19 +954,13 @@ fn decimal_sqrt_fixed_result(
   )
   let flags = {
     ..normalized_flags,
-    rounded: normalized_flags.rounded || inexact,
     inexact: normalized_flags.inexact || inexact,
   }
   // An inexact root below 10^e_min is tiny, detected before rounding (IEEE
   // 754-2019 7.5: for decimal formats tininess is detected before rounding).
   let tiny = inexact && root_adjusted < ctx.e_min
   let flags = if tiny {
-    {
-      ..flags,
-      subnormal: true,
-      underflow: true,
-      clamped: flags.clamped || value.coefficient.is_zero(),
-    }
+    { ..flags, underflow: true, }
   } else {
     with_underflow_for_inexact_subnormal(value, flags, ctx)
   }
@@ -1020,8 +1012,8 @@ pub fn Decimal::sqrt_ctx(
         tiny
       } else {
         match exact_finite_sqrt(operand, precision) {
-          Some(root) => {
-            let (value, flags) = if root.coefficient.is_zero() {
+          Some(root) =>
+            if root.coefficient.is_zero() {
               finalize_finite_ctx(root, DecimalFlags::new(), ctx)
             } else {
               normalize_decimal_parts_ctx_repr(
@@ -1031,15 +1023,6 @@ pub fn Decimal::sqrt_ctx(
                 ctx,
               )
             }
-            let ideal_exponent = operand.exponent10 >> 1
-            if value.class == FpClass::Finite &&
-              !value.coefficient.is_zero() &&
-              value.exponent10 > ideal_exponent {
-              (value, { ..flags, rounded: true, })
-            } else {
-              (value, flags)
-            }
-          }
           None => decimal_sqrt_fixed_result(operand, ctx, precision)
         }
       }

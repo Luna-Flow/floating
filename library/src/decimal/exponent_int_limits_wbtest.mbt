@@ -19,8 +19,7 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
   let (sum, sum_flags) = max.add_ctx(max, ctx)
   assert_true(sum.is_infinite())
   assert_true(
-    sum_flags ==
-    { ..DecimalFlags::new(), overflow: true, inexact: true, rounded: true, },
+    sum_flags == { ..DecimalFlags::new(), overflow: true, inexact: true, },
   )
 
   let (next, next_flags) = max.next_up_ctx(ctx)
@@ -31,9 +30,6 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
   assert_true(quotient.is_infinite())
   assert_true(quotient_flags.overflow)
   assert_true(quotient_flags.inexact)
-  assert_true(quotient_flags.rounded)
-  assert_false(quotient_flags.subnormal)
-  assert_false(quotient_flags.clamped)
 }
 
 ///|
@@ -59,7 +55,7 @@ test "fma with maximum context exponents reports overflow" {
     ctx,
   )
   assert_true(value.is_infinite())
-  assert_true(flags.overflow && flags.inexact && flags.rounded)
+  assert_true(flags.overflow && flags.inexact)
 }
 
 ///|
@@ -74,16 +70,16 @@ test "huge quantize and to-integral shifts round to zero" {
   )
   assert_true(quantized.is_zero())
   assert_eq(quantized.exponent10, 999_999_999)
-  assert_true(quantize_flags.inexact && quantize_flags.rounded)
+  assert_true(quantize_flags.inexact)
   assert_false(quantize_flags.invalid_operation)
 
   let (exact, exact_flags) = tiny.to_integral_exact_ctx(ctx)
   assert_true(exact.is_zero())
   assert_eq(exact.exponent10, 0)
-  assert_true(exact_flags.inexact && exact_flags.rounded)
+  assert_true(exact_flags.inexact)
   let (silent, silent_flags) = tiny.to_integral_value_ctx(ctx)
   assert_true(silent.is_zero())
-  assert_false(silent_flags.inexact || silent_flags.rounded)
+  assert_false(silent_flags.inexact)
 }
 
 ///|
@@ -99,9 +95,7 @@ test "next operations handle Int minimum with zero etiny" {
   assert_true(minus_flags == DecimalFlags::new())
   let (toward, toward_flags) = tiny.next_toward_ctx(Decimal::zero(), ctx)
   assert_true(toward.is_zero())
-  assert_true(
-    toward_flags.underflow && toward_flags.inexact && toward_flags.rounded,
-  )
+  assert_true(toward_flags.underflow && toward_flags.inexact)
 }
 
 ///|
@@ -118,7 +112,6 @@ test "fma far gap uses sticky addend without aborting" {
   )
   inspect(flags.overflow, content="false")
   inspect(flags.inexact, content="true")
-  inspect(flags.rounded, content="true")
 }
 
 ///|
@@ -136,7 +129,6 @@ test "fma exact product boundary honors negative addend" {
   inspect(value.to_string(), content="99")
   inspect(flags.overflow, content="false")
   inspect(flags.inexact, content="true")
-  inspect(flags.rounded, content="true")
 }
 
 ///|
@@ -154,7 +146,6 @@ test "fma exact product boundary follows floor without overflow" {
   inspect(value.to_string(), content="99")
   inspect(flags.overflow, content="false")
   inspect(flags.inexact, content="true")
-  inspect(flags.rounded, content="true")
 }
 
 ///|
@@ -171,5 +162,4 @@ test "fma product below Int range uses a bounded sticky alignment" {
   )
   inspect(flags.overflow, content="false")
   inspect(flags.inexact, content="true")
-  inspect(flags.rounded, content="true")
 }

@@ -148,7 +148,7 @@ test "issue 446: the exact context cannot panic through the exponent gap" {
   let b = gap_value(1N, -1_100_000_000, 34)
   let (sum, flags) = a.add_ctx(b, decimal_exact_work_context())
   inspect(sum.is_nan(), content="true")
-  inspect(flags.invalid_context, content="true")
+  inspect(flags.invalid_operation, content="true")
   let (difference, _) = a.sub_ctx(b, decimal_exact_work_context())
   inspect(difference.is_nan(), content="true")
 }

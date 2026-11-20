@@ -345,43 +345,12 @@ test "decimal plain division keeps GDA quotient units through normalization" {
 }
 
 ///|
-test "decimal integer quotient stays in GDA unit accumulator representation" {
-  let ten = Decimal::from_string("1E+1", precision=16).unwrap()
-  let shifted = integer_quotient_by_power_of_ten_repr(
-    Decimal::from_string("123E+2", precision=16).unwrap(),
-    ten,
-    false,
-  ).unwrap()
-  assert_eq(shifted.to_bigint(), 1230N)
-
-  let truncated = integer_quotient_by_power_of_ten_repr(
-    Decimal::from_int(125, precision=16),
-    ten,
-    false,
-  ).unwrap()
-  let even_tie = integer_quotient_by_power_of_ten_repr(
-    Decimal::from_int(125, precision=16),
-    ten,
-    true,
-  ).unwrap()
-  let odd_tie = integer_quotient_by_power_of_ten_repr(
-    Decimal::from_int(135, precision=16),
-    ten,
-    true,
-  ).unwrap()
-  assert_eq(truncated.to_bigint(), 12N)
-  assert_eq(even_tie.to_bigint(), 12N)
-  assert_eq(odd_tie.to_bigint(), 14N)
-}
-
-///|
 test "decimal unary finalize and zero compare stay coefficient-native" {
   let ctx = DecimalContext::new(precision=3)
   let value = Decimal::from_string("1234", precision=16).unwrap()
   let (applied, flags) = value.apply_ctx(ctx)
   assert_eq(applied.coefficient.to_bigint(), 123N)
   assert_eq(applied.exponent10, 1)
-  assert_true(flags.rounded)
   assert_true(flags.inexact)
 
   let zero = Decimal::negative_zero(precision=16)
@@ -447,7 +416,6 @@ test "decimal exact integer power and reciprocal keep coefficient units" {
   ).unwrap()
   assert_eq(positive.coefficient.to_bigint(), 64N)
   assert_eq(positive.exponent10, 3)
-  assert_false(positive_flags.rounded)
   assert_false(positive_flags.inexact)
 
   let (reciprocal, reciprocal_flags) = exact_decimal_reciprocal(
@@ -456,7 +424,6 @@ test "decimal exact integer power and reciprocal keep coefficient units" {
   ).unwrap()
   assert_eq(reciprocal.coefficient.to_bigint(), 25N)
   assert_eq(reciprocal.exponent10, -3)
-  assert_false(reciprocal_flags.rounded)
   assert_false(reciprocal_flags.inexact)
 }
 
@@ -587,106 +554,16 @@ test "decimal coefficient finite-expansion predicate matches bigint predicate" {
 }
 
 ///|
-fn bigint_logical_binary_digits(
-  lhs : BigInt,
-  rhs : BigInt,
-  precision : Int32,
-  op : (Bool, Bool) -> Bool,
-) -> BigInt {
-  let ten = BigInt::from_int(10)
-  let mut lhs = lhs
-  let mut rhs = rhs
-  let mut place = bigint_one()
-  let mut result = bigint_zero()
-  for _ in 0..<precision {
-    let lhs_digit = lhs % ten == bigint_one()
-    let rhs_digit = rhs % ten == bigint_one()
-    if op(lhs_digit, rhs_digit) {
-      result = result + place
-    }
-    lhs = lhs / ten
-    rhs = rhs / ten
-    place = place * ten
-  }
-  result
-}
-
-///|
-fn bigint_logical_invert_digits(value : BigInt, precision : Int32) -> BigInt {
-  let ten = BigInt::from_int(10)
-  let mut value = value
-  let mut place = bigint_one()
-  let mut result = bigint_zero()
-  for _ in 0..<precision {
-    if value % ten != bigint_one() {
-      result = result + place
-    }
-    value = value / ten
-    place = place * ten
-  }
-  result
-}
-
-///|
-fn bigint_shift_digits(
-  coefficient : BigInt,
-  count : Int32,
-  precision : Int32,
-) -> BigInt {
-  if coefficient.is_zero() {
-    return coefficient
-  }
-  if count == 0 {
-    return coefficient
-  }
-  if count > 0 {
-    coefficient * pow10(count) % pow10(precision)
-  } else {
-    coefficient / pow10(-count)
-  }
-}
-
-///|
-fn bigint_rotate_digits(
-  coefficient : BigInt,
-  count : Int32,
-  precision : Int32,
-) -> BigInt {
-  if coefficient.is_zero() {
-    return coefficient
-  }
-  let width = pow10(precision)
-  let normalized = coefficient % width
-  let mut shift = count % precision
-  if shift < 0 {
-    shift += precision
-  }
-  if shift == 0 {
-    return normalized
-  }
-  let left = normalized * pow10(shift) % width
-  let right = normalized / pow10(precision - shift)
-  left + right
-}
-
-///|
 fn assert_decimal_and_flags_eq(
   actual : (Decimal, DecimalFlags),
   expected : (Decimal, DecimalFlags),
 ) -> Unit raise {
   assert_eq(actual.0.total_order_compare(expected.0), 0)
   assert_eq(actual.1.inexact, expected.1.inexact)
-  assert_eq(actual.1.rounded, expected.1.rounded)
   assert_eq(actual.1.invalid_operation, expected.1.invalid_operation)
   assert_eq(actual.1.division_by_zero, expected.1.division_by_zero)
   assert_eq(actual.1.overflow, expected.1.overflow)
   assert_eq(actual.1.underflow, expected.1.underflow)
-  assert_eq(actual.1.subnormal, expected.1.subnormal)
-  assert_eq(actual.1.clamped, expected.1.clamped)
-  assert_eq(actual.1.conversion_syntax, expected.1.conversion_syntax)
-  assert_eq(actual.1.division_impossible, expected.1.division_impossible)
-  assert_eq(actual.1.division_undefined, expected.1.division_undefined)
-  assert_eq(actual.1.invalid_context, expected.1.invalid_context)
 }
 
 ///|
@@ -717,7 +594,7 @@ fn decimal_div_finite_by_small_int_work_bigint_expected(
       digits10(q),
       work_ctx.decimal_rounding,
     )
-    let exact_rounding = exact_result_rounding_flags(
+    let (exact_discards, exact_rounding) = exact_result_rounding_flags(
       exact_unrounded,
       value.exponent10,
       work_ctx,
@@ -729,7 +606,7 @@ fn decimal_div_finite_by_small_int_work_bigint_expected(
       precision,
       work_ctx.decimal_rounding,
     )
-    if exact_rounding.rounded {
+    if exact_discards {
       let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
         exact_unrounded
       } else if !exact_rounding.inexact {
@@ -783,7 +660,7 @@ fn decimal_div_finite_by_small_int_work_bigint_expected(
       result,
       with_underflow_for_inexact_subnormal(
         result,
-        { ..flags, rounded: true, inexact: true, },
+        { ..flags, inexact: true, },
         work_ctx,
       ),
     )
@@ -818,7 +695,7 @@ fn decimal_div_finite_work_bigint_expected(
       digits10(q),
       work_ctx.decimal_rounding,
     )
-    let exact_rounding = exact_result_rounding_flags(
+    let (exact_discards, exact_rounding) = exact_result_rounding_flags(
       exact_unrounded,
       lhs.exponent10 - rhs.exponent10,
       work_ctx,
@@ -830,7 +707,7 @@ fn decimal_div_finite_work_bigint_expected(
       precision,
       work_ctx.decimal_rounding,
     )
-    if exact_rounding.rounded {
+    if exact_discards {
       let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
         exact_unrounded
       } else if !exact_rounding.inexact {
@@ -884,7 +761,7 @@ fn decimal_div_finite_work_bigint_expected(
       value,
       with_underflow_for_inexact_subnormal(
         value,
-        { ..round_flags, rounded: true, inexact: true, },
+        { ..round_flags, inexact: true, },
         work_ctx,
       ),
     )
@@ -921,7 +798,7 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
         },
         precision=value.precision_,
       ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
+      { ..DecimalFlags::new(), overflow: true, inexact: true, },
     )
   }
   let tiny = etiny(ctx)
@@ -933,7 +810,7 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
       value.negative,
       ctx.decimal_rounding,
     )
-    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true, }
+    let mut flags = { ..DecimalFlags::new(), }
     if inexact {
       flags = { ..flags, inexact: true, underflow: true, }
     }
@@ -941,7 +818,7 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
     if magnitude_repr.is_zero() {
       return (
         finite_with_exponent(value.negative, magnitude, tiny, precision),
-        { ..flags, clamped: true, },
+        { ..flags, },
       )
     }
     if magnitude_repr.digits10() > precision {
@@ -990,7 +867,7 @@ fn scaleb_finite_result_ctx_bigint_expected(
         },
         precision=value.precision_,
       ),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
+      { ..DecimalFlags::new(), overflow: true, inexact: true, },
     )
   }
   let tiny = etiny(ctx)
@@ -1004,11 +881,8 @@ fn scaleb_finite_result_ctx_bigint_expected(
       )
       let flags = {
         ..DecimalFlags::new(),
-        rounded: true,
         inexact: !value.coefficient.is_zero(),
         underflow: !value.coefficient.is_zero(),
-        subnormal: true,
-        clamped: magnitude.is_zero(),
       }
       return (
         finite_with_exponent(value.negative, magnitude, tiny, precision),
@@ -1024,57 +898,6 @@ fn scaleb_finite_result_ctx_bigint_expected(
       precision,
     ),
     ctx,
-  )
-}
-
-///|
-test "decimal logical coefficient helpers match bigint digit formulas" {
-  let lhs = dec_coeff_from_bigint_repr(101011N)
-  let rhs = dec_coeff_from_bigint_repr(110001N)
-  let precision = 8
-  assert_eq(
-    logical_binary_digits_repr(lhs, rhs, precision, fn(a, b) { a && b }).to_bigint(),
-    bigint_logical_binary_digits(101011N, 110001N, precision, fn(a, b) {
-      a && b
-    }),
-  )
-  assert_eq(
-    logical_binary_digits_repr(lhs, rhs, precision, fn(a, b) { a || b }).to_bigint(),
-    bigint_logical_binary_digits(101011N, 110001N, precision, fn(a, b) {
-      a || b
-    }),
-  )
-  assert_eq(
-    logical_binary_digits_repr(lhs, rhs, precision, fn(a, b) { a != b }).to_bigint(),
-    bigint_logical_binary_digits(101011N, 110001N, precision, fn(a, b) {
-      a != b
-    }),
-  )
-}
-
-///|
-test "decimal logical invert and digit motion helpers match bigint formulas" {
-  let ctx = DecimalContext::new(precision=8)
-  let coeff = dec_coeff_from_bigint_repr(101011N)
-  assert_eq(
-    logical_invert_digits_repr(coeff, ctx).to_bigint(),
-    bigint_logical_invert_digits(101011N, 8),
-  )
-  assert_eq(
-    coefficient_shift_digits_repr(coeff, 2, 8).to_bigint(),
-    bigint_shift_digits(101011N, 2, 8),
-  )
-  assert_eq(
-    coefficient_shift_digits_repr(coeff, -3, 8).to_bigint(),
-    bigint_shift_digits(101011N, -3, 8),
-  )
-  assert_eq(
-    coefficient_rotate_digits_repr(coeff, 2, 8).to_bigint(),
-    bigint_rotate_digits(101011N, 2, 8),
-  )
-  assert_eq(
-    coefficient_rotate_digits_repr(coeff, -3, 8).to_bigint(),
-    bigint_rotate_digits(101011N, -3, 8),
   )
 }
 
@@ -1215,11 +1038,8 @@ test "decimal repr normalization matches bigint normalization on finite values" 
   )
   assert_eq(actual.0.total_order_compare(expected.0), 0)
   assert_eq(actual.1.inexact, expected.1.inexact)
-  assert_eq(actual.1.rounded, expected.1.rounded)
-  assert_eq(actual.1.subnormal, expected.1.subnormal)
   assert_eq(actual.1.underflow, expected.1.underflow)
   assert_eq(actual.1.overflow, expected.1.overflow)
-  assert_eq(actual.1.clamped, expected.1.clamped)
   assert_eq(actual.1.invalid_operation, expected.1.invalid_operation)
 }
 

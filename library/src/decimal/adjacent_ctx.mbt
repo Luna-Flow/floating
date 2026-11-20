@@ -85,31 +85,12 @@ fn next_toward_flags(
 ) -> DecimalFlags {
   guard source.class == FpClass::Finite else { return DecimalFlags::new() }
   if result.class == FpClass::Infinity {
-    return {
-      ..DecimalFlags::new(),
-      overflow: true,
-      rounded: true,
-      inexact: true,
-    }
+    return { ..DecimalFlags::new(), overflow: true, inexact: true, }
   }
   guard result.class == FpClass::Finite else { return DecimalFlags::new() }
-  if result.coefficient.is_zero() {
-    {
-      ..DecimalFlags::new(),
-      underflow: true,
-      subnormal: true,
-      inexact: true,
-      rounded: true,
-      clamped: !source.coefficient.is_zero(),
-    }
-  } else if adjusted_exponent64(result) < ctx.e_min.to_int64() {
-    {
-      ..DecimalFlags::new(),
-      underflow: true,
-      subnormal: true,
-      inexact: true,
-      rounded: true,
-    }
+  if result.coefficient.is_zero() ||
+    adjusted_exponent64(result) < ctx.e_min.to_int64() {
+    { ..DecimalFlags::new(), underflow: true, inexact: true, }
   } else {
     DecimalFlags::new()
   }
@@ -250,7 +231,6 @@ fn logb_finite_result_ctx(
       negative,
       ctx.decimal_rounding,
     )
-    flags = { ..flags, rounded: true, }
     if inexact {
       flags = { ..flags, inexact: true, }
     }

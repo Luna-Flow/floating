@@ -87,11 +87,10 @@ class RowTests(unittest.TestCase):
         self.assertGreater(len(first), 15)
         for row in first:
             tokens = row.split()
-            self.assertEqual(len(tokens), 13)
+            self.assertEqual(len(tokens), 10)
             self.assertTrue(tokens[0].startswith("m20261118.exp."))
-            self.assertIn(tokens[7], ("a", "b"))
-            self.assertTrue(set(tokens[12]) <= set("xrosucvz-"))
-            self.assertIn("x", tokens[12])  # every sampled result is inexact
+            self.assertTrue(set(tokens[9]) <= set("xouvz-"))
+            self.assertIn("x", tokens[9])  # every sampled result is inexact
 
     @unittest.skipUnless(shutil.which("cc"), "needs a C compiler")
     def test_a_start_offset_selects_the_same_rows(self) -> None:

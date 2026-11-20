@@ -62,14 +62,10 @@ The examples list flags with this helper:
 fn flags(f : @decimal.DecimalFlags) -> String {
   let named = [
     ("inexact", f.inexact()),
-    ("rounded", f.rounded()),
     ("invalid_operation", f.invalid_operation()),
     ("division_by_zero", f.division_by_zero()),
     ("overflow", f.overflow()),
     ("underflow", f.underflow()),
-    ("subnormal", f.subnormal()),
-    ("conversion_syntax", f.conversion_syntax()),
-    ("invalid_context", f.invalid_context()),
   ]
   [ for p in named if p.1 => p.0 ].join(",")
 }
@@ -88,8 +84,8 @@ test "price with tax" {
     .mul(@decimal.Decimal::from_string("1.0825").unwrap())
     .quantize(@decimal.Decimal::from_string("0.01").unwrap())
   inspect(gross.value().to_string(), content="21.64")
-  inspect(flags(gross.raised()), content="inexact,rounded")
-  inspect(flags(gross.flags()), content="inexact,rounded")
+  inspect(flags(gross.raised()), content="inexact")
+  inspect(flags(gross.flags()), content="inexact")
 }
 ```
 
@@ -109,7 +105,7 @@ test "an early rounding is remembered" {
     .mul(@decimal.Decimal::from_int(2))
   inspect(r.value().to_string(), content="4.4692")
   inspect(flags(r.raised()), content="")
-  inspect(flags(r.flags()), content="inexact,rounded")
+  inspect(flags(r.flags()), content="inexact")
 }
 ```
 
@@ -134,8 +130,7 @@ test "division by zero is a flagged value" {
 
 Decide at the end what the flags mean for your application, for example with
 `DecimalFlags::has_error`, which is true when any of `invalid_operation`,
-`conversion_syntax`, `division_by_zero`, `division_impossible`,
-`division_undefined` or `invalid_context` is set.
+`not_computed` or `division_by_zero` is set.
 
 ### Start a new audit period
 
@@ -149,7 +144,7 @@ test "clear flags between phases" {
   let phase1 = @decimal_checked.DecimalChecked::from_int(2, ctx).div(
     @decimal.Decimal::from_int(3),
   )
-  inspect(flags(phase1.flags()), content="inexact,rounded")
+  inspect(flags(phase1.flags()), content="inexact")
   let phase2 = phase1.clear_flags().mul(
     @decimal.Decimal::from_string("1E+1").unwrap(),
   )
@@ -159,10 +154,7 @@ test "clear flags between phases" {
 ```
 
 Multiplying the 16-digit quotient by `1E+1` is exact and its exponent fits, so
-the second phase reports no flags although the first one rounded. (Ten as
-`from_int(10)` has exponent 0 and coefficient 10: the exact product then needs
-a 17-digit coefficient, so the multiplication discards a zero digit and raises
-`rounded`, though not `inexact`.)
+the second phase reports no flags although the first one was inexact.
 
 ## Going further
 
@@ -171,8 +163,8 @@ a 17-digit coefficient, so the multiplication discards a zero digit and raises
 Mathematical functions (`exp`, `ln`, `pow`, the trigonometric family, …)
 follow the General Decimal Arithmetic restriction to precision and exponent
 limits within $\pm 999\,999$. Use one of the interchange contexts or explicit
-bounds; with the default unbounded range they return NaN with
-`invalid_context`:
+bounds; with a range above 999,999 they return NaN with
+`invalid_operation`:
 
 ```moonbit
 ///|
@@ -186,7 +178,7 @@ test "a bounded context for ln" {
     10,
     @decimal.DecimalContext::new(precision=34, e_max=999_999_999),
   ).ln()
-  inspect(flags(bad.raised()), content="invalid_context")
+  inspect(flags(bad.raised()), content="invalid_operation")
 }
 ```
 
@@ -215,20 +207,17 @@ test "from an arithmetic context" {
 
 `result()` returns `Ok((value, flags))` or the recorded error. The
 `AddContextual`, `SqrtContextual`, … implementations of `Decimal` in
-Luna-Flow/arithmetic report diagnostics instead of flags; the six shared
-conditions (`inexact`, `rounded`, `overflow`, `underflow`, `subnormal`,
-`clamped`) can be carried over field by field:
+Luna-Flow/arithmetic report diagnostics instead of flags; the shared
+conditions that `decimal` has (`inexact`, `overflow`, `underflow`) can be
+carried over field by field:
 
 ```moonbit
 ///|
 fn diagnostics(f : @decimal.DecimalFlags) -> @lf_arith.ArithmeticDiagnostics {
   @lf_arith.ArithmeticDiagnostics::new(
     inexact=f.inexact(),
-    rounded=f.rounded(),
     overflow=f.overflow(),
     underflow=f.underflow(),
-    subnormal=f.subnormal(),
-    clamped=f.clamped(),
   )
 }
 

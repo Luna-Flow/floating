@@ -8,6 +8,6 @@ test "decimal contexts detect tininess before rounding (#217)" {
   for text in ["0.9951", "0.99951"] {
     let (value, flags) = Decimal::from_string(text).unwrap().plus_ctx(ctx)
     assert_eq(value.to_string(), "1.00")
-    assert_true(flags.underflow && flags.subnormal && flags.inexact, msg=text)
+    assert_true(flags.underflow && flags.inexact, msg=text)
   }
 }

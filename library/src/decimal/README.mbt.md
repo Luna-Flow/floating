@@ -3,13 +3,13 @@
 `decimal` is the IEEE 754 arbitrary-precision decimal surface. `Decimal` keeps
 sign, coefficient, exponent, precision, special values, and quantum-sensitive
 cohort information. `DecimalContext` and `DecimalFlags` make rounding,
-exponent bounds, clamp, subnormal status, and IEEE status explicit. Contexts
+exponent bounds, and the five IEEE status flags explicit. Contexts
 created by `DecimalContext::new` use IEEE NaN propagation by default. The
 separate `decimal_gda` package exposes GDA contexts, sticky status, and
 traps through `GdaOutcome`.
 
-The public operation family includes arithmetic/FMA, integer division and
-remainder, quantize/rescale, total comparison, logical digits, adjacent values,
+The public operation family includes arithmetic/FMA, remainder,
+quantize, total comparison, adjacent values,
 formatting, decimal32/64/128 interchange, and elementary functions. Prefer
 `*_ctx` for status-sensitive code; operators intentionally omit flags.
 

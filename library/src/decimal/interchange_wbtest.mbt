@@ -230,7 +230,6 @@ test "IEEE BID format conversion detects tininess before rounding" {
   let (rounded, flags) = value.apply_ctx(Decimal64.context())
   assert_true(flags.inexact)
   assert_true(flags.underflow)
-  assert_true(flags.subnormal)
   assert_eq(
     rounded.to_interchange_hex_with_encoding(Decimal64, BID).0,
     "#00038D7EA4C68000",

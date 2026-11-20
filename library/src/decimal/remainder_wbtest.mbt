@@ -5,20 +5,16 @@ test "IEEE remainder keeps an infinite quotient intermediate" {
   let rhs = Decimal::one(precision=34)
   let (value, flags) = lhs.remainder_ctx(rhs, ctx)
   assert_true(value.is_zero())
-  assert_false(flags.division_impossible)
   assert_false(flags.invalid_operation)
 }
 
 ///|
 test "remainder avoids materializing a million-digit quotient" {
+  let ctx = DecimalContext::new(precision=34, e_max=2_000_000)
   let lhs = Decimal::from_string("9E+1000008", precision=34).unwrap()
   let rhs = Decimal::from_string("469135780", precision=34).unwrap()
-  let (value, flags) = lhs.remainder_trunc_ctx(
-    rhs,
-    decimal_exact_work_context(),
-  )
+  let (value, flags) = lhs.remainder_ctx(rhs, ctx)
   assert_eq(value.coefficient().to_string(), "54833220")
   assert_eq(value.exponent10(), 0)
   assert_false(flags.invalid_operation)
-  assert_false(flags.division_impossible)
 }

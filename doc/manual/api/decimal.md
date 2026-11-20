@@ -289,7 +289,7 @@ the format, with the flags of that rounding. The preferred exponent is the
 quantum of the source ("For conversions between decimal formats, the preferred
 exponent is Q(source)"): a conversion to a wider format is exact and keeps the
 cohort member, a narrower one rounds, can overflow or underflow, and folds a
-large exponent down with `clamped`.
+large exponent down.
 `from_bin_float_ctx(x, ctx)` rounds the exact value of a binary float once
 under the decimal context (precision, exponent range, direction) with the flags
 of the rounding: an exact conversion has the preferred exponent 0 (the
@@ -299,7 +299,7 @@ possible"). A value beyond the exponent range, or far below it, overflows or
 underflows without its digits being formed. An in-range value is converted at
 any binary exponent, correctly rounded, at a cost that does not grow with the
 exponent; a binary exponent beyond $2^{22}$ is refused with NaN and
-`invalid_context`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
+`invalid_operation`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
 under a `BinaryContext` (binary16 to binary128, or any precision and range)
 and returns the `BinaryFlags` (inexact, overflow, underflow); it is the
 conversion of `BinFloat::from_string_ctx`, correctly rounded for any exponent.
@@ -361,11 +361,11 @@ pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 The syntax is the one of `parse`. The value is rounded to the context
-precision (raising `rounded`, and `inexact` when non-zero digits are
-discarded), checked against the exponent range (overflow, subnormal,
-underflow, clamping) and folded down. A NaN payload with more digits than the
+precision (raising `inexact` when non-zero digits are
+discarded), checked against the exponent range (overflow, underflow)
+and folded down. A NaN payload with more digits than the
 format allows (precision $-1$ digits) is a syntax error. Invalid text returns a
-quiet NaN with only the `conversion_syntax` flag set.
+quiet NaN with `invalid_operation`.
 
 ```moonbit
 ///|
@@ -373,10 +373,10 @@ test "decimal from_string_ctx rounds and flags" {
   let ctx = @decimal.DecimalContext::decimal32()
   let (x, flags) = @decimal.Decimal::from_string_ctx("3.14159265", ctx)
   inspect(x, content="3.141593")
-  inspect(flags.rounded() && flags.inexact(), content="true")
+  inspect(flags.inexact(), content="true")
   let (bad, bad_flags) = @decimal.Decimal::from_string_ctx("1..2", ctx)
   inspect(bad.is_nan(), content="true")
-  inspect(bad_flags.conversion_syntax(), content="true")
+  inspect(bad_flags.invalid_operation(), content="true")
 }
 ```
 
@@ -489,7 +489,7 @@ the exponent of the product makes `mul_ctx` exact).
 > The certified elementary functions accept contexts with $e_{\max} \le 999\,999$
 > and $p \le 999\,999$. The default range of `DecimalContext::new` is the largest
 > one inside that limit for $p \le 999$; a context with a larger range (explicit
-> `e_max`, or $p \ge 1000$) makes them return NaN with `invalid_context`.
+> `e_max`, or $p \ge 1000$) makes them return NaN with `invalid_operation`.
 
 ### `DecimalContext::decimal32`, `decimal64`, `decimal128`
 
@@ -641,7 +641,7 @@ forms return `Err` for `AwayFromZero`.
 Tininess is detected before rounding in every context (IEEE 754-2019 §7.5: "For
 decimal formats, tininess is detected before rounding"): a non-zero result whose
 exact magnitude is below $10^{e_{\min}}$ is tiny, whatever the delivered value. A
-tiny result raises `subnormal`, and also `underflow` when it is inexact. There is
+tiny result raises `underflow` when it is inexact. There is
 no option for the binary-style after-rounding rule.
 
 ## Status flags
@@ -659,48 +659,37 @@ pub struct DecimalFlags {
 | Field | Raised when |
 | --- | --- |
 | `inexact` | the result differs from the exact result |
-| `rounded` | digits were discarded, even if they were all zero |
-| `lost_digits` | never raised since the subset mode went (0.12); the flag is removed with the other GDA flags |
-| `invalid_operation` | the operation is invalid (signaling NaN, $\infty-\infty$, $0\times\infty$, bad quantize, domain error) |
-| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
-| `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `underflow` | the result is tiny and inexact |
-| `subnormal` | the result is tiny |
-| `clamped` | the exponent was changed to fit (fold-down or zero exponent clamp) |
-| `conversion_syntax` | text could not be parsed |
-| `division_impossible` | an integer quotient needs more than $p$ digits |
-| `division_undefined` | $0/0$ (raised together with `invalid_operation`) |
-| `invalid_context` | the context is outside the range an elementary function supports |
+| `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
+| `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
+| `invalid_operation` | no usefully definable result (signaling NaN, $\infty-\infty$, $0\times\infty$, $0/0$, bad quantize, text that is not a number, a context outside the range an elementary function supports) |
+| `not_computed` | reserved for a result that could not be computed within a limit of the implementation; no operation raises it yet |
+
+These are the five flags of IEEE 754-2019 7.2 to 7.6 and `not_computed`. The General Decimal Arithmetic flags `rounded`, `subnormal`, `clamped`, `lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined` and `invalid_context` are not part of `decimal`; `decimal_gda` keeps them.
 
 The fields are private. Each flag is read with a method of the same name, such as `flags.inexact()` or `flags.division_by_zero()`; the flags never accumulate implicitly.
 
-### `DecimalFlags::new`, `combine`, `contains`, `has_error`
+### `DecimalFlags::new`, `combine`, `has_error`
 
 These functions create, merge and query flag sets.
 
 ```mbti
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::combine(Self, Self) -> Self
-pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
 ```
 
 `new` has every flag clear. `combine` is the field-wise OR, so it is
-associative, commutative and idempotent with `new()` as identity. `contains`
-reads the flag named by a `DecimalSignal` (`contains` exists where a package has a signal enum; `BinaryFlags` and `BallFlags` have only their accessor methods). `has_error` is
+associative, commutative and idempotent with `new()` as identity. `has_error` is
 
 $$
-\text{invalid\_operation} \lor \text{conversion\_syntax} \lor
-\text{division\_by\_zero} \lor \text{division\_undefined} \lor
-\text{division\_impossible} \lor \text{invalid\_context},
+\text{invalid\_operation} \lor \text{not\_computed} \lor \text{division\_by\_zero},
 $$
 
-the conditions for which IEEE 754 or General Decimal Arithmetic delivers no
-meaningful number (`conversion_syntax`, `division_impossible` and
-`division_undefined` are conditions of the Invalid operation signal). A failed
-`from_string_ctx`, which raises only `conversion_syntax`, therefore counts as
-an error. `has_error` does not include `overflow`, `underflow`, `inexact`,
-`rounded`, `subnormal`, `clamped` or `lost_digits`: those deliver a usable result (IEEE 754-2019 7.4 to 7.6 define it, as 7.3 does for division by zero). `division_by_zero` is in the set only so that the checked forms of `Luna-Flow/arithmetic` can return `Err` for a division by zero.
+the conditions for which IEEE 754-2019 delivers no usable number (7.2: invalid
+operation is "no usefully definable result"). A failed `from_string_ctx`, which
+raises `invalid_operation`, therefore counts as an error. `has_error` does not
+include `overflow`, `underflow` or `inexact`: those deliver a usable result (IEEE 754-2019 7.4 to 7.6 define it, as 7.3 does for division by zero). `division_by_zero` is in the set only so that the checked forms of `Luna-Flow/arithmetic` can return `Err` for a division by zero.
 
 ```moonbit
 ///|
@@ -712,35 +701,11 @@ test "decimal flags accumulate by combine" {
   let (_, f2) = one.div_ctx(@decimal.Decimal::zero(), ctx)
   let all = f1.combine(f2)
   inspect(third, content="0.3333333333333333")
-  inspect(all.contains(@decimal.DecimalSignal::Inexact), content="true")
+  inspect(all.inexact(), content="true")
   inspect(all.division_by_zero(), content="true")
   inspect(all.has_error(), content="true")
 }
 ```
-
-### `DecimalSignal`
-
-`DecimalSignal` names one flag of `DecimalFlags`.
-
-```mbti
-pub(all) enum DecimalSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
-  Clamped
-  LostDigits
-}
-```
-
-Each constructor corresponds to the field of the same name.
 
 ## Plain operations without a context
 
@@ -813,25 +778,21 @@ They never round, never raise flags and keep exponent, payload and NaN kind.
 `abs` clears the sign, `neg` flips it, `copy_sign`
 copies the sign bit of the second operand and `copy` returns its argument.
 
-### `Decimal::normalized`, `trim`, `with_precision`
+### `Decimal::normalized`, `with_precision`
 
 These functions change the cohort member or the precision field.
 
 ```mbti
 pub fn Decimal::normalized(Self) -> Self
-pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::with_precision(Self, Int, DecimalRoundingMode) -> Self
 ```
 
 `normalized` returns the reduced member of the cohort (all trailing zeros
 removed, zero with exponent 0), rounding half-even to the value's own
-precision if the coefficient is longer. `trim` removes the trailing zeros of the
-fractional part: with a negative exponent it stops at exponent 0 (`12.300`
-becomes `12.3`, `1200` stays `1200`), with a positive exponent it removes all
-of them (`1.20E+3` becomes `1.2E+3`); a zero gets exponent 0.
+precision if the coefficient is longer. It is the only way to strip trailing zeros: IEEE 754-2019 has no operation for it, so `decimal` no longer has `reduce_ctx` or `trim` (`x.apply_ctx(ctx).0.normalized()` is the former `reduce_ctx`).
 `with_precision(p, mode)` rounds a finite value to `p` digits with `mode`,
 reduces it and stores `p` as the precision field; special values only get the
-new precision field. All three are flag-free.
+new precision field. All of them are flag-free.
 
 ### `Decimal::div_checked`, `sqrt`
 
@@ -872,7 +833,7 @@ exact product `3.000001E-45 * 1.500001E-45` is $4.5000045000015\cdot
 -101$; it is rounded once to seven digits, `4.500005E-90`. The quotient
 `1 / 1.9999999999998E+101` is $5.0000000000005\cdot 10^{-102}$, which is
 subnormal; its guarded quotient is rounded once to the grid $10^{-101}$,
-giving `1E-101` with `inexact`, `underflow` and `subnormal`.
+giving `1E-101` with `inexact` and `underflow`.
 
 ### `Decimal::add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`
 
@@ -893,10 +854,9 @@ is $+0$ except under `Floor` (where it is $-0$ if either operand is negative)
 or when both operands are $-0$.
 
 Special cases: $\infty-\infty$ and $0\times\infty$, $\infty/\infty$ give NaN
-with `invalid_operation`; $0/0$ gives NaN with `invalid_operation` and
-`division_undefined`; $x/0$ for finite non-zero $x$ gives a signed infinity
+with `invalid_operation`; $0/0$ gives NaN with `invalid_operation`; $x/0$ for finite non-zero $x$ gives a signed infinity
 with `division_by_zero`; finite$/\infty$ gives a signed zero with exponent
-$E_{\text{tiny}}$ and `clamped`.
+$E_{\text{tiny}}$.
 
 When one operand of `add_ctx` or `sub_ctx` lies entirely below every
 rounding boundary of the sum, the operation does not align it digit by
@@ -914,7 +874,7 @@ test "decimal context results are rounded once" {
   inspect(d("3.000001E-45").mul_ctx(d("1.500001E-45"), c32).0, content="4.500005E-90")
   let (q, flags) = d("1").div_ctx(d("1.9999999999998E+101"), c32)
   inspect(q, content="1E-101")
-  inspect(flags.underflow() && flags.subnormal(), content="true")
+  inspect(flags.underflow(), content="true")
   let down = @decimal.DecimalContext::new(precision=7, rounding=@decimal.DecimalRoundingMode::RoundTowardZero)
   inspect(
     d("1598617.000000000001").add_ctx(d("-0.000000000002"), down).0,
@@ -961,71 +921,46 @@ pub fn Decimal::sqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 
 The preferred exponent is $\lfloor q/2 \rfloor$. An exact root is returned in
 the member closest to it (`sqrt(0.0400)` is `0.20`); an inexact root has $p$
-digits and raises `inexact` and
-`rounded`. $\sqrt{-0} = -0$; a negative non-zero operand or $-\infty$ gives
+digits and raises `inexact`. $\sqrt{-0} = -0$; a negative non-zero operand or $-\infty$ gives
 NaN with `invalid_operation`; $\sqrt{+\infty}=+\infty$.
 
-### `Decimal::plus_ctx`, `minus_ctx`, `abs_ctx`, `apply_ctx`
+### `Decimal::abs_ctx`, `apply_ctx`
 
 These functions round one operand to the context.
 
 ```mbti
-pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `apply_ctx` rounds a value to the context (precision, exponent range,
-clamping) and quiets a NaN, keeping the sign of zero. `plus_ctx` is $0 + x$
-and `minus_ctx` is $0 - x$, the zero taking the operand's exponent, so a zero
-result follows the sign rule of addition: it is $-0$ under `Floor`
-(`TowardNegative`)
-when the zeros have opposite signs (`plus_ctx(-0)`, `minus_ctx(+0)`) and $+0$
-otherwise. `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
+clamping) and quiets a NaN, keeping the sign of zero. It replaces the former
+`plus_ctx` (and `minus_ctx` is `neg` followed by `apply_ctx`). `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
 `invalid_operation`.
 
-### `Decimal::divide_integer_ctx`, `remainder_trunc_ctx`, `remainder_ctx`
+### `Decimal::remainder_ctx`
 
-These functions compute integer quotients and remainders.
+This function computes the IEEE remainder.
 
 ```mbti
-pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`divide_integer_ctx(x, y)` is $\operatorname{trunc}(x/y)$ with preferred exponent 0. When
-the integer quotient needs more than $p$ digits, the result is NaN with
-`division_impossible` and `invalid_operation`. `remainder_trunc_ctx(x, y)` is
-$x - y\cdot\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal
-Arithmetic *remainder*). `remainder_ctx(x, y)` is $x - y\cdot n$ where $n$ is
+`remainder_ctx(x, y)` is $x - y\cdot n$ where $n$ is
 $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*; the
 GDA name of it is `remainder-near`, which `decimal_gda` keeps). The remainder is exact when it fits,
 with preferred exponent $\min(q_x, q_y)$, and its sign is that of $x$ when it
 is zero. $x \operatorname{rem} 0$ and $\infty \operatorname{rem} y$ are invalid
-($0 \operatorname{rem} 0$ also raises `division_undefined`);
+(so is $0 \operatorname{rem} 0$);
 $x \operatorname{rem} \infty = x$.
-
-A zero `divide_integer_ctx` result has its exponent folded
-down to $e_{\max}-p+1$ when exponent 0 is larger; the `clamped` flag is
-raised. Its sign is still the sign of the exact quotient.
-
-For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\min}=0$,
-$e_{\max}=1$ gives `-0E-7` with `clamped`. Folding a zero's
-exponent preserves its value and does not raise `rounded` or `inexact`.
-`remainder_trunc_ctx` applies exponent bounds to its own result; clamping its internal
-integer quotient does not contribute a `clamped` flag to the remainder.
 
 ```moonbit
 ///|
 test "decimal remainders" {
   let ctx = @decimal.DecimalContext::decimal64()
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
-  inspect(d("10").divide_integer_ctx(d("3"), ctx).0, content="3")
-  inspect(d("10").remainder_trunc_ctx(d("3"), ctx).0, content="1")
   inspect(d("10").remainder_ctx(d("6"), ctx).0, content="-2")
-  inspect(d("-7.5").remainder_trunc_ctx(d("2"), ctx).0, content="-1.5")
+  inspect(d("-7.5").remainder_ctx(d("2"), ctx).0, content="0.5")
 }
 ```
 
@@ -1040,7 +975,7 @@ pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `x.quantize_ctx(y, ctx)` returns the value of `x` with exponent $q_y$, rounding
-with the context's mode when digits are dropped (raising `rounded`, and
+with the context's mode when digits are dropped (raising
 `inexact` if they were non-zero). The result is NaN with `invalid_operation`
 when the target exponent is outside $[E_{\text{tiny}}, e_{\max}]$, when the
 resulting coefficient needs more than $p$ digits, when its adjusted exponent
@@ -1049,7 +984,7 @@ give the infinity of `x`. The quantum never silently changes to another
 value of the cohort range: if the result cannot have exponent $q_y$ the
 operation fails. The one exception is the fold-down: a target exponent in
 $(e_{\max}-p+1,\ e_{\max}]$ is accepted and the result is then folded down
-to exponent $e_{\max}-p+1$ with `clamped`, like every other result
+to exponent $e_{\max}-p+1$, like every other result
 (`1E+384` quantized to `1E+384` in decimal64 is `1.000000000000000E+384`).
 
 ```moonbit
@@ -1067,18 +1002,6 @@ test "decimal quantize_ctx to cents" {
 }
 ```
 
-### `Decimal::rescale_ctx`
-
-`rescale_ctx` sets the exponent to an integer operand.
-
-```mbti
-pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-```
-
-`x.rescale_ctx(n, ctx)` is `quantize_ctx` with target exponent $n$, where $n$ must be
-a finite integer; any other second operand gives NaN with
-`invalid_operation`.
-
 ### `Decimal::same_quantum`
 
 `same_quantum` tests whether two values have the same exponent.
@@ -1090,18 +1013,6 @@ pub fn Decimal::same_quantum(Self, Self) -> Bool
 Two finite values have the same quantum when their exponents are equal; two
 infinities, and two NaNs, always have the same quantum; any other pair does
 not. It never raises flags.
-
-### `Decimal::reduce_ctx`
-
-These functions round a value to the context and remove trailing zeros.
-
-```mbti
-pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-```
-
-`reduce_ctx` applies the context, then removes trailing zeros while the
-exponent stays at most $e_{\max}-p+1$. A zero becomes a zero with exponent 0
-(keeping its sign).
 
 ### `Decimal::to_integral_exact_ctx`, `to_integral_value_ctx`
 
@@ -1118,8 +1029,8 @@ format still applies to its exponent). A value with negative exponent is quantiz
 exponent 0 with the context's rounding mode, at a working precision of
 $\max(p, \text{its digit count})$, so the integral part is never rounded to
 $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact_ctx`
-reports `rounded`/`inexact` when digits are dropped; `to_integral_value_ctx`
-returns the same value with those two flags cleared. Infinities are
+reports `inexact` when non-zero digits are dropped; `to_integral_value_ctx`
+returns the same value with `inexact` cleared. Infinities are
 returned unchanged; NaNs are quieted.
 
 IEEE 754 §5.9 defines roundToIntegral for an operand in the context's format
@@ -1174,10 +1085,10 @@ context result: a coefficient longer than $p$ digits is rounded to $p$ digits
 (`12345678901234567890` scaled by 0 in decimal64 is
 `1.234567890123457E+19` with `inexact`), a subnormal result is rounded to
 $E_{\text{tiny}}$, overflow gives the rounding-mode-dependent result with
-`overflow`, `inexact` and `rounded` (in decimal64 with `TowardZero`, `9E+384`
+`overflow` and `inexact` (in decimal64 with `TowardZero`, `9E+384`
 scaled by 1 is `9.999999999999999E+384`), and large exponents are folded
-down. A zero keeps its sign and has its exponent clamped into the range with
-`clamped`: `0` scaled by 700 in decimal64 is `0E+369`.
+down. A zero keeps its sign and has its exponent clamped into the range:
+`0` scaled by 700 in decimal64 is `0E+369`.
 
 ```moonbit
 ///|
@@ -1189,7 +1100,7 @@ test "decimal scaleb rounds like other context results" {
   inspect(d("9E+384").scaleb_ctx(d("1"), c64).0, content="inf")
   let (zero, flags) = d("0").scaleb_ctx(d("700"), c64)
   inspect(zero, content="0E+369")
-  inspect(flags.clamped(), content="true")
+  inspect(flags.inexact(), content="false")
   inspect(d("12345678901234567890").scaleb_ctx(d("0"), c64).0, content="1.234567890123457E+19")
 }
 ```
@@ -1216,9 +1127,9 @@ $10^{E_{\text{tiny}}}$ and the largest finite value
 $(10^{p}-1)\,10^{e_{\max}-p+1}$; `next_up_ctx(-∞)` is the most negative finite
 value. They raise no flags for finite results. `next_toward_ctx(x, y)` moves `x`
 one step toward `y`; when $x = y$ it returns `x` with the sign of `y` for
-zeros. A step of `next_toward_ctx` that ends in an infinity raises `overflow`,
-`inexact` and `rounded`; one that ends subnormal or zero raises `underflow`,
-`subnormal`, `inexact` and `rounded`.
+zeros. A step of `next_toward_ctx` that ends in an infinity raises `overflow`
+and `inexact`; one that ends subnormal or zero raises `underflow`
+and `inexact`.
 
 ```moonbit
 ///|
@@ -1357,41 +1268,6 @@ variants compare $|x|$ and $|y|$ and fall back to the signed order on equal
 magnitudes. Ties are broken by `total_order_compare`, so $-0 < +0$. The selected value is rounded
 to the context.
 
-## Digit-wise operations
-
-### `Decimal::logical_and_ctx`, `logical_or_ctx`, `logical_xor_ctx`, `logical_invert_ctx`
-
-These functions apply Boolean operations digit by digit to *logical
-operands*.
-
-```mbti
-pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-```
-
-A logical operand is a finite, non-negative value with exponent 0 whose
-coefficient digits are all 0 or 1, such as `1101`. The operation works on the
-low $p$ digits and returns a logical operand; any other operand gives NaN
-with `invalid_operation`.
-
-### `Decimal::shift_ctx`, `rotate_ctx`
-
-These functions shift or rotate the coefficient digits.
-
-```mbti
-pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-```
-
-The coefficient is viewed as $p$ digits. A positive count $n$ moves digits
-toward the most significant end, a negative one toward the least significant
-end; `shift_ctx` fills with zeros and drops digits that leave the window,
-`rotate_ctx` wraps them around. The exponent and sign are kept. The count
-must be an integer with exponent 0 and $|n| \le p$; otherwise the result is
-NaN with `invalid_operation`. Infinities are returned unchanged.
-
 ## Elementary functions
 
 Every elementary function exists in two forms. `f_ctx(x, ctx)` returns
@@ -1431,18 +1307,18 @@ refined directed bounds.
 > rounding boundary; a longer exact value lies inside its rounding cell and the
 > enclosure rounds it like any other.
 
-These operations return NaN with `invalid_context` when $p > 999\,999$,
+These operations return NaN with `invalid_operation` when $p > 999\,999$,
 $e_{\max} > 999\,999$ or $e_{\min} < -999\,999$, or when a finite operand has
 more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
 Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this
 restricted-context check. For example, `pow_ctx(1, 1.1)` is exactly `1` even
 in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
-`invalid_context`. Integral powers in `decimal` support counts through
+`invalid_operation`. Integral powers in `decimal` support counts through
 999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
 these are adopted decNumber implementation limits, not limits imposed by GDA
 1.70. Integer powers above those counts use bounded square-and-multiply when
 the exact exponent coefficient has at most 4,096 decimal digits. Larger
-coefficients return NaN with `invalid_context` before expansion. Thus
+coefficients return NaN with `invalid_operation` before expansion. Thus
 `pow_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while
 `pow_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same
 large input to `decimal_gda` still follows the GDA adapter's decNumber count
@@ -1537,9 +1413,9 @@ An integral exponent with more than 4,096 digits is never expanded: for a base
 other than $\pm 1$, $\pm 0$ and $\pm\infty$ the magnitude $|y \ln |x||$ is far
 beyond any context, so the result is the overflow or the underflow value of the
 rounding direction (decided from the base being above or below 1 and the sign
-of the exponent) and the sign follows the parity, not an `invalid_context`. A
+of the exponent) and the sign follows the parity, not an `invalid_operation`. A
 base with more than about 4,000 fractional digits, whose bound is not met, still
-returns NaN with `invalid_context`.
+returns NaN with `invalid_operation`.
 
 An exact result is delivered in the cohort member whose exponent is closest to
 the preferred exponent of IEEE 754-2019 §9.2.2, $\lfloor y\,q_x \rfloor$ for
@@ -1605,7 +1481,7 @@ belongs to `log`, `log2` and `log10` only. Results below the subnormal range
 are rounded, never replaced, so they keep the sign of $x$
 (`exp2m1_ctx(-1E-500)` is `-0E-398` in decimal64, `-1E-398` when rounding
 toward $-\infty$), and the same restricted contexts as `exp_ctx` give
-`invalid_context`.
+`invalid_operation`.
 
 ```moonbit
 ///|
@@ -1854,7 +1730,7 @@ test "decimal certified elementary functions" {
   match d("2").try_ln_ctx(@decimal.DecimalContext::new(e_max=999_999_999)) {
     Ok((value, flags)) => {
       inspect(value.is_nan(), content="true")
-      inspect(flags.invalid_context(), content="true")
+      inspect(flags.invalid_operation(), content="true")
     }
     Err(_) => fail("not a certification failure")
   }
@@ -1991,8 +1867,7 @@ pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
 ```
 
-Decoding is exact. `to_decimal_ctx` additionally raises `subnormal` when the
-decoded value is subnormal in the format; no other flag is possible.
+Decoding is exact: `to_decimal_ctx` raises no flag.
 
 ### `DecimalInterchange::canonical`, `is_canonical`
 
@@ -2100,11 +1975,11 @@ Each `*_contextual` operation converts the context with
 `DecimalContext::from_arithmetic_context`, runs the matching `*_ctx`
 operation and returns `Err(division_by_zero)` when `division_by_zero` was
 raised, `Err(domain_error)` when another `has_error` flag was raised, and
-otherwise `Ok` with diagnostics `inexact`, `rounded`, `overflow`,
-`underflow`, `subnormal` and `clamped` copied from the flags. Because the
+otherwise `Ok` with diagnostics `inexact`, `overflow` and
+`underflow` copied from the flags. Because the
 converted context has the default exponent range, which the certified functions
 accept for precisions up to 999, `exp_contextual` works at the default range; an
-explicit `e_max` above 999,999 fails with `domain_error` (`invalid_context`).
+explicit `e_max` above 999,999 fails with `domain_error` (`invalid_operation`).
 
 `zero_contextual` and `one_contextual` have the context precision.
 `epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`).
@@ -2291,7 +2166,6 @@ pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2334,10 +2208,6 @@ pub fn Decimal::log1p_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
@@ -2351,7 +2221,6 @@ pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::mul_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2373,7 +2242,6 @@ pub fn Decimal::op_lt(Self, Self) -> Bool
 pub fn Decimal::output(Self, &Logger) -> Unit
 pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -2383,18 +2251,13 @@ pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
-pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rsqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
 pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
-pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::sin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2427,7 +2290,6 @@ pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, De
 pub fn Decimal::total_order(Self, Self) -> Bool
 pub fn Decimal::total_order_compare(Self, Self) -> Int32
 pub fn Decimal::total_order_mag(Self, Self) -> Bool
-pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acospi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -2529,24 +2391,16 @@ pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
 pub struct DecimalFlags {
   // private fields
 }
-pub fn DecimalFlags::clamped(Self) -> Bool
 pub fn DecimalFlags::combine(Self, Self) -> Self
-pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
-pub fn DecimalFlags::conversion_syntax(Self) -> Bool
 pub fn DecimalFlags::division_by_zero(Self) -> Bool
-pub fn DecimalFlags::division_impossible(Self) -> Bool
-pub fn DecimalFlags::division_undefined(Self) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
 pub fn DecimalFlags::inexact(Self) -> Bool
-pub fn DecimalFlags::invalid_context(Self) -> Bool
 pub fn DecimalFlags::invalid_operation(Self) -> Bool
-pub fn DecimalFlags::lost_digits(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
+pub fn DecimalFlags::not_computed(Self) -> Bool
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 pub fn DecimalFlags::overflow(Self) -> Bool
-pub fn DecimalFlags::rounded(Self) -> Bool
-pub fn DecimalFlags::subnormal(Self) -> Bool
 pub fn DecimalFlags::underflow(Self) -> Bool
 
 pub struct DecimalInterchange {
@@ -2598,25 +2452,6 @@ pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
-
-#derive(Eq)
-pub(all) enum DecimalSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
-  Clamped
-  LostDigits
-}
-pub fn DecimalSignal::equal(Self, Self) -> Bool
-pub fn DecimalSignal::not_equal(Self, Self) -> Bool
 
 // Type aliases
 

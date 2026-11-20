@@ -196,7 +196,7 @@ class Rows:
             self.dropped += 1
             return
         fields = row.split()
-        self.rows.append((candidate.op, candidate.context, fields[8], fields[9], candidate.integer, fields[11], fields[12]))
+        self.rows.append((candidate.op, candidate.context, fields[5], fields[6], candidate.integer, fields[8], fields[9]))
 
 
 def build() -> Rows:

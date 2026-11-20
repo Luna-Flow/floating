@@ -62,20 +62,17 @@ pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::log2p1(Self) -> Self
 pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_down(Self) -> Self
 pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_up(Self) -> Self
 pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
-pub fn DecimalChecked::plus(Self) -> Self
 pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
-pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
 pub fn DecimalChecked::rootn(Self, Int32) -> Self

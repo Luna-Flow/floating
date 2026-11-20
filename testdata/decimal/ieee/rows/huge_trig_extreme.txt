@@ -1,13 +1,13 @@
-# mpfr-decimal-random-v1 table=huge_trig_extreme generator=tools/generate_decimal_huge_trig_rows.py
+# mpfr-decimal-random-v2 table=huge_trig_extreme generator=tools/generate_decimal_huge_trig_rows.py
 # Generated from exact rational arithmetic and certified MPFR 4.2.2 enclosures
 # rounded by libmpdec; do not edit.
-# id op rounding precision emin emax clamp tininess a b n expected flags
-huge_trig_extreme-00000 tan half_even 16 -383 384 1 b 1E+300000 - 0 -5.433974845365327 xr
-huge_trig_extreme-00001 sin half_even 16 -383 384 1 b 1E+300000 - 0 -0.9834852694548232 xr
-huge_trig_extreme-00002 tan half_up 16 -383 384 1 b -7.5E+400000 - 0 21.50848035043460 xr
-huge_trig_extreme-00003 cos down 16 -383 384 1 b 1E+300000 - 0 0.1809881895742753 xr
-huge_trig_extreme-00004 sin floor 34 -6143 6144 1 b 1E+300000 - 0 -0.9834852694548231938615443331862938 xr
-huge_trig_extreme-00005 sin half_even 16 -383 384 1 b 1E+999999 - 0 -0.9729995633740675 xr
-huge_trig_extreme-00006 cos half_even 16 -383 384 1 b 1E+999999 - 0 0.2308069532615385 xr
-huge_trig_extreme-00007 tan half_even 16 -383 384 1 b 1E+999999 - 0 -4.215642334966897 xr
-huge_trig_extreme-00008 sin ceiling 34 -6143 6144 1 b -7.5E+999998 - 0 -0.8433123003204414937698048154359197 xr
+# id op rounding precision emax a b n expected flags
+huge_trig_extreme-00000 tan half_even 16 384 1E+300000 - 0 -5.433974845365327 x
+huge_trig_extreme-00001 sin half_even 16 384 1E+300000 - 0 -0.9834852694548232 x
+huge_trig_extreme-00002 tan half_up 16 384 -7.5E+400000 - 0 21.50848035043460 x
+huge_trig_extreme-00003 cos down 16 384 1E+300000 - 0 0.1809881895742753 x
+huge_trig_extreme-00004 sin floor 34 6144 1E+300000 - 0 -0.9834852694548231938615443331862938 x
+huge_trig_extreme-00005 sin half_even 16 384 1E+999999 - 0 -0.9729995633740675 x
+huge_trig_extreme-00006 cos half_even 16 384 1E+999999 - 0 0.2308069532615385 x
+huge_trig_extreme-00007 tan half_even 16 384 1E+999999 - 0 -4.215642334966897 x
+huge_trig_extreme-00008 sin ceiling 34 6144 -7.5E+999998 - 0 -0.8433123003204414937698048154359197 x

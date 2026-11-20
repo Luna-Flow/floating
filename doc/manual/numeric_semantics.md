@@ -309,7 +309,7 @@ interchangeable:
 ### IEEE flags
 
 The five IEEE exceptions[^ieee-exceptions] are reported as booleans on
-`BinaryFlags` and as `DecimalSignal` members of `DecimalFlags`:
+`BinaryFlags` and `DecimalFlags`:
 
 - *invalid operation*: no useful real result exists ($\infty - \infty$,
   $0 \cdot \infty$, $\sqrt{-1}$, any operation on a signaling NaN); the result is
@@ -328,9 +328,10 @@ The five IEEE exceptions[^ieee-exceptions] are reported as booleans on
 - *underflow*: the result is tiny (by the context's tininess rule) and inexact.
 - *inexact*: the rounded result differs from the exact value.
 
-Decimal adds the GDA conditions *rounded* (digits were discarded, even zeros),
-*clamped*, *subnormal*, *conversion syntax*, *division impossible*, *division
-undefined*, *invalid context* and *lost digits*. Flags never replace the value.
+`decimal_gda` adds the GDA conditions *rounded* (digits were discarded, even
+zeros), *clamped*, *subnormal*, *conversion syntax*, *division impossible*,
+*division undefined*, *invalid context* and *lost digits*; `DecimalFlags` has
+only the five IEEE flags and *not computed*. Flags never replace the value.
 To accumulate them over several steps, `combine` them yourself or use
 `decimal_checked`, which keeps the latest (`raised`) and the accumulated
 (`flags`) sets.
@@ -484,8 +485,8 @@ but $0.25$ needs exponent $-2$, so that is the result. When the result must be
 rounded, the operation returns the member with $p$ digits, the smallest
 exponent that holds the rounded value (fewer digits only for a subnormal
 result). Parsing preserves the quantum of the literal. `quantize_ctx(x, y)`
-rounds $x$ to the quantum of $y$; `reduce_ctx` (GDA `reduce`) and
-`normalized()` strip trailing zeros. Numeric comparison sees only the value;
+rounds $x$ to the quantum of $y$; `normalized()` (and, in `decimal_gda`,
+`reduce`) strips trailing zeros. Numeric comparison sees only the value;
 `same_quantum` and the total orders `total_order_compare` (IEEE) and
 `compare_total` (GDA) also see the cohort.
 
@@ -510,7 +511,7 @@ test "decimal results keep the ideal exponent" {
     .unwrap()
     .quantize_ctx(@decimal.Decimal::from_string("0.01").unwrap(), ctx)
   inspect(cents, content="2.34")
-  inspect(flags.contains(@decimal.Inexact), content="true")
+  inspect(flags.inexact(), content="true")
   let x = @decimal.Decimal::from_string("12.30").unwrap()
   let y = @decimal.Decimal::from_string("12.3").unwrap()
   inspect(x.compare(y), content="0")
