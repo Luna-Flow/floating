@@ -1014,7 +1014,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/bin_float_checked.md:820
 #: manual/api/decimal.md:2127
 #: manual/api/decimal_gda.md:1876
-#: manual/api/def.md:455
+#: manual/api/def.md:460
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:523
@@ -1102,7 +1102,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:2084
 #: manual/api/decimal_gda_checked.md:281
-#: manual/api/def.md:469
+#: manual/api/def.md:474
 #: manual/api/differential.md:97
 #: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
@@ -1315,7 +1315,7 @@ msgstr "`flat_map` 是 `bind` 的旧名称。请将 `r.flat_map(f)` 替换为 `r
 #: manual/api/bin_float_checked.md:852
 #: manual/api/decimal_checked.md:412
 #: manual/api/decimal_gda_checked.md:283
-#: manual/api/def.md:471
+#: manual/api/def.md:476
 #: manual/api/semantic.md:375
 msgid "The following snapshot is the complete generated interface of the package."
 msgstr "以下快照是该包完整的生成接口。"
@@ -1641,7 +1641,7 @@ msgid "Scale"
 msgstr "规模"
 
 #: manual/api/bench/external.md:39
-#: manual/api/def.md:185
+#: manual/api/def.md:190
 msgid "Implementation"
 msgstr "实现"
 
@@ -6115,8 +6115,8 @@ msgid "def API"
 msgstr "def API"
 
 #: manual/api/def.md:5
-msgid "`def` is the shared vocabulary of the `floating` packages. It defines the sign classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the open `Floating` trait that every scalar or interval representation of this repository implements, four generic predicates built on that trait, and re-exports the context, rounding, classification and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need only one import. It contains no arithmetic. The [tutorial](../tutorial/def.md) shows the vocabulary in use; the [design page](../design/def.md) states the trait laws and explains why `PartialOrder` is not a total order."
-msgstr "`def` 是 `floating` 各包的共享词汇。它定义了符号分类 `Sign`、十值的 IEEE 类别 `IeeeClass`、四路比较结果 `PartialOrder`、本仓库中每种标量或区间表示都实现的开放 trait `Floating`、基于该 trait 构建的四个泛型谓词，并重新导出 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 中的上下文、舍入、分类和错误类型，使调用者只需一次导入。它不包含任何算术运算。[教程](../tutorial/def.md) 展示了这些词汇的用法；[设计页面](../design/def.md) 陈述了 trait 定律，并解释了为何 `PartialOrder` 不是全序。"
+msgid "`def` is the shared vocabulary of the `floating` packages. It defines the sign classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the `Floating` trait that every scalar or interval representation of this repository implements, four generic predicates built on that trait, and re-exports the context, rounding, classification and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need only one import. It contains no arithmetic. The [tutorial](../tutorial/def.md) shows the vocabulary in use; the [design page](../design/def.md) states the trait laws and explains why `PartialOrder` is not a total order."
+msgstr "`def` 是 `floating` 各包的共享词汇。它定义了符号分类 `Sign`、十值的 IEEE 类别 `IeeeClass`、四路比较结果 `PartialOrder`、本仓库中每种标量或区间表示都实现的 trait `Floating`、基于该 trait 构建的四个泛型谓词，并重新导出 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 中的上下文、舍入、分类和错误类型，使调用者只需一次导入。它不包含任何算术运算。[教程](../tutorial/def.md) 展示了这些词汇的用法；[设计页面](../design/def.md) 陈述了 trait 定律，并解释了为何 `PartialOrder` 不是全序。"
 
 #: manual/api/def.md:18
 msgid "Add the package to your `moon.pkg`, next to the representation you use:"
@@ -6163,134 +6163,134 @@ msgid "`Floating` is the observation and re-precision interface shared by every 
 msgstr "`Floating` 是本仓库中所有表示共享的观察与重设精度接口。"
 
 #: manual/api/def.md:154
-msgid "The trait is `pub(open)`, so downstream types may implement it. In this repository it is implemented by `@bin_float.BinFloat`, `@decimal.Decimal`, `@decimal_gda.Decimal` and `@ball_float.BallFloat`. Since the MoonBit 0.10 migration trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The laws every implementation is expected to satisfy, and the places where `BallFloat` only satisfies a weaker form, are listed in the [design page](../design/def.md#the-floating-laws)."
-msgstr "该 trait 为 `pub(open)`，因此下游类型可以实现它。在本仓库中，`@bin_float.BinFloat`、`@decimal.Decimal`、`@decimal_gda.Decimal` 和 `@ball_float.BallFloat` 实现了它。自 MoonBit 0.10 迁移以来，trait 方法不再自动提升，因此泛型代码以限定形式 `@def.Floating::classify(x)` 调用它们；具体类型也提供同名的固有方法（`x.classify()`）。每个实现应满足的定律，以及 `BallFloat` 只满足其较弱形式的地方，列于[设计页面](../design/def.md#the-floating-laws)。"
+msgid "`Floating` is implemented by the types of this library only: `@bin_float.BinFloat`, `@decimal.Decimal`, `@decimal_gda.Decimal` and `@ball_float.BallFloat`. It is not an extension point: implementing it for a type outside this module is not supported and is not covered by the compatibility promise, because methods may be added to the trait in a minor release. It is declared `pub(open)` only because the implementations are in other packages of this module (the [design page](../design/def.md#why-floating-is-declared-open) gives the reason). Since the MoonBit 0.10 migration trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The laws every implementation is expected to satisfy, and the places where `BallFloat` only satisfies a weaker form, are listed in the [design page](../design/def.md#the-floating-laws)."
+msgstr "`Floating` 只由本库的类型实现：`@bin_float.BinFloat`、`@decimal.Decimal`、`@decimal_gda.Decimal` 和 `@ball_float.BallFloat`。它不是扩展点：为本模块之外的类型实现它不受支持，也不在兼容性承诺之内，因为 trait 可能在次版本中增加方法。它被声明为 `pub(open)`，只是因为这些实现位于本模块的其他包中（原因见[设计页面](../design/def.md#why-floating-is-declared-open)）。自 MoonBit 0.10 迁移以来，trait 方法不再自动提升，因此泛型代码以限定形式 `@def.Floating::classify(x)` 调用它们；具体类型也提供同名的固有方法（`x.classify()`）。每个实现应满足的定律，以及 `BallFloat` 只满足其较弱形式的地方，列于[设计页面](../design/def.md#the-floating-laws)。"
 
-#: manual/api/def.md:166
+#: manual/api/def.md:171
 msgid "`classify` returns the class of a value: `Finite`, `Infinity` or `NaN`."
 msgstr "`classify` 返回值的类别：`Finite`、`Infinity` 或 `NaN`。"
 
-#: manual/api/def.md:172
+#: manual/api/def.md:177
 msgid "For the scalar types this is the IEEE class with signalling and quiet NaNs merged. For `BallFloat` it is `Finite` for a bounded non-empty interval, `Infinity` for an interval with an infinite endpoint (including the entire line), and `NaN` for the empty interval. Total; never aborts."
 msgstr "对于标量类型，这是将信号 NaN 与静默 NaN 合并后的 IEEE 类别。对于 `BallFloat`，有界非空区间为 `Finite`，带有无穷端点的区间（包括整条实数线）为 `Infinity`，空区间为 `NaN`。全函数；从不中止。"
 
-#: manual/api/def.md:179
+#: manual/api/def.md:184
 msgid "`sign` returns the sign classification of a value."
 msgstr "`sign` 返回值的符号分类。"
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "`BinFloat`, both `Decimal`s"
 msgstr "`BinFloat`，两种 `Decimal`"
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "value $< 0$, including $-\\infty$"
 msgstr "值 $< 0$，包括 $-\\infty$"
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "$\\pm 0$ and every NaN"
 msgstr "$\\pm 0$ 及所有 NaN"
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "value $> 0$, including $+\\infty$"
 msgstr "值 $> 0$，包括 $+\\infty$"
 
-#: manual/api/def.md:190
+#: manual/api/def.md:195
 msgid "The interval rule also applies to unbounded intervals: $[-\\infty, -1]$ is `Negative`."
 msgstr "区间规则同样适用于无界区间：$[-\\infty, -1]$ 为 `Negative`。"
 
-#: manual/api/def.md:193
+#: manual/api/def.md:198
 msgid "[!WARNING] `BallFloat::sign` aborts on the empty interval, which has no sign. Test `@def.is_nan(x)` (true exactly for the empty interval) before calling `sign` on an interval."
 msgstr "[!WARNING] `BallFloat::sign` 在空区间上会中止，因为空区间没有符号。在对区间调用 `sign` 之前，请先检测 `@def.is_nan(x)`（当且仅当为空区间时为真）。"
 
-#: manual/api/def.md:200
+#: manual/api/def.md:205
 msgid "`precision` returns the working precision stored on the value."
 msgstr "`precision` 返回值上存储的工作精度。"
 
-#: manual/api/def.md:206
+#: manual/api/def.md:211
 msgid "It counts significant bits for `BinFloat` and for the endpoints of a `BallFloat`, and significant decimal digits for both `Decimal` types. Every constructor clamps the stored precision to at least $1$, so the result is always at least $1$."
 msgstr "对 `BinFloat` 和 `BallFloat` 的端点，它计算有效二进制位数；对两种 `Decimal` 类型，它计算有效十进制位数。每个构造函数都会将存储的精度限制为至少 $1$，因此结果总是至少为 $1$。"
 
-#: manual/api/def.md:213
+#: manual/api/def.md:218
 msgid "`with_precision(x, p, mode)` returns `x` re-expressed at precision $q = \\max(1, p)$."
 msgstr "`with_precision(x, p, mode)` 返回以精度 $q = \\max(1, p)$ 重新表示的 `x`。"
 
-#: manual/api/def.md:220
+#: manual/api/def.md:225
 msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix in the direction `mode`. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `BinFloat` keeps its implementation range: a result whose exponent leaves $\\pm(2^{30} - 1)$ (`binary_implementation_e_max`, `binary_implementation_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
 msgstr "对于有限标量，其值按 `mode` 方向舍入到其基数下的 $q$ 位有效数字。不应用上下文的指数界限，也不报告标志（两者都需要时请使用具体包的 `*_ctx` API）。十进制类型没有其他指数限制。`BinFloat` 保留其实现范围：指数超出 $\\pm(2^{30} - 1)$（`binary_implementation_e_max`、`binary_implementation_e_min`）的结果会像 IEEE 754 中那样上溢为无穷或最大有限值，或者下溢。零保留其符号。无穷和 NaN 保留其类别、符号和载荷，只改变存储的精度。"
 
-#: manual/api/def.md:231
+#: manual/api/def.md:236
 msgid "For `BallFloat` the endpoints are rounded outward (the lower one toward $-\\infty$, the upper one toward $+\\infty$), so the result is the tightest enclosure of `x` at the new precision whatever `mode` is; `mode` is not used. An interval whose endpoints are already representable at `p` bits is returned unchanged."
 msgstr "对 `BallFloat`，端点向外舍入（下端点朝 $-\\infty$，上端点朝 $+\\infty$），因此无论 `mode` 为何，结果都是 `x` 在新精度下的最紧包络；`mode` 不被使用。端点在 `p` 位下已可表示的区间原样返回。"
 
-#: manual/api/def.md:239
+#: manual/api/def.md:244
 msgid "`normalized` returns the canonical representative of a value."
 msgstr "`normalized` 返回值的规范代表。"
 
-#: manual/api/def.md:245
+#: manual/api/def.md:250
 msgid "For `BinFloat` this is the representation with an odd coefficient (or zero); for both `Decimal` types it removes trailing zeros of the coefficient, so `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000` becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types `normalized` keeps the value and is idempotent."
 msgstr "对于 `BinFloat`，这是系数为奇数（或为零）的表示；对于两种 `Decimal` 类型，它去除系数末尾的零，因此 `1.500` 变为 `1.5`（同值类改变，值不变），`-0.000` 变为 `-0`。非有限标量原样返回。在标量类型上，`normalized` 保持值不变，并且是幂等的。"
 
-#: manual/api/def.md:251
+#: manual/api/def.md:256
 msgid "`BallFloat::normalized` normalizes the two endpoints and keeps them at the stored precision, so the interval denotes the same set: at 53 bits, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$."
 msgstr "`BallFloat::normalized` 规范化两个端点并将其保持在存储精度上，因此区间表示的集合不变：在 53 位下，$[1, 1 + 2^{-52}]$ 仍为 $[1, 1 + 2^{-52}]$。"
 
-#: manual/api/def.md:320
+#: manual/api/def.md:325
 msgid "Generic predicates"
 msgstr "泛型谓词"
 
-#: manual/api/def.md:324
+#: manual/api/def.md:329
 msgid "These functions test the class of any `Floating` value."
 msgstr "这些函数检测任意 `Floating` 值的类别。"
 
-#: manual/api/def.md:342
+#: manual/api/def.md:347
 msgid "Exactly one of the first three is true for every value. For scalars `is_zero` is true for both signed zeros. For a `BallFloat`, `is_zero` is true for every bounded interval that *contains* zero (for example $[-1, 1]$), not only for $[0, 0]$; use `BallFloat::contains_zero` or compare the bounds when you mean something else. `is_zero` never calls `sign` on an empty interval, because the conjunction stops at `classify`."
 msgstr "对每个值，前三者中恰有一个为真。对于标量，`is_zero` 对两种带符号零都为真。对于 `BallFloat`，`is_zero` 对每个*包含*零的有界区间（例如 $[-1, 1]$）都为真，而不仅限于 $[0, 0]$；若你指的是其他含义，请使用 `BallFloat::contains_zero` 或比较区间端点。`is_zero` 从不在空区间上调用 `sign`，因为合取在 `classify` 处即短路停止。"
 
-#: manual/api/def.md:366
+#: manual/api/def.md:371
 msgid "Re-exported types"
 msgstr "重新导出的类型"
 
-#: manual/api/def.md:368
+#: manual/api/def.md:373
 msgid "`def` re-exports these types with `pub using`, so `@def.RoundingMode` and `@lf_arith.RoundingMode` name the same type and no conversion is needed. Their definitions and full semantics are documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/)."
 msgstr "`def` 以 `pub using` 重新导出这些类型，因此 `@def.RoundingMode` 与 `@lf_arith.RoundingMode` 指同一类型，无需任何转换。它们的定义和完整语义由 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 文档说明。"
 
-#: manual/api/def.md:375
+#: manual/api/def.md:380
 msgid "`ArithmeticContext` is the precision, rounding direction and optional exponent bounds passed to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`ArithmeticContext` 是传递给 Luna-Flow/arithmetic 上下文 trait 的精度、舍入方向及可选指数界限。"
 
-#: manual/api/def.md:382
+#: manual/api/def.md:387
 msgid "`BinaryContext` and `DecimalContext` are built from it by their `from_arithmetic_context` constructors."
 msgstr "`BinaryContext` 和 `DecimalContext` 由各自的 `from_arithmetic_context` 构造函数从它构建。"
 
-#: manual/api/def.md:387
+#: manual/api/def.md:392
 msgid "`ArithmeticError` is the structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages; `ArithmeticErrorKind` is its kind."
 msgstr "`ArithmeticError` 是所有返回 `Result` 的 API（`*_checked`、`try_*`）以及各 checked 包装包的结构化错误；`ArithmeticErrorKind` 是其种类。"
 
-#: manual/api/def.md:396
+#: manual/api/def.md:401
 msgid "The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` and `CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per kind and a `message`."
 msgstr "种类有 `DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison` 和 `CertificationFailure(detail)`；`ArithmeticError` 为每个种类提供一个 `is_*` 谓词，并提供 `message`。"
 
-#: manual/api/def.md:403
+#: manual/api/def.md:408
 msgid "These types are the payload of an `ArithmeticError` of kind `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its refinement budget."
 msgstr "这些类型是种类为 `CertificationFailure` 的 `ArithmeticError` 的载荷：表示某个初等函数的正确舍入结果未能在其细化预算内完成认证。"
 
-#: manual/api/def.md:413
+#: manual/api/def.md:418
 msgid "The detail records the operation, the stage and reason, the target precision, and the final working precision and refinement count (see `certified_failure` in the [internal API](internal.md))."
 msgstr "详情记录运算、阶段和原因、目标精度，以及最终的工作精度和细化次数（参见[内部 API](internal.md) 中的 `certified_failure`）。"
 
-#: manual/api/def.md:419
+#: manual/api/def.md:424
 msgid "`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or `NaN`."
 msgstr "`FpClass` 是 `Floating::classify` 的结果：`Finite`、`Infinity` 或 `NaN`。"
 
-#: manual/api/def.md:428
+#: manual/api/def.md:433
 msgid "`RoundingMode` lists the five rounding directions accepted by `with_precision` and by the concrete constructors: `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`."
 msgstr "`RoundingMode` 列出 `with_precision` 及各具体构造函数接受的五种舍入方向：`ToNearestEven`、`TowardZero`、`TowardPositive`、`TowardNegative` 和 `AwayFromZero`。"
 
-#: manual/api/def.md:438
+#: manual/api/def.md:443
 msgid "`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients and exact values."
 msgstr "`BigInt` 是 `moonbitlang/core/bigint` 的任意精度整数，用于表示系数和精确值。"
 
-#: manual/api/def.md:459
+#: manual/api/def.md:464
 msgid "These methods are the derived `Eq` instance, promoted explicitly so that `a.equal(b)` remains available; prefer `==` and `!=`."
 msgstr "这些方法是派生的 `Eq` 实例，经显式提升以使 `a.equal(b)` 仍然可用；请优先使用 `==` 和 `!=`。"
 
@@ -9936,7 +9936,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/decimal_checked.md:279
 #: manual/design/decimal_gda.md:885
 #: manual/design/decimal_gda_checked.md:247
-#: manual/design/def.md:337
+#: manual/design/def.md:370
 #: manual/design/differential.md:168
 #: manual/design/differential/harness.md:41
 #: manual/design/doc_examples.md:36
@@ -11077,7 +11077,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/decimal_checked.md:196
 #: manual/design/decimal_gda.md:840
 #: manual/design/decimal_gda_checked.md:190
-#: manual/design/def.md:159
+#: manual/design/def.md:191
 #: manual/design/differential.md:145
 #: manual/design/differential/harness.md:27
 #: manual/design/doc_examples.md:25
@@ -11157,7 +11157,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/decimal_checked.md:268
 #: manual/design/decimal_gda.md:869
 #: manual/design/decimal_gda_checked.md:238
-#: manual/design/def.md:324
+#: manual/design/def.md:357
 #: manual/design/differential.md:156
 #: manual/design/differential/harness.md:33
 #: manual/design/doc_examples.md:30
@@ -14597,7 +14597,7 @@ msgstr "算法"
 #: manual/design/decimal.md:1228
 #: manual/design/decimal_checked.md:263
 #: manual/design/decimal_gda_checked.md:233
-#: manual/design/def.md:317
+#: manual/design/def.md:350
 msgid "Cost"
 msgstr "开销"
 
@@ -15925,8 +15925,8 @@ msgid "IEEE 754-2019, clause 5.11 (details of comparison predicates) and Table 5
 msgstr "IEEE 754-2019，第 5.11 条（比较谓词的细节）及表 5.1。静默谓词与信号谓词的区别仅在于静默 NaN 操作数是否发出无效运算信号，这也是 `bin_float` 把该关系与 `BinaryFlags` 一并返回的原因。"
 
 #: manual/design/def.md:70
-msgid "A small open trait instead of a numeric tower"
-msgstr "小而开放的 trait，而非数值塔"
+msgid "A small trait instead of a numeric tower"
+msgstr "小的 trait，而非数值塔"
 
 #: manual/design/def.md:72
 msgid "**Problem.** Generic code must be able to ask any representation a few questions, but the representations do not share arithmetic laws: binary and decimal operations round in different radices, GDA operations thread a sticky context, and interval operations return enclosures rather than rounded points."
@@ -15941,70 +15941,94 @@ msgid "**Choice: (b).** `Floating` has exactly `classify`, `sign`, `precision`, 
 msgstr "**选择：(b)。** `Floating` 恰好只有 `classify`、`sign`、`precision`、`with_precision` 和 `normalized`。算术取自 MoonBit 的运算符 trait 以及 Luna-Flow/arithmetic 的能力 trait（`SqrtChecked`、`AddContextual`……），每种类型只在能遵守相应定律时才实现它们。单一的宽泛 trait 会把同一套定律强加于全部四个领域；例如，区间无法实现标量的 `compare`，除非对相互重叠的操作数撒谎。这遵循 Luna-Flow 的原则：代码只依赖于陈述其需求的最小 trait 组合。"
 
 #: manual/design/def.md:90
+msgid "Why `Floating` is declared open"
+msgstr "为什么 `Floating` 被声明为开放"
+
+#: manual/design/def.md:92
+msgid "**Problem.** `Floating` is meant to be implemented by the types of this library only, so that a method can be added to it in a minor release without breaking a downstream type. MoonBit has a visibility that would enforce this, `pub trait` (readonly), but it is per package."
+msgstr "**问题。** `Floating` 只应由本库的类型实现，这样就能在次版本中为它增加方法而不破坏下游类型。MoonBit 有一种可见性能强制这一点，即 `pub trait`（只读），但它以包为单位。"
+
+#: manual/design/def.md:97
+msgid "**Evidence.** Declaring `pub trait Floating` in `def` makes every implementation outside `def` fail to compile:"
+msgstr "**证据。** 在 `def` 中声明 `pub trait Floating` 会使 `def` 之外的每个实现都无法编译："
+
+#: manual/design/def.md:107
+msgid "The four implementations are in `bin_float`, `decimal`, `decimal_gda` and `ball_float`, which are other packages of the module, and `def` cannot import them (they import `def`)."
+msgstr "这四个实现位于 `bin_float`、`decimal`、`decimal_gda` 和 `ball_float` 中，它们是本模块的其他包，而 `def` 不能导入它们（它们导入 `def`）。"
+
+#: manual/design/def.md:111
+msgid "**Options.** (a) Keep `pub(open)` and state the contract in the documentation. (b) Seal the trait with a token type that only this module can build. (c) Move the implementations into `def`, which is a dependency cycle."
+msgstr "**选项。** (a) 保持 `pub(open)`，在文档中陈述契约。(b) 用只有本模块能构造的令牌类型封住 trait。(c) 把实现移入 `def`，这会形成依赖环。"
+
+#: manual/design/def.md:115
+msgid "**Choice: (a).** (b) puts an internal type into a public trait signature for a promise that documentation can state as well, and (c) is impossible. The contract is: implementing `Floating` outside this module is not supported and not covered by the compatibility promise; the tutorial therefore shows no such implementation, and the generic predicates `is_finite`, `is_infinite`, `is_nan` and `is_zero` are unchanged."
+msgstr "**选择：(a)。** (b) 为了一个文档同样能陈述的承诺，把内部类型放进公开 trait 的签名；(c) 不可能。契约是：在本模块之外实现 `Floating` 不受支持，也不在兼容性承诺之内；因此教程不展示这样的实现，泛型谓词 `is_finite`、`is_infinite`、`is_nan` 和 `is_zero` 不变。"
+
+#: manual/design/def.md:122
 msgid "`Sign` merges the two zeros"
 msgstr "`Sign` 合并两个零"
 
-#: manual/design/def.md:92
+#: manual/design/def.md:124
 msgid "`sign` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `sign` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
 msgstr "`sign` 回答的是“值位于零的哪一侧”，而不是“符号位是什么”。把 $-0$ 和 $+0$ 合并为 `Zero`，使 `sign` 成为所表示值的函数，从而在各种表示之间保持一致，也与同样忽略带符号零的 [`semantic`](semantic.md) 投影一致。符号位仍可通过具体的包观测到。标量实现对 NaN 返回 `Zero`，因为 NaN 在数轴上没有位置；关心这一点的调用方应先检查 `is_nan`。"
 
-#: manual/design/def.md:100
+#: manual/design/def.md:132
 msgid "For an interval $X = [\\ell, u]$ the same question has three honest answers, and `BallFloat::sign` returns them as follows:"
 msgstr "对于区间 $X = [\\ell, u]$，同一问题有三个诚实的答案，`BallFloat::sign` 按如下方式返回："
 
-#: manual/design/def.md:112
+#: manual/design/def.md:144
 msgid "The three cases are exhaustive and disjoint for non-empty $X$ because $\\ell \\le u$: if neither $\\ell > 0$ nor $u < 0$, then $\\ell \\le 0 \\le u$. So `Zero` on an interval means \"contains zero\", and `is_zero`, which is defined through `sign`, inherits that meaning."
 msgstr "由于 $\\ell \\le u$，对非空 $X$ 这三种情形是穷尽且互斥的：若既非 $\\ell > 0$ 也非 $u < 0$，则 $\\ell \\le 0 \\le u$。因此区间上的 `Zero` 意味着“包含零”，而通过 `sign` 定义的 `is_zero` 也继承了这一含义。"
 
-#: manual/design/def.md:117
+#: manual/design/def.md:149
 msgid "`PartialOrder` is the IEEE four-way relation"
 msgstr "`PartialOrder` 是 IEEE 的四路关系"
 
-#: manual/design/def.md:119
+#: manual/design/def.md:151
 msgid "**Problem.** Comparison results must be expressible for NaN operands."
 msgstr "**问题。** 比较结果必须能够表达 NaN 操作数的情形。"
 
-#: manual/design/def.md:121
+#: manual/design/def.md:153
 msgid "**Options.** (a) Return `Int` through MoonBit's `Compare`. (b) Return `Option[Int]`. (c) Return a four-valued enum."
 msgstr "**可选方案。** (a) 通过 MoonBit 的 `Compare` 返回 `Int`。(b) 返回 `Option[Int]`。(c) 返回一个四值枚举。"
 
-#: manual/design/def.md:124
+#: manual/design/def.md:156
 msgid "**Choice: (c).** Let $\\preceq$ be \"less or equal\" on floating-point data. It is not an order on the whole set:"
 msgstr "**选择：(c)。** 设 $\\preceq$ 为浮点数据上的“小于或等于”。它在整个集合上并不是一个序："
 
-#: manual/design/def.md:135
+#: manual/design/def.md:167
 msgid "Restricted to non-NaN data, $\\preceq$ is reflexive, transitive and total, hence a total *preorder*, and its quotient by \"equal\" is the total order of the extended reals. With NaN it is not even a preorder, so no `Int`-valued `Compare` instance can represent it lawfully: whichever integer is chosen for an unordered pair, a sort based on it would treat NaN as comparable. An enum with an explicit `Unordered` keeps the information and forces callers to handle it in a `match`. `Option[Int]` would carry the same information but give \"no answer\" the generic meaning of absence, and would lose the name."
 msgstr "限制在非 NaN 数据上时，$\\preceq$ 是自反、传递且完全的，因此是一个全*预序*，它按“等于”所得的商就是扩展实数的全序。加入 NaN 后它连预序都不是，因此任何以 `Int` 为值的 `Compare` 实例都无法合规地表示它：无论为无序对选择哪个整数，基于它的排序都会把 NaN 当作可比较的。带有显式 `Unordered` 的枚举保留了这一信息，并迫使调用方在 `match` 中处理它。`Option[Int]` 虽能携带同样的信息，却会赋予“无答案”以“缺失”这一泛泛含义，并且失去了名称。"
 
-#: manual/design/def.md:144
+#: manual/design/def.md:176
 msgid "The concrete packages additionally provide relations that *are* total, for tasks that need one: `BinFloat::total_order` implements the IEEE `totalOrder` predicate (clause 5.10), and `BinFloat::compare` (the `Compare` instance) is a total preorder that places every NaN above every number. These are different relations from `PartialOrder`, chosen per call site."
 msgstr "具体的包还额外提供了*确实*是完全的关系，供需要全序的任务使用：`BinFloat::total_order` 实现了 IEEE 的 `totalOrder` 谓词（第 5.10 条），而 `BinFloat::compare`（`Compare` 实例）是一个把所有 NaN 置于所有数之上的全预序。它们是与 `PartialOrder` 不同的关系，按调用处的需要选择。"
 
-#: manual/design/def.md:150
+#: manual/design/def.md:182
 msgid "Re-exporting the arithmetic types"
 msgstr "重新导出算术类型"
 
-#: manual/design/def.md:152
+#: manual/design/def.md:184
 msgid "`ArithmeticContext`, `ArithmeticError`, `RoundingMode`, `FpClass` and the certification types are owned by Luna-Flow/arithmetic, which defines the contextual and checked traits that `floating` implements. `def` re-exports them with `pub using` rather than defining look-alikes, so a value of `@def.RoundingMode` *is* a value of `@lf_arith.RoundingMode` and no conversion layer exists between the two repositories."
 msgstr "`ArithmeticContext`、`ArithmeticError`、`RoundingMode`、`FpClass` 以及认证相关类型归 Luna-Flow/arithmetic 所有，该库定义了 `floating` 所实现的 contextual 与 checked trait。`def` 用 `pub using` 重新导出它们，而不是定义外观相似的副本，因此 `@def.RoundingMode` 的值*就是* `@lf_arith.RoundingMode` 的值，两个仓库之间不存在转换层。"
 
-#: manual/design/def.md:161
+#: manual/design/def.md:193
 msgid "The `Floating` laws"
 msgstr "`Floating` 定律"
 
-#: manual/design/def.md:163
-msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and (F7′). A downstream implementation is expected to satisfy the laws of its kind."
-msgstr "下面的定律就是该 trait 的契约。它们针对值 $x$、精度 $p$ 和方向 $m$ 陈述；$q = \\max(1, p)$。三个标量实现满足 (F1)–(F5) 和 (F7)，其中 `BinFloat` 有下文 (F5) 所述的指数范围例外。`BallFloat` 满足 (F1)–(F4)、(F6) 和 (F7′)。下游实现应当满足其所属类别的定律。"
+#: manual/design/def.md:195
+msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and (F7′). The laws are the contract between the four implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
+msgstr "下面的定律就是该 trait 的契约。它们针对值 $x$、精度 $p$ 和方向 $m$ 陈述；$q = \\max(1, p)$。三个标量实现满足 (F1)–(F5) 和 (F7)，其中 `BinFloat` 有下文 (F5) 所述的指数范围例外。`BallFloat` 满足 (F1)–(F4)、(F6) 和 (F7′)。这些定律是四个实现与本库泛型代码之间的契约，并不是邀请在别处实现该 trait（见[为什么 `Floating` 被声明为开放](#why-floating-is-declared-open)）。"
 
-#: manual/design/def.md:183
+#: manual/design/def.md:216
 msgid "**The exponent range of `BinFloat`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types store the exponent as an `Int` and add no other limit, so for them (F5) holds as stated. `BinFloat` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is `binary_implementation_e_min`). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value whose leading bit lies below $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `BinFloat` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes $+\\infty$ instead of $2^{E+1}$."
 msgstr "**`BinFloat` 的指数范围。** (F5) 是在 $\\mathbb{F}_{\\beta,q}$ 上陈述的，其指数无界。十进制类型以 `Int` 存储指数，且不加其他限制，因此对它们而言 (F5) 按所述成立。`BinFloat` 即使在 `with_precision` 中也保持其实现范围：令 $E = 2^{30} - 1$（`binary_implementation_e_max`，而 $-E$ 是 `binary_implementation_e_min`）。若舍入结果的最高位位于 $2^{E}$ 之上则上溢：对 `ToNearestEven`、`AwayFromZero` 以及在该侧指向远离零方向的定向模式，上溢为无穷，否则为具有 $q$ 位的最大有限值。若某值的最高位低于 $2^{-E-(q-1)}$（以 $q$ 位存储的最小正值），则被舍入为 $0$ 或该值。因此对 `BinFloat`，只要 $\\circ_{m,q}([\\![x]\\!])$ 位于该范围内，(F5) 就成立。例如，$3 \\cdot 2^{E-1}$ 以一位和 `AwayFromZero` 重新表示时变为 $+\\infty$，而不是 $2^{E+1}$。"
 
-#: manual/design/def.md:198
+#: manual/design/def.md:231
 msgid "For non-finite scalars, `with_precision` keeps the class and the sign and only changes the stored precision, so (F4) still holds. (F2) for intervals is the three-case rule derived above; for scalars \"the side of $0$\" is `Zero` for $[\\![x]\\!] = 0$."
 msgstr "对于非有限标量，`with_precision` 保持类别和符号，只改变存储的精度，因此 (F4) 仍然成立。区间的 (F2) 就是上文推导的三情形规则；对标量而言，当 $[\\![x]\\!] = 0$ 时“$0$ 的哪一侧”为 `Zero`。"
 
-#: manual/design/def.md:203
+#: manual/design/def.md:236
 msgid ""
 "**Why (F6) holds for `BallFloat`.** A `BallFloat` stores its endpoints $\\ell \\le u$. `with_precision` rounds the lower endpoint toward $-\\infty$ and the upper one toward $+\\infty$ at $q$ bits, so $\\n"
 "abla_q(\\ell) \\le \\ell \\le t \\le u \\le \\Delta_q(u)$ for every member $t$, whatever $m$ is; the direction $m$ is not used. Infinite endpoints stay infinite, an endpoint that leaves the `BinFloat` range is rounded in its own direction as in IEEE 754, which still encloses, and the empty interval maps to the empty interval. $[\\n"
@@ -16014,27 +16038,27 @@ msgstr ""
 "abla_q(\\ell) \\le \\ell \\le t \\le u \\le \\Delta_q(u)$，与 $m$ 无关；方向 $m$ 不被使用。无穷端点保持无穷，超出 `BinFloat` 范围的端点按 IEEE 754 沿其自身方向舍入，仍然构成包络，空区间映射为空区间。$[\\n"
 "abla_q(\\ell), \\Delta_q(u)]$ 也是包含 $[\\ell, u]$ 的、端点为 $q$ 位数的最小区间，因此结果是最紧包络；并且由下文 (F5) 的推论，当 $\\ell$ 和 $u$ 已是 $q$ 位数时它是恒等的。"
 
-#: manual/design/def.md:214
+#: manual/design/def.md:247
 msgid "**Why (F7′) holds for `BallFloat`.** `normalized` normalizes the two stored endpoints, which changes their representation but not their values, and stores them at the interval's own precision $q$ by rounding the lower one down and the upper one up. Both are already in $\\mathbb{F}_{2,q}$, and rounding is the identity on its target set (see the consequences of (F5) below), so the result denotes the same set: with $q = 53$, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$. Rebuilding the interval from its centre and radius would not keep it: the centre $1 + 2^{-53}$ needs 54 bits, and rounding it to 1 and adding the error to the radius gives $[1 - 2^{-52}, 1 + 2^{-52}]$. The endpoint form also makes `normalized` idempotent on the set."
 msgstr "**为什么 (F7′) 对 `BallFloat` 成立。** `normalized` 规范化两个存储的端点，这只改变其表示而不改变其值，并以区间自身的精度 $q$ 存储它们，下端点向下舍入、上端点向上舍入。两者都已属于 $\\mathbb{F}_{2,q}$，而舍入在其目标集合上是恒等的（参见下文 (F5) 的推论），因此结果表示同一个集合：在 $q = 53$ 时，$[1, 1 + 2^{-52}]$ 仍为 $[1, 1 + 2^{-52}]$。若从中心和半径重建区间则无法保持：中心 $1 + 2^{-53}$ 需要 54 位，将其舍入为 1 并把误差加到半径上，得到 $[1 - 2^{-52}, 1 + 2^{-52}]$。端点形式也使 `normalized` 在集合意义上是幂等的。"
 
-#: manual/design/def.md:241
+#: manual/design/def.md:274
 msgid "Consequences of (F5)"
 msgstr "(F5) 的推论"
 
-#: manual/design/def.md:243
+#: manual/design/def.md:276
 msgid "Rounding is the identity on its target set: if $t \\in \\mathbb{F}_{\\beta,q}$ then $\\circ_{m,q}(t) = t$ for every direction, because $t$ is its own neighbour. Hence"
 msgstr "舍入在其目标集合上是恒等映射：若 $t \\in \\mathbb{F}_{\\beta,q}$，则对每个方向都有 $\\circ_{m,q}(t) = t$，因为 $t$ 就是它自己的相邻元素。因此"
 
-#: manual/design/def.md:251
+#: manual/design/def.md:284
 msgid "and in particular raising the precision never changes a value, since $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$ for $p \\le p'$."
 msgstr "特别地，提高精度从不改变值，因为当 $p \\le p'$ 时 $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$。"
 
-#: manual/design/def.md:254
+#: manual/design/def.md:287
 msgid "Lowering the precision in two steps is *not* the same as lowering it once in general. For the directed modes it is. Take $q \\le p$ and $m =$ `TowardZero`, write $\\circ_k$ for $\\circ_{m,k}$, and let $a = \\circ_q(t)$, the element of $\\mathbb{F}_{\\beta,q}$ with the sign of $t$ and the largest magnitude not exceeding $|t|$. Then"
 msgstr "一般而言，分两步降低精度与一次降低*并不*相同。对定向模式则相同。取 $q \\le p$ 和 $m =$ `TowardZero`，把 $\\circ_{m,k}$ 记作 $\\circ_k$，并令 $a = \\circ_q(t)$，即 $\\mathbb{F}_{\\beta,q}$ 中与 $t$ 同号且绝对值不超过 $|t|$ 的最大元素。则"
 
-#: manual/design/def.md:270
+#: manual/design/def.md:303
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
 "abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
@@ -16042,59 +16066,59 @@ msgstr ""
 "用“$\\le t$ 的最大元素”进行同样的论证适用于 $\\n"
 "abla$，用“$\\ge t$ 的最小元素”适用于 $\\Delta$，用“绝对值 $\\ge |t|$ 的最小元素”适用于 `AwayFromZero`：每个到 $\\mathbb{F}_{\\beta,q}$ 的定向舍入，都可以经由任何包含 $\\mathbb{F}_{\\beta,q}$ 的更细集合 $\\mathbb{F}_{\\beta,p}$ 分解。对 `ToNearestEven`，该恒等式不成立（双重舍入）。[^double-rounding] 取二进制下的 $t = 1.0100001_2 = 161/128$。当 $p = 3$ 时，相邻元素为 $1.25$ 和 $1.5$，$t$ 舍入为 $1.25$，而它恰好位于 $q = 2$ 时的相邻元素 $1$ 和 $1.5$ 的正中间；平局取偶数系数，即 $1$。而把 $t$ 直接舍入到两位得到 $1.5$，因为 $t > 1.25$："
 
-#: manual/design/def.md:305
+#: manual/design/def.md:338
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
 msgstr "Muller 等，*Handbook of Floating-Point Arithmetic*，第 2 版，2018，第 3.2 节（双重舍入）；Goldberg，\"What every computer scientist should know about floating-point arithmetic\"，1991。"
 
-#: manual/design/def.md:309
+#: manual/design/def.md:342
 msgid "The predicates"
 msgstr "谓词"
 
-#: manual/design/def.md:311
+#: manual/design/def.md:344
 msgid "The four predicates are projections of `classify` and `sign`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value, which keeps it total on empty intervals although `BallFloat::sign` aborts there."
 msgstr "四个谓词都是 `classify` 和 `sign` 的投影，因此其正确性归结为 (F1) 和 (F2)。`is_zero` 先求值 `classify`，并使用短路的 `&&`；因此它从不对 NaN 类的值调用 `sign`，从而在空区间上仍是全函数，尽管 `BallFloat::sign` 在那里会中止。"
 
-#: manual/design/def.md:319
+#: manual/design/def.md:352
 msgid "Every item of `def` is constant time apart from the delegated implementation. `with_precision` and `normalized` cost what the concrete package's rounding or trailing-zero removal costs: linear in the coefficient length for decimals, and linear in the coefficient bit length for binary."
 msgstr "除委托的实现外，`def` 的每个条目都是常数时间。`with_precision` 和 `normalized` 的代价等于具体包中舍入或去除尾随零的代价：对十进制与系数长度成线性，对二进制与系数的位长成线性。"
 
-#: manual/design/def.md:326
+#: manual/design/def.md:359
 msgid "**A `Real` super-trait with arithmetic.** It would claim laws (associativity, total order) that rounded and interval arithmetic do not satisfy, and would hide the difference between exact, rounded and enclosing operations."
 msgstr "**带算术的 `Real` 超 trait。** 它会声称舍入算术和区间算术并不满足的定律（结合律、全序），并会掩盖精确运算、舍入运算与包络运算之间的区别。"
 
-#: manual/design/def.md:329
+#: manual/design/def.md:362
 msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unordered*; see the derivation above."
 msgstr "**用 `Compare` 表示 IEEE 比较。** `Int` 结果无法表达*无序*；见上文的推导。"
 
-#: manual/design/def.md:331
+#: manual/design/def.md:364
 msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign` depend on the representation rather than the value, and the interval sign has no analogue."
 msgstr "**分别设立 `NegativeZero` / `PositiveZero` 符号。** 这会使 `sign` 依赖于表示而非值，而且区间符号没有对应物。"
 
-#: manual/design/def.md:334
+#: manual/design/def.md:367
 msgid "**Defining local copies of `RoundingMode` and `ArithmeticContext`.** They would need conversions at every boundary with Luna-Flow/arithmetic."
 msgstr "**在本地定义 `RoundingMode` 和 `ArithmeticContext` 的副本。** 这样在与 Luna-Flow/arithmetic 的每个边界上都需要转换。"
 
-#: manual/design/def.md:339
+#: manual/design/def.md:372
 msgid "No arithmetic, parsing, formatting or comparison is implemented here; `def` only names results (`Sign`, `PartialOrder`) and states contracts."
 msgstr "这里不实现任何算术、解析、格式化或比较；`def` 只为结果命名（`Sign`、`PartialOrder`）并陈述契约。"
 
-#: manual/design/def.md:341
+#: manual/design/def.md:374
 msgid "`Floating` does not imply a field, a total order, an IEEE format, exact arithmetic or any error behaviour. Generic code must request the additional capability traits it uses."
 msgstr "`Floating` 并不蕴含域、全序、IEEE 格式、精确算术或任何错误行为。泛型代码必须显式要求它所用到的额外能力 trait。"
 
-#: manual/design/def.md:344
+#: manual/design/def.md:377
 msgid "`with_precision` neither honours context exponent bounds nor reports flags (only the `BinFloat` implementation range applies); contexts and flags belong to the `*_ctx` APIs of the concrete packages and to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`with_precision` 既不遵守上下文的指数界，也不报告标志（只适用 `BinFloat` 的实现范围）；上下文和标志属于具体包的 `*_ctx` API 以及 Luna-Flow/arithmetic 的 contextual trait。"
 
-#: manual/design/def.md:348
+#: manual/design/def.md:381
 msgid "`normalized` keeps the representation-independent value: the number on scalars (F7) and the set on intervals (F7′)."
 msgstr "`normalized` 保持与表示无关的值：对标量是数值 (F7)，对区间是集合 (F7′)。"
 
-#: manual/design/def.md:350
+#: manual/design/def.md:383
 msgid "`Sign` does not expose the sign bit of zeros or NaNs."
 msgstr "`Sign` 不暴露零或 NaN 的符号位。"
 
-#: manual/design/def.md:351
+#: manual/design/def.md:384
 msgid "The laws are documented and tested by the implementations; the trait does not enforce them for downstream implementations."
 msgstr "这些定律由各实现记录并测试；对于下游实现，trait 本身并不强制执行它们。"
 
@@ -21229,7 +21253,7 @@ msgstr "报告多步计算中的第一个失败"
 #: manual/tutorial/decimal_checked.md:25
 #: manual/tutorial/decimal_gda.md:25
 #: manual/tutorial/decimal_gda_checked.md:22
-#: manual/tutorial/def.md:22
+#: manual/tutorial/def.md:21
 #: manual/tutorial/differential.md:17
 #: manual/tutorial/differential/harness.md:15
 #: manual/tutorial/doc_examples.md:13
@@ -21291,7 +21315,7 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/decimal_checked.md:56
 #: manual/tutorial/decimal_gda.md:61
 #: manual/tutorial/decimal_gda_checked.md:56
-#: manual/tutorial/def.md:49
+#: manual/tutorial/def.md:48
 #: manual/tutorial/differential.md:39
 #: manual/tutorial/differential/harness.md:34
 #: manual/tutorial/doc_examples.md:25
@@ -21396,7 +21420,7 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 #: manual/tutorial/decimal_checked.md:167
 #: manual/tutorial/decimal_gda.md:274
 #: manual/tutorial/decimal_gda_checked.md:164
-#: manual/tutorial/def.md:166
+#: manual/tutorial/def.md:165
 #: manual/tutorial/differential.md:173
 #: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/doc_examples.md:52
@@ -21469,7 +21493,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/decimal_checked.md:251
 #: manual/tutorial/decimal_gda.md:361
 #: manual/tutorial/decimal_gda_checked.md:234
-#: manual/tutorial/def.md:246
+#: manual/tutorial/def.md:197
 #: manual/tutorial/differential.md:184
 #: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/doc_examples.md:58
@@ -21542,7 +21566,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/decimal_checked.md:271
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:248
-#: manual/tutorial/def.md:270
+#: manual/tutorial/def.md:221
 #: manual/tutorial/differential.md:195
 #: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/doc_examples.md:63
@@ -24269,115 +24293,103 @@ msgstr "按打印形式比较十进制同值类"
 msgid "handle checked errors without importing `arithmetic`"
 msgstr "不导入 `arithmetic` 即可处理 checked 错误"
 
-#: manual/tutorial/def.md:20
-msgid "make my own type usable by generic code"
-msgstr "让自己的类型可用于泛型代码"
-
-#: manual/tutorial/def.md:24
+#: manual/tutorial/def.md:23
 msgid "Add the module and import `def` next to the representation you use:"
 msgstr "添加模块，并在你所用的表示之外再导入 `def`："
 
-#: manual/tutorial/def.md:37
+#: manual/tutorial/def.md:36
 msgid "The smallest useful program asks a value what it is:"
 msgstr "最小的实用程序询问一个值是什么："
 
-#: manual/tutorial/def.md:51
+#: manual/tutorial/def.md:50
 msgid "Write one function for every representation"
 msgstr "为所有表示编写同一个函数"
 
-#: manual/tutorial/def.md:53
+#: manual/tutorial/def.md:52
 msgid "A function bounded by `F : @def.Floating` accepts binary, IEEE decimal, GDA decimal and interval values. Call the trait methods in their qualified form, `@def.Floating::classify(x)`, because MoonBit no longer turns trait methods into dot methods of a type parameter."
 msgstr "以 `F : @def.Floating` 为约束的函数可以接受二进制、IEEE 十进制、GDA 十进制和区间值。请以限定形式 `@def.Floating::classify(x)` 调用 trait 方法，因为 MoonBit 不再把 trait 方法变成类型参数的点方法。"
 
-#: manual/tutorial/def.md:91
+#: manual/tutorial/def.md:90
 msgid "The interval case shows why the NaN test comes first: the empty interval classifies as `NaN`, and `BallFloat::sign` aborts on it."
 msgstr "区间的情形说明了为什么要先检验 NaN：空区间被分类为 `NaN`，而 `BallFloat::sign` 在其上会中止。"
 
-#: manual/tutorial/def.md:94
+#: manual/tutorial/def.md:93
 msgid "Change precision generically"
 msgstr "泛型地改变精度"
 
-#: manual/tutorial/def.md:96
+#: manual/tutorial/def.md:95
 msgid "`with_precision` rounds to the requested number of significant digits of the value's own radix, bits for binary and digits for decimal:"
 msgstr "`with_precision` 舍入到所要求的有效数字位数，位数以值自身的基数计：二进制为位，十进制为十进制数字："
 
-#: manual/tutorial/def.md:114
+#: manual/tutorial/def.md:113
 msgid "Eleven is `1011` in binary; three significant bits round it to `1100`, which `to_string` prints as $3 \\cdot 2^2$."
 msgstr "十一的二进制是 `1011`；三位有效位把它舍入为 `1100`，`to_string` 将其打印为 $3 \\cdot 2^2$。"
 
-#: manual/tutorial/def.md:117
+#: manual/tutorial/def.md:116
 msgid "Read an IEEE comparison"
 msgstr "读取 IEEE 比较结果"
 
-#: manual/tutorial/def.md:119
+#: manual/tutorial/def.md:118
 msgid "Comparisons that follow IEEE 754 return a `PartialOrder`, whose fourth value `Unordered` reports a NaN operand:"
 msgstr "遵循 IEEE 754 的比较返回一个 `PartialOrder`，其第四个值 `Unordered` 表示有 NaN 操作数："
 
-#: manual/tutorial/def.md:146
+#: manual/tutorial/def.md:145
 msgid "Normalize before comparing representations"
 msgstr "比较表示之前先规范化"
 
-#: manual/tutorial/def.md:148
+#: manual/tutorial/def.md:147
 msgid "Decimal values with the same value can differ in their stored exponent (`1.5` and `1.500` belong to one *cohort*). `normalized` picks the canonical member, so the printed forms agree:"
 msgstr "值相同的十进制数，其存储的指数可能不同（`1.5` 和 `1.500` 属于同一个*同值类*）。`normalized` 选取规范成员，从而使打印形式一致："
 
-#: manual/tutorial/def.md:168
+#: manual/tutorial/def.md:167
 msgid "Use the re-exported arithmetic types"
 msgstr "使用重新导出的算术类型"
 
-#: manual/tutorial/def.md:170
+#: manual/tutorial/def.md:169
 msgid "`@def.ArithmeticContext`, `@def.ArithmeticError`, `@def.RoundingMode` and the other aliases are the types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). Code that only needs the vocabulary can import `def` instead of `arithmetic`:"
 msgstr "`@def.ArithmeticContext`、`@def.ArithmeticError`、`@def.RoundingMode` 以及其他别名都是 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 的类型。只需要这套词汇的代码可以导入 `def` 而不是 `arithmetic`："
 
-#: manual/tutorial/def.md:198
-msgid "Implement `Floating` for your own type"
-msgstr "为自己的类型实现 `Floating`"
-
-#: manual/tutorial/def.md:200
-msgid "The trait is open. A wrapper type can delegate to an existing implementation; it must then keep the laws listed in the design page (for example, `normalized` must not change the value):"
-msgstr "该 trait 是开放的。包装类型可以委托给已有的实现；但它必须遵守设计页面列出的定律（例如，`normalized` 不得改变值）："
-
-#: manual/tutorial/def.md:248
+#: manual/tutorial/def.md:199
 msgid "`Sign::Zero` does not mean \"the value is zero\". It is also returned for NaN by the scalar types and for any interval that contains zero. Test `@def.is_nan` first, and for intervals use `BallFloat::contains_zero` or the bounds."
 msgstr "`Sign::Zero` 并不意味着“值为零”。标量类型对 NaN 也返回它，任何包含零的区间也返回它。请先检验 `@def.is_nan`；对区间请使用 `BallFloat::contains_zero` 或其界。"
 
-#: manual/tutorial/def.md:252
+#: manual/tutorial/def.md:203
 msgid "`@def.is_zero` on a `BallFloat` is true for $[-1, 1]$: the predicate is defined through `sign`, which for an interval means \"contains zero\"."
 msgstr "对 `BallFloat` 而言，`@def.is_zero` 在 $[-1, 1]$ 上为真：该谓词通过 `sign` 定义，而它对区间的含义是“包含零”。"
 
-#: manual/tutorial/def.md:254
+#: manual/tutorial/def.md:205
 msgid "`Sign` cannot tell $-0$ from $+0$. Use the concrete package (`BinFloat::is_negative_zero`, `Decimal::is_signed`) when the sign bit matters."
 msgstr "`Sign` 无法区分 $-0$ 和 $+0$。当符号位重要时，请使用具体的包（`BinFloat::is_negative_zero`、`Decimal::is_signed`）。"
 
-#: manual/tutorial/def.md:257
+#: manual/tutorial/def.md:208
 msgid "`PartialOrder` is not an ordering you can sort with: `Unordered` breaks trichotomy. Use the total orders of the concrete packages (`BinFloat::total_order_compare`, `Decimal::compare_total`) for sorting."
 msgstr "`PartialOrder` 不是可以用来排序的序：`Unordered` 破坏了三分律。排序请使用具体包提供的全序（`BinFloat::total_order_compare`、`Decimal::compare_total`）。"
 
-#: manual/tutorial/def.md:260
+#: manual/tutorial/def.md:211
 msgid "`with_precision` reports no flags and ignores context exponent limits (a `BinFloat` still overflows at its implementation range of about $2^{\\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations of the concrete package."
 msgstr "`with_precision` 不报告标志，也忽略上下文的指数界限（`BinFloat` 仍会在其约为 $2^{\\pm 2^{30}}$ 的实现范围处上溢）。当舍入必须可观测时，请使用具体包的 `*_ctx` 运算。"
 
-#: manual/tutorial/def.md:264
+#: manual/tutorial/def.md:215
 msgid "On a `BallFloat`, `with_precision` returns the tightest enclosure of the input at the new precision (the endpoints rounded outward), and `normalized` returns the same set. Neither changes an interval that is already representable at the target precision."
 msgstr "对 `BallFloat`，`with_precision` 返回输入在新精度下的最紧包络（端点向外舍入），`normalized` 返回同一个集合。两者都不会改变在目标精度下已可表示的区间。"
 
-#: manual/tutorial/def.md:268
+#: manual/tutorial/def.md:219
 msgid "`with_precision(x, 0, mode)` is not an error: the precision is clamped to 1."
 msgstr "`with_precision(x, 0, mode)` 不是错误：精度会被钳制为 1。"
 
-#: manual/tutorial/def.md:272
+#: manual/tutorial/def.md:223
 msgid "[`def` design](../design/def.md): the trait laws and the order theory of `PartialOrder`."
 msgstr "[`def` 设计](../design/def.md)：trait 定律以及 `PartialOrder` 的序理论。"
 
-#: manual/tutorial/def.md:274
+#: manual/tutorial/def.md:225
 msgid "[`def` API](../api/def.md): every item with its signature."
 msgstr "[`def` API](../api/def.md)：每个条目及其签名。"
 
-#: manual/tutorial/def.md:275
+#: manual/tutorial/def.md:226
 msgid "[`semantic` tutorial](semantic.md): compare values of different representations exactly."
 msgstr "[`semantic` 教程](semantic.md)：精确比较不同表示的值。"
 
-#: manual/tutorial/def.md:277
+#: manual/tutorial/def.md:228
 msgid "[Numeric semantics guide](../numeric_semantics.md) for the shared vocabulary of the repository."
 msgstr "本仓库的共享词汇见[数值语义指南](../numeric_semantics.md)。"
 
@@ -27121,6 +27133,15 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "make my own type usable by generic code"
+#~ msgstr "让自己的类型可用于泛型代码"
+
+#~ msgid "Implement `Floating` for your own type"
+#~ msgstr "为自己的类型实现 `Floating`"
+
+#~ msgid "The trait is open. A wrapper type can delegate to an existing implementation; it must then keep the laws listed in the design page (for example, `normalized` must not change the value):"
+#~ msgstr "该 trait 是开放的。包装类型可以委托给已有的实现；但它必须遵守设计页面列出的定律（例如，`normalized` 不得改变值）："
 
 #~ msgid "The fused composition $\\ln(e^x)$, which equals $x$."
 #~ msgstr "融合复合 $\\ln(e^x)$，其值等于 $x$。"

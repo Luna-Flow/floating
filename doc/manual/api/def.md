@@ -3,7 +3,7 @@
 ## Purpose
 
 `def` is the shared vocabulary of the `floating` packages. It defines the sign
-classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the open
+classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the
 `Floating` trait that every scalar or interval representation of this
 repository implements, four generic predicates built on that trait, and
 re-exports the context, rounding, classification and error types of
@@ -151,9 +151,14 @@ pub(open) trait Floating {
 }
 ```
 
-The trait is `pub(open)`, so downstream types may implement it. In this
-repository it is implemented by `@bin_float.BinFloat`, `@decimal.Decimal`,
-`@decimal_gda.Decimal` and `@ball_float.BallFloat`. Since the MoonBit 0.10
+`Floating` is implemented by the types of this library only:
+`@bin_float.BinFloat`, `@decimal.Decimal`, `@decimal_gda.Decimal` and
+`@ball_float.BallFloat`. It is not an extension point: implementing it for a
+type outside this module is not supported and is not covered by the
+compatibility promise, because methods may be added to the trait in a minor
+release. It is declared `pub(open)` only because the implementations are in
+other packages of this module (the [design
+page](../design/def.md#why-floating-is-declared-open) gives the reason). Since the MoonBit 0.10
 migration trait methods are not promoted automatically, so generic code calls
 them in the qualified form `@def.Floating::classify(x)`; the concrete types also
 provide inherent methods with the same names (`x.classify()`). The laws every

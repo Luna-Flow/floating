@@ -17,7 +17,6 @@ behind the trait are in the [design page](../design/def.md).
 | read the result of an IEEE comparison | [`PartialOrder`](#read-an-ieee-comparison) |
 | compare decimal cohorts by their printed form | [`Floating::normalized`](#normalize-before-comparing-representations) |
 | handle checked errors without importing `arithmetic` | [`ArithmeticError`](#use-the-re-exported-arithmetic-types) |
-| make my own type usable by generic code | [`impl @def.Floating`](#implement-floating-for-your-own-type) |
 
 ## Quick start
 
@@ -192,54 +191,6 @@ test "handle a checked result through def" {
     Ok(_) => fail("expected an error")
     Err(e) => inspect(describe_error(e), content="division by zero: division by zero")
   }
-}
-```
-
-### Implement `Floating` for your own type
-
-The trait is open. A wrapper type can delegate to an existing implementation;
-it must then keep the laws listed in the design page (for example, `normalized`
-must not change the value):
-
-```moonbit
-///|
-struct Measured {
-  value : @bin_float.BinFloat
-  unit : String
-}
-
-///|
-impl @def.Floating for Measured with classify(self) {
-  @def.Floating::classify(self.value)
-}
-
-///|
-impl @def.Floating for Measured with sign(self) {
-  @def.Floating::sign(self.value)
-}
-
-///|
-impl @def.Floating for Measured with precision(self) {
-  @def.Floating::precision(self.value)
-}
-
-///|
-impl @def.Floating for Measured with with_precision(self, precision, mode) {
-  { ..self, value: @def.Floating::with_precision(self.value, precision, mode) }
-}
-
-///|
-impl @def.Floating for Measured with normalized(self) {
-  { ..self, value: @def.Floating::normalized(self.value) }
-}
-
-///|
-test "a user type joins the generic code" {
-  let m = { value: @bin_float.BinFloat::from_int(-4), unit: "m" }
-  inspect(summary(m), content="finite negative at precision 53")
-  inspect(@def.is_zero(m), content="false")
-  let coarse = @def.Floating::with_precision(m, 1, @lf_arith.RoundingMode::TowardZero)
-  inspect(coarse.unit, content="m")
 }
 ```
 

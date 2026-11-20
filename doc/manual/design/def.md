@@ -67,7 +67,7 @@ are the same NaN. `PartialOrder` is this four-valued relation as a datatype.
 
 ## Design decisions
 
-### A small open trait instead of a numeric tower
+### A small trait instead of a numeric tower
 
 **Problem.** Generic code must be able to ask any representation a few
 questions, but the representations do not share arithmetic laws: binary and
@@ -86,6 +86,38 @@ law. A single broad trait would force one law on all four domains; for example
 an interval cannot implement a scalar `compare` without lying about overlapping
 operands. This follows the Luna-Flow principle that code depends on the
 smallest trait composition stating its requirements.
+
+### Why `Floating` is declared open
+
+**Problem.** `Floating` is meant to be implemented by the types of this
+library only, so that a method can be added to it in a minor release without
+breaking a downstream type. MoonBit has a visibility that would enforce this,
+`pub trait` (readonly), but it is per package.
+
+**Evidence.** Declaring `pub trait Floating` in `def` makes every
+implementation outside `def` fail to compile:
+
+```text
+Error: [4145]
+ 1047 │ pub impl @def.Floating for BinFloat with fn classify(self) {
+      │          ──────┬──────
+      │                ╰──────── Cannot implement trait '@Luna-Flow/floating/def.Floating' because it is readonly.
+```
+
+The four implementations are in `bin_float`, `decimal`, `decimal_gda` and
+`ball_float`, which are other packages of the module, and `def` cannot import
+them (they import `def`).
+
+**Options.** (a) Keep `pub(open)` and state the contract in the documentation.
+(b) Seal the trait with a token type that only this module can build. (c) Move
+the implementations into `def`, which is a dependency cycle.
+
+**Choice: (a).** (b) puts an internal type into a public trait signature for
+a promise that documentation can state as well, and (c) is impossible. The
+contract is: implementing `Floating` outside this module is not supported and
+not covered by the compatibility promise; the tutorial therefore shows no
+such implementation, and the generic predicates `is_finite`, `is_infinite`,
+`is_nan` and `is_zero` are unchanged.
 
 ### `Sign` merges the two zeros
 
@@ -164,8 +196,9 @@ The laws below are the contract of the trait. They are stated for a value $x$,
 a precision $p$ and a direction $m$; $q = \max(1, p)$. The three scalar
 implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception
 of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and
-(F7′). A downstream implementation is expected to satisfy the laws of its
-kind.
+(F7′). The laws are the contract between the four implementations and the generic
+code of this library; they are not an invitation to implement the trait
+elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open)).
 
 $$
 \begin{aligned}
