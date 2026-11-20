@@ -7,7 +7,7 @@ const BINARY_HEX_EXPONENT_LIMIT : Int64 = 1_000_000_000_000L
 /// A parsed hexSequence (§5.12.3) or special sequence (§5.12.1): the value is
 /// `magnitude * 2^exponent2`, exactly, with the sign `negative`.
 priv enum BinaryHexLiteral {
-  Finite(negative~ : Bool, magnitude~ : BinCoeff, exponent2~ : Int64)
+  Finite(negative~ : Bool, magnitude~ : Coeff, exponent2~ : Int64)
   Infinite(negative~ : Bool)
   QuietNaN(negative~ : Bool)
   SignalingNaN(negative~ : Bool)
@@ -104,7 +104,7 @@ fn binary_parse_hex(
   }
   let scaled = (if exponent_negative { -exponent } else { exponent }) -
     4L * fraction_digits.to_int64()
-  guard BinCoeff::parse(digits.to_string(), radix=16) is Ok(magnitude) else {
+  guard Coeff::parse(digits.to_string(), radix=16) is Ok(magnitude) else {
     return Err(@def.ArithmeticError::parse_error("invalid binary hex digit"))
   }
   Ok(Finite(negative~, magnitude~, exponent2=scaled))
@@ -156,7 +156,14 @@ pub fn BinFloat::from_hex(
             @def.ArithmeticError::parse_error("binary exponent out of range"),
           )
         }
-        Ok(BinFloat::make(magnitude, exponent2.to_int(), precision, negative~))
+        Ok(
+          BinFloat::make_coeff(
+            magnitude,
+            exponent2.to_int(),
+            precision,
+            negative~,
+          ),
+        )
       }
     }
   })

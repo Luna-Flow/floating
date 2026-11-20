@@ -52,10 +52,8 @@ fn binary_ln_unit_burst_bounds(
     return None
   }
   let two = BinFloat::from_int(2, precision=2)
-  let near_one = BinFloat::make(
-    BinCoeff::one()
-    .shift_left(binary_ln_burst_near_one_bits)
-    .add(BinCoeff::one()),
+  let near_one = BinFloat::make_coeff(
+    Coeff::one().shift_left(binary_ln_burst_near_one_bits).add(Coeff::one()),
     -binary_ln_burst_near_one_bits,
     binary_ln_burst_near_one_bits + 2,
   )
@@ -66,7 +64,7 @@ fn binary_ln_unit_burst_bounds(
   // bits more so that the result keeps `work_precision` significant bits.
   let difference = value.sub_ctx(
       BinFloat::one(precision=2),
-      BinaryContext::unbounded(value.coefficient().bit_length() + 8),
+      BinaryContext::unbounded(value.coefficient_.bit_length() + 8),
     ).0
   let lead = binary_top_bound(difference).to_int()
   let inner = work_precision + Int32::max(0, 2 - lead)
@@ -89,8 +87,8 @@ fn binary_ln_unit_burst_bounds(
   )
   let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
   let one = BinFloat::one(precision~)
-  let half = BinFloat::make(BinCoeff::one(), -1, 1)
-  let three_halves = BinFloat::make(BinCoeff::from_uint64(3UL), -1, 2)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, 1)
+  let three_halves = BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, 2)
   let quotient_low = value.div_ctx(exp_high, downward).0
   let quotient_high = value.div_ctx(exp_low, upward).0
   guard quotient_low.compare(half) >= 0 &&
@@ -106,8 +104,8 @@ fn binary_ln_unit_burst_bounds(
   }
   if mutation.lower_bias != 0 {
     low = low.add_ctx(
-        BinFloat::make(
-          BinCoeff::from_uint64(mutation.lower_bias.to_uint64()),
+        BinFloat::make_coeff(
+          Coeff::from_uint64(mutation.lower_bias.to_uint64()),
           -inner,
           64,
         ),
@@ -117,7 +115,7 @@ fn binary_ln_unit_burst_bounds(
   let high = start.add_ctx(offset_high, upward).0
   // Width check: at most 8 units of `2^-inner`.
   let width = high.sub_ctx(low, upward).0
-  let limit = BinFloat::make(BinCoeff::one(), -(inner - 3), 1)
+  let limit = BinFloat::make_coeff(Coeff::one(), -(inner - 3), 1)
   guard width.compare(limit) <= 0 else { return None }
   Some(
     (

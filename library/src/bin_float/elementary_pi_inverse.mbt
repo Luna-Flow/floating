@@ -73,7 +73,7 @@ fn binary_pi_constant(
 ) -> (BinFloat, BinaryFlags) {
   binary_round_dyadic(
     negative,
-    BinCoeff::from_uint64(numerator),
+    Coeff::from_uint64(numerator),
     exponent,
     context,
   )
@@ -98,13 +98,13 @@ fn binary_pi_signed_zero(
 /// The leading-bit exponent of a finite nonzero value, as an `Int64`.
 fn binary_pi_top(value : BinFloat) -> Int64 {
   value.exponent2().to_int64() +
-  (value.coefficient().bit_length() - 1).to_int64()
+  (value.coefficient_.bit_length() - 1).to_int64()
 }
 
 ///|
 /// The anchor ±1/2 of a result `±(1/2 ∓ δ)`.
 fn binary_pi_half(negative : Bool) -> BinFloat {
-  let half = BinFloat::make(BinCoeff::one(), -1, 2)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, 2)
   if negative {
     half.neg()
   } else {
@@ -205,7 +205,7 @@ pub fn BinFloat::try_acospi_ctx(
     match (binary_asin_bounds(self, w), binary_pi_bounds(w)) {
       (Some(angle), Some(pi)) => {
         let sine = binary_pi_scaled_enclosure(angle, pi, w)
-        let half = BinFloat::make(BinCoeff::one(), -1, w)
+        let half = BinFloat::make_coeff(Coeff::one(), -1, w)
         Some(
           (
             half.sub_ctx(

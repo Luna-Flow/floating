@@ -79,13 +79,13 @@ fn binary_compound_tiny_result(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let p = context.precision
-  let base = BinCoeff::one().shift_left(p + 3)
+  let base = Coeff::one().shift_left(p + 3)
   binary_round_dyadic(
     false,
     if positive_delta {
-      base.add(BinCoeff::one())
+      base.add(Coeff::one())
     } else {
-      base.sub_checked(BinCoeff::one()).unwrap()
+      base.sub_checked(Coeff::one()).unwrap()
     },
     -(p + 3),
     context,

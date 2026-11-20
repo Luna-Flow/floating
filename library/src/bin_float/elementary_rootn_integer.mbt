@@ -46,7 +46,7 @@ fn binary_floor_div_int32(value : Int32, divisor : Int32) -> Int32 {
 
 ///|
 /// `floor(y^(1/n))` and whether `y` is exactly its `n`-th power.
-fn binary_rootn_integer_root(y : BinCoeff, n : Int32) -> (BinCoeff, Bool) {
+fn binary_rootn_integer_root(y : Coeff, n : Int32) -> (Coeff, Bool) {
   if n == 2 {
     let (root, remainder) = bin_coeff_sqrt_rem_kernel(y)
     return (root, remainder.is_zero())
@@ -67,19 +67,19 @@ fn binary_rootn_integer_root(y : BinCoeff, n : Int32) -> (BinCoeff, Bool) {
 /// exact only when `y` was exact (no dropped bits, no remainder) and `y` is a
 /// perfect `n`-th power.
 fn binary_rootn_integer_split(
-  coefficient : BinCoeff,
+  coefficient : Coeff,
   exponent2 : Int32,
   n : Int32,
   reciprocal : Bool,
   grid : Int64,
-) -> (BinCoeff, Bool) {
+) -> (Coeff, Bool) {
   let exponent = exponent2.to_int64()
   if !reciprocal {
     let shift = exponent - n.to_int64() * grid
     let (y, y_exact) = if shift >= 0L {
       (coefficient.shift_left(shift.to_int()), true)
     } else if -shift >= coefficient.bit_length().to_int64() {
-      (BinCoeff::zero(), false)
+      (Coeff::zero(), false)
     } else {
       let dropped = (-shift).to_int()
       let y = coefficient.shift_right(dropped)
@@ -91,9 +91,9 @@ fn binary_rootn_integer_split(
   let power = -n.to_int64() * grid - exponent
   if power < 0L {
     // 2^power / x < 1: the root is 0, the value is positive.
-    return (BinCoeff::zero(), false)
+    return (Coeff::zero(), false)
   }
-  let (y, remainder) = BinCoeff::one()
+  let (y, remainder) = Coeff::one()
     .shift_left(power.to_int())
     .div_rem_checked(coefficient)
     .unwrap()
@@ -133,7 +133,7 @@ fn binary_rootn_integer(
   let floor_top = binary_floor_div_int32(top, n)
   let exact_top = if !reciprocal {
     floor_top
-  } else if coefficient.compare(BinCoeff::one()) == 0 {
+  } else if coefficient.compare(Coeff::one()) == 0 {
     -(-binary_floor_div_int32(-top, n))
   } else {
     -floor_top - 1

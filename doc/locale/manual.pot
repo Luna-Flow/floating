@@ -45,6 +45,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:3
 #: manual/api/frontend/testfloat_expr.md:3
 #: manual/api/internal.md:3
+#: manual/api/internal/bin_kernel.md:3
 #: manual/api/internal/conformance.md:3
 #: manual/api/internal/decimal_kernel.md:3
 #: manual/api/internal/runner_cli.md:3
@@ -116,6 +117,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
+#: manual/api/internal/bin_kernel.md:20
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -1105,6 +1107,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:552
+#: manual/api/internal/bin_kernel.md:77
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1121,6 +1124,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:554
+#: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -7314,6 +7318,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr ""
 
 #: manual/api/internal.md:58
+#: manual/api/internal/bin_kernel.md:22
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -7548,6 +7553,90 @@ msgstr ""
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr ""
 
+#: manual/api/internal/bin_kernel.md:1
+msgid "internal/bin_kernel API"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:5
+msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` and forwards each of its methods, so `Coeff` never appears in a public interface. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:30
+#: manual/api/internal/decimal_kernel.md:28
+msgid "and bring the names a package uses into scope once, for example in a file of its own:"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:38
+#: manual/api/internal/decimal_kernel.md:40
+msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/decimal_kernel.md:43
+msgid "The coefficient type"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:45
+msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:51
+msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `bin_float` pattern-match on them; build values with the functions below."
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:58
+#: manual/api/internal/decimal_kernel.md:67
+msgid "Function families"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/decimal_kernel.md:73
+msgid "Family"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/decimal_kernel.md:73
+msgid "Functions"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:62
+#: manual/api/internal/decimal_kernel.md:75
+msgid "build and convert"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/decimal_kernel.md:76
+msgid "shape"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:64
+msgid "compare"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:65
+msgid "add, subtract, shift"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:66
+msgid "bit operations"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:67
+msgid "multiply and divide"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:68
+msgid "number theory and roots"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:69
+msgid "machine words"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:71
+msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
+msgstr ""
+
 #: manual/api/internal/conformance.md:1
 msgid "internal/conformance API"
 msgstr ""
@@ -7717,18 +7806,6 @@ msgstr ""
 msgid "`internal/decimal_kernel` holds the integer arithmetic on decimal coefficients that `decimal` (IEEE 754) and `decimal_gda` (General Decimal Arithmetic) both need: a persistent coefficient type, addition, subtraction, comparison, shifts by powers of ten, digit counts, trailing-zero trimming, division by a limb, and the multiplication and division algorithms with their per-target thresholds. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to the standard-specific finalizers of the two decimal packages. It is an internal package: code outside `Luna-Flow/floating` cannot import it, and neither decimal package exposes its types. See the [tutorial](../../tutorial/internal/decimal_kernel.md) and the [design page](../../design/internal/decimal_kernel.md)."
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:28
-msgid "and bring the names a package uses into scope once, for example in a file of its own:"
-msgstr ""
-
-#: manual/api/internal/decimal_kernel.md:40
-msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
-msgstr ""
-
-#: manual/api/internal/decimal_kernel.md:43
-msgid "The coefficient type"
-msgstr ""
-
 #: manual/api/internal/decimal_kernel.md:47
 msgid "A non-negative integer, either `Small(UInt64)` for values below $10^{18}$ or `Limbs(units, digits)`: little-endian base-$10^9$ limbs without a leading zero limb, with the digit count cached. The value is persistent; no function mutates the limbs of an operand. The constructors are public because the two decimal packages pattern-match on them in a few fast paths; prefer the functions below."
 msgstr ""
@@ -7741,28 +7818,8 @@ msgstr ""
 msgid "A sign and a `DecCoeff` magnitude, for algorithms whose intermediate values can be negative (Toom-3, the Newton reciprocal). Zero is never negative. The type is `pub`: its fields can be read, but a value is built only by this package."
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:67
-msgid "Function families"
-msgstr ""
-
 #: manual/api/internal/decimal_kernel.md:69
 msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
-msgstr ""
-
-#: manual/api/internal/decimal_kernel.md:73
-msgid "Family"
-msgstr ""
-
-#: manual/api/internal/decimal_kernel.md:73
-msgid "Functions"
-msgstr ""
-
-#: manual/api/internal/decimal_kernel.md:75
-msgid "build and convert"
-msgstr ""
-
-#: manual/api/internal/decimal_kernel.md:76
-msgid "shape"
 msgstr ""
 
 #: manual/api/internal/decimal_kernel.md:77
@@ -8571,6 +8628,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr ""
 
 #: manual/architecture.md:274
+#: manual/design/internal/bin_kernel.md:51
 msgid "Invariants"
 msgstr ""
 
@@ -8673,7 +8731,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr ""
@@ -10383,6 +10441,7 @@ msgstr ""
 #: manual/design/frontend/mpfr_expr.md:3
 #: manual/design/frontend/testfloat_expr.md:3
 #: manual/design/internal.md:3
+#: manual/design/internal/bin_kernel.md:3
 #: manual/design/internal/conformance.md:3
 #: manual/design/internal/decimal_kernel.md:3
 #: manual/design/internal/runner_cli.md:3
@@ -10441,6 +10500,7 @@ msgstr ""
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:25
+#: manual/design/internal/bin_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
 #: manual/design/internal/runner_cli.md:13
@@ -12889,7 +12949,7 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr ""
 
 #: manual/design/bin_float.md:1906
-msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
 msgstr ""
 
 #: manual/design/bin_float.md:1911
@@ -17086,6 +17146,141 @@ msgstr ""
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr ""
 
+#: manual/design/internal/bin_kernel.md:1
+msgid "internal/bin_kernel design"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:5
+msgid "`BinFloat` is a rounding layer on top of one arithmetic: non-negative integers of up to $2^{28}$ bits. The integer part should be one package with one contract, so that an algorithm can be measured, replaced and tested without the floating-point layer, and so that the rounding layer cannot reach into it. The package therefore contains only functions from integers to integers."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:13
+msgid ""
+"A coefficient $c \\ge 0$ is stored as $c = \\sum_{i<n} w_i 2^{64 i}$ with $0 \\le w_i < 2^{64}$ and $w_{n-1} \\n"
+"e 0$; values below $2^{128}$ are kept in one or two machine words without an array. Every operation computes an exact result:"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:18
+#: manual/design/internal/decimal_kernel.md:22
+msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:20
+#: manual/design/internal/decimal_kernel.md:24
+msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:21
+msgid "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ and $\\lfloor a / 2^{k} \\rfloor$;"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:22
+msgid "the integer square root $s = \\lfloor \\sqrt{a} \\rfloor$ with remainder $a - s^2$, the GCD, and the digits of $a$ in any radix."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:25
+msgid "The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT, Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD and the in-place radix conversion), their cutoffs and the argument that they all compute the same integers are in the section [The coefficient kernel](../bin_float.md#the-coefficient-kernel) of the `bin_float` design page. Because every path computes the same integers, the choice of algorithm cannot change a rounded result, a flag or an encoding."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:33
+msgid "Package boundary"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Decision"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Choice"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:35
+msgid "Reason"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "Where the type lives"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "`Coeff` is defined here; `BinCoeff` in `bin_float` is a newtype `struct BinCoeff(@bin_kernel.Coeff)`"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:37
+msgid "A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "Why not a record wrapper"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:39
+#: manual/performance/bin_float.md:10
+msgid "Representation"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:40
+#: manual/verification.md:202
+#: manual/verification.md:245
+msgid "JavaScript"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:40
+msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:40
+msgid "The host's arbitrary-precision integers are the kernel there."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "Machine words"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "`binary_fast_*` live here"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:41
+msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:43
+msgid "Thresholds"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:45
+msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:53
+msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:55
+msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:57
+msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
+msgstr ""
+
 #: manual/design/internal/conformance.md:1
 msgid "internal/conformance design"
 msgstr ""
@@ -17214,14 +17409,6 @@ msgstr ""
 
 #: manual/design/internal/decimal_kernel.md:20
 msgid "Every operation computes an exact result:"
-msgstr ""
-
-#: manual/design/internal/decimal_kernel.md:22
-msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
-msgstr ""
-
-#: manual/design/internal/decimal_kernel.md:24
-msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
 msgstr ""
 
 #: manual/design/internal/decimal_kernel.md:25
@@ -18065,7 +18252,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Part"
 msgstr ""
 
@@ -18074,7 +18261,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Tutorial"
 msgstr ""
 
@@ -18083,7 +18270,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:121
 msgid "Design"
 msgstr ""
 
@@ -18520,358 +18707,374 @@ msgid "[design](design/internal/decimal_kernel.md)"
 msgstr ""
 
 #: manual/index.md:116
+msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float`"
+msgstr ""
+
+#: manual/index.md:116
+msgid "[tutorial](tutorial/internal/bin_kernel.md)"
+msgstr ""
+
+#: manual/index.md:116
+msgid "[API](api/internal/bin_kernel.md)"
+msgstr ""
+
+#: manual/index.md:116
+msgid "[design](design/internal/bin_kernel.md)"
+msgstr ""
+
+#: manual/index.md:117
 msgid "`consistency`: white-box cross-package laws and API audits"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[tutorial](tutorial/consistency.md)"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[API](api/consistency.md)"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:117
 msgid "[design](design/consistency.md)"
 msgstr ""
 
-#: manual/index.md:118
+#: manual/index.md:119
 msgid "Tools module: infrastructure and evidence"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[API](api/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:123
 msgid "[design](design/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[API](api/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:124
 msgid "[design](design/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "`doc_examples`: executable documentation examples run by `just docs`"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[tutorial](tutorial/doc_examples.md)"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[API](api/doc_examples.md)"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:125
 msgid "[design](design/doc_examples.md)"
 msgstr ""
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "`bench`: shared Maremark benchmark infrastructure"
 msgstr ""
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[tutorial](tutorial/bench.md)"
 msgstr ""
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[API](api/bench.md)"
 msgstr ""
 
-#: manual/index.md:125
+#: manual/index.md:126
 msgid "[design](design/bench.md)"
 msgstr ""
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
 msgstr ""
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[tutorial](tutorial/bench/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[API](api/bench/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:126
+#: manual/index.md:127
 msgid "[design](design/bench/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "`bench/decimal`: IEEE decimal benchmarks"
 msgstr ""
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[tutorial](tutorial/bench/decimal.md)"
 msgstr ""
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[API](api/bench/decimal.md)"
 msgstr ""
 
-#: manual/index.md:127
+#: manual/index.md:128
 msgid "[design](design/bench/decimal.md)"
 msgstr ""
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "`bench/decimal_gda`: GDA decimal benchmarks"
 msgstr ""
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[tutorial](tutorial/bench/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[API](api/bench/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:128
+#: manual/index.md:129
 msgid "[design](design/bench/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "`bench/ball_float`: interval arithmetic benchmarks"
 msgstr ""
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[tutorial](tutorial/bench/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[API](api/bench/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:129
+#: manual/index.md:130
 msgid "[design](design/bench/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
 msgstr ""
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[tutorial](tutorial/bench/external.md)"
 msgstr ""
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[API](api/bench/external.md)"
 msgstr ""
 
-#: manual/index.md:130
+#: manual/index.md:131
 msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
 msgstr ""
 
-#: manual/index.md:132
+#: manual/index.md:133
 msgid "Guides"
 msgstr ""
 
-#: manual/index.md:134
+#: manual/index.md:135
 msgid "Guide"
 msgstr ""
 
-#: manual/index.md:134
+#: manual/index.md:135
 msgid "Read it for"
 msgstr ""
 
-#: manual/index.md:136
+#: manual/index.md:137
 msgid "[Getting started](getting_started.md)"
 msgstr ""
 
-#: manual/index.md:136
+#: manual/index.md:137
 msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr ""
 
-#: manual/index.md:137
+#: manual/index.md:138
 msgid "[Numeric semantics](numeric_semantics.md)"
 msgstr ""
 
-#: manual/index.md:137
+#: manual/index.md:138
 msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
 msgstr ""
 
-#: manual/index.md:138
+#: manual/index.md:139
 msgid "[Architecture](architecture.md)"
 msgstr ""
 
-#: manual/index.md:138
+#: manual/index.md:139
 msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr ""
 
-#: manual/index.md:139
+#: manual/index.md:140
 msgid "[Verification](verification.md)"
 msgstr ""
 
-#: manual/index.md:139
+#: manual/index.md:140
 msgid "the gates, the published conformance claims and how to reproduce them"
 msgstr ""
 
-#: manual/index.md:140
+#: manual/index.md:141
 msgid "[Performance audit](performance_audit.md)"
 msgstr ""
 
-#: manual/index.md:140
+#: manual/index.md:141
 msgid "proofs and evidence for the optimized arithmetic paths"
 msgstr ""
 
-#: manual/index.md:141
+#: manual/index.md:142
 msgid "[External baseline](performance/bench/external.md)"
 msgstr ""
 
-#: manual/index.md:141
+#: manual/index.md:142
 msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
 msgstr ""
 
-#: manual/index.md:142
+#: manual/index.md:143
 msgid "[Repository conventions](conventions.md)"
 msgstr ""
 
-#: manual/index.md:142
+#: manual/index.md:143
 msgid "documentation rules and the review checklist"
 msgstr ""
 
-#: manual/index.md:144
+#: manual/index.md:145
 msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr ""
 
-#: manual/index.md:149
+#: manual/index.md:150
 msgid "Exported types"
 msgstr ""
 
-#: manual/index.md:151
+#: manual/index.md:152
 msgid "Binary floating point (`bin_float`)"
 msgstr ""
 
-#: manual/index.md:153
+#: manual/index.md:154
 msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr ""
 
-#: manual/index.md:155
+#: manual/index.md:156
 msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr ""
 
-#: manual/index.md:157
+#: manual/index.md:158
 msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr ""
 
-#: manual/index.md:159
+#: manual/index.md:160
 msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr ""
 
-#: manual/index.md:162
+#: manual/index.md:163
 msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr ""
 
-#: manual/index.md:164
+#: manual/index.md:165
 msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr ""
 
-#: manual/index.md:168
+#: manual/index.md:169
 msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr ""
 
-#: manual/index.md:173
+#: manual/index.md:174
 msgid "Intervals (`ball_float`)"
 msgstr ""
 
-#: manual/index.md:175
+#: manual/index.md:176
 msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
 msgstr ""
 
-#: manual/index.md:177
+#: manual/index.md:178
 msgid "`BallContext` and `BallFlags` for intervals in a target format"
 msgstr ""
 
-#: manual/index.md:179
+#: manual/index.md:180
 msgid "Pipelines and shared vocabulary"
 msgstr ""
 
-#: manual/index.md:181
+#: manual/index.md:182
 msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr ""
 
-#: manual/index.md:183
+#: manual/index.md:184
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr ""
 
-#: manual/index.md:188
+#: manual/index.md:189
 msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr ""
 
-#: manual/index.md:191
+#: manual/index.md:192
 msgid "Where to read next"
 msgstr ""
 
-#: manual/index.md:193
+#: manual/index.md:194
 msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr ""
 
-#: manual/index.md:198
+#: manual/index.md:199
 msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr ""
 
-#: manual/index.md:203
+#: manual/index.md:204
 msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr ""
 
-#: manual/index.md:210
+#: manual/index.md:211
 msgid "Evidence snapshot"
 msgstr ""
 
-#: manual/index.md:212
+#: manual/index.md:213
 msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
 msgstr ""
 
-#: manual/index.md:215
+#: manual/index.md:216
 msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr ""
 
-#: manual/index.md:219
+#: manual/index.md:220
 msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
 msgstr ""
 
-#: manual/index.md:220
+#: manual/index.md:221
 msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
 msgstr ""
 
-#: manual/index.md:223
+#: manual/index.md:224
 msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
 msgstr ""
 
-#: manual/index.md:227
+#: manual/index.md:228
 msgid "Validation"
 msgstr ""
 
-#: manual/index.md:229
+#: manual/index.md:230
 msgid "Recommended checks before a release, from the repository root:"
 msgstr ""
 
-#: manual/index.md:239
+#: manual/index.md:240
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr ""
 
-#: manual/index.md:242
+#: manual/index.md:243
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr ""
 
@@ -20320,10 +20523,6 @@ msgstr ""
 msgid "Performance thresholds, limb layout, NTT primes, scratch storage, and fallback selection are implementation details. Public results, flags, and interchange bits must be identical across algorithms and targets."
 msgstr ""
 
-#: manual/performance/bin_float.md:10
-msgid "Representation"
-msgstr ""
-
 #: manual/performance/bin_float.md:12
 msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT still read a 32-bit view of the same storage until their stages. A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products on every target; the schoolbook kernel is still 2.7 to 3.7 times faster on Native and 1.7 to 1.9 times on Wasm-GC because it runs a quarter of the limb steps. Paired Native runs of the whole stage: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times. On Wasm and Wasm-GC multiplication below about 6,000 bits is 1.3 to 1.7 times faster; above about 9,000 bits the Karatsuba step, which allocates a coefficient for every intermediate value, is up to 1.8 times slower until the next stage moves it to limb arrays."
 msgstr ""
@@ -21010,6 +21209,7 @@ msgstr ""
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
+#: manual/tutorial/internal/bin_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -21048,6 +21248,7 @@ msgstr ""
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
+#: manual/tutorial/internal/bin_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -25255,6 +25456,116 @@ msgstr ""
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr ""
 
+#: manual/tutorial/internal/bin_kernel.md:1
+msgid "internal/bin_kernel tutorial"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:3
+msgid "The goal of this page is to show maintainers how to use the coefficient kernel when they add or change a binary operation, and how to keep a change to it safe for every target. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:11
+msgid "compute with exact coefficients in `bin_float`"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:11
+msgid "[the `Coeff` methods](#use-the-kernel-from-bin_float)"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/decimal_kernel.md:12
+msgid "add an algorithm or a fast path"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/decimal_kernel.md:12
+msgid "[change the kernel](#change-the-kernel)"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/decimal_kernel.md:13
+msgid "tune a threshold"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/decimal_kernel.md:13
+msgid "[per-target thresholds](#tune-a-threshold)"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/decimal_kernel.md:14
+msgid "decide where new code belongs"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:14
+msgid "[kernel or bin_float](#decide-where-new-code-belongs)"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:15
+#: manual/tutorial/internal/decimal_kernel.md:15
+msgid "run the kernel tests"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:17
+msgid "Use the kernel from bin_float"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:19
+msgid "`bin_float` imports the kernel and brings the names it uses into scope with `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names that exist only where a coefficient has 64-bit limbs):"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:28
+msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it, so the kernel type never appears in a public interface, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:42
+#: manual/tutorial/internal/decimal_kernel.md:43
+msgid "Decide where new code belongs"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:44
+msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `bin_float` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `BinFloat`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:51
+#: manual/tutorial/internal/decimal_kernel.md:54
+msgid "Change the kernel"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:53
+msgid "Write the change as an exact integer function."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:54
+msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:58
+msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:59
+msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:63
+#: manual/tutorial/internal/decimal_kernel.md:67
+msgid "Tune a threshold"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:65
+msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `bin_float`, in `elementary_thresholds_<target>.mbt`."
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:74
+#: manual/tutorial/internal/decimal_kernel.md:76
+msgid "Run the tests"
+msgstr ""
+
+#: manual/tutorial/internal/bin_kernel.md:81
+msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `bin_float`. `bin_float` keeps the tests that need a `BinFloat`."
+msgstr ""
+
 #: manual/tutorial/internal/conformance.md:1
 msgid "internal/conformance tutorial"
 msgstr ""
@@ -25404,32 +25715,8 @@ msgstr ""
 msgid "[the `dec_coeff_*` functions](#use-the-kernel-from-a-decimal-package)"
 msgstr ""
 
-#: manual/tutorial/internal/decimal_kernel.md:12
-msgid "add an algorithm or a fast path"
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:12
-msgid "[change the kernel](#change-the-kernel)"
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:13
-msgid "tune a threshold"
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:13
-msgid "[per-target thresholds](#tune-a-threshold)"
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:14
-msgid "decide where new code belongs"
-msgstr ""
-
 #: manual/tutorial/internal/decimal_kernel.md:14
 msgid "[kernel or finalizer](#decide-where-new-code-belongs)"
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:15
-msgid "run the kernel tests"
 msgstr ""
 
 #: manual/tutorial/internal/decimal_kernel.md:17
@@ -25444,16 +25731,8 @@ msgstr ""
 msgid "A `Decimal` stores its coefficient as a private `DecCoeff` field, so the type never appears in the public interface of the package. A typical use builds the exact quotient and remainder, and leaves the rounding decision to the package:"
 msgstr ""
 
-#: manual/tutorial/internal/decimal_kernel.md:43
-msgid "Decide where new code belongs"
-msgstr ""
-
 #: manual/tutorial/internal/decimal_kernel.md:45
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers, and when `decimal` and `decimal_gda` would compute it identically. Keep it in the decimal package when it mentions a rounding mode, a precision, an exponent range, a flag, a trap, a `Decimal` or a context, because those are where the two standards differ. The test is simple: the function must give the same answer if the same integers are fed to it from either standard. `tools/check_imports.py` enforces the dependency half of the rule (the kernel cannot import `decimal` or `decimal_gda`)."
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:54
-msgid "Change the kernel"
 msgstr ""
 
 #: manual/tutorial/internal/decimal_kernel.md:56
@@ -25472,16 +25751,8 @@ msgstr ""
 msgid "Measure both packages. A change that helps one standard and slows the other needs a reason in the pull request."
 msgstr ""
 
-#: manual/tutorial/internal/decimal_kernel.md:67
-msgid "Tune a threshold"
-msgstr ""
-
 #: manual/tutorial/internal/decimal_kernel.md:69
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Burnikel–Ziegler and Newton division live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm`, `_wasm_gc` and `_js`; `moon.pkg` selects the file by target. A threshold only changes which exact algorithm runs. Change it with paired old/new builds on the target, for both `decimal` and `decimal_gda`, and keep the dispatch tests that cross every threshold exactly."
-msgstr ""
-
-#: manual/tutorial/internal/decimal_kernel.md:76
-msgid "Run the tests"
 msgstr ""
 
 #: manual/tutorial/internal/decimal_kernel.md:83
@@ -26136,11 +26407,6 @@ msgstr ""
 #: manual/verification.md:202
 #: manual/verification.md:245
 msgid "Wasm"
-msgstr ""
-
-#: manual/verification.md:202
-#: manual/verification.md:245
-msgid "JavaScript"
 msgstr ""
 
 #: manual/verification.md:202

@@ -1,0 +1,41 @@
+import {
+  "moonbitlang/core/debug",
+}
+
+import {
+  "moonbitlang/core/string",
+} for "wbtest"
+
+options(
+  targets: {
+    "coeff_js.mbt": [ "js" ],
+    "coeff_advanced_nonjs.mbt": [ "not", "js" ],
+    "coeff_division_nonjs.mbt": [ "not", "js" ],
+    "coeff_division_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_dispatch_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_ntt_nonjs.mbt": [ "not", "js" ],
+    "coeff_ntt_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_knuth_words_nonjs.mbt": [ "not", "js" ],
+    "coeff_knuth_words_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_limb32_nonjs.mbt": [ "not", "js" ],
+    "coeff_limb32_square_nonjs.mbt": [ "not", "js" ],
+    "coeff_nonjs.mbt": [ "not", "js" ],
+    "coeff_words_mul_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_words_nonjs.mbt": [ "not", "js" ],
+    "coeff_word_ops_nonjs.mbt": [ "not", "js" ],
+    "coeff_words_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_words_reference_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_sqrt_nonjs.mbt": [ "not", "js" ],
+    "coeff_sqrt_array_nonjs.mbt": [ "not", "js" ],
+    "coeff_radix_nonjs.mbt": [ "not", "js" ],
+    "coeff_radix_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_sqrt_words_nonjs.mbt": [ "not", "js" ],
+    "coeff_sqrt_words_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_sqrt_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_sqrt_reference_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_thresholds_llvm.mbt": [ "llvm" ],
+    "coeff_thresholds_native.mbt": [ "native" ],
+    "coeff_thresholds_wasm.mbt": [ "wasm" ],
+    "coeff_thresholds_wasm_gc.mbt": [ "wasm-gc" ],
+  },
+)

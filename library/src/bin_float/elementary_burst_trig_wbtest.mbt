@@ -14,7 +14,7 @@ fn burst_trig_test_corpus() -> Array[BinFloat] {
   let (pi_low, _) = binary_pi_bounds(2400).unwrap()
   for bits in [100, 300, 700, 1500] {
     let half_pi = pi_low.mul_ctx(
-      BinFloat::make(BinCoeff::one(), -1, 1),
+      BinFloat::make_coeff(Coeff::one(), -1, 1),
       BinaryContext::unbounded(2400),
     ).0.with_precision(bits, RoundingMode::TowardNegative)
     for k in [1, 2, 3, 4, 5, 7, 100, 12345, 1000003] {
@@ -117,7 +117,7 @@ test "bit-burst sin and cos decline outside their range" {
     )
     assert_true(
       binary_trig_bounds_burst(
-        BinFloat::make(BinCoeff::one(), -200, 1),
+        BinFloat::make_coeff(Coeff::one(), -200, 1),
         cosine,
         work,
       )
@@ -131,7 +131,7 @@ test "bit-burst sin and cos decline outside their range" {
     // 2^5000 is beyond the range of the kernel.
     assert_true(
       binary_trig_bounds_burst(
-        BinFloat::make(BinCoeff::one(), 5000, 1),
+        BinFloat::make_coeff(Coeff::one(), 5000, 1),
         cosine,
         work,
       )

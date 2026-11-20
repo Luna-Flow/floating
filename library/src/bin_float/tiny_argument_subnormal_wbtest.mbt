@@ -36,13 +36,13 @@ fn tiny_model(
     2 => !x.is_negative()
     _ => x.is_negative()
   }
-  let base = BinCoeff::one().shift_left(300)
+  let base = Coeff::one().shift_left(300)
   let factor = if sign_up {
-    base.add(BinCoeff::one())
+    base.add(Coeff::one())
   } else {
-    base.sub_checked(BinCoeff::one()).unwrap()
+    base.sub_checked(Coeff::one()).unwrap()
   }
-  let magnitude = x.coefficient().mul(factor)
+  let magnitude = x.coefficient_.mul(factor)
   let (value, flags) = binary_round_dyadic(
     x.is_negative(),
     magnitude,
@@ -73,8 +73,8 @@ test "tiny arguments near the implementation subnormal limit round with their fl
     for exponent in [-1073741870, -1073741860, -1073741823, -1073741800] {
       for coefficient in [1UL, 5UL] {
         for negative in [false, true] {
-          let x = BinFloat::make(
-            BinCoeff::from_uint64(coefficient),
+          let x = BinFloat::make_coeff(
+            Coeff::from_uint64(coefficient),
             exponent,
             64,
             negative~,

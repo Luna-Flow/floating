@@ -113,6 +113,7 @@ verified, and how) and a performance page (measurements and their method).
 | --- | --- | --- | --- |
 | `internal`: exact rationals, big-integer, parsing, normalization and rounding helpers | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
 | `internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda` | [tutorial](tutorial/internal/decimal_kernel.md) | [API](api/internal/decimal_kernel.md) | [design](design/internal/decimal_kernel.md) |
+| `internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float` | [tutorial](tutorial/internal/bin_kernel.md) | [API](api/internal/bin_kernel.md) | [design](design/internal/bin_kernel.md) |
 | `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
 
 ### Tools module: infrastructure and evidence

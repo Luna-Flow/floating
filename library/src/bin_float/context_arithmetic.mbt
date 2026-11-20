@@ -71,18 +71,18 @@ fn binary_floor_div2(value : Int32) -> Int32 {
 }
 
 ///|
-fn binary_exact_top(magnitude : BinCoeff, exponent2 : Int32) -> Int32 {
+fn binary_exact_top(magnitude : Coeff, exponent2 : Int32) -> Int32 {
   binary_add_sat(magnitude.bit_length() - 1, exponent2)
 }
 
 ///|
 fn binary_apply_round_bits(
-  retained : BinCoeff,
+  retained : Coeff,
   round_bit : Bool,
   sticky : Bool,
   negative : Bool,
   mode : BinaryRoundingMode,
-) -> BinCoeff {
+) -> Coeff {
   let inexact = round_bit || sticky
   let increment = match mode {
     RoundTiesToEven => round_bit && (sticky || retained.test_bit(0))
@@ -93,7 +93,7 @@ fn binary_apply_round_bits(
     RoundAwayFromZero => inexact
   }
   if increment {
-    retained.add(BinCoeff::one())
+    retained.add(Coeff::one())
   } else {
     retained
   }
@@ -101,9 +101,9 @@ fn binary_apply_round_bits(
 
 ///|
 fn binary_split_quotient(
-  numerator : BinCoeff,
-  denominator : BinCoeff,
-) -> (BinCoeff, Bool, Bool) {
+  numerator : Coeff,
+  denominator : Coeff,
+) -> (Coeff, Bool, Bool) {
   let (quotient, remainder) = bin_coeff_short_div_rem(numerator, denominator)
   if remainder.is_zero() {
     return (quotient, false, false)
@@ -113,10 +113,7 @@ fn binary_split_quotient(
 }
 
 ///|
-fn binary_split_shift(
-  magnitude : BinCoeff,
-  shift : Int32,
-) -> (BinCoeff, Bool, Bool) {
+fn binary_split_shift(magnitude : Coeff, shift : Int32) -> (Coeff, Bool, Bool) {
   if shift <= 0 {
     return (magnitude, false, false)
   }
@@ -135,9 +132,9 @@ fn binary_split_shift(
 
 ///|
 fn binary_compare_shifted(
-  left : BinCoeff,
+  left : Coeff,
   left_shift : Int32,
-  right : BinCoeff,
+  right : Coeff,
   right_shift : Int32,
 ) -> Int32 {
   if left.is_zero() || right.is_zero() {
@@ -159,22 +156,22 @@ fn binary_compare_shifted(
 
 ///|
 fn binary_split_scaled_quotient(
-  numerator : BinCoeff,
-  denominator : BinCoeff,
+  numerator : Coeff,
+  denominator : Coeff,
   scale : Int32,
-) -> (BinCoeff, Bool, Bool) {
+) -> (Coeff, Bool, Bool) {
   if scale >= 0 {
     return binary_split_quotient(numerator.shift_left(scale), denominator)
   }
   if scale == binary_int_min {
-    return (BinCoeff::zero(), false, true)
+    return (Coeff::zero(), false, true)
   }
   let denominator_shift = -scale
   if binary_compare_shifted(numerator, 0, denominator, denominator_shift) < 0 {
     let half_comparison = binary_compare_shifted(
       numerator, 1, denominator, denominator_shift,
     )
-    return (BinCoeff::zero(), half_comparison >= 0, half_comparison != 0)
+    return (Coeff::zero(), half_comparison >= 0, half_comparison != 0)
   }
   binary_split_quotient(numerator, denominator.shift_left(denominator_shift))
 }
@@ -195,9 +192,9 @@ fn binary_overflow_to_infinity(
 ///|
 fn binary_max_finite(negative : Bool, context : BinaryContext) -> BinFloat {
   let e_max = context.range_e_max()
-  let magnitude = BinCoeff::one()
+  let magnitude = Coeff::one()
     .shift_left(context.precision)
-    .sub_checked(BinCoeff::one())
+    .sub_checked(Coeff::one())
     .unwrap()
   finite_from_parts(
     negative,
@@ -240,9 +237,9 @@ fn binary_tiny_nonzero_result(
   }
   let value = if rounds_away {
     let exponent2 = binary_sub_sat(context.range_e_min(), context.precision - 1)
-    finite_from_parts(negative, BinCoeff::one(), exponent2, context.precision)
+    finite_from_parts(negative, Coeff::one(), exponent2, context.precision)
   } else {
-    finite_from_parts(negative, BinCoeff::zero(), 0, context.precision)
+    finite_from_parts(negative, Coeff::zero(), 0, context.precision)
   }
   (value, binary_inexact_flags(true))
 }
@@ -253,7 +250,7 @@ fn binary_tiny_nonzero_result(
 /// normal form (odd coefficient) without the general normalization chain.
 fn binary_finite_in_range(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   precision : Int32,
 ) -> BinFloat {
@@ -274,7 +271,7 @@ fn binary_finite_in_range(
 /// Finishes a rounded result whose top bit `rounded_top` is already known.
 fn binary_finalize_known_top(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   inexact : Bool,
   exact_top : Int32,
@@ -304,7 +301,7 @@ fn binary_finalize_known_top(
 ///|
 fn binary_finalize_rounded(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   inexact : Bool,
   exact_top : Int32,
@@ -325,7 +322,7 @@ fn binary_finalize_rounded(
 ///|
 fn binary_round_pack(
   negative : Bool,
-  retained : BinCoeff,
+  retained : Coeff,
   round_bit : Bool,
   sticky : Bool,
   exponent2 : Int32,
@@ -353,13 +350,13 @@ fn binary_round_pack(
 ///|
 fn binary_round_dyadic(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   if magnitude.is_zero() {
     return (
-      finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+      finite_from_parts(negative, Coeff::zero(), 0, context.precision),
       BinaryFlags::new(),
     )
   }
@@ -424,10 +421,7 @@ fn binary_round_dyadic(
 }
 
 ///|
-fn binary_floor_log2_ratio(
-  numerator : BinCoeff,
-  denominator : BinCoeff,
-) -> Int32 {
+fn binary_floor_log2_ratio(numerator : Coeff, denominator : Coeff) -> Int32 {
   let candidate = numerator.bit_length() - denominator.bit_length()
   if candidate >= 0 {
     if numerator.compare(denominator.shift_left(candidate)) < 0 {
@@ -454,8 +448,8 @@ fn binary_target_exponent(exact_top : Int32, context : BinaryContext) -> Int32 {
 ///|
 fn binary_round_rational(
   negative : Bool,
-  numerator : BinCoeff,
-  denominator : BinCoeff,
+  numerator : Coeff,
+  denominator : Coeff,
   exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
@@ -496,22 +490,19 @@ fn binary_round_rational(
 }
 
 ///|
-fn binary_sqrt_split(
-  magnitude : BinCoeff,
-  scale : Int32,
-) -> (BinCoeff, Bool, Int32) {
+fn binary_sqrt_split(magnitude : Coeff, scale : Int32) -> (Coeff, Bool, Int32) {
   if scale >= 0 {
     let radicand = magnitude.shift_left(scale)
     let (root, remainder) = bin_coeff_sqrt_rem_kernel(radicand)
     let exact = remainder.is_zero()
-    let midpoint = root.shift_left(1).add(BinCoeff::one()).square()
+    let midpoint = root.shift_left(1).add(Coeff::one()).square()
     (
       root,
       exact,
       magnitude.shift_left(binary_add_sat(scale, 2)).compare(midpoint),
     )
   } else if scale == binary_int_min {
-    (BinCoeff::zero(), false, -1)
+    (Coeff::zero(), false, -1)
   } else {
     let denominator_shift = -scale
     let (root, _) = bin_coeff_sqrt_rem_kernel(
@@ -520,7 +511,7 @@ fn binary_sqrt_split(
     let root_square = root.square()
     let exact = !root.is_zero() &&
       binary_compare_shifted(root_square, denominator_shift, magnitude, 0) == 0
-    let midpoint = root.shift_left(1).add(BinCoeff::one()).square()
+    let midpoint = root.shift_left(1).add(Coeff::one()).square()
     (
       root,
       exact,
@@ -547,7 +538,7 @@ fn binary_sqrt_round_bits(
 
 ///|
 fn binary_round_sqrt(
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
@@ -675,11 +666,11 @@ fn binary_add_far_exponents(
     high.exponent2.to_int64() +
     compression_shift.to_int64()
   let (low_prefix, low_discarded) = if relative_shift > 2147483647L {
-    (BinCoeff::zero(), true)
+    (Coeff::zero(), true)
   } else if relative_shift >= 0L {
     (low.coefficient_.shift_left(relative_shift.to_int()), false)
   } else if relative_shift < -2147483647L {
-    (BinCoeff::zero(), true)
+    (Coeff::zero(), true)
   } else {
     let (prefix, round_bit, sticky) = binary_split_shift(
       low.coefficient_,
@@ -690,7 +681,7 @@ fn binary_add_far_exponents(
   let (magnitude, extra_shift) = if high.negative == low.negative {
     let integral = high_magnitude.add(low_prefix)
     if low_discarded {
-      (integral.shift_left(1).add(BinCoeff::one()), 1)
+      (integral.shift_left(1).add(Coeff::one()), 1)
     } else {
       (integral, 0)
     }
@@ -699,10 +690,10 @@ fn binary_add_far_exponents(
     if low_discarded {
       (
         integral
-        .sub_checked(BinCoeff::one())
+        .sub_checked(Coeff::one())
         .unwrap()
         .shift_left(1)
-        .add(BinCoeff::one()),
+        .add(Coeff::one()),
         1,
       )
     } else {
@@ -839,7 +830,7 @@ pub fn BinFloat::add_ctx(
           (
             finite_from_parts(
               binary_exact_sum_zero_sign(self, other, context.rounding),
-              BinCoeff::zero(),
+              Coeff::zero(),
               0,
               context.precision,
             ),
@@ -961,12 +952,12 @@ pub fn BinFloat::div_ctx(
       )
     (_, FpClass::Infinity) =>
       (
-        finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+        finite_from_parts(negative, Coeff::zero(), 0, context.precision),
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) if self.is_zero() =>
       (
-        finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+        finite_from_parts(negative, Coeff::zero(), 0, context.precision),
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) =>
@@ -1007,7 +998,7 @@ pub fn BinFloat::sqrt_ctx(
       }
     FpClass::Finite if self.is_zero() =>
       (
-        finite_from_parts(self.negative, BinCoeff::zero(), 0, context.precision),
+        finite_from_parts(self.negative, Coeff::zero(), 0, context.precision),
         BinaryFlags::new(),
       )
     FpClass::Finite if self.negative =>
@@ -1080,7 +1071,7 @@ fn binary_pow_exact_magnitude(
   if reciprocal {
     binary_round_rational(
       negative,
-      BinCoeff::one(),
+      Coeff::one(),
       powered,
       binary_sub_sat(0, powered_exponent),
       context,
@@ -1174,7 +1165,7 @@ fn binary_pow_interval(
   approximation : BinFloat,
   error_shift : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let radius = BinCoeff::one().shift_left(error_shift)
+  let radius = Coeff::one().shift_left(error_shift)
   if approximation.coefficient_.compare(radius) <= 0 {
     return None
   }
@@ -1209,7 +1200,7 @@ fn binary_pow_interval(
 fn binary_round_precision_only(
   value : BinFloat,
   context : BinaryContext,
-) -> (BinCoeff, Int32) {
+) -> (Coeff, Int32) {
   let shift = Int32::max(0, value.coefficient_.bit_length() - context.precision)
   let (retained, round_bit, sticky) = binary_split_shift(
     value.coefficient_,
@@ -1383,7 +1374,7 @@ fn binary_pow_is_power_of_two(base : BinFloat) -> Bool {
   if base.coefficient_.is_zero() {
     return false
   }
-  base.coefficient_.shift_right(base.coefficient_.ctz()) == BinCoeff::one()
+  base.coefficient_.shift_right(base.coefficient_.ctz()) == Coeff::one()
 }
 
 ///|
@@ -1425,7 +1416,7 @@ fn binary_pow_out_of_range(
     return None
   }
   let count = BinFloat::from_coefficient(
-    BinCoeff::from_uint64(exponent.to_uint64()),
+    Coeff::from_uint64(exponent.to_uint64()),
     precision=64,
   )
   let (result_low, result_high) = if reciprocal {
@@ -1516,7 +1507,7 @@ fn binary_pow_power_of_two_normalized(
   let normalized_exponent = binary_add_sat(base.exponent2, shift)
   let normalized = finite_from_parts(
     base.negative,
-    BinCoeff::one(),
+    Coeff::one(),
     normalized_exponent,
     base.precision_,
   )
@@ -1556,7 +1547,7 @@ fn binary_pow_power_of_two(
   if product < -2147483648L {
     return binary_tiny_nonzero_result(negative, context)
   }
-  binary_round_dyadic(negative, BinCoeff::one(), product.to_int(), context)
+  binary_round_dyadic(negative, Coeff::one(), product.to_int(), context)
 }
 
 ///|
@@ -1588,7 +1579,7 @@ pub fn BinFloat::pow_int_ctx(
     FpClass::Infinity =>
       if exponent < 0 {
         (
-          finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+          finite_from_parts(negative, Coeff::zero(), 0, context.precision),
           BinaryFlags::new(),
         )
       } else {
@@ -1619,7 +1610,7 @@ pub fn BinFloat::pow_int_ctx(
         )
       } else {
         (
-          finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+          finite_from_parts(negative, Coeff::zero(), 0, context.precision),
           BinaryFlags::new(),
         )
       }
@@ -1685,7 +1676,7 @@ fn BinFloat::pow_nat_ctx(
       )
     FpClass::Finite if self.is_zero() =>
       (
-        finite_from_parts(negative, BinCoeff::zero(), 0, context.precision),
+        finite_from_parts(negative, Coeff::zero(), 0, context.precision),
         BinaryFlags::new(),
       )
     FpClass::Finite => {

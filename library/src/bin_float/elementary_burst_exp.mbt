@@ -50,18 +50,18 @@ let burst_no_mutation : BurstMutation = {
 /// `tau_i - t_i` is below 3, the terms after the last one `t_n < 2^8` sum to
 /// less than `tau_n < t_n + 3`; so `sum <= exp(y) 2^f <= sum + t_n + 3n + 3`.
 fn burst_fixed_stage(
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
   f : Int32,
   mutation : BurstMutation,
-) -> (BinCoeff, BinCoeff)? {
+) -> (Coeff, Coeff)? {
   guard fixed_exp_series(numerator, s, f, 20000) is Some((sum, term, index)) else {
     return None
   }
-  let slack = term.add(BinCoeff::from_uint64((3 * index + 3).to_uint64()))
+  let slack = term.add(Coeff::from_uint64((3 * index + 3).to_uint64()))
   Some(
     (
-      sum.add(BinCoeff::from_uint64(mutation.lower_bias.to_uint64())),
+      sum.add(Coeff::from_uint64(mutation.lower_bias.to_uint64())),
       sum.add(slack),
     ),
   )
@@ -73,11 +73,11 @@ fn burst_fixed_stage(
 /// `t / (q 2^(s n))`, so `lo = floor(2^f t / (q 2^(s n)))` is below it by less
 /// than 1 unit, and the tail is below 2 units by the choice of `n`.
 fn burst_split_stage(
-  numerator : BinCoeff,
+  numerator : Coeff,
   s : Int32,
   f : Int32,
   mutation : BurstMutation,
-) -> (BinCoeff, BinCoeff)? {
+) -> (Coeff, Coeff)? {
   let terms = Int32::max(
     2,
     fixed_split_terms(numerator, s, f) - mutation.split_reduce_terms,
@@ -87,8 +87,8 @@ fn burst_split_stage(
   let lo = scaled.div_rem_checked(state.q).unwrap().0
   Some(
     (
-      lo.add(BinCoeff::from_uint64(mutation.lower_bias.to_uint64())),
-      lo.add(BinCoeff::from_uint64(3UL)),
+      lo.add(Coeff::from_uint64(mutation.lower_bias.to_uint64())),
+      lo.add(Coeff::from_uint64(3UL)),
     ),
   )
 }
@@ -117,7 +117,7 @@ fn binary_exp_bounds_burst(
     return None
   }
   let reduced = reduction.reduced
-  let one_unit = BinCoeff::one().shift_left(f)
+  let one_unit = Coeff::one().shift_left(f)
   // Chunks of the reduced argument.
   let mut lower = one_unit
   let mut upper = one_unit
@@ -133,7 +133,7 @@ fn binary_exp_bounds_burst(
     }
     guard stage is Some((stage_low, stage_high)) else { return false }
     lower = lower.mul(stage_low).shift_right(f)
-    upper = upper.mul(stage_high).shift_right(f).add(BinCoeff::one())
+    upper = upper.mul(stage_high).shift_right(f).add(Coeff::one())
     true
   })
   guard chunks_ok else { return None }

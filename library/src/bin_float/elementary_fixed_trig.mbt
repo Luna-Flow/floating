@@ -34,7 +34,7 @@ fn binary_sin_cos_fixed_series(
     RoundingMode::TowardNegative,
   )
   guard rounded.compare(value) == 0 else { return None }
-  let coefficient = value.coefficient()
+  let coefficient = value.coefficient_
   let exponent = value.exponent2()
   let top = exponent + coefficient.bit_length() - 1
   guard top <= 0 else { return None }
@@ -49,14 +49,14 @@ fn binary_sin_cos_fixed_series(
   guard fractional + exponent >= 0 else { return None }
   let x_fixed = coefficient.shift_left(fractional + exponent)
   let square = x_fixed.mul(x_fixed).shift_right(fractional)
-  let stop = BinCoeff::one().shift_left(4)
+  let stop = Coeff::one().shift_left(4)
   let mut term = if cosine {
-    BinCoeff::one().shift_left(fractional)
+    Coeff::one().shift_left(fractional)
   } else {
     x_fixed
   }
   let mut positive_sum = term
-  let mut negative_sum = BinCoeff::zero()
+  let mut negative_sum = Coeff::zero()
   let mut index = 0
   while index < 10000 {
     index += 1
@@ -67,17 +67,17 @@ fn binary_sin_cos_fixed_series(
       2UL * k * (2UL * k + 1UL)
     }
     term = term.mul(square).shift_right(fractional)
-    term = term.div_rem_checked(BinCoeff::from_uint64(divisor)).unwrap().0
+    term = term.div_rem_checked(Coeff::from_uint64(divisor)).unwrap().0
     if term.compare(stop) < 0 {
-      let slack = BinCoeff::from_uint64((4 * index + 24).to_uint64())
+      let slack = Coeff::from_uint64((4 * index + 24).to_uint64())
       let signed_sum = positive_sum.sub_checked(negative_sum).unwrap()
-      let lower = BinFloat::make(
+      let lower = BinFloat::make_coeff(
         signed_sum.sub_checked(slack).unwrap(),
         -fractional,
         work_precision,
         mode=RoundingMode::TowardNegative,
       )
-      let upper = BinFloat::make(
+      let upper = BinFloat::make_coeff(
         signed_sum.add(slack),
         -fractional,
         work_precision,

@@ -1,8 +1,8 @@
 ///|
 fn binary_split_shift_legacy_for_test(
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   shift : Int32,
-) -> (BinCoeff, Bool, Bool) {
+) -> (Coeff, Bool, Bool) {
   if shift <= 0 {
     return (magnitude, false, false)
   }
@@ -20,13 +20,13 @@ fn binary_split_shift_legacy_for_test(
 ///|
 fn binary_round_dyadic_legacy_for_test(
   negative : Bool,
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   if magnitude.is_zero() {
     return (
-      finite_from_parts(negative, BinCoeff::zero(), 0, context.precision()),
+      finite_from_parts(negative, Coeff::zero(), 0, context.precision()),
       BinaryFlags::new(),
     )
   }
@@ -76,8 +76,8 @@ fn binary_round_dyadic_legacy_for_test(
 ///|
 fn binary_round_rational_legacy_for_test(
   negative : Bool,
-  numerator : BinCoeff,
-  denominator : BinCoeff,
+  numerator : Coeff,
+  denominator : Coeff,
   exponent2 : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
@@ -121,12 +121,10 @@ fn binary_add_aligned_legacy_for_test(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let target = Int32::min(left.exponent2(), right.exponent2())
-  let left_coefficient = left
-    .coefficient()
-    .shift_left(left.exponent2() - target)
-  let right_coefficient = right
-    .coefficient()
-    .shift_left(right.exponent2() - target)
+  let left_coefficient = left.coefficient_.shift_left(left.exponent2() - target)
+  let right_coefficient = right.coefficient_.shift_left(
+    right.exponent2() - target,
+  )
   if left.is_negative() == right.is_negative() {
     let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
       left_coefficient, right_coefficient,
@@ -143,7 +141,7 @@ fn binary_add_aligned_legacy_for_test(
     return (
       finite_from_parts(
         binary_exact_sum_zero_sign(left, right, context.rounding()),
-        BinCoeff::zero(),
+        Coeff::zero(),
         0,
         context.precision(),
       ),
@@ -175,7 +173,7 @@ fn binary_add_aligned_legacy_for_test(
 ///|
 test "optimized binary split shift matches remainder oracle" {
   for raw_value in 0..<1024 {
-    let value = BinCoeff::from_uint64(raw_value.to_uint64())
+    let value = Coeff::from_uint64(raw_value.to_uint64())
     for shift in -1..<16 {
       let actual = binary_split_shift(value, shift)
       let expected = binary_split_shift_legacy_for_test(value, shift)
@@ -184,17 +182,17 @@ test "optimized binary split shift matches remainder oracle" {
       assert_true(actual.2 == expected.2)
     }
   }
-  let wide = BinCoeff::one()
+  let wide = Coeff::one()
     .shift_left(257)
-    .add(BinCoeff::one().shift_left(128))
-    .add(BinCoeff::one().shift_left(63))
-    .add(BinCoeff::one())
+    .add(Coeff::one().shift_left(128))
+    .add(Coeff::one().shift_left(63))
+    .add(Coeff::one())
   for
     value in [
-      BinCoeff::zero(),
+      Coeff::zero(),
       wide,
       wide.shift_left(193),
-      BinCoeff::one().shift_left(1024),
+      Coeff::one().shift_left(1024),
     ] {
     for shift in [1, 31, 32, 63, 64, 65, 127, 128, 129, 257, 511, 1024, 2048] {
       let actual = binary_split_shift(value, shift)
@@ -238,14 +236,14 @@ test "far exponent addition matches exact alignment around cutoff" {
         for pair in coefficient_pairs {
           for left_negative in [false, true] {
             for right_negative in [false, true] {
-              let left = BinFloat::make(
-                BinCoeff::from_uint64(pair.0),
+              let left = BinFloat::make_coeff(
+                Coeff::from_uint64(pair.0),
                 0,
                 64,
                 negative=left_negative,
               )
-              let right = BinFloat::make(
-                BinCoeff::from_uint64(pair.1),
+              let right = BinFloat::make_coeff(
+                Coeff::from_uint64(pair.1),
                 -gap,
                 64,
                 negative=right_negative,
@@ -268,7 +266,7 @@ test "far exponent addition matches exact alignment around cutoff" {
 test "wide exponent gaps stay on bounded coefficient paths" {
   let precision = 3
   let one = BinFloat::one(precision=53)
-  let tiny = BinFloat::make(BinCoeff::one(), -1000000, 53)
+  let tiny = BinFloat::make_coeff(Coeff::one(), -1000000, 53)
   assert_true(one.compare(tiny) > 0)
   assert_true(tiny.compare(one) < 0)
   let nearest = one.add_ctx(tiny, BinaryContext::unbounded(precision))
@@ -281,23 +279,23 @@ test "wide exponent gaps stay on bounded coefficient paths" {
       rounding=BinaryRoundingMode::RoundTowardPositive,
     ),
   )
-  assert_eq(upward.0.coefficient(), BinCoeff::from_uint64(5UL))
+  assert_eq(upward.0.coefficient_, Coeff::from_uint64(5UL))
   assert_eq(upward.0.exponent2(), -2)
   assert_true(upward.1.inexact())
 }
 
 ///|
 test "optimized dyadic rounding matches legacy control flow" {
-  let wide = BinCoeff::one()
+  let wide = Coeff::one()
     .shift_left(257)
-    .add(BinCoeff::one().shift_left(129))
-    .add(BinCoeff::from_uint64(37UL))
+    .add(Coeff::one().shift_left(129))
+    .add(Coeff::from_uint64(37UL))
   let magnitudes = [
-    BinCoeff::zero(),
-    BinCoeff::one(),
-    BinCoeff::from_uint64(3UL),
-    BinCoeff::from_uint64(0x7ffUL),
-    BinCoeff::one().shift_left(64).sub_checked(BinCoeff::one()).unwrap(),
+    Coeff::zero(),
+    Coeff::one(),
+    Coeff::from_uint64(3UL),
+    Coeff::from_uint64(0x7ffUL),
+    Coeff::one().shift_left(64).sub_checked(Coeff::one()).unwrap(),
     wide,
   ]
   let modes = [
@@ -339,24 +337,24 @@ test "optimized dyadic rounding matches legacy control flow" {
 
 ///|
 test "optimized rational rounding reuses equivalent target split" {
-  let wide_numerator = BinCoeff::one()
+  let wide_numerator = Coeff::one()
     .shift_left(257)
-    .add(BinCoeff::one().shift_left(113))
-    .add(BinCoeff::from_uint64(37UL))
-  let wide_denominator = BinCoeff::one()
+    .add(Coeff::one().shift_left(113))
+    .add(Coeff::from_uint64(37UL))
+  let wide_denominator = Coeff::one()
     .shift_left(193)
-    .add(BinCoeff::one().shift_left(61))
-    .add(BinCoeff::from_uint64(3UL))
+    .add(Coeff::one().shift_left(61))
+    .add(Coeff::from_uint64(3UL))
   let numerators = [
-    BinCoeff::one(),
-    BinCoeff::from_uint64(3UL),
-    BinCoeff::from_uint64(0xffffUL),
+    Coeff::one(),
+    Coeff::from_uint64(3UL),
+    Coeff::from_uint64(0xffffUL),
     wide_numerator,
   ]
   let denominators = [
-    BinCoeff::one(),
-    BinCoeff::from_uint64(3UL),
-    BinCoeff::from_uint64(0x101UL),
+    Coeff::one(),
+    Coeff::from_uint64(3UL),
+    Coeff::from_uint64(0x101UL),
     wide_denominator,
   ]
   let modes = [
@@ -397,13 +395,13 @@ test "optimized rational rounding reuses equivalent target split" {
 ///|
 test "single-track pow matches exact oracle across rounding modes" {
   let coefficients = [
-    BinCoeff::from_uint64(3UL),
-    BinCoeff::from_uint64(5UL),
-    BinCoeff::from_uint64(0x7ffUL),
-    BinCoeff::one()
+    Coeff::from_uint64(3UL),
+    Coeff::from_uint64(5UL),
+    Coeff::from_uint64(0x7ffUL),
+    Coeff::one()
     .shift_left(129)
-    .add(BinCoeff::one().shift_left(65))
-    .add(BinCoeff::one()),
+    .add(Coeff::one().shift_left(65))
+    .add(Coeff::one()),
   ]
   let modes = [
     BinaryRoundingMode::RoundTiesToEven,
@@ -457,10 +455,10 @@ test "single-track pow matches exact oracle across rounding modes" {
 test "single-track pow uses leading-bit chain without ordinary fallback" {
   let base = finite_from_parts(
     false,
-    BinCoeff::one()
+    Coeff::one()
     .shift_left(1024)
-    .add(BinCoeff::one().shift_left(511))
-    .add(BinCoeff::one()),
+    .add(Coeff::one().shift_left(511))
+    .add(Coeff::one()),
     -1024,
     1025,
   )
@@ -492,7 +490,7 @@ test "single-track pow fixed-seed differential" {
   let mut state = 0x6a09_e667_f3bc_c909UL
   for index in 0..<256 {
     state = state * 6364136223846793005UL + 1442695040888963407UL
-    let coefficient = BinCoeff::from_uint64((state >> 1) | 1UL)
+    let coefficient = Coeff::from_uint64((state >> 1) | 1UL)
     let base = finite_from_parts(
       (state & 1UL) != 0UL,
       coefficient,

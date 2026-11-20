@@ -112,7 +112,7 @@ fn binary_inexact_inner_endpoint(
     return endpoint
   }
   // Coefficients are odd, so bit_length counts the significant bits.
-  let coefficient = endpoint.coefficient()
+  let coefficient = endpoint.coefficient_
   guard coefficient.bit_length() <= context.precision + 1 else {
     return endpoint
   }
@@ -125,9 +125,9 @@ fn binary_inexact_inner_endpoint(
   let scaled = coefficient.shift_left(shift)
   let grows = toward_positive != endpoint.is_negative()
   let moved = if grows {
-    scaled.add(BinCoeff::one())
+    scaled.add(Coeff::one())
   } else {
-    scaled.sub_checked(BinCoeff::one()).unwrap()
+    scaled.sub_checked(Coeff::one()).unwrap()
   }
   // Built wide enough to be kept: a BinFloat of width w stores nothing below
   // 2^(e_min - (w - 1)), so an endpoint within a few bits of the implementation
@@ -139,7 +139,7 @@ fn binary_inexact_inner_endpoint(
     binary_implementation_e_min.to_int64() - moved_top + 2L,
   )
   guard width <= 1073741824L else { return endpoint }
-  BinFloat::make(
+  BinFloat::make_coeff(
     moved,
     endpoint.exponent2() - shift,
     Int32::max(1, width.to_int()),
@@ -161,7 +161,7 @@ fn binary_tiny_argument_result(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
   let anchor_top = anchor.exponent2().to_int64() +
-    (anchor.coefficient().bit_length() - 1).to_int64()
+    (anchor.coefficient_.bit_length() - 1).to_int64()
   let precision = context.precision.to_int64()
   guard scale < anchor_top - precision - 3L else { return None }
   let offset_exponent = Int64::max(scale, anchor_top - precision - 8L)
@@ -173,8 +173,8 @@ fn binary_tiny_argument_result(
     binary_implementation_e_min.to_int64() - offset_exponent + 2L,
   )
   guard offset_width <= 1073741824L else { return None }
-  let offset = BinFloat::make(
-    BinCoeff::one(),
+  let offset = BinFloat::make_coeff(
+    Coeff::one(),
     offset_exponent.to_int(),
     offset_width.to_int(),
   )
@@ -212,7 +212,7 @@ fn binary_tiny_argument_result(
 ///|
 /// Exponent bound of a finite nonzero value: |x| < 2^(binary_top_bound(x)).
 fn binary_top_bound(value : BinFloat) -> Int64 {
-  value.exponent2().to_int64() + value.coefficient().bit_length().to_int64()
+  value.exponent2().to_int64() + value.coefficient_.bit_length().to_int64()
 }
 
 ///|
@@ -253,7 +253,7 @@ fn binary_exp_small_bounds(
   )
   let lower = value.with_precision(work_precision, RoundingMode::TowardNegative)
   let upper = value.with_precision(work_precision, RoundingMode::TowardPositive)
-  let eighth = BinFloat::make(BinCoeff::one(), -3, work_precision)
+  let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
   guard lower.compare(eighth.neg()) >= 0 && upper.compare(eighth) <= 0 else {
     return None
   }
@@ -277,8 +277,8 @@ fn binary_exp_small_bounds(
     let mut term_upper = one
     let mut sum_lower = one
     let mut sum_upper = one
-    let threshold = BinFloat::make(
-      BinCoeff::one(),
+    let threshold = BinFloat::make_coeff(
+      Coeff::one(),
       -(work_precision + 8),
       work_precision,
     )
@@ -354,8 +354,8 @@ fn binary_exp_bounds_series(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  let eighth = BinFloat::make(BinCoeff::one(), -3, work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let mut reductions = 0
   while (lower.compare(eighth.neg()) < 0 || upper.compare(eighth) > 0) &&
         reductions < 4096 {
@@ -451,8 +451,8 @@ fn binary_ln_unit_bounds_series(
   let mut sum_lower = BinFloat::zero(precision=work_precision)
   let mut sum_upper = sum_lower
   let mut denominator = 1
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
+  let threshold = BinFloat::make_coeff(
+    Coeff::one(),
     -(work_precision + 8),
     work_precision,
   )
@@ -607,7 +607,7 @@ fn binary_expm1_negative_saturation(
   let work = binary_range_check_precision
   let limit = BinFloat::from_int(context.precision + 3, precision=work)
   // ln 2 > 1/2, so arguments above -(p + 3) / 2 cannot reach the threshold.
-  let half = BinFloat::make(BinCoeff::one(), -1, work)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work)
   if value.neg().compare(limit.mul(half)) < 0 {
     return None
   }
@@ -629,9 +629,9 @@ fn binary_expm1_negative_saturation(
   let result = if toward_zero {
     finite_from_parts(
       true,
-      BinCoeff::one()
+      Coeff::one()
       .shift_left(context.precision)
-      .sub_checked(BinCoeff::one())
+      .sub_checked(Coeff::one())
       .unwrap(),
       -context.precision,
       context.precision,
@@ -655,13 +655,13 @@ fn binary_tanh_saturation(
   let work = binary_range_check_precision
   let limit = BinFloat::from_int(context.precision + 4, precision=work)
   // ln 2 > 1/2, so arguments below (p + 4) / 4 cannot reach the threshold.
-  let quarter = BinFloat::make(BinCoeff::one(), -2, work)
+  let quarter = BinFloat::make_coeff(Coeff::one(), -2, work)
   let magnitude = value.abs()
   if magnitude.compare(limit.mul(quarter)) < 0 {
     return None
   }
   guard binary_ln2_bounds(work) is Some((_, ln2_high)) else { return None }
-  let half = BinFloat::make(BinCoeff::one(), -1, work)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work)
   let threshold = limit
     .mul(half)
     .mul_ctx(
@@ -681,9 +681,9 @@ fn binary_tanh_saturation(
   let result = if toward_zero {
     finite_from_parts(
       negative,
-      BinCoeff::one()
+      Coeff::one()
       .shift_left(context.precision)
-      .sub_checked(BinCoeff::one())
+      .sub_checked(Coeff::one())
       .unwrap(),
       -context.precision,
       context.precision,
@@ -701,8 +701,8 @@ fn binary_tanh_saturation(
 
 ///|
 fn binary_ln10_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
-  let five_quarters = BinFloat::make(
-    BinCoeff::from_uint64(5UL),
+  let five_quarters = BinFloat::make_coeff(
+    Coeff::from_uint64(5UL),
     -2,
     work_precision,
   )
@@ -744,9 +744,9 @@ fn binary_ln_bounds(
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
   }
-  let coefficient_bits = value.coefficient().bit_length()
-  let normalized = BinFloat::make(
-    value.coefficient(),
+  let coefficient_bits = value.coefficient_.bit_length()
+  let normalized = BinFloat::make_coeff(
+    value.coefficient_,
     -(coefficient_bits - 1),
     Int32::max(work_precision, coefficient_bits),
   )
@@ -989,8 +989,8 @@ fn binary_expm1_bounds(
   )
   let one = BinFloat::one(precision=work_precision)
   let two = BinFloat::from_int(2, precision=work_precision)
-  let eighth = BinFloat::make(BinCoeff::one(), -3, work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let mut lower = value.with_precision(
     work_precision,
     RoundingMode::TowardNegative,
@@ -1028,8 +1028,8 @@ fn binary_expm1_bounds(
   let mut term_upper = upper
   let mut sum_lower = lower
   let mut sum_upper = upper
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
+  let threshold = BinFloat::make_coeff(
+    Coeff::one(),
     -(work_precision + 12),
     work_precision,
   )
@@ -1101,8 +1101,8 @@ fn binary_atanh_small_positive_bounds(
   let mut power_upper = upper
   let mut sum_lower = lower
   let mut sum_upper = upper
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
+  let threshold = BinFloat::make_coeff(
+    Coeff::one(),
     -(work_precision + 12),
     work_precision,
   )
@@ -1170,7 +1170,7 @@ fn binary_log1p_bounds(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   if lower_input.compare(half.neg()) >= 0 && upper_input.compare(half) <= 0 {
     let denominator = (
       two.add_ctx(lower_input, downward).0,
@@ -1392,7 +1392,7 @@ pub fn BinFloat::try_expm1_ctx(
         self.compare(BinFloat::from_int(64, precision=7)) >= 0 &&
         binary_log2_linear_out_of_range(
           self.sub_ctx(
-            BinFloat::make(BinCoeff::one(), -60, 1),
+            BinFloat::make_coeff(Coeff::one(), -60, 1),
             BinaryContext::unbounded(
               binary_range_check_precision,
               rounding=RoundTowardNegative,
@@ -1600,9 +1600,7 @@ pub fn BinFloat::try_exp2_ctx(
         Some(exponent) =>
           // Round the dyadic 2^n directly: a one-bit BinFloat::make would
           // flush 2^n below 2^e_min to zero before the context sees it.
-          return Ok(
-            binary_round_dyadic(false, BinCoeff::one(), exponent, context),
-          )
+          return Ok(binary_round_dyadic(false, Coeff::one(), exponent, context))
         None => ()
       }
       let mut budget = CertifiedRefinementBudget::new(
@@ -1681,7 +1679,7 @@ pub fn BinFloat::try_log2_ctx(
     FpClass::Finite if self.compare(BinFloat::one(precision=self.precision())) ==
       0 => Ok((BinFloat::zero(precision=context.precision), BinaryFlags::new()))
     FpClass::Finite => {
-      if self.coefficient().compare(BinCoeff::one()) == 0 {
+      if self.coefficient_.compare(Coeff::one()) == 0 {
         let exact = BinFloat::from_int(self.exponent2(), precision=64)
         return Ok(exact.round_ctx(context))
       }
@@ -1766,10 +1764,10 @@ pub fn BinFloat::try_exp10_ctx(
       match binary_exact_bounded_int(self) {
         Some(exponent) if exponent >= 0 &&
           exponent <= Int32::max(4096, context.precision) => {
-          let coefficient = BinCoeff::from_uint64(5UL).pow_nat(
+          let coefficient = Coeff::from_uint64(5UL).pow_nat(
             exponent.reinterpret_as_uint(),
           )
-          let exact = BinFloat::make(
+          let exact = BinFloat::make_coeff(
             coefficient,
             exponent,
             Int32::max(1, coefficient.bit_length()),
@@ -1907,11 +1905,11 @@ pub fn BinFloat::try_log10_ctx(
       // x = 10^k = 5^k * 2^k needs an odd coefficient of more than k bits.
       let decimal_exponent = self.exponent2()
       if decimal_exponent > 0 &&
-        decimal_exponent < self.coefficient().bit_length() {
-        let expected_coefficient = BinCoeff::from_uint64(5UL).pow_nat(
+        decimal_exponent < self.coefficient_.bit_length() {
+        let expected_coefficient = Coeff::from_uint64(5UL).pow_nat(
           decimal_exponent.reinterpret_as_uint(),
         )
-        if self.coefficient().compare(expected_coefficient) == 0 {
+        if self.coefficient_.compare(expected_coefficient) == 0 {
           let exact = BinFloat::from_int(decimal_exponent, precision=64)
           return Ok(exact.round_ctx(context))
         }
@@ -2101,9 +2099,9 @@ fn binary_hypot_negligible_operand(
     return None
   }
   let left_top = left.exponent2().to_int64() +
-    (left.coefficient().bit_length() - 1).to_int64()
+    (left.coefficient_.bit_length() - 1).to_int64()
   let right_top = right.exponent2().to_int64() +
-    (right.coefficient().bit_length() - 1).to_int64()
+    (right.coefficient_.bit_length() - 1).to_int64()
   let (large, large_top, small_top) = if left_top >= right_top {
     (left, left_top, right_top)
   } else {
@@ -2120,8 +2118,8 @@ fn binary_hypot_negligible_operand(
   // 2^e_min when it lies in the implementation subnormal range.
   let width = binary_implementation_e_min.to_int64() - (bound - 1L) + 2L
   guard width <= 1073741824L else { return None }
-  let replacement = BinFloat::make(
-    BinCoeff::one(),
+  let replacement = BinFloat::make_coeff(
+    Coeff::one(),
     (bound - 1L).to_int(),
     Int64::max(1L, width).to_int(),
   )
@@ -2187,8 +2185,8 @@ pub fn BinFloat::try_hypot_ctx(
       ),
     )
   }
-  let left_square = self.coefficient().mul(self.coefficient())
-  let right_square = other.coefficient().mul(other.coefficient())
+  let left_square = self.coefficient_.mul(self.coefficient_)
+  let right_square = other.coefficient_.mul(other.coefficient_)
   let sum = left_square
     .shift_left(left_shift.to_int())
     .add(right_square.shift_left(right_shift.to_int()))
@@ -2201,7 +2199,7 @@ pub fn BinFloat::try_hypot_ctx(
 /// that is even by construction, for sums of squares whose own exponent would
 /// leave the 32-bit range.
 fn binary_round_sqrt_half_exponent(
-  magnitude : BinCoeff,
+  magnitude : Coeff,
   half_exponent : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
@@ -2302,8 +2300,8 @@ fn binary_rootn_positive_bounds(
         work_precision,
         rounding=RoundTowardPositive,
       )
-      let divisor = BinFloat::make(
-        BinCoeff::from_uint64(degree.reinterpret_as_uint64()),
+      let divisor = BinFloat::make_coeff(
+        Coeff::from_uint64(degree.reinterpret_as_uint64()),
         0,
         work_precision,
       )
@@ -2335,18 +2333,18 @@ fn binary_rootn_positive_bounds(
 /// bisection; larger ones by integer Newton steps from an overestimate taken
 /// from the root of the leading bits, which needs a few full-size products and
 /// divisions instead of one power per root bit.
-fn binary_floor_nth_root(value : BinCoeff, degree : Int32) -> BinCoeff {
+fn binary_floor_nth_root(value : Coeff, degree : Int32) -> Coeff {
   let bits = value.bit_length()
   if bits <= degree {
     // value < 2^degree, so the root is 0 or 1.
-    return if value.is_zero() { BinCoeff::zero() } else { BinCoeff::one() }
+    return if value.is_zero() { Coeff::zero() } else { Coeff::one() }
   }
   let exponent = degree.reinterpret_as_uint()
   // The root is below 2^root_bits.
   let root_bits = (bits + degree - 1) / degree
   if root_bits <= 64 {
-    let one = BinCoeff::one()
-    let mut lower = BinCoeff::zero()
+    let one = Coeff::one()
+    let mut lower = Coeff::zero()
     let mut upper = one.shift_left(root_bits)
     while upper.sub_checked(lower).unwrap().compare(one) > 0 {
       let midpoint = lower.add(upper).shift_right(1)
@@ -2362,9 +2360,9 @@ fn binary_floor_nth_root(value : BinCoeff, degree : Int32) -> BinCoeff {
   // below ((high + 1) * 2^half)^degree, so that start exceeds the root.
   let half = root_bits / 2
   let high = binary_floor_nth_root(value.shift_right(half * degree), degree)
-  let mut root = high.add(BinCoeff::one()).shift_left(half)
-  let previous_degree = BinCoeff::from_uint64((degree - 1).to_uint64())
-  let divisor = BinCoeff::from_uint64(degree.to_uint64())
+  let mut root = high.add(Coeff::one()).shift_left(half)
+  let previous_degree = Coeff::from_uint64((degree - 1).to_uint64())
+  let divisor = Coeff::from_uint64(degree.to_uint64())
   // From any x above the root, y = floor(((degree - 1) x +
   // floor(value / x^(degree - 1))) / degree) satisfies root <= y < x (AM-GM),
   // and at x = root the step does not decrease.
@@ -2388,12 +2386,12 @@ fn binary_floor_nth_root(value : BinCoeff, degree : Int32) -> BinCoeff {
 /// degrees take exact square roots first, which stop at the first nonzero
 /// remainder.
 fn binary_exact_nth_root_coefficient(
-  coefficient : BinCoeff,
+  coefficient : Coeff,
   degree : Int32,
-) -> BinCoeff? {
+) -> Coeff? {
   guard degree > 1 else { return None }
-  if coefficient.compare(BinCoeff::one()) == 0 {
-    return Some(BinCoeff::one())
+  if coefficient.compare(Coeff::one()) == 0 {
+    return Some(Coeff::one())
   }
   // A root r >= 2 has r^degree >= 2^degree, so a coefficient with at most
   // `degree` bits other than 1 is not a perfect power of that degree.
@@ -2406,7 +2404,7 @@ fn binary_exact_nth_root_coefficient(
     value = root
     remaining = remaining / 2
   }
-  if remaining == 1 || value.compare(BinCoeff::one()) == 0 {
+  if remaining == 1 || value.compare(Coeff::one()) == 0 {
     return Some(value)
   }
   guard remaining < value.bit_length() else { return None }
@@ -2424,16 +2422,16 @@ fn binary_exact_rootn_int64(value : BinFloat, degree : Int64) -> BinFloat? {
     return None
   }
   let coefficient = if degree <= 2147483647L {
-    binary_exact_nth_root_coefficient(value.coefficient(), degree.to_int())
-  } else if value.coefficient().compare(BinCoeff::one()) == 0 {
-    Some(BinCoeff::one())
+    binary_exact_nth_root_coefficient(value.coefficient_, degree.to_int())
+  } else if value.coefficient_.compare(Coeff::one()) == 0 {
+    Some(Coeff::one())
   } else {
     None
   }
   match coefficient {
     Some(coefficient) =>
       Some(
-        BinFloat::make(
+        BinFloat::make_coeff(
           coefficient,
           (value.exponent2().to_int64() / degree).to_int(),
           Int32::max(1, coefficient.bit_length()),
@@ -2655,10 +2653,10 @@ fn binary_exact_bounded_int(value : BinFloat) -> Int32? {
   }
   guard value.exponent2() >= 0 &&
     value.exponent2() <= 30 &&
-    value.coefficient().bit_length() + value.exponent2() <= 31 else {
+    value.coefficient_.bit_length() + value.exponent2() <= 31 else {
     return None
   }
-  match value.coefficient().shift_left(value.exponent2()).to_uint64() {
+  match value.coefficient_.shift_left(value.exponent2()).to_uint64() {
     Some(magnitude) => {
       let integer = magnitude.reinterpret_as_int64().to_int()
       Some(if value.is_negative() { -integer } else { integer })
@@ -2670,7 +2668,7 @@ fn binary_exact_bounded_int(value : BinFloat) -> Int32? {
 ///|
 fn binary_exact_unit_fraction_degree(value : BinFloat) -> Int32? {
   guard value.classify() == FpClass::Finite &&
-    value.coefficient().compare(BinCoeff::one()) == 0 &&
+    value.coefficient_.compare(Coeff::one()) == 0 &&
     value.exponent2() < 0 &&
     value.exponent2() >= -29 else {
     return None
@@ -2731,7 +2729,7 @@ fn binary_pow_exactness(
     !exponent.is_zero() else {
     return Undecided
   }
-  let unit_base = base.coefficient().compare(BinCoeff::one()) == 0
+  let unit_base = base.coefficient_.compare(Coeff::one()) == 0
   let shift = -exponent.exponent2()
   if shift <= 0 {
     // An integer exponent outside the `pown` range has |y| >= 2^31. For c > 1,
@@ -2751,13 +2749,13 @@ fn binary_pow_exactness(
   let degree = 1 << shift
   guard base.exponent2() % degree == 0 else { return NotBreakpoint }
   let root = match
-    binary_exact_nth_root_coefficient(base.coefficient(), degree) {
+    binary_exact_nth_root_coefficient(base.coefficient_, degree) {
     Some(root) => root
     None => return NotBreakpoint
   }
-  let unit_root = root.compare(BinCoeff::one()) == 0
+  let unit_root = root.compare(Coeff::one()) == 0
   guard unit_root || !exponent.is_negative() else { return NotBreakpoint }
-  let numerator = match exponent.coefficient().to_uint64() {
+  let numerator = match exponent.coefficient_.to_uint64() {
     Some(value) if value < 1UL << 31 => value.reinterpret_as_int64()
     // r^m with r >= 3 and m >= 2^31 has more than precision + 1 bits.
     _ => return if unit_root { Undecided } else { NotBreakpoint }
@@ -2769,7 +2767,7 @@ fn binary_pow_exactness(
     return NotBreakpoint
   }
   let power = if unit_root {
-    BinCoeff::one()
+    Coeff::one()
   } else {
     root.pow_nat(numerator.to_int().reinterpret_as_uint())
   }
@@ -3120,7 +3118,7 @@ fn binary_hyperbolic_bounds(
         binary_exp_bounds(value.neg(), work_precision)
       }
       guard negative_exp is Some(negative_exp) else { return None }
-      let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+      let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
       let sinh = (
         positive_exp.0.sub_ctx(negative_exp.1, downward).0.mul_ctx(
           half, downward,
@@ -3481,7 +3479,7 @@ fn binary_atanh_bounds(
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one(precision=work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let lower_value = value.with_precision(
     work_precision,
     RoundingMode::TowardNegative,
@@ -3777,7 +3775,7 @@ fn binary_atan_small_positive_pair_bounds(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
     upper_value.compare(half) <= 0 else {
     return None
@@ -3804,7 +3802,7 @@ fn binary_atan_small_positive_pair_bounds(
         lower_value
       } else {
         lower_value.sub_ctx(
-          BinFloat::make(
+          BinFloat::make_coeff(
             remainder_up,
             -fraction,
             Int32::max(1, remainder_up.bit_length()),
@@ -3816,7 +3814,7 @@ fn binary_atan_small_positive_pair_bounds(
         upper_value
       } else {
         upper_value.sub_ctx(
-          BinFloat::make(
+          BinFloat::make_coeff(
             remainder_low,
             -fraction,
             Int32::max(1, remainder_low.bit_length()),
@@ -3831,7 +3829,7 @@ fn binary_atan_small_positive_pair_bounds(
 
 ///|
 /// `ceil(value * 2^shift)` of an integer, for a shift of either sign.
-fn fixed_ceil_shift(value : BinCoeff, shift : Int32) -> BinCoeff {
+fn fixed_ceil_shift(value : Coeff, shift : Int32) -> Coeff {
   if shift >= 0 {
     return value.shift_left(shift)
   }
@@ -3839,7 +3837,7 @@ fn fixed_ceil_shift(value : BinCoeff, shift : Int32) -> BinCoeff {
   if quotient.shift_left(-shift).compare(value) == 0 {
     quotient
   } else {
-    quotient.add(BinCoeff::one())
+    quotient.add(Coeff::one())
   }
 }
 
@@ -3867,9 +3865,9 @@ fn binary_atan_fixed_remainder(
   lo : BinFloat,
   hi : BinFloat,
   fraction : Int32,
-) -> (BinCoeff, BinCoeff)? {
+) -> (Coeff, Coeff)? {
   let (low_scaled, low_square) = if lo.is_zero() {
-    (BinCoeff::zero(), BinCoeff::zero())
+    (Coeff::zero(), Coeff::zero())
   } else {
     (
       fixed_scaled_floor(lo, fraction),
@@ -3881,7 +3879,7 @@ fn binary_atan_fixed_remainder(
   }
   let up_scaled = match fixed_scaled_exact(hi, fraction) {
     Some(exact) => exact
-    None => fixed_scaled_floor(hi, fraction).add(BinCoeff::one())
+    None => fixed_scaled_floor(hi, fraction).add(Coeff::one())
   }
   let up_square = fixed_ceil_shift(
     hi.coefficient_.mul(hi.coefficient_),
@@ -3889,22 +3887,22 @@ fn binary_atan_fixed_remainder(
   )
   let mut power_low = low_scaled
   let mut power_up = up_scaled
-  let mut odd_up = BinCoeff::zero()
-  let mut odd_low = BinCoeff::zero()
-  let mut even_low = BinCoeff::zero()
-  let mut even_up = BinCoeff::zero()
-  let two = BinCoeff::from_uint64(2UL)
+  let mut odd_up = Coeff::zero()
+  let mut odd_low = Coeff::zero()
+  let mut even_low = Coeff::zero()
+  let mut even_up = Coeff::zero()
+  let two = Coeff::from_uint64(2UL)
   let mut index = 1
   while index < 20000 {
     power_low = power_low.mul(low_square).shift_right(fraction)
     power_up = fixed_ceil_shift(power_up.mul(up_square), -fraction)
-    let divisor = BinCoeff::from_uint64((2 * index + 1).to_uint64())
+    let divisor = Coeff::from_uint64((2 * index + 1).to_uint64())
     let term_low = bin_coeff_short_div_rem(power_low, divisor).0
     let (quotient, remainder) = bin_coeff_short_div_rem(power_up, divisor)
     let term_up = if remainder.is_zero() {
       quotient
     } else {
-      quotient.add(BinCoeff::one())
+      quotient.add(Coeff::one())
     }
     if index % 2 == 1 {
       if term_up.compare(two) < 0 {
@@ -3913,7 +3911,7 @@ fn binary_atan_fixed_remainder(
         let low = odd_low.sub_checked(even_up)
         match (up, low) {
           (Ok(up_value), Ok(low_value)) => return Some((low_value, up_value))
-          (Ok(up_value), Err(_)) => return Some((BinCoeff::zero(), up_value))
+          (Ok(up_value), Err(_)) => return Some((Coeff::zero(), up_value))
           _ => return None
         }
       }
@@ -4007,7 +4005,7 @@ fn binary_atan_positive_pair_bounds(
   hi : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   if hi.compare(half) <= 0 {
     return binary_atan_small_positive_pair_bounds(lo, hi, work_precision)
   }
@@ -4185,7 +4183,7 @@ pub fn BinFloat::try_atan_ctx(
               work,
               rounding=RoundTowardPositive,
             )
-            let half = BinFloat::make(BinCoeff::one(), -1, work)
+            let half = BinFloat::make_coeff(Coeff::one(), -1, work)
             let bounds = if self.is_negative() {
               (
                 pi.1.mul_ctx(half, upward).0.neg(),
@@ -4389,7 +4387,7 @@ pub fn BinFloat::try_asin_ctx(
                 work,
                 rounding=RoundTowardPositive,
               )
-              let half = BinFloat::make(BinCoeff::one(), -1, work)
+              let half = BinFloat::make_coeff(Coeff::one(), -1, work)
               let bounds = if self.is_negative() {
                 (
                   pi.1.mul_ctx(half, upward).0.neg(),
@@ -4572,7 +4570,7 @@ pub fn BinFloat::try_acos_ctx(
           work,
           rounding=RoundTowardPositive,
         )
-        let half = BinFloat::make(BinCoeff::one(), -1, work)
+        let half = BinFloat::make_coeff(Coeff::one(), -1, work)
         let lower = pi.0.mul_ctx(half, downward).0.sub_ctx(
             asin_bounds.1,
             downward,
@@ -4624,8 +4622,8 @@ fn binary_pi_fraction_bounds(
         work_precision,
         rounding=RoundTowardPositive,
       )
-      let factor = BinFloat::make(
-        BinCoeff::from_uint64(numerator.reinterpret_as_uint().to_uint64()),
+      let factor = BinFloat::make_coeff(
+        Coeff::from_uint64(numerator.reinterpret_as_uint().to_uint64()),
         -denominator_shift,
         work_precision,
       )
@@ -4956,8 +4954,8 @@ fn binary_sin_cos_series(
   let mut sum_upper = term_upper
   let mut bracket_lower = term_lower
   let mut bracket_upper = term_upper
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
+  let threshold = BinFloat::make_coeff(
+    Coeff::one(),
     -(work_precision + 12),
     work_precision,
   )
@@ -5021,9 +5019,9 @@ fn binary_floor_integer(value : BinFloat) -> BinFloat? {
     return Some(value)
   }
   let shift = -value.exponent2()
-  let magnitude = value.coefficient()
+  let magnitude = value.coefficient_
   let quotient = if shift >= magnitude.bit_length() {
-    BinCoeff::zero()
+    Coeff::zero()
   } else {
     magnitude.shift_right(shift)
   }
@@ -5033,11 +5031,11 @@ fn binary_floor_integer(value : BinFloat) -> BinFloat? {
     quotient.shift_left(shift).compare(magnitude) != 0
   }
   let floor_magnitude = if value.is_negative() && has_remainder {
-    quotient.add(BinCoeff::one())
+    quotient.add(Coeff::one())
   } else {
     quotient
   }
-  let integer = BinFloat::make(
+  let integer = BinFloat::make_coeff(
     floor_magnitude,
     0,
     Int32::max(1, floor_magnitude.bit_length()),
@@ -5054,14 +5052,14 @@ fn binary_integer_mod4(value : BinFloat) -> Int32? {
   let magnitude_residue = if value.is_zero() || value.exponent2() >= 2 {
     0
   } else if value.exponent2() == 1 {
-    if value.coefficient().test_bit(0) {
+    if value.coefficient_.test_bit(0) {
       2
     } else {
       0
     }
   } else {
-    (if value.coefficient().test_bit(0) { 1 } else { 0 }) +
-    (if value.coefficient().test_bit(1) { 2 } else { 0 })
+    (if value.coefficient_.test_bit(0) { 1 } else { 0 }) +
+    (if value.coefficient_.test_bit(1) { 2 } else { 0 })
   }
   Some(
     if value.is_negative() && magnitude_residue != 0 {
@@ -5101,7 +5099,7 @@ fn binary_trigonometric_reduction(
   // so the nearest integer is 0 for both, the product 0 * (pi/2) is 0 and the
   // reduced argument is the input itself. Same result as the general path.
   let quarter_lower = half_pi.0.mul_ctx(
-      BinFloat::make(BinCoeff::one(), -1, work_precision),
+      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
       downward,
     ).0
   if input_bounds.0.compare(quarter_lower.neg()) > 0 &&
@@ -5110,7 +5108,7 @@ fn binary_trigonometric_reduction(
   }
   let quotient = binary_quotient_bounds(input_bounds, half_pi, downward, upward)
   guard quotient is Some((quotient_lower, quotient_upper)) else { return None }
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let lower_integer = binary_floor_integer(
     quotient_lower.add_ctx(half, downward).0,
   )
@@ -5182,16 +5180,19 @@ fn binary_trigonometric_bounds_series(
     rounding=RoundTowardPositive,
   )
   let half_pi = (
-    pi.0.mul_ctx(BinFloat::make(BinCoeff::one(), -1, work_precision), downward).0,
-    pi.1.mul_ctx(BinFloat::make(BinCoeff::one(), -1, work_precision), upward).0,
+    pi.0.mul_ctx(
+      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
+      downward,
+    ).0,
+    pi.1.mul_ctx(BinFloat::make_coeff(Coeff::one(), -1, work_precision), upward).0,
   )
   let quarter_pi = (
     half_pi.0.mul_ctx(
-      BinFloat::make(BinCoeff::one(), -1, work_precision),
+      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
       downward,
     ).0,
     half_pi.1.mul_ctx(
-      BinFloat::make(BinCoeff::one(), -1, work_precision),
+      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
       upward,
     ).0,
   )
@@ -5380,7 +5381,7 @@ fn BinFloat::try_trigonometric_ctx(
       )
     FpClass::Finite => {
       let adjusted_exponent = self.exponent2().to_int64() +
-        self.coefficient().bit_length().to_int64()
+        self.coefficient_.bit_length().to_int64()
       let required = context.precision.to_int64() +
         Int64::max(0L, adjusted_exponent) +
         96L

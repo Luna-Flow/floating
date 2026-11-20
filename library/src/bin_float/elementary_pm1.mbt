@@ -62,9 +62,9 @@ fn binary_log_base_p1_bounds(
 /// `x > 0` this is an odd integer `c` with `c + 1` a power of two; for
 /// `x < 0` it is `-(1 - 2^e)`, `c = 2^|e| - 1`, and then `k = e`.
 fn binary_log2p1_exact_exponent(value : BinFloat) -> Int32? {
-  let coefficient = value.coefficient()
-  let next = coefficient.add(BinCoeff::one())
-  let power_of_two = next.shift_right(next.ctz()).compare(BinCoeff::one()) == 0
+  let coefficient = value.coefficient_
+  let next = coefficient.add(Coeff::one())
+  let power_of_two = next.shift_right(next.ctz()).compare(Coeff::one()) == 0
   if !value.is_negative() {
     if value.exponent2() == 0 && power_of_two {
       Some(next.bit_length() - 1)
@@ -87,11 +87,11 @@ fn binary_log10p1_exact_exponent(value : BinFloat) -> Int32? {
   if value.is_negative() || value.exponent2() != 0 {
     return None
   }
-  let next = value.coefficient().add(BinCoeff::one())
+  let next = value.coefficient_.add(Coeff::one())
   let estimate = (next.bit_length() - 1) * 30103 / 100000
   for k in estimate..<=(estimate + 1) {
     if k > 0 &&
-      BinCoeff::from_uint64(10UL).pow_nat(k.reinterpret_as_uint()).compare(next) ==
+      Coeff::from_uint64(10UL).pow_nat(k.reinterpret_as_uint()).compare(next) ==
       0 {
       return Some(k)
     }
@@ -225,9 +225,9 @@ pub fn BinFloat::try_exp10m1_ctx(
           return Ok(
             binary_round_dyadic(
               false,
-              BinCoeff::from_uint64(10UL)
+              Coeff::from_uint64(10UL)
               .pow_nat(n.reinterpret_as_uint())
-              .sub_checked(BinCoeff::one())
+              .sub_checked(Coeff::one())
               .unwrap(),
               0,
               context,

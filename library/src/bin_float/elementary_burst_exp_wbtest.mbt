@@ -1,20 +1,20 @@
 ///|
 /// Deterministic pseudo-random coefficient with exactly `bits` bits (odd).
-fn burst_test_coefficient(bits : Int32, seed : UInt64) -> BinCoeff {
-  let mut value = BinCoeff::one()
+fn burst_test_coefficient(bits : Int32, seed : UInt64) -> Coeff {
+  let mut value = Coeff::one()
   let mut state = seed * 2862933555777941757UL + 3037000493UL
   let mut produced = 1
   while produced < bits {
     state = state * 6364136223846793005UL + 1442695040888963407UL
     let take = Int32::min(32, bits - produced)
     let chunk = (state >> 32) & ((1UL << take) - 1UL)
-    value = value.shift_left(take).add(BinCoeff::from_uint64(chunk))
+    value = value.shift_left(take).add(Coeff::from_uint64(chunk))
     produced += take
   }
   if value.test_bit(0) {
     value
   } else {
-    value.add(BinCoeff::one())
+    value.add(Coeff::one())
   }
 }
 
@@ -26,7 +26,7 @@ fn burst_test_value(
   negative : Bool,
   seed : UInt64,
 ) -> BinFloat {
-  BinFloat::make(
+  BinFloat::make_coeff(
     burst_test_coefficient(bits, seed),
     top - bits,
     bits,
@@ -136,14 +136,14 @@ test "bit-burst exp at the reduction boundaries" {
     values.push(BinFloat::from_int(k, precision=64))
     values.push(BinFloat::from_int(-k, precision=64))
   }
-  values.push(BinFloat::make(BinCoeff::one(), -60, 1))
-  values.push(BinFloat::make(BinCoeff::one(), -60, 1, negative=true))
-  values.push(BinFloat::make(BinCoeff::from_uint64(3UL), -40, 2))
+  values.push(BinFloat::make_coeff(Coeff::one(), -60, 1))
+  values.push(BinFloat::make_coeff(Coeff::one(), -60, 1, negative=true))
+  values.push(BinFloat::make_coeff(Coeff::from_uint64(3UL), -40, 2))
   // A value just below one half and just above it, and 1 - 2^-k.
   for k in [16, 17, 64, 65, 256, 257, 1024] {
     values.push(
-      BinFloat::make(
-        BinCoeff::one().shift_left(k).sub_checked(BinCoeff::one()).unwrap(),
+      BinFloat::make_coeff(
+        Coeff::one().shift_left(k).sub_checked(Coeff::one()).unwrap(),
         -k,
         k,
       ),
@@ -175,7 +175,7 @@ test "bit-burst exp declines outside its range" {
     is None,
   )
   assert_true(
-    binary_exp_bounds_burst(BinFloat::make(BinCoeff::one(), -200, 1), work)
+    binary_exp_bounds_burst(BinFloat::make_coeff(Coeff::one(), -200, 1), work)
     is None,
   )
   assert_true(

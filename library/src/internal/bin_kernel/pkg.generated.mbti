@@ -1,0 +1,92 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/internal/bin_kernel"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn bin_coeff_add_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
+
+pub fn bin_coeff_from_words(FixedArray[UInt64], Int32) -> Coeff
+
+pub fn bin_coeff_inline(UInt64, UInt64) -> Coeff
+
+pub fn bin_coeff_short_div_rem(Coeff, Coeff) -> (Coeff, Coeff)
+
+pub fn bin_coeff_sqrt_rem_kernel(Coeff) -> (Coeff, Coeff)
+
+pub fn bin_coeff_sub_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
+
+pub fn bin_coeff_word(Coeff, Int32) -> UInt64
+
+pub fn binary_fast_bits(UInt64) -> Int32
+
+pub fn binary_fast_div_wide(UInt64, UInt64, UInt64) -> UInt64
+
+pub fn binary_fast_mul_high(UInt64, UInt64) -> UInt64
+
+pub fn binary_fast_shl_high(UInt64, Int32) -> UInt64
+
+pub fn binary_fast_shl_low(UInt64, Int32) -> UInt64
+
+// Errors
+
+// Types and methods
+#derive(@debug.Debug)
+pub struct Coeff(CoeffRepr)
+pub fn Coeff::add(Self, Self) -> Self
+pub fn Coeff::bit_and(Self, Self) -> Self
+pub fn Coeff::bit_length(Self) -> Int32
+pub fn Coeff::bit_or(Self, Self) -> Self
+pub fn Coeff::bit_xor(Self, Self) -> Self
+pub fn Coeff::compare(Self, Self) -> Int32
+pub fn Coeff::ctz(Self) -> Int32
+pub fn Coeff::div_rem_checked(Self, Self) -> Result[(Self, Self), String]
+pub fn Coeff::equal(Self, Self) -> Bool
+pub fn Coeff::from_bytes_be(BytesView) -> Self
+pub fn Coeff::from_uint64(UInt64) -> Self
+pub fn Coeff::gcd(Self, Self) -> Self
+pub fn Coeff::is_odd(Self) -> Bool
+pub fn Coeff::is_zero(Self) -> Bool
+pub fn Coeff::mul(Self, Self) -> Self
+pub fn Coeff::not_equal(Self, Self) -> Bool
+pub fn Coeff::one() -> Self
+pub fn Coeff::op_ge(Self, Self) -> Bool
+pub fn Coeff::op_gt(Self, Self) -> Bool
+pub fn Coeff::op_le(Self, Self) -> Bool
+pub fn Coeff::op_lt(Self, Self) -> Bool
+pub fn Coeff::output(Self, &Logger) -> Unit
+pub fn Coeff::parse(String, radix? : Int32) -> Result[Self, String]
+pub fn Coeff::pow_nat(Self, UInt32) -> Self
+pub fn Coeff::shift_left(Self, Int32) -> Self
+pub fn Coeff::shift_right(Self, Int32) -> Self
+pub fn Coeff::shl(Self, Int32) -> Self
+pub fn Coeff::shr(Self, Int32) -> Self
+pub fn Coeff::square(Self) -> Self
+pub fn Coeff::sub_checked(Self, Self) -> Result[Self, String]
+pub fn Coeff::test_bit(Self, Int32) -> Bool
+pub fn Coeff::to_bytes_be(Self) -> Bytes
+pub fn Coeff::to_radix_string(Self, Int32) -> String
+pub fn Coeff::to_repr(Self) -> @debug.Repr
+pub fn Coeff::to_string(Self) -> String
+pub fn Coeff::to_uint64(Self) -> UInt64?
+pub fn Coeff::zero() -> Self
+pub impl Add for Coeff
+pub impl Compare for Coeff
+pub impl Eq for Coeff
+pub impl Mul for Coeff
+pub impl Shl for Coeff
+pub impl Show for Coeff
+pub impl Shr for Coeff
+
+#derive(@debug.Debug)
+pub enum CoeffRepr {
+  Inline64(UInt64)
+  Inline128(UInt64, UInt64)
+  Heap(FixedArray[UInt64], Int32)
+}
+
+// Type aliases
+
+// Traits

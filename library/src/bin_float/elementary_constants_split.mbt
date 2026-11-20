@@ -9,26 +9,22 @@ let binary_constants_split_min_precision : Int32 = 64
 /// `sum_{j < terms} 1 / ((2j+1) K^j)` as `t / q`: the factors
 /// `p(j) = 2j - 1` and `q(j) = (2j + 1) K` telescope to `1 / ((2j+1) K^j)`.
 /// `artanh(1 / k) = (1 / k) * sum` with `K = k^2`.
-fn split_artanh_state(
-  from : Int32,
-  to : Int32,
-  square : BinCoeff,
-) -> SplitState {
+fn split_artanh_state(from : Int32, to : Int32, square : Coeff) -> SplitState {
   if to - from == 1 {
     if from == 0 {
       return {
-        p: BinCoeff::one(),
-        q: BinCoeff::one(),
+        p: Coeff::one(),
+        q: Coeff::one(),
         q_shift: 0,
         t_negative: false,
-        t: BinCoeff::one(),
+        t: Coeff::one(),
       }
     }
     let odd = from.to_uint64() * 2UL
-    let p = BinCoeff::from_uint64(odd - 1UL)
+    let p = Coeff::from_uint64(odd - 1UL)
     return {
       p,
-      q: BinCoeff::from_uint64(odd + 1UL).mul(square),
+      q: Coeff::from_uint64(odd + 1UL).mul(square),
       q_shift: 0,
       t_negative: false,
       t: p,
@@ -55,7 +51,7 @@ fn split_artanh_sum_bounds(
   precision : Int32,
   reduce_terms~ : Int32 = 0,
 ) -> (BinFloat, BinFloat) {
-  let square = BinCoeff::from_uint64(
+  let square = Coeff::from_uint64(
     (k.to_int64() * k.to_int64()).reinterpret_as_uint64(),
   )
   let bits = square.bit_length() - 1
@@ -69,18 +65,18 @@ fn split_artanh_sum_bounds(
     rounding=RoundTowardNegative,
   )
   let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
-  let numerator = BinFloat::make(
+  let numerator = BinFloat::make_coeff(
     state.t,
     0,
     Int32::max(1, state.t.bit_length()),
   )
-  let denominator = BinFloat::make(
+  let denominator = BinFloat::make_coeff(
     state.q,
     0,
     Int32::max(1, state.q.bit_length()),
   )
   let low = numerator.div_ctx(denominator, downward).0
-  let tail = BinFloat::make(BinCoeff::one(), -(precision + 8), 1)
+  let tail = BinFloat::make_coeff(Coeff::one(), -(precision + 8), 1)
   let high = numerator.div_ctx(denominator, upward).0.add_ctx(tail, upward).0
   (low, high)
 }
@@ -180,23 +176,23 @@ fn split_chudnovsky_state(from : Int32, to : Int32) -> SplitState {
   if to - from == 1 {
     if from == 0 {
       return {
-        p: BinCoeff::one(),
-        q: BinCoeff::one(),
+        p: Coeff::one(),
+        q: Coeff::one(),
         q_shift: 0,
         t_negative: false,
-        t: BinCoeff::from_uint64(chudnovsky_a),
+        t: Coeff::from_uint64(chudnovsky_a),
       }
     }
     let k = from.to_uint64()
-    let p = BinCoeff::from_uint64(6UL * k - 5UL)
-      .mul(BinCoeff::from_uint64(2UL * k - 1UL))
-      .mul(BinCoeff::from_uint64(6UL * k - 1UL))
-    let k_coeff = BinCoeff::from_uint64(k)
+    let p = Coeff::from_uint64(6UL * k - 5UL)
+      .mul(Coeff::from_uint64(2UL * k - 1UL))
+      .mul(Coeff::from_uint64(6UL * k - 1UL))
+    let k_coeff = Coeff::from_uint64(k)
     let q = k_coeff
       .mul(k_coeff)
       .mul(k_coeff)
-      .mul(BinCoeff::from_uint64(chudnovsky_c3_over_24))
-    let linear = BinCoeff::from_uint64(chudnovsky_a + chudnovsky_b * k)
+      .mul(Coeff::from_uint64(chudnovsky_c3_over_24))
+    let linear = Coeff::from_uint64(chudnovsky_a + chudnovsky_b * k)
     return { p, q, q_shift: 0, t_negative: from % 2 == 1, t: p.mul(linear), }
   }
   let middle = from + (to - from) / 2
@@ -231,7 +227,7 @@ fn binary_pi_split_bounds(
   let terms = Int32::max(1, precision / 46 + 3 - reduce_terms)
   let state = split_chudnovsky_state(0, terms)
   guard !state.t_negative else { return None }
-  let slack = state.q.shift_right(precision + 4).add(BinCoeff::one())
+  let slack = state.q.shift_right(precision + 4).add(Coeff::one())
   guard state.t.compare(slack) > 0 else { return None }
   let t_low = state.t.sub_checked(slack).unwrap()
   let t_high = state.t.add(slack)
@@ -243,17 +239,17 @@ fn binary_pi_split_bounds(
   let radicand = BinFloat::from_int(10005, precision~)
   let root_low = radicand.sqrt_ctx(downward).0
   let root_high = radicand.sqrt_ctx(upward).0
-  let numerator_scale = BinFloat::make(
-    state.q.mul(BinCoeff::from_uint64(426880UL)),
+  let numerator_scale = BinFloat::make_coeff(
+    state.q.mul(Coeff::from_uint64(426880UL)),
     0,
     Int32::max(1, state.q.bit_length() + 20),
   )
   let low = root_low.mul_ctx(numerator_scale, downward).0.div_ctx(
-      BinFloat::make(t_high, 0, Int32::max(1, t_high.bit_length())),
+      BinFloat::make_coeff(t_high, 0, Int32::max(1, t_high.bit_length())),
       downward,
     ).0
   let high = root_high.mul_ctx(numerator_scale, upward).0.div_ctx(
-      BinFloat::make(t_low, 0, Int32::max(1, t_low.bit_length())),
+      BinFloat::make_coeff(t_low, 0, Int32::max(1, t_low.bit_length())),
       upward,
     ).0
   Some(

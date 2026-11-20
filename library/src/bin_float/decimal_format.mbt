@@ -4,8 +4,8 @@
 let decimal_format_exact_bits : Int64 = 1L << 20
 
 ///|
-fn bin_coeff_pow10(exponent : Int32) -> BinCoeff {
-  BinCoeff::from_uint64(10UL).pow_nat(exponent.reinterpret_as_uint())
+fn bin_coeff_pow10(exponent : Int32) -> Coeff {
+  Coeff::from_uint64(10UL).pow_nat(exponent.reinterpret_as_uint())
 }
 
 ///|
@@ -47,9 +47,9 @@ fn binary_decimal_exponent(value : BinFloat) -> Int32 {
     } else {
       let scaled = magnitude.coefficient_.mul(power)
       if magnitude.exponent2 >= 0 {
-        (scaled.shift_left(magnitude.exponent2), BinCoeff::one())
+        (scaled.shift_left(magnitude.exponent2), Coeff::one())
       } else {
-        (scaled, BinCoeff::one().shift_left(-magnitude.exponent2))
+        (scaled, Coeff::one().shift_left(-magnitude.exponent2))
       }
     }
     if left.compare(right) < 0 {
@@ -68,7 +68,7 @@ fn binary_scaled_decimal_integer(
   scale : Int32,
   mode : BinaryRoundingMode,
   digits : Int32,
-) -> (BinCoeff, Bool) {
+) -> (Coeff, Bool) {
   // value / 10^scale = c * 2^(e - scale) * 5^(-scale).
   let coefficient = value.coefficient_
   let exponent = value.exponent2.to_int64() - scale.to_int64()
@@ -77,13 +77,13 @@ fn binary_scaled_decimal_integer(
     (if exponent < 0L { -exponent } else { exponent }) +
     five_bits
   if width <= decimal_format_exact_bits {
-    let five = BinCoeff::from_uint64(5UL).pow_nat(
+    let five = Coeff::from_uint64(5UL).pow_nat(
       (if scale < 0 { -scale } else { scale }).reinterpret_as_uint(),
     )
     let (numerator, denominator) = if scale >= 0 {
       (coefficient, five)
     } else {
-      (coefficient.mul(five), BinCoeff::one())
+      (coefficient.mul(five), Coeff::one())
     }
     let (numerator, denominator) = if exponent >= 0L {
       (numerator.shift_left(exponent.to_int()), denominator)
@@ -135,7 +135,7 @@ fn binary_scaled_decimal_integer(
     if rounded_low.compare(rounded_high) == 0 {
       let integral = rounded_low.abs()
       let magnitude = if integral.coefficient_.is_zero() {
-        BinCoeff::zero()
+        Coeff::zero()
       } else {
         integral.coefficient_.shift_left(integral.exponent2)
       }
