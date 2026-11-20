@@ -75,4 +75,4 @@ let bin_coeff_sqrt_words_enabled = true
 ///|
 /// Whether integer square roots above 256 bits use the word-array recursion
 /// (`bin_coeff_sqrt_array_nonjs.mbt`) instead of the `BinCoeff` divide-and-conquer.
-let bin_coeff_sqrt_array_enabled = false
+let bin_coeff_sqrt_array_enabled = true
