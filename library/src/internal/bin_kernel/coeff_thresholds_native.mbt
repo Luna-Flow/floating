@@ -26,8 +26,17 @@ let bin_coeff_square_recursive_min_words = 256
 
 ///|
 /// Limb count (64-bit limbs) below which the schoolbook product beats the
-/// Karatsuba step of the word-range multiplication.
-let bin_coeff_words_karatsuba_cutoff : Int32 = 32
+/// Karatsuba step of the word-range multiplication. Per row implementation
+/// (instructions per `Coeff::mul`, two-count method, `n x n` limbs): with the
+/// assembly rows the schoolbook product is cheaper up to about 48 limbs
+/// (8,040 against 9,237 at 32, 27,481 against 30,001 at 64 limbs with one
+/// level instead of two); with the C rows and the portable loops 32 stays the
+/// optimum.
+let bin_coeff_words_karatsuba_cutoff : Int32 = if bin_limbs_mode == 2 {
+  48
+} else {
+  32
+}
 
 ///|
 /// 32-bit limb count below which the schoolbook product beats the Karatsuba
@@ -63,8 +72,19 @@ let bin_coeff_sqrt_words_enabled = true
 
 ///|
 /// Limb count (64-bit limbs) below which the half-product schoolbook square
-/// beats the Karatsuba square step of the word-range squaring.
-let bin_coeff_words_square_cutoff : Int32 = 36
+/// beats the Karatsuba square step of the word-range squaring. Per row
+/// implementation (instructions per `Coeff::square`, two-count method): the
+/// assembly rows make the schoolbook square cheaper up to about 96 limbs
+/// (18,043 against 20,129 at 64 limbs, 37,010 against 43,828 at 96 with the
+/// old 36), the C rows up to 64 (40,412 to 37,433 at 80 limbs); the portable
+/// loops keep 36.
+let bin_coeff_words_square_cutoff : Int32 = if bin_limbs_mode == 2 {
+  96
+} else if bin_limbs_mode == 1 {
+  64
+} else {
+  36
+}
 
 ///|
 /// Whether squaring runs the word-range Karatsuba square
@@ -90,10 +110,17 @@ let bin_coeff_ntt_limb32_conversion = false
 ///|
 /// Shortest short product, in limbs of the extended precision: below it the
 /// setup (two shifted operands, the product array, the rounding window) costs
-/// more than the rows save. Measured with the C rows (instructions per `mul`, two-count method): the short product over the schoolbook and Karatsuba product 1.05 at 17 limbs, 0.94 at 21, 0.86 at 25, 0.71 at 65, 0.84 at 129, 0.94 at 193, 1.02 at 257.
-/// With `LUNA_FLOATING_PORTABLE` set the rows are the portable loops and the
-/// portable limits (13 and 64 limbs) apply.
-let bin_coeff_short_product_min_limbs : Int32 = if bin_limbs_mode != 0 {
+/// more than the rows save. Per row implementation, from the short product over
+/// the schoolbook and Karatsuba product (instructions per `mul`, two-count
+/// method). Assembly rows: 1.23 at 17 limbs, 1.05 at 25, 1.00 at 27, 1.03 at
+/// 29, 0.93 at 31, 0.81 at 33, 0.71 at 65, 0.83 at 257, 0.92 at 321, 0.98 at
+/// 385, 1.01 at 513; the limits are 31 and 384. C rows: 1.03 at 17, 1.00 at
+/// 21, 0.90 at 25, 0.78 at 33, 0.84 at 129, 0.93 at 193, 1.01 at 257, 1.09 at
+/// 321; the limits stay 20 and 192. With `LUNA_FLOATING_PORTABLE` set the rows
+/// are the portable loops and the portable limits (13 and 64 limbs) apply.
+let bin_coeff_short_product_min_limbs : Int32 = if bin_limbs_mode == 2 {
+  31
+} else if bin_limbs_mode == 1 {
   20
 } else {
   13
@@ -102,7 +129,9 @@ let bin_coeff_short_product_min_limbs : Int32 = if bin_limbs_mode != 0 {
 ///|
 /// Longest short product, in limbs: above it the Karatsuba product is as cheap.
 /// See the minimum.
-let bin_coeff_short_product_max_limbs : Int32 = if bin_limbs_mode != 0 {
+let bin_coeff_short_product_max_limbs : Int32 = if bin_limbs_mode == 2 {
+  384
+} else if bin_limbs_mode == 1 {
   192
 } else {
   64

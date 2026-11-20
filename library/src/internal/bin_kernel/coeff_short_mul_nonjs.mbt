@@ -17,7 +17,8 @@ pub fn bin_coeff_short_product_limbs(precision : Int32) -> Int32 {
 /// Whether `bin_coeff_mul_short` handles the product of `left` and `right` at
 /// `precision` bits: a short product of `bin_coeff_short_product_min_limbs` to
 /// `bin_coeff_short_product_max_limbs` limbs (the two limits of the target:
-/// 20 and 192 on native with the C rows, 13 and 64 with the portable rows),
+/// 31 and 384 on native with the assembly rows, 20 and 192 with the C rows, 13
+/// and 64 with the portable rows),
 /// both operands within 64
 /// bits of the precision (a narrower operand makes most of the rows zero, and
 /// the exact product is cheap then).
