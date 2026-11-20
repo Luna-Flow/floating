@@ -530,20 +530,23 @@ refinements of a Ziv-style evaluation loop.
 pub struct CertifiedRefinementBudget {
   work_precision : Int
   refinements_ : Int
-  limit_ : Int
+  limit_ : Int?
+  cap_ : Int
 }
 ```
 
 ### `CertifiedRefinementBudget::new`, `CertifiedRefinementBudget::next`, `CertifiedRefinementBudget::available`, `CertifiedRefinementBudget::precision`, `CertifiedRefinementBudget::refinements`
 
 `new(p, limit?)` starts at working precision $\max(1, p)$ with zero
-refinements and a limit of $\max(1, \mathit{limit})$ refinements (default
-12). `next()` increases the precision by $\max(32, \lfloor p/2 \rfloor)$ and
-counts one refinement. `available()` is true while fewer than `limit`
-refinements were made.
+refinements. `limit` is `Some(n)`, a limit of $\max(1, n)$ refinements (default
+`Some(12)`), or `None`, no count limit. `next()` increases the precision by
+$\max(32, \lfloor p/2 \rfloor)$ and counts one refinement. `available()` is
+true while fewer than `n` refinements were made, and, for `None`, while the
+working precision does not exceed `certified_unbounded_work_cap` of the
+starting precision.
 
 ```mbti
-pub fn CertifiedRefinementBudget::new(Int, limit? : Int) -> Self
+pub fn CertifiedRefinementBudget::new(Int, limit? : Int?) -> Self
 pub fn CertifiedRefinementBudget::next(Self) -> Self
 pub fn CertifiedRefinementBudget::available(Self) -> Bool
 pub fn CertifiedRefinementBudget::precision(Self) -> Int
@@ -555,7 +558,7 @@ pub fn CertifiedRefinementBudget::refinements(Self) -> Int
 ```moonbit
 ///|
 test "budget schedule" {
-  let mut budget = @internal.CertifiedRefinementBudget::new(64, limit=3)
+  let mut budget = @internal.CertifiedRefinementBudget::new(64, limit=Some(3))
   let seen = []
   while budget.available() {
     seen.push(budget.precision().to_string())
@@ -565,6 +568,19 @@ test "budget schedule" {
   inspect(budget.precision(), content="216")
   inspect(budget.refinements(), content="3")
 }
+```
+
+### `certified_refinement_continues`, `certified_unbounded_work_cap`
+
+`certified_refinement_continues(limit, attempt, work, precision)` tells a
+hand-written refinement loop whether it may run another step: `Some(n)` allows
+`attempt < max(1, n)`, `None` allows the step while `work` does not exceed
+`certified_unbounded_work_cap(precision)`. That cap is the larger of 8,000,000
+and 256 times `precision`, at most 1,000,000,000.
+
+```mbti
+pub fn certified_refinement_continues(Int?, Int, Int, Int) -> Bool
+pub fn certified_unbounded_work_cap(Int) -> Int
 ```
 
 ### `certified_failure`
@@ -606,6 +622,10 @@ pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int32) -> Result[C
 pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int32) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
 
 pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int32, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
+
+pub fn certified_refinement_continues(Int32?, Int32, Int32, Int32) -> Bool
+
+pub fn certified_unbounded_work_cap(Int32) -> Int32
 
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int32
 
@@ -669,10 +689,11 @@ pub fn[T] CertifiedInterval::upper(Self[T]) -> T
 pub struct CertifiedRefinementBudget {
   work_precision : Int32
   refinements_ : Int32
-  limit_ : Int32
+  limit_ : Int32?
+  cap_ : Int32
 }
 pub fn CertifiedRefinementBudget::available(Self) -> Bool
-pub fn CertifiedRefinementBudget::new(Int32, limit? : Int32) -> Self
+pub fn CertifiedRefinementBudget::new(Int32, limit? : Int32?) -> Self
 pub fn CertifiedRefinementBudget::next(Self) -> Self
 pub fn CertifiedRefinementBudget::precision(Self) -> Int32
 pub fn CertifiedRefinementBudget::refinements(Self) -> Int32

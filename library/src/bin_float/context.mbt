@@ -48,6 +48,7 @@ pub struct BinaryContext {
   priv e_min : Int32?
   priv e_max : Int32?
   priv tininess : TininessDetection
+  priv refinement_limit : Int32?
 }
 
 ///|
@@ -188,7 +189,7 @@ pub fn BinaryContext::new(
     }
     _ => ()
   }
-  { precision, rounding, e_min, e_max, tininess, }
+  { precision, rounding, e_min, e_max, tininess, refinement_limit: Some(12), }
 }
 
 ///|
@@ -223,7 +224,14 @@ pub fn BinaryContext::try_new(
         ),
       )
   }
-  Ok({ precision, rounding, e_min, e_max, tininess, })
+  Ok({
+    precision,
+    rounding,
+    e_min,
+    e_max,
+    tininess,
+    refinement_limit: Some(12),
+  })
 }
 
 ///|
@@ -248,6 +256,27 @@ pub fn BinaryContext::from_arithmetic_context(
       BinaryContext::new(context.precision, rounding~, e_max~)
     (None, None) => BinaryContext::unbounded(context.precision, rounding~)
   }
+}
+
+///|
+/// The number of refinement steps the certified elementary functions may take
+/// before they report a certification failure, `Some(12)` by default. `None`
+/// means no count limit; the work precision still stops at a resource bound
+/// (see `with_refinement_limit`).
+pub fn BinaryContext::refinement_limit(self : BinaryContext) -> Int32? {
+  self.refinement_limit
+}
+
+///|
+/// Returns a copy of the context with the refinement limit of the certified
+/// elementary functions set to `limit`. `None` removes the count limit; the work
+/// precision of the loop is then bounded by `binary_refinement_work_cap`. A
+/// limit below 1 is clamped to 1 refinement step.
+pub fn BinaryContext::with_refinement_limit(
+  self : BinaryContext,
+  limit : Int32?,
+) -> BinaryContext {
+  { ..self, refinement_limit: limit, }
 }
 
 ///|

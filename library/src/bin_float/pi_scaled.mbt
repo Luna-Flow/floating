@@ -321,6 +321,7 @@ fn BinFloat::try_pi_scaled_ctx(
       }
       let mut budget = CertifiedRefinementBudget::new(
         Int32::max(context.precision + 96, self.precision() + 32),
+        limit=context.refinement_limit,
       )
       while budget.available() {
         match binary_pi_scaled_bounds(self, operation, budget.precision()) {

@@ -2,7 +2,8 @@
 pub struct CertifiedRefinementBudget {
   work_precision : Int32
   refinements_ : Int32
-  limit_ : Int32
+  limit_ : Int32?
+  cap_ : Int32
 }
 
 ///|
@@ -45,14 +46,47 @@ pub fn[T] CertifiedInterval::upper(self : CertifiedInterval[T]) -> T {
 }
 
 ///|
+/// The work precision (bits) that stops a certified refinement loop whose count
+/// limit is `None`: at least 8,000,000 bits, and 256 times the initial work
+/// precision for a larger precision (twelve refinement steps grow the work by
+/// about 130 times, so the unbounded mode always reaches past the default).
+/// The cap stays below 1,000,000,000 so the next work precision fits `Int32`.
+pub fn certified_unbounded_work_cap(initial_precision : Int32) -> Int32 {
+  let wide = Int64::max(8000000L, 256L * initial_precision.to_int64())
+  Int64::min(wide, 1000000000L).to_int()
+}
+
+///|
+/// Whether a hand-written refinement loop may run another step. `limit` is the
+/// refinement limit of the context: `Some(n)` allows `n` steps (at least one);
+/// `None` has no count limit and stops at `certified_unbounded_work_cap` of the
+/// context precision.
+pub fn certified_refinement_continues(
+  limit : Int32?,
+  attempt : Int32,
+  work : Int32,
+  precision : Int32,
+) -> Bool {
+  match limit {
+    Some(count) => attempt < Int32::max(1, count)
+    None => work <= certified_unbounded_work_cap(precision)
+  }
+}
+
+///|
 pub fn CertifiedRefinementBudget::new(
   initial_precision : Int32,
-  limit~ : Int32 = 12,
+  limit~ : Int32? = Some(12),
 ) -> CertifiedRefinementBudget {
+  let work = Int32::max(1, initial_precision)
   {
-    work_precision: Int32::max(1, initial_precision),
+    work_precision: work,
     refinements_: 0,
-    limit_: Int32::max(1, limit),
+    limit_: match limit {
+      Some(count) => Some(Int32::max(1, count))
+      None => None
+    },
+    cap_: certified_unbounded_work_cap(work),
   }
 }
 
@@ -60,7 +94,10 @@ pub fn CertifiedRefinementBudget::new(
 pub fn CertifiedRefinementBudget::available(
   self : CertifiedRefinementBudget,
 ) -> Bool {
-  self.refinements_ < self.limit_
+  match self.limit_ {
+    Some(count) => self.refinements_ < count
+    None => self.work_precision <= self.cap_
+  }
 }
 
 ///|
@@ -86,6 +123,7 @@ pub fn CertifiedRefinementBudget::next(
     Int32::max(32, self.work_precision / 2),
     refinements_: self.refinements_ + 1,
     limit_: self.limit_,
+    cap_: self.cap_,
   }
 }
 

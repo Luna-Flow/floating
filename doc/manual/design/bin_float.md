@@ -665,8 +665,9 @@ overflow threshold, $2^{e_{\min}}$ for tininess, the points of $F$ for
 inexactness) are dyadic with at most $p + 1$ significant bits as well. A
 value that is none of these has a positive distance to all of them, and the
 enclosure, whose relative width is $O(2^{-w})$, eventually lies strictly
-between two of them, so some $w$ certifies it; the loop has no attempt
-limit. Values whose
+between two of them, so some $w$ certifies it; with no count limit
+(`BinaryContext::with_refinement_limit(None)`) the loop ends by itself once
+$w$ passes the work cap below. Values whose
 binary logarithm is certainly beyond the range, estimated with
 $\log_2 10$ and a safety margin, overflow or underflow without any
 arithmetic, so `1e100000000` costs nothing.
@@ -782,8 +783,27 @@ $10^6$ bits are refused with `ResourceLimit` rather than run for minutes.
 
 **Budget.** The loop starts at $w_0 = p + 64$ (for some functions at the
 operand precision plus 16 when that is larger) and steps
-$w_{i+1} = w_i + \max(32, \lfloor w_i/2 \rfloor)$, at most 12 attempts. For
-binary64 the sequence is $117, 175, 262, \ldots, 10053$ bits.
+$w_{i+1} = w_i + \max(32, \lfloor w_i/2 \rfloor)$, at most $L$ attempts, where
+$L$ is the refinement limit of the context (`BinaryContext::refinement_limit`,
+default $12$; a value below $1$ counts as $1$). For binary64 and $L = 12$ the
+sequence is $117, 175, 262, \ldots, 10053$ bits, and a hard-to-round input
+that needs more than that fails with a `CertificationFailure` carrying the
+refinement count; `Some(n)` with a larger $n$ certifies it.
+
+With $L$ = `None` the count is unbounded, but the loop is not: it stops, with
+the same `CertificationFailure`, when $w$ exceeds
+$\max(8\,000\,000,\ 256\,w_0)$ bits (capped at $10^9$ so $w$ fits `Int32`),
+and a trigonometric argument that needs more than $8\,000\,000$ bits for its
+reduction is still refused with `ResourceLimit` whatever the limit. So `None`
+cannot allocate without bound: each step costs $O(M(w))$ for the working
+precision $w \le$ the cap, and the number of steps is at most
+$\log_{1.5}(\text{cap}/w_0)$. A result that sits at distance
+$\delta$ from a breakpoint needs $w \approx \log_2(1/\delta)$, so the default
+$L = 12$ decides everything farther than about $2^{-10000}$ from a breakpoint
+at binary64 and `None` extends that to the cap. Functions without a context
+argument (the `BallFloat` enclosures) keep $12$. The exact fallback of the
+integer power `pow_int` (12 Ziv rounds, then an exact product) cannot fail and
+is not governed by the limit.
 
 **Termination.** Ziv's argument has two parts. First, $f(x)$ must not be a
 breakpoint of $\circ$ (a point of $F$, a midpoint, or a flag threshold), all

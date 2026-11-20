@@ -336,11 +336,13 @@ pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> 
 pub fn BinaryContext::new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::not_equal(Self, Self) -> Bool
 pub fn BinaryContext::precision(Self) -> Int32
+pub fn BinaryContext::refinement_limit(Self) -> Int32?
 pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
 pub fn BinaryContext::tininess(Self) -> TininessDetection
 pub fn BinaryContext::to_repr(Self) -> @debug.Repr
 pub fn BinaryContext::try_new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinaryContext::unbounded(Int32, rounding? : BinaryRoundingMode) -> Self
+pub fn BinaryContext::with_refinement_limit(Self, Int32?) -> Self
 
 #derive(Eq, @debug.Debug)
 pub struct BinaryFlags {

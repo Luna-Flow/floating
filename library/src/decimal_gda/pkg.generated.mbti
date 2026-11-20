@@ -327,9 +327,11 @@ pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) ->
 pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
+pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
 pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 

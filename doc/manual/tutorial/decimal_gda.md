@@ -232,6 +232,13 @@ test "elementary functions" {
 }
 ```
 
+A certified elementary function refines its enclosure at most twelve times by
+default. For a rare argument that sits very close to a rounding boundary,
+`ctx.with_refinement_limit(Some(24))` allows more steps and
+`with_refinement_limit(None)` removes the count (the working precision then
+stops at a cap of at least 8,000,000 bits); the limit is a field of
+`DecimalContext`, so contexts that differ only in it are different.
+
 ### Compare and print
 
 `compare` is numeric and returns a decimal (`-1`, `0`, `1`, or NaN when an

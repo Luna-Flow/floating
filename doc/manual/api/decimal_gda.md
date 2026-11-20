@@ -1326,6 +1326,44 @@ pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 
 `precision()` is 0 for `exact()`.
 
+### `DecimalContext::refinement_limit`, `DecimalContext::with_refinement_limit`
+
+Read and set the refinement limit of the certified elementary functions.
+
+```mbti
+pub fn DecimalContext::refinement_limit(Self) -> Int32?
+pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
+```
+
+The certified elementary functions evaluate an enclosure at a growing working
+precision until both ends round alike. The limit is the number of evaluations:
+`Some(n)` allows `n` (a value below 1 counts as 1), the default is `Some(12)`,
+and `None` removes the count limit. When the limit is reached without a
+decision, `try_*_ctx` returns the `CertificationFailure` error with the
+refinement count, as before, and the plain and `*_ctx` forms return NaN with
+`invalid_operation`. With `None` the loop stops when the working precision
+passes a cap, the larger of 8,000,000 bits and 256 times the first working
+precision. The default changes no result. The field takes part in `==`: two
+contexts that differ only in the limit are different.
+
+```moonbit
+///|
+test "a refinement limit makes a hard-to-round result fail" {
+  let context = @decimal_gda.DecimalContext::new(
+    precision=34,
+    e_min=-999_999,
+    e_max=999_999,
+  ).unwrap()
+  inspect(context.refinement_limit() == Some(12), content="true")
+  // exp(5E-34) lies just above the midpoint 1 + 5E-34 at 34 digits.
+  let x = @decimal_gda.Decimal::from_string("5E-34", precision=34).unwrap()
+  let short = context.with_refinement_limit(Some(1))
+  inspect(x.try_exp_ctx(short) is Err(_), content="true")
+  let unlimited = context.with_refinement_limit(None)
+  inspect(x.try_exp_ctx(unlimited) is Ok(_), content="true")
+}
+```
+
 ### `DecimalContext::with_rounding`, `DecimalContext::with_tininess`
 
 These return a copy with one parameter replaced.
@@ -2364,9 +2402,11 @@ pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) ->
 pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
+pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
 pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 

@@ -50,7 +50,10 @@ fn decimal_certified_scaled_loop(
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let wide = decimal_rcp_wide_ctx()
   let target_ctx = decimal_math_result_ctx(ctx)
-  let mut budget = CertifiedRefinementBudget::new(initial)
+  let mut budget = CertifiedRefinementBudget::new(
+    initial,
+    limit=ctx.refinement_limit,
+  )
   while budget.available() {
     match evaluate(budget.precision()) {
       Ok(interval) => {

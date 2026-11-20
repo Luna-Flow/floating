@@ -205,7 +205,11 @@ Each elementary function has a plain form, a `*_ctx` form and a `try_*_ctx`
 form. All three return the correctly rounded result. They differ only in how
 a domain error or an exhausted refinement budget is reported: the plain and
 `*_ctx` forms return a quiet NaN with `invalid_operation`, while `try_*_ctx`
-returns an `@lf_arith.ArithmeticError` that says what went wrong.
+returns an `@lf_arith.ArithmeticError` that says what went wrong. The budget is
+twelve refinement steps by default; `context.with_refinement_limit(Some(n))`
+changes the count and `with_refinement_limit(None)` removes it (the working
+precision then stops at a cap of at least 8,000,000 bits), for a rare input that
+sits very close to a rounding boundary.
 
 ```moonbit
 ///|
