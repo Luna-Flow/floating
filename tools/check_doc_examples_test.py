@@ -23,7 +23,7 @@ class DocExamplesTests(unittest.TestCase):
             command[3:5],
             ("library/src/_generated_doc_examples/a", "library/src/_generated_doc_examples/b"),
         )
-        self.assertEqual(command[-2:], ("--target", "native"))
+        self.assertEqual(command[-3:], ("--target", "native", "--deny-warn"))
 
     def test_pages_using_a_tools_package_are_compiled_in_the_tools_module(self) -> None:
         library_page = page("internal")
