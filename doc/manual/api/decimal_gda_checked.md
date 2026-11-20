@@ -147,7 +147,7 @@ pub fn GdaDecimalChecked::resume_defined(Self) -> Self
 ```
 
 On `Trapped(signal, value, context, raised)` it returns
-`Completed(value, context, GdaFlags::none())`: the value and the context (with
+`Completed(value, context, GdaFlags::new())`: the value and the context (with
 its status, which already contains the trapped signal) are kept, the trap
 marker and the latest-step flags are dropped. On a completed pipeline it does
 nothing. Traps stay enabled in the context, so the same condition traps again

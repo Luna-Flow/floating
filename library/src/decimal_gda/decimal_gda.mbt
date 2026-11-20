@@ -131,7 +131,7 @@ fn gda_completed_exact(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  Completed(value, ctx, GdaFlags::none())
+  Completed(value, ctx, GdaFlags::new())
 }
 
 ///|

@@ -5,7 +5,7 @@
 test "gda divide rounds once near a manufactured midpoint" {
   let one = Decimal::from_string("1").unwrap()
   let divisor = Decimal::from_string("2222").unwrap()
-  let none = GdaTrapSet::none()
+  let none = GdaTrapSet::new()
   for
     mode in [
       GdaRoundingMode::HalfEven,
@@ -19,7 +19,7 @@ test "gda divide rounds once near a manufactured midpoint" {
 
 ///|
 test "gda divide stays exact when the quotient terminates" {
-  let none = GdaTrapSet::none()
+  let none = GdaTrapSet::new()
   let ctx = GdaContext::new(
     precision=9,
     rounding=GdaRoundingMode::HalfEven,

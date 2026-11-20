@@ -43,7 +43,7 @@ test "GDA context exposes radix ten" {
 
 ///|
 test "GDA try_new preserves validated context fields" {
-  let traps = GdaTrapSet::none().with_signal(GdaSignal::Inexact)
+  let traps = GdaTrapSet::new().with_signal(GdaSignal::Inexact)
   let context = GdaContext::try_new(
     precision=17,
     rounding=GdaRoundingMode::Floor,
@@ -59,7 +59,7 @@ test "GDA try_new preserves validated context fields" {
   assert_eq(context.e_max(), 34)
   assert_true(context.clamp())
   assert_false(context.extended())
-  assert_true(context.status() == GdaFlags::none())
+  assert_true(context.status() == GdaFlags::new())
   assert_true(context.traps() == traps)
 }
 
@@ -105,7 +105,7 @@ test "GDA exact outcomes preserve sticky status without raising flags" {
     GdaOutcome::Completed(value, context, raised) => {
       assert_eq(value.to_string(), "2")
       assert_true(context.status().contains(GdaSignal::DivisionByZero))
-      assert_true(raised == GdaFlags::none())
+      assert_true(raised == GdaFlags::new())
     }
     GdaOutcome::Trapped(_, _, _, _) => fail("exact addition must complete")
   }
@@ -114,12 +114,12 @@ test "GDA exact outcomes preserve sticky status without raising flags" {
 ///|
 test "GDA trap selection preserves signal precedence" {
   let raised = {
-    ..GdaFlags::none(),
+    ..GdaFlags::new(),
     invalid_operation: true,
     division_by_zero: true,
     inexact: true,
   }
-  let traps = GdaTrapSet::none()
+  let traps = GdaTrapSet::new()
     .with_signal(GdaSignal::Inexact)
     .with_signal(GdaSignal::DivisionByZero)
     .with_signal(GdaSignal::InvalidOperation)
@@ -157,7 +157,7 @@ test "GDA basic context matches the 1.70 defaults" {
   assert_eq(ctx.precision(), 9)
   assert_true(ctx.rounding() == GdaRoundingMode::HalfUp)
   assert_true(!ctx.extended())
-  assert_true(ctx.status() == GdaFlags::none())
+  assert_true(ctx.status() == GdaFlags::new())
   let traps = ctx.traps()
   assert_true(traps.contains(GdaSignal::Clamped))
   assert_true(traps.contains(GdaSignal::DivisionByZero))

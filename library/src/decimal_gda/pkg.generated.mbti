@@ -413,7 +413,7 @@ pub fn GdaFlags::inexact(Self) -> Bool
 pub fn GdaFlags::invalid_context(Self) -> Bool
 pub fn GdaFlags::invalid_operation(Self) -> Bool
 pub fn GdaFlags::lost_digits(Self) -> Bool
-pub fn GdaFlags::none() -> Self
+pub fn GdaFlags::new() -> Self
 pub fn GdaFlags::not_equal(Self, Self) -> Bool
 pub fn GdaFlags::overflow(Self) -> Bool
 pub fn GdaFlags::rounded(Self) -> Bool
@@ -503,7 +503,7 @@ pub fn GdaTrapSet::inexact(Self) -> Bool
 pub fn GdaTrapSet::invalid_context(Self) -> Bool
 pub fn GdaTrapSet::invalid_operation(Self) -> Bool
 pub fn GdaTrapSet::lost_digits(Self) -> Bool
-pub fn GdaTrapSet::none() -> Self
+pub fn GdaTrapSet::new() -> Self
 pub fn GdaTrapSet::not_equal(Self, Self) -> Bool
 pub fn GdaTrapSet::overflow(Self) -> Bool
 pub fn GdaTrapSet::rounded(Self) -> Bool

@@ -262,7 +262,7 @@ fn resolve_context(context : GdaContext) -> ResolvedContext? {
       e_max=context.max_exponent(),
       clamp=context.clamp(),
       extended=context.extended(),
-      traps=@decimal_gda.GdaTrapSet::none(),
+      traps=@decimal_gda.GdaTrapSet::new(),
     ),
   })
 }
