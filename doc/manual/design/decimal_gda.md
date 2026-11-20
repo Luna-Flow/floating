@@ -625,6 +625,17 @@ $2 \times 10^{1}$, not $20$), because the exponent of an exact power is the one
 repeated multiplication gives: $0.05^{-8}$ is $2.56 \times 10^{10}$ with three
 digits and no `Rounded`.
 
+A zero exponent is decided before all of this: for a finite nonzero $x$ (and
+for $\pm\infty$) $x^0$ is the integer $1$ with exponent $0$ and no conditions
+in every context, a clamped one included ("the result will be 1 and exact"). It
+is not folded down, as decNumber does not (`decNumberPower` leaves by an early
+exit before its final rounding and clamping, `decCopyFit` and `decFinish`) and as
+libmpdec does not. The IEEE interchange encoders fold a result down
+themselves, at an exponent above $E_{\max} - P_{\max} + 1$, that is 90, 369 and
+6111 for decimal32, decimal64 and decimal128, which the exponent $0$ of $1$ never
+reaches; only a clamped context with $e_{\max} < p - 1$, which no IEEE format
+has, could tell the two results apart.
+
 The working context never clamps. `Clamped` and `Rounded` therefore come from two
 places only: an intermediate rounding that discards non-zero digits makes the
 result inexact, and the final rounding to the context folds down an exponent

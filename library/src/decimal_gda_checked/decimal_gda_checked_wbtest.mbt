@@ -58,3 +58,20 @@ test "gda checked power of a power of ten with an integral k*y is exact in the d
     )
   }
 }
+
+///|
+test "gda checked power to a zero exponent is exactly 1 in a clamped context (issue 405)" {
+  let context = @decimal_gda.GdaContext::new(
+    precision=5,
+    e_min=-10,
+    e_max=0,
+    clamp=true,
+  ).unwrap()
+  let base = @decimal_gda.Decimal::from_string("9.99").unwrap()
+  let result = GdaDecimalChecked::from_decimal(base, context).power(
+    @decimal_gda.Decimal::zero(),
+  )
+  assert_false(result.is_trapped())
+  assert_eq(result.value().to_string(), "1")
+  assert_false(result.raised().contains(@decimal_gda.GdaSignal::Clamped))
+}

@@ -300,6 +300,22 @@ fn Decimal::power_ctx_impl(
   exponent : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  // GDA 1.70, power: "If the right-hand operand is a zero, the result will be
+  // 1 and exact." The result is the integer 1 with exponent 0 and no
+  // conditions, in every context. decNumber leaves `decNumberPower` here by an
+  // early exit before its final rounding and clamping (`decCopyFit`,
+  // `decFinish`), and the IEEE interchange encoders fold a result down
+  // themselves, at an exponent above 90, 369 or 6111 (decimal32, decimal64,
+  // decimal128) that the exponent 0 of `1` never reaches. A context in which
+  // the exponent 0 would be folded (`e_max < precision - 1` with `clamp`) has
+  // no IEEE format (issue 405).
+  if self.class == FpClass::Finite &&
+    !self.coefficient.is_zero() &&
+    exponent.class == FpClass::Finite &&
+    exponent.coefficient.is_zero() {
+    let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
+    return (Decimal::one(precision~), DecimalFlags::new())
+  }
   match decimal_power_simple_ten_result(self, exponent, ctx) {
     Some(result) => return decimal_power_finalize_result(result, ctx)
     None => ()
