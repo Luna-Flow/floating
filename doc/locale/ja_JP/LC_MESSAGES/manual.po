@@ -5836,8 +5836,8 @@ msgid "These are the forms of the [GDA comparisons](#compare-compare_signal-comp
 msgstr "これらは [GDA の比較](#compare-compare_signal-compare_total-compare_total_magnitude)に対応する形です。"
 
 #: manual/api/decimal_gda.md:1626
-msgid "These are the forms of [`max`, `min`, `max_mag`, `min_mag`](#max-min-max_mag-min_mag)."
-msgstr "これらは [`max`、`min`、`max_mag`、`min_mag`](#max-min-max_mag-min_mag) に対応する形です。"
+msgid "These are the forms of [`max`, `min`, `max_magnitude`, `min_magnitude`](#max-min-max_magnitude-min_magnitude)."
+msgstr "これらは [`max`、`min`、`max_magnitude`、`min_magnitude`](#max-min-max_magnitude-min_magnitude) に対応する形です。"
 
 #: manual/api/decimal_gda.md:1637
 msgid "These are the status-free elementary functions."

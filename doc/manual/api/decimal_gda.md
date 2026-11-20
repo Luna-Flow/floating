@@ -1043,15 +1043,15 @@ value and then by exponent (`2.50` < `2.5`), NaNs by payload; the order is
 reversed for negative values. `compare_total_magnitude` applies the total
 order to the absolute values. The total orders never raise flags.
 
-### `max`, `min`, `max_mag`, `min_mag`
+### `max`, `min`, `max_magnitude`, `min_magnitude`
 
 These are the GDA max and min operations, on values or on magnitudes.
 
 ```mbti
 pub fn max(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn min(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
-pub fn max_mag(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
-pub fn min_mag(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
+pub fn max_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
+pub fn min_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
 A single quiet NaN is ignored in favour of the number; two quiet NaNs give
@@ -1621,15 +1621,15 @@ pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int, DecimalFl
 pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int, DecimalFlags)
 ```
 
-### `Decimal::min_ctx`, `Decimal::max_ctx`, `Decimal::min_mag_ctx`, `Decimal::max_mag_ctx`
+### `Decimal::min_ctx`, `Decimal::max_ctx`, `Decimal::min_magnitude_ctx`, `Decimal::max_magnitude_ctx`
 
-These are the forms of [`max`, `min`, `max_mag`, `min_mag`](#max-min-max_mag-min_mag).
+These are the forms of [`max`, `min`, `max_magnitude`, `min_magnitude`](#max-min-max_magnitude-min_magnitude).
 
 ```mbti
 pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::min_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::max_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 ### `Decimal::sqrt_ctx`, `Decimal::exp_ctx`, `Decimal::ln_ctx`, `Decimal::log10_ctx`, `Decimal::power_ctx`
@@ -2085,11 +2085,11 @@ pub fn logical_xor(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn max(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
-pub fn max_mag(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
+pub fn max_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn min(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
-pub fn min_mag(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
+pub fn min_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn minus(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
@@ -2207,10 +2207,10 @@ pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingM
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
-pub fn Decimal::max_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::max_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::min_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::min_mag_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::min_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self

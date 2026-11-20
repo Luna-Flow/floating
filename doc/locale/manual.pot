@@ -5820,7 +5820,7 @@ msgid "These are the forms of the [GDA comparisons](#compare-compare_signal-comp
 msgstr ""
 
 #: manual/api/decimal_gda.md:1626
-msgid "These are the forms of [`max`, `min`, `max_mag`, `min_mag`](#max-min-max_mag-min_mag)."
+msgid "These are the forms of [`max`, `min`, `max_magnitude`, `min_magnitude`](#max-min-max_magnitude-min_magnitude)."
 msgstr ""
 
 #: manual/api/decimal_gda.md:1637

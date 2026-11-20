@@ -130,7 +130,7 @@ pub fn Decimal::max_ctx(
 }
 
 ///|
-pub fn Decimal::min_mag_ctx(
+pub fn Decimal::min_magnitude_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -139,7 +139,7 @@ pub fn Decimal::min_mag_ctx(
 }
 
 ///|
-pub fn Decimal::max_mag_ctx(
+pub fn Decimal::max_magnitude_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,

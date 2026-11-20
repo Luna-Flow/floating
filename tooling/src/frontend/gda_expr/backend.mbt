@@ -791,11 +791,11 @@ fn invoke_decimal_operation(
       })
     "minmag" =>
       binary_gda_decimal(values, fn(a, b) {
-        @decimal_gda.min_mag(a, b, context.gda)
+        @decimal_gda.min_magnitude(a, b, context.gda)
       })
     "maxmag" =>
       binary_gda_decimal(values, fn(a, b) {
-        @decimal_gda.max_mag(a, b, context.gda)
+        @decimal_gda.max_magnitude(a, b, context.gda)
       })
     "nexttoward" =>
       binary_gda_decimal(values, fn(a, b) {

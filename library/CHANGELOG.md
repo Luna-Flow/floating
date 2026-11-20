@@ -8,6 +8,13 @@ notes live in this file.
 
 ### Breaking
 
+- `decimal_gda`: `max_mag` and `min_mag` are spelled out ([#22](https://github.com/Luna-Flow/floating/issues/22), naming row G07; `max`, `min`, `max_ctx` and `min_ctx` keep their names, as GDA 1.70 names the operations `max`, `min`, `max-magnitude` and `min-magnitude`). The old names are removed without an alias; `decimal` and `decimal_gda_checked` are not affected. Migration:
+
+  | before | after |
+  | --- | --- |
+  | `decimal_gda::max_mag`, `decimal_gda::min_mag` (free functions) | `decimal_gda::max_magnitude`, `decimal_gda::min_magnitude` |
+  | `Decimal::max_mag_ctx`, `Decimal::min_mag_ctx` | `Decimal::max_magnitude_ctx`, `Decimal::min_magnitude_ctx` |
+
 - `decimal_gda`: one spelling per operation ([#22](https://github.com/Luna-Flow/floating/issues/22), naming rows G01 to G06, G08 and G09; the name of an operation follows GDA 1.70 and there is no alias). Twenty-three methods of `Decimal` are removed; `decimal_gda_checked` had none of them. The `decimal` package is not affected. Migration:
 
   | row | removed | use instead |
