@@ -1355,10 +1355,11 @@ input leaves the domain, as listed below). The minimum is then made canonical
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
 ```
 
-The default decoration is `Com`. The decoration is made canonical, and `Ill`
-is replaced by `Trv`: `new` never builds NaI. `new(whole())` is therefore
-decorated `Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788
-`newDec`.
+The default decoration is `Com`. `new` is `setDec` of IEEE 1788-2015 11.5.2:
+the decoration `Ill` gives NaI for any interval, empty or not (at the
+precision of the interval, so the result equals `BallFloatDecorated::nai`);
+otherwise the decoration is made canonical, so `new(whole())` is decorated
+`Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788 `newDec`.
 
 ### `BallFloatDecorated::nai` and `BallFloatDecorated::is_nai`
 
