@@ -782,7 +782,7 @@ with `HalfEven` rounding, because the specification defines these functions as
 correctly rounded with round-half-even regardless of the context mode; `power`
 uses the context's mode, as the specification and its test vectors require,
 and reports non-integer powers as `Inexact` with $p$ digits even when the
-power happens to be exact (`decimal_power_noninteger_gda_result`). The exact
+power happens to be exact (`decimal_power_noninteger_gda_result`), and never as `Clamped` unless the result rounds to zero: the padded form of a nonzero result has an exponent of at most $e_{\max} - p + 1$, so no fold-down is left to report, whatever route computed it (a square root for the exponent $0.5$, an exact rational power, a power of ten, the certified loop). The exact
 value is the correctly rounded one in every direction, so a directed mode never
 adds a unit in the last place: `power(1E-5, 1.2)` is `1E-6` padded to $p$ digits
 with `Inexact` and `Rounded` in every mode, as `power.decTest` rows powx2039

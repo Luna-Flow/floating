@@ -102,6 +102,17 @@ class CaseTests(unittest.TestCase):
         self.assertEqual(modes, {name for name, _ in generator.ROUNDINGS})
 
 
+class PowerHalfExponentTests(unittest.TestCase):
+    def test_the_power_of_ten_class_includes_the_exponent_one_half(self) -> None:
+        # Issue 397 is fixed: the square-root path no longer needs an exclusion.
+        seen = set()
+        for index in range(4000):
+            case = generator.generate_case("power", 5, index)
+            if case.operands[1] in ("0.5", "-0.5", "0.50", "-0.50"):
+                seen.add(case.operands[1][0] == "-")
+        self.assertEqual(seen, {False, True})
+
+
 class OperandTests(unittest.TestCase):
     def test_operands_beyond_emax_are_moved_to_emax(self) -> None:
         self.assertEqual(generator.fit_operand("9.75E+10003", 10002), "9.75E+10002")
