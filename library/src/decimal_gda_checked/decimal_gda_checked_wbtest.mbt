@@ -75,3 +75,23 @@ test "gda checked power to a zero exponent is exactly 1 in a clamped context (is
   assert_eq(result.value().to_string(), "1")
   assert_false(result.raised().contains(@decimal_gda.GdaSignal::Clamped))
 }
+
+///|
+test "gda checked power to one half is the padded inexact result without Clamped (issue 397)" {
+  let context = @decimal_gda.GdaContext::new(
+    precision=4,
+    rounding=@decimal_gda.GdaRoundingMode::Down,
+    e_min=-4,
+    e_max=0,
+    clamp=true,
+  ).unwrap()
+  let base = @decimal_gda.Decimal::from_string("0.01").unwrap()
+  let result = GdaDecimalChecked::from_decimal(base, context).power(
+    @decimal_gda.Decimal::from_string("0.5").unwrap(),
+  )
+  assert_false(result.is_trapped())
+  assert_eq(result.value().to_string(), "0.1000")
+  assert_true(result.raised().contains(@decimal_gda.GdaSignal::Inexact))
+  assert_true(result.raised().contains(@decimal_gda.GdaSignal::Rounded))
+  assert_false(result.raised().contains(@decimal_gda.GdaSignal::Clamped))
+}

@@ -371,6 +371,16 @@ fn decimal_power_noninteger_gda_result(
   } else {
     result.0
   }
+  // The result of a non-integral power is inexact and carries `precision`
+  // digits, so the exponent of a nonzero finite result is at most
+  // `e_max - precision + 1` (or Etiny for a subnormal one) and nothing is
+  // altered to fit (GDA 1.70, Exceptional conditions, Clamped). A fold-down that
+  // the exact short form of the value went through (the square root of `0.01`
+  // is `0.1`, a coefficient of one digit) must not be reported: the padding
+  // undoes it, as for an inexact integer power (issue 305). A zero result keeps
+  // its Clamped ("always occurs when a subnormal value rounds to zero").
+  let nonzero_finite = value.class == FpClass::Finite &&
+    !value.coefficient.is_zero()
   (
     value,
     {
@@ -378,6 +388,7 @@ fn decimal_power_noninteger_gda_result(
       rounded: true,
       inexact: true,
       underflow: result.1.underflow || result.1.subnormal,
+      clamped: result.1.clamped && !nonzero_finite,
     },
   )
 }

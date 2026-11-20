@@ -625,10 +625,6 @@ def power_of_ten_case(rng: Rng, context: Ctx) -> tuple[Ctx, list[str]]:
     sign = -1 if rng.chance(1, 2) else 1
     k *= sign
     n = rng.range(1, 3 * abs(k) - 1)
-    if 2 * n == abs(k):
-        # y = 0.5 takes the square-root path, which raises an extra Clamped in
-        # a clamped context (issue 397); it is not the path of issue 351.
-        n += 1
     if n % abs(k) == 0:
         n += 1
     y = Decimal(n) / Decimal(abs(k))
