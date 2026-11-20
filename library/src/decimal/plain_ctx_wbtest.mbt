@@ -192,6 +192,46 @@ fn plain_second(
 }
 
 ///|
+fn plain_wide() -> DecimalContext {
+  DecimalContext::raw(4000, decimal_value_e_tiny, decimal_value_e_max)
+}
+
+///|
+/// Whether the discarded part of an exact result, when it is rounded to
+/// `precision` digits, is exactly one half: a 5 followed by zeros.
+fn plain_is_tie(exact : Decimal, precision : Int32) -> Bool {
+  let digits = exact.coefficient.to_string()
+  if digits.length() <= precision {
+    return false
+  }
+  let mut tie = digits[precision] == '5'
+  for index in (precision + 1)..<digits.length() {
+    if digits[index] != '0' {
+      tie = false
+    }
+  }
+  tie
+}
+
+///|
+/// Counts a tie in `hits` (3 and 4: sum, 5 and 6: product; the first of each
+/// pair for ties to even, the second for ties away from zero).
+fn plain_count_tie(
+  hits : Array[Int32],
+  exact : Decimal,
+  ctx : DecimalContext,
+  base : Int32,
+) -> Unit {
+  if plain_is_tie(exact, ctx.precision) {
+    match ctx.decimal_rounding {
+      HalfEven => hits[base] = hits[base] + 1
+      HalfUp => hits[base + 1] = hits[base + 1] + 1
+      _ => ()
+    }
+  }
+}
+
+///|
 fn plain_check(
   lhs : Decimal,
   rhs : Decimal,
@@ -227,6 +267,12 @@ fn plain_check(
     match decimal_add_plain(lhs, rhs, ctx, subtract) {
       Some((value, flags)) => {
         hits[0] = hits[0] + 1
+        plain_count_tie(
+          hits,
+          lhs.add_ctx(if subtract { rhs.neg() } else { rhs }, plain_wide()).0,
+          ctx,
+          3,
+        )
         if !plain_same_decimal(value, expected.0) || flags != expected.1 {
           fail(
             "plain add differs (subtract \{subtract}): " +
@@ -246,6 +292,7 @@ fn plain_check(
   match decimal_mul_plain(lhs, rhs, ctx) {
     Some((value, flags)) => {
       hits[1] = hits[1] + 1
+      plain_count_tie(hits, lhs.mul_ctx(rhs, plain_wide()).0, ctx, 5)
       if !plain_same_decimal(value, expected_mul.0) || flags != expected_mul.1 {
         fail(
           "plain mul differs: " +
@@ -287,7 +334,7 @@ fn plain_run(max_digits : Int32, seed : UInt64) -> Array[Int32] raise {
   )
   let contexts = plain_contexts()
   let state = Ref(seed)
-  let hits = [0, 0, 0]
+  let hits = [0, 0, 0, 0, 0, 0, 0]
   for iteration in 0..<plain_ctx_cases {
     let ctx = contexts[iteration % contexts.length()]
     let lhs = plain_operand(state, ctx, wide, max_digits)
@@ -308,6 +355,8 @@ test "plain add, subtract, multiply and divide equal the general route (short op
   assert_true(hits[0] > 3000)
   assert_true(hits[1] > 3000)
   assert_true(hits[2] > 3000)
+  // exact ties of the two nearest modes, for the sum and the product
+  assert_true(hits[3] > 0 && hits[4] > 0 && hits[5] > 0 && hits[6] > 0)
 }
 
 ///|
@@ -360,7 +409,7 @@ test "plain paths at the end of the range with a rounding carry" {
   let wide = DecimalContext::raw(
     4000, decimal_value_e_tiny, decimal_value_e_max,
   )
-  let hits = [0, 0, 0]
+  let hits = [0, 0, 0, 0, 0, 0, 0]
   for ctx in plain_contexts() {
     let p = ctx.precision
     for
@@ -406,4 +455,100 @@ test "plain paths at the end of the range with a rounding carry" {
     }
   }
   assert_true(hits[0] > 0 && hits[1] > 0 && hits[2] > 0)
+}
+
+///|
+/// Exact ties: the discarded digits of the exact sum or product are a 5
+/// followed by zeros, with an even and an odd last kept digit and both signs,
+/// in the two nearest modes (ties to even, ties away from zero). The plain path
+/// must answer, give the stated value and the `inexact` flag, and agree with the
+/// general route.
+test "plain sums and products at an exact tie" {
+  let wide = plain_wide()
+  // (operation, lhs, rhs, mode, expected coefficient, expected exponent, negative)
+  let cases : Array[(String, String, String, DecimalRound, String, Int32, Bool)] = [
+    // 1230 + 15 = 1245 and 1220 + 15 = 1235 at three digits (the addend is
+    // within the rounding window, so it is not absorbed)
+    ("add", "123E1", "15", HalfEven, "124", 1, false),
+    ("add", "122E1", "15", HalfEven, "124", 1, false),
+    ("add", "123E1", "15", HalfUp, "125", 1, false),
+    ("add", "122E1", "15", HalfUp, "124", 1, false),
+    ("add", "-123E1", "-15", HalfEven, "124", 1, true),
+    ("add", "-122E1", "-15", HalfEven, "124", 1, true),
+    ("add", "-123E1", "-15", HalfUp, "125", 1, true),
+    ("add", "-122E1", "-15", HalfUp, "124", 1, true),
+    ("sub", "123E1", "-15", HalfUp, "125", 1, false),
+    ("sub", "-122E1", "15", HalfEven, "124", 1, true),
+    // a tie after a cancellation: 1250 - 15 = 1235, 1260 - 15 = 1245
+    ("add", "1250", "-15", HalfEven, "124", 1, false),
+    ("add", "1250", "-15", HalfUp, "124", 1, false),
+    ("add", "1260", "-15", HalfEven, "124", 1, false),
+    ("add", "1260", "-15", HalfUp, "125", 1, false),
+    ("sub", "-1260", "-15", HalfUp, "125", 1, true),
+    // 25 * 45 = 1125, 25 * 47 = 1175
+    ("mul", "25", "45", HalfEven, "112", 1, false),
+    ("mul", "25", "47", HalfEven, "118", 1, false),
+    ("mul", "25", "45", HalfUp, "113", 1, false),
+    ("mul", "25", "47", HalfUp, "118", 1, false),
+    ("mul", "-25", "45", HalfEven, "112", 1, true),
+    ("mul", "-25", "47", HalfEven, "118", 1, true),
+    ("mul", "-25", "45", HalfUp, "113", 1, true),
+    ("mul", "25", "-47", HalfUp, "118", 1, true),
+    ("mul", "-25", "-45", HalfUp, "113", 1, false),
+  ]
+  for case in cases {
+    let (operation, left, right, round, coefficient, exponent, negative) = case
+    let ctx = DecimalContext::raw(3, -30, 40, round~)
+    let lhs = Decimal::from_string_ctx(left, wide).0
+    let rhs = Decimal::from_string_ctx(right, wide).0
+    let answer = if operation == "mul" {
+      decimal_mul_plain(lhs, rhs, ctx)
+    } else {
+      decimal_add_plain(lhs, rhs, ctx, operation == "sub")
+    }
+    match answer {
+      Some((value, flags)) => {
+        assert_eq(value.coefficient.to_string(), coefficient)
+        assert_eq(value.exponent10, exponent)
+        assert_eq(value.negative, negative)
+        assert_true(flags.inexact && !flags.underflow && !flags.overflow)
+      }
+      None => fail("the plain path declined \{operation} \{left} \{right}")
+    }
+    plain_check(lhs, rhs, ctx, [0, 0, 0, 0, 0, 0, 0])
+  }
+}
+
+///|
+/// The word test of a terminating quotient and the remainder by a unit equal
+/// the kernel's general ones, for every divisor up to 3000 (many of them with
+/// factors 2 and 5, powers of ten included) and numerators of one to five limbs.
+test "the one-limb termination test equals the general one" {
+  let wide = plain_wide()
+  let state = Ref(0x2545F4914F6CDD1DUL)
+  for divisor in 1..<3000 {
+    for digits in [1, 5, 9, 10, 18, 19, 30, 45] {
+      let numerator = Decimal::from_string_ctx(
+          plain_digits(state, digits),
+          wide,
+        ).0.coefficient
+      let divisor_coefficient = dec_coeff_from_int(divisor)
+      assert_eq(
+        decimal_word_divisor_terminates(numerator, divisor),
+        has_finite_decimal_expansion_repr(numerator, divisor_coefficient),
+      )
+      assert_eq(
+        dec_coeff_mod_unit(numerator, divisor),
+        dec_coeff_div_rem_by_unit_repr(numerator, divisor).1,
+      )
+    }
+  }
+  // divisors near the limb bound
+  for divisor in [999999999, 999999937, 536870912, 1953125, 500000000] {
+    let numerator = Decimal::from_string_ctx(plain_digits(state, 40), wide).0.coefficient
+    assert_eq(
+      dec_coeff_mod_unit(numerator, divisor),
+      dec_coeff_div_rem_by_unit_repr(numerator, divisor).1,
+    )
+  }
 }

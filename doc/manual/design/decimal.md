@@ -471,7 +471,9 @@ $c_a \cdot 10^{k}$ with $k = \max(0, p + 2 + n_b - n_a)$ ($n_a$, $n_b$ the digit
 counts of the coefficients), which has at least $p + 2$ digits, rounded with
 `ZeroFiveUp` and then once to $p$ digits, which by the `ZeroFiveUp` lemma above equals one
 rounding of the exact quotient in every mode. The remainder test of that
-division also tells a terminating quotient from a non-terminating one. The flag
+division tells a terminating quotient from a non-terminating one; for the cheap
+cases (equal coefficients, a divisor of one limb) the test is made before the
+division, so that an exact quotient does not pay for a division it discards. The flag
 sets are shared constants, like the empty set (`DecimalFlags` is an immutable
 record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,739
 instructions instead of 20 and 4,427, `mul_ctx` 8 and 2,500 instead of 14 and

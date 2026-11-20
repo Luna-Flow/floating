@@ -7,6 +7,18 @@
 // definition of the behavior (the differential tests keep the general route
 // as the reference).
 //
+// The exponent of the result. IEEE 754-2019 5.2: if the result is inexact the
+// cohort member of least possible exponent is used (`p` digits); if it is
+// exact the member with the preferred exponent, or the nearest one when the
+// cohort has none. 5.4.1 gives the preferred exponent: `min(Q(x), Q(y))` for
+// addition and subtraction, `Q(x) + Q(y)` for multiplication and
+// `Q(x) - Q(y)` for division. An exact sum or product of at most `p` digits
+// therefore keeps the exponent `min(Q(x), Q(y))`, resp. `Q(x) + Q(y)`; one of
+// more digits (which cannot have the preferred exponent in `p` digits) has
+// `p` digits and the exponent of the discarded digits, as an inexact one has.
+// A quotient with an exact result is left to the general route, which applies
+// the preferred exponent `Q(x) - Q(y)` to it.
+//
 // For such an operation the general route rounds the exact result once to the
 // precision (a trimmed run of zero digits and a rounded remainder give the same
 // value and exponent), raises `inexact` when a nonzero digit was discarded and
@@ -73,6 +85,26 @@ fn decimal_plain_adjusted_in_range(
   ctx : DecimalContext,
 ) -> Bool {
   adjusted >= ctx.e_min.to_int64() && adjusted < ctx.e_max.to_int64()
+}
+
+///|
+/// Whether `numerator / divisor` has a finite decimal expansion, for a divisor
+/// of one limb: with `divisor = 2^a 5^b u` and `u` prime to 10 it does iff `u`
+/// divides `numerator` (the argument of `has_finite_decimal_expansion_repr`).
+/// No allocation: `u` is found by dividing out 2 and 5 in a word, and the
+/// remainder by `u` is read limb by limb.
+fn decimal_word_divisor_terminates(
+  numerator : DecCoeff,
+  divisor : Int32,
+) -> Bool {
+  let mut part = divisor
+  while part % 2 == 0 {
+    part = part / 2
+  }
+  while part % 5 == 0 {
+    part = part / 5
+  }
+  part == 1 || dec_coeff_mod_unit(numerator, part) == 0
 }
 
 ///|
@@ -243,7 +275,7 @@ fn decimal_mul_plain(
   decimal_plain_finish(
     negative,
     magnitude,
-    exponent64.to_int() + discard,
+    (exponent64 + discard.to_int64()).to_int(),
     inexact,
     ctx,
   )
@@ -270,6 +302,21 @@ fn decimal_div_plain(
   }
   let difference = lhs.exponent10.to_int64() - rhs.exponent10.to_int64()
   guard difference > -1000000000L && difference < 1000000000L else {
+    return None
+  }
+  // A quotient with a finite expansion goes to the general route, and the
+  // scaled division below would be wasted on it. The cheap classes are decided
+  // first: equal coefficients, and a divisor of one limb (at most 9 digits),
+  // where the test is a division by a word at most and, for a divisor
+  // 2^a 5^b, none at all. For a longer divisor the remainder of the scaled
+  // division decides the same, and a test of its own would cost about as much
+  // as that division.
+  if dec_coeff_compare_repr(lhs.coefficient, rhs.coefficient) == 0 {
+    return None
+  }
+  if rhs.coefficient is Small(divisor) &&
+    divisor < 1_000_000_000UL &&
+    decimal_word_divisor_terminates(lhs.coefficient, divisor.to_int()) {
     return None
   }
   let precision = ctx.precision
@@ -301,7 +348,7 @@ fn decimal_div_plain(
   decimal_plain_finish(
     negative,
     magnitude,
-    exponent64.to_int() + discard,
+    (exponent64 + discard.to_int64()).to_int(),
     true,
     ctx,
   )
