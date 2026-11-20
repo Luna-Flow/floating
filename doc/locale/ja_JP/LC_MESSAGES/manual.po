@@ -4711,6 +4711,7 @@ msgstr "正確なケース"
 #: manual/conformance/decimal.md:70
 #: manual/conformance/decimal.md:71
 #: manual/conformance/decimal.md:72
+#: manual/design/bench/external.md:244
 #: manual/design/frontend/mpfr_expr.md:50
 msgid "none"
 msgstr "なし"
@@ -9822,7 +9823,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
-#: manual/design/bench/external.md:296
+#: manual/design/bench/external.md:316
 #: manual/design/bin_float.md:2132
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
@@ -11106,7 +11107,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
-#: manual/design/bench/external.md:276
+#: manual/design/bench/external.md:296
 #: manual/design/bin_float.md:2060
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
@@ -11186,7 +11187,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
-#: manual/design/bench/external.md:286
+#: manual/design/bench/external.md:306
 #: manual/design/bin_float.md:2107
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
@@ -11997,110 +11998,158 @@ msgid "Runtimes other than native"
 msgstr "native 以外のランタイム"
 
 #: manual/design/bench/external.md:217
-msgid "`--target native|wasm|js` chooses the `moon` target the floating side is built and run for (`wasm` runs under `moonrun`, `js` under node; the versions are recorded in `meta.runtime`). The reference side is always the native C process of MPFR and libmpdec, run in every round of the same run, so the number of a cell on another runtime is the library on that runtime against the native reference. That mixes two differences, the library and the runtime. The second ratio separates them: the net time of `floating` on the runtime over the net time of the same case in `native-portable`, which runs the same code path. It is computed at publishing time from the two samples files of the same release (they must have read the same operand file and used the same protocol; each has its own configuration in the seed of every draw, so the two resamplings are independent) and has an interval and no verdict. `wasm-gc` is not a target: the module initialiser of the `moonbitlang/async` dependency, which the driver links, casts between two struct types of the runtime's scheduler and is rejected by the runtime at validation (it reproduces with that package alone)."
-msgstr "`--target native|wasm|js` は、`floating` 側をビルドして実行する `moon` のターゲットを選びます（`wasm` は `moonrun` の下、`js` は node の下で実行され、そのバージョンは `meta.runtime` に記録されます）。参照側は常に MPFR と libmpdec のネイティブ C プロセスで、同じ実行のすべてのラウンドで実行されるので、別のランタイムでのセルの数は「そのランタイム上のこのライブラリ対ネイティブの参照」です。これはライブラリとランタイムという 2 つの違いを混ぜています。2 つ目の比がそれを分けます。そのランタイム上の `floating` のネット時間を、同じケースの `native-portable` でのネット時間で割ったもので、両者は同じコード経路を実行します。これは公開時に、同じリリースの 2 つのサンプルファイルから計算されます（同じオペランドファイルを読み、同じプロトコルを使っている必要があります。各抽出のシードにはそれぞれの構成が入るので、2 つの再標本化は独立です）。区間はありますが判定はありません。`wasm-gc` はターゲットではありません。ドライバーがリンクする `moonbitlang/async` 依存のモジュール初期化関数は、ランタイムのスケジューラの 2 つの構造体型の間でキャストを行い、ランタイムに検証時に拒否されます（そのパッケージだけで再現します）。"
+msgid "`--target native|wasm|js` chooses the `moon` target the floating side is built and run for (`wasm` runs under `moonrun`, `js` under node; the versions are recorded in `meta.runtime`). The reference side is always the native C process of MPFR and libmpdec, run in every round of the same run, so the number of a cell on another runtime is the library on that runtime against the native reference. That mixes two differences, the library and the runtime. The second ratio separates them: the net time of `floating` on the runtime over the net time of the same case in `native-portable`, which runs the same code path. It is computed at publishing time from the two samples files of the same release (they must have read the same operand file and used the same protocol; each has its own configuration in the seed of every draw, so the two resamplings are independent) and has an interval and no verdict: it is a diagnostic of the cost of the runtime. `wasm-gc` is not a target: the benchmark driver uses `moonbitlang/async`, which has no wasm-gc runtime (the module initialiser of that package casts between two struct types of the runtime's scheduler and the runtime rejects the module at validation; a reduced reproduction with that package alone shows it, and nothing is filed)."
+msgstr "`--target native|wasm|js` は、`floating` 側をビルドして実行する `moon` のターゲットを選びます（`wasm` は `moonrun` の下、`js` は node の下で実行され、そのバージョンは `meta.runtime` に記録されます）。参照側は常に MPFR と libmpdec のネイティブ C プロセスで、同じ実行のすべてのラウンドで実行されるので、別のランタイムでのセルの数は「そのランタイム上のこのライブラリ対ネイティブの参照」です。これはライブラリとランタイムという 2 つの違いを混ぜています。2 つ目の比がそれを分けます。そのランタイム上の `floating` のネット時間を、同じケースの `native-portable` でのネット時間で割ったもので、両者は同じコード経路を実行します。これは公開時に、同じリリースの 2 つのサンプルファイルから計算されます（同じオペランドファイルを読み、同じプロトコルを使っている必要があります。各抽出のシードにはそれぞれの構成が入るので、2 つの再標本化は独立です）。区間はありますが判定はなく、ランタイムのコストの診断です。`wasm-gc` はターゲットではありません。ベンチマークドライバーは `moonbitlang/async` を使いますが、これには wasm-gc ランタイムがありません（そのパッケージのモジュール初期化関数はランタイムのスケジューラの 2 つの構造体型の間でキャストを行い、ランタイムは検証時にそのモジュールを拒否します。そのパッケージだけの縮小した再現で確認でき、何も報告していません）。"
 
-#: manual/design/bench/external.md:233
-msgid "The criterion of 3 is defined for the native configurations. For `wasm` and `js` the summary says `criterion_applies: false` and the status of every case is `not_applicable`; the page reports the two ratios and sets no target, and whether a criterion applies there is for the maintainer to decide."
-msgstr "目標 3 は native の構成に対してだけ定義されています。`wasm` と `js` では、要約は `criterion_applies: false` と書き、すべてのケースのステータスは `not_applicable` です。ページは 2 つの比を報告し、目標は設けません。そこに基準を適用するかどうかはメンテナが決めます。"
+#: manual/design/bench/external.md:235
+msgid "**The criterion of a configuration** is one row of a table in the tool (`CRITERIA` in `tools/external_baseline.py`): which ratio is judged and two bounds, the target and the limit. Every configuration is judged on the net ratio to the native reference process (MPFR, libmpdec); for `wasm` and `js` that is the ratio of this library on the runtime to the native reference. The upper end of the 95% interval decides:"
+msgstr "**構成の基準**は、ツールの表の 1 行です（`tools/external_baseline.py` の `CRITERIA`）。どの比を判定するかと、目標と上限という 2 つの境界を持ちます。すべての構成は、ネイティブの参照プロセス（MPFR、libmpdec）に対するネット比で判定されます。`wasm` と `js` では、これはそのランタイム上のこのライブラリのネイティブ参照に対する比です。95% 区間の上端で決まります。"
 
-#: manual/design/bench/external.md:238
+#: manual/design/bench/external.md:242
+msgid "configuration"
+msgstr "構成"
+
+#: manual/design/bench/external.md:242
+msgid "target"
+msgstr "目標"
+
+#: manual/design/bench/external.md:242
+msgid "limit"
+msgstr "上限"
+
+#: manual/design/bench/external.md:242
+msgid "met"
+msgstr "達成"
+
+#: manual/design/bench/external.md:242
+msgid "tolerated"
+msgstr "許容"
+
+#: manual/design/bench/external.md:242
+msgid "not met"
+msgstr "未達成"
+
+#: manual/design/bench/external.md:244
+msgid "at most 3"
+msgstr "3 以下"
+
+#: manual/design/bench/external.md:244
+msgid "above 3"
+msgstr "3 超"
+
+#: manual/design/bench/external.md:245
+msgid "at most 5"
+msgstr "5 以下"
+
+#: manual/design/bench/external.md:245
+msgid "above 5, at most 10"
+msgstr "5 超 10 以下"
+
+#: manual/design/bench/external.md:245
+msgid "above 10"
+msgstr "10 超"
+
+#: manual/design/bench/external.md:247
+msgid "A runtime that compiles while it runs is expected to stay within 5 times the native reference and may not exceed 10 times; where the limit equals the target there is no tolerated band. The unresolved and borderline rules above apply to both bounds: a case whose interval contains the target or the limit is marked borderline, and an unresolved case shows its raw ratio as `met`, `tolerated` or `not met`. The summary records the row (`criterion_judged`, `target_ratio`, `limit_ratio`, `criterion_applies`); a summary without `limit_ratio` is read with the limit equal to the target. A row that judges nothing makes the status of every case `not_applicable` and the page prints no verdict for it; no configuration has such a row today. The ratio to `native-portable` is never judged."
+msgstr "実行しながらコンパイルするランタイムは、ネイティブ参照の 5 倍以内に収まることが期待され、10 倍を超えてはなりません。上限が目標と等しい場合、許容帯はありません。未解決と境界の規則（上記）は両方の境界に適用されます。区間が目標または上限を含むケースは境界として印を付け、未解決のケースは生の比を `met`、`tolerated`、`not met` として示します。要約はその行（`criterion_judged`、`target_ratio`、`limit_ratio`、`criterion_applies`）を記録し、`limit_ratio` のない要約は上限を目標と等しいものとして読みます。何も判定しない行は、すべてのケースの状態を `not_applicable` にし、ページはその判定を出力しません。現在そのような行を持つ構成はありません。`native-portable` との比は判定されません。"
+
+#: manual/design/bench/external.md:258
 msgid "What the method does differently on a runtime that compiles while it runs:"
 msgstr "実行しながらコンパイルするランタイムでは、この方法は次の点が異なります。"
 
-#: manual/design/bench/external.md:240
+#: manual/design/bench/external.md:260
 msgid "**Warm-up.** The code of a case may still be compiled during the first blocks. The warm-up time is a number of the method, fixed per runtime before any cell is measured, from the calibration experiment below. A flag `w` is reported when the median net of the first third of the pairs of every round differs from that of the last third by more than 5% of the net; it removes no data."
 msgstr "**ウォームアップ。** ケースのコードは、最初のいくつかのブロックの間はまだコンパイルされているかもしれません。ウォームアップ時間は方法の中の 1 つの数で、どのセルを測定するよりも前にランタイムごとに固定され、下の校正実験から得られます。各ラウンドの最初の 3 分の 1 のペアのネット中央値が最後の 3 分の 1 の中央値とネットの 5% を超えて異なるとき、フラグ `w` が報告されます。データは取り除きません。"
 
-#: manual/design/bench/external.md:246
+#: manual/design/bench/external.md:266
 msgid "**The floor differs per runtime** and is measured in every pair, so the net handles it. A call site of the null's closure can be inlined where that of the case cannot, which makes the null cheaper than the harness part of the case and the net slightly larger; it errs against the library, and nothing corrects it."
 msgstr "**フロアはランタイムごとに異なり**、すべてのペアで測定されるので、ネット値がそれを処理します。null のクロージャの呼び出し箇所はインライン化され得る一方で、ケースの呼び出し箇所はされ得ないため、null がケースのハーネス部分より安くなり、ネット値がわずかに大きくなります。これはライブラリにとって不利な向きで、何も補正しません。"
 
-#: manual/design/bench/external.md:250
+#: manual/design/bench/external.md:270
 msgid "**Calibration** of the batch size follows the warm-up, so it is done on warm code."
 msgstr "バッチサイズの**校正**はウォームアップの後に行うので、ウォームアップ済みのコードで行われます。"
 
-#: manual/design/bench/external.md:252
+#: manual/design/bench/external.md:272
 msgid "The calibration experiment of the warm-up"
 msgstr "ウォームアップの校正実験"
 
-#: manual/design/bench/external.md:254
+#: manual/design/bench/external.md:274
 msgid "Fixed here before it is run. One experiment per runtime (`wasm`, `js`), in the bench window of the measurement, with `just bench external warmup --target T`:"
 msgstr "実行する前にここで固定します。ランタイム（`wasm`、`js`）ごとに 1 回、測定のベンチマークウィンドウの中で、`just bench external warmup --target T` で実験します。"
 
-#: manual/design/bench/external.md:257
+#: manual/design/bench/external.md:277
 msgid "Cases: `binary/add/53`, `binary/mul/512`, `binary/ln/2048` and `decimal_gda/add/34` (a fast case, a mid-size case, an elementary function and a decimal case; the same operand file as the measurement)."
 msgstr "ケース：`binary/add/53`、`binary/mul/512`、`binary/ln/2048`、`decimal_gda/add/34`（速いケース、中程度の大きさのケース、初等関数、10 進のケース。オペランドファイルは測定と同じです）。"
 
-#: manual/design/bench/external.md:260
+#: manual/design/bench/external.md:280
 msgid "Warm-up times: 5, 50, 200, 1000 and 3000 ms. Each (warm-up, case) is run three times, each in its own process, with no exploratory blocks and 60 confirmatory pairs, the standard calibration target of 20 ms per block."
 msgstr "ウォームアップ時間：5、50、200、1000、3000 ms。各（ウォームアップ、ケース）を 3 回、それぞれ別のプロセスで実行し、探索用ブロックはなく、確認用ペアは 60、校正の目標は標準の 1 ブロック 20 ms です。"
 
-#: manual/design/bench/external.md:263
+#: manual/design/bench/external.md:283
 msgid "Statistic of a run: the warm-up drift `w` of the design above, the difference of the median net of the first and of the last third of the 60 pairs, in percent of the net."
 msgstr "1 回の実行の統計量：上の設計のウォームアップのドリフト `w`、つまり 60 ペアの最初の 3 分の 1 と最後の 3 分の 1 のネット中央値の差を、ネットに対するパーセントで表したもの。"
 
-#: manual/design/bench/external.md:266
+#: manual/design/bench/external.md:286
 msgid "Rule: the smallest warm-up for which every run (every case and every repeat) has a drift of at most 2%; the warm-up of the runtime is twice that value, rounded up to a whole 100 ms. If no warm-up reaches 2%, the experiment is reported and the runtime is measured only with the `w` flag on and the longest warm-up, with the result stated as not resolved by the method."
 msgstr "規則：すべての実行（すべてのケースとすべての繰り返し）のドリフトが 2% 以下になる最小のウォームアップを選びます。そのランタイムのウォームアップはその値の 2 倍で、100 ms の整数に切り上げます。どのウォームアップも 2% に届かない場合は、実験を報告し、`w` フラグを有効にして最長のウォームアップでだけそのランタイムを測定し、結果は方法で判定できなかったものとして述べます。"
 
-#: manual/design/bench/external.md:271
+#: manual/design/bench/external.md:291
 msgid "The value, the table of drifts and the versions of the runtime are published with the first summary of the runtime and written into the `protocol` block of every later one. The native value is the preset's 5 ms and is not part of the experiment."
 msgstr "その値、ドリフトの表、ランタイムのバージョンは、そのランタイムの最初の要約と一緒に公開され、以後のすべての要約の `protocol` ブロックに書かれます。native の値はプリセットの 5 ms で、この実験の対象ではありません。"
 
-#: manual/design/bench/external.md:278
+#: manual/design/bench/external.md:298
 msgid "The operand file and the reference file are checksummed in `machine.json`."
 msgstr "オペランドファイルと参照ファイルのチェックサムは `machine.json` に記録されます。"
 
-#: manual/design/bench/external.md:279
+#: manual/design/bench/external.md:299
 msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
 msgstr "参照と異なる `floating` の結果は、Maremark の検証集計に数えられ、`results.json` に列挙されます。"
 
-#: manual/design/bench/external.md:281
+#: manual/design/bench/external.md:301
 msgid "A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees."
 msgstr "要約は、そのサンプルファイル（各ケースの、側とラウンドごとのペア）と `protocol` ブロックの関数です。`just bench external recompute` がそれを再計算し、保存された数がすべて一致するかを示します。"
 
-#: manual/design/bench/external.md:282
+#: manual/design/bench/external.md:302
 msgid "A pair is used only when both of its blocks were measured; exploratory pairs are never used."
 msgstr "ペアは、その 2 つのブロックがどちらも測定されたときにだけ使われます。探索用のペアは使われません。"
 
-#: manual/design/bench/external.md:283
+#: manual/design/bench/external.md:303
 msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the samples; the timings themselves are not."
 msgstr "シードは記録されるので、ラウンドの順序とブートストラップはサンプルから再現できます。計時そのものは再現できません。"
 
-#: manual/design/bench/external.md:288
+#: manual/design/bench/external.md:308
 msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
 msgstr "**MoonBit から MPFR へのバインディング。** FFI のマーシャリングを片側だけの計時区間に入れてしまいます。"
 
-#: manual/design/bench/external.md:290
+#: manual/design/bench/external.md:310
 msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
 msgstr "**mpmath や gmpy2 との比較。** それらのオーバーヘッドは Python インタプリタであり、ライブラリではありません。"
 
-#: manual/design/bench/external.md:292
+#: manual/design/bench/external.md:312
 msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
 msgstr "**1 つのオペランドを繰り返し計時する。** 固定された 1 つのオペランドでは、分岐予測器やキャッシュがデータ経路を記憶してしまいます。1 パスあたり 8 個の異なるオペランドを使えばこれを避けられますが、バッチの所要時間は 8 倍になります。"
 
-#: manual/design/bench/external.md:298
+#: manual/design/bench/external.md:318
 msgid "Native target only; no claims for JavaScript or WebAssembly."
 msgstr "native ターゲットのみ。JavaScript や WebAssembly については何も主張しません。"
 
-#: manual/design/bench/external.md:299
+#: manual/design/bench/external.md:319
 msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
 msgstr "実行ごとに 1 台のマシン、1 つの OS、1 つのコンパイラ。マシンについては性能ページを参照してください。"
 
-#: manual/design/bench/external.md:301
+#: manual/design/bench/external.md:321
 msgid "Elementary functions are measured on a few well-conditioned argument ranges; huge arguments and arguments near singularities are not measured."
 msgstr "初等関数は、条件の良いいくつかの引数範囲で測定されます。巨大な引数や特異点付近の引数は測定されません。"
 
-#: manual/design/bench/external.md:303
+#: manual/design/bench/external.md:323
 msgid "The library caches of MPFR (for $\\pi$ and $\\log 2$) and the corresponding caches of `floating` are warm during timing; cold-start cost is not measured."
 msgstr "MPFR のキャッシュ（$\\pi$ と $\\log 2$ 用）と、`floating` の対応するキャッシュは、計時中にウォームな状態です。コールドスタートのコストは測定されません。"
 
-#: manual/design/bench/external.md:305
+#: manual/design/bench/external.md:325
 msgid "Only a single thread is used; memory use is not measured."
 msgstr "使うスレッドは 1 つだけです。メモリ使用量は測定されません。"
 
-#: manual/design/bench/external.md:306
+#: manual/design/bench/external.md:326
 msgid "The correction for the loop floor moves few verdicts. Computed from the 0.11.0 medians with the floating floor then measured (9.21 ns) and a reference floor between 0.4 and 1.1 ns, 43 of 59 cases are above 3 on the raw ratio and 42 on the net ratio: only `decimal_gda` multiplication at 100 digits (3.03) changes side. The method makes the number honest; it does not move the target."
 msgstr "ループのフロアの補正が変える判定はわずかです。0.11.0 の中央値から、そのとき測定した `floating` のフロア（9.21 ns）と 0.4 から 1.1 ns の間の参照側フロアで計算すると、59 ケースのうち、生の比で 43 ケース、ネット比で 42 ケースが 3 を超えます。側が変わるのは 100 桁の `decimal_gda` の乗算（3.03）だけです。この方法は数を正直にしますが、目標を動かしはしません。"
 
@@ -20233,149 +20282,65 @@ msgid "Configurations and results"
 msgstr "構成と結果"
 
 #: manual/performance/bench/external.md:116
-msgid "The floating side is measured in two configurations of the native build, each published as its own summary and shown in its own section: `native`, with the native limb primitives where the build has them, and `native-portable`, with the portable path forced. The target has to be reached by the portable path too. It is also measured on two other runtimes, `wasm` and `js`, where the target of 3 is not defined: their sections report ratios and no verdict. The configuration is chosen when the run starts (`--target`, `--configuration NAME`, `--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by `just bench external publish` between the marker comments below and copied without editing."
-msgstr "`floating` 側は、ネイティブビルドの 2 つの構成で測定され、それぞれ独自の要約として公開され、独自の節に示されます。`native` はビルドに備わっている場合にネイティブの limb プリミティブを使い、`native-portable` は移植可能な経路を強制します。目標は移植可能な経路でも達成する必要があります。さらに 2 つの別のランタイム `wasm` と `js` でも測定されますが、そこでは目標 3 は定義されておらず、それらの節は比を報告するだけで判定はありません。構成は実行の開始時に選ばれ（`--target`、`--configuration NAME`、`--moon-env KEY=VALUE`）、要約に記録されます。構成ごとの表は `just bench external publish` が下のマーカーコメントの間に生成し、そのままコピーされます。"
+msgid "The floating side is measured in two configurations of the native build, each published as its own summary and shown in its own section: `native`, with the native limb primitives where the build has them, and `native-portable`, with the portable path forced. The target has to be reached by the portable path too. It is also measured on two other runtimes, `wasm` and `js`, which are judged on the same net ratio to the native reference with two bounds: a case meets the target when the upper end of the interval is at most 5, is tolerated up to 10 and is not met above 10 (the native configurations have the one bound 3). The ratio of a runtime to `native-portable` is a diagnostic and has no verdict. Each runtime section counts its cases met, tolerated and not met. The configuration is chosen when the run starts (`--target`, `--configuration NAME`, `--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by `just bench external publish` between the marker comments below and copied without editing."
+msgstr "`floating` 側は、ネイティブビルドの 2 つの構成で測定され、それぞれ独自の要約として公開され、独自の節に示されます。`native` はビルドに備わっている場合にネイティブの limb プリミティブを使い、`native-portable` は移植可能な経路を強制します。目標は移植可能な経路でも達成する必要があります。さらに 2 つの別のランタイム `wasm` と `js` でも測定され、ネイティブ参照に対する同じネット比で判定されますが、境界は 2 つあります。区間の上端が 5 以下ならケースは目標を達成し、10 以下なら許容、10 を超えると未達成です（ネイティブの構成には 3 という境界が 1 つだけあります）。ランタイムの `native-portable` に対する比は診断で、判定はありません。各ランタイムの節は、達成、許容、未達成のケース数を数えます。構成は実行の開始時に選ばれ（`--target`、`--configuration NAME`、`--moon-env KEY=VALUE`）、要約に記録されます。構成ごとの表は `just bench external publish` が下のマーカーコメントの間に生成し、そのままコピーされます。"
 
-#: manual/performance/bench/external.md:127
+#: manual/performance/bench/external.md:131
 msgid "Configuration `native`"
 msgstr "構成 `native`"
 
-#: manual/performance/bench/external.md:131
+#: manual/performance/bench/external.md:135
 msgid "Not measured yet with the net-ratio method. The first measurement with it is published with the next release; until then the results below are those of 0.11.0, measured with the raw method."
 msgstr "ネット比の方法ではまだ測定していません。それによる最初の測定は次のリリースで公開されます。それまで、下の結果は 0.11.0 で生の方法により測定したものです。"
 
-#: manual/performance/bench/external.md:137
+#: manual/performance/bench/external.md:141
 msgid "Configuration `native-portable`"
 msgstr "構成 `native-portable`"
 
-#: manual/performance/bench/external.md:141
+#: manual/performance/bench/external.md:145
 msgid "Not measured yet with the net-ratio method."
 msgstr "ネット比の方法ではまだ測定していません。"
 
-#: manual/performance/bench/external.md:145
+#: manual/performance/bench/external.md:149
 msgid "Runtime `wasm`"
 msgstr "ランタイム `wasm`"
 
-#: manual/performance/bench/external.md:147
-msgid "The target of 3 is defined for the native configurations. For `wasm` the page reports two ratios and sets no target: the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run, which mixes the library and the runtime, and the ratio to the same case in `native-portable`, which attributes the difference to the runtime. Whether a criterion applies is for the maintainer to decide."
-msgstr "目標 3 は native の構成に対してだけ定義されています。`wasm` では、ページは目標を設けずに 2 つの比を報告します。1 つは、このライブラリの `wasm`（`moonrun` の下）での、同じ実行のネイティブ MPFR と libmpdec に対するネット比で、ライブラリとランタイムが混ざっています。もう 1 つは `native-portable` の同じケースに対する比で、違いをランタイムに帰します。基準を適用するかどうかはメンテナが決めます。"
+#: manual/performance/bench/external.md:151
+msgid "`wasm` is expected within 5 times the native reference and may not exceed 10 times: a case meets the target when the upper end of the 95% interval of the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run is at most 5, is tolerated when it is above 5 and at most 10, and is not met above 10, with the unresolved and borderline rules of the native sections applied to both bounds. That ratio mixes the library and the runtime, so the section also shows the ratio to the same case in `native-portable`, a diagnostic of the cost of the runtime with its interval and no verdict."
+msgstr "`wasm` はネイティブ参照の 5 倍以内が期待され、10 倍を超えてはなりません。このライブラリの `wasm`（`moonrun` の下）でのネット比の、同じ実行のネイティブ MPFR と libmpdec に対する 95% 区間の上端が 5 以下ならケースは目標を達成し、5 を超えて 10 以下なら許容、10 を超えると未達成です。未解決と境界の規則はネイティブの節と同じで、両方の境界に適用されます。この比はライブラリとランタイムを混ぜているので、この節には `native-portable` の同じケースに対する比も示します。これはランタイムのコストの診断で、区間はありますが判定はありません。"
 
-#: manual/performance/bench/external.md:156
-#: manual/performance/bench/external.md:167
+#: manual/performance/bench/external.md:162
+#: manual/performance/bench/external.md:173
 msgid "Not measured yet."
 msgstr "まだ測定していません。"
 
-#: manual/performance/bench/external.md:160
+#: manual/performance/bench/external.md:166
 msgid "Runtime `js`"
 msgstr "ランタイム `js`"
 
-#: manual/performance/bench/external.md:162
-msgid "As for `wasm`: two ratios, no target. The runtime is node; its versions are in the summary."
-msgstr "`wasm` と同じです。2 つの比があり、目標はありません。ランタイムは node で、そのバージョンは要約にあります。"
+#: manual/performance/bench/external.md:168
+msgid "As for `wasm`: the same two bounds (5 and 10), and the ratio to `native-portable` as a diagnostic. The runtime is node; its versions are in the summary."
+msgstr "`wasm` と同じです。2 つの境界（5 と 10）は同じで、`native-portable` との比は診断です。ランタイムは node で、そのバージョンは要約にあります。"
 
-#: manual/performance/bench/external.md:173
-msgid "Not measured, and not measurable at present: the module initialiser of the `moonbitlang/async` dependency of the benchmark driver is rejected by the runtime at validation (see the [design page](../../design/bench/external.md#runtimes-other-than-native))."
-msgstr "測定しておらず、現時点では測定もできません。ベンチマークドライバーの `moonbitlang/async` 依存のモジュール初期化関数は、ランタイムに検証時に拒否されます（[設計ページ](../../design/bench/external.md#runtimes-other-than-native)を参照）。"
+#: manual/performance/bench/external.md:179
+msgid "Not measured, and not measurable at present: the benchmark driver uses `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser casts between two struct types and the runtime rejects the module at validation; a reduced reproduction with that package alone shows it, and nothing is filed). See the [design page](../../design/bench/external.md#runtimes-other-than-native)."
+msgstr "測定しておらず、現時点では測定もできません。ベンチマークドライバーは `moonbitlang/async` を使いますが、これには wasm-gc ランタイムがありません（そのモジュール初期化関数は 2 つの構造体型の間でキャストを行い、ランタイムは検証時にそのモジュールを拒否します。そのパッケージだけの縮小した再現で確認でき、何も報告していません）。[設計ページ](../../design/bench/external.md#runtimes-other-than-native)を参照してください。"
 
-#: manual/performance/bench/external.md:178
+#: manual/performance/bench/external.md:185
 msgid "Results of 0.11.0 (raw method)"
 msgstr "0.11.0 の結果（生の方法）"
 
-#: manual/performance/bench/external.md:180
+#: manual/performance/bench/external.md:187
 msgid "These are the tables of the release 0.11.0, measured before the net-ratio method existed: the ratio is the median of the case blocks of `floating` over that of the reference, without a null, and the single floor known then was the 9.21 ns of the floating loop. They are kept as the record of that release (`testdata/external_baseline/summary-0.11.0.json`, schema v1) and are replaced by the sections above as the new measurements are published. The tables are the output of `just bench external publish` for that run, copied without editing."
 msgstr "これらは 0.11.0 のリリースの表で、ネット比の方法ができる前に測定したものです。比は `floating` のケースのブロックの中央値を参照側のそれで割ったもので、null はなく、当時知られていた唯一のフロアは `floating` のループの 9.21 ns でした。そのリリースの記録として残されており（`testdata/external_baseline/summary-0.11.0.json`、スキーマ v1）、新しい測定が公開されるにつれて上の節に置き換えられます。表はその実行の `just bench external publish` の出力で、そのままコピーしたものです。"
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:195
 msgid "Binary: floating `bin_float` against MPFR"
 msgstr "2 進：floating の `bin_float` と MPFR の比較"
 
-#: manual/performance/bench/external.md:190
+#: manual/performance/bench/external.md:197
 msgid "Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)"
 msgstr "比 floating / MPFR（中央値の時間、95% ブートストラップ区間。1 より大きければ floating が遅い）"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
-msgid "op"
-msgstr "op"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "53 bits"
-msgstr "53 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "128 bits"
-msgstr "128 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "512 bits"
-msgstr "512 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "2048 bits"
-msgstr "2048 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "8192 bits"
-msgstr "8192 bits"
-
-#: manual/performance/bench/external.md:194
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:218
-#: manual/performance/bench/external.md:232
-#: manual/performance/bench/external.md:243
-#: manual/performance/bench/external.md:254
-msgid "add"
-msgstr "add"
-
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:207
-#: manual/performance/bench/external.md:219
-#: manual/performance/bench/external.md:233
-#: manual/performance/bench/external.md:244
-#: manual/performance/bench/external.md:255
-msgid "mul"
-msgstr "mul"
-
-#: manual/performance/bench/external.md:196
-#: manual/performance/bench/external.md:208
-#: manual/performance/bench/external.md:220
-#: manual/performance/bench/external.md:234
-#: manual/performance/bench/external.md:245
-#: manual/performance/bench/external.md:256
-msgid "div"
-msgstr "div"
-
-#: manual/performance/bench/external.md:197
-#: manual/performance/bench/external.md:209
-#: manual/performance/bench/external.md:221
-#: manual/performance/bench/external.md:235
-#: manual/performance/bench/external.md:246
-#: manual/performance/bench/external.md:257
-msgid "sqrt"
-msgstr "sqrt"
-
-#: manual/performance/bench/external.md:198
-#: manual/performance/bench/external.md:210
-#: manual/performance/bench/external.md:222
-#: manual/performance/bench/external.md:236
-#: manual/performance/bench/external.md:247
-#: manual/performance/bench/external.md:258
-msgid "exp"
-msgstr "exp"
 
 #: manual/performance/bench/external.md:199
 #: manual/performance/bench/external.md:211
@@ -20383,658 +20348,742 @@ msgstr "exp"
 #: manual/performance/bench/external.md:237
 #: manual/performance/bench/external.md:248
 #: manual/performance/bench/external.md:259
+msgid "op"
+msgstr "op"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "53 bits"
+msgstr "53 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "128 bits"
+msgstr "128 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "512 bits"
+msgstr "512 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "2048 bits"
+msgstr "2048 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "8192 bits"
+msgstr "8192 bits"
+
+#: manual/performance/bench/external.md:201
+#: manual/performance/bench/external.md:213
+#: manual/performance/bench/external.md:225
+#: manual/performance/bench/external.md:239
+#: manual/performance/bench/external.md:250
+#: manual/performance/bench/external.md:261
+msgid "add"
+msgstr "add"
+
+#: manual/performance/bench/external.md:202
+#: manual/performance/bench/external.md:214
+#: manual/performance/bench/external.md:226
+#: manual/performance/bench/external.md:240
+#: manual/performance/bench/external.md:251
+#: manual/performance/bench/external.md:262
+msgid "mul"
+msgstr "mul"
+
+#: manual/performance/bench/external.md:203
+#: manual/performance/bench/external.md:215
+#: manual/performance/bench/external.md:227
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:263
+msgid "div"
+msgstr "div"
+
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+#: manual/performance/bench/external.md:228
+#: manual/performance/bench/external.md:242
+#: manual/performance/bench/external.md:253
+#: manual/performance/bench/external.md:264
+msgid "sqrt"
+msgstr "sqrt"
+
+#: manual/performance/bench/external.md:205
+#: manual/performance/bench/external.md:217
+#: manual/performance/bench/external.md:229
+#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:265
+msgid "exp"
+msgstr "exp"
+
+#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:266
 msgid "ln"
 msgstr "ln"
 
-#: manual/performance/bench/external.md:200
-#: manual/performance/bench/external.md:212
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:231
 msgid "sin"
 msgstr "sin"
 
-#: manual/performance/bench/external.md:202
+#: manual/performance/bench/external.md:209
 msgid "Median ns per operation, MPFR"
 msgstr "1 演算あたりの中央値 ns、MPFR"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "4.59 ns"
 msgstr "4.59 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "6 ns"
 msgstr "6 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "12.4 ns"
 msgstr "12.4 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "21.7 ns"
 msgstr "21.7 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "85.6 ns"
 msgstr "85.6 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "5 ns"
 msgstr "5 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "10.1 ns"
 msgstr "10.1 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "32 ns"
 msgstr "32 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "231 ns"
 msgstr "231 ns"
 
-#: manual/performance/bench/external.md:207
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:214
+#: manual/performance/bench/external.md:229
 msgid "2.13 us"
 msgstr "2.13 us"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "5.38 ns"
 msgstr "5.38 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "26.3 ns"
 msgstr "26.3 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "106 ns"
 msgstr "106 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "498 ns"
 msgstr "498 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "4 us"
 msgstr "4 us"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "5.64 ns"
 msgstr "5.64 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "62.3 ns"
 msgstr "62.3 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "162 ns"
 msgstr "162 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "509 ns"
 msgstr "509 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "2.83 us"
 msgstr "2.83 us"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "557 ns"
 msgstr "557 ns"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "846 ns"
 msgstr "846 ns"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "2.35 us"
 msgstr "2.35 us"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "16.8 us"
 msgstr "16.8 us"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "208 us"
 msgstr "208 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "388 ns"
 msgstr "388 ns"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "1.09 us"
 msgstr "1.09 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "3.41 us"
 msgstr "3.41 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "14.9 us"
 msgstr "14.9 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "116 us"
 msgstr "116 us"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "496 ns"
 msgstr "496 ns"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "792 ns"
 msgstr "792 ns"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "2.22 us"
 msgstr "2.22 us"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "14.1 us"
 msgstr "14.1 us"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "197 us"
 msgstr "197 us"
 
-#: manual/performance/bench/external.md:214
-#: manual/performance/bench/external.md:250
+#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:257
 msgid "Median ns per operation, floating"
 msgstr "1 演算あたりの中央値 ns、floating"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "40.1 ns"
 msgstr "40.1 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "38.5 ns"
 msgstr "38.5 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "86.2 ns"
 msgstr "86.2 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "138 ns"
 msgstr "138 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "441 ns"
 msgstr "441 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "37.9 ns"
 msgstr "37.9 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "40 ns"
 msgstr "40 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "121 ns"
 msgstr "121 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "910 ns"
 msgstr "910 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "8.34 us"
 msgstr "8.34 us"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "42.8 ns"
 msgstr "42.8 ns"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "154 ns"
 msgstr "154 ns"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "340 ns"
 msgstr "340 ns"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "1.84 us"
 msgstr "1.84 us"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "19 us"
 msgstr "19 us"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "57.1 ns"
 msgstr "57.1 ns"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "119 ns"
 msgstr "119 ns"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "745 ns"
 msgstr "745 ns"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "2.1 us"
 msgstr "2.1 us"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "12.1 us"
 msgstr "12.1 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "1.72 us"
 msgstr "1.72 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "5.89 us"
 msgstr "5.89 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "87.7 us"
 msgstr "87.7 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "619 us"
 msgstr "619 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "2.69 us"
 msgstr "2.69 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "4.99 us"
 msgstr "4.99 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "21.2 us"
 msgstr "21.2 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "162 us"
 msgstr "162 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "1.11 ms"
 msgstr "1.11 ms"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "4.38 us"
 msgstr "4.38 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "6.1 us"
 msgstr "6.1 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "16.1 us"
 msgstr "16.1 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "143 us"
 msgstr "143 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "1.03 ms"
 msgstr "1.03 ms"
 
-#: manual/performance/bench/external.md:226
+#: manual/performance/bench/external.md:233
 msgid "Decimal GDA: floating `decimal_gda` against libmpdec"
 msgstr "10 進 GDA：floating の `decimal_gda` と libmpdec の比較"
 
-#: manual/performance/bench/external.md:228
+#: manual/performance/bench/external.md:235
 msgid "Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means floating is slower)"
 msgstr "比 floating / libmpdec（中央値の時間、95% ブートストラップ区間。1 より大きければ floating が遅い）"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "16 digits"
 msgstr "16 digits"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "34 digits"
 msgstr "34 digits"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "100 digits"
 msgstr "100 digits"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "1000 digits"
 msgstr "1000 digits"
 
-#: manual/performance/bench/external.md:239
+#: manual/performance/bench/external.md:246
 msgid "Median ns per operation, libmpdec"
 msgstr "1 演算あたりの中央値 ns、libmpdec"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "20 ns"
 msgstr "20 ns"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "21.9 ns"
 msgstr "21.9 ns"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "35.1 ns"
 msgstr "35.1 ns"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "171 ns"
 msgstr "171 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "19.4 ns"
 msgstr "19.4 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "48.7 ns"
 msgstr "48.7 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "136 ns"
 msgstr "136 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "9.05 us"
 msgstr "9.05 us"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "31.6 ns"
 msgstr "31.6 ns"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "122 ns"
 msgstr "122 ns"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "328 ns"
 msgstr "328 ns"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "14.5 us"
 msgstr "14.5 us"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "307 ns"
 msgstr "307 ns"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "1.07 us"
 msgstr "1.07 us"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "4.03 us"
 msgstr "4.03 us"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "213 us"
 msgstr "213 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "2.97 us"
 msgstr "2.97 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "7.97 us"
 msgstr "7.97 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "17.5 us"
 msgstr "17.5 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "4.69 ms"
 msgstr "4.69 ms"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "9.94 us"
 msgstr "9.94 us"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "18 us"
 msgstr "18 us"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "43.2 us"
 msgstr "43.2 us"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "5.24 ms"
 msgstr "5.24 ms"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "72.5 ns"
 msgstr "72.5 ns"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "249 ns"
 msgstr "249 ns"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "306 ns"
 msgstr "306 ns"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "1.03 us"
 msgstr "1.03 us"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "82.6 ns"
 msgstr "82.6 ns"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "264 ns"
 msgstr "264 ns"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "413 ns"
 msgstr "413 ns"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "15.7 us"
 msgstr "15.7 us"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "93.3 ns"
 msgstr "93.3 ns"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "750 ns"
 msgstr "750 ns"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "1.42 us"
 msgstr "1.42 us"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "44.8 us"
 msgstr "44.8 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "1.63 us"
 msgstr "1.63 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "4.55 us"
 msgstr "4.55 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "11.2 us"
 msgstr "11.2 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "451 us"
 msgstr "451 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "8.67 us"
 msgstr "8.67 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "12.2 us"
 msgstr "12.2 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "24.3 us"
 msgstr "24.3 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "523 us"
 msgstr "523 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "12.7 us"
 msgstr "12.7 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "17.4 us"
 msgstr "17.4 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "50.4 us"
 msgstr "50.4 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "1.45 ms"
 msgstr "1.45 ms"
 
-#: manual/performance/bench/external.md:261
+#: manual/performance/bench/external.md:268
 msgid "Harness overhead of the floating side"
 msgstr "floating 側のハーネスのオーバーヘッド"
 
-#: manual/performance/bench/external.md:263
+#: manual/performance/bench/external.md:270
 msgid "case"
 msgstr "ケース"
 
-#: manual/performance/bench/external.md:263
+#: manual/performance/bench/external.md:270
 msgid "ns per operation (loop and result store only)"
 msgstr "1 演算あたりの ns（ループと結果の格納のみ）"
 
-#: manual/performance/bench/external.md:265
+#: manual/performance/bench/external.md:272
 msgid "9.21 ns [9.15 ns, 9.26 ns]"
 msgstr "9.21 ns [9.15 ns, 9.26 ns]"
 
-#: manual/performance/bench/external.md:266
+#: manual/performance/bench/external.md:273
 msgid "9.21 ns [9.14 ns, 9.32 ns]"
 msgstr "9.21 ns [9.14 ns, 9.32 ns]"
 
-#: manual/performance/bench/external.md:268
+#: manual/performance/bench/external.md:275
 msgid "Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `binary/mul/512`."
 msgstr "アスタリスク付きのセルは散らばりの閾値（信頼区間の半幅が中央値の 5% 超、またはラウンド間の中央値の散らばりが 10% 超）を超えた：`binary/mul/512`。"
 
-#: manual/performance/bench/external.md:270
+#: manual/performance/bench/external.md:277
 msgid "What the numbers say"
 msgstr "数値が語ること"
 
-#: manual/performance/bench/external.md:272
+#: manual/performance/bench/external.md:279
 msgid "Everything below is read from the tables above; ratios are rounded and the intervals are in the tables."
 msgstr "以下はすべて上の表から読み取ったものです。比は丸められており、区間は表にあります。"
 
-#: manual/performance/bench/external.md:275
+#: manual/performance/bench/external.md:282
 msgid "**`floating` is slower than the reference in 56 of the 59 cells and faster in three, all `decimal_gda`.** Excluding those, the smallest ratio is 1.28 (`decimal_gda` `ln` at 16 digits) and the largest 11.4 (`decimal_gda` addition at 34 digits). Four cells are above 10: binary `sqrt` at 53 bits (10.1), binary `ln` and `sin` at 2048 bits (10.9 and 10.1), and `decimal_gda` addition at 34 digits (11.4). Where `floating` is faster, it is `exp` at 1000 digits (0.11, that is 9 times faster: 523 us against 4.69 ms), `ln` at 1000 digits (0.28, 3.6 times faster: 1.45 ms against 5.24 ms) and `ln` at 34 digits (0.96, a difference of 4%, with the interval [0.96, 0.98] below 1)."
 msgstr "**59 セル中、`floating` が参照ライブラリより遅いのは 56 セル、速いのは 3 セルで、いずれも `decimal_gda` である。** その 3 セルを除くと、比の最小は 1.28（16 桁の `decimal_gda` の `ln`）、最大は 11.4（34 桁の `decimal_gda` の加算）である。10 を超えるセルは 4 つある：53 ビットの 2 進 `sqrt`（10.1）、2048 ビットの 2 進 `ln` と `sin`（10.9 と 10.1）、34 桁の `decimal_gda` の加算（11.4）。`floating` が速いのは、1000 桁の `exp`（0.11、つまり 9 倍速い：523 us 対 4.69 ms）、1000 桁の `ln`（0.28、3.6 倍速い：1.45 ms 対 5.24 ms）、34 桁の `ln`（0.96、差は 4%、区間 [0.96, 0.98] は 1 未満）である。"
 
-#: manual/performance/bench/external.md:285
+#: manual/performance/bench/external.md:292
 msgid "**Basic binary arithmetic: roughly 3 to 9 times slower.** Addition costs 5.2 to 8.7 times MPFR's time at every precision, multiplication 3.8 to 7.6, division 3.2 to 7.9. The gap is widest at 53 bits, where MPFR needs 4.6 ns for an addition and `floating` 40.1 ns; about 9.2 ns of that is the harness (see the `null` row), the rest is allocation and normalisation of an immutable result. At 128 bits and above multiplication stays at 3.8 to 4.0 times (8192 bits: 8.34 us against 2.13 us)."
 msgstr "**2 進の基本演算：およそ 3 倍から 9 倍遅い。** 加算はどの精度でも MPFR の時間の 5.2 倍から 8.7 倍、乗算は 3.8 倍から 7.6 倍、除算は 3.2 倍から 7.9 倍である。差が最も大きいのは 53 ビットで、MPFR の加算が 4.6 ns なのに対し `floating` は 40.1 ns かかる。そのうち約 9.2 ns は計測ハーネス自身（`null` の行を参照）で、残りは不変な結果の確保と正規化である。128 ビット以上では乗算は 3.8 倍から 4.0 倍にとどまる（8192 ビット：8.34 us 対 2.13 us）。"
 
-#: manual/performance/bench/external.md:293
+#: manual/performance/bench/external.md:300
 msgid "**Square root is not smooth in precision.** The ratio is 10.1 at 53 bits, 1.9 at 128 bits, 4.6 at 512 bits and 4.1 to 4.3 at 2048 and 8192 bits. From 128 to 512 bits, 4 times the width, the time of `floating` grows from 119 ns to 745 ns (6.3 times) and MPFR's from 62.3 ns to 162 ns (2.6 times)."
 msgstr "**平方根は精度に対して滑らかではない。** 比は 53 ビットで 10.1、128 ビットで 1.9、512 ビットで 4.6、2048 ビットと 8192 ビットで 4.1 から 4.3 である。128 ビットから 512 ビットへ幅が 4 倍になる間に、`floating` の時間は 119 ns から 745 ns（6.3 倍）に、MPFR の時間は 62.3 ns から 162 ns（2.6 倍）に増える。"
 
-#: manual/performance/bench/external.md:298
+#: manual/performance/bench/external.md:305
 msgid "**Elementary functions: 2.5 to 11 times slower than MPFR in binary.** `exp` is 2.5 to 5.2 times slower at every precision (3.1 at 53 bits, 5.2 at 2048 bits, 3.0 at 8192 bits), `ln` 4.6 to 10.9 times and `sin` 5.2 to 10.1 times. These three have their largest ratios at 2048 bits (5.2, 10.9, 10.1), not at 8192 bits (3.0, 9.5, 5.2); the cost is not a smooth function of the precision. Both libraries are correctly rounded, so the work is equal in specification but not in method. The slowest binary operations measured are `ln` and `sin` at 8192 bits (1.11 ms and 1.03 ms against 116 us and 197 us in MPFR)."
 msgstr "**初等関数：2 進では MPFR より 2.5 倍から 11 倍遅い。** `exp` はどの精度でも 2.5 倍から 5.2 倍遅く（53 ビット 3.1、2048 ビット 5.2、8192 ビット 3.0）、`ln` は 4.6 倍から 10.9 倍、`sin` は 5.2 倍から 10.1 倍遅い。この 3 つは、最大の比が 8192 ビット（3.0、9.5、5.2）ではなく 2048 ビット（5.2、10.9、10.1）に現れる。コストは精度の滑らかな関数ではない。どちらのライブラリも正しく丸めるので、仕様上の仕事量は等しいが、方法は異なる。計測した 2 進演算で最も遅いのは 8192 ビットの `ln` と `sin`（1.11 ms と 1.03 ms、MPFR は 116 us と 197 us）である。"
 
-#: manual/performance/bench/external.md:307
+#: manual/performance/bench/external.md:314
 msgid "**`decimal_gda`: slower for the four basic operations, at par or faster for `exp` and `ln` from about 34 digits.** Against libmpdec, addition is 3.6 to 11.4 times slower, multiplication 1.7 to 5.4, division 3.0 to 6.2 and square root 2.1 to 5.3. Multiplication, division and square root narrow towards the large size: at 1000 digits they are 1.7, 3.1 and 2.1 times libmpdec. `exp` is 2.9, 1.5 and 1.4 times slower at 16, 34 and 100 digits and 0.11 at 1000 digits; `ln` is 1.28, 0.96, 1.17 and 0.28. This comes from libmpdec's side: from 100 to 1000 digits its `exp` time grows 268 times (17.5 us to 4.69 ms) and its `ln` time 121 times (43.2 us to 5.24 ms), against 21.5 times (24.3 us to 523 us) and 29 times (50.4 us to 1.45 ms) for `floating`. These are the measured times; the cause in libmpdec was not investigated here. For scale, against MPFR at binary sizes near 1000 decimal digits (2048 and 8192 bits), the binary `floating` `exp` is 5.2 and 3.0 times slower and `ln` 10.9 and 9.5 times slower, so the `floating` advantage over libmpdec at 1000 digits is not an advantage over a binary library of the same size class."
 msgstr "**`decimal_gda`：4 つの基本演算は遅く、`exp` と `ln` は約 34 桁から libmpdec と同程度かそれより速い。** libmpdec と比べると、加算は 3.6 倍から 11.4 倍、乗算は 1.7 倍から 5.4 倍、除算は 3.0 倍から 6.2 倍、平方根は 2.1 倍から 5.3 倍遅い。乗算、除算、平方根は桁数が大きいほど差が縮まり、1000 桁では libmpdec の 1.7 倍、3.1 倍、2.1 倍である。`exp` は 16、34、100 桁で 2.9 倍、1.5 倍、1.4 倍遅く、1000 桁では 0.11 になる。`ln` は 1.28、0.96、1.17、0.28 である。これは libmpdec 側の事情による。100 桁から 1000 桁にかけて、libmpdec の `exp` の時間は 268 倍（17.5 us から 4.69 ms）、`ln` の時間は 121 倍（43.2 us から 5.24 ms）に増えるのに対し、`floating` は 21.5 倍（24.3 us から 523 us）と 29 倍（50.4 us から 1.45 ms）である。これらは計測した時間であり、libmpdec 側の原因はここでは調べていない。目安として、10 進 1000 桁に近い 2 進の大きさ（2048 ビットと 8192 ビット）で MPFR と比べると、2 進の `floating` の `exp` は 5.2 倍と 3.0 倍、`ln` は 10.9 倍と 9.5 倍遅い。したがって、1000 桁での libmpdec に対する `floating` の優位は、同じ規模の 2 進ライブラリに対する優位ではない。"
 
-#: manual/performance/bench/external.md:323
+#: manual/performance/bench/external.md:330
 msgid "**Harness overhead.** The `null` rows show that the timed loop of the `floating` side costs 9.2 ns per operation with the arithmetic removed. That is 23% of the 40.1 ns of a 53-bit addition and 16% of the 57.1 ns of a 53-bit square root, about 1% of 1 us and less above it; it is not subtracted in these tables. The loop of the C side was not measured in that run."
 msgstr "**ハーネスのオーバーヘッド。** `null` の行は、演算を除いた `floating` 側の計時ループが 1 演算あたり 9.2 ns かかることを示します。これは 53 ビット加算の 40.1 ns の 23%、53 ビット平方根の 57.1 ns の 16%、1 us の約 1%、それ以上ではさらに少なく、これらの表では差し引いていません。C 側のループは、その実行では測定していません。"
 
-#: manual/performance/bench/external.md:329
+#: manual/performance/bench/external.md:336
 msgid "**Dispersion.** Within a process the 20 ms batches vary by under 3.1% (largest median absolute deviation 1.5% for `floating` and 3.1% for the references). Between the seven rounds the medians of one cell spread by at most 6.0% for `floating` and 25.3% for the references (the reference side of `binary/mul/512`, the one cell marked in the table); the bootstrap intervals therefore cover whole-process variation, and the half-widths of the medians are at most 1.7% for `floating` and 3.1% for the references, and at most 3.3% for a ratio."
 msgstr "**ばらつき。** 1 つのプロセス内では、20 ms のバッチの変動は 3.1% 未満である（中央絶対偏差の最大値は `floating` が 1.5%、参照ライブラリが 3.1%）。7 ラウンド間では、1 つのセルの中央値の散らばりは最大で `floating` が 6.0%、参照ライブラリが 25.3%（`binary/mul/512` の参照側で、表で印が付いている唯一のセル）である。そのためブートストラップ区間はプロセス全体のばらつきを含み、中央値の半幅は最大で `floating` が 1.7%、参照ライブラリが 3.1%、比の半幅は最大 3.3% である。"
 
-#: manual/performance/bench/external.md:337
+#: manual/performance/bench/external.md:344
 msgid "**Repeatability.** The run was repeated once on the same commit `4a052ed` with a different round-order seed. The run published here is the first one, with the quieter machine: the other processes used 8% to 34% of the CPU before the timed sides (once 122%), against 26% to 110% in the second run. Over the 59 cases the medians of `floating` moved by 0.43% in the median and 2.1% at most, and the ratios by 0.72% in the median. Two ratios moved by more than 3%: `binary/mul/8192` (3.92 to 3.41, entirely on the MPFR side, which was 15% slower in the second run) and `decimal_gda/mul/34` (5.41 to 5.59). Neither run had a validation failure. The second run is not published."
 msgstr "**再現性。** 同じコミット `4a052ed` で、ラウンド順のシードを変えてもう一度実行した。ここに載せたのは最初の実行で、マシンがより静かだった：計測側の開始前に他のプロセスが使った CPU は 8% から 34%（1 回だけ 122%）で、2 回目は 26% から 110% だった。59 ケースで、`floating` の中央値の変化は中央値で 0.43%、最大 2.1%、比の変化は中央値で 0.72% だった。3% を超えて動いた比は 2 つある：`binary/mul/8192`（3.92 から 3.41、すべて MPFR 側で、2 回目は 15% 遅かった）と `decimal_gda/mul/34`（5.41 から 5.59）。どちらの実行にも検証の失敗はなかった。2 回目の実行は公開していない。"
 
-#: manual/performance/bench/external.md:347
+#: manual/performance/bench/external.md:354
 msgid "Follow-ups (not fixed here)"
 msgstr "フォローアップ（ここでは修正しない）"
 
-#: manual/performance/bench/external.md:349
+#: manual/performance/bench/external.md:356
 msgid "No profile was taken for this run, so the list is read from the ratios only and names where the largest gaps are, not their cause."
 msgstr "この実行ではプロファイルを取っていないため、以下の一覧は比から読み取ったものであり、差が最も大きい箇所を示すだけで、原因を示すものではない。"
 
-#: manual/performance/bench/external.md:352
+#: manual/performance/bench/external.md:359
 msgid "**Small binary cases.** At 53 bits `floating` takes 38 to 57 ns for add, mul, div and `sqrt`, 7.6 to 10.1 times MPFR, with 9.2 ns of the harness included; `sqrt` at 53 bits (10.1) stands out against 1.9 at 128 bits."
 msgstr "**小さな 2 進のケース。** 53 ビットでは、`floating` は加算、乗算、除算、`sqrt` に 38 ns から 57 ns かかり、MPFR の 7.6 倍から 10.1 倍である（ハーネスの 9.2 ns を含む）。53 ビットの `sqrt`（10.1）は 128 ビットの 1.9 と比べて際立っている。"
 
-#: manual/performance/bench/external.md:355
+#: manual/performance/bench/external.md:362
 msgid "**`ln` and `sin` at 2048 bits and 8192 bits.** Ratios of 10.9 and 10.1 at 2048 bits and 9.5 at 8192 bits for `ln`, the largest elementary ratios; `exp` is at 2.5 to 5.2 at all sizes."
 msgstr "**2048 ビットと 8192 ビットの `ln` と `sin`。** `ln` の比は 2048 ビットで 10.9、8192 ビットで 9.5、`sin` は 2048 ビットで 10.1 で、初等関数では最大である。`exp` はどの大きさでも 2.5 から 5.2 にとどまる。"
 
-#: manual/performance/bench/external.md:358
+#: manual/performance/bench/external.md:365
 msgid "**`sqrt` at 512 bits.** 4.6 times MPFR against 1.9 at 128 bits."
 msgstr "**512 ビットの `sqrt`。** MPFR の 4.6 倍で、128 ビットでは 1.9 倍である。"
 
-#: manual/performance/bench/external.md:359
+#: manual/performance/bench/external.md:366
 msgid "**`decimal_gda` addition at 34 and 100 digits.** 11.4 and 8.7 times, against 3.6 at 16 digits; the largest basic-operation ratios of the decimal side."
 msgstr "**34 桁と 100 桁の `decimal_gda` の加算。** 11.4 倍と 8.7 倍で、16 桁では 3.6 倍である。10 進側の基本演算では最大の比である。"
 
-#: manual/performance/bench/external.md:362
+#: manual/performance/bench/external.md:369
 msgid "What is not measured"
 msgstr "測定していないもの"
 
-#: manual/performance/bench/external.md:364
+#: manual/performance/bench/external.md:371
 msgid "**Other targets.** JavaScript, WebAssembly and LLVM builds are not measured; the C libraries have no counterpart there."
 msgstr "**他のターゲット。** JavaScript、WebAssembly、LLVM のビルドは測定していません。C ライブラリにはそれらに対応するものがありません。"
 
-#: manual/performance/bench/external.md:366
+#: manual/performance/bench/external.md:373
 msgid "**Other machines and compilers.** One Apple M4 laptop on AC power, with no frequency or core pinning and some background desktop load; absolute times will differ on other hardware, and ratios shift with the memory system and the CPU's multiplier and SIMD units."
 msgstr "**他のマシンとコンパイラ。** AC 電源で動く 1 台の Apple M4 ノートで、周波数やコアの固定はなく、デスクトップの背景負荷が多少あります。他のハードウェアでは絶対時間は異なり、比はメモリシステムや CPU の乗算器と SIMD ユニットによって変わります。"
 
-#: manual/performance/bench/external.md:370
+#: manual/performance/bench/external.md:377
 msgid "**Tuned library builds.** The MPFR and GMP in use are Homebrew bottles built with `-O2 -march=armv8-a`; a GMP configured for the exact CPU, or a libmpdec with other build options, can be faster."
 msgstr "**チューニングされたライブラリのビルド。** 使用した MPFR と GMP は `-O2 -march=armv8-a` でビルドされた Homebrew のボトルです。正確な CPU に合わせて構成した GMP や、他のビルドオプションの libmpdec は、より速い可能性があります。"
 
-#: manual/performance/bench/external.md:373
+#: manual/performance/bench/external.md:380
 msgid "**Large and special arguments.** Elementary functions are timed on well-conditioned arguments of modest magnitude; argument reduction of huge arguments, arguments near zeros and singularities, subnormal results, overflow, and exceptional values are not timed."
 msgstr "**大きな引数と特殊な引数。** 初等関数は、大きさが控えめで条件の良い引数で計時されます。巨大な引数の引数縮約、零点や特異点付近の引数、非正規化数の結果、オーバーフロー、例外値は計時されません。"
 
-#: manual/performance/bench/external.md:377
+#: manual/performance/bench/external.md:384
 msgid "**Cold start.** Warm caches only; the cost of the first call at a precision is excluded."
 msgstr "**コールドスタート。** ウォームなキャッシュのみ。ある精度での最初の呼び出しのコストは含まれません。"
 
-#: manual/performance/bench/external.md:379
+#: manual/performance/bench/external.md:386
 msgid "**Other operations.** `fma`, `pow`, `hypot`, `cos`, `tan`, the hyperbolic and inverse functions, remainders, conversions, and parsing and printing are not compared. Interval (`ball_float`) arithmetic has no counterpart in MPFR and is not compared (MPFI is not part of this baseline)."
 msgstr "**他の演算。** `fma`、`pow`、`hypot`、`cos`、`tan`、双曲線関数と逆関数、剰余、変換、構文解析と出力は比較していません。区間（`ball_float`）演算には MPFR に対応するものがなく、比較していません（MPFI はこのベースラインに含まれません）。"
 
-#: manual/performance/bench/external.md:383
+#: manual/performance/bench/external.md:390
 msgid "**Memory and threads.** Peak memory and multi-threaded behaviour are not measured."
 msgstr "**メモリとスレッド。** メモリのピーク使用量とマルチスレッドでの挙動は測定していません。"
 
-#: manual/performance/bench/external.md:385
+#: manual/performance/bench/external.md:392
 msgid "**Other rounding modes.** Only round to nearest even."
 msgstr "**他の丸めモード。** 最近接偶数丸めのみ。"
 
-#: manual/performance/bench/external.md:387
+#: manual/performance/bench/external.md:394
 msgid "Reproduce"
 msgstr "再現"
 
-#: manual/performance/bench/external.md:394
+#: manual/performance/bench/external.md:401
 msgid "`run` writes the inputs, the reference results, the raw rounds, the summary and the samples under `.tmp/external`; `publish` copies the compact summary to `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`, the samples (the pairs of every case) to `samples-VERSION-CONFIGURATION.json.gz`, the tables to `summary-CONFIGURATION.md`, and regenerates the tables of that configuration on this page. The raw JSONL (about 12 MB) is not committed; its checksums and the checksums of the operand and reference files are in the published summary. `just bench external recompute SUMMARY SAMPLES` recomputes a summary from its samples; `just bench external compare OLD NEW` compares two summaries (net ratios when both are resolved, raw ratios otherwise); see the [tutorial](../../tutorial/bench/external.md) for the commands and the [API page](../../api/bench/external.md) for the benchmark cases."
 msgstr "`run` は `.tmp/external` の下に、入力、参照結果、生のラウンド、要約、サンプルを書き出します。`publish` はコンパクトな要約を `testdata/external_baseline/summary-VERSION-CONFIGURATION.json` に、サンプル（各ケースのペア）を `samples-VERSION-CONFIGURATION.json.gz` に、表を `summary-CONFIGURATION.md` にコピーし、このページのその構成の表を再生成します。生の JSONL（約 12 MB）はコミットしません。そのチェックサム、およびオペランドファイルと参照ファイルのチェックサムは、公開された要約にあります。`just bench external recompute SUMMARY SAMPLES` はサンプルから要約を再計算し、`just bench external compare OLD NEW` は 2 つの要約を比較します（両方が判定済みならネット比、そうでなければ生の比）。コマンドは[チュートリアル](../../tutorial/bench/external.md)、ベンチマークのケースは [API ページ](../../api/bench/external.md)を参照してください。"
 
@@ -27806,6 +27855,12 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:718
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "The criterion of 3 is defined for the native configurations. For `wasm` and `js` the summary says `criterion_applies: false` and the status of every case is `not_applicable`; the page reports the two ratios and sets no target, and whether a criterion applies there is for the maintainer to decide."
+#~ msgstr "目標 3 は native の構成に対してだけ定義されています。`wasm` と `js` では、要約は `criterion_applies: false` と書き、すべてのケースのステータスは `not_applicable` です。ページは 2 つの比を報告し、目標は設けません。そこに基準を適用するかどうかはメンテナが決めます。"
+
+#~ msgid "The target of 3 is defined for the native configurations. For `wasm` the page reports two ratios and sets no target: the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run, which mixes the library and the runtime, and the ratio to the same case in `native-portable`, which attributes the difference to the runtime. Whether a criterion applies is for the maintainer to decide."
+#~ msgstr "目標 3 は native の構成に対してだけ定義されています。`wasm` では、ページは目標を設けずに 2 つの比を報告します。1 つは、このライブラリの `wasm`（`moonrun` の下）での、同じ実行のネイティブ MPFR と libmpdec に対するネット比で、ライブラリとランタイムが混ざっています。もう 1 つは `native-portable` の同じケースに対する比で、違いをランタイムに帰します。基準を適用するかどうかはメンテナが決めます。"
 
 #~ msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines."
 #~ msgstr "`nightly.yml` は `quick`、`decimal`、`decimal_gda`、`binary`、`interval` について `just gate` を並列ジョブとして毎晩およびオンデマンドで実行します。SHA-256 で固定された上流コーパスをマニフェストのハッシュでキャッシュし（ハッシュはダウンロード後にも検証されます）、各 `summary.json` を成果物としてアップロードするため、公開された結果はメンテナのマシン以外でも再現されます。"

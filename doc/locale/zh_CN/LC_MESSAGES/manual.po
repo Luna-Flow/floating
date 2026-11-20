@@ -4711,6 +4711,7 @@ msgstr "精确情形"
 #: manual/conformance/decimal.md:70
 #: manual/conformance/decimal.md:71
 #: manual/conformance/decimal.md:72
+#: manual/design/bench/external.md:244
 #: manual/design/frontend/mpfr_expr.md:50
 msgid "none"
 msgstr "无"
@@ -9822,7 +9823,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
-#: manual/design/bench/external.md:296
+#: manual/design/bench/external.md:316
 #: manual/design/bin_float.md:2132
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
@@ -11106,7 +11107,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
-#: manual/design/bench/external.md:276
+#: manual/design/bench/external.md:296
 #: manual/design/bin_float.md:2060
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
@@ -11186,7 +11187,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
-#: manual/design/bench/external.md:286
+#: manual/design/bench/external.md:306
 #: manual/design/bin_float.md:2107
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
@@ -11997,110 +11998,158 @@ msgid "Runtimes other than native"
 msgstr "native 以外的运行时"
 
 #: manual/design/bench/external.md:217
-msgid "`--target native|wasm|js` chooses the `moon` target the floating side is built and run for (`wasm` runs under `moonrun`, `js` under node; the versions are recorded in `meta.runtime`). The reference side is always the native C process of MPFR and libmpdec, run in every round of the same run, so the number of a cell on another runtime is the library on that runtime against the native reference. That mixes two differences, the library and the runtime. The second ratio separates them: the net time of `floating` on the runtime over the net time of the same case in `native-portable`, which runs the same code path. It is computed at publishing time from the two samples files of the same release (they must have read the same operand file and used the same protocol; each has its own configuration in the seed of every draw, so the two resamplings are independent) and has an interval and no verdict. `wasm-gc` is not a target: the module initialiser of the `moonbitlang/async` dependency, which the driver links, casts between two struct types of the runtime's scheduler and is rejected by the runtime at validation (it reproduces with that package alone)."
-msgstr "`--target native|wasm|js` 选择构建并运行 `floating` 一侧所用的 `moon` 目标（`wasm` 在 `moonrun` 下运行，`js` 在 node 下运行；其版本记录在 `meta.runtime` 中）。参考侧始终是 MPFR 和 libmpdec 的原生 C 进程，在同一次运行的每一轮中都会运行，所以另一种运行时上某个单元格的数是“本库在该运行时上对原生参考”。这混合了两种差异：库和运行时。第二个比值把它们分开：`floating` 在该运行时上的净时间除以同一用例在 `native-portable` 中的净时间，二者运行同一条代码路径。它在发布时由同一版本的两份样本文件计算（它们必须读取了同一个操作数文件并使用同一协议；每份在每次抽样的种子中都带有自己的配置，所以两次重抽样相互独立），有区间而没有判定。`wasm-gc` 不是目标：驱动程序所链接的 `moonbitlang/async` 依赖的模块初始化函数，在运行时调度器的两个结构体类型之间做转换，会被运行时在验证时拒绝（仅用该包就能复现）。"
+msgid "`--target native|wasm|js` chooses the `moon` target the floating side is built and run for (`wasm` runs under `moonrun`, `js` under node; the versions are recorded in `meta.runtime`). The reference side is always the native C process of MPFR and libmpdec, run in every round of the same run, so the number of a cell on another runtime is the library on that runtime against the native reference. That mixes two differences, the library and the runtime. The second ratio separates them: the net time of `floating` on the runtime over the net time of the same case in `native-portable`, which runs the same code path. It is computed at publishing time from the two samples files of the same release (they must have read the same operand file and used the same protocol; each has its own configuration in the seed of every draw, so the two resamplings are independent) and has an interval and no verdict: it is a diagnostic of the cost of the runtime. `wasm-gc` is not a target: the benchmark driver uses `moonbitlang/async`, which has no wasm-gc runtime (the module initialiser of that package casts between two struct types of the runtime's scheduler and the runtime rejects the module at validation; a reduced reproduction with that package alone shows it, and nothing is filed)."
+msgstr "`--target native|wasm|js` 选择构建并运行 `floating` 一侧所用的 `moon` 目标（`wasm` 在 `moonrun` 下运行，`js` 在 node 下运行；其版本记录在 `meta.runtime` 中）。参考侧始终是 MPFR 和 libmpdec 的原生 C 进程，在同一次运行的每一轮中都会运行，所以另一种运行时上某个单元格的数是“本库在该运行时上对原生参考”。这混合了两种差异：库和运行时。第二个比值把它们分开：`floating` 在该运行时上的净时间除以同一用例在 `native-portable` 中的净时间，二者运行同一条代码路径。它在发布时由同一版本的两份样本文件计算（它们必须读取了同一个操作数文件并使用同一协议；每份在每次抽样的种子中都带有自己的配置，所以两次重抽样相互独立），有区间而没有判定：它是运行时开销的诊断。`wasm-gc` 不是目标：基准测试驱动程序使用 `moonbitlang/async`，该包没有 wasm-gc 运行时（该包的模块初始化函数在运行时调度器的两个结构体类型之间做转换，运行时在验证时拒绝该模块；仅用该包的缩小复现可以证明这一点，也没有提交任何报告）。"
 
-#: manual/design/bench/external.md:233
-msgid "The criterion of 3 is defined for the native configurations. For `wasm` and `js` the summary says `criterion_applies: false` and the status of every case is `not_applicable`; the page reports the two ratios and sets no target, and whether a criterion applies there is for the maintainer to decide."
-msgstr "目标 3 只为 native 配置定义。对 `wasm` 和 `js`，汇总写 `criterion_applies: false`，每个用例的状态是 `not_applicable`；页面报告两个比值，不设目标，是否适用某种判据由维护者决定。"
+#: manual/design/bench/external.md:235
+msgid "**The criterion of a configuration** is one row of a table in the tool (`CRITERIA` in `tools/external_baseline.py`): which ratio is judged and two bounds, the target and the limit. Every configuration is judged on the net ratio to the native reference process (MPFR, libmpdec); for `wasm` and `js` that is the ratio of this library on the runtime to the native reference. The upper end of the 95% interval decides:"
+msgstr "**配置的判据**是工具中一张表的一行（`tools/external_baseline.py` 中的 `CRITERIA`）：判定哪个比值，以及两个界限，即目标和上限。每种配置都按对原生参考进程（MPFR、libmpdec）的净比值判定；对 `wasm` 和 `js`，那是本库在该运行时上对原生参考的比值。由 95% 区间的上端决定："
 
-#: manual/design/bench/external.md:238
+#: manual/design/bench/external.md:242
+msgid "configuration"
+msgstr "配置"
+
+#: manual/design/bench/external.md:242
+msgid "target"
+msgstr "目标"
+
+#: manual/design/bench/external.md:242
+msgid "limit"
+msgstr "上限"
+
+#: manual/design/bench/external.md:242
+msgid "met"
+msgstr "达标"
+
+#: manual/design/bench/external.md:242
+msgid "tolerated"
+msgstr "容许"
+
+#: manual/design/bench/external.md:242
+msgid "not met"
+msgstr "未达标"
+
+#: manual/design/bench/external.md:244
+msgid "at most 3"
+msgstr "不超过 3"
+
+#: manual/design/bench/external.md:244
+msgid "above 3"
+msgstr "高于 3"
+
+#: manual/design/bench/external.md:245
+msgid "at most 5"
+msgstr "不超过 5"
+
+#: manual/design/bench/external.md:245
+msgid "above 5, at most 10"
+msgstr "高于 5 且不超过 10"
+
+#: manual/design/bench/external.md:245
+msgid "above 10"
+msgstr "高于 10"
+
+#: manual/design/bench/external.md:247
+msgid "A runtime that compiles while it runs is expected to stay within 5 times the native reference and may not exceed 10 times; where the limit equals the target there is no tolerated band. The unresolved and borderline rules above apply to both bounds: a case whose interval contains the target or the limit is marked borderline, and an unresolved case shows its raw ratio as `met`, `tolerated` or `not met`. The summary records the row (`criterion_judged`, `target_ratio`, `limit_ratio`, `criterion_applies`); a summary without `limit_ratio` is read with the limit equal to the target. A row that judges nothing makes the status of every case `not_applicable` and the page prints no verdict for it; no configuration has such a row today. The ratio to `native-portable` is never judged."
+msgstr "边运行边编译的运行时，预期保持在原生参考的 5 倍以内，且不得超过 10 倍；上限等于目标时没有容许带。未决和临界规则（见上）对两个界限都适用：区间包含目标或上限的用例标为临界，未决用例的原始比值显示为 `met`、`tolerated` 或 `not met`。汇总记录该行（`criterion_judged`、`target_ratio`、`limit_ratio`、`criterion_applies`）；没有 `limit_ratio` 的汇总按上限等于目标读取。不判定任何东西的行会使每个用例的状态为 `not_applicable`，页面不为其打印判定；目前没有配置有这样的行。与 `native-portable` 的比值从不判定。"
+
+#: manual/design/bench/external.md:258
 msgid "What the method does differently on a runtime that compiles while it runs:"
 msgstr "在边运行边编译的运行时上，该方法有以下不同做法："
 
-#: manual/design/bench/external.md:240
+#: manual/design/bench/external.md:260
 msgid "**Warm-up.** The code of a case may still be compiled during the first blocks. The warm-up time is a number of the method, fixed per runtime before any cell is measured, from the calibration experiment below. A flag `w` is reported when the median net of the first third of the pairs of every round differs from that of the last third by more than 5% of the net; it removes no data."
 msgstr "**预热。** 用例的代码可能在最初的若干块中仍在被编译。预热时间是方法中的一个数，在测量任何单元格之前按运行时固定，取自下面的校准实验。当每一轮前三分之一配对的净值中位数与后三分之一的中位数相差超过净值的 5% 时，报告标记 `w`；它不删除任何数据。"
 
-#: manual/design/bench/external.md:246
+#: manual/design/bench/external.md:266
 msgid "**The floor differs per runtime** and is measured in every pair, so the net handles it. A call site of the null's closure can be inlined where that of the case cannot, which makes the null cheaper than the harness part of the case and the net slightly larger; it errs against the library, and nothing corrects it."
 msgstr "**底噪因运行时而异**，并且在每个配对中都被测量，所以净值会处理它。null 的闭包的调用点可能被内联，而用例的调用点不能，这使 null 比用例中的测试程序部分更便宜、净值略大；这对库不利，而且没有任何修正。"
 
-#: manual/design/bench/external.md:250
+#: manual/design/bench/external.md:270
 msgid "**Calibration** of the batch size follows the warm-up, so it is done on warm code."
 msgstr "批大小的**校准**在预热之后进行，因此是在已预热的代码上完成的。"
 
-#: manual/design/bench/external.md:252
+#: manual/design/bench/external.md:272
 msgid "The calibration experiment of the warm-up"
 msgstr "预热的校准实验"
 
-#: manual/design/bench/external.md:254
+#: manual/design/bench/external.md:274
 msgid "Fixed here before it is run. One experiment per runtime (`wasm`, `js`), in the bench window of the measurement, with `just bench external warmup --target T`:"
 msgstr "在运行之前先在此固定。每种运行时（`wasm`、`js`）做一次实验，在测量所在的基准测试窗口中，用 `just bench external warmup --target T`："
 
-#: manual/design/bench/external.md:257
+#: manual/design/bench/external.md:277
 msgid "Cases: `binary/add/53`, `binary/mul/512`, `binary/ln/2048` and `decimal_gda/add/34` (a fast case, a mid-size case, an elementary function and a decimal case; the same operand file as the measurement)."
 msgstr "用例：`binary/add/53`、`binary/mul/512`、`binary/ln/2048` 和 `decimal_gda/add/34`（一个快速用例、一个中等规模用例、一个初等函数和一个十进制用例；操作数文件与测量时相同）。"
 
-#: manual/design/bench/external.md:260
+#: manual/design/bench/external.md:280
 msgid "Warm-up times: 5, 50, 200, 1000 and 3000 ms. Each (warm-up, case) is run three times, each in its own process, with no exploratory blocks and 60 confirmatory pairs, the standard calibration target of 20 ms per block."
 msgstr "预热时间：5、50、200、1000 和 3000 ms。每个（预热，用例）运行三次，每次在各自的进程中，不含探索性块，有 60 个确认性配对，标准的校准目标为每块 20 ms。"
 
-#: manual/design/bench/external.md:263
+#: manual/design/bench/external.md:283
 msgid "Statistic of a run: the warm-up drift `w` of the design above, the difference of the median net of the first and of the last third of the 60 pairs, in percent of the net."
 msgstr "一次运行的统计量：上面设计中的预热漂移 `w`，即 60 个配对中前三分之一与后三分之一的净值中位数之差，以净值的百分比表示。"
 
-#: manual/design/bench/external.md:266
+#: manual/design/bench/external.md:286
 msgid "Rule: the smallest warm-up for which every run (every case and every repeat) has a drift of at most 2%; the warm-up of the runtime is twice that value, rounded up to a whole 100 ms. If no warm-up reaches 2%, the experiment is reported and the runtime is measured only with the `w` flag on and the longest warm-up, with the result stated as not resolved by the method."
 msgstr "规则：取使每次运行（每个用例、每次重复）的漂移都不超过 2% 的最小预热；该运行时的预热为该值的两倍，向上取整到 100 ms 的整数倍。如果没有任何预热达到 2%，则报告该实验，并仅在打开 `w` 标记并使用最长预热的情况下测量该运行时，结果声明为方法未能判定。"
 
-#: manual/design/bench/external.md:271
+#: manual/design/bench/external.md:291
 msgid "The value, the table of drifts and the versions of the runtime are published with the first summary of the runtime and written into the `protocol` block of every later one. The native value is the preset's 5 ms and is not part of the experiment."
 msgstr "该值、漂移表和运行时版本随该运行时的第一份汇总一起发布，并写入之后每份汇总的 `protocol` 块。native 的值是预设的 5 ms，不属于该实验。"
 
-#: manual/design/bench/external.md:278
+#: manual/design/bench/external.md:298
 msgid "The operand file and the reference file are checksummed in `machine.json`."
 msgstr "操作数文件和参考文件的校验和记录在 `machine.json` 中。"
 
-#: manual/design/bench/external.md:279
+#: manual/design/bench/external.md:299
 msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
 msgstr "与参考结果不同的 `floating` 结果会被计入 Maremark 验证统计，并列在 `results.json` 中。"
 
-#: manual/design/bench/external.md:281
+#: manual/design/bench/external.md:301
 msgid "A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees."
 msgstr "汇总是其样本文件（每个用例按侧和轮次的配对）与其 protocol 块的函数；`just bench external recompute` 会重新计算它，并说明每个已存数字是否一致。"
 
-#: manual/design/bench/external.md:282
+#: manual/design/bench/external.md:302
 msgid "A pair is used only when both of its blocks were measured; exploratory pairs are never used."
 msgstr "只有当配对的两个块都测量过时才使用该配对；探索性配对从不使用。"
 
-#: manual/design/bench/external.md:283
+#: manual/design/bench/external.md:303
 msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the samples; the timings themselves are not."
 msgstr "种子会被记录，因此轮次顺序和自助法可以从样本重现；计时本身则不能。"
 
-#: manual/design/bench/external.md:288
+#: manual/design/bench/external.md:308
 msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
 msgstr "**从 MoonBit 绑定 MPFR。** 这会把 FFI 编组放进只有一侧的计时区间内。"
 
-#: manual/design/bench/external.md:290
+#: manual/design/bench/external.md:310
 msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
 msgstr "**与 mpmath 或 gmpy2 比较。** 它们的开销来自 Python 解释器，而不是库本身。"
 
-#: manual/design/bench/external.md:292
+#: manual/design/bench/external.md:312
 msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
 msgstr "**重复对同一个操作数计时。** 单个固定的操作数会让分支预测器和缓存记住数据路径；每遍使用八个不同的操作数可以避免这一点，代价是批次时长变为八倍。"
 
-#: manual/design/bench/external.md:298
+#: manual/design/bench/external.md:318
 msgid "Native target only; no claims for JavaScript or WebAssembly."
 msgstr "仅限 native 目标；不对 JavaScript 或 WebAssembly 作出任何结论。"
 
-#: manual/design/bench/external.md:299
+#: manual/design/bench/external.md:319
 msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
 msgstr "每次运行只有一台机器、一个操作系统、一个编译器；机器信息见性能页面。"
 
-#: manual/design/bench/external.md:301
+#: manual/design/bench/external.md:321
 msgid "Elementary functions are measured on a few well-conditioned argument ranges; huge arguments and arguments near singularities are not measured."
 msgstr "初等函数只在少数条件良好的自变量范围内测量；巨大的自变量和接近奇点的自变量不在测量之列。"
 
-#: manual/design/bench/external.md:303
+#: manual/design/bench/external.md:323
 msgid "The library caches of MPFR (for $\\pi$ and $\\log 2$) and the corresponding caches of `floating` are warm during timing; cold-start cost is not measured."
 msgstr "MPFR 的缓存（用于 $\\pi$ 和 $\\log 2$）以及 `floating` 中相应的缓存在计时期间都是热的；冷启动成本不被测量。"
 
-#: manual/design/bench/external.md:305
+#: manual/design/bench/external.md:325
 msgid "Only a single thread is used; memory use is not measured."
 msgstr "只使用单线程；不测量内存使用。"
 
-#: manual/design/bench/external.md:306
+#: manual/design/bench/external.md:326
 msgid "The correction for the loop floor moves few verdicts. Computed from the 0.11.0 medians with the floating floor then measured (9.21 ns) and a reference floor between 0.4 and 1.1 ns, 43 of 59 cases are above 3 on the raw ratio and 42 on the net ratio: only `decimal_gda` multiplication at 100 digits (3.03) changes side. The method makes the number honest; it does not move the target."
 msgstr "对循环底噪的修正几乎不改变判定。依据 0.11.0 的中位数，取当时测得的 `floating` 底噪（9.21 ns）和 0.4 到 1.1 ns 之间的参考侧底噪来计算，59 个用例中按原始比值有 43 个高于 3，按净比值有 42 个：只有 100 位的 `decimal_gda` 乘法（3.03）换了边。该方法让数字变得诚实；它并不移动目标。"
 
@@ -20233,149 +20282,65 @@ msgid "Configurations and results"
 msgstr "配置与结果"
 
 #: manual/performance/bench/external.md:116
-msgid "The floating side is measured in two configurations of the native build, each published as its own summary and shown in its own section: `native`, with the native limb primitives where the build has them, and `native-portable`, with the portable path forced. The target has to be reached by the portable path too. It is also measured on two other runtimes, `wasm` and `js`, where the target of 3 is not defined: their sections report ratios and no verdict. The configuration is chosen when the run starts (`--target`, `--configuration NAME`, `--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by `just bench external publish` between the marker comments below and copied without editing."
-msgstr "`floating` 一侧在原生构建的两种配置中测量，各自发布为自己的汇总，并在各自的一节中展示：`native`，构建具备时使用原生 limb 原语；`native-portable`，强制使用可移植路径。目标也必须由可移植路径达到。它还在另外两种运行时 `wasm` 和 `js` 上测量，那里没有定义目标 3：它们的各节只报告比值，没有判定。配置在运行开始时选定（`--target`、`--configuration NAME`、`--moon-env KEY=VALUE`），并记录在汇总中。一种配置的表由 `just bench external publish` 生成在下面的标记注释之间，原样复制。"
+msgid "The floating side is measured in two configurations of the native build, each published as its own summary and shown in its own section: `native`, with the native limb primitives where the build has them, and `native-portable`, with the portable path forced. The target has to be reached by the portable path too. It is also measured on two other runtimes, `wasm` and `js`, which are judged on the same net ratio to the native reference with two bounds: a case meets the target when the upper end of the interval is at most 5, is tolerated up to 10 and is not met above 10 (the native configurations have the one bound 3). The ratio of a runtime to `native-portable` is a diagnostic and has no verdict. Each runtime section counts its cases met, tolerated and not met. The configuration is chosen when the run starts (`--target`, `--configuration NAME`, `--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by `just bench external publish` between the marker comments below and copied without editing."
+msgstr "`floating` 一侧在原生构建的两种配置中测量，各自发布为自己的汇总，并在各自的一节中展示：`native`，构建具备时使用原生 limb 原语；`native-portable`，强制使用可移植路径。目标也必须由可移植路径达到。它还在另外两种运行时 `wasm` 和 `js` 上测量，按同一个对原生参考的净比值判定，但有两个界限：区间上端不超过 5 时用例达标，不超过 10 时为容许，高于 10 为未达标（原生配置只有一个界限 3）。运行时与 `native-portable` 的比值是诊断，没有判定。每个运行时的一节分别统计达标、容许和未达标的用例数。配置在运行开始时选定（`--target`、`--configuration NAME`、`--moon-env KEY=VALUE`），并记录在汇总中。一种配置的表由 `just bench external publish` 生成在下面的标记注释之间，原样复制。"
 
-#: manual/performance/bench/external.md:127
+#: manual/performance/bench/external.md:131
 msgid "Configuration `native`"
 msgstr "配置 `native`"
 
-#: manual/performance/bench/external.md:131
+#: manual/performance/bench/external.md:135
 msgid "Not measured yet with the net-ratio method. The first measurement with it is published with the next release; until then the results below are those of 0.11.0, measured with the raw method."
 msgstr "尚未用净比值方法测量。用它做的第一次测量将随下一个版本发布；在此之前，下面的结果是 0.11.0 用原始方法测得的结果。"
 
-#: manual/performance/bench/external.md:137
+#: manual/performance/bench/external.md:141
 msgid "Configuration `native-portable`"
 msgstr "配置 `native-portable`"
 
-#: manual/performance/bench/external.md:141
+#: manual/performance/bench/external.md:145
 msgid "Not measured yet with the net-ratio method."
 msgstr "尚未用净比值方法测量。"
 
-#: manual/performance/bench/external.md:145
+#: manual/performance/bench/external.md:149
 msgid "Runtime `wasm`"
 msgstr "运行时 `wasm`"
 
-#: manual/performance/bench/external.md:147
-msgid "The target of 3 is defined for the native configurations. For `wasm` the page reports two ratios and sets no target: the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run, which mixes the library and the runtime, and the ratio to the same case in `native-portable`, which attributes the difference to the runtime. Whether a criterion applies is for the maintainer to decide."
-msgstr "目标 3 只为 native 配置定义。对 `wasm`，页面报告两个比值而不设目标：本库在 `wasm`（在 `moonrun` 下）上对同一次运行的原生 MPFR 和 libmpdec 的净比值，它混合了库和运行时；以及对 `native-portable` 中同一用例的比值，它把差异归于运行时。是否适用某种判据由维护者决定。"
+#: manual/performance/bench/external.md:151
+msgid "`wasm` is expected within 5 times the native reference and may not exceed 10 times: a case meets the target when the upper end of the 95% interval of the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run is at most 5, is tolerated when it is above 5 and at most 10, and is not met above 10, with the unresolved and borderline rules of the native sections applied to both bounds. That ratio mixes the library and the runtime, so the section also shows the ratio to the same case in `native-portable`, a diagnostic of the cost of the runtime with its interval and no verdict."
+msgstr "`wasm` 预期在原生参考的 5 倍以内，且不得超过 10 倍：当本库在 `wasm`（`moonrun` 下）上对同一次运行的原生 MPFR 和 libmpdec 的净比值的 95% 区间上端不超过 5 时，用例达标；高于 5 且不超过 10 时为容许；高于 10 为未达标；未决和临界规则与原生各节相同，并对两个界限都适用。该比值混合了库和运行时，所以该节还给出与 `native-portable` 中同一用例的比值，它是运行时开销的诊断，带区间而没有判定。"
 
-#: manual/performance/bench/external.md:156
-#: manual/performance/bench/external.md:167
+#: manual/performance/bench/external.md:162
+#: manual/performance/bench/external.md:173
 msgid "Not measured yet."
 msgstr "尚未测量。"
 
-#: manual/performance/bench/external.md:160
+#: manual/performance/bench/external.md:166
 msgid "Runtime `js`"
 msgstr "运行时 `js`"
 
-#: manual/performance/bench/external.md:162
-msgid "As for `wasm`: two ratios, no target. The runtime is node; its versions are in the summary."
-msgstr "与 `wasm` 相同：两个比值，没有目标。运行时是 node；其版本在汇总中。"
+#: manual/performance/bench/external.md:168
+msgid "As for `wasm`: the same two bounds (5 and 10), and the ratio to `native-portable` as a diagnostic. The runtime is node; its versions are in the summary."
+msgstr "与 `wasm` 相同：两个界限相同（5 和 10），与 `native-portable` 的比值作为诊断。运行时是 node；其版本在汇总中。"
 
-#: manual/performance/bench/external.md:173
-msgid "Not measured, and not measurable at present: the module initialiser of the `moonbitlang/async` dependency of the benchmark driver is rejected by the runtime at validation (see the [design page](../../design/bench/external.md#runtimes-other-than-native))."
-msgstr "未测量，目前也无法测量：基准测试驱动程序的 `moonbitlang/async` 依赖的模块初始化函数会被运行时在验证时拒绝（见[设计页面](../../design/bench/external.md#runtimes-other-than-native)）。"
+#: manual/performance/bench/external.md:179
+msgid "Not measured, and not measurable at present: the benchmark driver uses `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser casts between two struct types and the runtime rejects the module at validation; a reduced reproduction with that package alone shows it, and nothing is filed). See the [design page](../../design/bench/external.md#runtimes-other-than-native)."
+msgstr "未测量，目前也无法测量：基准测试驱动程序使用 `moonbitlang/async`，该包没有 wasm-gc 运行时（其模块初始化函数在两个结构体类型之间做转换，运行时在验证时拒绝该模块；仅用该包的缩小复现可以证明这一点，也没有提交任何报告）。见[设计页面](../../design/bench/external.md#runtimes-other-than-native)。"
 
-#: manual/performance/bench/external.md:178
+#: manual/performance/bench/external.md:185
 msgid "Results of 0.11.0 (raw method)"
 msgstr "0.11.0 的结果（原始方法）"
 
-#: manual/performance/bench/external.md:180
+#: manual/performance/bench/external.md:187
 msgid "These are the tables of the release 0.11.0, measured before the net-ratio method existed: the ratio is the median of the case blocks of `floating` over that of the reference, without a null, and the single floor known then was the 9.21 ns of the floating loop. They are kept as the record of that release (`testdata/external_baseline/summary-0.11.0.json`, schema v1) and are replaced by the sections above as the new measurements are published. The tables are the output of `just bench external publish` for that run, copied without editing."
 msgstr "这些是 0.11.0 版本的表，测量于净比值方法出现之前：比值是 `floating` 的用例块的中位数除以参考侧的用例块的中位数，没有 null，当时已知的唯一底噪是 `floating` 循环的 9.21 ns。它们作为该版本的记录保留（`testdata/external_baseline/summary-0.11.0.json`，schema v1），随着新测量的发布而被上面各节取代。这些表是该次运行的 `just bench external publish` 的输出，原样复制。"
 
-#: manual/performance/bench/external.md:188
+#: manual/performance/bench/external.md:195
 msgid "Binary: floating `bin_float` against MPFR"
 msgstr "二进制：floating `bin_float` 对比 MPFR"
 
-#: manual/performance/bench/external.md:190
+#: manual/performance/bench/external.md:197
 msgid "Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)"
 msgstr "比值 floating / MPFR（中位数时间，95% 自助法区间；大于 1 表示 floating 更慢）"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
-msgid "op"
-msgstr "op"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "53 bits"
-msgstr "53 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "128 bits"
-msgstr "128 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "512 bits"
-msgstr "512 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "2048 bits"
-msgstr "2048 bits"
-
-#: manual/performance/bench/external.md:192
-#: manual/performance/bench/external.md:204
-#: manual/performance/bench/external.md:216
-msgid "8192 bits"
-msgstr "8192 bits"
-
-#: manual/performance/bench/external.md:194
-#: manual/performance/bench/external.md:206
-#: manual/performance/bench/external.md:218
-#: manual/performance/bench/external.md:232
-#: manual/performance/bench/external.md:243
-#: manual/performance/bench/external.md:254
-msgid "add"
-msgstr "add"
-
-#: manual/performance/bench/external.md:195
-#: manual/performance/bench/external.md:207
-#: manual/performance/bench/external.md:219
-#: manual/performance/bench/external.md:233
-#: manual/performance/bench/external.md:244
-#: manual/performance/bench/external.md:255
-msgid "mul"
-msgstr "mul"
-
-#: manual/performance/bench/external.md:196
-#: manual/performance/bench/external.md:208
-#: manual/performance/bench/external.md:220
-#: manual/performance/bench/external.md:234
-#: manual/performance/bench/external.md:245
-#: manual/performance/bench/external.md:256
-msgid "div"
-msgstr "div"
-
-#: manual/performance/bench/external.md:197
-#: manual/performance/bench/external.md:209
-#: manual/performance/bench/external.md:221
-#: manual/performance/bench/external.md:235
-#: manual/performance/bench/external.md:246
-#: manual/performance/bench/external.md:257
-msgid "sqrt"
-msgstr "sqrt"
-
-#: manual/performance/bench/external.md:198
-#: manual/performance/bench/external.md:210
-#: manual/performance/bench/external.md:222
-#: manual/performance/bench/external.md:236
-#: manual/performance/bench/external.md:247
-#: manual/performance/bench/external.md:258
-msgid "exp"
-msgstr "exp"
 
 #: manual/performance/bench/external.md:199
 #: manual/performance/bench/external.md:211
@@ -20383,658 +20348,742 @@ msgstr "exp"
 #: manual/performance/bench/external.md:237
 #: manual/performance/bench/external.md:248
 #: manual/performance/bench/external.md:259
+msgid "op"
+msgstr "op"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "53 bits"
+msgstr "53 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "128 bits"
+msgstr "128 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "512 bits"
+msgstr "512 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "2048 bits"
+msgstr "2048 bits"
+
+#: manual/performance/bench/external.md:199
+#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:223
+msgid "8192 bits"
+msgstr "8192 bits"
+
+#: manual/performance/bench/external.md:201
+#: manual/performance/bench/external.md:213
+#: manual/performance/bench/external.md:225
+#: manual/performance/bench/external.md:239
+#: manual/performance/bench/external.md:250
+#: manual/performance/bench/external.md:261
+msgid "add"
+msgstr "add"
+
+#: manual/performance/bench/external.md:202
+#: manual/performance/bench/external.md:214
+#: manual/performance/bench/external.md:226
+#: manual/performance/bench/external.md:240
+#: manual/performance/bench/external.md:251
+#: manual/performance/bench/external.md:262
+msgid "mul"
+msgstr "mul"
+
+#: manual/performance/bench/external.md:203
+#: manual/performance/bench/external.md:215
+#: manual/performance/bench/external.md:227
+#: manual/performance/bench/external.md:241
+#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:263
+msgid "div"
+msgstr "div"
+
+#: manual/performance/bench/external.md:204
+#: manual/performance/bench/external.md:216
+#: manual/performance/bench/external.md:228
+#: manual/performance/bench/external.md:242
+#: manual/performance/bench/external.md:253
+#: manual/performance/bench/external.md:264
+msgid "sqrt"
+msgstr "sqrt"
+
+#: manual/performance/bench/external.md:205
+#: manual/performance/bench/external.md:217
+#: manual/performance/bench/external.md:229
+#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:265
+msgid "exp"
+msgstr "exp"
+
+#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:230
+#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:266
 msgid "ln"
 msgstr "ln"
 
-#: manual/performance/bench/external.md:200
-#: manual/performance/bench/external.md:212
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:231
 msgid "sin"
 msgstr "sin"
 
-#: manual/performance/bench/external.md:202
+#: manual/performance/bench/external.md:209
 msgid "Median ns per operation, MPFR"
 msgstr "每次操作的中位数 ns，MPFR"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "4.59 ns"
 msgstr "4.59 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "6 ns"
 msgstr "6 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "12.4 ns"
 msgstr "12.4 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "21.7 ns"
 msgstr "21.7 ns"
 
-#: manual/performance/bench/external.md:206
+#: manual/performance/bench/external.md:213
 msgid "85.6 ns"
 msgstr "85.6 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "5 ns"
 msgstr "5 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "10.1 ns"
 msgstr "10.1 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "32 ns"
 msgstr "32 ns"
 
-#: manual/performance/bench/external.md:207
+#: manual/performance/bench/external.md:214
 msgid "231 ns"
 msgstr "231 ns"
 
-#: manual/performance/bench/external.md:207
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:214
+#: manual/performance/bench/external.md:229
 msgid "2.13 us"
 msgstr "2.13 us"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "5.38 ns"
 msgstr "5.38 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "26.3 ns"
 msgstr "26.3 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "106 ns"
 msgstr "106 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "498 ns"
 msgstr "498 ns"
 
-#: manual/performance/bench/external.md:208
+#: manual/performance/bench/external.md:215
 msgid "4 us"
 msgstr "4 us"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "5.64 ns"
 msgstr "5.64 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "62.3 ns"
 msgstr "62.3 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "162 ns"
 msgstr "162 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "509 ns"
 msgstr "509 ns"
 
-#: manual/performance/bench/external.md:209
+#: manual/performance/bench/external.md:216
 msgid "2.83 us"
 msgstr "2.83 us"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "557 ns"
 msgstr "557 ns"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "846 ns"
 msgstr "846 ns"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "2.35 us"
 msgstr "2.35 us"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "16.8 us"
 msgstr "16.8 us"
 
-#: manual/performance/bench/external.md:210
+#: manual/performance/bench/external.md:217
 msgid "208 us"
 msgstr "208 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "388 ns"
 msgstr "388 ns"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "1.09 us"
 msgstr "1.09 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "3.41 us"
 msgstr "3.41 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "14.9 us"
 msgstr "14.9 us"
 
-#: manual/performance/bench/external.md:211
+#: manual/performance/bench/external.md:218
 msgid "116 us"
 msgstr "116 us"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "496 ns"
 msgstr "496 ns"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "792 ns"
 msgstr "792 ns"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "2.22 us"
 msgstr "2.22 us"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "14.1 us"
 msgstr "14.1 us"
 
-#: manual/performance/bench/external.md:212
+#: manual/performance/bench/external.md:219
 msgid "197 us"
 msgstr "197 us"
 
-#: manual/performance/bench/external.md:214
-#: manual/performance/bench/external.md:250
+#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:257
 msgid "Median ns per operation, floating"
 msgstr "每次操作的中位数 ns，floating"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "40.1 ns"
 msgstr "40.1 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "38.5 ns"
 msgstr "38.5 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "86.2 ns"
 msgstr "86.2 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "138 ns"
 msgstr "138 ns"
 
-#: manual/performance/bench/external.md:218
+#: manual/performance/bench/external.md:225
 msgid "441 ns"
 msgstr "441 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "37.9 ns"
 msgstr "37.9 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "40 ns"
 msgstr "40 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "121 ns"
 msgstr "121 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "910 ns"
 msgstr "910 ns"
 
-#: manual/performance/bench/external.md:219
+#: manual/performance/bench/external.md:226
 msgid "8.34 us"
 msgstr "8.34 us"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "42.8 ns"
 msgstr "42.8 ns"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "154 ns"
 msgstr "154 ns"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "340 ns"
 msgstr "340 ns"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "1.84 us"
 msgstr "1.84 us"
 
-#: manual/performance/bench/external.md:220
+#: manual/performance/bench/external.md:227
 msgid "19 us"
 msgstr "19 us"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "57.1 ns"
 msgstr "57.1 ns"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "119 ns"
 msgstr "119 ns"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "745 ns"
 msgstr "745 ns"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "2.1 us"
 msgstr "2.1 us"
 
-#: manual/performance/bench/external.md:221
+#: manual/performance/bench/external.md:228
 msgid "12.1 us"
 msgstr "12.1 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "1.72 us"
 msgstr "1.72 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "5.89 us"
 msgstr "5.89 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "87.7 us"
 msgstr "87.7 us"
 
-#: manual/performance/bench/external.md:222
+#: manual/performance/bench/external.md:229
 msgid "619 us"
 msgstr "619 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "2.69 us"
 msgstr "2.69 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "4.99 us"
 msgstr "4.99 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "21.2 us"
 msgstr "21.2 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "162 us"
 msgstr "162 us"
 
-#: manual/performance/bench/external.md:223
+#: manual/performance/bench/external.md:230
 msgid "1.11 ms"
 msgstr "1.11 ms"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "4.38 us"
 msgstr "4.38 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "6.1 us"
 msgstr "6.1 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "16.1 us"
 msgstr "16.1 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "143 us"
 msgstr "143 us"
 
-#: manual/performance/bench/external.md:224
+#: manual/performance/bench/external.md:231
 msgid "1.03 ms"
 msgstr "1.03 ms"
 
-#: manual/performance/bench/external.md:226
+#: manual/performance/bench/external.md:233
 msgid "Decimal GDA: floating `decimal_gda` against libmpdec"
 msgstr "十进制 GDA：floating `decimal_gda` 对比 libmpdec"
 
-#: manual/performance/bench/external.md:228
+#: manual/performance/bench/external.md:235
 msgid "Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means floating is slower)"
 msgstr "比值 floating / libmpdec（中位数时间，95% 自助法区间；大于 1 表示 floating 更慢）"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "16 digits"
 msgstr "16 digits"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "34 digits"
 msgstr "34 digits"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "100 digits"
 msgstr "100 digits"
 
-#: manual/performance/bench/external.md:230
-#: manual/performance/bench/external.md:241
-#: manual/performance/bench/external.md:252
+#: manual/performance/bench/external.md:237
+#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:259
 msgid "1000 digits"
 msgstr "1000 digits"
 
-#: manual/performance/bench/external.md:239
+#: manual/performance/bench/external.md:246
 msgid "Median ns per operation, libmpdec"
 msgstr "每次操作的中位数 ns，libmpdec"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "20 ns"
 msgstr "20 ns"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "21.9 ns"
 msgstr "21.9 ns"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "35.1 ns"
 msgstr "35.1 ns"
 
-#: manual/performance/bench/external.md:243
+#: manual/performance/bench/external.md:250
 msgid "171 ns"
 msgstr "171 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "19.4 ns"
 msgstr "19.4 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "48.7 ns"
 msgstr "48.7 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "136 ns"
 msgstr "136 ns"
 
-#: manual/performance/bench/external.md:244
+#: manual/performance/bench/external.md:251
 msgid "9.05 us"
 msgstr "9.05 us"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "31.6 ns"
 msgstr "31.6 ns"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "122 ns"
 msgstr "122 ns"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "328 ns"
 msgstr "328 ns"
 
-#: manual/performance/bench/external.md:245
+#: manual/performance/bench/external.md:252
 msgid "14.5 us"
 msgstr "14.5 us"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "307 ns"
 msgstr "307 ns"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "1.07 us"
 msgstr "1.07 us"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "4.03 us"
 msgstr "4.03 us"
 
-#: manual/performance/bench/external.md:246
+#: manual/performance/bench/external.md:253
 msgid "213 us"
 msgstr "213 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "2.97 us"
 msgstr "2.97 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "7.97 us"
 msgstr "7.97 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "17.5 us"
 msgstr "17.5 us"
 
-#: manual/performance/bench/external.md:247
+#: manual/performance/bench/external.md:254
 msgid "4.69 ms"
 msgstr "4.69 ms"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "9.94 us"
 msgstr "9.94 us"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "18 us"
 msgstr "18 us"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "43.2 us"
 msgstr "43.2 us"
 
-#: manual/performance/bench/external.md:248
+#: manual/performance/bench/external.md:255
 msgid "5.24 ms"
 msgstr "5.24 ms"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "72.5 ns"
 msgstr "72.5 ns"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "249 ns"
 msgstr "249 ns"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "306 ns"
 msgstr "306 ns"
 
-#: manual/performance/bench/external.md:254
+#: manual/performance/bench/external.md:261
 msgid "1.03 us"
 msgstr "1.03 us"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "82.6 ns"
 msgstr "82.6 ns"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "264 ns"
 msgstr "264 ns"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "413 ns"
 msgstr "413 ns"
 
-#: manual/performance/bench/external.md:255
+#: manual/performance/bench/external.md:262
 msgid "15.7 us"
 msgstr "15.7 us"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "93.3 ns"
 msgstr "93.3 ns"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "750 ns"
 msgstr "750 ns"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "1.42 us"
 msgstr "1.42 us"
 
-#: manual/performance/bench/external.md:256
+#: manual/performance/bench/external.md:263
 msgid "44.8 us"
 msgstr "44.8 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "1.63 us"
 msgstr "1.63 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "4.55 us"
 msgstr "4.55 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "11.2 us"
 msgstr "11.2 us"
 
-#: manual/performance/bench/external.md:257
+#: manual/performance/bench/external.md:264
 msgid "451 us"
 msgstr "451 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "8.67 us"
 msgstr "8.67 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "12.2 us"
 msgstr "12.2 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "24.3 us"
 msgstr "24.3 us"
 
-#: manual/performance/bench/external.md:258
+#: manual/performance/bench/external.md:265
 msgid "523 us"
 msgstr "523 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "12.7 us"
 msgstr "12.7 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "17.4 us"
 msgstr "17.4 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "50.4 us"
 msgstr "50.4 us"
 
-#: manual/performance/bench/external.md:259
+#: manual/performance/bench/external.md:266
 msgid "1.45 ms"
 msgstr "1.45 ms"
 
-#: manual/performance/bench/external.md:261
+#: manual/performance/bench/external.md:268
 msgid "Harness overhead of the floating side"
 msgstr "floating 一侧的测量框架开销"
 
-#: manual/performance/bench/external.md:263
+#: manual/performance/bench/external.md:270
 msgid "case"
 msgstr "用例"
 
-#: manual/performance/bench/external.md:263
+#: manual/performance/bench/external.md:270
 msgid "ns per operation (loop and result store only)"
 msgstr "每次操作的 ns（仅循环和结果存储）"
 
-#: manual/performance/bench/external.md:265
+#: manual/performance/bench/external.md:272
 msgid "9.21 ns [9.15 ns, 9.26 ns]"
 msgstr "9.21 ns [9.15 ns, 9.26 ns]"
 
-#: manual/performance/bench/external.md:266
+#: manual/performance/bench/external.md:273
 msgid "9.21 ns [9.14 ns, 9.32 ns]"
 msgstr "9.21 ns [9.14 ns, 9.32 ns]"
 
-#: manual/performance/bench/external.md:268
+#: manual/performance/bench/external.md:275
 msgid "Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `binary/mul/512`."
 msgstr "带星号的单元格超过了离散度阈值（置信区间半宽超过中位数的 5%，或各轮中位数的离散超过 10%）：`binary/mul/512`。"
 
-#: manual/performance/bench/external.md:270
+#: manual/performance/bench/external.md:277
 msgid "What the numbers say"
 msgstr "数字说明了什么"
 
-#: manual/performance/bench/external.md:272
+#: manual/performance/bench/external.md:279
 msgid "Everything below is read from the tables above; ratios are rounded and the intervals are in the tables."
 msgstr "以下内容均读自上面的表格；比值已经过四舍五入，区间见表格。"
 
-#: manual/performance/bench/external.md:275
+#: manual/performance/bench/external.md:282
 msgid "**`floating` is slower than the reference in 56 of the 59 cells and faster in three, all `decimal_gda`.** Excluding those, the smallest ratio is 1.28 (`decimal_gda` `ln` at 16 digits) and the largest 11.4 (`decimal_gda` addition at 34 digits). Four cells are above 10: binary `sqrt` at 53 bits (10.1), binary `ln` and `sin` at 2048 bits (10.9 and 10.1), and `decimal_gda` addition at 34 digits (11.4). Where `floating` is faster, it is `exp` at 1000 digits (0.11, that is 9 times faster: 523 us against 4.69 ms), `ln` at 1000 digits (0.28, 3.6 times faster: 1.45 ms against 5.24 ms) and `ln` at 34 digits (0.96, a difference of 4%, with the interval [0.96, 0.98] below 1)."
 msgstr "**在 59 个单元格中，`floating` 有 56 个比参考库慢，3 个更快，且都是 `decimal_gda`。** 除去这三个，最小比值是 1.28（16 位 `decimal_gda` 的 `ln`），最大是 11.4（34 位 `decimal_gda` 的加法）。有四个单元格超过 10：53 位二进制 `sqrt`（10.1）、2048 位二进制 `ln` 与 `sin`（10.9 与 10.1）、34 位 `decimal_gda` 加法（11.4）。`floating` 更快的是 1000 位的 `exp`（0.11，即快 9 倍：523 us 对 4.69 ms）、1000 位的 `ln`（0.28，快 3.6 倍：1.45 ms 对 5.24 ms）以及 34 位的 `ln`（0.96，相差 4%，区间 [0.96, 0.98] 在 1 以下）。"
 
-#: manual/performance/bench/external.md:285
+#: manual/performance/bench/external.md:292
 msgid "**Basic binary arithmetic: roughly 3 to 9 times slower.** Addition costs 5.2 to 8.7 times MPFR's time at every precision, multiplication 3.8 to 7.6, division 3.2 to 7.9. The gap is widest at 53 bits, where MPFR needs 4.6 ns for an addition and `floating` 40.1 ns; about 9.2 ns of that is the harness (see the `null` row), the rest is allocation and normalisation of an immutable result. At 128 bits and above multiplication stays at 3.8 to 4.0 times (8192 bits: 8.34 us against 2.13 us)."
 msgstr "**二进制基本运算：大约慢 3 到 9 倍。** 加法在各个精度下是 MPFR 耗时的 5.2 到 8.7 倍，乘法 3.8 到 7.6 倍，除法 3.2 到 7.9 倍。差距在 53 位最大：MPFR 做一次加法需要 4.6 ns，`floating` 需要 40.1 ns；其中约 9.2 ns 是测试程序本身（见 `null` 行），其余是不可变结果的分配和规格化。从 128 位起乘法保持在 3.8 到 4.0 倍（8192 位：8.34 us 对 2.13 us）。"
 
-#: manual/performance/bench/external.md:293
+#: manual/performance/bench/external.md:300
 msgid "**Square root is not smooth in precision.** The ratio is 10.1 at 53 bits, 1.9 at 128 bits, 4.6 at 512 bits and 4.1 to 4.3 at 2048 and 8192 bits. From 128 to 512 bits, 4 times the width, the time of `floating` grows from 119 ns to 745 ns (6.3 times) and MPFR's from 62.3 ns to 162 ns (2.6 times)."
 msgstr "**平方根的耗时随精度并不平滑。** 比值在 53 位是 10.1，128 位是 1.9，512 位是 4.6，2048 位和 8192 位是 4.1 到 4.3。从 128 位到 512 位，位宽变为 4 倍，`floating` 的耗时从 119 ns 增长到 745 ns（6.3 倍），MPFR 则从 62.3 ns 增长到 162 ns（2.6 倍）。"
 
-#: manual/performance/bench/external.md:298
+#: manual/performance/bench/external.md:305
 msgid "**Elementary functions: 2.5 to 11 times slower than MPFR in binary.** `exp` is 2.5 to 5.2 times slower at every precision (3.1 at 53 bits, 5.2 at 2048 bits, 3.0 at 8192 bits), `ln` 4.6 to 10.9 times and `sin` 5.2 to 10.1 times. These three have their largest ratios at 2048 bits (5.2, 10.9, 10.1), not at 8192 bits (3.0, 9.5, 5.2); the cost is not a smooth function of the precision. Both libraries are correctly rounded, so the work is equal in specification but not in method. The slowest binary operations measured are `ln` and `sin` at 8192 bits (1.11 ms and 1.03 ms against 116 us and 197 us in MPFR)."
 msgstr "**初等函数：二进制下比 MPFR 慢 2.5 到 11 倍。** `exp` 在各个精度下慢 2.5 到 5.2 倍（53 位 3.1，2048 位 5.2，8192 位 3.0），`ln` 慢 4.6 到 10.9 倍，`sin` 慢 5.2 到 10.1 倍。这三个函数的最大比值出现在 2048 位（5.2、10.9、10.1），而不是 8192 位（3.0、9.5、5.2）；成本不是精度的平滑函数。两个库都是正确舍入，所以按规格说工作量相同，但方法不同。测得最慢的二进制运算是 8192 位的 `ln` 与 `sin`（1.11 ms 与 1.03 ms，MPFR 为 116 us 与 197 us）。"
 
-#: manual/performance/bench/external.md:307
+#: manual/performance/bench/external.md:314
 msgid "**`decimal_gda`: slower for the four basic operations, at par or faster for `exp` and `ln` from about 34 digits.** Against libmpdec, addition is 3.6 to 11.4 times slower, multiplication 1.7 to 5.4, division 3.0 to 6.2 and square root 2.1 to 5.3. Multiplication, division and square root narrow towards the large size: at 1000 digits they are 1.7, 3.1 and 2.1 times libmpdec. `exp` is 2.9, 1.5 and 1.4 times slower at 16, 34 and 100 digits and 0.11 at 1000 digits; `ln` is 1.28, 0.96, 1.17 and 0.28. This comes from libmpdec's side: from 100 to 1000 digits its `exp` time grows 268 times (17.5 us to 4.69 ms) and its `ln` time 121 times (43.2 us to 5.24 ms), against 21.5 times (24.3 us to 523 us) and 29 times (50.4 us to 1.45 ms) for `floating`. These are the measured times; the cause in libmpdec was not investigated here. For scale, against MPFR at binary sizes near 1000 decimal digits (2048 and 8192 bits), the binary `floating` `exp` is 5.2 and 3.0 times slower and `ln` 10.9 and 9.5 times slower, so the `floating` advantage over libmpdec at 1000 digits is not an advantage over a binary library of the same size class."
 msgstr "**`decimal_gda`：四种基本运算较慢，`exp` 与 `ln` 从约 34 位起与 libmpdec 相当或更快。** 对比 libmpdec，加法慢 3.6 到 11.4 倍，乘法 1.7 到 5.4 倍，除法 3.0 到 6.2 倍，平方根 2.1 到 5.3 倍。乘法、除法和平方根随位数增大而缩小差距：在 1000 位时分别是 libmpdec 的 1.7、3.1 和 2.1 倍。`exp` 在 16、34、100 位分别慢 2.9、1.5、1.4 倍，在 1000 位是 0.11；`ln` 依次是 1.28、0.96、1.17 和 0.28。原因出在 libmpdec 一侧：从 100 位到 1000 位，它的 `exp` 耗时增长 268 倍（17.5 us 到 4.69 ms），`ln` 耗时增长 121 倍（43.2 us 到 5.24 ms），而 `floating` 分别只增长 21.5 倍（24.3 us 到 523 us）和 29 倍（50.4 us 到 1.45 ms）。这些是测得的耗时；libmpdec 中的原因这里没有调查。作为参照，对比 MPFR 在接近 1000 位十进制的二进制规模（2048 位和 8192 位）下，二进制 `floating` 的 `exp` 慢 5.2 和 3.0 倍，`ln` 慢 10.9 和 9.5 倍，所以 `floating` 在 1000 位上相对 libmpdec 的优势，并不是相对同一量级二进制库的优势。"
 
-#: manual/performance/bench/external.md:323
+#: manual/performance/bench/external.md:330
 msgid "**Harness overhead.** The `null` rows show that the timed loop of the `floating` side costs 9.2 ns per operation with the arithmetic removed. That is 23% of the 40.1 ns of a 53-bit addition and 16% of the 57.1 ns of a 53-bit square root, about 1% of 1 us and less above it; it is not subtracted in these tables. The loop of the C side was not measured in that run."
 msgstr "**测试程序开销。** `null` 行表明，去掉运算之后，`floating` 一侧的计时循环每次运算花费 9.2 ns。这相当于 53 位加法 40.1 ns 的 23%、53 位平方根 57.1 ns 的 16%，约占 1 us 的 1%，更大时更少；在这些表中没有扣除它。那次运行中没有测量 C 一侧的循环。"
 
-#: manual/performance/bench/external.md:329
+#: manual/performance/bench/external.md:336
 msgid "**Dispersion.** Within a process the 20 ms batches vary by under 3.1% (largest median absolute deviation 1.5% for `floating` and 3.1% for the references). Between the seven rounds the medians of one cell spread by at most 6.0% for `floating` and 25.3% for the references (the reference side of `binary/mul/512`, the one cell marked in the table); the bootstrap intervals therefore cover whole-process variation, and the half-widths of the medians are at most 1.7% for `floating` and 3.1% for the references, and at most 3.3% for a ratio."
 msgstr "**离散度。** 在单个进程内，20 ms 的批次变化小于 3.1%（中位数绝对偏差最大值：`floating` 为 1.5%，参考库为 3.1%）。七轮之间，同一单元格的中位数散布最多为：`floating` 6.0%，参考库 25.3%（`binary/mul/512` 的参考库一侧，也是表中唯一带标记的单元格）；因此自助法区间涵盖了整个进程之间的变化，中位数的半宽最多为：`floating` 1.7%，参考库 3.1%，比值的半宽最多为 3.3%。"
 
-#: manual/performance/bench/external.md:337
+#: manual/performance/bench/external.md:344
 msgid "**Repeatability.** The run was repeated once on the same commit `4a052ed` with a different round-order seed. The run published here is the first one, with the quieter machine: the other processes used 8% to 34% of the CPU before the timed sides (once 122%), against 26% to 110% in the second run. Over the 59 cases the medians of `floating` moved by 0.43% in the median and 2.1% at most, and the ratios by 0.72% in the median. Two ratios moved by more than 3%: `binary/mul/8192` (3.92 to 3.41, entirely on the MPFR side, which was 15% slower in the second run) and `decimal_gda/mul/34` (5.41 to 5.59). Neither run had a validation failure. The second run is not published."
 msgstr "**可重复性。** 在同一提交 `4a052ed` 上，用不同的轮次顺序种子又运行了一次。这里发布的是第一次运行，机器更安静：计时侧开始前其他进程占用 8% 到 34% 的 CPU（有一次 122%），第二次运行则是 26% 到 110%。在 59 个用例上，`floating` 的中位数变化的中位数为 0.43%，最大 2.1%，比值变化的中位数为 0.72%。有两个比值变化超过 3%：`binary/mul/8192`（3.92 变为 3.41，完全来自 MPFR 一侧，它在第二次运行中慢了 15%）和 `decimal_gda/mul/34`（5.41 变为 5.59）。两次运行都没有验证失败。第二次运行未发布。"
 
-#: manual/performance/bench/external.md:347
+#: manual/performance/bench/external.md:354
 msgid "Follow-ups (not fixed here)"
 msgstr "后续事项（此处未修复）"
 
-#: manual/performance/bench/external.md:349
+#: manual/performance/bench/external.md:356
 msgid "No profile was taken for this run, so the list is read from the ratios only and names where the largest gaps are, not their cause."
 msgstr "本次运行没有做性能剖析，所以下面的列表只是从比值读出的，指出差距最大的地方，而不是原因。"
 
-#: manual/performance/bench/external.md:352
+#: manual/performance/bench/external.md:359
 msgid "**Small binary cases.** At 53 bits `floating` takes 38 to 57 ns for add, mul, div and `sqrt`, 7.6 to 10.1 times MPFR, with 9.2 ns of the harness included; `sqrt` at 53 bits (10.1) stands out against 1.9 at 128 bits."
 msgstr "**小规模二进制用例。** 在 53 位，`floating` 做加、乘、除和 `sqrt` 需要 38 到 57 ns，是 MPFR 的 7.6 到 10.1 倍，其中含 9.2 ns 的测试程序开销；53 位的 `sqrt`（10.1）与 128 位的 1.9 形成鲜明对比。"
 
-#: manual/performance/bench/external.md:355
+#: manual/performance/bench/external.md:362
 msgid "**`ln` and `sin` at 2048 bits and 8192 bits.** Ratios of 10.9 and 10.1 at 2048 bits and 9.5 at 8192 bits for `ln`, the largest elementary ratios; `exp` is at 2.5 to 5.2 at all sizes."
 msgstr "**2048 位与 8192 位的 `ln` 和 `sin`。** `ln` 在 2048 位的比值是 10.9，8192 位是 9.5，`sin` 在 2048 位是 10.1，是初等函数中最大的比值；`exp` 在各个规模下都在 2.5 到 5.2 之间。"
 
-#: manual/performance/bench/external.md:358
+#: manual/performance/bench/external.md:365
 msgid "**`sqrt` at 512 bits.** 4.6 times MPFR against 1.9 at 128 bits."
 msgstr "**512 位的 `sqrt`。** 是 MPFR 的 4.6 倍，而 128 位是 1.9 倍。"
 
-#: manual/performance/bench/external.md:359
+#: manual/performance/bench/external.md:366
 msgid "**`decimal_gda` addition at 34 and 100 digits.** 11.4 and 8.7 times, against 3.6 at 16 digits; the largest basic-operation ratios of the decimal side."
 msgstr "**34 位与 100 位的 `decimal_gda` 加法。** 分别是 11.4 倍和 8.7 倍，16 位是 3.6 倍；这是十进制一侧基本运算中最大的比值。"
 
-#: manual/performance/bench/external.md:362
+#: manual/performance/bench/external.md:369
 msgid "What is not measured"
 msgstr "未测量的内容"
 
-#: manual/performance/bench/external.md:364
+#: manual/performance/bench/external.md:371
 msgid "**Other targets.** JavaScript, WebAssembly and LLVM builds are not measured; the C libraries have no counterpart there."
 msgstr "**其他目标。** 未测量 JavaScript、WebAssembly 和 LLVM 构建；C 库在那里没有对应物。"
 
-#: manual/performance/bench/external.md:366
+#: manual/performance/bench/external.md:373
 msgid "**Other machines and compilers.** One Apple M4 laptop on AC power, with no frequency or core pinning and some background desktop load; absolute times will differ on other hardware, and ratios shift with the memory system and the CPU's multiplier and SIMD units."
 msgstr "**其他机器和编译器。** 一台使用交流电的 Apple M4 笔记本，未固定频率或核心，有一些桌面后台负载；在其他硬件上绝对时间会不同，比值会随内存系统以及 CPU 的乘法器和 SIMD 单元而变化。"
 
-#: manual/performance/bench/external.md:370
+#: manual/performance/bench/external.md:377
 msgid "**Tuned library builds.** The MPFR and GMP in use are Homebrew bottles built with `-O2 -march=armv8-a`; a GMP configured for the exact CPU, or a libmpdec with other build options, can be faster."
 msgstr "**调优过的库构建。** 所用的 MPFR 和 GMP 是用 `-O2 -march=armv8-a` 构建的 Homebrew 预编译包；针对具体 CPU 配置的 GMP，或使用其他构建选项的 libmpdec，可能更快。"
 
-#: manual/performance/bench/external.md:373
+#: manual/performance/bench/external.md:380
 msgid "**Large and special arguments.** Elementary functions are timed on well-conditioned arguments of modest magnitude; argument reduction of huge arguments, arguments near zeros and singularities, subnormal results, overflow, and exceptional values are not timed."
 msgstr "**大自变量和特殊自变量。** 初等函数只在量级适中、条件良好的自变量上计时；巨大自变量的自变量规约、接近零点和奇点的自变量、次正规结果、溢出以及异常值都没有计时。"
 
-#: manual/performance/bench/external.md:377
+#: manual/performance/bench/external.md:384
 msgid "**Cold start.** Warm caches only; the cost of the first call at a precision is excluded."
 msgstr "**冷启动。** 只有热缓存；在某个精度上首次调用的成本不计入。"
 
-#: manual/performance/bench/external.md:379
+#: manual/performance/bench/external.md:386
 msgid "**Other operations.** `fma`, `pow`, `hypot`, `cos`, `tan`, the hyperbolic and inverse functions, remainders, conversions, and parsing and printing are not compared. Interval (`ball_float`) arithmetic has no counterpart in MPFR and is not compared (MPFI is not part of this baseline)."
 msgstr "**其他操作。** `fma`、`pow`、`hypot`、`cos`、`tan`、双曲函数和反函数、余数、转换以及解析与打印都没有比较。区间（`ball_float`）算术在 MPFR 中没有对应物，因此未作比较（MPFI 不属于本基线）。"
 
-#: manual/performance/bench/external.md:383
+#: manual/performance/bench/external.md:390
 msgid "**Memory and threads.** Peak memory and multi-threaded behaviour are not measured."
 msgstr "**内存和线程。** 不测量内存峰值和多线程行为。"
 
-#: manual/performance/bench/external.md:385
+#: manual/performance/bench/external.md:392
 msgid "**Other rounding modes.** Only round to nearest even."
 msgstr "**其他舍入模式。** 只测舍入到最近偶数。"
 
-#: manual/performance/bench/external.md:387
+#: manual/performance/bench/external.md:394
 msgid "Reproduce"
 msgstr "复现"
 
-#: manual/performance/bench/external.md:394
+#: manual/performance/bench/external.md:401
 msgid "`run` writes the inputs, the reference results, the raw rounds, the summary and the samples under `.tmp/external`; `publish` copies the compact summary to `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`, the samples (the pairs of every case) to `samples-VERSION-CONFIGURATION.json.gz`, the tables to `summary-CONFIGURATION.md`, and regenerates the tables of that configuration on this page. The raw JSONL (about 12 MB) is not committed; its checksums and the checksums of the operand and reference files are in the published summary. `just bench external recompute SUMMARY SAMPLES` recomputes a summary from its samples; `just bench external compare OLD NEW` compares two summaries (net ratios when both are resolved, raw ratios otherwise); see the [tutorial](../../tutorial/bench/external.md) for the commands and the [API page](../../api/bench/external.md) for the benchmark cases."
 msgstr "`run` 在 `.tmp/external` 下写出输入、参考结果、原始各轮、汇总和样本；`publish` 把紧凑的汇总复制到 `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`，把样本（每个用例的配对）复制到 `samples-VERSION-CONFIGURATION.json.gz`，把表复制到 `summary-CONFIGURATION.md`，并重新生成本页中该配置的表。原始 JSONL（约 12 MB）不提交；其校验和以及操作数文件和参考文件的校验和都在已发布的汇总中。`just bench external recompute SUMMARY SAMPLES` 由样本重新计算一份汇总；`just bench external compare OLD NEW` 比较两份汇总（两者都已判定时比较净比值，否则比较原始比值）；命令见[教程](../../tutorial/bench/external.md)，基准测试用例见 [API 页面](../../api/bench/external.md)。"
 
@@ -27806,6 +27855,12 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:718
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "The criterion of 3 is defined for the native configurations. For `wasm` and `js` the summary says `criterion_applies: false` and the status of every case is `not_applicable`; the page reports the two ratios and sets no target, and whether a criterion applies there is for the maintainer to decide."
+#~ msgstr "目标 3 只为 native 配置定义。对 `wasm` 和 `js`，汇总写 `criterion_applies: false`，每个用例的状态是 `not_applicable`；页面报告两个比值，不设目标，是否适用某种判据由维护者决定。"
+
+#~ msgid "The target of 3 is defined for the native configurations. For `wasm` the page reports two ratios and sets no target: the net ratio of this library on `wasm` (under `moonrun`) to the native MPFR and libmpdec of the same run, which mixes the library and the runtime, and the ratio to the same case in `native-portable`, which attributes the difference to the runtime. Whether a criterion applies is for the maintainer to decide."
+#~ msgstr "目标 3 只为 native 配置定义。对 `wasm`，页面报告两个比值而不设目标：本库在 `wasm`（在 `moonrun` 下）上对同一次运行的原生 MPFR 和 libmpdec 的净比值，它混合了库和运行时；以及对 `native-portable` 中同一用例的比值，它把差异归于运行时。是否适用某种判据由维护者决定。"
 
 #~ msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines."
 #~ msgstr "`nightly.yml` 每晚以及按需将 `quick`、`decimal`、`decimal_gda`、`binary` 与 `interval` 的 `just gate` 作为并行任务运行。它按清单哈希缓存以 SHA-256 固定的上游语料（下载后仍会校验哈希），并将每个 `summary.json` 作为产物上传，从而在维护者的机器之外复现已发布的结果。"
