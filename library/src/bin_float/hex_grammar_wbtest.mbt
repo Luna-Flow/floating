@@ -158,15 +158,17 @@ test "§5.12.3 rejected forms" {
      "0x1g0p0", "0x1 p0", "0x_1p0", // only hex digits in the significand
      "0x1p0x10", "0x1p1_0", "0x1pA", "0x1p1.5", "0x1p++1", "0x1p+-1", // decimal exponent digits only
      "++0x1p0", "+-0x1p0", "-+0x1p0", // one sign at most
-     "0x1p999999999999999", "0x1p2147483648", "0x1p-2147483649", // exponent outside the representable range
+     "0x1p999999999999999", "0x1p2147483648", "0x1p-2147483649", // exponent outside the 32-bit range (from_hex only)
      "infinit", "infinityy", "nanq", "snan0", "qnan", "in f", // §5.12.1 words only
   ]
   for source in rejected {
     assert_true(BinFloat::from_hex(source, 53) is Err(_), msg=source)
-    // An exponent beyond the 32-bit range (but within the 10^12 the parser
-    // reads) is a parse error for from_hex only: from_hex_ctx overflows or
-    // underflows (tested in hex_ctx_wbtest.mbt).
-    if source != "0x1p2147483648" && source != "0x1p-2147483649" {
+    // An exponent beyond the 32-bit range is a parse error for from_hex only (it stores
+    // the exact value): from_hex_ctx overflows or underflows, whatever the length of the
+    // exponent field (tested in hex_exponent_wbtest.mbt).
+    if source != "0x1p2147483648" &&
+      source != "0x1p-2147483649" &&
+      source != "0x1p999999999999999" {
       assert_true(
         BinFloat::from_hex_ctx(source, BinaryContext::new(precision=53))
         is Err(_),

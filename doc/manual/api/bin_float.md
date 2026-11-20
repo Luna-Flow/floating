@@ -1395,8 +1395,13 @@ with nearest-even and reports no flags; a `p` outside
 §5.12.3 conversion: it rounds the exact value once under the rounding direction,
 precision, exponent range and tininess rule of `context` and returns the
 `inexact`, `underflow` and `overflow` flags, like `from_string_ctx`. An exponent
-outside the 32-bit range overflows or underflows there instead of being a
-parse error. Both accept
+field of any length is a valid text: it is read with saturation at $2^{60}$, as the
+decimal reader does, so an exponent outside the 32-bit range overflows or
+underflows there (the result of the context with its flags, in every rounding
+direction) instead of being a parse error, and a zero significand is the zero
+of the sign for any exponent. `from_hex`, which stores the exact value, reports
+an exponent outside the 32-bit range as a parse error (a zero significand is
+still a zero). Both accept
 `inf`, `infinity`, `nan` and `snan` in any case with an optional sign
 (§5.12.1); `snan` gives a signaling NaN. Surrounding whitespace is trimmed;
 any other text is a `parse_error`. `to_hex` prints the stored coefficient in
