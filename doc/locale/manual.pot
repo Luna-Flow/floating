@@ -9850,10 +9850,10 @@ msgstr ""
 #: manual/design/consistency.md:70
 #: manual/design/decimal.md:1290
 #: manual/design/decimal_checked.md:279
-#: manual/design/decimal_gda.md:858
+#: manual/design/decimal_gda.md:864
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
-#: manual/design/differential.md:127
+#: manual/design/differential.md:140
 #: manual/design/differential/harness.md:26
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
@@ -10807,7 +10807,7 @@ msgstr ""
 #: manual/design/decimal_gda.md:386
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
-#: manual/design/differential.md:54
+#: manual/design/differential.md:67
 #: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
@@ -10966,10 +10966,10 @@ msgstr ""
 #: manual/design/consistency.md:56
 #: manual/design/decimal.md:1220
 #: manual/design/decimal_checked.md:196
-#: manual/design/decimal_gda.md:813
+#: manual/design/decimal_gda.md:819
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
-#: manual/design/differential.md:104
+#: manual/design/differential.md:117
 #: manual/design/differential/harness.md:20
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
@@ -11042,10 +11042,10 @@ msgstr ""
 #: manual/design/consistency.md:63
 #: manual/design/decimal.md:1269
 #: manual/design/decimal_checked.md:268
-#: manual/design/decimal_gda.md:842
+#: manual/design/decimal_gda.md:848
 #: manual/design/decimal_gda_checked.md:238
 #: manual/design/def.md:324
-#: manual/design/differential.md:115
+#: manual/design/differential.md:128
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
 #: manual/design/frontend/itl_expr.md:156
@@ -12635,7 +12635,7 @@ msgstr ""
 
 #: manual/design/bin_float.md:1798
 #: manual/design/decimal.md:1209
-#: manual/design/decimal_gda.md:806
+#: manual/design/decimal_gda.md:812
 msgid "LLVM"
 msgstr ""
 
@@ -14244,7 +14244,7 @@ msgstr ""
 
 #: manual/design/decimal.md:1160
 #: manual/design/decimal.md:1206
-#: manual/design/decimal_gda.md:803
+#: manual/design/decimal_gda.md:809
 msgid "Toom-3"
 msgstr ""
 
@@ -14281,22 +14281,22 @@ msgid "The crossovers are measured per target and stored in target-specific file
 msgstr ""
 
 #: manual/design/decimal.md:1206
-#: manual/design/decimal_gda.md:803
+#: manual/design/decimal_gda.md:809
 msgid "Target"
 msgstr ""
 
 #: manual/design/decimal.md:1206
-#: manual/design/decimal_gda.md:803
+#: manual/design/decimal_gda.md:809
 msgid "Karatsuba mul / square"
 msgstr ""
 
 #: manual/design/decimal.md:1206
-#: manual/design/decimal_gda.md:803
+#: manual/design/decimal_gda.md:809
 msgid "first NTT mul / square"
 msgstr ""
 
 #: manual/design/decimal.md:1206
-#: manual/design/decimal_gda.md:803
+#: manual/design/decimal_gda.md:809
 msgid "Burnikel–Ziegler"
 msgstr ""
 
@@ -14305,14 +14305,14 @@ msgid "Newton"
 msgstr ""
 
 #: manual/design/decimal.md:1208
-#: manual/design/decimal_gda.md:805
+#: manual/design/decimal_gda.md:811
 #: manual/verification.md:201
 #: manual/verification.md:244
 msgid "native"
 msgstr ""
 
 #: manual/design/decimal.md:1208
-#: manual/design/decimal_gda.md:805
+#: manual/design/decimal_gda.md:811
 msgid "from 2,816"
 msgstr ""
 
@@ -15124,147 +15124,147 @@ msgid "These functions are evaluated by certified interval arithmetic and a Ziv-
 msgstr ""
 
 #: manual/design/decimal_gda.md:702
-msgid "**Exact cases first.** $\\exp 0 = 1$, $\\ln 1 = 0$, $\\log_{10} 10^k = k$, special operands, domain errors, and the cases `power` can decide exactly ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or underflow, and exact rational powers: $y = a/q$ in lowest terms with $x$ a perfect $q$-th power, such as $4^{1.5} = 8$, the root taken before the power so no intermediate is longer than the result) never reach the loop. An exact result is a boundary of its rounding cell in the directed modes (and an exact midpoint is one in the half modes), which the loop could never certify."
+msgid "**Exact cases first.** $\\exp 0 = 1$, $\\ln 1 = 0$, $\\log_{10} 10^k = k$, special operands, domain errors, and the cases `power` can decide exactly ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or underflow, and exact rational powers: $y = a/q$ in lowest terms with $x$ a perfect $q$-th power, such as $4^{1.5} = 8$, the root taken before the power so no intermediate is longer than the result; and $10^k$ to a non-integral $y$ with $ky$ an integer, which is the exact $10^{ky}$ in every rounding mode, `decimal_power_ten_noninteger_result`) never reach the loop. An exact result is a boundary of its rounding cell in the directed modes (and an exact midpoint is one in the half modes), which the loop could never certify."
 msgstr ""
 
-#: manual/design/decimal_gda.md:711
+#: manual/design/decimal_gda.md:713
 msgid "**Enclose the input.** $x$ is converted to a binary ball $[x^-, x^+]$ at $w$ bits with directed rounding (`to_bin_float` towards $-\\infty$ and $+\\infty$), so $x \\in [x^-, x^+]$ exactly."
 msgstr ""
 
-#: manual/design/decimal_gda.md:714
+#: manual/design/decimal_gda.md:716
 msgid ""
 "**Enclose the output.** `ball_float` evaluates $f$ on the ball and returns $[L, U] \\n"
 "i f(x)$ (for `log10`, $\\ln$ divided by a cached enclosure of $\\ln 10$; for `power`, $\\exp(y \\ln x)$ through enclosures of $\\ln x$)."
 msgstr ""
 
-#: manual/design/decimal_gda.md:717
+#: manual/design/decimal_gda.md:719
 msgid "**Certify a candidate.** A decimal approximation $\\tilde y$ (the ball midpoint; `power` may use a decimal series evaluation) is rounded to $r$. The candidate is only a guess that the test below certifies: the result is $r$ when the whole enclosure lies strictly inside the rounding cell of $r$, and then the midpoint of the enclosure, which belongs to it, rounds to the same cell. `exp` therefore takes the midpoint (the series with the same number of digits when $|x| \\ge 10^3$, where the midpoint is a binary float of enormous exponent), converted to $\\max(p + 8, \\lfloor 0.31\\,w \\rfloor + 4)$ digits so that the conversion error is below the radius of the enclosure and cannot carry the candidate onto a cell boundary that the enclosure itself avoids. Let $(a, b)$ be the open interval of reals around $r$ that round to $r$: the two midpoints with the neighbours for the half modes, $(r, r^+)$ or $(r^-, r)$ for the directed ones (the real rounding cell of a directed mode is half-open, $[r, r^+)$ or $(r^-, r]$; the test uses the open interior, which is sufficient). Its endpoints are exact decimals; each is enclosed in binary, and the result is accepted when"
 msgstr ""
 
-#: manual/design/decimal_gda.md:737
+#: manual/design/decimal_gda.md:739
 msgid "which proves $\\mathrm{round}(f(x)) = r$. A second test rounds both exact dyadic endpoints $L$ and $U$ to the context; since every rounding mode is monotone, $\\mathrm{round}(L) = \\mathrm{round}(U) = r$ also proves $\\mathrm{round}(f(x)) = r$."
 msgstr ""
 
-#: manual/design/decimal_gda.md:741
+#: manual/design/decimal_gda.md:743
 msgid "**Refine.** Otherwise the working precision grows, $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$; at most twelve evaluations are made, so the last one runs at roughly $1.5^{11} \\approx 86$ times the starting precision."
 msgstr ""
 
-#: manual/design/decimal_gda.md:746
+#: manual/design/decimal_gda.md:748
 msgid "The starting precision is $w_0 = \\max(128, 4D + 64)$ bits with $D = \\max(d(c), p)$: four bits per decimal digit exceed $\\log_2 10 \\approx 3.32$, so the input is carried without loss of decimal information and 64 guard bits remain. For arguments with $\\hat e = 0$ in a wide, unclamped context with $p \\le 64$, a cheaper first attempt uses about $\\frac{10}{3} D + 12$ bits and falls back to $w_0$ if it cannot certify."
 msgstr ""
 
-#: manual/design/decimal_gda.md:753
+#: manual/design/decimal_gda.md:755
 msgid ""
 "The loop always stops, after at most twelve evaluations. It certifies a result whenever $f(x)$ is neither a representable number nor a midpoint (for the half modes) and the budget is large enough, because the enclosure shrinks to a point while $f(x)$ stays at a positive distance from every rounding boundary. For `exp`, `ln` and `log10` this always holds after step 1: by the Lindemann–Weierstrass theorem $e^x$ is transcendental for rational $x \\n"
 "e 0$, hence $\\ln x$ is irrational for rational $x \\n"
 "e 1$, and $\\log_{10} x$ is rational only for integral powers of ten; representable numbers and midpoints are rational. If the budget is still exhausted (for example a `power` whose exact value is a midpoint and is not caught in step 1), the `try_*` methods return a certification failure and the GDA functions return NaN with `InvalidOperation`, never an unproven result."
 msgstr ""
 
-#: manual/design/decimal_gda.md:767
-msgid "The GDA functions `exp`, `ln`, `log10` and `sqrt` pass a copy of the context with `HalfEven` rounding, because the specification defines these functions as correctly rounded with round-half-even regardless of the context mode; `power` uses the context's mode, as the specification and its test vectors require, and reports non-integer powers as `Inexact` with $p$ digits even when the power happens to be exact (`decimal_power_noninteger_gda_result`). Two more rules are implemented. First, these functions accept only contexts with $p$, $e_{\\max}$ and $-e_{\\min}$ at most 999,999 (`math_context_is_restricted`, raising `InvalidContext` otherwise). That is a deliberate implementation limit, decNumber's `DEC_MAX_MATH`, not a rule of the GDA operation text: the official decTest suite requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp.decTest`, `ln.decTest` and `log10.decTest`), and GDA 1.70 permits it through the Invalid context condition, which covers a precision that exceeds the capability of the implementation. Second, in subset arithmetic `ln` reproduces the result of the classic reference algorithm, which can be one unit in the last place above the correctly rounded one (`decimal_ln_subset_result`), because the legacy subset test vectors encode that result."
-msgstr ""
-
-#: manual/design/decimal_gda.md:785
-msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991. On ball arithmetic see J. van der Hoeven, \"Ball arithmetic\", 2009, and F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
+#: manual/design/decimal_gda.md:769
+msgid "The GDA functions `exp`, `ln`, `log10` and `sqrt` pass a copy of the context with `HalfEven` rounding, because the specification defines these functions as correctly rounded with round-half-even regardless of the context mode; `power` uses the context's mode, as the specification and its test vectors require, and reports non-integer powers as `Inexact` with $p$ digits even when the power happens to be exact (`decimal_power_noninteger_gda_result`). The exact value is the correctly rounded one in every direction, so a directed mode never adds a unit in the last place: `power(1E-5, 1.2)` is `1E-6` padded to $p$ digits with `Inexact` and `Rounded` in every mode, as `power.decTest` rows powx2039 and powx2040 show for `1^y` in `ceiling`. Two more rules are implemented. First, these functions accept only contexts with $p$, $e_{\\max}$ and $-e_{\\min}$ at most 999,999 (`math_context_is_restricted`, raising `InvalidContext` otherwise). That is a deliberate implementation limit, decNumber's `DEC_MAX_MATH`, not a rule of the GDA operation text: the official decTest suite requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp.decTest`, `ln.decTest` and `log10.decTest`), and GDA 1.70 permits it through the Invalid context condition, which covers a precision that exceeds the capability of the implementation. Second, in subset arithmetic `ln` reproduces the result of the classic reference algorithm, which can be one unit in the last place above the correctly rounded one (`decimal_ln_subset_result`), because the legacy subset test vectors encode that result."
 msgstr ""
 
 #: manual/design/decimal_gda.md:791
+msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991. On ball arithmetic see J. van der Hoeven, \"Ball arithmetic\", 2009, and F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
+msgstr ""
+
+#: manual/design/decimal_gda.md:797
 msgid "Coefficient representation and kernels"
 msgstr ""
 
-#: manual/design/decimal_gda.md:793
+#: manual/design/decimal_gda.md:799
 msgid "The kernel lives in `internal/decimal_kernel` and is shared with `decimal` (see the previous section). A coefficient is either `Small(UInt64)` for values below $10^{18}$ or an array of base-$10^9$ limbs with a cached digit count, both persistent: operations never mutate operand limbs. Decimal limbs make digit counts, trailing-zero removal, the half-unit comparison and the `ZeroFiveUp` last-digit test constant-time or linear without binary-to-decimal conversion. Multiplication and division choose among schoolbook, Karatsuba, Toom-3, a dual-modulus NTT, Knuth's algorithm D, Burnikel–Ziegler and Newton reciprocal division by limb count, with thresholds per target:"
 msgstr ""
 
-#: manual/design/decimal_gda.md:803
+#: manual/design/decimal_gda.md:809
 msgid "Newton division"
 msgstr ""
 
-#: manual/design/decimal_gda.md:805
+#: manual/design/decimal_gda.md:811
 msgid "off"
 msgstr ""
 
-#: manual/design/decimal_gda.md:807
+#: manual/design/decimal_gda.md:813
 msgid "Wasm, Wasm-GC, JS"
 msgstr ""
 
-#: manual/design/decimal_gda.md:809
+#: manual/design/decimal_gda.md:815
 msgid "The thresholds are measured performance policy, not semantics: every kernel returns the exact product or quotient, so the choice cannot change a result or a flag. See [performance](../performance/decimal_gda.md) for the measurements."
 msgstr ""
 
-#: manual/design/decimal_gda.md:815
+#: manual/design/decimal_gda.md:821
 msgid "**Single rounding.** Every finite result other than integer `power`, the division case above and the to-integral operations on integers longer than $p$ digits is the exact result rounded once, so $|\\hat x - x| \\le \\frac12 u$ in the half modes and $< u$ otherwise, and $|\\hat x - x|/|x| \\le \\frac12 10^{1-p}$ outside the subnormal range."
 msgstr ""
 
-#: manual/design/decimal_gda.md:820
+#: manual/design/decimal_gda.md:826
 msgid "**Ideal cohort.** An exact result is returned at the representable exponent nearest to its ideal exponent, so operations on exact data keep their quantum (`2.50 × 3 = 7.50`)."
 msgstr ""
 
-#: manual/design/decimal_gda.md:823
+#: manual/design/decimal_gda.md:829
 msgid "**Independence of status.** $F(\\vec x, C)$ depends on $C$ only through its policy: results never depend on the sticky status or the traps."
 msgstr ""
 
-#: manual/design/decimal_gda.md:825
+#: manual/design/decimal_gda.md:831
 msgid "**Status algebra.** Status only grows, and the status after a threaded sequence is the union of the raised sets."
 msgstr ""
 
-#: manual/design/decimal_gda.md:827
+#: manual/design/decimal_gda.md:833
 msgid "**Trap determinism.** At most one trap fires per operation, selected by a fixed total order; `Trapped` carries the same value as `Completed` would."
 msgstr ""
 
-#: manual/design/decimal_gda.md:829
+#: manual/design/decimal_gda.md:835
 msgid "**Certified elementary functions.** A finite inexact result of `exp`, `ln`, `log10` or non-integer `power` is returned only together with a proof (Lemma 3 or 4 of the attachment) that it is the correctly rounded value; a failure to prove it yields NaN and `InvalidOperation`."
 msgstr ""
 
-#: manual/design/decimal_gda.md:833
+#: manual/design/decimal_gda.md:839
 msgid "**Total order.** `compare_total` is a total order on triples (sign, then class, then value, then exponent, then payload), and `Decimal::compare` is a total preorder in which NaNs form one class above all numbers."
 msgstr ""
 
-#: manual/design/decimal_gda.md:836
+#: manual/design/decimal_gda.md:842
 msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the half-mode division tie above and to-integral operands longer than the precision are not covered by any pinned row."
 msgstr ""
 
-#: manual/design/decimal_gda.md:844
+#: manual/design/decimal_gda.md:850
 msgid "**A mutable or global current context.** Rejected because it makes results and flags depend on evaluation order and hidden state (see the first design decision)."
 msgstr ""
 
-#: manual/design/decimal_gda.md:847
+#: manual/design/decimal_gda.md:853
 msgid "**Traps as errors.** Rejected because the GDA-defined result would be lost."
 msgstr ""
 
-#: manual/design/decimal_gda.md:848
+#: manual/design/decimal_gda.md:854
 msgid "**Sharing the engine with `decimal`.** Rejected because one standard's change could alter the other's results; a measured duplication is cheaper than an accidental semantic coupling."
 msgstr ""
 
-#: manual/design/decimal_gda.md:851
+#: manual/design/decimal_gda.md:857
 msgid "**Binary floating point for elementary functions with a fixed number of guard digits.** Rejected because no fixed number of guard digits guarantees correct rounding (the table-maker's dilemma); certification with refinement does, and fails visibly when it cannot."
 msgstr ""
 
-#: manual/design/decimal_gda.md:855
+#: manual/design/decimal_gda.md:861
 msgid "**Normalizing every result.** Rejected because the quantum is part of a GDA number; normalization is available explicitly as `reduce`."
 msgstr ""
 
-#: manual/design/decimal_gda.md:860
+#: manual/design/decimal_gda.md:866
 msgid "The package implements the GDA operations and nothing else: no trigonometric, hyperbolic or other functions outside the specification, and no IEEE 754 operations other than the few extras of the status-free layer."
 msgstr ""
 
-#: manual/design/decimal_gda.md:863
+#: manual/design/decimal_gda.md:869
 msgid "It does not parse `.decTest` files, run test suites or read files; that is [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools."
 msgstr ""
 
-#: manual/design/decimal_gda.md:865
+#: manual/design/decimal_gda.md:871
 msgid "It does not provide BID interchange; only DPD."
 msgstr ""
 
-#: manual/design/decimal_gda.md:866
+#: manual/design/decimal_gda.md:872
 msgid "It does not give correct rounding for integer powers beyond the GDA requirement."
 msgstr ""
 
-#: manual/design/decimal_gda.md:868
+#: manual/design/decimal_gda.md:874
 msgid "It does not provide a mutable or global context, and contexts carry no identity: two contexts with the same fields are interchangeable."
 msgstr ""
 
-#: manual/design/decimal_gda.md:870
+#: manual/design/decimal_gda.md:876
 msgid "It does not store exponents beyond the 32-bit range. Literals and results outside it are not wrapped or rejected: context operations overflow or underflow against the context range, decided from the exact exponent, and the context-free conversions and operators overflow to a signed infinity or round to the exponent $-2^{31}$."
 msgstr ""
 
@@ -15694,98 +15694,98 @@ msgid "**Binary.** GNU MPFR rounds every result correctly in its own exponent ra
 msgstr ""
 
 #: manual/design/differential.md:29
-msgid "**`decimal_gda`.** libmpdec (Python `decimal`) implements the General Decimal Arithmetic specification, and the library's GDA package implements the same text. Two things differ and are handled in the generator, not by ignoring rows: libmpdec lumps `Division_undefined` into `Invalid_operation`, and the GDA `tosci` and `toeng` rows apply the context precision to their operand (dtfile.html, \"Processing of a test case line\")."
+msgid "**`decimal_gda`.** libmpdec (Python `decimal`) implements the General Decimal Arithmetic specification, and the library's GDA package implements the same text. Two things differ and are handled in the generator, not by ignoring rows: libmpdec lumps `Division_undefined` into `Invalid_operation`, and the GDA `tosci` and `toeng` rows apply the context precision to their operand (dtfile.html, \"Processing of a test case line\"). A third difference is registered as an expected difference of the `decimal_gda-power` family: `power(10^k, y)` with a non-integral `y` and an integral `k*y`. GDA 1.70 allows an inexact result to be up to one unit in the last place in error and the library returns the exact value $10^{ky}$ in every rounding mode, while libmpdec can be one unit in the last place away in a directed mode (and flags Subnormal for an exact result at the smallest normal number). The generator does not skip those rows: it computes the library's result from the rule, checks that libmpdec's result is the exact value or within one unit in the last place of it (an error otherwise), writes the row with the library's result and a comment line `expected-difference power-of-ten #351` that names libmpdec's result. The family draws about one case in 25 from this class, with a random rounding mode, because its other rows are nearest-even only."
 msgstr ""
 
-#: manual/design/differential.md:35
+#: manual/design/differential.md:48
 msgid "**IEEE decimal elementary functions.** The IEEE `decimal` package has functions (`exp`, `atan2`, `pown`, ...) that libmpdec either lacks or answers only to nearest-even, so their oracle is MPFR through its *enclosure*, not through one result: each decimal operand is bracketed by 2048-bit directed bounds, the function is evaluated at 768 bits in both directions on every corner, the enclosure is widened by one ulp, and both endpoints are rounded to the decimal context with Python `decimal`. A case becomes a row only if the endpoints round to one representation with one flag set and the rounded value lies outside the enclosure, which also makes the inexact flag certain. Underflow and Subnormal are recomputed for both tininess rules from the same endpoints, because libmpdec knows only one. Exact results (an enclosure that contains the rounded value) are not sampled; they belong to the white-box tests of each function."
 msgstr ""
 
-#: manual/design/differential.md:49
+#: manual/design/differential.md:62
 msgid "A disagreement is therefore a lead, not a verdict. Each one is triaged against the clause of IEEE 754-2019 or of the GDA specification before it is called a defect, and the cases where the oracle is the one that deviates are listed in the test-data READMEs."
 msgstr ""
 
-#: manual/design/differential.md:56
+#: manual/design/differential.md:69
 msgid "Every case is a pure function of (seed, family, index)"
 msgstr ""
 
-#: manual/design/differential.md:58
+#: manual/design/differential.md:71
 msgid "Both generators seed a SplitMix64 stream from the triple, so row 1,234,567 of a ten-million-row run is regenerated by asking for one row. A failure record therefore needs only a case id, never the row, and an interrupted run resumes by shard. The streams use integer arithmetic only (no `libm`), so a seed means the same rows on every machine."
 msgstr ""
 
-#: manual/design/differential.md:64
+#: manual/design/differential.md:77
 msgid "Structured inputs, not only uniform ones"
 msgstr ""
 
-#: manual/design/differential.md:66
+#: manual/design/differential.md:79
 msgid "Uniform random bits almost never hit the cases where arithmetic is wrong: ties, alignment thresholds, cancellation, the first subnormal, the last finite number. The generators build these on purpose. For an exact operation the precision is set to *one bit (digit) fewer than the exact result has*, which turns the result into a halfway case for any operand pair; a perturbation far below the last bit gives the \"just above\" and \"just below\" neighbours. Operand exponent gaps are drawn around the precision, around each operand's width and around twice the precision, where the alignment logic changes. Boundary rows place the exact result next to the smallest normal number or the overflow threshold, the places where tininess-before and tininess-after, or directed and nearest rounding, part ways. A mutation check keeps this honest: swapping the two tininess rules in the executor fails 0.15% to 1.2% of the rows of an operation, and swapping round-to-nearest-even with nearest-away fails 0.9% to 2.8%."
 msgstr ""
 
-#: manual/design/differential.md:81
+#: manual/design/differential.md:94
 msgid "mare_mark validates batches"
 msgstr ""
 
-#: manual/design/differential.md:83
+#: manual/design/differential.md:96
 msgid "The runner validates the library against the oracle *before* it measures it, records every event in append-only JSONL, derives the run seed, and ships a shrinker and a replay specification. The harness uses all four. A dataset is a batch of consecutive cases; the implementation under test runs the batch through the matching frontend; the reference oracle is the oracle rows themselves (every case must agree). Validating per batch keeps the record at roughly one validation line per thousand cases instead of one per case, and a batch that disagrees is delta-debugged by halving until one case remains, so the record names the failing case rather than a thousand suspects."
 msgstr ""
 
-#: manual/design/differential.md:93
+#: manual/design/differential.md:106
 msgid "The runner's timing machinery is a by-product. The protocol uses one iteration per batch and no warm-up, so the cost is a small multiple of the execution time itself, and the timings are not claimed as benchmarks."
 msgstr ""
 
-#: manual/design/differential.md:97
+#: manual/design/differential.md:110
 msgid "Oracle programs stay outside MoonBit"
 msgstr ""
 
-#: manual/design/differential.md:99
+#: manual/design/differential.md:112
 msgid "MoonBit never calls MPFR or Python. The generators run first and write rows; the harness only reads rows. That keeps the library's tests free of native dependencies, lets the same corpus run on native, JavaScript, Wasm and Wasm-GC, and means an oracle upgrade is a regeneration, not a code change."
 msgstr ""
 
-#: manual/design/differential.md:106
+#: manual/design/differential.md:119
 msgid "A batch passes only if every case in it passed; a case that no frontend can execute (unsupported or diagnostic rows) is a failure, not a skip."
 msgstr ""
 
-#: manual/design/differential.md:108
+#: manual/design/differential.md:121
 msgid "The expected value of a case is stored in its row; the harness never recomputes it."
 msgstr ""
 
-#: manual/design/differential.md:110
+#: manual/design/differential.md:123
 msgid "`execute_batch` returns one entry per case, in order; a frontend that returns a different count is an infrastructure failure."
 msgstr ""
 
-#: manual/design/differential.md:112
+#: manual/design/differential.md:125
 msgid "The failure shrinker only ever halves a batch, so it terminates in at most `log2(batch)` steps and never produces an input that was not in the corpus."
 msgstr ""
 
-#: manual/design/differential.md:117
+#: manual/design/differential.md:130
 msgid "**A binding to MPFR from MoonBit.** It would make `moon test` depend on a native library and exclude every other backend."
 msgstr ""
 
-#: manual/design/differential.md:119
+#: manual/design/differential.md:132
 msgid "**One validation line per case.** A million-case run would write a gigabyte of JSONL that says \"valid\" a million times."
 msgstr ""
 
-#: manual/design/differential.md:121
+#: manual/design/differential.md:134
 msgid "**The runner's full measurement protocol.** Twenty-fold slowdown for numbers this harness does not use."
 msgstr ""
 
-#: manual/design/differential.md:123
+#: manual/design/differential.md:136
 msgid "**Discarding rows on which the oracles are known to deviate.** They are filtered where they are generated (documented per family), so the denominator of a published count is the number of rows executed."
 msgstr ""
 
-#: manual/design/differential.md:129
+#: manual/design/differential.md:142
 msgid "The harness reports agreement with MPFR and libmpdec on the sampled space. It does not prove the library correct, and it does not cover operations the oracles do not offer (for example decimal elementary functions other than `exp`, `ln`, `log10` and `power`)."
 msgstr ""
 
-#: manual/design/differential.md:133
+#: manual/design/differential.md:146
 msgid "Nearest-away results below the smallest normal number are not compared: `mpfr_subnormalize` has no nearest-away mode."
 msgstr ""
 
-#: manual/design/differential.md:135
+#: manual/design/differential.md:148
 msgid "The decimal elementary functions are sampled only with contexts below the decNumber limit of 10^6 on the exponent range, beyond which the library answers `Invalid_context` by design."
 msgstr ""
 
-#: manual/design/differential.md:138
+#: manual/design/differential.md:151
 msgid "Wasm-GC cannot run the harness (no async runtime); it runs the same corpora through the synchronous `floating-conformance` runner without the mare_mark record."
 msgstr ""
 
