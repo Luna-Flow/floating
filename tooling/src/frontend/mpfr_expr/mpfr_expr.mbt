@@ -344,7 +344,7 @@ pub fn execute_sqrt_data(document : MpfrDocument) -> RunSummary {
 pub fn execute_pow_data(document : MpfrPowDocument) -> RunSummary {
   let results : Array[CaseResult] = []
   for case in document.cases {
-    let actual = case.input.pow_int_ctx(
+    let actual = case.input.pown_ctx(
       case.exponent,
       @bin_float.BinaryContext::unbounded(
         case.output_precision,

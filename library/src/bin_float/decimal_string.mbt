@@ -213,8 +213,8 @@ fn binary_round_decimal(
     let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
     let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
     let five = BinFloat::from_int(5, precision=work)
-    let power_low = five.pow_int_ctx(scale_int, down).0
-    let power_high = five.pow_int_ctx(scale_int, up).0
+    let power_low = five.pown_ctx(scale_int, down).0
+    let power_high = five.pown_ctx(scale_int, up).0
     let digits_low = BinFloat::make_coeff(
       digits,
       0,

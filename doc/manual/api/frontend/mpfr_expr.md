@@ -118,7 +118,7 @@ parser builds `0xCOEFFpEXP` from them.
 
 ### `execute_pow_data`
 
-`execute_pow_data(document)` computes `input.pow_int_ctx(exponent, ctx)` with
+`execute_pow_data(document)` computes `input.pown_ctx(exponent, ctx)` with
 `ctx = BinaryContext::unbounded(precision, rounding~)`.
 
 ```mbti

@@ -25,8 +25,8 @@ fn binary_decimal_exponent(value : BinFloat) -> Int32 {
     let work = 64
     let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
     let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
-    let power_low = ten.pow_int_ctx(next, down).0
-    let power_high = ten.pow_int_ctx(next, up).0
+    let power_low = ten.pown_ctx(next, down).0
+    let power_high = ten.pown_ctx(next, up).0
     if magnitude.compare(power_low) < 0 {
       return exponent
     }
@@ -116,13 +116,13 @@ fn binary_scaled_decimal_integer(
     )
     let (low, high) = if scale >= 0 {
       (
-        low_value.div_ctx(ten.pow_int_ctx(scale, up).0, down).0,
-        high_value.div_ctx(ten.pow_int_ctx(scale, down).0, up).0,
+        low_value.div_ctx(ten.pown_ctx(scale, up).0, down).0,
+        high_value.div_ctx(ten.pown_ctx(scale, down).0, up).0,
       )
     } else {
       (
-        low_value.mul_ctx(ten.pow_int_ctx(-scale, down).0, down).0,
-        high_value.mul_ctx(ten.pow_int_ctx(-scale, up).0, up).0,
+        low_value.mul_ctx(ten.pown_ctx(-scale, down).0, down).0,
+        high_value.mul_ctx(ten.pown_ctx(-scale, up).0, up).0,
       )
     }
     let (signed_low, signed_high) = if value.negative {

@@ -581,8 +581,8 @@ choosing the right one matters:
 
 | API | Order | NaN | $-0$ vs $+0$ |
 | --- | --- | --- | --- |
-| `compare_quiet`, `less_quiet`, `equal_quiet`, … (`bin_float`) | IEEE partial order, `@def.PartialOrder` | `Unordered`; *invalid* only for a signaling NaN | equal |
-| `compare_signaling`, `less_signaling`, … (`bin_float`) | IEEE partial order | `Unordered`; *invalid* for any NaN | equal |
+| `compare_quiet`, `compare_quiet_less`, `compare_quiet_equal`, … (`bin_float`) | IEEE partial order, `@def.PartialOrder` | `Unordered`; *invalid* only for a signaling NaN | equal |
+| `compare_signaling`, `compare_signaling_less`, … (`bin_float`) | IEEE partial order | `Unordered`; *invalid* for any NaN | equal |
 | `compare_checked` | numeric order | `Err` with `UnorderedComparison` | equal |
 | `compare`, `<`, `<=`, sorting (`Compare`) | total preorder | every NaN equals every NaN and is above every number | equal |
 | `total_order`, `total_order_compare`, `total_order_mag` (`bin_float`), `compare_total` (decimal) | IEEE `totalOrder` on representations | ordered by sign, kind and payload | $-0 < +0$ |
@@ -595,7 +595,7 @@ Equality follows the type. `Decimal`'s `==` is numeric for finite values
 (`-0 == 0.00`) and treats two NaNs as equal. `BinFloat` and `BallFloat` derive
 `Eq`, so their `==` compares representations, including the sign of zero and
 the precision: `-0 == +0` is false there, while `compare` returns `0`. Use
-`compare(...) == 0` or `equal_quiet` for numeric equality of binary values.
+`compare(...) == 0` or `compare_quiet_equal` for numeric equality of binary values.
 
 ```moonbit
 ///|

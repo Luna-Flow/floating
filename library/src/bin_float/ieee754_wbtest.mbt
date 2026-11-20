@@ -138,44 +138,44 @@ test "IEEE 754 after-rounding tininess uses the precision-rounded value" {
 }
 
 ///|
-test "pow_int_ctx handles Int min without overflow" {
+test "pown_ctx handles Int min without overflow" {
   let minimum_exponent = -2147483647 - 1
   let context = BinaryContext::binary16()
-  let (one, one_flags) = BinFloat::one(precision=53).pow_int_ctx(
+  let (one, one_flags) = BinFloat::one(precision=53).pown_ctx(
     minimum_exponent, context,
   )
   assert_eq(binary16_bits(one, context), "3C00")
   assert_eq(one_flags.to_testfloat_bits(), 0)
   let negative_one = BinFloat::from_int(-1, precision=53)
-  let (even_power, even_flags) = negative_one.pow_int_ctx(
+  let (even_power, even_flags) = negative_one.pown_ctx(
     minimum_exponent, context,
   )
   assert_eq(binary16_bits(even_power, context), "3C00")
   assert_eq(even_flags.to_testfloat_bits(), 0)
   let two = BinFloat::make_coeff(Coeff::one(), 1, 53)
-  let (tiny, tiny_flags) = two.pow_int_ctx(minimum_exponent, context)
+  let (tiny, tiny_flags) = two.pown_ctx(minimum_exponent, context)
   assert_eq(binary16_bits(tiny, context), "0000")
   assert_eq(tiny_flags.to_testfloat_bits(), 0x03)
   let half = BinFloat::make_coeff(Coeff::one(), -1, 53)
-  let (huge, huge_flags) = half.pow_int_ctx(minimum_exponent, context)
+  let (huge, huge_flags) = half.pown_ctx(minimum_exponent, context)
   assert_eq(binary16_bits(huge, context), "7C00")
   assert_eq(huge_flags.to_testfloat_bits(), 0x05)
   let upward_context = BinaryContext::binary16(
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
-  let (upward_tiny, upward_tiny_flags) = two.pow_int_ctx(
+  let (upward_tiny, upward_tiny_flags) = two.pown_ctx(
     minimum_exponent, upward_context,
   )
   assert_eq(binary16_bits(upward_tiny, upward_context), "0001")
   assert_eq(upward_tiny_flags.to_testfloat_bits(), 0x03)
   let three_halves = BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, 53)
-  let (non_power_tiny, non_power_tiny_flags) = three_halves.pow_int_ctx(
+  let (non_power_tiny, non_power_tiny_flags) = three_halves.pown_ctx(
     minimum_exponent, context,
   )
   assert_eq(binary16_bits(non_power_tiny, context), "0000")
   assert_eq(non_power_tiny_flags.to_testfloat_bits(), 0x03)
   let three_quarters = BinFloat::make_coeff(Coeff::from_uint64(3UL), -2, 53)
-  let (non_power_huge, non_power_huge_flags) = three_quarters.pow_int_ctx(
+  let (non_power_huge, non_power_huge_flags) = three_quarters.pown_ctx(
     minimum_exponent, context,
   )
   assert_eq(binary16_bits(non_power_huge, context), "7C00")

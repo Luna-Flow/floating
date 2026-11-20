@@ -95,8 +95,6 @@ pub fn BinFloatResult::normalized(Self) -> Self
 pub fn BinFloatResult::ok(@bin_float.BinFloat) -> Self
 pub fn BinFloatResult::pow(Self, Self) -> Self
 pub fn BinFloatResult::pow_ctx(Self, Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::pow_int(Self, Int32) -> Self
-pub fn BinFloatResult::pow_int_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::pow_nat(Self, UInt32) -> Self
 pub fn BinFloatResult::pown(Self, Int32) -> Self
 pub fn BinFloatResult::pown_ctx(Self, Int32, @bin_float.BinaryContext) -> Self

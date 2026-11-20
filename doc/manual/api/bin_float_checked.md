@@ -316,14 +316,12 @@ non-zero argument, including $-\infty$, and for a signaling NaN;
 $\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` does the same
 under a context: a negative argument is a `DomainError`.
 
-### `BinFloatResult::pow_nat`, `BinFloatResult::pow_int`, `BinFloatResult::pow_int_ctx`, `BinFloatResult::pown`, `BinFloatResult::pown_ctx`
+### `BinFloatResult::pow_nat`, `BinFloatResult::pown`, `BinFloatResult::pown_ctx`
 
 These methods raise a value to an integer power.
 
 ```mbti
 pub fn BinFloatResult::pow_nat(Self, UInt) -> Self
-pub fn BinFloatResult::pow_int(Self, Int) -> Self
-pub fn BinFloatResult::pow_int_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::pown(Self, Int) -> Self
 pub fn BinFloatResult::pown_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 ```
@@ -331,8 +329,7 @@ pub fn BinFloatResult::pown_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 `pow_nat(n)` calls the Luna-Flow/arithmetic trait method
 `PowNatChecked::pow_nat_checked` with `ArithmeticContext::new(x.precision())`,
 which `bin_float` maps to an unbounded binary context at that precision with
-nearest-even rounding. `pow_int` and `pown` (the same operation, IEEE name)
-return a `DivisionByZero` error for a zero base with a negative exponent, a
+nearest-even rounding. `pown` returns a `DivisionByZero` error for a zero base with a negative exponent, a
 `DomainError` for a signaling NaN base, zero exponent included (as does
 `pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms
 map the flags the same way: a `DivisionByZero` error for a zero base with a
@@ -482,7 +479,7 @@ test "powers and roots" {
   inspect(show(@bin_float_checked.BinFloatResult::from_int(81, precision=48).sqrt()), content="9p0")
   inspect(show(r(-4).sqrt()), content="error: sqrt requires a non-negative value")
   inspect(show(r(3).pow_nat(10)), content="59049p0")
-  inspect(show(r(0).pow_int(-1)), content="error: negative exponent requires a non-zero base")
+  inspect(show(r(0).pown(-1)), content="error: negative exponent requires a non-zero base")
   inspect(show(r(-8).rootn(3)), content="-1p1")
   inspect(show(r(8).rootn(0)), content="error: rootn degree must not be zero")
   inspect(show(r(3).hypot(r(4))), content="5p0")
@@ -940,8 +937,6 @@ pub fn BinFloatResult::normalized(Self) -> Self
 pub fn BinFloatResult::ok(@bin_float.BinFloat) -> Self
 pub fn BinFloatResult::pow(Self, Self) -> Self
 pub fn BinFloatResult::pow_ctx(Self, Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::pow_int(Self, Int32) -> Self
-pub fn BinFloatResult::pow_int_ctx(Self, Int32, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::pow_nat(Self, UInt32) -> Self
 pub fn BinFloatResult::pown(Self, Int32) -> Self
 pub fn BinFloatResult::pown_ctx(Self, Int32, @bin_float.BinaryContext) -> Self

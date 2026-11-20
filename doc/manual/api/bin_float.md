@@ -584,17 +584,16 @@ or rounding direction use `sqrt_ctx`; its results under `RoundTowardNegative`
 and `RoundTowardPositive` enclose $\sqrt{x}$ and coincide when the root is
 exact.
 
-### `BinFloat::pow_int`, `BinFloat::pown`
+### `BinFloat::pown`
 
 Raise a value to an integer power.
 
 ```mbti
-pub fn BinFloat::pow_int(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-The two names are the same function. The result is $x^n$ correctly rounded to
-nearest-even at the precision of `x`, computed as in `pow_int_ctx`. A zero
+The result is $x^n$ correctly rounded to
+nearest-even at the precision of `x`, computed as in `pown_ctx`. A zero
 base with a negative exponent is a `division_by_zero` error, and a signaling
 NaN base a `domain_error` for every exponent, zero included (IEEE 754-2019
 §9.2.1 excludes it from $x^0 = 1$); $x^0 = 1$ for every other $x$, a quiet NaN
@@ -635,7 +634,7 @@ test "plain arithmetic rounds once at the operand precision" {
   inspect(third.to_shortest_string(), content="0.3333333333333333")
   inspect(one / @bin_float.BinFloat::zero(), content="inf")
   inspect(@bin_float.BinFloat::from_int(7).remainder(@bin_float.BinFloat::from_int(2)), content="-1p0")
-  inspect(@bin_float.BinFloat::from_int(3).pow_int(-2).unwrap().to_shortest_string(), content="0.1111111111111111")
+  inspect(@bin_float.BinFloat::from_int(3).pown(-2).unwrap().to_shortest_string(), content="0.1111111111111111")
 }
 ```
 
@@ -947,16 +946,15 @@ operands representable in the context this rounding is exact and no flag is
 raised. The quotient is never formed: the operands are reduced modulo $2y$,
 so huge exponent gaps cost $O(\log)$ multiplications.
 
-### `BinFloat::pow_int_ctx`, `BinFloat::pown_ctx`
+### `BinFloat::pown_ctx`
 
 Integer power $\circ(x^n)$ under a context.
 
 ```mbti
-pub fn BinFloat::pow_int_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pown_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 ```
 
-The two names are the same function, IEEE 754 `pown`. $x^0 = 1$ without a
+This is IEEE 754 `pown`. $x^0 = 1$ without a
 flag for every $x$ except a signaling NaN (a quiet NaN included); a signaling
 NaN base gives a quiet NaN with its payload and `invalid_operation` for every
 exponent, zero included (§9.2.1, §7.2 a); $(\pm 0)^{n<0} = \pm\infty$ (sign for odd $n$) with
@@ -1129,24 +1127,24 @@ NaN), with $-0 = +0$. The quiet form raises `invalid_operation` only for a
 signaling NaN; the signaling form raises it for every unordered comparison
 (IEEE 754-2019 clause 5.11).
 
-### `BinFloat::equal_quiet`, `BinFloat::less_quiet`, `BinFloat::less_equal_quiet`, `BinFloat::unordered_quiet`, `BinFloat::equal_signaling`, `BinFloat::less_signaling`, `BinFloat::less_equal_signaling`
+### `BinFloat::compare_quiet_equal`, `BinFloat::compare_quiet_less`, `BinFloat::compare_quiet_less_equal`, `BinFloat::compare_quiet_unordered`, `BinFloat::compare_signaling_equal`, `BinFloat::compare_signaling_less`, `BinFloat::compare_signaling_less_equal`
 
 The IEEE comparison predicates.
 
 ```mbti
-pub fn BinFloat::equal_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_equal_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::unordered_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::equal_signaling(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_signaling(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_equal_signaling(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_less(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_less_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_less(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_less_equal(Self, Self) -> (Bool, BinaryFlags)
 ```
 
 `compareQuietEqual`, `compareQuietLess`, `compareQuietLessEqual`,
 `compareQuietUnordered` and the signaling `Equal`, `Less`, `LessEqual`. Each is
 derived from `compare_quiet` or `compare_signaling` and returns its flags; every
-predicate except `unordered_quiet` is false on an unordered pair.
+predicate except `compare_quiet_unordered` is false on an unordered pair.
 
 ### `BinFloat::total_order`, `BinFloat::total_order_mag`, `BinFloat::total_order_compare`
 
@@ -1204,7 +1202,7 @@ test "three different orders on BinFloat" {
   let neg_zero = @bin_float.BinFloat::negative_zero()
   inspect(nan.compare(zero), content="1")
   inspect(nan.compare_checked(zero) is Err(_), content="true")
-  let (unordered, flags) = zero.unordered_quiet(nan)
+  let (unordered, flags) = zero.compare_quiet_unordered(nan)
   inspect("\{unordered} \{flags.invalid_operation()}", content="true false")
   inspect(neg_zero.compare(zero), content="0")
   inspect(neg_zero.total_order_compare(zero), content="-1")
@@ -2323,7 +2321,7 @@ pub fn BinFloat::op_ge(Self, Self) -> Bool
 ```
 
 They use [`compare`](#binfloatcompare), so NaN is greater than every number:
-`nan > x` is `true`. Use the [IEEE predicates](#binfloatequal_quiet-binfloatless_quiet-binfloatless_equal_quiet-binfloatunordered_quiet-binfloatequal_signaling-binfloatless_signaling-binfloatless_equal_signaling)
+`nan > x` is `true`. Use the [IEEE predicates](#binfloatcompare_quiet_equal-binfloatcompare_quiet_less-binfloatcompare_quiet_less_equal-binfloatcompare_quiet_unordered-binfloatcompare_signaling_equal-binfloatcompare_signaling_less-binfloatcompare_signaling_less_equal)
 when NaN must be unordered.
 
 ### `BinFloat::output`, `BinFloat::to_repr`
@@ -2619,7 +2617,14 @@ pub fn BinFloat::coefficient(Self) -> BinCoeff
 pub fn BinFloat::compare(Self, Self) -> Int32
 pub fn BinFloat::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
+pub fn BinFloat::compare_quiet_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_less(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_less_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_unordered(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
+pub fn BinFloat::compare_signaling_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_less(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_less_equal(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compound(Self, Int32) -> Self
 pub fn BinFloat::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::convert_format(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (Self, BinaryFlags)
@@ -2635,8 +2640,6 @@ pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticE
 pub fn BinFloat::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::div_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::equal(Self, Self) -> Bool
-pub fn BinFloat::equal_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::equal_signaling(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::exp(Self) -> Self
 pub fn BinFloat::exp10(Self) -> Self
 pub fn BinFloat::exp10_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
@@ -2675,10 +2678,6 @@ pub fn BinFloat::is_quiet_nan(Self) -> Bool
 pub fn BinFloat::is_signaling_nan(Self) -> Bool
 pub fn BinFloat::is_subnormal(Self, BinaryContext) -> Bool
 pub fn BinFloat::is_zero(Self) -> Bool
-pub fn BinFloat::less_equal_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_equal_signaling(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_quiet(Self, Self) -> (Bool, BinaryFlags)
-pub fn BinFloat::less_signaling(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::ln(Self) -> Self
 pub fn BinFloat::ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log10(Self) -> Self
@@ -2714,9 +2713,7 @@ pub fn BinFloat::op_lt(Self, Self) -> Bool
 pub fn BinFloat::output(Self, &Logger) -> Unit
 pub fn BinFloat::pow(Self, Self) -> Self
 pub fn BinFloat::pow_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::pow_int(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BinFloat::pow_int_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pown_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
@@ -2811,7 +2808,6 @@ pub fn BinFloat::try_tan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 pub fn BinFloat::try_tanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::ulp(Self) -> Self
-pub fn BinFloat::unordered_quiet(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int32) -> Self
 pub impl @arithmetic.AbsContextual for BinFloat

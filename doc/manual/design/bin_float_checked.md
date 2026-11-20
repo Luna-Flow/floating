@@ -124,7 +124,7 @@ some precision stays at that precision:
 | `+`, `-`, `*`, `/`, `min`, `max` | as the `BinFloat` operator: the larger operand precision, nearest-even |
 | unary elementary functions, `rootn` | `BinaryContext::unbounded(x.precision())` |
 | `pow`, `hypot`, `atan2` | `BinaryContext::unbounded(max(p_x, p_y))` |
-| `sqrt`, `pow_int`, `pown` | the `BinFloat` method at the operand's precision |
+| `sqrt`, `pown` | the `BinFloat` method at the operand's precision |
 | `pow_nat` | `ArithmeticContext::new(x.precision())`, passed to `PowNatChecked` |
 | every `*_ctx` method | the given `BinaryContext` |
 
@@ -142,9 +142,8 @@ and is not used.
 ### One flag rule for every `_ctx` method
 
 `BinFloat::*_ctx` operations return $(v, \phi) \in V \times F$ where $F$ is the
-set of `BinaryFlags`. Every `_ctx` method of the wrapper, the seven arithmetic
-ones (`add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pow_int_ctx`,
-`pown_ctx`) and the elementary ones alike, is the plain method with an explicit
+set of `BinaryFlags`. Every `_ctx` method of the wrapper, the six arithmetic
+ones (`add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pown_ctx`) and the elementary ones alike, is the plain method with an explicit
 context and the same map $\kappa$:
 
 $$
@@ -184,7 +183,7 @@ The exceptional cases of the arithmetic methods (IEEE 754-2019):
 | `div_ctx(x, +-0)`, `x` finite and nonzero | 7.3 | `Err(DivisionByZero)` |
 | `sqrt_ctx(x)`, `x < 0` including $-\infty$ | 7.2 g) | `Err(DomainError)` |
 | `sqrt_ctx(-0)`, `sqrt_ctx(+inf)` | 9.2.1 | `Ok(-0)`, `Ok(+inf)` |
-| `pown_ctx(+-0, n)`, `pow_int_ctx(+-0, n)`, `n < 0` | 9.2.1, 7.3 | `Err(DivisionByZero)` |
+| `pown_ctx(+-0, n)`, `n < 0` | 9.2.1, 7.3 | `Err(DivisionByZero)` |
 | `pown_ctx(x, 0)` for `x` not a signaling NaN | 9.2.1 | `Ok(1)` |
 | `div_ctx(inf, +-0)`, `div_ctx(x, inf)` | 7.3 needs finite operands | `Ok(inf)`, `Ok(0)` |
 | overflow, underflow, inexact | 7.4, 7.5, 7.6 | `Ok(default result)` |

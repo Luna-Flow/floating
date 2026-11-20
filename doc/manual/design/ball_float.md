@@ -377,7 +377,7 @@ $c^*$ is the minimiser has to be written down, once per case.
 | `sqrt_interval` | 4 `sqrt_ctx` | 2 |
 | product, one factor straddling zero, the other sign-definite | 4 products | 2 |
 | product with an unbounded factor | 8 products | 4 (the coefficient product of a finite pair is shared by both directions) |
-| `pown`, even exponent, negative or zero-containing interval | 4 or 3 `pow_int_ctx` | 2 |
+| `pown`, even exponent, negative or zero-containing interval | 4 or 3 `pown_ctx` | 2 |
 | `try_atan2_interval` | 8 to 16 `try_atan2_ctx` | 2 |
 | `try_sinpi_interval`, `try_cospi_interval` | 4 | 2 (also 2 with one extremum inside, 0 with an extremum of each kind) |
 | `try_sin_interval`, `try_cos_interval` | 8 exact-rational series per refinement round, plus $\pi$ per round | 2 correctly rounded binary evaluations, and one $\pi$ enclosure |

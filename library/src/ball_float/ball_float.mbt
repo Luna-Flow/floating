@@ -1281,7 +1281,7 @@ fn pown_endpoint(
   precision : Int32,
   rounding : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  value.pow_int_ctx(
+  value.pown_ctx(
     exponent,
     @bin_float.BinaryContext::unbounded(precision, rounding~),
   ).0

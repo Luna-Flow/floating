@@ -182,7 +182,7 @@ test "ctx rule: sqrt_ctx" {
 }
 
 ///|
-test "ctx rule: pown_ctx and pow_int_ctx" {
+test "ctx rule: pown_ctx" {
   for ctx_pair in ctx_rule_contexts() {
     let (cname, ctx) = ctx_pair
     for a in wrapper_names() {
@@ -203,12 +203,6 @@ test "ctx rule: pown_ctx and pow_int_ctx" {
           x.pown_ctx(n, ctx),
           xv.pown_ctx(n, ctx).0,
         )
-        ctx_rule_check(
-          "pow_int " + tag,
-          expected,
-          x.pow_int_ctx(n, ctx),
-          xv.pow_int_ctx(n, ctx).0,
-        )
       }
     }
   }
@@ -224,11 +218,11 @@ test "ctx rule: overflow, underflow and inexact stay Ok" {
   // overflow
   assert_true(big.mul_ctx(big, b64).is_ok())
   assert_true(big.add_ctx(big, b64).is_ok() && big.div_ctx(tiny, b64).is_ok())
-  assert_true(big.pown_ctx(2, b64).is_ok() && big.pow_int_ctx(2, b64).is_ok())
+  assert_true(big.pown_ctx(2, b64).is_ok())
   // underflow
   assert_true(tiny.mul_ctx(tiny, b64).is_ok())
   assert_true(tiny.div_ctx(big, b64).is_ok())
-  assert_true(tiny.pown_ctx(2, b64).is_ok() && tiny.pow_int_ctx(2, b64).is_ok())
+  assert_true(tiny.pown_ctx(2, b64).is_ok())
   assert_true(tiny.sqrt_ctx(b64).is_ok())
   // inexact
   assert_true(one.div_ctx(three, b64).is_ok())

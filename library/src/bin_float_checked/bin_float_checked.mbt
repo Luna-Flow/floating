@@ -581,27 +581,6 @@ pub fn BinFloatResult::pow_nat(
 }
 
 ///|
-pub fn BinFloatResult::pow_int(
-  self : BinFloatResult,
-  exponent : Int32,
-) -> BinFloatResult {
-  self.bind(fn(value) { BinFloatResult::from_result(value.pow_int(exponent)) })
-}
-
-///|
-pub fn BinFloatResult::pow_int_ctx(
-  self : BinFloatResult,
-  exponent : Int32,
-  context : @bin_float.BinaryContext,
-) -> BinFloatResult {
-  self.bind(fn(value) {
-    BinFloatResult::from_result(
-      bin_result_checked_flags(value.pow_int_ctx(exponent, context)),
-    )
-  })
-}
-
-///|
 pub fn BinFloatResult::pown(
   self : BinFloatResult,
   exponent : Int32,

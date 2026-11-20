@@ -28,7 +28,7 @@ The finite coefficient is normalized by removing factors of two, while the
 sign of zero remains observable. Infinity, qNaN, sNaN, NaN payload, and NaN
 sign are explicit states rather than sentinel finite values.
 
-For `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, and `pow_int_ctx`:
+For `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, and `pown_ctx`:
 
 1. IEEE special cases are resolved before finite arithmetic.
 2. Finite addition, subtraction, and multiplication use their exact dyadic
@@ -83,7 +83,7 @@ IEEE Std 754-2019 for `bin_float`. Status is `conforming` when the operation exi
 | §5.4.1, §5.8 convertToInteger (exact and inexact) | required | `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx`, `to_uint64_ctx` | TestFloat gate (32- and 64-bit conversions); `library/src/bin_float/to_integer_wbtest.mbt` | conforming |
 | §5.4.2 convertFormat | required | `convert_format`, `round_ctx`, `with_precision`, `to_interchange` | TestFloat gate (`f16`, `f32`, `f64`, `f128` to every other format, 52,632 vectors at level 1: five rounding modes and both tininess rules for the narrowing pairs); `library/src/bin_float/convert_format_wbtest.mbt`; `library/src/bin_float/ieee754_wbtest.mbt` | conforming |
 | §5.5 copy, negate, abs, copySign | required | `neg`, `abs`, `copy_sign` | `library/src/bin_float/order_wbtest.mbt` | conforming |
-| §5.6, §5.11 comparison predicates, quiet and signaling | required | `compare_quiet`, `compare_signaling`, `equal_quiet`, `equal_signaling`, `less_quiet`, `less_signaling`, `less_equal_quiet`, `less_equal_signaling`, `unordered_quiet` | TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `library/src/bin_float/order_wbtest.mbt` | conforming |
+| §5.6, §5.11 comparison predicates, quiet and signaling | required | `compare_quiet`, `compare_signaling`, `compare_quiet_equal`, `compare_signaling_equal`, `compare_quiet_less`, `compare_signaling_less`, `compare_quiet_less_equal`, `compare_signaling_less_equal`, `compare_quiet_unordered` | TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `library/src/bin_float/order_wbtest.mbt` | conforming |
 | §5.7 class and sign predicates | required | `class_of`, `is_normal`, `is_subnormal`, `is_finite`, `is_infinite`, `is_nan`, `classify`, `is_negative`, `is_zero`, `is_signaling_nan` | `library/src/bin_float/class_of_wbtest.mbt` (all ten classes in binary16, 32, 64 and 128, with the smallest and largest subnormal and normal, both signs); `library/src/bin_float/contextual_traits_wbtest.mbt` | conforming |
 | §5.10 totalOrder, totalOrderMag | required | `total_order`, `total_order_mag`, `total_order_compare` | `library/src/bin_float/order_wbtest.mbt` (no external corpus) | conforming |
 | §5.12 decimal character conversion, both directions | required | `from_string_ctx`, `to_decimal_string_ctx`, `to_shortest_string` | MPFR `mpfr_strtofr` corpus (1,716 rows) and `mpfr_get_str` corpus (3,300 rows); `library/src/bin_float/decimal_string_wbtest.mbt` | conforming |

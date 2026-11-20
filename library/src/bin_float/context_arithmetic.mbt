@@ -1551,7 +1551,7 @@ fn binary_pow_power_of_two(
 }
 
 ///|
-pub fn BinFloat::pow_int_ctx(
+pub fn BinFloat::pown_ctx(
   self : BinFloat,
   exponent : Int32,
   context : BinaryContext,
@@ -1635,7 +1635,7 @@ pub fn BinFloat::pow_int_ctx(
       let _ = outcome.1.summary()
       outcome.0
     }
-    FpClass::NaN => abort("unreachable BinFloat::pow_int_ctx NaN")
+    FpClass::NaN => abort("unreachable BinFloat::pown_ctx NaN")
   }
 }
 

@@ -21,7 +21,7 @@ dyadic values far beyond `Double`, and bit-exact emulation of binary16,
 binary32, binary64 and binary128 including subnormals, the five rounding
 directions and both tininess rules. There is no hidden state: precision,
 rounding and range travel in an immutable `BinaryContext`, and flags travel
-back as a value. The basic operations, conversions and `pow_int` meet this
+back as a value. The basic operations, conversions and `pown` meet this
 goal unconditionally; the certified elementary functions meet it for every
 value they return, with the budget failures and the one undetected family of
 exact results described under
@@ -835,7 +835,7 @@ $\delta$ from a breakpoint needs $w \approx \log_2(1/\delta)$, so the default
 $L = 12$ decides everything farther than about $2^{-10000}$ from a breakpoint
 at binary64 and `None` extends that to the cap. Functions without a context
 argument (the `BallFloat` enclosures) keep $12$. The exact fallback of the
-integer power `pow_int` (12 Ziv rounds, then an exact product) cannot fail and
+integer power `pown` (12 Ziv rounds, then an exact product) cannot fail and
 is not governed by the limit.
 
 **Termination.** Ziv's argument has two parts. First, $f(x)$ must not be a
@@ -979,7 +979,7 @@ example $2^{2^{-16000}}$ in binary128 is then $1$ with `inexact`.
     F. Johansson, "Arb: efficient arbitrary-precision midpoint-radius interval
     arithmetic", *IEEE Trans. Computers* 66(8), 2017.
 
-**Integer powers.** `pow_int_ctx` computes $x^n$ by an addition chain at
+**Integer powers.** `pown_ctx` computes $x^n$ by an addition chain at
 $w = p + \operatorname{bits}(n) + \operatorname{bits}(p) + 4$ bits with
 round-to-nearest. Each chain step $a_k = a_i + a_j$ multiplies two
 approximations; if $x^{a} \prod (1 + \delta)^{E(a)}$ describes the error

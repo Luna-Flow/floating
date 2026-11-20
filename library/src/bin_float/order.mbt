@@ -126,7 +126,7 @@ pub fn BinFloat::compare_signaling(
 
 ///|
 /// compareQuietEqual.
-pub fn BinFloat::equal_quiet(
+pub fn BinFloat::compare_quiet_equal(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
@@ -136,7 +136,7 @@ pub fn BinFloat::equal_quiet(
 
 ///|
 /// compareSignalingEqual.
-pub fn BinFloat::equal_signaling(
+pub fn BinFloat::compare_signaling_equal(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
@@ -146,7 +146,7 @@ pub fn BinFloat::equal_signaling(
 
 ///|
 /// compareQuietLess.
-pub fn BinFloat::less_quiet(
+pub fn BinFloat::compare_quiet_less(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
@@ -156,7 +156,7 @@ pub fn BinFloat::less_quiet(
 
 ///|
 /// compareSignalingLess.
-pub fn BinFloat::less_signaling(
+pub fn BinFloat::compare_signaling_less(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
@@ -166,7 +166,7 @@ pub fn BinFloat::less_signaling(
 
 ///|
 /// compareQuietLessEqual.
-pub fn BinFloat::less_equal_quiet(
+pub fn BinFloat::compare_quiet_less_equal(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
@@ -179,7 +179,7 @@ pub fn BinFloat::less_equal_quiet(
 
 ///|
 /// compareSignalingLessEqual.
-pub fn BinFloat::less_equal_signaling(
+pub fn BinFloat::compare_signaling_less_equal(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
@@ -192,7 +192,7 @@ pub fn BinFloat::less_equal_signaling(
 
 ///|
 /// compareQuietUnordered.
-pub fn BinFloat::unordered_quiet(
+pub fn BinFloat::compare_quiet_unordered(
   self : BinFloat,
   other : BinFloat,
 ) -> (Bool, BinaryFlags) {
