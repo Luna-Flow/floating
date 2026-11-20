@@ -1,10 +1,14 @@
 import {
   "Luna-Flow/floating-tools/differential/harness",
-  "moonbitlang/async",
   "moonbitlang/core/env",
 }
 
-// `moonbitlang/async` has no wasm-gc runtime (moonbitlang/core#4584), so the
+// `async fn main` needs no explicit import of `moonbitlang/async` since moonc
+// 0.10.22 (the import is reported as unused; older compilers reject `async fn main`
+// without it). `moonbitlang/async` still has no wasm-gc runtime
+// (moonbitlang/core#4584): the executable compiles for wasm-gc but the generated
+// module fails to instantiate (checked with moon 0.1.20261119: `moon run --target
+// wasm-gc` stops with a WebAssembly CompileError in the module initializer), so the
 // executable is built for native, JavaScript, Wasm and LLVM only.
 
 supported_targets = "all-wasm-gc"

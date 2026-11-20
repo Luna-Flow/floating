@@ -26,7 +26,7 @@ just pr 8
 
 It is versioned with the library (`0.11.0` imports `Luna-Flow/floating@0.11.0`);
 once it is published to the registry, `moon add Luna-Flow/floating-tools@0.11.0`
-adds it to a module. It needs the MoonBit toolchain with `moonc` 0.10.20 or later,
+adds it to a module. It needs the MoonBit toolchain with `moonc` 0.10.22 or later (the `differential` executable uses `async fn main` without importing `moonbitlang/async`),
 and the dependencies `Luna-Flow/arithmetic`, `Luna-Flow/mare_mark`,
 `Luna-Flow/type_theory`, `moonbitlang/async` and `moonbitlang/x`.
 

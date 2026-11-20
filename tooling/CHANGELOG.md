@@ -9,6 +9,10 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+### Fixed
+
+- The MoonBit toolchain of 2026-11-19 (`moon 0.1.20261119`, `moonc` 0.10.22) reports the import of `moonbitlang/async` in `tooling/src/differential/moon.pkg` as an unused package (error 0029 under `--deny-warn`), which turned CI red for `main` and every pull request from 2026-11-20 06:12 UTC ([#459](https://github.com/Luna-Flow/floating/issues/459)). `async fn main` needs no import any more; the import is removed. The module needs `moonc` ≥ 0.10.22. `supported_targets` (no wasm-gc) stays: the executable compiles for wasm-gc but the module fails to instantiate (`moon run --target wasm-gc`), and the `warnings = "-unused_package"` of the `bench/*` packages is still needed (removing it gives 14 errors on wasm-gc).
+
 ### Added
 
 - The binary TestFloat gate (`tools/run_binfloat_interpreter.py`) and the `testfloat_expr` frontend run the format conversions `f16`, `f32`, `f64` and `f128` to every other format (`to_f16`, `to_f32`, `to_f64`, `to_f128`): the operand is read in the format of the function name and the result in the destination format; the narrowing pairs run all five rounding modes and both tininess rules, the widening pairs (exact) one task each. 66 more tasks and 52,632 more level-1 vectors (468 to 534 tasks); four smoke files of twelve rows ([#222](https://github.com/Luna-Flow/floating/issues/222)).
