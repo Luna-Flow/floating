@@ -67,7 +67,7 @@ pub fn BinFloat::rsqrt_ctx(
 
 ///|
 pub fn BinFloat::rsqrt(self : BinFloat) -> BinFloat {
-  self.rsqrt_ctx(BinaryContext::unbounded(self.precision())).0
+  self.rsqrt_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -121,7 +121,7 @@ fn binary_compound_general(
   if width <= 67108864L {
     let exact = BinFloat::one_raw(precision=width.to_int()).add_ctx(
         value,
-        BinaryContext::unbounded(width.to_int()),
+        binary_working_context(width.to_int()),
       ).0
     return Ok(exact.pown_ctx(degree, context))
   }
@@ -142,8 +142,8 @@ fn binary_compound_general(
     return Ok(binary_tiny_nonzero_result(false, context))
   }
   binary_ziv_round("compound", context, fn(work) {
-    let downward = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
-    let upward = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
+    let downward = binary_working_context(work, rounding=RoundTowardNegative)
+    let upward = binary_working_context(work, rounding=RoundTowardPositive)
     guard binary_log1p_bounds(value, work) is Some(logarithm) else {
       return None
     }
@@ -231,7 +231,7 @@ pub fn BinFloat::compound_ctx(
 
 ///|
 pub fn BinFloat::compound(self : BinFloat, degree : Int32) -> BinFloat {
-  self.compound_ctx(degree, BinaryContext::unbounded(self.precision())).0
+  self.compound_ctx(degree, binary_working_context(self.precision())).0
 }
 
 ///|
@@ -326,6 +326,6 @@ pub fn BinFloat::powr_ctx(
 pub fn BinFloat::powr(self : BinFloat, exponent : BinFloat) -> BinFloat {
   self.powr_ctx(
     exponent,
-    BinaryContext::unbounded(Int32::max(self.precision(), exponent.precision())),
+    binary_working_context(Int32::max(self.precision(), exponent.precision())),
   ).0
 }

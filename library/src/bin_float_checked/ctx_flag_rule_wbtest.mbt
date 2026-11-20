@@ -80,7 +80,6 @@ fn ctx_rule_contexts() -> Array[(String, @bin_float.BinaryContext)] {
     ("toward-zero", RoundTowardZero),
     ("toward-positive", RoundTowardPositive),
     ("toward-negative", RoundTowardNegative),
-    ("away-from-zero", RoundAwayFromZero),
   ]
   let out = []
   for pair in modes {
@@ -91,7 +90,7 @@ fn ctx_rule_contexts() -> Array[(String, @bin_float.BinaryContext)] {
     out.push(
       (
         "unbounded53/" + label,
-        @bin_float.BinaryContext::unbounded(53, rounding=mode),
+        @bin_float.BinaryContext::new(precision=53, rounding=mode),
       ),
     )
   }
@@ -244,7 +243,7 @@ test "ctx rule: overflow, underflow and inexact stay Ok" {
 
 ///|
 test "ctx rule: x_ctx agrees with x on errors for the default context" {
-  let ctx = @bin_float.BinaryContext::unbounded(53)
+  let ctx = @bin_float.BinaryContext::new(precision=53)
   for a in wrapper_names() {
     for b in wrapper_names() {
       let x = wrapper_operand(a, 53)

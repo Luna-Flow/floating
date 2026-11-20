@@ -51,12 +51,12 @@ fn show(x : @ball_float.BallFloat, digits : Int) -> String {
   if x.is_empty() {
     return "[empty]"
   }
-  let down = @bin_float.BinaryContext::unbounded(
-    x.precision(),
+  let down = @bin_float.BinaryContext::new(
+    precision=x.precision(),
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::unbounded(
-    x.precision(),
+  let up = @bin_float.BinaryContext::new(
+    precision=x.precision(),
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let lo = x.lower_bound().to_decimal_string_ctx(digits, down).0
@@ -128,12 +128,12 @@ string once down and once up, and use the two results as bounds.
 ```moonbit
 ///|
 test "enclose decimal 0.1" {
-  let down = @bin_float.BinaryContext::unbounded(
-    53,
+  let down = @bin_float.BinaryContext::new(
+    precision=53,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::unbounded(
-    53,
+  let up = @bin_float.BinaryContext::new(
+    precision=53,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let lo = @bin_float.BinFloat::from_string_ctx("0.1", down).unwrap().0

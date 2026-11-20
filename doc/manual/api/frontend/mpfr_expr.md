@@ -63,7 +63,7 @@ The input is read at `input_precision` bits and the expected value at
 ### `execute_sqrt_data`
 
 `execute_sqrt_data(document)` computes `input.sqrt_ctx(ctx)` for every row,
-where `ctx` is `BinaryContext::unbounded(output_precision, rounding~)`.
+where `ctx` is `BinaryContext::new(precision=output_precision, rounding~)`.
 
 ```mbti
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
@@ -119,7 +119,7 @@ parser builds `0xCOEFFpEXP` from them.
 ### `execute_pow_data`
 
 `execute_pow_data(document)` computes `input.pown_ctx(exponent, ctx)` with
-`ctx = BinaryContext::unbounded(precision, rounding~)`.
+`ctx = BinaryContext::new(precision=precision, rounding~)`.
 
 ```mbti
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
@@ -183,7 +183,7 @@ A row of the two-operand functions `pow`, `powr`, `hypot`, `atan2` and `atan2pi`
 
 `execute_elementary_data(document)` evaluates every row with the checked
 `try_*_ctx` method of `BinFloat` for its operation (`sqrt_ctx` and `pown_ctx`
-for `sqrt` and `pown`) in `BinaryContext::unbounded(precision, rounding~)`.
+for `sqrt` and `pown`) in `BinaryContext::new(precision=precision, rounding~)`.
 
 ```mbti
 pub fn execute_decimal_random_data(MpfrDecimalRandomDocument) -> RunSummary
@@ -236,7 +236,7 @@ Row ids are `strtofr:LINE`.
 ### `execute_strtofr_data`
 
 `execute_strtofr_data(document)` evaluates `BinFloat::from_string_ctx(input,
-ctx)` with `ctx = BinaryContext::unbounded(precision, rounding~)`.
+ctx)` with `ctx = BinaryContext::new(precision=precision, rounding~)`.
 
 ```mbti
 pub fn execute_strtofr_data(MpfrStrtofrDocument) -> RunSummary

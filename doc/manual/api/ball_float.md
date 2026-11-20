@@ -72,12 +72,12 @@ fn fmt(x : @ball_float.BallFloat) -> String {
   if x.is_empty() {
     return "[empty]"
   }
-  let down = @bin_float.BinaryContext::unbounded(
-    53,
+  let down = @bin_float.BinaryContext::new(
+    precision=53,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::unbounded(
-    53,
+  let up = @bin_float.BinaryContext::new(
+    precision=53,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   "[" +
@@ -926,7 +926,7 @@ test "exponentials and logarithms" {
   // Integer endpoints outside the exponent range keep the outward-rounded enclosure.
   let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2()
   inspect(below.lower_bound().to_string(), content="0")
-  inspect(below.upper_bound().to_string(), content="1p-1073741875")
+  inspect(below.upper_bound().to_string(), content="1p-1073741874")
   let above = @ball_float.BallFloat::from_int(1 << 30, precision=53).exp2()
   inspect(above.lower_bound().to_string(), content="9007199254740991p1073741771")
   inspect(above.upper_bound().to_string(), content="inf")

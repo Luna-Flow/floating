@@ -80,14 +80,8 @@ test "sign-aware product and quotient bounds equal the four-candidate versions" 
   ]
   let mut checked = 0
   for precision in [24, 53, 130] {
-    let downward = BinaryContext::unbounded(
-      precision,
-      rounding=RoundTowardNegative,
-    )
-    let upward = BinaryContext::unbounded(
-      precision,
-      rounding=RoundTowardPositive,
-    )
+    let downward = BinaryContext::new(precision~, rounding=RoundTowardNegative)
+    let upward = BinaryContext::new(precision~, rounding=RoundTowardPositive)
     for a0 in values {
       for a1 in values {
         if a0 <= a1 {

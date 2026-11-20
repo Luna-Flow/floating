@@ -22,14 +22,14 @@ test "pown tininess after rounding at the implementation subnormal limit" {
   for n in [-1835573772, -1835573771] {
     // The reference: a 200-bit value rounded by `round_ctx`, which decides
     // tininess from the p-bit rounding of the exact value.
-    let reference = base.pown_ctx(n, BinaryContext::unbounded(200)).0
+    let reference = base.pown_ctx(n, BinaryContext::new(precision=200)).0
     for mode in e2s_modes() {
       for
         tininess in [
           TininessDetection::AfterRounding,
           TininessDetection::BeforeRounding,
         ] {
-        let ctx = BinaryContext::new(2, rounding=mode, tininess~)
+        let ctx = BinaryContext::new(precision=2, rounding=mode, tininess~)
         let (value, flags) = base.pown_ctx(n, ctx)
         let (expected, expected_flags) = reference.round_ctx(ctx)
         let label = "pown(1.5, \{n}) \{e2s_mode_name(mode)} \{e2s_tininess_name(tininess)}"
@@ -41,7 +41,7 @@ test "pown tininess after rounding at the implementation subnormal limit" {
       }
     }
   }
-  assert_eq(cases, 24)
+  assert_eq(cases, 20)
 }
 
 ///|
@@ -68,9 +68,9 @@ test "pown directed rounding between half and the smallest subnormal" {
       exponent,
       64,
     )
-    let reference = base.pown_ctx(n, BinaryContext::unbounded(300)).0
+    let reference = base.pown_ctx(n, BinaryContext::new(precision=300)).0
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       let (value, flags) = base.pown_ctx(n, ctx)
       let (expected, expected_flags) = reference.round_ctx(ctx)
       let label = "pown(\{base}, \{n}) p=\{p} \{e2s_mode_name(mode)}"
@@ -81,5 +81,5 @@ test "pown directed rounding between half and the smallest subnormal" {
       cases += 1
     }
   }
-  assert_eq(cases, 30)
+  assert_eq(cases, 25)
 }

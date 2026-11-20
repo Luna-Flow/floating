@@ -127,9 +127,9 @@ test "fma exact zero sums use the IEEE sign rules" {
 
 ///|
 test "fma products beyond the exponent range" {
-  let unbounded = BinaryContext::unbounded(53)
-  let upward = BinaryContext::unbounded(
-    53,
+  let unbounded = BinaryContext::new(precision=53)
+  let upward = BinaryContext::new(
+    precision=53,
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
   let huge = BinFloat::make(BinCoeff::one(), 1000000000, 53)
@@ -162,7 +162,7 @@ test "fma products beyond the exponent range" {
   inspect(
     fma_show(tiny.fma_ctx(tiny, BinFloat::zero(), upward)),
     content=(
-      #|1p-1073741875 flags=3
+      #|1p-1073741874 flags=3
     ),
   )
 }
@@ -180,7 +180,7 @@ fn fma_reference(
   let product = a.coefficient_.mul(b.coefficient_)
   let product_exponent = a.exponent2 + b.exponent2
   if product.is_zero() && c.is_zero() {
-    return a.mul_ctx(b, BinaryContext::unbounded(106)).0.add_ctx(c, context)
+    return a.mul_ctx(b, BinaryContext::new(precision=106)).0.add_ctx(c, context)
   }
   let target = Int32::min(product_exponent, c.exponent2)
   let left = product.shift_left(product_exponent - target)
@@ -244,12 +244,7 @@ test "fma agrees with an exact-sum reference on random operands" {
     let c = operand(spread * 2)
     for mode_index, mode in modes {
       let precision = if index % 3 == 0 { 24 } else { 53 }
-      let context = BinaryContext::new(
-        precision,
-        rounding=mode,
-        e_min=-1022,
-        e_max=1023,
-      )
+      let context = BinaryContext::new(precision~, rounding=mode, e_max=1023)
       let expected = fma_reference(a, b, c, context)
       let actual = a.fma_ctx(b, c, context)
       assert_eq(

@@ -275,8 +275,8 @@ fn evaluate_elementary_case(
   (@bin_float.BinFloat, @bin_float.BinaryFlags),
   @lf_arith.ArithmeticError,
 ] {
-  let context = @bin_float.BinaryContext::unbounded(
-    case.output_precision,
+  let context = @bin_float.BinaryContext::new(
+    precision=case.output_precision,
     rounding=case.rounding,
   )
   evaluate_elementary(

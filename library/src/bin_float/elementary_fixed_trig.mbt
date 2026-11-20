@@ -31,7 +31,7 @@ fn binary_sin_cos_fixed_series(
   }
   let rounded = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   guard rounded.compare(value) == 0 else { return None }
   let coefficient = value.coefficient_
@@ -75,13 +75,13 @@ fn binary_sin_cos_fixed_series(
         signed_sum.sub_checked(slack).unwrap(),
         -fractional,
         work_precision,
-        mode=RoundingMode::TowardNegative,
+        mode=BinaryRoundingMode::RoundTowardNegative,
       )
       let upper = BinFloat::make_coeff(
         signed_sum.add(slack),
         -fractional,
         work_precision,
-        mode=RoundingMode::TowardPositive,
+        mode=BinaryRoundingMode::RoundTowardPositive,
       )
       return if cosine || !value.is_negative() {
         Some((lower, upper))

@@ -179,13 +179,13 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
         path = RUNNER.repo_path(spec["path"])
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         self.assertEqual(digest, spec["sha256"])
-        self.assertEqual(spec["expectedCases"], 2088)
+        self.assertEqual(spec["expectedCases"], 1740)
 
     def test_decimal_string_mpfr_corpora_are_hash_pinned(self):
         manifest = RUNNER.load_json(RUNNER.DEFAULT_MANIFEST)
         expected = {
-            "mpfr-4.2.2-strtofr": 1716,
-            "mpfr-4.2.2-decimal-output": 3300,
+            "mpfr-4.2.2-strtofr": 1434,
+            "mpfr-4.2.2-decimal-output": 2688,
         }
         for name, cases in expected.items():
             spec = manifest["mpfrCorpora"][name]

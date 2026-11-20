@@ -115,7 +115,7 @@ test "shortest output round-trips at other precisions" {
   for precision in [11, 24, 113, 300] {
     let third = BinFloat::one(precision~).div_ctx(
         BinFloat::from_int(3, precision~),
-        BinaryContext::unbounded(precision),
+        BinaryContext::new(precision~),
       ).0
     let text = third.to_shortest_string()
     let back = BinFloat::from_string(text, precision~).unwrap()
@@ -152,7 +152,7 @@ test "huge and tiny exponents format without expanding the value" {
   )
   inspect(
     decimal_format_show(
-      huge.to_decimal_string_ctx(20, BinaryContext::unbounded(53)),
+      huge.to_decimal_string_ctx(20, BinaryContext::new(precision=53)),
     ),
     content=(
       #|4.6129760011690693931e+301029995 flags=1

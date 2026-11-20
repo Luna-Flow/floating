@@ -100,7 +100,7 @@ test "coefficient add equals the general path" {
     )
     let general = left.add_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_coeff_fast_add(left, right) {
       Some(result) => {
@@ -130,7 +130,7 @@ test "coefficient add of very wide operands equals the general path" {
     )
     let general = left.add_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_coeff_fast_add(left, right) {
       Some(result) => {
@@ -164,7 +164,7 @@ test "coefficient add of near-equal and cancelling values" {
     }
     let general = left.add_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_coeff_fast_add(left, right) {
       Some(result) => {
@@ -198,7 +198,7 @@ test "coefficient mul equals the general path" {
     )
     let general = left.mul_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_coeff_fast_mul(left, right) {
       Some(result) => {
@@ -233,13 +233,13 @@ test "coefficient div equals the general path" {
         1 + random.below(300),
         precision,
       )
-      right.mul_ctx(factor, BinaryContext::unbounded(2000)).0
+      right.mul_ctx(factor, BinaryContext::new(precision=2000)).0
     } else {
       fast_coeff_operand(random, random.below(400) - 200, 700, precision)
     }
     let general = left.div_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_coeff_fast_div(left, right) {
       Some(result) => {
@@ -272,7 +272,7 @@ test "coefficient sqrt equals the general path" {
     )
     // every third radicand is an exact square
     let value = if index % 3 == 0 {
-      let square = base.mul_ctx(base, BinaryContext::unbounded(2000)).0
+      let square = base.mul_ctx(base, BinaryContext::new(precision=2000)).0
       BinFloat::make_coeff(
         square.coefficient_,
         square.exponent2,
@@ -319,7 +319,7 @@ test "coefficient finish equals binary_round_dyadic" {
         negative,
         magnitude,
         exponent,
-        BinaryContext::unbounded(precision),
+        BinaryContext::new(precision~),
       ).0
     let actual = binary_coeff_fast_finish(
       negative, magnitude, exponent, precision, false,
@@ -353,7 +353,10 @@ test "coefficient paths decline what they do not cover" {
   match binary_coeff_fast_add(wide, far) {
     Some(sum) =>
       assert_true(
-        fast_test_same(sum, wide.add_ctx(far, BinaryContext::unbounded(200)).0),
+        fast_test_same(
+          sum,
+          wide.add_ctx(far, BinaryContext::new(precision=200)).0,
+        ),
       )
     None => abort("far operands are added by the coefficient path")
   }
@@ -426,7 +429,7 @@ test "coefficient div equals the general path on exact quotients, neighbours and
               }
               let general = left.div_ctx(
                   right,
-                  BinaryContext::unbounded(max_precision(left, right)),
+                  BinaryContext::new(precision=max_precision(left, right)),
                 ).0
               match binary_coeff_fast_div(left, right) {
                 Some(result) => {

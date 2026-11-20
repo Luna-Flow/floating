@@ -60,11 +60,8 @@ fn split_artanh_sum_bounds(
     (precision + 9 + bits - 1) / bits + 1 - reduce_terms,
   )
   let state = split_artanh_state(0, terms, square)
-  let downward = BinaryContext::unbounded(
-    precision,
-    rounding=RoundTowardNegative,
-  )
-  let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
+  let downward = binary_working_context(precision, rounding=RoundTowardNegative)
+  let upward = binary_working_context(precision, rounding=RoundTowardPositive)
   let numerator = BinFloat::make_coeff(
     state.t,
     0,
@@ -89,11 +86,8 @@ fn split_scaled_artanh_bounds(
   precision : Int32,
   reduce_terms~ : Int32 = 0,
 ) -> (BinFloat, BinFloat) {
-  let downward = BinaryContext::unbounded(
-    precision,
-    rounding=RoundTowardNegative,
-  )
-  let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
+  let downward = binary_working_context(precision, rounding=RoundTowardNegative)
+  let upward = binary_working_context(precision, rounding=RoundTowardPositive)
   let (low, high) = split_artanh_sum_bounds(k, precision, reduce_terms~)
   let scale = BinFloat::from_int_raw(coefficient, precision~)
   let divisor = BinFloat::from_int_raw(k, precision~)
@@ -113,19 +107,22 @@ fn binary_ln2_split_bounds(
   reduce_terms~ : Int32 = 0,
 ) -> (BinFloat, BinFloat) {
   let precision = work_precision + 16
-  let downward = BinaryContext::unbounded(
-    precision,
-    rounding=RoundTowardNegative,
-  )
-  let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
+  let downward = binary_working_context(precision, rounding=RoundTowardNegative)
+  let upward = binary_working_context(precision, rounding=RoundTowardPositive)
   let first = split_scaled_artanh_bounds(18, 26, precision, reduce_terms~)
   let second = split_scaled_artanh_bounds(2, 4801, precision, reduce_terms~)
   let third = split_scaled_artanh_bounds(8, 8749, precision, reduce_terms~)
   let low = first.0.sub_ctx(second.1, downward).0.add_ctx(third.0, downward).0
   let high = first.1.sub_ctx(second.0, upward).0.add_ctx(third.1, upward).0
   (
-    low.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-    high.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+    low.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    high.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
 }
 
@@ -139,19 +136,22 @@ fn binary_ln10_split_bounds(
   guard binary_ln2_bounds(work_precision) is Some((ln2_low, ln2_high)) else {
     return None
   }
-  let downward = BinaryContext::unbounded(
-    precision,
-    rounding=RoundTowardNegative,
-  )
-  let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
+  let downward = binary_working_context(precision, rounding=RoundTowardNegative)
+  let upward = binary_working_context(precision, rounding=RoundTowardPositive)
   let three = BinFloat::from_int_raw(3, precision~)
   let part = split_scaled_artanh_bounds(2, 9, precision, reduce_terms~)
   let low = ln2_low.mul_ctx(three, downward).0.add_ctx(part.0, downward).0
   let high = ln2_high.mul_ctx(three, upward).0.add_ctx(part.1, upward).0
   Some(
     (
-      low.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-      high.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+      low.with_precision_raw(
+        work_precision,
+        BinaryRoundingMode::RoundTowardNegative,
+      ),
+      high.with_precision_raw(
+        work_precision,
+        BinaryRoundingMode::RoundTowardPositive,
+      ),
     ),
   )
 }
@@ -231,11 +231,8 @@ fn binary_pi_split_bounds(
   guard state.t.compare(slack) > 0 else { return None }
   let t_low = state.t.sub_checked(slack).unwrap()
   let t_high = state.t.add(slack)
-  let downward = BinaryContext::unbounded(
-    precision,
-    rounding=RoundTowardNegative,
-  )
-  let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
+  let downward = binary_working_context(precision, rounding=RoundTowardNegative)
+  let upward = binary_working_context(precision, rounding=RoundTowardPositive)
   let radicand = BinFloat::from_int_raw(10005, precision~)
   let root_low = radicand.sqrt_ctx(downward).0
   let root_high = radicand.sqrt_ctx(upward).0
@@ -254,8 +251,14 @@ fn binary_pi_split_bounds(
     ).0
   Some(
     (
-      low.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-      high.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+      low.with_precision_raw(
+        work_precision,
+        BinaryRoundingMode::RoundTowardNegative,
+      ),
+      high.with_precision_raw(
+        work_precision,
+        BinaryRoundingMode::RoundTowardPositive,
+      ),
     ),
   )
 }

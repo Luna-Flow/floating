@@ -26,7 +26,7 @@ test "exact results inside the implementation range are unchanged" {
   inspect(
     exponent_range_power(binary_implementation_e_min - 52).to_string(),
     content=(
-      #|1p-1073741875
+      #|1p-1073741874
     ),
   )
 }
@@ -95,15 +95,25 @@ test "plain operations underflow to zero instead of saturating" {
 test "plain construction honours the rounding mode at the range limits" {
   let one = BinCoeff::one()
   inspect(
-    BinFloat::make(one, 2000000000, 53, mode=RoundingMode::TowardZero).to_string(),
+    BinFloat::make(
+      one,
+      2000000000,
+      53,
+      mode=BinaryRoundingMode::RoundTowardZero,
+    ).to_string(),
     content=(
       #|9007199254740991p1073741771
     ),
   )
   inspect(
-    BinFloat::make(one, -2000000000, 53, mode=RoundingMode::TowardPositive).to_string(),
+    BinFloat::make(
+      one,
+      -2000000000,
+      53,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ).to_string(),
     content=(
-      #|1p-1073741875
+      #|1p-1073741874
     ),
   )
   // Exactly half of the smallest subnormal ties to zero; three quarters rounds up.
@@ -117,7 +127,7 @@ test "plain construction honours the rounding mode at the range limits" {
   inspect(
     BinFloat::make(BinCoeff::from_uint64(3UL), half_exponent - 1, 53).to_string(),
     content=(
-      #|1p-1073741875
+      #|1p-1073741874
     ),
   )
 }
@@ -126,7 +136,7 @@ test "plain construction honours the rounding mode at the range limits" {
 test "unbounded contexts report overflow and underflow at the range limits" {
   let half_range = exponent_range_power(500000000)
   let square = half_range.mul(half_range)
-  let nearest = BinaryContext::unbounded(53)
+  let nearest = BinaryContext::new(precision=53)
   let (value, flags) = square.mul_ctx(half_range, nearest)
   inspect(
     value.to_string(),
@@ -140,8 +150,8 @@ test "unbounded contexts report overflow and underflow at the range limits" {
       #|inexact=true underflow=false overflow=true
     ),
   )
-  let toward_zero = BinaryContext::unbounded(
-    53,
+  let toward_zero = BinaryContext::new(
+    precision=53,
     rounding=BinaryRoundingMode::RoundTowardZero,
   )
   let (value, flags) = square.mul_ctx(half_range, toward_zero)
@@ -189,8 +199,11 @@ test "unbounded contexts report overflow and underflow at the range limits" {
 ///|
 test "context precision is limited" {
   inspect(
-    BinaryContext::try_new(binary_precision_max + 1) is Err(_),
+    BinaryContext::try_new(precision=binary_precision_max + 1) is Err(_),
     content="true",
   )
-  inspect(BinaryContext::try_new(binary_precision_max) is Ok(_), content="true")
+  inspect(
+    BinaryContext::try_new(precision=binary_precision_max) is Ok(_),
+    content="true",
+  )
 }

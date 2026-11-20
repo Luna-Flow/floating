@@ -17,7 +17,7 @@ fn old_to_bin_float(
       value.exponent10,
       precision,
       negative=value.negative,
-      mode~,
+      mode=bin_mode(mode, value.negative),
     )
   }
   let scale = -value.exponent10
@@ -35,7 +35,7 @@ fn old_to_bin_float(
     -binary_shift,
     precision,
     negative=value.sign() == Sign::Negative,
-    mode~,
+    mode=bin_mode(mode, value.sign() == Sign::Negative),
   )
 }
 
@@ -88,10 +88,7 @@ test "issue 468: the parser path gives the result of the expansion in every mode
       for precision in [1, 2, 24, 53, 113, 300] {
         inspect(
           same_bin_float(
-            value.to_bin_float(
-              precision~,
-              mode=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
-            ),
+            value.to_bin_float(precision~, mode=bin_mode(mode, value.negative)),
             old_to_bin_float(value, precision, mode),
           ),
           content="true",

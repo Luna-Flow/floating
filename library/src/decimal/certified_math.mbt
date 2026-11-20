@@ -673,12 +673,12 @@ fn decimal_power_out_of_range(
     }
   }
   let work = 128
-  let down = @bin_float.BinaryContext::unbounded(
-    work,
+  let down = @bin_float.BinaryContext::new(
+    precision=work,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::unbounded(
-    work,
+  let up = @bin_float.BinaryContext::new(
+    precision=work,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let base_low = base.to_bin_float(

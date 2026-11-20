@@ -7,7 +7,7 @@ fn elementary_range_show(result : (BinFloat, BinaryFlags)) -> String {
 ///|
 test "exponential functions overflow instead of failing certification" {
   let huge = BinFloat::from_int(1000000000, precision=53)
-  let unbounded = BinaryContext::unbounded(53)
+  let unbounded = BinaryContext::new(precision=53)
   let binary64 = BinaryContext::binary64()
   inspect(
     elementary_range_show(huge.try_exp_ctx(unbounded).unwrap()),
@@ -65,7 +65,7 @@ test "exponential functions overflow instead of failing certification" {
 ///|
 test "exponential functions underflow instead of failing certification" {
   let huge = BinFloat::from_int(-1000000000, precision=53)
-  let unbounded = BinaryContext::unbounded(53)
+  let unbounded = BinaryContext::new(precision=53)
   inspect(
     elementary_range_show(huge.try_exp_ctx(unbounded).unwrap()),
     content=(

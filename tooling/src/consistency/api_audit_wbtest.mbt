@@ -598,7 +598,10 @@ test "bin_float checked compare rejects nan" {
 ///|
 test "bin_float low precision rounding and ulp stay explicit" {
   let x = binary_test_make(13N, -3, 8)
-  let rounded = x.with_precision(2, @lf_arith.RoundingMode::ToNearestEven)
+  let rounded = x.with_precision(
+    2,
+    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+  )
   assert_eq(rounded.to_string(), "3p-1")
   assert_eq(rounded.ulp().to_string(), "1p-1")
   assert_eq(@bin_float.BinFloat::zero(precision=4).ulp().to_string(), "1p-3")

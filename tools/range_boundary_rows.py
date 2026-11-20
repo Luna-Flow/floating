@@ -15,7 +15,7 @@ smallest normal, the largest binade and the first binade out of range. Each
 threshold is approximated to 110 bits and visited exactly and at relative
 offsets +-2^-20, 2^-24, 2^-30, 2^-40, 2^-52 and 2^-64, so the rounding
 decision of the library is compared with MPFR on both sides of every threshold.
-Rounding direction (six) and tininess rule (two) cycle with the row number. The
+Rounding direction (five) and tininess rule (two) cycle with the row number. The
 rows carry the expected columns as `?`; `generate_mpfr_random_oracle eval`
 fills them from MPFR (see tools/generate_mpfr_random_oracle.c). The 1,269,554
 rows of the full range ran against the library in a few minutes of CPU time.
@@ -46,7 +46,7 @@ from fractions import Fraction
 
 decimal.getcontext().prec = 140
 
-IMPL_EMIN = -1073741823
+IMPL_EMIN = -1073741822  # 1 - IMPL_EMAX (IEEE 754-2019 3.3)
 IMPL_EMAX = 1073741823
 HEADER = "# mpfr-random-v1 range-boundary rows (expected columns are filled by the oracle)"
 CONTEXTS: list[tuple[int | None, int | None]] = [
@@ -57,7 +57,7 @@ CONTEXTS: list[tuple[int | None, int | None]] = [
     (-16382, 16383),
     (-6, 7),
 ]
-MODES = ["n", "na", "z", "u", "d", "a"]
+MODES = ["n", "na", "z", "u", "d"]
 OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1", "rsqrt", "compound", "powr", "asinpi", "acospi", "atanpi", "atan2pi")
 RELATIVE_OFFSETS = (20, 24, 30, 40, 52, 64)
 ROOT_DEGREES = (-3, -7, 100, -1000)
@@ -161,7 +161,7 @@ def rows(p_min: int, p_max: int, operations: tuple[str, ...], tag: str = "tgt") 
 
     def row(op: str, p: int, context: tuple[int | None, int | None], a: str, b: str = "-", n: int = 0) -> str:
         nonlocal counter
-        mode = MODES[counter % 6]
+        mode = MODES[counter % len(MODES)]
         tininess = "ab"[(counter // 6) % 2]
         e_min, e_max = context
         limits = "- - -" if e_min is None else f"{e_min} {e_max} {tininess}"

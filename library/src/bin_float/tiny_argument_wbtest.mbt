@@ -11,7 +11,6 @@ fn tiny_expected(
     RoundTowardPositive => !above
     RoundTowardNegative => above
     RoundTowardZero => above != anchor.is_negative()
-    RoundAwayFromZero => above == anchor.is_negative()
   }
   if toward_anchor {
     anchor
@@ -27,7 +26,7 @@ fn tiny_contexts(precision : Int32) -> Array[BinaryContext] {
   [RoundTiesToEven, RoundTowardNegative, RoundTowardPositive, RoundTowardZero].map(fn(
       mode,
     ) {
-      BinaryContext::unbounded(precision, rounding=mode)
+      BinaryContext::new(precision~, rounding=mode)
     },
   )
 }
@@ -135,7 +134,7 @@ test "BinFloat hypot ignores the exponent gap of a negligible operand" {
 
 ///|
 test "BinFloat exp10 and log10 stay exact past 10^4096" {
-  let context = BinaryContext::unbounded(12000)
+  let context = BinaryContext::new(precision=12000)
   let (power, power_flags) = BinFloat::from_int(5000).exp10_ctx(context)
   let expected = BinFloat::make_coeff(
     Coeff::from_uint64(5UL).pow_nat(5000U),

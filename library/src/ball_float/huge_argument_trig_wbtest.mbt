@@ -21,7 +21,7 @@ fn huge_trig_encloses(
   // The enclosure contains the MPFR value and is narrower than 2^-40.
   let width = value
     .upper_bound()
-    .sub_ctx(value.lower_bound(), @bin_float.BinaryContext::unbounded(64)).0
+    .sub_ctx(value.lower_bound(), @bin_float.BinaryContext::new(precision=64)).0
   value.lower_bound().compare(expected) <= 0 &&
   value.upper_bound().compare(expected) >= 0 &&
   width.compare(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -40, 2)) <

@@ -35,7 +35,7 @@ fn pi_tiny_model(
     return binary_round_dyadic(false, below, -300, ctx)
   }
   let pi = binary_pi_bounds(450).unwrap().0
-  let product = x.abs().mul_ctx(pi, BinaryContext::unbounded(900)).0
+  let product = x.abs().mul_ctx(pi, BinaryContext::new(precision=900)).0
   let factor = if kind == 0 { below } else { above }
   binary_round_dyadic(
     x.is_negative(),
@@ -73,7 +73,11 @@ test "sinpi, tanpi and cospi of tiny arguments round with their flags" {
                   TininessDetection::AfterRounding,
                   TininessDetection::BeforeRounding,
                 ] {
-                let ctx = BinaryContext::new(p, rounding=mode, tininess~)
+                let ctx = BinaryContext::new(
+                  precision=p,
+                  rounding=mode,
+                  tininess~,
+                )
                 let (value, flags) = run(x, ctx)
                 let (expected, expected_flags) = pi_tiny_model(x, kind, ctx)
                 let label = "\{name}(\{x}) p=\{p} \{e2s_mode_name(mode)} \{e2s_tininess_name(tininess)}"
@@ -89,5 +93,5 @@ test "sinpi, tanpi and cospi of tiny arguments round with their flags" {
       }
     }
   }
-  assert_eq(cases, 3 * 4 * 2 * 2 * 4 * 6 * 2)
+  assert_eq(cases, 3 * 4 * 2 * 2 * 4 * 5 * 2)
 }

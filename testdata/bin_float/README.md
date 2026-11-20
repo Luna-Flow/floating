@@ -98,7 +98,7 @@ files and digests are pinned in `corpora.json`).
 `mpfr-4.2.2-strtofr.txt` (header `mpfr-strtofr-v1`) has one row per literal:
 `precision rounding input expected inexact overflow underflow`, with `expected`
 the `mpfr_strtofr` result as `[-]0x<hex>p<exp>` (or `inf`, `-0x0p0`). Per
-precision (11, 24, 53, 113, 200) and rounding (`n`, `na`, `z`, `u`, `d`, `a`;
+precision (11, 24, 53, 113, 200) and rounding (`n`, `na`, `z`, `u`, `d`;
 `na` is MPFR's nearest-away wrapper) it holds random literals with 1 to 22
 mantissa digits and exponents up to ±3*10^8, 60 to 400 digit mantissas, exact
 halfway points between adjacent values of the precision and the decimal strings

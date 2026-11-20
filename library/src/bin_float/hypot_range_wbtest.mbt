@@ -36,7 +36,7 @@ fn hypot_reference(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let shift = Int32::min(a.1, b.1)
-  let wide = BinaryContext::unbounded(context.precision + 200)
+  let wide = BinaryContext::new(precision=context.precision + 200)
   let near_a = hypot_operand(a.0, a.1 - shift, false)
   let near_b = hypot_operand(b.0, b.1 - shift, false)
   let (middle, _) = near_a.hypot_ctx(near_b, wide)
@@ -76,7 +76,7 @@ test "hypot of operands beyond 2^29 in exponent is correctly rounded" {
             TininessDetection::AfterRounding,
             TininessDetection::BeforeRounding,
           ] {
-          let ctx = BinaryContext::new(p, rounding=mode, tininess~)
+          let ctx = BinaryContext::new(precision=p, rounding=mode, tininess~)
           let (value, flags) = x.hypot_ctx(y, ctx)
           let (expected, expected_flags) = hypot_reference(a, b, ctx)
           let label = "hypot(\{a.0}p\{a.1}, \{b.0}p\{b.1}) p=\{p} \{e2s_mode_name(mode)} \{e2s_tininess_name(tininess)}"
@@ -89,7 +89,7 @@ test "hypot of operands beyond 2^29 in exponent is correctly rounded" {
       }
     }
   }
-  assert_eq(cases, 9 * 3 * 6 * 2)
+  assert_eq(cases, 9 * 3 * 5 * 2)
 }
 
 ///|
@@ -100,9 +100,9 @@ test "hypot with a zero operand is the other magnitude, exact, at any exponent" 
     for zero in [BinFloat::zero(), BinFloat::negative_zero()] {
       for swapped in [false, true] {
         let (value, flags) = if swapped {
-          zero.hypot_ctx(x, BinaryContext::unbounded(53))
+          zero.hypot_ctx(x, BinaryContext::new(precision=53))
         } else {
-          x.hypot_ctx(zero, BinaryContext::unbounded(53))
+          x.hypot_ctx(zero, BinaryContext::new(precision=53))
         }
         assert_eq(value.to_string(), "5p\{exponent}")
         assert_eq(e2s_flags(flags), "---")
@@ -111,7 +111,7 @@ test "hypot with a zero operand is the other magnitude, exact, at any exponent" 
   }
   let (value, flags) = BinFloat::negative_zero().hypot_ctx(
     BinFloat::zero(),
-    BinaryContext::unbounded(53),
+    BinaryContext::new(precision=53),
   )
   assert_eq(value.to_string(), "0")
   assert_eq(e2s_flags(flags), "---")

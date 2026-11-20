@@ -33,7 +33,7 @@ test "checked hypot preserves exact results" {
 
 ///|
 test "checked context methods preserve target precision" {
-  let context = @bin_float.BinaryContext::unbounded(24)
+  let context = @bin_float.BinaryContext::new(precision=24)
   let result = BinFloatResult::from_int(2, precision=53).ln_ctx(context)
   assert_true(result.is_ok())
   assert_false(result.is_err())

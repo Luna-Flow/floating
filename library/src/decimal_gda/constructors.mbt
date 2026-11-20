@@ -390,7 +390,7 @@ fn decimal_to_bin_float_out_of_range(
         e_max.to_int() + 4,
         precision,
         negative~,
-        mode~,
+        mode=bin_mode(mode, negative),
       ),
     )
   } else if adjusted + 1L < below {
@@ -400,7 +400,7 @@ fn decimal_to_bin_float_out_of_range(
         e_min.to_int() - precision - 8,
         precision,
         negative~,
-        mode~,
+        mode=bin_mode(mode, negative),
       ),
     )
   } else {
@@ -434,7 +434,7 @@ fn decimal_to_bin_float_through_parser(
   match
     @bin_float.BinFloat::from_string_ctx(
       text,
-      @bin_float.BinaryContext::unbounded(precision, rounding=mode),
+      @bin_float.BinaryContext::new(precision~, rounding=mode),
     ) {
     Ok((result, _)) => Some(result)
     Err(_) => None
@@ -442,9 +442,7 @@ fn decimal_to_bin_float_through_parser(
 }
 
 ///|
-/// `BinFloat::make` in a rounding mode of IEEE 754-2019 4.3.1. `make` takes the
-/// five directions of `@arithmetic`, which lack ties-to-away: that mode rounds
-/// the exact value (the coefficient is kept whole) once to `precision` bits.
+/// `BinFloat::make` in a rounding mode of IEEE 754-2019 4.3.
 fn decimal_bin_float_make(
   coefficient : @bin_float.BinCoeff,
   exponent2 : Int32,
@@ -452,27 +450,7 @@ fn decimal_bin_float_make(
   negative : Bool,
   mode : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  match mode.to_arithmetic() {
-    Some(arithmetic) =>
-      @bin_float.BinFloat::make(
-        coefficient,
-        exponent2,
-        precision,
-        negative~,
-        mode=arithmetic,
-      )
-    None => {
-      let exact = @bin_float.BinFloat::make(
-        coefficient,
-        exponent2,
-        Int32::max(precision, coefficient.bit_length().to_int()),
-        negative~,
-      )
-      exact.round_ctx(
-        @bin_float.BinaryContext::unbounded(precision, rounding=mode),
-      ).0
-    }
-  }
+  @bin_float.BinFloat::make(coefficient, exponent2, precision, negative~, mode~)
 }
 
 ///|
@@ -552,8 +530,8 @@ fn decimal_surrogate_parts(
   let digits = precision + 1
   let (text, flags) = x.to_decimal_string_ctx(
     digits,
-    @bin_float.BinaryContext::unbounded(
-      53,
+    @bin_float.BinaryContext::new(
+      precision=53,
       rounding=@bin_float.BinaryRoundingMode::RoundTowardZero,
     ),
   )
@@ -696,3 +674,28 @@ fn Decimal::from_bin_float_raw(
 }
 
 ///|
+
+///|
+/// The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
+/// given sign (`AwayFromZero` is the direction of the sign).
+fn bin_mode(
+  mode : @def.RoundingMode,
+  negative : Bool,
+) -> @bin_float.BinaryRoundingMode {
+  match mode {
+    @def.RoundingMode::ToNearestEven =>
+      @bin_float.BinaryRoundingMode::RoundTiesToEven
+    @def.RoundingMode::TowardZero =>
+      @bin_float.BinaryRoundingMode::RoundTowardZero
+    @def.RoundingMode::TowardPositive =>
+      @bin_float.BinaryRoundingMode::RoundTowardPositive
+    @def.RoundingMode::TowardNegative =>
+      @bin_float.BinaryRoundingMode::RoundTowardNegative
+    @def.RoundingMode::AwayFromZero =>
+      if negative {
+        @bin_float.BinaryRoundingMode::RoundTowardNegative
+      } else {
+        @bin_float.BinaryRoundingMode::RoundTowardPositive
+      }
+  }
+}

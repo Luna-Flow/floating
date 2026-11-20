@@ -51,14 +51,13 @@ fn pm1_try(
 ///|
 fn pm1_contexts() -> Array[BinaryContext] {
   [
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=2),
     BinaryContext::binary64(),
-    BinaryContext::new(24, e_min=-6, e_max=7),
+    BinaryContext::new(precision=24, e_max=7),
     BinaryContext::new(
-      113,
+      precision=113,
       rounding=BinaryRoundingMode::RoundTowardZero,
-      e_min=-16382,
       e_max=16383,
     ),
   ]
@@ -180,7 +179,7 @@ test "exp2m1 of an integer is the correctly rounded 2^n - 1 in every direction" 
           TininessDetection::AfterRounding,
           TininessDetection::BeforeRounding,
         ] {
-        let ctx = BinaryContext::new(p, rounding=mode, tininess~)
+        let ctx = BinaryContext::new(precision=p, rounding=mode, tininess~)
         for n in -140..<141 {
           if n != 0 {
             let x = BinFloat::from_int(n, precision=64)
@@ -197,7 +196,7 @@ test "exp2m1 of an integer is the correctly rounded 2^n - 1 in every direction" 
       }
     }
   }
-  assert_eq(cases, 5 * 6 * 2 * 280)
+  assert_eq(cases, 5 * 5 * 2 * 280)
 }
 
 ///|
@@ -207,9 +206,9 @@ test "exp2m1 of a huge integer rounds like the power of two beside it" {
   // the range ends.
   for n in [1000, 1073741000, 1073741822, 1073741823, 1073741824, 1073741825] {
     let x = BinFloat::from_int(n, precision=64)
-    let up = x.exp2m1_ctx(BinaryContext::unbounded(53))
+    let up = x.exp2m1_ctx(BinaryContext::new(precision=53))
     let down = x.exp2m1_ctx(
-      BinaryContext::unbounded(53, rounding=RoundTowardZero),
+      BinaryContext::new(precision=53, rounding=RoundTowardZero),
     )
     assert_true(up.1.inexact())
     assert_true(down.1.inexact())
@@ -225,9 +224,9 @@ test "exp2m1 of a huge integer rounds like the power of two beside it" {
   }
   for n in [-1000, -1073741823, -1073741825] {
     let x = BinFloat::from_int(n, precision=64)
-    let nearest = x.exp2m1_ctx(BinaryContext::unbounded(53))
+    let nearest = x.exp2m1_ctx(BinaryContext::new(precision=53))
     let toward_zero = x.exp2m1_ctx(
-      BinaryContext::unbounded(53, rounding=RoundTowardZero),
+      BinaryContext::new(precision=53, rounding=RoundTowardZero),
     )
     assert_eq(nearest.0.to_string(), "-1p0")
     assert_eq(toward_zero.0.to_string(), "-9007199254740991p-53")
@@ -306,7 +305,7 @@ test "exp10m1 of a small integer is the correctly rounded 10^n - 1" {
   let mut cases = 0
   for p in [2, 8, 24, 53, 100] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       for n in 1..<40 {
         let x = BinFloat::from_int(n, precision=64)
         let (value, flags) = x.exp10m1_ctx(ctx)
@@ -327,7 +326,7 @@ test "exp10m1 of a small integer is the correctly rounded 10^n - 1" {
       }
     }
   }
-  assert_eq(cases, 5 * 6 * 39)
+  assert_eq(cases, 5 * 5 * 39)
 }
 
 ///|

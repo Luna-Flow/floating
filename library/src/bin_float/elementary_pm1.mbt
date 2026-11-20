@@ -17,18 +17,24 @@ fn binary_exp_base_minus_one_bounds(
   ln_base_bounds : (Int32) -> (BinFloat, BinFloat)?,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   guard ln_base_bounds(work_precision) is Some(ln_base) else { return None }
   let value_bounds = (
-    value.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-    value.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+    value.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    value.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
   let scaled = binary_product_bounds(value_bounds, ln_base, downward, upward)
   binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
@@ -42,11 +48,11 @@ fn binary_log_base_p1_bounds(
   ln_base_bounds : (Int32) -> (BinFloat, BinFloat)?,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -190,7 +196,7 @@ pub fn BinFloat::exp2m1_ctx(
 
 ///|
 pub fn BinFloat::exp2m1(self : BinFloat) -> BinFloat {
-  self.exp2m1_ctx(BinaryContext::unbounded(self.precision())).0
+  self.exp2m1_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -259,7 +265,7 @@ pub fn BinFloat::exp10m1_ctx(
 
 ///|
 pub fn BinFloat::exp10m1(self : BinFloat) -> BinFloat {
-  self.exp10m1_ctx(BinaryContext::unbounded(self.precision())).0
+  self.exp10m1_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -342,7 +348,7 @@ pub fn BinFloat::log2p1_ctx(
 
 ///|
 pub fn BinFloat::log2p1(self : BinFloat) -> BinFloat {
-  self.log2p1_ctx(BinaryContext::unbounded(self.precision())).0
+  self.log2p1_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -369,5 +375,5 @@ pub fn BinFloat::log10p1_ctx(
 
 ///|
 pub fn BinFloat::log10p1(self : BinFloat) -> BinFloat {
-  self.log10p1_ctx(BinaryContext::unbounded(self.precision())).0
+  self.log10p1_ctx(binary_working_context(self.precision())).0
 }

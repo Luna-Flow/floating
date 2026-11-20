@@ -28,24 +28,24 @@
   "mpfrCorpora": {
     "mpfr-4.2.2-elementary": {
       "path": "testdata/bin_float/mpfr-4.2.2-elementary.txt",
-      "sha256": "477a081f566d81c5d42cf083b706ac3610befc91063c1a5547423407494d4be5",
-      "expectedCases": 2088,
+      "sha256": "f467c357afa70a8eee3a0277f50b9638c8079854d78976da1a0899b0c0308831",
+      "expectedCases": 1740,
       "generator": "tools/generate_mpfr_elementary_oracle.c",
       "seed": 20260715,
       "casesPerCell": 4
     },
     "mpfr-4.2.2-strtofr": {
       "path": "testdata/bin_float/mpfr-4.2.2-strtofr.txt",
-      "sha256": "254f4c570eab0aad45d9bc499a8848762dece8b2723ce82219458ecd1d8e0a3a",
-      "expectedCases": 1716,
+      "sha256": "2c29d63525a19b2412fab9ed604ce4dcc74273eef2f8b5a532f3ce714b07d55f",
+      "expectedCases": 1434,
       "generator": "tools/generate_mpfr_decimal_string_oracle.c strtofr 24 20261014",
       "seed": 20261014,
       "casesPerCell": 24
     },
     "mpfr-4.2.2-decimal-output": {
       "path": "testdata/bin_float/mpfr-4.2.2-decimal-output.txt",
-      "sha256": "9a2dcf4c7595ed908a2fae8e7f8f17f533241837a7b41ab71da9ae13fddc0481",
-      "expectedCases": 3300,
+      "sha256": "84abff352a89c861f2142f4b9c310c71f421a024205224876d0802e845f0e13d",
+      "expectedCases": 2688,
       "generator": "tools/generate_mpfr_decimal_string_oracle.c output 12 20261014",
       "seed": 20261014,
       "casesPerCell": 12

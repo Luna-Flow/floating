@@ -71,8 +71,8 @@ IEEE Std 754-2019 for `bin_float`. Status is `conforming` when the operation exi
 | Clause | Level | API | Evidence | Status |
 | --- | --- | --- | --- | --- |
 | §3.3–§3.6 binary16/32/64/128 interchange formats | required | `BinFloat::to_interchange`, `BinFloat::from_bits` | TestFloat gate; `library/src/bin_float/ieee754_wbtest.mbt` | conforming |
-| §3.7 extendable precisions | recommended | `BinaryContext::new`, `BinaryContext::unbounded` | MPFR elementary fixture; `library/src/bin_float/exponent_range_wbtest.mbt` | conforming |
-| §4.3 rounding-direction attributes | required | `BinaryRoundingMode` | TestFloat gate (five directions) | conforming; `RoundAwayFromZero` is an extension |
+| §3.7 extendable precisions | recommended | `BinaryContext::new` (precision alone) | MPFR elementary fixture; `library/src/bin_float/exponent_range_wbtest.mbt` | conforming |
+| §4.3 rounding-direction attributes | required | `BinaryRoundingMode` | TestFloat gate (five directions) | conforming; no other mode exists |
 | §5.3.1 addition, subtraction, multiplication, division, squareRoot | required | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx` | TestFloat gate (7,461,360 vectors); `library/src/bin_float/ieee754_wbtest.mbt` | conforming |
 | §5.3.1 fusedMultiplyAdd | required | `fma_ctx` | TestFloat gate (245,329,920 mulAdd vectors); `library/src/bin_float/fma_wbtest.mbt` | conforming |
 | §5.3.1 remainder | required | `remainder_ctx` | TestFloat gate (rem); `library/src/bin_float/remainder_wbtest.mbt` | conforming |

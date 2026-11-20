@@ -118,8 +118,9 @@ $$
 \end{aligned}
 $$
 
-where RA (`RoundAwayFromZero`) is not an IEEE attribute but the GDA
-"round-up" mode that `@lf_arith.RoundingMode` shares with the decimal cores.
+where RA (round the magnitude up) is not an IEEE attribute: it is the GDA
+"round-up" mode that `@lf_arith.RoundingMode` shares with the decimal cores, and
+`BinaryRoundingMode` has no such variant.
 Two properties of every $\circ$ above carry most of the proofs on this page:
 
 $$

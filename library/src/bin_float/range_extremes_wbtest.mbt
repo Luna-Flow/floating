@@ -13,7 +13,6 @@ test "round core agrees with the old one at the exponent limits and carries" {
       BinaryRoundingMode::RoundTowardZero,
       BinaryRoundingMode::RoundTowardPositive,
       BinaryRoundingMode::RoundTowardNegative,
-      BinaryRoundingMode::RoundAwayFromZero,
     ] {
     for
       tininess in [
@@ -23,18 +22,18 @@ test "round core agrees with the old one at the exponent limits and carries" {
       contexts.push(BinaryContext::binary32(rounding=mode, tininess~))
       contexts.push(BinaryContext::binary64(rounding=mode, tininess~))
       contexts.push(
-        BinaryContext::new(5, rounding=mode, e_min=-9, e_max=10, tininess~),
+        BinaryContext::new(precision=5, rounding=mode, e_max=10, tininess~),
       )
     }
     for p in [1, 2, 24, 53, 130] {
-      contexts.push(BinaryContext::unbounded(p, rounding=mode))
+      contexts.push(BinaryContext::new(precision=p, rounding=mode))
     }
   }
   let mut checked = 0
   for context in contexts {
     let p = context.precision()
-    let e_min = context.e_min().unwrap_or(lowest)
-    let e_max = context.e_max().unwrap_or(highest)
+    let e_min = context.e_min()
+    let e_max = context.e_max()
     // Magnitudes: all ones (carry to a power of two), all ones plus one low
     // bit (halfway and just above), a power of two, and a short odd value.
     let all_ones = Coeff::one().shift_left(p).sub_checked(Coeff::one()).unwrap()
@@ -150,9 +149,9 @@ test "trigonometric bounds agree with the old path around pi/4 and at extreme ex
       let v = base.add_ctx(
           ulp.mul_ctx(
             BinFloat::from_int(k, precision=w),
-            BinaryContext::unbounded(w + 8),
+            BinaryContext::new(precision=w + 8),
           ).0,
-          BinaryContext::unbounded(w),
+          BinaryContext::new(precision=w),
         ).0
       near_values.push(v)
       near_values.push(v.neg())
@@ -191,8 +190,8 @@ test "sign-aware corners agree with the old ones when products overflow and quot
     BinFloat::from_int(1, precision=64),
   ]
   for w in [53, 130] {
-    let down = BinaryContext::unbounded(w, rounding=RoundTowardNegative)
-    let up = BinaryContext::unbounded(w, rounding=RoundTowardPositive)
+    let down = BinaryContext::new(precision=w, rounding=RoundTowardNegative)
+    let up = BinaryContext::new(precision=w, rounding=RoundTowardPositive)
     for a0 in values {
       for a1 in values {
         for b0 in values {

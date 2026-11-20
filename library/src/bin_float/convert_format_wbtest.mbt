@@ -228,5 +228,5 @@ test "convert_format returns the value that decoding to_interchange returns" {
       }
     }
   }
-  assert_eq(count, patterns.length() * 4 * 6 * 2)
+  assert_eq(count, patterns.length() * 4 * 5 * 2)
 }

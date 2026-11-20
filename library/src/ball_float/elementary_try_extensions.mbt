@@ -10,12 +10,12 @@ fn BallFloat::try_certified_monotone(
   if self.is_empty() {
     return Ok(self)
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_source = if increasing { self.lo_ } else { self.hi_ }
@@ -75,12 +75,12 @@ fn try_certified_atan2_point(
   if ordinate.is_zero() && abscissa.is_zero() {
     return Ok(empty_interval(precision))
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let downward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let upward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   ordinate
@@ -180,12 +180,12 @@ pub fn BallFloat::try_atan2(
         atan2_extreme_corner(ordinate, abscissa_box, true),
       ) {
       (Some((ly, lx)), Some((uy, ux))) => {
-        let downward = @bin_float.BinaryContext::unbounded(
-          precision,
+        let downward = @bin_float.BinaryContext::new(
+          precision~,
           rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
         )
-        let upward = @bin_float.BinaryContext::unbounded(
-          precision,
+        let upward = @bin_float.BinaryContext::new(
+          precision~,
           rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
         )
         return ly
@@ -425,12 +425,12 @@ fn BallFloat::try_sine_like_hull(
   let precision = self.precision_
   let has_min = index_range_contains_residue(indices.0, indices.1, 3 - shift)
   let has_max = index_range_contains_residue(indices.0, indices.1, 1 - shift)
-  let downward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let downward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let upward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let increasing = has_min ||

@@ -29,7 +29,6 @@ fn bin_finish_round_up(
     RoundTowardZero => false
     RoundTowardPositive => !negative && (round_bit || below)
     RoundTowardNegative => negative && (round_bit || below)
-    RoundAwayFromZero => round_bit || below
   }
 }
 

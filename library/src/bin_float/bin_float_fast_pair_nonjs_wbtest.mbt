@@ -27,7 +27,7 @@ test "pair add equals the general path" {
     )
     let general = left.add_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_pair_add(left, right) {
       Some(result) => {
@@ -61,7 +61,7 @@ test "pair add of near-equal and cancelling values" {
     }
     let general = left.add_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_pair_add(left, right) {
       Some(result) => {
@@ -102,7 +102,7 @@ test "pair add and mul at every alignment of all-ones operands" {
             let (a, b) = pair
             let sum = a.add_ctx(
                 b,
-                BinaryContext::unbounded(max_precision(a, b)),
+                BinaryContext::new(precision=max_precision(a, b)),
               ).0
             match binary_pair_add(a, b) {
               Some(result) => {
@@ -113,7 +113,7 @@ test "pair add and mul at every alignment of all-ones operands" {
             }
             let product = a.mul_ctx(
                 b,
-                BinaryContext::unbounded(max_precision(a, b)),
+                BinaryContext::new(precision=max_precision(a, b)),
               ).0
             match binary_pair_mul(a, b) {
               Some(result) => {
@@ -151,7 +151,7 @@ test "pair mul equals the general path" {
     )
     let general = left.mul_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_pair_mul(left, right) {
       Some(result) => {
@@ -212,7 +212,7 @@ test "pair div equals the general path" {
     )
     let general = left.div_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_pair_div(left, right) {
       Some(result) => {
@@ -274,7 +274,7 @@ test "pair div at boundary operands: exact quotients, all ones, tiny divisors, e
             }
             let general = left.div_ctx(
                 right,
-                BinaryContext::unbounded(max_precision(left, right)),
+                BinaryContext::new(precision=max_precision(left, right)),
               ).0
             match binary_pair_div(left, right) {
               Some(result) => {

@@ -7,17 +7,23 @@ fn old_trigonometric_reduction(
   half_pi : (BinFloat, BinFloat),
   work_precision : Int32,
 ) -> ((BinFloat, BinFloat), Int32)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let input_bounds = (
-    value.with_precision(work_precision, RoundingMode::TowardNegative),
-    value.with_precision(work_precision, RoundingMode::TowardPositive),
+    value.with_precision(
+      work_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    value.with_precision(
+      work_precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
   let quotient = binary_quotient_bounds(input_bounds, half_pi, downward, upward)
   guard quotient is Some((quotient_lower, quotient_upper)) else { return None }
@@ -62,12 +68,12 @@ fn old_trigonometric_bounds_series(
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let pi = binary_pi_bounds(work_precision).unwrap()
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let half_pi = (
@@ -109,12 +115,12 @@ fn old_reduced_trigonometric_bounds(
     upper.compare(one) <= 0 else {
     return None
   }
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   // The quadrant maps sine and cosine of the reduced argument onto the result

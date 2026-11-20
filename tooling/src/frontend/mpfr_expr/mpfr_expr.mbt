@@ -87,7 +87,6 @@ fn parse_rounding(source : String) -> @bin_float.BinaryRoundingMode? {
     "z" => Some(@bin_float.BinaryRoundingMode::RoundTowardZero)
     "u" => Some(@bin_float.BinaryRoundingMode::RoundTowardPositive)
     "d" => Some(@bin_float.BinaryRoundingMode::RoundTowardNegative)
-    "a" => Some(@bin_float.BinaryRoundingMode::RoundAwayFromZero)
     _ => None
   }
 }
@@ -310,8 +309,8 @@ pub fn execute_sqrt_data(document : MpfrDocument) -> RunSummary {
   let results : Array[CaseResult] = []
   for case in document.cases {
     let actual = case.input.sqrt_ctx(
-        @bin_float.BinaryContext::unbounded(
-          case.output_precision,
+        @bin_float.BinaryContext::new(
+          precision=case.output_precision,
           rounding=case.rounding,
         ),
       ).0
@@ -346,8 +345,8 @@ pub fn execute_pow_data(document : MpfrPowDocument) -> RunSummary {
   for case in document.cases {
     let actual = case.input.pown_ctx(
       case.exponent,
-      @bin_float.BinaryContext::unbounded(
-        case.output_precision,
+      @bin_float.BinaryContext::new(
+        precision=case.output_precision,
         rounding=case.rounding,
       ),
     )

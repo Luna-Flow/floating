@@ -8,12 +8,12 @@ fn old_exp2_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   match
@@ -24,8 +24,14 @@ fn old_exp2_bounds(
       ),
       Some(
         (
-          value.with_precision(work_precision, RoundingMode::TowardNegative),
-          value.with_precision(work_precision, RoundingMode::TowardPositive),
+          value.with_precision(
+            work_precision,
+            BinaryRoundingMode::RoundTowardNegative,
+          ),
+          value.with_precision(
+            work_precision,
+            BinaryRoundingMode::RoundTowardPositive,
+          ),
         ),
       ),
     ) {
@@ -51,12 +57,12 @@ fn old_log2_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   match

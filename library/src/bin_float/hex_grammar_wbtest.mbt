@@ -83,7 +83,7 @@ test "§5.12.3 accepted hexSequence forms" {
     // bits), so no flag is raised.
     let (through, flags) = BinFloat::from_hex_ctx(
       source,
-      BinaryContext::unbounded(53),
+      BinaryContext::new(precision=53),
     ).unwrap()
     assert_same_value(
       source,
@@ -168,7 +168,8 @@ test "§5.12.3 rejected forms" {
     // underflows (tested in hex_ctx_wbtest.mbt).
     if source != "0x1p2147483648" && source != "0x1p-2147483649" {
       assert_true(
-        BinFloat::from_hex_ctx(source, BinaryContext::unbounded(53)) is Err(_),
+        BinFloat::from_hex_ctx(source, BinaryContext::new(precision=53))
+        is Err(_),
         msg=source,
       )
     }

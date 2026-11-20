@@ -49,7 +49,7 @@ test "pow of a power of two with a half-integer exponent rounds the exact result
             -1,
             64,
           )
-          let ctx = BinaryContext::new(p, rounding=mode)
+          let ctx = BinaryContext::new(precision=p, rounding=mode)
           let (value, flags) = base.pow_ctx(exponent, ctx)
           let (expected, expected_flags) = e2s_model(
             n, p, mode, binary_implementation_e_min, binary_implementation_e_max,
@@ -70,9 +70,12 @@ test "pow of a power of two with a half-integer exponent rounds the exact result
 
 ///|
 test "pow exact subnormal regression row" {
-  // pow(1/4, 2^29 + 1/2) = 2^-(2^30 + 1), exactly representable at p = 3.
+  // pow(1/4, 2^29 - 1/2) = 2^-(2^30 - 1), exactly representable at p = 3.
   let quarter = BinFloat::make(BinCoeff::one(), -2, 53)
-  let exponent = BinFloat::make(BinCoeff::from_uint64(1073741825UL), -1, 64)
-  let (value, flags) = quarter.pow_ctx(exponent, BinaryContext::unbounded(3))
-  assert_eq("\{value} \{e2s_flags(flags)}", "1p-1073741825 ---")
+  let exponent = BinFloat::make(BinCoeff::from_uint64(1073741823UL), -1, 64)
+  let (value, flags) = quarter.pow_ctx(
+    exponent,
+    BinaryContext::new(precision=3),
+  )
+  assert_eq("\{value} \{e2s_flags(flags)}", "1p-1073741823 ---")
 }

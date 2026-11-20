@@ -13,22 +13,22 @@ fn old_atan_small_leaf(
   hi : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let lower_value = if lo.is_zero() {
     BinFloat::zero(precision=work_precision)
   } else {
-    lo.with_precision(work_precision, RoundingMode::TowardNegative)
+    lo.with_precision(work_precision, BinaryRoundingMode::RoundTowardNegative)
   }
   let upper_value = hi.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
   guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
@@ -102,17 +102,17 @@ fn atan_leaf_check(
   let previous = old_atan_small_leaf(lo, hi, w).unwrap()
   let wide = fresh.1.sub_ctx(
       fresh.0,
-      BinaryContext::unbounded(4000, rounding=RoundTowardPositive),
+      BinaryContext::new(precision=4000, rounding=RoundTowardPositive),
     ).0
   let old_wide = previous.1.sub_ctx(
       previous.0,
-      BinaryContext::unbounded(4000, rounding=RoundTowardPositive),
+      BinaryContext::new(precision=4000, rounding=RoundTowardPositive),
     ).0
   let slack = BinFloat::make(BinCoeff::one(), previous.1.exponent2() + 6, 2)
   let limit = old_wide.mul_ctx(
       BinFloat::from_int(2, precision=2),
-      BinaryContext::unbounded(4000),
-    ).0.add_ctx(slack, BinaryContext::unbounded(4000)).0
+      BinaryContext::new(precision=4000),
+    ).0.add_ctx(slack, BinaryContext::new(precision=4000)).0
   assert_true(wide.compare(limit) <= 0, msg="leaf width \{label} w=\{w}")
 }
 
@@ -129,7 +129,7 @@ test "fixed-point atan leaf contains the floating-point leaf at higher precision
       // A pair of neighbours and a wide pair.
       let up = x.add_ctx(
           BinFloat::make(BinCoeff::one(), x.exponent2() + 3, 2),
-          BinaryContext::unbounded(w, rounding=RoundTowardPositive),
+          BinaryContext::new(precision=w, rounding=RoundTowardPositive),
         ).0
       if up.compare(BinFloat::make(BinCoeff::one(), -1, 2)) <= 0 {
         atan_leaf_check(x, up, w, "pair \{d}")
@@ -153,7 +153,7 @@ test "fixed-point atan leaf at the tiny-argument threshold, both sides" {
           -q - (c.bit_length() - 1),
           Int32::max(w, c.bit_length()),
         )
-        let xw = x.with_precision(w, RoundingMode::ToNearestEven)
+        let xw = x.with_precision(w, BinaryRoundingMode::RoundTiesToEven)
         if xw.compare(BinFloat::make(BinCoeff::one(), -1, 2)) <= 0 {
           atan_leaf_check(xw, xw, w, "threshold q=\{q} m=\{mant}")
         }
@@ -174,7 +174,7 @@ test "pi series enclosure of the fixed-point leaf contains pi" {
     assert_true(fresh.1.compare(reference.1) >= 0, msg="pi upper w=\{w}")
     let width = fresh.1.sub_ctx(
         fresh.0,
-        BinaryContext::unbounded(400, rounding=RoundTowardPositive),
+        BinaryContext::new(precision=400, rounding=RoundTowardPositive),
       ).0
     let limit = BinFloat::make(BinCoeff::one(), fresh.1.exponent2() + 6, 2)
     assert_true(width.compare(limit) <= 0, msg="pi width w=\{w}")

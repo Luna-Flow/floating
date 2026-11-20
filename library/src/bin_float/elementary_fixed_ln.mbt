@@ -28,7 +28,7 @@ fn binary_ln_unit_fixed_bounds(
   }
   let rounded = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   guard rounded.compare(value) == 0 else { return None }
   let one = BinFloat::one_raw(precision=work_precision)
@@ -65,13 +65,13 @@ fn binary_ln_unit_fixed_bounds(
         sum.shift_left(1),
         -fractional,
         work_precision,
-        mode=RoundingMode::TowardNegative,
+        mode=BinaryRoundingMode::RoundTowardNegative,
       )
       let upper = BinFloat::make_coeff(
         sum.add(slack).shift_left(1),
         -fractional,
         work_precision,
-        mode=RoundingMode::TowardPositive,
+        mode=BinaryRoundingMode::RoundTowardPositive,
       )
       return Some((lower, upper))
     }

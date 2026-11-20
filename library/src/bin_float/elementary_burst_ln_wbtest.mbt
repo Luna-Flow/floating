@@ -16,7 +16,7 @@ fn burst_ln_test_corpus() -> Array[BinFloat] {
         Int32::min(bits, 60),
       )
       seed += 1UL
-      let context = BinaryContext::unbounded(bits + k + 80)
+      let context = BinaryContext::new(precision=bits + k + 80)
       values.push(BinFloat::one(precision=2).add_ctx(offset, context).0)
       values.push(BinFloat::from_int(2, precision=2).sub_ctx(offset, context).0)
     }
@@ -182,7 +182,7 @@ test "ln results are identical with and without the Newton step" {
       seed += 1UL
       let value = burst_test_value(bits, top, false, seed)
       for mode in modes {
-        let context = BinaryContext::unbounded(bits, rounding=mode)
+        let context = BinaryContext::new(precision=bits, rounding=mode)
         match
           (burst_ln_test_series(value, context), value.try_ln_ctx(context)) {
           (Some((expected, expected_flags)), Ok((result, flags))) => {
@@ -231,11 +231,11 @@ test "ln keeps its results when the Newton step starts at the entry threshold" {
       let (low, high) = binary_ln_unit_bounds_series(value, work).unwrap()
       assert_eq(
         result,
-        low.with_precision(precision, RoundingMode::ToNearestEven),
+        low.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )
       assert_eq(
         result,
-        high.with_precision(precision, RoundingMode::ToNearestEven),
+        high.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )
     }
   }

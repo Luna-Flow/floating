@@ -65,7 +65,7 @@ test "one-word add equals the general path" {
     let right = fast_test_operand(random, around + random.below(7) - 3)
     let general = left.add_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_fast_add(left, right) {
       Some(result) => {
@@ -91,7 +91,7 @@ test "one-word mul equals the general path" {
     let right = fast_test_operand(random, random.below(400) - 200)
     let general = left.mul_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_fast_mul(left, right) {
       Some(result) => {
@@ -117,7 +117,7 @@ test "one-word div equals the general path" {
     }
     let general = left.div_ctx(
         right,
-        BinaryContext::unbounded(max_precision(left, right)),
+        BinaryContext::new(precision=max_precision(left, right)),
       ).0
     match binary_fast_div(left, right) {
       Some(result) => {
@@ -157,7 +157,7 @@ test "one-word paths decline what they do not cover" {
   assert_true(
     fast_test_same(
       one.add(tiny),
-      one.add_ctx(tiny, BinaryContext::unbounded(53)).0,
+      one.add_ctx(tiny, BinaryContext::new(precision=53)).0,
     ),
   )
 }
@@ -172,9 +172,9 @@ test "one-word paths handle ties, carries and cancellation" {
       -55,
       53,
     )
-    let general = one.add_ctx(small, BinaryContext::unbounded(53)).0
+    let general = one.add_ctx(small, BinaryContext::new(precision=53)).0
     assert_true(fast_test_same(one.add(small), general))
-    let general_sub = one.add_ctx(small.neg(), BinaryContext::unbounded(53)).0
+    let general_sub = one.add_ctx(small.neg(), BinaryContext::new(precision=53)).0
     assert_true(fast_test_same(one.sub(small), general_sub))
   }
   // all ones plus one carries into a new bit
@@ -183,7 +183,7 @@ test "one-word paths handle ties, carries and cancellation" {
     0,
     53,
   )
-  let general = ones.add_ctx(one, BinaryContext::unbounded(53)).0
+  let general = ones.add_ctx(one, BinaryContext::new(precision=53)).0
   assert_true(fast_test_same(ones.add(one), general))
   // heavy cancellation
   let near = BinFloat::make_coeff(
@@ -191,7 +191,7 @@ test "one-word paths handle ties, carries and cancellation" {
     -53,
     54,
   )
-  let general_diff = near.add_ctx(one.neg(), BinaryContext::unbounded(54)).0
+  let general_diff = near.add_ctx(one.neg(), BinaryContext::new(precision=54)).0
   assert_true(fast_test_same(near.sub(one), general_diff))
 }
 
@@ -232,7 +232,7 @@ test "one-word sqrt handles perfect squares, powers of two and odd exponents" {
         )
         let general = sqrt_for_precision(value, value.precision()).unwrap()
         assert_true(fast_test_same(value.sqrt().unwrap(), general))
-        let squared = value.mul_ctx(value, BinaryContext::unbounded(precision)).0
+        let squared = value.mul_ctx(value, BinaryContext::new(precision~)).0
         let general_root = sqrt_for_precision(squared, squared.precision()).unwrap()
         assert_true(fast_test_same(squared.sqrt().unwrap(), general_root))
       }
@@ -284,7 +284,7 @@ test "binary64 quotient and root equal the integer word path and the general pat
     let quotient = binary_fast_div(left, right).unwrap()
     let general_quotient = left.div_ctx(
         right,
-        BinaryContext::unbounded(result_precision),
+        BinaryContext::new(precision=result_precision),
       ).0
     assert_true(fast_test_same(quotient, general_quotient))
     if result_precision == 53 {
@@ -335,7 +335,7 @@ test "binary64 quotient and root at ties, exact results and powers of two" {
         assert_true(
           fast_test_same(
             quotient,
-            left.div_ctx(right, BinaryContext::unbounded(53)).0,
+            left.div_ctx(right, BinaryContext::new(precision=53)).0,
           ),
         )
         assert_true(
@@ -355,7 +355,7 @@ test "binary64 quotient and root at ties, exact results and powers of two" {
           sqrt_for_precision(value, 53).unwrap(),
         ),
       )
-      let square = value.mul_ctx(value, BinaryContext::unbounded(53)).0
+      let square = value.mul_ctx(value, BinaryContext::new(precision=53)).0
       assert_true(
         fast_test_same(
           binary_fast_sqrt(square).unwrap(),

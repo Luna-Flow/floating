@@ -41,13 +41,13 @@ fn binary_exp_small_fixed_bounds(
     sum,
     -fractional,
     work_precision,
-    mode=RoundingMode::TowardNegative,
+    mode=BinaryRoundingMode::RoundTowardNegative,
   )
   let upper = BinFloat::make_coeff(
     sum.add(term).add(slack),
     -fractional,
     work_precision,
-    mode=RoundingMode::TowardPositive,
+    mode=BinaryRoundingMode::RoundTowardPositive,
   )
   if !value.is_negative() {
     return Some((lower, upper))
@@ -57,11 +57,11 @@ fn binary_exp_small_fixed_bounds(
     (
       one.div_ctx(
         upper,
-        BinaryContext::unbounded(work_precision, rounding=RoundTowardNegative),
+        binary_working_context(work_precision, rounding=RoundTowardNegative),
       ).0,
       one.div_ctx(
         lower,
-        BinaryContext::unbounded(work_precision, rounding=RoundTowardPositive),
+        binary_working_context(work_precision, rounding=RoundTowardPositive),
       ).0,
     ),
   )
@@ -84,14 +84,14 @@ fn binary_exp_bounds_fixed(
   }
   let lower = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   guard lower.compare(value) == 0 else { return None }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )

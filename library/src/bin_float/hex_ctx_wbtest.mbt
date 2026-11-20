@@ -14,8 +14,7 @@ fn hex_ctx_mode(name : String) -> BinaryRoundingMode {
     "RNA" => BinaryRoundingMode::RoundTiesToAway
     "RTZ" => BinaryRoundingMode::RoundTowardZero
     "RTP" => BinaryRoundingMode::RoundTowardPositive
-    "RTN" => BinaryRoundingMode::RoundTowardNegative
-    _ => BinaryRoundingMode::RoundAwayFromZero
+    _ => BinaryRoundingMode::RoundTowardNegative
   }
 }
 
@@ -24,11 +23,10 @@ test "from_hex_ctx rounds every sequence like exact arithmetic, with the flags" 
   let rows = hex_ctx_rows()
   let mut count = 0
   for row in rows {
-    let (text, name, p, emin, emax, mode, tininess, expected, flags) = row
+    let (text, name, p, _, emax, mode, tininess, expected, flags) = row
     let context = BinaryContext::new(
-      p,
+      precision=p,
       rounding=hex_ctx_mode(mode),
-      e_min=emin,
       e_max=emax,
       tininess=if tininess == "before" {
         TininessDetection::BeforeRounding
@@ -60,11 +58,11 @@ test "from_hex_ctx: exact inputs raise nothing, inexact ones raise inexact only"
   assert_eq(e2s_flags(tie_flags), "I--")
   // the same sequence in the four directed modes
   let up = BinaryContext::new(
-    53,
+    precision=53,
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
   let down = BinaryContext::new(
-    53,
+    precision=53,
     rounding=BinaryRoundingMode::RoundTowardNegative,
   )
   assert_eq(
@@ -95,7 +93,7 @@ test "from_hex_ctx: overflow and underflow of the four interchange formats" {
   ]
   for f in formats {
     let (name, p, emin, emax) = f
-    let context = BinaryContext::new(p, e_min=emin, e_max=emax)
+    let context = BinaryContext::new(precision=p, e_max=emax)
     // 2^(emax + 1) overflows to infinity (round to nearest)
     let (big, big_flags) = BinFloat::from_hex_ctx("0x1p\{emax + 1}", context).unwrap()
     assert_eq(big.classify() == FpClass::Infinity, true, msg=name)
@@ -133,7 +131,7 @@ test "from_hex_ctx agrees with from_hex where from_hex succeeds" {
       let old = BinFloat::from_hex(source, p).unwrap()
       let (value, _) = BinFloat::from_hex_ctx(
         source,
-        BinaryContext::unbounded(p),
+        BinaryContext::new(precision=p),
       ).unwrap()
       assert_eq(value.to_hex(), old.to_hex(), msg="\{source} \{p}")
       assert_eq(value.is_negative(), old.is_negative(), msg="\{source} \{p}")

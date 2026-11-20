@@ -46,7 +46,7 @@ fn same_decimal(a : Decimal, b : Decimal) -> Bool {
 
 ///|
 fn bin_float_rows() -> Array[@bin_float.BinFloat] {
-  let wide = @bin_float.BinaryContext::unbounded(53)
+  let wide = @bin_float.BinaryContext::new(precision=53)
   let bases : Array[@bin_float.BinFloat] = [
     @bin_float.BinFloat::from_int(1, precision=53),
     @bin_float.BinFloat::from_int(3, precision=53),
@@ -98,7 +98,7 @@ test "issue 467: the bounded form gives the result of the exact expansion" {
 
 ///|
 test "issue 467: the cost does not depend on the binary exponent" {
-  let wide = @bin_float.BinaryContext::unbounded(53)
+  let wide = @bin_float.BinaryContext::new(precision=53)
   let three = @bin_float.BinFloat::from_int(3, precision=53)
   // Before the bounded form these took minutes (quadratic in the exponent).
   for exponent in [-100000000, -1000000, 1000000, 100000000, 1000000000] {

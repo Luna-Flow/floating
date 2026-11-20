@@ -212,7 +212,7 @@ fn binary_pi_scaled_quadrant_reduction(
   }
   let (residual, flags) = value.sub_ctx(
     half_integer,
-    BinaryContext::unbounded(work_precision),
+    binary_working_context(work_precision),
   )
   guard !flags.inexact() else { return None }
   let residue = match quadrant {
@@ -245,21 +245,21 @@ fn binary_pi_scaled_bounds(
     Some(value) => value
     None => return None
   }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let input_lower = residual.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let input_upper = residual.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_candidates = [
     input_lower.mul_ctx(pi.0, downward).0,
@@ -364,7 +364,7 @@ pub fn BinFloat::sinpi_ctx(
 
 ///|
 pub fn BinFloat::sinpi(self : BinFloat) -> BinFloat {
-  self.sinpi_ctx(BinaryContext::unbounded(self.precision())).0
+  self.sinpi_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -385,7 +385,7 @@ pub fn BinFloat::cospi_ctx(
 
 ///|
 pub fn BinFloat::cospi(self : BinFloat) -> BinFloat {
-  self.cospi_ctx(BinaryContext::unbounded(self.precision())).0
+  self.cospi_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -406,5 +406,5 @@ pub fn BinFloat::tanpi_ctx(
 
 ///|
 pub fn BinFloat::tanpi(self : BinFloat) -> BinFloat {
-  self.tanpi_ctx(BinaryContext::unbounded(self.precision())).0
+  self.tanpi_ctx(binary_working_context(self.precision())).0
 }

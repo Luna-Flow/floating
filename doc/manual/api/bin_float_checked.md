@@ -328,7 +328,7 @@ pub fn BinFloatResult::pown_ctx(Self, Int, @bin_float.BinaryContext) -> Self
 
 `pow_nat(n)` calls the Luna-Flow/arithmetic trait method
 `PowNatChecked::pow_nat_checked` with `ArithmeticContext::new(x.precision())`,
-which `bin_float` maps to an unbounded binary context at that precision with
+which `bin_float` maps to the binary context of that precision (`BinaryContext::new(precision=p)`) with
 nearest-even rounding. `pown` returns a `DivisionByZero` error for a zero base with a negative exponent, a
 `DomainError` for a signaling NaN base, zero exponent included (as does
 `pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms
@@ -454,7 +454,7 @@ pub fn BinFloatResult::atan2pi_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 ```
 
 Errors are taken in the order ordinate, abscissa, operation. `atan2pi` uses
-`BinaryContext::unbounded` at the larger operand precision. Zero and infinite
+`BinaryContext::new(precision=p)` at the larger operand precision. Zero and infinite
 operands give exact constants with no exception; a signaling NaN operand is a
 `DomainError`.
 
@@ -489,7 +489,7 @@ test "powers and roots" {
 ## Elementary functions
 
 Each unary elementary function `name` has two wrapper methods. `name()` is
-`bind` of `BinFloat::try_name_ctx` under `BinaryContext::unbounded(x.precision())`,
+`bind` of `BinFloat::try_name_ctx` under `BinaryContext::new(precision=x.precision())`,
 that is nearest-even rounding to the operand's precision with no exponent
 limit; `name_ctx(ctx)` uses the given context instead. A success is the
 correctly rounded value of `bin_float`. The flags of the step are mapped as
@@ -793,7 +793,7 @@ pub fn BinFloatResult::atan2_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 ```
 
 Errors are taken in the order ordinate, abscissa, operation. `atan2` uses
-`BinaryContext::unbounded` at the larger operand precision. Signed zeros
+`BinaryContext::new(precision=p)` at the larger operand precision. Signed zeros
 follow IEEE 754: `atan2` of $(-0, -0)$ is $-\pi$ and of $(-0, +0)$ is $-0$.
 A signaling NaN operand is a `DomainError`; `atan2` raises no other
 exception.
@@ -804,7 +804,7 @@ test "elementary functions" {
   let r = fn(n : Int) { @bin_float_checked.BinFloatResult::from_int(n) }
   inspect(show(r(2).ln()), content="6243314768165359p-53")
   inspect(
-    show(r(2).ln_ctx(@bin_float.BinaryContext::unbounded(24))),
+    show(r(2).ln_ctx(@bin_float.BinaryContext::new(precision=24))),
     content="1453635p-21",
   )
   inspect(show(r(0).ln()), content="error: division by zero")
@@ -964,7 +964,7 @@ pub fn BinFloatResult::tanh_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::tanpi(Self) -> Self
 pub fn BinFloatResult::tanpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::ulp(Self) -> Self
-pub fn BinFloatResult::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn BinFloatResult::with_precision(Self, Int32, @bin_float.BinaryRoundingMode) -> Self
 pub impl Add for BinFloatResult
 pub impl Div for BinFloatResult
 pub impl Mul for BinFloatResult

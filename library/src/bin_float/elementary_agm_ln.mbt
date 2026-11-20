@@ -59,7 +59,7 @@ fn binary_agm_one(
   p : Int32,
   iteration_cap~ : Int32 = 0,
 ) -> (BinFloat, Int32)? {
-  let context = BinaryContext::unbounded(p)
+  let context = binary_working_context(p)
   let mut u = x
   let mut v = BinFloat::one_raw(precision=p)
   let mut n = 0
@@ -119,16 +119,16 @@ fn binary_ln_unit_agm_bounds(
   }
   let difference = value.sub_ctx(
       BinFloat::one_raw(precision=2),
-      BinaryContext::unbounded(value.coefficient_.bit_length() + 8),
+      binary_working_context(value.coefficient_.bit_length() + 8),
     ).0
   let lead = binary_top_bound(difference).to_int()
   let inner = work_precision + Int32::max(0, 2 - lead)
   let p = inner + binary_bit_length_i32(inner) + 16 - mutation.precision_drop
   guard p >= 64 else { return None }
   let m = (p + 1) / 2 + 2
-  let down = BinaryContext::unbounded(p, rounding=RoundTowardNegative)
-  let up = BinaryContext::unbounded(p, rounding=RoundTowardPositive)
-  let nearest = BinaryContext::unbounded(p)
+  let down = binary_working_context(p, rounding=RoundTowardNegative)
+  let up = binary_working_context(p, rounding=RoundTowardPositive)
+  let nearest = binary_working_context(p)
   // x = 4 / s = (4 / v) 2^-m.
   let four = BinFloat::from_int_raw(4, precision=3)
   let quotient = four.div_ctx(value, nearest).0
@@ -167,38 +167,38 @@ fn binary_ln_unit_agm_bounds(
   let multiplier = BinFloat::from_int_raw(m, precision=wide)
   let shift_low = ln2_low.mul_ctx(
       multiplier,
-      BinaryContext::unbounded(
-        ln2_precision + wide,
-        rounding=RoundTowardNegative,
-      ),
+      binary_working_context(ln2_precision + wide, rounding=RoundTowardNegative),
     ).0
   let shift_high = ln2_high.mul_ctx(
       multiplier,
-      BinaryContext::unbounded(
-        ln2_precision + wide,
-        rounding=RoundTowardPositive,
-      ),
+      binary_working_context(ln2_precision + wide, rounding=RoundTowardPositive),
     ).0
   let result_precision = p + 16
   let low = model_low.sub_ctx(
       shift_high,
-      BinaryContext::unbounded(result_precision, rounding=RoundTowardNegative),
+      binary_working_context(result_precision, rounding=RoundTowardNegative),
     ).0
   let high = f_high.sub_ctx(
       shift_low,
-      BinaryContext::unbounded(result_precision, rounding=RoundTowardPositive),
+      binary_working_context(result_precision, rounding=RoundTowardPositive),
     ).0
   // Width check: at most 8 units of `2^-inner`.
   let width = high.sub_ctx(
       low,
-      BinaryContext::unbounded(result_precision, rounding=RoundTowardPositive),
+      binary_working_context(result_precision, rounding=RoundTowardPositive),
     ).0
   let limit = BinFloat::make_coeff(Coeff::one(), -(inner - 3), 1)
   guard width.compare(limit) <= 0 else { return None }
   Some(
     (
-      low.with_precision(work_precision, RoundingMode::TowardNegative),
-      high.with_precision(work_precision, RoundingMode::TowardPositive),
+      low.with_precision(
+        work_precision,
+        BinaryRoundingMode::RoundTowardNegative,
+      ),
+      high.with_precision(
+        work_precision,
+        BinaryRoundingMode::RoundTowardPositive,
+      ),
     ),
   )
 }

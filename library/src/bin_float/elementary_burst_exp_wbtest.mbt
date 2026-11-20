@@ -114,19 +114,25 @@ test "bit-burst exp at the reduction boundaries" {
   let (ln2_low, _) = binary_ln2_bounds(2048).unwrap()
   let values : Array[BinFloat] = []
   for bits in [200, 300, 600, 1500] {
-    let ln2 = ln2_low.with_precision(bits, RoundingMode::TowardNegative)
-    let up = ln2_low.with_precision(bits, RoundingMode::TowardPositive)
+    let ln2 = ln2_low.with_precision(
+      bits,
+      BinaryRoundingMode::RoundTowardNegative,
+    )
+    let up = ln2_low.with_precision(
+      bits,
+      BinaryRoundingMode::RoundTowardPositive,
+    )
     for k in [1, 2, 3, 7, 100, 12345, 1000000] {
       let factor = BinFloat::from_int(k, precision=64)
       for base in [ln2, up] {
         let product = base.mul_ctx(
             factor,
-            BinaryContext::unbounded(bits + 64, rounding=RoundTiesToEven),
+            BinaryContext::new(precision=bits + 64, rounding=RoundTiesToEven),
           ).0
         values.push(product)
         values.push(product.neg())
         // One unit in the last place away, on both sides.
-        let context = BinaryContext::unbounded(bits + 64)
+        let context = BinaryContext::new(precision=bits + 64)
         values.push(product.next_up_ctx(context).0)
         values.push(product.next_down_ctx(context).0)
       }
@@ -290,7 +296,7 @@ test "exp results are identical with and without the bit-burst kernel" {
         seed += 1UL
         let value = burst_test_value(bits, top, negative, seed)
         for mode in modes {
-          let context = BinaryContext::unbounded(bits, rounding=mode)
+          let context = BinaryContext::new(precision=bits, rounding=mode)
           let reference = burst_test_exp_series(value, context)
           let actual = value.try_exp_ctx(context)
           match (reference, actual) {

@@ -122,21 +122,22 @@ some precision stays at that precision:
 | Operation | Context used |
 | --- | --- |
 | `+`, `-`, `*`, `/`, `min`, `max` | as the `BinFloat` operator: the larger operand precision, nearest-even |
-| unary elementary functions, `rootn` | `BinaryContext::unbounded(x.precision())` |
-| `pow`, `hypot`, `atan2` | `BinaryContext::unbounded(max(p_x, p_y))` |
+| unary elementary functions, `rootn` | `BinaryContext::new(precision=x.precision())` |
+| `pow`, `hypot`, `atan2` | `BinaryContext::new(precision=max(p_x, p_y))` |
 | `sqrt`, `pown` | the `BinFloat` method at the operand's precision |
 | `pow_nat` | `ArithmeticContext::new(x.precision())`, passed to `PowNatChecked` |
 | every `*_ctx` method | the given `BinaryContext` |
 
-`unbounded(p)` means precision $p$, round to nearest-even, and no exponent
-limits beyond the implementation range of `bin_float`, so these operations
+`BinaryContext::new(precision=p)` means precision $p$, round to nearest-even, and
+the implementation range of `bin_float` (the extendable format of IEEE 754-2019 3.7), so these operations
 overflow or underflow only near $2^{\pm 2^{30}}$. For `pow_nat` the
 wrapper goes through the Luna-Flow/arithmetic trait, and `bin_float` maps the
 `ArithmeticContext` to a `BinaryContext` with
 `BinaryContext::from_arithmetic_context`: the precision is copied, the
-`RoundingMode` is mapped to the binary rounding attribute, and `e_min` /
-`e_max` become exponent bounds when present (both absent gives
-`unbounded`). The `clamp` field of `ArithmeticContext` has no binary meaning
+`RoundingMode` is mapped to the binary rounding attribute (`AwayFromZero` is an
+error), and `e_max` (or `e_min`, giving `e_max = 1 - e_min`) becomes the
+exponent range, which must be of the IEEE 754-2019 3.3 shape `e_min = 1 - e_max`;
+both absent gives the precision-alone format. A conversion that fails is an `Err`. The `clamp` field of `ArithmeticContext` has no binary meaning
 and is not used.
 
 ### One flag rule for every `_ctx` method

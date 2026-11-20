@@ -10,13 +10,12 @@ fn q441_quantum_exponent(precision : Int32) -> Int32 {
 }
 
 ///|
-fn q441_modes() -> Array[RoundingMode] {
+fn q441_modes() -> Array[BinaryRoundingMode] {
   [
-    RoundingMode::ToNearestEven,
-    RoundingMode::AwayFromZero,
-    RoundingMode::TowardZero,
-    RoundingMode::TowardPositive,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTiesToEven,
+    BinaryRoundingMode::RoundTowardZero,
+    BinaryRoundingMode::RoundTowardPositive,
+    BinaryRoundingMode::RoundTowardNegative,
   ]
 }
 
@@ -27,7 +26,7 @@ fn q441_oracle(
   c : UInt64,
   k : Int32,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> UInt64 {
   let floor = c >> k
   let rem = c & ((1UL << k) - 1UL)
@@ -36,12 +35,12 @@ fn q441_oracle(
     false
   } else {
     match mode {
-      RoundingMode::ToNearestEven =>
+      BinaryRoundingMode::RoundTiesToEven =>
         rem > half || (rem == half && (floor & 1UL) == 1UL)
-      RoundingMode::AwayFromZero => true
-      RoundingMode::TowardZero => false
-      RoundingMode::TowardPositive => !negative
-      RoundingMode::TowardNegative => negative
+      BinaryRoundingMode::RoundTowardZero => false
+      BinaryRoundingMode::RoundTowardPositive => !negative
+      BinaryRoundingMode::RoundTowardNegative => negative
+      BinaryRoundingMode::RoundTiesToAway => rem >= half
     }
   }
   if up {
@@ -133,7 +132,7 @@ test "from_coefficient, from_hex and with_precision round at the smallest quantu
   // lands on the 53-bit quantum, which is coarser, and rounds there.
   let q113 = q441_quantum_exponent(113)
   let fine = BinFloat::make(BinCoeff::from_uint64(3UL), q113, 113)
-  let coarse = fine.with_precision(53, RoundingMode::ToNearestEven)
+  let coarse = fine.with_precision(53, BinaryRoundingMode::RoundTiesToEven)
   assert_true(coarse.exponent2() >= q)
   // from_coefficient has exponent 0 and is not near the range limit; it must
   // still be unchanged by the fix.

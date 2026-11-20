@@ -186,14 +186,14 @@ fn binary_tiny_argument_result(
       anchor,
       anchor.add_ctx(
         offset,
-        BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+        binary_working_context(work, rounding=RoundTowardPositive),
       ).0,
     )
   } else {
     (
       anchor.sub_ctx(
         offset,
-        BinaryContext::unbounded(work, rounding=RoundTowardNegative),
+        binary_working_context(work, rounding=RoundTowardNegative),
       ).0,
       anchor,
     )
@@ -242,21 +242,21 @@ fn binary_exp_small_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let lower = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
   guard lower.compare(eighth.neg()) >= 0 && upper.compare(eighth) <= 0 else {
@@ -346,21 +346,21 @@ fn binary_exp_bounds_series(
     Some(bounds) => return Some(bounds)
     None => ()
   }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let mut lower = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let mut upper = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
@@ -438,11 +438,11 @@ fn binary_ln_unit_bounds_series(
     Some(bounds) => return Some(bounds)
     None => ()
   }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -450,11 +450,11 @@ fn binary_ln_unit_bounds_series(
   let two = BinFloat::from_int_raw(2, precision=work_precision)
   let lower_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   guard lower_value.compare(one) >= 0 && upper_value.compare(two) <= 0 else {
     return None
@@ -523,11 +523,11 @@ fn binary_log2_e_bounds() -> (BinFloat, BinFloat)? {
     (
       one.div_ctx(
         ln2_high,
-        BinaryContext::unbounded(work, rounding=RoundTowardNegative),
+        binary_working_context(work, rounding=RoundTowardNegative),
       ).0,
       one.div_ctx(
         ln2_low,
-        BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+        binary_working_context(work, rounding=RoundTowardPositive),
       ).0,
     ),
   )
@@ -545,11 +545,11 @@ fn binary_log2_10_bounds() -> (BinFloat, BinFloat)? {
     (
       ln10_low.div_ctx(
         ln2_high,
-        BinaryContext::unbounded(work, rounding=RoundTowardNegative),
+        binary_working_context(work, rounding=RoundTowardNegative),
       ).0,
       ln10_high.div_ctx(
         ln2_low,
-        BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+        binary_working_context(work, rounding=RoundTowardPositive),
       ).0,
     ),
   )
@@ -584,10 +584,16 @@ fn binary_log2_linear_out_of_range(
   }
   guard scale_bounds() is Some((scale_low, scale_high)) else { return None }
   let work = binary_range_check_precision
-  let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
-  let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
-  let value_low = value.with_precision_raw(work, RoundingMode::TowardNegative)
-  let value_high = value.with_precision_raw(work, RoundingMode::TowardPositive)
+  let down = binary_working_context(work, rounding=RoundTowardNegative)
+  let up = binary_working_context(work, rounding=RoundTowardPositive)
+  let value_low = value.with_precision_raw(
+    work,
+    BinaryRoundingMode::RoundTowardNegative,
+  )
+  let value_high = value.with_precision_raw(
+    work,
+    BinaryRoundingMode::RoundTowardPositive,
+  )
   let log_low = value_low.mul_ctx(
       if value_low.is_negative() {
         scale_high
@@ -640,17 +646,14 @@ fn binary_expm1_negative_saturation(
   guard binary_ln2_bounds(work) is Some((_, ln2_high)) else { return None }
   let threshold = limit.mul_ctx(
     ln2_high,
-    BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+    binary_working_context(work, rounding=RoundTowardPositive),
   ).0.neg()
   if value.compare(threshold) > 0 {
     return None
   }
   let toward_zero = match context.rounding {
     RoundTowardZero | RoundTowardPositive => true
-    RoundTiesToEven
-    | RoundTiesToAway
-    | RoundTowardNegative
-    | RoundAwayFromZero => false
+    RoundTiesToEven | RoundTiesToAway | RoundTowardNegative => false
   }
   let result = if toward_zero {
     finite_from_parts(
@@ -692,7 +695,7 @@ fn binary_tanh_saturation(
     .mul(half)
     .mul_ctx(
       ln2_high,
-      BinaryContext::unbounded(work, rounding=RoundTowardPositive),
+      binary_working_context(work, rounding=RoundTowardPositive),
     ).0
   if magnitude.compare(threshold) <= 0 {
     return None
@@ -702,7 +705,7 @@ fn binary_tanh_saturation(
     RoundTowardZero => true
     RoundTowardPositive => negative
     RoundTowardNegative => !negative
-    RoundTiesToEven | RoundTiesToAway | RoundAwayFromZero => false
+    RoundTiesToEven | RoundTiesToAway => false
   }
   let result = if toward_zero {
     finite_from_parts(
@@ -738,11 +741,11 @@ fn binary_ln10_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
       binary_ln_unit_bounds(five_quarters, work_precision),
     ) {
     (Some(two_bounds), Some(part_bounds)) => {
-      let downward = BinaryContext::unbounded(
+      let downward = binary_working_context(
         work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
+      let upward = binary_working_context(
         work_precision,
         rounding=RoundTowardPositive,
       )
@@ -783,11 +786,11 @@ fn binary_ln_bounds(
   }
   match (unit_bounds, binary_ln2_bounds(work_precision)) {
     (Some(unit), Some(ln2)) => {
-      let downward = BinaryContext::unbounded(
+      let downward = binary_working_context(
         work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
+      let upward = binary_working_context(
         work_precision,
         rounding=RoundTowardPositive,
       )
@@ -1005,11 +1008,11 @@ fn binary_expm1_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -1019,11 +1022,11 @@ fn binary_expm1_bounds(
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let mut lower = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let mut upper = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let negative = upper.compare(BinFloat::zero_raw()) < 0
   if negative {
@@ -1103,21 +1106,21 @@ fn binary_atanh_small_positive_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let lower = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let one = BinFloat::one_raw(precision=work_precision)
   let third = one.div_ctx(
@@ -1184,11 +1187,11 @@ fn binary_log1p_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -1196,11 +1199,11 @@ fn binary_log1p_bounds(
   let two = BinFloat::from_int_raw(2, precision=work_precision)
   let lower_input = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_input = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   if lower_input.compare(half.neg()) >= 0 && upper_input.compare(half) <= 0 {
@@ -1243,11 +1246,11 @@ fn binary_exp2_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -1256,8 +1259,14 @@ fn binary_exp2_bounds(
       binary_ln2_bounds(work_precision),
       Some(
         (
-          value.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-          value.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+          value.with_precision_raw(
+            work_precision,
+            BinaryRoundingMode::RoundTowardNegative,
+          ),
+          value.with_precision_raw(
+            work_precision,
+            BinaryRoundingMode::RoundTowardPositive,
+          ),
         ),
       ),
     ) {
@@ -1278,11 +1287,11 @@ fn binary_log2_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -1380,7 +1389,7 @@ pub fn BinFloat::exp_ctx(
 
 ///|
 pub fn BinFloat::exp(self : BinFloat) -> BinFloat {
-  self.exp_ctx(BinaryContext::unbounded(self.precision())).0
+  self.exp_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -1425,7 +1434,7 @@ pub fn BinFloat::try_expm1_ctx(
         binary_log2_linear_out_of_range(
           self.sub_ctx(
             BinFloat::make_coeff(Coeff::one(), -60, 1),
-            BinaryContext::unbounded(
+            binary_working_context(
               binary_range_check_precision,
               rounding=RoundTowardNegative,
             ),
@@ -1492,7 +1501,7 @@ pub fn BinFloat::expm1_ctx(
 
 ///|
 pub fn BinFloat::expm1(self : BinFloat) -> BinFloat {
-  self.expm1_ctx(BinaryContext::unbounded(self.precision())).0
+  self.expm1_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -1583,7 +1592,7 @@ pub fn BinFloat::log1p_ctx(
 
 ///|
 pub fn BinFloat::log1p(self : BinFloat) -> BinFloat {
-  self.log1p_ctx(BinaryContext::unbounded(self.precision())).0
+  self.log1p_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -1672,7 +1681,7 @@ pub fn BinFloat::exp2_ctx(
 
 ///|
 pub fn BinFloat::exp2(self : BinFloat) -> BinFloat {
-  self.exp2_ctx(BinaryContext::unbounded(self.precision())).0
+  self.exp2_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -1757,7 +1766,7 @@ pub fn BinFloat::log2_ctx(
 
 ///|
 pub fn BinFloat::log2(self : BinFloat) -> BinFloat {
-  self.log2_ctx(BinaryContext::unbounded(self.precision())).0
+  self.log2_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -1825,21 +1834,21 @@ pub fn BinFloat::try_exp10_ctx(
             ) {
         match binary_ln10_bounds(work) {
           Some(ln10) => {
-            let downward = BinaryContext::unbounded(
+            let downward = binary_working_context(
               work,
               rounding=RoundTowardNegative,
             )
-            let upward = BinaryContext::unbounded(
+            let upward = binary_working_context(
               work,
               rounding=RoundTowardPositive,
             )
             let lower_input = self.with_precision_raw(
               work,
-              RoundingMode::TowardNegative,
+              BinaryRoundingMode::RoundTowardNegative,
             )
             let upper_input = self.with_precision_raw(
               work,
-              RoundingMode::TowardPositive,
+              BinaryRoundingMode::RoundTowardPositive,
             )
             let candidates = [
               lower_input.mul_ctx(ln10.0, downward).0,
@@ -1900,7 +1909,7 @@ pub fn BinFloat::exp10_ctx(
 
 ///|
 pub fn BinFloat::exp10(self : BinFloat) -> BinFloat {
-  self.exp10_ctx(BinaryContext::unbounded(self.precision())).0
+  self.exp10_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -1968,11 +1977,11 @@ pub fn BinFloat::try_log10_ctx(
             ) {
         match (binary_ln_bounds(self, work), binary_ln10_bounds(work)) {
           (Some(numerator), Some(denominator)) => {
-            let downward = BinaryContext::unbounded(
+            let downward = binary_working_context(
               work,
               rounding=RoundTowardNegative,
             )
-            let upward = BinaryContext::unbounded(
+            let upward = binary_working_context(
               work,
               rounding=RoundTowardPositive,
             )
@@ -2030,7 +2039,7 @@ pub fn BinFloat::log10_ctx(
 
 ///|
 pub fn BinFloat::log10(self : BinFloat) -> BinFloat {
-  self.log10_ctx(BinaryContext::unbounded(self.precision())).0
+  self.log10_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -2125,7 +2134,7 @@ pub fn BinFloat::ln_ctx(
 
 ///|
 pub fn BinFloat::ln(self : BinFloat) -> BinFloat {
-  self.ln_ctx(BinaryContext::unbounded(self.precision())).0
+  self.ln_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -2313,7 +2322,7 @@ pub fn BinFloat::hypot_ctx(
 pub fn BinFloat::hypot(self : BinFloat, other : BinFloat) -> BinFloat {
   self.hypot_ctx(
     other,
-    BinaryContext::unbounded(Int32::max(self.precision(), other.precision())),
+    binary_working_context(Int32::max(self.precision(), other.precision())),
   ).0
 }
 
@@ -2326,11 +2335,11 @@ fn binary_rootn_positive_bounds(
   match binary_ln_bounds(value, work_precision) {
     None => None
     Some(logarithm) => {
-      let downward = BinaryContext::unbounded(
+      let downward = binary_working_context(
         work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
+      let upward = binary_working_context(
         work_precision,
         rounding=RoundTowardPositive,
       )
@@ -2502,11 +2511,11 @@ fn binary_rootn_certified_loop(
           bounds
         }
         let adjusted = if degree < 0 {
-          let downward = BinaryContext::unbounded(
+          let downward = binary_working_context(
             work,
             rounding=RoundTowardNegative,
           )
-          let upward = BinaryContext::unbounded(
+          let upward = binary_working_context(
             work,
             rounding=RoundTowardPositive,
           )
@@ -2680,7 +2689,7 @@ pub fn BinFloat::rootn_ctx(
 
 ///|
 pub fn BinFloat::rootn(self : BinFloat, degree : Int32) -> BinFloat {
-  self.rootn_ctx(degree, BinaryContext::unbounded(self.precision())).0
+  self.rootn_ctx(degree, binary_working_context(self.precision())).0
 }
 
 ///|
@@ -2965,11 +2974,11 @@ pub fn BinFloat::try_pow_ctx(
   // log2(result) = exponent * log2(base). The Ziv loop below cannot certify a
   // result whose own enclosure overflows, so certain overflow and underflow
   // are decided first from directed log2 bounds of the base.
-  let range_down = BinaryContext::unbounded(
+  let range_down = binary_working_context(
     binary_range_check_precision,
     rounding=RoundTowardNegative,
   )
-  let range_up = BinaryContext::unbounded(
+  let range_up = binary_working_context(
     binary_range_check_precision,
     rounding=RoundTowardPositive,
   )
@@ -3020,21 +3029,18 @@ pub fn BinFloat::try_pow_ctx(
         ) {
     match binary_ln_bounds(self, work) {
       Some(logarithm) => {
-        let downward = BinaryContext::unbounded(
+        let downward = binary_working_context(
           work,
           rounding=RoundTowardNegative,
         )
-        let upward = BinaryContext::unbounded(
-          work,
-          rounding=RoundTowardPositive,
-        )
+        let upward = binary_working_context(work, rounding=RoundTowardPositive)
         let exponent_lower = exponent.with_precision_raw(
           work,
-          RoundingMode::TowardNegative,
+          BinaryRoundingMode::RoundTowardNegative,
         )
         let exponent_upper = exponent.with_precision_raw(
           work,
-          RoundingMode::TowardPositive,
+          BinaryRoundingMode::RoundTowardPositive,
         )
         let lower_candidates = [
           logarithm.0.mul_ctx(exponent_lower, downward).0,
@@ -3110,7 +3116,7 @@ pub fn BinFloat::pow_ctx(
 pub fn BinFloat::pow(self : BinFloat, exponent : BinFloat) -> BinFloat {
   self.pow_ctx(
     exponent,
-    BinaryContext::unbounded(Int32::max(self.precision(), exponent.precision())),
+    binary_working_context(Int32::max(self.precision(), exponent.precision())),
   ).0
 }
 
@@ -3136,11 +3142,11 @@ fn binary_hyperbolic_bounds(
   operation : BinaryHyperbolicOperation,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -3364,7 +3370,7 @@ pub fn BinFloat::sinh_ctx(
 
 ///|
 pub fn BinFloat::sinh(self : BinFloat) -> BinFloat {
-  self.sinh_ctx(BinaryContext::unbounded(self.precision())).0
+  self.sinh_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -3385,7 +3391,7 @@ pub fn BinFloat::cosh_ctx(
 
 ///|
 pub fn BinFloat::cosh(self : BinFloat) -> BinFloat {
-  self.cosh_ctx(BinaryContext::unbounded(self.precision())).0
+  self.cosh_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -3406,7 +3412,7 @@ pub fn BinFloat::tanh_ctx(
 
 ///|
 pub fn BinFloat::tanh(self : BinFloat) -> BinFloat {
-  self.tanh_ctx(BinaryContext::unbounded(self.precision())).0
+  self.tanh_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -3433,22 +3439,22 @@ fn binary_asinh_positive_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one_raw(precision=work_precision)
   let lower_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   match
     (
@@ -3471,22 +3477,22 @@ fn binary_acosh_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one_raw(precision=work_precision)
   let lower_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_minus = lower_value.sub_ctx(one, downward).0
   let upper_minus = upper_value.sub_ctx(one, upward).0
@@ -3512,11 +3518,11 @@ fn binary_atanh_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -3524,11 +3530,11 @@ fn binary_atanh_bounds(
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let lower_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_numerator = one.add_ctx(lower_value, downward).0
   let upper_numerator = one.add_ctx(upper_value, upward).0
@@ -3734,7 +3740,7 @@ pub fn BinFloat::asinh_ctx(
 
 ///|
 pub fn BinFloat::asinh(self : BinFloat) -> BinFloat {
-  self.asinh_ctx(BinaryContext::unbounded(self.precision())).0
+  self.asinh_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -3758,7 +3764,7 @@ pub fn BinFloat::acosh_ctx(
 
 ///|
 pub fn BinFloat::acosh(self : BinFloat) -> BinFloat {
-  self.acosh_ctx(BinaryContext::unbounded(self.precision())).0
+  self.acosh_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -3782,7 +3788,7 @@ pub fn BinFloat::atanh_ctx(
 
 ///|
 pub fn BinFloat::atanh(self : BinFloat) -> BinFloat {
-  self.atanh_ctx(BinaryContext::unbounded(self.precision())).0
+  self.atanh_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -3800,22 +3806,25 @@ fn binary_atan_small_positive_pair_bounds(
   hi : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let lower_value = if lo.is_zero() {
     BinFloat::zero_raw(precision=work_precision)
   } else {
-    lo.with_precision_raw(work_precision, RoundingMode::TowardNegative)
+    lo.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    )
   }
   let upper_value = hi.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
@@ -3992,11 +4001,11 @@ fn binary_atan_reduction_ratio(
   upper : Bool,
   work_precision : Int32,
 ) -> BinFloat {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -4058,11 +4067,11 @@ fn binary_atan_positive_pair_bounds(
     guard binary_pi_bounds(work_precision) is Some(pi) else { return None }
     let half_pi_upper = pi.1.mul_ctx(
         half,
-        BinaryContext::unbounded(work_precision, rounding=RoundTowardPositive),
+        binary_working_context(work_precision, rounding=RoundTowardPositive),
       ).0
     let half_pi_lower = pi.0.mul_ctx(
         half,
-        BinaryContext::unbounded(work_precision, rounding=RoundTowardNegative),
+        binary_working_context(work_precision, rounding=RoundTowardNegative),
       ).0
     if lo.classify() == FpClass::Infinity {
       return Some((half_pi_lower, half_pi_upper))
@@ -4073,21 +4082,21 @@ fn binary_atan_positive_pair_bounds(
     }
     return Some((lower_pair.0, half_pi_upper))
   }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let lower_value = lo.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = hi.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let ratio_lower = binary_atan_reduction_ratio(
     lower_value, false, work_precision,
@@ -4153,13 +4162,19 @@ fn binary_atan_finite_bounds(
   if value.is_zero() {
     let zero = value.with_precision_raw(
       work_precision,
-      RoundingMode::ToNearestEven,
+      BinaryRoundingMode::RoundTiesToEven,
     )
     return Some((zero, zero))
   }
   binary_atan_pair_bounds(
-    value.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-    value.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+    value.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    value.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
     work_precision,
   )
 }
@@ -4172,11 +4187,11 @@ fn binary_pi_series_compute(work_precision : Int32) -> (BinFloat, BinFloat)? {
       work_precision,
     ) {
     Some(quarter_pi) => {
-      let downward = BinaryContext::unbounded(
+      let downward = binary_working_context(
         work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
+      let upward = binary_working_context(
         work_precision,
         rounding=RoundTowardPositive,
       )
@@ -4220,11 +4235,11 @@ pub fn BinFloat::try_atan_ctx(
             ) {
         match binary_pi_bounds(work) {
           Some(pi) => {
-            let downward = BinaryContext::unbounded(
+            let downward = binary_working_context(
               work,
               rounding=RoundTowardNegative,
             )
-            let upward = BinaryContext::unbounded(
+            let upward = binary_working_context(
               work,
               rounding=RoundTowardPositive,
             )
@@ -4300,7 +4315,7 @@ pub fn BinFloat::atan_ctx(
 
 ///|
 pub fn BinFloat::atan(self : BinFloat) -> BinFloat {
-  self.atan_ctx(BinaryContext::unbounded(self.precision())).0
+  self.atan_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -4308,22 +4323,22 @@ fn binary_asin_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one_raw(precision=work_precision)
   let lower_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_square = if lower_value.compare(BinFloat::zero_raw()) <= 0 &&
     upper_value.compare(BinFloat::zero_raw()) >= 0 {
@@ -4424,11 +4439,11 @@ pub fn BinFloat::try_asin_ctx(
               ) {
           match binary_pi_bounds(work) {
             Some(pi) => {
-              let downward = BinaryContext::unbounded(
+              let downward = binary_working_context(
                 work,
                 rounding=RoundTowardNegative,
               )
-              let upward = BinaryContext::unbounded(
+              let upward = binary_working_context(
                 work,
                 rounding=RoundTowardPositive,
               )
@@ -4514,7 +4529,7 @@ pub fn BinFloat::asin_ctx(
 
 ///|
 pub fn BinFloat::asin(self : BinFloat) -> BinFloat {
-  self.asin_ctx(BinaryContext::unbounded(self.precision())).0
+  self.asin_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -4567,11 +4582,11 @@ pub fn BinFloat::try_acos_ctx(
             ) {
         match binary_pi_bounds(work) {
           Some(pi) => {
-            let downward = BinaryContext::unbounded(
+            let downward = binary_working_context(
               work,
               rounding=RoundTowardNegative,
             )
-            let upward = BinaryContext::unbounded(
+            let upward = binary_working_context(
               work,
               rounding=RoundTowardPositive,
             )
@@ -4607,14 +4622,11 @@ pub fn BinFloat::try_acos_ctx(
         ) {
     match (binary_asin_bounds(self, work), binary_pi_bounds(work)) {
       (Some(asin_bounds), Some(pi)) => {
-        let downward = BinaryContext::unbounded(
+        let downward = binary_working_context(
           work,
           rounding=RoundTowardNegative,
         )
-        let upward = BinaryContext::unbounded(
-          work,
-          rounding=RoundTowardPositive,
-        )
+        let upward = binary_working_context(work, rounding=RoundTowardPositive)
         let half = BinFloat::make_coeff(Coeff::one(), -1, work)
         let lower = pi.0.mul_ctx(half, downward).0.sub_ctx(
             asin_bounds.1,
@@ -4647,7 +4659,7 @@ pub fn BinFloat::acos_ctx(
 
 ///|
 pub fn BinFloat::acos(self : BinFloat) -> BinFloat {
-  self.acos_ctx(BinaryContext::unbounded(self.precision())).0
+  self.acos_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -4659,11 +4671,11 @@ fn binary_pi_fraction_bounds(
 ) -> (BinFloat, BinFloat)? {
   match binary_pi_bounds(work_precision) {
     Some(pi) => {
-      let downward = BinaryContext::unbounded(
+      let downward = binary_working_context(
         work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
+      let upward = binary_working_context(
         work_precision,
         rounding=RoundTowardPositive,
       )
@@ -4694,29 +4706,29 @@ fn binary_atan2_finite_bounds(
   abscissa : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let ordinate_lower = ordinate.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let ordinate_upper = ordinate.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let abscissa_lower = abscissa.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let abscissa_upper = abscissa.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   // y / x over [y_lo, y_hi] x [x_lo, x_hi] with x of one strict sign
   // (zero abscissas are handled before this function). For x > 0 the ratio
@@ -4932,7 +4944,7 @@ pub fn BinFloat::atan2_ctx(
 pub fn BinFloat::atan2(self : BinFloat, abscissa : BinFloat) -> BinFloat {
   self.atan2_ctx(
     abscissa,
-    BinaryContext::unbounded(Int32::max(self.precision(), abscissa.precision())),
+    binary_working_context(Int32::max(self.precision(), abscissa.precision())),
   ).0
 }
 
@@ -4965,11 +4977,11 @@ fn binary_sin_cos_series(
     Some(bounds) => return Some(bounds)
     None => ()
   }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -4977,11 +4989,11 @@ fn binary_sin_cos_series(
   let argument = if negative { value.neg() } else { value }
   let argument_lower = argument.with_precision_raw(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let argument_upper = argument.with_precision_raw(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let square_lower = argument_lower.mul_ctx(argument_lower, downward).0
   let square_upper = argument_upper.mul_ctx(argument_upper, upward).0
@@ -5127,17 +5139,23 @@ fn binary_trigonometric_reduction(
   half_pi : (BinFloat, BinFloat),
   work_precision : Int32,
 ) -> ((BinFloat, BinFloat), Int32)? {
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
   let input_bounds = (
-    value.with_precision_raw(work_precision, RoundingMode::TowardNegative),
-    value.with_precision_raw(work_precision, RoundingMode::TowardPositive),
+    value.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    value.with_precision_raw(
+      work_precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
   // Both ends strictly inside (-pi/4, pi/4) (the lower bound of pi/4 is half the
   // lower bound of pi/2, exact): x / (pi/2) lies in (-1/2, 1/2) at both ends,
@@ -5216,11 +5234,11 @@ fn binary_trigonometric_bounds_series(
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   let pi = binary_pi_bounds(work_precision).unwrap()
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -5263,8 +5281,14 @@ fn binary_trigonometric_bounds_series(
     )
   }
   binary_reduced_trigonometric_bounds(
-    lower.with_precision_raw(series_precision, RoundingMode::TowardNegative),
-    upper.with_precision_raw(series_precision, RoundingMode::TowardPositive),
+    lower.with_precision_raw(
+      series_precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    upper.with_precision_raw(
+      series_precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
     quadrant,
     operation,
     series_precision,
@@ -5285,11 +5309,11 @@ fn binary_reduced_trigonometric_bounds(
     upper.compare(one) <= 0 else {
     return None
   }
-  let downward = BinaryContext::unbounded(
+  let downward = binary_working_context(
     work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
+  let upward = binary_working_context(
     work_precision,
     rounding=RoundTowardPositive,
   )
@@ -5531,7 +5555,7 @@ pub fn BinFloat::sin_ctx(
 
 ///|
 pub fn BinFloat::sin(self : BinFloat) -> BinFloat {
-  self.sin_ctx(BinaryContext::unbounded(self.precision())).0
+  self.sin_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -5552,7 +5576,7 @@ pub fn BinFloat::cos_ctx(
 
 ///|
 pub fn BinFloat::cos(self : BinFloat) -> BinFloat {
-  self.cos_ctx(BinaryContext::unbounded(self.precision())).0
+  self.cos_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -5573,5 +5597,5 @@ pub fn BinFloat::tan_ctx(
 
 ///|
 pub fn BinFloat::tan(self : BinFloat) -> BinFloat {
-  self.tan_ctx(BinaryContext::unbounded(self.precision())).0
+  self.tan_ctx(binary_working_context(self.precision())).0
 }

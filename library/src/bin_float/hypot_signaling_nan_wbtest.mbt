@@ -17,10 +17,10 @@
 ///|
 test "hypot of an infinity and a signaling NaN is a quiet NaN with invalid" {
   let contexts = [
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=2),
     BinaryContext::binary64(),
-    BinaryContext::new(24, e_min=-6, e_max=7),
+    BinaryContext::new(precision=24, e_max=7),
   ]
   let mut cases = 0
   for context in contexts {

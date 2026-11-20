@@ -44,7 +44,7 @@ test "decimal quarter pi multiples equal quarters of the atan(1) interval" {
   for precision in [1, 2, 7, 24, 53, 64, 113, 200, 333] {
     let pi = decimal_pi_enclosure(precision)
     let scale = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 2)
-    let exact = @bin_float.BinaryContext::unbounded(precision)
+    let exact = @bin_float.BinaryContext::new(precision~)
     let quarter = @ball_float.BallFloat::from_bounds(
       pi.0.mul_ctx(scale, exact).0,
       pi.1.mul_ctx(scale, exact).0,

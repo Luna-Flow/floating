@@ -28,10 +28,10 @@ test "rootn with degree zero is invalid for every operand and never divideByZero
     ("-inf", BinFloat::inf(Sign::Negative)),
   ]
   let contexts = [
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=2),
     BinaryContext::binary64(),
-    BinaryContext::new(24, e_min=-6, e_max=7),
+    BinaryContext::new(precision=24, e_max=7),
   ]
   let mut cases = 0
   for context in contexts {
@@ -53,7 +53,7 @@ test "rootn with degree zero is invalid for every operand and never divideByZero
 
 ///|
 test "rootn of zero with a negative degree is the divideByZero case" {
-  for context in [BinaryContext::unbounded(53), BinaryContext::binary64()] {
+  for context in [BinaryContext::new(precision=53), BinaryContext::binary64()] {
     for degree in [-1, -2, -3, -4, -1000001] {
       for zero in [BinFloat::zero(), BinFloat::negative_zero()] {
         let (value, flags) = zero.rootn_ctx(degree, context)

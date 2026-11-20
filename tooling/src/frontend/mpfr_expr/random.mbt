@@ -188,6 +188,9 @@ fn parse_random_row(tokens : Array[String]) -> Result[MpfrRandomCase, String] {
     None
   } else {
     match (parse_int(tokens[4]), parse_int(tokens[5]), tokens[6]) {
+      (Some(low), Some(high), _) if low != 1 - high || high < 1 =>
+        // IEEE 754-2019 3.3: emin = 1 - emax
+        return Err("MPFR random exponent range is not an IEEE 754-2019 format")
       (Some(low), Some(high), "a") =>
         Some((low, high, @bin_float.TininessDetection::AfterRounding))
       (Some(low), Some(high), "b") =>
@@ -247,17 +250,16 @@ fn parse_random_row(tokens : Array[String]) -> Result[MpfrRandomCase, String] {
 ///|
 fn random_context(case : MpfrRandomCase) -> @bin_float.BinaryContext {
   match case.range {
-    Some((e_min, e_max, tininess)) =>
+    Some((_, e_max, tininess)) =>
       @bin_float.BinaryContext::new(
-        case.precision,
+        precision=case.precision,
         rounding=case.rounding,
-        e_min~,
         e_max~,
         tininess~,
       )
     None =>
-      @bin_float.BinaryContext::unbounded(
-        case.precision,
+      @bin_float.BinaryContext::new(
+        precision=case.precision,
         rounding=case.rounding,
       )
   }
@@ -457,8 +459,8 @@ fn run_random_getstr(case : MpfrRandomCase) -> (Bool, String) {
     Ok(value) => value
     Err(_) => value
   }
-  let context = @bin_float.BinaryContext::unbounded(
-    value.precision(),
+  let context = @bin_float.BinaryContext::new(
+    precision=value.precision(),
     rounding=case.rounding,
   )
   let (text, flags) = value.to_decimal_string_ctx(case.n, context)

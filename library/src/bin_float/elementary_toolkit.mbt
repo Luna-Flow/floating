@@ -70,7 +70,7 @@ fn fixed_enclosure(
       exponent,
       precision,
       negative~,
-      mode=RoundingMode::TowardNegative,
+      mode=BinaryRoundingMode::RoundTowardNegative,
     ),
     BinFloat::make_coeff(
       if negative {
@@ -81,7 +81,7 @@ fn fixed_enclosure(
       exponent,
       precision,
       negative~,
-      mode=RoundingMode::TowardPositive,
+      mode=BinaryRoundingMode::RoundTowardPositive,
     ),
   )
 }

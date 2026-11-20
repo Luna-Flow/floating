@@ -141,7 +141,7 @@ Each domain names these functions in its own enum:
 | $\operatorname{RZ}$ | `RoundTowardZero` | `TowardZero` | `Down` |
 | $\operatorname{RU}$ | `RoundTowardPositive` | `TowardPositive` | `Ceiling` |
 | $\operatorname{RD}$ | `RoundTowardNegative` | `TowardNegative` | `Floor` |
-| $\operatorname{RA}$ | `RoundAwayFromZero` | `AwayFromZero` | `Up` |
+| $\operatorname{RA}$ | none (not an IEEE 754-2019 4.3 attribute) | `AwayFromZero` | `Up` |
 | toward zero, then away if the last kept digit is 0 or 5 | — | — | `ZeroFiveUp` |
 
 `with_precision(p, mode)` applies one of these functions to a value at a new
@@ -153,8 +153,8 @@ non-zero bits, so nearest rounding goes up:
 ///|
 test "rounding 0.1 to five bits" {
   let tenth = @bin_float.BinFloat::from_double(0.1)
-  inspect(tenth.with_precision(5, @lf_arith.ToNearestEven), content="13p-7")
-  inspect(tenth.with_precision(5, @lf_arith.TowardZero), content="25p-8")
+  inspect(tenth.with_precision(5, @bin_float.BinaryRoundingMode::RoundTiesToEven), content="13p-7")
+  inspect(tenth.with_precision(5, @bin_float.BinaryRoundingMode::RoundTowardZero), content="25p-8")
 }
 ```
 
@@ -271,9 +271,10 @@ ambient rounding mode; the context is an ordinary immutable argument.
   `TininessDetection`. Normal values satisfy $2^{e_{\min}} \le |x| \le (2 - 2^{1-p})\,2^{e_{\max}}$;
   below $2^{e_{\min}}$ the **subnormal** values keep the fixed spacing
   $2^{\,e_{\min}-p+1}$ (gradual underflow). `binary16`, `binary32`, `binary64`
-  and `binary128` are the IEEE interchange presets. `unbounded(p)` and a
-  missing bound use the implementation range
-  $[\texttt{binary\_implementation\_e\_min}, \texttt{binary\_implementation\_e\_max}] = [1 - 2^{30},\ 2^{30} - 1]$,
+  and `binary128` are the IEEE interchange presets. `BinaryContext::new(precision=p)` without `e_max` is the extendable precision
+  format of IEEE 754-2019 3.7 and has the implementation range
+  $[\texttt{binary\_implementation\_e\_min}, \texttt{binary\_implementation\_e\_max}] = [2 - 2^{30},\ 2^{30} - 1]$,
+  so $e_{\min} = 1 - e_{\max}$ as in every context (3.3),
   and every precision is capped at $\texttt{binary\_precision\_max} = 2^{28}$
   bits. A result beyond the implementation range is classified (overflow to
   infinity or the largest finite value, underflow to zero or the smallest

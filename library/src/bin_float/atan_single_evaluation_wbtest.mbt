@@ -9,21 +9,21 @@ fn old_atan_small_positive_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let lower_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
   guard lower_value.sign() == Sign::Positive && upper_value.compare(half) <= 0 else {
@@ -94,15 +94,18 @@ fn old_atan_finite_bounds(
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
   if value.is_zero() {
-    let zero = value.with_precision(work_precision, RoundingMode::ToNearestEven)
+    let zero = value.with_precision(
+      work_precision,
+      BinaryRoundingMode::RoundTiesToEven,
+    )
     return Some((zero, zero))
   }
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one(precision=work_precision)
@@ -112,11 +115,11 @@ fn old_atan_finite_bounds(
   }
   let lower_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   match
     (
@@ -168,22 +171,22 @@ fn old_asin_bounds(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one(precision=work_precision)
   let lower_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_square = if lower_value.compare(BinFloat::zero()) <= 0 &&
     upper_value.compare(BinFloat::zero()) >= 0 {
@@ -248,29 +251,29 @@ fn old_atan2_finite_bounds(
   abscissa : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let ordinate_lower = ordinate.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let ordinate_upper = ordinate.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let abscissa_lower = abscissa.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let abscissa_upper = abscissa.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_candidates = [
     ordinate_lower.div_ctx(abscissa_lower, downward).0,
@@ -364,7 +367,7 @@ fn atan_corpus_thinned() -> Array[BinFloat] {
 fn atan_pair_width(bounds : (BinFloat, BinFloat)) -> BinFloat {
   bounds.1.sub_ctx(
     bounds.0,
-    BinaryContext::unbounded(4000, rounding=RoundTowardPositive),
+    BinaryContext::new(precision=4000, rounding=RoundTowardPositive),
   ).0
 }
 
@@ -387,7 +390,7 @@ fn atan_check_width(
     2,
   )
   let two = BinFloat::from_int(2, precision=53)
-  let exact = BinaryContext::unbounded(4000, rounding=RoundTowardPositive)
+  let exact = BinaryContext::new(precision=4000, rounding=RoundTowardPositive)
   let limit = atan_pair_width(previous).mul_ctx(two, exact).0.add_ctx(
       slack, exact,
     ).0
@@ -501,7 +504,7 @@ fn atan_ziv_attempts(
   precision : Int32,
   evaluate : (Int32) -> (BinFloat, BinFloat)?,
 ) -> Int32 {
-  let context = BinaryContext::unbounded(precision)
+  let context = BinaryContext::new(precision~)
   let mut work = precision + 64
   let mut attempt = 0
   while attempt < 12 {
@@ -579,7 +582,7 @@ fn atan_half_pi(context : BinaryContext) -> BinFloat {
 fn atan_exact_two(value : BinFloat, precision : Int32) -> BinFloat {
   value.mul_ctx(
     BinFloat::from_int(2, precision=2),
-    BinaryContext::unbounded(precision),
+    BinaryContext::new(precision~),
   ).0
 }
 
@@ -600,7 +603,7 @@ test "atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2
         BinaryRoundingMode::RoundTowardPositive,
         BinaryRoundingMode::RoundTiesToEven,
       ] {
-      let context = BinaryContext::unbounded(53, rounding=mode)
+      let context = BinaryContext::new(precision=53, rounding=mode)
       let expected = atan_half_pi(context)
       match x.try_atan_ctx(context) {
         Ok((value, flags)) => {
@@ -618,7 +621,7 @@ test "atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2
         other => other
       }
       let mirror_expected = atan_half_pi(
-        BinaryContext::unbounded(53, rounding=mirrored),
+        BinaryContext::new(precision=53, rounding=mirrored),
       ).neg()
       match x.neg().try_atan_ctx(context) {
         Ok((value, _)) =>
@@ -679,7 +682,7 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
               BinaryRoundingMode::RoundTowardPositive,
               BinaryRoundingMode::RoundTiesToEven,
             ] {
-            let context = BinaryContext::unbounded(53, rounding=mode)
+            let context = BinaryContext::new(precision=53, rounding=mode)
             // Same-magnitude ratios are not far apart: skip y/x of equal exponent.
             if yy.exponent2() == xx.exponent2() {
               continue
@@ -722,7 +725,7 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
                     }
                   }
                   let half = atan_half_pi(
-                    BinaryContext::unbounded(53, rounding=magnitude_mode),
+                    BinaryContext::new(precision=53, rounding=magnitude_mode),
                   )
                   // For x < 0 the magnitude is pi/2 + tiny: one ulp above
                   // pi/2 only when rounding the magnitude away from zero.
@@ -731,7 +734,10 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
                   } else {
                     value
                   }
-                  let diff = near.sub_ctx(half, BinaryContext::unbounded(200)).0.abs()
+                  let diff = near.sub_ctx(
+                    half,
+                    BinaryContext::new(precision=200),
+                  ).0.abs()
                   assert_true(
                     diff.is_zero() ||
                     diff.compare(BinFloat::make(BinCoeff::one(), -50, 2)) < 0,
@@ -743,7 +749,9 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
                 } else {
                   // x < 0: +-pi, one tiny step inside.
                   let two_half = atan_exact_two(
-                    atan_half_pi(BinaryContext::unbounded(53, rounding=mode)),
+                    atan_half_pi(
+                      BinaryContext::new(precision=53, rounding=mode),
+                    ),
                     53,
                   )
                   ignore(two_half)
@@ -771,7 +779,7 @@ test "asin and acos one ulp below 1 contain the old enclosure at large precision
   for p in [53, 200, 600] {
     let one = BinFloat::one(precision=p)
     let ulp = BinFloat::make(BinCoeff::one(), -p, p)
-    let below = one.sub_ctx(ulp, BinaryContext::unbounded(p + 2)).0
+    let below = one.sub_ctx(ulp, BinaryContext::new(precision=p + 2)).0
     for v in [below, below.neg()] {
       for w in [p + 64] {
         let fresh = binary_asin_bounds(v, w).unwrap()
@@ -794,11 +802,11 @@ test "pi series enclosure contains pi and differs from the old one only by an ul
     let old = (
       old_quarter.0.mul_ctx(
         four,
-        BinaryContext::unbounded(w, rounding=RoundTowardNegative),
+        BinaryContext::new(precision=w, rounding=RoundTowardNegative),
       ).0,
       old_quarter.1.mul_ctx(
         four,
-        BinaryContext::unbounded(w, rounding=RoundTowardPositive),
+        BinaryContext::new(precision=w, rounding=RoundTowardPositive),
       ).0,
     )
     let reference = binary_pi_bounds(w + 200).unwrap()
@@ -813,9 +821,9 @@ test "pi series enclosure contains pi and differs from the old one only by an ul
           atan_pair_width(old).add_ctx(
             ulp.mul_ctx(
               BinFloat::from_int(4, precision=3),
-              BinaryContext::unbounded(60),
+              BinaryContext::new(precision=60),
             ).0,
-            BinaryContext::unbounded(400),
+            BinaryContext::new(precision=400),
           ).0,
         ) <=
         0,

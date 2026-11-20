@@ -147,8 +147,8 @@ fn summary_of(results : Array[CaseResult]) -> RunSummary {
 pub fn execute_strtofr_data(document : MpfrStrtofrDocument) -> RunSummary {
   let results : Array[CaseResult] = []
   for case in document.cases {
-    let context = @bin_float.BinaryContext::unbounded(
-      case.output_precision,
+    let context = @bin_float.BinaryContext::new(
+      precision=case.output_precision,
       rounding=case.rounding,
     )
     let (passed, message) = match
@@ -389,8 +389,8 @@ pub fn execute_decimal_output_data(
         expected_exponent10~,
         inexact~,
       ) => {
-        let context = @bin_float.BinaryContext::unbounded(
-          value.precision(),
+        let context = @bin_float.BinaryContext::new(
+          precision=value.precision(),
           rounding~,
         )
         let (text, flags) = value.to_decimal_string_ctx(digits, context)

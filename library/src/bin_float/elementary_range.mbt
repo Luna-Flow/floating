@@ -81,10 +81,7 @@ fn binary_saturated_minus_one(
 ) -> (BinFloat, BinaryFlags) {
   let toward_zero = match context.rounding {
     RoundTowardZero | RoundTowardPositive => true
-    RoundTiesToEven
-    | RoundTiesToAway
-    | RoundTowardNegative
-    | RoundAwayFromZero => false
+    RoundTiesToEven | RoundTiesToAway | RoundTowardNegative => false
   }
   let result = if toward_zero {
     finite_from_parts(
@@ -168,7 +165,7 @@ fn binary_positive_exp_minus_one_overflow(
     return binary_log2_linear_out_of_range(
       value.sub_ctx(
         BinFloat::make_coeff(Coeff::one(), -60, 1),
-        BinaryContext::unbounded(
+        binary_working_context(
           binary_range_check_precision,
           rounding=RoundTowardNegative,
         ),

@@ -85,8 +85,18 @@ test "BallFloat::with_precision does not widen ordinary intervals" {
     for precision in [8, 16, 24, 53, 113] {
       let y = x.with_precision(precision)
       let tightest = BallFloat::from_bounds(
-        x.lower_bound().with_precision(precision, RoundingMode::TowardNegative),
-        x.upper_bound().with_precision(precision, RoundingMode::TowardPositive),
+        x
+        .lower_bound()
+        .with_precision(
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardNegative,
+        ),
+        x
+        .upper_bound()
+        .with_precision(
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardPositive,
+        ),
         precision~,
       )
       assert_true(y.set_equal(tightest))

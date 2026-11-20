@@ -115,7 +115,6 @@ let finish_test_modes : Array[BinaryRoundingMode] = [
   RoundTowardZero,
   RoundTowardPositive,
   RoundTowardNegative,
-  RoundAwayFromZero,
 ]
 
 ///|
@@ -183,7 +182,7 @@ test "bin_finish_words equals binary_round_dyadic in every mode" {
     let negative = random.below(2) == 0
     let bits = magnitude.bit_length()
     for mode in finish_test_modes {
-      let context = BinaryContext::unbounded(precision, rounding=mode)
+      let context = BinaryContext::new(precision~, rounding=mode)
       // exact magnitude
       let expected = binary_round_dyadic(negative, magnitude, exponent, context).0
       let (words, count) = finish_test_words(magnitude, random.below(3))

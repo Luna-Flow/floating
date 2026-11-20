@@ -42,7 +42,7 @@ zero.[^ieee]
 
 Each format fixes $f$, the input $x$, the target precision $p$ and direction
 $\rho$, and records MPFR's $y$ (and flags). The executor evaluates the
-corresponding `bin_float` method in `BinaryContext::unbounded(p, rounding=ρ)`
+corresponding `bin_float` method in `BinaryContext::new(precision=p, rounding=ρ)`
 and checks:
 
 | Format | Value check | Flag check |

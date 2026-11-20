@@ -264,15 +264,15 @@ fn decimal_power10_bounds(
   let ten = @bin_float.BinFloat::from_int(10, precision~)
   let lower = ten.pown_ctx(
       exponent10,
-      @bin_float.BinaryContext::unbounded(
-        precision,
+      @bin_float.BinaryContext::new(
+        precision~,
         rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
       ),
     ).0
   let upper = ten.pown_ctx(
       exponent10,
-      @bin_float.BinaryContext::unbounded(
-        precision,
+      @bin_float.BinaryContext::new(
+        precision~,
         rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
       ),
     ).0
@@ -297,12 +297,12 @@ fn decimal_bounded_binary_interval(
     value.coefficient.to_bigint().to_octets(),
   )
   let binary_precision = Int32::max(precision, coefficient.bit_length() + 8)
-  let downward = @bin_float.BinaryContext::unbounded(
-    binary_precision,
+  let downward = @bin_float.BinaryContext::new(
+    precision=binary_precision,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    binary_precision,
+  let upward = @bin_float.BinaryContext::new(
+    precision=binary_precision,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let coefficient_value = @bin_float.BinFloat::make(

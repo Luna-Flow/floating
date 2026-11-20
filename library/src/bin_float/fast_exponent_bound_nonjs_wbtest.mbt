@@ -20,7 +20,7 @@ test "the fast path exponent window cannot wrap an Int32 (bound)" {
 ///|
 test "mul and div at the edge of the fast window and just outside it agree" {
   let limit = binary_fast_exponent_limit
-  let ctx = BinaryContext::unbounded(53)
+  let ctx = BinaryContext::new(precision=53)
   for offset in [-1, 0, 1, 2] {
     let e = limit + offset
     let big = BinFloat::make(BinCoeff::one(), e, 53)

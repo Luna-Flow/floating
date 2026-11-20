@@ -6,23 +6,23 @@ fn binary_ln_unit_series_reference(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one(precision=work_precision)
   let two = BinFloat::from_int(2, precision=work_precision)
   let lower_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let upper_value = value.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   guard lower_value.compare(one) >= 0 && upper_value.compare(two) <= 0 else {
     return None
@@ -100,12 +100,12 @@ fn binary_ln_bounds_series_reference(
       ),
     ) {
     (Some(unit), Some(ln2)) => {
-      let downward = BinaryContext::unbounded(
-        work_precision,
+      let downward = BinaryContext::new(
+        precision=work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
-        work_precision,
+      let upward = BinaryContext::new(
+        precision=work_precision,
         rounding=RoundTowardPositive,
       )
       let exponent = value.exponent2() + coefficient_bits - 1
@@ -204,8 +204,8 @@ test "fixed-point ln enclosure contains a tighter series enclosure and is not lo
         is Some((series_lower, series_upper)) else {
         continue
       }
-      let context = BinaryContext::unbounded(
-        work + 32,
+      let context = BinaryContext::new(
+        precision=work + 32,
         rounding=RoundTowardPositive,
       )
       let fixed_width = fixed_upper.sub_ctx(fixed_lower, context).0
@@ -221,10 +221,10 @@ test "fixed-point ln enclosure contains a tighter series enclosure and is not lo
 test "fixed-point ln path gives the same correctly rounded results" {
   let contexts = [
     BinaryContext::binary64(),
-    BinaryContext::unbounded(24),
-    BinaryContext::unbounded(100),
-    BinaryContext::unbounded(53, rounding=RoundTowardZero),
-    BinaryContext::unbounded(53, rounding=RoundTowardNegative),
+    BinaryContext::new(precision=24),
+    BinaryContext::new(precision=100),
+    BinaryContext::new(precision=53, rounding=RoundTowardZero),
+    BinaryContext::new(precision=53, rounding=RoundTowardNegative),
   ]
   for context in contexts {
     for value in binary_ln_fixed_test_values() {

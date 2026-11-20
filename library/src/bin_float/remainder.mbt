@@ -105,6 +105,6 @@ pub fn BinFloat::remainder_ctx(
 pub fn BinFloat::remainder(self : BinFloat, divisor : BinFloat) -> BinFloat {
   self.remainder_ctx(
     divisor,
-    BinaryContext::unbounded(Int32::max(self.precision_, divisor.precision_)),
+    binary_working_context(Int32::max(self.precision_, divisor.precision_)),
   ).0
 }

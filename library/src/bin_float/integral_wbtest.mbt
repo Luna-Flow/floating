@@ -11,7 +11,6 @@ test "roundToIntegral covers every direction on halfway and fractional values" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   let lines = StringBuilder()
   for number in [2.5, -2.5, 3.5, 0.3, -0.3, -0.5, 7.0, 1.0e30] {
@@ -28,14 +27,14 @@ test "roundToIntegral covers every direction on halfway and fractional values" {
   inspect(
     lines.to_string(),
     content=(
-      #|2.5: 1p1 3p0 1p1 3p0 1p1 3p0
-      #|-2.5: -1p1 -3p0 -1p1 -1p1 -3p0 -3p0
-      #|3.5: 1p2 1p2 3p0 1p2 3p0 1p2
-      #|0.3: 0 0 0 1p0 0 1p0
-      #|-0.3: -0 -0 -0 -0 -1p0 -1p0
-      #|-0.5: -0 -1p0 -0 -0 -1p0 -1p0
-      #|7: 7p0 7p0 7p0 7p0 7p0 7p0
-      #|1e+30: 3552713678800501p48 3552713678800501p48 3552713678800501p48 3552713678800501p48 3552713678800501p48 3552713678800501p48
+      #|2.5: 1p1 3p0 1p1 3p0 1p1
+      #|-2.5: -1p1 -3p0 -1p1 -1p1 -3p0
+      #|3.5: 1p2 1p2 3p0 1p2 3p0
+      #|0.3: 0 0 0 1p0 0
+      #|-0.3: -0 -0 -0 -0 -1p0
+      #|-0.5: -0 -1p0 -0 -0 -1p0
+      #|7: 7p0 7p0 7p0 7p0 7p0
+      #|1e+30: 3552713678800501p48 3552713678800501p48 3552713678800501p48 3552713678800501p48 3552713678800501p48
       #|
     ),
   )

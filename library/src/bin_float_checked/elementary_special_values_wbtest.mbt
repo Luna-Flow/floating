@@ -485,7 +485,7 @@ test "BinFloatResult exp agrees with the ExpContextual trait" {
     let value = elementary_value(name, x)
     let wrapper = elementary_render(
       BinFloatResult::ok(value).exp_ctx(
-        @bin_float.BinaryContext::from_arithmetic_context(ctx),
+        @bin_float.BinaryContext::from_arithmetic_context(ctx).unwrap(),
       ),
     )
     let trait_result = match

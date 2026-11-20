@@ -48,17 +48,18 @@ fn legacy_bin_should_increment(
   remainder : BigInt,
   divisor : BigInt,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> Bool {
   if remainder.is_zero() {
     return false
   }
   match mode {
-    RoundingMode::TowardZero => false
-    RoundingMode::TowardPositive => !negative
-    RoundingMode::TowardNegative => negative
-    RoundingMode::AwayFromZero => true
-    RoundingMode::ToNearestEven => {
+    BinaryRoundingMode::RoundTowardZero => false
+    BinaryRoundingMode::RoundTowardPositive => !negative
+    BinaryRoundingMode::RoundTowardNegative => negative
+    BinaryRoundingMode::RoundTiesToAway =>
+      (remainder << 1).compare(divisor) >= 0
+    BinaryRoundingMode::RoundTiesToEven => {
       let comparison = (remainder << 1).compare(divisor)
       comparison > 0 ||
       (comparison == 0 && !(quotient % BigInt::from_int(2)).is_zero())
@@ -71,7 +72,7 @@ fn legacy_bin_round_shift(
   magnitude : BigInt,
   shift : Int32,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> BigInt {
   if shift <= 0 {
     return magnitude
@@ -91,7 +92,7 @@ fn legacy_bin_round_positive_div(
   numerator : BigInt,
   denominator : BigInt,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> BigInt {
   let quotient = numerator / denominator
   let remainder = numerator % denominator
@@ -128,7 +129,7 @@ fn LegacyBigIntBinFloat::make(
   exponent2 : Int32,
   precision : Int32,
   negative_zero~ : Bool = false,
-  mode~ : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> LegacyBigIntBinFloat {
   let precision = Int32::max(1, precision)
   if significand.is_zero() {
@@ -298,7 +299,7 @@ fn LegacyBigIntBinFloat::nan_payload(self : LegacyBigIntBinFloat) -> BigInt {
 fn LegacyBigIntBinFloat::with_precision(
   self : LegacyBigIntBinFloat,
   precision : Int32,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> LegacyBigIntBinFloat {
   match self.class_ {
     FpClass::Finite =>
@@ -367,14 +368,14 @@ fn LegacyBigIntBinFloat::add(
   match (self.class_, other.class_) {
     (FpClass::Infinity, FpClass::Infinity) =>
       if self.is_negative() == other.is_negative() {
-        self.with_precision(precision, RoundingMode::ToNearestEven)
+        self.with_precision(precision, BinaryRoundingMode::RoundTiesToEven)
       } else {
         LegacyBigIntBinFloat::nan(precision~)
       }
     (FpClass::Infinity, _) =>
-      self.with_precision(precision, RoundingMode::ToNearestEven)
+      self.with_precision(precision, BinaryRoundingMode::RoundTiesToEven)
     (_, FpClass::Infinity) =>
-      other.with_precision(precision, RoundingMode::ToNearestEven)
+      other.with_precision(precision, BinaryRoundingMode::RoundTiesToEven)
     (FpClass::Finite, FpClass::Finite) => {
       let target = Int32::min(self.exponent2_, other.exponent2_)
       let left = self.significand_ << (self.exponent2_ - target)
@@ -493,7 +494,7 @@ fn LegacyBigIntBinFloat::div(
         scaled_numerator,
         scaled_denominator,
         negative,
-        RoundingMode::ToNearestEven,
+        BinaryRoundingMode::RoundTiesToEven,
       )
       LegacyBigIntBinFloat::make(
         if negative {

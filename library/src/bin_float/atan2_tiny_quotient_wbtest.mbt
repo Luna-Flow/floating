@@ -15,9 +15,9 @@
 ///|
 fn a2t_contexts() -> Array[BinaryContext] {
   let result : Array[BinaryContext] = [
-    BinaryContext::unbounded(2),
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(100),
+    BinaryContext::new(precision=2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=100),
   ]
   for mode in e2s_modes() {
     for
@@ -26,18 +26,12 @@ fn a2t_contexts() -> Array[BinaryContext] {
         TininessDetection::BeforeRounding,
       ] {
       result.push(
-        BinaryContext::new(
-          53,
-          rounding=mode,
-          e_min=-1022,
-          e_max=1023,
-          tininess~,
-        ),
+        BinaryContext::new(precision=53, rounding=mode, e_max=1023, tininess~),
       )
       result.push(
-        BinaryContext::new(11, rounding=mode, e_min=-14, e_max=15, tininess~),
+        BinaryContext::new(precision=11, rounding=mode, e_max=15, tininess~),
       )
-      result.push(BinaryContext::unbounded(53, rounding=mode))
+      result.push(BinaryContext::new(precision=53, rounding=mode))
     }
   }
   result
@@ -82,10 +76,7 @@ test "atan2 across the shortcut boundary agrees with atan of the quotient" {
   let mut cases = 0
   for c in a2t_contexts() {
     let p = c.precision().to_int64()
-    let e_min = match c.e_min() {
-      Some(v) => v.to_int64()
-      None => binary_implementation_e_min.to_int64()
-    }
+    let e_min = c.e_min().to_int64()
     let threshold = e_min - p - 2L
     for shift in [0, 300] {
       for offset in [-3L, -2L, -1L, 0L, 1L, 2L, 3L] {
