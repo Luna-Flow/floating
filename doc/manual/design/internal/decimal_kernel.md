@@ -228,6 +228,61 @@ limbs. The schoolbook product reads the limbs of a `Limbs` value in place
 (a `Small` has two at most), accumulates by columns up to 18 limbs and by rows
 beyond, and stores limbs below the base into the result array directly.
 
+### The schoolbook product and square in column order
+
+Column $c$ of a product is $\sum_i a_i b_{c-i}$ and each term is at most
+$(B-1)^2 < 10^{18}$ with $B = 10^9$. The sum of a column is accumulated in one
+`UInt64` $s$ that starts at the carry of the previous column; after every 16
+terms it is folded, $q = \lfloor s/B \rfloor$, $s \leftarrow s - qB$, and $q$
+is added to a second counter, so that after a fold $s < B$. Between two folds
+$s < B + 16\,(B-1)^2 < 1.6\cdot 10^{19} + 10^{9} < 2^{64} \approx 1.8447\cdot 10^{19}$,
+and at the start of a column (no fold yet, $s$ = carry)
+$\text{carry} + 16\,(B-1)^2 < 2^{64}$ holds as long as
+$\text{carry} < 2.44\cdot 10^{18}$. The carry out of a column with $n$ terms is
+at most $\lfloor (\text{carry} + n\,(B-1)^2)/B \rfloor < \text{carry}/B + nB$; the
+result array has $\ell_a + \ell_b + 1 < 2^{31}$ limbs, so $n \le \min(\ell_a, \ell_b) < 2^{30}$ and,
+by induction on the columns, $\text{carry} < 1.08\cdot 10^{18}$: the accumulator
+cannot overflow for any operand the function can receive. When the shorter
+operand has at most 18 limbs no column has more than 18 terms, nothing needs to
+fold, every carry is below $1.9\cdot 10^{10}$ and a column sum is below
+$1.9\cdot 10^{10} + 18\,(B-1)^2 < 1.8000000019\cdot 10^{19} < 2^{64}$ (margin
+$4.4\cdot 10^{17}$). That case is its own function, the loop of the former
+column branch, on purpose: the grouped loop, with a fold count of 18 as well as
+16, or a plain `while` loop, makes the compiler emit a vectorized loop whose
+set-up costs 4 to 11 percent on columns of 16 to 18 terms (measured on 4, 12,
+16, 17 and 18 limbs), and the counting loop `for i in a..<=b` stays scalar and
+is the fastest below 19 limbs; longer operands fold every 16 terms as above. The loop
+has no stores inside and reads the limbs of a `Limbs` value in place, which
+lets the compiler keep both buffer pointers in registers and vectorize the
+groups of 16 (a variant that copied the operands to `FixedArray` was measured
+and was not faster).
+
+The square sums the cross terms $a_i a_{c-i}$, $i < c - i$, once, in the same
+groups (starting at 0, so sixteen of them are below $1.6\cdot 10^{19}$), folds,
+and doubles the two parts afterwards: the column value is
+$\text{carry} + a_{c/2}^2 + 2s$ (below $\text{carry} + 10^{18} + 2\cdot 10^{9}$) and the
+carry out is $\lfloor \text{value}/B \rfloor + 2q_{\text{total}}$. A doubled term would be
+below $2\cdot 10^{18}$ and only 9 of them would fit a word; doubling after the
+sum keeps 16 per fold. With at most $\ell/2 < 2^{29}$ cross terms per column
+$2q_{\text{total}} < 2^{30} B$ and the carry stays below $1.08\cdot 10^{18}$ as for the product.
+
+With the faster loops the Karatsuba thresholds of the native build were
+measured again (instructions per call, one level against the schoolbook
+product at the same size, repetition counts large enough that two runs agree to
+0.2 percent): the product costs 232,302 (schoolbook) against 241,489 at 160
+limbs, 332,354 against 326,978 at 192 and 450,385 against 425,681 at 224, so it
+crosses near 180 limbs; the square costs 458,323 against 470,582 at 320 limbs,
+552,045 against 551,981 at 352 and 654,450 against 639,024 at 384, so it
+crosses at 352. The thresholds are now 192 and
+352 (they were 96 and 48). The other targets keep theirs, which were measured
+against the former loops and are stale; each of their threshold files says so
+and they are not measured again here. The repetition counts matter: an
+instruction count per call is the difference of two counts divided by the
+difference, and a difference of only 15 million instructions (about 100 calls of
+a 128-limb product) varied by 18 percent between two runs from the one-time
+costs of the allocator (page faults counted as instructions); with a difference
+of at least 800 million two runs agree to 0.2 percent.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least

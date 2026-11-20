@@ -103,10 +103,7 @@ fn mul_diff_class(
         "schoolbook product differs for \{left.to_string()} * \{right.to_string()}",
       )
     }
-    let squared = dec_coeff_mul_schoolbook(left, left)
-    if !sqrt_diff_same(squared, reference_mul_schoolbook(left, left)) {
-      fail("schoolbook square differs for \{left.to_string()}")
-    }
+    mul_diff_check_square(left)
   }
 }
 
@@ -139,4 +136,67 @@ test "schoolbook product equals the reference, 56 and 112 limbs" {
   mul_diff_class(56, 56, 0x5BE0CD19137E2179UL)
   mul_diff_class(112, 112, 0xCBBB9D5DC1059ED8UL)
   mul_diff_class(112, 20, 0x629A292A367CD507UL)
+}
+
+///|
+fn mul_diff_all_nines(length : Int32) -> DecCoeff {
+  let limbs = Array::make(length, (dec_coeff_base - 1).reinterpret_as_uint())
+  dec_coeff_from_unit_accumulator(limbs, length)
+}
+
+///|
+fn mul_diff_check_pair(left : DecCoeff, right : DecCoeff) -> Unit raise {
+  let actual = dec_coeff_mul_schoolbook(left, right)
+  if !sqrt_diff_same(actual, reference_mul_schoolbook(left, right)) {
+    fail(
+      "schoolbook product differs for \{left.to_string()} * \{right.to_string()}",
+    )
+  }
+}
+
+///|
+fn mul_diff_check_square(value : DecCoeff) -> Unit raise {
+  let actual = dec_coeff_square_schoolbook(value)
+  if !sqrt_diff_same(actual, reference_mul_schoolbook(value, value)) {
+    fail("schoolbook square differs for \{value.to_string()}")
+  }
+}
+
+///|
+test "schoolbook product and square of all 10^9 - 1 limbs at every length" {
+  // the worst case for the accumulator bounds: every product is the largest
+  for length in 1..<140 {
+    let nines = mul_diff_all_nines(length)
+    mul_diff_check_pair(nines, nines)
+    mul_diff_check_square(nines)
+    mul_diff_check_pair(nines, mul_diff_all_nines(length + 1))
+    mul_diff_check_pair(mul_diff_all_nines(length / 2 + 1), nines)
+  }
+}
+
+///|
+test "schoolbook product and square around each fold boundary" {
+  // the number of products of the middle column is the shorter length
+  let state = Ref(0x243F6A8885A308D3UL)
+  for
+    length in [
+      1, 2, 15, 16, 17, 18, 19, 31, 32, 33, 34, 47, 48, 49, 63, 64, 65, 80, 81, 96,
+      97,
+    ] {
+    for other in [1, length - 1, length, length + 1, 2 * length + 1] {
+      if other >= 1 {
+        for iteration in 0..<20 {
+          let nines = (iteration % 4).to_uint64() * 3UL
+          let left = round_diff_value(state, length, nines)
+          let right = round_diff_value(state, other, nines)
+          mul_diff_check_pair(left, right)
+          mul_diff_check_pair(right, left)
+        }
+      }
+    }
+    for iteration in 0..<20 {
+      let nines = (iteration % 4).to_uint64() * 3UL
+      mul_diff_check_square(round_diff_value(state, length, nines))
+    }
+  }
 }

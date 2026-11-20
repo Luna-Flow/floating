@@ -1,3 +1,7 @@
+// The Karatsuba thresholds of this file were measured against the schoolbook
+// loops that reduced after every limb product; they are stale since the
+// column-order loops (native: 192 and 352) and have not been measured again.
+
 ///|
 let dec_coeff_karatsuba_threshold = 96
 

@@ -1859,66 +1859,153 @@ pub fn dec_coeff_div_rem_repr(
 }
 
 ///|
+/// The limbs of a coefficient as an array, read in place for a `Limbs` value
+/// (a `Small` has two at most).
+fn dec_coeff_limb_view(coeff : DecCoeff) -> Array[UInt32] {
+  match coeff {
+    Limbs(units, _) => units
+    Small(_) => dec_coeff_copy_limbs(coeff)
+  }
+}
+
+///|
+/// The product of two limb arrays in column order, into `result` (zeroed, at
+/// least `lhs_len + rhs_len` long).
+///
+/// Column `c` is the sum of the products `lhs[i] * rhs[c - i]`. A product is
+/// at most `(10^9 - 1)^2 < 10^18`. The sum of a column is kept in one `UInt64`
+/// `acc` that starts at the carry of the previous column and takes up to
+/// `dec_coeff_column_fold` = 16 products, then is folded: `q = acc / 10^9`,
+/// `acc = acc - q * 10^9`, and `q` is added to `folded`, so that after a fold
+/// `acc < 10^9`. Between two folds `acc` stays below
+///
+///   10^9 + 16 * (10^9 - 1)^2 < 1.6 * 10^19 + 10^9 < 2^64 = 1.8446... * 10^19
+///
+/// and at the start of a column (no fold yet, `acc = carry`)
+///
+///   carry + 16 * (10^9 - 1)^2 < 2^64   as long as   carry < 2.44 * 10^18.
+///
+/// The carry out of a column is at most `floor((carry + n * (10^9 - 1)^2) /
+/// 10^9) < carry / 10^9 + n * 10^9` with `n` the number of products of the
+/// column, at most `min(lhs_len, rhs_len)`. The result array has
+/// `lhs_len + rhs_len + 1` limbs and an array has fewer than `2^31` elements,
+/// so `n < 2^30` and, inductively, `carry < 1.08 * 10^18 < 2.44 * 10^18`: the
+/// sums cannot overflow for any operand the function can receive.
+///
+/// Used when the shorter operand has more than 18 limbs; for at most 18 limbs
+/// `dec_coeff_mul_columns_short` is faster. Each column ends with one reduction.
+fn dec_coeff_mul_columns(
+  lhs : Array[UInt32],
+  lhs_len : Int32,
+  rhs : Array[UInt32],
+  rhs_len : Int32,
+  result : Array[UInt32],
+) -> Unit {
+  let base = dec_coeff_wide_base
+  let columns = lhs_len + rhs_len - 1
+  let mut carry = 0UL
+  for column in 0..<columns {
+    let start = Int32::max(0, column - (rhs_len - 1))
+    let stop = Int32::min(lhs_len - 1, column)
+    let mut acc = carry
+    let mut folded = 0UL
+    let mut index = start
+    while index <= stop {
+      let group_end = if stop - index >= dec_coeff_column_fold {
+        index + dec_coeff_column_fold - 1
+      } else {
+        stop
+      }
+      while index <= group_end {
+        acc += lhs.unsafe_get(index).to_uint64() *
+          rhs.unsafe_get(column - index).to_uint64()
+        index += 1
+      }
+      if index <= stop {
+        let quotient = acc / base
+        acc = acc - quotient * base
+        folded += quotient
+      }
+    }
+    let quotient = acc / base
+    result.unsafe_set(column, (acc - quotient * base).to_uint())
+    carry = folded + quotient
+  }
+  let mut column = columns
+  while carry != 0UL {
+    let quotient = carry / base
+    result.unsafe_set(column, (carry - quotient * base).to_uint())
+    carry = quotient
+    column += 1
+  }
+}
+
+///|
+/// The product of two operands of at most 18 limbs (the shorter one), by
+/// columns with no fold: no column has more than 18 products, the carry out of
+/// a column is below `carry / 10^9 + 18 * 10^9`, so every carry is below
+/// `1.9 * 10^10`, and the sum of a column is below
+///
+///   1.9 * 10^10 + 18 * (10^9 - 1)^2 < 1.8000000019 * 10^19 < 2^64
+///
+/// (18 * (10^9 - 1)^2 = 17,999,999,964,000,000,018; the margin to `2^64` is
+/// 4.4 * 10^17). This is the loop of `dec_coeff_mul_columns` with a fold count
+/// of 18, written as its own function on purpose: the generic loop, with any
+/// fold count, makes the compiler emit a vectorized loop whose set-up costs
+/// 8 to 11 percent on columns of 16 to 18 products (measured on 16, 17 and 18
+/// limbs; a plain loop that the compiler may still vectorize costs 4 percent
+/// on every short size), and a loop that cannot be vectorized is the fastest
+/// below 19 limbs. The inner loop is the counting loop `for i in a..<=b` over
+/// the two arrays, the form that the compiler leaves scalar here.
+fn dec_coeff_mul_columns_short(
+  lhs : Array[UInt32],
+  lhs_len : Int32,
+  rhs : Array[UInt32],
+  rhs_len : Int32,
+  result : Array[UInt32],
+) -> Unit {
+  let base = dec_coeff_wide_base
+  let columns = lhs_len + rhs_len - 1
+  let mut carry = 0UL
+  for column in 0..<columns {
+    let lhs_start = Int32::max(0, column - (rhs_len - 1))
+    let lhs_end = Int32::min(lhs_len - 1, column)
+    let mut current = carry
+    for lhs_index in lhs_start..<=lhs_end {
+      current += lhs.unsafe_get(lhs_index).to_uint64() *
+        rhs.unsafe_get(column - lhs_index).to_uint64()
+    }
+    carry = current / base
+    result.unsafe_set(column, (current - carry * base).to_uint())
+  }
+  let mut column = columns
+  while carry != 0UL {
+    let quotient = carry / base
+    result.unsafe_set(column, (carry - quotient * base).to_uint())
+    carry = quotient
+    column += 1
+  }
+}
+
+///|
+/// Products accumulated between two folds of a column sum (see
+/// `dec_coeff_mul_columns` for the bound).
+let dec_coeff_column_fold : Int32 = 16
+
+///|
 fn dec_coeff_mul_schoolbook(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
   if lhs.is_zero() || rhs.is_zero() {
     return dec_coeff_zero()
   }
   let lhs_len = dec_coeff_unit_len(lhs)
   let rhs_len = dec_coeff_unit_len(rhs)
-  // the limbs, read in place for a `Limbs` value (a `Small` one has two at most)
-  let lhs_units = match lhs {
-    Limbs(units, _) => units
-    Small(_) => dec_coeff_copy_limbs(lhs)
-  }
-  let rhs_units = match rhs {
-    Limbs(units, _) => units
-    Small(_) => dec_coeff_copy_limbs(rhs)
-  }
   let result = Array::make(lhs_len + rhs_len + 1, 0U)
-  let base = dec_coeff_wide_base
+  let lhs_view = dec_coeff_limb_view(lhs)
+  let rhs_view = dec_coeff_limb_view(rhs)
   if Int32::min(lhs_len, rhs_len) <= 18 {
-    // by columns: at most 18 products below 10^18 fit a word with the carry
-    let columns = lhs_len + rhs_len - 1
-    let mut carry = 0UL
-    for column in 0..<columns {
-      let lhs_start = Int32::max(0, column - (rhs_len - 1))
-      let lhs_end = Int32::min(lhs_len - 1, column)
-      let mut current = carry
-      for lhs_index in lhs_start..<=lhs_end {
-        current += lhs_units.unsafe_get(lhs_index).to_uint64() *
-          rhs_units.unsafe_get(column - lhs_index).to_uint64()
-      }
-      carry = current / base
-      result.unsafe_set(column, (current - carry * base).to_uint())
-    }
-    let mut column = columns
-    while carry != 0UL {
-      let next = carry / base
-      result.unsafe_set(column, (carry - next * base).to_uint())
-      carry = next
-      column += 1
-    }
-    return dec_coeff_from_unit_accumulator(result, result.length())
-  }
-  // by rows, the partial sums kept as limbs below the base
-  for rhs_index in 0..<rhs_len {
-    let multiplier = rhs_units.unsafe_get(rhs_index).to_uint64()
-    let mut carry = 0UL
-    for lhs_index in 0..<lhs_len {
-      let target = lhs_index + rhs_index
-      let current = result.unsafe_get(target).to_uint64() +
-        lhs_units.unsafe_get(lhs_index).to_uint64() * multiplier +
-        carry
-      carry = current / base
-      result.unsafe_set(target, (current - carry * base).to_uint())
-    }
-    let mut target = lhs_len + rhs_index
-    while carry != 0UL {
-      let current = result.unsafe_get(target).to_uint64() + carry
-      carry = current / base
-      result.unsafe_set(target, (current - carry * base).to_uint())
-      target += 1
-    }
+    dec_coeff_mul_columns_short(lhs_view, lhs_len, rhs_view, rhs_len, result)
+  } else {
+    dec_coeff_mul_columns(lhs_view, lhs_len, rhs_view, rhs_len, result)
   }
   dec_coeff_from_unit_accumulator(result, result.length())
 }

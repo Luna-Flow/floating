@@ -1,8 +1,8 @@
 ///|
-pub let dec_coeff_karatsuba_threshold = 96
+pub let dec_coeff_karatsuba_threshold = 192
 
 ///|
-pub let dec_coeff_karatsuba_square_threshold = 48
+pub let dec_coeff_karatsuba_square_threshold = 352
 
 ///|
 pub let dec_coeff_toom3_threshold = 1152

@@ -11081,7 +11081,7 @@ msgstr ""
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:138
 #: manual/design/internal/conformance.md:74
-#: manual/design/internal/decimal_kernel.md:231
+#: manual/design/internal/decimal_kernel.md:286
 #: manual/design/internal/runner_cli.md:60
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -17783,35 +17783,51 @@ msgstr ""
 msgid "Knuth's algorithm D divides the normalized numerator in place: the numerator and the divisor are multiplied by $\\lfloor B/(v_{n-1}+1) \\rfloor$ into two `FixedArray[UInt64]` scratch arrays, each quotient limb is estimated from the top two limbs and the second limb of the divisor, corrected, and the product by the divisor is subtracted in place with a borrow; the quotient limbs go straight into the `Array[UInt32]` that becomes the result. The remainder is the normalized remainder divided by the normalization unit, which divides it exactly, so the old branch that multiplied the quotient back and corrected it was never taken and is gone (an abort now guards the invariant). The caller that needs only \"the remainder is zero\" reads the scratch array and builds nothing. `dec_coeff_div_scaled_inexact` is the division behind `decimal_gda`'s `divide`: the dividend $c\\cdot 10^{s}$ is formed (a whole-limb shift and one multiplication by $10^{s \\bmod 9}$) and normalized in the scratch array; with the remainder nonzero the exact quotient has a finite expansion iff the part $u$ of the divisor prime to 10 divides the remainder, and the valuations of 2 and 5 of the divisor, when below 9, are those of its lowest limb, so a divisor prime to 10 (the usual case) is decided with no division at all ($0 < r < u = $ divisor), and others need one division by a unit and a remainder test of a quotient of at most a few limbs. The schoolbook product reads the limbs of a `Limbs` value in place (a `Small` has two at most), accumulates by columns up to 18 limbs and by rows beyond, and stores limbs below the base into the result array directly."
 msgstr ""
 
+#: manual/design/internal/decimal_kernel.md:231
+msgid "The schoolbook product and square in column order"
+msgstr ""
+
 #: manual/design/internal/decimal_kernel.md:233
+msgid "Column $c$ of a product is $\\sum_i a_i b_{c-i}$ and each term is at most $(B-1)^2 < 10^{18}$ with $B = 10^9$. The sum of a column is accumulated in one `UInt64` $s$ that starts at the carry of the previous column; after every 16 terms it is folded, $q = \\lfloor s/B \\rfloor$, $s \\leftarrow s - qB$, and $q$ is added to a second counter, so that after a fold $s < B$. Between two folds $s < B + 16\\,(B-1)^2 < 1.6\\cdot 10^{19} + 10^{9} < 2^{64} \\approx 1.8447\\cdot 10^{19}$, and at the start of a column (no fold yet, $s$ = carry) $\\text{carry} + 16\\,(B-1)^2 < 2^{64}$ holds as long as $\\text{carry} < 2.44\\cdot 10^{18}$. The carry out of a column with $n$ terms is at most $\\lfloor (\\text{carry} + n\\,(B-1)^2)/B \\rfloor < \\text{carry}/B + nB$; the result array has $\\ell_a + \\ell_b + 1 < 2^{31}$ limbs, so $n \\le \\min(\\ell_a, \\ell_b) < 2^{30}$ and, by induction on the columns, $\\text{carry} < 1.08\\cdot 10^{18}$: the accumulator cannot overflow for any operand the function can receive. When the shorter operand has at most 18 limbs no column has more than 18 terms, nothing needs to fold, every carry is below $1.9\\cdot 10^{10}$ and a column sum is below $1.9\\cdot 10^{10} + 18\\,(B-1)^2 < 1.8000000019\\cdot 10^{19} < 2^{64}$ (margin $4.4\\cdot 10^{17}$). That case is its own function, the loop of the former column branch, on purpose: the grouped loop, with a fold count of 18 as well as 16, or a plain `while` loop, makes the compiler emit a vectorized loop whose set-up costs 4 to 11 percent on columns of 16 to 18 terms (measured on 4, 12, 16, 17 and 18 limbs), and the counting loop `for i in a..<=b` stays scalar and is the fastest below 19 limbs; longer operands fold every 16 terms as above. The loop has no stores inside and reads the limbs of a `Limbs` value in place, which lets the compiler keep both buffer pointers in registers and vectorize the groups of 16 (a variant that copied the operands to `FixedArray` was measured and was not faster)."
+msgstr ""
+
+#: manual/design/internal/decimal_kernel.md:260
+msgid "The square sums the cross terms $a_i a_{c-i}$, $i < c - i$, once, in the same groups (starting at 0, so sixteen of them are below $1.6\\cdot 10^{19}$), folds, and doubles the two parts afterwards: the column value is $\\text{carry} + a_{c/2}^2 + 2s$ (below $\\text{carry} + 10^{18} + 2\\cdot 10^{9}$) and the carry out is $\\lfloor \\text{value}/B \\rfloor + 2q_{\\text{total}}$. A doubled term would be below $2\\cdot 10^{18}$ and only 9 of them would fit a word; doubling after the sum keeps 16 per fold. With at most $\\ell/2 < 2^{29}$ cross terms per column $2q_{\\text{total}} < 2^{30} B$ and the carry stays below $1.08\\cdot 10^{18}$ as for the product."
+msgstr ""
+
+#: manual/design/internal/decimal_kernel.md:269
+msgid "With the faster loops the Karatsuba thresholds of the native build were measured again (instructions per call, one level against the schoolbook product at the same size, repetition counts large enough that two runs agree to 0.2 percent): the product costs 232,302 (schoolbook) against 241,489 at 160 limbs, 332,354 against 326,978 at 192 and 450,385 against 425,681 at 224, so it crosses near 180 limbs; the square costs 458,323 against 470,582 at 320 limbs, 552,045 against 551,981 at 352 and 654,450 against 639,024 at 384, so it crosses at 352. The thresholds are now 192 and 352 (they were 96 and 48). The other targets keep theirs, which were measured against the former loops and are stale; each of their threshold files says so and they are not measured again here. The repetition counts matter: an instruction count per call is the difference of two counts divided by the difference, and a difference of only 15 million instructions (about 100 calls of a 128-limb product) varied by 18 percent between two runs from the one-time costs of the allocator (page faults counted as instructions); with a difference of at least 800 million two runs agree to 0.2 percent."
+msgstr ""
+
+#: manual/design/internal/decimal_kernel.md:288
 msgid "**Canonical form.** A `Limbs` value has no leading zero limb and is at least $10^{18}$; a smaller value is `Small`. Equal integers therefore have equal representations, and `DecCoeff::to_string` is the plain decimal string."
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:236
+#: manual/design/internal/decimal_kernel.md:291
 msgid "**Persistence.** No operation mutates the limbs of an operand."
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:237
+#: manual/design/internal/decimal_kernel.md:292
 msgid "**Totality inside the contract.** A violated precondition aborts; it is never mapped to a value."
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:239
+#: manual/design/internal/decimal_kernel.md:294
 msgid "**Exactness.** All results equal the `BigInt` result. The white-box tests compare with `BigInt` at limb boundaries, at the threshold of every target and for forced algorithms on nines, powers of ten and sparse operands."
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:243
+#: manual/design/internal/decimal_kernel.md:298
 msgid "Trade-offs and limitations"
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:245
+#: manual/design/internal/decimal_kernel.md:300
 msgid "Sharing means a performance change hits both standards; every change is measured on both. The kernel is not a general bignum: it has no negative numbers except `SignedDecCoeff` for intermediate values, and no radix other than $10^{9}$."
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:250
+#: manual/design/internal/decimal_kernel.md:305
 msgid "References"
 msgstr ""
 
-#: manual/design/internal/decimal_kernel.md:252
+#: manual/design/internal/decimal_kernel.md:307
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1; C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4."
 msgstr ""
 

@@ -11130,7 +11130,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:138
 #: manual/design/internal/conformance.md:74
-#: manual/design/internal/decimal_kernel.md:231
+#: manual/design/internal/decimal_kernel.md:286
 #: manual/design/internal/runner_cli.md:60
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -17924,35 +17924,51 @@ msgstr "无临时对象的除法和乘积"
 msgid "Knuth's algorithm D divides the normalized numerator in place: the numerator and the divisor are multiplied by $\\lfloor B/(v_{n-1}+1) \\rfloor$ into two `FixedArray[UInt64]` scratch arrays, each quotient limb is estimated from the top two limbs and the second limb of the divisor, corrected, and the product by the divisor is subtracted in place with a borrow; the quotient limbs go straight into the `Array[UInt32]` that becomes the result. The remainder is the normalized remainder divided by the normalization unit, which divides it exactly, so the old branch that multiplied the quotient back and corrected it was never taken and is gone (an abort now guards the invariant). The caller that needs only \"the remainder is zero\" reads the scratch array and builds nothing. `dec_coeff_div_scaled_inexact` is the division behind `decimal_gda`'s `divide`: the dividend $c\\cdot 10^{s}$ is formed (a whole-limb shift and one multiplication by $10^{s \\bmod 9}$) and normalized in the scratch array; with the remainder nonzero the exact quotient has a finite expansion iff the part $u$ of the divisor prime to 10 divides the remainder, and the valuations of 2 and 5 of the divisor, when below 9, are those of its lowest limb, so a divisor prime to 10 (the usual case) is decided with no division at all ($0 < r < u = $ divisor), and others need one division by a unit and a remainder test of a quotient of at most a few limbs. The schoolbook product reads the limbs of a `Limbs` value in place (a `Small` has two at most), accumulates by columns up to 18 limbs and by rows beyond, and stores limbs below the base into the result array directly."
 msgstr "Knuth 算法 D 原地除以规格化的被除数：被除数和除数乘以 $\\lfloor B/(v_{n-1}+1) \\rfloor$ 后存入两个 `FixedArray[UInt64]` 临时数组，每个商 limb 由被除数的最高两个 limb 和除数的次高 limb 估计并修正，然后原地减去它与除数的乘积并带借位；商 limb 直接写入将成为结果的 `Array[UInt32]`。余数是规格化余数除以规格化因子，而它能整除这个余数，所以旧版本把商乘回去再修正的分支从未被执行，现在已删除（改为用中止来守护这个不变量）。只需要“余数是否为零”的调用方只读临时数组，不构造任何对象。`dec_coeff_div_scaled_inexact` 是 `decimal_gda` 的 `divide` 背后的除法：被除数 $c\\cdot 10^{s}$ 的形成（整 limb 的移位和一次乘以 $10^{s \\bmod 9}$）与规格化都在临时数组里进行；余数非零时，精确商的展开有限当且仅当除数中与 10 互素的部分 $u$ 整除余数，而除数中 2 和 5 的赋值在小于 9 时就是其最低 limb 的赋值，所以与 10 互素的除数（通常情形）完全不需要除法就能判定（$0 < r < u = $ 除数），其余情形需要一次除以单个 limb 的除法，以及对至多几个 limb 的商的余数检验。竖式乘法就地读取 `Limbs` 值的 limb（`Small` 至多有两个），在 18 个 limb 以内按列累加，超过则按行累加，并把小于基数的 limb 直接存入结果数组。"
 
+#: manual/design/internal/decimal_kernel.md:231
+msgid "The schoolbook product and square in column order"
+msgstr "列顺序的竖式乘法和平方"
+
 #: manual/design/internal/decimal_kernel.md:233
+msgid "Column $c$ of a product is $\\sum_i a_i b_{c-i}$ and each term is at most $(B-1)^2 < 10^{18}$ with $B = 10^9$. The sum of a column is accumulated in one `UInt64` $s$ that starts at the carry of the previous column; after every 16 terms it is folded, $q = \\lfloor s/B \\rfloor$, $s \\leftarrow s - qB$, and $q$ is added to a second counter, so that after a fold $s < B$. Between two folds $s < B + 16\\,(B-1)^2 < 1.6\\cdot 10^{19} + 10^{9} < 2^{64} \\approx 1.8447\\cdot 10^{19}$, and at the start of a column (no fold yet, $s$ = carry) $\\text{carry} + 16\\,(B-1)^2 < 2^{64}$ holds as long as $\\text{carry} < 2.44\\cdot 10^{18}$. The carry out of a column with $n$ terms is at most $\\lfloor (\\text{carry} + n\\,(B-1)^2)/B \\rfloor < \\text{carry}/B + nB$; the result array has $\\ell_a + \\ell_b + 1 < 2^{31}$ limbs, so $n \\le \\min(\\ell_a, \\ell_b) < 2^{30}$ and, by induction on the columns, $\\text{carry} < 1.08\\cdot 10^{18}$: the accumulator cannot overflow for any operand the function can receive. When the shorter operand has at most 18 limbs no column has more than 18 terms, nothing needs to fold, every carry is below $1.9\\cdot 10^{10}$ and a column sum is below $1.9\\cdot 10^{10} + 18\\,(B-1)^2 < 1.8000000019\\cdot 10^{19} < 2^{64}$ (margin $4.4\\cdot 10^{17}$). That case is its own function, the loop of the former column branch, on purpose: the grouped loop, with a fold count of 18 as well as 16, or a plain `while` loop, makes the compiler emit a vectorized loop whose set-up costs 4 to 11 percent on columns of 16 to 18 terms (measured on 4, 12, 16, 17 and 18 limbs), and the counting loop `for i in a..<=b` stays scalar and is the fastest below 19 limbs; longer operands fold every 16 terms as above. The loop has no stores inside and reads the limbs of a `Limbs` value in place, which lets the compiler keep both buffer pointers in registers and vectorize the groups of 16 (a variant that copied the operands to `FixedArray` was measured and was not faster)."
+msgstr "乘积的第 $c$ 列是 $\\sum_i a_i b_{c-i}$，每一项至多为 $(B-1)^2 < 10^{18}$，其中 $B = 10^9$。一列的和累加在一个 `UInt64` $s$ 里，它从上一列的进位开始；每累加 16 项就折叠一次，$q = \\lfloor s/B \\rfloor$，$s \\leftarrow s - qB$，并把 $q$ 加到第二个计数器上，所以折叠之后 $s < B$。两次折叠之间 $s < B + 16\\,(B-1)^2 < 1.6\\cdot 10^{19} + 10^{9} < 2^{64} \\approx 1.8447\\cdot 10^{19}$；在一列开始时（还没有折叠，$s$ 等于进位）只要 $\\text{carry} < 2.44\\cdot 10^{18}$，就有 $\\text{carry} + 16\\,(B-1)^2 < 2^{64}$。有 $n$ 项的一列的进位至多为 $\\lfloor (\\text{carry} + n\\,(B-1)^2)/B \\rfloor < \\text{carry}/B + nB$；结果数组有 $\\ell_a + \\ell_b + 1 < 2^{31}$ 个 limb，所以 $n \\le \\min(\\ell_a, \\ell_b) < 2^{30}$，对列归纳可得 $\\text{carry} < 1.08\\cdot 10^{18}$：对函数能收到的任何操作数，累加器都不会溢出。较短操作数至多 18 个 limb 时，没有哪一列超过 18 项，不需要折叠，每个进位都小于 $1.9\\cdot 10^{10}$，一列的和小于 $1.9\\cdot 10^{10} + 18\\,(B-1)^2 < 1.8000000019\\cdot 10^{19} < 2^{64}$（余量 $4.4\\cdot 10^{17}$）。这种情形特意单独成为一个函数，即原来的列分支的循环：带折叠计数 18 或 16 的分组循环，或者普通的 `while` 循环，都会让编译器生成向量化循环，其准备开销在 16 到 18 项的列上占 4% 到 11%（在 4、12、16、17、18 个 limb 上测得），而计数循环 `for i in a..<=b` 保持标量，在 19 个 limb 以下最快；更长的操作数如上所述每 16 项折叠一次。这个循环内部没有存储，并就地读取 `Limbs` 值的 limb，使编译器可以把两个缓冲区指针留在寄存器里并对 16 项一组做向量化（把操作数复制到 `FixedArray` 的变体经过测量并不更快）。"
+
+#: manual/design/internal/decimal_kernel.md:260
+msgid "The square sums the cross terms $a_i a_{c-i}$, $i < c - i$, once, in the same groups (starting at 0, so sixteen of them are below $1.6\\cdot 10^{19}$), folds, and doubles the two parts afterwards: the column value is $\\text{carry} + a_{c/2}^2 + 2s$ (below $\\text{carry} + 10^{18} + 2\\cdot 10^{9}$) and the carry out is $\\lfloor \\text{value}/B \\rfloor + 2q_{\\text{total}}$. A doubled term would be below $2\\cdot 10^{18}$ and only 9 of them would fit a word; doubling after the sum keeps 16 per fold. With at most $\\ell/2 < 2^{29}$ cross terms per column $2q_{\\text{total}} < 2^{30} B$ and the carry stays below $1.08\\cdot 10^{18}$ as for the product."
+msgstr "平方对交叉项 $a_i a_{c-i}$（$i < c - i$）只求一次和，分组方式相同（从 0 开始，所以 16 项之和小于 $1.6\\cdot 10^{19}$），折叠之后再把两部分加倍：这一列的值是 $\\text{carry} + a_{c/2}^2 + 2s$（小于 $\\text{carry} + 10^{18} + 2\\cdot 10^{9}$），进位为 $\\lfloor \\text{value}/B \\rfloor + 2q_{\\text{total}}$。加倍后的项会小于 $2\\cdot 10^{18}$，一个字里只放得下 9 项；先求和再加倍则每次折叠仍可容纳 16 项。每列至多有 $\\ell/2 < 2^{29}$ 个交叉项，$2q_{\\text{total}} < 2^{30} B$，进位与乘积一样保持在 $1.08\\cdot 10^{18}$ 以下。"
+
+#: manual/design/internal/decimal_kernel.md:269
+msgid "With the faster loops the Karatsuba thresholds of the native build were measured again (instructions per call, one level against the schoolbook product at the same size, repetition counts large enough that two runs agree to 0.2 percent): the product costs 232,302 (schoolbook) against 241,489 at 160 limbs, 332,354 against 326,978 at 192 and 450,385 against 425,681 at 224, so it crosses near 180 limbs; the square costs 458,323 against 470,582 at 320 limbs, 552,045 against 551,981 at 352 and 654,450 against 639,024 at 384, so it crosses at 352. The thresholds are now 192 and 352 (they were 96 and 48). The other targets keep theirs, which were measured against the former loops and are stale; each of their threshold files says so and they are not measured again here. The repetition counts matter: an instruction count per call is the difference of two counts divided by the difference, and a difference of only 15 million instructions (about 100 calls of a 128-limb product) varied by 18 percent between two runs from the one-time costs of the allocator (page faults counted as instructions); with a difference of at least 800 million two runs agree to 0.2 percent."
+msgstr "有了更快的循环，原生构建的 Karatsuba 阈值被重新测量（每次调用的指令数，同样大小下一层 Karatsuba 对比竖式乘法，重复次数足够大，两次运行相差在 0.2% 以内）：乘积在 160 个 limb 时竖式乘法为 232,302、Karatsuba 为 241,489，192 个 limb 时为 332,354 对 326,978，224 个 limb 时为 450,385 对 425,681，所以交点在 180 个 limb 附近；平方在 320 个 limb 时为 458,323 对 470,582，352 个 limb 时为 552,045 对 551,981，384 个 limb 时为 654,450 对 639,024，所以交点在 352。阈值现在是 192 和 352（原来是 96 和 48）。其他目标平台保持原值，这些值是针对原来的循环测得的，已经过时；它们的阈值文件都这样说明，这里没有重新测量。重复次数很重要：每次调用的指令数是两次计数之差除以次数之差，而只有 1500 万条指令的差（大约 100 次 128 个 limb 的乘积）在两次运行之间相差 18%，原因是分配器的一次性开销（缺页被计为指令）；差至少为 8 亿时，两次运行相差在 0.2% 以内。"
+
+#: manual/design/internal/decimal_kernel.md:288
 msgid "**Canonical form.** A `Limbs` value has no leading zero limb and is at least $10^{18}$; a smaller value is `Small`. Equal integers therefore have equal representations, and `DecCoeff::to_string` is the plain decimal string."
 msgstr "**规范形式。** `Limbs` 值没有前导零 limb，且不小于 $10^{18}$；更小的值是 `Small`。因此相等的整数有相等的表示，`DecCoeff::to_string` 就是朴素的十进制字符串。"
 
-#: manual/design/internal/decimal_kernel.md:236
+#: manual/design/internal/decimal_kernel.md:291
 msgid "**Persistence.** No operation mutates the limbs of an operand."
 msgstr "**持久性。** 没有任何运算会修改操作数的 limb。"
 
-#: manual/design/internal/decimal_kernel.md:237
+#: manual/design/internal/decimal_kernel.md:292
 msgid "**Totality inside the contract.** A violated precondition aborts; it is never mapped to a value."
 msgstr "**契约内的全函数性。** 违反前置条件会中止；它绝不会被映射为某个值。"
 
-#: manual/design/internal/decimal_kernel.md:239
+#: manual/design/internal/decimal_kernel.md:294
 msgid "**Exactness.** All results equal the `BigInt` result. The white-box tests compare with `BigInt` at limb boundaries, at the threshold of every target and for forced algorithms on nines, powers of ten and sparse operands."
 msgstr "**精确性。** 所有结果都等于 `BigInt` 的结果。白盒测试在 limb 边界、每个目标平台的阈值处，以及对全 9、十的幂和稀疏操作数的强制算法，与 `BigInt` 进行比较。"
 
-#: manual/design/internal/decimal_kernel.md:243
+#: manual/design/internal/decimal_kernel.md:298
 msgid "Trade-offs and limitations"
 msgstr "取舍与局限"
 
-#: manual/design/internal/decimal_kernel.md:245
+#: manual/design/internal/decimal_kernel.md:300
 msgid "Sharing means a performance change hits both standards; every change is measured on both. The kernel is not a general bignum: it has no negative numbers except `SignedDecCoeff` for intermediate values, and no radix other than $10^{9}$."
 msgstr "共享意味着一次性能改动会同时影响两个标准；每次改动都在两者上测量。内核不是通用的大整数库：除了用于中间值的 `SignedDecCoeff` 外它没有负数，也没有 $10^{9}$ 以外的基数。"
 
-#: manual/design/internal/decimal_kernel.md:250
+#: manual/design/internal/decimal_kernel.md:305
 msgid "References"
 msgstr "参考文献"
 
-#: manual/design/internal/decimal_kernel.md:252
+#: manual/design/internal/decimal_kernel.md:307
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1; C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4."
 msgstr "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1；C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998；R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4。"
 

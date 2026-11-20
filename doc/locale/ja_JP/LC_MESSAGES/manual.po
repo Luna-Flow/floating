@@ -11130,7 +11130,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:138
 #: manual/design/internal/conformance.md:74
-#: manual/design/internal/decimal_kernel.md:231
+#: manual/design/internal/decimal_kernel.md:286
 #: manual/design/internal/runner_cli.md:60
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -17924,35 +17924,51 @@ msgstr "一時オブジェクトのない除算と積"
 msgid "Knuth's algorithm D divides the normalized numerator in place: the numerator and the divisor are multiplied by $\\lfloor B/(v_{n-1}+1) \\rfloor$ into two `FixedArray[UInt64]` scratch arrays, each quotient limb is estimated from the top two limbs and the second limb of the divisor, corrected, and the product by the divisor is subtracted in place with a borrow; the quotient limbs go straight into the `Array[UInt32]` that becomes the result. The remainder is the normalized remainder divided by the normalization unit, which divides it exactly, so the old branch that multiplied the quotient back and corrected it was never taken and is gone (an abort now guards the invariant). The caller that needs only \"the remainder is zero\" reads the scratch array and builds nothing. `dec_coeff_div_scaled_inexact` is the division behind `decimal_gda`'s `divide`: the dividend $c\\cdot 10^{s}$ is formed (a whole-limb shift and one multiplication by $10^{s \\bmod 9}$) and normalized in the scratch array; with the remainder nonzero the exact quotient has a finite expansion iff the part $u$ of the divisor prime to 10 divides the remainder, and the valuations of 2 and 5 of the divisor, when below 9, are those of its lowest limb, so a divisor prime to 10 (the usual case) is decided with no division at all ($0 < r < u = $ divisor), and others need one division by a unit and a remainder test of a quotient of at most a few limbs. The schoolbook product reads the limbs of a `Limbs` value in place (a `Small` has two at most), accumulates by columns up to 18 limbs and by rows beyond, and stores limbs below the base into the result array directly."
 msgstr "Knuth のアルゴリズム D は正規化した被除数をその場で割ります。被除数と除数に $\\lfloor B/(v_{n-1}+1) \\rfloor$ を掛けて 2 つの `FixedArray[UInt64]` の作業配列に入れ、各商のリムブは被除数の上位 2 リムブと除数の 2 番目のリムブから見積もって補正し、除数との積をその場で借り位ありで引きます。商のリムブは結果になる `Array[UInt32]` に直接書き込まれます。剰余は正規化した剰余を正規化の単位で割ったもので、この単位は剰余を割り切るため、商を掛け戻して補正する以前の分岐は一度も実行されず、削除されました（不変条件は中断で守ります）。「剰余が零か」だけが必要な呼び出し側は作業配列を読むだけで、何も作りません。`dec_coeff_div_scaled_inexact` は `decimal_gda` の `divide` の裏にある除算です。被除数 $c\\cdot 10^{s}$ の生成（リムブ単位のシフトと $10^{s \\bmod 9}$ の 1 回の乗算）と正規化は作業配列の中で行われます。剰余が非零のとき、正確な商の展開が有限であるのは、除数のうち 10 と互いに素な部分 $u$ が剰余を割り切るときに限り、除数の 2 と 5 の付値は、9 未満であれば最下位リムブの付値と同じなので、10 と互いに素な除数（通常の場合）は除算なしで決まります（$0 < r < u = $ 除数）。それ以外は 1 リムブの単位による除算 1 回と、高々数リムブの商の剰余検査が必要です。筆算の積は `Limbs` 値のリムブをその場で読み（`Small` は高々 2 つ）、18 リムブまでは列ごとに、それを超えると行ごとに累積し、基数未満のリムブを結果配列に直接書き込みます。"
 
+#: manual/design/internal/decimal_kernel.md:231
+msgid "The schoolbook product and square in column order"
+msgstr "列順の筆算の積と二乗"
+
 #: manual/design/internal/decimal_kernel.md:233
+msgid "Column $c$ of a product is $\\sum_i a_i b_{c-i}$ and each term is at most $(B-1)^2 < 10^{18}$ with $B = 10^9$. The sum of a column is accumulated in one `UInt64` $s$ that starts at the carry of the previous column; after every 16 terms it is folded, $q = \\lfloor s/B \\rfloor$, $s \\leftarrow s - qB$, and $q$ is added to a second counter, so that after a fold $s < B$. Between two folds $s < B + 16\\,(B-1)^2 < 1.6\\cdot 10^{19} + 10^{9} < 2^{64} \\approx 1.8447\\cdot 10^{19}$, and at the start of a column (no fold yet, $s$ = carry) $\\text{carry} + 16\\,(B-1)^2 < 2^{64}$ holds as long as $\\text{carry} < 2.44\\cdot 10^{18}$. The carry out of a column with $n$ terms is at most $\\lfloor (\\text{carry} + n\\,(B-1)^2)/B \\rfloor < \\text{carry}/B + nB$; the result array has $\\ell_a + \\ell_b + 1 < 2^{31}$ limbs, so $n \\le \\min(\\ell_a, \\ell_b) < 2^{30}$ and, by induction on the columns, $\\text{carry} < 1.08\\cdot 10^{18}$: the accumulator cannot overflow for any operand the function can receive. When the shorter operand has at most 18 limbs no column has more than 18 terms, nothing needs to fold, every carry is below $1.9\\cdot 10^{10}$ and a column sum is below $1.9\\cdot 10^{10} + 18\\,(B-1)^2 < 1.8000000019\\cdot 10^{19} < 2^{64}$ (margin $4.4\\cdot 10^{17}$). That case is its own function, the loop of the former column branch, on purpose: the grouped loop, with a fold count of 18 as well as 16, or a plain `while` loop, makes the compiler emit a vectorized loop whose set-up costs 4 to 11 percent on columns of 16 to 18 terms (measured on 4, 12, 16, 17 and 18 limbs), and the counting loop `for i in a..<=b` stays scalar and is the fastest below 19 limbs; longer operands fold every 16 terms as above. The loop has no stores inside and reads the limbs of a `Limbs` value in place, which lets the compiler keep both buffer pointers in registers and vectorize the groups of 16 (a variant that copied the operands to `FixedArray` was measured and was not faster)."
+msgstr "積の第 $c$ 列は $\\sum_i a_i b_{c-i}$ で、各項は高々 $(B-1)^2 < 10^{18}$（$B = 10^9$）です。1 列の和は 1 つの `UInt64` $s$ に累積し、前の列の繰り上がりから始め、16 項ごとに畳み込みます。$q = \\lfloor s/B \\rfloor$、$s \\leftarrow s - qB$ とし、$q$ を 2 つ目のカウンタに加えるので、畳み込みの後は $s < B$ です。2 回の畳み込みの間は $s < B + 16\\,(B-1)^2 < 1.6\\cdot 10^{19} + 10^{9} < 2^{64} \\approx 1.8447\\cdot 10^{19}$ で、列の始め（まだ畳み込みがなく、$s$ は繰り上がり）には $\\text{carry} < 2.44\\cdot 10^{18}$ である限り $\\text{carry} + 16\\,(B-1)^2 < 2^{64}$ です。$n$ 項の列の繰り上がりは高々 $\\lfloor (\\text{carry} + n\\,(B-1)^2)/B \\rfloor < \\text{carry}/B + nB$ で、結果配列は $\\ell_a + \\ell_b + 1 < 2^{31}$ リムブなので $n \\le \\min(\\ell_a, \\ell_b) < 2^{30}$ となり、列についての帰納法で $\\text{carry} < 1.08\\cdot 10^{18}$ です。関数が受け取れるどの被演算子でも累積はオーバーフローしません。短い方の被演算子が 18 リムブ以下のときは、18 項を超える列がなく、畳み込みは不要で、どの繰り上がりも $1.9\\cdot 10^{10}$ 未満、1 列の和は $1.9\\cdot 10^{10} + 18\\,(B-1)^2 < 1.8000000019\\cdot 10^{19} < 2^{64}$（余裕 $4.4\\cdot 10^{17}$）です。この場合は意図的に独立した関数、つまり以前の列の分岐のループにしてあります。畳み込み回数 18 または 16 の組ループや普通の `while` ループは、コンパイラがベクトル化ループを出力し、その準備のコストが 16 から 18 項の列で 4 から 11 パーセントかかります（4、12、16、17、18 リムブで測定）。計数ループ `for i in a..<=b` はスカラーのままで、19 リムブ未満では最速です。それより長い被演算子は上記のとおり 16 項ごとに畳み込みます。このループの内側には格納がなく、`Limbs` 値のリムブをその場で読むので、コンパイラは 2 つのバッファポインタをレジスタに保持でき、16 項の組をベクトル化できます（被演算子を `FixedArray` にコピーする変種は測定しましたが、速くはありませんでした）。"
+
+#: manual/design/internal/decimal_kernel.md:260
+msgid "The square sums the cross terms $a_i a_{c-i}$, $i < c - i$, once, in the same groups (starting at 0, so sixteen of them are below $1.6\\cdot 10^{19}$), folds, and doubles the two parts afterwards: the column value is $\\text{carry} + a_{c/2}^2 + 2s$ (below $\\text{carry} + 10^{18} + 2\\cdot 10^{9}$) and the carry out is $\\lfloor \\text{value}/B \\rfloor + 2q_{\\text{total}}$. A doubled term would be below $2\\cdot 10^{18}$ and only 9 of them would fit a word; doubling after the sum keeps 16 per fold. With at most $\\ell/2 < 2^{29}$ cross terms per column $2q_{\\text{total}} < 2^{30} B$ and the carry stays below $1.08\\cdot 10^{18}$ as for the product."
+msgstr "二乗は交差項 $a_i a_{c-i}$（$i < c - i$）を一度だけ、同じ組で合計し（0 から始めるので 16 項の和は $1.6\\cdot 10^{19}$ 未満）、畳み込んだ後で 2 つの部分を 2 倍します。列の値は $\\text{carry} + a_{c/2}^2 + 2s$（$\\text{carry} + 10^{18} + 2\\cdot 10^{9}$ 未満）、繰り上がりは $\\lfloor \\text{value}/B \\rfloor + 2q_{\\text{total}}$ です。2 倍した項は $2\\cdot 10^{18}$ 未満になり、1 語に入るのは 9 個だけですが、合計してから 2 倍にすれば 1 回の畳み込みあたり 16 個を保てます。1 列の交差項は高々 $\\ell/2 < 2^{29}$ 個で、$2q_{\\text{total}} < 2^{30} B$ となり、繰り上がりは積と同様に $1.08\\cdot 10^{18}$ 未満に収まります。"
+
+#: manual/design/internal/decimal_kernel.md:269
+msgid "With the faster loops the Karatsuba thresholds of the native build were measured again (instructions per call, one level against the schoolbook product at the same size, repetition counts large enough that two runs agree to 0.2 percent): the product costs 232,302 (schoolbook) against 241,489 at 160 limbs, 332,354 against 326,978 at 192 and 450,385 against 425,681 at 224, so it crosses near 180 limbs; the square costs 458,323 against 470,582 at 320 limbs, 552,045 against 551,981 at 352 and 654,450 against 639,024 at 384, so it crosses at 352. The thresholds are now 192 and 352 (they were 96 and 48). The other targets keep theirs, which were measured against the former loops and are stale; each of their threshold files says so and they are not measured again here. The repetition counts matter: an instruction count per call is the difference of two counts divided by the difference, and a difference of only 15 million instructions (about 100 calls of a 128-limb product) varied by 18 percent between two runs from the one-time costs of the allocator (page faults counted as instructions); with a difference of at least 800 million two runs agree to 0.2 percent."
+msgstr "ループが速くなったので、ネイティブビルドの Karatsuba の閾値を測り直しました（1 回の呼び出しあたりの命令数、同じ大きさでの 1 段の Karatsuba と筆算の積の比較で、繰り返し回数は 2 回の実行が 0.2 パーセント以内で一致する大きさです）。積は 160 リムブで筆算 232,302 対 Karatsuba 241,489、192 リムブで 332,354 対 326,978、224 リムブで 450,385 対 425,681 で、交点は 180 リムブ付近です。二乗は 320 リムブで 458,323 対 470,582、352 リムブで 552,045 対 551,981、384 リムブで 654,450 対 639,024 で、交点は 352 です。閾値は 192 と 352 になりました（以前は 96 と 48）。ほかのターゲットは元の値のままで、それらは以前のループに対して測ったものなので古くなっています。各ファイルにそう書いてあり、ここでは測り直していません。繰り返し回数は重要です。1 回あたりの命令数は 2 つの回数の差を回数の差で割ったもので、1,500 万命令だけの差（128 リムブの積の約 100 回）は、アロケータの一回限りのコスト（ページフォルトが命令として数えられる）のため、2 回の実行で 18 パーセント変わりました。差が 8 億以上なら 2 回の実行は 0.2 パーセント以内で一致します。"
+
+#: manual/design/internal/decimal_kernel.md:288
 msgid "**Canonical form.** A `Limbs` value has no leading zero limb and is at least $10^{18}$; a smaller value is `Small`. Equal integers therefore have equal representations, and `DecCoeff::to_string` is the plain decimal string."
 msgstr "**正準形。** `Limbs` の値は先頭にゼロのリムを持たず、$10^{18}$ 以上です。それより小さい値は `Small` です。したがって等しい整数は等しい表現を持ち、`DecCoeff::to_string` は素直な 10 進文字列になります。"
 
-#: manual/design/internal/decimal_kernel.md:236
+#: manual/design/internal/decimal_kernel.md:291
 msgid "**Persistence.** No operation mutates the limbs of an operand."
 msgstr "**永続性。** どの演算もオペランドのリムを書き換えません。"
 
-#: manual/design/internal/decimal_kernel.md:237
+#: manual/design/internal/decimal_kernel.md:292
 msgid "**Totality inside the contract.** A violated precondition aborts; it is never mapped to a value."
 msgstr "**契約の範囲内での全域性。** 事前条件に違反すると中断します。違反が何らかの値に変換されることはありません。"
 
-#: manual/design/internal/decimal_kernel.md:239
+#: manual/design/internal/decimal_kernel.md:294
 msgid "**Exactness.** All results equal the `BigInt` result. The white-box tests compare with `BigInt` at limb boundaries, at the threshold of every target and for forced algorithms on nines, powers of ten and sparse operands."
 msgstr "**厳密性。** すべての結果は `BigInt` の結果と等しくなります。ホワイトボックステストは、リムの境界、各ターゲットの閾値、そして 9 だけの数、10 のべき、疎なオペランドに対する強制指定のアルゴリズムで、`BigInt` と比較します。"
 
-#: manual/design/internal/decimal_kernel.md:243
+#: manual/design/internal/decimal_kernel.md:298
 msgid "Trade-offs and limitations"
 msgstr "トレードオフと制約"
 
-#: manual/design/internal/decimal_kernel.md:245
+#: manual/design/internal/decimal_kernel.md:300
 msgid "Sharing means a performance change hits both standards; every change is measured on both. The kernel is not a general bignum: it has no negative numbers except `SignedDecCoeff` for intermediate values, and no radix other than $10^{9}$."
 msgstr "共有するということは、性能の変更が両方の標準に及ぶということです。変更はどれも両方で測定します。カーネルは汎用の多倍長整数ではありません。途中の値のための `SignedDecCoeff` を除いて負の数はなく、$10^{9}$ 以外の基数もありません。"
 
-#: manual/design/internal/decimal_kernel.md:250
+#: manual/design/internal/decimal_kernel.md:305
 msgid "References"
 msgstr "参考文献"
 
-#: manual/design/internal/decimal_kernel.md:252
+#: manual/design/internal/decimal_kernel.md:307
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1; C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4."
 msgstr "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1；C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998；R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4。"
 
