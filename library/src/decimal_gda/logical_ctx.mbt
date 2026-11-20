@@ -104,7 +104,7 @@ fn decimal_shift_rotate(
 }
 
 ///|
-pub fn Decimal::logical_and(
+pub fn Decimal::logical_and_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -130,7 +130,7 @@ pub fn Decimal::logical_and(
 }
 
 ///|
-pub fn Decimal::logical_or(
+pub fn Decimal::logical_or_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -156,7 +156,7 @@ pub fn Decimal::logical_or(
 }
 
 ///|
-pub fn Decimal::logical_xor(
+pub fn Decimal::logical_xor_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -182,7 +182,7 @@ pub fn Decimal::logical_xor(
 }
 
 ///|
-pub fn Decimal::logical_invert(
+pub fn Decimal::logical_invert_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {

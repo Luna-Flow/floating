@@ -193,7 +193,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn epsilon_contextua
     Ok(dctx) => dctx
   }
   let one = Decimal::one(precision=context.precision)
-  one.next_plus(decimal_context).0.sub_ctx(one, decimal_context).0
+  one.next_plus_ctx(decimal_context).0.sub_ctx(one, decimal_context).0
 }
 
 ///|
@@ -222,7 +222,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn max_finite_contex
       )
     Ok(dctx) => dctx
   }
-  Decimal::inf(Sign::Positive, precision=context.precision).next_minus(
+  Decimal::inf(Sign::Positive, precision=context.precision).next_minus_ctx(
     decimal_context,
   ).0
 }

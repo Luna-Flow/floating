@@ -65,7 +65,7 @@ test "quantize and rescale of a zero fold down under clamp and raise Clamped (is
     let x = Decimal::from_string(zero).unwrap()
     let q = Decimal::from_string(quantum).unwrap()
     let label = "\{name} quantize \{zero} \{quantum}"
-    let (value, flags) = x.quantize(q, ctx)
+    let (value, flags) = x.quantize_ctx(q, ctx)
     assert_eq((label, issue419_text(value)), (label, expected))
     assert_eq((label, flags.clamped), (label, clamped))
     let outcome = quantize(x, q, gda)
@@ -79,7 +79,7 @@ test "quantize and rescale of a zero fold down under clamp and raise Clamped (is
     )
     if !value.is_nan() {
       let exponent = Decimal::from_int(q.exponent10)
-      let (by_rescale, rescale_flags) = x.rescale(exponent, ctx)
+      let (by_rescale, rescale_flags) = x.rescale_ctx(exponent, ctx)
       assert_eq(
         (label + " rescale", issue419_text(by_rescale)),
         (label + " rescale", expected),
@@ -105,10 +105,10 @@ test "quantize and rescale of a zero fold down under clamp and raise Clamped (is
 test "a non-zero quantize result is not changed by the zero fold (issue 419)" {
   let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
-  let (small, flags) = d("5").quantize(d("1E+380"), ctx)
+  let (small, flags) = d("5").quantize_ctx(d("1E+380"), ctx)
   assert_eq(small.to_string(), "0E+369")
   assert_true(flags.clamped && flags.inexact && flags.rounded)
-  let (value, flags) = d("123.456").quantize(d("1E-2"), ctx)
+  let (value, flags) = d("123.456").quantize_ctx(d("1E-2"), ctx)
   assert_eq(value.to_string(), "123.46")
   assert_false(flags.clamped)
 }

@@ -11,7 +11,7 @@ pub fn Decimal::same_quantum(self : Decimal, other : Decimal) -> Bool {
 }
 
 ///|
-pub fn Decimal::divide_integer(
+pub fn Decimal::divide_integer_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -191,7 +191,7 @@ pub fn Decimal::remainder(
 }
 
 ///|
-pub fn Decimal::remainder_near(
+pub fn Decimal::remainder_near_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -275,7 +275,7 @@ pub fn Decimal::remainder_near(
 }
 
 ///|
-pub fn Decimal::quantize(
+pub fn Decimal::quantize_ctx(
   self : Decimal,
   quantum : Decimal,
   ctx : DecimalContext,
@@ -422,7 +422,7 @@ fn quantize_finite_to_exponent(
 }
 
 ///|
-pub fn Decimal::rescale(
+pub fn Decimal::rescale_ctx(
   self : Decimal,
   quantum : Decimal,
   ctx : DecimalContext,
@@ -463,7 +463,7 @@ fn Decimal::rescale_impl(
 }
 
 ///|
-pub fn Decimal::to_integral_exact(
+pub fn Decimal::to_integral_exact_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -527,7 +527,7 @@ fn to_integral_finite(
   } else {
     ctx
   }
-  let (result, flags) = operand.quantize(
+  let (result, flags) = operand.quantize_ctx(
     Decimal::one(precision=finite_precision_for_default(ctx)),
     work_ctx,
   )
@@ -535,7 +535,7 @@ fn to_integral_finite(
 }
 
 ///|
-pub fn Decimal::to_integral_value(
+pub fn Decimal::to_integral_value_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {

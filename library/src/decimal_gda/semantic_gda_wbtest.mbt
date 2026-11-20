@@ -52,7 +52,7 @@ test "GDA huge remainders report DivisionImpossible" {
   let huge = Decimal::from_string("9E+999999999", precision=64).unwrap()
   let small = Decimal::from_string("0.23456789012345", precision=64).unwrap()
   let (remainder, remainder_flags) = huge.remainder(small, context)
-  let (near, near_flags) = huge.remainder_near(small, context)
+  let (near, near_flags) = huge.remainder_near_ctx(small, context)
   assert_true(remainder.is_qnan())
   assert_true(remainder_flags.invalid_operation)
   assert_true(remainder_flags.division_impossible)

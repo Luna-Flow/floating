@@ -252,7 +252,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       "fma" => base.fma_ctx(second(), third(), ctx)
       "sqrt" => base.sqrt_ctx(ctx)
       "remainder" => base.remainder(second(), ctx)
-      "remainder_near" => base.remainder_near(second(), ctx)
+      "remainder_near" => base.remainder_near_ctx(second(), ctx)
       _ => fail("unexpected operation \{op}")
     }
     assert_eq(
@@ -277,7 +277,7 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
     let (value, quantum) = pair
     let (result, flags) = Decimal::from_string(value)
       .unwrap()
-      .rescale(Decimal::from_string(quantum).unwrap(), ctx)
+      .rescale_ctx(Decimal::from_string(quantum).unwrap(), ctx)
     assert_eq(
       (value, quantum, result.to_string(), issue187_flags(flags)),
       (value, quantum, "nan", "..i....."),

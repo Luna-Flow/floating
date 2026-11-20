@@ -34,7 +34,7 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
   assert_false(sum_flags.subnormal)
   assert_false(sum_flags.clamped)
 
-  let (next, next_flags) = max.next_plus(ctx)
+  let (next, next_flags) = max.next_plus_ctx(ctx)
   assert_true(next.is_infinite())
   assert_true(next_flags == DecimalFlags::new())
 
@@ -59,7 +59,7 @@ test "quantize with extreme exponent distance returns invalid operation" {
   )
   let value = Decimal::make(1N, 1_999_999_996, 5)
   let quantum = Decimal::make(1N, -2_000_000_003, 5)
-  let (result, flags) = value.quantize(quantum, ctx)
+  let (result, flags) = value.quantize_ctx(quantum, ctx)
   assert_true(result.is_qnan())
   assert_true(flags == { ..DecimalFlags::new(), invalid_operation: true, })
 }
@@ -103,7 +103,7 @@ test "huge quantize and to-integral shifts round to zero" {
     e_max=999_999_999,
   )
   let tiny = Decimal::make(1N, -2_147_483_648, 1)
-  let (quantized, quantize_flags) = tiny.quantize(
+  let (quantized, quantize_flags) = tiny.quantize_ctx(
     Decimal::make(1N, 999_999_999, 1),
     ctx,
   )
@@ -112,11 +112,11 @@ test "huge quantize and to-integral shifts round to zero" {
   assert_true(quantize_flags.inexact && quantize_flags.rounded)
   assert_false(quantize_flags.invalid_operation)
 
-  let (exact, exact_flags) = tiny.to_integral_exact(ctx)
+  let (exact, exact_flags) = tiny.to_integral_exact_ctx(ctx)
   assert_true(exact.is_zero())
   assert_eq(exact.exponent10, 0)
   assert_true(exact_flags.inexact && exact_flags.rounded)
-  let (silent, silent_flags) = tiny.to_integral_value(ctx)
+  let (silent, silent_flags) = tiny.to_integral_value_ctx(ctx)
   assert_true(silent.is_zero())
   assert_false(silent_flags.inexact || silent_flags.rounded)
 }
@@ -126,13 +126,13 @@ test "huge quantize and to-integral shifts round to zero" {
 test "next operations handle Int minimum with zero etiny" {
   let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
   let tiny = Decimal::make(1N, -2_147_483_648, 34)
-  let (plus, plus_flags) = tiny.next_plus(ctx)
+  let (plus, plus_flags) = tiny.next_plus_ctx(ctx)
   assert_eq(plus.to_string(), "1")
   assert_true(plus_flags == DecimalFlags::new())
-  let (minus, minus_flags) = tiny.next_minus(ctx)
+  let (minus, minus_flags) = tiny.next_minus_ctx(ctx)
   assert_true(minus.is_zero())
   assert_true(minus_flags == DecimalFlags::new())
-  let (toward, toward_flags) = tiny.next_toward(Decimal::zero(), ctx)
+  let (toward, toward_flags) = tiny.next_toward_ctx(Decimal::zero(), ctx)
   assert_true(toward.is_zero())
   assert_true(
     toward_flags.underflow && toward_flags.inexact && toward_flags.rounded,

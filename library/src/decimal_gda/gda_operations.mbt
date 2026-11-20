@@ -49,7 +49,7 @@ pub fn divide_integer(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.divide_integer(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.divide_integer_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -69,7 +69,7 @@ pub fn remainder_near(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.remainder_near(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.remainder_near_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -79,7 +79,7 @@ pub fn quantize(
   quantum : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.quantize(quantum, ctx.decimal_context())
+  let (result, flags) = value.quantize_ctx(quantum, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -89,7 +89,7 @@ pub fn rescale(
   scale : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.rescale(scale, ctx.decimal_context())
+  let (result, flags) = value.rescale_ctx(scale, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -98,7 +98,7 @@ pub fn to_integral_exact(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.to_integral_exact(ctx.decimal_context())
+  let (result, flags) = value.to_integral_exact_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -107,7 +107,7 @@ pub fn to_integral_value(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.to_integral_value(ctx.decimal_context())
+  let (result, flags) = value.to_integral_value_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -147,13 +147,13 @@ pub fn reduce(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 
 ///|
 pub fn next_plus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.next_plus(ctx.decimal_context())
+  let (result, flags) = value.next_plus_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_minus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.next_minus(ctx.decimal_context())
+  let (result, flags) = value.next_minus_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -163,7 +163,7 @@ pub fn next_toward(
   target : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.next_toward(target, ctx.decimal_context())
+  let (result, flags) = value.next_toward_ctx(target, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -203,7 +203,7 @@ pub fn logical_and(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.logical_and(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.logical_and_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -213,7 +213,7 @@ pub fn logical_or(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.logical_or(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.logical_or_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -223,13 +223,13 @@ pub fn logical_xor(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = lhs.logical_xor(rhs, ctx.decimal_context())
+  let (result, flags) = lhs.logical_xor_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn logical_invert(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.logical_invert(ctx.decimal_context())
+  let (result, flags) = value.logical_invert_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 

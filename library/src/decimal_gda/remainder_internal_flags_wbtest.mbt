@@ -41,7 +41,7 @@ fn check_remainder_row(
   let r = if op == "rem" {
     a.remainder(b, ctx)
   } else {
-    a.remainder_near(b, ctx)
+    a.remainder_near_ctx(b, ctx)
   }
   assert_eq(r.0.to_string(), value)
   assert_eq(remainder_flags_text(r.1), flags)
@@ -204,7 +204,7 @@ test "a zero-quotient remainder is clamped only at its result" {
   let (r2, r2_flags) = d("4736E-3").remainder(d("91945766E-7"), ctx)
   assert_eq(r2.to_string(), "4.7360000")
   assert_true(r2_flags == DecimalFlags::new())
-  let (n, n_flags) = d("-73E-2").remainder_near(d("69846238E-6"), ctx)
+  let (n, n_flags) = d("-73E-2").remainder_near_ctx(d("69846238E-6"), ctx)
   assert_eq(n.to_string(), "-0.730000")
   assert_true(n_flags == DecimalFlags::new())
 }
@@ -218,7 +218,7 @@ test "remainder keeps the exact quotient when the quotient would be clamped" {
   let (r, f) = d("7E-8").remainder(d("2E-8"), ctx)
   assert_eq(r.to_string(), "1E-8")
   assert_eq(remainder_flags_text(f), "------s----")
-  let (n, nf) = d("7E-8").remainder_near(d("2E-8"), ctx)
+  let (n, nf) = d("7E-8").remainder_near_ctx(d("2E-8"), ctx)
   assert_eq(n.to_string(), "-1E-8")
   assert_eq(remainder_flags_text(nf), "------s----")
   let (z, zf) = d("0").remainder(d("5E-8"), ctx)

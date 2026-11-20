@@ -90,7 +90,10 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
           .quantize(@decimal.Decimal::from_string(quantum).unwrap(), ieee)
         let b = @decimal_gda.Decimal::from_string(zero)
           .unwrap()
-          .quantize(@decimal_gda.Decimal::from_string(quantum).unwrap(), gda)
+          .quantize_ctx(
+            @decimal_gda.Decimal::from_string(quantum).unwrap(),
+            gda,
+          )
         assert_eq(
           (
             label,
@@ -108,7 +111,7 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
           .rescale(@decimal.Decimal::from_int(target), ieee)
         let d = @decimal_gda.Decimal::from_string(zero)
           .unwrap()
-          .rescale(@decimal_gda.Decimal::from_int(target), gda)
+          .rescale_ctx(@decimal_gda.Decimal::from_int(target), gda)
         assert_eq(
           (
             label + " rescale",
@@ -135,7 +138,7 @@ test "with the clamp fold off decimal keeps the exponent asked for, where decima
     .quantize(@decimal.Decimal::from_string("1E+380").unwrap(), ieee)
   let b = @decimal_gda.Decimal::from_string("0")
     .unwrap()
-    .quantize(@decimal_gda.Decimal::from_string("1E+380").unwrap(), gda)
+    .quantize_ctx(@decimal_gda.Decimal::from_string("1E+380").unwrap(), gda)
   assert_eq((a.0.to_string(), a.1.clamped), ("0E+380", false))
   assert_eq((b.0.to_string(), b.1.clamped), ("0E+369", true))
 }

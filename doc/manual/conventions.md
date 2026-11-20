@@ -75,7 +75,11 @@ General Decimal Arithmetic Specification, version 1.70, for `decimal_gda` and
 its checked tier. A package has one spelling per operation: it carries no alias
 and never the name of the other standard for the same thing. For example,
 `decimal` names the IEEE `remainder` as `remainder_ctx`, and `decimal_gda` names
-the GDA `remainder-near` as `remainder_near`.
+the GDA `remainder-near` as `remainder_near` (the free function) and
+`remainder_near_ctx` (the `Decimal` method). The `decimal_gda` method `remainder`
+(the truncating GDA remainder) keeps its bare name, a documented exception:
+`remainder_ctx` names the IEEE remainder only and is not given to an operation
+with another result.
 
 - **Case.** `camelCase` names split at each capital (`minimumMagnitudeNumber` is
   `minimum_magnitude_number`) and hyphens become underscores

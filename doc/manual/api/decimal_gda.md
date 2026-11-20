@@ -1550,27 +1550,27 @@ pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::fma_ctx(Self, Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-### `Decimal::divide_integer`, `Decimal::remainder`, `Decimal::remainder_near`
+### `Decimal::divide_integer_ctx`, `Decimal::remainder`, `Decimal::remainder_near_ctx`
 
 These are the forms of
 [`divide_integer`, `remainder`, `remainder_near`](#divide_integer-remainder-remainder_near).
 
 ```mbti
-pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::remainder_near_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-### `Decimal::quantize`, `Decimal::rescale`, `Decimal::to_integral_exact`, `Decimal::to_integral_value`
+### `Decimal::quantize_ctx`, `Decimal::rescale_ctx`, `Decimal::to_integral_exact_ctx`, `Decimal::to_integral_value_ctx`
 
 These are the forms of [`quantize`, `rescale`](#quantize-rescale) and
 [`to_integral_exact`, `to_integral_value`](#to_integral_exact-to_integral_value).
 
 ```mbti
-pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 ### `Decimal::reduce_ctx`, `Decimal::scaleb_ctx`, `Decimal::logb_ctx`
@@ -1583,28 +1583,28 @@ pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-### `Decimal::next_plus`, `Decimal::next_minus`, `Decimal::next_toward`
+### `Decimal::next_plus_ctx`, `Decimal::next_minus_ctx`, `Decimal::next_toward_ctx`
 
 These are the forms of
 [`next_plus`, `next_minus`, `next_toward`](#next_plus-next_minus-next_toward).
 
 ```mbti
-pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-### `Decimal::logical_and`, `Decimal::logical_or`, `Decimal::logical_xor`, `Decimal::logical_invert`, `Decimal::shift_ctx`, `Decimal::rotate_ctx`
+### `Decimal::logical_and_ctx`, `Decimal::logical_or_ctx`, `Decimal::logical_xor_ctx`, `Decimal::logical_invert_ctx`, `Decimal::shift_ctx`, `Decimal::rotate_ctx`
 
 These are the forms of the
 [logical operations](#logical_and-logical_or-logical_xor-logical_invert) and of
 [`shift`, `rotate`](#shift-rotate).
 
 ```mbti
-pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::shift_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
@@ -2169,7 +2169,7 @@ pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
@@ -2199,10 +2199,10 @@ pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::ln_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2220,9 +2220,9 @@ pub fn Decimal::nan(precision? : Int32) -> Self
 pub fn Decimal::nan_payload(Self) -> @bigint.BigInt
 pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::negative_zero(precision? : Int32) -> Self
-pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool
 pub fn Decimal::one(precision? : Int32) -> Self
@@ -2239,13 +2239,13 @@ pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> R
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
-pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder_near(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::remainder_near_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2261,8 +2261,8 @@ pub fn Decimal::sub_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Res
 pub fn Decimal::sub_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
 pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
-pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, GdaInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)

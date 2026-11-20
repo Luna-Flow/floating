@@ -8,6 +8,19 @@ notes live in this file.
 
 ### Breaking
 
+- `decimal_gda`: the 13 `Decimal` methods that take a `DecimalContext` and return the value with its flags, and had no `_ctx` suffix, get it ([#22](https://github.com/Luna-Flow/floating/issues/22), the decision on the open point of the naming specification, which also amends row G09). The old names are removed without an alias. The free functions named after the GDA operations (`quantize`, `remainder_near`, ...) keep their bare names, and so does `GdaDecimalChecked`. `Decimal::remainder` (the truncating GDA remainder) stays bare, a documented exception: `remainder_ctx` named the IEEE remainder in `decimal_gda` until it was removed, and that name is not given to an operation with another result. `to_sci_string`, `to_eng_string`, `class_name`, `is_normal` and `is_subnormal` are unchanged. `decimal` is not affected. Migration:
+
+  | before | after |
+  | --- | --- |
+  | `Decimal::divide_integer` | `Decimal::divide_integer_ctx` |
+  | `Decimal::quantize` | `Decimal::quantize_ctx` |
+  | `Decimal::rescale` | `Decimal::rescale_ctx` |
+  | `Decimal::remainder_near` | `Decimal::remainder_near_ctx` |
+  | `Decimal::to_integral_exact` | `Decimal::to_integral_exact_ctx` |
+  | `Decimal::to_integral_value` | `Decimal::to_integral_value_ctx` |
+  | `Decimal::logical_and`, `logical_or`, `logical_xor`, `logical_invert` | `Decimal::logical_and_ctx`, `logical_or_ctx`, `logical_xor_ctx`, `logical_invert_ctx` |
+  | `Decimal::next_minus`, `next_plus`, `next_toward` | `Decimal::next_minus_ctx`, `next_plus_ctx`, `next_toward_ctx` |
+
 - `decimal_gda`: one spelling per operation ([#22](https://github.com/Luna-Flow/floating/issues/22), naming rows G01 to G06, G08 and G09; the name of an operation follows GDA 1.70 and there is no alias). Twenty-three methods of `Decimal` are removed; `decimal_gda_checked` had none of them. The `decimal` package is not affected. Migration:
 
   | row | removed | use instead |
