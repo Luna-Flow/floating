@@ -13,16 +13,32 @@
 let binary_pair_precision_limit : Int32 = 128
 
 ///|
-/// The two words of an operand coefficient, `None` for a zero or a heap
-/// coefficient.
-fn binary_pair_words(value : BinFloat) -> (UInt64, UInt64)? {
-  if value.class != FpClass::Finite {
-    return None
-  }
+/// Whether `value` is finite with a nonzero coefficient of one or two words.
+/// The words come from `binary_pair_high_of` and `binary_pair_low_of`: an
+/// option of a tuple would allocate two objects per operand.
+fn binary_pair_is_words(value : BinFloat) -> Bool {
+  value.class == FpClass::Finite &&
+  (match value.coefficient_.0 {
+    Inline64(low) => low != 0UL
+    Inline128(_, _) => true
+    Heap(_, _) => false
+  })
+}
+
+///|
+fn binary_pair_high_of(value : BinFloat) -> UInt64 {
   match value.coefficient_.0 {
-    Inline64(low) => if low == 0UL { None } else { Some((0UL, low)) }
-    Inline128(high, low) => Some((high, low))
-    Heap(_, _) => None
+    Inline128(high, _) => high
+    _ => 0UL
+  }
+}
+
+///|
+fn binary_pair_low_of(value : BinFloat) -> UInt64 {
+  match value.coefficient_.0 {
+    Inline64(low) => low
+    Inline128(_, low) => low
+    Heap(_, _) => 0UL
   }
 }
 
@@ -200,10 +216,13 @@ fn binary_pair_round(
 fn binary_pair_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= binary_pair_precision_limit else { return None }
-  guard binary_pair_words(left) is Some((left_high, left_low)) &&
-    binary_pair_words(right) is Some((right_high, right_low)) else {
+  guard binary_pair_is_words(left) && binary_pair_is_words(right) else {
     return None
   }
+  let left_high = binary_pair_high_of(left)
+  let left_low = binary_pair_low_of(left)
+  let right_high = binary_pair_high_of(right)
+  let right_low = binary_pair_low_of(right)
   let left_exponent = left.exponent2
   let right_exponent = right.exponent2
   guard left_exponent <= binary_fast_exponent_limit &&
@@ -312,10 +331,13 @@ fn binary_pair_add(left : BinFloat, right : BinFloat) -> BinFloat? {
 fn binary_pair_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= binary_pair_precision_limit else { return None }
-  guard binary_pair_words(left) is Some((left_high, left_low)) &&
-    binary_pair_words(right) is Some((right_high, right_low)) else {
+  guard binary_pair_is_words(left) && binary_pair_is_words(right) else {
     return None
   }
+  let left_high = binary_pair_high_of(left)
+  let left_low = binary_pair_low_of(left)
+  let right_high = binary_pair_high_of(right)
+  let right_low = binary_pair_low_of(right)
   let left_exponent = left.exponent2
   let right_exponent = right.exponent2
   guard left_exponent <= binary_fast_exponent_limit &&

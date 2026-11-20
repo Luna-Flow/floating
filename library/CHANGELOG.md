@@ -128,6 +128,8 @@ notes live in this file.
 
 ### Performance
 
+- `bin_float`: the word helpers of the fast paths (`binary_fast_word`, `binary_pair_words`, `binary_coeff_fast_words`, `binary_fast_isqrt`) and the kernel entries of the scaled division and square root no longer return an option of a scalar, a tuple or an option of a tuple, each a heap object in the native build; the test and the words are separate functions returning scalars, and the inexact bit travels as the lowest bit of the quotient. Instructions per call fall by 20 to 37 percent for `add`, `mul`, `div` at 53 and 128 bits and by 9 percent for `add` at 512 bits. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
 - `bin_float`: `div` of operands wider than one word forms the quotient and the inexact flag from the working array of Knuth's algorithm directly (one shift pass for the scaling and the normalisation, no remainder value built), and the digit loop hoists the halves of the trial digit. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 - `bin_float`: `div` of operands whose coefficients take at most two words, at precisions from 61 to 128 bits, runs three 3-by-2 word steps of Knuth's algorithm on registers instead of the general coefficient division; only the result is allocated. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).

@@ -17,13 +17,23 @@
 let binary_fast_exponent_limit : Int32 = 268435456
 
 ///|
-fn binary_fast_word(value : BinFloat) -> UInt64? {
-  if value.class != FpClass::Finite {
-    return None
-  }
+/// Whether `value` is finite with a nonzero one-word coefficient. A function
+/// returning `UInt64?` allocates a box for the `Some`, so the test and the word
+/// are two functions that return scalars.
+fn binary_fast_is_word(value : BinFloat) -> Bool {
+  value.class == FpClass::Finite &&
+  (match value.coefficient_.0 {
+    Inline64(word) => word != 0UL
+    _ => false
+  })
+}
+
+///|
+/// The one-word coefficient of a value for which `binary_fast_is_word` holds.
+fn binary_fast_word_of(value : BinFloat) -> UInt64 {
   match value.coefficient_.0 {
-    Inline64(word) => if word == 0UL { None } else { Some(word) }
-    _ => None
+    Inline64(word) => word
+    _ => 0UL
   }
 }
 
@@ -86,10 +96,11 @@ fn binary_fast_round(
 fn binary_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= 62 else { return None }
-  guard binary_fast_word(left) is Some(left_word) &&
-    binary_fast_word(right) is Some(right_word) else {
+  guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
     return None
   }
+  let left_word = binary_fast_word_of(left)
+  let right_word = binary_fast_word_of(right)
   let left_exponent = left.exponent2
   let right_exponent = right.exponent2
   guard left_exponent <= binary_fast_exponent_limit &&
@@ -166,10 +177,11 @@ fn binary_fast_round_some(
 fn binary_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= 62 else { return None }
-  guard binary_fast_word(left) is Some(left_word) &&
-    binary_fast_word(right) is Some(right_word) else {
+  guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
     return None
   }
+  let left_word = binary_fast_word_of(left)
+  let right_word = binary_fast_word_of(right)
   let left_exponent = left.exponent2
   let right_exponent = right.exponent2
   guard left_exponent <= binary_fast_exponent_limit &&
@@ -193,10 +205,11 @@ fn binary_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
 fn binary_fast_div_words(left : BinFloat, right : BinFloat) -> BinFloat? {
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= 60 else { return None }
-  guard binary_fast_word(left) is Some(dividend) &&
-    binary_fast_word(right) is Some(divisor) else {
+  guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
     return None
   }
+  let dividend = binary_fast_word_of(left)
+  let divisor = binary_fast_word_of(right)
   let left_exponent = left.exponent2
   let right_exponent = right.exponent2
   guard left_exponent <= binary_fast_exponent_limit &&
@@ -234,13 +247,13 @@ fn binary_fast_div_words(left : BinFloat, right : BinFloat) -> BinFloat? {
 /// refined by one Newton step on 128-bit arithmetic and settled by exact
 /// comparisons with the squares around it. `None` if the estimate is off
 /// by more than the comparisons expect (never for the supported range).
-fn binary_fast_isqrt(high : UInt64, low : UInt64) -> (UInt64, Bool)? {
+fn binary_fast_isqrt(high : UInt64, low : UInt64) -> UInt64 {
   let estimate = (high.to_double() * 18446744073709551616.0 + low.to_double()).sqrt()
   let mut root = estimate.to_uint64()
   if root == 0UL {
     root = 1UL
   }
-  guard high < root else { return None }
+  guard high < root else { return 0UL }
   let quotient = binary_fast_div_wide(high, low, root)
   root = (root >> 1) + (quotient >> 1) + (root & quotient & 1UL)
   // settle: root^2 <= value < (root + 1)^2
@@ -260,16 +273,17 @@ fn binary_fast_isqrt(high : UInt64, low : UInt64) -> (UInt64, Bool)? {
       root = next
       continue
     }
-    return Some((root, square_high == high && square_low == low))
+    return root
   }
-  None
+  0UL
 }
 
 ///|
 fn binary_fast_sqrt_words(value : BinFloat) -> BinFloat? {
   let precision = value.precision_
   guard precision <= 60 && !value.negative else { return None }
-  guard binary_fast_word(value) is Some(word) else { return None }
+  guard binary_fast_is_word(value) else { return None }
+  let word = binary_fast_word_of(value)
   let exponent = value.exponent2
   guard exponent <= binary_fast_exponent_limit &&
     exponent >= -binary_fast_exponent_limit else {
@@ -284,7 +298,9 @@ fn binary_fast_sqrt_words(value : BinFloat) -> BinFloat? {
   guard bits + scale <= 126 else { return None }
   let high = binary_fast_shl_high(word, scale)
   let low = binary_fast_shl_low(word, scale)
-  guard binary_fast_isqrt(high, low) is Some((root, exact)) else { return None }
+  let root = binary_fast_isqrt(high, low)
+  guard root != 0UL else { return None }
+  let exact = binary_fast_mul_high(root, root) == high && root * root == low
   let sticky = if exact { 0UL } else { 1UL }
   Some(
     binary_fast_round(
@@ -330,10 +346,10 @@ fn binary_fast_from_double(
 /// two does not change a rounding decision without an exponent range.
 fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   if Int32::max(left.precision_, right.precision_) == 53 &&
-    binary_fast_word(left) is Some(dividend) &&
-    binary_fast_word(right) is Some(divisor) &&
-    dividend <= binary_fast_double_limit &&
-    divisor <= binary_fast_double_limit &&
+    binary_fast_is_word(left) &&
+    binary_fast_is_word(right) &&
+    binary_fast_word_of(left) <= binary_fast_double_limit &&
+    binary_fast_word_of(right) <= binary_fast_double_limit &&
     left.exponent2 <= binary_fast_exponent_limit &&
     left.exponent2 >= -binary_fast_exponent_limit &&
     right.exponent2 <= binary_fast_exponent_limit &&
@@ -341,7 +357,8 @@ fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
     return Some(
       binary_fast_from_double(
         left.negative != right.negative,
-        dividend.to_double() / divisor.to_double(),
+        binary_fast_word_of(left).to_double() /
+        binary_fast_word_of(right).to_double(),
         left.exponent2 - right.exponent2,
       ),
     )
@@ -356,12 +373,13 @@ fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
 fn binary_fast_sqrt(value : BinFloat) -> BinFloat? {
   if value.precision_ == 53 &&
     !value.negative &&
-    binary_fast_word(value) is Some(word) &&
-    word <= binary_fast_double_limit &&
+    binary_fast_is_word(value) &&
+    binary_fast_word_of(value) <= binary_fast_double_limit &&
     value.exponent2 <= binary_fast_exponent_limit &&
     value.exponent2 >= -binary_fast_exponent_limit {
     let odd = value.exponent2 & 1
-    let radicand = word.to_double() * (if odd == 1 { 2.0 } else { 1.0 })
+    let radicand = binary_fast_word_of(value).to_double() *
+      (if odd == 1 { 2.0 } else { 1.0 })
     return Some(
       binary_fast_from_double(
         false,

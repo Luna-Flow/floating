@@ -8,25 +8,33 @@ fn div_scaled_check(
   let divisor = bin_coeff_test_from_bigint(divisor_big)
   let numerator_big = dividend_big << scale
   let limbs = bin_coeff_word_len(divisor)
-  match bin_coeff_div_scaled_quotient(dividend, scale, divisor) {
-    Some((quotient, inexact)) => {
-      // the general division of the shifted numerator is the reference
-      let (reference_quotient, reference_remainder) = bin_coeff_short_div_rem(
-        dividend.shift_left(scale),
-        divisor,
+  if bin_coeff_div_scaled_ok(dividend, scale, divisor) {
+    let packed = bin_coeff_div_scaled_quotient(dividend, scale, divisor)
+    // the general division of the shifted numerator is the reference
+    let (reference_quotient, reference_remainder) = bin_coeff_short_div_rem(
+      dividend.shift_left(scale),
+      divisor,
+    )
+    let expected = reference_quotient
+      .shift_left(1)
+      .add(
+        if reference_remainder.is_zero() {
+          Coeff::zero()
+        } else {
+          Coeff::one()
+        },
       )
-      assert_true(quotient == reference_quotient)
-      assert_eq(inexact, !reference_remainder.is_zero())
-      // and BigInt
-      bin_coeff_test_assert_matches(quotient, numerator_big / divisor_big)
-      assert_eq(inexact, numerator_big % divisor_big != 0N)
-    }
-    None =>
-      assert_true(
-        limbs < 2 ||
-        limbs >= bin_coeff_bz_division_min_words ||
-        numerator_big.bit_length() < divisor_big.bit_length(),
-      )
+    assert_true(packed == expected)
+    // and BigInt
+    let quotient_big = numerator_big / divisor_big
+    let flag = if numerator_big % divisor_big != 0N { 1N } else { 0N }
+    bin_coeff_test_assert_matches(packed, quotient_big * 2N + flag)
+  } else {
+    assert_true(
+      limbs < 2 ||
+      limbs >= bin_coeff_bz_division_min_words ||
+      numerator_big.bit_length() < divisor_big.bit_length(),
+    )
   }
 }
 

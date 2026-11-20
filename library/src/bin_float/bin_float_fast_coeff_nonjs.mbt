@@ -15,7 +15,11 @@
 /// results are bit for bit those of the general path.
 
 ///|
-using @bin_kernel {bin_coeff_sqrt_rem_scaled, bin_coeff_div_scaled_quotient}
+using @bin_kernel {
+  bin_coeff_sqrt_scaled_rounded,
+  bin_coeff_div_scaled_ok,
+  bin_coeff_div_scaled_quotient,
+}
 
 ///|
 /// Coefficients wider than this, and precisions above it, are left to the
@@ -142,13 +146,23 @@ fn binary_coeff_fast_finish(
 }
 
 ///|
-/// The little-endian words of `value` and their count: the array of a heap
-/// coefficient itself (not to be modified), a fresh small array otherwise.
-fn binary_coeff_fast_words(value : Coeff) -> (FixedArray[UInt64], Int32) {
+/// The little-endian words of `value`: the array of a heap coefficient itself
+/// (not to be modified), a fresh small array otherwise. The count comes from
+/// `binary_coeff_fast_len`; a returned tuple would be a heap object.
+fn binary_coeff_fast_array(value : Coeff) -> FixedArray[UInt64] {
   match value.0 {
-    Heap(words, len) => (words, len)
-    Inline64(low) => ([low], 1)
-    Inline128(high, low) => ([low, high], 2)
+    Heap(words, _) => words
+    Inline64(low) => [low]
+    Inline128(high, low) => [low, high]
+  }
+}
+
+///|
+fn binary_coeff_fast_len(value : Coeff) -> Int32 {
+  match value.0 {
+    Heap(_, len) => len
+    Inline64(_) => 1
+    Inline128(_, _) => 2
   }
 }
 
@@ -280,8 +294,10 @@ fn binary_coeff_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
     )
   }
   let words = FixedArray::make(count, 0UL)
-  let (left_words, left_len) = binary_coeff_fast_words(left.coefficient_)
-  let (right_words, right_len) = binary_coeff_fast_words(right.coefficient_)
+  let left_words = binary_coeff_fast_array(left.coefficient_)
+  let left_len = binary_coeff_fast_len(left.coefficient_)
+  let right_words = binary_coeff_fast_array(right.coefficient_)
+  let right_len = binary_coeff_fast_len(right.coefficient_)
   if left.negative == right.negative {
     let mut carry = 0UL
     for index in 0..<count {
@@ -395,15 +411,15 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   // the quotient of `dividend * 2^scale / divisor` has at least
   // `precision + 2` bits
   let scale = Int32::max(0, precision + 2 + divisor_bits - dividend_bits)
-  if bin_coeff_div_scaled_quotient(dividend, scale, divisor)
-    is Some((quotient, inexact)) {
+  if bin_coeff_div_scaled_ok(dividend, scale, divisor) {
+    // the lowest bit of the quotient is the inexact flag
     return Some(
       binary_coeff_fast_finish(
         left.negative != right.negative,
-        quotient,
-        left.exponent2 - right.exponent2 - scale,
+        bin_coeff_div_scaled_quotient(dividend, scale, divisor),
+        left.exponent2 - right.exponent2 - scale - 1,
         precision,
-        inexact,
+        false,
       ),
     )
   }
@@ -456,29 +472,21 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
   if (exponent - scale) % 2 != 0 {
     scale += 1
   }
-  let (root, remainder) = bin_coeff_sqrt_rem_scaled(value.coefficient_, scale)
-  let result_exponent = (exponent - scale) / 2
-  if root.bit_length() == precision {
-    // `sqrt(root^2 + remainder)` is at least `root + 1/2` exactly when
-    // `remainder > root`, and never equals it, so there are no ties
-    let rounded = if remainder.compare(root) > 0 {
-      root.add(Coeff::one())
-    } else {
-      root
-    }
-    return Some(
-      binary_coeff_fast_finish(
-        false, rounded, result_exponent, precision, false,
-      ),
-    )
-  }
+  let packed = bin_coeff_sqrt_scaled_rounded(
+    value.coefficient_,
+    scale,
+    precision,
+  )
+  // a root of exactly `precision` bits comes back rounded, at its own
+  // exponent; a longer one carries its round and sticky bits two below it
+  let adjust = if packed.bit_length() <= precision + 1 { 0 } else { -2 }
   Some(
     binary_coeff_fast_finish(
       false,
-      root,
-      result_exponent,
+      packed,
+      (exponent - scale) / 2 + adjust,
       precision,
-      !remainder.is_zero(),
+      false,
     ),
   )
 }
