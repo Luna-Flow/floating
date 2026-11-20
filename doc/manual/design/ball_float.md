@@ -884,6 +884,49 @@ every float certainly in the set is in the result, that a point a quarter of a f
 piece is not in the set, and that the float one step inside is not certainly outside while the next one is certainly
 inside. The maximum working precision on the generated corpus is 149 bits (the first working precision, $p + 96$ at $p = 53$; none of the 6,813 evaluations of the loop doubled it) bits.
 
+### Interval literals and text input
+
+`from_string` (IEEE 1788-2015 `textToInterval`, 9.7, 12.11, 12.12.7, 13.2; see the
+[API page](../api/ball_float.md#ballfloatfrom_string-and-ballfloatdecoratedfrom_string)) is a hand-written parser of the portable
+grammar (Tables 9.5 and 12.2) over the characters of the string. A number literal is read into one of four exact
+descriptions: an infinity, a decimal $d \cdot 10^{e}$ (the digits without the point and the exponent minus the number of
+digits after the point), a hexadecimal $h \cdot 2^{e}$ (the exponent minus four times the number of hexadecimal digits
+after the point), or a rational $p/q$ with $q$ positive. An exponent field is saturated at $10^{15}$ in magnitude (beyond
+every range). The uncertain form $m?rve$ is turned into two decimal descriptions by the definition of 9.7.3: $\operatorname{ulp}(m) = 10^{-k}$ with
+$k$ the number of digits after the point of $m$, the bounds are $(M \mp r) 10^{e-k}$ with $M$ the integer of the digits
+(one ulp being $10^{-k}$; for the empty radius, half an ulp, as $(10M \mp 5) 10^{e-k-1}$), the direction $u$ or $d$ keeps
+one side, and the radius $?$ is unbounded; the arithmetic is on big integers, so no rounding precedes the final one.
+
+*Rounding.* Each bound is rounded once, outward and exactly: a decimal and a hexadecimal description go through
+the correctly rounded directed conversions of `BinFloat` (`from_string_ctx`, `from_hex_ctx`, which accept any exponent),
+and a rational is divided by integer division to a quotient of at least $p + 3$ bits with the sticky remainder (the same
+rule as the exact rational ends of `pow_rev1`). A literal whose exact value is beyond the stored range is therefore decided
+by those conversions from the exponent without forming the value, and `1e400000000` has the lower end the largest finite
+float and the upper end $+\infty$. `from_hex_ctx` rejects a binary exponent beyond $10^{12}$ in magnitude, although the value is then far beyond the stored range, so the exponent of a hexadecimal description is clamped to $\pm 2^{39}$ first (the significand has at most $4 \cdot 65{,}536$ bits, so the class, above the range or below the smallest stored value, is unchanged); `from_string_ctx` accepts every exponent. The invariants are checked: a failure of a converter or of the digit parser aborts instead of returning a bound.
+
+*The order $l \le u$.* It is decided from the exact values, so rounding never makes a nonempty literal Empty and an empty one nonempty: two
+decimal bounds are compared by the adjusted exponent and then the digit strings (trailing zeros removed, the shorter padded with
+zeros), which needs no power of ten whatever the exponent; any other pair is first separated by roundings at 64 bits and
+otherwise compared by cross-multiplication of the exact numerators and denominators, a power being formed only for an
+exponent of magnitude at most 65,536. A pair that is neither separated nor within that limit (two bounds of different radices
+that agree to 64 bits and have an exponent beyond 65,536) is undecided: 12.12.7 case (b) allows it and requires the result to contain
+both bounds, so the result is the hull of the four roundings (a false positive, which the standard permits; a false negative
+is not possible).
+
+*Rejections.* Every failed call is an `Err` of the parse kind whose message names the rule of the grammar or of
+12.11 that was broken (a missing digit, the exponent field of a hexadecimal literal, the denominator of a rational, the order of the bounds,
+an infinite bound on the wrong side, the characters after the literal, the decoration literal, a decoration not permitted
+for the value by 11.4, a decoration on a bare literal). The test table asserts the reason of every rejected string. A literal
+longer than `interval_literal_max_length` is not parsed and gives Entire (12.11.5).
+
+*Evidence.* The independent oracle `tools/interval_literal_oracle.py` (pure Python, no `ball_float` code) evaluates a literal from whole-string
+patterns (a special form, the two bound strings of an inf-sup form cut at the comma, the groups of an uncertain pattern) to an exact `Fraction`, derives the uncertain form from the definition of the
+ulp, and rounds each bound with integer arithmetic against the stored range (gradual underflow to the quantum $2^{e_{\min}-p+1}$, the largest finite float
+$(2^p - 1) 2^{e_{\max}-p+1}$); it also checks every one of 20,000 rational literals against the rounded ends by cross-multiplication (the rounded lower end is not above the value
+and the float below it is below, and likewise for the upper end). The generated table (9,242 literals: the vectors of Tables 9.4 and 12.1, the negative
+examples, and random decimal, hexadecimal, rational, uncertain, decorated and special literals at precisions 24, 53 and 113, bare and decorated) is
+compared with the parser in `interval_literal_wbtest.mbt`.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals

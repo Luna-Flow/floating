@@ -400,6 +400,18 @@ pub fn BallFloatResult::atan2_rev2(
 }
 
 ///|
+/// `BallFloat::from_string` (IEEE 1788-2015 `textToInterval`): the failed call is the
+/// failure of the result.
+pub fn BallFloatResult::from_string(
+  s : String,
+  precision~ : Int32 = 53,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    @ball_float.BallFloat::from_string(s, precision~),
+  )
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }

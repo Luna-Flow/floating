@@ -8,6 +8,7 @@ import {
 }
 
 // Values
+pub let interval_literal_max_length : Int32
 
 // Errors
 
@@ -83,6 +84,7 @@ pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, nega
 pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloat::from_int(Int32, precision~ : Int32) -> Self
+pub fn BallFloat::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::hypot(Self, Self) -> Self
 pub fn BallFloat::identical(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool
@@ -232,6 +234,7 @@ pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::floor(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
+pub fn BallFloatDecorated::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::identical(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
