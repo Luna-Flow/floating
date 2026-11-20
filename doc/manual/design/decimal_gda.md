@@ -939,9 +939,10 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
   requirement.
 - It does not provide a mutable or global context, and contexts carry no
   identity: two contexts with the same fields are interchangeable.
-- It does not store exponents beyond the 32-bit range. Literals and results
-  outside it are not wrapped or rejected: context operations overflow or
-  underflow against the context range, decided from the exact exponent, and
-  the context-free conversions overflow to a signed infinity or round to the
-  exponent $-2^{31}$, and the plain operators work in a private range whose
-  smallest exponent is $-2^{31}+3$.
+- It does not store exponents beyond the stored range: a finite value needs
+  an exponent of at least $-2^{31}+3$ and an adjusted exponent of at most
+  $2^{31}-2$, the range of the working context of the plain operators. The
+  constructors reject a value outside it (they never replace it silently),
+  context operations overflow or underflow against the context range, decided
+  from the exact exponent, and the operations without a context overflow or
+  underflow at the limits of the stored range.

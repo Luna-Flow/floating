@@ -290,7 +290,7 @@ notes live in this file.
   | --- | --- | --- |
   | none | `b.mul_rev_to_pair(c)`, `b.mul_rev(c, x?)` | `BallFloat`, `BallFloatDecorated`, `BallFloatResult` (the checked pair is a pair of wrappers); no `try_` form, no input fails |
 
-- `decimal_gda`: the plain operators are the free functions in a private working context ([#438](https://github.com/Luna-Flow/floating/issues/438), items S1 and S2). `+`, `-`, `*`, `/` and `sqrt` run `add`, `subtract`, `multiply`, `divide` and `sqrt` with the larger precision attribute of the operands, half-even rounding, the extended rules, no clamp, no traps and a private exponent range (largest adjusted exponent 2,147,483,646, smallest exponent -2,147,483,645). The result is the cohort member GDA prescribes, not the shortest one, and `*` rounds to the precision (it was exact). `Decimal::sqrt` returns a `Decimal` (NaN for a negative operand) and `Decimal::div_checked` is removed; `DivChecked::div_checked` and `sqrt_checked` stay. Equality compares values, so `x + 0 == x` and `x * 1 == x` hold for every stored finite value whose adjusted exponent is at most 2,147,483,646 and whose exponent is at least -2,147,483,645; a value stored beyond either limit (adjusted exponent 2,147,483,647, exponent below -2,147,483,645) is overflowed or rounded, and a later release restricts what can be stored to that range. A result below the working range is now rounded to exponent -2,147,483,645 (it was -2,147,483,648).
+- `decimal_gda`: the plain operators are the free functions in a private working context ([#438](https://github.com/Luna-Flow/floating/issues/438), items S1 and S2). `+`, `-`, `*`, `/` and `sqrt` run `add`, `subtract`, `multiply`, `divide` and `sqrt` with the larger precision attribute of the operands, half-even rounding, the extended rules, no clamp, no traps and a private exponent range (largest adjusted exponent 2,147,483,646, smallest exponent -2,147,483,645). The result is the cohort member GDA prescribes, not the shortest one, and `*` rounds to the precision (it was exact). `Decimal::sqrt` returns a `Decimal` (NaN for a negative operand) and `Decimal::div_checked` is removed; `DivChecked::div_checked` and `sqrt_checked` stay. Equality compares values, so `x + 0 == x` and `x * 1 == x` hold for every stored finite value (the stored range is in the next entry).
 
   | before | after | note |
   | --- | --- | --- |
@@ -324,6 +324,19 @@ notes live in this file.
   | `flags.contains(DecimalSignal::X)`, `DecimalSignal` | the accessor of the flag | `contains` and `DecimalSignal` go |
   | `flags.has_error()` | the same name, `invalid_operation \|\| not_computed \|\| division_by_zero` | |
   | `mpfr-decimal-random-v1` rows `id op rounding precision emin emax clamp tininess a b n expected flags` | `mpfr-decimal-random-v2` rows `id op rounding precision emax a b n expected flags` | the flag letters `r`, `s`, `c` go |
+
+- `decimal_gda`: a finite `Decimal` can only hold a value of the stored range ([#438](https://github.com/Luna-Flow/floating/issues/438)). The exponent of its least digit is at least `gda_implementation_e_tiny` (-2,147,483,645) and its adjusted exponent is at most `gda_implementation_e_max` (2,147,483,646): the range of the working context of the plain operators, so `x + 0 == x`, `x * 1 == x` and `x - 0 == x` hold for every stored finite value. `Decimal::make` aborts, and the new `Decimal::try_make` and `Decimal::from_string` return `Err` of the domain-error kind, naming both limits and the exponent, for a value outside the range (a zero included), after the rounding to the precision; `from_string` no longer folds such a text into an infinity or a zero (read it with `to_number` and a context for that). Operations are unchanged: they overflow and underflow by the rules of their context, and `with_precision` at the top follows the GDA Overflow rule of the working range, so it never returns a finite value above the limit.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `Decimal::make(1N, 2147483647, p)` stores `1E+2147483647` | aborts; `try_make` returns `Err` | adjusted exponent above `gda_implementation_e_max` |
+  | `Decimal::make(1N, -2147483648, p)` stores `1E-2147483648` | aborts; `try_make` returns `Err` | exponent below `gda_implementation_e_tiny` |
+  | `from_string("1e2147483647")` is `1E+2147483647` | `Err` (domain error) | also `9.99E+2147483647` |
+  | `from_string("1e3000000000")` is `inf` | `Err` (domain error) | `to_number` with a context overflows |
+  | `from_string("1e-3000000000")` is `0E-2147483648` | `Err` (domain error) | `to_number` with a context underflows |
+  | `from_string("1E-2147483646")` and `("0E-2147483648")` store | `Err` (domain error) | a zero is rejected like any other value |
+  | the four exponents that could be stored, -2147483648 to -2147483646 and an adjusted exponent of 2147483647 | no longer storable | the limits are the constants `gda_implementation_e_tiny` and `gda_implementation_e_max` |
+  | `Decimal::with_precision` of the largest values at the top could give a finite value above 2,147,483,646 | `inf`, or the largest finite value of the width in the modes toward zero | GDA Overflow rule of the working range |
 
 ### Fixed
 

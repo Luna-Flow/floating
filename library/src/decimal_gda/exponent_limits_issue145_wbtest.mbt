@@ -102,7 +102,7 @@ test "huge quantize and to-integral shifts round to zero" {
     e_min=-999_999_999,
     e_max=999_999_999,
   )
-  let tiny = Decimal::make(1N, -2_147_483_648, 1)
+  let tiny = decimal_unchecked(false, 1N, -2_147_483_648, 1)
   let (quantized, quantize_flags) = tiny.quantize(
     Decimal::make(1N, 999_999_999, 1),
     ctx,
@@ -125,7 +125,7 @@ test "huge quantize and to-integral shifts round to zero" {
 /// Adjacent-value operations handle Int::min when the context Etiny is zero.
 test "next operations handle Int minimum with zero etiny" {
   let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
-  let tiny = Decimal::make(1N, -2_147_483_648, 34)
+  let tiny = decimal_unchecked(false, 1N, -2_147_483_648, 34)
   let (plus, plus_flags) = tiny.next_plus(ctx)
   assert_eq(plus.to_string(), "1")
   assert_true(plus_flags == DecimalFlags::new())
@@ -206,8 +206,8 @@ test "GDA fma product below Int range uses a bounded sticky alignment" {
     e_min=-999_999_999,
     e_max=999_999_999,
   )
-  let (value, flags) = Decimal::make(1N, -2_147_483_648, 34).fma_ctx(
-    Decimal::make(1N, -2_147_483_648, 34),
+  let (value, flags) = decimal_unchecked(false, 1N, -2_147_483_648, 34).fma_ctx(
+    decimal_unchecked(false, 1N, -2_147_483_648, 34),
     Decimal::make(1N, 999_999_999, 34),
     ctx,
   )

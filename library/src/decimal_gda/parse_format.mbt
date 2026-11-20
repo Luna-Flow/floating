@@ -565,12 +565,24 @@ pub fn Decimal::from_string(
     Some((negative, digits, exponent10)) => {
       let significant_digits = strip_leading_zero_digits(digits)
       if significant_digits.length() == 0 {
-        // A zero keeps its value when its exponent is clamped to `Int`.
+        match
+          decimal_stored_range_violation(
+            negative,
+            dec_coeff_zero(),
+            exponent10,
+            precision,
+            DecimalRoundingMode::HalfEven,
+            "Decimal::from_string",
+          ) {
+          Some(message) =>
+            return Err(@def.ArithmeticError::domain_error(message))
+          None => ()
+        }
         Ok(
           finite_with_exponent_repr(
             negative,
             dec_coeff_zero(),
-            scaleb_int64_to_int(exponent10),
+            exponent10.to_int(),
             precision,
           ),
         )
@@ -585,11 +597,22 @@ pub fn Decimal::from_string(
               ),
             )
         }
-        // As in the GDA to-number conversion, a numeric string always
-        // converts: the digits are rounded once, to the precision and to the
-        // exponent range of a context-free value, so a literal too large for
-        // it is a signed infinity and one too small rounds toward a signed
-        // zero.
+        // The digits are read exactly and rounded once, to the precision; a
+        // value outside the stored range is an error, not a silent infinity
+        // or zero (read the text with a context to get a rounded value).
+        match
+          decimal_stored_range_violation(
+            negative,
+            coeff,
+            exponent10,
+            precision,
+            DecimalRoundingMode::HalfEven,
+            "Decimal::from_string",
+          ) {
+          Some(message) =>
+            return Err(@def.ArithmeticError::domain_error(message))
+          None => ()
+        }
         Ok(
           context_free_round_wide(
             negative,

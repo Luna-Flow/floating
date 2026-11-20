@@ -242,9 +242,9 @@ test "operands with exponents near the Int limits give the specified results (#1
   for row in rows {
     let (op, operands, precision, clamp, mode, expected, expected_flags) = row
     let ctx = issue187_context(precision, clamp, mode)
-    let base = Decimal::from_string(operands[0]).unwrap()
-    let second = fn() { Decimal::from_string(operands[1]).unwrap() }
-    let third = fn() { Decimal::from_string(operands[2]).unwrap() }
+    let base = decimal_text_unchecked(operands[0])
+    let second = fn() { decimal_text_unchecked(operands[1]) }
+    let third = fn() { decimal_text_unchecked(operands[2]) }
     let (value, flags) = match op {
       "add" => base.add_ctx(second(), ctx)
       "sub" => base.sub_ctx(second(), ctx)
@@ -275,9 +275,10 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
   ]
   for pair in cases {
     let (value, quantum) = pair
-    let (result, flags) = Decimal::from_string(value)
-      .unwrap()
-      .rescale(Decimal::from_string(quantum).unwrap(), ctx)
+    let (result, flags) = decimal_text_unchecked(value).rescale(
+      decimal_text_unchecked(quantum),
+      ctx,
+    )
     assert_eq(
       (value, quantum, result.to_string(), issue187_flags(flags)),
       (value, quantum, "nan", "..i....."),

@@ -98,13 +98,37 @@ the `precision` given, aborts (at precision 1 only the payload 0 exists). A
 signaling NaN raises `InvalidOperation` when an arithmetic operation
 consumes it and is replaced by the quiet NaN with the same sign and payload.
 
-### `Decimal::make`
+### `gda_implementation_e_max`, `gda_implementation_e_tiny`
+
+These are the limits of the exponents a finite `Decimal` can hold.
+
+```mbti
+pub let gda_implementation_e_max : Int
+pub let gda_implementation_e_tiny : Int
+```
+
+`gda_implementation_e_max` is $2^{31}-2 = 2{,}147{,}483{,}646$, a limit on the
+adjusted exponent. `gda_implementation_e_tiny` is $-2^{31}+3 = -2{,}147{,}483{,}645$,
+a limit on the exponent of the least digit (the `Etiny` of the working context of
+the plain operators, whatever the precision). A finite value, a zero included
+(it has one digit), is stored only if
+`e_tiny <= exponent` and `exponent + digits - 1 <= e_max`. The constructors
+`make`, `try_make` and `from_string` reject what is outside; the operations keep
+the values they produce inside, by rounding, underflow or overflow, so every
+`Decimal` you can obtain satisfies the condition. This is the invariant behind
+`x + 0 == x` and `x * 1 == x` for every stored finite value (see
+[the plain operators](#decimaladd-decimalsub-decimalmul-decimaldiv-decimalneg)).
+A text outside the limits is read with a context when a rounded value is wanted:
+[`to_number`](#to_number) rounds, overflows and underflows by the context.
+
+### `Decimal::make`, `Decimal::try_make`
 
 `make(c, e, p)` returns $c \cdot 10^{e}$ as a value of `p` digits of coefficient,
 the way the GDA to-number conversion does (page 21).
 
 ```mbti
 pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : GdaRoundingMode) -> Self
+pub fn Decimal::try_make(@bigint.BigInt, Int, Int, mode? : GdaRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The sign comes from the sign of `c`. The exponent is kept when `c` has at most
@@ -114,6 +138,14 @@ The sign comes from the sign of `c`. The exponent is kept when `c` has at most
 the rounded coefficient is not reduced: `make(1000000, 0, 3)` is `1.00E+6`. To
 strip trailing zeros use `Decimal::normalized` or `Decimal::trim`. No flags are
 reported.
+
+The value must be inside the [stored range](#gda_implementation_e_max-gda_implementation_e_tiny)
+after the rounding: an exponent below `gda_implementation_e_tiny`, or an adjusted
+exponent above `gda_implementation_e_max` (a carry of the rounding into the next
+power of ten included), is never replaced by a zero or an infinity. `make` then
+aborts with a message that names both limits and the exponent, and `try_make`
+returns `Err` of the domain-error kind with the same message. `try_make` also
+returns that error for a precision outside `1..=999999999`, where `make` aborts.
 
 ### `Decimal::from_int`, `Decimal::from_bigint`, `Decimal::from_double`, `Decimal::from_float`, `Decimal::from_bin_float`
 
@@ -173,14 +205,15 @@ $-2$. A literal with more than `precision` (default 34) significant digits is
 rounded half to even and its trailing zeros are removed. A malformed literal
 gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of
 the domain-error kind) and a NaN whose payload is wider than `precision - 1`
-digits (page 11). No context exponent range applies, only
-the limits of the representation (stored exponent at least $-2^{31}$,
-adjusted exponent at most $2^{31}-1$); as in the GDA to-number conversion, a
-numeric string beyond them still converts: `"1e3000000000"` is `inf` and
-`"1e-3000000000"` is `0E-2147483648` (a tiny literal is rounded half to even
-to the exponent $-2^{31}$). Use the package function
-[`to_number`](#to_number) when the exponent limits, flags, status or traps of a context
-must apply.
+digits (page 11). No context exponent range applies, only the
+[stored range](#gda_implementation_e_max-gda_implementation_e_tiny): a literal
+whose value (zero included) has an exponent below `gda_implementation_e_tiny`
+after the rounding, or an adjusted exponent above `gda_implementation_e_max`,
+gives `Err` of the domain-error kind that names both limits and the exponent. It is
+not a malformed literal, and it is no longer folded into an infinity or a zero
+(`"1e3000000000"` and `"1e-3000000000"` are errors). Use the package function
+[`to_number`](#to_number) when a rounded value is wanted or when the exponent
+limits, flags, status or traps of a context must apply.
 
 ### `Decimal::to_string`, `Decimal::output`
 
@@ -330,7 +363,12 @@ only fractional trailing zeros and never makes the exponent positive (`7.50`
 becomes `7.5`, `1200` stays `1200`); a zero becomes `0` with exponent 0.
 `with_precision(p, mode)` rounds to `p` digits with `mode`, removes trailing
 zeros and sets the precision attribute; special values only get the new
-attribute. None of them report flags.
+attribute. None of them report flags. A carry of the rounding at the top of the
+[stored range](#gda_implementation_e_max-gda_implementation_e_tiny) follows the
+GDA Overflow rule of the working range, so the result is never a finite value above
+the limit: for example `9999E+2147483643` rounded to 2 digits is `inf` in the
+modes that round away from zero or to nearest, and `9.9E+2147483646`, the
+largest finite value of that width, in the modes toward zero.
 
 ### `Decimal::same_quantum`
 
@@ -1229,14 +1267,9 @@ keep the smaller exponent (`1.10 + 3.50` is `4.60`), `*` adds the exponents,
 `/` starts from the difference of the exponents and removes only the trailing
 zeros that exact quotients allow (`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`),
 and a product or a quotient with more than $P$ digits is rounded to $P$ digits
-(`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality
-compares values, not members of the cohort, for every stored finite value
-whose adjusted exponent is at most $2^{31}-2$ and whose exponent is at least
-$-2^{31}+3$ (the range below). A value stored outside that range (a finite
-`Decimal` can still be built with the adjusted exponent $2^{31}-1$ or with an
-exponent down to $-2^{31}$) is overflowed or rounded by the operators, so the
-identity does not hold for it today; a later release restricts what can be
-stored to this range.
+(`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality compares values, not members
+of the cohort, and for every stored finite value, because the working range
+below is the [stored range](#gda_implementation_e_max-gda_implementation_e_tiny).
 
 The working exponent range cannot be built with
 [`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because GDA limits the
@@ -1639,6 +1672,10 @@ pub fn exp(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn fma(Decimal, Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
+pub let gda_implementation_e_max : Int32
+
+pub let gda_implementation_e_tiny : Int32
+
 pub fn is_normal(Decimal, GdaContext) -> GdaOutcome[Bool]
 
 pub fn is_subnormal(Decimal, GdaContext) -> GdaOutcome[Bool]
@@ -1799,6 +1836,7 @@ pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_sci_string(Self) -> String
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
+pub fn Decimal::try_make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::with_precision(Self, Int32, GdaRoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int32) -> Self
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self

@@ -113,3 +113,44 @@ fn bin_mode(
       }
   }
 }
+
+///|
+/// A finite value beyond the stored range (`gda_implementation_e_tiny`,
+/// `gda_implementation_e_max`), which no public constructor can make. The
+/// engine tests that pin the exponent arithmetic against `Int` overflow still
+/// need such operands, so the value is built from its parts.
+fn decimal_unchecked(
+  negative : Bool,
+  coefficient : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+) -> Decimal {
+  finite_with_exponent_repr(
+    negative,
+    coeff_from_bigint(coefficient),
+    exponent10,
+    precision,
+  )
+}
+
+///|
+/// `decimal_unchecked` of a finite numeral of at most `precision` digits.
+fn decimal_text_unchecked(text : String, precision~ : Int32 = 34) -> Decimal {
+  match split_decimal_string_wide(text) {
+    Some((negative, digits, exponent10)) => {
+      let significant = strip_leading_zero_digits(digits)
+      let coefficient = if significant.length() == 0 {
+        dec_coeff_zero()
+      } else {
+        dec_coeff_from_decimal_digits_repr(significant).unwrap()
+      }
+      finite_with_exponent_repr(
+        negative,
+        coefficient,
+        exponent10.to_int(),
+        precision,
+      )
+    }
+    None => abort("decimal_text_unchecked: not a numeral: " + text)
+  }
+}
