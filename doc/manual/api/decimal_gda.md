@@ -466,16 +466,14 @@ pub fn GdaContext::decimal128() -> Self
 `basic` is the GDA basic default context; `default` is the same value. The
 values are created once and shared.
 
-### `context`, `decimal32_context`, `decimal64_context`, `decimal128_context`
+### `context`
 
-These package functions are shorthands for `GdaContext::new` (without a trap
-argument) and the three interchange presets.
+This package function is a shorthand for `GdaContext::new` (without a trap
+argument). The three interchange presets are `GdaContext::decimal32()`,
+`GdaContext::decimal64()` and `GdaContext::decimal128()`.
 
 ```mbti
 pub fn context(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool) -> Result[GdaContext, @arithmetic.ArithmeticError]
-pub fn decimal32_context() -> GdaContext
-pub fn decimal64_context() -> GdaContext
-pub fn decimal128_context() -> GdaContext
 ```
 
 ### `GdaContext::precision`, `GdaContext::rounding`, `GdaContext::e_min`, `GdaContext::e_max`, `GdaContext::clamp`, `GdaContext::extended`, `GdaContext::radix`
@@ -2103,12 +2101,6 @@ pub fn compare_total(Decimal, Decimal, GdaContext) -> GdaOutcome[Int32]
 pub fn compare_total_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Int32]
 
 pub fn context(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool) -> Result[GdaContext, @arithmetic.ArithmeticError]
-
-pub fn decimal128_context() -> GdaContext
-
-pub fn decimal32_context() -> GdaContext
-
-pub fn decimal64_context() -> GdaContext
 
 pub fn divide(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 

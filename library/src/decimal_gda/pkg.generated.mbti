@@ -29,12 +29,6 @@ pub fn compare_total_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Int32
 
 pub fn context(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool) -> Result[GdaContext, @arithmetic.ArithmeticError]
 
-pub fn decimal128_context() -> GdaContext
-
-pub fn decimal32_context() -> GdaContext
-
-pub fn decimal64_context() -> GdaContext
-
 pub fn divide(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn divide_integer(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
