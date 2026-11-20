@@ -138,6 +138,10 @@ pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
+/// The decimal value of the binary64 `x`: the exact binary value rounded once,
+/// half to even, to `precision` digits (default 34). A value that fits keeps the
+/// exponent closest to 0. NaN gives the quiet NaN, an infinity and a zero keep
+/// their sign.
 pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
   Decimal::from_double_raw(
     x,
@@ -154,33 +158,44 @@ pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
-/// `coefficient * 10^exponent10` rounded to `precision` digits in `rounding`.
+/// `coefficient * 10^exponent10` as a value of `precision` digits (GDA 1.70
+/// to-number, page 21): the exponent is kept when the coefficient has at most
+/// `precision` digits, so `make(1200, 0, 34)` is `1200` and `make(0, 5, 5)` is
+/// `0E+5`; a longer coefficient is rounded once, in `mode`, to `precision`
+/// digits (`make(1000000, 0, 3)` is `1.00E+6`) and the rounded coefficient is not
+/// reduced. `reduce`, `trim` and `Decimal::normalized` strip trailing zeros.
 pub fn Decimal::make(
   coefficient : BigInt,
   exponent10 : Int32,
   precision : Int32,
-  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  mode~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
 ) -> Decimal {
   let precision = decimal_checked_precision(precision, "Decimal::make")
-  normalize_decimal_parts_gda(
+  let magnitude = coeff_from_bigint(abs_bigint(coefficient))
+  if magnitude.is_zero() {
+    return finite_with_exponent_repr(false, magnitude, exponent10, precision)
+  }
+  context_free_round_wide(
     coefficient < bigint_zero(),
-    abs_bigint(coefficient),
-    exponent10,
+    magnitude,
+    exponent10.to_int64(),
     precision,
-    decimal_rounding(rounding),
+    round_to_precision=true,
+    reduce=false,
+    mode=decimal_rounding(mode),
   )
 }
 
 ///|
-/// The value with `precision` digits of coefficient, rounded in `rounding`.
+/// The value with `precision` digits of coefficient, rounded in `mode`.
 pub fn Decimal::with_precision(
   self : Decimal,
   precision : Int32,
-  rounding : GdaRoundingMode,
+  mode : GdaRoundingMode,
 ) -> Decimal {
   self.with_precision_decimal_mode(
     decimal_checked_precision(precision, "Decimal::with_precision"),
-    decimal_rounding(rounding),
+    decimal_rounding(mode),
   )
 }
 
@@ -207,16 +222,16 @@ pub fn Decimal::to_bin_float(
 
 ///|
 /// The decimal value of a binary one, rounded to `precision` decimal digits in
-/// `rounding`. The precision is required and counts digits.
+/// `mode`. The precision is required and counts digits.
 pub fn Decimal::from_bin_float(
   x : @bin_float.BinFloat,
   precision~ : Int32,
-  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  mode~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
 ) -> Decimal {
   Decimal::from_bin_float_raw(
     x,
     precision=decimal_checked_precision(precision, "Decimal::from_bin_float"),
-    mode=decimal_rounding(rounding),
+    mode=decimal_rounding(mode),
   )
 }
 

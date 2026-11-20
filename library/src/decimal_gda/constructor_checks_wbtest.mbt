@@ -104,13 +104,9 @@ test "from_bin_float takes a required precision in digits and a rounding mode" {
   let down = Decimal::from_bin_float(
     tenth,
     precision=5,
-    rounding=GdaRoundingMode::Down,
+    mode=GdaRoundingMode::Down,
   )
-  let up = Decimal::from_bin_float(
-    tenth,
-    precision=5,
-    rounding=GdaRoundingMode::Up,
-  )
+  let up = Decimal::from_bin_float(tenth, precision=5, mode=GdaRoundingMode::Up)
   assert_eq(down.to_string(), "0.10000")
   assert_eq(up.to_string(), "0.10001")
   assert_eq(Decimal::from_bin_float(tenth, precision=5).to_string(), "0.10000")
@@ -164,23 +160,23 @@ test "panic to_bin_float aborts on precision 0" {
 ///|
 test "make and with_precision take a GDA rounding mode" {
   assert_eq(
-    Decimal::make(12345N, 0, 3, rounding=GdaRoundingMode::HalfUp).to_string(),
+    Decimal::make(12345N, 0, 3, mode=GdaRoundingMode::HalfUp).to_string(),
     "1.23E+4",
   )
   assert_eq(
-    Decimal::make(12355N, 0, 4, rounding=GdaRoundingMode::HalfUp).to_string(),
+    Decimal::make(12355N, 0, 4, mode=GdaRoundingMode::HalfUp).to_string(),
     "1.236E+4",
   )
   assert_eq(
-    Decimal::make(12355N, 0, 4, rounding=GdaRoundingMode::HalfEven).to_string(),
+    Decimal::make(12355N, 0, 4, mode=GdaRoundingMode::HalfEven).to_string(),
     "1.236E+4",
   )
   assert_eq(
-    Decimal::make(12345N, 0, 4, rounding=GdaRoundingMode::HalfDown).to_string(),
+    Decimal::make(12345N, 0, 4, mode=GdaRoundingMode::HalfDown).to_string(),
     "1.234E+4",
   )
   assert_eq(
-    Decimal::make(12341N, 0, 4, rounding=GdaRoundingMode::ZeroFiveUp).to_string(),
+    Decimal::make(12341N, 0, 4, mode=GdaRoundingMode::ZeroFiveUp).to_string(),
     "1.234E+4",
   )
   assert_eq(
@@ -207,4 +203,22 @@ test "an interchange NaN keeps the low digits of a payload that is too wide" {
   let (round, _) = GdaInterchange::from_decimal(fitting, Decimal32)
   assert_true(round.to_decimal().is_snan())
   assert_eq(round.to_decimal().nan_payload().to_string(), "123456")
+}
+
+///|
+/// S7: `make` keeps the exponent it is given when the coefficient fits.
+test "make keeps the given exponent and does not reduce a rounded coefficient" {
+  assert_eq(Decimal::make(1200N, 0, 34).to_string(), "1200")
+  assert_eq(Decimal::make(100N, 0, 5).to_string(), "100")
+  assert_eq(Decimal::make(1200N, -2, 34).to_string(), "12.00")
+  assert_eq(Decimal::make(-1200N, 3, 34).to_string(), "-1.200E+6")
+  assert_eq(Decimal::make(0N, 5, 5).to_string(), "0E+5")
+  assert_eq(Decimal::make(0N, -3, 5).to_string(), "0.000")
+  // a longer coefficient is rounded once; the rounded coefficient keeps its zeros
+  assert_eq(Decimal::make(1000000N, 0, 3).to_string(), "1.00E+6")
+  assert_eq(Decimal::make(1000000N, 0, 3).coefficient().to_string(), "100")
+  assert_eq(Decimal::make(1000000N, 0, 3).exponent10(), 4)
+  assert_eq(Decimal::make(1234567N, 0, 3).to_string(), "1.23E+6")
+  // the cohort is explicit: reduce, trim and normalized strip the zeros
+  assert_eq(Decimal::make(1200N, 0, 34).normalized().to_string(), "1.2E+3")
 }

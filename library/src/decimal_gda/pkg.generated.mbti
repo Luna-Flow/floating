@@ -141,7 +141,7 @@ pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, rounding? : GdaRoundingMode) -> Self
+pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, mode? : GdaRoundingMode) -> Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
@@ -156,7 +156,7 @@ pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_signed(Self) -> Bool
 pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
-pub fn Decimal::make(@bigint.BigInt, Int32, Int32, rounding? : GdaRoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::min(Self, Self) -> Self
