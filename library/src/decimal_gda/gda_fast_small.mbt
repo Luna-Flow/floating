@@ -134,16 +134,17 @@ fn gda_fast_leading_zeros(value : UInt64) -> Int32 {
 
 ///|
 /// The coefficient of a finite, nonzero, single-limb operand whose exponent
-/// is within the limit.
-fn gda_fast_operand(value : Decimal) -> UInt64? {
+/// is within the limit, or 0 for any other operand (a word, not an `Option`:
+/// an `Option[UInt64]` is a heap object).
+fn gda_fast_operand(value : Decimal) -> UInt64 {
   if value.class != FpClass::Finite ||
     value.exponent10 > gda_fast_exponent_limit ||
     value.exponent10 < -gda_fast_exponent_limit {
-    return None
+    return 0UL
   }
   match value.coefficient {
-    DecCoeff::Small(small) => if small == 0UL { None } else { Some(small) }
-    _ => None
+    DecCoeff::Small(small) => small
+    _ => 0UL
   }
 }
 
@@ -255,12 +256,18 @@ fn gda_fast_finish(
     precision,
   )
   if rounded {
+    // the conditions as shared constants: the general route's `complete_gda`
+    // of `{ rounded, inexact }` computes the same flags, status and trap check
     Some(
-      complete_decimal_gda(value, ctx, {
-        ..DecimalFlags::new(),
-        rounded: true,
-        inexact,
-      }),
+      complete_gda_raised(
+        value,
+        ctx,
+        if inexact {
+          gda_flags_rounded_inexact
+        } else {
+          gda_flags_rounded_only
+        },
+      ),
     )
   } else {
     Some(gda_completed_exact(value, ctx))
@@ -275,9 +282,9 @@ fn gda_fast_sum(
   ctx : GdaContext,
   subtract_rhs : Bool,
 ) -> GdaOutcome[Decimal]? {
-  guard gda_fast_context_ok(ctx, 18) &&
-    gda_fast_operand(lhs) is Some(left) &&
-    gda_fast_operand(rhs) is Some(right) else {
+  let left = gda_fast_operand(lhs)
+  let right = gda_fast_operand(rhs)
+  guard gda_fast_context_ok(ctx, 18) && left != 0UL && right != 0UL else {
     return None
   }
   let right_negative = rhs.negative != subtract_rhs
@@ -336,9 +343,9 @@ fn gda_fast_product(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal]? {
-  guard gda_fast_context_ok(ctx, 18) &&
-    gda_fast_operand(lhs) is Some(left) &&
-    gda_fast_operand(rhs) is Some(right) else {
+  let left = gda_fast_operand(lhs)
+  let right = gda_fast_operand(rhs)
+  guard gda_fast_context_ok(ctx, 18) && left != 0UL && right != 0UL else {
     return None
   }
   gda_fast_finish(
@@ -361,9 +368,9 @@ fn gda_fast_quotient(
   rhs : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal]? {
-  guard gda_fast_context_ok(ctx, 17) &&
-    gda_fast_operand(lhs) is Some(dividend) &&
-    gda_fast_operand(rhs) is Some(divisor) else {
+  let dividend = gda_fast_operand(lhs)
+  let divisor = gda_fast_operand(rhs)
+  guard gda_fast_context_ok(ctx, 17) && dividend != 0UL && divisor != 0UL else {
     return None
   }
   let precision = ctx.precision_
