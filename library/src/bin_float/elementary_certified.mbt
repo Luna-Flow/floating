@@ -2266,23 +2266,6 @@ pub fn BinFloat::hypot(self : BinFloat, other : BinFloat) -> BinFloat {
 }
 
 ///|
-pub fn BinFloat::pown_ctx(
-  self : BinFloat,
-  exponent : Int32,
-  context : BinaryContext,
-) -> (BinFloat, BinaryFlags) {
-  self.pow_int_ctx(exponent, context)
-}
-
-///|
-pub fn BinFloat::pown(
-  self : BinFloat,
-  exponent : Int32,
-) -> Result[BinFloat, @def.ArithmeticError] {
-  self.pow_int(exponent)
-}
-
-///|
 fn binary_rootn_positive_bounds(
   value : BinFloat,
   degree : Int64,

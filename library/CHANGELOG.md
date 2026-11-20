@@ -44,7 +44,23 @@ notes live in this file.
   | G08 | `Decimal::minimum_ctx`, `maximum_ctx`, `minimum_number_ctx`, `maximum_number_ctx`, `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` and the four `*_mag_ctx` forms of the magnitude variants | the GDA operations `min_ctx`, `max_ctx`, `min_mag_ctx`, `max_mag_ctx` (they return the number when one operand is a quiet NaN, as `minimumNumber` and `maximumNumber` do); the IEEE 754-2019 §9.6 variants are in `decimal` |
   | G09 | `Decimal::remainder_ctx` | `Decimal::remainder_near` (the IEEE remainder; `remainder` is the truncating GDA remainder) |
 - `decimal`, `decimal_gda`: `DecimalContext::new` (both packages) and `GdaContext::new` return the context and abort on an invalid parameter, and `try_new` returns `Result[_, ArithmeticError]`, the shape of `BinaryContext::new` and `BinaryContext::try_new` (part of step B of [#22](https://github.com/Luna-Flow/floating/issues/22)). The abort message names the parameter (`DecimalContext::new: precision must be within 1..=999999999`); the `Err` messages of `try_new` are the ones `new` returned before. The presets and `exact()` are unchanged, and the free function `decimal_gda.context(...)` still returns a `Result`. Migration: `X::new(...).unwrap()` becomes `X::new(...)`; code that handles the error (a `match`, `is Err(_)`, a returned `Result`) calls `X::try_new(...)`, which until now was an alias of the old `new`.
+- `bin_float` and `bin_float_checked`: IEEE 754-2019 names for the integer power and the quiet and signaling comparisons ([#22](https://github.com/Luna-Flow/floating/issues/22)). The two names of the integer power are one, `pown`; the seven comparison predicates take the standard's word order (§5.6.1). The old names are removed without alias. Migration:
 
+  | removed | replacement |
+  | --- | --- |
+  | `BinFloat::pow_int(n)` | `BinFloat::pown(n)` |
+  | `BinFloat::pow_int_ctx(n, ctx)` | `BinFloat::pown_ctx(n, ctx)` |
+  | `BinFloatResult::pow_int(n)` | `BinFloatResult::pown(n)` |
+  | `BinFloatResult::pow_int_ctx(n, ctx)` | `BinFloatResult::pown_ctx(n, ctx)` |
+  | `BinFloat::equal_quiet` | `BinFloat::compare_quiet_equal` |
+  | `BinFloat::equal_signaling` | `BinFloat::compare_signaling_equal` |
+  | `BinFloat::less_quiet` | `BinFloat::compare_quiet_less` |
+  | `BinFloat::less_signaling` | `BinFloat::compare_signaling_less` |
+  | `BinFloat::less_equal_quiet` | `BinFloat::compare_quiet_less_equal` |
+  | `BinFloat::less_equal_signaling` | `BinFloat::compare_signaling_less_equal` |
+  | `BinFloat::unordered_quiet` | `BinFloat::compare_quiet_unordered` |
+
+  The `PowIntChecked::pow_int_checked` implementation of `BinFloat` (a trait of `Luna-Flow/arithmetic`) and `BallFloatResult::pow_int` are not touched. `decimal` has no method under the old comparison names.
 - `decimal_gda`: the free functions `decimal32_context()`, `decimal64_context()` and `decimal128_context()` are removed (part of step B of [#22](https://github.com/Luna-Flow/floating/issues/22)). Migration: `GdaContext::decimal32()`, `GdaContext::decimal64()` and `GdaContext::decimal128()` return the same shared preset values. The free function `context(...)` stays.
 - `decimal_gda`: `GdaOutcome` is `pub enum` instead of `pub(all) enum` (part of step B of [#22](https://github.com/Luna-Flow/floating/issues/22)). Code outside the package can still `match` on `Completed` and `Trapped` and use `value`, `next_context` and `raised`, but can no longer construct a `GdaOutcome` or mutate one; only the GDA operations produce it. Migration: to continue after a trap with the defined result, call the new `GdaOutcome::resume_defined(Self) -> Self` (`Completed` unchanged, `Trapped(s, v, C, R)` becomes `Completed(v, C, none)`) instead of building `Completed(v, C, GdaFlags::none())`. `GdaDecimalChecked::resume_defined` now uses it; nothing else in the library, tooling or manual constructed an outcome.
 - `bin_float`, `bin_float_checked`: the `exp_ln` family is removed ([#22](https://github.com/Luna-Flow/floating/issues/22), step B1): `BinFloat::exp_ln`, `BinFloat::exp_ln_ctx`, `BinFloat::try_exp_ln_ctx`, `BinFloatResult::exp_ln` and `BinFloatResult::exp_ln_ctx`. It computed $\ln(e^x) = x$ and was certified only for $|x| \le 1/8$ (any other finite argument was a certification failure), it is not an IEEE 754-2019 operation, and the decimal packages have no counterpart. Migration: none needed; the value was $x$ rounded once into the context, which is `x.round_ctx(context)` (or `plus`). `ball_float` and `ball_float_checked` had no wrapper of it.

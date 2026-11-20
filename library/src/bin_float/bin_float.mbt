@@ -944,12 +944,12 @@ pub fn BinFloat::sqrt(
 }
 
 ///|
-pub fn BinFloat::pow_int(
+pub fn BinFloat::pown(
   self : BinFloat,
   exponent : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   binary_checked_result(
-    self.pow_int_ctx(exponent, BinaryContext::unbounded(self.precision_)),
+    self.pown_ctx(exponent, BinaryContext::unbounded(self.precision_)),
     "invalid power",
     division_by_zero_message="negative exponent requires a non-zero base",
   )
@@ -999,7 +999,7 @@ pub impl @lf_arith.PowIntChecked for BinFloat with fn pow_int_checked(
   ctx,
 ) {
   binary_checked_result(
-    self.pow_int_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)),
+    self.pown_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)),
     "invalid power",
     division_by_zero_message="negative exponent requires a non-zero base",
   )

@@ -64,8 +64,8 @@ pub(all) enum TestFloatOperation {
 | `RoundToInt` | `roundToInt` | 1 | `to_integral_exact_ctx` if exact, else `to_integral_value_ctx` |
 | `ToInt32`, `ToInt64`, `ToUInt32`, `ToUInt64` | `to_i32`, `to_i64`, `to_ui32`, `to_ui64` | 1 | `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx`, `to_uint64_ctx` with `exact~` |
 | `ConvertFormat(format)` | `to_f16`, `to_f32`, `to_f64`, `to_f128` | 1 | `convert_format` (operand in the format of the function name, result in `format`) |
-| `Equal`, `LessEqual`, `Less` | `eq`, `le`, `lt` | 2 | `equal_quiet`, `less_equal_signaling`, `less_signaling` |
-| `EqualSignaling`, `LessEqualQuiet`, `LessQuiet` | `eq_signaling`, `le_quiet`, `lt_quiet` | 2 | `equal_signaling`, `less_equal_quiet`, `less_quiet` |
+| `Equal`, `LessEqual`, `Less` | `eq`, `le`, `lt` | 2 | `compare_quiet_equal`, `compare_signaling_less_equal`, `compare_signaling_less` |
+| `EqualSignaling`, `LessEqualQuiet`, `LessQuiet` | `eq_signaling`, `le_quiet`, `lt_quiet` | 2 | `compare_signaling_equal`, `compare_quiet_less_equal`, `compare_quiet_less` |
 
 ### `TestFloatSpec`
 

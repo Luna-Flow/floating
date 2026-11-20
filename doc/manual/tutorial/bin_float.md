@@ -396,10 +396,10 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
 - **`==` compares representations.** `BinFloat` derives `Eq`, so `1` at 53
   bits is not `==` to `1` at 24 bits, $-0 \ne +0$, and a NaN equals an
   identical NaN. Use `compare(x, y) == 0` for numerical equality, or
-  `equal_quiet` for the IEEE predicate.
+  `compare_quiet_equal` for the IEEE predicate.
 - **`compare` puts NaN last.** It never aborts: every NaN compares equal to
   every NaN and greater than every number, so `nan > x` is true. Use
-  `compare_checked`, `compare_quiet` or `less_quiet` when NaN must be
+  `compare_checked`, `compare_quiet` or `compare_quiet_less` when NaN must be
   unordered.
 - **Plain operators ignore your format.** `x + y` works at the larger operand
   precision with an exponent range of about $2^{\pm 2^{30}}$; it never

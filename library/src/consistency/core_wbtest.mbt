@@ -439,16 +439,16 @@ test "bin_float checked division reports division by zero" {
 }
 
 ///|
-test "bin_float sqrt and pow_int expose core arithmetic extensions" {
+test "bin_float sqrt and pown expose core arithmetic extensions" {
   let root = @bin_float.BinFloat::from_int(4, precision=24).sqrt()
-  let power = binary_test_make(3N, -1, 24).pow_int(3)
+  let power = binary_test_make(3N, -1, 24).pown(3)
   match root {
     Ok(value) => assert_eq(value.to_string(), "1p1")
     Err(_) => fail("expected sqrt to succeed")
   }
   match power {
     Ok(value) => assert_eq(value.to_string(), "27p-3")
-    Err(_) => fail("expected pow_int to succeed")
+    Err(_) => fail("expected pown to succeed")
   }
 }
 

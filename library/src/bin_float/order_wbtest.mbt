@@ -89,7 +89,7 @@ test "quiet and signaling comparisons differ only in NaN flags" {
     "\{result.0}/\{result.1.to_testfloat_bits()}"
   }
   inspect(
-    "\{flag(one.less_quiet(qnan))} \{flag(one.less_signaling(qnan))} \{flag(one.less_equal_quiet(one))} \{flag(qnan.unordered_quiet(one))} \{flag(BinFloat::zero().equal_signaling(BinFloat::negative_zero()))}",
+    "\{flag(one.compare_quiet_less(qnan))} \{flag(one.compare_signaling_less(qnan))} \{flag(one.compare_quiet_less_equal(one))} \{flag(qnan.compare_quiet_unordered(one))} \{flag(BinFloat::zero().compare_signaling_equal(BinFloat::negative_zero()))}",
     content=(
       #|false/0 false/16 true/0 true/0 true/0
     ),

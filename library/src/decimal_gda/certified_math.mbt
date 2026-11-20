@@ -256,14 +256,14 @@ fn decimal_power10_bounds(
     }
   }
   let ten = @bin_float.BinFloat::from_int(10, precision~)
-  let lower = ten.pow_int_ctx(
+  let lower = ten.pown_ctx(
       exponent10,
       @bin_float.BinaryContext::unbounded(
         precision,
         rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
       ),
     ).0
-  let upper = ten.pow_int_ctx(
+  let upper = ten.pown_ctx(
       exponent10,
       @bin_float.BinaryContext::unbounded(
         precision,

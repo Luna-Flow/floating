@@ -23,6 +23,7 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 ### Changed
 
 - The `testfloat_expr` front end builds the TestFloat flag mask from the five accessors of `BinaryFlags`, because `BinaryFlags::to_testfloat_bits` left the library ([#22](https://github.com/Luna-Flow/floating/issues/22)). The mask and every result are unchanged.
+- The `testfloat_expr` front end, the `mpfr_expr` front end and the manual pages of the frontends call the renamed `bin_float` methods (`pown_ctx`, `compare_quiet_equal`, `compare_signaling_less` and the other five comparison predicates, [#22](https://github.com/Luna-Flow/floating/issues/22)). Every result is unchanged.
 - The tutorials of the packages of this module no longer tell the reader to `moon add Luna-Flow/floating@0.10.2`, which does not contain them: they say that the packages belong to this module (a package of the workspace, or `moon add Luna-Flow/floating-tools@0.11.0` once it is published). The package map of the manual says which module each package belongs to and lists `cli/dispatch` and `differential/harness`.
 
 - The module is versioned with the library: `version` is `0.11.0`, the version of

@@ -166,7 +166,7 @@ test "LegacyBigIntBinFloat fixed-seed finite shadow" {
       label="sqrt",
     )
     legacy_shadow_assert_equal(
-      left.pow_int_ctx(7, BinaryContext::unbounded(left.precision())).0,
+      left.pown_ctx(7, BinaryContext::unbounded(left.precision())).0,
       legacy_left.pow_positive(7),
       label="pow_positive",
     )

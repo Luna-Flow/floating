@@ -2,7 +2,7 @@
 //
 // The checked result is the IEEE 754-2019 default result with the invalid
 // operation exception (section 7.2) as `DomainError` and divideByZero
-// (section 7.3) as `DivisionByZero`, as for `div`, `sqrt` and `pow_int`
+// (section 7.3) as `DivisionByZero`, as for `div`, `sqrt` and `pown`
 // (#262). Section 9.2: "signaling NaN operands shall signal the invalid
 // operation exception", "Outside its domain an operation shall return a quiet
 // NaN and signal the invalid operation exception", and "An operation that has

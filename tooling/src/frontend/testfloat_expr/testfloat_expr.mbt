@@ -633,12 +633,12 @@ fn execute_boolean_case(
   let left = operands[0]
   let right = operands[1]
   let (actual, flags) = match spec.operation {
-    Equal => left.equal_quiet(right)
-    LessEqual => left.less_equal_signaling(right)
-    Less => left.less_signaling(right)
-    EqualSignaling => left.equal_signaling(right)
-    LessEqualQuiet => left.less_equal_quiet(right)
-    LessQuiet => left.less_quiet(right)
+    Equal => left.compare_quiet_equal(right)
+    LessEqual => left.compare_signaling_less_equal(right)
+    Less => left.compare_signaling_less(right)
+    EqualSignaling => left.compare_signaling_equal(right)
+    LessEqualQuiet => left.compare_quiet_less_equal(right)
+    LessQuiet => left.compare_quiet_less(right)
     _ => abort("invalid parsed TestFloat comparison")
   }
   if actual != expected {

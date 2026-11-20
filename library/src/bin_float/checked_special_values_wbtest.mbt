@@ -304,7 +304,7 @@ test "checked trait adapters follow the IEEE special-value table" {
         if actual != expected {
           failures.push(
             checked_mismatch(
-              "pow_int(" + a + ", " + n.to_string() + ")",
+              "pown(" + a + ", " + n.to_string() + ")",
               context,
               actual,
               expected,
@@ -335,7 +335,7 @@ test "checked trait adapters follow the IEEE special-value table" {
     }
   }
   assert_eq(failures, [])
-  // 30 contexts x (100 div + 10 sqrt + 70 pow_int + 40 pow_nat) cases.
+  // 30 contexts x (100 div + 10 sqrt + 70 pown + 40 pow_nat) cases.
   assert_eq(cases, 30 * (100 + 10 + 70 + 40))
 }
 
@@ -359,10 +359,9 @@ test "inherent checked operations follow the IEEE special-value table" {
       }
       for n in -3..<=3 {
         let expected = checked_expected_pown(a, n)
-        let pow_int = checked_render(x.pow_int(n))
         let pown = checked_render(x.pown(n))
-        if pow_int != expected || pown != expected {
-          failures.push("pow_int(" + a + ", " + n.to_string() + "): " + pow_int)
+        if pown != expected {
+          failures.push("pown(" + a + ", " + n.to_string() + "): " + pown)
         }
       }
     }
@@ -415,7 +414,7 @@ test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
   for negative in [false, true] {
     let snan = BinFloat::signaling_nan(payload~, negative~, precision=53)
     let results = [
-      snan.pow_int_ctx(0, context),
+      snan.pown_ctx(0, context),
       snan.pown_ctx(0, context),
       snan.pow_nat_ctx(0U, context),
     ]
@@ -431,7 +430,7 @@ test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
     let qnan = BinFloat::quiet_nan(payload~, negative~, precision=53)
     for
       result in [
-        qnan.pow_int_ctx(0, context),
+        qnan.pown_ctx(0, context),
         qnan.pown_ctx(0, context),
         qnan.pow_nat_ctx(0U, context),
       ] {

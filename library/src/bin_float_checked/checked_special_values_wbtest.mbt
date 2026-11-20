@@ -155,13 +155,10 @@ test "BinFloatResult follows the IEEE special-value table" {
       }
       for n in -3..<=3 {
         let expected = wrapper_expected_pown(a, n)
-        let pow_int = wrapper_render(x.pow_int(n))
         let pown = wrapper_render(x.pown(n))
-        cases += 2
-        if pow_int != expected || pown != expected {
-          failures.push(
-            "pow_int(" + a + ", " + n.to_string() + "): " + pow_int + " " + pown,
-          )
+        cases += 1
+        if pown != expected {
+          failures.push("pown(" + a + ", " + n.to_string() + "): " + pown)
         }
         if n >= 0 {
           let nat = wrapper_render(x.pow_nat(n.reinterpret_as_uint()))
@@ -174,5 +171,5 @@ test "BinFloatResult follows the IEEE special-value table" {
     }
   }
   assert_eq(failures, [])
-  assert_eq(cases, 3 * (200 + 10 + 140 + 40))
+  assert_eq(cases, 3 * (200 + 10 + 70 + 40))
 }
