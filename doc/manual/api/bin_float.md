@@ -1234,12 +1234,13 @@ positional notation for decimal exponents in $[-6, 21)$, otherwise
 string that `from_string(text, precision=x.precision())` maps back to `x`. The
 operand should be representable in the context.
 
-### `BinFloat::from_hex`, `BinFloat::to_hex`
+### `BinFloat::from_hex`, `BinFloat::from_hex_ctx`, `BinFloat::to_hex`
 
 Read and write the exact value with a hexadecimal coefficient.
 
 ```mbti
 pub fn BinFloat::from_hex(String, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::from_hex_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::to_hex(Self) -> String
 ```
 
@@ -1248,8 +1249,12 @@ or `0X`, hexadecimal digits with at most one point (`1.8`, `.8` or `1.`), and a
 required `p` or `P` exponent with an optional sign and decimal digits. The
 value is the hexadecimal significand times $2^{\text{exponent}}$, so `0x3p-1`
 and `0x1.8p0` are both $1.5$. `from_hex(s, p)` rounds once to precision `p`
-with nearest-even and reports no flags
-([#256](https://github.com/Luna-Flow/floating/issues/256)). It also accepts
+with nearest-even and reports no flags. `from_hex_ctx(s, context)` is the
+§5.12.3 conversion: it rounds the exact value once under the rounding direction,
+precision, exponent range and tininess rule of `context` and returns the
+`inexact`, `underflow` and `overflow` flags, like `from_string_ctx`. An exponent
+outside the 32-bit range overflows or underflows there instead of being a
+parse error. Both accept
 `inf`, `infinity`, `nan` and `snan` in any case with an optional sign
 (§5.12.1); `snan` gives a signaling NaN. Surrounding whitespace is trimmed;
 any other text is a `parse_error`. `to_hex` prints the stored coefficient in
@@ -1268,6 +1273,10 @@ test "decimal and hexadecimal text" {
   let (single, _) = @bin_float.BinFloat::from_string_ctx("0.1", @bin_float.BinaryContext::binary32()).unwrap()
   inspect(single, content="13421773p-27")
   inspect(@bin_float.BinFloat::from_hex("0x3p-1", 53).unwrap(), content="3p-1")
+  // 0x1.00000000000008p0 has 57 significant bits: binary64 rounds it, inexact.
+  let (rounded, hex_flags) = @bin_float.BinFloat::from_hex_ctx("0x1.00000000000008p0", ctx).unwrap()
+  inspect(rounded, content="1")
+  inspect(hex_flags.inexact(), content="true")
 }
 ```
 

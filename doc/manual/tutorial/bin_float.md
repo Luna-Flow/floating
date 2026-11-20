@@ -381,7 +381,8 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
   `to_shortest_string` or `to_decimal_string_ctx` for people.
 - **`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and
   `0x3p-1` are both $1.5$, but `0x1.8` is rejected, and an inexact conversion
-  looks like an exact one; use `from_string_ctx` when the flags matter.
+  looks like an exact one; use `from_hex_ctx` (or `from_string_ctx` for decimal
+  text) when the rounding direction or the flags matter.
 - **`with_precision` hides flags.** Use `round_ctx` when you need to know that
   narrowing was inexact or overflowed.
 - **The sign of a zero is an input.** IEEE 754 special cases read it:
