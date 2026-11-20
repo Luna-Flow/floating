@@ -178,7 +178,7 @@ needlessly wide interval:
 ///|
 test "certification failure carries a detail record" {
   let huge = @ball_float_checked.BallFloatResult::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 70000, 53),
+    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8000000, 53),
   )
   match huge.sin().error() {
     Some(e) => {

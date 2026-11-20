@@ -1289,8 +1289,8 @@ msgid "These methods enclose the image of the interval under the hyperbolic func
 msgstr "これらのメソッドは、双曲線関数とその逆関数による区間の像を包含します。"
 
 #: manual/api/ball_float_checked.md:362
-msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{70000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
-msgstr "各メソッドは、区間の精度での `BallFloat::try_<name>_interval` の `bind` です。結果 $Y$ は $f(X \\cap \\operatorname{dom} f) \\subseteq Y$ を満たします。$X$ のうち定義域外の部分は無視されるため、$\\ln([-1, 1]) = [-\\infty, 0]$ であり、$\\ln([-2, -2])$ は空です。唯一のエラーは、包含区間を認証できない場合の `CertificationFailure` であり、たとえば $2^{70000}$ の余弦がそうです（理由は `ResourceLimit`）。コンテキスト付きの変種はなく、精度は `with_precision` で設定します。"
+msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
+msgstr "各メソッドは、区間の精度での `BallFloat::try_<name>_interval` の `bind` です。結果 $Y$ は $f(X \\cap \\operatorname{dom} f) \\subseteq Y$ を満たします。$X$ のうち定義域外の部分は無視されるため、$\\ln([-1, 1]) = [-\\infty, 0]$ であり、$\\ln([-2, -2])$ は空です。唯一のエラーは、包含区間を認証できない場合の `CertificationFailure` であり、たとえば $2^{8000000}$ の余弦がそうです（理由は `ResourceLimit`）。コンテキスト付きの変種はなく、精度は `with_precision` で設定します。"
 
 #: manual/api/ball_float_checked.md:400
 msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"

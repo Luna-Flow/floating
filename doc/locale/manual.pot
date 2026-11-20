@@ -1283,7 +1283,7 @@ msgid "These methods enclose the image of the interval under the hyperbolic func
 msgstr ""
 
 #: manual/api/ball_float_checked.md:362
-msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{70000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
+msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
 msgstr ""
 
 #: manual/api/ball_float_checked.md:400
