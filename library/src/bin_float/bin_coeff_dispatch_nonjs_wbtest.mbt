@@ -243,3 +243,59 @@ test "bits, bytes and power-of-two radixes on 64-bit limbs" {
     assert_eq(value.to_bytes_be().length(), byte_count - 1)
   }
 }
+
+///|
+test "NTT conversions on 64-bit limbs and on the 32-bit view agree" {
+  let random = { words_state: 0x4A4A_91B1_E7E7_0C0CUL, }
+  for left_len in [1, 2, 3, 9, 40] {
+    for right_len in [1, 2, 5, 40, 41] {
+      for pattern in [0, 1, 2] {
+        let left = dispatch_test_value(random, left_len, pattern)
+        let right = dispatch_test_value(random, right_len, (pattern + 1) % 5)
+        // the digits
+        let digits = bin_coeff_ntt_digit_length(left)
+        let by_words = FixedArray::make(digits, 0U)
+        let by_limbs = FixedArray::make(digits, 0U)
+        bin_coeff_ntt_fill_words(
+          by_words, left, digits, bin_coeff_ntt_prime1, bin_coeff_ntt_nprime1, bin_coeff_ntt_r2_prime1,
+        )
+        bin_coeff_ntt_fill_limb32(
+          by_limbs, left, digits, bin_coeff_ntt_prime1, bin_coeff_ntt_nprime1, bin_coeff_ntt_r2_prime1,
+        )
+        for index in 0..<digits {
+          assert_eq(by_words[index], by_limbs[index])
+        }
+        // the product reassembled both ways from the same residues
+        let coefficient_count = digits + bin_coeff_ntt_digit_length(right) - 1
+        let transform_length = bin_coeff_ntt_transform_length(coefficient_count)
+        let residues1 = bin_coeff_ntt_convolution_mod(
+          left, right, false, transform_length, coefficient_count, bin_coeff_ntt_prime1,
+          bin_coeff_ntt_root1, bin_coeff_ntt_nprime1, bin_coeff_ntt_r2_prime1, bin_coeff_ntt_r_prime1,
+        )
+        let residues2 = bin_coeff_ntt_convolution_mod(
+          left, right, false, transform_length, coefficient_count, bin_coeff_ntt_prime2,
+          bin_coeff_ntt_root2, bin_coeff_ntt_nprime2, bin_coeff_ntt_r2_prime2, bin_coeff_ntt_r_prime2,
+        )
+        let expected = bin_coeff_mul_schoolbook(left, right)
+        assert_eq(
+          bin_coeff_ntt_reconstruct_words(
+            residues1,
+            residues2,
+            coefficient_count,
+            bin_coeff_word_len(left) + bin_coeff_word_len(right),
+          ),
+          expected,
+        )
+        assert_eq(
+          bin_coeff_ntt_reconstruct_limb32(
+            residues1,
+            residues2,
+            coefficient_count,
+            bin_coeff_limb_len(left) + bin_coeff_limb_len(right),
+          ),
+          expected,
+        )
+      }
+    }
+  }
+}

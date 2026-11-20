@@ -102,3 +102,9 @@ let bin_coeff_radix_format_dc_words = 3072
 /// Number of digit chunks from which `BinCoeff::parse` combines chunks by
 /// divide and conquer instead of accumulating them in place.
 let bin_coeff_radix_parse_dc_chunks = 4608
+
+///|
+/// Whether the NTT converts operands and products on the 32-bit view of the
+/// storage (Wasm: measured faster than 64-bit limbs there, 300,000-bit product
+/// on Wasm-GC) instead of on 64-bit limbs.
+let bin_coeff_ntt_limb32_conversion = false

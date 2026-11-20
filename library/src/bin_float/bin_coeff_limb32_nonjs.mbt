@@ -642,3 +642,65 @@ fn bin_coeff_div_rem_knuth_limb32(
     bin_coeff_from_limbs(remainder_limbs, denominator_len),
   )
 }
+
+///|
+/// NTT digit conversion on the 32-bit view (the Wasm form, see
+/// `bin_coeff_ntt_limb32_conversion`): the residues of the 16-bit digits.
+fn bin_coeff_ntt_fill_limb32(
+  destination : FixedArray[UInt32],
+  value : BinCoeff,
+  digit_length : Int32,
+  prime : UInt64,
+  nprime : UInt64,
+  r2 : UInt64,
+) -> Unit {
+  for index in 0..<digit_length {
+    let limb = bin_coeff_limb(value, index / 2)
+    let digit = if (index & 1) == 0 { limb & 0xffffU } else { limb >> 16 }
+    destination.unsafe_set(
+      index,
+      bin_coeff_ntt_to_montgomery(digit.to_uint64(), prime, nprime, r2).to_uint(),
+    )
+  }
+}
+
+///|
+/// The product from the two residue arrays, packed into 32-bit limbs.
+fn bin_coeff_ntt_reconstruct_limb32(
+  residues1 : FixedArray[UInt32],
+  residues2 : FixedArray[UInt32],
+  coefficient_count : Int32,
+  maximum_limbs : Int32,
+) -> BinCoeff {
+  let limbs = FixedArray::make(maximum_limbs + 1, 0U)
+  let mut carry = 0UL
+  let mut digit_index = 0
+  for index in 0..<coefficient_count {
+    let coefficient = bin_coeff_ntt_crt(
+      residues1.unsafe_get(index).to_uint64(),
+      residues2.unsafe_get(index).to_uint64(),
+    )
+    let accumulated = coefficient + carry
+    let digit = (accumulated & 0xffffUL).to_uint()
+    let limb_index = digit_index / 2
+    let shift = (digit_index & 1) * 16
+    limbs.unsafe_set(
+      limb_index,
+      limbs.unsafe_get(limb_index) | (digit << shift),
+    )
+    digit_index += 1
+    carry = accumulated >> 16
+  }
+  while carry != 0UL {
+    let digit = (carry & 0xffffUL).to_uint()
+    let limb_index = digit_index / 2
+    let shift = (digit_index & 1) * 16
+    limbs.unsafe_set(
+      limb_index,
+      limbs.unsafe_get(limb_index) | (digit << shift),
+    )
+    digit_index += 1
+    carry = carry >> 16
+  }
+  bin_coeff_from_limbs(limbs, (digit_index + 1) / 2)
+}
