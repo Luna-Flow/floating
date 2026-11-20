@@ -2693,7 +2693,7 @@ msgstr ""
 
 #: manual/api/bin_float.md:1391
 #: manual/api/decimal_gda.md:1339
-#: manual/design/decimal.md:748
+#: manual/design/decimal.md:750
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
 msgstr ""
@@ -2710,7 +2710,7 @@ msgstr ""
 #: manual/api/cli/mpfr_expr_cli.md:46
 #: manual/design/bin_float.md:107
 #: manual/design/decimal.md:89
-#: manual/design/decimal.md:754
+#: manual/design/decimal.md:756
 #: manual/design/frontend/mpfr_expr.md:48
 msgid "Format"
 msgstr ""
@@ -8573,7 +8573,7 @@ msgstr ""
 
 #: manual/architecture.md:124
 #: manual/design/bin_float.md:816
-#: manual/design/decimal.md:821
+#: manual/design/decimal.md:823
 msgid "Certified elementary functions"
 msgstr ""
 
@@ -10103,7 +10103,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:1425
+#: manual/design/decimal.md:1463
 #: manual/design/decimal_checked.md:277
 #: manual/design/decimal_gda.md:958
 #: manual/design/decimal_gda_checked.md:262
@@ -11634,7 +11634,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:36
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:56
-#: manual/design/decimal.md:1355
+#: manual/design/decimal.md:1393
 #: manual/design/decimal_checked.md:194
 #: manual/design/decimal_gda.md:913
 #: manual/design/decimal_gda_checked.md:205
@@ -11711,7 +11711,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:1404
+#: manual/design/decimal.md:1442
 #: manual/design/decimal_checked.md:266
 #: manual/design/decimal_gda.md:942
 #: manual/design/decimal_gda_checked.md:253
@@ -14895,17 +14895,17 @@ msgid "exponents $E_{\\text{top}}-E_{\\text{tiny}}+1$"
 msgstr ""
 
 #: manual/design/decimal.md:91
-#: manual/design/decimal.md:756
+#: manual/design/decimal.md:758
 msgid "decimal32"
 msgstr ""
 
 #: manual/design/decimal.md:92
-#: manual/design/decimal.md:757
+#: manual/design/decimal.md:759
 msgid "decimal64"
 msgstr ""
 
 #: manual/design/decimal.md:93
-#: manual/design/decimal.md:758
+#: manual/design/decimal.md:760
 msgid "decimal128"
 msgstr ""
 
@@ -14962,7 +14962,7 @@ msgid "The kernels implement eight algorithms. A context selects one of the five
 msgstr ""
 
 #: manual/design/decimal.md:198
-#: manual/design/decimal.md:560
+#: manual/design/decimal.md:562
 #: manual/design/decimal_gda.md:295
 msgid "Mode"
 msgstr ""
@@ -15176,596 +15176,604 @@ msgstr ""
 #: manual/design/decimal.md:497
 msgid ""
 "For the irrational case let the target exponent be $t = \\max(E_{\\text{tiny}},\\\n"
-"\\lfloor \\operatorname{adj}(x)/2 \\rfloor - p + 1)$. The root has adjusted exponent $\\lfloor \\operatorname{adj}(x)/2 \\rfloor$: from $10^{a} \\le x < 10^{a+1}$ follows $10^{a/2} \\le \\sqrt x < 10^{(a+1)/2}$, and both for even and for odd $a$ the integer part of the exponent is $\\lfloor a/2 \\rfloor$. So $t$ leaves $p$ digits, or stops at the subnormal grid. When $q - 2t \\ge 0$ the operand is scaled to the integer $M = c\\,10^{q - 2t}$ and $r = \\lfloor \\sqrt{M} \\rfloor$ is the truncated root at exponent $t$. When $q - 2t < 0$ the code takes the integer root of $c$ (of $10c$ if $-(q-2t)$ is odd) and divides it by $10^{\\lceil -(q-2t)/2 \\rceil}$; nested floors of a positive real by positive integers compose, so this is again $\\lfloor \\sqrt{x}\\,10^{-t} \\rfloor$. The integer root is computed with Newton's iteration on integers,"
+"\\lfloor \\operatorname{adj}(x)/2 \\rfloor - p + 1)$. The root has adjusted exponent $\\lfloor \\operatorname{adj}(x)/2 \\rfloor$: from $10^{a} \\le x < 10^{a+1}$ follows $10^{a/2} \\le \\sqrt x < 10^{(a+1)/2}$, and both for even and for odd $a$ the integer part of the exponent is $\\lfloor a/2 \\rfloor$. So $t$ leaves $p$ digits, or stops at the subnormal grid. When $q - 2t \\ge 0$ the operand is scaled to the integer $M = c\\,10^{q - 2t}$ and $r = \\lfloor \\sqrt{M} \\rfloor$ is the truncated root at exponent $t$. When $q - 2t < 0$ the code takes the integer root of $c$ (of $10c$ if $-(q-2t)$ is odd) and divides it by $10^{\\lceil -(q-2t)/2 \\rceil}$; nested floors of a positive real by positive integers compose, so this is again $\\lfloor \\sqrt{x}\\,10^{-t} \\rfloor$. The integer root is computed by the kernel (Zimmermann's Karatsuba square root from three limbs, see *Coefficient kernels*); the iteration it replaced, and that the tests keep as the reference, is Newton's iteration on integers,"
 msgstr ""
 
-#: manual/design/decimal.md:516
+#: manual/design/decimal.md:518
 msgid "($N < 10^{\\operatorname{digits}(N)}$ gives $\\sqrt N < 10^{\\operatorname{digits}(N)/2} \\le a_0$). Because $\\lfloor (a + \\lfloor y \\rfloor)/2 \\rfloor = \\lfloor (a + y)/2 \\rfloor$ for an integer $a$, the AM–GM inequality $\\tfrac12(a + N/a) \\ge \\sqrt{N}$ gives $a_{k+1} \\ge \\lfloor \\sqrt N \\rfloor$; and $a_{k+1} < a_k$ exactly when $a_k^2 > N$. The iterates therefore decrease strictly to $\\lfloor \\sqrt N \\rfloor$, where the iteration stops."
 msgstr ""
 
-#: manual/design/decimal.md:523
+#: manual/design/decimal.md:525
 msgid "Since the root is irrational it is never exact and never a midpoint, so the increment decision needs only the comparison $\\sqrt{x}\\,10^{-t} \\gtrless r + \\tfrac12$, done exactly as $4M \\gtrless (2r+1)^2$ (or $4c \\gtrless (2r+1)^2\\,10^{-(q-2t)}$ in the second branch). Rounding directly at the subnormal target exponent avoids rounding twice for tiny roots."
 msgstr ""
 
-#: manual/design/decimal.md:529
+#: manual/design/decimal.md:531
 msgid "A root *can* be exactly halfway when it is exact but longer than $p$ digits: $\\sqrt{6.25} = 2.5$ at $p = 1$ gives `2` under `HalfEven` and `HalfDown` and `3` under `HalfUp`. A halfway root $(r + \\tfrac12)10^{t}$ squares to $(2r+1)^2\\cdot 25 \\cdot 10^{2t-2}$, an odd coefficient with at least $2p+1$ digits when $r$ has $p$ digits ($r \\ge 10^{p-1}$ gives $(2r+1)^2 \\cdot 25 > 10^{2p}$). A normal halfway root therefore needs an operand with more than $2p$ significant digits, and a subnormal one an operand below the format's range. An operand that fits the format (at most $p$ digits, value at least $10^{E_{\\text{tiny}}}$) has a normal root whenever $e_{\\min} \\le 1 - p$, as in all interchange formats, because $\\sqrt{10^{E_{\\text{tiny}}}} = 10^{(e_{\\min}-p+1)/2} \\ge 10^{e_{\\min}}$; for such operands the three half modes agree."
 msgstr ""
 
-#: manual/design/decimal.md:542
+#: manual/design/decimal.md:544
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ) contains the full proofs of the double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the NTT bound."
 msgstr ""
 
-#: manual/design/decimal.md:546
+#: manual/design/decimal.md:548
 msgid "Exponent range"
 msgstr ""
 
-#: manual/design/decimal.md:548
+#: manual/design/decimal.md:550
 msgid "The finalizer works on the rounded coefficient $C'$ with $p$ digits and exponent $Q'$, i.e. on the value rounded with an unbounded exponent range."
 msgstr ""
 
-#: manual/design/decimal.md:551
+#: manual/design/decimal.md:553
 #: manual/design/decimal_gda.md:281
 msgid "Overflow"
 msgstr ""
 
-#: manual/design/decimal.md:553
+#: manual/design/decimal.md:555
 msgid "If $\\operatorname{adj}(C' 10^{Q'}) > e_{\\max}$ the result overflows. IEEE 754 §7.4 defines the delivered result as the rounding of the exact value in a format with the same $p$ but unbounded exponent, then saturated: a direction that never increases magnitude cannot leave the finite range, a direction that may increase it goes to infinity. Hence, with $N_{\\max} = (10^{p}-1)10^{E_{\\text{top}}}$:"
 msgstr ""
 
-#: manual/design/decimal.md:568
+#: manual/design/decimal.md:570
 msgid "The half modes go to infinity because an overflowing exact value is at least $N_{\\max} + \\tfrac12 10^{E_{\\text{top}}}$ (anything smaller rounds to a finite value and does not overflow), which is at or beyond the midpoint between $N_{\\max}$ and the next power of ten. `ZeroFiveUp` saturates because the last digit of $N_{\\max}$ is 9. Every overflow raises `overflow`, `inexact` and `rounded`."
 msgstr ""
 
-#: manual/design/decimal.md:589
+#: manual/design/decimal.md:591
 msgid "Subnormals, tininess and underflow"
 msgstr ""
 
-#: manual/design/decimal.md:591
+#: manual/design/decimal.md:593
 msgid "If the exact value is below $10^{e_{\\min}}$ and needs an exponent below $E_{\\text{tiny}}$, it is rounded once to the subnormal grid: the shift becomes $s = E_{\\text{tiny}} - Q$ and the rounding rule above applies with fewer than $p$ digits kept. The result is **tiny** when its adjusted exponent is below $e_{\\min}$, measured on the exact value. IEEE 754-2019 §7.5 requires this for decimal formats (\"tininess is detected before rounding\"); the binary-style rule, on the value rounded to $p$ digits with unbounded exponent, was an option of the library until 0.12 and is gone. With $p = 3$ and $e_{\\min} = 0$, $0.9951$ and $0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny **and** inexact result raises `underflow`, as IEEE 754 §7.5 requires for default exception handling. A result that rounds to zero gets exponent $E_{\\text{tiny}}$."
 msgstr ""
 
-#: manual/design/decimal.md:603
+#: manual/design/decimal.md:605
 #: manual/design/decimal_gda.md:264
 msgid "Clamping"
 msgstr ""
 
-#: manual/design/decimal.md:605
+#: manual/design/decimal.md:607
 msgid "In every context, exponents above $E_{\\text{top}}$ are not representable, because the encoding has room only for $E_{\\text{top}} - E_{\\text{tiny}} + 1$ exponents. A result with $Q' > E_{\\text{top}}$ that did not overflow is **folded down**: the coefficient is multiplied by $10^{Q' - E_{\\text{top}}}$ and the exponent set to $E_{\\text{top}}$. This never needs more than $p$ digits:"
 msgstr ""
 
-#: manual/design/decimal.md:618
+#: manual/design/decimal.md:620
 msgid "using $\\operatorname{adj} \\le e_{\\max}$. The value is unchanged; only the cohort member changes. In decimal32, `1E+96` is stored as `1000000E+90`."
 msgstr ""
 
-#: manual/design/decimal.md:632
+#: manual/design/decimal.md:634
 msgid "Zeros have no digits to pad, so their exponent is simply clamped into $[E_{\\text{tiny}}, E_{\\text{top}}]$."
 msgstr ""
 
-#: manual/design/decimal.md:635
+#: manual/design/decimal.md:637
 msgid "A zero is the one result `quantize_ctx` can return above $E_{\\text{top}}$: its target exponent only has to be at most $e_{\\max}$ (a zero has one digit, so $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ is the overflow bound of decNumber's `decQuantizeOp`). decNumber calls `decFinalize` there, whose clamp branch lowers the exponent to $E_{\\text{top}}$. A result of an IEEE format is a member of the format (§3.3), whose exponents stop at $E_{\\text{top}}$, so `quantize_ctx` folds a zero like every other operation does through `finalize_finite_ctx`; until 0.12 the fold of these two was an option (`with_clamp_fold`)."
 msgstr ""
 
-#: manual/design/decimal.md:645
+#: manual/design/decimal.md:647
 msgid "Flags as returned values"
 msgstr ""
 
-#: manual/design/decimal.md:647
+#: manual/design/decimal.md:649
 msgid "**Problem.** IEEE 754 status flags are sticky process state in hardware; GDA adds traps. Hidden state conflicts with the Luna-Flow rule that semantics are explicit, and makes concurrent or compositional code fragile."
 msgstr ""
 
-#: manual/design/decimal.md:651
+#: manual/design/decimal.md:653
 msgid "**Choice.** Each context operation returns its own `DecimalFlags`. `combine` is the field-wise OR, so flag sets form a commutative idempotent monoid with identity `DecimalFlags::new()`: accumulating them over a pipeline in any grouping gives the same set, which is exactly the sticky-flag semantics without the state. `DecimalFlags` is an immutable record compared by value, so the identity is one shared value and `combine` returns the other operand when one is clear: no flag set is allocated for an operation that raises nothing. `decimal_checked` packages that accumulation; `decimal_gda` implements sticky status and traps as a separate model. The five IEEE exceptions are `invalid_operation`, `division_by_zero`, `overflow`, `underflow` and `inexact`; `DecimalFlags` has exactly these and `not_computed`. The GDA conditions (`rounded`, `subnormal`, `clamped`, `lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) belong to `decimal_gda`."
 msgstr ""
 
-#: manual/design/decimal.md:665
+#: manual/design/decimal.md:667
 msgid "Quantize and same-quantum"
 msgstr ""
 
-#: manual/design/decimal.md:667
+#: manual/design/decimal.md:669
 msgid "`x.quantize(y)` returns the value of $x$ with exponent exactly $t = q_y$:"
 msgstr ""
 
-#: manual/design/decimal.md:677
+#: manual/design/decimal.md:679
 msgid "The result must be representable *at that exponent*: the new coefficient must have at most $p$ digits, $t$ must lie in $[E_{\\text{tiny}}, e_{\\max}]$ and the result's adjusted exponent must not exceed $e_{\\max}$. Otherwise the operation is invalid. It never substitutes another exponent, because the exponent is the contract (an amount quantized to cents must have two decimal places). The only change of exponent is the fold-down of [clamping](#clamping): a target $t \\in (E_{\\text{top}}, e_{\\max}]$ is accepted and the result is stored at $E_{\\text{top}}$, exactly like any other result in that range. Rounding a coefficient up can add a digit ($9.99 \\to 10.0$ at two digits of precision), which is why the digit check comes after rounding. `same_quantum` is the predicate $q_x = q_y$ (true for two infinities or two NaNs); it is the test to use before combining values whose exponents must agree."
 msgstr ""
 
-#: manual/design/decimal.md:691
+#: manual/design/decimal.md:693
 msgid "Conversion to integers"
 msgstr ""
 
-#: manual/design/decimal.md:693
+#: manual/design/decimal.md:695
 msgid "`to_int_ctx` and its three siblings (IEEE 754-2019 §5.4.1 and §5.8) share one function that rounds a finite value $c\\,10^{q}$ to an integer in the direction of the context and checks the range, so the four types differ only in their limits. A value with $q \\ge 0$ is an integer already; one with $q < 0$ is $c / 10^{-q}$ rounded by the same decision function that rounds decimal results (the kernel's rounding decisions: increment or not from the discarded digits and the mode), and `changed` is whether anything was discarded. The power of ten is never formed. An integer of 21 or more digits is out of range for every type ($2^{64}$ has 20 digits), so $\\operatorname{digits}(c) + q > 20$ is decided before any arithmetic, and a fraction with more than $\\operatorname{digits}(c) + 1$ places is the same as one with exactly that many: the value is below $0.1$, and the rounding decision only needs to know that the remainder is nonzero and below one half, so the shift is clamped to $\\operatorname{digits}(c) + 1$. `1E+999999` and `1E-999999` therefore cost as much as `1E+3` and `1E-3`. The invalid operation is signaled for a NaN, an infinity and an out-of-range result, and then only: `exact` adds `inexact` when `changed`, nothing else is ever raised (no `rounded`, no clamping: the result is not a decimal), and a negative value that rounds to zero converts to `0`."
 msgstr ""
 
-#: manual/design/decimal.md:713
+#: manual/design/decimal.md:715
 msgid "Conversions between formats"
 msgstr ""
 
-#: manual/design/decimal.md:715
+#: manual/design/decimal.md:717
 msgid "`convert_format`, `from_bin_float_ctx` and `to_bin_float_ctx` (IEEE 754-2019 §5.4.2) are thin on purpose: each rounds the exact source value once, in the destination's context, and returns the flags of that rounding. Decimal to decimal is `apply_ctx` of the format's context, so the preferred exponent $Q(\\text{source})$ is the one the normalization keeps when the value fits. Binary to decimal does not form the expansion $c\\,2^e$, whose cost grows with $|e|$: it takes the first $p + 1$ significant digits of $|x|$, truncated, from the correctly rounded digit string of `BinFloat::to_decimal_string_ctx`, appends a sticky digit $1$ when digits were dropped, and rounds that decimal once with `apply_ctx`. A rounding of a decimal depends on the digits beyond the kept ones only as zero, below half, a tie or above half, and the surrogate (the digits and the sticky digit) lies strictly inside the unit after the truncated digits as $x$ does, so for every kept length up to $p$ (fewer digits for a subnormal result, so nothing is rounded twice) the result and its flags are those of $x$, and the tininess of the unrounded value is the one of $x$ (same leading digit). An exact value has no sticky digit; its trailing zeros are dropped and an integer takes exponent 0, the preferred exponent, or, when it has more than $p$ digits, the member closest to it (IEEE 754-2019 §5.2): zeros are appended up to $p + 1$ digits, and the zero that `apply_ctx` rounds away leaves the $p$-digit member with the exponent closest to 0 (`1E+20` in decimal64 is `1000000000000000E+5`, flagged rounded). The digits are not formed for a value whose estimate $\\lfloor 0.30103\\,(\\operatorname{bits} + e)\\rfloor$ lies more than two beyond $e_{\\max}$ or three below $E_{\\text{tiny}}$, which stands for every such value in the rounding (overflow, or a result of zero or the least subnormal). A binary exponent beyond $2^{22}$ is refused. Decimal to binary is the exact decimal text rounded by `BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is checked against MPFR; the corpus runs both directions through the MPFR rows of `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of decimal32/64/128 and binary16/32/64/128 (`tools/generate_decimal_conversion_rows.py`). A NaN keeps its sign and the payload it can hold ($p - 1$ digits, $p - 2$ bits), and a signaling NaN is quieted with the invalid operation exception."
 msgstr ""
 
-#: manual/design/decimal.md:750
+#: manual/design/decimal.md:752
 msgid "All three formats share one layout: a sign bit, a 5-bit *combination field* $G$, $w$ *exponent continuation* bits and a *trailing significand* of $10J$ bits, where $p = 3J + 1$:"
 msgstr ""
 
-#: manual/design/decimal.md:760
+#: manual/design/decimal.md:762
 msgid "The biased exponent $E = q + \\text{bias}$ has $w + 2$ bits whose top two bits take only the values 00, 01, 10; this is the $3\\cdot 2^{w}$ count derived above."
 msgstr ""
 
-#: manual/design/decimal.md:764
+#: manual/design/decimal.md:766
 msgid ""
 "**DPD.** The combination field holds the top two exponent bits and the leading digit $d_0$: if $G = ab\\,cde$ with $ab \\n"
 "e 11$, the exponent bits are $ab$ and $d_0 = cde \\in [0,7]$; if $G = 11\\,cd\\,e$ with $cd \\n"
 "e 11$, the exponent bits are $cd$ and $d_0 = 8 + e$. $G = 11110$ is infinity and $G = 11111$ is NaN, the next bit distinguishing signaling from quiet. The other $3J$ digits are stored in $J$ *declets*, 10 bits for 3 digits, by densely packed decimal.[^dpd] Three digits have 1000 values and 10 bits 1024 codes, an efficiency of $\\log_2 1000 / 10 = 99.66\\%$. Call a digit *small* if it is 0–7 (3 bits) and *large* if it is 8 or 9 (1 bit). The declet $pqr\\,stu\\,v\\,wxy$ uses $v = 0$ for three small digits, which are then stored verbatim in $pqr$, $stu$, $wxy$; $v = 1$ marks at least one large digit, and $wx$, then $st$, say which. Counting by the number of large digits,"
 msgstr ""
 
-#: manual/design/decimal.md:784
+#: manual/design/decimal.md:786
 msgid "and $512 + 384 + 96 + 8 = 1000$. The first three cases use exactly 512, 384 and 96 codes. The last case has 32 codes for 8 values: $r$, $u$, $y$ carry the low bits of the three digits and $p$, $q$ are ignored, so **24 codes are redundant**: each value with three large digits has four encodings, of which the one with $pq = 00$ is canonical. Decoding accepts all four, `canonical()` rewrites them. For example, `125` is the declet `0010100101` = `0x0A5` (three small digits) and `999` is `0011111111` = `0x0FF`, also written `0x1FF`, `0x2FF`, `0x3FF`."
 msgstr ""
 
-#: manual/design/decimal.md:792
+#: manual/design/decimal.md:794
 msgid "M. F. Cowlishaw, \"Densely packed decimal encoding\", *IEE Proceedings — Computers and Digital Techniques* 149(3), 2002. IEEE 754-2019 §3.5.2 gives the encoding tables; the code implements them as Boolean formulas, and the conformance corpus checks all 1024 declets."
 msgstr ""
 
-#: manual/design/decimal.md:797
+#: manual/design/decimal.md:799
 msgid "**BID.** The coefficient is stored as a binary integer. If the two bits after the sign are not 11, the next $w+2$ bits are the biased exponent and the remaining $10J + 3$ bits the coefficient. Otherwise the exponent follows the 11 and the coefficient is $2^{10J+3}$ plus the remaining $10J+1$ bits (\"100\" implied). Since $10^{7} - 1 < 2^{24}$, $10^{16}-1 < 2^{54}$ and $10^{34}-1 < 2^{114}$, every coefficient fits; encodings with a coefficient $\\ge 10^{p}$ are non-canonical and decode to zero."
 msgstr ""
 
-#: manual/design/decimal.md:818
+#: manual/design/decimal.md:820
 msgid "`DecimalInterchange` keeps the raw bits so that non-canonical input survives until the caller decides to canonicalize; arithmetic is always on `Decimal`."
 msgstr ""
 
-#: manual/design/decimal.md:823
+#: manual/design/decimal.md:825
 msgid "**Problem.** For transcendental $f$, $f(x)$ is irrational for almost every decimal $x$, so it can only be approximated; a correctly rounded result needs an approximation good enough to decide the rounding (the *table maker's dilemma*)."
 msgstr ""
 
-#: manual/design/decimal.md:828
+#: manual/design/decimal.md:830
 msgid "**Options.** A fixed-precision evaluation with an a-priori error bound (fast, but correctness then depends on the bound being right for every function and argument); Ziv's adaptive strategy[^ziv] with rigorous error bounds."
 msgstr ""
 
-#: manual/design/decimal.md:833
+#: manual/design/decimal.md:835
 msgid "**Choice.** A Ziv loop over rigorous enclosures. For an operation $f$ and input $x$:"
 msgstr ""
 
-#: manual/design/decimal.md:836
+#: manual/design/decimal.md:838
 msgid ""
 "Convert $x$ exactly into a binary interval: $\\underline{x} = \\n"
 "abla_w(x)$ and $\\overline{x} = \\Delta_w(x)$, `to_bin_float` with `RoundTowardNegative` and `RoundTowardPositive` at $w$ bits, so $x \\in [\\underline{x}, \\overline{x}]$."
 msgstr ""
 
-#: manual/design/decimal.md:840
+#: manual/design/decimal.md:842
 msgid ""
 "Evaluate $f$ on that interval with [`ball_float`](ball_float.md), which returns an interval $[L, U] \\n"
 "i f(x)$ for every point of the input interval."
 msgstr ""
 
-#: manual/design/decimal.md:842
+#: manual/design/decimal.md:844
 msgid "Convert $L$ and $U$ (dyadic, hence exact decimals) to `Decimal` exactly and round both with the target context. If both give the same representation (`total_order_compare` equal) and the same flags, return it."
 msgstr ""
 
-#: manual/design/decimal.md:845
+#: manual/design/decimal.md:847
 msgid "Otherwise increase $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ and repeat; after $L$ evaluations report a certification failure, where $L$ is the refinement limit of the context (`DecimalContext::refinement_limit`, twelve by default; a value below one counts as one). With `with_refinement_limit(None)` the count is unbounded, but the loop stops, with the same failure, when $w$ exceeds $\\max(8\\,000\\,000,\\ 256\\,w_0)$ bits (at most $10^9$), so the work and the memory stay bounded. The default changes no result."
 msgstr ""
 
-#: manual/design/decimal.md:854
+#: manual/design/decimal.md:856
 msgid "The acceptance test is sound because rounding is monotone: $L \\le f(x) \\le U$ implies $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$, and if the outer two are the same representation, so is the middle one. The flags transfer as well, provided $f(x)$ is not itself representable: then one endpoint differs from the common result, so both are inexact, and `overflow` and `underflow` are monotone in $|f(x)|$ on an interval that does not contain zero. Representable results are therefore handled before the loop (below)."
 msgstr ""
 
-#: manual/design/decimal.md:863
+#: manual/design/decimal.md:865
 msgid "The initial working precision is $w_0 = \\max(128,\\ 4\\max(D, p) + 64)$ bits, where $D$ is the number of input digits: one decimal digit needs $\\log_2 10 \\approx 3.32 < 4$ bits, so $4\\max(D,p)$ bits represent the input and the target with margin, and 64 bits more cover the loss of the enclosure. The schedule grows by a factor of about $3/2$ per step (exactly $w + \\lfloor w/2 \\rfloor$ once $w \\ge 64$); the 12 evaluations use $w_0, w_1, \\ldots, w_{11}$, and the last one works with about $w_0 \\cdot (3/2)^{11} \\approx 86\\,w_0$ bits."
 msgstr ""
 
-#: manual/design/decimal.md:872
+#: manual/design/decimal.md:874
 msgid "Three kinds of inputs are decided outside the agreement test:"
 msgstr ""
 
-#: manual/design/decimal.md:874
+#: manual/design/decimal.md:876
 msgid "**Exact results.** If $f(x)$ is a representable decimal and the enclosure is not a point, $L < f(x) < U$ round to different neighbours in a directed mode, forever. In a half mode both endpoints round to $f(x)$ itself, but with `inexact`, so the agreement test would *accept* the right value with wrong flags and with all $p$ digits instead of the preferred exponent: the soundness argument above assumed that $f(x)$ is not representable. The code therefore detects exact cases before the loop (`exp(0)`, `ln(1)`, $\\log_{10} 10^{k}$, integer and half-integer arguments of `sinpi`/`cospi`/`tanpi`, odd quarter-integers of `tanpi`, `acos(1)`, integer arguments of `exp2`/`exp10`, $x^{1/2}$, integer powers, …). For the algebraic functions this is a finite integer computation: `rootn` strips the trailing zeros of the coefficient, aligns the exponent to a multiple of the degree $n$ and tests the integer $n$-th root (Newton's iteration from above) of the result, so $\\sqrt[3]{0.008} = 0.2$; `hypot` forms $x^2 + y^2$ exactly when the adjusted exponents of the operands differ by at most $p + 2$ (beyond that, $\\sqrt{x^2+y^2} - |x| \\approx y^2/(2|x|)$ is below the last digit the result could have) and tests it with the exact square root, so $\\operatorname{hypot}(0.3, 0.4) = 0.5$; a zero operand gives the other operand's magnitude. `ball_float` returns point intervals for exact binary results such as $\\log_2 8 = 3$, $\\log_2 0.125 = -3$ and $4^{1.5} = 8$. A power whose exact value is representable in decimal but not in binary is decided in decimal instead: the exponent is reduced to $p/q$ in lowest terms — a decimal exponent is $c \\cdot 10^{-k}$, so $q$ keeps only the twos and fives the coefficient cannot cancel — and the result is exact exactly when $x^{p/q}$ is a decimal. By Bézout there are integers $a, b$ with $ap + bq = 1$, so $x^{1/q} = (x^{p/q})^{a} x^{b}$ is rational whenever $x^{p/q}$ is, and a rational $q$-th root of a decimal is again a decimal (its denominator divides a power of ten). The test therefore writes $x = r \\cdot 10^{qe}$ with $r$ an integer keeping fewer than $q$ trailing zeros, decides whether $r$ is a perfect $q$-th power by a bisection over the root's digit count, and only then raises the root to $p$ (the reciprocal of the root, for a negative exponent). Every intermediate is then no longer than the result, so $0.0016^{0.25} = 0.2$, $32^{0.2} = 2$ and $(2^{1200} \\cdot 10^{-1200})^{1.5} = 2^{1800} \\cdot 10^{-1800}$ at precision 1000 are all decided at once, although $x^{3}$ in the last one has 1084 digits. Only a value of at most $p + 1$ significant digits can sit on a rounding boundary — a representable value in the directed modes, a midpoint in the half modes — so the search covers exactly those and leaves a longer exact value, which lies strictly inside its rounding cell, to the enclosure."
 msgstr ""
 
-#: manual/design/decimal.md:914
+#: manual/design/decimal.md:916
 msgid "**Integer powers** are not certified; they are rounded once from exact integer information. `pow_ctx` with an integral exponent $n$ that does not fit in $p$ digits first runs the General Decimal Arithmetic square-and-multiply with $p + \\operatorname{digits}(n) + 2$ working digits. That scheme only ever discards zero digits of an exact power, so it reports `inexact` exactly when the true power is inexact, and it gives exact powers their GDA cohort and flags. An inexact result is then replaced by the correctly rounded one. With $c$ the coefficient stripped of trailing zeros, if $|n| \\cdot \\operatorname{digits}(c) \\le \\max(4p, 64)$ the exact power $c^{|n|}$ is formed and rounded once (a negative $n$ divides once, correctly rounded). Otherwise $c^{|n|}$ has more than $p + 1$ significant digits and no trailing zero, so it is never a $p$-digit number or midpoint; lower and upper bounds from square-and-multiply in `Down` and `Up` at a working precision of $p + \\operatorname{digits}(n) + 8$ digits, doubled on each attempt, are refined until they round to the same representation. So $3.339434^3 = 37.240765000\\ldots$ is `37.24077` in decimal32. If the bounds leave the working exponent range, the GDA result is kept; its error is below one unit in the last place. A power that the exponent bounds place below $10^{E_{\\text{tiny}}-2}$ (including an exact power of ten below $10^{E_{\\text{tiny}}}$) is not evaluated: it rounds like any non-zero value below $\\tfrac12 10^{E_{\\text{tiny}}}$, to zero in the nearest modes and to $\\pm 10^{E_{\\text{tiny}}}$ when the rounding direction is away from zero for its sign (IEEE 754-2019 §7.5)."
 msgstr ""
 
-#: manual/design/decimal.md:938
+#: manual/design/decimal.md:940
 msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact` and `underflow` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
 msgstr ""
 
-#: manual/design/decimal.md:967
+#: manual/design/decimal.md:969
 msgid "**Enclosure of a non-integral power.** For a positive base the Ziv loop evaluates $x^y = \\exp(y \\ln x)$ in interval arithmetic: one `ln` enclosure, one interval product and one `exp` enclosure, instead of the four corners times two directions (eight correctly rounded binary powers) of `ball_float`'s `try_pow`. The loop needs an enclosure, not tight endpoints, and correct rounding makes the delivered value independent of the enclosure's width, so the result, cohort and flags are those of the tighter evaluation. The composition loses about $\\lceil \\log_2 |y \\ln x| \\rceil$ bits of relative accuracy, because the relative error of $\\exp(t)$ is the absolute error of $t$. The initial working precision therefore grows by a bound of that quantity, taken from the adjusted exponents of $x$ and $y$ ($|\\ln x| \\le \\ln 10\\,(|\\operatorname{adjusted}(x)| + 1)$ and $|y| < 10^{\\operatorname{adjusted}(y)+1}$), so the first attempt usually decides ([#352](https://github.com/Luna-Flow/floating/issues/352))."
 msgstr ""
 
-#: manual/design/decimal.md:982
+#: manual/design/decimal.md:984
 msgid "**One layer for the newer §9.2 functions.** `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, and the families that follow in [#236](https://github.com/Luna-Flow/floating/issues/236), take three decisions from one internal file (`elementary_range.mbt`) instead of writing them again: an exact result is formed as an exact decimal, rounded once by the context and then moved to the cohort member nearest the preferred exponent (`decimal_exact_constant`, which uses the cohort step of `power` with the preferred exponent as an argument), so a context that cannot hold the value rounds it with its own flags; a result whose certified bracket of $\\log_2$ lies above $\\log_2 10\\,(e_{\\max}+2)$ or below $\\log_2 10\\,(E_{\\text{tiny}}-2)$ rounds like the representative $10^{e_{\\max}+2}$ or $10^{E_{\\text{tiny}}-2}$ (`decimal_range_from_log2_bracket`, the former tail of the `power` range test); and every other result comes from the Ziv loop above. No result is a zero or an infinity chosen because the argument is small or large: a tiny result is the rounding of its certified endpoints, so subnormals, `Underflow` under the before-rounding rule and the sign of a zero are those of the context."
 msgstr ""
 
-#: manual/design/decimal.md:1001
+#: manual/design/decimal.md:1003
 msgid "The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the input interval ($\\ln 2$ and $\\ln 10$ as certified `ball_float` intervals). Both primitives are series in $x$, so the relative width of the enclosure is a few units of the working precision for every legal operand, down to $x = 10^{-1\\,999\\,996}$; no tiny-argument anchor is needed because the slopes $\\ln b$ and $1/\\ln b$ are irrational. Before the loop:"
 msgstr ""
 
-#: manual/design/decimal.md:1008
+#: manual/design/decimal.md:1010
 msgid "*Exact cases.* $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$ are irrational for a non-integer rational $r$), and $\\log_b(1+x)$ is rational only when $1+x = b^k$. For $0 < |n| \\le 4(p+2)$ the value $2^n-1$, $10^n-1$, $-(1-2^{-m})$ or $-(1-10^{-m})$ is formed and rounded once; $k$ is found from $x$ without forming $1+x$ ($x+1$ a power of two, compared first on its lowest nine digits; all nines; a coefficient $10^m - 5^m$ or $10^m - 1$ with $m$ fraction digits). The preferred exponent is 0 (IEEE 754-2019 §9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`."
 msgstr ""
 
-#: manual/design/decimal.md:1016
+#: manual/design/decimal.md:1018
 msgid "*Clusters.* For an integer $n > 4(p+2)$, $2^n$ has $D \\ge p+3$ digits and every rounding boundary of a $D$-digit integer is a multiple of the even number $5 \\cdot 10^{D-p-1}$; neither $2^n$ (no factor 5) nor the odd $2^n - 1$ is one, so both lie in one open rounding cell and `exp2m1(n)` is `exp2(n)`. $10^n - 1$ lies above the midpoint $10^n - 5 \\cdot 10^{n-p-1}$ and below $10^n$, where an enclosure can never separate it from the representable $10^n$; the representative $10^n - 10^{n-p-2}$ has the same rounding and is formed instead of a number of $n$ digits. Towards $-1$, for $x \\le -(p+2)$ (base 10) or $x \\le -(4p+8)$ (base 2) the value is $-1 + \\delta$ with $0 < \\delta \\le 10^{-(p+2)}$ and rounds like $-(1 - 10^{-(p+2)})$, as for `expm1`."
 msgstr ""
 
-#: manual/design/decimal.md:1027
+#: manual/design/decimal.md:1029
 msgid "*Overflow.* $x \\ge \\lceil 3.322\\,(e_{\\max}+2) \\rceil$ (base 2) or $x \\ge e_{\\max}+2$ (base 10) gives the overflow result of the context."
 msgstr ""
 
-#: manual/design/decimal.md:1029
+#: manual/design/decimal.md:1031
 msgid "*Below the subnormal range.* For $|x| \\le 10^{-5}$ all four satisfy $0 < |f(x)| < 3|x|$ with the sign of $x$, so $|x| < 10^{E_{\\text{tiny}}-3}$ puts $f(x)$ below $10^{E_{\\text{tiny}}-2}$, where it rounds like the representative $\\pm 10^{E_{\\text{tiny}}-2}$ that the enclosure would use for its endpoints. The result is that rounding, decided without converting $x$ to binary (the conversion of $10^{-1\\,999\\,997}$ alone costs about a second)."
 msgstr ""
 
-#: manual/design/decimal.md:1036
+#: manual/design/decimal.md:1038
 msgid "*Tiny arguments within the range.* For $|x| < 10^{-(p+11)}$, write $x = m\\,10^{q}$; then $f(x) = c\\,x\\,(1 + d)$ with $c = \\ln b$ or $1/\\ln b$ and $|d| \\le 2.31|x|$, so $f(x)/10^{q}$ lies in $c\\,m\\,[1 - 2^{k}, 1 + 2^{k}]$ for $2^{k} \\ge 4|x|$. The endpoints of that enclosure have a few dozen digits, where the binary endpoints of $f(x)$ itself would expand to about $0.7|q|$ digits; scaled back by $10^{q}$ they are rounded with the context and accepted under the same agreement test as the loop, which decides the rare value too close to a rounding boundary. The certified $\\ln 2$ and $\\ln 10$ intervals are kept per working precision. Both only change the cost: on 10,000 random rows of each function the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14 (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the level of `exp` (13) and `log1p` (18)."
 msgstr ""
 
-#: manual/design/decimal.md:1049
+#: manual/design/decimal.md:1051
 msgid "*Poles and domain.* $x = -1$ is $-\\infty$ with `division_by_zero` and $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an operand of $D$ digits keeps $1 + x \\ge 10^{-D}$, which $w_0 = 4\\max(D,p)+64$ bits resolve, as for `log1p`."
 msgstr ""
 
-#: manual/design/decimal.md:1054
+#: manual/design/decimal.md:1056
 msgid "**`rSqrt`, `compound` and `powr`.** The three take their exact results from `decimal_exact_constant` and none of them expands a binary endpoint near an extreme power of ten."
 msgstr ""
 
-#: manual/design/decimal.md:1058
+#: manual/design/decimal.md:1060
 msgid "*`rsqrt`.* $1/\\sqrt{x}$ terminates exactly when $x = 2^{2i}5^{2j}$: with $c$ the coefficient stripped of trailing zeros and $e$ its exponent, $c$ is $2^a$ or $5^b$ with $a$ (or $b$) and $e$ even, and the value is $5^{a/2}10^{-(e+a)/2}$ or $2^{b/2}10^{-(e+b)/2}$. It is formed when it has at most $p + 1$ digits and given the preferred exponent $-\\lfloor Q(x)/2 \\rfloor$ (§9.2.2); a longer one ends in a 5 or a non-zero even digit beyond the $(p+1)$-th place, so it is neither representable nor a midpoint, and the enclosure decides it. Every other $x$ is written $x = s\\,10^{2k}$ with $s \\in [1, 100)$: the Ziv loop encloses $1/\\sqrt{s}$, whose endpoints are moderate, and multiplies them by $10^{-k}$ (an exponent shift) before the context rounds them, under the same agreement test. An operand $10^{-1\\,999\\,997}$ costs what $1$ costs."
 msgstr ""
 
-#: manual/design/decimal.md:1070
+#: manual/design/decimal.md:1072
 msgid "*`compound`.* The special values are the list of §9.2.1 (with $x < -1$ invalid also for $n = 0$, Table 9.1). For a tiny $x$, $(1+x)^n - 1$ has the sign of $nx$ and $|(1+x)^n - 1| \\le |nx|\\,e^{|nx|} < 10^{\\operatorname{adj}(x) + 12}$ for $|n| \\le 2^{31}$, so `decimal_tiny_argument_result` decides a one-sided neighbour of 1 and $1 + x$ (up to two million digits) is never formed. Otherwise $1 + x = c\\,10^{e}$ is formed exactly ($c$ without trailing zeros, $d$ digits, exponent $\\min(0, Q(x))$ before stripping). For $n > 0$, $c^n$ has more than $\\max((d-1)n, 0.301n)$ digits and no trailing zero, so beyond $p + 1$ digits it is neither representable nor a midpoint; shorter powers are formed and rounded once with the preferred exponent $\\lfloor n \\min(0, Q(x)) \\rfloor$. For $n < 0$, $c^{n}$ terminates only for $c = 2^a$ or $5^b$ (the values $5^{a|n|}10^{-(a+e)|n|}$ and $2^{b|n|}10^{-(b+e)|n|}$), formed while they have at most $p + 2$ digits. Every other case is the Ziv loop on $\\exp(n \\operatorname{log1p}(x))$ ($\\operatorname{log1p}$ of $x$ itself, so $1 + x$ is never rounded), after `decimal_range_from_log2_bracket` on $n \\operatorname{log1p}(x)/\\ln 2$ whenever $|n| \\max(\\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an `Int64`. `pown(1 + x, n)` is not used: when this function was written, its exponents beyond the machine count gave wrong values and some negative ones a spurious `Clamped` for a base near 1 (issues 348 and 350, since fixed), and the Ziv loop never forms $1 + x$."
 msgstr ""
 
-#: manual/design/decimal.md:1093
+#: manual/design/decimal.md:1095
 msgid ""
 "*`powr`.* §9.2.1 lists the invalid pairs $(\\pm 0, \\pm 0)$, $(+\\infty, \\pm 0)$, $(1, \\pm\\infty)$ and $x < 0$, and a NaN result for a NaN operand even when $y = \\pm 0$. Two cases are not stated and are read as follows [ambiguous]: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is stated \"for $x \\ge 0$\"), and $+\\infty^{y}$ for $y \\n"
 "e 0$ and $x^{\\pm\\infty}$ for $x \\n"
 "otin \\{0, 1\\}$ follow $e^{y \\ln x}$ by continuity. Every remaining pair has $x \\ge 0$, where $x^y$ is the same function as `pow`, and the preferred exponents agree ($\\lfloor y Q(x) \\rfloor$), so the result is `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its odd-integer sign rule)."
 msgstr ""
 
-#: manual/design/decimal.md:1104
+#: manual/design/decimal.md:1106
 msgid "**`asinPi`, `acosPi`, `atanPi` and `atan2Pi`.** The four evaluate $\\operatorname{asin}(x)/\\pi$, $\\operatorname{acos}(x)/\\pi$, $\\operatorname{atan}(x)/\\pi$ and $\\operatorname{atan2}(y, x)/\\pi$ in the existing Ziv driver, with $\\pi$ enclosed as $[\\operatorname{RD}(\\pi), \\operatorname{RU}(\\pi)]$ taken from the cached binary-splitting constant of `bin_float` (twice the correctly rounded $\\pi/2$ of `atan(+inf)`, the same interval as $4\\operatorname{atan}(1)$ bit for bit) and the angle enclosure divided by it (error: the angle, $\\pi$ and the division, about 4 ulp relative)."
 msgstr ""
 
-#: manual/design/decimal.md:1114
+#: manual/design/decimal.md:1116
 msgid "*Exact results.* By Niven's theorem a rational $x$ has a rational $\\operatorname{asin}(x)/\\pi$ or $\\operatorname{acos}(x)/\\pi$ only at $0, \\pm\\tfrac12, \\pm 1$ and a rational $\\operatorname{atan}(x)/\\pi$ only at $0, \\pm 1$, so the dyadic exact results are those of §9.2.1 and $\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$, $\\operatorname{atan2Pi}(\\pm a, \\pm a) = \\pm\\tfrac14, \\pm\\tfrac34$. They are built by `decimal_exact_constant` at the preferred exponent 0 (§9.2.2). $\\pm\\tfrac16$, $\\tfrac13$ and $\\tfrac23$ do not terminate, so they sit strictly inside a rounding cell and the loop decides them. No Pi function is anchored at a tiny argument: $x/\\pi$ is irrational and nowhere near a representable value."
 msgstr ""
 
-#: manual/design/decimal.md:1125
+#: manual/design/decimal.md:1127
 msgid "*Clusters next to $\\pm\\tfrac12$ and $\\pm 1$.* These are the only inexact results that approach a representable value, and the distance does not depend on the digits of the operand, so $w_0 = 4D + 64$ cannot cover it. Each is decided by `decimal_tiny_argument_result` from a bound on the distance, one-sided: $\\operatorname{atanPi}(x) = \\pm(\\tfrac12 - \\delta)$ with $0 < \\delta < 1/(\\pi|x|) < 10^{-\\operatorname{adj}(x)}$ for a large $|x|$; $\\operatorname{acosPi}(x) = \\tfrac12 - \\operatorname{asin}(x)/\\pi$ with distance at most $|x|/2 < 10^{\\operatorname{adj}(x)+1}$ for a tiny $|x|$ (the easy one to miss: $\\operatorname{acos}$ of a tiny $x$ is near the irrational $\\pi/2$, but $\\operatorname{acosPi}$ is near the representable $\\tfrac12$, below it for $x > 0$ and above for $x < 0$); $\\operatorname{atan2Pi}(y, x)$ with $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$ is $\\pm(\\tfrac12 \\mp \\delta)$ with $\\delta < 10^{1-D}$ for a large ratio (below $\\tfrac12$ in magnitude for $x > 0$, above for $x < 0$), and $\\pm(1 - \\delta)$ with $\\delta < 10^{D+1}$ for $x < 0$ and a small ratio. The guard of `decimal_tiny_argument_result` (error exponent below the anchor's adjusted exponent minus $p + 3$) picks the threshold; between it and the moderate range the enclosure resolves the gap at the working precision. The tests compare every anchored result with the plain loop in all eight rounding modes, on both sides."
 msgstr ""
 
-#: manual/design/decimal.md:1145
+#: manual/design/decimal.md:1147
 msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `library/src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
 msgstr ""
 
-#: manual/design/decimal.md:1179
+#: manual/design/decimal.md:1181
 msgid "Operands of extreme exponent and the cost of a first attempt"
 msgstr ""
 
-#: manual/design/decimal.md:1181
+#: manual/design/decimal.md:1183
 msgid "Four changes of issue [#378](https://github.com/Luna-Flow/floating/issues/378) keep the cost of a call independent of the size of its operands' exponents while the results stay those of correct rounding."
 msgstr ""
 
-#: manual/design/decimal.md:1185
+#: manual/design/decimal.md:1187
 msgid "*Conversion to binary.* For $x = c\\,10^{-s}$ the quotient $\\lfloor c\\,2^{u} / 10^{s} \\rfloor$ is formed once, with $u = p + 3 + \\lceil s \\log_2 10 \\rceil$ (so $10^s < 2^{u-p-3}$ and the quotient keeps at least $p + 3$ bits: two bits below the target position and a sticky bit), made odd when the remainder is not zero; the remainder test is a multiplication, not a second division, and the lower and upper bound of a ball come from the same quotient. For $|{\\rm exponent}_{10}| \\ge 4096$ the exact $5^s$ (rebuilt on every call above the power cache) is replaced by a lower and an upper bound $m\\,2^{k}$ with $m$ of $p + \\text{bits}(c) + 80$ bits, made by binary powering with a directed trim after every product; the two bounds are rounded in the requested mode and the result is kept only if they agree (monotonicity of rounding), otherwise the exact conversion decides, so the result is the exact conversion bit for bit. For a negative exponent the quotient of the bounds is used only when $2 s > 4\\,\\text{bits}(c)$, where $5^s > c$ guarantees that the division is inexact (the sticky bit is set)."
 msgstr ""
 
-#: manual/design/decimal.md:1200
+#: manual/design/decimal.md:1202
 msgid "*First working precision.* $\\max(64, \\lceil 3.3219281\\,\\max(D, p) \\rceil + 31)$ bits instead of $\\max(128, 4 \\max(D, p) + 64)$: the schedule grows by a factor of 1.5 when an enclosure does not decide, so a low start costs an attempt and never a result. On 16,536 rows (exp, exp2, exp10, expm1, the inverse functions of $\\pi$ and atan2Pi, five formats) the number of operand conversions was 14,489 before and 14,490 after."
 msgstr ""
 
-#: manual/design/decimal.md:1206
+#: manual/design/decimal.md:1208
 msgid "*Tiny arguments of exp, exp2, exp10, expm1 and log1p.* For $|x| < 10^{t}$, $t \\le -1$: $|b^x - 1| \\le |x|\\ln b\\,e^{|x| \\ln b} < 10^{t+1}$ for $b \\in \\{e, 2, 10\\}$ ($\\ln b < 2.31$, $e^{0.231} < 1.3$) with the sign of $x$, so the result is $1$ plus or minus less than $10^{t+1}$, one-sided next to the representable 1 and decided by `decimal_tiny_argument_result` once $t + 1 < -(p + 3)$; and $\\operatorname{expm1}(x) - x = x^2/2 + \\dots > 0$, $x - \\operatorname{log1p}(x) = x^2/2 - \\dots > 0$, both below $x^2$ for $0 < |x| < 1/2$, so expm1 lies above $x$ and log1p below it, within $10^{2t}$. Rows on both sides of the thresholds, both signs, three formats and all eight directions have independently computed expected values; flipping a side makes rows fail."
 msgstr ""
 
-#: manual/design/decimal.md:1217
+#: manual/design/decimal.md:1219
 msgid "*Exact tests before the loop.* An exact $n$-th root of a decimal needs $\\text{exponent} \\bmod n = 0$ once trailing zeros are removed ($c\\,10^{\\text{shift}}$ with $0 < \\text{shift} < n$ and $\\min(v_2(c), v_5(c)) = 0$ has $v_2$ or $v_5$ equal to the shift, not a multiple of $n$), and the root comes from the kernel (square roots first for even degrees, Newton from the root of the leading digits); `atan2` forms the exact ratio only when $2D < -(p + 4)$ with $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, the necessary condition of the tiny-argument decision; `compound` does not form $1 + x$ when $x$ is an integer multiple of 10 with $\\operatorname{adj}(x) \\ge p + 2$ (the sum ends in 1: no power of 2, 5 or 10) or for $n > 0$ when $\\operatorname{adj}(x) < -(p + 2)$ (more than $p + 2$ digits); `sqrt` reuses the remainder of the integer root."
 msgstr ""
 
-#: manual/design/decimal.md:1228
+#: manual/design/decimal.md:1230
 msgid "*Negative integer power (#375).* For $n = |{\\rm count}|$, $|b|^n \\in [10^{n\\,lb}, 10^{n\\,ub})$ with $lb = \\operatorname{adj}(b)$, $ub = lb + 1$, hence $1/|b|^n \\in (10^{-n\\,ub}, 10^{-n\\,lb}]$: it overflows when $-n\\,ub > e_{\\max}$ and lies below half of the smallest subnormal when $-n\\,lb \\le E_{\\text{tiny}} - 2$; the exponent product of the exact path is formed in 64 bits."
 msgstr ""
 
-#: manual/design/decimal.md:1234
+#: manual/design/decimal.md:1236
 msgid "Outward-rounded endpoints"
 msgstr ""
 
-#: manual/design/decimal.md:1236
+#: manual/design/decimal.md:1238
 msgid "The Ziv driver turns the two binary endpoints $L \\le U$ of an enclosure into decimals and rounds both to the context. Expanding $c \\cdot 2^{-s}$ exactly costs $c \\cdot 5^{s}$, about $0.7 s$ digits, which is quadratic in the decimal exponent of the argument under a wide-range context (`1E-999990` took more than 80 s in `expm1`). For a non-degenerate enclosure the driver instead rounds $L$ down and $U$ up to $D = \\max(p + 12,\\ 0.3\\,b + 4)$ digits, $b$ being the bit length of the endpoint coefficients (so a refined enclosure is never widened beyond about one binary ulp). The powers $5^{s}$ and $2^{s}$ are computed by binary powering with a directed trim to $D + 4$ digits after every product: $O(\\log s)$ products of $D$-digit numbers, independent of $s$."
 msgstr ""
 
-#: manual/design/decimal.md:1247
+#: manual/design/decimal.md:1249
 msgid "*Soundness.* Every trim moves towards the chosen side (down for the lower magnitude bound, up for the upper one, with signs swapped for negative endpoints), and products of positive bounds are bounds, so by induction the computed power brackets the exact power, and $L' \\le L \\le U \\le U'$. Rounding to the context is monotone, so $\\mathrm{rnd}(L') = \\mathrm{rnd}(U')$ implies $\\mathrm{rnd}(x)$ is that value for every $x \\in [L, U]$, and the flags are compared as before. The guard digits only affect tightness, not soundness. A degenerate enclosure ($L = U$, binary-exact) keeps the exact expansion, and infinite, zero and out-of-range endpoints are converted as before. A certified result is unchanged; only an enclosure that straddles a rounding boundary at a distance below $10^{-D}$ relative is refused one step earlier, and the next refinement widens $D$ with the binary precision."
 msgstr ""
 
-#: manual/design/decimal.md:1260
+#: manual/design/decimal.md:1262
 msgid "The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 (`invalid_operation`; the decNumber limit, see the `decimal_gda` design page), which bounds the size of the exact endpoint conversions."
 msgstr ""
 
-#: manual/design/decimal.md:1264
+#: manual/design/decimal.md:1266
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser 2018, ch. 12; J. van der Hoeven, \"Ball arithmetic\", 2009, for the enclosure model."
 msgstr ""
 
-#: manual/design/decimal.md:1269
+#: manual/design/decimal.md:1271
 msgid "Coefficient kernels"
 msgstr ""
 
-#: manual/design/decimal.md:1271
+#: manual/design/decimal.md:1273
 msgid "**Problem.** Rounding at decimal positions needs fast division by powers of ten and fast digit counts; large precisions need sub-quadratic multiplication and division."
 msgstr ""
 
-#: manual/design/decimal.md:1275
+#: manual/design/decimal.md:1277
 msgid "**Choice.** `DecCoeff`, defined in the internal package `internal/decimal_kernel` that `decimal` shares with `decimal_gda` (neither package exposes it), is either a `Small(UInt64)` below $10^{18}$ or a little-endian array of base-$10^{9}$ limbs with no leading zero limb and a cached digit count. The package holds only status-free integer arithmetic; the finalizer, flags and contexts stay in each decimal package (see [the shared kernel](decimal_gda.md#a-gda-package-independent-of-decimal)). Base $10^9$ is the largest power of ten below $2^{30}$, so a limb product is below $10^{18} < 2^{60}$; shifting by a multiple of nine digits moves limbs, and `digits10` is a limb count plus the digits of the top limb. `BigInt` appears only at the public boundary."
 msgstr ""
 
-#: manual/design/decimal.md:1286
+#: manual/design/decimal.md:1288
 msgid "Multiplication dispatch:"
 msgstr ""
 
-#: manual/design/decimal.md:1288
+#: manual/design/decimal.md:1290
 msgid "Shape"
 msgstr ""
 
-#: manual/design/decimal.md:1288
+#: manual/design/decimal.md:1290
 msgid "Algorithm"
 msgstr ""
 
-#: manual/design/decimal.md:1288
+#: manual/design/decimal.md:1290
 #: manual/design/decimal_checked.md:261
 #: manual/design/decimal_gda_checked.md:248
 #: manual/design/def.md:295
 msgid "Cost"
 msgstr ""
 
-#: manual/design/decimal.md:1290
+#: manual/design/decimal.md:1292
 msgid "one limb each"
 msgstr ""
 
-#: manual/design/decimal.md:1290
+#: manual/design/decimal.md:1292
 msgid "inline"
 msgstr ""
 
-#: manual/design/decimal.md:1291
+#: manual/design/decimal.md:1293
 msgid "many zero limbs ($n_a' n_b' \\cdot 4 < n_a n_b$ non-zero limbs)"
 msgstr ""
 
-#: manual/design/decimal.md:1291
+#: manual/design/decimal.md:1293
 msgid "sparse products"
 msgstr ""
 
-#: manual/design/decimal.md:1292
+#: manual/design/decimal.md:1294
 msgid "balanced blocks of the short length"
 msgstr ""
 
-#: manual/design/decimal.md:1293
+#: manual/design/decimal.md:1295
 msgid "small"
 msgstr ""
 
-#: manual/design/decimal.md:1293
+#: manual/design/decimal.md:1295
 msgid "Comba columns / schoolbook"
 msgstr ""
 
-#: manual/design/decimal.md:1294
+#: manual/design/decimal.md:1296
 msgid "from the Karatsuba threshold"
 msgstr ""
 
-#: manual/design/decimal.md:1294
+#: manual/design/decimal.md:1296
 msgid "Karatsuba"
 msgstr ""
 
-#: manual/design/decimal.md:1295
+#: manual/design/decimal.md:1297
 msgid "from the Toom-3 threshold"
 msgstr ""
 
-#: manual/design/decimal.md:1295
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1297
+#: manual/design/decimal.md:1379
 #: manual/design/decimal_gda.md:903
 msgid "Toom-3"
 msgstr ""
 
-#: manual/design/decimal.md:1296
+#: manual/design/decimal.md:1298
 msgid "from the NTT threshold"
 msgstr ""
 
-#: manual/design/decimal.md:1296
+#: manual/design/decimal.md:1298
 msgid "two-prime NTT"
 msgstr ""
 
-#: manual/design/decimal.md:1298
+#: manual/design/decimal.md:1300
 msgid "The Comba kernel accumulates a column of $n$ limb products in a `UInt64` only when $\\min(n_a,n_b) \\le 18$: a column sum plus incoming carry is at most $18(10^{9}-1)^{2} + 2\\cdot 10^{10} < 1.8\\cdot 10^{19} < 2^{64}$, while 19 products could exceed $2^{64} \\approx 1.845\\cdot 10^{19}$."
 msgstr ""
 
-#: manual/design/decimal.md:1303
+#: manual/design/decimal.md:1305
 msgid "The NTT splits the coefficients into base-$10^5$ digits and convolves them modulo the primes $p_1 = 998\\,244\\,353 = 119\\cdot 2^{23} + 1$ and $p_2 = 754\\,974\\,721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, so transforms up to length $2^{23}$ exist. A convolution coefficient is a sum of at most $m = \\min(n_a, n_b)$ products of digits below $10^{5}$, hence below $m \\cdot 99999^{2}$; it is recovered exactly from its residues by the Chinese remainder theorem,"
 msgstr ""
 
-#: manual/design/decimal.md:1315
+#: manual/design/decimal.md:1317
 msgid "as long as $m \\cdot 99999^{2} < p_1 p_2 = 753\\,649\\,251\\,896\\,000\\,513$, i.e. $m < 7.5 \\cdot 10^{7}$. The transform limit $2^{23}$ allows at most $m = 2^{22}$, and $2^{22} \\cdot 99999^{2} = 41\\,942\\,201\\,143\\,394\\,304 < p_1 p_2$, so the bound always holds below the transform limit (the kernel checks it before every transform). Base $10^{9}$ digits would need $m\\cdot 10^{18} < p_1p_2$, impossible for any $m \\ge 1$, which is why the NTT uses smaller digits. When the bounds do not hold the kernel falls back to Toom-3."
 msgstr ""
 
-#: manual/design/decimal.md:1324
+#: manual/design/decimal.md:1326
 msgid "Division uses one-limb division, Knuth's Algorithm D,[^knuth] Burnikel–Ziegler recursive division, or Newton reciprocal division. Newton computes $r \\approx S/d$ for $S = B^{n+1}$ by $r_{k+1} = \\lfloor r_k (2S - d r_k)/S \\rfloor$: with $r_k = S/d - \\varepsilon_k$ one gets $S/d - r_{k+1} \\approx d\\,\\varepsilon_k^{2}/S$, so the number of correct limbs doubles per step. The iteration must increase monotonically from below; if it does not, or the final quotient correction takes more than $2n+8$ steps, the routine falls back to Burnikel–Ziegler, which itself falls back to Algorithm D on unsupported shapes."
 msgstr ""
 
-#: manual/design/decimal.md:1334
+#: manual/design/decimal.md:1336
+msgid "The integer square root with remainder $(s, \\rho)$, $N = s^2 + \\rho$ and $0 \\le \\rho \\le 2s$, is Zimmermann's `SqrtRem`[^zimmermann] on limbs. With $n$ limbs, $\\ell = \\lfloor (n-1)/4 \\rfloor$ limbs per block and $X = 10^{9\\ell}$, write $N = H X^2 + a_1 X + a_0$ with $a_1, a_0 < X$; the root $s'$ and remainder $\\rho'$ of $H$ come from the recursion, $(q, u) = \\operatorname{divrem}(\\rho' X + a_1,\\, 2s')$, $s = s' X + q$ and $\\rho = u X + a_0 - q^2$, and if $\\rho < 0$ then $\\rho \\leftarrow \\rho + 2s - 1$ and $s \\leftarrow s - 1$. The report proves that this is correct, with this single correction, when the top part $H = a_3 X + a_2$ has $a_3 \\ge X/4$. With $\\ell \\le (n-1)/4$ the block $a_3$ has at least $\\ell + 1$ limbs, so $a_3 \\ge X$ for every radicand with a non-zero top limb and no scaling is needed (the binary kernel scales its radicand by an even power of two because its blocks are halves of an even limb count). The quotient is at most $X$ (because $\\rho' \\le 2s'$ and $a_1 < X \\le 2s'$), and a quotient of exactly $X$ is capped to $X - 1$ with $2s'$ added to $u$. The division by $2s'$ is the division of $\\lfloor D/2 \\rfloor$ by $s'$ (the remainder is $2r + (D \\bmod 2)$), so $2s'$ is never formed and cannot carry out of the limbs of $s'$; the divisor is normalized for Algorithm D. Up to four limbs the base case takes a root of at most 18 digits from a double estimate corrected with exact limb arithmetic, and the word root covers one and two limbs. The Karatsuba root is faster than the Newton iteration from three limbs on, so there is no crossover to a Newton path: at 3, 8, 32, 128 and 512 limbs it takes 2,096, 6,465, 15,369, 66,536 and 594,956 instructions against 7,967, 24,168, 74,345, 341,256 and 3,627,494. The square of the quotient block is a schoolbook product up to 16 limbs and the kernel's square above. For rounding, the scalar entry returns the root and how the remainder compares with it (zero; at most $s$; above $s$), since $N > (s + \\tfrac12)^2$ iff $\\rho > s$, without building the remainder. The white-box tests compare it with the Newton reference for every length from 3 to 70 limbs, squares and their neighbours, powers of ten, every recursion depth from 0 to 6, a class that caps the quotient and a class built to take the correction step."
+msgstr ""
+
+#: manual/design/decimal.md:1368
+msgid "P. Zimmermann, \"Karatsuba Square Root\", INRIA research report RR-3805, 1999 (the algorithm and its proof, with the condition $a_3 \\ge X/4$); Brent and Zimmermann, *Modern Computer Arithmetic*, Algorithm 1.12 (§1.5.1)."
+msgstr ""
+
+#: manual/design/decimal.md:1372
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1 (Algorithm D) and §4.3.3; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4 (NTT); C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998."
 msgstr ""
 
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1377
 msgid "The crossovers are measured per target and stored in target-specific files:"
 msgstr ""
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1379
 #: manual/design/decimal_gda.md:903
 msgid "Target"
 msgstr ""
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1379
 #: manual/design/decimal_gda.md:903
 msgid "Karatsuba mul / square"
 msgstr ""
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1379
 #: manual/design/decimal_gda.md:903
 msgid "first NTT mul / square"
 msgstr ""
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1379
 #: manual/design/decimal_gda.md:903
 msgid "Burnikel–Ziegler"
 msgstr ""
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1379
 msgid "Newton"
 msgstr ""
 
-#: manual/design/decimal.md:1343
+#: manual/design/decimal.md:1381
 #: manual/design/decimal_gda.md:905
 #: manual/verification.md:216
 #: manual/verification.md:259
 msgid "native"
 msgstr ""
 
-#: manual/design/decimal.md:1343
+#: manual/design/decimal.md:1381
 #: manual/design/decimal_gda.md:905
 msgid "from 2,816"
 msgstr ""
 
-#: manual/design/decimal.md:1343
+#: manual/design/decimal.md:1381
 msgid "disabled"
 msgstr ""
 
-#: manual/design/decimal.md:1344
+#: manual/design/decimal.md:1382
 #: manual/design/decimal_gda.md:906
 msgid "LLVM"
 msgstr ""
 
-#: manual/design/decimal.md:1345
+#: manual/design/decimal.md:1383
 msgid "Wasm / Wasm-GC / JS"
 msgstr ""
 
-#: manual/design/decimal.md:1347
+#: manual/design/decimal.md:1385
 msgid "(limbs of nine digits). On native the NTT threshold also depends on the transform length — 1,728, 2,816, 4,608, 7,680, then 8,192 limbs for multiplication and 640, 1,040, 1,824, 3,648, 7,296, then 8,192 for squaring — and the Burnikel–Ziegler entry moves to 5,120 and 10,240 limbs for larger block lengths. These are dispatch boundaries: they change cost, never results. The native Newton path is implemented and tested but disabled, because native measurements do not show a crossover."
 msgstr ""
 
-#: manual/design/decimal.md:1357
+#: manual/design/decimal.md:1395
 msgid "**Representation.** A finite `Decimal` has $c \\ge 0$; `DecCoeff` limbs are canonical (no leading zero limb, exact digit count). A zero's sign is kept in the sign bit; `coefficient()` never carries a sign."
 msgstr ""
 
-#: manual/design/decimal.md:1360
+#: manual/design/decimal.md:1398
 msgid "**Single rounding.** Every context result of `+`, `-`, `×`, `/`, `fma`, `sqrt`, `scaleb`, quantize and the conversions is the exact result rounded once, in the normal and in the subnormal range; integer powers are correctly rounded; certified elementary results are correctly rounded whenever they are returned, and a failure is reported, never approximated. The exceptions are listed under [known deviations](#known-deviations)."
 msgstr ""
 
-#: manual/design/decimal.md:1367
+#: manual/design/decimal.md:1405
 msgid "**Error bound.** For normal results of those operations, $\\operatorname{fl}(x) = x(1+\\delta)$ with $|\\delta| \\le \\tfrac12 10^{1-p}$ in the half modes and $|\\delta| < 10^{1-p}$ in the directed modes."
 msgstr ""
 
-#: manual/design/decimal.md:1370
+#: manual/design/decimal.md:1408
 msgid "**Exactness is visible.** `inexact` is raised if and only if the returned value differs from the exact result; `rounded` whenever digits were dropped. Exact decimal results of non-integral powers violate the \"only if\" direction."
 msgstr ""
 
-#: manual/design/decimal.md:1374
+#: manual/design/decimal.md:1412
 msgid "**Cohort preservation.** An exact result that fits is returned at the preferred exponent; `quantize_ctx` either returns exponent $q_y$ or fails."
 msgstr ""
 
-#: manual/design/decimal.md:1376
+#: manual/design/decimal.md:1414
 msgid "**Flags.** `combine` is associative, commutative and idempotent with identity `new()`."
 msgstr ""
 
-#: manual/design/decimal.md:1378
+#: manual/design/decimal.md:1416
 msgid "**Ordering.** `compare` is a total preorder (NaNs equal to each other and above every number, $-0 = +0$); `total_order_compare` is a total order on representations and refines `compare` on non-NaN values."
 msgstr ""
 
-#: manual/design/decimal.md:1381
+#: manual/design/decimal.md:1419
 msgid "**Encodings.** Decoding then encoding canonical bits is the identity; encoding then decoding a value that fits the format is the identity, including cohort, sign of zero and NaN payload (DPD and BID)."
 msgstr ""
 
-#: manual/design/decimal.md:1384
+#: manual/design/decimal.md:1422
 msgid "**Complexity.** Comparison, addition, shifts and one-limb division are $O(n)$ in limbs; multiplication and division follow the dispatch table."
 msgstr ""
 
-#: manual/design/decimal.md:1387
+#: manual/design/decimal.md:1425
 msgid "Known deviations"
 msgstr ""
 
-#: manual/design/decimal.md:1389
+#: manual/design/decimal.md:1427
 msgid "No behaviour of the current branch contradicts the goals above. A deviation found later is listed here, reproduced in the [API reference](../api/decimal.md) next to the operation, and tracked in a GitHub issue together with the pull request that proposes a fix."
 msgstr ""
 
-#: manual/design/decimal.md:1394
+#: manual/design/decimal.md:1432
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr ""
 
-#: manual/design/decimal.md:1398
+#: manual/design/decimal.md:1436
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr ""
 
-#: manual/design/decimal.md:1400
+#: manual/design/decimal.md:1438
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr ""
 
-#: manual/design/decimal.md:1406
+#: manual/design/decimal.md:1444
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr ""
 
-#: manual/design/decimal.md:1410
+#: manual/design/decimal.md:1448
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr ""
 
-#: manual/design/decimal.md:1412
+#: manual/design/decimal.md:1450
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_quiet`, `compare_signaling` and `total_order_compare`."
 msgstr ""
 
-#: manual/design/decimal.md:1416
+#: manual/design/decimal.md:1454
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr ""
 
-#: manual/design/decimal.md:1420
+#: manual/design/decimal.md:1458
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr ""
 
-#: manual/design/decimal.md:1422
+#: manual/design/decimal.md:1460
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr ""
 
-#: manual/design/decimal.md:1427
+#: manual/design/decimal.md:1465
 msgid "`decimal` deliberately does not:"
 msgstr ""
 
-#: manual/design/decimal.md:1429
+#: manual/design/decimal.md:1467
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr ""
 
-#: manual/design/decimal.md:1430
+#: manual/design/decimal.md:1468
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr ""
 
-#: manual/design/decimal.md:1432
+#: manual/design/decimal.md:1470
 msgid "guarantee the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr ""
 
-#: manual/design/decimal.md:1434
+#: manual/design/decimal.md:1472
 msgid "guarantee that elementary-function certification succeeds: after the refinement limit of the context (twelve by default, `with_refinement_limit`; the last steps work with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr ""
 
-#: manual/design/decimal.md:1438
+#: manual/design/decimal.md:1476
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr ""
 
-#: manual/design/decimal.md:1440
+#: manual/design/decimal.md:1478
 msgid "preserve NaN payloads through binary conversions;"
 msgstr ""
 
-#: manual/design/decimal.md:1441
+#: manual/design/decimal.md:1479
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr ""
 
-#: manual/design/decimal.md:1442
+#: manual/design/decimal.md:1480
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr ""
 

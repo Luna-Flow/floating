@@ -189,6 +189,8 @@ pub let dec_coeff_small_powers10 : Array[UInt64]
 
 pub fn dec_coeff_small_value(DecCoeff) -> UInt64?
 
+pub fn dec_coeff_sqrt_rounding(DecCoeff) -> (DecCoeff, DecSqrtRemainder)
+
 pub fn dec_coeff_sqrt_should_increment(DecCoeff, Int32, Bool, DecCoeffRounding) -> Bool
 
 pub fn dec_coeff_square_repr(DecCoeff) -> DecCoeff
@@ -256,6 +258,13 @@ pub(all) enum DecCoeffRounding {
   Floor
   Up
   ZeroFiveUp
+}
+
+#derive(Eq, @debug.Debug)
+pub(all) enum DecSqrtRemainder {
+  Zero
+  UpToRoot
+  AboveRoot
 }
 
 pub struct SignedDecCoeff {

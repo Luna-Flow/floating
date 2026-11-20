@@ -82,6 +82,20 @@ fn dec_coeff_isqrt_word(value : UInt64) -> (UInt64, UInt64) {
 /// then `n = x*q + r` gives the remainder `r + x*(q - x)` with `q - x` in
 /// {0, 1, 2}, with no squaring.
 pub fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
+  if dec_coeff_unit_len(n) >= dec_sqrt_karatsuba_limbs {
+    return dec_coeff_sqrt_rem_karatsuba(n)
+  }
+  dec_coeff_sqrt_rem_newton(n)
+}
+
+///|
+/// The limb count from which the Karatsuba root is used (measured).
+let dec_sqrt_karatsuba_limbs : Int32 = 3
+
+///|
+/// The Newton route above the word, the reference of the differential tests of
+/// the Karatsuba root and the route below its threshold.
+fn dec_coeff_sqrt_rem_newton(n : DecCoeff) -> (DecCoeff, DecCoeff) {
   if dec_coeff_small_value(n) is Some(small) {
     if small <= 1UL {
       return (n, dec_coeff_zero())
@@ -95,7 +109,7 @@ pub fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
   let digits = n.digits10()
   let half_shift = if digits / 4 > 1 { digits / 4 } else { 1 }
   let high = dec_coeff_div_pow10_round_info_repr(n, 2 * half_shift).0
-  let (high_root, _) = dec_coeff_integer_sqrt_rem_repr(high)
+  let (high_root, _) = dec_coeff_sqrt_rem_newton(high)
   let mut approximation = dec_coeff_shift_power10_repr(
     dec_coeff_magnitude_add_unit(high_root, 1),
     half_shift,

@@ -505,8 +505,10 @@ $r = \lfloor \sqrt{M} \rfloor$ is the truncated root at exponent $t$. When
 $q - 2t < 0$ the code takes the integer root of $c$ (of $10c$ if $-(q-2t)$ is
 odd) and divides it by $10^{\lceil -(q-2t)/2 \rceil}$; nested floors of a
 positive real by positive integers compose, so this is again
-$\lfloor \sqrt{x}\,10^{-t} \rfloor$. The integer root is computed with
-Newton's iteration on integers,
+$\lfloor \sqrt{x}\,10^{-t} \rfloor$. The integer root is computed by the
+kernel (Zimmermann's Karatsuba square root from three limbs, see *Coefficient
+kernels*); the iteration it replaced, and that the tests keep as the reference,
+is Newton's iteration on integers,
 
 $$
 a_{k+1} = \left\lfloor \frac{a_k + \lfloor N / a_k \rfloor}{2} \right\rfloor ,
@@ -1330,6 +1332,42 @@ correct limbs doubles per step. The iteration must increase monotonically
 from below; if it does not, or the final quotient correction takes more than
 $2n+8$ steps, the routine falls back to Burnikel–Ziegler, which itself falls
 back to Algorithm D on unsupported shapes.
+
+The integer square root with remainder $(s, \rho)$, $N = s^2 + \rho$ and
+$0 \le \rho \le 2s$, is Zimmermann's `SqrtRem`[^zimmermann] on limbs. With $n$
+limbs, $\ell = \lfloor (n-1)/4 \rfloor$ limbs per block and $X = 10^{9\ell}$,
+write $N = H X^2 + a_1 X + a_0$ with $a_1, a_0 < X$; the root $s'$ and
+remainder $\rho'$ of $H$ come from the recursion, $(q, u) =
+\operatorname{divrem}(\rho' X + a_1,\, 2s')$, $s = s' X + q$ and
+$\rho = u X + a_0 - q^2$, and if $\rho < 0$ then $\rho \leftarrow \rho + 2s - 1$ and
+$s \leftarrow s - 1$. The report proves that this is correct, with this single
+correction, when the top part $H = a_3 X + a_2$ has $a_3 \ge X/4$. With
+$\ell \le (n-1)/4$ the block $a_3$ has at least $\ell + 1$ limbs, so $a_3 \ge X$
+for every radicand with a non-zero top limb and no scaling is needed (the binary
+kernel scales its radicand by an even power of two because its blocks are
+halves of an even limb count). The quotient is at most $X$ (because
+$\rho' \le 2s'$ and $a_1 < X \le 2s'$), and a quotient of exactly $X$ is capped to
+$X - 1$ with $2s'$ added to $u$. The division by $2s'$ is the division of
+$\lfloor D/2 \rfloor$ by $s'$ (the remainder is $2r + (D \bmod 2)$), so $2s'$ is
+never formed and cannot carry out of the limbs of $s'$; the divisor is
+normalized for Algorithm D. Up to four limbs the base case takes a root of at
+most 18 digits from a double estimate corrected with exact limb arithmetic, and
+the word root covers one and two limbs. The Karatsuba root is faster than the
+Newton iteration from three limbs on, so there is no crossover to a Newton path:
+at 3, 8, 32, 128 and 512 limbs it takes 2,096, 6,465, 15,369, 66,536 and 594,956
+instructions against 7,967, 24,168, 74,345, 341,256 and 3,627,494. The square of
+the quotient block is a schoolbook product up to 16 limbs and the kernel's
+square above. For rounding, the scalar entry returns the root and how the
+remainder compares with it (zero; at most $s$; above $s$), since
+$N > (s + \tfrac12)^2$ iff $\rho > s$, without building the remainder. The
+white-box tests compare it with the Newton reference for every length from 3 to
+70 limbs, squares and their neighbours, powers of ten, every recursion depth
+from 0 to 6, a class that caps the quotient and a class built to take the
+correction step.
+
+[^zimmermann]: P. Zimmermann, "Karatsuba Square Root", INRIA research report
+RR-3805, 1999 (the algorithm and its proof, with the condition $a_3 \ge X/4$);
+Brent and Zimmermann, *Modern Computer Arithmetic*, Algorithm 1.12 (§1.5.1).
 
 [^knuth]: D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed.,
 §4.3.1 (Algorithm D) and §4.3.3; R. Brent and P. Zimmermann, *Modern Computer
